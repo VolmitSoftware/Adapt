@@ -10,6 +10,7 @@ public final class ChronosMessages {
   public static final TextKey TIME_IN_A_BOTTLE_LORE1 = TextKey.of("chronos.time_in_a_bottle.lore1", "Stored seconds charged each tick");
   public static final TextKey TIME_IN_A_BOTTLE_LORE2 = TextKey.of("chronos.time_in_a_bottle.lore2", "Time acceleration per stored second");
   public static final TextKey TIME_IN_A_BOTTLE_LORE3 = TextKey.of("chronos.time_in_a_bottle.lore3", "Recipe (Shapeless): Swiftness Potion + Clock + Glass Bottle");
+  public static final TextKey TIME_IN_A_BOTTLE_MAX_STORED_LORE = TextKey.of("chronos.time_in_a_bottle.max_stored_lore", "Maximum stored time");
   public static final LinesKey TIME_IN_A_BOTTLE_LORE = LinesKey.of("chronos.time_in_a_bottle.lore", "Stored seconds charged each tick", "Time acceleration per stored second", "Recipe (Shapeless): Swiftness Potion + Clock + Glass Bottle");
   public static final TextKey ABERRANT_TOUCH_NAME = TextKey.of("chronos.aberrant_touch.name", "Aberrant Touch");
   public static final TextKey ABERRANT_TOUCH_DESCRIPTION = TextKey.of("chronos.aberrant_touch.description", "Melee attacks apply stacking slowness at the cost of hunger, with strict PvP caps, and root targets at 5 stacks.");
@@ -74,10 +75,11 @@ public final class ChronosMessages {
   public static final TextKey BORROWED_TIME_LORE3 = TextKey.of("chronos.borrowed_time.lore3", "Deferred damage cannot be deferred again");
   public static final LinesKey BORROWED_TIME_LORE = LinesKey.of("chronos.borrowed_time.lore", "Damage deferred", "Payback window", "Deferred damage cannot be deferred again");
   public static final TextKey OVERTIME_NAME = TextKey.of("chronos.overtime.name", "Overtime");
-  public static final TextKey OVERTIME_DESCRIPTION = TextKey.of("chronos.overtime.description", "Beneficial potion effects applied to you last longer, scaled by adaptation level.");
+  public static final TextKey OVERTIME_DESCRIPTION = TextKey.of("chronos.overtime.description", "Beneficial potion effects applied to you last longer, scaled by adaptation level. At max level, harmful effects applied to you last half as long.");
   public static final TextKey OVERTIME_LORE1 = TextKey.of("chronos.overtime.lore1", "Extra effect duration");
   public static final TextKey OVERTIME_LORE2 = TextKey.of("chronos.overtime.lore2", "Maximum bonus per effect");
   public static final TextKey OVERTIME_LORE3 = TextKey.of("chronos.overtime.lore3", "Only beneficial effects are extended");
+  public static final TextKey OVERTIME_MAX_LEVEL_LORE = TextKey.of("chronos.overtime.max_level_lore", "Harmful effect duration at max level");
   public static final LinesKey OVERTIME_LORE = LinesKey.of("chronos.overtime.lore", "Extra effect duration", "Maximum bonus per effect", "Only beneficial effects are extended");
   public static final TextKey ACCELERATE_NAME = TextKey.of("chronos.accelerate.name", "Accelerate");
   public static final TextKey ACCELERATE_DESCRIPTION = TextKey.of("chronos.accelerate.description", "Passively accelerate time around you, occasionally growing nearby crops and fast-forwarding furnaces, smokers, blast furnaces, and brewing stands.");
@@ -113,6 +115,7 @@ public final class ChronosMessages {
     builder.add(TIME_IN_A_BOTTLE_LORE1);
     builder.add(TIME_IN_A_BOTTLE_LORE2);
     builder.add(TIME_IN_A_BOTTLE_LORE3);
+    builder.add(TIME_IN_A_BOTTLE_MAX_STORED_LORE);
     builder.add(TIME_IN_A_BOTTLE_LORE);
     builder.add(ABERRANT_TOUCH_NAME);
     builder.add(ABERRANT_TOUCH_DESCRIPTION);
@@ -181,6 +184,7 @@ public final class ChronosMessages {
     builder.add(OVERTIME_LORE1);
     builder.add(OVERTIME_LORE2);
     builder.add(OVERTIME_LORE3);
+    builder.add(OVERTIME_MAX_LEVEL_LORE);
     builder.add(OVERTIME_LORE);
     builder.add(ACCELERATE_NAME);
     builder.add(ACCELERATE_DESCRIPTION);

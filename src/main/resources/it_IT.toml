@@ -1289,10 +1289,6 @@ description = "Catena a catena 5+ salti di parete senza toccare il terreno"
 title = "Secondo vento"
 description = "Trascorsi 10 minuti cumulativi a velocità massima"
 
-[advancement.challenge_agility_parkour_500]
-title = "Freerunner"
-description = "Completa 500 sbarchi a catena"
-
 [advancement.challenge_agility_roll_100]
 title = "Tuck e Roll"
 description = "Prevenire 100 cuori di caduta danni"
@@ -3346,14 +3342,6 @@ lore1 = "Velocita' massima"
 lore2 = "Tempo di accelerazione"
 lore = ["Velocita' massima", "Tempo di accelerazione"]
 
-[agility.parkour_momentum]
-name = "Parkour Momentum"
-description = "Ogni atterraggio pulito crea impulso che aumenta il salto successivo."
-lore1 = "pilastri di impulso massimo"
-lore2 = "Velocità massima potenziata (blocchi/sec)"
-lore3 = "Bonus di massima velocità di salto"
-lore = ["pilastri di impulso massimo", "Velocità massima potenziata (blocchi/sec)", "Bonus di massima velocità di salto"]
-
 [agility.roll_landing]
 name = "Roll Landing"
 description = "Crouch tempestivo prima dell'atterraggio converte parte di danni alla caduta nel costo della fame."
@@ -3837,6 +3825,7 @@ description = "Porta con te una bottiglia temporale che accumula tempo e spendil
 lore1 = "Secondi accumulati per tick"
 lore2 = "Accelerazione temporale per secondo accumulato"
 lore3 = "Ricetta (senza forma): Pozione di Rapidita' + Orologio + Ampolla di Vetro"
+max_stored_lore = "Tempo massimo immagazzinato"
 lore = ["Secondi accumulati per tick", "Accelerazione temporale per secondo accumulato", "Ricetta (senza forma): Pozione di Rapidita' + Orologio + Ampolla di Vetro"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["Danni deferiti", "Finestra di pagamento", "I danni differiti non posson
 
 [chronos.overtime]
 name = "Overtime"
-description = "Effetti di pozione beneficiali applicati a voi durano più a lungo, scalati dal livello di adattamento."
+description = "Effetti di pozione beneficiali applicati a voi durano più a lungo, scalati dal livello di adattamento. Al livello massimo gli effetti dannosi durano la metà."
 lore1 = "Durata dell'effetto extra"
 lore2 = "Bonus massimo per effetto"
 lore3 = "Solo effetti benefici sono estesi"
+max_level_lore = "Durata degli effetti dannosi al livello massimo"
 lore = ["Durata dell'effetto extra", "Bonus massimo per effetto", "Solo effetti benefici sono estesi"]
 
 [chronos.accelerate]

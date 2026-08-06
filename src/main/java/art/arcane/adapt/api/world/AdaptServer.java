@@ -21,17 +21,22 @@ package art.arcane.adapt.api.world;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
+import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
+import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.notification.AdvancementNotification;
 import art.arcane.adapt.api.notification.SoundNotification;
+import art.arcane.adapt.api.potion.AdaptPotionRegistry;
 import art.arcane.adapt.api.recipe.AdaptRecipeBook;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.xp.SpatialXP;
 import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.api.xp.XpNovelty;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.service.MutationSVC;
@@ -222,9 +227,13 @@ public class AdaptServer extends TickedObject {
   }
 
   private void join(Player p, boolean refreshSnapshots) {
+    // A retired AdaptPlayer lingers in the map for a minute after quit, and so does a prefetched
+    // snapshot. Reusing either would resurrect data that was purged while they sat there, so a
+    // purged player always falls through to a fresh load.
+    boolean purged = PlayerDataPurgeGuard.isPurged(p.getUniqueId());
     AdaptPlayer existing = players.get(p.getUniqueId());
     if (existing != null) {
-      if (existing.getPlayer() == p && existing.isRuntimeReady()) {
+      if (!purged && existing.getPlayer() == p && existing.isRuntimeReady()) {
         onlineAdaptPlayers.put(p.getUniqueId(), existing);
         refreshLearnedAdaptations(existing);
         onlineMembershipRevision.incrementAndGet();
@@ -241,7 +250,13 @@ public class AdaptServer extends TickedObject {
       }
     }
 
-    PlayerData prefetched = existing == null ? takePrefetchedData(p.getUniqueId()) : existing.getData();
+    PlayerData prefetched;
+    if (purged) {
+      prefetchedPlayerData.invalidate(p.getUniqueId());
+      prefetched = null;
+    } else {
+      prefetched = existing == null ? takePrefetchedData(p.getUniqueId()) : existing.getData();
+    }
     AdaptPlayer a = new AdaptPlayer(p, prefetched);
     a.startRuntime();
     players.put(p.getUniqueId(), a);
@@ -258,6 +273,7 @@ public class AdaptServer extends TickedObject {
     AdaptPlayer a = players.get(p);
     if (a == null) return;
     a.unregister();
+    AdaptPotionRegistry.retainActive(Bukkit.getPlayer(p));
     // Keep the entry briefly after quit so late quit listeners/tasks do not
     // re-create a new AdaptPlayer for an offline player.
     prefetchedPlayerData.invalidate(p);
@@ -432,6 +448,10 @@ public class AdaptServer extends TickedObject {
   }
 
   public PlayerData peekData(UUID player) {
+    if (PlayerDataPurgeGuard.isPurged(player)) {
+      return new PlayerData();
+    }
+
     AdaptPlayer loaded = players.get(player);
     if (loaded != null) {
       return loaded.getData();
@@ -687,7 +707,7 @@ public class AdaptServer extends TickedObject {
     AdaptPlayer created = players.computeIfAbsent(p.getUniqueId(), player -> {
       Adapt.warn("Failed to find AdaptPlayer for " + p.getName() + " (" + p.getUniqueId() + ")");
       Adapt.warn("Loading new AdaptPlayer...");
-      AdaptPlayer loaded = new AdaptPlayer(p, takePrefetchedData(player));
+      AdaptPlayer loaded = new AdaptPlayer(p, PlayerDataPurgeGuard.isPurged(player) ? null : takePrefetchedData(player));
       loaded.startRuntime();
       return loaded;
     });
@@ -696,6 +716,104 @@ public class AdaptServer extends TickedObject {
     onlineMembershipRevision.incrementAndGet();
     scheduleOnlinePlayerSnapshotRefresh();
     return created;
+  }
+
+  /**
+   * Resets a player to a brand new Adapt profile.
+   * <p>
+   * An online player is reset in place and is never kicked: every side effect their adaptations
+   * applied is torn down, their live data is swapped for a default instance, and the fresh state is
+   * written immediately so a crash cannot bring the old profile back. An offline player has the
+   * stored copy purged and is guarded so no lingering in-memory copy can write it back.
+   *
+   * @return true when the player was reset live, false when the stored data was purged instead
+   */
+  public boolean resetPlayerData(UUID playerId) {
+    if (playerId == null) {
+      return false;
+    }
+
+    AdaptPlayer adaptPlayer = players.get(playerId);
+    Player player = Bukkit.getPlayer(playerId);
+    if (player == null || !player.isOnline()) {
+      purgeStoredPlayerData(playerId, adaptPlayer);
+      return false;
+    }
+
+    if (adaptPlayer == null || !adaptPlayer.isRuntimeReady() || adaptPlayer.getPlayer() != player) {
+      join(player);
+      adaptPlayer = players.get(playerId);
+    }
+
+    if (adaptPlayer == null) {
+      purgeStoredPlayerData(playerId, null);
+      return false;
+    }
+
+    AdaptPlayer.forgetLoadFailure(playerId);
+    PlayerDataPurgeGuard.clear(playerId);
+    prefetchedPlayerData.invalidate(playerId);
+
+    adaptPlayer.replaceData(new PlayerData());
+    // Diffs the learned index against the now empty profile, which unlearns every attribute
+    // modifier, dissolves the mutation loadout, and un-discovers adaptation recipes.
+    refreshLearnedAdaptations(adaptPlayer);
+    tearDownPlayerRuntime(player);
+    adaptPlayer.reconcileStatTrackers();
+    AdaptPlaceholders.get().publishPlayer(adaptPlayer);
+    adaptPlayer.saveNow();
+    onlineMembershipRevision.incrementAndGet();
+    scheduleOnlinePlayerSnapshotRefresh();
+    Adapt.info("Reset live Adapt data for " + player.getName() + " (" + playerId + ")");
+    return true;
+  }
+
+  private void purgeStoredPlayerData(UUID playerId, AdaptPlayer stale) {
+    prefetchedPlayerData.invalidate(playerId);
+    recipeBookSyncScheduled.remove(playerId);
+    removeLearnedPlayer(playerId);
+    onlineAdaptPlayers.remove(playerId);
+
+    if (stale == null) {
+      AdaptPlayer.purgeStoredData(playerId);
+    } else {
+      players.remove(playerId, stale);
+      stale.purge(playerId);
+      if (stale.isRuntimeReady()) {
+        stale.unregister();
+      }
+    }
+
+    MutationSVC mutationService = MutationSVC.get();
+    if (mutationService != null && mutationService.getManager() != null) {
+      mutationService.getManager().cleanup(playerId);
+    }
+    MinionBurden.get().clearOwner(playerId);
+    AdaptPotionRegistry.forget(playerId);
+    XpNovelty.clear(playerId);
+    PlayerStateRegistry.clearPlayer(playerId);
+    ViewerDisplayDirector.retireViewer(playerId);
+    onlineMembershipRevision.incrementAndGet();
+    scheduleOnlinePlayerSnapshotRefresh();
+    Adapt.info("Purged stored Adapt data for " + playerId);
+  }
+
+  private void tearDownPlayerRuntime(Player player) {
+    UUID playerId = player.getUniqueId();
+    AdaptAttributeService.get().clearAllAdapt(player);
+    MinionBurden.get().clearOwner(playerId);
+    XpNovelty.clear(playerId);
+    PlayerStateRegistry.clearPlayer(playerId);
+    ViewerDisplayDirector.clearViewer(playerId);
+    ViewerGlowCoordinator glow = Adapt.instance.getViewerGlowCoordinator();
+    if (glow != null) {
+      glow.discardViewer(playerId);
+    }
+
+    J.runEntity(player, () -> {
+      AdaptPotionRegistry.strip(player);
+      AdaptHud.clear(player);
+    });
   }
 
   private void removeLearnedPlayer(UUID playerId) {

@@ -1289,10 +1289,6 @@ description = "Grandinė 5+ sieniniai šuoliai neliečiant žemės"
 title = "Antrasis vėjas"
 description = "Praleisti 10 kaupiamosios minutės esant didžiausiam sprint greičiui"
 
-[advancement.challenge_agility_parkour_500]
-title = "Freerunneri"
-description = "Baigti 500 grandininiu pjūklu nuskendę šuoliai"
-
 [advancement.challenge_agility_roll_100]
 title = "Tuck ir Rolls"
 description = "Užkirsti kelią 100 kritimo žalos širdys"
@@ -3346,14 +3342,6 @@ lore1 = "Max Greitis"
 lore2 = "Uzbaigimo laikas"
 lore = ["Max Greitis", "Uzbaigimo laikas"]
 
-[agility.parkour_momentum]
-name = "Parkour Momentum"
-description = "Grandinės paeiliui šuoliai. Kiekvienas švarus nusileidimas stato pagreitį, kuris skatina kitą šuolį."
-lore1 = "Maks. Momentiniai kaminai"
-lore2 = "Didžiausias paaukštintas greitis (blokai / sek.)"
-lore3 = "Max Peršokti greitis premija"
-lore = ["Maks. Momentiniai kaminai", "Didžiausias paaukštintas greitis (blokai / sek.)", "Max Peršokti greitis premija"]
-
 [agility.roll_landing]
 name = "Roll tūpimas"
 description = "Laikas iki nusileidimo dalį kritimo žalos paverčia bado kaina."
@@ -3837,6 +3825,7 @@ description = "Nesiokit temporalu buteli, kuris kaupia laika ir leiskite ji, kad
 lore1 = "Sukauptos sekundes kraunamos kiekviena tiksenima"
 lore2 = "Laiko pagreitejimas uz kiekviena sukapta sekunde"
 lore3 = "Receptas (Beforme): Greitumo Eliksyras + Laikrodis + Stiklinis Butelis"
+max_stored_lore = "Didžiausias sukauptas laikas"
 lore = ["Sukauptos sekundes kraunamos kiekviena tiksenima", "Laiko pagreitejimas uz kiekviena sukapta sekunde", "Receptas (Beforme): Greitumo Eliksyras + Laikrodis + Stiklinis Butelis"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["Atidėta žala", "Atsipirkimo langas", "Atidėta žala negali būti ati
 
 [chronos.overtime]
 name = "Viršvalandžiai"
-description = "Naudingas potion poveikis taikomas jums ilgiau, sumažinti pagal adaptacijos lygį."
+description = "Naudingas potion poveikis taikomas jums ilgiau, sumažinti pagal adaptacijos lygį. Aukščiausiame lygyje kenksmingas poveikis trunka perpus trumpiau."
 lore1 = "Papildomas poveikis trukmė"
 lore2 = "Didžiausia priemoka už poveikį"
 lore3 = "Pratęstas tik naudingas poveikis"
+max_level_lore = "Kenksmingo poveikio trukmė aukščiausiame lygyje"
 lore = ["Papildomas poveikis trukmė", "Didžiausia priemoka už poveikį", "Pratęstas tik naudingas poveikis"]
 
 [chronos.accelerate]

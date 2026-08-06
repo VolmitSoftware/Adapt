@@ -155,7 +155,22 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel), 2), 1);
     statLore(v, C.YELLOW, "+ ", Math.round(getCookTicksPerStoredSecond(level)), 2);
+    statLore(v, C.AQUA, "+ ", formatStoredSeconds(getMaxStoredSeconds(level)),
+        ChronosMessages.TIME_IN_A_BOTTLE_MAX_STORED_LORE);
     v.addLore(C.GRAY + "* " + AdaptLanguage.text(ChronosMessages.TIME_IN_A_BOTTLE_LORE3));
+  }
+
+  private double getMaxStoredSeconds(int level) {
+    return maxStoredSeconds(getConfig().baseMaxStoredSeconds, getConfig().maxStoredSecondsPerLevel, level);
+  }
+
+  static double maxStoredSeconds(double base, double perLevel, int level) {
+    double scaled = base + (Math.max(0, level) * perLevel);
+    return Double.isFinite(scaled) ? Math.max(0D, scaled) : 0D;
+  }
+
+  static String formatStoredSeconds(double seconds) {
+    return Form.duration((long) (Math.max(0D, seconds) * 1000D), 1);
   }
 
   private double getCookTicksPerStoredSecond(int level) {
@@ -782,7 +797,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     }
 
     double charge = (getConfig().chargePerSecond + (level * getConfig().chargePerSecondPerLevel)) * pulse.count();
-    double maximum = getConfig().maxStoredSeconds;
+    double maximum = getMaxStoredSeconds(level);
     boolean reachedFull = false;
     for (ItemStack stack : player.getInventory().getContents()) {
       if (!ChronoTimeBottle.isBindableItem(stack)) {
@@ -833,8 +848,10 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Play Clock Sounds for the Chronos Time In ABottle adaptation.", impact = "True enables this behavior and false disables it.")
     boolean playClockSounds = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Stored Seconds for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double maxStoredSeconds = 900;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum seconds a bottle can store before any per-level scaling.", impact = "Higher values raise the stored time cap at every level.")
+    double baseMaxStoredSeconds = 900;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Extra seconds added to the stored time cap per adaptation level.", impact = "Higher values make leveling raise the stored time cap faster.")
+    double maxStoredSecondsPerLevel = 180;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Charge Per Second for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double chargePerSecond = 0.1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Charge Per Second Per Level for the Chronos Time In ABottle adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

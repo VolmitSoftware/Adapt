@@ -21,12 +21,14 @@ package art.arcane.adapt.content.item;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ItemsMessages;
 
+import art.arcane.adapt.api.adaptation.ItemCooldowns;
 import art.arcane.adapt.api.item.DataItem;
 import art.arcane.adapt.util.common.format.C;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.BlockFace;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -63,9 +65,16 @@ public class BoundRedstoneTorch implements DataItem<BoundRedstoneTorch.Data> {
     return io.hasData(item);
   }
 
+  public static final NamespacedKey COOLDOWN_GROUP = ItemCooldowns.groupKeyFor(BoundRedstoneTorch.class);
+
   @Override
   public Material getMaterial() {
     return Material.REDSTONE_TORCH;
+  }
+
+  @Override
+  public NamespacedKey getCooldownGroup() {
+    return COOLDOWN_GROUP;
   }
 
   @Override

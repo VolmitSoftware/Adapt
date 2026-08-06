@@ -48,11 +48,20 @@ class NetherSkullYeetCooldownTest {
   void itemCooldownIsAppliedOnlyAfterCostSettlement() throws Exception {
     String source = Files.readString(Path.of(
         "src/main/java/art/arcane/adapt/content/adaptation/nether/NetherSkullYeet.java"));
-    int charge = source.indexOf("if (!payItemCost(p, \"skull\"");
-    int cooldown = source.indexOf(
-        "p.setCooldown(Material.WITHER_SKELETON_SKULL, cooldownSeconds * 20)", charge);
+    int charge = source.indexOf("payItemCost(p, \"skull\"");
+    int cooldown = source.indexOf("cooldowns.mark(p, cooldownMillis)", charge);
 
     assertThat(charge).isGreaterThanOrEqualTo(0);
     assertThat(cooldown).isGreaterThan(charge);
+  }
+
+  @Test
+  void theSweepAndTheGateReadOneCooldownStateInsteadOfTwo() throws Exception {
+    String source = Files.readString(Path.of(
+        "src/main/java/art/arcane/adapt/content/adaptation/nether/NetherSkullYeet.java"));
+
+    assertThat(source).contains("ItemCooldowns.forMaterial(Material.WITHER_SKELETON_SKULL)");
+    assertThat(source).doesNotContain("p.setCooldown(Material.WITHER_SKELETON_SKULL");
+    assertThat(source).doesNotContain("p.hasCooldown(");
   }
 }

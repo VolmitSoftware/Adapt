@@ -91,6 +91,12 @@ public class PlayerData {
       "challenge_rift_step_50",
       "challenge_rift_step_500"
   );
+  private static final String REMOVED_PARKOUR_MOMENTUM_ADAPTATION = "agility-parkour-momentum";
+  private static final String REMOVED_PARKOUR_MOMENTUM_STAT = "agility.parkour-momentum.chained-landings";
+  private static final Set<String> REMOVED_PARKOUR_MOMENTUM_ADVANCEMENTS = Set.of(
+      "adaptation_agility-parkour-momentum",
+      "challenge_agility_parkour_500"
+  );
 
   private final KMap<String, PlayerSkillLine> skillLines = new KMap<>();
   private KMap<String, Double> stats = new KMap<>();
@@ -136,6 +142,7 @@ public class PlayerData {
     data.removeRetiredAxesContent();
     data.removeRetiredDowsingContent();
     data.removeRetiredRiftStepContent();
+    data.removeRetiredParkourMomentumContent();
     return data;
   }
 
@@ -592,6 +599,25 @@ public class PlayerData {
       advancements = new KSet<>();
     }
     for (String advancementKey : REMOVED_RIFT_STEP_ADVANCEMENTS) {
+      advancements.remove(advancementKey);
+    }
+  }
+
+  private void removeRetiredParkourMomentumContent() {
+    PlayerSkillLine agility = skillLines.get("agility");
+    if (agility != null) {
+      agility.getAdaptations().remove(REMOVED_PARKOUR_MOMENTUM_ADAPTATION);
+    }
+
+    if (stats == null) {
+      stats = new KMap<>();
+    }
+    stats.remove(REMOVED_PARKOUR_MOMENTUM_STAT);
+
+    if (advancements == null) {
+      advancements = new KSet<>();
+    }
+    for (String advancementKey : REMOVED_PARKOUR_MOMENTUM_ADVANCEMENTS) {
       advancements.remove(advancementKey);
     }
   }

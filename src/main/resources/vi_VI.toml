@@ -1289,10 +1289,6 @@ description = "Nối ít nhất 5 cú nhảy tường mà không chạm đất"
 title = "Sức Lực Hồi Sinh"
 description = "Duy trì tốc độ chạy nước rút tối đa tổng cộng 10 phút"
 
-[advancement.challenge_agility_parkour_500]
-title = "Người Chạy Tự Do"
-description = "Hoàn thành 500 lần tiếp đất liên tiếp sau chạy nhảy"
-
 [advancement.challenge_agility_roll_100]
 title = "Cuộn Mình Tiếp Đất"
 description = "Ngăn 100 tim sát thương rơi"
@@ -3346,14 +3342,6 @@ lore1 = "Tốc Độ Tối Đa"
 lore2 = "Thời Gian Tăng Tốc"
 lore = ["Tốc Độ Tối Đa", "Thời Gian Tăng Tốc"]
 
-[agility.parkour_momentum]
-name = "Đà Parkour"
-description = "Nối tiếp các cú chạy nước rút rồi nhảy. Mỗi lần tiếp đất gọn sẽ tích đà, tăng sức cho cú nhảy kế tiếp."
-lore1 = "Tầng Đà Tối Đa"
-lore2 = "Tốc Độ Tăng Tối Đa (khối/giây)"
-lore3 = "Thưởng Vận Tốc Nhảy Tối Đa"
-lore = ["Tầng Đà Tối Đa", "Tốc Độ Tăng Tối Đa (khối/giây)", "Thưởng Vận Tốc Nhảy Tối Đa"]
-
 [agility.roll_landing]
 name = "Cuộn Người Tiếp Đất"
 description = "Cúi người đúng lúc trước khi tiếp đất để chuyển một phần sát thương rơi thành hao hụt thanh đói."
@@ -3837,6 +3825,7 @@ description = "Mang theo một chai thời gian tích trữ thời gian và tiê
 lore1 = "Số giây tích trữ mỗi tick"
 lore2 = "Tăng tốc thời gian mỗi giây tích trữ"
 lore3 = "Công thức (Không Định Hình): Thuốc Tốc Độ + Đồng Hồ + Chai Thủy Tinh"
+max_stored_lore = "Thời gian lưu trữ tối đa"
 lore = ["Số giây tích trữ mỗi tick", "Tăng tốc thời gian mỗi giây tích trữ", "Công thức (Không Định Hình): Thuốc Tốc Độ + Đồng Hồ + Chai Thủy Tinh"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["Sát thương được hoãn", "Khoảng Thời Gian Phản Đòn", "S�
 
 [chronos.overtime]
 name = "Tăng Ca"
-description = "Hiệu ứng thuốc có lợi áp dụng lên bạn kéo dài hơn theo cấp thích nghi."
+description = "Hiệu ứng thuốc có lợi áp dụng lên bạn kéo dài hơn theo cấp thích nghi. Ở cấp tối đa, hiệu ứng có hại chỉ kéo dài một nửa."
 lore1 = "Thời gian hiệu ứng thêm"
 lore2 = "Thưởng tối đa cho mỗi hiệu ứng"
 lore3 = "Chỉ kéo dài hiệu ứng có lợi"
+max_level_lore = "Thời gian hiệu ứng có hại ở cấp tối đa"
 lore = ["Thời gian hiệu ứng thêm", "Thưởng tối đa cho mỗi hiệu ứng", "Chỉ kéo dài hiệu ứng có lợi"]
 
 [chronos.accelerate]

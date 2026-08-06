@@ -144,6 +144,34 @@ class PlayerDataTest extends AdaptTestBase {
     }
 
     @Test
+    @DisplayName("removed Parkour Momentum content is pruned from persisted player data")
+    void removedParkourMomentumContentIsPrunedFromJson() {
+        PlayerData data = new PlayerData();
+        PlayerSkillLine agility = new PlayerSkillLine();
+        agility.setLine("agility");
+        agility.getAdaptations().put("agility-parkour-momentum", adaptation("agility-parkour-momentum", 3));
+        agility.getAdaptations().put("agility-roll-landing", adaptation("agility-roll-landing", 2));
+        data.getSkillLines().put("agility", agility);
+        data.addStat("agility.parkour-momentum.chained-landings", 501D);
+        data.addStat("agility.roll-landing.damage-prevented", 30D);
+        data.ensureGranted("adaptation_agility-parkour-momentum");
+        data.ensureGranted("challenge_agility_parkour_500");
+        data.ensureGranted("challenge_agility_roll_100");
+
+        PlayerData restored = PlayerData.fromJson(data.toJson(false));
+
+        assertThat(restored).isNotNull();
+        assertThat(restored.getSkillLines().get("agility").getAdaptations())
+            .containsOnlyKeys("agility-roll-landing");
+        assertThat(restored.getUsedPower()).isEqualTo(2);
+        assertThat(restored.getStats())
+            .hasSize(1)
+            .containsEntry("agility.roll-landing.damage-prevented", 30D);
+        assertThat(restored.getAdvancements())
+            .containsOnly("challenge_agility_roll_100");
+    }
+
+    @Test
     @DisplayName("globalXPMultiplier registers a multiplier")
     void globalMultiplierIsRegistered() {
         PlayerData d = new PlayerData();

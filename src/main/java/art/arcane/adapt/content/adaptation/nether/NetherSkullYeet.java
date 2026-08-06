@@ -28,7 +28,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
-import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.ItemCooldowns;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
@@ -55,11 +55,14 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
-import java.util.UUID;
 
 public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
 
-  private final Cooldowns cooldowns = cooldowns();
+  /**
+   * The skull is both the ability trigger and the ammunition, so the sweep and
+   * the gate share one state on the whole material.
+   */
+  private final ItemCooldowns cooldowns = ItemCooldowns.forMaterial(Material.WITHER_SKELETON_SKULL);
 
   public NetherSkullYeet() {
     super("nether-skull-toss");
@@ -123,17 +126,8 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         return;
       }
 
-      UUID id = p.getUniqueId();
-      int cooldownSeconds = getCooldownSeconds(p);
-      if (!cooldowns.isReady(id, cooldownSeconds * 1000L)) {
-        e.setCancelled(true);
-        fx(p.getEyeLocation(), FxPriority.TRANSITION)
-            .particle(Particles.SMOKE, 3, 0D, 0D, 0D, 0.1D, 0.0D)
-            .sound(Sound.BLOCK_CONDUIT_DEACTIVATE, 0.6F, 0.8F);
-        return;
-      }
-
-      if (p.hasCooldown(p.getInventory().getItemInMainHand().getType())) {
+      long cooldownMillis = getCooldownSeconds(p) * 1000L;
+      if (!cooldowns.isReady(p, cooldownMillis)) {
         e.setCancelled(true);
         fx(p.getEyeLocation(), FxPriority.TRANSITION)
             .particle(Particles.SMOKE, 3, 0D, 0D, 0D, 0.1D, 0.0D)
@@ -142,17 +136,15 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
       }
 
       e.setCancelled(true);
-      if (p.getGameMode() != GameMode.CREATIVE) {
-        if (!payItemCost(p, "skull", new ItemStack(Material.WITHER_SKELETON_SKULL), 1, () -> {
-          e.getItem().setAmount(e.getItem().getAmount() - 1);
-          return true;
-        })) {
-          return;
-        }
-
-        cooldowns.mark(id);
+      if (p.getGameMode() != GameMode.CREATIVE
+          && !payItemCost(p, "skull", new ItemStack(Material.WITHER_SKELETON_SKULL), 1, () -> {
+            e.getItem().setAmount(e.getItem().getAmount() - 1);
+            return true;
+          })) {
+        return;
       }
-      p.setCooldown(Material.WITHER_SKELETON_SKULL, cooldownSeconds * 20);
+
+      cooldowns.mark(p, cooldownMillis);
 
       Location eye = p.getEyeLocation();
       Vector dir = eye.getDirection();

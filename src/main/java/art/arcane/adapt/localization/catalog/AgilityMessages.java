@@ -32,12 +32,6 @@ public final class AgilityMessages {
   public static final TextKey WIND_UP_LORE1 = TextKey.of("agility.wind_up.lore1", "Max Speed");
   public static final TextKey WIND_UP_LORE2 = TextKey.of("agility.wind_up.lore2", "Windup Time");
   public static final LinesKey WIND_UP_LORE = LinesKey.of("agility.wind_up.lore", "Max Speed", "Windup Time");
-  public static final TextKey PARKOUR_MOMENTUM_NAME = TextKey.of("agility.parkour_momentum.name", "Parkour Momentum");
-  public static final TextKey PARKOUR_MOMENTUM_DESCRIPTION = TextKey.of("agility.parkour_momentum.description", "Chain consecutive sprint-jumps. Each clean landing builds momentum that boosts the next jump.");
-  public static final TextKey PARKOUR_MOMENTUM_LORE1 = TextKey.of("agility.parkour_momentum.lore1", "Max Momentum Stacks");
-  public static final TextKey PARKOUR_MOMENTUM_LORE2 = TextKey.of("agility.parkour_momentum.lore2", "Max Boosted Speed (blocks/sec)");
-  public static final TextKey PARKOUR_MOMENTUM_LORE3 = TextKey.of("agility.parkour_momentum.lore3", "Max Jump Velocity Bonus");
-  public static final LinesKey PARKOUR_MOMENTUM_LORE = LinesKey.of("agility.parkour_momentum.lore", "Max Momentum Stacks", "Max Boosted Speed (blocks/sec)", "Max Jump Velocity Bonus");
   public static final TextKey ROLL_LANDING_NAME = TextKey.of("agility.roll_landing.name", "Roll Landing");
   public static final TextKey ROLL_LANDING_DESCRIPTION = TextKey.of("agility.roll_landing.description", "Timed crouch before landing converts part of fall damage into hunger cost.");
   public static final TextKey ROLL_LANDING_LORE1 = TextKey.of("agility.roll_landing.lore1", "Fall Damage Conversion");
@@ -109,12 +103,6 @@ public final class AgilityMessages {
     builder.add(WIND_UP_LORE1);
     builder.add(WIND_UP_LORE2);
     builder.add(WIND_UP_LORE);
-    builder.add(PARKOUR_MOMENTUM_NAME);
-    builder.add(PARKOUR_MOMENTUM_DESCRIPTION);
-    builder.add(PARKOUR_MOMENTUM_LORE1);
-    builder.add(PARKOUR_MOMENTUM_LORE2);
-    builder.add(PARKOUR_MOMENTUM_LORE3);
-    builder.add(PARKOUR_MOMENTUM_LORE);
     builder.add(ROLL_LANDING_NAME);
     builder.add(ROLL_LANDING_DESCRIPTION);
     builder.add(ROLL_LANDING_LORE1);

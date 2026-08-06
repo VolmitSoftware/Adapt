@@ -35,10 +35,14 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import lombok.NoArgsConstructor;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -46,7 +50,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.BlockInventoryHolder;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -96,7 +105,7 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     Block block = e.getBlock();
     ConcurrentLinkedDeque<Block> deque = order.computeIfAbsent(id, unused -> new ConcurrentLinkedDeque<>());
     deque.addLast(block);
-    placed.put(block, new DemolitionMark(id, M.ms()));
+    placed.put(block, new DemolitionMark(id, M.ms(), snapshotPlacedItem(e.getItemInHand())));
     fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
         .burst(Particles.CRIT_MAGIC, 2, 0.1D);
     int cap = trackingCap(getConfig().maxTrackedPerPlayer);
@@ -164,8 +173,10 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
       return;
     }
 
+    List<ItemStack> restitution = collectRestitution(e.getBlock(), mark, p);
     e.setDropItems(false);
     e.setExpToDrop(0);
+    restitute(p, e.getBlock().getLocation().add(0.5, 0.5, 0.5), restitution);
 
     fx(e.getBlock().getLocation().add(0.5, 0.5, 0.5), FxPriority.COMBAT)
         .ring(Particle.SCRAPE, 0.8D, 16, 0.2D)
@@ -188,6 +199,55 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     }
   }
 
+  /**
+   * Collects everything an erased placement owes the player: the item that was
+   * placed plus whatever the block was holding at the time of the break.
+   */
+  private List<ItemStack> collectRestitution(Block block, DemolitionMark mark, Player p) {
+    BlockState state = block.getState();
+    if (keepsContentsInItem(block.getType())) {
+      List<ItemStack> drops = new ArrayList<>(block.getDrops(p.getInventory().getItemInMainHand(), p));
+      if (!drops.isEmpty()) {
+        return drops;
+      }
+
+      return restitution(placedOrFallback(mark, block), null);
+    }
+
+    Inventory inventory = blockInventory(state);
+    List<ItemStack> items = restitution(placedOrFallback(mark, block),
+        inventory == null ? null : inventory.getContents());
+    if (inventory != null) {
+      inventory.clear();
+    }
+    return items;
+  }
+
+  private void restitute(Player p, Location location, List<ItemStack> items) {
+    World world = location.getWorld();
+    for (ItemStack item : items) {
+      if (item == null || item.getType() == Material.AIR || item.getAmount() <= 0) {
+        continue;
+      }
+
+      for (ItemStack overflow : p.getInventory().addItem(item).values()) {
+        if (world != null && overflow != null && overflow.getType() != Material.AIR) {
+          world.dropItemNaturally(location, overflow);
+        }
+      }
+    }
+  }
+
+  private ItemStack placedOrFallback(DemolitionMark mark, Block block) {
+    ItemStack snapshot = mark.placed();
+    if (snapshot != null && snapshot.getType() != Material.AIR) {
+      return snapshot.clone();
+    }
+
+    Material type = block.getType();
+    return type != Material.AIR && type.isItem() ? new ItemStack(type) : null;
+  }
+
   private long getWindowMillis(double factor) {
     return (long) Math.max(1000, M.lerp(getConfig().minWindowSeconds, getConfig().maxWindowSeconds, factor) * 1000D);
   }
@@ -196,11 +256,58 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     return Math.max(0, configuredCap);
   }
 
-  private record DemolitionMark(UUID owner, long at) {
+  static ItemStack snapshotPlacedItem(ItemStack hand) {
+    if (hand == null || hand.getType() == Material.AIR) {
+      return null;
+    }
+
+    ItemStack snapshot = hand.clone();
+    snapshot.setAmount(1);
+    return snapshot;
+  }
+
+  /**
+   * Shulker boxes carry their contents inside the dropped item, so their
+   * inventory must never be harvested separately.
+   */
+  static boolean keepsContentsInItem(Material type) {
+    return type != null && type.name().endsWith("SHULKER_BOX");
+  }
+
+  static Inventory blockInventory(BlockState state) {
+    if (state instanceof Chest chest) {
+      return chest.getBlockInventory();
+    }
+
+    return state instanceof BlockInventoryHolder holder ? holder.getInventory() : null;
+  }
+
+  static List<ItemStack> restitution(ItemStack placedItem, ItemStack[] contents) {
+    List<ItemStack> items = new ArrayList<>();
+    if (placedItem != null && placedItem.getType() != Material.AIR) {
+      items.add(placedItem);
+    }
+
+    if (contents == null) {
+      return items;
+    }
+
+    for (ItemStack content : contents) {
+      if (content == null || content.getType() == Material.AIR || content.getAmount() <= 0) {
+        continue;
+      }
+
+      items.add(content.clone());
+    }
+
+    return items;
+  }
+
+  private record DemolitionMark(UUID owner, long at, ItemStack placed) {
   }
 
   @NoArgsConstructor
-  @ConfigDescription("Blocks you recently placed break near-instantly without producing block or experience drops.")
+  @ConfigDescription("Blocks you recently placed break near-instantly and hand the placed item plus any stored contents straight back to you.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "How many seconds a placement counts as recent at level 0 progression.", impact = "Higher values let low-level players instabreak older placements.")
     double minWindowSeconds = 10;

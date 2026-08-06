@@ -1289,10 +1289,6 @@ description = "땅에 닿지 않고 벽 점프를 5회 이상 연속으로 성�
 title = "두 번째 바람"
 description = "최대 질주 속도로 누적 10분을 이동하세요"
 
-[advancement.challenge_agility_parkour_500]
-title = "무료런너"
-description = "500 체인 스프린트 점프 착륙"
-
 [advancement.challenge_agility_roll_100]
 title = "Tuck 및 롤"
 description = "100 하트의 추락 피해를 방지"
@@ -3346,14 +3342,6 @@ lore1 = "최대 속도"
 lore2 = "가속 시간"
 lore = ["최대 속도", "가속 시간"]
 
-[agility.parkour_momentum]
-name = "파쿠르 모멘텀"
-description = "체인 연속 스프린트-jumps. 각각의 깨끗한 착륙은 다음 점프를 밀어 순간을 구축."
-lore1 = "최대 추진력 스택"
-lore2 = "최대 증가 속도 (블록/초)"
-lore3 = "최대 점프 속도 보너스"
-lore = ["최대 추진력 스택", "최대 증가 속도 (블록/초)", "최대 점프 속도 보너스"]
-
 [agility.roll_landing]
 name = "롤 랜딩"
 description = "착륙 전에 시간적 좌절은 추락 피해의 일부를 굶주림 비용으로 변환합니다."
@@ -3837,6 +3825,7 @@ description = "시간을 저장하는 시간의 병을 들고 다니며, 저장�
 lore1 = "틱마다 충전되는 저장 초"
 lore2 = "저장된 초당 시간 가속"
 lore3 = "레시피 (비정형): 신속의 물약 + 시계 + 유리병"
+max_stored_lore = "저장 가능한 최대 시간"
 lore = ["틱마다 충전되는 저장 초", "저장된 초당 시간 가속", "레시피 (비정형): 신속의 물약 + 시계 + 유리병"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["손상 방어", "결제 창", "손상은 다시 방어 할 수 없습�
 
 [chronos.overtime]
 name = "현재 위치"
-description = "지속될 수 있는 항만 효력은 적응 수준에 의해, 늘였습니다."
+description = "지속될 수 있는 항만 효력은 적응 수준에 의해, 늘였습니다. 최대 레벨에서는 해로운 효과가 절반만 지속됩니다."
 lore1 = "추가 효과 기간"
 lore2 = "효과 당 최대 보너스"
 lore3 = "유익한 효력은 늘입니다"
+max_level_lore = "최대 레벨에서 해로운 효과 지속 시간"
 lore = ["추가 효과 기간", "효과 당 최대 보너스", "유익한 효력은 늘입니다"]
 
 [chronos.accelerate]

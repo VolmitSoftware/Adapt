@@ -86,12 +86,12 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
+    if (!e.isSneaking()) {
+      return;
+    }
+
     Player p = e.getPlayer();
-    withAdaptedPlayer(p, e, () -> {
-      if (e.isSneaking()) {
-        recordRollInput(p, null, null);
-      }
-    });
+    withAdaptedPlayer(p, e, () -> recordRollInput(p, true, null, null));
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -101,7 +101,7 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
       return;
     }
 
-    withAdaptedPlayer(p, e, () -> recordRollInput(p, e.getFrom().getY(), e.getTo() == null ? null : e.getTo().getY()));
+    withAdaptedPlayer(p, e, () -> recordRollInput(p, true, e.getFrom().getY(), e.getTo() == null ? null : e.getTo().getY()));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -152,21 +152,15 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
     });
   }
 
-  private void recordRollInput(Player p, Double fromY, Double toY) {
-    if (!p.isSneaking()) {
-      return;
-    }
-
-    if (p.isOnGround() || p.isFlying() || p.isGliding()) {
-      return;
-    }
-
-    boolean descending = p.getVelocity().getY() <= getConfig().maxVerticalVelocityForRollInput;
-    if (!descending && fromY != null && toY != null) {
-      descending = toY < fromY;
-    }
-
-    if (!descending) {
+  private void recordRollInput(Player p, boolean sneaking, Double fromY, Double toY) {
+    boolean descending = isDescending(
+        p.getVelocity().getY(),
+        getConfig().maxVerticalVelocityForRollInput,
+        fromY,
+        toY,
+        p.getFallDistance()
+    );
+    if (!shouldRecordRollInput(sneaking, p.isOnGround(), p.isFlying(), p.isGliding(), descending)) {
       return;
     }
 
@@ -213,7 +207,27 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
   }
 
   private long getInputWindowMillis(int level) {
-    return Math.max(60L, Math.round(getConfig().inputWindowMillisBase + (getLevelPercent(level) * getConfig().inputWindowMillisFactor)));
+    return inputWindowMillis(getConfig().inputWindowMillisBase, getConfig().inputWindowMillisFactor, getLevelPercent(level));
+  }
+
+  static long inputWindowMillis(double base, double factor, double levelPercent) {
+    return Math.max(60L, Math.round(base + (levelPercent * factor)));
+  }
+
+  static boolean shouldRecordRollInput(boolean sneaking, boolean onGround, boolean flying, boolean gliding, boolean descending) {
+    return sneaking && !onGround && !flying && !gliding && descending;
+  }
+
+  static boolean isDescending(double velocityY, double descentThreshold, Double fromY, Double toY, double fallDistance) {
+    if (velocityY <= descentThreshold) {
+      return true;
+    }
+
+    if (fallDistance > 0) {
+      return true;
+    }
+
+    return fromY != null && toY != null && toY < fromY;
   }
 
   private double getHungerPerDamage(int level) {
@@ -252,10 +266,10 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
     double reductionFactor = 0.43;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Reduction for the Agility Roll Landing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxReduction = 0.8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Input Window Millis Base for the Agility Roll Landing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double inputWindowMillisBase = 190;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Input Window Millis Factor for the Agility Roll Landing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double inputWindowMillisFactor = 260;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "How long a crouch input stays armed before landing, in milliseconds, before level scaling.", impact = "Higher values make the roll timing more forgiving at every level.")
+    double inputWindowMillisBase = 450;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Extra crouch-input window granted at max level, in milliseconds.", impact = "Higher values make leveling widen the roll timing more.")
+    double inputWindowMillisFactor = 350;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Hunger Per Damage Base for the Agility Roll Landing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double hungerPerDamageBase = 1.4;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Hunger Per Damage Reduction for the Agility Roll Landing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -264,7 +278,7 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
     double cooldownTicksBase = 22;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Factor for the Agility Roll Landing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double cooldownTicksFactor = 12;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Vertical Velocity For Roll Input for the Agility Roll Landing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Vertical velocity at or below which a crouch counts as a descent input.", impact = "Only a fallback signal; fall distance and downward movement also arm the roll.")
     double maxVerticalVelocityForRollInput = -0.08;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Prone Ticks Base for the Agility Roll Landing adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double proneTicksBase = 4;

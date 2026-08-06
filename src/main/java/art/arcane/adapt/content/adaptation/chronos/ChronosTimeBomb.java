@@ -24,6 +24,7 @@ import art.arcane.adapt.localization.catalog.ChronosMessages;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ItemCooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -275,10 +276,19 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       return;
     }
 
+    if (ChronoTimeBombItem.io.ensureCooldownGroup(hand)) {
+      if (handSlot == EquipmentSlot.OFF_HAND) {
+        p.getInventory().setItemInOffHand(hand);
+      } else {
+        p.getInventory().setItemInMainHand(hand);
+      }
+    }
+
     long now = M.ms();
     long cooldown = cooldowns.getOrDefault(p.getUniqueId(), 0L);
     if (cooldown > now) {
       e.setCancelled(true);
+      ItemCooldowns.pushGroup(p, ChronoTimeBombItem.COOLDOWN_GROUP, cooldown - now);
       if (getConfig().playClockSounds) {
         ChronosSoundFX.playClockReject(p);
       }
@@ -322,8 +332,17 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       return;
     }
 
-    cooldowns.put(p.getUniqueId(), now + getCooldownMillis());
+    long cooldownMillis = getCooldownMillis();
+    cooldowns.put(p.getUniqueId(), now + cooldownMillis);
     cooldownReadyNotify.put(p.getUniqueId(), true);
+    // Vanilla finishes the throw after this handler and would overwrite an
+    // overlay pushed now with the item's group marker, so push on the next tick.
+    J.runEntity(p, () -> {
+      if (p.isOnline()) {
+        ItemCooldowns.pushGroup(p, ChronoTimeBombItem.COOLDOWN_GROUP,
+            cooldowns.getOrDefault(p.getUniqueId(), 0L) - M.ms());
+      }
+    }, 1);
     activeBombProjectiles.put(potion.getUniqueId(), new ArmedBombProjectile(p.getUniqueId(), level, now));
     wakeRuntime();
 

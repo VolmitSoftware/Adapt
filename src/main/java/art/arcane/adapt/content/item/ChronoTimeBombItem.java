@@ -22,6 +22,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ItemsMessages;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.ItemCooldowns;
 import art.arcane.adapt.api.item.DataItem;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.reflect.registries.ItemFlags;
@@ -69,9 +70,30 @@ public class ChronoTimeBombItem implements DataItem<ChronoTimeBombItem.Data> {
     return io.withData(new Data(System.currentTimeMillis()));
   }
 
+  public static final NamespacedKey COOLDOWN_GROUP = ItemCooldowns.groupKeyFor(ChronoTimeBombItem.class);
+
   @Override
   public Material getMaterial() {
     return Material.LINGERING_POTION;
+  }
+
+  @Override
+  public NamespacedKey getCooldownGroup() {
+    return COOLDOWN_GROUP;
+  }
+
+  /**
+   * Legacy time bombs are clocks, which {@link #hasData(ItemStack)} rejects on
+   * the material check, so the group upgrade keys off the dual identification
+   * predicate instead.
+   */
+  @Override
+  public boolean ensureCooldownGroup(ItemStack stack) {
+    if (!isBindableItem(stack)) {
+      return false;
+    }
+
+    return ItemCooldowns.stampGroup(stack, COOLDOWN_GROUP);
   }
 
   @Override

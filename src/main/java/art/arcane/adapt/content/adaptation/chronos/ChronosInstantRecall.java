@@ -23,6 +23,7 @@ import art.arcane.adapt.localization.catalog.ChronosMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.ItemCooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -933,6 +934,9 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     long now = M.ms();
     long cooldown = cooldowns.getOrDefault(id, 0L);
     if (cooldown > now) {
+      // A plain clock has no vanilla right-click use, and time bombs carry
+      // their own cooldown group, so the whole material can carry the sweep.
+      ItemCooldowns.pushMaterial(p, Material.CLOCK, cooldown - now);
       if (getConfig().playClockSounds) {
         ChronosSoundFX.playClockReject(p);
       }
@@ -999,7 +1003,9 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     }
 
     UUID operationId = UUID.randomUUID();
-    cooldowns.put(id, castAt + getCooldownMillis(level));
+    long recallCooldownMillis = getCooldownMillis(level);
+    cooldowns.put(id, castAt + recallCooldownMillis);
+    ItemCooldowns.pushMaterial(p, Material.CLOCK, recallCooldownMillis);
     cooldownReadyNotify.put(id, true);
     rewinding.put(id, operationId);
     long protectionUntil = castAt + ((long) (animationTicks + getConfig().rewindProtectionTicks) * 50L);

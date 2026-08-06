@@ -1289,10 +1289,6 @@ description = "Ketju 5+ seinä hyppää koskematta maahan"
 title = "Toinen tuuli"
 description = "Kuluta 10 kumulatiiviset minuutit max-lähtönopeudella"
 
-[advancement.challenge_agility_parkour_500]
-title = "Freerunner"
-description = "Täydellinen 500 Ketjuhypyn laskut"
-
 [advancement.challenge_agility_roll_100]
 title = "Kyyristy ja kierähdä"
 description = "Estä 100 kaatumissydämet"
@@ -3346,14 +3342,6 @@ lore1 = "Maksiminopeus"
 lore2 = "Kiihdytysaika"
 lore = ["Maksiminopeus", "Kiihdytysaika"]
 
-[agility.parkour_momentum]
-name = "Parkour Momentum"
-description = "Ketjun perättäiset sprinttihypyt. Jokainen puhdas laskeutuminen rakentaa vauhtia, joka lisää seuraavaa hyppyä."
-lore1 = "Maksimääräiset momenttipakot"
-lore2 = "Maksimääräinen nopeus (Block/sec)"
-lore3 = "Maksimääräinen pommitus- bonus"
-lore = ["Maksimääräiset momenttipakot", "Maksimääräinen nopeus (Block/sec)", "Maksimääräinen pommitus- bonus"]
-
 [agility.roll_landing]
 name = "Laskeutuminen"
 description = "Ajoitus ennen laskua muuttaa osan putoamisvahingosta nälkäkustannuksiksi."
@@ -3837,6 +3825,7 @@ description = "Kanna ajallista pulloa, joka varastoi aikaa ja kuluta sitä nopeu
 lore1 = "Varastoidut sekunnit ladattu per tikki"
 lore2 = "Ajan kiihdytys per varastoitu sekunti"
 lore3 = "Resepti (muodoton): nopeustaikajuoma + kello + lasipullo"
+max_stored_lore = "Suurin tallennettu aika"
 lore = ["Varastoidut sekunnit ladattu per tikki", "Ajan kiihdytys per varastoitu sekunti", "Resepti (muodoton): nopeustaikajuoma + kello + lasipullo"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["Viivästetty vahinko", "Takaisinmaksuikkuna", "Viivästettyjä vaurioit
 
 [chronos.overtime]
 name = "Ylityöaika"
-description = "Sinuun sovellettavat hyödylliset juomavaikutukset kestävät kauemmin, skaalautuu sopeutumistason mukaan."
+description = "Sinuun sovellettavat hyödylliset juomavaikutukset kestävät kauemmin, skaalautuu sopeutumistason mukaan. Enimmäistasolla haitalliset vaikutukset kestävät puolet lyhyemmän ajan."
 lore1 = "Lisävaikutuksen kesto"
 lore2 = "Tuen enimmäismäärä/vaikutus"
 lore3 = "Vain myönteisiä vaikutuksia laajennetaan"
+max_level_lore = "Haitallisten vaikutusten kesto enimmäistasolla"
 lore = ["Lisävaikutuksen kesto", "Tuen enimmäismäärä/vaikutus", "Vain myönteisiä vaikutuksia laajennetaan"]
 
 [chronos.accelerate]

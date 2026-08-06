@@ -157,12 +157,59 @@ class RiftVoidMagnetRuntimeTest {
 
     RiftVoidMagnet.MagnetTransferBudget transfers =
         new RiftVoidMagnet.MagnetTransferBudget(RiftVoidMagnet.HARD_MAX_ITEMS_PER_PULSE);
-    assertThat(transfers.reserve(20)).isEqualTo(20);
-    assertThat(transfers.reserve(20)).isEqualTo(12);
-    assertThat(transfers.reserve(1)).isZero();
-    transfers.release(7);
-    assertThat(transfers.reserve(10)).isEqualTo(7);
+    for (int index = 0; index < RiftVoidMagnet.HARD_MAX_ITEMS_PER_PULSE; index++) {
+      assertThat(transfers.reserveDrop()).isTrue();
+    }
+    assertThat(transfers.reserveDrop()).isFalse();
     assertThat(transfers.reserved()).isEqualTo(RiftVoidMagnet.HARD_MAX_ITEMS_PER_PULSE);
+
+    transfers.releaseDrop();
+    assertThat(transfers.reserved()).isEqualTo(RiftVoidMagnet.HARD_MAX_ITEMS_PER_PULSE - 1);
+    assertThat(transfers.reserveDrop()).isTrue();
+    assertThat(transfers.reserveDrop()).isFalse();
+  }
+
+  @Test
+  void everyNearbyDropGetsItsOwnPulseSlotRegardlessOfStackSize() {
+    RiftVoidMagnet.MagnetTransferBudget transfers = new RiftVoidMagnet.MagnetTransferBudget(4);
+    int[] stackSizes = {64, 64, 1, 16};
+
+    for (int stackSize : stackSizes) {
+      assertThat(transfers.reserveDrop())
+          .as("drop of %d items", stackSize)
+          .isTrue();
+    }
+
+    assertThat(transfers.reserved()).isEqualTo(stackSizes.length);
+    assertThat(transfers.reserveDrop()).isFalse();
+  }
+
+  @Test
+  void releasingAnUntransferredDropNeverDrivesTheBudgetNegative() {
+    RiftVoidMagnet.MagnetTransferBudget transfers = new RiftVoidMagnet.MagnetTransferBudget(2);
+
+    transfers.releaseDrop();
+    transfers.releaseDrop();
+
+    assertThat(transfers.reserved()).isZero();
+    assertThat(transfers.reserveDrop()).isTrue();
+    assertThat(transfers.reserveDrop()).isTrue();
+    assertThat(transfers.reserveDrop()).isFalse();
+  }
+
+  @Test
+  void magnetSourceTransfersWholeDropsAndLeavesOverflowOnTheGround() throws Exception {
+    String source = java.nio.file.Files.readString(
+        java.nio.file.Path.of("src/main/java/art/arcane/adapt/content/adaptation/rift/RiftVoidMagnet.java"));
+
+    assertThat(source)
+        .contains(
+            "if (!pulse.transfers.reserveDrop())",
+            "depositIntoInventories(player, stack, stack.getAmount())",
+            "stack.setAmount(stack.getAmount() - moved)",
+            "item.setItemStack(stack)",
+            "pulse.transfers.releaseDrop()")
+        .doesNotContain("transfers.reserve(", "transfers.release(");
   }
 
   @Test

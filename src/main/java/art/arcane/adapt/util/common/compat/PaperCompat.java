@@ -23,10 +23,12 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AbstractSkeleton;
@@ -67,7 +69,38 @@ import java.util.function.Predicate;
  * the first NoSuchMethodError and stay on the fallback path afterward.
  */
 public final class PaperCompat {
+  // Mirrors the vanilla #minecraft:replaceable block tag; Spigot exposes no probe for it.
+  private static final Set<Material> REPLACEABLE_FALLBACK = Set.of(
+      Material.AIR,
+      Material.CAVE_AIR,
+      Material.VOID_AIR,
+      Material.STRUCTURE_VOID,
+      Material.LIGHT,
+      Material.WATER,
+      Material.LAVA,
+      Material.BUBBLE_COLUMN,
+      Material.FIRE,
+      Material.SOUL_FIRE,
+      Material.SNOW,
+      Material.VINE,
+      Material.GLOW_LICHEN,
+      Material.HANGING_ROOTS,
+      Material.SHORT_GRASS,
+      Material.TALL_GRASS,
+      Material.FERN,
+      Material.LARGE_FERN,
+      Material.DEAD_BUSH,
+      Material.BUSH,
+      Material.SHORT_DRY_GRASS,
+      Material.TALL_DRY_GRASS,
+      Material.SEAGRASS,
+      Material.TALL_SEAGRASS,
+      Material.WARPED_ROOTS,
+      Material.CRIMSON_ROOTS,
+      Material.NETHER_SPROUTS
+  );
   private static final Map<String, Boolean> CLASS_PRESENCE = new ConcurrentHashMap<>();
+  private static volatile boolean blockReplaceableSupported = true;
   private static volatile boolean teleportAsyncSupported = true;
   private static volatile boolean teleportAsyncCauseSupported = true;
   private static volatile boolean transientModifierSupported = true;
@@ -172,6 +205,23 @@ public final class PaperCompat {
         || from.getBlockY() != to.getBlockY()
         || from.getBlockZ() != to.getBlockZ()
         || from.getWorld() != to.getWorld();
+  }
+
+  /** True when a normal block placement would overwrite this block (air, fluids, vegetation). */
+  public static boolean isReplaceable(Block block) {
+    if (block == null) {
+      return false;
+    }
+
+    if (blockReplaceableSupported) {
+      try {
+        return block.isReplaceable();
+      } catch (NoSuchMethodError absent) {
+        blockReplaceableSupported = false;
+      }
+    }
+
+    return REPLACEABLE_FALLBACK.contains(block.getType());
   }
 
   public static boolean isCritical(EntityDamageByEntityEvent event) {

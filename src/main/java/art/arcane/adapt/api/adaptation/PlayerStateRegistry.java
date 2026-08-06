@@ -72,7 +72,7 @@ public final class PlayerStateRegistry {
     plugin.registerListener(listener);
   }
 
-  static void clearPlayer(UUID id) {
+  public static void clearPlayer(UUID id) {
     pruneCollectedMaps();
     for (WeakReference<Map<UUID, ?>> reference : MAPS) {
       Map<UUID, ?> map = reference.get();

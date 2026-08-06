@@ -29,7 +29,7 @@ class AdaptationCatalogIntegrityTest {
     Map<String, Path> adaptations = catalog.adaptations();
     String skillSource = combinedJavaSource(SKILL_ROOT);
 
-    assertThat(adaptations).hasSize(313);
+    assertThat(adaptations).hasSize(312);
     assertThat(catalog.ids()).hasSize(adaptations.size());
     for (Map.Entry<String, Path> entry : adaptations.entrySet()) {
       Pattern construction = Pattern.compile("\\bnew\\s+" + Pattern.quote(entry.getKey()) + "\\s*\\(");

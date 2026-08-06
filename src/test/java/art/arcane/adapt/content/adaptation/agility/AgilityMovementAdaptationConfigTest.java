@@ -58,11 +58,26 @@ class AgilityMovementAdaptationConfigTest {
   @Test
   void featherfootUnlocksSurfacesInAscendingLevelOrder() {
     AgilityFeatherfoot.Config c = new AgilityFeatherfoot.Config();
+    assertThat(c.farmlandEnabled).isTrue();
+    assertThat(c.pressurePlateEnabled).isTrue();
+    assertThat(c.berryBushEnabled).isTrue();
+    assertThat(c.powderSnowEnabled).isTrue();
     assertThat(c.farmlandMinLevel).isGreaterThanOrEqualTo(1);
     assertThat(c.farmlandMinLevel).isLessThan(c.pressurePlateMinLevel);
     assertThat(c.pressurePlateMinLevel).isLessThan(c.berryBushMinLevel);
     assertThat(c.berryBushMinLevel).isLessThan(c.powderSnowMinLevel);
     assertThat(c.powderSnowMinLevel).isLessThanOrEqualTo(c.maxLevel);
+  }
+
+  @Test
+  void featherfootIsCheapToLearnAtEveryLevel() {
+    AgilityFeatherfoot.Config c = new AgilityFeatherfoot.Config();
+    AgilitySlipstreamSlide.Config reference = new AgilitySlipstreamSlide.Config();
+
+    assertThat(c.baseCost).isLessThanOrEqualTo(reference.baseCost);
+    assertThat(c.initialCost).isLessThanOrEqualTo(reference.initialCost);
+    assertThat(c.costFactor).isLessThan(reference.costFactor);
+    assertThat(c.baseCost).isGreaterThan(0);
   }
 
   @Test

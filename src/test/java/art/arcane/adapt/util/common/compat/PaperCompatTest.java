@@ -1,6 +1,7 @@
 package art.arcane.adapt.util.common.compat;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Tameable;
 import org.junit.jupiter.api.Test;
@@ -50,6 +51,18 @@ class PaperCompatTest {
     assertThat(PaperCompat.hasClass("io.papermc.paper.event.player.DoesNotExistEvent")).isFalse();
     // cached second lookup stays stable
     assertThat(PaperCompat.hasClass("io.papermc.paper.event.player.DoesNotExistEvent")).isFalse();
+  }
+
+  @Test
+  void isReplaceableReportsWhatAPlacementWouldOverwrite() {
+    Block grass = mock(Block.class);
+    Block stone = mock(Block.class);
+    when(grass.isReplaceable()).thenReturn(true);
+    when(stone.isReplaceable()).thenReturn(false);
+
+    assertThat(PaperCompat.isReplaceable(grass)).isTrue();
+    assertThat(PaperCompat.isReplaceable(stone)).isFalse();
+    assertThat(PaperCompat.isReplaceable(null)).isFalse();
   }
 
   @Test

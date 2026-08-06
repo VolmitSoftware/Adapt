@@ -49,13 +49,18 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 
 public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Config> {
-  private static final List<BlockFace> ROTATION_ORDER = Arrays.asList(
+  private static final List<BlockFace> YAW_ORDER = List.of(
+      BlockFace.NORTH,
+      BlockFace.EAST,
+      BlockFace.SOUTH,
+      BlockFace.WEST
+  );
+  private static final List<Axis> AXIS_ORDER = List.of(Axis.X, Axis.Y, Axis.Z);
+  private static final List<BlockFace> ROTATION_ORDER = List.of(
       BlockFace.NORTH,
       BlockFace.NORTH_NORTH_EAST,
       BlockFace.NORTH_EAST,
@@ -150,38 +155,25 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
     });
   }
 
-  private int rotateData(BlockData data) {
+  static int rotateData(BlockData data) {
     if (data instanceof Directional directional) {
-      BlockFace next = getNextFace(directional.getFacing(), directional.getFaces());
-      if (next != null && next != directional.getFacing()) {
+      List<BlockFace> yawFaces = yawFaces(directional.getFaces());
+      BlockFace next = nextYawFace(directional.getFacing(), yawFaces);
+      if (next != null) {
         directional.setFacing(next);
-        return directional.getFaces().size();
+        return yawFaces.size();
       }
     }
 
     if (data instanceof Rotatable rotatable) {
-      BlockFace next = getNextFace(rotatable.getRotation(), Set.copyOf(ROTATION_ORDER), ROTATION_ORDER);
-      if (next != null && next != rotatable.getRotation()) {
-        rotatable.setRotation(next);
-        return ROTATION_ORDER.size();
-      }
+      rotatable.setRotation(nextRotation(rotatable.getRotation()));
+      return ROTATION_ORDER.size();
     }
 
     if (data instanceof Orientable orientable) {
-      Axis current = orientable.getAxis();
-      Axis next = switch (current) {
-        case X -> Axis.Y;
-        case Y -> Axis.Z;
-        case Z -> Axis.X;
-      };
-
-      if (orientable.getAxes().contains(next)) {
+      Axis next = nextAxis(orientable.getAxis(), orientable.getAxes());
+      if (next != null) {
         orientable.setAxis(next);
-        return orientable.getAxes().size();
-      }
-
-      if (orientable.getAxes().contains(Axis.X)) {
-        orientable.setAxis(Axis.X);
         return orientable.getAxes().size();
       }
     }
@@ -189,40 +181,53 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
     return 0;
   }
 
-  private BlockFace getNextFace(BlockFace current, Set<BlockFace> supported) {
+  /** Rotation is a spin around Y, so only the cardinal faces a block supports are reachable. */
+  static List<BlockFace> yawFaces(Set<BlockFace> supported) {
     if (supported == null || supported.isEmpty()) {
-      return null;
+      return List.of();
     }
 
-    List<BlockFace> ordered = new ArrayList<>(supported);
-    ordered.sort(Comparator.comparingInt(Enum::ordinal));
-    return getNextFace(current, supported, ordered);
+    List<BlockFace> faces = new ArrayList<>(YAW_ORDER.size());
+    for (BlockFace face : YAW_ORDER) {
+      if (supported.contains(face)) {
+        faces.add(face);
+      }
+    }
+
+    return List.copyOf(faces);
   }
 
-  private BlockFace getNextFace(BlockFace current, Set<BlockFace> supported, List<BlockFace> order) {
-    if (supported == null || supported.isEmpty()) {
+  /** Null for UP/DOWN facings: a spin around Y cannot move them, and forcing one detaches the block. */
+  static BlockFace nextYawFace(BlockFace current, List<BlockFace> yawFaces) {
+    if (yawFaces.size() < 2) {
       return null;
     }
 
-    int idx = order.indexOf(current);
-    if (idx < 0) {
-      for (BlockFace face : order) {
-        if (supported.contains(face)) {
-          return face;
-        }
-      }
+    int index = yawFaces.indexOf(current);
+    return index < 0 ? null : yawFaces.get((index + 1) % yawFaces.size());
+  }
 
+  /** Signs, banners and skulls yaw in vanilla 22.5 degree steps. */
+  static BlockFace nextRotation(BlockFace current) {
+    int index = ROTATION_ORDER.indexOf(current);
+    return ROTATION_ORDER.get(index < 0 ? 0 : (index + 1) % ROTATION_ORDER.size());
+  }
+
+  /** Pillars have no upside down state, so every supported axis stays reachable. */
+  static Axis nextAxis(Axis current, Set<Axis> supported) {
+    if (supported == null || supported.size() < 2) {
       return null;
     }
 
-    for (int i = 1; i <= order.size(); i++) {
-      BlockFace candidate = order.get((idx + i) % order.size());
-      if (supported.contains(candidate)) {
+    int index = Math.max(0, AXIS_ORDER.indexOf(current));
+    for (int offset = 1; offset < AXIS_ORDER.size(); offset++) {
+      Axis candidate = AXIS_ORDER.get((index + offset) % AXIS_ORDER.size());
+      if (candidate != current && supported.contains(candidate)) {
         return candidate;
       }
     }
 
-    return current;
+    return null;
   }
 
 

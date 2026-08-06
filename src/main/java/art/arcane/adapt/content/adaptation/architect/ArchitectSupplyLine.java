@@ -38,7 +38,6 @@ import art.arcane.volmlib.util.math.M;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
-import org.bukkit.Tag;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -89,12 +88,7 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent e) {
     ItemStack hand = e.getItemInHand();
-    if (hand.getAmount() > 1) {
-      return;
-    }
-
-    Material material = hand.getType();
-    if (!material.isBlock() || material.isAir()) {
+    if (!consumesLastOfStack(hand)) {
       return;
     }
 
@@ -111,15 +105,26 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
       return;
     }
 
+    ItemStack template = hand.clone();
+    template.setAmount(1);
     EquipmentSlot slot = e.getHand();
-    J.runEntity(p, () -> refill(p, slot, material, allowed), 1);
+    J.runEntity(p, () -> refill(p, slot, template, allowed), 1);
+  }
+
+  /**
+   * The placed stack is the last one when the hand holds a single item at
+   * placement time, or already reports zero on servers that consume the item
+   * before monitor handlers run.
+   */
+  static boolean consumesLastOfStack(ItemStack hand) {
+    return hand != null && hand.getType() != Material.AIR && hand.getAmount() <= 1;
   }
 
   private boolean hasRefillCapacity(UUID id, int allowed) {
     return hasRefillCapacity(windows.get(id), M.ms(), allowed);
   }
 
-  private void refill(Player p, EquipmentSlot slot, Material material, int allowed) {
+  private void refill(Player p, EquipmentSlot slot, ItemStack template, int allowed) {
     if (!p.isOnline()) {
       return;
     }
@@ -135,7 +140,7 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
       return;
     }
 
-    ItemStack pulled = pullMatching(p, material);
+    ItemStack pulled = pullMatching(p, template);
     if (pulled == null) {
       return;
     }
@@ -164,17 +169,27 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
     }
   }
 
-  private ItemStack pullMatching(Player p, Material material) {
+  /**
+   * Loose stacks first, then bundles, then shulker boxes. Loose stacks are what
+   * a player expects to consume next, containers are the deep supply.
+   */
+  private ItemStack pullMatching(Player p, ItemStack template) {
     ItemStack[] contents = p.getInventory().getStorageContents();
-    for (int i = 0; i < contents.length; i++) {
-      ItemStack candidate = contents[i];
-      if (candidate == null || candidate.getType().isAir()) {
+    int loose = matchingSlot(contents, template, p.getInventory().getHeldItemSlot());
+    if (loose >= 0) {
+      ItemStack pulled = contents[loose].clone();
+      p.getInventory().setItem(loose, null);
+      return pulled;
+    }
+
+    for (ItemStack candidate : contents) {
+      if (candidate == null || candidate.getType() == Material.AIR) {
         continue;
       }
 
-      ItemStack pulled = pullFromShulker(candidate, material);
+      ItemStack pulled = pullFromBundle(candidate, template);
       if (pulled == null) {
-        pulled = pullFromBundle(candidate, material);
+        pulled = pullFromShulker(candidate, template);
       }
 
       if (pulled != null) {
@@ -185,8 +200,8 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
     return null;
   }
 
-  private ItemStack pullFromShulker(ItemStack container, Material material) {
-    if (!Tag.SHULKER_BOXES.isTagged(container.getType())) {
+  private ItemStack pullFromShulker(ItemStack container, ItemStack template) {
+    if (!isShulkerBox(container.getType())) {
       return null;
     }
 
@@ -195,36 +210,74 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
     }
 
     Inventory inv = box.getInventory();
-    for (int slot = 0; slot < inv.getSize(); slot++) {
-      ItemStack content = inv.getItem(slot);
-      if (content == null || content.getType() != material) {
-        continue;
-      }
-
-      ItemStack pulled = content.clone();
-      inv.setItem(slot, null);
-      meta.setBlockState(box);
-      container.setItemMeta(meta);
-      return pulled;
+    ItemStack[] stored = inv.getContents();
+    int slot = matchingSlot(stored, template);
+    if (slot < 0) {
+      return null;
     }
 
-    return null;
+    ItemStack pulled = stored[slot].clone();
+    inv.setItem(slot, null);
+    meta.setBlockState(box);
+    container.setItemMeta(meta);
+    return pulled;
   }
 
-  private ItemStack pullFromBundle(ItemStack container, Material material) {
+  private ItemStack pullFromBundle(ItemStack container, ItemStack template) {
     if (!(container.getItemMeta() instanceof BundleMeta meta)) {
       return null;
     }
 
-    List<ItemStack> items = meta.getItems();
-    if (items.isEmpty()) {
+    BundleExtraction extraction = extractFromBundle(meta.getItems(), template);
+    if (extraction == null) {
+      return null;
+    }
+
+    meta.setItems(extraction.remaining());
+    container.setItemMeta(meta);
+    return extraction.pulled();
+  }
+
+  static boolean isShulkerBox(Material type) {
+    return type != null && type.name().endsWith("SHULKER_BOX");
+  }
+
+  /**
+   * Matches on the whole item, not just its material, so custom named or
+   * enchanted stacks are never silently swapped for a plain one.
+   */
+  static int matchingSlot(ItemStack[] contents, ItemStack template) {
+    return matchingSlot(contents, template, -1);
+  }
+
+  static int matchingSlot(ItemStack[] contents, ItemStack template, int skipSlot) {
+    if (contents == null || template == null) {
+      return -1;
+    }
+
+    for (int i = 0; i < contents.length; i++) {
+      ItemStack candidate = contents[i];
+      if (i == skipSlot || candidate == null || candidate.getType() == Material.AIR || candidate.getAmount() <= 0) {
+        continue;
+      }
+
+      if (candidate.isSimilar(template)) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
+
+  static BundleExtraction extractFromBundle(List<ItemStack> items, ItemStack template) {
+    if (items == null || items.isEmpty() || template == null) {
       return null;
     }
 
     List<ItemStack> remaining = new ArrayList<>(items.size());
     ItemStack pulled = null;
     for (ItemStack item : items) {
-      if (pulled == null && item != null && item.getType() == material) {
+      if (pulled == null && item != null && item.getType() != Material.AIR && item.isSimilar(template)) {
         pulled = item.clone();
         continue;
       }
@@ -232,13 +285,7 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
       remaining.add(item);
     }
 
-    if (pulled == null) {
-      return null;
-    }
-
-    meta.setItems(remaining);
-    container.setItemMeta(meta);
-    return pulled;
+    return pulled == null ? null : new BundleExtraction(pulled, remaining);
   }
 
   private int getRefillsPerMinute(double factor) {
@@ -259,7 +306,10 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
   record RefillWindow(long start, int used) {
   }
 
-  @ConfigDescription("Automatically refill your hand from shulker boxes or bundles when a placed stack runs out.")
+  record BundleExtraction(ItemStack pulled, List<ItemStack> remaining) {
+  }
+
+  @ConfigDescription("Automatically refill your hand from your inventory, bundles, or shulker boxes when a placed stack runs out.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Hand refills allowed per minute at level 0 progression.", impact = "Higher values let low-level players refill more often.")
     int minRefillsPerMinute = 4;

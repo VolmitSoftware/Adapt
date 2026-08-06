@@ -1289,10 +1289,6 @@ description = "Cadeia 5+ parede salta sem tocar no chão"
 title = "Segundo Vento"
 description = "Gastar 10 minutos cumulativos à velocidade máxima de sprint"
 
-[advancement.challenge_agility_parkour_500]
-title = "Freerunner"
-description = "Completa 500 aterrissagens acorrentadas de salto rápido"
-
 [advancement.challenge_agility_roll_100]
 title = "Tuck e Roll ."
 description = "Prevenir 100 corações de queda danos"
@@ -3346,14 +3342,6 @@ lore1 = "Velocidade Maxima"
 lore2 = "Tempo de Aceleracao"
 lore = ["Velocidade Maxima", "Tempo de Aceleracao"]
 
-[agility.parkour_momentum]
-name = "Momento Parkour"
-description = "Salto de corrida consecutivo, cada aterragem limpa cria um impulso que aumenta o próximo salto."
-lore1 = "Pilha Máxima Momentum"
-lore2 = "Velocidade máxima aumentada (blocos/seg)"
-lore3 = "Bônus de Velocidade Max Salto"
-lore = ["Pilha Máxima Momentum", "Velocidade máxima aumentada (blocos/seg)", "Bônus de Velocidade Max Salto"]
-
 [agility.roll_landing]
 name = "Desembarque"
 description = "Agachado cronometrado antes de aterrissar converte parte do dano da queda no custo da fome."
@@ -3837,6 +3825,7 @@ description = "Carrega uma garrafa temporal que armazena tempo e gasta-o para ac
 lore1 = "Segundos armazenados carregados por tick"
 lore2 = "Aceleracao temporal por segundo armazenado"
 lore3 = "Receita (Sem Forma): Pocao de Rapidez + Relogio + Garrafa de Vidro"
+max_stored_lore = "Tempo armazenado máximo"
 lore = ["Segundos armazenados carregados por tick", "Aceleracao temporal por segundo armazenado", "Receita (Sem Forma): Pocao de Rapidez + Relogio + Garrafa de Vidro"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["Danos adiados", "Janela de vingança", "O dano diferido não pode ser a
 
 [chronos.overtime]
 name = "Horas extraordinárias"
-description = "Efeitos benéficos de poção aplicados a você por mais tempo, escalonados pelo nível de adaptação."
+description = "Efeitos benéficos de poção aplicados a você por mais tempo, escalonados pelo nível de adaptação. No nível máximo, os efeitos nocivos duram metade do tempo."
 lore1 = "Duração do efeito extra"
 lore2 = "Bónus máximo por efeito"
 lore3 = "Apenas os efeitos benéficos são prolongados"
+max_level_lore = "Duração dos efeitos nocivos no nível máximo"
 lore = ["Duração do efeito extra", "Bónus máximo por efeito", "Apenas os efeitos benéficos são prolongados"]
 
 [chronos.accelerate]

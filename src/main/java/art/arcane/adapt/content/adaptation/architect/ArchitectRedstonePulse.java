@@ -18,22 +18,26 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
-import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Lease registry for bound blocks that are currently emitting. Only the first
+ * pulse of an emitter mutates block states; overlapping pulses extend the lease
+ * so the block data captured before the first pulse is what gets restored.
+ */
 final class ArchitectRedstonePulse {
   static final int PULSE_TICKS = 4;
-  private static final int AIR_KIND_SHIFT = 30;
-  private static final int COORDINATE_MASK = 0x3FFFFFFF;
   private static final Object LEASE_LOCK = new Object();
-  private static final Map<Receiver, Lease> ACTIVE_RECEIVERS = new HashMap<>();
+  private static final Map<Emitter, Lease> ACTIVE_EMITTERS = new HashMap<>();
   private static long nextRuntimeId;
   private static long nextGeneration;
 
@@ -46,8 +50,8 @@ final class ArchitectRedstonePulse {
     }
   }
 
-  Activation begin(Receiver receiver, Material originalMaterial) {
-    if (receiver == null) {
+  Activation begin(Emitter emitter, List<Snapshot> snapshots) {
+    if (emitter == null || snapshots == null || snapshots.isEmpty()) {
       return null;
     }
 
@@ -56,14 +60,11 @@ final class ArchitectRedstonePulse {
         return null;
       }
 
-      Lease previous = ACTIVE_RECEIVERS.get(receiver);
-      if (previous == null && !isAir(originalMaterial)) {
-        return null;
-      }
-      Material restoredMaterial = previous == null ? originalMaterial : previous.originalMaterial();
-      Lease lease = new Lease(runtimeId, ++nextGeneration, restoredMaterial);
-      ACTIVE_RECEIVERS.put(receiver, lease);
-      return new Activation(receiver, lease, previous == null);
+      Lease previous = ACTIVE_EMITTERS.get(emitter);
+      List<Snapshot> restored = previous == null ? List.copyOf(snapshots) : previous.snapshots();
+      Lease lease = new Lease(runtimeId, ++nextGeneration, restored);
+      ACTIVE_EMITTERS.put(emitter, lease);
+      return new Activation(emitter, lease, previous == null);
     }
   }
 
@@ -72,33 +73,26 @@ final class ArchitectRedstonePulse {
       return false;
     }
     synchronized (LEASE_LOCK) {
-      return ACTIVE_RECEIVERS.remove(activation.receiver(), activation.lease());
+      return ACTIVE_EMITTERS.remove(activation.emitter(), activation.lease());
     }
   }
 
-  Restoration cancel(Receiver receiver) {
+  Restoration cancel(Emitter emitter) {
     synchronized (LEASE_LOCK) {
-      Lease removed = ACTIVE_RECEIVERS.remove(receiver);
-      return removed == null ? null : new Restoration(receiver, removed.originalMaterial());
+      Lease removed = ACTIVE_EMITTERS.remove(emitter);
+      return removed == null ? null : new Restoration(emitter, removed.snapshots());
     }
   }
 
-  boolean owns(Receiver receiver) {
+  boolean owns(Emitter emitter) {
     synchronized (LEASE_LOCK) {
-      return ACTIVE_RECEIVERS.containsKey(receiver);
+      return ACTIVE_EMITTERS.containsKey(emitter);
     }
   }
 
-  Material originalMaterial(Receiver receiver) {
+  Set<Emitter> emitters() {
     synchronized (LEASE_LOCK) {
-      Lease lease = ACTIVE_RECEIVERS.get(receiver);
-      return lease == null ? null : lease.originalMaterial();
-    }
-  }
-
-  Set<Receiver> receivers() {
-    synchronized (LEASE_LOCK) {
-      return Set.copyOf(ACTIVE_RECEIVERS.keySet());
+      return Set.copyOf(ACTIVE_EMITTERS.keySet());
     }
   }
 
@@ -106,33 +100,24 @@ final class ArchitectRedstonePulse {
     synchronized (LEASE_LOCK) {
       accepting = false;
       Set<Restoration> restorations = new HashSet<>();
-      Iterator<Map.Entry<Receiver, Lease>> iterator = ACTIVE_RECEIVERS.entrySet().iterator();
+      Iterator<Map.Entry<Emitter, Lease>> iterator = ACTIVE_EMITTERS.entrySet().iterator();
       while (iterator.hasNext()) {
-        Map.Entry<Receiver, Lease> entry = iterator.next();
+        Map.Entry<Emitter, Lease> entry = iterator.next();
         if (entry.getValue().runtimeId() != runtimeId) {
           continue;
         }
-        restorations.add(new Restoration(entry.getKey(), entry.getValue().originalMaterial()));
+        restorations.add(new Restoration(entry.getKey(), entry.getValue().snapshots()));
         iterator.remove();
       }
       return Set.copyOf(restorations);
     }
   }
 
-  static Receiver receiver(UUID worldId, int targetX, int targetY, int targetZ, BlockFace face) {
-    if (!isReceiverFace(face)) {
-      return null;
-    }
-
-    return new Receiver(
-        worldId,
-        targetX + face.getModX(),
-        targetY + face.getModY(),
-        targetZ + face.getModZ()
-    );
+  static Emitter emitter(UUID worldId, int x, int y, int z) {
+    return worldId == null ? null : new Emitter(worldId, x, y, z);
   }
 
-  static boolean isReceiverFace(BlockFace face) {
+  static boolean isBindableFace(BlockFace face) {
     return face == BlockFace.NORTH
         || face == BlockFace.EAST
         || face == BlockFace.SOUTH
@@ -141,58 +126,26 @@ final class ArchitectRedstonePulse {
         || face == BlockFace.DOWN;
   }
 
-  static int encodeBlock(int localX, int y, int localZ, int minHeight, Material originalMaterial) {
-    int coordinates = ((y - minHeight) << 8) | ((localZ & 15) << 4) | (localX & 15);
-    return (airKind(originalMaterial) << AIR_KIND_SHIFT) | coordinates;
-  }
-
-  static int decodeX(int encoded) {
-    return (encoded & COORDINATE_MASK) & 15;
-  }
-
-  static int decodeZ(int encoded) {
-    return ((encoded & COORDINATE_MASK) >>> 4) & 15;
-  }
-
-  static int decodeY(int encoded, int minHeight) {
-    return minHeight + ((encoded & COORDINATE_MASK) >>> 8);
-  }
-
-  static Material decodeOriginalMaterial(int encoded) {
-    return switch (encoded >>> AIR_KIND_SHIFT) {
-      case 0 -> Material.AIR;
-      case 1 -> Material.CAVE_AIR;
-      case 2 -> Material.VOID_AIR;
-      default -> null;
-    };
-  }
-
-  private static int airKind(Material material) {
-    return switch (material) {
-      case AIR -> 0;
-      case CAVE_AIR -> 1;
-      case VOID_AIR -> 2;
-      default -> throw new IllegalArgumentException("Receiver material is not air: " + material);
-    };
-  }
-
-  private static boolean isAir(Material material) {
-    return material == Material.AIR || material == Material.CAVE_AIR || material == Material.VOID_AIR;
-  }
-
-  record Activation(Receiver receiver, Lease lease, boolean firstPulse) {
-    Material originalMaterial() {
-      return lease.originalMaterial();
+  record Activation(Emitter emitter, Lease lease, boolean firstPulse) {
+    List<Snapshot> snapshots() {
+      return lease.snapshots();
     }
   }
 
-  record Restoration(Receiver receiver, Material originalMaterial) {
+  record Restoration(Emitter emitter, List<Snapshot> snapshots) {
   }
 
-  private record Lease(long runtimeId, long generation, Material originalMaterial) {
+  record Lease(long runtimeId, long generation, List<Snapshot> snapshots) {
   }
 
-  record Receiver(UUID worldId, int x, int y, int z) {
+  /**
+   * A single block touched by a pulse: where it is, what it was, and what the
+   * pulse turned it into.
+   */
+  record Snapshot(int x, int y, int z, BlockData original, BlockData powered) {
+  }
+
+  record Emitter(UUID worldId, int x, int y, int z) {
     boolean isInChunk(UUID otherWorldId, int chunkX, int chunkZ) {
       return worldId.equals(otherWorldId) && (x >> 4) == chunkX && (z >> 4) == chunkZ;
     }

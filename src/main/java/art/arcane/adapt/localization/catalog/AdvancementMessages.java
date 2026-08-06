@@ -451,8 +451,6 @@ public final class AdvancementMessages {
   public static final TextKey CHALLENGE_AGILITY_PARKOUR_MASTER_DESCRIPTION = TextKey.of("advancement.challenge_agility_parkour_master.description", "Chain 5+ wall jumps without touching the ground");
   public static final TextKey CHALLENGE_AGILITY_WIND_UP_10MIN_TITLE = TextKey.of("advancement.challenge_agility_wind_up_10min.title", "Second Wind");
   public static final TextKey CHALLENGE_AGILITY_WIND_UP_10MIN_DESCRIPTION = TextKey.of("advancement.challenge_agility_wind_up_10min.description", "Spend 10 cumulative minutes at max sprint speed");
-  public static final TextKey CHALLENGE_AGILITY_PARKOUR_500_TITLE = TextKey.of("advancement.challenge_agility_parkour_500.title", "Freerunner");
-  public static final TextKey CHALLENGE_AGILITY_PARKOUR_500_DESCRIPTION = TextKey.of("advancement.challenge_agility_parkour_500.description", "Complete 500 chained sprint-jump landings");
   public static final TextKey CHALLENGE_AGILITY_ROLL_100_TITLE = TextKey.of("advancement.challenge_agility_roll_100.title", "Tuck and Roll");
   public static final TextKey CHALLENGE_AGILITY_ROLL_100_DESCRIPTION = TextKey.of("advancement.challenge_agility_roll_100.description", "Prevent 100 hearts of fall damage");
   public static final TextKey CHALLENGE_AGILITY_ROLL_1000_TITLE = TextKey.of("advancement.challenge_agility_roll_1000.title", "Stuntman");
@@ -1912,8 +1910,6 @@ public final class AdvancementMessages {
     builder.add(CHALLENGE_AGILITY_PARKOUR_MASTER_DESCRIPTION);
     builder.add(CHALLENGE_AGILITY_WIND_UP_10MIN_TITLE);
     builder.add(CHALLENGE_AGILITY_WIND_UP_10MIN_DESCRIPTION);
-    builder.add(CHALLENGE_AGILITY_PARKOUR_500_TITLE);
-    builder.add(CHALLENGE_AGILITY_PARKOUR_500_DESCRIPTION);
     builder.add(CHALLENGE_AGILITY_ROLL_100_TITLE);
     builder.add(CHALLENGE_AGILITY_ROLL_100_DESCRIPTION);
     builder.add(CHALLENGE_AGILITY_ROLL_1000_TITLE);

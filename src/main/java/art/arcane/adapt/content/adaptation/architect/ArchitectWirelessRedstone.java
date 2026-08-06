@@ -24,7 +24,7 @@ import art.arcane.adapt.localization.catalog.ArchitectMessages;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.ItemCooldowns;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -39,70 +39,63 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.AnaloguePowerable;
+import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Lightable;
+import org.bukkit.block.data.Openable;
+import org.bukkit.block.data.Powerable;
+import org.bukkit.block.data.type.Door;
+import org.bukkit.block.data.type.NoteBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockPistonExtendEvent;
-import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.event.entity.EntityChangeBlockEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.util.BoundingBox;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.Map;
 
 public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWirelessRedstone.Config> {
-  private static final NamespacedKey JOURNAL_KEY = new NamespacedKey("adapt", "architect-redstone-remote");
-  private static final int MAX_JOURNALED_RECEIVERS_PER_CHUNK = 4096;
-  private static final int MAX_RECOVERY_CHUNKS_PER_TICK = 32;
   private static final int MAX_SCHEDULE_ATTEMPTS = 3;
   private static final long SHUTDOWN_RESTORATION_TIMEOUT_MILLIS = 3000L;
-  private static final Map<ArchitectRedstonePulse.Receiver, Long> SHUTDOWN_RESTORATION_OWNERS =
+  private static final Map<ArchitectRedstonePulse.Emitter, Long> SHUTDOWN_RESTORATION_OWNERS =
       new ConcurrentHashMap<>();
   private static final AtomicLong NEXT_RUNTIME_GENERATION = new AtomicLong();
+  private static final BlockFace[] PULSE_NEIGHBOURS = {
+      BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST
+  };
 
-  private final Cooldowns pulseCd = cooldowns();
+  /**
+   * The remote rides on a redstone torch, so its pulse cooldown lives in the
+   * bound torch's own group. A remote on cooldown must never gray out or block
+   * placing ordinary redstone torches.
+   */
+  private final ItemCooldowns pulseCd = ItemCooldowns.forGroup(BoundRedstoneTorch.COOLDOWN_GROUP);
   private final ArchitectRedstonePulse pulses = new ArchitectRedstonePulse();
-  private final Queue<ChunkRecovery> recoveryQueue = new ConcurrentLinkedQueue<>();
-  private final Set<ChunkRecovery> queuedRecoveries = ConcurrentHashMap.newKeySet();
-  private final Map<ChunkRecovery, Integer> recoveryScheduleFailures = new ConcurrentHashMap<>();
-  private final AtomicBoolean recoveryScheduled = new AtomicBoolean();
   private final long runtimeGeneration = NEXT_RUNTIME_GENERATION.incrementAndGet();
 
   public ArchitectWirelessRedstone() {
@@ -133,71 +126,15 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
   }
 
   @Override
-  protected void onRuntimeActivated() {
-    queueLoadedChunkRecovery();
-  }
-
-  @Override
   public void addStats(int level, Element element) {
     element.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.WIRELESS_REDSTONE_LORE1));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onPlaceBlock(BlockPlaceEvent event) {
-    if (isProtectedReceiver(event.getBlockPlaced())) {
-      event.setBuild(false);
-      event.setCancelled(true);
-      return;
-    }
-
     ItemStack item = event.getItemInHand();
     if (BoundRedstoneTorch.hasItemData(item) && isRedstoneTorch(item)) {
       event.setBuild(false);
-      event.setCancelled(true);
-    }
-  }
-
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onBlockBreak(BlockBreakEvent event) {
-    if (isProtectedReceiver(event.getBlock())) {
-      event.setCancelled(true);
-    }
-  }
-
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onPistonExtend(BlockPistonExtendEvent event) {
-    for (Block block : event.getBlocks()) {
-      if (isProtectedReceiver(block) || isProtectedReceiver(block.getRelative(event.getDirection()))) {
-        event.setCancelled(true);
-        return;
-      }
-    }
-  }
-
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onPistonRetract(BlockPistonRetractEvent event) {
-    for (Block block : event.getBlocks()) {
-      if (isProtectedReceiver(block)
-          || isProtectedReceiver(block.getRelative(event.getDirection().getOppositeFace()))) {
-        event.setCancelled(true);
-        return;
-      }
-    }
-  }
-
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onBlockExplode(BlockExplodeEvent event) {
-    event.blockList().removeIf(this::isProtectedReceiver);
-  }
-
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onEntityExplode(EntityExplodeEvent event) {
-    event.blockList().removeIf(this::isProtectedReceiver);
-  }
-
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-    if (isProtectedReceiver(event.getBlock())) {
       event.setCancelled(true);
     }
   }
@@ -235,17 +172,19 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         return;
       }
 
+      if (BoundRedstoneTorch.io.ensureCooldownGroup(itemInHand)) {
+        if (event.getHand() == EquipmentSlot.HAND) {
+          player.getInventory().setItemInMainHand(itemInHand);
+        } else {
+          player.getInventory().setItemInOffHand(itemInHand);
+        }
+      }
+
       switch (event.getAction()) {
         case LEFT_CLICK_BLOCK, LEFT_CLICK_AIR -> handleLeftClick(event, player);
         case RIGHT_CLICK_AIR, RIGHT_CLICK_BLOCK -> handleRightClick(event, player);
       }
     });
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void onChunkLoad(ChunkLoadEvent event) {
-    Chunk chunk = event.getChunk();
-    queueChunkRecovery(chunk.getWorld(), chunk.getX(), chunk.getZ());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -254,13 +193,13 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     UUID worldId = world.getUID();
     int chunkX = event.getChunk().getX();
     int chunkZ = event.getChunk().getZ();
-    for (ArchitectRedstonePulse.Receiver receiver : pulses.receivers()) {
-      if (!receiver.isInChunk(worldId, chunkX, chunkZ)) {
+    for (ArchitectRedstonePulse.Emitter emitter : pulses.emitters()) {
+      if (!emitter.isInChunk(worldId, chunkX, chunkZ)) {
         continue;
       }
-      ArchitectRedstonePulse.Restoration restoration = pulses.cancel(receiver);
+      ArchitectRedstonePulse.Restoration restoration = pulses.cancel(emitter);
       if (restoration != null) {
-        restoreReceiver(world, restoration);
+        restoreEmitter(world, restoration);
       }
     }
   }
@@ -297,41 +236,24 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
   private BindingRequest createBindingRequest(PlayerInteractEvent event, Player player) {
     Block target = event.getClickedBlock();
     BlockFace face = event.getBlockFace();
-    if (target == null || !ArchitectRedstonePulse.isReceiverFace(face)) {
+    if (target == null || !ArchitectRedstonePulse.isBindableFace(face)) {
       return null;
     }
 
     Location targetLocation = target.getLocation();
     World world = targetLocation.getWorld();
-    ArchitectRedstonePulse.Receiver receiver = ArchitectRedstonePulse.receiver(
-        world.getUID(), target.getX(), target.getY(), target.getZ(), face);
-    if (receiver == null || !isValidHeight(world, target.getY()) || !isValidHeight(world, receiver.y())) {
+    if (!isValidHeight(world, target.getY())) {
       return null;
     }
-    Location receiverLocation = new Location(world, receiver.x(), receiver.y(), receiver.z());
+
     int handSlot = player.getInventory().getHeldItemSlot();
     ItemStack handSnapshot = player.getInventory().getItemInMainHand().clone();
-    return new BindingRequest(targetLocation, face, receiverLocation, handSlot, handSnapshot);
+    return new BindingRequest(targetLocation, face, handSlot, handSnapshot);
   }
 
   private void validateBindingTarget(Player player, BindingRequest binding) {
     if (!isRuntimeRegistered() || AdaptConfig.get().isWorldBlacklisted(binding.target().getWorld())
         || binding.target().getBlock().getType().isAir()) {
-      showPulseFailure(player);
-      return;
-    }
-
-    if (!J.runAt(binding.receiver(), () -> validateBindingReceiver(player, binding))) {
-      IllegalStateException failure = new IllegalStateException(
-          "Failed to schedule Architect Redstone Remote binding receiver validation at "
-              + binding.receiver());
-      failure.printStackTrace();
-      showPulseFailure(player);
-    }
-  }
-
-  private void validateBindingReceiver(Player player, BindingRequest binding) {
-    if (!isRuntimeRegistered() || !isReceiverAvailable(binding.receiver().getBlock())) {
       showPulseFailure(player);
       return;
     }
@@ -353,7 +275,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         || player.getInventory().getHeldItemSlot() != binding.handSlot()
         || !hand.equals(binding.handSnapshot())
         || resolveInteractContext(player, binding.target()) == null
-        || !canBlockPlace(player, binding.receiver())) {
+        || !canBlockPlace(player, binding.target())) {
       showPulseFailure(player);
       return;
     }
@@ -424,18 +346,12 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       return;
     }
 
-    pulseCd.mark(player.getUniqueId());
-    showPlayerCooldown(player);
+    pulseCd.mark(player, getConfig().cooldown);
     triggerPulse(player, event.getItem());
   }
 
-  private void showPlayerCooldown(Player player) {
-    int cooldownTicks = Math.max(1, (int) Math.ceil(getConfig().cooldown / 50D));
-    player.setCooldown(Material.REDSTONE_TORCH, cooldownTicks);
-  }
-
   private boolean hasCooldown(Player player) {
-    return !pulseCd.isReady(player.getUniqueId(), getConfig().cooldown);
+    return !pulseCd.isReady(player, getConfig().cooldown);
   }
 
   private void triggerPulse(Player player, ItemStack item) {
@@ -446,11 +362,10 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     }
 
     Adapt.platform.getChunkAtAsync(binding.target())
-        .thenCompose(targetChunk -> Adapt.platform.getChunkAtAsync(binding.receiver()))
-        .whenComplete((receiverChunk, error) -> {
+        .whenComplete((targetChunk, error) -> {
           if (error != null) {
-            Adapt.error("Failed to load an Architect Redstone Remote receiver chunk at "
-                + binding.receiver());
+            Adapt.error("Failed to load an Architect Redstone Remote bound chunk at "
+                + binding.target());
             error.printStackTrace();
             showPulseFailure(player);
             return;
@@ -482,14 +397,14 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     if (!isRuntimeRegistered() || !player.isOnline()
         || resolveInteractContext(player, player.getLocation()) == null
         || !canInteract(player, binding.target())
-        || !canBlockPlace(player, binding.receiver())) {
+        || !canBlockPlace(player, binding.target())) {
       showPulseFailure(player);
       return;
     }
 
-    if (!J.runAt(binding.receiver(), () -> beginPulse(player, binding))) {
+    if (!J.runAt(binding.target(), () -> beginPulse(player, binding))) {
       IllegalStateException failure = new IllegalStateException(
-          "Failed to schedule Architect Redstone Remote pulse at " + binding.receiverKey());
+          "Failed to schedule Architect Redstone Remote pulse at " + binding.emitter());
       failure.printStackTrace();
       showPulseFailure(player);
     }
@@ -498,7 +413,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
   private PulseBinding resolveBinding(BoundRedstoneTorch.Data data) {
     if (data == null || data.getLocation() == null || !data.getLocation().isFinite()
         || !data.getLocation().isWorldLoaded()
-        || !ArchitectRedstonePulse.isReceiverFace(data.getFace())) {
+        || !ArchitectRedstonePulse.isBindableFace(data.getFace())) {
       return null;
     }
 
@@ -507,81 +422,187 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     int targetX = stored.getBlockX();
     int targetY = stored.getBlockY();
     int targetZ = stored.getBlockZ();
-    if (AdaptConfig.get().isWorldBlacklisted(world) || !isValidHeight(world, targetY)) {
+    Location targetLocation = new Location(world, targetX, targetY, targetZ);
+    if (AdaptConfig.get().isWorldBlacklisted(world) || !isValidHeight(world, targetY)
+        || !world.getWorldBorder().isInside(targetLocation.clone().add(0.5D, 0.5D, 0.5D))) {
       return null;
     }
 
-    ArchitectRedstonePulse.Receiver receiver = ArchitectRedstonePulse.receiver(
-        world.getUID(), targetX, targetY, targetZ, data.getFace());
-    Location receiverLocation = receiver == null ? null
-        : new Location(world, receiver.x(), receiver.y(), receiver.z());
-    if (receiver == null || !isValidHeight(world, receiver.y())
-        || !world.getWorldBorder().isInside(receiverLocation.clone().add(0.5D, 0.5D, 0.5D))) {
-      return null;
-    }
-
-    return new PulseBinding(
-        new Location(world, targetX, targetY, targetZ),
-        receiverLocation,
-        receiver
-    );
+    ArchitectRedstonePulse.Emitter emitter = ArchitectRedstonePulse.emitter(
+        world.getUID(), targetX, targetY, targetZ);
+    return emitter == null ? null : new PulseBinding(targetLocation, data.getFace(), emitter);
   }
 
+  /**
+   * Drives the bound block itself, or the redstone components touching it when
+   * the block has no powered state of its own. No block is ever placed or
+   * swapped; only block data flips for the pulse window.
+   */
   private void beginPulse(Player player, PulseBinding binding) {
-    if (!isRuntimeRegistered() || !claimReceiverForCurrentRuntime(binding.receiverKey())) {
+    if (!isRuntimeRegistered() || !claimEmitterForCurrentRuntime(binding.emitter())) {
       showPulseFailure(player);
       return;
     }
 
-    Block receiverBlock = binding.receiver().getBlock();
-    boolean overlapping = pulses.owns(binding.receiverKey());
-    if ((!overlapping && !isReceiverAvailable(receiverBlock))
-        || (overlapping && receiverBlock.getType() != Material.REDSTONE_BLOCK)
-        || !journalReceiver(receiverBlock, overlapping
-        ? pulses.originalMaterial(binding.receiverKey()) : receiverBlock.getType())) {
-      if (overlapping && receiverBlock.getType() != Material.REDSTONE_BLOCK) {
-        pulses.cancel(binding.receiverKey());
-        unjournalReceiver(receiverBlock);
-      }
+    Block targetBlock = binding.target().getBlock();
+    List<ArchitectRedstonePulse.Snapshot> snapshots = planPulse(targetBlock, binding.face());
+    if (snapshots.isEmpty()) {
       showPulseFailure(player);
       return;
     }
 
-    ArchitectRedstonePulse.Activation activation = pulses.begin(
-        binding.receiverKey(), receiverBlock.getType());
+    ArchitectRedstonePulse.Activation activation = pulses.begin(binding.emitter(), snapshots);
     if (activation == null) {
-      if (!overlapping) {
-        unjournalReceiver(receiverBlock);
-      }
       showPulseFailure(player);
       return;
     }
 
     if (activation.firstPulse()) {
       try {
-        receiverBlock.setType(Material.REDSTONE_BLOCK, true);
+        applySnapshots(targetBlock.getWorld(), activation.snapshots(), true);
       } catch (RuntimeException | Error error) {
         pulses.complete(activation);
-        restoreReceiver(receiverBlock, activation.originalMaterial());
+        applySnapshots(targetBlock.getWorld(), activation.snapshots(), false);
         IllegalStateException failure = new IllegalStateException(
-            "Failed to place Architect Redstone Remote source at " + binding.receiverKey(), error);
+            "Failed to energize the Architect Redstone Remote block at " + binding.emitter(), error);
         failure.printStackTrace();
         throw failure;
-      }
-      if (receiverBlock.getType() != Material.REDSTONE_BLOCK) {
-        pulses.complete(activation);
-        unjournalReceiver(receiverBlock);
-        showPulseFailure(player);
-        return;
       }
     }
 
     showPulseSuccess(player, binding.target());
-    if (!J.runAt(binding.receiver(), () -> finishPulse(activation), ArchitectRedstonePulse.PULSE_TICKS)) {
+    if (!J.runAt(binding.target(), () -> finishPulse(activation), ArchitectRedstonePulse.PULSE_TICKS)) {
       finishPulse(activation);
       new IllegalStateException("Failed to schedule Architect Redstone Remote cleanup at "
-          + binding.receiverKey()).printStackTrace();
+          + binding.emitter()).printStackTrace();
     }
+  }
+
+  private List<ArchitectRedstonePulse.Snapshot> planPulse(Block block, BlockFace face) {
+    List<ArchitectRedstonePulse.Snapshot> snapshots = new ArrayList<>();
+    addSnapshots(block, snapshots);
+    if (!snapshots.isEmpty()) {
+      return snapshots;
+    }
+
+    if (ArchitectRedstonePulse.isBindableFace(face)) {
+      addSnapshots(block.getRelative(face), snapshots);
+    }
+    for (BlockFace neighbourFace : PULSE_NEIGHBOURS) {
+      addSnapshots(block.getRelative(neighbourFace), snapshots);
+    }
+
+    return snapshots;
+  }
+
+  private void addSnapshots(Block block, List<ArchitectRedstonePulse.Snapshot> out) {
+    ArchitectRedstonePulse.Snapshot snapshot = snapshot(block, out);
+    if (snapshot == null) {
+      return;
+    }
+
+    out.add(snapshot);
+    if (!(block.getBlockData() instanceof Door door)) {
+      return;
+    }
+
+    Block otherHalf = block.getRelative(door.getHalf() == Bisected.Half.BOTTOM
+        ? BlockFace.UP : BlockFace.DOWN);
+    ArchitectRedstonePulse.Snapshot half = snapshot(otherHalf, out);
+    if (half != null) {
+      out.add(half);
+    }
+  }
+
+  private ArchitectRedstonePulse.Snapshot snapshot(Block block,
+                                                   List<ArchitectRedstonePulse.Snapshot> taken) {
+    for (ArchitectRedstonePulse.Snapshot existing : taken) {
+      if (existing.x() == block.getX() && existing.y() == block.getY()
+          && existing.z() == block.getZ()) {
+        return null;
+      }
+    }
+
+    BlockData original = block.getBlockData();
+    BlockData powered = poweredCopy(original, true);
+    if (powered == null || powered.matches(original)) {
+      return null;
+    }
+
+    return new ArchitectRedstonePulse.Snapshot(
+        block.getX(), block.getY(), block.getZ(), original, powered);
+  }
+
+  private void applySnapshots(World world, List<ArchitectRedstonePulse.Snapshot> snapshots,
+                              boolean powered) {
+    for (ArchitectRedstonePulse.Snapshot snapshot : snapshots) {
+      Block block = world.getBlockAt(snapshot.x(), snapshot.y(), snapshot.z());
+      BlockData target = powered ? snapshot.powered() : snapshot.original();
+      BlockData expected = powered ? snapshot.original() : snapshot.powered();
+      if (!block.getBlockData().matches(expected)) {
+        continue;
+      }
+
+      block.setBlockData(target, true);
+      if (powered && target instanceof NoteBlock note) {
+        world.playNote(block.getLocation(), note.getInstrument(), note.getNote());
+      }
+    }
+  }
+
+  /**
+   * Returns a copy of the block data flipped to the requested power state, or
+   * null when the block has no redstone state that can be driven directly.
+   */
+  static BlockData poweredCopy(BlockData data, boolean powered) {
+    if (data == null || !isDriveable(data)) {
+      return null;
+    }
+
+    BlockData copy = data.clone();
+    if (copy instanceof Lightable lightable) {
+      lightable.setLit(powered);
+      return copy;
+    }
+
+    if (copy instanceof AnaloguePowerable analogue) {
+      analogue.setPower(powered ? analogue.getMaximumPower() : 0);
+      return copy;
+    }
+
+    if (copy instanceof Openable openable) {
+      openable.setOpen(powered);
+      return copy;
+    }
+
+    if (copy instanceof Powerable powerable) {
+      powerable.setPowered(powered);
+      return copy;
+    }
+
+    return null;
+  }
+
+  static boolean isDriveable(BlockData data) {
+    if (data == null) {
+      return false;
+    }
+
+    if (data instanceof Lightable) {
+      return isRedstoneLightable(data.getMaterial());
+    }
+
+    return data instanceof AnaloguePowerable || data instanceof Powerable;
+  }
+
+  /**
+   * Lightable also covers furnaces, campfires, and candles. Only redstone
+   * fixtures may be lit by a pulse.
+   */
+  static boolean isRedstoneLightable(Material material) {
+    return material == Material.REDSTONE_LAMP
+        || material == Material.REDSTONE_TORCH
+        || material == Material.REDSTONE_WALL_TORCH;
   }
 
   private void finishPulse(ArchitectRedstonePulse.Activation activation) {
@@ -589,13 +610,13 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       return;
     }
 
-    World world = Bukkit.getWorld(activation.receiver().worldId());
+    World world = Bukkit.getWorld(activation.emitter().worldId());
     if (world == null || !world.isChunkLoaded(
-        activation.receiver().x() >> 4, activation.receiver().z() >> 4)) {
+        activation.emitter().x() >> 4, activation.emitter().z() >> 4)) {
       return;
     }
-    restoreReceiver(world, new ArchitectRedstonePulse.Restoration(
-        activation.receiver(), activation.originalMaterial()));
+    restoreEmitter(world, new ArchitectRedstonePulse.Restoration(
+        activation.emitter(), activation.snapshots()));
   }
 
   private void showPulseSuccess(Player player, Location target) {
@@ -617,290 +638,13 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         .sound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1F, 0.9F));
   }
 
-  private boolean journalReceiver(Block block, Material originalMaterial) {
-    if (originalMaterial == null || !originalMaterial.isAir()) {
-      return false;
-    }
-    Chunk chunk = block.getChunk();
-    PersistentDataContainer data = chunk.getPersistentDataContainer();
-    int encoded = ArchitectRedstonePulse.encodeBlock(
-        block.getX() & 15, block.getY(), block.getZ() & 15,
-        block.getWorld().getMinHeight(), originalMaterial);
-    int[] journal = data.get(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY);
-    if (journal == null) {
-      data.set(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY, new int[]{encoded});
-      return true;
-    }
-    for (int existing : journal) {
-      if (existing == encoded) {
-        return true;
-      }
-    }
-    if (journal.length >= MAX_JOURNALED_RECEIVERS_PER_CHUNK) {
-      return false;
-    }
-
-    int[] expanded = Arrays.copyOf(journal, journal.length + 1);
-    expanded[journal.length] = encoded;
-    data.set(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY, expanded);
-    return true;
-  }
-
-  private void unjournalReceiver(Block block) {
-    PersistentDataContainer data = block.getChunk().getPersistentDataContainer();
-    int[] journal = data.get(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY);
-    if (journal == null || journal.length == 0) {
-      return;
-    }
-
-    int found = -1;
-    for (int index = 0; index < journal.length; index++) {
-      int encoded = journal[index];
-      if (matchesJournalPosition(block, encoded)) {
-        found = index;
-        break;
-      }
-    }
-    if (found < 0) {
-      return;
-    }
-    if (journal.length == 1) {
-      data.remove(JOURNAL_KEY);
-      return;
-    }
-
-    int[] compacted = new int[journal.length - 1];
-    System.arraycopy(journal, 0, compacted, 0, found);
-    System.arraycopy(journal, found + 1, compacted, found, journal.length - found - 1);
-    data.set(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY, compacted);
-  }
-
-  private void queueLoadedChunkRecovery() {
-    for (World world : Bukkit.getWorlds()) {
-      for (Chunk chunk : world.getLoadedChunks()) {
-        queueChunkRecovery(world, chunk.getX(), chunk.getZ());
-      }
-    }
-  }
-
-  private void queueChunkRecovery(World world, int chunkX, int chunkZ) {
-    if (!isRuntimeRegistered()) {
-      return;
-    }
-
-    ChunkRecovery recovery = new ChunkRecovery(world, chunkX, chunkZ);
-    recoveryScheduleFailures.remove(recovery);
-    enqueueRecovery(recovery);
-  }
-
-  private void enqueueRecovery(ChunkRecovery recovery) {
-    if (!queuedRecoveries.add(recovery)) {
-      return;
-    }
-    recoveryQueue.add(recovery);
-    scheduleRecoveryDrain();
-  }
-
-  private void scheduleRecoveryDrain() {
-    ChunkRecovery anchorRecovery = recoveryQueue.peek();
-    if (anchorRecovery == null || !recoveryScheduled.compareAndSet(false, true)) {
-      return;
-    }
-
-    Location anchor = new Location(anchorRecovery.world(), (anchorRecovery.chunkX() << 4) + 8,
-        anchorRecovery.world().getMinHeight(), (anchorRecovery.chunkZ() << 4) + 8);
-    if (J.runAt(anchor, this::drainRecoveryQueue, 1)) {
-      return;
-    }
-
-    recoveryScheduled.set(false);
-    retryRecoveryDrain(anchorRecovery);
-  }
-
-  private void retryRecoveryDrain(ChunkRecovery recovery) {
-    int attempts = recoveryScheduleFailures.merge(recovery, 1, Integer::sum);
-    if (isRuntimeRegistered() && attempts < MAX_SCHEDULE_ATTEMPTS) {
-      CompletableFuture.delayedExecutor(50L, TimeUnit.MILLISECONDS).execute(() -> {
-        if (isRuntimeRegistered()) {
-          scheduleRecoveryDrain();
-        }
-      });
-      return;
-    }
-
-    recoveryScheduleFailures.remove(recovery);
-    recoveryQueue.remove(recovery);
-    queuedRecoveries.remove(recovery);
-    IllegalStateException failure = new IllegalStateException(
-        "Failed to schedule Architect Redstone Remote recovery queue for chunk "
-            + recovery.world().getName() + "[" + recovery.chunkX() + "," + recovery.chunkZ() + "]");
-    failure.printStackTrace();
-    scheduleRecoveryDrain();
-  }
-
-  private void drainRecoveryQueue() {
-    if (!isRuntimeRegistered()) {
-      recoveryQueue.clear();
-      queuedRecoveries.clear();
-      recoveryScheduled.set(false);
-      return;
-    }
-
-    int dispatched = 0;
-    ChunkRecovery recovery;
-    while (dispatched < MAX_RECOVERY_CHUNKS_PER_TICK && (recovery = recoveryQueue.poll()) != null) {
-      ChunkRecovery current = recovery;
-      queuedRecoveries.remove(current);
-      Location anchor = new Location(current.world(), (current.chunkX() << 4) + 8,
-          current.world().getMinHeight(), (current.chunkZ() << 4) + 8);
-      if (J.runAt(anchor, () -> recoverChunk(current))) {
-        recoveryScheduleFailures.remove(current);
-      } else {
-        retryRecovery(current);
-      }
-      dispatched++;
-    }
-
-    recoveryScheduled.set(false);
-    scheduleRecoveryDrain();
-  }
-
-  private void retryRecovery(ChunkRecovery recovery) {
-    int attempts = recoveryScheduleFailures.merge(recovery, 1, Integer::sum);
-    if (isRuntimeRegistered() && attempts < MAX_SCHEDULE_ATTEMPTS) {
-      CompletableFuture.delayedExecutor(50L, TimeUnit.MILLISECONDS).execute(() -> {
-        if (isRuntimeRegistered()) {
-          enqueueRecovery(recovery);
-        }
-      });
-      return;
-    }
-
-    recoveryScheduleFailures.remove(recovery);
-    IllegalStateException failure = new IllegalStateException(
-        "Failed to schedule Architect Redstone Remote recovery for chunk "
-            + recovery.world().getName() + "[" + recovery.chunkX() + "," + recovery.chunkZ() + "]");
-    failure.printStackTrace();
-  }
-
-  private void recoverChunk(ChunkRecovery recovery) {
-    World world = recovery.world();
-    if (!world.isChunkLoaded(recovery.chunkX(), recovery.chunkZ())) {
-      return;
-    }
-
-    Chunk chunk = world.getChunkAt(recovery.chunkX(), recovery.chunkZ());
-    PersistentDataContainer data = chunk.getPersistentDataContainer();
-    int[] journal = data.get(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY);
-    if (journal == null || journal.length == 0) {
-      return;
-    }
-
-    int limit = Math.min(journal.length, MAX_JOURNALED_RECEIVERS_PER_CHUNK);
-    int[] retained = new int[journal.length];
-    int retainedCount = 0;
-    for (int index = 0; index < limit; index++) {
-      int encoded = journal[index];
-      int y = ArchitectRedstonePulse.decodeY(encoded, world.getMinHeight());
-      Material originalMaterial = ArchitectRedstonePulse.decodeOriginalMaterial(encoded);
-      if (!isValidHeight(world, y) || originalMaterial == null) {
-        continue;
-      }
-
-      ArchitectRedstonePulse.Receiver receiver = new ArchitectRedstonePulse.Receiver(
-          world.getUID(),
-          (recovery.chunkX() << 4) + ArchitectRedstonePulse.decodeX(encoded),
-          y,
-          (recovery.chunkZ() << 4) + ArchitectRedstonePulse.decodeZ(encoded)
-      );
-      if (!claimReceiverForCurrentRuntime(receiver)) {
-        retained[retainedCount++] = encoded;
-        continue;
-      }
-      if (pulses.owns(receiver)) {
-        retained[retainedCount++] = encoded;
-        continue;
-      }
-
-      Block block = world.getBlockAt(receiver.x(), receiver.y(), receiver.z());
-      if (block.getType() == Material.REDSTONE_BLOCK
-          && !restoreReceiver(block, originalMaterial, false)) {
-        retained[retainedCount++] = encoded;
-      }
-    }
-    for (int index = limit; index < journal.length; index++) {
-      retained[retainedCount++] = journal[index];
-    }
-
-    if (retainedCount == 0) {
-      data.remove(JOURNAL_KEY);
-    } else {
-      data.set(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY, Arrays.copyOf(retained, retainedCount));
-    }
-    if (journal.length > limit && retainedCount < journal.length) {
-      queueChunkRecovery(world, recovery.chunkX(), recovery.chunkZ());
-    }
-  }
-
-  private boolean isProtectedReceiver(Block block) {
-    ArchitectRedstonePulse.Receiver receiver = new ArchitectRedstonePulse.Receiver(
-        block.getWorld().getUID(), block.getX(), block.getY(), block.getZ());
-    if (pulses.owns(receiver)) {
-      return true;
-    }
-
-    int[] journal = block.getChunk().getPersistentDataContainer()
-        .get(JOURNAL_KEY, PersistentDataType.INTEGER_ARRAY);
-    if (journal == null) {
-      return false;
-    }
-    for (int encoded : journal) {
-      if (matchesJournalPosition(block, encoded)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private boolean matchesJournalPosition(Block block, int encoded) {
-    return ArchitectRedstonePulse.decodeX(encoded) == (block.getX() & 15)
-        && ArchitectRedstonePulse.decodeY(encoded, block.getWorld().getMinHeight()) == block.getY()
-        && ArchitectRedstonePulse.decodeZ(encoded) == (block.getZ() & 15);
-  }
-
-  private boolean isReceiverAvailable(Block block) {
-    Location center = block.getLocation().add(0.5D, 0.5D, 0.5D);
-    return block.getType().isAir()
-        && block.getWorld().getWorldBorder().isInside(center)
-        && block.getWorld().getNearbyEntities(BoundingBox.of(block)).isEmpty();
-  }
-
-  private boolean restoreReceiver(World world, ArchitectRedstonePulse.Restoration restoration) {
-    ArchitectRedstonePulse.Receiver receiver = restoration.receiver();
-    return restoreReceiver(world.getBlockAt(receiver.x(), receiver.y(), receiver.z()),
-        restoration.originalMaterial());
-  }
-
-  private boolean restoreReceiver(Block block, Material originalMaterial) {
-    return restoreReceiver(block, originalMaterial, true);
-  }
-
-  private boolean restoreReceiver(Block block, Material originalMaterial, boolean clearJournal) {
+  private boolean restoreEmitter(World world, ArchitectRedstonePulse.Restoration restoration) {
     try {
-      if (block.getType() == Material.REDSTONE_BLOCK) {
-        block.setType(originalMaterial, true);
-        if (block.getType() == Material.REDSTONE_BLOCK) {
-          new IllegalStateException("Architect Redstone Remote source remained powered at "
-              + block.getLocation()).printStackTrace();
-          return false;
-        }
-      }
-      if (clearJournal) {
-        unjournalReceiver(block);
-      }
+      applySnapshots(world, restoration.snapshots(), false);
       return true;
     } catch (RuntimeException | Error error) {
-      Adapt.error("Failed to restore Architect Redstone Remote source at " + block.getLocation());
+      Adapt.error("Failed to restore an Architect Redstone Remote block at "
+          + restoration.emitter());
       error.printStackTrace();
       return false;
     }
@@ -910,24 +654,24 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     return y >= world.getMinHeight() && y < world.getMaxHeight();
   }
 
-  private boolean claimReceiverForCurrentRuntime(ArchitectRedstonePulse.Receiver receiver) {
-    Long owner = SHUTDOWN_RESTORATION_OWNERS.compute(receiver, (key, currentOwner) ->
+  private boolean claimEmitterForCurrentRuntime(ArchitectRedstonePulse.Emitter emitter) {
+    Long owner = SHUTDOWN_RESTORATION_OWNERS.compute(emitter, (key, currentOwner) ->
         currentOwner != null && currentOwner >= runtimeGeneration ? currentOwner : null);
     return owner == null;
   }
 
   private ShutdownRestorationTask registerShutdownRestoration(
       ArchitectRedstonePulse.Restoration restoration) {
-    ArchitectRedstonePulse.Receiver receiver = restoration.receiver();
+    ArchitectRedstonePulse.Emitter emitter = restoration.emitter();
     ShutdownRestorationTask task = new ShutdownRestorationTask(
         restoration, runtimeGeneration, new CompletableFuture<>());
-    SHUTDOWN_RESTORATION_OWNERS.merge(receiver, runtimeGeneration, Long::max);
+    SHUTDOWN_RESTORATION_OWNERS.merge(emitter, runtimeGeneration, Long::max);
     return task;
   }
 
-  private void releaseShutdownRestoration(ArchitectRedstonePulse.Receiver receiver,
+  private void releaseShutdownRestoration(ArchitectRedstonePulse.Emitter emitter,
                                           long ownerGeneration) {
-    SHUTDOWN_RESTORATION_OWNERS.remove(receiver, ownerGeneration);
+    SHUTDOWN_RESTORATION_OWNERS.remove(emitter, ownerGeneration);
   }
 
   private boolean isRestorationThreadOwned(Location location) {
@@ -937,38 +681,38 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
   }
 
   private void completeShutdownRestoration(ShutdownRestorationTask task) {
-    releaseShutdownRestoration(task.restoration().receiver(), task.ownerGeneration());
+    releaseShutdownRestoration(task.restoration().emitter(), task.ownerGeneration());
     task.completion().complete(null);
   }
 
   private boolean failShutdownRestoration(ShutdownRestorationTask task, IllegalStateException failure) {
-    releaseShutdownRestoration(task.restoration().receiver(), task.ownerGeneration());
+    releaseShutdownRestoration(task.restoration().emitter(), task.ownerGeneration());
     return task.completion().completeExceptionally(failure);
   }
 
-  private void restoreShutdownReceiver(World world, ShutdownRestorationTask task) {
+  private void restoreShutdownEmitter(World world, ShutdownRestorationTask task) {
     ArchitectRedstonePulse.Restoration restoration = task.restoration();
-    ArchitectRedstonePulse.Receiver receiver = restoration.receiver();
+    ArchitectRedstonePulse.Emitter emitter = restoration.emitter();
     long ownerGeneration = task.ownerGeneration();
-    Long currentOwner = SHUTDOWN_RESTORATION_OWNERS.get(receiver);
+    Long currentOwner = SHUTDOWN_RESTORATION_OWNERS.get(emitter);
     if (currentOwner == null || currentOwner != ownerGeneration) {
       completeShutdownRestoration(task);
       return;
     }
-    if (pulses.owns(receiver)) {
+    if (pulses.owns(emitter)) {
       completeShutdownRestoration(task);
       return;
     }
-    if (!SHUTDOWN_RESTORATION_OWNERS.remove(receiver, ownerGeneration)) {
+    if (!SHUTDOWN_RESTORATION_OWNERS.remove(emitter, ownerGeneration)) {
       completeShutdownRestoration(task);
       return;
     }
-    if (restoreReceiver(world, restoration)) {
+    if (restoreEmitter(world, restoration)) {
       completeShutdownRestoration(task);
       return;
     }
     failShutdownRestoration(task, new IllegalStateException(
-        "Architect Redstone Remote could not restore receiver " + receiver));
+        "Architect Redstone Remote could not restore emitter " + emitter));
   }
 
   private void scheduleRestoration(ShutdownRestorationTask task, int attempt) {
@@ -977,36 +721,36 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     }
 
     ArchitectRedstonePulse.Restoration restoration = task.restoration();
-    ArchitectRedstonePulse.Receiver receiver = restoration.receiver();
-    World world = Bukkit.getWorld(receiver.worldId());
+    ArchitectRedstonePulse.Emitter emitter = restoration.emitter();
+    World world = Bukkit.getWorld(emitter.worldId());
     if (world == null) {
       failShutdownRestoration(task, new IllegalStateException(
-          "Architect Redstone Remote receiver world is unavailable for " + receiver));
+          "Architect Redstone Remote bound world is unavailable for " + emitter));
       return;
     }
 
-    Location location = new Location(world, receiver.x(), receiver.y(), receiver.z());
+    Location location = new Location(world, emitter.x(), emitter.y(), emitter.z());
     if (isRestorationThreadOwned(location)) {
-      if (world.isChunkLoaded(receiver.x() >> 4, receiver.z() >> 4)) {
-        restoreShutdownReceiver(world, task);
+      if (world.isChunkLoaded(emitter.x() >> 4, emitter.z() >> 4)) {
+        restoreShutdownEmitter(world, task);
       } else {
         failShutdownRestoration(task, new IllegalStateException(
-            "Architect Redstone Remote receiver chunk is not loaded for " + receiver));
+            "Architect Redstone Remote bound chunk is not loaded for " + emitter));
       }
       return;
     }
     if (!Adapt.instance.isEnabled()) {
       failShutdownRestoration(task, new IllegalStateException(
           "Adapt disabled before a region-safe Architect Redstone Remote restoration for "
-              + receiver));
+              + emitter));
       return;
     }
     boolean scheduled = J.runAt(location, () -> {
-      if (world.isChunkLoaded(receiver.x() >> 4, receiver.z() >> 4)) {
-        restoreShutdownReceiver(world, task);
+      if (world.isChunkLoaded(emitter.x() >> 4, emitter.z() >> 4)) {
+        restoreShutdownEmitter(world, task);
       } else {
         failShutdownRestoration(task, new IllegalStateException(
-            "Architect Redstone Remote receiver chunk is not loaded for " + receiver));
+            "Architect Redstone Remote bound chunk is not loaded for " + emitter));
       }
     });
     if (scheduled) {
@@ -1019,7 +763,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     }
 
     failShutdownRestoration(task, new IllegalStateException(
-        "Failed to schedule a region-safe Architect Redstone Remote restoration at " + receiver
+        "Failed to schedule a region-safe Architect Redstone Remote restoration at " + emitter
             + " after " + MAX_SCHEDULE_ATTEMPTS + " attempts"));
   }
 
@@ -1057,7 +801,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       IllegalStateException failure = new IllegalStateException(
           "Timed out after " + SHUTDOWN_RESTORATION_TIMEOUT_MILLIS
               + "ms waiting for Architect Redstone Remote restoration at "
-              + task.restoration().receiver());
+              + task.restoration().emitter());
       if (failShutdownRestoration(task, failure)) {
         logShutdownRestorationFailure(task, failure);
       } else {
@@ -1076,7 +820,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       }
       IllegalStateException failure = new IllegalStateException(
           "Interrupted while waiting for Architect Redstone Remote restoration at "
-              + task.restoration().receiver(), interruption);
+              + task.restoration().emitter(), interruption);
       if (failShutdownRestoration(task, failure)) {
         logShutdownRestorationFailure(task, failure);
       } else {
@@ -1095,9 +839,9 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
   }
 
   private void logShutdownRestorationFailure(ShutdownRestorationTask task, Throwable failure) {
-    ArchitectRedstonePulse.Receiver receiver = task.restoration().receiver();
+    ArchitectRedstonePulse.Emitter emitter = task.restoration().emitter();
     String detail = failure == null ? "unknown failure" : failure.getMessage();
-    Adapt.error("Architect Redstone Remote restoration failed at " + receiver + ": " + detail);
+    Adapt.error("Architect Redstone Remote restoration failed at " + emitter + ": " + detail);
     if (failure != null) {
       failure.printStackTrace();
     }
@@ -1106,10 +850,6 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
   @Override
   public void unregister() {
     super.unregister();
-    recoveryQueue.clear();
-    queuedRecoveries.clear();
-    recoveryScheduleFailures.clear();
-    recoveryScheduled.set(false);
     long deadlineNanos = System.nanoTime()
         + TimeUnit.MILLISECONDS.toNanos(SHUTDOWN_RESTORATION_TIMEOUT_MILLIS);
     List<ShutdownRestorationTask> restorations = new ArrayList<>();
@@ -1126,15 +866,11 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     awaitShutdownRestorations(restorations, deadlineNanos);
   }
 
-  private record BindingRequest(Location target, BlockFace face, Location receiver,
-                                int handSlot, ItemStack handSnapshot) {
+  private record BindingRequest(Location target, BlockFace face, int handSlot, ItemStack handSnapshot) {
   }
 
-  private record PulseBinding(Location target, Location receiver,
-                              ArchitectRedstonePulse.Receiver receiverKey) {
-  }
-
-  private record ChunkRecovery(World world, int chunkX, int chunkZ) {
+  private record PulseBinding(Location target, BlockFace face,
+                              ArchitectRedstonePulse.Emitter emitter) {
   }
 
   private record ShutdownRestorationTask(ArchitectRedstonePulse.Restoration restoration,
@@ -1142,7 +878,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
                                          CompletableFuture<Void> completion) {
   }
 
-  @ConfigDescription("Use a crafted redstone remote to toggle redstone at a distance.")
+  @ConfigDescription("Use a crafted redstone remote to make a bound block emit redstone at a distance.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Architect Wireless Redstone adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public int cooldown = 125;

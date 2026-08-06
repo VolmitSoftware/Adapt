@@ -51,8 +51,8 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
+import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -62,6 +62,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -168,40 +169,59 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0) {
-      if (taglock) {
-        e.setCancelled(true);
-      }
-      return;
-    }
-
+    boolean learned = level > 0;
     Block clicked = e.getClickedBlock();
-    boolean container = clicked != null && isConduitContainer(clicked);
+    boolean container = learned && clicked != null && isConduitContainer(clicked);
 
-    if (taglock) {
-      if (container) {
-        if (e.useInteractedBlock() == Event.Result.DENY) {
-          return;
-        }
-        e.setCancelled(true);
-        completeBind(p, level, hand, clicked.getLocation());
-      } else {
+    switch (resolveGesture(taglock, learned, p.isSneaking(), container,
+        !taglock && RiftPearls.isPlainPearl(hand))) {
+      case IGNORE -> {
+      }
+      case CANCEL_ONLY -> e.setCancelled(true);
+      case NEED_CONTAINER -> {
         e.setCancelled(true);
         p.sendMessage(C.GRAY + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_NEED_CONTAINER));
         fx(p.getEyeLocation(), FxPriority.TRANSITION)
             .burst(Particles.SMOKE, 2, 0.15)
             .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.5f, 0.7f);
       }
-      return;
-    }
-
-    if (p.isSneaking() && container && RiftPearls.isPlainPearl(hand)) {
-      if (e.useInteractedBlock() == Event.Result.DENY) {
-        return;
+      case BIND -> {
+        e.setCancelled(true);
+        if (!canInteract(p, clicked.getLocation())) {
+          failBind(p, RiftMessages.CONDUIT_MSG_STALE);
+          return;
+        }
+        // Consuming the taglock swaps the held item inside the gesture, which
+        // breaks the client-prediction dedup and re-fires this interact. Hold
+        // the follow-up window open so the refire cannot double-act on a refund.
+        markCaptureFollowUp(p);
+        completeBind(p, level, hand, clicked.getLocation());
       }
-      e.setCancelled(true);
-      beginCapture(p, hand, clicked.getLocation());
+      case CAPTURE -> {
+        e.setCancelled(true);
+        if (canInteract(p, clicked.getLocation())) {
+          beginCapture(p, hand, clicked.getLocation());
+        }
+      }
     }
+  }
+
+  /**
+   * Gesture table for an ender pearl right-click in the main hand. Taglocks stay
+   * inert for players without the adaptation, which means cancelled rather than
+   * thrown. Protection is checked by the caller through the protector registry
+   * instead of the event's DENY flag, because any listener cancelling the
+   * interact for unrelated reasons also flips that flag.
+   */
+  static ConduitGesture resolveGesture(boolean taglock, boolean learned, boolean sneaking,
+                                       boolean container, boolean plainPearl) {
+    if (!learned) {
+      return taglock ? ConduitGesture.CANCEL_ONLY : ConduitGesture.IGNORE;
+    }
+    if (taglock) {
+      return container ? ConduitGesture.BIND : ConduitGesture.NEED_CONTAINER;
+    }
+    return sneaking && container && plainPearl ? ConduitGesture.CAPTURE : ConduitGesture.IGNORE;
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -210,9 +230,8 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       return;
     }
 
-    Inventory inv = e.getInventory();
-    Location loc = inv.getLocation();
-    if (loc == null) {
+    List<Location> sources = resolveFlowSources(e.getInventory());
+    if (sources.isEmpty()) {
       return;
     }
 
@@ -221,10 +240,38 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       return;
     }
 
-    Location sourceLoc = loc.getBlock().getLocation();
     int throughput = getThroughput(level);
     double xpPerFlow = getConfig().xpPerFlow;
-    J.runAt(sourceLoc, () -> flowFromSource(p, sourceLoc, throughput, xpPerFlow), 1);
+    for (Location sourceLoc : sources) {
+      J.runAt(sourceLoc, () -> flowFromSource(p, sourceLoc, throughput, xpPerFlow), 1);
+    }
+  }
+
+  /**
+   * A double chest reports a midpoint location, so flooring it only ever hits
+   * one half and links written on the other half never flow. Resolve both
+   * halves from the holder instead.
+   */
+  private List<Location> resolveFlowSources(Inventory inventory) {
+    InventoryHolder holder = inventory.getHolder();
+    if (holder instanceof DoubleChest doubleChest) {
+      List<Location> sides = new ArrayList<>(2);
+      addContainerLocation(sides, doubleChest.getLeftSide());
+      addContainerLocation(sides, doubleChest.getRightSide());
+      return sides;
+    }
+    if (holder instanceof Container container) {
+      return List.of(container.getBlock().getLocation());
+    }
+
+    Location loc = inventory.getLocation();
+    return loc == null ? List.of() : List.of(loc.getBlock().getLocation());
+  }
+
+  private void addContainerLocation(List<Location> sides, InventoryHolder side) {
+    if (side instanceof Container container) {
+      sides.add(container.getBlock().getLocation());
+    }
   }
 
   private void beginCapture(Player p, ItemStack hand, Location clicked) {
@@ -243,6 +290,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       defaultConsumed.set(true);
       return true;
     })) {
+      Adapt.verbose("Rift Conduit capture cost was refused for " + p.getUniqueId() + ".");
       return;
     }
 
@@ -298,6 +346,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     }
 
     if (pendingBinds.containsKey(p.getUniqueId())) {
+      Adapt.verbose("Rift Conduit ignored a bind for " + p.getUniqueId() + ": one is already in flight.");
       return;
     }
     if (!reserveEndpoints(aLoc, bLoc)) {
@@ -307,6 +356,8 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     BindReservation reservation = reserveTaglock(p, linkId);
     if (reservation == null) {
       releaseEndpoints(aLoc, bLoc);
+      Adapt.verbose("Rift Conduit could not reserve the taglock for " + p.getUniqueId() + ".");
+      failBind(p, RiftMessages.CONDUIT_MSG_STALE);
       return;
     }
     BindOperation operation = new BindOperation(
@@ -1154,6 +1205,14 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       maxLevel = 4;
       initialCost = 8;
     }
+  }
+
+  enum ConduitGesture {
+    IGNORE,
+    CANCEL_ONLY,
+    NEED_CONTAINER,
+    BIND,
+    CAPTURE
   }
 
   record ConduitLocation(String worldKey, int x, int y, int z) {

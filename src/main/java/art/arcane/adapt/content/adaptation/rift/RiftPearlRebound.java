@@ -95,7 +95,7 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     if (!(e.getEntity() instanceof EnderPearl pearl) || !(pearl.getShooter() instanceof Player p)) {
       return;
     }
-    if (!pearl.getPersistentDataContainer().getKeys().isEmpty()) {
+    if (!RiftPearls.isUnclaimedPearl(pearl, reboundLevelKey, reboundedKey)) {
       return;
     }
 
@@ -116,7 +116,11 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     }
 
     Integer level = pearl.getPersistentDataContainer().get(reboundLevelKey, PersistentDataType.INTEGER);
-    if (level == null || level <= 0 || pearl.getPersistentDataContainer().has(reboundedKey)) {
+    if (!shouldRebound(
+        level,
+        pearl.getPersistentDataContainer().has(reboundedKey),
+        RiftPearls.isUnclaimedPearl(pearl, reboundLevelKey, reboundedKey)
+    )) {
       return;
     }
 
@@ -226,6 +230,16 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     }
     addStat(p, "rift.pearl-rebound.rebounds", 1);
     xp(p, getConfig().xpOnRebound, "rift:pearl-rebound:rebound");
+  }
+
+  /**
+   * Only plain pearls bounce. The launch tag is written before another adaptation can claim the
+   * projectile, so the claim is re-checked on impact: a pearl carrying a foreign key belongs to a
+   * feature like Ender Taglock and stealing it would drop that feature's payload and leave the
+   * replacement pearl teleporting the thrower.
+   */
+  static boolean shouldRebound(Integer storedLevel, boolean alreadyRebounded, boolean unclaimed) {
+    return storedLevel != null && storedLevel > 0 && !alreadyRebounded && unclaimed;
   }
 
   private Vector reflect(Vector velocity, Vector normal) {

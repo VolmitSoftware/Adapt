@@ -19,9 +19,11 @@
 package art.arcane.adapt.content.adaptation.rift;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.projectile.ProjectileClaims;
 import art.arcane.adapt.content.item.BoundEnderPearl;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Projectile;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -29,6 +31,14 @@ import org.bukkit.persistence.PersistentDataType;
 
 final class RiftPearls {
   private RiftPearls() {
+  }
+
+  static boolean isUnclaimedPearl(Projectile pearl, NamespacedKey... ownedKeys) {
+    return ProjectileClaims.isUnclaimed(pearl, ownedKeys);
+  }
+
+  static boolean isUnclaimedContainer(PersistentDataContainer data, NamespacedKey... ownedKeys) {
+    return ProjectileClaims.isUnclaimedContainer(data, ownedKeys);
   }
 
   static boolean isPlainPearl(ItemStack stack) {

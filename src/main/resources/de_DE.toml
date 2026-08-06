@@ -1289,10 +1289,6 @@ description = "Die Kette 5+ springt ohne den Boden zu berühren"
 title = "Zweiter Wind"
 description = "Verbringen Sie 10 kumulative Minuten bei maximaler Sprintgeschwindigkeit"
 
-[advancement.challenge_agility_parkour_500]
-title = "Freerunner"
-description = "Vollständige 500-kettenförmige Sprintjumplandungen"
-
 [advancement.challenge_agility_roll_100]
 title = "Schießen und rollen"
 description = "Verhindern Sie, dass 100 Herzen von Sturzschäden betroffen sind"
@@ -3346,14 +3342,6 @@ lore1 = "Maximale Geschwindigkeit"
 lore2 = "Anlaufzeit"
 lore = ["Maximale Geschwindigkeit", "Anlaufzeit"]
 
-[agility.parkour_momentum]
-name = "Parkour-Impulse"
-description = "Jeder saubere Landung baut momentan auf, der den nächsten Sprung ankurbeln lässt."
-lore1 = "max. Momentumstapels"
-lore2 = "Maximaler Geschwindigkeit (Blöcke/Sekunde)"
-lore3 = "Maximale Sprunggeschwindigkeit Bonus"
-lore = ["max. Momentumstapels", "Maximaler Geschwindigkeit (Blöcke/Sekunde)", "Maximale Sprunggeschwindigkeit Bonus"]
-
 [agility.roll_landing]
 name = "Roll Landung"
 description = "Die Zeitung des Halses vor der Landung verwandelt einen Teil des Sturzschadens in Hungerkosten."
@@ -3837,6 +3825,7 @@ description = "Trage eine Zeitflasche, die Zeit speichert, und verbrauche sie, u
 lore1 = "Gespeicherte Sekunden pro Tick aufgeladen"
 lore2 = "Zeitbeschleunigung pro gespeicherter Sekunde"
 lore3 = "Rezept (Formlos): Schnelligkeitstrank + Uhr + Glasflasche"
+max_stored_lore = "Maximal gespeicherte Zeit"
 lore = ["Gespeicherte Sekunden pro Tick aufgeladen", "Zeitbeschleunigung pro gespeicherter Sekunde", "Rezept (Formlos): Schnelligkeitstrank + Uhr + Glasflasche"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["Verzögerung von Schäden", "Rückzahlungsfenster", "Verzögerter Schad
 
 [chronos.overtime]
 name = "Überstunden"
-description = "Die Wirkung der auf Sie angewandten positiven Tränke dauert länger, nach Maß an Anpassungsgrad."
+description = "Die Wirkung der auf Sie angewandten positiven Tränke dauert länger, nach Maß an Anpassungsgrad. Auf der Höchststufe halten schädliche Effekte nur halb so lange an."
 lore1 = "Dauer der zusätzlichen Wirkung"
 lore2 = "Höchstbetrag pro Effekt"
 lore3 = "Nur die positiven Wirkungen sind erweitert"
+max_level_lore = "Dauer schädlicher Effekte auf der Höchststufe"
 lore = ["Dauer der zusätzlichen Wirkung", "Höchstbetrag pro Effekt", "Nur die positiven Wirkungen sind erweitert"]
 
 [chronos.accelerate]

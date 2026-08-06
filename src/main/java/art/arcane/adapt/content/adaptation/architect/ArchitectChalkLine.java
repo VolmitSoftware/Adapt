@@ -422,6 +422,19 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     return range * range;
   }
 
+  /** A guide marker draws wherever a normal placement would land: empty space or a replaceable occupant. */
+  static boolean isGuideSpaceDrawable(Block block) {
+    if (block == null) {
+      return true;
+    }
+
+    Material type = block.getType();
+    return type == Material.AIR
+        || type == Material.CAVE_AIR
+        || type == Material.VOID_AIR
+        || PaperCompat.isReplaceable(block);
+  }
+
   static boolean isWithinBuildHeight(List<Point> points, int minHeight, int maxHeight) {
     for (Point point : points) {
       if (point.y() < minHeight || point.y() >= maxHeight) {
@@ -641,7 +654,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
         }
         return;
       }
-      if (!markerLocation.getBlock().getType().isAir()) {
+      if (!isGuideSpaceDrawable(markerLocation.getBlock())) {
         if (preview.renderedPoints().remove(point)) {
           clearMarker(playerId, preview.tool(), point);
         }

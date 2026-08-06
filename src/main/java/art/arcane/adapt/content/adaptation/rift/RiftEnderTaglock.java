@@ -23,6 +23,7 @@ import art.arcane.adapt.localization.catalog.RiftMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ItemCooldowns;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -60,7 +61,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -90,10 +90,17 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
   private static final int MAX_TARGET_SNAPSHOT_ATTEMPTS = 2;
   private static final long OPERATION_TIMEOUT_MILLIS = 60_000L;
   private static final long TELEPORT_COMPLETION_TIMEOUT_MILLIS = 300_000L;
+  private static final long MIN_SUPPRESSION_MILLIS = 50L;
+  private static final long MAX_SUPPRESSION_MILLIS = 2000L;
   static final String TARGET_KEY_NAME = "rift_taglock_target_uuid";
+  /**
+   * Taglocks ride on an ender pearl, so the throw cooldown lives in its own
+   * group. A taglock on cooldown must never gray out or block plain pearls.
+   */
+  public static final NamespacedKey COOLDOWN_GROUP = ItemCooldowns.groupKey("item_rift_ender_taglock");
+  private final ItemCooldowns throwCooldown = ItemCooldowns.forGroup(COOLDOWN_GROUP);
   private final NamespacedKey targetKey;
   private final Map<UUID, Long> suppressPearlTeleportUntil = playerState();
-  private final Map<UUID, Integer> taglockPearlsInFlight = playerState();
   private final TeleportAdmission pendingTeleports = new TeleportAdmission(MAX_PENDING_TELEPORTS);
   private volatile boolean acceptingTeleports = true;
 
@@ -124,7 +131,6 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     acceptingTeleports = false;
     pendingTeleports.clear();
     suppressPearlTeleportUntil.clear();
-    taglockPearlsInFlight.clear();
     super.unregister();
   }
 
@@ -230,10 +236,14 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     }
 
     e.setCancelled(true);
-    if (p.hasCooldown(Material.ENDER_PEARL)) {
+    upgradeLegacyTaglock(p, slot, hand);
+    long throwCooldownMillis = getThrowCooldownTicks(level) * 50L;
+    if (!throwCooldown.isReady(p, throwCooldownMillis)) {
       fx(p.getEyeLocation(), FxPriority.TRANSITION)
           .burst(Particles.SMOKE, 2, 0.15)
           .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.55f, 0.6f);
+      Adapt.verbose("Ender Taglock throw declined for " + p.getUniqueId() + ": "
+          + throwCooldown.remaining(p, throwCooldownMillis) + "ms cooldown left.");
       return;
     }
 
@@ -241,11 +251,15 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
       return;
     }
 
-    EnderPearl pearl = p.launchProjectile(EnderPearl.class);
-    pearl.getPersistentDataContainer().set(targetKey, PersistentDataType.STRING, target.toString());
-    taglockPearlsInFlight.merge(p.getUniqueId(), 1, Integer::sum);
-    suppressPearlTeleportUntil.put(p.getUniqueId(), System.currentTimeMillis() + getSuppressPearlTeleportWindowMillis());
-    p.setCooldown(Material.ENDER_PEARL, getThrowCooldownTicks(level));
+    String targetId = target.toString();
+    // The target key must land before the projectile spawns; ProjectileLaunchEvent fires during the
+    // spawn and other pearl adaptations claim anything that still looks like a plain pearl there.
+    p.launchProjectile(
+        EnderPearl.class,
+        null,
+        (EnderPearl pearl) -> pearl.getPersistentDataContainer().set(targetKey, PersistentDataType.STRING, targetId)
+    );
+    throwCooldown.mark(p, throwCooldownMillis);
     Vector dir = p.getLocation().getDirection();
     fx(p.getEyeLocation(), FxPriority.TRANSITION)
         .trail(Particle.REVERSE_PORTAL, dir.getX(), dir.getY(), dir.getZ(), 1.5, 8)
@@ -260,18 +274,17 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     }
 
     UUID id = e.getPlayer().getUniqueId();
-    long until = suppressPearlTeleportUntil.getOrDefault(id, 0L);
-    if (until <= System.currentTimeMillis()) {
-      suppressPearlTeleportUntil.remove(id);
+    Long armedUntil = suppressPearlTeleportUntil.remove(id);
+    if (!shouldSuppressPearlTeleport(armedUntil, System.currentTimeMillis())) {
       return;
     }
 
     e.setCancelled(true);
     e.getPlayer().setFallDistance(0f);
-    suppressPearlTeleportUntil.remove(id);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  @ReceiveCancelledEvents
+  @EventHandler(priority = EventPriority.MONITOR)
   public void on(ProjectileHitEvent e) {
     if (!(e.getEntity() instanceof EnderPearl pearl) || !(pearl.getShooter() instanceof Player thrower)) {
       return;
@@ -286,6 +299,18 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     if (targetId == null) {
       return;
     }
+
+    if (vanillaPearlTeleportStillRuns(e.isCancelled(), e.getHitBlock() != null)) {
+      suppressPearlTeleportUntil.put(
+          thrower.getUniqueId(),
+          System.currentTimeMillis() + getSuppressPearlTeleportWindowMillis()
+      );
+    }
+
+    if (e.isCancelled()) {
+      return;
+    }
+
     Location destination = resolveDestination(e);
     J.runEntity(thrower, () -> prepareThrowerOwned(thrower, targetId, destination));
   }
@@ -294,34 +319,20 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
   public void on(PlayerQuitEvent e) {
     UUID playerId = e.getPlayer().getUniqueId();
     suppressPearlTeleportUntil.remove(playerId);
-    taglockPearlsInFlight.remove(playerId);
     pendingTeleports.cancel(playerId);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(EntityRemoveEvent e) {
-    if (!(e.getEntity() instanceof EnderPearl pearl) || !(pearl.getShooter() instanceof Player thrower)) {
-      return;
-    }
+  /**
+   * A taglocked pearl only keeps the vanilla thrower teleport once the hit resolves, so suppression is
+   * armed there rather than at launch. Paper still runs the pearl's block impact when the hit event is
+   * cancelled, so a cancelled block hit teleports the thrower and must stay suppressed anyway.
+   */
+  static boolean vanillaPearlTeleportStillRuns(boolean hitCancelled, boolean blockHit) {
+    return !hitCancelled || blockHit;
+  }
 
-    if (parseTargetId(pearl.getPersistentDataContainer().get(targetKey, PersistentDataType.STRING)) == null) {
-      return;
-    }
-
-    UUID throwerId = thrower.getUniqueId();
-    Integer remaining = taglockPearlsInFlight.computeIfPresent(throwerId, (id, count) -> count > 1 ? count - 1 : null);
-    if (remaining != null) {
-      return;
-    }
-
-    Runnable clearSuppression = () -> {
-      if (!taglockPearlsInFlight.containsKey(throwerId)) {
-        suppressPearlTeleportUntil.remove(throwerId);
-      }
-    };
-    if (!J.runEntity(thrower, clearSuppression, 2)) {
-      clearSuppression.run();
-    }
+  static boolean shouldSuppressPearlTeleport(Long armedUntil, long now) {
+    return armedUntil != null && armedUntil > now;
   }
 
   private void prepareThrowerOwned(Player thrower, UUID targetId, Location destination) {
@@ -330,10 +341,6 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     }
 
     UUID throwerId = thrower.getUniqueId();
-    long suppressUntil = System.currentTimeMillis() + getSuppressPearlTeleportWindowMillis();
-    suppressPearlTeleportUntil.put(throwerId, suppressUntil);
-    J.runEntity(thrower, () -> suppressPearlTeleportUntil.remove(throwerId, suppressUntil), 10);
-
     int level = getActiveLevel(thrower);
     if (!thrower.isOnline() || level <= 0 || throwerId.equals(targetId)) {
       return;
@@ -620,6 +627,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
 
     PersistentDataContainer pdc = meta.getPersistentDataContainer();
     pdc.set(targetKey, PersistentDataType.STRING, target.getUniqueId().toString());
+    ItemCooldowns.stampGroup(meta, COOLDOWN_GROUP);
 
     meta.setDisplayName(C.LIGHT_PURPLE + AdaptLanguage.text(RiftMessages.ENDER_TAGLOCK_ITEM_NAME));
     List<String> lore = new ArrayList<>();
@@ -631,6 +639,24 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     meta.setLore(lore);
     item.setItemMeta(meta);
     return item;
+  }
+
+  /**
+   * Taglocks minted before the cooldown group existed still carry the plain
+   * ender pearl group, so the sweep would land on vanilla pearls instead. Stamp
+   * them the first time an owner actually uses one.
+   */
+  private void upgradeLegacyTaglock(Player p, EquipmentSlot slot, ItemStack hand) {
+    if (!ItemCooldowns.stampGroup(hand, COOLDOWN_GROUP)) {
+      return;
+    }
+
+    if (slot == EquipmentSlot.HAND) {
+      p.getInventory().setItemInMainHand(hand);
+      return;
+    }
+
+    p.getInventory().setItemInOffHand(hand);
   }
 
   private UUID getTaggedTarget(ItemStack item) {
@@ -714,7 +740,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
   }
 
   private long getSuppressPearlTeleportWindowMillis() {
-    return Math.max(1000L, getConfig().suppressPearlTeleportWindowMillis);
+    return Math.max(MIN_SUPPRESSION_MILLIS, Math.min(MAX_SUPPRESSION_MILLIS, getConfig().suppressPearlTeleportWindowMillis));
   }
 
   @ConfigDescription("Tag entities into ender pearls and throw those pearls to reposition the tagged target.")
@@ -723,8 +749,8 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     double throwCooldownTicksBase = 30;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Throw Cooldown Ticks Factor for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double throwCooldownTicksFactor = 14;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Suppress Pearl Teleport Window Millis for the Rift Ender Taglock adaptation.", impact = "Backstop only; suppression clears as soon as the taglocked pearl resolves, so this just needs to cover the pearl's flight time.")
-    long suppressPearlTeleportWindowMillis = 10000L;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "How long the thrower's vanilla pearl teleport stays suppressed after a taglocked pearl lands.", impact = "Backstop only; the suppression is armed on impact and consumed by the teleport that follows it in the same tick, so this only needs to survive that hand-off. Clamped to 50-2000ms.")
+    long suppressPearlTeleportWindowMillis = 250L;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Large Width Threshold for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double largeWidthThreshold = 1.3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Large Height Threshold for the Rift Ender Taglock adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

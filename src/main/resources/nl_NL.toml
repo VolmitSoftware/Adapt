@@ -1289,10 +1289,6 @@ description = "Ketting 5+ muursprongen zonder de grond aan te raken"
 title = "Tweede wind"
 description = "Doorgeven 10 cumulatieve minuten bij maximale sprintsnelheid"
 
-[advancement.challenge_agility_parkour_500]
-title = "Freerunner"
-description = "Voltooid 500 geketende sprint-spring landingen"
-
 [advancement.challenge_agility_roll_100]
 title = "- en rollen."
 description = "Voorkomen 100 harten van valschade"
@@ -3346,14 +3342,6 @@ lore1 = "Max Snelheid"
 lore2 = "Opwindtijd"
 lore = ["Max Snelheid", "Opwindtijd"]
 
-[agility.parkour_momentum]
-name = "Parkour Momentum"
-description = "ketting opeenvolgende sprint-sprongen. Elke schone landing bouwt momentum dat verhoogt de volgende sprong."
-lore1 = "maximale momentumstapel"
-lore2 = "Max Geversteerde snelheid (Blokken/sec)"
-lore3 = "Maximale snelheid bonus sprong"
-lore = ["maximale momentumstapel", "Max Geversteerde snelheid (Blokken/sec)", "Maximale snelheid bonus sprong"]
-
 [agility.roll_landing]
 name = "Rollanding"
 description = "Getimed hurken voor de landing zet deel van val schade in honger kosten."
@@ -3837,6 +3825,7 @@ description = "Draag een temporele fles die tijd opslaat en besteed het om getim
 lore1 = "Opgeslagen seconden opgeladen per tick"
 lore2 = "Tijdversnelling per opgeslagen seconde"
 lore3 = "Recept (Vormloos): Snelheidsdrankje + Klok + Glazen Fles"
+max_stored_lore = "Maximaal opgeslagen tijd"
 lore = ["Opgeslagen seconden opgeladen per tick", "Tijdversnelling per opgeslagen seconde", "Recept (Vormloos): Snelheidsdrankje + Klok + Glazen Fles"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["Uitgestelde schade", "Terugverdienvenster", "Uitgestelde schade kan nie
 
 [chronos.overtime]
 name = "Overuren"
-description = "Gunstige drankeffecten toegepast op u langer duren, geschaald door aanpassingsniveau."
+description = "Gunstige drankeffecten toegepast op u langer duren, geschaald door aanpassingsniveau. Op het maximale niveau duren schadelijke effecten half zo lang."
 lore1 = "duur van extra effect"
 lore2 = "maximale bonus per effect"
 lore3 = "Alleen gunstige effecten worden uitgebreid"
+max_level_lore = "Duur van schadelijke effecten op het maximale niveau"
 lore = ["duur van extra effect", "maximale bonus per effect", "Alleen gunstige effecten worden uitgebreid"]
 
 [chronos.accelerate]

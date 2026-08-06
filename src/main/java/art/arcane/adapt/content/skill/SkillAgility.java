@@ -34,7 +34,6 @@ import art.arcane.adapt.content.adaptation.agility.AgilityFeatherfoot;
 import art.arcane.adapt.content.adaptation.agility.AgilityKipUp;
 import art.arcane.adapt.content.adaptation.agility.AgilityLadderSlide;
 import art.arcane.adapt.content.adaptation.agility.AgilityMarathoner;
-import art.arcane.adapt.content.adaptation.agility.AgilityParkourMomentum;
 import art.arcane.adapt.content.adaptation.agility.AgilityRollLanding;
 import art.arcane.adapt.content.adaptation.agility.AgilitySlipstreamSlide;
 import art.arcane.adapt.content.adaptation.agility.AgilitySuperJump;
@@ -65,7 +64,6 @@ public class SkillAgility extends SimpleSkill<SkillAgility.Config> {
     registerAdaptation(new AgilitySuperJump());
     registerAdaptation(new AgilityArmorUp());
     registerAdaptation(new AgilityLadderSlide());
-    registerAdaptation(new AgilityParkourMomentum());
     registerAdaptation(new AgilityRollLanding());
     registerAdaptation(new AgilitySlipstreamSlide());
     registerAdaptation(new AgilityAirDash());

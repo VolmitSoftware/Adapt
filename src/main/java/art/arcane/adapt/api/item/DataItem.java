@@ -19,6 +19,7 @@
 package art.arcane.adapt.api.item;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.ItemCooldowns;
 import art.arcane.adapt.util.common.io.BukkitGson;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -38,8 +39,33 @@ public interface DataItem<T> {
 
   void applyMeta(T data, ItemMeta meta);
 
+  /**
+   * Cooldown group this item belongs to, or null when the item has no use
+   * cooldown. Declaring a group keeps the vanilla cooldown sweep on this Adapt
+   * item alone instead of every stack of {@link #getMaterial()}, so a bound
+   * item on cooldown never grays out the plain item it was built from.
+   */
+  default NamespacedKey getCooldownGroup() {
+    return null;
+  }
+
   default ItemStack blank() {
     return new ItemStack(getMaterial());
+  }
+
+  /**
+   * Stamps the declared cooldown group onto a stack that predates the group,
+   * so items already in player inventories still render their own sweep.
+   *
+   * @return true when the stack was upgraded
+   */
+  default boolean ensureCooldownGroup(ItemStack stack) {
+    NamespacedKey group = getCooldownGroup();
+    if (group == null || !hasData(stack)) {
+      return false;
+    }
+
+    return ItemCooldowns.stampGroup(stack, group);
   }
 
   default T getData(ItemStack stack) {
@@ -78,6 +104,7 @@ public interface DataItem<T> {
     }
 
     applyMeta(t, meta);
+    ItemCooldowns.stampGroup(meta, getCooldownGroup());
     List<String> lore = new ArrayList<>();
     applyLore(t, lore);
     meta.setLore(lore);

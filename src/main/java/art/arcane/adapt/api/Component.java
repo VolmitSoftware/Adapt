@@ -21,6 +21,7 @@ package art.arcane.adapt.api;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.data.WorldData;
+import art.arcane.adapt.api.potion.AdaptPotionRegistry;
 import art.arcane.adapt.api.value.MaterialValue;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
@@ -199,6 +200,7 @@ public interface Component {
 
     boolean applied = p.addPotionEffect(new PotionEffect(potionEffect, newDuration, newAmplifier));
     if (applied) {
+      AdaptPotionRegistry.record(p.getUniqueId(), potionEffect);
       SoundPlayer.of(p).play(p.getLocation(), Sound.ENTITY_IRON_GOLEM_STEP, 0.25f, 0.25f);
     }
     return applied;

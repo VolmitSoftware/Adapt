@@ -41,15 +41,19 @@ class ArchitectAuditFixTest extends AdaptTestBase {
   }
 
   @Test
-  void demolitionActsAsAnUndoWithoutBlockOrExperienceDrops() throws IOException {
+  void demolitionUndoHandsRestitutionBackInsteadOfDroppingIt() throws IOException {
     String source = Files.readString(DEMOLITION_SOURCE);
     int start = source.indexOf("public void on(BlockBreakEvent e)");
     int end = source.indexOf("@EventHandler", start + 1);
     String handler = source.substring(start, end);
+    int collected = handler.indexOf("List<ItemStack> restitution = collectRestitution(");
+    int suppressed = handler.indexOf("e.setDropItems(false)");
+    int returned = handler.indexOf("restitute(p,");
 
-    assertThat(handler)
-        .contains("e.setDropItems(false)", "e.setExpToDrop(0)")
-        .doesNotContain("getDrops(", "dropItemNaturally(");
+    assertThat(collected).isGreaterThanOrEqualTo(0);
+    assertThat(suppressed).isGreaterThan(collected);
+    assertThat(handler).contains("e.setExpToDrop(0)");
+    assertThat(returned).isGreaterThan(suppressed);
   }
 
   @Test
@@ -96,23 +100,25 @@ class ArchitectAuditFixTest extends AdaptTestBase {
     Player player = mock(Player.class);
     PlayerInventory inventory = mock(PlayerInventory.class);
     ItemStack emptyHand = mock(ItemStack.class);
+    ItemStack template = mock(ItemStack.class);
     UUID playerId = UUID.randomUUID();
     when(player.isOnline()).thenReturn(true);
     when(player.getUniqueId()).thenReturn(playerId);
     when(player.getInventory()).thenReturn(inventory);
     when(inventory.getItemInMainHand()).thenReturn(emptyHand);
     when(emptyHand.getType()).thenReturn(Material.AIR);
+    when(template.getType()).thenReturn(Material.STONE);
     when(inventory.getStorageContents()).thenReturn(new ItemStack[0]);
 
     Method refill = ArchitectSupplyLine.class.getDeclaredMethod(
         "refill",
         Player.class,
         EquipmentSlot.class,
-        Material.class,
+        ItemStack.class,
         int.class
     );
     refill.setAccessible(true);
-    refill.invoke(adaptation, player, EquipmentSlot.HAND, Material.STONE, 4);
+    refill.invoke(adaptation, player, EquipmentSlot.HAND, template, 4);
 
     assertThat(refillWindows(adaptation)).doesNotContainKey(playerId);
   }

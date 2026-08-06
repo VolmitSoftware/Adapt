@@ -21,7 +21,9 @@ package art.arcane.adapt.content.adaptation.chronos;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.projectile.ProjectileClaims;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -95,6 +97,10 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
       return;
     }
 
+    if (echoType == EchoType.ENDER_PEARL && !ProjectileClaims.isUnclaimed(e.getEntity())) {
+      return;
+    }
+
     int level = getActiveLevel(p);
     if (!cooldowns.isReady(p.getUniqueId(), getCooldownMillis(level))) {
       return;
@@ -108,13 +114,20 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
     fx(p.getEyeLocation(), FxPriority.TRAIL).particle(Particles.ENCHANTMENT_TABLE, 2, 0, 0, 0, 0.2D, 0.02D);
   }
 
-  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  @ReceiveCancelledEvents
+  @EventHandler(priority = EventPriority.LOWEST)
   public void on(ProjectileHitEvent e) {
-    if (e.getHitEntity() == null || !e.getEntity().hasMetadata(ECHO_META)) {
+    if (!e.getEntity().hasMetadata(ECHO_META)) {
       return;
     }
 
-    if (!(e.getHitEntity() instanceof LivingEntity target)) {
+    // Echo pearls must never teleport the shooter. Cancelling the hit does not stop the
+    // vanilla pearl teleport on 26.2; only removing the entity before it resolves does.
+    if (e.getEntity() instanceof EnderPearl pearl) {
+      pearl.remove();
+    }
+
+    if (e.isCancelled() || !(e.getHitEntity() instanceof LivingEntity target)) {
       return;
     }
 

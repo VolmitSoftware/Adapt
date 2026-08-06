@@ -1289,10 +1289,6 @@ description = "Łańcuch 5+ ściany skoki bez dotykania ziemi"
 title = "Drugi wiatr"
 description = "Wydatki 10 skumulowane minuty przy maksymalnej prędkości obrotowej"
 
-[advancement.challenge_agility_parkour_500]
-title = "Freerunner Przewodniczący"
-description = "Kompletny 500 Przykute lądowiska"
-
 [advancement.challenge_agility_roll_100]
 title = "Wykręcić i rozwijanie"
 description = "Zapobieganie 100 serca uszkodzenia upadku"
@@ -3346,14 +3342,6 @@ lore1 = "Maksymalna Predkosc"
 lore2 = "Czas Rozkrecania"
 lore = ["Maksymalna Predkosc", "Czas Rozkrecania"]
 
-[agility.parkour_momentum]
-name = "Parkour Momentum"
-description = "Łańcuch z kolejnymi skokami sprężynowymi. Każde czyste lądowanie buduje pęd, który zwiększa następny skok."
-lore1 = "maksymalne stacje dynamiczne"
-lore2 = "Maksymalny wzrost prędkości (bloki / sekundy)"
-lore3 = "Maksymalny bonus prędkości skoku"
-lore = ["maksymalne stacje dynamiczne", "Maksymalny wzrost prędkości (bloki / sekundy)", "Maksymalny bonus prędkości skoku"]
-
 [agility.roll_landing]
 name = "Lądowanie toczne"
 description = "Timed kruch przed lądowaniem zamienia część upadku w koszty głodu."
@@ -3837,6 +3825,7 @@ description = "Nos butelke temporalna, ktora gromadzi czas i wydawaj go na przys
 lore1 = "Zgromadzone sekundy ladowane co tick"
 lore2 = "Przyspieszenie czasu na zgromadzona sekunde"
 lore3 = "Przepis (Bezformowy): Mikstura Szybkosci + Zegar + Szklana Butelka"
+max_stored_lore = "Maksymalny zmagazynowany czas"
 lore = ["Zgromadzone sekundy ladowane co tick", "Przyspieszenie czasu na zgromadzona sekunde", "Przepis (Bezformowy): Mikstura Szybkosci + Zegar + Szklana Butelka"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["Odraczanie szkód", "Okno wypłaty", "Odroczone szkody nie mogą być p
 
 [chronos.overtime]
 name = "Nadgodziny"
-description = "Korzystne skutki mikstury stosowane do Ciebie dłużej, skalowane przez poziom adaptacyjny."
+description = "Korzystne skutki mikstury stosowane do Ciebie dłużej, skalowane przez poziom adaptacyjny. Na maksymalnym poziomie szkodliwe efekty trwają o połowę krócej."
 lore1 = "Czas trwania dodatkowego efektu"
 lore2 = "Maksymalna premia za efekt"
 lore3 = "Rozszerzono jedynie korzystne skutki"
+max_level_lore = "Czas trwania szkodliwych efektów na maksymalnym poziomie"
 lore = ["Czas trwania dodatkowego efektu", "Maksymalna premia za efekt", "Rozszerzono jedynie korzystne skutki"]
 
 [chronos.accelerate]

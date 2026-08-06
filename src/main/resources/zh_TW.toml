@@ -1289,10 +1289,6 @@ description = "鏈 5+ 牆跳不動地面"
 title = "第二風"
 description = "開支 10 以最大短跑速度累積分鐘"
 
-[advancement.challenge_agility_parkour_500]
-title = "自由跑車"
-description = "完成 500 次連續衝刺跳躍落地"
-
 [advancement.challenge_agility_roll_100]
 title = "塔克和滾"
 description = "預防 100 墜落的心"
@@ -3346,14 +3342,6 @@ lore1 = "最大速度"
 lore2 = "蓄力時間"
 lore = ["最大速度", "蓄力時間"]
 
-[agility.parkour_momentum]
-name = "公園運動"
-description = "鏈式連續短跑跳躍. 每一次乾淨的著陸 都會產生推動下一次跳躍的勢頭."
-lore1 = "最大運動堆疊"
-lore2 = "最大助推速度( 塊/ 秒)"
-lore3 = "最大跳躍速度獎勵"
-lore = ["最大運動堆疊", "最大助推速度( 塊/ 秒)", "最大跳躍速度獎勵"]
-
 [agility.roll_landing]
 name = "滾落"
 description = "在著陸前按時蹲下,將部分墜落損害轉化為飢餓成本."
@@ -3837,6 +3825,7 @@ description = "隨身攜帶的時間之瓶會儲存時間，消耗儲存的時�
 lore1 = "每刻充能的儲存秒數"
 lore2 = "每儲存秒數的時間加速"
 lore3 = "配方（無序）：迅捷藥水 + 時鐘 + 玻璃瓶"
+max_stored_lore = "最大儲存時間"
 lore = ["每刻充能的儲存秒數", "每儲存秒數的時間加速", "配方（無序）：迅捷藥水 + 時鐘 + 玻璃瓶"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["推遲的損失", "回扣視窗", "不能再推遲損害"]
 
 [chronos.overtime]
 name = "加班費"
-description = "施藥時間更長,適應水平相應."
+description = "施藥時間更長,適應水平相應. 滿級時,有害效果的持續時間減半."
 lore1 = "額外效果持續時間"
 lore2 = "每個效果的最高獎金"
 lore3 = "只會產生有益的效果"
+max_level_lore = "滿級時有害效果的持續時間"
 lore = ["額外效果持續時間", "每個效果的最高獎金", "只會產生有益的效果"]
 
 [chronos.accelerate]

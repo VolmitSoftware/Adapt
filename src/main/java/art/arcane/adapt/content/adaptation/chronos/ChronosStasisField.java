@@ -24,6 +24,7 @@ import art.arcane.adapt.localization.catalog.ChronosMessages;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ItemCooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -233,6 +234,9 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     UUID ownerId = player.getUniqueId();
     long until = cooldowns.getOrDefault(ownerId, 0L);
     if (until > now) {
+      // The shard has no vanilla right-click use, so the whole material can
+      // carry the sweep without blocking anything a player could otherwise do.
+      ItemCooldowns.pushMaterial(player, Material.AMETHYST_SHARD, until - now);
       playReject(player);
       return;
     }
@@ -278,7 +282,9 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
       retireBubble(bubble, false);
       return;
     }
-    cooldowns.put(ownerId, now + getCooldownMillis());
+    long cooldownMillis = getCooldownMillis();
+    cooldowns.put(ownerId, now + cooldownMillis);
+    ItemCooldowns.pushMaterial(player, Material.AMETHYST_SHARD, cooldownMillis);
     emitDeploy(player, bubble, context.level());
   }
 

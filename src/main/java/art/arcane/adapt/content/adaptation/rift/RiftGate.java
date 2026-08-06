@@ -23,6 +23,7 @@ import art.arcane.adapt.localization.catalog.RiftMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ItemCooldowns;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -74,7 +75,14 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
   private static final int CHANNEL_TICKS = 85;
   private static final int COOLDOWN_TICKS = 150;
+  private static final long COOLDOWN_MILLIS = COOLDOWN_TICKS * 50L;
 
+  /**
+   * The gate rides on an ender eye, so its cooldown lives in the bound eye's
+   * own group. A gate on cooldown must never gray out or block a plain ender
+   * eye being used to locate a stronghold.
+   */
+  private final ItemCooldowns gateCooldown = ItemCooldowns.forGroup(BoundEyeOfEnder.COOLDOWN_GROUP);
   private final NamespacedKey reservationKey;
   private final Map<UUID, GateChannel> pendingChannels = new ConcurrentHashMap<>();
 
@@ -154,11 +162,15 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
       return;
     }
 
-    if (!hasActiveAdaptation(p) || p.hasCooldown(Material.ENDER_EYE)) {
+    if (!hasActiveAdaptation(p) || !gateCooldown.isReady(p, COOLDOWN_MILLIS)) {
       if (isProtectedEye(hand)) {
         e.setCancelled(true);
       }
       return;
+    }
+
+    if (BoundEyeOfEnder.io.ensureCooldownGroup(hand)) {
+      p.getInventory().setItemInMainHand(hand);
     }
 
     if (e.getClickedBlock() != null && e.useInteractedBlock() == Event.Result.DENY) {
@@ -286,7 +298,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
       return;
     }
 
-    if (!getConfig().consumeOnUse && p.getCooldown(Material.ENDER_EYE) > 0) {
+    if (!getConfig().consumeOnUse && !gateCooldown.isReady(p, COOLDOWN_MILLIS)) {
       timeline(p)
           .duration(3)
           .priority(FxPriority.TRANSITION)
@@ -310,6 +322,19 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
       return;
     }
 
+    // The channel commits its full cost up front: the eye leaves the inventory and the cooldown
+    // burns before any levitation is granted. Stowing or dropping the eye mid-channel used to
+    // abort the end-of-channel check for free, turning the channel into an infinite float loop.
+    if (getConfig().consumeOnUse) {
+      GateReservation reservation = reserveGateEye(p, channel.destination());
+      if (reservation == null) {
+        pendingChannels.remove(p.getUniqueId(), channel);
+        return;
+      }
+      channel.reservation().set(reservation);
+    }
+    gateCooldown.mark(p, COOLDOWN_MILLIS);
+
     p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
     p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
     fx(destination, FxPriority.TRANSITION)
@@ -329,8 +354,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         .start();
 
     if (!J.runEntity(p, () -> authorizeAndTeleport(p, channel), CHANNEL_TICKS)) {
-      pendingChannels.remove(channel.playerId(), channel);
-      clearChannelEffects(p);
+      abortGateChannel(p, channel, AbilityRefundReason.ACTIVATION_FAILED, false);
     }
   }
 
@@ -338,15 +362,6 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     if (!isAuthorizedAfterChannel(p, channel)) {
       abortGateChannel(p, channel, AbilityRefundReason.ACTIVATION_ABORTED, true);
       return;
-    }
-
-    if (getConfig().consumeOnUse) {
-      GateReservation reservation = reserveGateEye(p, channel.destination());
-      if (reservation == null) {
-        abortGateChannel(p, channel, AbilityRefundReason.CHARGE_ROLLBACK, false);
-        return;
-      }
-      channel.reservation().set(reservation);
     }
 
     Location origin = p.getLocation().clone();
@@ -379,16 +394,16 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     teleport.whenComplete((success, failure) -> completeGateTeleport(p, channel, origin, success, failure));
   }
 
+  /**
+   * The eye was reserved and the cooldown marked when the channel started, so the end of the
+   * channel only re-checks what can genuinely change mid-channel. Deliberately no inventory or
+   * cooldown checks: the hand no longer holds the reserved eye, and consulting the cooldown the
+   * channel itself just marked would abort every teleport.
+   */
   private boolean isAuthorizedAfterChannel(Player p, GateChannel channel) {
-    if (pendingChannels.get(channel.playerId()) != channel
-        || !p.isOnline()
-        || getActiveLevel(p) <= 0
-        || p.hasCooldown(Material.ENDER_EYE)) {
-      return false;
-    }
-    ItemStack current = p.getInventory().getItemInMainHand();
-    return isBound(current)
-        && isSameBlock(BoundEyeOfEnder.getLocation(current), channel.destination());
+    return pendingChannels.get(channel.playerId()) == channel
+        && p.isOnline()
+        && getActiveLevel(p) > 0;
   }
 
   private GateReservation reserveGateEye(Player p, Location destination) {
@@ -464,7 +479,6 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
       return;
     }
 
-    p.setCooldown(Material.ENDER_EYE, COOLDOWN_TICKS);
     if (getActiveSiblingLevel(p, "rift-resist") > 0) {
       RiftResist.riftResistStackAdd(this, p, COOLDOWN_TICKS, 3);
     }

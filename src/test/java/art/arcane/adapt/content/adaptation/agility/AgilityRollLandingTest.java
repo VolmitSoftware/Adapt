@@ -39,6 +39,41 @@ class AgilityRollLandingTest {
   }
 
   @Test
+  void sneakPressedMidFallArmsTheRollWithoutAServerSideVelocitySignal() {
+    boolean descending = AgilityRollLanding.isDescending(0D, -0.08D, null, null, 6.2D);
+
+    assertThat(descending).isTrue();
+    assertThat(AgilityRollLanding.shouldRecordRollInput(true, false, false, false, descending)).isTrue();
+  }
+
+  @Test
+  void descentIsDetectedFromVelocityOrMovementDeltaOrFallDistance() {
+    assertThat(AgilityRollLanding.isDescending(-0.4D, -0.08D, null, null, 0D)).isTrue();
+    assertThat(AgilityRollLanding.isDescending(0D, -0.08D, 71D, 70D, 0D)).isTrue();
+    assertThat(AgilityRollLanding.isDescending(0D, -0.08D, 70D, 71D, 0D)).isFalse();
+    assertThat(AgilityRollLanding.isDescending(0.42D, -0.08D, 70D, 70.42D, 0D)).isFalse();
+  }
+
+  @Test
+  void groundedOrAssistedFlightNeverArmsTheRoll() {
+    assertThat(AgilityRollLanding.shouldRecordRollInput(false, false, false, false, true)).isFalse();
+    assertThat(AgilityRollLanding.shouldRecordRollInput(true, true, false, false, true)).isFalse();
+    assertThat(AgilityRollLanding.shouldRecordRollInput(true, false, true, false, true)).isFalse();
+    assertThat(AgilityRollLanding.shouldRecordRollInput(true, false, false, true, true)).isFalse();
+    assertThat(AgilityRollLanding.shouldRecordRollInput(true, false, false, false, false)).isFalse();
+  }
+
+  @Test
+  void inputWindowGivesAtLeastEightTicksAtTheFirstLevelAndWidensWithLevels() {
+    AgilityRollLanding.Config config = new AgilityRollLanding.Config();
+    long firstLevel = AgilityRollLanding.inputWindowMillis(config.inputWindowMillisBase, config.inputWindowMillisFactor, 0.2D);
+    long maxLevel = AgilityRollLanding.inputWindowMillis(config.inputWindowMillisBase, config.inputWindowMillisFactor, 1D);
+
+    assertThat(firstLevel).isGreaterThanOrEqualTo(400L);
+    assertThat(maxLevel).isGreaterThan(firstLevel);
+  }
+
+  @Test
   void absorbedNeverExceedsCapAndHungerNeverExceedsFood() {
     double[] damages = {0.5D, 1D, 4D, 10D, 25D, 100D};
     double[] reductions = {0.22D, 0.5D, 0.65D, 0.8D};

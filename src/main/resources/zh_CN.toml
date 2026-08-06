@@ -1289,10 +1289,6 @@ description = "链 5+ 墙跳不动地面"
 title = "第二风"
 description = "开支 10 以最大短跑速度累积分钟"
 
-[advancement.challenge_agility_parkour_500]
-title = "自由跑车"
-description = "完成 500 次连续冲刺跳跃落地"
-
 [advancement.challenge_agility_roll_100]
 title = "塔克和滚"
 description = "预防 100 坠落的心"
@@ -3346,14 +3342,6 @@ lore1 = "最大速度"
 lore2 = "蓄力时间"
 lore = ["最大速度", "蓄力时间"]
 
-[agility.parkour_momentum]
-name = "公园运动"
-description = "链式连续短跑跳跃. 每一次干净的着陆 都会产生推动下一次跳跃的势头."
-lore1 = "最大运动堆栈"
-lore2 = "最大助推速度( 块/ 秒)"
-lore3 = "最大跳跃速度奖励"
-lore = ["最大运动堆栈", "最大助推速度( 块/ 秒)", "最大跳跃速度奖励"]
-
 [agility.roll_landing]
 name = "滚落"
 description = "在着陆前按时蹲下,将部分坠落损害转化为饥饿成本."
@@ -3837,6 +3825,7 @@ description = "携带一个储存时间的时光瓶，消耗储存的时间来�
 lore1 = "每个游戏刻充入的储存秒数"
 lore2 = "每储存秒数的时间加速量"
 lore3 = "配方（无序）：迅捷药水 + 时钟 + 玻璃瓶"
+max_stored_lore = "最大储存时间"
 lore = ["每个游戏刻充入的储存秒数", "每储存秒数的时间加速量", "配方（无序）：迅捷药水 + 时钟 + 玻璃瓶"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["推迟的损失", "回扣窗口", "不能再推迟损害"]
 
 [chronos.overtime]
 name = "加班费"
-description = "施药时间更长,适应水平相应."
+description = "施药时间更长,适应水平相应. 满级时,有害效果的持续时间减半."
 lore1 = "额外效果持续时间"
 lore2 = "每个效果的最高奖金"
 lore3 = "只会产生有益的效果"
+max_level_lore = "满级时有害效果的持续时间"
 lore = ["额外效果持续时间", "每个效果的最高奖金", "只会产生有益的效果"]
 
 [chronos.accelerate]

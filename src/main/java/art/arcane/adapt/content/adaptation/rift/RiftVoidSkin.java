@@ -142,7 +142,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       return;
     }
 
-    if (!isLethalDamage(p.getHealth(), e.getFinalDamage())) {
+    if (!isLethalDamage(survivableHealth(p.getHealth(), p.getAbsorptionAmount()), e.getFinalDamage())) {
       return;
     }
 
@@ -156,16 +156,20 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       e.setCancelled(true);
       return;
     }
-    if (!cooldown.isReady(id, getCooldownMillis(level))) {
+    long cooldownMillis = getCooldownMillis(level);
+    if (!cooldown.isReady(id, cooldownMillis)) {
+      Adapt.verbose("Void Skin skipped " + id + ": " + cooldown.remaining(id, cooldownMillis) + "ms cooldown left.");
       return;
     }
 
     if (!hasPlainPearl(p)) {
+      Adapt.verbose("Void Skin skipped " + id + ": no plain ender pearl in inventory.");
       return;
     }
 
     Location destination = findSafeSpot(p);
     if (destination == null) {
+      Adapt.verbose("Void Skin skipped " + id + ": no safe spot and no usable world spawn.");
       return;
     }
 
@@ -174,11 +178,17 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     destination.setPitch(origin.getPitch());
     PearlReservation reservation = reservePlainPearl(p);
     if (reservation == null) {
+      Adapt.verbose("Void Skin skipped " + id + ": pearl cost was refused.");
       return;
     }
 
     VoidEscape operation = new VoidEscape(id, origin, level, reservation);
     pendingEscapes.put(id, operation);
+    // Survive first. The promise is that lethal damage never kills while the
+    // pearl is banked, so the kill is cancelled before the teleport gets a
+    // chance to fail to even start.
+    cancelLethalDamage(e, true);
+
     CompletableFuture<Boolean> teleport;
     try {
       teleport = PaperCompat.teleportAsync(p, destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
@@ -190,9 +200,10 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       return;
     }
 
-    if (!cancelLethalDamage(e, teleport != null)) {
+    if (teleport == null) {
       pendingEscapes.remove(id, operation);
       refundReservation(p, reservation, AbilityRefundReason.ACTIVATION_FAILED);
+      Adapt.error("Void Skin got no escape teleport future for " + id + ".");
       return;
     }
 
@@ -262,7 +273,12 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       addStat(p, "rift.teleports", 1);
       xp(p, getConfig().xpOnEscape, "rift:void-skin:escape");
     })) {
-      return;
+      if (pendingEscapes.remove(operation.playerId(), operation)
+          && operation.reservation().resolved().compareAndSet(false, true)) {
+        refundCost(operation.reservation().charge().activationId(), AbilityRefundReason.ACTIVATION_FAILED);
+        Adapt.error("Void Skin stranded an escape for " + operation.playerId()
+            + "; the reserved pearl returns on rejoin.");
+      }
     }
   }
 
@@ -420,8 +436,22 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
         && finalDamage >= health;
   }
 
-  static boolean cancelLethalDamage(EntityDamageEvent event, boolean teleportScheduled) {
-    if (!teleportScheduled) {
+  /**
+   * Absorption soaks damage before health does, so a hit that only eats
+   * absorption is not lethal and must not burn an escape.
+   */
+  static double survivableHealth(double health, double absorption) {
+    if (!Double.isFinite(health)) {
+      return health;
+    }
+    if (!Double.isFinite(absorption) || absorption <= 0D) {
+      return health;
+    }
+    return health + absorption;
+  }
+
+  static boolean cancelLethalDamage(EntityDamageEvent event, boolean escapeReserved) {
+    if (!escapeReserved) {
       return false;
     }
     event.setCancelled(true);

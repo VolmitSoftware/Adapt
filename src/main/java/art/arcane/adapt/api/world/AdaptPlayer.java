@@ -64,7 +64,7 @@ public class AdaptPlayer extends TickedObject {
   private static final Set<UUID> LOAD_FAILURE_GUARD = ConcurrentHashMap.newKeySet();
 
   private final Player player;
-  private final PlayerData data;
+  private volatile PlayerData data;
   private final Set<String> dirtyStats = ConcurrentHashMap.newKeySet();
   private final AtomicBoolean dirtyStatEvaluationScheduled = new AtomicBoolean();
   private final AtomicBoolean loginStatReconciliationComplete = new AtomicBoolean();
@@ -107,6 +107,12 @@ public class AdaptPlayer extends TickedObject {
   }
 
   public static PlayerData loadPlayerData(UUID uuid) {
+    if (PlayerDataPurgeGuard.clear(uuid)) {
+      Adapt.info("Loading default player data for " + uuid + " (data was purged this session)");
+      LOAD_FAILURE_GUARD.remove(uuid);
+      return new PlayerData();
+    }
+
     boolean loadFailed = false;
     PlayerDataPersistenceQueue persistenceQueue = Adapt.instance.getPlayerDataPersistenceQueue();
     if (persistenceQueue != null) {
@@ -215,8 +221,29 @@ public class AdaptPlayer extends TickedObject {
     return new PlayerData();
   }
 
-  private static File getPlayerDataFile(UUID uuid) {
+  static File getPlayerDataFile(UUID uuid) {
     return new File(Adapt.instance.getDataFolder("data", "players"), uuid.toString() + ".json");
+  }
+
+  static void forgetLoadFailure(UUID uuid) {
+    LOAD_FAILURE_GUARD.remove(uuid);
+  }
+
+  /**
+   * Swaps the live data instance. The previous instance is unbound first so any lingering reference
+   * to it stops driving stat trackers, and the replacement is bound before it becomes visible.
+   */
+  PlayerData replaceData(PlayerData replacement) {
+    PlayerData previous = data;
+    if (replacement == null || replacement == previous) {
+      return previous;
+    }
+
+    previous.unbindRuntimeOwner(this);
+    dirtyStats.clear();
+    replacement.bindRuntimeOwner(this);
+    data = replacement;
+    return previous;
   }
 
   public boolean canConsumeFood(double cost, int minFood) {
@@ -277,7 +304,7 @@ public class AdaptPlayer extends TickedObject {
     UUID uuid = player.getUniqueId();
     File playerDataFile = getPlayerDataFile(uuid);
 
-    if (pendingDataDeletion) {
+    if (pendingDataDeletion || PlayerDataPurgeGuard.isPurged(uuid)) {
       queueDelete(uuid, playerDataFile);
       return;
     }
@@ -325,18 +352,21 @@ public class AdaptPlayer extends TickedObject {
     save();
   }
 
-  public void delete(UUID uuid) {
+  /**
+   * Purges the persisted copy of this player's data and stops this instance from ever writing again.
+   * Used for offline resets; online resets replace the live data instead so the player keeps playing.
+   */
+  void purge(UUID uuid) {
     pendingDataDeletion = true;
+    purgeStoredData(uuid);
+  }
+
+  static void purgeStoredData(UUID uuid) {
+    PlayerDataPurgeGuard.mark(uuid);
+    LOAD_FAILURE_GUARD.remove(uuid);
     File local = getPlayerDataFile(uuid);
-    Adapt.warn("Deleting Player Data: " + local.getAbsolutePath());
+    Adapt.warn("Purging player data: " + local.getAbsolutePath());
     queueDelete(uuid, local);
-
-    Player p = player;
-    if (!p.isOnline()) {
-      return;
-    }
-
-    J.runEntity(p, () -> p.kickPlayer(AdaptLanguage.text(RuntimeMessages.DATA_DELETED_KICK)), 20);
   }
 
   public boolean shouldUnload() {
@@ -550,7 +580,7 @@ public class AdaptPlayer extends TickedObject {
     return getServer().getSkillRegistry();
   }
 
-  private void queueDelete(UUID uuid, File localFile) {
+  private static void queueDelete(UUID uuid, File localFile) {
     PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
     if (queue != null) {
       queue.queueDelete(uuid, localFile);

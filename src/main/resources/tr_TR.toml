@@ -1289,10 +1289,6 @@ description = "Zincir Zinciri 5+ Duvar zemine dokunmadan atlar"
 title = "İkinci Rüzgar"
 description = "10'ın toplu dakikalarını en yüksek sprint hızında geçirin."
 
-[advancement.challenge_agility_parkour_500]
-title = "Freerunner"
-description = "500 zincirlenmiş sıçrayış atlama inişleri tamamlandı."
-
 [advancement.challenge_agility_roll_100]
 title = "Tuck ve Roll"
 description = "Ön önlemenin önlenmesi 100 Kalpler düşüş hasar"
@@ -3346,14 +3342,6 @@ lore1 = "Maksimum Hiz"
 lore2 = "Hizlanma Suresi"
 lore = ["Maksimum Hiz", "Hizlanma Suresi"]
 
-[agility.parkour_momentum]
-name = "Parkour Momentum"
-description = "Her temiz iniş, bir sonraki atlamayı hızlandıran bir momentum oluşturur."
-lore1 = "Maksimum momentum yığınları"
-lore2 = "Maksimum hız arttırılmış (Block/sec)"
-lore3 = "Maksimum atlama hızı bonusu"
-lore = ["Maksimum momentum yığınları", "Maksimum hız arttırılmış (Block/sec)", "Maksimum atlama hızı bonusu"]
-
 [agility.roll_landing]
 name = "Roll Landing"
 description = "inişten önce zamanlanmış crouch, açlık maliyetine zarar vermenin bir parçası haline gelir."
@@ -3837,6 +3825,7 @@ description = "Zaman depolayan ve zamanli bloklari, buyuyebilir bitkileri ve yav
 lore1 = "Her tikte sarj edilen saniye"
 lore2 = "Depolanan saniye basina zaman hizlandirmasi"
 lore3 = "Tarif (Sekillsiz): Hizlilik Iksiri + Saat + Cam Sise"
+max_stored_lore = "Azami depolanan süre"
 lore = ["Her tikte sarj edilen saniye", "Depolanan saniye basina zaman hizlandirmasi", "Tarif (Sekillsiz): Hizlilik Iksiri + Saat + Cam Sise"]
 
 [chronos.aberrant_touch]
@@ -3917,10 +3906,11 @@ lore = ["Hasar kınayan", "Geri ödeme penceresi", "Yeminli hasar tekrar ertelen
 
 [chronos.overtime]
 name = "Overtime"
-description = "Size uygulanan faydalı iksir etkisi, uyum seviyesine göre daha uzun sürer."
+description = "Size uygulanan faydalı iksir etkisi, uyum seviyesine göre daha uzun sürer. Azami seviyede zararlı etkiler yarı yarıya kısalır."
 lore1 = "Ekstra efekt süresi"
 lore2 = "Etki başına maksimum bonus"
 lore3 = "Sadece yararlı etkiler uzatılıyor"
+max_level_lore = "Azami seviyede zararlı etki süresi"
 lore = ["Ekstra efekt süresi", "Etki başına maksimum bonus", "Sadece yararlı etkiler uzatılıyor"]
 
 [chronos.accelerate]

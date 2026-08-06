@@ -761,8 +761,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.DARK_RED + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
   }
 
-  // bstats.org plugin id; 0 disables submission until the id is assigned
-  private static final int BSTATS_PLUGIN_ID = 0;
+  // bstats.org plugin id
+  private static final int BSTATS_PLUGIN_ID = 24221;
 
   private void setupMetrics() {
     if (BSTATS_PLUGIN_ID <= 0 || !AdaptConfig.get().isMetrics()) {

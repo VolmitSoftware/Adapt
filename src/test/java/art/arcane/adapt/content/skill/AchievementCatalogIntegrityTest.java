@@ -95,7 +95,8 @@ class AchievementCatalogIntegrityTest {
       "challenge_axe_timber_40",
       "challenge_excavation_dowsing_200",
       "challenge_rift_step_50",
-      "challenge_rift_step_500"
+      "challenge_rift_step_500",
+      "challenge_agility_parkour_500"
   );
   private static final Set<String> RETIRED_STATS = Set.of(
       "killed.turtleeggs",
@@ -113,7 +114,8 @@ class AchievementCatalogIntegrityTest {
       "axe.sap-tap.sap-drawn",
       "axe.timber-mark.marks-felled",
       "excavation.dowsing.pockets-found",
-      "rift.step.saves"
+      "rift.step.saves",
+      "agility.parkour-momentum.chained-landings"
   );
   private static final Map<String, Integer> HUNTER_GOALS = Map.of(
       "challenge_novice_hunter", 100,
@@ -137,6 +139,8 @@ class AchievementCatalogIntegrityTest {
     }
     assertThat(source).doesNotContain("RiftStep", "\"rift-step\"", "\"rift.step.", "challenge_rift_step");
     assertThat(resources).doesNotContain("[rift.step]", "[advancement.challenge_rift_step");
+    assertThat(source).doesNotContain("ParkourMomentum", "\"agility-parkour-momentum\"");
+    assertThat(resources).doesNotContain("[agility.parkour_momentum]", "[advancement.challenge_agility_parkour_500]");
   }
 
   @Test

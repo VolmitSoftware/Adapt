@@ -34,6 +34,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.PotionEffectTypes;
+import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -46,6 +47,7 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionEffectTypeCategory;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -53,9 +55,7 @@ import java.util.Set;
 import java.util.UUID;
 
 public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
-  private static final Set<PotionEffectType> BENEFICIAL = buildBeneficialSet();
-
-  private final Map<UUID, Boolean> extending = playerState();
+  private final Map<UUID, Boolean> reapplying = playerState();
 
   public ChronosOvertime() {
     super("chronos-overtime");
@@ -69,6 +69,11 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
     registerMilestone("challenge_chronos_overtime_1k", "chronos.overtime.seconds-extended", 1000, 750);
+  }
+
+  // Held in a holder so the potion registry is only touched on first use, never during class init.
+  private static final class Beneficial {
+    private static final Set<PotionEffectType> TYPES = buildBeneficialSet();
   }
 
   private static Set<PotionEffectType> buildBeneficialSet() {
@@ -103,6 +108,11 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
   public void addStats(int level, Element v) {
     statLore(v, Math.round(getExtensionPercent(level) * 100D) + "%", 1);
     statLore(v, C.YELLOW, "+ ", (getConfig().maxBonusTicks / 20) + "s", 2);
+    statLore(v, C.RED, "* ",
+        getConfig().halveHarmfulEffectsAtMaxLevel && level >= getMaxLevel()
+            ? Form.pc(getHarmfulDurationMultiplier(), 0)
+            : "-",
+        ChronosMessages.OVERTIME_MAX_LEVEL_LORE);
     v.addLore(C.GRAY + "* " + AdaptLanguage.text(ChronosMessages.OVERTIME_LORE3));
   }
 
@@ -111,9 +121,82 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
         getConfig().baseExtensionPercent + (Math.max(1, level) * getConfig().extensionPercentPerLevel));
   }
 
+  private double getHarmfulDurationMultiplier() {
+    double multiplier = getConfig().maxLevelHarmfulDurationMultiplier;
+    return Double.isFinite(multiplier) ? Math.max(0D, Math.min(1D, multiplier)) : 1D;
+  }
+
+  static boolean shortensHarmfulEffect(boolean enabled, boolean atMaxLevel, PotionEffectTypeCategory category,
+                                       EntityPotionEffectEvent.Action action) {
+    return enabled
+        && atMaxLevel
+        && category == PotionEffectTypeCategory.HARMFUL
+        && (action == EntityPotionEffectEvent.Action.ADDED || action == EntityPotionEffectEvent.Action.CHANGED);
+  }
+
+  static int shortenedHarmfulDurationTicks(int duration, double multiplier) {
+    if (duration <= 0) {
+      return 0;
+    }
+
+    if (!Double.isFinite(multiplier)) {
+      return duration;
+    }
+
+    double clamped = Math.max(0D, Math.min(1D, multiplier));
+    return Math.max(1, Math.min(duration, (int) Math.round(duration * clamped)));
+  }
+
   @EventHandler
   public void on(PlayerQuitEvent e) {
-    extending.remove(e.getPlayer().getUniqueId());
+    reapplying.remove(e.getPlayer().getUniqueId());
+  }
+
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  public void onHarmfulEffect(EntityPotionEffectEvent e) {
+    PotionEffect incoming = e.getNewEffect();
+    if (incoming == null || incoming.getType().isInstant()) {
+      return;
+    }
+
+    if (!(PaperCompat.livingEntity(e) instanceof Player p)) {
+      return;
+    }
+
+    UUID id = p.getUniqueId();
+    if (reapplying.containsKey(id)) {
+      return;
+    }
+
+    int level = getActiveLevel(p);
+    if (!shortensHarmfulEffect(getConfig().halveHarmfulEffectsAtMaxLevel, level > 0 && level >= getMaxLevel(),
+        incoming.getType().getCategory(), e.getAction())) {
+      return;
+    }
+
+    int duration = incoming.getDuration();
+    int shortened = shortenedHarmfulDurationTicks(duration, getHarmfulDurationMultiplier());
+    if (shortened >= duration) {
+      return;
+    }
+
+    // Cancel the vanilla application and re-apply the shortened copy under a guard so the
+    // nested EntityPotionEffectEvent from our own addPotionEffect is not shortened again.
+    e.setCancelled(true);
+    PotionEffect halved = new PotionEffect(incoming.getType(), shortened, incoming.getAmplifier(),
+        incoming.isAmbient(), incoming.hasParticles(), incoming.hasIcon());
+
+    reapplying.put(id, true);
+    try {
+      p.addPotionEffect(halved);
+    } finally {
+      reapplying.remove(id);
+    }
+
+    addStat(p, "chronos.overtime.seconds-shortened", (duration - shortened) / 20D);
+    fx(p.getLocation(), FxPriority.TRANSITION)
+        .particle(Particle.WAX_OFF, 4, 0, 0.9D, 0, 0.3D, 0.02D)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 0.8F);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -128,7 +211,7 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
     }
 
     UUID id = p.getUniqueId();
-    if (extending.containsKey(id)) {
+    if (reapplying.containsKey(id)) {
       return;
     }
 
@@ -143,7 +226,7 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
     }
 
     PotionEffectType type = newEffect.getType();
-    if (!BENEFICIAL.contains(type)) {
+    if (!Beneficial.TYPES.contains(type)) {
       return;
     }
 
@@ -173,12 +256,12 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
         return;
       }
 
-      extending.put(id, true);
+      reapplying.put(id, true);
       try {
         p.addPotionEffect(new PotionEffect(type, targetDuration, amplifier,
             current.isAmbient(), current.hasParticles(), current.hasIcon()), true);
       } finally {
-        extending.remove(id);
+        reapplying.remove(id);
       }
 
       addStat(p, "chronos.overtime.seconds-extended", bonus / 20D);
@@ -201,7 +284,7 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
   }
 
 
-  @ConfigDescription("Beneficial potion effects applied to you last longer, scaled by adaptation level.")
+  @ConfigDescription("Beneficial potion effects applied to you last longer, scaled by adaptation level. At max level, harmful effects applied to you last half as long.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base duration extension as a fraction of the original duration.", impact = "Higher values extend beneficial effects more.")
     double baseExtensionPercent = 0.05;
@@ -219,6 +302,10 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
     double xpPerBonusSecond = 0.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum XP granted by a single extension.", impact = "Higher values allow bigger XP payouts per potion.")
     double maxXpPerExtension = 8;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Shorten harmful potion effects applied to you once this adaptation is at max level.", impact = "True enables this behavior and false disables it.")
+    boolean halveHarmfulEffectsAtMaxLevel = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Fraction of the original duration kept by harmful effects at max level.", impact = "Lower values shorten harmful effects more; 1 leaves them untouched.")
+    double maxLevelHarmfulDurationMultiplier = 0.5;
 
     public Config() {
       baseCost = 5;

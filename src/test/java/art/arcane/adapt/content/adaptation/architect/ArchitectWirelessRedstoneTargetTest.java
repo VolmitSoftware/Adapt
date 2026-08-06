@@ -59,20 +59,22 @@ class ArchitectWirelessRedstoneTargetTest {
   @Test
   void bindingStagesBlockReadsAndItemMutationAcrossTheirOwningRegions() throws IOException {
     String source = Files.readString(REMOTE_SOURCE);
-    String bindingFlow = method(source, "private void handleLeftClick", "private void handleRightClick");
+    String bindingFlow = method(source, "private void handleLeftClick", "private void linkTorch");
 
     assertThat(bindingFlow).contains(
         "J.runAt(binding.target(), () -> validateBindingTarget(player, binding))",
         "binding.target().getBlock().getType().isAir()",
-        "J.runAt(binding.receiver(), () -> validateBindingReceiver(player, binding))",
-        "isReceiverAvailable(binding.receiver().getBlock())",
         "J.runEntity(player, () -> authorizeAndLinkTorch(player, binding))",
         "player.getInventory().getHeldItemSlot() != binding.handSlot()",
         "hand.equals(binding.handSnapshot())",
         "resolveInteractContext(player, binding.target())",
-        "canBlockPlace(player, binding.receiver())"
+        "canBlockPlace(player, binding.target())"
     );
-    assertThat(bindingFlow).doesNotContain("player.rayTraceBlocks", "private boolean canBind");
+    assertThat(bindingFlow).doesNotContain(
+        "player.rayTraceBlocks",
+        "private boolean canBind",
+        "isReceiverAvailable"
+    );
   }
 
   @Test
@@ -103,13 +105,13 @@ class ArchitectWirelessRedstoneTargetTest {
 
     assertThat(source).contains(
         "static final int PULSE_TICKS = 4;",
-        "ACTIVE_RECEIVERS.put(receiver, lease)",
-        "ACTIVE_RECEIVERS.remove(activation.receiver(), activation.lease())"
+        "ACTIVE_EMITTERS.put(emitter, lease)",
+        "ACTIVE_EMITTERS.remove(activation.emitter(), activation.lease())"
     );
   }
 
   @Test
-  void activationRevalidatesTheBoundBlockBeforePlacingTheSource() throws IOException {
+  void activationRevalidatesTheBoundBlockBeforeEnergizingIt() throws IOException {
     String source = Files.readString(REMOTE_SOURCE);
 
     assertThat(source).contains(
@@ -117,24 +119,41 @@ class ArchitectWirelessRedstoneTargetTest {
         "binding.target().getBlock().getType().isAir()",
         "J.runEntity(player, () -> authorizeAndSchedulePulse(player, binding))",
         "canInteract(player, binding.target())",
-        "canBlockPlace(player, binding.receiver())",
-        "J.runAt(binding.receiver(), () -> beginPulse(player, binding))"
+        "canBlockPlace(player, binding.target())",
+        "J.runAt(binding.target(), () -> beginPulse(player, binding))"
     );
     assertThat(method(source, "private void triggerPulse", "private void validateTargetAndSchedulePulse"))
         .doesNotContain("canInteract(", "canBlockPlace(");
   }
 
   @Test
-  void pulseUsesARealAdjacentSourceAndNeverSwapsTheSelectedBlockThroughNms() throws IOException {
+  void thePulseNeverPlacesSwapsOrJournalsABlock() throws IOException {
     String remote = Files.readString(REMOTE_SOURCE);
     String pulse = Files.readString(PULSE_SOURCE);
 
     assertThat(remote).contains(
-        "receiverBlock.setType(Material.REDSTONE_BLOCK, true)",
-        "block.setType(originalMaterial, true)",
-        "J.runAt(binding.receiver(), () -> finishPulse(activation), ArchitectRedstonePulse.PULSE_TICKS)"
+        "block.setBlockData(target, true)",
+        "J.runAt(binding.target(), () -> finishPulse(activation), ArchitectRedstonePulse.PULSE_TICKS)"
     );
-    assertThat(pulse).doesNotContain("net.minecraft", "CraftWorld", "LevelChunkSection");
+    assertThat(remote).doesNotContain(
+        "REDSTONE_BLOCK",
+        ".setType(",
+        "PersistentDataType",
+        "isProtectedReceiver"
+    );
+    assertThat(pulse).doesNotContain("net.minecraft", "CraftWorld", "LevelChunkSection", "Material");
+  }
+
+  @Test
+  void restoringOnlyRewritesBlocksThatAreStillTheOnesThePulseChanged() throws IOException {
+    String source = Files.readString(REMOTE_SOURCE);
+    String apply = method(source, "private void applySnapshots", "static BlockData poweredCopy");
+
+    assertThat(apply).contains(
+        "BlockData target = powered ? snapshot.powered() : snapshot.original();",
+        "BlockData expected = powered ? snapshot.original() : snapshot.powered();",
+        "if (!block.getBlockData().matches(expected)) {"
+    );
   }
 
   @Test
@@ -142,20 +161,19 @@ class ArchitectWirelessRedstoneTargetTest {
     String source = Files.readString(REMOTE_SOURCE);
 
     assertThat(source).contains(
-        "SHUTDOWN_RESTORATION_OWNERS.merge(receiver, runtimeGeneration, Long::max)",
+        "SHUTDOWN_RESTORATION_OWNERS.merge(emitter, runtimeGeneration, Long::max)",
         "currentOwner != null && currentOwner >= runtimeGeneration ? currentOwner : null",
-        "!claimReceiverForCurrentRuntime(binding.receiverKey())",
-        "!claimReceiverForCurrentRuntime(receiver)",
-        "if (pulses.owns(receiver))",
-        "SHUTDOWN_RESTORATION_OWNERS.remove(receiver, ownerGeneration)",
-        "restoreShutdownReceiver(world, task)"
+        "!claimEmitterForCurrentRuntime(binding.emitter())",
+        "if (pulses.owns(emitter))",
+        "SHUTDOWN_RESTORATION_OWNERS.remove(emitter, ownerGeneration)",
+        "restoreShutdownEmitter(world, task)"
     );
   }
 
   @Test
   void shutdownOnlyRestoresDirectlyFromAnOwnedExecutionContext() throws IOException {
     String source = Files.readString(REMOTE_SOURCE);
-    String scheduling = method(source, "private void scheduleRestoration", "@Override\n  public void unregister");
+    String scheduling = method(source, "private void scheduleRestoration", "private void awaitShutdownRestorations");
 
     assertThat(scheduling).contains(
         "isRestorationThreadOwned(location)",

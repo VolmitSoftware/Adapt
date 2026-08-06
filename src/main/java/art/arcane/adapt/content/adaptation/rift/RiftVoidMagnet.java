@@ -278,50 +278,47 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
       return;
     }
 
-    int requested = pulse.transfers.reserve(original.getAmount());
-    if (requested <= 0) {
+    if (!pulse.transfers.reserveDrop()) {
       return;
     }
 
-    EntityPickupItemEvent pickupEvent = new EntityPickupItemEvent(player, item, 0);
-    Bukkit.getPluginManager().callEvent(pickupEvent);
-    if (pickupEvent.isCancelled() || !item.isValid() || item.isDead()) {
-      pulse.transfers.release(requested);
-      return;
-    }
+    boolean transferred = false;
+    try {
+      EntityPickupItemEvent pickupEvent = new EntityPickupItemEvent(player, item, 0);
+      Bukkit.getPluginManager().callEvent(pickupEvent);
+      if (pickupEvent.isCancelled() || !item.isValid() || item.isDead()) {
+        return;
+      }
 
-    ItemStack stack = item.getItemStack().clone();
-    if (!stack.isSimilar(original)) {
-      pulse.transfers.release(requested);
-      return;
-    }
-    if (stack.getAmount() < requested) {
-      pulse.transfers.release(requested - stack.getAmount());
-      requested = stack.getAmount();
-    }
-    if (requested <= 0) {
-      return;
-    }
+      ItemStack stack = item.getItemStack().clone();
+      if (!stack.isSimilar(original) || stack.getAmount() <= 0) {
+        return;
+      }
 
-    int moved = depositIntoInventories(player, stack, requested);
-    pulse.transfers.release(requested - moved);
-    if (moved <= 0) {
-      return;
-    }
+      int moved = depositIntoInventories(player, stack, stack.getAmount());
+      if (moved <= 0) {
+        return;
+      }
+      transferred = true;
 
-    if (moved >= stack.getAmount()) {
-      item.remove();
-    } else {
-      stack.setAmount(stack.getAmount() - moved);
-      item.setItemStack(stack);
-    }
+      if (moved >= stack.getAmount()) {
+        item.remove();
+      } else {
+        stack.setAmount(stack.getAmount() - moved);
+        item.setItemStack(stack);
+      }
 
-    addStat(player, "rift.void-magnet.items-pulled", moved);
-    xp(player, moved * getConfig().xpPerMovedItem, "rift:void-magnet:item-pull");
-    if (pulse.feedback.compareAndSet(false, true)) {
-      fx(player, FxPriority.TRAIL)
-          .particle(Particle.PORTAL, 8, 0, 1.0, 0, 0.3, 0.05)
-          .sound(Sound.BLOCK_ENDER_CHEST_OPEN, 0.45f, Math.min(1.9f, 1.4f + (moved * 0.02f)));
+      addStat(player, "rift.void-magnet.items-pulled", moved);
+      xp(player, moved * getConfig().xpPerMovedItem, "rift:void-magnet:item-pull");
+      if (pulse.feedback.compareAndSet(false, true)) {
+        fx(player, FxPriority.TRAIL)
+            .particle(Particle.PORTAL, 8, 0, 1.0, 0, 0.3, 0.05)
+            .sound(Sound.BLOCK_ENDER_CHEST_OPEN, 0.45f, Math.min(1.9f, 1.4f + (moved * 0.02f)));
+      }
+    } finally {
+      if (!transferred) {
+        pulse.transfers.releaseDrop();
+      }
     }
   }
 
@@ -386,9 +383,9 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     double radiusBase = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Rift Void Magnet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusFactor = 9;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Items Base for the Rift Void Magnet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base number of separate item drops pulled per pulse for the Rift Void Magnet adaptation.", impact = "Higher values pull more distinct drops each pulse; stack size does not count against this limit.")
     double maxItemsBase = 10;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Items Factor for the Rift Void Magnet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional item drops pulled per pulse granted by level for the Rift Void Magnet adaptation.", impact = "Higher values let higher levels clear more distinct drops per pulse.")
     double maxItemsFactor = 22;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Pulse Ticks Base for the Rift Void Magnet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double pulseTicksBase = 20;
@@ -602,6 +599,11 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     }
   }
 
+  /**
+   * Per-pulse ceiling counted in item drops, not item units. A drop-denominated
+   * budget keeps one large stack from consuming the whole pulse and starving
+   * every other drop the player is standing on.
+   */
   static final class MagnetTransferBudget {
     private final int limit;
     private final AtomicInteger reserved = new AtomicInteger();
@@ -613,23 +615,19 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
       this.limit = limit;
     }
 
-    int reserve(int requested) {
+    boolean reserveDrop() {
       int current = reserved.get();
-      while (requested > 0 && current < limit) {
-        int granted = Math.min(requested, limit - current);
-        if (reserved.compareAndSet(current, current + granted)) {
-          return granted;
+      while (current < limit) {
+        if (reserved.compareAndSet(current, current + 1)) {
+          return true;
         }
         current = reserved.get();
       }
-      return 0;
+      return false;
     }
 
-    void release(int amount) {
-      if (amount <= 0) {
-        return;
-      }
-      reserved.updateAndGet(current -> Math.max(0, current - amount));
+    void releaseDrop() {
+      reserved.updateAndGet(current -> Math.max(0, current - 1));
     }
 
     int reserved() {
