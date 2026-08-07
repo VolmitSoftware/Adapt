@@ -59,7 +59,7 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.DARKNESS_NAME))
             .setColor(Color.BLACK)
-            .addEffect(PotionEffectType.DARKNESS, 600, 100, true, true, true)
+            .addEffect(PotionEffectType.DARKNESS, 600, 0, true, true, true)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()

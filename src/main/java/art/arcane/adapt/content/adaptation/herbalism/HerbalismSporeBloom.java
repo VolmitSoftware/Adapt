@@ -37,6 +37,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -72,6 +73,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     statLore(v, getBloomAttempts(level), 1);
     statLore(v, Form.f(getBloomRadius(level)), 2);
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownMillis(level), 1), 3);
+    statLore(v, C.YELLOW, "* ", getSporeCost(level), 4);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -93,12 +95,10 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
       return;
     }
 
-    // Place-trigger activation: sneak-place mushroom on valid floor to bloom.
-    e.setCancelled(true);
-    attemptBloom(e.getPlayer(), floor, e.getItemInHand().getType());
+    attemptBloom(e, e.getPlayer(), floor, e.getItemInHand().getType());
   }
 
-  private void startBloom(org.bukkit.entity.Player player, Block center, Material catalyst, Material spreadSurface, int level) {
+  private void startBloom(Player player, Block center, Material catalyst, Material spreadSurface, int level) {
     List<Block> path = buildSpiderPath(center, getBloomRadius(level), getSpokes(level), getBloomAttempts(level), getGuaranteedReach(level));
     if (path.isEmpty()) {
       return;
@@ -248,7 +248,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     return out < 0 ? out + (Math.PI * 2D) : out;
   }
 
-  private int spreadAt(org.bukkit.entity.Player player, Block floor, Material catalyst, Material spreadSurface) {
+  private int spreadAt(Player player, Block floor, Material catalyst, Material spreadSurface) {
     int changed = 0;
     Block ground = resolveTopSurfaceSoil(floor);
     if (ground == null) {
@@ -303,21 +303,10 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     return isItem(hand) && (hand.getType() == Material.RED_MUSHROOM || hand.getType() == Material.BROWN_MUSHROOM);
   }
 
-  private boolean consumeOne(org.bukkit.entity.Player player, ItemStack hand) {
-    if (hand.getAmount() <= 0) {
-      return false;
-    }
-
-    return payItemCost(player, "spore", new ItemStack(hand.getType()), 1, () -> {
-      hand.setAmount(hand.getAmount() - 1);
-      return true;
-    });
-  }
-
-  private boolean attemptBloom(org.bukkit.entity.Player player, Block center, Material catalyst) {
+  private void attemptBloom(BlockPlaceEvent e, Player player, Block center, Material catalyst) {
     Material spreadSurface = resolveSpreadSurface(center.getType());
     if (spreadSurface == null) {
-      return false;
+      return;
     }
 
     int level = getActiveLevel(player);
@@ -326,20 +315,22 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
       fx(failAt, FxPriority.TRANSITION)
           .burst(Particles.SMOKE, 2, 0.2D)
           .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.75F);
-      return false;
+      return;
     }
 
     if (player.getFoodLevel() < getFoodCost(level)) {
       fx(failAt, FxPriority.TRANSITION)
           .particle(Particle.CRIMSON_SPORE, 3, 0, 0.2D, 0, 0.2D, 0.01D)
           .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.9F);
-      return false;
+      return;
     }
 
-    if (!consumeCatalystFromMainHandIfPresent(player, catalyst)) {
-      return false;
+    if (!chargeCatalyst(player, catalyst, getSporeCost(level), failAt)) {
+      return;
     }
 
+    // The catalyst is already paid for, so the vanilla placement must never also happen.
+    e.setCancelled(true);
     player.setFoodLevel(Math.max(0, player.getFoodLevel() - getFoodCost(level)));
     bloomCooldown.mark(player.getUniqueId());
 
@@ -349,22 +340,25 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         .sound(Sound.ENTITY_ENDERMAN_AMBIENT, 0.45F, 0.55F);
     FxPresets.chargeRing(this, activation, 6);
     startBloom(player, center, catalyst, spreadSurface, level);
-    return true;
   }
 
-  private boolean consumeCatalystFromMainHandIfPresent(org.bukkit.entity.Player player, Material catalyst) {
+  private boolean chargeCatalyst(Player player, Material catalyst, int cost, Location failAt) {
     ItemStack held = player.getInventory().getItemInMainHand();
-    if (!isItem(held)) {
-      // Some server flows decrement the placed stack before cancelled placement is finalized.
-      // In that case, allow activation without double-consuming.
-      return true;
+    if (!isItem(held) || held.getType() != catalyst) {
+      return false;
     }
 
-    if (held.getType() != catalyst) {
-      return true;
+    if (!player.getInventory().containsAtLeast(new ItemStack(catalyst), cost)) {
+      fx(failAt, FxPriority.TRANSITION)
+          .particle(Particle.CRIMSON_SPORE, 3, 0, 0.2D, 0, 0.2D, 0.01D)
+          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.6F);
+      return false;
     }
 
-    return consumeOne(player, held);
+    return payItemCost(player, "spore", new ItemStack(catalyst), cost, () -> {
+      player.getInventory().removeItem(new ItemStack(catalyst, cost));
+      return true;
+    });
   }
 
   private Material resolveSpreadSurface(Material floorType) {
@@ -519,6 +513,18 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     return Math.max(250L, (long) Math.round(getConfig().cooldownMillisBase - (getLevelPercent(level) * getConfig().cooldownMillisFactor)));
   }
 
+  private int getSporeCost(int level) {
+    return sporeCost(getConfig().sporeCostBase, getConfig().sporeCostPerLevel, level);
+  }
+
+  static int sporeCost(double base, double perLevel, int level) {
+    if (!Double.isFinite(base) || !Double.isFinite(perLevel)) {
+      return 1;
+    }
+
+    return Math.max(1, (int) Math.round(base + (Math.max(0, level - 1) * perLevel)));
+  }
+
 
   @ConfigDescription("Sneak-right-click mycelium with mushrooms to spread an outward spore-web that mutates nearby growth.")
   protected static class Config extends AdaptationConfig {
@@ -530,6 +536,10 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     double bloomAttemptsFactor = 58;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional bloom attempts granted each adaptation level.", impact = "Higher values make each level spread across more total blocks.")
     double bloomAttemptsPerLevel = 12;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Mushrooms consumed by a level one bloom.", impact = "Higher values make every bloom cost more mushrooms.")
+    double sporeCostBase = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional mushrooms consumed per adaptation level above one.", impact = "Higher values make larger blooms cost proportionally more mushrooms.")
+    double sporeCostPerLevel = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bloom Radius Base for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double bloomRadiusBase = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bloom Radius Factor for the Herbalism Spore Bloom adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

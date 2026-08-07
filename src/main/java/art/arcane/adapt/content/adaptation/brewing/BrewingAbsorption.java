@@ -59,7 +59,7 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.ABSORPTION_NAME))
             .setColor(Color.GRAY)
-            .addEffect(PotionEffectType.ABSORPTION, 1200, 1, true, true, true)
+            .addEffect(PotionEffectType.ABSORPTION, 1200, 0, true, true, true)
             .build())
         .build()
     );
@@ -72,7 +72,7 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.ABSORPTION_STRONG_NAME))
             .setColor(Color.GRAY)
-            .addEffect(PotionEffectType.ABSORPTION, 600, 2, true, true, true)
+            .addEffect(PotionEffectType.ABSORPTION, 600, 1, true, true, true)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()

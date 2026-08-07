@@ -247,7 +247,12 @@ slimJar {
  * Configure Adapt for shading
  */
 shadowJarTask.configure {
-//    minimize()
+    minimize {
+        // Reflectively-entered code must survive minimization: the velocity module is read via
+        // config reflection and the slimjar helpers bootstrap before any static reference exists.
+        exclude(project(':velocity'))
+        exclude(dependency('de.crazydev22.slimjar.helper:.*:.*'))
+    }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude('net/kyori/**')
     exclude('com/google/gson/**')

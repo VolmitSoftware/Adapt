@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.util.common.compat;
 
+import com.destroystokyo.paper.entity.Pathfinder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.util.TriState;
@@ -108,6 +109,8 @@ public final class PaperCompat {
       Material.NETHER_SPROUTS
   );
   private static final Map<String, Boolean> CLASS_PRESENCE = new ConcurrentHashMap<>();
+  private static final String PATHFINDER_CLASS = "com.destroystokyo.paper.entity.Pathfinder";
+  private static volatile boolean pathfindingSupported = true;
   private static volatile boolean blockReplaceableSupported = true;
   private static volatile boolean teleportAsyncSupported = true;
   private static volatile boolean teleportAsyncCauseSupported = true;
@@ -400,6 +403,36 @@ public final class PaperCompat {
     try {
       mob.setAggressive(aggressive);
     } catch (NoSuchMethodError ignored) {
+    }
+  }
+
+  public static boolean supportsPathfinding() {
+    return pathfindingSupported && hasClass(PATHFINDER_CLASS);
+  }
+
+  /** False on platforms without Paper's Pathfinder, and false when no path exists. */
+  public static boolean pathfindTo(Mob mob, Location target, double speed) {
+    if (!supportsPathfinding()) {
+      return false;
+    }
+
+    try {
+      return PathfinderBridge.moveTo(mob, target, speed);
+    } catch (NoSuchMethodError | NoClassDefFoundError absent) {
+      pathfindingSupported = false;
+      return false;
+    }
+  }
+
+  public static void stopPathfinding(Mob mob) {
+    if (!supportsPathfinding()) {
+      return;
+    }
+
+    try {
+      PathfinderBridge.stop(mob);
+    } catch (NoSuchMethodError | NoClassDefFoundError absent) {
+      pathfindingSupported = false;
     }
   }
 
@@ -749,5 +782,27 @@ public final class PaperCompat {
     }
 
     return world.spawn(location, type, hydrator::accept);
+  }
+
+  /**
+   * Keeps every Pathfinder reference out of PaperCompat's own constant pool so
+   * the class still verifies on Spigot, where the type does not exist. Only the
+   * probe-guarded call sites above load this holder.
+   */
+  private static final class PathfinderBridge {
+    private PathfinderBridge() {
+    }
+
+    private static boolean moveTo(Mob mob, Location target, double speed) {
+      Pathfinder pathfinder = mob.getPathfinder();
+      return pathfinder != null && pathfinder.moveTo(target, speed);
+    }
+
+    private static void stop(Mob mob) {
+      Pathfinder pathfinder = mob.getPathfinder();
+      if (pathfinder != null) {
+        pathfinder.stopPathfinding();
+      }
+    }
   }
 }

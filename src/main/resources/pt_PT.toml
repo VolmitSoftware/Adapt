@@ -3769,8 +3769,8 @@ name = "Fome Engarrafada"
 strong_name = "Fome engarrafada 2"
 description = "Alimenta o Insaciavel!"
 lore1 = "Pocao Estranha + Carne Podre = Pocao de Fome (60 segundos)"
-lore2 = "Pocao de Fraqueza + Carne Podre = Pocao de Fome-3 (30 segundos)"
-lore = ["Pocao Estranha + Carne Podre = Pocao de Fome (60 segundos)", "Pocao de Fraqueza + Carne Podre = Pocao de Fome-3 (30 segundos)"]
+lore2 = "Pocao de Fraqueza + Carne Podre = Pocao de Fome-2 (30 segundos)"
+lore = ["Pocao Estranha + Carne Podre = Pocao de Fome (60 segundos)", "Pocao de Fraqueza + Carne Podre = Pocao de Fome-2 (30 segundos)"]
 
 [brewing.nausea]
 name = "Nausea Engarrafada"
@@ -3798,6 +3798,7 @@ lore = ["Pocao Estranha + Lingote de Ferro = Pocao de Resistencia (60 segundos)"
 
 [brewing.health_boost]
 name = "Vida Engarrafada"
+strong_name = "Vida Engarrafada 2"
 description = "Quando a saude maxima nao e suficiente..."
 lore1 = "Pocao de Cura Instantanea + Maca Dourada = Pocao de Aumento de Saude (60 segundos)"
 lore2 = "Pocao de Cura Instantanea + Maca Dourada Encantada = Pocao de Aumento de Saude-2 (60 segundos)"
@@ -4537,9 +4538,14 @@ name = "Enxada Direto-Para-Inventario"
 
 [herbalism.hungry_shield]
 name = "Escudo Faminto"
-description = "Recebe dano na fome antes da saude."
+description = "Recebe dano na fome antes da saúde, cobrindo mais tipos de dano à medida que sobe de nível."
 lore1 = "Resistido pela Fome"
-lore = ["Resistido pela Fome"]
+lore2 = "Dano de contacto, esmagamento e clima protegido"
+lore3 = "Dano corpo a corpo e de espinhos protegido"
+lore4 = "Dano de fogo e lava protegido"
+lore5 = "Dano de projéteis e explosões protegido"
+lore6 = "Dano de magia, veneno e Wither protegido"
+lore = ["Resistido pela Fome", "Dano de contacto, esmagamento e clima protegido", "Dano corpo a corpo e de espinhos protegido", "Dano de fogo e lava protegido", "Dano de projéteis e explosões protegido", "Dano de magia, veneno e Wither protegido"]
 
 [herbalism.luck]
 name = "Sorte do Herbalista"
@@ -4565,7 +4571,7 @@ lore = ["Raio vegetal", "Máximo de colheitas por uso", "Semeando tempo de recar
 
 [herbalism.compost_cascade]
 name = "Cascata Compost"
-description = "Clique com o botão direito de um compostor para consumir gotas próximas, colheitas de culturas maduras, folhas e seus compostos de inventário."
+description = "Agacha-te e clica com o botão direito num compostor para consumir os itens caídos por perto, colher e replantar as culturas maduras, compostar o teu inventário e gastar o composto a amadurecer as culturas próximas. As folhas só são consumidas quando ativadas na configuração."
 lore1 = "Raio Cascade"
 lore2 = "Itens Max Processados"
 lore3 = "Chance de Preenchimento da Compost"
@@ -4586,7 +4592,8 @@ description = "Mantenha as flores perto das colheitas para pulsar o crescimento 
 lore1 = "Raio de Pulso"
 lore2 = "Tentativas de Crescimento"
 lore3 = "tempo de recarga do Pulso"
-lore = ["Raio de Pulso", "Tentativas de Crescimento", "tempo de recarga do Pulso"]
+lore4 = "Bónus de crescimento das abelhas"
+lore = ["Raio de Pulso", "Tentativas de Crescimento", "tempo de recarga do Pulso", "Bónus de crescimento das abelhas"]
 
 [herbalism.spore_bloom]
 name = "Esporo Bloom"
@@ -4594,7 +4601,8 @@ description = "Micélio sneak-direita-clique com cogumelos para espalhar manchas
 lore1 = "Tentativas de Bloom"
 lore2 = "Raio Bloom"
 lore3 = "tempo de recarga Bloom"
-lore = ["Tentativas de Bloom", "Raio Bloom", "tempo de recarga Bloom"]
+lore4 = "Custo em cogumelos"
+lore = ["Tentativas de Bloom", "Raio Bloom", "tempo de recarga Bloom", "Custo em cogumelos"]
 
 [hunter.adrenaline]
 name = "Adrenalina"

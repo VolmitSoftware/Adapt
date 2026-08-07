@@ -3769,8 +3769,8 @@ name = "Đói Đóng Chai"
 strong_name = "Nạn đói chai 2"
 description = "Cho kẻ ăn không biết no!"
 lore1 = "Thuốc Vụng Về + Thịt Thối = Thuốc Đói (60 giây)"
-lore2 = "Thuốc Yếu Đuối + Thịt Thối = Thuốc Đói-3 (30 giây)"
-lore = ["Thuốc Vụng Về + Thịt Thối = Thuốc Đói (60 giây)", "Thuốc Yếu Đuối + Thịt Thối = Thuốc Đói-3 (30 giây)"]
+lore2 = "Thuốc Yếu Đuối + Thịt Thối = Thuốc Đói-2 (30 giây)"
+lore = ["Thuốc Vụng Về + Thịt Thối = Thuốc Đói (60 giây)", "Thuốc Yếu Đuối + Thịt Thối = Thuốc Đói-2 (30 giây)"]
 
 [brewing.nausea]
 name = "Buồn Nôn Đóng Chai"
@@ -3798,6 +3798,7 @@ lore = ["Thuốc Vụng Về + Thỏi Sắt = Thuốc Kháng Cự (60 giây)", "
 
 [brewing.health_boost]
 name = "Sinh Mệnh Đóng Chai"
+strong_name = "Sinh Mệnh Đóng Chai 2"
 description = "Khi máu tối đa là chưa đủ..."
 lore1 = "Thuốc Hồi Máu Tức Thì + Táo Vàng = Thuốc Tăng Máu (60 giây)"
 lore2 = "Thuốc Hồi Máu Tức Thì + Táo Vàng Phù Phép = Thuốc Tăng Máu-2 (60 giây)"
@@ -4537,9 +4538,14 @@ name = "Cuốc Nhặt Vào Túi Đồ"
 
 [herbalism.hungry_shield]
 name = "Khiên Đói"
-description = "Nhận sát thương vào thanh đói trước thanh máu."
+description = "Nhận sát thương vào thanh đói trước thanh máu, che chắn thêm nhiều loại sát thương khi lên cấp."
 lore1 = "Kháng Bằng Đói"
-lore = ["Kháng Bằng Đói"]
+lore2 = "Chắn Sát Thương Va Chạm, Đè Bẹp & Thời Tiết"
+lore3 = "Chắn Sát Thương Cận Chiến & Gai"
+lore4 = "Chắn Sát Thương Lửa & Dung Nham"
+lore5 = "Chắn Sát Thương Đạn & Vụ Nổ"
+lore6 = "Chắn Sát Thương Phép, Độc & Wither"
+lore = ["Kháng Bằng Đói", "Chắn Sát Thương Va Chạm, Đè Bẹp & Thời Tiết", "Chắn Sát Thương Cận Chiến & Gai", "Chắn Sát Thương Lửa & Dung Nham", "Chắn Sát Thương Đạn & Vụ Nổ", "Chắn Sát Thương Phép, Độc & Wither"]
 
 [herbalism.luck]
 name = "May Mắn Thảo Dược"
@@ -4565,7 +4571,7 @@ lore = ["Bán kính gieo hạt", "Số cây trồng tối đa mỗi lần", "Th�
 
 [herbalism.compost_cascade]
 name = "Ủ Phân Dây Chuyền"
-description = "Cúi người rồi nhấp chuột phải vào thùng ủ phân để tiêu thụ vật phẩm rơi gần đó, cây trồng đã chín, lá và vật liệu có thể ủ trong kho đồ."
+description = "Cúi người rồi nhấp chuột phải vào thùng ủ phân để tiêu thụ vật phẩm rơi gần đó, thu hoạch và trồng lại cây trồng đã chín, ủ vật liệu trong kho đồ và dùng phân ủ để thúc chín cây trồng gần đó. Lá chỉ bị tiêu thụ khi được bật trong cấu hình."
 lore1 = "Bán Kính Dây Chuyền"
 lore2 = "Vật Phẩm Xử Lý Tối Đa"
 lore3 = "Cơ Hội Lấp Đầy Thùng Ủ"
@@ -4586,7 +4592,8 @@ description = "Cầm hoa gần cây trồng để tạo xung tăng trưởng và
 lore1 = "Bán Kính Xung"
 lore2 = "Số Lần Thử Tăng Trưởng"
 lore3 = "Hồi Chiêu Xung"
-lore = ["Bán Kính Xung", "Số Lần Thử Tăng Trưởng", "Hồi Chiêu Xung"]
+lore4 = "Thưởng Tăng Trưởng Từ Ong"
+lore = ["Bán Kính Xung", "Số Lần Thử Tăng Trưởng", "Hồi Chiêu Xung", "Thưởng Tăng Trưởng Từ Ong"]
 
 [herbalism.spore_bloom]
 name = "Bào Tử Nở Rộ"
@@ -4594,7 +4601,8 @@ description = "Cúi người rồi nhấp chuột phải vào sợi nấm khi c�
 lore1 = "Số Lần Nở"
 lore2 = "Bán Kính Nở Rộ"
 lore3 = "Hồi Chiêu Nở Rộ"
-lore = ["Số Lần Nở", "Bán Kính Nở Rộ", "Hồi Chiêu Nở Rộ"]
+lore4 = "Chi Phí Nấm"
+lore = ["Số Lần Nở", "Bán Kính Nở Rộ", "Hồi Chiêu Nở Rộ", "Chi Phí Nấm"]
 
 [hunter.adrenaline]
 name = "Adrenaline"

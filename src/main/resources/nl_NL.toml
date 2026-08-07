@@ -3769,8 +3769,8 @@ name = "Gebottelde Honger"
 strong_name = "Gebottelde honger 2"
 description = "Voed de onverzadigbare!"
 lore1 = "Onhandig Drankje + Rottend Vlees = Hongerdrankje (60 seconden)"
-lore2 = "Zwaktedrankje + Rottend Vlees = Hongerdrankje-3 (30 seconden)"
-lore = ["Onhandig Drankje + Rottend Vlees = Hongerdrankje (60 seconden)", "Zwaktedrankje + Rottend Vlees = Hongerdrankje-3 (30 seconden)"]
+lore2 = "Zwaktedrankje + Rottend Vlees = Hongerdrankje-2 (30 seconden)"
+lore = ["Onhandig Drankje + Rottend Vlees = Hongerdrankje (60 seconden)", "Zwaktedrankje + Rottend Vlees = Hongerdrankje-2 (30 seconden)"]
 
 [brewing.nausea]
 name = "Gebottelde Misselijkheid"
@@ -3798,6 +3798,7 @@ lore = ["Onhandig Drankje + IJzerstaaf = Weerstandsdrankje (60 seconden)", "Onha
 
 [brewing.health_boost]
 name = "Gebotteld Leven"
+strong_name = "Gebotteld Leven 2"
 description = "Wanneer maximale gezondheid niet genoeg is..."
 lore1 = "Directe-Genezingsdrankje + Gouden Appel = Gezondheidsboostdrankje (60 seconden)"
 lore2 = "Directe-Genezingsdrankje + Betoverde Gouden Appel = Gezondheidsboostdrankje-2 (60 seconden)"
@@ -4537,9 +4538,14 @@ name = "Schoffel Drop-naar-Inventaris"
 
 [herbalism.hungry_shield]
 name = "Hongerig Schild"
-description = "Neem schade op je honger voordat je gezondheid wordt aangetast."
+description = "Neem schade op je honger voordat je gezondheid wordt aangetast; hoe hoger het niveau, hoe meer schadetypes worden gedekt."
 lore1 = "Weerstaan door Honger"
-lore = ["Weerstaan door Honger"]
+lore2 = "Contact-, plettings- en weerschade afgeschermd"
+lore3 = "Melee- en doornenschade afgeschermd"
+lore4 = "Vuur- en lavaschade afgeschermd"
+lore5 = "Projectiel- en explosieschade afgeschermd"
+lore6 = "Magie-, gif- en witherschade afgeschermd"
+lore = ["Weerstaan door Honger", "Contact-, plettings- en weerschade afgeschermd", "Melee- en doornenschade afgeschermd", "Vuur- en lavaschade afgeschermd", "Projectiel- en explosieschade afgeschermd", "Magie-, gif- en witherschade afgeschermd"]
 
 [herbalism.luck]
 name = "Kruidkundige's Geluk"
@@ -4565,7 +4571,7 @@ lore = ["Plantstraal", "Max Gewassen per gebruik", "Sowing afkoeltijd"]
 
 [herbalism.compost_cascade]
 name = "Compost Cascade"
-description = "Klik op een composter om de druppels, rijpe oogsten en bladeren te consumeren."
+description = "Sluip en rechtsklik op een composter om nabije drops te verbruiken, rijpe gewassen te oogsten en opnieuw te planten, je inventaris te composteren en de compost te gebruiken om nabije gewassen te laten rijpen. Bladeren worden alleen verbruikt als dat in de configuratie is ingeschakeld."
 lore1 = "Cascade Straal"
 lore2 = "Maximale verwerkte items"
 lore3 = "Compost Vulkans"
@@ -4586,7 +4592,8 @@ description = "Houd bloemen in de buurt van gewassen om groei te pulseren en tre
 lore1 = "Polsstraal"
 lore2 = "Groeipogingen"
 lore3 = "Polsafkoeltijd"
-lore = ["Polsstraal", "Groeipogingen", "Polsafkoeltijd"]
+lore4 = "Bijengroeibonus"
+lore = ["Polsstraal", "Groeipogingen", "Polsafkoeltijd", "Bijengroeibonus"]
 
 [herbalism.spore_bloom]
 name = "Spore Bloom"
@@ -4594,7 +4601,8 @@ description = "Sluip en rechtsklik met paddenstoelen op mycelium om beheersbare 
 lore1 = "Bloompogingen"
 lore2 = "Bloomstraal"
 lore3 = "Bloom afkoeltijd"
-lore = ["Bloompogingen", "Bloomstraal", "Bloom afkoeltijd"]
+lore4 = "Paddenstoelkosten"
+lore = ["Bloompogingen", "Bloomstraal", "Bloom afkoeltijd", "Paddenstoelkosten"]
 
 [hunter.adrenaline]
 name = "Adrenaline"

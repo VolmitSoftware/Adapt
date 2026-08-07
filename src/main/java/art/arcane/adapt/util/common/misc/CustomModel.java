@@ -6,13 +6,16 @@ import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigFileSupport;
+import art.arcane.adapt.util.reflect.registries.ItemFlags;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.io.IO;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,11 +67,21 @@ public record CustomModel(Material material, int model,
   }
 
   public ItemStack toItemStack(ItemStack itemStack) {
-    org.bukkit.inventory.meta.ItemMeta meta = itemStack.getItemMeta();
-    if (meta == null || model == 0)
+    ItemMeta meta = itemStack.getItemMeta();
+    if (meta == null)
       return itemStack;
 
-    Version.get().applyModel(this, meta);
+    if (model != 0) {
+      Version.get().applyModel(this, meta);
+    }
+
+    // Menu tiles are decoration, so vanilla component tooltips (bee counts, potion effects,
+    // shulker contents) must never bleed into the adaptation lore.
+    ItemFlag hideAdditionalTooltip = ItemFlags.HIDE_ADDITIONAL_TOOLTIP;
+    if (hideAdditionalTooltip != null) {
+      meta.addItemFlags(hideAdditionalTooltip);
+    }
+
     itemStack.setItemMeta(meta);
     return itemStack;
   }

@@ -3769,8 +3769,8 @@ name = "Glod w Butelce"
 strong_name = "Butelkowy głód 2"
 description = "Nakarm Nienasyconego!"
 lore1 = "Niezreczna Mikstura + Zgnile Mieso = Mikstura Glodu (60 sekund)"
-lore2 = "Mikstura Slabosci + Zgnile Mieso = Mikstura Glodu-3 (30 sekund)"
-lore = ["Niezreczna Mikstura + Zgnile Mieso = Mikstura Glodu (60 sekund)", "Mikstura Slabosci + Zgnile Mieso = Mikstura Glodu-3 (30 sekund)"]
+lore2 = "Mikstura Slabosci + Zgnile Mieso = Mikstura Glodu-2 (30 sekund)"
+lore = ["Niezreczna Mikstura + Zgnile Mieso = Mikstura Glodu (60 sekund)", "Mikstura Slabosci + Zgnile Mieso = Mikstura Glodu-2 (30 sekund)"]
 
 [brewing.nausea]
 name = "Mdlosci w Butelce"
@@ -3798,6 +3798,7 @@ lore = ["Niezreczna Mikstura + Sztabka Zelaza = Mikstura Odpornosci (60 sekund)"
 
 [brewing.health_boost]
 name = "Zycie w Butelce"
+strong_name = "Zycie w Butelce 2"
 description = "Kiedy maksymalne zdrowie to za malo..."
 lore1 = "Mikstura Natychmiastowego Leczenia + Zlote Jablko = Mikstura Wzmocnienia Zdrowia (60 sekund)"
 lore2 = "Mikstura Natychmiastowego Leczenia + Zaczarowane Zlote Jablko = Mikstura Wzmocnienia Zdrowia-2 (60 sekund)"
@@ -4537,9 +4538,14 @@ name = "Motyka Zrzut-Do-Ekwipunku"
 
 [herbalism.hungry_shield]
 name = "Glodna Tarcza"
-description = "Obrazenia odejmuja sie od glodu zanim od zdrowia."
+description = "Obrażenia odejmują się od głodu, zanim od zdrowia, a wraz z poziomem osłona obejmuje coraz więcej typów obrażeń."
 lore1 = "Odparte przez Glod"
-lore = ["Odparte przez Glod"]
+lore2 = "Obrażenia od kontaktu, zmiażdżenia i pogody osłonięte"
+lore3 = "Obrażenia w zwarciu i od kolców osłonięte"
+lore4 = "Obrażenia od ognia i lawy osłonięte"
+lore5 = "Obrażenia od pocisków i eksplozji osłonięte"
+lore6 = "Obrażenia od magii, trucizny i witherowania osłonięte"
+lore = ["Odparte przez Glod", "Obrażenia od kontaktu, zmiażdżenia i pogody osłonięte", "Obrażenia w zwarciu i od kolców osłonięte", "Obrażenia od ognia i lawy osłonięte", "Obrażenia od pocisków i eksplozji osłonięte", "Obrażenia od magii, trucizny i witherowania osłonięte"]
 
 [herbalism.luck]
 name = "Szczescie Zielarza"
@@ -4565,7 +4571,7 @@ lore = ["Promień roślin", "Maksimum upraw na wykorzystanie", "Wysiewanie czas 
 
 [herbalism.compost_cascade]
 name = "Compost Cascade"
-description = "Prześlizgnij po prawej stronie kompostora, aby spożywać w pobliżu kroplę, dojrzałe zbiory, liście i zapasy składników."
+description = "Kucnij i kliknij prawym przyciskiem kompostownik, aby pochłonąć pobliskie przedmioty, zebrać i ponownie zasadzić dojrzałe uprawy, skompostować ekwipunek i zużyć kompost na dojrzewanie pobliskich upraw. Liście są pochłaniane tylko wtedy, gdy włączono to w konfiguracji."
 lore1 = "Promień kaskadowy"
 lore2 = "Maksimum pozycji przetwarzanych"
 lore3 = "Kompost Wypełnić szansę"
@@ -4586,7 +4592,8 @@ description = "Trzymać kwiaty w pobliżu upraw do pulsu wzrostu i przyciągną�
 lore1 = "Promień pulsu"
 lore2 = "Próby wzrostu"
 lore3 = "Oczas odnowienia pulsu"
-lore = ["Promień pulsu", "Próby wzrostu", "Oczas odnowienia pulsu"]
+lore4 = "Premia wzrostu od pszczół"
+lore = ["Promień pulsu", "Próby wzrostu", "Oczas odnowienia pulsu", "Premia wzrostu od pszczół"]
 
 [herbalism.spore_bloom]
 name = "Zarodnik Bloom"
@@ -4594,7 +4601,8 @@ description = "Przełamać, kliknąć w prawo mycelium z grzybami i rozproszyć 
 lore1 = "Próby Bloom"
 lore2 = "Bloom Radius"
 lore3 = "Bloom czas odnowienia"
-lore = ["Próby Bloom", "Bloom Radius", "Bloom czas odnowienia"]
+lore4 = "Koszt grzybów"
+lore = ["Próby Bloom", "Bloom Radius", "Bloom czas odnowienia", "Koszt grzybów"]
 
 [hunter.adrenaline]
 name = "Adrenalina"

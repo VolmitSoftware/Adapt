@@ -19,4 +19,17 @@ class HerbalismWorldWorkBudgetTest {
     assertThat(HerbalismGrowthAura.workFor(1000, 16)).isEqualTo(16);
   }
 
+  @Test
+  void compostCascadeScanNeverExceedsItsBudget() {
+    assertThat(HerbalismCompostCascade.workFor(42875, 24576)).isEqualTo(24576);
+    assertThat(HerbalismCompostCascade.workFor(1_000_000, 24576)).isEqualTo(24576);
+    assertThat(HerbalismCompostCascade.workFor(1331, 24576)).isEqualTo(1331);
+  }
+
+  @Test
+  void compostCascadeScanClampsNonsenseInput() {
+    assertThat(HerbalismCompostCascade.workFor(-500, 24576)).isZero();
+    assertThat(HerbalismCompostCascade.workFor(42875, -1)).isZero();
+    assertThat(HerbalismCompostCascade.workFor(0, 24576)).isZero();
+  }
 }

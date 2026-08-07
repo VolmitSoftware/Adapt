@@ -59,7 +59,7 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.RESISTANCE_NAME))
             .setColor(Color.WHITE)
-            .addEffect(PotionEffectType.RESISTANCE, 1200, 1, true, true, true)
+            .addEffect(PotionEffectType.RESISTANCE, 1200, 0, true, true, true)
             .build())
         .build());
     registerBrewingRecipe(BrewingRecipe.builder()
@@ -71,7 +71,7 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.RESISTANCE_STRONG_NAME))
             .setColor(Color.WHITE)
-            .addEffect(PotionEffectType.RESISTANCE, 600, 2, true, true, true)
+            .addEffect(PotionEffectType.RESISTANCE, 600, 1, true, true, true)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()

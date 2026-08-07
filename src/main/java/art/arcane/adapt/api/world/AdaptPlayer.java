@@ -253,45 +253,41 @@ public class AdaptPlayer extends TickedObject {
   }
 
   public boolean consumeFood(double cost, int minFood) {
-    if (canConsumeFood(cost, minFood)) {
-      int food = player.getFoodLevel();
-      double sat = player.getSaturation();
-
-      if (sat >= cost) {
-        sat = (player.getSaturation() - cost);
-        cost = 0;
-      } else if (player.getSaturation() > 0) {
-        cost -= sat;
-        sat = 0;
-      }
-
-      if (cost >= 1) {
-        food -= (int) Math.floor(cost);
-        cost = Math.floor(cost);
-      }
-
-      if (cost > 0) {
-        if (sat >= cost) {
-          sat -= cost;
-          cost = 0;
-        } else {
-          sat++;
-          food--;
-        }
-      }
-
-      if (sat >= cost && cost > 0) {
-        sat -= cost;
-        cost = 0;
-      }
-
-      player.setFoodLevel(food);
-      player.setSaturation((float) sat);
-
-      return true;
+    if (!canConsumeFood(cost, minFood)) {
+      return false;
     }
 
-    return false;
+    applyFoodCharge(cost);
+    return true;
+  }
+
+  public void applyFoodCharge(double cost) {
+    FoodCharge charge = chargeFood(player.getFoodLevel(), player.getSaturation(), cost);
+    player.setFoodLevel(charge.food());
+    player.setSaturation((float) charge.saturation());
+  }
+
+  static FoodCharge chargeFood(int food, double saturation, double cost) {
+    double remainingSaturation = Double.isFinite(saturation) ? Math.max(0D, saturation) : 0D;
+    if (!Double.isFinite(cost) || cost <= 0D) {
+      return new FoodCharge(food, remainingSaturation);
+    }
+
+    double remainingCost = cost;
+    double fromSaturation = Math.min(remainingSaturation, remainingCost);
+    remainingSaturation -= fromSaturation;
+    remainingCost -= fromSaturation;
+
+    int wholeFood = (int) Math.floor(remainingCost);
+    if (wholeFood > 0) {
+      remainingCost -= wholeFood;
+    }
+
+    if (remainingCost > 0D) {
+      remainingSaturation -= Math.min(remainingSaturation, remainingCost);
+    }
+
+    return new FoodCharge(Math.max(0, food - wholeFood), remainingSaturation);
   }
 
   public boolean isBusy() {
@@ -631,5 +627,8 @@ public class AdaptPlayer extends TickedObject {
   }
 
   public record FxPosition(World world, double x, double y, double z) {
+  }
+
+  public record FoodCharge(int food, double saturation) {
   }
 }

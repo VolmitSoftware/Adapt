@@ -59,7 +59,7 @@ public class BrewingHunger extends SimpleAdaptation<BrewingHunger.Config> {
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.HUNGER_NAME))
             .setColor(Color.GREEN)
-            .addEffect(PotionEffectType.HUNGER, 1200, 1, true, true, true)
+            .addEffect(PotionEffectType.HUNGER, 1200, 0, true, true, true)
             .build())
         .build());
     registerBrewingRecipe(BrewingRecipe.builder()
@@ -71,7 +71,7 @@ public class BrewingHunger extends SimpleAdaptation<BrewingHunger.Config> {
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.HUNGER_STRONG_NAME))
             .setColor(Color.GREEN)
-            .addEffect(PotionEffectType.HUNGER, 600, 3, true, true, true)
+            .addEffect(PotionEffectType.HUNGER, 600, 1, true, true, true)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()

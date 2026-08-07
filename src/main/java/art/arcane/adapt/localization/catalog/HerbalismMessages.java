@@ -33,9 +33,14 @@ public final class HerbalismMessages {
   public static final LinesKey MUSHROOM_BLOCKS_LORE = LinesKey.of("herbalism.mushroom_blocks.lore", "Four Mushrooms to make a block, or a block to make a stem.");
   public static final TextKey DROP_TO_INVENTORY_NAME = TextKey.of("herbalism.drop_to_inventory.name", "Hoe Drop-To-Inventory");
   public static final TextKey HUNGRY_SHIELD_NAME = TextKey.of("herbalism.hungry_shield.name", "Hungry Shield");
-  public static final TextKey HUNGRY_SHIELD_DESCRIPTION = TextKey.of("herbalism.hungry_shield.description", "Take damage to your hunger before your health.");
+  public static final TextKey HUNGRY_SHIELD_DESCRIPTION = TextKey.of("herbalism.hungry_shield.description", "Take damage to your hunger before your health, covering more damage types as it levels up.");
   public static final TextKey HUNGRY_SHIELD_LORE1 = TextKey.of("herbalism.hungry_shield.lore1", "Resisted by Hunger");
-  public static final LinesKey HUNGRY_SHIELD_LORE = LinesKey.of("herbalism.hungry_shield.lore", "Resisted by Hunger");
+  public static final TextKey HUNGRY_SHIELD_LORE2 = TextKey.of("herbalism.hungry_shield.lore2", "Contact, Crushing & Weather Damage Shielded");
+  public static final TextKey HUNGRY_SHIELD_LORE3 = TextKey.of("herbalism.hungry_shield.lore3", "Melee & Thorns Damage Shielded");
+  public static final TextKey HUNGRY_SHIELD_LORE4 = TextKey.of("herbalism.hungry_shield.lore4", "Fire & Lava Damage Shielded");
+  public static final TextKey HUNGRY_SHIELD_LORE5 = TextKey.of("herbalism.hungry_shield.lore5", "Projectile & Explosion Damage Shielded");
+  public static final TextKey HUNGRY_SHIELD_LORE6 = TextKey.of("herbalism.hungry_shield.lore6", "Magic, Poison & Wither Damage Shielded");
+  public static final LinesKey HUNGRY_SHIELD_LORE = LinesKey.of("herbalism.hungry_shield.lore", "Resisted by Hunger", "Contact, Crushing & Weather Damage Shielded", "Melee & Thorns Damage Shielded", "Fire & Lava Damage Shielded", "Projectile & Explosion Damage Shielded", "Magic, Poison & Wither Damage Shielded");
   public static final TextKey LUCK_NAME = TextKey.of("herbalism.luck.name", "Herbalist's Luck");
   public static final TextKey LUCK_DESCRIPTION = TextKey.of("herbalism.luck.description", "When you break Grass/Flowers, you have a chance to get a random item");
   public static final TextKey LUCK_LORE0 = TextKey.of("herbalism.luck.lore0", "Flowers = Food, and Grass = Seeds");
@@ -53,7 +58,7 @@ public final class HerbalismMessages {
   public static final TextKey SEED_SOWER_LORE3 = TextKey.of("herbalism.seed_sower.lore3", "Sowing Cooldown");
   public static final LinesKey SEED_SOWER_LORE = LinesKey.of("herbalism.seed_sower.lore", "Plant Radius", "Max Crops Per Use", "Sowing Cooldown");
   public static final TextKey COMPOST_CASCADE_NAME = TextKey.of("herbalism.compost_cascade.name", "Compost Cascade");
-  public static final TextKey COMPOST_CASCADE_DESCRIPTION = TextKey.of("herbalism.compost_cascade.description", "Sneak-right-click a composter to consume nearby drops, mature crop harvests, leaves, and your inventory compostables.");
+  public static final TextKey COMPOST_CASCADE_DESCRIPTION = TextKey.of("herbalism.compost_cascade.description", "Sneak-right-click a composter to consume nearby drops, harvest and replant mature crops, compost your inventory, and spend the compost maturing nearby crops. Leaves are only consumed when enabled in the config.");
   public static final TextKey COMPOST_CASCADE_LORE1 = TextKey.of("herbalism.compost_cascade.lore1", "Cascade Radius");
   public static final TextKey COMPOST_CASCADE_LORE2 = TextKey.of("herbalism.compost_cascade.lore2", "Max Items Processed");
   public static final TextKey COMPOST_CASCADE_LORE3 = TextKey.of("herbalism.compost_cascade.lore3", "Compost Fill Chance");
@@ -70,13 +75,15 @@ public final class HerbalismMessages {
   public static final TextKey BEE_SHEPHERD_LORE1 = TextKey.of("herbalism.bee_shepherd.lore1", "Pulse Radius");
   public static final TextKey BEE_SHEPHERD_LORE2 = TextKey.of("herbalism.bee_shepherd.lore2", "Growth Attempts");
   public static final TextKey BEE_SHEPHERD_LORE3 = TextKey.of("herbalism.bee_shepherd.lore3", "Pulse Cooldown");
-  public static final LinesKey BEE_SHEPHERD_LORE = LinesKey.of("herbalism.bee_shepherd.lore", "Pulse Radius", "Growth Attempts", "Pulse Cooldown");
+  public static final TextKey BEE_SHEPHERD_LORE4 = TextKey.of("herbalism.bee_shepherd.lore4", "Bee Growth Bonus");
+  public static final LinesKey BEE_SHEPHERD_LORE = LinesKey.of("herbalism.bee_shepherd.lore", "Pulse Radius", "Growth Attempts", "Pulse Cooldown", "Bee Growth Bonus");
   public static final TextKey SPORE_BLOOM_NAME = TextKey.of("herbalism.spore_bloom.name", "Spore Bloom");
   public static final TextKey SPORE_BLOOM_DESCRIPTION = TextKey.of("herbalism.spore_bloom.description", "Sneak-right-click mycelium with mushrooms to spread controlled bloom patches.");
   public static final TextKey SPORE_BLOOM_LORE1 = TextKey.of("herbalism.spore_bloom.lore1", "Bloom Attempts");
   public static final TextKey SPORE_BLOOM_LORE2 = TextKey.of("herbalism.spore_bloom.lore2", "Bloom Radius");
   public static final TextKey SPORE_BLOOM_LORE3 = TextKey.of("herbalism.spore_bloom.lore3", "Bloom Cooldown");
-  public static final LinesKey SPORE_BLOOM_LORE = LinesKey.of("herbalism.spore_bloom.lore", "Bloom Attempts", "Bloom Radius", "Bloom Cooldown");
+  public static final TextKey SPORE_BLOOM_LORE4 = TextKey.of("herbalism.spore_bloom.lore4", "Mushroom Cost");
+  public static final LinesKey SPORE_BLOOM_LORE = LinesKey.of("herbalism.spore_bloom.lore", "Bloom Attempts", "Bloom Radius", "Bloom Cooldown", "Mushroom Cost");
 
   private HerbalismMessages() {
   }
@@ -112,6 +119,11 @@ public final class HerbalismMessages {
     builder.add(HUNGRY_SHIELD_NAME);
     builder.add(HUNGRY_SHIELD_DESCRIPTION);
     builder.add(HUNGRY_SHIELD_LORE1);
+    builder.add(HUNGRY_SHIELD_LORE2);
+    builder.add(HUNGRY_SHIELD_LORE3);
+    builder.add(HUNGRY_SHIELD_LORE4);
+    builder.add(HUNGRY_SHIELD_LORE5);
+    builder.add(HUNGRY_SHIELD_LORE6);
     builder.add(HUNGRY_SHIELD_LORE);
     builder.add(LUCK_NAME);
     builder.add(LUCK_DESCRIPTION);
@@ -147,12 +159,14 @@ public final class HerbalismMessages {
     builder.add(BEE_SHEPHERD_LORE1);
     builder.add(BEE_SHEPHERD_LORE2);
     builder.add(BEE_SHEPHERD_LORE3);
+    builder.add(BEE_SHEPHERD_LORE4);
     builder.add(BEE_SHEPHERD_LORE);
     builder.add(SPORE_BLOOM_NAME);
     builder.add(SPORE_BLOOM_DESCRIPTION);
     builder.add(SPORE_BLOOM_LORE1);
     builder.add(SPORE_BLOOM_LORE2);
     builder.add(SPORE_BLOOM_LORE3);
+    builder.add(SPORE_BLOOM_LORE4);
     builder.add(SPORE_BLOOM_LORE);
   }
 }

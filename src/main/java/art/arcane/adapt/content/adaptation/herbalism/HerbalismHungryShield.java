@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -39,8 +40,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShield.Config> {
+  private static final int MIN_FOOD = 6;
   private final Cooldowns shieldBreakCooldown = cooldowns();
   private final Cooldowns absorbFxCooldown = cooldowns();
+  private final Cooldowns dotChargeCooldown = cooldowns();
 
   public HerbalismHungryShield() {
     super("herbalism-hungry-shield");
@@ -65,52 +68,143 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
 
   @Override
   public void addStats(int level, Element v) {
-    statLore(v, Form.pc(getEffectiveness(getLevelPercent(level)), 0), 1);
+    Config cfg = getConfig();
+    String absorb = Form.pc(getEffectiveness(getLevelPercent(level)), 0);
+    statLore(v, absorb, 1);
+    statLore(v, covers(EntityDamageEvent.DamageCause.CONTACT, level, cfg) ? absorb : "-", 2);
+    statLore(v, covers(EntityDamageEvent.DamageCause.ENTITY_ATTACK, level, cfg) ? absorb : "-", 3);
+    statLore(v, covers(EntityDamageEvent.DamageCause.FIRE, level, cfg) ? absorb : "-", 4);
+    statLore(v, covers(EntityDamageEvent.DamageCause.PROJECTILE, level, cfg) ? absorb : "-", 5);
+    statLore(v, covers(EntityDamageEvent.DamageCause.MAGIC, level, cfg) ? absorb : "-", 6);
   }
-
-
 
   private double getEffectiveness(double factor) {
     return Math.min(getConfig().maxEffectiveness, factor * factor + getConfig().effectivenessBase);
   }
 
-
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(EntityDamageEvent e) {
-    if (e.getEntity() instanceof Player p && hasActiveAdaptation(p)) {
-      double f = getEffectiveness(getLevelPercent(p));
-      double h = e.getDamage() * f;
-      double d = e.getDamage() - h;
+    if (!(e.getEntity() instanceof Player p)) {
+      return;
+    }
 
-      if (payHungerCost(p, "hunger", (int) Math.ceil(h), () -> getPlayer(p).consumeFood(h, 6))) {
-        e.setDamage(d);
-        addStat(p, "herbalism.hungry-shield.damage-absorbed", (int) Math.ceil(h));
-        xp(p, h);
+    withAdaptedPlayer(p, e, () -> absorb(p, e));
+  }
 
-        if (absorbFxCooldown.isReady(p.getUniqueId(), 500L)) {
-          absorbFxCooldown.mark(p.getUniqueId());
-          int intensity = (int) Math.max(3, Math.min(12, Math.ceil(h)));
-          double ringRadius = Math.min(1.6D, 0.7D + (h * 0.08D));
-          fx(p.getLocation().add(0, 1, 0), FxPriority.COMBAT)
-              .dustRing(Color.fromRGB(210, 140, 40), ringRadius, 16, 1.0F)
-              .burst(Particles.CRIT_MAGIC, intensity, 0.5D)
-              .chord(Sound.ITEM_SHIELD_BLOCK, 0.5F, 0.9F, Sound.BLOCK_GRASS_BREAK, 0.4F, 0.7F);
-        }
-      } else if (h > 2 && shieldBreakCooldown.isReady(p.getUniqueId(), 1500L)) {
-        shieldBreakCooldown.mark(p.getUniqueId());
-        fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
-            .burst(Particles.SMOKE, 3, 0.3D)
-            .chord(Sound.BLOCK_NOTE_BLOCK_BASS, 0.4F, 0.6F, Sound.ITEM_SHIELD_BLOCK, 0.3F, 0.5F);
-      }
+  private void absorb(Player p, EntityDamageEvent e) {
+    int level = getActiveLevel(p);
+    EntityDamageEvent.DamageCause cause = e.getCause();
+    if (level <= 0 || !covers(cause, level, getConfig())) {
+      return;
+    }
+
+    boolean overTime = isDamageOverTime(cause);
+    if (overTime && !dotChargeCooldown.isReady(p.getUniqueId(), getConfig().dotChargeIntervalMs)) {
+      return;
+    }
+
+    double available = p.getFoodLevel() + p.getSaturation();
+    double absorbed = absorbedDamage(e.getDamage(), getEffectiveness(getLevelPercent(level)), available, MIN_FOOD);
+    if (absorbed <= 0) {
+      shieldBreak(p, e.getDamage());
+      return;
+    }
+
+    AdaptPlayer adaptPlayer = getPlayer(p);
+    if (!payHungerCost(p, "hunger", (int) Math.ceil(absorbed), () -> {
+      adaptPlayer.applyFoodCharge(absorbed);
+      return true;
+    })) {
+      shieldBreak(p, e.getDamage());
+      return;
+    }
+
+    if (overTime) {
+      dotChargeCooldown.mark(p.getUniqueId());
+    }
+
+    e.setDamage(Math.max(0D, e.getDamage() - absorbed));
+    addStat(p, "herbalism.hungry-shield.damage-absorbed", (int) Math.ceil(absorbed));
+    xp(p, absorbed);
+
+    if (absorbFxCooldown.isReady(p.getUniqueId(), 500L)) {
+      absorbFxCooldown.mark(p.getUniqueId());
+      int intensity = (int) Math.max(3, Math.min(12, Math.ceil(absorbed)));
+      double ringRadius = Math.min(1.6D, 0.7D + (absorbed * 0.08D));
+      fx(p.getLocation().add(0, 1, 0), FxPriority.COMBAT)
+          .dustRing(Color.fromRGB(210, 140, 40), ringRadius, 16, 1.0F)
+          .burst(Particles.CRIT_MAGIC, intensity, 0.5D)
+          .chord(Sound.ITEM_SHIELD_BLOCK, 0.5F, 0.9F, Sound.BLOCK_GRASS_BREAK, 0.4F, 0.7F);
     }
   }
 
-  @ConfigDescription("Take damage to your hunger before your health.")
+  private void shieldBreak(Player p, double damage) {
+    if (damage <= 2 || !shieldBreakCooldown.isReady(p.getUniqueId(), 1500L)) {
+      return;
+    }
+
+    shieldBreakCooldown.mark(p.getUniqueId());
+    fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
+        .burst(Particles.SMOKE, 3, 0.3D)
+        .chord(Sound.BLOCK_NOTE_BLOCK_BASS, 0.4F, 0.6F, Sound.ITEM_SHIELD_BLOCK, 0.3F, 0.5F);
+  }
+
+  static double absorbedDamage(double damage, double effectiveness, double availableFood, int minFood) {
+    if (!Double.isFinite(damage)
+        || !Double.isFinite(effectiveness)
+        || !Double.isFinite(availableFood)
+        || damage <= 0D
+        || effectiveness <= 0D) {
+      return 0D;
+    }
+
+    return Math.min(damage * effectiveness, Math.max(0D, availableFood - minFood));
+  }
+
+  static boolean covers(EntityDamageEvent.DamageCause cause, int level, Config cfg) {
+    if (cause == null || cfg == null || level <= 0) {
+      return false;
+    }
+
+    return switch (cause) {
+      case CONTACT, CRAMMING, DROWNING, SUFFOCATION, FLY_INTO_WALL, HOT_FLOOR, FREEZE -> level >= cfg.basicsUnlockLevel;
+      case ENTITY_ATTACK, ENTITY_SWEEP_ATTACK, THORNS -> level >= cfg.meleeUnlockLevel;
+      case FIRE, FIRE_TICK, LAVA, CAMPFIRE -> level >= cfg.fireUnlockLevel;
+      case PROJECTILE, BLOCK_EXPLOSION, ENTITY_EXPLOSION, FALLING_BLOCK, LIGHTNING -> level >= cfg.burstUnlockLevel;
+      case MAGIC, POISON, WITHER, DRAGON_BREATH, SONIC_BOOM -> level >= cfg.magicUnlockLevel;
+      default -> false;
+    };
+  }
+
+  static boolean isDamageOverTime(EntityDamageEvent.DamageCause cause) {
+    if (cause == null) {
+      return false;
+    }
+
+    return switch (cause) {
+      case FIRE, FIRE_TICK, LAVA, CAMPFIRE, HOT_FLOOR, POISON, WITHER, DROWNING, FREEZE -> true;
+      default -> false;
+    };
+  }
+
+  @ConfigDescription("Take damage to your hunger before your health, covering more damage types as the adaptation levels up.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effectiveness Base for the Herbalism Hungry Shield adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double effectivenessBase = 0.15;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Effectiveness for the Herbalism Hungry Shield adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double maxEffectiveness = 0.95;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Level required before contact, cramming, drowning, suffocation, wall, magma and freeze damage are shielded.", impact = "Higher values delay when the basic damage types become shielded.")
+    int basicsUnlockLevel = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Level required before melee, sweep and thorns damage is shielded.", impact = "Higher values delay when melee damage becomes shielded.")
+    int meleeUnlockLevel = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Level required before fire, lava and campfire damage is shielded.", impact = "Higher values delay when burning damage becomes shielded.")
+    int fireUnlockLevel = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Level required before projectile, explosion, falling block and lightning damage is shielded.", impact = "Higher values delay when burst damage becomes shielded.")
+    int burstUnlockLevel = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Level required before magic, poison, wither, dragon breath and sonic boom damage is shielded.", impact = "Higher values delay when magical damage becomes shielded.")
+    int magicUnlockLevel = 5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between hunger charges for damage-over-time sources such as fire, lava, poison and drowning.", impact = "Higher values let more damage-over-time ticks through unshielded but drain hunger far slower.")
+    long dotChargeIntervalMs = 1000;
 
     public Config() {
       baseCost = 7;

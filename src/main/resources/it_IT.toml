@@ -3769,8 +3769,8 @@ name = "Fame in Bottiglia"
 strong_name = "Hunger in bottiglia 2"
 description = "Dai da mangiare all'insaziabile!"
 lore1 = "Pozione Sconclusionata + Carne Marcia = Pozione della Fame (60 secondi)"
-lore2 = "Pozione di Debolezza + Carne Marcia = Pozione della Fame-3 (30 secondi)"
-lore = ["Pozione Sconclusionata + Carne Marcia = Pozione della Fame (60 secondi)", "Pozione di Debolezza + Carne Marcia = Pozione della Fame-3 (30 secondi)"]
+lore2 = "Pozione di Debolezza + Carne Marcia = Pozione della Fame-2 (30 secondi)"
+lore = ["Pozione Sconclusionata + Carne Marcia = Pozione della Fame (60 secondi)", "Pozione di Debolezza + Carne Marcia = Pozione della Fame-2 (30 secondi)"]
 
 [brewing.nausea]
 name = "Nausea in Bottiglia"
@@ -3798,6 +3798,7 @@ lore = ["Pozione Sconclusionata + Lingotto di Ferro = Pozione della Resistenza (
 
 [brewing.health_boost]
 name = "Vita in Bottiglia"
+strong_name = "Vita in Bottiglia 2"
 description = "Quando la salute massima non basta..."
 lore1 = "Pozione di Guarigione Istantanea + Mela d'Oro = Pozione di Salute Potenziata (60 secondi)"
 lore2 = "Pozione di Guarigione Istantanea + Mela d'Oro Incantata = Pozione di Salute Potenziata-2 (60 secondi)"
@@ -4537,9 +4538,14 @@ name = "Zappa Raccogli-nell'Inventario"
 
 [herbalism.hungry_shield]
 name = "Scudo della Fame"
-description = "Subisci danni alla fame prima che alla salute."
+description = "Subisci danni alla fame prima che alla salute, coprendo più tipi di danno man mano che sale di livello."
 lore1 = "Resistenza tramite Fame"
-lore = ["Resistenza tramite Fame"]
+lore2 = "Danni da contatto, schiacciamento e clima protetti"
+lore3 = "Danni da mischia e spine protetti"
+lore4 = "Danni da fuoco e lava protetti"
+lore5 = "Danni da proiettili ed esplosioni protetti"
+lore6 = "Danni da magia, veleno e Wither protetti"
+lore = ["Resistenza tramite Fame", "Danni da contatto, schiacciamento e clima protetti", "Danni da mischia e spine protetti", "Danni da fuoco e lava protetti", "Danni da proiettili ed esplosioni protetti", "Danni da magia, veleno e Wither protetti"]
 
 [herbalism.luck]
 name = "Fortuna dell'Erborista"
@@ -4565,7 +4571,7 @@ lore = ["Radiatore di piante", "Maximi raccolti per uso", "tempo di recupero di 
 
 [herbalism.compost_cascade]
 name = "Compost Cascade"
-description = "Fai clic a destra su un compostore per consumare le gocce, i raccolti maturi, le foglie e il tuo inventario di compostabili."
+description = "Accovacciati e fai clic destro su una compostiera per consumare i drop vicini, raccogliere e ripiantare le colture mature, compostare il tuo inventario e usare il compost per far maturare le colture vicine. Le foglie vengono consumate solo se abilitate nella configurazione."
 lore1 = "Cascade Radius"
 lore2 = "Max Oggetti lavorati"
 lore3 = "Compost riempire occasione"
@@ -4586,7 +4592,8 @@ description = "Tenere fiori vicino alle colture per la crescita del polso e atti
 lore1 = "Radiatore di impulso"
 lore2 = "Tentativi di crescita"
 lore3 = "tempo di recupero del polso"
-lore = ["Radiatore di impulso", "Tentativi di crescita", "tempo di recupero del polso"]
+lore4 = "Bonus di crescita delle api"
+lore = ["Radiatore di impulso", "Tentativi di crescita", "tempo di recupero del polso", "Bonus di crescita delle api"]
 
 [herbalism.spore_bloom]
 name = "Spore Bloom"
@@ -4594,7 +4601,8 @@ description = "Fai clic a destra su Mycelium con funghi per diffondere macchie d
 lore1 = "Bloom tentati"
 lore2 = "Bloom Radius"
 lore3 = "Bloccaggio"
-lore = ["Bloom tentati", "Bloom Radius", "Bloccaggio"]
+lore4 = "Costo in funghi"
+lore = ["Bloom tentati", "Bloom Radius", "Bloccaggio", "Costo in funghi"]
 
 [hunter.adrenaline]
 name = "Adrenalina"

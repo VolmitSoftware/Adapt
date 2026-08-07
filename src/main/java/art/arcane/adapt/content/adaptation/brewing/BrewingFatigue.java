@@ -59,7 +59,7 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.FATIGUE_NAME))
             .setColor(Color.fromRGB(0, 66, 0))
-            .addEffect(PotionEffectTypes.SLOW_DIGGING, 1200, 1, true, true, true)
+            .addEffect(PotionEffectTypes.SLOW_DIGGING, 1200, 0, true, true, true)
             .build())
         .build());
     registerBrewingRecipe(BrewingRecipe.builder()
@@ -71,7 +71,7 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.FATIGUE_STRONG_NAME))
             .setColor(Color.fromRGB(0, 66, 0))
-            .addEffect(PotionEffectTypes.SLOW_DIGGING, 600, 2, true, true, true)
+            .addEffect(PotionEffectTypes.SLOW_DIGGING, 600, 1, true, true, true)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()

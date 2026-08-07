@@ -3769,8 +3769,8 @@ name = "Abgefüllter Hunger"
 strong_name = "Flaschenhung 2"
 description = "Nähre die Unersättlichen!"
 lore1 = "Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (60 Sekunden)"
-lore2 = "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-3 (30 Sekunden)"
-lore = ["Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (60 Sekunden)", "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-3 (30 Sekunden)"]
+lore2 = "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-2 (30 Sekunden)"
+lore = ["Seltsamer Trank + Verrottetes Fleisch = Trank des Hungers (60 Sekunden)", "Schwächetrank + Verrottetes Fleisch = Trank des Hungers-2 (30 Sekunden)"]
 
 [brewing.nausea]
 name = "Abgefüllte Übelkeit"
@@ -3798,6 +3798,7 @@ lore = ["Seltsamer Trank + Eisenbarren = Trank des Widerstands (60 Sekunden)", "
 
 [brewing.health_boost]
 name = "Abgefülltes Leben"
+strong_name = "Abgefülltes Leben 2"
 description = "Wenn maximale Gesundheit nicht ausreicht..."
 lore1 = "Trank der Heilung + Goldener Apfel = Trank der Gesundheitssteigerung (60 Sekunden)"
 lore2 = "Trank der Heilung + Verzauberter Goldener Apfel = Trank der Gesundheitssteigerung-2 (60 Sekunden)"
@@ -4537,9 +4538,14 @@ name = "Hacke-Drop-ins-Inventar"
 
 [herbalism.hungry_shield]
 name = "Hungriges Schild"
-description = "Nimm Schaden an deinem Hunger vor deiner Gesundheit."
+description = "Nimm Schaden an deinem Hunger vor deiner Gesundheit; mit steigender Stufe werden mehr Schadensarten abgedeckt."
 lore1 = "Durch Hunger abgewehrt"
-lore = ["Durch Hunger abgewehrt"]
+lore2 = "Kontakt-, Quetsch- und Wetterschaden abgeschirmt"
+lore3 = "Nahkampf- und Dornenschaden abgeschirmt"
+lore4 = "Feuer- und Lavaschaden abgeschirmt"
+lore5 = "Projektil- und Explosionsschaden abgeschirmt"
+lore6 = "Magie-, Gift- und Witherschaden abgeschirmt"
+lore = ["Durch Hunger abgewehrt", "Kontakt-, Quetsch- und Wetterschaden abgeschirmt", "Nahkampf- und Dornenschaden abgeschirmt", "Feuer- und Lavaschaden abgeschirmt", "Projektil- und Explosionsschaden abgeschirmt", "Magie-, Gift- und Witherschaden abgeschirmt"]
 
 [herbalism.luck]
 name = "Glück des Kräuterkundlers"
@@ -4565,7 +4571,7 @@ lore = ["Pflanzenradius", "Maximale Ernte pro Gebrauch", "Das Sätchen von Abkli
 
 [herbalism.compost_cascade]
 name = "Kompostkaskade"
-description = "Schleichen Sie einen Komposter rechts klicken, um in der Nähe Tropfen, reife Ernten, Blätter und Ihre Bestandkomposten zu konsumieren."
+description = "Schleich-Rechtsklick auf einen Komposter verbraucht Drops in der Nähe, erntet reife Pflanzen und pflanzt sie neu, kompostiert dein Inventar und lässt mit dem Kompost Pflanzen in der Nähe reifen. Blätter werden nur verbraucht, wenn es in der Konfiguration aktiviert ist."
 lore1 = "Kaskadenradius"
 lore2 = "Max-Verarbeitungsgegenstände"
 lore3 = "Kompostfüllungsmöglichkeit"
@@ -4586,7 +4592,8 @@ description = "Halten Sie Blumen in der Nähe von Pflanzen, um das Pulswachstum 
 lore1 = "Pulsradius"
 lore2 = "Wachstumsversuche"
 lore3 = "Puls Abklingzeit"
-lore = ["Pulsradius", "Wachstumsversuche", "Puls Abklingzeit"]
+lore4 = "Bienen-Wachstumsbonus"
+lore = ["Pulsradius", "Wachstumsversuche", "Puls Abklingzeit", "Bienen-Wachstumsbonus"]
 
 [herbalism.spore_bloom]
 name = "Spore Bloom"
@@ -4594,7 +4601,8 @@ description = "Schleichen Sie mit der rechten Klick auf Mycelium mit Pilzen, um 
 lore1 = "Blooms Versuche"
 lore2 = "Blumenradius"
 lore3 = "Bloom Abklingzeit"
-lore = ["Blooms Versuche", "Blumenradius", "Bloom Abklingzeit"]
+lore4 = "Pilzkosten"
+lore = ["Blooms Versuche", "Blumenradius", "Bloom Abklingzeit", "Pilzkosten"]
 
 [hunter.adrenaline]
 name = "Adrenalin"

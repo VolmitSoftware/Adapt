@@ -3769,8 +3769,8 @@ name = "Pullotettu nälkä"
 strong_name = "Pullollinen nälkä 2"
 description = "Ruoki kyltymätöntä!"
 lore1 = "Hankala taikajuoma + mätäliha = Nälän taikajuoma (60 sekuntia)"
-lore2 = "Heikkoustaikajuoma + mätäliha = Nälän taikajuoma-3 (30 sekuntia)"
-lore = ["Hankala taikajuoma + mätäliha = Nälän taikajuoma (60 sekuntia)", "Heikkoustaikajuoma + mätäliha = Nälän taikajuoma-3 (30 sekuntia)"]
+lore2 = "Heikkoustaikajuoma + mätäliha = Nälän taikajuoma-2 (30 sekuntia)"
+lore = ["Hankala taikajuoma + mätäliha = Nälän taikajuoma (60 sekuntia)", "Heikkoustaikajuoma + mätäliha = Nälän taikajuoma-2 (30 sekuntia)"]
 
 [brewing.nausea]
 name = "Pullotettu pahoinvointi"
@@ -3798,6 +3798,7 @@ lore = ["Hankala taikajuoma + rautaharkko = Vastustuksen taikajuoma (60 sekuntia
 
 [brewing.health_boost]
 name = "Pullotettu elämä"
+strong_name = "Pullotettu elämä 2"
 description = "Kun maksimiterveys ei riitä..."
 lore1 = "Pikaparannus-taikajuoma + kultaomena = Terveyslisän taikajuoma (60 sekuntia)"
 lore2 = "Pikaparannus-taikajuoma + lumottu kultaomena = Terveyslisän taikajuoma-2 (60 sekuntia)"
@@ -4537,9 +4538,14 @@ name = "Kuokka: pudota varastoon"
 
 [herbalism.hungry_shield]
 name = "Nälkäkilpi"
-description = "Ota vahinkoa nälkääsi ennen terveyttäsi."
+description = "Ota vahinkoa nälkääsi ennen terveyttäsi; tason noustessa suojaus kattaa yhä useampia vahinkotyyppejä."
 lore1 = "Nälän vastustama"
-lore = ["Nälän vastustama"]
+lore2 = "Kosketus-, murskaus- ja säävahinko suojattu"
+lore3 = "Lähitaistelu- ja piikkivahinko suojattu"
+lore4 = "Tuli- ja laavavahinko suojattu"
+lore5 = "Ammus- ja räjähdysvahinko suojattu"
+lore6 = "Taika-, myrkky- ja Wither-vahinko suojattu"
+lore = ["Nälän vastustama", "Kosketus-, murskaus- ja säävahinko suojattu", "Lähitaistelu- ja piikkivahinko suojattu", "Tuli- ja laavavahinko suojattu", "Ammus- ja räjähdysvahinko suojattu", "Taika-, myrkky- ja Wither-vahinko suojattu"]
 
 [herbalism.luck]
 name = "Yrttiläisen onni"
@@ -4565,7 +4571,7 @@ lore = ["Kasviradius", "Maksimääräiset viljelyt käyttökohtaisesti", "jääh
 
 [herbalism.compost_cascade]
 name = "Komposti Cascade"
-description = "Livahda oikealle napsauttamalla kompostoria kuluttaa lähellä pudotuksia, kypsiä sadonkorjuu, lehdet ja varastosi kompostoitavia."
+description = "Kyykisty ja napsauta kompostoria hiiren oikealla painikkeella: se kuluttaa lähellä olevat pudokkeet, korjaa ja istuttaa uudelleen kypsät kasvit, kompostoi tavaraluettelosi ja käyttää kompostin lähellä olevien kasvien kypsyttämiseen. Lehtiä kulutetaan vain, jos se on otettu käyttöön asetuksissa."
 lore1 = "Cascade Radius"
 lore2 = "Käsiteltyjen tuotteiden enimmäismäärä"
 lore3 = "Komposti täyttymisen mahdollisuus"
@@ -4586,7 +4592,8 @@ description = "Pidä kukkia lähellä kasveja pulssin kasvua ja piirtää lähel
 lore1 = "Pulssi"
 lore2 = "Kasvuyritykset"
 lore3 = "Pulssi jäähyaika"
-lore = ["Pulssi", "Kasvuyritykset", "Pulssi jäähyaika"]
+lore4 = "Mehiläisten kasvubonus"
+lore = ["Pulssi", "Kasvuyritykset", "Pulssi jäähyaika", "Mehiläisten kasvubonus"]
 
 [herbalism.spore_bloom]
 name = "Imetä Bloom"
@@ -4594,7 +4601,8 @@ description = "Livahda oikealle-klikkaa myceliumia sienien kanssa levittää hal
 lore1 = "Bloom-yritykset"
 lore2 = "Bloom Radius"
 lore3 = "Bloom jäähyaika"
-lore = ["Bloom-yritykset", "Bloom Radius", "Bloom jäähyaika"]
+lore4 = "Sienten kustannus"
+lore = ["Bloom-yritykset", "Bloom Radius", "Bloom jäähyaika", "Sienten kustannus"]
 
 [hunter.adrenaline]
 name = "Adrenaliini"

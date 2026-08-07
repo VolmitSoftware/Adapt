@@ -59,7 +59,7 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.NAUSEA_NAME))
             .setColor(Color.LIME)
-            .addEffect(PotionEffectTypes.CONFUSION, 600, 1, true, true, true)
+            .addEffect(PotionEffectTypes.CONFUSION, 600, 0, true, true, true)
             .build())
         .build());
     registerBrewingRecipe(BrewingRecipe.builder()
@@ -71,7 +71,7 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.NAUSEA_STRONG_NAME))
             .setColor(Color.LIME)
-            .addEffect(PotionEffectTypes.CONFUSION, 300, 2, true, true, true)
+            .addEffect(PotionEffectTypes.CONFUSION, 300, 1, true, true, true)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()

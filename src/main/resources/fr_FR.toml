@@ -3769,8 +3769,8 @@ name = "Faim en bouteille"
 strong_name = "Faim embouteillée 2"
 description = "Nourrissez l'insatiable !"
 lore1 = "Potion bizarre + Chair putrefiee = Potion de faim (60 secondes)"
-lore2 = "Potion de faiblesse + Chair putrefiee = Potion de faim-3 (30 secondes)"
-lore = ["Potion bizarre + Chair putrefiee = Potion de faim (60 secondes)", "Potion de faiblesse + Chair putrefiee = Potion de faim-3 (30 secondes)"]
+lore2 = "Potion de faiblesse + Chair putrefiee = Potion de faim-2 (30 secondes)"
+lore = ["Potion bizarre + Chair putrefiee = Potion de faim (60 secondes)", "Potion de faiblesse + Chair putrefiee = Potion de faim-2 (30 secondes)"]
 
 [brewing.nausea]
 name = "Nausee en bouteille"
@@ -3798,6 +3798,7 @@ lore = ["Potion bizarre + Lingot de fer = Potion de resistance (60 secondes)", "
 
 [brewing.health_boost]
 name = "Vie en bouteille"
+strong_name = "Vie en bouteille 2"
 description = "Quand la sante maximale ne suffit pas..."
 lore1 = "Potion de soin instantane + Pomme doree = Potion de boost de sante (60 secondes)"
 lore2 = "Potion de soin instantane + Pomme doree enchantee = Potion de boost de sante-2 (60 secondes)"
@@ -4537,9 +4538,14 @@ name = "Houe : depot direct en inventaire"
 
 [herbalism.hungry_shield]
 name = "Bouclier affame"
-description = "Subissez des degats a votre faim avant votre sante."
+description = "Subissez des degats a votre faim avant votre sante, la protection couvrant davantage de types de degats a mesure que le niveau augmente."
 lore1 = "Resiste par la faim"
-lore = ["Resiste par la faim"]
+lore2 = "Degats de contact, d'ecrasement et de meteo proteges"
+lore3 = "Degats de melee et d'epines proteges"
+lore4 = "Degats de feu et de lave proteges"
+lore5 = "Degats de projectile et d'explosion proteges"
+lore6 = "Degats de magie, de poison et de Wither proteges"
+lore = ["Resiste par la faim", "Degats de contact, d'ecrasement et de meteo proteges", "Degats de melee et d'epines proteges", "Degats de feu et de lave proteges", "Degats de projectile et d'explosion proteges", "Degats de magie, de poison et de Wither proteges"]
 
 [herbalism.luck]
 name = "Chance de l'herboriste"
@@ -4565,7 +4571,7 @@ lore = ["Rayon de plantation", "Nombre maximal de cultures par utilisation", "Te
 
 [herbalism.compost_cascade]
 name = "Cascade de compost"
-description = "Faites un clic droit sur un composteur pour consommer des gouttes à proximité, des récoltes matures, des feuilles et vos stocks compostables."
+description = "Accroupissez-vous et faites un clic droit sur un composteur pour consommer les objets au sol à proximité, récolter et replanter les cultures mûres, composter votre inventaire et dépenser le compost pour faire mûrir les cultures voisines. Les feuilles ne sont consommées que si l'option est activée dans la configuration."
 lore1 = "Rayon Cascade"
 lore2 = "Max des articles traités"
 lore3 = "Compost Remplir la chance"
@@ -4586,7 +4592,8 @@ description = "Tenez les fleurs près des cultures pour stimuler la croissance e
 lore1 = "Rayon pulsé"
 lore2 = "Tentatives de croissance"
 lore3 = "temps de recharge des impulsions"
-lore = ["Rayon pulsé", "Tentatives de croissance", "temps de recharge des impulsions"]
+lore4 = "Bonus de croissance des abeilles"
+lore = ["Rayon pulsé", "Tentatives de croissance", "temps de recharge des impulsions", "Bonus de croissance des abeilles"]
 
 [herbalism.spore_bloom]
 name = "Bloom spore"
@@ -4594,7 +4601,8 @@ description = "Faites un clic droit sur le mycélium avec des champignons pour �
 lore1 = "Tentatives de floraison"
 lore2 = "Rayon de floraison"
 lore3 = "temps de recharge de la fleur"
-lore = ["Tentatives de floraison", "Rayon de floraison", "temps de recharge de la fleur"]
+lore4 = "Coût en champignons"
+lore = ["Tentatives de floraison", "Rayon de floraison", "temps de recharge de la fleur", "Coût en champignons"]
 
 [hunter.adrenaline]
 name = "Adrenaline"

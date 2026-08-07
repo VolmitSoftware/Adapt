@@ -3769,8 +3769,8 @@ name = "Hambre Embotellada"
 strong_name = "Hambre acelerado 2"
 description = "¡Alimenta al insaciable!"
 lore1 = "Pocion Rara + Carne Podrida = Pocion de Hambre (60 segundos)"
-lore2 = "Pocion de Debilidad + Carne Podrida = Pocion de Hambre-3 (30 segundos)"
-lore = ["Pocion Rara + Carne Podrida = Pocion de Hambre (60 segundos)", "Pocion de Debilidad + Carne Podrida = Pocion de Hambre-3 (30 segundos)"]
+lore2 = "Pocion de Debilidad + Carne Podrida = Pocion de Hambre-2 (30 segundos)"
+lore = ["Pocion Rara + Carne Podrida = Pocion de Hambre (60 segundos)", "Pocion de Debilidad + Carne Podrida = Pocion de Hambre-2 (30 segundos)"]
 
 [brewing.nausea]
 name = "Nauseas Embotelladas"
@@ -3798,6 +3798,7 @@ lore = ["Pocion Rara + Lingote de Hierro = Pocion de Resistencia (60 segundos)",
 
 [brewing.health_boost]
 name = "Vida Embotellada"
+strong_name = "Vida Embotellada 2"
 description = "Cuando la salud maxima no es suficiente..."
 lore1 = "Pocion de Curacion Instantanea + Manzana Dorada = Pocion de Mejora de Salud (60 segundos)"
 lore2 = "Pocion de Curacion Instantanea + Manzana Dorada Encantada = Pocion de Mejora de Salud-2 (60 segundos)"
@@ -4537,9 +4538,14 @@ name = "Azada: Soltar al Inventario"
 
 [herbalism.hungry_shield]
 name = "Escudo Hambriento"
-description = "Recibe dano a tu hambre antes que a tu salud."
+description = "Recibe daño en el hambre antes que en la salud, cubriendo más tipos de daño a medida que sube de nivel."
 lore1 = "Resistido por el hambre"
-lore = ["Resistido por el hambre"]
+lore2 = "Daño por contacto, aplastamiento y clima protegido"
+lore3 = "Daño cuerpo a cuerpo y de espinas protegido"
+lore4 = "Daño de fuego y lava protegido"
+lore5 = "Daño de proyectiles y explosiones protegido"
+lore6 = "Daño mágico, de veneno y de Wither protegido"
+lore = ["Resistido por el hambre", "Daño por contacto, aplastamiento y clima protegido", "Daño cuerpo a cuerpo y de espinas protegido", "Daño de fuego y lava protegido", "Daño de proyectiles y explosiones protegido", "Daño mágico, de veneno y de Wither protegido"]
 
 [herbalism.luck]
 name = "Suerte del Herbalista"
@@ -4565,7 +4571,7 @@ lore = ["Radio de plantación", "Máximo de cultivos por uso", "Tiempo de recarg
 
 [herbalism.compost_cascade]
 name = "Cascada de compost"
-description = "Haga clic con el botón derecho de un compositor para consumir gotas cercanas, cosechas maduras, hojas y su inventario compostables."
+description = "Agáchate y haz clic derecho en un compostador para consumir los objetos caídos cercanos, cosechar y replantar los cultivos maduros, compostar tu inventario y gastar el compost madurando los cultivos cercanos. Las hojas solo se consumen si se activan en la configuración."
 lore1 = "Radio de cascada"
 lore2 = "Max artículos procesados"
 lore3 = "La oportunidad de llenar el compost"
@@ -4586,7 +4592,8 @@ description = "Mantén flores cerca de cultivos para pulsar crecimiento y dibuja
 lore1 = "Radius de pulso"
 lore2 = "Intentos de crecimiento"
 lore3 = "tiempo de reutilización por pulso"
-lore = ["Radius de pulso", "Intentos de crecimiento", "tiempo de reutilización por pulso"]
+lore4 = "Bono de crecimiento por abejas"
+lore = ["Radius de pulso", "Intentos de crecimiento", "tiempo de reutilización por pulso", "Bono de crecimiento por abejas"]
 
 [herbalism.spore_bloom]
 name = "Floración de esporas"
@@ -4594,7 +4601,8 @@ description = "Haga clic en el micélio con hongos para dispersar manchas de flo
 lore1 = "Intentos de floración"
 lore2 = "Radio de floración"
 lore3 = "Bloom tiempo de reutilización"
-lore = ["Intentos de floración", "Radio de floración", "Bloom tiempo de reutilización"]
+lore4 = "Coste de hongos"
+lore = ["Intentos de floración", "Radio de floración", "Bloom tiempo de reutilización", "Coste de hongos"]
 
 [hunter.adrenaline]
 name = "Adrenalina"

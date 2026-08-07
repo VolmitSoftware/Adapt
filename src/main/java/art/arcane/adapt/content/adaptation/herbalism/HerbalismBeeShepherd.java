@@ -65,11 +65,14 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
   private static final int MAX_QUEUED_BEE_PULLS = 2048;
   private static final int MAX_QUEUED_COMPLETIONS = 2048;
   private static final int MAX_BEES_PER_PULSE = 8;
+  private static final int MAX_TRACKED_BEES_PER_PLAYER = 256;
   private static final long ROSTER_REFRESH_MILLIS = 5000L;
   private static final long IDLE_CHECK_MILLIS = 250L;
+  private static final long BEE_STAT_TTL_MILLIS = 60_000L;
   private final Cooldowns pulseCooldown = cooldowns();
   private final Cooldowns auraHint = cooldowns();
   private final Map<UUID, Long> nextCheckAt = playerState();
+  private final Map<UUID, Map<UUID, Long>> countedBees = playerState();
   private final Queue<UUID> playerQueue = new ConcurrentLinkedQueue<>();
   private final Set<UUID> queuedPlayers = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingPulses = ConcurrentHashMap.newKeySet();
@@ -100,6 +103,7 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     statLore(v, Form.f(getRadius(level)), 1);
     statLore(v, getGrowthAttempts(level), 2);
     statLore(v, C.YELLOW, "* ", Form.duration(getPulseMillis(level), 1), 3);
+    statLore(v, Form.pc(getConfig().growthBonusPerBee, 0), 4);
   }
 
   @Override
@@ -136,6 +140,7 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     UUID id = e.getPlayer().getUniqueId();
     nextCheckAt.remove(id);
     pendingPulses.remove(id);
+    countedBees.remove(id);
     if (queuedPlayers.remove(id)) {
       playerQueue.remove(id);
     }
@@ -210,11 +215,11 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     pendingPulses.add(id);
     pulseCooldown.mark(id);
     nextCheckAt.put(id, now + pulseMillis);
-    startGrowthPulse(p, level, foodCost);
-    int attracted = enqueueNearbyBees(p, level);
-    if (attracted > 0) {
-      addStat(p, "herbalism.bee-shepherd.bees-attracted", attracted);
+    BeeHerd herd = enqueueNearbyBees(p, level, now);
+    if (herd.fresh() > 0) {
+      addStat(p, "herbalism.bee-shepherd.bees-attracted", herd.fresh());
     }
+    startGrowthPulse(p, level, foodCost, herd.herded());
 
     if (auraHint.isReady(id, 8000L)) {
       auraHint.mark(id);
@@ -225,9 +230,10 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     queuePlayer(id);
   }
 
-  private void startGrowthPulse(Player p, int level, int foodCost) {
+  private void startGrowthPulse(Player p, int level, int foodCost, int herdedBees) {
     int radius = Math.max(1, (int) Math.round(getRadius(level)));
-    int attempts = getGrowthAttempts(level);
+    int attempts = growthAttemptsWithBees(getGrowthAttempts(level), herdedBees,
+        getConfig().maxBonusBees, getConfig().growthBonusPerBee);
     GrowthPulse pulse = new GrowthPulse(p, p.getLocation(), radius, getGrowthStep(level),
         getConfig().showGrowthParticles, attempts, foodCost, getConfig().xpPerGrowth);
     if (!offerGrowthPulse(pulse)) {
@@ -340,9 +346,12 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     xp(p, grown * pulse.xpPerGrowth);
   }
 
-  private int enqueueNearbyBees(Player p, int level) {
+  private BeeHerd enqueueNearbyBees(Player p, int level, long now) {
     double radius = getRadius(level);
+    Map<UUID, Long> seen = countedBees.computeIfAbsent(p.getUniqueId(), k -> new ConcurrentHashMap<>());
+    evictExpiredBees(seen, now);
     int count = 0;
+    int fresh = 0;
     Vector target = p.getLocation().add(0, 0.75, 0).toVector();
     for (Entity entity : p.getNearbyEntities(radius, radius, radius)) {
       if (!(entity instanceof Bee bee)) {
@@ -351,11 +360,40 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
       if (!offerBeePull(new BeePull(bee, target.clone(), getBeePullStrength(level), count < 4))) {
         break;
       }
+      if (seen.put(bee.getUniqueId(), now + BEE_STAT_TTL_MILLIS) == null) {
+        fresh++;
+      }
       if (++count >= MAX_BEES_PER_PULSE) {
         break;
       }
     }
-    return count;
+    return new BeeHerd(count, fresh);
+  }
+
+  private void evictExpiredBees(Map<UUID, Long> seen, long now) {
+    if (seen.isEmpty()) {
+      return;
+    }
+
+    if (seen.size() > MAX_TRACKED_BEES_PER_PLAYER) {
+      seen.clear();
+      return;
+    }
+
+    seen.values().removeIf(expiresAt -> expiresAt == null || expiresAt <= now);
+  }
+
+  static int growthAttemptsWithBees(int baseAttempts, int bees, int maxBonusBees, double bonusPerBee) {
+    if (baseAttempts <= 0) {
+      return 0;
+    }
+
+    if (bees <= 0 || maxBonusBees <= 0 || !Double.isFinite(bonusPerBee) || bonusPerBee <= 0D) {
+      return baseAttempts;
+    }
+
+    int counted = Math.min(bees, maxBonusBees);
+    return Math.max(baseAttempts, (int) Math.round(baseAttempts * (1D + (counted * bonusPerBee))));
   }
 
   private boolean offerBeePull(BeePull pull) {
@@ -500,6 +538,9 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     }
   }
 
+  private record BeeHerd(int herded, int fresh) {
+  }
+
   private static final class BeePull {
     private final Bee bee;
     private final Vector target;
@@ -526,6 +567,10 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     double growthAttemptsBase = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Growth Attempts Factor for the Herbalism Bee Shepherd adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double growthAttemptsFactor = 18;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Extra growth attempts granted per herded bee, as a fraction of the base attempts.", impact = "Higher values make herding bees matter much more for each growth pulse.")
+    double growthBonusPerBee = 0.15;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum number of herded bees that count toward the growth bonus.", impact = "Higher values let large swarms keep increasing the growth bonus.")
+    int maxBonusBees = 5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Growth Step Base for the Herbalism Bee Shepherd adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double growthStepBase = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Growth Step Factor for the Herbalism Bee Shepherd adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

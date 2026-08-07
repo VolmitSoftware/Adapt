@@ -59,7 +59,7 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.HASTE_NAME))
             .setColor(Color.YELLOW)
-            .addEffect(PotionEffectTypes.FAST_DIGGING, 1200, 1, true, true, true)
+            .addEffect(PotionEffectTypes.FAST_DIGGING, 1200, 0, true, true, true)
             .build())
         .build());
     registerBrewingRecipe(BrewingRecipe.builder()
@@ -71,7 +71,7 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.HASTE_STRONG_NAME))
             .setColor(Color.YELLOW)
-            .addEffect(PotionEffectTypes.FAST_DIGGING, 600, 2, true, true, true)
+            .addEffect(PotionEffectTypes.FAST_DIGGING, 600, 1, true, true, true)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()

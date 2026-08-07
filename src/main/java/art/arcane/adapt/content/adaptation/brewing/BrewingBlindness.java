@@ -60,7 +60,7 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.BLINDNESS_NAME))
             .setColor(Color.OLIVE)
-            .addEffect(PotionEffectType.BLINDNESS, 600, 1, true, true, true)
+            .addEffect(PotionEffectType.BLINDNESS, 600, 0, true, true, true)
             .build())
         .build());
     registerBrewingRecipe(BrewingRecipe.builder()
@@ -72,7 +72,7 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.BLINDNESS_STRONG_NAME))
             .setColor(Color.OLIVE)
-            .addEffect(PotionEffectType.BLINDNESS, 300, 3, true, true, true)
+            .addEffect(PotionEffectType.BLINDNESS, 300, 1, true, true, true)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()

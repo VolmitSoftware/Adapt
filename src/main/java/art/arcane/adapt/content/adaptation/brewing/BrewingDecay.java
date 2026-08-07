@@ -60,7 +60,7 @@ public class BrewingDecay extends SimpleAdaptation<BrewingDecay.Config> {
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.DECAY_NAME))
             .setColor(Color.MAROON)
-            .addEffect(PotionEffectType.WITHER, 300, 1, true, true, true)
+            .addEffect(PotionEffectType.WITHER, 320, 0, true, true, true)
             .build())
         .build());
     registerBrewingRecipe(BrewingRecipe.builder()
@@ -72,7 +72,7 @@ public class BrewingDecay extends SimpleAdaptation<BrewingDecay.Config> {
         .result(PotionBuilder.of(PotionBuilder.Type.REGULAR)
             .setName(AdaptLanguage.text(BrewingMessages.DECAY_STRONG_NAME))
             .setColor(Color.MAROON)
-            .addEffect(PotionEffectType.WITHER, 150, 2, true, true, true)
+            .addEffect(PotionEffectType.WITHER, 160, 1, true, true, true)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()

@@ -42,8 +42,8 @@ public final class BrewingMessages {
   public static final TextKey HUNGER_STRONG_NAME = TextKey.of("brewing.hunger.strong_name", "Bottled Hunger 2");
   public static final TextKey HUNGER_DESCRIPTION = TextKey.of("brewing.hunger.description", "Unlocks brewing Potions of Hunger, which drain a target's food.");
   public static final TextKey HUNGER_LORE1 = TextKey.of("brewing.hunger.lore1", "Awkward Potion + Rotten Flesh = Potion of Hunger (60 seconds)");
-  public static final TextKey HUNGER_LORE2 = TextKey.of("brewing.hunger.lore2", "Weakness Potion + Rotten Flesh = Potion of Hunger-3 (30 seconds)");
-  public static final LinesKey HUNGER_LORE = LinesKey.of("brewing.hunger.lore", "Awkward Potion + Rotten Flesh = Potion of Hunger (60 seconds)", "Weakness Potion + Rotten Flesh = Potion of Hunger-3 (30 seconds)");
+  public static final TextKey HUNGER_LORE2 = TextKey.of("brewing.hunger.lore2", "Weakness Potion + Rotten Flesh = Potion of Hunger-2 (30 seconds)");
+  public static final LinesKey HUNGER_LORE = LinesKey.of("brewing.hunger.lore", "Awkward Potion + Rotten Flesh = Potion of Hunger (60 seconds)", "Weakness Potion + Rotten Flesh = Potion of Hunger-2 (30 seconds)");
   public static final TextKey NAUSEA_NAME = TextKey.of("brewing.nausea.name", "Bottled Nausea");
   public static final TextKey NAUSEA_STRONG_NAME = TextKey.of("brewing.nausea.strong_name", "Bottled Nausea 2");
   public static final TextKey NAUSEA_DESCRIPTION = TextKey.of("brewing.nausea.description", "Unlocks brewing Potions of Nausea, which warp a target's vision.");
@@ -63,6 +63,7 @@ public final class BrewingMessages {
   public static final TextKey RESISTANCE_LORE2 = TextKey.of("brewing.resistance.lore2", "Awkward Potion + Iron Block = Potion of Resistance-2 (30 seconds)");
   public static final LinesKey RESISTANCE_LORE = LinesKey.of("brewing.resistance.lore", "Awkward Potion + Iron Ingot = Potion of Resistance (60 seconds)", "Awkward Potion + Iron Block = Potion of Resistance-2 (30 seconds)");
   public static final TextKey HEALTH_BOOST_NAME = TextKey.of("brewing.health_boost.name", "Bottled Life");
+  public static final TextKey HEALTH_BOOST_STRONG_NAME = TextKey.of("brewing.health_boost.strong_name", "Bottled Life 2");
   public static final TextKey HEALTH_BOOST_DESCRIPTION = TextKey.of("brewing.health_boost.description", "Unlocks brewing Potions of Health Boost for extra maximum hearts.");
   public static final TextKey HEALTH_BOOST_LORE1 = TextKey.of("brewing.health_boost.lore1", "Instant-Healing Potion + Golden Apple = Potion of Health Boost (60 seconds)");
   public static final TextKey HEALTH_BOOST_LORE2 = TextKey.of("brewing.health_boost.lore2", "Instant-Healing Potion + Enchanted Golden Apple = Potion of Health Boost-2 (60 seconds)");
@@ -142,6 +143,7 @@ public final class BrewingMessages {
     builder.add(RESISTANCE_LORE2);
     builder.add(RESISTANCE_LORE);
     builder.add(HEALTH_BOOST_NAME);
+    builder.add(HEALTH_BOOST_STRONG_NAME);
     builder.add(HEALTH_BOOST_DESCRIPTION);
     builder.add(HEALTH_BOOST_LORE1);
     builder.add(HEALTH_BOOST_LORE2);

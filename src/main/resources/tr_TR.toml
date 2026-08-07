@@ -3769,8 +3769,8 @@ name = "Siselenmiş Aclik"
 strong_name = "Şişelenmiş açlık 2"
 description = "Doyumsuzlari besleyin!"
 lore1 = "Garip Iksir + Curuk Et = Aclik Iksiri (60 saniye)"
-lore2 = "Zayiflik Iksiri + Curuk Et = Aclik Iksiri-3 (30 saniye)"
-lore = ["Garip Iksir + Curuk Et = Aclik Iksiri (60 saniye)", "Zayiflik Iksiri + Curuk Et = Aclik Iksiri-3 (30 saniye)"]
+lore2 = "Zayiflik Iksiri + Curuk Et = Aclik Iksiri-2 (30 saniye)"
+lore = ["Garip Iksir + Curuk Et = Aclik Iksiri (60 saniye)", "Zayiflik Iksiri + Curuk Et = Aclik Iksiri-2 (30 saniye)"]
 
 [brewing.nausea]
 name = "Siselenmiş Bulanti"
@@ -3798,6 +3798,7 @@ lore = ["Garip Iksir + Demir Kulce = Direnc Iksiri (60 saniye)", "Garip Iksir + 
 
 [brewing.health_boost]
 name = "Siselenmiş Yasam"
+strong_name = "Siselenmiş Yasam 2"
 description = "Maksimum saglik yeterli olmadiginda..."
 lore1 = "Aninda-Iyilestirme Iksiri + Altin Elma = Saglik Artisi Iksiri (60 saniye)"
 lore2 = "Aninda-Iyilestirme Iksiri + Buyulu Altin Elma = Saglik Artisi Iksiri-2 (60 saniye)"
@@ -4537,9 +4538,14 @@ name = "Copa Envantere Dusurme"
 
 [herbalism.hungry_shield]
 name = "Ac Kalkan"
-description = "Sagliginizdan once acliginiza hasar verin."
+description = "Sağlığınızdan önce açlığınıza hasar alın; seviye yükseldikçe daha fazla hasar türü kapsanır."
 lore1 = "Aclik tarafindan direncli"
-lore = ["Aclik tarafindan direncli"]
+lore2 = "Temas, ezilme ve hava hasarı kalkanlandı"
+lore3 = "Yakın dövüş ve diken hasarı kalkanlandı"
+lore4 = "Ateş ve lav hasarı kalkanlandı"
+lore5 = "Mermi ve patlama hasarı kalkanlandı"
+lore6 = "Büyü, zehir ve Wither hasarı kalkanlandı"
+lore = ["Aclik tarafindan direncli", "Temas, ezilme ve hava hasarı kalkanlandı", "Yakın dövüş ve diken hasarı kalkanlandı", "Ateş ve lav hasarı kalkanlandı", "Mermi ve patlama hasarı kalkanlandı", "Büyü, zehir ve Wither hasarı kalkanlandı"]
 
 [herbalism.luck]
 name = "Bitkicinin Sansi"
@@ -4565,7 +4571,7 @@ lore = ["Plant Radius", "Kullanım başına maksimum ürünler", "Sowing bekleme
 
 [herbalism.compost_cascade]
 name = "Komiser Cascade"
-description = "Yakındaki damlaları, yetişmiş ürünler, yapraklar ve envanterinizdeki komposta malzemelerini tüketmek için bir kompostörü sağ tıklayın."
+description = "Eğilip bir kompostçuya sağ tıklayarak yakındaki düşen eşyaları tüketin, olgun ekinleri hasat edip yeniden ekin, envanterinizi kompostlayın ve kompostu yakındaki ekinleri olgunlaştırmak için harcayın. Yapraklar yalnızca yapılandırmada etkinleştirildiğinde tüketilir."
 lore1 = "Cascade Radius"
 lore2 = "Max Materials"
 lore3 = "Tango Chance"
@@ -4586,7 +4592,8 @@ description = "Tesislere yakın çiçek tutun ve yakındaki arıları size doğr
 lore1 = "Pulse Radius"
 lore2 = "Büyüme Deneyleri"
 lore3 = "Pulse bekleme süresi"
-lore = ["Pulse Radius", "Büyüme Deneyleri", "Pulse bekleme süresi"]
+lore4 = "Arı büyüme bonusu"
+lore = ["Pulse Radius", "Büyüme Deneyleri", "Pulse bekleme süresi", "Arı büyüme bonusu"]
 
 [herbalism.spore_bloom]
 name = "Spor"
@@ -4594,7 +4601,8 @@ description = "Kontrollü çiçek parçalarını yaymak için mantarlarla sağ t
 lore1 = "Bloom girişimleri"
 lore2 = "Bloom Radius"
 lore3 = "Bloom bekleme süresi"
-lore = ["Bloom girişimleri", "Bloom Radius", "Bloom bekleme süresi"]
+lore4 = "Mantar maliyeti"
+lore = ["Bloom girişimleri", "Bloom Radius", "Bloom bekleme süresi", "Mantar maliyeti"]
 
 [hunter.adrenaline]
 name = "Adrenalin"

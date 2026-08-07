@@ -3769,8 +3769,8 @@ name = "Badas"
 strong_name = "Botted Hunger 2"
 description = "Maitinkite nepasotinamaji!"
 lore1 = "Keistas Eliksyras + Supuvusi Mesa = Bado Eliksyras (60 sekundziu)"
-lore2 = "Silpnumo Eliksyras + Supuvusi Mesa = Bado Eliksyras-3 (30 sekundziu)"
-lore = ["Keistas Eliksyras + Supuvusi Mesa = Bado Eliksyras (60 sekundziu)", "Silpnumo Eliksyras + Supuvusi Mesa = Bado Eliksyras-3 (30 sekundziu)"]
+lore2 = "Silpnumo Eliksyras + Supuvusi Mesa = Bado Eliksyras-2 (30 sekundziu)"
+lore = ["Keistas Eliksyras + Supuvusi Mesa = Bado Eliksyras (60 sekundziu)", "Silpnumo Eliksyras + Supuvusi Mesa = Bado Eliksyras-2 (30 sekundziu)"]
 
 [brewing.nausea]
 name = "Pykinimas"
@@ -3798,6 +3798,7 @@ lore = ["Keistas Eliksyras + Gelezies Liejinys = Atsparumo Eliksyras (60 sekundz
 
 [brewing.health_boost]
 name = "Gyvybe"
+strong_name = "Gyvybe buteliuose 2"
 description = "Kai maksimaliu gyvybiu nepakanka..."
 lore1 = "Momentinis Gydymas Eliksyras + Auksinis Obuolys = Sveikatos Stiprinimo Eliksyras (60 sekundziu)"
 lore2 = "Momentinis Gydymas Eliksyras + Uzburtas Auksinis Obuolys = Sveikatos Stiprinimo Eliksyras-2 (60 sekundziu)"
@@ -4537,9 +4538,14 @@ name = "Kauptuko Trauka"
 
 [herbalism.hungry_shield]
 name = "Alkanas Skydas"
-description = "Gaukite zala savo alkiui pries savo gyvybes."
+description = "Gaukite žalą alkiui prieš gyvybes, o kylant lygiui apsauga apima vis daugiau žalos tipų."
 lore1 = "Apsaugota nuo Alkio"
-lore = ["Apsaugota nuo Alkio"]
+lore2 = "Apsaugota nuo kontakto, sutraiškymo ir oro žalos"
+lore3 = "Apsaugota nuo artimos kovos ir spyglių žalos"
+lore4 = "Apsaugota nuo ugnies ir lavos žalos"
+lore5 = "Apsaugota nuo sviedinių ir sprogimų žalos"
+lore6 = "Apsaugota nuo magijos, nuodų ir vytimo žalos"
+lore = ["Apsaugota nuo Alkio", "Apsaugota nuo kontakto, sutraiškymo ir oro žalos", "Apsaugota nuo artimos kovos ir spyglių žalos", "Apsaugota nuo ugnies ir lavos žalos", "Apsaugota nuo sviedinių ir sprogimų žalos", "Apsaugota nuo magijos, nuodų ir vytimo žalos"]
 
 [herbalism.luck]
 name = "Zolininko Sekme"
@@ -4565,7 +4571,7 @@ lore = ["Sodinimo spindulys", "Daugiausia pasėlių per naudojimą", "Sėjos pak
 
 [herbalism.compost_cascade]
 name = "Komposto Cascade"
-description = "Paspauskite dešinę spustelę komposterio, kad gautumėte netoliese esančius lašus, užaugus augalus, lapus ir savo inventorių kompostablius."
+description = "Pritūpę spustelėkite dešinįjį pelės klavišą ant komposterio, kad sunaudotumėte netoliese iškritusius daiktus, nuimtumėte ir vėl pasodintumėte subrendusius augalus, kompostuotumėte inventorių ir panaudotumėte kompostą netoliese esantiems augalams subrandinti. Lapai sunaudojami tik tada, kai tai įjungta konfigūracijoje."
 lore1 = "Cascade Radius"
 lore2 = "Maksimalūs tvarkomi daiktai"
 lore3 = "Komposto užpildymo kanalas"
@@ -4586,7 +4592,8 @@ description = "Laikykite gėles šalia pasėlių pulso augimą ir atkreipti neto
 lore1 = "Pulso spinduliai"
 lore2 = "Augimo bandymai"
 lore3 = "Pulsas"
-lore = ["Pulso spinduliai", "Augimo bandymai", "Pulsas"]
+lore4 = "Bičių augimo premija"
+lore = ["Pulso spinduliai", "Augimo bandymai", "Pulsas", "Bičių augimo premija"]
 
 [herbalism.spore_bloom]
 name = "Spore Bloom"
@@ -4594,7 +4601,8 @@ description = "Spustelėkite mycelium su grybų skleisti kontroliuojamos žydėj
 lore1 = "Žuvimo bandymai"
 lore2 = "Blumo radijus"
 lore3 = "\"Bloom pakartotinio naudojimo laikas\""
-lore = ["Žuvimo bandymai", "Blumo radijus", "\"Bloom pakartotinio naudojimo laikas\""]
+lore4 = "Grybų kaina"
+lore = ["Žuvimo bandymai", "Blumo radijus", "\"Bloom pakartotinio naudojimo laikas\"", "Grybų kaina"]
 
 [hunter.adrenaline]
 name = "Adrenalinas"
