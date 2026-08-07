@@ -23,15 +23,16 @@ public final class GuiTheme {
 
     window.setDecorator((w, position, row) -> new UIElement("bg-" + row + "-" + position)
         .setName(" ")
-        .setMaterial(new MaterialBlock(background(row, position))));
+        .setMaterial(new MaterialBlock(background(row, position, w.getViewportHeight()))));
   }
 
-  public static Material background(int row, int position) {
-    if (row == 0) {
+  public static Material background(int row, int position, int rows) {
+    int height = Math.max(1, Math.min(GuiLayout.MAX_ROWS, rows));
+    if (row == 0 && height >= 3) {
       return position % 2 == 0 ? Material.GRAY_STAINED_GLASS_PANE : Material.LIGHT_GRAY_STAINED_GLASS_PANE;
     }
 
-    if (row == 1) {
+    if (row == 1 && height >= 4) {
       return Material.BLACK_STAINED_GLASS_PANE;
     }
 

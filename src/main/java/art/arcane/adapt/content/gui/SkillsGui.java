@@ -32,9 +32,11 @@ import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.inventorygui.GuiConfig;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.data.MaterialBlock;
 import art.arcane.volmlib.util.format.ColorFormatter;
@@ -50,14 +52,13 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class SkillsGui {
   private static final int PAGE_JUMP = 5;
-  private static final int SKILLS_PER_ROW = 5;
-  private static final int SKILL_ROWS = 5;
-  private static final int SKILLS_PER_PAGE = SKILLS_PER_ROW * SKILL_ROWS;
+  private static final int SKILLS_PER_ROW = GuiLayout.FIVE_WIDTH;
 
   public static void open(Player player) {
     open(player, 0);
@@ -84,10 +85,12 @@ public class SkillsGui {
     boolean debugMode = AdaptDebugMode.isActive(player);
     boolean showAll = debugMode || AdaptConfig.get().isGuiShowAllSkills();
     List<SkillPageEntry> entries = new ArrayList<>();
+    List<String> knownSkills = new ArrayList<>();
     for (Skill<?> skill : adaptPlayer.getServer().getSkillRegistry().getSkills()) {
       if (skill == null) {
         continue;
       }
+      knownSkills.add(skill.getName());
       if (!skill.isEnabled()) {
         continue;
       }
@@ -105,8 +108,10 @@ public class SkillsGui {
       entries.add(new SkillPageEntry(skill, line, adaptationLevel));
     }
 
+    Map<String, Integer> configuredOrder = GuiConfig.skillOrder(knownSkills);
     entries.sort(
-        Comparator.comparing((SkillPageEntry entry) -> normalizeSortKey(entry.skill().getDisplayName()))
+        Comparator.comparingInt((SkillPageEntry entry) -> GuiConfig.rankOf(configuredOrder, entry.skill().getName()))
+            .thenComparing((SkillPageEntry entry) -> normalizeSortKey(entry.skill().getDisplayName()))
             .thenComparing(entry -> entry.skill().getName(), String.CASE_INSENSITIVE_ORDER)
     );
 
@@ -115,17 +120,21 @@ public class SkillsGui {
         && mutationService != null
         && mutationService.getManager() != null
         && mutationService.getManager().getConfig().isEnabled();
-    int pageCount = Math.max(1, (int) Math.ceil(entries.size() / (double) SKILLS_PER_PAGE));
-    int currentPage = GuiLayout.clampPage(page, pageCount);
-    int start = currentPage * SKILLS_PER_PAGE;
-    int end = Math.min(entries.size(), start + SKILLS_PER_PAGE);
+    int configuredRows = GuiConfig.skillsGuiRows();
+    GuiLayout.PagePlan plan = GuiLayout.planFiveWide(entries.size(), configuredRows);
+    int currentPage = GuiLayout.clampPage(page, plan.pageCount());
+    int start = currentPage * plan.itemsPerPage();
+    int end = Math.min(entries.size(), start + plan.itemsPerPage());
+    int viewportRows = GuiLayout.fiveWideRowsForPage(end - start, configuredRows);
+    int contentRows = viewportRows - 1;
+    int navRow = viewportRows - 1;
 
     UIWindow w = new UIWindow(Adapt.instance, player);
     GuiTheme.apply(w, "/");
-    w.setViewportHeight(6);
+    w.setViewportHeight(viewportRows);
 
     if (entries.isEmpty()) {
-      w.setElement(0, 2, new UIElement("skills-empty")
+      w.setElement(0, GuiLayout.centeredFiveRow(0, 1, contentRows), new UIElement("skills-empty")
           .setMaterial(new MaterialBlock(Material.PAPER))
           .setName(C.GRAY + AdaptLanguage.text(GuiMessages.NO_SKILLS_AVAILABLE))
           .addLore(C.DARK_GRAY + AdaptLanguage.text(GuiMessages.NO_ELIGIBLE_SKILLS)));
@@ -134,7 +143,7 @@ public class SkillsGui {
       int pageItems = end - start;
       int usedRows = Math.max(1, (int) Math.ceil(pageItems / (double) SKILLS_PER_ROW));
       for (int logicalRow = 0; logicalRow < usedRows; logicalRow++) {
-        int row = GuiLayout.centeredFiveRow(logicalRow, usedRows);
+        int row = GuiLayout.centeredFiveRow(logicalRow, usedRows, contentRows);
         int rowStart = start + (logicalRow * SKILLS_PER_ROW);
         if (rowStart >= end) {
           break;
@@ -144,9 +153,14 @@ public class SkillsGui {
         for (int i = 0; i < rowCount; i++) {
           SkillPageEntry entry = entries.get(rowStart + i);
           int pos = GuiLayout.spacedFivePosition(i, rowCount);
+          CustomModel model = GuiConfig.skillModel(
+              entry.skill().getName(),
+              entry.skill().getIcon(),
+              entry.skill().getModel()
+          );
           Element element = new UIElement("skill-" + entry.skill().getName())
-              .setMaterial(new MaterialBlock(entry.skill().getIcon()))
-              .setBaseItemStack(entry.skill().getModel().toItemStack())
+              .setMaterial(new MaterialBlock(model.material()))
+              .setBaseItemStack(model.toItemStack())
               .setName(entry.skill().getDisplayName(entry.line().getLevel()))
               .setProgress(1D)
               .addLore(C.ITALIC + "" + C.GRAY + entry.skill().getDescription())
@@ -165,7 +179,7 @@ public class SkillsGui {
       GuiEffects.applyReveal(w, reveal);
     }
 
-    applyPageControls(w, player, 5, currentPage, pageCount, entries.size(), start, end, showMutations);
+    applyPageControls(w, player, navRow, currentPage, plan.pageCount(), entries.size(), start, end, showMutations);
 
     w.setTitle(AdaptLanguage.text(
         GuiMessages.SKILLS_TITLE,

@@ -29,9 +29,11 @@ import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
+import art.arcane.adapt.util.common.inventorygui.GuiConfig;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.data.MaterialBlock;
@@ -51,6 +53,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -129,7 +132,9 @@ final class SkillGuiSupport {
     spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 1.855f);
 
     List<Adaptation<?>> visibleAdaptations = new ArrayList<>();
+    List<String> knownAdaptations = new ArrayList<>();
     for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      knownAdaptations.add(adaptation.getName());
       if (!adaptation.isEnabled()) {
         continue;
       }
@@ -141,8 +146,10 @@ final class SkillGuiSupport {
       }
       visibleAdaptations.add(adaptation);
     }
+    Map<String, Integer> configuredOrder = GuiConfig.adaptationOrder(skill.getName(), knownAdaptations);
     visibleAdaptations.sort(
-        Comparator.comparing((Adaptation<?> adaptation) -> normalizeSortKey(adaptation.getDisplayName()))
+        Comparator.comparingInt((Adaptation<?> adaptation) -> GuiConfig.rankOf(configuredOrder, adaptation.getName()))
+            .thenComparing((Adaptation<?> adaptation) -> normalizeSortKey(adaptation.getDisplayName()))
             .thenComparing(Adaptation::getName, String.CASE_INSENSITIVE_ORDER)
     );
 
@@ -173,9 +180,14 @@ final class SkillGuiSupport {
           Adaptation<?> adaptation = visibleAdaptations.get(rowStart + i);
           int level = adaptPlayer.getData().getSkillLine(skill.getName()).getAdaptationLevel(adaptation.getName());
           int pos = GuiLayout.centeredPosition(i, rowCount);
+          CustomModel model = GuiConfig.adaptationModel(
+              adaptation.getName(),
+              adaptation.getIcon(),
+              adaptation.getModel()
+          );
           Element element = new UIElement("ada-" + adaptation.getName())
-              .setMaterial(new MaterialBlock(adaptation.getIcon()))
-              .setBaseItemStack(adaptation.getModel().toItemStack())
+              .setMaterial(new MaterialBlock(model.material()))
+              .setBaseItemStack(model.toItemStack())
               .setName(adaptation.getDisplayName(level))
               .addLore(C.GRAY + adaptation.getDescription())
               .addLore(level == 0

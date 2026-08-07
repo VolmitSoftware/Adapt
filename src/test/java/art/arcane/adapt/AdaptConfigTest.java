@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -114,5 +115,92 @@ class AdaptConfigTest {
         assertThat(restored.getPermissionXpMultipliers().getMultipliers())
             .containsEntry("adapt.xpmultiplier.vip", 1.5D)
             .containsEntry("adapt.xpmultiplier.mvp", 2.0D);
+    }
+
+    @Test
+    @DisplayName("permission xp multiplier stacking is off by default")
+    void permissionXpMultiplierStackingIsOffByDefault() throws IOException {
+        AdaptConfig config = new AdaptConfig();
+
+        assertThat(config.getPermissionXpMultipliers().isStack()).isFalse();
+
+        AdaptConfig stacked = TomlCodec.fromToml(
+            "[permissionXpMultipliers]\nenabled = true\nstack = true\n",
+            AdaptConfig.class
+        );
+
+        assertThat(stacked.getPermissionXpMultipliers().isStack()).isTrue();
+    }
+
+    @Test
+    @DisplayName("storage toggles live in their own sql and redis sections")
+    void storageTogglesLiveInTheirOwnSections() throws IOException {
+        AdaptConfig config = new AdaptConfig();
+        String canonical = TomlCodec.toToml(config, "core-config");
+
+        assertThat(config.getSql().isEnabled()).isFalse();
+        assertThat(config.getRedis().isEnabled()).isFalse();
+        assertThat(config.getSql().getSecondsCheckverify()).isEqualTo(30);
+        assertThat(canonical)
+            .contains("[sql]")
+            .contains("[redis]")
+            .contains("secondsCheckverify = 30")
+            .doesNotContain("useSql")
+            .doesNotContain("useRedis")
+            .doesNotContain("sqlSecondsCheckverify");
+
+        AdaptConfig configured = TomlCodec.fromToml(
+            "[sql]\nenabled = true\nsecondsCheckverify = 45\n\n[redis]\nenabled = true\n",
+            AdaptConfig.class
+        );
+
+        assertThat(configured.getSql().isEnabled()).isTrue();
+        assertThat(configured.getSql().getSecondsCheckverify()).isEqualTo(45);
+        assertThat(configured.getSql().getHost()).isEqualTo("localhost");
+        assertThat(configured.getRedis().isEnabled()).isTrue();
+        assertThat(configured.getRedis().getPort()).isEqualTo(6379);
+        assertThat(TomlCodec.toToml(configured, "core-config"))
+            .contains("secondsCheckverify = 45");
+    }
+
+    @Test
+    @DisplayName("the gui section ships empty customization tables")
+    void guiSectionShipsEmptyCustomizationTables() throws IOException {
+        AdaptConfig config = new AdaptConfig();
+        String canonical = TomlCodec.toToml(config, "core-config");
+
+        assertThat(config.getGui().getSkillsGuiRows()).isZero();
+        assertThat(config.getGui().getSkillIcons()).isEmpty();
+        assertThat(config.getGui().getAdaptationIcons()).isEmpty();
+        assertThat(config.getGui().getSkillOrder()).isEmpty();
+        assertThat(config.getGui().getAdaptationOrder()).isEmpty();
+        assertThat(canonical)
+            .contains("[gui]")
+            .contains("skillsGuiRows = 0")
+            .contains("skillOrder = []")
+            .contains("[gui.skillIcons]")
+            .contains("[gui.adaptationIcons]")
+            .contains("[gui.adaptationOrder]");
+    }
+
+    @Test
+    @DisplayName("gui icon and ordering entries survive a toml round trip")
+    void guiCustomizationEntriesSurviveTomlRoundTrip() throws IOException {
+        String raw = TomlCodec.toToml(new AdaptConfig(), "core-config")
+            .replace("skillsGuiRows = 0", "skillsGuiRows = 4")
+            .replace("skillOrder = []", "skillOrder = [\"mining\", \"axe\"]")
+            .replace("[gui.skillIcons]", "[gui.skillIcons]\n\"mining\" = \"DIAMOND_PICKAXE\"")
+            .replace("[gui.adaptationIcons]", "[gui.adaptationIcons]\n\"mining-vein\" = \"GOLD_INGOT\"")
+            .replace("[gui.adaptationOrder]", "[gui.adaptationOrder]\n\"mining\" = [\"mining-vein\", \"mining-blind\"]");
+
+        AdaptConfig parsed = TomlCodec.fromToml(raw, AdaptConfig.class);
+        AdaptConfig restored = TomlCodec.fromToml(TomlCodec.toToml(parsed, "core-config"), AdaptConfig.class);
+
+        assertThat(restored.getGui().getSkillsGuiRows()).isEqualTo(4);
+        assertThat(restored.getGui().getSkillOrder()).containsExactly("mining", "axe");
+        assertThat(restored.getGui().getSkillIcons()).containsEntry("mining", "DIAMOND_PICKAXE");
+        assertThat(restored.getGui().getAdaptationIcons()).containsEntry("mining-vein", "GOLD_INGOT");
+        assertThat(restored.getGui().getAdaptationOrder())
+            .containsEntry("mining", List.of("mining-vein", "mining-blind"));
     }
 }

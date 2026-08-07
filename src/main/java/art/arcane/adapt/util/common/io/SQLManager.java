@@ -29,7 +29,7 @@ public class SQLManager {
     AdaptConfig config = AdaptConfig.get();
     try {
       connection = DriverManager.getConnection(assembleUrl(config), config.getSql().getUsername(), config.getSql().getPassword());
-      int verifySeconds = Math.max(1, Math.min(10, config.getSqlSecondsCheckverify()));
+      int verifySeconds = Math.max(1, Math.min(10, config.getSql().getSecondsCheckverify()));
       if (!connection.isValid(verifySeconds)) {
         throw new SQLException("Connection timed out");
       } else {
@@ -110,7 +110,7 @@ public class SQLManager {
   }
 
   private void checkAndReestablishConnection() throws SQLException {
-    if (connection == null || !connection.isValid(AdaptConfig.get().getSqlSecondsCheckverify())) { // 30 sec by default
+    if (connection == null || !connection.isValid(AdaptConfig.get().getSql().getSecondsCheckverify())) { // 30 sec by default
       establishConnection();
     }
     if (connection == null) {

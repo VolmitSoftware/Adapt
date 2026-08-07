@@ -2,6 +2,7 @@ package art.arcane.adapt.util.common.inventorygui;
 
 public final class GuiLayout {
   public static final int WIDTH = 9;
+  public static final int FIVE_WIDTH = 5;
   public static final int MAX_ROWS = 6;
   private static final int[][] CENTERED_POSITIONS = {
       {},
@@ -56,6 +57,33 @@ public final class GuiLayout {
     return new PagePlan(rows, contentRows, navigation, itemsPerPage, pages);
   }
 
+  public static PagePlan planFiveWide(int totalItems, int configuredRows) {
+    int items = Math.max(0, totalItems);
+    int requested = Math.max(0, Math.min(MAX_ROWS, configuredRows));
+    int contentRows;
+    if (requested > 0) {
+      contentRows = Math.max(1, requested - 1);
+    } else if (items <= 0) {
+      contentRows = 1;
+    } else {
+      contentRows = Math.min(MAX_ROWS - 1, (int) Math.ceil(items / (double) FIVE_WIDTH));
+    }
+
+    int itemsPerPage = contentRows * FIVE_WIDTH;
+    int pages = Math.max(1, (int) Math.ceil(items / (double) itemsPerPage));
+    return new PagePlan(contentRows + 1, contentRows, true, itemsPerPage, pages);
+  }
+
+  public static int fiveWideRowsForPage(int pageItems, int configuredRows) {
+    int requested = Math.max(0, Math.min(MAX_ROWS, configuredRows));
+    if (requested > 0) {
+      return Math.max(2, requested);
+    }
+
+    int used = pageItems <= 0 ? 1 : (int) Math.ceil(pageItems / (double) FIVE_WIDTH);
+    return Math.max(2, Math.min(MAX_ROWS, used + 1));
+  }
+
   public static int clampPage(int page, int pageCount) {
     if (pageCount <= 0) {
       return 0;
@@ -75,10 +103,15 @@ public final class GuiLayout {
     return -(count - 1) + (index * 2);
   }
 
-  public static int centeredFiveRow(int index, int rowCount) {
-    int count = Math.max(1, Math.min(5, rowCount));
+  public static int centeredFiveRow(int index, int rowCount, int availableRows) {
+    int span = Math.max(1, Math.min(MAX_ROWS, availableRows));
+    int count = Math.max(1, Math.min(span, Math.min(FIVE_WIDTH, rowCount)));
     int safeIndex = Math.max(0, Math.min(count - 1, index));
-    return FIVE_ROW_POSITIONS[count][safeIndex];
+    if (span == FIVE_WIDTH) {
+      return FIVE_ROW_POSITIONS[count][safeIndex];
+    }
+
+    return ((span - count) / 2) + safeIndex;
   }
 
   public record PagePlan(

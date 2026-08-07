@@ -1567,7 +1567,7 @@ description = "Craft 100 oda iš supuvusio minkštimo"
 
 [advancement.challenge_crafting_backpack_25]
 title = "Pakuočių stovas"
-description = "Craft 25 ryšuliai"
+description = "Pagaminkite 25 kuprines"
 
 [advancement.challenge_crafting_stations_200]
 title = "Go"
@@ -4090,12 +4090,19 @@ lore = ["Tiesiog ismeskite supuvusia mesa ant lauzo!"]
 
 [crafting.backpacks]
 name = "Butiljerio Kuprinės!"
-description = "Tai tiesiog inesa i zaidima Mojang rysuli!"
-lore1 = "Noredami tai naudoti, turite buti islikimo rezime."
+description = "Pagaminkite kuprinę, kuri saugo ištisas krūvas ir atsidaro kaip atskira talpykla."
+lore1 = "Spustelėkite kuprinę dešiniuoju, kad atidarytumėte jos talpyklą"
 lore2 = "LLL : Oda, Oda, Oda"
 lore3 = "LCL : Oda, Skrynia, Oda"
 lore4 = "LLL : Oda, Oda, Oda"
-lore = ["Noredami tai naudoti, turite buti islikimo rezime.", "LLL : Oda, Oda, Oda", "LCL : Oda, Skrynia, Oda", "LLL : Oda, Oda, Oda"]
+lore = ["Spustelėkite kuprinę dešiniuoju, kad atidarytumėte jos talpyklą", "LLL : Oda, Oda, Oda", "LCL : Oda, Skrynia, Oda", "LLL : Oda, Oda, Oda"]
+deny_nested = "Kuprinėje negali būti kitos kuprinės."
+deny_full = "Šioje kuprinėje nebeliko vietos."
+cycle_needs_empty = "Ištuštinkite kuprinę prieš keisdami jos saugojimo būdą."
+page = "{page} puslapis iš {pages}"
+prev_page = "Ankstesnis puslapis"
+next_page = "Kitas puslapis"
+unreadable = "Ši kuprinė supakuota kita serverio laida, todėl čia jos atidaryti negalima."
 
 [crafting.stations]
 name = "Nesiojami Stalai!"
@@ -4772,6 +4779,15 @@ menu_open = "Spustelėkite, kad peržiūrėtumėte savo lizdus ir reikalavimus."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "Kuprinė"
+usage1 = "Spustelėkite dešiniuoju, kad atidarytumėte"
+usage2 = "Pagaminkite ją vieną gamybos tinklelyje, kad pakeistumėte saugojimo būdą; pirma ji turi būti tuščia"
+mode_slots = "Langelių būdas: {slots} langeliai, kiekviename po vieną krūvą"
+mode_bundle = "Ryšulio būdas: telpa {stacks} krūvos bet kokių daiktų"
+slots_used = "užimta {used} iš {total} langelių"
+items_stored = "saugoma {used} iš {total} daiktų"
 
 [items.bound_ender_peral]
 name = "Relikvijoriaus Prievado Raktas"

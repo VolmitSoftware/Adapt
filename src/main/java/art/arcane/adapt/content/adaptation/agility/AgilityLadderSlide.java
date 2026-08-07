@@ -72,6 +72,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -649,8 +652,27 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
         climbableTag.location(),
         immutableTags,
         Map.copyOf(blockIds),
-        blockTagPacket(new TagNetworkSerialization.NetworkPayload(immutableTags))
+        blockTagPacket(newNetworkPayload(immutableTags))
     );
+  }
+
+  private static volatile MethodHandle networkPayloadConstructor;
+
+  /** The NetworkPayload(Map) constructor is package-private on 26.1.x and public on 26.2+. */
+  private static TagNetworkSerialization.NetworkPayload newNetworkPayload(Map<Identifier, IntList> tags) {
+    try {
+      MethodHandle constructor = networkPayloadConstructor;
+      if (constructor == null) {
+        Constructor<TagNetworkSerialization.NetworkPayload> declared =
+            TagNetworkSerialization.NetworkPayload.class.getDeclaredConstructor(Map.class);
+        declared.setAccessible(true);
+        constructor = MethodHandles.lookup().unreflectConstructor(declared);
+        networkPayloadConstructor = constructor;
+      }
+      return (TagNetworkSerialization.NetworkPayload) constructor.invoke(tags);
+    } catch (Throwable error) {
+      throw new IllegalStateException("Unable to construct a client block tag payload.", error);
+    }
   }
 
   static Map<Identifier, IntList> suppressBlockInTag(
@@ -837,7 +859,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
         throw new IllegalStateException("Missing client block registry entry " + identifier);
       }
 
-      return suppressed.computeIfAbsent(blockId, id -> blockTagPacket(new TagNetworkSerialization.NetworkPayload(
+      return suppressed.computeIfAbsent(blockId, id -> blockTagPacket(newNetworkPayload(
           suppressBlockInTag(standardTags, climbableTag, id)
       )));
     }

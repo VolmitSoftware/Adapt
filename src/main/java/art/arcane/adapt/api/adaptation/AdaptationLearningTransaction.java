@@ -3,6 +3,7 @@ package art.arcane.adapt.api.adaptation;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.volmlib.integration.VaultEconomy;
 import org.bukkit.entity.Player;
@@ -25,12 +26,14 @@ public final class AdaptationLearningTransaction {
     }
     settlePendingRefund(player, skillLine);
     int currentLevel = skillLine.getAdaptationLevel(adaptation.getName());
+    boolean regionGranted = isRegionGranted(skillLine, adaptation.getName());
+    int paidLevel = regionGranted ? 0 : currentLevel;
     int normalizedTarget = Math.max(0, Math.min(targetLevel, adaptation.getMaxLevel()));
-    if (normalizedTarget <= currentLevel) {
+    if (normalizedTarget <= paidLevel) {
       return Result.NO_CHANGE;
     }
-    int knowledgeCost = adaptation.getCostFor(normalizedTarget, currentLevel);
-    int powerCost = adaptation.getPowerCostFor(normalizedTarget, currentLevel);
+    int knowledgeCost = adaptation.getCostFor(normalizedTarget, paidLevel);
+    int powerCost = adaptation.getPowerCostFor(normalizedTarget, paidLevel);
     if (!bypassCosts && !adaptPlayer.getData().hasPowerAvailable(powerCost)) {
       return Result.INSUFFICIENT_POWER;
     }
@@ -68,12 +71,15 @@ public final class AdaptationLearningTransaction {
 
     try {
       skillLine.setAdaptation(adaptation, normalizedTarget);
+      if (regionGranted) {
+        markRegionGranted(skillLine, adaptation.getName(), false);
+      }
       if (charge != null && refundPercent > 0D) {
         storeRefundReceipts(
             skillLine,
             adaptation.getName(),
             adaptation,
-            currentLevel,
+            paidLevel,
             normalizedTarget,
             moneyPerKnowledge,
             refundPercent
@@ -84,8 +90,11 @@ public final class AdaptationLearningTransaction {
       }
       return Result.LEARNED;
     } catch (RuntimeException exception) {
-      clearRefundReceipts(skillLine, adaptation.getName(), currentLevel, normalizedTarget);
+      clearRefundReceipts(skillLine, adaptation.getName(), paidLevel, normalizedTarget);
       skillLine.setAdaptation(adaptation, currentLevel);
+      if (regionGranted) {
+        markRegionGranted(skillLine, adaptation.getName(), true);
+      }
       if (!bypassCosts) {
         skillLine.giveKnowledge(knowledgeCost);
       }
@@ -110,8 +119,10 @@ public final class AdaptationLearningTransaction {
       return Result.PERMANENT;
     }
 
-    int knowledgeRefund = adaptation.getRefundCostFor(normalizedTarget, currentLevel);
-    double vaultRefund = refundReceiptAmount(skillLine, adaptation.getName(), normalizedTarget, currentLevel);
+    int paidLevel = isRegionGranted(skillLine, adaptation.getName()) ? 0 : currentLevel;
+    int refundFloor = Math.min(normalizedTarget, paidLevel);
+    int knowledgeRefund = adaptation.getRefundCostFor(refundFloor, paidLevel);
+    double vaultRefund = refundReceiptAmount(skillLine, adaptation.getName(), refundFloor, paidLevel);
     skillLine.setAdaptation(adaptation, normalizedTarget);
     if (!bypassCosts && !AdaptConfig.get().isHardcoreNoRefunds()) {
       skillLine.giveKnowledge(knowledgeRefund);
@@ -146,6 +157,19 @@ public final class AdaptationLearningTransaction {
   static boolean isConfigured() {
     AdaptConfig.LearningEconomy config = AdaptConfig.get().getLearningEconomy();
     return config != null && config.isEnabled() && positiveFinite(config.getMoneyPerKnowledge()) > 0D;
+  }
+
+  private static boolean isRegionGranted(PlayerSkillLine skillLine, String adaptationName) {
+    PlayerAdaptation stored = skillLine.getAdaptation(adaptationName);
+    return stored != null && stored.isRegionGranted();
+  }
+
+  private static void markRegionGranted(PlayerSkillLine skillLine, String adaptationName, boolean regionGranted) {
+    PlayerAdaptation stored = skillLine.getAdaptation(adaptationName);
+    if (stored == null) {
+      return;
+    }
+    stored.setRegionGranted(regionGranted);
   }
 
   private static void storeRefundReceipts(

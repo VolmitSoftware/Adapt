@@ -46,7 +46,9 @@ class PlayerDataResetTest extends AdaptTestBase {
     assertThat(playerDirectory.mkdirs()).isTrue();
     playerFile = new File(playerDirectory, playerId + ".json");
     config = mock(AdaptConfig.class);
-    when(config.isUseSql()).thenReturn(false);
+    AdaptConfig.SqlSettings sqlSettings = mock(AdaptConfig.SqlSettings.class);
+    when(config.getSql()).thenReturn(sqlSettings);
+    when(sqlSettings.isEnabled()).thenReturn(false);
     when(plugin.getSqlManager()).thenReturn(mock(SQLManager.class));
     when(plugin.getDataFolder(any(String[].class))).thenReturn(playerDirectory);
     configured = mockStatic(AdaptConfig.class);

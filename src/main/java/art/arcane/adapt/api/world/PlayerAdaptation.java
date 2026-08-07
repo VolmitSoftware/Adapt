@@ -25,7 +25,27 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PlayerAdaptation {
+  public static final String REGION_GRANTED_KEY = "regionGranted";
+
   private final KMap<String, Object> storage = new KMap<>();
   private String id;
   private volatile int level;
+
+  public boolean isRegionGranted() {
+    Object marker = storage.get(REGION_GRANTED_KEY);
+    if (marker instanceof Boolean flag) {
+      return flag;
+    }
+
+    return marker instanceof String text && Boolean.parseBoolean(text);
+  }
+
+  public void setRegionGranted(boolean regionGranted) {
+    if (regionGranted) {
+      storage.put(REGION_GRANTED_KEY, Boolean.TRUE);
+      return;
+    }
+
+    storage.remove(REGION_GRANTED_KEY);
+  }
 }

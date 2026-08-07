@@ -462,7 +462,7 @@ public class AdaptServer extends TickedObject {
       return prefetched;
     }
 
-    if (AdaptConfig.get().isUseSql()) {
+    if (AdaptConfig.get().getSql().isEnabled()) {
       SQLManager sqlManager = Adapt.instance.getSqlManager();
       String sqlData = sqlManager == null ? null : sqlManager.fetchData(player);
       if (sqlData != null) {

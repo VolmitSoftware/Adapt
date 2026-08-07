@@ -16,12 +16,13 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package art.arcane.adapt.api.xp;
+package art.arcane.adapt.api.protection;
 
-public interface ResolvedNewtonCurve extends NewtonCurve {
-  double getLevelForXP(double xp);
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
-  default double computeLevelForXP(double xp, double maxError) {
-    return getLevelForXP(xp);
-  }
+public interface RegionPolicySource {
+  String getName();
+
+  RegionPolicy resolve(Player player, Location location);
 }

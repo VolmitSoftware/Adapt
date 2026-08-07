@@ -43,9 +43,9 @@ plugins {
 apply plugin: PaperweightUser
 
 version = '2.0.0-26.2'
-def apiVersion = '26.2'
+def apiVersion = '26.1'
 def main = 'art.arcane.adapt.Adapt'
-String paperDevBundleVersion = '26.2.build.60-beta'
+String paperDevBundleVersion = '26.1.2.build.74-stable'
 String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
     .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
     .get()
@@ -152,7 +152,7 @@ dependencies {
         transitive = false
     }
 
-    compileOnly('io.papermc.paper:paper-api:26.2.build.60-beta')
+    compileOnly('io.papermc.paper:paper-api:26.1.2.build.74-stable')
 
     // Cancer
     slimApi(libs.fukkit) {
@@ -196,7 +196,7 @@ dependencies {
     compileOnlyApi('com.griefdefender:api:2.1.1-SNAPSHOT')
     compileOnlyApi(fileTree('libs') { include('*.jar') })
 
-    testImplementation('io.papermc.paper:paper-api:26.2.build.60-beta')
+    testImplementation('io.papermc.paper:paper-api:26.1.2.build.74-stable')
     testImplementation('me.clip:placeholderapi:2.11.6') {
         transitive = false
     }

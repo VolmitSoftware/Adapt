@@ -1567,7 +1567,7 @@ description = "工艺 100 皮革来自腐烂的肉"
 
 [advancement.challenge_crafting_backpack_25]
 title = "包鼠"
-description = "工艺 25 捆绑"
+description = "合成 25 个背包"
 
 [advancement.challenge_crafting_stations_200]
 title = "开始吧"
@@ -4090,12 +4090,19 @@ lore = ["把腐肉丢到营火上就行了！"]
 
 [crafting.backpacks]
 name = "布蒂利埃的背包！"
-description = "将 Mojang 的收纳袋功能加入游戏！"
-lore1 = "需要在生存模式下才能使用"
+description = "合成一个能整组存放、并且自身可作为容器打开的背包。"
+lore1 = "右键背包即可打开它自己的容器"
 lore2 = "LLL：皮革、皮革、皮革"
 lore3 = "LCL：皮革、箱子、皮革"
 lore4 = "LLL：皮革、皮革、皮革"
-lore = ["需要在生存模式下才能使用", "LLL：皮革、皮革、皮革", "LCL：皮革、箱子、皮革", "LLL：皮革、皮革、皮革"]
+lore = ["右键背包即可打开它自己的容器", "LLL：皮革、皮革、皮革", "LCL：皮革、箱子、皮革", "LLL：皮革、皮革、皮革"]
+deny_nested = "背包里放不下另一个背包。"
+deny_full = "这个背包已经没有空位了。"
+cycle_needs_empty = "切换存放方式前请先清空背包。"
+page = "第 {page} 页，共 {pages} 页"
+prev_page = "上一页"
+next_page = "下一页"
+unreadable = "这个背包由另一版本的服务端装填，无法在此打开。"
 
 [crafting.stations]
 name = "便携工作台！"
@@ -4772,6 +4779,15 @@ menu_open = "点击查看你的槽位和要求。"
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "背包"
+usage1 = "右键打开"
+usage2 = "单独放进合成格里合成即可切换存放方式，须先清空"
+mode_slots = "格位方式：{slots} 格，每格放一组"
+mode_bundle = "收纳方式：可装下 {stacks} 组任意混合的物品"
+slots_used = "已用 {used} / {total} 格"
+items_stored = "已存 {used} / {total} 件"
 
 [items.bound_ender_peral]
 name = "遗物传送钥"

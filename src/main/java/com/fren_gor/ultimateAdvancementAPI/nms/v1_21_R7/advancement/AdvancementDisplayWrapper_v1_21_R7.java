@@ -14,9 +14,20 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.Optional;
 
 public class AdvancementDisplayWrapper_v1_21_R7 extends AdvancementDisplayWrapper {
+    /**
+     * CraftItemStack.asBukkitCopy takes the NMS ItemStack on 26.1.x; on 26.2+ that
+     * overload is private and the public one takes ItemInstance (an ItemStack
+     * supertype there). Probed once and cached; both parameter classes exist on both
+     * versions, so the probe itself always links.
+     */
+    private static volatile MethodHandle asBukkitCopy;
+
     private final DisplayInfo display;
     private final AdvancementFrameTypeWrapper frameType;
 
@@ -37,7 +48,23 @@ public class AdvancementDisplayWrapper_v1_21_R7 extends AdvancementDisplayWrappe
     @Override
     @NotNull
     public ItemStack getIcon() {
-        return CraftItemStack.asBukkitCopy(display.getIcon().create());
+        try {
+            MethodHandle handle = asBukkitCopy;
+            if (handle == null) {
+                MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+                try {
+                    handle = lookup.findStatic(CraftItemStack.class, "asBukkitCopy",
+                            MethodType.methodType(ItemStack.class, net.minecraft.world.item.ItemInstance.class));
+                } catch (NoSuchMethodException | IllegalAccessException absent) {
+                    handle = lookup.findStatic(CraftItemStack.class, "asBukkitCopy",
+                            MethodType.methodType(ItemStack.class, net.minecraft.world.item.ItemStack.class));
+                }
+                asBukkitCopy = handle;
+            }
+            return (ItemStack) handle.invoke(display.getIcon().create());
+        } catch (Throwable error) {
+            throw new IllegalStateException("Unable to copy the advancement icon.", error);
+        }
     }
 
     @Override

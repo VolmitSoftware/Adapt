@@ -445,7 +445,7 @@ public class AdvancementManager {
       advancements.clear();
       List<String> roots = new ArrayList<>();
 
-      if (AdaptConfig.get().isUseSql()) {
+      if (AdaptConfig.get().getSql().isEnabled()) {
         AdaptConfig.SqlSettings sql = AdaptConfig.get().getSql();
         main.enableMySQL(sql.getUsername(), sql.getPassword(), sql.getDatabase(), sql.getHost(), sql.getPort(), sql.getPoolSize(), sql.getConnectionTimeout());
       } else {

@@ -40,7 +40,7 @@ import java.util.regex.Pattern;
 public final class AdaptLanguage {
   private static final long MAX_LOCALE_BYTES = 2L * 1024L * 1024L;
   private static final int MAX_REPORTED_ISSUES = 12;
-  private static final Pattern LOCALE_NAME = Pattern.compile("[A-Za-z0-9_-]+");
+  static final Pattern LOCALE_NAME = Pattern.compile("[A-Za-z0-9_-]+");
   private static final MessageCatalog CATALOG = AdaptMessages.catalog();
   private static final LocalizationManager MANAGER = new LocalizationManager(
       LocalizationCandidate.english(CATALOG, PluralSelector.oneOther())
@@ -67,6 +67,7 @@ public final class AdaptLanguage {
     }
 
     activeLocale = normalizeLocale(configuredLocale);
+    AdaptLanguageBundle.extract(activeLocale);
     int warningCount = result.validation().warnings().size();
     Adapt.info("Loaded locale " + requestedLocale + " with " + warningCount + " fallback "
         + (warningCount == 1 ? "entry" : "entries") + ".");

@@ -590,7 +590,7 @@ public final class AdvancementMessages {
   public static final TextKey CHALLENGE_CRAFTING_LEATHER_100_TITLE = TextKey.of("advancement.challenge_crafting_leather_100.title", "Tanner");
   public static final TextKey CHALLENGE_CRAFTING_LEATHER_100_DESCRIPTION = TextKey.of("advancement.challenge_crafting_leather_100.description", "Craft 100 leather from rotten flesh");
   public static final TextKey CHALLENGE_CRAFTING_BACKPACK_25_TITLE = TextKey.of("advancement.challenge_crafting_backpack_25.title", "Pack Rat");
-  public static final TextKey CHALLENGE_CRAFTING_BACKPACK_25_DESCRIPTION = TextKey.of("advancement.challenge_crafting_backpack_25.description", "Craft 25 bundles");
+  public static final TextKey CHALLENGE_CRAFTING_BACKPACK_25_DESCRIPTION = TextKey.of("advancement.challenge_crafting_backpack_25.description", "Craft 25 backpacks");
   public static final TextKey CHALLENGE_CRAFTING_STATIONS_200_TITLE = TextKey.of("advancement.challenge_crafting_stations_200.title", "On the Go");
   public static final TextKey CHALLENGE_CRAFTING_STATIONS_200_DESCRIPTION = TextKey.of("advancement.challenge_crafting_stations_200.description", "Use portable stations 200 times");
   public static final TextKey CHALLENGE_CRAFTING_STATIONS_5K_TITLE = TextKey.of("advancement.challenge_crafting_stations_5k.title", "Mobile Workshop");

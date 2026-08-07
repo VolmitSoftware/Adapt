@@ -52,7 +52,15 @@ import org.bukkit.inventory.MenuType;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -105,7 +113,8 @@ public final class PaperCompat {
   private static volatile boolean teleportAsyncCauseSupported = true;
   private static volatile boolean transientModifierSupported = true;
   private static volatile boolean damageCriticalSupported = true;
-  private static volatile boolean potionSourceSupported = true;
+  // EntityPotionEffectEvent.getSource() is 26.2+; resolved reflectively so the 26.1.2 compile baseline builds.
+  private static final MethodHandle POTION_SOURCE_HANDLE = resolvePotionSourceHandle();
   private static volatile boolean trackedPlayersSupported = true;
 
   private PaperCompat() {
@@ -250,15 +259,24 @@ public final class PaperCompat {
   }
 
   public static Entity potionSource(EntityPotionEffectEvent event) {
-    if (potionSourceSupported) {
-      try {
-        return event.getSource();
-      } catch (NoSuchMethodError absent) {
-        potionSourceSupported = false;
-      }
+    if (POTION_SOURCE_HANDLE == null) {
+      return null;
     }
 
-    return null;
+    try {
+      return (Entity) POTION_SOURCE_HANDLE.invokeExact(event);
+    } catch (Throwable absent) {
+      return null;
+    }
+  }
+
+  private static MethodHandle resolvePotionSourceHandle() {
+    try {
+      return MethodHandles.publicLookup()
+          .findVirtual(EntityPotionEffectEvent.class, "getSource", MethodType.methodType(Entity.class));
+    } catch (NoSuchMethodException | IllegalAccessException absent) {
+      return null;
+    }
   }
 
   public static UUID tamedOwnerId(Tameable tameable) {
@@ -595,6 +613,119 @@ public final class PaperCompat {
     try {
       trident.setHasDealtDamage(false);
     } catch (NoSuchMethodError ignored) {
+    }
+  }
+
+  /** Paper's component-exact NBT item payload. */
+  public static final byte ITEMS_FORMAT_NBT = 0;
+  /** Bukkit object stream payload, the Spigot fallback. */
+  public static final byte ITEMS_FORMAT_STREAM = 1;
+
+  private static volatile boolean itemArrayBytesSupported = true;
+
+  /**
+   * Serializes a stack array into a format-tagged blob. Paper's NBT payload is
+   * preferred because it is component exact; Spigot falls back to the Bukkit
+   * object stream. The leading format byte lets a blob written on one platform
+   * be recognized - and refused rather than silently emptied - on the other.
+   */
+  public static byte[] serializeItems(ItemStack[] items) {
+    ItemStack[] source = items == null ? new ItemStack[0] : items;
+    if (itemArrayBytesSupported) {
+      try {
+        return frameItems(ITEMS_FORMAT_NBT, ItemStack.serializeItemsAsBytes(source));
+      } catch (NoSuchMethodError | NoClassDefFoundError absent) {
+        itemArrayBytesSupported = false;
+      }
+    }
+
+    return frameItems(ITEMS_FORMAT_STREAM, streamItems(source));
+  }
+
+  /**
+   * @throws IllegalStateException when the blob was written in a format this
+   *                               platform cannot read. Callers must preserve
+   *                               the blob instead of treating it as empty.
+   */
+  public static ItemStack[] deserializeItems(byte[] framed) {
+    if (framed == null || framed.length == 0) {
+      return new ItemStack[0];
+    }
+
+    byte format = itemsFormat(framed);
+    byte[] payload = itemsPayload(framed);
+    if (format == ITEMS_FORMAT_STREAM) {
+      return unstreamItems(payload);
+    }
+    if (format != ITEMS_FORMAT_NBT) {
+      throw new IllegalStateException("Unknown item payload format " + format);
+    }
+    if (!itemArrayBytesSupported) {
+      throw new IllegalStateException("Paper item payload cannot be read on this platform");
+    }
+
+    try {
+      return ItemStack.deserializeItemsFromBytes(payload);
+    } catch (NoSuchMethodError | NoClassDefFoundError absent) {
+      itemArrayBytesSupported = false;
+      throw new IllegalStateException("Paper item payload cannot be read on this platform", absent);
+    } catch (IllegalStateException rethrow) {
+      throw rethrow;
+    } catch (RuntimeException malformed) {
+      throw new IllegalStateException("Item payload could not be read", malformed);
+    }
+  }
+
+  public static byte[] frameItems(byte format, byte[] payload) {
+    byte[] source = payload == null ? new byte[0] : payload;
+    byte[] framed = new byte[source.length + 1];
+    framed[0] = format;
+    System.arraycopy(source, 0, framed, 1, source.length);
+    return framed;
+  }
+
+  public static byte itemsFormat(byte[] framed) {
+    return framed == null || framed.length == 0 ? -1 : framed[0];
+  }
+
+  public static byte[] itemsPayload(byte[] framed) {
+    if (framed == null || framed.length <= 1) {
+      return new byte[0];
+    }
+
+    byte[] payload = new byte[framed.length - 1];
+    System.arraycopy(framed, 1, payload, 0, payload.length);
+    return payload;
+  }
+
+  private static byte[] streamItems(ItemStack[] items) {
+    try (ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+         BukkitObjectOutputStream out = new BukkitObjectOutputStream(buffer)) {
+      out.writeInt(items.length);
+      for (ItemStack item : items) {
+        out.writeObject(item);
+      }
+      out.flush();
+      return buffer.toByteArray();
+    } catch (IOException error) {
+      throw new IllegalStateException("Item payload could not be written", error);
+    }
+  }
+
+  private static ItemStack[] unstreamItems(byte[] payload) {
+    try (ByteArrayInputStream buffer = new ByteArrayInputStream(payload);
+         BukkitObjectInputStream in = new BukkitObjectInputStream(buffer)) {
+      int length = in.readInt();
+      if (length < 0 || length > 1024) {
+        throw new IllegalStateException("Item payload declares " + length + " entries");
+      }
+      ItemStack[] items = new ItemStack[length];
+      for (int index = 0; index < length; index++) {
+        items[index] = (ItemStack) in.readObject();
+      }
+      return items;
+    } catch (IOException | ClassNotFoundException error) {
+      throw new IllegalStateException("Item payload could not be read", error);
     }
   }
 

@@ -92,7 +92,7 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
 
     File capturedFile = localFile == null ? null : localFile.getAbsoluteFile();
     File recoveryFile = capturedFile == null ? null : sqlRecoveryFile(capturedFile);
-    boolean deleteSql = AdaptConfig.get().isUseSql();
+    boolean deleteSql = AdaptConfig.get().getSql().isEnabled();
     SQLManager sqlManager = Adapt.instance == null ? null : Adapt.instance.getSqlManager();
     synchronized (lifecycleLock) {
       if (!acceptingTasks.get()) {
@@ -168,7 +168,7 @@ public class PlayerDataPersistenceQueue implements AutoCloseable {
     Adapt plugin = Adapt.instance;
     File capturedFile = Objects.requireNonNull(localFile, "Local player data file is required").getAbsoluteFile();
     File recoveryFile = sqlRecoveryFile(capturedFile);
-    if (AdaptConfig.get().isUseSql()) {
+    if (AdaptConfig.get().getSql().isEnabled()) {
       SQLManager sqlManager = plugin == null ? null : plugin.getSqlManager();
       RedisSync redisSync = plugin == null ? null : plugin.getRedisSync();
       return new SqlSaveTarget(sqlManager, redisSync, recoveryFile);

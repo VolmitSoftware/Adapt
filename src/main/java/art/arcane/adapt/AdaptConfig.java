@@ -23,6 +23,8 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.project.redis.RedisConfig;
 import art.arcane.volmlib.util.bukkit.WorldIdentity;
+import art.arcane.volmlib.util.collection.KList;
+import art.arcane.volmlib.util.collection.KMap;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -49,14 +51,19 @@ public class AdaptConfig {
   public String adaptActivatorBlockName = "a Bookshelf";
   public boolean adaptActivatorAllowVerticalFaces = false;
   public List<String> blacklistedWorlds = List.of("minecraft:some_world_adapt_should_not_run_in", "example:another_world");
+  @ConfigDoc(value = "Hard level cap applied to every skill line.", impact = "A skill line that passes the xp for this level is dropped back to the xp of level cap-1 and the player is granted 1 wisdom; level lookups also clamp their search cursor here.")
   public int experienceMaxLevel = 1000;
   boolean preventHunterSkillsWhenHungerApplied = true;
   private ValueConfig value = new ValueConfig();
   private boolean metrics = true;
   private String language = "en_US";
+  @ConfigDoc(value = "Level curve mapping skill xp to skill level. Default ADAPT_BALANCED is xp(L) = 100*L^2 + 1200*L, inverted as L(xp) = (sqrt(1440000 + 400*xp) - 1200) / 200.", impact = "Every family in the Curves enum is selectable and each one changes xp-per-level for skills, master xp and power; docs/configuration-math.md lists the formulas.")
   private Curves xpCurve = Curves.ADAPT_BALANCED;
+  @ConfigDoc(value = "Flat master xp granted for each skill level a player gains.", impact = "Master xp for skill level i is playerXpPerSkillLevelUpBase + i*playerXpPerSkillLevelUpLevelMultiplier, so this lifts every level-up reward evenly.")
   private double playerXpPerSkillLevelUpBase = 489;
+  @ConfigDoc(value = "Master xp added per skill level already reached when a skill levels up.", impact = "Master xp for skill level i is playerXpPerSkillLevelUpBase + i*playerXpPerSkillLevelUpLevelMultiplier, so this back-loads master progression toward high skill levels.")
   private double playerXpPerSkillLevelUpLevelMultiplier = 44;
+  @ConfigDoc(value = "Power granted per master level.", impact = "Max power is floor(masterLevel * powerPerLevel) where masterLevel is xpCurve applied to master xp; lowering it shrinks how many adaptation levels a player can hold at once.")
   private double powerPerLevel = 0.65;
   private boolean hardcoreResetOnPlayerDeath = false;
   private boolean hardcoreNoRefunds = false;
@@ -64,9 +71,6 @@ public class AdaptConfig {
   private boolean loginBonus = true;
   private boolean welcomeMessage = true;
   private boolean advancements = true;
-  private boolean useSql = false;
-  private boolean useRedis = false;
-  private int sqlSecondsCheckverify = 30;
   private boolean useEnchantmentTableParticleForActiveEffects = true;
   @ConfigDoc(value = "Controls whether pressing Escape closes the entire Adapt GUI stack.", impact = "When disabled, Escape returns to the parent Adapt menu until the player reaches the root Skills menu.")
   private boolean escClosesAllGuis = false;
@@ -81,6 +85,7 @@ public class AdaptConfig {
   private boolean unlearnAllButton = false;
   @ConfigDoc(value = "Lists every enabled skill in the skills GUI even when a player has no progress in it.", impact = "Display only; use permissions and progression requirements are still enforced.")
   private boolean guiShowAllSkills = false;
+  private Gui gui = new Gui();
   private Effects effects = new Effects();
   private FarmPrevention farmPrevention = new FarmPrevention();
   private AdaptationXp adaptationXp = new AdaptationXp();
@@ -173,8 +178,10 @@ public class AdaptConfig {
   public static class PermissionXpMultipliers {
     @ConfigDoc(value = "Grants passive XP multipliers to players holding configured permission nodes.", impact = "While disabled the node table is ignored and no permissions are registered.")
     private boolean enabled = false;
-    @ConfigDoc(value = "Permission node to XP multiplier, for example \"adapt.xpmultiplier.vip\" = 1.5.", impact = "The highest multiplier a player has permission for is multiplied into the boost total; values at or below zero are ignored.")
+    @ConfigDoc(value = "Permission node to XP multiplier, for example \"adapt.xpmultiplier.vip\" = 1.5.", impact = "With stack off only the highest node a player holds is multiplied into the boost total; with stack on every held node is multiplied together. Values at or below zero are ignored.")
     private Map<String, Double> multipliers = new LinkedHashMap<>();
+    @ConfigDoc(value = "Multiplies every held permission multiplier together instead of using only the highest.", impact = "False resolves to the single highest matched node; true returns the product of all matched nodes, so holding 1.5 and 2.0 yields 3.0.")
+    private boolean stack = false;
   }
 
   @Getter
@@ -190,13 +197,38 @@ public class AdaptConfig {
 
   @Getter
   public static class SqlSettings {
+    @ConfigDoc(value = "Stores player data in a MySQL-compatible database instead of local json files.", impact = "When disabled Adapt reads and writes data/players/<uuid>.json; when enabled the settings below must point at a reachable server or logins fall back to the local file.")
+    private boolean enabled = false;
+    @ConfigDoc(value = "Hostname or address of the SQL server.", impact = "Used to build the jdbc:mysql url; only read while sql.enabled is true.")
     private String host = "localhost";
+    @ConfigDoc(value = "TCP port the SQL server listens on.", impact = "Must match the server; 3306 is the MySQL default.")
     private int port = 1337;
+    @ConfigDoc(value = "Schema the ADAPT_DATA table lives in.", impact = "The schema must already exist; Adapt creates the table but never the database.")
     private String database = "adapt";
+    @ConfigDoc(value = "SQL account Adapt authenticates with.", impact = "The account needs SELECT, INSERT, UPDATE, DELETE and CREATE TABLE on the configured database.")
     private String username = "user";
+    @ConfigDoc(value = "Password for the SQL account.", impact = "Sent in plain text unless the SQL server enforces TLS.")
     private String password = "password";
+    @ConfigDoc(value = "Connection pool size requested by the advancement database backend.", impact = "Only the advancement backend uses it; higher values allow more concurrent advancement queries at the cost of open server connections.")
     private int poolSize = 10;
+    @ConfigDoc(value = "Milliseconds allowed for the jdbc connect handshake.", impact = "Clamped up to 1000; the socket timeout is derived as twice the resulting value.")
     private long connectionTimeout = 5000;
+    @ConfigDoc(value = "Seconds passed to Connection.isValid when probing the SQL link.", impact = "Startup validation clamps this to 1-10; the reconnect probe uses the raw value, so large numbers stall the calling thread longer before a reconnect.")
+    private int secondsCheckverify = 30;
+  }
+
+  @Getter
+  public static class Gui {
+    @ConfigDoc(value = "Row count for the main skills GUI.", impact = "0 auto-sizes the window to the page contents; 1-6 forces that many rows and pages anything that does not fit.")
+    private int skillsGuiRows = 0;
+    @ConfigDoc(value = "Skill registry name to Bukkit Material name used as that skill's icon.", impact = "Overrides the built-in icon; models.toml entries still win while customModels is enabled, and unknown material names fall back to the built-in icon.")
+    private Map<String, String> skillIcons = new KMap<>();
+    @ConfigDoc(value = "Adaptation registry name to Bukkit Material name used as that adaptation's icon.", impact = "Overrides the built-in icon; models.toml entries still win while customModels is enabled, and unknown material names fall back to the built-in icon.")
+    private Map<String, String> adaptationIcons = new KMap<>();
+    @ConfigDoc(value = "Skill registry names in the order they should appear in the skills GUI.", impact = "Listed skills are placed first in this order; every other skill follows in the normal alphabetical order and unknown names are ignored.")
+    private List<String> skillOrder = new KList<>();
+    @ConfigDoc(value = "Skill registry name to the ordered adaptation registry names for that skill.", impact = "Listed adaptations are placed first in this order; every other adaptation follows in the normal alphabetical order and unknown names are ignored.")
+    private Map<String, List<String>> adaptationOrder = new KMap<>();
   }
 
   @Getter

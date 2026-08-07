@@ -99,6 +99,98 @@ class PlayerDataPermissionMultiplierTest extends AdaptTestBase {
     }
 
     @Test
+    @DisplayName("stacking is off by default so the highest node still wins")
+    void stackingIsOffByDefault() throws Exception {
+        Map<String, Double> nodes = new LinkedHashMap<>();
+        nodes.put(VIP, 1.5D);
+        nodes.put(MVP, 3D);
+        nodes.put(ELITE, 2D);
+        configure(true, nodes);
+        grant(VIP);
+        grant(MVP);
+        grant(ELITE);
+        PlayerData data = new PlayerData();
+
+        assertThat(settings.isStack()).isFalse();
+        assertThat(data.computeXpMultiplier(player)).isEqualTo(3D);
+    }
+
+    @Test
+    @DisplayName("stacking multiplies every held node together")
+    void stackingMultipliesEveryHeldNode() throws Exception {
+        Map<String, Double> nodes = new LinkedHashMap<>();
+        nodes.put(VIP, 1.5D);
+        nodes.put(MVP, 3D);
+        nodes.put(ELITE, 2D);
+        configure(true, nodes);
+        stack(true);
+        grant(VIP);
+        grant(MVP);
+        grant(ELITE);
+        PlayerData data = new PlayerData();
+
+        assertThat(data.computeXpMultiplier(player)).isEqualTo(9D);
+    }
+
+    @Test
+    @DisplayName("stacking only multiplies the nodes a player actually holds")
+    void stackingOnlyMultipliesHeldNodes() throws Exception {
+        Map<String, Double> nodes = new LinkedHashMap<>();
+        nodes.put(VIP, 1.5D);
+        nodes.put(MVP, 3D);
+        nodes.put(ELITE, 2D);
+        configure(true, nodes);
+        stack(true);
+        grant(VIP);
+        grant(ELITE);
+        PlayerData data = new PlayerData();
+
+        assertThat(data.computeXpMultiplier(player)).isEqualTo(3D);
+    }
+
+    @Test
+    @DisplayName("stacking with no held node resolves to no change")
+    void stackingWithoutMatchResolvesToNoChange() throws Exception {
+        configure(true, Map.of(VIP, 4D));
+        stack(true);
+        PlayerData data = new PlayerData();
+
+        assertThat(data.computeXpMultiplier(player)).isEqualTo(1D);
+    }
+
+    @Test
+    @DisplayName("stacking skips non positive node values")
+    void stackingSkipsNonPositiveNodeValues() throws Exception {
+        Map<String, Double> nodes = new LinkedHashMap<>();
+        nodes.put(VIP, 0D);
+        nodes.put(MVP, -4D);
+        nodes.put(ELITE, 1.25D);
+        configure(true, nodes);
+        stack(true);
+        grant(VIP);
+        grant(MVP);
+        grant(ELITE);
+        PlayerData data = new PlayerData();
+
+        assertThat(data.computeXpMultiplier(player)).isEqualTo(1.25D);
+    }
+
+    @Test
+    @DisplayName("stacked penalty nodes compound below one")
+    void stackedPenaltyNodesCompoundBelowOne() throws Exception {
+        Map<String, Double> nodes = new LinkedHashMap<>();
+        nodes.put(VIP, 0.5D);
+        nodes.put(MVP, 0.5D);
+        configure(true, nodes);
+        stack(true);
+        grant(VIP);
+        grant(MVP);
+        PlayerData data = new PlayerData();
+
+        assertThat(data.computeXpMultiplier(player)).isEqualTo(0.25D);
+    }
+
+    @Test
     @DisplayName("non positive node values are ignored")
     void nonPositiveNodeValuesAreIgnored() throws Exception {
         Map<String, Double> nodes = new LinkedHashMap<>();
@@ -174,6 +266,12 @@ class PlayerDataPermissionMultiplierTest extends AdaptTestBase {
         enabledField.set(settings, enabled);
         settings.getMultipliers().clear();
         settings.getMultipliers().putAll(nodes);
+    }
+
+    private void stack(boolean stacked) throws Exception {
+        Field stackField = AdaptConfig.PermissionXpMultipliers.class.getDeclaredField("stack");
+        stackField.setAccessible(true);
+        stackField.set(settings, stacked);
     }
 
     private void grant(String node) {

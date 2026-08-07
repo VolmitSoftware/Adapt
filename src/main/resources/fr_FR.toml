@@ -1567,7 +1567,7 @@ description = "Artisanat 100 cuir de chair pourrie"
 
 [advancement.challenge_crafting_backpack_25]
 title = "Emballage Rat"
-description = "Artisanat 25 Groupes"
+description = "Fabriquez 25 sacs à dos"
 
 [advancement.challenge_crafting_stations_200]
 title = "En route"
@@ -4090,12 +4090,19 @@ lore = ["Jetez-la (la chair putrefiee) sur le feu de camp !"]
 
 [crafting.backpacks]
 name = "Sacs a dos du Boutilier !"
-description = "Cela ajoute simplement le Baluchon de Mojang au jeu !"
-lore1 = "Vous devez etre en mode Survie pour l'utiliser"
+description = "Fabriquez un sac à dos qui range des piles entières et s'ouvre comme son propre conteneur."
+lore1 = "Faites un clic droit sur le sac à dos pour ouvrir son propre conteneur"
 lore2 = "LLL : Cuir, Cuir, Cuir"
 lore3 = "LCL : Cuir, Coffre, Cuir"
 lore4 = "LLL : Cuir, Cuir, Cuir"
-lore = ["Vous devez etre en mode Survie pour l'utiliser", "LLL : Cuir, Cuir, Cuir", "LCL : Cuir, Coffre, Cuir", "LLL : Cuir, Cuir, Cuir"]
+lore = ["Faites un clic droit sur le sac à dos pour ouvrir son propre conteneur", "LLL : Cuir, Cuir, Cuir", "LCL : Cuir, Coffre, Cuir", "LLL : Cuir, Cuir, Cuir"]
+deny_nested = "Un sac à dos ne peut pas contenir un autre sac à dos."
+deny_full = "Il ne reste plus de place dans ce sac à dos."
+cycle_needs_empty = "Videz le sac à dos avant de changer son mode de rangement."
+page = "Page {page} sur {pages}"
+prev_page = "Page précédente"
+next_page = "Page suivante"
+unreadable = "Ce sac à dos a été rempli par une autre version du serveur et ne peut pas être ouvert ici."
 
 [crafting.stations]
 name = "Tables portables !"
@@ -4772,6 +4779,15 @@ menu_open = "Cliquez pour consulter vos emplacements et leurs prérequis."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "Sac à dos"
+usage1 = "Clic droit pour l'ouvrir"
+usage2 = "Fabriquez-le seul dans une grille de fabrication pour changer son mode de rangement ; il doit d'abord être vide"
+mode_slots = "Mode cases : {slots} cases, une pile dans chacune"
+mode_bundle = "Mode balluchon : contient {stacks} piles de n'importe quel mélange d'objets"
+slots_used = "{used} cases sur {total} occupées"
+items_stored = "{used} objets sur {total} rangés"
 
 [items.bound_ender_peral]
 name = "Portoloin reliquaire"

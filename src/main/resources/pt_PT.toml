@@ -1567,7 +1567,7 @@ description = "Artesanato 100 couro de carne podre"
 
 [advancement.challenge_crafting_backpack_25]
 title = "Embalagem Rato"
-description = "Artesanato 25 pacotes"
+description = "Fabrica 25 mochilas"
 
 [advancement.challenge_crafting_stations_200]
 title = "Em curso"
@@ -4090,12 +4090,19 @@ lore = ["Basta atirar (carne podre) para a fogueira!"]
 
 [crafting.backpacks]
 name = "Mochilas de Boutilier!"
-description = "Isto simplesmente traz o Pacote do Mojang para o jogo!"
-lore1 = "Precisas de estar em Sobrevivencia para usar isto"
+description = "Fabrica uma mochila que guarda pilhas inteiras e abre como recipiente próprio."
+lore1 = "Clica com o botão direito na mochila para abrir o seu recipiente"
 lore2 = "LLL : Couro, Couro, Couro"
 lore3 = "LCL : Couro, Bau, Couro"
 lore4 = "LLL : Couro, Couro, Couro"
-lore = ["Precisas de estar em Sobrevivencia para usar isto", "LLL : Couro, Couro, Couro", "LCL : Couro, Bau, Couro", "LLL : Couro, Couro, Couro"]
+lore = ["Clica com o botão direito na mochila para abrir o seu recipiente", "LLL : Couro, Couro, Couro", "LCL : Couro, Bau, Couro", "LLL : Couro, Couro, Couro"]
+deny_nested = "Uma mochila não pode guardar outra mochila."
+deny_full = "Já não há espaço nesta mochila."
+cycle_needs_empty = "Esvazia a mochila antes de trocar o modo de armazenamento."
+page = "Página {page} de {pages}"
+prev_page = "Página anterior"
+next_page = "Página seguinte"
+unreadable = "Esta mochila foi cheia por outra versão do servidor e não pode ser aberta aqui."
 
 [crafting.stations]
 name = "Bancadas Portateis!"
@@ -4772,6 +4779,15 @@ menu_open = "Clique para ver seus slots e requisitos."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "Mochila"
+usage1 = "Clique com o botão direito para abrir"
+usage2 = "Fabrica-a sozinha numa grelha de fabrico para trocar o modo de armazenamento; primeiro tem de estar vazia"
+mode_slots = "Modo de espaços: {slots} espaços, uma pilha em cada"
+mode_bundle = "Modo de trouxa: leva {stacks} pilhas de qualquer mistura de itens"
+slots_used = "{used} de {total} espaços ocupados"
+items_stored = "{used} de {total} itens guardados"
 
 [items.bound_ender_peral]
 name = "Chave Portal do Relicario"

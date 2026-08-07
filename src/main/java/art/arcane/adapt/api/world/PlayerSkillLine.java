@@ -551,7 +551,7 @@ public class PlayerSkillLine {
   }
 
   public double getMaximumXPForLevel() {
-    return XP.getXpForLevel(getLevel());
+    return XP.getXpForLevel(getLevel() + 1);
   }
 
   public double getAbsoluteLevel() {

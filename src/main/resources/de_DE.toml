@@ -1567,7 +1567,7 @@ description = "Handwerklich 100-Leder aus verrotten Fleisch"
 
 [advancement.challenge_crafting_backpack_25]
 title = "Packratte"
-description = "Handwerk 25-Bündel"
+description = "Fertige 25 Rucksäcke"
 
 [advancement.challenge_crafting_stations_200]
 title = "Auf dem Weg"
@@ -4090,12 +4090,19 @@ lore = ["Wirf es (verrottetes Fleisch) einfach aufs Lagerfeuer!"]
 
 [crafting.backpacks]
 name = "Boutiliers Rucksäcke!"
-description = "Das bringt das Mojang-Bündel ins Spiel!"
-lore1 = "Du musst im Überlebensmodus sein, um dies zu nutzen"
+description = "Fertige einen Rucksack, der ganze Stapel verstaut und sich als eigener Behälter öffnet."
+lore1 = "Rechtsklicke den Rucksack, um seinen eigenen Behälter zu öffnen"
 lore2 = "LLL : Leder, Leder, Leder"
 lore3 = "LCL : Leder, Truhe, Leder"
 lore4 = "LLL : Leder, Leder, Leder"
-lore = ["Du musst im Überlebensmodus sein, um dies zu nutzen", "LLL : Leder, Leder, Leder", "LCL : Leder, Truhe, Leder", "LLL : Leder, Leder, Leder"]
+lore = ["Rechtsklicke den Rucksack, um seinen eigenen Behälter zu öffnen", "LLL : Leder, Leder, Leder", "LCL : Leder, Truhe, Leder", "LLL : Leder, Leder, Leder"]
+deny_nested = "Ein Rucksack kann keinen weiteren Rucksack aufnehmen."
+deny_full = "In diesem Rucksack ist kein Platz mehr."
+cycle_needs_empty = "Leere den Rucksack, bevor du seinen Speichermodus wechselst."
+page = "Seite {page} von {pages}"
+prev_page = "Vorherige Seite"
+next_page = "Nächste Seite"
+unreadable = "Dieser Rucksack wurde von einer anderen Serverversion gepackt und lässt sich hier nicht öffnen."
 
 [crafting.stations]
 name = "Tragbare Tische!"
@@ -4772,6 +4779,15 @@ menu_open = "Klicken Sie, um Ihre Slots und Anforderungen anzuzeigen."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "Rucksack"
+usage1 = "Rechtsklick zum Öffnen"
+usage2 = "Allein in einem Werkbankraster fertigen, um den Speichermodus zu wechseln; er muss vorher leer sein"
+mode_slots = "Fachmodus: {slots} Fächer, je ein Stapel"
+mode_bundle = "Bündelmodus: fasst {stacks} Stapel beliebig gemischter Gegenstände"
+slots_used = "{used} von {total} Fächern belegt"
+items_stored = "{used} von {total} Gegenständen verstaut"
 
 [items.bound_ender_peral]
 name = "Reliquien-Portschlüssel"

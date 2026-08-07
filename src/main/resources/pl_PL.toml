@@ -1567,7 +1567,7 @@ description = "Rzemiosło 100 skóra ze zgniłego mięsa"
 
 [advancement.challenge_crafting_backpack_25]
 title = "Pakuj Szczura"
-description = "Rzemiosło 25 pęczki"
+description = "Wytwórz 25 plecaków"
 
 [advancement.challenge_crafting_stations_200]
 title = "W drodze"
@@ -4090,12 +4090,19 @@ lore = ["Po prostu wrzuc to (zgnile mieso) na ognisko!"]
 
 [crafting.backpacks]
 name = "Plecaki Boutiliera!"
-description = "Wprowadza do gry pakiet Mojang!"
-lore1 = "Musisz byc w trybie Przetrwania aby tego uzywac"
+description = "Wytwórz plecak, który mieści całe stosy i otwiera się jako własny pojemnik."
+lore1 = "Kliknij plecak prawym, aby otworzyć jego pojemnik"
 lore2 = "LLL : Skora, Skora, Skora"
 lore3 = "LCL : Skora, Skrzynia, Skora"
 lore4 = "LLL : Skora, Skora, Skora"
-lore = ["Musisz byc w trybie Przetrwania aby tego uzywac", "LLL : Skora, Skora, Skora", "LCL : Skora, Skrzynia, Skora", "LLL : Skora, Skora, Skora"]
+lore = ["Kliknij plecak prawym, aby otworzyć jego pojemnik", "LLL : Skora, Skora, Skora", "LCL : Skora, Skrzynia, Skora", "LLL : Skora, Skora, Skora"]
+deny_nested = "Plecak nie pomieści innego plecaka."
+deny_full = "W tym plecaku nie ma już miejsca."
+cycle_needs_empty = "Opróżnij plecak, zanim zmienisz jego tryb przechowywania."
+page = "Strona {page} z {pages}"
+prev_page = "Poprzednia strona"
+next_page = "Następna strona"
+unreadable = "Ten plecak spakowano w innym wydaniu serwera i nie da się go tutaj otworzyć."
 
 [crafting.stations]
 name = "Przenosne Stoly!"
@@ -4772,6 +4779,15 @@ menu_open = "Kliknij, aby wyświetlić swoje szczeliny i wymagania."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "Plecak"
+usage1 = "Kliknij prawym, aby otworzyć"
+usage2 = "Wytwórz go samego w siatce wytwarzania, aby zmienić tryb przechowywania; najpierw musi być pusty"
+mode_slots = "Tryb miejsc: {slots} miejsc, w każdym jeden stos"
+mode_bundle = "Tryb sakwy: mieści {stacks} stosów dowolnie mieszanych przedmiotów"
+slots_used = "zajęte {used} z {total} miejsc"
+items_stored = "przechowywane {used} z {total} przedmiotów"
 
 [items.bound_ender_peral]
 name = "Relikwiarzowy Switoklin"

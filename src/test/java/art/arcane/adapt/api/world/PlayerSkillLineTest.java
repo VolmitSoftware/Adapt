@@ -108,4 +108,16 @@ class PlayerSkillLineTest extends AdaptTestBase {
 
         assertThat(line.getAdaptationLevel("testadapt")).isEqualTo(4);
     }
+
+    @Test
+    @DisplayName("xp for level up spans the current level and counts down toward the next")
+    void xpForLevelUpIsPositiveAndConsistent() {
+        PlayerSkillLine line = new PlayerSkillLine();
+
+        double span = line.getXPForLevelUp();
+        double remaining = line.getXPForLevelUpAbsolute();
+        assertThat(span).isGreaterThan(0D);
+        assertThat(remaining).isEqualTo(span);
+        assertThat(line.getMaximumXPForLevel()).isGreaterThan(line.getMinimumXPForLevel());
+    }
 }

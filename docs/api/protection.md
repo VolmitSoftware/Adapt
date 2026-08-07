@@ -408,6 +408,9 @@ third-party protector, whose default comes from your own `isEnabledByDefault()`.
 A built-in protector is only registered at all when its plugin is present, so these keys switch off support
 that would otherwise be active.
 
+`worldguard` additionally gates Adapt's four region flags for XP, power and temporary adaptation grants,
+which are not part of this SPI. See [worldguard-flags.md](../worldguard-flags.md).
+
 `[protectionOverrides]` adds or removes individual protectors for one adaptation, keyed by adaptation id
 and then by `getName()`:
 

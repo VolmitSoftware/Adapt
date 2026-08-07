@@ -23,6 +23,7 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.AdaptPermissionRegistrar;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.fx.Fx;
+import art.arcane.adapt.api.protection.RegionPolicyService;
 import art.arcane.adapt.api.runtime.AdaptationGate;
 import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import art.arcane.adapt.api.tick.TickedObject;
@@ -219,6 +220,7 @@ final class SkillRuntimeGuards {
     }
     try {
       xp *= XpNovelty.noveltyMultiplier(player, location, rewardKey);
+      xp = RegionPolicyService.adjustXp(xp, RegionPolicyService.resolve(player, location));
       if (!isValidXp(xp)) {
         return;
       }

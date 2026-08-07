@@ -34,6 +34,7 @@ import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.potion.BrewingManager;
 import art.arcane.adapt.api.projectile.ProjectileReplacementRegistry;
 import art.arcane.adapt.api.protection.ProtectorRegistry;
+import art.arcane.adapt.api.protection.RegionPolicyService;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
@@ -53,7 +54,9 @@ import art.arcane.adapt.content.protector.GriefDefenderProtector;
 import art.arcane.adapt.content.protector.GriefPreventionProtector;
 import art.arcane.adapt.content.protector.LocketteProProtector;
 import art.arcane.adapt.content.protector.ResidenceProtector;
+import art.arcane.adapt.content.protector.WorldGuardFlags;
 import art.arcane.adapt.content.protector.WorldGuardProtector;
+import art.arcane.adapt.content.protector.WorldGuardRegionPolicySource;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.SQLManager;
@@ -82,9 +85,6 @@ import de.slikey.effectlib.EffectManager;
 import fr.skytasul.glowingentities.GlowingEntities;
 import io.github.slimjar.app.builder.SpigotApplicationBuilder;
 import lombok.Getter;
-import org.bstats.bukkit.Metrics;
-import org.bstats.charts.SimplePie;
-import org.bstats.charts.SingleLineChart;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -152,7 +152,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   @Getter
   private VaultEconomy vaultEconomy;
   private volatile PlaceholderRegistration papiRegistration;
-  private Metrics metrics;
+  // AdaptMetrics owns all bstats types; never reference them from this class (slimjar link trap)
+  private AdaptMetrics metrics;
 
 
   public Adapt() {
@@ -409,7 +410,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   public void onLoad() {
     manager = new AdvancementManager();
     if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
-      WorldGuardProtector.registerFlag();
+      WorldGuardFlags.register();
     }
   }
 
@@ -440,7 +441,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     registerPapiExpansion();
     printInformation();
     sqlManager = new SQLManager();
-    if (AdaptConfig.get().isUseSql()) {
+    if (AdaptConfig.get().getSql().isEnabled()) {
       runStartupPhase("sql-connect", () -> {
         sqlManager.establishConnection();
         return null;
@@ -471,6 +472,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     protectorRegistry = new ProtectorRegistry();
     if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
       protectorRegistry.registerProtector(new WorldGuardProtector());
+      RegionPolicyService.install(new WorldGuardRegionPolicySource());
     }
     if (getServer().getPluginManager().getPlugin("Factions") != null) {
       protectorRegistry.registerProtector(new FactionsClaimProtector());
@@ -646,13 +648,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       services.values().forEach(AdaptService::onDisable);
     }
     if (metrics != null) {
-      try {
-        metrics.shutdown();
-      } catch (Throwable e) {
-        Adapt.verbose("Failed to shut down metrics: " + e.getMessage());
-      } finally {
-        metrics = null;
-      }
+      metrics.shutdown();
+      metrics = null;
     }
     stopSim();
     AdaptHud.stop();
@@ -683,6 +680,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     }
     AbilityApiBridge.uninstall();
     vaultEconomy = null;
+    RegionPolicyService.clear();
     if (protectorRegistry != null) {
       protectorRegistry.unregisterAll();
     }
@@ -737,7 +735,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (!AdaptConfig.get().isSplashScreen()) {
       return;
     }
-    String supportedMcVersion = "26.2";
+    String supportedMcVersion = "26.1-26.2";
     Random r = new Random();
     int game = r.nextInt(100);
     if (game < 90) {
@@ -769,33 +767,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       return;
     }
 
-    Metrics m = new Metrics(this, BSTATS_PLUGIN_ID);
-    metrics = m;
-    // Chart callables run on the bStats daemon thread; keep them off Bukkit world/entity state.
-    m.addCustomChart(new SingleLineChart("registered_skills", () -> SkillRegistry.skills.size()));
-    m.addCustomChart(new SingleLineChart("learned_adaptations", () -> {
-      Adapt adapt = Adapt.instance;
-      if (adapt == null) {
-        return null;
-      }
-
-      AdaptServer server = adapt.getAdaptServer();
-      if (server == null) {
-        return null;
-      }
-
-      return server.getLearnedAdaptationCount();
-    }));
-    m.addCustomChart(new SimplePie("storage_backend", () -> {
-      AdaptConfig config = AdaptConfig.get();
-      if (config.isUseRedis()) {
-        return "redis";
-      }
-
-      return config.isUseSql() ? "sql" : "json";
-    }));
-    m.addCustomChart(new SimplePie("custom_models", () -> String.valueOf(AdaptConfig.get().isCustomModels())));
-    m.addCustomChart(new SimplePie("advancements", () -> String.valueOf(AdaptConfig.get().isAdvancements())));
+    metrics = AdaptMetrics.start(this, BSTATS_PLUGIN_ID);
   }
 
 }

@@ -26,6 +26,8 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.notification.AdvancementNotification;
 import art.arcane.adapt.api.notification.Notifier;
+import art.arcane.adapt.api.protection.RegionGrantRuntime;
+import art.arcane.adapt.api.protection.RegionPolicyService;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
@@ -159,7 +161,7 @@ public class AdaptPlayer extends TickedObject {
     }
 
     boolean upload = false;
-    if (AdaptConfig.get().isUseSql()) {
+    if (AdaptConfig.get().getSql().isEnabled()) {
       if (Adapt.instance.getRedisSync() != null) {
         java.util.Optional<art.arcane.adapt.api.world.PlayerData> opt = Adapt.instance.getRedisSync().cachedData(uuid);
         if (opt.isPresent()) {
@@ -314,14 +316,14 @@ public class AdaptPlayer extends TickedObject {
       return;
     }
 
-    String json = this.data.toJson(AdaptConfig.get().isUseSql());
+    String json = this.data.toJson(AdaptConfig.get().getSql().isEnabled());
     PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
     if (queue != null) {
       queue.queueSave(uuid, json, playerDataFile);
       return;
     }
 
-    if (AdaptConfig.get().isUseSql()) {
+    if (AdaptConfig.get().getSql().isEnabled()) {
       if (Adapt.instance.getRedisSync() != null) {
         Adapt.instance.getRedisSync().publish(uuid, json);
       }
@@ -344,6 +346,8 @@ public class AdaptPlayer extends TickedObject {
       return;
     }
     runtimeReady = false;
+    data.stripRegionGrantedAdaptations();
+    data.setRegionPowerBonus(0);
     data.unbindRuntimeOwner(this);
     dirtyStats.clear();
     super.unregister();
@@ -387,9 +391,10 @@ public class AdaptPlayer extends TickedObject {
     long now = M.ms();
     Location playerLocation = null;
     if (now >= nextUpdateAt) {
-      if (data.isEffectsEnabled()) {
+      if (data.isEffectsEnabled() || RegionPolicyService.isActive()) {
         playerLocation = capturePosition();
       }
+      RegionGrantRuntime.refresh(this, playerLocation);
       getData().update(this);
       AdaptPlaceholders.get().publishPlayer(this);
       nextUpdateAt = now + UPDATE_INTERVAL_MS;
@@ -590,7 +595,7 @@ public class AdaptPlayer extends TickedObject {
     if (localFile.exists() && !localFile.delete()) {
       Adapt.verbose("Failed to delete local player data file " + localFile.getAbsolutePath());
     }
-    if (AdaptConfig.get().isUseSql() && Adapt.instance.getSqlManager() != null) {
+    if (AdaptConfig.get().getSql().isEnabled() && Adapt.instance.getSqlManager() != null) {
       Adapt.instance.getSqlManager().delete(uuid);
     }
   }

@@ -4,6 +4,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.volmlib.integration.VaultEconomy;
@@ -17,7 +18,11 @@ import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -167,6 +172,105 @@ class AdaptationLearningTransactionTest {
     assertThat(harness.level.get()).isZero();
   }
 
+  @Test
+  void learningOverARegionGrantChargesTheFullCostFromZeroAndClearsTheMarker() {
+    RegionHarness region = new RegionHarness();
+    VaultEconomy.Charge charge = mock(VaultEconomy.Charge.class);
+    when(region.economy.withdraw(region.player, 20D, "Adapt learning test-adaptation for null"))
+        .thenReturn(VaultEconomy.ChargeResult.success(charge));
+
+    AdaptationLearningTransaction.Result result =
+        AdaptationLearningTransaction.learn(region.adaptation, region.player, 1, false);
+
+    assertThat(result).isEqualTo(AdaptationLearningTransaction.Result.LEARNED);
+    assertThat(region.skillLine.getAdaptationLevel("test-adaptation")).isEqualTo(1);
+    assertThat(region.skillLine.getAdaptation("test-adaptation").isRegionGranted()).isFalse();
+    assertThat(region.skillLine.getKnowledge()).isEqualTo(RegionHarness.KNOWLEDGE - 10);
+    assertThat(region.skillLine.getStorage().get("vault-learning-refund-test-adaptation-level-1")).isEqualTo(10D);
+    verify(charge).commit();
+  }
+
+  @Test
+  void learningPastARegionGrantChargesEveryLevelFromZero() {
+    RegionHarness region = new RegionHarness();
+    VaultEconomy.Charge charge = mock(VaultEconomy.Charge.class);
+    when(region.economy.withdraw(region.player, 28D, "Adapt learning test-adaptation for null"))
+        .thenReturn(VaultEconomy.ChargeResult.success(charge));
+
+    AdaptationLearningTransaction.Result result =
+        AdaptationLearningTransaction.learn(region.adaptation, region.player, 2, false);
+
+    assertThat(result).isEqualTo(AdaptationLearningTransaction.Result.LEARNED);
+    assertThat(region.skillLine.getKnowledge()).isEqualTo(RegionHarness.KNOWLEDGE - 14);
+    assertThat(region.skillLine.getAdaptation("test-adaptation").isRegionGranted()).isFalse();
+    assertThat(region.skillLine.getStorage().get("vault-learning-refund-test-adaptation-level-1")).isEqualTo(10D);
+    assertThat(region.skillLine.getStorage().get("vault-learning-refund-test-adaptation-level-2")).isEqualTo(4D);
+    verify(charge).commit();
+  }
+
+  @Test
+  void anAdaptationLearnedOverARegionGrantCountsTowardUsedPower() {
+    RegionHarness region = new RegionHarness();
+    assertThat(region.data.getUsedPower()).isZero();
+    when(region.economy.withdraw(region.player, 20D, "Adapt learning test-adaptation for null"))
+        .thenReturn(VaultEconomy.ChargeResult.success(mock(VaultEconomy.Charge.class)));
+
+    AdaptationLearningTransaction.learn(region.adaptation, region.player, 1, false);
+
+    assertThat(region.data.getUsedPower()).isEqualTo(1);
+  }
+
+  @Test
+  void refundingAnAdaptationLearnedOverARegionGrantReturnsEverythingPaid() {
+    RegionHarness region = new RegionHarness();
+    when(region.economy.withdraw(region.player, 20D, "Adapt learning test-adaptation for null"))
+        .thenReturn(VaultEconomy.ChargeResult.success(mock(VaultEconomy.Charge.class)));
+    when(region.economy.deposit(region.player, 10D, "Adapt unlearning refund for test-adaptation and null"))
+        .thenReturn(true);
+    AdaptationLearningTransaction.learn(region.adaptation, region.player, 1, false);
+
+    AdaptationLearningTransaction.Result result =
+        AdaptationLearningTransaction.unlearn(region.adaptation, region.player, 0, false);
+
+    assertThat(result).isEqualTo(AdaptationLearningTransaction.Result.UNLEARNED);
+    assertThat(region.skillLine.getAdaptationLevel("test-adaptation")).isZero();
+    assertThat(region.skillLine.getKnowledge()).isEqualTo(RegionHarness.KNOWLEDGE);
+    assertThat(region.skillLine.getStorage()).doesNotContainKey("vault-learning-refund-test-adaptation-level-1");
+    verify(region.economy).deposit(region.player, 10D, "Adapt unlearning refund for test-adaptation and null");
+  }
+
+  @Test
+  void unlearningAnUntouchedRegionGrantRefundsNothing() {
+    RegionHarness region = new RegionHarness();
+
+    AdaptationLearningTransaction.Result result =
+        AdaptationLearningTransaction.unlearn(region.adaptation, region.player, 0, false);
+
+    assertThat(result).isEqualTo(AdaptationLearningTransaction.Result.UNLEARNED);
+    assertThat(region.skillLine.getAdaptation("test-adaptation")).isNull();
+    assertThat(region.skillLine.getKnowledge()).isEqualTo(RegionHarness.KNOWLEDGE);
+    verify(region.economy, never()).deposit(any(), anyDouble(), anyString());
+  }
+
+  @Test
+  void learningOverANormalLevelStillChargesOnlyTheDelta() {
+    RegionHarness region = new RegionHarness();
+    region.skillLine.getAdaptation("test-adaptation").setRegionGranted(false);
+    VaultEconomy.Charge charge = mock(VaultEconomy.Charge.class);
+    when(region.economy.withdraw(region.player, 8D, "Adapt learning test-adaptation for null"))
+        .thenReturn(VaultEconomy.ChargeResult.success(charge));
+
+    AdaptationLearningTransaction.Result result =
+        AdaptationLearningTransaction.learn(region.adaptation, region.player, 2, false);
+
+    assertThat(result).isEqualTo(AdaptationLearningTransaction.Result.LEARNED);
+    assertThat(region.skillLine.getKnowledge()).isEqualTo(RegionHarness.KNOWLEDGE - 4);
+    assertThat(region.skillLine.getStorage()).doesNotContainKey("vault-learning-refund-test-adaptation-level-1");
+    assertThat(region.skillLine.getStorage().get("vault-learning-refund-test-adaptation-level-2")).isEqualTo(4D);
+    assertThat(region.data.getUsedPower()).isEqualTo(2);
+    verify(charge).commit();
+  }
+
   private static void set(Object target, String fieldName, Object value) throws Exception {
     Field field = target.getClass().getDeclaredField(fieldName);
     field.setAccessible(true);
@@ -207,6 +311,51 @@ class AdaptationLearningTransactionTest {
         level.set(invocation.getArgument(1, Integer.class));
         return null;
       }).when(skillLine).setAdaptation(org.mockito.ArgumentMatchers.eq(adaptation), anyInt());
+    }
+  }
+
+  private static final class RegionHarness {
+    private static final long KNOWLEDGE = 500L;
+
+    private final Adapt plugin = mock(Adapt.class);
+    private final VaultEconomy economy = mock(VaultEconomy.class);
+    private final Player player = mock(Player.class);
+    private final Adaptation<?> adaptation = mock(Adaptation.class);
+    private final Skill<?> skill = mock(Skill.class);
+    private final AdaptPlayer adaptPlayer = mock(AdaptPlayer.class);
+    private final PlayerData data = new PlayerData();
+    private final PlayerSkillLine skillLine = new PlayerSkillLine();
+
+    private RegionHarness() {
+      when(plugin.getVaultEconomy()).thenReturn(economy);
+      when(economy.isAvailable()).thenReturn(true);
+      when(adaptation.getPlayer(player)).thenReturn(adaptPlayer);
+      doReturn(skill).when(adaptation).getSkill();
+      when(adaptation.getName()).thenReturn("test-adaptation");
+      when(adaptation.getMaxLevel()).thenReturn(5);
+      when(skill.getName()).thenReturn("test-skill");
+      when(adaptation.getCostFor(1, 0)).thenReturn(10);
+      when(adaptation.getCostFor(2, 0)).thenReturn(14);
+      when(adaptation.getCostFor(2, 1)).thenReturn(4);
+      when(adaptation.getCostFor(1)).thenReturn(10);
+      when(adaptation.getCostFor(2)).thenReturn(4);
+      when(adaptation.getPowerCostFor(1, 0)).thenReturn(1);
+      when(adaptation.getPowerCostFor(2, 0)).thenReturn(2);
+      when(adaptation.getPowerCostFor(2, 1)).thenReturn(1);
+      when(adaptation.getRefundCostFor(0, 1)).thenReturn(10);
+
+      skillLine.setLine("test-skill");
+      skillLine.setKnowledge(KNOWLEDGE);
+      PlayerAdaptation granted = new PlayerAdaptation();
+      granted.setId("test-adaptation");
+      granted.setLevel(1);
+      granted.setRegionGranted(true);
+      skillLine.getAdaptations().put("test-adaptation", granted);
+      data.getSkillLines().put("test-skill", skillLine);
+      data.setRegionPowerBonus(64);
+      when(adaptPlayer.getSkillLine("test-skill")).thenReturn(skillLine);
+      when(adaptPlayer.getData()).thenReturn(data);
+      Adapt.instance = plugin;
     }
   }
 }

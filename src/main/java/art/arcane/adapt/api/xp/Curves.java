@@ -64,7 +64,7 @@ public enum Curves {
   XL40L7(level -> ((40337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137),
   XL80L7(level -> ((80337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137),
   XL160L7(level -> ((160337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137),
-  XL100L7(level -> ((1000337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137),
+  XL100L7(level -> ((100337 * level) + Math.pow(level * 0.95, Math.PI)) / 1.137),
   ADAPT_BALANCED(resolved(
       level -> 1200 * level + 100 * Math.pow(level, 2),
       xp -> (-1200 + Math.sqrt(1440000 + 400 * xp)) / 200,
@@ -77,19 +77,10 @@ public enum Curves {
     return (-a + Math.sqrt(a * a + 4 * b * xp)) / (2 * b);
   }, 0.001)),
 
-  LINEAR_EXPONENTIAL_2(resolved(level -> 2000 * level + 50 * Math.pow(level, 2.5), xp -> {
-    double a = 2000;
-    double b = 50;
-    double lvl = (-a + Math.sqrt(a * a + 4 * b * xp)) / (2 * b);
-    return Math.pow((xp - a * lvl) / b, 1 / 2.5);
-  }, 0.001)),
+  // No closed-form inverse for a*L + b*L^p with non-integer p; the NewtonCurve bisection default resolves levels.
+  LINEAR_EXPONENTIAL_2(level -> 2000 * level + 50 * Math.pow(level, 2.5)),
 
-  LINEAR_EXPONENTIAL_3(resolved(level -> 500 * level + 200 * Math.pow(level, 1.5), xp -> {
-    double a = 500;
-    double b = 200;
-    double lvl = (-a + Math.sqrt(a * a + 4 * b * xp)) / (2 * b);
-    return Math.pow((xp - a * lvl) / b, 1 / 1.5);
-  }, 0.001));
+  LINEAR_EXPONENTIAL_3(level -> 500 * level + 200 * Math.pow(level, 1.5));
 
 
   @Getter

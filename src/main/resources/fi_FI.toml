@@ -1567,7 +1567,7 @@ description = "Alus 100 mädäntyneen lihan nahka"
 
 [advancement.challenge_crafting_backpack_25]
 title = "Pakkausrotta"
-description = "Alus 25 nippu"
+description = "Valmista 25 reppua"
 
 [advancement.challenge_crafting_stations_200]
 title = "Menossa"
@@ -4090,12 +4090,19 @@ lore = ["Heitä se (mätäliha) nuotiolle!"]
 
 [crafting.backpacks]
 name = "Boutilierin reput!"
-description = "Tämä tuo Mojangin nipun peliin!"
-lore1 = "Sinun on oltava selviytymistilassa käyttääksesi tätä"
+description = "Valmista reppu, joka säilyttää kokonaisia pinoja ja avautuu omana säiliönään."
+lore1 = "Avaa repun oma säiliö hiiren oikealla painikkeella"
 lore2 = "LLL : Nahka, nahka, nahka"
 lore3 = "LCL : Nahka, arkku, nahka"
 lore4 = "LLL : Nahka, nahka, nahka"
-lore = ["Sinun on oltava selviytymistilassa käyttääksesi tätä", "LLL : Nahka, nahka, nahka", "LCL : Nahka, arkku, nahka", "LLL : Nahka, nahka, nahka"]
+lore = ["Avaa repun oma säiliö hiiren oikealla painikkeella", "LLL : Nahka, nahka, nahka", "LCL : Nahka, arkku, nahka", "LLL : Nahka, nahka, nahka"]
+deny_nested = "Reppu ei voi säilyttää toista reppua."
+deny_full = "Tässä repussa ei ole enää tilaa."
+cycle_needs_empty = "Tyhjennä reppu ennen säilytystilan vaihtamista."
+page = "Sivu {page} / {pages}"
+prev_page = "Edellinen sivu"
+next_page = "Seuraava sivu"
+unreadable = "Tämä reppu on pakattu toisella palvelinversiolla, eikä sitä voi avata täällä."
 
 [crafting.stations]
 name = "Kannettavat pöydät!"
@@ -4772,6 +4779,15 @@ menu_open = "Klikkaa nähdäksesi lähtö- ja saapumisajat sekä vaatimukset."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "Reppu"
+usage1 = "Avaa hiiren oikealla painikkeella"
+usage2 = "Valmista se yksin valmistusruudukossa vaihtaaksesi säilytystilan; sen on oltava ensin tyhjä"
+mode_slots = "Lokerotila: {slots} lokeroa, kussakin yksi pino"
+mode_bundle = "Nyyttitila: vetää {stacks} pinollista mitä tahansa esineitä"
+slots_used = "{used} / {total} lokeroa käytössä"
+items_stored = "{used} / {total} esinettä säilössä"
 
 [items.bound_ender_peral]
 name = "Reliikki-avainportti"

@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.content.item.BackpackItem;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
@@ -88,6 +89,43 @@ class ArchitectSupplyLinePullTest {
     assertThat(ArchitectSupplyLine.isShulkerBox(Material.LIME_SHULKER_BOX)).isTrue();
     assertThat(ArchitectSupplyLine.isShulkerBox(Material.BUNDLE)).isFalse();
     assertThat(ArchitectSupplyLine.isShulkerBox(null)).isFalse();
+  }
+
+  @Test
+  void backpackRefillsPullFromASlotIndexedBackpackWithoutDisturbingItsLayout() {
+    ItemStack template = stack(Material.STONE, 1);
+    ItemStack unrelated = stack(Material.TORCH, 3);
+    ItemStack match = similar(Material.STONE, 16, template);
+    ItemStack[] slots = new ItemStack[]{null, unrelated, match, null};
+
+    BackpackItem.BackpackExtraction extraction = BackpackItem.extractMatching(slots, template);
+
+    assertThat(extraction).isNotNull();
+    assertThat(extraction.pulled()).isSameAs(match);
+    assertThat(extraction.remaining()).containsExactly(null, unrelated, null, null);
+  }
+
+  @Test
+  void backpackRefillsPullFromABundleModeHeapTheSameWay() {
+    ItemStack template = stack(Material.STONE, 1);
+    ItemStack first = similar(Material.STONE, 64, template);
+    ItemStack second = similar(Material.STONE, 8, template);
+    ItemStack[] heap = new ItemStack[]{first, second};
+
+    BackpackItem.BackpackExtraction extraction = BackpackItem.extractMatching(heap, template);
+
+    assertThat(extraction).isNotNull();
+    assertThat(extraction.pulled()).isSameAs(first);
+    assertThat(BackpackItem.compact(extraction.remaining())).containsExactly(second);
+  }
+
+  @Test
+  void backpackRefillsReportNothingWhenNoStoredStackMatches() {
+    ItemStack template = stack(Material.STONE, 1);
+
+    assertThat(BackpackItem.extractMatching(new ItemStack[]{stack(Material.TORCH, 1)}, template)).isNull();
+    assertThat(BackpackItem.extractMatching(new ItemStack[0], template)).isNull();
+    assertThat(BackpackItem.extractMatching(null, template)).isNull();
   }
 
   private static ItemStack stack(Material type, int amount) {

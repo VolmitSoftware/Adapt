@@ -55,14 +55,15 @@ class PlayerDataPersistenceQueueTest extends AdaptTestBase {
     UUID playerId = UUID.randomUUID();
     File target = new File(dataFolder, "captured-local.json");
     AdaptConfig config = mock(AdaptConfig.class);
+    AdaptConfig.SqlSettings sqlSettings = stubSqlSettings(config);
     SQLManager sqlManager = mock(SQLManager.class);
-    when(config.isUseSql()).thenReturn(false);
+    when(sqlSettings.isEnabled()).thenReturn(false);
     when(plugin.getSqlManager()).thenReturn(sqlManager);
 
     try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
       configured.when(AdaptConfig::get).thenReturn(config);
       queue.queueSave(playerId, "local", target);
-      when(config.isUseSql()).thenReturn(true);
+      when(sqlSettings.isEnabled()).thenReturn(true);
       executor.runNext();
     }
 
@@ -105,8 +106,9 @@ class PlayerDataPersistenceQueueTest extends AdaptTestBase {
     });
     UUID playerId = UUID.randomUUID();
     AdaptConfig config = mock(AdaptConfig.class);
+    AdaptConfig.SqlSettings sqlSettings = stubSqlSettings(config);
     SQLManager sqlManager = mock(SQLManager.class);
-    when(config.isUseSql()).thenReturn(true);
+    when(sqlSettings.isEnabled()).thenReturn(true);
     when(plugin.getSqlManager()).thenReturn(sqlManager);
     when(sqlManager.updateData(eq(playerId), anyString())).thenReturn(false, true);
 
@@ -162,8 +164,9 @@ class PlayerDataPersistenceQueueTest extends AdaptTestBase {
     PlayerDataPersistenceQueue queue = new PlayerDataPersistenceQueue(executor);
     UUID playerId = UUID.randomUUID();
     AdaptConfig config = mock(AdaptConfig.class);
+    AdaptConfig.SqlSettings sqlSettings = stubSqlSettings(config);
     SQLManager sqlManager = mock(SQLManager.class);
-    when(config.isUseSql()).thenReturn(true);
+    when(sqlSettings.isEnabled()).thenReturn(true);
     when(plugin.getSqlManager()).thenReturn(sqlManager);
     File localFile = new File(dataFolder, "unused.json");
 
@@ -192,8 +195,9 @@ class PlayerDataPersistenceQueueTest extends AdaptTestBase {
     recovered.addStat("recovered", 42D);
     Files.writeString(PlayerDataPersistenceQueue.sqlRecoveryFile(localFile).toPath(), recovered.toJson(true));
     AdaptConfig config = mock(AdaptConfig.class);
+    AdaptConfig.SqlSettings sqlSettings = stubSqlSettings(config);
     SQLManager sqlManager = mock(SQLManager.class);
-    when(config.isUseSql()).thenReturn(true);
+    when(sqlSettings.isEnabled()).thenReturn(true);
     when(plugin.getSqlManager()).thenReturn(sqlManager);
     when(plugin.getPlayerDataPersistenceQueue()).thenReturn(queue);
     when(plugin.getDataFolder(any(String[].class))).thenReturn(playerDirectory);
@@ -246,8 +250,9 @@ class PlayerDataPersistenceQueueTest extends AdaptTestBase {
     File playerFile = new File(playerDirectory, playerId + ".json");
     Files.writeString(playerFile.toPath(), "null");
     AdaptConfig config = mock(AdaptConfig.class);
+    AdaptConfig.SqlSettings sqlSettings = stubSqlSettings(config);
     SQLManager sqlManager = mock(SQLManager.class);
-    when(config.isUseSql()).thenReturn(true);
+    when(sqlSettings.isEnabled()).thenReturn(true);
     when(plugin.getSqlManager()).thenReturn(sqlManager);
     when(plugin.getDataFolder(any(String[].class))).thenReturn(playerDirectory);
 
@@ -260,6 +265,12 @@ class PlayerDataPersistenceQueueTest extends AdaptTestBase {
       verify(sqlManager).fetchData(playerId);
       verify(sqlManager, never()).updateData(eq(playerId), anyString());
     }
+  }
+
+  private static AdaptConfig.SqlSettings stubSqlSettings(AdaptConfig config) {
+    AdaptConfig.SqlSettings sqlSettings = mock(AdaptConfig.SqlSettings.class);
+    when(config.getSql()).thenReturn(sqlSettings);
+    return sqlSettings;
   }
 
   private static final class CapturingExecutor extends AbstractExecutorService {

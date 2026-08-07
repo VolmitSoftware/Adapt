@@ -20,43 +20,22 @@ public final class ConfigDocumentation {
       Map.entry(
           "language",
           "Locale used for in-game text; non-English locales ship bundled in the jar."
-              + " languages/en_US.toml is a regenerated reference only, so put edits in"
-              + " languages/overrides/<locale>.toml."
+              + " languages/en_US.toml and, for a non-English language, languages/<locale>.toml are"
+              + " regenerated references only, so put edits in languages/overrides/<locale>.toml."
       ),
       Map.entry("autoUpdateCheck", "Checks for plugin updates during startup."),
       Map.entry("metrics", "Sends anonymous bStats usage metrics."),
       Map.entry("xpInCreative", "Allows skill xp gain while players are in creative or spectator."),
       Map.entry("allowAdaptationsInCreative", "Allows using adaptations in creative mode."),
       Map.entry("blacklistedWorlds", "World folder names where Adapt logic is disabled."),
-      Map.entry("experienceMaxLevel", "Global maximum level cap for skill progression."),
       Map.entry("adaptActivatorBlock", "Block type players right-click to open the skills UI."),
       Map.entry("adaptActivatorBlockName", "Display name used in UI text for the activator block."),
       Map.entry("customModels", "Enables custom model lookups from the models config."),
       Map.entry("advancements", "Enables Adapt advancement registration and grant flow."),
       Map.entry("loginBonus", "Grants the configured login bonus message/rewards."),
-      Map.entry("welcomeMessage", "Shows the Adapt welcome message when players join."),
-      Map.entry("useSql", "Uses SQL as the player data backend."),
-      Map.entry("useRedis", "Enables Redis synchronization when SQL is active.")
+      Map.entry("welcomeMessage", "Shows the Adapt welcome message when players join.")
   );
 
-  private static final Map<String, String> IMPACT_BY_KEY = Map.ofEntries(
-      Map.entry("enabled", "Set to false to disable behavior without uninstalling files."),
-      Map.entry("permanent", "True removes the normal learn/unlearn flow and treats it as always learned."),
-      Map.entry("baseCost", "Higher values make each level cost more knowledge."),
-      Map.entry("initialCost", "Higher values make unlocking the first level more expensive."),
-      Map.entry("costFactor", "Higher values increase level-to-level cost growth."),
-      Map.entry("maxLevel", "Higher values allow more levels; lower values cap progression sooner."),
-      Map.entry("setInterval", "Lower values run logic more often; higher values run it less often."),
-      Map.entry("minXp", "Higher values delay when this skill starts applying."),
-      Map.entry("metrics", "Set to false to opt out of bStats telemetry."),
-      Map.entry("xpInCreative", "Set to true if you want creative/spectator players to gain xp."),
-      Map.entry("allowAdaptationsInCreative", "Set to true to let creative players trigger adaptations."),
-      Map.entry("experienceMaxLevel", "Higher values raise the hard cap for skill leveling."),
-      Map.entry("customModels", "Set to false to disable all custom model assignments."),
-      Map.entry("advancements", "Set to false to disable advancement creation and toast notifications."),
-      Map.entry("useSql", "Switching this changes where player data is loaded/saved."),
-      Map.entry("useRedis", "Requires SQL support and Redis credentials to synchronize across servers.")
-  );
   private static final Set<String> ALWAYS_VISIBLE_KEYS = Set.of(
       "enabled",
       "permanent",
@@ -77,20 +56,20 @@ public final class ConfigDocumentation {
     ConfigDoc annotation = field.getAnnotation(ConfigDoc.class);
     String key = field.getName();
     String summary;
-    String impact;
+    String impact = "";
 
     if (annotation != null) {
       summary = annotation.value().strip();
-      impact = annotation.impact().strip();
       if (isGenericSummary(summary)) {
         summary = defaultSummary(sourceTag, path, field);
       }
-      if (impact.isBlank() || isGenericImpact(impact)) {
-        impact = defaultImpact(field, value);
+
+      String annotatedImpact = annotation.impact().strip();
+      if (!isGenericImpact(annotatedImpact)) {
+        impact = annotatedImpact;
       }
     } else {
       summary = SUMMARY_BY_KEY.getOrDefault(key, defaultSummary(sourceTag, path, field));
-      impact = IMPACT_BY_KEY.getOrDefault(key, defaultImpact(field, value));
     }
 
     if (summary != null && !summary.isBlank()) {
@@ -213,54 +192,6 @@ public final class ConfigDocumentation {
       return "Controls " + label + " in the " + path + " section.";
     }
     return "Controls " + label + ".";
-  }
-
-  private static String defaultImpact(Field field, Object value) {
-    Class<?> type = field.getType();
-    String lower = field.getName().toLowerCase(Locale.ROOT);
-    if (type == boolean.class || type == Boolean.class) {
-      return "True enables this behavior and false disables it.";
-    }
-    if (lower.contains("chance")) {
-      return "Use values near 0.0-1.0; higher values trigger more often.";
-    }
-    if (lower.contains("cooldown")) {
-      return "Higher values increase time between activations; lower values allow more frequent triggers.";
-    }
-    if (lower.contains("xp")) {
-      return "Higher values grant more progression; lower values slow progression.";
-    }
-    if (lower.contains("multiplier") || lower.contains("factor") || lower.contains("scalar")) {
-      return "Higher values scale the effect more strongly; lower values scale it down.";
-    }
-    if (lower.contains("duration") || lower.contains("ticks") || lower.contains("millis") || lower.endsWith("ms")) {
-      return "Higher values make the effect last longer; lower values shorten it.";
-    }
-    if (lower.contains("radius") || lower.contains("range") || lower.contains("distance")) {
-      return "Higher values affect a wider area; lower values keep the effect tighter.";
-    }
-    if (lower.startsWith("min") || lower.contains("threshold")) {
-      return "Higher values make activation stricter; lower values make it easier to trigger.";
-    }
-    if (lower.startsWith("max") || lower.contains("cap")) {
-      return "Higher values raise the upper limit; lower values clamp the effect sooner.";
-    }
-    if (Number.class.isAssignableFrom(type) || type.isPrimitive() && type != boolean.class && type != char.class) {
-      return "Higher values increase intensity or limits; lower values reduce them.";
-    }
-    if (type.isEnum()) {
-      return "Changing this selects a different operating mode.";
-    }
-    if (type == String.class || type == char.class || type == Character.class) {
-      return "Changing this alters the identifier or text used by the feature.";
-    }
-    if (value instanceof List<?>) {
-      return "Add or remove entries to control which values are included.";
-    }
-    if (value instanceof Map<?, ?>) {
-      return "Edit entries to control per-key overrides for this feature.";
-    }
-    return "";
   }
 
   private static boolean isGenericSummary(String summary) {

@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.content.item.BackpackItem;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -170,8 +171,9 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
   }
 
   /**
-   * Loose stacks first, then bundles, then shulker boxes. Loose stacks are what
-   * a player expects to consume next, containers are the deep supply.
+   * Loose stacks first, then bundles, then Adapt backpacks, then shulker boxes.
+   * Loose stacks are what a player expects to consume next, containers are the
+   * deep supply.
    */
   private ItemStack pullMatching(Player p, ItemStack template) {
     ItemStack[] contents = p.getInventory().getStorageContents();
@@ -189,6 +191,9 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
 
       ItemStack pulled = pullFromBundle(candidate, template);
       if (pulled == null) {
+        pulled = pullFromBackpack(candidate, template);
+      }
+      if (pulled == null) {
         pulled = pullFromShulker(candidate, template);
       }
 
@@ -198,6 +203,47 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
     }
 
     return null;
+  }
+
+  /**
+   * Mode agnostic: both backpack storage models keep an ordinary stack array,
+   * so a refill never has to know whether the backpack is in slot or bundle
+   * mode. An unreadable payload is left completely untouched.
+   */
+  private ItemStack pullFromBackpack(ItemStack container, ItemStack template) {
+    if (!BackpackItem.isBackpack(container)) {
+      return null;
+    }
+
+    ItemStack[] stored;
+    try {
+      stored = BackpackItem.readContents(container);
+    } catch (IllegalStateException unreadable) {
+      return null;
+    }
+
+    BackpackItem.BackpackExtraction extraction = BackpackItem.extractMatching(stored, template);
+    if (extraction == null) {
+      return null;
+    }
+
+    BackpackItem.Data data = BackpackItem.dataOf(container);
+    ItemStack[] remaining = BackpackItem.modeOf(container) == BackpackItem.Mode.BUNDLE
+        ? BackpackItem.compact(extraction.remaining())
+        : extraction.remaining();
+    BackpackItem.write(
+        container,
+        BackpackItem.Data.of(
+            data.getId(),
+            BackpackItem.Mode.parse(data.getMode()),
+            data.getCapacity(),
+            BackpackItem.modeOf(container) == BackpackItem.Mode.BUNDLE
+                ? BackpackItem.heapWeight(BackpackItem.readHeap(remaining))
+                : BackpackItem.countStored(remaining)
+        ),
+        remaining
+    );
+    return extraction.pulled();
   }
 
   private ItemStack pullFromShulker(ItemStack container, ItemStack template) {

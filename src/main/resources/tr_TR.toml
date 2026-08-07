@@ -1567,7 +1567,7 @@ description = "zanaatkar 100 Deriden çürük et"
 
 [advancement.challenge_crafting_backpack_25]
 title = "Pack Rat"
-description = "zanaatkar 25 paketler"
+description = "25 sırt çantası üret"
 
 [advancement.challenge_crafting_stations_200]
 title = "Go"
@@ -4090,12 +4090,19 @@ lore = ["Sadece onu (curuk eti) kamp atesine atin!"]
 
 [crafting.backpacks]
 name = "Boutilier'in Sirt Cantalari!"
-description = "Bu sadece Mojang Paketini oyuna getiriyor!"
-lore1 = "Bunu kullanmak icin Hayatta Kalma modunda olmalisiniz"
+description = "Tam yığınları saklayan ve kendi sandığı gibi açılan bir sırt çantası üret."
+lore1 = "Kendi sandığını açmak için sırt çantasına sağ tıkla"
 lore2 = "LLL : Deri, Deri, Deri"
 lore3 = "LCL : Deri, Sandik, Deri"
 lore4 = "LLL : Deri, Deri, Deri"
-lore = ["Bunu kullanmak icin Hayatta Kalma modunda olmalisiniz", "LLL : Deri, Deri, Deri", "LCL : Deri, Sandik, Deri", "LLL : Deri, Deri, Deri"]
+lore = ["Kendi sandığını açmak için sırt çantasına sağ tıkla", "LLL : Deri, Deri, Deri", "LCL : Deri, Sandik, Deri", "LLL : Deri, Deri, Deri"]
+deny_nested = "Bir sırt çantası başka bir sırt çantasını alamaz."
+deny_full = "Bu sırt çantasında yer kalmadı."
+cycle_needs_empty = "Depolama kipini değiştirmeden önce sırt çantasını boşalt."
+page = "Sayfa {page} / {pages}"
+prev_page = "Önceki sayfa"
+next_page = "Sonraki sayfa"
+unreadable = "Bu sırt çantası başka bir sunucu sürümüyle dolduruldu ve burada açılamaz."
 
 [crafting.stations]
 name = "Portatif Masalar!"
@@ -4772,6 +4779,15 @@ menu_open = "Evlerinizi ve gereksinimlerinizi görmek için tıklayın."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "Sırt çantası"
+usage1 = "Açmak için sağ tıkla"
+usage2 = "Depolama kipini değiştirmek için tek başına bir üretim ızgarasında üret; önce boş olmalı"
+mode_slots = "Göz kipi: {slots} göz, her gözde bir yığın"
+mode_bundle = "Bohça kipi: karışık eşyalardan {stacks} yığın kadar alır"
+slots_used = "{total} gözden {used} tanesi dolu"
+items_stored = "{total} eşyadan {used} tanesi saklı"
 
 [items.bound_ender_peral]
 name = "Emanet Anahtari"

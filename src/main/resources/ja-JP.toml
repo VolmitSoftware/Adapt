@@ -1567,7 +1567,7 @@ description = "腐った肉から革を100個クラフトする"
 
 [advancement.challenge_crafting_backpack_25]
 title = "パックラット"
-description = "バンドルを25個クラフトする"
+description = "バックパックを25個作る"
 
 [advancement.challenge_crafting_stations_200]
 title = "どこでも作業"
@@ -4090,12 +4090,19 @@ lore = ["腐った肉を焚き火に乗せるだけ！"]
 
 [crafting.backpacks]
 name = "ブティリエのバックパック！"
-description = "Mojangのバンドルをゲームに導入！"
-lore1 = "サバイバルモードでのみ使用可能"
+description = "スタックごとしまえて、それ自体が容器として開くバックパックを作れます。"
+lore1 = "バックパックを右クリックすると専用の容器が開きます"
 lore2 = "LLL：革、革、革"
 lore3 = "LCL：革、チェスト、革"
 lore4 = "LLL：革、革、革"
-lore = ["サバイバルモードでのみ使用可能", "LLL：革、革、革", "LCL：革、チェスト、革", "LLL：革、革、革"]
+lore = ["バックパックを右クリックすると専用の容器が開きます", "LLL：革、革、革", "LCL：革、チェスト、革", "LLL：革、革、革"]
+deny_nested = "バックパックの中に別のバックパックは入りません。"
+deny_full = "このバックパックにはもう空きがありません。"
+cycle_needs_empty = "保管方式を切り替える前にバックパックを空にしてください。"
+page = "{pages} ページ中 {page} ページ目"
+prev_page = "前のページ"
+next_page = "次のページ"
+unreadable = "このバックパックは別の版のサーバーで詰められたため、ここでは開けません。"
 
 [crafting.stations]
 name = "ポータブルテーブル！"
@@ -4772,6 +4779,15 @@ menu_open = "クリックして、スロットと要件を表示."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "バックパック"
+usage1 = "右クリックで開く"
+usage2 = "作業枠に単体で置いて作ると保管方式を切り替えられます。先に中身を空にしてください"
+mode_slots = "枠方式: {slots} 枠、各枠に1スタック"
+mode_bundle = "束方式: 好きな品物を合わせて {stacks} スタック分まで入る"
+slots_used = "{used} / {total} 枠使用中"
+items_stored = "{used} / {total} 個を保管中"
 
 [items.bound_ender_peral]
 name = "聖遺物ポートキー"

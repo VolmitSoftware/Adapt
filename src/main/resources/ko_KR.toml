@@ -1567,7 +1567,7 @@ description = "썩은 살점으로 가죽 100개를 제작하세요"
 
 [advancement.challenge_crafting_backpack_25]
 title = "팩 쥐"
-description = "꾸러미 25개를 제작하세요"
+description = "배낭 25개 만들기"
 
 [advancement.challenge_crafting_stations_200]
 title = "이동 작업"
@@ -4090,12 +4090,19 @@ lore = ["모닥불 위에 (썩은 살점을) 올려놓기만 하면 됩니다!"]
 
 [crafting.backpacks]
 name = "부틸리에의 배낭!"
-description = "모장의 묶음을 게임에 추가합니다!"
-lore1 = "사용하려면 서바이벌 모드여야 합니다"
+description = "묶음을 통째로 담고 그 자체가 상자처럼 열리는 배낭을 만듭니다."
+lore1 = "배낭을 우클릭하면 전용 상자가 열립니다"
 lore2 = "LLL : 가죽, 가죽, 가죽"
 lore3 = "LCL : 가죽, 상자, 가죽"
 lore4 = "LLL : 가죽, 가죽, 가죽"
-lore = ["사용하려면 서바이벌 모드여야 합니다", "LLL : 가죽, 가죽, 가죽", "LCL : 가죽, 상자, 가죽", "LLL : 가죽, 가죽, 가죽"]
+lore = ["배낭을 우클릭하면 전용 상자가 열립니다", "LLL : 가죽, 가죽, 가죽", "LCL : 가죽, 상자, 가죽", "LLL : 가죽, 가죽, 가죽"]
+deny_nested = "배낭 안에 다른 배낭을 넣을 수 없습니다."
+deny_full = "이 배낭에는 더 이상 자리가 없습니다."
+cycle_needs_empty = "보관 방식을 바꾸기 전에 배낭을 비우세요."
+page = "{pages}쪽 중 {page}쪽"
+prev_page = "이전 쪽"
+next_page = "다음 쪽"
+unreadable = "이 배낭은 다른 서버 판본에서 채워져 여기서는 열 수 없습니다."
 
 [crafting.stations]
 name = "휴대용 작업대!"
@@ -4772,6 +4779,15 @@ menu_open = "클릭하여 슬롯과 요구 조건을 확인하세요."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "배낭"
+usage1 = "우클릭하여 열기"
+usage2 = "제작 격자에 혼자 놓고 만들면 보관 방식이 바뀝니다. 먼저 비워야 합니다"
+mode_slots = "칸 방식: {slots}칸, 칸마다 한 묶음"
+mode_bundle = "꾸러미 방식: 아무 물건이나 섞어 {stacks}묶음 분량까지 담습니다"
+slots_used = "{used} / {total}칸 사용"
+items_stored = "{used} / {total}개 보관"
 
 [items.bound_ender_peral]
 name = "유물 포트키"

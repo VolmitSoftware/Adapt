@@ -1567,7 +1567,7 @@ description = "Artesanía 100 cuero de carne podrida"
 
 [advancement.challenge_crafting_backpack_25]
 title = "Acaparador"
-description = "Artesanía 25 paquetes"
+description = "Fabrica 25 mochilas"
 
 [advancement.challenge_crafting_stations_200]
 title = "En marcha"
@@ -4090,12 +4090,19 @@ lore = ["¡Solo tirala (carne podrida) en la fogata!"]
 
 [crafting.backpacks]
 name = "¡Mochilas de Boutilier!"
-description = "¡Esto simplemente trae el Bundle de Mojang al juego!"
-lore1 = "Necesitas estar en Supervivencia para usar esto"
+description = "Fabrica una mochila que guarda pilas enteras y se abre como su propio contenedor."
+lore1 = "Haz clic derecho en la mochila para abrir su propio contenedor"
 lore2 = "LLL : Cuero, Cuero, Cuero"
 lore3 = "LCL : Cuero, Cofre, Cuero"
 lore4 = "LLL : Cuero, Cuero, Cuero"
-lore = ["Necesitas estar en Supervivencia para usar esto", "LLL : Cuero, Cuero, Cuero", "LCL : Cuero, Cofre, Cuero", "LLL : Cuero, Cuero, Cuero"]
+lore = ["Haz clic derecho en la mochila para abrir su propio contenedor", "LLL : Cuero, Cuero, Cuero", "LCL : Cuero, Cofre, Cuero", "LLL : Cuero, Cuero, Cuero"]
+deny_nested = "Una mochila no puede guardar otra mochila."
+deny_full = "Ya no queda espacio en esta mochila."
+cycle_needs_empty = "Vacía la mochila antes de cambiar su modo de almacenamiento."
+page = "Página {page} de {pages}"
+prev_page = "Página anterior"
+next_page = "Página siguiente"
+unreadable = "Esta mochila se empaquetó con otra versión del servidor y no se puede abrir aquí."
 
 [crafting.stations]
 name = "¡Mesas Portatiles!"
@@ -4772,6 +4779,15 @@ menu_open = "Haz clic para ver tus ranuras y requisitos."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "Mochila"
+usage1 = "Clic derecho para abrirla"
+usage2 = "Fabrícala sola en una cuadrícula de fabricación para cambiar su modo de almacenamiento; antes debe estar vacía"
+mode_slots = "Modo casillas: {slots} casillas, una pila en cada una"
+mode_bundle = "Modo saco: guarda {stacks} pilas de cualquier mezcla de objetos"
+slots_used = "{used} de {total} casillas ocupadas"
+items_stored = "{used} de {total} objetos guardados"
 
 [items.bound_ender_peral]
 name = "Traslador Relicario"

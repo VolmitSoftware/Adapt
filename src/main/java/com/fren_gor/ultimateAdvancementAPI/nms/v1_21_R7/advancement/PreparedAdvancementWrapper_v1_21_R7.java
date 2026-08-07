@@ -6,7 +6,6 @@ import com.fren_gor.ultimateAdvancementAPI.nms.wrappers.advancement.AdvancementD
 import com.fren_gor.ultimateAdvancementAPI.nms.wrappers.advancement.AdvancementWrapper;
 import com.fren_gor.ultimateAdvancementAPI.nms.wrappers.advancement.PreparedAdvancementWrapper;
 import net.minecraft.advancements.AdvancementRequirements;
-import net.minecraft.advancements.triggers.Criterion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -15,7 +14,7 @@ import java.util.Map;
 public class PreparedAdvancementWrapper_v1_21_R7 extends PreparedAdvancementWrapper {
     private final MinecraftKeyWrapper key;
     private final AdvancementDisplayWrapper display;
-    private final Map<String, Criterion<?>> advCriteria;
+    private final Map<String, Object> advCriteria;
     private final AdvancementRequirements advRequirements;
 
     public PreparedAdvancementWrapper_v1_21_R7(@NotNull MinecraftKeyWrapper key, @NotNull AdvancementDisplayWrapper display, @Range(from = 1, to = Integer.MAX_VALUE) int maxProgression) {

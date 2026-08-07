@@ -123,6 +123,12 @@ public class PlayerData {
   private String inspiredSkill = "";
   private long inspiredAssignedAt = 0;
   private PlayerMutationData mutationData = new PlayerMutationData();
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient volatile int regionPowerBonus;
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient volatile int regionGrantedCount;
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
   private transient boolean inspiredPopupPending;
@@ -143,6 +149,7 @@ public class PlayerData {
     data.removeRetiredDowsingContent();
     data.removeRetiredRiftStepContent();
     data.removeRetiredParkourMomentumContent();
+    data.stripRegionGrantedAdaptations();
     return data;
   }
 
@@ -321,7 +328,8 @@ public class PlayerData {
       return 1D;
     }
 
-    double best = 1D;
+    boolean stack = settings.isStack();
+    double resolved = 1D;
     boolean matched = false;
     for (Map.Entry<String, Double> entry : nodes.entrySet()) {
       String node = entry.getKey();
@@ -334,13 +342,19 @@ public class PlayerData {
         continue;
       }
 
-      if (!matched || value > best) {
-        best = value;
+      if (stack) {
+        resolved *= value;
+        matched = true;
+        continue;
+      }
+
+      if (!matched || value > resolved) {
+        resolved = value;
         matched = true;
       }
     }
 
-    return best;
+    return resolved;
   }
 
   private double collectActivePlayerMultiplierBonus() {
@@ -398,7 +412,7 @@ public class PlayerData {
       }
 
       for (PlayerAdaptation adaptation : line.getAdaptations().values()) {
-        if (adaptation == null) {
+        if (adaptation == null || adaptation.isRegionGranted()) {
           continue;
         }
         usedPower += adaptation.getLevel();
@@ -412,7 +426,33 @@ public class PlayerData {
   }
 
   public int getMaxPower() {
-    return (int) (XP.getLevelForXp(getMasterXp()) * AdaptConfig.get().getPowerPerLevel());
+    int earned = (int) (XP.getLevelForXp(getMasterXp()) * AdaptConfig.get().getPowerPerLevel());
+    return Math.max(0, earned + regionPowerBonus);
+  }
+
+  public int stripRegionGrantedAdaptations() {
+    int stripped = 0;
+    for (PlayerSkillLine line : skillLines.values()) {
+      if (line == null) {
+        continue;
+      }
+
+      for (String adaptationName : line.getAdaptations().k()) {
+        PlayerAdaptation adaptation = line.getAdaptations().get(adaptationName);
+        if (adaptation == null || !adaptation.isRegionGranted()) {
+          continue;
+        }
+
+        line.getAdaptations().remove(adaptationName);
+        stripped++;
+      }
+    }
+
+    regionGrantedCount = 0;
+    if (stripped > 0) {
+      refreshLearnedIndex();
+    }
+    return stripped;
   }
 
   public PlayerSkillLine getSkillLine(String skillLine) {
@@ -647,6 +687,7 @@ public class PlayerData {
     inspiredSkill = "";
     inspiredAssignedAt = 0;
     inspiredPopupPending = false;
+    regionGrantedCount = 0;
     refreshLearnedIndex();
   }
 
@@ -660,6 +701,7 @@ public class PlayerData {
     for (PlayerSkillLine line : skillLines.values()) {
       line.getAdaptations().clear();
     }
+    regionGrantedCount = 0;
     refreshLearnedIndex();
   }
 
@@ -701,6 +743,10 @@ public class PlayerData {
 
       for (java.util.Map.Entry<java.lang.String, art.arcane.adapt.api.world.PlayerSkillLine> skillEntry : skillLines.entrySet()) {
         for (java.util.Map.Entry<java.lang.String, art.arcane.adapt.api.world.PlayerAdaptation> adaptEntry : skillEntry.getValue().getAdaptations().entrySet()) {
+          if (adaptEntry.getValue().isRegionGranted()) {
+            continue;
+          }
+
           int level = adaptEntry.getValue().getLevel();
           if (level > 0 && level < worstLevel) {
             worstLevel = level;

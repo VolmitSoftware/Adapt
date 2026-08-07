@@ -1567,7 +1567,7 @@ description = "Ambacht 100 leder van verrot vlees"
 
 [advancement.challenge_crafting_backpack_25]
 title = "Pakrat"
-description = "Ambacht 25 bundels"
+description = "Maak 25 rugzakken"
 
 [advancement.challenge_crafting_stations_200]
 title = "Onderweg"
@@ -4090,12 +4090,19 @@ lore = ["Gooi het (rottend vlees) gewoon op het kampvuur!"]
 
 [crafting.backpacks]
 name = "De Rugzakken van een Boutilier!"
-description = "Dit brengt gewoon de Mojang Bundel in het spel!"
-lore1 = "Je moet in Survival zijn om dit te gebruiken"
+description = "Maak een rugzak die hele stapels opbergt en als eigen houder opengaat."
+lore1 = "Rechtsklik de rugzak om zijn eigen houder te openen"
 lore2 = "LLL : Leer, Leer, Leer"
 lore3 = "LCL : Leer, Kist, Leer"
 lore4 = "LLL : Leer, Leer, Leer"
-lore = ["Je moet in Survival zijn om dit te gebruiken", "LLL : Leer, Leer, Leer", "LCL : Leer, Kist, Leer", "LLL : Leer, Leer, Leer"]
+lore = ["Rechtsklik de rugzak om zijn eigen houder te openen", "LLL : Leer, Leer, Leer", "LCL : Leer, Kist, Leer", "LLL : Leer, Leer, Leer"]
+deny_nested = "Een rugzak kan geen tweede rugzak bevatten."
+deny_full = "Er is geen ruimte meer in deze rugzak."
+cycle_needs_empty = "Maak de rugzak leeg voordat je de opslagwijze wisselt."
+page = "Pagina {page} van {pages}"
+prev_page = "Vorige pagina"
+next_page = "Volgende pagina"
+unreadable = "Deze rugzak is ingepakt door een andere serverversie en kan hier niet worden geopend."
 
 [crafting.stations]
 name = "Draagbare Tafels!"
@@ -4772,6 +4779,15 @@ menu_open = "Klik om uw slots en vereisten te bekijken."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "Rugzak"
+usage1 = "Rechtsklik om hem te openen"
+usage2 = "Maak hem alleen in een maakraster om de opslagwijze te wisselen; hij moet eerst leeg zijn"
+mode_slots = "Vakmodus: {slots} vakken, in elk vak een stapel"
+mode_bundle = "Buidelmodus: bevat {stacks} stapels aan willekeurig gemengde voorwerpen"
+slots_used = "{used} van {total} vakken bezet"
+items_stored = "{used} van {total} voorwerpen opgeborgen"
 
 [items.bound_ender_peral]
 name = "Reliekschrijn Portkey"

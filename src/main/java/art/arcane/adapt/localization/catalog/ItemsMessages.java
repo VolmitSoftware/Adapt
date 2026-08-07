@@ -8,6 +8,13 @@ import art.arcane.volmlib.util.localization.TextKey;
 import java.util.Map;
 
 public final class ItemsMessages {
+  public static final TextKey BACKPACK_NAME = TextKey.of("items.backpack.name", "Backpack");
+  public static final TextKey BACKPACK_USAGE1 = TextKey.of("items.backpack.usage1", "Right-click to open");
+  public static final TextKey BACKPACK_USAGE2 = TextKey.of("items.backpack.usage2", "Craft alone while empty to switch mode");
+  public static final TextKey BACKPACK_MODE_SLOTS = TextKey.of("items.backpack.mode_slots", "Slot mode: {slots} slots");
+  public static final TextKey BACKPACK_MODE_BUNDLE = TextKey.of("items.backpack.mode_bundle", "Bundle mode: {stacks} stacks, any items");
+  public static final TextKey BACKPACK_SLOTS_USED = TextKey.of("items.backpack.slots_used", "{used} of {total} slots used");
+  public static final TextKey BACKPACK_ITEMS_STORED = TextKey.of("items.backpack.items_stored", "{used} of {total} items stored");
   public static final TextKey BOUND_ENDER_PERAL_NAME = TextKey.of("items.bound_ender_peral.name", "Reliquary Portkey");
   public static final TextKey BOUND_ENDER_PERAL_USAGE1 = TextKey.of("items.bound_ender_peral.usage1", "Shift + Left Click to bind");
   public static final TextKey BOUND_ENDER_PERAL_USAGE2 = TextKey.of("items.bound_ender_peral.usage2", "Right Click to access the bound Inventory");
@@ -44,6 +51,13 @@ public final class ItemsMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(BACKPACK_NAME);
+    builder.add(BACKPACK_USAGE1);
+    builder.add(BACKPACK_USAGE2);
+    builder.add(BACKPACK_MODE_SLOTS);
+    builder.add(BACKPACK_MODE_BUNDLE);
+    builder.add(BACKPACK_SLOTS_USED);
+    builder.add(BACKPACK_ITEMS_STORED);
     builder.add(BOUND_ENDER_PERAL_NAME);
     builder.add(BOUND_ENDER_PERAL_USAGE1);
     builder.add(BOUND_ENDER_PERAL_USAGE2);

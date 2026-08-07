@@ -9,11 +9,6 @@ import art.arcane.volmlib.util.localization.PluralValue;
 import art.arcane.volmlib.util.localization.TextValue;
 
 import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +16,6 @@ import java.util.regex.Pattern;
 
 public final class AdaptLanguageReference {
   private static final Pattern BARE_KEY = Pattern.compile("[A-Za-z0-9_-]+");
-  private static final String TEMP_PREFIX = "en_US-";
-  private static final String TEMP_SUFFIX = ".toml.tmp";
 
   private AdaptLanguageReference() {
   }
@@ -36,20 +29,11 @@ public final class AdaptLanguageReference {
   }
 
   public static boolean write() {
-    Path target = referenceFile().toPath();
-    Path directory = target.getParent();
-    Path temp = null;
-    try {
-      Files.createDirectories(directory);
-      temp = Files.createTempFile(directory, TEMP_PREFIX, TEMP_SUFFIX);
-      Files.writeString(temp, render(AdaptMessages.catalog()), StandardCharsets.UTF_8);
-      move(temp, target);
-      return true;
-    } catch (Throwable e) {
-      discard(temp);
-      Adapt.warn("Failed to write language reference " + target + ": " + e.getMessage());
-      return false;
-    }
+    return LanguageFileWriter.write(
+        referenceFile().toPath(),
+        "language reference",
+        render(AdaptMessages.catalog())
+    );
   }
 
   static String render(MessageCatalog catalog) {
@@ -73,24 +57,6 @@ public final class AdaptLanguageReference {
         "Edits to this file are ignored.",
         "Copy the keys you want to change into languages/overrides/" + locale + ".toml."
     );
-  }
-
-  private static void move(Path temp, Path target) throws Exception {
-    try {
-      Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
-    } catch (AtomicMoveNotSupportedException e) {
-      Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
-    }
-  }
-
-  private static void discard(Path temp) {
-    if (temp == null) {
-      return;
-    }
-    try {
-      Files.deleteIfExists(temp);
-    } catch (Throwable ignored) {
-    }
   }
 
   private static String formatKey(String key) {

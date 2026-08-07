@@ -1,5 +1,6 @@
 package fr.skytasul.glowingentities;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetPlayerTeamPacket;
@@ -10,7 +11,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.scores.Team;
-import net.minecraft.world.scores.TeamColor;
 import org.bukkit.ChatColor;
 import org.bukkit.craftbukkit.entity.CraftEntity;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
@@ -22,6 +22,9 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.util.EnumMap;
 import java.util.EnumSet;
@@ -268,16 +271,66 @@ public class GlowingEntities implements Listener {
     private TeamData(int uid, ChatColor color, Scoreboard scoreboard) {
       this.team = new PlayerTeam(scoreboard, "glow-" + uid + color.getChar());
       team.setCollisionRule(Team.CollisionRule.NEVER);
-      team.setColor(Optional.of(resolveTeamColor(color)));
+      TeamColorBridge.apply(team, color);
+    }
+  }
+
+  /**
+   * PlayerTeam.setColor takes ChatFormatting on 26.1.x and Optional&lt;TeamColor&gt; on
+   * 26.2+ (net.minecraft.world.scores.TeamColor does not exist on 26.1.x). Both call
+   * shapes are resolved through MethodHandles probed once at first use, so the same
+   * bytecode links against either server version.
+   */
+  private static final class TeamColorBridge {
+    private static volatile MethodHandle setColorFormatting;
+    private static volatile MethodHandle setColorOptional;
+    private static volatile MethodHandle teamColorByName;
+    private static volatile boolean resolved;
+
+    static void apply(PlayerTeam team, ChatColor color) {
+      try {
+        if (!resolved) {
+          resolve();
+        }
+
+        MethodHandle direct = setColorFormatting;
+        if (direct != null) {
+          direct.invoke(team, resolveFormatting(color));
+          return;
+        }
+
+        Object teamColor = teamColorByName.invoke(color.name().toLowerCase(Locale.ROOT));
+        if (teamColor == null) {
+          teamColor = teamColorByName.invoke("white");
+        }
+        setColorOptional.invoke(team, Optional.of(teamColor));
+      } catch (Throwable error) {
+        throw new IllegalStateException("Unable to apply glowing team color " + color + ".", error);
+      }
     }
 
-    private static TeamColor resolveTeamColor(ChatColor color) {
-      String name = color.name().toLowerCase(Locale.ROOT);
-      TeamColor teamColor = TeamColor.byName(name);
-      if (teamColor == null) {
-        return TeamColor.WHITE;
+    private static synchronized void resolve() throws ReflectiveOperationException {
+      if (resolved) {
+        return;
       }
-      return teamColor;
+
+      MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+      try {
+        setColorFormatting = lookup.findVirtual(PlayerTeam.class, "setColor",
+            MethodType.methodType(void.class, ChatFormatting.class));
+      } catch (NoSuchMethodException absent) {
+        Class<?> teamColorClass = Class.forName("net.minecraft.world.scores.TeamColor");
+        teamColorByName = lookup.findStatic(teamColorClass, "byName",
+            MethodType.methodType(teamColorClass, String.class));
+        setColorOptional = lookup.findVirtual(PlayerTeam.class, "setColor",
+            MethodType.methodType(void.class, Optional.class));
+      }
+      resolved = true;
+    }
+
+    private static ChatFormatting resolveFormatting(ChatColor color) {
+      ChatFormatting formatting = ChatFormatting.getByCode(color.getChar());
+      return formatting == null ? ChatFormatting.WHITE : formatting;
     }
   }
 }

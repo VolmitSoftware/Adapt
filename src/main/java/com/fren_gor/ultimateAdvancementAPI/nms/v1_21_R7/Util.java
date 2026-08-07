@@ -8,9 +8,6 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.CriterionProgress;
-import net.minecraft.advancements.triggers.Criterion;
-import net.minecraft.advancements.triggers.ImpossibleTrigger;
-import net.minecraft.advancements.triggers.ImpossibleTrigger.TriggerInstance;
 import net.minecraft.core.ClientAsset;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -23,6 +20,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,20 +35,26 @@ public final class Util {
         throw new UnsupportedOperationException("Utility class.");
     }
 
+    /**
+     * Values are NMS Criterion instances created reflectively because Criterion and
+     * ImpossibleTrigger live in net.minecraft.advancements(.criterion) on 26.1.x and in
+     * net.minecraft.advancements.triggers on 26.2+. Keeping the map value type Object
+     * keeps both packages out of the compiled bytecode.
+     */
     @NotNull
-    public static Map<String, Criterion<?>> getAdvancementCriteria(@Range(from = 1, to = Integer.MAX_VALUE) int maxProgression) {
+    public static Map<String, Object> getAdvancementCriteria(@Range(from = 1, to = Integer.MAX_VALUE) int maxProgression) {
         Preconditions.checkArgument(maxProgression >= 1, "Max progression must be >= 1.");
 
-        Map<String, Criterion<?>> advCriteria = Maps.newHashMapWithExpectedSize(maxProgression);
+        Map<String, Object> advCriteria = Maps.newHashMapWithExpectedSize(maxProgression);
         for (int i = 0; i < maxProgression; i++) {
-            advCriteria.put(String.valueOf(i), new Criterion<>(new ImpossibleTrigger(), new TriggerInstance()));
+            advCriteria.put(String.valueOf(i), ImpossibleCriteria.create());
         }
 
         return advCriteria;
     }
 
     @NotNull
-    public static AdvancementRequirements getAdvancementRequirements(@NotNull Map<String, Criterion<?>> advCriteria) {
+    public static AdvancementRequirements getAdvancementRequirements(@NotNull Map<String, Object> advCriteria) {
         Preconditions.checkNotNull(advCriteria, "Advancement criteria map is null.");
 
         List<List<String>> list = new ArrayList<>(advCriteria.size());
@@ -112,5 +118,57 @@ public final class Util {
         Preconditions.checkNotNull(player, "Player is null.");
         Preconditions.checkNotNull(packet, "Packet is null.");
         ((CraftPlayer) player).getHandle().connection.send(packet);
+    }
+
+    /**
+     * Dual-location resolution for the impossible-criterion types:
+     * 26.2+ has net.minecraft.advancements.triggers.{Criterion, ImpossibleTrigger};
+     * 26.1.x has net.minecraft.advancements.Criterion and
+     * net.minecraft.advancements.criterion.ImpossibleTrigger. MethodHandles are
+     * resolved once at class initialization.
+     */
+    private static final class ImpossibleCriteria {
+        private static final MethodHandle CRITERION_CONSTRUCTOR;
+        private static final MethodHandle TRIGGER_CONSTRUCTOR;
+        private static final MethodHandle INSTANCE_CONSTRUCTOR;
+
+        static {
+            try {
+                Class<?> criterionClass = firstClass(
+                        "net.minecraft.advancements.triggers.Criterion",
+                        "net.minecraft.advancements.Criterion");
+                Class<?> triggerClass = firstClass(
+                        "net.minecraft.advancements.triggers.ImpossibleTrigger",
+                        "net.minecraft.advancements.criterion.ImpossibleTrigger");
+                Class<?> instanceClass = firstClass(
+                        "net.minecraft.advancements.triggers.ImpossibleTrigger$TriggerInstance",
+                        "net.minecraft.advancements.criterion.ImpossibleTrigger$TriggerInstance");
+                MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+                CRITERION_CONSTRUCTOR = lookup.unreflectConstructor(criterionClass.getDeclaredConstructors()[0]);
+                TRIGGER_CONSTRUCTOR = lookup.findConstructor(triggerClass, MethodType.methodType(void.class));
+                INSTANCE_CONSTRUCTOR = lookup.findConstructor(instanceClass, MethodType.methodType(void.class));
+            } catch (ReflectiveOperationException error) {
+                throw new ExceptionInInitializerError(error);
+            }
+        }
+
+        private ImpossibleCriteria() {
+        }
+
+        static Object create() {
+            try {
+                return CRITERION_CONSTRUCTOR.invoke(TRIGGER_CONSTRUCTOR.invoke(), INSTANCE_CONSTRUCTOR.invoke());
+            } catch (Throwable error) {
+                throw new IllegalStateException("Unable to create an impossible advancement criterion.", error);
+            }
+        }
+
+        private static Class<?> firstClass(String preferred, String fallback) throws ClassNotFoundException {
+            try {
+                return Class.forName(preferred);
+            } catch (ClassNotFoundException absent) {
+                return Class.forName(fallback);
+            }
+        }
     }
 }

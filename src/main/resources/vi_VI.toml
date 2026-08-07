@@ -1567,7 +1567,7 @@ description = "Chế tạo 100 da từ thịt thối"
 
 [advancement.challenge_crafting_backpack_25]
 title = "Kẻ Tha Đồ"
-description = "Chế tạo 25 túi"
+description = "Chế tạo 25 ba lô"
 
 [advancement.challenge_crafting_stations_200]
 title = "Chế Tác Mọi Nơi"
@@ -4090,12 +4090,19 @@ lore = ["Chỉ cần ném (thịt thối) lên lửa trại!"]
 
 [crafting.backpacks]
 name = "Ba Lô Của Boutilier!"
-description = "Mang tính năng Bó Đồ của Mojang vào trò chơi!"
-lore1 = "Bạn cần ở chế độ Sinh Tồn để sử dụng"
+description = "Chế tạo một ba lô chứa nguyên cả chồng và mở ra như một rương riêng."
+lore1 = "Chuột phải vào ba lô để mở rương riêng của nó"
 lore2 = "LLL : Da, Da, Da"
 lore3 = "LCL : Da, Rương, Da"
 lore4 = "LLL : Da, Da, Da"
-lore = ["Bạn cần ở chế độ Sinh Tồn để sử dụng", "LLL : Da, Da, Da", "LCL : Da, Rương, Da", "LLL : Da, Da, Da"]
+lore = ["Chuột phải vào ba lô để mở rương riêng của nó", "LLL : Da, Da, Da", "LCL : Da, Rương, Da", "LLL : Da, Da, Da"]
+deny_nested = "Ba lô không thể chứa một ba lô khác."
+deny_full = "Ba lô này không còn chỗ trống."
+cycle_needs_empty = "Hãy dốc sạch ba lô trước khi đổi cách chứa đồ."
+page = "Trang {page} trên {pages}"
+prev_page = "Trang trước"
+next_page = "Trang sau"
+unreadable = "Ba lô này được đóng gói bởi một bản máy chủ khác nên không mở được ở đây."
 
 [crafting.stations]
 name = "Bàn Di Động!"
@@ -4772,6 +4779,15 @@ menu_open = "Nhấp để xem các ô và yêu cầu của bạn."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
+
+[items.backpack]
+name = "Ba lô"
+usage1 = "Chuột phải để mở"
+usage2 = "Chế tạo riêng nó trong khung chế tạo để đổi cách chứa đồ; trước hết nó phải trống"
+mode_slots = "Kiểu ô: {slots} ô, mỗi ô một chồng"
+mode_bundle = "Kiểu túi: chứa được {stacks} chồng vật phẩm trộn lẫn tuỳ ý"
+slots_used = "đã dùng {used} trên {total} ô"
+items_stored = "đang giữ {used} trên {total} vật phẩm"
 
 [items.bound_ender_peral]
 name = "Chìa Khóa Thánh Tích"

@@ -9,7 +9,6 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.AdvancementRequirements;
 import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.DisplayInfo;
-import net.minecraft.advancements.triggers.Criterion;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,8 +24,9 @@ public class AdvancementWrapper_v1_21_R7 extends AdvancementWrapper {
     private final AdvancementDisplayWrapper display;
 
     public AdvancementWrapper_v1_21_R7(@NotNull MinecraftKeyWrapper key, @NotNull AdvancementDisplayWrapper display, @Range(from = 1, to = Integer.MAX_VALUE) int maxProgression) {
-        Map<String, Criterion<?>> advCriteria = Util.getAdvancementCriteria(maxProgression);
-        Advancement advancement = new Advancement(Optional.empty(), Optional.of((DisplayInfo) display.toNMS()), AdvancementRewards.EMPTY, advCriteria, Util.getAdvancementRequirements(advCriteria), false, Optional.empty());
+        Map<String, Object> advCriteria = Util.getAdvancementCriteria(maxProgression);
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        Advancement advancement = new Advancement(Optional.empty(), Optional.of((DisplayInfo) display.toNMS()), AdvancementRewards.EMPTY, (Map) advCriteria, Util.getAdvancementRequirements(advCriteria), false, Optional.empty());
         this.advancementHolder = new AdvancementHolder((Identifier) key.toNMS(), advancement);
         this.key = key;
         this.parent = null;
@@ -34,24 +34,27 @@ public class AdvancementWrapper_v1_21_R7 extends AdvancementWrapper {
     }
 
     public AdvancementWrapper_v1_21_R7(@NotNull MinecraftKeyWrapper key, @NotNull AdvancementWrapper parent, @NotNull AdvancementDisplayWrapper display, @Range(from = 1, to = Integer.MAX_VALUE) int maxProgression) {
-        Map<String, Criterion<?>> advCriteria = Util.getAdvancementCriteria(maxProgression);
-        Advancement advancement = new Advancement(Optional.of((Identifier) parent.getKey().toNMS()), Optional.of((DisplayInfo) display.toNMS()), AdvancementRewards.EMPTY, advCriteria, Util.getAdvancementRequirements(advCriteria), false, Optional.empty());
+        Map<String, Object> advCriteria = Util.getAdvancementCriteria(maxProgression);
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        Advancement advancement = new Advancement(Optional.of((Identifier) parent.getKey().toNMS()), Optional.of((DisplayInfo) display.toNMS()), AdvancementRewards.EMPTY, (Map) advCriteria, Util.getAdvancementRequirements(advCriteria), false, Optional.empty());
         this.advancementHolder = new AdvancementHolder((Identifier) key.toNMS(), advancement);
         this.key = key;
         this.parent = parent;
         this.display = display;
     }
 
-    protected AdvancementWrapper_v1_21_R7(@NotNull MinecraftKeyWrapper key, @NotNull AdvancementDisplayWrapper display, @NotNull Map<String, Criterion<?>> advCriteria, @NotNull AdvancementRequirements advRequirements) {
-        Advancement advancement = new Advancement(Optional.empty(), Optional.of((DisplayInfo) display.toNMS()), AdvancementRewards.EMPTY, advCriteria, advRequirements, false, Optional.empty());
+    protected AdvancementWrapper_v1_21_R7(@NotNull MinecraftKeyWrapper key, @NotNull AdvancementDisplayWrapper display, @NotNull Map<String, Object> advCriteria, @NotNull AdvancementRequirements advRequirements) {
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        Advancement advancement = new Advancement(Optional.empty(), Optional.of((DisplayInfo) display.toNMS()), AdvancementRewards.EMPTY, (Map) advCriteria, advRequirements, false, Optional.empty());
         this.advancementHolder = new AdvancementHolder((Identifier) key.toNMS(), advancement);
         this.key = key;
         this.parent = null;
         this.display = display;
     }
 
-    protected AdvancementWrapper_v1_21_R7(@NotNull MinecraftKeyWrapper key, @NotNull AdvancementWrapper parent, @NotNull AdvancementDisplayWrapper display, @NotNull Map<String, Criterion<?>> advCriteria, @NotNull AdvancementRequirements advRequirements) {
-        Advancement advancement = new Advancement(Optional.of((Identifier) parent.getKey().toNMS()), Optional.of((DisplayInfo) display.toNMS()), AdvancementRewards.EMPTY, advCriteria, advRequirements, false, Optional.empty());
+    protected AdvancementWrapper_v1_21_R7(@NotNull MinecraftKeyWrapper key, @NotNull AdvancementWrapper parent, @NotNull AdvancementDisplayWrapper display, @NotNull Map<String, Object> advCriteria, @NotNull AdvancementRequirements advRequirements) {
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        Advancement advancement = new Advancement(Optional.of((Identifier) parent.getKey().toNMS()), Optional.of((DisplayInfo) display.toNMS()), AdvancementRewards.EMPTY, (Map) advCriteria, advRequirements, false, Optional.empty());
         this.advancementHolder = new AdvancementHolder((Identifier) key.toNMS(), advancement);
         this.key = key;
         this.parent = parent;

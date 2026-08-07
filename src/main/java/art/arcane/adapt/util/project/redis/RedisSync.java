@@ -30,7 +30,7 @@ public class RedisSync implements AutoCloseable {
       .build();
 
   public RedisSync() {
-    if (!AdaptConfig.get().isUseRedis() || !AdaptConfig.get().isUseSql()) {
+    if (!AdaptConfig.get().getRedis().isEnabled() || !AdaptConfig.get().getSql().isEnabled()) {
       this.redisClient = null;
       this.pubSub = null;
       return;

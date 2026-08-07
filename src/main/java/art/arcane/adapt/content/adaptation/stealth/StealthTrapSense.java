@@ -36,6 +36,8 @@ import org.bukkit.Color;
 import org.bukkit.GameEvent;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -114,10 +116,23 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
         || event == GameEvent.HIT_GROUND
         || event == GameEvent.ELYTRA_GLIDE
         || event == GameEvent.SPLASH
-        || event == GameEvent.BOUNCE
+        || (event != null && event == BounceEvent.EVENT)
         || event == GameEvent.TELEPORT
         || event == GameEvent.ENTITY_MOUNT
         || event == GameEvent.ENTITY_DISMOUNT;
+  }
+
+  private static final class BounceEvent {
+    // GameEvent.BOUNCE is 26.2+; resolved by registry key so the 26.1.2 compile baseline builds.
+    private static final GameEvent EVENT = resolve();
+
+    private static GameEvent resolve() {
+      try {
+        return Registry.GAME_EVENT.get(NamespacedKey.minecraft("bounce"));
+      } catch (Throwable absent) {
+        return null;
+      }
+    }
   }
 
   static boolean shouldSuppressMovement(int level, int maxLevel, boolean sneaking, double mercy, double roll) {

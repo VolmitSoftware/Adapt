@@ -25,12 +25,14 @@ import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
+import art.arcane.adapt.util.common.inventorygui.GuiConfig;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
@@ -170,6 +172,19 @@ final class AdaptationGuiSupport {
     return targetBlock.getFace(adjacentBlock);
   }
 
+  static int paidLevel(PlayerSkillLine skillLine, String adaptationName) {
+    PlayerAdaptation stored = skillLine == null ? null : skillLine.getAdaptation(adaptationName);
+    if (stored == null || stored.isRegionGranted()) {
+      return 0;
+    }
+
+    return Math.max(0, stored.getLevel());
+  }
+
+  static boolean ownsLevel(int paidLevel, int tileLevel) {
+    return paidLevel >= tileLevel;
+  }
+
   static CustomModel getModel(Adaptation<?> adaptation) {
     return CustomModel.get(adaptation.getIcon(), "adaptation", adaptation.getName(), "icon");
   }
@@ -220,7 +235,8 @@ final class AdaptationGuiSupport {
     int start = currentPage * plan.itemsPerPage();
     int end = Math.min(adaptation.getMaxLevel(), start + plan.itemsPerPage());
 
-    int mylevel = adaptation.getPlayer(player).getSkillLine(adaptation.getSkill().getName()).getAdaptationLevel(adaptation.getName());
+    PlayerSkillLine line = adaptation.getPlayer(player).getSkillLine(adaptation.getSkill().getName());
+    int mylevel = paidLevel(line, adaptation.getName());
 
     long k = adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).getKnowledge();
 
@@ -245,11 +261,16 @@ final class AdaptationGuiSupport {
         int rc = adaptation.getRefundCostFor(lvl - 1, mylevel);
         int pc = adaptation.getPowerCostFor(lvl, mylevel);
         boolean pendingPermanentConfirm = isPermanentLearnConfirmationPending(player, adaptation, lvl);
+        CustomModel model = GuiConfig.adaptationModel(
+            adaptation.getName(),
+            adaptation.getIcon(),
+            adaptation.getModel(lvl)
+        );
         Element de = new UIElement("lp-" + lvl + "g")
-            .setMaterial(new MaterialBlock(adaptation.getIcon()))
-            .setBaseItemStack(adaptation.getModel(lvl).toItemStack())
+            .setMaterial(new MaterialBlock(model.material()))
+            .setBaseItemStack(model.toItemStack())
             .setName(adaptation.getDisplayName(lvl))
-            .setEnchanted(mylevel >= lvl)
+            .setEnchanted(ownsLevel(mylevel, lvl))
             .setProgress(1D)
             .addLore(C.GRAY + adaptation.getDescription())
             .addLore(knowledgeCostLore(mylevel, lvl, c))
@@ -271,8 +292,8 @@ final class AdaptationGuiSupport {
               }
 
               int delayTicks = AdaptConfig.get().getLearnUnlearnButtonDelayTicks();
-              int currentLevel = skillLine.getAdaptationLevel(adaptation.getName());
-              if (currentLevel >= lvl) {
+              int currentLevel = paidLevel(skillLine, adaptation.getName());
+              if (ownsLevel(currentLevel, lvl)) {
                 adaptation.unlearn(player, lvl, false);
                 int updatedLevel = skillLine.getAdaptationLevel(adaptation.getName());
                 if (updatedLevel < currentLevel) {
