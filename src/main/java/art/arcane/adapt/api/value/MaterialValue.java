@@ -25,6 +25,8 @@ import art.arcane.adapt.util.common.io.Json;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.io.IO;
 import art.arcane.volmlib.util.scheduling.PrecisionStopwatch;
+import com.google.gson.JsonParseException;
+import lombok.AccessLevel;
 import lombok.Getter;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -44,40 +46,48 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Getter
 public class MaterialValue {
-  private static final Map<Material, Double> valueMultipliers = new HashMap<>();
-  private static MaterialValue valueCache = null;
+  private static final String RUNTIME_CACHE_SIGNATURE = UUID.randomUUID().toString();
+  private static volatile MaterialValue valueCache = null;
 
-  static {
-    AdaptConfig.get().getValue().getValueMutlipliers().forEach((k, v) -> {
-      try {
-        Material m = Material.valueOf(k.toUpperCase());
-        valueMultipliers.put(m, v);
-      } catch (Exception e) {
-        Adapt.verbose("Invalid material value multiplier: " + k);
-      }
-    });
-  }
-
-  private final Map<Material, Double> value = new HashMap<>();
+  private Map<Material, Double> value = new ConcurrentHashMap<>();
+  @Getter(AccessLevel.NONE)
+  private String configurationSignature = currentConfigurationSignature();
 
   public static void save() {
-    if (valueCache == null) {
+    MaterialValue cache = valueCache;
+    if (cache == null) {
       return;
     }
 
     File l = Adapt.instance.getDataFile("data", "value-cache.json");
     try {
-      IO.writeAll(l, Json.toJson(valueCache, true));
+      IO.writeAll(l, Json.toJson(cache, true));
     } catch (IOException e) {
       Adapt.verbose("Failed to save value cache");
     }
   }
 
+  public static synchronized void invalidateCache() {
+    valueCache = null;
+  }
+
   public static MaterialValue get() {
-    if (valueCache == null) {
+    MaterialValue cache = valueCache;
+    if (cache != null) {
+      return cache;
+    }
+
+    synchronized (MaterialValue.class) {
+      cache = valueCache;
+      if (cache != null) {
+        return cache;
+      }
       MaterialValue dummy = new MaterialValue();
       File l = Adapt.instance.getDataFile("data", "value-cache.json");
 
@@ -91,15 +101,24 @@ public class MaterialValue {
         }
       }
 
+      MaterialValue loaded;
       try {
-        valueCache = Json.fromJson(IO.readAll(l), MaterialValue.class);
-      } catch (IOException e) {
+        String raw = IO.readAll(l);
+        loaded = raw.contains("\"configurationSignature\"")
+            ? Json.fromJson(raw, MaterialValue.class)
+            : new MaterialValue();
+      } catch (IOException | JsonParseException e) {
         e.printStackTrace();
-        valueCache = new MaterialValue();
+        loaded = new MaterialValue();
       }
-    }
 
-    return valueCache;
+      if (loaded == null || !currentConfigurationSignature().equals(loaded.configurationSignature)) {
+        loaded = new MaterialValue();
+      }
+      loaded.value = toConcurrentValueMap(loaded.value);
+      valueCache = loaded;
+      return loaded;
+    }
   }
 
   public static void debugValue(Material m) {
@@ -134,30 +153,70 @@ public class MaterialValue {
     Adapt.verbose(Form.repeat("  ", ind) + " took " + Form.duration(p.getMilliseconds(), 0));
   }
 
-  private static double getMultiplier(Material m) {
-    Double d = AdaptConfig.get().getValue().getValueMutlipliers().get(m);
-    return d == null ? 1 : d;
+  static double getMultiplier(Material material, Map<String, Double> multipliers) {
+    if (material == null || multipliers == null) {
+      return 1D;
+    }
+    Double exact = multipliers.get(material.name());
+    if (exact != null) {
+      return exact;
+    }
+    for (Map.Entry<String, Double> entry : multipliers.entrySet()) {
+      if (entry.getKey() != null && entry.getKey().equalsIgnoreCase(material.name()) && entry.getValue() != null) {
+        return entry.getValue();
+      }
+    }
+    return 1D;
+  }
+
+  static double applyMultiplier(Material material, double resolvedValue, Map<String, Double> multipliers) {
+    return resolvedValue * getMultiplier(material, multipliers);
+  }
+
+  static String currentConfigurationSignature() {
+    AdaptConfig config = AdaptConfig.get();
+    Map<String, Double> configured = config.getValue().getValueMultipliers();
+    Map<String, Double> ordered = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    if (configured != null) {
+      ordered.putAll(configured);
+    }
+    return RUNTIME_CACHE_SIGNATURE + "|" + config.getValue().getBaseValue() + "|"
+        + config.getMaxRecipeListPrecaution() + "|" + ordered;
+  }
+
+  static Map<Material, Double> toConcurrentValueMap(Map<Material, Double> source) {
+    Map<Material, Double> concurrent = new ConcurrentHashMap<>();
+    if (source == null) {
+      return concurrent;
+    }
+    for (Map.Entry<Material, Double> entry : source.entrySet()) {
+      if (entry.getKey() != null && entry.getValue() != null) {
+        concurrent.put(entry.getKey(), entry.getValue());
+      }
+    }
+    return concurrent;
   }
 
   public static double getValue(Material m) {
     try {
-      return getValue(m, new HashSet<>());
+      return getValue(m, new HashSet<>(), get());
     } catch (Exception ignored) {
       return 1;
     }
   }
 
-  private static double getValue(Material m, Set<MaterialRecipe> ignore) {
-    if (get().value.containsKey(m)) {
+  private static double getValue(Material m, Set<MaterialRecipe> ignore, MaterialValue cache) {
+    if (cache.value.containsKey(m)) {
       if (m.isBlock() && m.getHardness() == 0) {
         return 0;
       }
-      return get().value.get(m);
+      return cache.value.get(m);
     }
     double v = AdaptConfig.get().getValue().getBaseValue();
     List<MaterialRecipe> recipes = getRecipes(m);
+    double resolvedValue;
     if (recipes.isEmpty()) {
-      get().value.put(m, v * getMultiplier(m)); // No recipes, just use base value, if no base value then 1
+      resolvedValue = v;
     } else {
       List<Double> d = new ArrayList<>();
       for (MaterialRecipe i : recipes) {
@@ -167,7 +226,7 @@ public class MaterialValue {
         ignore.add(i);
         double vx = v;
         for (MaterialCount j : i.getInput()) {
-          vx += getValue(j.getMaterial(), ignore);
+          vx += getValue(j.getMaterial(), ignore, cache);
         }
         d.add(vx / i.getOutput().getAmount());
       }
@@ -175,16 +234,16 @@ public class MaterialValue {
         v += d.stream().mapToDouble(i -> i).average().getAsDouble();
       }
       if (v > AdaptConfig.get().getMaxRecipeListPrecaution()) {
-        get().value.put(m, (v / 10 + 1) * getMultiplier(m));
+        resolvedValue = v / 10 + 1;
       } else {
-        get().value.put(m, v);
+        resolvedValue = v;
       }
-
     }
+    cache.value.put(m, applyMultiplier(m, resolvedValue, AdaptConfig.get().getValue().getValueMultipliers()));
     if (m.isBlock() && m.getHardness() == 0) {
       return 0;
     }
-    return get().value.get(m);
+    return cache.value.get(m);
   }
 
   private static List<MaterialRecipe> getRecipes(Material mat) {

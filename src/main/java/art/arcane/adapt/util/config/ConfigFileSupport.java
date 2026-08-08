@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
 public final class ConfigFileSupport {
@@ -39,7 +40,8 @@ public final class ConfigFileSupport {
         sourceTag,
         createdMessage,
         null,
-        false
+        false,
+        null
     );
   }
 
@@ -54,6 +56,32 @@ public final class ConfigFileSupport {
       Consumer<T> normalizeBeforeWrite,
       boolean forceCanonicalizeExisting
   ) throws IOException {
+    return load(
+        canonicalFile,
+        legacyFile,
+        type,
+        fallback,
+        overwriteOnReadFailure,
+        sourceTag,
+        createdMessage,
+        normalizeBeforeWrite,
+        forceCanonicalizeExisting,
+        null
+    );
+  }
+
+  public static <T> T load(
+      File canonicalFile,
+      File legacyFile,
+      Class<T> type,
+      T fallback,
+      boolean overwriteOnReadFailure,
+      String sourceTag,
+      String createdMessage,
+      Consumer<T> normalizeBeforeWrite,
+      boolean forceCanonicalizeExisting,
+      BiFunction<String, File, String> migrateBeforeRead
+  ) throws IOException {
     long maxConfigBytes = maxConfigBytesForSourceTag(sourceTag);
     boolean canonicalizeExisting = forceCanonicalizeExisting
         || shouldCanonicalizeExisting(sourceTag, overwriteOnReadFailure);
@@ -63,7 +91,8 @@ public final class ConfigFileSupport {
           throw new IOException("Config file is too large (" + canonicalFile.length() + " bytes)");
         }
         String raw = IO.readAll(canonicalFile);
-        T loaded = normalizeConfig(deserialize(raw, canonicalFile, type), normalizeBeforeWrite);
+        String migratedRaw = migrateRaw(raw, canonicalFile, migrateBeforeRead);
+        T loaded = normalizeConfig(deserialize(migratedRaw, canonicalFile, type), normalizeBeforeWrite);
         if (loaded == null) {
           throw new IOException("Config parser returned null.");
         }
@@ -95,7 +124,8 @@ public final class ConfigFileSupport {
           throw new IOException("Legacy config file is too large (" + legacyFile.length() + " bytes)");
         }
         String raw = IO.readAll(legacyFile);
-        T loaded = normalizeConfig(deserialize(raw, legacyFile, type), normalizeBeforeWrite);
+        String migratedRaw = migrateRaw(raw, legacyFile, migrateBeforeRead);
+        T loaded = normalizeConfig(deserialize(migratedRaw, legacyFile, type), normalizeBeforeWrite);
         if (loaded == null) {
           throw new IOException("Config parser returned null.");
         }
@@ -263,6 +293,14 @@ public final class ConfigFileSupport {
       normalizer.accept(config);
     }
     return config;
+  }
+
+  private static String migrateRaw(
+      String raw,
+      File sourceFile,
+      BiFunction<String, File, String> migration
+  ) {
+    return migration == null ? raw : migration.apply(raw, sourceFile);
   }
 
   private static String serialize(Object loaded, File targetFile, String sourceTag) {

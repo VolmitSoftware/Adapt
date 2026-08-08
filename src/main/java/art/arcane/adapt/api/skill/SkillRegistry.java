@@ -174,7 +174,7 @@ public class SkillRegistry extends TickedObject {
       return false;
     }
 
-    for (Protector protector : Adapt.instance.getProtectorRegistry().getAllProtectors()) {
+    for (Protector protector : Adapt.instance.getProtectorRegistry().getDefaultProtectors()) {
       if (!protector.canInteract(player, targetLocation, null)) {
         return false;
       }

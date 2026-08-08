@@ -29,7 +29,4 @@ TEST_SUITE_PLAN.md
 
 .qa/
 
-docs/*
-!docs/api/
-
 ATTRIBUTE_MODERNIZATION_AUDIT.md

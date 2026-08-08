@@ -18,13 +18,18 @@
 
 package art.arcane.adapt;
 
+import art.arcane.adapt.api.value.MaterialValue;
 import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.config.ConfigFileSupport;
+import art.arcane.adapt.util.config.TomlCodec;
+import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.project.redis.RedisConfig;
 import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Material;
@@ -57,7 +62,7 @@ public class AdaptConfig {
   private ValueConfig value = new ValueConfig();
   private boolean metrics = true;
   private String language = "en_US";
-  @ConfigDoc(value = "Level curve mapping skill xp to skill level. Default ADAPT_BALANCED is xp(L) = 100*L^2 + 1200*L, inverted as L(xp) = (sqrt(1440000 + 400*xp) - 1200) / 200.", impact = "Every family in the Curves enum is selectable and each one changes xp-per-level for skills, master xp and power; docs/configuration-math.md lists the formulas.")
+  @ConfigDoc(value = "Level curve mapping skill xp to skill level. Default ADAPT_BALANCED is xp(L) = 100*L^2 + 1200*L, inverted as L(xp) = (sqrt(1440000 + 400*xp) - 1200) / 200.", impact = "Every family in the Curves enum is selectable and each one changes xp-per-level for skills, master xp and power; docs/05 - Configuration Math.md lists the formulas.")
   private Curves xpCurve = Curves.ADAPT_BALANCED;
   @ConfigDoc(value = "Flat master xp granted for each skill level a player gains.", impact = "Master xp for skill level i is playerXpPerSkillLevelUpBase + i*playerXpPerSkillLevelUpLevelMultiplier, so this lifts every level-up reward evenly.")
   private double playerXpPerSkillLevelUpBase = 489;
@@ -122,14 +127,19 @@ public class AdaptConfig {
   }
 
   public static boolean reload() {
+    boolean reloaded;
     synchronized (CONFIG_LOCK) {
       try {
         config = loadConfig(config == null ? new AdaptConfig() : config, false);
-        return true;
+        reloaded = true;
       } catch (Throwable e) {
-        return false;
+        reloaded = false;
       }
     }
+    if (reloaded) {
+      MaterialValue.invalidateCache();
+    }
+    return reloaded;
   }
 
   public boolean isWorldBlacklisted(WorldInfo world) {
@@ -146,8 +156,51 @@ public class AdaptConfig {
         fallback,
         overwriteOnFailure,
         "core-config",
-        "Created missing config [adapt/adapt.toml] from defaults."
+        "Created missing config [adapt/adapt.toml] from defaults.",
+        null,
+        false,
+        AdaptConfig::migrateLegacyValueMultiplierKey
     );
+  }
+
+  static String migrateLegacyValueMultiplierKey(String raw) {
+    return migrateLegacyValueMultiplierKey(raw, new File("adapt.toml"));
+  }
+
+  private static String migrateLegacyValueMultiplierKey(String raw, File file) {
+    if (raw == null || !raw.contains("valueMutlipliers")) {
+      return raw;
+    }
+    JsonElement parsed = ConfigFileSupport.parseToJsonElement(raw, file);
+    if (parsed == null || !parsed.isJsonObject()) {
+      throw new IllegalArgumentException("Unable to parse legacy value multiplier config");
+    }
+    JsonObject root = parsed.getAsJsonObject();
+    JsonElement valueElement = root.get("value");
+    if (valueElement == null || !valueElement.isJsonObject()) {
+      return raw;
+    }
+    JsonObject value = valueElement.getAsJsonObject();
+    JsonElement legacyElement = value.get("valueMutlipliers");
+    if (legacyElement == null || !legacyElement.isJsonObject()) {
+      return raw;
+    }
+    JsonObject merged = new JsonObject();
+    if (value.has("valueMultipliers") && value.get("valueMultipliers").isJsonObject()) {
+      for (Map.Entry<String, JsonElement> entry : value.getAsJsonObject("valueMultipliers").entrySet()) {
+        merged.add(entry.getKey(), entry.getValue());
+      }
+    }
+    for (Map.Entry<String, JsonElement> entry : legacyElement.getAsJsonObject().entrySet()) {
+      if (!merged.has(entry.getKey())) {
+        merged.add(entry.getKey(), entry.getValue());
+      }
+    }
+    value.remove("valueMutlipliers");
+    value.add("valueMultipliers", merged);
+    return ConfigFileSupport.isTomlFile(file)
+        ? TomlCodec.toToml(root)
+        : Json.toJson(root, true);
   }
 
   private static Map<String, List<String>> defaultAdaptationUsageConflicts() {
@@ -202,7 +255,7 @@ public class AdaptConfig {
     @ConfigDoc(value = "Hostname or address of the SQL server.", impact = "Used to build the jdbc:mysql url; only read while sql.enabled is true.")
     private String host = "localhost";
     @ConfigDoc(value = "TCP port the SQL server listens on.", impact = "Must match the server; 3306 is the MySQL default.")
-    private int port = 1337;
+    private int port = 3306;
     @ConfigDoc(value = "Schema the ADAPT_DATA table lives in.", impact = "The schema must already exist; Adapt creates the table but never the database.")
     private String database = "adapt";
     @ConfigDoc(value = "SQL account Adapt authenticates with.", impact = "The account needs SELECT, INSERT, UPDATE, DELETE and CREATE TABLE on the configured database.")
@@ -234,7 +287,7 @@ public class AdaptConfig {
   @Getter
   public static class ValueConfig {
     private double baseValue = 1;
-    private Map<String, Double> valueMutlipliers = defaultValueMultipliersOverrides();
+    private Map<String, Double> valueMultipliers = defaultValueMultipliersOverrides();
 
     private Map<String, Double> defaultValueMultipliersOverrides() {
       Map<String, Double> f = new HashMap<>();

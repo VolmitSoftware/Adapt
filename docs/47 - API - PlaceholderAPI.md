@@ -28,19 +28,18 @@ forgiving.
 
 ---
 
-## Three answers, three meanings
+## Resolution outcomes
 
-Every key returns exactly one of three kinds of answer, and telling them apart is the whole contract.
+Each resolution has one of three outcomes.
 
 | Rendered | Meaning | What to do |
 |----------|---------|------------|
-| `%adapt_skil.pickaxe.level%` — the literal, unchanged | **The path is not a key.** Adapt returned `null` and PlaceholderAPI left your text alone | Fix the spelling. This is always your bug |
+| `%adapt_skil.pickaxe.level%` — the literal, unchanged | **The path is not a key.** Adapt returned `null` and PlaceholderAPI left the text unchanged | Correct the key or id |
 | `---` | **The path is a key, but there is no value right now.** No snapshot for that player, no catalogue published yet, or the mutation runtime is unavailable | Render a placeholder, or hide the row |
 | `0`, `0.00`, `false` | **A genuine value that happens to be zero or false** | Use it |
 
-Adapt never returns a plausible-looking zero for a path it does not recognise. A misspelt key is always the
-literal, never `0`. That distinction is the point of the convention: a dashboard showing `0` is showing you
-data, and a dashboard showing `%adapt_…%` is showing you a typo.
+Adapt never returns a plausible-looking zero for an unrecognized path. A misspelled key remains literal;
+`0` is a resolved value.
 
 The three answers combine per path element:
 
@@ -205,7 +204,7 @@ player snapshot to resolve — the resolver checks for one before it answers any
 
 **`can-use` is not a permission check.** It reads three things — learned level, adaptation enabled, skill
 enabled — and nothing else. It does not consider `adapt.use.*`, world blacklists, game mode, protection
-plugins, usage conflicts or any registered [`AbilityUsePolicy`](ability-policy.md). A player can show
+plugins, usage conflicts or any registered [`AbilityUsePolicy`](<43 - API - Ability Use Policy.md>). A player can show
 `can-use = true` here and still have the adaptation refuse to fire. Treat it as "owned and switched on",
 not as "will work if they try".
 
@@ -288,5 +287,4 @@ placeholders sees it. The list contains every exact key on this page plus three 
 dynamically from the catalogue rather than enumerated one by one.
 
 To check a specific path on a running server, parse it against a real player rather than reading the list:
-the three-answer convention tells you immediately whether you have a typo (the literal comes back), a
-missing snapshot (`---`), or a value.
+the three outcomes distinguish an invalid key (literal text), a missing snapshot (`---`), and a value.

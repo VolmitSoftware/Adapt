@@ -97,6 +97,6 @@ public class GriefDefenderProtector implements Protector {
 
   @Override
   public boolean isEnabledByDefault() {
-    return AdaptConfig.get().getProtectorSupport().isFactionsClaim();
+    return AdaptConfig.get().getProtectorSupport().isGriefdefender();
   }
 }

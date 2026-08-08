@@ -50,7 +50,7 @@ public final class CommandMessages {
   public static final TextKey HELP_OPEN_THE_IN_GAME_ADAPT_CONFIG_EDITOR = TextKey.of("command.help.open_the_in_game_adapt_config_editor", "Open the in-game Adapt config editor");
   public static final TextKey HELP_PARTICLE_TYPE_TO_SPAWN = TextKey.of("command.help.particle_type_to_spawn", "Particle type to spawn");
   public static final TextKey HELP_PERMANENTLY_DELETE_ALL_ADAPT_DATA_FOR_A_PLAYER = TextKey.of("command.help.permanently_delete_all_adapt_data_for_a_player", "Permanently delete all Adapt data for a player");
-  public static final TextKey HELP_PERMANENTLY_DELETE_ALL_ADAPT_DATA_FOR_A_PLAYER_REQUIRES_OP_RUN_TWICE_TO_CONFIRM = TextKey.of("command.help.permanently_delete_all_adapt_data_for_a_player_requires_op_run_twice_to_confirm", "Permanently delete all Adapt data for a player. Requires op. Run twice to confirm.");
+  public static final TextKey HELP_PERMANENTLY_DELETE_ALL_ADAPT_DATA_FOR_A_PLAYER_REQUIRES_ADAPT_CLEAR_RUN_TWICE_TO_CONFIRM = TextKey.of("command.help.permanently_delete_all_adapt_data_for_a_player_requires_adapt_clear_run_twice_to_confirm", "Permanently delete all Adapt data for a player. Requires adapt.clear. Run twice to confirm.");
   public static final TextKey HELP_PLAY_A_SOUND_AT_YOUR_LOCATION_FOR_TESTING = TextKey.of("command.help.play_a_sound_at_your_location_for_testing", "Play a sound at your location for testing!");
   public static final TextKey HELP_REFRESH_A_PLAYER_S_MUTATION_SLOTS_AND_REQUIREMENTS = TextKey.of("command.help.refresh_a_player_s_mutation_slots_and_requirements", "Refresh a player's Mutation slots and requirements");
   public static final TextKey HELP_RELOAD_MUTATION_CONFIGURATION = TextKey.of("command.help.reload_mutation_configuration", "Reload Mutation configuration");
@@ -130,7 +130,7 @@ public final class CommandMessages {
     builder.add(HELP_OPEN_THE_IN_GAME_ADAPT_CONFIG_EDITOR);
     builder.add(HELP_PARTICLE_TYPE_TO_SPAWN);
     builder.add(HELP_PERMANENTLY_DELETE_ALL_ADAPT_DATA_FOR_A_PLAYER);
-    builder.add(HELP_PERMANENTLY_DELETE_ALL_ADAPT_DATA_FOR_A_PLAYER_REQUIRES_OP_RUN_TWICE_TO_CONFIRM);
+    builder.add(HELP_PERMANENTLY_DELETE_ALL_ADAPT_DATA_FOR_A_PLAYER_REQUIRES_ADAPT_CLEAR_RUN_TWICE_TO_CONFIRM);
     builder.add(HELP_PLAY_A_SOUND_AT_YOUR_LOCATION_FOR_TESTING);
     builder.add(HELP_REFRESH_A_PLAYER_S_MUTATION_SLOTS_AND_REQUIREMENTS);
     builder.add(HELP_RELOAD_MUTATION_CONFIGURATION);

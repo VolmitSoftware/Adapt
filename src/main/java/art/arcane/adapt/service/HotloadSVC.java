@@ -4,6 +4,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.mutation.MutationManager;
+import art.arcane.adapt.api.protection.ProtectorRegistry;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
@@ -258,6 +259,11 @@ public class HotloadSVC implements AdaptService {
 
   private void refreshGlobalRuntimeSettings() {
     AdaptLanguage.reload();
+
+    ProtectorRegistry protectorRegistry = Adapt.instance.getProtectorRegistry();
+    if (protectorRegistry != null) {
+      protectorRegistry.refreshDefaultProtectors();
+    }
 
     if (AdaptConfig.get().isCustomModels()) {
       CustomModel.reloadFromDisk(true);

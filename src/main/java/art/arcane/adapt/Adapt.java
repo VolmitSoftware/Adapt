@@ -470,29 +470,29 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     }
     AbilityApiBridge.install(this);
     protectorRegistry = new ProtectorRegistry();
-    if (getServer().getPluginManager().getPlugin("WorldGuard") != null) {
+    PluginManager pluginManager = getServer().getPluginManager();
+    if (pluginManager.isPluginEnabled("WorldGuard")) {
       protectorRegistry.registerProtector(new WorldGuardProtector());
       RegionPolicyService.install(new WorldGuardRegionPolicySource());
     }
-    if (getServer().getPluginManager().getPlugin("Factions") != null) {
+    if (pluginManager.isPluginEnabled("Factions")) {
       protectorRegistry.registerProtector(new FactionsClaimProtector());
     }
-    if (getServer().getPluginManager().getPlugin("ChestProtect") != null) {
+    if (pluginManager.isPluginEnabled("ChestProtect")) {
       protectorRegistry.registerProtector(new ChestProtectProtector());
     }
-    if (getServer().getPluginManager().getPlugin("Residence") != null) {
+    if (pluginManager.isPluginEnabled("Residence")) {
       protectorRegistry.registerProtector(new ResidenceProtector());
     }
-    if (getServer().getPluginManager().getPlugin("GriefDefender") != null) {
+    if (pluginManager.isPluginEnabled("GriefDefender")) {
       protectorRegistry.registerProtector(new GriefDefenderProtector());
     }
-    if (getServer().getPluginManager().getPlugin("GriefPrevention") != null) {
+    if (pluginManager.isPluginEnabled("GriefPrevention")) {
       protectorRegistry.registerProtector(new GriefPreventionProtector());
     }
-    if (getServer().getPluginManager().getPlugin("LockettePro") != null) {
+    if (pluginManager.isPluginEnabled("LockettePro")) {
       protectorRegistry.registerProtector(new LocketteProProtector());
     }
-    PluginManager pluginManager = getServer().getPluginManager();
     if (isHiddenOreIntegrationAvailable(pluginManager)) {
       HiddenOreLink.activate(this);
     } else if (pluginManager.getPlugin("HiddenOre") != null) {

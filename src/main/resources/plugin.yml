@@ -14,9 +14,14 @@ softdepend:
   - Factions
   - ChestProtect
   - Residence
+  - GriefDefender
+  - GriefPrevention
+  - LockettePro
   - HiddenOre
   - Iris
   - Vault
+  - AdvancedChests
+  - MagicCosmetics
 
 commands:
   adapt: { }
@@ -47,7 +52,7 @@ permissions:
     description: Allows Adapt debug tools including debug mode and config migration
     default: op
   adapt.configurator:
-    description: Allows opening and using the in-game Adapt config editor
+    description: Allows using the config editor and resetting configs to defaults
     default: op
   adapt.effects:
     description: Allows toggling Adapt effect visibility for yourself

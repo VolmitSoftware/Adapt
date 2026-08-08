@@ -16,8 +16,8 @@ and an unlearned adaptation stays unreachable.
 
 ## Protector or AbilityUsePolicy?
 
-The two coexist and overlap. Choosing wrong is the most likely way to waste an afternoon here, so decide
-with this table before writing anything.
+The two coexist and overlap. Choose based on whether the decision is location/action-specific or a general
+ability-use rule.
 
 | | `Protector` | `AbilityUsePolicy` |
 |---|---|---|
@@ -38,8 +38,8 @@ permitting block forty. A use policy cannot express that at all — it either ki
 it does not.
 
 **Use `AbilityUsePolicy` when the answer depends on who, or on their state.** Jails, duels, quest states,
-rank gating, per-skill bans. It carries a reason, it can be scoped so you are not asked about adaptations
-you do not care about, and a bug in your code is contained rather than taking an adaptation down with it.
+rank gating, per-skill bans. It carries a reason, can be scoped to selected adaptations, and contains a
+provider fault rather than taking an adaptation down with it.
 
 **Use both** when you have both kinds of rule. They do not conflict: the protector's `checkRegion` runs
 first, and both must permit.
@@ -53,7 +53,7 @@ explain itself, and an admin can switch it off per adaptation without you knowin
 ## Depending on Adapt
 
 Compile against the shaded `Adapt-<version>-all.jar` and declare the dependency in your plugin manifest.
-The full instructions are in [README.md](README.md#depending-on-adapt).
+The full instructions are in [41 - API - Getting Started.md](<41 - API - Getting Started.md#depending-on-adapt>).
 
 Unlike the ability API, this one is not a Bukkit service. There is no `ServicesManager` entry for
 `ProtectorRegistry`; the only way to reach it is through Adapt's plugin instance, which means your code
@@ -77,7 +77,7 @@ Three consequences:
   on a Paper plugin. Without it your classloader cannot see `art.arcane.adapt.Adapt` and the `instanceof`
   fails at class-load with `NoClassDefFoundError`.
 - **The registry is created during Adapt's `onEnable`.** A plugin that enables before Adapt gets `null`.
-  `softdepend`/`load: BEFORE` fixes the ordering; the null check above is your safety net for the case
+  `softdepend`/`load: BEFORE` fixes the ordering; the null check handles the case
   where Adapt is absent or failed to start.
 - **The registry does not survive an Adapt restart.** Adapt constructs a fresh `ProtectorRegistry` every
   `onEnable` and calls `unregisterAll()` on shutdown. If Adapt is reloaded underneath you, your protector is
@@ -89,6 +89,9 @@ Three consequences:
 registerProtector(protector)     you are added; isEnabledByDefault() is read now
    |
    |  Adapt calls your seven methods, many times, for as long as you are registered
+   v
+refreshDefaultProtectors()      rebuilds default-active membership
+   |
    v
 unregisterProtector(protector)   Adapt calls your unregister(), then drops you
    or
@@ -103,13 +106,14 @@ unregisterAll()                  Adapt shutting down: unregister() on everyone, 
 | `void unregisterProtector(Protector)` | `synchronized`. Calls your `unregister()` **first**, then removes you — so `unregister()` is called even for an instance that was never registered |
 | `List<Protector> getDefaultProtectors()` | Immutable snapshot of the protectors whose `isEnabledByDefault()` was true at the last rebuild |
 | `List<Protector> getAllProtectors()` | Immutable snapshot of every registered protector |
+| `void refreshDefaultProtectors()` | `synchronized`. Re-reads `isEnabledByDefault()` for every registered protector and rebuilds both snapshots |
 | `void unregisterAll()` | `synchronized`. `unregister()` on everyone, then clear. Adapt calls this on shutdown |
 
 Rules worth stating plainly:
 
 - **`isEnabledByDefault()` is not polled.** It is read when the registry rebuilds its snapshots, which
-  happens on every register and unregister — yours or anyone else's. A protector that flips its own answer
-  at runtime will not be picked up until some registration changes. Return a stable value, or re-register.
+  happens on every register, unregister, explicit `refreshDefaultProtectors()`, and successful Adapt core-config
+  hotload. A protector that flips its own answer at runtime should call `refreshDefaultProtectors()`.
 - **Duplicate detection is by `equals`, not by name.** `registerProtector` ignores a protector already in
   the list, which for an ordinary class means the same instance; a protector written as a `record` will
   collapse two value-equal instances instead. Either way it does not compare `getName()`. Two different
@@ -118,7 +122,7 @@ Rules worth stating plainly:
 - **`getName()` is the admin-facing key.** It is what an admin types into `[protectionOverrides]`. Pick
   something short and stable — the built-ins use `WorldGuard`, `GriefDefender`, `GriefPrevention`,
   `Residence`, `Factions`, `ChestProtect`, `LockettePro` — and never change it across releases.
-- **`unregister()` is your teardown hook.** It is called on shutdown and on explicit unregistration. Use it
+- **`unregister()` is the teardown hook.** It is called on shutdown and on explicit unregistration. Use it
   to release listeners or caches; do not use it to touch the registry.
 
 ## Threading
@@ -137,9 +141,9 @@ a single veinminer activation can be dozens of calls in one tick.
 
 - No I/O. No database, no HTTP, no file reads.
 - No blocking. No `CompletableFuture.join`, no `callSyncMethod`, no lock held across the call.
-- No allocation you can avoid. Cache your region lookups by chunk and invalidate on your own change events.
+- Avoid unnecessary allocation. Cache region lookups by chunk and invalidate them on the provider's change events.
 - Do not call back into Adapt. `Adaptation.getActiveLevel`, `hasActiveAdaptation` and anything else that
-  resolves an active level will re-enter the gate you are standing inside.
+  resolves an active level will re-enter the current gate.
 
 There is **no watchdog and no quarantine** on this surface. A slow protector is not warned about and a
 broken one is not disabled. The only protection is the contract.
@@ -263,7 +267,7 @@ public final class ClaimProtector implements Protector {
 }
 ```
 
-`ClaimIndex` is yours; the sample needs `boolean isClaimed(Location)` and
+`ClaimIndex` is application-owned; the sample needs `boolean isClaimed(Location)` and
 `boolean isTrusted(UUID, Location)`, both answering from an in-memory index.
 
 This protector deliberately does **not** override `checkRegion`. It has nothing to say about whether a
@@ -323,7 +327,7 @@ public final class WardenPlugin extends JavaPlugin {
 ```
 
 Unregistering in `onDisable` is not optional the way it is with the `ServicesManager`. Bukkit does not know
-about this registry, so nothing cleans up after you, and a protector left behind by a disabled plugin keeps
+about this registry, so a disabled plugin's protector remains registered and keeps
 being consulted.
 
 ---
@@ -369,8 +373,7 @@ public final class LockProtector implements Protector {
 
 ## Failure policy
 
-This surface is older and blunter than the ability API, and it is honest about it: there is no fault
-budget, no quarantine, no slow-call watchdog and no failure mode to configure.
+This surface has no fault budget, quarantine, slow-call watchdog, or configurable failure mode.
 
 | Misbehaviour | What happens |
 |--------------|--------------|
@@ -387,6 +390,16 @@ budget, no quarantine, no slow-call watchdog and no failure mode to configure.
 
 Write defensively. Null-check `player`, `location` and `adaptation`, return `true` when you genuinely do
 not know, and never let an exception out.
+
+## Region policy source
+
+`RegionPolicySource` is a separate, single-provider SPI for region XP, power, and temporary adaptation grants. Implement `getName()` and `resolve(player, location)`; return an immutable `RegionPolicy` containing `xpAllowed`, a clamped `xpMultiplier`, a clamped `powerBonus`, and normalized lower-case adaptation ids. `RegionPolicy.UNLOCK_ALL` (`"*"`) grants every enabled catalogue adaptation while the policy is active.
+
+`RegionPolicyService.install(source)` replaces the current global source; it does not compose multiple sources and does not retain the displaced source. Adapt installs `WorldGuardRegionPolicySource` during enable when WorldGuard is present, so a third-party call to `install` replaces WorldGuard flag behavior for the entire server. Call `install` only after Adapt and the intended region provider have enabled, and call `clear()` on provider disable only when that provider intentionally owns the global slot; there is no compare-and-clear or automatic restoration of WorldGuard.
+
+`resolve(player, location)` runs synchronously on the caller's owning thread. A thrown exception is logged with a stack trace and quarantines the source until the next `install` or `clear`; while absent or quarantined, `RegionPolicy.DEFAULT` permits XP at multiplier `1`, grants no power, and grants no adaptations. `adjustXp(xp, policy)` returns `0` when XP is denied and otherwise applies the multiplier. `isActive()` reports whether a non-quarantined source is installed.
+
+`RegionGrantRuntime` is Adapt's first-party reconciler: it applies the resolved power bonus, grants/revokes region-owned adaptation level 1 entries, and prunes adaptations when a reduced power budget is exceeded. External plugins return policy from the source; they do not call `RegionGrantRuntime.refresh` or modify region-granted records directly. `WorldPolicyLatencyTelemetry` is Adapt's WorldGuard-source timing instrumentation and is not a provider API.
 
 ### Configuration
 
@@ -406,10 +419,11 @@ third-party protector, whose default comes from your own `isEnabledByDefault()`.
 | `lockettePro` | `true` | `LockettePro` |
 
 A built-in protector is only registered at all when its plugin is present, so these keys switch off support
-that would otherwise be active.
+that would otherwise be active. Successful core-config hotload refreshes the default-active snapshot; adding
+or removing the provider plugin still requires an Adapt restart.
 
-`worldguard` additionally gates Adapt's four region flags for XP, power and temporary adaptation grants,
-which are not part of this SPI. See [worldguard-flags.md](../worldguard-flags.md).
+`worldguard` additionally gates Adapt's four region flags for XP, power, and temporary adaptation grants
+through the `RegionPolicySource` slot. See `08 - Protection & Region Policy.md`.
 
 `[protectionOverrides]` adds or removes individual protectors for one adaptation, keyed by adaptation id
 and then by `getName()`:

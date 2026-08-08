@@ -31,8 +31,8 @@ public class AdaptAdaptationEvent extends AdaptPlayerEvent {
   public AdaptAdaptationEvent(boolean async, AdaptPlayer player, Adaptation<?> adaptation) {
     super(async, player);
     this.adaptation = adaptation;
-    this.playerSkill = player.getSkillLine(adaptation.getSkill().getId());
     this.skill = adaptation.getSkill();
+    this.playerSkill = player.getSkillLine(skill.getName());
   }
 
   public Skill<?> getSkill() {

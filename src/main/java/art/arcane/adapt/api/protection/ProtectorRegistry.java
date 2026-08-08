@@ -58,6 +58,10 @@ public class ProtectorRegistry {
     return allProtectorsSnapshot;
   }
 
+  public synchronized void refreshDefaultProtectors() {
+    rebuildSnapshots();
+  }
+
   public synchronized void unregisterAll() {
     protectors.forEach(Protector::unregister);
     protectors.clear();

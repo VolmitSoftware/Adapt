@@ -36,8 +36,9 @@ public class CommandDefault {
       @Param(description = "skill to reset", descriptionKey = "command.help.skill_to_reset")
       AdaptationListingHandler.SkillProvider skillTarget
   ) {
-    if (!BukkitDirectorContext.sender().isOp()) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.OPERATOR_ONLY)).send(BukkitDirectorContext.sender());
+    if (!BukkitDirectorContext.hasPermission("adapt.configurator")) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.configurator")))
+          .send(BukkitDirectorContext.sender());
       return;
     }
 
@@ -77,8 +78,9 @@ public class CommandDefault {
       @Param(description = "adaptation to reset (skill:adaptation)", descriptionKey = "command.help.adaptation_to_reset_skill_adaptation")
       AdaptationListingHandler.AdaptationProvider adaptationTarget
   ) {
-    if (!BukkitDirectorContext.sender().isOp()) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.OPERATOR_ONLY)).send(BukkitDirectorContext.sender());
+    if (!BukkitDirectorContext.hasPermission("adapt.configurator")) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.configurator")))
+          .send(BukkitDirectorContext.sender());
       return;
     }
 
@@ -144,8 +146,9 @@ public class CommandDefault {
 
   @Director(description = "Reset ALL configs to defaults and archive the old settings", descriptionKey = "command.help.reset_all_configs_to_defaults_and_archive_the_old_settings")
   public void all() {
-    if (!BukkitDirectorContext.sender().isOp()) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.OPERATOR_ONLY)).send(BukkitDirectorContext.sender());
+    if (!BukkitDirectorContext.hasPermission("adapt.configurator")) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.configurator")))
+          .send(BukkitDirectorContext.sender());
       return;
     }
 

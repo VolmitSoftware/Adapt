@@ -10,14 +10,14 @@ types: it links against a plain Paper compile classpath.
 
 A policy can **only refuse**. `AbilityUseDecision.allow()` means "I have no objection", not "let this
 through" — every other gate still runs, and an adaptation the player has never learned stays unreachable.
-See [Skill items are inert without their adaptation](README.md#skill-items-are-inert-without-their-adaptation).
+See [Skill items are inert without their adaptation](<41 - API - Getting Started.md#skill-items-are-inert-without-their-adaptation>).
 
 ---
 
 ## Depending on Adapt
 
 Compile against the shaded `Adapt-<version>-all.jar` and declare the dependency in your plugin manifest.
-The full instructions are in [README.md](README.md#depending-on-adapt).
+The full instructions are in [41 - API - Getting Started.md](<41 - API - Getting Started.md#depending-on-adapt>).
 
 Acquire nothing. You do not look Adapt up; you register with Bukkit's `ServicesManager` and Adapt finds you.
 
@@ -44,11 +44,11 @@ something. That resolution runs these gates in order, and stops at the first fai
 1. learned level > 0                     the player owns the adaptation at all
 2. world is not blacklisted
 3. game mode is allowed                  never spectator; creative only when configured
-4. Protector.checkRegion(...)            land claims and regions        -> protection.md
-5. adapt.use.<adaptation> permission     unset or op means granted      -> README.md
+4. Protector.checkRegion(...)            land claims and regions        -> 46 - API - Protection.md
+5. adapt.use.<adaptation> permission     unset or op means granted      -> 41 - API - Getting Started.md
 6. no usage conflict with another adaptation
-7. AdaptAdaptationUseEvent not cancelled                                -> events.md
-8. every AbilityUsePolicy allows         <- you are here
+7. AdaptAdaptationUseEvent not cancelled                                -> 45 - API - Events.md
+8. every AbilityUsePolicy allows         <- policy evaluation
 ```
 
 Reaching step 8 means the player owns the adaptation, is somewhere they may use it, and is permitted by
@@ -78,7 +78,7 @@ Rules Adapt guarantees:
   Never expect `evaluate` to be called at a rate you control.
 - **Adapt's own gate never consults a policy for an adaptation the player has not learned.** Step 1 above
   fails first. The public `Adaptation.canUse(Player)` is the one way around that — see
-  [What the context tells you](#what-the-context-tells-you).
+  [Context fields](#context-fields).
 - **`providerId()` and `scope()` are read once**, when Adapt (re)builds its provider index after a service
   registration change — not on every check. Returning a different scope later has no effect until you
   unregister and register again. Treat both as constants.
@@ -101,7 +101,7 @@ your plugin, but the warning never changes the decision — a policy that hangs 
 **Do not re-enter Adapt.** Calling `Adaptation.getActiveLevel`, `hasActiveAdaptation` or anything else that
 triggers an ability check from inside `evaluate` is detected: the nested evaluation is skipped, returns
 `ALLOW`, is counted, and produces a throttled warning. Your outer decision still stands, but the inner
-answer is a lie. Answer from state you already hold.
+answer may be stale before it is used. Evaluate from state already held in memory.
 
 If you need remote data, cache it and prime the cache on `PlayerJoinEvent`.
 
@@ -143,7 +143,7 @@ public final class JailUsePolicy implements AbilityUsePolicy {
 }
 ```
 
-`JailIndex` is yours; the sample needs only `boolean isJailed(UUID)`, and it must answer from memory
+`JailIndex` is application-owned; the sample needs only `boolean isJailed(UUID)`, and it must answer from memory
 without touching a database.
 
 This policy declares no `scope()`, so it inherits `AbilityScope.everything()` and Adapt consults it for
@@ -205,8 +205,8 @@ public final class ArenaUsePolicy implements AbilityUsePolicy {
 
 The scope and `evaluate` have to agree. `SCOPE` names `swords`, `ranged` and `tragoul` so those three
 skills reach this policy at all, plus the single ability `rift-blink`; `evaluate` then refuses two of them
-and permits the rest. Widening the scope without widening `evaluate` costs you a call per adaptation per
-tick for nothing, and narrowing it below what `evaluate` tests means the test never runs.
+and permits the rest. Widening the scope without widening `evaluate` adds an unnecessary call per
+adaptation per tick; narrowing it below what `evaluate` tests prevents the test from running.
 
 ### Registration
 
@@ -243,15 +243,15 @@ getServer().getServicesManager().register(AbilityUsePolicy.class,
     this, ServicePriority.Normal);
 ```
 
-The cost of the shortcut is your identity. The default `providerId()` is your class name, which for a
+The default `providerId()` is the implementation class name, which for a
 lambda is a generated name like `com.example.Warden$$Lambda/0x00007f2a…` that changes on every restart and
 on unrelated edits to your plugin. Adapt logs one warning naming your plugin when it sees that, and keeps
 using the generated name — it is unique within a run, so deduplication and quarantine still work, but it is
-not a name an admin can recognise in a log line. Override `providerId()` for anything you intend to ship.
+not a stable operator-facing name. Production policies should override `providerId()`.
 
 ---
 
-## What the context tells you
+## Context fields
 
 ```java
 public record AbilityContext(UUID activationId, String abilityId, String skillId, int level,
@@ -327,9 +327,8 @@ scope in a test. `equals` and `hashCode` are value-based.
 with the same reason.
 
 **Adapt does not show that reason to the player.** There is no message, no action bar, no sound. From the
-player's side the adaptation simply does nothing. If it matters that they understand why, send the message
-yourself — but remember the caching rule above: you will be asked roughly once per tick per adaptation while
-they keep trying, so throttle your own messaging or you will spam them.
+player receives no built-in denial message. A policy that sends its own message must throttle it because
+evaluation can occur roughly once per tick per adaptation while the player continues trying.
 
 Passing `null` or `""` to `deny` is legal and denies just as hard; the reason is only ever diagnostic.
 
@@ -375,7 +374,7 @@ A deliberate `DENY` always denies, whatever the failure mode says. The mode gove
 |-----|---------|---------|
 | `enabled` | `true` | Master switch for the whole ability API. When false, no policy and no cost provider is called and neither ability event fires |
 | `usePolicyFailureMode` | `"deny"` | `deny`: a faulting policy denies the activation. `allow`: a faulting policy is skipped |
-| `costProviderFailureMode` | `"allow"` | The cost funnel's equivalent. See [ability-cost.md](ability-cost.md#configuration) |
+| `costProviderFailureMode` | `"allow"` | The cost funnel's equivalent. See [44 - API - Ability Cost.md](<44 - API - Ability Cost.md#configuration>) |
 | `providerFaultLimit` | `5` | Quarantine trips on the Nth fault, so the default tolerates four. Clamped to `0`–`1000`; `0` disables quarantine |
 | `slowProviderMillis` | `2` | Warn when one provider call takes at least this long. Clamped to `0`–`60000`; `0` disables the watchdog |
 | `denyMessageThrottleMillis` | `2000` | How long an identical denial is deduplicated per player |
@@ -405,4 +404,4 @@ Prefer `AbilityUseDecision.allowed()` over switching on `status()`.
 | `ACTIVATE` | Adapt is charging for a use that is happening now. Reaches `AbilityCostProvider` only |
 
 Both enums may gain constants. Write a `default` arm — see
-[Switching over the enums](README.md#switching-over-the-enums).
+[Switching over the enums](<41 - API - Getting Started.md#switching-over-the-enums>).

@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 @Director(name = "reset", origin = DirectorOrigin.BOTH, description = "Permanently delete all Adapt data for a player", descriptionKey = "command.help.permanently_delete_all_adapt_data_for_a_player")
@@ -24,13 +25,14 @@ public class CommandReset {
   private static final Map<UUID, PendingReset> pendingConfirmations = new HashMap<>();
   private static final long CONFIRMATION_TIMEOUT_MS = 30_000;
 
-  @Director(description = "Permanently delete all Adapt data for a player. Requires op. Run twice to confirm.", descriptionKey = "command.help.permanently_delete_all_adapt_data_for_a_player_requires_op_run_twice_to_confirm")
+  @Director(description = "Permanently delete all Adapt data for a player. Requires adapt.clear. Run twice to confirm.", descriptionKey = "command.help.permanently_delete_all_adapt_data_for_a_player_requires_adapt_clear_run_twice_to_confirm")
   public void confirm(
       @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullableOfflinePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       OfflinePlayer player
   ) {
-    if (!BukkitDirectorContext.sender().isOp()) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.OPERATOR_ONLY)).send(BukkitDirectorContext.sender());
+    if (!BukkitDirectorContext.hasPermission("adapt.clear")) {
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.clear")))
+          .send(BukkitDirectorContext.sender());
       return;
     }
 
@@ -53,7 +55,7 @@ public class CommandReset {
       pendingConfirmations.remove(senderUuid);
 
       boolean live = Adapt.instance.getAdaptServer().resetPlayerData(targetUuid);
-      Adapt.info("Operator " + BukkitDirectorContext.name() + " reset all Adapt data for " + targetName
+      Adapt.info("Sender " + BukkitDirectorContext.name() + " reset all Adapt data for " + targetName
           + (live ? " (live)" : " (offline)"));
 
       if (live) {

@@ -9,16 +9,16 @@ Adapt fires two families of Bukkit event, and they have nothing to do with each 
 | `AdaptBrewCompleteEvent` | `art.arcane.adapt.api.potion` | its own | observe an Adapt brewing recipe finishing |
 
 The ability events are documented with the cost funnel they belong to, in
-[ability-cost.md](ability-cost.md#observing-and-vetoing-with-events). This document covers the rest.
+[44 - API - Ability Cost.md](<44 - API - Ability Cost.md#observing-and-vetoing-with-events>). This document covers the rest.
 
 **No event grants anything.** Cancelling refuses; not cancelling permits nothing that was not already
-permitted. See [Skill items are inert without their adaptation](README.md#skill-items-are-inert-without-their-adaptation).
+permitted. See [Skill items are inert without their adaptation](<41 - API - Getting Started.md#skill-items-are-inert-without-their-adaptation>).
 
 ---
 
 ## The shared HandlerList
 
-This is the single most important thing on this page.
+All subclasses use the same handler list.
 
 ```
 AdaptEvent                            implements Cancellable, declares the HandlerList
@@ -34,11 +34,10 @@ these five classes is registered into the same `HandlerList`**.
 
 What follows from that:
 
-- **A listener declared on `AdaptEvent` receives every subclass.** Not just the ones you were thinking of —
-  every subclass that exists now and every one added later.
+- **A listener declared on `AdaptEvent` receives every subclass**, including subclasses added later.
 - **A listener declared on `AdaptEvent` that cancels, cancels broadly.** `AdaptAdaptationUseEvent` is fired
-  during the active-level gate, so a blanket cancel there disables *every adaptation for that player for
-  that tick*, silently. This is the most common way to accidentally turn the plugin off.
+  during the active-level gate, so a blanket cancel there silently disables every adaptation for that
+  player for that tick.
 - **Sibling classes do not cross-talk.** Bukkit's event executor checks `eventClass.isInstance(event)`
   before invoking your method, so a listener declared on `AdaptAdaptationUseEvent` is not called for an
   `AdaptAdaptationTeleportEvent`. Only supertype listeners see everything.
@@ -51,14 +50,14 @@ What follows from that:
   listener on `AdaptEvent` to catch "anything" puts your handler in the path of the hottest gate in the
   plugin.
 
-**Declare the narrowest subclass you actually mean.** `AdaptEvent` is a base class, not an API convenience.
+Declare the narrowest applicable subclass. `AdaptEvent` is the family base class.
 
 ---
 
 ## `AdaptAdaptationUseEvent`
 
 Fired from Adapt's active-level gate, immediately before any registered
-[`AbilityUsePolicy`](ability-policy.md) is consulted, and after the world, game-mode, protection,
+[`AbilityUsePolicy`](<43 - API - Ability Use Policy.md>) is consulted, and after the world, game-mode, protection,
 permission and conflict checks have already passed. Cancelling makes the adaptation completely inert for
 that player: no effect, no cooldown, no experience, no cost.
 
@@ -82,13 +81,13 @@ Inherited accessors:
 **This event is hot.** Adapt memoizes each active-level resolution per `(player, adaptation)` for the
 current 50 ms tick bucket, so you will see at most one event per player per adaptation per tick — but a
 player with thirty adaptations learned, moving and fighting, can still produce a lot of them. Do nothing
-expensive here. No I/O, no allocation you can avoid, no blocking.
+expensive here. Do not perform I/O, avoid unnecessary allocation, and do not block.
 
 Cancelling is cached with everything else: the decision holds until the tick bucket rolls over or the
 player's learned level in that adaptation changes.
 
 If your rule needs a reason, needs scoping, or needs fault containment, register an
-[`AbilityUsePolicy`](ability-policy.md) instead — it does the same job with all three.
+[`AbilityUsePolicy`](<43 - API - Ability Use Policy.md>) instead — it does the same job with all three.
 
 ## `AdaptAdaptationTeleportEvent`
 
@@ -129,7 +128,7 @@ consequences listed above.
 `AdaptPlayer`, `Skill` and `PlayerSkillLine` are Adapt's own types, but some of their accessors return
 VolmLib collections that Adapt relocates at build time. Calling one bakes a relocated class name into your
 jar and breaks the day that path moves. See
-[Adapt relocates VolmLib](README.md#adapt-relocates-volmlib-do-not-reference-relocated-types).
+[Adapt relocates VolmLib](<41 - API - Getting Started.md#adapt-relocates-volmlib-do-not-reference-relocated-types>).
 
 | Safe — returns a JDK or Bukkit type | Unsafe — returns a relocated `KList` / `KMap` |
 |---|---|
@@ -233,7 +232,7 @@ public final class WardenAdaptListener implements Listener {
 }
 ```
 
-`JailIndex` and `ClaimIndex` are yours; the sample needs `boolean isJailed(UUID)`,
+`JailIndex` and `ClaimIndex` are application-owned; the sample needs `boolean isJailed(UUID)`,
 `boolean isClaimed(Location)` and `boolean isTrusted(UUID, Location)`, all answering from memory.
 
 Note the two separate handlers. Writing one handler on `AdaptAdaptationEvent` and switching on the concrete
@@ -301,3 +300,8 @@ priority that cancelled the same in-flight event.
 
 There are no configuration keys for these events. `[abilityApi] enabled = false` switches off the two
 ability events, but has no effect on the `AdaptEvent` family — `AdaptAdaptationUseEvent` fires regardless.
+
+
+## `getPlayerSkill()`
+
+`AdaptAdaptationEvent.getPlayerSkill()` resolves the player's skill line with `adaptation.getSkill().getName()`, matching catalogue skill keys. Use this accessor for the player's line; do not use `Skill.getId()` (ticker id) as a skill-line key.

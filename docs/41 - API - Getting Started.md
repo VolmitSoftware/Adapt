@@ -1,23 +1,27 @@
 # Adapt integration API
 
 Adapt is a skills and abilities plugin: more than three hundred **adaptations** spread across twenty-three
-**skill lines**, each with levels, experience, cooldowns and — for a good number of them — an item, hunger,
-health, durability or experience cost paid at the moment of use. This directory documents the surfaces
-another plugin uses to observe that system, gate it, or take payment for it.
-
-There are five, and they are not interchangeable.
+**skill lines**, each with levels, experience, cooldowns and, where configured, an item, hunger,
+health, durability or experience cost paid at the moment of use. The numbered API docs distinguish stable
+third-party contracts from Java-public classes that exist only for Adapt's own catalogue and runtime.
 
 | You want to…                                                        | Use                                                              | Document |
 |---------------------------------------------------------------------|------------------------------------------------------------------|----------|
-| answer "may this player use this adaptation right now", with a reason | `AbilityUsePolicy` (ServicesManager)                             | [ability-policy.md](ability-policy.md) |
-| price an activation, or charge for it from your own economy          | `AbilityCostProvider` (ServicesManager)                          | [ability-cost.md](ability-cost.md) |
-| gate adaptations on land claims, regions and protection flags        | `Protector` (`ProtectorRegistry`)                                | [protection.md](protection.md) |
-| watch adaptations being used, or veto them for free                  | the `AdaptEvent` family, `AdaptAbilityActivateEvent`             | [events.md](events.md) |
-| read a player's levels, power and mutations as text                  | the `%adapt_…%` PlaceholderAPI expansion                          | [placeholders.md](placeholders.md) |
+| answer "may this player use this adaptation right now", with a reason | `AbilityUsePolicy` (ServicesManager)                             | [43 - API - Ability Use Policy.md](<43 - API - Ability Use Policy.md>) |
+| price an activation, or charge for it from your own economy          | `AbilityCostProvider` (ServicesManager)                          | [44 - API - Ability Cost.md](<44 - API - Ability Cost.md>) |
+| gate block/entity actions on claims or regions                       | `Protector` (`ProtectorRegistry`)                                | [46 - API - Protection.md](<46 - API - Protection.md>) |
+| supply region XP, power, and temporary adaptation grants             | `RegionPolicySource` (`RegionPolicyService`)                     | [46 - API - Protection.md](<46 - API - Protection.md#region-policy-source>) |
+| watch or veto activation and adaptation events                       | the ability events and `AdaptEvent` family                       | [45 - API - Events.md](<45 - API - Events.md>) |
+| inspect catalogue objects or change a learned level transactionally  | `SkillRegistry`, `AdaptationLearningTransaction`                 | [42 - API - Skills & Adaptations.md](<42 - API - Skills & Adaptations.md>) |
+| inspect mutation catalogue/snapshot value objects                    | `MutationCatalog`, `MutationSnapshot`                            | [48 - API - Mutations.md](<48 - API - Mutations.md>) |
+| look up online data or award progression through production paths    | `AdaptServer`, `XP`                                              | [49 - API - Player Data, XP & World.md](<49 - API - Player Data, XP & World.md>) |
+| build recipes/effects or read diagnostics                            | recipe, FX, telemetry, projectile, and value helpers             | [50 - API - Recipes, FX, Telemetry & Utilities.md](<50 - API - Recipes, FX, Telemetry & Utilities.md>) |
+| read levels, power, and mutations as text                            | the `%adapt_…%` PlaceholderAPI expansion                         | [47 - API - PlaceholderAPI.md](<47 - API - PlaceholderAPI.md>) |
 
-**None of these can grant an ability.** Every one of them can only refuse, price, or observe. A player who
-has not learned an adaptation is not reachable through any integration surface here — see
-[Skill items are inert without their adaptation](#skill-items-are-inert-without-their-adaptation).
+Use-policy, cost, protector, and event callbacks can only refuse, price, or observe. Learned levels can be
+changed through `AdaptationLearningTransaction`, and a `RegionPolicySource` can temporarily grant
+adaptations through Adapt's single global region-policy slot. Those mutation surfaces have stricter
+ownership and threading rules in their respective docs.
 
 ---
 
@@ -26,7 +30,7 @@ has not learned an adaptation is not reachable through any integration surface h
 Adapt ships as a single shaded jar, `Adapt-<version>-all.jar`. **Compile against that jar**, and against
 that jar only. A thin `Adapt-<version>.jar` is produced alongside it during a build and contains none of
 the shaded libraries; the ability API happens to link against it, but `Adaptation`, `Skill`, `AdaptPlayer`
-and the `Adapt` plugin class all name VolmLib types that are simply not in it, and javac fails to resolve
+and the `Adapt` plugin class all name VolmLib types absent from it, and javac fails to resolve
 them.
 
 Gradle:
@@ -56,14 +60,13 @@ dependencies:
 
 `join-classpath: true` is mandatory on Paper — plugin classloaders are isolated, and without it every
 `art.arcane.adapt.*` reference fails at runtime with `NoClassDefFoundError` even though the classes are
-right there in Adapt's jar.
+present in Adapt's jar.
 
 `softdepend` (or `load: BEFORE`) is what guarantees Adapt has finished `onEnable` before yours starts. That
 matters: the `ProtectorRegistry` is constructed during Adapt's `onEnable`, so a plugin that enables first
 finds nothing to register with.
 
-Adapt declares `folia-supported: true` and targets Java 25. Your plugin can target any release Paper
-accepts; the samples in these documents compile at `--release 21` against the shipped jar.
+Adapt declares `folia-supported: true` and targets Java 25. The server running Adapt must use Java 25.
 
 ---
 
@@ -81,9 +84,9 @@ plumbing. That package path is a build artifact. It is not versioned, not announ
 
 The rule for a consumer:
 
-- **Reference freely:** `art.arcane.adapt.api.ability` (except its `internal` subpackage),
-  `art.arcane.adapt.api.protection`, `art.arcane.adapt.api.potion.AdaptBrewCompleteEvent` and
-  `art.arcane.adapt.content.event.**`. These are the surfaces this directory documents.
+- **Reference freely:** `art.arcane.adapt.api.ability` (except its `internal` subpackage), the supported
+  members explicitly listed in docs `42`, `46`, and `48`-`50`, `AdaptBrewCompleteEvent`, and
+  `art.arcane.adapt.content.event.**`.
 - **Never name:** anything under `art.arcane.adapt.util.**`, in an import, a field type, a method
   signature, a cast or a generic argument.
 - **Read the signature first** anywhere else under `art.arcane.adapt.api.**`. That tree is Adapt's own
@@ -100,7 +103,7 @@ classpath. `Protector` holds to the same standard.
 The older event family does not hold that line. `Skill.getAdaptations()` returns VolmLib's `KList`, and the
 `PlayerSkillLine` collection getters return `KList` and `KMap`. Those calls compile — `KList extends
 ArrayList`, `KMap extends ConcurrentHashMap`, and the relocated classes are present in the shaded jar — but
-the *call site* is what bites you. This source:
+the call site still records the concrete relocated return type. This source:
 
 ```java
 List<Adaptation<?>> adaptations = skill.getAdaptations();
@@ -112,10 +115,10 @@ compiles to this instruction in **your** jar:
 invokeinterface art/arcane/adapt/api/skill/Skill.getAdaptations:()Lart/arcane/adapt/util/arcane/volmlib/util/collection/KList;
 ```
 
-The relocated class name is baked into your bytecode and your plugin breaks with `NoSuchMethodError` the
-day that path changes. Reach for the accessors that return JDK or Bukkit types instead — `getName()`,
+The relocated class name is baked into consumer bytecode and can produce `NoSuchMethodError` if that path
+changes. Use accessors that return JDK or Bukkit types instead — `getName()`,
 `isEnabled()`, `getMaxLevel()`, `getLevel(Player)`, `getXp()`, `getKnowledge()` — and get the adaptation
-itself from the event rather than by walking a skill's collection. [events.md](events.md) lists the safe
+itself from the event rather than by walking a skill's collection. [45 - API - Events.md](<45 - API - Events.md>) lists the safe
 accessors.
 
 ---
@@ -128,6 +131,13 @@ accessors.
 | `art.arcane.adapt.util.**` | Relocated libraries and vendored plumbing. See above. |
 | `art.arcane.adapt.content.**` except `content.event` | The adaptation and skill catalogue itself. Class names, packages and behaviour change release to release. |
 | `art.arcane.adapt.service.**` | Adapt's own service objects. |
+
+The Java-public classes in `art.arcane.adapt.api.ability.internal` are `AbilityApiPolicy`,
+`AbilityApiRuntime`, `AbilityCostGateway`, `AbilityDenial`, `AbilityEventSink`, `AbilityFailureMode`,
+`AbilityProviderGuard`, `AbilityProviderIndex`, `AbilityProviderRegistration`,
+`AbilityProviderRegistrations`, `AbilityProviderSource`, `AbilityServiceListener`,
+`AbilityUsePolicyGateway`, `BukkitAbilityEventSink`, and `BukkitAbilityProviderSource`. They are split out
+for Adapt's tests and lifecycle wiring; do not import, instantiate, register, or reflect against them.
 
 `AbilityApiBridge` sits in `art.arcane.adapt.api.adaptation` and looks like an entry point. It is not. The
 methods that drive the funnel are package-private. Of its three public statics, `install` and `uninstall`
@@ -152,9 +162,9 @@ Two surfaces do not fit that sentence and are documented where they live rather 
 - **`AbilityCostProvider.commit` and `refund`.** `commit` is on the owning thread for every charge the
   shipped catalogue makes; `refund` is on the owning thread for a rollback and on some other thread
   entirely for `EXPIRED`, `ADAPTATION_DISABLED` and `SERVER_SHUTDOWN` — see
-  [ability-cost.md](ability-cost.md#threading).
+  [44 - API - Ability Cost.md](<44 - API - Ability Cost.md#threading>).
 - **The older `AdaptEvent` family** carries an async flag computed from the firing thread and can genuinely
-  be asynchronous — see [events.md](events.md#threading).
+  be asynchronous — see [45 - API - Events.md](<45 - API - Events.md#threading>).
 
 `providerId()` and `scope()` are not calls in this sense at all: Adapt reads them once when it rebuilds its
 provider index after a service registration change, on whichever thread triggered the rebuild.
@@ -171,7 +181,7 @@ hangs cannot be interrupted, so the contract is the only protection. If you need
 prime the cache on `PlayerJoinEvent`.
 
 Placeholders are the exception and are documented separately: they are served from an immutable snapshot
-and are safe to resolve from any thread. See [placeholders.md](placeholders.md).
+and are safe to resolve from any thread. See [47 - API - PlaceholderAPI.md](<47 - API - PlaceholderAPI.md>).
 
 ---
 
@@ -187,11 +197,11 @@ adapt.use.mutation.<mutation id>                   e.g. adapt.use.mutation.basti
 adapt.use.*                                        parent of every skill and mutation node
 ```
 
-Two consequences that will otherwise cost you an afternoon:
+Two permission behaviors are important:
 
 1. **Absence is not denial.** Adapt's check asks `player.isPermissionSet(node)` and treats an unset node as
-   *granted*, without ever calling `hasPermission`. A node Adapt never registered — a custom adaptation, a
-   node typed wrong — is permitted, not refused. To deny, negate the node explicitly
+   *granted*, without ever calling `hasPermission`. A node Adapt never registered — a custom adaptation or
+   a mistyped node — is permitted, not refused. To deny, negate the node explicitly
    (`-adapt.use.riftconduit`).
 2. **Operators and debug-mode players bypass the check entirely.** `player.isOp()` short-circuits to
    granted before the node is ever consulted, as does a player with Adapt's debug mode active. Do not use
@@ -200,8 +210,8 @@ Two consequences that will otherwise cost you an afternoon:
 Only the adaptation node is read directly. The skill node and `adapt.use.*` work through Bukkit's normal
 parent/child recalculation, so negating `adapt.use.rift` negates every `rift-*` adaptation under it.
 
-If you want a decision that is genuinely yours, do not fight the permission tree — register an
-[`AbilityUsePolicy`](ability-policy.md).
+For a decision independent of the permission tree, register an
+[`AbilityUsePolicy`](<43 - API - Ability Use Policy.md>).
 
 ---
 
@@ -265,9 +275,9 @@ Everything an admin can tune about these surfaces lives in `plugins/Adapt/adapt/
 
 | Section | Governs | Document |
 |---------|---------|----------|
-| `[abilityApi]` | the whole ability API: master switch, failure modes, fault limit, slow-call threshold | [ability-policy.md](ability-policy.md#configuration), [ability-cost.md](ability-cost.md#configuration) |
-| `[protectorSupport]` | which built-in protectors are on by default | [protection.md](protection.md#configuration) |
-| `[protectionOverrides]` | per-adaptation protector overrides | [protection.md](protection.md#configuration) |
+| `[abilityApi]` | the whole ability API: master switch, failure modes, fault limit, slow-call threshold | [43 - API - Ability Use Policy.md](<43 - API - Ability Use Policy.md#configuration>), [44 - API - Ability Cost.md](<44 - API - Ability Cost.md#configuration>) |
+| `[protectorSupport]` | which built-in protectors are on by default | [46 - API - Protection.md](<46 - API - Protection.md#configuration>) |
+| `[protectionOverrides]` | per-adaptation protector overrides | [46 - API - Protection.md](<46 - API - Protection.md#configuration>) |
 
 The file is rewritten in canonical form on load, so keys you add by hand that Adapt does not recognise are
 dropped. Edit only documented keys.
@@ -293,4 +303,4 @@ String label = switch (charge.outcome()) {
 
 `AbilityOutcome.allowed()`, `AbilityUseDecision.allowed()`, `AbilityQuote.payable()`,
 `AbilityQuote.suppressesDefaultCost()` and `AbilityReservation.reserved()` answer the question most
-consumers actually have without a switch at all. Prefer them.
+consumers can query directly without a switch. Prefer them.

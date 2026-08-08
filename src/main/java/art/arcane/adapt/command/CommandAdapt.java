@@ -141,7 +141,7 @@ public class CommandAdapt {
                 .send(BukkitDirectorContext.sender());
             return;
           }
-          if (force || skill.openGui(targetPlayer, true)) {
+          if (openSkillGui(skill, targetPlayer, force)) {
             FConst.success(AdaptLanguage.text(
                 CommandRuntimeMessages.GUI_OPENED,
                 untrusted("target", skill.getName()),
@@ -170,7 +170,7 @@ public class CommandAdapt {
               )).send(BukkitDirectorContext.sender());
               return;
             }
-            if (force || adaptation.openGui(targetPlayer, true)) {
+            if (openAdaptationGui(adaptation, targetPlayer, force)) {
               FConst.success(AdaptLanguage.text(
                   CommandRuntimeMessages.GUI_OPENED,
                   untrusted("target", adaptation.getName()),
@@ -701,6 +701,14 @@ public class CommandAdapt {
         trusted("adaptations", migratedAdaptations),
         trusted("deleted", deletedLegacyJson)
     )).send(BukkitDirectorContext.sender());
+  }
+
+  static boolean openSkillGui(Skill<?> skill, Player player, boolean force) {
+    return skill.openGui(player, !force);
+  }
+
+  static boolean openAdaptationGui(Adaptation<?> adaptation, Player player, boolean force) {
+    return adaptation.openGui(player, !force);
   }
 
   private List<Skill<?>> allSkillSnapshot() {

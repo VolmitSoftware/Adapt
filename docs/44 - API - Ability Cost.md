@@ -19,14 +19,14 @@ Two entry points, and they are not interchangeable:
 registered `AbilityCostProvider` ever holds value.
 
 A cost provider **cannot grant an ability**. It prices a use that has already been permitted. See
-[Skill items are inert without their adaptation](README.md#skill-items-are-inert-without-their-adaptation).
+[Skill items are inert without their adaptation](<41 - API - Getting Started.md#skill-items-are-inert-without-their-adaptation>).
 
 ---
 
 ## Depending on Adapt
 
 Compile against the shaded `Adapt-<version>-all.jar` and declare the dependency in your plugin manifest.
-The full instructions are in [README.md](README.md#depending-on-adapt).
+The full instructions are in [41 - API - Getting Started.md](<41 - API - Getting Started.md#depending-on-adapt>).
 
 Register in `onEnable`. Bukkit unregisters you automatically when your plugin disables, and Adapt notices
 the unregistration on the next check.
@@ -80,7 +80,7 @@ few. Cost keys are not exhaustively enumerable from outside; branch on `kind()` 
 
 ### Pass, waive, pay, refuse
 
-`AbilityQuote` has five statuses, and the difference between the first two is the one readers get wrong.
+`AbilityQuote` has five statuses; `PASS` and `WAIVED` differ in whether Adapt's built-in cost still runs.
 
 | Quote | Meaning | Does Adapt take its own cost? | Does the activation proceed? |
 |-------|---------|-------------------------------|------------------------------|
@@ -92,10 +92,8 @@ few. Cost keys are not exhaustively enumerable from outside; branch on `kind()` 
 
 `suppressesDefaultCost()` answers this directly: it is true for `WAIVED` and `PAYABLE`, false for the rest.
 
-Read the first row again. **Passing is not free.** A provider that returns `pass()` for an item cost has
-told Adapt to go ahead and take the item. If your intent is "this player pays nothing at all", you must
-return `waived(...)`, not `pass()`. Getting this backwards produces a bug that looks like your provider
-being ignored.
+**Passing is not free.** A provider that returns `pass()` for an item cost tells Adapt to take the item.
+Return `waived(...)` when the activation should cost nothing.
 
 The built-in cost is suppressed if **any** provider waives or successfully reserves. Providers do not
 negotiate: the first `INSUFFICIENT` or `DENIED` ends the activation immediately and nothing is charged.
@@ -109,7 +107,7 @@ quote(context)          side-effect free. Say PASS, WAIVED, PAYABLE, INSUFFICIEN
    v
 reserve(context, quote) take the value now. Return a receipt.
    |
-   +--> commit(receipt)                 the activation happened. Value is yours. FINAL.
+   +--> commit(receipt)                 the activation happened; the charge is final
    +--> refund(receipt, reason)         it did not happen. Give it back.
 ```
 
@@ -184,7 +182,7 @@ A plugin with its own "Mana" pool that wants blood magic to cost mana instead of
 
 ### The receipt
 
-The receipt is yours and it is **opaque**. `AbilityReceipt` declares no instance methods: Adapt stores the
+The receipt is provider-owned and **opaque**. `AbilityReceipt` declares no instance methods: Adapt stores the
 object verbatim, never calls anything on it — not even `toString()` — and hands the exact same instance
 back to `commit` or `refund`. Put whatever you need to reverse the charge in it.
 
@@ -294,7 +292,7 @@ public final class ManaCostProvider implements AbilityCostProvider {
 }
 ```
 
-`ManaPool` is yours; the sample needs `isAttuned(UUID)`, `balance(UUID)`, `withdraw(UUID, int)`,
+`ManaPool` is application-owned; the sample needs `isAttuned(UUID)`, `balance(UUID)`, `withdraw(UUID, int)`,
 `deposit(UUID, int)` and `recordSpend(UUID, int)`, all answering from memory.
 
 Three things this example is doing on purpose:
@@ -309,7 +307,7 @@ Three things this example is doing on purpose:
 
 The `switch` in `priceOf` is exhaustive over `AbilityCostKind` because it is inside code compiled against a
 known Adapt version in a sample. In shipping code, add a `default` arm — see
-[Switching over the enums](README.md#switching-over-the-enums).
+[Switching over the enums](<41 - API - Getting Started.md#switching-over-the-enums>).
 
 ### Registration
 
@@ -358,7 +356,7 @@ deduplication and quarantine still work, but not a name an admin can recognise.
 
 ---
 
-## What the context tells you
+## Context fields
 
 ```java
 public record AbilityCostContext(AbilityContext ability, String costKey, AbilityCostKind kind,
@@ -404,7 +402,7 @@ Two guarantees worth relying on:
 - **`level()` is at least 1.** The funnel refuses to consult providers for a player who has not learned the
   adaptation: it logs, charges the built-in cost, and returns.
 
-### Two public types you will never be handed
+### Public types not passed to providers
 
 `AbilityDefaultCost` is the callback an adaptation hands the funnel — the built-in cost it *would* have
 taken, wrapped as `boolean take()`. It is public because the `pay*Cost` anchors on `Adaptation` name it in
@@ -413,14 +411,14 @@ succeeds. You observe its effect through `AbilityCharge.defaultCostSuppressed()`
 
 `AbilityReceipt.SimpleReceipt` is the record behind `AbilityReceipt.of(label)`. Match on it only if you
 created it; a `SimpleReceipt` you did not create belongs to another provider and will never reach you. The
-factory sanitises the label on the way in, so `label()` is not necessarily the string you passed.
+factory sanitises the input label, so `label()` may differ from the original string.
 
 ---
 
 ## Observing and vetoing with events
 
 Two events, each with its own `HandlerList`, both fired on the tick thread that owns the player. They are
-*not* part of the `AdaptEvent` family and share nothing with it — see [events.md](events.md).
+*not* part of the `AdaptEvent` family and share nothing with it — see [45 - API - Events.md](<45 - API - Events.md>).
 
 ```java
 @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
@@ -461,7 +459,7 @@ plugin costs nothing until it exists.
 
 ---
 
-## Hostile-provider policy
+## Provider fault policy
 
 Adapt assumes a provider will throw, return null, hand back somebody else's receipt, or fail to refund.
 
@@ -486,10 +484,9 @@ Adapt assumes a provider will throw, return null, hand back somebody else's rece
 | Adapt shuts down | Every unresolved receipt is refunded with `SERVER_SHUTDOWN` |
 | Adapt is disabled or `[abilityApi] enabled = false` | No provider is called, neither event fires, and Adapt takes its own built-in cost |
 
-**The default for cost providers is fail-open** — the opposite of use policies, which fail closed. The
-asymmetry is deliberate. A third-party bug that makes every adaptation on the server free is recoverable and
-loudly logged; a third-party bug that makes every adaptation on the server unusable is not. Admins who need
-hard gating set `[abilityApi] costProviderFailureMode = "deny"`.
+**The default for cost providers is fail-open** — the opposite of use policies, which fail closed. This
+keeps a provider failure recoverable and logged instead of making every adaptation unusable. Administrators
+who require hard gating set `[abilityApi] costProviderFailureMode = "deny"`.
 
 A deliberate `DENIED` or `INSUFFICIENT` quote always denies, whatever the failure mode says. The mode
 governs **faults only**.
@@ -497,7 +494,7 @@ governs **faults only**.
 No value ever moves through this API. `AbilityQuote.withPrice(long amount, String unit)` attaches an
 **optional** `OptionalLong amount()` and `String unit()` so Adapt can name a price in its own voice; it is
 display-only, refused at construction if it is negative, and Adapt never reconstructs, inspects or does
-arithmetic on what you actually charge. You own the movement of value end to end, and a quote without
+arithmetic on value moved in the external system. The provider owns that movement end to end, and a quote without
 `withPrice(…)` is perfectly valid.
 
 All third-party text — quote descriptions, refusal reasons, event cancel reasons, receipt labels — is
@@ -511,7 +508,7 @@ trimmed of control characters and truncated to 128 characters before Adapt store
 |-----|---------|---------|
 | `enabled` | `true` | Master switch for the whole ability API. When false, no provider is called and neither event fires |
 | `costProviderFailureMode` | `"allow"` | `allow`: a faulting provider is skipped and the activation proceeds. `deny`: a faulting provider refuses the activation |
-| `usePolicyFailureMode` | `"deny"` | The use-policy equivalent. See [ability-policy.md](ability-policy.md#configuration) |
+| `usePolicyFailureMode` | `"deny"` | The use-policy equivalent. See [43 - API - Ability Use Policy.md](<43 - API - Ability Use Policy.md#configuration>) |
 | `providerFaultLimit` | `5` | Quarantine trips on the Nth fault, so the default tolerates four. Clamped to `0`–`1000`; `0` disables quarantine |
 | `slowProviderMillis` | `2` | Warn when one provider call takes at least this long. Clamped to `0`–`60000`; `0` disables the watchdog |
 | `denyMessageThrottleMillis` | `2000` | Use-policy denial deduplication window. Does not affect the cost funnel |
@@ -608,4 +605,4 @@ public record AbilityCharge(UUID activationId, AbilityOutcome outcome, boolean d
 | `chargedProviderIds`    | Every provider that reserved, in charge order. Immutable                 |
 
 All enums here may gain constants. Write a `default` arm — see
-[Switching over the enums](README.md#switching-over-the-enums).
+[Switching over the enums](<41 - API - Getting Started.md#switching-over-the-enums>).
