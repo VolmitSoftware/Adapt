@@ -33,10 +33,14 @@ body:
       label: Minecraft Version
       description: What version of Minecraft is the server on?
       options:
-        - 1.19.2
-        - 1.20
-        - 1.21
-        - 1.22
+        - 26.2
+        - 26.1.2
+        - 1.21.11
+        - 1.21.10
+        - 1.21.8
+        - 1.21.4
+        - 1.21.1
+        - 1.20.1
     validations:
       required: true
   - type: input
@@ -51,7 +55,7 @@ body:
     id: logs
     attributes:
       label: Log
-      description: Paste a full log. Always use [mclogs](https://mclo.gs) Or [Pastebin](https://pastebin.com/). Must not be a crash report. Must be a full log. Must not be a screenshot of a log.
+      description: Paste a full log. Always use [mclogs](https://mclo.gs) Or [Pastebin](https://pastebin.com/). Please do not post just a crash report, partial log or screenshot.
       placeholder: https://mslog.gs/...
     validations:
       required: true
