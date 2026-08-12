@@ -1,23 +1,153 @@
 # Skill: Enchanting
 
-Skill id `enchanting`. Earn XP by enchanting items. Enchanting has 14 registered adaptations and uses the `KNOWLEDGE_BOOK` icon.
+Enchanting is the skill you level by using an enchanting table. Every enchant you apply awards skill XP scaled by the total power of the enchantments that landed, and the fourteen adaptations turn the table, the anvil, and the grindstone into a workshop that gives back more than vanilla does.
 
-**XP sources:** enchanting items at an enchanting table.
+The early adaptations are refunds. Lapis comes back, spent experience comes back as an orb, and the anvil stops charging you full price for repairs and renames. None of that needs a gesture. You enchant like normal and keep more of what you paid.
 
-**Milestones / challenges** (stat keys):
+The later ones change how you enchant at all. Rune Sight prints the hidden offers on your actionbar before you commit. Offer Reroll lets you burn lapis to reshuffle a bad table. Bookshelf Attunement fakes extra bookshelf power so the table offers better tiers than the room deserves. Quick-Click Enchant skips the anvil entirely for books that fit. Tome Rebinding and Infusion Transfer move enchantments between items, and Soul Link keeps one favorite item out of your death pile.
 
-- `challenge_enchant_1k` tracking `enchanted.items`
-- `challenge_enchant_5k` tracking `enchanted.items`
-- `challenge_enchant_power_100` tracking `enchanted.power`
-- `challenge_enchant_power_1k` tracking `enchanted.power`
-- `challenge_enchant_high_25` tracking `enchanting.high.level`
-- `challenge_enchant_high_250` tracking `enchanting.high.level`
-- `challenge_enchant_total_500` tracking `enchanting.total.levels`
-- `challenge_enchant_total_5k` tracking `enchanting.total.levels`
+Big enchants get noticed. Anything costing 30 levels or more counts toward the high-level challenges and sets off a beacon chime and a dome of particles over the table.
 
-Adaptations run only when learned (level ≥ 1), skill and adaptation are enabled, use permissions allow it, and protectors/region policy permit it.
+## Adaptations
 
-## Identity
+Everything below needs the same four things: the adaptation learned at level 1 or higher in the Adapt menu, the Enchanting skill and that adaptation both enabled in config, an `adapt.use.` permission that has not been revoked for you, and any protection or region plugin allowing the block or entity you are acting on. Those are not repeated per entry.
+
+### Quick-Click Enchant (`enchanting-quick-enchant`)
+
+Applies an enchanted book straight onto an item without an anvil, with no level cost and no prior-work penalty. It only moves enchantments the target can actually accept, and it refuses if the item would end up with more combined enchantment levels than your adaptation level allows.
+
+How to use it:
+
+1. Open any inventory screen.
+2. Pick up an enchanted book so it sits on your cursor. It has to be a single book.
+3. Left-click it onto a single item in a container slot, an armor slot, or your hotbar. The target cannot be a book or another enchanted book.
+4. Compatible enchantments move onto the item. Anything that conflicts with what is already there, or cannot go on that item type, stays on the book.
+5. If the book gave up everything it had it disappears. Otherwise it stays on your cursor holding the leftovers.
+
+If the combined power would exceed your cap, nothing happens and your actionbar tells you the limit.
+
+### Lapis Return (`enchanting-lapis-return`)
+
+Enchanting at a table sometimes drops lapis back at your feet. The amount dropped equals your adaptation level, so higher levels both refund more often and refund more. It works on its own once learned.
+
+There is a 20 second window between refunds. The chance is rolled first and the cooldown is checked second, so a lucky roll inside that window is wasted.
+
+### XP Return (`enchanting-xp-return`)
+
+Every enchant can spit an experience orb back out at you, worth `xpReturn * level * level` experience points. Same 20 second spacing as Lapis Return. It works on its own once learned.
+
+### Anvil Savant (`enchanting-anvil-savant`)
+
+Cuts the level cost the anvil quotes you for combining, repairing, and renaming, down to a floor of `minimumCost`. Your actionbar shows how many levels you just saved while you are shuffling items in the anvil. It works on its own once learned.
+
+The saved-levels stat only records once you actually take the result out of the output slot.
+
+### Offer Reroll (`enchanting-offer-reroll`)
+
+Rerolls your personal enchantment seed, which reshuffles every offer the table is showing you. Useful when all three slots are junk and you do not want to burn levels on a bad one.
+
+How to use it:
+
+1. Learn it, then stand near an enchanting table.
+2. Sneak and right-click the table with your main hand. Sneak-right-clicking air also works if you are looking at a table within 5 blocks.
+3. Lapis and XP levels come out of your inventory, the offers reshuffle, and the table goes on cooldown.
+
+Higher levels cost less lapis and shorten the cooldown. If you cannot pay, or the server build does not expose the seed setter, the attempt fizzles and everything is refunded.
+
+### Bookshelf Attunement (`enchanting-bookshelf-attunement`)
+
+Adds virtual bookshelf power to the enchanting table, so it offers better enchantments than the surrounding room should allow. Each offer gets its level requirement pushed up (capped at 30) and its enchantment level pushed up by a third of the virtual power, never past the enchantment's own maximum. It works on its own once learned.
+
+Because it raises the required level as well as the reward, this is a quality upgrade, not a discount.
+
+### Grindstone Recovery (`enchanting-grindstone-recovery`)
+
+Disenchanting normally destroys everything you strip off. This gives you a chance to keep one of those enchantments as an enchanted book, plus a handful of vanilla XP on top of the usual grindstone payout. It works on its own once learned.
+
+The recovered book carries one randomly chosen enchantment from whichever input was enchanted. Success puts the grindstone on a short cooldown for you. If you are sneaking, Curse Cleansing claims the click instead and this does not fire.
+
+### Curse Cleansing (`enchanting-curse-cleansing`)
+
+Strips Curse of Binding and Curse of Vanishing off an item while keeping everything else: the other enchantments, the name, the damage, the custom data. Vanilla grindstones cannot do this at all.
+
+How to use it:
+
+1. Put the cursed item in a grindstone. The other input slot can be empty.
+2. Sneak.
+3. Click the grindstone output slot.
+4. One of that input item is consumed, and a cleaned copy lands in your inventory. Your actionbar reports how many curses came off.
+
+You get Enchanting XP for each curse removed.
+
+### Tome Rebinding (`enchanting-tome-rebinding`)
+
+Splits an enchanted book carrying several enchantments into one book per enchantment. At low levels the split usually eats one of them at random. At max level the loss chance reaches zero and the split is clean.
+
+How to use it:
+
+1. Put a multi-enchant book (two or more stored enchantments) in the left slot of an anvil.
+2. Make sure your cursor is empty.
+3. Sneak and right-click that left slot.
+4. XP levels are deducted, the original book is consumed, and the single-enchant books go to your inventory.
+
+If you do not have the levels, the attempt fizzles and nothing is consumed.
+
+### Soul Link (`enchanting-soul-link`)
+
+Marks one enchanted item so it survives your next death. On death the marked item is pulled out of your drops, held server-side, and handed back to you when you respawn.
+
+How to use it:
+
+1. Hold an enchanted item, or an enchanted book, in your main hand.
+2. Sneak and right-click an anvil block.
+3. The item is stamped and your actionbar confirms the link. You cannot re-mark again until the cooldown expires.
+4. When you die, the save costs XP levels. If you were keeping levels, they come off your kept total. If you were not, the cost comes out of the XP you drop, at 7 XP per level.
+5. Respawn and the item is returned. If you logged out before it could be delivered, it arrives a second after your next join.
+
+Only one item is linked at a time, marking a new one replaces the old link. If you do not have enough XP levels at the moment you die, the item drops normally.
+
+### Arcane Siphon (`enchanting-arcane-siphon`)
+
+Killing a mob that is wearing or holding enchanted gear pays Enchanting XP per distinct enchantment on it, and sometimes drops an enchanted book carrying one of those enchantments. It works on its own once learned.
+
+Higher levels raise both the drop chance and the level the siphoned book rolls at, capped at the enchantment's vanilla maximum. Player kills do not count.
+
+### Rune Sight (`enchanting-rune-sight`)
+
+Shows you what the enchanting table is actually offering before you spend anything. The hidden offers are printed on your actionbar as enchantment name, level, and cost. It works on its own once learned.
+
+Level 1 reveals the top offer only. Level 3 reveals all three.
+
+### Infusion Transfer (`enchanting-infusion-transfer`)
+
+Moves the strongest compatible enchantment from the sacrifice item onto the base item, without the anvil's combine rules or prior-work penalty. Good for pulling one enchantment off a book or a spare tool.
+
+How to use it:
+
+1. Put the item you want to improve in the left anvil slot. It cannot be a book.
+2. Put the donor item or book in the right slot.
+3. Empty your cursor.
+4. Right-click the left slot. No sneaking needed.
+5. XP levels are deducted and the enchantment lands on the base item.
+
+The donor rolls to survive. At low levels it usually disappears; at max level it always survives, minus the enchantment that moved. A book stripped down to nothing becomes a plain book.
+
+### Echo of Knowledge (`enchanting-echo-of-knowledge`)
+
+Turns ordinary XP pickup into book upgrades. Hold an enchanted book while collecting experience and it soaks up charge; when it is full, one of its enchantments goes up a level.
+
+How to use it:
+
+1. Hold an enchanted book in your main hand.
+2. Collect experience however you like: mining, mobs, furnaces.
+3. Each pickup adds charge to that specific book, stored on the book itself.
+4. When the charge passes the threshold, one enchantment below its vanilla maximum gains a level and the threshold is subtracted from the charge.
+
+The book stops charging once every enchantment on it is at its vanilla cap. Higher levels convert experience to charge faster.
+
+## Reference
+
+### Identity
 
 | Property | Value |
 |----------|-------|
@@ -29,34 +159,60 @@ Adaptations run only when learned (level ≥ 1), skill and adaptation are enable
 | Skill config | `plugins/Adapt/adapt/skills/enchanting.toml` |
 | Adaptation count | 14 |
 
-## Skill configuration defaults
+### Skill XP and stats
 
-These values are written to `plugins/Adapt/adapt/skills/enchanting.toml` on first load. They control this skill's XP awards, limits, cooldowns, and progression behavior.
+XP comes from `EnchantItemEvent` at MONITOR priority. Award is `enchantPowerXPMultiplier * power`, where `power` is the sum of the enchantment levels applied. Awards are spaced by `cooldownDelay`; stats are recorded on every enchant regardless of the cooldown.
+
+| Stat key | Recorded |
+|----------|----------|
+| `enchanted.items` | 1 per enchant performed |
+| `enchanted.power` | Sum of applied enchantment levels |
+| `enchanting.high.level` | 1 per enchant costing 30 or more levels |
+| `enchanting.total.levels` | Level cost of the enchant |
+
+### Skill configuration defaults
+
+Written to `plugins/Adapt/adapt/skills/enchanting.toml` on first load.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `enabled` | `true` | Enables or disables this skill or adaptation. |
+| `enabled` | `true` | Turns the whole skill and its adaptations off when false. |
 | `skillColor` | `"&d"` | Legacy ampersand color code used for this skill in menus and text. |
-| `enchantPowerXPMultiplier` | `45` | Unitless multiplier applied to XP from enchant power multiplier. |
-| `cooldownDelay` | `5250` | Minimum delay between passive skill XP awards, in milliseconds. |
-| `challengeEnchantReward` | `2500` | Reward for the enchant challenge. |
+| `enchantPowerXPMultiplier` | `45` | Skill XP granted per point of applied enchantment power. |
+| `cooldownDelay` | `5250` | Minimum milliseconds between XP awards from enchanting. |
+| `challengeEnchantReward` | `2500` | Base knowledge reward for the Enchanting milestones. |
 
-## Adaptation usage reference
+### Skill milestones
 
-What each adaptation does and how a player activates it. TOML overrides live at `plugins/Adapt/adapt/adaptations/<id>.toml`.
+| Milestone key | Stat key | Threshold | Reward |
+|---------------|----------|-----------|--------|
+| `challenge_enchant_1k` | `enchanted.items` | 1000 | `challengeEnchantReward` |
+| `challenge_enchant_5k` | `enchanted.items` | 5000 | `challengeEnchantReward` |
+| `challenge_enchant_power_100` | `enchanted.power` | 100 | `challengeEnchantReward` |
+| `challenge_enchant_power_1k` | `enchanted.power` | 1000 | `challengeEnchantReward` * 2 |
+| `challenge_enchant_high_25` | `enchanting.high.level` | 25 | `challengeEnchantReward` |
+| `challenge_enchant_high_250` | `enchanting.high.level` | 250 | `challengeEnchantReward` * 2 |
+| `challenge_enchant_total_500` | `enchanting.total.levels` | 500 | `challengeEnchantReward` |
+| `challenge_enchant_total_5k` | `enchanting.total.levels` | 5000 | `challengeEnchantReward` * 2 |
 
-### Quick-Click Enchant (`enchanting-quick-enchant`)
+### Shared adaptation keys
 
-Enchant items by clicking enchant books directly on them.
+Every adaptation TOML at `plugins/Adapt/adapt/adaptations/<id>.toml` carries these in addition to the knobs listed below.
 
-**Runtime entry points:** on inventory click; periodic evaluation every 15100 ms.
+| Key | Behavior |
+|-----|----------|
+| `enabled` | Turns this adaptation off when false. |
+| `permanent` | Treats the adaptation as always learned, bypassing learn and unlearn. |
+| `showParticles` | Plays this adaptation's particle effects. |
+| `showSounds` | Plays this adaptation's sound effects. |
+| `baseCost`, `costFactor`, `maxLevel`, `initialCost` | Knowledge cost curve and level cap. Defaults per adaptation below. |
 
-**Menu displays:** Max Combined Levels; Cannot Enchant an item with more than ; power.
+In the formulas below, `levelPercent` is the learned level divided by `maxLevel`, clamped to 0 through 1.
 
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Quick-Click Enchant
 
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingQuickEnchant` |
 | Icon | `WRITABLE_BOOK` |
 | Max level | 7 |
@@ -65,32 +221,22 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.9 |
 | Tick interval (ms) | 15100 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-quick-enchant.toml` |
+| Listened events | `InventoryClickEvent` (HIGHEST) |
+| Menu stat line | Max Combined Levels |
+| Stat key | `enchanting.quick-enchant.books-applied` |
+| Milestones | `challenge_enchanting_quick_100` (100, reward 300), `challenge_enchanting_quick_1k` (1000, reward 1000) |
 
-Listened events:
-
-- `InventoryClickEvent` (`on`) — on inventory click
-
-Config knobs (code defaults):
+Power cap is `level + (level / maxPowerBonus1PerLevels)` once `level` exceeds `maxPowerBonusLimit`, otherwise just `level`. A successful application awards 50 skill XP plus 320 per enchantment level moved.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `maxPowerBonusLimit` | `4` | Maximum XP credited for max power bonus limit. |
-| `maxPowerBonus1PerLevels` | `3` | Maximum XP credited for max power bonus1 per levels. |
+| `maxPowerBonusLimit` | `4` | Adaptation level above which the bonus power term starts applying. |
+| `maxPowerBonus1PerLevels` | `3` | Adaptation levels per extra point of allowed combined power. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Lapis Return
 
-### Lapis Return (`enchanting-lapis-return`)
-
-Enchanting at a table has a chance to refund lapis, more at higher levels.
-
-**Runtime entry points:** when enchanting; periodic evaluation every 20999 ms.
-
-**Menu displays:** Chance to drop free lapis when you enchant; the amount scales with your level.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingLapisReturn` |
 | Icon | `LAPIS_LAZULI` |
 | Max level | 3 |
@@ -99,33 +245,23 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.9 |
 | Tick interval (ms) | 20999 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-lapis-return.toml` |
+| Listened events | `EnchantItemEvent` (HIGH) |
+| Menu stat line | Chance to drop free lapis when you enchant; the amount scales with your level |
+| Stat key | `enchanting.lapis-return.lapis-saved` |
+| Milestones | `challenge_enchanting_lapis_100` (100, reward 300), `challenge_enchanting_lapis_2500` (2500, reward 1000) |
 
-Listened events:
-
-- `EnchantItemEvent` (`on`) — when enchanting
-
-Config knobs (code defaults):
+Refund chance is `min(maxRefundChance, refundChanceBase + levelPercent * refundChanceFactor)`. Dropped stack size equals the adaptation level. Hardcoded 20000 ms cooldown between refunds, checked after the roll.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `refundChanceBase` | `0.1` | Base chance to refund lapis on an enchant. |
-| `refundChanceFactor` | `0.2` | Additional refund chance granted as the adaptation levels up. |
-| `maxRefundChance` | `0.4` | Upper bound on the lapis refund chance. |
+| `refundChanceBase` | `0.1` | Refund chance at level 0 progress, 0-1. |
+| `refundChanceFactor` | `0.2` | Extra refund chance added at full level, 0-1. |
+| `maxRefundChance` | `0.4` | Hard ceiling on refund chance, 0-1. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### XP Return
 
-### XP Return (`enchanting-xp-return`)
-
-Enchanting XP is returned to you when you enchant an item.
-
-**Runtime entry points:** when enchanting; periodic evaluation every 13001 ms.
-
-**Menu displays:** Experience spent has a chance to be refunded when you enchant an item; Experience per Enchant.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingXPReturn` |
 | Icon | `EXPERIENCE_BOTTLE` |
 | Max level | 7 |
@@ -133,32 +269,23 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Base knowledge cost | 1 |
 | Cost factor | 0.9 |
 | Tick interval (ms) | 13001 |
+| Localization key | `enchanting.return` |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-xp-return.toml` |
+| Listened events | `EnchantItemEvent` (HIGHEST) |
+| Menu stat lines | Experience spent has a chance to be refunded when you enchant an item; Experience per Enchant |
+| Stat key | `enchanting.xp-return.levels-saved` (counts experience points, not levels) |
+| Milestones | `challenge_enchanting_xp_100` (100, reward 400) |
 
-Listened events:
-
-- `EnchantItemEvent` (`on`) — when enchanting
-
-Config knobs (code defaults):
+Orb value is `xpReturn * level * level` experience points. Hardcoded 20000 ms cooldown between refunds.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `xpReturn` | `2` | XP awarded for xp return. |
+| `xpReturn` | `2` | Experience points per squared adaptation level in the refunded orb. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Anvil Savant
 
-### Anvil Savant (`enchanting-anvil-savant`)
-
-Reduce anvil XP cost when combining, repairing, and renaming.
-
-**Runtime entry points:** at anvil; on inventory click; periodic evaluation every 2200 ms.
-
-**Menu displays:** Anvil Cost Reduction.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingAnvilSavant` |
 | Icon | `ANVIL` |
 | Max level | 4 |
@@ -167,35 +294,24 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.8 |
 | Tick interval (ms) | 2200 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-anvil-savant.toml` |
+| Listened events | `PrepareAnvilEvent` (HIGHEST), `InventoryClickEvent` (MONITOR) |
+| Menu stat line | Anvil Cost Reduction |
+| Stat key | `enchanting.anvil-savant.levels-saved` |
+| Milestones | `challenge_enchanting_anvil_200` (200, reward 400), `challenge_enchanting_anvil_5k` (5000, reward 1500) |
 
-Listened events:
-
-- `PrepareAnvilEvent` (`on`) — at anvil
-- `InventoryClickEvent` (`on`) — on inventory click
-
-Config knobs (code defaults):
+Reduction is `min(maximumReduction, reductionBase + levelPercent * reductionFactor)`; the new cost is `max(minimumCost, ceil(oldCost * (1 - reduction)))`. The savings actionbar is throttled to one message per 350 ms.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `reductionBase` | `0.08` | Base Reduction. |
-| `reductionFactor` | `0.37` | Reduction factor. Unitless multiplier. |
-| `maximumReduction` | `0.65` | Maximum reduction. |
-| `minimumCost` | `1` | Lower bound or activation threshold for minimum cost. |
+| `reductionBase` | `0.08` | Cost reduction at level 0 progress, 0-1. |
+| `reductionFactor` | `0.37` | Extra cost reduction added at full level, 0-1. |
+| `maximumReduction` | `0.65` | Hard ceiling on cost reduction, 0-1. |
+| `minimumCost` | `1` | Lowest anvil level cost the reduction may produce. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Offer Reroll
 
-### Offer Reroll (`enchanting-offer-reroll`)
-
-Sneak-right-click an enchanting table to reroll its offers. Each reroll costs lapis and XP levels.
-
-**Runtime entry points:** on block/entity/air interact (click); periodic evaluation every 1800 ms.
-
-**Menu displays:** Reroll Cooldown; Lapis Cost.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingOfferReroll` |
 | Icon | `ENCHANTING_TABLE` |
 | Max level | 4 |
@@ -204,36 +320,26 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.7 |
 | Tick interval (ms) | 1800 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-offer-reroll.toml` |
+| Listened events | `PlayerInteractEvent` (HIGHEST) |
+| Menu stat lines | Reroll Cooldown; Lapis Cost; XP Level Cost |
+| Stat key | `enchanting.offer-reroll.rerolls` |
+| Milestones | `challenge_enchanting_reroll_100` (100, reward 300), `challenge_enchanting_reroll_1k` (1000, reward 1000) |
 
-Listened events:
-
-- `PlayerInteractEvent` (`on`) — on block/entity/air interact (click)
-
-Config knobs (code defaults):
+Lapis cost is `max(1, round(lapisCostBase - levelPercent * lapisCostFactor))`. Cooldown is `max(20, round(cooldownTicksBase - levelPercent * cooldownTicksFactor))` ticks, applied as a vanilla item cooldown on `ENCHANTING_TABLE`. The seed change is done reflectively through `setEnchantmentSeed`; failure refunds the lapis and XP levels.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `lapisCostBase` | `4` | Base Lapis cost. |
-| `lapisCostFactor` | `2` | Lapis cost factor. Unitless multiplier. |
-| `cooldownTicksBase` | `320` | Base Cooldown ticks. Server ticks (20 ticks = 1 second). |
-| `cooldownTicksFactor` | `220` | Cooldown ticks factor. Server ticks (20 ticks = 1 second). |
-| `xpLevelCost` | `1` | XP awarded for xp level cost. Level or effect-amplifier units. |
-| `xpGainOnReroll` | `15` | XP awarded for xp gain on reroll. |
+| `lapisCostBase` | `4` | Lapis consumed per reroll at level 0 progress. |
+| `lapisCostFactor` | `2` | Lapis removed from that cost at full level. |
+| `cooldownTicksBase` | `320` | Reroll cooldown at level 0 progress, in server ticks (20 = 1 second). |
+| `cooldownTicksFactor` | `220` | Ticks removed from the cooldown at full level. |
+| `xpLevelCost` | `1` | Vanilla XP levels charged per reroll, flat at all levels. |
+| `xpGainOnReroll` | `15` | Enchanting skill XP granted per successful reroll. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Bookshelf Attunement
 
-### Bookshelf Attunement (`enchanting-bookshelf-attunement`)
-
-Gain virtual bookshelf power to improve enchanting table offer quality.
-
-**Runtime entry points:** when enchanting; on `PrepareItemEnchantEvent`; periodic evaluation every 1400 ms.
-
-**Menu displays:** Virtual Bookshelf Power.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingBookshelfAttunement` |
 | Icon | `BOOKSHELF` |
 | Max level | 4 |
@@ -242,33 +348,22 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.6 |
 | Tick interval (ms) | 1400 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-bookshelf-attunement.toml` |
+| Listened events | `PrepareItemEnchantEvent` (HIGHEST), `EnchantItemEvent` (MONITOR, effects only) |
+| Menu stat line | Virtual Bookshelf Power |
+| Stat key | `enchanting.bookshelf-attunement.enchants-boosted` |
+| Milestones | `challenge_enchanting_bookshelf_100` (100, reward 400) |
 
-Listened events:
-
-- `EnchantItemEvent` (`on`) — when enchanting
-- `PrepareItemEnchantEvent` (`on`)
-
-Config knobs (code defaults):
+Virtual power is `max(1, round(powerBase + levelPercent * powerFactor))`. Each offer's cost becomes `min(30, cost + power)` and its enchantment level becomes `min(enchantMax, level + power / 3)`, never below 1. The shimmer effect is throttled to once per 1000 ms.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `powerBase` | `1` | Base Power. |
-| `powerFactor` | `5` | Power factor. Unitless multiplier. |
+| `powerBase` | `1` | Virtual bookshelf power at level 0 progress. |
+| `powerFactor` | `5` | Virtual bookshelf power added at full level. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Grindstone Recovery
 
-### Grindstone Recovery (`enchanting-grindstone-recovery`)
-
-Disenchanting can recover one removed enchantment onto a book with bonus XP.
-
-**Runtime entry points:** on inventory click; periodic evaluation every 1700 ms.
-
-**Menu displays:** Recovery Chance; Bonus XP; Recovery Cooldown.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingGrindstoneRecovery` |
 | Icon | `GRINDSTONE` |
 | Max level | 5 |
@@ -277,38 +372,28 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.74 |
 | Tick interval (ms) | 1700 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-grindstone-recovery.toml` |
+| Listened events | `InventoryClickEvent` (HIGHEST, cancelled events ignored) |
+| Menu stat lines | Recovery Chance; Bonus XP; Recovery Cooldown |
+| Stat key | `enchanting.grindstone-recovery.enchants-recovered` |
+| Milestones | `challenge_enchanting_grindstone_50` (50, reward 300), `challenge_enchanting_grindstone_500` (500, reward 1000) |
 
-Listened events:
-
-- `InventoryClickEvent` (`on`) — on inventory click
-
-Config knobs (code defaults):
+Recovery chance is `min(maxRecoverChance, recoverChanceBase + levelPercent * recoverChanceFactor)`. Vanilla XP granted is `round(bonusXpBase + levelPercent * bonusXpFactor)`. Cooldown is `max(10, round(cooldownTicksBase - levelPercent * cooldownTicksFactor))` ticks on `GRINDSTONE`. Recovered book level is clamped to the enchantment's maximum.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `recoverChanceBase` | `0.15` | Proc chance for recover chance base. decimal probability. |
-| `recoverChanceFactor` | `0.45` | Proc chance for recover chance factor. decimal probability. |
-| `maxRecoverChance` | `0.7` | Proc chance for max recover chance. decimal probability. |
-| `bonusXpBase` | `2` | Base skill XP credited for bonus base. |
-| `bonusXpFactor` | `8` | Unitless multiplier applied to XP from bonus factor. |
-| `cooldownTicksBase` | `120` | Base Cooldown ticks. Server ticks (20 ticks = 1 second). |
-| `cooldownTicksFactor` | `70` | Cooldown ticks factor. Server ticks (20 ticks = 1 second). |
-| `skillXpOnRecovery` | `13` | XP awarded for skill on recovery. |
+| `recoverChanceBase` | `0.15` | Recovery chance at level 0 progress, 0-1. |
+| `recoverChanceFactor` | `0.45` | Extra recovery chance added at full level, 0-1. |
+| `maxRecoverChance` | `0.7` | Hard ceiling on recovery chance, 0-1. |
+| `bonusXpBase` | `2` | Vanilla experience points granted at level 0 progress. |
+| `bonusXpFactor` | `8` | Extra vanilla experience points granted at full level. |
+| `cooldownTicksBase` | `120` | Recovery cooldown at level 0 progress, in server ticks. |
+| `cooldownTicksFactor` | `70` | Ticks removed from the cooldown at full level. |
+| `skillXpOnRecovery` | `13` | Enchanting skill XP granted per recovery. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Curse Cleansing
 
-### Curse Cleansing (`enchanting-curse-cleansing`)
-
-Sneak while taking a grindstone result to remove curses from the original item first, preserve every other property, and gain Enchanting XP.
-
-**Runtime entry points:** on inventory click; periodic evaluation every 1900 ms.
-
-**Menu displays:** Enchanting XP per Curse.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingCurseCleansing` |
 | Icon | `GRINDSTONE` |
 | Max level | 4 |
@@ -317,31 +402,21 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.8 |
 | Tick interval (ms) | 1900 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-curse-cleansing.toml` |
+| Listened events | `InventoryClickEvent` (LOWEST, cancelled events ignored) |
+| Menu stat line | Enchanting XP per Curse |
+| Stat key | `enchanting.curse-cleansing.curses-removed` |
+| Milestones | `challenge_enchanting_cleanse_10` (10, reward 300), `challenge_enchanting_cleanse_100` (100, reward 1000) |
 
-Listened events:
-
-- `InventoryClickEvent` (`on`) — on inventory click
-
-Config knobs (code defaults):
+Curses recognized are `BINDING_CURSE` and `VANISHING_CURSE`, on both direct enchantments and stored book enchantments. The cleaned output is always a stack of 1. Skill XP is `skillXpPerCurse * cursesRemoved`. This adaptation canonicalizes its config file on load.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
 | `skillXpPerCurse` | `30` | Enchanting skill XP granted for each curse removed. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Tome Rebinding
 
-### Tome Rebinding (`enchanting-tome-rebinding`)
-
-Sneak-right-click a multi-enchant book in an anvil to split it into single-enchant books. Lossy at low levels, lossless at max.
-
-**Runtime entry points:** on inventory click; periodic evaluation every 2100 ms.
-
-**Menu displays:** Enchant Loss Chance; XP Level Cost.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingTomeRebinding` |
 | Icon | `WRITABLE_BOOK` |
 | Max level | 5 |
@@ -350,36 +425,26 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.7 |
 | Tick interval (ms) | 2100 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-tome-rebinding.toml` |
+| Listened events | `InventoryClickEvent` (HIGHEST, cancelled events ignored) |
+| Menu stat lines | Enchant Loss Chance; XP Level Cost |
+| Stat key | `enchanting.tome-rebinding.books-split` |
+| Milestones | `challenge_enchanting_rebind_50` (50, reward 400), `challenge_enchanting_rebind_500` (500, reward 1200) |
 
-Listened events:
-
-- `InventoryClickEvent` (`on`) — on inventory click
-
-Config knobs (code defaults):
+Loss chance is `max(0, lossChanceBase - levelPercent * lossChanceFactor)`, which reaches 0 at max level with the shipped defaults. A loss only happens when more than one enchantment remains. XP level cost is `max(minXpCost, round(xpCostBase - levelPercent * xpCostFactor))`. Skill XP is `skillXpOnSplit` per book produced.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `lossChanceBase` | `0.9` | Proc chance for loss chance base. decimal probability. |
-| `lossChanceFactor` | `1.0` | Proc chance for loss chance factor. decimal probability. |
-| `xpCostBase` | `5` | Base skill XP credited for xp cost base. |
-| `xpCostFactor` | `3` | Unitless multiplier applied to XP from xp cost factor. |
-| `minXpCost` | `2` | XP awarded for min cost. |
-| `skillXpOnSplit` | `14` | XP awarded for skill on split. |
+| `lossChanceBase` | `0.9` | Chance to lose one enchantment at level 0 progress, 0-1. |
+| `lossChanceFactor` | `1.0` | Loss chance subtracted at full level, 0-1. |
+| `xpCostBase` | `5` | Vanilla XP levels charged at level 0 progress. |
+| `xpCostFactor` | `3` | XP levels removed from that cost at full level. |
+| `minXpCost` | `2` | Lowest XP level cost the scaling may produce. |
+| `skillXpOnSplit` | `14` | Enchanting skill XP granted per book produced. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Soul Link
 
-### Soul Link (`enchanting-soul-link`)
-
-Sneak-right-click an anvil to soul-link an enchanted item so it survives death, gated by an XP level buffer.
-
-**Runtime entry points:** on block/entity/air interact (click); on player death; on `PlayerRespawnEvent`; periodic evaluation every 2400 ms.
-
-**Menu displays:** XP Save Cost; Re-Mark Cooldown.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingSoulLink` |
 | Icon | `TOTEM_OF_UNDYING` |
 | Max level | 5 |
@@ -388,41 +453,27 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.85 |
 | Tick interval (ms) | 2400 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-soul-link.toml` |
+| Listened events | `PlayerInteractEvent` (HIGHEST, also receives cancelled events), `PlayerDeathEvent` (HIGH), `PlayerRespawnEvent` (MONITOR), `PlayerJoinEvent` (MONITOR), `PlayerQuitEvent` (MONITOR) |
+| Menu stat lines | XP Save Cost; Re-Mark Cooldown |
+| Stat key | `enchanting.soul-link.items-saved` |
+| Milestones | `challenge_enchanting_soul_10` (10, reward 400), `challenge_enchanting_soul_100` (100, reward 1200) |
 
-Listened events:
-
-- `PlayerInteractEvent` (`on`) — on block/entity/air interact (click)
-- `PlayerDeathEvent` (`on`) — on player death
-- `PlayerRespawnEvent` (`on`)
-- `PlayerJoinEvent` (`on`)
-- `PlayerQuitEvent` (`on`)
-
-Config knobs (code defaults):
+The mark is a random token written to the item's persistent data under `adapt:soul-link-token`. Save cost is `max(minSaveCost, round(saveCostBase - levelPercent * saveCostFactor))` XP levels. Re-mark cooldown is `max(minRemarkCooldown, round(remarkCooldownBase - levelPercent * remarkCooldownFactor))` milliseconds. If the death keeps levels, the cost comes off the kept level total; otherwise dropped XP is reduced by 7 experience points per level of cost. The saved item is serialized to player storage and delivered on respawn, or 20 ticks after the next join. Deaths with keep-inventory on are skipped entirely.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `saveCostBase` | `8` | Base Save cost. |
-| `saveCostFactor` | `5` | Save cost factor. Unitless multiplier. |
-| `minSaveCost` | `2` | Lower bound or activation threshold for min save cost. |
-| `remarkCooldownBase` | `60000` | Base Remark cooldown. |
-| `remarkCooldownFactor` | `45000` | Remark cooldown factor. Unitless multiplier. |
-| `minRemarkCooldown` | `8000` | Minimum remark cooldown. |
-| `skillXpOnSave` | `40` | XP awarded for skill on save. |
+| `saveCostBase` | `8` | XP levels charged on save at level 0 progress. |
+| `saveCostFactor` | `5` | XP levels removed from that cost at full level. |
+| `minSaveCost` | `2` | Lowest XP level cost the scaling may produce. |
+| `remarkCooldownBase` | `60000` | Milliseconds between marks at level 0 progress. |
+| `remarkCooldownFactor` | `45000` | Milliseconds removed from that cooldown at full level. |
+| `minRemarkCooldown` | `8000` | Shortest re-mark cooldown in milliseconds. |
+| `skillXpOnSave` | `40` | Enchanting skill XP granted when a saved item is returned. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Arcane Siphon
 
-### Arcane Siphon (`enchanting-arcane-siphon`)
-
-Killing mobs in enchanted gear grants bonus XP and can siphon a book of their enchantments.
-
-**Runtime entry points:** on entity death / kill credit; periodic evaluation every 2600 ms.
-
-**Menu displays:** Book Drop Chance; Enchant Quality Bonus.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingArcaneSiphon` |
 | Icon | `SOUL_LANTERN` |
 | Max level | 5 |
@@ -431,35 +482,25 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.6 |
 | Tick interval (ms) | 2600 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-arcane-siphon.toml` |
+| Listened events | `EntityDeathEvent` (MONITOR, cancelled events ignored) |
+| Menu stat lines | Book Drop Chance; Enchant Quality Bonus |
+| Stat key | `enchanting.arcane-siphon.books-siphoned` |
+| Milestones | `challenge_enchanting_siphon_25` (25, reward 400), `challenge_enchanting_siphon_250` (250, reward 1200) |
 
-Listened events:
-
-- `EntityDeathEvent` (`on`) — on entity death / kill credit
-
-Config knobs (code defaults):
+Gear scanned is helmet, chestplate, leggings, boots, main hand, and off hand; duplicate enchantments keep the highest level. Skill XP is `bonusXpPerEnchant * distinctEnchantCount` and is paid whether or not a book drops. Drop chance is `min(maxDropChance, dropChanceBase + levelPercent * dropChanceFactor)`. Book level is the source level plus `floor(levelPercent * qualityFactor)`, clamped to the enchantment maximum.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `dropChanceBase` | `0.12` | Proc chance for drop chance base. decimal probability. |
-| `dropChanceFactor` | `0.4` | Proc chance for drop chance factor. decimal probability. |
-| `maxDropChance` | `0.5` | Proc chance for max drop chance. decimal probability. |
-| `qualityFactor` | `2` | Quality factor. Unitless multiplier. |
-| `bonusXpPerEnchant` | `12` | XP awarded for bonus per enchant. |
+| `dropChanceBase` | `0.12` | Book drop chance at level 0 progress, 0-1. |
+| `dropChanceFactor` | `0.4` | Extra drop chance added at full level, 0-1. |
+| `maxDropChance` | `0.5` | Hard ceiling on book drop chance, 0-1. |
+| `qualityFactor` | `2` | Enchantment levels added to the siphoned book at full level. |
+| `bonusXpPerEnchant` | `12` | Enchanting skill XP per distinct enchantment on the victim's gear. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Rune Sight
 
-### Rune Sight (`enchanting-rune-sight`)
-
-Reveal the enchantments behind enchanting-table offers before you commit. One at first, the full list at max.
-
-**Runtime entry points:** on `PrepareItemEnchantEvent`; periodic evaluation every 1600 ms.
-
-**Menu displays:** Offers Revealed.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingRuneSight` |
 | Icon | `SPYGLASS` |
 | Max level | 3 |
@@ -468,32 +509,22 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.5 |
 | Tick interval (ms) | 1600 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-rune-sight.toml` |
+| Listened events | `PrepareItemEnchantEvent` (MONITOR) |
+| Menu stat line | Offers Revealed |
+| Stat key | `enchanting.rune-sight.offers-revealed` |
+| Milestones | `challenge_enchanting_rune_100` (100, reward 300), `challenge_enchanting_rune_1k` (1000, reward 1000) |
 
-Listened events:
-
-- `PrepareItemEnchantEvent` (`on`)
-
-Config knobs (code defaults):
+Reveal depth is `max(1, min(maxRevealDepth, 1 + floor(levelPercent * (maxRevealDepth - 1))))`. The actionbar line lists each revealed offer as enchantment name, level, and level cost.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `maxRevealDepth` | `3` | Maximum reveal depth. |
-| `revealThrottleMs` | `400` | Reveal throttle ms. Milliseconds. |
+| `maxRevealDepth` | `3` | Offers revealed at full level. |
+| `revealThrottleMs` | `400` | Minimum milliseconds between actionbar reveals. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Infusion Transfer
 
-### Infusion Transfer (`enchanting-infusion-transfer`)
-
-Right-click the base item in an anvil to move one enchantment onto it from the sacrifice item.
-
-**Runtime entry points:** on inventory click; periodic evaluation every 2300 ms.
-
-**Menu displays:** Source Survival Chance; XP Level Cost.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingInfusionTransfer` |
 | Icon | `ANVIL` |
 | Max level | 5 |
@@ -502,37 +533,27 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.8 |
 | Tick interval (ms) | 2300 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-infusion-transfer.toml` |
+| Listened events | `InventoryClickEvent` (HIGHEST, cancelled events ignored) |
+| Menu stat lines | Source Survival Chance; XP Level Cost |
+| Stat key | `enchanting.infusion-transfer.transfers` |
+| Milestones | `challenge_enchanting_infusion_25` (25, reward 400), `challenge_enchanting_infusion_250` (250, reward 1200) |
 
-Listened events:
-
-- `InventoryClickEvent` (`on`) — on inventory click
-
-Config knobs (code defaults):
+The transferred enchantment is the highest-level one on the donor that the base item does not already have and can legally hold. Survival chance is `min(maxSurvival, survivalBase + levelPercent * survivalFactor)`. XP level cost is `max(minXpCost, round(xpCostBase - levelPercent * xpCostFactor))`.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `survivalBase` | `0.1` | Base Survival. |
-| `survivalFactor` | `0.9` | Survival factor. Unitless multiplier. |
-| `maxSurvival` | `1.0` | Maximum survival. |
-| `xpCostBase` | `6` | Base skill XP credited for xp cost base. |
-| `xpCostFactor` | `3` | Unitless multiplier applied to XP from xp cost factor. |
-| `minXpCost` | `2` | XP awarded for min cost. |
-| `skillXpOnTransfer` | `20` | XP awarded for skill on transfer. |
+| `survivalBase` | `0.1` | Chance the donor item survives at level 0 progress, 0-1. |
+| `survivalFactor` | `0.9` | Extra survival chance added at full level, 0-1. |
+| `maxSurvival` | `1.0` | Hard ceiling on donor survival chance, 0-1. |
+| `xpCostBase` | `6` | Vanilla XP levels charged at level 0 progress. |
+| `xpCostFactor` | `3` | XP levels removed from that cost at full level. |
+| `minXpCost` | `2` | Lowest XP level cost the scaling may produce. |
+| `skillXpOnTransfer` | `20` | Enchanting skill XP granted per transfer. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+### Echo of Knowledge
 
-### Echo of Knowledge (`enchanting-echo-of-knowledge`)
-
-Hold an enchanted book while collecting XP to charge it and upgrade an enchantment within vanilla caps.
-
-**Runtime entry points:** on vanilla XP change; periodic evaluation every 1500 ms.
-
-**Menu displays:** XP Charge Rate.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
-
-| Property | Default |
-|----------|---------|
+| Property | Value |
+|----------|-------|
 | Class | `EnchantingEchoOfKnowledge` |
 | Icon | `KNOWLEDGE_BOOK` |
 | Max level | 5 |
@@ -541,25 +562,23 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Cost factor | 0.7 |
 | Tick interval (ms) | 1500 |
 | Config file | `plugins/Adapt/adapt/adaptations/enchanting-echo-of-knowledge.toml` |
+| Listened events | `PlayerExpChangeEvent` (MONITOR) |
+| Menu stat line | XP Charge Rate |
+| Stat key | `enchanting.echo-of-knowledge.levels-charged` |
+| Milestones | `challenge_enchanting_echo_25` (25, reward 400), `challenge_enchanting_echo_250` (250, reward 1200) |
 
-Listened events:
-
-- `PlayerExpChangeEvent` (`on`) — on vanilla XP change
-
-Config knobs (code defaults):
+Charge gained per pickup is `max(1, round(xpAmount * (chargeRateBase + levelPercent * chargeRateFactor)))`, stored on the book under `adapt:echo-charge` and capped at the threshold while no upgrade is pending. Nothing is stored when every enchantment on the book is already at its vanilla maximum. Charge effects are throttled to once per 400 ms.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `chargeRateBase` | `1` | Base Charge rate. |
-| `chargeRateFactor` | `3` | Charge rate factor. Unitless multiplier. |
-| `chargeThreshold` | `120` | Charge threshold. |
-| `skillXpOnUpgrade` | `35` | XP awarded for skill on upgrade. |
-
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+| `chargeRateBase` | `1` | Charge gained per experience point at level 0 progress. |
+| `chargeRateFactor` | `3` | Extra charge per experience point at full level. |
+| `chargeThreshold` | `120` | Charge required to raise one enchantment by a level. |
+| `skillXpOnUpgrade` | `35` | Enchanting skill XP granted per upgrade. |
 
 ## See also
 
-- `02 - Concepts.md`
-- `03 - Player Usage.md`
-- `10 - Skills Catalog.md`
-- `04 - Commands & Permissions.md`
+- `02 - Concepts.md` for skills, adaptations, and knowledge
+- `03 - Player Usage.md` for the Adapt menu and learning flow
+- `10 - Skills Catalog.md` for the full skill list
+- `04 - Commands & Permissions.md` for the `adapt.use` permission tree

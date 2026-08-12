@@ -1,26 +1,103 @@
 # Skill: Nether
 
-Skill id `nether`. Earn XP through Nether exploration and combat. Nether has 14 registered adaptations and uses the `NETHER_STAR` icon.
+Nether is the survival skill for the fire dimension. The skill itself pays out for wither business: taking wither damage, punching a Wither boss, killing wither skeletons, killing the Wither, and breaking wither roses. Everything else you earn in the Nether comes from the adaptations themselves, and most of them hand out their own XP for the thing they do.
 
-**XP sources:** Nether exploration, Nether block breaking, hostile kills and combat, and surviving Nether hazards.
+The tree is mostly about not dying to the terrain. Fire Resistance, Ashwalker, Ghast Ward, Wither Resistance, and Magma Skin each shave off a different way the Nether kills you. Lava Walker, Soul Strider, and Strider Bond fix the movement problems: crossing a lava lake, slogging through soul sand, and riding a strider without it freezing up.
 
-**Milestones / challenges** (stat keys):
+The rest is about taking things out of the Nether. Netherrack Mason speeds up bulk mining and adds bonus drops, Piglin Broker fattens up barters, Crimson Feast turns fungi and roots into real food, Wither Harvest makes wither skeletons pay properly, and Blaze Leech turns fire itself into food and regeneration.
 
-- `challenge_nether_50` tracking `nether.kills`
-- `challenge_nether_500` tracking `nether.kills`
-- `challenge_nether_5k` tracking `nether.kills`
-- `challenge_wither_dmg_500` tracking `nether.wither.damage`
-- `challenge_wither_dmg_5k` tracking `nether.wither.damage`
-- `challenge_wither_skel_25` tracking `nether.skeleton.kills`
-- `challenge_wither_skel_250` tracking `nether.skeleton.kills`
-- `challenge_wither_boss_1` tracking `nether.boss.kills`
-- `challenge_wither_boss_10` tracking `nether.boss.kills`
-- `challenge_roses_10` tracking `nether.roses.broken`
-- `challenge_roses_100` tracking `nether.roses.broken`
+Skull Throw is the one loud button in the tree. Right-click with a wither skeleton skull and you throw it as a live wither skull projectile.
 
-Adaptations run only when learned (level ≥ 1), skill and adaptation are enabled, use permissions allow it, and protectors/region policy permit it.
+## Adaptations
 
-## Identity
+Everything below needs the same conditions: the adaptation learned at level 1 or higher, the Nether skill and that adaptation both enabled in config, the `adapt.use.*` permission (or the matching per-adaptation node), and any protection plugin on your server allowing the action where you are standing.
+
+Several of these only work while you are in a Nether-environment world: Lava Walker, Ghast Ward, Netherrack Mason, and the meal half of Crimson Feast. The rest work anywhere, including Soul Strider, which speeds you across soul sand in the overworld too.
+
+### Wither Resistance (`nether-wither-resist`)
+
+Each piece of netherite armor you are wearing gives you a chance to shrug off wither damage entirely. The chances add up across the four slots and grow with level, so a full netherite set at max level negates the wither effect every time. Works on its own once learned.
+
+### Wither Skull Throw (`nether-skull-toss`)
+
+Wither skeleton skulls become ammunition. Right-click while holding one and you launch a real wither skull that flies where you are looking and explodes on impact, same as the boss fires. The skull is consumed (except in creative), and there is a cooldown that gets much shorter as you level. Landing a kill from 40 blocks or more unlocks a hidden challenge.
+
+**How to use it**
+
+1. Learn Wither Skull Throw in the Adapt menu.
+2. Hold a wither skeleton skull in your main hand.
+3. Right-click. Look where you want it to go first; the skull follows your aim.
+
+### Fire Resistance (`nether-fire-resist`)
+
+Every tick of fire damage has a chance to be cancelled outright. The chance climbs steeply with level, so a maxed version means you rarely notice standing in flames at all. It covers burning only, not lava. Works on its own once learned.
+
+### Lava Walker (`nether-lava-walker`)
+
+In the Nether, walking into lava pushes you forward across the surface instead of sinking. Each stride cancels your fall distance, puts out your fire, gives you a moment of fire resistance, and costs food. Higher levels stride farther, cost less food, and re-arm sooner. It does nothing if your food bar is empty, and it will not run while flying, gliding, or riding.
+
+**How to use it**
+
+1. Learn Lava Walker in the Adapt menu.
+2. Be in the Nether with food in your bar.
+3. Walk into the lava, facing the direction you want to go. Keep looking where you want to end up; each stride follows your view direction.
+
+### Ghast Ward (`nether-ghast-ward`)
+
+In the Nether, ghast fireballs hit you for much less, and getting hit by one also caps how long you burn afterward. Arrows from wither skeletons are cut down too, and so is any explosion damage while you are in the dimension. You earn Nether XP for every point of damage the ward removed. Works on its own once learned.
+
+### Blaze Leech (`nether-blaze-leech`)
+
+Fire feeds you. Whenever you take fire, lava, or magma-block damage, or land a hit on something that is currently burning, there is a chance to trigger a leech: food, saturation, and a burst of Regeneration. Higher levels raise the trigger chance, lengthen the regen, restore more food, and shorten the internal cooldown. Works on its own once learned.
+
+### Piglin Broker (`nether-piglin-broker`)
+
+Any piglin bartering near you pays better. When a barter resolves, the nearest player with this adaptation gets credited: a chance for a duplicated and enlarged roll of whatever came out, plus a smaller chance for a separate bonus item from a fixed premium pool. Works on its own once learned, and you do not have to be the one who threw the gold.
+
+### Soul Strider (`nether-soul-strider`)
+
+Soul sand and soul soil stop slowing you down; you move across them at full speed and then some. At max level, stepping back onto soul ground after a short gap also fires a short soul-speed burst. Works anywhere, not only in the Nether. Works on its own once learned.
+
+### Magma Skin (`nether-magma-skin`)
+
+Only active while you are on fire. Anyone who melees you catches fire, and your own melee swings deal bonus damage and set the target burning. Combines well with anything that keeps you lit, since being on fire is the requirement rather than the problem. Works on its own once learned.
+
+### Netherrack Mason (`nether-netherrack-mason`)
+
+In the Nether, starting to mine netherrack, basalt, or blackstone gives you a block-breaking speed boost that refreshes as you keep working. Every one of those blocks you break pays Nether XP, and some of them drop an extra item: usually a second copy of what you mined, sometimes gold nuggets, quartz, iron nuggets, or nether brick. Works on its own once learned.
+
+### Strider Bond (`nether-strider-bond`)
+
+Striders you ride stop shivering and move faster, including when they step out of lava. From level 2 up, dismounting over lava triggers a rescue: the adaptation looks for solid safe ground nearby and teleports you there instead of letting you fall in. The first successful rescue unlocks a hidden challenge.
+
+**How to use it**
+
+1. Learn Strider Bond in the Adapt menu.
+2. Saddle a strider and ride it with a warped fungus on a stick, as normal.
+3. The speed applies while you ride. If you get thrown off over lava at level 2 or higher, the rescue handles it.
+
+### Crimson Feast (`nether-crimson-feast`)
+
+Nether flora becomes food. Right-click while holding a crimson or warped fungus, roots, nether sprouts, weeping vines, or twisting vines to eat it for food and saturation. On top of that, eating anything at all while in the Nether gives you fire resistance for a few seconds. Both halves pay XP.
+
+**How to use it**
+
+1. Learn Crimson Feast in the Adapt menu.
+2. Hold any nether fungus, roots, sprouts, or vines.
+3. Right-click to eat. If your food bar is already full you have to sneak to force it down.
+4. Eat any normal food while in the Nether for the fire resistance buff.
+
+### Ashwalker (`nether-ashwalker`)
+
+Magma blocks stop hurting you from the moment you learn it. From level 2 up, campfires stop hurting you too. At max level, soul fire does most of its damage to somebody else: the damage is cut hard and the burn is capped short. You earn XP for every point it takes off. Works on its own once learned.
+
+### Wither Harvest (`nether-wither-harvest`)
+
+Every wither skeleton you kill drops extra bones and coal, and gets a better chance at dropping its skull. The skull roll is skipped if the mob already dropped one on its own, so it never doubles up. Works on its own once learned.
+
+## Reference
+
+### Identity
 
 | Property | Value |
 |----------|-------|
@@ -32,41 +109,53 @@ Adaptations run only when learned (level ≥ 1), skill and adaptation are enable
 | Skill config | `plugins/Adapt/adapt/skills/nether.toml` |
 | Adaptation count | 14 |
 
-## Skill configuration defaults
+### Skill configuration defaults
 
-These values are written to `plugins/Adapt/adapt/skills/nether.toml` on first load. They control this skill's XP awards, limits, cooldowns, and progression behavior.
+Written to `plugins/Adapt/adapt/skills/nether.toml` on first load.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `skillColor` | `"&8"` | Legacy ampersand color code used for this skill in menus and text. |
-| `enabled` | `true` | Enables or disables this skill or adaptation. |
-| `witherDamageXp` | `26.0` | Nether XP awarded for an eligible wither-damage event. |
-| `witherDamageXpCooldown` | `1500` | Cooldown in milliseconds between XP awards for taking wither effect damage. |
-| `witherAttackXp` | `15` | XP awarded for wither attack. |
-| `witherAttackXpCooldown` | `1500` | Cooldown in milliseconds between XP awards for melee-attacking a wither boss. |
-| `witherSkeletonKillXp` | `225` | XP awarded for wither skeleton kill. |
-| `witherKillXp` | `900` | XP awarded for wither kill. |
-| `witherRoseBreakXp` | `125` | XP awarded for wither rose break. |
-| `witherRoseBreakCooldown` | `60 * 20` | Wither rose break cooldown. |
-| `challengeNetherReward` | `500` | Reward for the nether challenge. |
-| `challengeWitherDmgReward` | `500` | Reward for the wither damage challenge. |
-| `challengeWitherSkelReward` | `500` | Reward for the wither skeleton challenge. |
-| `challengeWitherBossReward` | `1000` | Reward for the wither boss challenge. |
-| `challengeRosesReward` | `500` | Reward for the roses challenge. |
+| `skillColor` | `"&8"` | Legacy ampersand color code used for Nether in menus and text. |
+| `enabled` | `true` | Turns the whole Nether skill on or off. |
+| `witherDamageXp` | `26.0` | XP for taking a tick of Wither effect damage that did not come from a block source. |
+| `witherDamageXpCooldown` | `1500` | Milliseconds between wither-damage XP awards. |
+| `witherAttackXp` | `15` | XP for landing a melee hit on a Wither boss. |
+| `witherAttackXpCooldown` | `1500` | Milliseconds between wither-attack XP awards. |
+| `witherSkeletonKillXp` | `225` | XP for killing a wither skeleton. |
+| `witherKillXp` | `900` | XP for killing the Wither. |
+| `witherRoseBreakXp` | `125` | XP for breaking a wither rose. |
+| `witherRoseBreakCooldown` | `1200` (written as `60 * 20`) | Ticks between wither-rose payouts, converted to milliseconds at 50 ms per tick, so 60 seconds. |
+| `challengeNetherReward` | `500` | Base XP for the Nether kill-count challenges; later tiers pay 2x and 5x. |
+| `challengeWitherDmgReward` | `500` | Base XP for the wither-damage challenges; the second tier pays 2x. |
+| `challengeWitherSkelReward` | `500` | Base XP for the wither-skeleton challenges; the second tier pays 2x. |
+| `challengeWitherBossReward` | `1000` | Base XP for the Wither boss challenges; the second tier pays 2x. |
+| `challengeRosesReward` | `500` | Base XP for the wither-rose challenges; the second tier pays 2x. |
 
-## Adaptation usage reference
+### Milestones and challenges
 
-What each adaptation does and how a player activates it. TOML overrides live at `plugins/Adapt/adapt/adaptations/<id>.toml`.
+| Challenge key | Stat key | Threshold | Reward |
+|---------------|----------|-----------|--------|
+| `challenge_nether_50` | `nether.kills` | 50 | `challengeNetherReward` |
+| `challenge_nether_500` | `nether.kills` | 500 | `challengeNetherReward` x2 |
+| `challenge_nether_5k` | `nether.kills` | 5000 | `challengeNetherReward` x5 |
+| `challenge_wither_dmg_500` | `nether.wither.damage` | 500 | `challengeWitherDmgReward` |
+| `challenge_wither_dmg_5k` | `nether.wither.damage` | 5000 | `challengeWitherDmgReward` x2 |
+| `challenge_wither_skel_25` | `nether.skeleton.kills` | 25 | `challengeWitherSkelReward` |
+| `challenge_wither_skel_250` | `nether.skeleton.kills` | 250 | `challengeWitherSkelReward` x2 |
+| `challenge_wither_boss_1` | `nether.boss.kills` | 1 | `challengeWitherBossReward` |
+| `challenge_wither_boss_10` | `nether.boss.kills` | 10 | `challengeWitherBossReward` x2 |
+| `challenge_roses_10` | `nether.roses.broken` | 10 | `challengeRosesReward` |
+| `challenge_roses_100` | `nether.roses.broken` | 100 | `challengeRosesReward` x2 |
 
-### Wither Resistance (`nether-wither-resist`)
+`nether.kills` only counts wither skeletons and the Wither. `nether.wither.damage` accumulates raw damage, not a count.
 
-Resists withering through the power of Netherite.
+Skill-level events: `EntityDamageEvent` (Wither effect damage, ignoring `EntityDamageByBlockEvent`), `BlockBreakEvent` (wither roses), `EntityDeathEvent` (wither skeleton and Wither kills), `EntityDamageByEntityEvent` (melee `ENTITY_ATTACK` on a Wither).
 
-**Runtime entry points:** on taking damage; periodic evaluation every 9283 ms.
+### Shared adaptation keys
 
-**Menu displays:** Per-piece wither-negation chance while wearing Netherite armor.
+Every adaptation TOML carries `enabled`, `permanent`, `showParticles`, `showSounds`, `baseCost`, `costFactor`, `maxLevel`, and `initialCost` on top of its own knobs. TOML overrides live at `plugins/Adapt/adapt/adaptations/<id>.toml`.
 
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Wither Resistance
 
 | Property | Default |
 |----------|---------|
@@ -79,28 +168,18 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 9283 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-wither-resist.toml` |
 
-Listened events:
+Listened events: `EntityDamageEvent` (`onEntityDamage`), `WITHER` cause only.
 
-- `EntityDamageEvent` (`onEntityDamage`) — on taking damage
-
-Config knobs (code defaults):
+Chance per netherite piece is `basePieceChance + chanceAddition * level`, summed over helmet, chestplate, leggings, and boots, then clamped to 100 percent. Full netherite at level 3 reaches 100 percent and plays an extra mastery effect.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `basePieceChance` | `10` | Base percentage chance for each eligible armor piece. |
-| `chanceAddition` | `5` | Percentage points added per additional eligible armor piece. |
+| `basePieceChance` | `10` | Percentage points contributed by each netherite piece before level scaling. |
+| `chanceAddition` | `5` | Percentage points added per piece per adaptation level. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_wither_100` and `challenge_nether_wither_1k` on `nether.wither-resist.negated` (100 for 300 XP, 1000 for 1000 XP).
 
-### Wither Skull Throw (`nether-skull-toss`)
-
-Use a player head to activate a temporary Wither form.
-
-**Runtime entry points:** on block/entity/air interact (click); on entity death / kill credit; periodic evaluation every 2314 ms.
-
-**Menu displays:** Cooldown between skull tosses; thrown wither skulls explode on impact.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Wither Skull Throw
 
 | Property | Default |
 |----------|---------|
@@ -113,29 +192,18 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 2314 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-skull-toss.toml` |
 
-Listened events:
+Listened events: `PlayerInteractEvent` (`onRightClick`, receives cancelled events; main hand only, right-click air or block, item must be `WITHER_SKELETON_SKULL`), `EntityDeathEvent` (`onEntityDeath`, credits kills made by a thrown skull).
 
-- `PlayerInteractEvent` (`onRightClick`) — on block/entity/air interact (click)
-- `EntityDeathEvent` (`onEntityDeath`) — on entity death / kill credit
-
-Config knobs (code defaults):
+Cooldown is `max(1, baseCooldown - levelCooldown * level)` seconds, so 10 seconds at level 1 and 1 second at level 3. It is an item cooldown keyed to the skull material, shared by the gate and the sweep. The projectile is an uncharged, non-bouncing `WitherSkull` with the player as shooter, and throwing it pays 100 Nether XP directly. The interact event is always cancelled so the skull is never placed as a block.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `baseCooldown` | `15` | Base cooldown. |
-| `levelCooldown` | `5` | Level cooldown. Level or effect-amplifier units. |
+| `baseCooldown` | `15` | Seconds between throws at level 0. |
+| `levelCooldown` | `5` | Seconds removed from the cooldown per adaptation level, floored at 1 second. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_skull_100` on `nether.skull-yeet.skulls-thrown` (100 for 300 XP) and `challenge_nether_skull_kills_50` on `nether.skull-yeet.skull-kills` (50 for 500 XP). `challenge_nether_skull_long_bomb` is a hidden advancement granted directly on a skull kill at 40 blocks or more.
 
-### Fire Resistance (`nether-fire-resist`)
-
-Resists fire by hardening your skin.
-
-**Runtime entry points:** on taking damage; periodic evaluation every 4333 ms.
-
-**Menu displays:** Chance to negate fire damage.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Fire Resistance
 
 | Property | Default |
 |----------|---------|
@@ -148,28 +216,18 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 4333 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-fire-resist.toml` |
 
-Listened events:
+Listened events: `EntityDamageEvent`, `FIRE` and `FIRE_TICK` causes only.
 
-- `EntityDamageEvent` (`on`) — on taking damage
-
-Config knobs (code defaults):
+Negation chance is `fireResistBase + fireResistFactor * level` using the raw level, not a level percentage, so it is 35 percent at level 1 and 85 percent at level 3.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `fireResistBase` | `0.10` | Base Fire resist. |
-| `fireResistFactor` | `0.25` | Fire resist factor. Unitless multiplier. |
+| `fireResistBase` | `0.10` | Chance to cancel burn damage at level 0, 0 to 1. |
+| `fireResistFactor` | `0.25` | Chance added per adaptation level, 0 to 1. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_fire_200` and `challenge_nether_fire_5k` on `nether.fire-resist.negated` (200 for 300 XP, 5000 for 1000 XP).
 
-### Lava Walker (`nether-lava-walker`)
-
-Stride over lava in the Nether at the cost of hunger.
-
-**Runtime entry points:** while moving.
-
-**Menu displays:** Lava Stride Speed; Hunger Cost.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Lava Walker
 
 | Property | Default |
 |----------|---------|
@@ -182,34 +240,22 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 1000 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-lava-walker.toml` |
 
-Listened events:
-
-- `PlayerMoveEvent` (`on`) — while moving
-
-Config knobs (code defaults):
+Listened events: `PlayerMoveEvent`. Requires a Nether-environment world, lava at your feet or directly below, food above 0, and not flying, gliding, or riding. Each stride sets velocity along your look direction, clears fall distance, clears fire ticks, and applies Fire Resistance.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `strideBase` | `0.18` | Base Stride. |
-| `strideFactor` | `0.6` | Stride factor. Unitless multiplier. |
-| `hungerCostBase` | `3` | Base Hunger cost. food or saturation points. |
-| `hungerCostFactor` | `2` | Hunger cost factor. Unitless multiplier. |
-| `cooldownMillisBase` | `900` | Base Cooldown millis. Milliseconds. |
-| `cooldownMillisFactor` | `700` | Cooldown millis factor. Milliseconds. |
-| `fireResistTicks` | `80` | Fire resist ticks. Server ticks (20 ticks = 1 second). |
-| `xpPerStride` | `3.5` | Skill XP awarded for each qualifying stride. |
+| `strideBase` | `0.18` | Horizontal push per stride at level 0, in blocks per tick. |
+| `strideFactor` | `0.6` | Extra push added across levels. |
+| `hungerCostBase` | `3` | Food points removed per stride at level 0. |
+| `hungerCostFactor` | `2` | Food points subtracted from that cost across levels, floored at 1. |
+| `cooldownMillisBase` | `900` | Milliseconds between strides at level 0. |
+| `cooldownMillisFactor` | `700` | Milliseconds removed from the gap across levels, floored at 100. |
+| `fireResistTicks` | `80` | Fire Resistance duration granted per stride, in ticks. |
+| `xpPerStride` | `3.5` | Nether XP per stride. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_lava_1k` and `challenge_nether_lava_25k` on `nether.lava-walker.blocks-walked` (1000 for 300 XP, 25000 for 1000 XP). The stat counts strides, not blocks.
 
-### Ghast Ward (`nether-ghast-ward`)
-
-Harden against ghast blasts and wither-skeleton ranged pressure in the Nether.
-
-**Runtime entry points:** on melee/projectile hit (damage); on taking damage; periodic evaluation every 2000 ms.
-
-**Menu displays:** Ghast Projectile Reduction; Explosion Reduction; Wither Skeleton Projectile Reduction.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Ghast Ward
 
 | Property | Default |
 |----------|---------|
@@ -222,39 +268,26 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 2000 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-ghast-ward.toml` |
 
-Listened events:
-
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
-- `EntityDamageEvent` (`on`) — on taking damage
-
-Config knobs (code defaults):
+Listened events: `EntityDamageByEntityEvent` at `HIGHEST` (ghast fireballs and wither skeleton arrows), `EntityDamageEvent` at `HIGH` (`ENTITY_EXPLOSION` and `BLOCK_EXPLOSION`, skipped when the damager was already handled as a ghast fireball). All of it requires a Nether-environment world.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `ghastProjectileReductionBase` | `0.14` | Base Ghast projectile reduction. |
-| `ghastProjectileReductionFactor` | `0.54` | Ghast projectile reduction factor. Unitless multiplier. |
-| `maxGhastProjectileReduction` | `0.8` | Maximum ghast projectile reduction. |
-| `explosionReductionBase` | `0.08` | Base skill XP credited for e losion reduction base. |
-| `explosionReductionFactor` | `0.42` | Unitless multiplier applied to XP from e losion reduction factor. |
-| `maxExplosionReduction` | `0.65` | Maximum XP credited for max e losion reduction. |
-| `witherSkeletonReductionBase` | `0.1` | Base Wither skeleton reduction. |
-| `witherSkeletonReductionFactor` | `0.4` | Wither skeleton reduction factor. Unitless multiplier. |
-| `maxWitherSkeletonReduction` | `0.55` | Maximum wither skeleton reduction. |
-| `maxFireTicksBase` | `80` | Base Maximum fire ticks. Server ticks (20 ticks = 1 second). |
-| `maxFireTicksFactor` | `70` | Maximum fire ticks factor. Server ticks (20 ticks = 1 second). |
-| `xpPerMitigatedDamage` | `4.2` | XP awarded for xp per mitigated damage. health points (2 points = 1 heart). |
+| `ghastProjectileReductionBase` | `0.14` | Fraction of ghast fireball damage removed at level 0, 0 to 1. |
+| `ghastProjectileReductionFactor` | `0.54` | Extra ghast reduction across levels. |
+| `maxGhastProjectileReduction` | `0.8` | Ceiling on ghast reduction. |
+| `explosionReductionBase` | `0.08` | Fraction of explosion damage removed at level 0, 0 to 1. |
+| `explosionReductionFactor` | `0.42` | Extra explosion reduction across levels. |
+| `maxExplosionReduction` | `0.65` | Ceiling on explosion reduction. |
+| `witherSkeletonReductionBase` | `0.1` | Fraction of wither skeleton arrow damage removed at level 0, 0 to 1. |
+| `witherSkeletonReductionFactor` | `0.4` | Extra arrow reduction across levels. |
+| `maxWitherSkeletonReduction` | `0.55` | Ceiling on arrow reduction. |
+| `maxFireTicksBase` | `80` | Burn ticks you are clamped to after a ghast fireball, at level 0. |
+| `maxFireTicksFactor` | `70` | Ticks subtracted from that clamp across levels, floored at 0. |
+| `xpPerMitigatedDamage` | `4.2` | Nether XP per point of damage the ward removed. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestone: `challenge_nether_ghast_500` on `nether.ghast-ward.damage-reduced`, 500 points of damage for 400 XP.
 
-### Blaze Leech (`nether-blaze-leech`)
-
-Fire interactions can trigger brief hunger and regeneration gains.
-
-**Runtime entry points:** on taking damage; on melee/projectile hit (damage); periodic evaluation every 900 ms.
-
-**Menu displays:** Leech Trigger Chance; Regen Burst Duration; Food Restored per Proc.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Blaze Leech
 
 | Property | Default |
 |----------|---------|
@@ -267,41 +300,28 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 900 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-blaze-leech.toml` |
 
-Listened events:
-
-- `EntityDamageEvent` (`on`) — on taking damage
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
-
-Config knobs (code defaults):
+Listened events: `EntityDamageEvent` (defensive trigger on `FIRE`, `FIRE_TICK`, `LAVA`, `HOT_FLOOR`), `EntityDamageByEntityEvent` (offensive trigger when you hit a target that is already burning). Both share one cooldown stored on the player.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `triggerChanceBase` | `0.16` | Proc chance for trigger chance base. decimal probability. |
-| `triggerChanceFactor` | `0.34` | Proc chance for trigger chance factor. decimal probability. |
-| `maxTriggerChance` | `0.7` | Proc chance for max trigger chance. decimal probability. |
-| `regenTicksBase` | `28` | Base Regen ticks. Server ticks (20 ticks = 1 second). |
-| `regenTicksFactor` | `42` | Regen ticks factor. Server ticks (20 ticks = 1 second). |
-| `regenAmplifierBase` | `0` | Base Regen amplifier. Level or effect-amplifier units. |
-| `regenAmplifierFactor` | `1` | Regen amplifier factor. Unitless multiplier. |
-| `foodRestoreBase` | `1` | Base Food restore. food or saturation points. |
-| `foodRestoreFactor` | `2` | Food restore factor. Unitless multiplier. |
-| `saturationRestore` | `0.6` | Saturation restore. food or saturation points. |
-| `cooldownMillisBase` | `1400` | Base Cooldown millis. Milliseconds. |
-| `cooldownMillisFactor` | `900` | Cooldown millis factor. Milliseconds. |
-| `xpOnDefensiveProc` | `6` | XP awarded for xp on defensive proc. |
-| `xpOnOffensiveProc` | `5` | XP awarded for xp on offensive proc. |
+| `triggerChanceBase` | `0.16` | Chance to leech at level 0, 0 to 1. |
+| `triggerChanceFactor` | `0.34` | Extra trigger chance across levels. |
+| `maxTriggerChance` | `0.7` | Ceiling on trigger chance. |
+| `regenTicksBase` | `28` | Regeneration duration in ticks at level 0; the result is floored at 20. |
+| `regenTicksFactor` | `42` | Extra regeneration ticks across levels. |
+| `regenAmplifierBase` | `0` | Regeneration amplifier at level 0 (0 is Regeneration I). |
+| `regenAmplifierFactor` | `1` | Extra amplifier across levels, floored to a whole number. |
+| `foodRestoreBase` | `1` | Food points restored per proc at level 0. |
+| `foodRestoreFactor` | `2` | Extra food points restored across levels. |
+| `saturationRestore` | `0.6` | Saturation points restored per proc, flat. |
+| `cooldownMillisBase` | `1400` | Milliseconds between procs at level 0. |
+| `cooldownMillisFactor` | `900` | Milliseconds removed from the gap across levels, floored at 100. |
+| `xpOnDefensiveProc` | `6` | Nether XP when the proc came from damage you took. |
+| `xpOnOffensiveProc` | `5` | Nether XP when the proc came from hitting a burning target. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_blaze_200` and `challenge_nether_blaze_2500` on `nether.blaze-leech.health-from-fire` (200 for 300 XP, 2500 for 1000 XP). The stat counts procs.
 
-### Piglin Broker (`nether-piglin-broker`)
-
-Nearby barters can grant extra rolls and occasional premium bonus items.
-
-**Runtime entry points:** on `PiglinBarterEvent`; periodic evaluation every 2300 ms.
-
-**Menu displays:** Extra Roll Chance; Rare Bonus Chance.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Piglin Broker
 
 | Property | Default |
 |----------|---------|
@@ -314,36 +334,24 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 2300 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-piglin-broker.toml` |
 
-Listened events:
-
-- `PiglinBarterEvent` (`on`)
-
-Config knobs (code defaults):
+Listened events: `PiglinBarterEvent`. The nearest player within `brokerRange` who has the adaptation active is credited. The rare bonus pool is one ender pearl, two obsidian, four string, six iron nuggets, or two spectral arrows.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `brokerRange` | `18` | Broker range. Blocks. |
-| `extraRollChanceBase` | `0.1` | Proc chance for extra roll chance base. decimal probability. |
-| `extraRollChanceFactor` | `0.45` | Proc chance for extra roll chance factor. decimal probability. |
-| `maxExtraRollChance` | `0.6` | Proc chance for max extra roll chance. decimal probability. |
-| `rareBonusChanceBase` | `0.03` | Proc chance for rare bonus chance base. decimal probability. |
-| `rareBonusChanceFactor` | `0.2` | Proc chance for rare bonus chance factor. decimal probability. |
-| `maxRareBonusChance` | `0.25` | Proc chance for max rare bonus chance. decimal probability. |
-| `amountMultiplierBase` | `1.0` | Base Amount multiplier. Unitless multiplier. |
-| `amountMultiplierFactor` | `0.5` | Amount multiplier factor. Unitless multiplier. |
-| `xpOnBoostedBarter` | `12` | XP awarded for xp on boosted barter. |
+| `brokerRange` | `18` | Blocks from the piglin searched for an eligible broker. |
+| `extraRollChanceBase` | `0.1` | Chance to duplicate one outcome item at level 0, 0 to 1. |
+| `extraRollChanceFactor` | `0.45` | Extra duplication chance across levels. |
+| `maxExtraRollChance` | `0.6` | Ceiling on duplication chance. |
+| `rareBonusChanceBase` | `0.03` | Chance for a premium bonus item at level 0, 0 to 1. |
+| `rareBonusChanceFactor` | `0.2` | Extra premium chance across levels. |
+| `maxRareBonusChance` | `0.25` | Ceiling on premium chance. |
+| `amountMultiplierBase` | `1.0` | Stack size multiplier on the duplicated item at level 0, floored at 1. |
+| `amountMultiplierFactor` | `0.5` | Extra stack multiplier across levels; the result is capped by the item's max stack size. |
+| `xpOnBoostedBarter` | `12` | Nether XP when a barter was improved. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_piglin_100` and `challenge_nether_piglin_2500` on `nether.piglin-broker.improved-barters` (100 for 300 XP, 2500 for 1000 XP).
 
-### Soul Strider (`nether-soul-strider`)
-
-Move at full speed across soul sand and soul soil, gaining soul-speed bursts at mastery.
-
-**Runtime entry points:** while moving.
-
-**Menu displays:** Soul Stride Speed; Mastery Soul-Speed Burst.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Soul Strider
 
 | Property | Default |
 |----------|---------|
@@ -356,34 +364,22 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 1000 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-soul-strider.toml` |
 
-Listened events:
-
-- `PlayerMoveEvent` (`on`) — while moving
-
-Config knobs (code defaults):
+Listened events: `PlayerMoveEvent`. Requires soul sand or soul soil at your feet or below, and not flying, gliding, or riding. Applies a movement efficiency modifier of `1.0` (which is what removes the soul sand slowdown) plus a movement speed multiplier, both refreshed in 40-tick holds while you stay on soul ground and removed the moment you step off. The burst only fires at max level.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `strideSpeedBase` | `0.20` | Base Stride speed. |
-| `strideSpeedFactor` | `0.10` | Stride speed factor. Unitless multiplier. |
-| `burstTicks` | `60` | Burst ticks. Server ticks (20 ticks = 1 second). |
-| `burstAmplifier` | `1` | Burst amplifier. Level or effect-amplifier units. |
-| `burstGapMillis` | `600` | Burst gap millis. Milliseconds. |
-| `burstCooldownMillis` | `3000` | Burst cooldown millis. Milliseconds. |
-| `xpPerStride` | `2.0` | XP awarded for xp per stride. |
-| `xpIntervalMillis` | `1500` | XP awarded for xp interval millis. Milliseconds. |
+| `strideSpeedBase` | `0.20` | Reference stride speed; the movement speed bonus is `(levelPercent * factor) / base`. |
+| `strideSpeedFactor` | `0.10` | Extra stride speed across levels. |
+| `burstTicks` | `60` | Soul-speed burst duration in ticks. |
+| `burstAmplifier` | `1` | Burst strength; the speed multiplier is `0.2 * (amplifier + 1)`. |
+| `burstGapMillis` | `600` | Milliseconds you must be off soul ground before stepping back on can fire a burst. |
+| `burstCooldownMillis` | `3000` | Milliseconds between bursts. |
+| `xpPerStride` | `2.0` | Nether XP per XP interval while striding. |
+| `xpIntervalMillis` | `1500` | Milliseconds between stride XP awards. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_soul_1k` and `challenge_nether_soul_25k` on `nether.soul-strider.blocks-walked` (1000 for 300 XP, 25000 for 1000 XP). The stat accumulates actual horizontal distance.
 
-### Magma Skin (`nether-magma-skin`)
-
-While burning, melee attackers catch fire and your own strikes deal bonus fire damage.
-
-**Runtime entry points:** on melee/projectile hit (damage); periodic evaluation every 2000 ms.
-
-**Menu displays:** Attacker Ignite Duration; Bonus Fire Damage while Burning.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Magma Skin
 
 | Property | Default |
 |----------|---------|
@@ -396,35 +392,22 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 2000 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-magma-skin.toml` |
 
-Listened events:
-
-- `EntityDamageByEntityEvent` (`onDefend`) — on melee/projectile hit (damage)
-- `EntityDamageByEntityEvent` (`onAttack`) — on melee/projectile hit (damage)
-
-Config knobs (code defaults):
+Listened events: `EntityDamageByEntityEvent` twice, `onDefend` (you are the victim) and `onAttack` (you are the damager). Both require you to be on fire and the cause to be `ENTITY_ATTACK` or `ENTITY_SWEEP_ATTACK`.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `reflectFireTicksBase` | `40` | Base Reflect fire ticks. Server ticks (20 ticks = 1 second). |
-| `reflectFireTicksFactor` | `60` | Reflect fire ticks factor. Server ticks (20 ticks = 1 second). |
-| `bonusDamageBase` | `0.5` | Base Bonus damage. health points (2 points = 1 heart). |
-| `bonusDamageFactor` | `2.5` | Bonus damage factor. Unitless multiplier. |
-| `bonusFireTicksBase` | `40` | Base Bonus fire ticks. Server ticks (20 ticks = 1 second). |
-| `bonusFireTicksFactor` | `40` | Bonus fire ticks factor. Server ticks (20 ticks = 1 second). |
-| `xpOnReflect` | `6` | XP awarded for xp on reflect. |
-| `xpPerBonusDamage` | `3` | XP awarded for xp per bonus damage. health points (2 points = 1 heart). |
+| `reflectFireTicksBase` | `40` | Ticks an attacker is set alight at level 0. |
+| `reflectFireTicksFactor` | `60` | Extra attacker burn ticks across levels. |
+| `bonusDamageBase` | `0.5` | Flat damage added to your melee hits at level 0, in half-hearts. |
+| `bonusDamageFactor` | `2.5` | Extra flat damage across levels. |
+| `bonusFireTicksBase` | `40` | Ticks your target is set alight at level 0. |
+| `bonusFireTicksFactor` | `40` | Extra target burn ticks across levels. |
+| `xpOnReflect` | `6` | Nether XP each time an attacker is ignited. |
+| `xpPerBonusDamage` | `3` | Nether XP per point of bonus damage dealt. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_magma_100` and `challenge_nether_magma_2500` on `nether.magma-skin.attackers-ignited` (100 for 300 XP, 2500 for 1000 XP).
 
-### Netherrack Mason (`nether-netherrack-mason`)
-
-Mine netherrack, basalt, and blackstone faster in the Nether with occasional bonus drops.
-
-**Runtime entry points:** on `BlockDamageEvent`; when breaking blocks; periodic evaluation every 1500 ms.
-
-**Menu displays:** Mining Haste Tier; Bonus Drop Chance.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Netherrack Mason
 
 | Property | Default |
 |----------|---------|
@@ -437,37 +420,26 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 1500 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-netherrack-mason.toml` |
 
-Listened events:
+Listened events: `BlockDamageEvent` (grants the mining speed modifier when you start hitting an eligible block) and `BlockBreakEvent` (XP, stats, bonus drop). Both require a Nether-environment world.
 
-- `BlockDamageEvent` (`on`)
-- `BlockBreakEvent` (`on`) — when breaking blocks
-
-Config knobs (code defaults):
+Eligible blocks: `NETHERRACK`, `BASALT`, `POLISHED_BASALT`, `SMOOTH_BASALT`, `BLACKSTONE`, `POLISHED_BLACKSTONE`, `GILDED_BLACKSTONE`, `CHISELED_POLISHED_BLACKSTONE`, `POLISHED_BLACKSTONE_BRICKS`, `CRACKED_POLISHED_BLACKSTONE_BRICKS`. The boost is a block-break-speed attribute modifier of `0.20 * tier`, not the Haste potion effect.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `hasteTierBase` | `1` | Base Haste tier. |
-| `hasteTierFactor` | `1.5` | Haste tier factor. Unitless multiplier. |
-| `hasteDurationTicks` | `120` | Haste duration ticks. Server ticks (20 ticks = 1 second). |
-| `hasteRefreshMillis` | `4000` | Haste refresh millis. Milliseconds. |
-| `bonusDropChanceBase` | `0.08` | Proc chance for bonus drop chance base. decimal probability. |
-| `bonusDropChanceFactor` | `0.35` | Proc chance for bonus drop chance factor. decimal probability. |
-| `maxBonusDropChance` | `0.4` | Proc chance for max bonus drop chance. decimal probability. |
-| `premiumDropChance` | `0.25` | Proc chance for premium drop chance. decimal probability. |
-| `xpPerBlock` | `1.5` | XP awarded for xp per block. Blocks. |
-| `xpOnBonusDrop` | `5` | XP awarded for xp on bonus drop. |
+| `hasteTierBase` | `1` | Mining speed tier at level 0, floored at 1. |
+| `hasteTierFactor` | `1.5` | Extra tier across levels, rounded to a whole number. |
+| `hasteDurationTicks` | `120` | How long each mining speed application lasts, in ticks. |
+| `hasteRefreshMillis` | `4000` | Milliseconds before the modifier is reapplied. |
+| `bonusDropChanceBase` | `0.08` | Chance of a bonus drop per block at level 0, 0 to 1. |
+| `bonusDropChanceFactor` | `0.35` | Extra bonus drop chance across levels. |
+| `maxBonusDropChance` | `0.4` | Ceiling on bonus drop chance. |
+| `premiumDropChance` | `0.25` | Chance that a bonus drop is a premium item (gold nugget, quartz, iron nugget, or nether brick) instead of a copy of the mined block. |
+| `xpPerBlock` | `1.5` | Nether XP per eligible block broken. |
+| `xpOnBonusDrop` | `5` | Extra Nether XP when a bonus drop lands. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_mason_1k` and `challenge_nether_mason_25k` on `nether.netherrack-mason.blocks-mined` (1000 for 300 XP, 25000 for 1000 XP).
 
-### Strider Bond (`nether-strider-bond`)
-
-Ride striders faster, keep their pace out of lava, and land safely when dismounting over lava.
-
-**Runtime entry points:** while moving; periodic evaluation every 2000 ms.
-
-**Menu displays:** Strider Speed Tier; Lava Dismount Rescue Radius.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Strider Bond
 
 | Property | Default |
 |----------|---------|
@@ -480,37 +452,26 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 2000 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-strider-bond.toml` |
 
-Listened events:
+Listened events: `PlayerMoveEvent` (only while your vehicle is a strider; clears shivering and refreshes the mount speed modifier) and Adapt's reflective `EntityDismountEvent` (the lava rescue). Rescue teleports go through the async teleport path and only settle when the teleport actually succeeds.
 
-- `PlayerMoveEvent` (`on`) — while moving
-- `EntityDismountEvent` (`on`) — performs the lava dismount rescue
-
-Config knobs (code defaults):
+The strider speed modifier is `0.2 * (amplifier + 1)` applied to the strider, not to you.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `striderSpeedAmplifierBase` | `0` | Base Strider speed amplifier. Level or effect-amplifier units. |
-| `striderSpeedAmplifierFactor` | `1.5` | Strider speed amplifier factor. Unitless multiplier. |
-| `speedTicks` | `60` | Speed ticks. Server ticks (20 ticks = 1 second). |
-| `safetyUnlockLevel` | `2` | Safety unlock level. Level or effect-amplifier units. |
-| `searchRadiusBase` | `4` | Base Search radius. Blocks. |
-| `searchRadiusFactor` | `4` | Search radius factor. Blocks. |
-| `searchRadiusMax` | `8` | Search radius max. Blocks. |
-| `xpPerRide` | `2` | Skill XP awarded for each qualifying mounted-riding interval. |
-| `xpIntervalMillis` | `1500` | XP awarded for xp interval millis. Milliseconds. |
-| `xpPerRescue` | `30` | XP awarded for xp per rescue. |
+| `striderSpeedAmplifierBase` | `0` | Speed amplifier at level 0. |
+| `striderSpeedAmplifierFactor` | `1.5` | Extra amplifier across levels, rounded to a whole number. |
+| `speedTicks` | `60` | How long each speed application lasts, in ticks. |
+| `safetyUnlockLevel` | `2` | Adaptation level required before the lava dismount rescue works. |
+| `searchRadiusBase` | `4` | Blocks searched outward for safe ground at level 0. |
+| `searchRadiusFactor` | `4` | Extra search radius across levels. |
+| `searchRadiusMax` | `8` | Hard cap on the search radius, keeping the scan local. |
+| `xpPerRide` | `2` | Nether XP per XP interval while riding. |
+| `xpIntervalMillis` | `1500` | Milliseconds between riding XP awards. |
+| `xpPerRescue` | `30` | Nether XP for a successful lava rescue. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_strider_500` and `challenge_nether_strider_5k` on `nether.strider-bond.blocks-ridden` (500 for 300 XP, 5000 for 1000 XP). `challenge_nether_strider_rescue` is a hidden advancement granted on your first successful rescue, which also increments `nether.strider-bond.lava-rescues`.
 
-### Crimson Feast (`nether-crimson-feast`)
-
-Eat nether fungi and warped flora, and gain fire resistance from any meal in the Nether.
-
-**Runtime entry points:** on block/entity/air interact (click); when consuming food/potion; periodic evaluation every 3000 ms.
-
-**Menu displays:** Food Restored per Flora; Bonus Saturation; Nether Meal Fire Resistance.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Crimson Feast
 
 | Property | Default |
 |----------|---------|
@@ -523,36 +484,25 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 3000 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-crimson-feast.toml` |
 
-Listened events:
+Listened events: `PlayerInteractEvent` (receives cancelled events; main hand right-click with eligible flora) and `PlayerItemConsumeEvent` (any food, Nether only). Eating flora is blocked at a full food bar unless you are sneaking, and the flora item is consumed except in creative. The fire resistance grant only happens in a Nether-environment world, so eating flora elsewhere still feeds you but gives no buff.
 
-- `PlayerInteractEvent` (`on`) — on block/entity/air interact (click)
-- `PlayerItemConsumeEvent` (`on`) — when consuming food/potion
-
-Config knobs (code defaults):
+Eligible flora: `CRIMSON_FUNGUS`, `WARPED_FUNGUS`, `CRIMSON_ROOTS`, `WARPED_ROOTS`, `NETHER_SPROUTS`, `WEEPING_VINES`, `TWISTING_VINES`.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `floraFoodBase` | `2` | Base Flora food. food or saturation points. |
-| `floraFoodFactor` | `4` | Flora food factor. Unitless multiplier. |
-| `floraSaturationBase` | `1.5` | Base Flora saturation. food or saturation points. |
-| `floraSaturationFactor` | `3` | Flora saturation factor. Unitless multiplier. |
-| `resistTicksBase` | `60` | Base Resist ticks. Server ticks (20 ticks = 1 second). |
-| `resistTicksFactor` | `140` | Resist ticks factor. Server ticks (20 ticks = 1 second). |
-| `eatCooldownMillis` | `350` | Eat cooldown millis. Milliseconds. |
-| `xpPerFungus` | `4` | XP awarded for xp per fungus. |
-| `xpPerNetherMeal` | `3` | XP awarded for xp per nether meal. |
+| `floraFoodBase` | `2` | Food points restored per flora item at level 0, floored at 1. |
+| `floraFoodFactor` | `4` | Extra food points across levels. |
+| `floraSaturationBase` | `1.5` | Saturation restored per flora item at level 0. |
+| `floraSaturationFactor` | `3` | Extra saturation across levels. |
+| `resistTicksBase` | `60` | Fire Resistance duration in ticks at level 0. |
+| `resistTicksFactor` | `140` | Extra Fire Resistance ticks across levels. |
+| `eatCooldownMillis` | `350` | Milliseconds between flora bites. |
+| `xpPerFungus` | `4` | Nether XP per flora item eaten. |
+| `xpPerNetherMeal` | `3` | Nether XP for eating anything else while in the Nether. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_feast_100` and `challenge_nether_feast_2500` on `nether.crimson-feast.fungi-eaten` (100 for 300 XP, 2500 for 1000 XP).
 
-### Ashwalker (`nether-ashwalker`)
-
-Ignore magma-block and campfire burns, and shrug off most soul-fire damage at mastery.
-
-**Runtime entry points:** on taking damage; periodic evaluation every 4000 ms.
-
-**Menu displays:** Magma Block Immunity; Campfire Immunity; Soul-Fire Damage Reduction.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Ashwalker
 
 | Property | Default |
 |----------|---------|
@@ -565,30 +515,18 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 4000 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-ashwalker.toml` |
 
-Listened events:
-
-- `EntityDamageEvent` (`on`) — on taking damage
-
-Config knobs (code defaults):
+Listened events: `EntityDamageEvent`, ignoring anything that is an `EntityDamageByEntityEvent`. `HOT_FLOOR` (magma blocks) is cancelled outright at any level. `CAMPFIRE` damage, and `FIRE`/`FIRE_TICK` damage traced to a lit campfire under or at your feet, is cancelled from `campfireUnlockLevel` up. Soul fire is only reduced at max level.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `campfireUnlockLevel` | `2` | Campfire unlock level. Level or effect-amplifier units. |
-| `soulFireReduction` | `0.8` | Soul fire reduction. |
-| `soulFireMaxFireTicks` | `20` | Soul fire max fire ticks. Server ticks (20 ticks = 1 second). |
-| `xpPerNegatedDamage` | `3` | XP awarded for xp per negated damage. health points (2 points = 1 heart). |
+| `campfireUnlockLevel` | `2` | Adaptation level required before campfire burns are cancelled. |
+| `soulFireReduction` | `0.8` | Fraction of soul fire damage removed at max level, 0 to 1. |
+| `soulFireMaxFireTicks` | `20` | Burn ticks you are clamped to after soul fire damage. |
+| `xpPerNegatedDamage` | `3` | Nether XP per point of damage cancelled or reduced. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_ash_200` and `challenge_nether_ash_5k` on `nether.ashwalker.damage-negated` (200 for 300 XP, 5000 for 1000 XP).
 
-### Wither Harvest (`nether-wither-harvest`)
-
-Wither skeletons yield extra bones and coal, with slightly improved skull odds.
-
-**Runtime entry points:** on entity death / kill credit; periodic evaluation every 5000 ms.
-
-**Menu displays:** Bonus Bones; Bonus Coal; Improved Skull Chance.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Wither Harvest
 
 | Property | Default |
 |----------|---------|
@@ -601,25 +539,21 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 5000 |
 | Config file | `plugins/Adapt/adapt/adaptations/nether-wither-harvest.toml` |
 
-Listened events:
-
-- `EntityDeathEvent` (`on`) — on entity death / kill credit
-
-Config knobs (code defaults):
+Listened events: `EntityDeathEvent`, wither skeletons killed by a player only.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `bonusBonesBase` | `1` | Base Bonus bones. |
-| `bonusBonesFactor` | `2` | Bonus bones factor. Unitless multiplier. |
-| `bonusCoalBase` | `0.5` | Base Bonus coal. |
-| `bonusCoalFactor` | `2` | Bonus coal factor. Unitless multiplier. |
-| `skullChanceBase` | `0.03` | Proc chance for skull chance base. decimal probability. |
-| `skullChanceFactor` | `0.12` | Proc chance for skull chance factor. decimal probability. |
-| `maxSkullChance` | `0.15` | Proc chance for max skull chance. decimal probability. |
-| `xpPerHarvest` | `12` | XP awarded for xp per harvest. |
-| `xpOnSkull` | `40` | XP awarded for xp on skull. |
+| `bonusBonesBase` | `1` | Extra bones dropped at level 0, floored at 1. |
+| `bonusBonesFactor` | `2` | Extra bones added across levels. |
+| `bonusCoalBase` | `0.5` | Extra coal dropped at level 0, floored at 1. |
+| `bonusCoalFactor` | `2` | Extra coal added across levels. |
+| `skullChanceBase` | `0.03` | Chance to add a wither skeleton skull at level 0, 0 to 1. |
+| `skullChanceFactor` | `0.12` | Extra skull chance across levels. |
+| `maxSkullChance` | `0.15` | Ceiling on skull chance. |
+| `xpPerHarvest` | `12` | Nether XP per harvested wither skeleton. |
+| `xpOnSkull` | `40` | Extra Nether XP when the roll adds a skull. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+Milestones: `challenge_nether_harvest_100` and `challenge_nether_harvest_2500` on `nether.wither-harvest.skeletons-harvested` (100 for 300 XP, 2500 for 1000 XP).
 
 ## See also
 

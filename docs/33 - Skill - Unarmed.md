@@ -1,26 +1,121 @@
 # Skill: Unarmed
 
-Skill id `unarmed`. Earn XP by fighting with an empty main hand. Unarmed has 12 registered adaptations and uses the `FIRE_CHARGE` icon.
+Unarmed is the bare-hands skill. You level it by fighting without a weapon, and the twelve adaptations turn punching from a joke into a real build: flat damage on every hit, sprint charges that launch mobs, combos that snowball, disarms that leave a skeleton holding nothing, and a clap that shoves a whole cone of enemies away.
 
-**XP sources:** empty-main-hand damage and unarmed kill credit.
+The skill counts a hit as unarmed when your main hand is not a melee tool. Axes, pickaxes, hoes, shovels, swords, tridents, spears, and maces all disable it, but a torch, a block, or an empty fist all count. Individual adaptations are stricter: most also check your off hand, and Sucker Punch and Meditation want your hands genuinely empty.
 
-**Milestones / challenges** (stat keys):
+Two of the adaptations reward going without armor as well. Glass Cannon multiplies your punches when you are wearing nothing at all, and Meditation slowly builds absorption hearts while you sit still, which is the closest thing this skill has to armor.
 
-- `challenge_unarmed_100` tracking `unarmed.hits`
-- `challenge_unarmed_1k` tracking `unarmed.hits`
-- `challenge_unarmed_10k` tracking `unarmed.hits`
-- `challenge_unarmed_dmg_1k` tracking `unarmed.damage`
-- `challenge_unarmed_dmg_10k` tracking `unarmed.damage`
-- `challenge_unarmed_kills_25` tracking `unarmed.kills`
-- `challenge_unarmed_kills_250` tracking `unarmed.kills`
-- `challenge_unarmed_crit_25` tracking `unarmed.critical`
-- `challenge_unarmed_crit_250` tracking `unarmed.critical`
-- `challenge_unarmed_heavy_25` tracking `unarmed.heavy`
-- `challenge_unarmed_heavy_250` tracking `unarmed.heavy`
+If you are starting out, Iron Fists and Unarmed Power are the plain damage picks. Combo Chain and Battering Charge are where it gets fun.
 
-Adaptations run only when learned (level ≥ 1), skill and adaptation are enabled, use permissions allow it, and protectors/region policy permit it.
+## How you earn Unarmed XP
 
-## Identity
+Every hit you land with a non-melee main hand counts. The skill adds 1 to `unarmed.hits` and the raw damage to `unarmed.damage`, then pays `damageXPMultiplier` times that damage, subject to a `cooldownDelay` cooldown between payouts.
+
+Two extra counters track style. A hit landed while falling (fall distance above zero and not on the ground) adds to `unarmed.critical`, and any hit above 6 damage adds to `unarmed.heavy`. Killing anything while not holding a melee tool adds to `unarmed.kills`, and killing a boss that way plays a small celebration.
+
+Nothing is credited when the victim is already dead or invulnerable, or when you are invulnerable.
+
+## Adaptations
+
+Everything below needs the same four things before it does anything: the adaptation learned at level 1 or higher, the Unarmed skill and that adaptation both enabled in config, the `adapt.use` permission for it, and any protection or region plugin allowing the action on that target. Learn adaptations from the Adapt menu (`/adapt`), under Unarmed.
+
+Where an adaptation is described as needing "bare hands", the code checks that neither hand holds a melee tool. Blocks and other junk items are fine.
+
+### Sucker Punch (`unarmed-sucker-punch`)
+
+A sprinting punch with a truly empty main hand multiplies your damage. Killing a full-health target in one such punch counts toward a knockout milestone, complete with a flash and a shockwave ring.
+
+How to use it:
+
+1. Learn Sucker Punch in the Adapt menu.
+2. Empty your main hand completely. Any item at all disables it.
+3. Sprint.
+4. Punch.
+
+### Unarmed Power (`unarmed-power`)
+
+A flat percentage boost to your attack damage while neither hand holds a tool. The bonus is a timed attribute modifier that is reapplied whenever your hands change, so it comes and goes as you swap items. Nothing to press.
+
+### Glass Cannon (`unarmed-glass-cannon`)
+
+Punching hurts far more when you are naked. With zero armor equipped your damage is multiplied several times over. Wearing armor scales that bonus down toward nothing, and the result never drops below your normal damage, so it is purely upside with a large reward for going without.
+
+### Battering Charge (`unarmed-battering-charge`)
+
+Sprint into something and the hit lands as an impact: extra damage plus a shove in the direction you are looking. A shield in either hand works as well as bare fists, and while the charge is primed you leave a small dust trail so you can see it is ready.
+
+How to use it:
+
+1. Learn Battering Charge in the Adapt menu.
+2. Have both hands empty, or hold a shield in either hand.
+3. Sprint, and keep actually moving. Standing still while the sprint flag is on does not count.
+4. Hit something.
+
+Using a shield puts the cooldown on the shield itself as a visible item cooldown. With fists it is an internal cooldown instead. Riding anything disables the charge.
+
+### Combo Chain (`unarmed-combo-chain`)
+
+Consecutive punches stack up, and each stack adds damage to the next hit. Stacks reset if you go too long between hits, and swinging at nothing after the grace window drops the whole chain with a low note. Bigger chains have their own advancements at 10 and 25 stacks.
+
+### Disarm (`unarmed-disarm`)
+
+Bare-hand hits can knock a target's held item to the ground. It takes the main-hand item, or an off-hand shield if the main hand is empty. Mobs can also lose one worn armor piece on the same disarm. The dropped item gets a pickup delay so the victim cannot instantly snatch it back, and each target has its own cooldown to stop chain-disarming. Skeletal servants are never disarmed.
+
+### Pressure Point (`unarmed-pressure-point`)
+
+Bare-hand hits apply Slowness that stacks up one amplifier at a time toward a level-based cap. Past a certain level, Weakness stacks on the same way. Good for softening something you cannot outrun.
+
+### Shockwave Clap (`unarmed-shockwave-clap`)
+
+Clap your hands and everything in a cone in front of you gets thrown backward and upward. No damage, just displacement, which makes it an escape tool and a way to break up a pile of mobs.
+
+How to use it:
+
+1. Learn Shockwave Clap in the Adapt menu.
+2. Keep both hands free of tools.
+3. Sneak.
+4. Left-click the air or a block.
+
+Each clap costs hunger and fails with a dull cue if you are on cooldown or too hungry. Your own pets are never thrown.
+
+### Iron Fists (`unarmed-iron-fists`)
+
+Flat extra damage on every bare-hand hit, and punching soft blocks (dirt, sand, leaves, anything under the hardness threshold) gives you a short mining-speed buff. Nothing to activate.
+
+### Grapple (`unarmed-grapple`)
+
+Grab something with a sneak-punch, then throw it where you are looking. Works on players too, subject to PVP policy, but bosses cannot be grabbed.
+
+How to use it:
+
+1. Learn Grapple in the Adapt menu.
+2. Keep both hands free of tools.
+3. Sneak and punch a target. A line of particles connects you to it.
+4. Punch again, or release sneak, to hurl it.
+
+The grab expires on its own after a few seconds. Each throw adds exhaustion, so grappling a crowd will make you hungry, and the target must still be within throwing range when the hurl resolves.
+
+### Second Wind (`unarmed-second-wind`)
+
+Killing a mob bare-handed gives back some hunger and saturation and starts a short regeneration burst. It has its own cooldown so a fast kill chain does not turn into infinite food.
+
+### Meditation (`unarmed-meditation`)
+
+Sit still and build absorption hearts. Slow, but it stacks up to a real buffer over a minute or two of downtime, and it pairs well with Glass Cannon since absorption is not armor.
+
+How to use it:
+
+1. Learn Meditation in the Adapt menu.
+2. Empty both hands completely.
+3. Stay out of combat for the lockout window.
+4. Sneak and stand still. Absorption ticks up once per second until you hit the cap.
+
+Moving, unsneaking, picking anything up, or taking or dealing a hit ends the session immediately.
+
+## Reference
+
+### Identity
 
 | Property | Value |
 |----------|-------|
@@ -32,35 +127,49 @@ Adaptations run only when learned (level ≥ 1), skill and adaptation are enable
 | Skill config | `plugins/Adapt/adapt/skills/unarmed.toml` |
 | Adaptation count | 12 |
 
-## Skill configuration defaults
+### Skill configuration defaults
 
-These values are written to `plugins/Adapt/adapt/skills/unarmed.toml` on first load. They control this skill's XP awards, limits, cooldowns, and progression behavior.
+Written to `plugins/Adapt/adapt/skills/unarmed.toml` on first load.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `enabled` | `true` | Enables or disables this skill or adaptation. |
-| `skillColor` | `"&e"` | Legacy ampersand color code used for this skill in menus and text. |
-| `damageXPMultiplier` | `4.5` | Unitless multiplier applied to XP from damage multiplier. |
-| `cooldownDelay` | `1250` | Minimum delay between passive skill XP awards, in milliseconds. |
-| `challengeUnarmedReward` | `500` | Reward for the unarmed challenge. |
-| `challengeUnarmedDmgReward` | `500` | Reward for the unarmed damage challenge. |
-| `challengeUnarmedKillsReward` | `750` | Reward for the unarmed kills challenge. |
-| `challengeUnarmedCritReward` | `750` | Reward for the unarmed crit challenge. |
-| `challengeUnarmedHeavyReward` | `750` | Reward for the unarmed heavy challenge. |
+| `enabled` | `true` | Turns the whole Unarmed skill on or off. |
+| `skillColor` | `"&e"` | Legacy ampersand color code used for Unarmed in menus and text. |
+| `damageXPMultiplier` | `4.5` | Skill XP per point of damage you deal without a melee tool. |
+| `cooldownDelay` | `1250` | Milliseconds between XP awards for unarmed damage. |
+| `challengeUnarmedReward` | `500` | Knowledge paid by the hit-count challenges. |
+| `challengeUnarmedDmgReward` | `500` | Knowledge paid by the damage challenges. |
+| `challengeUnarmedKillsReward` | `750` | Knowledge paid by the kill challenges. |
+| `challengeUnarmedCritReward` | `750` | Knowledge paid by the falling-hit challenges. |
+| `challengeUnarmedHeavyReward` | `750` | Knowledge paid by the heavy-hit challenges. |
 
-## Adaptation usage reference
+### Skill milestones
 
-What each adaptation does and how a player activates it. TOML overrides live at `plugins/Adapt/adapt/adaptations/<id>.toml`.
+| Advancement key | Stat key | Threshold | Reward |
+|-----------------|----------|-----------|--------|
+| `challenge_unarmed_100` | `unarmed.hits` | 100 | `challengeUnarmedReward` |
+| `challenge_unarmed_1k` | `unarmed.hits` | 1000 | `challengeUnarmedReward` x 2 |
+| `challenge_unarmed_10k` | `unarmed.hits` | 10000 | `challengeUnarmedReward` x 5 |
+| `challenge_unarmed_dmg_1k` | `unarmed.damage` | 1000 | `challengeUnarmedDmgReward` |
+| `challenge_unarmed_dmg_10k` | `unarmed.damage` | 10000 | `challengeUnarmedDmgReward` x 3 |
+| `challenge_unarmed_kills_25` | `unarmed.kills` | 25 | `challengeUnarmedKillsReward` |
+| `challenge_unarmed_kills_250` | `unarmed.kills` | 250 | `challengeUnarmedKillsReward` x 3 |
+| `challenge_unarmed_crit_25` | `unarmed.critical` | 25 | `challengeUnarmedCritReward` |
+| `challenge_unarmed_crit_250` | `unarmed.critical` | 250 | `challengeUnarmedCritReward` x 3 |
+| `challenge_unarmed_heavy_25` | `unarmed.heavy` | 25 | `challengeUnarmedHeavyReward` |
+| `challenge_unarmed_heavy_250` | `unarmed.heavy` | 250 | `challengeUnarmedHeavyReward` x 3 |
 
-### Sucker Punch (`unarmed-sucker-punch`)
+`unarmed.critical` counts hits landed with fall distance above zero while not on the ground. `unarmed.heavy` counts hits above 6 damage.
 
-Sprint punches, but more deadly.
+### Shared adaptation keys
 
-**Runtime entry points:** on melee/projectile hit (damage); on entity death / kill credit; periodic evaluation every 4944 ms.
+Every adaptation TOML at `plugins/Adapt/adapt/adaptations/<id>.toml` also carries `enabled`, `permanent`, `showParticles`, `showSounds`, `baseCost`, `costFactor`, `maxLevel`, and `initialCost`.
 
-**Menu displays:** Damage; Requires an empty main hand while sprinting.
+"Level percent" below is the learned level divided by the adaptation's max level (0 to 1).
 
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+Every adaptation carries a tick interval because every adaptation is registered with the scheduler, but only Unarmed Power, Disarm, and Meditation actually run work on that tick. The rest are event-driven and their interval is inert.
+
+### Sucker Punch
 
 | Property | Default |
 |----------|---------|
@@ -73,29 +182,20 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 4944 |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-sucker-punch.toml` |
 
-Listened events:
+Listened events: `EntityDamageByEntityEvent` (applies the multiplier), `EntityDeathEvent` (counts one-punch kills).
 
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
-- `EntityDeathEvent` (`on`) — on entity death / kill credit
+Menu lore: "Damage", "Requires an empty main hand while sprinting".
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.sucker-punch.sucker-punches` at 500 (reward 400); `unarmed.sucker-punch.one-punch-kills` at 50 (reward 1000), credited when the killing blow's final damage was at least the victim's max health.
+
+XP is hardcoded: 6.221 times the resulting damage per punch, plus 0.42 times the damage again when the punch exceeds 5. The main hand must be `AIR` exactly.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `baseDamage` | `0.2` | Base damage. health points (2 points = 1 heart). |
-| `damageFactor` | `0.55` | Damage factor. Unitless multiplier. |
+| `baseDamage` | `0.2` | Fraction added to your damage at level percent 0, applied as a multiplier of 1 plus this value. |
+| `damageFactor` | `0.55` | Extra fraction at full level percent. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
-
-### Unarmed Power (`unarmed-power`)
-
-Your bare-handed strikes deal more damage.
-
-**Runtime entry points:** on `PlayerItemHeldEvent`; on swap hands (F); on `InventoryCloseEvent`; on drop item; on `EntityPickupItemEvent`; on `PlayerItemBreakEvent`; on `PlayerRespawnEvent`; on world change.
-
-**Menu displays:** Damage.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Unarmed Power
 
 | Property | Default |
 |----------|---------|
@@ -108,36 +208,19 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 4444 |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-power.toml` |
 
-Listened events:
+Listened events: `PlayerItemHeldEvent`, `PlayerSwapHandItemsEvent`, `InventoryCloseEvent`, `PlayerDropItemEvent`, `EntityPickupItemEvent`, `PlayerItemBreakEvent`, `PlayerRespawnEvent`, and `PlayerChangedWorldEvent` all reapply or strip the modifier; `EntityDamageByEntityEvent` pays XP and reapplies; `EntityDeathEvent` counts bare-hand kills. The tick pass also reconciles learners.
 
-- `PlayerItemHeldEvent` (`on`)
-- `PlayerSwapHandItemsEvent` (`on`) — on swap hands (F)
-- `InventoryCloseEvent` (`on`)
-- `PlayerDropItemEvent` (`on`) — on drop item
-- `EntityPickupItemEvent` (`on`)
-- `PlayerItemBreakEvent` (`on`)
-- `PlayerRespawnEvent` (`on`)
-- `PlayerChangedWorldEvent` (`on`) — on world change
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
-- `EntityDeathEvent` (`on`) — on entity death / kill credit
+Menu lore: "Damage".
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.power.unarmed-kills` at 500 (reward 400) and 5000 (reward 1500).
+
+The bonus is an attack-damage modifier of level percent times `damageFactor`, applied with MULTIPLY_SCALAR_1 for 180 ticks and refreshed whenever your hands change. XP per hit is hardcoded at 0.321 times level percent times damage.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `damageFactor` | `2.57` | Damage factor. Unitless multiplier. |
+| `damageFactor` | `2.57` | Attack-damage multiplier reached at full level percent. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
-
-### Glass Cannon (`unarmed-glass-cannon`)
-
-Bonus Unarmed Damage the lower your armor value is.
-
-**Runtime entry points:** on melee/projectile hit (damage); on entity death / kill credit; periodic evaluation every 4544 ms.
-
-**Menu displays:** Damage multiplier at zero armor and flat bonus damage per level.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Glass Cannon
 
 | Property | Default |
 |----------|---------|
@@ -150,30 +233,21 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 4544 |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-glass-cannon.toml` |
 
-Listened events:
+Listened events: `EntityDamageByEntityEvent` (adjusts the damage), `EntityDeathEvent` (counts kills made with zero armor).
 
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
-- `EntityDeathEvent` (`on`) — on entity death / kill credit
+Menu lore: "x Damage at 0 armor", "PerLevel Bonus Damage".
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.glass-cannon.naked-kills` at 100 (reward 300) and 500 (reward 1000).
+
+Armor value here is Adapt's own fraction, summed across the four slots (for example a leather helmet is 0.04, an iron helmet 0.08, a diamond helmet 0.12). With zero armor the damage becomes `damage x (maxDamageFactor + level x maxDamagePerLevelMultiplier)` plus the flat bonus. With any armor it becomes `damage - (damage x armor)` plus the flat bonus. Both branches take the higher of the result and your original damage, so this never reduces a hit.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `perLevelBonusMultiplier` | `0.25` | Per level bonus multiplier. Unitless multiplier. |
-| `maxDamageFactor` | `4.0` | Maximum damage factor. Unitless multiplier. |
-| `maxDamagePerLevelMultiplier` | `0.15` | Maximum damage per level multiplier. Unitless multiplier. |
+| `perLevelBonusMultiplier` | `0.25` | Flat health points of bonus damage per learned level, added in both branches. |
+| `maxDamageFactor` | `4.0` | Damage multiplier at zero armor before the per-level term. |
+| `maxDamagePerLevelMultiplier` | `0.15` | Extra zero-armor multiplier per learned level. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
-
-### Battering Charge (`unarmed-battering-charge`)
-
-Sprint into enemies with fists or a shield to deal impact damage.
-
-**Runtime entry points:** on melee/projectile hit (damage); on entity death / kill credit; while moving; on sprint toggle.
-
-**Menu displays:** Impact Damage Bonus; Impact Knockback; Charge Cooldown.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Battering Charge
 
 | Property | Default |
 |----------|---------|
@@ -183,40 +257,30 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Initial knowledge cost | 4 |
 | Base knowledge cost | 4 |
 | Cost factor | 0.7 |
+| Tick interval (ms) | 1000 (default; no tick work) |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-battering-charge.toml` |
 
-Listened events:
+Listened events: `EntityDamageByEntityEvent` (applies the impact), `EntityDeathEvent` (counts kills within 2 seconds of a charge hit), `PlayerMoveEvent` (samples horizontal movement and updates the primed trail), `PlayerToggleSprintEvent` (primes or drops the charge).
 
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
-- `EntityDeathEvent` (`on`) — on entity death / kill credit
-- `PlayerMoveEvent` (`on`) — while moving
-- `PlayerToggleSprintEvent` (`on`) — on sprint toggle
+Menu lore: "Impact Damage Bonus", "Impact Knockback", "Charge Cooldown".
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.battering-charge.charges` at 300 (reward 400); `unarmed.battering-charge.charge-kills` at 100 (reward 1000).
+
+The movement sample must be under 750 ms old to count. Riding a vehicle blocks the charge. Cooldown ticks are floored at 10.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `damageBase` | `0.5` | Base Damage. health points (2 points = 1 heart). |
-| `damageFactor` | `4.2` | Damage factor. Unitless multiplier. |
-| `knockbackBase` | `0.5` | Base Knockback. |
-| `knockbackFactor` | `1.2` | Knockback factor. Unitless multiplier. |
-| `cooldownTicksBase` | `80` | Base Cooldown ticks. Server ticks (20 ticks = 1 second). |
-| `cooldownTicksFactor` | `50` | Cooldown ticks factor. Server ticks (20 ticks = 1 second). |
-| `minimumVelocitySquared` | `0.05` | Minimum squared horizontal movement per tick required for a charge to connect. |
-| `xpPerDamage` | `3.3` | XP awarded for xp per damage. health points (2 points = 1 heart). |
-| `primedTrailIntervalMillis` | `120` | Milliseconds between primed trail particle pulses while charge is ready. |
+| `damageBase` | `0.5` | Flat health points added to the impact at level percent 0. |
+| `damageFactor` | `4.2` | Extra flat damage at full level percent. |
+| `knockbackBase` | `0.5` | Velocity added to the target along your look direction at level percent 0. |
+| `knockbackFactor` | `1.2` | Extra knockback velocity at full level percent. |
+| `cooldownTicksBase` | `80` | Ticks between charges at level percent 0. |
+| `cooldownTicksFactor` | `50` | Ticks removed at full level percent, floored at 10. |
+| `minimumVelocitySquared` | `0.05` | Squared horizontal blocks per tick you must actually be moving; sprinting is roughly 0.08. |
+| `xpPerDamage` | `3.3` | Unarmed XP per point of the resulting hit damage. |
+| `primedTrailIntervalMillis` | `120` | Milliseconds between dust puffs while the charge is primed. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
-
-### Combo Chain (`unarmed-combo-chain`)
-
-Consecutive unarmed hits build combo stacks that increase punch damage.
-
-**Runtime entry points:** on melee/projectile hit (damage); on block/entity/air interact (click); periodic evaluation every 1800 ms.
-
-**Menu displays:** Max Combo Stacks; Damage Per Stack; Combo Window.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Combo Chain
 
 | Property | Default |
 |----------|---------|
@@ -229,35 +293,26 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 1800 |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-combo-chain.toml` |
 
-Listened events:
+Listened events: `EntityDamageByEntityEvent` (builds the combo, or drops it if the main hand holds a melee tool), `PlayerInteractEvent` (a left-click that lands on nothing after the grace window drops the combo).
 
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
-- `PlayerInteractEvent` (`on`) — on block/entity/air interact (click)
+Menu lore: "Max Combo Stacks", "Damage Per Stack", "Combo Window".
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.combo-chain.total-combo-hits` at 5000 (reward 400). One-off advancements `challenge_unarmed_combo_10` and `challenge_unarmed_combo_25` at 10 and 25 stacks.
+
+Only the main hand is checked here. Dropping a combo below 3 stacks plays no effect.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `maxStacksBase` | `2` | Base Maximum stacks. count. |
-| `maxStacksFactor` | `8` | Maximum stacks factor. Unitless multiplier. |
-| `damagePerStackBase` | `0.2` | Base Damage per stack. health points (2 points = 1 heart). |
-| `damagePerStackFactor` | `0.85` | Damage per stack factor. Unitless multiplier. |
-| `comboWindowMillisBase` | `1300` | Base Combo window millis. Milliseconds. |
-| `comboWindowMillisFactor` | `1400` | Combo window millis factor. Milliseconds. |
-| `missResetGraceMillis` | `280` | Miss reset grace millis. Milliseconds. |
-| `xpPerBonusDamage` | `4.1` | XP awarded for xp per bonus damage. health points (2 points = 1 heart). |
+| `maxStacksBase` | `2` | Stack ceiling at level percent 0. |
+| `maxStacksFactor` | `8` | Extra stack ceiling at full level percent. |
+| `damagePerStackBase` | `0.2` | Flat health points of bonus damage per stack at level percent 0. |
+| `damagePerStackFactor` | `0.85` | Extra damage per stack at full level percent. |
+| `comboWindowMillisBase` | `1300` | Milliseconds allowed between hits at level percent 0. |
+| `comboWindowMillisFactor` | `1400` | Extra window milliseconds at full level percent, floored at 250. |
+| `missResetGraceMillis` | `280` | Milliseconds after a hit during which a whiffed swing does not break the chain. |
+| `xpPerBonusDamage` | `4.1` | Unarmed XP per point of combo bonus damage dealt. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
-
-### Disarm (`unarmed-disarm`)
-
-Bare-hand hits can knock the held item out of players and mobs alike, and mobs may have a worn armor piece knocked loose too.
-
-**Runtime entry points:** on melee/projectile hit (damage); periodic evaluation every 5125 ms.
-
-**Menu displays:** Disarm Chance; Per-Target Cooldown; chance a disarmed mob also drops a worn armor piece.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Disarm
 
 | Property | Default |
 |----------|---------|
@@ -270,33 +325,25 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 5125 |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-disarm.toml` |
 
-Listened events:
+Listened events: `EntityDamageByEntityEvent`. The tick pass only expires per-target cooldowns.
 
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
+Menu lore: "Disarm Chance", "Per-Target Cooldown", "chance a disarmed mob also drops a worn armor piece".
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.disarm.disarms` at 100 (reward 400) and 1000 (reward 1500).
+
+The main-hand item is taken first; an off-hand shield is only taken when the main hand is empty. Players never lose armor. TragOul skeletal servants are skipped.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `allowDisarmPlayers` | `true` | Allows disarming other players, not just mobs. |
-| `mobArmorDropChance` | `0.5` | Chance that a successful disarm against a mob also knocks loose a worn armor piece. |
-| `chanceBase` | `0.04` | Base chance for a bare-hand hit to disarm the target. |
-| `chanceFactor` | `0.18` | Additional disarm chance granted at max level. |
-| `pickupDelayTicks` | `60` | Pickup delay ticks applied to the knocked item. |
-| `targetCooldownMillis` | `8000` | Per-target cooldown in milliseconds between disarms. |
-| `xpPerDisarm` | `28` | XP granted per successful disarm. |
+| `allowDisarmPlayers` | `true` | False limits disarms to mobs. |
+| `mobArmorDropChance` | `0.5` | Chance a successful disarm on a mob also knocks off one worn armor piece, 0-1. |
+| `chanceBase` | `0.04` | Disarm chance per hit at level percent 0, 0-1. |
+| `chanceFactor` | `0.18` | Extra chance at full level percent, capped at 1. |
+| `pickupDelayTicks` | `60` | Ticks before anyone can pick the knocked item back up. |
+| `targetCooldownMillis` | `8000` | Milliseconds before the same target can be disarmed again. |
+| `xpPerDisarm` | `28` | Unarmed XP per successful disarm. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
-
-### Pressure Point (`unarmed-pressure-point`)
-
-Bare-hand hits apply stacking slowness, with weakness at higher levels.
-
-**Runtime entry points:** on melee/projectile hit (damage); periodic evaluation every 4733 ms.
-
-**Menu displays:** Max Slowness Stacks; Max Weakness Stacks; Weakness unlocks at higher levels.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Pressure Point
 
 | Property | Default |
 |----------|---------|
@@ -309,33 +356,25 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 4733 |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-pressure-point.toml` |
 
-Listened events:
+Listened events: `EntityDamageByEntityEvent`.
 
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
+Menu lore: "Max Slowness Stacks", "Max Weakness Stacks", and "Weakness unlocks at higher levels" while it is still locked.
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.pressure-point.pressure-strikes` at 500 (reward 400) and 5000 (reward 1500).
+
+Each hit raises the existing amplifier by one, up to the cap, and refreshes the duration.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `maxSlownessAmplifierBase` | `0` | Base maximum slowness amplifier at level 1. |
-| `maxSlownessAmplifierFactor` | `2` | Additional maximum slowness amplifier granted at max level. |
-| `slownessDurationTicks` | `60` | Slowness duration in ticks per pressure strike. |
-| `weaknessUnlockPercent` | `0.6` | Level percent required before weakness stacking unlocks. |
-| `maxWeaknessAmplifier` | `1` | Maximum weakness amplifier once unlocked. |
-| `weaknessDurationTicks` | `50` | Weakness duration in ticks per pressure strike. |
-| `xpPerStrike` | `3.1` | XP granted per pressure strike. |
+| `maxSlownessAmplifierBase` | `0` | Highest Slowness amplifier at level percent 0. |
+| `maxSlownessAmplifierFactor` | `2` | Extra amplifier headroom at full level percent. |
+| `slownessDurationTicks` | `60` | Ticks of Slowness applied per strike. |
+| `weaknessUnlockPercent` | `0.6` | Level percent at which Weakness starts being applied too. |
+| `maxWeaknessAmplifier` | `1` | Highest Weakness amplifier once unlocked. |
+| `weaknessDurationTicks` | `50` | Ticks of Weakness applied per strike. |
+| `xpPerStrike` | `3.1` | Unarmed XP per strike. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
-
-### Shockwave Clap (`unarmed-shockwave-clap`)
-
-Sneak and punch the air to clap a shockwave that knocks back enemies in a cone. Each clap costs hunger.
-
-**Runtime entry points:** on block/entity/air interact (click); periodic evaluation every 5230 ms.
-
-**Menu displays:** Shockwave Range; Knockback Force; Clap Cooldown; Hunger Cost.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Shockwave Clap
 
 | Property | Default |
 |----------|---------|
@@ -348,40 +387,32 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 5230 |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-shockwave-clap.toml` |
 
-Listened events:
+Listened events: `PlayerInteractEvent` (sneak plus left-click air or block).
 
-- `PlayerInteractEvent` (`on`) — on block/entity/air interact (click)
+Menu lore: "Shockwave Range", "Knockback Force", "Clap Cooldown", "Hunger Cost".
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.shockwave-clap.mobs-clapped` at 250 (reward 400) and 2500 (reward 1500). Every activation also increments `unarmed.shockwave-clap.claps`, which has no milestone.
+
+Hunger is spent on activation, before targets are resolved. Cooldown is floored at 1000 ms.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `rangeBase` | `3.5` | Base shockwave range in blocks at level 1. |
-| `rangeFactor` | `3` | Additional shockwave range granted at max level. |
-| `forceBase` | `0.8` | Base knockback force at level 1. |
-| `forceFactor` | `1.2` | Additional knockback force granted at max level. |
-| `upwardForceBase` | `0.25` | Base upward knockback component at level 1. |
-| `upwardForceFactor` | `0.2` | Additional upward knockback granted at max level. |
-| `coneDotThreshold` | `0.45` | Look-direction dot threshold that defines the cone width. |
-| `cooldownMillisBase` | `10000` | Base clap cooldown in milliseconds at level 1. |
-| `cooldownMillisFactor` | `6000` | Cooldown reduction in milliseconds granted at max level. |
-| `hungerCost` | `2` | Hunger points consumed per shockwave clap. |
-| `xpPerTargetHit` | `14` | XP granted per enemy knocked back by a clap. |
-| `maxCandidatesPerActivation` | `16` | Maximum living targets inspected by one shockwave clap. |
-| `maxAffectedPerActivation` | `12` | Maximum living targets knocked back by one shockwave clap. |
-| `maxTargetFxPerActivation` | `8` | Maximum knocked-back targets that receive individual cloud particles. |
+| `rangeBase` | `3.5` | Cone reach in blocks at level percent 0. |
+| `rangeFactor` | `3` | Extra reach in blocks at full level percent. |
+| `forceBase` | `0.8` | Outward velocity applied to each target at level percent 0. |
+| `forceFactor` | `1.2` | Extra outward velocity at full level percent. |
+| `upwardForceBase` | `0.25` | Upward velocity component at level percent 0. |
+| `upwardForceFactor` | `0.2` | Extra upward velocity at full level percent. |
+| `coneDotThreshold` | `0.45` | Dot product against your look direction a target must exceed; lower widens the cone. |
+| `cooldownMillisBase` | `10000` | Milliseconds between claps at level percent 0. |
+| `cooldownMillisFactor` | `6000` | Milliseconds removed at full level percent, floored at 1000. |
+| `hungerCost` | `2` | Food points spent per clap; the clap fails if you have less. |
+| `xpPerTargetHit` | `14` | Unarmed XP per target actually knocked back. |
+| `maxCandidatesPerActivation` | `16` | Nearby living entities inspected per clap, hard-capped at 32. |
+| `maxAffectedPerActivation` | `12` | Targets knocked back per clap, hard-capped at 16 and by the candidate limit. |
+| `maxTargetFxPerActivation` | `8` | Knocked-back targets that get their own cloud particles, hard-capped at 12. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
-
-### Iron Fists (`unarmed-iron-fists`)
-
-Bare fists hit harder and punch through soft blocks faster.
-
-**Runtime entry points:** on melee/projectile hit (damage); on `BlockDamageEvent`; periodic evaluation every 4622 ms.
-
-**Menu displays:** Flat Punch Damage; Soft Block Punch Haste.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Iron Fists
 
 | Property | Default |
 |----------|---------|
@@ -394,33 +425,24 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 4622 |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-iron-fists.toml` |
 
-Listened events:
+Listened events: `EntityDamageByEntityEvent` (flat damage bonus), `BlockDamageEvent` (soft-block mining buff, which requires an empty main hand rather than just no tool).
 
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
-- `BlockDamageEvent` (`on`)
+Menu lore: "Flat Punch Damage", "Soft Block Punch Haste".
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.iron-fists.iron-hits` at 1000 (reward 400) and 10000 (reward 1500).
+
+The mining buff is a block-break-speed modifier of 0.2 x (amplifier + 1), not a Haste potion effect.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `damageBase` | `0.5` | Base flat bare-hand damage bonus at level 1. |
-| `damageFactor` | `2.5` | Additional flat damage bonus granted at max level. |
-| `softBlockMaxHardness` | `0.8` | Maximum block hardness still considered a soft block. |
-| `hasteDurationTicks` | `25` | Haste duration in ticks while punching soft blocks. |
-| `hasteAmplifierFactor` | `2` | Haste amplifier granted at max level while punching soft blocks. |
-| `xpPerHit` | `2.4` | XP granted per bare-hand hit. |
+| `damageBase` | `0.5` | Flat health points added per hit at level percent 0. |
+| `damageFactor` | `2.5` | Extra flat damage at full level percent. |
+| `softBlockMaxHardness` | `0.8` | Highest block hardness that still counts as soft. |
+| `hasteDurationTicks` | `25` | Ticks the mining buff lasts after each punch; 0 disables it. |
+| `hasteAmplifierFactor` | `2` | Amplifier reached at full level percent. |
+| `xpPerHit` | `2.4` | Unarmed XP per bare-hand hit. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
-
-### Grapple (`unarmed-grapple`)
-
-Sneak-punch a mob or player to grab it, then hurl it where you look. Player grapples respect PvP protection. Each throw adds exhaustion.
-
-**Runtime entry points:** on melee/projectile hit (damage); on sneak toggle.
-
-**Menu displays:** Hurl Force; Grapple Cooldown; Hit again or release sneak to hurl; Exhaustion per Throw.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Grapple
 
 | Property | Default |
 |----------|---------|
@@ -430,39 +452,31 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Initial knowledge cost | 6 |
 | Base knowledge cost | 5 |
 | Cost factor | 0.65 |
+| Tick interval (ms) | 1000 (default; no tick work) |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-grapple.toml` |
 
-Listened events:
+Listened events: `EntityDamageByEntityEvent` (grabs while sneaking, or hurls if a grab is already held), `PlayerToggleSneakEvent` (releasing sneak hurls).
 
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
-- `PlayerToggleSneakEvent` (`on`) — on sneak toggle
+Menu lore: "Hurl Force", "Grapple Cooldown", "Hit again or release sneak to hurl", "Exhaustion per Throw".
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.grapple.hurled-mobs` at 100 (reward 400) and 1000 (reward 1500).
+
+Bosses cannot be grabbed. The cooldown is marked on the hurl, not the grab, and is floored at 1000 ms. One hurl per second per player.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `forceBase` | `0.9` | Base hurl force at level 1. |
-| `forceFactor` | `1.4` | Additional hurl force granted at max level. |
-| `upwardBoost` | `0.2` | Base upward component added to the hurl velocity. |
-| `upwardBoostFactor` | `0.25` | Additional upward hurl component granted at max level. |
-| `maxHurlRange` | `6` | Maximum distance in blocks a grabbed target can be hurled from. |
-| `grabTimeoutMillis` | `5000` | Milliseconds before an unused grab expires. |
-| `cooldownMillisBase` | `9000` | Base grapple cooldown in milliseconds at level 1. |
-| `cooldownMillisFactor` | `5000` | Cooldown reduction in milliseconds granted at max level. |
-| `exhaustionPerThrow` | `2.0` | Exhaustion added to the player per hurled mob. |
-| `xpPerHurl` | `32` | XP granted per hurled target. |
+| `forceBase` | `0.9` | Throw velocity along your look direction at level percent 0. |
+| `forceFactor` | `1.4` | Extra throw velocity at full level percent. |
+| `upwardBoost` | `0.2` | Upward velocity component at level percent 0. |
+| `upwardBoostFactor` | `0.25` | Extra upward component at full level percent. |
+| `maxHurlRange` | `6` | Blocks the target may be from you when the hurl resolves, or it is cancelled. |
+| `grabTimeoutMillis` | `5000` | Milliseconds an unused grab stays held. |
+| `cooldownMillisBase` | `9000` | Milliseconds between grapples at level percent 0. |
+| `cooldownMillisFactor` | `5000` | Milliseconds removed at full level percent, floored at 1000. |
+| `exhaustionPerThrow` | `2.0` | Exhaustion added to you per throw; 0 disables the cost. |
+| `xpPerHurl` | `32` | Unarmed XP per throw. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
-
-### Second Wind (`unarmed-second-wind`)
-
-Bare-hand kills restore hunger and grant a short regeneration burst.
-
-**Runtime entry points:** on entity death / kill credit; periodic evaluation every 4960 ms.
-
-**Menu displays:** Hunger Restored; Regeneration Duration.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Second Wind
 
 | Property | Default |
 |----------|---------|
@@ -475,34 +489,26 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 4960 |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-second-wind.toml` |
 
-Listened events:
+Listened events: `EntityDeathEvent` (a non-player mob you killed bare-handed).
 
-- `EntityDeathEvent` (`on`) — on entity death / kill credit
+Menu lore: "Hunger Restored", "Regeneration Duration".
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.second-wind.second-winds` at 100 (reward 400) and 1000 (reward 1500).
+
+Friendly targets, including your own pets, are skipped. Food is clamped to 20 and saturation to your current food level.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `foodRestoreBase` | `1` | Base hunger points restored per bare-hand kill. |
-| `foodRestoreFactor` | `4` | Additional hunger points restored at max level. |
-| `saturationRestore` | `1.5` | Saturation restored per bare-hand kill. |
-| `regenDurationTicksBase` | `40` | Base regeneration duration in ticks per bare-hand kill. |
-| `regenDurationTicksFactor` | `80` | Additional regeneration duration ticks granted at max level. |
-| `regenAmplifier` | `0` | Regeneration amplifier applied by the burst. |
-| `cooldownMillis` | `3000` | Cooldown in milliseconds between second wind triggers. |
-| `xpPerSecondWind` | `18` | XP granted per second wind trigger. |
+| `foodRestoreBase` | `1` | Food points restored per kill at level percent 0. |
+| `foodRestoreFactor` | `4` | Extra food points at full level percent. |
+| `saturationRestore` | `1.5` | Saturation restored per kill. |
+| `regenDurationTicksBase` | `40` | Ticks of Regeneration at level percent 0. |
+| `regenDurationTicksFactor` | `80` | Extra ticks at full level percent, floored at 20. |
+| `regenAmplifier` | `0` | Amplifier of the Regeneration burst. |
+| `cooldownMillis` | `3000` | Milliseconds between triggers. |
+| `xpPerSecondWind` | `18` | Unarmed XP per trigger. |
 
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
-
-### Meditation (`unarmed-meditation`)
-
-Meditate while sneaking, still, and empty-handed to slowly build absorption hearts.
-
-**Runtime entry points:** on melee/projectile hit (damage); on sneak toggle.
-
-**Menu displays:** Max Absorption; Absorption Per Pulse; Combat Lockout.
-
-Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector allowance.
+### Meditation
 
 | Property | Default |
 |----------|---------|
@@ -515,28 +521,26 @@ Requires level ≥ 1, enabled skill/adaptation, `adapt.use.*`, and protector all
 | Tick interval (ms) | 1000 |
 | Config file | `plugins/Adapt/adapt/adaptations/unarmed-meditation.toml` |
 
-Listened events:
+Listened events: `EntityDamageByEntityEvent` (any combat, as attacker or victim, starts the lockout and ends the session), `PlayerToggleSneakEvent` (starts and stops sessions), `PlayerQuitEvent` (cleans up the absorption capacity modifier).
 
-- `EntityDamageByEntityEvent` (`on`) — on melee/projectile hit (damage)
-- `PlayerToggleSneakEvent` (`on`) — on sneak toggle
-- `PlayerQuitEvent` (`on`)
+Menu lore: "Max Absorption", "Absorption Per Pulse", "Combat Lockout".
 
-Config knobs (code defaults):
+Stats and milestones: `unarmed.meditation.absorption-gained` at 500 (reward 400) and 5000 (reward 1500).
+
+Pulses run once per second while sneaking. Both hands must be completely empty, not merely free of tools. XP from pulses is silent, meaning it does not show the usual XP popup.
 
 | Key | Code default | Behavior / units |
 |-----|--------------|------------------|
-| `absorptionCapBase` | `2` | Base absorption cap in health points at level 1. |
-| `absorptionCapFactor` | `10` | Additional absorption cap granted at max level. |
-| `gainPerPulse` | `0.5` | Absorption health points gained per meditation pulse. |
-| `combatLockoutMillis` | `8000` | Milliseconds after combat before meditation can resume. |
-| `stationaryEpsilonSquared` | `0.01` | Maximum squared movement distance still considered stationary. |
-| `xpPerPulse` | `1.2` | Silent XP granted per meditation pulse. |
-
-Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
+| `absorptionCapBase` | `2` | Absorption health points you can hold at level percent 0. |
+| `absorptionCapFactor` | `10` | Extra absorption cap at full level percent. |
+| `gainPerPulse` | `0.5` | Absorption health points gained each second while meditating. |
+| `combatLockoutMillis` | `8000` | Milliseconds after any combat before meditation can resume. |
+| `stationaryEpsilonSquared` | `0.01` | Squared blocks of drift per pulse still treated as standing still. |
+| `xpPerPulse` | `1.2` | Silent Unarmed XP per pulse. |
 
 ## See also
 
-- `02 - Concepts.md`
-- `03 - Player Usage.md`
-- `10 - Skills Catalog.md`
-- `04 - Commands & Permissions.md`
+- `02 - Concepts.md` for levels, knowledge, and how adaptations are learned.
+- `03 - Player Usage.md` for the Adapt menu and general play.
+- `10 - Skills Catalog.md` for the full skill list.
+- `04 - Commands & Permissions.md` for the `adapt.use` nodes.
