@@ -25,11 +25,14 @@ import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
 import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.EventExecutor;
@@ -94,7 +97,7 @@ public final class EventHandlerInvoker {
         return (target, event) -> {
           if (!eventType.isAssignableFrom(event.getClass())
               || isVetoedInteraction(event)
-              || isSkippedForMissingLearner(gated, abilityName, event)) {
+              || isSkippedEvent(gated, abilityName, event)) {
             return;
           }
 
@@ -108,7 +111,7 @@ public final class EventHandlerInvoker {
 
       return (target, event) -> {
         if (!eventType.isAssignableFrom(event.getClass())
-            || isSkippedForMissingLearner(gated, abilityName, event)) {
+            || isSkippedEvent(gated, abilityName, event)) {
           return;
         }
 
@@ -124,7 +127,7 @@ public final class EventHandlerInvoker {
       return (target, event) -> {
         if (!eventType.isAssignableFrom(event.getClass())
             || isVetoedInteraction(event)
-            || isSkippedForMissingLearner(gated, abilityName, event)) {
+            || isSkippedEvent(gated, abilityName, event)) {
           return;
         }
 
@@ -140,7 +143,7 @@ public final class EventHandlerInvoker {
 
     return (target, event) -> {
       if (!eventType.isAssignableFrom(event.getClass())
-          || isSkippedForMissingLearner(gated, abilityName, event)) {
+          || isSkippedEvent(gated, abilityName, event)) {
         return;
       }
 
@@ -152,6 +155,14 @@ public final class EventHandlerInvoker {
         throw new EventException(ex);
       }
     };
+  }
+
+  private static boolean isSkippedEvent(boolean gated, String abilityName, Event event) {
+    return (ProtectionEventProbe.isActive(event)
+        && (event instanceof PlayerInteractEvent
+        || event instanceof BlockBreakEvent
+        || event instanceof BlockPlaceEvent))
+        || isSkippedForMissingLearner(gated, abilityName, event);
   }
 
   private static boolean isSkippedForMissingLearner(boolean gated, String abilityName, Event event) {

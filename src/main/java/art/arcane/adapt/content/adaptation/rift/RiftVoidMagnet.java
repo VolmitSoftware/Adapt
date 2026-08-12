@@ -26,12 +26,12 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -41,7 +41,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
@@ -210,6 +209,11 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
 
       double radius = getRadius(level);
       Location center = player.getLocation().clone();
+      if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(center, radius, radius)) {
+        keepSession = true;
+        nextPulseAt = System.currentTimeMillis() + (getPulseTicks(level) * 50L);
+        return;
+      }
       MagnetPulse pulse = new MagnetPulse(
           dispatch.ownerId(),
           dispatch.generation(),
@@ -284,9 +288,10 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
 
     boolean transferred = false;
     try {
-      EntityPickupItemEvent pickupEvent = new EntityPickupItemEvent(player, item, 0);
-      Bukkit.getPluginManager().callEvent(pickupEvent);
-      if (pickupEvent.isCancelled() || !item.isValid() || item.isDead()) {
+      int remaining = remainingAfterMagnetPickup(player, original);
+      if (!ProtectionEventProbe.attemptItemPickup(player, item, remaining)
+          || !item.isValid()
+          || item.isDead()) {
         return;
       }
 
@@ -320,6 +325,16 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
         pulse.transfers.releaseDrop();
       }
     }
+  }
+
+  private int remainingAfterMagnetPickup(Player player, ItemStack stack) {
+    int remaining = ProtectionEventProbe.remainingAfterPickup(player.getEnderChest(), stack);
+    if (remaining <= 0 || !getConfig().allowEnderChestOverflow) {
+      return Math.max(0, remaining);
+    }
+    ItemStack inventoryRemainder = stack.clone();
+    inventoryRemainder.setAmount(remaining);
+    return ProtectionEventProbe.remainingAfterPickup(player.getInventory(), inventoryRemainder);
   }
 
   private int depositIntoInventories(Player player, ItemStack stack, int requested) {

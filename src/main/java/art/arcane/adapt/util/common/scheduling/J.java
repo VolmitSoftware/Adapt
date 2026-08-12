@@ -31,6 +31,7 @@ import art.arcane.volmlib.util.scheduling.SR;
 import art.arcane.volmlib.util.scheduling.SchedulerBridge;
 import art.arcane.volmlib.util.scheduling.SchedulerRuntime;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
@@ -134,6 +135,31 @@ public class J {
 
   public static boolean isOwnedByCurrentRegion(Location location) {
     return FoliaScheduler.isOwnedByCurrentRegion(location);
+  }
+
+  public static boolean isOwnedByCurrentRegion(Location center, double xRadius, double zRadius) {
+    if (center == null
+        || center.getWorld() == null
+        || !Double.isFinite(xRadius)
+        || !Double.isFinite(zRadius)
+        || xRadius < 0.0D
+        || zRadius < 0.0D) {
+      return false;
+    }
+
+    World world = center.getWorld();
+    int minChunkX = (int) Math.floor((center.getX() - xRadius) / 16.0D);
+    int maxChunkX = (int) Math.floor((center.getX() + xRadius) / 16.0D);
+    int minChunkZ = (int) Math.floor((center.getZ() - zRadius) / 16.0D);
+    int maxChunkZ = (int) Math.floor((center.getZ() + zRadius) / 16.0D);
+    for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+      for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+        if (!FoliaScheduler.isOwnedByCurrentRegion(world, chunkX, chunkZ)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   public static boolean runEntity(Entity entity, Runnable runnable) {

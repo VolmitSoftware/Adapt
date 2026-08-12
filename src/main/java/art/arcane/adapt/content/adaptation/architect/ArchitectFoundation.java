@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.scheduling.FoliaScheduler;
@@ -151,6 +152,12 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
   }
 
   private void placeFoundation(Player p, Location location) {
+    if (location.getWorld() == null
+        || (J.isFoliaThreading()
+        && (!J.isOwnedByCurrentRegion(p) || !J.isOwnedByCurrentRegion(location)))) {
+      return;
+    }
+
     UUID id = p.getUniqueId();
     if (getActiveBlockPlaceLevel(p, location) <= 0) {
       return;
@@ -168,14 +175,14 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     int maxX = (int) Math.floor(location.getX() + 0.3D);
     int minZ = (int) Math.floor(location.getZ() - 0.3D);
     int maxZ = (int) Math.floor(location.getZ() + 0.3D);
-    locations.add(world.getBlockAt(minX, y, minZ));
-    locations.add(world.getBlockAt(minX, y, maxZ));
-    locations.add(world.getBlockAt(maxX, y, minZ));
-    locations.add(world.getBlockAt(maxX, y, maxZ));
+    addOwnedFoundationTarget(locations, world, minX, y, minZ);
+    addOwnedFoundationTarget(locations, world, minX, y, maxZ);
+    addOwnedFoundationTarget(locations, world, maxX, y, minZ);
+    addOwnedFoundationTarget(locations, world, maxX, y, maxZ);
 
     int startPower = power;
     for (Block b : locations) {
-      if (addFoundation(b)) {
+      if (addFoundation(p, b)) {
         power--;
         addStat(p, "architect.foundation.blocks-placed", 1);
       }
@@ -193,6 +200,14 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
 
     blockPower.put(id, power);
+  }
+
+  private void addOwnedFoundationTarget(Set<Block> targets, World world, int x, int y, int z) {
+    Location target = new Location(world, x, y, z);
+    if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(target)) {
+      return;
+    }
+    targets.add(world.getBlockAt(x, y, z));
   }
 
   // prevent piston from moving blocks // Dupe fix
@@ -264,28 +279,51 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     });
   }
 
-  public boolean addFoundation(Block block) {
+  public boolean addFoundation(Player player, Block block) {
+    Location location = block.getLocation();
+    if (!FoliaScheduler.isOwnedByCurrentRegion(location)
+        || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player))) {
+      return false;
+    }
     if (!block.getType().isAir()) {
       return false;
     }
 
-    if (!block.getWorld()
-        .getNearbyEntities(block.getLocation()
-            .add(.5, .5, .5), .5, .5, .5, entity ->
+    Location center = location.clone().add(0.5D, 0.5D, 0.5D);
+    if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(center, 0.5D, 0.5D))
+        || !block.getWorld()
+        .getNearbyEntities(center, .5, .5, .5, entity ->
             entity instanceof ItemFrame || entity instanceof Painting).isEmpty()) {
       return false;
     }
 
-    Location location = block.getLocation();
-    if (!FoliaScheduler.isOwnedByCurrentRegion(location) || !journalFoundation(block)) {
+    if (!canBlockPlace(player, location)
+        || !ProtectionEventProbe.attemptBlockPlaceProbe(player, block)) {
       return false;
     }
-    block.setType(Material.TINTED_GLASS, false);
-    activeBlocks.add(block);
-    int durationTicks = (int) Math.max(1L,
-        Math.min(Integer.MAX_VALUE, (long) Math.ceil(getConfig().duration / 50D)));
-    J.runAt(location, () -> removeFoundation(block), durationTicks);
-    return true;
+    if (!FoliaScheduler.isOwnedByCurrentRegion(location)
+        || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player))
+        || !block.getType().isAir()
+        || !journalFoundation(block)) {
+      return false;
+    }
+    boolean cleanupScheduled = false;
+    try {
+      block.setType(Material.TINTED_GLASS, false);
+      activeBlocks.add(block);
+      int durationTicks = (int) Math.max(1L,
+          Math.min(Integer.MAX_VALUE, (long) Math.ceil(getConfig().duration / 50D)));
+      cleanupScheduled = J.runAt(location, () -> removeFoundation(block), durationTicks);
+      return cleanupScheduled;
+    } finally {
+      if (!cleanupScheduled) {
+        activeBlocks.remove(block);
+        if (block.getType() == Material.TINTED_GLASS) {
+          block.setType(Material.AIR, false);
+        }
+        unjournalFoundation(block);
+      }
+    }
   }
 
   public void removeFoundation(Block block) {

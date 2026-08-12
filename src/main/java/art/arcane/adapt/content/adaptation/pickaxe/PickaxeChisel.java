@@ -25,6 +25,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -38,7 +40,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -83,7 +87,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
   }
 
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
     Action action = e.getAction();
     if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
@@ -93,9 +97,16 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     if (e.getHand() != null && e.getHand() != EquipmentSlot.HAND) {
       return;
     }
+    if ((action == Action.RIGHT_CLICK_BLOCK && e.useInteractedBlock() == Event.Result.DENY)
+        || (action == Action.RIGHT_CLICK_AIR && e.useItemInHand() == Event.Result.DENY)) {
+      return;
+    }
 
     Player p = e.getPlayer();
     if (!isPickaxe(p.getInventory().getItemInMainHand()) || !hasActiveAdaptation(p)) {
+      return;
+    }
+    if (action == Action.RIGHT_CLICK_AIR && J.isFoliaThreading()) {
       return;
     }
 
@@ -111,6 +122,11 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
       return;
     }
 
+    if (J.isFoliaThreading()
+        && (!J.isOwnedByCurrentRegion(p) || !J.isOwnedByCurrentRegion(target.getLocation()))) {
+      return;
+    }
+
     if (!canBlockBreak(p, target.getLocation())) {
       return;
     }
@@ -120,8 +136,11 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
       if (is.getType().isAir()) {
         return;
       }
+      if (!ProtectionEventProbe.attemptBlockBreakProbe(p, target)) {
+        return;
+      }
 
-      RayTraceResult ray = p.rayTraceBlocks(8);
+      RayTraceResult ray = J.isFoliaThreading() ? null : p.rayTraceBlocks(8);
       Location c = ray != null ? ray.getHitPosition().toLocation(p.getWorld()) : target.getLocation().add(0.5, 0.5, 0.5);
 
       fx(c, FxPriority.GAMEPLAY)

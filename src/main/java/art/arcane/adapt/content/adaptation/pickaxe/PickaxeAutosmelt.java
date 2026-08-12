@@ -31,7 +31,6 @@ import art.arcane.adapt.api.fx.Fx;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
-import art.arcane.adapt.util.reflect.registries.Enchantments;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
@@ -47,7 +46,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -72,37 +70,6 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         .build());
     registerMilestone("challenge_pickaxe_autosmelt_1k", "pickaxe.autosmelt.ores-smelted", 1000, 400);
     registerMilestone("challenge_pickaxe_autosmelt_25k", "pickaxe.autosmelt.ores-smelted", 25000, 1500);
-  }
-
-  static void autosmeltBlockDTI(Block b, Player p, Adaptation<?> source, int level) {
-    Material ingot = getIngotFor(b.getType());
-    if (ingot == null || b.getLocation().getWorld() == null) {
-      return;
-    }
-
-    int fortune = getFortuneOreMultiplier(p.getInventory().getItemInMainHand()
-        .getEnchantments().get(Enchantments.LOOT_BONUS_BLOCKS));
-    int amount = getSmeltAmount(fortune, level);
-    Location location = b.getLocation();
-    b.setType(Material.AIR);
-    HashMap<Integer, ItemStack> excessItems = p.getInventory().addItem(new ItemStack(ingot, amount));
-    excessItems.values().forEach(itemStack -> location.getWorld().dropItemNaturally(location, itemStack));
-    smeltFx(location, source, fortune);
-  }
-
-  static void autosmeltBlock(Block b, Player p, Adaptation<?> source, int level) {
-    Material ingot = getIngotFor(b.getType());
-    if (ingot == null || b.getLocation().getWorld() == null) {
-      return;
-    }
-
-    int fortune = getFortuneOreMultiplier(p.getInventory().getItemInMainHand()
-        .getEnchantments().get(Enchantments.LOOT_BONUS_BLOCKS));
-    int amount = getSmeltAmount(fortune, level);
-    Location location = b.getLocation();
-    b.setType(Material.AIR);
-    location.getWorld().dropItemNaturally(location, new ItemStack(ingot, amount));
-    smeltFx(location, source, fortune);
   }
 
   private static boolean replaceRawDrops(BlockDropItemEvent event, Material ore, Adaptation<?> source, int level) {
@@ -169,11 +136,6 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     return nativeAmount + (roll < getExtraDropChance(level) ? 1 : 0);
   }
 
-  private static int getSmeltAmount(int fortuneMultiplier, int level) {
-    return getCommittedSmeltAmount(Math.max(1, fortuneMultiplier), level,
-        ThreadLocalRandom.current().nextDouble());
-  }
-
   private static void smeltFx(Location location, Adaptation<?> source, int fortune) {
     Location center = location.clone().add(0.5, 0.5, 0.5);
     Fx.now(source, center, FxPriority.TRANSITION)
@@ -186,19 +148,6 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
           .particle(Particle.WAX_ON, Math.min(8, fortune), 0, 0.2, 0, 0.22, 0.02)
           .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35f, 1.9f);
     }
-  }
-
-  // https://minecraft.fandom.com/wiki/Fortune?oldid=2359015#Ore
-  private static int getFortuneOreMultiplier(Integer fortuneLevel) {
-    if (fortuneLevel == null || fortuneLevel < 1) return 1;
-
-    double averageBonusMultiplier = (1.0 / (fortuneLevel + 2) + (fortuneLevel + 1) / 2.0) - 1;
-    int sumOfBonusMultipliers = (fortuneLevel * (fortuneLevel + 1)) / 2;
-    double chancePerMultiplier = averageBonusMultiplier / sumOfBonusMultipliers;
-
-    int bonusMultiplier = ((int) (ThreadLocalRandom.current().nextDouble() / chancePerMultiplier)) + 1;
-
-    return bonusMultiplier <= fortuneLevel ? bonusMultiplier + 1 : 1;
   }
 
   public void addStats(int level, Element v) {

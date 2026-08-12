@@ -27,6 +27,8 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -45,6 +47,7 @@ import org.bukkit.block.data.Levelled;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -94,15 +97,22 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 4);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
     Action action = e.getAction();
     if ((action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) || e.getHand() != EquipmentSlot.HAND) {
       return;
     }
+    if (e.isCancelled()
+        || (action == Action.RIGHT_CLICK_BLOCK && e.useInteractedBlock() == Event.Result.DENY)) {
+      return;
+    }
 
     Player p = e.getPlayer();
     if (!hasActiveAdaptation(p) || !p.isSneaking() || p.hasCooldown(Material.COMPOSTER)) {
+      return;
+    }
+    if (action == Action.RIGHT_CLICK_AIR && J.isFoliaThreading()) {
       return;
     }
 
@@ -112,6 +122,10 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     }
 
     if (composter == null || composter.getType() != Material.COMPOSTER) {
+      return;
+    }
+
+    if (e.getClickedBlock() == null && !ProtectionEventProbe.attemptBlockUse(p, composter)) {
       return;
     }
 
@@ -194,7 +208,8 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
   }
 
   private void processDroppedItems(Player p, World world, Location center, double radius, CompostState state, double fillChance) {
-    if (state.phaseDone()) {
+    if (state.phaseDone()
+        || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(center, radius, radius))) {
       return;
     }
 
@@ -203,16 +218,34 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         continue;
       }
 
-      if (isRewardDrop(item) || !canSnatchItem(p, item)) {
+      if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(item))
+          || isRewardDrop(item)
+          || !canSnatchItem(p, item)) {
         continue;
       }
 
-      ItemStack stack = item.getItemStack();
+      ItemStack stack = item.getItemStack().clone();
       if (!isItem(stack) || !isCompostable(stack.getType())) {
         continue;
       }
 
-      compostStack(p, stack, state, fillChance);
+      int transferable = compostProcessCount(stack.getAmount(), state.phaseLimit, state.phaseProcessed);
+      int remaining = stack.getAmount() - transferable;
+      if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(item))
+          || !ProtectionEventProbe.attemptItemPickup(p, item, remaining)
+          || !item.isValid()
+          || item.isDead()) {
+        continue;
+      }
+
+      ItemStack current = item.getItemStack();
+      if (!current.isSimilar(stack) || current.getAmount() != stack.getAmount()) {
+        continue;
+      }
+
+      if (compostStack(p, stack, state, fillChance) <= 0) {
+        continue;
+      }
       if (stack.getAmount() <= 0) {
         item.remove();
       } else {
@@ -245,7 +278,14 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
           }
 
           inspected++;
-          Block b = world.getBlockAt(center.getBlockX() + x, center.getBlockY() + y, center.getBlockZ() + z);
+          int blockX = center.getBlockX() + x;
+          int blockY = center.getBlockY() + y;
+          int blockZ = center.getBlockZ() + z;
+          if (J.isFoliaThreading()
+              && !J.isOwnedByCurrentRegion(new Location(world, blockX, blockY, blockZ))) {
+            continue;
+          }
+          Block b = world.getBlockAt(blockX, blockY, blockZ);
           BlockData data = b.getBlockData();
           if (data instanceof Ageable ageable && isCropCandidate(b.getType())) {
             if (ageable.getAge() < ageable.getMaximumAge()) {
@@ -262,12 +302,22 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
           }
 
           if (consumeLeaves && !state.phaseDone() && isLeafBlock(b.getType())) {
-            if (!canBlockBreak(p, b.getLocation())) {
+            Material expectedLeafType = b.getType();
+            if (!canBlockBreak(p, b.getLocation())
+                || !ProtectionEventProbe.attemptBlockBreakProbe(p, b)) {
+              continue;
+            }
+            if (!isCurrentLeaf(p, b, expectedLeafType)) {
               continue;
             }
 
+            ItemStack leaves = new ItemStack(Material.OAK_LEAVES, bursts);
+            if (!isCurrentLeaf(p, b, expectedLeafType)
+                || compostStack(p, leaves, state, leafFillChance) <= 0
+                || !isCurrentLeaf(p, b, expectedLeafType)) {
+              continue;
+            }
             b.setType(Material.AIR, false);
-            compostStack(p, new ItemStack(Material.OAK_LEAVES, bursts), state, leafFillChance);
 
             if (puffs < 8) {
               fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
@@ -282,25 +332,40 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
   }
 
   private void harvestMatureCrop(Player p, World world, Block b, CompostState state, double fillChance) {
-    if (!canBlockBreak(p, b.getLocation()) || !canBlockPlace(p, b.getLocation())) {
+    Material expectedCropType = b.getType();
+    if (!canBlockBreak(p, b.getLocation())
+        || !canBlockPlace(p, b.getLocation())
+        || !ProtectionEventProbe.attemptBlockBreakProbe(p, b)
+        || !ProtectionEventProbe.attemptBlockPlaceProbe(p, b)) {
+      return;
+    }
+    if (currentCropData(p, b, expectedCropType, true) == null) {
       return;
     }
 
     ItemStack[] drops = b.getDrops().toArray(ItemStack[]::new);
-    if (!replantCrop(b)) {
-      return;
-    }
-
+    int composted = 0;
     for (ItemStack drop : drops) {
       if (!isItem(drop)) {
         continue;
       }
 
       if (isCompostable(drop.getType())) {
-        compostStack(p, drop, state, fillChance);
+        if (currentCropData(p, b, expectedCropType, true) == null) {
+          return;
+        }
+        composted += compostStack(p, drop, state, fillChance);
       }
+    }
+    Ageable commitData = currentCropData(p, b, expectedCropType, true);
+    if (composted <= 0 || commitData == null) {
+      return;
+    }
+    commitData.setAge(0);
+    b.setBlockData(commitData, true);
 
-      if (drop.getAmount() > 0) {
+    for (ItemStack drop : drops) {
+      if (isItem(drop) && drop.getAmount() > 0) {
         world.dropItemNaturally(b.getLocation().add(0.5, 0.5, 0.5), drop);
       }
     }
@@ -323,7 +388,9 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         continue;
       }
 
-      compostStack(p, stack, state, fillChance);
+      if (compostStack(p, stack, state, fillChance) <= 0) {
+        continue;
+      }
       changed = true;
       if (stack.getAmount() <= 0) {
         storage[i] = null;
@@ -345,16 +412,22 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     int sparkles = 0;
     for (int i = 0; i < attempts; i++) {
       Block b = immatureCrops.get(random.nextInt(immatureCrops.size()));
-      if (!(b.getBlockData() instanceof Ageable ageable) || ageable.getAge() >= ageable.getMaximumAge()) {
+      Material expectedCropType = b.getType();
+      if (currentCropData(p, b, expectedCropType, false) == null) {
         continue;
       }
 
-      if (!canBlockPlace(p, b.getLocation())) {
+      if (!canBlockPlace(p, b.getLocation())
+          || !ProtectionEventProbe.attemptBlockPlaceProbe(p, b)) {
         continue;
       }
 
-      ageable.setAge(ageable.getAge() + 1);
-      b.setBlockData(ageable, true);
+      Ageable commitData = currentCropData(p, b, expectedCropType, false);
+      if (commitData == null) {
+        continue;
+      }
+      commitData.setAge(commitData.getAge() + 1);
+      b.setBlockData(commitData, true);
       matured++;
 
       if (sparkles < 6) {
@@ -368,17 +441,23 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     return matured;
   }
 
-  private void compostStack(Player p, ItemStack stack, CompostState state, double fillChance) {
-    if (state.phaseDone() || stack.getAmount() <= 0) {
-      return;
+  private int compostStack(Player p, ItemStack stack, CompostState state, double fillChance) {
+    int processCount = compostProcessCount(stack.getAmount(), state.phaseLimit, state.phaseProcessed);
+    if (processCount <= 0) {
+      return 0;
     }
 
-    if (!payItemCost(p, "compost", new ItemStack(stack.getType()), stack.getAmount(), () -> true)) {
-      return;
+    if (!payItemCost(p, "compost", new ItemStack(stack.getType()), processCount, () -> {
+      if (stack.getAmount() < processCount) {
+        return false;
+      }
+      stack.setAmount(stack.getAmount() - processCount);
+      return true;
+    })) {
+      return 0;
     }
 
-    while (stack.getAmount() > 0 && !state.phaseDone()) {
-      stack.setAmount(stack.getAmount() - 1);
+    for (int processed = 0; processed < processCount; processed++) {
       state.processed++;
       state.phaseProcessed++;
       state.consumed++;
@@ -392,6 +471,11 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         }
       }
     }
+    return processCount;
+  }
+
+  static int compostProcessCount(int stackAmount, int phaseLimit, int phaseProcessed) {
+    return Math.min(Math.max(0, stackAmount), Math.max(0, phaseLimit - phaseProcessed));
   }
 
   private void dropRewards(World world, Location center, int level, int oldLevel, int newLevel, CompostState state) {
@@ -490,19 +574,46 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     return Math.max(0, Math.min(configuredAttempts, compostProgress));
   }
 
-  private boolean isCropCandidate(Material type) {
-    return type != Material.CHORUS_PLANT && type != Material.SUGAR_CANE && type != Material.BAMBOO;
+  static boolean matchesLeafCommit(Material expectedType, Material currentType) {
+    return expectedType != null
+        && expectedType == currentType
+        && expectedType.name().endsWith("_LEAVES");
   }
 
-  private boolean replantCrop(Block b) {
-    BlockData data = b.getBlockData();
-    if (!(data instanceof Ageable ageable)) {
+  static boolean matchesCropCommit(Material expectedType, Material currentType, BlockData data,
+                                   boolean mature) {
+    if (expectedType == null || expectedType != currentType || !(data instanceof Ageable ageable)) {
       return false;
     }
+    return mature
+        ? ageable.getAge() == ageable.getMaximumAge()
+        : ageable.getAge() < ageable.getMaximumAge();
+  }
 
-    ageable.setAge(0);
-    b.setBlockData(ageable, true);
-    return true;
+  private boolean isCurrentLeaf(Player player, Block block, Material expectedType) {
+    return ownsCompostTarget(player, block)
+        && matchesLeafCommit(expectedType, block.getType());
+  }
+
+  private Ageable currentCropData(Player player, Block block, Material expectedType,
+                                  boolean mature) {
+    if (!ownsCompostTarget(player, block)) {
+      return null;
+    }
+    Material currentType = block.getType();
+    BlockData currentData = block.getBlockData();
+    return matchesCropCommit(expectedType, currentType, currentData, mature)
+        ? (Ageable) currentData
+        : null;
+  }
+
+  private boolean ownsCompostTarget(Player player, Block block) {
+    return !J.isFoliaThreading()
+        || (J.isOwnedByCurrentRegion(player) && J.isOwnedByCurrentRegion(block.getLocation()));
+  }
+
+  private boolean isCropCandidate(Material type) {
+    return type != Material.CHORUS_PLANT && type != Material.SUGAR_CANE && type != Material.BAMBOO;
   }
 
   private boolean isLeafBlock(Material type) {

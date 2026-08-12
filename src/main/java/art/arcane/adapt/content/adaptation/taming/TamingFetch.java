@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.compat.PaperCompat;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -212,6 +213,9 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
   private int collectFetchWolves(Player owner, UUID ownerId, List<Wolf> available) {
     int limit = getWolfLimit();
     double radius = Math.max(1.0D, getConfig().wolfSearchRadius);
+    if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(owner.getLocation(), radius, radius)) {
+      return 0;
+    }
     int count = 0;
     for (Entity entity : owner.getNearbyEntities(radius, radius, radius)) {
       if (!(entity instanceof Wolf wolf) || !wolf.isValid() || wolf.isDead() || !wolf.isTamed()
@@ -371,12 +375,25 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
   private void pickUpItemOwned(FetchJob job, Location itemLocation) {
     Item item = job.item;
     ItemStack stack = item.getItemStack();
-    if (!isCurrentJob(job) || stack == null || stack.getType() == Material.AIR || stack.getAmount() <= 0) {
+    if (!isCurrentJob(job)
+        || !J.isOwnedByCurrentRegion(job.owner)
+        || stack == null
+        || stack.getType() == Material.AIR
+        || stack.getAmount() <= 0
+        || !ProtectionEventProbe.attemptItemPickup(job.owner, item, 0)
+        || !item.isValid()
+        || item.isDead()) {
       abortFetch(job);
       return;
     }
 
-    ItemStack carried = stack.clone();
+    ItemStack current = item.getItemStack();
+    if (!current.isSimilar(stack) || current.getAmount() != stack.getAmount()) {
+      abortFetch(job);
+      return;
+    }
+
+    ItemStack carried = current.clone();
     item.remove();
     reservedItems.remove(job.itemId);
     job.carried.set(carried);

@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -79,7 +80,7 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
   }
 
   @ReceiveCancelledEvents
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerInteractEvent e) {
     Action action = e.getAction();
     if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
@@ -97,6 +98,9 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
 
     ItemStack hand = p.getInventory().getItemInMainHand();
     if (!isShovel(hand)) {
+      return;
+    }
+    if (action == Action.RIGHT_CLICK_AIR && J.isFoliaThreading()) {
       return;
     }
 
@@ -143,10 +147,17 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
       return;
     }
 
-    if (!applyDurability(p, hand, plan.size() * getConfig().durabilityCostPerBlock)) {
+    if (!canApplyDurability(hand, plan.size() * getConfig().durabilityCostPerBlock)) {
       fx(p.getLocation(), FxPriority.TRANSITION)
           .particle(Particles.SMOKE, 4, 0, 1.0D, 0, 0.15D, 0.01D)
           .chord(Sound.BLOCK_ANVIL_PLACE, 0.5f, 0.65f, Sound.ITEM_SHIELD_BLOCK, 0.3f, 1.4f);
+      return;
+    }
+
+    int planSize = plan.size();
+    BlockData clickedData = clicked.getBlockData();
+    BlockData floorData = plan.get(planSize - 1).getBlockData();
+    if (!digBlock(p, plan.get(0), 1.1F)) {
       return;
     }
 
@@ -154,7 +165,6 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
     p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
     e.setCancelled(true);
 
-    BlockData clickedData = clicked.getBlockData();
     timeline(p.getLocation())
         .duration(6)
         .priority(FxPriority.GAMEPLAY)
@@ -167,10 +177,8 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
         })
         .start();
 
-    scheduleDig(plan, hand.clone());
+    scheduleDig(p, plan, floorData);
     addStat(p, "excavation.burrow.burrows-dug", 1);
-    addStat(p, "excavation.burrow.blocks-burrowed", plan.size());
-    xp(p, plan.size() * getConfig().xpPerBlock);
   }
 
   private List<Block> planDig(Player p, Block start, int maxDepth) {
@@ -179,7 +187,8 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
     List<Block> plan = new ArrayList<>(maxDepth);
     Block current = start;
     for (int i = 0; i < maxDepth; i++) {
-      if (current.getY() <= stopY) {
+      if (current.getY() <= stopY
+          || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(current.getLocation()))) {
         break;
       }
 
@@ -208,21 +217,15 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
     return plan;
   }
 
-  private void scheduleDig(List<Block> plan, ItemStack tool) {
+  private void scheduleDig(Player player, List<Block> plan, BlockData floorData) {
     int interval = Math.max(1, getConfig().ticksPerBlock);
     int size = plan.size();
-    BlockData floorData = plan.get(size - 1).getBlockData();
     Location floor = plan.get(size - 1).getLocation().add(0.5, 0.0, 0.5);
-    for (int i = 0; i < size; i++) {
+    for (int i = 1; i < size; i++) {
       Block block = plan.get(i);
       float pitch = (float) (1.1D + (0.4D * ((double) i / size)));
       int delay = i * interval;
-      if (delay <= 0) {
-        digBlock(block, tool, pitch);
-        continue;
-      }
-
-      J.runAt(block.getLocation(), () -> digBlock(block, tool, pitch), delay);
+      J.runEntity(player, () -> digBlock(player, block, pitch), delay);
     }
 
     J.runAt(floor, () -> bottomOut(floor, floorData), (size * interval) + interval);
@@ -235,21 +238,53 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
         .chord(Sound.BLOCK_ROOTED_DIRT_BREAK, 0.8f, 0.6f, Sound.ITEM_SHOVEL_FLATTEN, 0.4f, 0.5f);
   }
 
-  private void digBlock(Block block, ItemStack tool, float pitch) {
-    if (!isShovelable(block.getType())) {
-      return;
+  private boolean digBlock(Player player, Block block, float pitch) {
+    Location location = block.getLocation();
+    if (!player.isOnline()
+        || player.getWorld() != block.getWorld()
+        || (J.isFoliaThreading()
+        && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(location)))) {
+      return false;
     }
 
-    if (block.getRelative(BlockFace.DOWN).getType() == Material.LAVA) {
-      return;
+    if (!isShovelable(block.getType())
+        || block.getRelative(BlockFace.DOWN).getType() == Material.LAVA
+        || !canBlockBreak(player, location)) {
+      return false;
+    }
+
+    ItemStack hand = player.getInventory().getItemInMainHand();
+    if (!isShovel(hand)
+        || !canApplyDurability(hand, getConfig().durabilityCostPerBlock)
+        || !ProtectionEventProbe.attemptBlockBreakProbe(player, block)) {
+      return false;
     }
 
     BlockData data = block.getBlockData();
-    block.breakNaturally(tool);
-    fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+    if (!block.breakNaturally(hand)) {
+      return false;
+    }
+
+    applyDurability(player, hand, getConfig().durabilityCostPerBlock);
+    addStat(player, "excavation.burrow.blocks-burrowed", 1);
+    xp(player, getConfig().xpPerBlock);
+    fx(location.add(0.5, 0.5, 0.5), FxPriority.TRAIL)
         .particle(Particles.BLOCK_CRACK, 4, 0, 0, 0, 0.15D, 0.02D, data)
         .particle(Particle.CLOUD, 1, 0, 0, 0, 0.05D, 0.01D)
         .sound(Sound.ITEM_SHOVEL_FLATTEN, 0.45f, pitch);
+    return true;
+  }
+
+  private boolean canApplyDurability(ItemStack hand, int cost) {
+    if (cost <= 0) {
+      return true;
+    }
+
+    if (!(hand.getItemMeta() instanceof Damageable damageable)) {
+      return false;
+    }
+
+    return damageable.getDamage() + cost < hand.getType().getMaxDurability();
   }
 
   private boolean applyDurability(Player p, ItemStack hand, int cost) {

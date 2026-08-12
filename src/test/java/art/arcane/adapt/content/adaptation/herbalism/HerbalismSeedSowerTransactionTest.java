@@ -24,7 +24,7 @@ class HerbalismSeedSowerTransactionTest {
   void seedValidationPrecedesPlantingAndInventoryConsumptionFollowsIt() throws Exception {
     String source = Files.readString(SOURCE);
     int charge = source.indexOf("AbilityCharge charge = payItemCostDeferred(");
-    int planting = source.indexOf("int planted = plantTargets(targets, cropType);", charge);
+    int planting = source.indexOf("int planted = plantTargets(p, targets, cropType);", charge);
     int consumption = source.indexOf("consumeHeldSeeds(p, seedType, planted)", planting);
     int settlement = source.indexOf("settleCost(charge.activationId())", consumption);
     int effects = source.indexOf("emitPlantingFx(targets);", settlement);

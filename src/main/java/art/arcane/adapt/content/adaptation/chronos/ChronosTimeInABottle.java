@@ -32,6 +32,7 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.item.ChronoTimeBottle;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -44,6 +45,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.TreeType;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.block.Campfire;
 import org.bukkit.block.Furnace;
@@ -60,13 +62,16 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -75,6 +80,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
   private static final long CHARGE_INTERVAL_MILLIS = 1000L;
   private static final int HARD_MAX_PLAYERS_PER_PASS = 32;
   private static final int MAX_CATCH_UP_PULSES = 4;
+  private static final int TREE_PREFLIGHT_RADIUS = 32;
 
   private final Map<UUID, Long> nextChargeAt = playerState();
   private final Map<UUID, Boolean> pendingCharges = playerState();
@@ -394,21 +400,33 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     if (vetoed) {
       return;
     }
+    if (action == Action.RIGHT_CLICK_AIR && J.isFoliaThreading()) {
+      return;
+    }
 
     Block clicked = action == Action.RIGHT_CLICK_BLOCK ? e.getClickedBlock() : p.getTargetBlockExact(5);
     if (clicked == null) {
       return;
     }
+    BlockState clickedState = clicked.getState();
     int level = getActiveInteractLevel(p, clicked.getLocation());
     if (level <= 0) {
       return;
     }
     double storedSeconds = ChronoTimeBottle.getStoredSeconds(hand);
-    if (storedSeconds <= 0) {
+    if (storedSeconds <= 0 || !supportsBlockAcceleration(clicked, clickedState, storedSeconds, level)) {
       return;
     }
 
-    TimeSpendResult result = accelerateTarget(clicked, storedSeconds, level);
+    if (action == Action.RIGHT_CLICK_AIR && !ProtectionEventProbe.attemptBlockUse(p, clicked, handSlot)) {
+      return;
+    }
+    if ((clickedState instanceof Furnace || clickedState instanceof BrewingStand)
+        && !canAccessChest(p, clicked.getLocation())) {
+      return;
+    }
+
+    TimeSpendResult result = accelerateTarget(p, clicked, storedSeconds, level);
     if (!result.applied()) {
       return;
     }
@@ -538,7 +556,37 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     xp(p, entityBurst, Math.min(getConfig().maxXPPerUse, result.xpGain()));
   }
 
-  private TimeSpendResult accelerateTarget(Block clicked, double storedSeconds, int level) {
+  private boolean supportsBlockAcceleration(Block clicked, BlockState clickedState,
+                                            double storedSeconds, int level) {
+    if (clickedState instanceof Furnace) {
+      int affordableTicks = (int) Math.floor(
+          (storedSeconds / getFurnaceSpendMultiplier()) * getCookTicksPerStoredSecond(level));
+      return Math.min(affordableTicks, getMaxCookTicksPerUse(level)) > 0;
+    }
+    if (clickedState instanceof BrewingStand) {
+      int affordableTicks = (int) Math.floor(
+          (storedSeconds / getBrewingSpendMultiplier()) * getBrewingTicksPerStoredSecond(level));
+      return Math.min(affordableTicks, getMaxBrewingTicksPerUse(level)) > 0;
+    }
+    if (clickedState instanceof Campfire) {
+      int affordableTicks = (int) Math.floor(
+          (storedSeconds / getCampfireSpendMultiplier()) * getCampfireTicksPerStoredSecond(level));
+      return Math.min(affordableTicks, getMaxCampfireTicksPerUse(level)) > 0;
+    }
+    if (getMaxGrowthStepsPerUse(level) <= 0
+        || storedSeconds + 1.0E-6 < getGrowthStepCostSeconds(clicked, level)) {
+      return false;
+    }
+
+    BlockData data = clicked.getBlockData();
+    if (data instanceof Sapling sapling) {
+      return sapling.getStage() < sapling.getMaximumStage()
+          || (getConfig().allowSaplingTreeGeneration && getTreeType(clicked.getType()) != null);
+    }
+    return data instanceof Ageable ageable && ageable.getAge() < ageable.getMaximumAge();
+  }
+
+  private TimeSpendResult accelerateTarget(Player player, Block clicked, double storedSeconds, int level) {
     if (clicked.getState() instanceof Furnace furnace) {
       return accelerateFurnace(furnace, storedSeconds, level);
     }
@@ -548,10 +596,10 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     }
 
     if (clicked.getState() instanceof Campfire campfire) {
-      return accelerateCampfire(campfire, storedSeconds, level);
+      return accelerateCampfire(player, clicked, campfire, storedSeconds, level);
     }
 
-    return accelerateGrowables(clicked, storedSeconds, level);
+    return accelerateGrowables(player, clicked, storedSeconds, level);
   }
 
   private TimeSpendResult accelerateFurnace(Furnace furnace, double storedSeconds, int level) {
@@ -602,7 +650,8 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     return new TimeSpendResult(spentSeconds, advanceTicks, advanceTicks * getConfig().xpPerBrewTick);
   }
 
-  private TimeSpendResult accelerateCampfire(Campfire campfire, double storedSeconds, int level) {
+  private TimeSpendResult accelerateCampfire(Player player, Block block, Campfire campfire,
+                                             double storedSeconds, int level) {
     double campfireTicksPerStoredSecond = getCampfireTicksPerStoredSecond(level);
     double spendMultiplier = getCampfireSpendMultiplier();
     int affordableTicks = (int) Math.floor((storedSeconds / spendMultiplier) * campfireTicksPerStoredSecond);
@@ -631,6 +680,9 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     }
 
     if (usedTicks <= 0) {
+      return TimeSpendResult.none();
+    }
+    if (!canMutateBlock(player, block)) {
       return TimeSpendResult.none();
     }
 
@@ -663,7 +715,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     return new TimeSpendResult(spentSeconds, advanceTicks, advanceTicks * getConfig().xpPerEntityAgeTick);
   }
 
-  private TimeSpendResult accelerateGrowables(Block clicked, double storedSeconds, int level) {
+  private TimeSpendResult accelerateGrowables(Player player, Block clicked, double storedSeconds, int level) {
     int attempts = getMaxGrowthStepsPerUse(level);
     if (attempts <= 0 || storedSeconds <= 0) {
       return TimeSpendResult.none();
@@ -679,7 +731,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
         break;
       }
 
-      if (!applyDirectGrowthStep(target, level)) {
+      if (!applyDirectGrowthStep(player, target, level)) {
         break;
       }
 
@@ -696,10 +748,13 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     return new TimeSpendResult(spentSeconds, effectTicks, successes * getConfig().xpPerGrowthStep);
   }
 
-  private boolean applyDirectGrowthStep(Block block, int level) {
+  private boolean applyDirectGrowthStep(Player player, Block block, int level) {
     BlockData data = block.getBlockData();
     if (data instanceof Sapling sapling) {
       if (sapling.getStage() < sapling.getMaximumStage()) {
+        if (!canMutateBlock(player, block)) {
+          return false;
+        }
         sapling.setStage(Math.min(sapling.getMaximumStage(), sapling.getStage() + 1));
         block.setBlockData(data, true);
         return true;
@@ -717,8 +772,11 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
       if (treeType == null) {
         return false;
       }
+      if (!canMutateBlock(player, block)) {
+        return false;
+      }
 
-      boolean generated = block.getWorld().generateTree(block.getLocation(), treeType);
+      boolean generated = generateAuthorizedTree(player, block, treeType);
       if (generated) {
         emitTreeFlourish(block.getLocation());
       }
@@ -726,12 +784,104 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     }
 
     if (data instanceof Ageable ageable && ageable.getAge() < ageable.getMaximumAge()) {
+      if (!canMutateBlock(player, block)) {
+        return false;
+      }
       ageable.setAge(Math.min(ageable.getMaximumAge(), ageable.getAge() + 1));
       block.setBlockData(data, true);
       return true;
     }
 
     return false;
+  }
+
+  private boolean canMutateBlock(Player player, Block block) {
+    return canBlockPlace(player, block.getLocation())
+        && ProtectionEventProbe.attemptBlockPlaceProbe(player, block);
+  }
+
+  private boolean generateAuthorizedTree(Player player, Block block, TreeType treeType) {
+    if (!preflightTreeRegion(player, block)) {
+      return false;
+    }
+
+    long seed = ThreadLocalRandom.current().nextLong();
+    List<BlockState> plannedStates = planTree(block, treeType, seed);
+    if (plannedStates.isEmpty()) {
+      return false;
+    }
+
+    List<TreeChange> plannedChanges = new ArrayList<>(plannedStates.size());
+    for (BlockState state : plannedStates) {
+      Location location = state.getLocation();
+      if ((J.isFoliaThreading()
+          && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(location)))
+          || !canBlockPlace(player, location)) {
+        return false;
+      }
+      plannedChanges.add(TreeChange.from(state));
+    }
+
+    StructureGrowEvent growEvent = new StructureGrowEvent(
+        block.getLocation(), treeType, false, player, new ArrayList<>(plannedStates));
+    ProtectionEventProbe.dispatch(growEvent);
+    if (growEvent.isCancelled() || !matchesTreePlan(plannedChanges, growEvent.getBlocks())) {
+      return false;
+    }
+    if (!matchesTreePlan(plannedChanges, planTree(block, treeType, seed))) {
+      return false;
+    }
+
+    return block.getWorld().generateTree(block.getLocation(), new Random(seed), treeType);
+  }
+
+  private List<BlockState> planTree(Block block, TreeType treeType, long seed) {
+    List<BlockState> states = new ArrayList<>();
+    block.getWorld().generateTree(
+        block.getLocation(),
+        new Random(seed),
+        treeType,
+        state -> {
+          states.add(state);
+          return false;
+        }
+    );
+    return states;
+  }
+
+  private boolean preflightTreeRegion(Player player, Block block) {
+    if (!J.isFoliaThreading()) {
+      return true;
+    }
+    if (!J.isOwnedByCurrentRegion(player)) {
+      return false;
+    }
+
+    int minimumChunkX = Math.floorDiv(block.getX() - TREE_PREFLIGHT_RADIUS, 16);
+    int maximumChunkX = Math.floorDiv(block.getX() + TREE_PREFLIGHT_RADIUS, 16);
+    int minimumChunkZ = Math.floorDiv(block.getZ() - TREE_PREFLIGHT_RADIUS, 16);
+    int maximumChunkZ = Math.floorDiv(block.getZ() + TREE_PREFLIGHT_RADIUS, 16);
+    for (int chunkX = minimumChunkX; chunkX <= maximumChunkX; chunkX++) {
+      for (int chunkZ = minimumChunkZ; chunkZ <= maximumChunkZ; chunkZ++) {
+        Location anchor = new Location(block.getWorld(), chunkX << 4, block.getY(), chunkZ << 4);
+        if (!J.isOwnedByCurrentRegion(anchor)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private boolean matchesTreePlan(List<TreeChange> plannedChanges, List<BlockState> eventStates) {
+    if (plannedChanges.size() != eventStates.size()) {
+      return false;
+    }
+    for (int i = 0; i < plannedChanges.size(); i++) {
+      if (!plannedChanges.get(i).matches(eventStates.get(i))) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override
@@ -841,6 +991,28 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
     private boolean applied() {
       return spentSeconds > 0;
+    }
+  }
+
+  private record TreeChange(UUID worldId, int x, int y, int z, String blockData) {
+    private static TreeChange from(BlockState state) {
+      Location location = state.getLocation();
+      return new TreeChange(
+          location.getWorld().getUID(),
+          location.getBlockX(),
+          location.getBlockY(),
+          location.getBlockZ(),
+          state.getBlockData().getAsString()
+      );
+    }
+
+    private boolean matches(BlockState state) {
+      Location location = state.getLocation();
+      return location.getWorld().getUID().equals(worldId)
+          && location.getBlockX() == x
+          && location.getBlockY() == y
+          && location.getBlockZ() == z
+          && state.getBlockData().getAsString().equals(blockData);
     }
   }
 

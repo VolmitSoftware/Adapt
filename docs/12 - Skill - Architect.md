@@ -79,6 +79,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Magic Foundation (`architect-foundation`)
 
 Sneak to place a temporary foundation beneath you.
+Each temporary block passes normal place-event authorization before it is journaled or placed; denial leaves
+foundation power untouched. On Folia, the block and complete entity-obstruction query footprint must belong to
+the player's current region, while expiry cleanup remains independent of place authorization.
 
 **Runtime entry points:** while moving; on `BlockPistonExtendEvent`; on `BlockPistonRetractEvent`; on `BlockExplodeEvent`; when breaking blocks; on `EntityExplodeEvent`; on sneak toggle; on `ChunkLoadEvent`.
 
@@ -123,6 +126,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Builders Wand (`architect-placement`)
 
 Sneak while holding a block that matches the surface you are looking at to place multiple blocks across it at once. You may need to move slightly to refresh the placement preview.
+Every replicated block passes normal place-event authorization before Adapt consumes its matching item or
+changes the world. On Folia, the complete source and destination footprint must share the player's current
+owning region or the adaptation leaves the original placement unchanged.
 
 **Runtime entry points:** when placing blocks; on sneak toggle.
 
@@ -159,7 +165,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 
 ### Redstone Remote (`architect-wireless-redstone`)
 
-Use a redstone torch to toggle redstone remotely.
+Use a redstone torch to toggle redstone remotely. Every powered block, neighboring component, and door half
+must pass a current interaction check before the pulse begins. Folia requires the complete pulse footprint and
+player to share the target region. Denied, stale, or unschedulable pulses do not start the remote's cooldown.
 
 **Runtime entry points:** when placing blocks; on block/entity/air interact (click); on `ChunkUnloadEvent`.
 

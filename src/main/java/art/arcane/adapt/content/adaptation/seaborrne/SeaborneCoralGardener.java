@@ -24,6 +24,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
@@ -37,6 +38,7 @@ import org.bukkit.Tag;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -131,7 +133,7 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
     });
   }
 
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockFadeEvent e) {
     Block b = e.getBlock();
     if (!isFadeableCoral(b.getType())) {
@@ -152,9 +154,11 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
     placedCoral.remove(key);
   }
 
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
-    if (e.getHand() != EquipmentSlot.HAND || e.getAction() != Action.RIGHT_CLICK_BLOCK) {
+    if (e.getHand() != EquipmentSlot.HAND
+        || e.getAction() != Action.RIGHT_CLICK_BLOCK
+        || e.useInteractedBlock() == Event.Result.DENY) {
       return;
     }
 
@@ -164,11 +168,15 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
     }
 
     Block clicked = e.getClickedBlock();
-    if (clicked == null || !isFadeableCoral(clicked.getType())) {
+    if (clicked == null) {
       return;
     }
 
     Player p = e.getPlayer();
+    if (!ownsCoralTarget(p, clicked) || !isFadeableCoral(clicked.getType())) {
+      return;
+    }
+
     withAdaptedPlayer(p, e, () -> {
       int level = getActiveLevel(p);
       if (level <= 0) {
@@ -182,7 +190,7 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
       Block target = null;
       for (BlockFace face : GROW_FACES) {
         Block relative = clicked.getRelative(face);
-        if (relative.getType() == Material.WATER) {
+        if (ownsCoralTarget(p, relative) && relative.getType() == Material.WATER) {
           target = relative;
           break;
         }
@@ -192,17 +200,10 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
         return;
       }
 
-      if (!canBlockPlace(p, target.getLocation())) {
-        return;
-      }
-
-      if (!consumeBoneMeal(p)) {
-        return;
-      }
-
       Material coral = CORAL_BLOCKS[ThreadLocalRandom.current().nextInt(CORAL_BLOCKS.length)];
-      Block growTarget = target;
-      J.runAt(growTarget.getLocation(), () -> growCoral(p, growTarget, coral, level));
+      if (!growCoral(p, target, coral, level)) {
+        return;
+      }
       fx(clicked.getLocation().clone().add(0.5D, 1.0D, 0.5D), FxPriority.GAMEPLAY)
           .particle(Particle.HAPPY_VILLAGER, 8, 0D, 0.4D, 0D, 0.5D, 0D)
           .particle(Particle.BUBBLE, 6, 0D, 0.3D, 0D, 0.4D, 0.02D)
@@ -210,12 +211,30 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
     });
   }
 
-  private void growCoral(Player p, Block target, Material coral, int level) {
-    if (target.getType() != Material.WATER) {
-      return;
+  private boolean growCoral(Player p, Block target, Material coral, int level) {
+    if (!ownsCoralTarget(p, target)
+        || target.getType() != Material.WATER
+        || !canBlockPlace(p, target.getLocation())
+        || !ProtectionEventProbe.attemptBlockPlaceProbe(p, target)) {
+      return false;
+    }
+    if (!ownsCoralTarget(p, target) || target.getType() != Material.WATER) {
+      return false;
     }
 
     target.setType(coral, false);
+    boolean costPaid = false;
+    try {
+      costPaid = consumeBoneMeal(p);
+      if (!costPaid) {
+        return false;
+      }
+    } finally {
+      if (!costPaid && ownsCoralTarget(p, target) && target.getType() == coral) {
+        target.setType(Material.WATER, false);
+      }
+    }
+
     trackCoral(target.getLocation(), level);
     fx(target.getLocation().clone().add(0.5D, 0.5D, 0.5D), FxPriority.TRANSITION)
         .ring(Particle.HAPPY_VILLAGER, 0.5D, 8, 0.2D)
@@ -227,6 +246,12 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
       xp(p, getConfig().growthXp);
       addStat(p, "seaborne.coral-gardener.coral-placed", 1);
     });
+    return true;
+  }
+
+  private boolean ownsCoralTarget(Player player, Block target) {
+    return !J.isFoliaThreading()
+        || (J.isOwnedByCurrentRegion(player) && J.isOwnedByCurrentRegion(target.getLocation()));
   }
 
   private boolean consumeBoneMeal(Player p) {
@@ -236,7 +261,7 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
 
     ItemStack inHand = p.getInventory().getItemInMainHand();
     if (inHand.getType() != Material.BONE_MEAL) {
-      return true;
+      return false;
     }
 
     return payItemCost(p, "bonemeal", new ItemStack(Material.BONE_MEAL), 1, () -> {

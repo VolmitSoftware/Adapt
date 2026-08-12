@@ -77,6 +77,8 @@ When a player learns the required adaptation level, Adapt discovers its recipes 
 ## Custom brewing workflow
 
 Custom brewing begins when a player places a registered custom ingredient in a brewing stand. That player must be allowed to use the recipe's owning adaptation; changing the ingredient, base potions, stand state, or other required inputs cancels the active task.
+Cancelled inventory clicks are ignored. Ingredient-slot handling runs one tick later and changes the cursor or
+starts a task only when the player still has the same brewing-stand inventory and physical stand open.
 
 Every registered custom brew takes 320 ticks. A blaze powder contributes 20 fuel units; weak recipes consume 16 units and strong recipes consume 32, except Darkness, which has one 16-unit recipe. Fuel is reserved when the task starts, the ingredient is consumed on completion, and every matching potion in the stand's three bottle slots is converted. Successful completion fires `AdaptBrewCompleteEvent`.
 

@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.collection.KList;
@@ -85,13 +86,21 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
       return;
     }
 
-    e.getItems().clear();
     int stored = 0;
     boolean overflow = false;
     for (Item i : items) {
+      ItemStack stack = i.getItemStack().clone();
+      int remaining = ProtectionEventProbe.remainingAfterPickup(p.getInventory(), stack);
+      if (!ProtectionEventProbe.attemptBlockDropPickup(p, i, remaining, e.getBlock().getLocation()) || i.isDead()) {
+        continue;
+      }
+      stack = i.getItemStack().clone();
+      if (!e.getItems().remove(i)) {
+        continue;
+      }
       xp(p, 2);
       addStat(p, "herbalism.drop-to-inv.items-caught", 1);
-      HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(i.getItemStack());
+      HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(stack);
       if (leftovers.isEmpty()) {
         stored++;
       } else {

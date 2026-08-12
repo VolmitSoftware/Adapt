@@ -91,7 +91,7 @@ class RangedWebBombJournalTest {
   }
 
   @Test
-  void shooterStateIsAuthorizedBeforePlayerFreeRegionPlacement() throws IOException {
+  void shooterStateAndPlacementAreReauthorizedAtCommit() throws IOException {
     String source = Files.readString(SOURCE);
     int placementStart = source.indexOf("private void scheduleAuthorizedWeb");
     int placementEnd = source.indexOf("private void scheduleWebRemoval", placementStart);
@@ -99,7 +99,9 @@ class RangedWebBombJournalTest {
 
     assertThat(source).contains("J.runEntity(p, () -> authorizeImpact(p, impact))");
     assertThat(placementMethod)
-        .contains("if (!isRuntimeRegistered())")
-        .doesNotContain("Player", "canBlockPlace", "getActiveLevel", "isOnline");
+        .contains("!isRuntimeRegistered()", "J.isOwnedByCurrentRegion(player)",
+            "!player.isOnline()", "!canBlockPlace(player, location)",
+            "ProtectionEventProbe.attemptBlockPlaceProbe(player, block)",
+            "block.setType(Material.COBWEB, false)");
   }
 }

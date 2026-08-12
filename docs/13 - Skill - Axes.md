@@ -95,6 +95,8 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Axe Chop (`axe-chop`)
 
 Chop down trees by right clicking the base log.
+Each additional log uses the player's native block-break action; a denied or non-owned break is not reported as
+successful. Folia requires a direct block click because an air-click ray target can cross region ownership.
 
 **Runtime entry points:** on block/entity/air interact (click); periodic evaluation every 6911 ms.
 
@@ -132,6 +134,8 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Axe Drop-To-Inventory (`axe-drop-to-inventory`)
 
 Chopped wood drops directly into your inventory.
+Each spawned block-drop entity must pass Bukkit's normal pickup events before it leaves the block's drop list;
+a denied pickup remains on the original world-drop path.
 
 **Runtime entry points:** on `BlockDropItemEvent`; periodic evaluation every 8800 ms.
 
@@ -157,6 +161,8 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Leaf-miner (`axe-leaf-veinminer`)
 
 Break connected leaves in bulk.
+The chain waits one tick and runs only after the original leaf finishes its normal break while the player still holds an axe. Every additional leaf
+uses the player's native block-break action; denied or changed blocks remain in place and do not contribute to statistics or completion effects.
 
 **Runtime entry points:** when breaking blocks; periodic evaluation every 5849 ms.
 
@@ -225,6 +231,8 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Wood-miner (`axe-wood-veinminer`)
 
 Break connected logs and wood in bulk.
+The chain waits one tick and runs only after the original block finishes its normal break while the player still holds an axe. Every additional wood
+block uses the player's native block-break action; denied or changed blocks remain in place and do not contribute to statistics or cascade advancement progress.
 
 **Runtime entry points:** when breaking blocks; periodic evaluation every 5849 ms.
 

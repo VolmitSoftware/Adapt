@@ -68,7 +68,8 @@ What each adaptation does and how a player activates it. TOML overrides live at 
 
 ### Growth Aura (`herbalism-growth-aura`)
 
-Periodically grows nearby plants.
+Periodically grows nearby plants. Every delayed crop target must pass current interaction and placement events
+before food is spent or growth is committed; Folia fails targets closed when the player is in another region.
 
 **Runtime entry points:** periodic evaluation every 10 ms while its conditions hold.
 
@@ -105,7 +106,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 
 ### Harvest & Replant (`herbalism-replant`)
 
-Right click a crop with a hoe to harvest & replant it.
+Right click a crop with a hoe to harvest & replant it. Every harvested crop passes a break event, and crops with
+an available seed also pass a placement event before drops or mutation. Tool wear/cooldown begins only after the clicked crop succeeds. Folia requires a
+direct block click and full ownership of the configured footprint.
 
 **Runtime entry points:** on block/entity/air interact (click); periodic evaluation every 6090 ms.
 
@@ -210,6 +213,8 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Hoe Drop-To-Inventory (`herbalism-drop-to-inventory`)
 
 Harvested crops drop directly into your inventory.
+Each spawned block-drop entity must pass Bukkit's normal pickup events before it leaves the block's drop list;
+a denied pickup remains on the original world-drop path.
 
 **Runtime entry points:** on `BlockDropItemEvent`; periodic evaluation every 7999 ms.
 
@@ -377,6 +382,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Seed Sower (`herbalism-seed-sower`)
 
 Sneak-right-click with seeds to plant nearby farmland and soul-sand plots.
+Each candidate crop passes normal place-event authorization before the seed charge is reserved, and denied
+cells are skipped. Folia requires direct block clicks and same-region planting cells; a failed cost settlement
+removes only crops from the current activation and refunds the reservation.
 
 **Runtime entry points:** on block/entity/air interact (click); periodic evaluation every 6920 ms.
 
@@ -416,6 +424,10 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Compost Cascade (`herbalism-compost-cascade`)
 
 Sneak-right-click a composter to consume nearby drops, harvest and replant mature crops, compost your inventory, and spend the compost maturing nearby crops. Leaves are only consumed when enabled in the config.
+Real clicks honor block-use denials already present when Adapt's monitor handler runs, air-click ray targeting must pass a normal right-click-block
+event, and each nearby live item entity must pass the normal pickup-event sequence before the cascade consumes
+any of it. Each harvested, replanted, matured, or removed block passes the applicable break/place event. Folia
+requires the full scan footprint to belong to the current region and requires a direct composter click.
 
 **Runtime entry points:** on block/entity/air interact (click); periodic evaluation every 600 ms.
 
@@ -515,7 +527,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 
 ### Bee Shepherd (`herbalism-bee-shepherd`)
 
-Hold flowers near crops to pulse growth and draw nearby bees toward you.
+Hold flowers near crops to pulse growth and draw nearby bees toward you. Every crop target must pass current
+interaction and placement events before growth. Hunger is charged once, immediately before the first authorized
+growth commit; Folia fails targets closed when the player is in another region.
 
 **Runtime entry points:** periodic evaluation every 10 ms while its conditions hold.
 
@@ -563,7 +577,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 
 ### Spore Bloom (`herbalism-spore-bloom`)
 
-Sneak-right-click mycelium with mushrooms to spread controlled bloom patches.
+Sneak-right-click mycelium with mushrooms to spread controlled bloom patches. Every soil or flower replacement
+passes break and placement events; Folia requires the complete bloom footprint and player to remain in the
+current region. Mushroom, hunger, and cooldown costs begin only when the first authorized replacement commits.
 
 **Runtime entry points:** when placing blocks; periodic evaluation every 2100 ms.
 

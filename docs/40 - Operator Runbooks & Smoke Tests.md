@@ -27,7 +27,8 @@ Use a disposable player and isolated Paper/Folia instance for destructive comman
 3. Confirm only an empty backpack cycles when crafted alone, direct nesting is rejected, configured indirect nesting is rejected, byte-ceiling deposits are refused, and contents survive close, quit/rejoin, restart, death/drop policy, and a forced inventory interruption.
 4. Learn one crafting adaptation and confirm its recipe is discovered; unlearn it and confirm discovery is removed unless another learned unlock owns the key.
 5. Test one weak and one strong custom brew with exact base potion, ingredient, fuel, owner adaptation, 320-tick completion, ingredient/fuel consumption, and all three bottle slots. Change an input mid-brew and confirm cancellation.
-6. After changing `value.baseValue` or `value.valueMultipliers`, hotload core config and verify a consuming adaptation uses the rebuilt value rather than stale `value-cache.json` data.
+6. Have another listener cancel an ingredient-slot click, then switch away from the stand before Adapt's delayed click handling. Confirm neither case moves the cursor item or starts a custom brew.
+7. After changing `value.baseValue` or `value.valueMultipliers`, hotload core config and verify a consuming adaptation uses the rebuilt value rather than stale `value-cache.json` data.
 
 ## Protection and integrations
 
@@ -36,6 +37,11 @@ Use a disposable player and isolated Paper/Folia instance for destructive comman
 3. Test an adaptation-level `enabledProtectors`/`disabledProtectors` override by exact protector name. Confirm an absent protector plugin cannot be enabled by config alone.
 4. With WorldGuard, deny `use-adaptations` and `adapt-xp` separately; confirm the first gates ability use and the second zeros location XP.
 5. If installed, test the exact surfaces in `09 - Integrations.md`: PlaceholderAPI keys/offline expiry, Vault charge and refund failure, HiddenOre block rewards, Iris tree-feller routing, AdvancedChests Rift Access, and MagicCosmetics armor slots.
+6. In an event-driven claim denial such as GriefPrevention, verify a Reliquary Portkey cannot bind or remotely open the container. Repeat with a double chest and deny either half; neither half may open, and every held chunk ticket must release when the attempt ends or the view closes.
+7. Link two Rift Conduit containers, change protection before a deferred bind stage and again before a flow reaches its partner, and confirm the denied bind rolls back and denied-flow items return to the source.
+8. Deny pickup events for Drop-To-Inventory, Fetch Shot, Item Snatch, Taming Fetch, Void Magnet, and Compost Cascade. Confirm the original item entity remains, with no success XP or statistic.
+9. Deny a ray-targeted Time In A Bottle or Compost Cascade use and a passive Accelerate crop or station target. Confirm the target block, station progress, stored time, and cooldown remain unchanged.
+10. Deny one secondary Axe Chop and Pickaxe Veinminer block. Confirm Axe Chop applies no per-block wear or cooldown for the refused log, and that the denied Veinminer block does not contribute to its success statistic or aggregate effect.
 
 ## Configuration, localization, and migration
 

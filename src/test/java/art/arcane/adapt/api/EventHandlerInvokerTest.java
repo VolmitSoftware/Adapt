@@ -7,9 +7,12 @@ import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
 import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -18,13 +21,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.EventExecutor;
+import org.bukkit.plugin.PluginManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.lang.reflect.Method;
 import java.util.UUID;
@@ -33,8 +40,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 class EventHandlerInvokerTest extends AdaptTestBase {
@@ -115,6 +124,22 @@ class EventHandlerInvokerTest extends AdaptTestBase {
         final AtomicInteger hits = new AtomicInteger();
 
         public void onInteract(PlayerInteractEvent e) {
+            hits.incrementAndGet();
+        }
+    }
+
+    public static class PickupListener implements Listener {
+        final AtomicInteger hits = new AtomicInteger();
+
+        public void onPickup(EntityPickupItemEvent event) {
+            hits.incrementAndGet();
+        }
+    }
+
+    public static class BreakListener implements Listener {
+        final AtomicInteger hits = new AtomicInteger();
+
+        public void onBreak(BlockBreakEvent event) {
             hits.incrementAndGet();
         }
     }
@@ -213,6 +238,18 @@ class EventHandlerInvokerTest extends AdaptTestBase {
         Method m = PolicyListener.class.getDeclaredMethod(name, eventType);
         m.setAccessible(true);
         return m;
+    }
+
+    private Method pickupHandler() throws NoSuchMethodException {
+        Method method = PickupListener.class.getDeclaredMethod("onPickup", EntityPickupItemEvent.class);
+        method.setAccessible(true);
+        return method;
+    }
+
+    private Method breakHandler() throws NoSuchMethodException {
+        Method method = BreakListener.class.getDeclaredMethod("onBreak", BlockBreakEvent.class);
+        method.setAccessible(true);
+        return method;
     }
 
     private PlayerInteractEvent airClick() {
@@ -348,6 +385,73 @@ class EventHandlerInvokerTest extends AdaptTestBase {
         event.setUseInteractedBlock(Event.Result.DENY);
         ex.execute(l, event);
         assertThat(l.hits.get()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("protection probes skip Adapt component handlers")
+    void protectionProbeSkipsComponentHandlers() throws Exception {
+        InteractListener listener = new InteractListener();
+        EventExecutor executor = EventHandlerInvoker.createExecutor(
+            listener, interactHandler(), PlayerInteractEvent.class, false);
+        PlayerInteractEvent event = blockClick();
+        PluginManager pluginManager = mock(PluginManager.class);
+        doAnswer(invocation -> {
+            executor.execute(listener, invocation.getArgument(0));
+            return null;
+        }).when(pluginManager).callEvent(event);
+
+        try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+            bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
+            ProtectionEventProbe.dispatch(event);
+        }
+
+        assertThat(listener.hits.get()).isZero();
+        executor.execute(listener, event);
+        assertThat(listener.hits.get()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("pickup protection probes still reach Adapt component handlers")
+    void pickupProtectionProbeReachesComponentHandlers() throws Exception {
+        PickupListener listener = new PickupListener();
+        EventExecutor executor = EventHandlerInvoker.createExecutor(
+            listener, pickupHandler(), EntityPickupItemEvent.class, false);
+        EntityPickupItemEvent event = new EntityPickupItemEvent(mock(Player.class), mock(Item.class), 0);
+        PluginManager pluginManager = mock(PluginManager.class);
+        doAnswer(invocation -> {
+            executor.execute(listener, invocation.getArgument(0));
+            return null;
+        }).when(pluginManager).callEvent(event);
+
+        try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+            bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
+            ProtectionEventProbe.dispatch(event);
+        }
+
+        assertThat(listener.hits.get()).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("synthetic block authorization probes skip Adapt component handlers")
+    void blockProtectionProbeSkipsComponentHandlers() throws Exception {
+        BreakListener listener = new BreakListener();
+        EventExecutor executor = EventHandlerInvoker.createExecutor(
+            listener, breakHandler(), BlockBreakEvent.class, false);
+        BlockBreakEvent event = new BlockBreakEvent(mock(Block.class), mock(Player.class));
+        PluginManager pluginManager = mock(PluginManager.class);
+        doAnswer(invocation -> {
+            executor.execute(listener, invocation.getArgument(0));
+            return null;
+        }).when(pluginManager).callEvent(event);
+
+        try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+            bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
+            ProtectionEventProbe.dispatch(event);
+        }
+
+        assertThat(listener.hits.get()).isZero();
+        executor.execute(listener, event);
+        assertThat(listener.hits.get()).isEqualTo(1);
     }
 
     @Test

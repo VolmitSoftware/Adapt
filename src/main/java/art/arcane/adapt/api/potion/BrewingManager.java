@@ -6,15 +6,18 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.Reflect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BrewingStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.BrewEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.BrewerInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.potion.PotionType;
@@ -27,6 +30,8 @@ public class BrewingManager implements Listener {
 
   private static final Map<BrewingRecipe, Set<String>> recipes = new ConcurrentHashMap<>();
   private static final Map<Location, BrewingTask> activeTasks = new ConcurrentHashMap<>();
+
+  private final Map<InventoryClickEvent, PendingBrewingClick> pendingClicks = new ConcurrentHashMap<>();
 
   public static void registerRecipe(String adaptation, BrewingRecipe recipe) {
     if (adaptation == null || adaptation.isBlank() || recipe == null) {
@@ -47,78 +52,127 @@ public class BrewingManager implements Listener {
     });
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void onInventoryClick(InventoryClickEvent e) {
-    if (e.getView().getTopInventory().getType() != InventoryType.BREWING || e.getView().getTopInventory().getHolder() == null) {
+    if (e.isCancelled()) {
+      return;
+    }
+
+    Inventory topInventory = e.getView().getTopInventory();
+    if (!(topInventory instanceof BrewerInventory inv)) {
+      return;
+    }
+    BrewingStand stand = inv.getHolder();
+    if (stand == null) {
       return;
     }
     Adapt.verbose("Brewing click: " + e.getRawSlot());
-    BrewerInventory inv = (BrewerInventory) e.getInventory();
-    boolean doTheThing = inv.getIngredient() == null
-        && e.getCursor() != null
-        && e.getRawSlot() == 3
-        && e.getClickedInventory() != null
-        && e.getClickedInventory().getType().equals(InventoryType.BREWING)
-        && (e.getClick() == ClickType.LEFT);
-    if (doTheThing) {
+    Player clicker = (Player) e.getWhoClicked();
+    pendingClicks.put(e, new PendingBrewingClick(inv, stand.getBlock(), clicker));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void afterInventoryClick(InventoryClickEvent e) {
+    PendingBrewingClick pending = pendingClicks.remove(e);
+    if (pending == null || e.isCancelled()) {
+      return;
+    }
+
+    ItemStack cursor = null;
+    if (isCustomIngredientClick(e, pending.inventory())) {
       Adapt.verbose("Brewing Stand Ingredient Clicked");
+      cursor = e.getCursor().clone();
       e.setCancelled(true);
     }
-    Player clicker = (Player) e.getWhoClicked();
-    J.runEntity(clicker, () -> {
-      if (doTheThing) {
-        inv.setIngredient(e.getCursor());
-        e.setCursor(null);
-      }
 
-      BrewingStand stand = inv.getHolder();
-      if (stand == null) {
+    ItemStack expectedCursor = cursor;
+    J.runEntity(pending.player(), () -> processClick(pending, expectedCursor), 1);
+  }
+
+  private void processClick(PendingBrewingClick pending, ItemStack expectedCursor) {
+    Player clicker = pending.player();
+    BrewerInventory inventory = pending.inventory();
+    Block standBlock = pending.standBlock();
+    if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(standBlock.getLocation())) {
+      return;
+    }
+    if (!isSameOpenStand(clicker, inventory, standBlock)) {
+      return;
+    }
+
+    if (expectedCursor != null) {
+      ItemStack currentCursor = clicker.getItemOnCursor();
+      if (inventory.getIngredient() != null
+          || currentCursor == null
+          || !currentCursor.isSimilar(expectedCursor)
+          || currentCursor.getAmount() != expectedCursor.getAmount()) {
         return;
       }
+      inventory.setIngredient(expectedCursor);
+      clicker.setItemOnCursor(null);
+    }
 
-      Location standLocation = stand.getLocation();
-      AdaptPlayer p = Adapt.instance.getAdaptServer().getPlayer(clicker);
-      BrewingRecipe recipe = findMatchingRecipe(standLocation);
-      if (recipe == null) {
+    Location standLocation = standBlock.getLocation();
+    AdaptPlayer p = Adapt.instance.getAdaptServer().getPlayer(clicker);
+    BrewingRecipe recipe = findMatchingRecipe(standLocation);
+    if (recipe == null) {
+      BrewingTask removed = activeTasks.remove(standLocation);
+      if (removed != null) {
+        removed.cancel();
+      }
+      return;
+    }
+
+    Set<String> requiredAdaptations = recipes.get(recipe);
+    BrewingTask active = activeTasks.get(standLocation);
+    if (!playerHasRequiredAdaptation(p, requiredAdaptations)) {
+      if (active != null && !active.getRecipe().equals(recipe)) {
         BrewingTask removed = activeTasks.remove(standLocation);
         if (removed != null) {
           removed.cancel();
         }
-        return;
       }
+      return;
+    }
 
-      Set<String> requiredAdaptations = recipes.get(recipe);
-      BrewingTask active = activeTasks.get(standLocation);
-      if (!playerHasRequiredAdaptation(p, requiredAdaptations)) {
-        if (active != null && !active.getRecipe().equals(recipe)) {
-          BrewingTask removed = activeTasks.remove(standLocation);
-          if (removed != null) {
-            removed.cancel();
-          }
-        }
-        return;
+    if (active != null && active.getRecipe().equals(recipe)) {
+      return;
+    }
+
+    if (active != null) {
+      BrewingTask removed = activeTasks.remove(standLocation);
+      if (removed != null) {
+        removed.cancel();
       }
+    }
 
-      if (active != null && active.getRecipe().equals(recipe)) {
-        return;
-      }
+    BrewingTask task = BrewingTask.create(
+        recipe,
+        standLocation,
+        clicker.getUniqueId(),
+        finished -> activeTasks.remove(standLocation, finished)
+    );
+    activeTasks.put(standLocation, task);
+    task.start();
+  }
 
-      if (active != null) {
-        BrewingTask removed = activeTasks.remove(standLocation);
-        if (removed != null) {
-          removed.cancel();
-        }
-      }
+  private boolean isCustomIngredientClick(InventoryClickEvent event, BrewerInventory inventory) {
+    ItemStack cursor = event.getCursor();
+    return inventory.getIngredient() == null
+        && cursor != null
+        && !cursor.getType().isAir()
+        && event.getRawSlot() == 3
+        && event.getClickedInventory() != null
+        && event.getClickedInventory().getType() == InventoryType.BREWING
+        && event.getClick() == ClickType.LEFT;
+  }
 
-      BrewingTask task = BrewingTask.create(
-          recipe,
-          standLocation,
-          clicker.getUniqueId(),
-          finished -> activeTasks.remove(standLocation, finished)
-      );
-      activeTasks.put(standLocation, task);
-      task.start();
-    }, 1);
+  static boolean isSameOpenStand(Player player, BrewerInventory expectedInventory, Block expectedBlock) {
+    Inventory currentTop = player.getOpenInventory().getTopInventory();
+    if (currentTop != expectedInventory || !(currentTop.getHolder() instanceof BrewingStand currentStand)) {
+      return false;
+    }
+    return currentStand.getBlock().equals(expectedBlock);
   }
 
   @EventHandler
@@ -183,5 +237,8 @@ public class BrewingManager implements Listener {
     }
 
     return false;
+  }
+
+  private record PendingBrewingClick(BrewerInventory inventory, Block standBlock, Player player) {
   }
 }

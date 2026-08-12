@@ -27,6 +27,8 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdvancementSpec;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -38,6 +40,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -155,13 +158,16 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
   }
 
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
     if (e.getHand() == EquipmentSlot.OFF_HAND) {
       return;
     }
 
     Player player = e.getPlayer();
+    if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
+      return;
+    }
     ItemStack mainHandItem = player.getInventory().getItemInMainHand();
     if (!hasActiveAdaptation(player)) {
       return;
@@ -172,18 +178,50 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     }
 
     // Perform a ray trace for 6 blocks looking for an item
-    RayTraceResult rayTrace = player.getWorld().rayTraceEntities(player.getEyeLocation(), player.getLocation().getDirection(), 6, entity -> entity instanceof Item);
+    Location eyeLocation = player.getEyeLocation();
+    if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(eyeLocation, 6.0D, 6.0D)) {
+      return;
+    }
+    RayTraceResult rayTrace = player.getWorld().rayTraceEntities(
+        eyeLocation,
+        eyeLocation.getDirection(),
+        6,
+        entity -> entity instanceof Item
+    );
     if (rayTrace != null && rayTrace.getHitEntity() instanceof Item itemEntity) {
       processItemInteraction(player, mainHandItem, itemEntity);
     }
   }
 
   private void processItemInteraction(Player player, ItemStack mainHandItem, Item itemEntity) {
-    ItemStack forStuff = itemEntity.getItemStack();
+    if (J.isFoliaThreading()
+        && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(itemEntity))) {
+      return;
+    }
+    if (!canSnatchItem(player, itemEntity)) {
+      return;
+    }
+
+    ItemStack forStuff = itemEntity.getItemStack().clone();
     ItemStack offering = getDeconstructionOffering(forStuff);
     Location itemLocation = itemEntity.getLocation();
 
     if (offering != null) {
+      if (!ProtectionEventProbe.attemptItemPickup(player, itemEntity, 0)) {
+        return;
+      }
+      if (J.isFoliaThreading()
+          && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(itemEntity))) {
+        return;
+      }
+      if (!itemEntity.isValid() || itemEntity.isDead()) {
+        return;
+      }
+      ItemStack current = itemEntity.getItemStack();
+      if (!current.isSimilar(forStuff) || current.getAmount() != forStuff.getAmount()) {
+        return;
+      }
+
       itemEntity.setItemStack(offering);
       fx(itemLocation, FxPriority.COMBAT)
           .particle(Particles.ITEM_CRACK, 18, 0, 0, 0, 0.15D, 0.15D, forStuff)

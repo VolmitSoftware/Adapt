@@ -1,8 +1,12 @@
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import org.bukkit.Material;
+import org.bukkit.block.data.Ageable;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class HerbalismCompostCascadeTest {
   @Test
@@ -56,5 +60,43 @@ class HerbalismCompostCascadeTest {
     assertThat(HerbalismCompostCascade.maturationAttempts(12, 0)).isZero();
     assertThat(HerbalismCompostCascade.maturationAttempts(0, 30)).isZero();
     assertThat(HerbalismCompostCascade.maturationAttempts(-3, 30)).isZero();
+  }
+
+  @Test
+  void compostProcessingChargesOnlyTheRemainingPhaseBudget() {
+    assertThat(HerbalismCompostCascade.compostProcessCount(64, 40, 39)).isEqualTo(1);
+    assertThat(HerbalismCompostCascade.compostProcessCount(3, 40, 12)).isEqualTo(3);
+    assertThat(HerbalismCompostCascade.compostProcessCount(64, 40, 40)).isZero();
+    assertThat(HerbalismCompostCascade.compostProcessCount(64, 40, 45)).isZero();
+  }
+
+  @Test
+  void leafCommitRejectsAListenerReplacement() {
+    assertThat(HerbalismCompostCascade.matchesLeafCommit(Material.OAK_LEAVES, Material.OAK_LEAVES))
+        .isTrue();
+    assertThat(HerbalismCompostCascade.matchesLeafCommit(Material.OAK_LEAVES, Material.STONE))
+        .isFalse();
+    assertThat(HerbalismCompostCascade.matchesLeafCommit(Material.STONE, Material.STONE))
+        .isFalse();
+  }
+
+  @Test
+  void cropCommitRejectsAListenerTypeOrAgeChange() {
+    Ageable crop = mock(Ageable.class);
+    when(crop.getAge()).thenReturn(7);
+    when(crop.getMaximumAge()).thenReturn(7);
+
+    assertThat(HerbalismCompostCascade.matchesCropCommit(
+        Material.WHEAT, Material.WHEAT, crop, true)).isTrue();
+    assertThat(HerbalismCompostCascade.matchesCropCommit(
+        Material.WHEAT, Material.CARROTS, crop, true)).isFalse();
+    assertThat(HerbalismCompostCascade.matchesCropCommit(
+        Material.WHEAT, Material.WHEAT, crop, false)).isFalse();
+
+    when(crop.getAge()).thenReturn(3);
+    assertThat(HerbalismCompostCascade.matchesCropCommit(
+        Material.WHEAT, Material.WHEAT, crop, false)).isTrue();
+    assertThat(HerbalismCompostCascade.matchesCropCommit(
+        Material.WHEAT, Material.WHEAT, crop, true)).isFalse();
   }
 }

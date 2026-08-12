@@ -308,6 +308,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Coral Gardener (`seaborne-coral-gardener`)
 
 Coral you place survives out of water far longer, bonemeal grows coral, and reef blocks grant bonus XP.
+Bonemeal growth honors the real coral click denial and passes normal place-event authorization for the water
+cell before changing it. A denied placement consumes no bone meal, and a rejected bone-meal charge restores
+the water cell; Folia limits growth to adjacent cells owned with the player.
 
 **Runtime entry points:** when placing blocks; on `BlockFadeEvent`; on block/entity/air interact (click).
 

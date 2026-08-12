@@ -33,6 +33,7 @@ import art.arcane.adapt.api.ability.AbilityRefundReason;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -53,6 +54,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -172,6 +174,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     boolean learned = level > 0;
     Block clicked = e.getClickedBlock();
     boolean container = learned && clicked != null && isConduitContainer(clicked);
+    boolean blockUseDenied = clicked != null && e.useInteractedBlock() == Event.Result.DENY;
 
     switch (resolveGesture(taglock, learned, p.isSneaking(), container,
         !taglock && RiftPearls.isPlainPearl(hand))) {
@@ -187,7 +190,9 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       }
       case BIND -> {
         e.setCancelled(true);
-        if (!canInteract(p, clicked.getLocation())) {
+        if (blockUseDenied
+            || !canInteract(p, clicked.getLocation())
+            || !canAccessContainer(p, clicked)) {
           failBind(p, RiftMessages.CONDUIT_MSG_STALE);
           return;
         }
@@ -199,7 +204,9 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       }
       case CAPTURE -> {
         e.setCancelled(true);
-        if (canInteract(p, clicked.getLocation())) {
+        if (!blockUseDenied
+            && canInteract(p, clicked.getLocation())
+            && canAccessContainer(p, clicked)) {
           beginCapture(p, hand, clicked.getLocation());
         }
       }
@@ -209,9 +216,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
   /**
    * Gesture table for an ender pearl right-click in the main hand. Taglocks stay
    * inert for players without the adaptation, which means cancelled rather than
-   * thrown. Protection is checked by the caller through the protector registry
-   * instead of the event's DENY flag, because any listener cancelling the
-   * interact for unrelated reasons also flips that flag.
+   * thrown. The caller separately honors block-use denial and container access.
    */
   static ConduitGesture resolveGesture(boolean taglock, boolean learned, boolean sneaking,
                                        boolean container, boolean plainPearl) {
@@ -403,7 +408,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
         return;
       }
       BlockState st = operation.source().getBlock().getState();
-      if (!(st instanceof Container aContainer)) {
+      if (!(st instanceof Container aContainer) || !canUseContainer(operation.player(), aContainer)) {
         failBindOperation(operation, RiftMessages.CONDUIT_MSG_STALE,
             AbilityRefundReason.TARGET_LOST, true);
         return;
@@ -430,7 +435,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
         return;
       }
       BlockState st = operation.partner().getBlock().getState();
-      if (!(st instanceof Container bContainer)) {
+      if (!(st instanceof Container bContainer) || !canUseContainer(operation.player(), bContainer)) {
         failBindOperation(operation, RiftMessages.CONDUIT_MSG_STALE,
             AbilityRefundReason.TARGET_LOST, true);
         return;
@@ -458,6 +463,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       }
       BlockState state = operation.source().getBlock().getState();
       if (!(state instanceof Container source)
+          || !canUseContainer(operation.player(), source)
           || !linkMatches(source, operation.linkId(), operation.partner())) {
         failBindOperation(operation, RiftMessages.CONDUIT_MSG_STALE,
             AbilityRefundReason.TARGET_LOST, true);
@@ -591,7 +597,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     try {
       deliverExactTaglock(p, item);
       p.getPersistentDataContainer().remove(reservationKey);
-    } catch (RuntimeException error) {
+    } catch (Throwable error) {
       Adapt.error("Rift Conduit could not return a reserved taglock to " + p.getUniqueId() + ".");
       error.printStackTrace();
     }
@@ -752,7 +758,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     Runnable guardedTask = () -> {
       try {
         task.run();
-      } catch (RuntimeException error) {
+      } catch (Throwable error) {
         error.printStackTrace();
         failure.run();
       }
@@ -767,7 +773,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     CompletableFuture<Chunk> load;
     try {
       load = Adapt.platform.getChunkAtAsync(location);
-    } catch (RuntimeException error) {
+    } catch (Throwable error) {
       error.printStackTrace();
       failure.run();
       return;
@@ -856,7 +862,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
 
   private void flowFromSource(Player p, Location sourceLoc, int throughput, double xpPerFlow) {
     BlockState st = sourceLoc.getBlock().getState();
-    if (!(st instanceof Container source)) {
+    if (!(st instanceof Container source) || !canUseContainer(p, source)) {
       return;
     }
 
@@ -873,28 +879,43 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     Location partnerLoc = link.location();
     String linkId = link.linkId();
     AtomicBoolean settled = new AtomicBoolean(false);
-    loadChunkAsync(partnerLoc, chunk -> {
-      boolean scheduled = J.runAt(partnerLoc, () -> {
-        if (settled.compareAndSet(false, true)) {
-          depositToPartnerSafely(p, sourceLoc, partnerLoc, linkId, moving, xpPerFlow);
-        }
-      });
-      if (!scheduled && settled.compareAndSet(false, true)) {
-        restoreToSource(sourceLoc, moving);
-      }
-    });
-    J.runAt(sourceLoc, () -> {
+    boolean recoveryScheduled = J.runAt(sourceLoc, () -> {
       if (settled.compareAndSet(false, true)) {
         restoreToSource(sourceLoc, moving);
       }
     }, FLOW_DELIVERY_TIMEOUT_TICKS);
+    if (!recoveryScheduled) {
+      settled.set(true);
+      dropAt(sourceLoc, addItems(source.getInventory(), moving));
+      return;
+    }
+
+    try {
+      loadChunkAsync(partnerLoc, chunk -> {
+        boolean scheduled = J.runAt(partnerLoc, () -> {
+          if (settled.compareAndSet(false, true)) {
+            depositToPartnerSafely(p, sourceLoc, partnerLoc, linkId, moving, xpPerFlow);
+          }
+        });
+        if (!scheduled && settled.compareAndSet(false, true)) {
+          restoreToSource(sourceLoc, moving);
+        }
+      });
+    } catch (Throwable error) {
+      Adapt.error("Rift Conduit transfer " + linkId + " could not start partner loading at "
+          + partnerLoc + "; returning " + totalAmount(moving) + " items to " + sourceLoc + ".");
+      error.printStackTrace();
+      if (settled.compareAndSet(false, true)) {
+        dropAt(sourceLoc, addItems(source.getInventory(), moving));
+      }
+    }
   }
 
   private void depositToPartnerSafely(Player p, Location sourceLoc, Location partnerLoc, String linkId,
                                       List<ItemStack> moving, double xpPerFlow) {
     try {
       depositToPartner(p, sourceLoc, partnerLoc, linkId, moving, xpPerFlow);
-    } catch (RuntimeException error) {
+    } catch (Throwable error) {
       Adapt.error("Rift Conduit transfer " + linkId + " failed while depositing at " + partnerLoc
           + "; returning " + totalAmount(moving) + " items to " + sourceLoc + ".");
       error.printStackTrace();
@@ -905,7 +926,9 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
   private void depositToPartner(Player p, Location sourceLoc, Location partnerLoc, String linkId,
                                 List<ItemStack> moving, double xpPerFlow) {
     BlockState st = partnerLoc.getBlock().getState();
-    if (!(st instanceof Container partner) || !linkMatches(partner, linkId, sourceLoc)) {
+    if (!(st instanceof Container partner)
+        || !linkMatches(partner, linkId, sourceLoc)
+        || !canUseContainer(p, partner)) {
       restoreToSource(sourceLoc, moving);
       return;
     }
@@ -1018,6 +1041,61 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
 
   private boolean isConduitContainer(Block block) {
     return isStorage(block.getBlockData()) && block.getState() instanceof Container;
+  }
+
+  private boolean canAccessContainer(Player player, Block block) {
+    if (!(block.getState() instanceof Container container)) {
+      return false;
+    }
+    List<Block> physicalBlocks = ProtectionEventProbe.containerBlocks(block, null);
+    if (J.isFoliaThreading()) {
+      for (Block physicalBlock : physicalBlocks) {
+        if (!J.isOwnedByCurrentRegion(physicalBlock.getLocation())) {
+          return false;
+        }
+      }
+    }
+    List<Block> blocks = ProtectionEventProbe.containerBlocks(block, container.getInventory());
+    for (Block physicalBlock : blocks) {
+      if (!canAccessChest(player, physicalBlock.getLocation())) {
+        return false;
+      }
+    }
+    try {
+      for (Block physicalBlock : blocks) {
+        if (!physicalBlock.equals(block) && !ProtectionEventProbe.attemptBlockUse(player, physicalBlock)) {
+          return false;
+        }
+      }
+      return true;
+    } catch (RuntimeException error) {
+      Adapt.error("Rift Conduit could not verify container access for " + player.getUniqueId() + ".");
+      error.printStackTrace();
+      return false;
+    }
+  }
+
+  private boolean canUseContainer(Player player, Container container) {
+    if (!J.isOwnedByCurrentRegion(player) || !player.isOnline()) {
+      return false;
+    }
+
+    Block containerBlock = container.getBlock();
+    List<Block> blocks = ProtectionEventProbe.containerBlocks(containerBlock, null);
+    for (Block block : blocks) {
+      if (!J.isOwnedByCurrentRegion(block.getLocation())
+          || !canAccessChest(player, block.getLocation())) {
+        return false;
+      }
+    }
+
+    try {
+      return ProtectionEventProbe.attemptContainerOpen(player, blocks);
+    } catch (RuntimeException error) {
+      Adapt.error("Rift Conduit could not verify container access for " + player.getUniqueId() + ".");
+      error.printStackTrace();
+      return false;
+    }
   }
 
   private LinkRef readLink(Container container) {

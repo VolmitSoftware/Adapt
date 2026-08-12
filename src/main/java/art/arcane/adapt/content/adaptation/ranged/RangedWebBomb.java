@@ -32,6 +32,7 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
 import art.arcane.adapt.content.item.BoundSnowBall;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -61,7 +62,6 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -155,23 +155,23 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
       return;
     }
 
-    List<WebPlacement> authorized = new ArrayList<>(7);
-    for (WebPlacement placement : placementCandidates(impact.world(), impact.x(), impact.y(), impact.z())) {
-      if (canBlockPlace(p, placement.location())) {
-        authorized.add(placement);
+    List<WebPlacement> placements = placementCandidates(impact.world(), impact.x(), impact.y(), impact.z());
+    if (J.isFoliaThreading()) {
+      for (WebPlacement placement : placements) {
+        if (!J.isOwnedByCurrentRegion(placement.location())) {
+          return;
+        }
       }
     }
 
     Location center = impact.center();
     J.runAt(center, () -> showImpactFx(center, impact.hitEntity()));
-    if (impact.hitEntity()) {
-      addStat(p, "ranged.web-bomb.mobs-trapped", 1);
-    }
 
     long durationTicks = Math.max(1L, (long) level * 20L);
     long expiresAt = System.currentTimeMillis() + (durationTicks * 50L);
-    for (WebPlacement placement : authorized) {
-      scheduleAuthorizedWeb(placement, expiresAt);
+    AtomicBoolean trapCredited = new AtomicBoolean();
+    for (WebPlacement placement : placements) {
+      scheduleAuthorizedWeb(p, placement, expiresAt, impact.hitEntity(), trapCredited);
     }
 
     J.runAt(center, () -> fx(center, FxPriority.TRANSITION)
@@ -226,14 +226,20 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     }
   }
 
-  private void scheduleAuthorizedWeb(WebPlacement placement, long expiresAt) {
+  private void scheduleAuthorizedWeb(Player player, WebPlacement placement, long expiresAt,
+                                     boolean hitEntity, AtomicBoolean trapCredited) {
     Location location = placement.location();
     J.runAt(location, () -> {
-      if (!isRuntimeRegistered()) {
+      if (!isRuntimeRegistered()
+          || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player))
+          || !player.isOnline()
+          || !canBlockPlace(player, location)) {
         return;
       }
       Block block = location.getBlock();
-      if (!block.getType().isAir()) {
+      if (!block.getType().isAir()
+          || !ProtectionEventProbe.attemptBlockPlaceProbe(player, block)
+          || !block.getType().isAir()) {
         return;
       }
       if (!journalWeb(block, expiresAt)) {
@@ -243,6 +249,10 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
       WebKey key = webKey(block);
       activeBlocks.put(key, new ActiveWeb(block, expiresAt));
       scheduleWebRemoval(block, expiresAt);
+      if (hitEntity && trapCredited.compareAndSet(false, true)
+          && !J.runEntity(player, () -> addStat(player, "ranged.web-bomb.mobs-trapped", 1))) {
+        trapCredited.set(false);
+      }
     });
   }
 

@@ -19,6 +19,7 @@
 package art.arcane.adapt.api.xp;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -36,11 +37,17 @@ public class XpProvenanceListener implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     XpProvenance.recordPlacement(e.getBlock());
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     if (!AdaptConfig.get().getXpIntegrity().isProvenanceEnabled()) {
       return;
     }

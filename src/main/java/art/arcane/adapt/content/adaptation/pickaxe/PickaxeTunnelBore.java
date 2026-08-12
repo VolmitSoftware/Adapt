@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -92,7 +93,8 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
     Block block = e.getBlock();
-    if (!BORE_BLOCKS.contains(block.getType())) {
+    Material originType = block.getType();
+    if (!BORE_BLOCKS.contains(originType)) {
       return;
     }
 
@@ -113,9 +115,30 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
       return;
     }
 
-    ItemStack tool = p.getInventory().getItemInMainHand().clone();
+    J.runEntity(
+        p,
+        () -> breakBorePlane(p, block, originType, boreWidth, boreHeight, targets),
+        1
+    );
+  }
 
-    Location center = block.getLocation().add(0.5, 0.5, 0.5);
+  private void breakBorePlane(Player player, Block origin, Material originType, int boreWidth,
+                              int boreHeight, List<Block> targets) {
+    Location originLocation = origin.getLocation();
+    if (!player.isOnline()
+        || player.getWorld() != origin.getWorld()
+        || (J.isFoliaThreading()
+        && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(originLocation)))
+        || origin.getType() == originType) {
+      return;
+    }
+
+    ItemStack tool = player.getInventory().getItemInMainHand();
+    if (!isPickaxe(tool)) {
+      return;
+    }
+
+    Location center = originLocation.add(0.5, 0.5, 0.5);
     fx(center, FxPriority.GAMEPLAY)
         .ring(Particle.CRIT, 0.9D, 12, 0.1D)
         .sound(Sound.BLOCK_STONE_BREAK, 0.5f, 0.7f);
@@ -125,30 +148,34 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
           .chord(Sound.BLOCK_GRAVEL_BREAK, 0.6f, 0.5f, Sound.ENTITY_RAVAGER_STEP, 0.4f, 0.6f);
     }
 
-    J.runEntity(p, () -> {
-      int index = 0;
-      int broken = 0;
-      for (Block b : targets) {
-        if (!BORE_BLOCKS.contains(b.getType())) {
-          continue;
-        }
-
-        if ((index & 1) == 0) {
-          BlockData bd = b.getBlockData();
-          fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRAIL)
-              .particle(Particles.BLOCK_CRACK, 3, 0, 0, 0, 0.2, 0.0, bd);
-        }
-        if (b.breakNaturally(tool)) {
-          broken++;
-        }
+    int index = 0;
+    int broken = 0;
+    for (Block target : targets) {
+      Location location = target.getLocation();
+      if ((J.isFoliaThreading()
+          && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(location)))
+          || !BORE_BLOCKS.contains(target.getType())
+          || !canBlockBreak(player, location)
+          || !ProtectionEventProbe.attemptBlockBreakProbe(player, target)) {
         index++;
+        continue;
       }
 
-      if (broken > 0) {
-        damageHand(p, broken * getConfig().durabilityPerBonusBlock);
-        addStat(p, "pickaxe.tunnel-bore.blocks-bored", broken);
+      if ((index & 1) == 0) {
+        BlockData blockData = target.getBlockData();
+        fx(location.add(0.5, 0.5, 0.5), FxPriority.TRAIL)
+            .particle(Particles.BLOCK_CRACK, 3, 0, 0, 0, 0.2, 0.0, blockData);
       }
-    });
+      if (target.breakNaturally(tool)) {
+        broken++;
+      }
+      index++;
+    }
+
+    if (broken > 0) {
+      damageHand(player, broken * getConfig().durabilityPerBonusBlock);
+      addStat(player, "pickaxe.tunnel-bore.blocks-bored", broken);
+    }
   }
 
   private List<Block> collectPlane(Player p, Block origin, int width, int height) {
@@ -174,11 +201,13 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
           b = origin.getRelative(widthOnX ? w : 0, h, widthOnX ? 0 : w);
         }
 
-        if (!BORE_BLOCKS.contains(b.getType())) {
+        Location location = b.getLocation();
+        if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(location))
+            || !BORE_BLOCKS.contains(b.getType())) {
           continue;
         }
 
-        if (!canBlockBreak(p, b.getLocation())) {
+        if (!canBlockBreak(p, location)) {
           continue;
         }
 

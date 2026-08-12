@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerLink;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -44,8 +45,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static art.arcane.adapt.util.data.Metadata.VEIN_MINED;
@@ -100,18 +102,8 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
 
     VEIN_MINED.add(e.getBlock());
     Block block = e.getBlock();
+    Material blockType = block.getType();
     BlockData logData = block.getBlockData();
-    timeline(block.getLocation().add(0.5D, 0.5D, 0.5D))
-        .duration(3)
-        .priority(FxPriority.GAMEPLAY)
-        .cullRadius(24)
-        .frame((fx, tick, progress) -> {
-          fx.ring(Particles.CRIT_MAGIC, 0.7D - (0.6D * progress), 8, 0.0D);
-          if (tick == 0) {
-            fx.sound(Sound.ITEM_AXE_STRIP, 1.0F, 0.7F);
-          }
-        })
-        .start();
     int maxBlocks = Math.max(1, getConfig().maxBlocks);
     Set<Block> blockMap = new HashSet<>(maxBlocks);
     int radius = getRadius(getLevel(p));
@@ -125,7 +117,8 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
               break scan;
             }
             Block b = block.getRelative(x, y, z);
-            if (b.getType() == block.getType()) {
+            if ((!J.isFoliaThreading() || J.isOwnedByCurrentRegion(b.getLocation()))
+                && b.getType() == blockType) {
               if ((x * x) + (y * y) + (z * z) > radiusSquared) {
                 continue;
               }
@@ -139,35 +132,85 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
       }
     }
 
-    int logsVeinmined = blockMap.size();
-    J.runEntity(p, () -> {
-      boolean toInventory = getActiveSiblingBlockBreakLevel(
-          p,
-          "axe-drop-to-inventory",
-          block.getLocation()
-      ) > 0;
-      for (Block blocks : blockMap) {
-        VEIN_MINED.add(blocks);
-        if (toInventory) {
-          Collection<ItemStack> items = blocks.getDrops(tool, p);
-          for (ItemStack item : items) {
-            safeGiveItem(p, item);
-          }
-          blocks.setType(Material.AIR);
-        } else {
-          blocks.breakNaturally(tool);
-        }
-        VEIN_MINED.remove(blocks);
-      }
+    Set<Block> siblings = new HashSet<>(blockMap);
+    siblings.remove(block);
+    boolean scheduled = J.runEntity(
+        p,
+        () -> mineWood(p, block, blockType, logData, siblings),
+        1
+    );
+    if (!scheduled) {
       VEIN_MINED.remove(block);
-    });
+    }
+  }
+
+  private void mineWood(Player player, Block origin, Material blockType, BlockData logData,
+                        Set<Block> targets) {
+    Location originLocation = origin.getLocation();
+    if (!player.isOnline()
+        || player.getWorld() != origin.getWorld()
+        || (J.isFoliaThreading()
+        && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(originLocation)))
+        || origin.getType() == blockType) {
+      VEIN_MINED.remove(origin);
+      return;
+    }
+
+    ItemStack tool = player.getInventory().getItemInMainHand();
+    if (!isAxe(tool)) {
+      VEIN_MINED.remove(origin);
+      return;
+    }
+
+    timeline(originLocation.add(0.5D, 0.5D, 0.5D))
+        .duration(3)
+        .priority(FxPriority.GAMEPLAY)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particles.CRIT_MAGIC, 0.7D - (0.6D * progress), 8, 0.0D);
+          if (tick == 0) {
+            fx.sound(Sound.ITEM_AXE_STRIP, 1.0F, 0.7F);
+          }
+        })
+        .start();
+    List<Block> brokenBlocks = new ArrayList<>(targets.size() + 1);
+    brokenBlocks.add(origin);
+    try {
+      for (Block target : targets) {
+        Location location = target.getLocation();
+        if ((J.isFoliaThreading()
+            && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(location)))
+            || target.getType() != blockType
+            || !canBlockBreak(player, location)) {
+          continue;
+        }
+
+        VEIN_MINED.add(target);
+        try {
+          if (ProtectionEventProbe.attemptBlockBreak(player, target)) {
+            brokenBlocks.add(target);
+          }
+        } finally {
+          VEIN_MINED.remove(target);
+        }
+      }
+    } finally {
+      VEIN_MINED.remove(origin);
+    }
+
+    emitWoodFeedback(player, origin, logData, brokenBlocks);
+  }
+
+  private void emitWoodFeedback(Player player, Block origin, BlockData logData,
+                                List<Block> brokenBlocks) {
+    int logsVeinmined = brokenBlocks.size();
     if (logsVeinmined > 0) {
-      addStat(p, "axe.wood-veinminer.logs-veinmined", logsVeinmined);
+      addStat(player, "axe.wood-veinminer.logs-veinmined", logsVeinmined);
       int minY = Integer.MAX_VALUE;
       int maxY = Integer.MIN_VALUE;
       double sumX = 0.0D;
       double sumZ = 0.0D;
-      for (Block b : blockMap) {
+      for (Block b : brokenBlocks) {
         minY = Math.min(minY, b.getY());
         maxY = Math.max(maxY, b.getY());
         sumX += b.getX();
@@ -176,7 +219,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
       double climb = maxY - minY;
       int steps = Math.min(10, Math.max(3, logsVeinmined));
       int lastTick = steps - 1;
-      Location cascade = new Location(block.getWorld(), (sumX / logsVeinmined) + 0.5D, minY + 0.5D, (sumZ / logsVeinmined) + 0.5D);
+      Location cascade = new Location(origin.getWorld(), (sumX / logsVeinmined) + 0.5D, minY + 0.5D, (sumZ / logsVeinmined) + 0.5D);
       timeline(cascade)
           .duration(steps)
           .priority(FxPriority.TRANSITION)
@@ -191,8 +234,8 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
             }
           })
           .start();
-      if (logsVeinmined >= 15 && grantOnce(p, "challenge_axe_wood_vein_cascade")) {
-        fx(p.getLocation().add(0.0D, 1.0D, 0.0D), FxPriority.TRANSITION)
+      if (logsVeinmined >= 15 && grantOnce(player, "challenge_axe_wood_vein_cascade")) {
+        fx(player.getLocation().add(0.0D, 1.0D, 0.0D), FxPriority.TRANSITION)
             .column(Particles.TOTEM, 16, 2.0D)
             .chord(Sound.UI_TOAST_CHALLENGE_COMPLETE, 0.6F, 1.1F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.5F);
       }

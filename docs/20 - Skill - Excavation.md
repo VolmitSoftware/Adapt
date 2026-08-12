@@ -165,6 +165,8 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Shovel Drop-To-Inventory (`excavation-drop-to-inventory`)
 
 Excavated blocks drop directly into your inventory.
+Each spawned block-drop entity must pass Bukkit's normal pickup events before it leaves the block's drop list;
+a denied pickup remains on the original world-drop path.
 
 **Runtime entry points:** on `BlockDropItemEvent`; periodic evaluation every 11777 ms.
 
@@ -234,6 +236,8 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Tunneler (`excavation-tunneler`)
 
 Sneak while digging soft blocks to carve a whole plane at once.
+The bonus plane waits one tick and runs only after the original block finishes its normal break. Each bonus block
+must then pass its own cancellable block-break attempt before removal; denied or failed breaks consume no durability and do not award Tunneler statistics or XP.
 
 **Runtime entry points:** when breaking blocks; periodic evaluation every 3170 ms.
 
@@ -393,6 +397,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Burrow (`excavation-burrow`)
 
 Sneak-right-click soft ground with a shovel to rapidly dig straight down, stopping before hazards. Each burrow costs hunger and tool durability.
+The first block must be authorized and broken before the activation consumes hunger or starts its cooldown.
+Every delayed block is reauthorized on the player's owning thread and only successful breaks consume per-block durability or award block statistics and XP.
+On Folia, Burrow requires a direct block click because an air-click ray target can cross region ownership.
 
 **Runtime entry points:** on block/entity/air interact (click); periodic evaluation every 4130 ms.
 

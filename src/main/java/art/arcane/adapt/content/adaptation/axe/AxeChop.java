@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -35,11 +36,14 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+
+import static art.arcane.adapt.util.data.Metadata.VEIN_MINED;
 
 public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
 
@@ -77,7 +81,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     statLore(v, C.RED, "- ", getDamagePerBlock(getLevelPercent(level)), 3);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
     Action action = e.getAction();
     if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
@@ -87,8 +91,15 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
     if (e.getHand() != null && e.getHand() != EquipmentSlot.HAND) {
       return;
     }
+    if ((action == Action.RIGHT_CLICK_BLOCK && e.useInteractedBlock() == Event.Result.DENY)
+        || (action == Action.RIGHT_CLICK_AIR && e.useItemInHand() == Event.Result.DENY)) {
+      return;
+    }
 
     Player p = e.getPlayer();
+    if (action == Action.RIGHT_CLICK_AIR && J.isFoliaThreading()) {
+      return;
+    }
     if (p.getCooldown(p.getInventory().getItemInMainHand().getType()) > 0) {
       return;
     }
@@ -185,8 +196,15 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
       return false;
     }
 
-    player.breakBlock(last);
-    return true;
+    if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(last.getLocation())) {
+      return false;
+    }
+    VEIN_MINED.add(last);
+    try {
+      return player.breakBlock(last);
+    } finally {
+      VEIN_MINED.remove(last);
+    }
   }
 
 

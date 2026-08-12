@@ -2,7 +2,8 @@
 
 Adapt registers five WorldGuard region flags and optional claim/container protectors. A server without those
 plugins runs without their bridges; install or remove a protection plugin only while the server is stopped so
-Adapt can rebuild its protector registry during enable.
+Adapt can rebuild its protector registry during enable. Indirect container and item-entity actions also pass
+through Bukkit interaction or pickup events before Adapt changes state.
 
 ```
 /rg flag <region> use-adaptations deny
@@ -212,6 +213,38 @@ whose plugin was absent when Adapt enabled.
 Protectors implement `art.arcane.adapt.api.protection.Protector` and are held by `ProtectorRegistry`. Region
 policy aggregation for XP, multipliers, power bonus, and temporary unlocks is separate and uses
 `RegionPolicy` / `RegionPolicySource`.
+
+## Bukkit action-event checks
+
+Rift Access and deferred Rift Conduit actions dispatch a marked `RIGHT_CLICK_BLOCK` interaction for every
+physical container block they act on, including both halves of a double chest, and refuse the action when a
+listener denies block use. An initial Conduit gesture uses its real clicked-block event and probes any other
+physical half. On Paper, indirect item-entity transfers first dispatch `PlayerAttemptPickupItemEvent`; when
+capacity allows, Paper and Spigot then dispatch `PlayerPickupItemEvent` and `EntityPickupItemEvent`.
+Cancellation stops the transfer and leaves the entity or block drop in its normal world path.
+Veinminer waits for the original block to finish breaking, then uses the player's native break action for every
+sibling. Time In A Bottle plans a sapling tree without changing the world, authorizes the complete footprint,
+and fires `StructureGrowEvent` before generation.
+Direct block-state mutations in Chronos crop acceleration, Compost Cascade, Builders Wand, Magic Foundation,
+Seed Sower, and Coral Gardener dispatch marked `BlockBreakEvent` or `BlockPlaceEvent` authorization checks as
+applicable before committing. Deconstruction likewise dispatches the normal pickup-event sequence before it
+replaces a dropped item.
+
+These marked checks supplement the active `ProtectorRegistry` set, so WorldGuard's Adapt-specific flag and
+per-adaptation protector overrides still apply. Adapt's gameplay handlers ignore marked interaction, break,
+and place authorization checks to prevent recursive activation; pickup handlers and other plugins receive the
+ordinary Bukkit events.
+
+A marked interaction asks Bukkit listeners whether the action is allowed; it does not execute vanilla block use.
+Remote inventories therefore do not simulate reach, obstructed-chest, spectator, or vanilla `Lockable` key
+behavior. Use a supported protection plugin when those rules must govern remote access.
+
+On Folia, a marked player event is dispatched only while the player and every target block or item share the
+current owning region. Indirect actions fail closed when that ownership cannot be established; deferred Rift
+Conduit binds and flows therefore do not cross Folia regions or worlds. Air-click ray-target variants are
+disabled on Folia because resolving a ray across a region boundary is not owner-thread safe; direct block-click
+variants remain available. Nearby-entity adaptations run their query only when its complete horizontal search
+footprint belongs to the current region.
 
 ## See also
 

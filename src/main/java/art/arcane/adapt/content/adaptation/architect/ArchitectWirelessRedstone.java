@@ -34,6 +34,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.item.BoundRedstoneTorch;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -69,6 +70,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -77,7 +80,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.Map;
 
 public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWirelessRedstone.Config> {
   private static final int MAX_SCHEDULE_ATTEMPTS = 3;
@@ -96,6 +98,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
    */
   private final ItemCooldowns pulseCd = ItemCooldowns.forGroup(BoundRedstoneTorch.COOLDOWN_GROUP);
   private final ArchitectRedstonePulse pulses = new ArchitectRedstonePulse();
+  private final Set<UUID> pendingPulsePlayers = ConcurrentHashMap.newKeySet();
   private final long runtimeGeneration = NEXT_RUNTIME_GENERATION.incrementAndGet();
 
   public ArchitectWirelessRedstone() {
@@ -140,7 +143,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
   }
 
   @ReceiveCancelledEvents
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.MONITOR)
   public void onPlayerInteract(PlayerInteractEvent event) {
     if (event.getHand() != EquipmentSlot.HAND && event.getHand() != EquipmentSlot.OFF_HAND) {
       return;
@@ -339,15 +342,20 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       event.setUseInteractedBlock(Result.DENY);
     }
 
-    if (hasCooldown(player)) {
+    UUID playerId = player.getUniqueId();
+    if (hasCooldown(player) || !pendingPulsePlayers.add(playerId)) {
       fx(player.getEyeLocation(), FxPriority.TRANSITION)
           .burst(Particles.SMOKE, 1, 0.05D)
           .sound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1F, 0.9F);
       return;
     }
 
-    pulseCd.mark(player, getConfig().cooldown);
-    triggerPulse(player, event.getItem());
+    try {
+      triggerPulse(player, event.getItem());
+    } catch (RuntimeException | Error error) {
+      rejectPulse(player);
+      throw error;
+    }
   }
 
   private boolean hasCooldown(Player player) {
@@ -357,7 +365,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
   private void triggerPulse(Player player, ItemStack item) {
     PulseBinding binding = resolveBinding(BoundRedstoneTorch.getBinding(item));
     if (binding == null) {
-      showPulseFailure(player);
+      rejectPulse(player);
       return;
     }
 
@@ -367,21 +375,25 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
             Adapt.error("Failed to load an Architect Redstone Remote bound chunk at "
                 + binding.target());
             error.printStackTrace();
-            showPulseFailure(player);
+            rejectPulse(player);
             return;
           }
           if (!J.runAt(binding.target(), () -> validateTargetAndSchedulePulse(player, binding))) {
             IllegalStateException failure = new IllegalStateException(
                 "Failed to schedule Architect Redstone Remote target validation at " + binding.target());
             failure.printStackTrace();
-            showPulseFailure(player);
+            rejectPulse(player);
           }
         });
   }
 
   private void validateTargetAndSchedulePulse(Player player, PulseBinding binding) {
-    if (!isRuntimeRegistered() || binding.target().getBlock().getType().isAir()) {
-      showPulseFailure(player);
+    if (!isRuntimeRegistered()
+        || (J.isFoliaThreading()
+        && (!J.isOwnedByCurrentRegion(player)
+        || !J.isOwnedByCurrentRegion(binding.target(), 1.0D, 1.0D)))
+        || binding.target().getBlock().getType().isAir()) {
+      rejectPulse(player);
       return;
     }
 
@@ -389,16 +401,18 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       IllegalStateException failure = new IllegalStateException(
           "Failed to schedule Architect Redstone Remote authorization for " + player.getUniqueId());
       failure.printStackTrace();
-      showPulseFailure(player);
+      rejectPulse(player);
     }
   }
 
   private void authorizeAndSchedulePulse(Player player, PulseBinding binding) {
     if (!isRuntimeRegistered() || !player.isOnline()
+        || (J.isFoliaThreading()
+        && !J.isOwnedByCurrentRegion(binding.target(), 1.0D, 1.0D))
         || resolveInteractContext(player, player.getLocation()) == null
         || !canInteract(player, binding.target())
         || !canBlockPlace(player, binding.target())) {
-      showPulseFailure(player);
+      rejectPulse(player);
       return;
     }
 
@@ -406,7 +420,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       IllegalStateException failure = new IllegalStateException(
           "Failed to schedule Architect Redstone Remote pulse at " + binding.emitter());
       failure.printStackTrace();
-      showPulseFailure(player);
+      rejectPulse(player);
     }
   }
 
@@ -439,21 +453,29 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
    * swapped; only block data flips for the pulse window.
    */
   private void beginPulse(Player player, PulseBinding binding) {
-    if (!isRuntimeRegistered() || !claimEmitterForCurrentRuntime(binding.emitter())) {
-      showPulseFailure(player);
+    if (!isRuntimeRegistered()
+        || (J.isFoliaThreading()
+        && (!J.isOwnedByCurrentRegion(player)
+        || !J.isOwnedByCurrentRegion(binding.target(), 1.0D, 1.0D)))
+        || !claimEmitterForCurrentRuntime(binding.emitter())) {
+      rejectPulse(player);
       return;
     }
 
     Block targetBlock = binding.target().getBlock();
     List<ArchitectRedstonePulse.Snapshot> snapshots = planPulse(targetBlock, binding.face());
     if (snapshots.isEmpty()) {
-      showPulseFailure(player);
+      rejectPulse(player);
+      return;
+    }
+    if (!authorizeSnapshots(player, targetBlock.getWorld(), snapshots)) {
+      rejectPulse(player);
       return;
     }
 
     ArchitectRedstonePulse.Activation activation = pulses.begin(binding.emitter(), snapshots);
     if (activation == null) {
-      showPulseFailure(player);
+      rejectPulse(player);
       return;
     }
 
@@ -461,6 +483,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       try {
         applySnapshots(targetBlock.getWorld(), activation.snapshots(), true);
       } catch (RuntimeException | Error error) {
+        rejectPulse(player);
         pulses.complete(activation);
         applySnapshots(targetBlock.getWorld(), activation.snapshots(), false);
         IllegalStateException failure = new IllegalStateException(
@@ -470,12 +493,26 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       }
     }
 
-    showPulseSuccess(player, binding.target());
+    acceptPulse(player, binding.target());
     if (!J.runAt(binding.target(), () -> finishPulse(activation), ArchitectRedstonePulse.PULSE_TICKS)) {
       finishPulse(activation);
       new IllegalStateException("Failed to schedule Architect Redstone Remote cleanup at "
           + binding.emitter()).printStackTrace();
     }
+  }
+
+  private boolean authorizeSnapshots(Player player, World world,
+                                     List<ArchitectRedstonePulse.Snapshot> snapshots) {
+    for (ArchitectRedstonePulse.Snapshot snapshot : snapshots) {
+      Block block = world.getBlockAt(snapshot.x(), snapshot.y(), snapshot.z());
+      Location location = block.getLocation();
+      if (!canInteract(player, location)
+          || !canBlockPlace(player, location)
+          || !ProtectionEventProbe.attemptBlockUse(player, block)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private List<ArchitectRedstonePulse.Snapshot> planPulse(Block block, BlockFace face) {
@@ -636,6 +673,29 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     J.runEntity(player, () -> fx(player.getLocation(), FxPriority.TRANSITION)
         .burst(Particles.SMOKE, 1, 0.05D)
         .sound(Sound.BLOCK_REDSTONE_TORCH_BURNOUT, 0.1F, 0.9F));
+  }
+
+  private void acceptPulse(Player player, Location target) {
+    UUID playerId = player.getUniqueId();
+    if (J.runEntity(player, () -> {
+      pendingPulsePlayers.remove(playerId);
+      if (!player.isOnline()) {
+        return;
+      }
+      pulseCd.mark(player, getConfig().cooldown);
+      showPulseSuccess(player, target);
+    })) {
+      return;
+    }
+
+    pendingPulsePlayers.remove(playerId);
+    new IllegalStateException("Failed to schedule Architect Redstone Remote success for "
+        + playerId).printStackTrace();
+  }
+
+  private void rejectPulse(Player player) {
+    pendingPulsePlayers.remove(player.getUniqueId());
+    showPulseFailure(player);
   }
 
   private boolean restoreEmitter(World world, ArchitectRedstonePulse.Restoration restoration) {
@@ -850,6 +910,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
   @Override
   public void unregister() {
     super.unregister();
+    pendingPulsePlayers.clear();
     long deadlineNanos = System.nanoTime()
         + TimeUnit.MILLISECONDS.toNanos(SHUTDOWN_RESTORATION_TIMEOUT_MILLIS);
     List<ShutdownRestorationTask> restorations = new ArrayList<>();

@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
@@ -39,6 +40,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -212,7 +214,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     double factor = getLevelPercent(level);
     double foodCost = getFoodCost(factor);
     AdaptPlayer adaptPlayer = getPlayer(p);
-    if (adaptPlayer == null || !adaptPlayer.canConsumeFood(foodCost, 10)) {
+    if (adaptPlayer == null) {
       nextCheckAt.put(id, now + IDLE_CHECK_MILLIS);
       queuePlayer(id);
       return;
@@ -314,55 +316,55 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
       }
       mutations.poll();
       queuedMutations.decrementAndGet();
-      Player p = mutation.pulse.player;
-      if (!J.runEntity(p, () -> reserveFoodAndMutate(mutation))) {
+      if (!J.runAt(mutation.location, () -> applyMutation(mutation))) {
         completeGrowthSample(mutation.pulse, 0);
       }
     }
   }
 
-  private void reserveFoodAndMutate(GrowthMutation mutation) {
+  private void applyMutation(GrowthMutation mutation) {
     Player p = mutation.pulse.player;
-    if (!p.isOnline()) {
+    if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) || !p.isOnline()) {
       completeGrowthSample(mutation.pulse, 0);
       return;
     }
+
     AdaptPlayer adaptPlayer = getPlayer(p);
     if (adaptPlayer == null) {
       completeGrowthSample(mutation.pulse, 0);
       return;
     }
-    int paidIncrements = 0;
-    while (paidIncrements < mutation.increments && payHungerCost(adaptPlayer.getPlayer(), "hunger",
-        (int) Math.ceil(mutation.foodCost), () -> adaptPlayer.consumeFood(mutation.foodCost, 10))) {
-      paidIncrements++;
-    }
-    if (paidIncrements <= 0) {
-      completeGrowthSample(mutation.pulse, 0);
-      return;
-    }
 
-    int reserved = paidIncrements;
-    if (!J.runAt(mutation.location, () -> applyMutation(mutation, reserved))) {
-      completeGrowthSample(mutation.pulse, 0);
-    }
-  }
-
-  private void applyMutation(GrowthMutation mutation, int reserved) {
     Block block = mutation.location.getBlock();
-    if (!(block.getBlockData() instanceof Ageable ageable)) {
+    if (!(block.getBlockData() instanceof Ageable ageable)
+        || ageable.getAge() >= ageable.getMaximumAge()
+        || !canInteract(p, block.getLocation())
+        || !canBlockPlace(p, block.getLocation())
+        || !ProtectionEventProbe.attemptBlockUse(p, block)
+        || !ProtectionEventProbe.attemptBlockPlaceProbe(p, block)) {
       completeGrowthSample(mutation.pulse, 0);
       return;
     }
-    int grown = Math.min(reserved, ageable.getMaximumAge() - ageable.getAge());
+
+    int grown = 0;
+    while (grown < mutation.increments) {
+      if (!(block.getBlockData() instanceof Ageable current)
+          || current.getAge() >= current.getMaximumAge()
+          || !payHungerCost(p, "hunger", (int) Math.ceil(mutation.foodCost),
+          () -> adaptPlayer.consumeFood(mutation.foodCost, 10))) {
+        break;
+      }
+      current.setAge(current.getAge() + 1);
+      block.setBlockData(current, true);
+      grown++;
+    }
+
     if (grown <= 0) {
       completeGrowthSample(mutation.pulse, 0);
       return;
     }
-
-    ageable.setAge(ageable.getAge() + grown);
-    block.setBlockData(ageable, true);
-    if (ageable.getAge() >= ageable.getMaximumAge()) {
+    BlockData finalData = block.getBlockData();
+    if (finalData instanceof Ageable current && current.getAge() >= current.getMaximumAge()) {
       fx(block.getLocation().add(0.5, 1.0, 0.5), FxPriority.AMBIENT)
           .dustRing(Color.LIME, 0.6D, 10, 0.9F)
           .particle(Particle.HAPPY_VILLAGER, 2, 0, 0, 0, 0.1D, 0.02D)
@@ -378,7 +380,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
   private void completeGrowthSample(GrowthPulse pulse, int grown) {
     if (grown > 0) {
-      pulse.grown.addAndGet(grown);
+      addStat(pulse.player, "herbalism.growth-aura.blocks-grown", grown);
     }
     if (pulse.remaining.decrementAndGet() != 0) {
       return;
@@ -408,9 +410,6 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
 
   private void finishGrowthPulse(GrowthPulse pulse) {
     pendingPulses.remove(pulse.player.getUniqueId());
-    if (pulse.player.isOnline() && pulse.grown.get() > 0) {
-      addStat(pulse.player, "herbalism.growth-aura.blocks-grown", pulse.grown.get());
-    }
   }
 
   private void queuePlayer(UUID id) {
@@ -431,7 +430,6 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
   private static final class GrowthPulse {
     private final Player player;
     private final AtomicInteger remaining;
-    private final AtomicInteger grown = new AtomicInteger();
 
     private GrowthPulse(Player player, int samples) {
       this.player = player;

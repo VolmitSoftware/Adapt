@@ -64,6 +64,8 @@ What each adaptation does and how a player activates it. TOML overrides live at 
 ### Ore Chisel (`pickaxe-chisel`)
 
 Right Click Ores to Chisel more ore out of them, at a severe durability cost.
+The ore must pass a cancellable block-break attempt before Chisel applies cooldown, tool wear, bonus drops, statistics, effects, or its possible block break.
+On Folia, Chisel requires a direct block click and centers its effects on that authorized block without a second ray trace.
 
 **Runtime entry points:** on block/entity/air interact (click); periodic evaluation every 7433 ms.
 
@@ -102,6 +104,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Veinminer (`pickaxe-veinminer`)
 
 Break connected vanilla ore veins and clusters.
+The original block must finish its normal break before the chain starts. Every vanilla or HiddenOre-linked
+sibling then uses the player's native break attempt, so ordinary `BlockBreakEvent` cancellation, drops,
+Autosmelt, and Drop-To-Inventory run normally; only successful breaks contribute to statistics and effects.
 
 **Runtime entry points:** when breaking blocks; periodic evaluation every 8484 ms.
 
@@ -163,6 +168,8 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Pickaxe Drop-To-Inventory (`pickaxe-drop-to-inventory`)
 
 Blocks you break send their drops straight into your inventory.
+Each spawned block-drop entity must pass Bukkit's normal pickup events before it leaves the block's drop list;
+a denied pickup remains on the original world-drop path.
 
 **Runtime entry points:** on `BlockDropItemEvent`; periodic evaluation every 7944 ms.
 
@@ -266,6 +273,8 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Tunnel Bore (`pickaxe-tunnel-bore`)
 
 Sneak and mine stone-type blocks to bore out a whole tunnel face at once.
+The bonus face waits one tick and runs only after the original block finishes its normal break. Each bonus block
+is then revalidated and must pass a cancellable block-break attempt immediately before removal; denied or failed breaks consume no bonus durability and do not contribute to statistics.
 
 **Runtime entry points:** when breaking blocks; periodic evaluation every 8123 ms.
 

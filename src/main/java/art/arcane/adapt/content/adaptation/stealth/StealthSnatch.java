@@ -134,13 +134,19 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     }
 
     double range = getRange(factor);
+    Location playerLocation = player.getLocation();
+    if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(playerLocation, range, range)) {
+      return;
+    }
     List<Item> items = new ArrayList<>(MAX_ITEMS_PER_PULSE);
     int inspected = 0;
-    for (Entity droppedItemEntity : player.getWorld().getNearbyEntities(player.getLocation(), range, range / 1.5, range)) {
+    for (Entity droppedItemEntity : player.getWorld().getNearbyEntities(playerLocation, range, range / 1.5, range)) {
       if (++inspected > MAX_CANDIDATES_PER_PULSE || items.size() >= MAX_ITEMS_PER_PULSE) {
         break;
       }
-      if (droppedItemEntity instanceof Item droppedItem && canSnatchItem(player, droppedItem)) {
+      if (droppedItemEntity instanceof Item droppedItem
+          && (!J.isFoliaThreading() || J.isOwnedByCurrentRegion(droppedItem))
+          && canSnatchItem(player, droppedItem)) {
         items.add(droppedItem);
       }
     }
@@ -148,11 +154,14 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     int fxBudget = 3;
     int snatched = 0;
     for (Item droppedItemEntity : items) {
+      if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(droppedItemEntity)) {
+        continue;
+      }
       if (holds.containsKey(droppedItemEntity.getEntityId())) {
         continue;
       }
 
-      double dist = droppedItemEntity.getLocation().distanceSquared(player.getLocation());
+      double dist = droppedItemEntity.getLocation().distanceSquared(playerLocation);
       if (dist >= range * range) {
         continue;
       }

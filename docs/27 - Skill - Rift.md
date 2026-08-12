@@ -91,7 +91,12 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 
 ### Remote Access (`rift-access`)
 
-Craft a Reliquary Portkey (ender pearl + compass), bind it to a container, and use it to open that container from anywhere.
+Craft a Reliquary Portkey (ender pearl + compass), bind it to a container, and use it to open that container remotely.
+Binding and every remote open must pass native container protectors plus Bukkit right-click-block events for
+every physical container block; either half can deny a double chest. A remote double-chest session indexes both
+blocks and every unique chunk, retaining those chunk tickets only until the view closes or the attempt fails.
+On Folia, the player and every physical container block must share the current owning region, so a remote open
+fails closed when the target is in another region; Portkey binding requires a direct block click there.
 
 **Runtime entry points:** on block/entity/air interact (click); on `BlockBurnEvent`; on `BlockPistonRetractEvent`; on `BlockPistonExtendEvent`; on `BlockExplodeEvent`; on `EntityExplodeEvent`; when breaking blocks; on `InventoryCloseEvent`.
 
@@ -372,6 +377,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Void Magnet (`rift-void-magnet`)
 
 Sneak to pull nearby item drops into your ender chest first, then inventory overflow.
+Each candidate must pass Bukkit's normal pickup-event sequence using the combined remaining capacity of the
+ender chest and permitted player-inventory overflow; cancellation leaves the item entity unchanged. On Folia a
+magnet pulse scans only when its full footprint belongs to the current region.
 
 **Runtime entry points:** on sneak toggle.
 
@@ -492,7 +500,12 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 
 ### Rift Conduit (`rift-conduit`)
 
-Sneak-right-click a container with an ender pearl to capture a conduit taglock, then right-click a second container to link them. Items left in one linked container flow into the other when you close it. At max level the two containers can even be in different dimensions.
+Sneak-right-click a container with an ender pearl to capture a conduit taglock, then right-click a second container to link them. Items left in one linked container flow into the other when you close it. At max level the two containers can be in different dimensions on a non-regionized server.
+Capture and binding honor the original click denial and both physical halves of a double chest. Deferred bind
+writes and each flow source and destination reauthorize container use on their owning region; if the partner is
+denied after extraction, cannot load, or cannot accept a scheduled delivery, the items return to the source.
+Folia fails a deferred bind or flow closed unless the player and endpoint share the current owning region, so
+cross-region and cross-dimension conduit transfers are unavailable there.
 
 **Runtime entry points:** on block/entity/air interact (click); on `InventoryCloseEvent`.
 
@@ -534,7 +547,7 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 
 ## Support classes (not player adaptations)
 
-- `RiftAccessViewRegistry` — owns remote-container sessions and the chunk references held while each view remains open.
+- `RiftAccessViewRegistry` — owns remote-container sessions and the block and chunk references held for every physical container part while each view remains open.
 - `RiftPearls` — distinguishes plain ender pearls from pearls already claimed by a Rift adaptation.
 
 ## See also

@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerLink;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -45,10 +46,10 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayDeque;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static art.arcane.adapt.util.data.Metadata.VEIN_MINED;
@@ -105,9 +106,6 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
 
     Block block = e.getBlock();
     BlockData leafData = block.getBlockData();
-    fx(p.getEyeLocation(), FxPriority.TRAIL)
-        .line(Particles.VILLAGER_HAPPY, block.getX() + 0.5D, block.getY() + 0.5D, block.getZ() + 0.5D, 5)
-        .sound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 1.2F);
     Set<Block> blockMap = new HashSet<>();
     Deque<Block> stack = new ArrayDeque<>();
     Set<Block> queued = new HashSet<>();
@@ -129,7 +127,8 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
               continue;
             }
             Block b = currentBlock.getRelative(x, y, z);
-            if (b.getType() != block.getType()
+            if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(b.getLocation()))
+                || b.getType() != blockType
                 || blockMap.contains(b)
                 || !queued.add(b)) {
               continue;
@@ -144,40 +143,81 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
       }
     }
 
-    int leavesBroken = blockMap.size();
-    J.runEntity(p, () -> {
-      boolean toInventory = getActiveSiblingBlockBreakLevel(
-          p,
-          "axe-drop-to-inventory",
-          block.getLocation()
-      ) > 0;
-      for (Block b : blockMap) {
-        VEIN_MINED.add(b);
-        if (toInventory) {
-          Collection<ItemStack> items = b.getDrops(tool, p);
-          for (ItemStack i : items) {
-            HashMap<Integer, ItemStack> extra = p.getInventory().addItem(i);
-            extra.values().forEach(item -> p.getWorld().dropItem(p.getLocation(), item));
-          }
-          b.setType(Material.AIR);
-        } else {
-          b.breakNaturally(tool);
-        }
-        VEIN_MINED.remove(b);
-      }
+    Set<Block> siblings = new HashSet<>(blockMap);
+    siblings.remove(block);
+    boolean scheduled = J.runEntity(
+        p,
+        () -> mineLeaves(p, block, blockType, leafData, siblings, radius),
+        1
+    );
+    if (!scheduled) {
       VEIN_MINED.remove(block);
-    });
+    }
+  }
+
+  private void mineLeaves(Player player, Block origin, Material blockType, BlockData leafData,
+                          Set<Block> targets, int radius) {
+    Location originLocation = origin.getLocation();
+    if (!player.isOnline()
+        || player.getWorld() != origin.getWorld()
+        || (J.isFoliaThreading()
+        && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(originLocation)))
+        || origin.getType() == blockType) {
+      VEIN_MINED.remove(origin);
+      return;
+    }
+
+    ItemStack tool = player.getInventory().getItemInMainHand();
+    if (!isAxe(tool)) {
+      VEIN_MINED.remove(origin);
+      return;
+    }
+
+    fx(player.getEyeLocation(), FxPriority.TRAIL)
+        .line(Particles.VILLAGER_HAPPY, origin.getX() + 0.5D, origin.getY() + 0.5D, origin.getZ() + 0.5D, 5)
+        .sound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.5F, 1.2F);
+    List<Block> brokenBlocks = new ArrayList<>(targets.size() + 1);
+    brokenBlocks.add(origin);
+    try {
+      for (Block target : targets) {
+        Location location = target.getLocation();
+        if ((J.isFoliaThreading()
+            && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(location)))
+            || target.getType() != blockType
+            || !canBlockBreak(player, location)) {
+          continue;
+        }
+
+        VEIN_MINED.add(target);
+        try {
+          if (ProtectionEventProbe.attemptBlockBreak(player, target)) {
+            brokenBlocks.add(target);
+          }
+        } finally {
+          VEIN_MINED.remove(target);
+        }
+      }
+    } finally {
+      VEIN_MINED.remove(origin);
+    }
+
+    emitLeafFeedback(player, origin, leafData, brokenBlocks, radius);
+  }
+
+  private void emitLeafFeedback(Player player, Block origin, BlockData leafData,
+                                List<Block> brokenBlocks, int radius) {
+    int leavesBroken = brokenBlocks.size();
     if (leavesBroken > 0) {
-      addStat(p, "axe.leaf-veinminer.leaves-broken", leavesBroken);
+      addStat(player, "axe.leaf-veinminer.leaves-broken", leavesBroken);
       double sumX = 0.0D;
       double sumY = 0.0D;
       double sumZ = 0.0D;
-      for (Block selected : blockMap) {
+      for (Block selected : brokenBlocks) {
         sumX += selected.getX();
         sumY += selected.getY();
         sumZ += selected.getZ();
       }
-      Location center = new Location(block.getWorld(), (sumX / leavesBroken) + 0.5D, (sumY / leavesBroken) + 0.5D, (sumZ / leavesBroken) + 0.5D);
+      Location center = new Location(origin.getWorld(), (sumX / leavesBroken) + 0.5D, (sumY / leavesBroken) + 0.5D, (sumZ / leavesBroken) + 0.5D);
       double extent = Math.min(3.0D, 1.0D + (radius * 0.35D));
       timeline(center)
           .duration(8)

@@ -62,6 +62,7 @@ import art.arcane.adapt.content.skill.SkillUnarmed;
 import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.collection.KMap;
@@ -185,6 +186,10 @@ public class SkillRegistry extends TickedObject {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
+
     Player p = e.getPlayer();
 
     boolean commonConditions = p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock() != null;

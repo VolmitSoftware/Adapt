@@ -344,6 +344,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Fetch (`tame-fetch`)
 
 Your tamed wolves gather nearby dropped items and bring them straight to you.
+The owner performs Bukkit's normal pickup-event sequence when a wolf reaches a drop; cancellation aborts that
+fetch before the item entity is removed. On Folia wolf and item searches run only when their full footprint
+belongs to the current region.
 
 **Runtime entry points:** periodic evaluation every 1500 ms.
 

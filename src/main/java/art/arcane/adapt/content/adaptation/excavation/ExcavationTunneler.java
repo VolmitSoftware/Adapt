@@ -25,6 +25,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -97,16 +99,9 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
     boolean facingX = !horizontal && isFacingX(yaw);
 
     Block origin = e.getBlock();
-    Location originCenter = origin.getLocation().add(0.5, 0.5, 0.5);
-    List<int[]> sweepCells = new ArrayList<>(PLANE_OFFSETS.length);
-    List<BlockData> sweepData = new ArrayList<>(PLANE_OFFSETS.length);
-    int broken = 0;
-    boolean durabilityStop = false;
+    Material originType = origin.getType();
+    List<int[]> targetOffsets = new ArrayList<>(PLANE_OFFSETS.length);
     for (int[] offset : PLANE_OFFSETS) {
-      if (broken >= bonus) {
-        break;
-      }
-
       int dx;
       int dy;
       int dz;
@@ -125,23 +120,76 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
       }
 
       Block target = origin.getRelative(dx, dy, dz);
-      if (!isShovelable(target.getType())) {
+      Location targetLocation = target.getLocation();
+      if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(targetLocation))
+          || !isShovelable(target.getType())) {
         continue;
       }
 
-      if (!canBlockBreak(p, target.getLocation())) {
+      if (!canBlockBreak(p, targetLocation)) {
         continue;
       }
 
-      if (!applyDurability(p, hand, getConfig().durabilityCostPerBonusBlock)) {
+      targetOffsets.add(new int[]{dx, dy, dz});
+    }
+
+    if (targetOffsets.isEmpty()) {
+      return;
+    }
+
+    J.runEntity(p, () -> breakTunnelPlane(p, origin, originType, bonus, targetOffsets), 1);
+  }
+
+  private void breakTunnelPlane(Player player, Block origin, Material originType, int bonus,
+                                List<int[]> targetOffsets) {
+    Location originLocation = origin.getLocation();
+    if (!player.isOnline()
+        || player.getWorld() != origin.getWorld()
+        || (J.isFoliaThreading()
+        && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(originLocation)))
+        || origin.getType() == originType) {
+      return;
+    }
+
+    ItemStack hand = player.getInventory().getItemInMainHand();
+    if (!isShovel(hand)) {
+      return;
+    }
+
+    Location originCenter = originLocation.add(0.5, 0.5, 0.5);
+    List<int[]> sweepCells = new ArrayList<>(targetOffsets.size());
+    List<BlockData> sweepData = new ArrayList<>(targetOffsets.size());
+    int broken = 0;
+    boolean durabilityStop = false;
+    for (int[] offset : targetOffsets) {
+      if (broken >= bonus) {
+        break;
+      }
+
+      Block target = origin.getRelative(offset[0], offset[1], offset[2]);
+      Location targetLocation = target.getLocation();
+      if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(targetLocation))
+          || !isShovelable(target.getType())
+          || !canBlockBreak(player, targetLocation)) {
+        continue;
+      }
+
+      if (!canApplyDurability(hand, getConfig().durabilityCostPerBonusBlock)) {
         durabilityStop = true;
         break;
       }
 
-      sweepCells.add(new int[]{dx, dy, dz});
-      sweepData.add(target.getBlockData());
-      target.breakNaturally(hand);
-      broken++;
+      if (!ProtectionEventProbe.attemptBlockBreakProbe(player, target)) {
+        continue;
+      }
+
+      BlockData blockData = target.getBlockData();
+      if (target.breakNaturally(hand)) {
+        applyDurability(player, hand, getConfig().durabilityCostPerBonusBlock);
+        sweepCells.add(offset);
+        sweepData.add(blockData);
+        broken++;
+      }
     }
 
     if (durabilityStop) {
@@ -155,8 +203,8 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
     }
 
     planeSweep(originCenter, sweepCells, sweepData, broken);
-    addStat(p, "excavation.tunneler.blocks-tunneled", broken);
-    xp(p, broken * getConfig().xpPerBonusBlock);
+    addStat(player, "excavation.tunneler.blocks-tunneled", broken);
+    xp(player, broken * getConfig().xpPerBonusBlock);
   }
 
   private void planeSweep(Location origin, List<int[]> cells, List<BlockData> data, int broken) {
@@ -201,6 +249,18 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
     hand.setItemMeta(damageable);
     p.getInventory().setItemInMainHand(hand);
     return true;
+  }
+
+  private boolean canApplyDurability(ItemStack hand, int cost) {
+    if (cost <= 0) {
+      return true;
+    }
+
+    if (!(hand.getItemMeta() instanceof Damageable damageable)) {
+      return false;
+    }
+
+    return damageable.getDamage() + cost < hand.getType().getMaxDurability();
   }
 
   private boolean isShovelable(Material type) {

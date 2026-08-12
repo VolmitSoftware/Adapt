@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.skill.SkillHerbalism;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.data.Cuboid;
@@ -37,6 +38,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -89,14 +91,21 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     return lvl - getConfig().radiusSub;
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
     Action action = e.getAction();
     if ((action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) || e.getHand() != EquipmentSlot.HAND) {
       return;
     }
+    if ((action == Action.RIGHT_CLICK_BLOCK && e.useInteractedBlock() == Event.Result.DENY)
+        || (action == Action.RIGHT_CLICK_AIR && e.useItemInHand() == Event.Result.DENY)) {
+      return;
+    }
 
     Player p = e.getPlayer();
+    if (action == Action.RIGHT_CLICK_AIR && J.isFoliaThreading()) {
+      return;
+    }
     int lvl = getActiveLevel(p);
     if (lvl <= 0) {
       return;
@@ -115,25 +124,43 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
       return;
     }
 
-    if (!canBlockBreak(p, target.getLocation()) || !canBlockPlace(p, target.getLocation())) {
+    if (!canBlockBreak(p, target.getLocation())) {
       return;
     }
 
     ItemStack right = p.getInventory().getItemInMainHand();
     ItemStack left = p.getInventory().getItemInOffHand();
     ItemStack harvestTool;
+    Material cooldownMaterial;
+    boolean offHand;
 
     if (isTool(left) && isHoe(left) && !p.hasCooldown(left.getType())) {
       harvestTool = left.clone();
-      damageOffHand(p, 1 + ((lvl - 1) * 7));
-      p.setCooldown(left.getType(), getCooldown(getLevelPercent(p), lvl));
+      cooldownMaterial = left.getType();
+      offHand = true;
     } else if (isTool(right) && isHoe(right) && !p.hasCooldown(right.getType())) {
       harvestTool = right.clone();
-      damageHand(p, 1 + ((lvl - 1) * 7));
-      p.setCooldown(right.getType(), getCooldown(getLevelPercent(p), lvl));
+      cooldownMaterial = right.getType();
+      offHand = false;
     } else {
       return;
     }
+
+    double footprint = Math.max(1.0D, getRadius(lvl));
+    if (J.isFoliaThreading()
+        && !J.isOwnedByCurrentRegion(target.getLocation(), footprint, footprint)) {
+      return;
+    }
+    if (!hit(p, target, harvestTool)) {
+      return;
+    }
+
+    if (offHand) {
+      damageOffHand(p, 1 + ((lvl - 1) * 7));
+    } else {
+      damageHand(p, 1 + ((lvl - 1) * 7));
+    }
+    p.setCooldown(cooldownMaterial, getCooldown(getLevelPercent(p), lvl));
 
     if (lvl > 1) {
       Cuboid c = new Cuboid(target.getLocation().clone().add(0.5, 0.5, 0.5));
@@ -145,86 +172,102 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
       c = c.expand(Cuboid.CuboidDirection.West, Math.round(getRadius(lvl)));
 
       for (Block i : c) {
-        J.runEntity(p, () -> hit(p, i, harvestTool), M.irand(1, 6));
+        if (!i.equals(target)) {
+          J.runAt(i.getLocation(), () -> hit(p, i, harvestTool), M.irand(1, 6));
+        }
       }
 
-      double footprint = Math.max(1.0D, getRadius(lvl));
       fx(target.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
           .dustRing(Color.LIME, footprint, Math.min(28, (int) Math.round(footprint * 8)), 1.0F)
           .chord(Sound.ITEM_SHOVEL_FLATTEN, 1F, 0.66F, Sound.BLOCK_BAMBOO_SAPLING_BREAK, 1F, 0.66F);
-    } else {
-      hit(p, target, harvestTool);
     }
   }
 
-  private void hit(Player p, Block b, ItemStack harvestTool) {
-    if (b != null
-        && b.getBlockData() instanceof Ageable aa
-        && getActiveBlockBreakLevel(p, b.getLocation()) > 0) {
-      if (aa.getAge() != aa.getMaximumAge()) {
-        return;
-      }
+  private boolean hit(Player p, Block b, ItemStack harvestTool) {
+    if (b == null || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p))) {
+      return false;
+    }
+    if (!(b.getBlockData() instanceof Ageable ageable)
+        || ageable.getAge() != ageable.getMaximumAge()
+        || getActiveBlockBreakLevel(p, b.getLocation()) <= 0
+        || !canBlockBreak(p, b.getLocation())
+        || !ProtectionEventProbe.attemptBlockBreakProbe(p, b)) {
+      return false;
+    }
+    if (!(b.getBlockData() instanceof Ageable current)
+        || current.getAge() != current.getMaximumAge()) {
+      return false;
+    }
+    Material cropType = b.getType();
 
-      if (!canBlockBreak(p, b.getLocation()) || !canBlockPlace(p, b.getLocation())) {
-        return;
-      }
+    boolean dropToInventory = getActiveSiblingBlockBreakLevel(
+        p,
+        "herbalism-drop-to-inventory",
+        b.getLocation()
+    ) > 0;
+    List<ItemStack> items = new ArrayList<>(b.getDrops(harvestTool, p));
+    boolean seedConsumed = consumeSeed(items, current.getPlacementMaterial());
+    if (seedConsumed && (!canBlockPlace(p, b.getLocation())
+        || !ProtectionEventProbe.attemptBlockPlaceProbe(p, b))) {
+      return false;
+    }
+    if (b.getType() != cropType
+        || !(b.getBlockData() instanceof Ageable commitData)
+        || commitData.getAge() != commitData.getMaximumAge()) {
+      return false;
+    }
 
-      xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * aa.getAge());
+    xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).harvestPerAgeXP * commitData.getAge());
+    if (seedConsumed) {
       xp(p, b.getLocation().clone().add(0.5, 0.5, 0.5), ((SkillHerbalism.Config) getSkill().getConfig()).plantCropSeedsXP);
-      boolean dropToInventory = getActiveSiblingBlockBreakLevel(
-          p,
-          "herbalism-drop-to-inventory",
-          b.getLocation()
-      ) > 0;
-      List<ItemStack> items = new ArrayList<>(b.getDrops(harvestTool, p));
-      boolean seedConsumed = consumeSeed(items, b.getBlockData().getPlacementMaterial());
-      if (dropToInventory) {
-        boolean caught = false;
-        for (ItemStack i : items) {
-          if (!isItem(i) || i.getAmount() <= 0) {
-            continue;
-          }
-          Map<Integer, ItemStack> overflow = p.getInventory().addItem(i);
-          if (overflow.isEmpty()) {
-            caught = true;
-          } else {
-            overflow.values().forEach(rest -> p.getWorld().dropItem(p.getLocation(), rest));
-          }
+    }
+    if (dropToInventory) {
+      boolean caught = false;
+      for (ItemStack i : items) {
+        if (!isItem(i) || i.getAmount() <= 0) {
+          continue;
         }
-        if (caught) {
-          fx(p.getEyeLocation().subtract(0, 0.4, 0), FxPriority.TRANSITION)
-              .chord(Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5F, 1.6F, Sound.BLOCK_CALCITE_HIT, 0.3F, 1.2F);
-        }
-      } else {
-        for (ItemStack i : items) {
-          if (!isItem(i) || i.getAmount() <= 0) {
-            continue;
-          }
-          p.getWorld().dropItemNaturally(b.getLocation().add(0.5, 0.5, 0.5), i);
+        Map<Integer, ItemStack> overflow = p.getInventory().addItem(i);
+        if (overflow.isEmpty()) {
+          caught = true;
+        } else {
+          overflow.values().forEach(rest -> p.getWorld().dropItem(p.getLocation(), rest));
         }
       }
-
-      if (seedConsumed) {
-        aa.setAge(0);
-        J.runAt(b.getLocation(), () -> b.setBlockData(aa, true));
-        addStat(p, "harvest.planted", 1);
-        addStat(p, "herbalism.replant.crops-replanted", 1);
-      } else {
-        J.runAt(b.getLocation(), () -> b.setType(Material.AIR, true));
+      if (caught) {
+        fx(p.getEyeLocation().subtract(0, 0.4, 0), FxPriority.TRANSITION)
+            .chord(Sound.BLOCK_NOTE_BLOCK_CHIME, 0.5F, 1.6F, Sound.BLOCK_CALCITE_HIT, 0.3F, 1.2F);
       }
-
-      addStat(p, "harvest.blocks", 1);
-
-      fx(b.getLocation().add(0.5, 0.6, 0.5), FxPriority.TRANSITION)
-          .dustRing(Color.LIME, 0.4D, 8, 0.8F)
-          .particle(Particle.HAPPY_VILLAGER, 3, 0, 0, 0, 0.15D, 0.02D)
-          .particle(Particle.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.02D);
-
-      if (M.r(1D / (double) getLevel(p))) {
-        fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
-            .sound(Sound.ITEM_CROP_PLANT, 1F, 0.7F);
+    } else {
+      for (ItemStack i : items) {
+        if (!isItem(i) || i.getAmount() <= 0) {
+          continue;
+        }
+        p.getWorld().dropItemNaturally(b.getLocation().add(0.5, 0.5, 0.5), i);
       }
     }
+
+    if (seedConsumed) {
+      commitData.setAge(0);
+      b.setBlockData(commitData, true);
+      addStat(p, "harvest.planted", 1);
+      addStat(p, "herbalism.replant.crops-replanted", 1);
+    } else {
+      b.setType(Material.AIR, true);
+    }
+
+    addStat(p, "harvest.blocks", 1);
+
+    fx(b.getLocation().add(0.5, 0.6, 0.5), FxPriority.TRANSITION)
+        .dustRing(Color.LIME, 0.4D, 8, 0.8F)
+        .particle(Particle.HAPPY_VILLAGER, 3, 0, 0, 0, 0.15D, 0.02D)
+        .particle(Particle.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.02D);
+
+    if (M.r(1D / (double) getLevel(p))) {
+      fx(b.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
+          .sound(Sound.ITEM_CROP_PLANT, 1F, 0.7F);
+    }
+    return true;
   }
 
   private boolean consumeSeed(List<ItemStack> drops, Material seedType) {

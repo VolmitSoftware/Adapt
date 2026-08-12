@@ -55,6 +55,9 @@ What each adaptation does and how a player activates it. TOML overrides live at 
 ### Deconstruction (`crafting-deconstruction`)
 
 Deconstruct blocks & items into salvageable base components.
+The targeted dropped item must be eligible for that player and pass Bukkit's normal pickup-event sequence
+before it is replaced; denial leaves the item, shears, XP, and statistics unchanged. Folia requires the player
+and item entity to share the current owning region and the complete six-block ray footprint to be owned.
 
 **Runtime entry points:** on block/entity/air interact (click); periodic evaluation every 5590 ms.
 

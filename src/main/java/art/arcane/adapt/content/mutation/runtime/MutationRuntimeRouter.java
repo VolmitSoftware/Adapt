@@ -5,6 +5,7 @@ import art.arcane.adapt.api.mutation.MutationEventClaims;
 import art.arcane.adapt.api.mutation.MutationSnapshot;
 import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.potion.AdaptBrewCompleteEvent;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -130,6 +131,10 @@ public final class MutationRuntimeRouter implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerInteractEvent event) {
+    if (ProtectionEventProbe.isActive(event)) {
+      return;
+    }
+
     if (!eligible(event.getPlayer())) {
       return;
     }
@@ -234,11 +239,17 @@ public final class MutationRuntimeRouter implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockBreakEvent event) {
+    if (ProtectionEventProbe.isActive(event)) {
+      return;
+    }
     world.onBlockBreak(event);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onSuccessful(BlockBreakEvent event) {
+    if (ProtectionEventProbe.isActive(event)) {
+      return;
+    }
     if (eligible(event.getPlayer())) {
       world.onSuccessfulBlockBreak(event);
     }
@@ -246,6 +257,9 @@ public final class MutationRuntimeRouter implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent event) {
+    if (ProtectionEventProbe.isActive(event)) {
+      return;
+    }
     if (eligible(event.getPlayer())) {
       world.onBlockPlace(event);
     }

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -26,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.world.LoadedChunkAccess;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -170,18 +172,13 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
       int y = center.getBlockY() + random.nextInt(-2, 3);
       int z = center.getBlockZ() + random.nextInt(-radius, radius + 1);
       Location target = new Location(world, x, y, z);
-      if (!canInteract(player, target)) {
-        acceleration.complete(false);
-        continue;
-      }
-
-      if (!J.runAt(target, () -> acceleration.complete(accelerateBlock(target, level)))) {
+      if (!J.runAt(target, () -> acceleration.complete(accelerateBlock(player, target, level)))) {
         acceleration.complete(false);
       }
     }
   }
 
-  private boolean accelerateBlock(Location target, int level) {
+  private boolean accelerateBlock(Player player, Location target, int level) {
     World world = target.getWorld();
     if (world == null) {
       return false;
@@ -199,7 +196,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     }
 
     if (type == Material.FURNACE || type == Material.BLAST_FURNACE || type == Material.SMOKER) {
-      if (block.getState() instanceof Furnace furnace && accelerateFurnace(furnace, level)) {
+      if (block.getState() instanceof Furnace furnace && accelerateFurnace(player, block, furnace, level)) {
         emitStationFx(world, target.getBlockX(), target.getBlockY(), target.getBlockZ(), true);
         return true;
       }
@@ -207,7 +204,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     }
 
     if (type == Material.BREWING_STAND) {
-      if (block.getState() instanceof BrewingStand stand && accelerateBrewingStand(stand, level)) {
+      if (block.getState() instanceof BrewingStand stand && accelerateBrewingStand(player, block, stand, level)) {
         emitStationFx(world, target.getBlockX(), target.getBlockY(), target.getBlockZ(), false);
         return true;
       }
@@ -218,6 +215,11 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     if (!(data instanceof Ageable ageable)
         || ageable.getAge() >= ageable.getMaximumAge()
         || ThreadLocalRandom.current().nextDouble() >= getGrowChance(level)) {
+      return false;
+    }
+    if (!canAccelerateTarget(player, block, false)
+        || !canBlockPlace(player, block.getLocation())
+        || !ProtectionEventProbe.attemptBlockPlaceProbe(player, block)) {
       return false;
     }
 
@@ -239,7 +241,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     return 0;
   }
 
-  private boolean accelerateFurnace(Furnace furnace, int level) {
+  private boolean accelerateFurnace(Player player, Block block, Furnace furnace, int level) {
     if (furnace.getBurnTime() <= 0) {
       return false;
     }
@@ -259,13 +261,16 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     if (bonus <= 0) {
       return false;
     }
+    if (!canAccelerateTarget(player, block, true)) {
+      return false;
+    }
 
     furnace.setCookTime((short) Math.min(total - 1, current + bonus));
     furnace.update(true, true);
     return true;
   }
 
-  private boolean accelerateBrewingStand(BrewingStand stand, int level) {
+  private boolean accelerateBrewingStand(Player player, Block block, BrewingStand stand, int level) {
     int brewingTime = stand.getBrewingTime();
     if (brewingTime <= 1) {
       return false;
@@ -275,10 +280,30 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     if (bonus <= 0) {
       return false;
     }
+    if (!canAccelerateTarget(player, block, true)) {
+      return false;
+    }
 
     stand.setBrewingTime(Math.max(1, brewingTime - bonus));
     stand.update(true, true);
     return true;
+  }
+
+  private boolean canAccelerateTarget(Player player, Block block, boolean container) {
+    if (!J.isOwnedByCurrentRegion(player)
+        || !J.isOwnedByCurrentRegion(block.getLocation())
+        || !player.isOnline()
+        || !canInteract(player, block.getLocation())
+        || (container && !canAccessChest(player, block.getLocation()))) {
+      return false;
+    }
+    try {
+      return ProtectionEventProbe.attemptBlockUse(player, block);
+    } catch (Throwable error) {
+      Adapt.error("Chronos Accelerate could not verify target access for " + player.getUniqueId() + ".");
+      error.printStackTrace();
+      return false;
+    }
   }
 
   private void emitCropFx(World world, int x, int y, int z) {

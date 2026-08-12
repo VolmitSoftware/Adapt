@@ -29,14 +29,18 @@ import art.arcane.adapt.api.ability.AbilityRefundReason;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -81,7 +85,7 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
   }
 
   @ReceiveCancelledEvents
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerInteractEvent e) {
     Action action = e.getAction();
     if ((action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) || e.getHand() != EquipmentSlot.HAND) {
@@ -89,6 +93,9 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     }
 
     Player p = e.getPlayer();
+    if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
+      return;
+    }
     if (!p.isSneaking() || !hasActiveAdaptation(p)) {
       return;
     }
@@ -120,10 +127,13 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
 
     Block origin = e.getClickedBlock();
     if (origin == null) {
+      if (J.isFoliaThreading()) {
+        return;
+      }
       origin = p.getTargetBlockExact(5);
     }
 
-    if (origin == null) {
+    if (origin == null || !ownsPlantingTarget(p, origin.getLocation())) {
       return;
     }
 
@@ -162,7 +172,7 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     }
 
     if (p.getGameMode() == GameMode.CREATIVE) {
-      int planted = plantTargets(targets, cropType);
+      int planted = plantTargets(p, targets, cropType);
       emitPlantingFx(targets.subList(0, planted));
       return planted;
     }
@@ -179,9 +189,9 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
       return 0;
     }
 
-    int planted = plantTargets(targets, cropType);
+    int planted = plantTargets(p, targets, cropType);
     if (planted != requested) {
-      rollbackPlanting(targets, planted);
+      rollbackPlanting(targets, planted, cropType);
       refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
       return 0;
     }
@@ -189,14 +199,14 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     boolean defaultConsumed = !charge.defaultCostSuppressed()
         && consumeHeldSeeds(p, seedType, planted);
     if (!charge.defaultCostSuppressed() && !defaultConsumed) {
-      rollbackPlanting(targets, planted);
+      rollbackPlanting(targets, planted, cropType);
       refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
       return 0;
     }
 
     boolean settled = settleCost(charge.activationId());
     if (!acceptsPlantingSettlement(defaultConsumed, charge.defaultCostSuppressed(), settled)) {
-      rollbackPlanting(targets, planted);
+      rollbackPlanting(targets, planted, cropType);
       refundCost(charge.activationId(), AbilityRefundReason.ACTIVATION_FAILED);
       return 0;
     }
@@ -207,17 +217,37 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
 
   private List<Block> findPlantingTargets(Player p, Block origin, Material seedType, int radius, int limit) {
     List<Block> targets = new ArrayList<>(Math.max(0, limit));
+    World world = origin.getWorld();
     int y = origin.getY();
 
     for (int x = -radius; x <= radius && targets.size() < limit; x++) {
       for (int z = -radius; z <= radius && targets.size() < limit; z++) {
-        Block base = origin.getWorld().getBlockAt(origin.getX() + x, y, origin.getZ() + z);
+        int blockX = origin.getX() + x;
+        int blockZ = origin.getZ() + z;
+        Location baseLocation = new Location(world, blockX, y, blockZ);
+        if (!ownsPlantingTarget(p, baseLocation)) {
+          continue;
+        }
+
+        Block base = world.getBlockAt(blockX, y, blockZ);
         if (!isValidBase(seedType, base.getType())) {
           continue;
         }
 
-        Block crop = base.getRelative(0, 1, 0);
-        if (!crop.isEmpty() || !canBlockPlace(p, crop.getLocation())) {
+        Location cropLocation = new Location(world, blockX, y + 1, blockZ);
+        if (!ownsPlantingTarget(p, cropLocation)) {
+          continue;
+        }
+
+        Block crop = world.getBlockAt(blockX, y + 1, blockZ);
+        if (!crop.isEmpty()
+            || !canBlockPlace(p, cropLocation)
+            || !ProtectionEventProbe.attemptBlockPlaceProbe(p, crop)) {
+          continue;
+        }
+        if (!ownsPlantingTarget(p, cropLocation)
+            || !crop.isEmpty()
+            || !isValidBase(seedType, base.getType())) {
           continue;
         }
 
@@ -228,10 +258,10 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     return targets;
   }
 
-  private int plantTargets(List<Block> targets, Material cropType) {
+  private int plantTargets(Player player, List<Block> targets, Material cropType) {
     int planted = 0;
     for (Block crop : targets) {
-      if (!crop.isEmpty()) {
+      if (!ownsPlantingTarget(player, crop.getLocation()) || !crop.isEmpty()) {
         break;
       }
       crop.setType(cropType);
@@ -261,10 +291,19 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
     return true;
   }
 
-  private void rollbackPlanting(List<Block> targets, int planted) {
+  private void rollbackPlanting(List<Block> targets, int planted, Material cropType) {
     for (int index = 0; index < planted; index++) {
-      targets.get(index).setType(Material.AIR);
+      Block crop = targets.get(index);
+      if ((!J.isFoliaThreading() || J.isOwnedByCurrentRegion(crop.getLocation()))
+          && crop.getType() == cropType) {
+        crop.setType(Material.AIR);
+      }
     }
+  }
+
+  private boolean ownsPlantingTarget(Player player, Location location) {
+    return !J.isFoliaThreading()
+        || (J.isOwnedByCurrentRegion(player) && J.isOwnedByCurrentRegion(location));
   }
 
   private void emitPlantingFx(List<Block> targets) {

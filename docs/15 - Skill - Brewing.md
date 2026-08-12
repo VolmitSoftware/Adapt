@@ -18,6 +18,8 @@ Skill id `brewing`. Earn XP by brewing potions. Brewing has 13 registered adapta
 - `challenge_brew_splash_hits_500` tracking `brewing.splash.hits`
 
 Adaptations run only when learned (level ≥ 1), skill and adaptation are enabled, use permissions allow it, and protectors/region policy permit it.
+Custom-recipe ingredient handling waits for the final inventory-click result, ignores a denied click, and
+proceeds one tick later only while the player still has the same physical brewing-stand inventory open.
 
 ## Identity
 

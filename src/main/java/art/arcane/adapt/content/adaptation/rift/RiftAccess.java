@@ -33,6 +33,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.content.item.BoundEnderPearl;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -70,7 +71,10 @@ import us.lynuxcraft.deadsilenceiv.advancedchests.AdvancedChestsAPI;
 import us.lynuxcraft.deadsilenceiv.advancedchests.chest.AdvancedChest;
 
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -254,13 +258,28 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       if (action == Action.LEFT_CLICK_BLOCK && blockUseDenied) {
         return;
       }
-
-      Block target = action == Action.LEFT_CLICK_BLOCK ? block : player.getTargetBlockExact(5);
-      if (target == null || !isStorage(target.getBlockData())) {
+      if (action == Action.LEFT_CLICK_AIR && J.isFoliaThreading()) {
         return;
       }
 
-      if (canAccessChest(player, target.getLocation())) {
+      Block target = action == Action.LEFT_CLICK_BLOCK ? block : player.getTargetBlockExact(5);
+      if (target == null) {
+        return;
+      }
+      if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(target.getLocation())) {
+        return;
+      }
+      if (!isStorage(target.getBlockData())) {
+        return;
+      }
+
+      List<Block> physicalBlocks = ProtectionEventProbe.containerBlocks(target, null);
+      if (J.isFoliaThreading() && !areContainerRegionsOwned(physicalBlocks)) {
+        return;
+      }
+      Inventory inventory = target.getState() instanceof InventoryHolder holder ? holder.getInventory() : null;
+      List<Block> containerBlocks = ProtectionEventProbe.containerBlocks(target, inventory);
+      if (canOpenContainers(player, containerBlocks, target.getLocation())) {
         linkPearl(player, target, event);
       } else {
         Adapt.verbose("Player " + player.getName() + " doesn't have permission.");
@@ -330,11 +349,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     }
 
     Location target = blockLocation(block.getLocation());
-    if (!canAccessChest(player, target)) {
-      showOpenFailure(player);
-      return;
-    }
-
     UUID playerId = player.getUniqueId();
     loadChunkAsync(target, chunk -> {
       if (!acceptingViews.get()) {
@@ -352,6 +366,11 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     }
 
     Block block = target.getBlock();
+    List<Block> physicalBlocks = ProtectionEventProbe.containerBlocks(block, null);
+    if (J.isFoliaThreading() && !areContainerRegionsOwned(physicalBlocks)) {
+      scheduleOpenFailure(player);
+      return;
+    }
     Object advancedChest = findAdvancedChest(target);
     if (advancedChest == ADVANCED_CHEST_LOOKUP_FAILED) {
       scheduleOpenFailure(player);
@@ -365,28 +384,31 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       }
       inventory = holder.getInventory();
     }
+    List<Block> containerBlocks = ProtectionEventProbe.containerBlocks(block, inventory);
+    ContainerTargets containerTargets = containerTargets(containerBlocks);
 
-    RiftAccessViewRegistry.BlockKey blockKey = blockKey(target);
-    RiftAccessViewRegistry.ChunkKey chunkKey = chunkKey(target);
-    RiftAccessViewRegistry.Registration registration = activeViews.register(playerId, blockKey, chunkKey);
+    RiftAccessViewRegistry.Registration registration = activeViews.register(
+        playerId,
+        containerTargets.blockKeys(),
+        containerTargets.chunkAnchors().keySet()
+    );
     if (registration == null) {
       return;
     }
     RiftAccessViewRegistry.Session retired = registration.retired();
     if (retired != null) {
       closeSessionView(retired);
-      releaseTicketIfUnused(retired.chunkKey());
+      releaseTicketsIfUnused(retired.chunkKeys());
     }
 
     RiftAccessViewRegistry.Session session = registration.session();
-    if (!ensureTicket(target, chunkKey)) {
+    if (!ensureTickets(containerTargets.chunkAnchors())) {
       cancelSession(session);
       scheduleOpenFailure(player);
       return;
     }
     if (!acceptingViews.get() || !activeViews.isCurrent(session)) {
       cancelSession(session);
-      releaseTicketIfUnused(chunkKey);
       return;
     }
 
@@ -396,9 +418,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       return;
     }
 
-    Inventory targetInventory = inventory;
-    Object targetAdvancedChest = advancedChest;
-    if (!J.runEntity(player, () -> completeRemoteOpen(player, session, target, targetInventory, targetAdvancedChest))) {
+    if (!J.runEntity(player, () -> completeRemoteOpen(
+        player, session, target, containerBlocks))) {
       cancelSession(session);
     }
   }
@@ -417,20 +438,59 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
   }
 
   private void completeRemoteOpen(Player player, RiftAccessViewRegistry.Session session, Location target,
-                                  Inventory inventory, Object advancedChest) {
+                                  List<Block> expectedContainerBlocks) {
     if (!acceptingViews.get() || !activeViews.isCurrent(session)) {
       cancelSession(session);
       return;
     }
-    if (!player.isOnline() || !hasActiveAdaptation(player) || !canAccessChest(player, target)) {
+    if (!player.isOnline()) {
       cancelSession(session);
-      if (player.isOnline()) {
-        showOpenFailure(player);
-      }
+      return;
+    }
+    if (J.isFoliaThreading() && !areContainerRegionsOwned(expectedContainerBlocks)) {
+      cancelSession(session);
+      showOpenFailure(player);
       return;
     }
 
-    if (J.isFoliaThreading() && !FoliaScheduler.isOwnedByCurrentRegion(target)) {
+    Block currentBlock = target.getBlock();
+    List<Block> physicalBlocks = ProtectionEventProbe.containerBlocks(currentBlock, null);
+    if (J.isFoliaThreading() && !areContainerRegionsOwned(physicalBlocks)) {
+      cancelSession(session);
+      showOpenFailure(player);
+      return;
+    }
+    List<Block> currentContainerBlocks;
+    Inventory currentInventory;
+    Object currentAdvancedChest;
+    currentAdvancedChest = findAdvancedChest(target);
+    if (currentAdvancedChest == ADVANCED_CHEST_LOOKUP_FAILED) {
+      cancelSession(session);
+      showOpenFailure(player);
+      return;
+    }
+    if (currentAdvancedChest == null) {
+      if (!isStorage(currentBlock.getBlockData())
+          || !(currentBlock.getState() instanceof InventoryHolder holder)) {
+        cancelSession(session);
+        showOpenFailure(player);
+        return;
+      }
+      currentInventory = holder.getInventory();
+      currentContainerBlocks = ProtectionEventProbe.containerBlocks(currentBlock, currentInventory);
+    } else {
+      if (!isStorage(currentBlock.getBlockData())) {
+        cancelSession(session);
+        showOpenFailure(player);
+        return;
+      }
+      currentInventory = null;
+      currentContainerBlocks = physicalBlocks;
+    }
+
+    if (!containerTargets(currentContainerBlocks).blockKeys().equals(session.blockKeys())
+        || !hasActiveAdaptation(player)
+        || !canOpenContainers(player, currentContainerBlocks, target)) {
       cancelSession(session);
       showOpenFailure(player);
       return;
@@ -438,12 +498,18 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     InventoryView view = null;
     try {
-      if (advancedChest != null) {
-        ((AdvancedChest<?, ?>) advancedChest).openPage(player, 1);
-        view = player.getOpenInventory();
+      if (currentAdvancedChest != null) {
+        Inventory previousTop = player.getOpenInventory().getTopInventory();
+        ((AdvancedChest<?, ?>) currentAdvancedChest).openPage(player, 1);
+        InventoryView openedView = player.getOpenInventory();
+        if (openedView == null || openedView.getTopInventory() == previousTop) {
+          cancelSession(session);
+          return;
+        }
+        view = openedView;
         Adapt.verbose("Opening AdvancedChests GUI");
       } else {
-        view = player.openInventory(inventory);
+        view = player.openInventory(currentInventory);
       }
 
       if (view == null || !activeViews.activate(session, view.getTopInventory())) {
@@ -475,6 +541,31 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
   private void closeViewIfCurrent(Player player, InventoryView view) {
     if (view != null && player.getOpenInventory().getTopInventory() == view.getTopInventory()) {
       player.closeInventory();
+    }
+  }
+
+  private boolean canAccessContainers(Player player, List<Block> blocks) {
+    for (Block block : blocks) {
+      if (!canAccessChest(player, block.getLocation())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean canOpenContainers(Player player, List<Block> blocks, Location target) {
+    if (J.isFoliaThreading() && !areContainerRegionsOwned(blocks)) {
+      return false;
+    }
+    if (!canAccessContainers(player, blocks)) {
+      return false;
+    }
+    try {
+      return ProtectionEventProbe.attemptContainerOpen(player, blocks);
+    } catch (Throwable error) {
+      Adapt.error("Failed to check container access for " + player.getName() + " at " + target + ".");
+      error.printStackTrace();
+      return false;
     }
   }
 
@@ -515,7 +606,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       if (closeViews) {
         closeSessionView(session);
       }
-      chunks.add(session.chunkKey());
+      chunks.addAll(session.chunkKeys());
     }
     for (RiftAccessViewRegistry.ChunkKey chunkKey : chunks) {
       releaseTicketIfUnused(chunkKey);
@@ -529,11 +620,16 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     if (closeView) {
       closeSessionView(session);
     }
-    releaseTicketIfUnused(session.chunkKey());
+    releaseTicketsIfUnused(session.chunkKeys());
   }
 
   private void cancelSession(RiftAccessViewRegistry.Session session) {
-    releaseSession(activeViews.cancel(session), false);
+    RiftAccessViewRegistry.Session cancelled = activeViews.cancel(session);
+    if (cancelled != null) {
+      releaseSession(cancelled, false);
+      return;
+    }
+    releaseTicketsIfUnused(session.chunkKeys());
   }
 
   private void expirePendingSession(RiftAccessViewRegistry.Session session) {
@@ -558,6 +654,15 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         player.closeInventory();
       }
     });
+  }
+
+  private boolean ensureTickets(Map<RiftAccessViewRegistry.ChunkKey, Location> chunkAnchors) {
+    for (Map.Entry<RiftAccessViewRegistry.ChunkKey, Location> entry : chunkAnchors.entrySet()) {
+      if (!ensureTicket(entry.getValue(), entry.getKey())) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private boolean ensureTicket(Location target, RiftAccessViewRegistry.ChunkKey chunkKey) {
@@ -591,6 +696,12 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     }
     if (!J.runAt(anchor, () -> releaseTicketOwned(chunkKey, true))) {
       Adapt.error("Failed to schedule Rift Access chunk-ticket release at " + anchor + ".");
+    }
+  }
+
+  private void releaseTicketsIfUnused(Set<RiftAccessViewRegistry.ChunkKey> chunkKeys) {
+    for (RiftAccessViewRegistry.ChunkKey chunkKey : chunkKeys) {
+      releaseTicketIfUnused(chunkKey);
     }
   }
 
@@ -635,6 +746,32 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
   private static RiftAccessViewRegistry.ChunkKey chunkKey(Location location) {
     return new RiftAccessViewRegistry.ChunkKey(location.getWorld().getUID(),
         location.getBlockX() >> 4, location.getBlockZ() >> 4);
+  }
+
+  static boolean areContainerRegionsOwned(List<Block> blocks) {
+    for (Block block : blocks) {
+      if (!FoliaScheduler.isOwnedByCurrentRegion(block.getLocation())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  static ContainerTargets containerTargets(List<Block> blocks) {
+    Set<RiftAccessViewRegistry.BlockKey> blockKeys = new LinkedHashSet<>();
+    Map<RiftAccessViewRegistry.ChunkKey, Location> chunkAnchors = new LinkedHashMap<>();
+    for (Block block : blocks) {
+      Location location = blockLocation(block.getLocation());
+      blockKeys.add(blockKey(location));
+      chunkAnchors.putIfAbsent(chunkKey(location), location);
+    }
+    return new ContainerTargets(Set.copyOf(blockKeys), Map.copyOf(chunkAnchors));
+  }
+
+  record ContainerTargets(
+      Set<RiftAccessViewRegistry.BlockKey> blockKeys,
+      Map<RiftAccessViewRegistry.ChunkKey, Location> chunkAnchors
+  ) {
   }
 
 

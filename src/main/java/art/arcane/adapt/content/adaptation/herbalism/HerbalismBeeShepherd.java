@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.format.Form;
@@ -66,6 +67,10 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
   private static final int MAX_QUEUED_COMPLETIONS = 2048;
   private static final int MAX_BEES_PER_PULSE = 8;
   private static final int MAX_TRACKED_BEES_PER_PLAYER = 256;
+  private static final int COST_UNPAID = 0;
+  private static final int COST_CHARGING = 1;
+  private static final int COST_PAID = 2;
+  private static final int COST_DENIED = 3;
   private static final long ROSTER_REFRESH_MILLIS = 5000L;
   private static final long IDLE_CHECK_MILLIS = 250L;
   private static final long BEE_STAT_TTL_MILLIS = 60_000L;
@@ -213,7 +218,6 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     }
 
     pendingPulses.add(id);
-    pulseCooldown.mark(id);
     nextCheckAt.put(id, now + pulseMillis);
     BeeHerd herd = enqueueNearbyBees(p, level, now);
     if (herd.fresh() > 0) {
@@ -279,21 +283,79 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
   }
 
   private void growSample(GrowthSample sample) {
-    Block block = sample.location.getBlock();
-    if (!(block.getBlockData() instanceof Ageable ageable) || ageable.getAge() >= ageable.getMaximumAge()) {
+    Player player = sample.pulse.player;
+    if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) || !player.isOnline()) {
+      completeGrowthSample(sample.pulse, false);
+      return;
+    }
+    if (sample.pulse.costState.get() == COST_DENIED) {
       completeGrowthSample(sample.pulse, false);
       return;
     }
 
-    ageable.setAge(Math.min(ageable.getMaximumAge(), ageable.getAge() + sample.growthStep));
-    block.setBlockData(ageable, true);
-    if (sample.showParticles && ageable.getAge() >= ageable.getMaximumAge()
+    Block block = sample.location.getBlock();
+    if (!(block.getBlockData() instanceof Ageable ageable)
+        || ageable.getAge() >= ageable.getMaximumAge()
+        || !canInteract(player, block.getLocation())
+        || !canBlockPlace(player, block.getLocation())
+        || !ProtectionEventProbe.attemptBlockUse(player, block)
+        || !ProtectionEventProbe.attemptBlockPlaceProbe(player, block)) {
+      completeGrowthSample(sample.pulse, false);
+      return;
+    }
+
+    if (!(block.getBlockData() instanceof Ageable current)
+        || current.getAge() >= current.getMaximumAge()) {
+      completeGrowthSample(sample.pulse, false);
+      return;
+    }
+    if (!chargeGrowthPulse(sample.pulse)) {
+      completeGrowthSample(sample.pulse, false);
+      return;
+    }
+    if (!(block.getBlockData() instanceof Ageable currentAfterCharge)
+        || currentAfterCharge.getAge() >= currentAfterCharge.getMaximumAge()) {
+      completeGrowthSample(sample.pulse, false);
+      return;
+    }
+    currentAfterCharge.setAge(Math.min(
+        currentAfterCharge.getMaximumAge(), currentAfterCharge.getAge() + sample.growthStep));
+    block.setBlockData(currentAfterCharge, true);
+    if (sample.showParticles && currentAfterCharge.getAge() >= currentAfterCharge.getMaximumAge()
         && sample.pulse.emittedParticles.getAndIncrement() < 6) {
       fx(block.getLocation().add(0.5, 1.0, 0.5), FxPriority.AMBIENT)
           .particle(Particle.HAPPY_VILLAGER, 2, 0, 0, 0, 0.1D, 0.01D)
           .particle(Particle.COMPOSTER, 1, 0, 0.1D, 0, 0.1D, 0.01D);
     }
     completeGrowthSample(sample.pulse, true);
+  }
+
+  private boolean chargeGrowthPulse(GrowthPulse pulse) {
+    int state = pulse.costState.get();
+    if (state == COST_PAID) {
+      return true;
+    }
+    if (state != COST_UNPAID || !pulse.costState.compareAndSet(COST_UNPAID, COST_CHARGING)) {
+      return pulse.costState.get() == COST_PAID;
+    }
+
+    boolean paid = false;
+    try {
+      Player player = pulse.player;
+      paid = payHungerCost(player, "hunger", pulse.foodCost, () -> {
+        if (player.getFoodLevel() < pulse.foodCost) {
+          return false;
+        }
+        player.setFoodLevel(Math.max(0, player.getFoodLevel() - pulse.foodCost));
+        return true;
+      });
+      if (paid) {
+        pulseCooldown.mark(player.getUniqueId());
+      }
+      return paid;
+    } finally {
+      pulse.costState.set(paid ? COST_PAID : COST_DENIED);
+    }
   }
 
   private void completeGrowthSample(GrowthPulse pulse, boolean grown) {
@@ -338,7 +400,6 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
       return;
     }
 
-    p.setFoodLevel(Math.max(0, p.getFoodLevel() - pulse.foodCost));
     fx(p.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
         .ring(Particle.HAPPY_VILLAGER, 0.9D, 8, 0.2D)
         .particle(Particle.COMPOSTER, 2, 0, 0.3D, 0, 0.2D, 0.02D)
@@ -348,11 +409,16 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
 
   private BeeHerd enqueueNearbyBees(Player p, int level, long now) {
     double radius = getRadius(level);
+    Location center = p.getLocation();
+    if (J.isFoliaThreading()
+        && !J.isOwnedByCurrentRegion(center, radius, radius)) {
+      return new BeeHerd(0, 0);
+    }
     Map<UUID, Long> seen = countedBees.computeIfAbsent(p.getUniqueId(), k -> new ConcurrentHashMap<>());
     evictExpiredBees(seen, now);
     int count = 0;
     int fresh = 0;
-    Vector target = p.getLocation().add(0, 0.75, 0).toVector();
+    Vector target = center.clone().add(0, 0.75, 0).toVector();
     for (Entity entity : p.getNearbyEntities(radius, radius, radius)) {
       if (!(entity instanceof Bee bee)) {
         continue;
@@ -506,6 +572,7 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     private final AtomicInteger remaining;
     private final AtomicInteger grown = new AtomicInteger();
     private final AtomicInteger emittedParticles = new AtomicInteger();
+    private final AtomicInteger costState = new AtomicInteger(COST_UNPAID);
     private final int foodCost;
     private final double xpPerGrowth;
     private int samplesToDispatch;

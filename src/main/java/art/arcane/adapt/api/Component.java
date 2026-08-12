@@ -25,6 +25,7 @@ import art.arcane.adapt.api.potion.AdaptPotionRegistry;
 import art.arcane.adapt.api.value.MaterialValue;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import com.francobm.magicosmetics.api.CosmeticType;
 import com.francobm.magicosmetics.api.MagicAPI;
@@ -39,7 +40,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -236,13 +236,25 @@ public interface Component {
   }
 
   default boolean safeGiveItem(Player player, Entity itemEntity, ItemStack is) {
-    if (!(itemEntity instanceof Item item) || !item.isValid() || is == null || is.getType().isAir() || is.getAmount() <= 0) {
+    if (!(itemEntity instanceof Item item)
+        || (J.isFoliaThreading()
+        && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(item)))
+        || !canSnatchItem(player, item)
+        || is == null
+        || is.getType().isAir()
+        || is.getAmount() <= 0) {
       return false;
     }
 
-    EntityPickupItemEvent e = new EntityPickupItemEvent(player, item, 0);
-    Bukkit.getPluginManager().callEvent(e);
-    if (e.isCancelled()) {
+    int pickupRemaining = ProtectionEventProbe.remainingAfterPickup(player.getInventory(), is);
+    if (!ProtectionEventProbe.attemptItemPickup(player, item, pickupRemaining)
+        || !item.isValid()
+        || item.isDead()) {
+      return false;
+    }
+
+    ItemStack current = item.getItemStack();
+    if (!current.isSimilar(is) || current.getAmount() != is.getAmount()) {
       return false;
     }
 

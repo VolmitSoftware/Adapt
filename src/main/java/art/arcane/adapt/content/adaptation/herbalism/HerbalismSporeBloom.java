@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -50,8 +51,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
 
 public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Config> {
+  private static final int CHARGE_UNPAID = 0;
+  private static final int CHARGE_IN_PROGRESS = 1;
+  private static final int CHARGE_PAID = 2;
+  private static final int CHARGE_DENIED = 3;
+
   private final Cooldowns bloomCooldown = cooldowns();
 
   public HerbalismSporeBloom() {
@@ -76,7 +84,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     statLore(v, C.YELLOW, "* ", getSporeCost(level), 4);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent e) {
     if (e.getHand() != EquipmentSlot.HAND) {
       return;
@@ -98,27 +106,31 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     attemptBloom(e, e.getPlayer(), floor, e.getItemInHand().getType());
   }
 
-  private void startBloom(Player player, Block center, Material catalyst, Material spreadSurface, int level) {
-    List<Block> path = buildSpiderPath(center, getBloomRadius(level), getSpokes(level), getBloomAttempts(level), getGuaranteedReach(level));
-    if (path.isEmpty()) {
-      return;
-    }
-
+  private void startBloom(Player player, Block center, Material catalyst, Material spreadSurface,
+                          int level, List<Block> path, double ownershipRadius, BloomCharge charge) {
     int intervalTicks = Math.max(1, getSpreadIntervalTicks(level));
     int[] cursor = {0};
     int[] totalChanged = {0};
     Runnable[] bloomTask = new Runnable[1];
     bloomTask[0] = () -> {
-      if (!player.isOnline() || center.getWorld() == null) {
+      if ((J.isFoliaThreading()
+          && (!J.isOwnedByCurrentRegion(player)
+          || !J.isOwnedByCurrentRegion(center.getLocation(), ownershipRadius, ownershipRadius)))
+          || !player.isOnline()
+          || center.getWorld() == null) {
+        return;
+      }
+      if (charge.state().get() == CHARGE_DENIED) {
         return;
       }
 
       int pulseChanged = 0;
       int batch = getBlocksPerPulse(level);
       Block frontier = null;
+      BooleanSupplier ensureCharged = () -> ensureBloomCharged(player, charge);
       for (int i = 0; i < batch && cursor[0] < path.size(); i++) {
         Block cell = path.get(cursor[0]++);
-        int cellChanged = spreadAt(player, cell, catalyst, spreadSurface);
+        int cellChanged = spreadAt(player, cell, catalyst, spreadSurface, ensureCharged);
         if (cellChanged > 0) {
           frontier = cell;
         }
@@ -127,6 +139,8 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
 
       if (pulseChanged > 0) {
         totalChanged[0] += pulseChanged;
+        addStat(player, "herbalism.spore-bloom.blocks-spread", pulseChanged);
+        xp(player, pulseChanged * getConfig().xpPerMushroomPlaced);
         Block emitAt = frontier != null ? frontier : center;
         fx(emitAt.getLocation().add(0.5, 1.0, 0.5), FxPriority.TRANSITION)
             .particle(Particle.SPORE_BLOSSOM_AIR, 4, 0, 0, 0, 0.4D, 0.02D)
@@ -136,8 +150,6 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
 
       if (cursor[0] >= path.size()) {
         if (totalChanged[0] > 0) {
-          addStat(player, "herbalism.spore-bloom.blocks-spread", totalChanged[0]);
-          xp(player, totalChanged[0] * getConfig().xpPerMushroomPlaced);
           fx(center.getLocation().add(0.5, 1.0, 0.5), FxPriority.TRANSITION)
               .dome(Particle.SPORE_BLOSSOM_AIR, getBloomRadius(level), 24)
               .chord(Sound.ENTITY_ENDERMAN_AMBIENT, 0.3F, 0.7F, Sound.BLOCK_FUNGUS_PLACE, 0.35F, 0.9F);
@@ -147,7 +159,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
 
       J.runAt(center.getLocation(), bloomTask[0], intervalTicks);
     };
-    J.runAt(center.getLocation(), bloomTask[0]);
+    bloomTask[0].run();
   }
 
   private List<Block> buildSpiderPath(Block center, double radius, int spokes, int max, int guaranteedReach) {
@@ -248,7 +260,8 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     return out < 0 ? out + (Math.PI * 2D) : out;
   }
 
-  private int spreadAt(Player player, Block floor, Material catalyst, Material spreadSurface) {
+  private int spreadAt(Player player, Block floor, Material catalyst, Material spreadSurface,
+                       BooleanSupplier ensureCharged) {
     int changed = 0;
     Block ground = resolveTopSurfaceSoil(floor);
     if (ground == null) {
@@ -256,16 +269,30 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     }
     Block above = ground.getRelative(0, 1, 0);
 
-    if (spreadSurface != null && isConvertibleSoil(ground.getType()) && ground.getType() != spreadSurface
-        && canBlockBreak(player, ground.getLocation()) && canBlockPlace(player, ground.getLocation())) {
+    Material groundType = ground.getType();
+    if (spreadSurface != null && isConvertibleSoil(groundType) && groundType != spreadSurface
+        && canBlockBreak(player, ground.getLocation())
+        && canBlockPlace(player, ground.getLocation())
+        && ProtectionEventProbe.attemptBlockBreakProbe(player, ground)
+        && ProtectionEventProbe.attemptBlockPlaceProbe(player, ground)
+        && ground.getType() == groundType
+        && ensureCharged.getAsBoolean()
+        && ground.getType() == groundType) {
       ground.setType(spreadSurface, false);
       changed++;
     }
 
-    if (getConfig().swapFlowersToMushrooms && isFlower(above.getType())) {
-      Material replacement = getFlowerReplacement(above.getType(), catalyst);
-      if (replacement != null && above.getType() != replacement
-          && canBlockBreak(player, above.getLocation()) && canBlockPlace(player, above.getLocation())) {
+    Material aboveType = above.getType();
+    if (getConfig().swapFlowersToMushrooms && isFlower(aboveType)) {
+      Material replacement = getFlowerReplacement(aboveType, catalyst);
+      if (replacement != null && aboveType != replacement
+          && canBlockBreak(player, above.getLocation())
+          && canBlockPlace(player, above.getLocation())
+          && ProtectionEventProbe.attemptBlockBreakProbe(player, above)
+          && ProtectionEventProbe.attemptBlockPlaceProbe(player, above)
+          && above.getType() == aboveType
+          && ensureCharged.getAsBoolean()
+          && above.getType() == aboveType) {
         above.setType(replacement, false);
         changed++;
       }
@@ -325,21 +352,34 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
       return;
     }
 
-    if (!chargeCatalyst(player, catalyst, getSporeCost(level), failAt)) {
+    double radius = getBloomRadius(level);
+    double ownershipRadius = Math.ceil(radius + 0.35D);
+    if (J.isFoliaThreading()
+        && !J.isOwnedByCurrentRegion(center.getLocation(), ownershipRadius, ownershipRadius)) {
+      return;
+    }
+    List<Block> path = buildSpiderPath(
+        center,
+        radius,
+        getSpokes(level),
+        getBloomAttempts(level),
+        getGuaranteedReach(level)
+    );
+    if (path.isEmpty()) {
       return;
     }
 
-    // The catalyst is already paid for, so the vanilla placement must never also happen.
     e.setCancelled(true);
-    player.setFoodLevel(Math.max(0, player.getFoodLevel() - getFoodCost(level)));
-    bloomCooldown.mark(player.getUniqueId());
-
     Location activation = center.getLocation().add(0.5, 1.0, 0.5);
-    fx(activation, FxPriority.TRANSITION)
-        .burst(Particle.SPORE_BLOSSOM_AIR, 20, 0.35D)
-        .sound(Sound.ENTITY_ENDERMAN_AMBIENT, 0.45F, 0.55F);
-    FxPresets.chargeRing(this, activation, 6);
-    startBloom(player, center, catalyst, spreadSurface, level);
+    BloomCharge charge = new BloomCharge(
+        catalyst,
+        getSporeCost(level),
+        getFoodCost(level),
+        failAt,
+        activation,
+        new AtomicInteger(CHARGE_UNPAID)
+    );
+    startBloom(player, center, catalyst, spreadSurface, level, path, ownershipRadius, charge);
   }
 
   private boolean chargeCatalyst(Player player, Material catalyst, int cost, Location failAt) {
@@ -348,17 +388,49 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
       return false;
     }
 
-    if (!player.getInventory().containsAtLeast(new ItemStack(catalyst), cost)) {
-      fx(failAt, FxPriority.TRANSITION)
-          .particle(Particle.CRIMSON_SPORE, 3, 0, 0.2D, 0, 0.2D, 0.01D)
-          .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.6F);
-      return false;
-    }
-
     return payItemCost(player, "spore", new ItemStack(catalyst), cost, () -> {
+      if (!player.getInventory().containsAtLeast(new ItemStack(catalyst), cost)) {
+        fx(failAt, FxPriority.TRANSITION)
+            .particle(Particle.CRIMSON_SPORE, 3, 0, 0.2D, 0, 0.2D, 0.01D)
+            .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.6F);
+        return false;
+      }
       player.getInventory().removeItem(new ItemStack(catalyst, cost));
       return true;
     });
+  }
+
+  private boolean ensureBloomCharged(Player player, BloomCharge charge) {
+    int state = charge.state().get();
+    if (state == CHARGE_PAID) {
+      return true;
+    }
+    if (state != CHARGE_UNPAID
+        || !charge.state().compareAndSet(CHARGE_UNPAID, CHARGE_IN_PROGRESS)) {
+      return charge.state().get() == CHARGE_PAID;
+    }
+
+    boolean paid = false;
+    try {
+      if (player.getFoodLevel() < charge.foodCost()
+          || !chargeCatalyst(player, charge.catalyst(), charge.catalystCost(), charge.failAt())) {
+        return false;
+      }
+      player.setFoodLevel(Math.max(0, player.getFoodLevel() - charge.foodCost()));
+      bloomCooldown.mark(player.getUniqueId());
+      fx(charge.activation(), FxPriority.TRANSITION)
+          .burst(Particle.SPORE_BLOSSOM_AIR, 20, 0.35D)
+          .sound(Sound.ENTITY_ENDERMAN_AMBIENT, 0.45F, 0.55F);
+      FxPresets.chargeRing(this, charge.activation(), 6);
+      paid = true;
+      return true;
+    } finally {
+      charge.state().set(paid ? CHARGE_PAID : CHARGE_DENIED);
+    }
+  }
+
+  private record BloomCharge(Material catalyst, int catalystCost, int foodCost, Location failAt,
+                             Location activation, AtomicInteger state) {
   }
 
   private Material resolveSpreadSurface(Material floorType) {

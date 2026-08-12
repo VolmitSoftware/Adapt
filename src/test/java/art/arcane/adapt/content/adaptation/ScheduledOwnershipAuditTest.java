@@ -30,17 +30,17 @@ class ScheduledOwnershipAuditTest {
   }
 
   @Test
-  void coralRegionMutationDoesNotRecheckPolicyThroughRemotePlayer() throws Exception {
+  void coralRegionMutationRechecksCoOwnedPlayerAndTargetBeforeCommit() throws Exception {
     String source = Files.readString(CORAL_SOURCE);
-    int authorization = source.indexOf("canBlockPlace(p, target.getLocation())");
-    int dispatch = source.indexOf("J.runAt(growTarget.getLocation()", authorization);
-    int growth = source.indexOf("private void growCoral", dispatch);
+    int growth = source.indexOf("private boolean growCoral");
     String growthBody = source.substring(growth, source.indexOf("private boolean consumeBoneMeal", growth));
 
-    assertThat(authorization).isGreaterThanOrEqualTo(0);
-    assertThat(dispatch).isGreaterThan(authorization);
-    assertThat(growth).isGreaterThan(dispatch);
-    assertThat(growthBody).doesNotContain("canBlockPlace(p");
+    assertThat(growth).isGreaterThanOrEqualTo(0);
+    assertThat(growthBody)
+        .contains("ownsCoralTarget(p, target)", "canBlockPlace(p, target.getLocation())",
+            "ProtectionEventProbe.attemptBlockPlaceProbe(p, target)", "target.setType(coral, false)");
+    assertThat(growthBody.indexOf("ownsCoralTarget(p, target)"))
+        .isLessThan(growthBody.indexOf("target.setType(coral, false)"));
   }
 
   @Test

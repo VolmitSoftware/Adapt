@@ -1,15 +1,21 @@
 package art.arcane.adapt.util.common.compat;
 
+import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class PaperCompatTest {
@@ -82,5 +88,20 @@ class PaperCompatTest {
     when(tamed.getOwner()).thenReturn(null);
 
     assertThat(PaperCompat.tamedOwnerId(tamed)).isNull();
+  }
+
+  @Test
+  void nearbyEntityQueryStopsBeforeWorldAccessWhenFoliaDoesNotOwnTheFootprint() {
+    World world = mock(World.class);
+    Location center = new Location(world, 15.5D, 64.0D, 15.5D);
+
+    try (MockedStatic<J> scheduling = mockStatic(J.class)) {
+      scheduling.when(J::isFoliaThreading).thenReturn(true);
+      scheduling.when(() -> J.isOwnedByCurrentRegion(center, 8.0D, 8.0D)).thenReturn(false);
+
+      assertThat(PaperCompat.nearbyEntitiesByType(Player.class, center, 8.0D)).isEmpty();
+    }
+
+    verifyNoInteractions(world);
   }
 }

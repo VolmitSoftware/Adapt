@@ -57,12 +57,13 @@ class RiftConduitGestureTest {
   }
 
   @Test
-  void gesturesAreGatedOnProtectionRatherThanTheInteractDenyFlag() throws IOException {
+  void gesturesHonorNativeBlockUseDenialAndContainerProtection() throws IOException {
     String source = Files.readString(CONDUIT_SOURCE);
 
     assertThat(source)
         .contains("canInteract(p, clicked.getLocation())")
-        .doesNotContain("e.useInteractedBlock() == Event.Result.DENY");
+        .contains("e.useInteractedBlock() == Event.Result.DENY")
+        .contains("canAccessContainer(p, clicked)");
   }
 
   @Test

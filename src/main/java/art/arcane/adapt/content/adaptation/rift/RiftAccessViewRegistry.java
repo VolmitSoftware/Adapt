@@ -1,8 +1,10 @@
 package art.arcane.adapt.content.adaptation.rift;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -17,34 +19,23 @@ final class RiftAccessViewRegistry {
   private boolean accepting = true;
   private long sequence;
 
-  synchronized Registration register(UUID playerId, BlockKey blockKey, ChunkKey chunkKey) {
+  synchronized Registration register(UUID playerId, Set<BlockKey> blockKeys, Set<ChunkKey> chunkKeys) {
     Objects.requireNonNull(playerId);
-    Objects.requireNonNull(blockKey);
-    Objects.requireNonNull(chunkKey);
+    Set<BlockKey> normalizedBlockKeys = immutableKeys(blockKeys, "blockKeys");
+    Set<ChunkKey> normalizedChunkKeys = immutableKeys(chunkKeys, "chunkKeys");
     if (!accepting) {
       return null;
     }
 
     Session retired = sessionsByPlayer.remove(playerId);
-    boolean sameChunk = retired != null && retired.chunkKey().equals(chunkKey);
     if (retired != null) {
-      removeIndexedPlayer(playersByBlock, retired.blockKey(), playerId);
-      removeIndexedPlayer(playersByChunk, retired.chunkKey(), playerId);
-      if (!sameChunk) {
-        decrementChunk(retired.chunkKey());
-      }
+      removeSessionIndexes(retired);
     }
 
-    boolean acquireTicket = false;
-    if (!sameChunk) {
-      acquireTicket = incrementChunk(chunkKey) == 1;
-    }
-
-    Session session = new Session(++sequence, playerId, blockKey, chunkKey);
+    Session session = new Session(++sequence, playerId, normalizedBlockKeys, normalizedChunkKeys);
     sessionsByPlayer.put(playerId, session);
-    playersByBlock.computeIfAbsent(blockKey, ignored -> new HashSet<>()).add(playerId);
-    playersByChunk.computeIfAbsent(chunkKey, ignored -> new HashSet<>()).add(playerId);
-    return new Registration(session, retired, acquireTicket);
+    indexSession(session);
+    return new Registration(session, retired);
   }
 
   synchronized boolean activate(Session session, Object viewIdentity) {
@@ -132,10 +123,10 @@ final class RiftAccessViewRegistry {
       if (current == null) {
         continue;
       }
-      if (blockKey != null && !current.blockKey().equals(blockKey)) {
+      if (blockKey != null && !current.blockKeys().contains(blockKey)) {
         continue;
       }
-      if (chunkKey != null && !current.chunkKey().equals(chunkKey)) {
+      if (chunkKey != null && !current.chunkKeys().contains(chunkKey)) {
         continue;
       }
       removed.add(removeCurrent(current));
@@ -145,10 +136,28 @@ final class RiftAccessViewRegistry {
 
   private Session removeCurrent(Session session) {
     sessionsByPlayer.remove(session.playerId(), session);
-    removeIndexedPlayer(playersByBlock, session.blockKey(), session.playerId());
-    removeIndexedPlayer(playersByChunk, session.chunkKey(), session.playerId());
-    decrementChunk(session.chunkKey());
+    removeSessionIndexes(session);
     return session;
+  }
+
+  private void indexSession(Session session) {
+    for (BlockKey blockKey : session.blockKeys()) {
+      playersByBlock.computeIfAbsent(blockKey, ignored -> new HashSet<>()).add(session.playerId());
+    }
+    for (ChunkKey chunkKey : session.chunkKeys()) {
+      playersByChunk.computeIfAbsent(chunkKey, ignored -> new HashSet<>()).add(session.playerId());
+      incrementChunk(chunkKey);
+    }
+  }
+
+  private void removeSessionIndexes(Session session) {
+    for (BlockKey blockKey : session.blockKeys()) {
+      removeIndexedPlayer(playersByBlock, blockKey, session.playerId());
+    }
+    for (ChunkKey chunkKey : session.chunkKeys()) {
+      removeIndexedPlayer(playersByChunk, chunkKey, session.playerId());
+      decrementChunk(chunkKey);
+    }
   }
 
   private <K> void removeIndexedPlayer(Map<K, Set<UUID>> index, K key, UUID playerId) {
@@ -162,10 +171,9 @@ final class RiftAccessViewRegistry {
     }
   }
 
-  private int incrementChunk(ChunkKey chunkKey) {
+  private void incrementChunk(ChunkKey chunkKey) {
     int references = chunkReferences.getOrDefault(chunkKey, 0) + 1;
     chunkReferences.put(chunkKey, references);
-    return references;
   }
 
   private void decrementChunk(ChunkKey chunkKey) {
@@ -175,6 +183,18 @@ final class RiftAccessViewRegistry {
       return;
     }
     chunkReferences.put(chunkKey, references);
+  }
+
+  private static <T> Set<T> immutableKeys(Set<T> keys, String name) {
+    Objects.requireNonNull(keys, name);
+    if (keys.isEmpty()) {
+      throw new IllegalArgumentException(name + " must not be empty");
+    }
+    LinkedHashSet<T> copy = new LinkedHashSet<>(keys.size());
+    for (T key : keys) {
+      copy.add(Objects.requireNonNull(key, name + " must not contain null"));
+    }
+    return Collections.unmodifiableSet(copy);
   }
 
   record BlockKey(UUID worldId, int x, int y, int z) {
@@ -189,21 +209,21 @@ final class RiftAccessViewRegistry {
     }
   }
 
-  record Registration(Session session, Session retired, boolean acquireTicket) {
+  record Registration(Session session, Session retired) {
   }
 
   static final class Session {
     private final long token;
     private final UUID playerId;
-    private final BlockKey blockKey;
-    private final ChunkKey chunkKey;
+    private final Set<BlockKey> blockKeys;
+    private final Set<ChunkKey> chunkKeys;
     private volatile Object viewIdentity;
 
-    private Session(long token, UUID playerId, BlockKey blockKey, ChunkKey chunkKey) {
+    private Session(long token, UUID playerId, Set<BlockKey> blockKeys, Set<ChunkKey> chunkKeys) {
       this.token = token;
       this.playerId = playerId;
-      this.blockKey = blockKey;
-      this.chunkKey = chunkKey;
+      this.blockKeys = blockKeys;
+      this.chunkKeys = chunkKeys;
     }
 
     long token() {
@@ -214,12 +234,12 @@ final class RiftAccessViewRegistry {
       return playerId;
     }
 
-    BlockKey blockKey() {
-      return blockKey;
+    Set<BlockKey> blockKeys() {
+      return blockKeys;
     }
 
-    ChunkKey chunkKey() {
-      return chunkKey;
+    Set<ChunkKey> chunkKeys() {
+      return chunkKeys;
     }
 
     Object viewIdentity() {

@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -129,10 +130,14 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     clearPlayerPreview(e.getPlayer().getUniqueId());
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent e) {
     Player p = e.getPlayer();
     withPlayerThread(p, e, () -> {
+      if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
+        return;
+      }
+
       UUID id = p.getUniqueId();
       if (getActiveLevel(p, Player::isSneaking) <= 0) {
         return;
@@ -140,6 +145,9 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
       Map<Block, BlockFace> blocks = totalMap.get(id);
       if (blocks == null || blocks.isEmpty()) {
+        return;
+      }
+      if (!ownsPlacementFootprint(p, e.getBlock(), blocks)) {
         return;
       }
 
@@ -155,6 +163,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
       double v = getValue(e.getBlock());
       Block ignored = null;
+      BlockData ignoredData = null;
       for (Map.Entry<Block, BlockFace> entry : blocks.entrySet()) {
         Block source = entry.getKey();
         BlockFace face = entry.getValue();
@@ -163,6 +172,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         }
         if (source.getRelative(face).equals(e.getBlock())) {
           ignored = source;
+          ignoredData = source.getBlockData().clone();
           break;
         }
       }
@@ -195,6 +205,14 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         if (!canBlockPlace(p, relative.getLocation())) {
           continue;
         }
+        if (!ProtectionEventProbe.attemptBlockPlaceProbe(p, relative)) {
+          continue;
+        }
+        if (!ownsBlock(p, relative) || !relative.getType().isAir()) {
+          continue;
+        }
+
+        BlockData sourceData = b.getBlockData().clone();
 
         if (!payItemCost(p, "block", new ItemStack(hand.getType()), 1, () -> {
           hand.setAmount(hand.getAmount() - 1);
@@ -203,7 +221,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
           break;
         }
 
-        relative.setBlockData(b.getBlockData());
+        relative.setBlockData(sourceData);
         addStat(p, "blocks.placed", 1);
         addStat(p, "blocks.placed.value", v);
         addStat(p, "architect.placement.blocks-placed", 1);
@@ -211,8 +229,8 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         placedCount++;
       }
 
-      if (ignored != null) {
-        e.getBlock().setBlockData(ignored.getBlockData());
+      if (ignored != null && ignoredData != null && ownsBlock(p, e.getBlock())) {
+        e.getBlock().setBlockData(ignoredData);
         addStat(p, "blocks.placed", 1);
         addStat(p, "blocks.placed.value", v);
         addStat(p, "architect.placement.blocks-placed", 1);
@@ -234,6 +252,29 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         runPlayerViewport(getBlockFace(p), p.getTargetBlock(null, 5), p.getInventory().getItemInMainHand().getType(), p);
       }
     });
+  }
+
+  private boolean ownsPlacementFootprint(Player player, Block placed,
+                                         Map<Block, BlockFace> blocks) {
+    if (!ownsBlock(player, placed)) {
+      return false;
+    }
+    for (Map.Entry<Block, BlockFace> entry : blocks.entrySet()) {
+      Block source = entry.getKey();
+      BlockFace face = entry.getValue();
+      if (source == null || face == null) {
+        continue;
+      }
+      if (!ownsBlock(player, source) || !ownsBlock(player, source.getRelative(face))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean ownsBlock(Player player, Block block) {
+    return !J.isFoliaThreading()
+        || (J.isOwnedByCurrentRegion(player) && J.isOwnedByCurrentRegion(block.getLocation()));
   }
 
 

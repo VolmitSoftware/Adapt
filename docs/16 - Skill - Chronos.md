@@ -77,6 +77,11 @@ What each adaptation does and how a player activates it. TOML overrides live at 
 ### Time In A Bottle (`chronos-time-bottle`)
 
 Carry a temporal bottle that stores time and spend it to accelerate timed blocks, growables, and Ageable entities such as baby animals. Its shapeless recipe uses a Swiftness Potion, a Clock, and a Glass Bottle.
+An air click that ray-targets a block must pass a normal right-click-block event before time is spent; furnace
+and brewing-stand targets also require container-access permission, while campfires and growables require
+placement permission. Sapling tree generation preflights every planned tree block, fires `StructureGrowEvent`,
+and aborts the whole tree when any footprint block or listener is denied. Folia requires direct block clicks;
+the air-click ray-target variant is disabled there.
 
 **How it activates:** hold the bottle to accumulate stored time. Right-click an eligible furnace, brewing stand, campfire, growable block, or Ageable entity to spend that time.
 
@@ -605,6 +610,8 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Accelerate (`chronos-accelerate`)
 
 Passively accelerate time around you, occasionally growing nearby crops and fast-forwarding furnaces, smokers, blast furnaces, and brewing stands.
+Each sampled target is changed only while the player and block are owned by the current region and interaction
+events allow it; crops also require placement permission, while processing stations require container access.
 
 **Runtime entry points:** passive evaluation while learned.
 

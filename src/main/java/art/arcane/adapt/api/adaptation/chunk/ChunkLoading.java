@@ -27,7 +27,8 @@ import java.util.function.Consumer;
 
 public class ChunkLoading {
   public static void loadChunkAsync(Location l, Consumer<Chunk> chunk) {
-    if (l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4)) {
+    if ((!J.isFoliaThreading() || J.isOwnedByCurrentRegion(l))
+        && l.getWorld().isChunkLoaded(l.getBlockX() >> 4, l.getBlockZ() >> 4)) {
       chunk.accept(l.getChunk());
       return;
     }

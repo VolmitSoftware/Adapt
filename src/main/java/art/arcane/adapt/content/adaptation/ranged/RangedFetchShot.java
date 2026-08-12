@@ -25,12 +25,12 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.compat.PaperCompat;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -40,7 +40,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -143,14 +142,7 @@ public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
       return;
     }
     Location itemLocation = validItemLocation(batch, item);
-    if (itemLocation == null || !batch.hasAffectedCapacity()) {
-      batch.complete(false);
-      return;
-    }
-
-    EntityPickupItemEvent pickupEvent = new EntityPickupItemEvent(batch.player, item, 0);
-    Bukkit.getPluginManager().callEvent(pickupEvent);
-    if (pickupEvent.isCancelled() || !batch.claimAffected()) {
+    if (itemLocation == null || !batch.hasAffectedCapacity() || !canSnatchItem(batch.player, item)) {
       batch.complete(false);
       return;
     }
@@ -169,6 +161,15 @@ public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
 
     int transferAmount = getInventoryCapacity(batch.player, stack);
     if (transferAmount <= 0) {
+      batch.complete(false);
+      return;
+    }
+
+    int remaining = Math.max(0, stack.getAmount() - transferAmount);
+    if (!J.isOwnedByCurrentRegion(item)
+        || !ProtectionEventProbe.attemptItemPickup(batch.player, item, remaining)
+        || validItemLocation(batch, item) == null
+        || !batch.claimAffected()) {
       batch.complete(false);
       return;
     }

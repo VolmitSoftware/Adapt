@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.util.common.compat;
 
+import art.arcane.adapt.util.common.scheduling.J;
 import com.destroystokyo.paper.entity.Pathfinder;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
@@ -196,7 +197,8 @@ public final class PaperCompat {
 
   public static <T extends Entity> List<T> nearbyEntitiesByType(Class<T> type, Location center, double x, double y, double z) {
     World world = center.getWorld();
-    if (world == null) {
+    if (world == null
+        || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(center, x, z))) {
       return new ArrayList<>();
     }
 

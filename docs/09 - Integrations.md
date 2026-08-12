@@ -53,7 +53,7 @@ Iris availability controls registration and runtime enablement of `axe-iris-fell
 
 ## AdvancedChests
 
-When AdvancedChests is enabled, `rift-access` checks the selected remote block through `AdvancedChestsAPI` and opens page 1 of that chest instead of a Bukkit inventory. Lookup failures are logged with a stack trace and the remote-open attempt fails safely. Normal protection and active-adaptation checks still apply.
+When AdvancedChests is enabled, `rift-access` checks the selected remote block through `AdvancedChestsAPI` and opens page 1 of that chest instead of a Bukkit inventory. Lookup failures are logged with a stack trace and the remote-open attempt fails safely. Normal protection and active-adaptation checks still apply, and the session activates only when the API actually replaces the player's top inventory.
 
 ## MagicCosmetics
 
@@ -62,6 +62,10 @@ Adapt's shared armor-value calculation normally counts the player's vanilla armo
 ## Protection plugins
 
 WorldGuard and the six claim/container plugins are registered whenever present. `protectorSupport.*` chooses the default-active subset; Factions defaults off and the other built-in protectors default on. See `08 - Protection & Region Policy.md` for flags, exact config names, overrides, and failure behavior.
+
+Indirect Rift container use and transfers from live item entities also dispatch Bukkit's normal interaction or
+pickup events before committing. This lets event-driven protection plugins deny the same action without requiring
+an Adapt-specific API implementation; the registered protectors remain active as an additional gate.
 
 ## Velocity and Redis
 

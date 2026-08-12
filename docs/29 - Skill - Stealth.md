@@ -176,6 +176,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Item Snatch (`stealth-snatch`)
 
 Snatch Dropped items instantly while sneaking.
+Each candidate must pass Bukkit's normal pickup-event sequence with its actual remaining inventory capacity;
+cancellation leaves the item entity unchanged. On Folia the snatch scan runs only when its full footprint belongs
+to the current region.
 
 **Runtime entry points:** on sneak toggle.
 

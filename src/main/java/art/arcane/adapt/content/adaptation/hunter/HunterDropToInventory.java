@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -83,13 +84,25 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
 
     if (ItemListings.toolSwords.contains(p.getInventory().getItemInMainHand().getType())) {
       List<Item> items = new KList<>(e.getItems());
-      e.getItems().clear();
+      int caught = 0;
       for (Item i : items) {
-        HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(i.getItemStack());
+        ItemStack stack = i.getItemStack().clone();
+        int remaining = ProtectionEventProbe.remainingAfterPickup(p.getInventory(), stack);
+        if (!ProtectionEventProbe.attemptBlockDropPickup(p, i, remaining, e.getBlock().getLocation()) || i.isDead()) {
+          continue;
+        }
+        stack = i.getItemStack().clone();
+        if (!e.getItems().remove(i)) {
+          continue;
+        }
+        HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(stack);
         leftovers.values().forEach(item -> p.getWorld().dropItem(p.getLocation(), item));
+        caught++;
       }
-      addStat(p, "hunter.drop-to-inv.items-caught", items.size());
-      emitCatch(p, e.getBlock().getLocation().add(0.5D, 0.5D, 0.5D), items.size());
+      if (caught > 0) {
+        addStat(p, "hunter.drop-to-inv.items-caught", caught);
+        emitCatch(p, e.getBlock().getLocation().add(0.5D, 0.5D, 0.5D), caught);
+      }
     }
   }
 

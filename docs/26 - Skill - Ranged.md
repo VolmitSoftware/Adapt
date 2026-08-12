@@ -185,7 +185,8 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 
 ### Web Snare (`ranged-webshot`)
 
-Thrown web shots surround the hit target with cobwebs.
+Thrown web shots surround the hit target with cobwebs. Every cobweb target must pass a placement event at
+commit; Folia rejects an impact whose placement footprint does not share the player's current region.
 
 **Runtime entry points:** when a projectile hits; when launching a projectile; on `EntityRemoveEvent`; on `ChunkLoadEvent`; on `BlockPistonExtendEvent`; on `BlockPistonRetractEvent`; on `BlockExplodeEvent`; when breaking blocks.
 
@@ -444,6 +445,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Fetch Shot (`ranged-fetch-shot`)
 
 Shoot dropped items with projectiles to pull them straight into your inventory.
+Each candidate must pass Bukkit's normal pickup-event sequence with its actual remaining inventory capacity;
+cancellation leaves the item entity unchanged. On Folia the fetch scan runs only when its full footprint belongs
+to the current region.
 
 **Runtime entry points:** when a projectile hits; periodic evaluation every 2751 ms.
 

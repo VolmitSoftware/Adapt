@@ -389,6 +389,9 @@ Shared keys: `enabled`, `permanent`, `showParticles`, `showSounds`.
 ### Items Drop-To-Inventory (`hunter-drop-to-inventory`)
 
 Kills and blocks broken with a sword in hand send their drops straight into your inventory.
+Spawned block-drop entities must pass Bukkit's normal pickup events before direct delivery; a denied block drop
+remains on the original world-drop path. Generated entity-death stacks are not live pickup entities and retain
+their direct-delivery behavior.
 
 **Runtime entry points:** on `BlockDropItemEvent`; on entity death / kill credit; periodic evaluation every 18440 ms.
 
