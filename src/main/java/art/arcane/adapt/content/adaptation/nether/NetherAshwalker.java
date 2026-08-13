@@ -23,6 +23,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -124,16 +125,31 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
 
   private void negate(Player p, EntityDamageEvent e, String flavor) {
     double before = e.getDamage();
-    e.setCancelled(true);
+    fullyNegateDamage(e);
     p.setFireTicks(0);
     int prevented = (int) Math.round(Math.max(1D, before));
     addStat(p, "nether.ashwalker.damage-negated", prevented);
     xp(p, Math.max(before, 1D) * getConfig().xpPerNegatedDamage);
     float pitch = flavor.equals("magma") ? 1.4F : 1.0F;
-    fx(p.getLocation(), FxPriority.TRANSITION)
+    FxEmitter feedback = fx(p.getLocation(), FxPriority.TRANSITION)
         .particle(Particles.SMOKE, 4, 0.2D, 0.1D, 0.2D, 0.2D, 0.01D)
-        .particle(Particle.ASH, 3, 0.2D, 0.1D, 0.2D, 0.1D, 0.0D)
-        .sound(Sound.BLOCK_FIRE_EXTINGUISH, 0.3F, pitch);
+        .particle(Particle.ASH, 3, 0.2D, 0.1D, 0.2D, 0.1D, 0.0D);
+    float soundVolume = immunitySoundVolume(getConfig().immunitySoundVolume);
+    if (soundVolume > 0F) {
+      feedback.sound(Sound.BLOCK_FIRE_EXTINGUISH, soundVolume, pitch);
+    }
+  }
+
+  static void fullyNegateDamage(EntityDamageEvent event) {
+    event.setDamage(0D);
+    event.setCancelled(true);
+  }
+
+  static float immunitySoundVolume(double configured) {
+    if (!Double.isFinite(configured)) {
+      return 0F;
+    }
+    return (float) Math.max(0D, Math.min(1D, configured));
   }
 
   private Material fireSource(Player p) {
@@ -181,6 +197,8 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
     double soulFireReduction = 0.8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Soul Fire Max Fire Ticks for the Nether Ashwalker adaptation.", impact = "Lower values shorten how long soul fire keeps you burning.")
     int soulFireMaxFireTicks = 20;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Volume of Ashwalker's extinguish sound after fully cancelling magma or campfire damage.", impact = "Set to 0 to keep immunity silent, or raise up to 1 for audible proc feedback.")
+    double immunitySoundVolume = 0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Negated Damage for the Nether Ashwalker adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double xpPerNegatedDamage = 3;
 

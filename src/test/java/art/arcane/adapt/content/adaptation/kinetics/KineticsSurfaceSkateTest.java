@@ -1,8 +1,11 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -64,6 +67,74 @@ class KineticsSurfaceSkateTest {
   }
 
   @Test
+  void fallbackFrictionDeltaCombinesActiveStances() {
+    assertThat(KineticsSurfaceSkate.frictionDelta(true, false, 0.4D, 0.6D)).isCloseTo(-0.4D, offset(1.0E-9D));
+    assertThat(KineticsSurfaceSkate.frictionDelta(false, true, 0.4D, 0.6D)).isCloseTo(0.6D, offset(1.0E-9D));
+    assertThat(KineticsSurfaceSkate.frictionDelta(true, true, 0.4D, 0.6D)).isCloseTo(0.2D, offset(1.0E-9D));
+    assertThat(KineticsSurfaceSkate.frictionDelta(false, false, 0.4D, 0.6D)).isZero();
+  }
+
+  @Test
+  void fallbackSlideMatchesNativeFrictionFormula() {
+    double scale = KineticsSurfaceSkate.fallbackVelocityScale(0.3D, 0D, 0.5D, 0D, 0.6D, -0.5D);
+    assertThat(scale).isCloseTo(4D / 3D, offset(1.0E-9D));
+  }
+
+  @Test
+  void fallbackGripAddsGroundDamping() {
+    double scale = KineticsSurfaceSkate.fallbackVelocityScale(0.3D, 0D, 0.5D, 0D, 0.6D, 0.6D);
+    assertThat(scale).isCloseTo(0.6D, offset(1.0E-9D));
+  }
+
+  @Test
+  void fallbackSeedsObservedClientMovementWhenServerVelocityIsAbsent() {
+    Vector velocity = new Vector(0D, 0.25D, 0D);
+    boolean changed = KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
+        velocity, 0.5D, 0D, 0.6D, -0.5D);
+
+    assertThat(changed).isTrue();
+    assertThat(velocity.getX()).isCloseTo(0.5D, offset(1.0E-9D));
+    assertThat(velocity.getZ()).isZero();
+    assertThat(velocity.getY()).isCloseTo(0.25D, offset(1.0E-9D));
+  }
+
+  @Test
+  void fallbackDoesNotInjectSpeedAtTrueRest() {
+    Vector velocity = new Vector(0D, 0.25D, 0D);
+    boolean changed = KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
+        velocity, 0D, 0D, 0.6D, -0.5D);
+
+    assertThat(changed).isFalse();
+    assertThat(velocity).isEqualTo(new Vector(0D, 0.25D, 0D));
+  }
+
+  @Test
+  void fallbackSlideCannotExceedObservedOrExistingKnockbackMovement() {
+    double scale = KineticsSurfaceSkate.fallbackVelocityScale(0.4D, 0D, 0.42D, 0D, 0.6D, -0.5D);
+    assertThat(0.4D * scale).isCloseTo(0.42D, offset(1.0E-9D));
+
+    Vector velocity = new Vector(0.8D, 0.25D, 0D);
+    boolean changed = KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
+        velocity, 0.42D, 0D, 0.6D, -0.5D);
+    assertThat(changed).isFalse();
+    assertThat(velocity.getX()).isCloseTo(0.8D, offset(1.0E-9D));
+    assertThat(velocity.getY()).isCloseTo(0.25D, offset(1.0E-9D));
+  }
+
+  @Test
+  void fallbackSlideStillDecaysUncontrolledMomentum() {
+    double speed = 1D;
+    for (int tick = 0; tick < 12; tick++) {
+      double previous = speed;
+      double vanillaDamped = previous * 0.6D * 0.91D;
+      double scale = KineticsSurfaceSkate.fallbackVelocityScale(
+          vanillaDamped, 0D, previous, 0D, 0.6D, -0.5D);
+      speed = vanillaDamped * scale;
+      assertThat(speed).isLessThan(previous);
+    }
+  }
+
+  @Test
   void periodicReconciliationIsEnabled() throws ReflectiveOperationException {
     KineticsSurfaceSkate adaptation = new KineticsSurfaceSkate();
     Method handler = KineticsSurfaceSkate.class.getDeclaredMethod("onTick");
@@ -84,6 +155,15 @@ class KineticsSurfaceSkateTest {
     Method handler = KineticsSurfaceSkate.class.getDeclaredMethod("on", PlayerToggleSneakEvent.class);
     EventHandler policy = handler.getAnnotation(EventHandler.class);
     assertThat(policy).isNotNull();
+    assertThat(policy.ignoreCancelled()).isTrue();
+  }
+
+  @Test
+  void movementFallbackObservesAtMonitorAndIgnoresCancelled() throws ReflectiveOperationException {
+    Method handler = KineticsSurfaceSkate.class.getDeclaredMethod("on", PlayerMoveEvent.class);
+    EventHandler policy = handler.getAnnotation(EventHandler.class);
+    assertThat(policy).isNotNull();
+    assertThat(policy.priority()).isEqualTo(EventPriority.MONITOR);
     assertThat(policy.ignoreCancelled()).isTrue();
   }
 

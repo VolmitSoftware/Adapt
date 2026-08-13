@@ -36,7 +36,7 @@ import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.inventory.meta.Damageable;
@@ -70,13 +70,14 @@ public class BlockingTemperedGuard extends SimpleAdaptation<BlockingTemperedGuar
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getEntity() instanceof Player p) || !p.isBlocking()) {
+  public void on(PlayerItemDamageEvent e) {
+    if (!isShieldDamage(e.getItem()) || e.getDamage() <= 0) {
       return;
     }
 
+    Player p = e.getPlayer();
     int level = getActiveLevel(p);
-    if (level <= 0 || !hasShield(p)) {
+    if (level <= 0) {
       return;
     }
 
@@ -85,7 +86,7 @@ public class BlockingTemperedGuard extends SimpleAdaptation<BlockingTemperedGuar
     }
 
     int amount = getRepairAmount(level);
-    J.runEntity(p, () -> applyRepair(p, amount));
+    J.runEntity(p, () -> applyRepair(p, amount), 1);
   }
 
   private void applyRepair(Player p, int amount) {
@@ -166,10 +167,8 @@ public class BlockingTemperedGuard extends SimpleAdaptation<BlockingTemperedGuar
     return restored;
   }
 
-  private boolean hasShield(Player p) {
-    ItemStack main = p.getInventory().getItemInMainHand();
-    ItemStack off = p.getInventory().getItemInOffHand();
-    return (isItem(main) && main.getType() == Material.SHIELD) || (isItem(off) && off.getType() == Material.SHIELD);
+  static boolean isShieldDamage(ItemStack item) {
+    return item != null && item.getType() == Material.SHIELD;
   }
 
   private double getRepairChance(int level) {

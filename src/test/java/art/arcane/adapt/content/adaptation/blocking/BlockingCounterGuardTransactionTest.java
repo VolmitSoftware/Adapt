@@ -31,6 +31,12 @@ class BlockingCounterGuardTransactionTest {
   }
 
   @Test
+  void stackDisplayAlwaysUsesBoundedCounts() {
+    assertThat(BlockingCounterGuard.stackFraction(3, 10)).isEqualTo("3/10");
+    assertThat(BlockingCounterGuard.stackFraction(-2, 0)).isEqualTo("0/1");
+  }
+
+  @Test
   void reflectionKeysAreDirectionalAndConsumedOnce() {
     UUID defenderId = UUID.randomUUID();
     UUID attackerId = UUID.randomUUID();

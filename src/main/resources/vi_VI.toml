@@ -5410,15 +5410,15 @@ lore = ["Mỗi cấp độ có cơ hội nhận thêm XP và Cá!"]
 
 [seaborn.haste]
 name = "Thợ Mỏ Rùa"
-description = "Khi đào dưới nước, bạn nhận được tốc độ đào!"
-lore1 = "Haste 3 áp dụng dưới nước khi đào (cộng dồn AquaAffinity) sau khi hiệu ứng thở dưới nước hết!"
-lore = ["Haste 3 áp dụng dưới nước khi đào (cộng dồn AquaAffinity) sau khi hiệu ứng thở dưới nước hết!"]
+description = "Đào nhanh hơn dưới nước dù đang đứng hay nổi."
+lore1 = "Tăng tốc độ đào khi chìm dưới nước, cộng dồn với Ái lực với nước và bù hình phạt đào khi đang nổi."
+lore = ["Tăng tốc độ đào khi chìm dưới nước, cộng dồn với Ái lực với nước và bù hình phạt đào khi đang nổi."]
 
 [seaborn.night_vision]
 name = "Tầm Nhìn Rùa"
-description = "Khi ở dưới nước, bạn nhận được Nhìn Đêm"
-lore1 = "Đơn giản nhận Nhìn Đêm khi ở dưới nước sau khi hiệu ứng thở dưới nước hết!"
-lore = ["Đơn giản nhận Nhìn Đêm khi ở dưới nước sau khi hiệu ứng thở dưới nước hết!"]
+description = "Khi ở dưới nước, bạn nhận được Nhìn Đêm."
+lore1 = "Nhìn Đêm được làm mới liên tục khi bạn ở dưới nước."
+lore = ["Nhìn Đêm được làm mới liên tục khi bạn ở dưới nước."]
 
 [seaborn.dolphin_grace]
 name = "Ân Sủng Cá Heo"

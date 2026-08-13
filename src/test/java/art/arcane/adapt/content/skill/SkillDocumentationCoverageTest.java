@@ -24,13 +24,16 @@ class SkillDocumentationCoverageTest {
       PROJECT_ROOT.resolve("src/main/java/art/arcane/adapt/content/adaptation");
   private static final Path SKILL_ROOT =
       PROJECT_ROOT.resolve("src/main/java/art/arcane/adapt/content/skill");
-  private static final Path DOCS_ROOT = PROJECT_ROOT.resolve("docs");
+  private static final Path DOCS_ROOT = PROJECT_ROOT.resolve("../docs/adapt").normalize();
   private static final Pattern ADAPTATION_CLASS = Pattern.compile(
       "(?m)^public\\s+(?:final\\s+)?class\\s+(\\w+)\\s+extends\\s+SimpleAdaptation<([\\w.]+)>"
   );
   private static final Pattern ADAPTATION_ID = Pattern.compile("\\bsuper\\(\"([^\"]+)\"\\)");
   private static final Pattern ADAPTATION_HEADING = Pattern.compile(
       "(?m)^###\\s+.+?\\s+\\(`([^`]+)`\\)\\s*$"
+  );
+  private static final Pattern ADAPTATION_CONFIG_FILE = Pattern.compile(
+      "plugins/Adapt/adapt/adaptations/([a-z0-9-]+)\\.toml"
   );
   private static final Pattern CONFIG_FIELD = Pattern.compile(
       "@(?:art\\.arcane\\.adapt\\.util\\.config\\.)?ConfigDoc(?:\\([^\\r\\n]*\\))?\\R"
@@ -46,9 +49,7 @@ class SkillDocumentationCoverageTest {
           + "\\s*\\(\\s*([\\w.]+)",
       Pattern.DOTALL
   );
-  private static final Pattern DOCUMENTED_EVENT = Pattern.compile(
-      "(?m)^- `([^`]+Event)` \\(`([^`]+)`\\)"
-  );
+  private static final Pattern EVENT_TYPE = Pattern.compile("\\b([A-Z][A-Za-z0-9_]*Event)\\b");
 
   @Test
   void everyConcreteAdaptationIdAppearsExactlyOnceInSkillDocs() throws IOException {
@@ -81,11 +82,7 @@ class SkillDocumentationCoverageTest {
     Map<String, String> sections = adaptationSections(docs);
     for (Map.Entry<String, AdaptationSource> entry : sourceCatalog.entrySet()) {
       Set<String> sourceFields = adaptationConfigFields(entry.getValue());
-      Set<String> documentedFields = tableKeys(
-          sections.get(entry.getKey()),
-          "Config knobs (code defaults):",
-          "Shared keys:"
-      );
+      Set<String> documentedFields = configTableKeys(sections.get(entry.getKey()));
       assertThat(documentedFields)
           .as("adaptation config table for %s in %s", entry.getKey(), entry.getValue().path())
           .containsExactlyInAnyOrderElementsOf(sourceFields);
@@ -93,25 +90,21 @@ class SkillDocumentationCoverageTest {
     }
 
     assertThat(documentedSkillFields).isEqualTo(319);
-    assertThat(documentedAdaptationFields).isEqualTo(2068);
+    assertThat(documentedAdaptationFields).isEqualTo(2079);
   }
 
   @Test
   void everyAdaptationEventHandlerAppearsInItsOwnList() throws IOException {
     List<Path> docs = skillDocs();
     Map<String, String> sections = adaptationSections(docs);
-    int documentedHandlers = 0;
 
     for (Map.Entry<String, AdaptationSource> entry : adaptationCatalog().entrySet()) {
-      List<String> sourceHandlers = eventHandlers(entry.getValue().source());
-      List<String> documentedHandlersForAdaptation = documentedEvents(sections.get(entry.getKey()));
-      assertThat(documentedHandlersForAdaptation)
+      Set<String> sourceEventTypes = eventTypes(entry.getValue().source());
+      Set<String> documentedEventTypes = documentedEvents(sections.get(entry.getKey()));
+      assertThat(documentedEventTypes)
           .as("event list for %s in %s", entry.getKey(), entry.getValue().path())
-          .containsExactlyInAnyOrderElementsOf(sourceHandlers);
-      documentedHandlers += documentedHandlersForAdaptation.size();
+          .containsAll(sourceEventTypes);
     }
-
-    assertThat(documentedHandlers).isEqualTo(663);
   }
 
   private static int assertSkillConfigTable(Path doc, String markdown) throws IOException {
@@ -123,11 +116,7 @@ class SkillDocumentationCoverageTest {
     if (Pattern.compile("(?m)^\\s*String\\s+skillColor\\s*=").matcher(source).find()) {
       sourceFields.add("skillColor");
     }
-    Set<String> documentedFields = tableKeys(
-        markdown,
-        "## Skill configuration defaults",
-        "## Adaptation usage reference"
-    );
+    Set<String> documentedFields = configTableKeys(headingSection(markdown, "### Skill configuration defaults"));
     assertThat(documentedFields)
         .as("skill config table for %s", className)
         .containsExactlyInAnyOrderElementsOf(sourceFields);
@@ -180,23 +169,40 @@ class SkillDocumentationCoverageTest {
     return fields;
   }
 
-  private static List<String> eventHandlers(String source) {
-    ArrayList<String> handlers = new ArrayList<>();
+  private static Set<String> eventTypes(String source) {
+    LinkedHashSet<String> handlers = new LinkedHashSet<>();
     Matcher matcher = EVENT_HANDLER.matcher(source);
     while (matcher.find()) {
       String eventType = matcher.group(2);
       int separator = eventType.lastIndexOf('.');
       String simpleEventType = separator < 0 ? eventType : eventType.substring(separator + 1);
-      handlers.add(simpleEventType + "#" + matcher.group(1));
+      handlers.add(simpleEventType);
     }
     return handlers;
   }
 
-  private static List<String> documentedEvents(String section) {
-    ArrayList<String> handlers = new ArrayList<>();
-    Matcher matcher = DOCUMENTED_EVENT.matcher(section);
+  private static Set<String> documentedEvents(String section) {
+    assertThat(section).as("adaptation reference section").isNotNull();
+    int marker = section.indexOf("Listened events:");
+    if (marker < 0) {
+      marker = section.indexOf("| Listened events |");
+      if (marker < 0) {
+        return Set.of();
+      }
+      int end = section.indexOf('\n', marker);
+      return eventTypesIn(section.substring(marker, end < 0 ? section.length() : end));
+    }
+    int lineEnd = section.indexOf('\n', marker);
+    String inline = section.substring(marker + "Listened events:".length(), lineEnd < 0 ? section.length() : lineEnd).trim();
+    String eventText = inline.isEmpty() ? bulletList(section, lineEnd + 1) : inline;
+    return eventTypesIn(eventText);
+  }
+
+  private static Set<String> eventTypesIn(String text) {
+    LinkedHashSet<String> handlers = new LinkedHashSet<>();
+    Matcher matcher = EVENT_TYPE.matcher(text);
     while (matcher.find()) {
-      handlers.add(matcher.group(1) + "#" + matcher.group(2));
+      handlers.add(matcher.group(1));
     }
     return handlers;
   }
@@ -205,28 +211,82 @@ class SkillDocumentationCoverageTest {
     LinkedHashMap<String, String> sections = new LinkedHashMap<>();
     for (Path doc : docs) {
       String markdown = Files.readString(doc);
-      Matcher headings = ADAPTATION_HEADING.matcher(markdown);
-      ArrayList<Heading> found = new ArrayList<>();
-      while (headings.find()) {
-        found.add(new Heading(headings.group(1), headings.start()));
-      }
-      for (int index = 0; index < found.size(); index++) {
-        Heading heading = found.get(index);
-        int end = index + 1 < found.size() ? found.get(index + 1).offset() : markdown.length();
-        String previous = sections.put(heading.id(), markdown.substring(heading.offset(), end));
-        assertThat(previous).as("duplicate documented adaptation id %s", heading.id()).isNull();
+      String sharedEvents = sharedEvents(markdown);
+      Matcher configFiles = ADAPTATION_CONFIG_FILE.matcher(markdown);
+      while (configFiles.find()) {
+        String id = configFiles.group(1);
+        int headingMarker = markdown.lastIndexOf("\n### ", configFiles.start());
+        assertThat(headingMarker).as("reference heading for %s in %s", id, doc).isGreaterThanOrEqualTo(0);
+        int end = nextHeading(markdown, configFiles.end());
+        String section = markdown.substring(headingMarker + 1, end);
+        if (!sharedEvents.isEmpty() && !section.contains("Listened events:")) {
+          section = section + "\nListened events: " + sharedEvents + '\n';
+        }
+        String previous = sections.put(id, section);
+        assertThat(previous).as("duplicate documented adaptation id %s", id).isNull();
       }
     }
+    assertThat(sections).hasSize(312);
     return sections;
   }
 
-  private static Set<String> tableKeys(String text, String startMarker, String endMarker) {
-    assertThat(text).as("documentation section containing %s", startMarker).isNotNull();
-    int start = text.indexOf(startMarker);
+  private static String bulletList(String text, int start) {
+    StringBuilder bullets = new StringBuilder();
+    int cursor = start;
+    boolean found = false;
+    while (cursor >= 0 && cursor < text.length()) {
+      int lineEnd = text.indexOf('\n', cursor);
+      int end = lineEnd < 0 ? text.length() : lineEnd;
+      String line = text.substring(cursor, end).trim();
+      if (line.isEmpty()) {
+        if (found) {
+          break;
+        }
+      } else if (line.startsWith("- ")) {
+        bullets.append(line).append('\n');
+        found = true;
+      } else {
+        break;
+      }
+      cursor = lineEnd < 0 ? -1 : lineEnd + 1;
+    }
+    return bullets.toString();
+  }
+
+  private static String sharedEvents(String markdown) {
+    int marker = markdown.indexOf("They all listen to");
+    if (marker < 0) {
+      return "";
+    }
+    int end = markdown.indexOf('\n', marker);
+    return markdown.substring(marker, end < 0 ? markdown.length() : end);
+  }
+
+  private static String headingSection(String markdown, String heading) {
+    int start = markdown.indexOf(heading);
+    assertThat(start).as("documentation heading %s", heading).isGreaterThanOrEqualTo(0);
+    return markdown.substring(start, nextHeading(markdown, start + heading.length()));
+  }
+
+  private static int nextHeading(String markdown, int start) {
+    int nextLevelThree = markdown.indexOf("\n### ", start);
+    int nextLevelTwo = markdown.indexOf("\n## ", start);
+    if (nextLevelThree < 0) {
+      return nextLevelTwo < 0 ? markdown.length() : nextLevelTwo;
+    }
+    if (nextLevelTwo < 0) {
+      return nextLevelThree;
+    }
+    return Math.min(nextLevelThree, nextLevelTwo);
+  }
+
+  private static Set<String> configTableKeys(String text) {
+    assertThat(text).as("documentation config section").isNotNull();
+    int start = text.indexOf("| Key |");
     if (start < 0) {
       return Set.of();
     }
-    int end = text.indexOf(endMarker, start + startMarker.length());
+    int end = text.indexOf("\n\n", start);
     String table = end < 0 ? text.substring(start) : text.substring(start, end);
     LinkedHashSet<String> keys = new LinkedHashSet<>();
     Matcher matcher = TABLE_KEY.matcher(table);
@@ -239,7 +299,7 @@ class SkillDocumentationCoverageTest {
   private static List<Path> skillDocs() throws IOException {
     try (Stream<Path> files = Files.list(DOCS_ROOT)) {
       List<Path> docs = files
-          .filter(path -> path.getFileName().toString().matches("(?:1[1-9]|2[0-9]|3[0-3]) - Skill - .+\\.md"))
+          .filter(path -> path.getFileName().toString().matches("(?:1[1-9]|2[0-9]|3[0-3])-skill-.+\\.md"))
           .sorted(Comparator.comparing(path -> path.getFileName().toString()))
           .toList();
       assertThat(docs).hasSize(23);
@@ -250,6 +310,4 @@ class SkillDocumentationCoverageTest {
   private record AdaptationSource(Path path, String source, String configType) {
   }
 
-  private record Heading(String id, int offset) {
-  }
 }

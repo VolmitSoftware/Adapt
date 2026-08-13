@@ -105,10 +105,11 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
       return;
     }
 
-    if (e.getRawSlot() != 0
-        || e.getClick() != ClickType.RIGHT
-        || e.getView().getTopInventory().getType() != InventoryType.ANVIL
-        || isItem(e.getCursor())) {
+    if (!isRebindingClick(
+        e.getRawSlot(),
+        e.getClick(),
+        e.getView().getTopInventory().getType() == InventoryType.ANVIL,
+        isItem(e.getCursor()))) {
       return;
     }
 
@@ -118,8 +119,8 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
       return;
     }
 
-    int level = getActiveLevel(p, Player::isSneaking);
-    if (level <= 0 || !p.isSneaking()) {
+    int level = getActiveLevel(p);
+    if (level <= 0) {
       return;
     }
 
@@ -140,6 +141,9 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
     for (Map.Entry<Enchantment, Integer> entry : enchants) {
       books.add(singleEnchantBook(entry.getKey(), entry.getValue()));
     }
+    if (!payExperienceCost(p, "experience-levels", cost, () -> spendLevels(p, cost))) {
+      return;
+    }
 
     top.setItem(0, null);
     for (ItemStack single : books) {
@@ -147,7 +151,6 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
       overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
     }
 
-    p.setLevel(Math.max(0, p.getLevel() - cost));
     addStat(p, "enchanting.tome-rebinding.books-split", 1);
     xp(p, getConfig().skillXpOnSplit * books.size());
     Adapt.actionbar(p, C.LIGHT_PURPLE + AdaptLanguage.text(
@@ -156,6 +159,22 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
     ));
     splitFx(p);
     J.runEntity(p, p::updateInventory, 1);
+  }
+
+  static boolean isRebindingClick(int rawSlot, ClickType click, boolean anvilInventory, boolean cursorHasItem) {
+    return rawSlot == 0
+        && click == ClickType.SHIFT_RIGHT
+        && anvilInventory
+        && !cursorHasItem;
+  }
+
+  static boolean spendLevels(Player player, int amount) {
+    if (player == null || amount <= 0 || player.getLevel() < amount) {
+      return false;
+    }
+
+    player.giveExpLevels(-amount);
+    return true;
   }
 
   private boolean isMultiEnchantBook(ItemStack item) {

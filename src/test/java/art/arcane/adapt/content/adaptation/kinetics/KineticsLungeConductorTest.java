@@ -93,19 +93,28 @@ class KineticsLungeConductorTest {
   }
 
   @Test
-  void assistVelocityClampsUpwardComponent() {
+  void assistVelocityPreservesVerticalComponent() {
     Vector current = new Vector(0.1D, 0.5D, 0.1D);
     Vector direction = new Vector(0D, 1D, 0D);
     Vector result = KineticsLungeConductor.assistVelocity(current, direction, 0.5D);
-    assertThat(result.getY()).isCloseTo(0.4D, offset(1e-9));
+    assertThat(result.getY()).isCloseTo(0.5D, offset(1e-9));
   }
 
   @Test
-  void assistVelocityLeavesDownwardMotionUnclamped() {
+  void assistVelocityPreservesDownwardMotion() {
     Vector current = new Vector(0D, -0.3D, 0D);
     Vector direction = new Vector(0.5D, 0.1D, 0.5D);
     Vector result = KineticsLungeConductor.assistVelocity(current, direction, 0.2D);
-    assertThat(result.getY()).isCloseTo(-0.28D, offset(1e-9));
+    assertThat(result.getY()).isCloseTo(-0.3D, offset(1e-9));
+  }
+
+  @Test
+  void assistVelocityRejectsInvalidOrNegativeBoosts() {
+    Vector current = new Vector(0.2D, 0.1D, 0.3D);
+    Vector direction = new Vector(1D, 0D, 0D);
+    assertThat(KineticsLungeConductor.assistVelocity(current, direction, Double.NaN)).isEqualTo(current);
+    assertThat(KineticsLungeConductor.assistVelocity(current, direction, -1D)).isEqualTo(current);
+    assertThat(KineticsLungeConductor.assistVelocity(current, null, 0.4D)).isEqualTo(current);
   }
 
   @Test

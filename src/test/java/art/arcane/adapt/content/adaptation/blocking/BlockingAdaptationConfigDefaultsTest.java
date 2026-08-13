@@ -1,8 +1,20 @@
 package art.arcane.adapt.content.adaptation.blocking;
 
+import org.bukkit.DyeColor;
+import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class BlockingAdaptationConfigDefaultsTest {
   @Test
@@ -43,6 +55,21 @@ class BlockingAdaptationConfigDefaultsTest {
   }
 
   @Test
+  void temperedGuardListensForActualShieldDurabilityDamage() throws ReflectiveOperationException {
+    Method handler = BlockingTemperedGuard.class.getDeclaredMethod("on", PlayerItemDamageEvent.class);
+    EventHandler eventHandler = handler.getAnnotation(EventHandler.class);
+
+    assertThat(eventHandler).isNotNull();
+    assertThat(eventHandler.priority()).isEqualTo(EventPriority.MONITOR);
+    assertThat(eventHandler.ignoreCancelled()).isTrue();
+    ItemStack shield = item(Material.SHIELD);
+    ItemStack chestplate = item(Material.DIAMOND_CHESTPLATE);
+    assertThat(BlockingTemperedGuard.isShieldDamage(shield)).isTrue();
+    assertThat(BlockingTemperedGuard.isShieldDamage(chestplate)).isFalse();
+    assertThat(BlockingTemperedGuard.isShieldDamage(null)).isFalse();
+  }
+
+  @Test
   void resolveRecoveryAndResistanceScaleUpward() {
     BlockingShieldbearersResolve.Config c = new BlockingShieldbearersResolve.Config();
     assertThat(c.recoverySpeedBase).isBetween(0.0001, c.maxRecoverySpeed);
@@ -64,6 +91,34 @@ class BlockingAdaptationConfigDefaultsTest {
   }
 
   @Test
+  void phalanxCrafterIdentifiesPlainAndCustomShieldFaces() {
+    assertThat(BlockingPhalanxCrafter.hasVisibleShieldDesign(DyeColor.WHITE, 0)).isFalse();
+    assertThat(BlockingPhalanxCrafter.hasVisibleShieldDesign(DyeColor.BLACK, 0)).isTrue();
+    assertThat(BlockingPhalanxCrafter.hasVisibleShieldDesign(DyeColor.WHITE, 1)).isTrue();
+    assertThat(BlockingPhalanxCrafter.hasVisibleShieldDesign(null, 0)).isFalse();
+
+    ItemStack shield = item(Material.SHIELD);
+    ItemStack[] matrix = {
+        item(Material.NETHERITE_INGOT),
+        shield,
+        item(Material.NETHERITE_INGOT)
+    };
+    assertThat(BlockingPhalanxCrafter.findShield(matrix)).isSameAs(shield);
+    assertThat(BlockingPhalanxCrafter.findShield(new ItemStack[]{item(Material.STICK)})).isNull();
+    assertThat(BlockingPhalanxCrafter.findShield(null)).isNull();
+  }
+
+  @Test
+  void phalanxCrafterUsesShieldMetadataForItsCraftedFace() throws Exception {
+    String source = Files.readString(Path.of(
+        "src/main/java/art/arcane/adapt/content/adaptation/blocking/BlockingPhalanxCrafter.java"));
+
+    assertThat(source)
+        .contains("meta instanceof ShieldMeta shieldMeta", "applyDefaultShieldDesign(shieldMeta);")
+        .doesNotContain("meta instanceof BlockStateMeta");
+  }
+
+  @Test
   void interposeShareAndRangeScaleUpwardWithHungerCost() {
     BlockingInterpose.Config c = new BlockingInterpose.Config();
     assertThat(c.redirectShareBase).isBetween(0.0001, c.maxRedirectShare);
@@ -75,5 +130,11 @@ class BlockingAdaptationConfigDefaultsTest {
     assertThat(c.durabilityPerDamage).isGreaterThan(0);
     assertThat(c.exhaustionPerRedirect).isGreaterThan(0);
     assertThat(c.xpPerDamageRedirected).isGreaterThan(0);
+  }
+
+  private static ItemStack item(Material material) {
+    ItemStack item = mock(ItemStack.class);
+    when(item.getType()).thenReturn(material);
+    return item;
   }
 }

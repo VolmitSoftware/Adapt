@@ -5410,15 +5410,15 @@ lore = ["Her seviye icin daha fazla XP ve Balik kazanma sansi var!"]
 
 [seaborn.haste]
 name = "Kaplumbaga Madencisi"
-description = "Su altinda madencilik yaparken acele kazanirsiniz!"
-lore1 = "Su soluma etkiniz bittikten sonra su altinda madencilik yaparken Acele 3 uygulanir (AquaAffinity ile birikir)!"
-lore = ["Su soluma etkiniz bittikten sonra su altinda madencilik yaparken Acele 3 uygulanir (AquaAffinity ile birikir)!"]
+description = "Su altında ister yerde dururken ister yüzerken daha hızlı kazarsınız."
+lore1 = "Su altı kazma hızını artırır, Aqua Affinity ile birleşir ve yüzerken uygulanan kazma cezasını telafi eder."
+lore = ["Su altı kazma hızını artırır, Aqua Affinity ile birleşir ve yüzerken uygulanan kazma cezasını telafi eder."]
 
 [seaborn.night_vision]
 name = "Kaplumbaganin Gorusu"
-description = "Su altindayken Gece Gorusu kazanirsiniz"
-lore1 = "Su soluma etkiniz bittikten sonra su altindayken Gece Gorusu kazanin!"
-lore = ["Su soluma etkiniz bittikten sonra su altindayken Gece Gorusu kazanin!"]
+description = "Su altındayken Gece Görüşü kazanırsınız."
+lore1 = "Su altındayken Gece Görüşü sürekli yenilenir."
+lore = ["Su altındayken Gece Görüşü sürekli yenilenir."]
 
 [seaborn.dolphin_grace]
 name = "Yunusun Zarfeti"

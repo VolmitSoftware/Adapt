@@ -481,14 +481,15 @@ public class PlayerSkillLine {
   private void notifyLevel(AdaptPlayer p, double lvl, long kn) {
 //        Skill s = p.getServer().getSkillRegistry().getSkill(getLine());
     if (lvl % 10 == 0) {
+      float milestoneVolume = (float) AdaptConfig.get().getLevelMilestoneSoundVolume();
       p.getNot().queue(SoundNotification.builder()
           .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
-          .volume(1f)
+          .volume(milestoneVolume)
           .pitch(1.35f)
           .group("lvl" + getLine())
           .build(), SoundNotification.builder()
           .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
-          .volume(1f)
+          .volume(milestoneVolume)
           .pitch(0.75f)
           .group("lvl" + getLine())
           .build(), TitleNotification.builder()

@@ -3,6 +3,7 @@ package art.arcane.adapt.content.adaptation.kinetics;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -83,6 +84,27 @@ class KineticsImpalePinTest {
     assertThat(KineticsImpalePin.inSweetRange(Double.NaN, 3.0D, 5.0D)).isFalse();
     assertThat(KineticsImpalePin.inSweetRange(Double.POSITIVE_INFINITY, 3.0D, 5.0D)).isFalse();
     assertThat(KineticsImpalePin.inSweetRange(Double.NEGATIVE_INFINITY, 3.0D, 5.0D)).isFalse();
+  }
+
+  @Test
+  void rangeDistanceUsesEyeToNearestHitboxPoint() {
+    BoundingBox bounds = new BoundingBox(3D, 0D, -0.5D, 4D, 2D, 0.5D);
+    double distance = KineticsImpalePin.distanceToBounds(0D, 1.62D, 0D, bounds);
+    assertThat(distance).isEqualTo(3D);
+  }
+
+  @Test
+  void rangeDistanceAccountsForVerticalSeparation() {
+    BoundingBox bounds = new BoundingBox(3D, 4D, -0.5D, 4D, 6D, 0.5D);
+    double distance = KineticsImpalePin.distanceToBounds(0D, 1D, 0D, bounds);
+    assertThat(distance).isCloseTo(Math.sqrt(18D), org.assertj.core.data.Offset.offset(1.0E-9D));
+  }
+
+  @Test
+  void rangeDistanceRejectsInvalidEyeCoordinates() {
+    BoundingBox bounds = new BoundingBox(3D, 0D, -0.5D, 4D, 2D, 0.5D);
+    assertThat(KineticsImpalePin.distanceToBounds(Double.NaN, 1D, 0D, bounds)).isNaN();
+    assertThat(KineticsImpalePin.distanceToBounds(0D, 1D, 0D, null)).isNaN();
   }
 
   @Test

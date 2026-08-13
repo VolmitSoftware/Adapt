@@ -5410,15 +5410,15 @@ lore = ["Voor elk niveau is er een kans om meer XP en vis te krijgen!"]
 
 [seaborn.haste]
 name = "Schildpadmijnwerker"
-description = "Tijdens het mijnen onder water krijg je haast!"
-lore1 = "Haast 3 wordt onder water toegepast tijdens het mijnen (stapelt met AquaAffinity) nadat je waterademeffect is uitgewerkt!"
-lore = ["Haast 3 wordt onder water toegepast tijdens het mijnen (stapelt met AquaAffinity) nadat je waterademeffect is uitgewerkt!"]
+description = "Delf sneller onder water, zowel staand als zwevend."
+lore1 = "Verhoogt de mijnsnelheid onder water, stapelt met Aqua-affiniteit en compenseert de mijnstraf tijdens het zweven."
+lore = ["Verhoogt de mijnsnelheid onder water, stapelt met Aqua-affiniteit en compenseert de mijnstraf tijdens het zweven."]
 
 [seaborn.night_vision]
 name = "Schildpadzicht"
-description = "Onder water krijg je nachtzicht"
-lore1 = "Verkrijg simpelweg nachtzicht terwijl je onder water bent nadat je waterademeffect is uitgewerkt!"
-lore = ["Verkrijg simpelweg nachtzicht terwijl je onder water bent nadat je waterademeffect is uitgewerkt!"]
+description = "Onder water krijg je nachtzicht."
+lore1 = "Onder water krijg je voortdurend vernieuwd nachtzicht."
+lore = ["Onder water krijg je voortdurend vernieuwd nachtzicht."]
 
 [seaborn.dolphin_grace]
 name = "Dolfijnengratie"

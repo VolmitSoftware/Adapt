@@ -60,6 +60,7 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
   private static final double SUBMERGED_MINING_BASE = 0.2D;
   private static final double[] FATIGUE_LEVEL_FACTORS = {0.3D, 0.09D, 0.0027D, 8.1E-4D};
   private static final double FATIGUE_TRIM_HORIZON_TICKS = 20D;
+  private static final int MAX_EFFECT_DURATION_TICKS = 20 * 60;
   private final Cooldowns xpCooldowns = cooldowns();
   private final Cooldowns absorbFx = cooldowns();
   private final Map<UUID, Boolean> deep = playerState();
@@ -249,8 +250,9 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
   }
 
   private void applyDepthBuffs(Player p, int level, int resistanceAmp) {
-    p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, getConfig().effectTicks, resistanceAmp, false, false, true), true);
-    p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, getConfig().effectTicks, 0, false, false, true), true);
+    int effectTicks = effectDurationTicks(getConfig().effectTicks);
+    p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, effectTicks, resistanceAmp, false, false, true), true);
+    p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, effectTicks, 0, false, false, true), true);
     updateFatigueCounter(p, level);
   }
 
@@ -258,19 +260,19 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     UUID id = p.getUniqueId();
     PotionEffect fatigue = p.getPotionEffect(PotionEffectType.MINING_FATIGUE);
     if (fatigue == null) {
-      if (fatigueCountered.remove(id) != null) {
-        AdaptAttributeService.get().remove(p, getName(), FATIGUE_SLOT, Attributes.SUBMERGED_MINING_SPEED);
-      }
+      clearFatigueCounter(p, id);
       return;
     }
 
-    long durationTicks = counterDurationTicks(fatigue.getDuration(), getConfig().fatigueReplaceTicks);
+    long durationTicks = counterDurationTicks(fatigue.getDuration(), getConfig().fatigueCounterDurationTicks);
     if (durationTicks <= 0) {
+      clearFatigueCounter(p, id);
       return;
     }
 
     double bonus = fatigueCounterBonus(getFatigueTrimChance(level), getFatigueTrimAmount(level), fatigue.getAmplifier());
     if (bonus <= 0D) {
+      clearFatigueCounter(p, id);
       return;
     }
 
@@ -281,6 +283,12 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
           .particle(Particle.CRIT, 4, 0D, 0.3D, 0D, 0.3D, 0.05D)
           .dustBurst(3, 0.25D, 0.8F)
           .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.35F, 1.6F);
+    }
+  }
+
+  private void clearFatigueCounter(Player p, UUID id) {
+    if (fatigueCountered.remove(id) != null) {
+      AdaptAttributeService.get().remove(p, getName(), FATIGUE_SLOT, Attributes.SUBMERGED_MINING_SPEED);
     }
   }
 
@@ -350,14 +358,19 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     return Math.max(250L, Math.min(750L, Math.max(1, effectTicks) * 25L));
   }
 
-  static long counterDurationTicks(int fatigueDurationTicks, int fatigueReplaceTicks) {
-    if (fatigueReplaceTicks <= 0) {
+  static long counterDurationTicks(int fatigueDurationTicks, int configuredCounterTicks) {
+    if (configuredCounterTicks <= 0) {
       return 0L;
     }
+    long boundedCounterTicks = Math.min(MAX_EFFECT_DURATION_TICKS, configuredCounterTicks);
     if (fatigueDurationTicks < 0) {
-      return Math.max(20L, fatigueReplaceTicks);
+      return Math.max(20L, boundedCounterTicks);
     }
-    return Math.max(20L, Math.min(fatigueDurationTicks, fatigueReplaceTicks));
+    return Math.max(20L, Math.min(fatigueDurationTicks, boundedCounterTicks));
+  }
+
+  static int effectDurationTicks(int configuredTicks) {
+    return Math.max(20, Math.min(MAX_EFFECT_DURATION_TICKS, configuredTicks));
   }
 
   static double fatigueCounterBonus(double trimChance, int trimAmount, int fatigueAmplifier) {
@@ -384,35 +397,35 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
 
   @ConfigDescription("Gain depth scaling protection underwater and partially counter mining fatigue in deep ocean play.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Depth Threshold Base for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Required eye depth below sea level in blocks at the lowest adaptation level.", impact = "Higher values require a deeper dive before any Pressure Diver buff activates.")
     double depthThresholdBase = 10;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Depth Threshold Factor for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Blocks removed from the activation depth requirement across adaptation levels.", impact = "Higher values let experienced divers activate the buff closer to the surface; the threshold floors at 2 blocks.")
     double depthThresholdFactor = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Deep Threshold Base for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Required eye depth below sea level for the stronger Resistance tier at the lowest level.", impact = "Higher values reserve Resistance II for deeper water.")
     double deepThresholdBase = 18;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Deep Threshold Factor for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Blocks removed from the stronger Resistance tier requirement across levels.", impact = "Higher values make the deep tier activate closer to the surface; the threshold floors at 4 blocks.")
     double deepThresholdFactor = 8;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Reduction Base for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Incoming damage fraction removed while Pressure Diver is active at the lowest level.", impact = "0.12 removes 12% of incoming damage before the rolling Resistance effect is considered.")
     double damageReductionBase = 0.12;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Reduction Factor for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional incoming damage reduction gained across adaptation levels.", impact = "Higher values scale the depth protection more strongly toward max level.")
     double damageReductionFactor = 0.26;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Maximum Damage Reduction for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum incoming damage reduction fraction from Pressure Diver itself.", impact = "Caps the direct reduction independently of the Resistance effect.")
     double maxDamageReduction = 0.45;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fatigue Trim Chance Base for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Lowest-level per-tick Mining Fatigue trim chance represented by the deterministic speed counter.", impact = "Higher values offset more of Mining Fatigue II and above; Mining Fatigue I remains the floor.")
     double fatigueTrimChanceBase = 0.2;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fatigue Trim Chance Factor for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional Mining Fatigue trim chance gained across levels.", impact = "Higher values make the submerged mining-speed counter stronger at higher levels.")
     double fatigueTrimChanceFactor = 0.45;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fatigue Trim Amount Base for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Lowest-level Mining Fatigue amplifier steps trimmed by each conceptual proc.", impact = "Higher values counter stronger Mining Fatigue more aggressively.")
     double fatigueTrimAmountBase = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fatigue Trim Amount Factor for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional Mining Fatigue amplifier trim gained across levels.", impact = "Higher values increase high-level fatigue suppression.")
     double fatigueTrimAmountFactor = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Effect Ticks for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of each refreshed Resistance and Water Breathing effect.", impact = "Higher values give more refresh tolerance; the runtime checks at least every 15 ticks while active.")
     int effectTicks = 60;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fatigue Replace Ticks for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    int fatigueReplaceTicks = 80;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP Per Depth Pulse for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of each refreshed submerged mining-speed counter while Mining Fatigue is present.", impact = "Higher values tolerate refresh delays; zero disables fatigue countering.")
+    int fatigueCounterDurationTicks = 80;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Seaborne XP granted on each active depth pulse.", impact = "Higher values level Seaborne faster while Pressure Diver stays active.")
     double xpPerDepthPulse = 6;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls XP Pulse Cooldown Millis for the Seaborne Pressure Diver adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum milliseconds between active-depth XP pulses.", impact = "Higher values reduce XP frequency without changing the defensive buffs.")
     long xpPulseCooldownMillis = 3000;
 
     public Config() {

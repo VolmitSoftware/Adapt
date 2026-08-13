@@ -22,6 +22,14 @@ class DiscoveryScanScalingTest {
   }
 
   @Test
+  void sixthSenseCursorCyclesPerPlayer() {
+    assertThat(DiscoverySixthSense.advanceTypeCursor(0, 16)).isEqualTo(1);
+    assertThat(DiscoverySixthSense.advanceTypeCursor(15, 16)).isZero();
+    assertThat(DiscoverySixthSense.advanceTypeCursor(-1, 16)).isZero();
+    assertThat(DiscoverySixthSense.advanceTypeCursor(4, 0)).isZero();
+  }
+
+  @Test
   void trailblazerSpeedDurationScalesAndKeepsMinimum() {
     assertThat(DiscoveryTrailblazer.speedDurationTicks(1.0D, 80D, 120D)).isEqualTo(200);
     assertThat(DiscoveryTrailblazer.speedDurationTicks(0.0D, 5D, 0D)).isEqualTo(20);

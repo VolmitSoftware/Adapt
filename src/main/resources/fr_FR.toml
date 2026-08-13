@@ -5410,15 +5410,15 @@ lore = ["Pour chaque niveau, il y a une chance d'obtenir plus d'XP et de poisson
 
 [seaborn.haste]
 name = "Mineur tortue"
-description = "Vous gagnez Célérité lorsque vous minez sous l'eau !"
-lore1 = "Célérité III s'applique sous l'eau pendant le minage (et se cumule avec Affinité aquatique) après la fin de votre effet de respiration aquatique !"
-lore = ["Célérité III s'applique sous l'eau pendant le minage (et se cumule avec Affinité aquatique) après la fin de votre effet de respiration aquatique !"]
+description = "Mine plus vite sous l'eau, que vous soyez au sol ou en suspension."
+lore1 = "Augmente la vitesse de minage sous l'eau, se cumule avec Affinité aquatique et compense la pénalité de minage en suspension."
+lore = ["Augmente la vitesse de minage sous l'eau, se cumule avec Affinité aquatique et compense la pénalité de minage en suspension."]
 
 [seaborn.night_vision]
 name = "Vision de tortue"
-description = "Sous l'eau, vous gagnez la vision nocturne"
-lore1 = "Gagnez simplement la vision nocturne sous l'eau apres que votre effet de respiration aquatique se dissipe !"
-lore = ["Gagnez simplement la vision nocturne sous l'eau apres que votre effet de respiration aquatique se dissipe !"]
+description = "Sous l'eau, vous obtenez la vision nocturne."
+lore1 = "Obtenez une vision nocturne renouvelée en continu sous l'eau."
+lore = ["Obtenez une vision nocturne renouvelée en continu sous l'eau."]
 
 [seaborn.dolphin_grace]
 name = "Grace du dauphin"

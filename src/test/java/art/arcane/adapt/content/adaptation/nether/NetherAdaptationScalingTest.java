@@ -1,10 +1,14 @@
 package art.arcane.adapt.content.adaptation.nether;
 
+import art.arcane.adapt.util.config.TomlCodec;
+import org.bukkit.event.Event;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 class NetherAdaptationScalingTest {
   @Test
@@ -71,6 +75,14 @@ class NetherAdaptationScalingTest {
   }
 
   @Test
+  void crimsonFeastAcceptsVanillaPredictiveAirDenialButRespectsDeniedBlocks() {
+    assertThat(NetherCrimsonFeast.blocksFloraEating(false, Event.Result.DENY)).isFalse();
+    assertThat(NetherCrimsonFeast.blocksFloraEating(true, Event.Result.DEFAULT)).isFalse();
+    assertThat(NetherCrimsonFeast.blocksFloraEating(true, Event.Result.ALLOW)).isFalse();
+    assertThat(NetherCrimsonFeast.blocksFloraEating(true, Event.Result.DENY)).isTrue();
+  }
+
+  @Test
   void ashwalkerTierCoverageUnlocksProgressively() {
     assertThat(NetherAshwalker.coversCampfire(1, 2)).isFalse();
     assertThat(NetherAshwalker.coversCampfire(2, 2)).isTrue();
@@ -83,6 +95,23 @@ class NetherAdaptationScalingTest {
     assertThat(NetherAshwalker.isCampfireDamage(EntityDamageEvent.DamageCause.CAMPFIRE)).isTrue();
     assertThat(NetherAshwalker.isCampfireDamage(EntityDamageEvent.DamageCause.FIRE)).isFalse();
     assertThat(NetherAshwalker.isCampfireDamage(EntityDamageEvent.DamageCause.FIRE_TICK)).isFalse();
+  }
+
+  @Test
+  void ashwalkerHardCancelsImmuneDamageAndDefaultsToSilentFeedback() {
+    EntityDamageEvent event = mock(EntityDamageEvent.class);
+
+    NetherAshwalker.fullyNegateDamage(event);
+
+    verify(event).setDamage(0D);
+    verify(event).setCancelled(true);
+    assertThat(new NetherAshwalker.Config().immunitySoundVolume).isZero();
+    assertThat(TomlCodec.toToml(new NetherAshwalker.Config(), "adaptation:nether-ashwalker"))
+        .contains("immunitySoundVolume = 0.0");
+    assertThat(NetherAshwalker.immunitySoundVolume(Double.NaN)).isZero();
+    assertThat(NetherAshwalker.immunitySoundVolume(-1D)).isZero();
+    assertThat(NetherAshwalker.immunitySoundVolume(0.4D)).isCloseTo(0.4F, within(1.0E-6F));
+    assertThat(NetherAshwalker.immunitySoundVolume(2D)).isEqualTo(1F);
   }
 
   @Test

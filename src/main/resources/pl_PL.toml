@@ -5410,15 +5410,15 @@ lore = ["Za kazdy poziom jest szansa na wiecej PD i wiecej Ryb!"]
 
 [seaborn.haste]
 name = "Zolwi Gornik"
-description = "Podczas kopania pod woda zyskujesz pospiech!"
-lore1 = "Pospiech 3 jest nakladany pod woda podczas kopania (kumuluje sie z AquaAffinity) po zakonczeniu efektu oddychania pod woda!"
-lore = ["Pospiech 3 jest nakladany pod woda podczas kopania (kumuluje sie z AquaAffinity) po zakonczeniu efektu oddychania pod woda!"]
+description = "Kopiesz szybciej pod wodą, zarówno stojąc, jak i unosząc się."
+lore1 = "Zwiększa szybkość kopania pod wodą, łączy się z Wydajnością pod wodą i kompensuje karę podczas unoszenia się."
+lore = ["Zwiększa szybkość kopania pod wodą, łączy się z Wydajnością pod wodą i kompensuje karę podczas unoszenia się."]
 
 [seaborn.night_vision]
 name = "Wizja Zolwia"
-description = "Pod woda zyskujesz Noktowizje"
-lore1 = "Po prostu zyskaj Noktowizje pod woda po zakonczeniu efektu oddychania pod woda!"
-lore = ["Po prostu zyskaj Noktowizje pod woda po zakonczeniu efektu oddychania pod woda!"]
+description = "Pod wodą zyskujesz noktowizję."
+lore1 = "Pod wodą noktowizja jest stale odnawiana."
+lore = ["Pod wodą noktowizja jest stale odnawiana."]
 
 [seaborn.dolphin_grace]
 name = "Laska Delfina"

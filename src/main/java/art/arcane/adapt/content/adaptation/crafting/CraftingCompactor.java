@@ -49,21 +49,21 @@ import java.util.Map;
 
 public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config> {
   private static final int COMPACTOR_LEVELS = 1;
-  private static final int UNITS_PER_BLOCK = 9;
   private static final int FULL_STACK = 64;
   private static final CompactEntry[] ENTRIES = {
-      new CompactEntry(Material.IRON_INGOT, Material.IRON_BLOCK),
-      new CompactEntry(Material.GOLD_INGOT, Material.GOLD_BLOCK),
-      new CompactEntry(Material.COAL, Material.COAL_BLOCK),
-      new CompactEntry(Material.REDSTONE, Material.REDSTONE_BLOCK),
-      new CompactEntry(Material.COPPER_INGOT, Material.COPPER_BLOCK),
-      new CompactEntry(Material.LAPIS_LAZULI, Material.LAPIS_BLOCK),
-      new CompactEntry(Material.RAW_IRON, Material.RAW_IRON_BLOCK),
-      new CompactEntry(Material.RAW_GOLD, Material.RAW_GOLD_BLOCK),
-      new CompactEntry(Material.RAW_COPPER, Material.RAW_COPPER_BLOCK),
-      new CompactEntry(Material.DIAMOND, Material.DIAMOND_BLOCK),
-      new CompactEntry(Material.EMERALD, Material.EMERALD_BLOCK),
-      new CompactEntry(Material.NETHERITE_INGOT, Material.NETHERITE_BLOCK)
+      new CompactEntry(Material.IRON_INGOT, Material.IRON_BLOCK, 9),
+      new CompactEntry(Material.GOLD_INGOT, Material.GOLD_BLOCK, 9),
+      new CompactEntry(Material.COAL, Material.COAL_BLOCK, 9),
+      new CompactEntry(Material.GLOWSTONE_DUST, Material.GLOWSTONE, 4),
+      new CompactEntry(Material.REDSTONE, Material.REDSTONE_BLOCK, 9),
+      new CompactEntry(Material.COPPER_INGOT, Material.COPPER_BLOCK, 9),
+      new CompactEntry(Material.LAPIS_LAZULI, Material.LAPIS_BLOCK, 9),
+      new CompactEntry(Material.RAW_IRON, Material.RAW_IRON_BLOCK, 9),
+      new CompactEntry(Material.RAW_GOLD, Material.RAW_GOLD_BLOCK, 9),
+      new CompactEntry(Material.RAW_COPPER, Material.RAW_COPPER_BLOCK, 9),
+      new CompactEntry(Material.DIAMOND, Material.DIAMOND_BLOCK, 9),
+      new CompactEntry(Material.EMERALD, Material.EMERALD_BLOCK, 9),
+      new CompactEntry(Material.NETHERITE_INGOT, Material.NETHERITE_BLOCK, 9)
   };
 
   public CraftingCompactor() {
@@ -96,6 +96,15 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
 
   static int materialsCovered() {
     return ENTRIES.length;
+  }
+
+  static int unitsPerBlock(Material unit) {
+    for (CompactEntry entry : ENTRIES) {
+      if (entry.unit() == unit) {
+        return entry.unitsPerBlock();
+      }
+    }
+    return 0;
   }
 
   @Override
@@ -137,14 +146,13 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
       if (available < FULL_STACK) {
         continue;
       }
-      int blocks = available / UNITS_PER_BLOCK;
+      int blocks = blocksFor(available, entry.unitsPerBlock());
       if (blocks <= 0) {
         continue;
       }
-      if (!payItemCost(p, "materials", new ItemStack(entry.unit()), blocks * UNITS_PER_BLOCK, () -> {
-        p.getInventory().removeItem(new ItemStack(entry.unit(), blocks * UNITS_PER_BLOCK));
-        return true;
-      })) {
+      int consumed = unitsConsumed(blocks, entry.unitsPerBlock());
+      if (!payItemCost(p, "materials", new ItemStack(entry.unit()), consumed,
+          () -> removePlain(p, entry.unit(), consumed))) {
         continue;
       }
 
@@ -172,6 +180,14 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
         && targetType == Material.CRAFTING_TABLE;
   }
 
+  static int blocksFor(int available, int unitsPerBlock) {
+    return available <= 0 || unitsPerBlock <= 0 ? 0 : available / unitsPerBlock;
+  }
+
+  static int unitsConsumed(int blocks, int unitsPerBlock) {
+    return blocks <= 0 || unitsPerBlock <= 0 ? 0 : blocks * unitsPerBlock;
+  }
+
   boolean normalizeStoredLevel(PlayerSkillLine line) {
     if (line == null || line.getAdaptationLevel(getName()) <= COMPACTOR_LEVELS) {
       return false;
@@ -191,13 +207,39 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
     return total;
   }
 
+  private boolean removePlain(Player player, Material material, int amount) {
+    ItemStack unit = new ItemStack(material);
+    if (amount <= 0 || availablePlain(player, material) < amount) {
+      return false;
+    }
+
+    int remaining = amount;
+    ItemStack[] storage = player.getInventory().getStorageContents();
+    for (int slot = 0; slot < storage.length && remaining > 0; slot++) {
+      ItemStack item = storage[slot];
+      if (item == null || !item.isSimilar(unit)) {
+        continue;
+      }
+
+      int consumed = Math.min(remaining, item.getAmount());
+      remaining -= consumed;
+      if (consumed == item.getAmount()) {
+        storage[slot] = null;
+      } else {
+        item.setAmount(item.getAmount() - consumed);
+      }
+    }
+    player.getInventory().setStorageContents(storage);
+    return remaining == 0;
+  }
+
   private void normalizeStoredLevel(Player player) {
     AdaptPlayer adaptPlayer = getPlayer(player);
     PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
     normalizeStoredLevel(line);
   }
 
-  private record CompactEntry(Material unit, Material block) {
+  private record CompactEntry(Material unit, Material block, int unitsPerBlock) {
   }
 
   @ConfigDescription("Sneak and swap hands while aiming at a Crafting Table to compact full stacks of ingots, gems, and raw ores into blocks.")

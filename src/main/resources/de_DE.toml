@@ -5410,15 +5410,15 @@ lore = ["Für jede Stufe gibt es eine Chance, mehr EP und Fisch zu erhalten!"]
 
 [seaborn.haste]
 name = "Schildkröten-Bergbau"
-description = "Erhalte Eile beim Abbauen unter Wasser!"
-lore1 = "Eile 3 wird unter Wasser beim Abbauen angewendet (stapelt sich mit Wasseraffinität), nachdem der Wasseratmungseffekt nachlässt!"
-lore = ["Eile 3 wird unter Wasser beim Abbauen angewendet (stapelt sich mit Wasseraffinität), nachdem der Wasseratmungseffekt nachlässt!"]
+description = "Baue unter Wasser schneller ab, egal ob du stehst oder schwebst."
+lore1 = "Erhöht die Abbaugeschwindigkeit unter Wasser, stapelt sich mit Wasseraffinität und gleicht die Abbaustrafe beim Schweben aus."
+lore = ["Erhöht die Abbaugeschwindigkeit unter Wasser, stapelt sich mit Wasseraffinität und gleicht die Abbaustrafe beim Schweben aus."]
 
 [seaborn.night_vision]
 name = "Schildkröten-Sicht"
-description = "Erhalte Nachtsicht, während du unter Wasser bist"
-lore1 = "Erhalte einfach Nachtsicht unter Wasser, nachdem dein Wasseratmungseffekt nachlässt!"
-lore = ["Erhalte einfach Nachtsicht unter Wasser, nachdem dein Wasseratmungseffekt nachlässt!"]
+description = "Erhalte unter Wasser Nachtsicht."
+lore1 = "Erhalte unter Wasser kontinuierlich erneuerte Nachtsicht."
+lore = ["Erhalte unter Wasser kontinuierlich erneuerte Nachtsicht."]
 
 [seaborn.dolphin_grace]
 name = "Gunst des Delfins"

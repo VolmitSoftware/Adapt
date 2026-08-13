@@ -264,7 +264,7 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
     };
   }
 
-  private boolean isSuspiciousBlock(Material type) {
+  static boolean isSuspiciousBlock(Material type) {
     return type == Material.SUSPICIOUS_SAND || type == Material.SUSPICIOUS_GRAVEL;
   }
 

@@ -46,8 +46,8 @@ import org.bukkit.util.StructureSearchResult;
 import org.bukkit.util.Vector;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Config> {
   private static volatile List<StructureType> structureTypes;
@@ -59,6 +59,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
           StructureType.BURIED_TREASURE,
           StructureType.DESERT_PYRAMID,
           StructureType.IGLOO,
+          StructureType.JIGSAW,
           StructureType.JUNGLE_TEMPLE,
           StructureType.MINESHAFT,
           StructureType.OCEAN_MONUMENT,
@@ -77,7 +78,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
   }
 
   private final Cooldowns pulseThrottle = cooldowns();
-  private final AtomicInteger typeCursor = new AtomicInteger();
+  private final Map<UUID, Integer> typeCursors = playerState();
 
   public DiscoverySixthSense() {
     super("discovery-sixth-sense");
@@ -138,7 +139,10 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     double range = detectionRange(getLevelPercent(level), getConfig().detectionRangeBase, getConfig().detectionRangeFactor);
     int radiusChunks = Math.max(1, (int) Math.ceil(range / 16D));
     List<StructureType> types = structureTypes();
-    StructureType type = types.get(Math.floorMod(typeCursor.getAndIncrement(), types.size()));
+    UUID playerId = player.getUniqueId();
+    int cursor = Math.floorMod(typeCursors.getOrDefault(playerId, 0), types.size());
+    StructureType type = types.get(cursor);
+    typeCursors.put(playerId, advanceTypeCursor(cursor, types.size()));
     World world = player.getWorld();
     Location origin = player.getLocation();
 
@@ -194,11 +198,13 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
   public void on(PlayerQuitEvent event) {
     UUID playerId = event.getPlayer().getUniqueId();
     pulseThrottle.clear(playerId);
+    typeCursors.remove(playerId);
     ViewerDisplayDirector.clearViewer(getName(), playerId);
   }
 
   @Override
   public void unregister() {
+    typeCursors.clear();
     ViewerDisplayDirector.clearChannel(getName());
     super.unregister();
   }
@@ -207,6 +213,14 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     return Math.max(16D, base + (levelPercent * factor));
   }
 
+  static int advanceTypeCursor(int cursor, int typeCount) {
+    if (typeCount <= 1) {
+      return 0;
+    }
+
+    int normalized = Math.floorMod(cursor, typeCount);
+    return normalized == typeCount - 1 ? 0 : normalized + 1;
+  }
 
   @ConfigDescription("A private glowing direction line hints when an unexplored structure is within range.")
   protected static class Config extends AdaptationConfig {

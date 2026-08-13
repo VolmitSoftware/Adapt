@@ -36,21 +36,30 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Drowned;
-import org.bukkit.entity.ElderGuardian;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Guardian;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
-  private static final int MAX_AFFECTED = 24;
+  private static final double MAX_CLOUD_RADIUS = 16D;
+  private static final int MAX_AFFECTED_HOSTILES = 128;
+  private static final int MAX_EFFECT_TICKS = 20 * 60;
+  private static final int MAX_CLOUD_VISUAL_TICKS = 40;
 
   private final Cooldowns cloudCooldowns = cooldowns();
+  private final Map<UUID, Long> concealedUntil = playerState();
 
   public SeaborneInkVeil() {
     super("seaborne-ink-veil");
@@ -104,39 +113,79 @@ public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
     });
   }
 
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void on(EntityTargetLivingEntityEvent e) {
+    if (!(e.getTarget() instanceof Player player)
+        || !isInkHunter(e.getEntity())
+        || !isConcealed(player.getUniqueId(), System.currentTimeMillis())) {
+      return;
+    }
+
+    e.setCancelled(true);
+    if (e.getEntity() instanceof Mob mob) {
+      mob.setTarget(null);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    concealedUntil.remove(e.getPlayer().getUniqueId());
+  }
+
   private void burstInk(Player p, int level) {
     double radius = getCloudSize(level);
     Location center = p.getLocation().clone().add(0D, 1.0D, 0D);
     int blindTicks = getBlindTicks(level);
+    renewConcealment(p, getConcealmentTicks(level));
 
-    p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, getInvisTicks(level), 0, false, false, true));
-
+    int maxAffected = getMaxAffectedHostiles();
     int affected = 0;
+    int hunters = 0;
     for (Entity entity : p.getWorld().getNearbyEntities(center, radius, radius, radius)) {
       if (!(entity instanceof Monster monster)) {
         continue;
       }
 
+      boolean applyBlindness = affected < maxAffected;
+      boolean clearHunter = isInkHunter(monster) && hunters < MAX_AFFECTED_HOSTILES;
+      if (!applyBlindness && !clearHunter) {
+        continue;
+      }
+      if (applyBlindness) {
+        affected++;
+      }
+      if (clearHunter) {
+        hunters++;
+      }
+
       J.runEntity(monster, () -> {
-        monster.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, blindTicks, 0, false, true, true));
-        if ((monster instanceof Drowned || monster instanceof Guardian || monster instanceof ElderGuardian)
-            && monster.getTarget() == p) {
+        if (applyBlindness) {
+          monster.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, blindTicks, 0, false, true, true));
+        }
+        if (clearHunter && monster.getTarget() == p) {
           monster.setTarget(null);
         }
       });
-
-      if (++affected >= MAX_AFFECTED) {
-        break;
-      }
     }
 
     addStat(p, "seaborne.ink-veil.clouds-burst", 1);
     xp(p, getConfig().burstXp);
     fx(center, FxPriority.COMBAT)
-        .particle(Particle.SMOKE, (int) Math.min(48D, radius * 6D), 0D, 0D, 0D, radius * 0.5D, 0.01D)
-        .particle(Particle.SOUL, (int) Math.min(24D, radius * 3D), 0D, 0D, 0D, radius * 0.4D, 0.01D)
+        .particle(Particle.SQUID_INK, (int) Math.min(48D, radius * 8D), 0D, 0D, 0D, radius * 0.35D, 0.02D)
         .dustBurst(Color.BLACK, (int) Math.min(24D, radius * 3D), radius * 0.5D, 1.4F)
         .chord(Sound.ENTITY_DOLPHIN_SPLASH, 0.6F, 0.6F, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5F, 0.7F);
+    timeline(center)
+        .duration(getCloudVisualTicks())
+        .priority(FxPriority.COMBAT)
+        .cullRadius(radius + 16D)
+        .frame((f, tick, progress) -> {
+          double cloudRadius = radius * (0.2D + (progress * 0.8D));
+          f.ring(Particle.SQUID_INK, cloudRadius, Math.max(8, (int) Math.round(radius * 3D)), 0D);
+          if ((tick & 1) == 0) {
+            f.dome(Particle.SQUID_INK, cloudRadius, Math.max(4, (int) Math.round(radius)));
+          }
+        })
+        .start();
   }
 
   private double getCloudSize(int level) {
@@ -147,20 +196,80 @@ public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
     return cooldownMillis(getConfig().cooldownMillisBase, getConfig().cooldownMillisReduction, getLevelPercent(level));
   }
 
-  private int getInvisTicks(int level) {
-    return (int) Math.round(getConfig().invisTicksBase + (getLevelPercent(level) * getConfig().invisTicksFactor));
+  private int getConcealmentTicks(int level) {
+    return scaledTicks(getConfig().concealmentTicksBase, getConfig().concealmentTicksFactor, getLevelPercent(level));
   }
 
   private int getBlindTicks(int level) {
-    return (int) Math.round(getConfig().blindTicksBase + (getLevelPercent(level) * getConfig().blindTicksFactor));
+    return scaledTicks(getConfig().blindTicksBase, getConfig().blindTicksFactor, getLevelPercent(level));
+  }
+
+  private int getMaxAffectedHostiles() {
+    return Math.max(0, Math.min(MAX_AFFECTED_HOSTILES, getConfig().maxAffectedHostiles));
+  }
+
+  private int getCloudVisualTicks() {
+    return Math.max(1, Math.min(MAX_CLOUD_VISUAL_TICKS, getConfig().cloudVisualTicks));
+  }
+
+  private void renewConcealment(Player player, int durationTicks) {
+    UUID playerId = player.getUniqueId();
+    long expiry = System.currentTimeMillis() + (durationTicks * 50L);
+    concealedUntil.put(playerId, expiry);
+    boolean scheduled = J.runEntity(player, () -> concealedUntil.remove(playerId, expiry), durationTicks);
+    if (!scheduled) {
+      concealedUntil.remove(playerId, expiry);
+    }
+  }
+
+  private boolean isConcealed(UUID playerId, long now) {
+    Long until = concealedUntil.get(playerId);
+    if (until == null) {
+      return false;
+    }
+    if (isConcealed(until, now)) {
+      return true;
+    }
+    concealedUntil.remove(playerId, until);
+    return false;
+  }
+
+  private static boolean isInkHunter(Entity entity) {
+    return entity instanceof Drowned || entity instanceof Guardian;
   }
 
   static double cloudSize(double base, double factor, double levelPercent) {
-    return base + (levelPercent * factor);
+    double scaled = base + (levelPercent * factor);
+    if (!Double.isFinite(scaled)) {
+      return 0.5D;
+    }
+    return Math.max(0.5D, Math.min(MAX_CLOUD_RADIUS, scaled));
   }
 
   static long cooldownMillis(long base, long reduction, double levelPercent) {
-    return Math.max(3000L, (long) (base - (levelPercent * reduction)));
+    double scaled = base - (levelPercent * reduction);
+    if (!Double.isFinite(scaled)) {
+      return 3000L;
+    }
+    return Math.max(3000L, Math.min(60L * 60L * 1000L, (long) scaled));
+  }
+
+  static int scaledTicks(double base, double factor, double levelPercent) {
+    double scaled = base + (levelPercent * factor);
+    if (!Double.isFinite(scaled)) {
+      return 1;
+    }
+    return Math.max(1, Math.min(MAX_EFFECT_TICKS, (int) Math.round(scaled)));
+  }
+
+  static boolean isConcealed(long concealedUntil, long now) {
+    return concealedUntil > now;
+  }
+
+  @Override
+  public void unregister() {
+    concealedUntil.clear();
+    super.unregister();
   }
 
   @ConfigDescription("Taking damage underwater bursts an ink cloud that blinds hostiles and briefly hides you from drowned and guardians.")
@@ -173,14 +282,18 @@ public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
     long cooldownMillisBase = 12000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown milliseconds removed at max level.", impact = "Higher values make higher levels burst far more often (floored at 3s).")
     long cooldownMillisReduction = 8000;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base invisibility duration in ticks granted on a burst.", impact = "Higher values keep you hidden longer at low levels.")
-    double invisTicksBase = 40;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional invisibility ticks gained across levels.", impact = "Higher values extend hidden time at higher levels.")
-    double invisTicksFactor = 40;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Base duration in ticks that drowned and guardians cannot target the player after a burst.", impact = "Higher values keep those underwater hunters disengaged longer at low levels.")
+    double concealmentTicksBase = 40;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional anti-target duration in ticks gained across levels.", impact = "Higher values extend protection from drowned and guardian targeting at higher levels.")
+    double concealmentTicksFactor = 40;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base blindness duration in ticks applied to nearby hostiles.", impact = "Higher values blind hostiles for longer at low levels.")
     double blindTicksBase = 60;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional blindness ticks gained across levels.", impact = "Higher values blind hostiles for longer at higher levels.")
     double blindTicksFactor = 60;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum number of nearby hostile mobs affected by each ink burst.", impact = "Higher values let one cloud blind more mobs but increase burst-time work in dense farms.")
+    int maxAffectedHostiles = 24;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of the expanding squid-ink cloud visual.", impact = "Higher values keep the cloud visible longer and emit more particles.")
+    int cloudVisualTicks = 10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Bonus XP granted when an ink cloud bursts.", impact = "Higher values reward defensive bursts with more skill XP.")
     double burstXp = 10;
 

@@ -125,10 +125,12 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     if (cooldowns.isReady(id, COOLDOWN_MILLIS)) {
       double effectiveness = getEffectiveness(getLevelPercent(level));
       double originalDamage = e.getDamage();
+      if (!payExperienceCost(p, "experience-levels", xpCost, () -> spendLevels(p, xpCost))) {
+        return;
+      }
       e.setDamage(Math.max(0D, e.getDamage() * (1D - effectiveness)));
       xp(p, 5);
       cooldowns.mark(id);
-      p.setLevel(p.getLevel() - xpCost);
       addStat(p, "discovery.xp-resist.saves", 1);
 
       double startRadius = 0.8D + (getLevelPercent(level) * 1.6D);
@@ -177,6 +179,14 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     return predictedHealth <= 0D || predictedHealth <= threshold || p.getHealth() <= threshold;
   }
 
+  static boolean spendLevels(Player player, int amount) {
+    if (player == null || amount <= 0 || player.getLevel() < amount) {
+      return false;
+    }
+
+    player.giveExpLevels(-amount);
+    return true;
+  }
 
   @ConfigDescription("Consume experience to mitigate damage when a hit would drop you below 5 hearts.")
   protected static class Config extends AdaptationConfig {

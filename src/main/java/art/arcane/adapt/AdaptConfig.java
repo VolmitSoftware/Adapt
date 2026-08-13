@@ -76,6 +76,10 @@ public class AdaptConfig {
   private boolean loginBonus = true;
   private boolean welcomeMessage = true;
   private boolean advancements = true;
+  @ConfigDoc(value = "Controls whether Adapt shows the client advancement toast when an achievement unlocks.", impact = "Disable this to suppress Adapt's achievement popup and its client-controlled toast sound while still recording the achievement.")
+  private boolean advancementUnlockToasts = true;
+  @ConfigDoc(value = "Volume of Adapt's explicit level-up sounds on every tenth skill level.", impact = "Accepts 0.0 to mute these sounds through 1.0 for full volume; this cannot change the Minecraft client's built-in advancement-toast sound volume.")
+  private double levelMilestoneSoundVolume = 0.35D;
   private boolean useEnchantmentTableParticleForActiveEffects = true;
   @ConfigDoc(value = "Controls whether pressing Escape closes the entire Adapt GUI stack.", impact = "When disabled, Escape returns to the parent Adapt menu until the player reaches the root Skills menu.")
   private boolean escClosesAllGuis = false;
@@ -157,10 +161,21 @@ public class AdaptConfig {
         overwriteOnFailure,
         "core-config",
         "Created missing config [adapt/adapt.toml] from defaults.",
-        null,
+        AdaptConfig::normalize,
         false,
         AdaptConfig::migrateLegacyValueMultiplierKey
     );
+  }
+
+  static double normalizeVolume(double volume, double fallback) {
+    if (!Double.isFinite(volume)) {
+      return fallback;
+    }
+    return Math.max(0D, Math.min(1D, volume));
+  }
+
+  private void normalize() {
+    levelMilestoneSoundVolume = normalizeVolume(levelMilestoneSoundVolume, 0.35D);
   }
 
   static String migrateLegacyValueMultiplierKey(String raw) {

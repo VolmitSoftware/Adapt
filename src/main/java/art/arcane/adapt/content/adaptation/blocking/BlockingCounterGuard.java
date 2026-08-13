@@ -25,6 +25,10 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.notification.ActionBarNotification;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.BlockingMessages;
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -120,6 +124,7 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
       if (stacks != before) {
         boolean nowMaxed = stacks >= maxStacks;
         boolean wasMaxed = getStorageInt(defender, "counterMaxed", 0) == 1;
+        displayStacks(defender, stacks, maxStacks);
         stackGainCue(defender, stacks, maxStacks, nowMaxed);
         if (nowMaxed && !wasMaxed) {
           setStorage(defender, "counterMaxed", 1);
@@ -231,6 +236,7 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
     int newStacks = spentStacks(currentStacks, operation.stackCost());
     setStorage(defender, "counterStacks", newStacks);
     setStorage(defender, "counterMaxed", newStacks >= operation.maxStacks() ? 1 : 0);
+    displayStacks(defender, newStacks, operation.maxStacks());
     if (operation.maxed()) {
       grantOnce(defender, "challenge_blocking_counter_max");
     }
@@ -272,6 +278,20 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
 
   static int spentStacks(int currentStacks, int cost) {
     return Math.max(0, currentStacks - Math.max(0, cost));
+  }
+
+  static String stackFraction(int stacks, int maxStacks) {
+    return Math.max(0, stacks) + "/" + Math.max(1, maxStacks);
+  }
+
+  private void displayStacks(Player defender, int stacks, int maxStacks) {
+    getPlayer(defender).getActionBarNotifier().queue(ActionBarNotification.builder()
+        .duration(350)
+        .maxTTL(M.ms() + 750L)
+        .group("blocking-counter-guard")
+        .title(C.GOLD + AdaptLanguage.text(BlockingMessages.COUNTER_GUARD_NAME)
+            + C.GRAY + " " + stackFraction(stacks, maxStacks))
+        .build());
   }
 
   private void reflectDischarge(Player defender, Location attackerLocation) {

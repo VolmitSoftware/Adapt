@@ -28,6 +28,7 @@ import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerData;
+import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -146,6 +147,7 @@ public class DiscoveryTrailblazer extends SimpleAdaptation<DiscoveryTrailblazer.
     }
 
     xp(player, xpAmount);
+    flushDiscoveryXp(player);
     int speedTicks = speedDurationTicks(getLevelPercent(level), getConfig().speedDurationTicksBase, getConfig().speedDurationTicksFactor);
     if (speedTicks > 0) {
       AdaptAttributeService.get().applyTimed(player, getName(), "speed", Attributes.MOVEMENT_SPEED, speedBonus(getConfig().speedAmplifier), AttributeModifier.Operation.MULTIPLY_SCALAR_1, speedTicks);
@@ -164,6 +166,14 @@ public class DiscoveryTrailblazer extends SimpleAdaptation<DiscoveryTrailblazer.
           }
         })
         .start();
+  }
+
+  private void flushDiscoveryXp(Player player) {
+    AdaptPlayer adaptPlayer = getPlayer(player);
+    PlayerSkillLine skillLine = adaptPlayer.getSkillLine(getSkill().getName());
+    if (skillLine != null) {
+      skillLine.flushXpPool(adaptPlayer.getNot());
+    }
   }
 
   static double firstVisitXp(double levelPercent, double base, double factor) {

@@ -21,7 +21,9 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.CreatureSpawner;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -76,12 +78,8 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
       return;
     }
 
-    ItemStack spawner = new ItemStack(Material.SPAWNER);
     BlockState state = event.getBlockState();
-    if (spawner.getItemMeta() instanceof BlockStateMeta meta) {
-      meta.setBlockState(state);
-      spawner.setItemMeta(meta);
-    }
+    ItemStack spawner = createSpawnerItem(state);
 
     Location loc = block.getLocation().add(
         rng.d(-0.25D, 0.25D),
@@ -143,6 +141,23 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
     v.addLore(C.GREEN + AdaptLanguage.text(
         level < 2 ? PickaxeMessages.SILK_SPAWNER_LORE1 : PickaxeMessages.SILK_SPAWNER_LORE2
     ));
+  }
+
+  static ItemStack createSpawnerItem(BlockState sourceState) {
+    ItemStack spawner = new ItemStack(Material.SPAWNER);
+    if (!(sourceState instanceof CreatureSpawner source)
+        || !(spawner.getItemMeta() instanceof BlockStateMeta meta)
+        || !(meta.getBlockState() instanceof CreatureSpawner target)) {
+      return spawner;
+    }
+
+    EntityType spawnedType = source.getSpawnedType();
+    if (spawnedType != null) {
+      target.setSpawnedType(spawnedType);
+    }
+    meta.setBlockState(target);
+    spawner.setItemMeta(meta);
+    return spawner;
   }
 
 

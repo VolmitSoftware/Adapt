@@ -3,6 +3,8 @@ package art.arcane.adapt.content.adaptation.pickaxe;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -16,6 +18,8 @@ class PickaxeBreakCommitTest {
       "src/main/java/art/arcane/adapt/content/adaptation/pickaxe/PickaxeAutosmelt.java");
   private static final Path SILK_SPAWNER_SOURCE = Path.of(
       "src/main/java/art/arcane/adapt/content/adaptation/pickaxe/PickaxeSilkSpawner.java");
+  private static final Path REPAIR_RHYTHM_SOURCE = Path.of(
+      "src/main/java/art/arcane/adapt/content/adaptation/pickaxe/PickaxeRepairRhythm.java");
 
   @Test
   void autosmeltRunsOnlyFromThePostCommitDropEvent() throws Exception {
@@ -72,12 +76,37 @@ class PickaxeBreakCommitTest {
     int stat = source.indexOf("addStat(plan.player()");
     assertThat(source)
         .contains(
-            "BlockState state = event.getBlockState();",
-            "meta.setBlockState(state);",
+            "ItemStack spawner = createSpawnerItem(state);",
+            "meta.getBlockState() instanceof CreatureSpawner target",
+            "target.setSpawnedType(spawnedType);",
+            "meta.setBlockState(target);",
             "event.getItems().add(item);",
             "pendingDrops.remove(event)"
         )
+        .doesNotContain("meta.setBlockState(state);")
         .doesNotContain("callEvent(", "event.setDropItems(false)", "BlockBreakEvent");
     assertThat(stat).isGreaterThan(cancellation);
+  }
+
+  @Test
+  void repairRhythmWaitsForTheCommittedItemDamageAndCancelsThatWearOnAProc() throws Exception {
+    Method prepare = PickaxeRepairRhythm.class.getDeclaredMethod("on", BlockBreakEvent.class);
+    Method commit = PickaxeRepairRhythm.class.getDeclaredMethod("on", PlayerItemDamageEvent.class);
+    EventHandler prepareAnnotation = prepare.getAnnotation(EventHandler.class);
+    EventHandler commitAnnotation = commit.getAnnotation(EventHandler.class);
+
+    assertThat(prepareAnnotation.priority()).isEqualTo(EventPriority.MONITOR);
+    assertThat(prepareAnnotation.ignoreCancelled()).isTrue();
+    assertThat(commitAnnotation.priority()).isEqualTo(EventPriority.HIGHEST);
+    assertThat(commitAnnotation.ignoreCancelled()).isFalse();
+
+    String source = Files.readString(REPAIR_RHYTHM_SOURCE);
+    assertThat(source)
+        .contains(
+            "pendingRepairs.put(playerId, pending);",
+            "J.runEntity(p, () -> applyDeferredRepair(p, playerId, pending), 1);",
+            "e.setCancelled(true);",
+            "completeRepair(p, restored);"
+        );
   }
 }

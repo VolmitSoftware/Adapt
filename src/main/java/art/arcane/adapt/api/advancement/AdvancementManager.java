@@ -141,9 +141,13 @@ public class AdvancementManager {
       return;
     }
 
-    if (toast) {
+    if (shouldDisplayToast(toast, AdaptConfig.get().isAdvancementUnlockToasts())) {
       attemptToast(player, advancement, key, catalogRevision, allowRetryOnGlobal, allowRetryOnEntity, userLoadRetriesRemaining);
     }
+  }
+
+  static boolean shouldDisplayToast(boolean requested, boolean enabled) {
+    return requested && enabled;
   }
 
   private void attemptToast(Player player, Advancement advancement, String key, long catalogRevision,

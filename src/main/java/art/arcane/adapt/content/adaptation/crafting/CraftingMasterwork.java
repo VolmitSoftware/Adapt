@@ -96,6 +96,10 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
     return base + (levelPercent * factor);
   }
 
+  static int bonusDurability(int baseMaxDurability, double bonusPercent) {
+    return Math.max(1, (int) Math.round(Math.max(1, baseMaxDurability) * bonusPercent));
+  }
+
   private double getRollChance(int level) {
     return masterworkChance(getConfig().rollChanceBase, getConfig().rollChanceFactor, getConfig().rollChanceMax, getLevelPercent(level));
   }
@@ -138,7 +142,7 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
     ItemStack forged = result.clone();
     Damageable meta = (Damageable) forged.getItemMeta();
     int baseMax = Math.max(1, forged.getType().getMaxDurability());
-    int bonus = Math.max(1, (int) Math.round(baseMax * getBonusPercent(level)));
+    int bonus = bonusDurability(baseMax, getBonusPercent(level));
     meta.setMaxDamage(baseMax + bonus);
 
     boolean gotAttribute = level >= getMaxLevel()

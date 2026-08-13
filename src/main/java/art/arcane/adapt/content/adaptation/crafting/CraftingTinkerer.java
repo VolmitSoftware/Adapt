@@ -99,7 +99,7 @@ public class CraftingTinkerer extends SimpleAdaptation<CraftingTinkerer.Config> 
     }
 
     CraftingInventory inv = e.getInventory();
-    ItemStack result = inv.getResult();
+    ItemStack result = e.getCurrentItem();
     if (result == null || result.getType().isAir() || !(result.getItemMeta() instanceof Damageable)) {
       return;
     }
@@ -115,7 +115,7 @@ public class CraftingTinkerer extends SimpleAdaptation<CraftingTinkerer.Config> 
     }
 
     boolean lossless = level >= getMaxLevel() || ThreadLocalRandom.current().nextDouble() <= getPreserveChance(level);
-    if (!lossless && merged.size() > 0) {
+    if (!lossless) {
       dropRandomEnchant(merged);
     }
 
@@ -155,12 +155,17 @@ public class CraftingTinkerer extends SimpleAdaptation<CraftingTinkerer.Config> 
     return inputs.size() == 2 ? inputs : null;
   }
 
-  private Map<Enchantment, Integer> mergeEnchants(List<ItemStack> inputs) {
+  static Map<Enchantment, Integer> mergeEnchants(List<ItemStack> inputs) {
     Map<Enchantment, Integer> merged = new HashMap<>();
     for (ItemStack input : inputs) {
-      for (Map.Entry<Enchantment, Integer> entry : input.getEnchantments().entrySet()) {
-        merged.merge(entry.getKey(), entry.getValue(), Math::max);
-      }
+      mergeEnchants(merged, input.getEnchantments());
+    }
+    return merged;
+  }
+
+  static <T> Map<T, Integer> mergeEnchants(Map<T, Integer> merged, Map<T, Integer> incoming) {
+    for (Map.Entry<T, Integer> entry : incoming.entrySet()) {
+      merged.merge(entry.getKey(), entry.getValue(), Math::max);
     }
     return merged;
   }

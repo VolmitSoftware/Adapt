@@ -32,11 +32,12 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -77,7 +78,8 @@ public class UnarmedSecondWind extends SimpleAdaptation<UnarmedSecondWind.Config
       return;
     }
 
-    if (!(victim.getLastDamageCause() instanceof EntityDamageByEntityEvent dmg) || !(dmg.getDamager() instanceof Player p)) {
+    Player p = directPlayerKiller(e);
+    if (p == null) {
       return;
     }
 
@@ -134,6 +136,13 @@ public class UnarmedSecondWind extends SimpleAdaptation<UnarmedSecondWind.Config
 
   private int getRegenDurationTicks(int level) {
     return Math.max(20, (int) Math.round(getConfig().regenDurationTicksBase + (getLevelPercent(level) * getConfig().regenDurationTicksFactor)));
+  }
+
+  static Player directPlayerKiller(EntityDeathEvent event) {
+    DamageSource source = event.getDamageSource();
+    Entity causing = source.getCausingEntity();
+    Entity direct = source.getDirectEntity();
+    return causing instanceof Player player && direct == player ? player : null;
   }
 
 

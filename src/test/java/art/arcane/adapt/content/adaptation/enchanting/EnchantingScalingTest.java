@@ -1,9 +1,21 @@
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class EnchantingScalingTest {
   @Test
@@ -18,6 +30,37 @@ class EnchantingScalingTest {
   void tomeXpCostFloorsAtMinimum() {
     assertThat(EnchantingTomeRebinding.tomeXpCost(5, 3, 2, 0.0D)).isEqualTo(5);
     assertThat(EnchantingTomeRebinding.tomeXpCost(5, 3, 2, 1.0D)).isEqualTo(2);
+  }
+
+  @Test
+  void tomeRebindingUsesTheShiftRightInventoryGestureInsteadOfPlayerSneakState() {
+    assertThat(EnchantingTomeRebinding.isRebindingClick(0, ClickType.SHIFT_RIGHT, true, false)).isTrue();
+    assertThat(EnchantingTomeRebinding.isRebindingClick(0, ClickType.RIGHT, true, false)).isFalse();
+    assertThat(EnchantingTomeRebinding.isRebindingClick(1, ClickType.SHIFT_RIGHT, true, false)).isFalse();
+    assertThat(EnchantingTomeRebinding.isRebindingClick(0, ClickType.SHIFT_RIGHT, true, true)).isFalse();
+    assertThat(EnchantingTomeRebinding.isRebindingClick(0, ClickType.SHIFT_RIGHT, false, false)).isFalse();
+  }
+
+  @Test
+  void tomeRebindingSpendsVanillaLevelsWithoutDesynchronizingExperience() {
+    Player player = mock(Player.class);
+    when(player.getLevel()).thenReturn(5);
+
+    assertThat(EnchantingTomeRebinding.spendLevels(player, 3)).isTrue();
+    verify(player).giveExpLevels(-3);
+    assertThat(EnchantingTomeRebinding.spendLevels(player, 6)).isFalse();
+    assertThat(EnchantingTomeRebinding.spendLevels(player, 0)).isFalse();
+    assertThat(EnchantingTomeRebinding.spendLevels(null, 1)).isFalse();
+    verify(player, never()).setLevel(anyInt());
+  }
+
+  @Test
+  void lapisReturnRunsOnlyAfterACommittedEnchant() throws Exception {
+    Method handler = EnchantingLapisReturn.class.getDeclaredMethod("on", EnchantItemEvent.class);
+    EventHandler annotation = handler.getAnnotation(EventHandler.class);
+
+    assertThat(annotation.priority()).isEqualTo(EventPriority.MONITOR);
+    assertThat(annotation.ignoreCancelled()).isTrue();
   }
 
   @Test

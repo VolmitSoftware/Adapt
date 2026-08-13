@@ -33,15 +33,20 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.block.banner.Pattern;
+import org.bukkit.block.banner.PatternType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.ShieldMeta;
 
 import java.util.List;
 
@@ -93,16 +98,55 @@ public class BlockingPhalanxCrafter extends SimpleAdaptation<BlockingPhalanxCraf
   }
 
   private static ItemStack buildNetheriteShield() {
-    ItemStack shield = new ItemStack(Material.SHIELD, 1);
+    return buildNetheriteShield(new ItemStack(Material.SHIELD, 1));
+  }
+
+  static ItemStack buildNetheriteShield(ItemStack source) {
+    ItemStack shield = source != null && source.getType() == Material.SHIELD
+        ? source.clone()
+        : new ItemStack(Material.SHIELD, 1);
+    shield.setAmount(1);
     ItemMeta meta = shield.getItemMeta();
+    if (meta instanceof ShieldMeta shieldMeta) {
+      applyDefaultShieldDesign(shieldMeta);
+    }
     if (meta instanceof Damageable damageable) {
       damageable.setMaxDamage(NETHERITE_SHIELD_MAX_DURABILITY);
+      damageable.setDamage(0);
     }
     if (meta != null) {
       meta.setDisplayName(C.GOLD + AdaptLanguage.text(BlockingMessages.PHALANX_CRAFTER_ITEM_NAME));
       shield.setItemMeta(meta);
     }
     return shield;
+  }
+
+  static void applyDefaultShieldDesign(ShieldMeta meta) {
+    if (hasVisibleShieldDesign(meta.getBaseColor(), meta.numberOfPatterns())) {
+      return;
+    }
+
+    meta.setBaseColor(DyeColor.BLACK);
+    meta.setPatterns(List.of(
+        new Pattern(DyeColor.ORANGE, PatternType.BORDER),
+        new Pattern(DyeColor.LIGHT_GRAY, PatternType.RHOMBUS)
+    ));
+  }
+
+  static boolean hasVisibleShieldDesign(DyeColor baseColor, int patternCount) {
+    return patternCount > 0 || (baseColor != null && baseColor != DyeColor.WHITE);
+  }
+
+  static ItemStack findShield(ItemStack[] matrix) {
+    if (matrix == null) {
+      return null;
+    }
+    for (ItemStack item : matrix) {
+      if (item != null && item.getType() == Material.SHIELD) {
+        return item;
+      }
+    }
+    return null;
   }
 
   @Override
@@ -134,6 +178,18 @@ public class BlockingPhalanxCrafter extends SimpleAdaptation<BlockingPhalanxCraf
       grantOnce(p, "challenge_blocking_phalanx_netherite");
     }
     craftCue(p, netherite);
+  }
+
+  @EventHandler
+  public void on(PrepareItemCraftEvent e) {
+    if (e.getRecipe() == null || !netheriteRecipe.is(e.getRecipe())) {
+      return;
+    }
+
+    ItemStack source = findShield(e.getInventory().getMatrix());
+    if (source != null) {
+      e.getInventory().setResult(buildNetheriteShield(source));
+    }
   }
 
   private void craftCue(Player p, boolean netherite) {

@@ -32,6 +32,14 @@ class TragoulAreaWorkBudgetTest {
   }
 
   @Test
+  void globeDividesTheBaseHitThenAddsTheLevelBonusToEveryTarget() {
+    assertThat(TragoulGlobe.damagePerEntity(12D, 2, 2D)).isEqualTo(6D);
+    assertThat(TragoulGlobe.damagePerEntity(12D, 1, 2D)).isEqualTo(8D);
+    assertThat(TragoulGlobe.damagePerEntity(Double.NaN, 2, 2D)).isZero();
+    assertThat(TragoulGlobe.damagePerEntity(12D, 2, Double.NaN)).isZero();
+  }
+
+  @Test
   void lanceCapsSearchesAndRejectsConcurrentOwnerChains() {
     TragoulLance.LanceWorkBudget budget = new TragoulLance.LanceWorkBudget(2, 50L);
     TragoulLance.LanceAdmission admission = new TragoulLance.LanceAdmission(2);

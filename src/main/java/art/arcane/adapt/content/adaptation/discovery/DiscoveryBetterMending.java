@@ -100,7 +100,7 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
       return;
     }
 
-    int availableXp = getTotalExp(p);
+    int availableXp = p.calculateTotalExperiencePoints();
     if (availableXp <= 0) {
       FxPresets.failFizzle(this, p);
       return;
@@ -119,10 +119,7 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
     int repaired = Math.max(1, (int) Math.round(xpSpent * repairPerXp));
     int newDamage = Math.max(0, currentDamage - repaired);
 
-    if (!payExperienceCost(p, "experience", xpSpent, () -> {
-      takeExp(p, xpSpent, true);
-      return true;
-    })) {
+    if (!payExperienceCost(p, "experience", xpSpent, () -> spendExperiencePoints(p, xpSpent))) {
       return;
     }
 
@@ -154,7 +151,7 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
         .start();
 
     xp(p, Math.max(1D, (currentDamage - newDamage) * getConfig().skillXpPerDurability));
-    addStat(p, "discovery.better-mending.durability-restored", repaired);
+    addStat(p, "discovery.better-mending.durability-restored", restoredDurability(currentDamage, repaired));
   }
 
   private boolean canMend(ItemStack hand) {
@@ -173,6 +170,26 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
     return damageable.getDamage() > 0;
   }
 
+  static boolean spendExperiencePoints(Player player, int amount) {
+    if (player == null || amount <= 0) {
+      return false;
+    }
+
+    int available = player.calculateTotalExperiencePoints();
+    if (available < amount) {
+      return false;
+    }
+
+    player.setExperienceLevelAndProgress(available - amount);
+    return true;
+  }
+
+  static int restoredDurability(int currentDamage, int requestedRepair) {
+    int normalizedDamage = Math.max(0, currentDamage);
+    int newDamage = Math.max(0, normalizedDamage - Math.max(0, requestedRepair));
+    return normalizedDamage - newDamage;
+  }
+
   private double getRepairPerXp(int level) {
     return Math.max(0.1, getConfig().repairPerXpBase + (getLevelPercent(level) * getConfig().repairPerXpFactor));
   }
@@ -184,7 +201,6 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
   private int getCooldownTicks(int level) {
     return Math.max(6, (int) Math.round(getConfig().cooldownTicksBase - (getLevelPercent(level) * getConfig().cooldownTicksReduction)));
   }
-
 
   @ConfigDescription("Sneak-left-click to spend XP and directly mend the Mending item in your hand.")
   protected static class Config extends AdaptationConfig {

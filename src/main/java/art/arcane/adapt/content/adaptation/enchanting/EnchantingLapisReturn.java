@@ -44,6 +44,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -76,7 +77,7 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
     v.addLore(C.GREEN + AdaptLanguage.text(EnchantingMessages.LAPIS_RETURN_LORE1));
   }
 
-  @EventHandler(priority = EventPriority.HIGH)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EnchantItemEvent e) {
     Player p = e.getEnchanter();
     int level = getActiveLevel(p);
@@ -92,7 +93,10 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
 
       cooldown.mark(playerId);
       Location drop = p.getLocation();
-      p.getWorld().dropItemNaturally(drop, new ItemStack(Material.LAPIS_LAZULI, level));
+      Map<Integer, ItemStack> overflow = p.getInventory().addItem(new ItemStack(Material.LAPIS_LAZULI, level));
+      for (ItemStack leftover : overflow.values()) {
+        p.getWorld().dropItemNaturally(drop, leftover);
+      }
       addStat(p, "enchanting.lapis-return.lapis-saved", level);
       lapisRefundFx(e, drop);
     }

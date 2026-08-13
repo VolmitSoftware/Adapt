@@ -16,6 +16,36 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class AdaptConfigTest {
     @Test
+    void advancementAudioControlsHaveSafeDefaultsAndRoundTrip() throws IOException {
+        AdaptConfig config = new AdaptConfig();
+        String canonical = TomlCodec.toToml(config, "core-config");
+
+        assertThat(config.isAdvancementUnlockToasts()).isTrue();
+        assertThat(config.getLevelMilestoneSoundVolume()).isEqualTo(0.35D);
+        assertThat(canonical)
+            .contains("advancementUnlockToasts = true")
+            .contains("levelMilestoneSoundVolume = 0.35");
+
+        AdaptConfig configured = TomlCodec.fromToml(
+            canonical
+                .replace("advancementUnlockToasts = true", "advancementUnlockToasts = false")
+                .replace("levelMilestoneSoundVolume = 0.35", "levelMilestoneSoundVolume = 0.1"),
+            AdaptConfig.class
+        );
+
+        assertThat(configured.isAdvancementUnlockToasts()).isFalse();
+        assertThat(configured.getLevelMilestoneSoundVolume()).isEqualTo(0.1D);
+    }
+
+    @Test
+    void advancementAudioVolumeNormalizationClampsInvalidValues() {
+        assertThat(AdaptConfig.normalizeVolume(-1D, 0.35D)).isZero();
+        assertThat(AdaptConfig.normalizeVolume(2D, 0.35D)).isOne();
+        assertThat(AdaptConfig.normalizeVolume(Double.NaN, 0.35D)).isEqualTo(0.35D);
+        assertThat(AdaptConfig.normalizeVolume(Double.POSITIVE_INFINITY, 0.35D)).isEqualTo(0.35D);
+    }
+
+    @Test
     @DisplayName("GUI navigation returns on Escape and shows Back buttons by default")
     void guiNavigationDefaultsToEscapeBackWithVisibleButtons() throws IOException {
         AdaptConfig config = new AdaptConfig();

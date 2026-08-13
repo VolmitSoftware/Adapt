@@ -6,7 +6,9 @@ import org.bukkit.Material;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
@@ -36,6 +38,7 @@ class CraftingScalingTest {
     assertThat(CraftingMasterwork.masterworkChance(0.2, 0.55, 0.75, 1.0)).isCloseTo(0.75, offset(1.0E-9));
     assertThat(CraftingMasterwork.bonusPercent(0.1, 0.4, 0.0)).isCloseTo(0.1, offset(1.0E-9));
     assertThat(CraftingMasterwork.bonusPercent(0.1, 0.4, 1.0)).isCloseTo(0.5, offset(1.0E-9));
+    assertThat(CraftingMasterwork.bonusDurability(528, 0.5)).isEqualTo(264);
   }
 
   @Test
@@ -88,7 +91,46 @@ class CraftingScalingTest {
   @Test
   void compactorIsOneLevelAndCoversEveryMaterial() {
     assertThat(new CraftingCompactor.Config().maxLevel).isEqualTo(1);
-    assertThat(CraftingCompactor.materialsCovered()).isEqualTo(12);
+    assertThat(CraftingCompactor.materialsCovered()).isEqualTo(13);
+    int glowstoneUnitsPerBlock = CraftingCompactor.unitsPerBlock(Material.GLOWSTONE_DUST);
+    assertThat(glowstoneUnitsPerBlock).isEqualTo(4);
+    assertThat(CraftingCompactor.blocksFor(64, glowstoneUnitsPerBlock)).isEqualTo(16);
+    assertThat(CraftingCompactor.unitsConsumed(16, glowstoneUnitsPerBlock)).isEqualTo(64);
+
+    int coalUnitsPerBlock = CraftingCompactor.unitsPerBlock(Material.COAL);
+    assertThat(coalUnitsPerBlock).isEqualTo(9);
+    assertThat(CraftingCompactor.blocksFor(64, coalUnitsPerBlock)).isEqualTo(7);
+    assertThat(CraftingCompactor.unitsConsumed(7, coalUnitsPerBlock)).isEqualTo(63);
+  }
+
+  @Test
+  void deconstructionCountsEveryShapedRecipeSlot() {
+    String[] chestShape = {"PPP", "P P", "PPP"};
+    Map<Material, Integer> ingredientCounts = CraftingDeconstruction.shapedIngredientCounts(
+        chestShape,
+        Map.of('P', Material.OAK_PLANKS)
+    );
+    int ingredients = CraftingDeconstruction.shapedIngredientCount(
+        chestShape,
+        Map.of('P', Material.OAK_PLANKS)
+    );
+
+    assertThat(ingredientCounts).containsExactly(Map.entry(Material.OAK_PLANKS, 8));
+    assertThat(ingredients).isEqualTo(8);
+    assertThat(CraftingDeconstruction.salvageAmount(ingredients, 1, 1)).isEqualTo(4);
+    assertThat(CraftingDeconstruction.salvageAmount(ingredients, 64, 1)).isEqualTo(256);
+    assertThat(CraftingDeconstruction.splitAmounts(256, 64)).containsExactly(64, 64, 64, 64);
+  }
+
+  @Test
+  void tinkererEnchantMergeKeepsHighestLevelFromEitherTool() {
+    Map<String, Integer> merged = new HashMap<>();
+    CraftingTinkerer.mergeEnchants(merged, Map.of("efficiency", 3));
+    CraftingTinkerer.mergeEnchants(merged, Map.of("efficiency", 5, "unbreaking", 2));
+
+    assertThat(merged)
+        .containsEntry("efficiency", 5)
+        .containsEntry("unbreaking", 2);
   }
 
   @Test

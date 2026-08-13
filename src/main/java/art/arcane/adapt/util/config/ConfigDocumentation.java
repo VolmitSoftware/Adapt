@@ -45,7 +45,9 @@ public final class ConfigDocumentation {
       "maxLevel",
       "minXp",
       "showParticles",
-      "showSounds"
+      "showSounds",
+      "immunitySoundVolume",
+      "levelMilestoneSoundVolume"
   );
 
   private ConfigDocumentation() {

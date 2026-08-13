@@ -78,7 +78,7 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
   }
 
   @ReceiveCancelledEvents
-  @EventHandler
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
     if (e.getHand() != EquipmentSlot.HAND) {
       return;
@@ -98,10 +98,7 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
         return;
       }
 
-      boolean vetoed = e.getClickedBlock() != null
-          ? e.useInteractedBlock() == Event.Result.DENY
-          : e.useItemInHand() == Event.Result.DENY;
-      if (vetoed) {
+      if (blocksFloraEating(e.getClickedBlock() != null, e.useInteractedBlock())) {
         if (!eatCooldowns.isReady(p.getUniqueId(), getConfig().eatCooldownMillis)) {
           e.setCancelled(true);
         }
@@ -115,9 +112,7 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
         return;
       }
 
-      if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-        e.setCancelled(true);
-      }
+      e.setCancelled(true);
 
       if (p.getGameMode() != GameMode.CREATIVE
           && !payItemCost(p, "flora", new ItemStack(item.getType()), 1, () -> {
@@ -183,6 +178,10 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
           WEEPING_VINES, TWISTING_VINES -> true;
       default -> false;
     };
+  }
+
+  static boolean blocksFloraEating(boolean clickedBlock, Event.Result blockUse) {
+    return clickedBlock && blockUse == Event.Result.DENY;
   }
 
   private int getFloraFood(int level) {

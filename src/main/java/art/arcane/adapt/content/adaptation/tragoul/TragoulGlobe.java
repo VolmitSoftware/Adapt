@@ -135,8 +135,7 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
     }
 
     double originalDamage = e.getDamage();
-    double damagePerEntity = Math.max(0D,
-        (originalDamage / (targetLimit + 1D)) + getBonusDamage(level));
+    double damagePerEntity = damagePerEntity(originalDamage, targetLimit, getBonusDamage(level));
     e.setDamage(damagePerEntity);
 
     Location chest = playerLocation.clone().add(0, 1.0, 0);
@@ -223,6 +222,14 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
   private double getBonusDamage(int level) {
     double configured = getConfig().bonusDamagePerLevel * level;
     return Double.isFinite(configured) ? Math.max(0D, configured) : 0D;
+  }
+
+  static double damagePerEntity(double originalDamage, int sharedTargets, double bonusDamage) {
+    if (!Double.isFinite(originalDamage) || !Double.isFinite(bonusDamage)) {
+      return 0D;
+    }
+    int divisor = Math.max(0, sharedTargets) + 1;
+    return Math.max(0D, (originalDamage / divisor) + Math.max(0D, bonusDamage));
   }
 
   private void playShareShockwave(Location center, double range, int mobsSharedWith) {

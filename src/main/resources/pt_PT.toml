@@ -5410,15 +5410,15 @@ lore = ["Por cada nivel ha uma chance de obter mais XP e Peixe!"]
 
 [seaborn.haste]
 name = "Tartaruga Mineira"
-description = "Ao minerar debaixo de agua ganhas pressa!"
-lore1 = "Pressa 3 e aplicada debaixo de agua enquanto mineras (acumula com AquaAffinity) depois do efeito de respiracao aquatica acabar!"
-lore = ["Pressa 3 e aplicada debaixo de agua enquanto mineras (acumula com AquaAffinity) depois do efeito de respiracao aquatica acabar!"]
+description = "Minera mais rápido debaixo de água, quer estejas de pé ou a flutuar."
+lore1 = "Aumenta a velocidade de mineração submersa, acumula com Afinidade Aquática e compensa a penalização ao minerar a flutuar."
+lore = ["Aumenta a velocidade de mineração submersa, acumula com Afinidade Aquática e compensa a penalização ao minerar a flutuar."]
 
 [seaborn.night_vision]
 name = "Visao da Tartaruga"
-description = "Enquanto debaixo de agua, ganhas Visao Noturna"
-lore1 = "Simplesmente ganha Visao Noturna enquanto debaixo de agua depois do efeito de respiracao aquatica acabar!"
-lore = ["Simplesmente ganha Visao Noturna enquanto debaixo de agua depois do efeito de respiracao aquatica acabar!"]
+description = "Debaixo de água, ganhas Visão Noturna."
+lore1 = "Debaixo de água, a Visão Noturna é renovada continuamente."
+lore = ["Debaixo de água, a Visão Noturna é renovada continuamente."]
 
 [seaborn.dolphin_grace]
 name = "Graca do Golfinho"

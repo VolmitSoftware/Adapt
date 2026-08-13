@@ -51,9 +51,10 @@ import java.util.Set;
 import java.util.UUID;
 
 public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVision.Config> {
-  private static final int EFFECT_DURATION_TICKS = 600;
-  private static final int EFFECT_REFRESH_THRESHOLD_TICKS = 500;
   private static final double MAX_CREDIT_TICKS_PER_SAMPLE = 160D;
+  private static final int MAX_NIGHT_VISION_DURATION_TICKS = 20 * 60 * 5;
+  private static final int MIN_REFRESH_INTERVAL_MILLIS = 250;
+  private static final int MAX_REFRESH_INTERVAL_MILLIS = 10_000;
 
   private final Map<UUID, Boolean> submerged = playerState();
   private final Map<UUID, Boolean> appliedNightVision = playerState();
@@ -65,7 +66,7 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
     registerConfiguration(Config.class);
     setLocalizationKey("seaborn.night_vision");
     setIcon(Material.DIAMOND_HORSE_ARMOR);
-    setInterval(3000);
+    setInterval(refreshIntervalMillis(getConfig().refreshIntervalMillis));
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TURTLE_HELMET)
         .key("challenge_seaborne_vision_72k")
@@ -186,7 +187,7 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
       appliedNightVision.remove(playerId);
       return;
     }
-    if (shouldRefreshEffect(current.getDuration(), current.getAmplifier(), 0)
+    if (shouldRefreshEffect(current.getDuration(), current.getAmplifier(), 0, getRefreshThresholdTicks())
         && !applyManagedNightVision(player, playerId, true)) {
       appliedNightVision.remove(playerId);
     }
@@ -221,7 +222,15 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
   }
 
   private PotionEffect managedNightVision() {
-    return new PotionEffect(PotionEffectType.NIGHT_VISION, EFFECT_DURATION_TICKS, 0, false, false);
+    return new PotionEffect(PotionEffectType.NIGHT_VISION, getEffectDurationTicks(), 0, false, false);
+  }
+
+  private int getEffectDurationTicks() {
+    return effectDurationTicks(getConfig().nightVisionDurationTicks);
+  }
+
+  private int getRefreshThresholdTicks() {
+    return Math.max(0, Math.min(getEffectDurationTicks() - 1, getConfig().nightVisionRefreshThresholdTicks));
   }
 
   static boolean mayRemoveNightVision(boolean owned, PotionEffect current) {
@@ -232,9 +241,9 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
     return effect.getAmplifier() == 0 && !effect.isAmbient() && !effect.hasParticles();
   }
 
-  static boolean shouldRefreshEffect(int currentDuration, int currentAmplifier, int targetAmplifier) {
+  static boolean shouldRefreshEffect(int currentDuration, int currentAmplifier, int targetAmplifier, int refreshThresholdTicks) {
     return currentAmplifier < targetAmplifier
-        || (currentAmplifier == targetAmplifier && currentDuration <= EFFECT_REFRESH_THRESHOLD_TICKS);
+        || (currentAmplifier == targetAmplifier && currentDuration <= Math.max(0, refreshThresholdTicks));
   }
 
   static double elapsedUnderwaterTicks(Long previousSample, long now) {
@@ -242,6 +251,20 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
       return 0D;
     }
     return Math.min(MAX_CREDIT_TICKS_PER_SAMPLE, (now - previousSample) / 50D);
+  }
+
+  static int effectDurationTicks(int configuredTicks) {
+    return Math.max(20, Math.min(MAX_NIGHT_VISION_DURATION_TICKS, configuredTicks));
+  }
+
+  static int refreshIntervalMillis(int configuredMillis) {
+    return Math.max(MIN_REFRESH_INTERVAL_MILLIS, Math.min(MAX_REFRESH_INTERVAL_MILLIS, configuredMillis));
+  }
+
+  @Override
+  protected void onConfigReload(Config previousConfig, Config newConfig) {
+    super.onConfigReload(previousConfig, newConfig);
+    setInterval(refreshIntervalMillis(newConfig.refreshIntervalMillis));
   }
 
   @Override
@@ -264,6 +287,13 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
 
   @ConfigDescription("Gain night vision while underwater.")
   protected static class Config extends AdaptationConfig {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of the hidden-particle Night Vision effect applied underwater.", impact = "Higher values show a longer remaining duration; the effect is still removed when the player surfaces.")
+    int nightVisionDurationTicks = 600;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Remaining effect ticks at which Turtle's Vision refreshes its Night Vision.", impact = "Higher values refresh sooner; this value is clamped below the configured duration.")
+    int nightVisionRefreshThresholdTicks = 500;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between underwater-state checks.", impact = "Lower values apply and clear Night Vision sooner but scan learned players more frequently.")
+    int refreshIntervalMillis = 3000;
+
     public Config() {
       baseCost = 5;
       costFactor = 1;

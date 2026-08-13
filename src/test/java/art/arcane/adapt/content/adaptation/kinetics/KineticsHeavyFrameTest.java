@@ -80,6 +80,13 @@ class KineticsHeavyFrameTest {
   }
 
   @Test
+  void plantedStateKeepsLifecycleMaintenanceRunningAfterUnlearn() {
+    assertThat(KineticsHeavyFrame.requiresMaintenance(false, true)).isTrue();
+    assertThat(KineticsHeavyFrame.requiresMaintenance(true, false)).isTrue();
+    assertThat(KineticsHeavyFrame.requiresMaintenance(false, false)).isFalse();
+  }
+
+  @Test
   void periodicReconciliationIsEnabled() throws ReflectiveOperationException {
     KineticsHeavyFrame adaptation = new KineticsHeavyFrame();
     Method handler = KineticsHeavyFrame.class.getDeclaredMethod("onTick");

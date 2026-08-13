@@ -4,12 +4,17 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,8 +22,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.BoundingBox;
 
 public class KineticsImpalePin extends SimpleAdaptation<KineticsImpalePin.Config> {
+  private static final Color PIN = Color.fromRGB(0xB7D4E8);
   private final Cooldowns targetCooldowns = cooldowns();
 
   public KineticsImpalePin() {
@@ -48,7 +55,8 @@ public class KineticsImpalePin extends SimpleAdaptation<KineticsImpalePin.Config
 
     Player p = combat.attacker();
     LivingEntity target = combat.target();
-    double distance = p.getLocation().distance(target.getLocation());
+    Location eye = p.getEyeLocation();
+    double distance = distanceToBounds(eye.getX(), eye.getY(), eye.getZ(), target.getBoundingBox());
     if (!inSweetRange(distance, getConfig().sweetMin, getSweetMax(combat.level()))) {
       return;
     }
@@ -63,6 +71,10 @@ public class KineticsImpalePin extends SimpleAdaptation<KineticsImpalePin.Config
     J.runEntity(target, () -> {
       if (isRuntimeRegistered() && target.isValid()) {
         target.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, duration, tier, true, true, true), true);
+        fx(target.getLocation().add(0D, target.getHeight() * 0.5D, 0D), FxPriority.COMBAT)
+            .ring(Particle.CRIT, 0.45D, 8, 0D)
+            .dustBurst(PIN, 4, 0.3D, 1F)
+            .sound(Sound.BLOCK_CHAIN_PLACE, 0.45F, 0.65F);
       }
     });
   }
@@ -81,6 +93,27 @@ public class KineticsImpalePin extends SimpleAdaptation<KineticsImpalePin.Config
 
   static boolean inSweetRange(double distance, double min, double max) {
     return Double.isFinite(distance) && distance >= min && distance <= max;
+  }
+
+  static double distanceToBounds(double x, double y, double z, BoundingBox bounds) {
+    if (bounds == null || !Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)) {
+      return Double.NaN;
+    }
+
+    double dx = axisDistance(x, bounds.getMinX(), bounds.getMaxX());
+    double dy = axisDistance(y, bounds.getMinY(), bounds.getMaxY());
+    double dz = axisDistance(z, bounds.getMinZ(), bounds.getMaxZ());
+    return Math.sqrt((dx * dx) + (dy * dy) + (dz * dz));
+  }
+
+  private static double axisDistance(double value, double min, double max) {
+    if (value < min) {
+      return min - value;
+    }
+    if (value > max) {
+      return value - max;
+    }
+    return 0D;
   }
 
   static int slowTier(double base, double factor, double levelPercent) {

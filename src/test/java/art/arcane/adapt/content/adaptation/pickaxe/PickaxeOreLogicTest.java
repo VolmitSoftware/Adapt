@@ -64,4 +64,12 @@ class PickaxeOreLogicTest {
     assertThat(PickaxeAutosmelt.isNativeRawDrop(Material.IRON_ORE, Material.DIAMOND)).isFalse();
     assertThat(PickaxeAutosmelt.isNativeRawDrop(Material.DIAMOND_ORE, Material.DIAMOND)).isFalse();
   }
+
+  @Test
+  void repairRhythmRestoresVisibleDamageAndClampsAtPristine() {
+    assertThat(PickaxeRepairRhythm.repairedDamage(100, 1)).isEqualTo(99);
+    assertThat(PickaxeRepairRhythm.repairedDamage(100, 2)).isEqualTo(98);
+    assertThat(PickaxeRepairRhythm.repairedDamage(1, 2)).isZero();
+    assertThat(PickaxeRepairRhythm.repairedDamage(5, -2)).isEqualTo(5);
+  }
 }

@@ -3,6 +3,7 @@ package art.arcane.adapt.content.adaptation.kinetics;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
+import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -11,6 +12,8 @@ import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,11 +22,16 @@ import org.bukkit.event.player.PlayerItemHeldEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+import java.util.UUID;
+
 public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Config> {
   private static final long RECONCILE_INTERVAL_MS = 1000L;
   private static final String SLOT_KB = "plant-kb";
   private static final String SLOT_BLAST = "plant-blast";
   private static final String SLOT_SLOW = "plant-slow";
+
+  private final Map<UUID, Boolean> planted = playerState();
 
   public KineticsHeavyFrame() {
     super("kinetics-heavy-frame");
@@ -45,18 +53,34 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return requiresMaintenance(super.hasTickDemand(), !planted.isEmpty());
+  }
+
+  @Override
   public void onTick() {
+    for (UUID playerId : planted.keySet()) {
+      if (!getServer().hasOnlineLearner(playerId, getName())) {
+        planted.remove(playerId);
+      }
+    }
     for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
       Player player = adaptPlayer.getPlayer();
       withPlayerThread(player, () -> reconcile(player));
     }
   }
 
+  @Override
+  public void unregister() {
+    planted.clear();
+    super.unregister();
+  }
+
   @EventHandler(ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
     if (!e.isSneaking()) {
-      AdaptAttributeService.get().removeAll(p, getName());
+      clearStance(p);
       return;
     }
 
@@ -79,7 +103,7 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
     ItemStack next = p.getInventory().getItem(e.getNewSlot());
     int level = getActiveLevel(p);
     if (!shouldPlant(p.isSneaking(), isMace(next), isSpear(next), level)) {
-      AdaptAttributeService.get().removeAll(p, getName());
+      clearStance(p);
       return;
     }
 
@@ -94,6 +118,10 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
     return sneaking && level > 0 && plantEligible(holdingMace, holdingSpear);
   }
 
+  static boolean requiresMaintenance(boolean learnerDemand, boolean plantedStance) {
+    return learnerDemand || plantedStance;
+  }
+
   private void reconcile(Player p) {
     if (p == null || !p.isOnline()) {
       return;
@@ -102,7 +130,7 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
     ItemStack mainHand = p.getInventory().getItemInMainHand();
     int level = getActiveLevel(p);
     if (!shouldPlant(p.isSneaking(), isMace(mainHand), isSpear(mainHand), level)) {
-      AdaptAttributeService.get().removeAll(p, getName());
+      clearStance(p);
       return;
     }
 
@@ -110,6 +138,7 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
   }
 
   private void applyStance(Player p, int level) {
+    boolean entering = planted.put(p.getUniqueId(), Boolean.TRUE) == null;
     AdaptAttributeService attributes = AdaptAttributeService.get();
     if (Attributes.KNOCKBACK_RESISTANCE != null) {
       attributes.apply(p, getName(), SLOT_KB, Attributes.KNOCKBACK_RESISTANCE, getKbResist(level), AttributeModifier.Operation.ADD_NUMBER);
@@ -119,6 +148,20 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
     }
     if (Attributes.MOVEMENT_SPEED != null) {
       attributes.apply(p, getName(), SLOT_SLOW, Attributes.MOVEMENT_SPEED, -getSpeedPenalty(level), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+    }
+    if (entering) {
+      fx(p, FxPriority.TRANSITION)
+          .ring(Particle.CLOUD, 0.55D, 8, 0.05D)
+          .sound(Sound.BLOCK_CHAIN_PLACE, 0.35F, 0.7F);
+    }
+  }
+
+  private void clearStance(Player p) {
+    AdaptAttributeService.get().removeAll(p, getName());
+    if (planted.remove(p.getUniqueId()) != null) {
+      fx(p, FxPriority.TRANSITION)
+          .ring(Particle.CLOUD, 0.55D, 6, 0.05D)
+          .sound(Sound.BLOCK_CHAIN_BREAK, 0.3F, 1.25F);
     }
   }
 

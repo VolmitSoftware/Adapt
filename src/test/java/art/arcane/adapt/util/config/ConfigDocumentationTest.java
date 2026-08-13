@@ -75,6 +75,14 @@ class ConfigDocumentationTest {
         .contains("# Effect: Used for both the pub/sub subscriber and the publisher connection.");
   }
 
+  @Test
+  @DisplayName("player-facing sound controls remain visible in generated settings")
+  void playerFacingSoundControlsRemainVisible() throws Exception {
+    Field field = Fixture.class.getDeclaredField("immunitySoundVolume");
+
+    assertThat(ConfigDocumentation.shouldExposeField("adaptation:nether-ashwalker", "", field, 0D)).isTrue();
+  }
+
   private static List<String> comments(String fieldName, Object value) throws Exception {
     Field field = Fixture.class.getDeclaredField(fieldName);
     return ConfigDocumentation.buildFieldComments("core-config", "fixture", field, value);
@@ -89,6 +97,7 @@ class ConfigDocumentationTest {
     private boolean annotatedWithGenericImpact = false;
     private boolean unannotatedFlag = false;
     private long unannotatedCooldownMillis = 0;
+    private double immunitySoundVolume = 0;
     private Map<String, String> unannotatedOverrides = new LinkedHashMap<>();
   }
 }

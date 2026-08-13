@@ -5410,15 +5410,15 @@ lore = ["¡Por cada nivel hay posibilidad de obtener mas XP y peces!"]
 
 [seaborn.haste]
 name = "Minero Tortuga"
-description = "¡Mientras minas bajo el agua obtienes prisa!"
-lore1 = "¡Prisa 3 se aplica bajo el agua mientras minas (se acumula con Afinidad Acuatica) despues de que desaparece el efecto de respiracion acuatica!"
-lore = ["¡Prisa 3 se aplica bajo el agua mientras minas (se acumula con Afinidad Acuatica) despues de que desaparece el efecto de respiracion acuatica!"]
+description = "Extrae más rápido bajo el agua, tanto de pie como flotando."
+lore1 = "Aumenta la velocidad de minería sumergida, se acumula con Afinidad acuática y compensa la penalización al minar flotando."
+lore = ["Aumenta la velocidad de minería sumergida, se acumula con Afinidad acuática y compensa la penalización al minar flotando."]
 
 [seaborn.night_vision]
 name = "Vision de Tortuga"
-description = "Mientras estas bajo el agua, obtienes vision nocturna"
-lore1 = "¡Simplemente obtén vision nocturna bajo el agua despues de que desaparezca el efecto de respiracion acuatica!"
-lore = ["¡Simplemente obtén vision nocturna bajo el agua despues de que desaparezca el efecto de respiracion acuatica!"]
+description = "Obtienes visión nocturna mientras estás bajo el agua."
+lore1 = "Obtienes visión nocturna que se renueva continuamente mientras estás bajo el agua."
+lore = ["Obtienes visión nocturna que se renueva continuamente mientras estás bajo el agua."]
 
 [seaborn.dolphin_grace]
 name = "Gracia del Delfin"

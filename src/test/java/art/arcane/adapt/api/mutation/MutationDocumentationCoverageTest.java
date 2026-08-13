@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -18,29 +19,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class MutationDocumentationCoverageTest {
   private static final Pattern TABLE_KEY = Pattern.compile("(?m)^\\| `([^`]+)` \\|");
-  private static final Pattern TYPE_HEADING = Pattern.compile(
-      "(?m)^###\\s+.+?\\s+\\(`([^`]+)`\\)\\s*$"
-  );
+  private static final Pattern TYPE_HEADING = Pattern.compile("(?m)^####\\s+(.+?)\\s*$");
 
   @Test
   void mutationDocsCoverEveryAnnotatedConfigField() throws IOException {
-    Path docs = Path.of(System.getProperty("user.dir"), "docs");
-    String overview = Files.readString(docs.resolve("34 - Mutations Overview.md"));
-    String catalog = Files.readString(docs.resolve("35 - Mutations Catalog.md"));
+    Path docs = Path.of(System.getProperty("user.dir"), "..", "docs", "adapt").normalize();
+    String overview = Files.readString(docs.resolve("34-mutations-overview.md"));
+    String catalog = Files.readString(docs.resolve("35-mutations-catalog.md"));
 
     Set<String> coreFields = annotatedFields(MutationConfig.class);
     Set<String> documentedCore = tableKeys(section(
         overview,
         "## Core config defaults (`MutationConfig`)",
-        "Hotload watches"
+        "### Per-type profile keys"
     ));
     assertThat(documentedCore).containsExactlyInAnyOrderElementsOf(coreFields);
 
     Set<String> profileFields = annotatedFields(MutationConfig.Profile.class);
     Set<String> documentedProfile = tableKeys(section(
         overview,
-        "### Per-type profile defaults",
-        "### Cooperative consent modes"
+        "### Per-type profile keys",
+        "### Domain membership defaults"
     ));
     assertThat(documentedProfile).containsExactlyInAnyOrderElementsOf(profileFields);
 
@@ -97,7 +96,7 @@ class MutationDocumentationCoverageTest {
       if (previousId != null) {
         sections.put(previousId, markdown.substring(previousOffset, matcher.start()));
       }
-      previousId = matcher.group(1);
+      previousId = matcher.group(1).trim().toLowerCase(Locale.ROOT).replace(' ', '-');
       previousOffset = matcher.start();
     }
     if (previousId != null) {

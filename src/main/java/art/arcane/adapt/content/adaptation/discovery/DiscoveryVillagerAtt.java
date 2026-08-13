@@ -49,6 +49,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.MerchantInventory;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -115,6 +116,10 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEntityEvent e) {
+    if (e.getHand() != EquipmentSlot.HAND) {
+      return;
+    }
+
     Player p = e.getPlayer();
     int level = getActiveLevel(p);
     if (!(e.getRightClicked() instanceof Villager villager) || level <= 0
@@ -165,11 +170,11 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
       return;
     }
 
-    p.setLevel(p.getLevel() - candidate.cost());
+    p.giveExpLevels(-candidate.cost());
     TradeSession session = new TradeSession(candidate.villagerId(), candidate.level(), candidate.sequence(),
         candidate.previousEffect(), candidate.startedAt());
     active.put(playerId, session);
-    refreshTradeSession(p, session);
+    J.runEntity(p, () -> refreshTradeSession(p, session), 1);
     playActivationFx(p, villager);
   }
 

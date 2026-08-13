@@ -5410,15 +5410,15 @@ lore = ["Kiekviename lygyje yra galimybe gauti daugiau XP ir zuvies!"]
 
 [seaborn.haste]
 name = "Vezlys Sachtininkas"
-description = "Kasdami po vandeniu jus gaunate greita kasima!"
-lore1 = "Greitas Kasimas 3 igijamas po vandeniu kasant (prisideda kartu ir Naro burtas), kai isnyksta vandens kvepavimo efektas!"
-lore = ["Greitas Kasimas 3 igijamas po vandeniu kasant (prisideda kartu ir Naro burtas), kai isnyksta vandens kvepavimo efektas!"]
+description = "Po vandeniu kasate greičiau tiek stovėdami, tiek plūduriuodami."
+lore1 = "Padidina kasimo po vandeniu greitį, dera su Aqua Affinity ir kompensuoja kasimo plūduriuojant baudą."
+lore = ["Padidina kasimo po vandeniu greitį, dera su Aqua Affinity ir kompensuoja kasimo plūduriuojant baudą."]
 
 [seaborn.night_vision]
 name = "Vezlio Regejimas"
-description = "Budami po vandeniu, igyjate naktini matyma"
-lore1 = "Tiesiog gaukite naktini matyma budami po vandeniu, kai isnyksta vandens kvepavimo efektas!"
-lore = ["Tiesiog gaukite naktini matyma budami po vandeniu, kai isnyksta vandens kvepavimo efektas!"]
+description = "Po vandeniu įgyjate naktinį matymą."
+lore1 = "Po vandeniu naktinis matymas nuolat atnaujinamas."
+lore = ["Po vandeniu naktinis matymas nuolat atnaujinamas."]
 
 [seaborn.dolphin_grace]
 name = "Delfinu Malone"

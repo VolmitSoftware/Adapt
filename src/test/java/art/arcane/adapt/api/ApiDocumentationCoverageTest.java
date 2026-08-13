@@ -22,7 +22,7 @@ class ApiDocumentationCoverageTest {
   void everyPublicTopLevelApiTypeAppearsInTheNumberedApiDocs() throws IOException {
     Path projectRoot = Path.of(System.getProperty("user.dir"));
     Path apiSource = projectRoot.resolve("src/main/java/art/arcane/adapt/api");
-    Path docs = projectRoot.resolve("docs");
+    Path docs = projectRoot.resolve("../docs/adapt").normalize();
     String documentation = readApiDocumentation(docs);
     List<String> undocumented = new ArrayList<>();
 
@@ -33,7 +33,7 @@ class ApiDocumentationCoverageTest {
     }
 
     assertThat(undocumented)
-        .as("public top-level types under art.arcane.adapt.api must be named in docs/41-50")
+        .as("public top-level types under art.arcane.adapt.api must be named in ../docs/adapt/41-50")
         .isEmpty();
   }
 
@@ -41,7 +41,7 @@ class ApiDocumentationCoverageTest {
     StringBuilder documentation = new StringBuilder();
     try (Stream<Path> files = Files.list(docs)) {
       List<Path> apiDocs = files
-          .filter(path -> path.getFileName().toString().matches("(?:4[1-9]|50) - API - .+\\.md"))
+          .filter(path -> path.getFileName().toString().matches("(?:4[1-9]|50)-api-.+\\.md"))
           .sorted(Comparator.comparing(path -> path.getFileName().toString()))
           .toList();
       assertThat(apiDocs).hasSize(10);

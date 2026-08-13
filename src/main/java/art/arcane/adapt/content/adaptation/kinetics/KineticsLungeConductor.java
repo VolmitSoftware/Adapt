@@ -20,7 +20,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.util.Vector;
 
 public class KineticsLungeConductor extends SimpleAdaptation<KineticsLungeConductor.Config> {
-  private static final double MAX_ASSIST_Y = 0.4D;
   private static final Color CONDUCTOR = Color.fromRGB(0xBFE8FF);
   private final Cooldowns lungeCooldown = cooldowns();
 
@@ -80,12 +79,11 @@ public class KineticsLungeConductor extends SimpleAdaptation<KineticsLungeConduc
       }
 
       p.setVelocity(assistVelocity(p.getVelocity(), direction, boost));
-    });
-
-    fx(p.getLocation().add(0, 1, 0), FxPriority.GAMEPLAY)
-        .particle(Particle.CLOUD, 4, 0, 0.1D, 0, 0.15D, 0.02D)
-        .dustBurst(CONDUCTOR, 4, 0.3D, 1.0F)
-        .chord(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.35F, 1.6F, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.4F, 1.3F);
+      fx(p.getLocation().add(0, 1, 0), FxPriority.GAMEPLAY)
+          .particle(Particle.CLOUD, 4, 0, 0.1D, 0, 0.15D, 0.02D)
+          .dustBurst(CONDUCTOR, 4, 0.3D, 1.0F)
+          .chord(Sound.ITEM_TRIDENT_RIPTIDE_1, 0.35F, 1.6F, Sound.ENTITY_PLAYER_ATTACK_SWEEP, 0.4F, 1.3F);
+    }, 1);
   }
 
   static int boostedPower(int current, int bonus) {
@@ -93,10 +91,14 @@ public class KineticsLungeConductor extends SimpleAdaptation<KineticsLungeConduc
   }
 
   static Vector assistVelocity(Vector current, Vector direction, double boost) {
-    Vector result = current.clone().add(direction.clone().multiply(boost));
-    if (result.getY() > MAX_ASSIST_Y) {
-      result.setY(MAX_ASSIST_Y);
+    Vector result = current.clone();
+    if (direction == null || !Double.isFinite(boost) || boost <= 0D) {
+      return result;
     }
+    double directionX = Double.isFinite(direction.getX()) ? direction.getX() : 0D;
+    double directionZ = Double.isFinite(direction.getZ()) ? direction.getZ() : 0D;
+    result.setX(result.getX() + (directionX * boost));
+    result.setZ(result.getZ() + (directionZ * boost));
     return result;
   }
 

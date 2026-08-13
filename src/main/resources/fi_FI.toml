@@ -5410,15 +5410,15 @@ lore = ["Jokaisella tasolla on mahdollisuus saada lisää XP:tä ja kalaa!"]
 
 [seaborn.haste]
 name = "Kilpikonnakaivaja"
-description = "Veden alla louhiessasi saat kiire-efektin!"
-lore1 = "Kiire 3 aktivoituu veden alla louhittaessa (pinoutuu vesitehon kanssa) vedenhengitysefektin päätyttyä!"
-lore = ["Kiire 3 aktivoituu veden alla louhittaessa (pinoutuu vesitehon kanssa) vedenhengitysefektin päätyttyä!"]
+description = "Louhi nopeammin veden alla seisoitpa tai kelluit."
+lore1 = "Tehostaa vedenalaista louhintanopeutta, toimii yhdessä vesitehon kanssa ja kumoaa kellumisen louhintahidasteen."
+lore = ["Tehostaa vedenalaista louhintanopeutta, toimii yhdessä vesitehon kanssa ja kumoaa kellumisen louhintahidasteen."]
 
 [seaborn.night_vision]
 name = "Kilpikonnan näkö"
-description = "Veden alla saat yönäön"
-lore1 = "Saat yönäön veden alla vedenhengitysefektin päätyttyä!"
-lore = ["Saat yönäön veden alla vedenhengitysefektin päätyttyä!"]
+description = "Saat yönäön veden alla."
+lore1 = "Saat veden alla jatkuvasti uusiutuvan yönäön."
+lore = ["Saat veden alla jatkuvasti uusiutuvan yönäön."]
 
 [seaborn.dolphin_grace]
 name = "Delfiinin sulous"

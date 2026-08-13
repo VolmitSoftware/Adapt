@@ -9,14 +9,21 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.util.Vector;
 
 public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.Config> {
+  private static final double MIN_HORIZONTAL_SPEED_SQUARED = 1.0E-6D;
   private static final long RECONCILE_INTERVAL_MS = 1000L;
   private static final String SLOT_SLIDE = "slide";
   private static final String SLOT_GRIP = "grip";
@@ -93,6 +100,43 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
     });
   }
 
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerMoveEvent e) {
+    if (Attributes.FRICTION_MODIFIER != null || e.getTo() == null || e instanceof PlayerTeleportEvent) {
+      return;
+    }
+
+    Player p = e.getPlayer();
+    if (!((Entity) p).isOnGround()) {
+      return;
+    }
+
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      return;
+    }
+
+    double frictionDelta = frictionDelta(
+        p.isSprinting(), p.isSneaking(), getSlideFriction(level), getGripFriction(level));
+    if (frictionDelta == 0D) {
+      return;
+    }
+
+    Location to = e.getTo();
+    Vector velocity = p.getVelocity();
+    if (!applyFallbackHorizontalVelocity(
+        velocity,
+        to.getX() - e.getFrom().getX(),
+        to.getZ() - e.getFrom().getZ(),
+        to.getWorld().getBlockAt(to.getBlockX(), (int) Math.floor(to.getY() - 0.500001D), to.getBlockZ())
+            .getType().getSlipperiness(),
+        frictionDelta)) {
+      return;
+    }
+
+    p.setVelocity(velocity);
+  }
+
   static double slideFriction(double base, double factor, double levelPercent) {
     double value = base + (levelPercent * factor);
     if (Double.isNaN(value)) {
@@ -115,6 +159,75 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
 
   static boolean shouldGrip(boolean sneaking, int level) {
     return sneaking && level > 0;
+  }
+
+  static double frictionDelta(boolean sprinting, boolean sneaking, double slideReduction, double gripIncrease) {
+    double delta = 0D;
+    if (sprinting && Double.isFinite(slideReduction)) {
+      delta -= Math.max(0D, slideReduction);
+    }
+    if (sneaking && Double.isFinite(gripIncrease)) {
+      delta += Math.max(0D, gripIncrease);
+    }
+    return delta;
+  }
+
+  static double fallbackVelocityScale(double velocityX, double velocityZ, double movementX, double movementZ,
+      double blockSlipperiness, double frictionDelta) {
+    if (!Double.isFinite(velocityX) || !Double.isFinite(velocityZ)
+        || !Double.isFinite(movementX) || !Double.isFinite(movementZ)
+        || !Double.isFinite(blockSlipperiness) || !Double.isFinite(frictionDelta)) {
+      return 1D;
+    }
+
+    double velocitySquared = (velocityX * velocityX) + (velocityZ * velocityZ);
+    if (velocitySquared <= MIN_HORIZONTAL_SPEED_SQUARED) {
+      return 1D;
+    }
+
+    double baseFriction = Math.min(1D, Math.max(1.0E-6D, blockSlipperiness));
+    double modifier = Math.max(0D, 1D + frictionDelta);
+    double modifiedFriction = Math.min(1D, Math.max(0D, 1D - ((1D - baseFriction) * modifier)));
+    double scale = modifiedFriction / baseFriction;
+    if (scale <= 1D) {
+      return Math.max(0D, scale);
+    }
+
+    double velocity = Math.sqrt(velocitySquared);
+    double movement = Math.sqrt((movementX * movementX) + (movementZ * movementZ));
+    double boundedVelocity = Math.min(velocity * scale, Math.max(velocity, movement));
+    return boundedVelocity / velocity;
+  }
+
+  static boolean applyFallbackHorizontalVelocity(Vector velocity, double movementX, double movementZ,
+      double blockSlipperiness, double frictionDelta) {
+    if (velocity == null
+        || !Double.isFinite(velocity.getX()) || !Double.isFinite(velocity.getY()) || !Double.isFinite(velocity.getZ())
+        || !Double.isFinite(movementX) || !Double.isFinite(movementZ)) {
+      return false;
+    }
+
+    double velocitySquared = (velocity.getX() * velocity.getX()) + (velocity.getZ() * velocity.getZ());
+    double movementSquared = (movementX * movementX) + (movementZ * movementZ);
+    if (velocitySquared <= MIN_HORIZONTAL_SPEED_SQUARED && movementSquared <= MIN_HORIZONTAL_SPEED_SQUARED) {
+      return false;
+    }
+
+    double baseX = velocitySquared <= MIN_HORIZONTAL_SPEED_SQUARED ? movementX : velocity.getX();
+    double baseZ = velocitySquared <= MIN_HORIZONTAL_SPEED_SQUARED ? movementZ : velocity.getZ();
+    double scale = fallbackVelocityScale(
+        baseX, baseZ, movementX, movementZ, blockSlipperiness, frictionDelta);
+    double adjustedX = baseX * scale;
+    double adjustedZ = baseZ * scale;
+    if (!Double.isFinite(adjustedX) || !Double.isFinite(adjustedZ)
+        || (Math.abs(adjustedX - velocity.getX()) <= 1.0E-9D
+        && Math.abs(adjustedZ - velocity.getZ()) <= 1.0E-9D)) {
+      return false;
+    }
+
+    velocity.setX(adjustedX);
+    velocity.setZ(adjustedZ);
+    return true;
   }
 
   private void reconcile(Player p) {

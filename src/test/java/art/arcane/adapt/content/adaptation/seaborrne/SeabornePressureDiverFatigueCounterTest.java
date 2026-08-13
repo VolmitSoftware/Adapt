@@ -61,5 +61,8 @@ class SeabornePressureDiverFatigueCounterTest {
     assertThat(SeabornePressureDiver.counterDurationTicks(-1, 80)).isEqualTo(80L);
     assertThat(SeabornePressureDiver.counterDurationTicks(600, 0)).isZero();
     assertThat(SeabornePressureDiver.counterDurationTicks(600, -4)).isZero();
+    assertThat(SeabornePressureDiver.counterDurationTicks(-1, Integer.MAX_VALUE)).isEqualTo(1200L);
+    assertThat(SeabornePressureDiver.effectDurationTicks(-1)).isEqualTo(20);
+    assertThat(SeabornePressureDiver.effectDurationTicks(Integer.MAX_VALUE)).isEqualTo(1200);
   }
 }

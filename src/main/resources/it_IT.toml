@@ -5410,15 +5410,15 @@ lore = ["Per ogni livello c'e' una probabilita' di ottenere piu' XP e Pesci!"]
 
 [seaborn.haste]
 name = "Minatore Tartaruga"
-description = "Mentre mini sott'acqua ottieni Fretta!"
-lore1 = "Fretta 3 viene applicata sott'acqua durante l'estrazione (si accumula con Affinita' Acquatica) dopo che l'effetto di respirazione acquatica svanisce!"
-lore = ["Fretta 3 viene applicata sott'acqua durante l'estrazione (si accumula con Affinita' Acquatica) dopo che l'effetto di respirazione acquatica svanisce!"]
+description = "Scava più velocemente sott'acqua, sia in piedi sia galleggiando."
+lore1 = "Aumenta la velocità di scavo sott'acqua, si cumula con Affinità acquatica e compensa la penalità mentre galleggi."
+lore = ["Aumenta la velocità di scavo sott'acqua, si cumula con Affinità acquatica e compensa la penalità mentre galleggi."]
 
 [seaborn.night_vision]
 name = "Visione della Tartaruga"
-description = "Mentre sei sott'acqua, ottieni Visione Notturna"
-lore1 = "Ottieni semplicemente Visione Notturna mentre sei sott'acqua dopo che l'effetto di respirazione acquatica svanisce!"
-lore = ["Ottieni semplicemente Visione Notturna mentre sei sott'acqua dopo che l'effetto di respirazione acquatica svanisce!"]
+description = "Mentre sei sott'acqua, ottieni Visione Notturna."
+lore1 = "Ottieni Visione Notturna continuamente rinnovata mentre sei sott'acqua."
+lore = ["Ottieni Visione Notturna continuamente rinnovata mentre sei sott'acqua."]
 
 [seaborn.dolphin_grace]
 name = "Grazia del Delfino"

@@ -56,6 +56,14 @@ class AdvancementManagerTest {
     }
 
     @Test
+    @DisplayName("achievement toast setting suppresses only requested client toasts")
+    void achievementToastSettingControlsToastDisplay() {
+        assertThat(AdvancementManager.shouldDisplayToast(true, true)).isTrue();
+        assertThat(AdvancementManager.shouldDisplayToast(true, false)).isFalse();
+        assertThat(AdvancementManager.shouldDisplayToast(false, true)).isFalse();
+    }
+
+    @Test
     @DisplayName("player restores are deterministically spread across multiple ticks")
     void playerRestoresAreStaggered() {
         UUID first = UUID.fromString("00000000-0000-0000-0000-000000000001");

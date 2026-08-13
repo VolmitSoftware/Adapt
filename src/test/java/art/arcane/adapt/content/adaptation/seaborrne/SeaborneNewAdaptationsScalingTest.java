@@ -42,6 +42,18 @@ class SeaborneNewAdaptationsScalingTest {
     assertThat(SeaborneInkVeil.cooldownMillis(12_000L, 8_000L, 1D)).isEqualTo(4_000L);
     assertThat(SeaborneInkVeil.cooldownMillis(6_000L, 8_000L, 1D)).isEqualTo(3_000L);
     assertThat(SeaborneInkVeil.cloudSize(4D, 4D, 1D)).isEqualTo(8D);
+    assertThat(SeaborneInkVeil.cloudSize(-4D, 0D, 0D)).isEqualTo(0.5D);
+    assertThat(SeaborneInkVeil.cloudSize(100D, 100D, 1D)).isEqualTo(16D);
+  }
+
+  @Test
+  void inkVeilConcealmentScalesAndExpiresAtItsLeaseBoundary() {
+    assertThat(SeaborneInkVeil.scaledTicks(40D, 40D, 0D)).isEqualTo(40);
+    assertThat(SeaborneInkVeil.scaledTicks(40D, 40D, 1D)).isEqualTo(80);
+    assertThat(SeaborneInkVeil.scaledTicks(-10D, 0D, 0D)).isEqualTo(1);
+    assertThat(SeaborneInkVeil.scaledTicks(Double.MAX_VALUE, Double.MAX_VALUE, 1D)).isEqualTo(1);
+    assertThat(SeaborneInkVeil.isConcealed(2000L, 1999L)).isTrue();
+    assertThat(SeaborneInkVeil.isConcealed(2000L, 2000L)).isFalse();
   }
 
   @Test
