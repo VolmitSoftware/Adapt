@@ -22,6 +22,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -117,7 +118,8 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
     return true;
   }
 
-  @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+  @ReceiveCancelledEvents
+  @EventHandler(priority = EventPriority.NORMAL)
   public void on(PlayerSwapHandItemsEvent e) {
     Player p = e.getPlayer();
     normalizeStoredLevel(p);

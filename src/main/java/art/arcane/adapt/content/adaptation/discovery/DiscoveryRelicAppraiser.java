@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -38,10 +39,15 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.TileState;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -51,12 +57,15 @@ import org.bukkit.persistence.PersistentDataType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppraiser.Config> {
   private static final long COOLDOWN_MILLIS = 400L;
+  static final double MAX_RANDOM_SKILL_XP = 10_000D;
 
   private final Cooldowns cooldowns = cooldowns();
   private final NamespacedKey appraisedKey = new NamespacedKey(Adapt.instance, "relic_appraised");
+  private final NamespacedKey placedAppraisedItemKey = new NamespacedKey(Adapt.instance, "relic_appraised_item");
 
   public DiscoveryRelicAppraiser() {
     super("discovery-relic-appraiser");
@@ -82,6 +91,57 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(appraiseXp(getLevelPercent(level), getConfig().appraiseXpBase, getConfig().appraiseXpFactor), 0), 1);
+    statLore(v, Form.f(normalizedMinimum(getConfig().randomSkillXpMin, getConfig().randomSkillXpMax), 0)
+        + " - " + Form.f(normalizedMaximum(getConfig().randomSkillXpMin, getConfig().randomSkillXpMax), 0), 2);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(BlockPlaceEvent e) {
+    ItemStack placed = e.getItemInHand();
+    if (!isAppraisableBlock(placed.getType()) || !isAppraised(placed, appraisedKey)) {
+      return;
+    }
+
+    BlockState state = e.getBlockPlaced().getState();
+    if (!(state instanceof TileState tile)) {
+      return;
+    }
+
+    ItemStack snapshot = placed.clone();
+    snapshot.setAmount(1);
+    tile.getPersistentDataContainer().set(
+        placedAppraisedItemKey,
+        PersistentDataType.BYTE_ARRAY,
+        snapshot.serializeAsBytes()
+    );
+    tile.update(false, false);
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void on(BlockDropItemEvent e) {
+    BlockState state = e.getBlockState();
+    if (!isAppraisableBlock(state.getType()) || !(state instanceof TileState tile)) {
+      return;
+    }
+
+    byte[] encoded = tile.getPersistentDataContainer().get(placedAppraisedItemKey, PersistentDataType.BYTE_ARRAY);
+    if (encoded == null || encoded.length == 0) {
+      return;
+    }
+
+    ItemStack snapshot;
+    try {
+      snapshot = ItemStack.deserializeBytes(encoded);
+    } catch (IllegalArgumentException ex) {
+      Adapt.error("Could not restore an appraised relic broken at " + state.getLocation() + ".");
+      ex.printStackTrace();
+      return;
+    }
+
+    if (!isAppraisableBlock(snapshot.getType()) || !isAppraised(snapshot, appraisedKey)) {
+      return;
+    }
+    restoreAppraisedDrop(e.getItems(), snapshot);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -142,6 +202,7 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
     p.getInventory().setItemInMainHand(hand);
 
     xp(p, reward);
+    grantRandomSkillXp(p);
     getPlayer(p).getData().addStat("discovery.relic-appraiser.appraised", 1);
 
     timeline(p)
@@ -158,13 +219,93 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
         .start();
   }
 
-  private boolean isAppraisable(Material type) {
+  static boolean isAppraisable(Material type) {
     String n = type.name();
     return n.startsWith("MUSIC_DISC_")
         || n.endsWith("_POTTERY_SHERD")
         || n.endsWith("_ARMOR_TRIM_SMITHING_TEMPLATE")
         || n.endsWith("_HEAD")
         || n.endsWith("_SKULL");
+  }
+
+  static boolean isAppraisableBlock(Material type) {
+    String name = type.name();
+    return name.endsWith("_HEAD") || name.endsWith("_SKULL");
+  }
+
+  static boolean isAppraised(ItemStack item, NamespacedKey appraisedKey) {
+    if (item == null || item.getType().isAir()) {
+      return false;
+    }
+    ItemMeta meta = item.getItemMeta();
+    return meta != null && meta.getPersistentDataContainer().has(appraisedKey, PersistentDataType.BYTE);
+  }
+
+  static boolean restoreAppraisedDrop(List<Item> drops, ItemStack snapshot) {
+    for (Item drop : drops) {
+      if (drop.getItemStack().getType() != snapshot.getType()) {
+        continue;
+      }
+      snapshot.setAmount(drop.getItemStack().getAmount());
+      drop.setItemStack(snapshot);
+      return true;
+    }
+    return false;
+  }
+
+  static List<Skill<?>> eligibleRandomSkills(List<Skill<?>> candidates, Player player, Skill<?> sourceSkill) {
+    List<Skill<?>> eligible = new ArrayList<>(candidates.size());
+    for (Skill<?> candidate : candidates) {
+      if (candidate == null || candidate == sourceSkill || !candidate.isEnabled()) {
+        continue;
+      }
+      if (candidate.hasUsePermission(player, candidate)) {
+        eligible.add(candidate);
+      }
+    }
+    return eligible;
+  }
+
+  static double randomSkillXp(double configuredMin, double configuredMax, double unitRoll) {
+    double minimum = normalizedMinimum(configuredMin, configuredMax);
+    double maximum = normalizedMaximum(configuredMin, configuredMax);
+    double roll = Double.isFinite(unitRoll) ? Math.max(0D, Math.min(1D, unitRoll)) : 0D;
+    return minimum + ((maximum - minimum) * roll);
+  }
+
+  private static double normalizedMinimum(double configuredMin, double configuredMax) {
+    double min = finiteNonNegative(configuredMin);
+    double max = finiteNonNegative(configuredMax);
+    return Math.min(min, max);
+  }
+
+  private static double normalizedMaximum(double configuredMin, double configuredMax) {
+    double min = finiteNonNegative(configuredMin);
+    double max = finiteNonNegative(configuredMax);
+    return Math.max(min, max);
+  }
+
+  private static double finiteNonNegative(double value) {
+    return Double.isFinite(value) ? Math.max(0D, Math.min(MAX_RANDOM_SKILL_XP, value)) : 0D;
+  }
+
+  private void grantRandomSkillXp(Player player) {
+    List<Skill<?>> eligible = eligibleRandomSkills(
+        Adapt.instance.getAdaptServer().getSkillRegistry().getSkills(),
+        player,
+        getSkill()
+    );
+    if (eligible.isEmpty()) {
+      return;
+    }
+
+    ThreadLocalRandom random = ThreadLocalRandom.current();
+    double reward = randomSkillXp(getConfig().randomSkillXpMin, getConfig().randomSkillXpMax, random.nextDouble());
+    if (reward <= 0D) {
+      return;
+    }
+    Skill<?> selected = eligible.get(random.nextInt(eligible.size()));
+    selected.xp(player, reward, "relic-appraiser");
   }
 
   private double rarityWeight(Material type) {
@@ -189,12 +330,16 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
   }
 
 
-  @ConfigDescription("Sneak-right-click rare drops to appraise them for Discovery XP; appraised items gain a lore tag.")
+  @ConfigDescription("Sneak-right-click rare drops for Discovery XP and a random eligible skill XP payout; appraised block items retain their stamp after placement.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Appraise Xp Base for the Discovery Relic Appraiser adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double appraiseXpBase = 60;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Appraise Xp Factor for the Discovery Relic Appraiser adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double appraiseXpFactor = 180;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum XP granted to one random enabled and permitted non-Discovery skill after an appraisal.", impact = "Values are clamped to 0-10,000; set both random skill XP bounds to zero to disable the additional payout.")
+    double randomSkillXpMin = 20;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum XP granted to one random enabled and permitted non-Discovery skill after an appraisal.", impact = "Values are clamped to 0-10,000 and the two bounds are reordered when necessary.")
+    double randomSkillXpMax = 60;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Rarity multiplier applied to music disc appraisals.", impact = "Higher values pay more Discovery XP for discs.")
     double discRarityWeight = 1.5;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Rarity multiplier applied to head and skull appraisals.", impact = "Higher values pay more Discovery XP for mob heads.")

@@ -69,7 +69,7 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
     v.addLore(C.GRAY + AdaptLanguage.text(PickaxeMessages.DROP_TO_INVENTORY_LORE1));
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockDropItemEvent e) {
 
     Player p = e.getPlayer();

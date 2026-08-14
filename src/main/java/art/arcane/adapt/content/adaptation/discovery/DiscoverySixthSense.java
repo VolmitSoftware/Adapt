@@ -18,38 +18,58 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.DiscoveryMessages;
+
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
+import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import org.bukkit.Location;
+import art.arcane.volmlib.util.math.M;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.generator.structure.GeneratedStructure;
+import org.bukkit.generator.structure.Structure;
 import org.bukkit.generator.structure.StructureType;
 import org.bukkit.util.StructureSearchResult;
 import org.bukkit.util.Vector;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+
 public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Config> {
+  static final double HARD_MAX_RANGE = 500.0D;
+  private static final String HUD_GROUP = "discovery-sixth-sense";
   private static volatile List<StructureType> structureTypes;
 
   private static List<StructureType> structureTypes() {
@@ -79,6 +99,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
 
   private final Cooldowns pulseThrottle = cooldowns();
   private final Map<UUID, Integer> typeCursors = playerState();
+  private final Map<UUID, StructureTarget> targets = playerState();
 
   public DiscoverySixthSense() {
     super("discovery-sixth-sense");
@@ -103,7 +124,12 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
 
   @Override
   public void addStats(int level, Element v) {
-    statLore(v, Form.f(detectionRange(getLevelPercent(level), getConfig().detectionRangeBase, getConfig().detectionRangeFactor), 0), 1);
+    statLore(v, Form.f(detectionRange(
+        getLevelPercent(level),
+        getConfig().detectionRangeBase,
+        getConfig().detectionRangeFactor,
+        getConfig().maxDetectionRange
+    ), 0), 1);
   }
 
   @Override
@@ -112,7 +138,13 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return requiresMaintenance(super.hasTickDemand(), !targets.isEmpty());
+  }
+
+  @Override
   public void onTick() {
+    cleanupInactiveTargets();
     long now = System.currentTimeMillis();
     for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
       Player player = adaptPlayer.getPlayer();
@@ -120,35 +152,79 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
         continue;
       }
 
-      UUID id = player.getUniqueId();
-      if (!pulseThrottle.isReady(id, getConfig().pulseIntervalMillis)) {
-        continue;
-      }
-
-      pulseThrottle.mark(id);
-      J.runEntity(player, () -> senseOwned(player));
+      J.runEntity(player, () -> tickOwned(player));
     }
   }
 
-  private void senseOwned(Player player) {
+  private void cleanupInactiveTargets() {
+    for (UUID playerId : List.copyOf(targets.keySet())) {
+      if (getServer().hasOnlineLearner(playerId, getName())) {
+        continue;
+      }
+
+      Player player = Bukkit.getPlayer(playerId);
+      if (player == null) {
+        targets.remove(playerId);
+        typeCursors.remove(playerId);
+        pulseThrottle.clear(playerId);
+        continue;
+      }
+      J.runEntity(player, () -> clearInactiveTargetOwned(player));
+    }
+  }
+
+  private void clearInactiveTargetOwned(Player player) {
+    UUID playerId = player.getUniqueId();
+    if (!targets.containsKey(playerId) || getActiveLevel(player) > 0) {
+      return;
+    }
+    typeCursors.remove(playerId);
+    pulseThrottle.clear(playerId);
+    clearTarget(player);
+  }
+
+  private void tickOwned(Player player) {
     int level = getActiveLevel(player);
     if (level <= 0) {
+      clearTarget(player);
       return;
     }
 
-    double range = detectionRange(getLevelPercent(level), getConfig().detectionRangeBase, getConfig().detectionRangeFactor);
+    Location origin = player.getLocation();
+    UUID playerId = player.getUniqueId();
+    if (insideGeneratedStructure(origin)) {
+      clearTarget(player);
+      return;
+    }
+
+    double range = detectionRange(
+        getLevelPercent(level),
+        getConfig().detectionRangeBase,
+        getConfig().detectionRangeFactor,
+        getConfig().maxDetectionRange
+    );
+    showCurrentTarget(player, origin, range);
+
+    long pulseInterval = pulseIntervalMillis(getConfig().pulseIntervalMillis);
+    if (!pulseThrottle.isReady(playerId, pulseInterval)) {
+      return;
+    }
+    pulseThrottle.mark(playerId);
+    searchOwned(player, origin, range);
+  }
+
+  private void searchOwned(Player player, Location origin, double range) {
+    UUID playerId = player.getUniqueId();
     int radiusChunks = Math.max(1, (int) Math.ceil(range / 16D));
     List<StructureType> types = structureTypes();
-    UUID playerId = player.getUniqueId();
     int cursor = Math.floorMod(typeCursors.getOrDefault(playerId, 0), types.size());
     StructureType type = types.get(cursor);
     typeCursors.put(playerId, advanceTypeCursor(cursor, types.size()));
     World world = player.getWorld();
-    Location origin = player.getLocation();
 
     StructureSearchResult result;
     try {
-      result = world.locateNearestStructure(origin, type, radiusChunks, true);
+      result = world.locateNearestStructure(origin, type, radiusChunks, false);
     } catch (Throwable t) {
       return;
     }
@@ -161,12 +237,85 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     double dx = target.getX() - origin.getX();
     double dz = target.getZ() - origin.getZ();
     double horizontal = Math.sqrt((dx * dx) + (dz * dz));
-    if (horizontal > range || horizontal < getConfig().exploredRadius) {
+    if (horizontal > range) {
       return;
     }
 
-    pulseTowards(player, dx / horizontal, dz / horizontal, horizontal);
-    getPlayer(player).getData().addStat("discovery.sixth-sense.senses", 1);
+    StructureTarget candidate = new StructureTarget(
+        world.getUID(),
+        target.getX(),
+        target.getZ(),
+        structureName(result.getStructure(), type),
+        structureSymbol(type),
+        M.ms()
+    );
+    StructureTarget previous = targets.get(playerId);
+    boolean replaced = shouldReplaceTarget(previous, candidate, origin);
+    boolean refreshed = previous != null && previous.sameTarget(candidate);
+    if (replaced || refreshed) {
+      targets.put(playerId, candidate);
+      showTarget(player, origin, candidate, range, replaced && !refreshed);
+    }
+  }
+
+  private void showCurrentTarget(Player player, Location origin, double range) {
+    StructureTarget target = targets.get(player.getUniqueId());
+    if (target == null) {
+      return;
+    }
+
+    long targetTtl = targetTtlMillis(getConfig().pulseIntervalMillis, structureTypes().size());
+    if (!target.matches(origin.getWorld()) || M.ms() - target.foundAtMillis() > targetTtl) {
+      clearTarget(player);
+      return;
+    }
+
+    double distance = Math.sqrt(target.distanceSquared(origin));
+    if (distance > range) {
+      clearTarget(player);
+      return;
+    }
+
+    showTarget(player, origin, target, range, false);
+  }
+
+  private void showTarget(Player player, Location origin, StructureTarget target, double range, boolean newlyLocated) {
+    double dx = target.x() - origin.getX();
+    double dz = target.z() - origin.getZ();
+    double distance = Math.sqrt((dx * dx) + (dz * dz));
+    if (distance <= 0.0D || distance > range) {
+      return;
+    }
+
+    String message = AdaptLanguage.text(
+        DiscoveryMessages.SIXTH_SENSE_HUD,
+        trusted("symbol", C.AQUA + target.symbol()),
+        trusted("structure", C.WHITE + target.name()),
+        trusted("direction", C.YELLOW + compassDirection(dx, dz)),
+        trusted("distance", C.GRAY + String.valueOf(Math.round(distance)))
+    );
+    AdaptHud.ambientStatus(player, HUD_GROUP, message);
+
+    if (newlyLocated) {
+      pulseTowards(player, dx / distance, dz / distance, distance);
+      getPlayer(player).getData().addStat("discovery.sixth-sense.senses", 1);
+    }
+  }
+
+  private boolean insideGeneratedStructure(Location origin) {
+    for (GeneratedStructure structure : origin.getChunk().getStructures()) {
+      if (structureTypes().contains(structure.getStructure().getStructureType())
+          && structure.getBoundingBox().contains(origin.getX(), origin.getY(), origin.getZ())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void clearTarget(Player player) {
+    targets.remove(player.getUniqueId());
+    AdaptHud.clearAmbientStatus(player, HUD_GROUP);
+    ViewerDisplayDirector.clearViewer(getName(), player.getUniqueId());
   }
 
   private void pulseTowards(Player player, double ux, double uz, double horizontal) {
@@ -199,18 +348,94 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     UUID playerId = event.getPlayer().getUniqueId();
     pulseThrottle.clear(playerId);
     typeCursors.remove(playerId);
-    ViewerDisplayDirector.clearViewer(getName(), playerId);
+    clearTarget(event.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  @RunsWithoutLearnedAdaptation
+  public void onMove(PlayerMoveEvent event) {
+    Player player = event.getPlayer();
+    UUID playerId = player.getUniqueId();
+    if (!targets.containsKey(playerId) || getActiveLevel(player) > 0) {
+      return;
+    }
+
+    pulseThrottle.clear(playerId);
+    typeCursors.remove(playerId);
+    clearTarget(player);
   }
 
   @Override
   public void unregister() {
+    for (UUID playerId : List.copyOf(targets.keySet())) {
+      Player player = Bukkit.getPlayer(playerId);
+      if (player != null) {
+        J.runEntity(player, () -> AdaptHud.clearAmbientStatus(player, HUD_GROUP));
+      }
+    }
     typeCursors.clear();
+    targets.clear();
     ViewerDisplayDirector.clearChannel(getName());
     super.unregister();
   }
 
   static double detectionRange(double levelPercent, double base, double factor) {
-    return Math.max(16D, base + (levelPercent * factor));
+    return detectionRange(levelPercent, base, factor, HARD_MAX_RANGE);
+  }
+
+  static double detectionRange(double levelPercent, double base, double factor, double configuredMax) {
+    double maximum = Double.isFinite(configuredMax)
+        ? Math.max(16.0D, Math.min(HARD_MAX_RANGE, configuredMax))
+        : HARD_MAX_RANGE;
+    double normalizedLevel = Double.isFinite(levelPercent)
+        ? Math.max(0.0D, Math.min(1.0D, levelPercent))
+        : 0.0D;
+    double safeBase = Double.isFinite(base) ? base : 16.0D;
+    double safeFactor = Double.isFinite(factor) ? factor : 0.0D;
+    double scaled = safeBase + (normalizedLevel * safeFactor);
+    if (!Double.isFinite(scaled)) {
+      return 16.0D;
+    }
+    return Math.min(maximum, Math.max(16.0D, scaled));
+  }
+
+  static String compassDirection(double dx, double dz) {
+    if (Math.abs(dx) < 1.0E-9D && Math.abs(dz) < 1.0E-9D) {
+      return "•";
+    }
+    String[] directions = {"S", "SW", "W", "NW", "N", "NE", "E", "SE"};
+    double normalized = Math.atan2(-dx, dz) / (Math.PI / 4.0D);
+    return directions[Math.floorMod((int) Math.round(normalized), directions.length)];
+  }
+
+  static String structureName(Structure structure, StructureType fallbackType) {
+    Registry<Structure> registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.STRUCTURE);
+    NamespacedKey registeredKey = structure == null ? null : registry.getKey(structure);
+    String key = registeredKey == null ? fallbackType.getKey().getKey() : registeredKey.getKey();
+    return Form.capitalizeWords(key.toLowerCase(Locale.ROOT).replace('_', ' '));
+  }
+
+  static String structureSymbol(StructureType type) {
+    if (type == StructureType.JIGSAW) {
+      return "⌂";
+    }
+    if (type == StructureType.OCEAN_MONUMENT || type == StructureType.OCEAN_RUIN || type == StructureType.SHIPWRECK) {
+      return "⚓";
+    }
+    if (type == StructureType.FORTRESS || type == StructureType.STRONGHOLD || type == StructureType.WOODLAND_MANSION) {
+      return "♜";
+    }
+    return "◇";
+  }
+
+  static boolean shouldReplaceTarget(StructureTarget current, StructureTarget candidate, Location origin) {
+    if (candidate == null) {
+      return false;
+    }
+    if (current == null || !current.matches(origin.getWorld())) {
+      return true;
+    }
+    return candidate.distanceSquared(origin) < current.distanceSquared(origin);
   }
 
   static int advanceTypeCursor(int cursor, int typeCount) {
@@ -222,14 +447,28 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     return normalized == typeCount - 1 ? 0 : normalized + 1;
   }
 
-  @ConfigDescription("A private glowing direction line hints when an unexplored structure is within range.")
+  static boolean requiresMaintenance(boolean learnerDemand, boolean activeTarget) {
+    return learnerDemand || activeTarget;
+  }
+
+  static long pulseIntervalMillis(long configuredInterval) {
+    return Math.max(2_000L, Math.min(60_000L, configuredInterval));
+  }
+
+  static long targetTtlMillis(long configuredInterval, int typeCount) {
+    long pulseInterval = pulseIntervalMillis(configuredInterval);
+    long fullCycle = pulseInterval * Math.max(1, typeCount);
+    return Math.max(30_000L, fullCycle + (pulseInterval * 2L));
+  }
+
+  @ConfigDescription("A compact HUD cue names the nearest supported structure and shows its direction and distance.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Detection Range Base for the Discovery Sixth Sense adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double detectionRangeBase = 48;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Detection Range Factor for the Discovery Sixth Sense adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double detectionRangeFactor = 112;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Distance under which a structure is treated as already reached, suppressing the pulse.", impact = "Higher values stop the pulse from firing sooner as you approach a structure.")
-    double exploredRadius = 20;
+    double detectionRangeFactor = 452;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum structure detection range in blocks, hard-capped at 500.", impact = "Lower values reduce the search radius and HUD reach for every level.")
+    double maxDetectionRange = 500;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds between sense pulses for a single player.", impact = "Higher values pulse less often and reduce structure search work.")
     long pulseIntervalMillis = 4000;
 
@@ -238,6 +477,29 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
       costFactor = 0.4;
       maxLevel = 5;
       initialCost = 3;
+    }
+  }
+
+  record StructureTarget(UUID worldId, double x, double z, String name, String symbol, long foundAtMillis) {
+    boolean matches(World world) {
+      return world != null && worldId.equals(world.getUID());
+    }
+
+    double distanceSquared(Location origin) {
+      if (!matches(origin.getWorld())) {
+        return Double.POSITIVE_INFINITY;
+      }
+      double dx = x - origin.getX();
+      double dz = z - origin.getZ();
+      return (dx * dx) + (dz * dz);
+    }
+
+    boolean sameTarget(StructureTarget other) {
+      return other != null
+          && worldId.equals(other.worldId)
+          && Double.compare(x, other.x) == 0
+          && Double.compare(z, other.z) == 0
+          && name.equals(other.name);
     }
   }
 }

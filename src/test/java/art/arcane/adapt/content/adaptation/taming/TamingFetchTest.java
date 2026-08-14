@@ -5,6 +5,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class TamingFetchTest {
   @Test
@@ -54,14 +55,15 @@ class TamingFetchTest {
   }
 
   @Test
-  void realFetchShipsOnWithTheTunedWalkCadence() {
+  void physicalFetchShipsWithTheTunedWalkCadenceAndNoTeleportToggle() {
     TamingFetch.Config config = new TamingFetch.Config();
 
-    assertThat(config.realFetch).isTrue();
     assertThat(config.fetchWalkSpeed).isEqualTo(1.15D);
     assertThat(config.pathfindRadius).isEqualTo(9.0D);
     assertThat(config.fetchDeadlineMillis).isEqualTo(9000L);
     assertThat(config.maintenanceIntervalTicks).isEqualTo(5);
+    assertThatThrownBy(() -> TamingFetch.Config.class.getDeclaredField("realFetch"))
+        .isInstanceOf(NoSuchFieldException.class);
   }
 
   @Test
@@ -69,5 +71,12 @@ class TamingFetchTest {
     assertThat(TamingFetch.class.getDeclaredMethod("unregister")).isNotNull();
     assertThat(TamingFetch.class.getDeclaredMethod("on", PlayerQuitEvent.class)
         .getAnnotation(EventHandler.class)).isNotNull();
+  }
+
+  @Test
+  void staleCleanupCannotStopAReplacementFetchPath() {
+    assertThat(TamingFetch.shouldStopPathfinding(4L, null)).isTrue();
+    assertThat(TamingFetch.shouldStopPathfinding(4L, 4L)).isTrue();
+    assertThat(TamingFetch.shouldStopPathfinding(4L, 5L)).isFalse();
   }
 }

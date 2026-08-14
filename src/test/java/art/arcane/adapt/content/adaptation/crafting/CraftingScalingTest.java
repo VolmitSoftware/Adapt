@@ -1,11 +1,18 @@
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.EventHandlerInvoker;
+import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.config.TomlCodec;
 import org.bukkit.Material;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.Damageable;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -123,6 +130,34 @@ class CraftingScalingTest {
   }
 
   @Test
+  void deconstructionAcceptsOnlyFullyRepairedArmorAndUsesPlainRecipeLookup() {
+    ItemStack repairedArmor = mock(ItemStack.class);
+    Damageable repairedMeta = mock(Damageable.class);
+    when(repairedArmor.getType()).thenReturn(Material.IRON_LEGGINGS);
+    when(repairedArmor.getAmount()).thenReturn(1);
+    when(repairedArmor.getItemMeta()).thenReturn(repairedMeta);
+    when(repairedMeta.getDamage()).thenReturn(0);
+    ItemStack recipeLookup = mock(ItemStack.class);
+    when(repairedArmor.clone()).thenReturn(recipeLookup);
+
+    ItemStack damagedArmor = mock(ItemStack.class);
+    Damageable damagedMeta = mock(Damageable.class);
+    when(damagedArmor.getType()).thenReturn(Material.DIAMOND_CHESTPLATE);
+    when(damagedArmor.getItemMeta()).thenReturn(damagedMeta);
+    when(damagedMeta.getDamage()).thenReturn(1);
+
+    ItemStack ordinaryItem = mock(ItemStack.class);
+    when(ordinaryItem.getType()).thenReturn(Material.CHEST);
+
+    assertThat(CraftingDeconstruction.hasEligibleRepairState(repairedArmor)).isTrue();
+    assertThat(CraftingDeconstruction.hasEligibleRepairState(damagedArmor)).isFalse();
+    assertThat(CraftingDeconstruction.hasEligibleRepairState(ordinaryItem)).isTrue();
+    assertThat(CraftingDeconstruction.recipeLookupItem(repairedArmor)).isSameAs(recipeLookup);
+    verify(recipeLookup).setItemMeta(null);
+    assertThat(CraftingDeconstruction.recipeLookupItem(ordinaryItem)).isSameAs(ordinaryItem);
+  }
+
+  @Test
   void tinkererEnchantMergeKeepsHighestLevelFromEitherTool() {
     Map<String, Integer> merged = new HashMap<>();
     CraftingTinkerer.mergeEnchants(merged, Map.of("efficiency", 3));
@@ -155,6 +190,16 @@ class CraftingScalingTest {
     assertThat(CraftingCompactor.isActivation(true, 0, true, Material.CRAFTING_TABLE)).isFalse();
     assertThat(CraftingCompactor.isActivation(true, 1, false, Material.CRAFTING_TABLE)).isFalse();
     assertThat(CraftingCompactor.isActivation(true, 1, true, Material.STONE)).isFalse();
+  }
+
+  @Test
+  void compactorOwnsItsExactSwapGestureWhenAlreadyCancelled() throws ReflectiveOperationException {
+    Method handler = CraftingCompactor.class.getDeclaredMethod("on", PlayerSwapHandItemsEvent.class);
+    EventHandler eventHandler = handler.getAnnotation(EventHandler.class);
+
+    assertThat(handler.isAnnotationPresent(ReceiveCancelledEvents.class)).isTrue();
+    assertThat(eventHandler.ignoreCancelled()).isFalse();
+    assertThat(EventHandlerInvoker.shouldIgnoreCancelled(handler, eventHandler, PlayerSwapHandItemsEvent.class)).isFalse();
   }
 
   @Test

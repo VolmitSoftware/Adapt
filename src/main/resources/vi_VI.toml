@@ -3706,10 +3706,10 @@ lore = ["Tốc Độ Hồi Khiên", "Cấp Kháng Cự"]
 [blocking.phalanx_crafter]
 name = "Thợ Rèn Phalanx"
 item_name = "Khiên gia cố bằng Netherite"
-description = "Chế tạo trực tiếp khiên có mặt cờ và gia cố khiên bằng netherite để tăng độ bền."
-lore1 = "Cấp 1: chế tạo trực tiếp khiên có mặt cờ từ len, ván gỗ và sắt."
-lore2 = "Cấp 2: rèn khiên gia cố netherite có độ bền tăng mạnh."
-lore = ["Cấp 1: chế tạo trực tiếp khiên có mặt cờ từ len, ván gỗ và sắt.", "Cấp 2: rèn khiên gia cố netherite có độ bền tăng mạnh."]
+description = "Mở khóa hai công thức khiên định hình; cấp 2 gia cố khiên lên 1.200 độ bền và giữ nguyên hoa văn cờ hiệu."
+lore1 = "Cấp 1: WWW / PIP / .P. (W len trắng, P ván gỗ sồi, I sắt)."
+lore2 = "Cấp 2: .N. / NSN / .N. (N netherite, S khiên) cho 1.200 độ bền."
+lore = ["Cấp 1: WWW / PIP / .P. (W len trắng, P ván gỗ sồi, I sắt).", "Cấp 2: .N. / NSN / .N. (N netherite, S khiên) cho 1.200 độ bền."]
 
 [blocking.interpose]
 name = "Che Chắn"
@@ -4064,9 +4064,9 @@ array = "dãy"
 [crafting.deconstruction]
 name = "Tháo Dỡ"
 description = "Tháo dỡ khối & vật phẩm thành nguyên liệu cơ bản có thể tái sử dụng!"
-lore1 = "Thả bất kỳ vật phẩm nào xuống đất."
+lore1 = "Thả một vật phẩm xuống đất; giáp phải được sửa chữa hoàn toàn."
 lore2 = "Sau đó, Ngồi và Chuột Phải bằng Kéo"
-lore = ["Thả bất kỳ vật phẩm nào xuống đất.", "Sau đó, Ngồi và Chuột Phải bằng Kéo"]
+lore = ["Thả một vật phẩm xuống đất; giáp phải được sửa chữa hoàn toàn.", "Sau đó, Ngồi và Chuột Phải bằng Kéo"]
 
 [crafting.xp]
 name = "XP Chế Tạo"
@@ -4139,14 +4139,15 @@ lore = ["cơ hội hoàn lại một nguyên liệu chế tạo"]
 
 [crafting.masterwork]
 name = "Tuyệt Tác"
-description = "Công cụ và giáp bạn chế tạo có thể nhận thêm độ bền, cùng cơ hội nhận một thuộc tính nhỏ ở cấp tối đa."
+description = "Mỗi công cụ và mảnh giáp bạn chế tạo sẽ độc lập quay độ bền thưởng biến đổi, cơ hội nhận phù phép có lợi cấp I tương thích và, ở cấp tối đa, cơ hội nhận thưởng thuộc tính nhỏ."
 lore1 = "cơ hội rèn một tuyệt tác"
-lore2 = "độ bền tối đa thưởng"
-lore3 = "Ở cấp tối đa, có cơ hội nhận thêm thuộc tính nhỏ"
+lore2 = "độ bền thưởng tối đa"
+lore3 = "cơ hội nhận phù phép cấp I tương thích"
+lore4 = "Ở cấp tối đa, cơ hội nhận thưởng thuộc tính nhỏ"
 tag = "Thành thạo"
 bonus = "Thành thạo +{bonus}"
 attribute_tag = "Cạnh làm việc cao"
-lore = ["cơ hội rèn một tuyệt tác", "độ bền tối đa thưởng", "Ở cấp tối đa, có cơ hội nhận thêm thuộc tính nhỏ"]
+lore = ["cơ hội rèn một tuyệt tác", "độ bền thưởng tối đa", "cơ hội nhận phù phép cấp I tương thích", "Ở cấp tối đa, cơ hội nhận thưởng thuộc tính nhỏ"]
 
 [crafting.compactor]
 name = "Máy Nén"
@@ -4274,15 +4275,17 @@ lore = ["Thưởng XP Toàn Cục Mỗi Kỹ Năng Đủ Điều Kiện", "Cấp
 
 [discovery.relic_appraiser]
 name = "Người Thẩm Định Di Vật"
-description = "Cúi người rồi nhấp chuột phải vào vật phẩm hiếm như đầu, đĩa nhạc, hoa văn giáp hoặc mảnh gốm để thẩm định lấy XP Khám Phá; vật phẩm đã thẩm định nhận thêm dòng mô tả."
+description = "Cúi người rồi nhấp chuột phải vào chiến lợi phẩm hiếm (đầu, đĩa nhạc, hoa văn giáp và mảnh gốm) để nhận XP Khám Phá cùng XP cho một kỹ năng đủ điều kiện ngẫu nhiên; đầu và sọ đã thẩm định khi đặt xuống vẫn giữ dấu sau khi bị phá."
 lore1 = "XP Thẩm Định (theo độ hiếm vật phẩm)"
-lore = ["XP Thẩm Định (theo độ hiếm vật phẩm)"]
+lore2 = "XP kỹ năng đủ điều kiện ngẫu nhiên"
+lore = ["XP Thẩm Định (theo độ hiếm vật phẩm)", "XP kỹ năng đủ điều kiện ngẫu nhiên"]
 lore_tag = "Bổ sung"
 
 [discovery.sixth_sense]
 name = "Giác Quan Thứ Sáu"
-description = "Một đường chỉ hướng phát sáng riêng sẽ gợi ý khi có công trình chưa khám phá trong phạm vi."
+description = "HUD nhỏ gọn nêu tên công trình được hỗ trợ gần nhất và hiển thị hướng cùng khoảng cách."
 lore1 = "Phạm Vi Phát Hiện Công Trình"
+hud = "{symbol} {structure} {direction} {distance}m"
 lore = ["Phạm Vi Phát Hiện Công Trình"]
 
 [discovery.keen_eye]
@@ -4354,7 +4357,7 @@ lore = ["XP Phù Phép Mỗi Lời Nguyền"]
 
 [enchanting.tome_rebinding]
 name = "Tách Đóng Ma Thư"
-description = "Cúi người rồi nhấp chuột phải vào một sách có nhiều phù phép trên đe để tách thành các sách đơn phép. Cấp thấp có thể mất phép; cấp tối đa giữ lại toàn bộ."
+description = "Thả một sách có nhiều phù phép trong khi ngắm vào đe để tách thành các sách đơn phép. Cấp thấp có thể mất phù phép; cấp tối đa không mất."
 lore1 = "Cơ Hội Mất Phù Phép"
 lore2 = "Chi Phí Cấp XP"
 split = "Chia sách"
@@ -4374,7 +4377,7 @@ lore = ["Chi Phí XP Để Giữ Lại", "Hồi Chiêu Đánh Dấu Lại"]
 
 [enchanting.arcane_siphon]
 name = "Hút Phép Bí Thuật"
-description = "Giết sinh vật mang trang bị phù phép sẽ cho thêm XP và có thể hút các phù phép của chúng vào một cuốn sách."
+description = "Giết thực thể đang trang bị vật phẩm phù phép sẽ cho thêm XP và có thể hút ra một cuốn sách; người chơi chỉ là mục tiêu ở cấp tối đa."
 lore1 = "Cơ Hội Rơi Sách"
 lore2 = "Thưởng Chất Lượng Phù Phép"
 lore = ["Cơ Hội Rơi Sách", "Thưởng Chất Lượng Phù Phép"]
@@ -4868,10 +4871,10 @@ lore = ["Giảm Sát Thương"]
 
 [kinetics.surface_skate]
 name = "Trượt Mặt Đất"
-description = "Chạy nước rút để trượt trên mặt đất với ma sát thấp; cúi người để bám chắc."
-lore1 = "Trượt"
-lore2 = "Độ Bám"
-lore = ["Trượt", "Độ Bám"]
+description = "Chạy nước rút để trượt trên mọi bề mặt đất; cấp độ càng cao càng triệt tiêu nhiều ma sát, và nhấn cúi người sẽ dừng chuyển động ngang ngay lập tức."
+lore1 = "Ma sát mặt đất bị triệt tiêu"
+lore2 = "Phanh khi cúi"
+lore = ["Ma sát mặt đất bị triệt tiêu", "Phanh khi cúi"]
 
 [kinetics.terminal_toggle]
 name = "Đổi Vận Tốc Cuối"
@@ -5451,11 +5454,12 @@ trigger_context = "{trigger} ({environment})"
 
 [seaborn.pressure_diver]
 name = "Thợ Lặn Áp Suất"
-description = "Nhận bảo vệ tăng theo độ sâu dưới nước và giảm một phần áp lực Đào Chậm."
+description = "Nhận tim hấp thụ và bảo vệ tăng theo độ sâu dưới nước, đồng thời giảm một phần Đào Chậm."
 lore1 = "Yêu Cầu Độ Sâu Tối Thiểu"
 lore2 = "Giảm Sát Thương Theo Độ Sâu"
 lore3 = "Cơ Hội Giảm Đào Chậm"
-lore = ["Yêu Cầu Độ Sâu Tối Thiểu", "Giảm Sát Thương Theo Độ Sâu", "Cơ Hội Giảm Đào Chậm"]
+lore4 = "Tim hấp thụ ở độ sâu"
+lore = ["Yêu Cầu Độ Sâu Tối Thiểu", "Giảm Sát Thương Theo Độ Sâu", "Cơ Hội Giảm Đào Chậm", "Tim hấp thụ ở độ sâu"]
 
 [seaborn.coral_gardener]
 name = "Người Làm Vườn San Hô"
@@ -5940,7 +5944,7 @@ lore = ["Sát Thương Thưởng Khi Cưỡi", "Giảm Sát Thương Khi Cưỡi
 
 [taming.fetch]
 name = "Tha Về"
-description = "Sói đã thuần hóa của bạn nhặt vật phẩm rơi gần đó và mang thẳng về cho bạn."
+description = "Sói đã thuần hóa đang rảnh sẽ chạy đến vật phẩm rơi gần đó, nhặt lên và tự mang trở lại cho bạn."
 lore1 = "Phạm Vi Tha Về"
 lore2 = "Cơ Hội Tha Vật Phẩm"
 lore = ["Phạm Vi Tha Về", "Cơ Hội Tha Vật Phẩm"]

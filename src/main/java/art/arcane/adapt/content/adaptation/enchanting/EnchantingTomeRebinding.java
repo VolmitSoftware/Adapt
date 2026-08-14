@@ -30,30 +30,29 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.block.Block;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebinding.Config> {
   public EnchantingTomeRebinding() {
@@ -100,31 +99,24 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
-  public void on(InventoryClickEvent e) {
-    if (!(e.getWhoClicked() instanceof Player p)) {
-      return;
-    }
-
-    if (!isRebindingClick(
-        e.getRawSlot(),
-        e.getClick(),
-        e.getView().getTopInventory().getType() == InventoryType.ANVIL,
-        isItem(e.getCursor()))) {
-      return;
-    }
-
-    Inventory top = e.getView().getTopInventory();
-    ItemStack book = top.getItem(0);
+  public void on(PlayerDropItemEvent e) {
+    Player p = e.getPlayer();
+    Item droppedItem = e.getItemDrop();
+    ItemStack book = droppedItem.getItemStack();
     if (!isMultiEnchantBook(book)) {
       return;
     }
 
-    int level = getActiveLevel(p);
+    Block target = p.getTargetBlockExact(5, FluidCollisionMode.NEVER);
+    if (target == null || !isAnvilTarget(target.getType())) {
+      return;
+    }
+
+    int level = getActiveInteractLevel(p, target.getLocation());
     if (level <= 0) {
       return;
     }
 
-    e.setCancelled(true);
     int cost = getXpCost(level);
     if (p.getLevel() < cost) {
       FxPresets.failFizzle(this, p);
@@ -145,10 +137,12 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
       return;
     }
 
-    top.setItem(0, null);
-    for (ItemStack single : books) {
-      Map<Integer, ItemStack> overflow = p.getInventory().addItem(single);
-      overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
+    droppedItem.setItemStack(books.getFirst());
+    for (int index = 1; index < books.size(); index++) {
+      Item splitItem = p.getWorld().dropItem(droppedItem.getLocation(), books.get(index));
+      splitItem.setVelocity(droppedItem.getVelocity());
+      splitItem.setPickupDelay(droppedItem.getPickupDelay());
+      splitItem.setThrower(p.getUniqueId());
     }
 
     addStat(p, "enchanting.tome-rebinding.books-split", 1);
@@ -158,14 +152,12 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
         trusted("count", books.size())
     ));
     splitFx(p);
-    J.runEntity(p, p::updateInventory, 1);
   }
 
-  static boolean isRebindingClick(int rawSlot, ClickType click, boolean anvilInventory, boolean cursorHasItem) {
-    return rawSlot == 0
-        && click == ClickType.SHIFT_RIGHT
-        && anvilInventory
-        && !cursorHasItem;
+  static boolean isAnvilTarget(Material material) {
+    return material == Material.ANVIL
+        || material == Material.CHIPPED_ANVIL
+        || material == Material.DAMAGED_ANVIL;
   }
 
   static boolean spendLevels(Player player, int amount) {
@@ -177,20 +169,29 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
     return true;
   }
 
-  private boolean isMultiEnchantBook(ItemStack item) {
-    return isItem(item)
-        && item.getType() == Material.ENCHANTED_BOOK
-        && item.getItemMeta() instanceof EnchantmentStorageMeta meta
-        && meta.getStoredEnchants().size() >= 2;
+  static boolean isMultiEnchantBook(ItemStack item) {
+    if (item == null || item.getType() != Material.ENCHANTED_BOOK || item.getAmount() != 1
+        || !(item.getItemMeta() instanceof EnchantmentStorageMeta meta)) {
+      return false;
+    }
+    return isSplittableBook(item.getType(), item.getAmount(), meta.getStoredEnchants().size());
+  }
+
+  static boolean isSplittableBook(Material material, int amount, int storedEnchantCount) {
+    return material == Material.ENCHANTED_BOOK && amount == 1 && storedEnchantCount >= 2;
   }
 
   private ItemStack singleEnchantBook(Enchantment enchant, int storedLevel) {
     ItemStack book = new ItemStack(Material.ENCHANTED_BOOK);
     EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
-    int safeLevel = Math.max(1, Math.min(storedLevel, enchant.getMaxLevel()));
+    int safeLevel = normalizedStoredLevel(storedLevel);
     meta.addStoredEnchant(enchant, safeLevel, true);
     book.setItemMeta(meta);
     return book;
+  }
+
+  static int normalizedStoredLevel(int storedLevel) {
+    return Math.max(1, storedLevel);
   }
 
   private void splitFx(Player p) {
@@ -213,7 +214,7 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
   }
 
 
-  @ConfigDescription("Sneak-right-click a multi-enchant book in an anvil to split it into single-enchant books.")
+  @ConfigDescription("Drop a multi-enchant book while aiming at an anvil to split it into single-enchant books.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Loss Chance Base for the Enchanting Tome Rebinding adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double lossChanceBase = 0.9;

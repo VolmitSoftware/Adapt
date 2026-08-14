@@ -47,11 +47,12 @@ public final class SeabornMessages {
   public static final TextKey TIDECALLER_ENVIRONMENT_LINE = TextKey.of("seaborn.tidecaller.environment_line", "Environment: {environment}");
   public static final TextKey TIDECALLER_TRIGGER_CONTEXT = TextKey.of("seaborn.tidecaller.trigger_context", "{trigger} ({environment})");
   public static final TextKey PRESSURE_DIVER_NAME = TextKey.of("seaborn.pressure_diver.name", "Pressure Diver");
-  public static final TextKey PRESSURE_DIVER_DESCRIPTION = TextKey.of("seaborn.pressure_diver.description", "Gain depth-based protection underwater and partially suppress mining fatigue pressure.");
+  public static final TextKey PRESSURE_DIVER_DESCRIPTION = TextKey.of("seaborn.pressure_diver.description", "Gain absorption hearts and depth-based protection underwater while partially countering Mining Fatigue.");
   public static final TextKey PRESSURE_DIVER_LORE1 = TextKey.of("seaborn.pressure_diver.lore1", "Minimum Depth Requirement");
   public static final TextKey PRESSURE_DIVER_LORE2 = TextKey.of("seaborn.pressure_diver.lore2", "Depth Damage Reduction");
   public static final TextKey PRESSURE_DIVER_LORE3 = TextKey.of("seaborn.pressure_diver.lore3", "Mining Fatigue Reduction Chance");
-  public static final LinesKey PRESSURE_DIVER_LORE = LinesKey.of("seaborn.pressure_diver.lore", "Minimum Depth Requirement", "Depth Damage Reduction", "Mining Fatigue Reduction Chance");
+  public static final TextKey PRESSURE_DIVER_LORE4 = TextKey.of("seaborn.pressure_diver.lore4", "Depth Absorption Hearts");
+  public static final LinesKey PRESSURE_DIVER_LORE = LinesKey.of("seaborn.pressure_diver.lore", "Minimum Depth Requirement", "Depth Damage Reduction", "Mining Fatigue Reduction Chance", "Depth Absorption Hearts");
   public static final TextKey CORAL_GARDENER_NAME = TextKey.of("seaborn.coral_gardener.name", "Coral Gardener");
   public static final TextKey CORAL_GARDENER_DESCRIPTION = TextKey.of("seaborn.coral_gardener.description", "Coral you place survives out of water far longer, bonemeal grows coral, and reef blocks grant bonus XP.");
   public static final TextKey CORAL_GARDENER_LORE1 = TextKey.of("seaborn.coral_gardener.lore1", "Coral Survival Time");
@@ -138,6 +139,7 @@ public final class SeabornMessages {
     builder.add(PRESSURE_DIVER_LORE1);
     builder.add(PRESSURE_DIVER_LORE2);
     builder.add(PRESSURE_DIVER_LORE3);
+    builder.add(PRESSURE_DIVER_LORE4);
     builder.add(PRESSURE_DIVER_LORE);
     builder.add(CORAL_GARDENER_NAME);
     builder.add(CORAL_GARDENER_DESCRIPTION);

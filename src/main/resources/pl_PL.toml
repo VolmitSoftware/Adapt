@@ -3706,10 +3706,10 @@ lore = ["Prędkość odzysku tarczy", "Poziom oporu"]
 [blocking.phalanx_crafter]
 name = "Phalanx Crafter"
 item_name = "Niderlandy - wzmocniona osłona"
-description = "Craft tarcze z bannerface bezpośrednio, i wzmocnić tarcze z neteritem dla trwałości premii."
-lore1 = "Poziom 1: rzemiosła tarcza z brązu bezpośrednio z wełny, desek i żelaza."
-lore2 = "Poziom 2: kuć osłonę wzmocnioną neteritą o znacznie zwiększonej trwałości."
-lore = ["Poziom 1: rzemiosła tarcza z brązu bezpośrednio z wełny, desek i żelaza.", "Poziom 2: kuć osłonę wzmocnioną neteritą o znacznie zwiększonej trwałości."]
+description = "Odblokowuje dwa kształtowe przepisy na tarcze; poziom 2 wzmacnia tarczę do 1200 punktów wytrzymałości i zachowuje jej wzór sztandaru."
+lore1 = "Poziom 1: WWW / PIP / .P. (W biała wełna, P deski dębowe, I żelazo)."
+lore2 = "Poziom 2: .N. / NSN / .N. (N netheryt, S tarcza) nadaje 1200 wytrzymałości."
+lore = ["Poziom 1: WWW / PIP / .P. (W biała wełna, P deski dębowe, I żelazo).", "Poziom 2: .N. / NSN / .N. (N netheryt, S tarcza) nadaje 1200 wytrzymałości."]
 
 [blocking.interpose]
 name = "Interponowanie"
@@ -4064,9 +4064,9 @@ array = "tablica"
 [crafting.deconstruction]
 name = "Dekonstrukcja"
 description = "Rozloz bloki i przedmioty na odzyskiwalne elementy bazowe!"
-lore1 = "Upusc dowolny przedmiot na ziemie."
+lore1 = "Upusc przedmiot na ziemie; zbroja musi byc w pelni naprawiona."
 lore2 = "Nastepnie kucnij i kliknij prawym przyciskiem nozycami"
-lore = ["Upusc dowolny przedmiot na ziemie.", "Nastepnie kucnij i kliknij prawym przyciskiem nozycami"]
+lore = ["Upusc przedmiot na ziemie; zbroja musi byc w pelni naprawiona.", "Nastepnie kucnij i kliknij prawym przyciskiem nozycami"]
 
 [crafting.xp]
 name = "PD z Rzemiosla"
@@ -4139,14 +4139,15 @@ lore = ["możliwość zwrotu składnika rzemiosła"]
 
 [crafting.masterwork]
 name = "Masterwork"
-description = "Narzędzia i pancerz można zwijać trwałość bonusu, z szansą na mały bonus atrybutu na pełnym poziomie."
-lore1 = "możliwość wykucia arcydzieła"
-lore2 = "maksymalna trwałość premii"
-lore3 = "Na pełnym poziomie, szansa na mały bonus atrybutu"
+description = "Każde stworzone narzędzie i element pancerza niezależnie losuje zmienną dodatkową wytrzymałość, szansę na zgodne korzystne zaklęcie poziomu I oraz, na maksymalnym poziomie, szansę na niewielki bonus atrybutu."
+lore1 = "szansa na wykucie arcydzieła"
+lore2 = "maksymalna dodatkowa wytrzymałość"
+lore3 = "szansa na zgodne zaklęcie poziomu I"
+lore4 = "Na maksymalnym poziomie, szansa na niewielki bonus atrybutu"
 tag = "Masterwork"
 bonus = "Masterwork +{bonus}"
 attribute_tag = "Masterwork Edge"
-lore = ["możliwość wykucia arcydzieła", "maksymalna trwałość premii", "Na pełnym poziomie, szansa na mały bonus atrybutu"]
+lore = ["szansa na wykucie arcydzieła", "maksymalna dodatkowa wytrzymałość", "szansa na zgodne zaklęcie poziomu I", "Na maksymalnym poziomie, szansa na niewielki bonus atrybutu"]
 
 [crafting.compactor]
 name = "Kompaktor"
@@ -4274,15 +4275,17 @@ lore = ["Globalny bonus XP za kwalifikację umiejętności", "Poziom umiejętno�
 
 [discovery.relic_appraiser]
 name = "Relic Appraiser"
-description = "wkrótce kliknij prawym kliknięciem rzadkie kroplice (Hodki, dyski, opakowania zbroi, szczeliny ceramicznej) do oceny ich odkrycia XP; przedmioty ocenione otrzymują znacznik historii."
+description = "Skradając się, kliknij prawym przyciskiem rzadkie łupy (głowy, płyty, wykończenia zbroi i skorupy ceramiki), aby zdobyć XP Odkrywania i XP w jednej losowej kwalifikującej się umiejętności; postawione wycenione głowy i czaszki zachowują pieczęć po zniszczeniu."
 lore1 = "Ocena XP (skalowane według rzadkości pozycji)"
-lore = ["Ocena XP (skalowane według rzadkości pozycji)"]
+lore2 = "XP losowej kwalifikującej się umiejętności"
+lore = ["Ocena XP (skalowane według rzadkości pozycji)", "XP losowej kwalifikującej się umiejętności"]
 lore_tag = "Zastosowanie"
 
 [discovery.sixth_sense]
 name = "Szósty zmysł"
-description = "Prywatny świecący kierunek podpowiedzi, gdy niezbadana struktura jest w zasięgu."
+description = "Kompaktowy HUD podaje najbliższą obsługiwaną strukturę oraz pokazuje jej kierunek i odległość."
 lore1 = "Zakres wykrywania struktury"
+hud = "{symbol} {structure} {direction} {distance}m"
 lore = ["Zakres wykrywania struktury"]
 
 [discovery.keen_eye]
@@ -4354,7 +4357,7 @@ lore = ["Zachwycające XP na klątwę"]
 
 [enchanting.tome_rebinding]
 name = "Ponowne powiązanie z tomem"
-description = "Wkrótce kliknij prawą stronę wielokrotnego księga czarującego, aby podzielić go na książki jednoczesne."
+description = "Upuść księgę z wieloma zaklęciami, celując w kowadło, aby podzielić ją na księgi z pojedynczymi zaklęciami. Na niskich poziomach zaklęcia mogą przepaść; na maksymalnym nie."
 lore1 = "Szansa na utratę czarów"
 lore2 = "XP Koszt poziomu"
 split = "Książki rozdzielają się"
@@ -4374,7 +4377,7 @@ lore = ["XP Zapisz koszt", "Czas odnowienia ponownego oznaczenia"]
 
 [enchanting.arcane_siphon]
 name = "Arcane Siphon"
-description = "Zabijanie mafii w zaczarowanych grantach na narzędzia XP i może syfon książki ich czarów."
+description = "Zabijanie istot z zaklętym wyposażeniem daje dodatkowe XP i może wydobyć księgę; gracze kwalifikują się tylko na maksymalnym poziomie."
 lore1 = "Szansa na podręcznik"
 lore2 = "Bonus jakości Enchant"
 lore = ["Szansa na podręcznik", "Bonus jakości Enchant"]
@@ -4868,10 +4871,10 @@ lore = ["Redukcja szkód"]
 
 [kinetics.surface_skate]
 name = "Ślizg po powierzchni"
-description = "Sprintuj, aby ślizgać się po ziemi ze zmniejszonym tarciem; skradaj się, aby mocno chwycić podłoże."
-lore1 = "Poślizg"
-lore2 = "Przyczepność"
-lore = ["Poślizg", "Przyczepność"]
+description = "Sprintuj, aby ślizgać się po każdej powierzchni; poziomy znoszą coraz więcej tarcia podłoża, a naciśnięcie skradania natychmiast zatrzymuje ruch poziomy."
+lore1 = "Zniesione tarcie podłoża"
+lore2 = "Hamulec skradania"
+lore = ["Zniesione tarcie podłoża", "Hamulec skradania"]
 
 [kinetics.terminal_toggle]
 name = "Przełączanie terminala"
@@ -5451,11 +5454,12 @@ trigger_context = "{trigger} ({environment})"
 
 [seaborn.pressure_diver]
 name = "Nurkowanie ciśnieniowe"
-description = "Ochrona na podstawie głębokości gruntu pod wodą i częściowo tłumić ciśnienie zmęczenia górniczego."
+description = "Zyskaj serca absorpcji i ochronę zależną od głębokości pod wodą, częściowo przeciwdziałając zmęczeniu górniczemu."
 lore1 = "Minimalny wymóg dotyczący głębokości"
 lore2 = "Redukcja uszkodzeń głębokości"
 lore3 = "Zmęczenie górnicze Możliwość zmniejszenia"
-lore = ["Minimalny wymóg dotyczący głębokości", "Redukcja uszkodzeń głębokości", "Zmęczenie górnicze Możliwość zmniejszenia"]
+lore4 = "Serca absorpcji na głębokości"
+lore = ["Minimalny wymóg dotyczący głębokości", "Redukcja uszkodzeń głębokości", "Zmęczenie górnicze Możliwość zmniejszenia", "Serca absorpcji na głębokości"]
 
 [seaborn.coral_gardener]
 name = "Koral ogrodowy"
@@ -5940,7 +5944,7 @@ lore = ["Bonus za uszkodzenie zamontowane", "Redukcja uszkodzeń zamontowanych"]
 
 [taming.fetch]
 name = "Pobierz"
-description = "Wasze wilki zdominowane gromadzą w pobliżu upadłe przedmioty i przynoszą je prosto do was."
+description = "Bezczynne oswojone wilki biegną do pobliskich upuszczonych przedmiotów, podnoszą je i fizycznie przynoszą z powrotem do ciebie."
 lore1 = "Zakres pobierania"
 lore2 = "Carry Chance"
 lore = ["Zakres pobierania", "Carry Chance"]

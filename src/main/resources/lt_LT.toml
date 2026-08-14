@@ -3706,10 +3706,10 @@ lore = ["Skydo atkūrimo greitis", "Atsparumo lygis"]
 [blocking.phalanx_crafter]
 name = "\"Falanx Crafter\""
 item_name = "Netheritu sustiprintas skydas"
-description = "Craft bannery veidas skydai tiesiogiai, ir sustiprinti skydai su netherite už premijų ilgaamžiškumą."
-lore1 = "Lygis 1: plaustai su uždangalu tiesiogiai iš vilnos, lentų ir geležies."
-lore2 = "Lygis 2: sukurti neterito sustiprintą skydą su labai padidintu patvarumu;."
-lore = ["Lygis 1: plaustai su uždangalu tiesiogiai iš vilnos, lentų ir geležies.", "Lygis 2: sukurti neterito sustiprintą skydą su labai padidintu patvarumu;."]
+description = "Atrakina du formos skydo receptus; 2 lygiu skydas sustiprinamas iki 1 200 patvarumo ir išsaugomas jo vėliavos raštas."
+lore1 = "1 lygis: WWW / PIP / .P. (W balta vilna, P ąžuolo lentos, I geležis)."
+lore2 = "2 lygis: .N. / NSN / .N. (N netheritas, S skydas) suteikia 1 200 patvarumo."
+lore = ["1 lygis: WWW / PIP / .P. (W balta vilna, P ąžuolo lentos, I geležis).", "2 lygis: .N. / NSN / .N. (N netheritas, S skydas) suteikia 1 200 patvarumo."]
 
 [blocking.interpose]
 name = "Trukdymas"
@@ -4064,9 +4064,9 @@ array = "masyvas"
 [crafting.deconstruction]
 name = "Dekonstrukcija"
 description = "Isardykite blokus ir daiktus i isgelbejamus pagrindinius komponentus!"
-lore1 = "Numeskite bet koki daikta ant zemes."
+lore1 = "Numeskite daikta ant zemes; sarvai turi buti visiskai sutaisyti."
 lore2 = "Tada Selinkite ir Desiniu peles mygtuku spauskite su Zirklemis"
-lore = ["Numeskite bet koki daikta ant zemes.", "Tada Selinkite ir Desiniu peles mygtuku spauskite su Zirklemis"]
+lore = ["Numeskite daikta ant zemes; sarvai turi buti visiskai sutaisyti.", "Tada Selinkite ir Desiniu peles mygtuku spauskite su Zirklemis"]
 
 [crafting.xp]
 name = "Gamybos XP"
@@ -4139,14 +4139,15 @@ lore = ["šansas grąžinti meistriškumo ingredientą"]
 
 [crafting.masterwork]
 name = "Didysis darbas"
-description = "Įrankiai ir ginklai, kuriuos sukuriate, gali užpildyti bonusą ištvermę, su galimybe gauti mažą atributą."
-lore1 = "galimybė sukurti šedevrą"
-lore2 = "premija max patvarumas"
-lore3 = "Visame lygmenyje, galimybė gauti nedidelį atributą"
+description = "Kiekvienas jūsų pagamintas įrankis ir šarvų dalis atskirai gauna kintamą papildomą patvarumą, galimybę gauti suderinamą naudingą I lygio užkeikimą ir, esant aukščiausiam lygiui, nedidelio atributo priedo galimybę."
+lore1 = "galimybė nukalti šedevrą"
+lore2 = "didžiausias papildomas patvarumas"
+lore3 = "galimybė gauti suderinamą I lygio užkeikimą"
+lore4 = "Aukščiausiame lygyje – galimybė gauti nedidelį atributo priedą"
 tag = "Didysis darbas"
 bonus = "Didysis darbas +{bonus}"
 attribute_tag = "Masterwork Edge"
-lore = ["galimybė sukurti šedevrą", "premija max patvarumas", "Visame lygmenyje, galimybė gauti nedidelį atributą"]
+lore = ["galimybė nukalti šedevrą", "didžiausias papildomas patvarumas", "galimybė gauti suderinamą I lygio užkeikimą", "Aukščiausiame lygyje – galimybė gauti nedidelį atributo priedą"]
 
 [crafting.compactor]
 name = "Kompaktorius"
@@ -4274,15 +4275,17 @@ lore = ["Visuotinis XP Premija vienam kvalifikuotam darbuotojui", "Reikalingas k
 
 [discovery.relic_appraiser]
 name = "Riko vertintojas"
-description = "Išmėginkite dešinio klaidų retus nutekimus (, diskai, pansų skersmenys, keramikos šerdiai) juos įvertinti atrastiems XP; vertinami daiktai gauna tradicijos žymę."
+description = "Sėlindami spustelėkite dešiniuoju pelės mygtuku retą grobį (galvas, plokšteles, šarvų apdailas, keramikos šukes), kad gautumėte Atradimo XP ir vieno atsitiktinio tinkamo įgūdžio XP; padėtos įvertintos galvos ir kaukolės išsaugo žymą jas sulaužius."
 lore1 = "Vertinimas XP (padalinta pagal elemento retumą)"
-lore = ["Vertinimas XP (padalinta pagal elemento retumą)"]
+lore2 = "Atsitiktinio tinkamo įgūdžio XP"
+lore = ["Vertinimas XP (padalinta pagal elemento retumą)", "Atsitiktinio tinkamo įgūdžio XP"]
 lore_tag = "Pritaikytas"
 
 [discovery.sixth_sense]
 name = "Šeštasis sensas"
-description = "Privati žėrinti kryptis rodo, kai neištirta struktūra yra diapazone."
+description = "Kompaktiškas HUD nurodo artimiausią palaikomą struktūrą, jos kryptį ir atstumą."
 lore1 = "Struktūros aptikimo intervalas"
+hud = "{symbol} {structure} {direction} {distance}m"
 lore = ["Struktūros aptikimo intervalas"]
 
 [discovery.keen_eye]
@@ -4354,7 +4357,7 @@ lore = ["Žaisti XP už kiekvieną prakeikimą."]
 
 [enchanting.tome_rebinding]
 name = "Tomo pririšimas"
-description = "Įdomu, kad į vieną žavintoją galima pasidalinti daugiaskarčių knygą."
+description = "Numeskite keliais užkeikimais užburtą knygą, žiūrėdami į priekalą, kad padalytumėte ją į knygas su vienu užkeikimu. Žemuose lygiuose užkeikimai gali būti prarasti, didžiausiame – ne."
 lore1 = "Nuomininko nuostolių palyginimas"
 lore2 = "XP Lygio kaina"
 split = "Rašymo dalis susiskaldė"
@@ -4374,7 +4377,7 @@ lore = ["XP Išsaugoti išlaidas", "-Markas Kolonas"]
 
 [enchanting.arcane_siphon]
 name = "Arkanas Sifonas"
-description = "Žudymo burės su užburtais žvejybos įrankiais dotacijos priemoka XP ir gali siphon jų kerai knyga."
+description = "Nužudžius užburtą įrangą dėvinčią esybę suteikiama papildoma XP ir gali būti išgauta knyga; žaidėjai tinkami tik didžiausiame lygyje."
 lore1 = "Knygų numetimo kanalas"
 lore2 = "Įdomu kokybės bonusas"
 lore = ["Knygų numetimo kanalas", "Įdomu kokybės bonusas"]
@@ -4868,10 +4871,10 @@ lore = ["Žalos mažinimas"]
 
 [kinetics.surface_skate]
 name = "Paviršiaus akmuo"
-description = "Sprintas slysti per žemę su mažesne trintimi; snak rankena sunku."
-lore1 = "Skaidrė"
-lore2 = "Grip"
-lore = ["Skaidrė", "Grip"]
+description = "Sprintuokite, kad slystumėte bet kokiu žemės paviršiumi; lygiai panaikina vis daugiau trinties, o paspaudus sėlinimą horizontalus judėjimas iškart sustoja."
+lore1 = "Panaikinta žemės trintis"
+lore2 = "Sėlinimo stabdis"
+lore = ["Panaikinta žemės trintis", "Sėlinimo stabdis"]
 
 [kinetics.terminal_toggle]
 name = "Terminalas Perjungti"
@@ -5451,11 +5454,12 @@ trigger_context = "{trigger} ({environment})"
 
 [seaborn.pressure_diver]
 name = "Slėgio reguliatorius"
-description = "Įdirbti slėgio apsaugą vandenyje ir iš dalies slopinti kasybos pavargimo spaudimą."
+description = "Po vandeniu gaukite sugerties širdžių ir nuo gylio priklausančią apsaugą, iš dalies neutralizuodami kasybos nuovargį."
 lore1 = "Minimalaus gylio reikalavimas"
 lore2 = "Gylis Žalos mažinimas"
 lore3 = "Kasybos nuovargis Sumažinti šansai"
-lore = ["Minimalaus gylio reikalavimas", "Gylis Žalos mažinimas", "Kasybos nuovargis Sumažinti šansai"]
+lore4 = "Gylio sugerties širdys"
+lore = ["Minimalaus gylio reikalavimas", "Gylis Žalos mažinimas", "Kasybos nuovargis Sumažinti šansai", "Gylio sugerties širdys"]
 
 [seaborn.coral_gardener]
 name = "Koral Gardener"
@@ -5940,7 +5944,7 @@ lore = ["Sumontuota žalos premija", "Sumontuotas žalos mažinimas"]
 
 [taming.fetch]
 name = "Atsiųsti"
-description = "Jūsų prijaukinti vilkai surinkti netoliese numestų daiktų ir juos tiesiai į jus."
+description = "Neužsiėmę prijaukinti vilkai nubėga prie netoliese nukritusių daiktų, juos paima ir fiziškai parneša jums."
 lore1 = "Atsiųsti intervalą"
 lore2 = "Nešiokite progą"
 lore = ["Atsiųsti intervalą", "Nešiokite progą"]

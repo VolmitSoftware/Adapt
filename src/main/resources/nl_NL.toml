@@ -3706,10 +3706,10 @@ lore = ["Schuilvermogen herstel snelheid", "Resistentieniveau"]
 [blocking.phalanx_crafter]
 name = "Phalanx Crafter"
 item_name = "Netherite versterkt schild"
-description = "Knutsel banner-gevel schilden direct, en versterken schilden met netherite voor bonus duurzaamheid."
-lore1 = "Niveau 1: maak een schild met de gezicht van het banner direct uit wol, planken en ijzer."
-lore2 = "Niveau 2: smederij een door onderherite versterkt schild met sterk verhoogde duurzaamheid."
-lore = ["Niveau 1: maak een schild met de gezicht van het banner direct uit wol, planken en ijzer.", "Niveau 2: smederij een door onderherite versterkt schild met sterk verhoogde duurzaamheid."]
+description = "Ontgrendelt twee gevormde schildrecepten; niveau 2 versterkt een schild tot 1.200 duurzaamheid en behoudt het banierpatroon."
+lore1 = "Niveau 1: WWW / PIP / .P. (W witte wol, P eikenhouten planken, I ijzer)."
+lore2 = "Niveau 2: .N. / NSN / .N. (N netheriet, S schild) geeft 1.200 duurzaamheid."
+lore = ["Niveau 1: WWW / PIP / .P. (W witte wol, P eikenhouten planken, I ijzer).", "Niveau 2: .N. / NSN / .N. (N netheriet, S schild) geeft 1.200 duurzaamheid."]
 
 [blocking.interpose]
 name = "Interposeren"
@@ -4064,9 +4064,9 @@ array = "array"
 [crafting.deconstruction]
 name = "Deconstructie"
 description = "Ontmantel blokken & items tot bruikbare basiscomponenten!"
-lore1 = "Laat een voorwerp op de grond vallen."
+lore1 = "Laat een voorwerp op de grond vallen; pantser moet volledig gerepareerd zijn."
 lore2 = "Sluip vervolgens en rechtsklik met een schaar"
-lore = ["Laat een voorwerp op de grond vallen.", "Sluip vervolgens en rechtsklik met een schaar"]
+lore = ["Laat een voorwerp op de grond vallen; pantser moet volledig gerepareerd zijn.", "Sluip vervolgens en rechtsklik met een schaar"]
 
 [crafting.xp]
 name = "Knutsel-XP"
@@ -4139,14 +4139,15 @@ lore = ["kans om een ambachtelijk ingrediënt terug te betalen"]
 
 [crafting.masterwork]
 name = "Meesterwerk"
-description = "Gereedschap en harnas die u ambachtelijk kunt rollen bonus duurzaamheid, met een kans voor een kleine attribuut bonus op het volledige niveau."
+description = "Elk vervaardigd gereedschap en pantserstuk rolt afzonderlijk variabele bonusduurzaamheid, kans op een passende gunstige betovering van niveau I en op het hoogste niveau kans op een kleine attribuutbonus."
 lore1 = "kans om een meesterwerk te smeden"
-lore2 = "bonus max. duurzaamheid"
-lore3 = "Op volledig niveau, een kans op een kleine attribuut bonus"
+lore2 = "maximale bonusduurzaamheid"
+lore3 = "kans op een passende betovering van niveau I"
+lore4 = "Op het hoogste niveau, kans op een kleine attribuutbonus"
 tag = "Meesterwerk"
 bonus = "Meesterwerk +{bonus}"
 attribute_tag = "Hoofdwerkrand"
-lore = ["kans om een meesterwerk te smeden", "bonus max. duurzaamheid", "Op volledig niveau, een kans op een kleine attribuut bonus"]
+lore = ["kans om een meesterwerk te smeden", "maximale bonusduurzaamheid", "kans op een passende betovering van niveau I", "Op het hoogste niveau, kans op een kleine attribuutbonus"]
 
 [crafting.compactor]
 name = "Verdichter"
@@ -4274,15 +4275,17 @@ lore = ["wereldwijde XP-bonus per kwalificatievaardigheden", "Kwalificatieniveau
 
 [discovery.relic_appraiser]
 name = "Relic Assessor"
-description = "Sluip en rechtsklik op zeldzame buit (hoofden, platen, pantserversieringen, aardewerkscherven) om die voor Ontdekkings-XP te taxeren; getaxeerde voorwerpen krijgen een lore-label."
+description = "Sluip en rechtsklik op zeldzame buit (hoofden, platen, pantserversieringen en aardewerkscherven) voor Ontdekkings-XP en XP in één willekeurige geschikte vaardigheid; geplaatste getaxeerde hoofden en schedels behouden hun stempel wanneer ze worden gebroken."
 lore1 = "Beoordeling XP (Geschaald op item zeldzaamheid)"
-lore = ["Beoordeling XP (Geschaald op item zeldzaamheid)"]
+lore2 = "Willekeurige geschikte vaardigheids-XP"
+lore = ["Beoordeling XP (Geschaald op item zeldzaamheid)", "Willekeurige geschikte vaardigheids-XP"]
 lore_tag = "Beoordeeld"
 
 [discovery.sixth_sense]
 name = "Zesde zintuig"
-description = "Een prive gloeiende richting lijn hints wanneer een niet-ontdekte structuur binnen bereik is."
+description = "Een compacte HUD noemt de dichtstbijzijnde ondersteunde structuur en toont de richting en afstand."
 lore1 = "Structuurdetectiebereik"
+hud = "{symbol} {structure} {direction} {distance}m"
 lore = ["Structuurdetectiebereik"]
 
 [discovery.keen_eye]
@@ -4354,7 +4357,7 @@ lore = ["XP per vloek."]
 
 [enchanting.tome_rebinding]
 name = "Tome Rebinding"
-description = "Sla op een multi-verzeker boeken in een anvil om het te splitsen in één verzeker boektjes."
+description = "Laat een boek met meerdere betoveringen vallen terwijl je op een aambeeld mikt om het in boeken met één betovering te splitsen. Op lage niveaus kunnen betoveringen verloren gaan; op het hoogste niveau niet."
 lore1 = "Verlies van de kans"
 lore2 = "XP Niveaukosten"
 split = "Boeken splitsen"
@@ -4374,7 +4377,7 @@ lore = ["XP Kosten opslaan", "afkoeltijd opnieuw markeren"]
 
 [enchanting.arcane_siphon]
 name = "Arcane Siphon"
-description = "Mobs doden in betoverde uitrusting geeft bonus-XP en kan een boek met hun betoveringen onttrekken."
+description = "Het doden van entiteiten met betoverde uitrusting geeft bonus-XP en kan een boek onttrekken; spelers tellen alleen mee op het hoogste niveau."
 lore1 = "kans op boek drop"
 lore2 = "Enchant kwaliteit Bonus"
 lore = ["kans op boek drop", "Enchant kwaliteit Bonus"]
@@ -4868,10 +4871,10 @@ lore = ["Schadevermindering"]
 
 [kinetics.surface_skate]
 name = "Glijden over de grond"
-description = "Sprint om met minder wrijving over de grond te glijden; sluip om stevig grip te krijgen."
-lore1 = "Glijden"
-lore2 = "Grip"
-lore = ["Glijden", "Grip"]
+description = "Sprint om over elk grondoppervlak te glijden; niveaus heffen meer grondwrijving op en sluipen indrukken stopt horizontale beweging onmiddellijk."
+lore1 = "Opgeheven grondwrijving"
+lore2 = "Sluiprem"
+lore = ["Opgeheven grondwrijving", "Sluiprem"]
 
 [kinetics.terminal_toggle]
 name = "Terminal schakelen"
@@ -5451,11 +5454,12 @@ trigger_context = "{trigger} ({environment})"
 
 [seaborn.pressure_diver]
 name = "Drukduiker"
-description = "Ga diepte-gebaseerde bescherming onder water en gedeeltelijk onderdrukken mijnbouw vermoeidheid druk."
+description = "Krijg absorptieharten en dieptegebonden bescherming onder water en werk mijnvermoeidheid gedeeltelijk tegen."
 lore1 = "Minimumdieptevereiste"
 lore2 = "Diepteschadevermindering"
 lore3 = "Mijnvermoeidheid Verminderingskans"
-lore = ["Minimumdieptevereiste", "Diepteschadevermindering", "Mijnvermoeidheid Verminderingskans"]
+lore4 = "Absorptieharten op diepte"
+lore = ["Minimumdieptevereiste", "Diepteschadevermindering", "Mijnvermoeidheid Verminderingskans", "Absorptieharten op diepte"]
 
 [seaborn.coral_gardener]
 name = "Koraaltuinier"
@@ -5940,7 +5944,7 @@ lore = ["Aangekoppelde schade Bonus", "Gemonteerde schadevermindering"]
 
 [taming.fetch]
 name = "Ophalen"
-description = "Uw getemde wolven verzamelen in de buurt gevallen items en breng ze direct naar u."
+description = "Inactieve getemde wolven rennen naar nabije gevallen voorwerpen, pakken ze op en dragen ze terug naar jou."
 lore1 = "Bereik ophalen"
 lore2 = "Carry Chance"
 lore = ["Bereik ophalen", "Carry Chance"]

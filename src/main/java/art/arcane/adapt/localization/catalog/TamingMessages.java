@@ -39,7 +39,7 @@ public final class TamingMessages {
   public static final TextKey MOUNTED_TACTICS_LORE2 = TextKey.of("taming.mounted_tactics.lore2", "Mounted Damage Reduction");
   public static final LinesKey MOUNTED_TACTICS_LORE = LinesKey.of("taming.mounted_tactics.lore", "Mounted Damage Bonus", "Mounted Damage Reduction");
   public static final TextKey FETCH_NAME = TextKey.of("taming.fetch.name", "Fetch");
-  public static final TextKey FETCH_DESCRIPTION = TextKey.of("taming.fetch.description", "Your tamed wolves gather nearby dropped items and bring them straight to you.");
+  public static final TextKey FETCH_DESCRIPTION = TextKey.of("taming.fetch.description", "Idle tamed wolves physically run to nearby drops, pick them up, and carry them back to you.");
   public static final TextKey FETCH_LORE1 = TextKey.of("taming.fetch.lore1", "Fetch Range");
   public static final TextKey FETCH_LORE2 = TextKey.of("taming.fetch.lore2", "Carry Chance");
   public static final LinesKey FETCH_LORE = LinesKey.of("taming.fetch.lore", "Fetch Range", "Carry Chance");

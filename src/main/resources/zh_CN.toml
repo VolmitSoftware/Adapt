@@ -3706,10 +3706,10 @@ lore = ["盾牌回收速度", "抵抗级别"]
 [blocking.phalanx_crafter]
 name = "方阵工匠"
 item_name = "下界合金强化盾牌"
-description = "可直接制作带旗帜图案的盾牌，并用下界合金强化盾牌以增加耐久度。"
-lore1 = "等级 1：用羊毛、木板和铁直接制作带旗帜图案的盾牌。"
-lore2 = "等级 2：锻造下界合金强化盾牌，大幅提高耐久度。"
-lore = ["等级 1：用羊毛、木板和铁直接制作带旗帜图案的盾牌。", "等级 2：锻造下界合金强化盾牌，大幅提高耐久度。"]
+description = "解锁两种有序盾牌配方；等级 2 可将盾牌强化至 1,200 点耐久，并保留其旗帜图案。"
+lore1 = "等级 1：WWW / PIP / .P.（W 白色羊毛，P 橡木木板，I 铁）。"
+lore2 = "等级 2：.N. / NSN / .N.（N 下界合金，S 盾牌），获得 1,200 点耐久。"
+lore = ["等级 1：WWW / PIP / .P.（W 白色羊毛，P 橡木木板，I 铁）。", "等级 2：.N. / NSN / .N.（N 下界合金，S 盾牌），获得 1,200 点耐久。"]
 
 [blocking.interpose]
 name = "干扰"
@@ -4064,9 +4064,9 @@ array = "数组"
 [crafting.deconstruction]
 name = "分解"
 description = "将方块和物品分解为可回收的基础材料！"
-lore1 = "将任意物品丢在地上。"
+lore1 = "将物品丢在地上；护甲必须完全修复。"
 lore2 = "然后潜行并用剪刀右键点击"
-lore = ["将任意物品丢在地上。", "然后潜行并用剪刀右键点击"]
+lore = ["将物品丢在地上；护甲必须完全修复。", "然后潜行并用剪刀右键点击"]
 
 [crafting.xp]
 name = "合成经验"
@@ -4139,14 +4139,15 @@ lore = ["退款加工成份的机会"]
 
 [crafting.masterwork]
 name = "主作业"
-description = "工具与盔甲,你可以滚动 奖金耐久性,机会 微小属性奖金 在全水平."
-lore1 = "有机会打造一部主工作品"
-lore2 = "最大持久性"
-lore3 = "在全方位,一个小属性奖金的机会"
+description = "你制作的每件工具和盔甲都会独立随机获得不同的额外耐久、一个兼容的有益 I 级魔咒，并在满级时有概率获得少量属性加成。"
+lore1 = "打造精品的概率"
+lore2 = "最大额外耐久"
+lore3 = "获得兼容 I 级魔咒的概率"
+lore4 = "满级时获得少量属性加成的概率"
 tag = "主作业"
 bonus = "主作业 +{bonus}"
 attribute_tag = "主工边"
-lore = ["有机会打造一部主工作品", "最大持久性", "在全方位,一个小属性奖金的机会"]
+lore = ["打造精品的概率", "最大额外耐久", "获得兼容 I 级魔咒的概率", "满级时获得少量属性加成的概率"]
 
 [crafting.compactor]
 name = "压缩器"
@@ -4274,15 +4275,17 @@ lore = ["全球 XP 提高技能的奖金", "合格技能水平"]
 
 [discovery.relic_appraiser]
 name = "遗迹评估器"
-description = "滑动右键点击稀有滴滴(头,盘,装甲修饰,陶器套)以评价其发现 XP; 被评估的物品会得到说明标签."
+description = "潜行并右键点击稀有掉落物（头颅、唱片、盔甲纹饰和陶片），可获得探索 XP 以及一个随机合格技能的 XP；已鉴定并放置的头颅在被破坏后仍保留鉴定印记。"
 lore1 = "评估 XP (按稀有项目缩放)"
-lore = ["评估 XP (按稀有项目缩放)"]
+lore2 = "随机合格技能 XP"
+lore = ["评估 XP (按稀有项目缩放)", "随机合格技能 XP"]
 lore_tag = "估计"
 
 [discovery.sixth_sense]
 name = "第六感"
-description = "当未探索的结构在范围内时, 私人发光方向线提示."
+description = "紧凑的 HUD 会显示最近的受支持结构及其方向和距离。"
 lore1 = "结构检测范围"
+hud = "{symbol} {structure} {direction} {distance}m"
 lore = ["结构检测范围"]
 
 [discovery.keen_eye]
@@ -4354,7 +4357,7 @@ lore = ["快乐 XP 每个诅咒"]
 
 [enchanting.tome_rebinding]
 name = "托梅重新约束"
-description = "偷偷摸摸地右键点击一本多魔力的书 在阴道上,把它分拆成一魔力的书籍. 低水平损失,最高水平无损失."
+description = "瞄准铁砧时丢出一本含有多个魔咒的附魔书，即可将其拆分为每本仅含一个魔咒的书。低等级可能损失魔咒，满级时不会损失。"
 lore1 = "意外损失机会"
 lore2 = "XP 费用"
 split = "书籍拆分"
@@ -4374,7 +4377,7 @@ lore = ["XP 节省费用", "冷却时间"]
 
 [enchanting.arcane_siphon]
 name = "阿尔卡内西蓬"
-description = "用魔法的齿轮杀死暴徒 奖金 XP 并可以吞下一本书 他们的魔法."
+description = "击杀装备附魔物品的实体可获得额外 XP，并有机会吸取一本附魔书；只有满级时玩家才符合条件。"
 lore1 = "书签机会"
 lore2 = "巧妙品质奖励"
 lore = ["书签机会", "巧妙品质奖励"]
@@ -4868,10 +4871,10 @@ lore = ["减少损失"]
 
 [kinetics.surface_skate]
 name = "地面滑行"
-description = "冲刺时可降低地面摩擦并滑行；潜行可强力抓地。"
-lore1 = "滑行"
-lore2 = "抓地"
-lore = ["滑行", "抓地"]
+description = "冲刺时可在所有地面上滑行；等级越高抵消的地面摩擦越多，按下潜行键会立即停止水平移动。"
+lore1 = "抵消的地面摩擦"
+lore2 = "潜行制动"
+lore = ["抵消的地面摩擦", "潜行制动"]
 
 [kinetics.terminal_toggle]
 name = "终端切换"
@@ -5451,11 +5454,12 @@ trigger_context = "{trigger} ({environment})"
 
 [seaborn.pressure_diver]
 name = "压力差异"
-description = "增加水下深度保护,部分抑制采矿疲劳压力."
+description = "在水下获得吸收生命和随深度增强的保护，并部分抵消挖掘疲劳。"
 lore1 = "最低深度要求"
 lore2 = "减少深度损害"
 lore3 = "减少采矿肥料的机会"
-lore = ["最低深度要求", "减少深度损害", "减少采矿肥料的机会"]
+lore4 = "深水吸收生命"
+lore = ["最低深度要求", "减少深度损害", "减少采矿肥料的机会", "深水吸收生命"]
 
 [seaborn.coral_gardener]
 name = "珊瑚园丁"
@@ -5940,7 +5944,7 @@ lore = ["挂载损害赔偿金", "减少损失"]
 
 [taming.fetch]
 name = "获取"
-description = "你驯服的狼群聚集在附近 扔下的物品,直接带给你."
+description = "空闲的已驯服狼会跑向附近的掉落物，捡起后亲自叼回到你身边。"
 lore1 = "获取范围"
 lore2 = "携带机会"
 lore = ["获取范围", "携带机会"]

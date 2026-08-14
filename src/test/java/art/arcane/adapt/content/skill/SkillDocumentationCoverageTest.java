@@ -90,7 +90,7 @@ class SkillDocumentationCoverageTest {
     }
 
     assertThat(documentedSkillFields).isEqualTo(319);
-    assertThat(documentedAdaptationFields).isEqualTo(2079);
+    assertThat(documentedAdaptationFields).isEqualTo(2083);
   }
 
   @Test

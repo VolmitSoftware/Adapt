@@ -52,7 +52,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -155,14 +154,14 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
     }
 
     int level = getActiveLevel(owner);
-    if (level <= 0) {
+    if (level <= 0 || !PaperCompat.supportsPathfinding()) {
       return;
     }
 
     UUID ownerId = owner.getUniqueId();
     List<Wolf> available = new ArrayList<>(getWolfLimit());
-    int wolfCount = collectFetchWolves(owner, ownerId, available);
-    if (wolfCount <= 0) {
+    int availableWolfCount = collectFetchWolves(owner, ownerId, available);
+    if (availableWolfCount <= 0) {
       return;
     }
 
@@ -173,9 +172,8 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
 
     double range = getFetchRange(level);
     double carryRate = getCarryRate(level);
-    int maxThisTick = Math.min(wolfCount, getCarryPerTickLimit());
+    int maxThisTick = Math.min(availableWolfCount, getCarryPerTickLimit());
     FetchPass pass = new FetchPass(owner, ownerId, origin.clone(), available,
-        getConfig().realFetch && PaperCompat.supportsPathfinding(),
         pathfindRadius(getConfig().pathfindRadius),
         claimRadius(getConfig().pathfindRadius, range),
         fetchWalkSpeed(getConfig().fetchWalkSpeed),
@@ -194,19 +192,15 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
       }
 
       Location itemLocation = item.getLocation().clone();
-      if (pass.pathfinding && withinClaimRadius(pass, itemLocation)) {
-        if (pass.wolves.isEmpty()) {
-          break;
-        }
-        if (startRealFetch(pass, item, itemLocation)) {
-          dispatched++;
-        }
+      if (!withinClaimRadius(pass, itemLocation)) {
         continue;
       }
-
-      dispatched++;
-      Location deliverTo = pass.origin.clone();
-      J.runEntity(item, () -> deliverItem(owner, ownerId, deliverTo, item));
+      if (pass.wolves.isEmpty()) {
+        break;
+      }
+      if (startFetch(pass, item, itemLocation)) {
+        dispatched++;
+      }
     }
   }
 
@@ -216,22 +210,20 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
     if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(owner.getLocation(), radius, radius)) {
       return 0;
     }
-    int count = 0;
     for (Entity entity : owner.getNearbyEntities(radius, radius, radius)) {
       if (!(entity instanceof Wolf wolf) || !wolf.isValid() || wolf.isDead() || !wolf.isTamed()
           || !isOwnedBy(wolf, ownerId)) {
         continue;
       }
 
-      count++;
       if (isFetchWolfEligible(wolf, ownerId) && !activeFetches.containsKey(wolf.getUniqueId())) {
         available.add(wolf);
       }
-      if (count >= limit) {
+      if (available.size() >= limit) {
         break;
       }
     }
-    return count;
+    return available.size();
   }
 
   private boolean withinClaimRadius(FetchPass pass, Location itemLocation) {
@@ -239,7 +231,7 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
         && itemLocation.distanceSquared(pass.origin) <= pass.claimRadius * pass.claimRadius;
   }
 
-  private boolean startRealFetch(FetchPass pass, Item item, Location itemLocation) {
+  private boolean startFetch(FetchPass pass, Item item, Location itemLocation) {
     Wolf wolf = nearestAvailableWolf(pass, itemLocation);
     if (wolf == null) {
       return false;
@@ -292,7 +284,7 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
 
     job.wolfLocation = job.wolf.getLocation().clone();
     if (!PaperCompat.pathfindTo(job.wolf, itemLocation, job.walkSpeed)) {
-      fallBackToTeleport(job);
+      abortFetch(job);
       return;
     }
     scheduleMaintenance(job);
@@ -482,77 +474,12 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
     Location from = wolf.getLocation().clone();
     fx(from, FxPriority.GAMEPLAY).sound(Sound.ENTITY_WOLF_PANT, 0.7F, 1.25F);
     Item delivered = wolf.getWorld().dropItem(from, carried);
-    Player owner = job.owner;
-    UUID ownerId = job.ownerId;
-    Location deliverTo = ownerLocation.clone();
-    if (!J.runEntity(delivered, () -> deliverItem(owner, ownerId, deliverTo, delivered))) {
-      delivered.setPickupDelay(0);
-      delivered.setOwner(ownerId);
-    }
-  }
-
-  private void deliverItem(Player owner, UUID ownerId, Location ownerLocation, Item item) {
-    if (!isFetchable(item, ownerId)) {
-      return;
-    }
-
-    Location from = item.getLocation().clone();
-    Location to = ownerLocation.clone().add(0, 0.5, 0);
-    beginFetchTeleport(owner, ownerId, item, from, to);
-  }
-
-  private void beginFetchTeleport(Player owner, UUID ownerId, Item item, Location from, Location to) {
-    CompletableFuture<Boolean> teleport;
-    try {
-      teleport = PaperCompat.teleportAsync(item, to);
-    } catch (RuntimeException error) {
-      Adapt.error("Taming Fetch could not start item teleport for " + item.getUniqueId() + ".");
-      error.printStackTrace();
-      return;
-    }
-    if (teleport == null) {
-      return;
-    }
-    teleport.whenComplete((success, failure) ->
-        completeFetchTeleport(owner, ownerId, item, from, to, success, failure));
-  }
-
-  private void completeFetchTeleport(Player owner, UUID ownerId, Item item, Location from, Location to,
-                                     Boolean success, Throwable failure) {
-    if (failure != null) {
-      Adapt.error("Taming Fetch item teleport failed for " + item.getUniqueId() + ".");
-      failure.printStackTrace();
-    }
-    if (!successfulFetchTeleport(success, failure)) {
-      return;
-    }
-    if (!J.runEntity(item, () -> finishFetchTeleportOwned(owner, ownerId, item, from, to))) {
-      Adapt.warn("Taming Fetch completed item teleport but could not schedule completion for "
-          + item.getUniqueId() + ".");
-    }
-  }
-
-  private void finishFetchTeleportOwned(Player owner, UUID ownerId, Item item, Location from, Location to) {
-    if (!item.isValid() || item.isDead()) {
-      return;
-    }
-
-    item.setPickupDelay(0);
-    item.setOwner(ownerId);
-    if (from.getWorld() != null && from.getWorld() == to.getWorld()) {
-      fx(from, FxPriority.TRAIL)
-          .line(Particles.ENCHANTMENT_TABLE, to.getX(), to.getY(), to.getZ(), 6)
-          .sound(Sound.ENTITY_ITEM_PICKUP, 0.45F, 1.7F);
-    }
-
-    if (!J.runEntity(owner, () -> creditFetch(owner))) {
+    delivered.setPickupDelay(0);
+    delivered.setOwner(job.ownerId);
+    if (!J.runEntity(job.owner, () -> creditFetch(job.owner))) {
       Adapt.warn("Taming Fetch delivered an item but could not schedule credit for "
-          + owner.getUniqueId() + ".");
+          + job.ownerId + ".");
     }
-  }
-
-  static boolean successfulFetchTeleport(Boolean success, Throwable failure) {
-    return failure == null && Boolean.TRUE.equals(success);
   }
 
   private void creditFetch(Player owner) {
@@ -589,18 +516,6 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
     }
   }
 
-  private void fallBackToTeleport(FetchJob job) {
-    Item item = job.item;
-    Player owner = job.owner;
-    UUID ownerId = job.ownerId;
-    Location deliverTo = job.ownerLocation;
-    releaseJob(job);
-    PaperCompat.stopPathfinding(job.wolf);
-    if (deliverTo != null) {
-      J.runEntity(item, () -> deliverItem(owner, ownerId, deliverTo, item));
-    }
-  }
-
   private void releaseWolfOwned(FetchJob job, ItemStack carried) {
     Wolf wolf = job.wolf;
     if (!wolf.isValid() || wolf.isDead()) {
@@ -610,7 +525,11 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
       return;
     }
 
-    PaperCompat.stopPathfinding(wolf);
+    FetchJob current = activeFetches.get(job.wolfId);
+    Long currentGeneration = current == null ? null : current.generation;
+    if (shouldStopPathfinding(job.generation, currentGeneration)) {
+      PaperCompat.stopPathfinding(wolf);
+    }
     if (carried != null) {
       dropCarriedOwned(wolf.getLocation(), job.ownerId, carried);
     }
@@ -738,7 +657,11 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
     return Math.max(MIN_DEADLINE_MILLIS, Math.min(configuredMillis, MAX_DEADLINE_MILLIS));
   }
 
-  @ConfigDescription("Your tamed wolves gather nearby dropped items and bring them straight to you.")
+  static boolean shouldStopPathfinding(long cleanupGeneration, Long currentGeneration) {
+    return currentGeneration == null || currentGeneration == cleanupGeneration;
+  }
+
+  @ConfigDescription("Your idle tamed wolves physically run to nearby dropped items, pick them up, and carry them back.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Fetch Range Base for the Taming Fetch adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double fetchRangeBase = 6.0;
@@ -758,11 +681,9 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
     int maxWolves = 6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum dropped items fetched per owner each pass, capped internally at 8.", impact = "Lower values reduce item scheduling in dense drops.")
     int maxCarryPerTick = 4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Sends a wolf walking to the drop and back instead of pulling the item straight to you.", impact = "False restores the instant pull for every drop; true only walks drops inside the pathfind radius.")
-    boolean realFetch = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Movement speed multiplier used while a wolf walks a fetch, clamped to 0.1 - 4.0.", impact = "Higher values make the round trip finish sooner but look more frantic.")
     double fetchWalkSpeed = 1.15;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum walked fetch distance in blocks, clamped internally at 11 by vanilla pet follow behavior.", impact = "Higher values walk more drops; drops beyond it are pulled to you instead.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum physical fetch distance in blocks, clamped internally at 11 by vanilla pet follow behavior.", impact = "Higher values let wolves claim more distant drops; drops beyond it remain where they are.")
     double pathfindRadius = 9.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Milliseconds a walked fetch may run before it is given up, clamped to 1000 - 60000.", impact = "Higher values let wolves keep working awkward routes instead of releasing the drop.")
     long fetchDeadlineMillis = 9000;
@@ -792,19 +713,17 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
     private final UUID ownerId;
     private final Location origin;
     private final List<Wolf> wolves;
-    private final boolean pathfinding;
     private final double pathRadius;
     private final double claimRadius;
     private final double walkSpeed;
     private final long deadlineMillis;
 
-    private FetchPass(Player owner, UUID ownerId, Location origin, List<Wolf> wolves, boolean pathfinding,
+    private FetchPass(Player owner, UUID ownerId, Location origin, List<Wolf> wolves,
                       double pathRadius, double claimRadius, double walkSpeed, long deadlineMillis) {
       this.owner = owner;
       this.ownerId = ownerId;
       this.origin = origin;
       this.wolves = wolves;
-      this.pathfinding = pathfinding;
       this.pathRadius = pathRadius;
       this.claimRadius = claimRadius;
       this.walkSpeed = walkSpeed;

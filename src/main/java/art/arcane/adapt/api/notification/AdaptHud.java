@@ -34,6 +34,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.LongSupplier;
@@ -44,8 +45,10 @@ public final class AdaptHud {
   private static final String TITLE_PURPOSE = "adapt:title";
   private static final String GUI_PURPOSE = "adapt:gui";
   private static final String TITLE_LANE = "adapt:title";
+  private static final String AMBIENT_STATUS_PREFIX = "adapt:status:";
   private static final long NOTICE_TTL_MILLIS = 2500L;
   private static final long AMBIENT_TTL_MILLIS = 1500L;
+  private static final long AMBIENT_STATUS_TTL_MILLIS = 2500L;
   private static final long INTERACTIVE_TTL_MILLIS = 1500L;
   private static final long NOTICE_STALE_MILLIS = 2500L;
   private static final long XP_STALE_MILLIS = 4000L;
@@ -60,6 +63,7 @@ public final class AdaptHud {
   private static final ConcurrentHashMap<UUID, HudSlotClaim> xpClaims = new ConcurrentHashMap<>();
   private static final ConcurrentHashMap<UUID, HudSlotClaim> titleClaims = new ConcurrentHashMap<>();
   private static final ConcurrentHashMap<UUID, HudSlotClaim> guiClaims = new ConcurrentHashMap<>();
+  private static final ConcurrentHashMap<StatusKey, HudSlotClaim> ambientStatusClaims = new ConcurrentHashMap<>();
   private static final ConcurrentHashMap<UUID, Long> xpResolveMillis = new ConcurrentHashMap<>();
   private static final ConcurrentHashMap<String, LaneExpiry> laneExpiries = new ConcurrentHashMap<>();
   private static volatile HudSlotService slots;
@@ -89,6 +93,7 @@ public final class AdaptHud {
     xpClaims.clear();
     titleClaims.clear();
     guiClaims.clear();
+    ambientStatusClaims.clear();
     xpResolveMillis.clear();
     laneExpiries.clear();
     nanoClock = System::nanoTime;
@@ -147,6 +152,57 @@ public final class AdaptHud {
     }
   }
 
+  public static void ambientStatus(Player player, String purpose, String message) {
+    String hudPurpose = ambientStatusPurpose(purpose);
+    HudSlotService service = slots;
+    HudBossBarLane laneSet = lanes;
+    if (service == null || laneSet == null) {
+      new VolmitSender(player).sendAction(message);
+      return;
+    }
+
+    StatusKey key = new StatusKey(player.getUniqueId(), hudPurpose);
+    HudSlotClaim claim = ambientStatusClaims.computeIfAbsent(key, ignored -> service.open(
+        player,
+        new HudSlotRequest(
+            hudPurpose,
+            HudPriority.AMBIENT - 1,
+            AMBIENT_STATUS_TTL_MILLIS,
+            List.of(HudSurface.ACTION_BAR, HudSurface.BOSS_BAR)
+        )
+    ));
+    HudSurface surface = claim.resolve();
+    if (surface == HudSurface.ACTION_BAR) {
+      new VolmitSender(player).sendAction(message);
+      hideLane(laneSet, player, hudPurpose);
+      return;
+    }
+    if (surface == HudSurface.BOSS_BAR) {
+      showLane(laneSet, player, hudPurpose, legacyText(message), 1.0D, BarColor.WHITE, BarStyle.SOLID, AMBIENT_STATUS_TTL_MILLIS);
+    }
+  }
+
+  public static void clearAmbientStatus(Player player, String purpose) {
+    String hudPurpose = ambientStatusPurpose(purpose);
+    HudSlotService service = slots;
+    HudBossBarLane laneSet = lanes;
+    if (service == null || laneSet == null) {
+      new VolmitSender(player).sendAction(" ");
+      return;
+    }
+
+    StatusKey key = new StatusKey(player.getUniqueId(), hudPurpose);
+    HudSlotClaim claim = ambientStatusClaims.remove(key);
+    HudSurface surface = claim == null ? null : claim.granted();
+    if (claim != null) {
+      claim.release();
+    }
+    hideLane(laneSet, player, hudPurpose);
+    if (surface == HudSurface.ACTION_BAR) {
+      new VolmitSender(player).sendAction(" ");
+    }
+  }
+
   public static void title(Player player, String title, String subtitle, int inTicks, int stayTicks, int outTicks) {
     deliverTitle(titleClaims, player, TITLE_REQUEST, title, subtitle, inTicks, stayTicks, outTicks);
   }
@@ -161,6 +217,7 @@ public final class AdaptHud {
     xpClaims.remove(playerId);
     titleClaims.remove(playerId);
     guiClaims.remove(playerId);
+    ambientStatusClaims.keySet().removeIf(key -> key.playerId().equals(playerId));
     xpResolveMillis.remove(playerId);
     disarmAllLanes(player);
     HudSlotService service = slots;
@@ -358,6 +415,17 @@ public final class AdaptHud {
 
   private static String legacyText(String message) {
     return AdventureCompat.toLegacySection(C.translateAlternateColorCodes('&', message == null ? "" : message));
+  }
+
+  private static String ambientStatusPurpose(String purpose) {
+    String normalized = Objects.requireNonNull(purpose).trim();
+    if (normalized.isEmpty()) {
+      throw new IllegalArgumentException("HUD status purpose cannot be empty");
+    }
+    return AMBIENT_STATUS_PREFIX + normalized;
+  }
+
+  private record StatusKey(UUID playerId, String purpose) {
   }
 
   private static final class LaneExpiry {

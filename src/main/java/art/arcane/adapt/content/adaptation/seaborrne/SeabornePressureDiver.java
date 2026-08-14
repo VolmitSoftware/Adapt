@@ -27,6 +27,7 @@ import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
@@ -35,6 +36,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -46,6 +48,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -57,6 +61,7 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
   private static final long ENTRY_CHECK_INTERVAL_MS = 250L;
   private static final int REFRESH_BATCH_SIZE = 128;
   private static final String FATIGUE_SLOT = "fatigue";
+  private static final String ABSORPTION_SLOT = "pressure-absorption";
   private static final double SUBMERGED_MINING_BASE = 0.2D;
   private static final double[] FATIGUE_LEVEL_FACTORS = {0.3D, 0.09D, 0.0027D, 8.1E-4D};
   private static final double FATIGUE_TRIM_HORIZON_TICKS = 20D;
@@ -66,6 +71,7 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
   private final Map<UUID, Boolean> deep = playerState();
   private final Map<UUID, Boolean> deepTier = playerState();
   private final Map<UUID, Boolean> fatigueCountered = playerState();
+  private final Map<UUID, Double> absorptionCapacity = playerState();
   private final Map<UUID, Long> nextRefreshAt = playerState();
   private final Queue<UUID> activeQueue = new ConcurrentLinkedQueue<>();
   private final Set<UUID> queuedPlayers = ConcurrentHashMap.newKeySet();
@@ -86,10 +92,30 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
   }
 
   @Override
+  public void unregister() {
+    List<UUID> absorptionPlayers = new ArrayList<>(absorptionCapacity.keySet());
+    super.unregister();
+    deep.clear();
+    deepTier.clear();
+    fatigueCountered.clear();
+    absorptionCapacity.clear();
+    nextRefreshAt.clear();
+    activeQueue.clear();
+    queuedPlayers.clear();
+    for (UUID playerId : absorptionPlayers) {
+      Player player = Bukkit.getPlayer(playerId);
+      if (player != null && !J.runEntity(player, () -> removeAbsorptionCapacity(player))) {
+        AdaptAttributeService.get().remove(player, getName(), ABSORPTION_SLOT, Attributes.MAX_ABSORPTION);
+      }
+    }
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getDepthThreshold(level), 1), 1);
     statLore(v, Form.pc(getDamageReduction(level), 0), 2);
     statLore(v, Form.pc(getFatigueTrimChance(level), 0), 3);
+    statLore(v, Form.f(getAbsorptionHealth(level) / 2D, 1) + " ♥", 4);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -229,6 +255,12 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
   private void clearDepthState(UUID id, boolean removeSchedule) {
     deep.remove(id);
     deepTier.remove(id);
+    if (absorptionCapacity.remove(id) != null) {
+      Player p = Bukkit.getPlayer(id);
+      if (p != null) {
+        removeAbsorptionCapacity(p);
+      }
+    }
     if (fatigueCountered.remove(id) != null) {
       Player p = Bukkit.getPlayer(id);
       if (p != null) {
@@ -252,8 +284,47 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
   private void applyDepthBuffs(Player p, int level, int resistanceAmp) {
     int effectTicks = effectDurationTicks(getConfig().effectTicks);
     p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, effectTicks, resistanceAmp, false, false, true), true);
-    p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, effectTicks, 0, false, false, true), true);
+    updateAbsorption(p, level);
     updateFatigueCounter(p, level);
+  }
+
+  private void updateAbsorption(Player p, int level) {
+    if (Attributes.MAX_ABSORPTION == null) {
+      return;
+    }
+
+    UUID id = p.getUniqueId();
+    double capacity = getAbsorptionHealth(level);
+    if (capacity <= 0D) {
+      if (absorptionCapacity.remove(id) != null) {
+        removeAbsorptionCapacity(p);
+      }
+      return;
+    }
+
+    Double previous = absorptionCapacity.put(id, capacity);
+    AdaptAttributeService.get().apply(p, getName(), ABSORPTION_SLOT, Attributes.MAX_ABSORPTION,
+        capacity, AttributeModifier.Operation.ADD_NUMBER);
+    AttributeInstance attribute = p.getAttribute(Attributes.MAX_ABSORPTION);
+    if (attribute == null) {
+      absorptionCapacity.remove(id);
+      return;
+    }
+
+    double previousCapacity = previous == null ? 0D : previous;
+    double current = p.getAbsorptionAmount();
+    double target = absorptionFillTarget(current, previousCapacity, capacity, attribute.getValue());
+    if (Double.compare(target, current) != 0) {
+      p.setAbsorptionAmount(target);
+    }
+  }
+
+  private void removeAbsorptionCapacity(Player p) {
+    AdaptAttributeService.get().remove(p, getName(), ABSORPTION_SLOT, Attributes.MAX_ABSORPTION);
+    AttributeInstance attribute = Attributes.MAX_ABSORPTION == null ? null : p.getAttribute(Attributes.MAX_ABSORPTION);
+    if (attribute != null && p.getAbsorptionAmount() > attribute.getValue()) {
+      p.setAbsorptionAmount(Math.max(0D, attribute.getValue()));
+    }
   }
 
   private void updateFatigueCounter(Player p, int level) {
@@ -354,6 +425,27 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     return Math.max(1, (int) Math.round(getConfig().fatigueTrimAmountBase + (getLevelPercent(level) * getConfig().fatigueTrimAmountFactor)));
   }
 
+  private double getAbsorptionHealth(int level) {
+    return absorptionHealth(getConfig().absorptionHealthBase, getConfig().absorptionHealthFactor, level, getMaxLevel());
+  }
+
+  static double absorptionHealth(double base, double factor, int level, int maxLevel) {
+    if (!Double.isFinite(base) || !Double.isFinite(factor) || level <= 0 || maxLevel <= 0) {
+      return 0D;
+    }
+    double progress = maxLevel == 1 ? 1D : Math.max(0D, Math.min(1D, (level - 1D) / (maxLevel - 1D)));
+    return Math.max(0D, base + (factor * progress));
+  }
+
+  static double absorptionFillTarget(double current, double previousCapacity, double capacity, double maximum) {
+    if (!Double.isFinite(current) || !Double.isFinite(previousCapacity) || !Double.isFinite(capacity)
+        || !Double.isFinite(maximum) || maximum <= 0D) {
+      return Math.max(0D, Math.min(Double.isFinite(current) ? current : 0D, Double.isFinite(maximum) ? maximum : 0D));
+    }
+    double gainedCapacity = Math.max(0D, capacity - Math.max(0D, previousCapacity));
+    return Math.max(0D, Math.min(maximum, Math.max(0D, current) + gainedCapacity));
+  }
+
   static long refreshIntervalMillis(int effectTicks) {
     return Math.max(250L, Math.min(750L, Math.max(1, effectTicks) * 25L));
   }
@@ -395,7 +487,7 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     return Math.exp(lowerLog + (upperLog - lowerLog) * (clamped - lower));
   }
 
-  @ConfigDescription("Gain depth scaling protection underwater and partially counter mining fatigue in deep ocean play.")
+  @ConfigDescription("Gain absorption hearts and depth-scaling protection underwater while partially countering mining fatigue.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Required eye depth below sea level in blocks at the lowest adaptation level.", impact = "Higher values require a deeper dive before any Pressure Diver buff activates.")
     double depthThresholdBase = 10;
@@ -411,6 +503,10 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     double damageReductionFactor = 0.26;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum incoming damage reduction fraction from Pressure Diver itself.", impact = "Caps the direct reduction independently of the Resistance effect.")
     double maxDamageReduction = 0.45;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Absorption health points granted when Pressure Diver activates at level 1; two health points display as one heart.", impact = "Higher values give low-level divers more temporary bonus hearts without refilling consumed absorption during refreshes.")
+    double absorptionHealthBase = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional absorption health points granted by maximum adaptation level.", impact = "Higher values increase Pressure Diver's visible bonus-heart capacity as it levels.")
+    double absorptionHealthFactor = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Lowest-level per-tick Mining Fatigue trim chance represented by the deterministic speed counter.", impact = "Higher values offset more of Mining Fatigue II and above; Mining Fatigue I remains the floor.")
     double fatigueTrimChanceBase = 0.2;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional Mining Fatigue trim chance gained across levels.", impact = "Higher values make the submerged mining-speed counter stronger at higher levels.")
@@ -419,7 +515,7 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
     double fatigueTrimAmountBase = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional Mining Fatigue amplifier trim gained across levels.", impact = "Higher values increase high-level fatigue suppression.")
     double fatigueTrimAmountFactor = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of each refreshed Resistance and Water Breathing effect.", impact = "Higher values give more refresh tolerance; the runtime checks at least every 15 ticks while active.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of each refreshed Resistance effect.", impact = "Higher values give more refresh tolerance; the runtime checks at least every 15 ticks while active.")
     int effectTicks = 60;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Duration in ticks of each refreshed submerged mining-speed counter while Mining Fatigue is present.", impact = "Higher values tolerate refresh delays; zero disables fatigue countering.")
     int fatigueCounterDurationTicks = 80;

@@ -69,7 +69,7 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
   }
 
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockDropItemEvent e) {
     Player p = e.getPlayer();
     if (resolveInteractBreakContext(p, e.getBlock().getLocation(), null, true) == null) {

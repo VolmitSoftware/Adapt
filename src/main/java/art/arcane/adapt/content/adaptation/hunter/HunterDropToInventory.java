@@ -73,7 +73,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     v.addLore(C.GRAY + AdaptLanguage.text(HunterMessages.DROP_TO_INVENTORY_LORE1));
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockDropItemEvent e) {
 
     Player p = e.getPlayer();

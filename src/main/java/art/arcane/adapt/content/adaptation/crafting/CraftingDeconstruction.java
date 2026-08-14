@@ -86,13 +86,14 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
   }
 
   public List<ItemStack> getDeconstructionOfferings(ItemStack forStuff) {
-    if (forStuff == null || forStuff.getType().isAir() || forStuff.getAmount() <= 0) {
+    if (forStuff == null || forStuff.getType().isAir() || forStuff.getAmount() <= 0
+        || !hasEligibleRepairState(forStuff)) {
       return List.of();
     }
 
     List<ItemStack> best = List.of();
     int bestIngredientCount = 0;
-    for (Recipe recipe : Bukkit.getRecipesFor(forStuff)) {
+    for (Recipe recipe : Bukkit.getRecipesFor(recipeLookupItem(forStuff))) {
       List<ItemStack> offering = getDeconstructionOfferings(forStuff, recipe);
       int ingredientCount = ingredientCount(recipe);
       if (isLowerValue(forStuff, offering) && ingredientCount > bestIngredientCount) {
@@ -101,6 +102,22 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
       }
     }
     return best;
+  }
+
+  static boolean hasEligibleRepairState(ItemStack source) {
+    if (!isArmor(source.getType())) {
+      return true;
+    }
+    return source.getItemMeta() instanceof Damageable damageable && damageable.getDamage() == 0;
+  }
+
+  static ItemStack recipeLookupItem(ItemStack source) {
+    if (!isArmor(source.getType())) {
+      return source;
+    }
+    ItemStack lookup = source.clone();
+    lookup.setItemMeta(null);
+    return lookup;
   }
 
   static List<ItemStack> getDeconstructionOfferings(ItemStack source, Recipe recipe) {
@@ -260,6 +277,12 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
       return choices.isEmpty() ? null : choices.getFirst();
     }
     return null;
+  }
+
+  private static boolean isArmor(Material type) {
+    String name = type.name();
+    return name.endsWith("_HELMET") || name.endsWith("_CHESTPLATE")
+        || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS");
   }
 
 

@@ -38,7 +38,7 @@ import org.bukkit.block.data.Lightable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
@@ -70,57 +70,64 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
     statLore(v, coversSoulFire(level, getMaxLevel()) ? Form.pc(getConfig().soulFireReduction, 0) : "-", 3);
   }
 
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
-    if (e instanceof EntityDamageByEntityEvent || !(e.getEntity() instanceof Player p)) {
+    if (!(e.getEntity() instanceof Player p)) {
       return;
     }
 
-    withAdaptedPlayer(p, e, () -> {
-      int level = getActiveLevel(p);
-      EntityDamageEvent.DamageCause cause = e.getCause();
+    int level = getActiveLevel(p);
+    if (level <= 0) {
+      return;
+    }
 
-      if (cause == EntityDamageEvent.DamageCause.HOT_FLOOR) {
-        negate(p, e, "magma");
-        return;
-      }
+    EntityDamageEvent.DamageCause cause = e.getCause();
+    if (cause == EntityDamageEvent.DamageCause.HOT_FLOOR) {
+      negate(p, e, "magma");
+      return;
+    }
 
-      if (isCampfireDamage(cause)) {
-        if (coversCampfire(level, getConfig().campfireUnlockLevel)) {
-          negate(p, e, "campfire");
-        }
-        return;
-      }
-
-      if (cause != EntityDamageEvent.DamageCause.FIRE && cause != EntityDamageEvent.DamageCause.FIRE_TICK) {
-        return;
-      }
-
-      Material source = fireSource(p);
-      if (source == null) {
-        return;
-      }
-
-      if ((source == Material.CAMPFIRE || source == Material.SOUL_CAMPFIRE) && coversCampfire(level, getConfig().campfireUnlockLevel)) {
+    if (isCampfireDamage(cause)) {
+      if (coversCampfire(level, getConfig().campfireUnlockLevel)) {
         negate(p, e, "campfire");
-        return;
       }
+      return;
+    }
 
-      if (source == Material.SOUL_FIRE && coversSoulFire(level, getMaxLevel())) {
-        double before = e.getDamage();
-        e.setDamage(Math.max(0D, before * (1D - getConfig().soulFireReduction)));
-        p.setFireTicks(Math.min(p.getFireTicks(), getConfig().soulFireMaxFireTicks));
-        int reduced = (int) Math.round(before - e.getDamage());
-        if (reduced > 0) {
-          addStat(p, "nether.ashwalker.damage-negated", reduced);
-        }
-        xp(p, (before - e.getDamage()) * getConfig().xpPerNegatedDamage);
-        fx(p.getLocation().add(0D, 1.0D, 0D), FxPriority.COMBAT)
-            .particle(Particle.SOUL_FIRE_FLAME, 4, 0D, 0.3D, 0D, 0.2D, 0.0D)
-            .particle(Particles.SMOKE, 3, 0D, 0.2D, 0D, 0.2D, 0.0D)
-            .sound(Sound.BLOCK_SOUL_SAND_STEP, 0.4F, 0.8F);
-      }
-    });
+    if (!isFireDamage(cause)) {
+      return;
+    }
+
+    Material source = fireSource(e, p);
+    if (source == null) {
+      return;
+    }
+
+    if (isCampfire(source) && coversCampfire(level, getConfig().campfireUnlockLevel)) {
+      negate(p, e, "campfire");
+      return;
+    }
+
+    if (source == Material.SOUL_FIRE && coversSoulFire(level, getMaxLevel())) {
+      reduceSoulFire(p, e);
+    }
+  }
+
+  private void reduceSoulFire(Player p, EntityDamageEvent e) {
+    double before = e.getDamage();
+    double reduction = soulFireReduction(getConfig().soulFireReduction);
+    e.setDamage(Math.max(0D, before * (1D - reduction)));
+    p.setFireTicks(Math.min(p.getFireTicks(), Math.max(0, getConfig().soulFireMaxFireTicks)));
+    double prevented = Math.max(0D, before - e.getDamage());
+    int reduced = (int) Math.round(prevented);
+    if (reduced > 0) {
+      addStat(p, "nether.ashwalker.damage-negated", reduced);
+    }
+    xp(p, prevented * getConfig().xpPerNegatedDamage);
+    fx(p.getLocation().add(0D, 1.0D, 0D), FxPriority.COMBAT)
+        .particle(Particle.SOUL_FIRE_FLAME, 4, 0D, 0.3D, 0D, 0.2D, 0.0D)
+        .particle(Particles.SMOKE, 3, 0D, 0.2D, 0D, 0.2D, 0.0D)
+        .sound(Sound.BLOCK_SOUL_SAND_STEP, 0.4F, 0.8F);
   }
 
   private void negate(Player p, EntityDamageEvent e, String flavor) {
@@ -152,7 +159,21 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
     return (float) Math.max(0D, Math.min(1D, configured));
   }
 
-  private Material fireSource(Player p) {
+  static double soulFireReduction(double configured) {
+    if (!Double.isFinite(configured)) {
+      return 0D;
+    }
+    return Math.max(0D, Math.min(1D, configured));
+  }
+
+  private Material fireSource(EntityDamageEvent event, Player p) {
+    if (event instanceof EntityDamageByBlockEvent byBlock && byBlock.getDamager() != null) {
+      Material eventSource = classifyFireBlock(byBlock.getDamager());
+      if (eventSource != null) {
+        return eventSource;
+      }
+    }
+
     Location loc = p.getLocation();
     Block feet = loc.getBlock();
     Block below = loc.clone().add(0D, -1D, 0D).getBlock();
@@ -174,6 +195,14 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
     }
 
     return null;
+  }
+
+  static boolean isFireDamage(EntityDamageEvent.DamageCause cause) {
+    return cause == EntityDamageEvent.DamageCause.FIRE || cause == EntityDamageEvent.DamageCause.FIRE_TICK;
+  }
+
+  static boolean isCampfire(Material material) {
+    return material == Material.CAMPFIRE || material == Material.SOUL_CAMPFIRE;
   }
 
   static boolean coversCampfire(int level, int unlockLevel) {

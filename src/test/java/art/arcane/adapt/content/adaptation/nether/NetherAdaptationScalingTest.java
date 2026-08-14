@@ -1,9 +1,14 @@
 package art.arcane.adapt.content.adaptation.nether;
 
 import art.arcane.adapt.util.config.TomlCodec;
+import org.bukkit.Material;
 import org.bukkit.event.Event;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -91,10 +96,26 @@ class NetherAdaptationScalingTest {
   }
 
   @Test
+  void ashwalkerCommitsItsDamageChangeAtHighestPriority() throws ReflectiveOperationException {
+    Method handler = NetherAshwalker.class.getDeclaredMethod("on", EntityDamageEvent.class);
+    EventHandler policy = handler.getAnnotation(EventHandler.class);
+
+    assertThat(policy).isNotNull();
+    assertThat(policy.priority()).isEqualTo(EventPriority.HIGHEST);
+    assertThat(policy.ignoreCancelled()).isTrue();
+  }
+
+  @Test
   void ashwalkerRecognizesDedicatedCampfireDamage() {
     assertThat(NetherAshwalker.isCampfireDamage(EntityDamageEvent.DamageCause.CAMPFIRE)).isTrue();
     assertThat(NetherAshwalker.isCampfireDamage(EntityDamageEvent.DamageCause.FIRE)).isFalse();
     assertThat(NetherAshwalker.isCampfireDamage(EntityDamageEvent.DamageCause.FIRE_TICK)).isFalse();
+    assertThat(NetherAshwalker.isFireDamage(EntityDamageEvent.DamageCause.FIRE)).isTrue();
+    assertThat(NetherAshwalker.isFireDamage(EntityDamageEvent.DamageCause.FIRE_TICK)).isTrue();
+    assertThat(NetherAshwalker.isFireDamage(EntityDamageEvent.DamageCause.LAVA)).isFalse();
+    assertThat(NetherAshwalker.isCampfire(Material.CAMPFIRE)).isTrue();
+    assertThat(NetherAshwalker.isCampfire(Material.SOUL_CAMPFIRE)).isTrue();
+    assertThat(NetherAshwalker.isCampfire(Material.SOUL_FIRE)).isFalse();
   }
 
   @Test
@@ -112,6 +133,10 @@ class NetherAdaptationScalingTest {
     assertThat(NetherAshwalker.immunitySoundVolume(-1D)).isZero();
     assertThat(NetherAshwalker.immunitySoundVolume(0.4D)).isCloseTo(0.4F, within(1.0E-6F));
     assertThat(NetherAshwalker.immunitySoundVolume(2D)).isEqualTo(1F);
+    assertThat(NetherAshwalker.soulFireReduction(Double.NaN)).isZero();
+    assertThat(NetherAshwalker.soulFireReduction(-1D)).isZero();
+    assertThat(NetherAshwalker.soulFireReduction(0.8D)).isEqualTo(0.8D);
+    assertThat(NetherAshwalker.soulFireReduction(2D)).isEqualTo(1D);
   }
 
   @Test

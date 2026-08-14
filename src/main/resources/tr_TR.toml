@@ -3706,10 +3706,10 @@ lore = ["Kalkanın Yenilenme Hızı", "Direniş"]
 [blocking.phalanx_crafter]
 name = "Phalanx Crafter"
 item_name = "Neterit-Kahtarılmış Kalkan"
-description = "Direkt olarak bayrak yüzlü kalkanlar yapın ve bonus dayanıklılığı için netherit ile kalkanları güçlendirin."
-lore1 = "1 seviyesinde: Yün, tahta ve demirden doğrudan bir pankart yüzü kalkanı yapın."
-lore2 = "2 seviyesinde: Neteritle güçlendirilmiş, çok daha fazla dayanıklı bir kalkan oluşturmak."
-lore = ["1 seviyesinde: Yün, tahta ve demirden doğrudan bir pankart yüzü kalkanı yapın.", "2 seviyesinde: Neteritle güçlendirilmiş, çok daha fazla dayanıklı bir kalkan oluşturmak."]
+description = "İki şekilli kalkan tarifinin kilidini açar; 2. seviyede kalkanı 1.200 dayanıklılığa güçlendirir ve sancak desenini korur."
+lore1 = "Seviye 1: WWW / PIP / .P. (W beyaz yün, P meşe tahtası, I demir)."
+lore2 = "Seviye 2: .N. / NSN / .N. (N netherit, S kalkan) 1.200 dayanıklılık verir."
+lore = ["Seviye 1: WWW / PIP / .P. (W beyaz yün, P meşe tahtası, I demir).", "Seviye 2: .N. / NSN / .N. (N netherit, S kalkan) 1.200 dayanıklılık verir."]
 
 [blocking.interpose]
 name = "Müdahale"
@@ -4064,9 +4064,9 @@ array = "Array"
 [crafting.deconstruction]
 name = "Yapi Sokum"
 description = "Bloklari ve esyalari kurtarilabilir temel bilesenlere donusturun!"
-lore1 = "Herhangi bir esyayi yere birakin."
+lore1 = "Bir esyayi yere birakin; zirh tamamen onarilmis olmalidir."
 lore2 = "Sonra, Egilip Makasla Sag Tiklayin"
-lore = ["Herhangi bir esyayi yere birakin.", "Sonra, Egilip Makasla Sag Tiklayin"]
+lore = ["Bir esyayi yere birakin; zirh tamamen onarilmis olmalidir.", "Sonra, Egilip Makasla Sag Tiklayin"]
 
 [crafting.xp]
 name = "Uretim XP'si"
@@ -4139,14 +4139,15 @@ lore = ["Bir zanaat materyali geri ödeme şansı"]
 
 [crafting.masterwork]
 name = "Masterwork"
-description = "Araçlar ve zırhlar bonus dayanıklılığını, tam seviyede küçük bir özellik bonusu için bir şansla."
-lore1 = "Bir ustalık parçası oluşturma şansı"
-lore2 = "bonus maksimum dayanıklılık"
-lore3 = "Tam seviyede, küçük bir özellik bonus için bir şans"
+description = "Ürettiğiniz her araç ve zırh parçası bağımsız olarak değişken bonus dayanıklılık, uyumlu yararlı bir I. seviye büyü şansı ve maksimum seviyede küçük bir nitelik bonusu şansı kazanır."
+lore1 = "Bir ustalık eseri oluşturma şansı"
+lore2 = "maksimum bonus dayanıklılık"
+lore3 = "uyumlu bir I. seviye büyü şansı"
+lore4 = "Maksimum seviyede küçük bir nitelik bonusu şansı"
 tag = "Masterwork"
 bonus = "Masterwork +{bonus}"
 attribute_tag = "Masterwork Edge"
-lore = ["Bir ustalık parçası oluşturma şansı", "bonus maksimum dayanıklılık", "Tam seviyede, küçük bir özellik bonus için bir şans"]
+lore = ["Bir ustalık eseri oluşturma şansı", "maksimum bonus dayanıklılık", "uyumlu bir I. seviye büyü şansı", "Maksimum seviyede küçük bir nitelik bonusu şansı"]
 
 [crafting.compactor]
 name = "Compactor"
@@ -4274,15 +4275,17 @@ lore = ["Yeterli yetenekler için global XP bonusı", "Yeterlik kazanmak için g
 
 [discovery.relic_appraiser]
 name = "Relic Apprair"
-description = "Gizli sağ tıklama nadir damlalar (Başlar, diskler, zırh parçaları, keramik parçacıkları) keşif için değerlendirmek. XP; değerlendirilmiş öğeler bir bilgi etiketi kazanır."
+description = "Nadir ganimetleri (kafalar, diskler, zırh süsleri ve çömlek parçaları) eğilerek sağ tıkla ve Keşif XP'siyle rastgele bir uygun beceriye XP kazan; yerleştirilen değerlendirilmiş kafa ve kafatasları kırıldığında damgasını korur."
 lore1 = "Değer XP (Maddeye göre ölçeklendi)"
-lore = ["Değer XP (Maddeye göre ölçeklendi)"]
+lore2 = "Rastgele uygun beceri XP'si"
+lore = ["Değer XP (Maddeye göre ölçeklendi)", "Rastgele uygun beceri XP'si"]
 lore_tag = "Appraized"
 
 [discovery.sixth_sense]
 name = "Altıncı Sense"
-description = "Doğmamış bir yapının aralık içinde olduğu özel bir ışık çizgisi ipucu."
+description = "Kompakt HUD en yakın desteklenen yapının adını, yönünü ve mesafesini gösterir."
 lore1 = "Yapı Tespit Aralığı"
+hud = "{symbol} {structure} {direction} {distance}m"
 lore = ["Yapı Tespit Aralığı"]
 
 [discovery.keen_eye]
@@ -4354,7 +4357,7 @@ lore = ["Lanet başına büyüleyici XP."]
 
 [enchanting.tome_rebinding]
 name = "Tome Rebinding"
-description = "Bir büyücü kitabı bir tek büyücü kitabına bölmek için, sağ tıklayarak aşağı seviyelerde kayıplar ve maksimum kayıplar."
+description = "Bir örse nişan alırken birden fazla büyü içeren kitabı atarak her büyü için ayrı kitaplara böl. Düşük seviyelerde büyüler kaybolabilir; maksimum seviyede kayıp olmaz."
 lore1 = "Enchant Lost Chance"
 lore2 = "XP Seviye Maliyet Düzeyi"
 split = "Kitaplar Ayrıldı"
@@ -4374,7 +4377,7 @@ lore = ["XP Tasarruf Maliyeti Kurtarın", "- Dönüşümün ne olduğunu hatırl
 
 [enchanting.arcane_siphon]
 name = "Arcane Siphon"
-description = "Enchanted dişlide çeteleri öldürmek bonus verir XP Ve onların enchantments bir kitap yardımcı olabilir."
+description = "Büyülü ekipman kullanan varlıkları öldürmek bonus XP verir ve bir kitap çekebilir; oyuncular yalnızca maksimum seviyede geçerlidir."
 lore1 = "Kitap İndirme Şansı"
 lore2 = "Enchanting Kalite Bonusı"
 lore = ["Kitap İndirme Şansı", "Enchanting Kalite Bonusı"]
@@ -4868,10 +4871,10 @@ lore = ["Hasar Azaltımı"]
 
 [kinetics.surface_skate]
 name = "Yüzey Kayması"
-description = "Daha az sürtünmeyle zeminde kaymak için sprint at; güçlü biçimde tutunmak için eğil."
-lore1 = "Kayma"
-lore2 = "Tutuş"
-lore = ["Kayma", "Tutuş"]
+description = "Her zemin yüzeyinde kaymak için sprint at; seviyeler daha fazla zemin sürtünmesini iptal eder ve eğilme tuşuna basmak yatay hareketi anında durdurur."
+lore1 = "İptal edilen zemin sürtünmesi"
+lore2 = "Eğilme freni"
+lore = ["İptal edilen zemin sürtünmesi", "Eğilme freni"]
 
 [kinetics.terminal_toggle]
 name = "Terminal Toggle"
@@ -5451,11 +5454,12 @@ trigger_context = "{trigger} ({environment})"
 
 [seaborn.pressure_diver]
 name = "Baskı"
-description = "Derin bazlı koruma suları kazanır ve kısmen madencilik yorgunluk baskısını bastırır."
+description = "Su altında emilim kalpleri ve derinliğe bağlı koruma kazanırken madencilik yorgunluğunu kısmen azaltır."
 lore1 = "Asgari Derinlik Gerekliliği"
 lore2 = "Derinlik Hasarı Azaltımı"
 lore3 = "Madencilik Fatigue Azaltı Şansı"
-lore = ["Asgari Derinlik Gerekliliği", "Derinlik Hasarı Azaltımı", "Madencilik Fatigue Azaltı Şansı"]
+lore4 = "Derinlik emilim kalpleri"
+lore = ["Asgari Derinlik Gerekliliği", "Derinlik Hasarı Azaltımı", "Madencilik Fatigue Azaltı Şansı", "Derinlik emilim kalpleri"]
 
 [seaborn.coral_gardener]
 name = "Coral Gardener"
@@ -5940,7 +5944,7 @@ lore = ["Üstün Hasar Bonusları", "Birleştirilmiş Hasar Azaltımı"]
 
 [taming.fetch]
 name = "Fetch"
-description = "Tamlanmış kurtlar yakındaki eşyaları topladı ve size doğrudan getiriyor."
+description = "Boştaki evcil kurtlar yakındaki düşmüş eşyalara koşar, onları alır ve fiziksel olarak sana geri taşır."
 lore1 = "Fetch Range"
 lore2 = "Şans Geçiş"
 lore = ["Fetch Range", "Şans Geçiş"]

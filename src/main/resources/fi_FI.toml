@@ -3706,10 +3706,10 @@ lore = ["Suojan palautumisnopeus", "Resistenssitaso"]
 [blocking.phalanx_crafter]
 name = "Phalanx Crafter"
 item_name = "Netheriittivahvistettu kilpi"
-description = "Alusbander-faced kilvet suoraan, ja vahvistaa suojia netheriitti bonus kestävyys."
-lore1 = "Taso 1: alus bander-faced kilpi suoraan villaa, lankkuja ja rautaa."
-lore2 = "Taso 2: Luo alasuojalla varustettu suoja, jonka kestävyys on huomattavasti parantunut."
-lore = ["Taso 1: alus bander-faced kilpi suoraan villaa, lankkuja ja rautaa.", "Taso 2: Luo alasuojalla varustettu suoja, jonka kestävyys on huomattavasti parantunut."]
+description = "Avaa kaksi muotoiltua kilpireseptiä; tasolla 2 kilpi vahvistetaan 1 200 kestävyyteen ja sen lippukuvio säilyy."
+lore1 = "Taso 1: WWW / PIP / .P. (W valkoinen villa, P tammilankut, I rauta)."
+lore2 = "Taso 2: .N. / NSN / .N. (N netheriitti, S kilpi) antaa 1 200 kestävyyttä."
+lore = ["Taso 1: WWW / PIP / .P. (W valkoinen villa, P tammilankut, I rauta).", "Taso 2: .N. / NSN / .N. (N netheriitti, S kilpi) antaa 1 200 kestävyyttä."]
 
 [blocking.interpose]
 name = "Interpose"
@@ -4064,9 +4064,9 @@ array = "ryhmä"
 [crafting.deconstruction]
 name = "Purkaminen"
 description = "Pura lohkot ja esineet pelastettaviksi perusosiksi!"
-lore1 = "Pudota mikä tahansa esine maahan."
+lore1 = "Pudota esine maahan; haarniskan on oltava täysin korjattu."
 lore2 = "Sitten kyykisty ja oikea-klikkaa saksilla"
-lore = ["Pudota mikä tahansa esine maahan.", "Sitten kyykisty ja oikea-klikkaa saksilla"]
+lore = ["Pudota esine maahan; haarniskan on oltava täysin korjattu.", "Sitten kyykisty ja oikea-klikkaa saksilla"]
 
 [crafting.xp]
 name = "Valmistus-XP"
@@ -4139,14 +4139,15 @@ lore = ["mahdollisuus palauttaa valmistusaine"]
 
 [crafting.masterwork]
 name = "Masterointi"
-description = "Työkalut ja panssari voit rulla bonus kestävyys, mahdollisuus pieni attribuutti bonus täydellä tasolla."
-lore1 = "mahdollisuus väärentää mestariteos"
-lore2 = "bonus maks. kestävyys"
-lore3 = "Täyden tason mahdollisuus pieneen attribuuttibonukseen"
+description = "Jokainen valmistamasi työkalu ja panssarin osa arpoo itsenäisesti vaihtelevan lisäkestävyyden, mahdollisuuden yhteensopivaan I-tason lumoukseen ja enimmäistasolla mahdollisuuden pieneen ominaisuusbonukseen."
+lore1 = "mahdollisuus takoa mestariteos"
+lore2 = "lisäkestävyyden enimmäismäärä"
+lore3 = "mahdollisuus yhteensopivaan I-tason lumoukseen"
+lore4 = "Enimmäistasolla mahdollisuus pieneen ominaisuusbonukseen"
 tag = "Masterointi"
 bonus = "Masterointi +{bonus}"
 attribute_tag = "Masterwork Edge"
-lore = ["mahdollisuus väärentää mestariteos", "bonus maks. kestävyys", "Täyden tason mahdollisuus pieneen attribuuttibonukseen"]
+lore = ["mahdollisuus takoa mestariteos", "lisäkestävyyden enimmäismäärä", "mahdollisuus yhteensopivaan I-tason lumoukseen", "Enimmäistasolla mahdollisuus pieneen ominaisuusbonukseen"]
 
 [crafting.compactor]
 name = "Kompakti"
@@ -4274,15 +4275,17 @@ lore = ["maailmanlaajuinen XP-bonus pätevyyskohtaiseen osaamiseen", "Taitotaso,
 
 [discovery.relic_appraiser]
 name = "Relic-arviointi"
-description = "läpimurros oikean napsautuksen harvinaiset pudotukset (pää, levyjä, panssareita, keramikkaa) arvioida ne löytöille. XP; Arvioitujen kohteiden arvostus on merkittävä."
+description = "Hiivi ja napsauta harvinaista saalista oikealla (päät, levyt, haarniskakoristeet ja ruukunsirpaleet) saadaksesi löytö-XP:tä ja XP:tä yhteen satunnaiseen kelvolliseen taitoon; asetetut arvioidut päät ja kallot säilyttävät leimansa rikottaessa."
 lore1 = "Arviointi XP (skaalattu harvinaisuuksittain)"
-lore = ["Arviointi XP (skaalattu harvinaisuuksittain)"]
+lore2 = "Satunnaisen kelvollisen taidon XP"
+lore = ["Arviointi XP (skaalattu harvinaisuuksittain)", "Satunnaisen kelvollisen taidon XP"]
 lore_tag = "Arviointi"
 
 [discovery.sixth_sense]
 name = "Kuudes aisti"
-description = "Yksityinen hehkuva suuntaviiva vihjeitä, kun tutkimaton rakenne on alueella."
+description = "Kompakti HUD näyttää lähimmän tuetun rakennelman sekä sen suunnan ja etäisyyden."
 lore1 = "Rakenteen tunnistusalue"
+hud = "{symbol} {structure} {direction} {distance}m"
 lore = ["Rakenteen tunnistusalue"]
 
 [discovery.keen_eye]
@@ -4354,7 +4357,7 @@ lore = ["Mylkkää XP kirouksen mukaan."]
 
 [enchanting.tome_rebinding]
 name = "Tomin sitominen"
-description = "Livahda oikealle-klikkaa moninkertainen kirja alasimessa jakaaksesi sen yhden taitavan kirjoihin. Tappiollinen alhaisella tasolla, tappioton enintään."
+description = "Pudota usean lumouksen kirja tähdätessäsi alasimelle, niin se jaetaan yhden lumouksen kirjoiksi. Alemmilla tasoilla lumouksia voi hävitä; enimmäistasolla ei."
 lore1 = "Enchanted Menetysmahdollisuus"
 lore2 = "XP Tasokustannukset"
 split = "Kirjat Jaettu pois"
@@ -4374,7 +4377,7 @@ lore = ["XP Tallenna kustannukset", "- Markkaa uudelleen jäähyaika."]
 
 [enchanting.arcane_siphon]
 name = "Arcane Siphon"
-description = "Mobin tappaminen lumotuissa varusteissa XP ja voi pyyhkiä kirjan heidän lumouksistaan."
+description = "Lumottuja varusteita käyttävien olentojen tappaminen antaa bonus-XP:tä ja voi irrottaa kirjan; pelaajat kelpaavat vain enimmäistasolla."
 lore1 = "Kirja-ajan mahdollisuus"
 lore2 = "Laatubonus"
 lore = ["Kirja-ajan mahdollisuus", "Laatubonus"]
@@ -4868,10 +4871,10 @@ lore = ["Vahingonalennus"]
 
 [kinetics.surface_skate]
 name = "Pintaliuku"
-description = "Sprinttaa liukuaksesi maan yli pienemmällä kitkalla; hiivi saadaksesi vahvan pidon."
-lore1 = "Liuku"
-lore2 = "Pito"
-lore = ["Liuku", "Pito"]
+description = "Juokse liukuaksesi kaikilla maanpinnoilla; tasot poistavat enemmän pintakitkaa ja hiipimispainike pysäyttää vaakaliikkeen heti."
+lore1 = "Poistettu pintakitka"
+lore2 = "Hiipimisjarru"
+lore = ["Poistettu pintakitka", "Hiipimisjarru"]
 
 [kinetics.terminal_toggle]
 name = "Pääteikkuna"
@@ -5451,11 +5454,12 @@ trigger_context = "{trigger} ({environment})"
 
 [seaborn.pressure_diver]
 name = "Paineenalennus"
-description = "Saada syvyyspohjainen suoja veden alla ja osittain tukahduttaa kaivosten väsymispaine."
+description = "Saat veden alla absorptiosydämiä ja syvyyden mukaan kasvavaa suojaa sekä torjut osan kaivosuupumuksesta."
 lore1 = "Vähimmäissyvyysvaatimus"
 lore2 = "Syvyysvahingon vähentäminen"
 lore3 = "Kaivosuupumus Vähentämismahdollisuudet"
-lore = ["Vähimmäissyvyysvaatimus", "Syvyysvahingon vähentäminen", "Kaivosuupumus Vähentämismahdollisuudet"]
+lore4 = "Syvyyden absorptiosydämet"
+lore = ["Vähimmäissyvyysvaatimus", "Syvyysvahingon vähentäminen", "Kaivosuupumus Vähentämismahdollisuudet", "Syvyyden absorptiosydämet"]
 
 [seaborn.coral_gardener]
 name = "Coral Gardener"
@@ -5940,7 +5944,7 @@ lore = ["Asennetut vahinkobonukset", "Raskaana olevien vahinkojen vähentäminen
 
 [taming.fetch]
 name = "NoHae"
-description = "Kesytetyt sudet keräävät lähellä pudotettuja esineitä ja tuovat ne suoraan sinulle."
+description = "Toimettomat kesytetyt sudet juoksevat lähellä olevien pudonneiden esineiden luo, poimivat ne ja kantavat ne takaisin sinulle."
 lore1 = "Nouda alue"
 lore2 = "Charge Chance"
 lore = ["Nouda alue", "Charge Chance"]

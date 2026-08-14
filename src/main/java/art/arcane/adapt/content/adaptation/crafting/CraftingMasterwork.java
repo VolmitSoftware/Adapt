@@ -29,37 +29,76 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import com.google.common.collect.Multimap;
+import io.papermc.paper.event.inventory.ItemCraftedEvent;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
 import org.bukkit.inventory.meta.Damageable;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Config> {
+  private static final byte MASTERWORK_FLAG = 1;
+  private static final byte ATTRIBUTE_FLAG = 2;
+  private static final byte ENCHANT_FLAG = 4;
+  private static final Set<String> BENEFICIAL_ENCHANTMENTS = Set.of(
+      "protection",
+      "fire_protection",
+      "feather_falling",
+      "blast_protection",
+      "projectile_protection",
+      "respiration",
+      "aqua_affinity",
+      "depth_strider",
+      "sharpness",
+      "smite",
+      "bane_of_arthropods",
+      "knockback",
+      "fire_aspect",
+      "looting",
+      "sweeping_edge",
+      "efficiency",
+      "unbreaking",
+      "fortune"
+  );
+
   private final NamespacedKey attributeKey = new NamespacedKey(Adapt.instance, "masterwork_bonus");
+  private final NamespacedKey masterworkKey = new NamespacedKey(Adapt.instance, "masterwork_roll");
+  private final Map<UUID, ShiftBatch> shiftBatches = new ConcurrentHashMap<>();
+  private final Set<UUID> pendingSingleMasterworks = ConcurrentHashMap.newKeySet();
 
   public CraftingMasterwork() {
     super("crafting-masterwork");
@@ -82,22 +121,42 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
   }
 
   @Override
+  public void unregister() {
+    shiftBatches.clear();
+    pendingSingleMasterworks.clear();
+    super.unregister();
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getRollChance(level), 0), 1);
     statLore(v, Form.pc(getBonusPercent(level), 0), 2);
-    v.addLore(C.LIGHT_PURPLE + "~ " + C.GRAY + AdaptLanguage.text(CraftingMessages.MASTERWORK_LORE3));
+    statLore(v, Form.pc(clampChance(getConfig().enchantmentChance), 0), 3);
+    v.addLore(C.LIGHT_PURPLE + "~ " + C.GRAY + AdaptLanguage.text(CraftingMessages.MASTERWORK_LORE4));
   }
 
   static double masterworkChance(double base, double factor, double max, double levelPercent) {
-    return Math.min(max, base + (levelPercent * factor));
+    return clampChance(Math.min(max, base + (levelPercent * factor)));
   }
 
   static double bonusPercent(double base, double factor, double levelPercent) {
-    return base + (levelPercent * factor);
+    return Math.max(0.0D, base + (levelPercent * factor));
+  }
+
+  static double rolledBonusPercent(double maximum, double minimumFraction, double randomUnit) {
+    double safeMaximum = Math.max(0.0D, maximum);
+    double safeMinimumFraction = Math.max(0.0D, Math.min(1.0D, minimumFraction));
+    double safeRandomUnit = Math.max(0.0D, Math.min(1.0D, randomUnit));
+    double minimum = safeMaximum * safeMinimumFraction;
+    return minimum + ((safeMaximum - minimum) * safeRandomUnit);
   }
 
   static int bonusDurability(int baseMaxDurability, double bonusPercent) {
     return Math.max(1, (int) Math.round(Math.max(1, baseMaxDurability) * bonusPercent));
+  }
+
+  static double clampChance(double chance) {
+    return Math.max(0.0D, Math.min(1.0D, chance));
   }
 
   private double getRollChance(int level) {
@@ -108,11 +167,14 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
     return bonusPercent(getConfig().bonusPercentBase, getConfig().bonusPercentFactor, getLevelPercent(level));
   }
 
-  @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(CraftItemEvent e) {
-    if (!(e.getWhoClicked() instanceof Player p) || e.isShiftClick()) {
+    if (!(e.getWhoClicked() instanceof Player p)) {
       return;
     }
+    UUID playerId = p.getUniqueId();
+    shiftBatches.remove(playerId);
+    pendingSingleMasterworks.remove(playerId);
 
     int level = getActiveLevel(p);
     if (level <= 0) {
@@ -135,19 +197,108 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
       return;
     }
 
-    if (ThreadLocalRandom.current().nextDouble() > getRollChance(level)) {
+    ShiftBatch batch = null;
+    if (e.isShiftClick()) {
+      NamespacedKey recipeKey = recipeKey(recipe);
+      if (recipeKey == null) {
+        return;
+      }
+      ShiftBatch createdBatch = new ShiftBatch(new ShiftBatchSpec(result.getType(), recipeKey, level), result);
+      batch = createdBatch;
+      shiftBatches.put(playerId, createdBatch);
+      J.s(() -> shiftBatches.remove(playerId, createdBatch), 1);
+    }
+
+    ItemStack forged = forge(result, level, tool);
+    boolean masterwork = forged != result;
+    if (batch != null) {
+      batch.expectMasterwork(masterwork);
+    } else if (masterwork) {
+      pendingSingleMasterworks.add(playerId);
+      J.s(() -> pendingSingleMasterworks.remove(playerId), 1);
+    }
+    if (forged != result) {
+      e.setCurrentItem(forged);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PrepareItemCraftEvent e) {
+    if (!(e.getView().getPlayer() instanceof Player p)) {
       return;
+    }
+
+    ShiftBatch batch = shiftBatches.get(p.getUniqueId());
+    ItemStack result = e.getInventory().getResult();
+    Recipe recipe = e.getRecipe();
+    if (batch == null || !batch.matches(recipe, result)) {
+      return;
+    }
+
+    ItemStack prepared = batch.getPreparedResult();
+    if (prepared == null && batch.isAwaitingNextResult()) {
+      ItemStack baseResult = batch.createBaseResult(result.getAmount());
+      boolean tool = isTool(baseResult.getType());
+      prepared = forge(baseResult, batch.getLevel(), tool);
+      batch.cachePreparedResult(prepared, prepared != baseResult);
+    }
+    if (prepared != null) {
+      e.getInventory().setResult(prepared.clone());
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(ItemCraftedEvent e) {
+    Player p = e.getPlayer();
+    ItemStack crafted = e.getCraftedItem();
+    ShiftBatch batch = shiftBatches.get(p.getUniqueId());
+    boolean expectedMasterwork = false;
+    if (batch != null && batch.matchesType(crafted)) {
+      expectedMasterwork = batch.consumeExpectedMasterwork();
+      batch.awaitNextResult();
+    } else {
+      expectedMasterwork = pendingSingleMasterworks.remove(p.getUniqueId());
+    }
+
+    if (!expectedMasterwork) {
+      return;
+    }
+    ItemMeta meta = crafted.getItemMeta();
+    if (meta == null) {
+      return;
+    }
+    Byte flags = meta.getPersistentDataContainer().get(masterworkKey, PersistentDataType.BYTE);
+    if (flags == null || (flags & MASTERWORK_FLAG) == 0) {
+      return;
+    }
+
+    addStat(p, "crafting.masterwork.pieces-forged", 1);
+    if (batch == null || batch.claimEffect()) {
+      playForgeEffect(p, (flags & ATTRIBUTE_FLAG) != 0, (flags & ENCHANT_FLAG) != 0);
+    }
+  }
+
+  private ItemStack forge(ItemStack result, int level, boolean tool) {
+    if (ThreadLocalRandom.current().nextDouble() >= getRollChance(level)) {
+      return result;
     }
 
     ItemStack forged = result.clone();
     Damageable meta = (Damageable) forged.getItemMeta();
     int baseMax = Math.max(1, forged.getType().getMaxDurability());
-    int bonus = bonusDurability(baseMax, getBonusPercent(level));
+    double rolledPercent = rolledBonusPercent(
+        getBonusPercent(level),
+        getConfig().bonusRollMinimumFraction,
+        ThreadLocalRandom.current().nextDouble()
+    );
+    int bonus = bonusDurability(baseMax, rolledPercent);
     meta.setMaxDamage(baseMax + bonus);
 
     boolean gotAttribute = level >= getMaxLevel()
-        && ThreadLocalRandom.current().nextDouble() <= getConfig().attributeChance
+        && ThreadLocalRandom.current().nextDouble() < clampChance(getConfig().attributeChance)
         && applyAttribute(forged.getType(), meta, tool);
+    boolean gotEnchant = ThreadLocalRandom.current().nextDouble() < clampChance(getConfig().enchantmentChance)
+        && applyBeneficialEnchant(forged, meta);
 
     List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
     lore.add(C.AQUA + AdaptLanguage.text(
@@ -158,14 +309,16 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
       lore.add(C.LIGHT_PURPLE + AdaptLanguage.text(CraftingMessages.MASTERWORK_ATTRIBUTE_TAG));
     }
     meta.setLore(lore);
+    byte flags = MASTERWORK_FLAG;
+    if (gotAttribute) {
+      flags |= ATTRIBUTE_FLAG;
+    }
+    if (gotEnchant) {
+      flags |= ENCHANT_FLAG;
+    }
+    meta.getPersistentDataContainer().set(masterworkKey, PersistentDataType.BYTE, flags);
     forged.setItemMeta(meta);
-    e.setCurrentItem(forged);
-
-    addStat(p, "crafting.masterwork.pieces-forged", 1);
-    fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
-        .burst(Particles.CRIT_MAGIC, 8, 0.2D)
-        .particle(Particles.ENCHANTMENT_TABLE, 10, 0, 0.3D, 0, 0.4D, 0.4D)
-        .chord(Sound.BLOCK_ANVIL_USE, 0.5F, 1.3F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, gotAttribute ? 1.9F : 1.4F);
+    return forged;
   }
 
   private boolean applyAttribute(Material material, Damageable meta, boolean tool) {
@@ -187,6 +340,53 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
     return true;
   }
 
+  private boolean applyBeneficialEnchant(ItemStack item, ItemMeta meta) {
+    Registry<Enchantment> registry = RegistryAccess.registryAccess().getRegistry(RegistryKey.ENCHANTMENT);
+    List<Enchantment> candidates = new ArrayList<>();
+    for (Enchantment enchantment : registry) {
+      if (!NamespacedKey.MINECRAFT.equals(enchantment.getKey().getNamespace())
+          || !BENEFICIAL_ENCHANTMENTS.contains(enchantment.getKey().getKey())
+          || !enchantment.canEnchantItem(item)
+          || conflictsWithExisting(meta, enchantment)) {
+        continue;
+      }
+      candidates.add(enchantment);
+    }
+    if (candidates.isEmpty()) {
+      return false;
+    }
+
+    Enchantment selected = candidates.get(ThreadLocalRandom.current().nextInt(candidates.size()));
+    return meta.addEnchant(selected, Math.max(1, selected.getStartLevel()), false);
+  }
+
+  private boolean conflictsWithExisting(ItemMeta meta, Enchantment candidate) {
+    for (Enchantment existing : meta.getEnchants().keySet()) {
+      if (existing.equals(candidate) || existing.conflictsWith(candidate)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private void playForgeEffect(Player p, boolean gotAttribute, boolean gotEnchant) {
+    float chimePitch = gotAttribute ? 1.9F : gotEnchant ? 1.65F : 1.4F;
+    fx(p.getLocation().add(0, 1, 0), FxPriority.TRANSITION)
+        .burst(Particles.CRIT_MAGIC, 8, 0.2D)
+        .particle(Particles.ENCHANTMENT_TABLE, 10, 0, 0.3D, 0, 0.4D, 0.4D)
+        .chord(Sound.BLOCK_ANVIL_USE, 0.5F, 1.3F, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, chimePitch);
+  }
+
+  private NamespacedKey recipeKey(Recipe recipe) {
+    if (recipe instanceof ShapedRecipe shapedRecipe) {
+      return shapedRecipe.getKey();
+    }
+    if (recipe instanceof ShapelessRecipe shapelessRecipe) {
+      return shapelessRecipe.getKey();
+    }
+    return null;
+  }
+
   private boolean isTool(Material type) {
     String name = type.name();
     return name.endsWith("_PICKAXE") || name.endsWith("_AXE") || name.endsWith("_SHOVEL")
@@ -199,7 +399,7 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
         || name.endsWith("_LEGGINGS") || name.endsWith("_BOOTS");
   }
 
-  @ConfigDescription("Tools and armor you craft can roll bonus max durability, with a chance for a minor attribute bonus at full level.")
+  @ConfigDescription("Each crafted tool and armor piece independently rolls variable bonus durability, a minor beneficial enchantment, and a full-level attribute bonus.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Chance to roll a masterwork piece at level 1.", impact = "Higher values roll bonus durability more often at low levels.")
     double rollChanceBase = 0.2;
@@ -211,6 +411,10 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
     double bonusPercentBase = 0.1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional bonus durability fraction gained across levels.", impact = "Higher values scale the durability bonus more steeply.")
     double bonusPercentFactor = 0.4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum fraction of the level-scaled durability bonus rolled by a masterwork piece.", impact = "Higher values make masterwork durability rolls more consistent and closer to their maximum.")
+    double bonusRollMinimumFraction = 0.5;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Chance for a masterwork piece to gain one compatible level-one beneficial enchantment.", impact = "Higher values add minor beneficial enchantments to masterwork gear more often.")
+    double enchantmentChance = 0.1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Chance for a minor attribute bonus at full level.", impact = "Higher values roll the extra attribute bonus more often.")
     double attributeChance = 0.15;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Attack damage granted by a masterwork tool attribute bonus.", impact = "Higher values make masterwork tools hit harder.")
@@ -224,5 +428,88 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
       maxLevel = 5;
       initialCost = 5;
     }
+  }
+
+  static final class ShiftBatch {
+    private final ShiftBatchSpec spec;
+    private final ItemStack baseResult;
+    private ItemStack preparedResult;
+    private boolean awaitingNextResult;
+    private boolean expectedMasterwork;
+    private boolean effectClaimed;
+
+    ShiftBatch(ShiftBatchSpec spec, ItemStack baseResult) {
+      this.spec = spec;
+      this.baseResult = baseResult.clone();
+    }
+
+    int getLevel() {
+      return spec.level();
+    }
+
+    boolean matches(Recipe recipe, ItemStack result) {
+      if (result == null || result.getType() != spec.resultType()) {
+        return false;
+      }
+      NamespacedKey currentKey;
+      if (recipe instanceof ShapedRecipe shapedRecipe) {
+        currentKey = shapedRecipe.getKey();
+      } else if (recipe instanceof ShapelessRecipe shapelessRecipe) {
+        currentKey = shapelessRecipe.getKey();
+      } else {
+        return false;
+      }
+      return spec.recipeKey().equals(currentKey);
+    }
+
+    boolean matchesType(ItemStack item) {
+      return item != null && item.getType() == spec.resultType();
+    }
+
+    ItemStack createBaseResult(int amount) {
+      ItemStack created = baseResult.clone();
+      created.setAmount(amount);
+      return created;
+    }
+
+    void awaitNextResult() {
+      preparedResult = null;
+      awaitingNextResult = true;
+    }
+
+    boolean isAwaitingNextResult() {
+      return awaitingNextResult;
+    }
+
+    void cachePreparedResult(ItemStack result, boolean masterwork) {
+      preparedResult = result.clone();
+      awaitingNextResult = false;
+      expectedMasterwork = masterwork;
+    }
+
+    ItemStack getPreparedResult() {
+      return preparedResult == null ? null : preparedResult.clone();
+    }
+
+    void expectMasterwork(boolean masterwork) {
+      expectedMasterwork = masterwork;
+    }
+
+    boolean consumeExpectedMasterwork() {
+      boolean expected = expectedMasterwork;
+      expectedMasterwork = false;
+      return expected;
+    }
+
+    boolean claimEffect() {
+      if (effectClaimed) {
+        return false;
+      }
+      effectClaimed = true;
+      return true;
+    }
+  }
+
+  record ShiftBatchSpec(Material resultType, NamespacedKey recipeKey, int level) {
   }
 }

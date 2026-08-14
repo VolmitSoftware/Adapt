@@ -3706,10 +3706,10 @@ lore = ["Velocidad de recuperación escudo", "Resistencia Tier"]
 [blocking.phalanx_crafter]
 name = "Artesano de falange"
 item_name = "Escudo reforzado con netherita"
-description = "Escudos con cara de banner artesanal directamente, y reforzar escudos con netherite para la durabilidad de bonificación."
-lore1 = "Nivel 1: crear un escudo con cara de banner directamente de lana, tablas y hierro."
-lore2 = "Nivel 2: forja un escudo reforzado con netherite con una durabilidad aumentada."
-lore = ["Nivel 1: crear un escudo con cara de banner directamente de lana, tablas y hierro.", "Nivel 2: forja un escudo reforzado con netherite con una durabilidad aumentada."]
+description = "Desbloquea dos recetas de escudo con forma; el nivel 2 refuerza un escudo hasta 1.200 de durabilidad y conserva su diseño de estandarte."
+lore1 = "Nivel 1: WWW / PIP / .P. (W lana blanca, P tablones de roble, I hierro)."
+lore2 = "Nivel 2: .N. / NSN / .N. (N netherita, S escudo) otorga 1.200 de durabilidad."
+lore = ["Nivel 1: WWW / PIP / .P. (W lana blanca, P tablones de roble, I hierro).", "Nivel 2: .N. / NSN / .N. (N netherita, S escudo) otorga 1.200 de durabilidad."]
 
 [blocking.interpose]
 name = "Interponer"
@@ -4064,9 +4064,9 @@ array = "array"
 [crafting.deconstruction]
 name = "Deconstruccion"
 description = "¡Deconstruye bloques y objetos en componentes basicos recuperables!"
-lore1 = "Suelta cualquier objeto al suelo."
+lore1 = "Suelta un objeto al suelo; la armadura debe estar totalmente reparada."
 lore2 = "Luego, agachate y haz clic derecho con tijeras"
-lore = ["Suelta cualquier objeto al suelo.", "Luego, agachate y haz clic derecho con tijeras"]
+lore = ["Suelta un objeto al suelo; la armadura debe estar totalmente reparada.", "Luego, agachate y haz clic derecho con tijeras"]
 
 [crafting.xp]
 name = "XP de Fabricacion"
@@ -4139,14 +4139,15 @@ lore = ["oportunidad de devolver un ingrediente de la artesanía"]
 
 [crafting.masterwork]
 name = "Obra maestra"
-description = "Herramientas y armaduras que usted puede rodar la durabilidad de bonificación, con una oportunidad de un atributo menor bonificación a nivel completo."
-lore1 = "oportunidad de forjar una obra maestra"
-lore2 = "prima máxima durabilidad"
-lore3 = "A nivel completo, una oportunidad para un atributo menor bonificación"
+description = "Cada herramienta y pieza de armadura que fabricas calcula de forma independiente una durabilidad adicional variable, una probabilidad de encantamiento beneficioso compatible de nivel I y, al nivel máximo, una probabilidad de bonificación de atributo."
+lore1 = "probabilidad de forjar una obra maestra"
+lore2 = "durabilidad adicional máxima"
+lore3 = "probabilidad de un encantamiento compatible de nivel I"
+lore4 = "Al nivel máximo, probabilidad de una bonificación de atributo menor"
 tag = "Masterwork"
 bonus = "Masterwork +{bonus}"
 attribute_tag = "Masterwork Edge"
-lore = ["oportunidad de forjar una obra maestra", "prima máxima durabilidad", "A nivel completo, una oportunidad para un atributo menor bonificación"]
+lore = ["probabilidad de forjar una obra maestra", "durabilidad adicional máxima", "probabilidad de un encantamiento compatible de nivel I", "Al nivel máximo, probabilidad de una bonificación de atributo menor"]
 
 [crafting.compactor]
 name = "Compactador"
@@ -4274,15 +4275,17 @@ lore = ["bonificación global XP por habilidad calificada", "Nivel de habilidad 
 
 [discovery.relic_appraiser]
 name = "Tasador de reliquias"
-description = "clicar a la derecha en las gotas raras (heads, discos, armaduras, fragmentos de cerámica) para evaluarlos para descubrir XP; los artículos evaluados ganan una etiqueta de tradición."
+description = "Agáchate y haz clic derecho en botines raros (cabezas, discos, adornos de armadura y fragmentos de cerámica) para obtener XP de Descubrimiento y XP en una habilidad elegible al azar; las cabezas y calaveras tasadas conservan su sello al colocarlas y romperlas."
 lore1 = "Aspecto XP (escalada por la rareza del tema)"
-lore = ["Aspecto XP (escalada por la rareza del tema)"]
+lore2 = "XP de habilidad elegible al azar"
+lore = ["Aspecto XP (escalada por la rareza del tema)", "XP de habilidad elegible al azar"]
 lore_tag = "Aprobado"
 
 [discovery.sixth_sense]
 name = "Sexto sentido"
-description = "Una línea de dirección brillante privada indica cuando una estructura no explorada está dentro del rango."
+description = "Un HUD compacto muestra la estructura compatible más cercana, su dirección y su distancia."
 lore1 = "Rango de detección de estructuras"
+hud = "{symbol} {structure} {direction} {distance}m"
 lore = ["Rango de detección de estructuras"]
 
 [discovery.keen_eye]
@@ -4354,7 +4357,7 @@ lore = ["Encantador XP por Curse"]
 
 [enchanting.tome_rebinding]
 name = "Tomé Rebinding"
-description = "Haz clic en un libro multi-encantador en un yunque para dividirlo en libros únicos. Pérdida en niveles bajos, sin pérdidas en máx."
+description = "Suelta un libro con varios encantamientos mientras apuntas a un yunque para dividirlo en libros de un solo encantamiento. Puede perder encantamientos en niveles bajos; no pierde ninguno al máximo."
 lore1 = "Encantador Perder Chance"
 lore2 = "XP Costo de nivel"
 split = "Los libros se dividen"
@@ -4374,7 +4377,7 @@ lore = ["XP Costo", "Re-Marquear el tiempo de reutilización"]
 
 [enchanting.arcane_siphon]
 name = "Sifón arcano"
-description = "Matar a las turbas en las donaciones de engranaje encantado XP y puede sofocar un libro de sus encantamientos."
+description = "Matar entidades equipadas con objetos encantados otorga XP adicional y puede extraer un libro; los jugadores solo cuentan al nivel máximo."
 lore1 = "Caída del libro"
 lore2 = "Bono de calidad encantador"
 lore = ["Caída del libro", "Bono de calidad encantador"]
@@ -4868,10 +4871,10 @@ lore = ["Reducción de los daños"]
 
 [kinetics.surface_skate]
 name = "Deslizamiento superficial"
-description = "Huella para deslizarse por el suelo con fricción baja; colarse para agarrar duro."
-lore1 = "Deslice"
-lore2 = "Agarre"
-lore = ["Deslice", "Agarre"]
+description = "Esprinta para deslizarte sobre cualquier superficie; los niveles anulan más fricción del suelo y pulsar agacharse detiene al instante el movimiento horizontal."
+lore1 = "Fricción del suelo anulada"
+lore2 = "Freno al agacharse"
+lore = ["Fricción del suelo anulada", "Freno al agacharse"]
 
 [kinetics.terminal_toggle]
 name = "Cambio terminal"
@@ -5451,11 +5454,12 @@ trigger_context = "{trigger} ({environment})"
 
 [seaborn.pressure_diver]
 name = "Presión Diver"
-description = "Obtenga protección basada en la profundidad bajo el agua y suprime parcialmente la presión de fatiga minera."
+description = "Obtén corazones de absorción y protección según la profundidad bajo el agua mientras contrarrestas parcialmente la fatiga minera."
 lore1 = "Requisito mínimo de profundidad"
 lore2 = "Reducción del daño de la deuda"
 lore3 = "Reducción de la fatiga minera"
-lore = ["Requisito mínimo de profundidad", "Reducción del daño de la deuda", "Reducción de la fatiga minera"]
+lore4 = "Corazones de absorción en profundidad"
+lore = ["Requisito mínimo de profundidad", "Reducción del daño de la deuda", "Reducción de la fatiga minera", "Corazones de absorción en profundidad"]
 
 [seaborn.coral_gardener]
 name = "Jardinero de coral"
@@ -5940,7 +5944,7 @@ lore = ["Bono de daño montado", "Reducción de los daños montados"]
 
 [taming.fetch]
 name = "Trae."
-description = "Tus lobos domesticados se reúnen cerca de los objetos caídos y tráiganlos directamente a usted."
+description = "Los lobos domesticados inactivos corren hasta los objetos cercanos, los recogen y los llevan de vuelta hasta ti."
 lore1 = "Rango de lotes"
 lore2 = "Probabilidad de transporte"
 lore = ["Rango de lotes", "Probabilidad de transporte"]

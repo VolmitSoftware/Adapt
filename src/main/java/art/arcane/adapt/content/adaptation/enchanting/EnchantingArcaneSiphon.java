@@ -91,13 +91,9 @@ public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSip
     return siphonQualityBonus(getConfig().qualityFactor, getLevelPercent(level));
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
     LivingEntity victim = e.getEntity();
-    if (victim instanceof Player) {
-      return;
-    }
-
     Player killer = victim.getKiller();
     if (killer == null) {
       return;
@@ -105,6 +101,9 @@ public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSip
 
     int level = getActiveDamageLevel(killer, victim);
     if (level <= 0) {
+      return;
+    }
+    if (!isEligibleVictim(victim instanceof Player, level, getConfig().maxLevel)) {
       return;
     }
 
@@ -130,9 +129,12 @@ public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSip
     siphonFx(victim.getLocation().add(0, 1.0D, 0));
   }
 
-  private Map<Enchantment, Integer> collectGearEnchants(LivingEntity entity) {
+  static boolean isEligibleVictim(boolean playerVictim, int activeLevel, int maxLevel) {
+    return activeLevel > 0 && (!playerVictim || activeLevel >= Math.max(1, maxLevel));
+  }
+
+  static Map<Enchantment, Integer> collectGearEnchants(EntityEquipment equipment) {
     Map<Enchantment, Integer> enchants = new HashMap<>();
-    EntityEquipment equipment = entity.getEquipment();
     if (equipment == null) {
       return enchants;
     }
@@ -146,13 +148,21 @@ public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSip
     return enchants;
   }
 
-  private void accumulate(Map<Enchantment, Integer> enchants, ItemStack item) {
-    if (!isItem(item)) {
+  private Map<Enchantment, Integer> collectGearEnchants(LivingEntity entity) {
+    return collectGearEnchants(entity.getEquipment());
+  }
+
+  private static void accumulate(Map<Enchantment, Integer> enchants, ItemStack item) {
+    if (item == null || item.getAmount() <= 0 || item.getType() == Material.AIR) {
       return;
     }
 
-    for (Map.Entry<Enchantment, Integer> entry : item.getEnchantments().entrySet()) {
-      enchants.merge(entry.getKey(), entry.getValue(), Math::max);
+    mergeHighest(enchants, item.getEnchantments());
+  }
+
+  static <T> void mergeHighest(Map<T, Integer> destination, Map<T, Integer> source) {
+    for (Map.Entry<T, Integer> entry : source.entrySet()) {
+      destination.merge(entry.getKey(), entry.getValue(), Math::max);
     }
   }
 
@@ -179,7 +189,7 @@ public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSip
   }
 
 
-  @ConfigDescription("Killing mobs in enchanted gear grants bonus XP and can siphon a book of their enchantments.")
+  @ConfigDescription("Killing entities in enchanted gear grants bonus XP and can siphon a book of their enchantments; player victims require max level.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Drop Chance Base for the Enchanting Arcane Siphon adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double dropChanceBase = 0.12;

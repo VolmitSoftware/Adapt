@@ -18,8 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
+import art.arcane.adapt.localization.catalog.GuiMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -95,7 +97,7 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     return Math.max(1, (int) Math.round(d));
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
     if (!(e.getEntity() instanceof Player p)) {
       return;
@@ -110,28 +112,23 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
       return;
     }
 
-    int xpCost = getXpTaken(level);
-    if (p.getLevel() < xpCost) {
-      if (failFxThrottle.isReady(p.getUniqueId(), FAIL_FX_THROTTLE_MILLIS)) {
-        failFxThrottle.mark(p.getUniqueId());
-        fx(p.getLocation(), FxPriority.COMBAT)
-            .dustBurst(Color.RED, 10, 0.8D, 1.0F)
-            .chord(Sound.BLOCK_FUNGUS_BREAK, 0.6F, 0.6F, Sound.BLOCK_GLASS_BREAK, 0.5F, 0.8F);
-      }
-      return;
-    }
-
     UUID id = p.getUniqueId();
     if (cooldowns.isReady(id, COOLDOWN_MILLIS)) {
+      int xpCost = getXpTaken(level);
       double effectiveness = getEffectiveness(getLevelPercent(level));
       double originalDamage = e.getDamage();
-      if (!payExperienceCost(p, "experience-levels", xpCost, () -> spendLevels(p, xpCost))) {
+      ExperienceLevelCharge defaultCharge = new ExperienceLevelCharge(p, xpCost);
+      if (!payExperienceCost(p, "experience-levels", xpCost, defaultCharge::take)) {
+        playCostFailure(p);
         return;
       }
       e.setDamage(Math.max(0D, e.getDamage() * (1D - effectiveness)));
       xp(p, 5);
       cooldowns.mark(id);
       addStat(p, "discovery.xp-resist.saves", 1);
+      if (defaultCharge.wasTaken()) {
+        Adapt.actionbar(p, C.YELLOW + "-" + xpCost + " XP " + AdaptLanguage.text(GuiMessages.LEVELS));
+      }
 
       double startRadius = 0.8D + (getLevelPercent(level) * 1.6D);
       timeline(p)
@@ -169,23 +166,43 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
   }
 
   private boolean isCriticalHealthDamage(Player p, EntityDamageEvent e) {
-    double threshold = Math.max(0D, getConfig().triggerHealthThreshold);
-    double absorption = Math.max(0D, p.getAbsorptionAmount());
-    double rawDamage = Math.max(0D, e.getDamage());
-    double finalDamage = Math.max(0D, e.getFinalDamage());
-    double healthAfterRaw = p.getHealth() - Math.max(0D, rawDamage - absorption);
-    double healthAfterFinal = p.getHealth() - Math.max(0D, finalDamage - absorption);
-    double predictedHealth = Math.min(healthAfterRaw, healthAfterFinal);
-    return predictedHealth <= 0D || predictedHealth <= threshold || p.getHealth() <= threshold;
+    return isCriticalHealthDamage(p.getHealth(), e.getFinalDamage(), getConfig().triggerHealthThreshold);
   }
 
-  static boolean spendLevels(Player player, int amount) {
-    if (player == null || amount <= 0 || player.getLevel() < amount) {
+  static boolean isCriticalHealthDamage(double health, double finalDamage, double configuredThreshold) {
+    if (!Double.isFinite(health) || !Double.isFinite(finalDamage) || finalDamage <= 0D) {
       return false;
     }
 
+    double threshold = Double.isFinite(configuredThreshold) ? Math.max(0D, configuredThreshold) : 0D;
+    return health - finalDamage <= threshold;
+  }
+
+  static boolean spendLevels(Player player, int amount) {
+    if (player == null || amount <= 0) {
+      return false;
+    }
+
+    int currentLevel = player.getLevel();
+    if (currentLevel < amount) {
+      return false;
+    }
+
+    float progress = Math.max(0.0F, Math.min(1.0F, player.getExp()));
     player.giveExpLevels(-amount);
+    player.sendExperienceChange(progress, currentLevel - amount);
     return true;
+  }
+
+  private void playCostFailure(Player p) {
+    if (!failFxThrottle.isReady(p.getUniqueId(), FAIL_FX_THROTTLE_MILLIS)) {
+      return;
+    }
+
+    failFxThrottle.mark(p.getUniqueId());
+    fx(p.getLocation(), FxPriority.COMBAT)
+        .dustBurst(Color.RED, 10, 0.8D, 1.0F)
+        .chord(Sound.BLOCK_FUNGUS_BREAK, 0.6F, 0.6F, Sound.BLOCK_GLASS_BREAK, 0.5F, 0.8F);
   }
 
   @ConfigDescription("Consume experience to mitigate damage when a hit would drop you below 5 hearts.")
@@ -207,6 +224,32 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
       baseCost = 5;
       costFactor = 0.8;
       initialCost = 3;
+    }
+  }
+
+  static final class ExperienceLevelCharge {
+    private final Player player;
+    private final int amount;
+    private boolean attempted;
+    private boolean taken;
+
+    ExperienceLevelCharge(Player player, int amount) {
+      this.player = player;
+      this.amount = amount;
+    }
+
+    boolean take() {
+      if (attempted) {
+        return taken;
+      }
+
+      attempted = true;
+      taken = spendLevels(player, amount);
+      return taken;
+    }
+
+    boolean wasTaken() {
+      return taken;
     }
   }
 }

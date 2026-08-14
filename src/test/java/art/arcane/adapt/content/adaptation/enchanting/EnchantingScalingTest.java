@@ -1,13 +1,20 @@
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
-import org.bukkit.event.inventory.ClickType;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
@@ -33,12 +40,26 @@ class EnchantingScalingTest {
   }
 
   @Test
-  void tomeRebindingUsesTheShiftRightInventoryGestureInsteadOfPlayerSneakState() {
-    assertThat(EnchantingTomeRebinding.isRebindingClick(0, ClickType.SHIFT_RIGHT, true, false)).isTrue();
-    assertThat(EnchantingTomeRebinding.isRebindingClick(0, ClickType.RIGHT, true, false)).isFalse();
-    assertThat(EnchantingTomeRebinding.isRebindingClick(1, ClickType.SHIFT_RIGHT, true, false)).isFalse();
-    assertThat(EnchantingTomeRebinding.isRebindingClick(0, ClickType.SHIFT_RIGHT, true, true)).isFalse();
-    assertThat(EnchantingTomeRebinding.isRebindingClick(0, ClickType.SHIFT_RIGHT, false, false)).isFalse();
+  void tomeRebindingRecognizesEveryAnvilState() throws Exception {
+    assertThat(EnchantingTomeRebinding.isAnvilTarget(Material.ANVIL)).isTrue();
+    assertThat(EnchantingTomeRebinding.isAnvilTarget(Material.CHIPPED_ANVIL)).isTrue();
+    assertThat(EnchantingTomeRebinding.isAnvilTarget(Material.DAMAGED_ANVIL)).isTrue();
+    assertThat(EnchantingTomeRebinding.isAnvilTarget(Material.ENCHANTING_TABLE)).isFalse();
+
+    Method handler = EnchantingTomeRebinding.class.getDeclaredMethod("on", PlayerDropItemEvent.class);
+    EventHandler annotation = handler.getAnnotation(EventHandler.class);
+    assertThat(annotation.priority()).isEqualTo(EventPriority.HIGHEST);
+    assertThat(annotation.ignoreCancelled()).isTrue();
+  }
+
+  @Test
+  void tomeRebindingDoesNotConsumeStacksAndPreservesStoredLevels() {
+    assertThat(EnchantingTomeRebinding.isSplittableBook(Material.ENCHANTED_BOOK, 1, 2)).isTrue();
+    assertThat(EnchantingTomeRebinding.isSplittableBook(Material.ENCHANTED_BOOK, 2, 2)).isFalse();
+    assertThat(EnchantingTomeRebinding.isSplittableBook(Material.BOOK, 1, 2)).isFalse();
+    assertThat(EnchantingTomeRebinding.isSplittableBook(Material.ENCHANTED_BOOK, 1, 1)).isFalse();
+    assertThat(EnchantingTomeRebinding.normalizedStoredLevel(10)).isEqualTo(10);
+    assertThat(EnchantingTomeRebinding.normalizedStoredLevel(0)).isEqualTo(1);
   }
 
   @Test
@@ -90,6 +111,62 @@ class EnchantingScalingTest {
   }
 
   @Test
+  void arcaneSiphonAcceptsPlayersOnlyAtMaximumLevel() {
+    assertThat(EnchantingArcaneSiphon.isEligibleVictim(false, 1, 5)).isTrue();
+    assertThat(EnchantingArcaneSiphon.isEligibleVictim(true, 4, 5)).isFalse();
+    assertThat(EnchantingArcaneSiphon.isEligibleVictim(true, 5, 5)).isTrue();
+    assertThat(EnchantingArcaneSiphon.isEligibleVictim(true, 6, 5)).isTrue();
+    assertThat(EnchantingArcaneSiphon.isEligibleVictim(false, 0, 5)).isFalse();
+  }
+
+  @Test
+  void arcaneSiphonPublishesItsBookBeforeDropRoutingHandlers() throws Exception {
+    Method handler = EnchantingArcaneSiphon.class.getDeclaredMethod("on", EntityDeathEvent.class);
+    EventHandler annotation = handler.getAnnotation(EventHandler.class);
+
+    assertThat(annotation.priority()).isEqualTo(EventPriority.HIGH);
+    assertThat(annotation.ignoreCancelled()).isTrue();
+  }
+
+  @Test
+  void arcaneSiphonScansEveryEquipmentSlot() {
+    EntityEquipment equipment = mock(EntityEquipment.class);
+    ItemStack helmet = enchantedItem(Material.DIAMOND_HELMET);
+    ItemStack chestplate = enchantedItem(Material.DIAMOND_CHESTPLATE);
+    ItemStack leggings = enchantedItem(Material.DIAMOND_LEGGINGS);
+    ItemStack boots = enchantedItem(Material.DIAMOND_BOOTS);
+    ItemStack mainHand = enchantedItem(Material.DIAMOND_SWORD);
+    ItemStack offHand = enchantedItem(Material.SHIELD);
+    when(equipment.getHelmet()).thenReturn(helmet);
+    when(equipment.getChestplate()).thenReturn(chestplate);
+    when(equipment.getLeggings()).thenReturn(leggings);
+    when(equipment.getBoots()).thenReturn(boots);
+    when(equipment.getItemInMainHand()).thenReturn(mainHand);
+    when(equipment.getItemInOffHand()).thenReturn(offHand);
+
+    Map<Enchantment, Integer> enchants = EnchantingArcaneSiphon.collectGearEnchants(equipment);
+
+    assertThat(enchants).isEmpty();
+    verify(equipment).getHelmet();
+    verify(equipment).getChestplate();
+    verify(equipment).getLeggings();
+    verify(equipment).getBoots();
+    verify(equipment).getItemInMainHand();
+    verify(equipment).getItemInOffHand();
+  }
+
+  @Test
+  void arcaneSiphonKeepsTheHighestLevelOfDuplicateEnchantments() {
+    Map<String, Integer> enchants = new HashMap<>();
+    enchants.put("shared", 1);
+
+    EnchantingArcaneSiphon.mergeHighest(enchants, Map.of("shared", 3, "offhand-only", 1));
+    EnchantingArcaneSiphon.mergeHighest(enchants, Map.of("shared", 2));
+
+    assertThat(enchants).containsEntry("shared", 3).containsEntry("offhand-only", 1).hasSize(2);
+  }
+
+  @Test
   void runeSightRevealDepthGrowsFromOneToMax() {
     assertThat(EnchantingRuneSight.revealDepth(3, 0.0D)).isEqualTo(1);
     assertThat(EnchantingRuneSight.revealDepth(3, 0.5D)).isEqualTo(2);
@@ -136,5 +213,13 @@ class EnchantingScalingTest {
 
     assertThat(new EnchantingEchoOfKnowledge.Config().chargeRateBase).isGreaterThan(0);
     assertThat(new EnchantingEchoOfKnowledge.Config().chargeThreshold).isGreaterThan(0);
+  }
+
+  private ItemStack enchantedItem(Material material) {
+    ItemStack item = mock(ItemStack.class);
+    when(item.getType()).thenReturn(material);
+    when(item.getAmount()).thenReturn(1);
+    when(item.getEnchantments()).thenReturn(Map.of());
+    return item;
   }
 }

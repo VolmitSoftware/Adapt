@@ -3706,10 +3706,10 @@ lore = ["Schild-Erholungsgeschwindigkeit", "Widerstandsstufe"]
 [blocking.phalanx_crafter]
 name = "Phalanx Crafter"
 item_name = "Netherit-verstärkter Schild"
-description = "Sie können direkt Banner-Beschirmungen herstellen und Schilde mit Netherit verstärken, um eine zusätzliche Haltbarkeit zu gewährleisten."
-lore1 = "Niveau 1: Ein Banner-Gesicht Schild direkt aus Wolle, Brettern und Eisen zu erstellen."
-lore2 = "Niveau 2: Schmieden Sie einen mit Netherit verstärkten Schild mit deutlich erhöhte Haltbarkeit."
-lore = ["Niveau 1: Ein Banner-Gesicht Schild direkt aus Wolle, Brettern und Eisen zu erstellen.", "Niveau 2: Schmieden Sie einen mit Netherit verstärkten Schild mit deutlich erhöhte Haltbarkeit."]
+description = "Schaltet zwei geformte Schildrezepte frei; Stufe 2 verstärkt einen Schild auf 1.200 Haltbarkeit und bewahrt sein Bannermuster."
+lore1 = "Stufe 1: WWW / PIP / .P. (W weiße Wolle, P Eichenholzbretter, I Eisen)."
+lore2 = "Stufe 2: .N. / NSN / .N. (N Netherit, S Schild) ergibt 1.200 Haltbarkeit."
+lore = ["Stufe 1: WWW / PIP / .P. (W weiße Wolle, P Eichenholzbretter, I Eisen).", "Stufe 2: .N. / NSN / .N. (N Netherit, S Schild) ergibt 1.200 Haltbarkeit."]
 
 [blocking.interpose]
 name = "Interposen"
@@ -4064,9 +4064,9 @@ array = "Array"
 [crafting.deconstruction]
 name = "Dekonstruktion"
 description = "Zerlege Blöcke & Gegenstände in wiederverwertbare Grundkomponenten!"
-lore1 = "Wirf einen beliebigen Gegenstand auf den Boden."
+lore1 = "Wirf einen Gegenstand auf den Boden; Rüstung muss vollständig repariert sein."
 lore2 = "Dann schleiche und Rechtsklick mit einer Schere"
-lore = ["Wirf einen beliebigen Gegenstand auf den Boden.", "Dann schleiche und Rechtsklick mit einer Schere"]
+lore = ["Wirf einen Gegenstand auf den Boden; Rüstung muss vollständig repariert sein.", "Dann schleiche und Rechtsklick mit einer Schere"]
 
 [crafting.xp]
 name = "Handwerkserfahrung"
@@ -4139,14 +4139,15 @@ lore = ["Möglichkeit, einen Zutaten aus der Herstellung zu erstatten"]
 
 [crafting.masterwork]
 name = "Meisterwerk"
-description = "Werkzeuge und Rüstung, die Sie erstellen, können Bonus-Haltbarkeit mit einer Chance auf einen kleinen Attribut-Bonus auf vollem Niveau rollen."
-lore1 = "Chance, ein Meisterwerk zu erschaffen."
-lore2 = "Bonus max. Haltbarkeit"
-lore3 = "Auf voller Ebene, eine Chance auf einen kleinen Attribut-Bonus"
+description = "Jedes hergestellte Werkzeug und Rüstungsteil würfelt unabhängig eine variable Bonus-Haltbarkeit, eine Chance auf eine passende Verzauberung der Stufe I und auf der höchsten Stufe eine Chance auf einen kleinen Attributbonus."
+lore1 = "Chance, ein Meisterwerk zu erschaffen"
+lore2 = "Maximale Bonus-Haltbarkeit"
+lore3 = "Chance auf eine passende Verzauberung der Stufe I"
+lore4 = "Auf höchster Stufe: Chance auf einen kleinen Attributbonus"
 tag = "Meisterwerk"
 bonus = "Meisterwerk + {bonus}"
 attribute_tag = "Meisterwerk Rand"
-lore = ["Chance, ein Meisterwerk zu erschaffen.", "Bonus max. Haltbarkeit", "Auf voller Ebene, eine Chance auf einen kleinen Attribut-Bonus"]
+lore = ["Chance, ein Meisterwerk zu erschaffen", "Maximale Bonus-Haltbarkeit", "Chance auf eine passende Verzauberung der Stufe I", "Auf höchster Stufe: Chance auf einen kleinen Attributbonus"]
 
 [crafting.compactor]
 name = "Kompakter"
@@ -4274,15 +4275,17 @@ lore = ["globale XP-Bonus pro Qualifikationsfähigkeitsgrad", "Qualifizierungsni
 
 [discovery.relic_appraiser]
 name = "Reliktbewertungsgerät"
-description = "Schleiche und rechtsklicke seltene Beute (Köpfe, Schallplatten, Rüstungsbesätze, Keramikscherben), um sie für Entdeckungs-XP zu schätzen; geschätzte Gegenstände erhalten einen Lore-Eintrag."
+description = "Schleiche und rechtsklicke seltene Beute (Köpfe, Schallplatten, Rüstungsbesätze, Keramikscherben), um Entdeckungs-XP und XP in einer zufälligen berechtigten Fertigkeit zu erhalten; platzierte geschätzte Köpfe und Schädel behalten ihren Stempel, wenn sie abgebaut werden."
 lore1 = "Bewertung XP (gemessen an Artikel-Rarität)"
-lore = ["Bewertung XP (gemessen an Artikel-Rarität)"]
+lore2 = "XP für zufällige berechtigte Fertigkeit"
+lore = ["Bewertung XP (gemessen an Artikel-Rarität)", "XP für zufällige berechtigte Fertigkeit"]
 lore_tag = "Bewertet"
 
 [discovery.sixth_sense]
 name = "Der sechste Sinn"
-description = "Eine private leuchtende Richtung zeigt, wenn eine unerforschte Struktur im Reichweite liegt."
+description = "Ein kompaktes HUD zeigt die nächste unterstützte Struktur sowie Richtung und Entfernung an."
 lore1 = "Strukturerkennungsschnitt"
+hud = "{symbol} {structure} {direction} {distance}m"
 lore = ["Strukturerkennungsschnitt"]
 
 [discovery.keen_eye]
@@ -4354,7 +4357,7 @@ lore = ["Verzaubernde XP pro Fluch"]
 
 [enchanting.tome_rebinding]
 name = "Tom wiederherzustellen"
-description = "Ein rechtsklickiges Buch in einem Schwanz, um es in einmalige Bücher zu teilen."
+description = "Wirf ein mehrfach verzaubertes Buch ab, während du auf einen Amboss zielst, um es in Bücher mit je einer Verzauberung aufzuteilen. Auf niedrigen Stufen können Verzauberungen verloren gehen, auf der höchsten nicht."
 lore1 = "Verlierer Chance"
 lore2 = "XP-Niveau-Kosten"
 split = "Die Bücher sind getrennt"
@@ -4374,7 +4377,7 @@ lore = ["XP Spark Kosten", "Wiederverzeichnen Sie Abklingzeit"]
 
 [enchanting.arcane_siphon]
 name = "Arkanische Siphon"
-description = "Das Töten von Mobs in verzauberter Ausrüstung gewährt Bonus-XP und kann ein Buch mit deren Verzauberungen absaugen."
+description = "Das Töten von Wesen mit verzauberter Ausrüstung gewährt Bonus-XP und kann ein Buch absaugen; Spieler zählen erst auf der höchsten Stufe."
 lore1 = "Buch-Trop Chance"
 lore2 = "Ein Verblüffender Qualitätsbonus"
 lore = ["Buch-Trop Chance", "Ein Verblüffender Qualitätsbonus"]
@@ -4868,10 +4871,10 @@ lore = ["Schäden verringern"]
 
 [kinetics.surface_skate]
 name = "Oberflächengleiten"
-description = "Sprinte, um mit verringerter Reibung über den Boden zu gleiten; schleiche, um starken Halt zu bekommen."
-lore1 = "Gleiten"
-lore2 = "Halt"
-lore = ["Gleiten", "Halt"]
+description = "Sprinte, um auf jedem Untergrund zu gleiten; höhere Stufen heben mehr Bodenreibung auf, und ein Druck auf Schleichen stoppt die horizontale Bewegung sofort."
+lore1 = "Aufgehobene Bodenreibung"
+lore2 = "Schleichbremse"
+lore = ["Aufgehobene Bodenreibung", "Schleichbremse"]
 
 [kinetics.terminal_toggle]
 name = "Terminal-Auswechsel"
@@ -5451,11 +5454,12 @@ trigger_context = "{trigger} ({environment})"
 
 [seaborn.pressure_diver]
 name = "Druckdiver"
-description = "Gewinnen Sie tiefgründigen Schutz unter Wasser und unterdrücken Sie den Druck der Bergbaufmüdigkeit teilweise."
+description = "Erhalte unter Wasser Absorptionsherzen und tiefenabhängigen Schutz und wirke Abbauermüdung teilweise entgegen."
 lore1 = "Mindesttiefe"
 lore2 = "Verringerung der Tiefschäden"
 lore3 = "Die Chance, die Müdigkeit im Bergbau zu reduzieren"
-lore = ["Mindesttiefe", "Verringerung der Tiefschäden", "Die Chance, die Müdigkeit im Bergbau zu reduzieren"]
+lore4 = "Absorptionsherzen in der Tiefe"
+lore = ["Mindesttiefe", "Verringerung der Tiefschäden", "Die Chance, die Müdigkeit im Bergbau zu reduzieren", "Absorptionsherzen in der Tiefe"]
 
 [seaborn.coral_gardener]
 name = "Korallengärtner"
@@ -5940,7 +5944,7 @@ lore = ["Bonus für den Schaden", "Verringerung von Schäden durch Montage"]
 
 [taming.fetch]
 name = "Bring sie her."
-description = "Ihre geschälten Wölfe sammeln in der Nähe fallen Dinge und bringen sie direkt zu Ihnen."
+description = "Untätige gezähmte Wölfe laufen zu nahe gelegenen Drops, heben sie auf und tragen sie zu dir zurück."
 lore1 = "Die Strecke der Anbringung"
 lore2 = "Die Chance zu tragen"
 lore = ["Die Strecke der Anbringung", "Die Chance zu tragen"]

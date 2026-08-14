@@ -74,10 +74,10 @@ public final class BlockingMessages {
   public static final LinesKey SHIELDBEARERS_RESOLVE_LORE = LinesKey.of("blocking.shieldbearers_resolve.lore", "Shield Recovery Speed", "Resistance Tier");
   public static final TextKey PHALANX_CRAFTER_NAME = TextKey.of("blocking.phalanx_crafter.name", "Phalanx Crafter");
   public static final TextKey PHALANX_CRAFTER_ITEM_NAME = TextKey.of("blocking.phalanx_crafter.item_name", "Netherite-Reinforced Shield");
-  public static final TextKey PHALANX_CRAFTER_DESCRIPTION = TextKey.of("blocking.phalanx_crafter.description", "Craft banner-faced shields directly, and reinforce shields with netherite for bonus durability.");
-  public static final TextKey PHALANX_CRAFTER_LORE1 = TextKey.of("blocking.phalanx_crafter.lore1", "Level 1: craft a banner-faced shield directly from wool, planks, and iron.");
-  public static final TextKey PHALANX_CRAFTER_LORE2 = TextKey.of("blocking.phalanx_crafter.lore2", "Level 2: forge a netherite-reinforced shield with greatly increased durability.");
-  public static final LinesKey PHALANX_CRAFTER_LORE = LinesKey.of("blocking.phalanx_crafter.lore", "Level 1: craft a banner-faced shield directly from wool, planks, and iron.", "Level 2: forge a netherite-reinforced shield with greatly increased durability.");
+  public static final TextKey PHALANX_CRAFTER_DESCRIPTION = TextKey.of("blocking.phalanx_crafter.description", "Unlock two shaped shield recipes; level 2 reinforces a shield to 1,200 durability and preserves its banner face.");
+  public static final TextKey PHALANX_CRAFTER_LORE1 = TextKey.of("blocking.phalanx_crafter.lore1", "Level 1: WWW / PIP / .P. (W white wool, P oak planks, I iron).");
+  public static final TextKey PHALANX_CRAFTER_LORE2 = TextKey.of("blocking.phalanx_crafter.lore2", "Level 2: .N. / NSN / .N. (N netherite, S shield) gives 1,200 durability.");
+  public static final LinesKey PHALANX_CRAFTER_LORE = LinesKey.of("blocking.phalanx_crafter.lore", "Level 1: WWW / PIP / .P. (W white wool, P oak planks, I iron).", "Level 2: .N. / NSN / .N. (N netherite, S shield) gives 1,200 durability.");
   public static final TextKey INTERPOSE_NAME = TextKey.of("blocking.interpose.name", "Interpose");
   public static final TextKey INTERPOSE_DESCRIPTION = TextKey.of("blocking.interpose.description", "Sneak-block near a wounded ally to redirect part of the damage they take onto your shield.");
   public static final TextKey INTERPOSE_LORE1 = TextKey.of("blocking.interpose.lore1", "Damage Redirect Share");

@@ -50,7 +50,7 @@ public final class EnchantingMessages {
   public static final TextKey CURSE_CLEANSING_MESSAGE = TextKey.of("enchanting.curse_cleansing.message", "✓ {count} Curses Cleansed");
   public static final LinesKey CURSE_CLEANSING_LORE = LinesKey.of("enchanting.curse_cleansing.lore", "Enchanting XP per Curse");
   public static final TextKey TOME_REBINDING_NAME = TextKey.of("enchanting.tome_rebinding.name", "Tome Rebinding");
-  public static final TextKey TOME_REBINDING_DESCRIPTION = TextKey.of("enchanting.tome_rebinding.description", "Sneak-right-click a multi-enchant book in an anvil to split it into single-enchant books. Lossy at low levels, lossless at max.");
+  public static final TextKey TOME_REBINDING_DESCRIPTION = TextKey.of("enchanting.tome_rebinding.description", "Drop one multi-enchant book while aiming at an anvil to divide it into single-enchant books. Lossy at low levels, lossless at max.");
   public static final TextKey TOME_REBINDING_LORE1 = TextKey.of("enchanting.tome_rebinding.lore1", "Enchant Loss Chance");
   public static final TextKey TOME_REBINDING_LORE2 = TextKey.of("enchanting.tome_rebinding.lore2", "XP Level Cost");
   public static final TextKey TOME_REBINDING_SPLIT = TextKey.of("enchanting.tome_rebinding.split", "Books Split Off");
@@ -66,7 +66,7 @@ public final class EnchantingMessages {
   public static final TextKey SOUL_LINK_COOLING_MESSAGE = TextKey.of("enchanting.soul_link.cooling_message", "Soul Link recharging: {duration}");
   public static final LinesKey SOUL_LINK_LORE = LinesKey.of("enchanting.soul_link.lore", "XP Save Cost", "Re-Mark Cooldown");
   public static final TextKey ARCANE_SIPHON_NAME = TextKey.of("enchanting.arcane_siphon.name", "Arcane Siphon");
-  public static final TextKey ARCANE_SIPHON_DESCRIPTION = TextKey.of("enchanting.arcane_siphon.description", "Killing mobs in enchanted gear grants bonus XP and can siphon a book of their enchantments.");
+  public static final TextKey ARCANE_SIPHON_DESCRIPTION = TextKey.of("enchanting.arcane_siphon.description", "Killing equipped enchanted entities grants bonus XP and can siphon a book; players qualify at maximum level.");
   public static final TextKey ARCANE_SIPHON_LORE1 = TextKey.of("enchanting.arcane_siphon.lore1", "Book Drop Chance");
   public static final TextKey ARCANE_SIPHON_LORE2 = TextKey.of("enchanting.arcane_siphon.lore2", "Enchant Quality Bonus");
   public static final LinesKey ARCANE_SIPHON_LORE = LinesKey.of("enchanting.arcane_siphon.lore", "Book Drop Chance", "Enchant Quality Bonus");

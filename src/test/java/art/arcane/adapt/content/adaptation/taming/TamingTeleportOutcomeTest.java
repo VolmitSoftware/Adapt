@@ -43,33 +43,25 @@ class TamingTeleportOutcomeTest {
   }
 
   @Test
-  void fetchCreditsOnlyConfirmedTeleportSuccess() {
-    assertThat(TamingFetch.successfulFetchTeleport(true, null)).isTrue();
-    assertThat(TamingFetch.successfulFetchTeleport(false, null)).isFalse();
-    assertThat(TamingFetch.successfulFetchTeleport(null, null)).isFalse();
-    assertThat(TamingFetch.successfulFetchTeleport(true, new IllegalStateException())).isFalse();
-  }
-
-  @Test
-  void fetchDefersDeliveryEffectsAndRewardsUntilCompletion() throws Exception {
+  void fetchRequiresTheWolfToCarryAndDropTheItemWithoutTeleportingIt() throws Exception {
     String source = Files.readString(FETCH_SOURCE);
-    int teleport = source.indexOf("PaperCompat.teleportAsync(item, to)");
-    int completion = source.indexOf("private void completeFetchTeleport");
-    int outcome = source.indexOf("successfulFetchTeleport(success, failure)", completion);
-    int finish = source.indexOf("private void finishFetchTeleportOwned", outcome);
-    int pickup = source.indexOf("item.setPickupDelay(0)", finish);
-    int effect = source.indexOf("fx(from, FxPriority.TRAIL)", pickup);
-    int reward = source.indexOf("addStat(owner", effect);
+    int pickup = source.indexOf("private void pickUpItemOwned");
+    int removal = source.indexOf("item.remove()", pickup);
+    int returnPath = source.indexOf("private void steerWolfHomeOwned", removal);
+    int delivery = source.indexOf("private void releaseCarriedOwned", returnPath);
+    int dropped = source.indexOf("wolf.getWorld().dropItem(from, carried)", delivery);
+    int reward = source.indexOf("creditFetch(job.owner)", dropped);
 
-    assertThat(teleport).isGreaterThanOrEqualTo(0);
-    assertThat(completion).isGreaterThan(teleport);
-    assertThat(outcome).isGreaterThan(completion);
-    assertThat(finish).isGreaterThan(outcome);
-    assertThat(pickup).isGreaterThan(finish);
-    assertThat(effect).isGreaterThan(pickup);
-    assertThat(reward).isGreaterThan(effect);
+    assertThat(pickup).isGreaterThanOrEqualTo(0);
+    assertThat(removal).isGreaterThan(pickup);
+    assertThat(returnPath).isGreaterThan(removal);
+    assertThat(delivery).isGreaterThan(returnPath);
+    assertThat(dropped).isGreaterThan(delivery);
+    assertThat(reward).isGreaterThan(dropped);
     assertThat(source)
-        .doesNotContain("J.teleport(item, to)")
+        .doesNotContain("teleportAsync(item")
+        .doesNotContain("fallBackToTeleport")
+        .doesNotContain("deliverItem(")
         .doesNotContain(".stream().toList()");
   }
 }

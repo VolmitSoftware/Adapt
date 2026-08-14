@@ -12,7 +12,6 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -26,7 +25,6 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
   private static final double MIN_HORIZONTAL_SPEED_SQUARED = 1.0E-6D;
   private static final long RECONCILE_INTERVAL_MS = 1000L;
   private static final String SLOT_SLIDE = "slide";
-  private static final String SLOT_GRIP = "grip";
 
   public KineticsSurfaceSkate() {
     super("kinetics-surface-skate");
@@ -37,8 +35,8 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
 
   @Override
   public void addStats(int level, Element v) {
-    statLore(v, Form.pc(getSlideFriction(level), 0), 1);
-    statLore(v, Form.pc(getGripFriction(level), 0), 2);
+    statLore(v, Form.pc(getSlidePercent(level), 0), 1);
+    statLore(v, Form.pc(getSneakBrakePercent(), 0), 2);
   }
 
   @Override
@@ -69,45 +67,43 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
 
     withAdaptedPlayer(p, e, () -> {
       int level = getActiveLevel(p);
-      if (level <= 0) {
+      if (!shouldSlide(e.isSprinting(), p.isSneaking(), level)) {
         return;
       }
 
-      attributes.apply(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER, -getSlideFriction(level), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+      attributes.apply(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER, nativeSlideModifier(getSlidePercent(level)), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
     });
   }
 
-  @EventHandler(ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    if (Attributes.FRICTION_MODIFIER == null) {
-      return;
-    }
-
-    AdaptAttributeService attributes = AdaptAttributeService.get();
     if (!e.isSneaking()) {
-      attributes.remove(p, getName(), SLOT_GRIP, Attributes.FRICTION_MODIFIER);
       return;
     }
 
+    AdaptAttributeService.get().removeAll(p, getName());
     withAdaptedPlayer(p, e, () -> {
       int level = getActiveLevel(p);
-      if (level <= 0) {
+      if (level <= 0 || !p.isOnGround()) {
         return;
       }
 
-      attributes.apply(p, getName(), SLOT_GRIP, Attributes.FRICTION_MODIFIER, getGripFriction(level), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+      Vector velocity = p.getVelocity();
+      if (applyHorizontalBrake(velocity, getSneakBrakePercent())) {
+        p.setVelocity(velocity);
+      }
     });
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
     if (Attributes.FRICTION_MODIFIER != null || e.getTo() == null || e instanceof PlayerTeleportEvent) {
       return;
     }
 
     Player p = e.getPlayer();
-    if (!((Entity) p).isOnGround()) {
+    if (!p.isOnGround()) {
       return;
     }
 
@@ -116,9 +112,7 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
       return;
     }
 
-    double frictionDelta = frictionDelta(
-        p.isSprinting(), p.isSneaking(), getSlideFriction(level), getGripFriction(level));
-    if (frictionDelta == 0D) {
+    if (!shouldSlide(p.isSprinting(), p.isSneaking(), level)) {
       return;
     }
 
@@ -130,53 +124,40 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
         to.getZ() - e.getFrom().getZ(),
         to.getWorld().getBlockAt(to.getBlockX(), (int) Math.floor(to.getY() - 0.500001D), to.getBlockZ())
             .getType().getSlipperiness(),
-        frictionDelta)) {
+        getSlidePercent(level))) {
       return;
     }
 
     p.setVelocity(velocity);
   }
 
-  static double slideFriction(double base, double factor, double levelPercent) {
-    double value = base + (levelPercent * factor);
-    if (Double.isNaN(value)) {
+  static double slidePercent(double base, double factor, double levelPercent) {
+    double normalizedLevel = finitePercent(levelPercent);
+    return finitePercent(base + (normalizedLevel * factor));
+  }
+
+  static double nativeSlideModifier(double slidePercent) {
+    return -finitePercent(slidePercent);
+  }
+
+  static boolean shouldSlide(boolean sprinting, boolean sneaking, int level) {
+    return sprinting && !sneaking && level > 0;
+  }
+
+  static double modifiedSurfaceFriction(double blockSlipperiness, double slidePercent) {
+    if (!Double.isFinite(blockSlipperiness)) {
       return 0D;
     }
-    return Math.max(0D, value);
-  }
-
-  static double gripFriction(double base, double factor, double levelPercent) {
-    double value = base + (levelPercent * factor);
-    if (Double.isNaN(value)) {
-      return 0D;
-    }
-    return Math.max(0D, value);
-  }
-
-  static boolean shouldSlide(boolean sprinting, int level) {
-    return sprinting && level > 0;
-  }
-
-  static boolean shouldGrip(boolean sneaking, int level) {
-    return sneaking && level > 0;
-  }
-
-  static double frictionDelta(boolean sprinting, boolean sneaking, double slideReduction, double gripIncrease) {
-    double delta = 0D;
-    if (sprinting && Double.isFinite(slideReduction)) {
-      delta -= Math.max(0D, slideReduction);
-    }
-    if (sneaking && Double.isFinite(gripIncrease)) {
-      delta += Math.max(0D, gripIncrease);
-    }
-    return delta;
+    double surfaceFriction = finitePercent(blockSlipperiness);
+    double cancelledFriction = finitePercent(slidePercent);
+    return surfaceFriction + ((1D - surfaceFriction) * cancelledFriction);
   }
 
   static double fallbackVelocityScale(double velocityX, double velocityZ, double movementX, double movementZ,
-      double blockSlipperiness, double frictionDelta) {
+      double blockSlipperiness, double slidePercent) {
     if (!Double.isFinite(velocityX) || !Double.isFinite(velocityZ)
         || !Double.isFinite(movementX) || !Double.isFinite(movementZ)
-        || !Double.isFinite(blockSlipperiness) || !Double.isFinite(frictionDelta)) {
+        || !Double.isFinite(blockSlipperiness) || !Double.isFinite(slidePercent)) {
       return 1D;
     }
 
@@ -186,12 +167,8 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
     }
 
     double baseFriction = Math.min(1D, Math.max(1.0E-6D, blockSlipperiness));
-    double modifier = Math.max(0D, 1D + frictionDelta);
-    double modifiedFriction = Math.min(1D, Math.max(0D, 1D - ((1D - baseFriction) * modifier)));
+    double modifiedFriction = modifiedSurfaceFriction(baseFriction, slidePercent);
     double scale = modifiedFriction / baseFriction;
-    if (scale <= 1D) {
-      return Math.max(0D, scale);
-    }
 
     double velocity = Math.sqrt(velocitySquared);
     double movement = Math.sqrt((movementX * movementX) + (movementZ * movementZ));
@@ -200,7 +177,7 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
   }
 
   static boolean applyFallbackHorizontalVelocity(Vector velocity, double movementX, double movementZ,
-      double blockSlipperiness, double frictionDelta) {
+      double blockSlipperiness, double slidePercent) {
     if (velocity == null
         || !Double.isFinite(velocity.getX()) || !Double.isFinite(velocity.getY()) || !Double.isFinite(velocity.getZ())
         || !Double.isFinite(movementX) || !Double.isFinite(movementZ)) {
@@ -216,7 +193,7 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
     double baseX = velocitySquared <= MIN_HORIZONTAL_SPEED_SQUARED ? movementX : velocity.getX();
     double baseZ = velocitySquared <= MIN_HORIZONTAL_SPEED_SQUARED ? movementZ : velocity.getZ();
     double scale = fallbackVelocityScale(
-        baseX, baseZ, movementX, movementZ, blockSlipperiness, frictionDelta);
+        baseX, baseZ, movementX, movementZ, blockSlipperiness, slidePercent);
     double adjustedX = baseX * scale;
     double adjustedZ = baseZ * scale;
     if (!Double.isFinite(adjustedX) || !Double.isFinite(adjustedZ)
@@ -228,6 +205,28 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
     velocity.setX(adjustedX);
     velocity.setZ(adjustedZ);
     return true;
+  }
+
+  static boolean applyHorizontalBrake(Vector velocity, double brakePercent) {
+    if (velocity == null
+        || !Double.isFinite(velocity.getX()) || !Double.isFinite(velocity.getY()) || !Double.isFinite(velocity.getZ())) {
+      return false;
+    }
+
+    double horizontalSpeedSquared = (velocity.getX() * velocity.getX()) + (velocity.getZ() * velocity.getZ());
+    double normalizedBrake = finitePercent(brakePercent);
+    if (horizontalSpeedSquared <= MIN_HORIZONTAL_SPEED_SQUARED || normalizedBrake <= 0D) {
+      return false;
+    }
+
+    double retained = 1D - normalizedBrake;
+    velocity.setX(velocity.getX() * retained);
+    velocity.setZ(velocity.getZ() * retained);
+    return true;
+  }
+
+  static double finitePercent(double value) {
+    return Double.isFinite(value) ? Math.min(1D, Math.max(0D, value)) : 0D;
   }
 
   private void reconcile(Player p) {
@@ -242,37 +241,44 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
       return;
     }
 
-    if (shouldSlide(p.isSprinting(), level)) {
-      attributes.apply(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER, -getSlideFriction(level), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+    if (shouldSlide(p.isSprinting(), p.isSneaking(), level)) {
+      attributes.apply(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER, nativeSlideModifier(getSlidePercent(level)), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
     } else {
       attributes.remove(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER);
     }
-
-    if (shouldGrip(p.isSneaking(), level)) {
-      attributes.apply(p, getName(), SLOT_GRIP, Attributes.FRICTION_MODIFIER, getGripFriction(level), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
-    } else {
-      attributes.remove(p, getName(), SLOT_GRIP, Attributes.FRICTION_MODIFIER);
-    }
   }
 
-  private double getSlideFriction(int level) {
-    return slideFriction(getConfig().slideFrictionBase, getConfig().slideFrictionFactor, getLevelPercent(level));
+  private double getSlidePercent(int level) {
+    return slidePercent(getConfig().slidePercentBase, getConfig().slidePercentFactor, getLevelPercent(level));
   }
 
-  private double getGripFriction(int level) {
-    return gripFriction(getConfig().gripFrictionBase, getConfig().gripFrictionFactor, getLevelPercent(level));
+  private double getSneakBrakePercent() {
+    return finitePercent(getConfig().sneakBrakePercent);
   }
 
-  @ConfigDescription("Sprint to slide across the ground with lowered friction; sneak to grip hard.")
+  @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    loadedConfig.slidePercentBase = finitePercent(loadedConfig.slidePercentBase);
+    loadedConfig.slidePercentFactor = Math.min(
+        finitePercent(loadedConfig.slidePercentFactor),
+        1D - loadedConfig.slidePercentBase
+    );
+    loadedConfig.sneakBrakePercent = finitePercent(loadedConfig.sneakBrakePercent);
+  }
+
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
+  }
+
+  @ConfigDescription("Sprint to cancel a level-scaled percentage of friction on every ground surface; press sneak to brake horizontally.")
   protected static class Config extends AdaptationConfig {
-    @ConfigDoc(value = "Base fraction of ground friction removed while sprinting before level scaling.", impact = "Higher values make sprint-sliding slicker at every level.")
-    double slideFrictionBase = 0.15;
-    @ConfigDoc(value = "Additional friction reduction granted at max level while sprinting.", impact = "Higher values widen the slickness gain from leveling.")
-    double slideFrictionFactor = 0.35;
-    @ConfigDoc(value = "Base fraction of extra ground friction applied while sneaking before level scaling.", impact = "Higher values make sneak-gripping stickier at every level.")
-    double gripFrictionBase = 0.2;
-    @ConfigDoc(value = "Additional friction increase granted at max level while sneaking.", impact = "Higher values widen the grip gain from leveling.")
-    double gripFrictionFactor = 0.4;
+    @ConfigDoc(value = "Base percentage of each ground surface's friction loss cancelled while sprinting before level scaling, from 0 to 1.", impact = "Higher values preserve more horizontal momentum on every ground material at every level.")
+    double slidePercentBase = 0.15;
+    @ConfigDoc(value = "Additional ground-friction percentage cancelled at max level, from 0 to 1 minus slidePercentBase.", impact = "Higher values make leveling add a stronger slide without exceeding complete friction cancellation.")
+    double slidePercentFactor = 0.35;
+    @ConfigDoc(value = "Percentage of horizontal velocity removed immediately when sneak is pressed while grounded, from 0 to 1.", impact = "The default 1 stops horizontal movement completely; lower values leave some momentum after braking.")
+    double sneakBrakePercent = 1D;
 
     public Config() {
       baseCost = 4;

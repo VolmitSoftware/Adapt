@@ -134,7 +134,7 @@ public class BlockingPhalanxCrafter extends SimpleAdaptation<BlockingPhalanxCraf
   }
 
   static boolean hasVisibleShieldDesign(DyeColor baseColor, int patternCount) {
-    return patternCount > 0 || (baseColor != null && baseColor != DyeColor.WHITE);
+    return patternCount > 0 || baseColor != null;
   }
 
   static ItemStack findShield(ItemStack[] matrix) {
@@ -212,7 +212,7 @@ public class BlockingPhalanxCrafter extends SimpleAdaptation<BlockingPhalanxCraf
   }
 
 
-  @ConfigDescription("Craft banner-faced shields directly, and reinforce shields with netherite for bonus durability.")
+  @ConfigDescription("Unlock a wool-plank field shield recipe, then reinforce a shield with four netherite ingots for 1,200 durability and a preserved or default banner face.")
   protected static class Config extends AdaptationConfig {
     public Config() {
       baseCost = 3;

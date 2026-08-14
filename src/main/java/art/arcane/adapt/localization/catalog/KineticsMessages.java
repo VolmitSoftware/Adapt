@@ -22,10 +22,10 @@ public final class KineticsMessages {
   public static final TextKey SOFT_CATCH_LORE1 = TextKey.of("kinetics.soft_catch.lore1", "Damage Reduction");
   public static final LinesKey SOFT_CATCH_LORE = LinesKey.of("kinetics.soft_catch.lore", "Damage Reduction");
   public static final TextKey SURFACE_SKATE_NAME = TextKey.of("kinetics.surface_skate.name", "Surface Skate");
-  public static final TextKey SURFACE_SKATE_DESCRIPTION = TextKey.of("kinetics.surface_skate.description", "Sprint to slide across the ground with lowered friction; sneak to grip hard.");
-  public static final TextKey SURFACE_SKATE_LORE1 = TextKey.of("kinetics.surface_skate.lore1", "Slide");
-  public static final TextKey SURFACE_SKATE_LORE2 = TextKey.of("kinetics.surface_skate.lore2", "Grip");
-  public static final LinesKey SURFACE_SKATE_LORE = LinesKey.of("kinetics.surface_skate.lore", "Slide", "Grip");
+  public static final TextKey SURFACE_SKATE_DESCRIPTION = TextKey.of("kinetics.surface_skate.description", "Sprint to slide on every ground surface; levels cancel more friction, and pressing sneak stops horizontal motion immediately.");
+  public static final TextKey SURFACE_SKATE_LORE1 = TextKey.of("kinetics.surface_skate.lore1", "Ground Friction Cancelled");
+  public static final TextKey SURFACE_SKATE_LORE2 = TextKey.of("kinetics.surface_skate.lore2", "Sneak Brake");
+  public static final LinesKey SURFACE_SKATE_LORE = LinesKey.of("kinetics.surface_skate.lore", "Ground Friction Cancelled", "Sneak Brake");
   public static final TextKey TERMINAL_TOGGLE_NAME = TextKey.of("kinetics.terminal_toggle.name", "Terminal Toggle");
   public static final TextKey TERMINAL_TOGGLE_DESCRIPTION = TextKey.of("kinetics.terminal_toggle.description", "Sneak in midair to switch between a hard dive and a drifting hang.");
   public static final TextKey TERMINAL_TOGGLE_LORE1 = TextKey.of("kinetics.terminal_toggle.lore1", "Drag Shift");

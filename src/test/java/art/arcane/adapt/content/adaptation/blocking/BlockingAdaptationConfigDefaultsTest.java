@@ -92,7 +92,7 @@ class BlockingAdaptationConfigDefaultsTest {
 
   @Test
   void phalanxCrafterIdentifiesPlainAndCustomShieldFaces() {
-    assertThat(BlockingPhalanxCrafter.hasVisibleShieldDesign(DyeColor.WHITE, 0)).isFalse();
+    assertThat(BlockingPhalanxCrafter.hasVisibleShieldDesign(DyeColor.WHITE, 0)).isTrue();
     assertThat(BlockingPhalanxCrafter.hasVisibleShieldDesign(DyeColor.BLACK, 0)).isTrue();
     assertThat(BlockingPhalanxCrafter.hasVisibleShieldDesign(DyeColor.WHITE, 1)).isTrue();
     assertThat(BlockingPhalanxCrafter.hasVisibleShieldDesign(null, 0)).isFalse();
