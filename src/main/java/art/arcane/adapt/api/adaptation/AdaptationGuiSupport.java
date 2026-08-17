@@ -304,7 +304,7 @@ final class AdaptationGuiSupport {
                     AdaptHud.guiTitle(player, " ", C.GRAY + AdaptLanguage.text(
                         SnippetsMessages.ADAPT_MENU_UNLEARNED_TITLE,
                         trusted("adaptation", adaptation.getDisplayName(currentLevel))
-                    ), 1, 10, 11);
+                    ));
                   }
                   closeAndReopenAfterLevelChange(adaptation, player, currentPage, delayTicks);
                   return;
@@ -315,7 +315,7 @@ final class AdaptationGuiSupport {
                   AdaptHud.guiTitle(player, " ", C.RED + "" + C.BOLD + AdaptLanguage.text(
                       SnippetsMessages.ADAPT_MENU_MAY_NOT_UNLEARN_TITLE,
                       trusted("adaptation", adaptation.getDisplayName(currentLevel))
-                  ), 1, 10, 11);
+                  ));
                 }
                 J.runEntity(player, () -> openAdaptationPage(adaptation, player, currentPage), delayTicks);
                 return;
@@ -326,7 +326,7 @@ final class AdaptationGuiSupport {
               if (debugLearningClick || (currentKnowledge >= c && adaptPlayer.getData().hasPowerAvailable(pc))) {
                 if (adaptation.isPermanent() && !debugLearningClick && !consumePermanentLearnConfirmation(player, adaptation, lvl)) {
                   spw.play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.85f);
-                  AdaptHud.guiTitle(player, " ", C.GOLD + "" + C.BOLD + AdaptLanguage.text(GuiMessages.PERMANENT_LEARN_CONFIRM), 1, 16, 8);
+                  AdaptHud.guiTitle(player, " ", C.GOLD + "" + C.BOLD + AdaptLanguage.text(GuiMessages.PERMANENT_LEARN_CONFIRM));
                   J.runEntity(player, () -> openAdaptationPage(adaptation, player, currentPage), 1);
                   return;
                 }
@@ -347,7 +347,7 @@ final class AdaptationGuiSupport {
                     AdaptHud.guiTitle(player, " ", C.GRAY + AdaptLanguage.text(
                         SnippetsMessages.ADAPT_MENU_LEARNED_TITLE,
                         trusted("adaptation", adaptation.getDisplayName(lvl))
-                    ), 1, 5, 11);
+                    ));
                   }
                   closeAndReopenAfterLevelChange(adaptation, player, currentPage, delayTicks);
                 } else {

@@ -100,6 +100,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
   private final Cooldowns pulseThrottle = cooldowns();
   private final Map<UUID, Integer> typeCursors = playerState();
   private final Map<UUID, StructureTarget> targets = playerState();
+  private final Map<UUID, Float> expPins = playerState();
 
   public DiscoverySixthSense() {
     super("discovery-sixth-sense");
@@ -295,6 +296,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
         trusted("distance", C.GRAY + String.valueOf(Math.round(distance)))
     );
     AdaptHud.ambientStatus(player, HUD_GROUP, message);
+    pinExpBar(player, distance, range);
 
     if (newlyLocated) {
       pulseTowards(player, dx / distance, dz / distance, distance);
@@ -315,7 +317,26 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
   private void clearTarget(Player player) {
     targets.remove(player.getUniqueId());
     AdaptHud.clearAmbientStatus(player, HUD_GROUP);
+    restoreExpBar(player);
     ViewerDisplayDirector.clearViewer(getName(), player.getUniqueId());
+  }
+
+  private void pinExpBar(Player player, double distance, double range) {
+    if (range <= 0.0D) {
+      return;
+    }
+    float progress = (float) Math.min(1.0D, Math.max(0.0D, 1.0D - (distance / range)));
+    float rounded = Math.round(progress * 100F) / 100F;
+    Float last = expPins.put(player.getUniqueId(), rounded);
+    if (last == null || last != rounded) {
+      player.sendExperienceChange(rounded, player.getLevel());
+    }
+  }
+
+  private void restoreExpBar(Player player) {
+    if (expPins.remove(player.getUniqueId()) != null) {
+      player.sendExperienceChange(player.getExp(), player.getLevel());
+    }
   }
 
   private void pulseTowards(Player player, double ux, double uz, double horizontal) {
@@ -370,7 +391,10 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     for (UUID playerId : List.copyOf(targets.keySet())) {
       Player player = Bukkit.getPlayer(playerId);
       if (player != null) {
-        J.runEntity(player, () -> AdaptHud.clearAmbientStatus(player, HUD_GROUP));
+        J.runEntity(player, () -> {
+          AdaptHud.clearAmbientStatus(player, HUD_GROUP);
+          restoreExpBar(player);
+        });
       }
     }
     typeCursors.clear();

@@ -1,222 +1,152 @@
 package art.arcane.adapt.api.notification;
 
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.volmlib.util.hud.HudBid;
+import art.arcane.volmlib.util.hud.HudActionBar;
 import art.arcane.volmlib.util.hud.HudPriority;
-import art.arcane.volmlib.util.hud.HudSurface;
-import art.arcane.volmlib.util.scheduling.FoliaScheduler;
-import org.bukkit.Bukkit;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
-import org.bukkit.boss.BossBar;
+import art.arcane.volmlib.util.hud.HudSegmentCodec;
+import art.arcane.volmlib.util.hud.HudSlot;
+import art.arcane.volmlib.util.hud.HudStampedSegment;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.plugin.Plugin;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.same;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class AdaptHudTest extends AdaptTestBase {
-  @Test
-  void clearingAmbientStatusImmediatelyRemovesItsFallbackLaneAndClaim() {
-    Player player = mock(Player.class);
+  private final Map<Plugin, String> store = new LinkedHashMap<>();
+  private Player player;
+  private Player.Spigot spigot;
+
+  @BeforeEach
+  void startHud() {
+    lenient().when(plugin.getName()).thenReturn("Adapt");
+    player = mock(Player.class);
     when(player.getUniqueId()).thenReturn(UUID.randomUUID());
-    Plugin foreignPlugin = mock(Plugin.class);
-    when(foreignPlugin.getName()).thenReturn("React");
-    MetadataValue foreignBid = mock(MetadataValue.class);
-    when(foreignBid.getOwningPlugin()).thenReturn(foreignPlugin);
-    long now = System.currentTimeMillis();
-    when(foreignBid.asString()).thenReturn(new HudBid(
-        HudPriority.PROGRESS,
-        now - 1_000L,
-        now,
-        5_000L,
-        "react:monitor"
-    ).encode());
-    when(player.getMetadata(HudSurface.ACTION_BAR.metadataKey())).thenReturn(List.of(foreignBid));
-    BossBar bossBar = mock(BossBar.class);
+    spigot = mock(Player.Spigot.class);
+    lenient().when(player.spigot()).thenReturn(spigot);
+    doAnswer(invocation -> {
+      MetadataValue value = invocation.getArgument(1);
+      store.put(value.getOwningPlugin(), value.asString());
+      return null;
+    }).when(player).setMetadata(eq(HudActionBar.METADATA_KEY), any(MetadataValue.class));
+    lenient().doAnswer(invocation -> {
+      store.remove((Plugin) invocation.getArgument(1));
+      return null;
+    }).when(player).removeMetadata(eq(HudActionBar.METADATA_KEY), any(Plugin.class));
+    when(player.getMetadata(HudActionBar.METADATA_KEY)).thenAnswer(invocation -> {
+      List<MetadataValue> values = new ArrayList<>();
+      store.forEach((owner, encoded) -> values.add(new FixedMetadataValue(owner, encoded)));
+      return values;
+    });
+    AdaptHud.start(plugin);
+  }
 
-    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class);
-         MockedStatic<FoliaScheduler> scheduling = mockStatic(FoliaScheduler.class)) {
-      bukkit.when(() -> Bukkit.createBossBar(anyString(), eq(BarColor.WHITE), eq(BarStyle.SOLID)))
-          .thenReturn(bossBar);
-      scheduling.when(() -> FoliaScheduler.runEntity(
-          same(plugin),
-          same(player),
-          any(Runnable.class),
-          anyLong()
-      )).thenReturn(true);
-      AdaptHud.start(plugin);
-      try {
-        AdaptHud.ambientStatus(player, "sixth-sense", "Village E 120m");
-        verify(bossBar).addPlayer(player);
+  @AfterEach
+  void stopHud() {
+    AdaptHud.stop();
+    store.clear();
+  }
 
-        AdaptHud.clearAmbientStatus(player, "sixth-sense");
+  private String lastSentPlainText() {
+    ArgumentCaptor<BaseComponent[]> sent = ArgumentCaptor.forClass(BaseComponent[].class);
+    verify(spigot, atLeastOnce()).sendMessage(eq(ChatMessageType.ACTION_BAR), sent.capture());
+    return BaseComponent.toPlainText(sent.getValue());
+  }
 
-        verify(bossBar).removeAll();
-        verify(player).removeMetadata(HudSurface.ACTION_BAR.metadataKey(), plugin);
-      } finally {
-        AdaptHud.stop();
-      }
-    }
+  private HudStampedSegment postedSegment(String purpose) {
+    List<HudStampedSegment> posted = HudSegmentCodec.decode(store.get(plugin));
+    return posted.stream().filter(segment -> segment.purpose().equals(purpose)).findFirst().orElse(null);
   }
 
   @Test
-  void clearingExpiredXpRemovesItsFallbackBossBarAndClaim() {
-    Player player = mock(Player.class);
-    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
-    Plugin foreignPlugin = mock(Plugin.class);
-    when(foreignPlugin.getName()).thenReturn("React");
-    MetadataValue foreignBid = mock(MetadataValue.class);
-    when(foreignBid.getOwningPlugin()).thenReturn(foreignPlugin);
-    long now = System.currentTimeMillis();
-    when(foreignBid.asString()).thenReturn(new HudBid(
-        HudPriority.PROGRESS,
-        now - 1_000L,
-        now,
-        5_000L,
-        "react:monitor"
-    ).encode());
-    when(player.getMetadata(HudSurface.ACTION_BAR.metadataKey())).thenReturn(List.of(foreignBid));
-    BossBar bossBar = mock(BossBar.class);
+  void ambientStatusPublishesCenterLeftStatusSegmentAndClearRemovesIt() {
+    AdaptHud.ambientStatus(player, "sixth-sense", "Village E 120m");
 
-    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class);
-         MockedStatic<FoliaScheduler> scheduling = mockStatic(FoliaScheduler.class)) {
-      bukkit.when(() -> Bukkit.createBossBar(anyString(), eq(BarColor.GREEN), eq(BarStyle.SOLID)))
-          .thenReturn(bossBar);
-      scheduling.when(() -> FoliaScheduler.runEntity(
-          same(plugin),
-          same(player),
-          any(Runnable.class),
-          anyLong()
-      )).thenReturn(true);
-      AdaptHud.start(plugin);
-      try {
-        AdaptHud.xpTicker(player, "Discovery +5XP");
-        verify(bossBar).addPlayer(player);
+    HudStampedSegment segment = postedSegment("adapt:status:sixth-sense");
+    assertThat(segment).isNotNull();
+    assertThat(segment.priority()).isEqualTo(HudPriority.STATUS);
+    assertThat(segment.slots()).containsExactly(HudSlot.CENTER, HudSlot.LEFT);
+    assertThat(lastSentPlainText()).isEqualTo("Village E 120m");
 
-        AdaptHud.clearXp(player);
+    AdaptHud.clearAmbientStatus(player, "sixth-sense");
 
-        verify(bossBar).removeAll();
-        verify(player).removeMetadata(HudSurface.ACTION_BAR.metadataKey(), plugin);
-      } finally {
-        AdaptHud.stop();
-      }
-    }
+    assertThat(store).doesNotContainKey(plugin);
+    assertThat(lastSentPlainText()).isEqualTo(" ");
   }
 
   @Test
-  void refreshedFallbackLaneExpiresWithoutSchedulingPerUpdate() {
-    Player player = mock(Player.class);
-    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
-    Plugin foreignPlugin = mock(Plugin.class);
-    when(foreignPlugin.getName()).thenReturn("React");
-    MetadataValue foreignBid = mock(MetadataValue.class);
-    when(foreignBid.getOwningPlugin()).thenReturn(foreignPlugin);
-    long bidTime = System.currentTimeMillis();
-    when(foreignBid.asString()).thenReturn(new HudBid(
-        HudPriority.PROGRESS,
-        bidTime - 1_000L,
-        bidTime,
-        5_000L,
-        "react:monitor"
-    ).encode());
-    when(player.getMetadata(HudSurface.ACTION_BAR.metadataKey())).thenReturn(List.of(foreignBid));
-    BossBar bossBar = mock(BossBar.class);
-    AtomicLong nowNanos = new AtomicLong(1_000_000_000L);
-    List<Runnable> expiryTasks = new ArrayList<>();
+  void xpTickerPublishesLeftSegmentAndClearXpRemovesIt() {
+    AdaptHud.xpTicker(player, "Discovery +5XP");
 
-    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class);
-         MockedStatic<FoliaScheduler> scheduling = mockStatic(FoliaScheduler.class)) {
-      bukkit.when(() -> Bukkit.createBossBar(anyString(), eq(BarColor.WHITE), eq(BarStyle.SOLID)))
-          .thenReturn(bossBar);
-      scheduling.when(() -> FoliaScheduler.runEntity(
-          same(plugin),
-          same(player),
-          any(Runnable.class),
-          anyLong()
-      ))
-          .thenAnswer(invocation -> {
-            expiryTasks.add(invocation.getArgument(2));
-            return true;
-          });
-      AdaptHud.start(plugin, nowNanos::get);
-      try {
-        AdaptHud.actionBar(player, "First notice");
-        nowNanos.addAndGet(TimeUnit.SECONDS.toNanos(2L));
-        AdaptHud.actionBar(player, "Refreshed notice");
+    HudStampedSegment segment = postedSegment("adapt:xp");
+    assertThat(segment).isNotNull();
+    assertThat(segment.priority()).isEqualTo(HudPriority.AMBIENT);
+    assertThat(segment.slots()).containsExactly(HudSlot.LEFT);
+    assertThat(lastSentPlainText()).isEqualTo("Discovery +5XP");
 
-        assertThat(expiryTasks).hasSize(1);
-        expiryTasks.get(0).run();
-        verify(bossBar, never()).removeAll();
-        assertThat(expiryTasks).hasSize(2);
+    AdaptHud.clearXp(player);
 
-        nowNanos.addAndGet(TimeUnit.MILLISECONDS.toNanos(2_501L));
-        expiryTasks.get(1).run();
-
-        verify(bossBar).removeAll();
-      } finally {
-        AdaptHud.stop();
-      }
-    }
+    assertThat(store).doesNotContainKey(plugin);
   }
 
   @Test
-  void failedExpirySchedulingNeverLeavesFallbackVisible() {
-    Player player = mock(Player.class);
-    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
-    Plugin foreignPlugin = mock(Plugin.class);
-    when(foreignPlugin.getName()).thenReturn("React");
-    MetadataValue foreignBid = mock(MetadataValue.class);
-    when(foreignBid.getOwningPlugin()).thenReturn(foreignPlugin);
+  void noticeMergesAroundForeignPinnedMonitorSegment() {
+    Plugin react = mock(Plugin.class);
+    lenient().when(react.getName()).thenReturn("React");
     long now = System.currentTimeMillis();
-    when(foreignBid.asString()).thenReturn(new HudBid(
-        HudPriority.PROGRESS,
-        now - 1_000L,
-        now,
-        5_000L,
-        "react:monitor"
-    ).encode());
-    when(player.getMetadata(HudSurface.ACTION_BAR.metadataKey())).thenReturn(List.of(foreignBid));
-    BossBar bossBar = mock(BossBar.class);
+    store.put(react, HudSegmentCodec.encode(List.of(new HudStampedSegment(
+        HudPriority.PINNED, now - 100L, now, 5_000L, List.of(HudSlot.CENTER), "react:monitor", "monitor"))));
 
-    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class);
-         MockedStatic<FoliaScheduler> scheduling = mockStatic(FoliaScheduler.class)) {
-      bukkit.when(() -> Bukkit.createBossBar(anyString(), eq(BarColor.WHITE), eq(BarStyle.SOLID)))
-          .thenReturn(bossBar);
-      scheduling.when(() -> FoliaScheduler.runEntity(
-          same(plugin),
-          same(player),
-          any(Runnable.class),
-          anyLong()
-      )).thenReturn(false).thenThrow(new IllegalStateException("scheduler unavailable"));
-      AdaptHud.start(plugin);
-      try {
-        AdaptHud.actionBar(player, "Rejected notice");
-        AdaptHud.actionBar(player, "Throwing notice");
+    AdaptHud.actionBar(player, "Level up!");
 
-        verify(bossBar, times(2)).removeAll();
-      } finally {
-        AdaptHud.stop();
-      }
-    }
+    HudStampedSegment segment = postedSegment("adapt:notice");
+    assertThat(segment).isNotNull();
+    assertThat(segment.priority()).isEqualTo(HudPriority.NOTICE);
+    assertThat(lastSentPlainText()).isEqualTo("monitor  Level up!");
+  }
+
+  @Test
+  void guiTitlePublishesInteractiveNoticeInsteadOfTitleSurface() {
+    AdaptHud.guiTitle(player, " ", "Confirm permanent unlock");
+
+    HudStampedSegment segment = postedSegment("adapt:gui");
+    assertThat(segment).isNotNull();
+    assertThat(segment.priority()).isEqualTo(HudPriority.INTERACTIVE);
+    assertThat(segment.slots()).containsExactly(HudSlot.CENTER, HudSlot.RIGHT);
+    assertThat(lastSentPlainText()).isEqualTo("Confirm permanent unlock");
+    verify(player, never()).sendTitle(any(), any(), anyInt(), anyInt(), anyInt());
+  }
+
+  @Test
+  void clearAllRemovesEveryAdaptSegment() {
+    AdaptHud.xpTicker(player, "Discovery +5XP");
+    AdaptHud.ambientStatus(player, "sixth-sense", "Village E 120m");
+
+    AdaptHud.clear(player);
+
+    assertThat(store).doesNotContainKey(plugin);
   }
 }

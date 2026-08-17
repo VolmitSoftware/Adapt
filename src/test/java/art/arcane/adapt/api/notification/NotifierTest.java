@@ -74,7 +74,7 @@ class NotifierTest extends AdaptTestBase {
   }
 
   @Test
-  void expiredXpBurstReleasesItsFallbackHudSurface() {
+  void expiredXpBurstClearsItsHudSegment() {
     Player player = mock(Player.class);
     when(player.getUniqueId()).thenReturn(UUID.randomUUID());
     AdaptPlayer target = mock(AdaptPlayer.class);
