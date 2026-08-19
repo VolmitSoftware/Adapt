@@ -77,6 +77,7 @@ import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.volmlib.util.io.JarScanner;
+import art.arcane.volmlib.util.plugin.SplashScreenSupport;
 import com.jeff_media.customblockdata.CustomBlockData;
 import de.crazydev22.platformutils.AudienceProvider;
 import de.crazydev22.platformutils.Platform;
@@ -101,8 +102,6 @@ import java.io.StringWriter;
 import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.text.MessageFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -236,45 +235,6 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     }
 
     return v;
-  }
-
-  public static int getJavaVersion() {
-    String version = System.getProperty("java.version");
-    if (version.startsWith("1.")) {
-      version = version.substring(2, 3);
-    } else {
-      int dot = version.indexOf(".");
-      if (dot != -1) {
-        version = version.substring(0, dot);
-      }
-    }
-    return Integer.parseInt(version);
-  }
-
-  private static String getServerVersion() {
-    String version = Bukkit.getVersion();
-    int mcMarkerIndex = version.indexOf(" (MC:");
-    if (mcMarkerIndex != -1) {
-      version = version.substring(0, mcMarkerIndex);
-    }
-    return version;
-  }
-
-  private static String getStartupDate() {
-    return LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE);
-  }
-
-  private static String getReleaseTrain(String version) {
-    String value = version;
-    int suffixIndex = value.indexOf('-');
-    if (suffixIndex >= 0) {
-      value = value.substring(0, suffixIndex);
-    }
-    String[] split = value.split("\\.");
-    if (split.length >= 2) {
-      return split[0] + "." + split[1];
-    }
-    return value;
   }
 
   public static void printInformation() {
@@ -740,11 +700,11 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     int game = r.nextInt(100);
     if (game < 90) {
       Adapt.info("\n" + C.DARK_GRAY + " █████" + C.DARK_RED + "╗ " + C.DARK_GRAY + "██████" + C.DARK_RED + "╗  " + C.DARK_GRAY + "█████" + C.DARK_RED + "╗ " + C.DARK_GRAY + "██████" + C.DARK_RED + "╗ " + C.DARK_GRAY + "████████" + C.DARK_RED + "╗\n" +
-          C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗╚══" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══╝" + C.DARK_RED + "         Adapt, " + C.RED + "Abilities Refined" + C.RED + "[" + getReleaseTrain(instance.getDescription().getVersion()) + " RELEASE]\n" +
+          C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "╗╚══" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══╝" + C.DARK_RED + "         Adapt, " + C.RED + "Abilities Refined" + C.RED + "[" + SplashScreenSupport.releaseTrain(instance.getDescription().getVersion()) + " RELEASE]\n" +
           C.DARK_GRAY + "███████" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "███████" + C.DARK_RED + "║" + C.DARK_GRAY + "██████" + C.DARK_RED + "╔╝   " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Version: " + C.DARK_RED + instance.getDescription().getVersion() + "     \n" +
           C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "╔══" + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "╔═══╝    " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            By: " + C.WHITE + "Volmit Software (Arcane Arts)" + C.WHITE + " | " + C.DARK_RED + "VolmitSoftware.com\n" +
-          C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██████" + C.DARK_RED + "╔╝" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║        " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Server: " + C.DARK_RED + getServerVersion() + C.WHITE + " | MC Support: " + C.DARK_RED + supportedMcVersion + "\n" +
-          C.DARK_RED + "╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝        ╚═╝   " + C.WHITE + "            Java: " + C.DARK_RED + getJavaVersion() + C.WHITE + " | Date: " + C.DARK_RED + getStartupDate() + "\n");
+          C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██████" + C.DARK_RED + "╔╝" + C.DARK_GRAY + "██" + C.DARK_RED + "║  " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.DARK_GRAY + "██" + C.DARK_RED + "║        " + C.DARK_GRAY + "██" + C.DARK_RED + "║" + C.WHITE + "            Server: " + C.DARK_RED + SplashScreenSupport.serverVersionWithoutMcSuffix() + C.WHITE + " | MC Support: " + C.DARK_RED + supportedMcVersion + "\n" +
+          C.DARK_RED + "╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝╚═╝        ╚═╝   " + C.WHITE + "            Java: " + C.DARK_RED + SplashScreenSupport.javaMajorVersion() + C.WHITE + " | Date: " + C.DARK_RED + SplashScreenSupport.startupDate() + "\n");
     } else {
       info(SecretSplash.getSecretSplash().getRandom());
     }

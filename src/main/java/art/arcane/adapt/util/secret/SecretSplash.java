@@ -21,6 +21,7 @@ package art.arcane.adapt.util.secret;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.volmlib.util.collection.KList;
+import art.arcane.volmlib.util.plugin.SplashScreenSupport;
 import lombok.Getter;
 
 import java.nio.charset.StandardCharsets;
@@ -35,7 +36,7 @@ public class SecretSplash {
           C.BLUE + "        ⢀⢀⢄⢬⢪⡪⡎⣆⡈⠚⠜⠕⠇⠗⠝⢕⢯⢫⣞⣯⣿⣻⡽⣏⢗⣗⠏⠀    " + C.DARK_RED + "Adapt\n" +
           C.BLUE + "       ⠪⡪⡪⣪⢪⢺⢸⢢⢓⢆⢤⢀⠀⠀⠀⠀⠈⢊⢞⡾⣿⡯⣏⢮⠷⠁⠀⠀     " + C.GRAY + "Version: " + C.DARK_RED + Adapt.instance.getDescription().getVersion() + "\n" +
           C.BLUE + "         ⠈⠊⠆⡃⠕⢕⢇⢇⢇⢇⢇⢏⢎⢎⢆⢄⠀⢑⣽⣿⢝⠲⠉⠀⠀⠀⠀    " + C.GRAY + "By: " + C.WHITE + "Volmit Software (Arcane Arts)" + C.GRAY + " | " + C.DARK_RED + "VolmitSoftware.com\n" +
-          C.BLUE + "           ⡿⠂⠠⠀⡇⢇⠕⢈⣀⠀⠁⠡⠣⡣⡫⣂⣿⠯⢪⠰⠂⠀⠀⠀⠀    " + C.GRAY + "Java Version: " + C.DARK_RED + Adapt.getJavaVersion() + "\n" +
+          C.BLUE + "           ⡿⠂⠠⠀⡇⢇⠕⢈⣀⠀⠁⠡⠣⡣⡫⣂⣿⠯⢪⠰⠂⠀⠀⠀⠀    " + C.GRAY + "Java Version: " + C.DARK_RED + SplashScreenSupport.javaMajorVersion() + "\n" +
           C.BLUE + "          ⡦⡙⡂⢀⢤⢣⠣⡈⣾⡃⠠⠄⠀⡄⢱⣌⣶⢏⢊⠂⠀⠀⠀⠀⠀     ⠀\n" +
           C.BLUE + "          ⢝⡲⣜⡮⡏⢎⢌⢂⠙⠢⠐⢀⢘⢵⣽⣿⡿⠁⠁⠀⠀⠀⠀     ⠀⠀⠀\n" +
           C.BLUE + "          ⠨⣺⡺⡕⡕⡱⡑⡆⡕⡅⡕⡜⡼⢽⡻⠏⠀⠀⠀⠀⠀⠀      ⠀⠀⠀⠀\n" +
@@ -47,7 +48,7 @@ public class SecretSplash {
       "\n  :::.   :::::::-.    :::.  ::::::::::. ::::::::::::     \n" +
           "  ;;`;;   ;;,   `';,  ;;`;;  `;;;```.;;;;;;;;;;;''''       " + C.GRAY + "Version: " + C.DARK_RED + Adapt.instance.getDescription().getVersion() + "\n" +
           " ,[[ '[[, `[[     [[ ,[[ '[[, `]]nnn]]'      [[            " + C.GRAY + "By: " + C.WHITE + "Volmit Software (Arcane Arts)" + C.GRAY + " | " + C.DARK_RED + "VolmitSoftware.com\n" +
-          " $$$$$$$$  $$,    $$ $$$$$$$$  $$$\"\"         $$            " + C.GRAY + "Java Version: " + C.DARK_RED + Adapt.getJavaVersion() + "\n" +
+          " $$$$$$$$  $$,    $$ $$$$$$$$  $$$\"\"         $$            " + C.GRAY + "Java Version: " + C.DARK_RED + SplashScreenSupport.javaMajorVersion() + "\n" +
           " 888   888,888_,o8P' 888   888,888o          88,           \n" +
           " YMM   \"\"` MMMMP\"`   YMM   \"\"` YMMMb         MMM      \n",
 
@@ -55,7 +56,7 @@ public class SecretSplash {
           C.GRAY + "▓██░ ██▒▓█   ▀ ▓██▒    ▓██░  ██▒   ▓██▒▀█▀ ██▒▓█   ▀       " + C.DARK_RED + "Adapt     \n" +
           C.GRAY + "▒██▀▀██░▒███   ▒██░    ▓██░ ██▓▒   ▓██    ▓██░▒███         " + C.GRAY + "Version: " + C.DARK_RED + Adapt.instance.getDescription().getVersion() + "     \n" +
           C.GRAY + "░▓█ ░██ ▒▓█  ▄ ▒██░    ▒██▄█▓▒ ▒   ▒██    ▒██ ▒▓█  ▄       " + C.GRAY + "By: " + C.WHITE + "Volmit Software (Arcane Arts)" + C.GRAY + " | " + C.DARK_RED + "VolmitSoftware.com\n" +
-          C.GRAY + "░▓█▒░██▓░▒████▒░██████▒▒██▒ ░  ░   ▒██▒   ░██▒░▒████▒      " + C.GRAY + "Java Version: " + C.DARK_RED + Adapt.getJavaVersion() + "     \n" +
+          C.GRAY + "░▓█▒░██▓░▒████▒░██████▒▒██▒ ░  ░   ▒██▒   ░██▒░▒████▒      " + C.GRAY + "Java Version: " + C.DARK_RED + SplashScreenSupport.javaMajorVersion() + "     \n" +
           C.GRAY + " ▒ ░░▒░▒░░ ▒░ ░░ ▒░▓  ░▒▓▒░ ░  ░   ░ ▒░   ░  ░░░ ▒░ ░      ",
 
       C.GRAY + "⠀⠀\n" +
@@ -66,7 +67,7 @@ public class SecretSplash {
           C.GRAY + "⠀⠀⠀⠀⢀⣠⣼⣿⣿⡏⠀⢠⣿⣿⣿⠇⠀⠀⠀⠀⠀⠀⠀⠈⣿⣿⣿⡀⠀   ⠀" + C.DARK_RED + "Adapt     \n" +
           C.GRAY + "⠀⠀⠀⣰⣿⣿⣿⣿⣿⡇⠀⢸⣿⣿⣿⡀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⡇⠀   ⠀" + C.GRAY + "Version: " + C.DARK_RED + Adapt.instance.getDescription().getVersion() + "     \n" +
           C.GRAY + "⠀⠀⢰⣿⣿⡿⣿⣿⣿⡇⠀⠘⣿⣿⣿⣧⠀⠀⠀⠀⠀⠀⢀⣸⣿⣿⣿⠁⠀  ⠀" + C.GRAY + "By: " + C.WHITE + "Volmit Software (Arcane Arts)" + C.GRAY + " | " + C.DARK_RED + "VolmitSoftware.com\n" +
-          C.GRAY + "⠀⠀⣿⣿⣿⠁⣿⣿⣿⡇⠀⠀⠻⣿⣿⣿⣷⣶⣶⣶⣶⣶⣿⣿⣿⣿⠃⠀ ⠀⠀" + C.GRAY + "Java Version: " + C.DARK_RED + Adapt.getJavaVersion() + "     \n" +
+          C.GRAY + "⠀⠀⣿⣿⣿⠁⣿⣿⣿⡇⠀⠀⠻⣿⣿⣿⣷⣶⣶⣶⣶⣶⣿⣿⣿⣿⠃⠀ ⠀⠀" + C.GRAY + "Java Version: " + C.DARK_RED + SplashScreenSupport.javaMajorVersion() + "     \n" +
           C.GRAY + "⠀⢰⣿⣿⡇⠀⣿⣿⣿⠀⠀⠀⠀⠈⠻⣿⣿⣿⣿⣿⣿⣿⣿⣿⠟⠁⠀⠀⠀  ⠀\n" +
           C.GRAY + "⠀⢸⣿⣿⡇⠀⣿⣿⣿⠀⠀⠀⠀⠀⠀⠀⠉⠛⠛⠛⠉⢉⣿⣿⠀⠀⠀⠀⠀   ⠀\n" +
           C.GRAY + "⠀⢸⣿⣿⣇⠀⣿⣿⣿⠀⠀⠀⠀⠀⢀⣤⣤⣤⡀⠀⠀⢸⣿⣿⣿⣷⣦⠀   ⠀⠀\n" +
