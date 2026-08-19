@@ -186,16 +186,17 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
   }
 
   private boolean sendHelpIfRequested(CommandSender sender, String[] args) {
-    Optional<DirectorHelpPage> request = DirectorMiniMenu.resolveHelp(getDirector(), Arrays.asList(args), 17);
+    Optional<DirectorHelpPage> request = DirectorMiniMenu.resolveHelp(getDirector(), Arrays.asList(args));
     if (request.isEmpty()) {
       return false;
     }
 
-    DirectorMiniMenu.deliver(sender, DirectorMiniMenu.render(
+    DirectorMiniMenu.deliver(
+        sender,
         request.get(),
         DirectorMiniMenu.Theme.adaptRed(),
         AdaptLanguage.directorResolver()
-    ));
+    );
     return true;
   }
 
