@@ -2594,9 +2594,9 @@ description = "당신의 곡괭이를 100를 깨지 않도록"
 title = "Perpetual 선택"
 description = "수리 리듬으로 내구도 5,000을 복구하세요"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "한국어"
-description = "인기있는 500 추가 보석"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "큐레이터"
+description = "자연 생성된 트로피 25개를 연마하세요"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "화강암의 숨기기"
@@ -4071,9 +4071,9 @@ lore = ["아이템을 땅에 떨어뜨리세요. 방어구는 완전히 수리�
 
 [crafting.xp]
 name = "제작 경험치"
-description = "제작 시 패시브 XP를 획득합니다"
-lore1 = "제작 시 XP 획득"
-lore = ["제작 시 XP 획득"]
+description = "완료된 제작은 일정 간격마다 제한된 일반 경험치를 지급합니다."
+lore1 = "완료된 제작에서 얻는 일반 경험치"
+lore = ["완료된 제작에서 얻는 일반 경험치"]
 
 [crafting.reconstruction]
 name = "광석 복원"
@@ -4312,11 +4312,11 @@ limit = "더 많은 것을 가진 품목을 마법 부여 할 수 없습니다 {
 lore = ["최대 합산 레벨", "아이템에 다음을 초과하여 마법부여할 수 없습니다 ", "파워"]
 
 [enchanting.return]
-name = "XP 반환"
-description = "아이템에 마법부여 시 사용한 XP가 돌아옵니다."
-lore1 = "아이템을 마법부여할 때 소비한 경험치가 환불될 확률이 있습니다"
-lore2 = "마법부여당 경험치"
-lore = ["아이템을 마법부여할 때 소비한 경험치가 환불될 확률이 있습니다", "마법부여당 경험치"]
+name = "경험치 반환"
+description = "완료된 마법부여는 일정 간격마다 제한된 일반 경험치를 돌려줍니다."
+lore1 = "완료된 마법부여는 대기 시간 후 경험치를 돌려줍니다"
+lore2 = "마법부여당 일반 경험치"
+lore = ["완료된 마법부여는 대기 시간 후 경험치를 돌려줍니다", "마법부여당 일반 경험치"]
 
 [enchanting.anvil_savant]
 name = "모루 바지"
@@ -5169,12 +5169,12 @@ lore2 = "깨진 블록 당 수리 할 수있는 기회"
 lore = ["모든 깨진 블록는 1-2 내구도를 복원 할 수 있습니다", "깨진 블록 당 수리 할 수있는 기회"]
 
 [pickaxe.gem_polish]
-name = "Gem 폴란드어"
-description = "광산 보석 무기 부너스 XP 구슬과 추가 보석의 기회를 부여합니다"
-lore1 = "다이아몬드, 에메랄드, 청금석 또는 amethyst"
-lore2 = "특별한 매칭 보석을 위한 기회"
-lore3 = "보너스: 광산된 유석광당 XP"
-lore = ["다이아몬드, 에메랄드, 청금석 또는 amethyst", "특별한 매칭 보석을 위한 기회", "보너스: 광산된 유석광당 XP"]
+name = "트로피 연마"
+description = "자연 생성된 머리, 해골 또는 드래곤 알을 채굴하면 제한된 일반 경험치를 얻습니다."
+lore1 = "자연 생성된 머리, 해골 또는 드래곤 알 채굴"
+lore2 = "플레이어가 설치한 트로피는 경험치를 주지 않습니다"
+lore3 = "트로피당 일반 경험치"
+lore = ["자연 생성된 머리, 해골 또는 드래곤 알 채굴", "플레이어가 설치한 트로피는 경험치를 주지 않습니다", "트로피당 일반 경험치"]
 
 [pickaxe.stone_skin]
 name = "돌 피부"
@@ -5408,9 +5408,9 @@ lore = ["산소 용량 증가"]
 
 [seaborn.fishers_fantasy]
 name = "낚시꾼의 환상"
-description = "낚시에서 더 많은 XP와 물고기를 얻으세요!"
-lore1 = "레벨마다 더 많은 XP와 물고기를 얻을 확률이 있습니다!"
-lore = ["레벨마다 더 많은 XP와 물고기를 얻을 확률이 있습니다!"]
+description = "낚시로 제한된 추가 아이템 하나, 일반 경험치, 항해 경험치를 얻을 수 있습니다."
+lore1 = "낚시 추가 보상 묶음 하나를 얻을 확률"
+lore = ["낚시 추가 보상 묶음 하나를 얻을 확률"]
 
 [seaborn.haste]
 name = "거북이 광부"

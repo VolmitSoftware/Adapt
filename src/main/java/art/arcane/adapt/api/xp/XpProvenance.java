@@ -20,8 +20,8 @@ package art.arcane.adapt.api.xp;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.data.WorldData;
-import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import art.arcane.adapt.api.data.unit.PlacementStamp;
+import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -67,6 +67,28 @@ public final class XpProvenance {
 
   public static boolean hasPermanentPlacementRecord(PlacementStamp stamp) {
     return stamp != null && (stamp.getPlacedAt() != 0 || stamp.getBrokenAt() != 0);
+  }
+
+  public static void transferBlockMovement(Block source, Block destination) {
+    if (source == null || destination == null) {
+      return;
+    }
+    WorldData sourceData = WorldData.of(source.getWorld());
+    PlacementStamp stamp = sourceData.get(source, PlacementStamp.class);
+    sourceData.remove(source, PlacementStamp.class);
+    WorldData destinationData = WorldData.of(destination.getWorld());
+    if (stamp == null) {
+      destinationData.remove(destination, PlacementStamp.class);
+      return;
+    }
+    destinationData.set(destination, stamp);
+  }
+
+  public static void clearPlacementRecord(Block block) {
+    if (block == null) {
+      return;
+    }
+    WorldData.of(block.getWorld()).remove(block, PlacementStamp.class);
   }
 
   public static void transferPistonMovement(List<Block> movedBlocks, BlockFace direction) {

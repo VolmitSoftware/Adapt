@@ -74,7 +74,17 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
     v.addLore(C.GREEN + AdaptLanguage.text(CraftingMessages.XP_LORE1));
   }
 
-  @EventHandler(priority = EventPriority.LOW)
+  @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    loadedConfig.normalizeForPersistence();
+  }
+
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(CraftItemEvent e) {
     Player p = (Player) e.getWhoClicked();
     ItemStack result = e.getInventory().getResult();
@@ -91,15 +101,26 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
       return;
     }
 
-    if (!xpCooldown.isReady(p.getUniqueId(), 20000)) {
+    int level = getLevel(p);
+    int rewardXp = rewardXp(level, getConfig().vanillaXpAtLevelOne, getConfig().vanillaXpPerAdditionalLevel, getConfig().maximumXpPerCraft);
+    if (rewardXp <= 0) {
+      return;
+    }
+
+    long cooldownMillis = getConfig().cooldownMillis;
+    if (!xpCooldown.isReady(p.getUniqueId(), cooldownMillis)) {
       return;
     }
 
     xpCooldown.mark(p.getUniqueId());
-    int level = getLevel(p);
-    p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(level * 2);
+    p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(rewardXp);
     addStat(p, "crafting.xp.items-crafted", 1);
     xpShimmer(p.getLocation().add(0, 1, 0), level);
+  }
+
+  static int rewardXp(int level, int atLevelOne, int perAdditionalLevel, int maximum) {
+    long reward = Math.max(0, atLevelOne) + ((long) Math.max(0, level - 1) * Math.max(0, perAdditionalLevel));
+    return (int) Math.min(Math.max(0, maximum), reward);
   }
 
   private boolean resultFitsInventory(ItemStack[] storage, ItemStack result) {
@@ -142,13 +163,30 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
 
 
 
-  @ConfigDescription("Gain passive XP when crafting items.")
+  @ConfigDescription("Committed crafts periodically grant a bounded vanilla XP orb.")
   protected static class Config extends AdaptationConfig {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Vanilla XP points granted by a level-one activation.", impact = "Higher values increase the base crafting reward.")
+    int vanillaXpAtLevelOne = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Vanilla XP points added for each adaptation level after level one.", impact = "Higher values make the reward scale faster with adaptation level.")
+    int vanillaXpPerAdditionalLevel = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum vanilla XP points granted by one craft activation.", impact = "Caps oversized or heavily scaled rewards.")
+    int maximumXpPerCraft = 16;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum milliseconds between vanilla XP rewards for the same player.", impact = "Higher values reduce rapid-crafting XP generation.")
+    long cooldownMillis = 30000L;
+
     public Config() {
       baseCost = 2;
       costFactor = 0.3;
       maxLevel = 7;
       initialCost = 3;
+      normalizeForPersistence();
+    }
+
+    void normalizeForPersistence() {
+      vanillaXpAtLevelOne = Math.max(0, Math.min(vanillaXpAtLevelOne, 100000));
+      vanillaXpPerAdditionalLevel = Math.max(0, Math.min(vanillaXpPerAdditionalLevel, 100000));
+      maximumXpPerCraft = Math.max(0, Math.min(maximumXpPerCraft, 100000));
+      cooldownMillis = Math.max(0L, Math.min(cooldownMillis, 3600000L));
     }
   }
 }

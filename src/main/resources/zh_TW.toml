@@ -2594,9 +2594,9 @@ description = "防止鎬損壞 100 次"
 title = "永久選擇"
 description = "恢復 5,000 透過修復韻律的耐久性"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "燈塔"
-description = "波蘭出局了 500 額外寶石"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "收藏家"
+description = "拋光25個自然生成的戰利品"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "隱藏花崗岩"
@@ -4070,10 +4070,10 @@ lore2 = "然後，潛行並用剪刀右鍵點擊"
 lore = ["將物品丟在地上；護甲必須完全修復。", "然後，潛行並用剪刀右鍵點擊"]
 
 [crafting.xp]
-name = "合成經驗"
-description = "合成時獲得被動經驗"
-lore1 = "合成時獲得經驗"
-lore = ["合成時獲得經驗"]
+name = "製作經驗"
+description = "完成製作後會定期獲得有上限的普通經驗。"
+lore1 = "完成製作獲得的普通經驗"
+lore = ["完成製作獲得的普通經驗"]
 
 [crafting.reconstruction]
 name = "礦石重建"
@@ -4313,10 +4313,10 @@ lore = ["最大合併等級", "無法對超過 ", "能力的物品附魔"]
 
 [enchanting.return]
 name = "經驗返還"
-description = "附魔物品時返還部分經驗。"
-lore1 = "附魔消耗的經驗有機率被退還"
-lore2 = "每次附魔返還經驗"
-lore = ["附魔消耗的經驗有機率被退還", "每次附魔返還經驗"]
+description = "完成附魔後會定期返還有上限的普通經驗。"
+lore1 = "完成附魔後經過等待時間返還經驗"
+lore2 = "每次附魔的普通經驗"
+lore = ["完成附魔後經過等待時間返還經驗", "每次附魔的普通經驗"]
 
 [enchanting.anvil_savant]
 name = "安維爾·薩凡特"
@@ -5169,12 +5169,12 @@ lore2 = "每個斷塊修復的機會"
 lore = ["每個斷塊都可以恢復 1-2 永續性", "每個斷塊修復的機會"]
 
 [pickaxe.gem_polish]
-name = "波蘭寶石"
-description = "礦石礦產補貼獎金 XP 球體和一個額外的寶石機會."
-lore1 = "鑽石、翡翠、薄餅或薄荷"
-lore2 = "額外匹配寶石的機會"
-lore3 = "獎金 XP 每開採的寶石礦"
-lore = ["鑽石、翡翠、薄餅或薄荷", "額外匹配寶石的機會", "獎金 XP 每開採的寶石礦"]
+name = "戰利品拋光"
+description = "挖掘自然生成的頭顱、骷髏頭或龍蛋可獲得有上限的普通經驗。"
+lore1 = "挖掘自然生成的頭顱、骷髏頭或龍蛋"
+lore2 = "玩家放置的戰利品不會給予經驗"
+lore3 = "每個戰利品的普通經驗"
+lore = ["挖掘自然生成的頭顱、骷髏頭或龍蛋", "玩家放置的戰利品不會給予經驗", "每個戰利品的普通經驗"]
 
 [pickaxe.stone_skin]
 name = "石頭皮膚"
@@ -5407,10 +5407,10 @@ lore1 = "氧氣容量增加"
 lore = ["氧氣容量增加"]
 
 [seaborn.fishers_fantasy]
-name = "釣魚達人"
-description = "釣魚時獲得更多經驗和更多魚！"
-lore1 = "每升一級都有機率獲得更多經驗和魚！"
-lore = ["每升一級都有機率獲得更多經驗和魚！"]
+name = "漁夫奇想"
+description = "釣魚有機會獲得一份有上限的額外物品、普通經驗和航海經驗。"
+lore1 = "獲得一份釣魚額外獎勵的機率"
+lore = ["獲得一份釣魚額外獎勵的機率"]
 
 [seaborn.haste]
 name = "海龜礦工"

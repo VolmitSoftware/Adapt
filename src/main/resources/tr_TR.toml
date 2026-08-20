@@ -2594,9 +2594,9 @@ description = "100 zamanlarını kırmaktan sakın çivinizi kurtarın ."
 title = "Perpetual Pick"
 description = "geri yükleme 5,000 Onarım Rhythm"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "Lapidary"
-description = "Polonya dışarı çıktı 500 ekstra gems"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "Küratör"
+description = "Doğal olarak oluşmuş 25 kupayı parlat"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "Rolle'nin mezarı"
@@ -4070,10 +4070,10 @@ lore2 = "Sonra, Egilip Makasla Sag Tiklayin"
 lore = ["Bir esyayi yere birakin; zirh tamamen onarilmis olmalidir.", "Sonra, Egilip Makasla Sag Tiklayin"]
 
 [crafting.xp]
-name = "Uretim XP'si"
-description = "Uretirken pasif XP kazanin"
-lore1 = "Uretirken XP kazanin"
-lore = ["Uretirken XP kazanin"]
+name = "Üretim XP'si"
+description = "Tamamlanan üretimler belirli aralıklarla sınırlı miktarda normal XP verir."
+lore1 = "Tamamlanan üretimlerden normal XP"
+lore = ["Tamamlanan üretimlerden normal XP"]
 
 [crafting.reconstruction]
 name = "Cevher Yeniden Insasi"
@@ -4312,11 +4312,11 @@ limit = "Daha fazlası ile bir eşyayı tasarlayamaz {power} Güç gücü."
 lore = ["Maksimum Birlesik Seviye", "Bir esyayi birden fazla buyuleyemezsiniz ", "guc"]
 
 [enchanting.return]
-name = "XP Iadesi"
-description = "Bir esyayi buyulediginizde Buyuleme XP'si size iade edilir."
-lore1 = "Bir esyayi buyulediginizde harcanan deneyimin iade edilme sansi vardir"
-lore2 = "Buyuleme Basina Deneyim"
-lore = ["Bir esyayi buyulediginizde harcanan deneyimin iade edilme sansi vardir", "Buyuleme Basina Deneyim"]
+name = "XP İadesi"
+description = "Tamamlanan büyüler belirli aralıklarla sınırlı miktarda normal XP iade eder."
+lore1 = "Tamamlanan büyüler bekleme süresinden sonra XP iade eder"
+lore2 = "Büyü başına normal XP"
+lore = ["Tamamlanan büyüler bekleme süresinden sonra XP iade eder", "Büyü başına normal XP"]
 
 [enchanting.anvil_savant]
 name = "Anvil Savant"
@@ -5169,12 +5169,12 @@ lore2 = "Kırık blok başına tamir etme şansı"
 lore = ["Her kırık blok restore edebilir 1-2 dayanıklılık", "Kırık blok başına tamir etme şansı"]
 
 [pickaxe.gem_polish]
-name = "Gem Polish"
-description = "Değerli taş cevheri kazmak bonus XP küreleri ve fazladan bir taş şansı verir"
-lore1 = "Mine elmas, emerald, kuis veya amethyst"
-lore2 = "Ekstra bir eşleştirme için şans"
-lore3 = "Kazılan değerli taş cevheri başına bonus XP"
-lore = ["Mine elmas, emerald, kuis veya amethyst", "Ekstra bir eşleştirme için şans", "Kazılan değerli taş cevheri başına bonus XP"]
+name = "Kupa Parlatma"
+description = "Doğal olarak oluşmuş başları, kafataslarını veya ejderha yumurtalarını kazmak sınırlı miktarda normal XP verir."
+lore1 = "Doğal başları, kafataslarını veya ejderha yumurtalarını kaz"
+lore2 = "Oyuncuların yerleştirdiği kupalar XP vermez"
+lore3 = "Kupa başına normal XP"
+lore = ["Doğal başları, kafataslarını veya ejderha yumurtalarını kaz", "Oyuncuların yerleştirdiği kupalar XP vermez", "Kupa başına normal XP"]
 
 [pickaxe.stone_skin]
 name = "Stone Skin"
@@ -5407,10 +5407,10 @@ lore1 = "Oksijen Kapasitesi Artisi"
 lore = ["Oksijen Kapasitesi Artisi"]
 
 [seaborn.fishers_fantasy]
-name = "Balcinin Hayali"
-description = "Balikciliktan daha fazla XP kazanin ve daha fazla balik alin!"
-lore1 = "Her seviye icin daha fazla XP ve Balik kazanma sansi var!"
-lore = ["Her seviye icin daha fazla XP ve Balik kazanma sansi var!"]
+name = "Balıkçının Fantezisi"
+description = "Balıkçılık bir sınırlı bonus eşya, normal XP ve denizcilik XP'si verebilir."
+lore1 = "Tek bir bonus balıkçılık ödül paketi şansı"
+lore = ["Tek bir bonus balıkçılık ödül paketi şansı"]
 
 [seaborn.haste]
 name = "Kaplumbaga Madencisi"

@@ -2594,9 +2594,9 @@ description = "Bewaar je pikhouweel voor het breken 100 tijden"
 title = "Perpetual Pick"
 description = "Herstellen 5,000 duurzaamheid door reparatieritme"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "Snelle"
-description = "Pools uit 500 extra edelstenen"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "Conservator"
+description = "Poets 25 natuurlijk gegenereerde trofeeën"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "Verbergen van graniet"
@@ -4070,10 +4070,10 @@ lore2 = "Sluip vervolgens en rechtsklik met een schaar"
 lore = ["Laat een voorwerp op de grond vallen; pantser moet volledig gerepareerd zijn.", "Sluip vervolgens en rechtsklik met een schaar"]
 
 [crafting.xp]
-name = "Knutsel-XP"
-description = "Verkrijg passieve XP bij het knutselen"
-lore1 = "Verdien XP bij het knutselen"
-lore = ["Verdien XP bij het knutselen"]
+name = "Maak-XP"
+description = "Voltooide maaksels geven periodiek een begrensde hoeveelheid normale XP."
+lore1 = "Normale XP uit voltooide maaksels"
+lore = ["Normale XP uit voltooide maaksels"]
 
 [crafting.reconstruction]
 name = "Erts Reconstructie"
@@ -4312,11 +4312,11 @@ limit = "Kan geen item betoveren met meer dan {power} vermogen."
 lore = ["Max Gecombineerde Niveaus", "Kan een item niet betoveren met meer dan ", "kracht"]
 
 [enchanting.return]
-name = "XP Teruggave"
-description = "Betover-XP wordt aan je teruggegeven wanneer je een item betoverT."
-lore1 = "Uitgegeven ervaring heeft een kans om terugbetaald te worden wanneer je een item betoverT"
-lore2 = "Ervaring per Betovering"
-lore = ["Uitgegeven ervaring heeft een kans om terugbetaald te worden wanneer je een item betoverT", "Ervaring per Betovering"]
+name = "XP-teruggave"
+description = "Voltooide betoveringen geven periodiek een begrensde hoeveelheid normale XP terug."
+lore1 = "Voltooide betoveringen geven XP terug na een wachttijd"
+lore2 = "Normale XP per betovering"
+lore = ["Voltooide betoveringen geven XP terug na een wachttijd", "Normale XP per betovering"]
 
 [enchanting.anvil_savant]
 name = "Aambeeldsavant"
@@ -5169,12 +5169,12 @@ lore2 = "kans om per gebroken blok te repareren"
 lore = ["Elk gebroken blok kan herstellen 1-2 duurzaamheid", "kans om per gebroken blok te repareren"]
 
 [pickaxe.gem_polish]
-name = "Gem Pools"
-description = "Het delven van edelsteenerts geeft bonus-XP-bollen en kans op een extra edelsteen"
-lore1 = "Mijn diamant, smaragd, lapis of amethist"
-lore2 = "kans op een extra bijpassend juweel"
-lore3 = "Bonus-XP per gedolven edelsteenerts"
-lore = ["Mijn diamant, smaragd, lapis of amethist", "kans op een extra bijpassend juweel", "Bonus-XP per gedolven edelsteenerts"]
+name = "Trofee poetsen"
+description = "Het delven van natuurlijk gegenereerde hoofden, schedels of drakeneieren geeft een begrensde hoeveelheid normale XP."
+lore1 = "Delf natuurlijke hoofden, schedels of drakeneieren"
+lore2 = "Door spelers geplaatste trofeeën geven geen XP"
+lore3 = "Normale XP per trofee"
+lore = ["Delf natuurlijke hoofden, schedels of drakeneieren", "Door spelers geplaatste trofeeën geven geen XP", "Normale XP per trofee"]
 
 [pickaxe.stone_skin]
 name = "Stenen huid"
@@ -5407,10 +5407,10 @@ lore1 = "Zuurstofcapaciteit Verhoging"
 lore = ["Zuurstofcapaciteit Verhoging"]
 
 [seaborn.fishers_fantasy]
-name = "Vissersfantasie"
-description = "Verdien meer XP van vissen en vang meer vis!"
-lore1 = "Voor elk niveau is er een kans om meer XP en vis te krijgen!"
-lore = ["Voor elk niveau is er een kans om meer XP en vis te krijgen!"]
+name = "Fantasie van de visser"
+description = "Vissen kan één begrensd bonusvoorwerp, normale XP en zeevaarders-XP geven."
+lore1 = "Kans op één bonusbeloning voor vissen"
+lore = ["Kans op één bonusbeloning voor vissen"]
 
 [seaborn.haste]
 name = "Schildpadmijnwerker"

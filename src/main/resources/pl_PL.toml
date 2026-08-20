@@ -2594,9 +2594,9 @@ description = "Zapisz swój kilof od złamania 100 razy"
 title = "Perpetual Pick"
 description = "Przywróć 5,000 trwałość poprzez Rhythm naprawy"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "Lapidarium"
-description = "Polskie 500 dodatkowe kamienie"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "Kurator"
+description = "Wypoleruj 25 naturalnie wygenerowanych trofeów"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "Ukryj granit"
@@ -4070,10 +4070,10 @@ lore2 = "Nastepnie kucnij i kliknij prawym przyciskiem nozycami"
 lore = ["Upusc przedmiot na ziemie; zbroja musi byc w pelni naprawiona.", "Nastepnie kucnij i kliknij prawym przyciskiem nozycami"]
 
 [crafting.xp]
-name = "PD z Rzemiosla"
-description = "Zdobywaj pasywne PD podczas wytwarzania"
-lore1 = "Zdobywaj PD podczas wytwarzania"
-lore = ["Zdobywaj PD podczas wytwarzania"]
+name = "XP wytwarzania"
+description = "Ukończone wytwarzanie okresowo przyznaje ograniczoną ilość zwykłego XP."
+lore1 = "Zwykłe XP z ukończonego wytwarzania"
+lore = ["Zwykłe XP z ukończonego wytwarzania"]
 
 [crafting.reconstruction]
 name = "Rekonstrukcja Rud"
@@ -4312,11 +4312,11 @@ limit = "Nie można zaczarować elementu z więcej niż {power} moc."
 lore = ["Maks. Polaczone Poziomy", "Nie mozna zaklinac przedmiotu z wiecej niz ", "mocy"]
 
 [enchanting.return]
-name = "Zwrot PD"
-description = "PD z zaklec jest ci zwracane gdy zaklinasz przedmiot."
-lore1 = "Wydane doswiadczenie ma szanse zostac zwrocone gdy zaklinasz przedmiot"
-lore2 = "Doswiadczenie za Zaklecie"
-lore = ["Wydane doswiadczenie ma szanse zostac zwrocone gdy zaklinasz przedmiot", "Doswiadczenie za Zaklecie"]
+name = "Zwrot XP"
+description = "Ukończone zaklinanie okresowo zwraca ograniczoną ilość zwykłego XP."
+lore1 = "Ukończone zaklinanie zwraca XP po czasie oczekiwania"
+lore2 = "Zwykłe XP za zaklęcie"
+lore = ["Ukończone zaklinanie zwraca XP po czasie oczekiwania", "Zwykłe XP za zaklęcie"]
 
 [enchanting.anvil_savant]
 name = "Anvil Savant"
@@ -5169,12 +5169,12 @@ lore2 = "możliwość naprawy na rozbity blok"
 lore = ["Każdy uszkodzony blok może przywrócić 1-2 trwałość", "możliwość naprawy na rozbity blok"]
 
 [pickaxe.gem_polish]
-name = "Gem Polski"
-description = "Górniczy klejnot Rudy przyznaje premię XP Kule i szansa na dodatkowy klejnot"
-lore1 = "Kopalnia diamentów, szmaragdów, lapis lub ametyst"
-lore2 = "szansa na dodatkowy klejnot pasujący"
-lore3 = "bonus XP na wydobycie rudy szlachetnej"
-lore = ["Kopalnia diamentów, szmaragdów, lapis lub ametyst", "szansa na dodatkowy klejnot pasujący", "bonus XP na wydobycie rudy szlachetnej"]
+name = "Polerowanie trofeów"
+description = "Wydobywanie naturalnie wygenerowanych głów, czaszek lub smoczych jaj przyznaje ograniczoną ilość zwykłego XP."
+lore1 = "Wydobywaj naturalne głowy, czaszki lub smocze jaja"
+lore2 = "Trofea postawione przez graczy nie przyznają XP"
+lore3 = "Zwykłe XP za trofeum"
+lore = ["Wydobywaj naturalne głowy, czaszki lub smocze jaja", "Trofea postawione przez graczy nie przyznają XP", "Zwykłe XP za trofeum"]
 
 [pickaxe.stone_skin]
 name = "Skóra kamienna"
@@ -5407,10 +5407,10 @@ lore1 = "Zwiekszenie Pojemnosci Tlenowej"
 lore = ["Zwiekszenie Pojemnosci Tlenowej"]
 
 [seaborn.fishers_fantasy]
-name = "Fantazja Rybaka"
-description = "Zdobywaj wiecej PD z lowienia i lapaj wiecej ryb!"
-lore1 = "Za kazdy poziom jest szansa na wiecej PD i wiecej Ryb!"
-lore = ["Za kazdy poziom jest szansa na wiecej PD i wiecej Ryb!"]
+name = "Fantazja rybaka"
+description = "Łowienie może przyznać jeden ograniczony przedmiot dodatkowy, zwykłe XP i żeglarskie XP."
+lore1 = "Szansa na jeden zestaw dodatkowej nagrody za łowienie"
+lore = ["Szansa na jeden zestaw dodatkowej nagrody za łowienie"]
 
 [seaborn.haste]
 name = "Zolwi Gornik"

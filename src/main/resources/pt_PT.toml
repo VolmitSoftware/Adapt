@@ -2594,9 +2594,9 @@ description = "Salve sua picareta de quebrar 100 vezes"
 title = "Escolha Perpétua"
 description = "Restaurar 5,000 durabilidade através do ritmo de reparação"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "Lapidary"
-description = "Polaco para fora 500 gemas extra"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "Curador"
+description = "Pule 25 troféus gerados naturalmente"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "Esconder o Granito"
@@ -4070,10 +4070,10 @@ lore2 = "Depois, agacha-te e clica direito com Tesouras"
 lore = ["Larga um item no chao; a armadura tem de estar totalmente reparada.", "Depois, agacha-te e clica direito com Tesouras"]
 
 [crafting.xp]
-name = "XP de Fabrico"
-description = "Ganha XP passivo ao fabricar"
-lore1 = "Ganha XP ao fabricar"
-lore = ["Ganha XP ao fabricar"]
+name = "XP de fabrico"
+description = "Os fabricos concluídos atribuem periodicamente uma quantidade limitada de XP normal."
+lore1 = "XP normal de fabricos concluídos"
+lore = ["XP normal de fabricos concluídos"]
 
 [crafting.reconstruction]
 name = "Reconstrucao de Minerio"
@@ -4313,10 +4313,10 @@ lore = ["Niveis Maximos Combinados", "Nao e possivel encantar um item com mais d
 
 [enchanting.return]
 name = "Retorno de XP"
-description = "XP de encantamento e devolvido quando encantas um item."
-lore1 = "Experiencia gasta tem chance de ser reembolsada quando encantas um item"
-lore2 = "Experiencia por Encantamento"
-lore = ["Experiencia gasta tem chance de ser reembolsada quando encantas um item", "Experiencia por Encantamento"]
+description = "Os encantamentos concluídos devolvem periodicamente uma quantidade limitada de XP normal."
+lore1 = "Os encantamentos concluídos devolvem XP após um tempo de espera"
+lore2 = "XP normal por encantamento"
+lore = ["Os encantamentos concluídos devolvem XP após um tempo de espera", "XP normal por encantamento"]
 
 [enchanting.anvil_savant]
 name = "Anvil Savant"
@@ -5169,12 +5169,12 @@ lore2 = "possibilidade de reparar por bloco quebrado"
 lore = ["Cada bloco quebrado pode restaurar 1-2 durabilidade", "possibilidade de reparar por bloco quebrado"]
 
 [pickaxe.gem_polish]
-name = "Polaco de gema"
-description = "Minas de gemas minerais concedem bônus XP orbes e uma chance para uma gema extra"
-lore1 = "Diamante, esmeralda, lapis ou ametista"
-lore2 = "chance para uma gema combinando extra"
-lore3 = "bônus XP por minério de joia extraído"
-lore = ["Diamante, esmeralda, lapis ou ametista", "chance para uma gema combinando extra", "bônus XP por minério de joia extraído"]
+name = "Polimento de troféus"
+description = "Minerar cabeças, caveiras ou ovos de dragão gerados naturalmente atribui uma quantidade limitada de XP normal."
+lore1 = "Minere cabeças, caveiras ou ovos de dragão naturais"
+lore2 = "Troféus colocados por jogadores não atribuem XP"
+lore3 = "XP normal por troféu"
+lore = ["Minere cabeças, caveiras ou ovos de dragão naturais", "Troféus colocados por jogadores não atribuem XP", "XP normal por troféu"]
 
 [pickaxe.stone_skin]
 name = "Pele de Pedra"
@@ -5407,10 +5407,10 @@ lore1 = "Aumento da Capacidade de Oxigenio"
 lore = ["Aumento da Capacidade de Oxigenio"]
 
 [seaborn.fishers_fantasy]
-name = "Fantasia do Pescador"
-description = "Ganha mais XP ao pescar e apanha mais peixe!"
-lore1 = "Por cada nivel ha uma chance de obter mais XP e Peixe!"
-lore = ["Por cada nivel ha uma chance de obter mais XP e Peixe!"]
+name = "Fantasia do pescador"
+description = "A pesca pode atribuir um item bónus limitado, XP normal e XP marítima."
+lore1 = "Probabilidade de um único pacote de recompensa de pesca"
+lore = ["Probabilidade de um único pacote de recompensa de pesca"]
 
 [seaborn.haste]
 name = "Tartaruga Mineira"

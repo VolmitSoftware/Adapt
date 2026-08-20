@@ -20,20 +20,29 @@ package art.arcane.adapt.api.xp;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.FallingBlock;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.List;
 
 public class XpProvenanceListener implements Listener {
   private static final int FERTILIZE_BLOCK_CAP = 64;
+  private static final NamespacedKey PLAYER_MODIFIED_FALLING_BLOCK_KEY =
+      new NamespacedKey("adapt", "xp-provenance-player-modified-falling-block");
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent e) {
@@ -78,5 +87,39 @@ public class XpProvenanceListener implements Listener {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPistonRetractEvent e) {
     XpProvenance.transferPistonMovement(e.getBlocks(), e.getDirection().getOppositeFace());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(BlockFromToEvent e) {
+    if (e.getBlock().getType() != Material.DRAGON_EGG) {
+      return;
+    }
+    XpProvenance.transferBlockMovement(e.getBlock(), e.getToBlock());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityChangeBlockEvent e) {
+    if (!(e.getEntity() instanceof FallingBlock fallingBlock)
+        || fallingBlock.getBlockData().getMaterial() != Material.DRAGON_EGG) {
+      return;
+    }
+    PersistentDataContainer data = fallingBlock.getPersistentDataContainer();
+    if (e.getTo() == Material.AIR) {
+      if (XpProvenance.hasPermanentPlayerModification(e.getBlock())) {
+        data.set(PLAYER_MODIFIED_FALLING_BLOCK_KEY, PersistentDataType.BYTE, (byte) 1);
+      } else {
+        data.remove(PLAYER_MODIFIED_FALLING_BLOCK_KEY);
+      }
+      XpProvenance.clearPlacementRecord(e.getBlock());
+      return;
+    }
+    if (e.getTo() != Material.DRAGON_EGG) {
+      return;
+    }
+    if (data.has(PLAYER_MODIFIED_FALLING_BLOCK_KEY, PersistentDataType.BYTE)) {
+      XpProvenance.recordPlacement(e.getBlock());
+    } else {
+      XpProvenance.clearPlacementRecord(e.getBlock());
+    }
   }
 }

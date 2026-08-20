@@ -17,10 +17,10 @@ public final class EnchantingMessages {
   public static final TextKey QUICK_ENCHANT_LIMIT = TextKey.of("enchanting.quick_enchant.limit", "Cannot enchant an item with more than {power} power.");
   public static final LinesKey QUICK_ENCHANT_LORE = LinesKey.of("enchanting.quick_enchant.lore", "Max Combined Levels", "Cannot Enchant an item with more than ", "power");
   public static final TextKey RETURN_NAME = TextKey.of("enchanting.return.name", "XP Return");
-  public static final TextKey RETURN_DESCRIPTION = TextKey.of("enchanting.return.description", "Enchanting XP is returned to you when you enchant an item.");
-  public static final TextKey RETURN_LORE1 = TextKey.of("enchanting.return.lore1", "Experience spent has a chance to be refunded when you enchant an item");
-  public static final TextKey RETURN_LORE2 = TextKey.of("enchanting.return.lore2", "Experience per Enchant");
-  public static final LinesKey RETURN_LORE = LinesKey.of("enchanting.return.lore", "Experience spent has a chance to be refunded when you enchant an item", "Experience per Enchant");
+  public static final TextKey RETURN_DESCRIPTION = TextKey.of("enchanting.return.description", "Committed enchants periodically return a bounded vanilla XP orb.");
+  public static final TextKey RETURN_LORE1 = TextKey.of("enchanting.return.lore1", "Committed enchants return vanilla XP after a cooldown");
+  public static final TextKey RETURN_LORE2 = TextKey.of("enchanting.return.lore2", "Vanilla XP per Enchant");
+  public static final LinesKey RETURN_LORE = LinesKey.of("enchanting.return.lore", "Committed enchants return vanilla XP after a cooldown", "Vanilla XP per Enchant");
   public static final TextKey ANVIL_SAVANT_NAME = TextKey.of("enchanting.anvil_savant.name", "Anvil Savant");
   public static final TextKey ANVIL_SAVANT_DESCRIPTION = TextKey.of("enchanting.anvil_savant.description", "Reduce anvil XP cost when combining, repairing, and renaming.");
   public static final TextKey ANVIL_SAVANT_LORE1 = TextKey.of("enchanting.anvil_savant.lore1", "Anvil Cost Reduction");

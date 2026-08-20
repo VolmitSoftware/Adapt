@@ -25,7 +25,6 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeDropToInventory;
-import art.arcane.adapt.content.adaptation.pickaxe.PickaxeGemPolish;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.hiddenore.HiddenOre;
 import art.arcane.hiddenore.api.HiddenOreAPI;
@@ -45,7 +44,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ThreadLocalRandom;
 
 public final class HiddenOreBridge implements Listener {
   static HiddenOreLink.VeinTarget nearestVein(Location origin, int range) {
@@ -108,43 +106,9 @@ public final class HiddenOreBridge implements Listener {
   @EventHandler
   public void on(HiddenOreDropsEvent e) {
     Player p = e.getPlayer();
-    applyGemPolish(p, e);
     applyAutosmelt(p, e);
     applyDropToInventory(p, e);
     awardOreXp(p, e);
-  }
-
-  private void applyGemPolish(Player p, HiddenOreDropsEvent e) {
-    HiddenVein vein = e.getVein();
-    if (vein == null) {
-      return;
-    }
-
-    Material gem = switch (vein.item()) {
-      case DIAMOND, EMERALD, LAPIS_LAZULI -> vein.item();
-      default -> null;
-    };
-    if (gem == null) {
-      return;
-    }
-
-    PickaxeGemPolish gemPolish = adaptation(PickaxeGemPolish.class);
-    if (gemPolish == null) {
-      return;
-    }
-    int level = gemPolish.getActiveLevel(p);
-    if (level <= 0) {
-      return;
-    }
-
-    e.setExperience(e.getExperience() + gemPolish.getBonusXp(level));
-    if (ThreadLocalRandom.current().nextDouble() < gemPolish.getGemChance(level)) {
-      e.getDrops().add(new ItemStack(gem));
-      Adapt.instance.getAdaptServer().getPlayer(p).getData().addStat("pickaxe.gem-polish.gems-polished", 1);
-      if (particlesEnabled()) {
-        e.getBlock().getWorld().spawnParticle(Particle.HAPPY_VILLAGER, e.getBlock().getLocation().add(0.5, 0.5, 0.5), 6, 0.25, 0.25, 0.25);
-      }
-    }
   }
 
   private void applyAutosmelt(Player p, HiddenOreDropsEvent e) {

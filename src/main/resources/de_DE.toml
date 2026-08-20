@@ -2594,9 +2594,9 @@ description = "Sparen Sie Ihre Pick-Axe vor dem Brechen von 100-Zeiten"
 title = "Die ständige Wahl"
 description = "Wiederherstellen Sie die Haltbarkeit von 5,000 durch Reparaturrhythmus"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "Schädel"
-description = "Verpullieren Sie 500-Extra-Edelsteine"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "Kurator"
+description = "Poliere 25 natürlich erzeugte Trophäen"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "Granit-Verschleierung"
@@ -4070,10 +4070,10 @@ lore2 = "Dann schleiche und Rechtsklick mit einer Schere"
 lore = ["Wirf einen Gegenstand auf den Boden; Rüstung muss vollständig repariert sein.", "Dann schleiche und Rechtsklick mit einer Schere"]
 
 [crafting.xp]
-name = "Handwerkserfahrung"
-description = "Erhalte passiv EP beim Herstellen"
-lore1 = "Erhalte EP beim Herstellen"
-lore = ["Erhalte EP beim Herstellen"]
+name = "Herstellungs-EP"
+description = "Abgeschlossene Herstellvorgänge gewähren regelmäßig begrenzte Vanilla-EP."
+lore1 = "Vanilla-EP aus abgeschlossenen Herstellvorgängen"
+lore = ["Vanilla-EP aus abgeschlossenen Herstellvorgängen"]
 
 [crafting.reconstruction]
 name = "Erzrekonstruktion"
@@ -4313,10 +4313,10 @@ lore = ["Maximale kombinierte Stufen", "Kann einen Gegenstand nicht mit mehr als
 
 [enchanting.return]
 name = "EP-Rückgabe"
-description = "Verzauberungs-EP werden dir beim Verzaubern eines Gegenstands zurückgegeben."
-lore1 = "Ausgegebene Erfahrung hat eine Chance, beim Verzaubern erstattet zu werden"
-lore2 = "Erfahrung pro Verzauberung"
-lore = ["Ausgegebene Erfahrung hat eine Chance, beim Verzaubern erstattet zu werden", "Erfahrung pro Verzauberung"]
+description = "Abgeschlossene Verzauberungen geben regelmäßig begrenzte Vanilla-EP zurück."
+lore1 = "Abgeschlossene Verzauberungen geben nach einer Wartezeit EP zurück"
+lore2 = "Vanilla-EP pro Verzauberung"
+lore = ["Abgeschlossene Verzauberungen geben nach einer Wartezeit EP zurück", "Vanilla-EP pro Verzauberung"]
 
 [enchanting.anvil_savant]
 name = "Anvil Savant"
@@ -5169,12 +5169,12 @@ lore2 = "Möglichkeit zur Reparatur pro gebrochene Blöcke"
 lore = ["Jeder gebrochene Block kann die Haltbarkeit von 1-2 wiederherstellen", "Möglichkeit zur Reparatur pro gebrochene Blöcke"]
 
 [pickaxe.gem_polish]
-name = "Gem Polish"
-description = "Das Abbauen von Edelsteinerz gewährt Bonus-XP-Kugeln und die Chance auf einen zusätzlichen Edelstein"
-lore1 = "Bergbau von Diamanten, Smaragd, Lapis oder Amethyst"
-lore2 = "Chance auf einen zusätzlichen Edelstein"
-lore3 = "Bonus-XP pro abgebautem Edelsteinerz"
-lore = ["Bergbau von Diamanten, Smaragd, Lapis oder Amethyst", "Chance auf einen zusätzlichen Edelstein", "Bonus-XP pro abgebautem Edelsteinerz"]
+name = "Trophäenpolitur"
+description = "Der Abbau natürlich erzeugter Köpfe, Schädel oder Dracheneier gewährt begrenzte Vanilla-EP."
+lore1 = "Baue natürliche Köpfe, Schädel oder Dracheneier ab"
+lore2 = "Von Spielern platzierte Trophäen gewähren keine EP"
+lore3 = "Vanilla-EP pro Trophäe"
+lore = ["Baue natürliche Köpfe, Schädel oder Dracheneier ab", "Von Spielern platzierte Trophäen gewähren keine EP", "Vanilla-EP pro Trophäe"]
 
 [pickaxe.stone_skin]
 name = "Steinschale"
@@ -5408,9 +5408,9 @@ lore = ["Erhöhung der Sauerstoffkapazität"]
 
 [seaborn.fishers_fantasy]
 name = "Fischers Fantasie"
-description = "Verdiene mehr EP beim Fischen und fange mehr Fische!"
-lore1 = "Für jede Stufe gibt es eine Chance, mehr EP und Fisch zu erhalten!"
-lore = ["Für jede Stufe gibt es eine Chance, mehr EP und Fisch zu erhalten!"]
+description = "Angeln kann einen begrenzten Bonusgegenstand, Vanilla-EP und Seefahrer-EP gewähren."
+lore1 = "Chance auf ein einziges Bonuspaket beim Angeln"
+lore = ["Chance auf ein einziges Bonuspaket beim Angeln"]
 
 [seaborn.haste]
 name = "Schildkröten-Bergbau"

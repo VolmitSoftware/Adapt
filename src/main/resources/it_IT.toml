@@ -2594,9 +2594,9 @@ description = "Salva il tuo piccone dalla rottura 100 volte"
 title = "Pick perpetuo"
 description = "Ripristino 5,000 durata nel Rhythm di riparazione"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "Lapidario"
-description = "Polacco fuori 500 gemme extra"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "Curatore"
+description = "Lucida 25 trofei generati naturalmente"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "Nascondere di Granite"
@@ -4070,10 +4070,10 @@ lore2 = "Poi, accovacciati e fai Clic destro con le Cesoie"
 lore = ["Lascia cadere un oggetto a terra; l'armatura deve essere completamente riparata.", "Poi, accovacciati e fai Clic destro con le Cesoie"]
 
 [crafting.xp]
-name = "XP Artigianato"
-description = "Guadagna XP passivi quando crei oggetti"
-lore1 = "Guadagna XP quando crei oggetti"
-lore = ["Guadagna XP quando crei oggetti"]
+name = "XP di creazione"
+description = "Le creazioni completate assegnano periodicamente una quantità limitata di XP normale."
+lore1 = "XP normale dalle creazioni completate"
+lore = ["XP normale dalle creazioni completate"]
 
 [crafting.reconstruction]
 name = "Ricostruzione Minerali"
@@ -4312,11 +4312,11 @@ limit = "Non può incantare un prodotto con più di {power} potenza."
 lore = ["Livelli massimi combinati", "Non puoi incantare un oggetto con piu' di ", "potere"]
 
 [enchanting.return]
-name = "Ritorno di XP"
-description = "L'XP di incantamento ti viene restituita quando incanti un oggetto."
-lore1 = "L'esperienza spesa ha una probabilita' di essere rimborsata quando incanti un oggetto"
-lore2 = "Esperienza per incantamento"
-lore = ["L'esperienza spesa ha una probabilita' di essere rimborsata quando incanti un oggetto", "Esperienza per incantamento"]
+name = "Ritorno XP"
+description = "Gli incantamenti completati restituiscono periodicamente una quantità limitata di XP normale."
+lore1 = "Gli incantamenti completati restituiscono XP dopo un tempo di attesa"
+lore2 = "XP normale per incantamento"
+lore = ["Gli incantamenti completati restituiscono XP dopo un tempo di attesa", "XP normale per incantamento"]
 
 [enchanting.anvil_savant]
 name = "Anvil Savant"
@@ -5169,12 +5169,12 @@ lore2 = "possibilità di riparazione per blocco rotto"
 lore = ["Ogni blocco rotto può ripristinare 1-2 durata della vita", "possibilità di riparazione per blocco rotto"]
 
 [pickaxe.gem_polish]
-name = "Gem polacco"
-description = "Mineria minerale per la miniera XP concede bonus orbi e una possibilità di extra gemma"
-lore1 = "Mio diamante, smeraldo, lapis o ametista"
-lore2 = "possibilità di una gemma in più"
-lore3 = "bonus XP per minerale di gemme estratto"
-lore = ["Mio diamante, smeraldo, lapis o ametista", "possibilità di una gemma in più", "bonus XP per minerale di gemme estratto"]
+name = "Lucidatura trofei"
+description = "Estrarre teste, teschi o uova di drago generati naturalmente assegna una quantità limitata di XP normale."
+lore1 = "Estrai teste, teschi o uova di drago naturali"
+lore2 = "I trofei piazzati dai giocatori non assegnano XP"
+lore3 = "XP normale per trofeo"
+lore = ["Estrai teste, teschi o uova di drago naturali", "I trofei piazzati dai giocatori non assegnano XP", "XP normale per trofeo"]
 
 [pickaxe.stone_skin]
 name = "Pelle di pietra"
@@ -5407,10 +5407,10 @@ lore1 = "Aumento della capacita' di ossigeno"
 lore = ["Aumento della capacita' di ossigeno"]
 
 [seaborn.fishers_fantasy]
-name = "Fantasia del Pescatore"
-description = "Guadagna piu' XP dalla pesca e ottieni piu' pesci!"
-lore1 = "Per ogni livello c'e' una probabilita' di ottenere piu' XP e Pesci!"
-lore = ["Per ogni livello c'e' una probabilita' di ottenere piu' XP e Pesci!"]
+name = "Fantasia del pescatore"
+description = "La pesca può assegnare un oggetto bonus limitato, XP normale e XP marinaresca."
+lore1 = "Possibilità di un solo pacchetto premio di pesca"
+lore = ["Possibilità di un solo pacchetto premio di pesca"]
 
 [seaborn.haste]
 name = "Minatore Tartaruga"

@@ -76,6 +76,16 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 3);
   }
 
+  @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    loadedConfig.normalizeForPersistence();
+  }
+
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
+  }
+
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(InventoryClickEvent e) {
     if (!(e.getWhoClicked() instanceof Player p)) {
@@ -100,7 +110,7 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
       return;
     }
 
-    if (ThreadLocalRandom.current().nextDouble() > getRecoverChance(level)) {
+    if (ThreadLocalRandom.current().nextDouble() >= getRecoverChance(level)) {
       return;
     }
 
@@ -182,40 +192,78 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
   }
 
   private double getRecoverChance(int level) {
-    return Math.min(getConfig().maxRecoverChance, getConfig().recoverChanceBase + (getLevelPercent(level) * getConfig().recoverChanceFactor));
+    return recoverChance(getLevelPercent(level), getConfig().recoverChanceBase, getConfig().recoverChanceFactor, getConfig().maxRecoverChance);
   }
 
   private double getBonusXp(int level) {
-    return getConfig().bonusXpBase + (getLevelPercent(level) * getConfig().bonusXpFactor);
+    return bonusXp(getLevelPercent(level), getConfig().bonusXpBase, getConfig().bonusXpFactor, getConfig().maximumBonusXp);
   }
 
   private int getCooldownTicks(int level) {
-    return Math.max(10, (int) Math.round(getConfig().cooldownTicksBase - (getLevelPercent(level) * getConfig().cooldownTicksFactor)));
+    return cooldownTicks(getLevelPercent(level), getConfig().cooldownTicksBase, getConfig().cooldownTicksFactor, getConfig().minimumCooldownTicks);
+  }
+
+  static double recoverChance(double levelPercent, double base, double factor, double maximum) {
+    return Math.max(0D, Math.min(Math.max(0D, maximum), Math.max(0D, base) + (Math.max(0D, levelPercent) * Math.max(0D, factor))));
+  }
+
+  static double bonusXp(double levelPercent, double base, double factor, double maximum) {
+    return Math.max(0D, Math.min(Math.max(0D, maximum), Math.max(0D, base) + (Math.max(0D, levelPercent) * Math.max(0D, factor))));
+  }
+
+  static int cooldownTicks(double levelPercent, double base, double factor, int minimum) {
+    double scaled = Math.max(0D, base) - (Math.max(0D, levelPercent) * Math.max(0D, factor));
+    return Math.max(Math.max(0, minimum), (int) Math.round(Math.max(0D, Math.min(Integer.MAX_VALUE, scaled))));
   }
 
 
   @ConfigDescription("Using a grindstone can recover one removed enchant on a book with bonus XP.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Recover Chance Base for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double recoverChanceBase = 0.15;
+    double recoverChanceBase = 0.10;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Recover Chance Factor for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double recoverChanceFactor = 0.45;
+    double recoverChanceFactor = 0.25;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Recover Chance for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double maxRecoverChance = 0.7;
+    double maxRecoverChance = 0.35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Xp Base for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double bonusXpBase = 2;
+    double bonusXpBase = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bonus Xp Factor for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double bonusXpFactor = 8;
+    double bonusXpFactor = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum vanilla XP points granted by one successful recovery.", impact = "Caps oversized or heavily scaled recovery rewards.")
+    double maximumBonusXp = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Base for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double cooldownTicksBase = 120;
+    double cooldownTicksBase = 200;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown Ticks Factor for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double cooldownTicksFactor = 70;
+    double cooldownTicksFactor = 80;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum grindstone cooldown in ticks after a successful recovery.", impact = "Higher values place a firmer limit on repeated recoveries.")
+    int minimumCooldownTicks = 40;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Skill Xp On Recovery for the Enchanting Grindstone Recovery adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    double skillXpOnRecovery = 13;
+    double skillXpOnRecovery = 8;
 
     public Config() {
       costFactor = 0.74;
       initialCost = 4;
+      normalizeForPersistence();
+    }
+
+    void normalizeForPersistence() {
+      recoverChanceBase = clampFinite(recoverChanceBase, 0D, 1D);
+      recoverChanceFactor = clampFinite(recoverChanceFactor, 0D, 1D);
+      maxRecoverChance = clampFinite(maxRecoverChance, 0D, 1D);
+      bonusXpBase = clampFinite(bonusXpBase, 0D, 100000D);
+      bonusXpFactor = clampFinite(bonusXpFactor, 0D, 100000D);
+      maximumBonusXp = clampFinite(maximumBonusXp, 0D, 100000D);
+      cooldownTicksBase = clampFinite(cooldownTicksBase, 0D, 72000D);
+      cooldownTicksFactor = clampFinite(cooldownTicksFactor, 0D, 72000D);
+      minimumCooldownTicks = Math.max(0, Math.min(minimumCooldownTicks, 72000));
+      skillXpOnRecovery = clampFinite(skillXpOnRecovery, 0D, 100000D);
+    }
+
+    private static double clampFinite(double value, double minimum, double maximum) {
+      if (!Double.isFinite(value)) {
+        return minimum;
+      }
+      return Math.max(minimum, Math.min(value, maximum));
     }
   }
 }

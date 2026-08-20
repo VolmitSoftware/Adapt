@@ -2594,9 +2594,9 @@ description = "Išsaugoti savo pikaxe nuo laužymo 100 laikas"
 title = "Perpetual Pick"
 description = "Atstatyti 5,000 ilgaamžiškumas per remonto Rhythm"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "Lapidarė"
-description = "Lenkų iš 500 papildomi brangakmeniai"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "Kuratorius"
+description = "Nupoliruokite 25 natūraliai sugeneruotus trofėjus"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "Granito slėptuvė"
@@ -4071,9 +4071,9 @@ lore = ["Numeskite daikta ant zemes; sarvai turi buti visiskai sutaisyti.", "Tad
 
 [crafting.xp]
 name = "Gamybos XP"
-description = "Gamindami gaukite pasyvu XP"
-lore1 = "Gaukite XP gamindami"
-lore = ["Gaukite XP gamindami"]
+description = "Užbaigti gaminimai periodiškai suteikia ribotą kiekį įprastos XP."
+lore1 = "Įprasta XP už užbaigtus gaminimus"
+lore = ["Įprasta XP už užbaigtus gaminimus"]
 
 [crafting.reconstruction]
 name = "Rudu Rekonstrukcija"
@@ -4312,11 +4312,11 @@ limit = "Nepavyko įrašyti elemento su daugiau nei {power} galia."
 lore = ["Maksimalus Kombinuotas Lygis", "Negalima uzburti daikto, kuriame yra daugiau nei ", "galia"]
 
 [enchanting.return]
-name = "XP Grazinimas"
-description = "Buriant jums XP grazinamas, kai uzburiate daikta."
-lore1 = "Isleista patirtis turi galimybe buti grazinta, kai uzburiate daikta"
-lore2 = "Patirtis per Burta"
-lore = ["Isleista patirtis turi galimybe buti grazinta, kai uzburiate daikta", "Patirtis per Burta"]
+name = "XP grąžinimas"
+description = "Užbaigti užkerėjimai periodiškai grąžina ribotą kiekį įprastos XP."
+lore1 = "Užbaigti užkerėjimai grąžina XP po laukimo"
+lore2 = "Įprasta XP už užkerėjimą"
+lore = ["Užbaigti užkerėjimai grąžina XP po laukimo", "Įprasta XP už užkerėjimą"]
 
 [enchanting.anvil_savant]
 name = "Priekalo meistras"
@@ -5169,12 +5169,12 @@ lore2 = "galimybė remontuoti pažeistą bloką"
 lore = ["Kiekvienas pažeistas blokas gali atkurti 1-2 patvarumas", "galimybė remontuoti pažeistą bloką"]
 
 [pickaxe.gem_polish]
-name = "Gem Lenkų"
-description = "Kasant brangakmenių rūdas gaunami papildomi XP rutuliai ir galimybė gauti papildomą brangakmenį"
-lore1 = "Minų deimantai, smaragdai, lapai arba ametistai"
-lore2 = "galimybė papildomai atitikimo perlas"
-lore3 = "Papildomi XP už kiekvieną iškastą brangakmenių rūdą"
-lore = ["Minų deimantai, smaragdai, lapai arba ametistai", "galimybė papildomai atitikimo perlas", "Papildomi XP už kiekvieną iškastą brangakmenių rūdą"]
+name = "Trofėjų poliravimas"
+description = "Natūraliai sugeneruotų galvų, kaukolių ar drakono kiaušinių kasimas suteikia ribotą kiekį įprastos XP."
+lore1 = "Kaskite natūralias galvas, kaukoles ar drakono kiaušinius"
+lore2 = "Žaidėjų padėti trofėjai nesuteikia XP"
+lore3 = "Įprasta XP už trofėjų"
+lore = ["Kaskite natūralias galvas, kaukoles ar drakono kiaušinius", "Žaidėjų padėti trofėjai nesuteikia XP", "Įprasta XP už trofėjų"]
 
 [pickaxe.stone_skin]
 name = "Akmens oda"
@@ -5407,10 +5407,10 @@ lore1 = "Deguonies Talpos Padidejimas"
 lore = ["Deguonies Talpos Padidejimas"]
 
 [seaborn.fishers_fantasy]
-name = "Zvejolio Fantazija"
-description = "Uzsidirbkite daugiau XP is zvejybos ir gaukite daugiau zuvies!"
-lore1 = "Kiekviename lygyje yra galimybe gauti daugiau XP ir zuvies!"
-lore = ["Kiekviename lygyje yra galimybe gauti daugiau XP ir zuvies!"]
+name = "Žvejo fantazija"
+description = "Žvejyba gali suteikti vieną ribotą papildomą daiktą, įprastos XP ir jūrinės XP."
+lore1 = "Tikimybė gauti vieną žvejybos papildomo atlygio rinkinį"
+lore = ["Tikimybė gauti vieną žvejybos papildomo atlygio rinkinį"]
 
 [seaborn.haste]
 name = "Vezlys Sachtininkas"

@@ -2594,9 +2594,9 @@ description = "ツルハシの破損を100回防ぐ"
 title = "パーペチュアルピック"
 description = "修復の律動で耐久値を5,000回復する"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "ラピダリー"
-description = "追加の宝石を500個磨き出す"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "学芸員"
+description = "自然生成されたトロフィーを25個研磨する"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "花崗岩の皮膚"
@@ -4071,9 +4071,9 @@ lore = ["アイテムを地面に落とします。防具は完全に修理さ�
 
 [crafting.xp]
 name = "クラフトXP"
-description = "クラフト時にパッシブXPを獲得"
-lore1 = "クラフト時にXPを獲得"
-lore = ["クラフト時にXPを獲得"]
+description = "完了したクラフトで一定間隔ごとに上限付きの通常XPを獲得します。"
+lore1 = "完了したクラフトから得る通常XP"
+lore = ["完了したクラフトから得る通常XP"]
 
 [crafting.reconstruction]
 name = "鉱石再構築"
@@ -4312,11 +4312,11 @@ limit = "より多くのアイテムをエンチャントすることはでき�
 lore = ["最大合成レベル", "アイテムにエンチャントできる最大値は", "パワー"]
 
 [enchanting.return]
-name = "XPリターン"
-description = "エンチャント時に使用したXPが返還される。"
-lore1 = "エンチャント時に消費した経験値が返還されるチャンスがある"
-lore2 = "エンチャントごとの経験値"
-lore = ["エンチャント時に消費した経験値が返還されるチャンスがある", "エンチャントごとの経験値"]
+name = "XP返還"
+description = "完了したエンチャントで一定間隔ごとに上限付きの通常XPが返還されます。"
+lore1 = "完了したエンチャントは待機時間後にXPを返還します"
+lore2 = "エンチャントごとの通常XP"
+lore = ["完了したエンチャントは待機時間後にXPを返還します", "エンチャントごとの通常XP"]
 
 [enchanting.anvil_savant]
 name = "金床の達人"
@@ -5169,12 +5169,12 @@ lore2 = "破壊ブロックごとの修理確率"
 lore = ["破壊した各ブロックで耐久値を1-2回復可能", "破壊ブロックごとの修理確率"]
 
 [pickaxe.gem_polish]
-name = "宝石研磨"
-description = "宝石鉱石の採掘で追加XPオーブを得て、同じ宝石が追加で出ることがあります。"
-lore1 = "ダイヤモンド、エメラルド、ラピスラズリ、アメジストを採掘"
-lore2 = "同種の宝石を追加で得る確率"
-lore3 = "宝石鉱石ごとの追加XP"
-lore = ["ダイヤモンド、エメラルド、ラピスラズリ、アメジストを採掘", "同種の宝石を追加で得る確率", "宝石鉱石ごとの追加XP"]
+name = "トロフィー研磨"
+description = "自然生成された頭、頭蓋骨、ドラゴンの卵を採掘すると、上限付きの通常XPを獲得します。"
+lore1 = "自然生成された頭、頭蓋骨、ドラゴンの卵を採掘"
+lore2 = "プレイヤーが設置したトロフィーからXPは得られません"
+lore3 = "トロフィーごとの通常XP"
+lore = ["自然生成された頭、頭蓋骨、ドラゴンの卵を採掘", "プレイヤーが設置したトロフィーからXPは得られません", "トロフィーごとの通常XP"]
 
 [pickaxe.stone_skin]
 name = "石の皮膚"
@@ -5408,9 +5408,9 @@ lore = ["酸素容量増加"]
 
 [seaborn.fishers_fantasy]
 name = "釣り人の幻想"
-description = "釣りでより多くのXPと魚を獲得！"
-lore1 = "レベルごとにXPと魚の追加獲得チャンスが増加！"
-lore = ["レベルごとにXPと魚の追加獲得チャンスが増加！"]
+description = "釣りで上限付きの追加アイテム1個、通常XP、海洋XPを獲得できることがあります。"
+lore1 = "釣りの追加報酬一式を1回得る確率"
+lore = ["釣りの追加報酬一式を1回得る確率"]
 
 [seaborn.haste]
 name = "タートルマイナー"

@@ -2594,9 +2594,9 @@ description = "Cứu cuốc khỏi vỡ 100 lần"
 title = "Cuốc Vĩnh Cửu"
 description = "Phục hồi 5,000 độ bền bằng Nhịp Sửa Chữa"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "Thợ Mài Đá Quý"
-description = "Đánh bóng để nhận thêm 500 đá quý"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "Người quản tuyển"
+description = "Đánh bóng 25 chiến lợi phẩm được tạo tự nhiên"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "Da Đá Hoa Cương"
@@ -4070,10 +4070,10 @@ lore2 = "Sau đó, Ngồi và Chuột Phải bằng Kéo"
 lore = ["Thả một vật phẩm xuống đất; giáp phải được sửa chữa hoàn toàn.", "Sau đó, Ngồi và Chuột Phải bằng Kéo"]
 
 [crafting.xp]
-name = "XP Chế Tạo"
-description = "Nhận XP thụ động khi chế tạo"
-lore1 = "Nhận XP khi chế tạo"
-lore = ["Nhận XP khi chế tạo"]
+name = "Kinh nghiệm chế tạo"
+description = "Các lần chế tạo hoàn tất định kỳ trao một lượng kinh nghiệm thường có giới hạn."
+lore1 = "Kinh nghiệm thường từ các lần chế tạo hoàn tất"
+lore = ["Kinh nghiệm thường từ các lần chế tạo hoàn tất"]
 
 [crafting.reconstruction]
 name = "Tái Tạo Quặng"
@@ -4312,11 +4312,11 @@ limit = "Không thể tạo điều kiện cho một mục với nhiều hơn {p
 lore = ["Cấp Kết Hợp Tối Đa", "Không thể phù phép vật phẩm có nhiều hơn ", "năng lượng"]
 
 [enchanting.return]
-name = "Hoàn XP"
-description = "XP phù phép được trả lại khi bạn phù phép vật phẩm."
-lore1 = "Kinh nghiệm đã tiêu có cơ hội được hoàn lại khi phù phép"
-lore2 = "Kinh Nghiệm mỗi Lần Phù Phép"
-lore = ["Kinh nghiệm đã tiêu có cơ hội được hoàn lại khi phù phép", "Kinh Nghiệm mỗi Lần Phù Phép"]
+name = "Hoàn trả kinh nghiệm"
+description = "Các lần phù phép hoàn tất định kỳ hoàn lại một lượng kinh nghiệm thường có giới hạn."
+lore1 = "Phù phép hoàn tất hoàn lại kinh nghiệm sau thời gian chờ"
+lore2 = "Kinh nghiệm thường cho mỗi lần phù phép"
+lore = ["Phù phép hoàn tất hoàn lại kinh nghiệm sau thời gian chờ", "Kinh nghiệm thường cho mỗi lần phù phép"]
 
 [enchanting.anvil_savant]
 name = "Bậc Thầy Đe"
@@ -5169,12 +5169,12 @@ lore2 = "cơ hội sửa chữa mỗi khối phá vỡ"
 lore = ["Mỗi khối phá vỡ có thể hồi 1–2 độ bền", "cơ hội sửa chữa mỗi khối phá vỡ"]
 
 [pickaxe.gem_polish]
-name = "Đánh Bóng Đá Quý"
-description = "Khai thác quặng đá quý cho thêm cầu XP và có cơ hội nhận thêm một viên đá quý."
-lore1 = "Khai thác kim cương, ngọc lục bảo, lapis hoặc thạch anh tím"
-lore2 = "cơ hội nhận thêm đá quý cùng loại"
-lore3 = "XP thưởng mỗi quặng đá quý khai thác"
-lore = ["Khai thác kim cương, ngọc lục bảo, lapis hoặc thạch anh tím", "cơ hội nhận thêm đá quý cùng loại", "XP thưởng mỗi quặng đá quý khai thác"]
+name = "Đánh bóng chiến lợi phẩm"
+description = "Khai thác đầu, sọ hoặc trứng rồng được tạo tự nhiên sẽ trao một lượng kinh nghiệm thường có giới hạn."
+lore1 = "Khai thác đầu, sọ hoặc trứng rồng tự nhiên"
+lore2 = "Chiến lợi phẩm do người chơi đặt không trao kinh nghiệm"
+lore3 = "Kinh nghiệm thường cho mỗi chiến lợi phẩm"
+lore = ["Khai thác đầu, sọ hoặc trứng rồng tự nhiên", "Chiến lợi phẩm do người chơi đặt không trao kinh nghiệm", "Kinh nghiệm thường cho mỗi chiến lợi phẩm"]
 
 [pickaxe.stone_skin]
 name = "Da Đá"
@@ -5407,10 +5407,10 @@ lore1 = "Tăng Dung Tích Oxy"
 lore = ["Tăng Dung Tích Oxy"]
 
 [seaborn.fishers_fantasy]
-name = "Giấc Mơ Ngư Phủ"
-description = "Kiếm thêm XP từ câu cá, và nhận nhiều cá hơn!"
-lore1 = "Mỗi cấp độ có cơ hội nhận thêm XP và Cá!"
-lore = ["Mỗi cấp độ có cơ hội nhận thêm XP và Cá!"]
+name = "Ảo tưởng của ngư dân"
+description = "Câu cá có thể trao một vật phẩm thưởng có giới hạn, kinh nghiệm thường và kinh nghiệm hàng hải."
+lore1 = "Cơ hội nhận một gói thưởng câu cá"
+lore = ["Cơ hội nhận một gói thưởng câu cá"]
 
 [seaborn.haste]
 name = "Thợ Mỏ Rùa"

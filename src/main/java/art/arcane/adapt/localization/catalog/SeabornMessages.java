@@ -10,9 +10,9 @@ public final class SeabornMessages {
   public static final TextKey OXYGEN_LORE1 = TextKey.of("seaborn.oxygen.lore1", "Oxygen Capacity Increase");
   public static final LinesKey OXYGEN_LORE = LinesKey.of("seaborn.oxygen.lore", "Oxygen Capacity Increase");
   public static final TextKey FISHERS_FANTASY_NAME = TextKey.of("seaborn.fishers_fantasy.name", "Fisher's Fantasy");
-  public static final TextKey FISHERS_FANTASY_DESCRIPTION = TextKey.of("seaborn.fishers_fantasy.description", "Earn more XP from fishing, and get more fish!");
-  public static final TextKey FISHERS_FANTASY_LORE1 = TextKey.of("seaborn.fishers_fantasy.lore1", "For each level there is a chance to get more XP and Fish!");
-  public static final LinesKey FISHERS_FANTASY_LORE = LinesKey.of("seaborn.fishers_fantasy.lore", "For each level there is a chance to get more XP and Fish!");
+  public static final TextKey FISHERS_FANTASY_DESCRIPTION = TextKey.of("seaborn.fishers_fantasy.description", "Fishing can grant one bounded bonus item, vanilla XP, and Seaborne XP.");
+  public static final TextKey FISHERS_FANTASY_LORE1 = TextKey.of("seaborn.fishers_fantasy.lore1", "Chance for one bonus fishing reward bundle");
+  public static final LinesKey FISHERS_FANTASY_LORE = LinesKey.of("seaborn.fishers_fantasy.lore", "Chance for one bonus fishing reward bundle");
   public static final TextKey HASTE_NAME = TextKey.of("seaborn.haste.name", "Turtle Miner");
   public static final TextKey HASTE_DESCRIPTION = TextKey.of("seaborn.haste.description", "Mine faster underwater whether standing or floating.");
   public static final TextKey HASTE_LORE1 = TextKey.of("seaborn.haste.lore1", "Boosts submerged mining speed, stacks with Aqua Affinity, and compensates for the floating mining penalty.");

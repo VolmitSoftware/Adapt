@@ -28,17 +28,15 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
-import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.math.M;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -49,46 +47,58 @@ public class PickaxeGemPolish extends SimpleAdaptation<PickaxeGemPolish.Config> 
   public PickaxeGemPolish() {
     super("pickaxe-gem-polish");
     registerConfiguration(PickaxeGemPolish.Config.class);
-    setIcon(Material.DIAMOND);
+    setIcon(Material.DRAGON_HEAD);
     setInterval(6844);
     registerAdvancement(AdaptAdvancement.builder()
-        .icon(Material.EMERALD)
-        .key("challenge_pickaxe_gempolish_500")
+        .icon(Material.DRAGON_HEAD)
+        .key("challenge_pickaxe_gempolish_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.PARENT_GRANTED)
         .build());
-    registerMilestone("challenge_pickaxe_gempolish_500", "pickaxe.gem-polish.gems-polished", 500, 400);
+    registerMilestone("challenge_pickaxe_gempolish_25", "pickaxe.gem-polish.trophies-polished", 25, 400);
   }
 
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(PickaxeMessages.GEM_POLISH_LORE1));
-    statLore(v, Form.pc(getGemChance(level), 0), 2);
-    statLore(v, getBonusXp(level), 3);
+    v.addLore(C.GRAY + AdaptLanguage.text(PickaxeMessages.GEM_POLISH_LORE2));
+    statLore(v, rewardXp(level, getConfig().vanillaXpAtLevelOne, getConfig().vanillaXpPerAdditionalLevel, getConfig().maximumXpPerTrophy), 3);
   }
 
-  public double getGemChance(int level) {
-    return Math.min(getConfig().maxGemChance, getConfig().gemChanceBase + (level * getConfig().gemChancePerLevel));
+  @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    loadedConfig.normalizeForPersistence();
   }
 
-  public int getBonusXp(int level) {
-    return getConfig().bonusXpBase + (level * getConfig().bonusXpPerLevel);
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
   }
 
-  private Material getGemFor(Material type) {
+  static boolean isEligibleTrophy(Material type, boolean headsEnabled, boolean dragonEggEnabled) {
     return switch (type) {
-      case DIAMOND_ORE, DEEPSLATE_DIAMOND_ORE -> Material.DIAMOND;
-      case EMERALD_ORE, DEEPSLATE_EMERALD_ORE -> Material.EMERALD;
-      case LAPIS_ORE, DEEPSLATE_LAPIS_ORE -> Material.LAPIS_LAZULI;
-      case AMETHYST_CLUSTER -> Material.AMETHYST_SHARD;
-      default -> null;
+      case SKELETON_SKULL, SKELETON_WALL_SKULL,
+           WITHER_SKELETON_SKULL, WITHER_SKELETON_WALL_SKULL,
+           ZOMBIE_HEAD, ZOMBIE_WALL_HEAD,
+           PLAYER_HEAD, PLAYER_WALL_HEAD,
+           CREEPER_HEAD, CREEPER_WALL_HEAD,
+           DRAGON_HEAD, DRAGON_WALL_HEAD,
+           PIGLIN_HEAD, PIGLIN_WALL_HEAD -> headsEnabled;
+      case DRAGON_EGG -> dragonEggEnabled;
+      default -> false;
     };
   }
 
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  static int rewardXp(int level, int atLevelOne, int perAdditionalLevel, int maximum) {
+    long reward = Math.max(0, atLevelOne) + ((long) Math.max(0, level - 1) * Math.max(0, perAdditionalLevel));
+    return (int) Math.min(Math.max(0, maximum), reward);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
-    Material gem = getGemFor(e.getBlock().getType());
-    if (gem == null) {
+    Config config = getConfig();
+    Material trophy = e.getBlock().getType();
+    if (!isEligibleTrophy(trophy, config.headsEnabled, config.dragonEggEnabled)) {
       return;
     }
 
@@ -98,7 +108,7 @@ public class PickaxeGemPolish extends SimpleAdaptation<PickaxeGemPolish.Config> 
       return;
     }
 
-    if (getConfig().preventSilkTouchDoubleDip && hand.getEnchantments().containsKey(Enchantment.SILK_TOUCH)) {
+    if (config.rejectPlayerModifiedBlocks && XpProvenance.hasPermanentPlayerModification(e.getBlock())) {
       return;
     }
 
@@ -107,67 +117,67 @@ public class PickaxeGemPolish extends SimpleAdaptation<PickaxeGemPolish.Config> 
       return;
     }
 
-    Material blockType = e.getBlock().getType();
     Location drop = e.getBlock().getLocation().add(0.5, 0.5, 0.5);
-    int bonusXp = getBonusXp(context.level());
-    if (bonusXp > 0) {
-      e.getBlock().getWorld().spawn(drop, org.bukkit.entity.ExperienceOrb.class).setExperience(bonusXp);
-      fx(drop, FxPriority.AMBIENT)
-          .column(Particles.END_ROD, 4, 0.8D)
-          .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.4f);
+    int bonusXp = rewardXp(context.level(), config.vanillaXpAtLevelOne, config.vanillaXpPerAdditionalLevel, config.maximumXpPerTrophy);
+    if (bonusXp <= 0) {
+      return;
     }
 
-    if (M.r(getGemChance(context.level()))) {
-      e.getBlock().getWorld().dropItemNaturally(drop, new ItemStack(gem));
-      addStat(p, "pickaxe.gem-polish.gems-polished", 1);
-      Color gemColor = gemColor(gem);
-      timeline(drop)
-          .duration(5)
-          .priority(FxPriority.TRANSITION)
-          .frame((fxE, tick, progress) -> {
-            double r = 0.7D - (0.5D * progress);
-            fxE.ring(Particles.END_ROD, r, 4, 0.4D);
-            fxE.dustRing(gemColor, r, 6, 1.0F);
-            if (tick == 0) {
-              fxE.chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5f, 1.6f, Sound.BLOCK_AMETHYST_CLUSTER_BREAK, 0.4f, 1.2f);
-            }
-          })
-          .start();
-      if (blockType == Material.AMETHYST_CLUSTER) {
-        fx(drop, FxPriority.AMBIENT).sound(Sound.BLOCK_AMETHYST_CLUSTER_HIT, 0.4f, 1.3f);
-      }
-    }
+    e.getBlock().getWorld().spawn(drop, org.bukkit.entity.ExperienceOrb.class).setExperience(bonusXp);
+    fx(drop, FxPriority.AMBIENT)
+        .column(Particles.END_ROD, 4, 0.8D)
+        .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.4f);
+
+    addStat(p, "pickaxe.gem-polish.trophies-polished", 1);
+    Color trophyColor = trophyColor(trophy);
+    timeline(drop)
+        .duration(5)
+        .priority(FxPriority.TRANSITION)
+        .frame((fxE, tick, progress) -> {
+          double radius = 0.7D - (0.5D * progress);
+          fxE.ring(Particles.END_ROD, radius, 4, 0.4D);
+          fxE.dustRing(trophyColor, radius, 6, 1.0F);
+          if (tick == 0) {
+            fxE.chord(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5f, 1.6f, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.4f, 1.2f);
+          }
+        })
+        .start();
   }
 
-  private static Color gemColor(Material gem) {
-    return switch (gem) {
-      case EMERALD -> Color.fromRGB(0x2ECC71);
-      case LAPIS_LAZULI -> Color.fromRGB(0x1E5AA8);
-      case AMETHYST_SHARD -> Color.fromRGB(0x9B59B6);
-      default -> Color.fromRGB(0x4DD0E1);
+  private static Color trophyColor(Material trophy) {
+    return switch (trophy) {
+      case DRAGON_EGG, DRAGON_HEAD, DRAGON_WALL_HEAD -> Color.fromRGB(0x9B59B6);
+      case WITHER_SKELETON_SKULL, WITHER_SKELETON_WALL_SKULL -> Color.fromRGB(0x4B4B4B);
+      default -> Color.fromRGB(0xD6C4A1);
     };
   }
 
-
-  @ConfigDescription("Mining gem ores grants bonus XP orbs and a chance for an extra matching gem.")
+  @ConfigDescription("Mining naturally generated heads, skulls, and dragon eggs grants a bounded vanilla XP reward.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Skips all bonuses when the pickaxe has Silk Touch.", impact = "True prevents double-dipping by silk-touching ores and mining them again.")
-    boolean preventSilkTouchDoubleDip = true;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base chance for an extra gem drop when mining a gem ore.", impact = "Higher values drop extra gems more often at every level.")
-    double gemChanceBase = 0.04;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional extra-gem chance gained per adaptation level.", impact = "Higher values drop extra gems more often at higher levels.")
-    double gemChancePerLevel = 0.05;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum total extra-gem chance.", impact = "Higher values allow more frequent extra gems at max level.")
-    double maxGemChance = 0.4;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Base bonus XP orb value granted per mined gem ore.", impact = "Higher values grant more XP at every level.")
-    int bonusXpBase = 1;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Additional bonus XP orb value gained per adaptation level.", impact = "Higher values grant more XP at higher levels.")
-    int bonusXpPerLevel = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Allows naturally generated standing and wall head or skull blocks to grant XP.", impact = "Disable to restrict the adaptation to dragon eggs.")
+    boolean headsEnabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Allows naturally generated dragon egg blocks to grant XP.", impact = "Disable to restrict the adaptation to heads and skulls.")
+    boolean dragonEggEnabled = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Permanently rejects blocks with player placement or break provenance.", impact = "Keep enabled to prevent placing and repeatedly mining the same trophy for XP.")
+    boolean rejectPlayerModifiedBlocks = true;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Vanilla XP points granted by a level-one trophy polish.", impact = "Higher values increase the base trophy reward.")
+    int vanillaXpAtLevelOne = 7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Vanilla XP points added for each adaptation level after level one.", impact = "Higher values make the trophy reward scale faster with adaptation level.")
+    int vanillaXpPerAdditionalLevel = 3;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum vanilla XP points granted by one trophy.", impact = "Caps oversized or heavily scaled rewards.")
+    int maximumXpPerTrophy = 24;
 
     public Config() {
       baseCost = 6;
       costFactor = 0.7;
       initialCost = 4;
+      normalizeForPersistence();
+    }
+
+    void normalizeForPersistence() {
+      vanillaXpAtLevelOne = Math.max(0, Math.min(vanillaXpAtLevelOne, 100000));
+      vanillaXpPerAdditionalLevel = Math.max(0, Math.min(vanillaXpPerAdditionalLevel, 100000));
+      maximumXpPerTrophy = Math.max(0, Math.min(maximumXpPerTrophy, 100000));
     }
   }
 }

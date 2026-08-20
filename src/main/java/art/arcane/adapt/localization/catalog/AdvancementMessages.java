@@ -1103,8 +1103,8 @@ public final class AdvancementMessages {
   public static final TextKey CHALLENGE_PICKAXE_PACT_100_DESCRIPTION = TextKey.of("advancement.challenge_pickaxe_pact_100.description", "Save your pickaxe from breaking 100 times");
   public static final TextKey CHALLENGE_PICKAXE_RHYTHM_5K_TITLE = TextKey.of("advancement.challenge_pickaxe_rhythm_5k.title", "Perpetual Pick");
   public static final TextKey CHALLENGE_PICKAXE_RHYTHM_5K_DESCRIPTION = TextKey.of("advancement.challenge_pickaxe_rhythm_5k.description", "Restore 5,000 durability through Repair Rhythm");
-  public static final TextKey CHALLENGE_PICKAXE_GEMPOLISH_500_TITLE = TextKey.of("advancement.challenge_pickaxe_gempolish_500.title", "Lapidary");
-  public static final TextKey CHALLENGE_PICKAXE_GEMPOLISH_500_DESCRIPTION = TextKey.of("advancement.challenge_pickaxe_gempolish_500.description", "Polish out 500 extra gems");
+  public static final TextKey CHALLENGE_PICKAXE_GEMPOLISH_25_TITLE = TextKey.of("advancement.challenge_pickaxe_gempolish_25.title", "Curator");
+  public static final TextKey CHALLENGE_PICKAXE_GEMPOLISH_25_DESCRIPTION = TextKey.of("advancement.challenge_pickaxe_gempolish_25.description", "Polish 25 naturally generated trophies");
   public static final TextKey CHALLENGE_PICKAXE_STONESKIN_10K_TITLE = TextKey.of("advancement.challenge_pickaxe_stoneskin_10k.title", "Hide of Granite");
   public static final TextKey CHALLENGE_PICKAXE_STONESKIN_10K_DESCRIPTION = TextKey.of("advancement.challenge_pickaxe_stoneskin_10k.description", "Build 10,000 Stone Skin stacks");
   public static final TextKey CHALLENGE_TRAGOUL_CORPSE_500_TITLE = TextKey.of("advancement.challenge_tragoul_corpse_500.title", "Walking Detonator");
@@ -2562,8 +2562,8 @@ public final class AdvancementMessages {
     builder.add(CHALLENGE_PICKAXE_PACT_100_DESCRIPTION);
     builder.add(CHALLENGE_PICKAXE_RHYTHM_5K_TITLE);
     builder.add(CHALLENGE_PICKAXE_RHYTHM_5K_DESCRIPTION);
-    builder.add(CHALLENGE_PICKAXE_GEMPOLISH_500_TITLE);
-    builder.add(CHALLENGE_PICKAXE_GEMPOLISH_500_DESCRIPTION);
+    builder.add(CHALLENGE_PICKAXE_GEMPOLISH_25_TITLE);
+    builder.add(CHALLENGE_PICKAXE_GEMPOLISH_25_DESCRIPTION);
     builder.add(CHALLENGE_PICKAXE_STONESKIN_10K_TITLE);
     builder.add(CHALLENGE_PICKAXE_STONESKIN_10K_DESCRIPTION);
     builder.add(CHALLENGE_TRAGOUL_CORPSE_500_TITLE);

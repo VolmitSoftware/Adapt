@@ -62,10 +62,20 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GRAY + AdaptLanguage.text(EnchantingMessages.RETURN_LORE1));
-    statLore(v, C.GREEN, "", getConfig().xpReturn * (level * level), 2);
+    statLore(v, C.GREEN, "", rewardXp(level, getConfig().vanillaXpAtLevelOne, getConfig().vanillaXpPerAdditionalLevel, getConfig().maximumXpPerEnchant), 2);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    loadedConfig.normalizeForPersistence();
+  }
+
+  @Override
+  protected boolean shouldCanonicalizeConfigOnLoad() {
+    return true;
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EnchantItemEvent e) {
     Player p = e.getEnchanter();
     int level = getActiveLevel(p);
@@ -74,15 +84,24 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
     }
 
     UUID id = p.getUniqueId();
-    if (!cooldown.isReady(id, 20000L)) {
+    if (!cooldown.isReady(id, getConfig().cooldownMillis)) {
+      return;
+    }
+
+    int xpAmount = rewardXp(level, getConfig().vanillaXpAtLevelOne, getConfig().vanillaXpPerAdditionalLevel, getConfig().maximumXpPerEnchant);
+    if (xpAmount <= 0) {
       return;
     }
 
     cooldown.mark(id);
-    int xpAmount = getConfig().xpReturn * (level * level);
     p.getWorld().spawn(p.getLocation(), org.bukkit.entity.ExperienceOrb.class).setExperience(xpAmount);
     addStat(p, "enchanting.xp-return.levels-saved", xpAmount);
     xpRefundFx(p, level);
+  }
+
+  static int rewardXp(int level, int atLevelOne, int perAdditionalLevel, int maximum) {
+    long reward = Math.max(0, atLevelOne) + ((long) Math.max(0, level - 1) * Math.max(0, perAdditionalLevel));
+    return (int) Math.min(Math.max(0, maximum), reward);
   }
 
   private void xpRefundFx(Player p, int level) {
@@ -103,15 +122,29 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
   }
 
 
-  @ConfigDescription("Enchanting XP is partially refunded when you enchant an item.")
+  @ConfigDescription("Committed enchants periodically return a bounded vanilla XP orb.")
   protected static class Config extends AdaptationConfig {
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Return for the Enchanting XPReturn adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
-    public int xpReturn = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Vanilla XP points returned by a level-one activation.", impact = "Higher values increase the base enchanting refund.")
+    int vanillaXpAtLevelOne = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Vanilla XP points added for each adaptation level after level one.", impact = "Higher values make the refund scale faster with adaptation level.")
+    int vanillaXpPerAdditionalLevel = 4;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Maximum vanilla XP points returned by one enchant.", impact = "Caps oversized or heavily scaled refunds.")
+    int maximumXpPerEnchant = 32;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum milliseconds between vanilla XP refunds for the same player.", impact = "Higher values reduce repeated enchanting refunds.")
+    long cooldownMillis = 30000L;
 
     public Config() {
       baseCost = 1;
       costFactor = 0.9;
       maxLevel = 7;
+      normalizeForPersistence();
+    }
+
+    void normalizeForPersistence() {
+      vanillaXpAtLevelOne = Math.max(0, Math.min(vanillaXpAtLevelOne, 100000));
+      vanillaXpPerAdditionalLevel = Math.max(0, Math.min(vanillaXpPerAdditionalLevel, 100000));
+      maximumXpPerEnchant = Math.max(0, Math.min(maximumXpPerEnchant, 100000));
+      cooldownMillis = Math.max(0L, Math.min(cooldownMillis, 3600000L));
     }
   }
 }

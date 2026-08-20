@@ -2594,9 +2594,9 @@ description = "Empêchez votre pioche de se briser 100 fois"
 title = "Pick perpétuel"
 description = "Restauration 5,000 durabilité grâce au rythme de réparation"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "Lapidaire"
-description = "Sortir 500 gemmes supplémentaires"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "Conservateur"
+description = "Polissez 25 trophées générés naturellement"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "Cuir de granite"
@@ -4070,10 +4070,10 @@ lore2 = "Puis, accroupissez-vous et faites un clic droit avec des cisailles"
 lore = ["Lachez un objet au sol ; l'armure doit etre entierement reparee.", "Puis, accroupissez-vous et faites un clic droit avec des cisailles"]
 
 [crafting.xp]
-name = "XP d'artisanat"
-description = "Gagnez de l'XP passive en fabriquant"
-lore1 = "Gagnez de l'XP en fabriquant"
-lore = ["Gagnez de l'XP en fabriquant"]
+name = "XP d’artisanat"
+description = "Les fabrications terminées accordent périodiquement une quantité limitée d’XP normale."
+lore1 = "XP normale des fabrications terminées"
+lore = ["XP normale des fabrications terminées"]
 
 [crafting.reconstruction]
 name = "Reconstruction de minerai"
@@ -4312,11 +4312,11 @@ limit = "Ne peut pas enchanter un article avec plus de {power} Puissance."
 lore = ["Niveaux combines maximum", "Impossible d'enchanter un objet avec plus de ", "puissance"]
 
 [enchanting.return]
-name = "Retour d'XP"
-description = "L'XP d'enchantement vous est rendue lorsque vous enchantez un objet."
-lore1 = "L'experience depensee a une chance d'etre remboursee lorsque vous enchantez un objet"
-lore2 = "Experience par enchantement"
-lore = ["L'experience depensee a une chance d'etre remboursee lorsque vous enchantez un objet", "Experience par enchantement"]
+name = "Retour d’XP"
+description = "Les enchantements terminés rendent périodiquement une quantité limitée d’XP normale."
+lore1 = "Les enchantements terminés rendent de l’XP après un délai"
+lore2 = "XP normale par enchantement"
+lore = ["Les enchantements terminés rendent de l’XP après un délai", "XP normale par enchantement"]
 
 [enchanting.anvil_savant]
 name = "Evil Savant"
@@ -5169,12 +5169,12 @@ lore2 = "possibilité de réparation par bloc cassé"
 lore = ["Chaque bloc brisé peut restaurer 1-2 durabilité", "possibilité de réparation par bloc cassé"]
 
 [pickaxe.gem_polish]
-name = "Gemme polonaise"
-description = "Prime aux minerais de gemme minier XP orbes et une chance pour un bijou supplémentaire"
-lore1 = "Mine diamant, émeraude, lapis ou améthyste"
-lore2 = "occasion pour un bijou supplémentaire assorti"
-lore3 = "bonus XP par minerai de pierres précieuses extrait"
-lore = ["Mine diamant, émeraude, lapis ou améthyste", "occasion pour un bijou supplémentaire assorti", "bonus XP par minerai de pierres précieuses extrait"]
+name = "Polissage de trophées"
+description = "Miner des têtes, crânes ou œufs de dragon générés naturellement accorde une quantité limitée d’XP normale."
+lore1 = "Mine des têtes, crânes ou œufs de dragon naturels"
+lore2 = "Les trophées placés par des joueurs ne donnent pas d’XP"
+lore3 = "XP normale par trophée"
+lore = ["Mine des têtes, crânes ou œufs de dragon naturels", "Les trophées placés par des joueurs ne donnent pas d’XP", "XP normale par trophée"]
 
 [pickaxe.stone_skin]
 name = "Peau de pierre"
@@ -5407,10 +5407,10 @@ lore1 = "Augmentation de la capacite en oxygene"
 lore = ["Augmentation de la capacite en oxygene"]
 
 [seaborn.fishers_fantasy]
-name = "Fantaisie du pecheur"
-description = "Gagnez plus d'XP en pechant et obtenez plus de poisson !"
-lore1 = "Pour chaque niveau, il y a une chance d'obtenir plus d'XP et de poisson !"
-lore = ["Pour chaque niveau, il y a une chance d'obtenir plus d'XP et de poisson !"]
+name = "Fantaisie du pêcheur"
+description = "La pêche peut accorder un objet bonus limité, de l’XP normale et de l’XP maritime."
+lore1 = "Chance d’obtenir un seul lot de récompense de pêche"
+lore = ["Chance d’obtenir un seul lot de récompense de pêche"]
 
 [seaborn.haste]
 name = "Mineur tortue"

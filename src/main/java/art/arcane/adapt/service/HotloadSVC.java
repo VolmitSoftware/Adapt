@@ -41,7 +41,8 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 public class HotloadSVC implements AdaptService {
-  private static final long WATCHER_POLL_MS = 500;
+  private static final long WATCHER_POLL_MS = 500L;
+  private static final long HOTLOAD_COOLDOWN_MS = 3_000L;
   private static final int MAX_DIFF_MESSAGES_PER_FILE = 12;
   private static final int MUTATION_RECONCILIATION_BATCH_SIZE = 32;
 
@@ -73,6 +74,7 @@ public class HotloadSVC implements AdaptService {
     localeOverrideFolder = AdaptLanguage.overrideFolder();
     hotloadEngine.configure(
         WATCHER_POLL_MS,
+        HOTLOAD_COOLDOWN_MS,
         List.of(adaptConfigFile, adaptConfigLegacyFile, modelsFile, modelsLegacyFile, mutationsConfigFile),
         List.of(skillsFolder, adaptationsFolder, localeOverrideFolder)
     );

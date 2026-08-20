@@ -2594,9 +2594,9 @@ description = "Tallenna hakkusi murtumalta 100 kertaa"
 title = "Ikuinen valinta"
 description = "Palauta 5,000 kestävyys korjaus Rytmi"
 
-[advancement.challenge_pickaxe_gempolish_500]
-title = "Lapidaari"
-description = "Puola 500 lisäjalokivet"
+[advancement.challenge_pickaxe_gempolish_25]
+title = "Kuraattori"
+description = "Kiillota 25 luonnollisesti syntynyttä pokaalia"
 
 [advancement.challenge_pickaxe_stoneskin_10k]
 title = "Graniitin piilotus"
@@ -4070,10 +4070,10 @@ lore2 = "Sitten kyykisty ja oikea-klikkaa saksilla"
 lore = ["Pudota esine maahan; haarniskan on oltava täysin korjattu.", "Sitten kyykisty ja oikea-klikkaa saksilla"]
 
 [crafting.xp]
-name = "Valmistus-XP"
-description = "Saat passiivista XP:tä valmistaessasi"
-lore1 = "Saat XP:tä valmistaessasi"
-lore = ["Saat XP:tä valmistaessasi"]
+name = "Valmistuskokemus"
+description = "Valmiit valmistukset antavat ajoittain rajatun määrän tavallista kokemusta."
+lore1 = "Tavallista kokemusta valmiista valmistuksista"
+lore = ["Tavallista kokemusta valmiista valmistuksista"]
 
 [crafting.reconstruction]
 name = "Malmin jälleenrakennus"
@@ -4312,11 +4312,11 @@ limit = "Ei voi lumota kohdetta, jossa on enemmän kuin {power} teho."
 lore = ["Yhdistettyjen tasojen enimmäismäärä", "Esinettä ei voi luomita enempää kuin ", "tehoa"]
 
 [enchanting.return]
-name = "XP:n palautus"
-description = "Luomis-XP palautetaan sinulle kun luomat esineen."
-lore1 = "Käytetyllä kokemuksella on mahdollisuus palautua kun luomat esineen"
-lore2 = "Kokemusta per luomus"
-lore = ["Käytetyllä kokemuksella on mahdollisuus palautua kun luomat esineen", "Kokemusta per luomus"]
+name = "Kokemuksen palautus"
+description = "Valmiit lumoukset palauttavat ajoittain rajatun määrän tavallista kokemusta."
+lore1 = "Valmiit lumoukset palauttavat kokemusta odotusajan jälkeen"
+lore2 = "Tavallista kokemusta lumousta kohti"
+lore = ["Valmiit lumoukset palauttavat kokemusta odotusajan jälkeen", "Tavallista kokemusta lumousta kohti"]
 
 [enchanting.anvil_savant]
 name = "Anvil Savant"
@@ -5169,12 +5169,12 @@ lore2 = "mahdollisuus korjata per rikkoutunut lohko"
 lore = ["Jokainen rikkoutunut lohko voi palauttaa 1-2 kestävyys", "mahdollisuus korjata per rikkoutunut lohko"]
 
 [pickaxe.gem_polish]
-name = "Gem Polish"
-description = "Mining jalokivimalmit myöntää bonusta XP pallot ja mahdollisuus ylimääräinen helmi"
-lore1 = "Oma timantti, smaragdi, lapis tai ametisti"
-lore2 = "mahdollisuus ylimääräistä matching helmi"
-lore3 = "bonus XP jokaisesta kaivetystä jalokivistä"
-lore = ["Oma timantti, smaragdi, lapis tai ametisti", "mahdollisuus ylimääräistä matching helmi", "bonus XP jokaisesta kaivetystä jalokivistä"]
+name = "Pokaalien kiillotus"
+description = "Luonnollisesti syntyneiden päiden, kallojen tai lohikäärmeenmunien louhiminen antaa rajatun määrän tavallista kokemusta."
+lore1 = "Louhi luonnollisia päitä, kalloja tai lohikäärmeenmunia"
+lore2 = "Pelaajan asettamat pokaalit eivät anna kokemusta"
+lore3 = "Tavallista kokemusta pokaalia kohti"
+lore = ["Louhi luonnollisia päitä, kalloja tai lohikäärmeenmunia", "Pelaajan asettamat pokaalit eivät anna kokemusta", "Tavallista kokemusta pokaalia kohti"]
 
 [pickaxe.stone_skin]
 name = "Kivinahka"
@@ -5408,9 +5408,9 @@ lore = ["Happikapasiteetin lisäys"]
 
 [seaborn.fishers_fantasy]
 name = "Kalastajan fantasia"
-description = "Ansaitse enemmän XP:tä kalastuksesta ja saa enemmän kalaa!"
-lore1 = "Jokaisella tasolla on mahdollisuus saada lisää XP:tä ja kalaa!"
-lore = ["Jokaisella tasolla on mahdollisuus saada lisää XP:tä ja kalaa!"]
+description = "Kalastus voi antaa yhden rajatun bonus-esineen, tavallista kokemusta ja merenkäyntikokemusta."
+lore1 = "Mahdollisuus yhteen kalastuksen bonuspalkintoon"
+lore = ["Mahdollisuus yhteen kalastuksen bonuspalkintoon"]
 
 [seaborn.haste]
 name = "Kilpikonnakaivaja"

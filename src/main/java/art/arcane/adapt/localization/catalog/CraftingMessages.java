@@ -11,9 +11,9 @@ public final class CraftingMessages {
   public static final TextKey DECONSTRUCTION_LORE2 = TextKey.of("crafting.deconstruction.lore2", "Then, Sneak and Right-Click with Shears");
   public static final LinesKey DECONSTRUCTION_LORE = LinesKey.of("crafting.deconstruction.lore", "Drop an item; armor must be fully repaired.", "Then, Sneak and Right-Click with Shears");
   public static final TextKey XP_NAME = TextKey.of("crafting.xp.name", "Crafting XP");
-  public static final TextKey XP_DESCRIPTION = TextKey.of("crafting.xp.description", "Gain passive XP when crafting");
-  public static final TextKey XP_LORE1 = TextKey.of("crafting.xp.lore1", "Gain XP when crafting");
-  public static final LinesKey XP_LORE = LinesKey.of("crafting.xp.lore", "Gain XP when crafting");
+  public static final TextKey XP_DESCRIPTION = TextKey.of("crafting.xp.description", "Periodically gain a bounded vanilla XP orb when crafting");
+  public static final TextKey XP_LORE1 = TextKey.of("crafting.xp.lore1", "Vanilla XP from committed crafts");
+  public static final LinesKey XP_LORE = LinesKey.of("crafting.xp.lore", "Vanilla XP from committed crafts");
   public static final TextKey RECONSTRUCTION_NAME = TextKey.of("crafting.reconstruction.name", "Ore Reconstruction");
   public static final TextKey RECONSTRUCTION_DESCRIPTION = TextKey.of("crafting.reconstruction.description", "Recraft ores from their base components!");
   public static final TextKey RECONSTRUCTION_LORE1 = TextKey.of("crafting.reconstruction.lore1", "8 of the Drops and 1 Host = 1 Ore (shapeless)");
