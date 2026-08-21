@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -83,8 +84,8 @@ public final class ConfigFileSupport {
       BiFunction<String, File, String> migrateBeforeRead
   ) throws IOException {
     long maxConfigBytes = maxConfigBytesForSourceTag(sourceTag);
-    boolean canonicalizeExisting = forceCanonicalizeExisting
-        || shouldCanonicalizeExisting(sourceTag, overwriteOnReadFailure);
+    boolean canonicalizeExisting = overwriteOnReadFailure
+        && (forceCanonicalizeExisting || shouldCanonicalizeExisting(sourceTag));
     if (canonicalFile != null && canonicalFile.exists()) {
       try {
         if (canonicalFile.length() > maxConfigBytes) {
@@ -104,7 +105,9 @@ public final class ConfigFileSupport {
             IO.writeAll(canonicalFile, canonical);
           }
         }
-        deleteLegacyFileIfMigrated(canonicalFile, legacyFile, sourceTag);
+        if (overwriteOnReadFailure) {
+          deleteLegacyFileIfMigrated(canonicalFile, legacyFile, sourceTag);
+        }
         return loaded;
       } catch (Throwable e) {
         if (overwriteOnReadFailure) {
@@ -130,9 +133,11 @@ public final class ConfigFileSupport {
           throw new IOException("Config parser returned null.");
         }
 
-        IO.writeAll(canonicalFile, serialize(loaded, canonicalFile, sourceTag));
-        Adapt.info("Migrated legacy config [" + legacyPath(legacyFile) + "] -> [" + legacyPath(canonicalFile) + "].");
-        deleteLegacyFileIfMigrated(canonicalFile, legacyFile, sourceTag);
+        if (overwriteOnReadFailure) {
+          IO.writeAll(canonicalFile, serialize(loaded, canonicalFile, sourceTag));
+          Adapt.info("Migrated legacy config [" + legacyPath(legacyFile) + "] -> [" + legacyPath(canonicalFile) + "].");
+          deleteLegacyFileIfMigrated(canonicalFile, legacyFile, sourceTag);
+        }
         return loaded;
       } catch (Throwable e) {
         if (overwriteOnReadFailure) {
@@ -146,6 +151,10 @@ public final class ConfigFileSupport {
       }
     }
 
+    if (!overwriteOnReadFailure) {
+      throw new IOException("Config file is missing");
+    }
+
     T normalizedFallback = normalizeConfig(fallback, normalizeBeforeWrite);
     IO.writeAll(canonicalFile, serialize(normalizedFallback, canonicalFile, sourceTag));
     recordMissingConfigCreated();
@@ -154,6 +163,29 @@ public final class ConfigFileSupport {
 
   public static void recordMissingConfigCreated() {
     CREATED_MISSING_CONFIGS.incrementAndGet();
+  }
+
+  public static <T> T parseSnapshot(
+      String raw,
+      File sourceFile,
+      Class<T> type,
+      String sourceTag,
+      Consumer<T> normalizeAfterRead
+  ) throws IOException {
+    if (raw == null) {
+      throw new IOException("Config snapshot is missing");
+    }
+    long maxConfigBytes = maxConfigBytesForSourceTag(sourceTag);
+    int contentBytes = raw.getBytes(StandardCharsets.UTF_8).length;
+    if (contentBytes > maxConfigBytes) {
+      throw new IOException("Config snapshot is too large (" + contentBytes + " bytes)");
+    }
+
+    T loaded = normalizeConfig(deserialize(raw, sourceFile, type), normalizeAfterRead);
+    if (loaded == null) {
+      throw new IOException("Config parser returned null.");
+    }
+    return loaded;
   }
 
   public static void flushCreatedConfigSummary() {
@@ -317,14 +349,14 @@ public final class ConfigFileSupport {
     return MAX_CONFIG_BYTES_DEFAULT;
   }
 
-  private static boolean shouldCanonicalizeExisting(String sourceTag, boolean overwriteOnReadFailure) {
+  private static boolean shouldCanonicalizeExisting(String sourceTag) {
     if (sourceTag == null) {
       return true;
     }
 
     // During initial startup of skill/adaptation content we prioritize fast parse/load.
     // Canonical rewrites still occur via explicit canonicalization/hotload paths.
-    if (overwriteOnReadFailure && (sourceTag.startsWith("skill:") || sourceTag.startsWith("adaptation:"))) {
+    if (sourceTag.startsWith("skill:") || sourceTag.startsWith("adaptation:")) {
       return false;
     }
 

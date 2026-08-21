@@ -43,6 +43,20 @@ public record CustomModel(Material material, int model,
     return current;
   }
 
+  private static UpdateChecker passiveChecker() {
+    UpdateChecker current = updateChecker;
+    if (current == null) {
+      synchronized (CustomModel.class) {
+        current = updateChecker;
+        if (current == null) {
+          current = new UpdateChecker(true);
+          updateChecker = current;
+        }
+      }
+    }
+    return current;
+  }
+
   public static CustomModel get(Material fallback, String... path) {
     if (!AdaptConfig.get().isCustomModels())
       return new CustomModel(fallback, 0, null);
@@ -55,11 +69,32 @@ public record CustomModel(Material material, int model,
   }
 
   public static boolean reloadFromDisk() {
-    return reloadFromDisk(false);
+    return checker().reloadFromDisk(false);
   }
 
-  public static boolean reloadFromDisk(boolean quiet) {
-    return checker().reloadFromDisk(quiet);
+  public static boolean reloadFromDiskPassive() {
+    return passiveChecker().reloadFromDisk(true);
+  }
+
+  public static boolean reloadSnapshot(String raw, File sourceFile) {
+    UpdateChecker current = updateChecker;
+    if (current == null) {
+      synchronized (CustomModel.class) {
+        current = updateChecker;
+        if (current == null) {
+          try {
+            current = new UpdateChecker(raw, sourceFile);
+            updateChecker = current;
+            return true;
+          } catch (IOException error) {
+            Adapt.error("Failed to apply models config snapshot");
+            error.printStackTrace();
+            return false;
+          }
+        }
+      }
+    }
+    return current.reloadSnapshot(raw, sourceFile);
   }
 
   public ItemStack toItemStack() {
@@ -95,28 +130,51 @@ public record CustomModel(Material material, int model,
     private JsonObject json = new JsonObject();
 
     public UpdateChecker() {
+      this(false);
+    }
+
+    private UpdateChecker(boolean passive) {
       modelsFile = instance.getDataFile("adapt", "models.toml");
       legacyModelsFile = instance.getDataFile("adapt", "models.json");
 
       try {
-        readFile();
+        readFile(passive);
       } catch (IOException e) {
         Adapt.error("Failed to read models.toml");
         e.printStackTrace();
       }
     }
 
-    public boolean reloadFromDisk(boolean quiet) {
+    private UpdateChecker(String raw, File sourceFile) throws IOException {
+      modelsFile = instance.getDataFile("adapt", "models.toml");
+      legacyModelsFile = instance.getDataFile("adapt", "models.json");
+      json = parseSnapshot(raw, sourceFile);
+    }
+
+    public boolean reloadFromDisk(boolean passive) {
       synchronized (lock) {
         try {
-          readFile();
+          readFile(passive);
           cache.clear();
           return true;
         } catch (IOException e) {
-          if (!quiet) {
-            Adapt.error("Failed to read models.toml");
-            e.printStackTrace();
-          }
+          Adapt.error("Failed to read models.toml");
+          e.printStackTrace();
+          return false;
+        }
+      }
+    }
+
+    public boolean reloadSnapshot(String raw, File sourceFile) {
+      synchronized (lock) {
+        try {
+          JsonObject loaded = parseSnapshot(raw, sourceFile);
+          json = loaded;
+          cache.clear();
+          return true;
+        } catch (IOException error) {
+          Adapt.error("Failed to apply models config snapshot");
+          error.printStackTrace();
           return false;
         }
       }
@@ -198,13 +256,15 @@ public record CustomModel(Material material, int model,
       });
     }
 
-    public void readFile() throws IOException {
+    public void readFile(boolean passive) throws IOException {
       synchronized (lock) {
         if (modelsFile.exists()) {
           String raw = IO.readAll(modelsFile);
           if (raw == null || raw.isBlank()) {
             json = new JsonObject();
-            ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
+            if (!passive) {
+              ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
+            }
             return;
           }
 
@@ -214,7 +274,9 @@ public record CustomModel(Material material, int model,
           }
 
           json = parsed.getAsJsonObject();
-          ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
+          if (!passive) {
+            ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
+          }
           return;
         }
 
@@ -225,16 +287,36 @@ public record CustomModel(Material material, int model,
             throw new IOException("Invalid models.json");
           }
           json = legacy;
-          IO.writeAll(modelsFile, ConfigFileSupport.serializeJsonElementToToml(legacy));
-          Adapt.info("Migrated legacy config [adapt/models.json] -> [adapt/models.toml].");
-          ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
+          if (!passive) {
+            IO.writeAll(modelsFile, ConfigFileSupport.serializeJsonElementToToml(legacy));
+            Adapt.info("Migrated legacy config [adapt/models.json] -> [adapt/models.toml].");
+            ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
+          }
           return;
+        }
+
+        if (passive) {
+          throw new IOException("models.toml is missing");
         }
 
         json = new JsonObject();
         IO.writeAll(modelsFile, ConfigFileSupport.serializeJsonElementToToml(json));
         ConfigFileSupport.recordMissingConfigCreated();
       }
+    }
+
+    private JsonObject parseSnapshot(String raw, File sourceFile) throws IOException {
+      if (raw == null) {
+        throw new IOException("Models config snapshot is missing");
+      }
+      if (raw.isBlank()) {
+        return new JsonObject();
+      }
+      JsonElement parsed = ConfigFileSupport.parseToJsonElement(raw, sourceFile);
+      if (parsed == null || !parsed.isJsonObject()) {
+        throw new IOException("Invalid models config snapshot");
+      }
+      return parsed.getAsJsonObject();
     }
 
     public void writeFile() throws IOException {

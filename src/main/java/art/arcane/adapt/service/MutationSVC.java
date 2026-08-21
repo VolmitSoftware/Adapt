@@ -27,6 +27,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.projectiles.ProjectileSource;
 
+import java.io.File;
 import java.util.UUID;
 
 public final class MutationSVC implements AdaptService {
@@ -73,6 +74,23 @@ public final class MutationSVC implements AdaptService {
 
   public synchronized boolean reload() {
     if (!MutationConfig.reload()) {
+      return false;
+    }
+    MutationManager active = manager;
+    if (active == null) {
+      manager = new MutationManager(MutationConfig.get());
+    } else {
+      active.reload(MutationConfig.get());
+    }
+    MutationRuntimeSVC runtime = MutationRuntimeSVC.get();
+    if (runtime != null) {
+      runtime.onConfigReload();
+    }
+    return true;
+  }
+
+  public synchronized boolean reloadSnapshot(String raw, File sourceFile) {
+    if (!MutationConfig.reloadSnapshot(raw, sourceFile)) {
       return false;
     }
     MutationManager active = manager;

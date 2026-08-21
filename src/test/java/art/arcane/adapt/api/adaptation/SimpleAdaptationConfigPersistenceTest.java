@@ -39,6 +39,29 @@ class SimpleAdaptationConfigPersistenceTest {
     assertThat(Files.readString(configPath)).isEqualTo(canonical);
   }
 
+  @Test
+  void snapshotReloadAppliesCapturedContentWithoutRereadingOrRewritingDisk() throws IOException {
+    Path configPath = temporaryDirectory.resolve("normalized-adaptation.toml");
+    String diskContent = """
+        enabled = true
+        maxLevel = 8
+        retainedValue = 4
+        """;
+    Files.writeString(configPath, diskContent);
+    TestAdaptation adaptation = new TestAdaptation(configPath);
+
+    boolean reloaded = adaptation.reloadConfigSnapshot("""
+        enabled = true
+        maxLevel = 5
+        retainedValue = 17
+        """, configPath.toFile(), false);
+
+    assertThat(reloaded).isTrue();
+    assertThat(adaptation.getMaxLevel()).isEqualTo(1);
+    assertThat(adaptation.getConfig().retainedValue).isEqualTo(17);
+    assertThat(Files.readString(configPath)).isEqualTo(diskContent);
+  }
+
   private static final class TestAdaptation extends SimpleAdaptation<TestConfig> {
     private final File configFile;
     private final File legacyConfigFile;

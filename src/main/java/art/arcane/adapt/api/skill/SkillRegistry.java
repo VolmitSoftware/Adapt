@@ -85,6 +85,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -444,6 +445,31 @@ public class SkillRegistry extends TickedObject {
     return true;
   }
 
+  public synchronized boolean hotReloadSkillConfig(String skillName, String raw, File sourceFile) {
+    String normalized = normalizeSkillName(skillName);
+    Skill<?> loaded = knownSkills.get(normalized);
+    Class<? extends Skill<?>> skillType = inferSkillType(normalized, loaded);
+    if (skillType == null) {
+      Adapt.verbose("No known skill type for config hotload: " + skillName);
+      return false;
+    }
+    ReplacementConfigSnapshot snapshot = ReplacementConfigSnapshot.skill(skillName, raw, sourceFile);
+    if (!(loaded instanceof SimpleSkill<?> simpleSkill)) {
+      return replaceSkillInstance(normalized, skillType, loaded, snapshot);
+    }
+
+    boolean previouslyEnabled = loaded.isEnabled();
+    if (!simpleSkill.reloadConfigSnapshot(raw, sourceFile, true)) {
+      return false;
+    }
+    if (previouslyEnabled != loaded.isEnabled()) {
+      return replaceSkillInstance(normalized, skillType, loaded, snapshot);
+    }
+
+    catalogChanged(true);
+    return true;
+  }
+
   public synchronized boolean hotReloadAdaptationConfig(String adaptationName) {
     if (adaptationName == null || adaptationName.isBlank()) {
       return false;
@@ -475,6 +501,41 @@ public class SkillRegistry extends TickedObject {
     return false;
   }
 
+  public synchronized boolean hotReloadAdaptationConfig(String adaptationName, String raw, File sourceFile) {
+    if (adaptationName == null || adaptationName.isBlank()) {
+      return false;
+    }
+
+    for (Skill<?> skill : knownSkills.v()) {
+      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+        if (!adaptation.getName().equalsIgnoreCase(adaptationName)) {
+          continue;
+        }
+        if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)) {
+          return false;
+        }
+        boolean previouslyEnabled = simpleAdaptation.isEnabled();
+        if (!simpleAdaptation.reloadConfigSnapshot(raw, sourceFile, true)) {
+          return false;
+        }
+        if (previouslyEnabled != simpleAdaptation.isEnabled()) {
+          String normalized = normalizeSkillName(skill.getName());
+          Class<? extends Skill<?>> skillType = inferSkillType(normalized, skill);
+          ReplacementConfigSnapshot snapshot = ReplacementConfigSnapshot.adaptation(
+              adaptationName,
+              raw,
+              sourceFile
+          );
+          return skillType != null && replaceSkillInstance(normalized, skillType, skill, snapshot);
+        }
+        synchronizeAdaptationRecipes(skill, simpleAdaptation, previouslyEnabled);
+        catalogChanged(true);
+        return true;
+      }
+    }
+    return false;
+  }
+
   @SuppressWarnings("unchecked")
   private Class<? extends Skill<?>> inferSkillType(String normalizedSkillName, Skill<?> loaded) {
     Class<? extends Skill<?>> skillType = skillTypes.get(normalizedSkillName);
@@ -490,8 +551,17 @@ public class SkillRegistry extends TickedObject {
   }
 
   private boolean replaceSkillInstance(String normalizedName, Class<? extends Skill<?>> skillType, Skill<?> previousLoaded) {
+    return replaceSkillInstance(normalizedName, skillType, previousLoaded, null);
+  }
+
+  private boolean replaceSkillInstance(String normalizedName, Class<? extends Skill<?>> skillType,
+                                       Skill<?> previousLoaded, ReplacementConfigSnapshot snapshot) {
     Skill<?> replacement = instantiateSkill(skillType);
     if (replacement == null) {
+      return false;
+    }
+    if (snapshot != null && !initializeReplacementConfigs(replacement, snapshot)) {
+      replacement.unregister();
       return false;
     }
 
@@ -535,6 +605,36 @@ public class SkillRegistry extends TickedObject {
     }
     catalogChanged(true);
     return true;
+  }
+
+  private boolean initializeReplacementConfigs(Skill<?> replacement, ReplacementConfigSnapshot snapshot) {
+    if (replacement instanceof SimpleSkill<?> simpleSkill) {
+      boolean skillLoaded = snapshot.skill()
+          ? simpleSkill.reloadConfigSnapshot(snapshot.raw(), snapshot.sourceFile(), false)
+          : simpleSkill.reloadConfigFromDiskPassive(false);
+      if (!skillLoaded) {
+        return false;
+      }
+    } else if (snapshot.skill()) {
+      return false;
+    }
+
+    boolean targetAdaptationFound = snapshot.skill();
+    for (Adaptation<?> adaptation : replacement.getAdaptations()) {
+      if (!(adaptation instanceof SimpleAdaptation<?> simpleAdaptation)
+          || adaptation.getConfigurationClass() == null) {
+        continue;
+      }
+      boolean target = !snapshot.skill() && adaptation.getName().equalsIgnoreCase(snapshot.configName());
+      boolean loaded = target
+          ? simpleAdaptation.reloadConfigSnapshot(snapshot.raw(), snapshot.sourceFile(), false)
+          : simpleAdaptation.reloadConfigFromDiskPassive(false);
+      if (!loaded) {
+        return false;
+      }
+      targetAdaptationFound |= target;
+    }
+    return targetAdaptationFound;
   }
 
   private void addRetired(List<Skill<?>> retired, Skill<?> candidate, Skill<?> replacement) {
@@ -961,6 +1061,16 @@ public class SkillRegistry extends TickedObject {
   }
 
   private record AdaptationConfigState(SimpleAdaptation<?> adaptation, boolean previouslyEnabled) {
+  }
+
+  private record ReplacementConfigSnapshot(boolean skill, String configName, String raw, File sourceFile) {
+    private static ReplacementConfigSnapshot skill(String configName, String raw, File sourceFile) {
+      return new ReplacementConfigSnapshot(true, configName, raw, sourceFile);
+    }
+
+    private static ReplacementConfigSnapshot adaptation(String configName, String raw, File sourceFile) {
+      return new ReplacementConfigSnapshot(false, configName, raw, sourceFile);
+    }
   }
 
   private record DeferredRecipeTransition(List<Skill<?>> retired, Skill<?> replacement) {

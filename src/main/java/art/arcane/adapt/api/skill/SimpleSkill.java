@@ -132,6 +132,14 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   }
 
   public synchronized boolean reloadConfigFromDisk(boolean announce) {
+    return reloadConfigFromDisk(announce, config == null);
+  }
+
+  public synchronized boolean reloadConfigFromDiskPassive(boolean announce) {
+    return reloadConfigFromDisk(announce, false);
+  }
+
+  private boolean reloadConfigFromDisk(boolean announce, boolean overwriteOnReadFailure) {
     if (getConfigurationClass() == null) {
       return false;
     }
@@ -139,7 +147,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     T previous = config;
     File file = getConfigFile();
     try {
-      T loaded = loadConfig(file, previous == null ? createDefaultConfig() : previous, previous == null);
+      T loaded = loadConfig(file, previous == null ? createDefaultConfig() : previous, overwriteOnReadFailure);
       config = loaded;
       onConfigReload(previous, loaded);
       if (announce) {
@@ -148,6 +156,34 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
       return true;
     } catch (Throwable e) {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
+      e.printStackTrace();
+      return false;
+    }
+  }
+
+  public synchronized boolean reloadConfigSnapshot(String raw, File sourceFile, boolean announce) {
+    if (getConfigurationClass() == null) {
+      return false;
+    }
+
+    T previous = config;
+    try {
+      T loaded = ConfigFileSupport.parseSnapshot(
+          raw,
+          sourceFile,
+          getConfigurationClass(),
+          "skill:" + getName(),
+          this::normalizeLoadedConfig
+      );
+      config = loaded;
+      onConfigReload(previous, loaded);
+      if (announce) {
+        Adapt.info("Hotloaded " + sourceFile.getPath());
+      }
+      return true;
+    } catch (Throwable error) {
+      Adapt.warn("Skipped hotload for " + sourceFile.getPath() + " due to invalid config: " + error.getMessage());
+      error.printStackTrace();
       return false;
     }
   }

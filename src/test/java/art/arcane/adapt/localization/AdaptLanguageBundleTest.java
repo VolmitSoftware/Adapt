@@ -2,6 +2,7 @@ package art.arcane.adapt.localization;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -121,6 +122,33 @@ class AdaptLanguageBundleTest extends AdaptTestBase {
       assertThat(entries.map(path -> path.getFileName().toString()).toList())
           .containsExactlyInAnyOrder("en_US.toml", "overrides");
     }
+  }
+
+  @Test
+  void overrideSnapshotReloadUsesCapturedContentWithoutRereadingOrWritingDisk() throws Exception {
+    AdaptConfig config = mock(AdaptConfig.class);
+    lenient().when(config.getLanguage()).thenReturn("de_DE");
+    lenient().when(config.isAutomaticGradients()).thenReturn(false);
+    Path override = new File(dataFolder, "languages/overrides/de_DE.toml").toPath();
+    Files.createDirectories(override.getParent());
+    String diskContent = "[runtime]\nno_description_provided = \"Disk value\"\n";
+    Files.writeString(override, diskContent, StandardCharsets.UTF_8);
+
+    boolean reloaded;
+    String rendered;
+    try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
+      configured.when(AdaptConfig::get).thenReturn(config);
+      reloaded = AdaptLanguage.reloadOverrideSnapshot(
+          override.toFile(),
+          "[runtime]\nno_description_provided = \"Captured value\"\n"
+      );
+      rendered = AdaptLanguage.text(RuntimeMessages.NO_DESCRIPTION_PROVIDED);
+    }
+
+    assertThat(reloaded).isTrue();
+    assertThat(rendered).isEqualTo("Captured value");
+    assertThat(Files.readString(override, StandardCharsets.UTF_8)).isEqualTo(diskContent);
+    assertThat(bundlePath("en_US")).doesNotExist();
   }
 
   private void stubBundledResource(String locale) {

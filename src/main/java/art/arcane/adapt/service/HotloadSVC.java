@@ -13,28 +13,37 @@ import art.arcane.adapt.content.gui.MutationGui;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
-import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.plugin.AdaptService;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigFileSupport;
-import art.arcane.adapt.util.project.config.ConfigRewriteReporter;
 import art.arcane.volmlib.util.hotload.ConfigHotloadEngine;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
-import art.arcane.volmlib.util.io.IO;
+import art.arcane.volmlib.util.scheduling.SchedulerUtils;
 import com.google.gson.JsonElement;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static art.arcane.adapt.util.director.context.AdaptationListingHandler.initializeAdaptationListings;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -45,8 +54,19 @@ public class HotloadSVC implements AdaptService {
   private static final long HOTLOAD_COOLDOWN_MS = 3_000L;
   private static final int MAX_DIFF_MESSAGES_PER_FILE = 12;
   private static final int MUTATION_RECONCILIATION_BATCH_SIZE = 32;
+  private static final int MAX_HOTLOAD_CONFIG_BYTES = 2 * 1024 * 1024;
+  private static final long HOTLOAD_IO_SHUTDOWN_MILLIS = 2_000L;
 
+  private final AtomicBoolean hotloadPollInFlight = new AtomicBoolean();
+  private final AtomicLong hotloadGeneration = new AtomicLong();
+  private final ConfigHotloadEngine hotloadEngine = new ConfigHotloadEngine(
+      this::isManagedConfigFile,
+      this::listKnownConfigFiles,
+      this::readFileContent,
+      this::normalizeContent
+  );
   private TickedObject configTicker;
+  private ExecutorService hotloadIo;
   private File adaptConfigFile;
   private File adaptConfigLegacyFile;
   private File modelsFile;
@@ -55,13 +75,6 @@ public class HotloadSVC implements AdaptService {
   private File skillsFolder;
   private File adaptationsFolder;
   private File localeOverrideFolder;
-  private final ConfigHotloadEngine hotloadEngine = new ConfigHotloadEngine(
-      this::isManagedConfigFile,
-      this::listKnownConfigFiles,
-      this::readFileContent,
-      this::normalizeContent
-  );
-
   @Override
   public void onEnable() {
     adaptConfigFile = Adapt.instance.getDataFile("adapt", "adapt.toml");
@@ -78,12 +91,18 @@ public class HotloadSVC implements AdaptService {
         List.of(adaptConfigFile, adaptConfigLegacyFile, modelsFile, modelsLegacyFile, mutationsConfigFile),
         List.of(skillsFolder, adaptationsFolder, localeOverrideFolder)
     );
+    hotloadGeneration.incrementAndGet();
+    hotloadIo = Executors.newSingleThreadExecutor((Runnable task) -> {
+      Thread thread = new Thread(task, "Adapt-Config-Hotload-IO");
+      thread.setDaemon(true);
+      return thread;
+    });
     Adapt.info("Config hotload watcher enabled for Adapt configs and locale overrides.");
 
     configTicker = new TickedObject("config", "config-hotload-service", WATCHER_POLL_MS) {
       @Override
       public void onTick() {
-        pollConfigChanges();
+        queueConfigPoll();
       }
     };
   }
@@ -94,27 +113,109 @@ public class HotloadSVC implements AdaptService {
       configTicker.unregister();
       configTicker = null;
     }
+    hotloadGeneration.incrementAndGet();
+    ExecutorService current = hotloadIo;
+    hotloadIo = null;
+    if (current != null) {
+      current.shutdownNow();
+      try {
+        if (!current.awaitTermination(HOTLOAD_IO_SHUTDOWN_MILLIS, TimeUnit.MILLISECONDS)) {
+          Adapt.warn("Config hotload IO worker did not stop within two seconds.");
+        }
+      } catch (InterruptedException interrupted) {
+        Thread.currentThread().interrupt();
+        interrupted.printStackTrace();
+      }
+    }
+    hotloadPollInFlight.set(false);
     hotloadEngine.clear();
   }
 
-  private void pollConfigChanges() {
-    java.util.Set<java.io.File> touched = hotloadEngine.pollTouchedFiles();
-    if (touched.isEmpty()) {
+  private void queueConfigPoll() {
+    ExecutorService current = hotloadIo;
+    if (current == null || !hotloadPollInFlight.compareAndSet(false, true)) {
       return;
     }
-
-    boolean refreshedSomething = false;
-    for (File file : touched) {
-      refreshedSomething = processConfigChange(file) || refreshedSomething;
-    }
-
-    if (refreshedSomething) {
-      refreshOpenAdaptGuis();
+    long generation = hotloadGeneration.get();
+    try {
+      current.execute(() -> pollConfigChanges(generation));
+    } catch (RejectedExecutionException rejected) {
+      hotloadPollInFlight.set(false);
     }
   }
 
-  private boolean processConfigChange(File file) {
-    return hotloadEngine.processFileChange(file, this::applyConfigChange, delta -> {
+  private void pollConfigChanges(long generation) {
+    boolean handedOff = false;
+    try {
+      List<ConfigHotloadEngine.StableContentSnapshot> touched = pollConfigSnapshots();
+      if (touched.isEmpty() || generation != hotloadGeneration.get()) {
+        return;
+      }
+      if (!SchedulerUtils.runGlobal(Adapt.instance, () -> applyConfigChanges(generation, touched))) {
+        retainSnapshotsForRetry(touched);
+        Adapt.warn("Config hotload could not reach the global server context; the batch remains queued.");
+        return;
+      }
+      handedOff = true;
+    } catch (Throwable failure) {
+      Adapt.warn("Config hotload filesystem scan failed: " + failure.getMessage());
+      failure.printStackTrace();
+    } finally {
+      if (!handedOff) {
+        hotloadPollInFlight.set(false);
+      }
+    }
+  }
+
+  private List<ConfigHotloadEngine.StableContentSnapshot> pollConfigSnapshots() {
+    List<ConfigHotloadEngine.StableContentSnapshot> touched = new ArrayList<>(hotloadEngine.pollTouchedSnapshots());
+    touched.sort(Comparator
+        .comparingInt(this::hotloadPriority)
+        .thenComparing(snapshot -> snapshot.file().getAbsolutePath()));
+    return touched;
+  }
+
+  private void applyConfigChanges(long generation, List<ConfigHotloadEngine.StableContentSnapshot> touched) {
+    try {
+      if (generation != hotloadGeneration.get()) {
+        return;
+      }
+
+      boolean refreshedSomething = false;
+      for (ConfigHotloadEngine.StableContentSnapshot snapshot : touched) {
+        refreshedSomething = processConfigChange(snapshot) || refreshedSomething;
+      }
+
+      if (refreshedSomething) {
+        refreshOpenAdaptGuis();
+      }
+    } finally {
+      hotloadPollInFlight.set(false);
+    }
+  }
+
+  private void retainSnapshotsForRetry(List<ConfigHotloadEngine.StableContentSnapshot> snapshots) {
+    for (ConfigHotloadEngine.StableContentSnapshot snapshot : snapshots) {
+      hotloadEngine.processSnapshotChange(snapshot, ignored -> false, null);
+    }
+  }
+
+  private boolean processConfigChange(ConfigHotloadEngine.StableContentSnapshot snapshot) {
+    File file = snapshot.file();
+    if (isShadowedLegacyJson(file)) {
+      hotloadEngine.processSnapshotChange(snapshot, ignored -> true, null);
+      if (!isModelsConfigFile(file)) {
+        Adapt.verbose("Ignoring legacy json hotload because canonical toml exists: " + file.getPath());
+      }
+      return false;
+    }
+    if ("missing".equals(snapshot.signature())) {
+      hotloadEngine.processSnapshotChange(snapshot, ignored -> true, null);
+      Adapt.warn("Config was removed; retaining the last valid runtime state without recreating " + file.getPath() + ".");
+      return false;
+    }
+
+    return hotloadEngine.processSnapshotChange(snapshot, this::applyConfigChange, delta -> {
       if (isModelsConfigFile(file)) {
         return;
       }
@@ -123,17 +224,16 @@ public class HotloadSVC implements AdaptService {
     });
   }
 
-  private boolean applyConfigChange(File file) {
+  private boolean applyConfigChange(ConfigHotloadEngine.StableContentSnapshot snapshot) {
+    File file = snapshot.file();
+    String raw = snapshot.normalizedContent();
     try {
       if (isShadowedLegacyJson(file)) {
-        if (!isModelsConfigFile(file)) {
-          Adapt.verbose("Ignoring legacy json hotload because canonical toml exists: " + file.getPath());
-        }
-        return false;
+        return true;
       }
 
       if (isAdaptConfigFile(file)) {
-        boolean ok = AdaptConfig.reload();
+        boolean ok = AdaptConfig.reloadSnapshot(raw, file);
         if (ok) {
           refreshGlobalRuntimeSettings();
           reconcileCurrentMutationQualification();
@@ -144,7 +244,7 @@ public class HotloadSVC implements AdaptService {
       }
 
       if (isLocaleOverrideFile(file)) {
-        boolean ok = AdaptLanguage.reload();
+        boolean ok = AdaptLanguage.reloadOverrideSnapshot(file, raw);
         if (ok) {
           Adapt.instance.getAdaptServer().getSkillRegistry().synchronizeAdvancementRuntime();
         }
@@ -152,36 +252,37 @@ public class HotloadSVC implements AdaptService {
       }
 
       if (isMutationsConfigFile(file)) {
-        return reloadMutationsConfig(file);
+        return reloadMutationsConfig(file, raw);
       }
 
       if (isSkillConfigFile(file)) {
-        return reloadSkillConfig(file);
+        return reloadSkillConfig(file, raw);
       }
 
       if (isAdaptationConfigFile(file)) {
-        return reloadAdaptationConfig(file);
+        return reloadAdaptationConfig(file, raw);
       }
 
       if (isModelsConfigFile(file)) {
-        return reloadModelsConfig(file);
+        return reloadModelsConfig(file, raw);
       }
 
-      return validateAndCanonicalizeConfig(file);
+      return validateConfig(raw, file);
     } catch (Throwable e) {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
+      e.printStackTrace();
       return false;
     }
   }
 
-  private boolean reloadSkillConfig(File file) {
+  private boolean reloadSkillConfig(File file, String raw) {
     String skillName = toConfigName(file.getName());
     if (skillName == null) {
       return false;
     }
 
     SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
-    boolean ok = registry.hotReloadSkillConfig(skillName);
+    boolean ok = registry.hotReloadSkillConfig(skillName, raw, file);
     if (ok) {
       initializeAdaptationListings();
       reconcileCurrentMutationQualification();
@@ -191,7 +292,7 @@ public class HotloadSVC implements AdaptService {
     return ok;
   }
 
-  private boolean reloadAdaptationConfig(File file) {
+  private boolean reloadAdaptationConfig(File file, String raw) {
     String adaptationName = toConfigName(file.getName());
     if (adaptationName == null) {
       return false;
@@ -204,7 +305,7 @@ public class HotloadSVC implements AdaptService {
         }
 
         SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
-        boolean ok = registry.hotReloadAdaptationConfig(adaptationName);
+        boolean ok = registry.hotReloadAdaptationConfig(adaptationName, raw, file);
         if (ok) {
           initializeAdaptationListings();
           reconcileCurrentMutationQualification();
@@ -215,16 +316,16 @@ public class HotloadSVC implements AdaptService {
       }
     }
 
-    return validateAndCanonicalizeConfig(file);
+    return validateConfig(raw, file);
   }
 
-  private boolean reloadModelsConfig(File file) {
-    return CustomModel.reloadFromDisk(true);
+  private boolean reloadModelsConfig(File file, String raw) {
+    return CustomModel.reloadSnapshot(raw, file);
   }
 
-  private boolean reloadMutationsConfig(File file) {
+  private boolean reloadMutationsConfig(File file, String raw) {
     MutationSVC mutationService = MutationSVC.get();
-    if (mutationService == null || !mutationService.reload()) {
+    if (mutationService == null || !mutationService.reloadSnapshot(raw, file)) {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid Mutation config.");
       return false;
     }
@@ -260,7 +361,7 @@ public class HotloadSVC implements AdaptService {
   }
 
   private void refreshGlobalRuntimeSettings() {
-    AdaptLanguage.reload();
+    AdaptLanguage.reloadPassive();
 
     ProtectorRegistry protectorRegistry = Adapt.instance.getProtectorRegistry();
     if (protectorRegistry != null) {
@@ -268,7 +369,7 @@ public class HotloadSVC implements AdaptService {
     }
 
     if (AdaptConfig.get().isCustomModels()) {
-      CustomModel.reloadFromDisk(true);
+      CustomModel.reloadFromDiskPassive();
     } else {
       CustomModel.clear();
     }
@@ -276,13 +377,8 @@ public class HotloadSVC implements AdaptService {
     Adapt.instance.getAdaptServer().getSkillRegistry().synchronizeAdvancementRuntime();
   }
 
-  private boolean validateAndCanonicalizeConfig(File file) {
-    if (file == null || !file.exists() || !file.isFile()) {
-      return true;
-    }
-
+  private boolean validateConfig(String raw, File file) {
     try {
-      String raw = readFileContent(file);
       JsonElement parsed = parseStructured(raw, file);
       if (parsed == null) {
         return false;
@@ -292,15 +388,31 @@ public class HotloadSVC implements AdaptService {
         return true;
       }
 
-      String canonical = Json.toJson(parsed, true);
-      if (!normalizeContent(raw).equals(normalizeContent(canonical))) {
-        ConfigRewriteReporter.reportRewrite(file, "hotload", raw, canonical);
-        IO.writeAll(file, canonical);
-      }
       return true;
     } catch (Throwable e) {
+      e.printStackTrace();
       return false;
     }
+  }
+
+  private int hotloadPriority(ConfigHotloadEngine.StableContentSnapshot snapshot) {
+    File file = snapshot.file();
+    if (isAdaptConfigFile(file)) {
+      return 0;
+    }
+    if (isSkillConfigFile(file)) {
+      return 1;
+    }
+    if (isAdaptationConfigFile(file)) {
+      return 2;
+    }
+    if (isMutationsConfigFile(file)) {
+      return 3;
+    }
+    if (isModelsConfigFile(file)) {
+      return 4;
+    }
+    return 5;
   }
 
   private boolean isAdaptConfigFile(File file) {
@@ -329,12 +441,30 @@ public class HotloadSVC implements AdaptService {
   }
 
   private boolean isManagedConfigFile(File file) {
-    return isAdaptConfigFile(file)
+    return !isTemporaryArtifact(file)
+        && (isAdaptConfigFile(file)
         || isModelsConfigFile(file)
         || isMutationsConfigFile(file)
         || isSkillConfigFile(file)
         || isAdaptationConfigFile(file)
-        || isLocaleOverrideFile(file);
+        || isLocaleOverrideFile(file));
+  }
+
+  private boolean isTemporaryArtifact(File file) {
+    if (file == null) {
+      return false;
+    }
+    String name = file.getName().toLowerCase(Locale.ROOT);
+    return name.startsWith(".")
+        || name.startsWith("~")
+        || name.startsWith("#")
+        || name.endsWith("~")
+        || name.contains(".tmp.")
+        || name.contains(".temp.")
+        || name.contains(".part.")
+        || name.contains(".swp.")
+        || name.contains(".swx.")
+        || name.contains(".bak.");
   }
 
   private boolean isDirectChild(File parent, File child) {
@@ -425,10 +555,14 @@ public class HotloadSVC implements AdaptService {
       return null;
     }
 
-    try {
-      return Files.readString(file.toPath());
-    } catch (Throwable e) {
-      return null;
+    try (InputStream input = Files.newInputStream(file.toPath())) {
+      byte[] content = input.readNBytes(MAX_HOTLOAD_CONFIG_BYTES + 1);
+      if (content.length > MAX_HOTLOAD_CONFIG_BYTES) {
+        throw new IOException("Config exceeds " + MAX_HOTLOAD_CONFIG_BYTES + " bytes: " + file);
+      }
+      return new String(content, StandardCharsets.UTF_8);
+    } catch (IOException failure) {
+      throw new UncheckedIOException("Failed to capture hotload content from " + file, failure);
     }
   }
 
@@ -475,14 +609,25 @@ public class HotloadSVC implements AdaptService {
     }
 
     J.s(() -> {
+      int refused = 0;
       for (Player player : Adapt.instance.getAdaptServer().getOnlinePlayerSnapshot()) {
-        if (!player.isOp()) {
-          continue;
+        if (!scheduleOperatorNotification(player, messages, Sound.BLOCK_NOTE_BLOCK_PLING)) {
+          refused++;
         }
-
-        player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 0.8f, 1.6f);
-        messages.forEach(player::sendMessage);
       }
+      if (refused > 0) {
+        Adapt.warn("Config hotload could not schedule operator notifications for " + refused + " online players.");
+      }
+    });
+  }
+
+  static boolean scheduleOperatorNotification(Player player, List<String> messages, Sound sound) {
+    return J.runEntity(player, () -> {
+      if (!player.isOp()) {
+        return;
+      }
+      player.playSound(player.getLocation(), sound, 0.8f, 1.6f);
+      messages.forEach(player::sendMessage);
     });
   }
 

@@ -27,6 +27,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -55,19 +56,55 @@ public final class AdaptLanguage {
   }
 
   public static boolean reload() {
-    AdaptLanguageReference.write();
+    return reloadInternal(null, null, true);
+  }
+
+  public static boolean reloadPassive() {
+    return reloadInternal(null, null, false);
+  }
+
+  public static boolean reloadOverrideSnapshot(File file, String raw) {
+    String configuredLocale = AdaptConfig.get().getLanguage();
+    String normalizedLocale;
+    try {
+      normalizedLocale = normalizeLocale(configuredLocale);
+    } catch (Throwable error) {
+      error.printStackTrace();
+      return false;
+    }
+    File activeOverride = new File(overrideFolder(), normalizedLocale + ".toml");
+    if (!activeOverride.getAbsoluteFile().equals(file.getAbsoluteFile())) {
+      return true;
+    }
+    return reloadInternal(file, raw, false);
+  }
+
+  private static boolean reloadInternal(File snapshotFile, String snapshotRaw, boolean writeGeneratedFiles) {
+    if (writeGeneratedFiles) {
+      AdaptLanguageReference.write();
+      try {
+        Files.createDirectories(overrideFolder().toPath());
+      } catch (IOException failure) {
+        Adapt.warn("Failed to create language override folder " + overrideFolder() + ": " + failure.getMessage());
+        failure.printStackTrace();
+      }
+    }
     String configuredLocale = AdaptConfig.get().getLanguage();
     String requestedLocale = configuredLocale == null || configuredLocale.isBlank()
         ? CATALOG.englishLocale()
         : configuredLocale.trim();
-    LocalizationReloadResult result = MANAGER.reload(() -> loadCandidate(normalizeLocale(configuredLocale)));
+    LocalizationReloadResult result = MANAGER.reload(
+        () -> loadCandidate(normalizeLocale(configuredLocale), snapshotFile, snapshotRaw)
+    );
     if (!result.applied()) {
       reportRejectedReload(requestedLocale, result);
       return false;
     }
 
     activeLocale = normalizeLocale(configuredLocale);
-    AdaptLanguageBundle.extract(activeLocale);
+    if (writeGeneratedFiles) {
+      AdaptLanguageBundle.extract(activeLocale);
+    }
     int warningCount = result.validation().warnings().size();
     Adapt.info("Loaded locale " + requestedLocale + " with " + warningCount + " fallback "
         + (warningCount == 1 ? "entry" : "entries") + ".");
@@ -125,11 +162,14 @@ public final class AdaptLanguage {
     };
   }
 
-  private static LocalizationCandidate loadCandidate(String locale) throws Exception {
-    Files.createDirectories(overrideFolder().toPath());
+  private static LocalizationCandidate loadCandidate(String locale, File snapshotFile, String snapshotRaw) throws Exception {
     List<LocaleOverlay> overlays = new ArrayList<>();
     File override = new File(overrideFolder(), locale + ".toml");
-    if (override.exists()) {
+    if (snapshotFile != null && override.getAbsoluteFile().equals(snapshotFile.getAbsoluteFile())) {
+      if (snapshotRaw != null) {
+        overlays.add(parseOverlay(snapshotFile.getPath(), locale, snapshotRaw));
+      }
+    } else if (override.exists()) {
       overlays.add(loadFileOverlay(override, locale));
     }
 

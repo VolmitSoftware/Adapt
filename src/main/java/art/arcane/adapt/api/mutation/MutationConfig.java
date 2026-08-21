@@ -104,6 +104,24 @@ public class MutationConfig {
     }
   }
 
+  public static boolean reloadSnapshot(String raw, File sourceFile) {
+    synchronized (CONFIG_LOCK) {
+      try {
+        config = ConfigFileSupport.parseSnapshot(
+            raw,
+            sourceFile,
+            MutationConfig.class,
+            "mutations",
+            MutationConfig::normalize
+        );
+        return true;
+      } catch (Throwable error) {
+        error.printStackTrace();
+        return false;
+      }
+    }
+  }
+
   public MutationProgression progression() {
     return new MutationProgression(
         slotOneUnlockLevel,

@@ -146,6 +146,29 @@ public class AdaptConfig {
     return reloaded;
   }
 
+  public static boolean reloadSnapshot(String raw, File sourceFile) {
+    boolean reloaded;
+    synchronized (CONFIG_LOCK) {
+      try {
+        config = ConfigFileSupport.parseSnapshot(
+            raw,
+            sourceFile,
+            AdaptConfig.class,
+            "core-config",
+            AdaptConfig::normalize
+        );
+        reloaded = true;
+      } catch (Throwable error) {
+        error.printStackTrace();
+        reloaded = false;
+      }
+    }
+    if (reloaded) {
+      MaterialValue.invalidateCache();
+    }
+    return reloaded;
+  }
+
   public boolean isWorldBlacklisted(WorldInfo world) {
     return world != null && blacklistedWorlds.contains(WorldIdentity.serialize(world));
   }

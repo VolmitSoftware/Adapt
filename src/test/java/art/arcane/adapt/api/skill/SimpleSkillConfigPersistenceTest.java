@@ -37,6 +37,26 @@ class SimpleSkillConfigPersistenceTest {
     assertThat(Files.readString(configPath)).isEqualTo(canonical);
   }
 
+  @Test
+  void snapshotReloadAppliesCapturedContentWithoutRereadingOrRewritingDisk() throws IOException {
+    Path configPath = temporaryDirectory.resolve("normalized-skill.toml");
+    String diskContent = """
+        enabled = true
+        reward = 7
+        """;
+    Files.writeString(configPath, diskContent);
+    TestSkill skill = new TestSkill(configPath);
+
+    boolean reloaded = skill.reloadConfigSnapshot("""
+        enabled = true
+        reward = 45
+        """, configPath.toFile(), false);
+
+    assertThat(reloaded).isTrue();
+    assertThat(skill.getConfig().reward).isEqualTo(120D);
+    assertThat(Files.readString(configPath)).isEqualTo(diskContent);
+  }
+
   private static final class TestSkill extends SimpleSkill<TestConfig> {
     private final File configFile;
     private final File legacyConfigFile;
