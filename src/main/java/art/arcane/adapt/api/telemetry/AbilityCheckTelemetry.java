@@ -165,17 +165,11 @@ public final class AbilityCheckTelemetry {
   }
 
   public static double estimatedTimingMillisPerSecond(long now) {
-    double checksPerSecond = checksPerSecond(now);
-    if (checksPerSecond <= 0D) {
+    long rollingMicros = sumWindow(timingMicros, now);
+    if (rollingMicros <= 0L) {
       return 0D;
     }
-
-    double avgMicros = averageCheckMicros(now);
-    if (avgMicros <= 0D) {
-      return 0D;
-    }
-
-    return (checksPerSecond * avgMicros) / 1_000D;
+    return rollingMicros / (WINDOW_SECONDS * 1_000D);
   }
 
   public static double timingBudgetPercent(long now) {

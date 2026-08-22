@@ -37,6 +37,19 @@ class AbilityCheckTelemetryTest {
   }
 
   @Test
+  void timingBudgetUsesTheRollingWindowInsteadOfThePartialCurrentSecond() {
+    long now = 120_000L;
+    long previousSecond = now - 1_000L;
+    for (int i = 0; i < 60; i++) {
+      AbilityCheckTelemetry.recordUncachedCheck("agility-wall-jump", previousSecond, 1_000_000L, true);
+    }
+
+    assertThat(AbilityCheckTelemetry.checksPerSecond(now)).isZero();
+    assertThat(AbilityCheckTelemetry.estimatedTimingMillisPerSecond(now)).isEqualTo(1D);
+    assertThat(AbilityCheckTelemetry.timingBudgetPercent(now)).isEqualTo(2D);
+  }
+
+  @Test
   void keepsAbilityWindowsSeparateAndExpiresOldBuckets() {
     long now = System.currentTimeMillis();
     long expired = now - 60_000L;

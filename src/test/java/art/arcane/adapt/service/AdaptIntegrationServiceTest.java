@@ -37,4 +37,19 @@ class AdaptIntegrationServiceTest {
     assertThat(samples.get("adapt.ability-detail.excavation-earth-mover.guard-checks").valueOr(-1D)).isEqualTo(1D);
     assertThat(samples.get("adapt.ability-detail.excavation-earth-mover.guard-timing-ms").valueOr(-1D)).isEqualTo(2D);
   }
+
+  @Test
+  void publishesRollingGuardCheckTimingBudget() {
+    long now = System.currentTimeMillis();
+    for (int i = 0; i < 60; i++) {
+      AbilityCheckTelemetry.recordUncachedCheck("excavation-earth-mover", now, 50_000_000L, true);
+    }
+    AdaptIntegrationService service = new AdaptIntegrationService();
+
+    Map<String, IntegrationMetricSample> samples = service.sampleMetrics(Set.of(
+        IntegrationMetricSchema.ADAPT_ABILITY_TIMING_BUDGET
+    ));
+
+    assertThat(samples.get(IntegrationMetricSchema.ADAPT_ABILITY_TIMING_BUDGET).valueOr(-1D)).isBetween(99D, 101D);
+  }
 }
