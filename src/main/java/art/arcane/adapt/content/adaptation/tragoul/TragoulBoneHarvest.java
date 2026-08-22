@@ -1,0 +1,340 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.adaptation.tragoul;
+
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.TragoulMessages;
+
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
+import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Color;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
+
+public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Config> {
+  private static List<PotionEffectType> effectPool() {
+    return List.of(
+        PotionEffectType.SPEED,
+        PotionEffectType.REGENERATION,
+        PotionEffectType.RESISTANCE,
+        PotionEffectType.FIRE_RESISTANCE,
+        PotionEffectType.ABSORPTION,
+        PotionEffectType.JUMP_BOOST,
+        PotionEffectType.NIGHT_VISION);
+  }
+
+  private static final Color GLOBE_BLOOD = Color.fromRGB(170, 0, 0);
+  private static final Color GLOBE_BONE = Color.fromRGB(230, 225, 205);
+  private static final NamespacedKey GLOBE_KEY = NamespacedKey.fromString("adapt:tragoul-globe");
+  private static final long GLOBE_TRACK_GRACE_MILLIS = 5000L;
+  private final Set<UUID> bloodGlobes = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> boneGlobes = ConcurrentHashMap.newKeySet();
+  private final Map<UUID, Long> globeTrackExpiry = new ConcurrentHashMap<>();
+
+  public TragoulBoneHarvest() {
+    super("tragoul-bone-harvest");
+    registerConfiguration(Config.class);
+    setIcon(Material.BONE_BLOCK);
+    setInterval(10000);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.BONE)
+        .key("challenge_tragoul_bone_500")
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.BONE_BLOCK)
+            .key("challenge_tragoul_bone_5k")
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_tragoul_bone_500", "tragoul.bone-harvest.orbs-collected", 500, 300);
+    registerMilestone("challenge_tragoul_bone_5k", "tragoul.bone-harvest.orbs-collected", 5000, 1000);
+  }
+
+  @Override
+  public void onTick() {
+    long now = System.currentTimeMillis();
+    globeTrackExpiry.entrySet().removeIf(entry -> {
+      if (entry.getValue() >= now) {
+        return false;
+      }
+      bloodGlobes.remove(entry.getKey());
+      boneGlobes.remove(entry.getKey());
+      return true;
+    });
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    statLore(v, Form.pc(getGlobeChance(level), 0), 1);
+    statLore(v, Form.duration(getGlobeLifetimeTicks(level) * 50D, 1), 2);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityDeathEvent e) {
+    Player killer = e.getEntity().getKiller();
+    if (killer == null) {
+      return;
+    }
+
+    withAdaptedPlayer(killer, () -> {
+      if (!canDamageTarget(killer, e.getEntity())) {
+        return;
+      }
+
+      int level = getActiveLevel(killer);
+      ThreadLocalRandom random = ThreadLocalRandom.current();
+      if (random.nextDouble() > getGlobeChance(level)) {
+        return;
+      }
+
+      spawnGlobe(killer, e, random.nextBoolean(), level);
+    });
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void on(EntityPickupItemEvent e) {
+    if (!(e.getEntity() instanceof Player p)) {
+      return;
+    }
+
+    withAdaptedPlayer(p, e, () -> {
+      UUID id = e.getItem().getUniqueId();
+      boolean blood = bloodGlobes.contains(id);
+      boolean bone = boneGlobes.contains(id);
+      if (!blood && !bone) {
+        return;
+      }
+
+      e.setCancelled(true);
+      e.getItem().remove();
+      bloodGlobes.remove(id);
+      boneGlobes.remove(id);
+      globeTrackExpiry.remove(id);
+      applyBuff(p, blood, getLevel(p));
+      addStat(p, "tragoul.bone-harvest.orbs-collected", 1);
+    });
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void on(InventoryPickupItemEvent e) {
+    if (e.getItem().getPersistentDataContainer().has(GLOBE_KEY, PersistentDataType.BYTE)) {
+      e.setCancelled(true);
+    }
+  }
+
+  private void spawnGlobe(Player owner, EntityDeathEvent e, boolean blood, int level) {
+    ItemStack item = new ItemStack(blood ? Material.MAGMA_CREAM : Material.SNOWBALL);
+    ItemMeta meta = item.getItemMeta();
+    if (meta != null) {
+      meta.setDisplayName((blood ? C.RED : C.WHITE) + AdaptLanguage.text(
+          blood ? TragoulMessages.BONE_HARVEST_BLOOD_GLOBE : TragoulMessages.BONE_HARVEST_BONE_GLOBE
+      ));
+      item.setItemMeta(meta);
+    }
+
+    Item dropped = e.getEntity().getWorld().dropItemNaturally(e.getEntity().getLocation().add(0, 0.35, 0), item);
+    dropped.setPickupDelay(10);
+    dropped.setOwner(owner.getUniqueId());
+    PaperCompat.setCanMobPickup(dropped, false);
+    dropped.getPersistentDataContainer().set(GLOBE_KEY, PersistentDataType.BYTE, (byte) 1);
+    if (blood) {
+      bloodGlobes.add(dropped.getUniqueId());
+    } else {
+      boneGlobes.add(dropped.getUniqueId());
+    }
+
+    fx(dropped.getLocation().add(0, 0.2, 0), FxPriority.AMBIENT)
+        .dustBurst(blood ? GLOBE_BLOOD : GLOBE_BONE, 3, 0.15, 1.0F)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, blood ? 0.9F : 1.4F);
+
+    int life = getGlobeLifetimeTicks(level);
+    globeTrackExpiry.put(dropped.getUniqueId(), System.currentTimeMillis() + (life * 50L) + GLOBE_TRACK_GRACE_MILLIS);
+    J.runEntity(dropped, () -> {
+      bloodGlobes.remove(dropped.getUniqueId());
+      boneGlobes.remove(dropped.getUniqueId());
+      globeTrackExpiry.remove(dropped.getUniqueId());
+      if (dropped.isValid()) {
+        fx(dropped.getLocation().add(0, 0.2, 0), FxPriority.AMBIENT)
+            .burst(Particles.SMOKE, 4, 0.2)
+            .sound(Sound.BLOCK_FIRE_EXTINGUISH, 0.2F, 1.5F);
+        dropped.remove();
+      }
+    }, life);
+    xp(owner, getConfig().xpPerGlobeSpawned);
+  }
+
+  private void applyBuff(Player p, boolean blood, int level) {
+    if (blood) {
+      p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, getConfig().bloodBuffTicks, getConfig().bloodBuffAmplifier, false, true, true), true);
+      playBloodPickup(p);
+    } else {
+      applyRandomBoneBuffs(p, level);
+      fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
+          .dustBurst(GLOBE_BONE, 8, 0.4, 1.0F)
+          .burst(Particle.CRIT, 4, 0.4)
+          .chord(Sound.ENTITY_SKELETON_HURT, 0.7F, 1.2F, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.2F);
+    }
+  }
+
+  private void playBloodPickup(Player p) {
+    Particle.DustTransition trans = new Particle.DustTransition(Color.fromRGB(200, 0, 20), Color.fromRGB(255, 120, 150), 1.0F);
+    timeline(p)
+        .duration(5)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(24)
+        .frame((fx, tick, progress) -> {
+          fx.ring(Particle.DUST_COLOR_TRANSITION, 1.2 - (1.0 * progress), 8, 1.0, trans);
+          if (tick == 0) {
+            fx.chord(Sound.ENTITY_PLAYER_LEVELUP, 0.7F, 1.4F, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5F, 1.2F);
+          }
+        })
+        .start();
+  }
+
+  private void applyRandomBoneBuffs(Player p, int level) {
+    int buffs = Math.max(1, (int) Math.round(getConfig().boneBuffCountBase + (getLevelPercent(level) * getConfig().boneBuffCountFactor)));
+    List<PotionEffectType> pool = new ArrayList<>(effectPool());
+    Collections.shuffle(pool);
+    buffs = Math.min(pool.size(), buffs);
+
+    int duration = getConfig().boneBuffTicks;
+    int amp = Math.max(0, getConfig().boneBuffAmplifier);
+    for (int i = 0; i < buffs; i++) {
+      PotionEffectType type = pool.get(i);
+      int a = type == PotionEffectType.ABSORPTION && getLevelPercent(level) >= 0.75 ? amp + 1 : amp;
+      if (type == PotionEffectType.SPEED) {
+        grantSpeedBoost(p, a, duration);
+        continue;
+      }
+      if (type == PotionEffectType.JUMP_BOOST) {
+        grantJumpBoost(p, a, duration);
+        continue;
+      }
+      p.addPotionEffect(new PotionEffect(type, duration, a, false, true, true), true);
+    }
+  }
+
+  private void grantSpeedBoost(Player p, int amplifier, int durationTicks) {
+    if (durationTicks <= 0) {
+      return;
+    }
+    AdaptAttributeService.get().applyTimed(p, getName(), "speed", Attributes.MOVEMENT_SPEED, speedBonus(amplifier), AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
+  }
+
+  private void grantJumpBoost(Player p, int amplifier, int durationTicks) {
+    if (durationTicks <= 0) {
+      return;
+    }
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.applyTimed(p, getName(), "jump", Attributes.JUMP_STRENGTH, jumpStrengthBonus(amplifier), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+    attributes.applyTimed(p, getName(), "fall", Attributes.SAFE_FALL_DISTANCE, safeFallBonus(amplifier), AttributeModifier.Operation.ADD_NUMBER, durationTicks);
+  }
+
+  static double speedBonus(int amplifier) {
+    return 0.2D * (amplifier + 1);
+  }
+
+  static double jumpStrengthBonus(int amplifier) {
+    return 0.1D * (amplifier + 1);
+  }
+
+  static double safeFallBonus(int amplifier) {
+    return amplifier + 1.0D;
+  }
+
+  private double getGlobeChance(int level) {
+    return Math.min(getConfig().maxGlobeChance, getConfig().globeChanceBase + (getLevelPercent(level) * getConfig().globeChanceFactor));
+  }
+
+  private int getGlobeLifetimeTicks(int level) {
+    return Math.max(20, (int) Math.round(getConfig().globeLifetimeTicksBase + (getLevelPercent(level) * getConfig().globeLifetimeTicksFactor)));
+  }
+
+  @ConfigDescription("Kills can spawn temporary blood and bone globes that grant short buffs when picked up.")
+  protected static class Config extends AdaptationConfig {
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Globe Chance Base for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double globeChanceBase = 0.16;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Globe Chance Factor for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double globeChanceFactor = 0.42;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Max Globe Chance for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double maxGlobeChance = 0.7;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Globe Lifetime Ticks Base for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double globeLifetimeTicksBase = 120;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Globe Lifetime Ticks Factor for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double globeLifetimeTicksFactor = 220;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Blood Buff Ticks for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int bloodBuffTicks = 80;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Blood Buff Amplifier for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int bloodBuffAmplifier = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bone Buff Ticks for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int boneBuffTicks = 100;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bone Buff Amplifier for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    int boneBuffAmplifier = 0;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bone Buff Count Base for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double boneBuffCountBase = 1;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Bone Buff Count Factor for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double boneBuffCountFactor = 2;
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Xp Per Globe Spawned for the Tragoul Bone Harvest adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
+    double xpPerGlobeSpawned = 8;
+
+    public Config() {
+      costFactor = 0.72;
+      initialCost = 4;
+    }
+  }
+}

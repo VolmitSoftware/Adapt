@@ -1,0 +1,908 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.api.world;
+
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
+import art.arcane.adapt.api.attribute.AdaptAttributeService;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
+import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
+import art.arcane.adapt.api.minion.MinionBurden;
+import art.arcane.adapt.api.notification.AdaptHud;
+import art.arcane.adapt.api.notification.AdvancementNotification;
+import art.arcane.adapt.api.notification.SoundNotification;
+import art.arcane.adapt.api.potion.AdaptPotionRegistry;
+import art.arcane.adapt.api.recipe.AdaptRecipeBook;
+import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.api.tick.TickedObject;
+import art.arcane.adapt.api.xp.SpatialXP;
+import art.arcane.adapt.api.xp.XP;
+import art.arcane.adapt.api.xp.XpNovelty;
+import art.arcane.adapt.api.xp.XPMultiplier;
+import art.arcane.adapt.content.gui.SkillsGui;
+import art.arcane.adapt.service.MutationSVC;
+import art.arcane.adapt.content.item.ExperienceOrb;
+import art.arcane.adapt.content.item.KnowledgeOrb;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.RuntimeMessages;
+import art.arcane.adapt.papi.AdaptPlaceholders;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.io.Json;
+import art.arcane.adapt.util.common.io.SQLManager;
+import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.misc.SoundPlayer;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.io.IO;
+import art.arcane.volmlib.util.math.M;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.SneakyThrows;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
+
+public class AdaptServer extends TickedObject {
+  private final ReentrantLock clearLock = new ReentrantLock();
+  private final Map<UUID, AdaptPlayer> players = new ConcurrentHashMap<>();
+  private final Map<UUID, AdaptPlayer> onlineAdaptPlayers = new ConcurrentHashMap<>();
+  private final Map<UUID, Set<String>> learnedAdaptationsByPlayer = new ConcurrentHashMap<>();
+  private final Map<UUID, Map<String, Integer>> learnedAdaptationLevelsByPlayer = new ConcurrentHashMap<>();
+  private final Map<String, Set<UUID>> playersByLearnedAdaptation = new ConcurrentHashMap<>();
+  private final Map<String, List<AdaptPlayer>> learnedAdaptPlayerSnapshots = new ConcurrentHashMap<>();
+  private final Set<UUID> recipeBookSyncScheduled = ConcurrentHashMap.newKeySet();
+  private final AtomicBoolean spatialFailureReported = new AtomicBoolean(false);
+  private final AtomicBoolean onlineSnapshotRefreshScheduled = new AtomicBoolean(false);
+  private final AtomicLong onlineMembershipRevision = new AtomicLong();
+  private final AtomicLong learnerIndexRevision = new AtomicLong();
+  private final Cache<UUID, PlayerData> prefetchedPlayerData = Caffeine.newBuilder()
+      .expireAfterWrite(2, TimeUnit.MINUTES)
+      .maximumSize(2048)
+      .build();
+  @Getter
+  private final List<SpatialXP> spatialTickets = new ArrayList<>();
+  private volatile int spatialTicketCount;
+  @Getter
+  private final SkillRegistry skillRegistry = new SkillRegistry();
+  @Getter
+  private volatile List<Player> onlinePlayerSnapshot = List.of();
+  @Getter
+  private volatile List<AdaptPlayer> onlineAdaptPlayerSnapshot = List.of();
+  @Getter
+  private AdaptServerData data = new AdaptServerData();
+
+  public AdaptServer() {
+    super("core", UUID.randomUUID().toString(), 1000);
+    load();
+  }
+
+  public int getLearnedAdaptationCount() {
+    return playersByLearnedAdaptation.size();
+  }
+
+  public long getLearnerIndexRevision() {
+    return learnerIndexRevision.get();
+  }
+
+  public int getSpatialTicketCount() {
+    return spatialTicketCount;
+  }
+
+  public synchronized void startRuntime() {
+    if (isRuntimeRegistered()) {
+      return;
+    }
+    skillRegistry.startRuntime();
+    activateRuntime();
+    for (Player player : Bukkit.getOnlinePlayers()) {
+      join(player, false);
+    }
+    rebuildOnlinePlayerSnapshots();
+  }
+
+  public void offer(SpatialXP xp) {
+    if (xp == null || xp.getSkill() == null || xp.getLocation() == null) {
+      return;
+    }
+    if (xp.getRadius() <= 0 || xp.getXp() <= 0 || xp.getMs() <= M.ms()) {
+      return;
+    }
+    synchronized (spatialTickets) {
+      spatialTickets.add(xp);
+      spatialTicketCount = spatialTickets.size();
+    }
+  }
+
+  public void takeSpatial(AdaptPlayer p, Location playerLocation) {
+    if (spatialTicketCount == 0) {
+      return;
+    }
+
+    try {
+      SpatialXP x;
+      synchronized (spatialTickets) {
+        int size = spatialTickets.size();
+        if (size == 0) {
+          return;
+        }
+        x = spatialTickets.get(size - 1);
+      }
+
+      if (M.ms() > x.getMs()) {
+        synchronized (spatialTickets) {
+          spatialTickets.remove(x);
+          spatialTicketCount = spatialTickets.size();
+        }
+        return;
+      }
+
+      if (!p.getPlayer().getClass().getSimpleName().equals("CraftPlayer")) {
+        synchronized (spatialTickets) {
+          spatialTickets.remove(x);
+          spatialTicketCount = spatialTickets.size();
+        }
+        return;
+      }
+
+      if (playerLocation.getWorld().equals(x.getLocation().getWorld())) {
+        double c = playerLocation.distanceSquared(x.getLocation());
+        if (c < x.getRadius() * x.getRadius()) {
+          double distl = M.lerpInverse(0, x.getRadius() * x.getRadius(), c);
+          double xp = x.getXp() / (1.5D * ((distl * 9) + 1));
+          synchronized (spatialTickets) {
+            x.setXp(x.getXp() - xp);
+
+            if (x.getXp() < 10) {
+              xp += x.getXp();
+              spatialTickets.remove(x);
+              spatialTicketCount = spatialTickets.size();
+            }
+          }
+
+          XP.xp(p, x.getSkill(), xp);
+        }
+      }
+    } catch (Throwable error) {
+      if (spatialFailureReported.compareAndSet(false, true)) {
+        Adapt.warn("Spatial XP processing failed; further spatial failures will be suppressed until reload.");
+        error.printStackTrace();
+      }
+    }
+  }
+
+  boolean hasSpatialTickets() {
+    return spatialTicketCount > 0;
+  }
+
+  public void join(Player p) {
+    join(p, true);
+  }
+
+  private void join(Player p, boolean refreshSnapshots) {
+    // A retired AdaptPlayer lingers in the map for a minute after quit, and so does a prefetched
+    // snapshot. Reusing either would resurrect data that was purged while they sat there, so a
+    // purged player always falls through to a fresh load.
+    boolean purged = PlayerDataPurgeGuard.isPurged(p.getUniqueId());
+    AdaptPlayer existing = players.get(p.getUniqueId());
+    if (existing != null) {
+      if (!purged && existing.getPlayer() == p && existing.isRuntimeReady()) {
+        onlineAdaptPlayers.put(p.getUniqueId(), existing);
+        refreshLearnedAdaptations(existing);
+        onlineMembershipRevision.incrementAndGet();
+        existing.loggedIn();
+        if (refreshSnapshots) {
+          scheduleOnlinePlayerSnapshotRefresh();
+        }
+        return;
+      }
+
+      players.remove(p.getUniqueId(), existing);
+      if (existing.isRuntimeReady()) {
+        existing.unregister();
+      }
+    }
+
+    PlayerData prefetched;
+    if (purged) {
+      prefetchedPlayerData.invalidate(p.getUniqueId());
+      prefetched = null;
+    } else {
+      prefetched = existing == null ? takePrefetchedData(p.getUniqueId()) : existing.getData();
+    }
+    AdaptPlayer a = new AdaptPlayer(p, prefetched);
+    a.startRuntime();
+    players.put(p.getUniqueId(), a);
+    onlineAdaptPlayers.put(p.getUniqueId(), a);
+    refreshLearnedAdaptations(a);
+    onlineMembershipRevision.incrementAndGet();
+    if (refreshSnapshots) {
+      scheduleOnlinePlayerSnapshotRefresh();
+    }
+    a.loggedIn();
+  }
+
+  public void quit(UUID p) {
+    AdaptPlayer a = players.get(p);
+    if (a == null) return;
+    a.unregister();
+    AdaptPotionRegistry.retainActive(Bukkit.getPlayer(p));
+    // Keep the entry briefly after quit so late quit listeners/tasks do not
+    // re-create a new AdaptPlayer for an offline player.
+    prefetchedPlayerData.invalidate(p);
+    AdaptPlaceholders.get().evictAfterGrace(p);
+    onlineAdaptPlayers.remove(p, a);
+    recipeBookSyncScheduled.remove(p);
+    removeLearnedPlayer(p);
+    onlineMembershipRevision.incrementAndGet();
+    scheduleOnlinePlayerSnapshotRefresh();
+  }
+
+  @Override
+  public void unregister() {
+    new HashSet<>(players.keySet()).forEach(this::quit);
+    players.clear();
+    prefetchedPlayerData.invalidateAll();
+    onlineAdaptPlayers.clear();
+    learnedAdaptationsByPlayer.clear();
+    learnedAdaptationLevelsByPlayer.clear();
+    playersByLearnedAdaptation.clear();
+    learnedAdaptPlayerSnapshots.clear();
+    learnerIndexRevision.incrementAndGet();
+    recipeBookSyncScheduled.clear();
+    onlinePlayerSnapshot = List.of();
+    onlineAdaptPlayerSnapshot = List.of();
+    onlineSnapshotRefreshScheduled.set(false);
+    skillRegistry.unregister();
+    save();
+    super.unregister();
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void on(ProjectileLaunchEvent e) {
+    if (e.getEntity() instanceof Snowball s && e.getEntity().getShooter() instanceof Player p) {
+      KnowledgeOrb.Data data = KnowledgeOrb.get(s.getItem());
+      if (data != null) {
+        Skill<?> skill = getSkillRegistry().getSkill(data.getSkill());
+        data.apply(p);
+        SoundNotification.builder()
+            .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
+            .volume(0.35f).pitch(1.455f)
+            .build().play(getPlayer(p));
+        SoundNotification.builder()
+            .sound(Sound.ENTITY_SHULKER_OPEN)
+            .volume(1f).pitch(1.655f)
+            .build().play(getPlayer(p));
+        getPlayer(p).getNot().queue(AdvancementNotification.builder()
+            .icon(Material.BOOK)
+            .model(CustomModel.get(Material.BOOK, "snippets", "gui", "knowledge"))
+            .title(C.GRAY + AdaptLanguage.text(
+                RuntimeMessages.KNOWLEDGE_GAIN,
+                trusted("amount", C.WHITE + String.valueOf(data.getKnowledge())),
+                trusted("skill", skill.getDisplayName())
+            ))
+            .build());
+      } else {
+        ExperienceOrb.Data datax = ExperienceOrb.get(s.getItem());
+        if (datax != null) {
+          datax.apply(p);
+          SoundNotification.builder()
+              .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
+              .volume(0.35f).pitch(1.455f)
+              .build().play(getPlayer(p));
+          SoundNotification.builder()
+              .sound(Sound.ENTITY_SHULKER_OPEN)
+              .volume(1f).pitch(1.655f)
+              .build().play(getPlayer(p));
+        }
+      }
+    }
+
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void on(PlayerJoinEvent e) {
+    Player p = e.getPlayer();
+    join(p);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(AsyncPlayerPreLoginEvent e) {
+    if (e.getLoginResult() != AsyncPlayerPreLoginEvent.Result.ALLOWED) {
+      return;
+    }
+
+    UUID uuid = e.getUniqueId();
+    if (players.containsKey(uuid) || prefetchedPlayerData.getIfPresent(uuid) != null) {
+      return;
+    }
+
+    try {
+      prefetchedPlayerData.put(uuid, AdaptPlayer.loadPlayerData(uuid));
+    } catch (Throwable ignored) {
+      Adapt.verbose("Failed to prefetch player data for " + uuid);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    Player p = e.getPlayer();
+    UUID playerId = p.getUniqueId();
+    quit(playerId);
+    ViewerDisplayDirector.retireViewer(playerId);
+    AdaptHud.clear(p);
+  }
+
+  @EventHandler
+  public void on(CraftItemEvent e) {
+    if (e.getWhoClicked() instanceof Player p) {
+      Adaptation<?> required = getSkillRegistry().getRequiredAdaptation(e.getRecipe());
+      if (required == null || required.hasAdaptation(p)) {
+        return;
+      }
+
+      Skill<?> requiredSkill = required.getSkill();
+      String skillName = requiredSkill == null
+          ? AdaptLanguage.text(RuntimeMessages.UNKNOWN_SKILL)
+          : requiredSkill.getDisplayName();
+      SoundPlayer sp = SoundPlayer.of(p);
+      Adapt.actionbar(p, C.RED + AdaptLanguage.text(
+          RuntimeMessages.REQUIRES_ADAPTATION,
+          trusted("adaptation", required.getDisplayName()),
+          trusted("skill", skillName)
+      ));
+      sp.play(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 0.5f, 1.8f);
+      e.setCancelled(true);
+    }
+  }
+
+  @Override
+  public void onTick() {
+    data.getMultipliers().removeIf(multiplier -> multiplier == null || multiplier.isExpired());
+
+    synchronized (spatialTickets) {
+      spatialTickets.removeIf(ticket -> M.ms() > ticket.getMs());
+      spatialTicketCount = spatialTickets.size();
+    }
+
+    if (!clearLock.tryLock())
+      return;
+
+    try {
+      int sizeBefore = players.size();
+      Iterator<Map.Entry<UUID, AdaptPlayer>> iterator = players.entrySet().iterator();
+      while (iterator.hasNext()) {
+        Map.Entry<UUID, AdaptPlayer> entry = iterator.next();
+        AdaptPlayer player = entry.getValue();
+        if (player == null) {
+          iterator.remove();
+          onlineAdaptPlayers.remove(entry.getKey());
+          prefetchedPlayerData.invalidate(entry.getKey());
+          continue;
+        }
+
+        if (!player.shouldUnload()) {
+          continue;
+        }
+
+        player.unregister();
+        iterator.remove();
+        onlineAdaptPlayers.remove(entry.getKey(), player);
+        prefetchedPlayerData.invalidate(entry.getKey());
+      }
+
+      if (players.size() != sizeBefore) {
+        onlineMembershipRevision.incrementAndGet();
+        scheduleOnlinePlayerSnapshotRefresh();
+      }
+    } finally {
+      clearLock.unlock();
+    }
+  }
+
+  public PlayerData peekData(UUID player) {
+    if (PlayerDataPurgeGuard.isPurged(player)) {
+      return new PlayerData();
+    }
+
+    AdaptPlayer loaded = players.get(player);
+    if (loaded != null) {
+      return loaded.getData();
+    }
+
+    PlayerData prefetched = prefetchedPlayerData.getIfPresent(player);
+    if (prefetched != null) {
+      return prefetched;
+    }
+
+    if (AdaptConfig.get().getSql().isEnabled()) {
+      SQLManager sqlManager = Adapt.instance.getSqlManager();
+      String sqlData = sqlManager == null ? null : sqlManager.fetchData(player);
+      if (sqlData != null) {
+        PlayerData data = PlayerData.fromJson(sqlData);
+        if (data != null) {
+          prefetchedPlayerData.put(player, data);
+          return data;
+        }
+      }
+    }
+
+    File file = new File(Adapt.instance.getDataFolder("data", "players"), player + ".json");
+    if (file.exists()) {
+      try {
+        PlayerData data = PlayerData.fromJson(IO.readAll(file));
+        if (data != null) {
+          prefetchedPlayerData.put(player, data);
+          return data;
+        }
+      } catch (Throwable error) {
+        Adapt.verbose("Failed to load player data for " + player);
+      }
+    }
+
+    return new PlayerData();
+  }
+
+  public boolean addStat(UUID playerId, String stat, double amount) {
+    if (playerId == null || stat == null || stat.isBlank() || amount == 0D) {
+      return false;
+    }
+
+    AdaptPlayer online = onlineAdaptPlayers.get(playerId);
+    if (online == null || !online.isRuntimeReady()) {
+      return false;
+    }
+
+    Player player = online.getPlayer();
+    return player != null && J.runEntity(player, () -> {
+      if (onlineAdaptPlayers.get(playerId) == online && online.isRuntimeReady()) {
+        online.getData().addStat(stat, amount);
+      }
+    });
+  }
+
+  public int getOnlineAdaptationLevel(UUID playerId, String skillName, String adaptationName) {
+    AdaptPlayer online = onlineAdaptPlayers.get(playerId);
+    if (online == null || !online.isRuntimeReady()) {
+      return 0;
+    }
+    Map<String, Integer> levels = learnedAdaptationLevelsByPlayer.get(playerId);
+    return levels == null ? 0 : levels.getOrDefault(adaptationName, 0);
+  }
+
+  public boolean hasOnlineLearner(String adaptationName) {
+    if (adaptationName == null || adaptationName.isBlank()) {
+      return false;
+    }
+    Set<UUID> playerIds = playersByLearnedAdaptation.get(adaptationName);
+    return playerIds != null && !playerIds.isEmpty();
+  }
+
+  public boolean hasOnlineLearner(UUID playerId, String adaptationName) {
+    if (playerId == null || adaptationName == null || adaptationName.isBlank()) {
+      return false;
+    }
+    Set<UUID> playerIds = playersByLearnedAdaptation.get(adaptationName);
+    return playerIds != null && playerIds.contains(playerId);
+  }
+
+  public List<AdaptPlayer> getLearnedAdaptPlayerSnapshot(String adaptationName) {
+    if (adaptationName == null || adaptationName.isBlank()) {
+      return List.of();
+    }
+
+    return learnedAdaptPlayerSnapshots.computeIfAbsent(adaptationName, this::buildLearnedAdaptPlayerSnapshot);
+  }
+
+  private List<AdaptPlayer> buildLearnedAdaptPlayerSnapshot(String adaptationName) {
+    Set<UUID> playerIds = playersByLearnedAdaptation.get(adaptationName);
+    if (playerIds == null || playerIds.isEmpty()) {
+      return List.of();
+    }
+
+    ArrayList<AdaptPlayer> learned = new ArrayList<>(playerIds.size());
+    for (UUID playerId : playerIds) {
+      AdaptPlayer player = onlineAdaptPlayers.get(playerId);
+      if (player != null && player.isRuntimeReady()) {
+        learned.add(player);
+      }
+    }
+    return Collections.unmodifiableList(learned);
+  }
+
+  public void updateLearnedAdaptation(AdaptPlayer player, String adaptationName, int level) {
+    if (player == null || adaptationName == null || adaptationName.isBlank()) {
+      return;
+    }
+
+    UUID playerId = player.getPlayer().getUniqueId();
+    Set<String> learned = learnedAdaptationsByPlayer.computeIfAbsent(playerId, unused -> ConcurrentHashMap.newKeySet());
+    Map<String, Integer> levels = learnedAdaptationLevelsByPlayer.computeIfAbsent(playerId, unused -> new ConcurrentHashMap<>());
+    if (level > 0) {
+      learned.add(adaptationName);
+      levels.put(adaptationName, level);
+      playersByLearnedAdaptation.computeIfAbsent(adaptationName, unused -> ConcurrentHashMap.newKeySet()).add(playerId);
+      learnedAdaptPlayerSnapshots.remove(adaptationName);
+      learnerIndexRevision.incrementAndGet();
+      reconcileMutations(player);
+      synchronizeRecipeBook(playerId, player);
+      return;
+    }
+
+    learned.remove(adaptationName);
+    levels.remove(adaptationName);
+    if (levels.isEmpty()) {
+      learnedAdaptationLevelsByPlayer.remove(playerId, levels);
+    }
+    if (learned.isEmpty()) {
+      learnedAdaptationsByPlayer.remove(playerId, learned);
+    }
+    removeLearnedAdaptationPlayer(adaptationName, playerId);
+    reconcileMutations(player);
+    synchronizeRecipeBook(playerId, player);
+  }
+
+  public void refreshLearnedAdaptations(AdaptPlayer player) {
+    if (player == null) {
+      return;
+    }
+
+    UUID playerId = player.getPlayer().getUniqueId();
+    Set<String> refreshed = new HashSet<>();
+    Map<String, Integer> refreshedLevels = new ConcurrentHashMap<>();
+    for (PlayerSkillLine line : player.getData().getSkillLines().values()) {
+      if (line == null) {
+        continue;
+      }
+      for (Map.Entry<String, PlayerAdaptation> entry : line.getAdaptations().entrySet()) {
+        String adaptationName = entry.getKey();
+        PlayerAdaptation adaptation = entry.getValue();
+        if (adaptationName != null && !adaptationName.isBlank()
+            && adaptation != null && adaptation.getLevel() > 0) {
+          refreshed.add(adaptationName);
+          refreshedLevels.put(adaptationName, adaptation.getLevel());
+        }
+      }
+    }
+
+    Set<String> indexed = ConcurrentHashMap.newKeySet();
+    indexed.addAll(refreshed);
+    Set<String> previous = learnedAdaptationsByPlayer.put(playerId, indexed);
+    if (refreshedLevels.isEmpty()) {
+      learnedAdaptationLevelsByPlayer.remove(playerId);
+    } else {
+      learnedAdaptationLevelsByPlayer.put(playerId, refreshedLevels);
+    }
+    if (previous != null) {
+      for (String adaptationName : previous) {
+        if (!refreshed.contains(adaptationName)) {
+          removeLearnedAdaptationPlayer(adaptationName, playerId);
+          AdaptAttributeService.onAdaptationUnlearned(player.getPlayer(), adaptationName);
+        }
+      }
+    }
+    for (String adaptationName : refreshed) {
+      playersByLearnedAdaptation.computeIfAbsent(adaptationName, unused -> ConcurrentHashMap.newKeySet()).add(playerId);
+      learnedAdaptPlayerSnapshots.remove(adaptationName);
+    }
+    if (indexed.isEmpty()) {
+      learnedAdaptationsByPlayer.remove(playerId, indexed);
+    }
+    learnerIndexRevision.incrementAndGet();
+    reconcileMutations(player);
+    synchronizeRecipeBook(playerId, player);
+  }
+
+  public void synchronizeRecipeBooksForOnlinePlayers() {
+    for (Map.Entry<UUID, AdaptPlayer> entry : onlineAdaptPlayers.entrySet()) {
+      synchronizeRecipeBook(entry.getKey(), entry.getValue());
+    }
+  }
+
+  private void synchronizeRecipeBook(UUID playerId, AdaptPlayer adaptPlayer) {
+    if (playerId == null || adaptPlayer == null) {
+      return;
+    }
+
+    Player player = adaptPlayer.getPlayer();
+    if (player == null) {
+      return;
+    }
+
+    if (!recipeBookSyncScheduled.add(playerId)) {
+      return;
+    }
+
+    boolean scheduled = J.runEntity(player, () -> {
+      recipeBookSyncScheduled.remove(playerId);
+      if (!player.isOnline() || !adaptPlayer.isRuntimeReady()
+          || onlineAdaptPlayers.get(playerId) != adaptPlayer) {
+        return;
+      }
+      if (!skillRegistry.isRecipeRegistrationReady()) {
+        return;
+      }
+
+      AdaptRecipeBook.Plan plan = AdaptRecipeBook.plan(
+          skillRegistry.getRegisteredRecipeUnlocks(),
+          adaptation -> adaptation.getLevel(adaptPlayer)
+      );
+      AdaptRecipeBook.synchronize(player, plan);
+    }, 1);
+    if (!scheduled) {
+      recipeBookSyncScheduled.remove(playerId);
+    }
+  }
+
+  private void reconcileMutations(AdaptPlayer player) {
+    MutationSVC mutationService = MutationSVC.get();
+    if (mutationService != null && mutationService.getManager() != null) {
+      mutationService.getManager().reconcile(player);
+    }
+  }
+
+  @NonNull
+  public Optional<PlayerData> getPlayerData(@NonNull UUID uuid) {
+    return Optional.ofNullable(players.get(uuid))
+        .map(AdaptPlayer::getData);
+  }
+
+  public AdaptPlayer getOnlineAdaptPlayer(UUID playerId) {
+    return playerId == null ? null : onlineAdaptPlayers.get(playerId);
+  }
+
+  public AdaptPlayer getPlayer(Player p) {
+    AdaptPlayer existing = players.get(p.getUniqueId());
+    if (existing != null) {
+      return existing;
+    }
+
+    AdaptPlayer created = players.computeIfAbsent(p.getUniqueId(), player -> {
+      Adapt.warn("Failed to find AdaptPlayer for " + p.getName() + " (" + p.getUniqueId() + ")");
+      Adapt.warn("Loading new AdaptPlayer...");
+      AdaptPlayer loaded = new AdaptPlayer(p, PlayerDataPurgeGuard.isPurged(player) ? null : takePrefetchedData(player));
+      loaded.startRuntime();
+      return loaded;
+    });
+    onlineAdaptPlayers.put(p.getUniqueId(), created);
+    refreshLearnedAdaptations(created);
+    onlineMembershipRevision.incrementAndGet();
+    scheduleOnlinePlayerSnapshotRefresh();
+    return created;
+  }
+
+  /**
+   * Resets a player to a brand new Adapt profile.
+   * <p>
+   * An online player is reset in place and is never kicked: every side effect their adaptations
+   * applied is torn down, their live data is swapped for a default instance, and the fresh state is
+   * written immediately so a crash cannot bring the old profile back. An offline player has the
+   * stored copy purged and is guarded so no lingering in-memory copy can write it back.
+   *
+   * @return true when the player was reset live, false when the stored data was purged instead
+   */
+  public boolean resetPlayerData(UUID playerId) {
+    if (playerId == null) {
+      return false;
+    }
+
+    AdaptPlayer adaptPlayer = players.get(playerId);
+    Player player = Bukkit.getPlayer(playerId);
+    if (player == null || !player.isOnline()) {
+      purgeStoredPlayerData(playerId, adaptPlayer);
+      return false;
+    }
+
+    if (adaptPlayer == null || !adaptPlayer.isRuntimeReady() || adaptPlayer.getPlayer() != player) {
+      join(player);
+      adaptPlayer = players.get(playerId);
+    }
+
+    if (adaptPlayer == null) {
+      purgeStoredPlayerData(playerId, null);
+      return false;
+    }
+
+    AdaptPlayer.forgetLoadFailure(playerId);
+    PlayerDataPurgeGuard.clear(playerId);
+    prefetchedPlayerData.invalidate(playerId);
+
+    adaptPlayer.replaceData(new PlayerData());
+    // Diffs the learned index against the now empty profile, which unlearns every attribute
+    // modifier, dissolves the mutation loadout, and un-discovers adaptation recipes.
+    refreshLearnedAdaptations(adaptPlayer);
+    tearDownPlayerRuntime(player);
+    adaptPlayer.reconcileStatTrackers();
+    AdaptPlaceholders.get().publishPlayer(adaptPlayer);
+    adaptPlayer.saveNow();
+    onlineMembershipRevision.incrementAndGet();
+    scheduleOnlinePlayerSnapshotRefresh();
+    Adapt.info("Reset live Adapt data for " + player.getName() + " (" + playerId + ")");
+    return true;
+  }
+
+  private void purgeStoredPlayerData(UUID playerId, AdaptPlayer stale) {
+    prefetchedPlayerData.invalidate(playerId);
+    recipeBookSyncScheduled.remove(playerId);
+    removeLearnedPlayer(playerId);
+    onlineAdaptPlayers.remove(playerId);
+
+    if (stale == null) {
+      AdaptPlayer.purgeStoredData(playerId);
+    } else {
+      players.remove(playerId, stale);
+      stale.purge(playerId);
+      if (stale.isRuntimeReady()) {
+        stale.unregister();
+      }
+    }
+
+    MutationSVC mutationService = MutationSVC.get();
+    if (mutationService != null && mutationService.getManager() != null) {
+      mutationService.getManager().cleanup(playerId);
+    }
+    MinionBurden.get().clearOwner(playerId);
+    AdaptPotionRegistry.forget(playerId);
+    XpNovelty.clear(playerId);
+    PlayerStateRegistry.clearPlayer(playerId);
+    ViewerDisplayDirector.retireViewer(playerId);
+    onlineMembershipRevision.incrementAndGet();
+    scheduleOnlinePlayerSnapshotRefresh();
+    Adapt.info("Purged stored Adapt data for " + playerId);
+  }
+
+  private void tearDownPlayerRuntime(Player player) {
+    UUID playerId = player.getUniqueId();
+    AdaptAttributeService.get().clearAllAdapt(player);
+    MinionBurden.get().clearOwner(playerId);
+    XpNovelty.clear(playerId);
+    PlayerStateRegistry.clearPlayer(playerId);
+    ViewerDisplayDirector.clearViewer(playerId);
+    ViewerGlowCoordinator glow = Adapt.instance.getViewerGlowCoordinator();
+    if (glow != null) {
+      glow.discardViewer(playerId);
+    }
+
+    J.runEntity(player, () -> {
+      AdaptPotionRegistry.strip(player);
+      AdaptHud.clear(player);
+    });
+  }
+
+  private void removeLearnedPlayer(UUID playerId) {
+    Set<String> learned = learnedAdaptationsByPlayer.remove(playerId);
+    learnedAdaptationLevelsByPlayer.remove(playerId);
+    if (learned == null) {
+      return;
+    }
+    for (String adaptationName : learned) {
+      removeLearnedAdaptationPlayer(adaptationName, playerId);
+    }
+  }
+
+  private void removeLearnedAdaptationPlayer(String adaptationName, UUID playerId) {
+    playersByLearnedAdaptation.computeIfPresent(adaptationName, (name, playerIds) -> {
+      playerIds.remove(playerId);
+      return playerIds.isEmpty() ? null : playerIds;
+    });
+    learnedAdaptPlayerSnapshots.remove(adaptationName);
+    learnerIndexRevision.incrementAndGet();
+  }
+
+  private PlayerData takePrefetchedData(UUID uuid) {
+    PlayerData prefetched = prefetchedPlayerData.getIfPresent(uuid);
+    if (prefetched != null) {
+      prefetchedPlayerData.invalidate(uuid);
+    }
+    return prefetched;
+  }
+
+  private void scheduleOnlinePlayerSnapshotRefresh() {
+    if (onlineSnapshotRefreshScheduled.compareAndSet(false, true)) {
+      J.s(this::rebuildOnlinePlayerSnapshots);
+    }
+  }
+
+  private void rebuildOnlinePlayerSnapshots() {
+    long revision = onlineMembershipRevision.get();
+    ArrayList<AdaptPlayer> adaptPlayers = new ArrayList<>(onlineAdaptPlayers.size());
+    ArrayList<Player> playerSnapshot = new ArrayList<>(onlineAdaptPlayers.size());
+
+    for (AdaptPlayer adaptPlayer : onlineAdaptPlayers.values()) {
+      if (adaptPlayer == null || !adaptPlayer.isRuntimeReady()) {
+        continue;
+      }
+      Player player = adaptPlayer.getPlayer();
+      if (player != null) {
+        adaptPlayers.add(adaptPlayer);
+        playerSnapshot.add(player);
+      }
+    }
+
+    onlineAdaptPlayerSnapshot = Collections.unmodifiableList(adaptPlayers);
+    onlinePlayerSnapshot = Collections.unmodifiableList(playerSnapshot);
+    onlineSnapshotRefreshScheduled.set(false);
+    if (onlineMembershipRevision.get() != revision) {
+      scheduleOnlinePlayerSnapshotRefresh();
+    }
+  }
+
+  public void openSkillGUI(Skill<?> skill, Player p) {
+    skill.openGui(p);
+  }
+
+  public void openAdaptGui(Player p) {
+    SkillsGui.open(p);
+  }
+
+  public void openAdaptationGUI(Adaptation<?> adaptation, Player p) {
+    adaptation.openGui(p);
+  }
+
+  public void boostXP(double boost, int ms) {
+    data.getMultipliers().add(new XPMultiplier(boost, ms));
+  }
+
+  public void load() {
+    File f = new File(Adapt.instance.getDataFolder("data"), "server-data.json");
+    if (f.exists()) {
+      try {
+        data = Json.fromJson(IO.readAll(f), AdaptServerData.class);
+      } catch (Throwable ignored) {
+        Adapt.verbose("Failed to load global boosts data");
+      }
+    }
+  }
+
+  @SneakyThrows
+  public void save() {
+    IO.writeAll(new File(Adapt.instance.getDataFolder("data"), "server-data.json"), Json.toJson(data, true));
+  }
+}

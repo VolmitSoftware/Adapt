@@ -1,0 +1,153 @@
+package art.arcane.adapt.util.director.context;
+
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.volmlib.util.collection.KList;
+
+public class AdaptationListingHandler {
+
+  private static KList<AdaptationList> adaptationLists;
+  private static KList<AdaptationSkillList> adaptationSkillLists;
+  private static KList<AdaptationProvider> adaptationProviders;
+  private static KList<SkillProvider> skillProviders;
+
+
+  public static void initializeAdaptationListings() {
+    adaptationLists = new KList<>();
+    adaptationSkillLists = new KList<>();
+    adaptationProviders = new KList<>();
+    skillProviders = new KList<>();
+
+    getAdaptionListings();
+    getAdaptionSkillListings();
+    getAdaptationProviders();
+    getSkillProvider();
+  }
+
+  public static KList<AdaptationList> getAdaptionListings() {
+    if (adaptationLists.isNotEmpty()) return adaptationLists;
+
+    AdaptationList main = new AdaptationList("main");
+    adaptationLists.add(main);
+
+    for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+      if (!skill.isEnabled()) {
+        continue;
+      }
+      AdaptationList skillList = new AdaptationList("skill:" + skill.getName());
+      adaptationLists.add(skillList);
+
+      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+        if (!adaptation.isEnabled()) {
+          continue;
+        }
+        AdaptationList adaptationList = new AdaptationList("adaptation:" + adaptation.getName());
+        adaptationLists.add(adaptationList);
+      }
+    }
+    return adaptationLists;
+  }
+
+  public static KList<AdaptationSkillList> getAdaptionSkillListings() {
+    if (adaptationSkillLists.isNotEmpty()) return adaptationSkillLists;
+
+    AdaptationSkillList t1 = new AdaptationSkillList("all");
+    adaptationSkillLists.add(t1);
+    AdaptationSkillList t2 = new AdaptationSkillList("random");
+    adaptationSkillLists.add(t2);
+
+    for (Skill<?> skill : allSkills()) {
+      if (!skill.isEnabled()) {
+        continue;
+      }
+      AdaptationSkillList t3 = new AdaptationSkillList(skill.getName());
+      adaptationSkillLists.add(t3);
+    }
+
+    adaptationSkillLists.removeDuplicates();
+    return adaptationSkillLists;
+  }
+
+  private static KList<Skill<?>> allSkills() {
+    if (Adapt.instance != null
+        && Adapt.instance.getAdaptServer() != null
+        && Adapt.instance.getAdaptServer().getSkillRegistry() != null) {
+      return new KList<>(Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills());
+    }
+
+    return SkillRegistry.skills.sortV();
+  }
+
+  public static KList<AdaptationProvider> getAdaptationProviders() {
+    if (adaptationProviders.isNotEmpty()) return adaptationProviders;
+
+    for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+      if (!skill.isEnabled()) {
+        continue;
+      }
+      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+        if (!adaptation.isEnabled()) {
+          continue;
+        }
+        AdaptationProvider suggestion = new AdaptationProvider(skill.getName() + ":" + adaptation.getName());
+        adaptationProviders.add(suggestion);
+      }
+    }
+    return adaptationProviders;
+  }
+
+  public static KList<SkillProvider> getSkillProvider() {
+    if (skillProviders.isNotEmpty()) return skillProviders;
+
+    for (Skill<?> skill : SkillRegistry.skills.sortV()) {
+      if (!skill.isEnabled()) {
+        continue;
+      }
+      SkillProvider t1 = new SkillProvider(skill.getName());
+      skillProviders.add(t1);
+    }
+    return skillProviders;
+  }
+
+  public record AdaptationList(String name) {
+    public boolean startsWith(String prefix) {
+      return name.regionMatches(true, 0, prefix, 0, prefix.length());
+    }
+
+    public boolean equals(String prefix) {
+      return name.equalsIgnoreCase(prefix);
+    }
+  }
+
+  public record AdaptationSkillList(String name) {
+    public boolean startsWith(String prefix) {
+      return name.regionMatches(true, 0, prefix, 0, prefix.length());
+    }
+
+    public boolean equals(String prefix) {
+      return name.equalsIgnoreCase(prefix);
+    }
+  }
+
+  public record AdaptationProvider(String name) {
+    public boolean startsWith(String prefix) {
+      return name.regionMatches(true, 0, prefix, 0, prefix.length());
+    }
+
+    public boolean equals(String prefix) {
+      return name.equalsIgnoreCase(prefix);
+    }
+  }
+
+  public record SkillProvider(String name) {
+    public boolean startsWith(String prefix) {
+      return name.regionMatches(true, 0, prefix, 0, prefix.length());
+    }
+
+    public boolean equals(String prefix) {
+      return name.equalsIgnoreCase(prefix);
+    }
+  }
+}

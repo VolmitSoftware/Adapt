@@ -17,6 +17,23 @@ release/
 
 build/
 
+logs/
+
 .DS_Store
 
 .gradle/
+
+.codegraph/
+
+TEST_SUITE_PLAN.md
+
+.qa/
+
+ATTRIBUTE_MODERNIZATION_AUDIT.md
+
+AGENTS.md
+
+# Local build tooling, not part of the project
+build-lt.sh
+BUILDS/
+.run/

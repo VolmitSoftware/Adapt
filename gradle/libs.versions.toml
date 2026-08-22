@@ -1,10 +1,12 @@
 [versions]
 # Plugins
-lombok = "8.14"
+lombok = "9.2.0"
 shadow = "9.0.0-rc3"
 runTask = "2.3.1"
 idea = "1.2"
-slimjar = "2.1.7"
+slimjar = "2.1.9"
+kotlin = "2.2.0"
+kotlin-coroutines = "1.10.2"
 
 # Cancer
 fukkit = "23.6.1"
@@ -13,13 +15,14 @@ chrono = "22.9.10"
 spatial = "22.11.2"
 
 velocity = "3.4.0-SNAPSHOT"
-spigot = "1.21.11-R0.2-SNAPSHOT"
+spigot = "26.2-R0.1-SNAPSHOT"
 platformUtils = "e17ac2c698"
 
 # Dynamically Loaded
-adventure-api = "4.24.0" # https://github.com/KyoriPowered/adventure
+adventure-api = "5.1.1" # https://github.com/KyoriPowered/adventure
 adventure-platform = "4.4.1" # https://github.com/KyoriPowered/adventure-platform
 
+bstats = "3.2.1"
 lettuce = "6.5.1.RELEASE"
 particle = "1.8.4"
 ultimateAdvancementApi = "2.7.2"
@@ -48,6 +51,7 @@ adventure-gson = { module = "net.kyori:adventure-text-serializer-gson", version.
 adventure-legacy = { module = "net.kyori:adventure-text-serializer-legacy", version.ref = "adventure-api" }
 adventure-platform = { module = "net.kyori:adventure-platform-bukkit", version.ref = "adventure-platform" }
 
+bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
 lettuce = { module = "io.lettuce:lettuce-core", version.ref = "lettuce" }
 particle = { module = "xyz.xenondevs:particle", version.ref = "particle" }
 ultimateAdvancementApi = { module = "com.frengor:ultimateadvancementapi-shadeable", version.ref = "ultimateAdvancementApi" }
@@ -60,6 +64,7 @@ toml4j = { module = "com.moandjiezana.toml:toml4j", version.ref = "toml4j" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
 glowingentities = { module = "fr.skytasul:glowingentities", version.ref = "glowingentities" }
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
+kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 
 [plugins]
 lombok = { id = "io.freefair.lombok", version.ref = "lombok" }
@@ -68,3 +73,4 @@ runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "runTask" }
 runVelocity = { id = "xyz.jpenilla.run-velocity", version.ref = "runTask" }
 idea = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "idea" }
 slimjar = { id = "de.crazydev22.slimjar", version.ref = "slimjar" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

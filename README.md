@@ -4,8 +4,6 @@
 
 ## Overview
 
-[![gitlocalized ](https://gitlocalize.com/repo/8085/whole_project/badge.svg)](https://gitlocalize.com/repo/8085/whole_project?utm_source=badge)
-
 _Adapt is a drag and drop solution for balanced passive abilities and skills that players can enjoy on a server._
 
 ### Description
@@ -18,9 +16,119 @@ The master branch is for the latest version of Minecraft.
 
 ### Language and Localization
 
-Do you know a language other than English? Do you want to play a big part in Adapt's localization into different languages? Join the [Discord](https://discord.gg/volmit) and let us know or visit the [gitlocalize repository](https://gitlocalize.com/repo/8085) to help remotely with language localizations! 
+English is defined in typed Java message catalogs beside the code that uses it. When adding player-facing text, add its English key there first; the localization tests identify every non-English overlay that still needs the new key. Adapt does not ship a separate `en_US.toml` file.
 
-If you don't see a language you can easily add it, or let us know here in discussions! We take this on an honor system, so please submit a translation key only if you are confident in the language, and they will be verified.
+Adapt bundles complete overlays for German, Spanish, Finnish, French, Hebrew, Italian, Japanese, Korean, Lithuanian, Dutch, Polish, Portuguese, Russian, Turkish, Vietnamese, Simplified Chinese, and Traditional Chinese. A server's selected TOML can contain only the keys it wants to override; missing values resolve through the bundled language and finally the code-owned English catalog.
+
+Do you know one of these languages and want to improve its wording? Join the [Discord](https://discord.gg/volmit) or open a contribution. Please submit translations only when you are confident in the language so they can be reviewed accurately.
+
+### PlaceholderAPI
+
+Adapt registers the `adapt` expansion when PlaceholderAPI is installed. Every key is `%adapt_<path>%`, where `<path>` is one to four dot-separated segments of lowercase letters, digits and hyphens. There is no underscore anywhere in a path — PlaceholderAPI already uses `_` to terminate the expansion identifier.
+
+Three answers, three meanings:
+
+| Rendered | Meaning |
+|---|---|
+| `%adapt_skil.mining.level%` | the path is not a key — check the spelling |
+| `---` | the path is a key, but there is no value right now |
+| `0` | a genuine zero |
+
+Every value is plain text: no colour codes, no unit suffixes, no thousands separators, and never a `%` character. Counts are exact integers; fractions and rates carry exactly two decimals. Booleans are `true` or `false`.
+
+Per-player values come from an immutable snapshot published once per second by the player's own tick, on the thread that owns their data. Nothing is loaded for an offline player: their last snapshot is served for sixty seconds after they quit, and then every per-player key answers `---`. `%adapt_available%` answers whether a snapshot exists.
+
+#### Server
+
+| Key | Value |
+|---|---|
+| `%adapt_available%` | `true` while the reading player has a published snapshot |
+| `%adapt_catalog.available%` | `true` once the skill catalogue has been published |
+| `%adapt_catalog.skills%` | registered skills |
+| `%adapt_catalog.adaptations%` | registered adaptations |
+| `%adapt_catalog.mutations%` | mutation types |
+
+#### Player
+
+| Key | Value |
+|---|---|
+| `%adapt_player.level%` | master level |
+| `%adapt_player.max-level%` | configured maximum level |
+| `%adapt_player.master-xp%` | master experience |
+| `%adapt_player.multiplier%` | global experience multiplier |
+| `%adapt_player.wisdom%` | wisdom earned |
+| `%adapt_player.power%` | ability power still available |
+| `%adapt_player.power-max%` | ability power granted by level |
+| `%adapt_player.power-used%` | ability power spent on adaptations |
+| `%adapt_player.known-skills%` | skills at level 1 or higher |
+| `%adapt_player.learned-adaptations%` | adaptations at level 1 or higher |
+
+#### Skill — `%adapt_skill.<skill>.<metric>%`
+
+`<skill>` is a skill identifier such as `mining` or `hunter`. A skill the player has never trained answers with its level-zero values, not `---`.
+
+| Metric | Value |
+|---|---|
+| `level` | current level |
+| `xp` | experience in this skill |
+| `knowledge` | unspent knowledge in this skill |
+| `multiplier` | this skill's experience multiplier |
+| `progress` | progress through the current level, `0.00` to `1.00` |
+| `progress-percent` | the same progress as `0.00` to `100.00`, with no `%` character |
+| `xp-to-next` | experience still needed for the next level |
+| `current-level-xp` | experience threshold of the current level |
+| `next-level-xp` | experience threshold of the next level |
+| `learned-adaptations` | adaptations learned in this skill |
+| `known` | `true` when the level is 1 or higher |
+| `name` | the skill's localized name |
+| `enabled` | `true` when the skill is enabled |
+| `adaptations` | adaptations this skill offers |
+| `has-level.<n>` | `true` when the level is at least `<n>` |
+
+#### Adaptation — `%adapt_adaptation.<adaptation>.<metric>%`
+
+`<adaptation>` is an adaptation identifier such as `mining-vein`.
+
+| Metric | Value |
+|---|---|
+| `level` | the level the player has purchased |
+| `max-level` | the highest level this adaptation offers |
+| `name` | the adaptation's display name |
+| `skill` | the identifier of the owning skill |
+| `enabled` | `true` when the adaptation is enabled |
+| `learned` | `true` when the level is 1 or higher |
+| `can-use` | `true` when it is learned and both it and its skill are enabled |
+| `cost-next` | knowledge cost of the next level, `0` at maximum |
+| `power-next` | ability power cost of the next level, `0` at maximum |
+| `can-claim-next` | `true` when the player can afford the next level right now |
+| `can-claim.<n>` | `true` when the player can move to level `<n>` right now |
+| `cost-to.<n>` | knowledge cost to reach level `<n>` from the current level |
+| `power-to.<n>` | ability power cost to reach level `<n>` from the current level |
+
+#### Mutation
+
+| Key | Value |
+|---|---|
+| `%adapt_mutation.available%` | `true` once a mutation snapshot has been published for this player |
+| `%adapt_mutation.enabled%` | `true` when the mutation feature is enabled |
+| `%adapt_mutation.perfect%` | `true` when the player has perfect adaptation |
+| `%adapt_mutation.expressed%` | how many mutations are currently expressed |
+| `%adapt_mutation.slot-1%` / `slot-2%` | the display name in that slot, `---` when empty |
+| `%adapt_mutation.slot-1-id%` / `slot-2-id%` | the identifier in that slot, `---` when empty |
+| `%adapt_mutation.slot-1-unlocked%` / `slot-2-unlocked%` | `true` when that slot is unlocked |
+| `%adapt_mutation.combat-lock%` | seconds left on the combat lock before slots can change |
+| `%adapt_mutation.can-swap%` | `true` when the combat lock has expired |
+
+Per mutation, `%adapt_mutation.<mutation>.<metric>%`, where `<mutation>` is an identifier such as `bastion-spine`:
+
+| Metric | Value |
+|---|---|
+| `id` | the mutation identifier |
+| `name` | the mutation's display name |
+| `state` | `locked`, `available`, `expressed`, `dormant`, `disabled`, `restricted` or `conflict` |
+| `expressed` | `true` when this mutation is currently expressed |
+| `qualified` | `true` when the player qualifies for this mutation |
+| `slot` | `1`, `2`, or `0` when it is not selected |
 
 # [Support](https://discord.gg/volmit) **|** [Documentation](https://docs.volmit.com/adapt/)
 
@@ -47,17 +155,17 @@ plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 
 ## Preface: if you need help compiling and you are a developer / intend to help out in the community or with development we would love to help you regardless in the discord! however do not come to the discord asking for free copies, or a tutorial on how to compile.
 
-1. Install [Java JDK 21](https://www.oracle.com/java/technologies/downloads/#java21)
+1. Install [Java JDK 25](https://adoptium.net/temurin/releases/?version=25)
 2. Set the JDK installation path to `JAVA_HOME` as an environment variable.
     * Windows
         1. Start > Type `env` and press Enter
         2. Advanced > Environment Variables
         3. Under System Variables, click `New...`
         4. Variable Name: `JAVA_HOME`
-        5. Variable Value: `C:\Program Files\Java\jdk-21` (verify this exists after installing java don't just copy
+        5. Variable Value: `C:\Program Files\Java\jdk-25` (verify this exists after installing java don't just copy
            the example text)
     * MacOS
-        1. Run `/usr/libexec/java_home -V` and look for Java 21
+        1. Run `/usr/libexec/java_home -V` and look for Java 25
         2. Run `sudo nano ~/.zshenv`
         3. Add `export JAVA_HOME=$(/usr/libexec/java_home)` as a new line
         4. Use `CTRL + X`, then Press `Y`, Then `ENTER`
@@ -69,7 +177,7 @@ plugin [Manifold](https://plugins.jetbrains.com/plugin/10057-manifold)
 <summary> Gradle Setup </summary>
 
 * Run `gradlew setup` any time you get dependency issues with craftbukkit
-* Configure ITJ Gradle to use JDK 21 (in settings, search for gradle)
+* Configure ITJ Gradle to use JDK 25 (in settings, search for gradle)
 * Resync the project & run your newly created task (under the development folder in gradle tasks!)
 
 </details>
@@ -123,7 +231,7 @@ Helping out in any way you can is appreciated, and you will be listed here for y
 | ArchitectFoundation | Creates temporary tinted glass blocks beneath sneaking players | Working |
 | ArchitectGlass | Silk-touch glass when breaking bare-handed | Working |
 | ArchitectPlacement | 3x3 block placement preview and batch place while sneaking | Working |
-| ArchitectWirelessRedstone | Bind redstone torches to target blocks for remote pulses | Working |
+| ArchitectWirelessRedstone | Bind redstone torches to any block for remote pulses | Working |
 
 ### Axes (6 adaptations)
 
@@ -132,7 +240,7 @@ Helping out in any way you can is appreciated, and you will be listed here for y
 | AxeChop | Right-click logs with an axe to mine vertical columns of connected wood | Working |
 | AxeCraftLogSwap | Crafting recipes to convert log types using saplings as catalysts | Working |
 | AxeDropToInventory | Redirects axe block drops into player inventory | Working |
-| AxeGroundSmash | AoE ground slam when sneaking and hitting mobs with an axe | Working |
+| AxeGroundSmash | Airborne crouch arms an AoE ground slam that fires on landing | Working |
 | AxeLeafVeinminer | Vein-mines connected leaves when sneaking with an axe | Working |
 | AxeWoodVeinminer | Vein-mines connected logs when sneaking with an axe | Working |
 
@@ -165,7 +273,7 @@ Helping out in any way you can is appreciated, and you will be listed here for y
 
 | Adaptation | Description | Status |
 |---|---|---|
-| CraftingBackpacks | Crafting recipe for bundles from leather, lead, chest, and barrel | Working |
+| CraftingBackpacks | Crafting recipe for bundles from a chest wrapped in eight leather | Working |
 | CraftingDeconstruction | Right-click floating items with shears while sneaking to deconstruct | Working |
 | CraftingLeather | Campfire recipe to cook rotten flesh into leather | Working |
 | CraftingReconstruction | 16 recipes to reconstruct ore blocks from stone and ingots | Working |
@@ -284,7 +392,7 @@ Helping out in any way you can is appreciated, and you will be listed here for y
 |---|---|---|
 | StealthEnderVeil | Prevents Endermen from targeting or attacking the player | Working |
 | StealthGhostArmor | Regenerating armor points that reset on damage | Working |
-| StealthSight | Grants night vision while sneaking | Working |
+| StealthSight | Grants night vision, Blindness immunity, and private outlines on invisible players while sneaking | Working |
 | StealthSnatch | Auto-collects nearby dropped items while sneaking | Working |
 | StealthSpeed | Grants speed while sneaking | Working |
 

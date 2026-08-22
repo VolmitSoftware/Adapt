@@ -1,0 +1,125 @@
+import java.io.File
+
+rootProject.name = 'Adapt'
+
+boolean hasVolmLibSettings(File directory) {
+    new File(directory, 'settings.gradle.kts').exists() || new File(directory, 'settings.gradle').exists()
+}
+
+File resolveLocalVolmLibDirectory() {
+    String configuredPath = providers.gradleProperty('localVolmLibDirectory')
+        .orElse(providers.environmentVariable('VOLMLIB_DIR'))
+        .orNull
+    if (configuredPath != null && !configuredPath.isBlank()) {
+        File configuredDirectory = file(configuredPath)
+        if (hasVolmLibSettings(configuredDirectory)) {
+            return configuredDirectory
+        }
+    }
+
+    File currentDirectory = settingsDir
+    while (currentDirectory != null) {
+        File candidate = new File(currentDirectory, 'VolmLib')
+        if (hasVolmLibSettings(candidate)) {
+            return candidate
+        }
+
+        currentDirectory = currentDirectory.parentFile
+    }
+
+    null
+}
+
+boolean useLocalVolmLib = providers.gradleProperty('useLocalVolmLib')
+    .orElse('true')
+    .map { String value -> value.equalsIgnoreCase('true') }
+    .get()
+File localVolmLibDirectory = resolveLocalVolmLibDirectory()
+
+if (useLocalVolmLib && localVolmLibDirectory != null) {
+    includeBuild(localVolmLibDirectory) {
+        dependencySubstitution {
+            substitute(module('com.github.VolmitSoftware:VolmLib')).using(project(':shared'))
+            substitute(module('com.github.VolmitSoftware.VolmLib:shared')).using(project(':shared'))
+            substitute(module('com.github.VolmitSoftware.VolmLib:volmlib-shared')).using(project(':shared'))
+        }
+    }
+}
+
+File resolveLocalHiddenOreDirectory() {
+    String configuredPath = providers.gradleProperty('localHiddenOreDirectory')
+        .orElse(providers.environmentVariable('HIDDENORE_DIR'))
+        .orNull
+    if (configuredPath != null && !configuredPath.isBlank()) {
+        File configuredDirectory = file(configuredPath)
+        if (hasVolmLibSettings(configuredDirectory)) {
+            return configuredDirectory
+        }
+    }
+
+    File currentDirectory = settingsDir
+    while (currentDirectory != null) {
+        File candidate = new File(currentDirectory, 'HiddenOre')
+        if (hasVolmLibSettings(candidate)) {
+            return candidate
+        }
+
+        currentDirectory = currentDirectory.parentFile
+    }
+
+    null
+}
+
+boolean useLocalHiddenOre = providers.gradleProperty('useLocalHiddenOre')
+    .orElse('true')
+    .map { String value -> value.equalsIgnoreCase('true') }
+    .get()
+File localHiddenOreDirectory = resolveLocalHiddenOreDirectory()
+
+if (useLocalHiddenOre && localHiddenOreDirectory != null) {
+    includeBuild(localHiddenOreDirectory) {
+        dependencySubstitution {
+            substitute(module('com.github.VolmitSoftware:HiddenOre')).using(project(':'))
+        }
+    }
+}
+
+File resolveLocalIrisDirectory() {
+    String configuredPath = providers.gradleProperty('localIrisDirectory')
+        .orElse(providers.environmentVariable('IRIS_DIR'))
+        .orNull
+    if (configuredPath != null && !configuredPath.isBlank()) {
+        File configuredDirectory = file(configuredPath)
+        if (hasVolmLibSettings(configuredDirectory)) {
+            return configuredDirectory
+        }
+    }
+
+    File currentDirectory = settingsDir
+    while (currentDirectory != null) {
+        File candidate = new File(currentDirectory, 'Iris')
+        if (hasVolmLibSettings(candidate)) {
+            return candidate
+        }
+
+        currentDirectory = currentDirectory.parentFile
+    }
+
+    null
+}
+
+boolean useLocalIris = providers.gradleProperty('useLocalIris')
+    .orElse('true')
+    .map { String value -> value.equalsIgnoreCase('true') }
+    .get()
+File localIrisDirectory = resolveLocalIrisDirectory()
+
+if (useLocalIris && localIrisDirectory != null) {
+    includeBuild(localIrisDirectory) {
+        dependencySubstitution {
+            substitute(module('com.github.VolmitSoftware:Iris')).using(project(':adapters:bukkit:plugin'))
+        }
+    }
+}
+
+include(':velocity')

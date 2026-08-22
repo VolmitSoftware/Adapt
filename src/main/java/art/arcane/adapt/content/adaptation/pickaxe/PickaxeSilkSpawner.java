@@ -1,0 +1,176 @@
+package art.arcane.adapt.content.adaptation.pickaxe;
+
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.PickaxeMessages;
+
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.advancement.AdaptAdvancement;
+import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
+import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.math.RNG;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.CreatureSpawner;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.block.BlockDropItemEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Config> {
+  private final RNG rng = new RNG();
+  private final Map<BlockDropItemEvent, DropPlan> pendingDrops = new ConcurrentHashMap<>();
+
+  public PickaxeSilkSpawner() {
+    super("pickaxe-silk-spawner");
+    registerConfiguration(PickaxeSilkSpawner.Config.class);
+    setIcon(Material.SPAWNER);
+    setInterval(8444);
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.SPAWNER)
+        .key("challenge_pickaxe_spawner_10")
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.SPAWNER)
+            .key("challenge_pickaxe_spawner_50")
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .build())
+        .build());
+    registerMilestone("challenge_pickaxe_spawner_10", "pickaxe.silk-spawner.spawners-collected", 10, 500);
+    registerMilestone("challenge_pickaxe_spawner_50", "pickaxe.silk-spawner.spawners-collected", 50, 2000);
+  }
+
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  public void onBlockDropPrepare(BlockDropItemEvent event) {
+    Player player = event.getPlayer();
+    Block block = event.getBlock();
+    Adaptation.BlockActionContext context = resolveBlockBreakContext(player, block.getLocation());
+    if (event.getBlockState().getType() != Material.SPAWNER || context == null) {
+      return;
+    }
+    ItemStack tool = player.getInventory().getItemInMainHand();
+    if (!isPickaxe(tool) || !event.getBlockState().getBlockData().isPreferredTool(tool)) {
+      return;
+    }
+    int level = context.level();
+    boolean silkTouch = tool.getEnchantments().containsKey(Enchantment.SILK_TOUCH);
+    if (!silkTouch && (level <= 1 || !player.isSneaking())) {
+      return;
+    }
+
+    BlockState state = event.getBlockState();
+    ItemStack spawner = createSpawnerItem(state);
+
+    Location loc = block.getLocation().add(
+        rng.d(-0.25D, 0.25D),
+        rng.d(-0.25D, 0.25D) - 0.125D,
+        rng.d(-0.25D, 0.25D)
+    );
+    Item item = block.getWorld().createEntity(loc, Item.class);
+    item.setItemStack(spawner);
+    item.setOwner(player.getUniqueId());
+
+    event.getItems().removeIf(drop -> drop.getItemStack().getType() == Material.SPAWNER);
+    event.getItems().add(item);
+    pendingDrops.put(event, new DropPlan(player, loc, block.getLocation().add(0.5, 0.5, 0.5), item));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void onBlockDropCommit(BlockDropItemEvent event) {
+    DropPlan plan = pendingDrops.remove(event);
+    if (plan == null) {
+      return;
+    }
+    if (event.isCancelled()) {
+      if (plan.item().isValid()) {
+        plan.item().remove();
+      }
+      fx(plan.center(), FxPriority.TRANSITION)
+          .particle(Particles.SMOKE, 6, 0, 0.3, 0, 0.2, 0.02)
+          .chord(Sound.BLOCK_FIRE_EXTINGUISH, 0.6f, 0.6f, Sound.BLOCK_NOTE_BLOCK_BASS, 0.5f, 0.5f);
+      return;
+    }
+
+    timeline(plan.center())
+        .duration(18)
+        .priority(FxPriority.TRANSITION)
+        .cullRadius(32)
+        .frame((fxE, tick, progress) -> {
+          fxE.ring(Particle.SOUL, 1.4D - (1.2D * progress), 16, 0.4D);
+          fxE.particle(Particle.PORTAL, 4, 0, 0.5, 0, 0.8, 0.1);
+          if (tick == 0) {
+            fxE.sound(Sound.BLOCK_RESPAWN_ANCHOR_CHARGE, 0.8f, 0.8f);
+          } else if ((tick & 3) == 0) {
+            fxE.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5f, (float) (1.0D + (progress * 0.8D)));
+          }
+          if (tick == 17) {
+            fxE.particle(Particle.FLASH, 1, 0, 0.5, 0, 0, 0)
+                .ring(Particle.SOUL, 1.6D, 20, 0.4D)
+                .chord(Sound.BLOCK_RESPAWN_ANCHOR_SET_SPAWN, 0.9f, 1.2f, Sound.BLOCK_BEACON_ACTIVATE, 0.5f, 1.0f);
+          }
+        })
+        .start();
+    addStat(plan.player(), "pickaxe.silk-spawner.spawners-collected", 1);
+    fx(plan.dropLocation(), FxPriority.TRANSITION)
+        .column(Particles.END_ROD, 8, 1.0D)
+        .sound(Sound.ENTITY_ITEM_PICKUP, 0.6f, 0.7f);
+  }
+
+  @Override
+  public void addStats(int level, Element v) {
+    v.addLore(C.GREEN + AdaptLanguage.text(
+        level < 2 ? PickaxeMessages.SILK_SPAWNER_LORE1 : PickaxeMessages.SILK_SPAWNER_LORE2
+    ));
+  }
+
+  static ItemStack createSpawnerItem(BlockState sourceState) {
+    ItemStack spawner = new ItemStack(Material.SPAWNER);
+    if (!(sourceState instanceof CreatureSpawner source)
+        || !(spawner.getItemMeta() instanceof BlockStateMeta meta)
+        || !(meta.getBlockState() instanceof CreatureSpawner target)) {
+      return spawner;
+    }
+
+    EntityType spawnedType = source.getSpawnedType();
+    if (spawnedType != null) {
+      target.setSpawnedType(spawnedType);
+    }
+    meta.setBlockState(target);
+    spawner.setItemMeta(meta);
+    return spawner;
+  }
+
+
+  @ConfigDescription("Spawners drop when broken with silk touch or while sneaking.")
+  protected static class Config extends AdaptationConfig {
+    public Config() {
+      baseCost = 6;
+      costFactor = 0.95;
+      maxLevel = 2;
+      initialCost = 4;
+    }
+  }
+
+  private record DropPlan(Player player, Location dropLocation, Location center, Item item) {
+  }
+}

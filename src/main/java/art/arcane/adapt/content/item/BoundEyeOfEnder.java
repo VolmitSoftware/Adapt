@@ -1,0 +1,104 @@
+/*------------------------------------------------------------------------------
+ -   Adapt is a Skill/Integration plugin  for Minecraft Bukkit Servers
+ -   Copyright (c) 2022 Arcane Arts (Volmit Software)
+ -
+ -   This program is free software: you can redistribute it and/or modify
+ -   it under the terms of the GNU General Public License as published by
+ -   the Free Software Foundation, either version 3 of the License, or
+ -   (at your option) any later version.
+ -
+ -   This program is distributed in the hope that it will be useful,
+ -   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ -   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ -   GNU General Public License for more details.
+ -
+ -   You should have received a copy of the GNU General Public License
+ -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ -----------------------------------------------------------------------------*/
+
+package art.arcane.adapt.content.item;
+
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.catalog.ItemsMessages;
+
+import art.arcane.adapt.api.adaptation.ItemCooldowns;
+import art.arcane.adapt.api.item.DataItem;
+import art.arcane.adapt.util.common.format.C;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import java.util.List;
+
+@AllArgsConstructor
+@Data
+public class BoundEyeOfEnder implements DataItem<BoundEyeOfEnder.Data> {
+  public static BoundEyeOfEnder io = new BoundEyeOfEnder();
+
+  public static Location getLocation(ItemStack stack) {
+    if (io.getData(stack) != null) {
+      return io.getData(stack).getLocation();
+    }
+
+    return null;
+  }
+
+  public static void setData(ItemStack item, Location t) {
+    io.setData(item, new Data(t));
+  }
+
+  public static ItemStack withData(Location t) {
+    return io.withData(new Data(t));
+  }
+
+  public static boolean isBindableItem(ItemStack item) {
+    return io.hasData(item);
+  }
+
+  public static final NamespacedKey COOLDOWN_GROUP = ItemCooldowns.groupKeyFor(BoundEyeOfEnder.class);
+
+  @Override
+  public Material getMaterial() {
+    return Material.ENDER_EYE;
+  }
+
+  @Override
+  public NamespacedKey getCooldownGroup() {
+    return COOLDOWN_GROUP;
+  }
+
+  @Override
+  public Class<Data> getType() {
+    return BoundEyeOfEnder.Data.class;
+  }
+
+  @Override
+  public void applyLore(Data data, List<String> lore) {
+    lore.add(C.WHITE + AdaptLanguage.text(ItemsMessages.BOUND_EYE_OF_ENDER_NAME));
+    lore.add(C.GRAY + AdaptLanguage.text(ItemsMessages.BOUND_EYE_OF_ENDER_USAGE1));
+    lore.add(C.GRAY + AdaptLanguage.text(ItemsMessages.BOUND_EYE_OF_ENDER_USAGE2));
+  }
+
+  @Override
+  public void applyMeta(Data data, ItemMeta meta) {
+    meta.addEnchant(Enchantment.BINDING_CURSE, 10, true);
+    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_DYE);
+    meta.setDisplayName(AdaptLanguage.text(ItemsMessages.BOUND_EYE_OF_ENDER_NAME));
+  }
+
+  @AllArgsConstructor
+  @lombok.Data
+  public static class Data {
+    private Location location;
+
+    public static BoundEyeOfEnder.Data at(Location l) {
+      return new BoundEyeOfEnder.Data(l);
+    }
+  }
+}
