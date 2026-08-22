@@ -58,7 +58,7 @@ class RiftConduitGestureTest {
 
   @Test
   void gesturesHonorNativeBlockUseDenialAndContainerProtection() throws IOException {
-    String source = Files.readString(CONDUIT_SOURCE);
+    String source = Files.readString(CONDUIT_SOURCE).replace("\r\n", "\n");
 
     assertThat(source)
         .contains("canInteract(p, clicked.getLocation())")
@@ -68,7 +68,7 @@ class RiftConduitGestureTest {
 
   @Test
   void bindHoldsTheFollowUpWindowOpenAcrossTheHeldItemSwap() throws IOException {
-    String source = Files.readString(CONDUIT_SOURCE);
+    String source = Files.readString(CONDUIT_SOURCE).replace("\r\n", "\n");
     int markIndex = source.indexOf("markCaptureFollowUp(p);\n        completeBind(");
 
     assertThat(markIndex).isGreaterThan(0);
@@ -76,7 +76,7 @@ class RiftConduitGestureTest {
 
   @Test
   void doubleChestFlowResolvesBothHalvesInsteadOfTheFlooredMidpoint() throws IOException {
-    String source = Files.readString(CONDUIT_SOURCE);
+    String source = Files.readString(CONDUIT_SOURCE).replace("\r\n", "\n");
 
     assertThat(source)
         .contains(

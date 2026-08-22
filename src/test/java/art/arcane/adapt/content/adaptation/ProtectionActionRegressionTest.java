@@ -26,7 +26,7 @@ class ProtectionActionRegressionTest {
   @Test
   void timeBottleAirTargetsAreAuthorizedBeforeAccelerationAndSpending() throws IOException {
     String handler = section(
-        Files.readString(CHRONOS_TIME_IN_A_BOTTLE),
+        Files.readString(CHRONOS_TIME_IN_A_BOTTLE).replace("\r\n", "\n"),
         "public void on(PlayerInteractEvent e)",
         "private void emitBlockUseFx"
     );
@@ -43,7 +43,7 @@ class ProtectionActionRegressionTest {
         "ChronoTimeBottle.setStoredSeconds(hand, newStored)"
     );
     String directGrowth = section(
-        Files.readString(CHRONOS_TIME_IN_A_BOTTLE),
+        Files.readString(CHRONOS_TIME_IN_A_BOTTLE).replace("\r\n", "\n"),
         "private boolean applyDirectGrowthStep",
         "private boolean generateAuthorizedTree"
     );
@@ -60,7 +60,7 @@ class ProtectionActionRegressionTest {
         "generateAuthorizedTree(player, block, treeType)"
     );
     String treeGrowth = section(
-        Files.readString(CHRONOS_TIME_IN_A_BOTTLE),
+        Files.readString(CHRONOS_TIME_IN_A_BOTTLE).replace("\r\n", "\n"),
         "private boolean generateAuthorizedTree",
         "@Override\n  protected boolean usesLearnerBoundTicking"
     );
@@ -79,7 +79,7 @@ class ProtectionActionRegressionTest {
 
   @Test
   void passiveAccelerationAuthorizesEveryTargetBeforeMutation() throws IOException {
-    String source = Files.readString(CHRONOS_ACCELERATE);
+    String source = Files.readString(CHRONOS_ACCELERATE).replace("\r\n", "\n");
     String crop = section(source, "private boolean accelerateBlock", "private int claimSamples");
     String furnace = section(source, "private boolean accelerateFurnace", "private boolean accelerateBrewingStand");
     String brewing = section(source, "private boolean accelerateBrewingStand", "private boolean canAccelerateTarget");
@@ -108,10 +108,10 @@ class ProtectionActionRegressionTest {
 
   @Test
   void passiveHerbalismGrowthAuthorizesEachTargetBeforeCostOrMutation() throws IOException {
-    String auraSource = Files.readString(HERBALISM_GROWTH_AURA);
+    String auraSource = Files.readString(HERBALISM_GROWTH_AURA).replace("\r\n", "\n");
     String auraDispatch = section(auraSource, "private void processMutations", "private void applyMutation");
     String auraMutation = section(auraSource, "private void applyMutation", "private void completeGrowthSample");
-    String beeSource = Files.readString(HERBALISM_BEE_SHEPHERD);
+    String beeSource = Files.readString(HERBALISM_BEE_SHEPHERD).replace("\r\n", "\n");
     String beeGrowth = section(beeSource, "private void growSample", "private void completeGrowthSample");
 
     assertOrdered(auraDispatch, "J.runAt(mutation.location", "applyMutation(mutation)");
@@ -142,7 +142,7 @@ class ProtectionActionRegressionTest {
 
   @Test
   void webBombAuthorizesEachPlacementAtCommit() throws IOException {
-    String source = Files.readString(RANGED_WEB_BOMB);
+    String source = Files.readString(RANGED_WEB_BOMB).replace("\r\n", "\n");
     String authorization = section(source, "private void authorizeImpact", "private WebImpact captureImpact");
     String placement = section(source, "private void scheduleAuthorizedWeb", "private void scheduleWebRemoval");
 
@@ -164,10 +164,10 @@ class ProtectionActionRegressionTest {
 
   @Test
   void replantAndSporeBloomAuthorizeEveryDirectMutation() throws IOException {
-    String replantSource = Files.readString(HERBALISM_REPLANT);
+    String replantSource = Files.readString(HERBALISM_REPLANT).replace("\r\n", "\n");
     String replantHandler = section(replantSource, "public void on(PlayerInteractEvent e)", "private boolean hit");
     String replantHit = section(replantSource, "private boolean hit", "private boolean consumeSeed");
-    String sporeSource = Files.readString(HERBALISM_SPORE_BLOOM);
+    String sporeSource = Files.readString(HERBALISM_SPORE_BLOOM).replace("\r\n", "\n");
     String sporeStart = section(sporeSource, "private void startBloom", "private List<Block> buildSpiderPath");
     String sporeMutation = section(sporeSource, "private int spreadAt", "private Block resolveTopSurfaceSoil");
     String sporeAttempt = section(sporeSource, "private void attemptBloom", "private boolean chargeCatalyst");
@@ -219,7 +219,7 @@ class ProtectionActionRegressionTest {
 
   @Test
   void wirelessRedstoneAuthorizesTheCompletePulseFootprint() throws IOException {
-    String source = Files.readString(ARCHITECT_WIRELESS_REDSTONE);
+    String source = Files.readString(ARCHITECT_WIRELESS_REDSTONE).replace("\r\n", "\n");
     String validation = section(
         source,
         "private void validateTargetAndSchedulePulse",
@@ -260,7 +260,7 @@ class ProtectionActionRegressionTest {
 
   @Test
   void portkeyBindingAuthorizesTheWholeContainerBeforeCostOrLink() throws IOException {
-    String source = Files.readString(RIFT_ACCESS);
+    String source = Files.readString(RIFT_ACCESS).replace("\r\n", "\n");
     String interaction = section(source, "private void handleEnderPearlInteraction", "private void linkPearl");
     String link = section(source, "private void linkPearl", "static boolean shouldReplaceBoundPearl");
 
@@ -279,7 +279,7 @@ class ProtectionActionRegressionTest {
   @Test
   void advancedChestNoOpCannotActivateAStaleInventoryView() throws IOException {
     String completeOpen = section(
-        Files.readString(RIFT_ACCESS),
+        Files.readString(RIFT_ACCESS).replace("\r\n", "\n"),
         "private void completeRemoteOpen",
         "private void closeViewIfCurrent"
     );
@@ -298,7 +298,7 @@ class ProtectionActionRegressionTest {
   @Test
   void conduitGesturesHonorTheOriginalBlockDenialBeforeCaptureOrBind() throws IOException {
     String handler = section(
-        Files.readString(RIFT_CONDUIT),
+        Files.readString(RIFT_CONDUIT).replace("\r\n", "\n"),
         "public void on(PlayerInteractEvent e)",
         "static ConduitGesture resolveGesture"
     );
@@ -316,7 +316,7 @@ class ProtectionActionRegressionTest {
 
   @Test
   void conduitReauthorizesDeferredEndpointsAndRestoresRejectedTransfers() throws IOException {
-    String source = Files.readString(RIFT_CONDUIT);
+    String source = Files.readString(RIFT_CONDUIT).replace("\r\n", "\n");
     String sourceWrite = section(source, "private void writeSourceThenPartner", "private void finishBind");
     String partnerWrite = section(source, "private void finishBind", "private void confirmSourceAndFinalize");
     String confirmation = section(source, "private void confirmSourceAndFinalize", "private void finalizeBindOwned");
@@ -352,10 +352,10 @@ class ProtectionActionRegressionTest {
 
   @Test
   void nativeBreakCountersOnlyAdvanceForSuccessfulPlayerBreaks() throws IOException {
-    String axeSource = Files.readString(AXE_CHOP);
+    String axeSource = Files.readString(AXE_CHOP).replace("\r\n", "\n");
     String axeHandler = section(axeSource, "public void on(PlayerInteractEvent e)", "private int getRange");
     String axeBreak = section(axeSource, "private boolean breakStuff", "@ConfigDescription");
-    String pickaxeSource = Files.readString(PICKAXE_VEINMINER);
+    String pickaxeSource = Files.readString(PICKAXE_VEINMINER).replace("\r\n", "\n");
     String normalVein = section(pickaxeSource, "public void on(BlockBreakEvent e)", "private int distanceSquared");
     String normalFeedback = section(pickaxeSource, "private void completeVeinFeedback", "private int distanceSquared");
     String hiddenVein = section(
@@ -407,7 +407,7 @@ class ProtectionActionRegressionTest {
 
   @Test
   void compostPartialPickupReportsTheUnconsumedRemainderBeforeMutation() throws IOException {
-    String source = Files.readString(COMPOST_CASCADE);
+    String source = Files.readString(COMPOST_CASCADE).replace("\r\n", "\n");
     String handler = section(source, "public void on(PlayerInteractEvent e)", "private void processDroppedItems");
     String droppedItems = section(
         source,

@@ -33,7 +33,7 @@ class RiftVoidSkinEscapeTest {
 
   @Test
   void theEscapeCancelsTheKillBeforeTheTeleportCanFailToStart() throws IOException {
-    String source = Files.readString(VOID_SKIN_SOURCE);
+    String source = Files.readString(VOID_SKIN_SOURCE).replace("\r\n", "\n");
     int cancelIndex = source.indexOf("cancelLethalDamage(e, true);");
     int teleportIndex = source.indexOf("PaperCompat.teleportAsync(p, destination");
 
@@ -45,7 +45,7 @@ class RiftVoidSkinEscapeTest {
 
   @Test
   void aStrandedEscapeReleasesThePlayerInsteadOfLeavingThemPermanentlyImmune() throws IOException {
-    String source = Files.readString(VOID_SKIN_SOURCE);
+    String source = Files.readString(VOID_SKIN_SOURCE).replace("\r\n", "\n");
 
     assertThat(source).contains(
         "if (pendingEscapes.remove(operation.playerId(), operation)\n"
@@ -54,7 +54,7 @@ class RiftVoidSkinEscapeTest {
 
   @Test
   void everyDeclinedEscapeLeavesADiagnosticTrail() throws IOException {
-    String source = Files.readString(VOID_SKIN_SOURCE);
+    String source = Files.readString(VOID_SKIN_SOURCE).replace("\r\n", "\n");
 
     assertThat(source).contains(
         "ms cooldown left.",
@@ -65,7 +65,7 @@ class RiftVoidSkinEscapeTest {
 
   @Test
   void lethalityStillUsesSettledDamageAgainstEffectiveHealth() throws IOException {
-    String source = Files.readString(VOID_SKIN_SOURCE);
+    String source = Files.readString(VOID_SKIN_SOURCE).replace("\r\n", "\n");
 
     assertThat(source)
         .contains("isLethalDamage(survivableHealth(p.getHealth(), p.getAbsorptionAmount()), e.getFinalDamage())");

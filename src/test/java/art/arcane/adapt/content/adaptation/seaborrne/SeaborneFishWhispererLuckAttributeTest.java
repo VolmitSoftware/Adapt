@@ -47,7 +47,7 @@ class SeaborneFishWhispererLuckAttributeTest {
 
   @Test
   void fishCreditFollowsSuccessfulFishOwnedNudgeAndReturnsToPlayerOwner() throws IOException {
-    String source = Files.readString(SOURCE);
+    String source = Files.readString(SOURCE).replace("\r\n", "\n");
     int flowStart = source.indexOf("private void nudgeAndCreditFish");
     int creditStart = source.indexOf("private void creditCharmedFish", flowStart);
     String flow = source.substring(flowStart, creditStart);

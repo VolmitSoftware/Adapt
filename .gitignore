@@ -32,3 +32,8 @@ TEST_SUITE_PLAN.md
 ATTRIBUTE_MODERNIZATION_AUDIT.md
 
 AGENTS.md
+
+# Local build tooling, not part of the project
+build-lt.sh
+BUILDS/
+.run/

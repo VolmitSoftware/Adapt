@@ -18,7 +18,7 @@ class SecondaryBlockBreakProtectionTest {
 
   @Test
   void axeVeinminersAuthorizeEachCommitAndCountOnlySuccessfulBreaks() throws IOException {
-    String leafSource = Files.readString(AXE_LEAF_VEINMINER);
+    String leafSource = Files.readString(AXE_LEAF_VEINMINER).replace("\r\n", "\n");
     String leafHandler = section(leafSource, "public void on(BlockBreakEvent e)", "private void mineLeaves");
     String leafCommit = section(leafSource, "private void mineLeaves", "private void emitLeafFeedback");
     String leafFeedback = section(leafSource, "private void emitLeafFeedback", "private int distanceSquared");
@@ -47,7 +47,7 @@ class SecondaryBlockBreakProtectionTest {
         "addStat(player, \"axe.leaf-veinminer.leaves-broken\", leavesBroken)"
     );
 
-    String woodSource = Files.readString(AXE_WOOD_VEINMINER);
+    String woodSource = Files.readString(AXE_WOOD_VEINMINER).replace("\r\n", "\n");
     String woodHandler = section(woodSource, "public void on(BlockBreakEvent e)", "private void mineWood");
     String woodCommit = section(woodSource, "private void mineWood", "private void emitWoodFeedback");
     String woodFeedback = section(woodSource, "private void emitWoodFeedback", "private boolean isLogMaterial");
@@ -80,7 +80,7 @@ class SecondaryBlockBreakProtectionTest {
 
   @Test
   void excavationBonusBreaksAuthorizeBeforeMutationAndReward() throws IOException {
-    String tunnelerSource = Files.readString(EXCAVATION_TUNNELER);
+    String tunnelerSource = Files.readString(EXCAVATION_TUNNELER).replace("\r\n", "\n");
     String tunnelerHandler = section(tunnelerSource, "public void on(BlockBreakEvent e)", "private void planeSweep");
     String tunnelerCommit = section(tunnelerSource, "private void breakTunnelPlane", "private void planeSweep");
     assertThat(tunnelerHandler)
@@ -98,7 +98,7 @@ class SecondaryBlockBreakProtectionTest {
         "xp(player, broken * getConfig().xpPerBonusBlock)"
     );
 
-    String burrowSource = Files.readString(EXCAVATION_BURROW);
+    String burrowSource = Files.readString(EXCAVATION_BURROW).replace("\r\n", "\n");
     String burrowHandler = section(burrowSource, "public void on(PlayerInteractEvent e)", "private List<Block> planDig");
     String burrowCommit = section(burrowSource, "private boolean digBlock", "private boolean canApplyDurability");
     assertOrdered(
@@ -128,7 +128,7 @@ class SecondaryBlockBreakProtectionTest {
 
   @Test
   void pickaxeSecondaryActionsAuthorizeBeforeCostsDropsAndMutation() throws IOException {
-    String chiselSource = Files.readString(PICKAXE_CHISEL);
+    String chiselSource = Files.readString(PICKAXE_CHISEL).replace("\r\n", "\n");
     String chiselHandler = section(chiselSource, "public void on(PlayerInteractEvent e)", "private ItemStack getDropFor");
     assertOrdered(
         chiselHandler,
@@ -143,7 +143,7 @@ class SecondaryBlockBreakProtectionTest {
         "target.breakNaturally(p.getInventory().getItemInMainHand())"
     );
 
-    String boreSource = Files.readString(PICKAXE_TUNNEL_BORE);
+    String boreSource = Files.readString(PICKAXE_TUNNEL_BORE).replace("\r\n", "\n");
     String boreHandler = section(boreSource, "public void on(BlockBreakEvent e)", "private void breakBorePlane");
     String boreCommit = section(boreSource, "private void breakBorePlane", "private List<Block> collectPlane");
     assertThat(boreHandler)

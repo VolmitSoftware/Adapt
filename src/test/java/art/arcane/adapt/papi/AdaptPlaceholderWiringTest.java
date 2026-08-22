@@ -61,7 +61,7 @@ class AdaptPlaceholderWiringTest {
 
   @Test
   void shouldNeverParseAttributesByPrefixOrUnderscoreSplitting() throws Exception {
-    String source = Files.readString(EXPANSION_SOURCE);
+    String source = Files.readString(EXPANSION_SOURCE).replace("\r\n", "\n");
     assertFalse(source.contains("startsWith("), "attribute dispatch must not use prefix matching");
     assertFalse(source.contains(".split("), "attribute dispatch must not re-split an underscore string");
     assertFalse(source.contains("Adapt.instance"), "the expansion must not read a plugin static");
@@ -71,7 +71,7 @@ class AdaptPlaceholderWiringTest {
 
   @Test
   void shouldUnregisterTheExpansionBeforeTheDrainLatchSoASecondStopStillUnregisters() throws Exception {
-    String source = Files.readString(PLUGIN_SOURCE);
+    String source = Files.readString(PLUGIN_SOURCE).replace("\r\n", "\n");
     assertTrue(
         source.contains("  public void stop() {\n    unregisterPapiExpansion();\n    if (!alreadyDrained.compareAndSet(false, true)) {"),
         "unregisterPapiExpansion() must run before the alreadyDrained latch short-circuits stop()"
@@ -86,14 +86,14 @@ class AdaptPlaceholderWiringTest {
         "registration must be guarded before any PlaceholderAPI-derived class is touched"
     );
     assertTrue(
-        Files.readString(INSTALLER_SOURCE).contains("new AdaptPapiExpansion("),
+        Files.readString(INSTALLER_SOURCE).replace("\r\n", "\n").contains("new AdaptPapiExpansion("),
         "the installer is the only place the expansion may be constructed"
     );
   }
 
   @Test
   void shouldPublishThePlayerSnapshotInsideTheExistingOneHertzTickBand() throws Exception {
-    String source = Files.readString(PLAYER_SOURCE);
+    String source = Files.readString(PLAYER_SOURCE).replace("\r\n", "\n");
     assertTrue(
         source.contains("      getData().update(this);\n      AdaptPlaceholders.get().publishPlayer(this);\n      nextUpdateAt = now + UPDATE_INTERVAL_MS;"),
         "the snapshot must be published from the existing UPDATE_INTERVAL_MS band on the owning thread"
@@ -103,9 +103,9 @@ class AdaptPlaceholderWiringTest {
 
   @Test
   void shouldEvictOnQuitAndPushTheCatalogFromTheRevisionBump() throws Exception {
-    assertTrue(Files.readString(SERVER_SOURCE).contains("AdaptPlaceholders.get().evictAfterGrace(p);"));
+    assertTrue(Files.readString(SERVER_SOURCE).replace("\r\n", "\n").contains("AdaptPlaceholders.get().evictAfterGrace(p);"));
 
-    String registry = Files.readString(REGISTRY_SOURCE);
+    String registry = Files.readString(REGISTRY_SOURCE).replace("\r\n", "\n");
     assertTrue(registry.contains("publishPlaceholderCatalog(revision);"));
     assertTrue(registry.contains("AdaptPlaceholders.get().publishCatalog(revision, getAllSkills());"));
   }

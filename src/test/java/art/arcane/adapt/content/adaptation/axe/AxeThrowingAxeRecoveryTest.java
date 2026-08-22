@@ -108,7 +108,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
 
   @Test
   void failedSpawnRestoresOnlyTheDefaultConsumedAxe() throws Exception {
-    String source = Files.readString(SOURCE);
+    String source = Files.readString(SOURCE).replace("\r\n", "\n");
     String throwAxe = method(source, "private void throwAxe", "private void retireThrow");
 
     assertThat(throwAxe).contains(
@@ -121,7 +121,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
 
   @Test
   void hitRewardIsScheduledOnlyAfterTargetDamageIsAttempted() throws Exception {
-    String source = Files.readString(SOURCE);
+    String source = Files.readString(SOURCE).replace("\r\n", "\n");
     String damage = method(
         source,
         "private void damageThrowTarget",
@@ -138,7 +138,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
 
   @Test
   void hitAuthorizationUsesTargetOwnerThenShooterOwnerThenTargetOwner() throws Exception {
-    String source = Files.readString(SOURCE);
+    String source = Files.readString(SOURCE).replace("\r\n", "\n");
     String resolve = method(source, "private void resolveThrow", "private void prepareThrowHit");
     String prepare = method(source, "private void prepareThrowHit", "private void authorizeThrowHit");
     String authorize = method(source, "private void authorizeThrowHit", "private void damageThrowTarget");
@@ -278,7 +278,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
 
   @Test
   void shutdownClosesRegistrationBeforeDrainingProjectileState() throws Exception {
-    String source = Files.readString(SOURCE);
+    String source = Files.readString(SOURCE).replace("\r\n", "\n");
     String unregister = method(source, "public void unregister()", "public void addStats");
     String register = method(source, "private boolean registerThrow", "private ProjectileReplacementRegistry.Ticket");
 
@@ -300,7 +300,7 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
 
   @Test
   void impactDropReservesRecoveryBeforeRegionDelivery() throws Exception {
-    String source = Files.readString(SOURCE);
+    String source = Files.readString(SOURCE).replace("\r\n", "\n");
     String drop = method(source, "private void dropAxe", "public void on(PlayerJoinEvent");
 
     assertThat(drop)

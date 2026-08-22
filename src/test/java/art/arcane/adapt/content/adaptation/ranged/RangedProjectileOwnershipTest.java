@@ -15,12 +15,12 @@ class RangedProjectileOwnershipTest {
 
   @Test
   void floatersUsesLaunchAuthorizationAndOwnerRewardHandoff() throws Exception {
-    assertOwnershipFlow(Files.readString(FLOATERS_SOURCE), "ranged.floaters.targets-levitated");
+    assertOwnershipFlow(Files.readString(FLOATERS_SOURCE).replace("\r\n", "\n"), "ranged.floaters.targets-levitated");
   }
 
   @Test
   void pinningShotUsesLaunchAuthorizationAndOwnerRewardHandoff() throws Exception {
-    assertOwnershipFlow(Files.readString(PINNING_SOURCE), "ranged.pinning-shot.targets-pinned");
+    assertOwnershipFlow(Files.readString(PINNING_SOURCE).replace("\r\n", "\n"), "ranged.pinning-shot.targets-pinned");
   }
 
   private static void assertOwnershipFlow(String source, String statKey) {
