@@ -73,7 +73,7 @@ class AdaptPlaceholderWiringTest {
   void shouldUnregisterTheExpansionBeforeTheDrainLatchSoASecondStopStillUnregisters() throws Exception {
     String source = Files.readString(PLUGIN_SOURCE).replace("\r\n", "\n");
     assertTrue(
-        source.contains("  public void stop() {\n    unregisterPapiExpansion();\n    if (!alreadyDrained.compareAndSet(false, true)) {"),
+        source.contains("  public void stop() {\n    runShutdownPhase(\"PlaceholderAPI\", this::unregisterPapiExpansion);\n    if (!alreadyDrained.compareAndSet(false, true)) {"),
         "unregisterPapiExpansion() must run before the alreadyDrained latch short-circuits stop()"
     );
     assertTrue(source.contains("private volatile PlaceholderRegistration papiRegistration;"));

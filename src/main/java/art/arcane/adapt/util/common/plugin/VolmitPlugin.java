@@ -20,6 +20,7 @@ package art.arcane.adapt.util.common.plugin;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.ComponentEventRegistrar;
+import art.arcane.adapt.util.common.parallel.MultiBurst;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.project.command.Control;
 import art.arcane.adapt.util.project.command.IController;
@@ -49,22 +50,23 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
   private KMap<Class<? extends IController>, IController> cachedClassControllers;
 
   public void l(Object l) {
-    Adapt.info("[" + getName() + "]: " + l);
+    Adapt.info(String.valueOf(l));
   }
 
   public void w(Object l) {
-    Adapt.warn("[" + getName() + "]: " + l);
+    Adapt.warn(String.valueOf(l));
   }
 
   public void f(Object l) {
-    Adapt.error("[" + getName() + "]: " + l);
+    Adapt.error(String.valueOf(l));
   }
 
   public void v(Object l) {
-    Adapt.verbose("[" + getName() + "]: " + l);
+    Adapt.verbose(() -> String.valueOf(l));
   }
 
   public void onEnable() {
+    MultiBurst.burst.reopen();
     registerInstance();
     registerControllers();
     controllerTickerTaskId = J.sr(this::tickControllers, 1);
@@ -79,8 +81,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
       unregisterListeners();
       unregisterInstance();
     } catch (Exception e) {
-      Adapt.error("Adapt: Failed to unregister all, You have a plugin that is not unloading properly. This is a bug in that plugin. Please report it to the developer. This is on shutdown however, so it's not a big deal.");
-      Adapt.error("Adapt: This is not a bug in Adapt. This is a bug in another plugin. Adapt is unloading ALL Command Nodes with Adapt ID's, If another plugin is unloading all or some of these nodes, it will cause this error.");
+      Adapt.error("Failed to unregister all plugin state during shutdown; another plugin may be removing Adapt command nodes concurrently.");
     }
   }
 
@@ -106,14 +107,32 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
 
   @Override
   public void onDisable() {
-    stop();
-    if (controllerTickerTaskId != -1) {
-      J.csr(controllerTickerTaskId);
-      controllerTickerTaskId = -1;
+    try {
+      stop();
+    } catch (Throwable error) {
+      Adapt.warn("Unhandled plugin shutdown failure: " + error.getMessage());
+      Adapt.error(error);
+    } finally {
+      runDisablePhase("async workgroup", MultiBurst.burst::close);
+      runDisablePhase("controller ticker", () -> {
+        if (controllerTickerTaskId != -1) {
+          J.csr(controllerTickerTaskId);
+          controllerTickerTaskId = -1;
+        }
+      });
+      runDisablePhase("plugin tasks", J::cancelPluginTasks);
+      runDisablePhase("root listener", () -> unregisterListener(this));
+      runDisablePhase("plugin registrations", this::unregisterAll);
     }
-    J.cancelPluginTasks();
-    unregisterListener(this);
-    unregisterAll();
+  }
+
+  private void runDisablePhase(String phase, Runnable action) {
+    try {
+      action.run();
+    } catch (Throwable error) {
+      Adapt.warn("Plugin disable phase failed (" + phase + "): " + error.getMessage());
+      Adapt.error(error);
+    }
   }
 
   private void tickControllers() {
@@ -141,7 +160,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         i.tick();
       } catch (Throwable e) {
         w("Failed to tick controller " + i.getName());
-        e.printStackTrace();
+        Adapt.error(e);
       }
     }
   }
@@ -170,7 +189,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
                  InvocationTargetException | NoSuchMethodException |
                  SecurityException e) {
           w("Failed to register controller (field " + i.getName() + ")");
-          e.printStackTrace();
+          Adapt.error(e);
         }
       }
     }
@@ -195,7 +214,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
       v("Started " + pc.getName());
     } catch (Throwable e) {
       w("Failed to start controller " + pc.getName());
-      e.printStackTrace();
+      Adapt.error(e);
     }
   }
 
@@ -212,7 +231,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         } catch (IllegalArgumentException | IllegalAccessException |
                  SecurityException e) {
           w("Failed to register instance (field " + i.getName() + ")");
-          e.printStackTrace();
+          Adapt.error(e);
         }
       }
     }
@@ -231,7 +250,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         } catch (IllegalArgumentException | IllegalAccessException |
                  SecurityException e) {
           w("Failed to unregister instance (field " + i.getName() + ")");
-          e.printStackTrace();
+          Adapt.error(e);
         }
       }
     }
@@ -281,7 +300,7 @@ public abstract class VolmitPlugin extends JavaPlugin implements Listener {
         v("Stopped " + i.getName());
       } catch (Throwable e) {
         w("Failed to stop controller " + i.getName());
-        e.printStackTrace();
+        Adapt.error(e);
       }
     }
   }

@@ -24,6 +24,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -42,6 +43,7 @@ import org.bukkit.inventory.Recipe;
 
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
 
 public class CraftingProvisioner extends SimpleAdaptation<CraftingProvisioner.Config> {
 
@@ -152,12 +154,30 @@ public class CraftingProvisioner extends SimpleAdaptation<CraftingProvisioner.Co
 
   private Player nearestEligiblePlayer(Location furnace) {
     double radius = getConfig().cookingRadius;
+    if (!Double.isFinite(radius)) {
+      return null;
+    }
+    double searchRadius = Math.abs(radius);
+    return nearestEligiblePlayer(
+        furnace,
+        searchRadius,
+        PaperCompat.nearbyPlayers(furnace, searchRadius),
+        player -> getActiveLevel(player) > 0
+    );
+  }
+
+  static Player nearestEligiblePlayer(
+      Location furnace,
+      double radius,
+      Iterable<? extends Player> candidates,
+      Predicate<Player> eligible
+  ) {
     double radiusSq = radius * radius;
     Player nearest = null;
     double nearestSq = Double.MAX_VALUE;
-    for (Player player : furnace.getWorld().getPlayers()) {
+    for (Player player : candidates) {
       double distanceSq = player.getLocation().distanceSquared(furnace);
-      if (distanceSq > radiusSq || distanceSq >= nearestSq || getActiveLevel(player) <= 0) {
+      if (distanceSq > radiusSq || distanceSq >= nearestSq || !eligible.test(player)) {
         continue;
       }
       nearest = player;

@@ -15,10 +15,7 @@ public class MultiBurst extends art.arcane.volmlib.util.parallel.MultiBurstSuppo
 
   public MultiBurst(IntSupplier parallelism) {
     super("Adapt Workgroup", Thread.MAX_PRIORITY, parallelism, i -> Math.max(i, 1), System::currentTimeMillis,
-        e -> {
-          Adapt.info("Exception encountered in burst thread");
-          e.printStackTrace();
-        },
+        e -> Adapt.error("Adapt workgroup task failed", e),
         Adapt::info,
         Adapt::warn,
         TIMEOUT);

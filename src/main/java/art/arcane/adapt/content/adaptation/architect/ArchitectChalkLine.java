@@ -581,6 +581,9 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
 
   private void normalizeStoredLevel(Player player) {
     AdaptPlayer adaptPlayer = getPlayer(player);
+    if (adaptPlayer == null) {
+      return;
+    }
     PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
     normalizeStoredLevel(line);
   }

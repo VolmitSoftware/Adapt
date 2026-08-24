@@ -2,6 +2,7 @@ package art.arcane.adapt.api.potion;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.Reflect;
 import org.bukkit.Location;
@@ -66,8 +67,10 @@ public class BrewingManager implements Listener {
     if (stand == null) {
       return;
     }
-    Adapt.verbose("Brewing click: " + e.getRawSlot());
     Player clicker = (Player) e.getWhoClicked();
+    if (resolveReadyPlayer(clicker) == null) {
+      return;
+    }
     pendingClicks.put(e, new PendingBrewingClick(inv, stand.getBlock(), clicker));
   }
 
@@ -77,10 +80,12 @@ public class BrewingManager implements Listener {
     if (pending == null || e.isCancelled()) {
       return;
     }
+    if (resolveReadyPlayer(pending.player()) == null) {
+      return;
+    }
 
     ItemStack cursor = null;
     if (isCustomIngredientClick(e, pending.inventory())) {
-      Adapt.verbose("Brewing Stand Ingredient Clicked");
       cursor = e.getCursor().clone();
       e.setCancelled(true);
     }
@@ -91,6 +96,10 @@ public class BrewingManager implements Listener {
 
   private void processClick(PendingBrewingClick pending, ItemStack expectedCursor) {
     Player clicker = pending.player();
+    AdaptPlayer adaptPlayer = resolveReadyPlayer(clicker);
+    if (adaptPlayer == null) {
+      return;
+    }
     BrewerInventory inventory = pending.inventory();
     Block standBlock = pending.standBlock();
     if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(standBlock.getLocation())) {
@@ -113,7 +122,6 @@ public class BrewingManager implements Listener {
     }
 
     Location standLocation = standBlock.getLocation();
-    AdaptPlayer p = Adapt.instance.getAdaptServer().getPlayer(clicker);
     BrewingRecipe recipe = findMatchingRecipe(standLocation);
     if (recipe == null) {
       BrewingTask removed = activeTasks.remove(standLocation);
@@ -125,7 +133,7 @@ public class BrewingManager implements Listener {
 
     Set<String> requiredAdaptations = recipes.get(recipe);
     BrewingTask active = activeTasks.get(standLocation);
-    if (!playerHasRequiredAdaptation(p, requiredAdaptations)) {
+    if (!playerHasRequiredAdaptation(adaptPlayer, requiredAdaptations)) {
       if (active != null && !active.getRecipe().equals(recipe)) {
         BrewingTask removed = activeTasks.remove(standLocation);
         if (removed != null) {
@@ -237,6 +245,16 @@ public class BrewingManager implements Listener {
     }
 
     return false;
+  }
+
+  private AdaptPlayer resolveReadyPlayer(Player player) {
+    AdaptServer adaptServer = Adapt.instance == null ? null : Adapt.instance.getAdaptServer();
+    if (adaptServer == null) {
+      return null;
+    }
+    AdaptPlayer adaptPlayer = adaptServer.getOnlineAdaptPlayer(player.getUniqueId());
+    return adaptPlayer != null && adaptPlayer.isRuntimeReady()
+        && adaptPlayer.getPlayer() == player ? adaptPlayer : null;
   }
 
   private record PendingBrewingClick(BrewerInventory inventory, Block standBlock, Player player) {

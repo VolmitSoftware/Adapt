@@ -168,11 +168,9 @@ class ExcavationAdaptationLogicTest {
 
   private static final class TestSeismicPing extends ExcavationSeismicPing {
     private final File configFile;
-    private final File legacyConfigFile;
 
     private TestSeismicPing(Path configPath) {
       configFile = configPath.toFile();
-      legacyConfigFile = configPath.resolveSibling("excavation-seismic-ping.json").toFile();
     }
 
     @Override
@@ -180,9 +178,5 @@ class ExcavationAdaptationLogicTest {
       return configFile;
     }
 
-    @Override
-    protected File getLegacyConfigFile() {
-      return legacyConfigFile;
-    }
   }
 }

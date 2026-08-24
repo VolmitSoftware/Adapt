@@ -91,13 +91,16 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
 
     xp(p, 5);
     AdaptPlayer ap = getPlayer(p);
+    if (ap == null) {
+      return;
+    }
     List<PlayerSkillLine> skills = ap.getData().getSkillLines().sortV();
     if (skills.isEmpty()) {
       return;
     }
 
     PlayerSkillLine skill = skills.get(RANDOM.nextInt(skills.size()));
-    skill.giveXPFresh(Adapt.instance.getAdaptServer().getPlayer(p).getNot(), getXPGained(getLevelPercent(getLevel(p)), RANDOM.nextInt(3) + 1));
+    skill.giveXPFresh(ap.getNot(), getXPGained(getLevelPercent(getLevel(p)), RANDOM.nextInt(3) + 1));
     double distributed = ap.getData().getStat("discovery.unity.orbs-distributed");
     ap.getData().addStat("discovery.unity.orbs-distributed", 1);
 

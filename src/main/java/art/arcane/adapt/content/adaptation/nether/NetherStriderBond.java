@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -158,7 +159,7 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
       teleport = PaperCompat.teleportAsync(p, safe, PlayerTeleportEvent.TeleportCause.PLUGIN);
     } catch (RuntimeException error) {
       Adapt.error("Strider Bond could not start a lava rescue for " + p.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return;
     }
     if (teleport == null) {
@@ -170,11 +171,15 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
   private void finishRescueTeleport(Player p, Boolean success, Throwable failure) {
     if (failure != null) {
       Adapt.error("Strider Bond lava rescue failed for " + p.getUniqueId() + ".");
-      failure.printStackTrace();
+      Adapt.error(failure);
     }
 
     J.runEntity(p, () -> {
       if (!shouldCommitRescue(success, failure, p.isOnline())) {
+        return;
+      }
+      AdaptPlayer adaptPlayer = getPlayer(p);
+      if (adaptPlayer == null) {
         return;
       }
 
@@ -185,8 +190,8 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
           .dustRing(0.8D, 12, 1.0F)
           .particle(Particle.CLOUD, 6, 0D, 0.2D, 0D, 0.3D, 0.02D)
           .chord(Sound.ENTITY_STRIDER_HAPPY, 0.6F, 1.2F, Sound.ENTITY_ENDERMAN_TELEPORT, 0.4F, 1.4F);
-      if (AdaptConfig.get().isAdvancements() && !getPlayer(p).getData().isGranted("challenge_nether_strider_rescue")) {
-        getPlayer(p).getAdvancementHandler().grant("challenge_nether_strider_rescue");
+      if (AdaptConfig.get().isAdvancements() && !adaptPlayer.getData().isGranted("challenge_nether_strider_rescue")) {
+        adaptPlayer.getAdvancementHandler().grant("challenge_nether_strider_rescue");
       }
     });
   }

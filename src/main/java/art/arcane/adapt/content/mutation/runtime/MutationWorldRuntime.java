@@ -1484,7 +1484,7 @@ final class MutationWorldRuntime {
 
   private void reportRestorationError(String message, RuntimeException error) {
     Adapt.error(message);
-    error.printStackTrace();
+    Adapt.error(error);
   }
 
   private String format(MutationRuntimeStore.BlockPosition key) {

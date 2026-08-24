@@ -11,7 +11,7 @@ public final class CommandMessages {
   public static final TextKey HELP_ADAPTATION_TO_MODIFY_AS_SKILL_ADAPTATION = TextKey.of("command.help.adaptation_to_modify_as_skill_adaptation", "Adaptation to modify, as skill:adaptation");
   public static final TextKey HELP_ADAPTATION_TO_RESET_SKILL_ADAPTATION = TextKey.of("command.help.adaptation_to_reset_skill_adaptation", "adaptation to reset (skill:adaptation)");
   public static final TextKey HELP_ADAPTATION_TO_SET_AS_SKILL_ADAPTATION = TextKey.of("command.help.adaptation_to_set_as_skill_adaptation", "Adaptation to set, as skill:adaptation");
-  public static final TextKey HELP_AMOUNT_OF_SECONDS = TextKey.of("command.help.amount_of_seconds", "Amount of seconds");
+  public static final TextKey HELP_AMOUNT_OF_SECONDS = TextKey.of("command.help.amount_of_seconds", "Positive duration in seconds");
   public static final TextKey HELP_ASSIGN_OR_UNASSIGN_AN_ADAPTATION_FOR_A_PLAYER_AS_IF_LEARNING_UNLEARNING_IT = TextKey.of("command.help.assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it", "Assign or unassign an adaptation for a player, as if learning / unlearning it.");
   public static final TextKey HELP_BOOST_GLOBAL_EXPERIENCE_GAIN = TextKey.of("command.help.boost_global_experience_gain", "Boost Global Experience gain.");
   public static final TextKey HELP_BOOST_TARGET_PLAYER_EXPERIENCE_GAIN = TextKey.of("command.help.boost_target_player_experience_gain", "Boost Target player Experience gain.");
@@ -32,7 +32,6 @@ public final class CommandMessages {
   public static final TextKey HELP_EXPERIENCE_PER_ORB = TextKey.of("command.help.experience_per_orb", "Experience per orb");
   public static final TextKey HELP_EXPLICIT_ON_OFF_STATE_OMIT_TO_TOGGLE = TextKey.of("command.help.explicit_on_off_state_omit_to_toggle", "Explicit on/off state, omit to toggle");
   public static final TextKey HELP_FORCE_A_MUTATION_SLOT_UNLOCKED_LOCKED_OR_BACK_TO_ITS_NORMAL_LEVEL_REQUIREMENT = TextKey.of("command.help.force_a_mutation_slot_unlocked_locked_or_back_to_its_normal_level_requirement", "Force a Mutation slot unlocked, locked, or back to its normal level requirement");
-  public static final TextKey HELP_FORCE_MIGRATE_AND_REWRITE_ALL_SKILL_ADAPTATION_CONFIGS_TO_CANONICAL_TOML_WITH_COMMENTS = TextKey.of("command.help.force_migrate_and_rewrite_all_skill_adaptation_configs_to_canonical_toml_with_comments", "Force migrate and rewrite all skill/adaptation configs to canonical TOML with comments.");
   public static final TextKey HELP_FORCE_PERFECT_ADAPTATION_ON_OFF_OR_BACK_TO_ITS_NORMAL_LEVEL_REQUIREMENT = TextKey.of("command.help.force_perfect_adaptation_on_off_or_back_to_its_normal_level_requirement", "Force Perfect Adaptation on, off, or back to its normal level requirement");
   public static final TextKey HELP_GENERATE_PERMS_FOR_ADAPTATIONS = TextKey.of("command.help.generate_perms_for_adaptations", "Generate Perms for Adaptations!");
   public static final TextKey HELP_GENERATE_PERMS_FOR_SKILLS = TextKey.of("command.help.generate_perms_for_skills", "Generate Perms for Skills!");
@@ -67,7 +66,7 @@ public final class CommandMessages {
   public static final TextKey HELP_SKILL_TO_RESET = TextKey.of("command.help.skill_to_reset", "skill to reset");
   public static final TextKey HELP_SLOT_1_OR_2 = TextKey.of("command.help.slot_1_or_2", "slot 1 or 2");
   public static final TextKey HELP_SOUND_TO_PLAY = TextKey.of("command.help.sound_to_play", "Sound to play");
-  public static final TextKey HELP_STRENGTH_OF_THE_BOOST = TextKey.of("command.help.strength_of_the_boost", "Strength of the boost");
+  public static final TextKey HELP_STRENGTH_OF_THE_BOOST = TextKey.of("command.help.strength_of_the_boost", "Additive XP multiplier from -0.99 to 999");
   public static final TextKey HELP_SUMMON_A_PARTICLE_AT_YOUR_LOCATION_FOR_TESTING = TextKey.of("command.help.summon_a_particle_at_your_location_for_testing", "Summon a particle at your location for testing!");
   public static final TextKey HELP_TARGET_PLAYER_DEFAULTS_TO_YOU = TextKey.of("command.help.target_player_defaults_to_you", "Target player, defaults to you");
   public static final TextKey HELP_TOGGLE_ADAPT_EFFECT_VISIBILITY_FOR_YOURSELF = TextKey.of("command.help.toggle_adapt_effect_visibility_for_yourself", "Toggle Adapt effect visibility for yourself");
@@ -112,7 +111,6 @@ public final class CommandMessages {
     builder.add(HELP_EXPERIENCE_PER_ORB);
     builder.add(HELP_EXPLICIT_ON_OFF_STATE_OMIT_TO_TOGGLE);
     builder.add(HELP_FORCE_A_MUTATION_SLOT_UNLOCKED_LOCKED_OR_BACK_TO_ITS_NORMAL_LEVEL_REQUIREMENT);
-    builder.add(HELP_FORCE_MIGRATE_AND_REWRITE_ALL_SKILL_ADAPTATION_CONFIGS_TO_CANONICAL_TOML_WITH_COMMENTS);
     builder.add(HELP_FORCE_PERFECT_ADAPTATION_ON_OFF_OR_BACK_TO_ITS_NORMAL_LEVEL_REQUIREMENT);
     builder.add(HELP_GENERATE_PERMS_FOR_ADAPTATIONS);
     builder.add(HELP_GENERATE_PERMS_FOR_SKILLS);

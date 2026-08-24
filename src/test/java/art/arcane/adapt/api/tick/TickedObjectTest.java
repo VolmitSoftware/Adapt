@@ -14,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
@@ -44,6 +45,28 @@ class TickedObjectTest extends AdaptTestBase {
   }
 
   @Test
+  void activeIntervalChangesRescheduleTheExistingRegistration() {
+    ActiveTicked active = new ActiveTicked();
+    active.activateRuntime();
+    reset(ticker);
+
+    active.setInterval(250L);
+
+    verify(ticker).reschedule(active);
+  }
+
+  @Test
+  void burstingReschedulesAnActiveObjectImmediately() {
+    ActiveTicked active = new ActiveTicked();
+    active.activateRuntime();
+    reset(ticker);
+
+    active.retick();
+
+    verify(ticker).reschedule(active);
+  }
+
+  @Test
   void unregisteredObjectsRejectLateTicks() {
     ActiveTicked active = new ActiveTicked();
     active.activateRuntime();
@@ -53,6 +76,18 @@ class TickedObjectTest extends AdaptTestBase {
 
     assertThat(active.ticks.get()).isZero();
     assertThat(active.isRuntimeRegistered()).isFalse();
+  }
+
+  @Test
+  void tickerInvalidationRejectsAlreadyDispatchedOwnerTicks() {
+    ActiveTicked active = new ActiveTicked();
+    active.activateRuntime();
+
+    active.invalidateTickDispatch();
+    active.tick();
+
+    assertThat(active.ticks.get()).isZero();
+    assertThat(active.isRuntimeRegistered()).isTrue();
   }
 
   @Test

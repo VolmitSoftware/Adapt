@@ -36,6 +36,55 @@ class StealthAdaptationsScalingTest {
   }
 
   @Test
+  void shadowmeldCandidateBatchesBoundAndCoverAThousandPlayerRoster() {
+    int[] visits = new int[1_000];
+    int cursor = 0;
+    int pulses = 0;
+    do {
+      StealthShadowmeld.CandidateBatch batch = StealthShadowmeld.candidateBatch(visits.length, cursor);
+      assertThat(batch.size()).isLessThanOrEqualTo(StealthShadowmeld.MAX_CANDIDATE_VISITS_PER_TICK);
+      for (int index = batch.start(); index < batch.end(); index++) {
+        visits[index]++;
+      }
+      cursor = batch.nextCursor();
+      pulses++;
+    } while (cursor != 0);
+
+    assertThat(visits).containsOnly(1);
+    assertThat(pulses).isEqualTo(4);
+    assertThat(pulses * StealthShadowmeld.CANDIDATE_SCAN_INTERVAL_MILLIS).isEqualTo(1_000L);
+  }
+
+  @Test
+  void shadowmeldCandidateBatchCadenceRepeatsWithoutSkippingPlayers() {
+    int[] visits = new int[1_000];
+    int cursor = 0;
+    for (int pulse = 0; pulse < 8; pulse++) {
+      StealthShadowmeld.CandidateBatch batch = StealthShadowmeld.candidateBatch(visits.length, cursor);
+      for (int index = batch.start(); index < batch.end(); index++) {
+        visits[index]++;
+      }
+      cursor = batch.nextCursor();
+    }
+
+    assertThat(visits).containsOnly(2);
+    assertThat(cursor).isZero();
+    StealthShadowmeld.CandidateBatch reset = StealthShadowmeld.candidateBatch(100, 900);
+    assertThat(reset.start()).isZero();
+    assertThat(reset.end()).isEqualTo(100);
+    assertThat(reset.nextCursor()).isZero();
+  }
+
+  @Test
+  void shadowmeldKeepsImmediateSneakEventActivation() throws ReflectiveOperationException {
+    Method handler = StealthShadowmeld.class.getDeclaredMethod("on", PlayerToggleSneakEvent.class);
+    EventHandler policy = handler.getAnnotation(EventHandler.class);
+
+    assertThat(policy).isNotNull();
+    assertThat(policy.priority()).isEqualTo(EventPriority.MONITOR);
+  }
+
+  @Test
   void assassinateHealthCapAndCooldownScale() {
     assertThat(StealthAssassinate.computeHealthCap(22.0, 38.0, 0.25)).isEqualTo(31.5);
     assertThat(StealthAssassinate.computeHealthCap(22.0, 38.0, 1.0)).isEqualTo(60.0);

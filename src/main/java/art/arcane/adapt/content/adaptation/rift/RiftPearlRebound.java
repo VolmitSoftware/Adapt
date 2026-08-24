@@ -183,7 +183,7 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
       }
       Adapt.error("Rift Pearl Rebound failed to create or configure a pearl for " + playerId
           + " at " + spawnAt + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }

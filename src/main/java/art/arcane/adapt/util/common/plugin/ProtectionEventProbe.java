@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.util.common.plugin;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -273,7 +274,7 @@ public final class ProtectionEventProbe {
       dispatch(event);
       return !(event instanceof Cancellable cancellable) || !cancellable.isCancelled();
     } catch (ReflectiveOperationException error) {
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }

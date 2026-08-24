@@ -3,12 +3,16 @@ package art.arcane.adapt.api.world;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.mutation.PlayerMutationData;
+import art.arcane.adapt.api.xp.XP;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 class PlayerDataTest extends AdaptTestBase {
@@ -26,6 +30,35 @@ class PlayerDataTest extends AdaptTestBase {
     @DisplayName("an absent stat reads as zero")
     void absentStatReadsZero() {
         assertThat(new PlayerData().getStat("nope")).isEqualTo(0.0);
+    }
+
+    @Test
+    void unchangedMasterXpReusesItsResolvedLevel() {
+        PlayerData data = new PlayerData();
+        data.setMasterXp(64D);
+        AdaptConfig config = AdaptConfig.get();
+        int previousMaximum = config.experienceMaxLevel;
+
+        try (MockedStatic<XP> xp = mockStatic(XP.class)) {
+            xp.when(() -> XP.getLevelForXp(64D)).thenReturn(8D, 7D);
+            xp.when(() -> XP.getLevelForXp(81D)).thenReturn(9D);
+
+            assertThat(data.getLevel()).isEqualTo(8);
+            assertThat(data.getLevel()).isEqualTo(8);
+            data.getMaxPower();
+            xp.verify(() -> XP.getLevelForXp(64D), times(1));
+
+            data.setMasterXp(81D);
+            assertThat(data.getLevel()).isEqualTo(9);
+            xp.verify(() -> XP.getLevelForXp(81D), times(1));
+
+            data.setMasterXp(64D);
+            config.experienceMaxLevel = previousMaximum - 1;
+            assertThat(data.getLevel()).isEqualTo(7);
+            xp.verify(() -> XP.getLevelForXp(64D), times(2));
+        } finally {
+            config.experienceMaxLevel = previousMaximum;
+        }
     }
 
     @Test

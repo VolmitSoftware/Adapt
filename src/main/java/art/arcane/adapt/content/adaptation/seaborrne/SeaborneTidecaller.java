@@ -298,7 +298,7 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
     } catch (RuntimeException error) {
       teleportDashes.remove(playerId);
       Adapt.error("Seaborne Tidecaller could not start teleport dash for " + playerId + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       fizzle(p);
       return;
     }
@@ -316,7 +316,7 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
                                     Boolean success, Throwable failure) {
     if (failure != null) {
       Adapt.error("Seaborne Tidecaller teleport dash failed for " + playerId + ".");
-      failure.printStackTrace();
+      Adapt.error(failure);
     }
     if (!successfulTeleportDash(success, failure)) {
       teleportDashes.remove(playerId);

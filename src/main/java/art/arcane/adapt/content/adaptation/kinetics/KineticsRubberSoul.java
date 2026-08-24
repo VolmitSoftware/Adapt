@@ -1,10 +1,10 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.kinetics.KineticsMotion;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -30,12 +30,18 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
   private static final String SLOT_SPRINGLOAD = "springload";
 
   private final Map<UUID, Boolean> airborne = playerState();
+  private final AdaptationOwnerPulse.Registration ownerMaintenance;
 
   public KineticsRubberSoul() {
     super("kinetics-rubber-soul");
     registerConfiguration(Config.class);
     setIcon(Material.SLIME_BALL);
     setInterval(1000);
+    ownerMaintenance = AdaptationOwnerPulse.register(
+        this,
+        this::getInterval,
+        this::maintainOwner
+    );
   }
 
   @Override
@@ -45,20 +51,10 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
   }
 
   @Override
-  protected boolean usesLearnerBoundTicking() {
-    return true;
-  }
-
-  @Override
-  public void onTick() {
-    if (Attributes.BOUNCINESS == null) {
-      return;
-    }
-
-    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
-      Player player = adaptPlayer.getPlayer();
-      withPlayerThread(player, () -> maintainSole(player));
-    }
+  public void unregister() {
+    ownerMaintenance.unregister();
+    airborne.clear();
+    super.unregister();
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -111,6 +107,12 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
       return 0D;
     }
     return Math.max(0D, value);
+  }
+
+  private void maintainOwner(Player player) {
+    if (Attributes.BOUNCINESS != null) {
+      maintainSole(player);
+    }
   }
 
   private void maintainSole(Player player) {

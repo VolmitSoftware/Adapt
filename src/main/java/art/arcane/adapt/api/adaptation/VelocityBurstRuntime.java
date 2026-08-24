@@ -85,6 +85,11 @@ public final class VelocityBurstRuntime extends TickedObject {
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return !buckets.isEmpty() || !readyBuckets.isEmpty();
+  }
+
+  @Override
   public void onTick() {
     long cycle = ++dispatchCycle;
     int scheduled = 0;
@@ -289,7 +294,7 @@ public final class VelocityBurstRuntime extends TickedObject {
       }
     } catch (Throwable error) {
       Adapt.error("Exception updating velocity bursts for " + bucket.playerId);
-      error.printStackTrace();
+      Adapt.error(error);
     } finally {
       removeBucketIfEmpty(bucket);
       completeDispatch(bucket);
@@ -529,7 +534,7 @@ public final class VelocityBurstRuntime extends TickedObject {
 
   private void reportFeedbackFailure(Client client, Throwable error) {
     Adapt.error("Exception rendering velocity burst feedback for " + client.sourceName);
-    error.printStackTrace();
+    Adapt.error(error);
   }
 
   public enum StartResult {

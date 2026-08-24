@@ -1,5 +1,6 @@
 package com.fren_gor.ultimateAdvancementAPI.nms.util;
 
+import art.arcane.adapt.Adapt;
 import com.fren_gor.ultimateAdvancementAPI.util.Versions;
 import org.bukkit.Bukkit;
 import org.jetbrains.annotations.NotNull;
@@ -60,7 +61,7 @@ public final class ReflectionUtil {
         } else {
             Optional<String> version = Versions.getNMSVersion();
             if (version.isEmpty()) {
-                Bukkit.getLogger().severe("[UltimateAdvancementAPI] Unsupported Minecraft version! (" + MINECRAFT_VERSION + ")");
+                Adapt.error("UltimateAdvancementAPI does not support Minecraft " + MINECRAFT_VERSION + ".");
                 return null;
             }
             path = "net.minecraft.server." + version.get() + '.' + name;
@@ -69,7 +70,7 @@ public final class ReflectionUtil {
         try {
             return Class.forName(path);
         } catch (ClassNotFoundException e) {
-            Bukkit.getLogger().severe("[UltimateAdvancementAPI] Can't find NMS Class! (" + path + ")");
+            Adapt.error("UltimateAdvancementAPI could not find NMS class " + path + ".", e);
             return null;
         }
     }
@@ -80,7 +81,7 @@ public final class ReflectionUtil {
         try {
             return Class.forName(cb);
         } catch (ClassNotFoundException e) {
-            Bukkit.getLogger().severe("[UltimateAdvancementAPI] Can't find CB Class! (" + cb + ")");
+            Adapt.error("UltimateAdvancementAPI could not find CraftBukkit class " + cb + ".", e);
             return null;
         }
     }
@@ -89,7 +90,7 @@ public final class ReflectionUtil {
     public static <T> Class<? extends T> getWrapperClass(@NotNull Class<T> clazz) {
         Optional<String> version = Versions.getNMSVersion();
         if (version.isEmpty()) {
-            Bukkit.getLogger().severe("[UltimateAdvancementAPI] Unsupported Minecraft version! (" + MINECRAFT_VERSION + ")");
+            Adapt.error("UltimateAdvancementAPI does not support Minecraft " + MINECRAFT_VERSION + ".");
             return null;
         }
 
@@ -102,7 +103,7 @@ public final class ReflectionUtil {
         try {
             return Class.forName(wrapper).asSubclass(clazz);
         } catch (ClassNotFoundException e) {
-            Bukkit.getLogger().severe("[UltimateAdvancementAPI] Can't find Wrapper Class! (" + wrapper + ")");
+            Adapt.error("UltimateAdvancementAPI could not find wrapper class " + wrapper + ".", e);
             return null;
         }
     }

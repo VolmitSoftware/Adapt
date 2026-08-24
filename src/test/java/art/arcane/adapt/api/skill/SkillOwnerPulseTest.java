@@ -6,6 +6,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class SkillOwnerPulseTest {
   @Test
@@ -50,5 +52,87 @@ class SkillOwnerPulseTest {
     assertThat(SkillOwnerPulse.cadenceDue(1_000L, 1_974L, 975L)).isFalse();
     assertThat(SkillOwnerPulse.cadenceDue(1_000L, 1_975L, 975L)).isTrue();
     assertThat(SkillOwnerPulse.cadenceDue(1_000L, 900L, 975L)).isFalse();
+  }
+
+  @Test
+  void failedReplacementRetainsThePreviousRegistration() {
+    int initialRegistrations = SkillOwnerPulse.registrationCount();
+    SimpleSkill<?> previous = skill("failed-skill-pulse-replacement");
+    SimpleSkill<?> failedReplacement = skill("failed-skill-pulse-replacement");
+    SkillOwnerPulse.Registration previousRegistration = SkillOwnerPulse.register(
+        previous,
+        () -> 1_000L,
+        (adaptPlayer, player, elapsed, cadence) -> {
+        }
+    );
+    SkillOwnerPulse.RegistrationBatch batch = SkillOwnerPulse.beginRegistrationBatch();
+    SkillOwnerPulse.Registration failedRegistration = null;
+
+    try {
+      failedRegistration = SkillOwnerPulse.register(
+          failedReplacement,
+          () -> 2_000L,
+          (adaptPlayer, player, elapsed, cadence) -> {
+          }
+      );
+      batch.endCapture();
+      assertThat(SkillOwnerPulse.registrationCount()).isEqualTo(initialRegistrations + 1);
+
+      batch.rollback();
+      failedRegistration.unregister();
+      assertThat(SkillOwnerPulse.registrationCount()).isEqualTo(initialRegistrations + 1);
+    } finally {
+      batch.rollback();
+      if (failedRegistration != null) {
+        failedRegistration.unregister();
+      }
+      previousRegistration.unregister();
+    }
+
+    assertThat(SkillOwnerPulse.registrationCount()).isEqualTo(initialRegistrations);
+  }
+
+  @Test
+  void committedReplacementOwnsTheRegistrationAfterThePreviousSkillRetires() {
+    int initialRegistrations = SkillOwnerPulse.registrationCount();
+    SimpleSkill<?> previous = skill("committed-skill-pulse-replacement");
+    SimpleSkill<?> replacement = skill("committed-skill-pulse-replacement");
+    SkillOwnerPulse.Registration previousRegistration = SkillOwnerPulse.register(
+        previous,
+        () -> 1_000L,
+        (adaptPlayer, player, elapsed, cadence) -> {
+        }
+    );
+    SkillOwnerPulse.RegistrationBatch batch = SkillOwnerPulse.beginRegistrationBatch();
+    SkillOwnerPulse.Registration replacementRegistration = null;
+
+    try {
+      replacementRegistration = SkillOwnerPulse.register(
+          replacement,
+          () -> 2_000L,
+          (adaptPlayer, player, elapsed, cadence) -> {
+          }
+      );
+      batch.endCapture();
+      batch.commit();
+      assertThat(SkillOwnerPulse.registrationCount()).isEqualTo(initialRegistrations + 1);
+
+      previousRegistration.unregister();
+      assertThat(SkillOwnerPulse.registrationCount()).isEqualTo(initialRegistrations + 1);
+    } finally {
+      batch.rollback();
+      previousRegistration.unregister();
+      if (replacementRegistration != null) {
+        replacementRegistration.unregister();
+      }
+    }
+
+    assertThat(SkillOwnerPulse.registrationCount()).isEqualTo(initialRegistrations);
+  }
+
+  private static SimpleSkill<?> skill(String name) {
+    SimpleSkill<?> skill = mock(SimpleSkill.class);
+    when(skill.getName()).thenReturn(name);
+    return skill;
   }
 }

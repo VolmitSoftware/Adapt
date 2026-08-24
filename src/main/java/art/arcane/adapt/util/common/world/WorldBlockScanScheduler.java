@@ -197,7 +197,7 @@ public final class WorldBlockScanScheduler {
       } catch (Throwable error) {
         Adapt.warn("World block scan completion failed: " + error.getClass().getSimpleName()
             + (error.getMessage() == null ? "" : " - " + error.getMessage()));
-        error.printStackTrace();
+        Adapt.error(error);
       }
       completed++;
     }
@@ -517,7 +517,7 @@ public final class WorldBlockScanScheduler {
         Adapt.warn("World block scan batch failed in " + request.world.getName() + " at chunk "
             + batch.chunkX + "," + batch.chunkZ + ": " + error.getClass().getSimpleName()
             + (error.getMessage() == null ? "" : " - " + error.getMessage()));
-        error.printStackTrace();
+        Adapt.error(error);
       } finally {
         batchFinished();
       }

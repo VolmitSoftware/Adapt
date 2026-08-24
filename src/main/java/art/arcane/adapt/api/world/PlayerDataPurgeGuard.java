@@ -18,9 +18,11 @@
 
 package art.arcane.adapt.api.world;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Marks players whose Adapt data was purged so no stale in-memory copy can write it back.
@@ -32,14 +34,21 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class PlayerDataPurgeGuard {
   private static final Set<UUID> PURGED = ConcurrentHashMap.newKeySet();
+  private static final Map<UUID, Long> GENERATIONS = new ConcurrentHashMap<>();
+  private static final AtomicLong GENERATION_SEQUENCE = new AtomicLong();
 
   private PlayerDataPurgeGuard() {
   }
 
-  public static void mark(UUID playerId) {
-    if (playerId != null) {
-      PURGED.add(playerId);
+  public static long mark(UUID playerId) {
+    if (playerId == null) {
+      return 0L;
     }
+
+    long generation = GENERATION_SEQUENCE.incrementAndGet();
+    GENERATIONS.put(playerId, generation);
+    PURGED.add(playerId);
+    return generation;
   }
 
   public static boolean isPurged(UUID playerId) {
@@ -54,11 +63,21 @@ public final class PlayerDataPurgeGuard {
     return playerId != null && PURGED.remove(playerId);
   }
 
+  public static long generation(UUID playerId) {
+    return playerId == null ? 0L : GENERATIONS.getOrDefault(playerId, 0L);
+  }
+
+  public static boolean allowsSave(UUID playerId, long expectedGeneration) {
+    return playerId != null && !PURGED.contains(playerId) && generation(playerId) == expectedGeneration;
+  }
+
   public static int size() {
     return PURGED.size();
   }
 
   public static void reset() {
     PURGED.clear();
+    GENERATIONS.clear();
+    GENERATION_SEQUENCE.set(0L);
   }
 }

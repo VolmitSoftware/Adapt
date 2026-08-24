@@ -26,6 +26,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,6 +41,7 @@ public final class SkillOwnerPulse extends TickedObject {
   public static final int MAX_REWARD_INTERVALS = 4;
   private static final long COORDINATOR_INTERVAL_MILLIS = 50L;
   private static final Object INSTANCE_LOCK = new Object();
+  private static final ThreadLocal<RegistrationBatch> REGISTRATION_BATCH = new ThreadLocal<>();
   private static SkillOwnerPulse instance;
 
   private final CopyOnWriteArrayList<Participant> participants = new CopyOnWriteArrayList<>();
@@ -62,11 +64,25 @@ public final class SkillOwnerPulse extends TickedObject {
         instance = coordinator;
       }
 
-      coordinator.removeExistingRegistration(skill.getName());
       Participant participant = new Participant(skill, cadenceSupplier, pulse);
-      coordinator.participants.add(participant);
-      return new Registration(coordinator, participant);
+      Registration registration = new Registration(coordinator, participant);
+      RegistrationBatch batch = REGISTRATION_BATCH.get();
+      if (batch == null) {
+        registration.commit();
+      } else {
+        batch.capture(registration);
+      }
+      return registration;
     }
+  }
+
+  public static RegistrationBatch beginRegistrationBatch() {
+    if (REGISTRATION_BATCH.get() != null) {
+      throw new IllegalStateException("Skill owner-pulse registration batch already active");
+    }
+    RegistrationBatch batch = new RegistrationBatch(Thread.currentThread());
+    REGISTRATION_BATCH.set(batch);
+    return batch;
   }
 
   public static void startRuntime() {
@@ -147,6 +163,12 @@ public final class SkillOwnerPulse extends TickedObject {
     return now >= lastPulse && now - lastPulse >= safeCadence;
   }
 
+  static int registrationCount() {
+    synchronized (INSTANCE_LOCK) {
+      return instance == null ? 0 : instance.participants.size();
+    }
+  }
+
   private void scheduleIfDue(AdaptPlayer adaptPlayer, long now) {
     if (adaptPlayer == null || !adaptPlayer.isRuntimeReady()) {
       return;
@@ -211,6 +233,10 @@ public final class SkillOwnerPulse extends TickedObject {
   private void unregister(Participant participant) {
     participant.deactivate();
     participants.remove(participant);
+    unregisterIfEmpty();
+  }
+
+  private void unregisterIfEmpty() {
     if (!participants.isEmpty()) {
       return;
     }
@@ -230,7 +256,8 @@ public final class SkillOwnerPulse extends TickedObject {
   public static final class Registration {
     private final SkillOwnerPulse coordinator;
     private final Participant participant;
-    private final AtomicBoolean registered = new AtomicBoolean(true);
+    private boolean registered = true;
+    private boolean committed;
 
     private Registration(SkillOwnerPulse coordinator, Participant participant) {
       this.coordinator = coordinator;
@@ -238,8 +265,121 @@ public final class SkillOwnerPulse extends TickedObject {
     }
 
     public void unregister() {
-      if (registered.compareAndSet(true, false)) {
-        coordinator.unregister(participant);
+      synchronized (INSTANCE_LOCK) {
+        if (!registered) {
+          return;
+        }
+        registered = false;
+        participant.deactivate();
+        if (committed) {
+          coordinator.unregister(participant);
+        }
+      }
+    }
+
+    private void commit() {
+      synchronized (INSTANCE_LOCK) {
+        if (!registered || committed) {
+          return;
+        }
+        coordinator.removeExistingRegistration(skillName());
+        coordinator.participants.add(participant);
+        committed = true;
+      }
+    }
+
+    private void rollback() {
+      synchronized (INSTANCE_LOCK) {
+        if (!registered) {
+          return;
+        }
+        registered = false;
+        participant.deactivate();
+        if (committed) {
+          coordinator.unregister(participant);
+        }
+      }
+    }
+
+    private boolean hasSkillName(String skillName) {
+      return participant.hasSkillName(skillName);
+    }
+
+    private String skillName() {
+      return participant.skill.getName();
+    }
+  }
+
+  public static final class RegistrationBatch {
+    private final Thread owner;
+    private final List<Registration> registrations = new ArrayList<>();
+    private boolean captureOpen = true;
+    private boolean resolved;
+
+    private RegistrationBatch(Thread owner) {
+      this.owner = owner;
+    }
+
+    public void endCapture() {
+      requireOwner();
+      if (!captureOpen) {
+        return;
+      }
+      if (REGISTRATION_BATCH.get() != this) {
+        throw new IllegalStateException("Skill owner-pulse registration batch is not current");
+      }
+      REGISTRATION_BATCH.remove();
+      captureOpen = false;
+    }
+
+    public void commit() {
+      endCapture();
+      if (resolved) {
+        return;
+      }
+      resolved = true;
+      for (Registration registration : registrations) {
+        registration.commit();
+      }
+      releaseEmptyCoordinator();
+    }
+
+    public void rollback() {
+      endCapture();
+      if (resolved) {
+        return;
+      }
+      resolved = true;
+      for (Registration registration : registrations) {
+        registration.rollback();
+      }
+      releaseEmptyCoordinator();
+    }
+
+    private void capture(Registration registration) {
+      requireOwner();
+      if (!captureOpen || resolved || REGISTRATION_BATCH.get() != this) {
+        throw new IllegalStateException("Skill owner-pulse registration batch is closed");
+      }
+      for (int index = registrations.size() - 1; index >= 0; index--) {
+        Registration existing = registrations.get(index);
+        if (existing.hasSkillName(registration.skillName())) {
+          registrations.remove(index);
+          existing.rollback();
+        }
+      }
+      registrations.add(registration);
+    }
+
+    private void releaseEmptyCoordinator() {
+      if (!registrations.isEmpty()) {
+        registrations.get(0).coordinator.unregisterIfEmpty();
+      }
+    }
+
+    private void requireOwner() {
+      if (Thread.currentThread() != owner) {
+        throw new IllegalStateException("Skill owner-pulse registration batch changed threads");
       }
     }
   }
@@ -262,7 +402,7 @@ public final class SkillOwnerPulse extends TickedObject {
         return false;
       }
       if (!skill.isEnabled()) {
-        lastPulseByPlayer.put(playerKey, now);
+        lastPulseByPlayer.remove(playerKey);
         return false;
       }
 
@@ -272,7 +412,7 @@ public final class SkillOwnerPulse extends TickedObject {
 
     private void pulse(AdaptPlayer adaptPlayer, Player player, String playerKey, long now) {
       if (!active.get() || !skill.isRuntimeRegistered() || !skill.isEnabled()) {
-        lastPulseByPlayer.put(playerKey, now);
+        lastPulseByPlayer.remove(playerKey);
         return;
       }
 
@@ -291,7 +431,7 @@ public final class SkillOwnerPulse extends TickedObject {
         pulse.pulse(adaptPlayer, player, boundedElapsed(elapsed, cadence), cadence);
       } catch (Throwable error) {
         Adapt.error("Exception pulsing skill " + skill.getName() + " for " + playerKey);
-        error.printStackTrace();
+        Adapt.error(error);
       }
     }
 

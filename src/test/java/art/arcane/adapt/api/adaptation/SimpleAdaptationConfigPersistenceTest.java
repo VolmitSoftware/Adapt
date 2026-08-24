@@ -64,23 +64,16 @@ class SimpleAdaptationConfigPersistenceTest {
 
   private static final class TestAdaptation extends SimpleAdaptation<TestConfig> {
     private final File configFile;
-    private final File legacyConfigFile;
 
     private TestAdaptation(Path configPath) {
       super("normalized-adaptation");
       configFile = configPath.toFile();
-      legacyConfigFile = configPath.resolveSibling("normalized-adaptation.json").toFile();
       registerConfiguration(TestConfig.class);
     }
 
     @Override
     protected File getConfigFile() {
       return configFile;
-    }
-
-    @Override
-    protected File getLegacyConfigFile() {
-      return legacyConfigFile;
     }
 
     @Override

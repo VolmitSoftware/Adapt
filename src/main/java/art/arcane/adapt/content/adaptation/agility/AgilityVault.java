@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.agility;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -71,6 +72,7 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
   private static final double FENCE_PROBE_LIMIT = 1.60D;
 
   private final Map<UUID, Double> armedBonuses = playerState();
+  private final AdaptationOwnerPulse.Registration ownerMaintenance;
 
   public AgilityVault() {
     super("agility-vault");
@@ -79,6 +81,13 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
     setCostFactor(0D);
     setMaxLevel(VAULT_LEVELS);
     setInterval(RECONCILE_INTERVAL_MILLIS);
+    ownerMaintenance = AdaptationOwnerPulse.register(
+        this,
+        this::getInterval,
+        () -> !armedBonuses.isEmpty(),
+        this::requiresOwnerMaintenance,
+        this::reconcilePlayer
+    );
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.OAK_FENCE)
         .key("challenge_agility_vault_250")
@@ -110,19 +119,10 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
   }
 
   @Override
-  protected boolean usesLearnerBoundTicking() {
-    return true;
-  }
-
-  @Override
-  public void onTick() {
-    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
-      Player player = adaptPlayer.getPlayer();
-      if (player == null) {
-        continue;
-      }
-      withPlayerThread(player, () -> reconcilePlayer(player, adaptPlayer));
-    }
+  public void unregister() {
+    ownerMaintenance.unregister();
+    armedBonuses.clear();
+    super.unregister();
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -316,7 +316,15 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
     synchronizeCorrectedVelocity(p, p.getVelocity(), p.getLocation().getY() - originY, getConfig().jumpHeight);
   }
 
-  private void reconcilePlayer(Player p, AdaptPlayer adaptPlayer) {
+  private boolean requiresOwnerMaintenance(UUID playerId) {
+    return armedBonuses.containsKey(playerId) || getServer().hasOnlineLearner(playerId, getName());
+  }
+
+  private void reconcilePlayer(Player p) {
+    AdaptPlayer adaptPlayer = getPlayer(p);
+    if (adaptPlayer == null) {
+      return;
+    }
     PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
     if (normalizeStoredLevel(line)) {
       clearArmedState(p);
@@ -327,6 +335,9 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
 
   private void normalizeStoredLevel(Player p) {
     AdaptPlayer adaptPlayer = getPlayer(p);
+    if (adaptPlayer == null) {
+      return;
+    }
     PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
     if (normalizeStoredLevel(line)) {
       clearArmedState(p);

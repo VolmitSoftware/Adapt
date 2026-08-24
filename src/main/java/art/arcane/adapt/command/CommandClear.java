@@ -1,6 +1,8 @@
 package art.arcane.adapt.command;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
@@ -10,6 +12,7 @@ import art.arcane.volmlib.util.director.DirectorOrigin;
 import art.arcane.volmlib.util.director.annotations.Director;
 import art.arcane.volmlib.util.director.annotations.Param;
 import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -23,13 +26,23 @@ public class CommandClear {
       @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
-    Player targetPlayer = resolveTarget(player);
-    if (targetPlayer == null) return;
+    CommandSender sender = BukkitDirectorContext.sender();
+    Player targetPlayer = resolveTarget(player, sender);
+    if (targetPlayer == null) {
+      return;
+    }
 
-    PlayerData data = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData();
-    data.clearAll();
-    FConst.success(AdaptLanguage.text(CommandRuntimeMessages.CLEARED_ALL, untrusted("player", targetPlayer.getName())))
-        .send(BukkitDirectorContext.sender());
+    CommandTargetExecutor.run(targetPlayer, () -> {
+      PlayerData data = resolveReadyData(targetPlayer, sender);
+      if (data == null) {
+        return;
+      }
+      data.clearAll();
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
+          CommandRuntimeMessages.CLEARED_ALL,
+          untrusted("player", targetPlayer.getName())
+      )));
+    }, sender);
   }
 
   @Director(description = "Clear XP across all skill lines", descriptionKey = "command.help.clear_xp_across_all_skill_lines")
@@ -37,13 +50,23 @@ public class CommandClear {
       @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
-    Player targetPlayer = resolveTarget(player);
-    if (targetPlayer == null) return;
+    CommandSender sender = BukkitDirectorContext.sender();
+    Player targetPlayer = resolveTarget(player, sender);
+    if (targetPlayer == null) {
+      return;
+    }
 
-    PlayerData data = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData();
-    data.clearXp();
-    FConst.success(AdaptLanguage.text(CommandRuntimeMessages.CLEARED_XP, untrusted("player", targetPlayer.getName())))
-        .send(BukkitDirectorContext.sender());
+    CommandTargetExecutor.run(targetPlayer, () -> {
+      PlayerData data = resolveReadyData(targetPlayer, sender);
+      if (data == null) {
+        return;
+      }
+      data.clearXp();
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
+          CommandRuntimeMessages.CLEARED_XP,
+          untrusted("player", targetPlayer.getName())
+      )));
+    }, sender);
   }
 
   @Director(description = "Clear knowledge across all skill lines", descriptionKey = "command.help.clear_knowledge_across_all_skill_lines")
@@ -51,13 +74,23 @@ public class CommandClear {
       @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
-    Player targetPlayer = resolveTarget(player);
-    if (targetPlayer == null) return;
+    CommandSender sender = BukkitDirectorContext.sender();
+    Player targetPlayer = resolveTarget(player, sender);
+    if (targetPlayer == null) {
+      return;
+    }
 
-    PlayerData data = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData();
-    data.clearKnowledge();
-    FConst.success(AdaptLanguage.text(CommandRuntimeMessages.CLEARED_KNOWLEDGE, untrusted("player", targetPlayer.getName())))
-        .send(BukkitDirectorContext.sender());
+    CommandTargetExecutor.run(targetPlayer, () -> {
+      PlayerData data = resolveReadyData(targetPlayer, sender);
+      if (data == null) {
+        return;
+      }
+      data.clearKnowledge();
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
+          CommandRuntimeMessages.CLEARED_KNOWLEDGE,
+          untrusted("player", targetPlayer.getName())
+      )));
+    }, sender);
   }
 
   @Director(description = "Unlearn all adaptations across all skill lines", descriptionKey = "command.help.unlearn_all_adaptations_across_all_skill_lines")
@@ -65,13 +98,23 @@ public class CommandClear {
       @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
-    Player targetPlayer = resolveTarget(player);
-    if (targetPlayer == null) return;
+    CommandSender sender = BukkitDirectorContext.sender();
+    Player targetPlayer = resolveTarget(player, sender);
+    if (targetPlayer == null) {
+      return;
+    }
 
-    PlayerData data = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData();
-    data.clearAdaptations();
-    FConst.success(AdaptLanguage.text(CommandRuntimeMessages.CLEARED_ADAPTATIONS, untrusted("player", targetPlayer.getName())))
-        .send(BukkitDirectorContext.sender());
+    CommandTargetExecutor.run(targetPlayer, () -> {
+      PlayerData data = resolveReadyData(targetPlayer, sender);
+      if (data == null) {
+        return;
+      }
+      data.clearAdaptations();
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
+          CommandRuntimeMessages.CLEARED_ADAPTATIONS,
+          untrusted("player", targetPlayer.getName())
+      )));
+    }, sender);
   }
 
   @Director(description = "Clear the stats map", descriptionKey = "command.help.clear_the_stats_map")
@@ -79,13 +122,23 @@ public class CommandClear {
       @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
-    Player targetPlayer = resolveTarget(player);
-    if (targetPlayer == null) return;
+    CommandSender sender = BukkitDirectorContext.sender();
+    Player targetPlayer = resolveTarget(player, sender);
+    if (targetPlayer == null) {
+      return;
+    }
 
-    PlayerData data = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData();
-    data.clearStats();
-    FConst.success(AdaptLanguage.text(CommandRuntimeMessages.CLEARED_STATS, untrusted("player", targetPlayer.getName())))
-        .send(BukkitDirectorContext.sender());
+    CommandTargetExecutor.run(targetPlayer, () -> {
+      PlayerData data = resolveReadyData(targetPlayer, sender);
+      if (data == null) {
+        return;
+      }
+      data.clearStats();
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
+          CommandRuntimeMessages.CLEARED_STATS,
+          untrusted("player", targetPlayer.getName())
+      )));
+    }, sender);
   }
 
   @Director(description = "Clear all discovery data (biomes, mobs, foods, items, recipes, etc.)", descriptionKey = "command.help.clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc")
@@ -93,19 +146,29 @@ public class CommandClear {
       @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
-    Player targetPlayer = resolveTarget(player);
-    if (targetPlayer == null) return;
+    CommandSender sender = BukkitDirectorContext.sender();
+    Player targetPlayer = resolveTarget(player, sender);
+    if (targetPlayer == null) {
+      return;
+    }
 
-    PlayerData data = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData();
-    data.clearDiscoveries();
-    FConst.success(AdaptLanguage.text(CommandRuntimeMessages.CLEARED_DISCOVERIES, untrusted("player", targetPlayer.getName())))
-        .send(BukkitDirectorContext.sender());
+    CommandTargetExecutor.run(targetPlayer, () -> {
+      PlayerData data = resolveReadyData(targetPlayer, sender);
+      if (data == null) {
+        return;
+      }
+      data.clearDiscoveries();
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
+          CommandRuntimeMessages.CLEARED_DISCOVERIES,
+          untrusted("player", targetPlayer.getName())
+      )));
+    }, sender);
   }
 
-  private Player resolveTarget(Player player) {
-    if (!BukkitDirectorContext.hasPermission("adapt.clear")) {
+  private Player resolveTarget(Player player, CommandSender sender) {
+    if (!sender.hasPermission("adapt.clear")) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.clear")))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return null;
     }
 
@@ -113,12 +176,28 @@ public class CommandClear {
       return player;
     }
 
-    if (BukkitDirectorContext.isConsole()) {
+    if (!(sender instanceof Player senderPlayer)) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.PLAYER_REQUIRED_FROM_CONSOLE))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return null;
     }
 
-    return BukkitDirectorContext.player();
+    return senderPlayer;
+  }
+
+  private PlayerData resolveReadyData(Player targetPlayer, CommandSender sender) {
+    AdaptServer adaptServer = Adapt.instance == null ? null : Adapt.instance.getAdaptServer();
+    AdaptPlayer adaptPlayer = adaptServer == null
+        ? null
+        : adaptServer.getOnlineAdaptPlayer(targetPlayer.getUniqueId());
+    if (adaptPlayer != null && adaptPlayer.isRuntimeReady()
+        && adaptPlayer.getPlayer() == targetPlayer) {
+      return adaptPlayer.getData();
+    }
+    CommandTargetExecutor.send(
+        sender,
+        FConst.error(AdaptLanguage.text(CommandRuntimeMessages.ADAPT_SERVER_NOT_READY))
+    );
+    return null;
   }
 }

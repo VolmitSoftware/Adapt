@@ -20,10 +20,21 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public final class AdaptAttributeService extends TickedObject {
   private static volatile AdaptAttributeService instance;
@@ -32,6 +43,10 @@ public final class AdaptAttributeService extends TickedObject {
   private final AdaptAttributeScheduler scheduler;
   private final List<Attribute> registryAttributes;
   private final AdaptAttributeTracker tracker;
+  private final Lock changeReadLock;
+  private final Lock changeWriteLock;
+  private final AtomicLong taskGeneration;
+  private volatile boolean acceptingChanges = true;
 
   private AdaptAttributeService() {
     this((entity, attribute) -> Version.get().getAttribute(entity, attribute), new RegionScheduler(), Attributes.ALL);
@@ -43,6 +58,10 @@ public final class AdaptAttributeService extends TickedObject {
     this.scheduler = scheduler;
     this.registryAttributes = registryAttributes;
     this.tracker = new AdaptAttributeTracker();
+    ReentrantReadWriteLock changeLock = new ReentrantReadWriteLock();
+    this.changeReadLock = changeLock.readLock();
+    this.changeWriteLock = changeLock.writeLock();
+    this.taskGeneration = new AtomicLong();
   }
 
   public static AdaptAttributeService get() {
@@ -62,25 +81,39 @@ public final class AdaptAttributeService extends TickedObject {
   public static void startRuntime() {
     synchronized (AdaptAttributeService.class) {
       if (instance != null) {
+        instance.resumeChanges();
         instance.activateRuntime();
       }
     }
   }
 
-  public static void shutdown() {
+  public static boolean shutdown(long timeoutMillis) {
     AdaptAttributeService local = instance;
     if (local == null) {
-      return;
+      return true;
     }
 
+    local.stopAcceptingChanges();
+    boolean successful;
     try {
-      local.sweepEverything();
+      successful = local.sweepEverything(Bukkit.getOnlinePlayers(), timeoutMillis);
     } catch (Throwable t) {
-      Adapt.verbose("Attribute service shutdown cleanup failed: " + t.getClass().getSimpleName());
+      Adapt.warn("Attribute service shutdown cleanup failed: " + t.getClass().getSimpleName());
+      Adapt.error(t);
+      successful = false;
     }
 
+    local.retireScheduledTasks();
     local.unregister();
     instance = null;
+    return successful;
+  }
+
+  public static void beginShutdown() {
+    AdaptAttributeService local = instance;
+    if (local != null) {
+      local.stopAcceptingChanges();
+    }
   }
 
   public static void onAdaptationUnregistered(String adaptationName) {
@@ -98,16 +131,20 @@ public final class AdaptAttributeService extends TickedObject {
   }
 
   public void apply(LivingEntity target, String adaptationName, String slot, Attribute attribute, double amount, AttributeModifier.Operation operation) {
-    if (isInvalid(target, adaptationName, attribute) || !Double.isFinite(amount) || operation == null) {
+    if (!acceptingChanges || isInvalid(target, adaptationName, attribute)
+        || !Double.isFinite(amount) || operation == null) {
       return;
     }
 
     AdaptAttributeKey key = AdaptAttributeKey.of(adaptationName, slot);
-    scheduler.runOnEntity(target, () -> applyNow(target, key, attribute, amount, operation));
+    long generation = taskGeneration.get();
+    scheduler.runOnEntity(target, () -> runIfTaskCurrent(
+        generation, () -> applyNow(target, key, attribute, amount, operation)));
   }
 
   public void applyTimed(LivingEntity target, String adaptationName, String slot, Attribute attribute, double amount, AttributeModifier.Operation operation, long durationTicks) {
-    if (isInvalid(target, adaptationName, attribute) || !Double.isFinite(amount) || operation == null) {
+    if (!acceptingChanges || isInvalid(target, adaptationName, attribute)
+        || !Double.isFinite(amount) || operation == null) {
       return;
     }
 
@@ -117,15 +154,19 @@ public final class AdaptAttributeService extends TickedObject {
     }
 
     AdaptAttributeKey key = AdaptAttributeKey.of(adaptationName, slot);
-    scheduler.runOnEntity(target, () -> {
-      applyNow(target, key, attribute, amount, operation);
-      long generation = tracker.beginTimed(target.getUniqueId(), attribute, key.key());
-      scheduler.runOnEntityLater(target, () -> {
-        if (tracker.shouldExpire(target.getUniqueId(), attribute, key.key(), generation)) {
+    long scheduledGeneration = taskGeneration.get();
+    scheduler.runOnEntity(target, () -> runIfTaskCurrent(scheduledGeneration, () -> {
+      if (!applyNow(target, key, attribute, amount, operation)) {
+        return;
+      }
+      long expiryGeneration = tracker.beginTimed(target.getUniqueId(), attribute, key.key());
+      scheduler.runOnEntityLater(target, () -> runIfTaskCurrent(scheduledGeneration, () -> {
+        if (tracker.shouldExpire(
+            target.getUniqueId(), attribute, key.key(), expiryGeneration)) {
           removeNow(target, key, attribute);
         }
-      }, durationTicks);
-    });
+      }), durationTicks);
+    }));
   }
 
   public void remove(LivingEntity target, String adaptationName, String slot, Attribute attribute) {
@@ -134,7 +175,9 @@ public final class AdaptAttributeService extends TickedObject {
     }
 
     AdaptAttributeKey key = AdaptAttributeKey.of(adaptationName, slot);
-    scheduler.runOnEntity(target, () -> removeNow(target, key, attribute));
+    long generation = taskGeneration.get();
+    scheduler.runOnEntity(target, () -> runIfTaskCurrent(
+        generation, () -> removeNow(target, key, attribute)));
   }
 
   public void removeAll(LivingEntity target, String adaptationName) {
@@ -143,11 +186,12 @@ public final class AdaptAttributeService extends TickedObject {
     }
 
     String sanitized = AdaptAttributeKey.sanitize(adaptationName);
-    scheduler.runOnEntity(target, () -> {
+    long generation = taskGeneration.get();
+    scheduler.runOnEntity(target, () -> runIfTaskCurrent(generation, () -> {
       for (AdaptAttributeTracker.Entry entry : tracker.entries(target.getUniqueId(), sanitized)) {
         removeNow(target, entry.key(), entry.attribute());
       }
-    });
+    }));
   }
 
   public int clearAllAdapt(LivingEntity target) {
@@ -156,12 +200,14 @@ public final class AdaptAttributeService extends TickedObject {
     }
 
     AtomicInteger removed = new AtomicInteger();
-    scheduler.runOnEntity(target, () -> removed.set(clearAllAdaptNow(target)));
+    long generation = taskGeneration.get();
+    scheduler.runOnEntity(target, () -> runIfTaskCurrent(
+        generation, () -> removed.set(clearAllAdaptNow(target))));
     return removed.get();
   }
 
   public void unregisterAdaptation(String adaptationName) {
-    if (adaptationName == null || adaptationName.isEmpty()) {
+    if (!acceptingChanges || adaptationName == null || adaptationName.isEmpty()) {
       return;
     }
 
@@ -179,11 +225,12 @@ public final class AdaptAttributeService extends TickedObject {
         continue;
       }
 
-      scheduler.runOnEntity(handle, () -> {
+      long generation = taskGeneration.get();
+      scheduler.runOnEntity(handle, () -> runIfTaskCurrent(generation, () -> {
         for (AdaptAttributeTracker.Entry entry : entries) {
           removeNow(handle, entry.key(), entry.attribute());
         }
-      });
+      }));
     }
   }
 
@@ -225,15 +272,24 @@ public final class AdaptAttributeService extends TickedObject {
     }
   }
 
-  private void applyNow(LivingEntity target, AdaptAttributeKey key, Attribute attribute, double amount, AttributeModifier.Operation operation) {
-    tracker.cancelTimed(target.getUniqueId(), attribute, key.key());
-    IAttribute handle = resolver.resolve(target, attribute);
-    if (handle == null) {
-      return;
-    }
+  private boolean applyNow(LivingEntity target, AdaptAttributeKey key, Attribute attribute, double amount, AttributeModifier.Operation operation) {
+    changeReadLock.lock();
+    try {
+      if (!acceptingChanges) {
+        return false;
+      }
+      tracker.cancelTimed(target.getUniqueId(), attribute, key.key());
+      IAttribute handle = resolver.resolve(target, attribute);
+      if (handle == null) {
+        return false;
+      }
 
-    handle.setTransientModifier(key.uuid(), key.key(), amount, operation);
-    tracker.record(target, attribute, key);
+      handle.setTransientModifier(key.uuid(), key.key(), amount, operation);
+      tracker.record(target, attribute, key);
+      return true;
+    } finally {
+      changeReadLock.unlock();
+    }
   }
 
   private void removeNow(LivingEntity target, AdaptAttributeKey key, Attribute attribute) {
@@ -264,15 +320,126 @@ public final class AdaptAttributeService extends TickedObject {
     return removed;
   }
 
-  private void sweepEverything() {
+  boolean sweepEverything(Collection<? extends Player> onlinePlayers, long timeoutMillis) {
+    Map<UUID, LivingEntity> entities = new LinkedHashMap<>();
     for (LivingEntity entity : tracker.trackedEntities()) {
-      scheduler.runOnEntity(entity, () -> clearAllAdaptNow(entity));
+      entities.put(entity.getUniqueId(), entity);
     }
-    for (Player player : Bukkit.getOnlinePlayers()) {
-      Player resolved = player;
-      scheduler.runOnEntity(resolved, () -> clearAllAdaptNow(resolved));
+    for (Player player : onlinePlayers) {
+      entities.put(player.getUniqueId(), player);
+    }
+
+    List<CompletableFuture<Boolean>> completions = new ArrayList<>(entities.size());
+    AtomicInteger failureCount = new AtomicInteger();
+    AtomicReference<Throwable> firstFailure = new AtomicReference<>();
+    long generation = taskGeneration.get();
+    for (LivingEntity entity : entities.values()) {
+      CompletableFuture<Boolean> completion = new CompletableFuture<>();
+      completions.add(completion);
+      boolean accepted = scheduler.runOnEntity(entity, () -> {
+        try {
+          if (!runIfTaskCurrent(generation, () -> clearAllAdaptNow(entity))) {
+            completion.complete(false);
+            return;
+          }
+          completion.complete(true);
+        } catch (Throwable error) {
+          failureCount.incrementAndGet();
+          firstFailure.compareAndSet(null, error);
+          completion.complete(false);
+        }
+      });
+      if (!accepted) {
+        IllegalStateException failure = new IllegalStateException(
+            "Failed to schedule Adapt attribute cleanup for entity " + entity.getUniqueId());
+        failureCount.incrementAndGet();
+        firstFailure.compareAndSet(null, failure);
+        completion.complete(false);
+      }
+    }
+
+    boolean successful = awaitCleanup(completions, timeoutMillis);
+    if (failureCount.get() > 0) {
+      IllegalStateException failure = new IllegalStateException(
+          "Adapt attribute cleanup failed for " + failureCount.get() + " entities.", firstFailure.get());
+      Adapt.warn(failure.getMessage());
+      Adapt.error(failure);
     }
     tracker.clear();
+    return successful && failureCount.get() == 0;
+  }
+
+  private void resumeChanges() {
+    changeWriteLock.lock();
+    try {
+      if (!acceptingChanges) {
+        taskGeneration.incrementAndGet();
+      }
+      acceptingChanges = true;
+    } finally {
+      changeWriteLock.unlock();
+    }
+  }
+
+  private void stopAcceptingChanges() {
+    changeWriteLock.lock();
+    try {
+      if (acceptingChanges) {
+        acceptingChanges = false;
+        taskGeneration.incrementAndGet();
+      }
+    } finally {
+      changeWriteLock.unlock();
+    }
+  }
+
+  void retireScheduledTasks() {
+    changeWriteLock.lock();
+    try {
+      taskGeneration.incrementAndGet();
+    } finally {
+      changeWriteLock.unlock();
+    }
+  }
+
+  private boolean runIfTaskCurrent(long generation, Runnable action) {
+    changeReadLock.lock();
+    try {
+      if (taskGeneration.get() != generation) {
+        return false;
+      }
+      action.run();
+      return true;
+    } finally {
+      changeReadLock.unlock();
+    }
+  }
+
+  private boolean awaitCleanup(List<CompletableFuture<Boolean>> completions, long timeoutMillis) {
+    if (completions.isEmpty()) {
+      return true;
+    }
+
+    CompletableFuture<Void> all = CompletableFuture.allOf(completions.toArray(CompletableFuture[]::new));
+    try {
+      all.get(Math.max(1L, timeoutMillis), TimeUnit.MILLISECONDS);
+    } catch (InterruptedException error) {
+      Thread.currentThread().interrupt();
+      Adapt.warn("Interrupted while waiting for Adapt attribute cleanup.");
+      Adapt.error(error);
+      return false;
+    } catch (ExecutionException | TimeoutException error) {
+      Adapt.warn("Adapt attribute cleanup did not complete before shutdown.");
+      Adapt.error(error);
+      return false;
+    }
+
+    for (CompletableFuture<Boolean> completion : completions) {
+      if (!completion.join()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private boolean isInvalid(LivingEntity target, String adaptationName, Attribute attribute) {
@@ -281,16 +448,18 @@ public final class AdaptAttributeService extends TickedObject {
 
   private static final class RegionScheduler implements AdaptAttributeScheduler {
     @Override
-    public void runOnEntity(LivingEntity entity, Runnable action) {
+    public boolean runOnEntity(LivingEntity entity, Runnable action) {
       try {
-        if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(entity)) {
-          J.runEntity(entity, action);
-          return;
+        if (!J.isOwnedByCurrentRegion(entity)) {
+          return J.runEntity(entity, action);
         }
 
         action.run();
-      } catch (Exception ex) {
-        Adapt.verbose("Failed attribute region runnable: " + ex.getClass().getSimpleName() + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
+        return true;
+      } catch (Throwable error) {
+        Adapt.warn("Failed attribute region runnable for entity " + entity.getUniqueId());
+        Adapt.error(error);
+        return false;
       }
     }
 

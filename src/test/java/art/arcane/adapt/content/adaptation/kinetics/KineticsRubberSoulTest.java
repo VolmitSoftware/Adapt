@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -72,9 +73,12 @@ class KineticsRubberSoulTest {
   }
 
   @Test
-  void declaresPassiveTick() throws ReflectiveOperationException {
-    Method tick = KineticsRubberSoul.class.getDeclaredMethod("onTick");
-    assertThat(tick).isNotNull();
+  void passiveReconciliationUsesTheSharedOwnerPulse() throws ReflectiveOperationException {
+    KineticsRubberSoul adaptation = new KineticsRubberSoul();
+    assertThat(KineticsRubberSoul.class.getDeclaredField("ownerMaintenance").getType())
+        .isEqualTo(AdaptationOwnerPulse.Registration.class);
+    assertThat(adaptation.getInterval()).isEqualTo(1000L);
+    adaptation.unregister();
   }
 
   private static double levelPercent(int level, int maxLevel) {

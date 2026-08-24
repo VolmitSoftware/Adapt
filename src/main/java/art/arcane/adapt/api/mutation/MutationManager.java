@@ -60,17 +60,20 @@ public final class MutationManager {
   }
 
   public MutationSnapshot snapshot(Player player) {
-    if (player == null) {
+    AdaptPlayer adaptPlayer = resolvePlayer(player);
+    if (adaptPlayer == null) {
       return MutationSnapshot.empty();
     }
     if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
       MutationSnapshot remote = snapshots.get(player.getUniqueId());
-      return remote == null ? MutationSnapshot.empty() : remote;
+      SnapshotGuard guard = snapshotGuards.get(player.getUniqueId());
+      return remote != null && guard != null && guard.runtime() == adaptPlayer
+          ? remote
+          : MutationSnapshot.empty();
     }
-    AdaptPlayer adaptPlayer = resolvePlayer(player);
     MutationSnapshot current = snapshots.get(player.getUniqueId());
     SnapshotGuard guard = snapshotGuards.get(player.getUniqueId());
-    if (current != null && adaptPlayer != null && guard != null
+    if (current != null && guard != null && guard.runtime() == adaptPlayer
         && isGuardCurrent(player, adaptPlayer.getData(), guard)) {
       return current;
     }
@@ -98,11 +101,7 @@ public final class MutationManager {
   }
 
   public MutationSnapshot reconcile(Player player) {
-    if (player == null || Adapt.instance == null || Adapt.instance.getAdaptServer() == null) {
-      return MutationSnapshot.empty();
-    }
-    AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(player);
-    return reconcile(adaptPlayer);
+    return reconcile(resolvePlayer(player));
   }
 
   public MutationSnapshot reconcile(AdaptPlayer adaptPlayer) {
@@ -110,6 +109,9 @@ public final class MutationManager {
       return MutationSnapshot.empty();
     }
     Player player = adaptPlayer.getPlayer();
+    if (resolvePlayer(player) != adaptPlayer) {
+      return MutationSnapshot.empty();
+    }
     if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
       J.runEntity(player, () -> reconcile(adaptPlayer));
       MutationSnapshot current = snapshots.get(player.getUniqueId());
@@ -144,7 +146,7 @@ public final class MutationManager {
         || (slotOne != null && slotTwo != null && conflicts(slotOne, slotTwo));
     boolean basePermission = player.hasPermission("adapt.mutations");
     EnumMap<MutationDomain, DomainMatch> domainMatches = config.isEnabled() && basePermission
-        ? domainMatches(player)
+        ? domainMatches(player, playerData)
         : new EnumMap<>(MutationDomain.class);
 
     for (MutationType type : MutationType.values()) {
@@ -226,7 +228,7 @@ public final class MutationManager {
         qualificationReasons
     );
     MutationSnapshot previous = snapshots.put(player.getUniqueId(), snapshot);
-    snapshotGuards.put(player.getUniqueId(), captureGuard(player, playerData, level, domainMatches));
+    snapshotGuards.put(player.getUniqueId(), captureGuard(adaptPlayer, player, playerData, level, domainMatches));
     MutationRuntimeSVC runtime = MutationRuntimeSVC.get();
     if (runtime != null) {
       runtime.onLoadoutChanged(player, previous, snapshot);
@@ -238,12 +240,14 @@ public final class MutationManager {
   }
 
   public MutationQualification qualification(Player player, MutationType type) {
-    if (player == null || type == null || Adapt.instance == null || Adapt.instance.getAdaptServer() == null) {
+    AdaptPlayer adaptPlayer = resolvePlayer(player);
+    if (adaptPlayer == null || type == null) {
       return MutationQualification.rejected(AdaptLanguage.text(MutationMessages.REQUIREMENTS_UNAVAILABLE));
     }
+    PlayerData playerData = adaptPlayer.getData();
     EnumMap<MutationDomain, DomainMatch> matches = new EnumMap<>(MutationDomain.class);
-    matches.put(type.firstDomain(), matchDomain(player, type.firstDomain()));
-    matches.put(type.secondDomain(), matchDomain(player, type.secondDomain()));
+    matches.put(type.firstDomain(), matchDomain(player, playerData, type.firstDomain()));
+    matches.put(type.secondDomain(), matchDomain(player, playerData, type.secondDomain()));
     return qualification(type, matches);
   }
 
@@ -289,10 +293,11 @@ public final class MutationManager {
   }
 
   public boolean isSlotUnlocked(Player player, int slot) {
-    if (player == null || Adapt.instance == null || Adapt.instance.getAdaptServer() == null) {
+    AdaptPlayer adaptPlayer = resolvePlayer(player);
+    if (adaptPlayer == null) {
       return false;
     }
-    PlayerData data = Adapt.instance.getAdaptServer().getPlayer(player).getData();
+    PlayerData data = adaptPlayer.getData();
     return isSlotUnlocked(data, data.getLevel(), slot);
   }
 
@@ -694,7 +699,7 @@ public final class MutationManager {
     );
   }
 
-  private DomainMatch matchDomain(Player player, MutationDomain domain) {
+  private DomainMatch matchDomain(Player player, PlayerData playerData, MutationDomain domain) {
     ArrayList<String> qualifying = new ArrayList<>();
     ArrayList<QualificationCandidate> candidates = new ArrayList<>();
     QualificationCandidate witness = null;
@@ -705,7 +710,7 @@ public final class MutationManager {
       if (skill == null || !skill.isEnabled()) {
         continue;
       }
-      PlayerSkillLine line = Adapt.instance.getAdaptServer().getPlayer(player).getData().getSkillLineNullable(skill.getName());
+      PlayerSkillLine line = playerData.getSkillLineNullable(skill.getName());
       if (line == null) {
         continue;
       }
@@ -741,10 +746,10 @@ public final class MutationManager {
     );
   }
 
-  private EnumMap<MutationDomain, DomainMatch> domainMatches(Player player) {
+  private EnumMap<MutationDomain, DomainMatch> domainMatches(Player player, PlayerData playerData) {
     EnumMap<MutationDomain, DomainMatch> matches = new EnumMap<>(MutationDomain.class);
     for (MutationDomain domain : MutationDomain.values()) {
-      matches.put(domain, matchDomain(player, domain));
+      matches.put(domain, matchDomain(player, playerData, domain));
     }
     return matches;
   }
@@ -829,6 +834,7 @@ public final class MutationManager {
   }
 
   private SnapshotGuard captureGuard(
+      AdaptPlayer adaptPlayer,
       Player player,
       PlayerData data,
       int level,
@@ -838,6 +844,7 @@ public final class MutationManager {
     MutationType slotOne = MutationType.find(mutationData.getSlotOneId());
     MutationType slotTwo = MutationType.find(mutationData.getSlotTwoId());
     return new SnapshotGuard(
+        adaptPlayer,
         player.getWorld().getUID(),
         level,
         Double.doubleToLongBits(data.getMasterXp()),
@@ -1003,6 +1010,7 @@ public final class MutationManager {
   }
 
   private record SnapshotGuard(
+      AdaptPlayer runtime,
       UUID worldId,
       int level,
       long masterXpBits,

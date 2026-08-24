@@ -224,7 +224,7 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
     } catch (Throwable t) {
       e.getDrops().add(found);
       Adapt.warn("Failed to encode a Soul Link item for " + p.getName() + "; item returned to death drops.");
-      t.printStackTrace();
+      Adapt.error(t);
       return;
     }
 
@@ -333,7 +333,7 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
           .start();
     } catch (Throwable t) {
       Adapt.warn("Soul Link delivered an item for " + p.getName() + " but its completion effects failed.");
-      t.printStackTrace();
+      Adapt.error(t);
     } finally {
       pendingRestores.remove(p.getUniqueId());
     }
@@ -372,7 +372,7 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
 
   private void logPendingFailure(Player p, String operation, Throwable t) {
     Adapt.warn("Failed to " + operation + " a Soul Link item for " + p.getName() + "; pending state retained.");
-    t.printStackTrace();
+    Adapt.error(t);
   }
 
   private void markFx(Player p) {

@@ -373,7 +373,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
     } catch (RuntimeException error) {
       state.stepInFlight.set(false);
       Adapt.error("Stealth Speed could not start auto-step teleport for " + p.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
     if (teleport == null) {
@@ -389,7 +389,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
                                         Boolean success, Throwable failure) {
     if (failure != null) {
       Adapt.error("Stealth Speed auto-step teleport failed for " + p.getUniqueId() + ".");
-      failure.printStackTrace();
+      Adapt.error(failure);
     }
     if (!successfulAutoStepTeleport(success, failure)) {
       state.stepInFlight.set(false);

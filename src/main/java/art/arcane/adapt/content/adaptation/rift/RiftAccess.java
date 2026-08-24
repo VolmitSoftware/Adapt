@@ -171,7 +171,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       boolean itemUseDenied = event.useItemInHand() == Event.Result.DENY;
       event.setCancelled(true);
       if (event.getHand() == EquipmentSlot.HAND && hasActiveAdaptation(player) && !itemUseDenied) {
-        Adapt.verbose("Player using bound enderpearl.");
         handleEnderPearlInteraction(event, player, block, blockUseDenied);
       }
     }
@@ -245,7 +244,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
 
     // Check if the player is allowed to use the bound item in creative
     if (!allowed) {
-      Adapt.info("Player " + player.getName() + " tried to use the bound item in creative mode.");
+      Adapt.verbose(() -> "Blocked Rift Access use in Creative mode for " + player.getName() + ".");
       return;
     }
 
@@ -282,7 +281,8 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       if (canOpenContainers(player, containerBlocks, target.getLocation())) {
         linkPearl(player, target, event);
       } else {
-        Adapt.verbose("Player " + player.getName() + " doesn't have permission.");
+        Adapt.verbose(() -> "Blocked Rift Access use because " + player.getName()
+            + " lacks permission.");
       }
     } else if (action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK) {
       if (blockUseDenied) {
@@ -432,7 +432,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       return AdvancedChestsAPI.getChestManager().getAdvancedChest(target);
     } catch (Throwable error) {
       Adapt.error("Failed to resolve AdvancedChests container for Rift Access at " + target + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return ADVANCED_CHEST_LOOKUP_FAILED;
     }
   }
@@ -507,7 +507,6 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
           return;
         }
         view = openedView;
-        Adapt.verbose("Opening AdvancedChests GUI");
       } else {
         view = player.openInventory(currentInventory);
       }
@@ -531,7 +530,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       addStat(player, "rift.access.remote-opens", 1);
     } catch (Throwable error) {
       Adapt.error("Failed to open Rift Access container for " + player.getName() + " at " + target + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       closeViewIfCurrent(player, view);
       cancelSession(session);
       showOpenFailure(player);
@@ -564,7 +563,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       return ProtectionEventProbe.attemptContainerOpen(player, blocks);
     } catch (Throwable error) {
       Adapt.error("Failed to check container access for " + player.getName() + " at " + target + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }
@@ -681,7 +680,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         TICKET_OWNERS.putIfAbsent(chunkKey, previousOwner);
       }
       Adapt.error("Failed to retain the Rift Access chunk ticket at " + target + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }
@@ -730,7 +729,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       TICKET_OWNERS.remove(chunkKey, ticketOwner);
     } catch (Throwable error) {
       Adapt.error("Failed to release the Rift Access chunk ticket at " + anchor + ".");
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 

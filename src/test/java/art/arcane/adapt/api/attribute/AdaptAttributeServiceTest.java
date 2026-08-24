@@ -21,6 +21,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -348,13 +354,57 @@ class AdaptAttributeServiceTest {
     assertThat(fake.modifiers).hasSize(1);
   }
 
+  @Test
+  void shutdownSweepWaitsForScheduledEntityWork() throws Exception {
+    FakeAttribute fake = fake(player, attributeA);
+    AdaptAttributeService service = service(attributeA);
+    service.apply(player, "wind-up", null, attributeA, 1, AttributeModifier.Operation.ADD_NUMBER);
+    scheduler.deferImmediate = true;
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    try {
+      Future<Boolean> cleanup = executor.submit(
+          () -> service.sweepEverything(List.of(player), 1_000L));
+      Runnable action = scheduler.immediateTasks.poll(1L, TimeUnit.SECONDS);
+
+      assertThat(action).isNotNull();
+      assertThat(cleanup.isDone()).isFalse();
+      action.run();
+
+      assertThat(cleanup.get(1L, TimeUnit.SECONDS)).isTrue();
+      assertThat(fake.modifiers).isEmpty();
+    } finally {
+      executor.shutdownNow();
+    }
+  }
+
+  @Test
+  void retiredCleanupTaskCannotStripModifierFromALaterRuntimeGeneration() {
+    FakeAttribute fake = fake(player, attributeA);
+    AdaptAttributeService service = service(attributeA);
+    service.apply(player, "wind-up", null, attributeA, 1, AttributeModifier.Operation.ADD_NUMBER);
+    scheduler.deferImmediate = true;
+
+    service.remove(player, "wind-up", null, attributeA);
+    Runnable delayedRemoval = scheduler.immediateTasks.remove();
+    service.retireScheduledTasks();
+    delayedRemoval.run();
+
+    assertThat(fake.modifiers).hasSize(1);
+  }
+
   private static final class RecordingScheduler implements AdaptAttributeScheduler {
     private final List<Runnable> delayedTasks = new ArrayList<>();
     private final List<Long> delays = new ArrayList<>();
+    private final BlockingQueue<Runnable> immediateTasks = new LinkedBlockingQueue<>();
+    private boolean deferImmediate;
 
     @Override
-    public void runOnEntity(LivingEntity entity, Runnable action) {
+    public boolean runOnEntity(LivingEntity entity, Runnable action) {
+      if (deferImmediate) {
+        return immediateTasks.add(action);
+      }
       action.run();
+      return true;
     }
 
     @Override

@@ -395,6 +395,9 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
 
   private void normalizeStoredLevel(Player player) {
     AdaptPlayer adaptPlayer = getPlayer(player);
+    if (adaptPlayer == null) {
+      return;
+    }
     PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
     normalizeStoredLevel(line);
   }
@@ -437,7 +440,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
       teleport = PaperCompat.teleportAsync(p, l, PlayerTeleportEvent.TeleportCause.PLUGIN);
     } catch (RuntimeException error) {
       Adapt.error("Architect Elevator could not start a teleport for " + p.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return;
     }
 
@@ -450,7 +453,7 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
   private void finishElevatorTeleport(Player p, int distance, Boolean success, Throwable failure) {
     if (failure != null) {
       Adapt.error("Architect Elevator teleport failed for " + p.getUniqueId() + ".");
-      failure.printStackTrace();
+      Adapt.error(failure);
     }
 
     J.runEntity(p, () -> {

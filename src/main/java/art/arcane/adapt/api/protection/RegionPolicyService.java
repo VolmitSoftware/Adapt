@@ -77,6 +77,6 @@ public final class RegionPolicyService {
     Adapt.warn("Region policy source " + source.getName() + " failed; Adapt region flags are now inert: "
         + error.getClass().getSimpleName()
         + (error.getMessage() == null ? "" : " - " + error.getMessage()));
-    error.printStackTrace();
+    Adapt.error(error);
   }
 }

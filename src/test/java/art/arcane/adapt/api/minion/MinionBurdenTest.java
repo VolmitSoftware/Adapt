@@ -1,12 +1,27 @@
 package art.arcane.adapt.api.minion;
 
+import art.arcane.adapt.api.attribute.StubAttribute;
+import org.bukkit.entity.Player;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+import static org.mockito.Mockito.mock;
 
 class MinionBurdenTest {
 
@@ -117,6 +132,66 @@ class MinionBurdenTest {
     }
 
     @Test
+    void shutdownCleanupWaitsForScheduledPlayerWork() throws Exception {
+        BlockingQueue<Runnable> scheduled = new LinkedBlockingQueue<>();
+        MinionBurden burden = new MinionBurden(
+            (player, action) -> scheduled.add(action),
+            new StubAttribute("minion-cleanup")
+        );
+        Player player = mock(Player.class);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            Future<Boolean> cleanup = executor.submit(
+                () -> burden.scrubPlayersAndAwait(List.of(player), 1_000L));
+            Runnable action = scheduled.poll(1L, TimeUnit.SECONDS);
+
+            assertThat(action).isNotNull();
+            assertThat(cleanup.isDone()).isFalse();
+            action.run();
+
+            assertThat(cleanup.get(1L, TimeUnit.SECONDS)).isTrue();
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    void ownerThreadCleanupRunsInlineWithoutWaitingOnItself() {
+        MinionBurden burden = new MinionBurden(
+            (player, action) -> {
+                action.run();
+                return true;
+            },
+            new StubAttribute("minion-cleanup")
+        );
+
+        assertThat(burden.scrubPlayersAndAwait(List.of(mock(Player.class)), 1_000L)).isTrue();
+    }
+
+    @Test
+    void retiredCleanupGenerationRejectsLatePlayerScrubs() throws Exception {
+        BlockingQueue<Runnable> scheduled = new LinkedBlockingQueue<>();
+        MinionBurden burden = new MinionBurden(
+            (player, action) -> scheduled.add(action),
+            new StubAttribute("minion-cleanup")
+        );
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            Future<Boolean> cleanup = executor.submit(
+                () -> burden.scrubPlayersAndAwait(List.of(mock(Player.class)), 100L));
+            Runnable action = scheduled.poll(1L, TimeUnit.SECONDS);
+
+            assertThat(action).isNotNull();
+            burden.retireScheduledTasks();
+            action.run();
+
+            assertThat(cleanup.get(1L, TimeUnit.SECONDS)).isFalse();
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
     @DisplayName("removing the last minion drops the owner entirely")
     void removingLastMinionDropsOwner() {
         MinionBurden.MinionRegistry registry = new MinionBurden.MinionRegistry();
@@ -128,6 +203,78 @@ class MinionBurdenTest {
         assertThat(registry.count(owner)).isZero();
         assertThat(registry.ownerIds()).doesNotContain(owner);
         assertThat(registry.ownerIds()).isEmpty();
+    }
+
+    @Test
+    void concurrentAddSurvivesRemovalOfLastExistingMinion() throws Exception {
+        MinionBurden.MinionRegistry registry = new MinionBurden.MinionRegistry();
+        UUID owner = UUID.randomUUID();
+        UUID existingMinion = UUID.randomUUID();
+        UUID addedMinion = UUID.randomUUID();
+        registry.add(owner, existingMinion);
+        Set<UUID> ownerMinions = ownerMinions(registry, owner);
+        AtomicReference<Thread> worker = new AtomicReference<>();
+        CountDownLatch addStarted = new CountDownLatch(1);
+        ExecutorService executor = Executors.newSingleThreadExecutor(runnable -> {
+            Thread thread = new Thread(runnable, "adapt-minion-registry-test");
+            worker.set(thread);
+            return thread;
+        });
+        try {
+            Future<Boolean> addition;
+            synchronized (ownerMinions) {
+                addition = executor.submit(() -> {
+                    addStarted.countDown();
+                    return registry.add(owner, addedMinion);
+                });
+                assertThat(addStarted.await(1L, TimeUnit.SECONDS)).isTrue();
+                awaitBlocked(worker, 1_000L);
+                assertThat(registry.remove(owner, existingMinion)).isTrue();
+            }
+
+            assertThat(addition.get(1L, TimeUnit.SECONDS)).isTrue();
+            assertThat(registry.minions(owner)).containsExactly(addedMinion);
+            assertThat(registry.count(owner)).isEqualTo(1);
+            assertThat(registry.ownerIds()).containsExactly(owner);
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    @Test
+    void concurrentAddSurvivesOwnerClear() throws Exception {
+        MinionBurden.MinionRegistry registry = new MinionBurden.MinionRegistry();
+        UUID owner = UUID.randomUUID();
+        UUID existingMinion = UUID.randomUUID();
+        UUID addedMinion = UUID.randomUUID();
+        registry.add(owner, existingMinion);
+        Set<UUID> ownerMinions = ownerMinions(registry, owner);
+        AtomicReference<Thread> worker = new AtomicReference<>();
+        CountDownLatch addStarted = new CountDownLatch(1);
+        ExecutorService executor = Executors.newSingleThreadExecutor(runnable -> {
+            Thread thread = new Thread(runnable, "adapt-minion-registry-clear-test");
+            worker.set(thread);
+            return thread;
+        });
+        try {
+            Future<Boolean> addition;
+            Set<UUID> cleared;
+            synchronized (ownerMinions) {
+                addition = executor.submit(() -> {
+                    addStarted.countDown();
+                    return registry.add(owner, addedMinion);
+                });
+                assertThat(addStarted.await(1L, TimeUnit.SECONDS)).isTrue();
+                awaitBlocked(worker, 1_000L);
+                cleared = registry.clear(owner);
+            }
+
+            assertThat(addition.get(1L, TimeUnit.SECONDS)).isTrue();
+            assertThat(cleared).containsExactly(existingMinion);
+            assertThat(registry.minions(owner)).containsExactly(addedMinion);
+        } finally {
+            executor.shutdownNow();
+        }
     }
 
     @Test
@@ -158,5 +305,43 @@ class MinionBurdenTest {
         assertThat(registry.count(first)).isEqualTo(1);
         assertThat(registry.count(second)).isEqualTo(2);
         assertThat(registry.ownerIds()).containsExactlyInAnyOrder(first, second);
+    }
+
+    @Test
+    void ownerMaintenanceSnapshotIsStableAndDemandTracksRegistryState() {
+        MinionBurden.MinionRegistry registry = new MinionBurden.MinionRegistry();
+        UUID first = UUID.randomUUID();
+        UUID second = UUID.randomUUID();
+
+        assertThat(registry.hasOwners()).isFalse();
+        registry.add(first, UUID.randomUUID());
+        List<UUID> snapshot = registry.ownerSnapshot();
+        registry.add(second, UUID.randomUUID());
+
+        assertThat(registry.hasOwners()).isTrue();
+        assertThat(snapshot).containsExactly(first);
+        assertThat(registry.ownerSnapshot()).containsExactlyInAnyOrder(first, second);
+        registry.clearAll();
+        assertThat(registry.hasOwners()).isFalse();
+    }
+
+    private static void awaitBlocked(AtomicReference<Thread> worker, long timeoutMillis) {
+        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(timeoutMillis);
+        while (System.nanoTime() < deadline) {
+            Thread thread = worker.get();
+            if (thread != null && thread.getState() == Thread.State.BLOCKED) {
+                return;
+            }
+            Thread.onSpinWait();
+        }
+        assertThat(worker.get()).isNotNull().extracting(Thread::getState).isEqualTo(Thread.State.BLOCKED);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Set<UUID> ownerMinions(MinionBurden.MinionRegistry registry, UUID owner) throws Exception {
+        Field ownersField = MinionBurden.MinionRegistry.class.getDeclaredField("owners");
+        ownersField.setAccessible(true);
+        Map<UUID, Set<UUID>> owners = (Map<UUID, Set<UUID>>) ownersField.get(registry);
+        return owners.get(owner);
     }
 }

@@ -11,6 +11,7 @@ public final class CommandRuntimeMessages {
   public static final TextKey PLAYER_ONLY = TextKey.of("command.runtime.player_only", "You must be a player to use this command.");
   public static final TextKey OPERATOR_ONLY = TextKey.of("command.runtime.operator_only", "This command can only be run by server operators.");
   public static final TextKey BOOSTED_XP = TextKey.of("command.runtime.boosted_xp", "Boosted XP by {multiplier} for {seconds} seconds.");
+  public static final TextKey INVALID_XP_BOOST = TextKey.of("command.runtime.invalid_xp_boost", "XP boosts require 1 to {seconds} seconds and a finite multiplier from {minimum} to {maximum}.");
   public static final TextKey SKILL_DISABLED = TextKey.of("command.runtime.skill_disabled", "Skill {skill} is disabled on this server.");
   public static final TextKey ADAPTATION_DISABLED = TextKey.of("command.runtime.adaptation_disabled", "Adaptation {adaptation} is disabled on this server.");
   public static final TextKey GUI_OPENED = TextKey.of("command.runtime.gui_opened", "Opened GUI for {target} for {player}.");
@@ -44,7 +45,7 @@ public final class CommandRuntimeMessages {
   public static final TextKey SET_ADAPTATION_LEVEL = TextKey.of("command.runtime.set_adaptation_level", "Set {player} {adaptation} to level {level}.");
   public static final TextKey PERMANENT_ADAPTATION_LOWER = TextKey.of("command.runtime.permanent_adaptation_lower", "{adaptation} is permanent and cannot be lowered without force=true.");
   public static final TextKey ADAPT_SERVER_NOT_READY = TextKey.of("command.runtime.adapt_server_not_ready", "Adapt server is not ready yet. Try again in a few seconds.");
-  public static final TextKey CONFIGS_CANONICALIZED = TextKey.of("command.runtime.configs_canonicalized", "Canonicalized TOML configs. skills={skills}, adaptations={adaptations}, deletedLegacyJson={deleted}.");
+  public static final TextKey TARGET_DISPATCH_FAILED = TextKey.of("command.runtime.target_dispatch_failed", "Could not schedule the target player operation. Try again.");
   public static final TextKey CLEARED_ALL = TextKey.of("command.runtime.cleared_all", "Cleared all data for {player}.");
   public static final TextKey CLEARED_XP = TextKey.of("command.runtime.cleared_xp", "Cleared XP for {player}.");
   public static final TextKey CLEARED_KNOWLEDGE = TextKey.of("command.runtime.cleared_knowledge", "Cleared knowledge for {player}.");
@@ -93,6 +94,7 @@ public final class CommandRuntimeMessages {
     builder.add(PLAYER_ONLY);
     builder.add(OPERATOR_ONLY);
     builder.add(BOOSTED_XP);
+    builder.add(INVALID_XP_BOOST);
     builder.add(SKILL_DISABLED);
     builder.add(ADAPTATION_DISABLED);
     builder.add(GUI_OPENED);
@@ -126,7 +128,7 @@ public final class CommandRuntimeMessages {
     builder.add(SET_ADAPTATION_LEVEL);
     builder.add(PERMANENT_ADAPTATION_LOWER);
     builder.add(ADAPT_SERVER_NOT_READY);
-    builder.add(CONFIGS_CANONICALIZED);
+    builder.add(TARGET_DISPATCH_FAILED);
     builder.add(CLEARED_ALL);
     builder.add(CLEARED_XP);
     builder.add(CLEARED_KNOWLEDGE);

@@ -28,6 +28,7 @@ import art.arcane.adapt.api.notification.Notifier;
 import art.arcane.adapt.api.notification.SoundNotification;
 import art.arcane.adapt.api.notification.TitleNotification;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -53,6 +54,7 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 public class PlayerSkillLine {
   private static final KMap<String, String> SKILL_ADVANCEMENT_KEYS = new KMap<>();
   private static final KMap<String, String> ADAPTATION_ADVANCEMENT_KEYS = new KMap<>();
+  private static volatile MaximumXpCache maximumXpCache;
   private final KMap<String, Object> storage = new KMap<>();
   private final KMap<String, PlayerAdaptation> adaptations = new KMap<>();
   private final KList<XPMultiplier> multipliers = new KList<>();
@@ -80,6 +82,11 @@ public class PlayerSkillLine {
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private transient volatile AdaptPlayer runtimeOwner;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient volatile LevelCache levelCache;
 
   private static double diff(long a, long b) {
     return Math.abs(a - b / (double) (a == 0 ? 1 : a));
@@ -89,10 +96,11 @@ public class PlayerSkillLine {
     flushPoolIfReady(p);
     grantSkillsAndAdaptations(p, line);
     checkMaxLevel(p, line);
-    updateFreshness();
+    int level = getLevel();
+    updateFreshness(level);
     updateMultiplier(data);
     updateEarnedXP(p, line);
-    updateLevel(p, line, data);
+    updateLevel(p, line, data, level);
   }
 
   private void grantSkillsAndAdaptations(AdaptPlayer p, String line) {
@@ -114,15 +122,16 @@ public class PlayerSkillLine {
   }
 
   private void checkMaxLevel(AdaptPlayer p, String line) {
-    if (!p.isBusy() && getXp() > XP.getXpForLevel(AdaptConfig.get().experienceMaxLevel)) {
+    AdaptConfig config = AdaptConfig.get();
+    if (!p.isBusy() && getXp() > maximumXp(config)) {
       p.getData().addWisdom();
-      Adapt.warn("A Player has reached the maximum level of " + AdaptConfig.get().experienceMaxLevel + " and has been granted 1 wisdom, Dropping Level to " + lastLevel);
-      setXp(XP.getXpForLevel(AdaptConfig.get().experienceMaxLevel - 1));
+      Adapt.warn("A Player has reached the maximum level of " + config.experienceMaxLevel + " and has been granted 1 wisdom, Dropping Level to " + lastLevel);
+      setXp(XP.getXpForLevel(config.experienceMaxLevel - 1));
     }
   }
 
-  private void updateFreshness() {
-    double max = 1D + (getLevel() * 0.004);
+  private void updateFreshness(int level) {
+    double max = 1D + (level * 0.004);
 
     freshness += (0.08 * freshness) + 0.003;
     if (freshness > max) freshness = max;
@@ -136,7 +145,7 @@ public class PlayerSkillLine {
     double m = rfreshness;
     for (int i = multipliers.size() - 1; i >= 0; i--) {
       XPMultiplier active = multipliers.get(i);
-      if (active == null || active.isExpired()) {
+      if (active == null || !active.isActive()) {
         multipliers.remove(i);
         continue;
       }
@@ -153,10 +162,10 @@ public class PlayerSkillLine {
       lastXP = xp;
   }
 
-  private void updateLevel(AdaptPlayer p, String line, PlayerData data) {
-    if (lastLevel < getLevel()) {
+  private void updateLevel(AdaptPlayer p, String line, PlayerData data, int level) {
+    if (lastLevel < level) {
       long kb = getKnowledge();
-      for (int i = lastLevel; i < getLevel(); i++) {
+      for (int i = lastLevel; i < level; i++) {
         giveKnowledge((i / 13) + 1);
         p.getData().giveMasterXp((i * AdaptConfig.get().getPlayerXpPerSkillLevelUpLevelMultiplier()) + AdaptConfig.get().getPlayerXpPerSkillLevelUpBase());
       }
@@ -164,11 +173,11 @@ public class PlayerSkillLine {
       Skill<?> levelSkill = p.getServer().getSkillRegistry().getSkill(line);
       Player bukkitPlayer = p.getPlayer();
       if (levelSkill != null && bukkitPlayer != null && bukkitPlayer.isOnline()) {
-        FxPresets.levelUpBurst(levelSkill, bukkitPlayer, getLevel());
+        FxPresets.levelUpBurst(levelSkill, bukkitPlayer, level);
       }
       if (AdaptConfig.get().isActionbarNotifyLevel())
-        notifyLevel(p, getLevel(), getKnowledge());
-      lastLevel = getLevel();
+        notifyLevel(p, level, getKnowledge());
+      lastLevel = level;
     }
   }
 
@@ -544,19 +553,33 @@ public class PlayerSkillLine {
   }
 
   public double getXPForLevelUpAbsolute() {
-    return getMaximumXPForLevel() - getXp();
+    return Math.max(0D, getMaximumXPForLevel() - getXp());
   }
 
   public double getXPForLevelUp() {
-    return getMaximumXPForLevel() - getMinimumXPForLevel();
+    return Math.max(0D, getMaximumXPForLevel() - getMinimumXPForLevel());
   }
 
   public double getMaximumXPForLevel() {
-    return XP.getXpForLevel(getLevel() + 1);
+    int level = getLevel();
+    int maximumLevel = Math.max(1, AdaptConfig.get().experienceMaxLevel);
+    int nextLevel = level >= maximumLevel ? maximumLevel : level + 1;
+    return XP.getXpForLevel(nextLevel);
   }
 
   public double getAbsoluteLevel() {
-    return XP.getLevelForXp(xp);
+    AdaptConfig config = AdaptConfig.get();
+    Curves curve = config.getXpCurve();
+    int maximumLevel = config.experienceMaxLevel;
+    long xpBits = Double.doubleToLongBits(xp);
+    LevelCache cached = levelCache;
+    if (cached != null && cached.matches(xpBits, curve, maximumLevel)) {
+      return cached.level();
+    }
+
+    double resolved = XP.getLevelForXp(xp);
+    levelCache = new LevelCache(xpBits, curve, maximumLevel, resolved);
+    return resolved;
   }
 
   public double getLevelProgress() {
@@ -571,7 +594,7 @@ public class PlayerSkillLine {
     return (int) Math.floor(getAbsoluteLevel());
   }
 
-  public void boost(double v, int i) {
+  public void boost(double v, long i) {
     multipliers.add(new XPMultiplier(v, i));
   }
 
@@ -593,10 +616,35 @@ public class PlayerSkillLine {
     return owner != null && owner.getPlayer() != null && AdaptDebugMode.isActive(owner.getPlayer().getUniqueId());
   }
 
+  private static double maximumXp(AdaptConfig config) {
+    Curves curve = config.getXpCurve();
+    int maximumLevel = config.experienceMaxLevel;
+    MaximumXpCache cached = maximumXpCache;
+    if (cached != null && cached.matches(curve, maximumLevel)) {
+      return cached.xp();
+    }
+
+    double resolved = XP.getXpForLevel(maximumLevel);
+    maximumXpCache = new MaximumXpCache(curve, maximumLevel, resolved);
+    return resolved;
+  }
+
   @Data
   @NoArgsConstructor
   public static class RewardStalenessState {
     private double pressure = 0;
     private long lastAwardAt = 0;
+  }
+
+  private record LevelCache(long xpBits, Curves curve, int maximumLevel, double level) {
+    private boolean matches(long candidateXpBits, Curves candidateCurve, int candidateMaximumLevel) {
+      return xpBits == candidateXpBits && curve == candidateCurve && maximumLevel == candidateMaximumLevel;
+    }
+  }
+
+  private record MaximumXpCache(Curves curve, int maximumLevel, double xp) {
+    private boolean matches(Curves candidateCurve, int candidateMaximumLevel) {
+      return curve == candidateCurve && maximumLevel == candidateMaximumLevel;
+    }
   }
 }

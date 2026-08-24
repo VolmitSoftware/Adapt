@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -524,7 +525,7 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     try {
       sendClientClimbingState(session.owner, null);
     } catch (RuntimeException | Error error) {
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 

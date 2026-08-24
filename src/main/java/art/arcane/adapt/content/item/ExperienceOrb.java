@@ -23,6 +23,9 @@ import art.arcane.adapt.localization.catalog.SnippetsMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.item.DataItem;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.volmlib.util.format.Form;
 import lombok.AllArgsConstructor;
@@ -35,6 +38,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -110,12 +114,33 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
       return experienceMap.values().iterator().next();
     }
 
-    public void apply(Player p) {
-      for (Map.Entry<String, Double> entry : experienceMap.entrySet()) {
-        String skill = entry.getKey();
-        double experience = entry.getValue();
-        Adapt.instance.getAdaptServer().getPlayer(p).getSkillLine(skill).giveXPFresh(Adapt.instance.getAdaptServer().getPlayer(p).getNot(), experience);
+    public boolean apply(Player p) {
+      if (p == null || experienceMap == null || experienceMap.isEmpty()
+          || Adapt.instance == null) {
+        return false;
       }
+      AdaptServer adaptServer = Adapt.instance.getAdaptServer();
+      AdaptPlayer adaptPlayer = adaptServer == null
+          ? null
+          : adaptServer.getOnlineAdaptPlayer(p.getUniqueId());
+      if (adaptPlayer == null || !adaptPlayer.isRuntimeReady()
+          || adaptPlayer.getPlayer() != p) {
+        return false;
+      }
+
+      Map<PlayerSkillLine, Double> awards = new LinkedHashMap<>();
+      for (Map.Entry<String, Double> entry : experienceMap.entrySet()) {
+        Double experience = entry.getValue();
+        PlayerSkillLine skillLine = adaptPlayer.getSkillLine(entry.getKey());
+        if (experience == null || !Double.isFinite(experience) || skillLine == null) {
+          return false;
+        }
+        awards.merge(skillLine, experience, Double::sum);
+      }
+      for (Map.Entry<PlayerSkillLine, Double> award : awards.entrySet()) {
+        award.getKey().giveXPFresh(adaptPlayer.getNot(), award.getValue());
+      }
+      return true;
     }
   }
 }

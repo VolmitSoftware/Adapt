@@ -78,8 +78,10 @@ public class ConfigInputSVC implements AdaptService {
     event.setCancelled(true);
 
     if (pending.isExpired()) {
-      sessions.remove(player.getUniqueId());
-      J.s(() -> {
+      if (!sessions.remove(player.getUniqueId(), pending)) {
+        return;
+      }
+      runForPlayer(player, pending, false, () -> {
         Adapt.messagePlayer(player, C.RED + AdaptLanguage.text(ConfigMessages.INPUT_TIMED_OUT));
         ConfigGui.open(player, pending.returnSectionPath(), pending.returnPage());
       });
@@ -88,8 +90,10 @@ public class ConfigInputSVC implements AdaptService {
 
     String message = event.getMessage() == null ? "" : event.getMessage();
     if (message.equalsIgnoreCase("cancel")) {
-      sessions.remove(player.getUniqueId());
-      J.s(() -> {
+      if (!sessions.remove(player.getUniqueId(), pending)) {
+        return;
+      }
+      runForPlayer(player, pending, false, () -> {
         Adapt.messagePlayer(player, C.YELLOW + AdaptLanguage.text(ConfigMessages.EDIT_CANCELLED));
         ConfigGui.open(player, pending.returnSectionPath(), pending.returnPage());
       });
@@ -98,16 +102,18 @@ public class ConfigInputSVC implements AdaptService {
 
     ConfigGui.ParseResult parsed = ConfigGui.parseInputValue(pending.targetType(), message);
     if (!parsed.success()) {
-      J.s(() -> {
+      runForPlayer(player, pending, true, () -> {
         Adapt.messagePlayer(player, C.RED + parsed.error());
         Adapt.messagePlayer(player, AdaptLanguage.text(ConfigMessages.TRY_AGAIN_OR_CANCEL));
       });
       return;
     }
 
-    sessions.remove(player.getUniqueId());
+    if (!sessions.remove(player.getUniqueId(), pending)) {
+      return;
+    }
     Object value = parsed.value();
-    J.s(() -> {
+    runForPlayer(player, pending, false, () -> {
       ConfigGui.confirmAndApply(player, pending.returnSectionPath(), pending.returnPage(), pending.valuePath(), value);
     });
   }
@@ -119,7 +125,30 @@ public class ConfigInputSVC implements AdaptService {
 
   private void cleanupExpiredSessions() {
     long now = System.currentTimeMillis();
-    sessions.entrySet().removeIf(e -> e.getValue().expiresAt() <= now);
+    for (Map.Entry<UUID, PendingInput> entry : sessions.entrySet()) {
+      PendingInput pending = entry.getValue();
+      if (pending.expiresAt() <= now) {
+        sessions.remove(entry.getKey(), pending);
+      }
+    }
+  }
+
+  private void runForPlayer(Player player, PendingInput pending, boolean requireCurrent, Runnable task) {
+    if (J.runEntity(player, () -> {
+      PendingInput current = sessions.get(player.getUniqueId());
+      if ((requireCurrent && current != pending) || (!requireCurrent && current != null && current != pending)) {
+        return;
+      }
+      if (!player.isOnline()) {
+        return;
+      }
+      task.run();
+    })) {
+      return;
+    }
+
+    sessions.remove(player.getUniqueId(), pending);
+    Adapt.verbose("Could not schedule config input completion for " + player.getUniqueId());
   }
 
   private record PendingInput(

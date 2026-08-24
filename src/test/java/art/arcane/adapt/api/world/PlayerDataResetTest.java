@@ -2,7 +2,9 @@ package art.arcane.adapt.api.world;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.advancement.AdvancementManager;
 import art.arcane.adapt.util.common.io.SQLManager;
+import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -11,6 +13,7 @@ import org.mockito.MockedStatic;
 
 import java.io.File;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -50,6 +53,7 @@ class PlayerDataResetTest extends AdaptTestBase {
     when(config.getSql()).thenReturn(sqlSettings);
     when(sqlSettings.isEnabled()).thenReturn(false);
     when(plugin.getSqlManager()).thenReturn(mock(SQLManager.class));
+    when(plugin.getManager()).thenReturn(mock(AdvancementManager.class));
     when(plugin.getDataFolder(any(String[].class))).thenReturn(playerDirectory);
     configured = mockStatic(AdaptConfig.class);
     configured.when(AdaptConfig::get).thenReturn(config);
@@ -94,6 +98,108 @@ class PlayerDataResetTest extends AdaptTestBase {
   }
 
   @Test
+  @DisplayName("an online reset journals its fresh profile before asynchronous persistence runs")
+  void onlineResetIsDurableBeforeExecutorDrain() throws Exception {
+    CapturingExecutor resetExecutor = new CapturingExecutor();
+    PlayerDataPersistenceQueue resetQueue = new PlayerDataPersistenceQueue(resetExecutor);
+    CapturingExecutor restartExecutor = new CapturingExecutor();
+    PlayerDataPersistenceQueue restartQueue = new PlayerDataPersistenceQueue(restartExecutor);
+    when(plugin.getPlayerDataPersistenceQueue()).thenReturn(resetQueue);
+    Files.writeString(playerFile.toPath(), populatedProfile().toJson(false));
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(playerId);
+    AdaptPlayer adaptPlayer = new AdaptPlayer(player, populatedProfile());
+    long purgeGeneration = PlayerDataPurgeGuard.mark(playerId);
+    adaptPlayer.adoptPurgeGeneration(purgeGeneration);
+    PlayerDataPurgeGuard.clear(playerId);
+    PlayerData replacement = new PlayerData();
+
+    assertThat(adaptPlayer.persistResetNow(replacement)).isTrue();
+    adaptPlayer.replaceData(replacement);
+
+    File journalFile = PlayerDataPersistenceQueue.deleteMarkerFile(playerFile);
+    PlayerDataPersistenceQueue.DeleteJournal journal = PlayerDataPersistenceQueue.readDeleteJournal(journalFile);
+    assertThat(journalFile).exists();
+    assertThat(journal.hasSuccessor()).isTrue();
+    assertThat(PlayerData.fromJson(journal.successorJson()).getSkillLines()).isEmpty();
+    assertThat(resetExecutor.pendingTaskCount()).isOne();
+    assertThat(PlayerData.fromJson(Files.readString(playerFile.toPath())).getStat("pickaxe.blocks")).isEqualTo(1_200D);
+
+    when(plugin.getPlayerDataPersistenceQueue()).thenReturn(restartQueue);
+    PlayerData recovered = AdaptPlayer.loadPlayerData(playerId);
+
+    assertThat(recovered.getSkillLines()).isEmpty();
+    assertThat(recovered.getStats()).isEmpty();
+    assertThat(recovered.getWisdom()).isZero();
+    assertThat(restartExecutor.pendingTaskCount()).isOne();
+  }
+
+  @Test
+  void onlineResetEntryPointDispatchesAndRechecksEntityOwnership() throws Exception {
+    String source = Files.readString(Path.of(
+        "src/main/java/art/arcane/adapt/api/world/AdaptServer.java"));
+
+    assertThat(source)
+        .contains("if (!J.isOwnedByCurrentRegion(player))")
+        .contains("() -> completePlayerDataReset(playerId, player, completion)")
+        .contains("private PlayerDataResetResult resetPlayerDataOwned(UUID playerId, Player player)")
+        .contains("if (player != expectedPlayer || !J.isOwnedByCurrentRegion(player))")
+        .contains("synchronized (playerOperationLock(playerId))");
+    assertThat(source.indexOf("if (!J.isOwnedByCurrentRegion(player))"))
+        .isLessThan(source.indexOf("adaptPlayer.persistResetNow(replacement)"));
+    assertThat(source.indexOf("adaptPlayer.persistResetNow(replacement)"))
+        .isLessThan(source.indexOf("adaptPlayer.replaceData(replacement)"));
+    int completionEntry = source.indexOf("private void completePlayerDataReset");
+    int ownershipRecheck = source.indexOf(
+        "if (player != expectedPlayer || !J.isOwnedByCurrentRegion(player))", completionEntry);
+    int ownedOnlineCheck = source.indexOf("if (!player.isOnline())", completionEntry);
+    assertThat(ownershipRecheck).isGreaterThan(completionEntry).isLessThan(ownedOnlineCheck);
+    String schedulerSource = Files.readString(Path.of(
+        "src/main/java/art/arcane/adapt/util/common/scheduling/J.java"));
+    assertThat(schedulerSource)
+        .contains("FoliaScheduler.runEntity(Adapt.instance, entity, runnable, 0L, retired)");
+  }
+
+  @Test
+  void durableResetAcceptancePrecedesLoadGuardClearAndJoinSharesResetLock() throws Exception {
+    String source = Files.readString(Path.of(
+        "src/main/java/art/arcane/adapt/api/world/AdaptServer.java"));
+    int reset = source.indexOf("private PlayerDataResetResult resetPlayerDataOwned");
+    int durableAcceptance = source.indexOf("adaptPlayer.persistResetNow(replacement)", reset);
+    int loadGuardClear = source.indexOf("AdaptPlayer.forgetLoadFailure(playerId)", reset);
+    int join = source.indexOf("private boolean join(Player p, boolean refreshSnapshots)");
+    int joinLock = source.indexOf("synchronized (playerOperationLock(playerId))", join);
+    int resetEntry = source.indexOf("public CompletableFuture<PlayerDataResetResult> resetPlayerData");
+    int resetLock = source.indexOf("synchronized (playerOperationLock(playerId))", resetEntry);
+
+    assertThat(durableAcceptance).isGreaterThan(reset);
+    assertThat(loadGuardClear).isGreaterThan(durableAcceptance);
+    assertThat(joinLock).isGreaterThan(join).isLessThan(resetEntry);
+    assertThat(resetLock).isGreaterThan(resetEntry);
+  }
+
+  @Test
+  void resetCommandRetainsConfirmationWhenCentralDispatchIsRejected() throws Exception {
+    String source = Files.readString(Path.of(
+        "src/main/java/art/arcane/adapt/command/CommandReset.java"));
+    int rejected = source.indexOf("resetResult == AdaptServer.PlayerDataResetResult.DISPATCH_REJECTED");
+    int confirmation = source.indexOf(
+        "pendingConfirmations.record(feedback.senderUuid(), feedback.targetUuid()", rejected);
+    int dispatchFailure = source.indexOf("CommandRuntimeMessages.TARGET_DISPATCH_FAILED", rejected);
+    int successLog = source.indexOf("Adapt.info(\"Sender \"", rejected);
+
+    assertThat(rejected).isGreaterThanOrEqualTo(0);
+    assertThat(confirmation).isGreaterThan(rejected).isLessThan(successLog);
+    assertThat(dispatchFailure).isGreaterThan(rejected).isLessThan(successLog);
+    assertThat(source.substring(rejected, successLog)).contains("return;");
+    assertThat(source)
+        .contains("completion.thenAccept(resetResult -> completeResetPlayer(feedback, resetResult))")
+        .contains("CommandTargetExecutor.send(completedTarget")
+        .contains("CommandTargetExecutor.send(feedback.sender()")
+        .doesNotContain("onlineTarget.isOnline()");
+  }
+
+  @Test
   @DisplayName("purging drops a save that was already queued for the player")
   void purgeDropsAnAlreadyQueuedSave() {
     CapturingExecutor executor = new CapturingExecutor();
@@ -120,11 +226,10 @@ class PlayerDataResetTest extends AdaptTestBase {
 
     AdaptPlayer.purgeStoredData(playerId);
     executor.runAll();
-    // A lingering AdaptPlayer flushing itself after the purge writes the old profile back.
     queue.queueSave(playerId, stale, playerFile);
     executor.runAll();
 
-    assertThat(playerFile).exists();
+    assertThat(playerFile).doesNotExist();
     PlayerData loaded = AdaptPlayer.loadPlayerData(playerId);
 
     assertThat(loaded.getStat("pickaxe.blocks"))
@@ -146,8 +251,8 @@ class PlayerDataResetTest extends AdaptTestBase {
     assertThat(loaded.getAdvancements()).isEmpty();
     assertThat(loaded.getWisdom()).isZero();
     assertThat(PlayerDataPurgeGuard.isPurged(playerId))
-        .describedAs("the guard is one shot and lifts once a fresh profile has been handed out")
-        .isFalse();
+        .describedAs("only a live AdaptPlayer may consume the purge generation")
+        .isTrue();
   }
 
   @Test
@@ -225,6 +330,10 @@ class PlayerDataResetTest extends AdaptTestBase {
       while (!tasks.isEmpty()) {
         tasks.removeFirst().run();
       }
+    }
+
+    private int pendingTaskCount() {
+      return tasks.size();
     }
   }
 }

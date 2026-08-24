@@ -19,7 +19,11 @@ public record AdaptMutationView(
     boolean canSwap,
     MutationSnapshot source
 ) {
+  private static final AdaptMutationView UNAVAILABLE = new AdaptMutationView(
+      false, false, "", "", "", "", false, false, false, 0, "0", 0L, "0.00", true, null
+  );
+
   public static AdaptMutationView unavailable() {
-    return new AdaptMutationView(false, false, "", "", "", "", false, false, false, 0, "0", 0L, "0.00", true, null);
+    return UNAVAILABLE;
   }
 }

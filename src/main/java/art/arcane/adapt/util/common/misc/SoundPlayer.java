@@ -99,7 +99,7 @@ public class SoundPlayer {
     } catch (Throwable e) {
       if (VIEWER_INDEX_FAILURE_LOGGED.compareAndSet(false, true)) {
         Adapt.warn("Fx viewer index failed while culling a sound; dropping the affected sound.");
-        e.printStackTrace();
+        Adapt.error(e);
       }
     }
   }

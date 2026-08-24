@@ -33,7 +33,7 @@ class SkillDocumentationCoverageTest {
       "(?m)^###\\s+.+?\\s+\\(`([^`]+)`\\)\\s*$"
   );
   private static final Pattern ADAPTATION_CONFIG_FILE = Pattern.compile(
-      "plugins/Adapt/adapt/adaptations/([a-z0-9-]+)\\.toml"
+      "plugins/Adapt/adaptations/([a-z0-9-]+)\\.toml"
   );
   private static final Pattern CONFIG_FIELD = Pattern.compile(
       "@(?:art\\.arcane\\.adapt\\.util\\.config\\.)?ConfigDoc(?:\\([^\\r\\n]*\\))?\\R"

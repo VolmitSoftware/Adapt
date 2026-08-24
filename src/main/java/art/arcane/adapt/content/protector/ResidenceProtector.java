@@ -3,15 +3,12 @@ package art.arcane.adapt.content.protector;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.protection.Protector;
-import art.arcane.adapt.util.common.scheduling.J;
 import com.bekvon.bukkit.residence.Residence;
 import com.bekvon.bukkit.residence.containers.Flags;
 import com.bekvon.bukkit.residence.protection.ClaimedResidence;
 import com.bekvon.bukkit.residence.protection.FlagPermissions;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ResidenceProtector implements Protector {
 
@@ -55,29 +52,23 @@ public class ResidenceProtector implements Protector {
   }
 
   private boolean checkPerm(Player player, Location location, Flags flag) {
-    AtomicBoolean perm = new AtomicBoolean(true);
-    J.s(() -> {
-      if (!Residence.getInstance().isDisabledWorld(location.getWorld())) {
-        ClaimedResidence res = Residence.getInstance().getResidenceManager().getByLoc(location);
-        if (res != null) {
-          perm.set(res.getPermissions().playerHas(player.getName(), flag, true));
-        }
-      }
-    });
-    return perm.get();
+    Residence residence = Residence.getInstance();
+    if (residence.isDisabledWorld(location.getWorld())) {
+      return true;
+    }
+    ClaimedResidence claimedResidence = residence.getResidenceManager().getByLoc(location);
+    return claimedResidence == null
+        || claimedResidence.getPermissions().playerHas(player.getName(), flag, true);
   }
 
   private boolean checkPerm(Player player, Location location, String flag) {
-    AtomicBoolean perm = new AtomicBoolean(true);
-    J.s(() -> {
-      if (!Residence.getInstance().isDisabledWorld(location.getWorld())) {
-        ClaimedResidence res = Residence.getInstance().getResidenceManager().getByLoc(location);
-        if (res != null) {
-          perm.set(res.getPermissions().playerHas(player.getName(), flag, true));
-        }
-      }
-    });
-    return perm.get();
+    Residence residence = Residence.getInstance();
+    if (residence.isDisabledWorld(location.getWorld())) {
+      return true;
+    }
+    ClaimedResidence claimedResidence = residence.getResidenceManager().getByLoc(location);
+    return claimedResidence == null
+        || claimedResidence.getPermissions().playerHas(player.getName(), flag, true);
   }
 
   @Override

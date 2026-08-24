@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -87,11 +88,12 @@ class KineticsHeavyFrameTest {
   }
 
   @Test
-  void periodicReconciliationIsEnabled() throws ReflectiveOperationException {
+  void periodicReconciliationUsesTheSharedOwnerPulse() throws ReflectiveOperationException {
     KineticsHeavyFrame adaptation = new KineticsHeavyFrame();
-    Method handler = KineticsHeavyFrame.class.getDeclaredMethod("onTick");
-    assertThat(handler.getDeclaringClass()).isEqualTo(KineticsHeavyFrame.class);
+    assertThat(KineticsHeavyFrame.class.getDeclaredField("ownerMaintenance").getType())
+        .isEqualTo(AdaptationOwnerPulse.Registration.class);
     assertThat(adaptation.getInterval()).isEqualTo(1000L);
+    adaptation.unregister();
   }
 
   @Test

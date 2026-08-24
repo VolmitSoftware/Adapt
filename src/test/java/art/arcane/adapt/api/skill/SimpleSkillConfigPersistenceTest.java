@@ -59,7 +59,6 @@ class SimpleSkillConfigPersistenceTest {
 
   private static final class TestSkill extends SimpleSkill<TestConfig> {
     private final File configFile;
-    private final File legacyConfigFile;
 
     private TestSkill(Path configPath) {
       super("normalized-skill", SkillPresentation.of(
@@ -68,18 +67,12 @@ class SimpleSkillConfigPersistenceTest {
           TextKey.of("test.skill.description", "Test skill description")
       ));
       configFile = configPath.toFile();
-      legacyConfigFile = configPath.resolveSibling("normalized-skill.json").toFile();
       registerConfiguration(TestConfig.class);
     }
 
     @Override
     protected File getConfigFile() {
       return configFile;
-    }
-
-    @Override
-    protected File getLegacyConfigFile() {
-      return legacyConfigFile;
     }
 
     @Override

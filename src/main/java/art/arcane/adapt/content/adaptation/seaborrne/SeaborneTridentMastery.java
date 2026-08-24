@@ -199,7 +199,7 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
       teleport = PaperCompat.teleportAsync(trident, freed);
     } catch (RuntimeException error) {
       Adapt.error("Trident Mastery could not start release teleport for " + tridentId + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return;
     }
     if (teleport == null) {
@@ -213,7 +213,7 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
                                        Boolean success, Throwable failure) {
     if (failure != null) {
       Adapt.error("Trident Mastery release teleport failed for " + tridentId + ".");
-      failure.printStackTrace();
+      Adapt.error(failure);
     }
     if (!successfulReleaseTeleport(success, failure)) {
       return;

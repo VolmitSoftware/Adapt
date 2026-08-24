@@ -38,11 +38,9 @@ class TragoulLanceConfigPersistenceTest {
 
   private static final class TestLance extends TragoulLance {
     private final File configFile;
-    private final File legacyConfigFile;
 
     private TestLance(Path configPath) {
       configFile = configPath.toFile();
-      legacyConfigFile = configPath.resolveSibling("tragoul-lance.json").toFile();
     }
 
     @Override
@@ -50,9 +48,5 @@ class TragoulLanceConfigPersistenceTest {
       return configFile;
     }
 
-    @Override
-    protected File getLegacyConfigFile() {
-      return legacyConfigFile;
-    }
   }
 }

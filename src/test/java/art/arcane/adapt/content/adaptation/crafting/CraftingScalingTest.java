@@ -4,7 +4,10 @@ import art.arcane.adapt.api.EventHandlerInvoker;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.config.TomlCodec;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
@@ -60,6 +63,25 @@ class CraftingScalingTest {
     assertThat(CraftingProvisioner.bonusChance(0.25, 0.5, 0.75, 1.0)).isCloseTo(0.75, offset(1.0E-9));
     assertThat(CraftingProvisioner.bonusPortions(1, 2, 0.0)).isEqualTo(1);
     assertThat(CraftingProvisioner.bonusPortions(1, 2, 1.0)).isEqualTo(3);
+  }
+
+  @Test
+  void provisionerSelectsTheFirstNearestEligiblePlayerInsideTheRadius() {
+    World world = mock(World.class);
+    Location furnace = new Location(world, 0D, 64D, 0D);
+    Player outside = playerAt(world, 9D, 64D, 0D);
+    Player inactive = playerAt(world, 1D, 64D, 0D);
+    Player firstTie = playerAt(world, 2D, 64D, 0D);
+    Player secondTie = playerAt(world, -2D, 64D, 0D);
+
+    Player selected = CraftingProvisioner.nearestEligiblePlayer(
+        furnace,
+        8D,
+        List.of(outside, inactive, firstTie, secondTie),
+        player -> player != inactive
+    );
+
+    assertThat(selected).isSameAs(firstTie);
   }
 
   @Test
@@ -215,5 +237,11 @@ class CraftingScalingTest {
     assertThat(compactor.normalizeStoredLevel(current)).isFalse();
     verify(legacy).setAdaptation(compactor, 1);
     verify(current, never()).setAdaptation(compactor, 1);
+  }
+
+  private static Player playerAt(World world, double x, double y, double z) {
+    Player player = mock(Player.class);
+    when(player.getLocation()).thenReturn(new Location(world, x, y, z));
+    return player;
   }
 }

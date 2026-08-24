@@ -8,6 +8,7 @@ import art.arcane.adapt.api.xp.NewtonCurve;
 import art.arcane.volmlib.util.bukkit.papi.PlaceholderValues;
 import art.arcane.volmlib.util.math.M;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -45,13 +46,16 @@ public final class AdaptPlayerSnapshotBuilder {
     }
 
     Map<String, AdaptSkillLineSnapshot> previousSkills = previous == null ? Map.of() : previous.skills();
-    Map<String, AdaptSkillLineSnapshot> skills = new HashMap<>();
-    Map<String, Integer> adaptationLevels = new HashMap<>();
+    Map<String, Integer> previousAdaptationLevels = previous == null ? Map.of() : previous.adaptationLevels();
+    Map<String, PlayerSkillLine> skillLines = data.getSkillLines();
+    int expectedAdaptations = Math.max(previousAdaptationLevels.size(), expectedAdaptationCount(skillLines));
+    Map<String, AdaptSkillLineSnapshot> skills = new HashMap<>(capacityFor(skillLines.size()));
+    Map<String, Integer> adaptationLevels = new HashMap<>(capacityFor(expectedAdaptations));
     int usedPower = 0;
     int knownSkills = 0;
     int learnedAdaptations = 0;
 
-    for (Map.Entry<String, PlayerSkillLine> entry : data.getSkillLines().entrySet()) {
+    for (Map.Entry<String, PlayerSkillLine> entry : skillLines.entrySet()) {
       String skillId = normalize(entry.getKey());
       PlayerSkillLine line = entry.getValue();
 
@@ -112,8 +116,8 @@ public final class AdaptPlayerSnapshotBuilder {
         PlaceholderValues.count(knownSkills),
         learnedAdaptations,
         PlaceholderValues.count(learnedAdaptations),
-        Map.copyOf(skills),
-        Map.copyOf(adaptationLevels),
+        immutableSnapshot(previousSkills, skills),
+        immutableSnapshot(previousAdaptationLevels, adaptationLevels),
         zeroLine(previous, curve),
         mutations == null ? AdaptMutationView.unavailable() : mutations
     );
@@ -239,6 +243,41 @@ public final class AdaptPlayerSnapshotBuilder {
 
   private static boolean sameDouble(double left, double right) {
     return Double.doubleToLongBits(left) == Double.doubleToLongBits(right);
+  }
+
+  private static int capacityFor(int expectedSize) {
+    if (expectedSize < 3) {
+      return expectedSize + 1;
+    }
+    if (expectedSize < 1 << 30) {
+      return (int) Math.ceil(expectedSize / 0.75D);
+    }
+    return Integer.MAX_VALUE;
+  }
+
+  static int expectedAdaptationCount(Map<String, PlayerSkillLine> skillLines) {
+    int expected = 0;
+    for (PlayerSkillLine line : skillLines.values()) {
+      if (line == null) {
+        continue;
+      }
+      int lineSize = line.getAdaptations().size();
+      if (expected > Integer.MAX_VALUE - lineSize) {
+        return Integer.MAX_VALUE;
+      }
+      expected += lineSize;
+    }
+    return expected;
+  }
+
+  private static <K, V> Map<K, V> immutableSnapshot(Map<K, V> previous, Map<K, V> current) {
+    if (previous.equals(current)) {
+      return previous;
+    }
+    if (current.isEmpty()) {
+      return Map.of();
+    }
+    return Collections.unmodifiableMap(current);
   }
 
   private static String normalize(String raw) {

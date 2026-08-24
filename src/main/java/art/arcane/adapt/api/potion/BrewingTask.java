@@ -1,5 +1,8 @@
 package art.arcane.adapt.api.potion;
 
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
@@ -21,6 +24,8 @@ public final class BrewingTask implements Runnable {
 
   private final BrewingRecipe recipe;
   private final Location location;
+  private final AdaptPlayer brewerRuntime;
+  private final Player brewerSession;
   private final UUID brewerId;
   private final Consumer<BrewingTask> completion;
   private final int totalBrewTime;
@@ -32,6 +37,10 @@ public final class BrewingTask implements Runnable {
     this.recipe = Objects.requireNonNull(context.recipe());
     this.location = Objects.requireNonNull(context.location()).clone();
     this.brewerId = Objects.requireNonNull(context.brewerId());
+    Adapt active = Adapt.instance;
+    AdaptServer server = active == null ? null : active.getAdaptServer();
+    this.brewerRuntime = server == null ? null : server.getOnlineAdaptPlayer(brewerId);
+    this.brewerSession = brewerRuntime == null ? null : brewerRuntime.getPlayer();
     this.completion = context.completion();
     this.totalBrewTime = Math.max(1, recipe.getBrewingTime());
     this.brewTime = totalBrewTime;
@@ -71,6 +80,21 @@ public final class BrewingTask implements Runnable {
     return Math.max(0, storedFuel) + (fuelItems * 20) - Math.max(0, fuelCost);
   }
 
+  static boolean isBrewerRuntimeAvailable(
+      UUID brewerId,
+      AdaptPlayer brewerRuntime,
+      Player brewerSession,
+      AdaptServer server
+  ) {
+    if (brewerId == null || brewerRuntime == null || brewerSession == null || server == null) {
+      return false;
+    }
+    AdaptPlayer adaptPlayer = server.getOnlineAdaptPlayer(brewerId);
+    return adaptPlayer == brewerRuntime
+        && adaptPlayer.isRuntimeReady()
+        && adaptPlayer.getPlayer() == brewerSession;
+  }
+
   public static boolean isValid(BrewingRecipe recipe, Location loc) {
     if (recipe == null || loc == null || loc.getBlock().getType() != Material.BREWING_STAND) {
       return false;
@@ -93,6 +117,13 @@ public final class BrewingTask implements Runnable {
   @Override
   public void run() {
     if (cancelled) {
+      return;
+    }
+
+    Adapt active = Adapt.instance;
+    AdaptServer server = active == null ? null : active.getAdaptServer();
+    if (!isBrewerRuntimeAvailable(brewerId, brewerRuntime, brewerSession, server)) {
+      cancel();
       return;
     }
 

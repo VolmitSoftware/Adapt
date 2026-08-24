@@ -600,10 +600,10 @@ public final class MutationRuntimeRouter implements Listener {
   }
 
   private boolean eligible(Player player) {
-    if (player == null || !access.enabled()) {
+    if (player == null || !access.runtimeReady(player)) {
       return false;
     }
-    return gameplayEligible(true, player.isOnline(), player.getGameMode());
+    return gameplayEligible(access.enabled(), player.isOnline(), player.getGameMode());
   }
 
   private boolean recoveryEligible(Player player) {

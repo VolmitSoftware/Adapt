@@ -19,12 +19,20 @@
 package art.arcane.adapt.api.world;
 
 import art.arcane.adapt.api.xp.XPMultiplier;
-import art.arcane.volmlib.util.collection.KList;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @Data
 @NoArgsConstructor
 public class AdaptServerData {
-  private KList<XPMultiplier> multipliers = new KList<>();
+  private CopyOnWriteArrayList<XPMultiplier> multipliers = new CopyOnWriteArrayList<>();
+
+  public void normalize() {
+    if (multipliers == null) {
+      multipliers = new CopyOnWriteArrayList<>();
+    }
+    multipliers.removeIf(multiplier -> multiplier == null || !multiplier.isActive());
+  }
 }

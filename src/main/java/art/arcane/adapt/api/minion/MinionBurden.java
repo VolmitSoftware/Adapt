@@ -26,6 +26,7 @@ import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.entity.StackExclusion;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
@@ -39,11 +40,20 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlotGroup;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class MinionBurden extends TickedObject {
   private static final NamespacedKey BURDEN_KEY = new NamespacedKey("adapt", "minion-burden");
@@ -55,18 +65,29 @@ public final class MinionBurden extends TickedObject {
 
   private static volatile MinionBurden instance;
 
+  private final Object lifecycleLock = new Object();
+  private final PlayerTaskScheduler playerTaskScheduler;
+  private final Attribute maxHealthAttribute;
   private final MinionRegistry registry = new MinionRegistry();
   private final Map<UUID, LivingEntity> minions = new ConcurrentHashMap<>();
   private final Set<UUID> livenessStrikes = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingLivenessChecks = ConcurrentHashMap.newKeySet();
+  private final AtomicLong taskGeneration = new AtomicLong();
   private List<UUID> maintenanceOwners = List.of();
   private int maintenanceIndex;
   private long nextMaintenanceAt;
   private volatile double healthPerMinion = DEFAULT_HEALTH_PER_MINION;
   private volatile double minimumMaxHealth = DEFAULT_MINIMUM_MAX_HEALTH;
+  private volatile boolean acceptingRegistrations = true;
 
-  private MinionBurden() {
+  MinionBurden() {
+    this(new RegionPlayerTaskScheduler(), Attributes.MAX_HEALTH);
+  }
+
+  MinionBurden(PlayerTaskScheduler playerTaskScheduler, Attribute maxHealthAttribute) {
     super("minion-burden", "minion-burden", MAINTENANCE_INTERVAL_MS);
+    this.playerTaskScheduler = Objects.requireNonNull(playerTaskScheduler);
+    this.maxHealthAttribute = Objects.requireNonNull(maxHealthAttribute);
     nextMaintenanceAt = System.currentTimeMillis() + MAINTENANCE_INTERVAL_MS;
   }
 
@@ -93,25 +114,38 @@ public final class MinionBurden extends TickedObject {
   public static void startRuntime() {
     synchronized (MinionBurden.class) {
       if (instance != null) {
+        instance.resumeRegistrations();
         instance.activateRuntime();
       }
     }
   }
 
-  public static void shutdown() {
+  public static boolean shutdown(long timeoutMillis) {
     MinionBurden local = instance;
     if (local == null) {
-      return;
+      return true;
     }
 
+    boolean successful;
     try {
-      local.clearAllBurdens();
+      successful = local.clearAllBurdens(timeoutMillis);
     } catch (Throwable t) {
-      Adapt.verbose("MinionBurden shutdown cleanup failed: " + t.getClass().getSimpleName());
+      Adapt.warn("MinionBurden shutdown cleanup failed: " + t.getClass().getSimpleName());
+      Adapt.error(t);
+      successful = false;
     }
 
+    local.retireScheduledTasks();
     local.unregister();
     instance = null;
+    return successful;
+  }
+
+  public static void beginShutdown() {
+    MinionBurden local = instance;
+    if (local != null) {
+      local.stopRegistrations();
+    }
   }
 
   public static double computeReduction(int count, double healthPerMinion, double baselineMaxHealth, double minimumMaxHealth) {
@@ -128,6 +162,11 @@ public final class MinionBurden extends TickedObject {
   }
 
   @Override
+  public boolean hasTickDemand() {
+    return registry.hasOwners();
+  }
+
+  @Override
   public void onTick() {
     long now = System.currentTimeMillis();
     if (maintenanceIndex >= maintenanceOwners.size()) {
@@ -135,7 +174,7 @@ public final class MinionBurden extends TickedObject {
         setInterval(nextMaintenanceAt - now);
         return;
       }
-      maintenanceOwners = new ArrayList<>(registry.ownerIds());
+      maintenanceOwners = registry.ownerSnapshot();
       maintenanceIndex = 0;
       nextMaintenanceAt = now + MAINTENANCE_INTERVAL_MS;
     }
@@ -182,11 +221,13 @@ public final class MinionBurden extends TickedObject {
 
     UUID ownerId = owner.getUniqueId();
     UUID minionId = minion.getUniqueId();
-    if (!registry.add(ownerId, minionId)) {
-      return;
+    synchronized (lifecycleLock) {
+      if (!acceptingRegistrations || !registry.add(ownerId, minionId)) {
+        return;
+      }
+      StackExclusion.exclude(minion);
+      minions.put(minionId, minion);
     }
-    StackExclusion.exclude(minion);
-    minions.put(minionId, minion);
     recompute(ownerId);
   }
 
@@ -261,7 +302,7 @@ public final class MinionBurden extends TickedObject {
   }
 
   private void applyBurden(UUID ownerId, Player player) {
-    AttributeInstance attribute = player.getAttribute(Attributes.MAX_HEALTH);
+    AttributeInstance attribute = player.getAttribute(maxHealthAttribute);
     if (attribute == null) {
       return;
     }
@@ -297,7 +338,14 @@ public final class MinionBurden extends TickedObject {
       if (!pendingLivenessChecks.add(minionId)) {
         continue;
       }
-      if (!J.runEntity(minion, () -> completeLivenessCheck(ownerId, minionId, minion))) {
+      long generation = taskGeneration.get();
+      if (!J.runEntity(minion, () -> {
+        synchronized (lifecycleLock) {
+          if (taskGeneration.get() == generation) {
+            completeLivenessCheck(ownerId, minionId, minion);
+          }
+        }
+      })) {
         pendingLivenessChecks.remove(minionId);
         recordMissingMinion(ownerId, minionId);
       }
@@ -345,34 +393,122 @@ public final class MinionBurden extends TickedObject {
     }
   }
 
-  private void clearAllBurdens() {
-    scrubRegisteredOwners();
-    registry.clearAll();
-    minions.clear();
-    livenessStrikes.clear();
-    pendingLivenessChecks.clear();
-    maintenanceOwners = List.of();
-    maintenanceIndex = 0;
+  private boolean clearAllBurdens(long timeoutMillis) {
+    stopRegistrations();
+    synchronized (lifecycleLock) {
+      registry.clearAll();
+      minions.clear();
+      livenessStrikes.clear();
+      pendingLivenessChecks.clear();
+      maintenanceOwners = List.of();
+      maintenanceIndex = 0;
+    }
+    List<Player> onlinePlayers = List.copyOf(Bukkit.getOnlinePlayers());
+    return scrubPlayersAndAwait(onlinePlayers, timeoutMillis);
+  }
+
+  private void resumeRegistrations() {
+    synchronized (lifecycleLock) {
+      if (!acceptingRegistrations) {
+        taskGeneration.incrementAndGet();
+      }
+      acceptingRegistrations = true;
+    }
+  }
+
+  private void stopRegistrations() {
+    synchronized (lifecycleLock) {
+      if (acceptingRegistrations) {
+        acceptingRegistrations = false;
+        taskGeneration.incrementAndGet();
+      }
+    }
+  }
+
+  void retireScheduledTasks() {
+    synchronized (lifecycleLock) {
+      taskGeneration.incrementAndGet();
+    }
   }
 
   private void scrub(Player player) {
-    AttributeInstance attribute = player.getAttribute(Attributes.MAX_HEALTH);
+    AttributeInstance attribute = player.getAttribute(maxHealthAttribute);
     if (attribute != null) {
       removeOurModifiers(attribute);
     }
   }
 
-  private void runOnPlayerThread(Player player, Runnable runnable) {
-    try {
-      if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player)) {
-        J.runEntity(player, runnable);
-        return;
+  boolean scrubPlayersAndAwait(Collection<? extends Player> players, long timeoutMillis) {
+    List<CompletableFuture<Boolean>> completions = new ArrayList<>(players.size());
+    AtomicInteger failureCount = new AtomicInteger();
+    AtomicReference<Throwable> firstFailure = new AtomicReference<>();
+    for (Player player : players) {
+      CompletableFuture<Boolean> completion = new CompletableFuture<>();
+      completions.add(completion);
+      boolean accepted = runOnPlayerThread(player, () -> {
+        try {
+          scrub(player);
+          completion.complete(true);
+        } catch (Throwable error) {
+          failureCount.incrementAndGet();
+          firstFailure.compareAndSet(null, error);
+          completion.complete(false);
+        }
+      });
+      if (!accepted) {
+        IllegalStateException failure = new IllegalStateException(
+            "Failed to schedule Adapt minion-burden cleanup for player " + player.getUniqueId());
+        failureCount.incrementAndGet();
+        firstFailure.compareAndSet(null, failure);
+        completion.complete(false);
       }
-
-      runnable.run();
-    } catch (Exception ex) {
-      Adapt.verbose("Failed guarded minion-burden runnable: " + ex.getClass().getSimpleName() + (ex.getMessage() == null ? "" : " - " + ex.getMessage()));
     }
+    boolean successful = awaitCleanup(completions, timeoutMillis);
+    if (failureCount.get() > 0) {
+      IllegalStateException failure = new IllegalStateException(
+          "Adapt minion-burden cleanup failed for " + failureCount.get() + " players.", firstFailure.get());
+      Adapt.warn(failure.getMessage());
+      Adapt.error(failure);
+    }
+    return successful && failureCount.get() == 0;
+  }
+
+  private boolean awaitCleanup(List<CompletableFuture<Boolean>> completions, long timeoutMillis) {
+    if (completions.isEmpty()) {
+      return true;
+    }
+
+    CompletableFuture<Void> all = CompletableFuture.allOf(completions.toArray(CompletableFuture[]::new));
+    try {
+      all.get(Math.max(1L, timeoutMillis), TimeUnit.MILLISECONDS);
+    } catch (InterruptedException error) {
+      Thread.currentThread().interrupt();
+      Adapt.warn("Interrupted while waiting for Adapt minion-burden cleanup.");
+      Adapt.error(error);
+      return false;
+    } catch (ExecutionException | TimeoutException error) {
+      Adapt.warn("Adapt minion-burden cleanup did not complete before shutdown.");
+      Adapt.error(error);
+      return false;
+    }
+
+    for (CompletableFuture<Boolean> completion : completions) {
+      if (!completion.join()) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  private boolean runOnPlayerThread(Player player, Runnable runnable) {
+    long generation = taskGeneration.get();
+    return playerTaskScheduler.run(player, () -> {
+      synchronized (lifecycleLock) {
+        if (taskGeneration.get() == generation) {
+          runnable.run();
+        }
+      }
+    });
   }
 
   private static void removeOurModifiers(AttributeInstance attribute) {
@@ -395,33 +531,67 @@ public final class MinionBurden extends TickedObject {
     }
   }
 
+  @FunctionalInterface
+  interface PlayerTaskScheduler {
+    boolean run(Player player, Runnable action);
+  }
+
+  private static final class RegionPlayerTaskScheduler implements PlayerTaskScheduler {
+    @Override
+    public boolean run(Player player, Runnable runnable) {
+      try {
+        if (!J.isOwnedByCurrentRegion(player)) {
+          return J.runEntity(player, runnable);
+        }
+
+        runnable.run();
+        return true;
+      } catch (Throwable error) {
+        Adapt.warn("Failed guarded minion-burden runnable for player " + player.getUniqueId());
+        Adapt.error(error);
+        return false;
+      }
+    }
+  }
+
   public static final class MinionRegistry {
     private final Map<UUID, Set<UUID>> owners = new ConcurrentHashMap<>();
 
     public boolean add(UUID owner, UUID minion) {
-      Set<UUID> minions = owners.computeIfAbsent(owner, key -> ConcurrentHashMap.newKeySet());
-      synchronized (minions) {
-        if (minions.contains(minion)) {
-          return false;
+      while (true) {
+        Set<UUID> minions = owners.computeIfAbsent(owner, key -> ConcurrentHashMap.newKeySet());
+        synchronized (minions) {
+          if (owners.get(owner) != minions) {
+            continue;
+          }
+          if (minions.contains(minion)) {
+            return false;
+          }
+          if (minions.size() >= MAX_TRACKED_MINIONS_PER_OWNER) {
+            return false;
+          }
+          return minions.add(minion);
         }
-        if (minions.size() >= MAX_TRACKED_MINIONS_PER_OWNER) {
-          return false;
-        }
-        return minions.add(minion);
       }
     }
 
     public boolean remove(UUID owner, UUID minion) {
-      Set<UUID> set = owners.get(owner);
-      if (set == null) {
-        return false;
+      while (true) {
+        Set<UUID> minions = owners.get(owner);
+        if (minions == null) {
+          return false;
+        }
+        synchronized (minions) {
+          if (owners.get(owner) != minions) {
+            continue;
+          }
+          boolean removed = minions.remove(minion);
+          if (minions.isEmpty()) {
+            owners.remove(owner, minions);
+          }
+          return removed;
+        }
       }
-
-      boolean removed = set.remove(minion);
-      if (set.isEmpty()) {
-        owners.remove(owner);
-      }
-      return removed;
     }
 
     public int count(UUID owner) {
@@ -438,13 +608,36 @@ public final class MinionBurden extends TickedObject {
       return Set.copyOf(owners.keySet());
     }
 
+    List<UUID> ownerSnapshot() {
+      return List.copyOf(owners.keySet());
+    }
+
+    boolean hasOwners() {
+      return !owners.isEmpty();
+    }
+
     public Set<UUID> clear(UUID owner) {
-      Set<UUID> set = owners.remove(owner);
-      return set == null ? Set.of() : set;
+      while (true) {
+        Set<UUID> minions = owners.get(owner);
+        if (minions == null) {
+          return Set.of();
+        }
+        synchronized (minions) {
+          if (owners.get(owner) != minions) {
+            continue;
+          }
+          if (!owners.remove(owner, minions)) {
+            continue;
+          }
+          return Set.copyOf(minions);
+        }
+      }
     }
 
     public void clearAll() {
-      owners.clear();
+      for (UUID owner : List.copyOf(owners.keySet())) {
+        clear(owner);
+      }
     }
   }
 }

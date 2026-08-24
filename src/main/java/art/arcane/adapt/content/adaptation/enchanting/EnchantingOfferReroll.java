@@ -262,7 +262,7 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
       leftovers.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
     } catch (Throwable t) {
       Adapt.warn("Offer Reroll could not return reserved lapis to " + p.getName() + ".");
-      t.printStackTrace();
+      Adapt.error(t);
     }
   }
 
@@ -278,7 +278,7 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
       return true;
     } catch (Throwable t) {
       Adapt.warn("Offer Reroll could not update the enchantment seed for " + p.getName() + ".");
-      t.printStackTrace();
+      Adapt.error(t);
       return false;
     }
   }

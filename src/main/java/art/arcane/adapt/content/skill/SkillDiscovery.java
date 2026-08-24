@@ -30,6 +30,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.Discovery;
+import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryArchaeologist;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryArmor;
 import art.arcane.adapt.content.adaptation.discovery.DiscoveryBetterMending;
@@ -256,7 +257,11 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
   }
 
   public void seeBlock(Player p, BlockData bd, Location l) {
-    Discovery<String> d = getPlayer(p).getData().getSeenBlocks();
+    PlayerData playerData = runtimeData(p);
+    if (playerData == null) {
+      return;
+    }
+    Discovery<String> d = playerData.getSeenBlocks();
     if (d.isNewDiscovery(bd.getAsString())) {
       double value = getValue(bd);
       xp(p, getConfig().discoverBlockBaseXP + (value * getConfig().discoverBlockValueXPMultiplier));
@@ -290,7 +295,11 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
   }
 
   public void seeItem(Player p, Material bd) {
-    Discovery<Material> d = getPlayer(p).getData().getSeenItems();
+    PlayerData playerData = runtimeData(p);
+    if (playerData == null) {
+      return;
+    }
+    Discovery<Material> d = playerData.getSeenItems();
     if (d.isNewDiscovery(bd)) {
       xp(p, getConfig().discoverItemBaseXP + (getValue(bd) * getConfig().discoverItemValueXPMultiplier));
       addStat(p, "discovery.items", 1);
@@ -307,14 +316,22 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
   }
 
   public void seeCraftedRecipe(Player p, String key) {
-    Discovery<String> d = getPlayer(p).getData().getSeenRecipes();
+    PlayerData playerData = runtimeData(p);
+    if (playerData == null) {
+      return;
+    }
+    Discovery<String> d = playerData.getSeenRecipes();
     if (d.isNewDiscovery(key)) {
       xp(p, getConfig().discoverRecipeBaseXP);
     }
   }
 
   public void seeFood(Player p, Material bd) {
-    Discovery<Material> d = getPlayer(p).getData().getSeenFoods();
+    PlayerData playerData = runtimeData(p);
+    if (playerData == null) {
+      return;
+    }
+    Discovery<Material> d = playerData.getSeenFoods();
     if (d.isNewDiscovery(bd)) {
       xp(p, getConfig().discoverFoodTypeXP);
       addStat(p, "discovery.foods", 1);
@@ -322,7 +339,11 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
   }
 
   public void seeEntity(Player p, Entity bd) {
-    Discovery<EntityType> d = getPlayer(p).getData().getSeenMobs();
+    PlayerData playerData = runtimeData(p);
+    if (playerData == null) {
+      return;
+    }
+    Discovery<EntityType> d = playerData.getSeenMobs();
     if (d.isNewDiscovery(bd.getType())) {
       xp(p, getConfig().discoverEntityTypeXP);
       addStat(p, "discovery.mobs", 1);
@@ -340,21 +361,33 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
   }
 
   public void seePlayer(Player p, Player bd) {
-    Discovery<String> d = getPlayer(p).getData().getSeenPeople();
+    PlayerData playerData = runtimeData(p);
+    if (playerData == null) {
+      return;
+    }
+    Discovery<String> d = playerData.getSeenPeople();
     if (d.isNewDiscovery(bd.getUniqueId().toString())) {
       xp(p, getConfig().discoverPlayerXP);
     }
   }
 
   public void seeEnchant(Player p, Enchantment bd, int level) {
-    Discovery<String> d = getPlayer(p).getData().getSeenEnchants();
+    PlayerData playerData = runtimeData(p);
+    if (playerData == null) {
+      return;
+    }
+    Discovery<String> d = playerData.getSeenEnchants();
     if (d.isNewDiscovery(bd.getName() + " " + Form.toRoman(level))) {
       xp(p, getConfig().discoverEnchantBaseXP + Math.min(getConfig().discoverEnchantMaxXP, level * getConfig().discoverEnchantLevelXPMultiplier));
     }
   }
 
   public void seeWorld(Player p, World world) {
-    Discovery<String> d = getPlayer(p).getData().getSeenWorlds();
+    PlayerData playerData = runtimeData(p);
+    if (playerData == null) {
+      return;
+    }
+    Discovery<String> d = playerData.getSeenWorlds();
     if (d.isNewDiscovery(WorldIdentity.serialize(world) + "-" + world.getSeed())) {
       xp(p, getConfig().discoverWorldXP);
     }
@@ -363,21 +396,33 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
   }
 
   public void seeEnvironment(Player p, World.Environment world) {
-    Discovery<World.Environment> d = getPlayer(p).getData().getSeenEnvironments();
+    PlayerData playerData = runtimeData(p);
+    if (playerData == null) {
+      return;
+    }
+    Discovery<World.Environment> d = playerData.getSeenEnvironments();
     if (d.isNewDiscovery(world)) {
       xp(p, getConfig().discoverEnvironmentXP);
     }
   }
 
   public void seePotionEffect(Player p, PotionEffect e) {
-    Discovery<String> d = getPlayer(p).getData().getSeenPotionEffects();
+    PlayerData playerData = runtimeData(p);
+    if (playerData == null) {
+      return;
+    }
+    Discovery<String> d = playerData.getSeenPotionEffects();
     if (d.isNewDiscovery(e.getType().getName() + " " + Form.toRoman(e.getAmplifier()).trim())) {
       xp(p, getConfig().discoverPotionXP);
     }
   }
 
   public boolean seeBiome(Player p, Biome e) {
-    Discovery<String> d = getPlayer(p).getData().getSeenBiomes();
+    PlayerData playerData = runtimeData(p);
+    if (playerData == null) {
+      return false;
+    }
+    Discovery<String> d = playerData.getSeenBiomes();
     if (d.isNewDiscovery(e.getKey().toString())) {
       xp(p, getConfig().discoverBiomeXP);
       addStat(p, "discovery.biomes", 1);
@@ -385,6 +430,11 @@ public class SkillDiscovery extends SimpleSkill<SkillDiscovery.Config> {
     }
 
     return false;
+  }
+
+  private PlayerData runtimeData(Player player) {
+    AdaptPlayer adaptPlayer = getPlayer(player);
+    return adaptPlayer == null ? null : adaptPlayer.getData();
   }
 
   @Override

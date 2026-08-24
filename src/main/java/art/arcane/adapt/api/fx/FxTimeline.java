@@ -173,7 +173,7 @@ public final class FxTimeline {
       return;
     }
     Adapt.error("FX timeline for '" + label + "' failed; cancelling it.");
-    error.printStackTrace();
+    Adapt.error(error);
   }
 
   private void advanceOwned() {

@@ -1,9 +1,9 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -26,11 +26,18 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
   private static final long RECONCILE_INTERVAL_MS = 1000L;
   private static final String SLOT_SLIDE = "slide";
 
+  private final AdaptationOwnerPulse.Registration ownerMaintenance;
+
   public KineticsSurfaceSkate() {
     super("kinetics-surface-skate");
     registerConfiguration(Config.class);
     setIcon(Material.PACKED_ICE);
     setInterval(RECONCILE_INTERVAL_MS);
+    ownerMaintenance = AdaptationOwnerPulse.register(
+        this,
+        this::getInterval,
+        this::reconcile
+    );
   }
 
   @Override
@@ -40,16 +47,9 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
   }
 
   @Override
-  protected boolean usesLearnerBoundTicking() {
-    return true;
-  }
-
-  @Override
-  public void onTick() {
-    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
-      Player player = adaptPlayer.getPlayer();
-      withPlayerThread(player, () -> reconcile(player));
-    }
+  public void unregister() {
+    ownerMaintenance.unregister();
+    super.unregister();
   }
 
   @EventHandler(ignoreCancelled = true)

@@ -47,7 +47,7 @@ public class J {
       J::a,
       Adapt::verbose,
       Adapt::warn,
-      Throwable::printStackTrace
+      Adapt::error
   );
 
   static {
@@ -58,7 +58,7 @@ public class J {
     SchedulerBridge.setSyncRepeatingScheduler(J::sr);
     SchedulerBridge.setAsyncRepeatingScheduler(J::ar);
     SchedulerBridge.setCancelScheduler(J::car);
-    SchedulerBridge.setErrorHandler(Throwable::printStackTrace);
+    SchedulerBridge.setErrorHandler(Adapt::error);
     SchedulerBridge.setInfoLogger(Adapt::info);
   }
 
@@ -83,7 +83,7 @@ public class J {
   }
 
   public static <R> R attemptResult(NastyFuture<R> r, R onError) {
-    return JSupport.attemptResult(r::run, onError, Throwable::printStackTrace);
+    return JSupport.attemptResult(r::run, onError, Adapt::error);
   }
 
   public static <T, R> R attemptFunction(NastyFunction<T, R> r, T param, R onError) {
@@ -164,6 +164,11 @@ public class J {
 
   public static boolean runEntity(Entity entity, Runnable runnable) {
     return RUNTIME.runEntity(entity, runnable);
+  }
+
+  public static boolean runEntity(Entity entity, Runnable runnable, Runnable retired) {
+    return Adapt.instance != null
+        && FoliaScheduler.runEntity(Adapt.instance, entity, runnable, 0L, retired);
   }
 
   public static boolean runEntity(Entity entity, Runnable runnable, int delayTicks) {

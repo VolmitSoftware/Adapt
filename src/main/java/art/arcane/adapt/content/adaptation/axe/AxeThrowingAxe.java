@@ -266,7 +266,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
         deliverAxe(p, consumedAxe);
         playReturnFx(p);
         Adapt.warn("Failed to prepare durable recovery for a thrown axe owned by " + p.getName() + ".");
-        error.printStackTrace();
+        Adapt.error(error);
         return;
       }
     }
@@ -288,7 +288,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
         playReturnFx(p);
       }
       Adapt.error("Failed to spawn a thrown axe for " + p.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return;
     }
 
@@ -302,7 +302,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
         deliverAxe(p, consumedAxe);
         playReturnFx(p);
         Adapt.warn("Failed to persist durable recovery for a thrown axe owned by " + p.getName() + ".");
-        error.printStackTrace();
+        Adapt.error(error);
         return;
       }
     }
@@ -393,7 +393,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       );
     } catch (Throwable error) {
       Adapt.error("Failed to schedule thrown axe expiry for " + projectileId + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }
@@ -545,7 +545,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       target.damage(thrown.damage() + ricochet.bonusDamage(), owner);
     } catch (Throwable error) {
       Adapt.error("Thrown axe damage failed for target " + target.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return;
     } finally {
       active.removeLastOccurrence(attempt);
@@ -655,7 +655,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       } catch (Throwable error) {
         pendingDrops.remove(thrown.recoveryKey(), pending);
         Adapt.error("Failed to reserve a thrown axe impact drop.");
-        error.printStackTrace();
+        Adapt.error(error);
         return;
       }
     }
@@ -728,7 +728,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       recoveryKeys = recoveryJournal.keys(ownerId);
     } catch (Throwable error) {
       Adapt.error("Failed to list journaled thrown axes for " + ownerId + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return new JournalRecoveryBatch(false, Set.of());
     }
 
@@ -764,7 +764,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
     } catch (Throwable error) {
       Adapt.error("Failed to import a journaled thrown axe for " + ownerId
           + " at " + recoveryKeyName + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return null;
     }
   }
@@ -781,7 +781,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       axe = ItemStack.deserializeBytes(encoded);
     } catch (Throwable error) {
       Adapt.warn("Failed to decode durable thrown-axe recovery for " + player.getName() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return;
     }
 
@@ -795,7 +795,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
         error.addSuppressed(restoreError);
       }
       Adapt.error("Failed to deliver durable thrown-axe recovery to " + player.getName() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return;
     }
     playReturnFx(player);
@@ -989,7 +989,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       }
       if (failure != null) {
         Adapt.error("Failed to materialize a thrown axe impact drop.");
-        failure.printStackTrace();
+        Adapt.error(failure);
         cancel(null);
       }
     }
@@ -1026,7 +1026,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       } catch (Throwable error) {
         restoreRetired();
         Adapt.error("Failed to schedule restoration of a reserved thrown axe drop.");
-        error.printStackTrace();
+        Adapt.error(error);
       }
     }
 
@@ -1054,7 +1054,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       } catch (Throwable error) {
         persistFallback();
         Adapt.error("Failed to restore a reserved thrown axe drop.");
-        error.printStackTrace();
+        Adapt.error(error);
       }
     }
 
@@ -1083,7 +1083,7 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
         restorationScheduled = false;
         Adapt.error("Failed to persist durable thrown-axe recovery for "
             + thrown.ownerId() + ".");
-        error.printStackTrace();
+        Adapt.error(error);
         return false;
       }
     }

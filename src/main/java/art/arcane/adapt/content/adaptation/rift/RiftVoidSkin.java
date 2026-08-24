@@ -158,18 +158,19 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     }
     long cooldownMillis = getCooldownMillis(level);
     if (!cooldown.isReady(id, cooldownMillis)) {
-      Adapt.verbose("Void Skin skipped " + id + ": " + cooldown.remaining(id, cooldownMillis) + "ms cooldown left.");
+      Adapt.verbose(() -> "Void Skin skipped " + id + ": "
+          + cooldown.remaining(id, cooldownMillis) + "ms cooldown left.");
       return;
     }
 
     if (!hasPlainPearl(p)) {
-      Adapt.verbose("Void Skin skipped " + id + ": no plain ender pearl in inventory.");
+      Adapt.verbose(() -> "Void Skin skipped " + id + ": no plain ender pearl in inventory.");
       return;
     }
 
     Location destination = findSafeSpot(p);
     if (destination == null) {
-      Adapt.verbose("Void Skin skipped " + id + ": no safe spot and no usable world spawn.");
+      Adapt.verbose(() -> "Void Skin skipped " + id + ": no safe spot and no usable world spawn.");
       return;
     }
 
@@ -178,7 +179,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     destination.setPitch(origin.getPitch());
     PearlReservation reservation = reservePlainPearl(p);
     if (reservation == null) {
-      Adapt.verbose("Void Skin skipped " + id + ": pearl cost was refused.");
+      Adapt.verbose(() -> "Void Skin skipped " + id + ": pearl cost was refused.");
       return;
     }
 
@@ -195,7 +196,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     } catch (RuntimeException exception) {
       pendingEscapes.remove(id, operation);
       refundReservation(p, reservation, AbilityRefundReason.ACTIVATION_FAILED);
-      exception.printStackTrace();
+      Adapt.error(exception);
       Adapt.error("Void Skin could not start an escape teleport for " + id + ".");
       return;
     }
@@ -240,7 +241,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
 
   private void finishEscape(Player p, VoidEscape operation, Boolean success, Throwable failure) {
     if (failure != null) {
-      failure.printStackTrace();
+      Adapt.error(failure);
       Adapt.error("Void Skin escape teleport failed for " + operation.playerId() + ".");
     }
 
@@ -389,7 +390,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       p.getPersistentDataContainer().remove(pearlReservationKey);
     } catch (Throwable error) {
       Adapt.error("Void Skin could not return a reserved ender pearl to " + p.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 
@@ -425,7 +426,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       player.getPersistentDataContainer().remove(pearlReservationKey);
     } catch (Throwable error) {
       Adapt.error("Void Skin could not recover a reserved ender pearl for " + player.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 

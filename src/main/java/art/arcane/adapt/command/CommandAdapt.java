@@ -8,6 +8,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
@@ -20,13 +21,14 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.util.command.FConst;
-import art.arcane.adapt.util.config.ConfigMigrationManager;
 import art.arcane.adapt.util.director.context.AdaptationListingHandler;
 import art.arcane.adapt.util.director.specialhandlers.NullablePlayerHandler;
 import art.arcane.volmlib.util.director.DirectorOrigin;
 import art.arcane.volmlib.util.director.annotations.Director;
 import art.arcane.volmlib.util.director.annotations.Param;
 import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
+import art.arcane.volmlib.util.localization.TextKey;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -40,52 +42,87 @@ import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 @Director(name = "adapt", description = "Adapt skills, adaptations, and admin tools", descriptionKey = "command.help.adapt_skills_adaptations_and_admin_tools")
 public class CommandAdapt {
+  static final double MINIMUM_XP_BOOST = -0.99D;
+  static final double MAXIMUM_XP_BOOST = 999D;
+  static final long MAXIMUM_XP_BOOST_SECONDS = Long.MAX_VALUE / 1000L;
+
   private CommandDebug debug;
   private CommandClear clear;
   private CommandReset reset;
   private CommandDefault defaults;
   private CommandMutation mutations;
 
+  static boolean isValidXpBoost(long seconds, double multiplier) {
+    return seconds > 0L
+        && seconds <= MAXIMUM_XP_BOOST_SECONDS
+        && Double.isFinite(multiplier)
+        && multiplier >= MINIMUM_XP_BOOST
+        && multiplier <= MAXIMUM_XP_BOOST;
+  }
+
+  static long xpBoostDurationMillis(long seconds) {
+    return Math.multiplyExact(seconds, 1000L);
+  }
+
   @Director(description = "Boost Target player Experience gain.", descriptionKey = "command.help.boost_target_player_experience_gain")
   public void boost(
-      @Param(aliases = "seconds", description = "Amount of seconds", defaultValue = "10", descriptionKey = "command.help.amount_of_seconds")
-      int seconds,
-      @Param(aliases = "multiplier", description = "Strength of the boost", defaultValue = "10", descriptionKey = "command.help.strength_of_the_boost")
+      @Param(aliases = "seconds", description = "Positive duration in seconds", defaultValue = "10", descriptionKey = "command.help.amount_of_seconds")
+      long seconds,
+      @Param(aliases = "multiplier", description = "Additive XP multiplier from -0.99 to 999", defaultValue = "10", descriptionKey = "command.help.strength_of_the_boost")
       double multiplier,
       @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
-    if (!BukkitDirectorContext.hasPermission("adapt.boost")) {
+    CommandSender sender = BukkitDirectorContext.sender();
+    if (!sender.hasPermission("adapt.boost")) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.boost")))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
-    Player targetPlayer = player;
-    if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.PLAYER_REQUIRED_FROM_CONSOLE))
-          .send(BukkitDirectorContext.sender());
+    if (!isValidXpBoost(seconds, multiplier)) {
+      FConst.error(AdaptLanguage.text(
+              CommandRuntimeMessages.INVALID_XP_BOOST,
+              trusted("seconds", MAXIMUM_XP_BOOST_SECONDS),
+              trusted("minimum", MINIMUM_XP_BOOST),
+              trusted("maximum", MAXIMUM_XP_BOOST)
+          ))
+          .send(sender);
       return;
-    } else if (targetPlayer == null) {
-      targetPlayer = BukkitDirectorContext.player();
     }
 
-    AdaptServer adaptServer = Adapt.instance.getAdaptServer();
-    PlayerData playerData = adaptServer.getPlayer(targetPlayer).getData();
-    playerData.globalXPMultiplier(multiplier, seconds * 1000);
+    Player targetPlayer = resolveTargetPlayer(player, sender);
+    if (targetPlayer == null) {
+      return;
+    }
 
-    FConst.success(AdaptLanguage.text(
+    CommandTargetExecutor.run(
+        targetPlayer,
+        () -> boostTarget(targetPlayer, seconds, multiplier, sender),
+        sender
+    );
+  }
+
+  private void boostTarget(Player targetPlayer, long seconds, double multiplier, CommandSender sender) {
+    AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
+    if (adaptPlayer == null) {
+      return;
+    }
+    PlayerData playerData = adaptPlayer.getData();
+    playerData.globalXPMultiplier(multiplier, xpBoostDurationMillis(seconds));
+
+    CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
         CommandRuntimeMessages.BOOSTED_XP,
         trusted("multiplier", multiplier),
         trusted("seconds", seconds)
-    )).send(BukkitDirectorContext.sender());
+    )));
   }
 
   @Director(description = "Boost Global Experience gain.", name = "global-boost", descriptionKey = "command.help.boost_global_experience_gain")
   public void globalBoost(
-      @Param(aliases = "seconds", description = "Amount of seconds", defaultValue = "10", descriptionKey = "command.help.amount_of_seconds")
-      int seconds,
-      @Param(aliases = "multiplier", description = "Strength of the boost", defaultValue = "10", descriptionKey = "command.help.strength_of_the_boost")
+      @Param(aliases = "seconds", description = "Positive duration in seconds", defaultValue = "10", descriptionKey = "command.help.amount_of_seconds")
+      long seconds,
+      @Param(aliases = "multiplier", description = "Additive XP multiplier from -0.99 to 999", defaultValue = "10", descriptionKey = "command.help.strength_of_the_boost")
       double multiplier
   ) {
     if (!BukkitDirectorContext.hasPermission("adapt.boost.global")) {
@@ -94,8 +131,19 @@ public class CommandAdapt {
       return;
     }
 
+    if (!isValidXpBoost(seconds, multiplier)) {
+      FConst.error(AdaptLanguage.text(
+              CommandRuntimeMessages.INVALID_XP_BOOST,
+              trusted("seconds", MAXIMUM_XP_BOOST_SECONDS),
+              trusted("minimum", MINIMUM_XP_BOOST),
+              trusted("maximum", MAXIMUM_XP_BOOST)
+          ))
+          .send(BukkitDirectorContext.sender());
+      return;
+    }
+
     AdaptServer adaptServer = Adapt.instance.getAdaptServer();
-    adaptServer.boostXP(multiplier, seconds * 1000);
+    adaptServer.boostXP(multiplier, xpBoostDurationMillis(seconds));
 
     FConst.success(AdaptLanguage.text(
         CommandRuntimeMessages.BOOSTED_XP,
@@ -113,19 +161,33 @@ public class CommandAdapt {
       @Param(aliases = "force", description = "Bypass adapt.use permission checks when opening", defaultValue = "false", descriptionKey = "command.help.bypass_adapt_use_permission_checks_when_opening")
       boolean force
   ) {
-    if (!BukkitDirectorContext.hasPermission("adapt.gui")) {
+    CommandSender sender = BukkitDirectorContext.sender();
+    if (!sender.hasPermission("adapt.gui")) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.gui")))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
-    Player targetPlayer = player;
-    if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.PLAYER_REQUIRED_FROM_CONSOLE))
-          .send(BukkitDirectorContext.sender());
+    Player targetPlayer = resolveTargetPlayer(player, sender);
+    if (targetPlayer == null) {
       return;
-    } else if (targetPlayer == null) {
-      targetPlayer = BukkitDirectorContext.player();
+    }
+
+    CommandTargetExecutor.run(
+        targetPlayer,
+        () -> openTargetGui(target, targetPlayer, force, sender),
+        sender
+    );
+  }
+
+  private void openTargetGui(
+      AdaptationListingHandler.AdaptationList target,
+      Player targetPlayer,
+      boolean force,
+      CommandSender sender
+  ) {
+    if (resolveReadyTarget(targetPlayer, sender) == null) {
+      return;
     }
 
     if (target.equals("main")) {
@@ -137,22 +199,24 @@ public class CommandAdapt {
       for (Skill<?> skill : SkillRegistry.skills.sortV()) {
         if (target.equals("skill:" + skill.getName())) {
           if (!skill.isEnabled()) {
-            FConst.error(AdaptLanguage.text(CommandRuntimeMessages.SKILL_DISABLED, untrusted("skill", skill.getName())))
-                .send(BukkitDirectorContext.sender());
+            CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+                CommandRuntimeMessages.SKILL_DISABLED,
+                untrusted("skill", skill.getName())
+            )));
             return;
           }
           if (openSkillGui(skill, targetPlayer, force)) {
-            FConst.success(AdaptLanguage.text(
+            CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
                 CommandRuntimeMessages.GUI_OPENED,
                 untrusted("target", skill.getName()),
                 untrusted("player", targetPlayer.getName())
-            )).send(BukkitDirectorContext.sender());
+            )));
           } else {
-            FConst.error(AdaptLanguage.text(
+            CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
                 CommandRuntimeMessages.GUI_OPEN_DENIED,
                 untrusted("target", skill.getName()),
                 untrusted("player", targetPlayer.getName())
-            )).send(BukkitDirectorContext.sender());
+            )));
           }
           return;
         }
@@ -164,24 +228,24 @@ public class CommandAdapt {
         for (Adaptation<?> adaptation : skill.getAdaptations()) {
           if (target.equals("adaptation:" + adaptation.getName())) {
             if (!skill.isEnabled() || !adaptation.isEnabled()) {
-              FConst.error(AdaptLanguage.text(
+              CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
                   CommandRuntimeMessages.ADAPTATION_DISABLED,
                   untrusted("adaptation", adaptation.getName())
-              )).send(BukkitDirectorContext.sender());
+              )));
               return;
             }
             if (openAdaptationGui(adaptation, targetPlayer, force)) {
-              FConst.success(AdaptLanguage.text(
+              CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
                   CommandRuntimeMessages.GUI_OPENED,
                   untrusted("target", adaptation.getName()),
                   untrusted("player", targetPlayer.getName())
-              )).send(BukkitDirectorContext.sender());
+              )));
             } else {
-              FConst.error(AdaptLanguage.text(
+              CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
                   CommandRuntimeMessages.GUI_OPEN_DENIED,
                   untrusted("target", adaptation.getName()),
                   untrusted("player", targetPlayer.getName())
-              )).send(BukkitDirectorContext.sender());
+              )));
             }
             return;
           }
@@ -189,8 +253,10 @@ public class CommandAdapt {
       }
     }
 
-    FConst.error(AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_GUI_TARGET, untrusted("target", target.name())))
-        .send(BukkitDirectorContext.sender());
+    CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+        CommandRuntimeMessages.UNKNOWN_GUI_TARGET,
+        untrusted("target", target.name())
+    )));
   }
 
   @Director(name = "effects", origin = DirectorOrigin.PLAYER, description = "Toggle Adapt effect visibility for yourself", descriptionKey = "command.help.toggle_adapt_effect_visibility_for_yourself")
@@ -204,8 +270,13 @@ public class CommandAdapt {
       return;
     }
 
+    CommandSender sender = BukkitDirectorContext.sender();
     Player player = BukkitDirectorContext.player();
-    PlayerData playerData = Adapt.instance.getAdaptServer().getPlayer(player).getData();
+    AdaptPlayer adaptPlayer = resolveReadyTarget(player, sender);
+    if (adaptPlayer == null) {
+      return;
+    }
+    PlayerData playerData = adaptPlayer.getData();
     String normalized = enabled == null ? "toggle" : enabled.trim().toLowerCase(Locale.ROOT);
     Boolean target = switch (normalized) {
       case "toggle" -> !playerData.isEffectsEnabled();
@@ -248,54 +319,65 @@ public class CommandAdapt {
       Player player
 
   ) {
-    if (!BukkitDirectorContext.hasPermission("adapt.cheatitem")) {
+    CommandSender sender = BukkitDirectorContext.sender();
+    if (!sender.hasPermission("adapt.cheatitem")) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.cheatitem")))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
-    Player targetPlayer = player;
-
+    Player targetPlayer = resolveTargetPlayer(player, sender, CommandRuntimeMessages.PLAYER_ONLY_OR_REFERENCE);
     if (targetPlayer == null) {
-      if (BukkitDirectorContext.isPlayer()) {
-        targetPlayer = BukkitDirectorContext.player();
-      } else {
-        FConst.error(AdaptLanguage.text(CommandRuntimeMessages.PLAYER_ONLY_OR_REFERENCE))
-            .send(BukkitDirectorContext.sender());
-        return;
-      }
+      return;
     }
 
+    CommandTargetExecutor.run(
+        targetPlayer,
+        () -> giveExperienceOrb(skillName, amount, targetPlayer, sender),
+        sender
+    );
+  }
+
+  private void giveExperienceOrb(
+      AdaptationListingHandler.AdaptationSkillList skillName,
+      int amount,
+      Player targetPlayer,
+      CommandSender sender
+  ) {
     if (skillName.equals("all")) {
       Map<String, Double> experienceMap = new HashMap<>();
       for (Skill<?> skill : allSkillSnapshot()) {
         experienceMap.put(skill.getName(), (double) amount);
       }
       targetPlayer.getInventory().addItem(ExperienceOrb.with(experienceMap));
-      FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_ALL_ORBS)).send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_ALL_ORBS)));
       return;
     }
 
     if (skillName.equals("random")) {
       List<Skill<?>> skills = allSkillSnapshot();
       if (skills.isEmpty()) {
-        FConst.error(AdaptLanguage.text(CommandRuntimeMessages.NO_SKILLS_REGISTERED)).send(BukkitDirectorContext.sender());
+        CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(CommandRuntimeMessages.NO_SKILLS_REGISTERED)));
         return;
       }
 
       targetPlayer.getInventory().addItem(ExperienceOrb.with(skills.get(ThreadLocalRandom.current().nextInt(skills.size())).getName(), amount));
-      FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_RANDOM_ORB)).send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_RANDOM_ORB)));
       return;
     }
 
     Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(skillName.name());
     if (skill != null) {
       targetPlayer.getInventory().addItem(ExperienceOrb.with(skill.getName(), amount));
-      FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_SKILL_ORB, untrusted("skill", skill.getName())))
-          .send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
+          CommandRuntimeMessages.GIVING_SKILL_ORB,
+          untrusted("skill", skill.getName())
+      )));
     } else {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_SKILL_ORB, untrusted("skill", skillName.name())))
-          .send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.UNKNOWN_SKILL_ORB,
+          untrusted("skill", skillName.name())
+      )));
     }
   }
 
@@ -308,52 +390,65 @@ public class CommandAdapt {
       @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
-    if (!BukkitDirectorContext.hasPermission("adapt.cheatitem")) {
+    CommandSender sender = BukkitDirectorContext.sender();
+    if (!sender.hasPermission("adapt.cheatitem")) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.cheatitem")))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
-    Player targetPlayer = player;
 
+    Player targetPlayer = resolveTargetPlayer(player, sender, CommandRuntimeMessages.PLAYER_ONLY);
     if (targetPlayer == null) {
-      if (BukkitDirectorContext.isPlayer()) {
-        targetPlayer = BukkitDirectorContext.player();
-      } else {
-        FConst.error(AdaptLanguage.text(CommandRuntimeMessages.PLAYER_ONLY)).send(BukkitDirectorContext.sender());
-        return;
-      }
+      return;
     }
 
+    CommandTargetExecutor.run(
+        targetPlayer,
+        () -> giveKnowledgeOrb(skillName, amount, targetPlayer, sender),
+        sender
+    );
+  }
+
+  private void giveKnowledgeOrb(
+      AdaptationListingHandler.AdaptationSkillList skillName,
+      int amount,
+      Player targetPlayer,
+      CommandSender sender
+  ) {
     if (skillName.equals("all")) {
       Map<String, Integer> knowledgeMap = new HashMap<>();
       for (Skill<?> skill : allSkillSnapshot()) {
         knowledgeMap.put(skill.getName(), amount);
       }
       targetPlayer.getInventory().addItem(KnowledgeOrb.with(knowledgeMap));
-      FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_ALL_ORBS)).send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_ALL_ORBS)));
       return;
     }
 
     if (skillName.equals("random")) {
       List<Skill<?>> skills = allSkillSnapshot();
       if (skills.isEmpty()) {
-        FConst.error(AdaptLanguage.text(CommandRuntimeMessages.NO_SKILLS_REGISTERED)).send(BukkitDirectorContext.sender());
+        CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(CommandRuntimeMessages.NO_SKILLS_REGISTERED)));
         return;
       }
 
       targetPlayer.getInventory().addItem(KnowledgeOrb.with(skills.get(ThreadLocalRandom.current().nextInt(skills.size())).getName(), amount));
-      FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_RANDOM_ORB)).send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_RANDOM_ORB)));
       return;
     }
 
     Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(skillName.name());
     if (skill != null) {
       targetPlayer.getInventory().addItem(KnowledgeOrb.with(skill.getName(), amount));
-      FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GIVING_SKILL_ORB, untrusted("skill", skill.getName())))
-          .send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
+          CommandRuntimeMessages.GIVING_SKILL_ORB,
+          untrusted("skill", skill.getName())
+      )));
     } else {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_SKILL_ORB, untrusted("skill", skillName.name())))
-          .send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.UNKNOWN_SKILL_ORB,
+          untrusted("skill", skillName.name())
+      )));
     }
   }
 
@@ -371,36 +466,51 @@ public class CommandAdapt {
       Player player
 
   ) {
-    if (!BukkitDirectorContext.hasPermission("adapt.determine")) {
+    CommandSender sender = BukkitDirectorContext.sender();
+    if (!sender.hasPermission("adapt.determine")) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.determine")))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
-    Player targetPlayer = player;
-    if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.PLAYER_REQUIRED_FROM_CONSOLE))
-          .send(BukkitDirectorContext.sender());
+    Player targetPlayer = resolveTargetPlayer(player, sender);
+    if (targetPlayer == null) {
       return;
-    } else if (targetPlayer == null) {
-      targetPlayer = BukkitDirectorContext.player();
     }
 
-    //the format is skillname:adaptationname
     String[] split = adaptationTarget.name().split(":", 2);
     if (split.length != 2) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.INVALID_ADAPTATION_TARGET))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
-    String skillname = split[0];
-    String adaptationname = split[1];
+
+    CommandTargetExecutor.run(
+        targetPlayer,
+        () -> determineTarget(split[0], split[1], assign, force, level, targetPlayer, sender),
+        sender
+    );
+  }
+
+  private void determineTarget(
+      String skillname,
+      String adaptationname,
+      boolean assign,
+      boolean force,
+      int level,
+      Player targetPlayer,
+      CommandSender sender
+  ) {
+    AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
+    if (adaptPlayer == null) {
+      return;
+    }
 
     for (Skill<?> skill : SkillRegistry.skills.sortV()) {
       if (skill.getName().equalsIgnoreCase(skillname)) {
         for (Adaptation<?> adaptation : skill.getAdaptations()) {
           if (adaptation.getName().equalsIgnoreCase(adaptationname)) {
-            PlayerSkillLine skillLine = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData().getSkillLine(skill.getName());
+            PlayerSkillLine skillLine = adaptPlayer.getData().getSkillLine(skill.getName());
             int previousLevel = skillLine == null ? 0 : skillLine.getAdaptationLevel(adaptation.getName());
 
             if (assign) {
@@ -411,34 +521,36 @@ public class CommandAdapt {
 
             int resultingLevel = skillLine == null ? 0 : skillLine.getAdaptationLevel(adaptation.getName());
             if (resultingLevel == previousLevel) {
-              FConst.error(AdaptLanguage.text(
+              CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
                   CommandRuntimeMessages.NO_ADAPTATION_CHANGE,
                   untrusted("adaptation", adaptation.getName()),
                   untrusted("player", targetPlayer.getName()),
                   trusted("level", resultingLevel)
-              )).send(BukkitDirectorContext.sender());
+              )));
             } else {
-              FConst.success(AdaptLanguage.text(
+              CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
                   assign ? CommandRuntimeMessages.LEARNED_ADAPTATION : CommandRuntimeMessages.UNLEARNED_ADAPTATION,
                   untrusted("adaptation", adaptation.getName()),
                   untrusted("player", targetPlayer.getName()),
                   trusted("level", resultingLevel)
-              )).send(BukkitDirectorContext.sender());
+              )));
             }
             return;
           }
         }
-        FConst.error(AdaptLanguage.text(
+        CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
             CommandRuntimeMessages.UNKNOWN_ADAPTATION_IN_SKILL,
             untrusted("adaptation", adaptationname),
             untrusted("skill", skill.getName())
-        )).send(BukkitDirectorContext.sender());
+        )));
         return;
       }
     }
 
-    FConst.error(AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_SKILL_QUOTED, untrusted("skill", skillname)))
-        .send(BukkitDirectorContext.sender());
+    CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+        CommandRuntimeMessages.UNKNOWN_SKILL_QUOTED,
+        untrusted("skill", skillname)
+    )));
   }
 
   @Director(name = "claim-skill", description = "Set a player's skill line level between 0 and 100 for custom UI integration.", descriptionKey = "command.help.set_a_player_s_skill_line_level_between_0_and_100_for_custom_ui_integration")
@@ -450,34 +562,49 @@ public class CommandAdapt {
       @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
-    if (!BukkitDirectorContext.hasPermission("adapt.determine")) {
+    CommandSender sender = BukkitDirectorContext.sender();
+    if (!sender.hasPermission("adapt.determine")) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.determine")))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
-    Player targetPlayer = resolveTargetPlayer(player);
+    Player targetPlayer = resolveTargetPlayer(player, sender);
     if (targetPlayer == null) {
       return;
     }
 
     if (level < 0 || level > 100) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.SKILL_LEVEL_RANGE)).send(BukkitDirectorContext.sender());
+      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.SKILL_LEVEL_RANGE)).send(sender);
       return;
     }
 
     Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(skillTarget.name());
     if (skill == null) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_SKILL, untrusted("skill", skillTarget.name())))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
-    PlayerData playerData = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData();
+    CommandTargetExecutor.run(
+        targetPlayer,
+        () -> claimSkillTarget(skill, level, targetPlayer, sender),
+        sender
+    );
+  }
+
+  private void claimSkillTarget(Skill<?> skill, int level, Player targetPlayer, CommandSender sender) {
+    AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
+    if (adaptPlayer == null) {
+      return;
+    }
+    PlayerData playerData = adaptPlayer.getData();
     PlayerSkillLine skillLine = playerData.getSkillLine(skill.getName());
     if (skillLine == null) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.SKILL_LINE_UNAVAILABLE, untrusted("skill", skill.getName())))
-          .send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.SKILL_LINE_UNAVAILABLE,
+          untrusted("skill", skill.getName())
+      )));
       return;
     }
 
@@ -490,12 +617,12 @@ public class CommandAdapt {
       skillLine.setLastLevel(level);
     }
 
-    FConst.success(AdaptLanguage.text(
+    CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
         CommandRuntimeMessages.SET_SKILL_LEVEL,
         untrusted("player", targetPlayer.getName()),
         untrusted("skill", skill.getName()),
         trusted("level", level)
-    )).send(BukkitDirectorContext.sender());
+    )));
   }
 
   @Director(name = "claim-adaptation", description = "Set an adaptation level between 0 and 100 if the player can afford it.", descriptionKey = "command.help.set_an_adaptation_level_between_0_and_100_if_the_player_can_afford_it")
@@ -509,34 +636,35 @@ public class CommandAdapt {
       @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
-    if (!BukkitDirectorContext.hasPermission("adapt.determine")) {
+    CommandSender sender = BukkitDirectorContext.sender();
+    if (!sender.hasPermission("adapt.determine")) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.determine")))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
-    Player targetPlayer = resolveTargetPlayer(player);
+    Player targetPlayer = resolveTargetPlayer(player, sender);
     if (targetPlayer == null) {
       return;
     }
 
     if (level < 0 || level > 100) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.ADAPTATION_LEVEL_RANGE))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
     String[] split = adaptationTarget.name().split(":", 2);
     if (split.length != 2) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.INVALID_ADAPTATION_TARGET))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
     Skill<?> skill = Adapt.instance.getAdaptServer().getSkillRegistry().getAnySkill(split[0]);
     if (skill == null) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_SKILL, untrusted("skill", split[0])))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
@@ -553,26 +681,48 @@ public class CommandAdapt {
           CommandRuntimeMessages.UNKNOWN_ADAPTATION_IN_SKILL_PLAIN,
           untrusted("adaptation", split[1]),
           untrusted("skill", skill.getName())
-      )).send(BukkitDirectorContext.sender());
+      )).send(sender);
       return;
     }
 
-    PlayerData playerData = Adapt.instance.getAdaptServer().getPlayer(targetPlayer).getData();
+    Adaptation<?> targetAdaptation = adaptation;
+    CommandTargetExecutor.run(
+        targetPlayer,
+        () -> claimAdaptationTarget(skill, targetAdaptation, level, force, targetPlayer, sender),
+        sender
+    );
+  }
+
+  private void claimAdaptationTarget(
+      Skill<?> skill,
+      Adaptation<?> adaptation,
+      int level,
+      boolean force,
+      Player targetPlayer,
+      CommandSender sender
+  ) {
+    AdaptPlayer adaptPlayer = resolveReadyTarget(targetPlayer, sender);
+    if (adaptPlayer == null) {
+      return;
+    }
+    PlayerData playerData = adaptPlayer.getData();
     PlayerSkillLine skillLine = playerData.getSkillLine(skill.getName());
     if (skillLine == null) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.SKILL_LINE_UNAVAILABLE, untrusted("skill", skill.getName())))
-          .send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.SKILL_LINE_UNAVAILABLE,
+          untrusted("skill", skill.getName())
+      )));
       return;
     }
 
     int currentLevel = skillLine.getAdaptationLevel(adaptation.getName());
     int targetLevel = Math.max(0, Math.min(level, adaptation.getMaxLevel()));
     if (targetLevel == currentLevel) {
-      FConst.success(AdaptLanguage.text(
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
           CommandRuntimeMessages.ADAPTATION_ALREADY_LEVEL,
           untrusted("adaptation", adaptation.getName()),
           trusted("level", currentLevel)
-      )).send(BukkitDirectorContext.sender());
+      )));
       return;
     }
 
@@ -582,31 +732,41 @@ public class CommandAdapt {
       AdaptationLearningTransaction.Result result =
           AdaptationLearningTransaction.learn(adaptation, targetPlayer, targetLevel, force);
       if (result != AdaptationLearningTransaction.Result.LEARNED) {
-        sendLearningFailure(result, skill, adaptation, targetPlayer, playerData, skillLine, knowledgeCost, powerCost);
+        sendLearningFailure(
+            result,
+            skill,
+            adaptation,
+            targetPlayer,
+            playerData,
+            skillLine,
+            knowledgeCost,
+            powerCost,
+            sender
+        );
         return;
       }
-      FConst.success(AdaptLanguage.text(
+      CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
           CommandRuntimeMessages.SET_ADAPTATION_LEVEL,
           untrusted("player", targetPlayer.getName()),
           untrusted("adaptation", adaptation.getName()),
           trusted("level", targetLevel)
-      )).send(BukkitDirectorContext.sender());
+      )));
       return;
     }
 
     AdaptationLearningTransaction.Result result =
         AdaptationLearningTransaction.unlearn(adaptation, targetPlayer, targetLevel, force);
     if (result != AdaptationLearningTransaction.Result.UNLEARNED) {
-      sendLearningFailure(result, skill, adaptation, targetPlayer, playerData, skillLine, 0, 0);
+      sendLearningFailure(result, skill, adaptation, targetPlayer, playerData, skillLine, 0, 0, sender);
       return;
     }
 
-    FConst.success(AdaptLanguage.text(
+    CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
         CommandRuntimeMessages.SET_ADAPTATION_LEVEL,
         untrusted("player", targetPlayer.getName()),
         untrusted("adaptation", adaptation.getName()),
         trusted("level", targetLevel)
-    )).send(BukkitDirectorContext.sender());
+    )));
   }
 
   private void sendLearningFailure(
@@ -617,90 +777,54 @@ public class CommandAdapt {
       PlayerData playerData,
       PlayerSkillLine skillLine,
       int knowledgeCost,
-      int powerCost
+      int powerCost,
+      CommandSender sender
   ) {
     if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_POWER) {
-      FConst.error(AdaptLanguage.text(
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.POWER_INSUFFICIENT,
           trusted("needed", powerCost),
           trusted("available", playerData.getAvailablePower())
-      )).send(BukkitDirectorContext.sender());
+      )));
       return;
     }
     if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_KNOWLEDGE) {
-      FConst.error(AdaptLanguage.text(
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.KNOWLEDGE_INSUFFICIENT,
           untrusted("skill", skill.getName()),
           trusted("needed", knowledgeCost),
           trusted("available", skillLine.getKnowledge())
-      )).send(BukkitDirectorContext.sender());
+      )));
       return;
     }
     if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_FUNDS) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.VAULT_INSUFFICIENT_FUNDS))
-          .send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(
+          sender,
+          FConst.error(AdaptLanguage.text(CommandRuntimeMessages.VAULT_INSUFFICIENT_FUNDS))
+      );
       return;
     }
     if (result == AdaptationLearningTransaction.Result.ECONOMY_UNAVAILABLE
         || result == AdaptationLearningTransaction.Result.ECONOMY_FAILED) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.VAULT_TRANSACTION_FAILED))
-          .send(BukkitDirectorContext.sender());
+      CommandTargetExecutor.send(
+          sender,
+          FConst.error(AdaptLanguage.text(CommandRuntimeMessages.VAULT_TRANSACTION_FAILED))
+      );
       return;
     }
     if (result == AdaptationLearningTransaction.Result.PERMANENT) {
-      FConst.error(AdaptLanguage.text(
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
           CommandRuntimeMessages.PERMANENT_ADAPTATION_LOWER,
           untrusted("adaptation", adaptation.getName())
-      )).send(BukkitDirectorContext.sender());
+      )));
       return;
     }
-    FConst.error(AdaptLanguage.text(
+    CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
         CommandRuntimeMessages.NO_ADAPTATION_CHANGE,
         untrusted("adaptation", adaptation.getName()),
         untrusted("player", targetPlayer.getName()),
         trusted("level", skillLine.getAdaptationLevel(adaptation.getName()))
-    )).send(BukkitDirectorContext.sender());
-  }
-
-  @Director(name = "migrate-configs", description = "Force migrate and rewrite all skill/adaptation configs to canonical TOML with comments.", descriptionKey = "command.help.force_migrate_and_rewrite_all_skill_adaptation_configs_to_canonical_toml_with_comments")
-  public void migrateConfigs() {
-    if (!BukkitDirectorContext.hasPermission("adapt.debug")) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.debug")))
-          .send(BukkitDirectorContext.sender());
-      return;
-    }
-
-    if (Adapt.instance.getAdaptServer() == null || Adapt.instance.getAdaptServer().getSkillRegistry() == null) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.ADAPT_SERVER_NOT_READY))
-          .send(BukkitDirectorContext.sender());
-      return;
-    }
-
-    int migratedSkills = 0;
-    int migratedAdaptations = 0;
-    SkillRegistry registry = Adapt.instance.getAdaptServer().getSkillRegistry();
-    for (Skill<?> skill : registry.getAllSkills()) {
-      int adaptationConfigs = 0;
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        if (adaptation instanceof SimpleAdaptation<?>) {
-          adaptationConfigs++;
-        }
-      }
-      if (registry.hotReloadSkillConfig(skill.getName())) {
-        if (skill instanceof SimpleSkill<?>) {
-          migratedSkills++;
-        }
-        migratedAdaptations += adaptationConfigs;
-      }
-    }
-
-    int deletedLegacyJson = ConfigMigrationManager.deleteMigratedLegacyJsonFiles();
-    FConst.success(AdaptLanguage.text(
-        CommandRuntimeMessages.CONFIGS_CANONICALIZED,
-        trusted("skills", migratedSkills),
-        trusted("adaptations", migratedAdaptations),
-        trusted("deleted", deletedLegacyJson)
-    )).send(BukkitDirectorContext.sender());
+    )));
   }
 
   static boolean openSkillGui(Skill<?> skill, Player player, boolean force) {
@@ -721,16 +845,35 @@ public class CommandAdapt {
     return SkillRegistry.skills.sortV();
   }
 
-  private Player resolveTargetPlayer(Player player) {
+  private Player resolveTargetPlayer(Player player, CommandSender sender) {
+    return resolveTargetPlayer(player, sender, CommandRuntimeMessages.PLAYER_REQUIRED_FROM_CONSOLE);
+  }
+
+  private Player resolveTargetPlayer(Player player, CommandSender sender, TextKey consoleMessage) {
     Player targetPlayer = player;
-    if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.PLAYER_REQUIRED_FROM_CONSOLE))
-          .send(BukkitDirectorContext.sender());
+    if (targetPlayer == null && !(sender instanceof Player)) {
+      FConst.error(AdaptLanguage.text(consoleMessage)).send(sender);
       return null;
     }
     if (targetPlayer == null) {
-      targetPlayer = BukkitDirectorContext.player();
+      targetPlayer = (Player) sender;
     }
     return targetPlayer;
+  }
+
+  private AdaptPlayer resolveReadyTarget(Player targetPlayer, CommandSender sender) {
+    AdaptServer adaptServer = Adapt.instance == null ? null : Adapt.instance.getAdaptServer();
+    AdaptPlayer adaptPlayer = adaptServer == null
+        ? null
+        : adaptServer.getOnlineAdaptPlayer(targetPlayer.getUniqueId());
+    if (adaptPlayer != null && adaptPlayer.isRuntimeReady()
+        && adaptPlayer.getPlayer() == targetPlayer) {
+      return adaptPlayer;
+    }
+    CommandTargetExecutor.send(
+        sender,
+        FConst.error(AdaptLanguage.text(CommandRuntimeMessages.ADAPT_SERVER_NOT_READY))
+    );
+    return null;
   }
 }

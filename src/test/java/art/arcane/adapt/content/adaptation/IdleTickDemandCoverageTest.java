@@ -1,7 +1,9 @@
 package art.arcane.adapt.content.adaptation;
 
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
@@ -11,7 +13,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class IdleTickDemandCoverageTest {
   private static final List<String> LEARNER_BOUND = List.of(
-      "agility.AgilityVault",
       "chronos.ChronosAccelerate",
       "chronos.ChronosPocketWatch",
       "chronos.ChronosTimeInABottle",
@@ -22,11 +23,6 @@ class IdleTickDemandCoverageTest {
       "discovery.DiscoveryTrailblazer",
       "herbalism.HerbalismBeeShepherd",
       "herbalism.HerbalismGrowthAura",
-      "kinetics.KineticsHeavyFrame",
-      "kinetics.KineticsMoonJump",
-      "kinetics.KineticsPhalanxReach",
-      "kinetics.KineticsRubberSoul",
-      "kinetics.KineticsSurfaceSkate",
       "seaborrne.SeaborneBrineSkin",
       "seaborrne.SeaborneDeepSalvager",
       "seaborrne.SeaborneOxygen",
@@ -34,6 +30,15 @@ class IdleTickDemandCoverageTest {
       "seaborrne.SeaborneTurtlesVision",
       "taming.TamingFetch",
       "unarmed.UnarmedPower"
+  );
+  private static final List<String> OWNER_PULSE = List.of(
+      "agility.AgilityVault",
+      "kinetics.KineticsHeavyFrame",
+      "kinetics.KineticsMoonJump",
+      "kinetics.KineticsPhalanxReach",
+      "kinetics.KineticsRubberSoul",
+      "kinetics.KineticsSurfaceSkate",
+      "unarmed.UnarmedMeditation"
   );
   private static final List<String> STATE_DRIVEN = List.of(
       "agility.AgilityArmorUp",
@@ -62,10 +67,15 @@ class IdleTickDemandCoverageTest {
       Method method = adaptationClass(className).getDeclaredMethod("hasTickDemand");
       assertThat(method.getReturnType()).isEqualTo(boolean.class);
     }
+    for (String className : OWNER_PULSE) {
+      Field field = adaptationClass(className).getDeclaredField("ownerMaintenance");
+      assertThat(field.getType()).isEqualTo(AdaptationOwnerPulse.Registration.class);
+    }
 
     Set<String> covered = new HashSet<>(LEARNER_BOUND);
     covered.addAll(STATE_DRIVEN);
-    assertThat(covered).hasSize(34);
+    covered.addAll(OWNER_PULSE);
+    assertThat(covered).hasSize(35);
   }
 
   private static Class<?> adaptationClass(String relativeName) throws ClassNotFoundException {

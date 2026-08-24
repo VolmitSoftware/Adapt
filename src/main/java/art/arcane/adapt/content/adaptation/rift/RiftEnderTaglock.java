@@ -551,7 +551,7 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
 
   private void reportTeleportFailure(UUID targetId, Throwable error) {
     Adapt.warn("Failed to complete an Ender Taglock teleport for target " + targetId + ".");
-    error.printStackTrace();
+    Adapt.error(error);
   }
 
   private Location resolveDestination(ProjectileHitEvent e) {

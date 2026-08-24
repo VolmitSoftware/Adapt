@@ -1,13 +1,38 @@
 package art.arcane.adapt.api.xp;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 
 class XpMathTest extends AdaptTestBase {
+
+    @Test
+    void nonFiniteProgressionInputsAndCurveResultsStayFinite() throws Exception {
+        AdaptConfig config = AdaptConfig.get();
+        int previousMaximum = config.experienceMaxLevel;
+        Field curveField = AdaptConfig.class.getDeclaredField("xpCurve");
+        curveField.setAccessible(true);
+        Curves previousCurve = (Curves) curveField.get(config);
+        try {
+            config.experienceMaxLevel = 2;
+            curveField.set(config, Curves.HYPER);
+
+            assertThat(XP.getXpForLevel(2D)).isEqualTo(2800D);
+            assertThat(XP.getXpForLevel(Double.NaN)).isFinite();
+            assertThat(XP.getLevelForXp(Double.NaN)).isZero();
+            assertThat(XP.getLevelForXp(Double.POSITIVE_INFINITY)).isEqualTo(2D);
+            assertThat(XP.getLevelForXp(Double.NEGATIVE_INFINITY)).isZero();
+        } finally {
+            config.experienceMaxLevel = previousMaximum;
+            curveField.set(config, previousCurve);
+        }
+    }
 
     @Test
     @DisplayName("xp required for a level increases monotonically")
@@ -45,6 +70,19 @@ class XpMathTest extends AdaptTestBase {
     void xpUntilLevelUpNeverNegative() {
         for (double xp = 0.0; xp < 500000.0; xp += 211.0) {
             assertThat(XP.getXpUntilLevelUp(xp)).isGreaterThanOrEqualTo(0.0);
+        }
+    }
+
+    @Test
+    void maximumIntegerLevelDoesNotOverflowTheSuccessor() {
+        AdaptConfig config = AdaptConfig.get();
+        int previousMaximum = config.experienceMaxLevel;
+        try {
+            config.experienceMaxLevel = Integer.MAX_VALUE;
+            assertThat(XP.getXpUntilLevelUp(Double.POSITIVE_INFINITY)).isZero();
+            assertThat(XP.getXpUntilLevelUp(Double.POSITIVE_INFINITY)).isFinite();
+        } finally {
+            config.experienceMaxLevel = previousMaximum;
         }
     }
 }

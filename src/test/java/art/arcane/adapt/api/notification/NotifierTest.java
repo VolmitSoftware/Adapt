@@ -19,6 +19,22 @@ import static org.mockito.Mockito.when;
 
 class NotifierTest extends AdaptTestBase {
   @Test
+  void idleNotifierRegistersOnlyWhenWorkArrives() {
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
+    AdaptPlayer target = mock(AdaptPlayer.class);
+    when(target.getPlayer()).thenReturn(player);
+    Notifier notifier = new Notifier(target);
+    Notification notification = mock(Notification.class);
+
+    verify(ticker, never()).register(notifier);
+
+    notifier.queue(notification);
+
+    verify(ticker).register(notifier);
+  }
+
+  @Test
   void queuedWorkWakesAnIdleNotifier() {
     Player player = mock(Player.class);
     when(player.getUniqueId()).thenReturn(UUID.randomUUID());

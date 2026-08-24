@@ -56,7 +56,7 @@ public class CommandDefault {
       return;
     }
 
-    File configFile = Adapt.instance.getDataFile("adapt", "skills", skill.getName() + ".toml");
+    File configFile = Adapt.instance.getDataFile("skills", skill.getName() + ".toml");
     if (configFile.exists() && !configFile.delete()) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.CONFIG_DELETE_FAILED, untrusted("target", skill.getName())))
           .send(BukkitDirectorContext.sender());
@@ -122,7 +122,7 @@ public class CommandDefault {
       return;
     }
 
-    File configFile = Adapt.instance.getDataFile("adapt", "adaptations", adaptation.getName() + ".toml");
+    File configFile = Adapt.instance.getDataFile("adaptations", adaptation.getName() + ".toml");
     if (configFile.exists() && !configFile.delete()) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.CONFIG_DELETE_FAILED, untrusted("target", adaptation.getName())))
           .send(BukkitDirectorContext.sender());
@@ -159,7 +159,7 @@ public class CommandDefault {
     int reset = 0;
 
     // Archive and reset main config
-    File mainConfig = Adapt.instance.getDataFile("adapt", "adapt.toml");
+    File mainConfig = Adapt.instance.getDataFile("adapt.toml");
     if (mainConfig.exists()) {
       if (archiveFile(mainConfig, new File(archiveDir, "adapt.toml"))) {
         archived++;
@@ -168,7 +168,7 @@ public class CommandDefault {
     }
 
     // Archive and reset skill configs
-    File skillsDir = Adapt.instance.getDataFolder("adapt", "skills");
+    File skillsDir = Adapt.instance.getDataFolder("skills");
     if (skillsDir.exists()) {
       File archiveSkillsDir = new File(archiveDir, "skills");
       archiveSkillsDir.mkdirs();
@@ -184,7 +184,7 @@ public class CommandDefault {
     }
 
     // Archive and reset adaptation configs
-    File adaptationsDir = Adapt.instance.getDataFolder("adapt", "adaptations");
+    File adaptationsDir = Adapt.instance.getDataFolder("adaptations");
     if (adaptationsDir.exists()) {
       File archiveAdaptationsDir = new File(archiveDir, "adaptations");
       archiveAdaptationsDir.mkdirs();

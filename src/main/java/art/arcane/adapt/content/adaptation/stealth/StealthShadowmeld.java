@@ -57,12 +57,15 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
   private static final Set<UUID> MELDED = ConcurrentHashMap.newKeySet();
   private static final int INVISIBILITY_REFRESH_TICKS = 40;
   private static final int HARD_MAX_ACTIVE_SESSIONS = 2_048;
+  static final long CANDIDATE_SCAN_INTERVAL_MILLIS = 250L;
+  static final int MAX_CANDIDATE_VISITS_PER_TICK = 256;
   private static final int MAX_SESSION_VISITS_PER_TICK = 64;
 
   private final StealthSessionCoordinator<MeldSession> coordinator =
       new StealthSessionCoordinator<>(HARD_MAX_ACTIVE_SESSIONS);
   private final StealthSmokePellet smokePellet;
   private final StealthCore stealth;
+  private int candidateCursor;
 
   public StealthShadowmeld(StealthCore stealth, StealthSmokePellet smokePellet) {
     super("stealth-shadowmeld");
@@ -70,7 +73,7 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
     this.smokePellet = Objects.requireNonNull(smokePellet);
     registerConfiguration(Config.class);
     setIcon(Material.SCULK);
-    setInterval(250);
+    setInterval(CANDIDATE_SCAN_INTERVAL_MILLIS);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BLACK_WOOL)
         .key("challenge_stealth_shadowmeld_100")
@@ -107,6 +110,18 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
 
   static boolean canRemainEligible(boolean sneaking, boolean undetected) {
     return sneaking && undetected;
+  }
+
+  static CandidateBatch candidateBatch(int candidateCount, int cursor) {
+    int safeCount = Math.max(0, candidateCount);
+    if (safeCount == 0) {
+      return new CandidateBatch(0, 0, 0);
+    }
+
+    int start = cursor < 0 || cursor >= safeCount ? 0 : cursor;
+    int end = Math.min(safeCount, start + MAX_CANDIDATE_VISITS_PER_TICK);
+    int nextCursor = end >= safeCount ? 0 : end;
+    return new CandidateBatch(start, end, nextCursor);
   }
 
   @Override
@@ -163,10 +178,13 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
 
   @Override
   public void onTick() {
-    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
+    List<AdaptPlayer> candidates = learnedCandidates(System.currentTimeMillis());
+    CandidateBatch batch = candidateBatch(candidates.size(), candidateCursor);
+    candidateCursor = batch.nextCursor;
+    for (int index = batch.start; index < batch.end; index++) {
+      AdaptPlayer adaptPlayer = candidates.get(index);
       Player player = adaptPlayer.getPlayer();
-      if (player == null || !player.isOnline() || !player.isSneaking()
-          || coordinator.contains(player.getUniqueId())) {
+      if (player == null) {
         continue;
       }
       J.runEntity(player, () -> startSessionIfEligible(player));
@@ -324,6 +342,12 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
         level,
         getMaxLevel()
     );
+  }
+
+  record CandidateBatch(int start, int end, int nextCursor) {
+    int size() {
+      return end - start;
+    }
   }
 
   private static final class MeldSession {

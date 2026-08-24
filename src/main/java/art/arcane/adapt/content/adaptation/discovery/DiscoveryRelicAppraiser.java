@@ -134,7 +134,7 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
       snapshot = ItemStack.deserializeBytes(encoded);
     } catch (IllegalArgumentException ex) {
       Adapt.error("Could not restore an appraised relic broken at " + state.getLocation() + ".");
-      ex.printStackTrace();
+      Adapt.error(ex);
       return;
     }
 

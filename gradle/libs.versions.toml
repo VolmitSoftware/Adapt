@@ -14,7 +14,6 @@ amulet = "23.5.1"
 chrono = "22.9.10"
 spatial = "22.11.2"
 
-velocity = "3.4.0-SNAPSHOT"
 spigot = "26.2-R0.1-SNAPSHOT"
 platformUtils = "e17ac2c698"
 
@@ -42,7 +41,6 @@ amulet = { module = "com.github.VolmitDev:Amulet", version.ref = "amulet" }
 chrono = { module = "com.github.VolmitDev:Chrono", version.ref = "chrono" }
 spatial = { module = "com.github.VolmitDev:Spatial", version.ref = "spatial" }
 
-velocity = { module = "com.velocitypowered:velocity-api", version.ref = "velocity" }
 spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
 platformUtils = { module = "com.github.CrazyDev05:PlatformUtils", version.ref = "platformUtils" }
 
@@ -70,7 +68,6 @@ kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", 
 lombok = { id = "io.freefair.lombok", version.ref = "lombok" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
 runPaper = { id = "xyz.jpenilla.run-paper", version.ref = "runTask" }
-runVelocity = { id = "xyz.jpenilla.run-velocity", version.ref = "runTask" }
 idea = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "idea" }
 slimjar = { id = "de.crazydev22.slimjar", version.ref = "slimjar" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }

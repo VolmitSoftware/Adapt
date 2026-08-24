@@ -1,11 +1,11 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -29,12 +29,18 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
   private static final long HOP_DURATION_TICKS = 10L;
 
   private final Cooldowns fxCooldown = cooldowns();
+  private final AdaptationOwnerPulse.Registration ownerMaintenance;
 
   public KineticsMoonJump() {
     super("kinetics-moon-jump");
     registerConfiguration(Config.class);
     setIcon(Material.RABBIT_FOOT);
     setInterval(RECONCILE_INTERVAL_MS);
+    ownerMaintenance = AdaptationOwnerPulse.register(
+        this,
+        this::getInterval,
+        this::reconcileBaseJump
+    );
   }
 
   @Override
@@ -46,16 +52,9 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
   }
 
   @Override
-  protected boolean usesLearnerBoundTicking() {
-    return true;
-  }
-
-  @Override
-  public void onTick() {
-    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
-      Player player = adaptPlayer.getPlayer();
-      withPlayerThread(player, () -> reconcileBaseJump(player));
-    }
+  public void unregister() {
+    ownerMaintenance.unregister();
+    super.unregister();
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

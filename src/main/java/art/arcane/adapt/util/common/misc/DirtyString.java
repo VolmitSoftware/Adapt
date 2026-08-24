@@ -18,10 +18,8 @@
 
 package art.arcane.adapt.util.common.misc;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.format.HiddenStringUtils;
 import art.arcane.adapt.util.common.io.Json;
-import org.bukkit.ChatColor;
 
 public class DirtyString {
 
@@ -34,9 +32,6 @@ public class DirtyString {
   }
 
   public static boolean has(String data) {
-    if (!HiddenStringUtils.hasHiddenString(data)) {
-      Adapt.info("Not has in " + data.replaceAll("\\Q" + ChatColor.COLOR_CHAR + "\\E", "&"));
-    }
     return HiddenStringUtils.hasHiddenString(data);
   }
 
@@ -48,4 +43,3 @@ public class DirtyString {
     return HiddenStringUtils.extractHiddenString(data);
   }
 }
-

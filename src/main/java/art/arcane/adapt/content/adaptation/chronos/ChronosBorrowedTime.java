@@ -235,7 +235,7 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
         applyDeferredDamage(player, damage);
       } catch (Throwable error) {
         Adapt.error("Borrowed Time could not settle deferred damage for " + id + ".");
-        error.printStackTrace();
+        Adapt.error(error);
         return;
       }
 
@@ -278,7 +278,7 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
     } catch (Throwable error) {
       Adapt.error("Borrowed Time could not persist deferred damage for "
           + player.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }
@@ -303,7 +303,7 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
       deferred.putIfAbsent(id, queue);
     } catch (RuntimeException error) {
       Adapt.error("Borrowed Time could not restore deferred damage for " + id + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       player.getPersistentDataContainer().remove(debtStampKey);
     }
   }

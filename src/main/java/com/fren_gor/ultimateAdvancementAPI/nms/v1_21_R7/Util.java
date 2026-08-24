@@ -1,5 +1,6 @@
 package com.fren_gor.ultimateAdvancementAPI.nms.v1_21_R7;
 
+import art.arcane.adapt.Adapt;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import net.md_5.bungee.api.chat.BaseComponent;
@@ -26,11 +27,8 @@ import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public final class Util {
-    public static final Logger ERROR = Logger.getLogger("UltimateAdvancementAPI-NMS");
-
     private Util() {
         throw new UnsupportedOperationException("Utility class.");
     }
@@ -106,7 +104,8 @@ public final class Util {
 
         Identifier texturePath = Identifier.parse(backgroundTexture);
         if (!texturePath.getPath().startsWith("textures/") || !texturePath.getPath().endsWith(".png")) {
-            ERROR.severe("Invalid background texture \"" + backgroundTexture + "\" (the path should be in the form \"textures/**.png\")");
+            Adapt.error("Invalid advancement background texture \"" + backgroundTexture
+                    + "\"; expected textures/**.png.");
             return null;
         }
 

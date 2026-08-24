@@ -21,6 +21,7 @@ package art.arcane.adapt.api.skill;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.VelocityBurstRuntime;
 import art.arcane.adapt.api.advancement.AdvancementManager;
@@ -32,6 +33,7 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.AdaptRecipeBook;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.content.gui.SkillsGui;
@@ -166,9 +168,19 @@ public class SkillRegistry extends TickedObject {
   @EventHandler
   public void on(PlayerExpChangeEvent e) {
     Player p = e.getPlayer();
-    if (e.getAmount() > 0) {
-      getPlayer(p).boostXPToRecents(0.03, 10000);
+    AdaptPlayer adaptPlayer = resolveReadyPlayer(p);
+    if (adaptPlayer != null && e.getAmount() > 0) {
+      adaptPlayer.boostXPToRecents(0.03, 10000);
     }
+  }
+
+  private AdaptPlayer resolveReadyPlayer(Player player) {
+    AdaptServer adaptServer = getServer();
+    AdaptPlayer adaptPlayer = adaptServer == null
+        ? null
+        : adaptServer.getOnlineAdaptPlayer(player.getUniqueId());
+    return adaptPlayer != null && adaptPlayer.isRuntimeReady()
+        && adaptPlayer.getPlayer() == player ? adaptPlayer : null;
   }
 
   private boolean canInteract(Player player, Location targetLocation) {
@@ -192,17 +204,22 @@ public class SkillRegistry extends TickedObject {
     }
 
     Player p = e.getPlayer();
+    AdaptPlayer adaptPlayer = resolveReadyPlayer(p);
+    if (adaptPlayer == null) {
+      return;
+    }
 
     boolean commonConditions = p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK) && e.getClickedBlock() != null;
     boolean isLectern = commonConditions && e.getClickedBlock().getType().equals(Material.LECTERN);
     boolean isObserver = commonConditions && e.getClickedBlock().getType().equals(Material.OBSERVER);
-    boolean allowVerticalFaces = AdaptConfig.get().adaptActivatorAllowVerticalFaces;
+    AdaptConfig config = AdaptConfig.get();
+    boolean allowVerticalFaces = config.adaptActivatorAllowVerticalFaces;
     boolean validActivatorFace = e.getBlockFace() != null
         && (allowVerticalFaces || (!e.getBlockFace().equals(BlockFace.UP) && !e.getBlockFace().equals(BlockFace.DOWN)));
     boolean isAdaptActivator = validActivatorFace && !p.isSneaking() && e.getAction().equals(Action.RIGHT_CLICK_BLOCK)
         && e.getClickedBlock() != null
         && canInteract(p, e.getClickedBlock().getLocation())
-        && e.getClickedBlock().getType().equals(Material.valueOf(AdaptConfig.get().adaptActivatorBlock)) && (p.getInventory().getItemInMainHand().getType().equals(Material.AIR)
+        && e.getClickedBlock().getType().equals(config.getAdaptActivatorMaterial()) && (p.getInventory().getItemInMainHand().getType().equals(Material.AIR)
         || !p.getInventory().getItemInMainHand().getType().isBlock()) &&
         (p.getInventory().getItemInOffHand().getType().equals(Material.AIR) || !p.getInventory().getItemInOffHand().getType().isBlock());
 
@@ -226,7 +243,11 @@ public class SkillRegistry extends TickedObject {
       if (it.getItemMeta() != null && !it.getItemMeta().getPersistentDataContainer().getKeys().isEmpty()) {
         e.setCancelled(true);
         playDebug(p);
-        it.getItemMeta().getPersistentDataContainer().getKeys().forEach(k -> Bukkit.getServer().getConsoleSender().sendMessage(k + " = " + it.getItemMeta().getPersistentDataContainer().getOrDefault(k, PersistentDataType.STRING, "Not a String")));
+        if (AdaptConfig.get().isVerbose()) {
+          it.getItemMeta().getPersistentDataContainer().getKeys().forEach(key ->
+              Adapt.verbose(key + " = " + it.getItemMeta().getPersistentDataContainer()
+                  .getOrDefault(key, PersistentDataType.STRING, "Not a String")));
+        }
       }
     }
 
@@ -234,33 +255,35 @@ public class SkillRegistry extends TickedObject {
       ItemStack it = p.getInventory().getItemInMainHand();
       if (it.getType().equals(Material.EXPERIENCE_BOTTLE)) {
         e.setCancelled(true);
-        Bukkit.getServer().getConsoleSender().sendMessage("   ");
         p.setCooldown(Material.ENCHANTED_BOOK, 3);
-        AdaptPlayer a = getPlayer(p);
         playDebug(p);
+        if (!AdaptConfig.get().isVerbose()) {
+          return;
+        }
 
-        String xv = a.getData().getMultiplier() - 1d > 0 ? "+" + Form.pc(a.getData().getMultiplier() - 1D) : Form.pc(a.getData().getMultiplier() - 1D);
-        Bukkit.getServer().getConsoleSender().sendMessage("Global" + C.GRAY + ": " + C.GREEN + xv);
+        String xv = adaptPlayer.getData().getMultiplier() - 1d > 0 ? "+" + Form.pc(adaptPlayer.getData().getMultiplier() - 1D) : Form.pc(adaptPlayer.getData().getMultiplier() - 1D);
+        Adapt.verbose("Global" + C.GRAY + ": " + C.GREEN + xv);
 
-        for (XPMultiplier i : a.getData().getMultipliers()) {
+        for (XPMultiplier i : adaptPlayer.getData().getMultipliers()) {
           String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
-          Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
+          Adapt.verbose(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
         }
         for (XPMultiplier i : Adapt.instance.getAdaptServer().getData().getMultipliers()) {
           String vv = i.getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier()) : Form.pc(i.getMultiplier());
-          Bukkit.getServer().getConsoleSender().sendMessage(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
+          Adapt.verbose(C.GREEN + "* " + vv + C.GRAY + " for " + Form.duration(i.getGoodFor() - M.ms(), 0));
         }
 
-        for (PlayerSkillLine i : a.getData().getSkillLines().v()) {
-          Skill<?> s = i.getRawSkill(a);
+        for (PlayerSkillLine i : adaptPlayer.getData().getSkillLines().v()) {
+          Skill<?> s = i.getRawSkill(adaptPlayer);
           if (s == null) {
             continue;
           }
-          String v = i.getMultiplier() - a.getData().getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier() - a.getData().getMultiplier()) : Form.pc(i.getMultiplier() - a.getData().getMultiplier());
-          Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getDisplayName() + C.GRAY + ": " + s.getColor() + v);
+          String v = i.getMultiplier() - adaptPlayer.getData().getMultiplier() > 0 ? "+" + Form.pc(i.getMultiplier() - adaptPlayer.getData().getMultiplier()) : Form.pc(i.getMultiplier() - adaptPlayer.getData().getMultiplier());
+          Adapt.verbose("  " + s.getDisplayName() + C.GRAY + ": " + s.getColor() + v);
           for (XPMultiplier j : i.getMultipliers()) {
             String vv = j.getMultiplier() > 0 ? "+" + Form.pc(j.getMultiplier()) : Form.pc(j.getMultiplier());
-            Bukkit.getServer().getConsoleSender().sendMessage("  " + s.getShortName() + C.GRAY + " " + vv + " for " + Form.duration(j.getGoodFor() - M.ms(), 0));
+            Adapt.verbose("  " + s.getShortName() + C.GRAY + " " + vv + " for "
+                + Form.duration(j.getGoodFor() - M.ms(), 0));
           }
         }
       }
@@ -356,21 +379,35 @@ public class SkillRegistry extends TickedObject {
   public synchronized void registerSkill(Class<? extends Skill<?>> skillType) {
     long started = System.currentTimeMillis();
     long instantiateStarted = started;
-    Skill<?> skill = instantiateSkill(skillType);
+    SkillInstantiation instantiation = instantiateSkill(skillType);
     long instantiateMs = System.currentTimeMillis() - instantiateStarted;
-    if (skill == null) {
+    if (instantiation == null) {
       return;
     }
 
+    Skill<?> skill = instantiation.skill();
+    boolean skillEnabled;
+    try {
+      skillEnabled = skill.isEnabled();
+    } catch (RuntimeException | Error error) {
+      instantiation.rollbackRegistrations();
+      skill.unregister();
+      throw error;
+    }
     String skillName = normalizeSkillName(skill.getName());
     skillTypes.put(skillName, skillType);
     Skill<?> previous = knownSkills.put(skillName, skill);
+    if (skillEnabled) {
+      instantiation.commitRegistrations();
+    } else {
+      instantiation.rollbackRegistrations();
+    }
     if (previous != null && previous != skill) {
       unregisterRecipes(previous);
       previous.unregister();
     }
 
-    if (!skill.isEnabled()) {
+    if (!skillEnabled) {
       skill.unregister();
       skills.remove(skillName);
       catalogChanged(true);
@@ -556,19 +593,42 @@ public class SkillRegistry extends TickedObject {
 
   private boolean replaceSkillInstance(String normalizedName, Class<? extends Skill<?>> skillType,
                                        Skill<?> previousLoaded, ReplacementConfigSnapshot snapshot) {
-    Skill<?> replacement = instantiateSkill(skillType);
-    if (replacement == null) {
+    SkillInstantiation instantiation = instantiateSkill(skillType);
+    if (instantiation == null) {
       return false;
     }
-    if (snapshot != null && !initializeReplacementConfigs(replacement, snapshot)) {
+    Skill<?> replacement = instantiation.skill();
+    boolean initialized;
+    try {
+      initialized = snapshot == null || initializeReplacementConfigs(replacement, snapshot);
+    } catch (RuntimeException | Error error) {
+      instantiation.rollbackRegistrations();
+      replacement.unregister();
+      throw error;
+    }
+    if (!initialized) {
+      instantiation.rollbackRegistrations();
       replacement.unregister();
       return false;
     }
 
+    boolean replacementEnabled;
+    try {
+      replacementEnabled = replacement.isEnabled();
+    } catch (RuntimeException | Error error) {
+      instantiation.rollbackRegistrations();
+      replacement.unregister();
+      throw error;
+    }
     Skill<?> previousKnown = knownSkills.put(normalizedName, replacement);
-    Skill<?> previousActive = replacement.isEnabled()
+    Skill<?> previousActive = replacementEnabled
         ? skills.put(normalizedName, replacement)
         : skills.remove(normalizedName);
+    if (replacementEnabled) {
+      instantiation.commitRegistrations();
+    } else {
+      instantiation.rollbackRegistrations();
+    }
     List<Skill<?>> retired = new ArrayList<>(3);
     addRetired(retired, previousKnown, replacement);
     addRetired(retired, previousLoaded, replacement);
@@ -588,7 +648,7 @@ public class SkillRegistry extends TickedObject {
       previous.unregister();
     }
 
-    if (!replacement.isEnabled()) {
+    if (!replacementEnabled) {
       replacement.unregister();
       if (deferRecipeTransition) {
         enqueueDeferredRecipeTransition(normalizedName, retired, replacement);
@@ -661,6 +721,7 @@ public class SkillRegistry extends TickedObject {
       }
     }
     if (runtimeStarted) {
+      AdaptationOwnerPulse.startRuntime();
       SkillOwnerPulse.startRuntime();
       VelocityBurstRuntime.startRuntime();
       MinionBurden.startRuntime();
@@ -719,13 +780,30 @@ public class SkillRegistry extends TickedObject {
         && deferredRecipeTransitions.isEmpty();
   }
 
-  private Skill<?> instantiateSkill(Class<? extends Skill<?>> skillType) {
+  private SkillInstantiation instantiateSkill(Class<? extends Skill<?>> skillType) {
+    AdaptationOwnerPulse.RegistrationBatch adaptationRegistrations = AdaptationOwnerPulse.beginRegistrationBatch();
+    SkillOwnerPulse.RegistrationBatch skillRegistrations;
     try {
-      return skillType.getConstructor().newInstance();
+      skillRegistrations = SkillOwnerPulse.beginRegistrationBatch();
+    } catch (RuntimeException | Error error) {
+      adaptationRegistrations.rollback();
+      throw error;
+    }
+    try {
+      Skill<?> skill = skillType.getConstructor().newInstance();
+      adaptationRegistrations.endCapture();
+      skillRegistrations.endCapture();
+      return new SkillInstantiation(skill, adaptationRegistrations, skillRegistrations);
     } catch (InstantiationException | IllegalAccessException |
              InvocationTargetException | NoSuchMethodException e) {
-      e.printStackTrace();
+      skillRegistrations.rollback();
+      adaptationRegistrations.rollback();
+      Adapt.error(e);
       return null;
+    } catch (RuntimeException | Error error) {
+      skillRegistrations.rollback();
+      adaptationRegistrations.rollback();
+      throw error;
     }
   }
 
@@ -1061,6 +1139,22 @@ public class SkillRegistry extends TickedObject {
   }
 
   private record AdaptationConfigState(SimpleAdaptation<?> adaptation, boolean previouslyEnabled) {
+  }
+
+  private record SkillInstantiation(
+      Skill<?> skill,
+      AdaptationOwnerPulse.RegistrationBatch adaptationRegistrations,
+      SkillOwnerPulse.RegistrationBatch skillRegistrations
+  ) {
+    private void commitRegistrations() {
+      adaptationRegistrations.commit();
+      skillRegistrations.commit();
+    }
+
+    private void rollbackRegistrations() {
+      skillRegistrations.rollback();
+      adaptationRegistrations.rollback();
+    }
   }
 
   private record ReplacementConfigSnapshot(boolean skill, String configName, String raw, File sourceFile) {

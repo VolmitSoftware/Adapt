@@ -193,7 +193,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     } catch (RuntimeException error) {
       Adapt.error("Mirror Block could not start a projectile teleport for "
           + defender.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
     if (teleport == null) {
@@ -215,7 +215,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     if (failure != null) {
       Adapt.error("Mirror Block projectile teleport failed for "
           + reflection.defenderId() + ".");
-      failure.printStackTrace();
+      Adapt.error(failure);
     }
 
     if (!teleportCompleted(success, failure)) {

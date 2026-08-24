@@ -199,6 +199,9 @@ final class AdaptationGuiSupport {
   }
 
   static boolean openGui(Adaptation<?> adaptation, Player player, boolean checkPermissions) {
+    if (adaptation == null || player == null || adaptation.getPlayer(player) == null) {
+      return false;
+    }
     if (checkPermissions && !adaptation.hasUsePermission(player, adaptation)) {
       return false;
     } else {
@@ -212,7 +215,7 @@ final class AdaptationGuiSupport {
   }
 
   static void openGui(Adaptation<?> adaptation, Player player, int page) {
-    if (!adaptation.isEnabled()) {
+    if (adaptation == null || player == null || !adaptation.isEnabled()) {
       return;
     }
     if (!adaptation.getSkill().isEnabled()) {
@@ -221,6 +224,11 @@ final class AdaptationGuiSupport {
     if (!J.isPrimaryThread()) {
       int targetPage = page;
       J.runEntity(player, () -> openGui(adaptation, player, targetPage));
+      return;
+    }
+
+    AdaptPlayer adaptPlayer = adaptation.getPlayer(player);
+    if (adaptPlayer == null) {
       return;
     }
 
@@ -235,10 +243,13 @@ final class AdaptationGuiSupport {
     int start = currentPage * plan.itemsPerPage();
     int end = Math.min(adaptation.getMaxLevel(), start + plan.itemsPerPage());
 
-    PlayerSkillLine line = adaptation.getPlayer(player).getSkillLine(adaptation.getSkill().getName());
+    PlayerSkillLine line = adaptPlayer.getSkillLine(adaptation.getSkill().getName());
+    if (line == null) {
+      return;
+    }
     int mylevel = paidLevel(line, adaptation.getName());
 
-    long k = adaptation.getPlayer(player).getData().getSkillLine(adaptation.getSkill().getName()).getKnowledge();
+    long k = line.getKnowledge();
 
     boolean debugLearning = AdaptDebugMode.isActive(player);
 
@@ -276,7 +287,7 @@ final class AdaptationGuiSupport {
             .addLore(knowledgeCostLore(mylevel, lvl, c))
             .addLore(vaultCostLore(adaptation, player, mylevel, lvl, c))
             .addLore(learningActionLore(adaptation, mylevel, lvl, rc, k, c, debugLearning))
-            .addLore(powerLore(adaptation, player, mylevel, lvl, pc))
+            .addLore(powerLore(adaptPlayer, mylevel, lvl, pc))
             .addLore((adaptation.isPermanent() ? C.RED + "" + C.BOLD + AdaptLanguage.text(SnippetsMessages.ADAPT_MENU_MAY_NOT_UNLEARN) : ""))
             .addLore(adaptation.isPermanent() && mylevel < lvl
                 ? (pendingPermanentConfirm
@@ -284,8 +295,11 @@ final class AdaptationGuiSupport {
                 : C.YELLOW + AdaptLanguage.text(GuiMessages.PERMANENT_LEARN_DOUBLE_CLICK))
                 : "")
             .onLeftClick((e) -> {
-              AdaptPlayer adaptPlayer = adaptation.getPlayer(player);
-              PlayerSkillLine skillLine = adaptPlayer.getSkillLine(adaptation.getSkill().getName());
+              AdaptPlayer currentPlayer = adaptation.getPlayer(player);
+              if (currentPlayer == null) {
+                return;
+              }
+              PlayerSkillLine skillLine = currentPlayer.getSkillLine(adaptation.getSkill().getName());
               if (skillLine == null) {
                 spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
                 return;
@@ -323,7 +337,7 @@ final class AdaptationGuiSupport {
 
               boolean debugLearningClick = AdaptDebugMode.isActive(player);
               long currentKnowledge = skillLine.getKnowledge();
-              if (debugLearningClick || (currentKnowledge >= c && adaptPlayer.getData().hasPowerAvailable(pc))) {
+              if (debugLearningClick || (currentKnowledge >= c && currentPlayer.getData().hasPowerAvailable(pc))) {
                 if (adaptation.isPermanent() && !debugLearningClick && !consumePermanentLearnConfirmation(player, adaptation, lvl)) {
                   spw.play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.85f);
                   AdaptHud.guiTitle(player, " ", C.GOLD + "" + C.BOLD + AdaptLanguage.text(GuiMessages.PERMANENT_LEARN_CONFIRM));
@@ -681,13 +695,12 @@ final class AdaptationGuiSupport {
   }
 
   private static String powerLore(
-      Adaptation<?> adaptation,
-      Player player,
+      AdaptPlayer adaptPlayer,
       int currentLevel,
       int targetLevel,
       int powerCost
   ) {
-    if (currentLevel >= targetLevel || adaptation.getPlayer(player).getData().hasPowerAvailable(powerCost)) {
+    if (currentLevel >= targetLevel || adaptPlayer.getData().hasPowerAvailable(powerCost)) {
       return C.GREEN + AdaptLanguage.text(
           GuiMessages.POWER_DRAIN,
           trusted("power", targetLevel)

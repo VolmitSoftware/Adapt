@@ -64,13 +64,26 @@ class ConfigDocumentationTest {
   }
 
   @Test
+  @DisplayName("the core config starts with language then metrics")
+  void coreConfigStartsWithRuntimeControls() {
+    String canonical = TomlCodec.toToml(new AdaptConfig(), "core-config");
+
+    int language = canonical.indexOf("language = \"en_US\"");
+    int metrics = canonical.indexOf("metrics = true");
+    int debug = canonical.indexOf("debug = false");
+    assertThat(language).isGreaterThanOrEqualTo(0);
+    assertThat(metrics).isGreaterThan(language);
+    assertThat(debug).isGreaterThan(metrics);
+  }
+
+  @Test
   @DisplayName("annotated storage keys keep their Effect lines in the generated core config")
   void annotatedStorageKeysKeepTheirEffectLines() {
     String canonical = TomlCodec.toToml(new AdaptConfig(), "core-config");
 
     assertThat(canonical)
         .contains("# Stores player data in a MySQL-compatible database instead of local json files.")
-        .contains("# Synchronizes player data between servers over Redis pub/sub.")
+        .contains("# Accelerates fenced player-data handoff between SQL-backed servers over Redis.")
         .contains("# Effect: Used to build the jdbc:mysql url; only read while sql.enabled is true.")
         .contains("# Effect: Used for both the pub/sub subscriber and the publisher connection.");
   }

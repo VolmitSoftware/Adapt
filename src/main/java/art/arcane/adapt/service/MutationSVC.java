@@ -48,15 +48,20 @@ public final class MutationSVC implements AdaptService {
   public void onEnable() {
     manager = new MutationManager(MutationConfig.get());
     if (manager.getConfig().isEnabled()) {
+      MutationManager active = manager;
       for (AdaptPlayer player : Adapt.instance.getAdaptServer().getOnlineAdaptPlayerSnapshot()) {
         Player bukkitPlayer = player.getPlayer();
-        if (bukkitPlayer != null) {
-          J.runEntity(bukkitPlayer, () -> manager.reconcile(player));
+        if (bukkitPlayer != null && player.isRuntimeReady()) {
+          J.runEntity(bukkitPlayer, () -> {
+            if (manager == active && readyPlayer(bukkitPlayer) == player) {
+              active.reconcile(player);
+            }
+          });
         }
       }
       Adapt.info("Experimental Mutations are enabled with " + MutationType.values().length + " available Mutations.");
     } else {
-      Adapt.info("Experimental Mutations are off. Set enabled=true in adapt/mutations.toml to test them.");
+      Adapt.info("Experimental Mutations are off. Set enabled=true in mutations.toml to test them.");
     }
   }
 
@@ -108,7 +113,7 @@ public final class MutationSVC implements AdaptService {
 
   public void onLevelChanged(AdaptPlayer player, int previousLevel, int currentLevel) {
     MutationManager active = manager;
-    if (active == null || player == null) {
+    if (active == null || player == null || !player.isRuntimeReady() || readyPlayer(player.getPlayer()) != player) {
       return;
     }
     MutationConfig current = active.getConfig();
@@ -153,11 +158,13 @@ public final class MutationSVC implements AdaptService {
     }
     Player dealer = resolvePlayerDamager(event.getDamager());
     Player receiver = event.getEntity() instanceof Player player ? player : null;
-    if (dealer != null && receiver != null) {
+    boolean dealerReady = readyPlayer(dealer) != null;
+    boolean receiverReady = readyPlayer(receiver) != null;
+    if (dealerReady && receiverReady) {
       active.getCombatLock().tag(dealer.getUniqueId(), receiver.getUniqueId());
-    } else if (dealer != null) {
+    } else if (dealerReady) {
       active.getCombatLock().tag(dealer.getUniqueId());
-    } else if (receiver != null) {
+    } else if (receiverReady) {
       active.getCombatLock().tag(receiver.getUniqueId());
     }
   }
@@ -165,8 +172,14 @@ public final class MutationSVC implements AdaptService {
   @EventHandler(priority = EventPriority.MONITOR)
   public void onJoin(PlayerJoinEvent event) {
     MutationManager active = manager;
-    if (active != null && active.getConfig().isEnabled()) {
-      J.runEntity(event.getPlayer(), () -> active.reconcile(event.getPlayer()), 1);
+    Player player = event.getPlayer();
+    AdaptPlayer adaptPlayer = readyPlayer(player);
+    if (active != null && active.getConfig().isEnabled() && adaptPlayer != null) {
+      J.runEntity(player, () -> {
+        if (manager == active && readyPlayer(player) == adaptPlayer) {
+          active.reconcile(adaptPlayer);
+        }
+      }, 1);
     }
   }
 
@@ -194,16 +207,23 @@ public final class MutationSVC implements AdaptService {
     }
     UUID playerId = event.getPlayer().getUniqueId();
     active.cleanupTransient(playerId);
-    if (active.getConfig().isEnabled()) {
-      active.reconcile(event.getPlayer());
+    AdaptPlayer adaptPlayer = readyPlayer(event.getPlayer());
+    if (active.getConfig().isEnabled() && adaptPlayer != null) {
+      active.reconcile(adaptPlayer);
     }
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void onRespawn(PlayerRespawnEvent event) {
     MutationManager active = manager;
-    if (active != null && active.getConfig().isEnabled()) {
-      J.runEntity(event.getPlayer(), () -> active.reconcile(event.getPlayer()), 1);
+    Player player = event.getPlayer();
+    AdaptPlayer adaptPlayer = readyPlayer(player);
+    if (active != null && active.getConfig().isEnabled() && adaptPlayer != null) {
+      J.runEntity(player, () -> {
+        if (manager == active && readyPlayer(player) == adaptPlayer) {
+          active.reconcile(adaptPlayer);
+        }
+      }, 1);
     }
   }
 
@@ -216,6 +236,16 @@ public final class MutationSVC implements AdaptService {
     }
     ProjectileSource source = projectile.getShooter();
     return source instanceof Player player ? player : null;
+  }
+
+  private AdaptPlayer readyPlayer(Player player) {
+    if (player == null || Adapt.instance == null || Adapt.instance.getAdaptServer() == null) {
+      return null;
+    }
+    AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getOnlineAdaptPlayer(player.getUniqueId());
+    return adaptPlayer != null && adaptPlayer.isRuntimeReady() && adaptPlayer.getPlayer() == player
+        ? adaptPlayer
+        : null;
   }
 
   private void announce(AdaptPlayer player, String title, String subtitle) {

@@ -180,7 +180,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
       teleport = PaperCompat.teleportAsync(p, operation.requestedDestination(), PlayerTeleportEvent.TeleportCause.PLUGIN);
     } catch (RuntimeException exception) {
       pendingBlinks.remove(id);
-      exception.printStackTrace();
+      Adapt.error(exception);
       Adapt.error("Rift Blink could not start a teleport for " + p.getUniqueId() + ".");
       return;
     }
@@ -190,7 +190,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
   private void finishBlink(Player p, BlinkOperation operation, Boolean success, Throwable failure) {
     if (failure != null) {
-      failure.printStackTrace();
+      Adapt.error(failure);
       Adapt.error("Rift Blink teleport failed for " + operation.playerId() + ".");
     }
 

@@ -443,13 +443,8 @@ public interface Component {
   }
 
   default void giveExp(Player p, int exp) {
-    while (exp > 0) {
-      int xp = getExpToLevel(p) - getExp(p);
-      if (xp > exp) {
-        xp = exp;
-      }
-      p.giveExp(xp);
-      exp -= xp;
+    if (exp > 0) {
+      p.giveExp(exp);
     }
   }
 
@@ -463,14 +458,10 @@ public interface Component {
     if (fromTotal) {
       xp -= exp;
     } else {
-      int m = getExp(p) - exp;
-      if (m < 0) {
-        m = 0;
-      }
-      xp -= getExp(p) + m;
+      xp -= Math.min(Math.max(0, exp), getExp(p));
     }
 
-    setExp(p, xp);
+    setExp(p, Math.max(0, xp));
   }
 
   default int getExp(Player p) {
@@ -497,15 +488,15 @@ public interface Component {
   }
 
   default int getExpToLevel(int level) {
-    return level >= 30 ? 62 + (level - 30) * 7 : (level >= 15 ? 17 + (level - 15) * 3 : 17);
+    int normalizedLevel = Math.max(0, level);
+    long required = normalizedLevel >= 30
+        ? (9L * normalizedLevel) - 158L
+        : normalizedLevel >= 15 ? (5L * normalizedLevel) - 38L : (2L * normalizedLevel) + 7L;
+    return (int) Math.min(Integer.MAX_VALUE, required);
   }
 
   default void recalcTotalExp(Player p) {
-    int total = getExp(p);
-    for (int i = 0; i < p.getLevel(); i++) {
-      total += getExpToLevel(i);
-    }
-    p.setTotalExperience(total);
+    p.setTotalExperience(p.calculateTotalExperiencePoints());
   }
 
   /**
@@ -518,9 +509,12 @@ public interface Component {
    * @return true if taken, false if not (missing)
    */
   default boolean takeAll(Inventory inv, ItemStack is, int amount) {
+    if (inv == null || is == null || amount <= 0) {
+      return false;
+    }
     ItemStack isf = is.clone();
     isf.setAmount(amount);
-    return takeAll(inv, is);
+    return takeAll(inv, isf);
   }
 
   /**
@@ -542,34 +536,41 @@ public interface Component {
    * @return returns false if it couldnt get enough (and none was taken)
    */
   default boolean takeAll(Inventory inv, ItemStack is) {
-    ItemStack[] items = inv.getStorageContents();
-
-    int take = is.getAmount();
-
-    for (int ii = 0; ii < items.length; ii++) {
-      ItemStack i = items[ii];
-
-      if (i == null) {
-        continue;
-      }
-
-      if (i.isSimilar(is)) {
-        if (take > i.getAmount()) {
-          i.setAmount(i.getAmount() - take);
-          items[ii] = i;
-          take = 0;
-          break;
-        } else {
-          items[ii] = null;
-          take -= i.getAmount();
-        }
-      }
-    }
-
-    if (take > 0) {
+    if (inv == null || is == null || is.getAmount() <= 0) {
       return false;
     }
 
+    ItemStack[] items = inv.getStorageContents();
+    int available = 0;
+    for (ItemStack item : items) {
+      if (item != null && item.isSimilar(is)) {
+        available += item.getAmount();
+        if (available >= is.getAmount()) {
+          break;
+        }
+      }
+    }
+    if (available < is.getAmount()) {
+      return false;
+    }
+
+    int remaining = is.getAmount();
+    for (int index = 0; index < items.length && remaining > 0; index++) {
+      ItemStack item = items[index];
+      if (item == null || !item.isSimilar(is)) {
+        continue;
+      }
+
+      int removed = Math.min(remaining, item.getAmount());
+      remaining -= removed;
+      if (removed == item.getAmount()) {
+        items[index] = null;
+      } else {
+        ItemStack reduced = item.clone();
+        reduced.setAmount(item.getAmount() - removed);
+        items[index] = reduced;
+      }
+    }
     inv.setStorageContents(items);
     return true;
   }

@@ -90,6 +90,10 @@ public final class AdaptPlaceholders {
     players.evictAfterGrace(playerId, QUIT_GRACE_MS);
   }
 
+  public void evictNow(UUID playerId) {
+    players.publish(playerId, null);
+  }
+
   public void clear() {
     players.clear();
     catalog.publish(null);

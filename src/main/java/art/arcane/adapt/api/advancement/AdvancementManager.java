@@ -137,7 +137,7 @@ public class AdvancementManager {
       }
 
       Adapt.warn("Failed to grant advancement '" + key + "' for " + player.getName() + ": " + summarizeThrowable(t));
-      t.printStackTrace();
+      Adapt.error(t);
       return;
     }
 
@@ -185,7 +185,7 @@ public class AdvancementManager {
       }
 
       Adapt.warn("Failed to display advancement toast '" + key + "' for " + player.getName() + ": " + summarizeThrowable(t));
-      t.printStackTrace();
+      Adapt.error(t);
     }
   }
 
@@ -359,7 +359,7 @@ public class AdvancementManager {
         }
 
         Adapt.warn("Failed to restore advancement '" + key + "' for " + target.getName() + ": " + summarizeThrowable(t));
-        t.printStackTrace();
+        Adapt.error(t);
       }
     }
 
@@ -487,7 +487,7 @@ public class AdvancementManager {
       return true;
     } catch (Throwable t) {
       Adapt.warn("UltimateAdvancementAPI failed during enable: " + summarizeThrowable(t) + ". Advancements will be disabled.");
-      t.printStackTrace();
+      Adapt.error(t);
       shutdownMain(t);
       return false;
     }
@@ -605,7 +605,7 @@ public class AdvancementManager {
         Adapt.verbose("Skipped UltimateAdvancementAPI disable cleanup after partial initialisation: " + summarizeThrowable(t));
       } else {
         Adapt.warn("UltimateAdvancementAPI disable failed: " + summarizeThrowable(t));
-        t.printStackTrace();
+        Adapt.error(t);
         if (cause != null) {
           Adapt.verbose("UltimateAdvancementAPI original enable failure: " + summarizeThrowable(cause));
         }

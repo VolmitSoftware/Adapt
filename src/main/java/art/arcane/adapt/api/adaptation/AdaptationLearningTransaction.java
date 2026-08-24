@@ -19,7 +19,13 @@ public final class AdaptationLearningTransaction {
   }
 
   public static Result learn(Adaptation<?> adaptation, Player player, int targetLevel, boolean bypassCosts) {
+    if (adaptation == null || player == null) {
+      return Result.SKILL_LINE_UNAVAILABLE;
+    }
     AdaptPlayer adaptPlayer = adaptation.getPlayer(player);
+    if (adaptPlayer == null) {
+      return Result.SKILL_LINE_UNAVAILABLE;
+    }
     PlayerSkillLine skillLine = adaptPlayer.getSkillLine(adaptation.getSkill().getName());
     if (skillLine == null) {
       return Result.SKILL_LINE_UNAVAILABLE;
@@ -104,7 +110,13 @@ public final class AdaptationLearningTransaction {
   }
 
   public static Result unlearn(Adaptation<?> adaptation, Player player, int targetLevel, boolean bypassCosts) {
+    if (adaptation == null || player == null) {
+      return Result.SKILL_LINE_UNAVAILABLE;
+    }
     AdaptPlayer adaptPlayer = adaptation.getPlayer(player);
+    if (adaptPlayer == null) {
+      return Result.SKILL_LINE_UNAVAILABLE;
+    }
     PlayerSkillLine skillLine = adaptPlayer.getSkillLine(adaptation.getSkill().getName());
     if (skillLine == null) {
       return Result.SKILL_LINE_UNAVAILABLE;
@@ -142,7 +154,14 @@ public final class AdaptationLearningTransaction {
   }
 
   static String formattedRefund(Adaptation<?> adaptation, Player player, int targetLevel, int currentLevel) {
-    PlayerSkillLine skillLine = adaptation.getPlayer(player).getSkillLine(adaptation.getSkill().getName());
+    if (adaptation == null || player == null) {
+      return "";
+    }
+    AdaptPlayer adaptPlayer = adaptation.getPlayer(player);
+    if (adaptPlayer == null) {
+      return "";
+    }
+    PlayerSkillLine skillLine = adaptPlayer.getSkillLine(adaptation.getSkill().getName());
     if (skillLine == null) {
       return "";
     }

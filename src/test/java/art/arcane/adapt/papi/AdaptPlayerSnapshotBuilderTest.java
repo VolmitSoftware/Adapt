@@ -5,6 +5,7 @@ import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.NewtonCurve;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -35,6 +36,8 @@ class AdaptPlayerSnapshotBuilderTest {
     assertEquals(0, curve.solves, "an unchanged player must not re-solve the xp curve");
     assertEquals(0, curve.forwardEvaluations, "an unchanged player must not re-evaluate the xp curve");
     assertSame(first.skills().get("mining"), second.skills().get("mining"));
+    assertSame(first.skills(), second.skills());
+    assertSame(first.adaptationLevels(), second.adaptationLevels());
     assertSame(first.zeroLine(), second.zeroLine());
 
     curve.reset();
@@ -42,7 +45,16 @@ class AdaptPlayerSnapshotBuilderTest {
     AdaptPlayerSnapshot third = build(second, data, curve);
     assertEquals(1, curve.solves, "only the changed skill line may re-solve the xp curve");
     assertNotSame(second.skills().get("mining"), third.skills().get("mining"));
+    assertSame(second.adaptationLevels(), third.adaptationLevels());
     assertEquals("6", third.skills().get("mining").band().levelText());
+  }
+
+  @Test
+  void publishedMapsRemainImmutableWithoutDefensiveRecopying() {
+    AdaptPlayerSnapshot snapshot = build(null, AdaptPapiFixtures.playerData(), AdaptPapiFixtures.SQUARE_CURVE);
+
+    assertThatThrownBy(() -> snapshot.skills().clear()).isInstanceOf(UnsupportedOperationException.class);
+    assertThatThrownBy(() -> snapshot.adaptationLevels().clear()).isInstanceOf(UnsupportedOperationException.class);
   }
 
   @Test
@@ -99,6 +111,19 @@ class AdaptPlayerSnapshotBuilderTest {
   }
 
   @Test
+  void firstSnapshotSizesTheAdaptationIndexFromCurrentPlayerData() {
+    PlayerData data = AdaptPapiFixtures.playerData();
+    PlayerSkillLine mining = data.getSkillLines().get("mining");
+    for (int index = 0; index < 310; index++) {
+      String id = "full-catalog-" + index;
+      mining.getAdaptations().put(id, AdaptPapiFixtures.playerAdaptation(id, 1));
+    }
+
+    assertEquals(312, AdaptPlayerSnapshotBuilder.expectedAdaptationCount(data.getSkillLines()));
+    assertEquals(312, build(null, data, AdaptPapiFixtures.SQUARE_CURVE).adaptationLevels().size());
+  }
+
+  @Test
   void shouldExposeAZeroLineForASkillTheOwnerHasNeverTrained() {
     AdaptPlayerSnapshot snapshot = build(null, AdaptPapiFixtures.playerData(), AdaptPapiFixtures.SQUARE_CURVE);
 
@@ -112,6 +137,7 @@ class AdaptPlayerSnapshotBuilderTest {
     AdaptMutationView view = AdaptPlayerSnapshotBuilder.mutationView(null, true, 0L, null);
     assertEquals(false, view.available());
     assertEquals(null, view.source());
+    assertSame(view, AdaptMutationView.unavailable());
   }
 
   private static final class CountingCurve implements NewtonCurve {

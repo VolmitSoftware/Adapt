@@ -78,6 +78,11 @@ public class MutationConfig {
   private ResonantFormula resonantFormula = new ResonantFormula();
 
   public static MutationConfig get() {
+    MutationConfig current = config;
+    if (current != null) {
+      return current;
+    }
+
     synchronized (CONFIG_LOCK) {
       if (config == null) {
         config = load(new MutationConfig(), true);
@@ -98,7 +103,7 @@ public class MutationConfig {
         config = load(config == null ? new MutationConfig() : config, false);
         return true;
       } catch (Throwable error) {
-        error.printStackTrace();
+        Adapt.error(error);
         return false;
       }
     }
@@ -116,7 +121,7 @@ public class MutationConfig {
         );
         return true;
       } catch (Throwable error) {
-        error.printStackTrace();
+        Adapt.error(error);
         return false;
       }
     }
@@ -178,17 +183,16 @@ public class MutationConfig {
       fallback.normalize();
       return fallback;
     }
-    File canonical = Adapt.instance.getDataFile("adapt", "mutations.toml");
-    File legacy = Adapt.instance.getDataFile("adapt", "mutations.json");
+    File canonical = Adapt.instance.getDataFile("mutations.toml");
     try {
       MutationConfig loaded = ConfigFileSupport.load(
           canonical,
-          legacy,
+          null,
           MutationConfig.class,
           fallback,
           overwriteOnFailure,
           "mutations",
-          "Created missing config [adapt/mutations.toml] from defaults."
+          "Created missing config [mutations.toml] from defaults."
       );
       loaded.normalize();
       return loaded;

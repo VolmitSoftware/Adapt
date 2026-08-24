@@ -1327,7 +1327,7 @@ public final class ConfigGui {
           SOURCE_TAG_CORE,
           AdaptConfig.get(),
           objectPath,
-          Adapt.instance.getDataFile("adapt", "adapt.toml"),
+          Adapt.instance.getDataFile("adapt.toml"),
           AdaptConfig::reload,
           ConfigGui::refreshGlobalRuntimeSettings
       );
@@ -1354,7 +1354,7 @@ public final class ConfigGui {
           "skill:" + skill.getName(),
           skill.getConfig(),
           objectPath,
-          Adapt.instance.getDataFile("adapt", "skills", skill.getName() + ".toml"),
+          Adapt.instance.getDataFile("skills", skill.getName() + ".toml"),
           () -> Adapt.instance.getAdaptServer().getSkillRegistry().hotReloadSkillConfig(skill.getName()),
           () -> {
           }
@@ -1382,7 +1382,7 @@ public final class ConfigGui {
           "adaptation:" + adaptation.getName(),
           adaptation.getConfig(),
           objectPath,
-          Adapt.instance.getDataFile("adapt", "adaptations", adaptation.getName() + ".toml"),
+          Adapt.instance.getDataFile("adaptations", adaptation.getName() + ".toml"),
           () -> Adapt.instance.getAdaptServer().getSkillRegistry().hotReloadAdaptationConfig(adaptation.getName()),
           () -> {
           }
@@ -1393,7 +1393,7 @@ public final class ConfigGui {
         SOURCE_TAG_CORE,
         AdaptConfig.get(),
         normalized,
-        Adapt.instance.getDataFile("adapt", "adapt.toml"),
+        Adapt.instance.getDataFile("adapt.toml"),
         AdaptConfig::reload,
         ConfigGui::refreshGlobalRuntimeSettings
     );

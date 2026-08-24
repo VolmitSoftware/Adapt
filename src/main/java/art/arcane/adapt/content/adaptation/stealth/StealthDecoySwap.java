@@ -279,7 +279,7 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
       return;
     }
     Adapt.error("Stealth Decoy Swap " + leg + " teleport failed for " + entity.getUniqueId() + ".");
-    failure.printStackTrace();
+    Adapt.error(failure);
   }
 
   static boolean teleportCompleted(Boolean success, Throwable failure) {

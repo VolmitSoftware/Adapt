@@ -160,11 +160,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   }
 
   protected File getConfigFile() {
-    return Adapt.instance.getDataFile("adapt", "adaptations", getName() + ".toml");
-  }
-
-  protected File getLegacyConfigFile() {
-    return Adapt.instance.getDataFile("adapt", "adaptations", getName() + ".json");
+    return Adapt.instance.getDataFile("adaptations", getName() + ".toml");
   }
 
   protected T createDefaultConfig() {
@@ -201,7 +197,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       return true;
     } catch (Throwable e) {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
-      e.printStackTrace();
+      Adapt.error(e);
       return false;
     }
   }
@@ -229,7 +225,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       return true;
     } catch (Throwable error) {
       Adapt.warn("Skipped hotload for " + sourceFile.getPath() + " due to invalid config: " + error.getMessage());
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }
@@ -252,12 +248,12 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   private T loadConfig(File file, T fallback, boolean overwriteOnReadFailure) throws IOException {
     return ConfigFileSupport.load(
         file,
-        getLegacyConfigFile(),
+        null,
         getConfigurationClass(),
         fallback,
         overwriteOnReadFailure,
         "adaptation:" + getName(),
-        "Created missing adaptation config [adapt/adaptations/" + getName() + ".toml] from defaults.",
+        "Created missing adaptation config [adaptations/" + getName() + ".toml] from defaults.",
         this::normalizeLoadedConfig,
         shouldCanonicalizeConfigOnLoad()
     );
@@ -534,7 +530,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       return false;
     }
 
-    AdaptPlayer adaptPlayer = getPlayer(p);
+    AdaptPlayer adaptPlayer = readyPlayer(p);
     if (adaptPlayer == null || adaptPlayer.getData().isGranted(advancementKey)) {
       return false;
     }
@@ -543,7 +539,21 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   }
 
   protected void addStat(Player p, String stat, double amount) {
-    getPlayer(p).getData().addStat(stat, amount);
+    AdaptPlayer adaptPlayer = readyPlayer(p);
+    if (adaptPlayer == null) {
+      return;
+    }
+    adaptPlayer.getData().addStat(stat, amount);
+  }
+
+  private AdaptPlayer readyPlayer(Player player) {
+    if (player == null) {
+      return null;
+    }
+    AdaptPlayer adaptPlayer = getServer().getOnlineAdaptPlayer(player.getUniqueId());
+    return adaptPlayer != null && adaptPlayer.isRuntimeReady() && adaptPlayer.getPlayer() == player
+        ? adaptPlayer
+        : null;
   }
 
   protected void statLore(Element v, Object value, int loreIndex) {

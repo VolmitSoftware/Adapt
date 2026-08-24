@@ -135,7 +135,6 @@ allprojects {
 dependencies {
     paperweight.paperDevBundle(paperDevBundleVersion)
 
-    implementation(project(':velocity'))
     implementation(volmLibCoordinate) {
         changing = true
         transitive = false
@@ -149,7 +148,6 @@ dependencies {
         transitive = false
     }
     implementation('de.crazydev22.slimjar.helper:spigot:2.1.9')
-    implementation('de.crazydev22.slimjar.helper:velocity:2.1.9')
     slimApi(libs.platformUtils) {
         transitive = false
     }
@@ -250,9 +248,6 @@ slimJar {
  */
 shadowJarTask.configure {
     minimize {
-        // Reflectively-entered code must survive minimization: the velocity module is read via
-        // config reflection and the slimjar helpers bootstrap before any static reference exists.
-        exclude(project(':velocity'))
         exclude(dependency('de.crazydev22.slimjar.helper:.*:.*'))
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -326,11 +321,5 @@ void createOutputTask(String name, String path, boolean doRename = true) {
         if (doRename) {
             rename { String ignored -> 'Adapt.jar' }
         }
-    }
-}
-
-idea.project.settings {
-    taskTriggers {
-        afterSync(':velocity:generateTemplates')
     }
 }

@@ -15,6 +15,7 @@ import art.arcane.volmlib.util.director.annotations.Param;
 import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -34,44 +35,31 @@ public class CommandDebug {
       @Param(aliases = "player", description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
       Player player
   ) {
-    if (!BukkitDirectorContext.hasPermission("adapt.debug")) {
+    CommandSender sender = BukkitDirectorContext.sender();
+    if (!sender.hasPermission("adapt.debug")) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", "adapt.debug")))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
     Player targetPlayer = player;
-    if (targetPlayer == null && BukkitDirectorContext.isConsole()) {
+    if (targetPlayer == null && !(sender instanceof Player)) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.PLAYER_REQUIRED_FROM_CONSOLE))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     } else if (targetPlayer == null) {
-      targetPlayer = BukkitDirectorContext.player();
+      targetPlayer = (Player) sender;
     }
 
     String normalized = enabled == null ? "toggle" : enabled.trim().toLowerCase(Locale.ROOT);
-    UUID targetId = targetPlayer.getUniqueId();
-    Boolean target = switch (normalized) {
-      case "toggle" -> !AdaptDebugMode.isActive(targetId);
-      case "true", "on", "yes", "enabled" -> Boolean.TRUE;
-      case "false", "off", "no", "disabled" -> Boolean.FALSE;
-      default -> null;
-    };
-
-    if (target == null) {
+    if (!isToggleValue(normalized)) {
       FConst.error(AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_TOGGLE_STATE, untrusted("state", enabled)))
-          .send(BukkitDirectorContext.sender());
+          .send(sender);
       return;
     }
 
-    AdaptDebugMode.setActive(targetId, target);
-    if (target) {
-      FConst.success(AdaptLanguage.text(CommandRuntimeMessages.DEBUG_ENABLED, untrusted("player", targetPlayer.getName())))
-          .send(BukkitDirectorContext.sender());
-    } else {
-      FConst.success(AdaptLanguage.text(CommandRuntimeMessages.DEBUG_DISABLED, untrusted("player", targetPlayer.getName())))
-          .send(BukkitDirectorContext.sender());
-    }
+    Player target = targetPlayer;
+    CommandTargetExecutor.run(target, () -> setDebugMode(target, normalized, sender), sender);
   }
 
   @Director(description = "Toggle verbose mode", descriptionKey = "command.help.toggle_verbose_mode")
@@ -235,5 +223,26 @@ public class CommandDebug {
       FConst.success(AdaptLanguage.text(CommandRuntimeMessages.PERF_RESET))
           .send(BukkitDirectorContext.sender());
     }
+  }
+
+  private boolean isToggleValue(String normalized) {
+    return switch (normalized) {
+      case "toggle", "true", "on", "yes", "enabled", "false", "off", "no", "disabled" -> true;
+      default -> false;
+    };
+  }
+
+  private void setDebugMode(Player targetPlayer, String normalized, CommandSender sender) {
+    UUID targetId = targetPlayer.getUniqueId();
+    boolean enabled = switch (normalized) {
+      case "toggle" -> !AdaptDebugMode.isActive(targetId);
+      case "true", "on", "yes", "enabled" -> true;
+      default -> false;
+    };
+    AdaptDebugMode.setActive(targetId, enabled);
+    CommandTargetExecutor.send(sender, FConst.success(AdaptLanguage.text(
+        enabled ? CommandRuntimeMessages.DEBUG_ENABLED : CommandRuntimeMessages.DEBUG_DISABLED,
+        untrusted("player", targetPlayer.getName())
+    )));
   }
 }

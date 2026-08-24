@@ -205,7 +205,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     } catch (RuntimeException error) {
       pendingRewinds.remove(id, snapshot);
       Adapt.error("Chronos Rewind could not start a teleport for " + id + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       reject(p);
       return;
     }
@@ -232,7 +232,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     UUID id = p.getUniqueId();
     if (failure != null) {
       Adapt.error("Chronos Rewind teleport failed for " + id + ".");
-      failure.printStackTrace();
+      Adapt.error(failure);
     }
 
     Runnable completion = () -> {

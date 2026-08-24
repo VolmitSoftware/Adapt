@@ -1,9 +1,9 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -20,11 +20,18 @@ import org.bukkit.inventory.ItemStack;
 public class KineticsPhalanxReach extends SimpleAdaptation<KineticsPhalanxReach.Config> {
   private static final String SLOT_REACH = "reach";
 
+  private final AdaptationOwnerPulse.Registration ownerMaintenance;
+
   public KineticsPhalanxReach() {
     super("kinetics-phalanx-reach");
     registerConfiguration(Config.class);
     setIcon(Material.COPPER_SPEAR);
     setInterval(2000);
+    ownerMaintenance = AdaptationOwnerPulse.register(
+        this,
+        this::getInterval,
+        this::reconcile
+    );
   }
 
   @Override
@@ -33,16 +40,9 @@ public class KineticsPhalanxReach extends SimpleAdaptation<KineticsPhalanxReach.
   }
 
   @Override
-  protected boolean usesLearnerBoundTicking() {
-    return true;
-  }
-
-  @Override
-  public void onTick() {
-    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
-      Player player = adaptPlayer.getPlayer();
-      withPlayerThread(player, () -> reconcile(player));
-    }
+  public void unregister() {
+    ownerMaintenance.unregister();
+    super.unregister();
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

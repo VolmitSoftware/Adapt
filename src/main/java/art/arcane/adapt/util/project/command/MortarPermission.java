@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.util.project.command;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.plugin.Permission;
 import org.bukkit.command.CommandSender;
 
@@ -41,7 +42,7 @@ public abstract class MortarPermission {
                  InstantiationException |
                  InvocationTargetException | NoSuchMethodException |
                  SecurityException e) {
-          e.printStackTrace();
+          Adapt.error(e);
         }
       }
     }
@@ -56,7 +57,7 @@ public abstract class MortarPermission {
           p.add((MortarPermission) i.get(Modifier.isStatic(i.getModifiers()) ? null : this));
         } catch (IllegalArgumentException | IllegalAccessException |
                  SecurityException e) {
-          e.printStackTrace();
+          Adapt.error(e);
         }
       }
     }

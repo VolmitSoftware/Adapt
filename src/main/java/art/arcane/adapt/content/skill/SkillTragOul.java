@@ -164,7 +164,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
     shouldReturnForPlayer(p, () -> {
       AdaptPlayer a = getPlayer(p);
       if (AdaptConfig.get().isHardcoreResetOnPlayerDeath()) {
-        Adapt.info("Resetting " + p.getName() + "'s skills due to death");
+        Adapt.verbose(() -> "Resetting " + p.getName() + "'s skills after death.");
         Adapt.instance.getAdaptServer().resetPlayerData(p.getUniqueId());
         return;
       }

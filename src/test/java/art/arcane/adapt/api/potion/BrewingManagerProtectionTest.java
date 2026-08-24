@@ -1,6 +1,9 @@
 package art.arcane.adapt.api.potion;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -16,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
 import java.lang.reflect.Method;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,7 +33,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class BrewingManagerProtectionTest {
+class BrewingManagerProtectionTest extends AdaptTestBase {
   @Test
   void inventoryClickHandlerIgnoresCancelledEventsAtRegistration() throws NoSuchMethodException {
     Method method = BrewingManager.class.getDeclaredMethod("onInventoryClick", InventoryClickEvent.class);
@@ -72,6 +76,7 @@ class BrewingManagerProtectionTest {
     when(event.getWhoClicked()).thenReturn(player);
     when(player.getOpenInventory()).thenReturn(replacementView);
     when(replacementView.getTopInventory()).thenReturn(replacementInventory);
+    installReadyRuntime(player);
 
     try (MockedStatic<Adapt> adapt = mockStatic(Adapt.class);
          MockedStatic<J> scheduling = mockStatic(J.class)) {
@@ -102,6 +107,7 @@ class BrewingManagerProtectionTest {
     when(brewingInventory.getHolder()).thenReturn(stand);
     when(stand.getBlock()).thenReturn(standBlock);
     when(event.getWhoClicked()).thenReturn(player);
+    installReadyRuntime(player);
 
     try (MockedStatic<Adapt> adapt = mockStatic(Adapt.class);
          MockedStatic<J> scheduling = mockStatic(J.class)) {
@@ -149,6 +155,7 @@ class BrewingManagerProtectionTest {
     when(stand.getBlock()).thenReturn(standBlock);
     when(standBlock.getLocation()).thenReturn(standLocation);
     when(event.getWhoClicked()).thenReturn(player);
+    installReadyRuntime(player);
 
     try (MockedStatic<Adapt> adapt = mockStatic(Adapt.class);
          MockedStatic<J> scheduling = mockStatic(J.class)) {
@@ -167,5 +174,40 @@ class BrewingManagerProtectionTest {
 
     verify(player, never()).getOpenInventory();
     verify(brewingInventory, never()).getIngredient();
+  }
+
+  @Test
+  void unavailablePlayerIsIgnoredBeforeCustomClickHandling() {
+    BrewingManager manager = new BrewingManager();
+    InventoryClickEvent event = mock(InventoryClickEvent.class);
+    InventoryView sourceView = mock(InventoryView.class);
+    BrewerInventory brewingInventory = mock(BrewerInventory.class);
+    BrewingStand stand = mock(BrewingStand.class);
+    Player player = mock(Player.class);
+    AdaptServer server = mock(AdaptServer.class);
+    UUID playerId = UUID.randomUUID();
+    when(event.getView()).thenReturn(sourceView);
+    when(sourceView.getTopInventory()).thenReturn(brewingInventory);
+    when(brewingInventory.getHolder()).thenReturn(stand);
+    when(event.getWhoClicked()).thenReturn(player);
+    when(player.getUniqueId()).thenReturn(playerId);
+    when(plugin.getAdaptServer()).thenReturn(server);
+
+    manager.onInventoryClick(event);
+    manager.afterInventoryClick(event);
+
+    verify(event, never()).getRawSlot();
+    verify(event, never()).getCursor();
+  }
+
+  private void installReadyRuntime(Player player) {
+    AdaptServer server = mock(AdaptServer.class);
+    AdaptPlayer adaptPlayer = mock(AdaptPlayer.class);
+    UUID playerId = UUID.randomUUID();
+    when(plugin.getAdaptServer()).thenReturn(server);
+    when(player.getUniqueId()).thenReturn(playerId);
+    when(server.getOnlineAdaptPlayer(playerId)).thenReturn(adaptPlayer);
+    when(adaptPlayer.isRuntimeReady()).thenReturn(true);
+    when(adaptPlayer.getPlayer()).thenReturn(player);
   }
 }

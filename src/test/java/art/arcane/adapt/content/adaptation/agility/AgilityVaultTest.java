@@ -38,6 +38,7 @@ class AgilityVaultTest {
     assertThat(adaptation.getCostFactor()).isZero();
     assertThat(adaptation.getMaxLevel()).isEqualTo(1);
     assertThat(adaptation.getInterval()).isEqualTo(1000L);
+    adaptation.unregister();
   }
 
   @Test
@@ -127,6 +128,7 @@ class AgilityVaultTest {
 
     verify(legacy).setAdaptation(adaptation, 1);
     verify(current, never()).setAdaptation(adaptation, 1);
+    adaptation.unregister();
   }
 
   @Test

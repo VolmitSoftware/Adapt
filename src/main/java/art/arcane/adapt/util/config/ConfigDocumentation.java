@@ -10,7 +10,7 @@ import java.util.Set;
 public final class ConfigDocumentation {
   private static final Map<String, String> SUMMARY_BY_KEY = Map.ofEntries(
       Map.entry("enabled", "Enables or disables this feature."),
-      Map.entry("permanent", "Keeps this adaptation permanently active once learned."),
+      Map.entry("permanent", "Prevents normal player unlearning after this adaptation is purchased."),
       Map.entry("baseCost", "Base knowledge cost used when learning this adaptation."),
       Map.entry("initialCost", "Knowledge cost required to purchase level 1."),
       Map.entry("costFactor", "Scaling factor applied to higher adaptation levels."),
@@ -27,7 +27,7 @@ public final class ConfigDocumentation {
       Map.entry("metrics", "Sends anonymous bStats usage metrics."),
       Map.entry("xpInCreative", "Allows skill xp gain while players are in creative or spectator."),
       Map.entry("allowAdaptationsInCreative", "Allows using adaptations in creative mode."),
-      Map.entry("blacklistedWorlds", "World folder names where Adapt logic is disabled."),
+      Map.entry("blacklistedWorlds", "Namespaced Bukkit world keys where Adapt gameplay is disabled."),
       Map.entry("adaptActivatorBlock", "Block type players right-click to open the skills UI."),
       Map.entry("adaptActivatorBlockName", "Display name used in UI text for the activator block."),
       Map.entry("customModels", "Enables custom model lookups from the models config."),

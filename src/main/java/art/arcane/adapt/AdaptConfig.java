@@ -23,15 +23,13 @@ import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.config.TomlCodec;
-import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.project.redis.RedisConfig;
 import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import lombok.Getter;
 import lombok.Setter;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.generator.WorldInfo;
 
@@ -46,13 +44,18 @@ import java.util.Map;
 @Getter
 public class AdaptConfig {
   private static final Object CONFIG_LOCK = new Object();
-  private static AdaptConfig config = null;
+  private static volatile AdaptConfig config;
+  @ConfigDoc(value = "Locale used for Adapt player and operator interfaces.", impact = "Code-owned English remains the fallback; optional TOML overrides are loaded from languages/overrides.")
+  private String language = "en_US";
+  @ConfigDoc(value = "Enables anonymous bStats usage reporting for Adapt.", impact = "Set to false to disable Adapt's bStats submissions entirely. Requires a restart to take effect.")
+  private boolean metrics = true;
   public boolean debug = false;
   public boolean autoUpdateCheck = true;
   public boolean splashScreen = true;
   public boolean xpInCreative = false;
   public boolean allowAdaptationsInCreative = false;
   public String adaptActivatorBlock = "BOOKSHELF";
+  private transient Material adaptActivatorMaterial = Material.BOOKSHELF;
   public String adaptActivatorBlockName = "a Bookshelf";
   public boolean adaptActivatorAllowVerticalFaces = false;
   public List<String> blacklistedWorlds = List.of("minecraft:some_world_adapt_should_not_run_in", "example:another_world");
@@ -60,15 +63,13 @@ public class AdaptConfig {
   public int experienceMaxLevel = 1000;
   boolean preventHunterSkillsWhenHungerApplied = true;
   private ValueConfig value = new ValueConfig();
-  private boolean metrics = true;
-  private String language = "en_US";
   @ConfigDoc(value = "Level curve mapping skill xp to skill level. Default ADAPT_BALANCED is xp(L) = 100*L^2 + 1200*L, inverted as L(xp) = (sqrt(1440000 + 400*xp) - 1200) / 200.", impact = "Every family in the Curves enum is selectable and each one changes xp-per-level for skills, master xp and power; docs/05 - Configuration Math.md lists the formulas.")
   private Curves xpCurve = Curves.ADAPT_BALANCED;
-  @ConfigDoc(value = "Flat master xp granted for each skill level a player gains.", impact = "Master xp for skill level i is playerXpPerSkillLevelUpBase + i*playerXpPerSkillLevelUpLevelMultiplier, so this lifts every level-up reward evenly.")
+  @ConfigDoc(value = "Flat master xp granted for each skill level a player gains.", impact = "Clamped to a finite non-negative value. Master xp for skill level i is playerXpPerSkillLevelUpBase + i*playerXpPerSkillLevelUpLevelMultiplier.")
   private double playerXpPerSkillLevelUpBase = 489;
-  @ConfigDoc(value = "Master xp added per skill level already reached when a skill levels up.", impact = "Master xp for skill level i is playerXpPerSkillLevelUpBase + i*playerXpPerSkillLevelUpLevelMultiplier, so this back-loads master progression toward high skill levels.")
+  @ConfigDoc(value = "Master xp added per skill level already reached when a skill levels up.", impact = "Clamped to a finite non-negative value. Increasing it back-loads master progression toward high skill levels.")
   private double playerXpPerSkillLevelUpLevelMultiplier = 44;
-  @ConfigDoc(value = "Power granted per master level.", impact = "Max power is floor(masterLevel * powerPerLevel) where masterLevel is xpCurve applied to master xp; lowering it shrinks how many adaptation levels a player can hold at once.")
+  @ConfigDoc(value = "Power granted per master level.", impact = "Clamped to a finite non-negative value. Lowering it shrinks how many adaptation levels a player can hold at once.")
   private double powerPerLevel = 0.65;
   private boolean hardcoreResetOnPlayerDeath = false;
   private boolean hardcoreNoRefunds = false;
@@ -116,13 +117,18 @@ public class AdaptConfig {
   private boolean verbose = false;
 
   public static AdaptConfig get() {
+    AdaptConfig current = config;
+    if (current != null) {
+      return current;
+    }
+
     synchronized (CONFIG_LOCK) {
       try {
         if (config == null) {
           config = loadConfig(new AdaptConfig(), true);
         }
       } catch (Throwable e) {
-        e.printStackTrace();
+        Adapt.error(e);
         config = new AdaptConfig();
       }
 
@@ -134,7 +140,9 @@ public class AdaptConfig {
     boolean reloaded;
     synchronized (CONFIG_LOCK) {
       try {
-        config = loadConfig(config == null ? new AdaptConfig() : config, false);
+        AdaptConfig previous = config;
+        AdaptConfig loaded = loadConfig(previous == null ? new AdaptConfig() : previous, false);
+        config = preserveRestartBoundSettings(previous, loaded);
         reloaded = true;
       } catch (Throwable e) {
         reloaded = false;
@@ -150,16 +158,18 @@ public class AdaptConfig {
     boolean reloaded;
     synchronized (CONFIG_LOCK) {
       try {
-        config = ConfigFileSupport.parseSnapshot(
+        AdaptConfig previous = config;
+        AdaptConfig loaded = ConfigFileSupport.parseSnapshot(
             raw,
             sourceFile,
             AdaptConfig.class,
             "core-config",
             AdaptConfig::normalize
         );
+        config = preserveRestartBoundSettings(previous, loaded);
         reloaded = true;
       } catch (Throwable error) {
-        error.printStackTrace();
+        Adapt.error(error);
         reloaded = false;
       }
     }
@@ -169,24 +179,32 @@ public class AdaptConfig {
     return reloaded;
   }
 
+  static AdaptConfig preserveRestartBoundSettings(AdaptConfig previous, AdaptConfig loaded) {
+    if (previous == null || loaded == null) {
+      return loaded;
+    }
+    loaded.sql = previous.sql;
+    loaded.redis = previous.redis;
+    loaded.metrics = previous.metrics;
+    return loaded;
+  }
+
   public boolean isWorldBlacklisted(WorldInfo world) {
     return world != null && blacklistedWorlds.contains(WorldIdentity.serialize(world));
   }
 
   private static AdaptConfig loadConfig(AdaptConfig fallback, boolean overwriteOnFailure) throws IOException {
-    File canonicalFile = Adapt.instance.getDataFile("adapt", "adapt.toml");
-    File legacyFile = Adapt.instance.getDataFile("adapt", "adapt.json");
+    File canonicalFile = Adapt.instance.getDataFile("adapt.toml");
     return ConfigFileSupport.load(
         canonicalFile,
-        legacyFile,
+        null,
         AdaptConfig.class,
         fallback,
         overwriteOnFailure,
         "core-config",
-        "Created missing config [adapt/adapt.toml] from defaults.",
+        "Created missing config [adapt.toml] from defaults.",
         AdaptConfig::normalize,
-        false,
-        AdaptConfig::migrateLegacyValueMultiplierKey
+        false
     );
   }
 
@@ -197,48 +215,32 @@ public class AdaptConfig {
     return Math.max(0D, Math.min(1D, volume));
   }
 
-  private void normalize() {
+  static double normalizeNonNegativeFinite(double value, double fallback) {
+    return Double.isFinite(value) ? Math.max(0D, value) : fallback;
+  }
+
+  static Material normalizeActivatorMaterial(String configuredMaterial) {
+    Material material = configuredMaterial == null ? null : Material.matchMaterial(configuredMaterial.trim());
+    if (Bukkit.getServer() == null) {
+      return requireActivatorBlock(material, material != null);
+    }
+    return requireActivatorBlock(material, material != null && material.isBlock());
+  }
+
+  static Material requireActivatorBlock(Material material, boolean block) {
+    boolean air = material == Material.AIR || material == Material.CAVE_AIR || material == Material.VOID_AIR;
+    return material != null && block && !air ? material : Material.BOOKSHELF;
+  }
+
+  void normalize() {
+    adaptActivatorMaterial = normalizeActivatorMaterial(adaptActivatorBlock);
+    adaptActivatorBlock = adaptActivatorMaterial.name();
+    experienceMaxLevel = Math.max(1, experienceMaxLevel);
+    playerXpPerSkillLevelUpBase = normalizeNonNegativeFinite(playerXpPerSkillLevelUpBase, 489D);
+    playerXpPerSkillLevelUpLevelMultiplier = normalizeNonNegativeFinite(playerXpPerSkillLevelUpLevelMultiplier, 44D);
+    powerPerLevel = normalizeNonNegativeFinite(powerPerLevel, 0.65D);
+    xpCurve = xpCurve == null ? Curves.ADAPT_BALANCED : xpCurve;
     levelMilestoneSoundVolume = normalizeVolume(levelMilestoneSoundVolume, 0.35D);
-  }
-
-  static String migrateLegacyValueMultiplierKey(String raw) {
-    return migrateLegacyValueMultiplierKey(raw, new File("adapt.toml"));
-  }
-
-  private static String migrateLegacyValueMultiplierKey(String raw, File file) {
-    if (raw == null || !raw.contains("valueMutlipliers")) {
-      return raw;
-    }
-    JsonElement parsed = ConfigFileSupport.parseToJsonElement(raw, file);
-    if (parsed == null || !parsed.isJsonObject()) {
-      throw new IllegalArgumentException("Unable to parse legacy value multiplier config");
-    }
-    JsonObject root = parsed.getAsJsonObject();
-    JsonElement valueElement = root.get("value");
-    if (valueElement == null || !valueElement.isJsonObject()) {
-      return raw;
-    }
-    JsonObject value = valueElement.getAsJsonObject();
-    JsonElement legacyElement = value.get("valueMutlipliers");
-    if (legacyElement == null || !legacyElement.isJsonObject()) {
-      return raw;
-    }
-    JsonObject merged = new JsonObject();
-    if (value.has("valueMultipliers") && value.get("valueMultipliers").isJsonObject()) {
-      for (Map.Entry<String, JsonElement> entry : value.getAsJsonObject("valueMultipliers").entrySet()) {
-        merged.add(entry.getKey(), entry.getValue());
-      }
-    }
-    for (Map.Entry<String, JsonElement> entry : legacyElement.getAsJsonObject().entrySet()) {
-      if (!merged.has(entry.getKey())) {
-        merged.add(entry.getKey(), entry.getValue());
-      }
-    }
-    value.remove("valueMutlipliers");
-    value.add("valueMultipliers", merged);
-    return ConfigFileSupport.isTomlFile(file)
-        ? TomlCodec.toToml(root)
-        : Json.toJson(root, true);
   }
 
   private static Map<String, List<String>> defaultAdaptationUsageConflicts() {
@@ -288,7 +290,7 @@ public class AdaptConfig {
 
   @Getter
   public static class SqlSettings {
-    @ConfigDoc(value = "Stores player data in a MySQL-compatible database instead of local json files.", impact = "When disabled Adapt reads and writes data/players/<uuid>.json; when enabled the settings below must point at a reachable server or logins fall back to the local file.")
+    @ConfigDoc(value = "Stores player data in a MySQL-compatible database instead of local json files.", impact = "When disabled Adapt reads and writes data/players/<uuid>.json; when enabled the settings below must point at reachable InnoDB tables or Adapt fails closed without loading a local fallback.")
     private boolean enabled = false;
     @ConfigDoc(value = "Hostname or address of the SQL server.", impact = "Used to build the jdbc:mysql url; only read while sql.enabled is true.")
     private String host = "localhost";
@@ -302,9 +304,9 @@ public class AdaptConfig {
     private String password = "password";
     @ConfigDoc(value = "Connection pool size requested by the advancement database backend.", impact = "Only the advancement backend uses it; higher values allow more concurrent advancement queries at the cost of open server connections.")
     private int poolSize = 10;
-    @ConfigDoc(value = "Milliseconds allowed for the jdbc connect handshake.", impact = "Clamped up to 1000; the socket timeout is derived as twice the resulting value.")
+    @ConfigDoc(value = "Milliseconds allowed for the jdbc connect handshake.", impact = "Clamped to 1000-5000; the socket timeout is twice the result but also capped at 5000 so bounded persistence retries finish before shutdown recovery.")
     private long connectionTimeout = 5000;
-    @ConfigDoc(value = "Seconds passed to Connection.isValid when probing the SQL link.", impact = "Startup validation clamps this to 1-10; the reconnect probe uses the raw value, so large numbers stall the calling thread longer before a reconnect.")
+    @ConfigDoc(value = "Seconds passed to Connection.isValid when probing the SQL link.", impact = "Startup and reconnect validation clamp this to 1-5 seconds, and successful probes are reused for five seconds.")
     private int secondsCheckverify = 30;
   }
 

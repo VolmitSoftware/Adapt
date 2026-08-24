@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
@@ -1138,7 +1139,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     } catch (RuntimeException error) {
       Adapt.error("Instant Recall could not start its final teleport for "
           + recall.playerId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       abortFinalRecall(recall);
       return;
     }
@@ -1159,7 +1160,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   ) {
     if (failure != null) {
       Adapt.error("Instant Recall final teleport failed for " + recall.playerId() + ".");
-      failure.printStackTrace();
+      Adapt.error(failure);
     }
 
     Runnable completion = () -> {
@@ -1176,7 +1177,11 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       )) {
         return;
       }
-      completeSuccessfulRecall(p, recall);
+      AdaptPlayer adaptPlayer = getPlayer(p);
+      if (adaptPlayer == null) {
+        return;
+      }
+      completeSuccessfulRecall(p, recall, adaptPlayer);
     };
     boolean scheduled = J.runEntity(p, completion);
     if (!scheduled && J.isOwnedByCurrentRegion(p)) {
@@ -1190,7 +1195,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     }
   }
 
-  private void completeSuccessfulRecall(Player p, FinalRecall recall) {
+  private void completeSuccessfulRecall(Player p, FinalRecall recall, AdaptPlayer adaptPlayer) {
     applySnapshotState(p, recall.snapshot());
     applyRecallHealthCost(p);
 
@@ -1224,8 +1229,8 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     addStat(p, "chronos.instant-recall.recalls", 1);
     if (recall.healthBefore() <= 4 && recall.healthAfter() >= 16
         && AdaptConfig.get().isAdvancements()
-        && !getPlayer(p).getData().isGranted("challenge_chronos_recall_cheat_death")) {
-      getPlayer(p).getAdvancementHandler().grant("challenge_chronos_recall_cheat_death");
+        && !adaptPlayer.getData().isGranted("challenge_chronos_recall_cheat_death")) {
+      adaptPlayer.getAdvancementHandler().grant("challenge_chronos_recall_cheat_death");
     }
 
     long awardAt = M.ms();
@@ -1302,7 +1307,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       finishStampedRewindCleanup(player, cameraAnchor);
     } catch (RuntimeException error) {
       Adapt.warn("Failed to restore durable Instant Recall state for " + player.getName() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 

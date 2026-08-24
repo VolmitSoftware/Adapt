@@ -22,13 +22,15 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class MutationManagerSelectionTest extends AdaptTestBase {
   private AdaptPlayer adaptPlayer;
+  private AdaptServer server;
   private PlayerData data;
   private Player player;
   private SkillRegistry registry;
@@ -36,7 +38,7 @@ class MutationManagerSelectionTest extends AdaptTestBase {
 
   @BeforeEach
   void setUpMutationPlayer() {
-    AdaptServer server = mock(AdaptServer.class);
+    server = mock(AdaptServer.class);
     registry = mock(SkillRegistry.class);
     adaptPlayer = mock(AdaptPlayer.class);
     data = new PlayerData();
@@ -307,6 +309,32 @@ class MutationManagerSelectionTest extends AdaptTestBase {
     assertThat(snapshot.perfect()).isFalse();
     assertThat(snapshot.state(MutationType.GALE_LUNG)).isEqualTo(MutationState.DORMANT);
     assertThat(snapshot.reason(MutationType.GALE_LUNG)).contains("turned off");
+  }
+
+  @Test
+  void unavailablePlayersCannotExposeOrMutateMutationState() {
+    MutationManager manager = new MutationManager(enabledConfig());
+    when(server.getPlayer(player)).thenReturn(null);
+
+    assertThat(manager.snapshot(player).expressed()).isEmpty();
+    assertThat(manager.isSlotUnlocked(player, 1)).isFalse();
+    assertThat(manager.qualification(player, MutationType.GALE_LUNG).qualified()).isFalse();
+
+    MutationSelectionResult result = manager.select(player, 1, MutationType.GALE_LUNG, true);
+    assertThat(result.success()).isFalse();
+    assertThat(data.getMutationData().getSlotOneId()).isEmpty();
+  }
+
+  @Test
+  void reconciliationRejectsAReplacedRuntimeWrapper() {
+    MutationManager manager = new MutationManager(enabledConfig());
+    AdaptPlayer replacement = mock(AdaptPlayer.class);
+    when(server.getPlayer(player)).thenReturn(replacement);
+
+    MutationSnapshot snapshot = manager.reconcile(adaptPlayer);
+
+    assertThat(snapshot.expressed()).isEmpty();
+    verify(adaptPlayer, never()).getData();
   }
 
   private void authorize(MutationManager manager) {

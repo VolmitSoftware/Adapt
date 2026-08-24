@@ -123,7 +123,7 @@ final class SkillRuntimeGuards {
         return true;
       }
 
-      return AdaptationGate.shouldSkipPlayer(player, skill, skill.getPlayer(player) != null);
+      return AdaptationGate.shouldSkipPlayer(player, skill, isRuntimePlayer(player));
     } catch (Exception ex) {
       Adapt.verbose("Failed shouldSkipPlayer check for " + (player == null ? "null" : player.getName())
           + " in skill " + (skill == null ? "null" : skill.getName()) + ": "
@@ -238,7 +238,10 @@ final class SkillRuntimeGuards {
         Adapt.verbose("Gave " + player.getName() + " " + xp + " xp in " + skill.getName() + " " + skill.getClass());
       }
     } catch (Exception ex) {
-      Adapt.verbose("Failed to give xp to " + player.getName() + " for " + skill.getName() + " (" + xp + ")");
+      if (AdaptConfig.get().isVerbose()) {
+        Adapt.verbose("Skipped XP grant for " + player.getName() + " in " + skill.getName()
+            + " (xp=" + xp + "): " + ex.getClass().getSimpleName());
+      }
     }
   }
 
@@ -249,20 +252,33 @@ final class SkillRuntimeGuards {
     try {
       XP.xpSilent(player, skill, xp, rewardKey);
       AdaptRuntimeTelemetry.recordXpPayout(System.currentTimeMillis(), xp);
-    } catch (Exception ignored) {
-      Adapt.verbose("Player was Given XP (Likely Teleportation) before i can see it because some plugin has higher priority than me and moves a player. so im not going to throw an error, as i know why it's happening.");
+    } catch (Exception failure) {
+      Adapt.verbose(() -> "Skipped silent XP grant because the player runtime moved before delivery: "
+          + failure.getClass().getSimpleName());
     }
   }
 
   static void grantKnowledge(Skill<?> skill, Player player, long knowledge) {
-    if (skill == null || !skill.isEnabled() || player == null) {
+    if (skill == null || !skill.isEnabled() || !isRuntimePlayer(player)) {
       return;
     }
     XP.knowledge(player, skill, knowledge);
   }
 
   static boolean isRuntimePlayer(Player player) {
-    return player != null && player.getClass().getSimpleName().equals("CraftPlayer");
+    Adapt plugin = Adapt.instance;
+    if (player == null || plugin == null || plugin.getAdaptServer() == null) {
+      return false;
+    }
+    AdaptPlayer adaptPlayer = plugin.getAdaptServer().getOnlineAdaptPlayer(player.getUniqueId());
+    return isReadyRuntimePlayer(player, adaptPlayer);
+  }
+
+  static boolean isReadyRuntimePlayer(Player player, AdaptPlayer adaptPlayer) {
+    return player != null
+        && adaptPlayer != null
+        && adaptPlayer.isRuntimeReady()
+        && adaptPlayer.getPlayer() == player;
   }
 
   static boolean isValidXp(double xp) {

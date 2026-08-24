@@ -42,27 +42,30 @@ final class MutationRuntimeAccess {
   }
 
   MutationSnapshot snapshot(Player player) {
+    if (!eligible(player)) {
+      return MutationSnapshot.empty();
+    }
     MutationManager manager = manager();
     return manager == null ? MutationSnapshot.empty() : manager.snapshot(player);
   }
 
   boolean expressed(Player player, MutationType type) {
-    return eligible(player) && type != null && snapshot(player).expressed().contains(type);
+    return type != null && snapshot(player).expressed().contains(type);
   }
 
   boolean anyExpressed(Player player) {
-    return eligible(player) && !snapshot(player).expressed().isEmpty();
+    return !snapshot(player).expressed().isEmpty();
   }
 
   boolean perfect(Player player) {
-    return eligible(player) && snapshot(player).perfect();
+    return snapshot(player).perfect();
   }
 
   List<MutationType> ordered(Player player) {
-    if (!eligible(player)) {
+    MutationSnapshot snapshot = snapshot(player);
+    if (snapshot.expressed().isEmpty()) {
       return List.of();
     }
-    MutationSnapshot snapshot = snapshot(player);
     ArrayList<MutationType> ordered = new ArrayList<>(2);
     addExpressed(ordered, snapshot, MutationType.find(snapshot.slotOneId()));
     addExpressed(ordered, snapshot, MutationType.find(snapshot.slotTwoId()));
@@ -77,7 +80,7 @@ final class MutationRuntimeAccess {
   void save(Player player) {
     AdaptPlayer adaptPlayer = adaptPlayer(player);
     if (adaptPlayer != null) {
-      adaptPlayer.saveNow();
+      adaptPlayer.requestSave();
     }
   }
 
@@ -121,7 +124,7 @@ final class MutationRuntimeAccess {
   }
 
   void tell(Player player, MutationType type, Particle particle, int count) {
-    if (!enabled() || player == null || type == null || particle == null || count <= 0) {
+    if (!eligible(player) || type == null || particle == null || count <= 0) {
       return;
     }
     FxEmitter emitter = Fx.now(type, player, FxPriority.TRANSITION)
@@ -163,14 +166,27 @@ final class MutationRuntimeAccess {
     if (player == null || Adapt.instance == null || Adapt.instance.getAdaptServer() == null) {
       return null;
     }
-    return Adapt.instance.getAdaptServer().getPlayer(player);
+    AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getOnlineAdaptPlayer(player.getUniqueId());
+    return isReadyRuntimePlayer(player, adaptPlayer) ? adaptPlayer : null;
   }
 
-  private boolean eligible(Player player) {
+  boolean eligible(Player player) {
     return player != null
         && enabled()
         && player.isOnline()
-        && MutationWorldRuntime.eligibleGameMode(player.getGameMode());
+        && MutationWorldRuntime.eligibleGameMode(player.getGameMode())
+        && runtimeReady(player);
+  }
+
+  boolean runtimeReady(Player player) {
+    return adaptPlayer(player) != null;
+  }
+
+  static boolean isReadyRuntimePlayer(Player player, AdaptPlayer adaptPlayer) {
+    return player != null
+        && adaptPlayer != null
+        && adaptPlayer.isRuntimeReady()
+        && adaptPlayer.getPlayer() == player;
   }
 
   private PartyIdentity partyIdentity(Player player) {

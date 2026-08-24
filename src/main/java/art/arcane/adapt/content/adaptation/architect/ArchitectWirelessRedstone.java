@@ -231,7 +231,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       IllegalStateException failure = new IllegalStateException(
           "Failed to schedule Architect Redstone Remote binding target validation at "
               + binding.target());
-      failure.printStackTrace();
+      Adapt.error(failure);
       showPulseFailure(player);
     }
   }
@@ -265,7 +265,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
       IllegalStateException failure = new IllegalStateException(
           "Failed to schedule Architect Redstone Remote binding authorization for "
               + player.getUniqueId());
-      failure.printStackTrace();
+      Adapt.error(failure);
       showPulseFailure(player);
     }
   }
@@ -374,14 +374,14 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
           if (error != null) {
             Adapt.error("Failed to load an Architect Redstone Remote bound chunk at "
                 + binding.target());
-            error.printStackTrace();
+            Adapt.error(error);
             rejectPulse(player);
             return;
           }
           if (!J.runAt(binding.target(), () -> validateTargetAndSchedulePulse(player, binding))) {
             IllegalStateException failure = new IllegalStateException(
                 "Failed to schedule Architect Redstone Remote target validation at " + binding.target());
-            failure.printStackTrace();
+            Adapt.error(failure);
             rejectPulse(player);
           }
         });
@@ -400,7 +400,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     if (!J.runEntity(player, () -> authorizeAndSchedulePulse(player, binding))) {
       IllegalStateException failure = new IllegalStateException(
           "Failed to schedule Architect Redstone Remote authorization for " + player.getUniqueId());
-      failure.printStackTrace();
+      Adapt.error(failure);
       rejectPulse(player);
     }
   }
@@ -419,7 +419,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     if (!J.runAt(binding.target(), () -> beginPulse(player, binding))) {
       IllegalStateException failure = new IllegalStateException(
           "Failed to schedule Architect Redstone Remote pulse at " + binding.emitter());
-      failure.printStackTrace();
+      Adapt.error(failure);
       rejectPulse(player);
     }
   }
@@ -488,7 +488,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         applySnapshots(targetBlock.getWorld(), activation.snapshots(), false);
         IllegalStateException failure = new IllegalStateException(
             "Failed to energize the Architect Redstone Remote block at " + binding.emitter(), error);
-        failure.printStackTrace();
+        Adapt.error(failure);
         throw failure;
       }
     }
@@ -496,8 +496,8 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     acceptPulse(player, binding.target());
     if (!J.runAt(binding.target(), () -> finishPulse(activation), ArchitectRedstonePulse.PULSE_TICKS)) {
       finishPulse(activation);
-      new IllegalStateException("Failed to schedule Architect Redstone Remote cleanup at "
-          + binding.emitter()).printStackTrace();
+      Adapt.error(new IllegalStateException("Failed to schedule Architect Redstone Remote cleanup at "
+          + binding.emitter()));
     }
   }
 
@@ -689,8 +689,8 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     }
 
     pendingPulsePlayers.remove(playerId);
-    new IllegalStateException("Failed to schedule Architect Redstone Remote success for "
-        + playerId).printStackTrace();
+    Adapt.error(new IllegalStateException("Failed to schedule Architect Redstone Remote success for "
+        + playerId));
   }
 
   private void rejectPulse(Player player) {
@@ -705,7 +705,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     } catch (RuntimeException | Error error) {
       Adapt.error("Failed to restore an Architect Redstone Remote block at "
           + restoration.emitter());
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }
@@ -903,7 +903,7 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
     String detail = failure == null ? "unknown failure" : failure.getMessage();
     Adapt.error("Architect Redstone Remote restoration failed at " + emitter + ": " + detail);
     if (failure != null) {
-      failure.printStackTrace();
+      Adapt.error(failure);
     }
   }
 

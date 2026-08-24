@@ -21,48 +21,80 @@ package art.arcane.adapt.api.tick;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.telemetry.AdaptTelemetryClock;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.volmlib.util.collection.KList;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.LongSupplier;
 
 public class Ticker {
-  private final KList<Ticked> ticklist;
-  private final KList<Ticked> newTicks;
-  private final KList<Ticked> removeTicks;
+  private static final long DEMAND_RECHECK_MILLIS = TickedObject.MIN_INTERVAL_MILLIS;
+  private static final long SCHEDULE_RETRY_MILLIS = 1_000L;
+  private static final Comparator<TickRegistration> REGISTRATION_ORDER = Comparator
+      .comparingLong((TickRegistration registration) -> registration.deadlineMillis)
+      .thenComparingLong(registration -> registration.sequence);
+
+  private final Object scheduleLock;
+  private final TreeSet<TickRegistration> schedule;
+  private final Map<Ticked, TickRegistration> registrations;
+  private final ArrayList<TickRegistration> dueRegistrations;
   private final Map<Ticked, TickMetric> metrics;
   private final AtomicBoolean active;
+  private final AtomicBoolean ticking;
   private final AtomicLong windowStartMs;
+  private final LongSupplier clock;
+  private final boolean refreshTelemetryClock;
   private final int schedulerTaskId;
-  private volatile boolean ticking;
+  private long nextSequence;
 
   public Ticker() {
-    this.ticklist = new KList<>(4096);
-    this.newTicks = new KList<>(128);
-    this.removeTicks = new KList<>(128);
+    this(AdaptTelemetryClock::millis, true);
+  }
+
+  Ticker(LongSupplier clock) {
+    this(clock, false);
+  }
+
+  private Ticker(LongSupplier clock, boolean startScheduler) {
+    this.scheduleLock = new Object();
+    this.schedule = new TreeSet<>(REGISTRATION_ORDER);
+    this.registrations = new IdentityHashMap<>();
+    this.dueRegistrations = new ArrayList<>(128);
     this.metrics = new ConcurrentHashMap<>();
     this.active = new AtomicBoolean(true);
+    this.ticking = new AtomicBoolean(false);
     this.windowStartMs = new AtomicLong(System.currentTimeMillis());
-    ticking = false;
-    schedulerTaskId = J.sr(() -> {
-      if (active.get() && !ticking) {
-        tick();
-      }
-    }, 1);
+    this.clock = Objects.requireNonNull(clock);
+    this.refreshTelemetryClock = startScheduler;
+    this.nextSequence = 0L;
+    this.schedulerTaskId = startScheduler ? J.sr(this::tick, 1) : -1;
   }
 
   public void register(Ticked ticked) {
-    synchronized (newTicks) {
-      newTicks.add(ticked);
+    if (ticked == null || !active.get()) {
+      return;
+    }
+
+    TickSchedule tickSchedule = readSchedule(ticked, clock.getAsLong());
+    synchronized (scheduleLock) {
+      if (!active.get() || registrations.containsKey(ticked)) {
+        return;
+      }
+
+      TickRegistration registration = new TickRegistration(ticked, nextSequence++);
+      registrations.put(ticked, registration);
+      if (ticked instanceof TickedObject tickedObject) {
+        tickedObject.resumeTickDispatch();
+      }
+      scheduleLocked(registration, tickSchedule.deadlineMillis);
     }
   }
 
@@ -70,31 +102,61 @@ public class Ticker {
     if (ticked == null) {
       return;
     }
-    synchronized (removeTicks) {
-      removeTicks.add(ticked);
+
+    synchronized (scheduleLock) {
+      TickRegistration registration = registrations.remove(ticked);
+      if (registration == null) {
+        return;
+      }
+
+      registration.revision++;
+      if (registration.queued) {
+        schedule.remove(registration);
+        registration.queued = false;
+      }
+    }
+    metrics.remove(ticked);
+  }
+
+  void reschedule(Ticked ticked) {
+    if (ticked == null || !active.get()) {
+      return;
+    }
+
+    TickSchedule tickSchedule = readSchedule(ticked, clock.getAsLong());
+    synchronized (scheduleLock) {
+      TickRegistration registration = registrations.get(ticked);
+      if (!active.get() || registration == null) {
+        return;
+      }
+
+      scheduleLocked(registration, tickSchedule.deadlineMillis);
     }
   }
 
   public void clear() {
-    synchronized (ticklist) {
-      ticklist.clear();
+    List<Ticked> cleared;
+    synchronized (scheduleLock) {
+      cleared = new ArrayList<>(registrations.keySet());
+      schedule.clear();
+      registrations.clear();
     }
-    synchronized (removeTicks) {
-      removeTicks.clear();
-    }
-    synchronized (newTicks) {
-      newTicks.clear();
+    for (Ticked ticked : cleared) {
+      if (ticked instanceof TickedObject tickedObject) {
+        tickedObject.invalidateTickDispatch();
+      }
     }
     metrics.clear();
     windowStartMs.set(System.currentTimeMillis());
-
   }
 
   public void shutdown() {
     if (!active.compareAndSet(true, false)) {
       return;
     }
-    J.csr(schedulerTaskId);
+    if (schedulerTaskId >= 0) {
+      J.csr(schedulerTaskId);
+    }
     clear();
   }
 
@@ -128,7 +190,7 @@ public class Ticker {
   public List<String> topMetrics(int limit) {
     int safeLimit = Math.max(1, limit);
     ArrayList<TickMetric> entries = new ArrayList<>(metrics.values());
-    entries.sort(Comparator.comparingLong((TickMetric m) -> m.totalNanos.get()).reversed());
+    entries.sort(Comparator.comparingLong((TickMetric metric) -> metric.totalNanos.get()).reversed());
 
     int outputSize = Math.min(safeLimit, entries.size());
     ArrayList<String> top = new ArrayList<>(outputSize);
@@ -139,36 +201,88 @@ public class Ticker {
     return top;
   }
 
+  static boolean isDue(long now, long lastTick, long interval) {
+    if (now < lastTick) {
+      return false;
+    }
+
+    long safeInterval = Math.max(0L, interval);
+    if (safeInterval == 0L) {
+      return true;
+    }
+    if (lastTick > Long.MAX_VALUE - safeInterval) {
+      return false;
+    }
+    return now >= lastTick + safeInterval;
+  }
+
   private void tick() {
-    ticking = true;
+    if (!active.get() || !ticking.compareAndSet(false, true)) {
+      return;
+    }
+
     try {
-      AdaptTelemetryClock.refresh();
-      tickRegistered(AdaptTelemetryClock.millis());
-      addPendingTicks();
-      removePendingTicks();
+      if (refreshTelemetryClock) {
+        AdaptTelemetryClock.refresh();
+      }
+      long now = clock.getAsLong();
+      drainDueRegistrations(now);
+      for (int i = 0; i < dueRegistrations.size(); i++) {
+        tickRegistration(dueRegistrations.get(i), now);
+      }
     } finally {
-      ticking = false;
+      dueRegistrations.clear();
+      ticking.set(false);
     }
   }
 
-  private void tickRegistered(long now) {
-    for (int i = 0; i < ticklist.size(); i++) {
-      Ticked t = ticklist.get(i);
-      if (t == null || !isDue(now, t.getLastTick(), t.getInterval()) || !hasTickDemand(t)) {
-        continue;
-      }
-
-      long start = System.nanoTime();
-      try {
-        t.tick();
-      } catch (Throwable error) {
-        Adapt.error("Exception ticking " + t.getGroup() + ":" + t.getId());
-        error.printStackTrace();
-      } finally {
-        if (!(t instanceof TickedObject)) {
-          recordMetric(t, System.nanoTime() - start);
+  private void drainDueRegistrations(long now) {
+    synchronized (scheduleLock) {
+      while (!schedule.isEmpty()) {
+        TickRegistration registration = schedule.first();
+        if (registration.deadlineMillis > now) {
+          return;
         }
+
+        schedule.pollFirst();
+        registration.queued = false;
+        registration.dispatchRevision = registration.revision;
+        dueRegistrations.add(registration);
       }
+    }
+  }
+
+  private void tickRegistration(TickRegistration registration, long now) {
+    long dispatchRevision = registration.dispatchRevision;
+    if (!isCurrent(registration, dispatchRevision)) {
+      return;
+    }
+
+    Ticked ticked = registration.ticked;
+    TickSchedule tickSchedule = readSchedule(ticked, now);
+    if (!isCurrent(registration, dispatchRevision)) {
+      return;
+    }
+    if (!isDue(now, tickSchedule.lastTickMillis, tickSchedule.intervalMillis)) {
+      scheduleIfCurrent(registration, dispatchRevision, tickSchedule.deadlineMillis);
+      return;
+    }
+    if (!hasTickDemand(ticked)) {
+      scheduleIfCurrent(registration, dispatchRevision, addSaturated(now, DEMAND_RECHECK_MILLIS));
+      return;
+    }
+
+    long start = System.nanoTime();
+    try {
+      ticked.tick();
+    } catch (Throwable error) {
+      Adapt.error("Exception ticking " + label(ticked));
+      Adapt.error(error);
+    } finally {
+      if (!(ticked instanceof TickedObject)) {
+        recordMetric(ticked, System.nanoTime() - start);
+      }
+      scheduleAfterTick(registration, dispatchRevision, now);
     }
   }
 
@@ -176,39 +290,84 @@ public class Ticker {
     try {
       return ticked.hasTickDemand();
     } catch (Throwable error) {
-      Adapt.error("Exception checking tick demand " + ticked.getGroup() + ":" + ticked.getId());
-      error.printStackTrace();
+      Adapt.error("Exception checking tick demand " + label(ticked));
+      Adapt.error(error);
       return false;
     }
   }
 
-  static boolean isDue(long now, long lastTick, long interval) {
-    return now >= lastTick && now - lastTick >= Math.max(0L, interval);
+  private void scheduleAfterTick(TickRegistration registration, long dispatchRevision, long now) {
+    if (!isCurrent(registration, dispatchRevision)) {
+      return;
+    }
+
+    TickSchedule tickSchedule = readSchedule(registration.ticked, now);
+    long deadlineMillis = tickSchedule.deadlineMillis <= now
+        ? addSaturated(now, 1L)
+        : tickSchedule.deadlineMillis;
+    scheduleIfCurrent(registration, dispatchRevision, deadlineMillis);
   }
 
-  private void addPendingTicks() {
-    synchronized (newTicks) {
-      if (newTicks.isNotEmpty()) {
-        ticklist.addAll(newTicks);
-        newTicks.clear();
-      }
+  private TickSchedule readSchedule(Ticked ticked, long now) {
+    try {
+      long lastTickMillis = ticked.getLastTick();
+      long intervalMillis = Math.max(0L, ticked.getInterval());
+      return new TickSchedule(lastTickMillis, intervalMillis, deadline(lastTickMillis, intervalMillis));
+    } catch (Throwable error) {
+      Adapt.error("Exception reading tick schedule " + label(ticked));
+      Adapt.error(error);
+      return new TickSchedule(now, SCHEDULE_RETRY_MILLIS, addSaturated(now, SCHEDULE_RETRY_MILLIS));
     }
   }
 
-  private void removePendingTicks() {
-    synchronized (removeTicks) {
-      if (removeTicks.isNotEmpty()) {
-        Set<Ticked> ticksToRemove = Collections.newSetFromMap(new IdentityHashMap<>());
-        ticksToRemove.addAll(removeTicks);
-        removeTicks.clear();
-        ticklist.removeIf(t -> {
-          if (t != null && ticksToRemove.contains(t)) {
-            metrics.remove(t);
-            return true;
-          }
-          return false;
-        });
+  private boolean isCurrent(TickRegistration registration, long revision) {
+    synchronized (scheduleLock) {
+      return active.get()
+          && registrations.get(registration.ticked) == registration
+          && registration.revision == revision;
+    }
+  }
+
+  private void scheduleIfCurrent(TickRegistration registration, long revision, long deadlineMillis) {
+    synchronized (scheduleLock) {
+      if (!active.get()
+          || registrations.get(registration.ticked) != registration
+          || registration.revision != revision) {
+        return;
       }
+      scheduleLocked(registration, deadlineMillis);
+    }
+  }
+
+  private void scheduleLocked(TickRegistration registration, long deadlineMillis) {
+    if (registration.queued) {
+      schedule.remove(registration);
+    }
+    registration.revision++;
+    registration.deadlineMillis = deadlineMillis;
+    registration.queued = true;
+    schedule.add(registration);
+  }
+
+  private static long deadline(long lastTickMillis, long intervalMillis) {
+    return addSaturated(lastTickMillis, Math.max(0L, intervalMillis));
+  }
+
+  private static long addSaturated(long value, long increment) {
+    if (increment <= 0L) {
+      return value;
+    }
+    if (value > Long.MAX_VALUE - increment) {
+      return Long.MAX_VALUE;
+    }
+    return value + increment;
+  }
+
+  private static String label(Ticked ticked) {
+    try {
+      return ticked.getGroup() + ":" + ticked.getId();
+    } catch (Throwable error) {
+      return ticked.getClass().getName();
     }
   }
 
@@ -218,7 +377,7 @@ public class Ticker {
       return;
     }
 
-    TickMetric metric = metrics.computeIfAbsent(ticked, t -> new TickMetric(t.getGroup() + ":" + t.getId()));
+    TickMetric metric = metrics.computeIfAbsent(ticked, entry -> new TickMetric(label(entry)));
     metric.calls.incrementAndGet();
     metric.totalNanos.addAndGet(durationNs);
     long observedMax = metric.maxNanos.get();
@@ -238,14 +397,38 @@ public class Ticker {
         + " calls=" + calls;
   }
 
-  private static class TickMetric {
+  private static final class TickRegistration {
+    private final Ticked ticked;
+    private final long sequence;
+    private long deadlineMillis;
+    private long revision;
+    private long dispatchRevision;
+    private boolean queued;
+
+    private TickRegistration(Ticked ticked, long sequence) {
+      this.ticked = ticked;
+      this.sequence = sequence;
+      this.deadlineMillis = Long.MAX_VALUE;
+      this.revision = 0L;
+      this.dispatchRevision = 0L;
+      this.queued = false;
+    }
+  }
+
+  private record TickSchedule(long lastTickMillis, long intervalMillis, long deadlineMillis) {
+  }
+
+  private static final class TickMetric {
     private final String label;
-    private final AtomicLong calls = new AtomicLong();
-    private final AtomicLong totalNanos = new AtomicLong();
-    private final AtomicLong maxNanos = new AtomicLong();
+    private final AtomicLong calls;
+    private final AtomicLong totalNanos;
+    private final AtomicLong maxNanos;
 
     private TickMetric(String label) {
       this.label = label;
+      this.calls = new AtomicLong();
+      this.totalNanos = new AtomicLong();
+      this.maxNanos = new AtomicLong();
     }
   }
 }

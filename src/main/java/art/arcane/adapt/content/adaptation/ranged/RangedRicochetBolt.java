@@ -391,7 +391,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
       replacement.cancel();
     } catch (RuntimeException | Error error) {
       Adapt.warn("Failed to cancel a Ricochet Bolt projectile ownership transfer.");
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 
@@ -804,7 +804,7 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     Adapt.warn("Failed to " + operation + " for Ricochet Bolt in " + world.getName()
         + " at " + location.getBlockX() + "," + location.getBlockY() + ","
         + location.getBlockZ() + ".");
-    throwable.printStackTrace();
+    Adapt.error(throwable);
   }
 
   private Location resolveTransferFallbackOwned(Location impact, Block block, Vector incoming) {

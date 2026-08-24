@@ -38,6 +38,7 @@ import org.joml.Vector3f;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,9 +47,12 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 public final class ViewerDisplayDirector {
@@ -59,20 +63,34 @@ public final class ViewerDisplayDirector {
   private static final String DISPLAY_TAG = "adapt_viewer_display";
   private static final Object LOCK = new Object();
   private static final Map<DisplayKey, DisplayLease> LEASES = new HashMap<>();
+  private static final Map<String, Set<DisplayKey>> LEASE_KEYS_BY_CHANNEL = new HashMap<>();
+  private static final Map<UUID, Set<DisplayKey>> LEASE_KEYS_BY_VIEWER = new HashMap<>();
+  private static final Map<ViewerChannelKey, Set<DisplayKey>> LEASE_KEYS_BY_VIEWER_CHANNEL = new HashMap<>();
+  private static final Map<ViewerKey, Set<DisplayKey>> LEASE_KEYS_BY_VIEWER_KEY = new HashMap<>();
+  private static final Set<UUID> LEASED_DISPLAY_IDS = new HashSet<>();
   private static final Map<UUID, Integer> VIEWER_COUNTS = new HashMap<>();
   private static final Map<String, Long> CHANNEL_GENERATIONS = new HashMap<>();
   private static final Map<UUID, Long> VIEWER_GENERATIONS = new HashMap<>();
   private static final Map<ViewerChannelKey, Long> VIEWER_CHANNEL_GENERATIONS = new HashMap<>();
   private static final Map<ViewerKey, Long> VIEWER_KEY_GENERATIONS = new HashMap<>();
   private static final Map<UUID, Integer> PENDING_REQUESTS = new HashMap<>();
+  private static final Map<DisplayKey, PendingRequest> PENDING_DISPLAY_REQUESTS = new HashMap<>();
+  private static final Set<RequestTicket> ACTIVE_REQUESTS = new HashSet<>();
   private static final Set<UUID> RETIRING_VIEWERS = new HashSet<>();
   private static final Queue<ChunkAddress> ORPHAN_PURGE_QUEUE = new ConcurrentLinkedQueue<>();
   private static final AtomicBoolean ORPHAN_PURGE_SCHEDULED = new AtomicBoolean();
   private static final AtomicInteger ORPHAN_PURGE_FAILURES = new AtomicInteger();
   private static int pendingReservations;
   private static long globalGeneration;
+  private static boolean acceptingRequests = true;
 
   private ViewerDisplayDirector() {
+  }
+
+  public static void startRuntime() {
+    synchronized (LOCK) {
+      acceptingRequests = true;
+    }
   }
 
   public static boolean showBlock(String channel, String key, Player viewer, Location location,
@@ -91,19 +109,16 @@ public final class ViewerDisplayDirector {
     Location ownedLocation = location.clone();
     BlockData ownedBlockData = blockData.clone();
     Transformation transformation = blockTransformation();
-    ReservedGeneration reserved = reserveGeneration(channel, key, viewer.getUniqueId());
-    DisplayRequest request = new DisplayRequest(
+    DisplayRequestSpec request = new DisplayRequestSpec(
         displayKey,
         viewer,
         ownedLocation,
         ownedBlockData,
         glowColor,
         transformation,
-        durationTicks,
-        reserved.generation(),
-        reserved.ticket()
+        durationTicks
     );
-    return scheduleRequest(request);
+    return submitRequest(request);
   }
 
   public static boolean showLine(String channel, String key, Player viewer, Location start, Location end,
@@ -122,51 +137,57 @@ public final class ViewerDisplayDirector {
     Location ownedLocation = start.clone();
     BlockData ownedBlockData = blockData.clone();
     Transformation transformation = lineTransformation(delta, safeThickness);
-    ReservedGeneration reserved = reserveGeneration(channel, key, viewer.getUniqueId());
-    DisplayRequest request = new DisplayRequest(
+    DisplayRequestSpec request = new DisplayRequestSpec(
         displayKey,
         viewer,
         ownedLocation,
         ownedBlockData,
         glowColor,
         transformation,
-        clampDuration(durationTicks),
-        reserved.generation(),
-        reserved.ticket()
+        clampDuration(durationTicks)
     );
-    return scheduleRequest(request);
+    return submitRequest(request);
   }
 
   public static void clearChannel(String channel) {
     if (channel == null) {
       return;
     }
-    clearMatching(key -> channel.equals(key.channel()), () -> {
+    List<DisplayLease> removed;
+    synchronized (LOCK) {
       CHANNEL_GENERATIONS.merge(channel, 1L, Long::sum);
       VIEWER_CHANNEL_GENERATIONS.keySet().removeIf(key -> channel.equals(key.channel()));
       VIEWER_KEY_GENERATIONS.keySet().removeIf(key -> channel.equals(key.channel()));
-    });
+      removed = removeIndexedLocked(LEASE_KEYS_BY_CHANNEL.get(channel));
+    }
+    removeDisplays(removed);
   }
 
   public static void clearViewer(String channel, UUID viewerId) {
     if (channel == null || viewerId == null) {
       return;
     }
-    clearMatching(key -> channel.equals(key.channel()) && viewerId.equals(key.viewerId()), () -> {
+    List<DisplayLease> removed;
+    synchronized (LOCK) {
       VIEWER_CHANNEL_GENERATIONS.merge(new ViewerChannelKey(channel, viewerId), 1L, Long::sum);
       VIEWER_KEY_GENERATIONS.keySet().removeIf(
           key -> channel.equals(key.channel()) && viewerId.equals(key.viewerId()));
-    });
+      removed = removeIndexedLocked(LEASE_KEYS_BY_VIEWER_CHANNEL.get(new ViewerChannelKey(channel, viewerId)));
+    }
+    removeDisplays(removed);
   }
 
   public static void clearViewerKey(String channel, String key, UUID viewerId) {
     if (channel == null || key == null || viewerId == null) {
       return;
     }
-    clearMatching(displayKey -> channel.equals(displayKey.channel())
-        && key.equals(displayKey.key())
-        && viewerId.equals(displayKey.viewerId()),
-        () -> VIEWER_KEY_GENERATIONS.merge(new ViewerKey(channel, key, viewerId), 1L, Long::sum));
+    List<DisplayLease> removed;
+    synchronized (LOCK) {
+      ViewerKey viewerKey = new ViewerKey(channel, key, viewerId);
+      VIEWER_KEY_GENERATIONS.merge(viewerKey, 1L, Long::sum);
+      removed = removeIndexedLocked(LEASE_KEYS_BY_VIEWER_KEY.get(viewerKey));
+    }
+    removeDisplays(removed);
   }
 
   public static boolean isShowing(String channel, String key, UUID viewerId, Location location) {
@@ -182,35 +203,40 @@ public final class ViewerDisplayDirector {
         location.getBlockY(),
         location.getBlockZ()
     );
+    DisplayLease lease;
     synchronized (LOCK) {
-      DisplayLease lease = LEASES.get(displayKey);
-      if (lease == null) {
-        return false;
-      }
-      if (lease.display().isValid()) {
-        return true;
-      }
-      removeLeaseLocked(displayKey, lease);
+      lease = LEASES.get(displayKey);
+    }
+    if (lease == null) {
       return false;
     }
+    if (J.isOwnedByCurrentRegion(lease.anchor())) {
+      return validateLeaseOwned(displayKey, lease);
+    }
+    scheduleLeaseValidation(displayKey, lease);
+    return true;
   }
 
   public static void clearViewer(UUID viewerId) {
     if (viewerId == null) {
       return;
     }
-    clearMatching(key -> viewerId.equals(key.viewerId()), () -> {
+    List<DisplayLease> removed;
+    synchronized (LOCK) {
       VIEWER_GENERATIONS.merge(viewerId, 1L, Long::sum);
       VIEWER_CHANNEL_GENERATIONS.keySet().removeIf(key -> viewerId.equals(key.viewerId()));
       VIEWER_KEY_GENERATIONS.keySet().removeIf(key -> viewerId.equals(key.viewerId()));
-    });
+      removed = removeIndexedLocked(LEASE_KEYS_BY_VIEWER.get(viewerId));
+    }
+    removeDisplays(removed);
   }
 
   public static void retireViewer(UUID viewerId) {
     if (viewerId == null) {
       return;
     }
-    clearMatching(key -> viewerId.equals(key.viewerId()), () -> {
+    List<DisplayLease> removed;
+    synchronized (LOCK) {
       RETIRING_VIEWERS.add(viewerId);
       VIEWER_GENERATIONS.merge(viewerId, 1L, Long::sum);
       VIEWER_CHANNEL_GENERATIONS.keySet().removeIf(key -> viewerId.equals(key.viewerId()));
@@ -218,19 +244,39 @@ public final class ViewerDisplayDirector {
       if (!PENDING_REQUESTS.containsKey(viewerId)) {
         clearViewerGenerationsLocked(viewerId);
       }
-    });
+      removed = removeIndexedLocked(LEASE_KEYS_BY_VIEWER.get(viewerId));
+    }
+    removeDisplays(removed);
   }
 
   public static void clearAll() {
-    clearMatching(key -> true, () -> {
-      globalGeneration++;
-      CHANNEL_GENERATIONS.clear();
-      VIEWER_GENERATIONS.clear();
-      VIEWER_CHANNEL_GENERATIONS.clear();
-      VIEWER_KEY_GENERATIONS.clear();
-      PENDING_REQUESTS.clear();
-      RETIRING_VIEWERS.clear();
-    });
+    CleanupSnapshot snapshot = detachAll(false);
+    for (DisplayLease lease : snapshot.leases()) {
+      removeDisplay(lease);
+    }
+  }
+
+  public static boolean clearAllAndAwait(long timeoutMillis) {
+    return clearAllAndAwait(timeoutMillis, J::isOwnedByCurrentRegion);
+  }
+
+  static boolean clearAllAndAwait(long timeoutMillis, Predicate<Location> currentOwnership) {
+    CleanupSnapshot snapshot = detachAll(true);
+    CleanupFailures failures = new CleanupFailures();
+    List<CompletableFuture<Boolean>> completions = scheduleRemovalBatches(snapshot.leases(), failures);
+    for (RequestTicket ticket : snapshot.requests()) {
+      if (!ticket.started().get() || currentOwnership.test(ticket.anchor())) {
+        finishRequest(ticket);
+        continue;
+      }
+      completions.add(ticket.completion().thenApply(ignored -> true));
+    }
+    boolean successful = awaitCleanup(completions, timeoutMillis);
+    for (RequestTicket ticket : snapshot.requests()) {
+      finishRequest(ticket);
+    }
+    failures.report();
+    return successful && failures.isEmpty();
   }
 
   public static void purgeOrphans() {
@@ -289,10 +335,6 @@ public final class ViewerDisplayDirector {
   }
 
   private static void spawnOrRenewOwned(DisplayRequest request) {
-    if (!request.viewer().isOnline()) {
-      return;
-    }
-
     DisplayLease existing;
     synchronized (LOCK) {
       if (!isGenerationCurrentLocked(request)) {
@@ -300,12 +342,15 @@ public final class ViewerDisplayDirector {
       }
       existing = LEASES.get(request.key());
       if (existing != null && existing.display().isValid()) {
+        if (finishReservationLocked(request.ticket())) {
+          releaseLocked(request.key().viewerId());
+        }
         existing.renew(request.durationTicks());
       } else {
         if (existing != null) {
           removeLeaseLocked(request.key(), existing);
         }
-        if (!reserveLocked(request.key().viewerId())) {
+        if (!request.ticket().reservationHeld().get() && !reserveLocked(request.ticket())) {
           return;
         }
         existing = null;
@@ -323,26 +368,36 @@ public final class ViewerDisplayDirector {
     try {
       display = request.location().getWorld().spawn(request.location(), BlockDisplay.class, spawned -> configure(spawned, request));
     } catch (Throwable error) {
-      releaseReservation(request.key().viewerId());
+      releaseReservation(request.ticket());
       Adapt.warn("Failed to spawn private reveal display for " + request.key().channel() + ": "
           + error.getClass().getSimpleName()
           + (error.getMessage() == null ? "" : " - " + error.getMessage()));
-      error.printStackTrace();
+      Adapt.error(error);
       return;
     }
 
     DisplayLease lease = new DisplayLease(display, request.location().clone(), request.durationTicks());
     boolean accepted;
+    DisplayLease replaced;
     synchronized (LOCK) {
-      pendingReservations = Math.max(0, pendingReservations - 1);
+      boolean reservationHeld = finishReservationLocked(request.ticket());
       accepted = isGenerationCurrentLocked(request);
-      DisplayLease replaced = accepted ? LEASES.put(request.key(), lease) : null;
+      replaced = accepted ? LEASES.put(request.key(), lease) : null;
       if (!accepted) {
-        releaseLocked(request.key().viewerId());
-      } else if (replaced != null) {
-        releaseLocked(request.key().viewerId());
-        removeDisplay(replaced);
+        if (reservationHeld) {
+          releaseLocked(request.key().viewerId());
+        }
+      } else {
+        if (replaced != null) {
+          LEASED_DISPLAY_IDS.remove(replaced.display().getUniqueId());
+          releaseLocked(request.key().viewerId());
+        }
+        indexLeaseLocked(request.key());
+        LEASED_DISPLAY_IDS.add(display.getUniqueId());
       }
+    }
+    if (replaced != null) {
+      removeDisplay(replaced);
     }
     if (!accepted) {
       removeDisplayOwned(display);
@@ -356,24 +411,123 @@ public final class ViewerDisplayDirector {
     scheduleExpiry(request.key(), lease);
   }
 
-  private static boolean scheduleRequest(DisplayRequest request) {
+  private static boolean submitRequest(DisplayRequestSpec spec) {
+    PendingRequest pending;
+    synchronized (LOCK) {
+      if (!acceptingRequests) {
+        return false;
+      }
+      PendingRequest existing = PENDING_DISPLAY_REQUESTS.get(spec.key());
+      GenerationStamp generation = generationLocked(spec.key());
+      if (existing != null && !existing.ticket().finished().get()) {
+        existing.replace(displayRequest(spec, generation, existing.ticket()));
+        return true;
+      }
+      if (existing != null) {
+        PENDING_DISPLAY_REQUESTS.remove(spec.key(), existing);
+      }
+      if (ACTIVE_REQUESTS.size() >= MAX_ACTIVE_DISPLAYS
+          || PENDING_REQUESTS.getOrDefault(spec.key().viewerId(), 0) >= MAX_DISPLAYS_PER_VIEWER) {
+        return false;
+      }
+
+      RequestTicket ticket = new RequestTicket(spec.key(), spec.location().clone());
+      if (!LEASES.containsKey(spec.key()) && !reserveLocked(ticket)) {
+        return false;
+      }
+      DisplayRequest request = displayRequest(spec, generation, ticket);
+      pending = new PendingRequest(ticket, request);
+      PENDING_DISPLAY_REQUESTS.put(spec.key(), pending);
+      PENDING_REQUESTS.merge(spec.key().viewerId(), 1, Integer::sum);
+      ACTIVE_REQUESTS.add(ticket);
+    }
+    return scheduleRequest(pending);
+  }
+
+  private static DisplayRequest displayRequest(
+      DisplayRequestSpec spec,
+      GenerationStamp generation,
+      RequestTicket ticket
+  ) {
+    return new DisplayRequest(
+        spec.key(),
+        spec.viewer(),
+        spec.location(),
+        spec.blockData(),
+        spec.glowColor(),
+        spec.transformation(),
+        spec.durationTicks(),
+        generation,
+        ticket
+    );
+  }
+
+  private static boolean scheduleRequest(PendingRequest pending) {
+    Location location;
+    boolean active;
+    synchronized (LOCK) {
+      RequestTicket ticket = pending.ticket();
+      active = !ticket.finished().get() && PENDING_DISPLAY_REQUESTS.get(ticket.key()) == pending;
+      location = active ? pending.latest().location() : null;
+    }
+    if (!active) {
+      finishRequest(pending.ticket());
+      return false;
+    }
+
     boolean scheduled;
     try {
-      scheduled = J.runAt(request.location(), () -> {
-        try {
-          spawnOrRenewOwned(request);
-        } finally {
-          finishRequest(request.ticket());
-        }
-      });
+      scheduled = J.runAt(location, () -> runRequestOwned(pending));
     } catch (RuntimeException | Error error) {
-      finishRequest(request.ticket());
+      finishRequest(pending.ticket());
       throw error;
     }
     if (!scheduled) {
-      finishRequest(request.ticket());
+      finishRequest(pending.ticket());
     }
     return scheduled;
+  }
+
+  private static void runRequestOwned(PendingRequest pending) {
+    RequestTicket ticket = pending.ticket();
+    ticket.started().set(true);
+    DisplayRequest request;
+    synchronized (LOCK) {
+      if (ticket.finished().get() || PENDING_DISPLAY_REQUESTS.get(ticket.key()) != pending) {
+        request = null;
+      } else {
+        request = pending.latest();
+      }
+    }
+    if (request == null) {
+      finishRequest(ticket);
+      return;
+    }
+
+    try {
+      spawnOrRenewOwned(request);
+    } finally {
+      completeRequestIteration(pending, request);
+    }
+  }
+
+  private static void completeRequestIteration(PendingRequest pending, DisplayRequest processed) {
+    boolean reschedule = false;
+    RequestTicket ticket = pending.ticket();
+    synchronized (LOCK) {
+      if (!ticket.finished().get() && PENDING_DISPLAY_REQUESTS.get(ticket.key()) == pending) {
+        if (pending.latest() != processed) {
+          reschedule = true;
+        } else {
+          PENDING_DISPLAY_REQUESTS.remove(ticket.key(), pending);
+        }
+      }
+    }
+    if (reschedule) {
+      scheduleRequest(pending);
+    } else {
+      finishRequest(ticket);
+    }
   }
 
   private static void configure(BlockDisplay display, DisplayRequest request) {
@@ -442,31 +596,155 @@ public final class ViewerDisplayDirector {
     remove(key, lease);
   }
 
-  private static void clearMatching(Predicate<DisplayKey> predicate, Runnable invalidation) {
-    List<Map.Entry<DisplayKey, DisplayLease>> removed = new ArrayList<>();
+  private static List<DisplayLease> removeIndexedLocked(Set<DisplayKey> indexedKeys) {
+    if (indexedKeys == null || indexedKeys.isEmpty()) {
+      return List.of();
+    }
+    List<DisplayKey> keys = List.copyOf(indexedKeys);
+    ArrayList<DisplayLease> removed = new ArrayList<>(keys.size());
+    for (DisplayKey key : keys) {
+      DisplayLease lease = LEASES.get(key);
+      if (lease != null && removeLeaseLocked(key, lease)) {
+        removed.add(lease);
+      }
+    }
+    return removed;
+  }
+
+  private static void removeDisplays(List<DisplayLease> leases) {
+    for (DisplayLease lease : leases) {
+      removeDisplay(lease);
+    }
+  }
+
+  private static CleanupSnapshot detachAll(boolean stopRequests) {
     synchronized (LOCK) {
-      invalidation.run();
-      for (Map.Entry<DisplayKey, DisplayLease> entry : LEASES.entrySet()) {
-        if (predicate.test(entry.getKey())) {
-          removed.add(Map.entry(entry.getKey(), entry.getValue()));
+      if (stopRequests) {
+        acceptingRequests = false;
+      }
+      globalGeneration++;
+      CHANNEL_GENERATIONS.clear();
+      VIEWER_GENERATIONS.clear();
+      VIEWER_CHANNEL_GENERATIONS.clear();
+      VIEWER_KEY_GENERATIONS.clear();
+      PENDING_REQUESTS.clear();
+      PENDING_DISPLAY_REQUESTS.clear();
+      RETIRING_VIEWERS.clear();
+      for (RequestTicket ticket : ACTIVE_REQUESTS) {
+        ticket.reservationHeld().set(false);
+      }
+      pendingReservations = 0;
+      List<DisplayLease> leases = List.copyOf(LEASES.values());
+      LEASES.clear();
+      LEASE_KEYS_BY_CHANNEL.clear();
+      LEASE_KEYS_BY_VIEWER.clear();
+      LEASE_KEYS_BY_VIEWER_CHANNEL.clear();
+      LEASE_KEYS_BY_VIEWER_KEY.clear();
+      LEASED_DISPLAY_IDS.clear();
+      VIEWER_COUNTS.clear();
+      return new CleanupSnapshot(leases, List.copyOf(ACTIVE_REQUESTS));
+    }
+  }
+
+  private static List<CompletableFuture<Boolean>> scheduleRemovalBatches(
+      List<DisplayLease> leases,
+      CleanupFailures failures
+  ) {
+    Map<RegionKey, DisplayRemovalBatch> batches = new LinkedHashMap<>();
+    ArrayList<CompletableFuture<Boolean>> completions = new ArrayList<>();
+    for (DisplayLease lease : leases) {
+      Location anchor = lease.anchor();
+      World world = anchor.getWorld();
+      if (world == null) {
+        IllegalStateException failure = new IllegalStateException(
+            "Cannot remove an Adapt private display without an owning world: " + lease.display().getUniqueId());
+        failures.record(failure);
+        completions.add(CompletableFuture.completedFuture(false));
+        continue;
+      }
+      RegionKey region = new RegionKey(world.getUID(), anchor.getBlockX() >> 4, anchor.getBlockZ() >> 4);
+      batches.computeIfAbsent(region, ignored -> new DisplayRemovalBatch(anchor, new ArrayList<>()))
+          .leases().add(lease);
+    }
+
+    completions.ensureCapacity(completions.size() + batches.size());
+    for (DisplayRemovalBatch batch : batches.values()) {
+      CompletableFuture<Boolean> completion = new CompletableFuture<>();
+      completions.add(completion);
+      Runnable cleanup = () -> removeBatchOwned(batch, completion, failures);
+      boolean accepted;
+      try {
+        if (J.isOwnedByCurrentRegion(batch.anchor())) {
+          cleanup.run();
+          accepted = true;
+        } else {
+          accepted = J.runAt(batch.anchor(), cleanup);
         }
+      } catch (Throwable error) {
+        failures.record(new IllegalStateException(
+            "Failed to dispatch Adapt private display cleanup for region " + batch.anchor(), error));
+        completion.complete(false);
+        continue;
       }
-      for (Map.Entry<DisplayKey, DisplayLease> entry : removed) {
-        removeLeaseLocked(entry.getKey(), entry.getValue());
+      if (!accepted) {
+        IllegalStateException failure = new IllegalStateException(
+            "Failed to schedule Adapt private display cleanup for region " + batch.anchor());
+        failures.record(failure);
+        completion.complete(false);
       }
     }
-    for (Map.Entry<DisplayKey, DisplayLease> entry : removed) {
-      removeDisplay(entry.getValue());
+    return completions;
+  }
+
+  private static void removeBatchOwned(
+      DisplayRemovalBatch batch,
+      CompletableFuture<Boolean> completion,
+      CleanupFailures failures
+  ) {
+    boolean successful = true;
+    for (DisplayLease lease : batch.leases()) {
+      try {
+        removeDisplayOwned(lease.display());
+      } catch (Throwable error) {
+        successful = false;
+        failures.record(new IllegalStateException(
+            "Failed to remove Adapt private display " + lease.display().getUniqueId(), error));
+      }
     }
+    completion.complete(successful);
+  }
+
+  private static boolean awaitCleanup(List<CompletableFuture<Boolean>> completions, long timeoutMillis) {
+    if (completions.isEmpty()) {
+      return true;
+    }
+
+    CompletableFuture<Void> all = CompletableFuture.allOf(completions.toArray(CompletableFuture[]::new));
+    try {
+      all.get(Math.max(1L, timeoutMillis), TimeUnit.MILLISECONDS);
+    } catch (InterruptedException error) {
+      Thread.currentThread().interrupt();
+      Adapt.warn("Interrupted while waiting for Adapt private display cleanup.");
+      Adapt.error(error);
+      return false;
+    } catch (ExecutionException | TimeoutException error) {
+      Adapt.warn("Adapt private display cleanup did not complete before shutdown.");
+      Adapt.error(error);
+      return false;
+    }
+
+    for (CompletableFuture<Boolean> completion : completions) {
+      if (!completion.join()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static void remove(DisplayKey key, DisplayLease lease) {
     boolean removed;
     synchronized (LOCK) {
-      removed = LEASES.remove(key, lease);
-      if (removed) {
-        releaseLocked(key.viewerId());
-      }
+      removed = removeLeaseLocked(key, lease);
     }
     if (removed) {
       removeDisplay(lease);
@@ -491,13 +769,46 @@ public final class ViewerDisplayDirector {
     }
   }
 
+  private static void scheduleLeaseValidation(DisplayKey key, DisplayLease lease) {
+    if (!lease.validationPending().compareAndSet(false, true)) {
+      return;
+    }
+    boolean scheduled;
+    try {
+      scheduled = J.runAt(lease.anchor(), () -> {
+        try {
+          validateLeaseOwned(key, lease);
+        } finally {
+          lease.validationPending().set(false);
+        }
+      });
+    } catch (RuntimeException | Error error) {
+      lease.validationPending().set(false);
+      throw error;
+    }
+    if (!scheduled) {
+      lease.validationPending().set(false);
+    }
+  }
+
+  private static boolean validateLeaseOwned(DisplayKey key, DisplayLease lease) {
+    if (lease.display().isValid()) {
+      return true;
+    }
+    synchronized (LOCK) {
+      removeLeaseLocked(key, lease);
+    }
+    return false;
+  }
+
   private static boolean isCurrent(DisplayKey key, DisplayLease lease) {
     synchronized (LOCK) {
       return LEASES.get(key) == lease;
     }
   }
 
-  private static boolean reserveLocked(UUID viewerId) {
+  private static boolean reserveLocked(RequestTicket ticket) {
+    UUID viewerId = ticket.viewerId();
     int viewerCount = VIEWER_COUNTS.getOrDefault(viewerId, 0);
     if (LEASES.size() + pendingReservations >= MAX_ACTIVE_DISPLAYS
         || viewerCount >= MAX_DISPLAYS_PER_VIEWER) {
@@ -505,14 +816,24 @@ public final class ViewerDisplayDirector {
     }
     VIEWER_COUNTS.put(viewerId, viewerCount + 1);
     pendingReservations++;
+    ticket.reservationHeld().set(true);
     return true;
   }
 
-  private static void releaseReservation(UUID viewerId) {
+  private static void releaseReservation(RequestTicket ticket) {
     synchronized (LOCK) {
-      pendingReservations = Math.max(0, pendingReservations - 1);
-      releaseLocked(viewerId);
+      if (finishReservationLocked(ticket)) {
+        releaseLocked(ticket.viewerId());
+      }
     }
+  }
+
+  private static boolean finishReservationLocked(RequestTicket ticket) {
+    if (!ticket.reservationHeld().compareAndSet(true, false)) {
+      return false;
+    }
+    pendingReservations = Math.max(0, pendingReservations - 1);
+    return true;
   }
 
   private static void releaseLocked(UUID viewerId) {
@@ -524,9 +845,42 @@ public final class ViewerDisplayDirector {
     }
   }
 
-  private static void removeLeaseLocked(DisplayKey key, DisplayLease lease) {
+  private static boolean removeLeaseLocked(DisplayKey key, DisplayLease lease) {
     if (LEASES.remove(key, lease)) {
+      unindexLeaseLocked(key);
+      LEASED_DISPLAY_IDS.remove(lease.display().getUniqueId());
       releaseLocked(key.viewerId());
+      return true;
+    }
+    return false;
+  }
+
+  private static void indexLeaseLocked(DisplayKey key) {
+    LEASE_KEYS_BY_CHANNEL.computeIfAbsent(key.channel(), ignored -> new HashSet<>()).add(key);
+    LEASE_KEYS_BY_VIEWER.computeIfAbsent(key.viewerId(), ignored -> new HashSet<>()).add(key);
+    LEASE_KEYS_BY_VIEWER_CHANNEL.computeIfAbsent(
+        new ViewerChannelKey(key.channel(), key.viewerId()), ignored -> new HashSet<>()).add(key);
+    LEASE_KEYS_BY_VIEWER_KEY.computeIfAbsent(
+        new ViewerKey(key.channel(), key.key(), key.viewerId()), ignored -> new HashSet<>()).add(key);
+  }
+
+  private static void unindexLeaseLocked(DisplayKey key) {
+    removeIndexKeyLocked(LEASE_KEYS_BY_CHANNEL, key.channel(), key);
+    removeIndexKeyLocked(LEASE_KEYS_BY_VIEWER, key.viewerId(), key);
+    removeIndexKeyLocked(LEASE_KEYS_BY_VIEWER_CHANNEL,
+        new ViewerChannelKey(key.channel(), key.viewerId()), key);
+    removeIndexKeyLocked(LEASE_KEYS_BY_VIEWER_KEY,
+        new ViewerKey(key.channel(), key.key(), key.viewerId()), key);
+  }
+
+  private static <K> void removeIndexKeyLocked(Map<K, Set<DisplayKey>> index, K scope, DisplayKey key) {
+    Set<DisplayKey> keys = index.get(scope);
+    if (keys == null) {
+      return;
+    }
+    keys.remove(key);
+    if (keys.isEmpty()) {
+      index.remove(scope);
     }
   }
 
@@ -567,36 +921,41 @@ public final class ViewerDisplayDirector {
     return (int) Math.min(Integer.MAX_VALUE, (long) Math.ceil(remainingMillis / 50D));
   }
 
-  private static ReservedGeneration reserveGeneration(String channel, String key, UUID viewerId) {
-    synchronized (LOCK) {
-      PENDING_REQUESTS.merge(viewerId, 1, Integer::sum);
-      GenerationStamp generation = new GenerationStamp(
-          globalGeneration,
-          CHANNEL_GENERATIONS.getOrDefault(channel, 0L),
-          VIEWER_GENERATIONS.getOrDefault(viewerId, 0L),
-          VIEWER_CHANNEL_GENERATIONS.getOrDefault(new ViewerChannelKey(channel, viewerId), 0L),
-          VIEWER_KEY_GENERATIONS.getOrDefault(new ViewerKey(channel, key, viewerId), 0L)
-      );
-      return new ReservedGeneration(generation, new RequestTicket(viewerId));
-    }
+  private static GenerationStamp generationLocked(DisplayKey key) {
+    return new GenerationStamp(
+        globalGeneration,
+        CHANNEL_GENERATIONS.getOrDefault(key.channel(), 0L),
+        VIEWER_GENERATIONS.getOrDefault(key.viewerId(), 0L),
+        VIEWER_CHANNEL_GENERATIONS.getOrDefault(new ViewerChannelKey(key.channel(), key.viewerId()), 0L),
+        VIEWER_KEY_GENERATIONS.getOrDefault(new ViewerKey(key.channel(), key.key(), key.viewerId()), 0L)
+    );
   }
 
   private static void finishRequest(RequestTicket ticket) {
-    if (!ticket.finished().compareAndSet(false, true)) {
-      return;
-    }
     synchronized (LOCK) {
+      if (!ticket.finished().compareAndSet(false, true)) {
+        return;
+      }
+      ACTIVE_REQUESTS.remove(ticket);
+      PendingRequest pending = PENDING_DISPLAY_REQUESTS.get(ticket.key());
+      if (pending != null && pending.ticket() == ticket) {
+        PENDING_DISPLAY_REQUESTS.remove(ticket.key());
+      }
+      if (finishReservationLocked(ticket)) {
+        releaseLocked(ticket.viewerId());
+      }
       UUID viewerId = ticket.viewerId();
       int remaining = PENDING_REQUESTS.getOrDefault(viewerId, 0) - 1;
       if (remaining > 0) {
         PENDING_REQUESTS.put(viewerId, remaining);
-        return;
-      }
-      PENDING_REQUESTS.remove(viewerId);
-      if (RETIRING_VIEWERS.contains(viewerId)) {
-        clearViewerGenerationsLocked(viewerId);
+      } else {
+        PENDING_REQUESTS.remove(viewerId);
+        if (RETIRING_VIEWERS.contains(viewerId)) {
+          clearViewerGenerationsLocked(viewerId);
+        }
       }
     }
+    ticket.completion().complete(null);
   }
 
   private static void clearViewerGenerationsLocked(UUID viewerId) {
@@ -633,7 +992,7 @@ public final class ViewerDisplayDirector {
     ORPHAN_PURGE_SCHEDULED.set(false);
     if (ORPHAN_PURGE_FAILURES.incrementAndGet() >= MAX_ORPHAN_PURGE_ATTEMPTS) {
       ORPHAN_PURGE_QUEUE.clear();
-      new IllegalStateException("Failed to schedule cleanup of stale Adapt private displays.").printStackTrace();
+      Adapt.error(new IllegalStateException("Failed to schedule cleanup of stale Adapt private displays."));
       return;
     }
     CompletableFuture.delayedExecutor(50L, TimeUnit.MILLISECONDS).execute(() -> {
@@ -657,7 +1016,7 @@ public final class ViewerDisplayDirector {
           IllegalStateException failure = new IllegalStateException(
               "Failed to clean stale Adapt private displays in chunk "
                   + current.world().getName() + "[" + current.chunkX() + "," + current.chunkZ() + "]");
-          failure.printStackTrace();
+          Adapt.error(failure);
         }
       }
       dispatched++;
@@ -682,14 +1041,9 @@ public final class ViewerDisplayDirector {
     }
   }
 
-  private static boolean isLeased(BlockDisplay display) {
+  static boolean isLeased(BlockDisplay display) {
     synchronized (LOCK) {
-      for (DisplayLease lease : LEASES.values()) {
-        if (lease.display().getUniqueId().equals(display.getUniqueId())) {
-          return true;
-        }
-      }
-      return false;
+      return LEASED_DISPLAY_IDS.contains(display.getUniqueId());
     }
   }
 
@@ -702,7 +1056,8 @@ public final class ViewerDisplayDirector {
                                 GenerationStamp generation, RequestTicket ticket) {
   }
 
-  private record ReservedGeneration(GenerationStamp generation, RequestTicket ticket) {
+  private record DisplayRequestSpec(DisplayKey key, Player viewer, Location location, BlockData blockData,
+                                    Color glowColor, Transformation transformation, int durationTicks) {
   }
 
   private record GenerationStamp(long global, long channel, long viewer, long viewerChannel, long viewerKey) {
@@ -714,9 +1069,70 @@ public final class ViewerDisplayDirector {
   private record ViewerKey(String channel, String key, UUID viewerId) {
   }
 
-  private record RequestTicket(UUID viewerId, AtomicBoolean finished) {
-    private RequestTicket(UUID viewerId) {
-      this(viewerId, new AtomicBoolean());
+  private record RequestTicket(DisplayKey key, Location anchor, AtomicBoolean reservationHeld, AtomicBoolean started,
+                               AtomicBoolean finished, CompletableFuture<Void> completion) {
+    private RequestTicket(DisplayKey key, Location anchor) {
+      this(key, anchor, new AtomicBoolean(), new AtomicBoolean(), new AtomicBoolean(), new CompletableFuture<>());
+    }
+
+    private UUID viewerId() {
+      return key.viewerId();
+    }
+  }
+
+  private static final class PendingRequest {
+    private final RequestTicket ticket;
+    private DisplayRequest latest;
+
+    private PendingRequest(RequestTicket ticket, DisplayRequest latest) {
+      this.ticket = ticket;
+      this.latest = latest;
+    }
+
+    private RequestTicket ticket() {
+      return ticket;
+    }
+
+    private DisplayRequest latest() {
+      return latest;
+    }
+
+    private void replace(DisplayRequest request) {
+      latest = request;
+    }
+  }
+
+  private record CleanupSnapshot(List<DisplayLease> leases, List<RequestTicket> requests) {
+  }
+
+  private record RegionKey(UUID worldId, int chunkX, int chunkZ) {
+  }
+
+  private record DisplayRemovalBatch(Location anchor, List<DisplayLease> leases) {
+  }
+
+  private static final class CleanupFailures {
+    private final AtomicInteger count = new AtomicInteger();
+    private final AtomicReference<Throwable> first = new AtomicReference<>();
+
+    private void record(Throwable failure) {
+      count.incrementAndGet();
+      first.compareAndSet(null, failure);
+    }
+
+    private boolean isEmpty() {
+      return count.get() == 0;
+    }
+
+    private void report() {
+      int total = count.get();
+      if (total == 0) {
+        return;
+      }
+      IllegalStateException failure = new IllegalStateException(
+          "Adapt private display cleanup failed for " + total + " regions or displays.", first.get());
+      Adapt.warn(failure.getMessage());
+      Adapt.error(failure);
     }
   }
 
@@ -729,6 +1145,7 @@ public final class ViewerDisplayDirector {
   private static final class DisplayLease {
     private final BlockDisplay display;
     private final Location anchor;
+    private final AtomicBoolean validationPending;
     private long generation;
     private long expiresAt;
     private int durationTicks;
@@ -736,6 +1153,7 @@ public final class ViewerDisplayDirector {
     private DisplayLease(BlockDisplay display, Location anchor, int durationTicks) {
       this.display = display;
       this.anchor = anchor;
+      this.validationPending = new AtomicBoolean();
       renew(durationTicks);
     }
 
@@ -745,6 +1163,10 @@ public final class ViewerDisplayDirector {
 
     private Location anchor() {
       return anchor;
+    }
+
+    private AtomicBoolean validationPending() {
+      return validationPending;
     }
 
     private long generation() {

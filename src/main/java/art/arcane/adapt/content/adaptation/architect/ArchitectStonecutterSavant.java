@@ -164,6 +164,9 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
 
   private void normalizeStoredLevel(Player player) {
     AdaptPlayer adaptPlayer = getPlayer(player);
+    if (adaptPlayer == null) {
+      return;
+    }
     PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
     normalizeStoredLevel(line);
   }

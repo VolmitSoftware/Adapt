@@ -207,7 +207,7 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
     } catch (Throwable error) {
       Adapt.error("Counter Guard could not reflect damage from "
           + operation.defenderId() + " to " + operation.attackerId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       releaseStackCost(operation.defenderId(), operation.stackCost());
       return;
     } finally {

@@ -121,5 +121,3 @@ if (useLocalIris && localIrisDirectory != null) {
         }
     }
 }
-
-include(':velocity')

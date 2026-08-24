@@ -11,9 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,6 +19,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -199,16 +201,38 @@ class GuiConfigTest extends AdaptTestBase {
   }
 
   private String captureOutput(Runnable action) {
-    PrintStream original = System.out;
-    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(buffer, true, StandardCharsets.UTF_8));
+    Logger logger = plugin.getLogger();
+    StringBuilder output = new StringBuilder();
+    Handler handler = new Handler() {
+      @Override
+      public void publish(LogRecord record) {
+        if (record.getMessage() != null) {
+          output.append(record.getMessage()).append('\n');
+        }
+      }
+
+      @Override
+      public void flush() {
+      }
+
+      @Override
+      public void close() {
+      }
+    };
+    boolean parentHandlers = logger.getUseParentHandlers();
+    Level previousLevel = logger.getLevel();
+    logger.setUseParentHandlers(false);
+    logger.setLevel(Level.ALL);
+    logger.addHandler(handler);
     try {
       action.run();
     } finally {
-      System.setOut(original);
+      logger.removeHandler(handler);
+      logger.setLevel(previousLevel);
+      logger.setUseParentHandlers(parentHandlers);
     }
 
-    return buffer.toString(StandardCharsets.UTF_8);
+    return output.toString();
   }
 
   private int countOf(String output, String needle) {
@@ -223,7 +247,7 @@ class GuiConfigTest extends AdaptTestBase {
   }
 
   private void writeModels(String toml) throws Exception {
-    File folder = new File(dataFolder, "adapt");
+    File folder = dataFolder;
     folder.mkdirs();
     Files.writeString(new File(folder, "models.toml").toPath(), toml, StandardCharsets.UTF_8);
   }

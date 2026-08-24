@@ -268,7 +268,7 @@ public final class ViewerGlowCoordinator {
   private void reportFailure(Exception error) {
     if (failureLogged.compareAndSet(false, true)) {
       Adapt.error("Failed to update a private viewer glow.");
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 

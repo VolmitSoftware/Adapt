@@ -30,10 +30,24 @@ public class XPMultiplier {
 
   public XPMultiplier(double percentChange, long duration) {
     this.multiplier = percentChange;
-    this.goodFor = M.ms() + duration;
+    this.goodFor = expirationTime(M.ms(), duration);
   }
 
   public boolean isExpired() {
     return M.ms() > goodFor;
+  }
+
+  public boolean isActive() {
+    return Double.isFinite(multiplier) && !isExpired();
+  }
+
+  static long expirationTime(long now, long duration) {
+    if (duration > 0L && now > Long.MAX_VALUE - duration) {
+      return Long.MAX_VALUE;
+    }
+    if (duration < 0L && now < Long.MIN_VALUE - duration) {
+      return Long.MIN_VALUE;
+    }
+    return now + duration;
   }
 }

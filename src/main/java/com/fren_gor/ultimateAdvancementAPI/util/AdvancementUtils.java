@@ -1,5 +1,6 @@
 package com.fren_gor.ultimateAdvancementAPI.util;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.scheduling.FoliaScheduler;
 import com.fren_gor.ultimateAdvancementAPI.AdvancementMain;
@@ -69,30 +70,6 @@ public class AdvancementUtils {
     throw new UnsupportedOperationException("Utility class.");
   }
 
-    /*public static void displayToast(@NotNull Player player, @NotNull ItemStack icon, @NotNull String title, @NotNull AdvancementFrameType frame, @NotNull Advancement base) {
-        Preconditions.checkNotNull(player, "Player is null.");
-        Preconditions.checkNotNull(icon, "Icon is null.");
-        Preconditions.checkNotNull(title, "Title is null.");
-        Preconditions.checkNotNull(frame, "AdvancementFrameType is null.");
-        Preconditions.checkNotNull(base, "Advancement is null.");
-        Preconditions.checkArgument(base.isValid(), "Advancement isn't valid.");
-        Preconditions.checkArgument(icon.getType() != Material.AIR, "ItemStack is air.");
-
-        final MinecraftKeyWrapper key = getUniqueKey(base.getAdvancementTab()).getNMSWrapper();
-
-        try {
-            AdvancementDisplayWrapper display = AdvancementDisplayWrapper.craft(icon, title, ADV_DESCRIPTION, frame.getNMSWrapper(), base.getDisplay().getX() + 1, base.getDisplay().getY(), true, false, false);
-            AdvancementWrapper adv = AdvancementWrapper.craftBaseAdvancement(key, base.getNMSWrapper(), display, 1);
-
-            PacketPlayOutSelectAdvancementTabWrapper.craftSelectNone().sendTo(player);
-            PacketPlayOutAdvancementsWrapper.craftSendPacket(Map.of(adv, 1)).sendTo(player);
-            PacketPlayOutAdvancementsWrapper.craftRemovePacket(Set.of(key)).sendTo(player);
-            PacketPlayOutSelectAdvancementTabWrapper.craftSelect(key).sendTo(player);
-        } catch (ReflectiveOperationException e) {
-            e.printStackTrace();
-        }
-    }*/
-
   /**
    * Displays a custom toast to a player.
    *
@@ -119,7 +96,7 @@ public class AdvancementUtils {
       )).sendTo(player);
       PacketPlayOutAdvancementsWrapper.craftRemovePacket(Set.of(ROOT_KEY, NOTIFICATION_KEY)).sendTo(player);
     } catch (ReflectiveOperationException e) {
-      e.printStackTrace();
+      Adapt.warn("Failed to display a custom advancement toast to " + player.getName() + ".", e);
     }
   }
 
@@ -138,7 +115,7 @@ public class AdvancementUtils {
       PacketPlayOutAdvancementsWrapper.craftSendPacket(Map.of(advWrapper, 1)).sendTo(player);
       PacketPlayOutAdvancementsWrapper.craftRemovePacket(Set.of(keyWrapper)).sendTo(player);
     } catch (ReflectiveOperationException e) {
-      e.printStackTrace();
+      Adapt.warn("Failed to update an advancement toast for " + player.getName() + ".", e);
     }
   }
 

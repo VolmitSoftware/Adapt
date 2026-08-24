@@ -301,7 +301,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
       return ProtectionEventProbe.attemptBlockUse(player, block);
     } catch (Throwable error) {
       Adapt.error("Chronos Accelerate could not verify target access for " + player.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }

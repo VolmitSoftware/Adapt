@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.integration.hiddenore.HiddenOreLink;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
@@ -187,7 +188,10 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
   }
 
   private void mineConnectedVein(Player player, Block origin, Material targetFamily, List<Block> siblings) {
-    if (!player.isOnline()
+    AdaptPlayer adaptPlayer = getPlayer(player);
+    if (adaptPlayer == null
+        || getActiveLevel(player) <= 0
+        || !player.isOnline()
         || player.getWorld() != origin.getWorld()
         || !isPickaxe(player.getInventory().getItemInMainHand())
         || (J.isFoliaThreading()
@@ -229,6 +233,10 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     if (successful <= 0) {
       return;
     }
+    AdaptPlayer adaptPlayer = getPlayer(player);
+    if (adaptPlayer == null) {
+      return;
+    }
     addStat(player, "pickaxe.veinminer.ores-veinmined", successful);
     double ringRadius = Math.min(4.0D, 0.8D + (successful * 0.03D));
     fx(origin.getLocation().add(0.5, 0.5, 0.5), FxPriority.GAMEPLAY)
@@ -242,8 +250,8 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         .dustHelix(0.6D, 2.0D, 14, 0, 1.0F)
         .sound(Sound.ENTITY_PLAYER_LEVELUP, 0.4f, 2.0f);
     if (AdaptConfig.get().isAdvancements()
-        && !getPlayer(player).getData().isGranted("challenge_pickaxe_veinminer_20")) {
-      getPlayer(player).getAdvancementHandler().grant("challenge_pickaxe_veinminer_20");
+        && !adaptPlayer.getData().isGranted("challenge_pickaxe_veinminer_20")) {
+      adaptPlayer.getAdvancementHandler().grant("challenge_pickaxe_veinminer_20");
     }
   }
 

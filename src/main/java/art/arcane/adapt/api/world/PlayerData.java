@@ -29,6 +29,7 @@ import art.arcane.adapt.api.notification.SoundNotification;
 import art.arcane.adapt.api.notification.TitleNotification;
 import art.arcane.adapt.api.mutation.PlayerMutationData;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.util.common.format.C;
@@ -51,6 +52,7 @@ import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -137,6 +139,16 @@ public class PlayerData {
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private transient volatile AdaptPlayer runtimeOwner;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient volatile MasterLevelCache masterLevelCache;
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private transient volatile MasterLevelCache previousMasterLevelCache;
 
   public static PlayerData fromJson(String json) {
     PlayerData data = Json.fromJson(json, PlayerData.class);
@@ -164,7 +176,7 @@ public class PlayerData {
     masterXp += xp;
   }
 
-  public void globalXPMultiplier(double v, int duration) {
+  public void globalXPMultiplier(double v, long duration) {
     multipliers.add(new XPMultiplier(v, duration));
   }
 
@@ -238,8 +250,8 @@ public class PlayerData {
       lineData.update(p, lineId, this);
     }
 
-    int oldLevel = (int) XP.getLevelForXp(getLastMasterXp());
-    int level = (int) XP.getLevelForXp(getMasterXp());
+    int oldLevel = (int) previousMasterLevel();
+    int level = (int) masterLevel();
 
     if (oldLevel != level) {
       setLastMasterXp(getMasterXp());
@@ -361,7 +373,7 @@ public class PlayerData {
     double bonus = 0D;
     for (int i = multipliers.size() - 1; i >= 0; i--) {
       XPMultiplier active = multipliers.get(i);
-      if (active == null || active.isExpired()) {
+      if (active == null || !active.isActive()) {
         multipliers.remove(i);
         continue;
       }
@@ -372,10 +384,10 @@ public class PlayerData {
 
   private double collectGlobalMultiplierBonus() {
     double bonus = 0D;
-    KList<XPMultiplier> globalMultipliers = Adapt.instance.getAdaptServer().getData().getMultipliers();
+    List<XPMultiplier> globalMultipliers = Adapt.instance.getAdaptServer().getData().getMultipliers();
     for (int i = 0; i < globalMultipliers.size(); i++) {
       XPMultiplier active = globalMultipliers.get(i);
-      if (active == null || active.isExpired()) {
+      if (active == null || !active.isActive()) {
         continue;
       }
       bonus += active.getMultiplier();
@@ -422,11 +434,11 @@ public class PlayerData {
   }
 
   public int getLevel() {
-    return (int) XP.getLevelForXp(getMasterXp());
+    return (int) masterLevel();
   }
 
   public int getMaxPower() {
-    int earned = (int) (XP.getLevelForXp(getMasterXp()) * AdaptConfig.get().getPowerPerLevel());
+    int earned = (int) (masterLevel() * AdaptConfig.get().getPowerPerLevel());
     return Math.max(0, earned + regionPowerBonus);
   }
 
@@ -468,7 +480,7 @@ public class PlayerData {
           return s;
         }
       } catch (Throwable e) {
-        e.printStackTrace();
+        Adapt.error(e);
         Adapt.error("Failed to get skill line " + skillLine);
       }
 
@@ -779,6 +791,36 @@ public class PlayerData {
     }
   }
 
+  private double masterLevel() {
+    AdaptConfig config = AdaptConfig.get();
+    Curves curve = config.getXpCurve();
+    int maximumLevel = config.experienceMaxLevel;
+    long xpBits = Double.doubleToLongBits(masterXp);
+    MasterLevelCache cached = masterLevelCache;
+    if (cached != null && cached.matches(xpBits, curve, maximumLevel)) {
+      return cached.level();
+    }
+
+    double resolved = XP.getLevelForXp(masterXp);
+    masterLevelCache = new MasterLevelCache(xpBits, curve, maximumLevel, resolved);
+    return resolved;
+  }
+
+  private double previousMasterLevel() {
+    AdaptConfig config = AdaptConfig.get();
+    Curves curve = config.getXpCurve();
+    int maximumLevel = config.experienceMaxLevel;
+    long xpBits = Double.doubleToLongBits(lastMasterXp);
+    MasterLevelCache cached = previousMasterLevelCache;
+    if (cached != null && cached.matches(xpBits, curve, maximumLevel)) {
+      return cached.level();
+    }
+
+    double resolved = XP.getLevelForXp(lastMasterXp);
+    previousMasterLevelCache = new MasterLevelCache(xpBits, curve, maximumLevel, resolved);
+    return resolved;
+  }
+
   public void clearAll() {
     clearXp();
     clearKnowledge();
@@ -799,6 +841,12 @@ public class PlayerData {
         }
       }
       return Json.toJson(this, !raw);
+    }
+  }
+
+  private record MasterLevelCache(long xpBits, Curves curve, int maximumLevel, double level) {
+    private boolean matches(long candidateXpBits, Curves candidateCurve, int candidateMaximumLevel) {
+      return xpBits == candidateXpBits && curve == candidateCurve && maximumLevel == candidateMaximumLevel;
     }
   }
 }

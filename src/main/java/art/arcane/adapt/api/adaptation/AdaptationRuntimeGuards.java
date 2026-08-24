@@ -62,16 +62,12 @@ import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 
 final class AdaptationRuntimeGuards {
-  private static final Map<PlayerAdaptationKey, Long> USAGE_BASELINE_XP_COOLDOWNS = new ConcurrentHashMap<>();
-  private static final Map<PlayerAdaptationKey, ActiveLevelCacheEntry> ACTIVE_LEVEL_CACHE = new ConcurrentHashMap<>();
+  private static final Map<UUID, Map<String, Long>> USAGE_BASELINE_XP_COOLDOWNS = PlayerStateRegistry.newPlayerMap();
+  private static final Map<UUID, Map<String, ActiveLevelCacheEntry>> ACTIVE_LEVEL_CACHE = PlayerStateRegistry.newPlayerMap();
   private static final Map<String, String> USE_PERMISSION_NODES = new ConcurrentHashMap<>();
   private static final Map<String, ProtectorCacheEntry> PROTECTOR_CACHE = new ConcurrentHashMap<>();
   private static final Map<String, UsageConflictCacheEntry> USAGE_CONFLICT_CACHE = new ConcurrentHashMap<>();
   private static final Map<Class<?>, Boolean> CRAFT_PLAYER_CLASSES = new ConcurrentHashMap<>();
-  private static final int ACTIVE_LEVEL_CACHE_SOFT_LIMIT = 16_384;
-  private static final int ACTIVE_LEVEL_CACHE_SWEEP_INTERVAL_TICKS = 64;
-  private static final int ACTIVE_LEVEL_CACHE_RETENTION_TICKS = 2;
-  private static volatile long lastActiveCacheSweepTick = Long.MIN_VALUE;
 
   private AdaptationRuntimeGuards() {
   }
@@ -179,7 +175,7 @@ final class AdaptationRuntimeGuards {
   }
 
   static void awardUsageBaselineXp(Adaptation<?> adaptation, Player p, int level) {
-    if (p == null || level <= 0 || !isCraftPlayer(p)) {
+    if (adaptation == null || p == null || level <= 0 || !isCraftPlayer(p) || runtimePlayer(p) == null) {
       return;
     }
 
@@ -190,14 +186,13 @@ final class AdaptationRuntimeGuards {
 
     long now = M.ms();
     long cooldown = Math.max(250L, cfg.getUsageBaselineCooldownMillis());
-    PlayerAdaptationKey key = new PlayerAdaptationKey(p.getUniqueId(), adaptation.getName());
-    Long next = USAGE_BASELINE_XP_COOLDOWNS.get(key);
+    Map<String, Long> playerCooldowns = USAGE_BASELINE_XP_COOLDOWNS.computeIfAbsent(
+        p.getUniqueId(),
+        ignored -> new ConcurrentHashMap<>()
+    );
+    Long next = playerCooldowns.get(adaptation.getName());
     if (next != null && next > now) {
       return;
-    }
-
-    if (USAGE_BASELINE_XP_COOLDOWNS.size() > 6000) {
-      USAGE_BASELINE_XP_COOLDOWNS.entrySet().removeIf(i -> i.getValue() <= now);
     }
 
     double reward = cfg.getUsageBaselineXp() + ((Math.max(1, level) - 1) * cfg.getUsageBaselineXpPerLevel());
@@ -205,11 +200,14 @@ final class AdaptationRuntimeGuards {
       return;
     }
 
-    USAGE_BASELINE_XP_COOLDOWNS.put(key, now + cooldown);
+    playerCooldowns.put(adaptation.getName(), now + cooldown);
     adaptation.xpSilent(p, reward, "baseline-use");
   }
 
   static boolean canUse(Adaptation<?> adaptation, AdaptPlayer player) {
+    if (adaptation == null || player == null || !player.isRuntimeReady() || player.getPlayer() == null) {
+      return false;
+    }
     if (AdaptConfig.get().isVerbose()) {
       Adapt.verbose("Checking if " + player.getPlayer().getName() + " can use " + adaptation.getName() + "...");
     }
@@ -222,7 +220,7 @@ final class AdaptationRuntimeGuards {
   }
 
   static boolean canUse(Adaptation<?> adaptation, Player player) {
-    return canUse(adaptation, adaptation.getPlayer(player));
+    return canUse(adaptation, runtimePlayer(player));
   }
 
   static boolean hasUsePermission(Adaptation<?> adaptation, Player p, Adaptation<?> targetAdaptation) {
@@ -525,10 +523,14 @@ final class AdaptationRuntimeGuards {
       return false;
     }
 
-    AdaptPlayer adaptPlayer = adaptation.getPlayer(p);
+    AdaptPlayer adaptPlayer = runtimePlayer(p);
+    if (adaptPlayer == null) {
+      return false;
+    }
     for (String conflict : denied) {
       if (adaptPlayer.hasAdaptation(conflict)) {
-        Adapt.verbose("Player " + p.getName() + " has conflicting adaptation " + conflict + " and cannot use " + adaptation.getName());
+        Adapt.verbose(() -> "Blocked " + adaptation.getName() + " for " + p.getName()
+            + " because adaptation " + conflict + " conflicts with it.");
         return true;
       }
     }
@@ -603,11 +605,15 @@ final class AdaptationRuntimeGuards {
       long nowMs = M.ms();
       long tick = nowMs / 50L;
       int learnedLevel = getLevel(adaptation, p);
-      PlayerAdaptationKey key = new PlayerAdaptationKey(p.getUniqueId(), adaptation.getName());
-      ActiveLevelCacheEntry cached = ACTIVE_LEVEL_CACHE.get(key);
-      if (cached != null && cached.tick() == tick && cached.learnedLevel() == learnedLevel) {
+      Map<String, ActiveLevelCacheEntry> playerCache = ACTIVE_LEVEL_CACHE.computeIfAbsent(
+          p.getUniqueId(),
+          ignored -> new ConcurrentHashMap<>()
+      );
+      ActiveLevelCacheEntry cached = playerCache.get(adaptation.getName());
+      int cachedLevel = cached == null ? -1 : cached.readLevel(tick, learnedLevel);
+      if (cachedLevel >= 0) {
         AbilityCheckTelemetry.recordCacheHit(nowMs);
-        return cached.level();
+        return cachedLevel;
       }
 
       long startNs = System.nanoTime();
@@ -622,16 +628,19 @@ final class AdaptationRuntimeGuards {
             level > 0
         );
       }
-      ACTIVE_LEVEL_CACHE.put(key, new ActiveLevelCacheEntry(tick, learnedLevel, level));
-      sweepActiveLevelCache(tick);
+      if (cached == null) {
+        playerCache.put(adaptation.getName(), new ActiveLevelCacheEntry(tick, learnedLevel, level));
+      } else {
+        cached.update(tick, learnedLevel, level);
+      }
 
       return level;
     } catch (Exception e) {
       if (e instanceof IndexOutOfBoundsException) {
-        Adapt.verbose("Citizens/PacketSpoofing is Messing stuff up again. I hate it.");
-        Adapt.verbose(e.getMessage());
+        Adapt.verbose(() -> "Skipped adaptation level lookup for packet-spoofed player state: "
+            + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
       } else {
-        e.printStackTrace();
+        Adapt.error(e);
       }
       return 0;
     }
@@ -642,14 +651,15 @@ final class AdaptationRuntimeGuards {
   }
 
   static int getLevel(Adaptation<?> adaptation, Player p) {
-    if (p == null) {
+    if (adaptation == null || p == null) {
       return 0;
     }
     if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
       return 0;
     }
     if (!isCraftPlayer(p)) {
-      Adapt.verbose("Simple name: " + p.getClass().getSimpleName());
+      Adapt.verbose(() -> "Skipped adaptation level lookup for non-CraftPlayer type "
+          + p.getClass().getSimpleName() + ".");
       return 0;
     }
     if (!adaptation.isEnabled()) {
@@ -658,12 +668,12 @@ final class AdaptationRuntimeGuards {
     if (!adaptation.getSkill().isEnabled()) {
       return 0;
     }
-    AdaptPlayer adaptPlayer = adaptation.getPlayer(p);
+    AdaptPlayer adaptPlayer = runtimePlayer(p);
     return getLevel(adaptation, adaptPlayer);
   }
 
   static int getLevel(Adaptation<?> adaptation, AdaptPlayer adaptPlayer) {
-    if (adaptation == null || adaptPlayer == null) {
+    if (adaptation == null || adaptPlayer == null || !adaptPlayer.isRuntimeReady()) {
       return 0;
     }
     if (!adaptation.isEnabled()) {
@@ -693,21 +703,43 @@ final class AdaptationRuntimeGuards {
   }
 
   static <F> F getStorage(Adaptation<?> adaptation, Player p, String key, F defaultValue) {
-    PlayerData data = adaptation.getPlayer(p).getData();
+    return getStorage(adaptation, runtimePlayer(p), key, defaultValue);
+  }
+
+  static <F> F getStorage(Adaptation<?> adaptation, AdaptPlayer adaptPlayer, String key, F defaultValue) {
+    if (adaptation == null || adaptPlayer == null || !adaptPlayer.isRuntimeReady() || key == null) {
+      return defaultValue;
+    }
+    PlayerData data = adaptPlayer.getData();
     PlayerSkillLine line = data.getSkillLineNullable(adaptation.getSkill().getName());
-    if (line == null) return defaultValue;
+    if (line == null) {
+      return defaultValue;
+    }
     PlayerAdaptation playerAdaptation = line.getAdaptation(adaptation.getName());
-    if (playerAdaptation == null) return defaultValue;
+    if (playerAdaptation == null) {
+      return defaultValue;
+    }
     Object o = playerAdaptation.getStorage().get(key);
     return o == null ? defaultValue : (F) o;
   }
 
   static boolean setStorage(Adaptation<?> adaptation, Player p, String key, Object value) {
-    PlayerData data = adaptation.getPlayer(p).getData();
+    return setStorage(adaptation, runtimePlayer(p), key, value);
+  }
+
+  static boolean setStorage(Adaptation<?> adaptation, AdaptPlayer adaptPlayer, String key, Object value) {
+    if (adaptation == null || adaptPlayer == null || !adaptPlayer.isRuntimeReady() || key == null) {
+      return false;
+    }
+    PlayerData data = adaptPlayer.getData();
     PlayerSkillLine line = data.getSkillLineNullable(adaptation.getSkill().getName());
-    if (line == null) return false;
+    if (line == null) {
+      return false;
+    }
     PlayerAdaptation playerAdaptation = line.getAdaptation(adaptation.getName());
-    if (playerAdaptation == null) return false;
+    if (playerAdaptation == null) {
+      return false;
+    }
     if (value == null) {
       playerAdaptation.getStorage().remove(key);
       return true;
@@ -787,23 +819,19 @@ final class AdaptationRuntimeGuards {
     return gameMode != GameMode.SPECTATOR && (gameMode != GameMode.CREATIVE || allowCreative);
   }
 
-  private static boolean isCraftPlayer(Player p) {
-    return CRAFT_PLAYER_CLASSES.computeIfAbsent(p.getClass(), type -> type.getSimpleName().equals("CraftPlayer"));
+  private static AdaptPlayer runtimePlayer(Player player) {
+    Adapt plugin = Adapt.instance;
+    if (player == null || plugin == null || plugin.getAdaptServer() == null) {
+      return null;
+    }
+    AdaptPlayer adaptPlayer = plugin.getAdaptServer().getOnlineAdaptPlayer(player.getUniqueId());
+    return adaptPlayer != null && adaptPlayer.isRuntimeReady() && adaptPlayer.getPlayer() == player
+        ? adaptPlayer
+        : null;
   }
 
-  private static void sweepActiveLevelCache(long tick) {
-    if (ACTIVE_LEVEL_CACHE.size() <= ACTIVE_LEVEL_CACHE_SOFT_LIMIT) {
-      return;
-    }
-
-    long previousSweep = lastActiveCacheSweepTick;
-    if (previousSweep != Long.MIN_VALUE && tick - previousSweep < ACTIVE_LEVEL_CACHE_SWEEP_INTERVAL_TICKS) {
-      return;
-    }
-    lastActiveCacheSweepTick = tick;
-
-    long minTick = tick - ACTIVE_LEVEL_CACHE_RETENTION_TICKS;
-    ACTIVE_LEVEL_CACHE.entrySet().removeIf(entry -> entry.getValue().tick() < minTick);
+  private static boolean isCraftPlayer(Player p) {
+    return CRAFT_PLAYER_CLASSES.computeIfAbsent(p.getClass(), type -> type.getSimpleName().equals("CraftPlayer"));
   }
 
   private static Set<String> resolveUsageConflicts(Adaptation<?> adaptation) {
@@ -904,10 +932,27 @@ final class AdaptationRuntimeGuards {
     return !(adaptation instanceof TickedObject tickedObject) || tickedObject.isRuntimeRegistered();
   }
 
-  private record PlayerAdaptationKey(UUID uuid, String adaptation) {
-  }
+  private static final class ActiveLevelCacheEntry {
+    private long tick;
+    private int learnedLevel;
+    private int level;
 
-  private record ActiveLevelCacheEntry(long tick, int learnedLevel, int level) {
+    private ActiveLevelCacheEntry(long tick, int learnedLevel, int level) {
+      update(tick, learnedLevel, level);
+    }
+
+    private synchronized int readLevel(long tick, int learnedLevel) {
+      return this.tick == tick && this.learnedLevel == learnedLevel ? level : -1;
+    }
+
+    private synchronized void update(long tick, int learnedLevel, int level) {
+      if (tick < this.tick) {
+        return;
+      }
+      this.tick = tick;
+      this.learnedLevel = learnedLevel;
+      this.level = level;
+    }
   }
 
   private record ProtectorCacheEntry(int signature, Set<Protector> protectors) {

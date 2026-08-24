@@ -33,6 +33,7 @@ import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.item.ChronoTimeBombItem;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -726,6 +727,10 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       if (!owner.isOnline()) {
         return;
       }
+      AdaptPlayer adaptPlayer = getPlayer(owner);
+      if (adaptPlayer == null) {
+        return;
+      }
       if (newlyFrozen) {
         addStat(owner, "chronos.time-bomb.entities-slowed", 1);
         if (projectile) {
@@ -734,8 +739,8 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       }
       if (crowdThreshold
           && AdaptConfig.get().isAdvancements()
-          && !getPlayer(owner).getData().isGranted("challenge_chronos_bomb_crowd_8")) {
-        getPlayer(owner).getAdvancementHandler().grant("challenge_chronos_bomb_crowd_8");
+          && !adaptPlayer.getData().isGranted("challenge_chronos_bomb_crowd_8")) {
+        adaptPlayer.getAdvancementHandler().grant("challenge_chronos_bomb_crowd_8");
       }
     });
   }

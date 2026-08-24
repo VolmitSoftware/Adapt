@@ -139,7 +139,7 @@ public final class WorldGuardFlags {
     } catch (NoSuchFieldException | IllegalAccessException | RuntimeException error) {
       Adapt.warn("Failed to inject WorldGuard flag " + flag.getName() + ": " + error.getClass().getSimpleName()
           + (error.getMessage() == null ? "" : " - " + error.getMessage()));
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }

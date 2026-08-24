@@ -165,13 +165,13 @@ final class FxDispatch {
           return;
         } catch (Throwable handlerError) {
           Adapt.error("FX failure handler threw while reporting a viewer dispatch error.");
-          error.printStackTrace();
-          handlerError.printStackTrace();
+          Adapt.error(error);
+          Adapt.error(handlerError);
           return;
         }
       }
       Adapt.error("FX viewer dispatch failed; dropping the affected emission.");
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 

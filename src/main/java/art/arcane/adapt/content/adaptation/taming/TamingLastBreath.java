@@ -164,7 +164,7 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
       teleport = PaperCompat.teleportAsync(pet, destination);
     } catch (RuntimeException error) {
       Adapt.error("Last Breath could not start pet teleport for owner " + ownerId + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return;
     }
     if (teleport == null) {
@@ -178,7 +178,7 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
                                       Boolean success, Throwable failure) {
     if (failure != null) {
       Adapt.error("Last Breath pet teleport failed for owner " + ownerId + ".");
-      failure.printStackTrace();
+      Adapt.error(failure);
     }
     if (!successfulRecallTeleport(success, failure)) {
       return;

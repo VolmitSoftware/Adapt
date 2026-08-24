@@ -555,7 +555,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       } catch (RuntimeException error) {
         deliverExactTaglock(p, reserved);
         p.getPersistentDataContainer().remove(reservationKey);
-        error.printStackTrace();
+        Adapt.error(error);
         return false;
       }
     });
@@ -599,7 +599,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       p.getPersistentDataContainer().remove(reservationKey);
     } catch (Throwable error) {
       Adapt.error("Rift Conduit could not return a reserved taglock to " + p.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 
@@ -759,7 +759,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       try {
         task.run();
       } catch (Throwable error) {
-        error.printStackTrace();
+        Adapt.error(error);
         failure.run();
       }
     };
@@ -774,7 +774,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     try {
       load = Adapt.platform.getChunkAtAsync(location);
     } catch (Throwable error) {
-      error.printStackTrace();
+      Adapt.error(error);
       failure.run();
       return;
     }
@@ -784,7 +784,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     }
     load.whenComplete((chunk, error) -> {
       if (error != null) {
-        error.printStackTrace();
+        Adapt.error(error);
         failure.run();
         return;
       }
@@ -824,7 +824,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       p.getPersistentDataContainer().remove(reservationKey);
     } catch (RuntimeException error) {
       Adapt.error("Rift Conduit could not recover a reserved taglock for " + p.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 
@@ -904,7 +904,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     } catch (Throwable error) {
       Adapt.error("Rift Conduit transfer " + linkId + " could not start partner loading at "
           + partnerLoc + "; returning " + totalAmount(moving) + " items to " + sourceLoc + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       if (settled.compareAndSet(false, true)) {
         dropAt(sourceLoc, addItems(source.getInventory(), moving));
       }
@@ -918,7 +918,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     } catch (Throwable error) {
       Adapt.error("Rift Conduit transfer " + linkId + " failed while depositing at " + partnerLoc
           + "; returning " + totalAmount(moving) + " items to " + sourceLoc + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       restoreToSource(sourceLoc, moving);
     }
   }
@@ -1070,7 +1070,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       return true;
     } catch (RuntimeException error) {
       Adapt.error("Rift Conduit could not verify container access for " + player.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }
@@ -1093,7 +1093,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       return ProtectionEventProbe.attemptContainerOpen(player, blocks);
     } catch (RuntimeException error) {
       Adapt.error("Rift Conduit could not verify container access for " + player.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }

@@ -176,7 +176,7 @@ public class WorldData extends TickedObject {
                                        IOException error) {
         Adapt.warn("Failed to read mantle chunk section, skipping it.");
         Adapt.error(error.getMessage() == null ? "Unknown mantle section read error" : error.getMessage());
-        error.printStackTrace();
+        Adapt.error(error);
         TectonicPlate.addError();
       }
 
@@ -188,7 +188,7 @@ public class WorldData extends TickedObject {
                                      Throwable error) {
         Adapt.warn("Failed to read mantle chunk, creating a new chunk instead.");
         Adapt.error(error.getMessage() == null ? "Unknown mantle chunk read error" : error.getMessage());
-        error.printStackTrace();
+        Adapt.error(error);
       }
 
       @Override
@@ -209,7 +209,7 @@ public class WorldData extends TickedObject {
       @Override
       public void onError(Throwable throwable) {
         Adapt.error(throwable.getMessage() == null ? "Mantle error" : throwable.getMessage());
-        throwable.printStackTrace();
+        Adapt.error(throwable);
       }
     };
   }

@@ -237,6 +237,9 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
 
   private void normalizeStoredLevel(Player player) {
     AdaptPlayer adaptPlayer = getPlayer(player);
+    if (adaptPlayer == null) {
+      return;
+    }
     PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
     normalizeStoredLevel(line);
   }

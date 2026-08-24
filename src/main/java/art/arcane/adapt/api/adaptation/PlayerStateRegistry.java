@@ -1,9 +1,9 @@
 package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.util.common.scheduling.J;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -41,9 +41,17 @@ public final class PlayerStateRegistry {
     return new Cooldowns(newPlayerMap());
   }
 
+  public static void start() {
+    ensureListener();
+  }
+
   public static synchronized void reset() {
-    MAPS.clear();
-    while (COLLECTED_MAPS.poll() != null) {
+    pruneCollectedMaps();
+    for (WeakReference<Map<UUID, ?>> reference : MAPS) {
+      Map<UUID, ?> map = reference.get();
+      if (map != null) {
+        map.clear();
+      }
     }
     Adapt plugin = listenerPlugin;
     QuitListener listener = quitListener;
@@ -94,8 +102,10 @@ public final class PlayerStateRegistry {
     public void on(PlayerQuitEvent e) {
       UUID playerId = e.getPlayer().getUniqueId();
       J.s(() -> {
-        Player current = Bukkit.getPlayer(playerId);
-        if (current == null || !current.isOnline()) {
+        Adapt plugin = Adapt.instance;
+        AdaptServer server = plugin == null ? null : plugin.getAdaptServer();
+        AdaptPlayer current = server == null ? null : server.getOnlineAdaptPlayer(playerId);
+        if (current == null || !current.isRuntimeReady()) {
           clearPlayer(playerId);
         }
       }, 1);

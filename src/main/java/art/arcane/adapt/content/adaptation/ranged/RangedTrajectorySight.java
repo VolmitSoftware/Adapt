@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -939,7 +940,11 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
   }
 
   private int getAdaptationLevel(Player p, String adaptationId) {
-    PlayerSkillLine line = getPlayer(p).getData().getSkillLineNullable("ranged");
+    AdaptPlayer adaptPlayer = getPlayer(p);
+    if (adaptPlayer == null) {
+      return 0;
+    }
+    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable("ranged");
     return line == null ? 0 : line.getAdaptationLevel(adaptationId);
   }
 

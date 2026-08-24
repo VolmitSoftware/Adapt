@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.mutation.runtime;
 
+import art.arcane.adapt.Adapt;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.Multimap;
 import org.bukkit.Registry;
@@ -630,7 +631,8 @@ final class MutationItemIdentity {
         reportedCorruptSnapshots.remove(reportedCorruptSnapshots.iterator().next());
       }
     }
-    new IllegalStateException("Rejected corrupt cracked-armor attribute snapshot " + fingerprint, error).printStackTrace();
+    Adapt.error(new IllegalStateException(
+        "Rejected corrupt cracked-armor attribute snapshot " + fingerprint, error));
   }
 
   private String valueOrEmpty(String value) {

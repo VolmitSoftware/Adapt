@@ -31,6 +31,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.tick.TickedObject;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -116,11 +117,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   }
 
   protected File getConfigFile() {
-    return Adapt.instance.getDataFile("adapt", "skills", getName() + ".toml");
-  }
-
-  protected File getLegacyConfigFile() {
-    return Adapt.instance.getDataFile("adapt", "skills", getName() + ".json");
+    return Adapt.instance.getDataFile("skills", getName() + ".toml");
   }
 
   protected T createDefaultConfig() {
@@ -156,7 +153,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
       return true;
     } catch (Throwable e) {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
-      e.printStackTrace();
+      Adapt.error(e);
       return false;
     }
   }
@@ -183,7 +180,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
       return true;
     } catch (Throwable error) {
       Adapt.warn("Skipped hotload for " + sourceFile.getPath() + " due to invalid config: " + error.getMessage());
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
   }
@@ -206,12 +203,12 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   private T loadConfig(File file, T fallback, boolean overwriteOnReadFailure) throws IOException {
     return ConfigFileSupport.load(
         file,
-        getLegacyConfigFile(),
+        null,
         getConfigurationClass(),
         fallback,
         overwriteOnReadFailure,
         "skill:" + getName(),
-        "Created missing skill config [adapt/skills/" + getName() + ".toml] from defaults.",
+        "Created missing skill config [skills/" + getName() + ".toml] from defaults.",
         this::normalizeLoadedConfig,
         shouldCanonicalizeConfigOnLoad()
     );
@@ -422,7 +419,14 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   }
 
   protected void addStat(Player p, String stat, double amount) {
-    getPlayer(p).getData().addStat(stat, amount);
+    if (p == null) {
+      return;
+    }
+    AdaptPlayer adaptPlayer = getServer().getOnlineAdaptPlayer(p.getUniqueId());
+    if (adaptPlayer == null || !adaptPlayer.isRuntimeReady() || adaptPlayer.getPlayer() != p) {
+      return;
+    }
+    adaptPlayer.getData().addStat(stat, amount);
   }
 
   public void setColor(C color) {

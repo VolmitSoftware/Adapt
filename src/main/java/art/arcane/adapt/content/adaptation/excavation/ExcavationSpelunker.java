@@ -261,7 +261,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
       Adapt.verbose("Failed to spawn glowing marker for Spelunker: "
           + error.getClass().getSimpleName()
           + (error.getMessage() == null ? "" : " - " + error.getMessage()));
-      error.printStackTrace();
+      Adapt.error(error);
       return;
     }
 

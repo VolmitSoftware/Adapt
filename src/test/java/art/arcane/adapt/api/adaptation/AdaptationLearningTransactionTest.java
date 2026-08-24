@@ -75,6 +75,19 @@ class AdaptationLearningTransactionTest {
   }
 
   @Test
+  void unavailableRuntimeCannotLearnUnlearnOrQuoteARefund() {
+    when(harness.adaptation.getPlayer(harness.player)).thenReturn(null);
+
+    assertThat(AdaptationLearningTransaction.learn(harness.adaptation, harness.player, 2, false))
+        .isEqualTo(AdaptationLearningTransaction.Result.SKILL_LINE_UNAVAILABLE);
+    assertThat(AdaptationLearningTransaction.unlearn(harness.adaptation, harness.player, 0, false))
+        .isEqualTo(AdaptationLearningTransaction.Result.SKILL_LINE_UNAVAILABLE);
+    assertThat(AdaptationLearningTransaction.formattedRefund(harness.adaptation, harness.player, 0, 2))
+        .isEmpty();
+    verify(harness.economy, never()).withdraw(any(Player.class), anyDouble(), anyString());
+  }
+
+  @Test
   void insufficientVaultFundsLeaveKnowledgeAndLevelUntouched() {
     when(harness.economy.withdraw(harness.player, 20D, "Adapt learning test-adaptation for null"))
         .thenReturn(VaultEconomy.ChargeResult.failed(

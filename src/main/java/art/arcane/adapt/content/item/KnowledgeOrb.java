@@ -23,6 +23,9 @@ import art.arcane.adapt.localization.catalog.SnippetsMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.item.DataItem;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -34,6 +37,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -125,12 +129,33 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
       return knowledgeMap.values().iterator().next();
     }
 
-    public void apply(Player p) {
-      for (Map.Entry<String, Integer> entry : knowledgeMap.entrySet()) {
-        String skill = entry.getKey();
-        int knowledge = entry.getValue();
-        Adapt.instance.getAdaptServer().getPlayer(p).getSkillLine(skill).giveKnowledge(knowledge);
+    public boolean apply(Player p) {
+      if (p == null || knowledgeMap == null || knowledgeMap.isEmpty()
+          || Adapt.instance == null) {
+        return false;
       }
+      AdaptServer adaptServer = Adapt.instance.getAdaptServer();
+      AdaptPlayer adaptPlayer = adaptServer == null
+          ? null
+          : adaptServer.getOnlineAdaptPlayer(p.getUniqueId());
+      if (adaptPlayer == null || !adaptPlayer.isRuntimeReady()
+          || adaptPlayer.getPlayer() != p) {
+        return false;
+      }
+
+      Map<PlayerSkillLine, Integer> awards = new LinkedHashMap<>();
+      for (Map.Entry<String, Integer> entry : knowledgeMap.entrySet()) {
+        Integer knowledge = entry.getValue();
+        PlayerSkillLine skillLine = adaptPlayer.getSkillLine(entry.getKey());
+        if (knowledge == null || skillLine == null) {
+          return false;
+        }
+        awards.merge(skillLine, knowledge, Integer::sum);
+      }
+      for (Map.Entry<PlayerSkillLine, Integer> award : awards.entrySet()) {
+        award.getKey().giveKnowledge(award.getValue());
+      }
+      return true;
     }
   }
 }

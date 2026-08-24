@@ -2,12 +2,14 @@ package art.arcane.adapt;
 
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.config.TomlCodec;
+import org.bukkit.Material;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -15,6 +17,34 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class AdaptConfigTest {
+    @Test
+    void activatorMaterialNormalizationCachesOnlyUsableBlocks() {
+        AdaptConfig config = new AdaptConfig();
+        config.adaptActivatorBlock = "stone";
+        config.normalize();
+
+        assertThat(config.adaptActivatorBlock).isEqualTo("STONE");
+        assertThat(config.getAdaptActivatorMaterial()).isEqualTo(Material.STONE);
+
+        assertThat(AdaptConfig.requireActivatorBlock(Material.DIAMOND, false)).isEqualTo(Material.BOOKSHELF);
+        assertThat(AdaptConfig.requireActivatorBlock(Material.AIR, true)).isEqualTo(Material.BOOKSHELF);
+    }
+
+    @Test
+    void progressionNormalizationProducesFiniteSafeDefaults() throws Exception {
+        AdaptConfig config = new AdaptConfig();
+        config.experienceMaxLevel = -20;
+        setDouble(config, "playerXpPerSkillLevelUpBase", -1D);
+        setDouble(config, "playerXpPerSkillLevelUpLevelMultiplier", Double.POSITIVE_INFINITY);
+        setDouble(config, "powerPerLevel", Double.NEGATIVE_INFINITY);
+        config.normalize();
+
+        assertThat(config.experienceMaxLevel).isOne();
+        assertThat(config.getPlayerXpPerSkillLevelUpBase()).isZero();
+        assertThat(config.getPlayerXpPerSkillLevelUpLevelMultiplier()).isEqualTo(44D);
+        assertThat(config.getPowerPerLevel()).isEqualTo(0.65D);
+    }
+
     @Test
     void advancementAudioControlsHaveSafeDefaultsAndRoundTrip() throws IOException {
         AdaptConfig config = new AdaptConfig();
@@ -200,89 +230,6 @@ class AdaptConfigTest {
     }
 
     @Test
-    @DisplayName("legacy value multiplier settings migrate without losing custom entries")
-    void legacyValueMultiplierSettingsMigrateWithoutDataLoss() throws IOException {
-        String legacy = TomlCodec.toToml(new AdaptConfig(), "core-config")
-            .replace("[value.valueMultipliers]", "[value.valueMutlipliers]")
-            .replace("BLAZE_ROD = 50.0", "BLAZE_ROD = 77.0");
-
-        String migrated = AdaptConfig.migrateLegacyValueMultiplierKey(legacy);
-        AdaptConfig parsed = TomlCodec.fromToml(migrated, AdaptConfig.class);
-        String canonical = TomlCodec.toToml(parsed, "core-config");
-
-        assertThat(parsed.getValue().getValueMultipliers()).containsEntry("BLAZE_ROD", 77D);
-        assertThat(canonical)
-            .contains("[value.valueMultipliers]")
-            .doesNotContain("valueMutlipliers");
-    }
-
-    @Test
-    @DisplayName("legacy and corrected value multiplier tables merge without duplicate sections")
-    void legacyAndCorrectedValueMultiplierTablesMergeSafely() throws IOException {
-        String bothTables = """
-            [value]
-            baseValue = 2.0
-
-            [value.valueMutlipliers]
-            BLAZE_ROD = 77.0
-            CUSTOM_MATERIAL = 9.0
-
-            [value.valueMultipliers]
-            BLAZE_ROD = 88.0
-            DIAMOND = 5.0
-            """;
-
-        String migrated = AdaptConfig.migrateLegacyValueMultiplierKey(bothTables);
-        AdaptConfig parsed = TomlCodec.fromToml(migrated, AdaptConfig.class);
-
-        assertThat(parsed.getValue().getBaseValue()).isEqualTo(2D);
-        assertThat(parsed.getValue().getValueMultipliers())
-            .containsEntry("BLAZE_ROD", 88D)
-            .containsEntry("CUSTOM_MATERIAL", 9D)
-            .containsEntry("DIAMOND", 5D);
-        assertThat(migrated)
-            .containsOnlyOnce("[value.valueMultipliers]")
-            .doesNotContain("valueMutlipliers");
-    }
-
-    @Test
-    @DisplayName("core config load preserves both legacy and corrected multiplier entries")
-    void coreConfigLoadMigratesBothMultiplierTablesBeforeFallback(@TempDir Path tempDirectory) throws IOException {
-        File canonicalFile = tempDirectory.resolve("adapt.toml").toFile();
-        Files.writeString(canonicalFile.toPath(), """
-            [value]
-            baseValue = 2.0
-
-            [value.valueMutlipliers]
-            CUSTOM_MATERIAL = 9.0
-
-            [value.valueMultipliers]
-            DIAMOND = 5.0
-            """);
-
-        AdaptConfig loaded = ConfigFileSupport.load(
-            canonicalFile,
-            null,
-            AdaptConfig.class,
-            new AdaptConfig(),
-            true,
-            "core-config",
-            "created",
-            null,
-            false,
-            (raw, file) -> AdaptConfig.migrateLegacyValueMultiplierKey(raw)
-        );
-
-        String rewritten = Files.readString(canonicalFile.toPath());
-        assertThat(loaded.getValue().getValueMultipliers())
-            .containsEntry("CUSTOM_MATERIAL", 9D)
-            .containsEntry("DIAMOND", 5D);
-        assertThat(rewritten)
-            .containsOnlyOnce("[value.valueMultipliers]")
-            .doesNotContain("valueMutlipliers");
-    }
-
-    @Test
     @DisplayName("the gui section ships empty customization tables")
     void guiSectionShipsEmptyCustomizationTables() throws IOException {
         AdaptConfig config = new AdaptConfig();
@@ -321,5 +268,11 @@ class AdaptConfigTest {
         assertThat(restored.getGui().getAdaptationIcons()).containsEntry("mining-vein", "GOLD_INGOT");
         assertThat(restored.getGui().getAdaptationOrder())
             .containsEntry("mining", List.of("mining-vein", "mining-blind"));
+    }
+
+    private static void setDouble(AdaptConfig config, String fieldName, double value) throws Exception {
+        Field field = AdaptConfig.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.setDouble(config, value);
     }
 }

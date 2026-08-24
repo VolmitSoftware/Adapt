@@ -54,6 +54,8 @@ public abstract class TickedObject implements Ticked, Listener {
   private final AtomicInteger dieIn;
   private final AtomicBoolean die;
   private final AtomicBoolean pendingSyncTick;
+  private final AtomicBoolean tickDispatchEnabled;
+  private final AtomicLong tickDispatchGeneration;
   private final AtomicBoolean active;
   private final AtomicBoolean retired;
   private final List<Listener> companionListeners = new CopyOnWriteArrayList<>();
@@ -89,6 +91,8 @@ public abstract class TickedObject implements Ticked, Listener {
     this.burst = new AtomicInteger(0);
     this.skip = new AtomicInteger(0);
     this.pendingSyncTick = new AtomicBoolean(false);
+    this.tickDispatchEnabled = new AtomicBoolean(true);
+    this.tickDispatchGeneration = new AtomicLong();
     this.active = new AtomicBoolean(false);
     this.retired = new AtomicBoolean(false);
     this.start = M.ms();
@@ -187,6 +191,7 @@ public abstract class TickedObject implements Ticked, Listener {
   @Override
   public synchronized void unregister() {
     retired.set(true);
+    invalidateTickDispatch();
     if (!active.compareAndSet(true, false)) {
       return;
     }
@@ -221,21 +226,27 @@ public abstract class TickedObject implements Ticked, Listener {
 
   @Override
   public void setInterval(long ms) {
-    interval.set(Math.max(MIN_INTERVAL_MILLIS, ms));
+    long normalizedInterval = Math.max(MIN_INTERVAL_MILLIS, ms);
+    if (interval.getAndSet(normalizedInterval) != normalizedInterval) {
+      rescheduleRuntimeTick();
+    }
   }
 
   @Override
   public void tick() {
-    if (!active.get()) {
+    if (!active.get() || !tickDispatchEnabled.get()) {
       return;
     }
 
     Entity tickOwner = getTickOwner();
     if (J.isFoliaThreading() && tickOwner != null && !J.isOwnedByCurrentRegion(tickOwner)) {
       if (pendingSyncTick.compareAndSet(false, true)) {
+        long generation = tickDispatchGeneration.get();
         boolean scheduled = J.runEntity(tickOwner, () -> {
           try {
-            tick();
+            if (acceptsTickDispatch(generation)) {
+              tick();
+            }
           } catch (Throwable error) {
             reportAsyncTickFailure(error);
           } finally {
@@ -251,9 +262,12 @@ public abstract class TickedObject implements Ticked, Listener {
 
     if (!J.isPrimaryThread()) {
       if (pendingSyncTick.compareAndSet(false, true)) {
+        long generation = tickDispatchGeneration.get();
         J.s(() -> {
           try {
-            tick();
+            if (acceptsTickDispatch(generation)) {
+              tick();
+            }
           } catch (Throwable error) {
             reportAsyncTickFailure(error);
           } finally {
@@ -296,6 +310,7 @@ public abstract class TickedObject implements Ticked, Listener {
       if (ticker != null && active.get()) {
         ticker.recordMetric(this, executionNanos);
       }
+      rescheduleRuntimeTick();
     }
   }
 
@@ -344,6 +359,22 @@ public abstract class TickedObject implements Ticked, Listener {
     return active.get();
   }
 
+  final void resumeTickDispatch() {
+    tickDispatchGeneration.incrementAndGet();
+    tickDispatchEnabled.set(true);
+  }
+
+  final void invalidateTickDispatch() {
+    tickDispatchEnabled.set(false);
+    tickDispatchGeneration.incrementAndGet();
+  }
+
+  private boolean acceptsTickDispatch(long generation) {
+    return active.get()
+        && tickDispatchEnabled.get()
+        && tickDispatchGeneration.get() == generation;
+  }
+
   private static boolean hasCustomTick(Class<?> type) {
     try {
       return type.getMethod("onTick").getDeclaringClass() != TickedObject.class;
@@ -380,6 +411,7 @@ public abstract class TickedObject implements Ticked, Listener {
   public void burst(int ticks) {
     if (ticks > 0) {
       burst.addAndGet(ticks);
+      rescheduleRuntimeTick();
     }
   }
 
@@ -390,7 +422,9 @@ public abstract class TickedObject implements Ticked, Listener {
 
   @Override
   public void stopBursting() {
-    burst.set(0);
+    if (burst.getAndSet(0) > 0) {
+      rescheduleRuntimeTick();
+    }
   }
 
   @Override
@@ -416,9 +450,21 @@ public abstract class TickedObject implements Ticked, Listener {
     return false;
   }
 
+  private void rescheduleRuntimeTick() {
+    if (!active.get() || !tickingRegistered) {
+      return;
+    }
+
+    Adapt plugin = Adapt.instance;
+    Ticker ticker = plugin == null ? null : plugin.getTicker();
+    if (ticker != null) {
+      ticker.reschedule(this);
+    }
+  }
+
   private void reportAsyncTickFailure(Throwable error) {
     Adapt.error("Exception ticking " + group + ":" + id);
-    error.printStackTrace();
+    Adapt.error(error);
   }
 
   private boolean isFoliaThreadOwnershipViolation(Throwable throwable) {

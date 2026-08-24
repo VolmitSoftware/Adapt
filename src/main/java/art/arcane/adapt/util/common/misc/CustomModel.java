@@ -88,7 +88,7 @@ public record CustomModel(Material material, int model,
             return true;
           } catch (IOException error) {
             Adapt.error("Failed to apply models config snapshot");
-            error.printStackTrace();
+            Adapt.error(error);
             return false;
           }
         }
@@ -125,7 +125,6 @@ public record CustomModel(Material material, int model,
     private final Object lock = new Object();
     private final AtomicBoolean writeQueued = new AtomicBoolean(false);
     private final File modelsFile;
-    private final File legacyModelsFile;
     private final KMap<String, CustomModel> cache = new KMap<>();
     private JsonObject json = new JsonObject();
 
@@ -134,20 +133,18 @@ public record CustomModel(Material material, int model,
     }
 
     private UpdateChecker(boolean passive) {
-      modelsFile = instance.getDataFile("adapt", "models.toml");
-      legacyModelsFile = instance.getDataFile("adapt", "models.json");
+      modelsFile = instance.getDataFile("models.toml");
 
       try {
         readFile(passive);
       } catch (IOException e) {
         Adapt.error("Failed to read models.toml");
-        e.printStackTrace();
+        Adapt.error(e);
       }
     }
 
     private UpdateChecker(String raw, File sourceFile) throws IOException {
-      modelsFile = instance.getDataFile("adapt", "models.toml");
-      legacyModelsFile = instance.getDataFile("adapt", "models.json");
+      modelsFile = instance.getDataFile("models.toml");
       json = parseSnapshot(raw, sourceFile);
     }
 
@@ -159,7 +156,7 @@ public record CustomModel(Material material, int model,
           return true;
         } catch (IOException e) {
           Adapt.error("Failed to read models.toml");
-          e.printStackTrace();
+          Adapt.error(e);
           return false;
         }
       }
@@ -174,7 +171,7 @@ public record CustomModel(Material material, int model,
           return true;
         } catch (IOException error) {
           Adapt.error("Failed to apply models config snapshot");
-          error.printStackTrace();
+          Adapt.error(error);
           return false;
         }
       }
@@ -251,7 +248,7 @@ public record CustomModel(Material material, int model,
           writeFile();
         } catch (IOException e) {
           Adapt.error("Failed to write models.toml");
-          e.printStackTrace();
+          Adapt.error(e);
         }
       });
     }
@@ -262,9 +259,6 @@ public record CustomModel(Material material, int model,
           String raw = IO.readAll(modelsFile);
           if (raw == null || raw.isBlank()) {
             json = new JsonObject();
-            if (!passive) {
-              ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
-            }
             return;
           }
 
@@ -274,24 +268,6 @@ public record CustomModel(Material material, int model,
           }
 
           json = parsed.getAsJsonObject();
-          if (!passive) {
-            ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
-          }
-          return;
-        }
-
-        if (legacyModelsFile.exists()) {
-          String legacyRaw = IO.readAll(legacyModelsFile);
-          JsonObject legacy = Json.fromJson(legacyRaw, JsonObject.class);
-          if (legacy == null) {
-            throw new IOException("Invalid models.json");
-          }
-          json = legacy;
-          if (!passive) {
-            IO.writeAll(modelsFile, ConfigFileSupport.serializeJsonElementToToml(legacy));
-            Adapt.info("Migrated legacy config [adapt/models.json] -> [adapt/models.toml].");
-            ConfigFileSupport.deleteLegacyFileIfMigrated(modelsFile, legacyModelsFile, "models-config");
-          }
           return;
         }
 

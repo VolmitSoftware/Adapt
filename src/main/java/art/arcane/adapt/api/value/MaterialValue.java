@@ -95,7 +95,7 @@ public class MaterialValue {
         try {
           IO.writeAll(l, Json.toJson(dummy, true));
         } catch (IOException e) {
-          e.printStackTrace();
+          Adapt.error(e);
           valueCache = dummy;
           return dummy;
         }
@@ -108,7 +108,7 @@ public class MaterialValue {
             ? Json.fromJson(raw, MaterialValue.class)
             : new MaterialValue();
       } catch (IOException | JsonParseException e) {
-        e.printStackTrace();
+        Adapt.error(e);
         loaded = new MaterialValue();
       }
 
@@ -318,7 +318,7 @@ public class MaterialValue {
             .build();
       }
     } catch (Throwable e) {
-      e.printStackTrace();
+      Adapt.error(e);
     }
 
     return null;

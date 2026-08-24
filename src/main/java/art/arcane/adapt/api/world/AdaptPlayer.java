@@ -33,8 +33,10 @@ import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.papi.AdaptPlaceholders;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.io.SQLManager;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.project.redis.RedisSync;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.io.IO;
 import art.arcane.volmlib.util.math.M;
@@ -47,11 +49,19 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -61,35 +71,85 @@ public class AdaptPlayer extends TickedObject {
   private static final long SAVE_INTERVAL_MS = 60_000L;
   private static final long SPATIAL_INTERVAL_MS = 500L;
   private static final long MIN_TICK_INTERVAL_MS = 50L;
+  private static final long RETIRED_RETENTION_MS = 60_000L;
+  private static final int SAVE_DEBOUNCE_TICKS = 20;
+  private static final int MAX_SQL_CLAIM_ATTEMPTS = 4;
+  private static final long SQL_CLAIM_TIMEOUT_SECONDS = 8L;
+  private static final long REDIS_TRANSFER_WAIT_MILLIS = 250L;
   private static final long UPDATE_SALT = 0x5DEECE66DL;
   private static final long SAVE_SALT = 0x9E3779B97F4A7C15L;
   private static final Set<UUID> LOAD_FAILURE_GUARD = ConcurrentHashMap.newKeySet();
 
   private final Player player;
+  private final boolean persistenceFenceRequired;
   private volatile PlayerData data;
   private final Set<String> dirtyStats = ConcurrentHashMap.newKeySet();
   private final AtomicBoolean dirtyStatEvaluationScheduled = new AtomicBoolean();
   private final AtomicBoolean loginStatReconciliationComplete = new AtomicBoolean();
+  private final AtomicBoolean saveScheduled = new AtomicBoolean();
+  private final AtomicLong requestedSaveRevision = new AtomicLong();
+  private final AtomicLong persistenceSequence = new AtomicLong();
   @Getter(AccessLevel.NONE)
   private Location positionScratch;
   private volatile FxPosition fxPosition;
   private Notifier not;
   private Notifier actionBarNotifier;
   private AdvancementHandler advancementHandler;
-  private long lastSeen;
+  private volatile long lastSeen;
   private long nextUpdateAt;
   private long nextSaveAt;
+  private volatile long purgeGeneration;
+  private volatile UUID persistenceOwnerToken;
+  private volatile long persistenceEpoch = -1L;
   private volatile boolean pendingDataDeletion;
   private volatile boolean runtimeReady;
 
   public AdaptPlayer(Player p) {
-    this(p, null);
+    this(p, (LoadedPlayerData) null);
   }
 
   public AdaptPlayer(Player p, PlayerData prefetchedData) {
+    this(p, prefetchedData == null ? null : LoadedPlayerData.inspected(prefetchedData));
+  }
+
+  AdaptPlayer(Player p, LoadedPlayerData prefetchedData) {
     super("players", p.getUniqueId().toString(), MIN_TICK_INTERVAL_MS);
     this.player = p;
-    data = prefetchedData == null ? loadPlayerData(p.getUniqueId()) : prefetchedData;
+    UUID playerId = p.getUniqueId();
+    long loadGeneration = PlayerDataPurgeGuard.generation(playerId);
+    boolean purged = PlayerDataPurgeGuard.isPurged(playerId);
+    boolean sqlEnabled = AdaptConfig.get().getSql().isEnabled();
+    persistenceFenceRequired = sqlEnabled;
+    if (sqlEnabled && (prefetchedData == null || !prefetchedData.isOwned())) {
+      throw new IllegalStateException("SQL-backed player runtime requires claimed persistence ownership for "
+          + playerId);
+    }
+    LoadedPlayerData loadedState = purged && !sqlEnabled
+        ? LoadedPlayerData.inspected(new PlayerData())
+        : prefetchedData == null || (!sqlEnabled && requiresCanonicalLoad(playerId))
+            ? LoadedPlayerData.inspected(loadPlayerData(playerId))
+            : prefetchedData;
+    long currentGeneration = PlayerDataPurgeGuard.generation(playerId);
+    if (!sqlEnabled && (purged || PlayerDataPurgeGuard.isPurged(playerId)
+        || currentGeneration != loadGeneration)) {
+      loadedState = LoadedPlayerData.inspected(new PlayerData());
+      currentGeneration = PlayerDataPurgeGuard.generation(playerId);
+      if (PlayerDataPurgeGuard.clear(playerId)) {
+        Adapt.verbose(() -> "Loading default player data for " + playerId
+            + " (data was purged this session)");
+      }
+      LOAD_FAILURE_GUARD.remove(playerId);
+    }
+    if (LOAD_FAILURE_GUARD.contains(playerId)) {
+      throw new IllegalStateException(
+          "Player data is unavailable because its authoritative profile could not be loaded for "
+              + playerId);
+    }
+    purgeGeneration = currentGeneration;
+    data = loadedState.data();
+    persistenceOwnerToken = loadedState.ownerToken();
+    persistenceEpoch = loadedState.epoch();
+    persistenceSequence.set(loadedState.sequence());
     data.bindRuntimeOwner(this);
     not = new Notifier(this);
     actionBarNotifier = new Notifier(this);
@@ -104,19 +164,92 @@ public class AdaptPlayer extends TickedObject {
 
   public void startRuntime() {
     activateRuntime();
-    not.activateRuntime();
-    actionBarNotifier.activateRuntime();
+  }
+
+  public boolean isRuntimeReady() {
+    return runtimeReady && (!persistenceFenceRequired || persistenceOwnerToken != null);
   }
 
   public static PlayerData loadPlayerData(UUID uuid) {
-    if (PlayerDataPurgeGuard.clear(uuid)) {
-      Adapt.info("Loading default player data for " + uuid + " (data was purged this session)");
+    long purgeGeneration = PlayerDataPurgeGuard.generation(uuid);
+    File f = getPlayerDataFile(uuid);
+    File deleteMarker = PlayerDataPersistenceQueue.deleteMarkerFile(f);
+    PlayerDataPersistenceQueue persistenceQueue = Adapt.instance.getPlayerDataPersistenceQueue();
+    boolean sqlEnabled = AdaptConfig.get().getSql().isEnabled();
+    if (deleteMarker.exists() && !sqlEnabled) {
+      PlayerDataPersistenceQueue.DeleteJournal journal = PlayerDataPersistenceQueue.readDeleteJournal(deleteMarker);
+      if (!journal.valid()) {
+        LOAD_FAILURE_GUARD.add(uuid);
+        Adapt.warn("Player data deletion journal for " + uuid
+            + " is invalid and was preserved for operator recovery: " + deleteMarker.getAbsolutePath());
+        return new PlayerData();
+      }
+      if (persistenceQueue != null && persistenceQueue.hasPendingDelete(uuid)) {
+        String pendingSuccessor = persistenceQueue.getPendingSave(uuid);
+        if (pendingSuccessor != null) {
+          try {
+            PlayerData recovered = PlayerData.fromJson(pendingSuccessor);
+            if (recovered == null) {
+              throw new IllegalArgumentException("Pending delete successor JSON resolved to null");
+            }
+            LOAD_FAILURE_GUARD.remove(uuid);
+            return recovered;
+          } catch (Throwable error) {
+            Adapt.warn("Failed to load pending player data after deletion for " + uuid + ": "
+                + error.getClass().getSimpleName()
+                + (error.getMessage() == null ? "" : " (" + error.getMessage() + ")"));
+            Adapt.error(error);
+          }
+        }
+      }
+      if (journal.hasSuccessor()) {
+        try {
+          PlayerData recovered = PlayerData.fromJson(journal.successorJson());
+          if (recovered == null) {
+            throw new IllegalArgumentException("Delete-then-save journal JSON resolved to null");
+          }
+          if (persistenceQueue != null && persistenceQueue.resumeDeleteThenSave(uuid, f, journal)) {
+            String activeSuccessor = persistenceQueue.getPendingSave(uuid);
+            if (activeSuccessor != null) {
+              PlayerData active = PlayerData.fromJson(activeSuccessor);
+              if (active == null) {
+                throw new IllegalArgumentException("Active delete successor JSON resolved to null");
+              }
+              LOAD_FAILURE_GUARD.remove(uuid);
+              return active;
+            }
+            if (persistenceQueue.hasPendingDelete(uuid)) {
+              LOAD_FAILURE_GUARD.remove(uuid);
+              return new PlayerData();
+            }
+            return loadPlayerData(uuid);
+          }
+          Adapt.warn("Player data delete-then-save journal for " + uuid
+              + " remains pending because the persistence queue is unavailable.");
+          LOAD_FAILURE_GUARD.add(uuid);
+          return new PlayerData();
+        } catch (Throwable error) {
+          Adapt.warn("Failed to load player data delete-then-save journal for " + uuid + ": "
+              + error.getClass().getSimpleName()
+              + (error.getMessage() == null ? "" : " (" + error.getMessage() + ")"));
+          Adapt.error(error);
+          LOAD_FAILURE_GUARD.add(uuid);
+          return new PlayerData();
+        }
+      }
+      if (persistenceQueue != null) {
+        persistenceQueue.queueDelete(uuid, f);
+      }
+      LOAD_FAILURE_GUARD.remove(uuid);
+      return new PlayerData();
+    }
+
+    if (PlayerDataPurgeGuard.isPurged(uuid)) {
       LOAD_FAILURE_GUARD.remove(uuid);
       return new PlayerData();
     }
 
     boolean loadFailed = false;
-    PlayerDataPersistenceQueue persistenceQueue = Adapt.instance.getPlayerDataPersistenceQueue();
     if (persistenceQueue != null) {
       String pendingSave = persistenceQueue.getPendingSave(uuid);
       if (pendingSave != null) {
@@ -131,22 +264,26 @@ public class AdaptPlayer extends TickedObject {
           loadFailed = true;
           LOAD_FAILURE_GUARD.add(uuid);
           Adapt.warn("Failed to parse pending player data for " + uuid + ": " + error.getClass().getSimpleName() + (error.getMessage() == null ? "" : " (" + error.getMessage() + ")"));
-          error.printStackTrace();
+          Adapt.error(error);
         }
+      }
+      if (persistenceQueue.hasPendingDelete(uuid)) {
+        LOAD_FAILURE_GUARD.remove(uuid);
+        return new PlayerData();
       }
     }
 
-    File f = getPlayerDataFile(uuid);
     File recoveryFile = PlayerDataPersistenceQueue.sqlRecoveryFile(f);
-    if (recoveryFile.exists()) {
+    if (recoveryFile.exists() && !sqlEnabled) {
       try {
-        String recoveredJson = IO.readAll(recoveryFile);
-        PlayerData recovered = PlayerData.fromJson(recoveredJson);
+        PlayerDataPersistenceQueue.SqlRecoverySnapshot recovery =
+            PlayerDataPersistenceQueue.readSqlRecovery(recoveryFile);
+        if (!recovery.valid() || !uuid.equals(recovery.snapshot().playerId())) {
+          throw incompatibleSqlRecovery(recoveryFile);
+        }
+        PlayerData recovered = PlayerData.fromJson(recovery.snapshot().json());
         if (recovered == null) {
           throw new IllegalArgumentException("SQL recovery player data JSON resolved to null");
-        }
-        if (persistenceQueue != null) {
-          persistenceQueue.queueSave(uuid, recoveredJson, f);
         }
         LOAD_FAILURE_GUARD.remove(uuid);
         return recovered;
@@ -156,26 +293,20 @@ public class AdaptPlayer extends TickedObject {
         Adapt.warn("Failed to load SQL recovery player data for " + uuid + " from "
             + recoveryFile.getAbsolutePath() + ": " + error.getClass().getSimpleName()
             + (error.getMessage() == null ? "" : " (" + error.getMessage() + ")"));
-        error.printStackTrace();
+        Adapt.error(error);
       }
     }
 
-    boolean upload = false;
-    if (AdaptConfig.get().getSql().isEnabled()) {
-      if (Adapt.instance.getRedisSync() != null) {
-        java.util.Optional<art.arcane.adapt.api.world.PlayerData> opt = Adapt.instance.getRedisSync().cachedData(uuid);
-        if (opt.isPresent()) {
-          Adapt.verbose("Using cached data for player: " + uuid);
-          LOAD_FAILURE_GUARD.remove(uuid);
-          return opt.get();
-        }
-      }
-
+    if (sqlEnabled) {
       if (Adapt.instance.getSqlManager() != null) {
-        String sqlData = Adapt.instance.getSqlManager().fetchData(uuid);
-        if (sqlData != null) {
+        SQLManager.FetchResult sqlResult = Adapt.instance.getSqlManager().fetchData(uuid);
+        if (sqlResult == null || !sqlResult.successful()) {
+          loadFailed = true;
+          LOAD_FAILURE_GUARD.add(uuid);
+          Adapt.warn("Player data load for " + uuid + " is guarded because SQL could not confirm whether the row exists.");
+        } else if (sqlResult.found()) {
           try {
-            PlayerData parsed = PlayerData.fromJson(sqlData);
+            PlayerData parsed = PlayerData.fromJson(sqlResult.data());
             if (parsed == null) {
               throw new IllegalArgumentException("SQL player data JSON resolved to null");
             }
@@ -185,10 +316,13 @@ public class AdaptPlayer extends TickedObject {
             loadFailed = true;
             LOAD_FAILURE_GUARD.add(uuid);
             Adapt.warn("Failed to parse SQL player data for " + uuid + ": " + e.getClass().getSimpleName() + (e.getMessage() == null ? "" : " (" + e.getMessage() + ")"));
-            e.printStackTrace();
+            Adapt.error(e);
           }
         }
-        upload = true;
+      } else {
+        loadFailed = true;
+        LOAD_FAILURE_GUARD.add(uuid);
+        Adapt.warn("Player data load for " + uuid + " is guarded because SQL is enabled without an active manager.");
       }
     }
 
@@ -199,21 +333,15 @@ public class AdaptPlayer extends TickedObject {
         if (parsed == null) {
           throw new IllegalArgumentException("Player data JSON resolved to null");
         }
-        if (upload) {
-          PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
-          if (queue != null) {
-            queue.queueSave(uuid, text, f);
-          } else if (Adapt.instance.getSqlManager() != null) {
-            Adapt.instance.getSqlManager().updateData(uuid, text);
-          }
+        if (!loadFailed) {
+          LOAD_FAILURE_GUARD.remove(uuid);
         }
-        LOAD_FAILURE_GUARD.remove(uuid);
         return parsed;
       } catch (Throwable e) {
         loadFailed = true;
         LOAD_FAILURE_GUARD.add(uuid);
         Adapt.warn("Failed to load player data for " + uuid + " from " + f.getAbsolutePath() + ": " + e.getClass().getSimpleName() + (e.getMessage() == null ? "" : " (" + e.getMessage() + ")"));
-        e.printStackTrace();
+        Adapt.error(e);
       }
     }
 
@@ -223,12 +351,206 @@ public class AdaptPlayer extends TickedObject {
     return new PlayerData();
   }
 
+  static LoadedPlayerData claimPlayerData(UUID uuid) {
+    if (!AdaptConfig.get().getSql().isEnabled()) {
+      PlayerData loaded = loadPlayerData(uuid);
+      if (LOAD_FAILURE_GUARD.contains(uuid)) {
+        throw new IllegalStateException(
+            "Local player data could not be loaded safely for " + uuid);
+      }
+      return LoadedPlayerData.inspected(loaded);
+    }
+
+    SQLManager sqlManager = Adapt.instance.getSqlManager();
+    if (sqlManager == null) {
+      throw new IllegalStateException("SQL persistence is enabled without an active manager");
+    }
+
+    Throwable lastFailure = null;
+    for (int attempt = 0; attempt < MAX_SQL_CLAIM_ATTEMPTS; attempt++) {
+      try {
+        SQLManager.ClaimResult claim = sqlManager.claimData(uuid)
+            .get(SQL_CLAIM_TIMEOUT_SECONDS, TimeUnit.SECONDS);
+        if (claim == null || !claim.successful() || claim.newToken() == null) {
+          lastFailure = new IllegalStateException("SQL manager rejected the ownership claim");
+          continue;
+        }
+        LoadedPlayerData adopted = adoptClaimedPlayerData(uuid, sqlManager, claim);
+        if (adopted != null) {
+          PlayerDataPurgeGuard.clear(uuid);
+          LOAD_FAILURE_GUARD.remove(uuid);
+          return adopted;
+        }
+        lastFailure = new IllegalStateException("SQL ownership changed before adoption completed");
+      } catch (InterruptedException error) {
+        Thread.currentThread().interrupt();
+        throw new IllegalStateException("Interrupted while claiming SQL player data for " + uuid, error);
+      } catch (TimeoutException error) {
+        lastFailure = error;
+      } catch (IllegalStateException error) {
+        LOAD_FAILURE_GUARD.add(uuid);
+        throw error;
+      } catch (Exception error) {
+        lastFailure = error;
+      }
+    }
+
+    LOAD_FAILURE_GUARD.add(uuid);
+    throw new IllegalStateException("Failed to claim SQL player data for " + uuid,
+        lastFailure);
+  }
+
+  private static LoadedPlayerData adoptClaimedPlayerData(UUID uuid, SQLManager sqlManager,
+                                                          SQLManager.ClaimResult claim)
+      throws Exception {
+    File localFile = getPlayerDataFile(uuid);
+    rejectIncompatibleSqlDeleteJournal(localFile);
+    SQLManager.SqlToken predecessor = claim.effectivePredecessor();
+    ArrayList<FencedPlayerSnapshot> candidates = new ArrayList<>();
+    PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
+    if (queue != null) {
+      FencedPlayerSnapshot pending = queue.getPendingFencedSnapshot(uuid);
+      if (pending != null) {
+        candidates.add(pending);
+      }
+    }
+
+    File recoveryFile = PlayerDataPersistenceQueue.sqlRecoveryFile(localFile);
+    if (recoveryFile.exists()) {
+      PlayerDataPersistenceQueue.SqlRecoverySnapshot recovery =
+          PlayerDataPersistenceQueue.readSqlRecovery(recoveryFile);
+      if (!recovery.valid() || !uuid.equals(recovery.snapshot().playerId())) {
+        throw incompatibleSqlRecovery(recoveryFile);
+      }
+      candidates.add(recovery.snapshot());
+    }
+
+    if (predecessor != null && Adapt.instance.getRedisSync() != null) {
+      collectRedisTransfer(candidates, uuid, predecessor, REDIS_TRANSFER_WAIT_MILLIS);
+    }
+
+    String selectedJson;
+    if (predecessor == null) {
+      selectedJson = claim.committedData();
+      if (selectedJson == null) {
+        selectedJson = readInitialSqlSeed(localFile);
+      }
+    } else {
+      FencedSnapshotSelector.Selection selection = FencedSnapshotSelector.select(
+          uuid,
+          predecessor.ownerToken(),
+          predecessor.epoch(),
+          claim.previousCommittedSequence(),
+          claim.committedData(),
+          candidates
+      );
+      selectedJson = selection.json();
+    }
+
+    PlayerData selectedData = selectedJson == null ? new PlayerData() : PlayerData.fromJson(selectedJson);
+    if (selectedData == null) {
+      throw new IllegalStateException("Claimed SQL player data resolved to null for " + uuid);
+    }
+    String canonicalJson = selectedData.toJson(true);
+    SQLManager.SqlToken newToken = claim.newToken();
+    SQLManager.FencedWriteResult adoption = sqlManager.adoptFencedData(
+        new SQLManager.FencedDataUpdate(
+            uuid,
+            newToken.ownerToken().toString(),
+            newToken.epoch(),
+            1L,
+            canonicalJson
+        )
+    );
+    if (adoption == null
+        || adoption.status() == SQLManager.FencedWriteStatus.FENCED
+        || adoption.status() == SQLManager.FencedWriteStatus.FAILED
+        || adoption.status() == SQLManager.FencedWriteStatus.SUPERSEDED) {
+      return null;
+    }
+
+    if (predecessor != null) {
+      if (queue != null) {
+        queue.discardPredecessorSaves(uuid, predecessor.ownerToken(), predecessor.epoch());
+      }
+      PlayerDataPersistenceQueue.deleteAdoptedRecovery(
+          recoveryFile, predecessor.ownerToken(), predecessor.epoch());
+      acknowledgeAdoptedTransfer(uuid, predecessor.ownerToken(), predecessor.epoch());
+    }
+    return LoadedPlayerData.owned(
+        selectedData, newToken.ownerToken(), newToken.epoch(), 1L);
+  }
+
+  static void collectRedisTransfer(List<FencedPlayerSnapshot> candidates, UUID uuid,
+                                   SQLManager.SqlToken predecessor, long timeoutMillis)
+      throws Exception {
+    try {
+      CompletableFuture<Optional<FencedPlayerSnapshot>> transfer =
+          Adapt.instance.getRedisSync().awaitTransfers(
+              uuid, predecessor.ownerToken(), predecessor.epoch(), timeoutMillis);
+      Optional<FencedPlayerSnapshot> snapshot = transfer.get(
+          Math.max(1_000L, timeoutMillis + 500L), TimeUnit.MILLISECONDS);
+      snapshot.ifPresent(candidates::add);
+    } catch (InterruptedException error) {
+      Thread.currentThread().interrupt();
+      throw error;
+    } catch (ExecutionException | TimeoutException error) {
+      throw new IllegalStateException(
+          "Redis player-data transfer could not be verified for " + uuid, error);
+    }
+  }
+
+  static void acknowledgeAdoptedTransfer(UUID playerId, UUID predecessorToken,
+                                         long predecessorEpoch) {
+    RedisSync redisSync = Adapt.instance.getRedisSync();
+    if (redisSync != null) {
+      redisSync.acknowledgeTransfer(playerId, predecessorToken, predecessorEpoch);
+    }
+  }
+
+  private static String readInitialSqlSeed(File localFile) throws IOException {
+    rejectIncompatibleSqlDeleteJournal(localFile);
+    return localFile.exists() ? IO.readAll(localFile) : null;
+  }
+
+  static void rejectIncompatibleSqlDeleteJournal(File localFile) throws IOException {
+    File deleteMarker = PlayerDataPersistenceQueue.deleteMarkerFile(localFile);
+    if (deleteMarker.exists()) {
+      throw new IOException("Incompatible pre-fence deletion journal was preserved at "
+          + deleteMarker.getAbsolutePath()
+          + ". Stop the server, reconcile the SQL row from backup, delete only this journal,"
+          + " then restart so ADAPT can regenerate fenced state.");
+    }
+  }
+
+  private static IllegalStateException incompatibleSqlRecovery(File recoveryFile) {
+    return new IllegalStateException("Incompatible SQL recovery file was preserved at "
+        + recoveryFile.getAbsolutePath()
+        + ". Stop the server, reconcile the player row from SQL or backup, delete only this file,"
+        + " then restart so ADAPT can regenerate a fenced recovery envelope.");
+  }
+
   static File getPlayerDataFile(UUID uuid) {
     return new File(Adapt.instance.getDataFolder("data", "players"), uuid.toString() + ".json");
   }
 
+  static boolean requiresCanonicalLoad(UUID uuid) {
+    File playerFile = getPlayerDataFile(uuid);
+    if (PlayerDataPersistenceQueue.deleteMarkerFile(playerFile).exists()
+        || PlayerDataPersistenceQueue.sqlRecoveryFile(playerFile).exists()) {
+      return true;
+    }
+    PlayerDataPersistenceQueue persistenceQueue = Adapt.instance.getPlayerDataPersistenceQueue();
+    return persistenceQueue != null
+        && (persistenceQueue.hasPendingDelete(uuid) || persistenceQueue.getPendingSave(uuid) != null);
+  }
+
   static void forgetLoadFailure(UUID uuid) {
     LOAD_FAILURE_GUARD.remove(uuid);
+  }
+
+  static boolean hasLoadFailure(UUID uuid) {
+    return LOAD_FAILURE_GUARD.contains(uuid);
   }
 
   /**
@@ -303,7 +625,13 @@ public class AdaptPlayer extends TickedObject {
     File playerDataFile = getPlayerDataFile(uuid);
 
     if (pendingDataDeletion || PlayerDataPurgeGuard.isPurged(uuid)) {
-      queueDelete(uuid, playerDataFile);
+      if (!AdaptConfig.get().getSql().isEnabled()) {
+        queueDelete(uuid, playerDataFile);
+      }
+      return;
+    }
+
+    if (!PlayerDataPurgeGuard.allowsSave(uuid, purgeGeneration)) {
       return;
     }
 
@@ -312,44 +640,189 @@ public class AdaptPlayer extends TickedObject {
       return;
     }
 
-    String json = this.data.toJson(AdaptConfig.get().getSql().isEnabled());
     PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
-    if (queue != null) {
-      queue.queueSave(uuid, json, playerDataFile);
+    if (AdaptConfig.get().getSql().isEnabled()) {
+      FencedPlayerSnapshot snapshot = capturePersistenceSnapshot(false);
+      if (snapshot == null) {
+        Adapt.warn("Skipping unfenced SQL player data save for " + uuid);
+        return;
+      }
+      if (queue == null) {
+        Adapt.warn("Skipping SQL player data save for " + uuid
+            + " because the persistence queue is unavailable");
+        return;
+      }
+      queue.queueSave(snapshot, playerDataFile, purgeGeneration);
       return;
     }
 
-    if (AdaptConfig.get().getSql().isEnabled()) {
-      if (Adapt.instance.getRedisSync() != null) {
-        Adapt.instance.getRedisSync().publish(uuid, json);
-      }
-      if (Adapt.instance.getSqlManager() != null) {
-        Adapt.instance.getSqlManager().updateData(uuid, json);
-      }
-    } else {
-      J.attempt(() -> IO.writeAll(playerDataFile, json));
+    String json = data.toJson(false);
+    if (queue != null) {
+      queue.queueSave(uuid, json, playerDataFile, purgeGeneration);
+      return;
     }
+    J.attempt(() -> IO.writeAll(playerDataFile, json));
   }
 
   public void saveNow() {
     save();
   }
 
+  public synchronized FencedPlayerSnapshot captureFencedSnapshot() {
+    return capturePersistenceSnapshot(true);
+  }
+
+  private synchronized FencedPlayerSnapshot capturePersistenceSnapshot(boolean requireRuntime) {
+    if ((requireRuntime && !runtimeReady)
+        || persistenceOwnerToken == null || persistenceEpoch < 1L) {
+      return null;
+    }
+    long sequence = persistenceSequence.incrementAndGet();
+    return new FencedPlayerSnapshot(
+        player.getUniqueId(),
+        persistenceOwnerToken,
+        persistenceEpoch,
+        sequence,
+        data.toJson(true)
+    );
+  }
+
+  synchronized void installPersistenceFence(UUID ownerToken, long epoch, long sequence) {
+    persistenceOwnerToken = ownerToken;
+    persistenceEpoch = epoch;
+    persistenceSequence.set(sequence);
+  }
+
+  synchronized boolean installNewerPersistenceFence(UUID ownerToken, long epoch, long sequence) {
+    if (ownerToken == null || epoch < 1L || sequence < 0L || epoch <= persistenceEpoch) {
+      return false;
+    }
+    installPersistenceFence(ownerToken, epoch, sequence);
+    return true;
+  }
+
+  synchronized boolean ownsPersistenceFence(UUID ownerToken, long epoch) {
+    return persistenceOwnerToken != null
+        && persistenceOwnerToken.equals(ownerToken)
+        && persistenceEpoch == epoch;
+  }
+
+  synchronized long persistenceFenceEpoch() {
+    return persistenceEpoch;
+  }
+
+  synchronized boolean invalidatePersistenceFence(UUID ownerToken, long epoch) {
+    if (!ownsPersistenceFence(ownerToken, epoch)) {
+      return false;
+    }
+    persistenceOwnerToken = null;
+    persistenceEpoch = -1L;
+    return true;
+  }
+
+  boolean persistResetNow(PlayerData replacement) {
+    UUID uuid = player.getUniqueId();
+    if (replacement == null || pendingDataDeletion
+        || !PlayerDataPurgeGuard.allowsSave(uuid, purgeGeneration)
+        || AdaptConfig.get().getSql().isEnabled()) {
+      return false;
+    }
+
+    String json = replacement.toJson(false);
+    File playerDataFile = getPlayerDataFile(uuid);
+    PlayerDataPersistenceQueue queue = Adapt.instance.getPlayerDataPersistenceQueue();
+    if (queue != null) {
+      return queue.queueReset(uuid, json, playerDataFile, purgeGeneration);
+    }
+
+    try {
+      PlayerDataPersistenceQueue.writeSnapshot(playerDataFile, json);
+      return true;
+    } catch (Throwable error) {
+      Adapt.warn("Failed to persist reset player data for " + uuid + ": " + error.getMessage());
+      Adapt.error(error);
+      return false;
+    }
+  }
+
+  public void requestSave() {
+    if (!isRuntimeReady() || pendingDataDeletion) {
+      return;
+    }
+    requestedSaveRevision.incrementAndGet();
+    scheduleRequestedSave();
+  }
+
+  private void scheduleRequestedSave() {
+    if (!saveScheduled.compareAndSet(false, true)) {
+      return;
+    }
+    if (!J.runEntity(player, this::drainRequestedSave, SAVE_DEBOUNCE_TICKS)) {
+      saveScheduled.set(false);
+    }
+  }
+
+  private void drainRequestedSave() {
+    long revision = requestedSaveRevision.get();
+    if (runtimeReady && !pendingDataDeletion) {
+      save();
+    }
+    saveScheduled.set(false);
+    if (runtimeReady && !pendingDataDeletion && requestedSaveRevision.get() != revision) {
+      scheduleRequestedSave();
+    }
+  }
+
   @Override
-  public void unregister() {
+  public synchronized void unregister() {
     if (!runtimeReady) {
       super.unregister();
       return;
     }
+    retireRuntime();
+    save();
+  }
+
+  synchronized FencedPlayerSnapshot retireForTransfer(UUID ownerToken, long epoch) {
+    if (!runtimeReady || pendingDataDeletion || !ownsPersistenceFence(ownerToken, epoch)) {
+      return null;
+    }
+    retireRuntime();
+    FencedPlayerSnapshot snapshot = capturePersistenceSnapshot(false);
+    persistenceOwnerToken = null;
+    persistenceEpoch = -1L;
+    return snapshot;
+  }
+
+  synchronized boolean retireForRemoteFenceAdvance(long epoch) {
+    if (!runtimeReady || epoch <= persistenceEpoch) {
+      return false;
+    }
+    retireRuntime();
+    persistenceOwnerToken = null;
+    persistenceEpoch = -1L;
+    return true;
+  }
+
+  synchronized boolean invalidateForRemoteFenceAdvance(long epoch) {
+    if (epoch <= persistenceEpoch) {
+      return false;
+    }
+    persistenceOwnerToken = null;
+    persistenceEpoch = -1L;
+    return true;
+  }
+
+  private void retireRuntime() {
+    lastSeen = M.ms();
     runtimeReady = false;
+    data.unbindRuntimeOwner(this);
     data.stripRegionGrantedAdaptations();
     data.setRegionPowerBonus(0);
-    data.unbindRuntimeOwner(this);
     dirtyStats.clear();
     super.unregister();
     not.unregister();
     actionBarNotifier.unregister();
-    save();
   }
 
   /**
@@ -361,6 +834,18 @@ public class AdaptPlayer extends TickedObject {
     purgeStoredData(uuid);
   }
 
+  synchronized void retireAfterFencedPurge(UUID uuid, long generation) {
+    pendingDataDeletion = true;
+    persistenceOwnerToken = null;
+    persistenceEpoch = -1L;
+    purgeGeneration = generation;
+    LOAD_FAILURE_GUARD.remove(uuid);
+  }
+
+  void adoptPurgeGeneration(long generation) {
+    purgeGeneration = generation;
+  }
+
   static void purgeStoredData(UUID uuid) {
     PlayerDataPurgeGuard.mark(uuid);
     LOAD_FAILURE_GUARD.remove(uuid);
@@ -370,17 +855,30 @@ public class AdaptPlayer extends TickedObject {
   }
 
   public boolean shouldUnload() {
-    if (player.isOnline()) {
-      lastSeen = M.ms();
+    return shouldUnload(M.ms(), runtimeReady);
+  }
+
+  boolean shouldUnload(long now, boolean onlineMembership) {
+    if (onlineMembership) {
+      lastSeen = now;
+    }
+    if (runtimeReady) {
       return false;
     }
 
-    return lastSeen + 60_000 < System.currentTimeMillis();
+    return retiredRetentionExpired(lastSeen, now);
+  }
+
+  static boolean retiredRetentionExpired(long retiredAt, long now) {
+    long deadline = retiredAt > Long.MAX_VALUE - RETIRED_RETENTION_MS
+        ? Long.MAX_VALUE
+        : retiredAt + RETIRED_RETENTION_MS;
+    return now > deadline;
   }
 
   @Override
   public void onTick() {
-    if (!runtimeReady) {
+    if (!isRuntimeReady()) {
       return;
     }
 
@@ -459,11 +957,11 @@ public class AdaptPlayer extends TickedObject {
     p.getData().getSkillLines().v().getRandom().giveXP(p.getNot(), xpGained);
   }
 
-  public void boostXPToRandom(AdaptPlayer p, double boost, int ms) {
+  public void boostXPToRandom(AdaptPlayer p, double boost, long ms) {
     p.getData().getSkillLines().v().getRandom().boost(boost, ms);
   }
 
-  public void boostXPToRecents(double boost, int ms) {
+  public void boostXPToRecents(double boost, long ms) {
     for (PlayerSkillLine i : this.getData().getSkillLines().v()) {
       if (M.ms() - i.getLast() < ms) {
         i.boost(boost, ms);
@@ -492,7 +990,7 @@ public class AdaptPlayer extends TickedObject {
         return;
       }
       double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
-      getData().globalXPMultiplier(boostAmount, (int) boostTime);
+      getData().globalXPMultiplier(boostAmount, boostTime);
       if (!AdaptConfig.get().isWelcomeMessage())
         return;
       getNot().queue(AdvancementNotification.builder()
@@ -590,9 +1088,6 @@ public class AdaptPlayer extends TickedObject {
 
     if (localFile.exists() && !localFile.delete()) {
       Adapt.verbose("Failed to delete local player data file " + localFile.getAbsolutePath());
-    }
-    if (AdaptConfig.get().getSql().isEnabled() && Adapt.instance.getSqlManager() != null) {
-      Adapt.instance.getSqlManager().delete(uuid);
     }
   }
 

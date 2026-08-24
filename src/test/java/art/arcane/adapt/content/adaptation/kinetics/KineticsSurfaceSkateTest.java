@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -59,6 +60,7 @@ class KineticsSurfaceSkateTest {
     assertThat(config.slidePercentBase).isCloseTo(0.8D, offset(1.0E-9D));
     assertThat(config.slidePercentFactor).isCloseTo(0.2D, offset(1.0E-9D));
     assertThat(config.sneakBrakePercent).isEqualTo(1D);
+    adaptation.unregister();
   }
 
   @Test
@@ -168,11 +170,12 @@ class KineticsSurfaceSkateTest {
   }
 
   @Test
-  void periodicReconciliationIsEnabled() throws ReflectiveOperationException {
+  void periodicReconciliationUsesTheSharedOwnerPulse() throws ReflectiveOperationException {
     KineticsSurfaceSkate adaptation = new KineticsSurfaceSkate();
-    Method handler = KineticsSurfaceSkate.class.getDeclaredMethod("onTick");
-    assertThat(handler.getDeclaringClass()).isEqualTo(KineticsSurfaceSkate.class);
+    assertThat(KineticsSurfaceSkate.class.getDeclaredField("ownerMaintenance").getType())
+        .isEqualTo(AdaptationOwnerPulse.Registration.class);
     assertThat(adaptation.getInterval()).isEqualTo(1000L);
+    adaptation.unregister();
   }
 
   @Test

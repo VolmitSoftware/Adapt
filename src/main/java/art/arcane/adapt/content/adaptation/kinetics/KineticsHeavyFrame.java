@@ -1,10 +1,10 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -32,12 +32,20 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
   private static final String SLOT_SLOW = "plant-slow";
 
   private final Map<UUID, Boolean> planted = playerState();
+  private final AdaptationOwnerPulse.Registration ownerMaintenance;
 
   public KineticsHeavyFrame() {
     super("kinetics-heavy-frame");
     registerConfiguration(Config.class);
     setIcon(Material.NETHERITE_CHESTPLATE);
     setInterval(RECONCILE_INTERVAL_MS);
+    ownerMaintenance = AdaptationOwnerPulse.register(
+        this,
+        this::getInterval,
+        () -> !planted.isEmpty(),
+        this::requiresOwnerMaintenance,
+        this::maintainOwner
+    );
   }
 
   @Override
@@ -48,30 +56,8 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
   }
 
   @Override
-  protected boolean usesLearnerBoundTicking() {
-    return true;
-  }
-
-  @Override
-  public boolean hasTickDemand() {
-    return requiresMaintenance(super.hasTickDemand(), !planted.isEmpty());
-  }
-
-  @Override
-  public void onTick() {
-    for (UUID playerId : planted.keySet()) {
-      if (!getServer().hasOnlineLearner(playerId, getName())) {
-        planted.remove(playerId);
-      }
-    }
-    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
-      Player player = adaptPlayer.getPlayer();
-      withPlayerThread(player, () -> reconcile(player));
-    }
-  }
-
-  @Override
   public void unregister() {
+    ownerMaintenance.unregister();
     planted.clear();
     super.unregister();
   }
@@ -120,6 +106,22 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
 
   static boolean requiresMaintenance(boolean learnerDemand, boolean plantedStance) {
     return learnerDemand || plantedStance;
+  }
+
+  private boolean requiresOwnerMaintenance(UUID playerId) {
+    return requiresMaintenance(
+        getServer().hasOnlineLearner(playerId, getName()),
+        planted.containsKey(playerId)
+    );
+  }
+
+  private void maintainOwner(Player player) {
+    UUID playerId = player.getUniqueId();
+    if (!getServer().hasOnlineLearner(playerId, getName())) {
+      planted.remove(playerId);
+      return;
+    }
+    reconcile(player);
   }
 
   private void reconcile(Player p) {

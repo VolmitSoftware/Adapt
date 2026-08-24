@@ -3,10 +3,10 @@ package art.arcane.adapt.api.attribute;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 
-final class StubAttribute implements Attribute {
+public final class StubAttribute implements Attribute {
   private final String id;
 
-  StubAttribute(String id) {
+  public StubAttribute(String id) {
     this.id = id;
   }
 

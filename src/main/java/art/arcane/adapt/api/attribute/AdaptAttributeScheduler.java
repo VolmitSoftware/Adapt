@@ -3,7 +3,7 @@ package art.arcane.adapt.api.attribute;
 import org.bukkit.entity.LivingEntity;
 
 public interface AdaptAttributeScheduler {
-  void runOnEntity(LivingEntity entity, Runnable action);
+  boolean runOnEntity(LivingEntity entity, Runnable action);
 
   void runOnEntityLater(LivingEntity entity, Runnable action, long delayTicks);
 }

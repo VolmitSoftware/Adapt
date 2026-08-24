@@ -1,8 +1,10 @@
 package art.arcane.adapt.api.world;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
+import art.arcane.adapt.api.xp.XP;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -119,5 +122,51 @@ class PlayerSkillLineTest extends AdaptTestBase {
         assertThat(span).isGreaterThan(0D);
         assertThat(remaining).isEqualTo(span);
         assertThat(line.getMaximumXPForLevel()).isGreaterThan(line.getMinimumXPForLevel());
+    }
+
+    @Test
+    @DisplayName("unchanged xp level lookups reuse the resolved curve value")
+    void unchangedXpLevelLookupsReuseResolvedValue() {
+        PlayerSkillLine line = new PlayerSkillLine();
+        line.setXp(64D);
+        AdaptConfig config = AdaptConfig.get();
+        int previousMaximum = config.experienceMaxLevel;
+
+        try (MockedStatic<XP> xp = mockStatic(XP.class)) {
+            xp.when(() -> XP.getLevelForXp(64D)).thenReturn(8D, 7D);
+            xp.when(() -> XP.getLevelForXp(81D)).thenReturn(9D);
+
+            assertThat(line.getAbsoluteLevel()).isEqualTo(8D);
+            assertThat(line.getAbsoluteLevel()).isEqualTo(8D);
+            xp.verify(() -> XP.getLevelForXp(64D), times(1));
+
+            line.setXp(81D);
+            assertThat(line.getAbsoluteLevel()).isEqualTo(9D);
+            xp.verify(() -> XP.getLevelForXp(81D), times(1));
+
+            line.setXp(64D);
+            config.experienceMaxLevel = previousMaximum - 1;
+            assertThat(line.getAbsoluteLevel()).isEqualTo(7D);
+            xp.verify(() -> XP.getLevelForXp(64D), times(2));
+        } finally {
+            config.experienceMaxLevel = previousMaximum;
+        }
+    }
+
+    @Test
+    void maximumIntegerSkillLevelDoesNotWrapItsNextLevel() {
+        AdaptConfig config = AdaptConfig.get();
+        int previousMaximum = config.experienceMaxLevel;
+        try {
+            config.experienceMaxLevel = Integer.MAX_VALUE;
+            PlayerSkillLine line = new PlayerSkillLine();
+            line.setXp(Double.POSITIVE_INFINITY);
+
+            assertThat(line.getMaximumXPForLevel()).isEqualTo(line.getMinimumXPForLevel());
+            assertThat(line.getXPForLevelUp()).isZero();
+            assertThat(line.getXPForLevelUpAbsolute()).isZero();
+        } finally {
+            config.experienceMaxLevel = previousMaximum;
+        }
     }
 }

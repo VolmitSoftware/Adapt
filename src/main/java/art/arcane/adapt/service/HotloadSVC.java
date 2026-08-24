@@ -68,27 +68,23 @@ public class HotloadSVC implements AdaptService {
   private TickedObject configTicker;
   private ExecutorService hotloadIo;
   private File adaptConfigFile;
-  private File adaptConfigLegacyFile;
   private File modelsFile;
-  private File modelsLegacyFile;
   private File mutationsConfigFile;
   private File skillsFolder;
   private File adaptationsFolder;
   private File localeOverrideFolder;
   @Override
   public void onEnable() {
-    adaptConfigFile = Adapt.instance.getDataFile("adapt", "adapt.toml");
-    adaptConfigLegacyFile = Adapt.instance.getDataFile("adapt", "adapt.json");
-    modelsFile = Adapt.instance.getDataFile("adapt", "models.toml");
-    modelsLegacyFile = Adapt.instance.getDataFile("adapt", "models.json");
-    mutationsConfigFile = Adapt.instance.getDataFile("adapt", "mutations.toml");
-    skillsFolder = Adapt.instance.getDataFolder("adapt", "skills");
-    adaptationsFolder = Adapt.instance.getDataFolder("adapt", "adaptations");
+    adaptConfigFile = Adapt.instance.getDataFile("adapt.toml");
+    modelsFile = Adapt.instance.getDataFile("models.toml");
+    mutationsConfigFile = Adapt.instance.getDataFile("mutations.toml");
+    skillsFolder = Adapt.instance.getDataFolder("skills");
+    adaptationsFolder = Adapt.instance.getDataFolder("adaptations");
     localeOverrideFolder = AdaptLanguage.overrideFolder();
     hotloadEngine.configure(
         WATCHER_POLL_MS,
         HOTLOAD_COOLDOWN_MS,
-        List.of(adaptConfigFile, adaptConfigLegacyFile, modelsFile, modelsLegacyFile, mutationsConfigFile),
+        List.of(adaptConfigFile, modelsFile, mutationsConfigFile),
         List.of(skillsFolder, adaptationsFolder, localeOverrideFolder)
     );
     hotloadGeneration.incrementAndGet();
@@ -124,7 +120,7 @@ public class HotloadSVC implements AdaptService {
         }
       } catch (InterruptedException interrupted) {
         Thread.currentThread().interrupt();
-        interrupted.printStackTrace();
+        Adapt.error(interrupted);
       }
     }
     hotloadPollInFlight.set(false);
@@ -159,7 +155,7 @@ public class HotloadSVC implements AdaptService {
       handedOff = true;
     } catch (Throwable failure) {
       Adapt.warn("Config hotload filesystem scan failed: " + failure.getMessage());
-      failure.printStackTrace();
+      Adapt.error(failure);
     } finally {
       if (!handedOff) {
         hotloadPollInFlight.set(false);
@@ -202,13 +198,6 @@ public class HotloadSVC implements AdaptService {
 
   private boolean processConfigChange(ConfigHotloadEngine.StableContentSnapshot snapshot) {
     File file = snapshot.file();
-    if (isShadowedLegacyJson(file)) {
-      hotloadEngine.processSnapshotChange(snapshot, ignored -> true, null);
-      if (!isModelsConfigFile(file)) {
-        Adapt.verbose("Ignoring legacy json hotload because canonical toml exists: " + file.getPath());
-      }
-      return false;
-    }
     if ("missing".equals(snapshot.signature())) {
       hotloadEngine.processSnapshotChange(snapshot, ignored -> true, null);
       Adapt.warn("Config was removed; retaining the last valid runtime state without recreating " + file.getPath() + ".");
@@ -228,10 +217,6 @@ public class HotloadSVC implements AdaptService {
     File file = snapshot.file();
     String raw = snapshot.normalizedContent();
     try {
-      if (isShadowedLegacyJson(file)) {
-        return true;
-      }
-
       if (isAdaptConfigFile(file)) {
         boolean ok = AdaptConfig.reloadSnapshot(raw, file);
         if (ok) {
@@ -270,7 +255,7 @@ public class HotloadSVC implements AdaptService {
       return validateConfig(raw, file);
     } catch (Throwable e) {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config: " + e.getMessage());
-      e.printStackTrace();
+      Adapt.error(e);
       return false;
     }
   }
@@ -390,7 +375,7 @@ public class HotloadSVC implements AdaptService {
 
       return true;
     } catch (Throwable e) {
-      e.printStackTrace();
+      Adapt.error(e);
       return false;
     }
   }
@@ -416,11 +401,11 @@ public class HotloadSVC implements AdaptService {
   }
 
   private boolean isAdaptConfigFile(File file) {
-    return sameFile(file, adaptConfigFile) || sameFile(file, adaptConfigLegacyFile);
+    return sameFile(file, adaptConfigFile);
   }
 
   private boolean isModelsConfigFile(File file) {
-    return sameFile(file, modelsFile) || sameFile(file, modelsLegacyFile);
+    return sameFile(file, modelsFile);
   }
 
   private boolean isMutationsConfigFile(File file) {
@@ -428,11 +413,11 @@ public class HotloadSVC implements AdaptService {
   }
 
   private boolean isSkillConfigFile(File file) {
-    return isDirectChild(skillsFolder, file) && ConfigFileSupport.isSupportedConfigFile(file);
+    return isDirectChild(skillsFolder, file) && ConfigFileSupport.isTomlFile(file);
   }
 
   private boolean isAdaptationConfigFile(File file) {
-    return isDirectChild(adaptationsFolder, file) && ConfigFileSupport.isSupportedConfigFile(file);
+    return isDirectChild(adaptationsFolder, file) && ConfigFileSupport.isTomlFile(file);
   }
 
   private boolean isLocaleOverrideFile(File file) {
@@ -480,24 +465,6 @@ public class HotloadSVC implements AdaptService {
     return a != null && b != null && a.getAbsoluteFile().equals(b.getAbsoluteFile());
   }
 
-  private boolean isShadowedLegacyJson(File file) {
-    if (file == null || !file.getName().toLowerCase(Locale.ROOT).endsWith(".json")) {
-      return false;
-    }
-
-    if (sameFile(file, adaptConfigLegacyFile) && adaptConfigFile != null && adaptConfigFile.exists()) {
-      return true;
-    }
-    if (sameFile(file, modelsLegacyFile) && modelsFile != null && modelsFile.exists()) {
-      return true;
-    }
-    if ((isSkillConfigFile(file) || isAdaptationConfigFile(file)) && ConfigFileSupport.toTomlFile(file).exists()) {
-      return true;
-    }
-
-    return false;
-  }
-
   private String toConfigName(String fileName) {
     return ConfigFileSupport.configNameFromFileName(fileName);
   }
@@ -507,9 +474,7 @@ public class HotloadSVC implements AdaptService {
     Map<String, File> added = new HashMap<>();
 
     addIfManaged(files, added, adaptConfigFile);
-    addIfManaged(files, added, adaptConfigLegacyFile);
     addIfManaged(files, added, modelsFile);
-    addIfManaged(files, added, modelsLegacyFile);
     addIfManaged(files, added, mutationsConfigFile);
 
     addDirectChildren(skillsFolder, files, added);

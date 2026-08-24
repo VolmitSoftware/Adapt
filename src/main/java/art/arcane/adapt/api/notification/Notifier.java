@@ -66,7 +66,6 @@ public class Notifier extends TickedObject {
 
   public void notifyXP(String line, double value) {
     try {
-      activate();
       if (!lastSkills.containsKey(line)) {
         lastSkillValues.put(line, 0d);
       }
@@ -82,8 +81,10 @@ public class Notifier extends TickedObject {
         lastSkills.remove(s);
         lastSkillValues.remove(s);
       }
+      activate();
     } catch (Throwable e) {
-      Adapt.verbose("Failed to notify xp: " + e.getMessage());
+      Adapt.verbose(() -> "Skipped XP notification: "
+          + (e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
     }
   }
 
@@ -161,7 +162,6 @@ public class Notifier extends TickedObject {
     }
 
     delayTicks += (n.getTotalDuration() / 50D) + 1;
-    Adapt.verbose("Playing Notification " + n + " --> " + System.identityHashCode(this));
     n.play(target);
   }
 
@@ -180,6 +180,7 @@ public class Notifier extends TickedObject {
 
   private void activate() {
     setInterval(ACTIVE_INTERVAL_MS);
+    activateRuntime();
     if (!isBursting()) {
       retick();
     }

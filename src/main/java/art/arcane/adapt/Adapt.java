@@ -67,7 +67,6 @@ import art.arcane.adapt.util.common.plugin.VolmitSender;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.common.world.WorldBlockScanScheduler;
 import art.arcane.adapt.util.config.ConfigFileSupport;
-import art.arcane.adapt.util.config.ConfigMigrationManager;
 import art.arcane.adapt.util.project.redis.RedisSync;
 import art.arcane.adapt.util.secret.SecretSplash;
 import art.arcane.volmlib.integration.ReloadAware;
@@ -96,33 +95,47 @@ import org.bukkit.plugin.PluginManager;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
-import java.net.URL;
+import java.net.URI;
+import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.function.Supplier;
 
 import static art.arcane.adapt.util.director.context.AdaptationListingHandler.initializeAdaptationListings;
 
 public class Adapt extends VolmitPlugin implements ReloadAware {
   private static final long STARTUP_SLOW_PHASE_MS = 1500L;
-  private final AtomicBoolean alreadyDrained = new AtomicBoolean(false);
+  private static final int UPDATE_CONNECT_TIMEOUT_MS = 3_000;
+  private static final int UPDATE_READ_TIMEOUT_MS = 3_000;
+  private static final long SHUTDOWN_CLEANUP_TIMEOUT_MS = 5_000L;
+  private static final int BSTATS_PLUGIN_ID = 24221;
   private static final boolean SLIMJAR_DEBUG = Boolean.getBoolean("adapt.debug-slimjar");
+  private static final Logger FALLBACK_LOGGER = Logger.getLogger("Adapt");
   private static final Object GLOWING_ENTITIES_LOCK = new Object();
+  private static final List<String> UPDATE_SOURCES = List.of(
+      "https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle.kts",
+      "https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle"
+  );
+  private static final Pattern REMOTE_VERSION_PATTERN = Pattern.compile("^version\\s*=?\\s*['\"]([^'\"]+)['\"]");
+  private static final Pattern VERSION_PREFIX_PATTERN = Pattern.compile("^(\\d+)\\.(\\d+)(?:\\.(\\d+))?");
   public static Adapt instance;
   public static Platform platform;
   public static AudienceProvider audiences;
   private static VolmitSender sender;
+  private final AtomicBoolean alreadyDrained = new AtomicBoolean(false);
   public final EffectManager adaptEffectManager;
   private final KList<Runnable> postShutdown = new KList<>();
   private KMap<Class<? extends AdaptService>, AdaptService> services;
@@ -158,12 +171,12 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   public Adapt() {
     instance = this;
     long libraryLoadStart = System.currentTimeMillis();
-    getLogger().info("Loading Libraries...");
+    info("Loading libraries...");
     new SpigotApplicationBuilder(this)
         .debug(SLIMJAR_DEBUG)
         .build();
     long libraryLoadElapsed = System.currentTimeMillis() - libraryLoadStart;
-    getLogger().info("Libraries Loaded! (" + libraryLoadElapsed + "ms)");
+    info("Libraries loaded (" + libraryLoadElapsed + "ms).");
     adaptEffectManager = new EffectManager(this);
   }
 
@@ -188,7 +201,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       return action.get();
     }
 
-    info("Startup phase: " + phase);
+    verbose(() -> "Startup phase: " + phase);
     long start = System.currentTimeMillis();
     try {
       return action.get();
@@ -247,14 +260,14 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   public static void autoUpdateCheck() {
     String localVersion = instance.getDescription().getVersion();
     if (localVersion.contains("development")) {
-      info("Development build detected. Skipping update check.");
+      verbose("Development build detected. Skipping update check.");
       return;
     }
 
-    info("Checking for updates...");
+    verbose("Checking for updates...");
     String remoteVersion = fetchRemoteVersion();
     if (remoteVersion == null) {
-      error("Failed to check for updates.");
+      warn("Failed to check for updates.");
       return;
     }
 
@@ -264,27 +277,28 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     } else if (comparison > 0) {
       info("Running a build ahead of the published release. (Current: " + localVersion + " Published: " + remoteVersion + ")");
     } else {
-      info("You are running the latest version of Adapt!");
+      verbose("Adapt is running the latest published version.");
     }
   }
 
   private static String fetchRemoteVersion() {
-    String[] sources = {
-        "https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle.kts",
-        "https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle"
-    };
-    Pattern versionPattern = Pattern.compile("^version\\s*=?\\s*['\"]([^'\"]+)['\"]");
-
-    for (String source : sources) {
-      try (BufferedReader in = new BufferedReader(new InputStreamReader(new URL(source).openStream()))) {
-        String line;
-        while ((line = in.readLine()) != null) {
-          Matcher matcher = versionPattern.matcher(line.trim());
-          if (matcher.find()) {
-            return matcher.group(1);
+    for (String source : UPDATE_SOURCES) {
+      try {
+        URLConnection connection = URI.create(source).toURL().openConnection();
+        connection.setConnectTimeout(UPDATE_CONNECT_TIMEOUT_MS);
+        connection.setReadTimeout(UPDATE_READ_TIMEOUT_MS);
+        try (BufferedReader in = new BufferedReader(
+            new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+          String line;
+          while ((line = in.readLine()) != null) {
+            Matcher matcher = REMOTE_VERSION_PATTERN.matcher(line.trim());
+            if (matcher.find()) {
+              return matcher.group(1);
+            }
           }
         }
-      } catch (Throwable ignored) {
+      } catch (IOException | IllegalArgumentException error) {
+        verbose("Update source unavailable (" + source + "): " + error.getMessage());
       }
     }
 
@@ -305,7 +319,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
 
   private static int[] parseVersionPrefix(String version) {
     int[] parts = new int[3];
-    Matcher matcher = Pattern.compile("^(\\d+)\\.(\\d+)(?:\\.(\\d+))?").matcher(version);
+    Matcher matcher = VERSION_PREFIX_PATTERN.matcher(version);
     if (matcher.find()) {
       parts[0] = Integer.parseInt(matcher.group(1));
       parts[1] = Integer.parseInt(matcher.group(2));
@@ -320,31 +334,54 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   public static void debug(String string) {
+    debug(() -> string);
+  }
+
+  public static void debug(Supplier<String> messageSupplier) {
     if (AdaptConfig.get().isDebug()) {
-      msg(C.DARK_PURPLE + string);
+      log(Level.INFO, C.DARK_PURPLE + messageSupplier.get(), null);
     }
   }
 
   public static void warn(String string) {
-    msg(C.YELLOW + string);
+    log(Level.WARNING, C.YELLOW + string, null);
+  }
+
+  public static void warn(String string, Throwable throwable) {
+    log(Level.WARNING, C.YELLOW + string, throwable);
   }
 
   public static void error(String string) {
-    msg(C.RED + string);
+    log(Level.SEVERE, C.RED + string, null);
+  }
+
+  public static void error(String string, Throwable throwable) {
+    log(Level.SEVERE, C.RED + string, throwable);
+  }
+
+  public static void error(Throwable throwable) {
+    String message = throwable == null || throwable.getMessage() == null || throwable.getMessage().isBlank()
+        ? "Unhandled Adapt failure"
+        : throwable.getMessage();
+    error(message, throwable);
   }
 
   public static void verbose(String string) {
+    verbose(() -> string);
+  }
+
+  public static void verbose(Supplier<String> messageSupplier) {
     if (AdaptConfig.get().isVerbose()) {
-      msg(C.LIGHT_PURPLE + string);
+      log(Level.INFO, C.LIGHT_PURPLE + messageSupplier.get(), null);
     }
   }
 
   public static void success(String string) {
-    msg(C.GREEN + string);
+    log(Level.INFO, C.GREEN + string, null);
   }
 
   public static void info(String string) {
-    msg(C.WHITE + string);
+    log(Level.INFO, C.WHITE + string, null);
   }
 
   public static void messagePlayer(Player p, String string) {
@@ -353,16 +390,21 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   public static void msg(String string) {
-    try {
-      if (instance == null) {
-        System.out.println("[Adapt]: " + string);
-        return;
-      }
+    log(Level.INFO, string, null);
+  }
 
-      String msg = C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + string;
-      Bukkit.getConsoleSender().sendMessage(msg);
-    } catch (Throwable e) {
-      System.out.println("[Adapt]: " + string);
+  private static void log(Level level, String message, Throwable throwable) {
+    Adapt active = instance;
+    Logger pluginLogger = active == null ? null : active.getLogger();
+    Logger logger = pluginLogger == null ? FALLBACK_LOGGER : pluginLogger;
+    String safeMessage = message == null ? "" : message;
+    if (pluginLogger == null) {
+      safeMessage = "[Adapt] " + safeMessage;
+    }
+    if (throwable == null) {
+      logger.log(level, safeMessage);
+    } else {
+      logger.log(level, safeMessage, throwable);
     }
   }
 
@@ -376,13 +418,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
 
   @Override
   public void start() {
-    runStartupPhaseVoid("backup-legacy-configs", ConfigMigrationManager::backupLegacyJsonConfigsOnce);
-    runStartupPhaseVoid("remove-retired-adaptation-configs", () -> {
-      int deletedConfigs = ConfigMigrationManager.deleteRetiredAdaptationConfigs();
-      if (deletedConfigs > 0) {
-        Adapt.info("Deleted " + deletedConfigs + " retired adaptation config files.");
-      }
-    });
+    alreadyDrained.set(false);
     platform = PlatformUtils.createPlatform(this);
     audiences = platform.getAudienceProvider();
     AdaptHud.start(this);
@@ -403,7 +439,10 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     sqlManager = new SQLManager();
     if (AdaptConfig.get().getSql().isEnabled()) {
       runStartupPhase("sql-connect", () -> {
-        sqlManager.establishConnection();
+        if (!sqlManager.establishConnection()) {
+          throw new IllegalStateException(
+              "SQL persistence is enabled, but its transactional storage gate failed");
+        }
         return null;
       });
     }
@@ -414,10 +453,6 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       startSim();
       return null;
     });
-    runStartupPhase("config-canonicalization", () -> {
-      migrateAllSkillAndAdaptationConfigs();
-      return null;
-    });
     CustomBlockData.registerListener(this);
     registerListener(new BrewingManager());
     registerListener(new XpProvenanceListener());
@@ -426,7 +461,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     setupMetrics();
     startupPrint(); // Splash screen
     if (AdaptConfig.get().isAutoUpdateCheck()) {
-      autoUpdateCheck();
+      J.a(Adapt::autoUpdateCheck);
     }
     AbilityApiBridge.install(this);
     protectorRegistry = new ProtectorRegistry();
@@ -506,43 +541,13 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     }
   }
 
-  private void migrateAllSkillAndAdaptationConfigs() {
-    if (adaptServer == null || adaptServer.getSkillRegistry() == null) {
-      return;
-    }
-
-    if (!ConfigMigrationManager.hasLegacySkillOrAdaptationJsonFiles()) {
-      int deletedLegacyJson = ConfigMigrationManager.deleteMigratedLegacyJsonFiles();
-      Adapt.info("Skipped skill/adaptation canonicalization (legacy json not found). deletedLegacyJson=" + deletedLegacyJson + ".");
-      return;
-    }
-
-    int migratedSkills = 0;
-    int migratedAdaptations = 0;
-    SkillRegistry registry = adaptServer.getSkillRegistry();
-    for (Skill<?> skill : registry.getAllSkills()) {
-      int adaptationConfigs = 0;
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        if (adaptation instanceof SimpleAdaptation<?>) {
-          adaptationConfigs++;
-        }
-      }
-      if (registry.hotReloadSkillConfig(skill.getName())) {
-        if (skill instanceof SimpleSkill<?>) {
-          migratedSkills++;
-        }
-        migratedAdaptations += adaptationConfigs;
-      }
-    }
-    int deletedLegacyJson = ConfigMigrationManager.deleteMigratedLegacyJsonFiles();
-    Adapt.info("Canonicalized skill/adaptation configs to TOML (skills=" + migratedSkills + ", adaptations=" + migratedAdaptations + ", deletedLegacyJson=" + deletedLegacyJson + ").");
-  }
-
   public void startSim() {
+    PlayerStateRegistry.start();
     long startTicker = System.currentTimeMillis();
     ticker = new Ticker();
     fxDirector = new FxDirector();
     fxDirector.activateRuntime();
+    ViewerDisplayDirector.startRuntime();
     ViewerDisplayDirector.purgeOrphans();
     verbose("start-sim detail: ticker init in " + (System.currentTimeMillis() - startTicker) + "ms");
 
@@ -577,75 +582,109 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   public void stopSim() {
-    WorldBlockScanScheduler.reset();
-    ViewerDisplayDirector.clearAll();
+    runShutdownPhase("world block scan scheduler", WorldBlockScanScheduler::reset);
     if (ticker != null) {
-      ticker.shutdown();
+      runShutdownPhase("ticker", ticker::shutdown);
     }
-    MinionBurden.shutdown();
-    postShutdown.forEach(Runnable::run);
+    runShutdownPhase("attribute change gate", AdaptAttributeService::beginShutdown);
+    runShutdownPhase("minion registration gate", MinionBurden::beginShutdown);
+    for (Runnable task : List.copyOf(postShutdown)) {
+      runShutdownPhase("post-shutdown task", task::run);
+    }
+    postShutdown.clear();
     if (adaptServer != null) {
-      adaptServer.unregister();
+      runShutdownPhase("Adapt server", () -> adaptServer.unregister());
     }
-    ProjectileReplacementRegistry.clear();
-    PlayerStateRegistry.reset();
-    AdaptAttributeService.shutdown();
+    runShutdownPhase("projectile replacements", ProjectileReplacementRegistry::clear);
+    runShutdownPhase("player state registry", PlayerStateRegistry::reset);
     if (manager != null) {
-      manager.disable();
+      runShutdownPhase("advancement manager", manager::disable);
     }
-    MaterialValue.save();
-    WorldData.stop();
-    CustomModel.clear();
+    runShutdownPhase("viewer displays", () -> {
+      if (!ViewerDisplayDirector.clearAllAndAwait(SHUTDOWN_CLEANUP_TIMEOUT_MS)) {
+        warn("Private display cleanup was incomplete at shutdown.");
+      }
+    });
+    runShutdownPhase("minion burden", () -> {
+      if (!MinionBurden.shutdown(SHUTDOWN_CLEANUP_TIMEOUT_MS)) {
+        warn("Minion-burden cleanup was incomplete at shutdown.");
+      }
+    });
+    runShutdownPhase("attribute service", () -> {
+      if (!AdaptAttributeService.shutdown(SHUTDOWN_CLEANUP_TIMEOUT_MS)) {
+        warn("Adapt attribute cleanup was incomplete at shutdown.");
+      }
+    });
+    runShutdownPhase("material values", MaterialValue::save);
+    runShutdownPhase("world data", WorldData::stop);
+    runShutdownPhase("custom models", CustomModel::clear);
   }
 
   @Override
   public void stop() {
-    unregisterPapiExpansion();
+    runShutdownPhase("PlaceholderAPI", this::unregisterPapiExpansion);
     if (!alreadyDrained.compareAndSet(false, true)) {
       return;
     }
+    runShutdownPhase("Ability API", AbilityApiBridge::uninstall);
     if (services != null) {
-      services.values().forEach(AdaptService::onDisable);
+      for (AdaptService service : List.copyOf(services.values())) {
+        runShutdownPhase("service " + service.getClass().getSimpleName(), service::onDisable);
+      }
     }
     if (metrics != null) {
-      metrics.shutdown();
+      runShutdownPhase("metrics", metrics::shutdown);
       metrics = null;
     }
-    stopSim();
-    AdaptHud.stop();
+    runShutdownPhase("simulation", this::stopSim);
+    runShutdownPhase("HUD", AdaptHud::stop);
     if (playerDataPersistenceQueue != null) {
-      playerDataPersistenceQueue.flushAndShutdown(30_000L);
+      PlayerDataPersistenceQueue queue = playerDataPersistenceQueue;
       playerDataPersistenceQueue = null;
+      runShutdownPhase("player data persistence", () -> queue.flushAndShutdown(30_000L));
     }
     if (redisSync != null) {
-      try {
-        redisSync.close();
-      } catch (Exception e) {
-        Adapt.verbose("Failed to close redis sync: " + e.getMessage());
-      } finally {
-        redisSync = null;
-      }
+      RedisSync activeRedisSync = redisSync;
+      redisSync = null;
+      runShutdownPhase("Redis", activeRedisSync::close);
     }
     if (sqlManager != null) {
-      sqlManager.closeConnection();
+      SQLManager activeSqlManager = sqlManager;
+      sqlManager = null;
+      runShutdownPhase("SQL", activeSqlManager::closeConnection);
     }
     if (viewerGlowCoordinator != null) {
-      if (!viewerGlowCoordinator.clearAndAwait(2_000L)) {
-        warn("Private viewer glow cleanup did not complete before shutdown.");
-      }
+      ViewerGlowCoordinator activeCoordinator = viewerGlowCoordinator;
       viewerGlowCoordinator = null;
+      runShutdownPhase("viewer glow coordinator", () -> {
+        if (!activeCoordinator.clearAndAwait(2_000L)) {
+          warn("Private viewer glow cleanup did not complete before shutdown.");
+        }
+      });
     }
     if (glowingEntities != null) {
-      glowingEntities.disable();
+      GlowingEntities activeGlowingEntities = glowingEntities;
+      glowingEntities = null;
+      runShutdownPhase("glowing entities", activeGlowingEntities::disable);
     }
-    AbilityApiBridge.uninstall();
     vaultEconomy = null;
-    RegionPolicyService.clear();
+    runShutdownPhase("region policy", RegionPolicyService::clear);
     if (protectorRegistry != null) {
-      protectorRegistry.unregisterAll();
+      ProtectorRegistry activeRegistry = protectorRegistry;
+      protectorRegistry = null;
+      runShutdownPhase("protectors", activeRegistry::unregisterAll);
     }
     if (services != null) {
       services.clear();
+    }
+  }
+
+  private void runShutdownPhase(String phase, ShutdownAction action) {
+    try {
+      action.run();
+    } catch (Throwable error) {
+      warn("Shutdown phase failed (" + phase + "): " + error.getMessage());
+      Adapt.error(error);
     }
   }
 
@@ -719,9 +758,6 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     return C.BOLD + "" + C.DARK_GRAY + "[" + C.BOLD + "" + C.DARK_RED + "Adapt" + C.BOLD + C.DARK_GRAY + "]" + C.RESET + "" + C.GRAY + ": ";
   }
 
-  // bstats.org plugin id
-  private static final int BSTATS_PLUGIN_ID = 24221;
-
   private void setupMetrics() {
     if (BSTATS_PLUGIN_ID <= 0 || !AdaptConfig.get().isMetrics()) {
       return;
@@ -730,4 +766,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     metrics = AdaptMetrics.start(this, BSTATS_PLUGIN_ID);
   }
 
+  @FunctionalInterface
+  private interface ShutdownAction {
+    void run() throws Exception;
+  }
 }

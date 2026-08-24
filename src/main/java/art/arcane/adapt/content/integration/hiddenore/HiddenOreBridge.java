@@ -23,6 +23,8 @@ import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeDropToInventory;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
@@ -140,7 +142,11 @@ public final class HiddenOreBridge implements Listener {
     if (!smelted) {
       return;
     }
-    Adapt.instance.getAdaptServer().getPlayer(p).getData().addStat("pickaxe.autosmelt.ores-smelted", 1);
+    AdaptServer adaptServer = Adapt.instance.getAdaptServer();
+    AdaptPlayer adaptPlayer = adaptServer.getOnlineAdaptPlayer(p.getUniqueId());
+    if (adaptPlayer != null && adaptPlayer.isRuntimeReady() && adaptPlayer.getPlayer() == p) {
+      adaptServer.addStat(p.getUniqueId(), "pickaxe.autosmelt.ores-smelted", 1);
+    }
     Location at = e.getBlock().getLocation();
     if (soundsEnabled()) {
       SoundPlayer.of(e.getBlock().getWorld()).play(at, Sound.BLOCK_LAVA_POP, 1, 1);

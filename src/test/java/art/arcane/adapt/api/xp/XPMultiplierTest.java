@@ -41,4 +41,18 @@ class XPMultiplierTest {
         assertThat(a).isEqualTo(b);
         assertThat(a.hashCode()).isEqualTo(b.hashCode());
     }
+
+    @Test
+    void durationArithmeticSaturatesInsteadOfWrapping() {
+        assertThat(XPMultiplier.expirationTime(Long.MAX_VALUE - 5L, 10L)).isEqualTo(Long.MAX_VALUE);
+        assertThat(XPMultiplier.expirationTime(Long.MIN_VALUE + 5L, -10L)).isEqualTo(Long.MIN_VALUE);
+        assertThat(XPMultiplier.expirationTime(100L, 20L)).isEqualTo(120L);
+    }
+
+    @Test
+    void nonFiniteMultipliersAreNeverActive() {
+        XPMultiplier multiplier = new XPMultiplier(Double.NaN, 60000L);
+
+        assertThat(multiplier.isActive()).isFalse();
+    }
 }

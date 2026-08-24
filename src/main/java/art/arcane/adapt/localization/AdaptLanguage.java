@@ -69,7 +69,7 @@ public final class AdaptLanguage {
     try {
       normalizedLocale = normalizeLocale(configuredLocale);
     } catch (Throwable error) {
-      error.printStackTrace();
+      Adapt.error(error);
       return false;
     }
     File activeOverride = new File(overrideFolder(), normalizedLocale + ".toml");
@@ -86,7 +86,7 @@ public final class AdaptLanguage {
         Files.createDirectories(overrideFolder().toPath());
       } catch (IOException failure) {
         Adapt.warn("Failed to create language override folder " + overrideFolder() + ": " + failure.getMessage());
-        failure.printStackTrace();
+        Adapt.error(failure);
       }
     }
     String configuredLocale = AdaptConfig.get().getLanguage();
@@ -350,7 +350,7 @@ public final class AdaptLanguage {
       Adapt.error((issues.size() - MAX_REPORTED_ISSUES) + " additional locale errors were omitted.");
     }
     if (result.failure() != null) {
-      result.failure().printStackTrace();
+      Adapt.error("Locale reload failed for " + locale, result.failure());
     }
   }
 

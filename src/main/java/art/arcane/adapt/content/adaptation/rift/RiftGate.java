@@ -184,16 +184,13 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
       return;
     }
 
-    Adapt.verbose(" - Player Main hand: " + hand.getType());
     Action action = e.getAction();
     if (action == Action.LEFT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR) {
       if (p.isSneaking()) {
         e.setCancelled(true);
         if (action == Action.LEFT_CLICK_AIR && isBound(hand)) {
-          Adapt.verbose("Unlinking eye");
           unlinkEye(p);
         } else {
-          Adapt.verbose("Linking eye");
           linkEye(p, location);
         }
       } else if (getConfig().requireCraftedEye) {
@@ -292,7 +289,6 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
 
 
   private void openEye(Player p) {
-    Adapt.verbose("Using eye");
     Location destination = BoundEyeOfEnder.getLocation(p.getInventory().getItemInMainHand());
     if (destination == null || destination.getWorld() == null) {
       return;
@@ -382,7 +378,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     try {
       teleport = PaperCompat.teleportAsync(p, channel.destination().clone(), PlayerTeleportEvent.TeleportCause.PLUGIN);
     } catch (RuntimeException error) {
-      error.printStackTrace();
+      Adapt.error(error);
       Adapt.error("Rift Gate could not start a teleport for " + channel.playerId() + ".");
       abortGateChannel(p, channel, AbilityRefundReason.ACTIVATION_FAILED, true);
       return;
@@ -433,7 +429,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
       } catch (RuntimeException error) {
         deliverExactItem(p, reserved);
         p.getPersistentDataContainer().remove(reservationKey);
-        error.printStackTrace();
+        Adapt.error(error);
         return false;
       }
     });
@@ -451,7 +447,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
   private void completeGateTeleport(Player p, GateChannel channel, Location origin,
                                     Boolean success, Throwable failure) {
     if (failure != null) {
-      failure.printStackTrace();
+      Adapt.error(failure);
       Adapt.error("Rift Gate teleport failed for " + channel.playerId() + ".");
     }
     if (!J.runEntity(p, () -> finishGateTeleportOwned(p, channel, origin, success, failure))) {
@@ -549,7 +545,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
       p.getPersistentDataContainer().remove(reservationKey);
     } catch (RuntimeException error) {
       Adapt.error("Rift Gate could not return a reserved gate eye to " + p.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 
@@ -609,7 +605,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
       p.getPersistentDataContainer().remove(reservationKey);
     } catch (RuntimeException error) {
       Adapt.error("Rift Gate could not recover a reserved gate eye for " + p.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
     }
   }
 

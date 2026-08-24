@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.util.project.command;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
@@ -179,7 +180,7 @@ public abstract class MortarCommand implements ICommand {
                  InstantiationException |
                  InvocationTargetException | NoSuchMethodException |
                  SecurityException e) {
-          e.printStackTrace();
+          Adapt.error(e);
         }
       }
     }

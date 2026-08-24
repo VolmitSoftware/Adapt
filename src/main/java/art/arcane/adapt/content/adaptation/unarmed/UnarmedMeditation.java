@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.unarmed;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,7 +28,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -50,7 +50,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -61,6 +60,7 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
   private static final NamespacedKey ABSORPTION_MODIFIER_KEY = NamespacedKey.fromString("adapt:unarmed-meditation");
 
   private final Cooldowns combatCooldown = cooldowns();
+  private final AdaptationOwnerPulse.Registration ownerMaintenance;
   private final Map<UUID, Location> lastPositions = playerState();
   private final Map<UUID, Boolean> medState = playerState();
   private final Set<UUID> activeSessions = ConcurrentHashMap.newKeySet();
@@ -71,6 +71,13 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
     registerConfiguration(Config.class);
     setIcon(Material.AMETHYST_CLUSTER);
     setInterval(1000);
+    ownerMaintenance = AdaptationOwnerPulse.register(
+        this,
+        this::getInterval,
+        () -> !activeSessions.isEmpty() || !capacityPlayers.isEmpty(),
+        this::requiresOwnerMaintenance,
+        this::maintainPlayerOwned
+    );
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_meditate_500")
@@ -126,6 +133,7 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
 
   @Override
   public void unregister() {
+    ownerMaintenance.unregister();
     activeSessions.clear();
     lastPositions.clear();
     medState.clear();
@@ -136,43 +144,16 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
     super.unregister();
   }
 
-  @Override
-  public boolean hasTickDemand() {
-    return requiresMaintenance(super.hasTickDemand(), !activeSessions.isEmpty(), !capacityPlayers.isEmpty());
-  }
-
-  @Override
-  protected boolean usesLearnerBoundTicking() {
-    return true;
-  }
-
-  @Override
-  public void onTick() {
-    Set<UUID> maintenance = new HashSet<>(activeSessions);
-    maintenance.addAll(capacityPlayers);
-    for (AdaptPlayer adaptPlayer : learnedCandidates(System.currentTimeMillis())) {
-      Player player = adaptPlayer.getPlayer();
-      if (player == null) {
-        continue;
-      }
-      maintenance.remove(player.getUniqueId());
-      J.runEntity(player, () -> maintainPlayerOwned(player));
-    }
-    for (UUID playerId : maintenance) {
-      Player player = Bukkit.getPlayer(playerId);
-      if (player == null || !player.isOnline()) {
-        activeSessions.remove(playerId);
-        lastPositions.remove(playerId);
-        medState.remove(playerId);
-        capacityPlayers.remove(playerId);
-        continue;
-      }
-      J.runEntity(player, () -> maintainPlayerOwned(player));
-    }
-  }
-
   static boolean requiresMaintenance(boolean learnerDemand, boolean activeSession, boolean capacityApplied) {
     return learnerDemand || activeSession || capacityApplied;
+  }
+
+  private boolean requiresOwnerMaintenance(UUID playerId) {
+    return requiresMaintenance(
+        getServer().hasOnlineLearner(playerId, getName()),
+        activeSessions.contains(playerId),
+        capacityPlayers.contains(playerId)
+    );
   }
 
   private void maintainPlayerOwned(Player player) {

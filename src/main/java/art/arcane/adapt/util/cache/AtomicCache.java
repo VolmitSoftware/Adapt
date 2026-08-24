@@ -70,7 +70,7 @@ public class AtomicCache<T> {
       try {
         return t.get();
       } catch (Throwable e) {
-        e.printStackTrace();
+        Adapt.error(e);
         return null;
       }
     });
@@ -101,7 +101,7 @@ public class AtomicCache<T> {
       }
     } catch (Throwable e) {
       Adapt.error("Atomic cache failure!");
-      e.printStackTrace();
+      Adapt.error(e);
     }
 
     lock.unlock();

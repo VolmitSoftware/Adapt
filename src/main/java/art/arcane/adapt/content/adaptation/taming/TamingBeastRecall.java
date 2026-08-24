@@ -237,7 +237,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
       teleport = PaperCompat.teleportAsync(tameable, safe);
     } catch (RuntimeException error) {
       Adapt.error("Beast Recall could not start teleport for " + tameable.getUniqueId() + ".");
-      error.printStackTrace();
+      Adapt.error(error);
       clearPending(scan);
       return;
     }
@@ -253,7 +253,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
                                       Boolean success, Throwable failure) {
     if (failure != null) {
       Adapt.error("Beast Recall teleport failed for " + tameable.getUniqueId() + ".");
-      failure.printStackTrace();
+      Adapt.error(failure);
     }
     if (!successfulRecallTeleport(success, failure)) {
       clearPending(scan);
