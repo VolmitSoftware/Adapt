@@ -19,6 +19,7 @@
 package art.arcane.adapt.util.project.command;
 
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import lombok.Getter;
 import lombok.Setter;
 import net.kyori.adventure.text.Component;
@@ -174,28 +175,30 @@ public class MortarSender implements CommandSender {
   }
 
   public void hr() {
-    s.sendMessage("========================================================");
+    ComponentMessenger.sendLiteral(s, "========================================================");
   }
 
   @Override
   public void sendMessage(String message) {
-    s.sendMessage(C.translateAlternateColorCodes('&', getTag()) + message);
+    ComponentMessenger.sendSection(s, C.translateAlternateColorCodes('&', getTag()) + message);
   }
 
   @Override
   public void sendMessage(String[] messages) {
     for (String str : messages)
-      s.sendMessage(C.translateAlternateColorCodes('&', getTag() + str));
+      ComponentMessenger.sendSection(s, C.translateAlternateColorCodes('&', getTag() + str));
   }
 
   @Override
   public void sendMessage(@Nullable UUID sender, @NotNull String message) {
-    s.sendMessage(sender, message);
+    ComponentMessenger.sendSection(s, message);
   }
 
   @Override
   public void sendMessage(@Nullable UUID sender, @NotNull String... messages) {
-    s.sendMessage(sender, messages);
+    for (String message : messages) {
+      ComponentMessenger.sendSection(s, message);
+    }
   }
 
   @Override

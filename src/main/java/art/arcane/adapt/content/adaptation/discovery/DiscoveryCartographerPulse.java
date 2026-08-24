@@ -34,6 +34,7 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import org.bukkit.Location;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -127,7 +128,7 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
       fx(p.getLocation(), FxPriority.TRANSITION)
           .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
           .sound(Sound.BLOCK_NOTE_BLOCK_BASS, 0.5F, 0.5F);
-      p.sendMessage(C.GRAY + AdaptLanguage.text(
+      ComponentMessenger.sendSection(p, C.GRAY + AdaptLanguage.text(
           DiscoveryMessages.CARTOGRAPHER_PULSE_NOT_FOUND,
           trusted("range", Form.f(getSearchRange(level)))
       ));
@@ -135,7 +136,7 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
     }
 
     p.setCompassTarget(target);
-    p.sendMessage(C.AQUA + AdaptLanguage.text(
+    ComponentMessenger.sendSection(p, C.AQUA + AdaptLanguage.text(
         DiscoveryMessages.CARTOGRAPHER_PULSE_TARGET,
         trusted("x", C.WHITE + Form.f(target.getBlockX())),
         trusted("z", Form.f(target.getBlockZ()))

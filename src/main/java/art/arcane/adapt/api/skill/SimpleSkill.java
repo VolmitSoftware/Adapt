@@ -36,12 +36,12 @@ import art.arcane.adapt.api.world.AdaptStatTracker;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.SkillPresentation;
-import art.arcane.adapt.util.common.format.AdventureCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.plugin.ComponentText;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Location;
@@ -586,7 +586,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
       return legacy;
     }
 
-    String mini = AdventureCompat.toLegacySection(raw);
+    String mini = ComponentText.markup(raw).legacy();
     if (mini != null && mini.indexOf(C.COLOR_CHAR) >= 0) {
       return mini;
     }

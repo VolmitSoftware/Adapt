@@ -346,7 +346,7 @@ class AdaptLanguageTest extends AdaptTestBase {
   void trustedFormattingRendersWhileUntrustedFormattingCannotInjectColors() {
     MessageArgs arguments = MessageArgs.builder()
         .add(trusted("trusted", "&aTrusted"))
-        .add(untrusted("untrusted", "&cInjected§d"))
+        .add(untrusted("untrusted", "&cInjected§d<click:run_command:'/op'>[12ABef]"))
         .build();
 
     String rendered = AdaptLanguage.renderTemplate(
@@ -355,7 +355,7 @@ class AdaptLanguageTest extends AdaptTestBase {
         false
     );
 
-    assertThat(rendered).isEqualTo("safe=§aTrusted; unsafe=＆cInjected");
+    assertThat(rendered).isEqualTo("safe=§aTrusted; unsafe=＆cInjected＜click:run_command:'/op'＞［12ABef］");
   }
 
   @Test

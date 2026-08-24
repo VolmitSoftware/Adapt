@@ -38,6 +38,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.bukkit.WorldIdentity;
+import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -183,7 +184,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       case CANCEL_ONLY -> e.setCancelled(true);
       case NEED_CONTAINER -> {
         e.setCancelled(true);
-        p.sendMessage(C.GRAY + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_NEED_CONTAINER));
+        ComponentMessenger.sendSection(p, C.GRAY + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_NEED_CONTAINER));
         fx(p.getEyeLocation(), FxPriority.TRANSITION)
             .burst(Particles.SMOKE, 2, 0.15)
             .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.5f, 0.7f);
@@ -306,7 +307,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
         .ring(Particle.REVERSE_PORTAL, 0.7, 10, 0.0)
         .particle(Particles.END_ROD, 6, 0, 0.6, 0, 0.05, 0.02)
         .chord(Sound.BLOCK_BEACON_POWER_SELECT, 0.5f, 1.2f, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4f, 1.5f);
-    p.sendMessage(C.LIGHT_PURPLE + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_CAPTURED));
+    ComponentMessenger.sendSection(p, C.LIGHT_PURPLE + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_CAPTURED));
   }
 
   private void markCaptureFollowUp(Player p) {
@@ -498,7 +499,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
 
     addStat(p, "rift.conduit.links-formed", 1);
     xp(p, getConfig().xpOnLink, "rift:conduit:link");
-    p.sendMessage(C.LIGHT_PURPLE + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_LINKED));
+    ComponentMessenger.sendSection(p, C.LIGHT_PURPLE + AdaptLanguage.text(RiftMessages.CONDUIT_MSG_LINKED));
     J.runAt(operation.partner(), () -> fx(
         operation.partner().clone().add(0.5, 0.5, 0.5),
         FxPriority.TRANSITION
@@ -513,7 +514,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     if (!p.isOnline()) {
       return;
     }
-    p.sendMessage(C.RED + AdaptLanguage.text(messageKey));
+    ComponentMessenger.sendSection(p, C.RED + AdaptLanguage.text(messageKey));
     fx(p.getEyeLocation(), FxPriority.TRANSITION)
         .burst(Particles.SMOKE, 3, 0.2)
         .sound(Sound.BLOCK_NOTE_BLOCK_DIDGERIDOO, 0.6f, 0.6f);

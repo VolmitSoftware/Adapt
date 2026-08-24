@@ -30,6 +30,7 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.inventorygui.UIElement;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.volmlib.util.localization.TextKey;
+import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
@@ -58,7 +59,7 @@ public final class MutationGui {
       return;
     }
     if (!player.hasPermission("adapt.mutations") && !AdaptDebugMode.isActive(player)) {
-      player.sendMessage(C.RED + AdaptLanguage.text(
+      ComponentMessenger.sendSection(player, C.RED + AdaptLanguage.text(
           CommandRuntimeMessages.MISSING_PERMISSION,
           trusted("permission", "adapt.mutations")
       ));
@@ -68,11 +69,11 @@ public final class MutationGui {
     MutationManager manager = manager();
     AdaptPlayer adaptPlayer = adaptPlayer(player);
     if (manager == null || adaptPlayer == null) {
-      player.sendMessage(C.RED + AdaptLanguage.text(MutationMessages.MUTATIONS_UNAVAILABLE));
+      ComponentMessenger.sendSection(player, C.RED + AdaptLanguage.text(MutationMessages.MUTATIONS_UNAVAILABLE));
       return;
     }
     if (!manager.getConfig().isEnabled()) {
-      player.sendMessage(C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_DISABLED));
+      ComponentMessenger.sendSection(player, C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_DISABLED));
       return;
     }
 
@@ -237,7 +238,7 @@ public final class MutationGui {
       return;
     }
     if (!manager.getConfig().isEnabled()) {
-      player.sendMessage(C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_DISABLED));
+      ComponentMessenger.sendSection(player, C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_DISABLED));
       return;
     }
 
@@ -616,7 +617,7 @@ public final class MutationGui {
     }
     EquipmentControl current = currentEquipmentControl(player, type);
     if (current == null || current.action() != action) {
-      player.sendMessage(C.RED + AdaptLanguage.text(MutationMessages.GUI_EQUIPMENT_CHANGED));
+      ComponentMessenger.sendSection(player, C.RED + AdaptLanguage.text(MutationMessages.GUI_EQUIPMENT_CHANGED));
       openDetails(player, type, page);
       return;
     }
@@ -679,19 +680,19 @@ public final class MutationGui {
     }
     EquipmentControl current = currentEquipmentControl(player, type);
     if (current == null || current.action() != action) {
-      player.sendMessage(C.RED + AdaptLanguage.text(MutationMessages.GUI_OPTION_UNAVAILABLE));
+      ComponentMessenger.sendSection(player, C.RED + AdaptLanguage.text(MutationMessages.GUI_OPTION_UNAVAILABLE));
       openDetails(player, type, page);
       return;
     }
     if (expectedBondId != null && !expectedBondId.equals(equipmentBondId(player, type))) {
-      player.sendMessage(C.RED + AdaptLanguage.text(MutationMessages.GUI_EQUIPMENT_CHANGED_REVIEW));
+      ComponentMessenger.sendSection(player, C.RED + AdaptLanguage.text(MutationMessages.GUI_EQUIPMENT_CHANGED_REVIEW));
       openDetails(player, type, page);
       return;
     }
 
     MutationRuntimeSVC service = MutationRuntimeSVC.get();
     if (service == null) {
-      player.sendMessage(C.RED + AdaptLanguage.text(MutationMessages.GUI_CONTROLS_UNAVAILABLE));
+      ComponentMessenger.sendSection(player, C.RED + AdaptLanguage.text(MutationMessages.GUI_CONTROLS_UNAVAILABLE));
       openDetails(player, type, page);
       return;
     }
@@ -708,10 +709,10 @@ public final class MutationGui {
 
   private static void sendEquipmentResult(Player player, EquipmentAction action, boolean success) {
     if (success) {
-      player.sendMessage(C.GREEN + equipmentSuccessMessage(player, action));
+      ComponentMessenger.sendSection(player, C.GREEN + equipmentSuccessMessage(player, action));
       return;
     }
-    player.sendMessage(C.RED + equipmentFailureMessage(player, action));
+    ComponentMessenger.sendSection(player, C.RED + equipmentFailureMessage(player, action));
   }
 
   private static String equipmentSuccessMessage(Player player, EquipmentAction action) {
@@ -846,7 +847,7 @@ public final class MutationGui {
           trusted("duration", Form.duration(result.cooldownRemainingMillis(), 1))
       );
     }
-    player.sendMessage((result.success() ? C.GREEN : C.RED) + message);
+    ComponentMessenger.sendSection(player, (result.success() ? C.GREEN : C.RED) + message);
   }
 
   private static void applyNavigation(UIWindow window, Player player, int page, int pageCount) {

@@ -2,6 +2,7 @@ package art.arcane.adapt.util.command;
 
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.plugin.VolmitSender;
+import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import lombok.Builder;
 import lombok.Data;
 import lombok.Singular;
@@ -32,7 +33,7 @@ public class Feedback {
     LegacyComponentSerializer serializer = LegacyComponentSerializer.legacySection();
     String prefix = C.GRAY + "[" + C.ADAPT + "Adapt" + C.GRAY + "] ";
     for (TextComponent i : messages) {
-      serverOrPlayer.sendMessage(prefix + serializer.serialize(i));
+      ComponentMessenger.sendSection(serverOrPlayer, prefix + serializer.serialize(i));
     }
   }
 

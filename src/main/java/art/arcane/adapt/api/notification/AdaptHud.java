@@ -19,13 +19,13 @@
 package art.arcane.adapt.api.notification;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.util.common.format.AdventureCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.plugin.VolmitSender;
 import art.arcane.volmlib.util.hud.HudActionBar;
 import art.arcane.volmlib.util.hud.HudPriority;
 import art.arcane.volmlib.util.hud.HudSegment;
 import art.arcane.volmlib.util.hud.HudSlot;
+import art.arcane.volmlib.util.plugin.ComponentText;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -145,7 +145,7 @@ public final class AdaptHud {
   }
 
   private static String legacyText(String message) {
-    return AdventureCompat.toLegacySection(C.translateAlternateColorCodes('&', message == null ? "" : message));
+    return ComponentText.markup(message).legacy();
   }
 
   private static String ambientStatusPurpose(String purpose) {

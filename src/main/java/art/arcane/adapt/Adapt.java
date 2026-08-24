@@ -76,6 +76,8 @@ import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.volmlib.util.io.JarScanner;
+import art.arcane.volmlib.util.plugin.ComponentLog;
+import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import art.arcane.volmlib.util.plugin.SplashScreenSupport;
 import com.jeff_media.customblockdata.CustomBlockData;
 import de.crazydev22.platformutils.AudienceProvider;
@@ -386,7 +388,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
 
   public static void messagePlayer(Player p, String string) {
     String msg = C.GRAY + "[" + C.DARK_RED + "Adapt" + C.GRAY + "]: " + string;
-    p.sendMessage(msg);
+    ComponentMessenger.sendSection(p, msg);
   }
 
   public static void msg(String string) {
@@ -394,18 +396,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   private static void log(Level level, String message, Throwable throwable) {
-    Adapt active = instance;
-    Logger pluginLogger = active == null ? null : active.getLogger();
-    Logger logger = pluginLogger == null ? FALLBACK_LOGGER : pluginLogger;
-    String safeMessage = message == null ? "" : message;
-    if (pluginLogger == null) {
-      safeMessage = "[Adapt] " + safeMessage;
-    }
-    if (throwable == null) {
-      logger.log(level, safeMessage);
-    } else {
-      logger.log(level, safeMessage, throwable);
-    }
+    ComponentLog.logLegacy(instance, FALLBACK_LOGGER, "[Adapt] ", level, message, throwable);
   }
 
   @Override

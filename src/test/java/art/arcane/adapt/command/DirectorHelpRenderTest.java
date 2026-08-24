@@ -32,17 +32,12 @@ import art.arcane.volmlib.util.director.help.DirectorMiniMenu.DirectorHelpPage;
 import art.arcane.volmlib.util.director.runtime.DirectorExecutionMode;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.URI;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -50,6 +45,8 @@ import java.util.regex.Pattern;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DirectorHelpRenderTest extends AdaptTestBase {
+  private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+  private static final PlainTextComponentSerializer PLAIN = PlainTextComponentSerializer.plainText();
 
   private static final List<String> FORBIDDEN_PLAIN_TOKENS = List.of(
       "show_text", "hover:", "click:", "run_command", "suggest_command", "gradient", "font:"
@@ -60,77 +57,6 @@ public class DirectorHelpRenderTest extends AdaptTestBase {
   );
 
   private static final Pattern HOVER_ATTR = Pattern.compile("show_text:'((?:[^'\\\\]|\\\\.)*)'");
-
-  private static final List<String> ADVENTURE_MARKER_RESOURCES = List.of(
-      "net/kyori/adventure/util/Services.class",
-      "net/kyori/adventure/key/Key.class",
-      "net/kyori/adventure/nbt/BinaryTag.class",
-      "net/kyori/adventure/text/minimessage/MiniMessage.class",
-      "net/kyori/adventure/text/serializer/plain/PlainTextComponentSerializer.class",
-      "net/kyori/option/Option.class"
-  );
-
-  private static final class IsolatedAdventure implements AutoCloseable {
-    private final URLClassLoader loader;
-    private final Object miniMessage;
-    private final Method deserialize;
-    private final Object plainSerializer;
-    private final Method serializePlain;
-
-    private IsolatedAdventure() throws Exception {
-      this.loader = new URLClassLoader(resolveAdventureJars(), ClassLoader.getPlatformClassLoader());
-      Class<?> miniMessageClass = Class.forName("net.kyori.adventure.text.minimessage.MiniMessage", true, this.loader);
-      this.miniMessage = miniMessageClass.getMethod("miniMessage").invoke(null);
-      Class<?> componentClass = Class.forName("net.kyori.adventure.text.Component", true, this.loader);
-      Class<?> componentSerializerClass = Class.forName("net.kyori.adventure.text.serializer.ComponentSerializer", true, this.loader);
-      this.deserialize = componentSerializerClass.getMethod("deserialize", Object.class);
-      Class<?> plainClass = Class.forName("net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer", true, this.loader);
-      this.plainSerializer = plainClass.getMethod("plainText").invoke(null);
-      this.serializePlain = componentSerializerClass.getMethod("serialize", componentClass);
-    }
-
-    private static URL[] resolveAdventureJars() throws IOException {
-      ClassLoader testLoader = DirectorHelpRenderTest.class.getClassLoader();
-      LinkedHashSet<URL> jars = new LinkedHashSet<>();
-      for (String marker : ADVENTURE_MARKER_RESOURCES) {
-        Enumeration<URL> resources = testLoader.getResources(marker);
-        while (resources.hasMoreElements()) {
-          URL resource = resources.nextElement();
-          String text = resource.toString();
-          if (!text.startsWith("jar:") || !text.contains("/net.kyori/")) {
-            continue;
-          }
-          String jarLocation = text.substring("jar:".length(), text.indexOf("!/"));
-          jars.add(URI.create(jarLocation).toURL());
-        }
-      }
-      if (jars.isEmpty()) {
-        throw new IllegalStateException("No net.kyori adventure jars found on the test classpath");
-      }
-      return jars.toArray(new URL[0]);
-    }
-
-    private Object parse(String miniMessageInput) throws Throwable {
-      try {
-        return this.deserialize.invoke(this.miniMessage, miniMessageInput);
-      } catch (InvocationTargetException wrapped) {
-        throw wrapped.getCause();
-      }
-    }
-
-    private String plain(Object component) throws Throwable {
-      try {
-        return (String) this.serializePlain.invoke(this.plainSerializer, component);
-      } catch (InvocationTargetException wrapped) {
-        throw wrapped.getCause();
-      }
-    }
-
-    @Override
-    public void close() throws IOException {
-      this.loader.close();
-    }
-  }
 
   @Test
   public void adaptHelp_everyNodeLine_isCleanSingleLineMiniMessage() throws Exception {
@@ -158,29 +84,27 @@ public class DirectorHelpRenderTest extends AdaptTestBase {
     List<String> brokenReports = new ArrayList<>();
     int renderedLineCount = 0;
 
-    try (IsolatedAdventure adventure = new IsolatedAdventure()) {
-      for (DirectorRuntimeNode group : groups) {
-        if (group.getChildren().isEmpty()) {
-          continue;
-        }
-        DirectorHelpPage page = new DirectorHelpPage(group, List.copyOf(group.getChildren()), 0, 1);
-        List<String> lines = DirectorMiniMenu.render(
-            page,
-            DirectorMiniMenu.Theme.adaptRed(),
-            AdaptLanguage.directorResolver()
-        );
-        for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
-          String rawLine = lines.get(lineIndex);
-          String label = group.path() + " line " + lineIndex;
-          String failure = validateLine(adventure, rawLine);
-          renderedLineCount++;
-          if (failure == null) {
-            System.out.println("HELP-RENDER [OK]     " + label);
-          } else {
-            String report = label + " | failure: " + failure;
-            brokenReports.add(report);
-            System.out.println("HELP-RENDER [BROKEN] " + report);
-          }
+    for (DirectorRuntimeNode group : groups) {
+      if (group.getChildren().isEmpty()) {
+        continue;
+      }
+      DirectorHelpPage page = new DirectorHelpPage(group, List.copyOf(group.getChildren()), 0, 1);
+      List<String> lines = DirectorMiniMenu.render(
+          page,
+          DirectorMiniMenu.Theme.adaptRed(),
+          AdaptLanguage.directorResolver()
+      );
+      for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
+        String rawLine = lines.get(lineIndex);
+        String label = group.path() + " line " + lineIndex;
+        String failure = validateLine(rawLine);
+        renderedLineCount++;
+        if (failure == null) {
+          System.out.println("HELP-RENDER [OK]     " + label);
+        } else {
+          String report = label + " | failure: " + failure;
+          brokenReports.add(report);
+          System.out.println("HELP-RENDER [BROKEN] " + report);
         }
       }
     }
@@ -200,20 +124,15 @@ public class DirectorHelpRenderTest extends AdaptTestBase {
     }
   }
 
-  private static String validateLine(IsolatedAdventure adventure, String rawLine) {
-    Object component;
+  private static String validateLine(String rawLine) {
+    Component component;
     try {
-      component = adventure.parse(rawLine);
-    } catch (Throwable error) {
+      component = MINI_MESSAGE.deserialize(rawLine);
+    } catch (RuntimeException error) {
       return "MiniMessage.deserialize threw " + error.getClass().getName() + ": " + error.getMessage();
     }
 
-    String plainText;
-    try {
-      plainText = adventure.plain(component);
-    } catch (Throwable error) {
-      return "PlainTextComponentSerializer.serialize threw " + error.getClass().getName() + ": " + error.getMessage();
-    }
+    String plainText = PLAIN.serialize(component);
 
     String violation = firstViolation(plainText);
     if (violation != null) {
@@ -223,8 +142,8 @@ public class DirectorHelpRenderTest extends AdaptTestBase {
     for (String hoverBody : extractHoverBodies(rawLine)) {
       String hoverPlain;
       try {
-        hoverPlain = adventure.plain(adventure.parse(hoverBody));
-      } catch (Throwable error) {
+        hoverPlain = PLAIN.serialize(MINI_MESSAGE.deserialize(hoverBody));
+      } catch (RuntimeException error) {
         return "hover body failed to parse: " + error.getClass().getName() + ": " + error.getMessage();
       }
       String hoverViolation = hoverViolation(hoverPlain);

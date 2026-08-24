@@ -2,7 +2,6 @@ package art.arcane.adapt.localization;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.util.common.format.AdventureCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.volmlib.util.director.DirectorTextResolver;
@@ -22,6 +21,7 @@ import art.arcane.volmlib.util.localization.PluralSelector;
 import art.arcane.volmlib.util.localization.ResolvedLines;
 import art.arcane.volmlib.util.localization.ResolvedText;
 import art.arcane.volmlib.util.localization.TextKey;
+import art.arcane.volmlib.util.plugin.ComponentText;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -324,11 +324,16 @@ public final class AdaptLanguage {
     if (automaticGradients) {
       rendered = C.aura(rendered, -20, 7, 8, 0.36);
     }
-    return AdventureCompat.toLegacySection(rendered);
+    return ComponentText.markup(rendered).legacy();
   }
 
   static String escapeUntrusted(String value) {
-    return C.stripColor(value).replace("&", "＆");
+    return C.stripColor(value)
+        .replace("&", "＆")
+        .replace("<", "＜")
+        .replace(">", "＞")
+        .replace("[", "［")
+        .replace("]", "］");
   }
 
   private static String normalizeLocale(String locale) {

@@ -13,6 +13,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -1327,7 +1328,7 @@ final class MutationCombatRuntime {
     }
     event.setCancelled(true);
     if (!confirmed) {
-      player.sendMessage(ChatColor.YELLOW + AdaptLanguage.text(MutationMessages.TROPHY_CLEAR_HINT));
+      ComponentMessenger.sendSection(player, ChatColor.YELLOW + AdaptLanguage.text(MutationMessages.TROPHY_CLEAR_HINT));
       return;
     }
     durable.setTrophyImprint("");
@@ -1337,7 +1338,7 @@ final class MutationCombatRuntime {
     }
     access.save(player);
     access.tell(player, MutationType.TROPHY_CRUCIBLE, Particle.SMOKE, 8);
-    player.sendMessage(ChatColor.GRAY + AdaptLanguage.text(MutationMessages.TROPHY_CLEARED));
+    ComponentMessenger.sendSection(player, ChatColor.GRAY + AdaptLanguage.text(MutationMessages.TROPHY_CLEARED));
   }
 
   private boolean clearExpiredTrophy(Player player, PlayerMutationData durable, long now) {

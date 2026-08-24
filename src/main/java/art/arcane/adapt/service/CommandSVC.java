@@ -42,6 +42,7 @@ import art.arcane.volmlib.util.director.runtime.DirectorRuntimeEngine;
 import art.arcane.volmlib.util.director.runtime.DirectorRuntimeNode;
 import art.arcane.volmlib.util.director.runtime.DirectorSender;
 import art.arcane.volmlib.util.math.RNG;
+import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -156,7 +157,7 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
     Adapt.verbose(() -> "Received command from %s: /%s %s"
         .formatted(sender.getName(), label, String.join(" ", args)));
     if (!sender.hasPermission(ROOT_PERMISSION)) {
-      sender.sendMessage(AdaptLanguage.text(
+      ComponentMessenger.sendSection(sender, AdaptLanguage.text(
           CommandRuntimeMessages.MISSING_PERMISSION,
           trusted("permission", ROOT_PERMISSION)
       ));
@@ -182,7 +183,7 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
 
     playFailureSound(sender);
     if (result.getMessage() == null || result.getMessage().trim().isEmpty()) {
-      sender.sendMessage(C.RED + AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_ADAPT_COMMAND));
+      ComponentMessenger.sendSection(sender, C.RED + AdaptLanguage.text(CommandRuntimeMessages.UNKNOWN_ADAPT_COMMAND));
     }
   }
 
@@ -250,7 +251,7 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
     @Override
     public void sendMessage(String message) {
       if (message != null && !message.trim().isEmpty()) {
-        sender.sendMessage(message);
+        ComponentMessenger.sendLiteral(sender, message);
       }
     }
   }

@@ -18,7 +18,7 @@ spigot = "26.2-R0.1-SNAPSHOT"
 platformUtils = "e17ac2c698"
 
 # Dynamically Loaded
-adventure-api = "5.1.1" # https://github.com/KyoriPowered/adventure
+adventure-api = "4.26.1" # https://github.com/KyoriPowered/adventure
 adventure-platform = "4.4.1" # https://github.com/KyoriPowered/adventure-platform
 
 bstats = "3.2.1"

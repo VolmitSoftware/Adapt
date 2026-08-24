@@ -22,6 +22,7 @@ import art.arcane.volmlib.util.director.annotations.Director;
 import art.arcane.volmlib.util.director.annotations.Param;
 import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -371,7 +372,7 @@ public class CommandMutation {
     if (BukkitDirectorContext.hasPermission("adapt.mutations")) {
       return true;
     }
-    BukkitDirectorContext.sender().sendMessage(C.RED + AdaptLanguage.text(
+    send(BukkitDirectorContext.sender(), C.RED + AdaptLanguage.text(
         CommandRuntimeMessages.MISSING_PERMISSION,
         trusted("permission", "adapt.mutations")
     ));
@@ -587,13 +588,13 @@ public class CommandMutation {
   private void send(CommandSender sender, String message) {
     if (sender instanceof Player player) {
       if (!J.isFoliaThreading() && J.isPrimaryThread()) {
-        player.sendMessage(message);
+        ComponentMessenger.sendSection(player, message);
         return;
       }
-      J.runEntity(player, () -> player.sendMessage(message));
+      J.runEntity(player, () -> ComponentMessenger.sendSection(player, message));
       return;
     }
-    sender.sendMessage(message);
+    ComponentMessenger.sendSection(sender, message);
   }
 
   private enum OverrideValue {
