@@ -222,6 +222,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
 
     applyWallStickForce(p, stickBlock);
     latchedWalls.put(id, stickBlock);
+    clearLatchedFallDistance(p);
     AdaptAttributeService.get().apply(p, getName(), SLOT_LATCH, Attributes.GRAVITY, GRAVITY_CANCEL, AttributeModifier.Operation.MULTIPLY_SCALAR_1);
     Vector c = p.getVelocity();
     p.setVelocity(p.getVelocity().setY((c.getY() * 0.35) - 0.0025));
@@ -309,6 +310,10 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     return !sneaking && latched;
   }
 
+  static void clearLatchedFallDistance(Player p) {
+    p.setFallDistance(0F);
+  }
+
   private void clearPlayerState(Player p) {
     UUID id = p.getUniqueId();
     airjumps.remove(id);
@@ -323,6 +328,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
       return false;
     }
 
+    clearLatchedFallDistance(p);
     AdaptAttributeService.get().remove(p, getName(), SLOT_LATCH, Attributes.GRAVITY);
     return true;
   }

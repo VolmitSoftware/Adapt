@@ -173,12 +173,12 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   public Adapt() {
     instance = this;
     long libraryLoadStart = System.currentTimeMillis();
-    info("Loading libraries...");
+    getLogger().info("Loading libraries...");
     new SpigotApplicationBuilder(this)
         .debug(SLIMJAR_DEBUG)
         .build();
     long libraryLoadElapsed = System.currentTimeMillis() - libraryLoadStart;
-    info("Libraries loaded (" + libraryLoadElapsed + "ms).");
+    getLogger().info("Libraries loaded (" + libraryLoadElapsed + "ms).");
     adaptEffectManager = new EffectManager(this);
   }
 
