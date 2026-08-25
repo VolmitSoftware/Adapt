@@ -127,6 +127,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private static final int BSTATS_PLUGIN_ID = 24221;
   private static final boolean SLIMJAR_DEBUG = Boolean.getBoolean("adapt.debug-slimjar");
   private static final Logger FALLBACK_LOGGER = Logger.getLogger("Adapt");
+  private static final String LOG_DISCRIMINATOR = ComponentLog.discriminator("Adapt", "&4");
   private static final Object GLOWING_ENTITIES_LOCK = new Object();
   private static final List<String> UPDATE_SOURCES = List.of(
       "https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle.kts",
@@ -397,7 +398,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   private static void log(Level level, String message, Throwable throwable) {
-    ComponentLog.logLegacy(instance, FALLBACK_LOGGER, "[Adapt] ", level, message, throwable);
+    ComponentLog.logLegacy(instance, FALLBACK_LOGGER, LOG_DISCRIMINATOR, level, message, throwable);
   }
 
   @Override
