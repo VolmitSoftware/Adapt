@@ -58,6 +58,7 @@ import art.arcane.adapt.content.protector.WorldGuardFlags;
 import art.arcane.adapt.content.protector.WorldGuardProtector;
 import art.arcane.adapt.content.protector.WorldGuardRegionPolicySource;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.AdaptLanguageDownload;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.SQLManager;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -418,6 +419,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
         .forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i)));
 
     runStartupPhaseVoid("language-load", AdaptLanguage::initialize);
+    AdaptLanguageDownload.start();
+    AdaptLanguageDownload.requestConfiguredLocale();
     vaultEconomy = new VaultEconomy(this);
     if (!runStartupPhase("models-load", CustomModel::reloadFromDisk)) {
       Adapt.warn("Failed to load models config during startup migration.");
@@ -617,6 +620,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (!alreadyDrained.compareAndSet(false, true)) {
       return;
     }
+    runShutdownPhase("language downloader", AdaptLanguageDownload::shutdown);
     runShutdownPhase("Ability API", AbilityApiBridge::uninstall);
     if (services != null) {
       for (AdaptService service : List.copyOf(services.values())) {

@@ -19,9 +19,9 @@ public final class ConfigDocumentation {
       Map.entry("minXp", "Minimum xp threshold required for this skill logic."),
       Map.entry(
           "language",
-          "Locale used for in-game text; non-English locales ship bundled in the jar."
-              + " languages/en_US.toml and, for a non-English language, languages/<locale>.toml are"
-              + " regenerated references only, so put edits in languages/overrides/<locale>.toml."
+          "Locale used for in-game text; supported non-English translations download automatically."
+              + " languages/en_US.toml is a regenerated reference, and server edits belong in"
+              + " languages/overrides/<locale>.toml."
       ),
       Map.entry("autoUpdateCheck", "Checks for plugin updates during startup."),
       Map.entry("metrics", "Sends anonymous bStats usage metrics."),

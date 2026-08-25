@@ -5,11 +5,13 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -25,6 +27,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mockStatic;
 
 class GuiConfigTest extends AdaptTestBase {
   private AdaptConfig previousConfig;
@@ -224,7 +227,8 @@ class GuiConfigTest extends AdaptTestBase {
     logger.setUseParentHandlers(false);
     logger.setLevel(Level.ALL);
     logger.addHandler(handler);
-    try {
+    try (MockedStatic<ComponentLogger> componentLogger = mockStatic(ComponentLogger.class)) {
+      componentLogger.when(ComponentLogger::logger).thenReturn(null);
       action.run();
     } finally {
       logger.removeHandler(handler);

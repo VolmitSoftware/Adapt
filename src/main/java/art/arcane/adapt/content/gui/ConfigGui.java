@@ -6,6 +6,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.localization.AdaptLanguageDownload;
 import art.arcane.adapt.localization.catalog.ConfigMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.service.ConfigInputSVC;
@@ -1257,6 +1258,7 @@ public final class ConfigGui {
 
   private static void refreshGlobalRuntimeSettings() {
     AdaptLanguage.reload();
+    AdaptLanguageDownload.requestConfiguredLocale();
 
     if (AdaptConfig.get().isCustomModels()) {
       CustomModel.reloadFromDisk();

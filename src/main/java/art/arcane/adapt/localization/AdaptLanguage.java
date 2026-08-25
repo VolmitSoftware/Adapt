@@ -28,8 +28,6 @@ import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -84,8 +82,9 @@ public final class AdaptLanguage {
       AdaptLanguageReference.write();
       try {
         Files.createDirectories(overrideFolder().toPath());
+        Files.createDirectories(AdaptLanguageDownload.cacheFolder().toPath());
       } catch (IOException failure) {
-        Adapt.warn("Failed to create language override folder " + overrideFolder() + ": " + failure.getMessage());
+        Adapt.warn("Failed to create Adapt language folders: " + failure.getMessage());
         Adapt.error(failure);
       }
     }
@@ -102,9 +101,6 @@ public final class AdaptLanguage {
     }
 
     activeLocale = normalizeLocale(configuredLocale);
-    if (writeGeneratedFiles) {
-      AdaptLanguageBundle.extract(activeLocale);
-    }
     int warningCount = result.validation().warnings().size();
     Adapt.info("Loaded locale " + requestedLocale + " with " + warningCount + " fallback "
         + (warningCount == 1 ? "entry" : "entries") + ".");
@@ -174,9 +170,9 @@ public final class AdaptLanguage {
     }
 
     if (!CATALOG.englishLocale().equalsIgnoreCase(locale)) {
-      LocaleOverlay bundled = loadBundledOverlay(locale);
-      if (bundled != null) {
-        overlays.add(bundled);
+      LocaleOverlay downloaded = loadDownloadedOverlay(locale);
+      if (downloaded != null) {
+        overlays.add(downloaded);
       }
     }
     return new LocalizationCandidate(CATALOG, overlays, PluralSelector.oneOther());
@@ -184,25 +180,21 @@ public final class AdaptLanguage {
 
   private static LocaleOverlay loadFileOverlay(File file, String locale) throws Exception {
     if (!file.isFile()) {
-      throw new IllegalArgumentException("Locale override is not a regular file: " + file.getPath());
+      throw new IllegalArgumentException("Locale file is not a regular file: " + file.getPath());
     }
     if (file.length() > MAX_LOCALE_BYTES) {
-      throw new IllegalArgumentException("Locale override is too large: " + file.getPath());
+      throw new IllegalArgumentException("Locale file is too large: " + file.getPath());
     }
     return parseOverlay(file.getPath(), locale, Files.readString(file.toPath()));
   }
 
-  private static LocaleOverlay loadBundledOverlay(String locale) throws Exception {
-    String resourceName = locale + ".toml";
-    InputStream input = Adapt.instance.getResource(resourceName);
-    if (input == null) {
-      Adapt.warn("No bundled locale exists for " + locale + "; code-owned English will be used.");
+  private static LocaleOverlay loadDownloadedOverlay(String locale) throws Exception {
+    LocaleOverlay overlay = AdaptLanguageDownload.readVerifiedOverlay(locale, true);
+    if (overlay == null) {
+      Adapt.warn("Locale " + locale + " is not downloaded yet; code-owned English will be used until it is available.");
       return null;
     }
-    try (InputStream stream = input) {
-      String raw = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-      return parseOverlay("bundled:" + resourceName, locale, raw);
-    }
+    return overlay;
   }
 
   static LocaleOverlay parseOverlay(String source, String locale, String raw) {
@@ -336,7 +328,7 @@ public final class AdaptLanguage {
         .replace("]", "］");
   }
 
-  private static String normalizeLocale(String locale) {
+  static String normalizeLocale(String locale) {
     String value = locale == null || locale.isBlank() ? CATALOG.englishLocale() : locale.trim();
     if (!LOCALE_NAME.matcher(value).matches()) {
       throw new IllegalArgumentException("Invalid locale name: " + value);

@@ -1,9 +1,11 @@
 package art.arcane.adapt;
 
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -42,9 +44,12 @@ class AdaptLoggingTest {
 
   @Test
   void julFallbackRetainsSeverityWithoutLegacySymbols() {
-    Adapt.info("information");
-    Adapt.warn("warning");
-    Adapt.error("failure");
+    try (MockedStatic<ComponentLogger> componentLogger = Mockito.mockStatic(ComponentLogger.class)) {
+      componentLogger.when(ComponentLogger::logger).thenReturn(null);
+      Adapt.info("information");
+      Adapt.warn("warning");
+      Adapt.error("failure");
+    }
 
     List<LogRecord> records = handler.records();
     Assertions.assertEquals(3, records.size());
@@ -61,7 +66,10 @@ class AdaptLoggingTest {
   void julFallbackRetainsFailureCause() {
     IllegalStateException failure = new IllegalStateException("broken");
 
-    Adapt.error("Contextual failure", failure);
+    try (MockedStatic<ComponentLogger> componentLogger = Mockito.mockStatic(ComponentLogger.class)) {
+      componentLogger.when(ComponentLogger::logger).thenReturn(null);
+      Adapt.error("Contextual failure", failure);
+    }
 
     Assertions.assertEquals(1, handler.records().size());
     Assertions.assertSame(failure, handler.records().get(0).getThrown());

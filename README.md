@@ -18,7 +18,7 @@ The master branch is for the latest version of Minecraft.
 
 English is defined in typed Java message catalogs beside the code that uses it. When adding player-facing text, add its English key there first; the localization tests identify every non-English overlay that still needs the new key. Adapt does not ship a separate `en_US.toml` file.
 
-Adapt bundles complete overlays for German, Spanish, Finnish, French, Hebrew, Italian, Japanese, Korean, Lithuanian, Dutch, Polish, Portuguese, Russian, Turkish, Vietnamese, Simplified Chinese, and Traditional Chinese. A server's selected TOML can contain only the keys it wants to override; missing values resolve through the bundled language and finally the code-owned English catalog.
+Set `language` in `plugins/Adapt/adapt.toml` to a supported locale such as `de_DE`. Adapt downloads only that revision-pinned locale, verifies it, caches it under `languages/downloaded/`, and activates it automatically. A server override TOML can contain only the keys it wants to change; missing values resolve through the downloaded locale and finally the code-owned English catalog.
 
 Do you know one of these languages and want to improve its wording? Join the [Discord](https://discord.gg/volmit) or open a contribution. Please submit translations only when you are confident in the language so they can be reviewed accurately.
 
@@ -147,7 +147,7 @@ Install Java JDK 25, clone the repository, and run the Gradle wrapper from the A
 ./gradlew build
 ```
 
-`./gradlew shadowJar` builds the shaded runtime jar under `build/libs/`. `./gradlew adapt` also creates the convenience copy `build/Adapt-<version>.jar`.
+`./gradlew build` emits the shaded runtime jar. `./gradlew shadowJar` builds only the jar, and `./gradlew adapt` creates the convenience jar copy `build/Adapt-<version>.jar`. Locale sources remain outside the jar; the build embeds their pinned revision and checksums for verified on-demand downloads.
 
 ## Credits
 

@@ -29,9 +29,16 @@ import io.freefair.gradle.plugins.lombok.LombokPlugin
 import io.github.slimjar.resolver.data.Mirror
 import io.papermc.paperweight.userdev.PaperweightUser
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.WriteProperties
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.tasks.Jar
+
+import java.nio.file.Files
+import java.security.MessageDigest
+import java.util.HexFormat
+import java.util.zip.ZipEntry
+import java.util.zip.ZipFile
 
 plugins {
     id 'java-library'
@@ -60,6 +67,59 @@ def platformUtilsConfiguration = configurations.create('platformUtilsLibrary')
 
 def shadowJarTask = tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar)
 tasks.named('slimJar').get()
+String languageSourceRevision = providers.gradleProperty('languageRevision')
+    .orElse(providers.exec {
+        workingDir(rootDir)
+        commandLine('git', 'rev-parse', 'HEAD')
+    }.standardOutput.asText)
+    .map { String revision ->
+        String normalized = revision.trim().toLowerCase(Locale.ROOT)
+        if (!(normalized ==~ /[0-9a-f]{40}/)) {
+            throw new GradleException('languageRevision must be a full 40-character Git commit SHA.')
+        }
+        normalized
+    }
+    .get()
+List<File> languageSourceFiles = fileTree('src/main/resources') {
+    include('*.toml')
+}.files.toList().sort { File left, File right -> left.name <=> right.name }
+Map<String, String> languageSourceHashes = new LinkedHashMap<>()
+for (File languageSourceFile : languageSourceFiles) {
+    String locale = languageSourceFile.name.substring(0, languageSourceFile.name.length() - '.toml'.length())
+    byte[] digest = MessageDigest.getInstance('SHA-256').digest(Files.readAllBytes(languageSourceFile.toPath()))
+    languageSourceHashes.put(locale, HexFormat.of().formatHex(digest))
+}
+def verifyLanguageSourceRevisionTask = tasks.register('verifyLanguageSourceRevision') {
+    group = 'verification'
+    description = 'Verifies that downloadable locale sources match the pinned Git revision.'
+    inputs.files(languageSourceFiles)
+
+    doLast {
+        List<String> currentPaths = languageSourceFiles.collect { File source ->
+            rootDir.toPath().relativize(source.toPath()).toString().replace(File.separatorChar, '/' as char)
+        }
+        List<String> committedPaths = providers.exec {
+            workingDir(rootDir)
+            commandLine('git', 'ls-tree', '-r', '--name-only', languageSourceRevision, '--', 'src/main/resources')
+        }.standardOutput.asText.get().readLines().findAll { String path -> path.endsWith('.toml') }.sort()
+        if (committedPaths != currentPaths) {
+            throw new GradleException('Locale source files do not match the pinned Git revision.')
+        }
+        providers.exec {
+            workingDir(rootDir)
+            commandLine(['git', 'diff', '--quiet', languageSourceRevision, '--'] + currentPaths)
+        }.result.get().assertNormalExitValue()
+    }
+}
+def languageSourceManifestTask = tasks.register('generateLanguageSourceManifest', WriteProperties) {
+    dependsOn(verifyLanguageSourceRevisionTask)
+    destinationFile.set(layout.buildDirectory.file('generated/language-source/adapt-language-source.properties'))
+    property('revision', languageSourceRevision)
+    property('locales', languageSourceHashes.keySet().join(','))
+    for (Map.Entry<String, String> languageSourceHash : languageSourceHashes.entrySet()) {
+        property('sha256.' + languageSourceHash.key, languageSourceHash.value)
+    }
+}
 def strippedPlatformUtils = tasks.register('strippedPlatformUtils', Jar) {
     archiveClassifier = 'platform-utils'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
@@ -88,6 +148,10 @@ registerCustomOutputTaskUnix('the456gamer', '/home/the456gamer/projects/minecraf
  * Expand properties into plugin yml
  */
 tasks.named('processResources').configure {
+    dependsOn(languageSourceManifestTask)
+    exclude('*.toml')
+    from(languageSourceManifestTask)
+
     def pluginProperties = [
         name      : rootProject.name,
         version   : project.version,
@@ -98,6 +162,50 @@ tasks.named('processResources').configure {
     inputs.properties(pluginProperties)
     filesMatching('**/plugin.yml') {
         expand(pluginProperties)
+    }
+}
+
+def verifyLanguagePackagingTask = tasks.register('verifyLanguagePackaging') {
+    group = 'verification'
+    description = 'Verifies that locales are absent from the jar and its download revision is pinned.'
+    dependsOn(shadowJarTask)
+
+    doLast {
+        File runtimeJar = shadowJarTask.get().archiveFile.get().asFile
+
+        Set<String> embeddedLocales = new LinkedHashSet<>()
+        new ZipFile(runtimeJar).withCloseable { ZipFile jar ->
+            Enumeration<? extends ZipEntry> entries = jar.entries()
+            while (entries.hasMoreElements()) {
+                ZipEntry entry = entries.nextElement()
+                if (!entry.isDirectory() && entry.name.toLowerCase(Locale.ROOT).endsWith('.toml')) {
+                    embeddedLocales.add(entry.name)
+                }
+            }
+        }
+        if (!embeddedLocales.isEmpty()) {
+            throw new GradleException("Runtime jar contains locale TOMLs: ${embeddedLocales}")
+        }
+
+        new ZipFile(runtimeJar).withCloseable { ZipFile jar ->
+            ZipEntry manifestEntry = jar.getEntry('adapt-language-source.properties')
+            if (manifestEntry == null) {
+                throw new GradleException('Runtime jar is missing adapt-language-source.properties.')
+            }
+            Properties manifest = new Properties()
+            jar.getInputStream(manifestEntry).withCloseable { InputStream input -> manifest.load(input) }
+            if (manifest.getProperty('revision') != languageSourceRevision) {
+                throw new GradleException('Runtime jar language revision does not match the build revision.')
+            }
+            if (manifest.getProperty('locales') != languageSourceHashes.keySet().join(',')) {
+                throw new GradleException('Runtime jar language locale set does not match the source set.')
+            }
+            for (Map.Entry<String, String> languageSourceHash : languageSourceHashes.entrySet()) {
+                if (manifest.getProperty('sha256.' + languageSourceHash.key) != languageSourceHash.value) {
+                    throw new GradleException('Runtime jar language hash does not match ' + languageSourceHash.key + '.')
+                }
+            }
+        }
     }
 }
 
@@ -296,6 +404,10 @@ java {
 
 tasks.named('build').configure {
     dependsOn(shadowJarTask)
+}
+
+tasks.named('check').configure {
+    dependsOn(verifyLanguagePackagingTask)
 }
 
 tasks.register('adapt', Copy) {

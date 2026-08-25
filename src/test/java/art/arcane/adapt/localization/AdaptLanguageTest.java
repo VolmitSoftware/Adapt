@@ -244,7 +244,7 @@ class AdaptLanguageTest extends AdaptTestBase {
   }
 
   @Test
-  void everyBundledLocaleParsesAndMatchesCatalogShapes() throws Exception {
+  void everyDownloadSourceLocaleParsesAndMatchesCatalogShapes() throws Exception {
     for (String locale : VolmitLocales.nonEnglish()) {
       Path localeFile = RESOURCE_ROOT.resolve(locale + ".toml");
       assertThat(localeFile).exists();
@@ -264,7 +264,7 @@ class AdaptLanguageTest extends AdaptTestBase {
   }
 
   @Test
-  void bundledTomlResourcesAreExactlyTheNonEnglishLocales() throws Exception {
+  void downloadSourcesAreExactlyTheNonEnglishLocales() throws Exception {
     List<String> expected = VolmitLocales.nonEnglish().stream()
         .map(locale -> locale + ".toml")
         .sorted()
@@ -282,7 +282,7 @@ class AdaptLanguageTest extends AdaptTestBase {
   }
 
   @Test
-  void everyBundledNonEnglishLocaleCoversTheEntireCatalog() throws Exception {
+  void everyDownloadSourceLocaleCoversTheEntireCatalog() throws Exception {
     MessageCatalog catalog = AdaptMessages.catalog();
     for (String locale : VolmitLocales.nonEnglish()) {
       Path localeFile = RESOURCE_ROOT.resolve(locale + ".toml");
@@ -299,7 +299,7 @@ class AdaptLanguageTest extends AdaptTestBase {
   }
 
   @Test
-  void everyBundledTranslationIsNonBlankAndPreservesProtocolTokens() throws Exception {
+  void everyDownloadSourceTranslationIsNonBlankAndPreservesProtocolTokens() throws Exception {
     MessageCatalog catalog = AdaptMessages.catalog();
     List<String> failures = new ArrayList<>();
     int failureCount = 0;

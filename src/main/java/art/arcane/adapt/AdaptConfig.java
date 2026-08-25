@@ -45,7 +45,7 @@ import java.util.Map;
 public class AdaptConfig {
   private static final Object CONFIG_LOCK = new Object();
   private static volatile AdaptConfig config;
-  @ConfigDoc(value = "Locale used for Adapt player and operator interfaces.", impact = "Code-owned English remains the fallback; optional TOML overrides are loaded from languages/overrides.")
+  @ConfigDoc(value = "Locale used for Adapt player and operator interfaces.", impact = "A supported non-English locale downloads automatically and is cached by source revision; code-owned English remains the fallback and optional TOML overrides load from languages/overrides.")
   private String language = "en_US";
   @ConfigDoc(value = "Enables anonymous bStats usage reporting for Adapt.", impact = "Set to false to disable Adapt's bStats submissions entirely. Requires a restart to take effect.")
   private boolean metrics = true;
