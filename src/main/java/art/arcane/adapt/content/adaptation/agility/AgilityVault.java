@@ -26,8 +26,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -102,15 +100,6 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
         .build());
     registerMilestone("challenge_agility_vault_250", "agility.vault.vaults", 250, 300);
     registerMilestone("challenge_agility_vault_2500", "agility.vault.vaults", 2500, 1200);
-  }
-
-  @Override
-  protected void onConfigReload(Config previousConfig, Config newConfig) {
-    super.onConfigReload(previousConfig, newConfig);
-    newConfig.costFactor = 0D;
-    newConfig.maxLevel = VAULT_LEVELS;
-    setCostFactor(0D);
-    setMaxLevel(VAULT_LEVELS);
   }
 
   @Override
@@ -228,14 +217,6 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
     player.setVelocity(correctedVelocity(existingVelocity, risenHeight, targetHeight));
   }
 
-  boolean normalizeStoredLevel(PlayerSkillLine line) {
-    if (line == null || line.getAdaptationLevel(getName()) <= VAULT_LEVELS) {
-      return false;
-    }
-    line.setAdaptation(this, VAULT_LEVELS);
-    return true;
-  }
-
   private void refreshPreArm(Player p, Location origin, Vector direction) {
     boolean grounded = p.isOnGround();
     boolean eligible = Attributes.JUMP_STRENGTH != null && grounded && isVaultEligible(p);
@@ -251,12 +232,10 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
   }
 
   private int resolvePreArmLevel(Player p) {
-    normalizeStoredLevel(p);
     return getActiveLevel(p);
   }
 
   private void attemptVault(Player p, Location origin, Vector direction) {
-    normalizeStoredLevel(p);
     if (getActiveLevel(p) <= 0 || !isVaultEligible(p) || Attributes.JUMP_STRENGTH == null) {
       disarm(p);
       return;
@@ -321,27 +300,8 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
   }
 
   private void reconcilePlayer(Player p) {
-    AdaptPlayer adaptPlayer = getPlayer(p);
-    if (adaptPlayer == null) {
-      return;
-    }
-    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
-    if (normalizeStoredLevel(line)) {
-      clearArmedState(p);
-    }
     Location origin = p.getLocation();
     refreshPreArm(p, origin, horizontalDirection(null, origin.getDirection()));
-  }
-
-  private void normalizeStoredLevel(Player p) {
-    AdaptPlayer adaptPlayer = getPlayer(p);
-    if (adaptPlayer == null) {
-      return;
-    }
-    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
-    if (normalizeStoredLevel(line)) {
-      clearArmedState(p);
-    }
   }
 
   static Block findFence(Location origin, Vector direction) {

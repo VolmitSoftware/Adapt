@@ -28,8 +28,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -42,7 +40,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -109,11 +106,6 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
   }
 
   @Override
-  protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.normalizeForPersistence();
-  }
-
-  @Override
   protected boolean shouldCanonicalizeConfigOnLoad() {
     return true;
   }
@@ -122,7 +114,6 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
   @EventHandler(priority = EventPriority.NORMAL)
   public void on(PlayerSwapHandItemsEvent e) {
     Player p = e.getPlayer();
-    normalizeStoredLevel(p);
     int level = getActiveLevel(p);
     Block targetBlock = p.getTargetBlockExact(5, FluidCollisionMode.NEVER);
     Material targetType = targetBlock == null ? Material.AIR : targetBlock.getType();
@@ -133,12 +124,6 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
 
     e.setCancelled(true);
     compact(p);
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerJoinEvent e) {
-    Player player = e.getPlayer();
-    withPlayerThread(player, () -> normalizeStoredLevel(player));
   }
 
   private void compact(Player p) {
@@ -190,14 +175,6 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
     return blocks <= 0 || unitsPerBlock <= 0 ? 0 : blocks * unitsPerBlock;
   }
 
-  boolean normalizeStoredLevel(PlayerSkillLine line) {
-    if (line == null || line.getAdaptationLevel(getName()) <= COMPACTOR_LEVELS) {
-      return false;
-    }
-    line.setAdaptation(this, COMPACTOR_LEVELS);
-    return true;
-  }
-
   private int availablePlain(Player p, Material material) {
     ItemStack unit = new ItemStack(material);
     int total = 0;
@@ -235,15 +212,6 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
     return remaining == 0;
   }
 
-  private void normalizeStoredLevel(Player player) {
-    AdaptPlayer adaptPlayer = getPlayer(player);
-    if (adaptPlayer == null) {
-      return;
-    }
-    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
-    normalizeStoredLevel(line);
-  }
-
   private record CompactEntry(Material unit, Material block, int unitsPerBlock) {
   }
 
@@ -252,12 +220,8 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
     public Config() {
       baseCost = 3;
       costFactor = 0.3;
-      initialCost = 4;
-      normalizeForPersistence();
-    }
-
-    void normalizeForPersistence() {
       maxLevel = COMPACTOR_LEVELS;
+      initialCost = 4;
     }
   }
 }

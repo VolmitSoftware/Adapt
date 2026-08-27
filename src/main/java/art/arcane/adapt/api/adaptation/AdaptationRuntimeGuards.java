@@ -692,7 +692,9 @@ final class AdaptationRuntimeGuards {
     if (line == null) {
       return 0;
     }
-    return line.getAdaptationLevel(adaptation.getName());
+    int storedLevel = line.getAdaptationLevel(adaptation.getName());
+    int maxLevel = adaptation.getMaxLevel();
+    return maxLevel > 0 ? Math.min(storedLevel, maxLevel) : storedLevel;
   }
 
   static List<AdaptPlayer> learnedCandidates(Adaptation<?> adaptation, long now) {

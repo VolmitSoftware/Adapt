@@ -27,8 +27,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -42,7 +40,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -73,20 +70,8 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
   }
 
   @Override
-  protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.normalizeForPersistence();
-  }
-
-  @Override
   protected boolean shouldCanonicalizeConfigOnLoad() {
     return true;
-  }
-
-  @Override
-  protected void onRuntimeActivated() {
-    for (Player player : Bukkit.getOnlinePlayers()) {
-      withPlayerThread(player, () -> normalizeStoredLevel(player));
-    }
   }
 
   @Override
@@ -124,8 +109,6 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
     if (!hasStonecutter(inventory)) {
       return;
     }
-    normalizeStoredLevel(p);
-
     if (resolveInteractContext(p, p.getLocation(), Player::isSneaking) == null) {
       return;
     }
@@ -140,35 +123,12 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
     });
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerJoinEvent event) {
-    Player player = event.getPlayer();
-    withPlayerThread(player, () -> normalizeStoredLevel(player));
-  }
-
-  boolean normalizeStoredLevel(PlayerSkillLine line) {
-    if (line == null || line.getAdaptationLevel(getName()) <= STONECUTTER_LEVELS) {
-      return false;
-    }
-    line.setAdaptation(this, STONECUTTER_LEVELS);
-    return true;
-  }
-
   private boolean hasStonecutter(PlayerInventory inventory) {
     if (getConfig().requireOffhand) {
       return inventory.getItemInOffHand().getType() == Material.STONECUTTER;
     }
 
     return inventory.contains(Material.STONECUTTER);
-  }
-
-  private void normalizeStoredLevel(Player player) {
-    AdaptPlayer adaptPlayer = getPlayer(player);
-    if (adaptPlayer == null) {
-      return;
-    }
-    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
-    normalizeStoredLevel(line);
   }
 
   @ConfigDescription("Sneak-punch the air with an empty hand while carrying a stonecutter to open it anywhere.")
@@ -180,10 +140,6 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
 
     public Config() {
       costFactor = 0.5;
-      normalizeForPersistence();
-    }
-
-    void normalizeForPersistence() {
       maxLevel = STONECUTTER_LEVELS;
     }
   }

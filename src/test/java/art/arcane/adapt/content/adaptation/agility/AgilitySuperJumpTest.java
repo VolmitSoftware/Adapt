@@ -6,6 +6,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,15 +40,20 @@ class AgilitySuperJumpTest {
   }
 
   @Test
-  void configReloadCannotRestoreTheLegacyThreeLevelCap() {
+  void configReloadAppliesTheConfiguredThreeLevelCap() {
     AgilitySuperJump adaptation = new AgilitySuperJump();
-    AgilitySuperJump.Config config = new AgilitySuperJump.Config();
-    config.maxLevel = 3;
 
-    adaptation.onConfigReload(null, config);
+    boolean reloaded = adaptation.reloadConfigSnapshot("""
+        maxLevel = 3
+        minimumJumpHeight = 1.5
+        maximumJumpHeight = 2.5
+        """, new File("agility-super-jump.toml"), false);
 
-    assertThat(config.maxLevel).isEqualTo(4);
-    assertThat(adaptation.getMaxLevel()).isEqualTo(4);
+    assertThat(reloaded).isTrue();
+    assertThat(adaptation.getConfig().maxLevel).isEqualTo(3);
+    assertThat(adaptation.getMaxLevel()).isEqualTo(3);
+    assertThat(AgilitySuperJump.jumpHeight(1.5D, 2.5D, 3, adaptation.getMaxLevel()))
+        .isCloseTo(2.5D, within(1.0E-9D));
   }
 
   @Test

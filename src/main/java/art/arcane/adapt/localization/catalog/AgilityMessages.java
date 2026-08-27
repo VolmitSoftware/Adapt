@@ -18,7 +18,7 @@ public final class AgilityMessages {
   public static final TextKey LADDER_SLIDE_LORE3 = TextKey.of("agility.ladder_slide.lore3", "Look activation / release angles");
   public static final LinesKey LADDER_SLIDE_LORE = LinesKey.of("agility.ladder_slide.lore", "Ladder descent speed (blocks/sec)", "Ladder climb speed (blocks/sec)", "Look activation / release angles");
   public static final TextKey SUPER_JUMP_NAME = TextKey.of("agility.super_jump.name", "Super Jump");
-  public static final TextKey SUPER_JUMP_DESCRIPTION = TextKey.of("agility.super_jump.description", "Sneak and jump to launch a super jump. Four levels scale the apex from 1.5 to 2.5 blocks.");
+  public static final TextKey SUPER_JUMP_DESCRIPTION = TextKey.of("agility.super_jump.description", "Sneak and jump to launch a super jump. Configured levels scale the apex from 1.5 to 2.5 blocks.");
   public static final TextKey SUPER_JUMP_LORE1 = TextKey.of("agility.super_jump.lore1", "Jump apex (blocks)");
   public static final TextKey SUPER_JUMP_LORE2 = TextKey.of("agility.super_jump.lore2", "Sneak + Jump to Super Jump!");
   public static final LinesKey SUPER_JUMP_LORE = LinesKey.of("agility.super_jump.lore", "Jump apex (blocks)", "Sneak + Jump to Super Jump!");

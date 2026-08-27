@@ -31,8 +31,6 @@ import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -61,7 +59,6 @@ import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.ItemStack;
@@ -116,20 +113,8 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
   }
 
   @Override
-  protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.normalizeForPersistence();
-  }
-
-  @Override
   protected boolean shouldCanonicalizeConfigOnLoad() {
     return true;
-  }
-
-  @Override
-  protected void onRuntimeActivated() {
-    for (Player player : Bukkit.getOnlinePlayers()) {
-      withPlayerThread(player, () -> normalizeStoredLevel(player));
-    }
   }
 
   private static boolean isElevator(Block b) {
@@ -208,12 +193,6 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     handleElevatorMovement(block, player, false);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerJoinEvent event) {
-    Player player = event.getPlayer();
-    withPlayerThread(player, () -> normalizeStoredLevel(player));
-  }
-
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent event) {
     if (!event.isSneaking() || event.getPlayer().isInsideVehicle()) return;
@@ -259,19 +238,10 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
   }
 
   public int getMaxDistance(Player player) {
-    normalizeStoredLevel(player);
     int level = getActiveLevel(player);
     if (level == 0) return 0;
     Config config = getConfig();
     return config.baseDistance * (level * config.multiplier);
-  }
-
-  boolean normalizeStoredLevel(PlayerSkillLine line) {
-    if (line == null || line.getAdaptationLevel(getName()) <= ELEVATOR_LEVELS) {
-      return false;
-    }
-    line.setAdaptation(this, ELEVATOR_LEVELS);
-    return true;
   }
 
   @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -393,15 +363,6 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     return true;
   }
 
-  private void normalizeStoredLevel(Player player) {
-    AdaptPlayer adaptPlayer = getPlayer(player);
-    if (adaptPlayer == null) {
-      return;
-    }
-    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
-    normalizeStoredLevel(line);
-  }
-
   private void handleElevatorMovement(Block block, Player player, boolean down) {
     if (!isElevator(block) || player.isInsideVehicle())
       return;
@@ -498,12 +459,8 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
     public Config() {
       baseCost = 5;
       costFactor = 0.40;
-      initialCost = 1;
-      normalizeForPersistence();
-    }
-
-    void normalizeForPersistence() {
       maxLevel = ELEVATOR_LEVELS;
+      initialCost = 1;
     }
   }
 }

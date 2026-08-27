@@ -51,7 +51,7 @@ class AxeIrisFellerTest {
   }
 
   @Test
-  void configNormalizationKeepsExactlyThreeLevels() {
+  void configNormalizationPreservesTheConfiguredLevelCap() {
     AxeIrisFeller adaptation = new AxeIrisFeller();
     AxeIrisFeller.Config config = new AxeIrisFeller.Config();
     config.maxLevel = 9;
@@ -60,7 +60,7 @@ class AxeIrisFellerTest {
 
     adaptation.normalizeLoadedConfig(config);
 
-    assertThat(config.maxLevel).isEqualTo(3);
+    assertThat(config.maxLevel).isEqualTo(9);
     assertThat(config.hungerCost).isZero();
     assertThat(config.cooldownSeconds).isZero();
     assertThat(adaptation.shouldCanonicalizeConfigOnLoad()).isTrue();

@@ -443,24 +443,6 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
       pressurePlateMaterials = pressurePlateMaterials == null ? new ArrayList<>() : pressurePlateMaterials;
       berryBushMaterials = berryBushMaterials == null ? new ArrayList<>() : berryBushMaterials;
       powderSnowMaterials = powderSnowMaterials == null ? new ArrayList<>() : powderSnowMaterials;
-      maxLevel = highestEnabledUnlockLevel();
-    }
-
-    int highestEnabledUnlockLevel() {
-      int highest = 1;
-      if (farmlandEnabled) {
-        highest = Math.max(highest, farmlandMinLevel);
-      }
-      if (pressurePlateEnabled) {
-        highest = Math.max(highest, pressurePlateMinLevel);
-      }
-      if (berryBushEnabled) {
-        highest = Math.max(highest, berryBushMinLevel);
-      }
-      if (powderSnowEnabled) {
-        highest = Math.max(highest, powderSnowMinLevel);
-      }
-      return highest;
     }
   }
 }

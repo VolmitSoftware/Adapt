@@ -122,6 +122,7 @@ class AgilityLadderSlideRuntimeTest {
     config.climbAssistPerLevel = 2D;
     config.lookActivationDegrees = Double.NaN;
     config.lookReleaseDegrees = 80D;
+    config.maxLevel = 3;
 
     adaptation.normalizeLoadedConfig(config);
 
@@ -131,6 +132,7 @@ class AgilityLadderSlideRuntimeTest {
     assertThat(config.climbAssistPerLevel).isEqualTo(1D);
     assertThat(config.lookActivationDegrees).isEqualTo(30D);
     assertThat(config.lookReleaseDegrees).isEqualTo(29D);
+    assertThat(config.maxLevel).isEqualTo(3);
     assertThat(adaptation.shouldCanonicalizeConfigOnLoad()).isTrue();
   }
 

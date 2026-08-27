@@ -120,7 +120,6 @@ public class AxeIrisFeller extends SimpleAdaptation<AxeIrisFeller.Config> {
 
   @Override
   protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.maxLevel = 3;
     loadedConfig.hungerCost = Math.max(0, Math.min(20, loadedConfig.hungerCost));
     loadedConfig.cooldownSeconds = Math.max(0, loadedConfig.cooldownSeconds);
   }

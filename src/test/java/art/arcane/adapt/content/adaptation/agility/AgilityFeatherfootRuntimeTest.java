@@ -63,16 +63,18 @@ class AgilityFeatherfootRuntimeTest {
   }
 
   @Test
-  void maxLevelTracksTheHighestEnabledUnlockLevel() {
+  void normalizationPreservesTheConfiguredMaxLevel() {
     AgilityFeatherfoot.Config full = new AgilityFeatherfoot.Config();
+    full.maxLevel = 7;
     full.normalizeForPersistence();
 
     AgilityFeatherfoot.Config trimmed = new AgilityFeatherfoot.Config();
     trimmed.powderSnowEnabled = false;
     trimmed.berryBushEnabled = false;
+    trimmed.maxLevel = 2;
     trimmed.normalizeForPersistence();
 
-    assertThat(full.maxLevel).isEqualTo(4);
+    assertThat(full.maxLevel).isEqualTo(7);
     assertThat(trimmed.maxLevel).isEqualTo(2);
   }
 

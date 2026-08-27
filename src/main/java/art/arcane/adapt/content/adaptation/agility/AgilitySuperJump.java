@@ -83,13 +83,6 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     registerMilestone("challenge_agility_super_jump_5k", "agility.super-jump.jumps", 5000, 1500);
   }
 
-  @Override
-  protected void onConfigReload(Config previousConfig, Config newConfig) {
-    super.onConfigReload(previousConfig, newConfig);
-    newConfig.maxLevel = SUPER_JUMP_LEVELS;
-    setMaxLevel(SUPER_JUMP_LEVELS);
-  }
-
   static double jumpHeight(double minimumHeight, double maximumHeight, int level) {
     return jumpHeight(minimumHeight, maximumHeight, level, SUPER_JUMP_LEVELS);
   }
@@ -114,7 +107,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
   }
 
   private double getJumpHeight(int level) {
-    return jumpHeight(getConfig().minimumJumpHeight, getConfig().maximumJumpHeight, level);
+    return jumpHeight(getConfig().minimumJumpHeight, getConfig().maximumJumpHeight, level, getMaxLevel());
   }
 
   @Override
@@ -218,7 +211,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Jump apex in blocks at level 1.", impact = "Higher values make the first super-jump level rise further.")
     double minimumJumpHeight = 1.5D;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Jump apex in blocks at level 4.", impact = "Higher values make the final super-jump level rise further.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Jump apex in blocks at the configured maximum level.", impact = "Higher values make the final super-jump level rise further.")
     double maximumJumpHeight = 2.5D;
 
     public Config() {

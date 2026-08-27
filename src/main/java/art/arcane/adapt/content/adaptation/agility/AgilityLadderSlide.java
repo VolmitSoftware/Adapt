@@ -164,7 +164,6 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
           loadedConfig.lookActivationDegrees
       );
     }
-    loadedConfig.maxLevel = 1;
   }
 
   @Override

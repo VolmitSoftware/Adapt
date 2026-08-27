@@ -1,6 +1,5 @@
 package art.arcane.adapt.content.adaptation.agility;
 
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -13,6 +12,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.lang.reflect.Method;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,18 +25,19 @@ import static org.mockito.Mockito.when;
 
 class AgilityVaultTest {
   @Test
-  void savedConfigCannotRestoreTheOldFourLevelVault() {
+  void configReloadAppliesConfiguredProgressionValues() {
     AgilityVault adaptation = new AgilityVault();
-    AgilityVault.Config config = new AgilityVault.Config();
-    config.costFactor = 0.5D;
-    config.maxLevel = 4;
 
-    adaptation.onConfigReload(null, config);
+    boolean reloaded = adaptation.reloadConfigSnapshot("""
+        costFactor = 0.5
+        maxLevel = 4
+        """, new File("agility-vault.toml"), false);
 
-    assertThat(config.costFactor).isZero();
-    assertThat(config.maxLevel).isEqualTo(1);
-    assertThat(adaptation.getCostFactor()).isZero();
-    assertThat(adaptation.getMaxLevel()).isEqualTo(1);
+    assertThat(reloaded).isTrue();
+    assertThat(adaptation.getConfig().costFactor).isEqualTo(0.5D);
+    assertThat(adaptation.getConfig().maxLevel).isEqualTo(4);
+    assertThat(adaptation.getCostFactor()).isEqualTo(0.5D);
+    assertThat(adaptation.getMaxLevel()).isEqualTo(4);
     assertThat(adaptation.getInterval()).isEqualTo(1000L);
     adaptation.unregister();
   }
@@ -113,22 +114,6 @@ class AgilityVaultTest {
     AgilityVault.synchronizeCorrectedVelocity(player, existing, 0.42D, 1.75D);
 
     verify(player).setVelocity(existing);
-  }
-
-  @Test
-  void legacyStoredLevelsAreClampedThroughPlayerSkillLine() {
-    AgilityVault adaptation = new AgilityVault();
-    PlayerSkillLine legacy = mock(PlayerSkillLine.class);
-    PlayerSkillLine current = mock(PlayerSkillLine.class);
-    when(legacy.getAdaptationLevel(adaptation.getName())).thenReturn(4);
-    when(current.getAdaptationLevel(adaptation.getName())).thenReturn(1);
-
-    assertThat(adaptation.normalizeStoredLevel(legacy)).isTrue();
-    assertThat(adaptation.normalizeStoredLevel(current)).isFalse();
-
-    verify(legacy).setAdaptation(adaptation, 1);
-    verify(current, never()).setAdaptation(adaptation, 1);
-    adaptation.unregister();
   }
 
   @Test

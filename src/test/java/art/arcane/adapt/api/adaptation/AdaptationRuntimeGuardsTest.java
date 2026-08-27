@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -69,12 +70,35 @@ class AdaptationRuntimeGuardsTest {
     when(adaptation.isEnabled()).thenReturn(true);
     doReturn(skill).when(adaptation).getSkill();
     when(adaptation.getName()).thenReturn("vault");
+    when(adaptation.getMaxLevel()).thenReturn(5);
     when(skill.isEnabled()).thenReturn(true);
     when(skill.getName()).thenReturn("agility");
     when(data.getSkillLineNullable("agility")).thenReturn(skillLine);
     when(skillLine.getAdaptationLevel("vault")).thenReturn(3);
 
     assertThat(AdaptationRuntimeGuards.getLevel(adaptation, player)).isEqualTo(3);
+  }
+
+  @Test
+  void configuredCapLimitsPreviouslyLearnedLevels() {
+    Adaptation<Object> adaptation = mock(Adaptation.class);
+    Skill<Object> skill = mock(Skill.class);
+    AdaptPlayer player = mock(AdaptPlayer.class);
+    PlayerData data = mock(PlayerData.class);
+    PlayerSkillLine skillLine = mock(PlayerSkillLine.class);
+    when(player.isRuntimeReady()).thenReturn(true);
+    when(player.getData()).thenReturn(data);
+    when(adaptation.isEnabled()).thenReturn(true);
+    doReturn(skill).when(adaptation).getSkill();
+    when(adaptation.getName()).thenReturn("super-jump");
+    when(adaptation.getMaxLevel()).thenReturn(3);
+    when(skill.isEnabled()).thenReturn(true);
+    when(skill.getName()).thenReturn("agility");
+    when(data.getSkillLineNullable("agility")).thenReturn(skillLine);
+    when(skillLine.getAdaptationLevel("super-jump")).thenReturn(4);
+
+    assertThat(AdaptationRuntimeGuards.getLevel(adaptation, player)).isEqualTo(3);
+    verify(skillLine, never()).setAdaptation(any(), anyInt());
   }
 
   @Test

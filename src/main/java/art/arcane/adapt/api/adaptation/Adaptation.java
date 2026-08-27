@@ -784,8 +784,8 @@ public interface Adaptation<T> extends Ticked, Component {
   }
 
   /**
-   * Raw learned level (ignores runtime gating such as
-   * world/protection/conflict).
+   * Learned level capped by the current configured maximum, while ignoring
+   * runtime gating such as world, protection, and conflict checks.
    */
   default int getLevel(Player p) {
     return AdaptationRuntimeGuards.getLevel(this, p);

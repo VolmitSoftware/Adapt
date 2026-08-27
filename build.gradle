@@ -443,5 +443,14 @@ void createOutputTask(String name, String path, boolean doRename = true) {
         if (doRename) {
             rename { String ignored -> 'Adapt.jar' }
         }
+        if (name == 'PsychoLT') {
+            doLast {
+                project.copy {
+                    from(shadowJarTask.get().archiveFile.get().asFile)
+                    into(project.file('../PluginOuts'))
+                    rename { String ignored -> "Adapt-${project.version}.jar" }
+                }
+            }
+        }
     }
 }

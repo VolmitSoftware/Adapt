@@ -31,8 +31,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.MaterialChar;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.item.ChalkWandItem;
 import art.arcane.adapt.content.item.ChalkWandItem.Plan;
 import art.arcane.adapt.content.item.ChalkWandItem.Plane;
@@ -127,11 +125,6 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   }
 
   @Override
-  protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.normalizeForPersistence();
-  }
-
-  @Override
   protected boolean shouldCanonicalizeConfigOnLoad() {
     return true;
   }
@@ -162,7 +155,6 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     }
 
     Tool tool = Tool.fromRecipeKey(keyed.getKey().getKey());
-    normalizeStoredLevel(player);
     if (tool == null || getLevel(player) >= tool.requiredLevel()) {
       return;
     }
@@ -195,8 +187,6 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     if (wand == null) {
       return;
     }
-    normalizeStoredLevel(player);
-
     Action action = event.getAction();
     if (player.isSneaking() && (action == Action.LEFT_CLICK_AIR || action == Action.RIGHT_CLICK_AIR)) {
       event.setUseItemInHand(Event.Result.DENY);
@@ -385,14 +375,6 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
         : IDLE_SCAN_MILLIS;
   }
 
-  boolean normalizeStoredLevel(PlayerSkillLine line) {
-    if (line == null || line.getAdaptationLevel(getName()) <= CHALK_LEVELS) {
-      return false;
-    }
-    line.setAdaptation(this, CHALK_LEVELS);
-    return true;
-  }
-
   static int clampGuideBlocks(int configured) {
     return Math.max(16, Math.min(HARD_MAX_GUIDE_BLOCKS, configured));
   }
@@ -554,7 +536,6 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   }
 
   private void refreshHeldState(Player player) {
-    normalizeStoredLevel(player);
     WandData wand = ChalkWandItem.read(player.getInventory().getItemInMainHand());
     UUID playerId = player.getUniqueId();
     if (wand == null || wand.plan() == null || wand.plan().isEmpty()) {
@@ -577,15 +558,6 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
       return;
     }
     reconcilePreviewBatch(player, current);
-  }
-
-  private void normalizeStoredLevel(Player player) {
-    AdaptPlayer adaptPlayer = getPlayer(player);
-    if (adaptPlayer == null) {
-      return;
-    }
-    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable(getSkill().getName());
-    normalizeStoredLevel(line);
   }
 
   private void replacePreview(Player player, Tool tool, Plan plan, PreviewSettings settings) {
@@ -943,12 +915,8 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
     public Config() {
       baseCost = 3;
       costFactor = 0.4D;
-      initialCost = 1;
-      normalizeForPersistence();
-    }
-
-    void normalizeForPersistence() {
       maxLevel = CHALK_LEVELS;
+      initialCost = 1;
     }
   }
 }

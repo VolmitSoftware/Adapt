@@ -2,7 +2,6 @@ package art.arcane.adapt.content.adaptation.crafting;
 
 import art.arcane.adapt.api.EventHandlerInvoker;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.config.TomlCodec;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -22,9 +21,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
-import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -191,17 +188,16 @@ class CraftingScalingTest {
   }
 
   @Test
-  void compactorCanonicalizesLegacyConfig() throws IOException {
+  void compactorPreservesConfiguredLevelCapWhileCanonicalizing() throws IOException {
     CraftingCompactor.Config config = TomlCodec.fromToml("""
         maxLevel = 4
         maxPlayersPerPass = 64
         baseCost = 3
         """, CraftingCompactor.Config.class);
-    config.normalizeForPersistence();
     String persisted = TomlCodec.toToml(config, "adaptation:crafting-compactor");
 
-    assertThat(config.maxLevel).isEqualTo(1);
-    assertThat(persisted).contains("maxLevel = 1");
+    assertThat(config.maxLevel).isEqualTo(4);
+    assertThat(persisted).contains("maxLevel = 4");
     assertThat(persisted).doesNotContain("maxPlayersPerPass");
   }
 
@@ -222,21 +218,6 @@ class CraftingScalingTest {
     assertThat(handler.isAnnotationPresent(ReceiveCancelledEvents.class)).isTrue();
     assertThat(eventHandler.ignoreCancelled()).isFalse();
     assertThat(EventHandlerInvoker.shouldIgnoreCancelled(handler, eventHandler, PlayerSwapHandItemsEvent.class)).isFalse();
-  }
-
-  @Test
-  void compactorClampsLegacyStoredLevels() {
-    CraftingCompactor compactor = mock(CraftingCompactor.class, CALLS_REAL_METHODS);
-    when(compactor.getName()).thenReturn("crafting-compactor");
-    PlayerSkillLine legacy = mock(PlayerSkillLine.class);
-    PlayerSkillLine current = mock(PlayerSkillLine.class);
-    when(legacy.getAdaptationLevel("crafting-compactor")).thenReturn(4);
-    when(current.getAdaptationLevel("crafting-compactor")).thenReturn(1);
-
-    assertThat(compactor.normalizeStoredLevel(legacy)).isTrue();
-    assertThat(compactor.normalizeStoredLevel(current)).isFalse();
-    verify(legacy).setAdaptation(compactor, 1);
-    verify(current, never()).setAdaptation(compactor, 1);
   }
 
   private static Player playerAt(World world, double x, double y, double z) {
