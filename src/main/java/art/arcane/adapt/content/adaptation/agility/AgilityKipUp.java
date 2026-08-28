@@ -61,12 +61,12 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
         .icon(Material.SHIELD)
         .key("challenge_agility_kip_up_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SCRAP)
             .key("challenge_agility_kip_up_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_agility_kip_up_100", "agility.kip-up.recoveries", 100, 300);

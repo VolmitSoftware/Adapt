@@ -60,12 +60,12 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
         .icon(Material.LAPIS_LAZULI)
         .key("challenge_enchanting_lapis_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.LAPIS_BLOCK)
             .key("challenge_enchanting_lapis_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_lapis_100", "enchanting.lapis-return.lapis-saved", 100, 300);

@@ -42,12 +42,12 @@ public class AgilityMarathoner extends SimpleAdaptation<AgilityMarathoner.Config
         .icon(Material.LEATHER_BOOTS)
         .key("challenge_agility_marathoner_5k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.GOLDEN_BOOTS)
             .key("challenge_agility_marathoner_50k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_agility_marathoner_5k", "agility.marathoner.saturation-saved", 5000, 400);

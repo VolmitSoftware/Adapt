@@ -50,12 +50,12 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
         .icon(Material.GLASS)
         .key("challenge_architect_glass_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.GLASS)
             .key("challenge_architect_glass_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_architect_glass_200", "architect.glass.blocks-recovered", 200, 300);

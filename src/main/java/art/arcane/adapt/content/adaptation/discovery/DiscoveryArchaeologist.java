@@ -81,12 +81,12 @@ public class DiscoveryArchaeologist extends SimpleAdaptation<DiscoveryArchaeolog
         .icon(Material.BRUSH)
         .key("challenge_discovery_archaeologist_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DECORATED_POT)
             .key("challenge_discovery_archaeologist_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_discovery_archaeologist_50", "discovery.archaeologist.bonus-finds", 50, 300);

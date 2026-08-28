@@ -80,13 +80,13 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         .icon(Material.ARMOR_STAND)
         .key("challenge_stealth_decoy_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ARMOR_STAND)
         .key("challenge_stealth_decoy_distract_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_stealth_decoy_100", "stealth.shadow-decoy.decoys-spawned", 100, 300);
     registerMilestone("challenge_stealth_decoy_distract_500", "stealth.shadow-decoy.mobs-distracted", 500, 1000);

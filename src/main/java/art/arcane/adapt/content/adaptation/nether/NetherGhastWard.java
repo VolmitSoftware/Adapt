@@ -54,7 +54,7 @@ public class NetherGhastWard extends SimpleAdaptation<NetherGhastWard.Config> {
         .icon(Material.GHAST_TEAR)
         .key("challenge_nether_ghast_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_nether_ghast_500", "nether.ghast-ward.damage-reduced", 500, 400);
   }

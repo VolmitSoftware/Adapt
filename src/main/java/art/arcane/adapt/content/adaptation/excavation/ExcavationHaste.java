@@ -58,12 +58,12 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
         .icon(Material.IRON_SHOVEL)
         .key("challenge_excavation_haste_5k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_SHOVEL)
             .key("challenge_excavation_haste_50k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_excavation_haste_5k", "excavation.haste.blocks-while-hasted", 5000, 400);

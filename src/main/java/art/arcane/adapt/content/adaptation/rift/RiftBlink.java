@@ -75,12 +75,12 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_blink_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_EYE)
             .key("challenge_rift_blink_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_rift_blink_500", "rift.blink.blinks", 500, 400);

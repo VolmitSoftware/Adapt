@@ -103,12 +103,12 @@ public class TamingStableHand extends SimpleAdaptation<TamingStableHand.Config> 
         .icon(Material.SADDLE)
         .key("challenge_taming_stable_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_HORSE_ARMOR)
             .key("challenge_taming_stable_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_taming_stable_100", "taming.stable-hand.animals-shaped", 100, 400);

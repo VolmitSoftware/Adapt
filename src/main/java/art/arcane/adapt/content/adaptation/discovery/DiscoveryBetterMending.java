@@ -54,12 +54,12 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
         .icon(Material.ANVIL)
         .key("challenge_discovery_mending_10k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTED_GOLDEN_APPLE)
             .key("challenge_discovery_mending_100k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_discovery_mending_10k", "discovery.better-mending.durability-restored", 10000, 400);

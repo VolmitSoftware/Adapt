@@ -85,12 +85,12 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
         .icon(Material.TOTEM_OF_UNDYING)
         .key("challenge_enchanting_soul_10")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHER_STAR)
             .key("challenge_enchanting_soul_100")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_soul_10", "enchanting.soul-link.items-saved", 10, 400);

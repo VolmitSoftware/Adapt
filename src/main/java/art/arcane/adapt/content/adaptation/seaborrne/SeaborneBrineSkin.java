@@ -61,7 +61,7 @@ public class SeaborneBrineSkin extends SimpleAdaptation<SeaborneBrineSkin.Config
         .icon(Material.KELP)
         .key("challenge_seaborne_brine_72k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_seaborne_brine_72k", "seaborne.brine-skin.wet-ticks", 72000, 400);
   }

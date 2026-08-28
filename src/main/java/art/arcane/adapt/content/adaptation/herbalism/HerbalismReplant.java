@@ -61,12 +61,12 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         .icon(Material.WHEAT_SEEDS)
         .key("challenge_herbalism_replant_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.COMPOSTER)
             .key("challenge_herbalism_replant_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_herbalism_replant_500", "herbalism.replant.crops-replanted", 500, 300);

@@ -95,12 +95,12 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_void_magnet_5k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_EYE)
             .key("challenge_rift_void_magnet_50k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_rift_void_magnet_5k", "rift.void-magnet.items-pulled", 5000, 400);

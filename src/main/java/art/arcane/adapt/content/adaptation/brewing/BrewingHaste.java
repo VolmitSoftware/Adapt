@@ -78,7 +78,7 @@ public class BrewingHaste extends SimpleAdaptation<BrewingHaste.Config> {
         .icon(Material.BREWING_STAND)
         .key("challenge_brewing_haste_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_brewing_haste_25", "brewing.haste.potions-brewed", 25, 300);
   }

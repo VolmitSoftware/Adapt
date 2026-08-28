@@ -66,12 +66,12 @@ public class BrewingSuperHeated extends SimpleAdaptation<BrewingSuperHeated.Conf
         .icon(Material.BLAZE_POWDER)
         .key("challenge_brewing_super_heated_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.MAGMA_CREAM)
             .key("challenge_brewing_super_heated_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_brewing_super_heated_100", "brewing.super-heated.brews-accelerated", 100, 300);

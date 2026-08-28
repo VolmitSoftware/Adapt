@@ -82,12 +82,12 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         .icon(Material.CRAFTING_TABLE).key("challenge_enchant_1k")
         .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "enchanting", "challenge_enchant_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+        .visibility(AdvancementVisibility.VANILLA).child(AdaptAdvancement.builder()
             .icon(Material.KNOWLEDGE_BOOK)
             .key("challenge_enchant_5k")
             .model(CustomModel.get(Material.KNOWLEDGE_BOOK, "advancement", "enchanting", "challenge_enchant_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchant_1k", "enchanted.items", 1000, () -> getConfig().challengeEnchantReward);
@@ -98,13 +98,13 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         .key("challenge_enchant_power_100")
         .model(CustomModel.get(Material.EXPERIENCE_BOTTLE, "advancement", "enchanting", "challenge_enchant_power_100"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTING_TABLE)
             .key("challenge_enchant_power_1k")
             .model(CustomModel.get(Material.ENCHANTING_TABLE, "advancement", "enchanting", "challenge_enchant_power_1k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchant_power_100", "enchanted.power", 100, () -> getConfig().challengeEnchantReward);
@@ -115,13 +115,13 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         .key("challenge_enchant_high_25")
         .model(CustomModel.get(Material.BOOKSHELF, "advancement", "enchanting", "challenge_enchant_high_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTED_BOOK)
             .key("challenge_enchant_high_250")
             .model(CustomModel.get(Material.ENCHANTED_BOOK, "advancement", "enchanting", "challenge_enchant_high_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchant_high_25", "enchanting.high.level", 25, () -> getConfig().challengeEnchantReward);
@@ -132,13 +132,13 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
         .key("challenge_enchant_total_500")
         .model(CustomModel.get(Material.EXPERIENCE_BOTTLE, "advancement", "enchanting", "challenge_enchant_total_500"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DRAGON_BREATH)
             .key("challenge_enchant_total_5k")
             .model(CustomModel.get(Material.DRAGON_BREATH, "advancement", "enchanting", "challenge_enchant_total_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchant_total_500", "enchanting.total.levels", 500, () -> getConfig().challengeEnchantReward);

@@ -69,7 +69,7 @@ public class HunterStrength extends SimpleAdaptation<HunterStrength.Config> {
         .icon(Material.BLAZE_POWDER)
         .key("challenge_hunter_strength_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_hunter_strength_200", "hunter.strength.activations", 200, 300);
   }

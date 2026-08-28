@@ -55,7 +55,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
         .icon(Material.SUGAR)
         .key("challenge_hunter_speed_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_hunter_speed_200", "hunter.speed.activations", 200, 300);
   }

@@ -57,7 +57,7 @@ public class AxeBarkHide extends SimpleAdaptation<AxeBarkHide.Config> {
         .icon(Material.OAK_WOOD)
         .key("challenge_axe_bark_hide_2500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_axe_bark_hide_2500", "axe.bark-hide.stacks-gained", 2500, 700);
   }

@@ -116,12 +116,12 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         .icon(Material.REDSTONE)
         .key("challenge_architect_wireless_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.REDSTONE)
             .key("challenge_architect_wireless_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_architect_wireless_100", "architect.wireless-redstone.pulses", 100, 300);

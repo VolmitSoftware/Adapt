@@ -72,12 +72,12 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
         .icon(Material.ENDER_EYE)
         .key("challenge_chronos_rewind_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.RECOVERY_COMPASS)
             .key("challenge_chronos_rewind_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_chronos_rewind_50", "chronos.rewind.rewinds", 50, 350);

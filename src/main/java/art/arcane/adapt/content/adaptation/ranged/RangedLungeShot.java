@@ -47,12 +47,12 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
         .icon(Material.ARROW)
         .key("challenge_ranged_lunge_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.FEATHER)
             .key("challenge_ranged_lunge_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_ranged_lunge_200", "ranged.lunge-shot.lunges", 200, 300);

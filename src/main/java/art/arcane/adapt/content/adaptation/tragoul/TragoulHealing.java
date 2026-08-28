@@ -68,12 +68,12 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
         .icon(Material.REDSTONE)
         .key("challenge_tragoul_healing_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.RED_DYE)
             .key("challenge_tragoul_healing_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_tragoul_healing_500", "tragoul.healing.health-stolen", 500, 400);

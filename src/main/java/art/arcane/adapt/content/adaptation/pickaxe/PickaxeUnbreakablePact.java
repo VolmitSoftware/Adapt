@@ -53,7 +53,7 @@ public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakableP
         .icon(Material.NETHERITE_PICKAXE)
         .key("challenge_pickaxe_pact_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_pact_100", "pickaxe.unbreakable-pact.saves", 100, 400);
   }

@@ -112,12 +112,12 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
         .icon(Material.STRING)
         .key("challenge_architect_chalk_line_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.STRING)
             .key("challenge_architect_chalk_line_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_architect_chalk_line_50", "architect.chalk-line.guides-drafted", 50, 300);

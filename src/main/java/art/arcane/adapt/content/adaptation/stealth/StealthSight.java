@@ -88,7 +88,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         .icon(Material.ENDER_EYE)
         .key("challenge_stealth_sight_sneak_1h")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone(
         "challenge_stealth_sight_sneak_1h",

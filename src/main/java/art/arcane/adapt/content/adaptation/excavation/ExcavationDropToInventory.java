@@ -59,7 +59,7 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
         .icon(Material.CHEST)
         .key("challenge_excavation_dti_10k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_dti_10k", "excavation.drop-to-inv.items-caught", 10000, 500);
   }

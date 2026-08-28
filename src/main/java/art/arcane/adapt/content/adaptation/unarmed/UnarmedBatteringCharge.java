@@ -67,14 +67,14 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_charge_300")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_unarmed_charge_300", "unarmed.battering-charge.charges", 300, 400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND)
         .key("challenge_unarmed_charge_kills_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_unarmed_charge_kills_100", "unarmed.battering-charge.charge-kills", 100, 1000);
   }

@@ -90,12 +90,12 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
         .icon(Material.BONE)
         .key("challenge_taming_command_250")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.WOLF_ARMOR)
             .key("challenge_taming_command_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_taming_command_250", "taming.alphas-command.commands", 250, 400);

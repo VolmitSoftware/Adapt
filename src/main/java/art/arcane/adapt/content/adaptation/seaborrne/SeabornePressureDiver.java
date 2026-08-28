@@ -86,7 +86,7 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
         .icon(Material.IRON_PICKAXE)
         .key("challenge_seaborne_pressure_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_seaborne_pressure_1k", "seaborne.pressure-diver.deep-blocks-mined", 1000, 400);
   }

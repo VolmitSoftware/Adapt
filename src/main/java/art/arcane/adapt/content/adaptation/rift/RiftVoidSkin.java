@@ -85,12 +85,12 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_void_skin_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ECHO_SHARD)
             .key("challenge_rift_void_skin_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_rift_void_skin_50", "rift.void-skin.escapes", 50, 400);

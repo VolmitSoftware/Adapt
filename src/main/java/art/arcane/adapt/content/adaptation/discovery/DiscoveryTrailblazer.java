@@ -61,12 +61,12 @@ public class DiscoveryTrailblazer extends SimpleAdaptation<DiscoveryTrailblazer.
         .icon(Material.LEATHER_BOOTS)
         .key("challenge_discovery_trailblazer_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.FILLED_MAP)
             .key("challenge_discovery_trailblazer_100")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_discovery_trailblazer_25", "discovery.trailblazer.discoveries", 25, 400);

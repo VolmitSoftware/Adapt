@@ -73,12 +73,12 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
         .icon(Material.IRON_BLOCK)
         .key("challenge_crafting_compactor_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_BLOCK)
             .key("challenge_crafting_compactor_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_crafting_compactor_1k", "crafting.compactor.blocks-compacted", 1000, 400);

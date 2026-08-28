@@ -84,12 +84,12 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
         .icon(Material.PACKED_ICE)
         .key("challenge_agility_slipstream_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.BLUE_ICE)
             .key("challenge_agility_slipstream_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_agility_slipstream_500", "agility.slipstream-slide.slides", 500, 400);

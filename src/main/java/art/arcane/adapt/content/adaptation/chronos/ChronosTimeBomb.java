@@ -157,13 +157,13 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         .icon(Material.ICE)
         .key("challenge_chronos_bomb_freeze_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.ICE)
         .key("challenge_chronos_bomb_crowd_8")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_bomb_freeze_50", "chronos.time-bomb.projectiles-frozen", 50, 500);
   }

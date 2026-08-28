@@ -58,12 +58,12 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_flow_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_SWORD)
             .key("challenge_swords_flow_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_swords_flow_1k", "swords.blade-flow.stacks-built", 1000, 400);
@@ -72,7 +72,7 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
         .icon(Material.NETHERITE_SWORD)
         .key("challenge_swords_flow_max")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
   }
 

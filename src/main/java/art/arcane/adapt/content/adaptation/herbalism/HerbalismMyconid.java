@@ -59,7 +59,7 @@ public class HerbalismMyconid extends SimpleAdaptation<HerbalismMyconid.Config> 
         .icon(Material.MYCELIUM)
         .key("challenge_herbalism_myconid_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_herbalism_myconid_100", "herbalism.myconid.mycelium-crafted", 100, 300);
   }

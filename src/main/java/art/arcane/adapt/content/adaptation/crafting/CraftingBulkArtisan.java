@@ -55,12 +55,12 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
         .icon(Material.OAK_PLANKS)
         .key("challenge_crafting_bulk_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.CHEST)
             .key("challenge_crafting_bulk_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_crafting_bulk_1k", "crafting.bulk-artisan.batch-crafted", 1000, 400);

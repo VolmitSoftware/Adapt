@@ -79,7 +79,7 @@ public class BrewingAbsorption extends SimpleAdaptation<BrewingAbsorption.Config
         .icon(Material.GOLDEN_APPLE)
         .key("challenge_brewing_absorption_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_brewing_absorption_25", "brewing.absorption.potions-brewed", 25, 300);
   }

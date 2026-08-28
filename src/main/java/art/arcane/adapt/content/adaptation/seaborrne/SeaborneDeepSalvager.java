@@ -98,12 +98,12 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
         .icon(Material.CHEST)
         .key("challenge_seaborne_salvage_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.HEART_OF_THE_SEA)
             .key("challenge_seaborne_salvage_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_seaborne_salvage_100", "seaborne.deep-salvager.containers-salvaged", 100, 400);

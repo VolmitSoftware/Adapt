@@ -72,12 +72,12 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_cyclone_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_swords_cyclone_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_swords_cyclone_500", "swords.crimson-cyclone.mobs-hit", 500, 400);
@@ -86,7 +86,7 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
         .icon(Material.NETHERITE_SWORD)
         .key("challenge_swords_cyclone_6")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
   }
 

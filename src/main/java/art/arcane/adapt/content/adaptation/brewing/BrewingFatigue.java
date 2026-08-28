@@ -78,7 +78,7 @@ public class BrewingFatigue extends SimpleAdaptation<BrewingFatigue.Config> {
         .icon(Material.BREWING_STAND)
         .key("challenge_brewing_fatigue_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_brewing_fatigue_25", "brewing.fatigue.potions-brewed", 25, 300);
   }

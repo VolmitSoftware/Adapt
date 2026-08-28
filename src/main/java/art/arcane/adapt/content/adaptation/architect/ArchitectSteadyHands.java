@@ -68,12 +68,12 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
         .icon(Material.LIGHTNING_ROD)
         .key("challenge_architect_steady_hands_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.LIGHTNING_ROD)
             .key("challenge_architect_steady_hands_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_architect_steady_hands_500", "architect.steady-hands.bridge-blocks", 500, 300);

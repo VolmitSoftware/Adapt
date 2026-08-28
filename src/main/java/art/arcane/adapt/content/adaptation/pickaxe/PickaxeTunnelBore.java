@@ -70,7 +70,7 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
         .icon(Material.IRON_PICKAXE)
         .key("challenge_pickaxe_tunnelbore_10k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_tunnelbore_10k", "pickaxe.tunnel-bore.blocks-bored", 10000, 500);
   }

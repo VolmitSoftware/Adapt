@@ -70,12 +70,12 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
         .icon(Material.LEATHER_CHESTPLATE)
         .key("challenge_stealth_ghost_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.CHAINMAIL_CHESTPLATE)
             .key("challenge_stealth_ghost_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_stealth_ghost_100", "stealth.ghost-armor.armor-consumed", 100, 300);

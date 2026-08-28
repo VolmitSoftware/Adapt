@@ -72,12 +72,12 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         .icon(Material.IRON_PICKAXE)
         .key("challenge_excavation_omni_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_PICKAXE)
             .key("challenge_excavation_omni_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_excavation_omni_1k", "excavation.omni-tool.auto-swaps", 1000, 400);

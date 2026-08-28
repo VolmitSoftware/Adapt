@@ -63,12 +63,12 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
         .icon(Material.SHIELD)
         .key("challenge_taming_shared_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.TOTEM_OF_UNDYING)
             .key("challenge_taming_shared_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_taming_shared_500", "taming.shared-pain.damage-taken", 500, 400);

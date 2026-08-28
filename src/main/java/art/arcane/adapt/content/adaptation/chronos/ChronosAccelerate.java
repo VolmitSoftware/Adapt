@@ -75,7 +75,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
         .icon(Material.SUGAR)
         .key("challenge_chronos_accelerate_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_accelerate_1k", "chronos.accelerate.blocks-accelerated", 1000, 600);
   }

@@ -75,7 +75,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         .icon(Material.LEATHER_BOOTS)
         .key("challenge_stealth_speed_5k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_stealth_speed_5k", "stealth.speed.blocks-sneak-sprinted", 5000, 400);
   }

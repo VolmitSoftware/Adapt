@@ -71,7 +71,7 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
         .icon(Material.SPECTRAL_ARROW)
         .key("challenge_chronos_echo_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_echo_200", "chronos.temporal-echo.echo-hits", 200, 400);
   }

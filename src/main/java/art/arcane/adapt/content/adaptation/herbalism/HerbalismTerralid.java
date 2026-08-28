@@ -63,7 +63,7 @@ public class HerbalismTerralid extends SimpleAdaptation<HerbalismTerralid.Config
         .icon(Material.GRASS_BLOCK)
         .key("challenge_herbalism_terralid_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_herbalism_terralid_200", "herbalism.terralid.grass-crafted", 200, 300);
   }

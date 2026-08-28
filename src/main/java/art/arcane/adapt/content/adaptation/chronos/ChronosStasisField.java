@@ -133,12 +133,12 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
         .icon(Material.AMETHYST_SHARD)
         .key("challenge_chronos_stasis_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.CLOCK)
             .key("challenge_chronos_stasis_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_chronos_stasis_50", "chronos.stasis-field.casts", 50, 400);

@@ -86,14 +86,14 @@ public class BlockingPhalanxCrafter extends SimpleAdaptation<BlockingPhalanxCraf
         .icon(Material.SHIELD)
         .key("challenge_blocking_phalanx_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_blocking_phalanx_25", "blocking.phalanx-crafter.items-crafted", 25, 400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.NETHERITE_INGOT)
         .key("challenge_blocking_phalanx_netherite")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
   }
 

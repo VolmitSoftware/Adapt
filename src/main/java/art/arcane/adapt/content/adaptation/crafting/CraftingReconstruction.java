@@ -304,7 +304,7 @@ public class CraftingReconstruction extends SimpleAdaptation<CraftingReconstruct
         .icon(Material.RAW_IRON)
         .key("challenge_crafting_recon_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_crafting_recon_100", "crafting.reconstruction.ores-reconstructed", 100, 300);
   }

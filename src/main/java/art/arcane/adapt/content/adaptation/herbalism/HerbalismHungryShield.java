@@ -54,12 +54,12 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         .icon(Material.BREAD)
         .key("challenge_herbalism_shield_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.GOLDEN_APPLE)
             .key("challenge_herbalism_shield_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_herbalism_shield_500", "herbalism.hungry-shield.damage-absorbed", 500, 400);

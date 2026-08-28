@@ -47,12 +47,12 @@ public class StealthUmbralRecovery extends SimpleAdaptation<StealthUmbralRecover
         .icon(Material.BEEF)
         .key("challenge_stealth_umbral_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.COOKED_BEEF)
             .key("challenge_stealth_umbral_2k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_stealth_umbral_200", "stealth.umbral-recovery.recoveries", 200, 400);

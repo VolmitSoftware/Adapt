@@ -58,7 +58,7 @@ public class ExcavationTreasureHunter extends SimpleAdaptation<ExcavationTreasur
         .icon(Material.EMERALD)
         .key("challenge_excavation_treasure_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_treasure_500", "excavation.treasure-hunter.treasures-found", 500, 500);
   }

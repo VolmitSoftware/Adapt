@@ -74,7 +74,7 @@ public class PickaxeDeepCore extends SimpleAdaptation<PickaxeDeepCore.Config> {
         .icon(Material.DEEPSLATE)
         .key("challenge_pickaxe_deepcore_5k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_deepcore_5k", "pickaxe.deep-core.deepslate-mined", 5000, 400);
   }

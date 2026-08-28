@@ -53,12 +53,12 @@ public class BlockingInterpose extends SimpleAdaptation<BlockingInterpose.Config
         .icon(Material.SHIELD)
         .key("challenge_blocking_interpose_250")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_INGOT)
             .key("challenge_blocking_interpose_2k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_blocking_interpose_250", "blocking.interpose.damage-redirected", 250, 500);

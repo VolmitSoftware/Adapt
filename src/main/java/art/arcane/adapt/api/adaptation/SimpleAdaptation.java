@@ -485,7 +485,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         ))
         .icon(getIcon())
         .children(a)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build();
   }
 

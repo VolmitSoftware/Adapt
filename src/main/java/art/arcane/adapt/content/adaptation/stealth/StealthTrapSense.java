@@ -74,12 +74,12 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
         .icon(Material.SCULK_SENSOR)
         .key("challenge_stealth_trap_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SCULK_SHRIEKER)
             .key("challenge_stealth_trap_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_stealth_trap_500", "stealth.trap-sense.traps-revealed", 500, 400);

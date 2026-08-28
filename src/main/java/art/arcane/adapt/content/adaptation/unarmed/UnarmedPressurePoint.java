@@ -56,12 +56,12 @@ public class UnarmedPressurePoint extends SimpleAdaptation<UnarmedPressurePoint.
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_pressure_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_unarmed_pressure_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_unarmed_pressure_500", "unarmed.pressure-point.pressure-strikes", 500, 400);

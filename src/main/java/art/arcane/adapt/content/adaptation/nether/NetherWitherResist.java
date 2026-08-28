@@ -57,12 +57,12 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
         .icon(Material.WITHER_ROSE)
         .key("challenge_nether_wither_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHER_STAR)
             .key("challenge_nether_wither_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_nether_wither_100", "nether.wither-resist.negated", 100, 300);

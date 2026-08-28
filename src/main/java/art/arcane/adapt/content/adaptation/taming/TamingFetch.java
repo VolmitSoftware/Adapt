@@ -88,12 +88,12 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
         .icon(Material.HOPPER)
         .key("challenge_taming_fetch_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.CHEST)
             .key("challenge_taming_fetch_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_taming_fetch_1k", "taming.fetch.items-fetched", 1000, 400);

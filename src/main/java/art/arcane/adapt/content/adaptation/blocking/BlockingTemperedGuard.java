@@ -51,12 +51,12 @@ public class BlockingTemperedGuard extends SimpleAdaptation<BlockingTemperedGuar
         .icon(Material.ANVIL)
         .key("challenge_blocking_tempered_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_INGOT)
             .key("challenge_blocking_tempered_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_blocking_tempered_500", "blocking.tempered-guard.durability-repaired", 500, 500);

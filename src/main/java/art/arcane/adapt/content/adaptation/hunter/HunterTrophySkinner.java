@@ -54,12 +54,12 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
         .icon(Material.SKELETON_SKULL)
         .key("challenge_hunter_trophy_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ZOMBIE_HEAD)
             .key("challenge_hunter_trophy_heads_100")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_hunter_trophy_50", "hunter.trophy-skinner.trophies-collected", 50, 400);

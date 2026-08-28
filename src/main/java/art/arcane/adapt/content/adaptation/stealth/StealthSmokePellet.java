@@ -81,12 +81,12 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
         .icon(Material.GUNPOWDER)
         .key("challenge_stealth_smoke_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.TNT)
             .key("challenge_stealth_smoke_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_stealth_smoke_100", "stealth.smoke-pellet.thrown", 100, 400);

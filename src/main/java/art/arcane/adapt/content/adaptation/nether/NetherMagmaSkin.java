@@ -49,12 +49,12 @@ public class NetherMagmaSkin extends SimpleAdaptation<NetherMagmaSkin.Config> {
         .icon(Material.MAGMA_CREAM)
         .key("challenge_nether_magma_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.MAGMA_BLOCK)
             .key("challenge_nether_magma_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_nether_magma_100", "nether.magma-skin.attackers-ignited", 100, 300);

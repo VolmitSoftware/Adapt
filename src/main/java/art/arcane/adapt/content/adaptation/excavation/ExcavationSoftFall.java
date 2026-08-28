@@ -54,7 +54,7 @@ public class ExcavationSoftFall extends SimpleAdaptation<ExcavationSoftFall.Conf
         .icon(Material.SAND)
         .key("challenge_excavation_softfall_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_softfall_1k", "excavation.soft-fall.damage-prevented", 1000, 500);
   }

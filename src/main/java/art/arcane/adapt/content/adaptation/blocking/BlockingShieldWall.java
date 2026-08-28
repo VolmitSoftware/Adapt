@@ -50,12 +50,12 @@ public class BlockingShieldWall extends SimpleAdaptation<BlockingShieldWall.Conf
         .icon(Material.SHIELD)
         .key("challenge_blocking_shieldwall_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_INGOT)
             .key("challenge_blocking_shieldwall_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_blocking_shieldwall_500", "blocking.shield-wall.damage-shielded", 500, 500);

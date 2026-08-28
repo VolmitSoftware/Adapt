@@ -67,12 +67,12 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
         .icon(Material.TOTEM_OF_UNDYING)
         .key("challenge_taming_lastbreath_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHER_STAR)
             .key("challenge_taming_lastbreath_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_taming_lastbreath_50", "taming.last-breath.saves", 50, 400);

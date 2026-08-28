@@ -67,7 +67,7 @@ public class HunterJumpBoost extends SimpleAdaptation<HunterJumpBoost.Config> {
         .icon(Material.RABBIT_FOOT)
         .key("challenge_hunter_jump_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_hunter_jump_200", "hunter.jump-boost.activations", 200, 300);
   }

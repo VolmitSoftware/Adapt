@@ -133,12 +133,12 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         .icon(Material.LINGERING_POTION)
         .key("challenge_brewing_lingering_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DRAGON_BREATH)
             .key("challenge_brewing_lingering_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_brewing_lingering_200", "brewing.lingering.potions-extended", 200, 300);

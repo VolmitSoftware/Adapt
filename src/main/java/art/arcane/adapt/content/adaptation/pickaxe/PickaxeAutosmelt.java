@@ -60,12 +60,12 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
         .icon(Material.FURNACE)
         .key("challenge_pickaxe_autosmelt_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.BLAST_FURNACE)
             .key("challenge_pickaxe_autosmelt_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_pickaxe_autosmelt_1k", "pickaxe.autosmelt.ores-smelted", 1000, 400);

@@ -62,7 +62,7 @@ public class PickaxeRepairRhythm extends SimpleAdaptation<PickaxeRepairRhythm.Co
         .icon(Material.EXPERIENCE_BOTTLE)
         .key("challenge_pickaxe_rhythm_5k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_rhythm_5k", "pickaxe.repair-rhythm.durability-restored", 5000, 500);
   }

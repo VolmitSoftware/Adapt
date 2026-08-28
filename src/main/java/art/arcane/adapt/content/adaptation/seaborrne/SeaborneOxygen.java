@@ -57,7 +57,7 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
         .icon(Material.TURTLE_HELMET)
         .key("challenge_seaborne_oxygen_12k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_seaborne_oxygen_12k", "seaborne.oxygen.bonus-air-ticks", 12000, 300);
   }

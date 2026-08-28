@@ -70,7 +70,7 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
         .icon(Material.BONE)
         .key("challenge_excavation_gravedigger_300")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_gravedigger_300", "excavation.grave-digger.bones-unearthed", 300, 450);
   }

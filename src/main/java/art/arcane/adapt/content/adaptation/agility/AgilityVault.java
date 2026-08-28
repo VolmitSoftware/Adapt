@@ -90,12 +90,12 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
         .icon(Material.OAK_FENCE)
         .key("challenge_agility_vault_250")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHER_BRICK_FENCE)
             .key("challenge_agility_vault_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_agility_vault_250", "agility.vault.vaults", 250, 300);

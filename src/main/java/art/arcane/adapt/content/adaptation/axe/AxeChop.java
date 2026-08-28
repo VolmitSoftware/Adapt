@@ -56,19 +56,19 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
         .icon(Material.IRON_AXE)
         .key("challenge_axe_chop_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_AXE)
             .key("challenge_axe_chop_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.NETHERITE_AXE)
         .key("challenge_axe_chop_one_swing")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_axe_chop_100", "axe.chop.trees-felled", 100, 400);
     registerMilestone("challenge_axe_chop_2500", "axe.chop.trees-felled", 2500, 1500);

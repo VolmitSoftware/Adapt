@@ -61,7 +61,7 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
         .icon(Material.GLASS)
         .key("challenge_hunter_invis_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_hunter_invis_200", "hunter.invis.activations", 200, 300);
   }

@@ -81,7 +81,7 @@ public class HerbalismCraftableMushroomBlocks extends SimpleAdaptation<Herbalism
         .icon(Material.RED_MUSHROOM_BLOCK)
         .key("challenge_herbalism_mushroom_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_herbalism_mushroom_100", "herbalism.mushroom-blocks.crafted", 100, 300);
   }

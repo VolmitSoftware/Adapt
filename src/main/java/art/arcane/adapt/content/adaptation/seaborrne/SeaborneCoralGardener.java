@@ -86,12 +86,12 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
         .icon(Material.TUBE_CORAL_BLOCK)
         .key("challenge_seaborne_coral_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.BRAIN_CORAL_BLOCK)
             .key("challenge_seaborne_coral_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_seaborne_coral_500", "seaborne.coral-gardener.coral-placed", 500, 300);

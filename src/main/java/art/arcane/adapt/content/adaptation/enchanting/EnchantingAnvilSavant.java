@@ -60,12 +60,12 @@ public class EnchantingAnvilSavant extends SimpleAdaptation<EnchantingAnvilSavan
         .icon(Material.ANVIL)
         .key("challenge_enchanting_anvil_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ANVIL)
             .key("challenge_enchanting_anvil_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_anvil_200", "enchanting.anvil-savant.levels-saved", 200, 400);

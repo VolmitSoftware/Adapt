@@ -79,7 +79,7 @@ public class BrewingDecay extends SimpleAdaptation<BrewingDecay.Config> {
         .icon(Material.WITHER_ROSE)
         .key("challenge_brewing_decay_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_brewing_decay_25", "brewing.decay.potions-brewed", 25, 300);
   }

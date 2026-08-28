@@ -60,12 +60,12 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         .icon(Material.ENDER_CHEST)
         .key("challenge_rift_pocket_5k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_CHEST)
             .key("challenge_rift_pocket_store_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_rift_pocket_5k", "rift.inflated-pocket.items-pulled", 5000, 400);

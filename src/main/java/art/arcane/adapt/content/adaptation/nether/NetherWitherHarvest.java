@@ -51,12 +51,12 @@ public class NetherWitherHarvest extends SimpleAdaptation<NetherWitherHarvest.Co
         .icon(Material.BONE)
         .key("challenge_nether_harvest_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.WITHER_SKELETON_SKULL)
             .key("challenge_nether_harvest_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_nether_harvest_100", "nether.wither-harvest.skeletons-harvested", 100, 300);

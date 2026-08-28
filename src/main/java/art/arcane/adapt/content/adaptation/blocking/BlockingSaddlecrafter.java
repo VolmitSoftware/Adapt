@@ -63,7 +63,7 @@ public class BlockingSaddlecrafter extends SimpleAdaptation<BlockingSaddlecrafte
         .icon(Material.SADDLE)
         .key("challenge_blocking_saddle_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_blocking_saddle_25", "blocking.saddlecrafter.saddles-crafted", 25, 400);
   }

@@ -49,12 +49,12 @@ public class BlockingShieldbearersResolve extends SimpleAdaptation<BlockingShiel
         .icon(Material.SHIELD)
         .key("challenge_blocking_resolve_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_INGOT)
             .key("challenge_blocking_resolve_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_blocking_resolve_100", "blocking.shieldbearers-resolve.recoveries", 100, 600);

@@ -53,7 +53,7 @@ public class PickaxeGemPolish extends SimpleAdaptation<PickaxeGemPolish.Config> 
         .icon(Material.DRAGON_HEAD)
         .key("challenge_pickaxe_gempolish_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_gempolish_25", "pickaxe.gem-polish.trophies-polished", 25, 400);
   }

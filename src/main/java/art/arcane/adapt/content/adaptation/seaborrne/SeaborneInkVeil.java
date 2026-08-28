@@ -70,12 +70,12 @@ public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
         .icon(Material.INK_SAC)
         .key("challenge_seaborne_ink_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.GLOW_INK_SAC)
             .key("challenge_seaborne_ink_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_seaborne_ink_100", "seaborne.ink-veil.clouds-burst", 100, 300);

@@ -64,7 +64,7 @@ public class HerbalismCraftableCobweb extends SimpleAdaptation<HerbalismCraftabl
         .icon(Material.COBWEB)
         .key("challenge_herbalism_cobweb_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_herbalism_cobweb_100", "herbalism.cobweb.cobwebs-crafted", 100, 300);
   }

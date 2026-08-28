@@ -87,12 +87,12 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
         .icon(Material.SPECTRAL_ARROW)
         .key("challenge_ranged_ricochet_kills_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPECTRAL_ARROW)
             .key("challenge_ranged_ricochet_kills_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_ranged_ricochet_kills_50", "ranged.ricochet-bolt.ricochet-kills", 50, 500);

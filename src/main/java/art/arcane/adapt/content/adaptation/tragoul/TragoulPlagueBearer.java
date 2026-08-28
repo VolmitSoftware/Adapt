@@ -102,12 +102,12 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
         .icon(Material.POISONOUS_POTATO)
         .key("challenge_tragoul_plague_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPIDER_EYE)
             .key("challenge_tragoul_plague_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_tragoul_plague_100", "tragoul.plague-bearer.mobs-infected", 100, 400);

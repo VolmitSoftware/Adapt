@@ -59,12 +59,12 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
         .icon(Material.ENCHANTED_BOOK)
         .key("challenge_enchanting_quick_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.BOOKSHELF)
             .key("challenge_enchanting_quick_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_quick_100", "enchanting.quick-enchant.books-applied", 100, 300);

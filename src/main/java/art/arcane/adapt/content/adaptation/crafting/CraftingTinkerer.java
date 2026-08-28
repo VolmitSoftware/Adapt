@@ -60,12 +60,12 @@ public class CraftingTinkerer extends SimpleAdaptation<CraftingTinkerer.Config> 
         .icon(Material.IRON_PICKAXE)
         .key("challenge_crafting_tinkerer_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_PICKAXE)
             .key("challenge_crafting_tinkerer_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_crafting_tinkerer_50", "crafting.tinkerer.tools-tinkered", 50, 400);

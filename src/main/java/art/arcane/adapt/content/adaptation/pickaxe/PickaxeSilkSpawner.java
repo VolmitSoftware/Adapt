@@ -48,12 +48,12 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
         .icon(Material.SPAWNER)
         .key("challenge_pickaxe_spawner_10")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPAWNER)
             .key("challenge_pickaxe_spawner_50")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_pickaxe_spawner_10", "pickaxe.silk-spawner.spawners-collected", 10, 500);

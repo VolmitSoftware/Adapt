@@ -49,12 +49,12 @@ public class EnchantingRuneSight extends SimpleAdaptation<EnchantingRuneSight.Co
         .icon(Material.SPYGLASS)
         .key("challenge_enchanting_rune_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTING_TABLE)
             .key("challenge_enchanting_rune_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_rune_100", "enchanting.rune-sight.offers-revealed", 100, 300);

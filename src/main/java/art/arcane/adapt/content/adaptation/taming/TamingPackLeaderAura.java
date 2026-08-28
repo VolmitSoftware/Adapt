@@ -86,7 +86,7 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
         .icon(Material.BONE)
         .key("challenge_taming_pack_72k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_taming_pack_72k", "taming.pack-leader.buffed-ticks", 72000, 400);
   }

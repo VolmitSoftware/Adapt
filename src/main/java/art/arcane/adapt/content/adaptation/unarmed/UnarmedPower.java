@@ -64,12 +64,12 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_power_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_unarmed_power_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_unarmed_power_500", "unarmed.power.unarmed-kills", 500, 400);

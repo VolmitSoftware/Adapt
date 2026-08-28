@@ -64,12 +64,12 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
         .icon(Material.WRITABLE_BOOK)
         .key("challenge_enchanting_rebind_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTED_BOOK)
             .key("challenge_enchanting_rebind_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_rebind_50", "enchanting.tome-rebinding.books-split", 50, 400);

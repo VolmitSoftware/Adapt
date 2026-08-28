@@ -66,12 +66,12 @@ public class HunterBigGameHunter extends SimpleAdaptation<HunterBigGameHunter.Co
         .icon(Material.RAVAGER_SPAWN_EGG)
         .key("challenge_hunter_big_game_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHER_STAR)
             .key("challenge_hunter_big_game_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_hunter_big_game_100", "hunter.big-game.big-game-slain", 100, 600);

@@ -50,7 +50,7 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
         .icon(Material.BOOKSHELF)
         .key("challenge_enchanting_bookshelf_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_enchanting_bookshelf_100", "enchanting.bookshelf-attunement.enchants-boosted", 100, 400);
   }

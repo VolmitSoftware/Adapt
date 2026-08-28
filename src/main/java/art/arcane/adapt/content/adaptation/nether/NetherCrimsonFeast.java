@@ -58,12 +58,12 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
         .icon(Material.CRIMSON_FUNGUS)
         .key("challenge_nether_feast_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.WARPED_FUNGUS)
             .key("challenge_nether_feast_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_nether_feast_100", "nether.crimson-feast.fungi-eaten", 100, 300);

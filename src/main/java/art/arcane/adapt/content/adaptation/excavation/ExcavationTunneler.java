@@ -59,7 +59,7 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
         .icon(Material.IRON_SHOVEL)
         .key("challenge_excavation_tunneler_10k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_tunneler_10k", "excavation.tunneler.blocks-tunneled", 10000, 600);
   }

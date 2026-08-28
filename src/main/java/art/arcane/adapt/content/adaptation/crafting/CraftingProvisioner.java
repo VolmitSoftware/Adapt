@@ -55,12 +55,12 @@ public class CraftingProvisioner extends SimpleAdaptation<CraftingProvisioner.Co
         .icon(Material.BREAD)
         .key("challenge_crafting_provisioner_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.CAKE)
             .key("challenge_crafting_provisioner_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_crafting_provisioner_500", "crafting.provisioner.bonus-portions", 500, 400);

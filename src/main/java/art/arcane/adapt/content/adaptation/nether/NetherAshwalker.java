@@ -51,12 +51,12 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
         .icon(Material.CAMPFIRE)
         .key("challenge_nether_ash_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SOUL_CAMPFIRE)
             .key("challenge_nether_ash_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_nether_ash_200", "nether.ashwalker.damage-negated", 200, 300);

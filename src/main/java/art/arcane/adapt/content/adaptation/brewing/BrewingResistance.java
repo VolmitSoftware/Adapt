@@ -78,7 +78,7 @@ public class BrewingResistance extends SimpleAdaptation<BrewingResistance.Config
         .icon(Material.IRON_CHESTPLATE)
         .key("challenge_brewing_resistance_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_brewing_resistance_25", "brewing.resistance.potions-brewed", 25, 300);
   }

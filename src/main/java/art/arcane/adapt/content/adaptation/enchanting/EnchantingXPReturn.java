@@ -54,7 +54,7 @@ public class EnchantingXPReturn extends SimpleAdaptation<EnchantingXPReturn.Conf
         .icon(Material.EXPERIENCE_BOTTLE)
         .key("challenge_enchanting_xp_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_enchanting_xp_100", "enchanting.xp-return.levels-saved", 100, 400);
   }

@@ -116,12 +116,12 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
         .icon(Material.LADDER)
         .key("challenge_agility_ladder_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.IRON_CHAIN)
             .key("challenge_agility_ladder_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_agility_ladder_500", "agility.ladder-slide.blocks-climbed", 500, 300);

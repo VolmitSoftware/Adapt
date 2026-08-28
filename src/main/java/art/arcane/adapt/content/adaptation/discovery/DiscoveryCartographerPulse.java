@@ -69,12 +69,12 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
         .icon(Material.COMPASS)
         .key("challenge_discovery_cartographer_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.FILLED_MAP)
             .key("challenge_discovery_cartographer_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_discovery_cartographer_100", "discovery.cartographer-pulse.pulses", 100, 300);

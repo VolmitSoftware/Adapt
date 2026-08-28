@@ -63,13 +63,13 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
         .icon(Material.OAK_LOG)
         .key("challenge_axe_wood_vein_2500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_AXE)
         .key("challenge_axe_wood_vein_cascade")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_axe_wood_vein_2500", "axe.wood-veinminer.logs-veinmined", 2500, 500);
   }

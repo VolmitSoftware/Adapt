@@ -111,12 +111,12 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
         .icon(Material.ECHO_SHARD)
         .key("challenge_discovery_sixthsense_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SCULK_SENSOR)
             .key("challenge_discovery_sixthsense_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_discovery_sixthsense_100", "discovery.sixth-sense.senses", 100, 300);

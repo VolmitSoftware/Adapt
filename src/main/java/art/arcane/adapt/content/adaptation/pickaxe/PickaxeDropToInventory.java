@@ -58,7 +58,7 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
         .icon(Material.CHEST)
         .key("challenge_pickaxe_dti_25k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_dti_25k", "pickaxe.drop-to-inv.items-caught", 25000, 500);
   }

@@ -53,12 +53,12 @@ public class SwordsCrescentGuard extends SimpleAdaptation<SwordsCrescentGuard.Co
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_crescent_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_swords_crescent_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_swords_crescent_200", "swords.crescent-guard.guarded-kills", 200, 400);

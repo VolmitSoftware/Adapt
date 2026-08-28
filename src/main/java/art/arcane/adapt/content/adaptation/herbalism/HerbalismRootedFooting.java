@@ -57,7 +57,7 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
         .icon(Material.FARMLAND)
         .key("challenge_herbalism_rooted_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_herbalism_rooted_500", "herbalism.rooted-footing.farmland-saved", 500, 300);
   }

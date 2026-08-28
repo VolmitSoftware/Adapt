@@ -57,12 +57,12 @@ public class SeaborneFishersFantasy extends SimpleAdaptation<SeaborneFishersFant
         .icon(Material.FISHING_ROD)
         .key("challenge_seaborne_fish_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.TROPICAL_FISH)
             .key("challenge_seaborne_fish_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_seaborne_fish_500", "seaborne.fishers-fantasy.fish-caught", 500, 300);

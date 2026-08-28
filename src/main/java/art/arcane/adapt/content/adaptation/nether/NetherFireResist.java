@@ -56,12 +56,12 @@ public class NetherFireResist extends SimpleAdaptation<NetherFireResist.Config> 
         .icon(Material.FIRE_CHARGE)
         .key("challenge_nether_fire_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.MAGMA_CREAM)
             .key("challenge_nether_fire_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_nether_fire_200", "nether.fire-resist.negated", 200, 300);

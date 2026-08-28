@@ -100,7 +100,7 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
         .icon(Material.SPIDER_EYE)
         .key("challenge_tragoul_death_sense_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_tragoul_death_sense_1k", "tragoul.death-sense.prey-sensed", 1000, 600);
   }

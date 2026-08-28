@@ -59,12 +59,12 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
         .icon(Material.BONE_MEAL)
         .key("challenge_tragoul_marrow_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.BONE_BLOCK)
             .key("challenge_tragoul_marrow_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_tragoul_marrow_500", "tragoul.marrow-armor.damage-absorbed", 500, 400);

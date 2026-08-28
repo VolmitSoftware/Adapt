@@ -46,12 +46,12 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         .icon(Material.ARROW)
         .key("challenge_ranged_arrow_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPECTRAL_ARROW)
             .key("challenge_ranged_arrow_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_ranged_arrow_500", "ranged.arrow-recovery.arrows-recovered", 500, 300);

@@ -88,12 +88,12 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         .icon(Material.WHEAT)
         .key("challenge_herbalism_growth_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.HAY_BLOCK)
             .key("challenge_herbalism_growth_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_herbalism_growth_1k", "herbalism.growth-aura.blocks-grown", 1000, 300);

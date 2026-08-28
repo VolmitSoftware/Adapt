@@ -118,19 +118,19 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
         .icon(Material.CLOCK)
         .key("challenge_chronos_recall_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.RECOVERY_COMPASS)
             .key("challenge_chronos_recall_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.RECOVERY_COMPASS)
         .key("challenge_chronos_recall_cheat_death")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_recall_50", "chronos.instant-recall.recalls", 50, 300);
     registerMilestone("challenge_chronos_recall_1k", "chronos.instant-recall.recalls", 1000, 1500);

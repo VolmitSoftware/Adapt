@@ -57,12 +57,12 @@ public class SwordsDuelistsFocus extends SimpleAdaptation<SwordsDuelistsFocus.Co
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_duelist_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_swords_duelist_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_swords_duelist_200", "swords.duelists-focus.focused-hits", 200, 400);

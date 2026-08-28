@@ -59,7 +59,7 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
         .icon(Material.IRON_PICKAXE)
         .key("challenge_pickaxe_chisel_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_chisel_500", "pickaxe.chisel.extra-ores", 500, 400);
   }

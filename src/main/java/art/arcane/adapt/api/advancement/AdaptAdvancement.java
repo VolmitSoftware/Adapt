@@ -40,7 +40,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Builder
 @Data
@@ -64,13 +66,13 @@ public class AdaptAdvancement {
   @Builder.Default
   private boolean announce = false;
   @Builder.Default
-  private AdvancementVisibility visibility = AdvancementVisibility.PARENT_GRANTED;
+  private AdvancementVisibility visibility = AdvancementVisibility.VANILLA;
   @Builder.Default
   private String key = "root";
   @Singular
   private List<AdaptAdvancement> children;
 
-  private Advancement toAdvancement(Advancement parent, int index, int depth) {
+  private Advancement toAdvancement(Advancement parent, LayoutPosition position) {
     CustomModel customModel = getModel();
     ItemStack icon = customModel != null ?
         customModel.toItemStack() :
@@ -80,8 +82,8 @@ public class AdaptAdvancement {
         .frame(getFrame().toUaaFrame())
         .showToast(toast)
         .announceChat(announce)
-        .x(1f + depth)
-        .y(1f + index)
+        .x(position.x())
+        .y(position.y())
         .build();
 
     if (parent == null) {
@@ -97,8 +99,14 @@ public class AdaptAdvancement {
 
   public KList<Advancement> toAdvancements() {
     KList<Advancement> advancements = new KList<>();
-    appendAdvancements(advancements, null, 0, 0);
+    appendAdvancements(advancements, null, layoutPositions());
     return advancements;
+  }
+
+  Map<AdaptAdvancement, LayoutPosition> layoutPositions() {
+    Map<AdaptAdvancement, LayoutPosition> positions = new IdentityHashMap<>();
+    assignLayout(positions, new LayoutCursor(), 0);
+    return positions;
   }
 
   private String resolveTitle() {
@@ -135,12 +143,29 @@ public class AdaptAdvancement {
     return AdaptLanguage.text(textKey);
   }
 
-  private void appendAdvancements(KList<Advancement> advancements, Advancement parent, int index, int depth) {
-    int subtreeStart = advancements.size();
-    Advancement advancement = toAdvancement(parent, index, depth);
+  private float assignLayout(Map<AdaptAdvancement, LayoutPosition> positions, LayoutCursor cursor, int depth) {
+    float y;
+    if (children == null || children.isEmpty()) {
+      y = cursor.claimRow();
+    } else {
+      float firstChildY = children.getFirst().assignLayout(positions, cursor, depth + 1);
+      float lastChildY = firstChildY;
+      for (int index = 1; index < children.size(); index++) {
+        lastChildY = children.get(index).assignLayout(positions, cursor, depth + 1);
+      }
+      y = (firstChildY + lastChildY) / 2F;
+    }
+
+    positions.put(this, new LayoutPosition(1F + depth, 1F + y));
+    return y;
+  }
+
+  private void appendAdvancements(KList<Advancement> advancements, Advancement parent,
+                                   Map<AdaptAdvancement, LayoutPosition> positions) {
+    Advancement advancement = toAdvancement(parent, positions.get(this));
     if (children != null && !children.isEmpty()) {
       for (AdaptAdvancement child : children) {
-        child.appendAdvancements(advancements, advancement, advancements.size() - subtreeStart, depth + 1);
+        child.appendAdvancements(advancements, advancement, positions);
       }
     }
 
@@ -192,6 +217,19 @@ public class AdaptAdvancement {
     @Override
     public boolean isVisible(@NotNull TeamProgression progression) {
       return visibility.isVisible(this, progression);
+    }
+  }
+
+  record LayoutPosition(float x, float y) {
+  }
+
+  private static final class LayoutCursor {
+    private float nextRow;
+
+    private float claimRow() {
+      float row = nextRow;
+      nextRow++;
+      return row;
     }
   }
 }

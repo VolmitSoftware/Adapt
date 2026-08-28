@@ -106,12 +106,12 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
         .icon(Material.SPYGLASS)
         .key("challenge_discovery_insight_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.WRITABLE_BOOK)
             .key("challenge_discovery_insight_1000")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_discovery_insight_100", "discovery.insight.entities-inspected", 100, 300);

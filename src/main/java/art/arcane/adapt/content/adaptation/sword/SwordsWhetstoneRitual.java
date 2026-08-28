@@ -60,12 +60,12 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
         .icon(Material.GRINDSTONE)
         .key("challenge_swords_whetstone_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_swords_whetstone_1000")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_swords_whetstone_100", "swords.whetstone-ritual.rituals", 100, 400);

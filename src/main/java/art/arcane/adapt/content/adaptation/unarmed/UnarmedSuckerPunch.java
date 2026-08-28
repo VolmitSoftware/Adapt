@@ -54,14 +54,14 @@ public class UnarmedSuckerPunch extends SimpleAdaptation<UnarmedSuckerPunch.Conf
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_sucker_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_unarmed_sucker_500", "unarmed.sucker-punch.sucker-punches", 500, 400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND)
         .key("challenge_unarmed_knockout")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_unarmed_knockout", "unarmed.sucker-punch.one-punch-kills", 50, 1000);
   }

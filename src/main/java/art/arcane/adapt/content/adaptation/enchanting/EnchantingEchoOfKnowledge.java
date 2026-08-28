@@ -62,12 +62,12 @@ public class EnchantingEchoOfKnowledge extends SimpleAdaptation<EnchantingEchoOf
         .icon(Material.KNOWLEDGE_BOOK)
         .key("challenge_enchanting_echo_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTED_BOOK)
             .key("challenge_enchanting_echo_250")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_echo_25", "enchanting.echo-of-knowledge.levels-charged", 25, 400);

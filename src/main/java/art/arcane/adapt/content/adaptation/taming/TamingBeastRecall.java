@@ -74,12 +74,12 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
         .icon(Material.LEAD)
         .key("challenge_taming_recall_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_PEARL)
             .key("challenge_taming_recall_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_taming_recall_100", "taming.beast-recall.recalls", 100, 300);

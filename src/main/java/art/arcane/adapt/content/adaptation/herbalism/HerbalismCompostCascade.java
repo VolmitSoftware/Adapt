@@ -77,12 +77,12 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         .icon(Material.COMPOSTER)
         .key("challenge_herbalism_compost_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.BONE_MEAL)
             .key("challenge_herbalism_compost_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_herbalism_compost_1k", "herbalism.compost-cascade.items-composted", 1000, 300);

@@ -76,13 +76,13 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         .icon(Material.REDSTONE)
         .key("challenge_tragoul_pact_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.NETHERITE_SWORD)
         .key("challenge_tragoul_pact_kills_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_tragoul_pact_200", "tragoul.blood-pact.health-sacrificed", 200, 400);
     registerMilestone("challenge_tragoul_pact_kills_500", "tragoul.blood-pact.empowered-kills", 500, 1000);
@@ -90,7 +90,7 @@ public class TragoulBloodPact extends SimpleAdaptation<TragoulBloodPact.Config> 
         .icon(Material.REDSTONE)
         .key("challenge_tragoul_pact_all_in")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
   }
 

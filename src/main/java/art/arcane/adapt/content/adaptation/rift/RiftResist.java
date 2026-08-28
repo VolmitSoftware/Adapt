@@ -60,7 +60,7 @@ public class RiftResist extends SimpleAdaptation<RiftResist.Config> {
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_resist_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_rift_resist_200", "rift.resist.activations", 200, 300);
   }

@@ -51,7 +51,7 @@ public class AxeShieldSplitter extends SimpleAdaptation<AxeShieldSplitter.Config
         .icon(Material.SHIELD)
         .key("challenge_axe_shield_splitter_250")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_axe_shield_splitter_250", "axe.shield-splitter.shields-broken", 250, 700);
   }

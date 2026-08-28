@@ -54,12 +54,12 @@ public class UnarmedSecondWind extends SimpleAdaptation<UnarmedSecondWind.Config
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_second_wind_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_unarmed_second_wind_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_unarmed_second_wind_100", "unarmed.second-wind.second-winds", 100, 400);

@@ -70,12 +70,12 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
         .icon(Material.TROPICAL_FISH)
         .key("challenge_seaborne_charm_2k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.COD)
             .key("challenge_seaborne_charm_20k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_seaborne_charm_2k", "seaborne.fish-whisperer.charmed", 2000, 300);

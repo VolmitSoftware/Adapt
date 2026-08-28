@@ -57,20 +57,20 @@ public class UnarmedComboChain extends SimpleAdaptation<UnarmedComboChain.Config
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_combo_5k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_unarmed_combo_5k", "unarmed.combo-chain.total-combo-hits", 5000, 400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BLAZE_POWDER)
         .key("challenge_unarmed_combo_10")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.BLAZE_ROD)
         .key("challenge_unarmed_combo_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
   }
 

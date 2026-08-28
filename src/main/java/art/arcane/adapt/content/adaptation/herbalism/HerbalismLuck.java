@@ -60,12 +60,12 @@ public class HerbalismLuck extends SimpleAdaptation<HerbalismLuck.Config> {
         .icon(Material.RABBIT_FOOT)
         .key("challenge_herbalism_luck_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.EMERALD)
             .key("challenge_herbalism_luck_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_herbalism_luck_100", "herbalism.luck.lucky-drops", 100, 300);

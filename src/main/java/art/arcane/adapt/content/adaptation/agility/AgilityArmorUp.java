@@ -75,7 +75,7 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
         .icon(Material.IRON_CHESTPLATE)
         .key("challenge_agility_armor_up_30min")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_agility_armor_up_30min", "agility.armor-up.ticks-armored", 36000, 500);
   }

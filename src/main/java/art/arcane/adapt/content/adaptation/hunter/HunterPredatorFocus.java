@@ -57,12 +57,12 @@ public class HunterPredatorFocus extends SimpleAdaptation<HunterPredatorFocus.Co
         .icon(Material.TARGET)
         .key("challenge_hunter_predator_focus_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SPYGLASS)
             .key("challenge_hunter_predator_focus_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_hunter_predator_focus_500", "hunter.predator-focus.ramped-hits", 500, 400);

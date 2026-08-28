@@ -67,7 +67,7 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
         .icon(Material.SHULKER_SHELL)
         .key("challenge_ranged_floaters_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_ranged_floaters_200", "ranged.floaters.targets-levitated", 200, 300);
   }

@@ -66,7 +66,7 @@ public class BrewingDarkness extends SimpleAdaptation<BrewingDarkness.Config> {
         .icon(Material.BREWING_STAND)
         .key("challenge_brewing_darkness_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_brewing_darkness_25", "brewing.darkness.potions-brewed", 25, 300);
   }

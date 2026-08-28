@@ -69,13 +69,13 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
         .icon(Material.DIAMOND_PICKAXE)
         .key("challenge_pickaxe_veinminer_2500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_PICKAXE)
         .key("challenge_pickaxe_veinminer_20")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_veinminer_2500", "pickaxe.veinminer.ores-veinmined", 2500, 500);
   }

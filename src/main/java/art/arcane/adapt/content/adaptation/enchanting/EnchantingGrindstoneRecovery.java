@@ -57,12 +57,12 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
         .icon(Material.GRINDSTONE)
         .key("challenge_enchanting_grindstone_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.GRINDSTONE)
             .key("challenge_enchanting_grindstone_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_grindstone_50", "enchanting.grindstone-recovery.enchants-recovered", 50, 300);

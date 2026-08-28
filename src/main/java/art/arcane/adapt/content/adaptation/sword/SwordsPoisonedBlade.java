@@ -78,14 +78,14 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         .icon(Material.SPIDER_EYE)
         .key("challenge_swords_poison_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_swords_poison_500", "swords.poisoned-blade.poison-applied", 500, 400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FERMENTED_SPIDER_EYE)
         .key("challenge_swords_poison_kills_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_swords_poison_kills_50", "swords.poisoned-blade.poison-kills", 50, 1000);
   }

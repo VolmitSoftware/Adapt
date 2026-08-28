@@ -92,12 +92,12 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         .icon(Material.POTION).key("challenge_brew_1k")
         .model(CustomModel.get(Material.POTION, "advancement", "brewing", "challenge_brew_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+        .visibility(AdvancementVisibility.VANILLA).child(AdaptAdvancement.builder()
             .icon(Material.POTION)
             .key("challenge_brew_5k")
             .model(CustomModel.get(Material.POTION, "advancement", "brewing", "challenge_brew_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_brew_1k", "brewing.consumed", 1000, () -> getConfig().challengeBrew1k);
@@ -107,12 +107,12 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         .icon(Material.SPLASH_POTION).key("challenge_brewsplash_1k")
         .model(CustomModel.get(Material.SPLASH_POTION, "advancement", "brewing", "brewsplash_1k"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED).child(AdaptAdvancement.builder()
+        .visibility(AdvancementVisibility.VANILLA).child(AdaptAdvancement.builder()
             .icon(Material.SPLASH_POTION)
             .key("challenge_brewsplash_5k")
             .model(CustomModel.get(Material.SPLASH_POTION, "advancement", "brewing", "brewsplash_5k"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_brewsplash_1k", "brewing.splashes", 1000, () -> getConfig().challengeBrewSplash1k);
@@ -122,13 +122,13 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         .icon(Material.BREWING_STAND).key("challenge_brew_stands_10")
         .model(CustomModel.get(Material.BREWING_STAND, "advancement", "brewing", "challenge_brew_stands_10"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.BLAZE_ROD)
             .key("challenge_brew_stands_50")
             .model(CustomModel.get(Material.BLAZE_ROD, "advancement", "brewing", "challenge_brew_stands_50"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_brew_stands_10", "brewing.stands.placed", 10, () -> getConfig().challengeBrew1k);
@@ -138,13 +138,13 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         .icon(Material.GLOWSTONE_DUST).key("challenge_brew_strong_25")
         .model(CustomModel.get(Material.GLOWSTONE_DUST, "advancement", "brewing", "challenge_brew_strong_25"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DRAGON_BREATH)
             .key("challenge_brew_strong_250")
             .model(CustomModel.get(Material.DRAGON_BREATH, "advancement", "brewing", "challenge_brew_strong_250"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_brew_strong_25", "brewing.strong", 25, () -> getConfig().challengeBrew1k);
@@ -154,13 +154,13 @@ public class SkillBrewing extends SimpleSkill<SkillBrewing.Config> {
         .icon(Material.SPLASH_POTION).key("challenge_brew_splash_hits_50")
         .model(CustomModel.get(Material.SPLASH_POTION, "advancement", "brewing", "challenge_brew_splash_hits_50"))
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.LINGERING_POTION)
             .key("challenge_brew_splash_hits_500")
             .model(CustomModel.get(Material.LINGERING_POTION, "advancement", "brewing", "challenge_brew_splash_hits_500"))
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_brew_splash_hits_50", "brewing.splash.hits", 50, () -> getConfig().challengeBrewSplash1k);

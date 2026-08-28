@@ -76,7 +76,7 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
         .icon(Material.SOUL_SAND)
         .key("challenge_chronos_borrowed_2500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_borrowed_2500", "chronos.borrowed-time.damage-deferred", 2500, 900);
   }

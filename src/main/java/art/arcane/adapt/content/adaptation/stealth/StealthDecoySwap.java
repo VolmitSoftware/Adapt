@@ -67,12 +67,12 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
         .icon(Material.ARMOR_STAND)
         .key("challenge_stealth_decoy_swap_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_PEARL)
             .key("challenge_stealth_decoy_swap_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_stealth_decoy_swap_100", "stealth.decoy-swap.swaps", 100, 400);

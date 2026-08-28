@@ -137,7 +137,7 @@ public class SkillKinetics extends SimpleSkill<SkillKinetics.Config> {
         .icon(Material.ANVIL)
         .key("challenge_kinetics_anvil_drop")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_kinetics_anvil_drop", "kinetics.anvil.deep-kills", 1, () -> getConfig().anvilDropReward);
     ownerPulse = SkillOwnerPulse.register(this, this::getInterval, this::pulseKinetics);

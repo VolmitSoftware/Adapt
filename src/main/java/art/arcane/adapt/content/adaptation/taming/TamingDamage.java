@@ -88,12 +88,12 @@ public class TamingDamage extends SimpleAdaptation<TamingDamage.Config> {
         .icon(Material.BONE)
         .key("challenge_taming_damage_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_SWORD)
             .key("challenge_taming_damage_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_taming_damage_500", "taming.damage.pet-kills", 500, 400);

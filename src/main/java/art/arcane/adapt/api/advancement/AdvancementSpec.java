@@ -40,7 +40,7 @@ public class AdvancementSpec {
   @Builder.Default
   private AdaptAdvancementFrame frame = AdaptAdvancementFrame.TASK;
   @Builder.Default
-  private AdvancementVisibility visibility = AdvancementVisibility.PARENT_GRANTED;
+  private AdvancementVisibility visibility = AdvancementVisibility.VANILLA;
   @Builder.Default
   private boolean toast = false;
   @Builder.Default
@@ -55,7 +55,7 @@ public class AdvancementSpec {
         .title(title)
         .description(description)
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build();
   }
 

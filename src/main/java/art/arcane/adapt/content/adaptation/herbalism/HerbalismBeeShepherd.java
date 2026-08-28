@@ -98,7 +98,7 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
         .icon(Material.HONEYCOMB)
         .key("challenge_herbalism_bee_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_herbalism_bee_100", "herbalism.bee-shepherd.bees-attracted", 100, 300);
   }

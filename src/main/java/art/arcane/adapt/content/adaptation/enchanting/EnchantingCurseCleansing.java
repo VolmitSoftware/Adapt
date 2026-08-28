@@ -64,12 +64,12 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
         .icon(Material.GRINDSTONE)
         .key("challenge_enchanting_cleanse_10")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SHEARS)
             .key("challenge_enchanting_cleanse_100")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_cleanse_10", "enchanting.curse-cleansing.curses-removed", 10, 300);

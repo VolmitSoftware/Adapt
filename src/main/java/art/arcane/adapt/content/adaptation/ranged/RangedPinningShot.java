@@ -73,7 +73,7 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
         .icon(Material.ARROW)
         .key("challenge_ranged_pinning_300")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_ranged_pinning_300", "ranged.pinning-shot.targets-pinned", 300, 400);
   }

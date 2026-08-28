@@ -107,7 +107,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         .icon(Material.SPYGLASS)
         .key("challenge_ranged_trajectory_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_ranged_trajectory_100", "ranged.trajectory-sight.kills-while-aiming", 100, 400);
   }

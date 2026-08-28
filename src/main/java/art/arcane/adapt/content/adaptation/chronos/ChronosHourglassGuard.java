@@ -83,7 +83,7 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
         .icon(Material.TOTEM_OF_UNDYING)
         .key("challenge_chronos_hourglass_10")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_hourglass_10", "chronos.hourglass-guard.saves", 10, 800);
   }

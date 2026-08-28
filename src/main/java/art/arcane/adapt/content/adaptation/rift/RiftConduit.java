@@ -116,12 +116,12 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_conduit_10")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.CONDUIT)
             .key("challenge_rift_conduit_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_rift_conduit_10", "rift.conduit.links-formed", 10, 500);

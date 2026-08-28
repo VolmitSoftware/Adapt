@@ -77,12 +77,12 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
         .icon(Material.EMERALD)
         .key("challenge_discovery_villager_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.EMERALD_BLOCK)
             .key("challenge_discovery_villager_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_discovery_villager_100", "discovery.villager-att.improved-trades", 100, 300);

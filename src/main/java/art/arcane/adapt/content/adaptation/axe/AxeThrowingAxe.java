@@ -112,12 +112,12 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
         .icon(Material.IRON_AXE)
         .key("challenge_axe_throw_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_AXE)
             .key("challenge_axe_throw_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_axe_throw_500", "axe.throwing-axe.hits", 500, 500);

@@ -93,12 +93,12 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
         .icon(Material.BONE)
         .key("challenge_tragoul_bone_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.BONE_BLOCK)
             .key("challenge_tragoul_bone_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_tragoul_bone_500", "tragoul.bone-harvest.orbs-collected", 500, 300);

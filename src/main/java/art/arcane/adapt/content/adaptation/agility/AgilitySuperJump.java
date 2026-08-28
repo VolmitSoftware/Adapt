@@ -71,12 +71,12 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
         .icon(Material.LEATHER_BOOTS)
         .key("challenge_agility_super_jump_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.GOLDEN_BOOTS)
             .key("challenge_agility_super_jump_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_agility_super_jump_100", "agility.super-jump.jumps", 100, 300);

@@ -81,7 +81,7 @@ public class TamingHealthRegeneration extends SimpleAdaptation<TamingHealthRegen
         .icon(Material.GLISTERING_MELON_SLICE)
         .key("challenge_taming_regen_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_taming_regen_1k", "taming.health-regen.health-regened", 1000, 400);
   }

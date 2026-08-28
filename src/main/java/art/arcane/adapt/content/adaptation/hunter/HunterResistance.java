@@ -62,7 +62,7 @@ public class HunterResistance extends SimpleAdaptation<HunterResistance.Config> 
         .icon(Material.IRON_CHESTPLATE)
         .key("challenge_hunter_resistance_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_hunter_resistance_500", "hunter.resistance.activations", 500, 400);
   }

@@ -79,12 +79,12 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_heirloom_10")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_swords_heirloom_100")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_swords_heirloom_10", "swords.heirloom-edge.banks", 10, 400);

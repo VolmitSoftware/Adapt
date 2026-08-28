@@ -88,12 +88,12 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
         .icon(Material.QUARTZ_STAIRS)
         .key("challenge_architect_smart_shape_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.QUARTZ_STAIRS)
             .key("challenge_architect_smart_shape_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_architect_smart_shape_200", "architect.smart-shape.rotations", 200, 300);

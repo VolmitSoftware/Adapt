@@ -71,7 +71,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         .icon(Material.POWERED_RAIL)
         .key("challenge_agility_wind_up_10min")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_agility_wind_up_10min", "agility.wind-up.max-speed-ticks", 12000, 400);
   }

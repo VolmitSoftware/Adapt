@@ -61,12 +61,12 @@ public class DiscoveryUnity extends SimpleAdaptation<DiscoveryUnity.Config> {
         .icon(Material.EXPERIENCE_BOTTLE)
         .key("challenge_discovery_unity_5k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTING_TABLE)
             .key("challenge_discovery_unity_50k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_discovery_unity_5k", "discovery.unity.orbs-distributed", 5000, 400);

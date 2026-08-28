@@ -61,12 +61,12 @@ public class BlockingPerfectGuard extends SimpleAdaptation<BlockingPerfectGuard.
         .icon(Material.SHIELD)
         .key("challenge_blocking_perfect_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_blocking_perfect_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_blocking_perfect_100", "blocking.perfect-guard.hits-negated", 100, 600);

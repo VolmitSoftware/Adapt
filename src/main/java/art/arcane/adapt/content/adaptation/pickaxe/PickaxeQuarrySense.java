@@ -71,7 +71,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         .icon(Material.SPYGLASS)
         .key("challenge_pickaxe_quarry_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_quarry_200", "pickaxe.quarry-sense.scans", 200, 300);
   }

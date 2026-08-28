@@ -61,12 +61,12 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_disarm_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_unarmed_disarm_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_unarmed_disarm_100", "unarmed.disarm.disarms", 100, 400);

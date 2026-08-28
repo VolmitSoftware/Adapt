@@ -93,7 +93,7 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
         .icon(Material.GOLDEN_APPLE)
         .key("challenge_taming_health_boost_72k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_taming_health_boost_72k", "taming.health-boost.ticks-active", 72000, 400);
   }

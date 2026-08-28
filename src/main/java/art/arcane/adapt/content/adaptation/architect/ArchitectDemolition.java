@@ -76,12 +76,12 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
         .icon(Material.TNT)
         .key("challenge_architect_demolition_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.TNT)
             .key("challenge_architect_demolition_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_architect_demolition_500", "architect.demolition.blocks-demolished", 500, 300);

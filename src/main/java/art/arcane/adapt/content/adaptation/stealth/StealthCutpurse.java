@@ -75,12 +75,12 @@ public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
         .icon(Material.GOLD_NUGGET)
         .key("challenge_stealth_cutpurse_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.EMERALD)
             .key("challenge_stealth_cutpurse_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_stealth_cutpurse_100", "stealth.cutpurse.pockets-picked", 100, 400);

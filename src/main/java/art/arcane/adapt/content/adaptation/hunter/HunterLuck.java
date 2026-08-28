@@ -70,7 +70,7 @@ public class HunterLuck extends SimpleAdaptation<HunterLuck.Config> {
         .icon(Material.EMERALD)
         .key("challenge_hunter_luck_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_hunter_luck_200", "hunter.luck.activations", 200, 300);
   }

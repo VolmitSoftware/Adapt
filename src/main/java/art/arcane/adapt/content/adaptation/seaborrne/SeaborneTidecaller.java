@@ -74,12 +74,12 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
         .icon(Material.TRIDENT)
         .key("challenge_seaborne_tidecaller_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.HEART_OF_THE_SEA)
             .key("challenge_seaborne_tidecaller_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_seaborne_tidecaller_200", "seaborne.tidecaller.dashes", 200, 300);

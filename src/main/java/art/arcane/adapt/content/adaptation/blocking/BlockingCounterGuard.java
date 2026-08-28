@@ -68,14 +68,14 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
         .icon(Material.SHIELD)
         .key("challenge_blocking_counter_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_blocking_counter_500", "blocking.counter-guard.damage-reflected", 500, 500);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHIELD)
         .key("challenge_blocking_counter_max")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
   }
 

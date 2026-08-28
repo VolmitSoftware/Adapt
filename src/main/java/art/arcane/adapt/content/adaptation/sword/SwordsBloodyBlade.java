@@ -65,14 +65,14 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_bloody_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_swords_bloody_500", "swords.bloody-blade.bleed-damage", 500, 400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_SWORD)
         .key("challenge_swords_bloody_kills_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_swords_bloody_kills_100", "swords.bloody-blade.bleed-kills", 100, 1000);
   }

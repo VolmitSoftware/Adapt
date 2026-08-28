@@ -63,13 +63,13 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         .title(AdaptLanguage.text(RangedMessages.FORCE_SHOT_ADVANCEMENTNAME))
         .description(AdaptLanguage.text(RangedMessages.FORCE_SHOT_ADVANCEMENTLORE))
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPECTRAL_ARROW)
         .key("challenge_ranged_force_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_ranged_force_500", "ranged.force.long-range-hits", 500, 500);
   }

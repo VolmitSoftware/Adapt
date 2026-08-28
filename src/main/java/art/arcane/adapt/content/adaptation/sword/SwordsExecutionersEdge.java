@@ -53,12 +53,12 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_execute_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_swords_execute_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_swords_execute_200", "swords.executioners-edge.executions", 200, 400);
@@ -67,7 +67,7 @@ public class SwordsExecutionersEdge extends SimpleAdaptation<SwordsExecutionersE
         .icon(Material.NETHERITE_AXE)
         .key("challenge_swords_execute_5in10")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
   }
 

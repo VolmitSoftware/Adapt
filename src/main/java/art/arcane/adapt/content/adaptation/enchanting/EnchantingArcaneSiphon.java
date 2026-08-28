@@ -57,12 +57,12 @@ public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSip
         .icon(Material.SOUL_LANTERN)
         .key("challenge_enchanting_siphon_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTED_BOOK)
             .key("challenge_enchanting_siphon_250")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_siphon_25", "enchanting.arcane-siphon.books-siphoned", 25, 400);

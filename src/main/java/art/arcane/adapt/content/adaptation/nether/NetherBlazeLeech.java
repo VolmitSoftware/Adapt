@@ -52,12 +52,12 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
         .icon(Material.BLAZE_ROD)
         .key("challenge_nether_blaze_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.BLAZE_POWDER)
             .key("challenge_nether_blaze_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_nether_blaze_200", "nether.blaze-leech.health-from-fire", 200, 300);

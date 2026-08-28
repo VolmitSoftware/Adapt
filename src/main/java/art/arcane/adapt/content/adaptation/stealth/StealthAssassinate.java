@@ -64,12 +64,12 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
         .icon(Material.IRON_SWORD)
         .key("challenge_stealth_assassinate_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.WITHER_ROSE)
             .key("challenge_stealth_assassinate_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_stealth_assassinate_50", "stealth.assassinate.executions", 50, 500);

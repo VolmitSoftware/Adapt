@@ -102,12 +102,12 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
         .icon(Material.SCAFFOLDING)
         .key("challenge_architect_foundation_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SCAFFOLDING)
             .key("challenge_architect_foundation_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_architect_foundation_1k", "architect.foundation.blocks-placed", 1000, 300);

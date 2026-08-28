@@ -60,12 +60,12 @@ public class AxeCleave extends SimpleAdaptation<AxeCleave.Config> {
         .icon(Material.DIAMOND_AXE)
         .key("challenge_axe_cleave_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_AXE)
             .key("challenge_axe_cleave_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_axe_cleave_1k", "axe.cleave.targets-hit", 1000, 500);

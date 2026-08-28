@@ -66,7 +66,7 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
         .icon(Material.COARSE_DIRT)
         .key("challenge_excavation_burrow_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_burrow_100", "excavation.burrow.burrows-dug", 100, 450);
   }

@@ -54,7 +54,7 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
         .icon(Material.ENDER_CHEST)
         .key("challenge_rift_enderchest_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_rift_enderchest_200", "rift.enderchest.opens", 200, 300);
   }

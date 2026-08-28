@@ -66,12 +66,12 @@ public class AxeSunder extends SimpleAdaptation<AxeSunder.Config> {
         .icon(Material.IRON_AXE)
         .key("challenge_axe_sunder_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_AXE)
             .key("challenge_axe_sunder_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_axe_sunder_500", "axe.sunder.stacks-applied", 500, 500);

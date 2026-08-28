@@ -50,7 +50,7 @@ public class HerbalismHungryHippo extends SimpleAdaptation<HerbalismHungryHippo.
         .icon(Material.GOLDEN_APPLE)
         .key("challenge_herbalism_hippo_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_herbalism_hippo_500", "herbalism.hungry-hippo.bonus-saturation", 500, 400);
   }

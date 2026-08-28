@@ -55,12 +55,12 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
         .icon(Material.PRISMARINE_CRYSTALS)
         .key("challenge_seaborne_hydro_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.HEART_OF_THE_SEA)
             .key("challenge_seaborne_hydro_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_seaborne_hydro_200", "seaborne.hydro-jet.jets", 200, 300);

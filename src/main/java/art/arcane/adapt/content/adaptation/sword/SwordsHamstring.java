@@ -52,12 +52,12 @@ public class SwordsHamstring extends SimpleAdaptation<SwordsHamstring.Config> {
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_hamstring_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_SWORD)
             .key("challenge_swords_hamstring_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_swords_hamstring_200", "swords.hamstring.hamstrings", 200, 400);

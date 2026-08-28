@@ -70,7 +70,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
         .icon(Material.LADDER)
         .key("challenge_agility_wall_jump_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.FEATHER)

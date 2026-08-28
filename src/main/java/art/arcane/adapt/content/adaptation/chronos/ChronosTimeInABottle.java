@@ -104,12 +104,12 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
         .icon(Material.CLOCK)
         .key("challenge_chronos_bottle_seconds_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.RECOVERY_COMPASS)
             .key("challenge_chronos_bottle_seconds_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone(

@@ -71,12 +71,12 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
         .icon(Material.ELYTRA)
         .key("challenge_blocking_multi_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_CHESTPLATE)
             .key("challenge_blocking_multi_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_blocking_multi_200", "blocking.multi-armor.swaps", 200, 400);

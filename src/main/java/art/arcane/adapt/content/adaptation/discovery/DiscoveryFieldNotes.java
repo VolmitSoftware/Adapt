@@ -53,12 +53,12 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
         .icon(Material.WRITABLE_BOOK)
         .key("challenge_discovery_fieldnotes_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.WRITTEN_BOOK)
             .key("challenge_discovery_fieldnotes_100")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_discovery_fieldnotes_25", "discovery.field-notes.species", 25, 500);

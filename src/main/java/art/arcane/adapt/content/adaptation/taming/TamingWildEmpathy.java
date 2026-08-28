@@ -83,12 +83,12 @@ public class TamingWildEmpathy extends SimpleAdaptation<TamingWildEmpathy.Config
         .icon(Material.DANDELION)
         .key("challenge_taming_empathy_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.OXEYE_DAISY)
             .key("challenge_taming_empathy_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_taming_empathy_100", "taming.wild-empathy.tames", 100, 400);

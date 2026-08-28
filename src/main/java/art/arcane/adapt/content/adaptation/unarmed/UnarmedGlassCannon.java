@@ -49,12 +49,12 @@ public class UnarmedGlassCannon extends SimpleAdaptation<UnarmedGlassCannon.Conf
         .icon(Material.GLASS)
         .key("challenge_unarmed_glass_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.GLASS_PANE)
             .key("challenge_unarmed_glass_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_unarmed_glass_100", "unarmed.glass-cannon.naked-kills", 100, 300);

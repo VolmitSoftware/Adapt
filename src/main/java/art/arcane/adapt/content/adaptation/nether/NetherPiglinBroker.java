@@ -53,12 +53,12 @@ public class NetherPiglinBroker extends SimpleAdaptation<NetherPiglinBroker.Conf
         .icon(Material.GOLD_INGOT)
         .key("challenge_nether_piglin_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.GOLD_BLOCK)
             .key("challenge_nether_piglin_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_nether_piglin_100", "nether.piglin-broker.improved-barters", 100, 300);

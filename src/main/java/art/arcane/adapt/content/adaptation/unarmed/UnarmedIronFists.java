@@ -56,12 +56,12 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_iron_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_unarmed_iron_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_unarmed_iron_1k", "unarmed.iron-fists.iron-hits", 1000, 400);

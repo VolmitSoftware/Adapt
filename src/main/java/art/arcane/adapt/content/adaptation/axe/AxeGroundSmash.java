@@ -69,13 +69,13 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
         .icon(Material.IRON_AXE)
         .key("challenge_axe_ground_smash_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.NETHERITE_AXE)
         .key("challenge_axe_ground_smash_5")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_axe_ground_smash_500", "axe.ground-smash.mobs-hit", 500, 500);
   }

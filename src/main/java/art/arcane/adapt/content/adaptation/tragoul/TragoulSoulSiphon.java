@@ -68,12 +68,12 @@ public class TragoulSoulSiphon extends SimpleAdaptation<TragoulSoulSiphon.Config
         .icon(Material.SOUL_LANTERN)
         .key("challenge_tragoul_siphon_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SOUL_CAMPFIRE)
             .key("challenge_tragoul_siphon_10k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_tragoul_siphon_500", "tragoul.soul-siphon.health-siphoned", 500, 400);

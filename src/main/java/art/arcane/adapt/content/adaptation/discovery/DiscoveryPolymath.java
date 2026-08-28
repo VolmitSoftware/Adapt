@@ -56,12 +56,12 @@ public class DiscoveryPolymath extends SimpleAdaptation<DiscoveryPolymath.Config
         .icon(Material.KNOWLEDGE_BOOK)
         .key("challenge_discovery_polymath_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTED_BOOK)
             .key("challenge_discovery_polymath_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_discovery_polymath_500", "discovery.polymath.boosts", 500, 400);

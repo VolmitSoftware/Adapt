@@ -68,12 +68,12 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
         .icon(Material.SHULKER_BOX)
         .key("challenge_architect_supply_line_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SHULKER_BOX)
             .key("challenge_architect_supply_line_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_architect_supply_line_100", "architect.supply-line.refills", 100, 300);

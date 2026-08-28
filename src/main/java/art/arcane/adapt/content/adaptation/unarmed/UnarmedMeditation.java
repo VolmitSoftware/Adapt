@@ -82,12 +82,12 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
         .icon(Material.IRON_INGOT)
         .key("challenge_unarmed_meditate_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND)
             .key("challenge_unarmed_meditate_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_unarmed_meditate_500", "unarmed.meditation.absorption-gained", 500, 400);

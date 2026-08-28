@@ -97,13 +97,13 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
         .icon(Material.SADDLE)
         .key("challenge_taming_mounted_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_HORSE_ARMOR)
         .key("challenge_taming_mounted_50k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_taming_mounted_200", "taming.mounted-tactics.mounted-kills", 200, 400);
     registerMilestone("challenge_taming_mounted_50k", "taming.mounted-tactics.distance", 50000, 1000);

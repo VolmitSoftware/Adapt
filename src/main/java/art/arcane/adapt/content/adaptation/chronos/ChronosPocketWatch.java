@@ -66,7 +66,7 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
         .icon(Material.FEATHER)
         .key("challenge_chronos_pocket_watch_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_pocket_watch_500", "chronos.pocket-watch.slow-fall-seconds", 500, 650);
   }

@@ -81,12 +81,12 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_machete_2500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_SWORD)
             .key("challenge_swords_machete_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_swords_machete_2500", "swords.machete.foliage-cut", 2500, 300);

@@ -58,7 +58,7 @@ public class ChronosDejaVu extends SimpleAdaptation<ChronosDejaVu.Config> {
         .icon(Material.ITEM_FRAME)
         .key("challenge_chronos_deja_vu_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_deja_vu_500", "chronos.deja-vu.damage-absorbed", 500, 700);
   }

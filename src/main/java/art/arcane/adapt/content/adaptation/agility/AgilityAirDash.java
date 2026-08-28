@@ -59,12 +59,12 @@ public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
         .icon(Material.PHANTOM_MEMBRANE)
         .key("challenge_agility_air_dash_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ELYTRA)
             .key("challenge_agility_air_dash_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_agility_air_dash_500", "agility.air-dash.dashes", 500, 400);

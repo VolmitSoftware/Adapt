@@ -64,12 +64,12 @@ public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfus
         .icon(Material.ANVIL)
         .key("challenge_enchanting_infusion_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTED_BOOK)
             .key("challenge_enchanting_infusion_250")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_infusion_25", "enchanting.infusion-transfer.transfers", 25, 400);

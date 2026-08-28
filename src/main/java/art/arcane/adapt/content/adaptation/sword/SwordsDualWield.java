@@ -53,12 +53,12 @@ public class SwordsDualWield extends SimpleAdaptation<SwordsDualWield.Config> {
         .icon(Material.IRON_SWORD)
         .key("challenge_swords_dual_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_SWORD)
             .key("challenge_swords_dual_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_swords_dual_1k", "swords.dual-wield.bonus-damage", 1000, 400);

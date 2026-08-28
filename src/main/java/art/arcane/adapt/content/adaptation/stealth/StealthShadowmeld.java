@@ -78,12 +78,12 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
         .icon(Material.BLACK_WOOL)
         .key("challenge_stealth_shadowmeld_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SCULK_SHRIEKER)
             .key("challenge_stealth_shadowmeld_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_stealth_shadowmeld_100", "stealth.shadowmeld.melds", 100, 350);

@@ -72,14 +72,14 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
         .icon(Material.SHIELD)
         .key("challenge_blocking_bastion_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_blocking_bastion_500", "blocking.bastion-stance.projectiles-softened", 500, 500);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHIELD)
         .key("challenge_blocking_bastion_10")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
   }
 

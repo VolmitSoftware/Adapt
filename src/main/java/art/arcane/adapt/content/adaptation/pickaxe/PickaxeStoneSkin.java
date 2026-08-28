@@ -62,7 +62,7 @@ public class PickaxeStoneSkin extends SimpleAdaptation<PickaxeStoneSkin.Config> 
         .icon(Material.STONE)
         .key("challenge_pickaxe_stoneskin_10k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_stoneskin_10k", "pickaxe.stone-skin.stacks-gained", 10000, 500);
   }

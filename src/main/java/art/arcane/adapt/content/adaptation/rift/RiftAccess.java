@@ -110,12 +110,12 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
         .icon(Material.CHEST)
         .key("challenge_rift_access_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_CHEST)
             .key("challenge_rift_access_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_rift_access_100", "rift.access.remote-opens", 100, 300);

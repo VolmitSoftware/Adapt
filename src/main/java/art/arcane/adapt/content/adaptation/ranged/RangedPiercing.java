@@ -59,13 +59,13 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
         .icon(Material.SPECTRAL_ARROW)
         .key("challenge_ranged_piercing_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SPECTRAL_ARROW)
         .key("challenge_ranged_piercing_4")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_ranged_piercing_500", "ranged.piercing.extra-hits", 500, 400);
   }

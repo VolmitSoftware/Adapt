@@ -79,7 +79,7 @@ public class BrewingHealthBoost extends SimpleAdaptation<BrewingHealthBoost.Conf
         .icon(Material.GLISTERING_MELON_SLICE)
         .key("challenge_brewing_health_boost_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_brewing_health_boost_25", "brewing.health-boost.potions-brewed", 25, 300);
   }

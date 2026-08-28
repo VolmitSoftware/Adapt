@@ -49,12 +49,12 @@ public class AgilityCatReflexes extends SimpleAdaptation<AgilityCatReflexes.Conf
         .icon(Material.RABBIT_HIDE)
         .key("challenge_agility_cat_reflexes_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.PHANTOM_MEMBRANE)
             .key("challenge_agility_cat_reflexes_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_agility_cat_reflexes_100", "agility.cat-reflexes.dodges", 100, 300);

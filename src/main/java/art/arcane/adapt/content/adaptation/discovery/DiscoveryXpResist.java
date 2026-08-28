@@ -62,19 +62,19 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
         .icon(Material.TOTEM_OF_UNDYING)
         .key("challenge_discovery_xp_resist_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTED_GOLDEN_APPLE)
             .key("challenge_discovery_xp_resist_250")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.TOTEM_OF_UNDYING)
         .key("challenge_discovery_xp_resist_clutch")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_discovery_xp_resist_25", "discovery.xp-resist.saves", 25, 500);
     registerMilestone("challenge_discovery_xp_resist_250", "discovery.xp-resist.saves", 250, 2000);

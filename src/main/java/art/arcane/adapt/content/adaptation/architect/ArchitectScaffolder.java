@@ -73,12 +73,12 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
         .icon(Material.SCAFFOLDING)
         .key("challenge_architect_scaffolder_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SCAFFOLDING)
             .key("challenge_architect_scaffolder_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_architect_scaffolder_500", "architect.scaffolder.blocks-scaffolded", 500, 300);

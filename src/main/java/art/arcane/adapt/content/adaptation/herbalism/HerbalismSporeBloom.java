@@ -71,7 +71,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         .icon(Material.BROWN_MUSHROOM)
         .key("challenge_herbalism_spore_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_herbalism_spore_500", "herbalism.spore-bloom.blocks-spread", 500, 300);
   }

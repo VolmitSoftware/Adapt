@@ -61,7 +61,7 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
         .icon(Material.MUD)
         .key("challenge_excavation_mudlark_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_mudlark_1k", "excavation.mudlark.bonus-drops", 1000, 500);
   }

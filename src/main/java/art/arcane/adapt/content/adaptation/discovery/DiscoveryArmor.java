@@ -89,7 +89,7 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
         .icon(Material.IRON_CHESTPLATE)
         .key("challenge_discovery_armor_1hr")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_discovery_armor_1hr", "discovery.armor.ticks-with-bonus", 72000, 400);
   }

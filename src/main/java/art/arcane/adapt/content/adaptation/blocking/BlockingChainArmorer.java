@@ -89,7 +89,7 @@ public class BlockingChainArmorer extends SimpleAdaptation<BlockingChainArmorer.
         .icon(Material.CHAINMAIL_CHESTPLATE)
         .key("challenge_blocking_chain_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_blocking_chain_25", "blocking.chain-armorer.pieces-crafted", 25, 400);
   }

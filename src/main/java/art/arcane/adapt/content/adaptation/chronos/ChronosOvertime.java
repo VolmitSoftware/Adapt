@@ -66,7 +66,7 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
         .icon(Material.GLISTERING_MELON_SLICE)
         .key("challenge_chronos_overtime_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_overtime_1k", "chronos.overtime.seconds-extended", 1000, 750);
   }

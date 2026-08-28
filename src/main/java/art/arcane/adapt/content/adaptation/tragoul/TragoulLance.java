@@ -91,13 +91,13 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         .icon(Material.IRON_SWORD)
         .key("challenge_tragoul_lance_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_SWORD)
         .key("challenge_tragoul_lance_kills_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_tragoul_lance_200", "tragoul.lance.lances-spawned", 200, 400);
     registerMilestone("challenge_tragoul_lance_kills_100", "tragoul.lance.lance-kills", 100, 1000);

@@ -108,7 +108,7 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
         .icon(Material.COBWEB)
         .key("challenge_ranged_web_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_ranged_web_200", "ranged.web-bomb.mobs-trapped", 200, 300);
   }

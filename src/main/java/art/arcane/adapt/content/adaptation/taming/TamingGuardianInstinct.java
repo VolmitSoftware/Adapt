@@ -59,12 +59,12 @@ public class TamingGuardianInstinct extends SimpleAdaptation<TamingGuardianInsti
         .icon(Material.SHIELD)
         .key("challenge_taming_guardian_250")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_CHESTPLATE)
             .key("challenge_taming_guardian_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_taming_guardian_250", "taming.guardian-instinct.intercepts", 250, 400);

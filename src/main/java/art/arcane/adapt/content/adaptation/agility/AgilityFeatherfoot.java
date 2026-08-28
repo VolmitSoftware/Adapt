@@ -75,12 +75,12 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
         .icon(Material.RABBIT_FOOT)
         .key("challenge_agility_featherfoot_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.LEATHER_BOOTS)
             .key("challenge_agility_featherfoot_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_agility_featherfoot_500", "agility.featherfoot.surfaces-ignored", 500, 300);

@@ -94,12 +94,12 @@ public class HunterSnareLine extends SimpleAdaptation<HunterSnareLine.Config> {
         .icon(Material.TRIPWIRE_HOOK)
         .key("challenge_hunter_snare_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.LEAD)
             .key("challenge_hunter_snare_2k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_hunter_snare_200", "hunter.snare-line.mobs-snared", 200, 400);

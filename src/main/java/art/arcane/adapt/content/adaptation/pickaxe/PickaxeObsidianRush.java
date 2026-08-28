@@ -65,7 +65,7 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
         .icon(Material.OBSIDIAN)
         .key("challenge_pickaxe_obsidianrush_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_obsidianrush_1k", "pickaxe.obsidian-rush.obsidian-mined", 1000, 500);
   }

@@ -57,12 +57,12 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
         .icon(Material.SOUL_SAND)
         .key("challenge_nether_soul_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SOUL_SOIL)
             .key("challenge_nether_soul_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_nether_soul_1k", "nether.soul-strider.blocks-walked", 1000, 300);

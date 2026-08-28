@@ -78,7 +78,7 @@ public class BrewingSaturation extends SimpleAdaptation<BrewingSaturation.Config
         .icon(Material.GOLDEN_CARROT)
         .key("challenge_brewing_saturation_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_brewing_saturation_25", "brewing.saturation.potions-brewed", 25, 300);
   }

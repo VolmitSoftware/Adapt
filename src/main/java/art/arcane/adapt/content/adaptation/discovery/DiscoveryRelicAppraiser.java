@@ -76,12 +76,12 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
         .icon(Material.SPYGLASS)
         .key("challenge_discovery_appraiser_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DECORATED_POT)
             .key("challenge_discovery_appraiser_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_discovery_appraiser_50", "discovery.relic-appraiser.appraised", 50, 300);

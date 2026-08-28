@@ -79,7 +79,7 @@ public class BrewingBlindness extends SimpleAdaptation<BrewingBlindness.Config> 
         .icon(Material.INK_SAC)
         .key("challenge_brewing_blindness_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_brewing_blindness_25", "brewing.blindness.potions-brewed", 25, 300);
   }

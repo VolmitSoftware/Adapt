@@ -1017,7 +1017,7 @@ public class AxeCraftLogSwap extends SimpleAdaptation<AxeCraftLogSwap.Config> {
         .icon(Material.OAK_SAPLING)
         .key("challenge_axe_log_swap_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_axe_log_swap_500", "axe.log-swap.conversions", 500, 400);
   }

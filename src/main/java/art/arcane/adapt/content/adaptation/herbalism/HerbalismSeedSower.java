@@ -64,12 +64,12 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
         .icon(Material.WHEAT_SEEDS)
         .key("challenge_herbalism_seed_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.FARMLAND)
             .key("challenge_herbalism_seed_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_herbalism_seed_1k", "herbalism.seed-sower.seeds-planted", 1000, 300);

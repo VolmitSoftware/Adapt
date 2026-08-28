@@ -67,12 +67,12 @@ public class CraftingSignature extends SimpleAdaptation<CraftingSignature.Config
         .icon(Material.EMERALD)
         .key("challenge_crafting_signature_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.EMERALD_BLOCK)
             .key("challenge_crafting_signature_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_crafting_signature_100", "crafting.signature.signed-trades", 100, 400);

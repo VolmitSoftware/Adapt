@@ -99,12 +99,12 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         .icon(Material.BRICKS)
         .key("challenge_architect_placement_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.BRICKS)
             .key("challenge_architect_placement_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_architect_placement_1k", "architect.placement.blocks-placed", 1000, 300);

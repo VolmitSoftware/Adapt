@@ -101,12 +101,12 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
         .icon(Material.WHITE_WOOL)
         .key("challenge_architect_elevator_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.WHITE_WOOL)
             .key("challenge_architect_elevator_penthouse")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_architect_elevator_100", "architect.elevator.trips", 100, 300);

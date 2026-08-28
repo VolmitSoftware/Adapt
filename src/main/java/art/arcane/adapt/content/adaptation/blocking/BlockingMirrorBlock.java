@@ -68,14 +68,14 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
         .icon(Material.SHIELD)
         .key("challenge_blocking_mirror_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_blocking_mirror_100", "blocking.mirror-block.projectiles-reflected", 100, 500);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.SHIELD)
         .key("challenge_blocking_mirror_3in5")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
   }
 

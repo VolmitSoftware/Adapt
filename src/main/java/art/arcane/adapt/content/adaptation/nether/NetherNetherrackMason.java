@@ -54,12 +54,12 @@ public class NetherNetherrackMason extends SimpleAdaptation<NetherNetherrackMaso
         .icon(Material.NETHERRACK)
         .key("challenge_nether_mason_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.GILDED_BLACKSTONE)
             .key("challenge_nether_mason_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_nether_mason_1k", "nether.netherrack-mason.blocks-mined", 1000, 300);

@@ -59,12 +59,12 @@ public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> 
         .icon(Material.TOTEM_OF_UNDYING)
         .key("challenge_tragoul_last_rites_5")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SOUL_TORCH)
             .key("challenge_tragoul_last_rites_50")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_tragoul_last_rites_5", "tragoul.last-rites.deaths-defied", 5, 500);

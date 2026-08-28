@@ -73,7 +73,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
         .icon(Material.BELL)
         .key("challenge_excavation_seismic_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_seismic_200", "excavation.seismic-ping.pings-triggered", 200, 400);
   }

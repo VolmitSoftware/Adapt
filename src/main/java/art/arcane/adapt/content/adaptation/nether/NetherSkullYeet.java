@@ -73,13 +73,13 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         .icon(Material.WITHER_SKELETON_SKULL)
         .key("challenge_nether_skull_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WITHER_SKELETON_SKULL)
         .key("challenge_nether_skull_kills_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.WITHER_SKELETON_SKULL)

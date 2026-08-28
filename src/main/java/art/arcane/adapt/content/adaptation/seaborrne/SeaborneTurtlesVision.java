@@ -71,7 +71,7 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
         .icon(Material.TURTLE_HELMET)
         .key("challenge_seaborne_vision_72k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_seaborne_vision_72k", "seaborne.turtles-vision.time-underwater", 72000, 400);
   }

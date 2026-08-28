@@ -64,12 +64,12 @@ public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
         .icon(Material.HOPPER)
         .key("challenge_ranged_fetch_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.CHEST)
             .key("challenge_ranged_fetch_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_ranged_fetch_500", "ranged.fetch-shot.items-fetched", 500, 400);

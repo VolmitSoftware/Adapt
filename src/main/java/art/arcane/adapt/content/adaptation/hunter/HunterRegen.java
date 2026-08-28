@@ -61,7 +61,7 @@ public class HunterRegen extends SimpleAdaptation<HunterRegen.Config> {
         .icon(Material.GOLDEN_APPLE)
         .key("challenge_hunter_regen_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_hunter_regen_500", "hunter.regen.health-regened", 500, 400);
   }

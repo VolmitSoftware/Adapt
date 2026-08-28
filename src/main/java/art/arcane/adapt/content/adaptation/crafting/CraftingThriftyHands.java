@@ -52,12 +52,12 @@ public class CraftingThriftyHands extends SimpleAdaptation<CraftingThriftyHands.
         .icon(Material.STRING)
         .key("challenge_crafting_thrifty_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.LEAD)
             .key("challenge_crafting_thrifty_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_crafting_thrifty_500", "crafting.thrifty-hands.ingredients-refunded", 500, 400);

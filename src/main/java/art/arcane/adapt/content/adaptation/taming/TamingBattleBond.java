@@ -73,12 +73,12 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
         .icon(Material.DIAMOND_SWORD)
         .key("challenge_taming_bond_250")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_SWORD)
             .key("challenge_taming_bond_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_taming_bond_250", "taming.battle-bond.kills", 250, 400);

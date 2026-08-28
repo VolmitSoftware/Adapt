@@ -65,7 +65,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
         .icon(Material.OAK_LEAVES)
         .key("challenge_axe_leaf_5k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_axe_leaf_5k", "axe.leaf-veinminer.leaves-broken", 5000, 400);
   }

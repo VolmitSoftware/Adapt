@@ -78,7 +78,7 @@ public class BrewingHunger extends SimpleAdaptation<BrewingHunger.Config> {
         .icon(Material.ROTTEN_FLESH)
         .key("challenge_brewing_hunger_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_brewing_hunger_25", "brewing.hunger.potions-brewed", 25, 300);
   }

@@ -60,7 +60,7 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
         .icon(Material.CHEST)
         .key("challenge_axe_dti_5k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_axe_dti_5k", "axe.drop-to-inv.items-caught", 5000, 500);
   }

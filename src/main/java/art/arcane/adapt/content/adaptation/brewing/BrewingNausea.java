@@ -78,7 +78,7 @@ public class BrewingNausea extends SimpleAdaptation<BrewingNausea.Config> {
         .icon(Material.POISONOUS_POTATO)
         .key("challenge_brewing_nausea_25")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_brewing_nausea_25", "brewing.nausea.potions-brewed", 25, 300);
   }

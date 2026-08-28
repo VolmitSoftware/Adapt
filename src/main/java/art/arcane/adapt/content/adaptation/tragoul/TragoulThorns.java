@@ -57,12 +57,12 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         .icon(Material.CACTUS)
         .key("challenge_tragoul_thorns_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.IRON_CHESTPLATE)
             .key("challenge_tragoul_thorns_5k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_tragoul_thorns_500", "tragoul.thorns.damage-reflected", 500, 400);
@@ -71,7 +71,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
         .icon(Material.CACTUS)
         .key("challenge_tragoul_thorns_kill")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
   }
 

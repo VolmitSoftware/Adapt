@@ -149,12 +149,12 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         .icon(Material.TARGET)
         .key("challenge_ranged_heartseeker_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENDER_EYE)
             .key("challenge_ranged_heartseeker_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_ranged_heartseeker_100", "ranged.heartseeker.hits", 100, 500);

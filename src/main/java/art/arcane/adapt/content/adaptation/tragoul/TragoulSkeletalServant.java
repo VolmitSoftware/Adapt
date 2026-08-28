@@ -157,12 +157,12 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         .icon(Material.BONE)
         .key("challenge_tragoul_servant_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SKELETON_SKULL)
             .key("challenge_tragoul_servant_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_tragoul_servant_50", "tragoul.skeletal-servant.servants-summoned", 50, 400);

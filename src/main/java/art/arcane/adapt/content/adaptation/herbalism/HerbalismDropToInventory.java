@@ -61,7 +61,7 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
         .icon(Material.CHEST)
         .key("challenge_herbalism_dti_10k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_herbalism_dti_10k", "herbalism.drop-to-inv.items-caught", 10000, 500);
   }

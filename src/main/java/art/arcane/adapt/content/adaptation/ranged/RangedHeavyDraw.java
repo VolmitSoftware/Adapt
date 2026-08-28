@@ -60,12 +60,12 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
         .icon(Material.ANVIL)
         .key("challenge_ranged_heavy_hits_250")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_BLOCK)
             .key("challenge_ranged_heavy_hits_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_ranged_heavy_hits_250", "ranged.heavy-draw.heavy-hits", 250, 500);

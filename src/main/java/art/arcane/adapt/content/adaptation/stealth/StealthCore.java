@@ -135,13 +135,13 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
         .icon(Material.IRON_SWORD)
         .key("challenge_stealth_silent_200")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.DIAMOND_SWORD)
         .key("challenge_stealth_silent_5in10")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_stealth_silent_200", "stealth.silent-step.backstabs", 200, 400);
   }

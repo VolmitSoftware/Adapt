@@ -79,14 +79,14 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
         .icon(Material.GLASS)
         .key("challenge_tragoul_globe_1k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_tragoul_globe_1k", "tragoul.globe.mobs-shared-with", 1000, 400);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.GLASS)
         .key("challenge_tragoul_globe_5")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
   }
 

@@ -73,7 +73,7 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
         .icon(Material.DIRT)
         .key("challenge_excavation_earthmover_250")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_earthmover_250", "excavation.earth-mover.waves-unleashed", 250, 450);
   }

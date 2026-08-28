@@ -73,12 +73,12 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
         .icon(Material.IRON_PICKAXE)
         .key("challenge_seaborne_mining_2500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.DIAMOND_PICKAXE)
             .key("challenge_seaborne_mining_25k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_seaborne_mining_2500", "seaborne.turtles-mining.blocks-underwater", 2500, 300);

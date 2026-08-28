@@ -108,12 +108,12 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
         .icon(Material.IRON_CHESTPLATE)
         .key("challenge_crafting_masterwork_50")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.NETHERITE_CHESTPLATE)
             .key("challenge_crafting_masterwork_500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_crafting_masterwork_50", "crafting.masterwork.pieces-forged", 50, 400);

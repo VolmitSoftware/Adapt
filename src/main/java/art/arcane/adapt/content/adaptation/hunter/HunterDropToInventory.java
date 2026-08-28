@@ -64,7 +64,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
         .icon(Material.CHEST)
         .key("challenge_hunter_dti_10k")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_hunter_dti_10k", "hunter.drop-to-inv.items-caught", 10000, 500);
   }

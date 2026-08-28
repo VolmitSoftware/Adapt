@@ -70,12 +70,12 @@ public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailt
         .icon(Material.FERMENTED_SPIDER_EYE)
         .key("challenge_tragoul_frailty_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.WITHER_SKELETON_SKULL)
             .key("challenge_tragoul_frailty_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_tragoul_frailty_100", "tragoul.curse-of-frailty.curses-applied", 100, 400);

@@ -64,12 +64,12 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
         .icon(Material.ENCHANTING_TABLE)
         .key("challenge_enchanting_reroll_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.ENCHANTING_TABLE)
             .key("challenge_enchanting_reroll_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_enchanting_reroll_100", "enchanting.offer-reroll.rerolls", 100, 300);

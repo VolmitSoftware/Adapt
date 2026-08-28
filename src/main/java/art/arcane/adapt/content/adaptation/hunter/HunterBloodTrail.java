@@ -62,12 +62,12 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
         .icon(Material.REDSTONE)
         .key("challenge_hunter_blood_trail_250")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.REDSTONE_BLOCK)
             .key("challenge_hunter_blood_trail_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_hunter_blood_trail_250", "hunter.blood-trail.trails-followed", 250, 400);

@@ -68,13 +68,13 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
         .icon(Material.CLOCK)
         .key("challenge_chronos_aberrant_500")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CLOCK)
         .key("challenge_chronos_aberrant_frozen")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_aberrant_500", "chronos.aberrant-touch.slowness-stacks-applied", 500, 400);
   }

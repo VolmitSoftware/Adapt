@@ -95,7 +95,7 @@ public class BlockingHorseArmorer extends SimpleAdaptation<BlockingHorseArmorer.
         .icon(Material.IRON_HORSE_ARMOR)
         .key("challenge_blocking_horse_armor_10")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_blocking_horse_armor_10", "blocking.horse-armorer.armor-crafted", 10, 400);
   }

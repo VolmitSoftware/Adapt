@@ -63,12 +63,12 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
         .icon(Material.TRIDENT)
         .key("challenge_seaborne_trident_250")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.HEART_OF_THE_SEA)
             .key("challenge_seaborne_trident_2500")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_seaborne_trident_250", "seaborne.trident-mastery.trident-hits", 250, 400);

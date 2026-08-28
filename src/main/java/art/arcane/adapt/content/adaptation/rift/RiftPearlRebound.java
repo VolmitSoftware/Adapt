@@ -67,12 +67,12 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
         .icon(Material.ENDER_PEARL)
         .key("challenge_rift_rebound_100")
         .frame(AdaptAdvancementFrame.CHALLENGE)
-        .visibility(AdvancementVisibility.PARENT_GRANTED)
+        .visibility(AdvancementVisibility.VANILLA)
         .child(AdaptAdvancement.builder()
             .icon(Material.SLIME_BALL)
             .key("challenge_rift_rebound_1k")
             .frame(AdaptAdvancementFrame.CHALLENGE)
-            .visibility(AdvancementVisibility.PARENT_GRANTED)
+            .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
     registerMilestone("challenge_rift_rebound_100", "rift.pearl-rebound.rebounds", 100, 400);
