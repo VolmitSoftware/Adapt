@@ -37,6 +37,8 @@ public class TitleNotification implements Notification {
   private final String subtitle = " ";
   @Builder.Default
   private final String group = "default";
+  @Builder.Default
+  private final long displayDurationMillis = 2500;
 
   @Override
   public long getTotalDuration() {
@@ -50,6 +52,6 @@ public class TitleNotification implements Notification {
 
   @Override
   public void play(AdaptPlayer p) {
-    AdaptHud.title(p.getPlayer(), title.isEmpty() ? " " : title, subtitle);
+    AdaptHud.title(p.getPlayer(), title.isEmpty() ? " " : title, subtitle, displayDurationMillis);
   }
 }

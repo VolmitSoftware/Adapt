@@ -43,6 +43,8 @@ import java.util.Map;
 @SuppressWarnings("ALL")
 @Getter
 public class AdaptConfig {
+  private static final long MINIMUM_POPUP_DURATION_MILLIS = 100L;
+  private static final long MAXIMUM_POPUP_DURATION_MILLIS = 60_000L;
   private static final Object CONFIG_LOCK = new Object();
   private static volatile AdaptConfig config;
   @ConfigDoc(value = "Locale used for Adapt player and operator interfaces.", impact = "A supported non-English locale downloads automatically and is cached by source revision; code-owned English remains the fallback and optional TOML overrides load from languages/overrides.")
@@ -90,8 +92,18 @@ public class AdaptConfig {
   private boolean automaticGradients = false;
   private int learnUnlearnButtonDelayTicks = 14;
   private int maxRecipeListPrecaution = 25;
+  @ConfigDoc(value = "Shows aggregated skill XP gains on the action bar.", impact = "Disable this to suppress only the skill XP ticker; XP awards and progression continue normally.")
   private boolean actionbarNotifyXp = true;
+  @ConfigDoc(value = "Milliseconds an aggregated skill XP gain remains visible on the action bar.", impact = "Clamped to 100-60000 milliseconds and hot-reloadable. This has no effect while actionbarNotifyXp is disabled.")
+  private long actionbarXpDurationMillis = 1_500L;
+  @ConfigDoc(value = "Shows skill-level notifications on the action bar.", impact = "Disable this to suppress skill-level text while leaving progression and level-up sounds controlled independently.")
   private boolean actionbarNotifyLevel = true;
+  @ConfigDoc(value = "Shows master-level and maximum-power notifications on the action bar.", impact = "Disable this to suppress the account-wide level popup while leaving progression, mutation unlock checks, and level-up sounds controlled independently.")
+  private boolean actionbarNotifyMasterLevel = true;
+  @ConfigDoc(value = "Milliseconds skill-level and master-level notifications remain visible on the action bar.", impact = "Clamped to 100-60000 milliseconds and hot-reloadable. This does not change the XP ticker duration.")
+  private long actionbarLevelDurationMillis = 2_500L;
+  @ConfigDoc(value = "Plays sounds caused by skill-level and master-level progression.", impact = "Disable this to mute progression sounds without muting adaptation gameplay sounds; effects.soundsEnabled and the player's effects preference remain additional global gates.")
+  private boolean progressionSoundsEnabled = true;
   private boolean unlearnAllButton = false;
   @ConfigDoc(value = "Lists every enabled skill in the skills GUI even when a player has no progress in it.", impact = "Display only; use permissions and progression requirements are still enforced.")
   private boolean guiShowAllSkills = false;
@@ -219,6 +231,10 @@ public class AdaptConfig {
     return Double.isFinite(value) ? Math.max(0D, value) : fallback;
   }
 
+  static long normalizePopupDuration(long durationMillis) {
+    return Math.max(MINIMUM_POPUP_DURATION_MILLIS, Math.min(MAXIMUM_POPUP_DURATION_MILLIS, durationMillis));
+  }
+
   static Material normalizeActivatorMaterial(String configuredMaterial) {
     Material material = configuredMaterial == null ? null : Material.matchMaterial(configuredMaterial.trim());
     if (Bukkit.getServer() == null) {
@@ -241,6 +257,8 @@ public class AdaptConfig {
     powerPerLevel = normalizeNonNegativeFinite(powerPerLevel, 0.65D);
     xpCurve = xpCurve == null ? Curves.ADAPT_BALANCED : xpCurve;
     levelMilestoneSoundVolume = normalizeVolume(levelMilestoneSoundVolume, 0.35D);
+    actionbarXpDurationMillis = normalizePopupDuration(actionbarXpDurationMillis);
+    actionbarLevelDurationMillis = normalizePopupDuration(actionbarLevelDurationMillis);
   }
 
   private static Map<String, List<String>> defaultAdaptationUsageConflicts() {

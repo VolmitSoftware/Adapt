@@ -98,7 +98,7 @@ class AdaptHudTest extends AdaptTestBase {
   }
 
   @Test
-  void xpTickerPublishesLeftSegmentAndClearXpRemovesIt() {
+  void xpTickerPublishesLeftSegment() {
     AdaptHud.xpTicker(player, "Discovery +5XP");
 
     HudStampedSegment segment = postedSegment("adapt:xp");
@@ -106,10 +106,28 @@ class AdaptHudTest extends AdaptTestBase {
     assertThat(segment.priority()).isEqualTo(HudPriority.AMBIENT);
     assertThat(segment.slots()).containsExactly(HudSlot.LEFT);
     assertThat(lastSentPlainText()).isEqualTo("Discovery +5XP");
+  }
 
-    AdaptHud.clearXp(player);
+  @Test
+  void notificationDisplayDurationControlsPublishedHudLifetime() {
+    AdaptHud.xpTicker(player, "Discovery +5XP", 4_200L);
 
-    assertThat(store).doesNotContainKey(plugin);
+    HudStampedSegment xp = postedSegment("adapt:xp");
+    assertThat(xp).isNotNull();
+    assertThat(xp.ttlMillis()).isEqualTo(4_200L);
+
+    AdaptHud.title(player, "", "Level 12", 900L);
+
+    HudStampedSegment title = postedSegment("adapt:title");
+    assertThat(title).isNotNull();
+    assertThat(title.ttlMillis()).isEqualTo(900L);
+  }
+
+  @Test
+  void notificationDisplayDurationRejectsNonPositiveHudLifetimes() {
+    assertThat(AdaptHud.normalizeDisplayDuration(0L)).isOne();
+    assertThat(AdaptHud.normalizeDisplayDuration(-50L)).isOne();
+    assertThat(AdaptHud.normalizeDisplayDuration(750L)).isEqualTo(750L);
   }
 
   @Test

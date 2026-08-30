@@ -63,21 +63,29 @@ public final class AdaptHud {
   }
 
   public static void actionBar(Player player, String message) {
+    actionBar(player, message, NOTICE_TTL_MILLIS);
+  }
+
+  static void actionBar(Player player, String message, long durationMillis) {
     HudActionBar active = bar;
     if (active == null) {
       new VolmitSender(player).sendAction(message);
       return;
     }
-    active.publish(player, new HudSegment(NOTICE_PURPOSE, HudPriority.NOTICE, NOTICE_TTL_MILLIS, NOTICE_SLOTS, legacyText(message)));
+    active.publish(player, new HudSegment(NOTICE_PURPOSE, HudPriority.NOTICE, normalizeDisplayDuration(durationMillis), NOTICE_SLOTS, legacyText(message)));
   }
 
   public static void xpTicker(Player player, String message) {
+    xpTicker(player, message, XP_TTL_MILLIS);
+  }
+
+  static void xpTicker(Player player, String message, long durationMillis) {
     HudActionBar active = bar;
     if (active == null) {
       new VolmitSender(player).sendAction(message);
       return;
     }
-    active.publish(player, new HudSegment(XP_PURPOSE, HudPriority.AMBIENT, XP_TTL_MILLIS, XP_SLOTS, legacyText(message)));
+    active.publish(player, new HudSegment(XP_PURPOSE, HudPriority.AMBIENT, normalizeDisplayDuration(durationMillis), XP_SLOTS, legacyText(message)));
   }
 
   public static void ambientStatus(Player player, String purpose, String message) {
@@ -101,7 +109,11 @@ public final class AdaptHud {
   }
 
   public static void title(Player player, String title, String subtitle) {
-    deliverNotice(player, TITLE_PURPOSE, HudPriority.NOTICE, NOTICE_TTL_MILLIS, title, subtitle);
+    title(player, title, subtitle, NOTICE_TTL_MILLIS);
+  }
+
+  static void title(Player player, String title, String subtitle, long durationMillis) {
+    deliverNotice(player, TITLE_PURPOSE, HudPriority.NOTICE, durationMillis, title, subtitle);
   }
 
   public static void guiTitle(Player player, String title, String subtitle) {
@@ -115,13 +127,6 @@ public final class AdaptHud {
     }
   }
 
-  static void clearXp(Player player) {
-    HudActionBar active = bar;
-    if (active != null) {
-      active.clear(player, XP_PURPOSE);
-    }
-  }
-
   private static void deliverNotice(Player player, String purpose, int priority, long ttlMillis, String title, String subtitle) {
     String combined = combinedText(title, subtitle);
     HudActionBar active = bar;
@@ -129,7 +134,11 @@ public final class AdaptHud {
       new VolmitSender(player).sendAction(combined.isEmpty() ? " " : combined);
       return;
     }
-    active.publish(player, new HudSegment(purpose, priority, ttlMillis, NOTICE_SLOTS, legacyText(combined)));
+    active.publish(player, new HudSegment(purpose, priority, normalizeDisplayDuration(ttlMillis), NOTICE_SLOTS, legacyText(combined)));
+  }
+
+  static long normalizeDisplayDuration(long durationMillis) {
+    return Math.max(1L, durationMillis);
   }
 
   private static String combinedText(String title, String subtitle) {

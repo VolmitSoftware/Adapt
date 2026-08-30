@@ -24,6 +24,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPresets;
 import art.arcane.adapt.api.notification.ActionBarNotification;
+import art.arcane.adapt.api.notification.Notification;
 import art.arcane.adapt.api.notification.Notifier;
 import art.arcane.adapt.api.notification.SoundNotification;
 import art.arcane.adapt.api.notification.TitleNotification;
@@ -175,8 +176,9 @@ public class PlayerSkillLine {
       if (levelSkill != null && bukkitPlayer != null && bukkitPlayer.isOnline()) {
         FxPresets.levelUpBurst(levelSkill, bukkitPlayer, level);
       }
-      if (AdaptConfig.get().isActionbarNotifyLevel())
-        notifyLevel(p, level, getKnowledge());
+      if (levelSkill != null) {
+        notifyLevel(p, levelSkill, level, getKnowledge());
+      }
       lastLevel = level;
     }
   }
@@ -487,61 +489,87 @@ public class PlayerSkillLine {
     return p.getServer().getSkillRegistry().getSkill(line);
   }
 
-  private void notifyLevel(AdaptPlayer p, double lvl, long kn) {
-//        Skill s = p.getServer().getSkillRegistry().getSkill(getLine());
-    if (lvl % 10 == 0) {
-      float milestoneVolume = (float) AdaptConfig.get().getLevelMilestoneSoundVolume();
-      p.getNot().queue(SoundNotification.builder()
-          .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
-          .volume(milestoneVolume)
-          .pitch(1.35f)
-          .group("lvl" + getLine())
-          .build(), SoundNotification.builder()
-          .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
-          .volume(milestoneVolume)
-          .pitch(0.75f)
-          .group("lvl" + getLine())
-          .build(), TitleNotification.builder()
-          .in(250)
-          .stay(1450)
-          .out(2250)
-          .group("lvl" + getLine())
-          .title("")
-          .subtitle(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
-          .build());
-      p.getActionBarNotifier().queue(
-          ActionBarNotification.builder()
-              .duration(450)
-              .group("know" + getLine())
-              .title(AdaptLanguage.text(
-                  RuntimeMessages.KNOWLEDGE_STATUS,
-                  trusted("amount", kn),
-                  trusted("skill", p.getServer().getSkillRegistry().getSkill(getLine()).getShortName())
-              ))
-              .build());
-
-    } else {
-      p.getActionBarNotifier().queue(
-          SoundNotification.builder()
-              .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK)
-              .volume(1f)
-              .pitch(1.74f)
-              .group("lvl" + getLine())
-              .build(),
-          SoundNotification.builder()
-              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-              .volume(1f)
-              .pitch(0.74f)
-              .group("lvl" + getLine())
-              .build(),
-          ActionBarNotification.builder()
-              .duration(450)
-              .group("lvl" + getLine())
-              .title(p.getServer().getSkillRegistry().getSkill(getLine()).getDisplayName(getLevel()))
-              .build());
+  private void notifyLevel(AdaptPlayer p, Skill<?> skill, int level, long knowledge) {
+    AdaptConfig config = AdaptConfig.get();
+    boolean showPopup = config.isActionbarNotifyLevel();
+    boolean playSounds = config.isProgressionSoundsEnabled();
+    if (!showPopup && !playSounds) {
+      return;
     }
 
-    lastLevel = (int) Math.floor(XP.getLevelForXp(getXp()));
+    String group = "lvl" + getLine();
+    long displayDurationMillis = config.getActionbarLevelDurationMillis();
+    KList<Notification> notifications = new KList<>();
+    if (level % 10 == 0) {
+      if (playSounds) {
+        float milestoneVolume = (float) config.getLevelMilestoneSoundVolume();
+        notifications.add(SoundNotification.builder()
+            .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
+            .volume(milestoneVolume)
+            .pitch(1.35f)
+            .group(group)
+            .build());
+        notifications.add(SoundNotification.builder()
+            .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
+            .volume(milestoneVolume)
+            .pitch(0.75f)
+            .group(group)
+            .build());
+      }
+      if (showPopup) {
+        notifications.add(TitleNotification.builder()
+            .in(250)
+            .stay(1450)
+            .out(2250)
+            .group(group)
+            .displayDurationMillis(displayDurationMillis)
+            .title("")
+            .subtitle(skill.getDisplayName(level))
+            .build());
+      }
+      if (!notifications.isEmpty()) {
+        p.getNot().queue(notifications.toArray(new Notification[0]));
+      }
+      if (showPopup) {
+        p.getActionBarNotifier().queue(ActionBarNotification.builder()
+            .duration(450)
+            .displayDurationMillis(displayDurationMillis)
+            .group("know" + getLine())
+            .title(AdaptLanguage.text(
+                RuntimeMessages.KNOWLEDGE_STATUS,
+                trusted("amount", knowledge),
+                trusted("skill", skill.getShortName())
+            ))
+            .build());
+      }
+      return;
+    }
+
+    if (playSounds) {
+      notifications.add(SoundNotification.builder()
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK)
+          .volume(1f)
+          .pitch(1.74f)
+          .group(group)
+          .build());
+      notifications.add(SoundNotification.builder()
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+          .volume(1f)
+          .pitch(0.74f)
+          .group(group)
+          .build());
+    }
+    if (showPopup) {
+      notifications.add(ActionBarNotification.builder()
+          .duration(450)
+          .displayDurationMillis(displayDurationMillis)
+          .group(group)
+          .title(skill.getDisplayName(level))
+          .build());
+    }
+    if (!notifications.isEmpty()) {
+      p.getActionBarNotifier().queue(notifications.toArray(new Notification[0]));
+    }
   }
 
   public void giveKnowledge(long points) {

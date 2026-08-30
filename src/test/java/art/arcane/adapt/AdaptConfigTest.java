@@ -76,6 +76,57 @@ class AdaptConfigTest {
     }
 
     @Test
+    void progressionNotificationControlsHaveIndependentDefaultsAndRoundTrip() throws IOException {
+        AdaptConfig config = new AdaptConfig();
+        String canonical = TomlCodec.toToml(config, "core-config");
+
+        assertThat(config.isActionbarNotifyXp()).isTrue();
+        assertThat(config.isActionbarNotifyLevel()).isTrue();
+        assertThat(config.isActionbarNotifyMasterLevel()).isTrue();
+        assertThat(config.isProgressionSoundsEnabled()).isTrue();
+        assertThat(config.getActionbarXpDurationMillis()).isEqualTo(1_500L);
+        assertThat(config.getActionbarLevelDurationMillis()).isEqualTo(2_500L);
+        assertThat(canonical)
+            .contains("actionbarNotifyXp = true")
+            .contains("actionbarXpDurationMillis = 1500")
+            .contains("actionbarNotifyLevel = true")
+            .contains("actionbarNotifyMasterLevel = true")
+            .contains("actionbarLevelDurationMillis = 2500")
+            .contains("progressionSoundsEnabled = true");
+
+        AdaptConfig configured = TomlCodec.fromToml(
+            canonical
+                .replace("actionbarNotifyXp = true", "actionbarNotifyXp = false")
+                .replace("actionbarXpDurationMillis = 1500", "actionbarXpDurationMillis = 900")
+                .replace("actionbarNotifyLevel = true", "actionbarNotifyLevel = false")
+                .replace("actionbarNotifyMasterLevel = true", "actionbarNotifyMasterLevel = false")
+                .replace("actionbarLevelDurationMillis = 2500", "actionbarLevelDurationMillis = 4200")
+                .replace("progressionSoundsEnabled = true", "progressionSoundsEnabled = false"),
+            AdaptConfig.class
+        );
+
+        assertThat(configured.isActionbarNotifyXp()).isFalse();
+        assertThat(configured.isActionbarNotifyLevel()).isFalse();
+        assertThat(configured.isActionbarNotifyMasterLevel()).isFalse();
+        assertThat(configured.isProgressionSoundsEnabled()).isFalse();
+        assertThat(configured.getActionbarXpDurationMillis()).isEqualTo(900L);
+        assertThat(configured.getActionbarLevelDurationMillis()).isEqualTo(4_200L);
+    }
+
+    @Test
+    void progressionNotificationDurationsClampToHudSafeBounds() throws Exception {
+        AdaptConfig config = new AdaptConfig();
+        setLong(config, "actionbarXpDurationMillis", 0L);
+        setLong(config, "actionbarLevelDurationMillis", Long.MAX_VALUE);
+
+        config.normalize();
+
+        assertThat(config.getActionbarXpDurationMillis()).isEqualTo(100L);
+        assertThat(config.getActionbarLevelDurationMillis()).isEqualTo(60_000L);
+        assertThat(AdaptConfig.normalizePopupDuration(2_750L)).isEqualTo(2_750L);
+    }
+
+    @Test
     @DisplayName("GUI navigation returns on Escape and shows Back buttons by default")
     void guiNavigationDefaultsToEscapeBackWithVisibleButtons() throws IOException {
         AdaptConfig config = new AdaptConfig();
@@ -274,5 +325,11 @@ class AdaptConfigTest {
         Field field = AdaptConfig.class.getDeclaredField(fieldName);
         field.setAccessible(true);
         field.setDouble(config, value);
+    }
+
+    private static void setLong(AdaptConfig config, String fieldName, long value) throws Exception {
+        Field field = AdaptConfig.class.getDeclaredField(fieldName);
+        field.setAccessible(true);
+        field.setLong(config, value);
     }
 }

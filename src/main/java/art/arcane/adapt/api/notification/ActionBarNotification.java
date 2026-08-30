@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.api.notification;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.volmlib.util.math.M;
 import lombok.Builder;
@@ -29,6 +28,8 @@ import lombok.Data;
 public class ActionBarNotification implements Notification {
   @Builder.Default
   private final long duration = 750;
+  @Builder.Default
+  private final long displayDurationMillis = 2500;
   @Builder.Default
   private final String title = " ";
   @Builder.Default
@@ -56,10 +57,10 @@ public class ActionBarNotification implements Notification {
     }
 
     if ("xp".equals(group)) {
-      AdaptHud.xpTicker(p.getPlayer(), title);
+      AdaptHud.xpTicker(p.getPlayer(), title, displayDurationMillis);
       return;
     }
 
-    Adapt.actionbar(p.getPlayer(), title);
+    AdaptHud.actionBar(p.getPlayer(), title, displayDurationMillis);
   }
 }

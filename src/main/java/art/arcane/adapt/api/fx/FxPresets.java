@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.fx;
 
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -100,7 +101,7 @@ public final class FxPresets {
         .priority(FxPriority.TRANSITION)
         .frame((fx, tick, progress) -> {
           fx.dustHelix(0.9D, 2.2D, 12, progress * Math.PI * 2.0D, 1.0F);
-          if (tick == 0) {
+          if (tick == 0 && AdaptConfig.get().isProgressionSoundsEnabled()) {
             fx.chord(Sound.ENTITY_PLAYER_LEVELUP, 0.6F, pitch, Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.8F, 1.45F);
           }
         })

@@ -19,6 +19,7 @@
 package art.arcane.adapt.api.notification;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -29,9 +30,11 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.entity.Entity;
 
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -95,6 +98,7 @@ public class Notifier extends TickedObject {
 
     boolean queued = false;
     synchronized (queueLock) {
+      Set<String> replacementGroups = new HashSet<>();
       for (Notification notification : f) {
         if (notification == null) {
           continue;
@@ -102,7 +106,15 @@ public class Notifier extends TickedObject {
 
         String group = notification.getGroup();
         if (group != null && !group.isBlank() && !Notification.DEFAULT_GROUP.equals(group)) {
-          queue.removeIf(existing -> group.equals(existing.getGroup()));
+          replacementGroups.add(group);
+        }
+      }
+      if (!replacementGroups.isEmpty()) {
+        queue.removeIf(existing -> replacementGroups.contains(existing.getGroup()));
+      }
+      for (Notification notification : f) {
+        if (notification == null) {
+          continue;
         }
         while (queue.size() >= MAX_PENDING_NOTIFICATIONS) {
           queue.poll();
@@ -217,6 +229,7 @@ public class Notifier extends TickedObject {
 
     target.getActionBarNotifier().queue(ActionBarNotification.builder()
         .duration(0)
+        .displayDurationMillis(AdaptConfig.get().getActionbarXpDurationMillis())
         .maxTTL(M.ms() + 100)
         .title(title.toString())
         .group("xp")
@@ -237,9 +250,6 @@ public class Notifier extends TickedObject {
         iterator.remove();
         lastSkillValues.remove(entry.getKey());
       }
-    }
-    if (lastSkills.isEmpty()) {
-      AdaptHud.clearXp(target.getPlayer());
     }
   }
 

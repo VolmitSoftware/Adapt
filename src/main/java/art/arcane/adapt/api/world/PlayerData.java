@@ -25,6 +25,7 @@ import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.notification.ActionBarNotification;
+import art.arcane.adapt.api.notification.Notification;
 import art.arcane.adapt.api.notification.SoundNotification;
 import art.arcane.adapt.api.notification.TitleNotification;
 import art.arcane.adapt.api.mutation.PlayerMutationData;
@@ -255,56 +256,78 @@ public class PlayerData {
 
     if (oldLevel != level) {
       setLastMasterXp(getMasterXp());
-      p.getNot().queue(SoundNotification.builder()
-              .sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE)
-              .volume(1f)
-              .pitch(0.54f)
-              .group("lvl")
-              .build(),
-          SoundNotification.builder()
-              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-              .volume(1f)
-              .pitch(0.44f)
-              .group("lvl")
-              .build(),
-          SoundNotification.builder()
-              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-              .volume(1f)
-              .pitch(0.74f)
-              .group("lvl")
-              .build(),
-          SoundNotification.builder()
-              .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-              .volume(1f)
-              .pitch(1.34f)
-              .group("lvl")
-              .build(),
-          TitleNotification.builder()
-              .in(250)
-              .stay(1450)
-              .out(2250)
-              .group("lvl")
-              .title("")
-              .subtitle(C.GOLD + AdaptLanguage.text(
-                  SnippetsMessages.GUI_LEVEL_VALUE,
-                  trusted("level", level)
-              ))
-              .build());
-      p.getActionBarNotifier().queue(
-          ActionBarNotification.builder()
-              .duration(450)
-              .group("power")
-              .title(C.GOLD + AdaptLanguage.text(
-                  RuntimeMessages.MAX_ABILITY_POWER,
-                  trusted("power", Form.f(level * AdaptConfig.get().getPowerPerLevel(), 0) + C.GRAY)
-              ))
-              .build());
+      notifyMasterLevel(p, level);
 
       MutationSVC mutationService = MutationSVC.get();
       if (mutationService != null && mutationService.getManager() != null) {
         mutationService.onLevelChanged(p, oldLevel, level);
       }
 
+    }
+  }
+
+  private void notifyMasterLevel(AdaptPlayer player, int level) {
+    AdaptConfig config = AdaptConfig.get();
+    boolean showPopup = config.isActionbarNotifyMasterLevel();
+    boolean playSounds = config.isProgressionSoundsEnabled();
+    if (!showPopup && !playSounds) {
+      return;
+    }
+
+    KList<Notification> notifications = new KList<>();
+    if (playSounds) {
+      notifications.add(SoundNotification.builder()
+          .sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE)
+          .volume(1f)
+          .pitch(0.54f)
+          .group("lvl")
+          .build());
+      notifications.add(SoundNotification.builder()
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+          .volume(1f)
+          .pitch(0.44f)
+          .group("lvl")
+          .build());
+      notifications.add(SoundNotification.builder()
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+          .volume(1f)
+          .pitch(0.74f)
+          .group("lvl")
+          .build());
+      notifications.add(SoundNotification.builder()
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+          .volume(1f)
+          .pitch(1.34f)
+          .group("lvl")
+          .build());
+    }
+    if (showPopup) {
+      notifications.add(TitleNotification.builder()
+          .in(250)
+          .stay(1450)
+          .out(2250)
+          .displayDurationMillis(config.getActionbarLevelDurationMillis())
+          .group("lvl")
+          .title("")
+          .subtitle(C.GOLD + AdaptLanguage.text(
+              SnippetsMessages.GUI_LEVEL_VALUE,
+              trusted("level", level)
+          ))
+          .build());
+    }
+    if (!notifications.isEmpty()) {
+      player.getNot().queue(notifications.toArray(new Notification[0]));
+    }
+    if (showPopup) {
+      player.getActionBarNotifier().queue(ActionBarNotification.builder()
+          .duration(450)
+          .displayDurationMillis(config.getActionbarLevelDurationMillis())
+          .group("power")
+          .title(C.GOLD + AdaptLanguage.text(
+              RuntimeMessages.MAX_ABILITY_POWER,
+              trusted("power", Form.f(level * config.getPowerPerLevel(), 0) + C.GRAY)
+          ))
+          .build());
     }
   }
 
