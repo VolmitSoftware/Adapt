@@ -6,7 +6,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.localization.AdaptLanguage;
-import art.arcane.adapt.localization.AdaptLanguageDownload;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.ConfigMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.service.ConfigInputSVC;
@@ -65,79 +65,85 @@ public final class ConfigGui {
   }
 
   public static void open(Player player) {
-    open(player, "", 0);
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.getUniqueId())) {
+      open(player, "", 0);
+    }
   }
 
   public static void open(Player player, String sectionPath) {
-    open(player, sectionPath, 0);
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.getUniqueId())) {
+      open(player, sectionPath, 0);
+    }
   }
 
   public static void open(Player player, String sectionPath, int page) {
-    if (player == null) {
-      return;
-    }
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.getUniqueId())) {
+      if (player == null) {
+        return;
+      }
 
-    if (!canConfigure(player)) {
-      Adapt.messagePlayer(player, C.RED + AdaptLanguage.text(ConfigMessages.NO_PERMISSION));
-      return;
-    }
+      if (!canConfigure(player)) {
+        Adapt.messagePlayer(player, C.RED + AdaptLanguage.text(ConfigMessages.NO_PERMISSION));
+        return;
+      }
 
-    if (!J.isPrimaryThread()) {
-      String path = sectionPath;
-      int targetPage = page;
-      J.runEntity(player, () -> open(player, path, targetPage));
-      return;
-    }
+      if (!J.isPrimaryThread()) {
+        String path = sectionPath;
+        int targetPage = page;
+        J.runEntity(player, () -> open(player, path, targetPage));
+        return;
+      }
 
-    playPageTurn(player);
-    String safePath = normalizePath(sectionPath);
-    if (safePath.isBlank()) {
-      openRoot(player, page);
-      return;
-    }
+      playPageTurn(player);
+      String safePath = normalizePath(sectionPath);
+      if (safePath.isBlank()) {
+        openRoot(player, page);
+        return;
+      }
 
-    if (safePath.equals(ROOT_SKILLS)) {
-      openSkillIndex(player, page);
-      return;
-    }
+      if (safePath.equals(ROOT_SKILLS)) {
+        openSkillIndex(player, page);
+        return;
+      }
 
-    if (safePath.equals(ROOT_CORE)) {
-      openCoreIndex(player, page);
-      return;
-    }
+      if (safePath.equals(ROOT_CORE)) {
+        openCoreIndex(player, page);
+        return;
+      }
 
-    if (safePath.equals(ROOT_CORE_GENERAL)) {
-      openCoreGeneral(player, page);
-      return;
-    }
+      if (safePath.equals(ROOT_CORE_GENERAL)) {
+        openCoreGeneral(player, page);
+        return;
+      }
 
-    if (safePath.equals(ROOT_ADAPTATIONS) || safePath.equals(ROOT_ADAPTATIONS_SKILLS)) {
-      openAdaptationSkillIndex(player, page);
-      return;
-    }
+      if (safePath.equals(ROOT_ADAPTATIONS) || safePath.equals(ROOT_ADAPTATIONS_SKILLS)) {
+        openAdaptationSkillIndex(player, page);
+        return;
+      }
 
-    if (safePath.equals(ROOT_ADAPTATIONS_ALL)) {
-      openAdaptationIndex(player, page);
-      return;
-    }
+      if (safePath.equals(ROOT_ADAPTATIONS_ALL)) {
+        openAdaptationIndex(player, page);
+        return;
+      }
 
-    if (safePath.startsWith(ROOT_ADAPTATIONS_SKILLS + ".")) {
-      String skillName = safePath.substring(ROOT_ADAPTATIONS_SKILLS.length() + 1);
-      openAdaptationIndexForSkill(player, skillName, page);
-      return;
-    }
+      if (safePath.startsWith(ROOT_ADAPTATIONS_SKILLS + ".")) {
+        String skillName = safePath.substring(ROOT_ADAPTATIONS_SKILLS.length() + 1);
+        openAdaptationIndexForSkill(player, skillName, page);
+        return;
+      }
 
-    SectionTarget target = resolveSectionTarget(safePath, false);
-    if (target == null || target.sectionObject() == null) {
-      Adapt.messagePlayer(player, C.RED + AdaptLanguage.text(
-          ConfigMessages.UNABLE_OPEN_SECTION,
-          untrusted("path", safePath)
-      ));
-      return;
-    }
+      SectionTarget target = resolveSectionTarget(safePath, false);
+      if (target == null || target.sectionObject() == null) {
+        Adapt.messagePlayer(player, C.RED + AdaptLanguage.text(
+            ConfigMessages.UNABLE_OPEN_SECTION,
+            untrusted("path", safePath)
+        ));
+        return;
+      }
 
-    List<FieldEntry> entries = buildEntries(safePath, target.sectionObject(), target.sourceTag());
-    openFieldEntries(player, safePath, entries, page);
+      List<FieldEntry> entries = buildEntries(safePath, target.sectionObject(), target.sourceTag());
+      openFieldEntries(player, safePath, entries, page);
+    }
   }
 
   public static void reopenFromTag(Player player, String tag) {
@@ -1258,7 +1264,7 @@ public final class ConfigGui {
 
   private static void refreshGlobalRuntimeSettings() {
     AdaptLanguage.reload();
-    AdaptLanguageDownload.requestConfiguredLocale();
+    AdaptLanguage.requestConfiguredLocale();
 
     if (AdaptConfig.get().isCustomModels()) {
       CustomModel.reloadFromDisk();

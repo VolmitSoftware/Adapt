@@ -93,11 +93,16 @@ class AdaptPlaceholderWiringTest {
 
   @Test
   void shouldPublishThePlayerSnapshotInsideTheExistingOneHertzTickBand() throws Exception {
-    String source = Files.readString(PLAYER_SOURCE).replace("\r\n", "\n");
+    String source = Files.readString(PLAYER_SOURCE).replace("\r\n", "\n").replaceAll("(?m)^\\h+", "");
+    assertTrue(source.contains("private static final long UPDATE_INTERVAL_MS = 1_000L;"));
     assertTrue(
-        source.contains("      getData().update(this);\n      AdaptPlaceholders.get().publishPlayer(this);\n      nextUpdateAt = now + UPDATE_INTERVAL_MS;"),
+        source.contains("getData().update(this);\nAdaptPlaceholders.get().publishPlayer(this);\nnextUpdateAt = now + UPDATE_INTERVAL_MS;"),
         "the snapshot must be published from the existing UPDATE_INTERVAL_MS band on the owning thread"
     );
+    int updateGuard = source.indexOf("if (now >= nextUpdateAt) {");
+    int snapshotPublication = source.indexOf("AdaptPlaceholders.get().publishPlayer(this);");
+    int updateDeadline = source.indexOf("nextUpdateAt = now + UPDATE_INTERVAL_MS;", updateGuard);
+    assertTrue(updateGuard >= 0 && updateGuard < snapshotPublication && snapshotPublication < updateDeadline);
     assertFalse(source.contains("new Thread("), "the writer must not introduce a scheduler");
   }
 

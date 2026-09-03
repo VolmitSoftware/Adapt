@@ -73,7 +73,7 @@ class AdaptLanguageDownloadCacheTest extends AdaptTestBase {
 
   @Test
   void corruptDownloadDoesNotBlockAValidOverride() throws Exception {
-    Path downloaded = AdaptLanguageDownload.localeFile("de_DE").toPath();
+    Path downloaded = AdaptLanguage.remote().cacheFile("de_DE");
     Files.createDirectories(downloaded.getParent());
     Files.writeString(downloaded, "[unknown]\nkey = \"invalid\"\n", StandardCharsets.UTF_8);
     writeOverride("de_DE", "Nur eigener Text");
@@ -131,7 +131,7 @@ class AdaptLanguageDownloadCacheTest extends AdaptTestBase {
   }
 
   private Path writeDownloadedLocale(String locale) throws Exception {
-    Path target = AdaptLanguageDownload.localeFile(locale).toPath();
+    Path target = AdaptLanguage.remote().cacheFile(locale);
     Files.createDirectories(target.getParent());
     Files.copy(Path.of("src/main/resources", locale + ".toml"), target, StandardCopyOption.REPLACE_EXISTING);
     return target;

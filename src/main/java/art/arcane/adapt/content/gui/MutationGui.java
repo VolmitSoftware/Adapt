@@ -13,6 +13,7 @@ import art.arcane.adapt.api.mutation.PlayerMutationData;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.MutationMessages;
@@ -51,66 +52,70 @@ public final class MutationGui {
   }
 
   public static void open(Player player) {
-    open(player, 0);
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.getUniqueId())) {
+      open(player, 0);
+    }
   }
 
   public static void open(Player player, int page) {
-    if (!preparePlayerThread(player, () -> open(player, page))) {
-      return;
-    }
-    if (!player.hasPermission("adapt.mutations") && !AdaptDebugMode.isActive(player)) {
-      ComponentMessenger.sendSection(player, C.RED + AdaptLanguage.text(
-          CommandRuntimeMessages.MISSING_PERMISSION,
-          trusted("permission", "adapt.mutations")
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.getUniqueId())) {
+      if (!preparePlayerThread(player, () -> open(player, page))) {
+        return;
+      }
+      if (!player.hasPermission("adapt.mutations") && !AdaptDebugMode.isActive(player)) {
+        ComponentMessenger.sendSection(player, C.RED + AdaptLanguage.text(
+            CommandRuntimeMessages.MISSING_PERMISSION,
+            trusted("permission", "adapt.mutations")
+        ));
+        return;
+      }
+
+      MutationManager manager = manager();
+      AdaptPlayer adaptPlayer = adaptPlayer(player);
+      if (manager == null || adaptPlayer == null) {
+        ComponentMessenger.sendSection(player, C.RED + AdaptLanguage.text(MutationMessages.MUTATIONS_UNAVAILABLE));
+        return;
+      }
+      if (!manager.getConfig().isEnabled()) {
+        ComponentMessenger.sendSection(player, C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_DISABLED));
+        return;
+      }
+
+      MutationSnapshot snapshot = manager.reconcile(player);
+      MutationGuiModel.View view = MutationGuiModel.build(
+          adaptPlayer.getData().getLevel(),
+          manager.hasValidBookshelfAccess(player),
+          snapshot
+      );
+      int pageCount = Math.max(1, (int) Math.ceil(view.cards().size() / (double) CARDS_PER_PAGE));
+      int currentPage = Math.max(0, Math.min(pageCount - 1, page));
+      int start = currentPage * CARDS_PER_PAGE;
+      int end = Math.min(view.cards().size(), start + CARDS_PER_PAGE);
+
+      UIWindow window = new UIWindow(Adapt.instance, player);
+      GuiTheme.apply(window, "mutations/" + currentPage);
+      window.setViewportHeight(6);
+      applySummary(window, player, view, currentPage);
+
+      List<GuiEffects.Placement> reveal = new ArrayList<>();
+      for (int index = start; index < end; index++) {
+        int localIndex = index - start;
+        int row = 2 + (localIndex / CARD_COLUMNS);
+        int column = localIndex % CARD_COLUMNS;
+        int rowCount = Math.min(CARD_COLUMNS, end - (start + ((row - 2) * CARD_COLUMNS)));
+        int position = GuiLayout.spacedFivePosition(column, rowCount);
+        MutationGuiModel.Card card = view.cards().get(index);
+        reveal.add(new GuiEffects.Placement(position, row, mutationCard(player, card, currentPage)));
+      }
+      GuiEffects.applyReveal(window, reveal);
+      applyNavigation(window, player, currentPage, pageCount);
+
+      window.setTitle(C.DARK_PURPLE + AdaptLanguage.text(
+          MutationMessages.GUI_TITLE,
+          trusted("level", view.playerLevel())
       ));
-      return;
+      openWindow(player, window, () -> SkillsGui.open(player));
     }
-
-    MutationManager manager = manager();
-    AdaptPlayer adaptPlayer = adaptPlayer(player);
-    if (manager == null || adaptPlayer == null) {
-      ComponentMessenger.sendSection(player, C.RED + AdaptLanguage.text(MutationMessages.MUTATIONS_UNAVAILABLE));
-      return;
-    }
-    if (!manager.getConfig().isEnabled()) {
-      ComponentMessenger.sendSection(player, C.YELLOW + AdaptLanguage.text(MutationMessages.GUI_DISABLED));
-      return;
-    }
-
-    MutationSnapshot snapshot = manager.reconcile(player);
-    MutationGuiModel.View view = MutationGuiModel.build(
-        adaptPlayer.getData().getLevel(),
-        manager.hasValidBookshelfAccess(player),
-        snapshot
-    );
-    int pageCount = Math.max(1, (int) Math.ceil(view.cards().size() / (double) CARDS_PER_PAGE));
-    int currentPage = Math.max(0, Math.min(pageCount - 1, page));
-    int start = currentPage * CARDS_PER_PAGE;
-    int end = Math.min(view.cards().size(), start + CARDS_PER_PAGE);
-
-    UIWindow window = new UIWindow(Adapt.instance, player);
-    GuiTheme.apply(window, "mutations/" + currentPage);
-    window.setViewportHeight(6);
-    applySummary(window, player, view, currentPage);
-
-    List<GuiEffects.Placement> reveal = new ArrayList<>();
-    for (int index = start; index < end; index++) {
-      int localIndex = index - start;
-      int row = 2 + (localIndex / CARD_COLUMNS);
-      int column = localIndex % CARD_COLUMNS;
-      int rowCount = Math.min(CARD_COLUMNS, end - (start + ((row - 2) * CARD_COLUMNS)));
-      int position = GuiLayout.spacedFivePosition(column, rowCount);
-      MutationGuiModel.Card card = view.cards().get(index);
-      reveal.add(new GuiEffects.Placement(position, row, mutationCard(player, card, currentPage)));
-    }
-    GuiEffects.applyReveal(window, reveal);
-    applyNavigation(window, player, currentPage, pageCount);
-
-    window.setTitle(C.DARK_PURPLE + AdaptLanguage.text(
-        MutationMessages.GUI_TITLE,
-        trusted("level", view.playerLevel())
-    ));
-    openWindow(player, window, () -> SkillsGui.open(player));
   }
 
   public static void reopenFromTag(Player player, String tag) {

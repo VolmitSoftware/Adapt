@@ -18,6 +18,8 @@
 
 package art.arcane.adapt;
 
+import art.arcane.volmlib.util.diagnostics.BukkitDebugDump;
+import art.arcane.volmlib.util.diagnostics.DebugDumpContributor;
 import art.arcane.adapt.api.adaptation.AbilityApiBridge;
 import art.arcane.adapt.api.AdaptPermissionRegistrar;
 import art.arcane.adapt.api.adaptation.Adaptation;
@@ -58,7 +60,6 @@ import art.arcane.adapt.content.protector.WorldGuardFlags;
 import art.arcane.adapt.content.protector.WorldGuardProtector;
 import art.arcane.adapt.content.protector.WorldGuardRegionPolicySource;
 import art.arcane.adapt.localization.AdaptLanguage;
-import art.arcane.adapt.localization.AdaptLanguageDownload;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.SQLManager;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -170,6 +171,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private volatile PlaceholderRegistration papiRegistration;
   // AdaptMetrics owns all bstats types; never reference them from this class (slimjar link trap)
   private AdaptMetrics metrics;
+  private BukkitDebugDump debugDump;
 
 
   public Adapt() {
@@ -420,8 +422,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
         .forEach((i) -> services.put((Class<? extends AdaptService>) i.getClass(), (AdaptService) i)));
 
     runStartupPhaseVoid("language-load", AdaptLanguage::initialize);
-    AdaptLanguageDownload.start();
-    AdaptLanguageDownload.requestConfiguredLocale();
+    AdaptLanguage.start();
+    debugDump = BukkitDebugDump.create(this, new BukkitDebugDump.Options(() -> true, this::captureDebugState));
     vaultEconomy = new VaultEconomy(this);
     if (!runStartupPhase("models-load", CustomModel::reloadFromDisk)) {
       Adapt.warn("Failed to load models config during startup migration.");
@@ -572,6 +574,15 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     verbose("start-sim detail: advancement manager enable in " + (System.currentTimeMillis() - startAdv) + "ms");
   }
 
+  private DebugDumpContributor.Report captureDebugState() {
+    String state = "Language: " + AdaptLanguage.activeLocale() + "\nServices: " + (services == null ? 0 : services.size());
+    return () -> state;
+  }
+
+  public BukkitDebugDump debugDump() {
+    return debugDump;
+  }
+
   public void postShutdown(Runnable r) {
     postShutdown.add(r);
   }
@@ -621,7 +632,11 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (!alreadyDrained.compareAndSet(false, true)) {
       return;
     }
-    runShutdownPhase("language downloader", AdaptLanguageDownload::shutdown);
+    if (debugDump != null) {
+      debugDump.close();
+      debugDump = null;
+    }
+    runShutdownPhase("language downloader", AdaptLanguage::shutdown);
     runShutdownPhase("Ability API", AbilityApiBridge::uninstall);
     if (services != null) {
       for (AdaptService service : List.copyOf(services.values())) {

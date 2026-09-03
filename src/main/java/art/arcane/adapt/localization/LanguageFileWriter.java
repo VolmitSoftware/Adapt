@@ -24,22 +24,14 @@ final class LanguageFileWriter {
     }
   }
 
-  static void writeRequired(Path target, String content) throws Exception {
-    writeRequired(target, content, false);
-  }
-
-  static void writeAtomicRequired(Path target, String content) throws Exception {
-    writeRequired(target, content, true);
-  }
-
-  private static void writeRequired(Path target, String content, boolean requireAtomicMove) throws Exception {
+  private static void writeRequired(Path target, String content) throws Exception {
     Path directory = target.getParent();
     Path temp = null;
     try {
       Files.createDirectories(directory);
       temp = Files.createTempFile(directory, tempPrefix(target), TEMP_SUFFIX);
       Files.writeString(temp, content, StandardCharsets.UTF_8);
-      move(temp, target, requireAtomicMove);
+      move(temp, target);
     } catch (Exception failure) {
       discard(temp);
       throw failure;
@@ -52,13 +44,10 @@ final class LanguageFileWriter {
     return (dot > 0 ? name.substring(0, dot) : name) + "-";
   }
 
-  private static void move(Path temp, Path target, boolean requireAtomicMove) throws Exception {
+  private static void move(Path temp, Path target) throws Exception {
     try {
       Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
     } catch (AtomicMoveNotSupportedException e) {
-      if (requireAtomicMove) {
-        throw e;
-      }
       Files.move(temp, target, StandardCopyOption.REPLACE_EXISTING);
     }
   }

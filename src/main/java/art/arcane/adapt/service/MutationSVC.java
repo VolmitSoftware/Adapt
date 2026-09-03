@@ -8,6 +8,7 @@ import art.arcane.adapt.api.notification.SoundNotification;
 import art.arcane.adapt.api.notification.TitleNotification;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.plugin.AdaptService;
@@ -112,41 +113,43 @@ public final class MutationSVC implements AdaptService {
   }
 
   public void onLevelChanged(AdaptPlayer player, int previousLevel, int currentLevel) {
-    MutationManager active = manager;
-    if (active == null || player == null || !player.isRuntimeReady() || readyPlayer(player.getPlayer()) != player) {
-      return;
-    }
-    MutationConfig current = active.getConfig();
-    if (!current.isEnabled()) {
-      return;
-    }
-    active.reconcile(player);
-    if (previousLevel < current.getSlotOneUnlockLevel() && currentLevel >= current.getSlotOneUnlockLevel()) {
-      announce(
-          player,
-          C.LIGHT_PURPLE + AdaptLanguage.text(MutationMessages.SLOT_UNLOCKED_TITLE),
-          C.GRAY + AdaptLanguage.text(MutationMessages.SLOT_UNLOCKED_SUBTITLE)
-      );
-    }
-    if (previousLevel < current.getSlotTwoUnlockLevel() && currentLevel >= current.getSlotTwoUnlockLevel()) {
-      announce(
-          player,
-          C.LIGHT_PURPLE + AdaptLanguage.text(MutationMessages.SECOND_SLOT_TITLE),
-          C.GRAY + AdaptLanguage.text(MutationMessages.SECOND_SLOT_SUBTITLE)
-      );
-    }
-    if (current.isPerfectAdaptationEnabled()
-        && previousLevel < current.getPerfectAdaptationLevel()
-        && currentLevel >= current.getPerfectAdaptationLevel()) {
-      announce(
-          player,
-          C.GOLD + AdaptLanguage.text(MutationMessages.PERFECT_TITLE),
-          C.GRAY + AdaptLanguage.text(MutationMessages.PERFECT_SUBTITLE)
-      );
-    } else if (current.isPerfectAdaptationEnabled()
-        && previousLevel >= current.getPerfectAdaptationLevel()
-        && currentLevel < current.getPerfectAdaptationLevel()) {
-      Adapt.messagePlayer(player.getPlayer(), C.YELLOW + AdaptLanguage.text(MutationMessages.PERFECT_LOST));
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player.getPlayer() == null ? null : player.getPlayer().getUniqueId())) {
+      MutationManager active = manager;
+      if (active == null || player == null || !player.isRuntimeReady() || readyPlayer(player.getPlayer()) != player) {
+        return;
+      }
+      MutationConfig current = active.getConfig();
+      if (!current.isEnabled()) {
+        return;
+      }
+      active.reconcile(player);
+      if (previousLevel < current.getSlotOneUnlockLevel() && currentLevel >= current.getSlotOneUnlockLevel()) {
+        announce(
+            player,
+            C.LIGHT_PURPLE + AdaptLanguage.text(MutationMessages.SLOT_UNLOCKED_TITLE),
+            C.GRAY + AdaptLanguage.text(MutationMessages.SLOT_UNLOCKED_SUBTITLE)
+        );
+      }
+      if (previousLevel < current.getSlotTwoUnlockLevel() && currentLevel >= current.getSlotTwoUnlockLevel()) {
+        announce(
+            player,
+            C.LIGHT_PURPLE + AdaptLanguage.text(MutationMessages.SECOND_SLOT_TITLE),
+            C.GRAY + AdaptLanguage.text(MutationMessages.SECOND_SLOT_SUBTITLE)
+        );
+      }
+      if (current.isPerfectAdaptationEnabled()
+          && previousLevel < current.getPerfectAdaptationLevel()
+          && currentLevel >= current.getPerfectAdaptationLevel()) {
+        announce(
+            player,
+            C.GOLD + AdaptLanguage.text(MutationMessages.PERFECT_TITLE),
+            C.GRAY + AdaptLanguage.text(MutationMessages.PERFECT_SUBTITLE)
+        );
+      } else if (current.isPerfectAdaptationEnabled()
+          && previousLevel >= current.getPerfectAdaptationLevel()
+          && currentLevel < current.getPerfectAdaptationLevel()) {
+        Adapt.messagePlayer(player.getPlayer(), C.YELLOW + AdaptLanguage.text(MutationMessages.PERFECT_LOST));
+      }
     }
   }
 

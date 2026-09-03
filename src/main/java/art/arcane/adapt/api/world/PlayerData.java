@@ -19,6 +19,7 @@
 package art.arcane.adapt.api.world;
 
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
 
@@ -267,67 +268,69 @@ public class PlayerData {
   }
 
   private void notifyMasterLevel(AdaptPlayer player, int level) {
-    AdaptConfig config = AdaptConfig.get();
-    boolean showPopup = config.isActionbarNotifyMasterLevel();
-    boolean playSounds = config.isProgressionSoundsEnabled();
-    if (!showPopup && !playSounds) {
-      return;
-    }
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player.getPlayer() == null ? null : player.getPlayer().getUniqueId())) {
+      AdaptConfig config = AdaptConfig.get();
+      boolean showPopup = config.isActionbarNotifyMasterLevel();
+      boolean playSounds = config.isProgressionSoundsEnabled();
+      if (!showPopup && !playSounds) {
+        return;
+      }
 
-    KList<Notification> notifications = new KList<>();
-    if (playSounds) {
-      notifications.add(SoundNotification.builder()
-          .sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE)
-          .volume(1f)
-          .pitch(0.54f)
-          .group("lvl")
-          .build());
-      notifications.add(SoundNotification.builder()
-          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-          .volume(1f)
-          .pitch(0.44f)
-          .group("lvl")
-          .build());
-      notifications.add(SoundNotification.builder()
-          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-          .volume(1f)
-          .pitch(0.74f)
-          .group("lvl")
-          .build());
-      notifications.add(SoundNotification.builder()
-          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-          .volume(1f)
-          .pitch(1.34f)
-          .group("lvl")
-          .build());
-    }
-    if (showPopup) {
-      notifications.add(TitleNotification.builder()
-          .in(250)
-          .stay(1450)
-          .out(2250)
-          .displayDurationMillis(config.getActionbarLevelDurationMillis())
-          .group("lvl")
-          .title("")
-          .subtitle(C.GOLD + AdaptLanguage.text(
-              SnippetsMessages.GUI_LEVEL_VALUE,
-              trusted("level", level)
-          ))
-          .build());
-    }
-    if (!notifications.isEmpty()) {
-      player.getNot().queue(notifications.toArray(new Notification[0]));
-    }
-    if (showPopup) {
-      player.getActionBarNotifier().queue(ActionBarNotification.builder()
-          .duration(450)
-          .displayDurationMillis(config.getActionbarLevelDurationMillis())
-          .group("power")
-          .title(C.GOLD + AdaptLanguage.text(
-              RuntimeMessages.MAX_ABILITY_POWER,
-              trusted("power", Form.f(level * config.getPowerPerLevel(), 0) + C.GRAY)
-          ))
-          .build());
+      KList<Notification> notifications = new KList<>();
+      if (playSounds) {
+        notifications.add(SoundNotification.builder()
+            .sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE)
+            .volume(1f)
+            .pitch(0.54f)
+            .group("lvl")
+            .build());
+        notifications.add(SoundNotification.builder()
+            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+            .volume(1f)
+            .pitch(0.44f)
+            .group("lvl")
+            .build());
+        notifications.add(SoundNotification.builder()
+            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+            .volume(1f)
+            .pitch(0.74f)
+            .group("lvl")
+            .build());
+        notifications.add(SoundNotification.builder()
+            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+            .volume(1f)
+            .pitch(1.34f)
+            .group("lvl")
+            .build());
+      }
+      if (showPopup) {
+        notifications.add(TitleNotification.builder()
+            .in(250)
+            .stay(1450)
+            .out(2250)
+            .displayDurationMillis(config.getActionbarLevelDurationMillis())
+            .group("lvl")
+            .title("")
+            .subtitle(C.GOLD + AdaptLanguage.text(
+                SnippetsMessages.GUI_LEVEL_VALUE,
+                trusted("level", level)
+            ))
+            .build());
+      }
+      if (!notifications.isEmpty()) {
+        player.getNot().queue(notifications.toArray(new Notification[0]));
+      }
+      if (showPopup) {
+        player.getActionBarNotifier().queue(ActionBarNotification.builder()
+            .duration(450)
+            .displayDurationMillis(config.getActionbarLevelDurationMillis())
+            .group("power")
+            .title(C.GOLD + AdaptLanguage.text(
+                RuntimeMessages.MAX_ABILITY_POWER,
+                trusted("power", Form.f(level * config.getPowerPerLevel(), 0) + C.GRAY)
+            ))
+            .build());
+      }
     }
   }
 
@@ -587,26 +590,28 @@ public class PlayerData {
   }
 
   private void pulseInspired(AdaptPlayer p) {
-    if (!inspiredPopupPending) {
-      return;
-    }
+    try (LanguageAudience.Scope audience = LanguageAudience.open(p.getPlayer() == null ? null : p.getPlayer().getUniqueId())) {
+      if (!inspiredPopupPending) {
+        return;
+      }
 
-    inspiredPopupPending = false;
-    AdaptConfig.XpIntegrity integrity = AdaptConfig.get().getXpIntegrity();
-    if (integrity == null || !integrity.isInspiredPopupEnabled() || inspiredSkill == null || inspiredSkill.isBlank()) {
-      return;
-    }
+      inspiredPopupPending = false;
+      AdaptConfig.XpIntegrity integrity = AdaptConfig.get().getXpIntegrity();
+      if (integrity == null || !integrity.isInspiredPopupEnabled() || inspiredSkill == null || inspiredSkill.isBlank()) {
+        return;
+      }
 
-    Skill<?> skill = p.getServer().getSkillRegistry().getSkill(inspiredSkill);
-    if (skill == null) {
-      return;
-    }
+      Skill<?> skill = p.getServer().getSkillRegistry().getSkill(inspiredSkill);
+      if (skill == null) {
+        return;
+      }
 
-    p.getActionBarNotifier().queue(ActionBarNotification.builder()
-        .duration(1250)
-        .group("inspired")
-        .title(skill.getDisplayName() + C.RESET + " " + C.GREEN + AdaptLanguage.text(SnippetsMessages.XP_INSPIRED))
-        .build());
+      p.getActionBarNotifier().queue(ActionBarNotification.builder()
+          .duration(1250)
+          .group("inspired")
+          .title(skill.getDisplayName() + C.RESET + " " + C.GREEN + AdaptLanguage.text(SnippetsMessages.XP_INSPIRED))
+          .build());
+    }
   }
 
   private void normalizeInspiredAssignment() {

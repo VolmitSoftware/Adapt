@@ -12,7 +12,6 @@ import art.arcane.adapt.content.gui.ConfigGui;
 import art.arcane.adapt.content.gui.MutationGui;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.localization.AdaptLanguage;
-import art.arcane.adapt.localization.AdaptLanguageDownload;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.plugin.AdaptService;
@@ -354,7 +353,7 @@ public class HotloadSVC implements AdaptService {
 
   private void refreshGlobalRuntimeSettings() {
     AdaptLanguage.reloadPassive();
-    AdaptLanguageDownload.requestConfiguredLocale();
+    AdaptLanguage.requestConfiguredLocale();
 
     ProtectorRegistry protectorRegistry = Adapt.instance.getProtectorRegistry();
     if (protectorRegistry != null) {

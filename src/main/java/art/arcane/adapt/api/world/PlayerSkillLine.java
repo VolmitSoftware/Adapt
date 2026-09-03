@@ -33,6 +33,7 @@ import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.volmlib.util.collection.KList;
@@ -490,85 +491,87 @@ public class PlayerSkillLine {
   }
 
   private void notifyLevel(AdaptPlayer p, Skill<?> skill, int level, long knowledge) {
-    AdaptConfig config = AdaptConfig.get();
-    boolean showPopup = config.isActionbarNotifyLevel();
-    boolean playSounds = config.isProgressionSoundsEnabled();
-    if (!showPopup && !playSounds) {
-      return;
-    }
+    try (LanguageAudience.Scope audience = LanguageAudience.open(p.getPlayer() == null ? null : p.getPlayer().getUniqueId())) {
+      AdaptConfig config = AdaptConfig.get();
+      boolean showPopup = config.isActionbarNotifyLevel();
+      boolean playSounds = config.isProgressionSoundsEnabled();
+      if (!showPopup && !playSounds) {
+        return;
+      }
 
-    String group = "lvl" + getLine();
-    long displayDurationMillis = config.getActionbarLevelDurationMillis();
-    KList<Notification> notifications = new KList<>();
-    if (level % 10 == 0) {
+      String group = "lvl" + getLine();
+      long displayDurationMillis = config.getActionbarLevelDurationMillis();
+      KList<Notification> notifications = new KList<>();
+      if (level % 10 == 0) {
+        if (playSounds) {
+          float milestoneVolume = (float) config.getLevelMilestoneSoundVolume();
+          notifications.add(SoundNotification.builder()
+              .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
+              .volume(milestoneVolume)
+              .pitch(1.35f)
+              .group(group)
+              .build());
+          notifications.add(SoundNotification.builder()
+              .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
+              .volume(milestoneVolume)
+              .pitch(0.75f)
+              .group(group)
+              .build());
+        }
+        if (showPopup) {
+          notifications.add(TitleNotification.builder()
+              .in(250)
+              .stay(1450)
+              .out(2250)
+              .group(group)
+              .displayDurationMillis(displayDurationMillis)
+              .title("")
+              .subtitle(skill.getDisplayName(level))
+              .build());
+        }
+        if (!notifications.isEmpty()) {
+          p.getNot().queue(notifications.toArray(new Notification[0]));
+        }
+        if (showPopup) {
+          p.getActionBarNotifier().queue(ActionBarNotification.builder()
+              .duration(450)
+              .displayDurationMillis(displayDurationMillis)
+              .group("know" + getLine())
+              .title(AdaptLanguage.text(
+                  RuntimeMessages.KNOWLEDGE_STATUS,
+                  trusted("amount", knowledge),
+                  trusted("skill", skill.getShortName())
+              ))
+              .build());
+        }
+        return;
+      }
+
       if (playSounds) {
-        float milestoneVolume = (float) config.getLevelMilestoneSoundVolume();
         notifications.add(SoundNotification.builder()
-            .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
-            .volume(milestoneVolume)
-            .pitch(1.35f)
+            .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK)
+            .volume(1f)
+            .pitch(1.74f)
             .group(group)
             .build());
         notifications.add(SoundNotification.builder()
-            .sound(Sound.UI_TOAST_CHALLENGE_COMPLETE)
-            .volume(milestoneVolume)
-            .pitch(0.75f)
+            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
+            .volume(1f)
+            .pitch(0.74f)
             .group(group)
             .build());
       }
       if (showPopup) {
-        notifications.add(TitleNotification.builder()
-            .in(250)
-            .stay(1450)
-            .out(2250)
-            .group(group)
+        notifications.add(ActionBarNotification.builder()
+            .duration(450)
             .displayDurationMillis(displayDurationMillis)
-            .title("")
-            .subtitle(skill.getDisplayName(level))
+            .group(group)
+            .title(skill.getDisplayName(level))
             .build());
       }
       if (!notifications.isEmpty()) {
-        p.getNot().queue(notifications.toArray(new Notification[0]));
+        p.getActionBarNotifier().queue(notifications.toArray(new Notification[0]));
       }
-      if (showPopup) {
-        p.getActionBarNotifier().queue(ActionBarNotification.builder()
-            .duration(450)
-            .displayDurationMillis(displayDurationMillis)
-            .group("know" + getLine())
-            .title(AdaptLanguage.text(
-                RuntimeMessages.KNOWLEDGE_STATUS,
-                trusted("amount", knowledge),
-                trusted("skill", skill.getShortName())
-            ))
-            .build());
-      }
-      return;
-    }
-
-    if (playSounds) {
-      notifications.add(SoundNotification.builder()
-          .sound(Sound.BLOCK_AMETHYST_BLOCK_BREAK)
-          .volume(1f)
-          .pitch(1.74f)
-          .group(group)
-          .build());
-      notifications.add(SoundNotification.builder()
-          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-          .volume(1f)
-          .pitch(0.74f)
-          .group(group)
-          .build());
-    }
-    if (showPopup) {
-      notifications.add(ActionBarNotification.builder()
-          .duration(450)
-          .displayDurationMillis(displayDurationMillis)
-          .group(group)
-          .title(skill.getDisplayName(level))
-          .build());
-    }
-    if (!notifications.isEmpty()) {
-      p.getActionBarNotifier().queue(notifications.toArray(new Notification[0]));
     }
   }
 

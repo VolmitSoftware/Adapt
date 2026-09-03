@@ -27,6 +27,7 @@ import art.arcane.adapt.util.project.redis.RedisConfig;
 import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
+import com.google.gson.Gson;
 import lombok.Getter;
 import lombok.Setter;
 import org.bukkit.Bukkit;
@@ -35,6 +36,9 @@ import org.bukkit.generator.WorldInfo;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -189,6 +193,28 @@ public class AdaptConfig {
       MaterialValue.invalidateCache();
     }
     return reloaded;
+  }
+
+  public static void selectLanguage(String locale) throws IOException {
+    synchronized (CONFIG_LOCK) {
+      AdaptConfig current = get();
+      Gson serializer = new Gson();
+      AdaptConfig candidate = serializer.fromJson(serializer.toJson(current), AdaptConfig.class);
+      candidate.language = locale;
+      Path target = Adapt.instance.getDataFile("adapt.toml").toPath();
+      Path temporary = null;
+      try {
+        Files.createDirectories(target.toAbsolutePath().getParent());
+        temporary = Files.createTempFile(target.toAbsolutePath().getParent(), "adapt-", ".toml.tmp");
+        Files.writeString(temporary, TomlCodec.toToml(candidate, "core-config"));
+        Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        current.language = locale;
+      } finally {
+        if (temporary != null) {
+          Files.deleteIfExists(temporary);
+        }
+      }
+    }
   }
 
   static AdaptConfig preserveRestartBoundSettings(AdaptConfig previous, AdaptConfig loaded) {

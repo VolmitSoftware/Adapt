@@ -28,6 +28,7 @@ import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.service.MutationSVC;
@@ -61,135 +62,139 @@ public class SkillsGui {
   private static final int SKILLS_PER_ROW = GuiLayout.FIVE_WIDTH;
 
   public static void open(Player player) {
-    open(player, 0);
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.getUniqueId())) {
+      open(player, 0);
+    }
   }
 
   public static void open(Player player, int page) {
-    if (player == null || !player.isOnline()) {
-      return;
-    }
-    boolean owned = (!J.isFoliaThreading() && J.isPrimaryThread())
-        || (J.isFoliaThreading() && J.isOwnedByCurrentRegion(player));
-    if (!owned) {
-      int targetPage = page;
-      J.runEntity(player, () -> open(player, targetPage));
-      return;
-    }
-
-    AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(player);
-    if (adaptPlayer == null) {
-      Adapt.error("Failed to open skills gui for " + player.getName() + " because they are not Online, Were Kicked, Or are a fake player.");
-      return;
-    }
-
-    boolean debugMode = AdaptDebugMode.isActive(player);
-    boolean showAll = debugMode || AdaptConfig.get().isGuiShowAllSkills();
-    List<SkillPageEntry> entries = new ArrayList<>();
-    List<String> knownSkills = new ArrayList<>();
-    for (Skill<?> skill : adaptPlayer.getServer().getSkillRegistry().getSkills()) {
-      if (skill == null) {
-        continue;
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.getUniqueId())) {
+      if (player == null || !player.isOnline()) {
+        return;
       }
-      knownSkills.add(skill.getName());
-      if (!skill.isEnabled()) {
-        continue;
-      }
-      PlayerSkillLine line = resolveSkillLine(adaptPlayer.getData(), skill.getName(), debugMode, showAll);
-      if (line == null) {
-        continue;
+      boolean owned = (!J.isFoliaThreading() && J.isPrimaryThread())
+          || (J.isFoliaThreading() && J.isOwnedByCurrentRegion(player));
+      if (!owned) {
+        int targetPage = page;
+        J.runEntity(player, () -> open(player, targetPage));
+        return;
       }
 
-      int adaptationLevel = sumAdaptationLevels(line);
-      boolean permitted = skill.hasUsePermission(adaptPlayer.getPlayer(), skill);
-      if (!isSkillEntryVisible(permitted, debugMode, showAll, line, adaptationLevel)) {
-        continue;
+      AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(player);
+      if (adaptPlayer == null) {
+        Adapt.error("Failed to open skills gui for " + player.getName() + " because they are not Online, Were Kicked, Or are a fake player.");
+        return;
       }
 
-      entries.add(new SkillPageEntry(skill, line, adaptationLevel));
-    }
-
-    Map<String, Integer> configuredOrder = GuiConfig.skillOrder(knownSkills);
-    entries.sort(
-        Comparator.comparingInt((SkillPageEntry entry) -> GuiConfig.rankOf(configuredOrder, entry.skill().getName()))
-            .thenComparing((SkillPageEntry entry) -> normalizeSortKey(entry.skill().getDisplayName()))
-            .thenComparing(entry -> entry.skill().getName(), String.CASE_INSENSITIVE_ORDER)
-    );
-
-    MutationSVC mutationService = MutationSVC.get();
-    boolean showMutations = (player.hasPermission("adapt.mutations") || debugMode)
-        && mutationService != null
-        && mutationService.getManager() != null
-        && mutationService.getManager().getConfig().isEnabled();
-    int configuredRows = GuiConfig.skillsGuiRows();
-    GuiLayout.PagePlan plan = GuiLayout.planFiveWide(entries.size(), configuredRows);
-    int currentPage = GuiLayout.clampPage(page, plan.pageCount());
-    int start = currentPage * plan.itemsPerPage();
-    int end = Math.min(entries.size(), start + plan.itemsPerPage());
-    int viewportRows = GuiLayout.fiveWideRowsForPage(end - start, configuredRows);
-    int contentRows = viewportRows - 1;
-    int navRow = viewportRows - 1;
-
-    UIWindow w = new UIWindow(Adapt.instance, player);
-    GuiTheme.apply(w, "/");
-    w.setViewportHeight(viewportRows);
-
-    if (entries.isEmpty()) {
-      w.setElement(0, GuiLayout.centeredFiveRow(0, 1, contentRows), new UIElement("skills-empty")
-          .setMaterial(new MaterialBlock(Material.PAPER))
-          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.NO_SKILLS_AVAILABLE))
-          .addLore(C.DARK_GRAY + AdaptLanguage.text(GuiMessages.NO_ELIGIBLE_SKILLS)));
-    } else {
-      List<GuiEffects.Placement> reveal = new ArrayList<>();
-      int pageItems = end - start;
-      int usedRows = Math.max(1, (int) Math.ceil(pageItems / (double) SKILLS_PER_ROW));
-      for (int logicalRow = 0; logicalRow < usedRows; logicalRow++) {
-        int row = GuiLayout.centeredFiveRow(logicalRow, usedRows, contentRows);
-        int rowStart = start + (logicalRow * SKILLS_PER_ROW);
-        if (rowStart >= end) {
-          break;
+      boolean debugMode = AdaptDebugMode.isActive(player);
+      boolean showAll = debugMode || AdaptConfig.get().isGuiShowAllSkills();
+      List<SkillPageEntry> entries = new ArrayList<>();
+      List<String> knownSkills = new ArrayList<>();
+      for (Skill<?> skill : adaptPlayer.getServer().getSkillRegistry().getSkills()) {
+        if (skill == null) {
+          continue;
+        }
+        knownSkills.add(skill.getName());
+        if (!skill.isEnabled()) {
+          continue;
+        }
+        PlayerSkillLine line = resolveSkillLine(adaptPlayer.getData(), skill.getName(), debugMode, showAll);
+        if (line == null) {
+          continue;
         }
 
-        int rowCount = Math.min(SKILLS_PER_ROW, end - rowStart);
-        for (int i = 0; i < rowCount; i++) {
-          SkillPageEntry entry = entries.get(rowStart + i);
-          int pos = GuiLayout.spacedFivePosition(i, rowCount);
-          CustomModel model = GuiConfig.skillModel(
-              entry.skill().getName(),
-              entry.skill().getIcon(),
-              entry.skill().getModel()
-          );
-          Element element = new UIElement("skill-" + entry.skill().getName())
-              .setMaterial(new MaterialBlock(model.material()))
-              .setBaseItemStack(model.toItemStack())
-              .setName(entry.skill().getDisplayName(entry.line().getLevel()))
-              .setProgress(1D)
-              .addLore(C.ITALIC + "" + C.GRAY + entry.skill().getDescription())
-              .addLore(C.GRAY + AdaptLanguage.text(
-                  SnippetsMessages.GUI_KNOWLEDGE_VALUE,
-                  trusted("knowledge", C.UNDERLINE + "" + C.WHITE + entry.line().getKnowledge() + C.RESET + " " + C.GRAY)
-              ))
-              .addLore(C.ITALIC + "" + C.GRAY + AdaptLanguage.text(
-                  SnippetsMessages.GUI_POWER_USED_VALUE,
-                  trusted("power", C.DARK_GREEN + String.valueOf(entry.adaptationLevel()))
-              ))
-              .onLeftClick((e) -> entry.skill().openGui(player));
-          reveal.add(new GuiEffects.Placement(pos, row, element));
+        int adaptationLevel = sumAdaptationLevels(line);
+        boolean permitted = skill.hasUsePermission(adaptPlayer.getPlayer(), skill);
+        if (!isSkillEntryVisible(permitted, debugMode, showAll, line, adaptationLevel)) {
+          continue;
         }
+
+        entries.add(new SkillPageEntry(skill, line, adaptationLevel));
       }
-      GuiEffects.applyReveal(w, reveal);
+
+      Map<String, Integer> configuredOrder = GuiConfig.skillOrder(knownSkills);
+      entries.sort(
+          Comparator.comparingInt((SkillPageEntry entry) -> GuiConfig.rankOf(configuredOrder, entry.skill().getName()))
+              .thenComparing((SkillPageEntry entry) -> normalizeSortKey(entry.skill().getDisplayName()))
+              .thenComparing(entry -> entry.skill().getName(), String.CASE_INSENSITIVE_ORDER)
+      );
+
+      MutationSVC mutationService = MutationSVC.get();
+      boolean showMutations = (player.hasPermission("adapt.mutations") || debugMode)
+          && mutationService != null
+          && mutationService.getManager() != null
+          && mutationService.getManager().getConfig().isEnabled();
+      int configuredRows = GuiConfig.skillsGuiRows();
+      GuiLayout.PagePlan plan = GuiLayout.planFiveWide(entries.size(), configuredRows);
+      int currentPage = GuiLayout.clampPage(page, plan.pageCount());
+      int start = currentPage * plan.itemsPerPage();
+      int end = Math.min(entries.size(), start + plan.itemsPerPage());
+      int viewportRows = GuiLayout.fiveWideRowsForPage(end - start, configuredRows);
+      int contentRows = viewportRows - 1;
+      int navRow = viewportRows - 1;
+
+      UIWindow w = new UIWindow(Adapt.instance, player);
+      GuiTheme.apply(w, "/");
+      w.setViewportHeight(viewportRows);
+
+      if (entries.isEmpty()) {
+        w.setElement(0, GuiLayout.centeredFiveRow(0, 1, contentRows), new UIElement("skills-empty")
+            .setMaterial(new MaterialBlock(Material.PAPER))
+            .setName(C.GRAY + AdaptLanguage.text(GuiMessages.NO_SKILLS_AVAILABLE))
+            .addLore(C.DARK_GRAY + AdaptLanguage.text(GuiMessages.NO_ELIGIBLE_SKILLS)));
+      } else {
+        List<GuiEffects.Placement> reveal = new ArrayList<>();
+        int pageItems = end - start;
+        int usedRows = Math.max(1, (int) Math.ceil(pageItems / (double) SKILLS_PER_ROW));
+        for (int logicalRow = 0; logicalRow < usedRows; logicalRow++) {
+          int row = GuiLayout.centeredFiveRow(logicalRow, usedRows, contentRows);
+          int rowStart = start + (logicalRow * SKILLS_PER_ROW);
+          if (rowStart >= end) {
+            break;
+          }
+
+          int rowCount = Math.min(SKILLS_PER_ROW, end - rowStart);
+          for (int i = 0; i < rowCount; i++) {
+            SkillPageEntry entry = entries.get(rowStart + i);
+            int pos = GuiLayout.spacedFivePosition(i, rowCount);
+            CustomModel model = GuiConfig.skillModel(
+                entry.skill().getName(),
+                entry.skill().getIcon(),
+                entry.skill().getModel()
+            );
+            Element element = new UIElement("skill-" + entry.skill().getName())
+                .setMaterial(new MaterialBlock(model.material()))
+                .setBaseItemStack(model.toItemStack())
+                .setName(entry.skill().getDisplayName(entry.line().getLevel()))
+                .setProgress(1D)
+                .addLore(C.ITALIC + "" + C.GRAY + entry.skill().getDescription())
+                .addLore(C.GRAY + AdaptLanguage.text(
+                    SnippetsMessages.GUI_KNOWLEDGE_VALUE,
+                    trusted("knowledge", C.UNDERLINE + "" + C.WHITE + entry.line().getKnowledge() + C.RESET + " " + C.GRAY)
+                ))
+                .addLore(C.ITALIC + "" + C.GRAY + AdaptLanguage.text(
+                    SnippetsMessages.GUI_POWER_USED_VALUE,
+                    trusted("power", C.DARK_GREEN + String.valueOf(entry.adaptationLevel()))
+                ))
+                .onLeftClick((e) -> entry.skill().openGui(player));
+            reveal.add(new GuiEffects.Placement(pos, row, element));
+          }
+        }
+        GuiEffects.applyReveal(w, reveal);
+      }
+
+      applyPageControls(w, player, navRow, currentPage, plan.pageCount(), entries.size(), start, end, showMutations);
+
+      w.setTitle(AdaptLanguage.text(
+          GuiMessages.SKILLS_TITLE,
+          trusted("level", (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp())),
+          trusted("used", adaptPlayer.getData().getUsedPower()),
+          trusted("maximum", adaptPlayer.getData().getMaxPower())
+      ));
+      w.onClosed((e) -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), w));
+      w.open();
+      Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
     }
-
-    applyPageControls(w, player, navRow, currentPage, plan.pageCount(), entries.size(), start, end, showMutations);
-
-    w.setTitle(AdaptLanguage.text(
-        GuiMessages.SKILLS_TITLE,
-        trusted("level", (int) XP.getLevelForXp(adaptPlayer.getData().getMasterXp())),
-        trusted("used", adaptPlayer.getData().getUsedPower()),
-        trusted("maximum", adaptPlayer.getData().getMaxPower())
-    ));
-    w.onClosed((e) -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), w));
-    w.open();
-    Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
   }
 
   static PlayerSkillLine resolveSkillLine(PlayerData data, String skillName, boolean debugMode, boolean showAll) {

@@ -27,6 +27,12 @@ commands:
   adapt: { }
 
 permissions:
+  adapt.debugdump:
+    description: Allows creating and optionally uploading diagnostic reports.
+    default: op
+  adapt.language.self:
+    description: Allows choosing your own language for this plugin.
+    default: true
   adapt.idontknowwhatimdoingiswear:
     description: This is for the Adapt Testing command DEVELOPERS ONLY
     default: op

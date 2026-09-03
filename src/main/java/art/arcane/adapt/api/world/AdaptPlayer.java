@@ -19,6 +19,7 @@
 package art.arcane.adapt.api.world;
 
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
 
@@ -878,35 +879,37 @@ public class AdaptPlayer extends TickedObject {
 
   @Override
   public void onTick() {
-    if (!isRuntimeReady()) {
-      return;
-    }
-
-    long now = M.ms();
-    Location playerLocation = null;
-    if (now >= nextUpdateAt) {
-      if (data.isEffectsEnabled() || RegionPolicyService.isActive()) {
-        playerLocation = capturePosition();
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.getUniqueId())) {
+      if (!isRuntimeReady()) {
+        return;
       }
-      RegionGrantRuntime.refresh(this, playerLocation);
-      getData().update(this);
-      AdaptPlaceholders.get().publishPlayer(this);
-      nextUpdateAt = now + UPDATE_INTERVAL_MS;
-    }
 
-    if (now >= nextSaveAt) {
-      save();
-      nextSaveAt = now + SAVE_INTERVAL_MS;
-    }
-
-    if (getServer().hasSpatialTickets()) {
-      if (playerLocation == null) {
-        playerLocation = capturePosition();
+      long now = M.ms();
+      Location playerLocation = null;
+      if (now >= nextUpdateAt) {
+        if (data.isEffectsEnabled() || RegionPolicyService.isActive()) {
+          playerLocation = capturePosition();
+        }
+        RegionGrantRuntime.refresh(this, playerLocation);
+        getData().update(this);
+        AdaptPlaceholders.get().publishPlayer(this);
+        nextUpdateAt = now + UPDATE_INTERVAL_MS;
       }
-      getServer().takeSpatial(this, playerLocation);
-    }
 
-    setInterval(nextTickDelay(now));
+      if (now >= nextSaveAt) {
+        save();
+        nextSaveAt = now + SAVE_INTERVAL_MS;
+      }
+
+      if (getServer().hasSpatialTickets()) {
+        if (playerLocation == null) {
+          playerLocation = capturePosition();
+        }
+        getServer().takeSpatial(this, playerLocation);
+      }
+
+      setInterval(nextTickDelay(now));
+    }
   }
 
   static long staggerDelay(UUID playerId, long interval, long salt) {
@@ -970,38 +973,40 @@ public class AdaptPlayer extends TickedObject {
   }
 
   public void loggedIn() {
-    lastSeen = M.ms();
-    if (data.isEffectsEnabled()) {
-      J.runEntity(player, () -> {
-        if (runtimeReady) {
-          capturePosition();
-        }
-      });
-    }
-    if (loginStatReconciliationComplete.compareAndSet(false, true)) {
-      reconcileStatTrackers();
-    }
-    if (AdaptConfig.get().isLoginBonus()) {
-      long timeGone = M.ms() - getData().getLastLogin();
-      boolean first = getData().getLastLogin() == 0;
-      getData().setLastLogin(M.ms());
-      long boostTime = (long) Math.min(timeGone / 12D, TimeUnit.HOURS.toMillis(1));
-      if (boostTime < TimeUnit.MINUTES.toMillis(5)) {
-        return;
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player == null ? null : player.getUniqueId())) {
+      lastSeen = M.ms();
+      if (data.isEffectsEnabled()) {
+        J.runEntity(player, () -> {
+          if (runtimeReady) {
+            capturePosition();
+          }
+        });
       }
-      double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
-      getData().globalXPMultiplier(boostAmount, boostTime);
-      if (!AdaptConfig.get().isWelcomeMessage())
-        return;
-      getNot().queue(AdvancementNotification.builder()
-          .title(first ? AdaptLanguage.text(SnippetsMessages.GUI_WELCOME) : AdaptLanguage.text(SnippetsMessages.GUI_WELCOME_BACK))
-          .description(AdaptLanguage.text(
-              RuntimeMessages.XP_BONUS,
-              trusted("percent", C.GREEN + Form.pc(boostAmount, 0) + C.GRAY),
-              trusted("duration", C.AQUA + Form.duration(boostTime, 0))
-          ))
-          .model(CustomModel.get(Material.DIAMOND, "snippets", "gui", first ? "welcome" : "welcomeback"))
-          .build());
+      if (loginStatReconciliationComplete.compareAndSet(false, true)) {
+        reconcileStatTrackers();
+      }
+      if (AdaptConfig.get().isLoginBonus()) {
+        long timeGone = M.ms() - getData().getLastLogin();
+        boolean first = getData().getLastLogin() == 0;
+        getData().setLastLogin(M.ms());
+        long boostTime = (long) Math.min(timeGone / 12D, TimeUnit.HOURS.toMillis(1));
+        if (boostTime < TimeUnit.MINUTES.toMillis(5)) {
+          return;
+        }
+        double boostAmount = M.lerp(0.1, 0.25, (double) boostTime / (double) TimeUnit.HOURS.toMillis(1));
+        getData().globalXPMultiplier(boostAmount, boostTime);
+        if (!AdaptConfig.get().isWelcomeMessage())
+          return;
+        getNot().queue(AdvancementNotification.builder()
+            .title(first ? AdaptLanguage.text(SnippetsMessages.GUI_WELCOME) : AdaptLanguage.text(SnippetsMessages.GUI_WELCOME_BACK))
+            .description(AdaptLanguage.text(
+                RuntimeMessages.XP_BONUS,
+                trusted("percent", C.GREEN + Form.pc(boostAmount, 0) + C.GRAY),
+                trusted("duration", C.AQUA + Form.duration(boostTime, 0))
+            ))
+            .model(CustomModel.get(Material.DIAMOND, "snippets", "gui", first ? "welcome" : "welcomeback"))
+            .build());
+      }
     }
   }
 

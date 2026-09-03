@@ -21,6 +21,7 @@ package art.arcane.adapt.service;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.command.CommandAdapt;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.util.cache.AtomicCache;
 import art.arcane.adapt.util.common.format.C;
@@ -55,6 +56,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,6 +66,8 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, DirectorInvocationHook {
   private static final String ROOT_COMMAND = "adapt";
   private static final String ROOT_PERMISSION = "adapt.main";
+
+  private final ThreadLocal<Deque<LanguageAudience.Scope>> languageScopes = ThreadLocal.withInitial(ArrayDeque::new);
 
   private final transient AtomicCache<DirectorRuntimeEngine> directorCache = new AtomicCache<>();
 
@@ -100,6 +105,12 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
 
   private DirectorContextRegistry buildDirectorContexts() {
     DirectorContextRegistry contexts = new DirectorContextRegistry();
+    contexts.register(CommandSender.class, (invocation, map) -> {
+      if (invocation.getSender() instanceof BukkitDirectorSender sender) {
+        return sender.sender();
+      }
+      return null;
+    });
     contexts.register(World.class, (invocation, map) -> {
       if (invocation.getSender() instanceof BukkitDirectorSender sender && sender.sender() instanceof Player player) {
         return player.getWorld();
@@ -122,6 +133,7 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
   @Override
   public void beforeInvoke(DirectorInvocation invocation, DirectorRuntimeNode node) {
     if (invocation.getSender() instanceof BukkitDirectorSender sender) {
+      languageScopes.get().push(LanguageAudience.open(sender.sender() instanceof Player player ? player.getUniqueId() : null));
       BukkitDirectorContext.touch(sender.sender());
     }
   }
@@ -129,6 +141,13 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
   @Override
   public void afterInvoke(DirectorInvocation invocation, DirectorRuntimeNode node) {
     BukkitDirectorContext.remove();
+    Deque<LanguageAudience.Scope> scopes = languageScopes.get();
+    if (!scopes.isEmpty()) {
+      scopes.pop().close();
+    }
+    if (scopes.isEmpty()) {
+      languageScopes.remove();
+    }
   }
 
   @Nullable
@@ -138,7 +157,9 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
       return List.of();
     }
 
-    List<String> v = runDirectorTab(sender, alias, args);
+    List<String> v = args.length > 0 && args[0].equalsIgnoreCase("language")
+        ? AdaptLanguage.completeLanguage(sender, Arrays.copyOfRange(args, 1, args.length))
+        : runDirectorTab(sender, alias, args);
 
     if (sender instanceof Player p) {
       SoundPlayer sp = SoundPlayer.of(p);
@@ -156,7 +177,12 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
 
     Adapt.verbose(() -> "Received command from %s: /%s %s"
         .formatted(sender.getName(), label, String.join(" ", args)));
-    if (!sender.hasPermission(ROOT_PERMISSION)) {
+    if (args.length > 0 && args[0].equalsIgnoreCase("language")) {
+      AdaptLanguage.language(sender, Arrays.copyOfRange(args, 1, args.length));
+      return true;
+    }
+    if (!(args.length > 0 && args[0].equalsIgnoreCase("debugdump"))
+        && !sender.hasPermission(ROOT_PERMISSION)) {
       ComponentMessenger.sendSection(sender, AdaptLanguage.text(
           CommandRuntimeMessages.MISSING_PERMISSION,
           trusted("permission", ROOT_PERMISSION)
@@ -188,22 +214,24 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
   }
 
   private boolean sendHelpIfRequested(CommandSender sender, String[] args) {
-    Optional<DirectorHelpPage> request = DirectorMiniMenu.resolveHelp(getDirector(), Arrays.asList(args));
-    if (request.isEmpty()) {
-      return false;
-    }
+    try (LanguageAudience.Scope audience = LanguageAudience.open(sender instanceof Player player ? player.getUniqueId() : null)) {
+      Optional<DirectorHelpPage> request = DirectorMiniMenu.resolveHelp(getDirector(), Arrays.asList(args));
+      if (request.isEmpty()) {
+        return false;
+      }
 
-    DirectorMiniMenu.deliver(
-        sender,
-        request.get(),
-        DirectorMiniMenu.Theme.adaptRed(),
-        AdaptLanguage.directorResolver()
-    );
-    return true;
+      DirectorMiniMenu.deliver(
+          sender,
+          request.get(),
+          DirectorMiniMenu.Theme.adaptRed(),
+          AdaptLanguage.directorResolver()
+      );
+      return true;
+    }
   }
 
   private DirectorExecutionResult runDirector(CommandSender sender, String label, String[] args) {
-    try {
+    try (LanguageAudience.Scope audience = LanguageAudience.open(sender instanceof Player player ? player.getUniqueId() : null)) {
       return getDirector().execute(new DirectorInvocation(new BukkitDirectorSender(sender), label, Arrays.asList(args)));
     } catch (Throwable e) {
       Adapt.warn("Director command execution failed: " + e.getClass().getSimpleName() + " " + e.getMessage());
@@ -212,7 +240,7 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
   }
 
   private List<String> runDirectorTab(CommandSender sender, String alias, String[] args) {
-    try {
+    try (LanguageAudience.Scope audience = LanguageAudience.open(sender instanceof Player player ? player.getUniqueId() : null)) {
       return getDirector().tabComplete(new DirectorInvocation(new BukkitDirectorSender(sender), alias, Arrays.asList(args)));
     } catch (Throwable e) {
       Adapt.warn("Director tab completion failed: " + e.getClass().getSimpleName() + " " + e.getMessage());

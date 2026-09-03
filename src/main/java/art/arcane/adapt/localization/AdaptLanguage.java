@@ -4,7 +4,20 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigFileSupport;
+import art.arcane.adapt.service.HotloadSVC;
+import art.arcane.volmlib.util.localization.BukkitLanguageSwitcher;
+import art.arcane.volmlib.util.localization.LanguageFileEditor;
+import art.arcane.volmlib.util.localization.LocalizationSnapshot;
+import art.arcane.volmlib.util.localization.LocalizationValidator;
+import art.arcane.volmlib.util.localization.PluginLanguageService;
+import art.arcane.volmlib.util.localization.PluginLanguageEditor;
+import art.arcane.volmlib.util.localization.RemoteLanguageCatalog;
+import art.arcane.volmlib.util.localization.TomlLanguageEditor;
+import art.arcane.volmlib.util.scheduling.SchedulerUtils;
+import org.bukkit.command.CommandSender;
 import art.arcane.volmlib.util.director.DirectorTextResolver;
+import art.arcane.volmlib.util.director.help.DirectorMiniMenu;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.LocaleOverlay;
 import art.arcane.volmlib.util.localization.LocalizationCandidate;
@@ -28,6 +41,11 @@ import com.google.gson.JsonObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Path;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -37,6 +55,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 public final class AdaptLanguage {
+  private static final Object SNAPSHOT_LOCK = new Object();
   private static final long MAX_LOCALE_BYTES = 2L * 1024L * 1024L;
   private static final int MAX_REPORTED_ISSUES = 12;
   static final Pattern LOCALE_NAME = Pattern.compile("[A-Za-z0-9_-]+");
@@ -45,6 +64,10 @@ public final class AdaptLanguage {
       LocalizationCandidate.english(CATALOG, PluralSelector.oneOther())
   );
   private static volatile String activeLocale = CATALOG.englishLocale();
+  private static volatile RemoteLanguageCatalog remote;
+  private static volatile Path remoteRoot;
+  private static volatile PluginLanguageService selections;
+  private static volatile BukkitLanguageSwitcher switcher;
 
   private AdaptLanguage() {
   }
@@ -82,7 +105,7 @@ public final class AdaptLanguage {
       AdaptLanguageReference.write();
       try {
         Files.createDirectories(overrideFolder().toPath());
-        Files.createDirectories(AdaptLanguageDownload.cacheFolder().toPath());
+        Files.createDirectories(remote().cacheFile(remote().availableLocales().iterator().next()).getParent());
       } catch (IOException failure) {
         Adapt.warn("Failed to create Adapt language folders: " + failure.getMessage());
         Adapt.error(failure);
@@ -92,15 +115,23 @@ public final class AdaptLanguage {
     String requestedLocale = configuredLocale == null || configuredLocale.isBlank()
         ? CATALOG.englishLocale()
         : configuredLocale.trim();
-    LocalizationReloadResult result = MANAGER.reload(
-        () -> loadCandidate(normalizeLocale(configuredLocale), snapshotFile, snapshotRaw)
-    );
+    LocalizationReloadResult result;
+    synchronized (SNAPSHOT_LOCK) {
+      result = MANAGER.reload(() -> loadCandidate(normalizeLocale(configuredLocale), snapshotFile, snapshotRaw));
+      if (result.applied()) {
+        activeLocale = normalizeLocale(configuredLocale);
+      }
+    }
     if (!result.applied()) {
       reportRejectedReload(requestedLocale, result);
       return false;
     }
 
-    activeLocale = normalizeLocale(configuredLocale);
+    PluginLanguageService current = selections;
+    if (current != null) {
+      current.invalidate();
+      current.cache(activeLocale, MANAGER.snapshot());
+    }
     int warningCount = result.validation().warnings().size();
     Adapt.info("Loaded locale " + requestedLocale + " with " + warningCount + " fallback "
         + (warningCount == 1 ? "entry" : "entries") + ".");
@@ -137,13 +168,13 @@ public final class AdaptLanguage {
 
   public static String text(MessageKey key, MessageArgs arguments) {
     if (key instanceof TextKey textKey) {
-      return render(MANAGER.snapshot().resolve(textKey, arguments));
+      return render(snapshot().resolve(textKey, arguments));
     }
     if (key instanceof LinesKey linesKey) {
-      return render(MANAGER.snapshot().resolve(linesKey, arguments));
+      return render(snapshot().resolve(linesKey, arguments));
     }
     if (key instanceof PluralKey pluralKey) {
-      return render(MANAGER.snapshot().resolve(pluralKey, arguments));
+      return render(snapshot().resolve(pluralKey, arguments));
     }
     throw new IllegalArgumentException("Unsupported message key: " + key.id());
   }
@@ -188,13 +219,185 @@ public final class AdaptLanguage {
     return parseOverlay(file.getPath(), locale, Files.readString(file.toPath()));
   }
 
-  private static LocaleOverlay loadDownloadedOverlay(String locale) throws Exception {
-    LocaleOverlay overlay = AdaptLanguageDownload.readVerifiedOverlay(locale, true);
-    if (overlay == null) {
-      Adapt.warn("Locale " + locale + " is not downloaded yet; code-owned English will be used until it is available.");
-      return null;
+  static RemoteLanguageCatalog remote() {
+    Path root = Adapt.instance.getDataFolder().toPath().toAbsolutePath().normalize();
+    RemoteLanguageCatalog current = remote;
+    if (current != null && root.equals(remoteRoot)) {
+      return current;
     }
-    return overlay;
+    synchronized (AdaptLanguage.class) {
+      if (remote != null && root.equals(remoteRoot)) {
+        return remote;
+      }
+      if (remote != null) {
+        remote.close();
+      }
+      remote = RemoteLanguageCatalog.load(new RemoteLanguageCatalog.Options(
+          "Adapt",
+          URI.create("https://raw.githubusercontent.com/VolmitSoftware/Adapt/"),
+          "src/main/resources",
+          ".toml",
+          "adapt-language-source.properties",
+          root.resolve("languages/downloaded"),
+          AdaptLanguage.class.getClassLoader()
+      ));
+      remoteRoot = root;
+      return remote;
+    }
+  }
+
+  public static synchronized void start() {
+    if (selections != null) {
+      return;
+    }
+    selections = new PluginLanguageService(new PluginLanguageService.Options(
+        Adapt.instance.getDataFolder().toPath().resolve("languages/players.properties"),
+        AdaptLanguage::availableLocales,
+        AdaptLanguage::activeLocale,
+        MANAGER::snapshot,
+        AdaptLanguage::prepareLocale,
+        AdaptLanguage::selectDefault,
+        Adapt.instance.getLogger()
+    ));
+    switcher = BukkitLanguageSwitcher.register(Adapt.instance, selections,
+        new BukkitLanguageSwitcher.Options("adapt", "adapt.configurator",
+            DirectorMiniMenu.Theme.adaptRed(), directorResolver(), editorOptions()));
+    requestConfiguredLocale();
+  }
+
+  public static synchronized void shutdown() {
+    BukkitLanguageSwitcher currentSwitcher = switcher;
+    switcher = null;
+    if (currentSwitcher != null) {
+      currentSwitcher.close();
+    }
+    PluginLanguageService currentSelections = selections;
+    selections = null;
+    if (currentSelections != null) {
+      currentSelections.close();
+    }
+    RemoteLanguageCatalog currentRemote = remote;
+    remote = null;
+    remoteRoot = null;
+    if (currentRemote != null) {
+      currentRemote.close();
+    }
+  }
+
+  public static void language(CommandSender sender, String[] arguments) {
+    BukkitLanguageSwitcher current = switcher;
+    if (current != null) {
+      current.command(sender, arguments);
+    }
+  }
+
+  public static List<String> completeLanguage(CommandSender sender, String[] arguments) {
+    BukkitLanguageSwitcher current = switcher;
+    return current == null ? List.of() : current.complete(sender, arguments);
+  }
+
+  public static Set<String> availableLocales() {
+    Set<String> locales = new LinkedHashSet<>();
+    locales.add(CATALOG.englishLocale());
+    locales.addAll(remote().availableLocales());
+    return Set.copyOf(locales);
+  }
+
+  public static String text(UUID player, MessageKey key, MessageArgs arguments) {
+    return LanguageAudience.call(player, () -> text(key, arguments));
+  }
+
+  public static void requestConfiguredLocale() {
+    String locale = normalizeLocale(AdaptConfig.get().getLanguage());
+    if (CATALOG.englishLocale().equals(locale)) {
+      return;
+    }
+    remote().request(locale, AdaptLanguage::validateDownload, result -> {
+      if (!result.successful()) {
+        Adapt.error("Failed to download Adapt locale " + locale + ".", result.failure());
+        return;
+      }
+      SchedulerUtils.runGlobal(Adapt.instance, () -> {
+        if (locale.equals(normalizeLocale(AdaptConfig.get().getLanguage())) && reloadPassive()) {
+          refreshConsumers();
+        }
+      });
+    });
+  }
+
+  private static LocalizationSnapshot snapshot() {
+    PluginLanguageService current = selections;
+    return current == null ? MANAGER.snapshot() : current.snapshot();
+  }
+
+  private static LocalizationSnapshot prepareLocale(String locale) throws Exception {
+    if (!CATALOG.englishLocale().equals(locale) && remote().availableLocales().contains(locale)) {
+      remote().readOrDownload(locale, AdaptLanguage::validateDownload);
+    }
+    return LocalizationSnapshot.create(loadCandidate(locale, null, null));
+  }
+
+  public static PluginLanguageEditor.Options editorOptions() {
+    return new PluginLanguageEditor.Options(AdaptLanguage::prepareLocale, AdaptLanguage::writeMessage);
+  }
+
+  private static LocalizationSnapshot writeMessage(PluginLanguageEditor.Edit edit) throws IOException {
+    File file = new File(overrideFolder(), edit.locale() + ".toml");
+    LocalizationSnapshot prepared = LanguageFileEditor.update(file.toPath(), raw -> {
+      LocalizationSnapshot current = editorSnapshot(edit.locale(), file, raw);
+      if (!current.value(CATALOG.require(edit.key())).equals(edit.expected())) {
+        throw new IOException("Language message changed; reopen it before saving");
+      }
+      String updated = TomlLanguageEditor.upsert(raw, edit.key(), edit.value()).content();
+      return new LanguageFileEditor.Prepared<>(updated, editorSnapshot(edit.locale(), file, updated));
+    });
+    synchronized (SNAPSHOT_LOCK) {
+      if (edit.locale().equals(activeLocale)) {
+        MANAGER.install(prepared);
+        SchedulerUtils.runGlobal(Adapt.instance, AdaptLanguage::refreshConsumers);
+      }
+    }
+    return prepared;
+  }
+
+  private static LocalizationSnapshot editorSnapshot(String locale, File file, String raw) throws IOException {
+    try {
+      return LocalizationSnapshot.create(loadCandidate(locale, file, raw));
+    } catch (Exception failure) {
+      throw new IOException("Could not validate Adapt language " + locale, failure);
+    }
+  }
+
+  private static void selectDefault(String locale, LocalizationSnapshot prepared) throws Exception {
+    AdaptConfig.selectLanguage(locale);
+    synchronized (SNAPSHOT_LOCK) {
+      MANAGER.install(prepared);
+      activeLocale = locale;
+    }
+    SchedulerUtils.runGlobal(Adapt.instance, AdaptLanguage::refreshConsumers);
+  }
+
+  private static void refreshConsumers() {
+    HotloadSVC hotload = Adapt.service(HotloadSVC.class);
+    if (hotload != null) {
+      hotload.refreshLocalizationConsumers();
+    }
+  }
+
+  private static void validateDownload(String locale, String raw) {
+    LocalizationValidator.validate(CATALOG, List.of(parseOverlay("download:" + locale, locale, raw)))
+        .throwIfInvalid();
+  }
+
+  private static LocaleOverlay loadDownloadedOverlay(String locale) {
+    RemoteLanguageCatalog.CacheResult cached = remote().read(locale, AdaptLanguage::validateDownload);
+    if (cached.state() == RemoteLanguageCatalog.CacheState.VALID) {
+      return parseOverlay(cached.file().toString(), locale, cached.content());
+    }
+    if (cached.failure() != null) {
+      Adapt.error("Ignoring invalid downloaded locale " + locale + ".", cached.failure());
+    }
+    return null;
   }
 
   static LocaleOverlay parseOverlay(String source, String locale, String raw) {
