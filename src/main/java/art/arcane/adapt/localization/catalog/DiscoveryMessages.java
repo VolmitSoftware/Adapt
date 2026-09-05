@@ -52,7 +52,7 @@ public final class DiscoveryMessages {
   public static final LinesKey CARTOGRAPHER_PULSE_LORE = LinesKey.of("discovery.cartographer_pulse.lore", "Structure Search Range", "Pulse Cooldown");
   public static final TextKey CARTOGRAPHER_PULSE_LORE_COST_HUNGER = TextKey.of("discovery.cartographer_pulse.lore_cost_hunger", "Hunger cost per pulse");
   public static final TextKey INSIGHT_NAME = TextKey.of("discovery.insight.name", "Insight");
-  public static final TextKey INSIGHT_DESCRIPTION = TextKey.of("discovery.insight.description", "Study creatures at a glance: the entity you look at shows its name and health bar above its head, tameable creatures show their live speed, jump, and attack stats, and your hits show floating damage numbers with crits in orange.");
+  public static final TextKey INSIGHT_DESCRIPTION = TextKey.of("discovery.insight.description", "Inspect creatures through Gloss. Look at a creature to reveal its species, movement, defenses, and detection range alongside its health, attack, and armor.");
   public static final TextKey INSIGHT_LORE1 = TextKey.of("discovery.insight.lore1", "Detection Range");
   public static final TextKey INSIGHT_SPEED = TextKey.of("discovery.insight.speed", "Speed");
   public static final TextKey INSIGHT_JUMP = TextKey.of("discovery.insight.jump", "Jump");

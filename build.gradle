@@ -40,6 +40,16 @@ import java.util.HexFormat
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url = uri('https://jitpack.io') }
+    }
+    dependencies {
+        classpath('com.github.VolmitSoftware.VolmLib:packaging:master-SNAPSHOT')
+    }
+}
+
 plugins {
     id 'java-library'
     alias(libs.plugins.lombok)
@@ -47,6 +57,8 @@ plugins {
     alias(libs.plugins.idea)
     alias(libs.plugins.slimjar)
 }
+
+apply plugin: 'art.arcane.volmit-packaging'
 
 apply plugin: PaperweightUser
 
@@ -297,7 +309,6 @@ dependencies {
     slimApi(libs.gson)
     slimApi(libs.toml4j)
     slimApi(libs.fastutil)
-    implementation(libs.glowingentities)
     slimApi(libs.caffeine)
 
     //Random Api's
@@ -451,6 +462,17 @@ void createOutputTask(String name, String path, boolean doRename = true) {
                     rename { String ignored -> "Adapt-${project.version}.jar" }
                 }
             }
+        }
+    }
+}
+
+pluginPackaging {
+    artifacts {
+        create('distribution') {
+            taskName = 'shadowJar'
+            policyName = 'Adapt'
+            prunePrefixes = ['art/arcane/adapt/util/arcane/volmlib/']
+            keepPrefixes = ['art/arcane/adapt/util/arcane/volmlib/util/matter/slices/']
         }
     }
 }

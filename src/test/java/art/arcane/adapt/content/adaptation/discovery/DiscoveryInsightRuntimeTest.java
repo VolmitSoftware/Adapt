@@ -3,8 +3,8 @@ package art.arcane.adapt.content.adaptation.discovery;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -13,27 +13,6 @@ class DiscoveryInsightRuntimeTest {
   void productionWorkLimitsRemainHardAtOneThousandContenders() {
     assertThat(InsightWorkLimits.viewerUpdates(1_000)).isEqualTo(32);
     assertThat(InsightWorkLimits.priorityViewerUpdates(32)).isEqualTo(8);
-    assertThat(InsightWorkLimits.damageNumbers(1_000)).isEqualTo(16);
-  }
-
-  @Test
-  void damageNumberBudgetIsExactAndResetsAtNextTick() {
-    AtomicLong clock = new AtomicLong();
-    InsightWorkBudget budget = new InsightWorkBudget(50L, clock::get);
-    int damageGrants = 0;
-
-    for (int index = 0; index < 1_000; index++) {
-      if (budget.tryAcquireDamageNumber(16)) {
-        damageGrants++;
-      }
-    }
-
-    assertThat(damageGrants).isEqualTo(16);
-    assertThat(budget.damageNumbers()).isEqualTo(16);
-
-    clock.set(50L);
-    assertThat(budget.tryAcquireDamageNumber(16)).isTrue();
-    assertThat(budget.damageNumbers()).isEqualTo(1);
   }
 
   @Test
@@ -46,29 +25,43 @@ class DiscoveryInsightRuntimeTest {
     assertThat(gate.isCurrent(playerId, first)).isFalse();
     assertThat(gate.isCurrent(playerId, second)).isTrue();
 
-    gate.clear();
+    gate.remove(playerId);
     assertThat(gate.isCurrent(playerId, second)).isFalse();
+    long rejoined = gate.advance(playerId);
+    assertThat(gate.isCurrent(playerId, second)).isFalse();
+    assertThat(gate.isCurrent(playerId, rejoined)).isTrue();
+
+    gate.clear();
+    assertThat(gate.isCurrent(playerId, rejoined)).isFalse();
   }
 
   @Test
-  void tameableHudShowsLiveAttributesAndStableHandState() {
-    DiscoveryInsight.AnimalStats stats = new DiscoveryInsight.AnimalStats(0.32D, 0.71D, 5.5D, true);
-    DiscoveryInsight.HudVitals vitals = new DiscoveryInsight.HudVitals("Swift", 24D, 30D, stats);
+  void insightSuppliesLiveDetailsAndStableHandState() {
+    DiscoveryInsight.InsightStats stats = new DiscoveryInsight.InsightStats(
+        "Horse", 0.32D, 0.71D, 4D, 0.25D, 16D, true);
 
-    String text = DiscoveryInsight.buildHudText(vitals, 12);
+    String text = String.join("\n", DiscoveryInsight.buildInsightDetails(stats));
 
-    assertThat(text).contains("Swift", "24", "30", "Speed", "0.32", "Jump", "0.71", "Attack", "5.5",
-        "Stable Hand enhanced");
+    assertThat(text).contains("Horse", "Speed", "0.32", "Jump", "0.71", "Toughness", "4",
+        "Knockback Resistance", "0.25", "Detection Range", "16", "Stable Hand enhanced");
   }
 
   @Test
-  void ordinaryCreatureHudDoesNotInventAnimalAttributes() {
-    DiscoveryInsight.HudVitals vitals = new DiscoveryInsight.HudVitals("Zombie", 12D, 20D, null);
+  void missingCreatureAttributesDoNotProduceInventedStats() {
+    DiscoveryInsight.InsightStats stats = new DiscoveryInsight.InsightStats(
+        "Zombie", 0.23D, Double.NaN, Double.NaN, Double.POSITIVE_INFINITY, 35D, false);
 
-    String text = DiscoveryInsight.buildHudText(vitals, 12);
+    List<String> details = DiscoveryInsight.buildInsightDetails(stats);
+    String text = String.join("\n", details);
 
-    assertThat(text).contains("Zombie", "12", "20");
-    assertThat(text).doesNotContain("Speed", "Jump", "Attack", "Stable Hand");
+    assertThat(details).hasSize(3);
+    assertThat(text).contains("Zombie", "Speed", "0.23", "Detection Range", "35");
+    assertThat(text).doesNotContain("Jump", "Toughness", "Knockback Resistance", "Stable Hand", "NaN", "Infinity");
+  }
+
+  @Test
+  void insightLeavesNearbyGlossOverlaysEnabledByDefault() {
+    assertThat(new DiscoveryInsight.Config().restrictGlossToInsight).isFalse();
   }
 
   @Test

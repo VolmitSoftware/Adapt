@@ -30,21 +30,17 @@ class EventOwnerThreadAuditTest {
   }
 
   @Test
-  void insightDamageHandlerDefersAttackerStateToAttackerOwnership() throws Exception {
+  void insightReadsTargetDetailsBeforeReturningToViewerOwnership() throws Exception {
     String source = Files.readString(INSIGHT_SOURCE);
     String handler = method(
         source,
-        "public void on(EntityDamageByEntityEvent e)",
-        "public void on(PlayerMoveEvent e)"
+        "private void inspectTargetOwned(",
+        "private void acceptInspectionOwned("
     );
 
     assertThat(handler)
-        .contains("J.runEntity(attacker, () -> prepareDamageNumberOwned")
-        .doesNotContain(
-            "getLevel(attacker)",
-            "getActiveLevel(attacker)",
-            "hasActiveAdaptation(attacker)"
-        );
+        .contains("buildInsightDetails(readStats(target))", "J.runEntity(owner, () -> acceptInspectionOwned")
+        .doesNotContain("getActiveLevel(owner)", "owner.isOnline()", "gloss.update(");
   }
 
   private static String method(String source, String startMarker, String endMarker) {

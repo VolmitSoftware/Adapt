@@ -9,6 +9,7 @@ website: VolmitSoftware.com
 api-version: '${apiVersion}'
 folia-supported: true
 softdepend:
+  - Gloss
   - PlaceholderAPI
   - WorldGuard
   - Factions

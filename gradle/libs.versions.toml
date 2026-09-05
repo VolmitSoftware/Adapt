@@ -32,7 +32,6 @@ effectLib = "10.4"
 gson = "2.10.1"
 toml4j = "0.7.2"
 fastutil = "8.5.13"
-glowingentities = "1.4.9"
 caffeine = "3.0.6"
 
 [libraries]
@@ -60,7 +59,6 @@ effectLib = { module = "com.elmakers.mine.bukkit:EffectLib", version.ref = "effe
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 toml4j = { module = "com.moandjiezana.toml:toml4j", version.ref = "toml4j" }
 fastutil = { module = "it.unimi.dsi:fastutil", version.ref = "fastutil" }
-glowingentities = { module = "fr.skytasul:glowingentities", version.ref = "glowingentities" }
 caffeine = { module = "com.github.ben-manes.caffeine:caffeine", version.ref = "caffeine" }
 kotlin-coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlin-coroutines" }
 
