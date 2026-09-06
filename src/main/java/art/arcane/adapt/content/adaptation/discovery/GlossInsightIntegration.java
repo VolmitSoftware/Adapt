@@ -9,10 +9,12 @@ import org.bukkit.plugin.ServicesManager;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.LongSupplier;
 import java.util.function.Supplier;
@@ -25,6 +27,7 @@ final class GlossInsightIntegration {
   private final Plugin owner;
   private final Access access;
   private final Set<String> reportedFailures = ConcurrentHashMap.newKeySet();
+  private final Set<Class<?>> unsupportedServices = Collections.newSetFromMap(new WeakHashMap<>());
   private volatile Binding binding;
   private volatile long nextDiscoveryAt;
   private volatile boolean restricted;
@@ -115,7 +118,7 @@ final class GlossInsightIntegration {
       return null;
     }
     for (Class<?> service : services.getKnownServices()) {
-      if (!API_CLASS.equals(service.getName())) {
+      if (!API_CLASS.equals(service.getName()) || unsupportedServices.contains(service)) {
         continue;
       }
       for (RegisteredServiceProvider<?> registration : services.getRegistrations(service)) {
@@ -131,7 +134,13 @@ final class GlossInsightIntegration {
               service.getMethod("clearEntityInsight", Plugin.class, UUID.class),
               service.getMethod("restrictEntityOverlays", Plugin.class, boolean.class));
         } catch (NoSuchMethodException exception) {
-          reportFailure(null, exception);
+          unsupportedServices.add(service);
+          owner.getLogger().log(Level.WARNING,
+              "Loaded " + plugin.getName() + " " + plugin.getDescription().getVersion()
+                  + " does not provide the entity-overlay API required by Discovery Insight."
+                  + " Install the current Gloss build and restart the server."
+                  + " Insight remains unavailable for this loaded Gloss API.", exception);
+          break;
         }
       }
     }
