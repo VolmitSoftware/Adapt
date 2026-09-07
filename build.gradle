@@ -346,9 +346,10 @@ dependencies {
 tasks.named('test', Test) {
     useJUnitPlatform()
     jvmArgs('-Dnet.bytebuddy.experimental=true')
+    maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
     testLogging {
-        events('passed', 'skipped', 'failed')
-        showStandardStreams = true
+        events('failed')
+        showStandardStreams = false
         exceptionFormat = 'full'
     }
 }

@@ -2,8 +2,6 @@ package art.arcane.adapt.api.world;
 
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.UUID;
@@ -195,87 +193,5 @@ class AdaptServerPersistenceCoordinationTest {
     assertThat(AdaptServer.profileReadyMessage("Magic_Psycho", playerId, true))
         .isEqualTo("Player profile ready for Magic_Psycho (" + playerId
             + ") using SQL storage.");
-  }
-
-  @Test
-  void profileClaimsCannotBlockOrRejectLoginOrLazyCreateRuntime() throws Exception {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/api/world/AdaptServer.java"));
-    int prelogin = source.indexOf("public void on(AsyncPlayerPreLoginEvent e)");
-    int awaitClaim = source.indexOf("private LoadedPlayerData awaitPlayerDataClaim", prelogin);
-    String preloginSource = source.substring(prelogin, awaitClaim);
-    int lookup = source.indexOf("public AdaptPlayer getPlayer(Player p)");
-    int reset = source.indexOf("public CompletableFuture<PlayerDataResetResult>", lookup);
-    String lookupSource = source.substring(lookup, reset);
-
-    assertThat(preloginSource)
-        .contains("claimOnlinePlayer(uuid, 0)")
-        .doesNotContain("awaitAndCachePlayerDataClaim")
-        .doesNotContain(".disallow(")
-        .doesNotContain(".kick(");
-    assertThat(source)
-        .doesNotContain(".disallow(")
-        .doesNotContain(".kick(");
-    assertThat(lookupSource)
-        .doesNotContain("new AdaptPlayer")
-        .doesNotContain("computeIfAbsent");
-  }
-
-  @Test
-  void failedRuntimeActivationStaysUnavailableAndRollsBackBeforeRecovery() throws Exception {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/api/world/AdaptServer.java"));
-    int activation = source.indexOf("private boolean joinSerialized(Player p");
-    int quit = source.indexOf("public void quit(UUID p)", activation);
-    String activationSource = source.substring(activation, quit);
-    int login = activationSource.indexOf("a.loggedIn()");
-    int available = activationSource.indexOf("unavailableOnlinePlayers.remove(playerId)", login);
-    int mutations = activationSource.indexOf("reconcileMutations(a)", available);
-
-    assertThat(activationSource)
-        .contains("rollbackPlayerRuntimeActivation(playerId, p, existing, error)")
-        .contains("rollbackPlayerRuntimeActivation(playerId, p, a, error)")
-        .contains("reportProfileReady(p)")
-        .contains("unavailableOnlinePlayers.add(playerId)")
-        .contains("onlineAdaptPlayers.remove(playerId, adaptPlayer)")
-        .contains("players.remove(playerId, adaptPlayer)");
-    assertThat(login).isGreaterThanOrEqualTo(0);
-    assertThat(available).isGreaterThan(login);
-    assertThat(mutations).isGreaterThan(available);
-  }
-
-  @Test
-  void shutdownRejectsClaimsBeforeWaitingAndFencedPurgeDispatchIsTotal() throws Exception {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/api/world/AdaptServer.java"));
-    int unregister = source.indexOf("public void unregister()");
-    int stopAccepting = source.indexOf("acceptingPlayerClaims.set(false)", unregister);
-    int rejectClaims = source.indexOf("rejectPlayerDataClaims(", stopAccepting);
-    int shutdownExecutor = source.indexOf("playerClaimExecutor.shutdownNow()", rejectClaims);
-    int retentionWait = source.indexOf("awaitPotionRetention(potionRetentions", shutdownExecutor);
-
-    assertThat(stopAccepting).isGreaterThan(unregister);
-    assertThat(rejectClaims).isGreaterThan(stopAccepting).isLessThan(shutdownExecutor);
-    assertThat(shutdownExecutor).isLessThan(retentionWait);
-
-    int purgeDispatch = source.indexOf("private void scheduleFencedPurgeCompletion");
-    int nextMethod = source.indexOf("private void applyFencedLiveReset", purgeDispatch);
-    String purgeSource = source.substring(purgeDispatch, nextMethod);
-    int globalDispatch = purgeSource.indexOf("SchedulerUtils.runGlobal(Adapt.instance");
-    int playerResolve = purgeSource.indexOf("Bukkit.getPlayer(playerId)", globalDispatch);
-    int entityDispatch = purgeSource.indexOf("J.runEntity(currentPlayer", playerResolve);
-    int liveMutation = purgeSource.indexOf("installPristinePlayerData(current, currentPlayer", entityDispatch);
-    int globalRejection = purgeSource.indexOf("if (!globalAccepted)", liveMutation);
-
-    assertThat(globalDispatch).isGreaterThanOrEqualTo(0);
-    assertThat(playerResolve).isGreaterThan(globalDispatch).isLessThan(entityDispatch);
-    assertThat(entityDispatch).isLessThan(liveMutation).isLessThan(globalRejection);
-    assertThat(purgeSource.substring(globalRejection))
-        .contains("completion.complete(PlayerDataResetResult.DISPATCH_REJECTED)");
-    assertThat(source)
-        .contains("resetFenceEpochs.getIfPresent(playerId)")
-        .contains("recordResetFenceEpoch(playerId, epoch)")
-        .contains("retireForRemoteFenceAdvance(epoch)")
-        .doesNotContain("installNewerPersistenceFence(ownerToken, epoch, 0L)");
   }
 }

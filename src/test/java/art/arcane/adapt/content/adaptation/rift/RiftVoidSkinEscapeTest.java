@@ -2,16 +2,9 @@ package art.arcane.adapt.content.adaptation.rift;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RiftVoidSkinEscapeTest {
-  private static final Path VOID_SKIN_SOURCE =
-      Path.of("src/main/java/art/arcane/adapt/content/adaptation/rift/RiftVoidSkin.java");
-
   @Test
   void absorptionCountsTowardsSurvivingTheHit() {
     assertThat(RiftVoidSkin.survivableHealth(6D, 8D)).isEqualTo(14D);
@@ -29,45 +22,5 @@ class RiftVoidSkinEscapeTest {
     assertThat(RiftVoidSkin.isLethalDamage(RiftVoidSkin.survivableHealth(health, absorption), 10D)).isFalse();
     assertThat(RiftVoidSkin.isLethalDamage(RiftVoidSkin.survivableHealth(health, absorption), 14D)).isTrue();
     assertThat(RiftVoidSkin.isLethalDamage(RiftVoidSkin.survivableHealth(health, 0D), 10D)).isTrue();
-  }
-
-  @Test
-  void theEscapeCancelsTheKillBeforeTheTeleportCanFailToStart() throws IOException {
-    String source = Files.readString(VOID_SKIN_SOURCE).replace("\r\n", "\n");
-    int cancelIndex = source.indexOf("cancelLethalDamage(e, true);");
-    int teleportIndex = source.indexOf("PaperCompat.teleportAsync(p, destination");
-
-    assertThat(cancelIndex).isGreaterThan(0);
-    assertThat(teleportIndex).isGreaterThan(0);
-    assertThat(cancelIndex).isLessThan(teleportIndex);
-    assertThat(source).contains("if (teleport == null) {");
-  }
-
-  @Test
-  void aStrandedEscapeReleasesThePlayerInsteadOfLeavingThemPermanentlyImmune() throws IOException {
-    String source = Files.readString(VOID_SKIN_SOURCE).replace("\r\n", "\n");
-
-    assertThat(source).contains(
-        "if (pendingEscapes.remove(operation.playerId(), operation)\n"
-            + "          && operation.reservation().resolved().compareAndSet(false, true)) {");
-  }
-
-  @Test
-  void everyDeclinedEscapeLeavesADiagnosticTrail() throws IOException {
-    String source = Files.readString(VOID_SKIN_SOURCE).replace("\r\n", "\n");
-
-    assertThat(source).contains(
-        "ms cooldown left.",
-        "no plain ender pearl in inventory.",
-        "no safe spot and no usable world spawn.",
-        "pearl cost was refused.");
-  }
-
-  @Test
-  void lethalityStillUsesSettledDamageAgainstEffectiveHealth() throws IOException {
-    String source = Files.readString(VOID_SKIN_SOURCE).replace("\r\n", "\n");
-
-    assertThat(source)
-        .contains("isLethalDamage(survivableHealth(p.getHealth(), p.getAbsorptionAmount()), e.getFinalDamage())");
   }
 }

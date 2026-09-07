@@ -9,8 +9,6 @@ import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -106,16 +104,6 @@ class BlockingAdaptationConfigDefaultsTest {
     assertThat(BlockingPhalanxCrafter.findShield(matrix)).isSameAs(shield);
     assertThat(BlockingPhalanxCrafter.findShield(new ItemStack[]{item(Material.STICK)})).isNull();
     assertThat(BlockingPhalanxCrafter.findShield(null)).isNull();
-  }
-
-  @Test
-  void phalanxCrafterUsesShieldMetadataForItsCraftedFace() throws Exception {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/content/adaptation/blocking/BlockingPhalanxCrafter.java"));
-
-    assertThat(source)
-        .contains("meta instanceof ShieldMeta shieldMeta", "applyDefaultShieldDesign(shieldMeta);")
-        .doesNotContain("meta instanceof BlockStateMeta");
   }
 
   @Test

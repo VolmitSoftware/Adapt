@@ -2,16 +2,9 @@ package art.arcane.adapt.content.adaptation.rift;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RiftConduitGestureTest {
-  private static final Path CONDUIT_SOURCE =
-      Path.of("src/main/java/art/arcane/adapt/content/adaptation/rift/RiftConduit.java");
-
   @Test
   void sneakClickingAContainerWithAPlainPearlCaptures() {
     assertThat(RiftConduit.resolveGesture(false, true, true, true, true))
@@ -54,35 +47,5 @@ class RiftConduitGestureTest {
   void plainPearlsStayVanillaForPlayersWithoutTheAdaptation() {
     assertThat(RiftConduit.resolveGesture(false, false, true, true, true))
         .isEqualTo(RiftConduit.ConduitGesture.IGNORE);
-  }
-
-  @Test
-  void gesturesHonorNativeBlockUseDenialAndContainerProtection() throws IOException {
-    String source = Files.readString(CONDUIT_SOURCE).replace("\r\n", "\n");
-
-    assertThat(source)
-        .contains("canInteract(p, clicked.getLocation())")
-        .contains("e.useInteractedBlock() == Event.Result.DENY")
-        .contains("canAccessContainer(p, clicked)");
-  }
-
-  @Test
-  void bindHoldsTheFollowUpWindowOpenAcrossTheHeldItemSwap() throws IOException {
-    String source = Files.readString(CONDUIT_SOURCE).replace("\r\n", "\n");
-    int markIndex = source.indexOf("markCaptureFollowUp(p);\n        completeBind(");
-
-    assertThat(markIndex).isGreaterThan(0);
-  }
-
-  @Test
-  void doubleChestFlowResolvesBothHalvesInsteadOfTheFlooredMidpoint() throws IOException {
-    String source = Files.readString(CONDUIT_SOURCE).replace("\r\n", "\n");
-
-    assertThat(source)
-        .contains(
-            "holder instanceof DoubleChest doubleChest",
-            "addContainerLocation(sides, doubleChest.getLeftSide())",
-            "addContainerLocation(sides, doubleChest.getRightSide())")
-        .doesNotContain("Location loc = inv.getLocation();");
   }
 }

@@ -19,12 +19,15 @@ import art.arcane.volmlib.util.localization.PluralValue;
 import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.localization.TextValue;
 import art.arcane.volmlib.util.localization.VolmitLocales;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -231,6 +234,23 @@ class AdaptLanguageTest extends AdaptTestBase {
       ))
   );
 
+  private static Map<String, LocaleOverlay> downloadSourceOverlays;
+
+  @BeforeAll
+  static void parseEveryDownloadSourceOnce() throws IOException {
+    Map<String, LocaleOverlay> overlays = new LinkedHashMap<>();
+    for (String locale : VolmitLocales.nonEnglish()) {
+      Path localeFile = RESOURCE_ROOT.resolve(locale + ".toml");
+      assertThat(localeFile).exists();
+      overlays.put(locale, AdaptLanguage.parseOverlay(
+          localeFile.toString(),
+          locale,
+          Files.readString(localeFile)
+      ));
+    }
+    downloadSourceOverlays = Map.copyOf(overlays);
+  }
+
   @Test
   void codeOwnedCatalogContainsUsableEnglishForEveryKey() {
     MessageCatalog catalog = AdaptMessages.catalog();
@@ -244,21 +264,14 @@ class AdaptLanguageTest extends AdaptTestBase {
   }
 
   @Test
-  void everyDownloadSourceLocaleParsesAndMatchesCatalogShapes() throws Exception {
-    for (String locale : VolmitLocales.nonEnglish()) {
-      Path localeFile = RESOURCE_ROOT.resolve(locale + ".toml");
-      assertThat(localeFile).exists();
-      LocaleOverlay overlay = AdaptLanguage.parseOverlay(
-          localeFile.toString(),
-          locale,
-          Files.readString(localeFile)
-      );
+  void everyDownloadSourceLocaleParsesAndMatchesCatalogShapes() {
+    for (Map.Entry<String, LocaleOverlay> entry : downloadSourceOverlays.entrySet()) {
       LocalizationValidationResult validation = LocalizationValidator.validate(
           AdaptMessages.catalog(),
-          List.of(overlay)
+          List.of(entry.getValue())
       );
       assertThat(validation.errors())
-          .describedAs("locale errors in %s", localeFile)
+          .describedAs("locale errors in %s", entry.getKey())
           .isEmpty();
     }
   }
@@ -282,34 +295,23 @@ class AdaptLanguageTest extends AdaptTestBase {
   }
 
   @Test
-  void everyDownloadSourceLocaleCoversTheEntireCatalog() throws Exception {
+  void everyDownloadSourceLocaleCoversTheEntireCatalog() {
     MessageCatalog catalog = AdaptMessages.catalog();
-    for (String locale : VolmitLocales.nonEnglish()) {
-      Path localeFile = RESOURCE_ROOT.resolve(locale + ".toml");
-      LocaleOverlay overlay = AdaptLanguage.parseOverlay(
-          localeFile.toString(),
-          locale,
-          Files.readString(localeFile)
-      );
-
-      assertThat(overlay.values().keySet())
-          .describedAs("catalog coverage in %s", localeFile)
+    for (Map.Entry<String, LocaleOverlay> entry : downloadSourceOverlays.entrySet()) {
+      assertThat(entry.getValue().values().keySet())
+          .describedAs("catalog coverage in %s", entry.getKey())
           .containsExactlyInAnyOrderElementsOf(catalog.byId().keySet());
     }
   }
 
   @Test
-  void everyDownloadSourceTranslationIsNonBlankAndPreservesProtocolTokens() throws Exception {
+  void everyDownloadSourceTranslationIsNonBlankAndPreservesProtocolTokens() {
     MessageCatalog catalog = AdaptMessages.catalog();
     List<String> failures = new ArrayList<>();
     int failureCount = 0;
-    for (String locale : VolmitLocales.nonEnglish()) {
-      Path localeFile = RESOURCE_ROOT.resolve(locale + ".toml");
-      LocaleOverlay overlay = AdaptLanguage.parseOverlay(
-          localeFile.toString(),
-          locale,
-          Files.readString(localeFile)
-      );
+    for (Map.Entry<String, LocaleOverlay> entry : downloadSourceOverlays.entrySet()) {
+      String locale = entry.getKey();
+      LocaleOverlay overlay = entry.getValue();
       for (MessageKey key : catalog.keys()) {
         try {
           assertValueIntegrity(locale, key.id(), key.englishValue(), overlay.value(key.id()));
@@ -408,18 +410,18 @@ class AdaptLanguageTest extends AdaptTestBase {
   }
 
   @Test
-  void sourceContainsNoLegacyStringLookupPath() throws Exception {
-    StringBuilder source = new StringBuilder();
+  void sourceContainsNoLegacyStringLookupPath() throws IOException {
+    List<Path> javaFiles;
     try (Stream<Path> files = Files.walk(SOURCE_ROOT)) {
-      List<Path> javaFiles = files.filter(path -> path.toString().endsWith(".java")).toList();
-      for (Path javaFile : javaFiles) {
-        source.append(Files.readString(javaFile));
-      }
+      javaFiles = files.filter(path -> path.toString().endsWith(".java")).toList();
     }
-
-    assertThat(source).doesNotContain("class Localizer");
-    assertThat(source).doesNotContain(".wordKey(");
-    assertThat(source).doesNotContain("AdaptLanguage.text(\"");
+    for (Path javaFile : javaFiles) {
+      assertThat(Files.readString(javaFile))
+          .describedAs("legacy string lookup path in %s", javaFile)
+          .doesNotContain("class Localizer")
+          .doesNotContain(".wordKey(")
+          .doesNotContain("AdaptLanguage.text(\"");
+    }
   }
 
   private static void assertValueIntegrity(

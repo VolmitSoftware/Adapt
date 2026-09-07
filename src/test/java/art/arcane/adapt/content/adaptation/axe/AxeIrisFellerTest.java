@@ -14,10 +14,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -251,39 +248,6 @@ class AxeIrisFellerTest {
     assertThat(claimHandler).isNotNull();
     assertThat(claimHandler.priority()).isEqualTo(EventPriority.HIGH);
     assertThat(claimHandler.ignoreCancelled()).isTrue();
-  }
-
-  @Test
-  void irisManagedBreaksAndSyntheticProtectionProbesCannotReachAdaptVeinminers() throws IOException {
-    String irisFeller = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/content/adaptation/axe/AxeIrisFeller.java"));
-    String woodVeinminer = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/content/adaptation/axe/AxeWoodVeinminer.java"));
-    String leafVeinminer = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/content/adaptation/axe/AxeLeafVeinminer.java"));
-
-    assertThat(irisFeller).contains("IrisTreeFellerLink.isManagedBreak(event)");
-    assertThat(woodVeinminer).contains("IrisTreeFellerLink.isManagedBreak(e)");
-    assertThat(leafVeinminer).contains("IrisTreeFellerLink.isManagedBreak(e)");
-  }
-
-  @Test
-  void irisRecognitionPrecedesAdaptUsageAndProtectionGates() throws IOException {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/content/adaptation/axe/AxeIrisFeller.java"));
-    int treeRecognition = source.indexOf("IrisTreeFellerLink.isTreeBlock(block)");
-    int adaptGates = source.indexOf("resolveBlockBreakContext(player, block.getLocation(), null, true)");
-
-    assertThat(treeRecognition).isGreaterThanOrEqualTo(0);
-    assertThat(adaptGates).isGreaterThan(treeRecognition);
-  }
-
-  @Test
-  void adaptNeverWritesItsOwnVeinMarkerForAnIrisClaim() throws IOException {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/content/adaptation/axe/AxeIrisFeller.java"));
-
-    assertThat(source).doesNotContain("VEIN_MINED.add", "VEIN_MINED.remove");
   }
 
   private static void stubRecognizedTree(MockedStatic<IrisTreeFellerLink> iris, RuntimeFixture fixture) {

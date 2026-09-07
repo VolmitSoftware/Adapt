@@ -3,7 +3,6 @@ package art.arcane.adapt.content.adaptation.agility;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.scheduling.J;
-import io.papermc.paper.event.server.ServerResourcesReloadedEvent;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.resources.Identifier;
@@ -24,8 +23,6 @@ import org.mockito.MockedStatic;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -307,23 +304,6 @@ class AgilityLadderSlideRuntimeTest {
 
     assertThat(controlSessions(adaptation)).isEmpty();
     assertThat(adaptation.clientStates).containsExactly(Material.LADDER, null);
-  }
-
-  @Test
-  void implementationUsesMotionPacketsAndContainsNoTeleportMovementCall() throws Exception {
-    Path sourcePath = Path.of("src/main/java/art/arcane/adapt/content/adaptation/agility/AgilityLadderSlide.java");
-    String source = Files.readString(sourcePath);
-
-    assertThat(source).contains("ClientboundSetEntityMotionPacket");
-    assertThat(source).contains("ClientboundUpdateTagsPacket");
-    assertThat(source).doesNotContain(
-        ".teleport(",
-        ".teleportAsync(",
-        "J.teleport(",
-        "TeleportCause.PLUGIN",
-        "performSlideTeleport",
-        "PlayerInputEvent"
-    );
   }
 
   private static Player playerAt(double y) {

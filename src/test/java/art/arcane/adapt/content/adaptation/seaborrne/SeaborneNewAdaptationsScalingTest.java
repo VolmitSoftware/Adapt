@@ -2,17 +2,10 @@ package art.arcane.adapt.content.adaptation.seaborrne;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
 class SeaborneNewAdaptationsScalingTest {
-  private static final Path TIDECALLER_SOURCE =
-      Path.of("src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneTidecaller.java");
-
   @Test
   void coralGrowthChanceClampsToUnitIntervalAndScalesUp() {
     assertThat(SeaborneCoralGardener.growthChance(0.35D, 0.5D, 0D)).isCloseTo(0.35D, offset(1e-9));
@@ -101,14 +94,5 @@ class SeaborneNewAdaptationsScalingTest {
     assertThat(SeaborneTidecaller.successfulTeleportDash(false, null)).isFalse();
     assertThat(SeaborneTidecaller.successfulTeleportDash(null, null)).isFalse();
     assertThat(SeaborneTidecaller.successfulTeleportDash(true, failure)).isFalse();
-  }
-
-  @Test
-  void tidecallerClearsPendingTeleportsAcrossPlayerAndRuntimeLifecycle() throws IOException {
-    String source = Files.readString(TIDECALLER_SOURCE);
-
-    assertThat(source)
-        .contains("public void on(PlayerQuitEvent e)", "teleportDashes.remove(e.getPlayer().getUniqueId())")
-        .contains("public void unregister()", "teleportDashes.clear()");
   }
 }

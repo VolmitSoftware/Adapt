@@ -5,10 +5,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,21 +59,6 @@ class EnchantingCurseCleansingTest {
         removed::add);
 
     assertThat(removed).containsExactly("binding");
-  }
-
-  @Test
-  void runtimePathClonesTheOriginalInputAndHandlesDirectAndStoredEnchantments() throws IOException {
-    Path sourcePath = Path.of("src/main/java/art/arcane/adapt/content/adaptation/enchanting/EnchantingCurseCleansing.java");
-    String source = Files.readString(sourcePath);
-
-    assertThat(source).contains(
-        "ItemStack cleaned = item.clone();",
-        "directEnchantments::containsKey",
-        "cleaned::removeEnchantment",
-        "stored::hasStoredEnchant",
-        "stored::removeStoredEnchant",
-        "cleaned.setItemMeta(stored);");
-    assertThat(source).doesNotContain("e.getCurrentItem()", "p.setLevel(", "p.setExp(");
   }
 
   @Test

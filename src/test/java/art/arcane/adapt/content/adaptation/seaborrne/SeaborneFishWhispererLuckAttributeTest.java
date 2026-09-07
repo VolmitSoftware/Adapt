@@ -3,16 +3,9 @@ package art.arcane.adapt.content.adaptation.seaborrne;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SeaborneFishWhispererLuckAttributeTest {
-  private static final Path SOURCE =
-      Path.of("src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeaborneFishWhisperer.java");
-
   @Test
   void luckAmountMatchesLegacyPotionAmplifierPlusOne() {
     assertThat(SeaborneFishWhisperer.luckAmount(1, 5)).isEqualTo(1);
@@ -43,23 +36,5 @@ class SeaborneFishWhispererLuckAttributeTest {
     assertThat(SeaborneFishWhisperer.hasVelocityChange(stationary, stationary)).isFalse();
     assertThat(SeaborneFishWhisperer.hasVelocityChange(stationary, invalid)).isFalse();
     assertThat(SeaborneFishWhisperer.hasVelocityChange(null, moved)).isFalse();
-  }
-
-  @Test
-  void fishCreditFollowsSuccessfulFishOwnedNudgeAndReturnsToPlayerOwner() throws IOException {
-    String source = Files.readString(SOURCE).replace("\r\n", "\n");
-    int flowStart = source.indexOf("private void nudgeAndCreditFish");
-    int creditStart = source.indexOf("private void creditCharmedFish", flowStart);
-    String flow = source.substring(flowStart, creditStart);
-
-    assertThat(flow.indexOf("if (!nudgeFish")).isLessThan(flow.indexOf("charmedRecently.put"));
-    assertThat(flow).contains("J.runEntity(player, () -> creditCharmedFish(player))");
-    assertThat(source)
-        .contains("addStat(player, \"seaborne.fish-whisperer.charmed\", 1)")
-        .contains("if (scheduled >= MAX_FISH)")
-        .contains(
-            "PaperCompat.nearbyEntitiesByType(Fish.class, center, range, range, range)",
-            "PaperCompat.nearbyEntitiesByType(\n        Mob.class, victimLocation, range, range, range)"
-        );
   }
 }

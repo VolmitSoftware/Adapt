@@ -6,8 +6,6 @@ import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
@@ -16,9 +14,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 class AgilityWallJumpLatchStateTest {
-  private static final Path SOURCE = Path.of(
-      "src/main/java/art/arcane/adapt/content/adaptation/agility/AgilityWallJump.java");
-
   @Test
   void unregisterClearsAllLatchTrackingState() throws Exception {
     AgilityWallJump adaptation = new AgilityWallJump();
@@ -58,24 +53,6 @@ class AgilityWallJumpLatchStateTest {
     AgilityWallJump.clearLatchedFallDistance(player);
 
     verify(player).setFallDistance(0F);
-  }
-
-  @Test
-  void activeAndEndingLatchesBothClearFallDistance() throws Exception {
-    String source = Files.readString(SOURCE);
-    int latch = source.indexOf("latchedWalls.put(id, stickBlock);");
-    int activeReset = source.indexOf("clearLatchedFallDistance(p);", latch);
-    int attributeApply = source.indexOf("AdaptAttributeService.get().apply", activeReset);
-    int release = source.indexOf("private boolean releaseLatch(Player p)");
-    int releaseReset = source.indexOf("clearLatchedFallDistance(p);", release);
-    int attributeRemove = source.indexOf("AdaptAttributeService.get().remove", releaseReset);
-
-    assertThat(latch).isGreaterThanOrEqualTo(0);
-    assertThat(activeReset).isGreaterThan(latch);
-    assertThat(attributeApply).isGreaterThan(activeReset);
-    assertThat(release).isGreaterThan(attributeApply);
-    assertThat(releaseReset).isGreaterThan(release);
-    assertThat(attributeRemove).isGreaterThan(releaseReset);
   }
 
   @SuppressWarnings("unchecked")

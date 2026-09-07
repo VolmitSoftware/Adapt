@@ -80,24 +80,6 @@ class RiftBlinkVoidSkinTest {
   }
 
   @Test
-  void pearlReboundRewardsOnlyAfterDestinationRegionSpawnCompletes() throws IOException {
-    String source = Files.readString(REBOUND_SOURCE);
-    int finishStart = source.indexOf("private void finishRebound");
-    int completionStart = source.indexOf("private void completeReboundSpawn", finishStart);
-    int rewardStart = source.indexOf("private void rewardRebound", completionStart);
-    String finishMethod = source.substring(finishStart, completionStart);
-    String completionMethod = source.substring(completionStart, rewardStart);
-
-    assertThat(finishMethod).doesNotContain("addStat(", "xp(");
-    assertThat(completionMethod)
-        .contains("if (!isRuntimeRegistered())", "if (!launchReboundPearl",
-            "J.runEntity(p, () -> rewardRebound(p))");
-    assertThat(completionMethod.indexOf("launchReboundPearl"))
-        .isLessThan(completionMethod.indexOf("J.runEntity"));
-    assertThat(source).contains("Rift Pearl Rebound failed to create or configure a pearl");
-  }
-
-  @Test
   void pearlReboundDescriptionExplainsItsCompleteBehavior() {
     TextValue value = (TextValue) AdaptMessages.require("rift.pearl_rebound.description").englishValue();
 

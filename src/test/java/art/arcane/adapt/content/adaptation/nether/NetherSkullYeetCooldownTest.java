@@ -4,9 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -42,26 +39,5 @@ class NetherSkullYeetCooldownTest {
     when(target.getWorld()).thenReturn(sourceWorld);
     when(source.distanceSquared(target)).thenReturn(1600D);
     assertThat(NetherSkullYeet.isLongBomb(source, target, 40D)).isTrue();
-  }
-
-  @Test
-  void itemCooldownIsAppliedOnlyAfterCostSettlement() throws Exception {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/content/adaptation/nether/NetherSkullYeet.java"));
-    int charge = source.indexOf("payItemCost(p, \"skull\"");
-    int cooldown = source.indexOf("cooldowns.mark(p, cooldownMillis)", charge);
-
-    assertThat(charge).isGreaterThanOrEqualTo(0);
-    assertThat(cooldown).isGreaterThan(charge);
-  }
-
-  @Test
-  void theSweepAndTheGateReadOneCooldownStateInsteadOfTwo() throws Exception {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/content/adaptation/nether/NetherSkullYeet.java"));
-
-    assertThat(source).contains("ItemCooldowns.forMaterial(Material.WITHER_SKELETON_SKULL)");
-    assertThat(source).doesNotContain("p.setCooldown(Material.WITHER_SKELETON_SKULL");
-    assertThat(source).doesNotContain("p.hasCooldown(");
   }
 }

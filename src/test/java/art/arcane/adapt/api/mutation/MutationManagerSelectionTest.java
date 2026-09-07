@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -222,10 +223,19 @@ class MutationManagerSelectionTest extends AdaptTestBase {
 
     when(player.hasPermission("adapt.use.movementproof")).thenReturn(true);
     when(movement.hasUsePermission(player, movement)).thenReturn(true);
-    Thread.sleep(1_050L);
-    MutationSnapshot granted = manager.snapshot(player);
+    MutationSnapshot granted = awaitExpressedGaleLung(manager);
 
     assertThat(granted.expressed()).containsExactly(MutationType.GALE_LUNG);
+  }
+
+  private MutationSnapshot awaitExpressedGaleLung(MutationManager manager) throws InterruptedException {
+    long deadline = System.nanoTime() + Duration.ofSeconds(10L).toNanos();
+    MutationSnapshot latest = manager.snapshot(player);
+    while (!latest.expressed().contains(MutationType.GALE_LUNG) && System.nanoTime() < deadline) {
+      Thread.sleep(10L);
+      latest = manager.snapshot(player);
+    }
+    return latest;
   }
 
   @Test

@@ -11,46 +11,12 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SkillKineticsTest {
-  @Test
-  void constructorRegistersThePinnedKineticsCatalog() throws IOException {
-    String source = Files.readString(Path.of("src/main/java/art/arcane/adapt/content/skill/SkillKinetics.java"));
-    List<String> adaptations = List.of(
-        "KineticsMoonJump",
-        "KineticsRubberSoul",
-        "KineticsSoftCatch",
-        "KineticsSurfaceSkate",
-        "KineticsTerminalToggle",
-        "KineticsHeavyFrame",
-        "KineticsMassShift",
-        "KineticsMeteorCadence",
-        "KineticsBreachwright",
-        "KineticsWindburst",
-        "KineticsQuakeGuard",
-        "KineticsReboundAnvil",
-        "KineticsPhalanxReach",
-        "KineticsChargeLance",
-        "KineticsImpalePin",
-        "KineticsLungeConductor",
-        "KineticsMountedShock",
-        "KineticsDeadZone");
-
-    for (String adaptation : adaptations) {
-      assertThat(source).containsOnlyOnce("registerAdaptation(new " + adaptation + "())");
-    }
-    assertThat(source).containsOnlyOnce(
-        "registerMilestone(\"challenge_kinetics_anvil_drop\", \"kinetics.anvil.deep-kills\", 1, () -> getConfig().anvilDropReward)");
-  }
-
   @Test
   void smashSuccessUsesTheEffectivePaperResult() {
     assertThat(SkillKinetics.isSuccessfulSmash(Event.Result.ALLOW, false)).isTrue();

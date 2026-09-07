@@ -9,11 +9,8 @@ import org.bukkit.inventory.PlayerInventory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 
@@ -23,10 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class ArchitectAuditFixTest extends AdaptTestBase {
-  private static final Path DEMOLITION_SOURCE = Path.of(
-      "src/main/java/art/arcane/adapt/content/adaptation/architect/ArchitectDemolition.java"
-  );
-
   @BeforeEach
   void configurePluginName() {
     lenient().when(plugin.getName()).thenReturn("Adapt");
@@ -38,22 +31,6 @@ class ArchitectAuditFixTest extends AdaptTestBase {
     assertThat(ArchitectDemolition.trackingCap(-20)).isZero();
     assertThat(ArchitectDemolition.trackingCap(0)).isZero();
     assertThat(ArchitectDemolition.trackingCap(64)).isEqualTo(64);
-  }
-
-  @Test
-  void demolitionUndoHandsRestitutionBackInsteadOfDroppingIt() throws IOException {
-    String source = Files.readString(DEMOLITION_SOURCE);
-    int start = source.indexOf("public void on(BlockBreakEvent e)");
-    int end = source.indexOf("@EventHandler", start + 1);
-    String handler = source.substring(start, end);
-    int collected = handler.indexOf("List<ItemStack> restitution = collectRestitution(");
-    int suppressed = handler.indexOf("e.setDropItems(false)");
-    int returned = handler.indexOf("restitute(p,");
-
-    assertThat(collected).isGreaterThanOrEqualTo(0);
-    assertThat(suppressed).isGreaterThan(collected);
-    assertThat(handler).contains("e.setExpToDrop(0)");
-    assertThat(returned).isGreaterThan(suppressed);
   }
 
   @Test

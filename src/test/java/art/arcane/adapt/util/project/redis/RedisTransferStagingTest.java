@@ -42,7 +42,7 @@ class RedisTransferStagingTest {
     when(commands.setex(anyString(), eq(RedisTransferStaging.TTL_SECONDS), any(byte[].class)))
         .thenReturn(Mono.just("OK"));
 
-    staging.stage(snapshot).get(1L, TimeUnit.SECONDS);
+    staging.stage(snapshot).get(10L, TimeUnit.SECONDS);
 
     ArgumentCaptor<String> key = ArgumentCaptor.forClass(String.class);
     ArgumentCaptor<byte[]> value = ArgumentCaptor.forClass(byte[].class);
@@ -86,7 +86,7 @@ class RedisTransferStagingTest {
 
     assertThatThrownBy(() -> staging.load(
         expected.playerId(), expected.ownerToken(), expected.epoch())
-        .get(1L, TimeUnit.SECONDS))
+        .get(10L, TimeUnit.SECONDS))
         .hasRootCauseMessage("Invalid staged Redis transfer length: " + Long.MAX_VALUE);
     verify(commands, never()).get(key);
   }
@@ -101,9 +101,9 @@ class RedisTransferStagingTest {
 
     Optional<FencedPlayerSnapshot> loaded = staging.load(
         expected.playerId(), expected.ownerToken(), expected.epoch())
-        .get(1L, TimeUnit.SECONDS);
+        .get(10L, TimeUnit.SECONDS);
     staging.acknowledge(expected.playerId(), expected.ownerToken(), expected.epoch())
-        .get(1L, TimeUnit.SECONDS);
+        .get(10L, TimeUnit.SECONDS);
 
     assertThat(loaded).isEmpty();
     verify(commands).del(key);

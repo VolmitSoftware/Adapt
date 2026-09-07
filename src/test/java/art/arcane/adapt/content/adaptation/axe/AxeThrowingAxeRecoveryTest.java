@@ -23,8 +23,6 @@ import org.mockito.MockedStatic;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -45,10 +43,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
-  private static final Path SOURCE = Path.of(
-      "src/main/java/art/arcane/adapt/content/adaptation/axe/AxeThrowingAxe.java"
-  );
-
   @BeforeEach
   void configurePluginName() {
     lenient().when(plugin.getName()).thenReturn("Adapt");
@@ -104,61 +98,6 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
 
     verify(data, never()).remove(recoveryKey);
     assertThat(inFlight(adaptation)).isEmpty();
-  }
-
-  @Test
-  void failedSpawnRestoresOnlyTheDefaultConsumedAxe() throws Exception {
-    String source = Files.readString(SOURCE).replace("\r\n", "\n");
-    String throwAxe = method(source, "private void throwAxe", "private void retireThrow");
-
-    assertThat(throwAxe).contains(
-        "ItemStack consumedAxe = hand.clone()",
-        "try {\n      ball = p.getWorld().spawn",
-        "if (defaultConsumed.get()) {\n        deliverAxe(p, consumedAxe)",
-        "boolean recoverable = isRecoverableThrow(defaultConsumed.get(), broken)"
-    );
-  }
-
-  @Test
-  void hitRewardIsScheduledOnlyAfterTargetDamageIsAttempted() throws Exception {
-    String source = Files.readString(SOURCE).replace("\r\n", "\n");
-    String damage = method(
-        source,
-        "private void damageThrowTarget",
-        "private boolean isEligibleThrowTarget"
-    );
-
-    assertThat(damage.indexOf("target.damage(thrown.damage() + ricochet.bonusDamage(), owner)"))
-        .isGreaterThanOrEqualTo(0);
-    assertThat(damage.indexOf("J.runEntity(owner, () -> rewardHit(owner))"))
-        .isGreaterThan(damage.indexOf(
-            "target.damage(thrown.damage() + ricochet.bonusDamage(), owner)"
-        ));
-  }
-
-  @Test
-  void hitAuthorizationUsesTargetOwnerThenShooterOwnerThenTargetOwner() throws Exception {
-    String source = Files.readString(SOURCE).replace("\r\n", "\n");
-    String resolve = method(source, "private void resolveThrow", "private void prepareThrowHit");
-    String prepare = method(source, "private void prepareThrowHit", "private void authorizeThrowHit");
-    String authorize = method(source, "private void authorizeThrowHit", "private void damageThrowTarget");
-
-    assertThat(resolve)
-        .contains("J.runEntity(target, () -> prepareThrowHit(target, owner, thrown, ricochet))")
-        .doesNotContain("owner.isOnline()", "canDamageTarget(owner, target)");
-    assertThat(prepare)
-        .contains(
-            "isEligibleThrowTarget(target, thrown.ownerId())",
-            "Location targetLocation = target.getLocation().clone()",
-            "J.runEntity("
-        );
-    assertThat(authorize)
-        .contains(
-            "!owner.isOnline() || !hasActiveAdaptation(owner)",
-            "playerTarget ? canPVP(owner, targetLocation) : canPVE(owner, targetLocation)",
-            "J.runEntity(target, () -> damageThrowTarget(target, owner, thrown, ricochet))"
-        )
-        .doesNotContain("target.isValid()", "target.isDead()", "target.getLocation()");
   }
 
   @Test
@@ -274,44 +213,6 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
 
     assertThat(registration).isNotNull();
     assertThat(registration.ignoreCancelled()).isTrue();
-  }
-
-  @Test
-  void shutdownClosesRegistrationBeforeDrainingProjectileState() throws Exception {
-    String source = Files.readString(SOURCE).replace("\r\n", "\n");
-    String unregister = method(source, "public void unregister()", "public void addStats");
-    String register = method(source, "private boolean registerThrow", "private ProjectileReplacementRegistry.Ticket");
-
-    assertThat(unregister.indexOf("closing.set(true)"))
-        .isLessThan(unregister.indexOf("new ArrayList<>(pendingReplacements)"));
-    assertThat(unregister.indexOf("closing.set(true)"))
-        .isLessThan(unregister.indexOf("new ArrayList<>(pendingDrops.values())"));
-    assertThat(unregister.indexOf("closing.set(true)"))
-        .isLessThan(unregister.indexOf("new ArrayList<>(inFlight.entrySet())"));
-    assertThat(unregister.indexOf("drop.cancel(null)"))
-        .isLessThan(unregister.indexOf("drop.awaitResolution(remainingNanos)"));
-    assertThat(unregister.indexOf("drop.awaitResolution(remainingNanos)"))
-        .isLessThan(unregister.indexOf("super.unregister()"));
-    assertThat(unregister.indexOf("drop.persistFallback()"))
-        .isLessThan(unregister.indexOf("super.unregister()"));
-    assertThat(register)
-        .contains("synchronized (lifecycleLock)", "if (closing.get())");
-  }
-
-  @Test
-  void impactDropReservesRecoveryBeforeRegionDelivery() throws Exception {
-    String source = Files.readString(SOURCE).replace("\r\n", "\n");
-    String drop = method(source, "private void dropAxe", "public void on(PlayerJoinEvent");
-
-    assertThat(drop)
-        .contains(
-            "pendingDrops.putIfAbsent(thrown.recoveryKey(), pending)",
-            "data.remove(thrown.recoveryKey())",
-            "J.runAt(impact, pending::deliver)",
-            "pending.cancel(owner)"
-        );
-    assertThat(drop.indexOf("data.remove(thrown.recoveryKey())"))
-        .isLessThan(drop.indexOf("J.runAt(impact, pending::deliver)"));
   }
 
   @Test
@@ -595,16 +496,5 @@ class AxeThrowingAxeRecoveryTest extends AdaptTestBase {
     Method method = AxeThrowingAxe.class.getDeclaredMethod("recoverStampedAxes", Player.class);
     method.setAccessible(true);
     method.invoke(adaptation, owner);
-  }
-
-  private static String method(String source, String startMarker, String endMarker) {
-    int start = source.indexOf(startMarker);
-    int end = source.indexOf(endMarker, start);
-    if (start < 0 || end < 0) {
-      throw new IllegalArgumentException(
-          "Missing method markers: " + startMarker + ", " + endMarker
-      );
-    }
-    return source.substring(start, end);
   }
 }

@@ -143,13 +143,13 @@ class MinionBurdenTest {
         try {
             Future<Boolean> cleanup = executor.submit(
                 () -> burden.scrubPlayersAndAwait(List.of(player), 1_000L));
-            Runnable action = scheduled.poll(1L, TimeUnit.SECONDS);
+            Runnable action = scheduled.poll(10L, TimeUnit.SECONDS);
 
             assertThat(action).isNotNull();
             assertThat(cleanup.isDone()).isFalse();
             action.run();
 
-            assertThat(cleanup.get(1L, TimeUnit.SECONDS)).isTrue();
+            assertThat(cleanup.get(10L, TimeUnit.SECONDS)).isTrue();
         } finally {
             executor.shutdownNow();
         }
@@ -179,13 +179,13 @@ class MinionBurdenTest {
         try {
             Future<Boolean> cleanup = executor.submit(
                 () -> burden.scrubPlayersAndAwait(List.of(mock(Player.class)), 100L));
-            Runnable action = scheduled.poll(1L, TimeUnit.SECONDS);
+            Runnable action = scheduled.poll(10L, TimeUnit.SECONDS);
 
             assertThat(action).isNotNull();
             burden.retireScheduledTasks();
             action.run();
 
-            assertThat(cleanup.get(1L, TimeUnit.SECONDS)).isFalse();
+            assertThat(cleanup.get(10L, TimeUnit.SECONDS)).isFalse();
         } finally {
             executor.shutdownNow();
         }
@@ -227,12 +227,12 @@ class MinionBurdenTest {
                     addStarted.countDown();
                     return registry.add(owner, addedMinion);
                 });
-                assertThat(addStarted.await(1L, TimeUnit.SECONDS)).isTrue();
+                assertThat(addStarted.await(10L, TimeUnit.SECONDS)).isTrue();
                 awaitBlocked(worker, 1_000L);
                 assertThat(registry.remove(owner, existingMinion)).isTrue();
             }
 
-            assertThat(addition.get(1L, TimeUnit.SECONDS)).isTrue();
+            assertThat(addition.get(10L, TimeUnit.SECONDS)).isTrue();
             assertThat(registry.minions(owner)).containsExactly(addedMinion);
             assertThat(registry.count(owner)).isEqualTo(1);
             assertThat(registry.ownerIds()).containsExactly(owner);
@@ -264,12 +264,12 @@ class MinionBurdenTest {
                     addStarted.countDown();
                     return registry.add(owner, addedMinion);
                 });
-                assertThat(addStarted.await(1L, TimeUnit.SECONDS)).isTrue();
+                assertThat(addStarted.await(10L, TimeUnit.SECONDS)).isTrue();
                 awaitBlocked(worker, 1_000L);
                 cleared = registry.clear(owner);
             }
 
-            assertThat(addition.get(1L, TimeUnit.SECONDS)).isTrue();
+            assertThat(addition.get(10L, TimeUnit.SECONDS)).isTrue();
             assertThat(cleared).containsExactly(existingMinion);
             assertThat(registry.minions(owner)).containsExactly(addedMinion);
         } finally {

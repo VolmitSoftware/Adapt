@@ -214,7 +214,7 @@ class RedisSyncTest extends AdaptTestBase {
     assertThat(request.uuid()).isEqualTo(playerId);
     assertThat(request.ownerToken()).isEqualTo(ownerToken);
     assertThat(request.epoch()).isEqualTo(6L);
-    assertThat(awaited.get(1L, TimeUnit.SECONDS)).isEmpty();
+    assertThat(awaited.get(10L, TimeUnit.SECONDS)).isEmpty();
   }
 
   @Test
@@ -233,12 +233,12 @@ class RedisSyncTest extends AdaptTestBase {
 
     CompletableFuture<Optional<FencedPlayerSnapshot>> awaited = redisSync.awaitTransfers(
         playerId, ownerToken, 6L, 250L);
-    DataRequest retry = repeatedRequest.get(1L, TimeUnit.SECONDS);
+    DataRequest retry = repeatedRequest.get(10L, TimeUnit.SECONDS);
     redisSync.receive(new DataMessage(
         playerId, retry.requestId(), ownerToken, 6L, 9L, "{\"retry\":true}"
     ));
 
-    Optional<FencedPlayerSnapshot> selected = awaited.get(1L, TimeUnit.SECONDS);
+    Optional<FencedPlayerSnapshot> selected = awaited.get(10L, TimeUnit.SECONDS);
     ArgumentCaptor<Message> messages = ArgumentCaptor.forClass(Message.class);
     verify(pubSub, times(2)).publish(eq(Codec.CHANNEL), messages.capture());
     List<Message> requests = messages.getAllValues();
@@ -263,7 +263,7 @@ class RedisSyncTest extends AdaptTestBase {
 
     Optional<FencedPlayerSnapshot> selected = redisSync
         .awaitTransfers(playerId, ownerToken, 13L, 40L)
-        .get(1L, TimeUnit.SECONDS);
+        .get(10L, TimeUnit.SECONDS);
 
     assertThat(selected).contains(snapshot);
     verify(staging).load(playerId, ownerToken, 13L);
@@ -282,7 +282,7 @@ class RedisSyncTest extends AdaptTestBase {
     CompletableFuture<Optional<FencedPlayerSnapshot>> awaited = redisSync.awaitTransfers(
         playerId, ownerToken, 13L, 40L);
 
-    assertThatThrownBy(() -> awaited.get(1L, TimeUnit.SECONDS))
+    assertThatThrownBy(() -> awaited.get(10L, TimeUnit.SECONDS))
         .hasCauseInstanceOf(IllegalStateException.class)
         .hasRootCauseMessage("Staged Redis transfer does not match the expected fence");
   }
@@ -329,7 +329,7 @@ class RedisSyncTest extends AdaptTestBase {
         playerId, request.requestId(), expectedToken, expectedEpoch, 4L, "{\"sequence\":4}"
     ));
 
-    Optional<FencedPlayerSnapshot> selected = awaited.get(1L, TimeUnit.SECONDS);
+    Optional<FencedPlayerSnapshot> selected = awaited.get(10L, TimeUnit.SECONDS);
 
     assertThat(selected).isPresent();
     assertThat(selected.orElseThrow().ownerToken()).isEqualTo(expectedToken);
@@ -356,7 +356,7 @@ class RedisSyncTest extends AdaptTestBase {
         playerId, request.requestId(), expectedToken, 3L, 5L, "{\"valid\":true}"
     ));
 
-    Optional<FencedPlayerSnapshot> selected = awaited.get(1L, TimeUnit.SECONDS);
+    Optional<FencedPlayerSnapshot> selected = awaited.get(10L, TimeUnit.SECONDS);
 
     assertThat(selected).isPresent();
     assertThat(selected.orElseThrow().sequence()).isEqualTo(5L);
@@ -369,7 +369,7 @@ class RedisSyncTest extends AdaptTestBase {
 
     Optional<FencedPlayerSnapshot> selected = redisSync
         .awaitTransfers(playerId, ownerToken, 9L, 0L)
-        .get(1L, TimeUnit.SECONDS);
+        .get(10L, TimeUnit.SECONDS);
 
     assertThat(selected).isEmpty();
     verify(pubSub, never()).publish(eq(Codec.CHANNEL), any(DataRequest.class));

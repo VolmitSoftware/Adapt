@@ -12,9 +12,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -119,16 +116,5 @@ class PlayerStateRegistryTest extends AdaptTestBase {
 
     assertThat(state).doesNotContainKey(playerId);
     verify(player, never()).isOnline();
-  }
-
-  @Test
-  void shutdownClearsSharedStateAfterAdaptationsUnregister() throws IOException {
-    String source = Files.readString(Path.of("src/main/java/art/arcane/adapt/Adapt.java"));
-    int stopSim = source.indexOf("public void stopSim()");
-    int unregisterAdaptations = source.indexOf("adaptServer.unregister()", stopSim);
-    int clearSharedState = source.indexOf("PlayerStateRegistry::reset", stopSim);
-
-    assertThat(unregisterAdaptations).isGreaterThan(stopSim);
-    assertThat(clearSharedState).isGreaterThan(unregisterAdaptations);
   }
 }

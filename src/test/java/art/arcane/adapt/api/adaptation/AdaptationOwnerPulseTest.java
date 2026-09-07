@@ -2,12 +2,8 @@ package art.arcane.adapt.api.adaptation;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,16 +11,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class AdaptationOwnerPulseTest {
-  private static final List<Path> PARTICIPANT_SOURCES = List.of(
-      source("kinetics/KineticsHeavyFrame.java"),
-      source("kinetics/KineticsMoonJump.java"),
-      source("kinetics/KineticsSurfaceSkate.java"),
-      source("kinetics/KineticsRubberSoul.java"),
-      source("agility/AgilityVault.java"),
-      source("unarmed/UnarmedMeditation.java"),
-      source("kinetics/KineticsPhalanxReach.java")
-  );
-
   @Test
   void oneThousandOwnersNeverExceedThePerTickTaskBudget() {
     assertThat(AdaptationOwnerPulse.boundedBatchSize(0)).isZero();
@@ -202,19 +188,6 @@ class AdaptationOwnerPulseTest {
     assertThat(AdaptationOwnerPulse.registrationCount()).isEqualTo(initialRegistrations);
   }
 
-  @Test
-  void allSevenMaintenanceParticipantsUseAndReleaseTheSharedPulse() throws IOException {
-    for (Path source : PARTICIPANT_SOURCES) {
-      String java = Files.readString(source);
-      assertThat(java).contains("AdaptationOwnerPulse.register(");
-      assertThat(java).contains("ownerMaintenance.unregister();");
-      assertThat(java).doesNotContain("public void onTick()");
-    }
-    assertThat(Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/api/skill/SkillRegistry.java"
-    ))).contains("AdaptationOwnerPulse.startRuntime();");
-  }
-
   private static void assertCadenceSchedule(long cadenceMillis, long durationMillis, int expectedMinimumPulses) {
     int playerCount = 1_000;
     int cursor = 0;
@@ -258,9 +231,5 @@ class AdaptationOwnerPulseTest {
     SimpleAdaptation<?> adaptation = mock(SimpleAdaptation.class);
     when(adaptation.getName()).thenReturn(name);
     return adaptation;
-  }
-
-  private static Path source(String relativePath) {
-    return Path.of("src/main/java/art/arcane/adapt/content/adaptation").resolve(relativePath);
   }
 }

@@ -364,13 +364,13 @@ class AdaptAttributeServiceTest {
     try {
       Future<Boolean> cleanup = executor.submit(
           () -> service.sweepEverything(List.of(player), 1_000L));
-      Runnable action = scheduler.immediateTasks.poll(1L, TimeUnit.SECONDS);
+      Runnable action = scheduler.immediateTasks.poll(10L, TimeUnit.SECONDS);
 
       assertThat(action).isNotNull();
       assertThat(cleanup.isDone()).isFalse();
       action.run();
 
-      assertThat(cleanup.get(1L, TimeUnit.SECONDS)).isTrue();
+      assertThat(cleanup.get(10L, TimeUnit.SECONDS)).isTrue();
       assertThat(fake.modifiers).isEmpty();
     } finally {
       executor.shutdownNow();

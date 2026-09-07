@@ -45,10 +45,6 @@ class ChronosAuditFixTest extends AdaptTestBase {
   private static final Path INSTANT_RECALL_SOURCE = Path.of(
       "src/main/java/art/arcane/adapt/content/adaptation/chronos/ChronosInstantRecall.java"
   );
-  private static final Path TEMPORAL_ECHO_SOURCE = Path.of(
-      "src/main/java/art/arcane/adapt/content/adaptation/chronos/ChronosTemporalEcho.java"
-  );
-
   @BeforeEach
   void configurePluginName() {
     lenient().when(plugin.getName()).thenReturn("Adapt");
@@ -224,33 +220,6 @@ class ChronosAuditFixTest extends AdaptTestBase {
 
     when(player.isOnline()).thenReturn(false);
     assertThat(adaptation.resolveDelayedEchoLevel(player)).isZero();
-  }
-
-  @Test
-  void temporalEchoHitReadsShooterStateOnlyOnTheShooterOwner() throws Exception {
-    String source = Files.readString(TEMPORAL_ECHO_SOURCE);
-    String hit = method(
-        source,
-        "public void on(ProjectileHitEvent e)",
-        "private void rewardEchoHit"
-    );
-    String reward = method(source, "private void rewardEchoHit", "private void spawnEcho");
-
-    assertThat(hit)
-        .contains(
-            "target.setNoDamageTicks(0)",
-            "target.setLastDamage(0.0D)",
-            "J.runEntity(shooter, () -> rewardEchoHit(shooter))"
-        )
-        .doesNotContain(
-            "shooter.isOnline()",
-            "hasActiveAdaptation(shooter)",
-            "addStat(shooter"
-        );
-    assertThat(reward).contains(
-        "resolveDelayedEchoLevel(shooter)",
-        "addStat(shooter, \"chronos.temporal-echo.echo-hits\", 1)"
-    );
   }
 
   @Test

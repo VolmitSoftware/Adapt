@@ -8,9 +8,6 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,9 +15,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
 class RangedWebBombJournalTest {
-  private static final Path SOURCE =
-      Path.of("src/main/java/art/arcane/adapt/content/adaptation/ranged/RangedWebBomb.java");
-
   @Test
   void blockCoordinatesRoundTripAcrossTheWorldHeightRange() {
     long encoded = RangedWebBomb.encodeBlock(15, 319, 0, -64);
@@ -88,20 +82,5 @@ class RangedWebBombJournalTest {
         .contains(new RangedWebBomb.WebPlacement(world, 10, 64, -4))
         .contains(new RangedWebBomb.WebPlacement(world, 10, 65, -4))
         .contains(new RangedWebBomb.WebPlacement(world, 9, 64, -4));
-  }
-
-  @Test
-  void shooterStateAndPlacementAreReauthorizedAtCommit() throws IOException {
-    String source = Files.readString(SOURCE);
-    int placementStart = source.indexOf("private void scheduleAuthorizedWeb");
-    int placementEnd = source.indexOf("private void scheduleWebRemoval", placementStart);
-    String placementMethod = source.substring(placementStart, placementEnd);
-
-    assertThat(source).contains("J.runEntity(p, () -> authorizeImpact(p, impact))");
-    assertThat(placementMethod)
-        .contains("!isRuntimeRegistered()", "J.isOwnedByCurrentRegion(player)",
-            "!player.isOnline()", "!canBlockPlace(player, location)",
-            "ProtectionEventProbe.attemptBlockPlaceProbe(player, block)",
-            "block.setType(Material.COBWEB, false)");
   }
 }

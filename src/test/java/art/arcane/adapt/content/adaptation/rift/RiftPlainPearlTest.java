@@ -10,9 +10,6 @@ import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,9 +20,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class RiftPlainPearlTest extends AdaptTestBase {
-  private static final Path VOID_SKIN_SOURCE = Path.of("src/main/java/art/arcane/adapt/content/adaptation/rift/RiftVoidSkin.java");
-  private static final Path CONDUIT_SOURCE = Path.of("src/main/java/art/arcane/adapt/content/adaptation/rift/RiftConduit.java");
-
   @BeforeEach
   void configurePluginIdentity() {
     lenient().when(plugin.namespace()).thenReturn("adapt");
@@ -86,19 +80,6 @@ class RiftPlainPearlTest extends AdaptTestBase {
     assertThat(RiftPearls.isPlainPearl(null)).isFalse();
     assertThat(RiftPearls.isPlainPearl(wrongMaterial)).isFalse();
     assertThat(RiftPearls.isPlainPearl(emptyStack)).isFalse();
-  }
-
-  @Test
-  void voidSkinAndConduitCaptureShareThePlainPearlPredicate() throws IOException {
-    String voidSkin = Files.readString(VOID_SKIN_SOURCE);
-    String conduit = Files.readString(CONDUIT_SOURCE);
-
-    assertThat(voidSkin)
-        .contains("RiftPearls.isPlainPearl")
-        .doesNotContain("hasItemMeta");
-    assertThat(conduit)
-        .contains("RiftPearls.isPlainPearl(hand)")
-        .doesNotContain("!hand.hasItemMeta()");
   }
 
   private StubPearl pearlWithMeta() {

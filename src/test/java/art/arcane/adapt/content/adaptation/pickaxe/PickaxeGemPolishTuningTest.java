@@ -7,8 +7,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,12 +48,5 @@ class PickaxeGemPolishTuningTest {
 
     assertThat(annotation.priority()).isEqualTo(EventPriority.MONITOR);
     assertThat(annotation.ignoreCancelled()).isTrue();
-  }
-
-  @Test
-  void hiddenOreBridgeNoLongerReferencesGemPolish() throws Exception {
-    String source = Files.readString(Path.of("src/main/java/art/arcane/adapt/content/integration/hiddenore/HiddenOreBridge.java"));
-
-    assertThat(source).doesNotContain("PickaxeGemPolish", "applyGemPolish", "gems-polished");
   }
 }

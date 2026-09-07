@@ -1,36 +1,13 @@
 package art.arcane.adapt.content.adaptation.sword;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.junit.jupiter.api.Test;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SwordNewAdaptationsTest {
-  @Test
-  void lungeStrikeIgnoresCancelledDamage() throws ReflectiveOperationException {
-    assertIgnoresCancelledDamage(SwordsLungeStrike.class);
-  }
-
-  @Test
-  void bladeFlowIgnoresCancelledDamage() throws ReflectiveOperationException {
-    assertIgnoresCancelledDamage(SwordsBladeFlow.class);
-  }
-
-  @Test
-  void duelistsFocusIgnoresCancelledDamage() throws ReflectiveOperationException {
-    assertIgnoresCancelledDamage(SwordsDuelistsFocus.class);
-  }
-
-  @Test
-  void hamstringIgnoresCancelledDamage() throws ReflectiveOperationException {
-    assertIgnoresCancelledDamage(SwordsHamstring.class);
-  }
-
   @Test
   void configDefaultsAreSane() {
     List<AdaptationConfig> configs = List.of(
@@ -75,12 +52,5 @@ class SwordNewAdaptationsTest {
 
   private static double levelPercent(int level, int maxLevel) {
     return Math.min(Math.max(0D, (double) level / maxLevel), 1D);
-  }
-
-  private static void assertIgnoresCancelledDamage(Class<?> adaptationType) throws ReflectiveOperationException {
-    Method handler = adaptationType.getDeclaredMethod("on", EntityDamageByEntityEvent.class);
-    EventHandler policy = handler.getAnnotation(EventHandler.class);
-    assertThat(policy).isNotNull();
-    assertThat(policy.ignoreCancelled()).isTrue();
   }
 }

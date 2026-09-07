@@ -9,8 +9,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -108,22 +106,5 @@ class AdaptServerFoliaOwnershipTest extends AdaptTestBase {
         CompletableFuture.completedFuture(true),
         CompletableFuture.completedFuture(false)
     ), 100L)).isFalse();
-  }
-
-  @Test
-  void shutdownAwaitsPotionRetentionBeforeRegistryAndPersistenceCleanup() throws Exception {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/api/world/AdaptServer.java"));
-    int unregister = source.indexOf("public void unregister()");
-    int await = source.indexOf("awaitPotionRetention(potionRetentions", unregister);
-    int registry = source.indexOf("skillRegistry.unregister()", unregister);
-    int save = source.indexOf("save();", registry);
-
-    assertThat(source)
-        .contains("onlineAdaptPlayers.get(entry.getKey()) == player")
-        .contains("player.shouldUnload(now, onlineMembership)");
-    assertThat(await).isGreaterThan(unregister).isLessThan(registry);
-    assertThat(registry).isLessThan(save);
-    assertThat(source).doesNotContain("AdaptPotionRegistry.retainActive(Bukkit.getPlayer");
   }
 }

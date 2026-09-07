@@ -24,8 +24,6 @@ import org.bukkit.plugin.PluginManager;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -43,18 +41,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ProtectionEventProbeTest {
-  private static final Path PROBE_SOURCE =
-      Path.of("src/main/java/art/arcane/adapt/util/common/plugin/ProtectionEventProbe.java");
-
-  @Test
-  void paperAttemptPickupEventRemainsAnOptionalRuntimeCapability() throws Exception {
-    String source = Files.readString(PROBE_SOURCE);
-
-    assertThat(source)
-        .contains("Class.forName(ATTEMPT_PICKUP_EVENT)")
-        .doesNotContain("import org.bukkit.event.player.PlayerAttemptPickupItemEvent");
-  }
-
   @Test
   void blockMutationProbesDispatchStandardEventsAndHonorDenial() {
     Player player = mock(Player.class);

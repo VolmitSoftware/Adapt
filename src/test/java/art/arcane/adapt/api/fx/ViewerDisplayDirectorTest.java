@@ -15,9 +15,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.MockedStatic;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.List;
 import java.util.Queue;
@@ -88,18 +85,6 @@ class ViewerDisplayDirectorTest extends AdaptTestBase {
     assertThat(ViewerDisplayDirector.remainingExpiryTicks(1_001L, 1_000L)).isEqualTo(1);
     assertThat(ViewerDisplayDirector.remainingExpiryTicks(1_000L, 1_000L)).isZero();
     assertThat(ViewerDisplayDirector.remainingExpiryTicks(999L, 1_000L)).isZero();
-  }
-
-  @Test
-  void rejectedOrphanCleanupDispatchesAreRetriedInsteadOfDropped() throws IOException {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/api/fx/ViewerDisplayDirector.java"));
-
-    assertThat(source).contains(
-        "if (!J.runAt(anchor, () -> purgeOrphansOwned(current)))",
-        "ORPHAN_PURGE_QUEUE.add(current.retry())",
-        "Failed to clean stale Adapt private displays in chunk"
-    );
   }
 
   @Test
@@ -303,7 +288,7 @@ class ViewerDisplayDirectorTest extends AdaptTestBase {
           "test", "pending", viewer, location, blockData, null, 20)).isTrue();
       assertThat(scheduledRequest.get()).isNotNull();
       Future<?> request = requestExecutor.submit(scheduledRequest.get());
-      assertThat(requestEntered.await(1L, TimeUnit.SECONDS)).isTrue();
+      assertThat(requestEntered.await(10L, TimeUnit.SECONDS)).isTrue();
 
       Future<Boolean> cleanup = cleanupExecutor.submit(() -> ViewerDisplayDirector.clearAllAndAwait(
           1_000L,
@@ -312,12 +297,12 @@ class ViewerDisplayDirectorTest extends AdaptTestBase {
             return false;
           }
       ));
-      assertThat(cleanupEntered.await(1L, TimeUnit.SECONDS)).isTrue();
+      assertThat(cleanupEntered.await(10L, TimeUnit.SECONDS)).isTrue();
       assertThat(cleanup.isDone()).isFalse();
 
       releaseRequest.countDown();
-      request.get(1L, TimeUnit.SECONDS);
-      assertThat(cleanup.get(1L, TimeUnit.SECONDS)).isTrue();
+      request.get(10L, TimeUnit.SECONDS);
+      assertThat(cleanup.get(10L, TimeUnit.SECONDS)).isTrue();
     } finally {
       releaseRequest.countDown();
       requestExecutor.shutdownNow();

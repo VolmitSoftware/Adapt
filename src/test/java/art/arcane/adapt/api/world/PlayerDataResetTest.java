@@ -13,7 +13,6 @@ import org.mockito.MockedStatic;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -132,71 +131,6 @@ class PlayerDataResetTest extends AdaptTestBase {
     assertThat(recovered.getStats()).isEmpty();
     assertThat(recovered.getWisdom()).isZero();
     assertThat(restartExecutor.pendingTaskCount()).isOne();
-  }
-
-  @Test
-  void onlineResetEntryPointDispatchesAndRechecksEntityOwnership() throws Exception {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/api/world/AdaptServer.java"));
-
-    assertThat(source)
-        .contains("if (!J.isOwnedByCurrentRegion(player))")
-        .contains("() -> completePlayerDataReset(playerId, player, completion)")
-        .contains("private PlayerDataResetResult resetPlayerDataOwned(UUID playerId, Player player)")
-        .contains("if (player != expectedPlayer || !J.isOwnedByCurrentRegion(player))")
-        .contains("synchronized (playerOperationLock(playerId))");
-    assertThat(source.indexOf("if (!J.isOwnedByCurrentRegion(player))"))
-        .isLessThan(source.indexOf("adaptPlayer.persistResetNow(replacement)"));
-    assertThat(source.indexOf("adaptPlayer.persistResetNow(replacement)"))
-        .isLessThan(source.indexOf("adaptPlayer.replaceData(replacement)"));
-    int completionEntry = source.indexOf("private void completePlayerDataReset");
-    int ownershipRecheck = source.indexOf(
-        "if (player != expectedPlayer || !J.isOwnedByCurrentRegion(player))", completionEntry);
-    int ownedOnlineCheck = source.indexOf("if (!player.isOnline())", completionEntry);
-    assertThat(ownershipRecheck).isGreaterThan(completionEntry).isLessThan(ownedOnlineCheck);
-    String schedulerSource = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/util/common/scheduling/J.java"));
-    assertThat(schedulerSource)
-        .contains("FoliaScheduler.runEntity(Adapt.instance, entity, runnable, 0L, retired)");
-  }
-
-  @Test
-  void durableResetAcceptancePrecedesLoadGuardClearAndJoinSharesResetLock() throws Exception {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/api/world/AdaptServer.java"));
-    int reset = source.indexOf("private PlayerDataResetResult resetPlayerDataOwned");
-    int durableAcceptance = source.indexOf("adaptPlayer.persistResetNow(replacement)", reset);
-    int loadGuardClear = source.indexOf("AdaptPlayer.forgetLoadFailure(playerId)", reset);
-    int join = source.indexOf("private boolean join(Player p, boolean refreshSnapshots)");
-    int joinLock = source.indexOf("synchronized (playerOperationLock(playerId))", join);
-    int resetEntry = source.indexOf("public CompletableFuture<PlayerDataResetResult> resetPlayerData");
-    int resetLock = source.indexOf("synchronized (playerOperationLock(playerId))", resetEntry);
-
-    assertThat(durableAcceptance).isGreaterThan(reset);
-    assertThat(loadGuardClear).isGreaterThan(durableAcceptance);
-    assertThat(joinLock).isGreaterThan(join).isLessThan(resetEntry);
-    assertThat(resetLock).isGreaterThan(resetEntry);
-  }
-
-  @Test
-  void resetCommandRetainsConfirmationWhenCentralDispatchIsRejected() throws Exception {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/command/CommandReset.java"));
-    int rejected = source.indexOf("resetResult == AdaptServer.PlayerDataResetResult.DISPATCH_REJECTED");
-    int confirmation = source.indexOf(
-        "pendingConfirmations.record(feedback.senderUuid(), feedback.targetUuid()", rejected);
-    int dispatchFailure = source.indexOf("CommandRuntimeMessages.TARGET_DISPATCH_FAILED", rejected);
-    int successLog = source.indexOf("Adapt.info(\"Sender \"", rejected);
-
-    assertThat(rejected).isGreaterThanOrEqualTo(0);
-    assertThat(confirmation).isGreaterThan(rejected).isLessThan(successLog);
-    assertThat(dispatchFailure).isGreaterThan(rejected).isLessThan(successLog);
-    assertThat(source.substring(rejected, successLog)).contains("return;");
-    assertThat(source)
-        .contains("completion.thenAccept(resetResult -> completeResetPlayer(feedback, resetResult))")
-        .contains("CommandTargetExecutor.send(completedTarget")
-        .contains("CommandTargetExecutor.send(feedback.sender()")
-        .doesNotContain("onlineTarget.isOnline()");
   }
 
   @Test

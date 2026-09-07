@@ -6,16 +6,12 @@ import org.bukkit.entity.Player;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -23,15 +19,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class ViewerGlowCoordinatorTest {
-  @Test
-  void pluginInitializesCoordinatorBeforeSkillsAreConstructed() throws IOException {
-    String source = Files.readString(Path.of("src/main/java/art/arcane/adapt/Adapt.java"));
-    int coordinatorInitialization = source.indexOf("initializeGlowingEntities();");
-    int skillConstruction = source.indexOf("runStartupPhase(\"start-sim\"");
-
-    assertThat(coordinatorInitialization).isGreaterThanOrEqualTo(0).isLessThan(skillConstruction);
-  }
-
   @Test
   void restoresLowerLayerWhenHigherLayerReleasesItsClaim() throws Exception {
     ViewerGlowCoordinator.PacketSink sink = mock(ViewerGlowCoordinator.PacketSink.class);

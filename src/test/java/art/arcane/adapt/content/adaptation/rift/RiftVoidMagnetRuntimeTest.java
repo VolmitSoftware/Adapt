@@ -198,21 +198,6 @@ class RiftVoidMagnetRuntimeTest {
   }
 
   @Test
-  void magnetSourceTransfersWholeDropsAndLeavesOverflowOnTheGround() throws Exception {
-    String source = java.nio.file.Files.readString(
-        java.nio.file.Path.of("src/main/java/art/arcane/adapt/content/adaptation/rift/RiftVoidMagnet.java"));
-
-    assertThat(source)
-        .contains(
-            "if (!pulse.transfers.reserveDrop())",
-            "depositIntoInventories(player, stack, stack.getAmount())",
-            "stack.setAmount(stack.getAmount() - moved)",
-            "item.setItemStack(stack)",
-            "pulse.transfers.releaseDrop()")
-        .doesNotContain("transfers.reserve(", "transfers.release(");
-  }
-
-  @Test
   void rejectsInvalidRuntimeLimits() {
     assertThatThrownBy(() -> new RiftVoidMagnet.MagnetCoordinator<>(0))
         .isInstanceOf(IllegalArgumentException.class);

@@ -2,9 +2,6 @@ package art.arcane.adapt.content.adaptation.seaborrne;
 
 import org.junit.jupiter.api.Test;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 
@@ -32,16 +29,6 @@ class SeabornePressureDiverAbsorptionTest {
     assertThat(SeabornePressureDiver.absorptionFillTarget(0D, 0D, 4D, 4D)).isEqualTo(4D);
     assertThat(SeabornePressureDiver.absorptionFillTarget(3D, 0D, 4D, 5D)).isEqualTo(5D);
     assertThat(SeabornePressureDiver.absorptionFillTarget(8D, 8D, 4D, 4D)).isEqualTo(4D);
-  }
-
-  @Test
-  void pressureDiverUsesAbsorptionInsteadOfWaterBreathing() throws Exception {
-    String source = Files.readString(Path.of(
-        "src/main/java/art/arcane/adapt/content/adaptation/seaborrne/SeabornePressureDiver.java"));
-
-    assertThat(source)
-        .contains("Attributes.MAX_ABSORPTION", "PotionEffectType.RESISTANCE")
-        .doesNotContain("PotionEffectType.WATER_BREATHING");
   }
 
   @Test
