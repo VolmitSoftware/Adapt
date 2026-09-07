@@ -1,0 +1,2 @@
+# Adapt.java renders the trace into a StringWriter and replays it through Adapt.verbose.
+art/arcane/adapt/Adapt.java printStackTrace(
