@@ -474,6 +474,16 @@ pluginPackaging {
             policyName = 'Adapt'
             prunePrefixes = ['art/arcane/adapt/util/arcane/volmlib/']
             keepPrefixes = ['art/arcane/adapt/util/arcane/volmlib/util/matter/slices/']
+            shrinkRules = [file('packaging/shrink.pro')]
+            shrinkDontwarn = ['org.sqlite.**']
+            shrinkRelocations = [
+                'manifold': "${lib}.manifold",
+                'Fukkit.extensions': "${lib}.extensions",
+                'Amulet.extensions': "${lib}.extensions",
+                'net.byteflux.libby': "${lib}.libby",
+                'com.jeff_media.customblockdata': "${lib}.customblocks",
+                'org.bstats': "${lib}.bstats"
+            ]
         }
     }
 }
