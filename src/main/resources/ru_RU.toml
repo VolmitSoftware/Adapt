@@ -1,4 +1,134 @@
-# Adapt language overlay: ru_RU
+# Adapt — ru_RU
+#
+# === Редактирование файла ===
+# plugins/Adapt/languages/ru_RU.toml
+# Этот файл можно редактировать напрямую. Локальные изменения сохраняются; для отсутствующих или неверных записей используется встроенный английский текст.
+# /adapt language server edit ru_RU
+#
+# === Префикс ===
+# {prefix} стоит перед значением статистики. Префиксы команд добавляются автоматически.
+#
+# === Форматирование ===
+# MiniMessage: <green>...</green>.
+# &0-&f — цвета, &k-&r — оформление, &#RRGGBB — шестнадцатеричные цвета; automatic-gradients — автоматические градиенты.
+#
+# === Переменные ===
+# Не меняйте имена переменных и используйте только переменные исходного сообщения.
+#   {adaptation}  Название адаптации
+#   {adaptations}  Названия подходящих адаптаций
+#   {after}  Значение после правки
+#   {amount}  Количество валюты, знаний или опыта
+#   {argument}  Неожиданный аргумент команды
+#   {available}  Доступная сила или знания
+#   {before}  Значение до правки
+#   {benefit}  Описание преимущества мутации
+#   {block}  Блок из инструкции к достижению
+#   {bonus}  Размер бонуса Masterwork
+#   {burden}  Описание недостатка мутации
+#   {category}  Название категории настроек
+#   {chance}  Вероятность активации
+#   {combo}  Сочетание условий Instant Recall
+#   {command}  Полный путь команды
+#   {control}  Инструкция по использованию мутации
+#   {cost}  Стоимость в знаниях
+#   {count}  Количество элементов, файлов или сообщений
+#   {damage}  Добавляемый урон
+#   {danger}  Предупреждение об опасности перехода через врата
+#   {deepCharge}  Запас Deep Charge
+#   {deepblood}  Состояние связанного инструмента Deepblood
+#   {description}  Описание достижения
+#   {direction}  Направление к структуре
+#   {distance}  Расстояние до структуры в блоках
+#   {domain}  Название группы навыков мутации
+#   {duration}  Отформатированная длительность или время восстановления
+#   {effect}  Название эффекта зелья
+#   {enchantment}  Название зачарования
+#   {environment}  Окружение, влияющее на способность
+#   {error}  Подробности ошибки конфигурации
+#   {experience}  Опыт, сохранённый в сфере
+#   {file}  Имя файла конфигурации
+#   {first}  Первая группа навыков или часть условия активации
+#   {from}  Номер первой записи на странице
+#   {group}  Категория редактора языка
+#   {hits}  Число успешных обращений к кэшу
+#   {instruction}  Инструкция по получению достижения
+#   {interaction}  Взаимодействие с другим слотом мутации
+#   {key}  Ключ сообщения или настройки
+#   {knowledge}  Количество знаний
+#   {label}  Подпись настройки или показателя
+#   {level}  Уровень навыка, адаптации или эффекта
+#   {levels}  Количество сохранённых уровней опыта
+#   {line}  Номер строки языкового сообщения
+#   {locale}  Код языка
+#   {masterwork}  Состояние связанного снаряжения Masterwork
+#   {maximum}  Максимальное значение или предел силы
+#   {message}  Сообщение состояния перед временем восстановления
+#   {microsPerCheck}  Микросекунды на одну проверку способности
+#   {millisPerSecond}  Миллисекунды проверок способностей за секунду
+#   {minimum}  Минимальное допустимое значение
+#   {misses}  Обращения к кэшу без сохранённого результата
+#   {multiplier}  Множитель усиления опыта
+#   {mutation}  Название мутации
+#   {needed}  Требуемая сила или знания
+#   {newValue}  Новое значение настройки
+#   {nextLevel}  Отображение следующего уровня навыка
+#   {oldValue}  Предыдущее значение настройки
+#   {other}  Название конфликтующей мутации
+#   {page}  Номер текущей страницы
+#   {pages}  Общее число страниц
+#   {parameter}  Имя параметра команды
+#   {parameters}  Проигнорированные параметры команды
+#   {particle}  Название типа частиц
+#   {path}  Путь настройки
+#   {perMinute}  Проверок способностей в минуту
+#   {perSecond}  Проверок способностей в секунду
+#   {percent}  Процент бюджета времени или бонуса опыта
+#   {permission}  Необходимое право доступа
+#   {personal}  Код личного языка
+#   {player}  Игрок, к которому применяется действие
+#   {plugin}  Название плагина
+#   {power}  Количество или расход силы
+#   {prefix}  Префикс значения показателя
+#   {progress}  Отображение прогресса навыка
+#   {range}  Дальность поиска или способности в блоках
+#   {ratio}  Доля попаданий в кэш
+#   {reason}  Объяснение состояния мутации или ошибки редактора
+#   {refund}  Знания, возвращаемые при отмене изучения
+#   {remaining}  Число пропущенных в выводе изменений настроек
+#   {result}  Эффект мутации на уровне 200
+#   {rootCharge}  Запас Root Charge
+#   {second}  Вторая группа навыков или часть условия активации
+#   {seconds}  Длительность в секундах
+#   {separator}  Разделитель значения показателя и подписи
+#   {skill}  Название навыка
+#   {slot}  Номер слота мутации
+#   {slots}  Число ячеек рюкзака
+#   {stacks}  Стаки эффекта или вместимость рюкзака в стаках
+#   {state}  Состояние включения или слота мутации
+#   {steps}  Завершённые этапы крафта, зельеварения или зачарования
+#   {strength}  Добавляемая прочность брони
+#   {structure}  Название найденной структуры
+#   {surface}  Поверхность, влияющая на активацию
+#   {symbol}  Символ указателя структуры
+#   {target}  Целевой игрок или плагин настройки языка
+#   {tell}  Описание видимого эффекта мутации
+#   {temperbound}  Состояние связанного снаряжения Temperbound
+#   {timestamp}  Метка времени архива конфигурации
+#   {to}  Номер последней записи на странице
+#   {total}  Общее число записей или ячеек
+#   {trigger}  Условие активации способности
+#   {trophy}  Состояние связанного трофея
+#   {type}  Ожидаемый тип параметра или значения
+#   {usage}  Синтаксис команды
+#   {used}  Используемая сила или занятые ячейки
+#   {value}  Текущее значение настройки или показателя
+#   {values}  Допустимые значения настройки
+#   {variables}  Допустимые подстановки сообщения
+#   {window}  Окно измерения производительности в миллисекундах
+#   {world}  Название мира
+#   {x}  Координата X цели
+#   {xp}  Количество опыта
+#   {z}  Координата Z цели
 
 [mutation.domain]
 body = "тело"
@@ -4189,7 +4319,7 @@ lore1 = "Пассивная броня"
 lore2 = "На основе твёрдости ближайших блоков"
 lore3 = "Сила брони:"
 passive = "Пассивная броня, основанная на близлежащей жесткости блока"
-strength = "Сила брони: +{strength}"
+strength = "Прочность брони: +{strength}"
 lore = ["Пассивная броня", "На основе твёрдости ближайших блоков", "Сила брони:"]
 
 [discovery.unity]
@@ -4779,10 +4909,10 @@ click_to_learn = "Нажмите, чтобы научиться {adaptation}"
 knowledge_shortage = "(У тебя есть только {knowledge} Знания доступны)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} Утечка энергии"
+vault_unavailable_fallback = "Экономика Vault недоступна — обучение только за знания остаётся доступным."
+vault_insufficient_funds = "У игрока недостаточно средств в экономике Vault."
+vault_transaction_failed = "Операция Vault не удалась; прогресс не изменён."
+power_drain = "Расход силы: {power}"
 
 [gui.mutations]
 experimental_mutations = "Экспериментальные мутации"
@@ -5385,7 +5515,6 @@ msg_range = "Этот контейнер слишком далеко, чтобы
 msg_same = "Вы не можете связать контейнер с самим собой."
 msg_stale = "Захваченный контейнер больше не доступен."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} {skill} Знание"
 knowledge_status = "{amount} {skill} Знание"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP для {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "Ваши данные были удалены."
 no_description_provided = "Нет описания"
-config_hotloaded = "&7[&4Адаптация&7]: &aАдаптация Hotloaded: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4Адаптация&7]: &aАдаптация Hotloaded: &f[{file}] &7[{remaining} Дополнительные изменения опущены]"
+config_hotloaded = "&7[&4Adapt&7]: &aНастройка перезагружена на ходу: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &aНастройки перезагружены на ходу: &f[{file}] &7[пропущено дополнительных изменений: {remaining}]"
 
 [seaborn.oxygen]
 name = "Органический кислородный баллон"
@@ -6201,6 +6330,8 @@ lore3 = "Боевой локаут"
 lore = ["Макс Абсорбция", "Поглощение в пульсе", "Боевой локаут"]
 
 [command.help]
+debug_dump = "Создать диагностический отчёт и при желании загрузить его"
+debug_upload = "Загрузить отчёт на mclo.gs"
 adapt_debug_command = "Adapt Командование отладкой"
 adapt_skills_adaptations_and_admin_tools = "Adapt навыки, адаптации и инструменты администратора"
 adaptation_level_to_apply = "Уровень адаптации для применения"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "Без изменений: {adaptation} Уже на 
 power_insufficient = "Недостаточно доступной мощности. нужда {needed}, иметь {available}."
 knowledge_insufficient = "Недостаточно знаний в {skill}. нужда {needed}, иметь {available}."
 knowledge_spend_failed = "Не удалось потратить необходимые знания ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "У игрока недостаточно средств в экономике Vault."
+vault_transaction_failed = "Операция Vault не удалась; прогресс не изменён."
 set_adaptation_level = "Настройка {player} {adaptation} на уровень {level}."
 permanent_adaptation_lower = "{adaptation} является постоянным и не может быть понижен без force=true."
 adapt_server_not_ready = "Adapt Сервер еще не готов. Попробуйте еще раз через несколько секунд."
@@ -6350,8 +6481,113 @@ parameters_ignored = "Параметры игнорируются: {parameters}"
 no_description = "Нет описания"
 perf_ability_checks = "проверки способности: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "успешные проверки: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "Соотношение ударов кэша активного уровня: {ratio} ({hits} удар, {misses} промах)"
+perf_cache_hit_ratio = "Доля попаданий в кэш активных уровней: {ratio} (попаданий: {hits}, промахов: {misses})"
 perf_timing_budget = "Возможность проверки сроков бюджета: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "Окно в шкафу: {window}мс"
 perf_no_metrics = "Метрики тиков пока не собраны."
 perf_reset = "Ticker и возможность сброса телеметрии."
+
+[language.menu]
+your_language = "Ваш язык"
+reset_your_language = "Сбросить выбор языка"
+server_default = "Язык сервера по умолчанию"
+edit_messages = "Изменить языковые сообщения"
+use_server_default = "Использовать язык сервера по умолчанию"
+current = "Текущий: {locale}"
+current_with_personal = "Текущий: {locale} (Ваш: {personal})"
+your_description = "Изменить только сообщения, которые видите вы."
+reset_description = "Использовать язык сервера по умолчанию."
+server_description = "Изменить язык сервера по умолчанию."
+edit_description = "Открыть редактор сообщений для каждого языка."
+select_description = "Нажмите, чтобы выбрать этот язык."
+remove_personal_description = "Удалить ваш личный выбор языка."
+no_controls = "У вас нет доступа к настройкам языка."
+command = "Команда: {command}"
+selected = "выбранный"
+all-volmit-plugins = "Все плагины Volmit"
+
+[language.error]
+stopping = "Выбор языка недоступен, пока плагин останавливается."
+editor-player-only = "Откройте редактор языка в игре."
+no-providers = "Нет доступных языковых провайдеров Volmit."
+numeric-page = "Введите номер страницы числом."
+personal-player-only = "Личный язык игрока нужно выбрать в игре."
+personal-permission = "У вас нет разрешения на выбор языка."
+plugin-personal-permission = "У вас нет разрешения выбирать свой язык для {plugin}."
+plugin-server-permission = "У вас нет разрешения менять язык сервера для {plugin}."
+server-locale-required = "Выберите код языка, например en_US, для языка сервера по умолчанию."
+unavailable-for-all = "Язык {locale} доступен не для всех выбранных плагинов."
+
+[language.usage]
+editor = "Использование: /{command} language server edit [locale]"
+selection = "Использование: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "Использование: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "Подготовка языка {locale} для {target}..."
+save-failed = "{plugin}: не удалось сохранить выбор языка; проверьте консоль сервера."
+english-fallback = "{plugin}: {locale} недоступен; используется английский (en_US)."
+personal-selected = "{plugin}: Ваш язык сейчас {locale}."
+server-selected = "{plugin}: Язык сервера теперь {locale}."
+server-default-selected = "{plugin}: теперь ваш язык соответствует языку сервера по умолчанию."
+
+[language.editor]
+loading = "Загрузка сообщений для {locale}..."
+
+[language.editor.section]
+languages = "Языки"
+search = "Поиск"
+search-title = "{locale} / Поиск"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "Найдите ключ или текст сообщения. Введите cancel, чтобы вернуться."
+value = "Введите в чат новое значение для {key}."
+current = "Текущее значение: {value}"
+variables = "Переменные: {variables}"
+guidance = "Используйте \\n для новой строки, \\\\ для обратной косой черты или введите cancel, чтобы вернуться."
+
+[language.editor.input]
+expired = "Время ввода в редакторе языка истекло."
+too-long = "Ввод должен содержать не более {maximum} символов."
+unable-to-save = "Не удалось сохранить: {reason}"
+
+[language.editor.navigation]
+back = "&eНазад&r"
+close = "&cЗакрыть&r"
+previous-page = "&eПредыдущая страница&r"
+next-page = "&eСледующая страница&r"
+
+[language.editor.search]
+messages = "Поиск сообщений"
+messages-lore = "Нажмите для поиска среди всех сообщений."
+clear = "Сбросить поиск"
+
+[language.editor.message]
+current-value = "&7Текущее значение:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7Нажмите, чтобы изменить форму множественного числа.&r"
+edit-lines = "&7Нажмите, чтобы изменить отдельные строки.&r"
+edit-chat = "&7Нажмите, чтобы изменить текст в чате.&r"
+
+[language.editor.locale]
+open = "&8Нажмите, чтобы открыть этот язык.&r"
+
+[language.editor.category]
+message-count = "&7{count} сообщения&r"
+open = "&8Нажмите, чтобы открыть эту категорию.&r"
+
+[language.editor.error]
+no-permission = "У вас нет разрешения редактировать языки {plugin}."
+unable-to-edit = "Не удалось отредактировать: {reason}"
+
+[language.editor.saved]
+summary = "{locale} сохранён. Выбранные языки не изменились."
+change = "{key}: «{before}» заменено на «{after}»."
+
+[language.editor.part]
+line = "Строка {line}"
+
+[language.editor.value]
+none = "Нет"
+empty = "(пусто)"

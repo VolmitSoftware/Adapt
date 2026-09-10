@@ -1,22 +1,15 @@
 package art.arcane.adapt.localization;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.volmlib.util.localization.LinesValue;
+import art.arcane.volmlib.util.localization.LanguageFileHeader;
+import art.arcane.volmlib.util.localization.LanguageReferenceRenderer;
 import art.arcane.volmlib.util.localization.MessageCatalog;
-import art.arcane.volmlib.util.localization.MessageKey;
-import art.arcane.volmlib.util.localization.MessageValue;
-import art.arcane.volmlib.util.localization.PluralValue;
-import art.arcane.volmlib.util.localization.TextValue;
 
 import java.io.File;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 public final class AdaptLanguageReference {
-  private static final Pattern BARE_KEY = Pattern.compile("[A-Za-z0-9_-]+");
-
   private AdaptLanguageReference() {
   }
 
@@ -29,6 +22,9 @@ public final class AdaptLanguageReference {
   }
 
   public static boolean write() {
+    if (referenceFile().exists()) {
+      return true;
+    }
     return LanguageFileWriter.write(
         referenceFile().toPath(),
         "language reference",
@@ -37,166 +33,128 @@ public final class AdaptLanguageReference {
   }
 
   static String render(MessageCatalog catalog) {
-    Section root = new Section();
-    for (MessageKey key : catalog.keys()) {
-      root.put(key.id(), key.englishValue());
-    }
-
-    StringBuilder out = new StringBuilder();
-    for (String line : header(catalog.englishLocale())) {
-      out.append("# ").append(line).append('\n');
-    }
-    root.render(out, "");
-    return out.toString();
-  }
-
-  private static List<String> header(String locale) {
-    return List.of(
-        "Adapt language reference: " + locale,
-        "Generated from the code-owned English catalog and regenerated on every boot.",
-        "Edits to this file are ignored.",
-        "Copy the keys you want to change into languages/overrides/" + locale + ".toml."
-    );
-  }
-
-  private static String formatKey(String key) {
-    return BARE_KEY.matcher(key).matches() ? key : '"' + escape(key) + '"';
-  }
-
-  private static String formatPath(String path) {
-    String[] segments = path.split("\\.", -1);
-    StringBuilder out = new StringBuilder(path.length() + 4);
-    for (int index = 0; index < segments.length; index++) {
-      if (index > 0) {
-        out.append('.');
-      }
-      out.append(formatKey(segments[index]));
-    }
-    return out.toString();
-  }
-
-  private static String formatText(String value) {
-    return '"' + escape(value) + '"';
-  }
-
-  private static String formatLines(List<String> lines) {
-    StringBuilder out = new StringBuilder();
-    out.append('[');
-    for (int index = 0; index < lines.size(); index++) {
-      if (index > 0) {
-        out.append(", ");
-      }
-      out.append(formatText(lines.get(index)));
-    }
-    return out.append(']').toString();
-  }
-
-  private static String escape(String value) {
-    StringBuilder out = new StringBuilder(value.length() + 8);
-    for (int index = 0; index < value.length(); index++) {
-      char character = value.charAt(index);
-      switch (character) {
-        case '\\' -> out.append("\\\\");
-        case '"' -> out.append("\\\"");
-        case '\b' -> out.append("\\b");
-        case '\f' -> out.append("\\f");
-        case '\n' -> out.append("\\n");
-        case '\r' -> out.append("\\r");
-        case '\t' -> out.append("\\t");
-        default -> {
-          if (character < 0x20 || character == 0x7F) {
-            out.append(String.format("\\u%04X", (int) character));
-          } else {
-            out.append(character);
-          }
-        }
-      }
-    }
-    return out.toString();
-  }
-
-  private static String join(String path, String key) {
-    return path.isEmpty() ? key : path + "." + key;
-  }
-
-  private static final class Section {
-    private final Map<String, MessageValue> values = new LinkedHashMap<>();
-    private final Map<String, Section> children = new LinkedHashMap<>();
-
-    private void put(String id, MessageValue value) {
-      Section section = this;
-      int cursor = 0;
-      while (true) {
-        int dot = id.indexOf('.', cursor);
-        if (dot < 0) {
-          break;
-        }
-        String segment = id.substring(cursor, dot);
-        if (section.values.containsKey(segment)) {
-          throw new IllegalStateException("Message id collides with a message key: " + id);
-        }
-        section = section.children.computeIfAbsent(segment, ignored -> new Section());
-        cursor = dot + 1;
-      }
-
-      String leaf = id.substring(cursor);
-      if (section.children.containsKey(leaf)) {
-        throw new IllegalStateException("Message id collides with a message group: " + id);
-      }
-      section.values.put(leaf, value);
-    }
-
-    private boolean hasInlineValues() {
-      for (MessageValue value : values.values()) {
-        if (!(value instanceof PluralValue)) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    private void render(StringBuilder out, String path) {
-      if (hasInlineValues()) {
-        if (path.isEmpty()) {
-          if (!out.isEmpty()) {
-            out.append('\n');
-          }
-        } else {
-          openTable(out, path);
-        }
-        renderInlineValues(out);
-      }
-
-      for (Map.Entry<String, MessageValue> entry : values.entrySet()) {
-        if (entry.getValue() instanceof PluralValue plural) {
-          openTable(out, join(path, entry.getKey()));
-          for (Map.Entry<String, String> form : plural.forms().entrySet()) {
-            out.append(formatKey(form.getKey())).append(" = ").append(formatText(form.getValue())).append('\n');
-          }
-        }
-      }
-
-      for (Map.Entry<String, Section> child : children.entrySet()) {
-        child.getValue().render(out, join(path, child.getKey()));
-      }
-    }
-
-    private void renderInlineValues(StringBuilder out) {
-      for (Map.Entry<String, MessageValue> entry : values.entrySet()) {
-        MessageValue value = entry.getValue();
-        if (value instanceof TextValue text) {
-          out.append(formatKey(entry.getKey())).append(" = ").append(formatText(text.template())).append('\n');
-        } else if (value instanceof LinesValue lines) {
-          out.append(formatKey(entry.getKey())).append(" = ").append(formatLines(lines.lines())).append('\n');
-        }
-      }
-    }
-
-    private void openTable(StringBuilder out, String path) {
-      if (!out.isEmpty()) {
-        out.append('\n');
-      }
-      out.append('[').append(formatPath(path)).append(']').append('\n');
-    }
+    return LanguageReferenceRenderer.render(catalog, LanguageFileHeader.render(new LanguageFileHeader.Options(
+        "Adapt", catalog.englishLocale(),
+        List.of("Command prefixes are applied by the command renderer. {prefix} is the prefix of a statistic value."),
+        List.of("Colors: &0-&f, &k-&r, &#RRGGBB and MiniMessage. Bracket gradients follow automatic-gradients.",
+            "Lists retain their line order; plural tables use the forms supplied in the English catalog."),
+        Map.ofEntries(
+            Map.entry("adaptation", "Adaptation name"),
+            Map.entry("adaptations", "Matching Adaptation names"),
+            Map.entry("after", "Value after an edit"),
+            Map.entry("amount", "Currency, knowledge or experience amount"),
+            Map.entry("argument", "Unexpected command argument"),
+            Map.entry("available", "Available power or knowledge"),
+            Map.entry("before", "Value before an edit"),
+            Map.entry("benefit", "Mutation benefit description"),
+            Map.entry("block", "Block named in advancement instructions"),
+            Map.entry("bonus", "Masterwork bonus amount"),
+            Map.entry("burden", "Mutation drawback description"),
+            Map.entry("category", "Configuration category name"),
+            Map.entry("chance", "Activation probability"),
+            Map.entry("combo", "Instant Recall trigger combination"),
+            Map.entry("command", "Command path"),
+            Map.entry("control", "Mutation usage instructions"),
+            Map.entry("cost", "Knowledge cost"),
+            Map.entry("count", "Number of items, files or messages"),
+            Map.entry("damage", "Added damage amount"),
+            Map.entry("danger", "Gate travel danger warning"),
+            Map.entry("deepCharge", "Stored Deep Charge amount"),
+            Map.entry("deepblood", "Linked Deepblood tool status"),
+            Map.entry("description", "Advancement description"),
+            Map.entry("direction", "Direction toward a structure"),
+            Map.entry("distance", "Distance to a structure in blocks"),
+            Map.entry("domain", "Mutation skill group name"),
+            Map.entry("duration", "Formatted duration or cooldown"),
+            Map.entry("effect", "Potion effect name"),
+            Map.entry("enchantment", "Enchantment name"),
+            Map.entry("environment", "Environment affecting an ability"),
+            Map.entry("error", "Configuration error details"),
+            Map.entry("experience", "Experience stored in an orb"),
+            Map.entry("file", "Configuration file name"),
+            Map.entry("first", "First skill group or trigger component"),
+            Map.entry("from", "First entry index on a page"),
+            Map.entry("group", "Language editor category"),
+            Map.entry("hits", "Successful cache lookups"),
+            Map.entry("instruction", "Advancement unlock instruction"),
+            Map.entry("interaction", "Interaction with the other mutation slot"),
+            Map.entry("key", "Message or configuration key"),
+            Map.entry("knowledge", "Knowledge amount"),
+            Map.entry("label", "Setting or statistic label"),
+            Map.entry("level", "Skill, Adaptation or effect level"),
+            Map.entry("levels", "Experience levels saved"),
+            Map.entry("line", "Language message line number"),
+            Map.entry("locale", "Language code"),
+            Map.entry("masterwork", "Linked Masterwork equipment status"),
+            Map.entry("maximum", "Maximum allowed value or power limit"),
+            Map.entry("message", "Status message before cooldown details"),
+            Map.entry("microsPerCheck", "Microseconds spent per ability check"),
+            Map.entry("millisPerSecond", "Milliseconds spent checking abilities per second"),
+            Map.entry("minimum", "Minimum allowed value"),
+            Map.entry("misses", "Cache lookups without a stored result"),
+            Map.entry("multiplier", "Experience boost multiplier"),
+            Map.entry("mutation", "Mutation name"),
+            Map.entry("needed", "Required power or knowledge"),
+            Map.entry("newValue", "New configuration value"),
+            Map.entry("nextLevel", "Next skill level display"),
+            Map.entry("oldValue", "Previous configuration value"),
+            Map.entry("other", "Conflicting mutation name"),
+            Map.entry("page", "Current page number"),
+            Map.entry("pages", "Total number of pages"),
+            Map.entry("parameter", "Command parameter name"),
+            Map.entry("parameters", "Ignored command parameters"),
+            Map.entry("particle", "Particle type name"),
+            Map.entry("path", "Configuration path"),
+            Map.entry("perMinute", "Ability checks per minute"),
+            Map.entry("perSecond", "Ability checks per second"),
+            Map.entry("percent", "Percentage of timing budget or experience bonus"),
+            Map.entry("permission", "Required permission node"),
+            Map.entry("personal", "Personal language code"),
+            Map.entry("player", "Player receiving the action"),
+            Map.entry("plugin", "Plugin name"),
+            Map.entry("power", "Power amount or consumption"),
+            Map.entry("prefix", "Statistic value prefix"),
+            Map.entry("progress", "Skill progress display"),
+            Map.entry("range", "Search or ability range in blocks"),
+            Map.entry("ratio", "Cache hit ratio"),
+            Map.entry("reason", "Mutation status or editor error explanation"),
+            Map.entry("refund", "Knowledge refunded when unlearning"),
+            Map.entry("remaining", "Number of omitted configuration changes"),
+            Map.entry("result", "Mutation effect at level 200"),
+            Map.entry("rootCharge", "Stored Root Charge amount"),
+            Map.entry("second", "Second skill group or trigger component"),
+            Map.entry("seconds", "Duration in seconds"),
+            Map.entry("separator", "Separator between statistic value and label"),
+            Map.entry("skill", "Skill name"),
+            Map.entry("slot", "Mutation slot number"),
+            Map.entry("slots", "Number of backpack slots"),
+            Map.entry("stacks", "Effect stacks or backpack stack capacity"),
+            Map.entry("state", "Enabled state or mutation slot status"),
+            Map.entry("steps", "Completed crafting, brewing or enchanting steps"),
+            Map.entry("strength", "Added armor strength"),
+            Map.entry("structure", "Located structure name"),
+            Map.entry("surface", "Surface affecting the trigger"),
+            Map.entry("symbol", "Structure indicator symbol"),
+            Map.entry("target", "Target player or language plugin"),
+            Map.entry("tell", "Visible mutation effect description"),
+            Map.entry("temperbound", "Linked Temperbound equipment status"),
+            Map.entry("timestamp", "Configuration archive timestamp"),
+            Map.entry("to", "Last entry index on a page"),
+            Map.entry("total", "Total number of entries or slots"),
+            Map.entry("trigger", "Ability activation condition"),
+            Map.entry("trophy", "Linked trophy status"),
+            Map.entry("type", "Expected parameter or value type"),
+            Map.entry("usage", "Command syntax"),
+            Map.entry("used", "Used power or occupied slots"),
+            Map.entry("value", "Current setting or statistic value"),
+            Map.entry("values", "Allowed setting values"),
+            Map.entry("variables", "Allowed message placeholders"),
+            Map.entry("window", "Performance measurement window in milliseconds"),
+            Map.entry("world", "World name"),
+            Map.entry("x", "Target X coordinate"),
+            Map.entry("xp", "Experience amount"),
+            Map.entry("z", "Target Z coordinate")
+        )
+    )));
   }
 }

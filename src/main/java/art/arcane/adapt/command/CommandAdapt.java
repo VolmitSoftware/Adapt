@@ -52,14 +52,6 @@ public class CommandAdapt {
   private CommandDefault defaults;
   private CommandMutation mutations;
 
-  @Director(name = "debugdump", sync = true, description = "Create and optionally upload a diagnostic report")
-  public void debugdump(
-    @Param(name = "upload", defaultValue = "true", description = "Upload the report to mclo.gs") boolean upload,
-    @Param(name = "sender", contextual = true) CommandSender sender
-  ) {
-    Adapt.instance.debugDump().request(sender, upload);
-  }
-
   @Director(description = "Choose your language or the server default")
   public void language() {
     AdaptLanguage.language(BukkitDirectorContext.sender(), new String[0]);

@@ -1,4 +1,134 @@
-# Adapt language overlay: tr_TR
+# Adapt — tr_TR
+#
+# === Dosyayı düzenleme ===
+# plugins/Adapt/languages/tr_TR.toml
+# Bu dosyayı doğrudan düzenleyebilirsiniz. Yerel değişiklikler korunur; eksik veya geçersiz girdiler yerleşik İngilizce metni kullanır.
+# /adapt language server edit tr_TR
+#
+# === Önek ===
+# {prefix} bir istatistik değerinin önekidir. Komut önekleri otomatik eklenir.
+#
+# === Biçimlendirme ===
+# MiniMessage: <green>...</green>.
+# &0-&f, &k-&r, &#RRGGBB; automatic-gradients.
+#
+# === Değişkenler ===
+# Değişken adlarını değiştirmeyin ve yalnızca ilgili iletinin değişkenlerini kullanın.
+#   {adaptation}  Adaptasyon adı
+#   {adaptations}  Eşleşen Adaptasyon adları
+#   {after}  Düzenlemeden sonraki değer
+#   {amount}  Para, bilgi veya deneyim miktarı
+#   {argument}  Beklenmeyen komut argümanı
+#   {available}  Kullanılabilir güç veya bilgi
+#   {before}  Düzenlemeden önceki değer
+#   {benefit}  Mutasyon yararının açıklaması
+#   {block}  İlerleme talimatındaki blok
+#   {bonus}  Masterwork bonus miktarı
+#   {burden}  Mutasyon dezavantajının açıklaması
+#   {category}  Yapılandırma kategorisi adı
+#   {chance}  Etkinleşme olasılığı
+#   {combo}  Instant Recall tetikleme birleşimi
+#   {command}  Komut yolu
+#   {control}  Mutasyon kullanım talimatı
+#   {cost}  Bilgi maliyeti
+#   {count}  Öğe, dosya veya mesaj sayısı
+#   {damage}  Ek hasar miktarı
+#   {danger}  Kapı yolculuğu tehlike uyarısı
+#   {deepCharge}  Depolanan Deep Charge miktarı
+#   {deepblood}  Bağlı Deepblood aletinin durumu
+#   {description}  İlerleme açıklaması
+#   {direction}  Yapıya doğru yön
+#   {distance}  Yapıya olan blok cinsinden mesafe
+#   {domain}  Mutasyon beceri grubunun adı
+#   {duration}  Biçimlendirilmiş süre veya bekleme süresi
+#   {effect}  İksir etkisinin adı
+#   {enchantment}  Büyü adı
+#   {environment}  Yeteneği etkileyen ortam
+#   {error}  Yapılandırma hatası ayrıntıları
+#   {experience}  Kürede depolanan deneyim
+#   {file}  Yapılandırma dosyasının adı
+#   {first}  İlk beceri grubu veya tetikleme bileşeni
+#   {from}  Sayfadaki ilk girdinin indeksi
+#   {group}  Dil düzenleyicisi kategorisi
+#   {hits}  Başarılı önbellek aramaları
+#   {instruction}  İlerlemeyi açma talimatı
+#   {interaction}  Diğer mutasyon yuvasıyla etkileşim
+#   {key}  Mesaj veya yapılandırma anahtarı
+#   {knowledge}  Bilgi miktarı
+#   {label}  Ayar veya istatistik etiketi
+#   {level}  Beceri, Adaptasyon veya etki seviyesi
+#   {levels}  Tasarruf edilen deneyim seviyeleri
+#   {line}  Dil mesajının satır numarası
+#   {locale}  Dil kodu
+#   {masterwork}  Bağlı Masterwork ekipmanının durumu
+#   {maximum}  İzin verilen en yüksek değer veya güç sınırı
+#   {message}  Bekleme ayrıntılarından önceki durum mesajı
+#   {microsPerCheck}  Yetenek kontrolü başına mikrosaniye
+#   {millisPerSecond}  Saniyede yetenek kontrollerine harcanan milisaniye
+#   {minimum}  İzin verilen en düşük değer
+#   {misses}  Kayıtlı sonuç bulunamayan önbellek aramaları
+#   {multiplier}  Deneyim artışı çarpanı
+#   {mutation}  Mutasyon adı
+#   {needed}  Gerekli güç veya bilgi
+#   {newValue}  Yeni yapılandırma değeri
+#   {nextLevel}  Sonraki beceri seviyesi gösterimi
+#   {oldValue}  Önceki yapılandırma değeri
+#   {other}  Çakışan mutasyonun adı
+#   {page}  Geçerli sayfa numarası
+#   {pages}  Toplam sayfa sayısı
+#   {parameter}  Komut parametresinin adı
+#   {parameters}  Yok sayılan komut parametreleri
+#   {particle}  Parçacık türünün adı
+#   {path}  Yapılandırma yolu
+#   {perMinute}  Dakikadaki yetenek kontrolleri
+#   {perSecond}  Saniyedeki yetenek kontrolleri
+#   {percent}  Zaman bütçesi veya deneyim bonusu yüzdesi
+#   {permission}  Gerekli izin düğümü
+#   {personal}  Kişisel dil kodu
+#   {player}  İşlemin uygulandığı oyuncu
+#   {plugin}  Eklenti adı
+#   {power}  Güç miktarı veya tüketimi
+#   {prefix}  İstatistik değeri öneki
+#   {progress}  Beceri ilerleme gösterimi
+#   {range}  Arama veya yetenek menzilinin blok cinsinden değeri
+#   {ratio}  Önbellek isabet oranı
+#   {reason}  Mutasyon durumu veya düzenleyici hatası açıklaması
+#   {refund}  Öğrenileni geri alırken iade edilen bilgi
+#   {remaining}  Gösterilmeyen yapılandırma değişikliği sayısı
+#   {result}  Mutasyonun 200. seviyedeki etkisi
+#   {rootCharge}  Depolanan Root Charge miktarı
+#   {second}  İkinci beceri grubu veya tetikleme bileşeni
+#   {seconds}  Saniye cinsinden süre
+#   {separator}  İstatistik değeri ile etiketi arasındaki ayırıcı
+#   {skill}  Beceri adı
+#   {slot}  Mutasyon yuvasının numarası
+#   {slots}  Sırt çantası yuva sayısı
+#   {stacks}  Etki birikimleri veya çanta yığın kapasitesi
+#   {state}  Etkinlik durumu veya mutasyon yuvası durumu
+#   {steps}  Tamamlanan üretim, iksir veya büyü adımları
+#   {strength}  Ek zırh gücü
+#   {structure}  Bulunan yapının adı
+#   {surface}  Tetiklemeyi etkileyen yüzey
+#   {symbol}  Yapı göstergesi simgesi
+#   {target}  Hedef oyuncu veya dil eklentisi
+#   {tell}  Mutasyonun görünür etkisinin açıklaması
+#   {temperbound}  Bağlı Temperbound ekipmanının durumu
+#   {timestamp}  Yapılandırma arşivinin zaman damgası
+#   {to}  Sayfadaki son girdinin indeksi
+#   {total}  Toplam girdi veya yuva sayısı
+#   {trigger}  Yeteneğin etkinleşme koşulu
+#   {trophy}  Bağlı kupanın durumu
+#   {type}  Beklenen parametre veya değer türü
+#   {usage}  Komut sözdizimi
+#   {used}  Kullanılan güç veya dolu yuvalar
+#   {value}  Geçerli ayar veya istatistik değeri
+#   {values}  İzin verilen ayar değerleri
+#   {variables}  İzin verilen mesaj değişkenleri
+#   {window}  Milisaniye cinsinden performans ölçüm aralığı
+#   {world}  Dünya adı
+#   {x}  Hedef X koordinatı
+#   {xp}  Deneyim miktarı
+#   {z}  Hedef Z koordinatı
 
 [mutation.domain]
 body = "Vücut Bedeni"
@@ -4189,7 +4319,7 @@ lore1 = "Pasif Zirh"
 lore2 = "Yakindaki blok sertligine gore"
 lore3 = "Zirh Gucu:"
 passive = "Pasif Zırh, yakındaki blok sertliğe dayanan"
-strength = "Zırh Güçlü: +{strength}"
+strength = "Zırh gücü: +{strength}"
 lore = ["Pasif Zirh", "Yakindaki blok sertligine gore", "Zirh Gucu:"]
 
 [discovery.unity]
@@ -4779,10 +4909,10 @@ click_to_learn = "Öğrenmek için tıklayın {adaptation}"
 knowledge_shortage = "(Sadece sahipsin {knowledge} Bilgi kullanılabilir)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} Güç"
+vault_unavailable_fallback = "Vault ekonomisi kullanılamıyor — yalnızca bilgiyle öğrenme etkin kalır."
+vault_insufficient_funds = "Oyuncunun Vault bakiyesi yetersiz."
+vault_transaction_failed = "Vault işlemi başarısız oldu; ilerleme değiştirilmedi."
+power_drain = "Güç tüketimi: {power}"
 
 [gui.mutations]
 experimental_mutations = "Deneysel Mutations"
@@ -5385,7 +5515,6 @@ msg_range = "Bu konteyner bağlantı kurmak için çok uzak."
 msg_same = "Kendi kendine bir konteyner bağlayamazsın."
 msg_stale = "Yakalanan konteyner artık mevcut değildir."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} {skill} Bilgi Bilgisi"
 knowledge_status = "{amount} {skill} Bilgi Bilgisi"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP Çünkü {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "Verileriniz silindi."
 no_description_provided = "Hiçbir açıklama sağlanan"
-config_hotloaded = "&7[&4Yaptırın.&7]: &aSıcak yüklü ayarlamalar: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4Yaptırın.&7]: &aSıcak yüklü ayarlamalar: &f[{file}] &7[{remaining} Ek değişiklikler atıldı]"
+config_hotloaded = "&7[&4Adapt&7]: &aAdapt yapılandırması yeniden yüklendi: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &aAdapt yapılandırması yeniden yüklendi: &f[{file}] &7[{remaining} ek değişiklik gösterilmedi]"
 
 [seaborn.oxygen]
 name = "Organik Oksijen Tanki"
@@ -6201,6 +6330,8 @@ lore3 = "Mücadele"
 lore = ["Max Abors", "Nabızlık için absorbasyon", "Mücadele"]
 
 [command.help]
+debug_dump = "Tanılama raporu oluştur ve isteğe bağlı olarak yükle"
+debug_upload = "Raporu mclo.gs üzerine yükle"
 adapt_debug_command = "Adapt Debug Komutanlığı"
 adapt_skills_adaptations_and_admin_tools = "Adapt Beceriler, adaptasyonlar ve yönetim araçları"
 adaptation_level_to_apply = "Adaptasyon seviyesi uygulamak için"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "Hiçbir değişiklik yok: {adaptation} Zaten seviyed
 power_insufficient = "Yeterli mevcut güç değil. İhtiyacınız var {needed}, Var {available}."
 knowledge_insufficient = "Yeterli bilgi yeterli değil {skill}. İhtiyacınız var {needed}, Var {available}."
 knowledge_spend_failed = "Gerekli bilgi harcamak için başarısız oldu ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "Oyuncunun Vault bakiyesi yetersiz."
+vault_transaction_failed = "Vault işlemi başarısız oldu; ilerleme değiştirilmedi."
 set_adaptation_level = "Set Set {player} {adaptation} Seviye seviyesine {level}."
 permanent_adaptation_lower = "{adaptation} Kalıcı ve daha düşük olamaz force=true."
 adapt_server_not_ready = "Adapt server henüz hazır değil. Birkaç saniye içinde tekrar deneyin."
@@ -6350,8 +6481,113 @@ parameters_ignored = "Parametreleri görmezden geldiler: {parameters}"
 no_description = "Hiçbir açıklama"
 perf_ability_checks = "yetenek kontrolleri: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "Başarılı kontroller: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "Aktif seviye önbellek oranı: {ratio} ({hits} hit, {misses} kaçırmayın)"
+perf_cache_hit_ratio = "Etkin seviye önbelleği isabet oranı: {ratio} ({hits} isabet, {misses} sonuç bulunamadı)"
 perf_timing_budget = "Zamanlamayı kontrol edin bütçe: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "Tavşanlı pencere: {window}ms"
 perf_no_metrics = "Henüz toplanan metrik yok."
 perf_reset = "Ticker ve yetenek telemetri reset."
+
+[language.menu]
+your_language = "Diliniz"
+reset_your_language = "Dil seçiminizi sıfırla"
+server_default = "Sunucu varsayılanı"
+edit_messages = "Dil mesajlarını düzenle"
+use_server_default = "Sunucu varsayılanını kullan"
+current = "Geçerli: {locale}"
+current_with_personal = "Geçerli: {locale} (Sizin: {personal})"
+your_description = "Yalnızca gördüğünüz mesajları değiştirin."
+reset_description = "Sunucunun varsayılan dilini kullanın."
+server_description = "Sunucunun varsayılan dilini değiştirin."
+edit_description = "Her dil için mesaj düzenleyicisini açın."
+select_description = "Bu dili seçmek için tıklayın."
+remove_personal_description = "Kişisel dil seçiminizi kaldırın."
+no_controls = "Kullanabileceğiniz dil ayarı yok."
+command = "Komut: {command}"
+selected = "Seçili"
+all-volmit-plugins = "Tüm Volmit eklentileri"
+
+[language.error]
+stopping = "Dil seçimi, eklenti durdurulduğunda kullanılamaz."
+editor-player-only = "Oyundaki dil editörü açın."
+no-providers = "Kullanılabilir Volmit dil sağlayıcısı yok."
+numeric-page = "Sayfa numarasını rakamla girin."
+personal-player-only = "Oyuncu dili tercihleri oyunda seçilmelidir."
+personal-permission = "Dilinizi seçmek için izniniz yok."
+plugin-personal-permission = "{plugin} için kendi dilinizi seçme izniniz yok."
+plugin-server-permission = "{plugin} için sunucu dilini değiştirme izniniz yok."
+server-locale-required = "Sunucunun varsayılan dili için en_US gibi bir dil kodu seçin."
+unavailable-for-all = "{locale} dili, seçilen eklentilerin tümünde kullanılamıyor."
+
+[language.usage]
+editor = "Kullanım: /{command} language server edit [locale]"
+selection = "Kullanım: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "Kullanım: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "{target} için {locale} dili hazırlanıyor..."
+save-failed = "{plugin}: dil seçimi kaydedilemedi; sunucu konsolunu kontrol edin."
+english-fallback = "{plugin}: {locale} kullanılamıyor; İngilizce (en_US) kullanılıyor."
+personal-selected = "{plugin}: Diliniz şimdi {locale}."
+server-selected = "{plugin}: sunucu dili şimdi {locale}."
+server-default-selected = "{plugin}: diliniz artık sunucunun varsayılan dilini kullanıyor."
+
+[language.editor]
+loading = "{locale} mesajları yükleniyor..."
+
+[language.editor.section]
+languages = "Diller"
+search = "Arama"
+search-title = "{locale} / Arama"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "Mesaj anahtarı veya metni arayın. Geri dönmek için cancel yazın."
+value = "Sohbete {key} için yeni bir değer yazın."
+current = "Geçerli değer: {value}"
+variables = "Değişkenler: {variables}"
+guidance = "Yeni satır için \\n, ters eğik çizgi için \\\\ kullanın veya geri dönmek için cancel yazın."
+
+[language.editor.input]
+expired = "Dil düzenleyicisinin giriş süresi doldu."
+too-long = "Girdi en fazla {maximum} karakter içerebilir."
+unable-to-save = "Kaydedilemedi: {reason}"
+
+[language.editor.navigation]
+back = "&eGeri&r"
+close = "&cKapat&r"
+previous-page = "&eÖnceki Sayfa&r"
+next-page = "&eSonraki sayfa&r"
+
+[language.editor.search]
+messages = "Mesajları ara"
+messages-lore = "Tüm mesajları aramak için tıklayın."
+clear = "Aramayı temizle"
+
+[language.editor.message]
+current-value = "&7Mevcut Değer:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7Bir çoğul biçimini düzenlemek için tıklayın.&r"
+edit-lines = "&7Satırları ayrı ayrı düzenlemek için tıklayın.&r"
+edit-chat = "&7Sohbette düzenlemek için tıklayın.&r"
+
+[language.editor.locale]
+open = "&8Bu dili açmak için tıklayın.&r"
+
+[language.editor.category]
+message-count = "&7{count} mesaj&r"
+open = "&8Bu kategoriyi açmak için tıklayın.&r"
+
+[language.editor.error]
+no-permission = "{plugin} dillerini düzenleme izniniz yok."
+unable-to-edit = "Düzenlenemedi: {reason}"
+
+[language.editor.saved]
+summary = "{locale} kaydedildi. Dil seçimleri değişmedi."
+change = "{key}: “{before}” değeri “{after}” olarak değiştirildi."
+
+[language.editor.part]
+line = "Satır {line}"
+
+[language.editor.value]
+none = "Yok"
+empty = "(boş)"

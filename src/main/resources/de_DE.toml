@@ -1,4 +1,134 @@
-# Adapt language overlay: de_DE
+# Adapt — de_DE
+#
+# === Datei bearbeiten ===
+# plugins/Adapt/languages/de_DE.toml
+# Diese Datei kann direkt bearbeitet werden. Lokale Änderungen bleiben erhalten; fehlende oder ungültige Einträge verwenden das eingebaute Englisch.
+# /adapt language server edit de_DE
+#
+# === Präfix ===
+# {prefix} ist der Vorsatz eines Statistikwerts. Befehlspräfixe werden automatisch ergänzt.
+#
+# === Formatierung ===
+# MiniMessage: <green>...</green>.
+# &0-&f, &k-&r, &#RRGGBB; automatic-gradients.
+#
+# === Variablen ===
+# Variablennamen unverändert lassen und nur die Variablen der jeweiligen Nachricht verwenden.
+#   {adaptation}  Name der Adaptation
+#   {adaptations}  Namen passender Adaptationen
+#   {after}  Wert nach der Änderung
+#   {amount}  Geld-, Wissens- oder Erfahrungsmenge
+#   {argument}  Unerwartetes Befehlsargument
+#   {available}  Verfügbare Kraft oder verfügbares Wissen
+#   {before}  Wert vor der Änderung
+#   {benefit}  Beschreibung des Mutationsvorteils
+#   {block}  Block aus der Fortschrittsanweisung
+#   {bonus}  Höhe des Masterwork-Bonus
+#   {burden}  Beschreibung des Mutationsnachteils
+#   {category}  Name der Konfigurationskategorie
+#   {chance}  Aktivierungswahrscheinlichkeit
+#   {combo}  Auslöserkombination für Instant Recall
+#   {command}  Befehlspfad
+#   {control}  Bedienungsanweisungen für die Mutation
+#   {cost}  Wissenskosten
+#   {count}  Anzahl der Gegenstände, Dateien oder Nachrichten
+#   {damage}  Zusätzlicher Schaden
+#   {danger}  Gefahrenwarnung für die Torreise
+#   {deepCharge}  Gespeicherte Tiefenladung
+#   {deepblood}  Status des verknüpften Deepblood-Werkzeugs
+#   {description}  Fortschrittsbeschreibung
+#   {direction}  Richtung zu einer Struktur
+#   {distance}  Entfernung zu einer Struktur in Blöcken
+#   {domain}  Name der Fertigkeitsgruppe der Mutation
+#   {duration}  Formatierte Dauer oder Abklingzeit
+#   {effect}  Name des Trankeffekts
+#   {enchantment}  Name der Verzauberung
+#   {environment}  Umgebung, die eine Fähigkeit beeinflusst
+#   {error}  Einzelheiten zum Konfigurationsfehler
+#   {experience}  In einer Kugel gespeicherte Erfahrung
+#   {file}  Name der Konfigurationsdatei
+#   {first}  Erste Fertigkeitsgruppe oder erste Auslöserkomponente
+#   {from}  Index des ersten Seiteneintrags
+#   {group}  Kategorie des Spracheditors
+#   {hits}  Erfolgreiche Cache-Abfragen
+#   {instruction}  Anweisung zum Freischalten des Fortschritts
+#   {interaction}  Interaktion mit dem anderen Mutationsplatz
+#   {key}  Nachrichten- oder Konfigurationsschlüssel
+#   {knowledge}  Wissensmenge
+#   {label}  Bezeichnung der Einstellung oder Statistik
+#   {level}  Fertigkeits-, Adaptations- oder Effektstufe
+#   {levels}  Gespeicherte Erfahrungsstufen
+#   {line}  Zeilennummer der Sprachnachricht
+#   {locale}  Sprachcode
+#   {masterwork}  Status der verknüpften Masterwork-Ausrüstung
+#   {maximum}  Zulässiger Höchstwert oder Kraftgrenze
+#   {message}  Statusmeldung vor der Abklingzeitangabe
+#   {microsPerCheck}  Mikrosekunden pro Fähigkeitsprüfung
+#   {millisPerSecond}  Millisekunden für Fähigkeitsprüfungen pro Sekunde
+#   {minimum}  Zulässiger Mindestwert
+#   {misses}  Cache-Abfragen ohne gespeichertes Ergebnis
+#   {multiplier}  Multiplikator des Erfahrungsbonus
+#   {mutation}  Name der Mutation
+#   {needed}  Benötigte Kraft oder benötigtes Wissen
+#   {newValue}  Neuer Konfigurationswert
+#   {nextLevel}  Anzeige der nächsten Fertigkeitsstufe
+#   {oldValue}  Vorheriger Konfigurationswert
+#   {other}  Name der unvereinbaren Mutation
+#   {page}  Aktuelle Seitennummer
+#   {pages}  Gesamtzahl der Seiten
+#   {parameter}  Name des Befehlsparameters
+#   {parameters}  Ignorierte Befehlsparameter
+#   {particle}  Name des Partikeltyps
+#   {path}  Konfigurationspfad
+#   {perMinute}  Fähigkeitsprüfungen pro Minute
+#   {perSecond}  Fähigkeitsprüfungen pro Sekunde
+#   {percent}  Prozent des Zeitbudgets oder Erfahrungsbonus
+#   {permission}  Erforderlicher Berechtigungsknoten
+#   {personal}  Persönlicher Sprachcode
+#   {player}  Spieler, auf den die Aktion angewendet wird
+#   {plugin}  Pluginname
+#   {power}  Kraftmenge oder Kraftverbrauch
+#   {prefix}  Präfix eines Statistikwerts
+#   {progress}  Anzeige des Fertigkeitsfortschritts
+#   {range}  Such- oder Fähigkeitsreichweite in Blöcken
+#   {ratio}  Cache-Trefferquote
+#   {reason}  Erklärung zum Mutationsstatus oder Editorfehler
+#   {refund}  Beim Verlernen erstattetes Wissen
+#   {remaining}  Anzahl ausgelassener Konfigurationsänderungen
+#   {result}  Mutationseffekt auf Stufe 200
+#   {rootCharge}  Gespeicherte Wurzelladung
+#   {second}  Zweite Fertigkeitsgruppe oder zweite Auslöserkomponente
+#   {seconds}  Dauer in Sekunden
+#   {separator}  Trennzeichen zwischen Statistikwert und Bezeichnung
+#   {skill}  Name der Fertigkeit
+#   {slot}  Nummer des Mutationsplatzes
+#   {slots}  Anzahl der Rucksackplätze
+#   {stacks}  Effektstapel oder Rucksackkapazität in Stapeln
+#   {state}  Aktivierungszustand oder Status des Mutationsplatzes
+#   {steps}  Abgeschlossene Herstellungs-, Brau- oder Verzauberungsschritte
+#   {strength}  Zusätzliche Rüstungsstärke
+#   {structure}  Name der georteten Struktur
+#   {surface}  Oberfläche, die den Auslöser beeinflusst
+#   {symbol}  Symbol der Strukturanzeige
+#   {target}  Zielspieler oder Plugin der Spracheinstellung
+#   {tell}  Beschreibung des sichtbaren Mutationseffekts
+#   {temperbound}  Status der verknüpften Temperbound-Ausrüstung
+#   {timestamp}  Zeitstempel des Konfigurationsarchivs
+#   {to}  Index des letzten Seiteneintrags
+#   {total}  Gesamtzahl der Einträge oder Plätze
+#   {trigger}  Aktivierungsbedingung der Fähigkeit
+#   {trophy}  Status der verknüpften Trophäe
+#   {type}  Erwarteter Parameter- oder Werttyp
+#   {usage}  Befehlssyntax
+#   {used}  Verbrauchte Kraft oder belegte Plätze
+#   {value}  Aktueller Einstellungs- oder Statistikwert
+#   {values}  Zulässige Einstellungswerte
+#   {variables}  Zulässige Nachrichtenplatzhalter
+#   {window}  Leistungsmessfenster in Millisekunden
+#   {world}  Weltname
+#   {x}  X-Koordinate des Ziels
+#   {xp}  Erfahrungsmenge
+#   {z}  Z-Koordinate des Ziels
 
 [mutation.domain]
 body = "Körper"
@@ -4779,9 +4909,9 @@ click_to_learn = "Klicken Sie auf {adaptation}"
 knowledge_shortage = "(Sie haben nur {knowledge}-Kenntnisse zur Verfügung)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
+vault_unavailable_fallback = "Die Vault-Wirtschaft ist nicht verfügbar — Lernen nur mit Wissen bleibt möglich."
+vault_insufficient_funds = "Der Spieler hat nicht genügend Guthaben beim Vault-Wirtschaftsanbieter."
+vault_transaction_failed = "Die Vault-Transaktion ist fehlgeschlagen; der Fortschritt wurde nicht geändert."
 power_drain = "{power} Stromentnahme"
 
 [gui.mutations]
@@ -5385,7 +5515,6 @@ msg_range = "Der Container ist zu weit weg, um ihn zu verknüpfen."
 msg_same = "Sie können einen Behälter nicht an sich selbst verknüpfen."
 msg_stale = "Der gefangene Container ist nicht mehr verfügbar."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} {skill} Kenntnisse"
 knowledge_status = "{amount} {skill} Kenntnisse"
@@ -6201,6 +6330,8 @@ lore3 = "Kampffunktion"
 lore = ["Maximale Absorption", "Absorption pro Puls", "Kampffunktion"]
 
 [command.help]
+debug_dump = "Einen Diagnosebericht erstellen und optional hochladen"
+debug_upload = "Den Bericht zu mclo.gs hochladen"
 adapt_debug_command = "Adapt Debug-Kommando"
 adapt_skills_adaptations_and_admin_tools = "Adapt-Fähigkeiten, Anpassungen und Verwaltungstools"
 adaptation_level_to_apply = "Anwendbares Anpassungsniveau"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "Keine Änderung: {adaptation} ist bereits auf der Eb
 power_insufficient = "Ich brauche {needed}, habe {available}."
 knowledge_insufficient = "Nicht genug Wissen in {skill}. Bedarf {needed}, haben {available}."
 knowledge_spend_failed = "Nicht ausgegeben, die erforderlichen Kenntnisse ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "Der Spieler hat nicht genügend Guthaben beim Vault-Wirtschaftsanbieter."
+vault_transaction_failed = "Die Vault-Transaktion ist fehlgeschlagen; der Fortschritt wurde nicht geändert."
 set_adaptation_level = "{player} {adaptation} auf das Niveau {level} einstellen."
 permanent_adaptation_lower = "{adaptation} ist dauerhaft und kann ohne force=true nicht abgeschoben werden."
 adapt_server_not_ready = "Der Adapt-Server ist noch nicht fertig."
@@ -6355,3 +6486,108 @@ perf_timing_budget = "Zeitplan für die Fähigkeitsprüfung: {percent} ({millisP
 perf_ticker_window = "Tickers Fenster: {window}ms"
 perf_no_metrics = "Noch keine Zeckenwerte gesammelt."
 perf_reset = "Tickers und Fähigkeiten Telemetrie reset."
+
+[language.menu]
+your_language = "Ihre Sprache"
+reset_your_language = "Eigene Sprachauswahl zurücksetzen"
+server_default = "Serverstandard"
+edit_messages = "Sprachnachrichten bearbeiten"
+use_server_default = "Serverstandard verwenden"
+current = "Aktuell: {locale}"
+current_with_personal = "Aktuell: {locale} (Ihre: {personal})"
+your_description = "Ändern Sie nur die Nachrichten, die Sie sehen."
+reset_description = "Verwenden Sie die Standardsprache des Servers."
+server_description = "Ändern Sie die Standardsprache des Servers."
+edit_description = "Öffnen Sie den Nachrichteneditor für jede Sprache."
+select_description = "Klicken Sie, um diese Sprache auszuwählen."
+remove_personal_description = "Entfernen Sie Ihre persönliche Sprachauswahl."
+no_controls = "Für Sie sind keine Spracheinstellungen verfügbar."
+command = "Befehl: {command}"
+selected = "ausgewählt"
+all-volmit-plugins = "Alle Volmit-Plugins"
+
+[language.error]
+stopping = "Sprachauswahl ist nicht verfügbar, während das Plugin stoppt."
+editor-player-only = "Öffnen Sie den Spracheditor im Spiel."
+no-providers = "Es sind keine Volmit-Sprachanbieter verfügbar."
+numeric-page = "Gib die Seitennummer als Zahl ein."
+personal-player-only = "Die Spracheinstellungen der Spieler müssen im Spiel ausgewählt werden."
+personal-permission = "Sie haben keine Berechtigung, Ihre Sprache auszuwählen."
+plugin-personal-permission = "Du darfst deine Sprache für {plugin} nicht ändern."
+plugin-server-permission = "Du darfst die Serversprache für {plugin} nicht ändern."
+server-locale-required = "Wähle einen Sprachcode wie en_US als Serverstandard."
+unavailable-for-all = "Die Sprache {locale} ist nicht für alle ausgewählten Plugins verfügbar."
+
+[language.usage]
+editor = "Syntax: /{command} language server edit [locale]"
+selection = "Syntax: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "Syntax: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "Sprache {locale} wird für {target} vorbereitet..."
+save-failed = "{plugin}: Die Sprachauswahl konnte nicht gespeichert werden; prüfe die Serverkonsole."
+english-fallback = "{plugin}: {locale} ist nicht verfügbar; Englisch (en_US) wird verwendet."
+personal-selected = "{plugin}: Deine Sprache ist jetzt {locale}."
+server-selected = "{plugin}: Serversprache ist jetzt {locale}."
+server-default-selected = "{plugin}: Deine Sprache folgt jetzt dem Serverstandard."
+
+[language.editor]
+loading = "Nachrichten für {locale} werden geladen..."
+
+[language.editor.section]
+languages = "Sprachen"
+search = "Suche"
+search-title = "{locale} / Suche"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "Suche nach Nachrichtenschlüssel oder Text. Gib cancel ein, um zurückzukehren."
+value = "Gib im Chat einen neuen Wert für {key} ein."
+current = "Aktueller Wert: {value}"
+variables = "Variablen: {variables}"
+guidance = "Verwende \\n für Zeilenumbrüche und \\\\ für einen Backslash oder gib cancel ein, um zurückzukehren."
+
+[language.editor.input]
+expired = "Die Eingabe im Spracheditor ist abgelaufen."
+too-long = "Die Eingabe darf höchstens {maximum} Zeichen enthalten."
+unable-to-save = "Speichern fehlgeschlagen: {reason}"
+
+[language.editor.navigation]
+back = "&eZurück&r"
+close = "&cSchließen&r"
+previous-page = "&eVorherige Seite&r"
+next-page = "&eNächste Seite&r"
+
+[language.editor.search]
+messages = "Nachrichten durchsuchen"
+messages-lore = "Klicken, um alle Nachrichten zu durchsuchen."
+clear = "Suche zurücksetzen"
+
+[language.editor.message]
+current-value = "&7Aktueller Wert:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7Klicken, um eine Pluralform zu bearbeiten.&r"
+edit-lines = "&7Klicken, um einzelne Zeilen zu bearbeiten.&r"
+edit-chat = "&7Klicken, um im Chat zu bearbeiten.&r"
+
+[language.editor.locale]
+open = "&8Klicken, um diese Sprache zu öffnen.&r"
+
+[language.editor.category]
+message-count = "&7{count} Nachrichten&r"
+open = "&8Klicken, um diese Kategorie zu öffnen.&r"
+
+[language.editor.error]
+no-permission = "Du darfst die Sprachdateien von {plugin} nicht bearbeiten."
+unable-to-edit = "Bearbeiten fehlgeschlagen: {reason}"
+
+[language.editor.saved]
+summary = "{locale} gespeichert. Die Sprachauswahl bleibt unverändert."
+change = "{key}: „{before}“ wurde in „{after}“ geändert."
+
+[language.editor.part]
+line = "Zeile {line}"
+
+[language.editor.value]
+none = "Keine"
+empty = "(leer)"

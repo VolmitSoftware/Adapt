@@ -1,4 +1,134 @@
-# Adapt language overlay: fi_FI
+# Adapt — fi_FI
+#
+# === Tiedoston muokkaus ===
+# plugins/Adapt/languages/fi_FI.toml
+# Voit muokata tätä tiedostoa suoraan. Paikalliset muutokset säilyvät; puuttuvat tai virheelliset kohdat käyttävät sisäänrakennettua englantia.
+# /adapt language server edit fi_FI
+#
+# === Etuliite ===
+# {prefix} on tilastoarvon etuliite. Komentojen etuliitteet lisätään automaattisesti.
+#
+# === Muotoilu ===
+# MiniMessage: <green>...</green>.
+# &0-&f, &k-&r, &#RRGGBB; automatic-gradients.
+#
+# === Muuttujat ===
+# Säilytä muuttujien nimet ja käytä vain kunkin viestin omia muuttujia.
+#   {adaptation}  Mukautuksen nimi
+#   {adaptations}  Sopivien mukautusten nimet
+#   {after}  Arvo muokkauksen jälkeen
+#   {amount}  Rahan, tiedon tai kokemuksen määrä
+#   {argument}  Odottamaton komennon argumentti
+#   {available}  Käytettävissä oleva voima tai tieto
+#   {before}  Arvo ennen muokkausta
+#   {benefit}  Mutaation hyödyn kuvaus
+#   {block}  Edistymisohjeessa mainittu lohko
+#   {bonus}  Mestariteosbonuksen määrä
+#   {burden}  Mutaation haitan kuvaus
+#   {category}  Asetusluokan nimi
+#   {chance}  Aktivoitumisen todennäköisyys
+#   {combo}  Instant Recallin laukaisinyhdistelmä
+#   {command}  Komennon polku
+#   {control}  Mutaation käyttöohje
+#   {cost}  Tietokustannus
+#   {count}  Esineiden, tiedostojen tai viestien määrä
+#   {damage}  Lisävahingon määrä
+#   {danger}  Porttimatkan vaaravaroitus
+#   {deepCharge}  Varastoidun Deep Chargen määrä
+#   {deepblood}  Liitetyn Deepblood-työkalun tila
+#   {description}  Edistymisen kuvaus
+#   {direction}  Rakennelman suunta
+#   {distance}  Etäisyys rakennelmaan lohkoina
+#   {domain}  Mutaation taitoryhmän nimi
+#   {duration}  Muotoiltu kesto tai palautumisaika
+#   {effect}  Taikajuoman vaikutuksen nimi
+#   {enchantment}  Lumouksen nimi
+#   {environment}  Kykyyn vaikuttava ympäristö
+#   {error}  Asetusvirheen tiedot
+#   {experience}  Palloon varastoitu kokemus
+#   {file}  Asetustiedoston nimi
+#   {first}  Ensimmäinen taitoryhmä tai laukaisimen osa
+#   {from}  Sivun ensimmäisen kohdan numero
+#   {group}  Kielieditorin luokka
+#   {hits}  Onnistuneet välimuistihaut
+#   {instruction}  Edistymisen avaamisohje
+#   {interaction}  Yhteisvaikutus toisen mutaatiopaikan kanssa
+#   {key}  Viestin tai asetuksen avain
+#   {knowledge}  Tiedon määrä
+#   {label}  Asetuksen tai tilaston nimi
+#   {level}  Taidon, mukautuksen tai vaikutuksen taso
+#   {levels}  Säästetyt kokemustasot
+#   {line}  Kieliviestin rivinumero
+#   {locale}  Kielikoodi
+#   {masterwork}  Liitetyn Masterwork-varusteen tila
+#   {maximum}  Suurin sallittu arvo tai voimaraja
+#   {message}  Tilaviesti ennen palautumistietoja
+#   {microsPerCheck}  Mikrosekuntia kyvyn tarkistusta kohti
+#   {millisPerSecond}  Kykyjen tarkistuksen millisekunnit sekunnissa
+#   {minimum}  Pienin sallittu arvo
+#   {misses}  Välimuistihaut ilman tallennettua tulosta
+#   {multiplier}  Kokemusbonuksen kerroin
+#   {mutation}  Mutaation nimi
+#   {needed}  Tarvittava voima tai tieto
+#   {newValue}  Uusi asetusarvo
+#   {nextLevel}  Seuraavan taitotason esitys
+#   {oldValue}  Edellinen asetusarvo
+#   {other}  Ristiriitaisen mutaation nimi
+#   {page}  Nykyisen sivun numero
+#   {pages}  Sivujen kokonaismäärä
+#   {parameter}  Komennon parametrin nimi
+#   {parameters}  Ohitetut komennon parametrit
+#   {particle}  Partikkelityypin nimi
+#   {path}  Asetuksen polku
+#   {perMinute}  Kykyjen tarkistuksia minuutissa
+#   {perSecond}  Kykyjen tarkistuksia sekunnissa
+#   {percent}  Aikabudjetin tai kokemusbonuksen prosentti
+#   {permission}  Vaadittu käyttöoikeus
+#   {personal}  Henkilökohtainen kielikoodi
+#   {player}  Toiminnon vastaanottava pelaaja
+#   {plugin}  Lisäosan nimi
+#   {power}  Voiman määrä tai kulutus
+#   {prefix}  Tilastoarvon etuliite
+#   {progress}  Taidon edistymisen esitys
+#   {range}  Etsinnän tai kyvyn kantama lohkoina
+#   {ratio}  Välimuistin osumasuhde
+#   {reason}  Mutaation tilan tai editorivirheen selitys
+#   {refund}  Poisoppimisesta palautettava tieto
+#   {remaining}  Pois jätettyjen asetusmuutosten määrä
+#   {result}  Mutaation vaikutus tasolla 200
+#   {rootCharge}  Varastoidun Root Chargen määrä
+#   {second}  Toinen taitoryhmä tai laukaisimen osa
+#   {seconds}  Kesto sekunteina
+#   {separator}  Tilastoarvon ja nimen erotin
+#   {skill}  Taidon nimi
+#   {slot}  Mutaatiopaikan numero
+#   {slots}  Repun paikkojen määrä
+#   {stacks}  Vaikutuskasautumat tai repun pinokapasiteetti
+#   {state}  Käytössäolotila tai mutaatiopaikan tila
+#   {steps}  Valmiit valmistus-, panemis- tai lumousvaiheet
+#   {strength}  Lisätty panssarin vahvuus
+#   {structure}  Löydetyn rakennelman nimi
+#   {surface}  Laukaisimeen vaikuttava pinta
+#   {symbol}  Rakennelman ilmaisinsymboli
+#   {target}  Kohdepelaaja tai kielilisäosa
+#   {tell}  Mutaation näkyvän vaikutuksen kuvaus
+#   {temperbound}  Liitetyn Temperbound-varusteen tila
+#   {timestamp}  Asetusarkiston aikaleima
+#   {to}  Sivun viimeisen kohdan numero
+#   {total}  Kohtien tai paikkojen kokonaismäärä
+#   {trigger}  Kyvyn aktivoitumisehto
+#   {trophy}  Liitetyn pokaalin tila
+#   {type}  Odotettu parametrin tai arvon tyyppi
+#   {usage}  Komennon syntaksi
+#   {used}  Käytetty voima tai varatut paikat
+#   {value}  Nykyinen asetus- tai tilastoarvo
+#   {values}  Sallitut asetusarvot
+#   {variables}  Viestin sallitut paikkamerkit
+#   {window}  Suorituskyvyn mittausjakso millisekunteina
+#   {world}  Maailman nimi
+#   {x}  Kohteen X-koordinaatti
+#   {xp}  Kokemuksen määrä
+#   {z}  Kohteen Z-koordinaatti
 
 [mutation.domain]
 body = "Keho"
@@ -4779,10 +4909,10 @@ click_to_learn = "Klikkaa oppiaksesi {adaptation}"
 knowledge_shortage = "(Sinulla on vain {knowledge} Tietoa saatavilla)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} Virran tyhjennys"
+vault_unavailable_fallback = "Vault-talous ei ole käytettävissä — oppiminen pelkällä tiedolla toimii edelleen."
+vault_insufficient_funds = "Pelaajalla ei ole tarpeeksi Vault-talouden valuuttaa."
+vault_transaction_failed = "Vault-tapahtuma epäonnistui; edistymistä ei muutettu."
+power_drain = "Voiman kulutus: {power}"
 
 [gui.mutations]
 experimental_mutations = "Kokeelliset mutaatiot"
@@ -5385,7 +5515,6 @@ msg_range = "Se kontti on liian kaukana."
 msg_same = "- Et voi yhdistää konttia itseensä."
 msg_stale = "Säiliötä ei enää ole saatavilla."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} {skill} Tieto"
 knowledge_status = "{amount} {skill} Tieto"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP ajaksi {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "Tietosi on poistettu."
 no_description_provided = "Kuvausta ei ole toimitettu"
-config_hotloaded = "&7[&4Mukaudu&7]: &aMukauta kuumalatattu: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4Mukaudu&7]: &aMukauta kuumalatattu: &f[{file}] &7[{remaining} Muut muutokset jätetty pois]"
+config_hotloaded = "&7[&4Adapt&7]: &aAdapt-asetus ladattu uudelleen: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &aAdapt-asetus ladattu uudelleen: &f[{file}] &7[{remaining} lisämuutosta jätetty pois]"
 
 [seaborn.oxygen]
 name = "Orgaaninen happitankki"
@@ -6201,6 +6330,8 @@ lore3 = "Taistelulukko"
 lore = ["Max Imeytyminen", "Imeytyminen pulssia kohti", "Taistelulukko"]
 
 [command.help]
+debug_dump = "Luo diagnostiikkaraportti ja lähetä se halutessasi"
+debug_upload = "Lähetä raportti mclo.gs-palveluun"
 adapt_debug_command = "Adapt Vianetsintäkomento"
 adapt_skills_adaptations_and_admin_tools = "Adapt taidot, mukautukset ja admin työkalut"
 adaptation_level_to_apply = "Sovellettava mukautustaso"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "Ei muutosta: {adaptation} on jo tasolla {level}."
 power_insufficient = "Tehoa ei ole riittävästi. Tarve {needed}, on {available}."
 knowledge_insufficient = "Ei riittävästi tietoa {skill}. Tarve {needed}, on {available}."
 knowledge_spend_failed = "Tarvittavan tiedon käyttäminen epäonnistui ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "Pelaajalla ei ole tarpeeksi Vault-talouden valuuttaa."
+vault_transaction_failed = "Vault-tapahtuma epäonnistui; edistymistä ei muutettu."
 set_adaptation_level = "Aseta {player} {adaptation} Tasolle {level}."
 permanent_adaptation_lower = "{adaptation} on pysyvä eikä sitä voida laskea ilman force=true."
 adapt_server_not_ready = "Adapt palvelin ei ole vielä valmis. Yritä uudelleen muutamassa sekunnissa."
@@ -6350,8 +6481,113 @@ parameters_ignored = "Parametrit, joita ei oteta huomioon: {parameters}"
 no_description = "Ei kuvausta"
 perf_ability_checks = "kykyjä koskevat tarkastukset: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "onnistuneet tarkastukset: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "Aktiivisen tason välimuistin osumasuhde: {ratio} ({hits} Osuma, {misses} neiti)"
+perf_cache_hit_ratio = "Aktiivitasojen välimuistin osumasuhde: {ratio} ({hits} osumaa, {misses} ohi)"
 perf_timing_budget = "Kyky tarkistaa ajoitusbudjetti: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "Ticker-ikkuna: {window}Neiti"
 perf_no_metrics = "Ei rastin mittareita vielä kerätty."
 perf_reset = "Ticker ja kyky telemetria nollataan."
+
+[language.menu]
+your_language = "Oma kielesi"
+reset_your_language = "Palauta oma kielesi"
+server_default = "Palvelimen oletuskieli"
+edit_messages = "Muokkaa kieliviestejä"
+use_server_default = "Käytä palvelimen oletuskieltä"
+current = "Nykyinen: {locale}"
+current_with_personal = "Nykyinen: {locale} (Omasi: {personal})"
+your_description = "Vaihda vain näkemäsi viestit."
+reset_description = "Käytä palvelimen oletuskieltä."
+server_description = "Vaihda palvelimen oletuskieli."
+edit_description = "Avaa kielikohtainen viestieditori."
+select_description = "Napsauta valitaksesi tämän kielen."
+remove_personal_description = "Poista henkilökohtainen kielivalintasi."
+no_controls = "Sinulla ei ole käytettävissä kieliasetuksia."
+command = "Komento: {command}"
+selected = "valittu"
+all-volmit-plugins = "Kaikki Volmit-lisäosat"
+
+[language.error]
+stopping = "Kielivalintaa ei ole saatavilla, kun plugin pysähtyy."
+editor-player-only = "Avaa kielieditori pelissä."
+no-providers = "Yhtään Volmit-kielipalvelua ei ole saatavilla."
+numeric-page = "Anna sivunumero numerona."
+personal-player-only = "Pelaajan kieliasetukset on valittava pelissä."
+personal-permission = "Sinulla ei ole lupaa valita kieltäsi."
+plugin-personal-permission = "Sinulla ei ole oikeutta valita kieltäsi lisäosalle {plugin}."
+plugin-server-permission = "Sinulla ei ole oikeutta muuttaa lisäosan {plugin} palvelinkieltä."
+server-locale-required = "Valitse palvelimen oletuskieleksi kielikoodi, kuten en_US."
+unavailable-for-all = "Kieli {locale} ei ole saatavilla kaikille valituille lisäosille."
+
+[language.usage]
+editor = "Käyttö: /{command} language server edit [locale]"
+selection = "Käyttö: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "Käyttö: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "Valmistellaan kieltä {locale} kohteelle {target}..."
+save-failed = "{plugin}: kielivalintaa ei voitu tallentaa; tarkista palvelinkonsoli."
+english-fallback = "{plugin}: {locale} ei ole saatavilla; käytetään englantia (en_US)."
+personal-selected = "{plugin}: kieli on nyt {locale}."
+server-selected = "{plugin}: palvelinkieli on nyt {locale}."
+server-default-selected = "{plugin}: kielesi noudattaa nyt palvelimen oletuskieltä."
+
+[language.editor]
+loading = "Ladataan kielen {locale} viestejä..."
+
+[language.editor.section]
+languages = "Kielet"
+search = "Etsi"
+search-title = "{locale} / Etsi"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "Hae viestin avainta tai tekstiä. Palaa kirjoittamalla cancel."
+value = "Kirjoita avaimen {key} uusi arvo chattiin."
+current = "Nykyinen arvo: {value}"
+variables = "Muuttujat: {variables}"
+guidance = "Käytä \\n rivinvaihtoon ja \\\\ kenoviivaan tai palaa kirjoittamalla cancel."
+
+[language.editor.input]
+expired = "Kielieditorin syöttöaika päättyi."
+too-long = "Syöte saa sisältää enintään {maximum} merkkiä."
+unable-to-save = "Tallennus epäonnistui: {reason}"
+
+[language.editor.navigation]
+back = "&eTakaisin&r"
+close = "&cSulje&r"
+previous-page = "&eEdellinen sivu&r"
+next-page = "&eSeuraava sivu&r"
+
+[language.editor.search]
+messages = "Hae viestejä"
+messages-lore = "Napsauta hakeaksesi kaikista viesteistä."
+clear = "Tyhjennä haku"
+
+[language.editor.message]
+current-value = "&7Nykyinen arvo:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7Muokkaa monikkomuotoa napsauttamalla.&r"
+edit-lines = "&7Muokkaa yksittäisiä rivejä napsauttamalla.&r"
+edit-chat = "&7Muokkaa chatissa napsauttamalla.&r"
+
+[language.editor.locale]
+open = "&8Avaa tämä kieli napsauttamalla.&r"
+
+[language.editor.category]
+message-count = "&7{count} viestiä&r"
+open = "&8Avaa tämä luokka napsauttamalla.&r"
+
+[language.editor.error]
+no-permission = "Sinulla ei ole oikeutta muokata lisäosan {plugin} kieliä."
+unable-to-edit = "Muokkaus epäonnistui: {reason}"
+
+[language.editor.saved]
+summary = "{locale} tallennettu. Kielivalinnat säilyvät ennallaan."
+change = "{key}: ”{before}” muutettiin arvoon ”{after}”."
+
+[language.editor.part]
+line = "Rivi {line}"
+
+[language.editor.value]
+none = "Ei ole"
+empty = "(tyhjä)"

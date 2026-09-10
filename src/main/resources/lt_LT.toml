@@ -1,4 +1,134 @@
-# Adapt language overlay: lt_LT
+# Adapt — lt_LT
+#
+# === Failo redagavimas ===
+# plugins/Adapt/languages/lt_LT.toml
+# Šį failą galima redaguoti tiesiogiai. Vietiniai pakeitimai išsaugomi; trūkstamiems ar netinkamiems įrašams naudojama integruota anglų kalba.
+# /adapt language server edit lt_LT
+#
+# === Priešdėlis ===
+# {prefix} yra statistinės reikšmės priešdėlis. Komandų priešdėliai pridedami automatiškai.
+#
+# === Formatavimas ===
+# MiniMessage: <green>...</green>.
+# &0-&f, &k-&r, &#RRGGBB; automatic-gradients.
+#
+# === Kintamieji ===
+# Nekeiskite kintamųjų pavadinimų ir naudokite tik konkrečiame pranešime esančius kintamuosius.
+#   {adaptation}  Adaptacijos pavadinimas
+#   {adaptations}  Tinkančių adaptacijų pavadinimai
+#   {after}  Reikšmė po redagavimo
+#   {amount}  Pinigų, žinių arba patirties kiekis
+#   {argument}  Netikėtas komandos argumentas
+#   {available}  Turima galia arba žinios
+#   {before}  Reikšmė prieš redagavimą
+#   {benefit}  Mutacijos privalumo aprašymas
+#   {block}  Pasiekimo instrukcijoje nurodytas blokas
+#   {bonus}  Masterwork premijos dydis
+#   {burden}  Mutacijos trūkumo aprašymas
+#   {category}  Konfigūracijos kategorijos pavadinimas
+#   {chance}  Suveikimo tikimybė
+#   {combo}  Instant Recall sužadinimo derinys
+#   {command}  Komandos kelias
+#   {control}  Mutacijos naudojimo instrukcija
+#   {cost}  Žinių kaina
+#   {count}  Daiktų, failų arba pranešimų skaičius
+#   {damage}  Papildomos žalos dydis
+#   {danger}  Kelionės per vartus pavojaus įspėjimas
+#   {deepCharge}  Sukauptas Deep Charge kiekis
+#   {deepblood}  Susieto Deepblood įrankio būsena
+#   {description}  Pasiekimo aprašymas
+#   {direction}  Kryptis į statinį
+#   {distance}  Atstumas iki statinio blokais
+#   {domain}  Mutacijos įgūdžių grupės pavadinimas
+#   {duration}  Suformatuota trukmė arba laukimo laikas
+#   {effect}  Gėrimo efekto pavadinimas
+#   {enchantment}  Užkeikimo pavadinimas
+#   {environment}  Gebėjimą veikianti aplinka
+#   {error}  Konfigūracijos klaidos informacija
+#   {experience}  Rutulyje saugoma patirtis
+#   {file}  Konfigūracijos failo pavadinimas
+#   {first}  Pirma įgūdžių grupė arba sužadinimo dalis
+#   {from}  Pirmo įrašo puslapyje numeris
+#   {group}  Kalbos rengyklės kategorija
+#   {hits}  Sėkmingos podėlio paieškos
+#   {instruction}  Pasiekimo atrakinimo instrukcija
+#   {interaction}  Sąveika su kitu mutacijos lizdu
+#   {key}  Pranešimo arba nustatymo raktas
+#   {knowledge}  Žinių kiekis
+#   {label}  Nustatymo arba statistikos žyma
+#   {level}  Įgūdžio, adaptacijos arba efekto lygis
+#   {levels}  Sutaupyti patirties lygiai
+#   {line}  Kalbos pranešimo eilutės numeris
+#   {locale}  Kalbos kodas
+#   {masterwork}  Susietos Masterwork įrangos būsena
+#   {maximum}  Didžiausia leidžiama reikšmė arba galios riba
+#   {message}  Būsenos pranešimas prieš laukimo informaciją
+#   {microsPerCheck}  Mikrosekundės vienai gebėjimo patikrai
+#   {millisPerSecond}  Gebėjimų patikrų milisekundės per sekundę
+#   {minimum}  Mažiausia leidžiama reikšmė
+#   {misses}  Podėlio paieškos be išsaugoto rezultato
+#   {multiplier}  Patirties premijos daugiklis
+#   {mutation}  Mutacijos pavadinimas
+#   {needed}  Reikalinga galia arba žinios
+#   {newValue}  Nauja nustatymo reikšmė
+#   {nextLevel}  Kito įgūdžio lygio rodinys
+#   {oldValue}  Ankstesnė nustatymo reikšmė
+#   {other}  Nesuderinamos mutacijos pavadinimas
+#   {page}  Dabartinio puslapio numeris
+#   {pages}  Bendras puslapių skaičius
+#   {parameter}  Komandos parametro pavadinimas
+#   {parameters}  Nepaisyti komandos parametrai
+#   {particle}  Dalelės tipo pavadinimas
+#   {path}  Nustatymo kelias
+#   {perMinute}  Gebėjimų patikros per minutę
+#   {perSecond}  Gebėjimų patikros per sekundę
+#   {percent}  Laiko biudžeto arba patirties premijos procentas
+#   {permission}  Reikalingas leidimas
+#   {personal}  Asmeninės kalbos kodas
+#   {player}  Veiksmo gavėjas žaidėjas
+#   {plugin}  Papildinio pavadinimas
+#   {power}  Galios kiekis arba sąnaudos
+#   {prefix}  Statistikos reikšmės priešdėlis
+#   {progress}  Įgūdžio pažangos rodinys
+#   {range}  Paieškos arba gebėjimo nuotolis blokais
+#   {ratio}  Podėlio pataikymų santykis
+#   {reason}  Mutacijos būsenos arba rengyklės klaidos paaiškinimas
+#   {refund}  Atsisakant adaptacijos grąžinamos žinios
+#   {remaining}  Praleistų nustatymų pakeitimų skaičius
+#   {result}  Mutacijos poveikis 200 lygiu
+#   {rootCharge}  Sukauptas Root Charge kiekis
+#   {second}  Antra įgūdžių grupė arba sužadinimo dalis
+#   {seconds}  Trukmė sekundėmis
+#   {separator}  Skirtukas tarp statistikos reikšmės ir žymos
+#   {skill}  Įgūdžio pavadinimas
+#   {slot}  Mutacijos lizdo numeris
+#   {slots}  Kuprinės lizdų skaičius
+#   {stacks}  Efekto sankaupos arba kuprinės krūvų talpa
+#   {state}  Įjungimo arba mutacijos lizdo būsena
+#   {steps}  Atlikti gamybos, virimo arba užkeikimo žingsniai
+#   {strength}  Papildomas šarvų stiprumas
+#   {structure}  Rasto statinio pavadinimas
+#   {surface}  Sužadinimą veikiantis paviršius
+#   {symbol}  Statinio indikatoriaus simbolis
+#   {target}  Tikslinis žaidėjas arba kalbos papildinys
+#   {tell}  Matomo mutacijos poveikio aprašymas
+#   {temperbound}  Susietos Temperbound įrangos būsena
+#   {timestamp}  Nustatymų archyvo laiko žyma
+#   {to}  Paskutinio įrašo puslapyje numeris
+#   {total}  Bendras įrašų arba lizdų skaičius
+#   {trigger}  Gebėjimo suveikimo sąlyga
+#   {trophy}  Susieto trofėjaus būsena
+#   {type}  Laukiamas parametro arba reikšmės tipas
+#   {usage}  Komandos sintaksė
+#   {used}  Panaudota galia arba užimti lizdai
+#   {value}  Dabartinė nustatymo arba statistikos reikšmė
+#   {values}  Leidžiamos nustatymo reikšmės
+#   {variables}  Leidžiami pranešimo kintamieji
+#   {window}  Našumo matavimo langas milisekundėmis
+#   {world}  Pasaulio pavadinimas
+#   {x}  Tikslo X koordinatė
+#   {xp}  Patirties kiekis
+#   {z}  Tikslo Z koordinatė
 
 [mutation.domain]
 body = "Kūnas"
@@ -4189,7 +4319,7 @@ lore1 = "Pasyvus Sarvai"
 lore2 = "Remiantis salia esancio bloko kietumu"
 lore3 = "Sarvu Stiprumas:"
 passive = "Pasyvūs šarvai, priklausantys nuo netoliese esančių blokų kietumo"
-strength = "Ginklų stiprumas: +{strength}"
+strength = "Šarvų stiprumas: +{strength}"
 lore = ["Pasyvus Sarvai", "Remiantis salia esancio bloko kietumu", "Sarvu Stiprumas:"]
 
 [discovery.unity]
@@ -4779,10 +4909,10 @@ click_to_learn = "Spustelėkite, kad išmoktumėte {adaptation}"
 knowledge_shortage = "(Turite tik {knowledge} žinių)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} Galios drenažas"
+vault_unavailable_fallback = "Vault ekonomika nepasiekiama — mokytis naudojant vien žinias vis dar galima."
+vault_insufficient_funds = "Žaidėjui nepakanka Vault ekonomikos valiutos."
+vault_transaction_failed = "Vault operacija nepavyko; pažanga nepakeista."
+power_drain = "Galios sąnaudos: {power}"
 
 [gui.mutations]
 experimental_mutations = "Eksperimentinės mutacijos"
@@ -5385,7 +5515,6 @@ msg_range = "Tas konteineris per toli nuo jo."
 msg_same = "Jūs negalite susieti konteinerio su savimi."
 msg_stale = "Gaudyto konteinerio nebėra."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} {skill} žinių"
 knowledge_status = "{amount} {skill} Žinios"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP yra {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "Jūsų duomenys ištrinti."
 no_description_provided = "Nepateiktas aprašymas"
-config_hotloaded = "&7[&4Adapt&7]: &aAdapt pakeitimas įkeltas iškart: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4Pritaikyti&7]: &aPritaikyti įkeltą: &f[{file}] &7[{remaining} Papildomi neatlikti pakeitimai]"
+config_hotloaded = "&7[&4Adapt&7]: &aAdapt nustatymai įkelti iš naujo: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &aAdapt nustatymai įkelti iš naujo: &f[{file}] &7[{remaining} papildomų pakeitimų nerodoma]"
 
 [seaborn.oxygen]
 name = "Organinis Deguonies Bakas"
@@ -6201,6 +6330,8 @@ lore3 = "Kovos uždarymas"
 lore = ["Max Absorbcija", "Absorbcija per Pulsą", "Kovos uždarymas"]
 
 [command.help]
+debug_dump = "Sukurti diagnostikos ataskaitą ir pasirinktinai ją įkelti"
+debug_upload = "Įkelti ataskaitą į mclo.gs"
 adapt_debug_command = "Adapt Derinimo komanda"
 adapt_skills_adaptations_and_admin_tools = "Adapt įgūdžiai, adaptacijos ir admin priemonės"
 adaptation_level_to_apply = "Taikomas pritaikymo lygis"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "Nekeisti: {adaptation} yra jau lygio {level}."
 power_insufficient = "Nepakankama galia. Reikia {needed}, turi {available}."
 knowledge_insufficient = "Įgūdyje {skill} nepakanka žinių. Reikia {needed}, turima {available}."
 knowledge_spend_failed = "Nepavyko išleisti reikiamų žinių ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "Žaidėjui nepakanka Vault ekonomikos valiutos."
+vault_transaction_failed = "Vault operacija nepavyko; pažanga nepakeista."
 set_adaptation_level = "Nustatyti {player} {adaptation} iki lygio {level}."
 permanent_adaptation_lower = "{adaptation} yra nuolatinis ir negali būti sumažintas be force=true."
 adapt_server_not_ready = "Adapt serveris dar neparuoštas. Pabandykite dar kartą po kelių sekundžių."
@@ -6350,8 +6481,113 @@ parameters_ignored = "Nepaisyti parametrai: {parameters}"
 no_description = "Nėra aprašymo"
 perf_ability_checks = "gebėjimų patikrinimai: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "sėkmingi patikrinimai: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "Aktyviojo lygio talpyklos hitų santykis: {ratio} ({hits} Pataikė, {misses} praleisti)"
+perf_cache_hit_ratio = "Aktyvių lygių podėlio pataikymų santykis: {ratio} ({hits} pataikymų, {misses} nerastų rezultatų)"
 perf_timing_budget = "Galimybių patikrinti laiką biudžetas: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "Bilieto langas: {window}ms"
 perf_no_metrics = "Nėra erkių metrikos surinkta dar."
 perf_reset = "Bilietų ir galimybių telemetrijos atnaujinimas."
+
+[language.menu]
+your_language = "Jūsų kalba"
+reset_your_language = "Atkurti jūsų kalbą"
+server_default = "Numatytoji serverio kalba"
+edit_messages = "Redaguoti kalbos pranešimus"
+use_server_default = "Naudoti numatytąją serverio kalbą"
+current = "Dabartinė: {locale}"
+current_with_personal = "Dabartinė: {locale} (Jūsų: {personal})"
+your_description = "Keiskite tik jums rodomus pranešimus."
+reset_description = "Naudokite numatytąją serverio kalbą."
+server_description = "Keiskite numatytąją serverio kalbą."
+edit_description = "Atverkite kiekvienos kalbos pranešimų redaktorių."
+select_description = "Spustelėkite, kad pasirinktumėte šią kalbą."
+remove_personal_description = "Pašalinkite asmeninį kalbos pasirinkimą."
+no_controls = "Jums nepasiekiami kalbos nustatymai."
+command = "Komanda: {command}"
+selected = "pasirinkta"
+all-volmit-plugins = "Visi Volmit papildiniai"
+
+[language.error]
+stopping = "Stabdant papildinį kalbos pasirinkimas nepasiekiamas."
+editor-player-only = "Atverti kalbos rengyklę žaidime."
+no-providers = "Nėra prieinamų Volmit kalbų teikėjų."
+numeric-page = "Įveskite puslapio numerį."
+personal-player-only = "Žaidžiant turi būti pasirinkti žaidėjų kalbos nustatymai."
+personal-permission = "Jūs neturite leidimo pasirinkti savo kalbą."
+plugin-personal-permission = "Neturite leidimo pasirinkti savo kalbos papildiniui {plugin}."
+plugin-server-permission = "Neturite leidimo keisti papildinio {plugin} serverio kalbos."
+server-locale-required = "Pasirinkite numatytosios serverio kalbos kodą, pavyzdžiui, en_US."
+unavailable-for-all = "Kalba {locale} prieinama ne visiems pasirinktiems papildiniams."
+
+[language.usage]
+editor = "Naudojimas: /{command} language server edit [locale]"
+selection = "Naudojimas: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "Naudojimas: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "Ruošiama kalba {locale} papildiniui {target}..."
+save-failed = "{plugin}: nepavyko išsaugoti kalbos pasirinkimo; patikrinkite serverio konsolę."
+english-fallback = "{plugin}: {locale} neprieinama; naudojama anglų kalba (en_US)."
+personal-selected = "{plugin}: dabar jūsų kalba {locale}."
+server-selected = "{plugin}: serverio kalba yra dabar {locale}."
+server-default-selected = "{plugin}: jūsų kalba dabar atitinka numatytąją serverio kalbą."
+
+[language.editor]
+loading = "Įkeliami kalbos {locale} pranešimai..."
+
+[language.editor.section]
+languages = "Kalbos"
+search = "Ieškoti"
+search-title = "{locale} / Ieškoti"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "Ieškokite pranešimo rakto arba teksto. Norėdami grįžti, įveskite cancel."
+value = "Pokalbyje įveskite naują rakto {key} reikšmę."
+current = "Dabartinė reikšmė: {value}"
+variables = "Kintamieji: {variables}"
+guidance = "Naudokite \\n naujai eilutei, \\\\ atvirkštiniam pasvirajam brūkšniui arba įveskite cancel, kad grįžtumėte."
+
+[language.editor.input]
+expired = "Baigėsi kalbos rengyklės įvesties laikas."
+too-long = "Įvestyje gali būti ne daugiau kaip {maximum} simbolių."
+unable-to-save = "Nepavyko išsaugoti: {reason}"
+
+[language.editor.navigation]
+back = "&eAtgal&r"
+close = "&cUždaryti&r"
+previous-page = "&eAnkstesnis puslapis&r"
+next-page = "&eKitas puslapis&r"
+
+[language.editor.search]
+messages = "Ieškoti pranešimų"
+messages-lore = "Spustelėkite norėdami ieškoti visuose pranešimuose."
+clear = "Išvalyti paiešką"
+
+[language.editor.message]
+current-value = "&7Dabartinė reikšmė:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7Spustelėkite norėdami redaguoti daugiskaitos formą.&r"
+edit-lines = "&7Spustelėkite norėdami redaguoti atskiras eilutes.&r"
+edit-chat = "&7Spustelėkite norėdami redaguoti pokalbyje.&r"
+
+[language.editor.locale]
+open = "&8Spauskite norėdami atverti šią kalbą.&r"
+
+[language.editor.category]
+message-count = "&7{count} pranešimai&r"
+open = "&8Spustelėkite norėdami atverti šią kategoriją.&r"
+
+[language.editor.error]
+no-permission = "Neturite leidimo redaguoti papildinio {plugin} kalbų."
+unable-to-edit = "Nepavyko redaguoti: {reason}"
+
+[language.editor.saved]
+summary = "{locale} išsaugota. Kalbų pasirinkimai nepakeisti."
+change = "{key}: „{before}“ pakeista į „{after}“."
+
+[language.editor.part]
+line = "Eilutė {line}"
+
+[language.editor.value]
+none = "Nėra"
+empty = "(tuščia)"

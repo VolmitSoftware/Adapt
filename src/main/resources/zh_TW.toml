@@ -1,4 +1,134 @@
-# Adapt language overlay: zh_TW
+# Adapt — zh_TW
+#
+# === 編輯檔案 ===
+# plugins/Adapt/languages/zh_TW.toml
+# 可直接編輯此檔案。本機修改會保留；缺少或無效的項目使用內建英文文字。
+# /adapt language server edit zh_TW
+#
+# === 前綴 ===
+# {prefix} 是統計值的前綴。指令前綴會自動加入。
+#
+# === 格式 ===
+# MiniMessage: <green>...</green>.
+# &0-&f 為顏色，&k-&r 為格式，&#RRGGBB 為十六進位顏色；automatic-gradients 表示自動漸層。
+#
+# === 變數 ===
+# 請勿變更變數名稱，僅使用各訊息中原有的變數。
+#   {adaptation}  適應能力名稱
+#   {adaptations}  符合的適應能力名稱
+#   {after}  編輯後的值
+#   {amount}  貨幣、知識或經驗的數量
+#   {argument}  非預期的指令引數
+#   {available}  可用的力量或知識
+#   {before}  編輯前的值
+#   {benefit}  變異益處的說明
+#   {block}  進度指引中指定的方塊
+#   {bonus}  Masterwork 加成數量
+#   {burden}  變異缺點的說明
+#   {category}  設定分類名稱
+#   {chance}  觸發機率
+#   {combo}  Instant Recall 觸發條件組合
+#   {command}  完整指令路徑
+#   {control}  變異使用方法
+#   {cost}  所需知識數量
+#   {count}  項目、檔案或訊息數量
+#   {damage}  額外傷害量
+#   {danger}  通過傳送門時的危險警告
+#   {deepCharge}  已儲存的 Deep Charge 數量
+#   {deepblood}  已綁定的 Deepblood 工具狀態
+#   {description}  進度說明
+#   {direction}  結構所在方向
+#   {distance}  到結構的距離（方塊）
+#   {domain}  變異對應的技能組名稱
+#   {duration}  格式化後的持續時間或冷卻時間
+#   {effect}  藥水效果名稱
+#   {enchantment}  附魔名稱
+#   {environment}  影響能力的環境
+#   {error}  設定錯誤詳細資訊
+#   {experience}  經驗球中儲存的經驗
+#   {file}  設定檔名稱
+#   {first}  第一個技能組或觸發條件組成部分
+#   {from}  頁面中第一個項目的編號
+#   {group}  語言編輯器分類
+#   {hits}  快取命中次數
+#   {instruction}  解鎖進度的指引
+#   {interaction}  與另一變異欄位的互動
+#   {key}  訊息或設定鍵
+#   {knowledge}  知識數量
+#   {label}  設定或統計值的標籤
+#   {level}  技能、適應能力或效果等級
+#   {levels}  節省的經驗等級數量
+#   {line}  語言訊息的行號
+#   {locale}  語言代碼
+#   {masterwork}  已綁定的 Masterwork 裝備狀態
+#   {maximum}  允許的最大值或力量上限
+#   {message}  冷卻時間詳細資訊前的狀態訊息
+#   {microsPerCheck}  每次能力檢查耗時（微秒）
+#   {millisPerSecond}  每秒用於能力檢查的時間（毫秒）
+#   {minimum}  允許的最小值
+#   {misses}  快取未命中次數
+#   {multiplier}  經驗加成倍率
+#   {mutation}  變異名稱
+#   {needed}  所需的力量或知識
+#   {newValue}  新的設定值
+#   {nextLevel}  下一個技能等級的顯示內容
+#   {oldValue}  先前的設定值
+#   {other}  衝突的變異名稱
+#   {page}  目前頁碼
+#   {pages}  總頁數
+#   {parameter}  指令參數名稱
+#   {parameters}  被忽略的指令參數
+#   {particle}  粒子類型名稱
+#   {path}  設定路徑
+#   {perMinute}  每分鐘能力檢查次數
+#   {perSecond}  每秒能力檢查次數
+#   {percent}  耗時預算占比或經驗加成百分比
+#   {permission}  所需權限節點
+#   {personal}  個人語言代碼
+#   {player}  操作所作用的玩家
+#   {plugin}  插件名稱
+#   {power}  力量數量或消耗量
+#   {prefix}  統計值前綴
+#   {progress}  技能進度顯示內容
+#   {range}  搜尋或能力範圍（方塊）
+#   {ratio}  快取命中率
+#   {reason}  變異狀態或編輯器錯誤的說明
+#   {refund}  取消學習時退還的知識
+#   {remaining}  省略顯示的設定變更數量
+#   {result}  200 級時的變異效果
+#   {rootCharge}  已儲存的 Root Charge 數量
+#   {second}  第二個技能組或觸發條件組成部分
+#   {seconds}  時長（秒）
+#   {separator}  統計值與標籤之間的分隔符號
+#   {skill}  技能名稱
+#   {slot}  變異欄位編號
+#   {slots}  背包欄位數量
+#   {stacks}  效果堆疊層數或背包可容納的物品組數
+#   {state}  啟用狀態或變異欄位狀態
+#   {steps}  已完成的合成、釀造或附魔步驟數
+#   {strength}  額外護甲強度
+#   {structure}  已定位的結構名稱
+#   {surface}  影響觸發條件的地表
+#   {symbol}  結構指示符號
+#   {target}  目標玩家或要設定語言的插件
+#   {tell}  可見變異效果的說明
+#   {temperbound}  已綁定的 Temperbound 裝備狀態
+#   {timestamp}  設定封存時間戳記
+#   {to}  頁面中最後一個項目的編號
+#   {total}  項目或欄位總數
+#   {trigger}  能力觸發條件
+#   {trophy}  已綁定的戰利品狀態
+#   {type}  預期的參數或值類型
+#   {usage}  指令語法
+#   {used}  已用力量或占用的欄位數量
+#   {value}  目前設定或統計值
+#   {values}  允許的設定值
+#   {variables}  訊息允許使用的預留位置
+#   {window}  效能測量時間範圍（毫秒）
+#   {world}  世界名稱
+#   {x}  目標 X 座標
+#   {xp}  經驗數量
+#   {z}  目標 Z 座標
 
 [mutation.domain]
 body = "身體"
@@ -4189,7 +4319,7 @@ lore1 = "被動護甲"
 lore2 = "取決於附近方塊硬度"
 lore3 = "護甲強度："
 passive = "被動護甲，數值取決於附近方塊的硬度"
-strength = "裝甲強度: +{strength}"
+strength = "護甲強度：+{strength}"
 lore = ["被動護甲", "取決於附近方塊硬度", "護甲強度："]
 
 [discovery.unity]
@@ -4779,10 +4909,10 @@ click_to_learn = "點擊以學習 {adaptation}"
 knowledge_shortage = "(你只有 {knowledge} 點可用知識)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} 排水溝"
+vault_unavailable_fallback = "Vault 經濟功能無法使用 — 仍可僅使用知識進行學習。"
+vault_insufficient_funds = "玩家的 Vault 經濟餘額不足。"
+vault_transaction_failed = "Vault 交易失敗；進度未變更。"
+power_drain = "力量消耗：{power}"
 
 [gui.mutations]
 experimental_mutations = "實驗性變異"
@@ -5385,7 +5515,6 @@ msg_range = "那個集裝箱太遠了,連不上."
 msg_same = "您無法將容器連線到自己."
 msg_stale = "繳獲的容器已無法使用."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} 點 {skill} 知識"
 knowledge_status = "{amount} {skill} 知識"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP，持續 {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "你的資料已被刪除。"
 no_description_provided = "未提供說明"
-config_hotloaded = "&7[&4Adapt&7]: &aAdapt 已熱載入: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4適應&7]: &a適應熱載: &f[{file}] &7[{remaining} 額外更改省略]"
+config_hotloaded = "&7[&4Adapt&7]: &a已熱重載設定：&f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &a已熱重載設定：&f[{file}] &7[省略了另外 {remaining} 項變更]"
 
 [seaborn.oxygen]
 name = "有機氧氣罐"
@@ -6201,6 +6330,8 @@ lore3 = "作戰封鎖"
 lore = ["最大吸收量", "每脈衝吸收", "作戰封鎖"]
 
 [command.help]
+debug_dump = "建立診斷報告並選擇是否上傳"
+debug_upload = "將報告上傳至 mclo.gs"
 adapt_debug_command = "Adapt 除錯命令"
 adapt_skills_adaptations_and_admin_tools = "Adapt 技能、適應和管理工具"
 adaptation_level_to_apply = "適用的適應水平"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "無變動: {adaptation} 已經處於水平 {level}."
 power_insufficient = "沒有足夠的可用電源. 需求 {needed}, 已經 {available}."
 knowledge_insufficient = "{skill} 的知識不足。需要 {needed}，目前有 {available}。"
 knowledge_spend_failed = "花費所需知識失敗 ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "玩家的 Vault 經濟餘額不足。"
+vault_transaction_failed = "Vault 交易失敗；進度未變更。"
 set_adaptation_level = "設定 {player} {adaptation} 到級別 {level}."
 permanent_adaptation_lower = "{adaptation} 具有永久性質,如果沒有 force=true."
 adapt_server_not_ready = "Adapt 伺服器尚未準備好. 再試幾秒鐘."
@@ -6350,8 +6481,113 @@ parameters_ignored = "引數被忽略: {parameters}"
 no_description = "無說明"
 perf_ability_checks = "能力檢查: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "成功的檢查: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "活動級快取命中率: {ratio} ({hits} 擊中, {misses} 錯過)"
+perf_cache_hit_ratio = "作用中等級快取命中率：{ratio}（命中 {hits} 次，未命中 {misses} 次）"
 perf_timing_budget = "能力檢查時間安排預算: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "計票視窗: {window}分鐘"
 perf_no_metrics = "尚未收集到勾選指標."
 perf_reset = "計票器和能力遙測重置."
+
+[language.menu]
+your_language = "您的語言"
+reset_your_language = "重設您的語言"
+server_default = "伺服器預設語言"
+edit_messages = "編輯語言訊息"
+use_server_default = "使用伺服器預設語言"
+current = "目前：{locale}"
+current_with_personal = "目前：{locale}（您的：{personal}）"
+your_description = "只變更您看到的訊息。"
+reset_description = "使用伺服器預設語言。"
+server_description = "變更伺服器預設語言。"
+edit_description = "開啟各語言的訊息編輯器。"
+select_description = "點擊以選擇此語言。"
+remove_personal_description = "移除您的個人語言選擇。"
+no_controls = "您無權使用語言設定。"
+command = "命令: {command}"
+selected = "已選擇"
+all-volmit-plugins = "所有 Volmit 外掛"
+
+[language.error]
+stopping = "外掛停止期間無法選擇語言。"
+editor-player-only = "請在遊戲中開啟語言編輯器。"
+no-providers = "沒有可用的 Volmit 語言提供程式。"
+numeric-page = "請輸入數字頁碼。"
+personal-player-only = "玩家必須在遊戲中選擇個人語言。"
+personal-permission = "你沒有權限選擇個人語言。"
+plugin-personal-permission = "你沒有權限為 {plugin} 選擇個人語言。"
+plugin-server-permission = "你沒有權限變更 {plugin} 的伺服器語言。"
+server-locale-required = "請選擇 en_US 等語言代碼作為伺服器預設語言。"
+unavailable-for-all = "語言 {locale} 並非適用於所有選取的外掛。"
+
+[language.usage]
+editor = "用法: /{command} language server edit [locale]"
+selection = "用法: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "用法: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "正在為 {target} 準備語言 {locale}..."
+save-failed = "{plugin}：無法儲存語言選擇；請檢查伺服器主控台。"
+english-fallback = "{plugin}：{locale} 無法使用；將使用英語（en_US）。"
+personal-selected = "{plugin}：你的語言現在是 {locale}。"
+server-selected = "{plugin}：伺服器語言現在是 {locale}。"
+server-default-selected = "{plugin}：你的語言現在跟隨伺服器預設語言。"
+
+[language.editor]
+loading = "正在載入 {locale} 的訊息..."
+
+[language.editor.section]
+languages = "語言"
+search = "搜尋"
+search-title = "{locale} / 搜尋"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "搜尋訊息鍵或內容。輸入 cancel 返回。"
+value = "請在聊天中輸入 {key} 的新值。"
+current = "目前值： {value}"
+variables = "變數: {variables}"
+guidance = "使用 \\n 表示換行，\\\\ 表示反斜線，或輸入 cancel 返回。"
+
+[language.editor.input]
+expired = "語言編輯器的輸入時間已到期。"
+too-long = "輸入最多可包含 {maximum} 個字元。"
+unable-to-save = "無法儲存：{reason}"
+
+[language.editor.navigation]
+back = "&e返回&r"
+close = "&c關閉&r"
+previous-page = "&e前一頁&r"
+next-page = "&e下一頁&r"
+
+[language.editor.search]
+messages = "搜尋訊息"
+messages-lore = "點擊搜尋所有訊息。"
+clear = "清除搜尋"
+
+[language.editor.message]
+current-value = "&7目前值:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7點擊編輯複數形式。&r"
+edit-lines = "&7點擊逐行編輯。&r"
+edit-chat = "&7點擊在聊天中編輯。&r"
+
+[language.editor.locale]
+open = "&8點擊開啟此語言。&r"
+
+[language.editor.category]
+message-count = "&7{count} 則訊息&r"
+open = "&8點擊開啟此類別。&r"
+
+[language.editor.error]
+no-permission = "你沒有權限編輯 {plugin} 的語言。"
+unable-to-edit = "無法編輯：{reason}"
+
+[language.editor.saved]
+summary = "已儲存 {locale}。語言選擇保持不變。"
+change = "{key}：已將「{before}」改為「{after}」。"
+
+[language.editor.part]
+line = "第 {line} 行"
+
+[language.editor.value]
+none = "無"
+empty = "(空)"

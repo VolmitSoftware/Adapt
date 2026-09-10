@@ -1,4 +1,134 @@
-# Adapt language overlay: it_IT
+# Adapt — it_IT
+#
+# === Modifica del file ===
+# plugins/Adapt/languages/it_IT.toml
+# Puoi modificare direttamente questo file. Le modifiche locali vengono conservate; le voci mancanti o non valide usano l’inglese incorporato.
+# /adapt language server edit it_IT
+#
+# === Prefisso ===
+# {prefix} precede un valore statistico. I prefissi dei comandi vengono aggiunti automaticamente.
+#
+# === Formattazione ===
+# MiniMessage: <green>...</green>.
+# &0-&f, &k-&r, &#RRGGBB; automatic-gradients.
+#
+# === Variabili ===
+# Mantieni i nomi delle variabili e usa solo quelle previste dal singolo messaggio.
+#   {adaptation}  Nome dell’Adattamento
+#   {adaptations}  Nomi degli Adattamenti corrispondenti
+#   {after}  Valore dopo la modifica
+#   {amount}  Quantità di denaro, conoscenza o esperienza
+#   {argument}  Argomento del comando inatteso
+#   {available}  Potere o conoscenza disponibili
+#   {before}  Valore prima della modifica
+#   {benefit}  Descrizione del beneficio della mutazione
+#   {block}  Blocco indicato nelle istruzioni del progresso
+#   {bonus}  Quantità del bonus Masterwork
+#   {burden}  Descrizione dello svantaggio della mutazione
+#   {category}  Nome della categoria di configurazione
+#   {chance}  Probabilità di attivazione
+#   {combo}  Combinazione di attivazione di Instant Recall
+#   {command}  Percorso del comando
+#   {control}  Istruzioni d’uso della mutazione
+#   {cost}  Costo in conoscenza
+#   {count}  Numero di oggetti, file o messaggi
+#   {damage}  Quantità di danno aggiuntivo
+#   {danger}  Avviso di pericolo del viaggio nel portale
+#   {deepCharge}  Quantità di Deep Charge accumulata
+#   {deepblood}  Stato dell’utensile Deepblood collegato
+#   {description}  Descrizione del progresso
+#   {direction}  Direzione verso la struttura
+#   {distance}  Distanza dalla struttura in blocchi
+#   {domain}  Nome del gruppo di abilità della mutazione
+#   {duration}  Durata o ricarica formattata
+#   {effect}  Nome dell’effetto della pozione
+#   {enchantment}  Nome dell’incantesimo
+#   {environment}  Ambiente che influenza l’abilità
+#   {error}  Dettagli dell’errore di configurazione
+#   {experience}  Esperienza contenuta nella sfera
+#   {file}  Nome del file di configurazione
+#   {first}  Primo gruppo di abilità o componente di attivazione
+#   {from}  Indice della prima voce nella pagina
+#   {group}  Categoria dell’editor di lingua
+#   {hits}  Ricerche riuscite nella cache
+#   {instruction}  Istruzione per sbloccare il progresso
+#   {interaction}  Interazione con l’altro slot mutazione
+#   {key}  Chiave del messaggio o della configurazione
+#   {knowledge}  Quantità di conoscenza
+#   {label}  Etichetta dell’impostazione o della statistica
+#   {level}  Livello di abilità, Adattamento o effetto
+#   {levels}  Livelli di esperienza risparmiati
+#   {line}  Numero di riga del messaggio
+#   {locale}  Codice della lingua
+#   {masterwork}  Stato dell’equipaggiamento Masterwork collegato
+#   {maximum}  Valore massimo consentito o limite di potere
+#   {message}  Messaggio di stato prima dei dettagli di ricarica
+#   {microsPerCheck}  Microsecondi per controllo delle abilità
+#   {millisPerSecond}  Millisecondi al secondo per controllare le abilità
+#   {minimum}  Valore minimo consentito
+#   {misses}  Ricerche senza risultato memorizzato nella cache
+#   {multiplier}  Moltiplicatore del bonus esperienza
+#   {mutation}  Nome della mutazione
+#   {needed}  Potere o conoscenza richiesti
+#   {newValue}  Nuovo valore di configurazione
+#   {nextLevel}  Indicazione del prossimo livello dell’abilità
+#   {oldValue}  Valore di configurazione precedente
+#   {other}  Nome della mutazione incompatibile
+#   {page}  Numero della pagina corrente
+#   {pages}  Numero totale di pagine
+#   {parameter}  Nome del parametro del comando
+#   {parameters}  Parametri del comando ignorati
+#   {particle}  Nome del tipo di particella
+#   {path}  Percorso di configurazione
+#   {perMinute}  Controlli delle abilità al minuto
+#   {perSecond}  Controlli delle abilità al secondo
+#   {percent}  Percentuale del budget temporale o del bonus esperienza
+#   {permission}  Permesso richiesto
+#   {personal}  Codice della lingua personale
+#   {player}  Giocatore destinatario dell’azione
+#   {plugin}  Nome del plugin
+#   {power}  Quantità o consumo di potere
+#   {prefix}  Prefisso del valore statistico
+#   {progress}  Indicazione del progresso dell’abilità
+#   {range}  Raggio di ricerca o dell’abilità in blocchi
+#   {ratio}  Rapporto di successi della cache
+#   {reason}  Spiegazione dello stato della mutazione o dell’errore dell’editor
+#   {refund}  Conoscenza rimborsata disimparando
+#   {remaining}  Numero di modifiche alla configurazione omesse
+#   {result}  Effetto della mutazione al livello 200
+#   {rootCharge}  Quantità di Root Charge accumulata
+#   {second}  Secondo gruppo di abilità o componente di attivazione
+#   {seconds}  Durata in secondi
+#   {separator}  Separatore tra valore statistico ed etichetta
+#   {skill}  Nome dell’abilità
+#   {slot}  Numero dello slot mutazione
+#   {slots}  Numero di slot dello zaino
+#   {stacks}  Accumuli dell’effetto o capacità in pile dello zaino
+#   {state}  Stato di attivazione o dello slot mutazione
+#   {steps}  Passaggi completati di creazione, distillazione o incantamento
+#   {strength}  Resistenza aggiuntiva dell’armatura
+#   {structure}  Nome della struttura trovata
+#   {surface}  Superficie che influenza l’attivazione
+#   {symbol}  Simbolo dell’indicatore della struttura
+#   {target}  Giocatore destinatario o plugin della lingua
+#   {tell}  Descrizione dell’effetto visibile della mutazione
+#   {temperbound}  Stato dell’equipaggiamento Temperbound collegato
+#   {timestamp}  Data e ora dell’archivio di configurazione
+#   {to}  Indice dell’ultima voce nella pagina
+#   {total}  Numero totale di voci o slot
+#   {trigger}  Condizione di attivazione dell’abilità
+#   {trophy}  Stato del trofeo collegato
+#   {type}  Tipo previsto del parametro o del valore
+#   {usage}  Sintassi del comando
+#   {used}  Potere usato o slot occupati
+#   {value}  Valore corrente dell’impostazione o della statistica
+#   {values}  Valori consentiti dell’impostazione
+#   {variables}  Segnaposto consentiti nel messaggio
+#   {window}  Finestra di misurazione delle prestazioni in millisecondi
+#   {world}  Nome del mondo
+#   {x}  Coordinata X del bersaglio
+#   {xp}  Quantità di esperienza
+#   {z}  Coordinata Z del bersaglio
 
 [mutation.domain]
 body = "Corpo"
@@ -4189,7 +4319,7 @@ lore1 = "Armatura passiva"
 lore2 = "Basata sulla durezza dei blocchi vicini"
 lore3 = "Forza dell'armatura:"
 passive = "Armor passivo, basato sulla durezza del blocco nelle vicinanze"
-strength = "Forza armatura: +{strength}"
+strength = "Resistenza dell’armatura: +{strength}"
 lore = ["Armatura passiva", "Basata sulla durezza dei blocchi vicini", "Forza dell'armatura:"]
 
 [discovery.unity]
@@ -4779,10 +4909,10 @@ click_to_learn = "Clicca per imparare {adaptation}"
 knowledge_shortage = "(Hai solo {knowledge} Conoscenza disponibile)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} Dramma di potenza"
+vault_unavailable_fallback = "L’economia Vault non è disponibile — resta possibile apprendere usando solo conoscenza."
+vault_insufficient_funds = "Il giocatore non ha abbastanza denaro nell’economia di Vault."
+vault_transaction_failed = "La transazione di Vault è fallita; i progressi non sono stati modificati."
+power_drain = "Consumo di potere: {power}"
 
 [gui.mutations]
 experimental_mutations = "Mutazioni sperimentali"
@@ -5385,7 +5515,6 @@ msg_range = "Quel contenitore e' troppo lontano per collegare."
 msg_same = "Non si può collegare un contenitore a sé."
 msg_stale = "Il contenitore catturato non è più disponibile."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} {skill} Conoscenza"
 knowledge_status = "{amount} {skill} Conoscenza"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP per {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "I tuoi dati sono stati cancellati."
 no_description_provided = "Nessuna descrizione fornita"
-config_hotloaded = "&7[&4Adattarsi&7]: &aAdaptate carica calda: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4Adattarsi&7]: &aAdaptate carica calda: &f[{file}] &7[{remaining} Modifiche aggiuntive omesse]"
+config_hotloaded = "&7[&4Adapt&7]: &aAdapt: configurazione ricaricata: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &aAdapt: configurazione ricaricata: &f[{file}] &7[{remaining} modifiche aggiuntive omesse]"
 
 [seaborn.oxygen]
 name = "Bombola d'Ossigeno Organica"
@@ -6201,6 +6330,8 @@ lore3 = "Combattere il blocco"
 lore = ["Assorbimento massimo", "Assorbimento per impulso", "Combattere il blocco"]
 
 [command.help]
+debug_dump = "Crea un rapporto diagnostico e caricalo facoltativamente"
+debug_upload = "Carica il rapporto su mclo.gs"
 adapt_debug_command = "Adapt Comando del debito"
 adapt_skills_adaptations_and_admin_tools = "Adapt competenze, adattamenti e strumenti di amministrazione"
 adaptation_level_to_apply = "Livello di adattamento da applicare"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "Nessun cambiamento: {adaptation} è già a livello {
 power_insufficient = "Potenza non abbastanza disponibile. Bisogno {needed}, hanno {available}."
 knowledge_insufficient = "Non abbastanza conoscenza in {skill}. Bisogno {needed}, hanno {available}."
 knowledge_spend_failed = "Non speso la conoscenza necessaria ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "Il giocatore non ha abbastanza denaro nell’economia di Vault."
+vault_transaction_failed = "La transazione di Vault è fallita; i progressi non sono stati modificati."
 set_adaptation_level = "Set {player} {adaptation} a livello {level}."
 permanent_adaptation_lower = "{adaptation} è permanente e non può essere abbassato senza force=true."
 adapt_server_not_ready = "Adapt server non è ancora pronto. Riprova in pochi secondi."
@@ -6350,8 +6481,113 @@ parameters_ignored = "I parametri ignorati: {parameters}"
 no_description = "Nessuna descrizione"
 perf_ability_checks = "controlli di capacità: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "controlli riusciti: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "Rapporto di successo della cache a livello attivo: {ratio} ({hits} colpo, {misses} signorina)"
+perf_cache_hit_ratio = "Rapporto di successi della cache dei livelli attivi: {ratio} ({hits} successi, {misses} mancati risultati)"
 perf_timing_budget = "Potere controllare il budget dei tempi: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "Finestra di Ticker: {window}m"
 perf_no_metrics = "Nessuna metrica tick raccolta."
 perf_reset = "Ripristino di ticker e abilità telemetria."
+
+[language.menu]
+your_language = "La tua lingua"
+reset_your_language = "Reimposta la tua lingua"
+server_default = "Lingua predefinita del server"
+edit_messages = "Modifica i messaggi della lingua"
+use_server_default = "Usa la lingua predefinita del server"
+current = "Attuale: {locale}"
+current_with_personal = "Attuale: {locale} (La tua: {personal})"
+your_description = "Modifica solo i messaggi che vedi."
+reset_description = "Usa la lingua predefinita del server."
+server_description = "Cambia la lingua predefinita del server."
+edit_description = "Apri l'editor dei messaggi per ogni lingua."
+select_description = "Fai clic per selezionare questa lingua."
+remove_personal_description = "Rimuovi la tua scelta personale della lingua."
+no_controls = "Non hai accesso alle impostazioni della lingua."
+command = "Comando: {command}"
+selected = "selezionato"
+all-volmit-plugins = "Tutti i plugin Volmit"
+
+[language.error]
+stopping = "La scelta della lingua non è disponibile durante l’arresto del plugin."
+editor-player-only = "Apri l’editor di lingua nel gioco."
+no-providers = "Non sono disponibili fornitori di lingue Volmit."
+numeric-page = "Inserisci un numero di pagina."
+personal-player-only = "Le preferenze della lingua del giocatore devono essere selezionate in gioco."
+personal-permission = "Non hai il permesso di selezionare la tua lingua."
+plugin-personal-permission = "Non hai il permesso di scegliere la tua lingua per {plugin}."
+plugin-server-permission = "Non hai il permesso di cambiare la lingua del server per {plugin}."
+server-locale-required = "Scegli un codice come en_US per la lingua predefinita del server."
+unavailable-for-all = "La lingua {locale} non è disponibile per tutti i plugin selezionati."
+
+[language.usage]
+editor = "Uso: /{command} language server edit [locale]"
+selection = "Uso: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "Uso: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "Preparazione della lingua {locale} per {target}..."
+save-failed = "{plugin}: impossibile salvare la lingua scelta; controlla la console del server."
+english-fallback = "{plugin}: {locale} non è disponibile; verrà usato l’inglese (en_US)."
+personal-selected = "{plugin}: la tua lingua è ora {locale}."
+server-selected = "{plugin}: la lingua del server ora è {locale}."
+server-default-selected = "{plugin}: la tua lingua segue ora la lingua predefinita del server."
+
+[language.editor]
+loading = "Caricamento dei messaggi in {locale}..."
+
+[language.editor.section]
+languages = "Lingue"
+search = "Ricerca"
+search-title = "{locale} / Ricerca"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "Cerca una chiave o il testo di un messaggio. Digita cancel per tornare indietro."
+value = "Digita un nuovo valore per {key} nella chat."
+current = "Valore attuale: {value}"
+variables = "Variabili: {variables}"
+guidance = "Usa \\n per andare a capo, \\\\ per una barra inversa, oppure digita cancel per tornare indietro."
+
+[language.editor.input]
+expired = "Il tempo per inserire il testo nell’editor di lingua è scaduto."
+too-long = "Il testo può contenere al massimo {maximum} caratteri."
+unable-to-save = "Impossibile salvare: {reason}"
+
+[language.editor.navigation]
+back = "&eIndietro&r"
+close = "&cChiudi&r"
+previous-page = "&ePagina precedente&r"
+next-page = "&ePagina successiva&r"
+
+[language.editor.search]
+messages = "Cerca messaggi"
+messages-lore = "Clicca per cercare tutti i messaggi."
+clear = "Cancella la ricerca"
+
+[language.editor.message]
+current-value = "&7Valore attuale:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7Clicca per modificare una forma plurale.&r"
+edit-lines = "&7Clicca per modificare le singole righe.&r"
+edit-chat = "&7Clicca per modificare nella chat.&r"
+
+[language.editor.locale]
+open = "&8Clicca per aprire questa lingua.&r"
+
+[language.editor.category]
+message-count = "&7{count} messaggi&r"
+open = "&8Clicca per aprire questa categoria.&r"
+
+[language.editor.error]
+no-permission = "Non hai il permesso di modificare le lingue di {plugin}."
+unable-to-edit = "Impossibile modificare: {reason}"
+
+[language.editor.saved]
+summary = "{locale} salvato. Le lingue selezionate restano invariate."
+change = "{key}: «{before}» è stato cambiato in «{after}»."
+
+[language.editor.part]
+line = "Riga {line}"
+
+[language.editor.value]
+none = "Nessuno"
+empty = "(vuoto)"

@@ -1,4 +1,134 @@
-# Adapt language overlay: he_IL
+# Adapt — he_IL
+#
+# === עריכת הקובץ ===
+# plugins/Adapt/languages/he_IL.toml
+# אפשר לערוך קובץ זה ישירות. שינויים מקומיים נשמרים; ערכים חסרים או לא תקינים משתמשים באנגלית המובנית.
+# /adapt language server edit he_IL
+#
+# === קידומת ===
+# {prefix} הוא קידומת לערך סטטיסטי. קידומות פקודות נוספות אוטומטית.
+#
+# === עיצוב ===
+# MiniMessage: <green>...</green>.
+# &0-&f הם צבעים, &k-&r הם עיצוב טקסט, &#RRGGBB הוא צבע הקסדצימלי; automatic-gradients הם מעברי צבע אוטומטיים.
+#
+# === משתנים ===
+# יש לשמור על שמות המשתנים ולהשתמש רק במשתנים הקיימים בכל הודעה.
+#   {adaptation}  שם ההסתגלות
+#   {adaptations}  שמות ההסתגלויות התואמות
+#   {after}  הערך לאחר עריכה
+#   {amount}  כמות מטבע, ידע או ניסיון
+#   {argument}  ארגומנט לא צפוי בפקודה
+#   {available}  הכוח או הידע הזמינים
+#   {before}  הערך לפני עריכה
+#   {benefit}  תיאור היתרון של המוטציה
+#   {block}  הבלוק המצוין בהוראות ההתקדמות
+#   {bonus}  כמות הבונוס של Masterwork
+#   {burden}  תיאור החיסרון של המוטציה
+#   {category}  שם קטגוריית ההגדרות
+#   {chance}  הסתברות ההפעלה
+#   {combo}  שילוב תנאי ההפעלה של Instant Recall
+#   {command}  הנתיב המלא של הפקודה
+#   {control}  הוראות השימוש במוטציה
+#   {cost}  עלות הידע
+#   {count}  מספר הפריטים, הקבצים או ההודעות
+#   {damage}  כמות הנזק הנוסף
+#   {danger}  אזהרת הסכנה במעבר בשער
+#   {deepCharge}  כמות Deep Charge שנאגרה
+#   {deepblood}  מצב כלי Deepblood המקושר
+#   {description}  תיאור ההתקדמות
+#   {direction}  הכיוון אל המבנה
+#   {distance}  המרחק למבנה בבלוקים
+#   {domain}  שם קבוצת הכישורים של המוטציה
+#   {duration}  משך הזמן או זמן ההמתנה בפורמט תצוגה
+#   {effect}  שם אפקט השיקוי
+#   {enchantment}  שם הכישוף
+#   {environment}  הסביבה המשפיעה על היכולת
+#   {error}  פרטי שגיאת ההגדרות
+#   {experience}  הניסיון השמור בכדור
+#   {file}  שם קובץ ההגדרות
+#   {first}  קבוצת הכישורים או רכיב תנאי ההפעלה הראשון
+#   {from}  מספר הרשומה הראשונה בעמוד
+#   {group}  קטגוריה בעורך השפה
+#   {hits}  מספר החיפושים שמצאו תוצאה במטמון
+#   {instruction}  הוראות לפתיחת ההתקדמות
+#   {interaction}  האינטראקציה עם משבצת המוטציה האחרת
+#   {key}  מפתח ההודעה או ההגדרה
+#   {knowledge}  כמות הידע
+#   {label}  תווית ההגדרה או הנתון
+#   {level}  רמת הכישור, ההסתגלות או האפקט
+#   {levels}  מספר רמות הניסיון שנחסכו
+#   {line}  מספר השורה בהודעת השפה
+#   {locale}  קוד השפה
+#   {masterwork}  מצב ציוד Masterwork המקושר
+#   {maximum}  הערך המרבי המותר או מגבלת הכוח
+#   {message}  הודעת המצב המקדימה את פרטי זמן ההמתנה
+#   {microsPerCheck}  מיקרו־שניות לכל בדיקת יכולת
+#   {millisPerSecond}  מילי־שניות של בדיקות יכולת בכל שנייה
+#   {minimum}  הערך המזערי המותר
+#   {misses}  מספר החיפושים שלא מצאו תוצאה במטמון
+#   {multiplier}  מכפיל תוספת הניסיון
+#   {mutation}  שם המוטציה
+#   {needed}  הכוח או הידע הנדרשים
+#   {newValue}  ערך ההגדרה החדש
+#   {nextLevel}  תצוגת רמת הכישור הבאה
+#   {oldValue}  ערך ההגדרה הקודם
+#   {other}  שם המוטציה המתנגשת
+#   {page}  מספר העמוד הנוכחי
+#   {pages}  מספר העמודים הכולל
+#   {parameter}  שם פרמטר הפקודה
+#   {parameters}  פרמטרי הפקודה שלא טופלו
+#   {particle}  שם סוג החלקיקים
+#   {path}  נתיב ההגדרה
+#   {perMinute}  מספר בדיקות היכולת בדקה
+#   {perSecond}  מספר בדיקות היכולת בשנייה
+#   {percent}  אחוז מתקציב זמן העיבוד או בונוס הניסיון
+#   {permission}  מזהה ההרשאה הנדרשת
+#   {personal}  קוד השפה האישית
+#   {player}  השחקן שהפעולה חלה עליו
+#   {plugin}  שם התוסף
+#   {power}  כמות הכוח או צריכתו
+#   {prefix}  הקידומת של ערך הנתון
+#   {progress}  תצוגת התקדמות הכישור
+#   {range}  טווח החיפוש או היכולת בבלוקים
+#   {ratio}  שיעור הפגיעות במטמון
+#   {reason}  הסבר מצב המוטציה או שגיאת העורך
+#   {refund}  הידע המוחזר בעת ביטול הלמידה
+#   {remaining}  מספר שינויי ההגדרות שלא הוצגו
+#   {result}  השפעת המוטציה ברמה 200
+#   {rootCharge}  כמות Root Charge שנאגרה
+#   {second}  קבוצת הכישורים או רכיב תנאי ההפעלה השני
+#   {seconds}  משך הזמן בשניות
+#   {separator}  המפריד בין ערך הנתון לתווית
+#   {skill}  שם הכישור
+#   {slot}  מספר משבצת המוטציה
+#   {slots}  מספר המשבצות בתרמיל
+#   {stacks}  מספר הצטברויות האפקט או קיבולת התרמיל בערימות
+#   {state}  מצב ההפעלה או מצב משבצת המוטציה
+#   {steps}  שלבי היצירה, הרקיחה או הכישוף שהושלמו
+#   {strength}  חוזק השריון הנוסף
+#   {structure}  שם המבנה שאותר
+#   {surface}  המשטח המשפיע על תנאי ההפעלה
+#   {symbol}  סמל החיווי של המבנה
+#   {target}  שחקן היעד או התוסף שעבורו מוגדרת השפה
+#   {tell}  תיאור האפקט הנראה של המוטציה
+#   {temperbound}  מצב ציוד Temperbound המקושר
+#   {timestamp}  חותמת הזמן של ארכיון ההגדרות
+#   {to}  מספר הרשומה האחרונה בעמוד
+#   {total}  מספר הרשומות או המשבצות הכולל
+#   {trigger}  תנאי הפעלת היכולת
+#   {trophy}  מצב השלל המקושר
+#   {type}  הסוג הצפוי של הפרמטר או הערך
+#   {usage}  תחביר הפקודה
+#   {used}  הכוח שבשימוש או המשבצות התפוסות
+#   {value}  ערך ההגדרה או הנתון הנוכחי
+#   {values}  ערכי ההגדרה המותרים
+#   {variables}  מצייני המיקום המותרים בהודעה
+#   {window}  חלון מדידת הביצועים במילי־שניות
+#   {world}  שם העולם
+#   {x}  קואורדינטת X של היעד
+#   {xp}  כמות הניסיון
+#   {z}  קואורדינטת Z של היעד
 
 [mutation.domain]
 body = "גוף הגוף"
@@ -4189,7 +4319,7 @@ lore1 = "שריון פסיבי"
 lore2 = "מבוסס על קשיות בלוקים סמוכים"
 lore3 = "עוצמת שריון:"
 passive = "זרוע עוברית, המבוססת על קשיחות לחסום בקרבת מקום"
-strength = "כוח הזרוע: +{strength}"
+strength = "חוזק השריון: +{strength}"
 lore = ["שריון פסיבי", "מבוסס על קשיות בלוקים סמוכים", "עוצמת שריון:"]
 
 [discovery.unity]
@@ -4779,10 +4909,10 @@ click_to_learn = "לחץ כדי ללמוד {adaptation}"
 knowledge_shortage = "(רק יש לך {knowledge} ידע זמין)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} כוח Drain"
+vault_unavailable_fallback = "כלכלת Vault אינה זמינה — עדיין ניתן ללמוד באמצעות ידע בלבד."
+vault_insufficient_funds = "לשחקן אין מספיק כסף במערכת הכלכלה של Vault."
+vault_transaction_failed = "עסקת Vault נכשלה; ההתקדמות לא השתנתה."
+power_drain = "צריכת כוח: {power}"
 
 [gui.mutations]
 experimental_mutations = "מוטציות ניסיוניות"
@@ -5385,7 +5515,6 @@ msg_range = "מיכל זה רחוק מכדי לקשר."
 msg_same = "אי אפשר לחבר מיכל בפני עצמו."
 msg_stale = "המיכל השבוי כבר לא זמין."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} {skill} ידע ידע"
 knowledge_status = "{amount} {skill} ידע ידע"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP עבור {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "הנתונים שלך נמחקים."
 no_description_provided = "אין תיאור"
-config_hotloaded = "&7[&4הסתגלות&7]: &aהתאמת Hotloaded: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4הסתגלות&7]: &aהתאמת Hotloaded: &f[{file}] &7[{remaining} שינויים נוספים]"
+config_hotloaded = "&7[&4Adapt&7]: &aההגדרה נטענה מחדש בזמן הריצה: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &aההגדרות נטענו מחדש בזמן הריצה: &f[{file}] &7[{remaining} שינויים נוספים לא הוצגו]"
 
 [seaborn.oxygen]
 name = "מיכל חמצן אורגני"
@@ -6201,6 +6330,8 @@ lore3 = "משחק Lockout"
 lore = ["מקס Absorption", "סינון של ספיקה", "משחק Lockout"]
 
 [command.help]
+debug_dump = "יצירת דוח אבחון והעלאתו לפי בחירה"
+debug_upload = "העלאת הדוח אל mclo.gs"
 adapt_debug_command = "Adapt פקודת דביג"
 adapt_skills_adaptations_and_admin_tools = "Adapt מיומנויות, הסתגלות וכלי ניהול"
 adaptation_level_to_apply = "רמת הסתגלות ליישום"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "אין שינוי: {adaptation} כבר ברמה {lev
 power_insufficient = "לא מספיק חשמל זמין. צורך {needed}, יש {available}."
 knowledge_insufficient = "לא מספיק ידע {skill}. צורך {needed}, יש {available}."
 knowledge_spend_failed = "נכשל להוציא ידע נדרש ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "לשחקן אין מספיק כסף במערכת הכלכלה של Vault."
+vault_transaction_failed = "עסקת Vault נכשלה; ההתקדמות לא השתנתה."
 set_adaptation_level = "הגדר {player} {adaptation} לרמה {level}."
 permanent_adaptation_lower = "{adaptation} זה קבוע ולא ניתן להוריד ללא force=true."
 adapt_server_not_ready = "Adapt השרת עדיין לא מוכן. נסה שוב בתוך כמה שניות."
@@ -6350,8 +6481,113 @@ parameters_ignored = "התעלמו: {parameters}"
 no_description = "אין תיאור"
 perf_ability_checks = "בדיקות יכולת: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "בדיקות מוצלחות: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "cache פגע יחס: {ratio} ({hits} פגע, {misses} מתגעגע)"
+perf_cache_hit_ratio = "שיעור הפגיעות במטמון הרמות הפעילות: {ratio} ({hits} פגיעות, {misses} החטאות)"
 perf_timing_budget = "ניהול תקציב התזמון: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "חלון טייקר: {window}ms"
 perf_no_metrics = "אין מדדי טייפ שנאספו עדיין."
 perf_reset = "טיקר והיכולת לטלמטארי לאפס."
+
+[language.menu]
+your_language = "השפה שלך"
+reset_your_language = "איפוס השפה שלך"
+server_default = "ברירת המחדל של השרת"
+edit_messages = "עריכת הודעות השפה"
+use_server_default = "שימוש בברירת המחדל של השרת"
+current = "נוכחית: {locale}"
+current_with_personal = "נוכחית: {locale} (שלך: {personal})"
+your_description = "שנה רק את ההודעות שאתה רואה."
+reset_description = "השתמש בשפת ברירת המחדל של השרת."
+server_description = "שנה את שפת ברירת המחדל של השרת."
+edit_description = "פתח את עורך ההודעות לכל שפה."
+select_description = "לחץ כדי לבחור בשפה זו."
+remove_personal_description = "הסר את בחירת השפה האישית שלך."
+no_controls = "אין לך גישה להגדרות שפה."
+command = "פקודה: {command}"
+selected = "נבחר"
+all-volmit-plugins = "כל תוספי Volmit"
+
+[language.error]
+stopping = "בחירת שפה אינה זמינה בזמן שהתוסף מפסיק."
+editor-player-only = "פתח את עורך השפה במשחק."
+no-providers = "אין ספקי שפה זמינים של Volmit."
+numeric-page = "יש להזין מספר עמוד."
+personal-player-only = "יש לבחור העדפות שפה של שחקן במשחק."
+personal-permission = "אין לך רשות לבחור את השפה שלך."
+plugin-personal-permission = "אין לך הרשאה לבחור שפה אישית עבור {plugin}."
+plugin-server-permission = "אין לך הרשאה לשנות את שפת השרת עבור {plugin}."
+server-locale-required = "יש לבחור קוד שפה כגון en_US כשפת ברירת המחדל של השרת."
+unavailable-for-all = "השפה {locale} אינה זמינה לכל התוספים שנבחרו."
+
+[language.usage]
+editor = "שימוש: /{command} language server edit [locale]"
+selection = "שימוש: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "שימוש: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "מכין את השפה {locale} עבור {target}..."
+save-failed = "{plugin}: לא ניתן לשמור את בחירת השפה; יש לבדוק את מסוף השרת."
+english-fallback = "{plugin}: השפה {locale} אינה זמינה; נעשה שימוש באנגלית (en_US)."
+personal-selected = "{plugin}: השפה שלך עכשיו {locale}."
+server-selected = "{plugin}: שפת השרת עכשיו {locale}."
+server-default-selected = "{plugin}: השפה שלך תואמת כעת לשפת ברירת המחדל של השרת."
+
+[language.editor]
+loading = "טוען הודעות עבור {locale}..."
+
+[language.editor.section]
+languages = "שפות"
+search = "חיפוש"
+search-title = "{locale} / חיפוש"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "יש לחפש מפתח הודעה או טקסט. לחזרה, יש להקליד cancel."
+value = "יש להקליד בצ׳אט ערך חדש עבור {key}."
+current = "ערך נוכחי: {value}"
+variables = "משתנים: {variables}"
+guidance = "יש להשתמש ב־\\n לשורה חדשה וב־\\\\ ללוכסן הפוך, או להקליד cancel כדי לחזור."
+
+[language.editor.input]
+expired = "זמן ההזנה בעורך השפה פג."
+too-long = "הקלט יכול להכיל לכל היותר {maximum} תווים."
+unable-to-save = "לא ניתן לשמור: {reason}"
+
+[language.editor.navigation]
+back = "&eחזרה&r"
+close = "&cסגור&r"
+previous-page = "&eהעמוד הקודם&r"
+next-page = "&eדף הבא&r"
+
+[language.editor.search]
+messages = "חיפוש הודעות"
+messages-lore = "לחיצה לחיפוש בכל ההודעות."
+clear = "ניקוי החיפוש"
+
+[language.editor.message]
+current-value = "&7ערך נוכחי:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7לחיצה לעריכת צורת רבים.&r"
+edit-lines = "&7לחיצה לעריכת שורות בודדות.&r"
+edit-chat = "&7לחיצה לעריכה בצ׳אט.&r"
+
+[language.editor.locale]
+open = "&8לחץ לפתוח את השפה.&r"
+
+[language.editor.category]
+message-count = "&7{count} הודעות&r"
+open = "&8לחץ לפתוח קטגוריה זו.&r"
+
+[language.editor.error]
+no-permission = "אין לך הרשאה לערוך את השפות של {plugin}."
+unable-to-edit = "לא ניתן לערוך: {reason}"
+
+[language.editor.saved]
+summary = "{locale} נשמרה. בחירות השפה לא השתנו."
+change = "{key}: הערך ״{before}״ הוחלף ב־״{after}״."
+
+[language.editor.part]
+line = "שורה {line}"
+
+[language.editor.value]
+none = "אין"
+empty = "(ריק)"

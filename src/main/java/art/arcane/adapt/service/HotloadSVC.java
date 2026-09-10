@@ -72,7 +72,7 @@ public class HotloadSVC implements AdaptService {
   private File mutationsConfigFile;
   private File skillsFolder;
   private File adaptationsFolder;
-  private File localeOverrideFolder;
+  private File localeLanguageFolder;
   @Override
   public void onEnable() {
     adaptConfigFile = Adapt.instance.getDataFile("adapt.toml");
@@ -80,12 +80,12 @@ public class HotloadSVC implements AdaptService {
     mutationsConfigFile = Adapt.instance.getDataFile("mutations.toml");
     skillsFolder = Adapt.instance.getDataFolder("skills");
     adaptationsFolder = Adapt.instance.getDataFolder("adaptations");
-    localeOverrideFolder = AdaptLanguage.overrideFolder();
+    localeLanguageFolder = AdaptLanguage.languageFolder();
     hotloadEngine.configure(
         WATCHER_POLL_MS,
         HOTLOAD_COOLDOWN_MS,
         List.of(adaptConfigFile, modelsFile, mutationsConfigFile),
-        List.of(skillsFolder, adaptationsFolder, localeOverrideFolder)
+        List.of(skillsFolder, adaptationsFolder, localeLanguageFolder)
     );
     hotloadGeneration.incrementAndGet();
     hotloadIo = Executors.newSingleThreadExecutor((Runnable task) -> {
@@ -93,7 +93,7 @@ public class HotloadSVC implements AdaptService {
       thread.setDaemon(true);
       return thread;
     });
-    Adapt.info("Config hotload watcher enabled for Adapt configs and locale overrides.");
+    Adapt.info("Config hotload watcher enabled for Adapt configs and language files.");
 
     configTicker = new TickedObject("config", "config-hotload-service", WATCHER_POLL_MS) {
       @Override
@@ -131,6 +131,10 @@ public class HotloadSVC implements AdaptService {
   public void refreshLocalizationConsumers() {
     Adapt.instance.getAdaptServer().getSkillRegistry().synchronizeAdvancementRuntime();
     refreshOpenAdaptGuis();
+  }
+
+  public <T> T write(File file, ConfigHotloadEngine.FileWrite<T> writer) throws Exception {
+    return hotloadEngine.write(file, writer);
   }
 
   private void queueConfigPoll() {
@@ -189,6 +193,7 @@ public class HotloadSVC implements AdaptService {
       }
 
       if (refreshedSomething) {
+        AdaptLanguage.invalidateSelections();
         refreshOpenAdaptGuis();
       }
     } finally {
@@ -234,8 +239,8 @@ public class HotloadSVC implements AdaptService {
         return ok;
       }
 
-      if (isLocaleOverrideFile(file)) {
-        boolean ok = AdaptLanguage.reloadOverrideSnapshot(file, raw);
+      if (isLocaleLanguageFile(file)) {
+        boolean ok = AdaptLanguage.reloadLanguageSnapshot(file, raw);
         if (ok) {
           Adapt.instance.getAdaptServer().getSkillRegistry().synchronizeAdvancementRuntime();
         }
@@ -427,8 +432,8 @@ public class HotloadSVC implements AdaptService {
     return isDirectChild(adaptationsFolder, file) && ConfigFileSupport.isTomlFile(file);
   }
 
-  private boolean isLocaleOverrideFile(File file) {
-    return isDirectChild(localeOverrideFolder, file)
+  private boolean isLocaleLanguageFile(File file) {
+    return isDirectChild(localeLanguageFolder, file)
         && file.getName().toLowerCase(Locale.ROOT).endsWith(".toml");
   }
 
@@ -439,7 +444,7 @@ public class HotloadSVC implements AdaptService {
         || isMutationsConfigFile(file)
         || isSkillConfigFile(file)
         || isAdaptationConfigFile(file)
-        || isLocaleOverrideFile(file));
+        || isLocaleLanguageFile(file));
   }
 
   private boolean isTemporaryArtifact(File file) {
@@ -486,7 +491,7 @@ public class HotloadSVC implements AdaptService {
 
     addDirectChildren(skillsFolder, files, added);
     addDirectChildren(adaptationsFolder, files, added);
-    addDirectChildren(localeOverrideFolder, files, added);
+    addDirectChildren(localeLanguageFolder, files, added);
 
     return files;
   }

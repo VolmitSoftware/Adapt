@@ -1,4 +1,134 @@
-# Adapt language overlay: ko_KR
+# Adapt — ko_KR
+#
+# === 파일 편집 ===
+# plugins/Adapt/languages/ko_KR.toml
+# 이 파일을 직접 편집할 수 있습니다. 로컬 변경은 유지되며, 누락되거나 잘못된 항목에는 내장 영어를 사용합니다.
+# /adapt language server edit ko_KR
+#
+# === 접두사 ===
+# {prefix}는 통계 값의 접두사입니다. 명령어 접두사는 자동으로 추가됩니다.
+#
+# === 서식 ===
+# MiniMessage: <green>...</green>.
+# &0-&f는 색상, &k-&r은 장식, &#RRGGBB는 16진수 색상입니다. automatic-gradients는 자동 그라데이션입니다.
+#
+# === 변수 ===
+# 변수 이름을 변경하지 말고 각 메시지에 원래 있는 변수만 사용하세요.
+#   {adaptation}  적응 능력 이름
+#   {adaptations}  일치하는 적응 능력 이름 목록
+#   {after}  편집 후 값
+#   {amount}  통화, 지식 또는 경험치의 양
+#   {argument}  예상하지 못한 명령 인수
+#   {available}  사용 가능한 파워 또는 지식
+#   {before}  편집 전 값
+#   {benefit}  변이의 이점 설명
+#   {block}  발전 과제 안내에 지정된 블록
+#   {bonus}  Masterwork 보너스 양
+#   {burden}  변이의 단점 설명
+#   {category}  설정 범주 이름
+#   {chance}  발동 확률
+#   {combo}  Instant Recall 발동 조건 조합
+#   {command}  전체 명령 경로
+#   {control}  변이 사용 방법
+#   {cost}  필요한 지식의 양
+#   {count}  항목, 파일 또는 메시지 수
+#   {damage}  추가 피해량
+#   {danger}  게이트 이동 시 위험 경고
+#   {deepCharge}  저장된 Deep Charge 양
+#   {deepblood}  연결된 Deepblood 도구 상태
+#   {description}  발전 과제 설명
+#   {direction}  구조물 방향
+#   {distance}  구조물까지의 거리(블록 단위)
+#   {domain}  변이에 해당하는 스킬 그룹 이름
+#   {duration}  서식이 적용된 지속 시간 또는 재사용 대기시간
+#   {effect}  물약 효과 이름
+#   {enchantment}  마법 부여 이름
+#   {environment}  능력에 영향을 주는 환경
+#   {error}  설정 오류 상세 내용
+#   {experience}  구슬에 저장된 경험치
+#   {file}  설정 파일 이름
+#   {first}  첫 번째 스킬 그룹 또는 발동 조건
+#   {from}  페이지의 첫 항목 번호
+#   {group}  언어 편집기 범주
+#   {hits}  캐시에서 결과를 찾은 횟수
+#   {instruction}  발전 과제를 달성하는 방법
+#   {interaction}  다른 변이 슬롯과의 상호작용
+#   {key}  메시지 또는 설정 키
+#   {knowledge}  지식의 양
+#   {label}  설정 또는 통계 값의 레이블
+#   {level}  스킬, 적응 능력 또는 효과 레벨
+#   {levels}  절약한 경험치 레벨 수
+#   {line}  언어 메시지의 줄 번호
+#   {locale}  언어 코드
+#   {masterwork}  연결된 Masterwork 장비 상태
+#   {maximum}  허용 최댓값 또는 파워 한도
+#   {message}  재사용 대기시간 앞에 표시할 상태 메시지
+#   {microsPerCheck}  능력 검사 한 번에 소요되는 마이크로초
+#   {millisPerSecond}  초당 능력 검사에 소요되는 밀리초
+#   {minimum}  허용 최솟값
+#   {misses}  캐시에 결과가 없었던 횟수
+#   {multiplier}  경험치 증가 배율
+#   {mutation}  변이 이름
+#   {needed}  필요한 파워 또는 지식
+#   {newValue}  새 설정 값
+#   {nextLevel}  다음 스킬 레벨 표시
+#   {oldValue}  이전 설정 값
+#   {other}  충돌하는 변이 이름
+#   {page}  현재 페이지 번호
+#   {pages}  전체 페이지 수
+#   {parameter}  명령 매개변수 이름
+#   {parameters}  무시된 명령 매개변수
+#   {particle}  입자 유형 이름
+#   {path}  설정 경로
+#   {perMinute}  분당 능력 검사 횟수
+#   {perSecond}  초당 능력 검사 횟수
+#   {percent}  처리 시간 예산 비율 또는 경험치 보너스 비율
+#   {permission}  필요한 권한 노드
+#   {personal}  개인 설정 언어 코드
+#   {player}  작업 대상 플레이어
+#   {plugin}  플러그인 이름
+#   {power}  파워 양 또는 소모량
+#   {prefix}  통계 값 바로 앞의 접두사
+#   {progress}  스킬 진행 상황 표시
+#   {range}  탐색 또는 능력 범위(블록 단위)
+#   {ratio}  캐시 적중률
+#   {reason}  변이 상태 또는 편집기 오류 설명
+#   {refund}  습득 해제 시 반환되는 지식
+#   {remaining}  표시를 생략한 설정 변경 수
+#   {result}  레벨 200의 변이 효과
+#   {rootCharge}  저장된 Root Charge 양
+#   {second}  두 번째 스킬 그룹 또는 발동 조건
+#   {seconds}  초 단위 시간
+#   {separator}  통계 값과 레이블 사이의 구분자
+#   {skill}  스킬 이름
+#   {slot}  변이 슬롯 번호
+#   {slots}  배낭 슬롯 수
+#   {stacks}  효과 중첩 수 또는 배낭에 들어가는 묶음 수
+#   {state}  활성화 상태 또는 변이 슬롯 상태
+#   {steps}  완료한 제작, 양조 또는 마법 부여 단계 수
+#   {strength}  추가 방어력
+#   {structure}  탐지한 구조물 이름
+#   {surface}  발동 조건에 영향을 주는 표면
+#   {symbol}  구조물 위치 표시 기호
+#   {target}  대상 플레이어 또는 언어 설정 대상 플러그인
+#   {tell}  눈에 보이는 변이 효과 설명
+#   {temperbound}  연결된 Temperbound 장비 상태
+#   {timestamp}  설정 보관 파일의 타임스탬프
+#   {to}  페이지의 마지막 항목 번호
+#   {total}  항목 또는 슬롯의 총수
+#   {trigger}  능력 발동 조건
+#   {trophy}  연결된 전리품 상태
+#   {type}  예상되는 매개변수 또는 값 유형
+#   {usage}  명령 구문
+#   {used}  사용 중인 파워 또는 차지한 슬롯 수
+#   {value}  현재 설정 값 또는 통계 값
+#   {values}  설정에 허용되는 값 목록
+#   {variables}  메시지에 허용되는 자리표시자
+#   {window}  성능 측정 구간(밀리초)
+#   {world}  월드 이름
+#   {x}  대상의 X 좌표
+#   {xp}  경험치의 양
+#   {z}  대상의 Z 좌표
 
 [mutation.domain]
 body = "신체"
@@ -4189,7 +4319,7 @@ lore1 = "패시브 방어력"
 lore2 = "주변 블록 경도 기준"
 lore3 = "방어력 강도:"
 passive = "주변 블록의 경도에 따라 얻는 지속 방어력"
-strength = "기갑 힘: +{strength}"
+strength = "추가 방어력: +{strength}"
 lore = ["패시브 방어력", "주변 블록 경도 기준", "방어력 강도:"]
 
 [discovery.unity]
@@ -4779,10 +4909,10 @@ click_to_learn = "클릭하여 {adaptation} 습득"
 knowledge_shortage = "(사용 가능한 지식: {knowledge})"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} 힘 하수구"
+vault_unavailable_fallback = "Vault 경제 기능을 사용할 수 없습니다 — 지식만으로 배우는 기능은 계속 사용할 수 있습니다."
+vault_insufficient_funds = "플레이어의 Vault 잔액이 부족합니다."
+vault_transaction_failed = "Vault 거래에 실패했습니다. 진행도는 변경되지 않았습니다."
+power_drain = "파워 소모 {power}"
 
 [gui.mutations]
 experimental_mutations = "실험적 변이"
@@ -5385,7 +5515,6 @@ msg_range = "그 컨테이너는 훨씬 멀리 연결."
 msg_same = "컨테이너를 연결할 수 없습니다."
 msg_stale = "캡처 된 컨테이너는 더 이상 사용할 수 없습니다."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} {skill} 지식"
 knowledge_status = "{amount} {skill} 지식"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP에 대한 {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "플레이어 데이터가 삭제되었습니다."
 no_description_provided = "설명 없음"
-config_hotloaded = "&7[&4Adapt&7]: &aAdapt 즉시 반영: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4Adapt&7]: &aAdapt 즉시 반영: &f[{file}] &7[추가 변경 사항 {remaining}개 생략]"
+config_hotloaded = "&7[&4Adapt&7]: &a설정을 즉시 다시 불러왔습니다: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &a설정을 즉시 다시 불러왔습니다: &f[{file}] &7[추가 변경 {remaining}개 생략]"
 
 [seaborn.oxygen]
 name = "유기 산소 탱크"
@@ -6201,6 +6330,8 @@ lore3 = "Combat 차단"
 lore = ["최대 흡수", "맥박 당 흡수", "Combat 차단"]
 
 [command.help]
+debug_dump = "진단 보고서를 생성하고 선택적으로 업로드"
+debug_upload = "보고서를 mclo.gs에 업로드"
 adapt_debug_command = "Adapt Debug 명령"
 adapt_skills_adaptations_and_admin_tools = "Adapt 기술, 적응 및 관리자 도구"
 adaptation_level_to_apply = "적용 수준"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "변경 없음: {adaptation} 수준에 이미 {level}
 power_insufficient = "사용 가능한 전력이 충분하지 않습니다. {needed}, {available}가 필요합니다."
 knowledge_insufficient = "{skill} 지식이 부족합니다. {needed}이(가) 필요하며 {available}을(를) 보유하고 있습니다."
 knowledge_spend_failed = "필요한 지식({knowledge})을 소모하지 못했습니다."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "플레이어의 Vault 잔액이 부족합니다."
+vault_transaction_failed = "Vault 거래에 실패했습니다. 진행도는 변경되지 않았습니다."
 set_adaptation_level = "설치하기 {player} {adaptation} 수준에 {level}."
 permanent_adaptation_lower = "{adaptation} 영원하고 낮출 수 없습니다 force=true."
 adapt_server_not_ready = "Adapt 서버는 아직 준비되어 있지 않습니다. 몇 초에 다시 시도."
@@ -6350,8 +6481,113 @@ parameters_ignored = "매개 변수 무시: {parameters}"
 no_description = "설명 없음"
 perf_ability_checks = "능력 검증: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "성공한 검증: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "액티브 레벨 캐시 히트 비율: {ratio} ({hits} 히트, {misses} 미스)"
+perf_cache_hit_ratio = "활성 레벨 캐시 적중률: {ratio} (적중 {hits}회, 미적중 {misses}회)"
 perf_timing_budget = "능력 검사 타이밍 예산: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "티커 창: {window}ms"
 perf_no_metrics = "아직 수집되지 않음."
 perf_reset = "티커 및 능력 텔레메트리를 초기화했습니다."
+
+[language.menu]
+your_language = "내 언어"
+reset_your_language = "내 언어 재설정"
+server_default = "서버 기본값"
+edit_messages = "언어 메시지 편집"
+use_server_default = "서버 기본값 사용"
+current = "현재: {locale}"
+current_with_personal = "현재: {locale} (내 언어: {personal})"
+your_description = "나에게 표시되는 메시지만 변경합니다."
+reset_description = "서버 기본 언어를 사용합니다."
+server_description = "서버 기본 언어를 변경합니다."
+edit_description = "언어별 메시지 편집기를 엽니다."
+select_description = "클릭하여 이 언어를 선택합니다."
+remove_personal_description = "개인 언어 선택을 제거합니다."
+no_controls = "사용할 수 있는 언어 설정이 없습니다."
+command = "명령어: {command}"
+selected = "선택됨"
+all-volmit-plugins = "모든 Volmit 플러그인"
+
+[language.error]
+stopping = "플러그인이 중지되는 동안에는 언어를 선택할 수 없습니다."
+editor-player-only = "게임 안에서 언어 편집기를 여세요."
+no-providers = "사용 가능한 Volmit 언어 제공자가 없습니다."
+numeric-page = "페이지 번호를 숫자로 입력하세요."
+personal-player-only = "개인 언어는 게임 안에서 선택해야 합니다."
+personal-permission = "개인 언어를 선택할 권한이 없습니다."
+plugin-personal-permission = "{plugin}의 개인 언어를 선택할 권한이 없습니다."
+plugin-server-permission = "{plugin}의 서버 언어를 변경할 권한이 없습니다."
+server-locale-required = "서버 기본 언어로 en_US 같은 언어 코드를 선택하세요."
+unavailable-for-all = "{locale} 언어는 선택한 모든 플러그인에서 지원되는 것은 아닙니다."
+
+[language.usage]
+editor = "사용법: /{command} language server edit [locale]"
+selection = "사용법: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "사용법: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "{target}의 {locale} 언어를 준비하는 중..."
+save-failed = "{plugin}: 언어 선택을 저장하지 못했습니다. 서버 콘솔을 확인하세요."
+english-fallback = "{plugin}: {locale}을 사용할 수 없어 영어(en_US)를 사용합니다."
+personal-selected = "{plugin}: 개인 언어를 {locale}으로 변경했습니다."
+server-selected = "{plugin}: 서버 언어를 {locale}으로 변경했습니다."
+server-default-selected = "{plugin}: 개인 언어가 이제 서버 기본 언어를 따릅니다."
+
+[language.editor]
+loading = "{locale} 메시지를 불러오는 중..."
+
+[language.editor.section]
+languages = "언어"
+search = "검색"
+search-title = "{locale} / 검색"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "메시지 키 또는 내용을 검색하세요. 돌아가려면 cancel을 입력하세요."
+value = "채팅에 {key}의 새 값을 입력하세요."
+current = "현재 값: {value}"
+variables = "변수: {variables}"
+guidance = "줄바꿈에는 \\n, 역슬래시에는 \\\\를 사용하세요. 돌아가려면 cancel을 입력하세요."
+
+[language.editor.input]
+expired = "언어 편집기의 입력 시간이 만료되었습니다."
+too-long = "입력은 최대 {maximum}자까지 가능합니다."
+unable-to-save = "저장하지 못했습니다: {reason}"
+
+[language.editor.navigation]
+back = "&e뒤로&r"
+close = "&c닫기&r"
+previous-page = "&e이전 페이지&r"
+next-page = "&e다음 페이지&r"
+
+[language.editor.search]
+messages = "메시지 검색"
+messages-lore = "클릭하여 모든 메시지를 검색합니다."
+clear = "검색 지우기"
+
+[language.editor.message]
+current-value = "&7현재 값:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7클릭하여 복수형을 편집합니다.&r"
+edit-lines = "&7클릭하여 개별 줄을 편집합니다.&r"
+edit-chat = "&7클릭하여 채팅에서 편집합니다.&r"
+
+[language.editor.locale]
+open = "&8클릭하여 이 언어를 엽니다.&r"
+
+[language.editor.category]
+message-count = "&7메시지 {count}개&r"
+open = "&8클릭하여 이 그룹을 엽니다.&r"
+
+[language.editor.error]
+no-permission = "{plugin}의 언어를 편집할 권한이 없습니다."
+unable-to-edit = "편집하지 못했습니다: {reason}"
+
+[language.editor.saved]
+summary = "{locale}을 저장했습니다. 언어 선택은 변경되지 않았습니다."
+change = "{key}: “{before}”에서 “{after}”로 변경했습니다."
+
+[language.editor.part]
+line = "{line}번째 줄"
+
+[language.editor.value]
+none = "없음"
+empty = "(비어 있음)"

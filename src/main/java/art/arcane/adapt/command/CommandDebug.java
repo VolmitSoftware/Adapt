@@ -28,6 +28,15 @@ import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 @Director(name = "debug", origin = DirectorOrigin.BOTH, description = "Adapt Debug Command", aliases = {"dev"}, descriptionKey = "command.help.adapt_debug_command")
 public class CommandDebug {
 
+  @Director(name = "dump", sync = true, description = "Create and optionally upload a diagnostic report", descriptionKey = "command.help.debug_dump")
+  public void dump(
+    @Param(name = "upload", defaultValue = "true", description = "Upload the report to mclo.gs", descriptionKey = "command.help.debug_upload") boolean upload,
+    @Param(name = "sender", contextual = true) CommandSender sender
+  ) {
+    Adapt.instance.debugDump().request(sender, upload);
+  }
+
+
   @Director(name = "mode", description = "Toggle debug mode: reveals every skill and adaptation and makes learning free and uncapped", descriptionKey = "command.help.toggle_debug_mode_reveals_every_skill_and_adaptation_and_makes_learning_free_and_uncapped")
   public void mode(
       @Param(aliases = "enabled", description = "Explicit on/off state, omit to toggle", defaultValue = "toggle", descriptionKey = "command.help.explicit_on_off_state_omit_to_toggle")

@@ -19,7 +19,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 
-class AdaptLanguageDownloadCacheTest extends AdaptTestBase {
+class AdaptLanguageLoadingTest extends AdaptTestBase {
 
   @AfterEach
   void restoreEnglishSnapshot() {
@@ -57,9 +57,9 @@ class AdaptLanguageDownloadCacheTest extends AdaptTestBase {
   }
 
   @Test
-  void sparseOverrideTakesPriorityOverDownloadedLocale() throws Exception {
+  void sparseLanguageUsesEnglishForMissingEntries() throws Exception {
     writeDownloadedLocale("de_DE");
-    Path override = writeOverride("de_DE", "Eigener Text");
+    Path override = writeLanguage("de_DE", "Eigener Text");
     AdaptConfig config = localeConfig("de_DE");
 
     try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
@@ -72,11 +72,9 @@ class AdaptLanguageDownloadCacheTest extends AdaptTestBase {
   }
 
   @Test
-  void corruptDownloadDoesNotBlockAValidOverride() throws Exception {
-    Path downloaded = AdaptLanguage.remote().cacheFile("de_DE");
-    Files.createDirectories(downloaded.getParent());
-    Files.writeString(downloaded, "[unknown]\nkey = \"invalid\"\n", StandardCharsets.UTF_8);
-    writeOverride("de_DE", "Nur eigener Text");
+  void malformedMessageDoesNotBlockValidMessages() throws Exception {
+    Path file = writeLanguage("de_DE", "Nur eigener Text");
+    Files.writeString(file, Files.readString(file) + "invalid_type = 42\n[command.runtime]\nmissing_permission = \"Missing variable\"\n");
     AdaptConfig config = localeConfig("de_DE");
 
     try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
@@ -87,7 +85,7 @@ class AdaptLanguageDownloadCacheTest extends AdaptTestBase {
   }
 
   @Test
-  void englishReloadCreatesOnlyReferenceAndLanguageDirectories() throws Exception {
+  void englishReloadCreatesTheEditableLanguageLayout() throws Exception {
     AdaptConfig config = localeConfig("en_US");
 
     try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
@@ -95,22 +93,26 @@ class AdaptLanguageDownloadCacheTest extends AdaptTestBase {
       assertThat(AdaptLanguage.reload()).isTrue();
     }
 
+    try (Stream<Path> entries = Files.list(dataFolder.toPath())) {
+      assertThat(entries.map(path -> path.getFileName().toString()).toList())
+          .containsExactly("languages");
+    }
     try (Stream<Path> entries = Files.list(referencePath().getParent())) {
       assertThat(entries.map(path -> path.getFileName().toString()).toList())
-          .containsExactlyInAnyOrder("en_US.toml", "overrides", "downloaded");
+          .containsExactlyInAnyOrder("en_US.toml");
     }
   }
 
   @Test
-  void overrideSnapshotUsesCapturedContentOverDownloadedLocaleWithoutWritingDisk() throws Exception {
+  void languageSnapshotUsesCapturedContentWithoutWritingDisk() throws Exception {
     writeDownloadedLocale("de_DE");
     AdaptConfig config = localeConfig("de_DE");
-    Path override = writeOverride("de_DE", "Disk value");
+    Path override = writeLanguage("de_DE", "Disk value");
 
     String rendered;
     try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
       configured.when(AdaptConfig::get).thenReturn(config);
-      assertThat(AdaptLanguage.reloadOverrideSnapshot(
+      assertThat(AdaptLanguage.reloadLanguageSnapshot(
           override.toFile(),
           "[runtime]\nno_description_provided = \"Captured value\"\n"
       )).isTrue();
@@ -131,14 +133,14 @@ class AdaptLanguageDownloadCacheTest extends AdaptTestBase {
   }
 
   private Path writeDownloadedLocale(String locale) throws Exception {
-    Path target = AdaptLanguage.remote().cacheFile(locale);
+    Path target = AdaptLanguage.languageFolder().toPath().resolve(locale + ".toml");
     Files.createDirectories(target.getParent());
     Files.copy(Path.of("src/main/resources", locale + ".toml"), target, StandardCopyOption.REPLACE_EXISTING);
     return target;
   }
 
-  private Path writeOverride(String locale, String value) throws Exception {
-    Path override = new File(dataFolder, "languages/overrides/" + locale + ".toml").toPath();
+  private Path writeLanguage(String locale, String value) throws Exception {
+    Path override = new File(dataFolder, "languages/" + locale + ".toml").toPath();
     Files.createDirectories(override.getParent());
     Files.writeString(
         override,

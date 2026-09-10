@@ -1,4 +1,134 @@
-# Adapt language overlay: vi_VI
+# Adapt — vi_VI
+#
+# === Chỉnh sửa tệp ===
+# plugins/Adapt/languages/vi_VI.toml
+# Bạn có thể chỉnh sửa trực tiếp tệp này. Thay đổi cục bộ được giữ lại; mục thiếu hoặc không hợp lệ dùng bản tiếng Anh tích hợp.
+# /adapt language server edit vi_VI
+#
+# === Tiền tố ===
+# {prefix} là tiền tố của giá trị thống kê. Tiền tố lệnh được thêm tự động.
+#
+# === Định dạng ===
+# MiniMessage: <green>...</green>.
+# &0-&f là màu, &k-&r là định dạng, &#RRGGBB là màu thập lục phân; automatic-gradients là chuyển màu tự động.
+#
+# === Biến ===
+# Giữ nguyên tên biến và chỉ dùng những biến có sẵn trong từng thông báo.
+#   {adaptation}  Tên năng lực thích nghi
+#   {adaptations}  Tên các năng lực thích nghi phù hợp
+#   {after}  Giá trị sau khi chỉnh sửa
+#   {amount}  Lượng tiền, kiến thức hoặc kinh nghiệm
+#   {argument}  Đối số lệnh ngoài dự kiến
+#   {available}  Sức mạnh hoặc kiến thức hiện có
+#   {before}  Giá trị trước khi chỉnh sửa
+#   {benefit}  Mô tả lợi ích của đột biến
+#   {block}  Khối được nêu trong hướng dẫn tiến trình
+#   {bonus}  Lượng thưởng Masterwork
+#   {burden}  Mô tả bất lợi của đột biến
+#   {category}  Tên danh mục cấu hình
+#   {chance}  Xác suất kích hoạt
+#   {combo}  Tổ hợp điều kiện kích hoạt Instant Recall
+#   {command}  Đường dẫn đầy đủ của lệnh
+#   {control}  Hướng dẫn sử dụng đột biến
+#   {cost}  Chi phí kiến thức
+#   {count}  Số mục, tệp hoặc thông báo
+#   {damage}  Lượng sát thương cộng thêm
+#   {danger}  Cảnh báo nguy hiểm khi đi qua cổng
+#   {deepCharge}  Lượng Deep Charge đã tích trữ
+#   {deepblood}  Trạng thái công cụ Deepblood đã liên kết
+#   {description}  Mô tả tiến trình
+#   {direction}  Hướng đến công trình
+#   {distance}  Khoảng cách đến công trình, tính bằng khối
+#   {domain}  Tên nhóm kỹ năng của đột biến
+#   {duration}  Thời lượng hoặc thời gian hồi đã định dạng
+#   {effect}  Tên hiệu ứng thuốc
+#   {enchantment}  Tên phù phép
+#   {environment}  Môi trường ảnh hưởng đến năng lực
+#   {error}  Chi tiết lỗi cấu hình
+#   {experience}  Kinh nghiệm được lưu trong quả cầu
+#   {file}  Tên tệp cấu hình
+#   {first}  Nhóm kỹ năng hoặc thành phần điều kiện kích hoạt thứ nhất
+#   {from}  Chỉ số mục đầu tiên trên trang
+#   {group}  Danh mục trong trình chỉnh sửa ngôn ngữ
+#   {hits}  Số lần tìm thấy kết quả trong bộ nhớ đệm
+#   {instruction}  Hướng dẫn mở khóa tiến trình
+#   {interaction}  Tương tác với ô đột biến còn lại
+#   {key}  Khóa thông báo hoặc cấu hình
+#   {knowledge}  Lượng kiến thức
+#   {label}  Nhãn của thiết lập hoặc số liệu
+#   {level}  Cấp kỹ năng, năng lực thích nghi hoặc hiệu ứng
+#   {levels}  Số cấp kinh nghiệm tiết kiệm được
+#   {line}  Số dòng trong thông báo ngôn ngữ
+#   {locale}  Mã ngôn ngữ
+#   {masterwork}  Trạng thái trang bị Masterwork đã liên kết
+#   {maximum}  Giá trị tối đa hoặc giới hạn sức mạnh
+#   {message}  Thông báo trạng thái trước chi tiết thời gian hồi
+#   {microsPerCheck}  Số microgiây cho mỗi lần kiểm tra năng lực
+#   {millisPerSecond}  Số mili giây dành cho kiểm tra năng lực mỗi giây
+#   {minimum}  Giá trị nhỏ nhất được phép
+#   {misses}  Số lần không tìm thấy kết quả trong bộ nhớ đệm
+#   {multiplier}  Hệ số tăng kinh nghiệm
+#   {mutation}  Tên đột biến
+#   {needed}  Sức mạnh hoặc kiến thức cần có
+#   {newValue}  Giá trị cấu hình mới
+#   {nextLevel}  Hiển thị cấp kỹ năng tiếp theo
+#   {oldValue}  Giá trị cấu hình trước đó
+#   {other}  Tên đột biến xung đột
+#   {page}  Số trang hiện tại
+#   {pages}  Tổng số trang
+#   {parameter}  Tên tham số lệnh
+#   {parameters}  Các tham số lệnh bị bỏ qua
+#   {particle}  Tên loại hạt hiệu ứng
+#   {path}  Đường dẫn cấu hình
+#   {perMinute}  Số lần kiểm tra năng lực mỗi phút
+#   {perSecond}  Số lần kiểm tra năng lực mỗi giây
+#   {percent}  Tỷ lệ ngân sách thời gian xử lý hoặc thưởng kinh nghiệm
+#   {permission}  Quyền truy cập cần có
+#   {personal}  Mã ngôn ngữ cá nhân
+#   {player}  Người chơi nhận tác động của thao tác
+#   {plugin}  Tên plugin
+#   {power}  Lượng sức mạnh hoặc mức tiêu hao
+#   {prefix}  Tiền tố trước giá trị số liệu
+#   {progress}  Hiển thị tiến độ kỹ năng
+#   {range}  Phạm vi tìm kiếm hoặc năng lực, tính bằng khối
+#   {ratio}  Tỷ lệ tìm thấy kết quả trong bộ nhớ đệm
+#   {reason}  Giải thích trạng thái đột biến hoặc lỗi trình chỉnh sửa
+#   {refund}  Kiến thức được hoàn lại khi bỏ học năng lực
+#   {remaining}  Số thay đổi cấu hình bị lược khỏi thông báo
+#   {result}  Hiệu ứng đột biến ở cấp 200
+#   {rootCharge}  Lượng Root Charge đã tích trữ
+#   {second}  Nhóm kỹ năng hoặc thành phần điều kiện kích hoạt thứ hai
+#   {seconds}  Thời lượng tính bằng giây
+#   {separator}  Dấu phân cách giữa giá trị số liệu và nhãn
+#   {skill}  Tên kỹ năng
+#   {slot}  Số ô đột biến
+#   {slots}  Số ô trong ba lô
+#   {stacks}  Số tầng hiệu ứng hoặc sức chứa ba lô theo chồng vật phẩm
+#   {state}  Trạng thái bật/tắt hoặc trạng thái ô đột biến
+#   {steps}  Số bước chế tạo, pha chế hoặc phù phép đã hoàn thành
+#   {strength}  Sức phòng thủ cộng thêm
+#   {structure}  Tên công trình đã tìm thấy
+#   {surface}  Bề mặt ảnh hưởng đến điều kiện kích hoạt
+#   {symbol}  Ký hiệu chỉ vị trí công trình
+#   {target}  Người chơi đích hoặc plugin được chọn ngôn ngữ
+#   {tell}  Mô tả hiệu ứng đột biến có thể nhìn thấy
+#   {temperbound}  Trạng thái trang bị Temperbound đã liên kết
+#   {timestamp}  Dấu thời gian của bản lưu trữ cấu hình
+#   {to}  Chỉ số mục cuối cùng trên trang
+#   {total}  Tổng số mục hoặc ô
+#   {trigger}  Điều kiện kích hoạt năng lực
+#   {trophy}  Trạng thái chiến lợi phẩm đã liên kết
+#   {type}  Kiểu tham số hoặc giá trị được yêu cầu
+#   {usage}  Cú pháp lệnh
+#   {used}  Sức mạnh đã dùng hoặc số ô đã chiếm
+#   {value}  Giá trị thiết lập hoặc số liệu hiện tại
+#   {values}  Các giá trị thiết lập được phép
+#   {variables}  Các biến thay thế được phép trong thông báo
+#   {window}  Khoảng đo hiệu năng, tính bằng mili giây
+#   {world}  Tên thế giới
+#   {x}  Tọa độ X của mục tiêu
+#   {xp}  Lượng kinh nghiệm
+#   {z}  Tọa độ Z của mục tiêu
 
 [mutation.domain]
 body = "Cơ thể"
@@ -4189,7 +4319,7 @@ lore1 = "Giáp Thụ Động"
 lore2 = "Dựa trên độ cứng khối gần đó"
 lore3 = "Sức Mạnh Giáp:"
 passive = "Giáp thụ động, dựa trên độ cứng của các khối ở gần"
-strength = "Sức mạnh của vũ khí: +{strength}"
+strength = "Sức phòng thủ: +{strength}"
 lore = ["Giáp Thụ Động", "Dựa trên độ cứng khối gần đó", "Sức Mạnh Giáp:"]
 
 [discovery.unity]
@@ -4779,10 +4909,10 @@ click_to_learn = "Nhấp để học {adaptation}"
 knowledge_shortage = "(Bạn chỉ có {knowledge} kiến thức khả dụng)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} Nguồn thoát nước"
+vault_unavailable_fallback = "Không thể dùng hệ thống kinh tế Vault — vẫn có thể học chỉ bằng kiến thức."
+vault_insufficient_funds = "Người chơi không có đủ tiền trong hệ thống kinh tế Vault."
+vault_transaction_failed = "Giao dịch Vault thất bại; tiến độ không thay đổi."
+power_drain = "Tiêu hao sức mạnh: {power}"
 
 [gui.mutations]
 experimental_mutations = "Đột biến thử nghiệm"
@@ -5385,7 +5515,6 @@ msg_range = "Công-ten-nơ đó ở quá xa để liên kết."
 msg_same = "Bạn không thể liên kết một container với chính nó."
 msg_stale = "Container bị bắt không còn sẵn sàng nữa."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} kiến thức {skill}"
 knowledge_status = "{amount} {skill} Hiểu biết"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP Vì {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "Dữ liệu của bạn đã bị xóa."
 no_description_provided = "Không có mô tả"
-config_hotloaded = "&7[&4Adapt&7]: &aAdapt đã nạp nóng: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4Thích nghi&7]: &aNạp nóng thích hợp: &f[{file}] &7[{remaining} Các thay đổi phụ]"
+config_hotloaded = "&7[&4Adapt&7]: &aĐã tải lại cấu hình ngay: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &aĐã tải lại cấu hình ngay: &f[{file}] &7[đã lược {remaining} thay đổi bổ sung]"
 
 [seaborn.oxygen]
 name = "Bình Oxy Hữu Cơ"
@@ -6201,6 +6330,8 @@ lore3 = "Khóa Khi Giao Chiến"
 lore = ["Hấp Thụ Tối Đa", "Hấp Thụ Mỗi Xung", "Khóa Khi Giao Chiến"]
 
 [command.help]
+debug_dump = "Tạo báo cáo chẩn đoán và tải lên nếu muốn"
+debug_upload = "Tải báo cáo lên mclo.gs"
 adapt_debug_command = "Adapt Lệnh gỡ lỗi"
 adapt_skills_adaptations_and_admin_tools = "Adapt Kĩ năng, thích nghi và công cụ quản trị"
 adaptation_level_to_apply = "Cấp thích nghi cần áp dụng"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "Không thay đổi: {adaptation} đã ở mức đ�
 power_insufficient = "Không đủ điện. Cần {needed}, có {available}."
 knowledge_insufficient = "Không đủ kiến thức trong {skill}. Cần {needed}, hiện có {available}."
 knowledge_spend_failed = "Không thể chi tiêu kiến thức cần thiết ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "Người chơi không có đủ tiền trong hệ thống kinh tế Vault."
+vault_transaction_failed = "Giao dịch Vault thất bại; tiến độ không thay đổi."
 set_adaptation_level = "Đặt {player} {adaptation} cấp {level}."
 permanent_adaptation_lower = "{adaptation} là vĩnh viễn và không thể bị hạ nếu thiếu force=true."
 adapt_server_not_ready = "Server Adapt chưa sẵn sàng."
@@ -6350,8 +6481,113 @@ parameters_ignored = "Tham số bị bỏ qua: {parameters}"
 no_description = "Không mô tả"
 perf_ability_checks = "kiểm tra khả năng: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "kiểm tra thành công: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "Tỷ lệ trúng mức độ bộ nhớ tạm hoạt động: {ratio} ({hits} Trúng, {misses} Cô ơi)"
+perf_cache_hit_ratio = "Tỷ lệ tìm thấy trong bộ nhớ đệm cấp hoạt động: {ratio} (tìm thấy {hits}, không tìm thấy {misses})"
 perf_timing_budget = "Kiểm tra ngân sách thời gian: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "Cửa sổ vé: {window}ms"
 perf_no_metrics = "Vẫn chưa thu thập được gì."
 perf_reset = "Ticker và khả năng thiết lập lại."
+
+[language.menu]
+your_language = "Ngôn ngữ của bạn"
+reset_your_language = "Đặt lại ngôn ngữ của bạn"
+server_default = "Ngôn ngữ mặc định của máy chủ"
+edit_messages = "Chỉnh sửa thông báo ngôn ngữ"
+use_server_default = "Dùng ngôn ngữ mặc định của máy chủ"
+current = "Hiện tại: {locale}"
+current_with_personal = "Hiện tại: {locale} (Của bạn: {personal})"
+your_description = "Chỉ thay đổi những thông báo bạn thấy."
+reset_description = "Dùng ngôn ngữ mặc định của máy chủ."
+server_description = "Thay đổi ngôn ngữ mặc định của máy chủ."
+edit_description = "Mở trình chỉnh sửa thông báo cho từng ngôn ngữ."
+select_description = "Nhấp để chọn ngôn ngữ này."
+remove_personal_description = "Xóa lựa chọn ngôn ngữ cá nhân của bạn."
+no_controls = "Bạn không có quyền dùng các tùy chọn ngôn ngữ."
+command = "Câu lệnh: {command}"
+selected = "Đã chọn"
+all-volmit-plugins = "Tất cả plugin Volmit"
+
+[language.error]
+stopping = "Không có khả năng chọn ngôn ngữ trong khi bổ sung đang dừng."
+editor-player-only = "Mở trình soạn thảo ngôn ngữ trong trò chơi."
+no-providers = "Không có nhà cung cấp ngôn ngữ Volmit nào khả dụng."
+numeric-page = "Nhập số trang bằng chữ số."
+personal-player-only = "Bạn phải chọn ngôn ngữ cá nhân trong trò chơi."
+personal-permission = "Bạn không có quyền chọn ngôn ngữ của mình."
+plugin-personal-permission = "Bạn không có quyền chọn ngôn ngữ cá nhân cho {plugin}."
+plugin-server-permission = "Bạn không có quyền thay đổi ngôn ngữ máy chủ cho {plugin}."
+server-locale-required = "Chọn mã ngôn ngữ như en_US làm ngôn ngữ mặc định của máy chủ."
+unavailable-for-all = "Ngôn ngữ {locale} không khả dụng cho tất cả plugin đã chọn."
+
+[language.usage]
+editor = "Cách dùng: /{command} language server edit [locale]"
+selection = "Cách dùng: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "Cách dùng: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "Đang chuẩn bị ngôn ngữ {locale} cho {target}..."
+save-failed = "{plugin}: không thể lưu lựa chọn ngôn ngữ; hãy kiểm tra bảng điều khiển máy chủ."
+english-fallback = "{plugin}: {locale} không khả dụng; sẽ dùng tiếng Anh (en_US)."
+personal-selected = "{plugin}: ngôn ngữ của bạn hiện là {locale}."
+server-selected = "{plugin}: ngôn ngữ máy chủ hiện là {locale}."
+server-default-selected = "{plugin}: ngôn ngữ của bạn hiện theo ngôn ngữ mặc định của máy chủ."
+
+[language.editor]
+loading = "Đang tải tin nhắn cho {locale}..."
+
+[language.editor.section]
+languages = "Ngôn ngữ"
+search = "Tìm kiếm"
+search-title = "{locale} / Tìm kiếm"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "Tìm khóa hoặc nội dung tin nhắn. Nhập cancel để quay lại."
+value = "Nhập giá trị mới cho {key} trong trò chuyện."
+current = "Giá trị hiện tại: {value}"
+variables = "Biến: {variables}"
+guidance = "Dùng \\n để xuống dòng, \\\\ để nhập dấu gạch chéo ngược, hoặc nhập cancel để quay lại."
+
+[language.editor.input]
+expired = "Đã hết thời gian nhập trong trình chỉnh sửa ngôn ngữ."
+too-long = "Nội dung nhập chỉ được có tối đa {maximum} ký tự."
+unable-to-save = "Không thể lưu: {reason}"
+
+[language.editor.navigation]
+back = "&eQuay lại&r"
+close = "&cĐóng&r"
+previous-page = "&eTrang trước&r"
+next-page = "&eTrang kế&r"
+
+[language.editor.search]
+messages = "Tìm tin nhắn"
+messages-lore = "Nhấn vào để tìm kiếm mọi tin nhắn."
+clear = "Xóa tìm kiếm"
+
+[language.editor.message]
+current-value = "&7Giá trị hiện có:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7Nhấp để chỉnh sửa một dạng số nhiều.&r"
+edit-lines = "&7Nhấp để chỉnh sửa từng dòng.&r"
+edit-chat = "&7Nhấp để chỉnh sửa trong trò chuyện.&r"
+
+[language.editor.locale]
+open = "&8Nhấn vào để mở ngôn ngữ này.&r"
+
+[language.editor.category]
+message-count = "&7{count} tin nhắn&r"
+open = "&8Nhấn vào để mở phân loại này.&r"
+
+[language.editor.error]
+no-permission = "Bạn không có quyền chỉnh sửa ngôn ngữ của {plugin}."
+unable-to-edit = "Không thể chỉnh sửa: {reason}"
+
+[language.editor.saved]
+summary = "Đã lưu {locale}. Các lựa chọn ngôn ngữ không thay đổi."
+change = "{key}: “{before}” đã đổi thành “{after}”."
+
+[language.editor.part]
+line = "Dòng {line}"
+
+[language.editor.value]
+none = "Không có"
+empty = "(trống)"

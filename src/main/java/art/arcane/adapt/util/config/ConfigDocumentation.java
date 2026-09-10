@@ -20,8 +20,8 @@ public final class ConfigDocumentation {
       Map.entry(
           "language",
           "Locale used for in-game text; supported non-English translations download automatically."
-              + " languages/en_US.toml is a regenerated reference, and server edits belong in"
-              + " languages/overrides/<locale>.toml."
+              + " languages/en_US.toml is created when missing. Edit languages/<locale>.toml directly;"
+              + " local changes are preserved and missing or invalid entries use built-in English."
       ),
       Map.entry("autoUpdateCheck", "Checks for plugin updates during startup."),
       Map.entry("metrics", "Sends anonymous bStats usage metrics."),

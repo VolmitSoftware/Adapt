@@ -1,103 +1,85 @@
 package art.arcane.adapt.localization;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
-import art.arcane.volmlib.util.localization.LocalizationCandidate;
+import art.arcane.adapt.localization.catalog.RuntimeMessages;
+import art.arcane.adapt.util.common.plugin.AdaptService;
+import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.localization.LocalizationSnapshot;
 import art.arcane.volmlib.util.localization.PluginLanguageEditor;
-import art.arcane.volmlib.util.localization.PluginLanguageService;
-import art.arcane.volmlib.util.localization.PluralSelector;
 import art.arcane.volmlib.util.localization.TextValue;
-import art.arcane.volmlib.util.localization.VolmitLocales;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AdaptLanguageEditorTest extends AdaptTestBase {
-  private PluginLanguageService languages;
-  private PluginLanguageEditor editor;
-
   @BeforeEach
-  void prepareEditor() throws Exception {
-    Path cache = AdaptLanguage.remote().cacheFile("fr_FR");
-    Files.createDirectories(cache.getParent());
-    Files.copy(Path.of("src/main/resources/fr_FR.toml"), cache);
-    PluginLanguageEditor.Options options = AdaptLanguage.editorOptions();
-    LocalizationSnapshot english = LocalizationSnapshot.create(
-        LocalizationCandidate.english(AdaptMessages.catalog(), PluralSelector.oneOther()));
-    languages = new PluginLanguageService(new PluginLanguageService.Options(
-        dataFolder.toPath().resolve("players.properties"), VolmitLocales::all, () -> "en_US", () -> english,
-        options.loader()::load, (locale, snapshot) -> {
-          throw new AssertionError("Editing must not select a server language");
-        }, Logger.getLogger("AdaptLanguageEditorTest")));
-    editor = new PluginLanguageEditor(languages, options);
-  }
-
-  @AfterEach
-  void closeEditor() {
-    editor.close();
-    languages.close();
-    AdaptLanguage.shutdown();
+  void initializeServices() throws Exception {
+    Field services = Adapt.class.getDeclaredField("services");
+    services.setAccessible(true);
+    services.set(plugin, new KMap<Class<? extends AdaptService>, AdaptService>());
   }
 
   @Test
-  void savesOneLocaleAndRefreshesItsPersonalSnapshotWithoutSelectingIt() throws Exception {
-    UUID player = UUID.randomUUID();
-    languages.selectPlayer(player, "fr_FR").get(5, TimeUnit.SECONDS);
-    String active = AdaptLanguage.activeLocale();
-    PluginLanguageEditor.Document original = editor.load("fr_FR").get(5, TimeUnit.SECONDS);
-    TextValue value = new TextValue("Autorisation {permission}");
-    editor.save(new PluginLanguageEditor.Edit("fr_FR", CommandRuntimeMessages.MISSING_PERMISSION.id(),
-        original.snapshot().value(CommandRuntimeMessages.MISSING_PERMISSION), value)).get(5, TimeUnit.SECONDS);
+  void savesEnglishDirectlyAndRetainsNeighboringMessages() throws Exception {
+    Path file = write("en_US", "# Local formatting\n[runtime]\nno_description_provided = \"Custom English\"\n"
+        + "[command.runtime]\nplayer_only = \"Players only\"\n");
 
-    Path file = AdaptLanguage.overrideFolder().toPath().resolve("fr_FR.toml");
-    assertThat(Files.readString(file)).contains("Autorisation {permission}");
-    assertThat(AdaptLanguage.editorOptions().loader().load("fr_FR").value(CommandRuntimeMessages.MISSING_PERMISSION)).isEqualTo(value);
-    assertThat(languages.snapshot(player).value(CommandRuntimeMessages.MISSING_PERMISSION)).isEqualTo(value);
-    assertThat(languages.playerLocale(player)).contains("fr_FR");
-    assertThat(languages.defaultLocale()).isEqualTo("en_US");
-    assertThat(AdaptLanguage.activeLocale()).isEqualTo(active);
-    assertThat(Files.exists(AdaptLanguage.overrideFolder().toPath().resolve("en_US.toml"))).isFalse();
+    LocalizationSnapshot saved = AdaptLanguage.editorOptions().writer().write(new PluginLanguageEditor.Edit(
+        "en_US", RuntimeMessages.NO_DESCRIPTION_PROVIDED.id(), new TextValue("Custom English"), new TextValue("Edited English")));
+
+    assertThat(saved.value(RuntimeMessages.NO_DESCRIPTION_PROVIDED)).isEqualTo(new TextValue("Edited English"));
+    assertThat(Files.readString(file)).contains("# Local formatting", "[runtime]", "Edited English", "Players only");
   }
 
   @Test
-  void invalidMessageLeavesTheLocaleFileIntact() throws Exception {
-    PluginLanguageEditor.Document original = editor.load("fr_FR").get(5, TimeUnit.SECONDS);
-    editor.save(new PluginLanguageEditor.Edit("fr_FR", CommandRuntimeMessages.MISSING_PERMISSION.id(),
-        original.snapshot().value(CommandRuntimeMessages.MISSING_PERMISSION), new TextValue("Permission {permission}")))
-        .get(5, TimeUnit.SECONDS);
-    Path file = AdaptLanguage.overrideFolder().toPath().resolve("fr_FR.toml");
-    byte[] before = Files.readAllBytes(file);
-    PluginLanguageEditor.Document saved = editor.load("fr_FR").get(5, TimeUnit.SECONDS);
+  void savesPartialLocaleWhileInvalidSiblingUsesEnglish() throws Exception {
+    Path file = write("de_DE", "[runtime]\nno_description_provided = \"Eigener Text\"\n"
+        + "[command.runtime]\nmissing_permission = 42\n");
 
-    assertThrows(ExecutionException.class, () -> editor.save(new PluginLanguageEditor.Edit("fr_FR",
-        CommandRuntimeMessages.MISSING_PERMISSION.id(), saved.snapshot().value(CommandRuntimeMessages.MISSING_PERMISSION),
-        new TextValue("Missing placeholder"))).get(5, TimeUnit.SECONDS));
-    assertThat(Files.readAllBytes(file)).isEqualTo(before);
+    LocalizationSnapshot saved = AdaptLanguage.editorOptions().writer().write(new PluginLanguageEditor.Edit(
+        "de_DE", RuntimeMessages.NO_DESCRIPTION_PROVIDED.id(), new TextValue("Eigener Text"), new TextValue("Neuer Text")));
+
+    assertThat(saved.value(RuntimeMessages.NO_DESCRIPTION_PROVIDED)).isEqualTo(new TextValue("Neuer Text"));
+    assertThat(saved.value(CommandRuntimeMessages.MISSING_PERMISSION)).isEqualTo(CommandRuntimeMessages.MISSING_PERMISSION.englishValue());
+    assertThat(Files.readString(file)).contains("missing_permission = 42");
   }
 
   @Test
-  void staleMessagePreservesAnExternalFileEdit() throws Exception {
-    PluginLanguageEditor.Document original = editor.load("fr_FR").get(5, TimeUnit.SECONDS);
-    Path file = AdaptLanguage.overrideFolder().toPath().resolve("fr_FR.toml");
+  void staleEditorValueCannotOverwriteNewerLocalEdit() throws Exception {
+    String raw = "[runtime]\nno_description_provided = \"Changed on disk\"\n";
+    Path file = write("de_DE", raw);
+
+    assertThatThrownBy(() -> AdaptLanguage.editorOptions().writer().write(new PluginLanguageEditor.Edit(
+        "de_DE", RuntimeMessages.NO_DESCRIPTION_PROVIDED.id(), new TextValue("Old value"), new TextValue("Replacement"))))
+        .hasMessageContaining("changed");
+
+    assertThat(Files.readString(file)).isEqualTo(raw);
+  }
+
+  @Test
+  void invalidEditedPlaceholdersCannotReplaceTheFile() throws Exception {
+    String raw = "[runtime]\nno_description_provided = \"Eigener Text\"\n";
+    Path file = write("de_DE", raw);
+
+    assertThatThrownBy(() -> AdaptLanguage.editorOptions().writer().write(new PluginLanguageEditor.Edit(
+        "de_DE", CommandRuntimeMessages.MISSING_PERMISSION.id(), CommandRuntimeMessages.MISSING_PERMISSION.englishValue(),
+        new TextValue("Missing permission variable")))).isInstanceOf(IllegalArgumentException.class);
+
+    assertThat(Files.readString(file)).isEqualTo(raw);
+  }
+
+  private Path write(String locale, String raw) throws Exception {
+    Path file = AdaptLanguage.languageFolder().toPath().resolve(locale + ".toml");
     Files.createDirectories(file.getParent());
-    Files.writeString(file, "[command.runtime]\nmissing_permission = \"External {permission}\"\n");
-    byte[] before = Files.readAllBytes(file);
-
-    assertThrows(ExecutionException.class, () -> editor.save(new PluginLanguageEditor.Edit("fr_FR",
-        CommandRuntimeMessages.MISSING_PERMISSION.id(), original.snapshot().value(CommandRuntimeMessages.MISSING_PERMISSION),
-        new TextValue("Autorisation {permission}"))).get(5, TimeUnit.SECONDS));
-    assertThat(Files.readAllBytes(file)).isEqualTo(before);
-    assertThat(languages.defaultLocale()).isEqualTo("en_US");
+    Files.writeString(file, raw);
+    return file;
   }
 }

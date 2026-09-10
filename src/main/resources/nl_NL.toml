@@ -1,4 +1,134 @@
-# Adapt language overlay: nl_NL
+# Adapt — nl_NL
+#
+# === Bestand bewerken ===
+# plugins/Adapt/languages/nl_NL.toml
+# Je kunt dit bestand rechtstreeks bewerken. Lokale wijzigingen blijven behouden; ontbrekende of ongeldige vermeldingen gebruiken het ingebouwde Engels.
+# /adapt language server edit nl_NL
+#
+# === Voorvoegsel ===
+# {prefix} is het voorvoegsel van een statistiekwaarde. Opdrachtvoorvoegsels worden automatisch toegevoegd.
+#
+# === Opmaak ===
+# MiniMessage: <green>...</green>.
+# &0-&f, &k-&r, &#RRGGBB; automatic-gradients.
+#
+# === Variabelen ===
+# Behoud de namen van variabelen en gebruik alleen de variabelen die bij het bericht horen.
+#   {adaptation}  Naam van de Adaptatie
+#   {adaptations}  Namen van passende Adaptaties
+#   {after}  Waarde na de bewerking
+#   {amount}  Hoeveelheid geld, kennis of ervaring
+#   {argument}  Onverwacht commandargument
+#   {available}  Beschikbare kracht of kennis
+#   {before}  Waarde vóór de bewerking
+#   {benefit}  Beschrijving van het mutatievoordeel
+#   {block}  Blok in de voortgangsinstructie
+#   {bonus}  Hoeveelheid Masterwork-bonus
+#   {burden}  Beschrijving van het mutatienadeel
+#   {category}  Naam van de instellingencategorie
+#   {chance}  Activeringskans
+#   {combo}  Combinatie die Instant Recall activeert
+#   {command}  Commandopad
+#   {control}  Gebruiksinstructies voor de mutatie
+#   {cost}  Kenniskosten
+#   {count}  Aantal voorwerpen, bestanden of berichten
+#   {damage}  Hoeveelheid extra schade
+#   {danger}  Waarschuwing voor poortreizen
+#   {deepCharge}  Hoeveelheid opgeslagen Deep Charge
+#   {deepblood}  Status van gekoppeld Deepblood-gereedschap
+#   {description}  Beschrijving van de voortgang
+#   {direction}  Richting naar het bouwwerk
+#   {distance}  Afstand tot het bouwwerk in blokken
+#   {domain}  Naam van de vaardigheidsgroep van de mutatie
+#   {duration}  Opgemaakte duur of afkoeltijd
+#   {effect}  Naam van het drankje-effect
+#   {enchantment}  Naam van de betovering
+#   {environment}  Omgeving die de vaardigheid beïnvloedt
+#   {error}  Details van de configuratiefout
+#   {experience}  Ervaring opgeslagen in een bol
+#   {file}  Naam van het configuratiebestand
+#   {first}  Eerste vaardigheidsgroep of activeringsonderdeel
+#   {from}  Index van het eerste item op de pagina
+#   {group}  Categorie in de taaleditor
+#   {hits}  Geslaagde cachetreffers
+#   {instruction}  Instructie om de voortgang te ontgrendelen
+#   {interaction}  Wisselwerking met het andere mutatieslot
+#   {key}  Bericht- of configuratiesleutel
+#   {knowledge}  Hoeveelheid kennis
+#   {label}  Label van de instelling of statistiek
+#   {level}  Niveau van vaardigheid, Adaptatie of effect
+#   {levels}  Bespaarde ervaringsniveaus
+#   {line}  Regelnummer van het taalbericht
+#   {locale}  Taalcode
+#   {masterwork}  Status van gekoppelde Masterwork-uitrusting
+#   {maximum}  Hoogste toegestane waarde of krachtlimiet
+#   {message}  Statusbericht vóór de afkoeltijdgegevens
+#   {microsPerCheck}  Microseconden per vaardigheidscontrole
+#   {millisPerSecond}  Milliseconden vaardigheidscontrole per seconde
+#   {minimum}  Laagste toegestane waarde
+#   {misses}  Cachezoekacties zonder opgeslagen resultaat
+#   {multiplier}  Vermenigvuldiger van de ervaringsbonus
+#   {mutation}  Naam van de mutatie
+#   {needed}  Vereiste kracht of kennis
+#   {newValue}  Nieuwe configuratiewaarde
+#   {nextLevel}  Weergave van het volgende vaardigheidsniveau
+#   {oldValue}  Vorige configuratiewaarde
+#   {other}  Naam van de conflicterende mutatie
+#   {page}  Huidig paginanummer
+#   {pages}  Totaal aantal pagina’s
+#   {parameter}  Naam van de commandoparameter
+#   {parameters}  Genegeerde commandoparameters
+#   {particle}  Naam van het deeltjestype
+#   {path}  Configuratiepad
+#   {perMinute}  Vaardigheidscontroles per minuut
+#   {perSecond}  Vaardigheidscontroles per seconde
+#   {percent}  Percentage tijdsbudget of ervaringsbonus
+#   {permission}  Vereiste permissie
+#   {personal}  Persoonlijke taalcode
+#   {player}  Speler die de actie ontvangt
+#   {plugin}  Pluginnaam
+#   {power}  Hoeveelheid of verbruik van kracht
+#   {prefix}  Voorvoegsel van de statistiekwaarde
+#   {progress}  Weergave van vaardigheidsvoortgang
+#   {range}  Zoek- of vaardigheidsbereik in blokken
+#   {ratio}  Cachetrefferverhouding
+#   {reason}  Uitleg van mutatiestatus of editorfout
+#   {refund}  Kennis die bij afleren wordt teruggegeven
+#   {remaining}  Aantal weggelaten configuratiewijzigingen
+#   {result}  Mutatie-effect op niveau 200
+#   {rootCharge}  Hoeveelheid opgeslagen Root Charge
+#   {second}  Tweede vaardigheidsgroep of activeringsonderdeel
+#   {seconds}  Duur in seconden
+#   {separator}  Scheidingsteken tussen statistiekwaarde en label
+#   {skill}  Naam van de vaardigheid
+#   {slot}  Nummer van het mutatieslot
+#   {slots}  Aantal rugzakslots
+#   {stacks}  Effectstapels of stapelcapaciteit van de rugzak
+#   {state}  Inschakelstatus of status van het mutatieslot
+#   {steps}  Voltooide maak-, brouw- of betoveringsstappen
+#   {strength}  Extra pantsersterkte
+#   {structure}  Naam van het gevonden bouwwerk
+#   {surface}  Oppervlak dat de activering beïnvloedt
+#   {symbol}  Symbool van de bouwwerkindicator
+#   {target}  Doelspeler of taalplugin
+#   {tell}  Beschrijving van het zichtbare mutatie-effect
+#   {temperbound}  Status van gekoppelde Temperbound-uitrusting
+#   {timestamp}  Tijdstempel van het configuratiearchief
+#   {to}  Index van het laatste item op de pagina
+#   {total}  Totaal aantal items of slots
+#   {trigger}  Activeringsvoorwaarde van de vaardigheid
+#   {trophy}  Status van de gekoppelde trofee
+#   {type}  Verwacht parameter- of waardetype
+#   {usage}  Commandosyntaxis
+#   {used}  Verbruikte kracht of bezette slots
+#   {value}  Huidige instellings- of statistiekwaarde
+#   {values}  Toegestane instellingswaarden
+#   {variables}  Toegestane berichtvariabelen
+#   {window}  Prestatiemeetvenster in milliseconden
+#   {world}  Wereldnaam
+#   {x}  X-coördinaat van het doel
+#   {xp}  Hoeveelheid ervaring
+#   {z}  Z-coördinaat van het doel
 
 [mutation.domain]
 body = "Lichaam"
@@ -4189,7 +4319,7 @@ lore1 = "Passief Pantser"
 lore2 = "Gebaseerd op nabije blokhardheid"
 lore3 = "Pantsersterkte:"
 passive = "Passieve harnas op basis van blokhardheid"
-strength = "Armor Sterkte: +{strength}"
+strength = "Pantsersterkte: +{strength}"
 lore = ["Passief Pantser", "Gebaseerd op nabije blokhardheid", "Pantsersterkte:"]
 
 [discovery.unity]
@@ -4779,10 +4909,10 @@ click_to_learn = "Klik om te leren {adaptation}"
 knowledge_shortage = "(Je hebt alleen {knowledge} Beschikbare kennis)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} Stroomafvoer"
+vault_unavailable_fallback = "De Vault-economie is niet beschikbaar — leren met alleen kennis blijft mogelijk."
+vault_insufficient_funds = "De speler heeft onvoldoende geld in de Vault-economie."
+vault_transaction_failed = "De Vault-transactie is mislukt; de voortgang is niet gewijzigd."
+power_drain = "Krachtverbruik: {power}"
 
 [gui.mutations]
 experimental_mutations = "Experimentele mutaties"
@@ -5385,7 +5515,6 @@ msg_range = "Die container is te ver om aan te sluiten."
 msg_same = "U kunt een container niet aan zichzelf koppelen."
 msg_stale = "de gevangen container is niet meer beschikbaar."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} {skill} Kennis"
 knowledge_status = "{amount} {skill} Kennis"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP voor {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "Uw gegevens zijn verwijderd."
 no_description_provided = "Geen beschrijving gegeven"
-config_hotloaded = "&7[&4Aanpassen&7]: &aPas Hotloaded aan: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4Aanpassen&7]: &aPas Hotloaded aan: &f[{file}] &7[{remaining} aanvullende wijzigingen weggelaten]"
+config_hotloaded = "&7[&4Adapt&7]: &aAdapt-configuratie herladen: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &aAdapt-configuratie herladen: &f[{file}] &7[{remaining} extra wijzigingen weggelaten]"
 
 [seaborn.oxygen]
 name = "Organische Zuurstoftank"
@@ -6201,6 +6330,8 @@ lore3 = "Vergrendeling van de strijd"
 lore = ["Max Absorptie", "Absorptie per puls", "Vergrendeling van de strijd"]
 
 [command.help]
+debug_dump = "Maak een diagnostisch rapport en upload het desgewenst"
+debug_upload = "Upload het rapport naar mclo.gs"
 adapt_debug_command = "Adapt Opdracht debuggen"
 adapt_skills_adaptations_and_admin_tools = "Adapt vaardigheden, aanpassingen en administratieve hulpmiddelen"
 adaptation_level_to_apply = "Toe te passen aanpassingsniveau"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "Geen verandering: {adaptation} is al op niveau {leve
 power_insufficient = "Niet genoeg beschikbare stroom. Noodzakelijk {needed}, hebben {available}."
 knowledge_insufficient = "Niet genoeg kennis in {skill}. Noodzakelijk {needed}, hebben {available}."
 knowledge_spend_failed = "Fout bij het uitgeven van de vereiste kennis ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "De speler heeft onvoldoende geld in de Vault-economie."
+vault_transaction_failed = "De Vault-transactie is mislukt; de voortgang is niet gewijzigd."
 set_adaptation_level = "Instellen {player} {adaptation} naar niveau {level}."
 permanent_adaptation_lower = "{adaptation} is permanent en kan niet worden verlaagd zonder force=true."
 adapt_server_not_ready = "De Adapt-server is nog niet klaar. Probeer het over een paar seconden opnieuw."
@@ -6350,8 +6481,113 @@ parameters_ignored = "Parameters genegeerd: {parameters}"
 no_description = "Geen beschrijving"
 perf_ability_checks = "bekwaamheidscontroles: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "succesvolle controles: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "Cachetrefferpercentage voor actieve niveaus: {ratio} ({hits} raak, {misses} mis)"
+perf_cache_hit_ratio = "Cachetrefferverhouding voor actieve niveaus: {ratio} ({hits} treffers, {misses} missers)"
 perf_timing_budget = "Begroting van de tijdsbestek voor het controleren van de vaardigheden: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "Tikkervenster: {window}ms"
 perf_no_metrics = "Nog geen tekengegevens verzameld."
 perf_reset = "Ticker en vermogen telemetrie reset."
+
+[language.menu]
+your_language = "Jouw taal"
+reset_your_language = "Jouw taalkeuze herstellen"
+server_default = "Standaardtaal van de server"
+edit_messages = "Taalberichten bewerken"
+use_server_default = "Standaardtaal van de server gebruiken"
+current = "Huidig: {locale}"
+current_with_personal = "Huidig: {locale} (Jouw keuze: {personal})"
+your_description = "Wijzig alleen de berichten die jij ziet."
+reset_description = "Gebruik de standaardtaal van de server."
+server_description = "Wijzig de standaardtaal van de server."
+edit_description = "Open de berichteneditor voor elke taal."
+select_description = "Klik om deze taal te selecteren."
+remove_personal_description = "Verwijder jouw persoonlijke taalkeuze."
+no_controls = "Je hebt geen toegang tot taalinstellingen."
+command = "Commando: {command}"
+selected = "geselecteerd"
+all-volmit-plugins = "Alle Volmit-plugins"
+
+[language.error]
+stopping = "Taalselectie is niet beschikbaar terwijl de plugin stopt."
+editor-player-only = "Open de taalbewerker in het spel."
+no-providers = "Er zijn geen Volmit-taalaanbieders beschikbaar."
+numeric-page = "Voer een paginanummer in."
+personal-player-only = "Spelertaalvoorkeuren moeten in het spel worden geselecteerd."
+personal-permission = "U hebt geen toestemming om uw taal te selecteren."
+plugin-personal-permission = "Je hebt geen toestemming om je taal voor {plugin} te kiezen."
+plugin-server-permission = "Je hebt geen toestemming om de servertaal voor {plugin} te wijzigen."
+server-locale-required = "Kies een taalcode zoals en_US voor de standaardtaal van de server."
+unavailable-for-all = "De taal {locale} is niet voor alle geselecteerde plugins beschikbaar."
+
+[language.usage]
+editor = "Gebruik: /{command} language server edit [locale]"
+selection = "Gebruik: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "Gebruik: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "Taal {locale} wordt voorbereid voor {target}..."
+save-failed = "{plugin}: de taalkeuze kon niet worden opgeslagen; controleer de serverconsole."
+english-fallback = "{plugin}: {locale} is niet beschikbaar; Engels (en_US) wordt gebruikt."
+personal-selected = "{plugin}: uw taal is nu {locale}."
+server-selected = "{plugin}: servertaal is nu {locale}."
+server-default-selected = "{plugin}: je taal volgt nu de standaardtaal van de server."
+
+[language.editor]
+loading = "Berichten voor {locale} laden..."
+
+[language.editor.section]
+languages = "Talen"
+search = "Zoeken"
+search-title = "{locale} / Zoeken"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "Zoek op berichtsleutel of tekst. Typ cancel om terug te gaan."
+value = "Typ in de chat een nieuwe waarde voor {key}."
+current = "Huidige waarde: {value}"
+variables = "Variabelen: {variables}"
+guidance = "Gebruik \\n voor een nieuwe regel, \\\\ voor een backslash, of typ cancel om terug te gaan."
+
+[language.editor.input]
+expired = "De invoer voor de taalbewerker is verlopen."
+too-long = "De invoer mag maximaal {maximum} tekens bevatten."
+unable-to-save = "Opslaan mislukt: {reason}"
+
+[language.editor.navigation]
+back = "&eTerug&r"
+close = "&cSluiten&r"
+previous-page = "&eVorige pagina&r"
+next-page = "&eVolgende pagina&r"
+
+[language.editor.search]
+messages = "Berichten doorzoeken"
+messages-lore = "Klik om alle berichten te doorzoeken."
+clear = "Zoekopdracht wissen"
+
+[language.editor.message]
+current-value = "&7Huidige waarde:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7Klik om een meervoudsvorm te bewerken.&r"
+edit-lines = "&7Klik om afzonderlijke regels te bewerken.&r"
+edit-chat = "&7Klik om in de chat te bewerken.&r"
+
+[language.editor.locale]
+open = "&8Klik om deze taal te openen.&r"
+
+[language.editor.category]
+message-count = "&7{count} berichten&r"
+open = "&8Klik om deze categorie te openen.&r"
+
+[language.editor.error]
+no-permission = "Je hebt geen toestemming om de talen van {plugin} te bewerken."
+unable-to-edit = "Bewerken mislukt: {reason}"
+
+[language.editor.saved]
+summary = "{locale} opgeslagen. De taalkeuzes blijven ongewijzigd."
+change = "{key}: “{before}” is gewijzigd in “{after}”."
+
+[language.editor.part]
+line = "Regel {line}"
+
+[language.editor.value]
+none = "Geen"
+empty = "(leeg)"

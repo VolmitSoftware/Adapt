@@ -5,6 +5,8 @@ import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
 
 public final class CommandMessages {
+  public static final TextKey HELP_DEBUG_DUMP = TextKey.of("command.help.debug_dump", "Create and optionally upload a diagnostic report");
+  public static final TextKey HELP_DEBUG_UPLOAD = TextKey.of("command.help.debug_upload", "Upload the report to mclo.gs");
   public static final TextKey HELP_ADAPT_DEBUG_COMMAND = TextKey.of("command.help.adapt_debug_command", "Adapt Debug Command");
   public static final TextKey HELP_ADAPT_SKILLS_ADAPTATIONS_AND_ADMIN_TOOLS = TextKey.of("command.help.adapt_skills_adaptations_and_admin_tools", "Adapt skills, adaptations, and admin tools");
   public static final TextKey HELP_ADAPTATION_LEVEL_TO_APPLY = TextKey.of("command.help.adaptation_level_to_apply", "Adaptation level to apply");
@@ -84,6 +86,8 @@ public final class CommandMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(HELP_DEBUG_DUMP);
+    builder.add(HELP_DEBUG_UPLOAD);
     builder.add(HELP_ADAPT_DEBUG_COMMAND);
     builder.add(HELP_ADAPT_SKILLS_ADAPTATIONS_AND_ADMIN_TOOLS);
     builder.add(HELP_ADAPTATION_LEVEL_TO_APPLY);

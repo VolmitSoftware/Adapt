@@ -181,7 +181,7 @@ public class CommandSVC implements AdaptService, CommandExecutor, TabCompleter, 
       AdaptLanguage.language(sender, Arrays.copyOfRange(args, 1, args.length));
       return true;
     }
-    if (!(args.length > 0 && args[0].equalsIgnoreCase("debugdump"))
+    if (!(args.length > 1 && args[0].equalsIgnoreCase("debug") && args[1].equalsIgnoreCase("dump"))
         && !sender.hasPermission(ROOT_PERMISSION)) {
       ComponentMessenger.sendSection(sender, AdaptLanguage.text(
           CommandRuntimeMessages.MISSING_PERMISSION,

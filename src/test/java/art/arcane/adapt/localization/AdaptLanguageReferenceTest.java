@@ -39,8 +39,8 @@ class AdaptLanguageReferenceTest extends AdaptTestBase {
 
     assertThat(raw).startsWith("#");
     assertThat(raw).contains("en_US");
-    assertThat(raw).contains("regenerated");
-    assertThat(raw).contains("languages/overrides/en_US.toml");
+    assertThat(raw).contains("Local changes are preserved", "=== File editing ===", "=== Prefix ===", "=== Formatting ===", "=== Variables ===");
+    assertThat(raw).contains("{permission}");
   }
 
   @Test
@@ -74,7 +74,8 @@ class AdaptLanguageReferenceTest extends AdaptTestBase {
   @Test
   void repeatedInitializeRewritesIdenticalContent() throws Exception {
     AdaptLanguage.initialize();
-    String first = Files.readString(referencePath(), StandardCharsets.UTF_8);
+    String first = "[command.runtime]\nplayer_only = \"Custom English\"\n";
+    Files.writeString(referencePath(), first, StandardCharsets.UTF_8);
     AdaptLanguage.initialize();
     String second = Files.readString(referencePath(), StandardCharsets.UTF_8);
 
@@ -98,7 +99,7 @@ class AdaptLanguageReferenceTest extends AdaptTestBase {
 
     try (Stream<Path> entries = Files.list(referencePath().getParent())) {
       assertThat(entries.map(path -> path.getFileName().toString()).toList())
-          .containsExactlyInAnyOrder("en_US.toml", "overrides", "downloaded");
+          .containsExactlyInAnyOrder("en_US.toml");
     }
   }
 

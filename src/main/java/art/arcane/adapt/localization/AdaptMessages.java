@@ -37,6 +37,7 @@ import art.arcane.adapt.localization.catalog.TragoulMessages;
 import art.arcane.adapt.localization.catalog.UnarmedMessages;
 import art.arcane.volmlib.util.director.DirectorMessages;
 import art.arcane.volmlib.util.localization.MessageCatalog;
+import art.arcane.volmlib.util.localization.BukkitLanguageMessages;
 import art.arcane.volmlib.util.localization.MessageKey;
 
 public final class AdaptMessages {
@@ -58,6 +59,7 @@ public final class AdaptMessages {
     builder.addAll(MutationDomain.keys());
     builder.addAll(MutationType.keys());
     builder.addAll(DirectorMessages.keys());
+    builder.addAll(BukkitLanguageMessages.keys());
     AdvancementMessages.addTo(builder);
     AgilityMessages.addTo(builder);
     ArchitectMessages.addTo(builder);

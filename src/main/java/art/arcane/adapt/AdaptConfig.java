@@ -51,7 +51,7 @@ public class AdaptConfig {
   private static final long MAXIMUM_POPUP_DURATION_MILLIS = 60_000L;
   private static final Object CONFIG_LOCK = new Object();
   private static volatile AdaptConfig config;
-  @ConfigDoc(value = "Locale used for Adapt player and operator interfaces.", impact = "A supported non-English locale downloads automatically and is cached by source revision; code-owned English remains the fallback and optional TOML overrides load from languages/overrides.")
+  @ConfigDoc(value = "Locale used for Adapt player and operator interfaces.", impact = "A supported non-English locale downloads into languages/<locale>.toml when missing. Edit language files directly; missing or invalid entries use built-in English.")
   private String language = "en_US";
   @ConfigDoc(value = "Enables anonymous bStats usage reporting for Adapt.", impact = "Set to false to disable Adapt's bStats submissions entirely. Requires a restart to take effect.")
   private boolean metrics = true;
@@ -195,20 +195,22 @@ public class AdaptConfig {
     return reloaded;
   }
 
-  public static void selectLanguage(String locale) throws IOException {
+  public static String selectLanguage(String locale) throws IOException {
     synchronized (CONFIG_LOCK) {
       AdaptConfig current = get();
       Gson serializer = new Gson();
       AdaptConfig candidate = serializer.fromJson(serializer.toJson(current), AdaptConfig.class);
       candidate.language = locale;
+      String raw = TomlCodec.toToml(candidate, "core-config");
       Path target = Adapt.instance.getDataFile("adapt.toml").toPath();
       Path temporary = null;
       try {
         Files.createDirectories(target.toAbsolutePath().getParent());
         temporary = Files.createTempFile(target.toAbsolutePath().getParent(), "adapt-", ".toml.tmp");
-        Files.writeString(temporary, TomlCodec.toToml(candidate, "core-config"));
+        Files.writeString(temporary, raw);
         Files.move(temporary, target, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
         current.language = locale;
+        return raw;
       } finally {
         if (temporary != null) {
           Files.deleteIfExists(temporary);

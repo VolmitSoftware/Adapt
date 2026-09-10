@@ -1,4 +1,134 @@
-# Adapt language overlay: ja-JP
+# Adapt — ja-JP
+#
+# === ファイルの編集 ===
+# plugins/Adapt/languages/ja-JP.toml
+# このファイルを直接編集できます。ローカルの変更は保持され、不足または無効な項目には内蔵の英語を使用します。
+# /adapt language server edit ja-JP
+#
+# === 接頭辞 ===
+# {prefix} は統計値の接頭辞です。コマンドの接頭辞は自動で追加されます。
+#
+# === 書式 ===
+# MiniMessage: <green>...</green>.
+# &0-&f は色、&k-&r は装飾、&#RRGGBB は16進数の色です。automatic-gradients は自動グラデーションです。
+#
+# === 変数 ===
+# 変数名を変更せず、各メッセージに元からある変数だけを使用してください。
+#   {adaptation}  適応能力名
+#   {adaptations}  一致する適応能力の名前
+#   {after}  編集後の値
+#   {amount}  通貨、知識、または経験値の量
+#   {argument}  予期しないコマンド引数
+#   {available}  使用可能なパワーまたは知識
+#   {before}  編集前の値
+#   {benefit}  変異の利点の説明
+#   {block}  進捗の手順で指定されるブロック
+#   {bonus}  Masterwork の追加量
+#   {burden}  変異の欠点の説明
+#   {category}  設定カテゴリ名
+#   {chance}  発動確率
+#   {combo}  Instant Recall の発動条件の組み合わせ
+#   {command}  コマンドの完全なパス
+#   {control}  変異の使用方法
+#   {cost}  必要な知識の量
+#   {count}  項目、ファイル、またはメッセージの数
+#   {damage}  追加ダメージ量
+#   {danger}  ゲート移動時の危険警告
+#   {deepCharge}  蓄積した Deep Charge の量
+#   {deepblood}  リンクした Deepblood ツールの状態
+#   {description}  進捗の説明
+#   {direction}  構造物への方向
+#   {distance}  構造物までの距離（ブロック単位）
+#   {domain}  変異に対応するスキルグループ名
+#   {duration}  書式設定済みの持続時間またはクールダウン
+#   {effect}  ポーション効果名
+#   {enchantment}  エンチャント名
+#   {environment}  能力に影響する環境
+#   {error}  設定エラーの詳細
+#   {experience}  オーブに保存された経験値
+#   {file}  設定ファイル名
+#   {first}  1つ目のスキルグループまたは発動条件
+#   {from}  ページ内の最初の項目番号
+#   {group}  言語エディターのカテゴリ
+#   {hits}  キャッシュで結果が見つかった回数
+#   {instruction}  進捗を解除するための手順
+#   {interaction}  もう一方の変異スロットとの相互作用
+#   {key}  メッセージまたは設定のキー
+#   {knowledge}  知識の量
+#   {label}  設定または統計値のラベル
+#   {level}  スキル、適応能力、または効果のレベル
+#   {levels}  節約した経験値レベル数
+#   {line}  言語メッセージの行番号
+#   {locale}  言語コード
+#   {masterwork}  リンクした Masterwork 装備の状態
+#   {maximum}  許容される最大値またはパワー上限
+#   {message}  クールダウン詳細の前に表示する状態メッセージ
+#   {microsPerCheck}  能力の確認1回にかかる時間（マイクロ秒）
+#   {millisPerSecond}  毎秒の能力確認にかかる時間（ミリ秒）
+#   {minimum}  許容される最小値
+#   {misses}  キャッシュに結果がなかった回数
+#   {multiplier}  経験値ブーストの倍率
+#   {mutation}  変異名
+#   {needed}  必要なパワーまたは知識
+#   {newValue}  新しい設定値
+#   {nextLevel}  次のスキルレベルの表示
+#   {oldValue}  変更前の設定値
+#   {other}  競合する変異名
+#   {page}  現在のページ番号
+#   {pages}  ページの総数
+#   {parameter}  コマンドのパラメーター名
+#   {parameters}  無視されたコマンドパラメーター
+#   {particle}  パーティクルの種類名
+#   {path}  設定内のパス
+#   {perMinute}  毎分の能力確認回数
+#   {perSecond}  毎秒の能力確認回数
+#   {percent}  処理時間の予算に対する割合または経験値ボーナス率
+#   {permission}  必要な権限ノード
+#   {personal}  個人設定の言語コード
+#   {player}  操作対象のプレイヤー
+#   {plugin}  プラグイン名
+#   {power}  パワーの量または消費量
+#   {prefix}  統計値の直前に付ける接頭辞
+#   {progress}  スキルの進行状況の表示
+#   {range}  探索または能力の範囲（ブロック単位）
+#   {ratio}  キャッシュのヒット率
+#   {reason}  変異の状態またはエディターエラーの説明
+#   {refund}  習得解除時に返される知識の量
+#   {remaining}  表示を省略した設定変更の数
+#   {result}  レベル200での変異効果
+#   {rootCharge}  蓄積した Root Charge の量
+#   {second}  2つ目のスキルグループまたは発動条件
+#   {seconds}  秒単位の時間
+#   {separator}  統計値とラベルの間の区切り文字
+#   {skill}  スキル名
+#   {slot}  変異スロットの番号
+#   {slots}  バックパックのスロット数
+#   {stacks}  効果の累積数またはバックパックに入るスタック数
+#   {state}  有効・無効の状態または変異スロットの状態
+#   {steps}  完了したクラフト、醸造、エンチャントの手順数
+#   {strength}  追加の防御力
+#   {structure}  検出した構造物の名前
+#   {surface}  発動条件に影響する地表
+#   {symbol}  構造物の位置を示す記号
+#   {target}  対象プレイヤーまたは言語を設定するプラグイン
+#   {tell}  目に見える変異効果の説明
+#   {temperbound}  リンクした Temperbound 装備の状態
+#   {timestamp}  設定アーカイブのタイムスタンプ
+#   {to}  ページ内の最後の項目番号
+#   {total}  項目またはスロットの総数
+#   {trigger}  能力の発動条件
+#   {trophy}  リンクしたトロフィーの状態
+#   {type}  期待されるパラメーターまたは値の型
+#   {usage}  コマンドの構文
+#   {used}  使用中のパワーまたは埋まったスロット数
+#   {value}  現在の設定値または統計値
+#   {values}  設定で使用できる値の一覧
+#   {variables}  メッセージで使用できるプレースホルダー
+#   {window}  パフォーマンス計測の時間枠（ミリ秒）
+#   {world}  ワールド名
+#   {x}  対象のX座標
+#   {xp}  経験値の量
+#   {z}  対象のZ座標
 
 [mutation.domain]
 body = "ボディ"
@@ -4189,7 +4319,7 @@ lore1 = "パッシブ防具"
 lore2 = "周囲のブロック硬度に基づく"
 lore3 = "防具強度："
 passive = "近くのブロックの硬度に基づく受動の装甲、"
-strength = "装甲強さ: +{strength}"
+strength = "追加の防御力: +{strength}"
 lore = ["パッシブ防具", "周囲のブロック硬度に基づく", "防具強度："]
 
 [discovery.unity]
@@ -4779,10 +4909,10 @@ click_to_learn = "クリックして学ぶ {adaptation}"
 knowledge_shortage = "(あなただけの {knowledge} 利用できる知識)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} パワードレイン"
+vault_unavailable_fallback = "Vaultの経済機能を利用できません — 知識のみを使った習得は引き続き可能です。"
+vault_insufficient_funds = "プレイヤーのVault経済残高が不足しています。"
+vault_transaction_failed = "Vaultの取引に失敗しました。進行状況は変更されていません。"
+power_drain = "パワー消費 {power}"
 
 [gui.mutations]
 experimental_mutations = "実験的ミュテーション"
@@ -5385,7 +5515,6 @@ msg_range = "そのコンテナはリンクまで遠くない."
 msg_same = "コンテナを自分でリンクすることはできません."
 msg_stale = "捕獲された容器はもはや利用できません."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} {skill} 知識"
 knowledge_status = "{amount} {skill} 知識"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP、持続時間: {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "データの削除."
 no_description_provided = "提供される記述無し"
-config_hotloaded = "&7[&4アダプト&7]: &a適応ホットロード: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4アダプト&7]: &a適応ホットロード: &f[{file}] &7[{remaining} 追加変更 省略]"
+config_hotloaded = "&7[&4Adapt&7]: &a設定をホットリロードしました: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &a設定をホットリロードしました: &f[{file}] &7[ほか {remaining} 件の変更は省略]"
 
 [seaborn.oxygen]
 name = "有機酸素タンク"
@@ -6201,6 +6330,8 @@ lore3 = "戦闘中の変更禁止"
 lore = ["最大衝撃吸収", "波動ごとの衝撃吸収", "戦闘中の変更禁止"]
 
 [command.help]
+debug_dump = "診断レポートを作成し、必要に応じてアップロードする"
+debug_upload = "レポートを mclo.gs にアップロードする"
 adapt_debug_command = "Adapt デバッグコマンド"
 adapt_skills_adaptations_and_admin_tools = "Adapt スキル、適応および管理ツール"
 adaptation_level_to_apply = "適応レベルを適用する"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "変更なし: {adaptation} レベルが既にある 
 power_insufficient = "利用可能な力が足りません。必要: {needed}、利用可能: {available}。"
 knowledge_insufficient = "{skill} の知識が足りません。必要: {needed}、利用可能: {available}。"
 knowledge_spend_failed = "必要な知識を費やす失敗 ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "プレイヤーのVault経済残高が不足しています。"
+vault_transaction_failed = "Vaultの取引に失敗しました。進行状況は変更されていません。"
 set_adaptation_level = "セット {player} {adaptation} レベルまで {level}."
 permanent_adaptation_lower = "{adaptation} 永続的であり、不要で下がることはできません。 force=true."
 adapt_server_not_ready = "Adapt サーバーはまだ準備が整っていない. 数秒でもう一度お試しください."
@@ -6350,8 +6481,113 @@ parameters_ignored = "無視される変数: {parameters}"
 no_description = "説明なし"
 perf_ability_checks = "能力チェック: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "成功した検査: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "有効レベルキャッシュのヒット率: {ratio} ({hits} ヒット, {misses} ミス)"
+perf_cache_hit_ratio = "有効レベルキャッシュのヒット率: {ratio} (結果あり {hits} 回、結果なし {misses} 回)"
 perf_timing_budget = "能力チェックのタイミング予算: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "ティッカーウィンドウ: {window}ミリ秒"
 perf_no_metrics = "まだ収集されていないメトリック."
 perf_reset = "ティッカーと能力のテレメトリーリセット."
+
+[language.menu]
+your_language = "あなたの言語"
+reset_your_language = "自分の言語をリセット"
+server_default = "サーバーのデフォルト"
+edit_messages = "言語メッセージを編集"
+use_server_default = "サーバーのデフォルトを使用"
+current = "現在: {locale}"
+current_with_personal = "現在: {locale} (あなた: {personal})"
+your_description = "表示されるメッセージだけを変更します。"
+reset_description = "サーバーのデフォルト言語を使用します。"
+server_description = "サーバーのデフォルト言語を変更します。"
+edit_description = "言語ごとのメッセージエディターを開きます。"
+select_description = "クリックしてこの言語を選択します。"
+remove_personal_description = "個人の言語選択を削除します。"
+no_controls = "利用できる言語設定はありません。"
+command = "コマンド: {command}"
+selected = "選択済み"
+all-volmit-plugins = "すべてのVolmitプラグイン"
+
+[language.error]
+stopping = "プラグインを停止している間は言語を選択できません。"
+editor-player-only = "ゲーム内で言語エディターを開いてください。"
+no-providers = "利用できるVolmit言語プロバイダーがありません。"
+numeric-page = "ページ番号を数字で入力してください。"
+personal-player-only = "プレイヤーの個人言語はゲーム内で選択してください。"
+personal-permission = "個人言語を選択する権限がありません。"
+plugin-personal-permission = "{plugin}の個人言語を選択する権限がありません。"
+plugin-server-permission = "{plugin}のサーバー言語を変更する権限がありません。"
+server-locale-required = "サーバーの既定の言語としてen_USなどの言語コードを選択してください。"
+unavailable-for-all = "選択したすべてのプラグインで言語{locale}を利用できるわけではありません。"
+
+[language.usage]
+editor = "使い方: /{command} language server edit [locale]"
+selection = "使い方: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "使い方: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "{target}の言語{locale}を準備しています..."
+save-failed = "{plugin}: 言語の選択を保存できませんでした。サーバーコンソールを確認してください。"
+english-fallback = "{plugin}: {locale}は利用できないため、英語（en_US）を使用します。"
+personal-selected = "{plugin}: 個人言語を{locale}に変更しました。"
+server-selected = "{plugin}: サーバー言語を{locale}に変更しました。"
+server-default-selected = "{plugin}: 個人言語はサーバーの既定の言語に従うようになりました。"
+
+[language.editor]
+loading = "{locale}のメッセージを読み込んでいます..."
+
+[language.editor.section]
+languages = "言語"
+search = "検索"
+search-title = "{locale} / 検索"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "メッセージキーまたは本文を検索してください。cancelと入力すると戻ります。"
+value = "{key}の新しい値をチャットに入力してください。"
+current = "現在の値: {value}"
+variables = "変数: {variables}"
+guidance = "改行には\\n、バックスラッシュには\\\\を使ってください。cancelと入力すると戻ります。"
+
+[language.editor.input]
+expired = "言語エディターの入力時間が切れました。"
+too-long = "入力は{maximum}文字以内にしてください。"
+unable-to-save = "保存できませんでした: {reason}"
+
+[language.editor.navigation]
+back = "&e戻る&r"
+close = "&c閉じる&r"
+previous-page = "&e前のページ&r"
+next-page = "&e次のページ&r"
+
+[language.editor.search]
+messages = "メッセージを検索"
+messages-lore = "クリックしてすべてのメッセージを検索します。"
+clear = "検索をクリア"
+
+[language.editor.message]
+current-value = "&7現在の値:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7クリックして複数形を編集します。&r"
+edit-lines = "&7クリックして各行を編集します。&r"
+edit-chat = "&7クリックしてチャットで編集します。&r"
+
+[language.editor.locale]
+open = "&8クリックしてこの言語を開きます。&r"
+
+[language.editor.category]
+message-count = "&7{count}件のメッセージ&r"
+open = "&8クリックしてこのグループを開きます。&r"
+
+[language.editor.error]
+no-permission = "{plugin}の言語を編集する権限がありません。"
+unable-to-edit = "編集できませんでした: {reason}"
+
+[language.editor.saved]
+summary = "{locale}を保存しました。言語の選択は変更されていません。"
+change = "{key}: 「{before}」を「{after}」に変更しました。"
+
+[language.editor.part]
+line = "行{line}"
+
+[language.editor.value]
+none = "なし"
+empty = "(空)"

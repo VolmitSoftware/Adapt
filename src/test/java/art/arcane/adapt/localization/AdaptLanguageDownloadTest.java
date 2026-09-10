@@ -1,7 +1,10 @@
 package art.arcane.adapt.localization;
 
 import art.arcane.adapt.AdaptTestBase;
-import art.arcane.volmlib.util.localization.RemoteLanguageCatalog;
+import art.arcane.adapt.localization.catalog.RuntimeMessages;
+import art.arcane.volmlib.util.localization.LocalizationSnapshot;
+import art.arcane.volmlib.util.localization.TextValue;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
@@ -14,6 +17,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AdaptLanguageDownloadTest extends AdaptTestBase {
+
+  @AfterEach
+  void closeRemoteCatalog() {
+    AdaptLanguage.shutdown();
+  }
 
   @Test
   void sourceManifestRestrictsDownloadsToKnownLocales() {
@@ -37,15 +45,32 @@ class AdaptLanguageDownloadTest extends AdaptTestBase {
   }
 
   @Test
-  void verifiedCacheRejectsModifiedBytes() throws Exception {
-    Path target = AdaptLanguage.remote().cacheFile("de_DE");
+  void installedLocalePreservesEditsWhenPrepared() throws Exception {
+    Path target = AdaptLanguage.languageFolder().toPath().resolve("de_DE.toml");
     Files.createDirectories(target.getParent());
     Files.copy(Path.of("src/main/resources/de_DE.toml"), target);
 
-    assertThat(AdaptLanguage.remote().read("de_DE", (locale, raw) -> AdaptLanguage.parseOverlay("cache", locale, raw)).state())
-        .isEqualTo(RemoteLanguageCatalog.CacheState.VALID);
+    LocalizationSnapshot downloaded = AdaptLanguage.editorOptions().loader().load("de_DE");
+    assertThat(downloaded.value(RuntimeMessages.NO_DESCRIPTION_PROVIDED))
+        .isEqualTo(new TextValue("Keine Beschreibung"));
+
+    String edited = "[runtime]\nno_description_provided = \"Eigener Text\"\n";
+    Files.writeString(target, edited, StandardCharsets.UTF_8);
+    LocalizationSnapshot customized = AdaptLanguage.editorOptions().loader().load("de_DE");
+
+    assertThat(customized.value(RuntimeMessages.NO_DESCRIPTION_PROVIDED))
+        .isEqualTo(new TextValue("Eigener Text"));
+    assertThat(Files.readString(target, StandardCharsets.UTF_8)).isEqualTo(edited);
+  }
+
+  @Test
+  void malformedInstalledLocaleIsRejectedWithoutOverwriting() throws Exception {
+    Path target = AdaptLanguage.languageFolder().toPath().resolve("de_DE.toml");
+    Files.createDirectories(target.getParent());
     Files.writeString(target, "modified", StandardCharsets.UTF_8);
-    assertThat(AdaptLanguage.remote().read("de_DE", (locale, raw) -> AdaptLanguage.parseOverlay("cache", locale, raw)).state())
-        .isEqualTo(RemoteLanguageCatalog.CacheState.INVALID);
+
+    assertThatThrownBy(() -> AdaptLanguage.editorOptions().loader().load("de_DE"))
+        .isInstanceOf(IllegalArgumentException.class);
+    assertThat(Files.readString(target, StandardCharsets.UTF_8)).isEqualTo("modified");
   }
 }

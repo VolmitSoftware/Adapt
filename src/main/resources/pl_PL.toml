@@ -1,4 +1,134 @@
-# Adapt language overlay: pl_PL
+# Adapt — pl_PL
+#
+# === Edycja pliku ===
+# plugins/Adapt/languages/pl_PL.toml
+# Ten plik można edytować bezpośrednio. Lokalne zmiany są zachowywane; brakujące lub nieprawidłowe wpisy korzystają z wbudowanego angielskiego tekstu.
+# /adapt language server edit pl_PL
+#
+# === Prefiks ===
+# {prefix} poprzedza wartość statystyki. Prefiksy poleceń są dodawane automatycznie.
+#
+# === Formatowanie ===
+# MiniMessage: <green>...</green>.
+# &0-&f, &k-&r, &#RRGGBB; automatic-gradients.
+#
+# === Zmienne ===
+# Zachowaj nazwy zmiennych i używaj tylko tych, które występują w danej wiadomości.
+#   {adaptation}  Nazwa Adaptacji
+#   {adaptations}  Nazwy pasujących Adaptacji
+#   {after}  Wartość po edycji
+#   {amount}  Ilość pieniędzy, wiedzy lub doświadczenia
+#   {argument}  Nieoczekiwany argument polecenia
+#   {available}  Dostępna moc lub wiedza
+#   {before}  Wartość przed edycją
+#   {benefit}  Opis korzyści mutacji
+#   {block}  Blok podany w instrukcji postępu
+#   {bonus}  Wielkość premii Masterwork
+#   {burden}  Opis wady mutacji
+#   {category}  Nazwa kategorii ustawień
+#   {chance}  Prawdopodobieństwo aktywacji
+#   {combo}  Kombinacja aktywująca Instant Recall
+#   {command}  Ścieżka polecenia
+#   {control}  Instrukcja użycia mutacji
+#   {cost}  Koszt wiedzy
+#   {count}  Liczba przedmiotów, plików lub wiadomości
+#   {damage}  Wielkość dodatkowych obrażeń
+#   {danger}  Ostrzeżenie o niebezpieczeństwie podróży przez bramę
+#   {deepCharge}  Ilość zgromadzonego Deep Charge
+#   {deepblood}  Stan powiązanego narzędzia Deepblood
+#   {description}  Opis postępu
+#   {direction}  Kierunek do struktury
+#   {distance}  Odległość do struktury w blokach
+#   {domain}  Nazwa grupy umiejętności mutacji
+#   {duration}  Sformatowany czas trwania lub odnowienia
+#   {effect}  Nazwa efektu mikstury
+#   {enchantment}  Nazwa zaklęcia
+#   {environment}  Otoczenie wpływające na zdolność
+#   {error}  Szczegóły błędu konfiguracji
+#   {experience}  Doświadczenie zapisane w kuli
+#   {file}  Nazwa pliku konfiguracji
+#   {first}  Pierwsza grupa umiejętności lub część wyzwalacza
+#   {from}  Numer pierwszego wpisu na stronie
+#   {group}  Kategoria edytora języka
+#   {hits}  Trafienia w pamięci podręcznej
+#   {instruction}  Instrukcja odblokowania postępu
+#   {interaction}  Interakcja z drugim slotem mutacji
+#   {key}  Klucz wiadomości lub ustawienia
+#   {knowledge}  Ilość wiedzy
+#   {label}  Etykieta ustawienia lub statystyki
+#   {level}  Poziom umiejętności, Adaptacji lub efektu
+#   {levels}  Zaoszczędzone poziomy doświadczenia
+#   {line}  Numer wiersza wiadomości
+#   {locale}  Kod języka
+#   {masterwork}  Stan powiązanego wyposażenia Masterwork
+#   {maximum}  Maksymalna wartość lub limit mocy
+#   {message}  Komunikat stanu przed czasem odnowienia
+#   {microsPerCheck}  Mikrosekundy na sprawdzenie zdolności
+#   {millisPerSecond}  Milisekundy sprawdzania zdolności na sekundę
+#   {minimum}  Minimalna dozwolona wartość
+#   {misses}  Chybienia w pamięci podręcznej
+#   {multiplier}  Mnożnik premii doświadczenia
+#   {mutation}  Nazwa mutacji
+#   {needed}  Wymagana moc lub wiedza
+#   {newValue}  Nowa wartość ustawienia
+#   {nextLevel}  Wskaźnik następnego poziomu umiejętności
+#   {oldValue}  Poprzednia wartość ustawienia
+#   {other}  Nazwa kolidującej mutacji
+#   {page}  Numer bieżącej strony
+#   {pages}  Łączna liczba stron
+#   {parameter}  Nazwa parametru polecenia
+#   {parameters}  Pominięte parametry polecenia
+#   {particle}  Nazwa typu cząsteczki
+#   {path}  Ścieżka ustawienia
+#   {perMinute}  Sprawdzenia zdolności na minutę
+#   {perSecond}  Sprawdzenia zdolności na sekundę
+#   {percent}  Procent budżetu czasu lub premii doświadczenia
+#   {permission}  Wymagane uprawnienie
+#   {personal}  Kod osobistego języka
+#   {player}  Gracz będący odbiorcą działania
+#   {plugin}  Nazwa wtyczki
+#   {power}  Ilość lub zużycie mocy
+#   {prefix}  Prefiks wartości statystyki
+#   {progress}  Wskaźnik postępu umiejętności
+#   {range}  Zasięg wyszukiwania lub zdolności w blokach
+#   {ratio}  Współczynnik trafień w pamięci podręcznej
+#   {reason}  Wyjaśnienie stanu mutacji lub błędu edytora
+#   {refund}  Wiedza zwracana przy oduczeniu
+#   {remaining}  Liczba pominiętych zmian ustawień
+#   {result}  Efekt mutacji na poziomie 200
+#   {rootCharge}  Ilość zgromadzonego Root Charge
+#   {second}  Druga grupa umiejętności lub część wyzwalacza
+#   {seconds}  Czas w sekundach
+#   {separator}  Separator wartości statystyki i etykiety
+#   {skill}  Nazwa umiejętności
+#   {slot}  Numer slotu mutacji
+#   {slots}  Liczba slotów plecaka
+#   {stacks}  Ładunki efektu lub pojemność plecaka w stosach
+#   {state}  Stan włączenia lub slotu mutacji
+#   {steps}  Ukończone etapy wytwarzania, warzenia lub zaklinania
+#   {strength}  Dodatkowa siła pancerza
+#   {structure}  Nazwa znalezionej struktury
+#   {surface}  Powierzchnia wpływająca na wyzwalacz
+#   {symbol}  Symbol wskaźnika struktury
+#   {target}  Docelowy gracz lub wtyczka języka
+#   {tell}  Opis widocznego efektu mutacji
+#   {temperbound}  Stan powiązanego wyposażenia Temperbound
+#   {timestamp}  Znacznik czasu archiwum ustawień
+#   {to}  Numer ostatniego wpisu na stronie
+#   {total}  Łączna liczba wpisów lub slotów
+#   {trigger}  Warunek aktywacji zdolności
+#   {trophy}  Stan powiązanego trofeum
+#   {type}  Oczekiwany typ parametru lub wartości
+#   {usage}  Składnia polecenia
+#   {used}  Zużyta moc lub zajęte sloty
+#   {value}  Bieżąca wartość ustawienia lub statystyki
+#   {values}  Dozwolone wartości ustawienia
+#   {variables}  Dozwolone zmienne wiadomości
+#   {window}  Okno pomiaru wydajności w milisekundach
+#   {world}  Nazwa świata
+#   {x}  Współrzędna X celu
+#   {xp}  Ilość doświadczenia
+#   {z}  Współrzędna Z celu
 
 [mutation.domain]
 body = "Ciało"
@@ -4189,7 +4319,7 @@ lore1 = "Pasywny Pancerz"
 lore2 = "Na podstawie twardosci poblizskich blokow"
 lore3 = "Sila Pancerza:"
 passive = "Pasywny pancerz, oparty na pobliskiej twardości bloku"
-strength = "Moc zbroi: +{strength}"
+strength = "Siła pancerza: +{strength}"
 lore = ["Pasywny Pancerz", "Na podstawie twardosci poblizskich blokow", "Sila Pancerza:"]
 
 [discovery.unity]
@@ -4779,10 +4909,10 @@ click_to_learn = "Kliknij, aby się nauczyć {adaptation}"
 knowledge_shortage = "(Masz tylko {knowledge} Dostępne informacje)"
 vault_learn_cost = "{amount} Vault Cost"
 vault_refund = "Vault Refund: {amount}"
-vault_unavailable_fallback = "Vault economy unavailable — Knowledge-only learning remains active."
-vault_insufficient_funds = "You do not have enough Vault currency to learn this adaptation."
-vault_transaction_failed = "The Vault economy transaction failed; your progression was not changed."
-power_drain = "{power} Odpływ mocy"
+vault_unavailable_fallback = "Ekonomia Vault jest niedostępna — nauka wyłącznie za wiedzę pozostaje możliwa."
+vault_insufficient_funds = "Gracz nie ma wystarczających środków w ekonomii Vault."
+vault_transaction_failed = "Transakcja Vault nie powiodła się; postęp nie został zmieniony."
+power_drain = "Zużycie mocy: {power}"
 
 [gui.mutations]
 experimental_mutations = "Mutacje doświadczalne"
@@ -5385,7 +5515,6 @@ msg_range = "Ten kontener jest zbyt daleko, by się łączyć."
 msg_same = "Nie można połączyć kontenera z samym sobą."
 msg_stale = "Pojemnik nie jest już dostępny."
 
-# runtime
 [runtime]
 knowledge_gain = "+ {amount} {skill} Wiedza"
 knowledge_status = "{amount} {skill} Wiedza"
@@ -5397,8 +5526,8 @@ xp_bonus = "+{percent} XP zamiast {duration}"
 stat_lore = "{prefix}{value}{separator}{label}"
 data_deleted_kick = "Twoje dane zostały usunięte."
 no_description_provided = "Brak opisu"
-config_hotloaded = "&7[&4Dostosowanie&7]: &aDostosuj Hotloaded: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
-config_hotload_truncated = "&7[&4Dostosowanie&7]: &aDostosuj Hotloaded: &f[{file}] &7[{remaining} dodatkowe zmiany pominięte]"
+config_hotloaded = "&7[&4Adapt&7]: &aAdapt: przeładowano ustawienia: &f[{file}] &b[{key}] &7[{oldValue} -> {newValue}]"
+config_hotload_truncated = "&7[&4Adapt&7]: &aAdapt: przeładowano ustawienia: &f[{file}] &7[{remaining} dodatkowych zmian pominięto]"
 
 [seaborn.oxygen]
 name = "Organiczny Zbiornik Tlenu"
@@ -6201,6 +6330,8 @@ lore3 = "Blokada walki"
 lore = ["Max Wchłanianie", "Wchłanianie na impuls", "Blokada walki"]
 
 [command.help]
+debug_dump = "Utwórz raport diagnostyczny i opcjonalnie go prześlij"
+debug_upload = "Prześlij raport do mclo.gs"
 adapt_debug_command = "Adapt Polecenie debugowania"
 adapt_skills_adaptations_and_admin_tools = "Adapt umiejętności, dostosowania i narzędzia administracyjne"
 adaptation_level_to_apply = "Poziom dostosowania do stosowania"
@@ -6313,8 +6444,8 @@ adaptation_already_level = "Bez zmian: {adaptation} jest już na poziomie {level
 power_insufficient = "Brak wystarczającej mocy. Potrzeba {needed}, do {available}."
 knowledge_insufficient = "Brak dostatecznej wiedzy {skill}. Potrzeba {needed}, do {available}."
 knowledge_spend_failed = "Nie udało się wydać wymaganej wiedzy ({knowledge})."
-vault_insufficient_funds = "The player does not have enough Vault currency."
-vault_transaction_failed = "The Vault economy transaction failed; no progression was changed."
+vault_insufficient_funds = "Gracz nie ma wystarczających środków w ekonomii Vault."
+vault_transaction_failed = "Transakcja Vault nie powiodła się; postęp nie został zmieniony."
 set_adaptation_level = "Ustaw {player} {adaptation} do poziomu {level}."
 permanent_adaptation_lower = "{adaptation} jest trwałe i nie może być obniżona bez force=true."
 adapt_server_not_ready = "Serwer Adapt nie jest jeszcze gotowy."
@@ -6350,8 +6481,113 @@ parameters_ignored = "Parametry ignorowane: {parameters}"
 no_description = "Brak opisu"
 perf_ability_checks = "kontrole zdolności: {perSecond}/s ({perMinute}/m)"
 perf_successful_checks = "udane kontrole: {perSecond}/s ({perMinute}/m)"
-perf_cache_hit_ratio = "Wskaźnik uderzeń pamięci podręcznej na poziomie aktywnym: {ratio} ({hits} trafienie, {misses} Panienko)"
+perf_cache_hit_ratio = "Współczynnik trafień w pamięci podręcznej aktywnych poziomów: {ratio} ({hits} trafień, {misses} chybień)"
 perf_timing_budget = "Budżet na kontrolę zdolności: {percent} ({millisPerSecond}, {microsPerCheck})"
 perf_ticker_window = "Okno: {window}Pani"
 perf_no_metrics = "Nie zebrano jeszcze żadnych metryk ticków."
 perf_reset = "Resetowanie telemetrii i możliwości."
+
+[language.menu]
+your_language = "Twój język"
+reset_your_language = "Zresetuj swój język"
+server_default = "Domyślny język serwera"
+edit_messages = "Edytuj komunikaty językowe"
+use_server_default = "Użyj domyślnego języka serwera"
+current = "Bieżący: {locale}"
+current_with_personal = "Bieżący: {locale} (Twój: {personal})"
+your_description = "Zmień tylko komunikaty, które widzisz."
+reset_description = "Użyj domyślnego języka serwera."
+server_description = "Zmień domyślny język serwera."
+edit_description = "Otwórz edytor komunikatów dla każdego języka."
+select_description = "Kliknij, aby wybrać ten język."
+remove_personal_description = "Usuń swój osobisty wybór języka."
+no_controls = "Nie masz dostępu do ustawień języka."
+command = "Polecenie: {command}"
+selected = "wybrany"
+all-volmit-plugins = "Wszystkie wtyczki Volmit"
+
+[language.error]
+stopping = "Wybór języka jest niedostępny podczas zatrzymywania wtyczki."
+editor-player-only = "Otwórz edytor języka w grze."
+no-providers = "Brak dostępnych dostawców języków Volmit."
+numeric-page = "Podaj numer strony."
+personal-player-only = "Preferencje językowe gracza muszą być wybrane w grze."
+personal-permission = "Nie masz pozwolenia na wybranie języka."
+plugin-personal-permission = "Nie masz uprawnienia do wyboru swojego języka we wtyczce {plugin}."
+plugin-server-permission = "Nie masz uprawnienia do zmiany języka serwera we wtyczce {plugin}."
+server-locale-required = "Wybierz kod języka, np. en_US, jako domyślny język serwera."
+unavailable-for-all = "Język {locale} nie jest dostępny we wszystkich wybranych wtyczkach."
+
+[language.usage]
+editor = "Użycie: /{command} language server edit [locale]"
+selection = "Użycie: /{command} language self [locale|reset] or server [locale]"
+volmit-selection = "Użycie: /volmit plugins languages [locale]"
+
+[language.selection]
+preparing = "Przygotowywanie języka {locale} dla {target}..."
+save-failed = "{plugin}: nie udało się zapisać wyboru języka; sprawdź konsolę serwera."
+english-fallback = "{plugin}: {locale} jest niedostępny; używany będzie angielski (en_US)."
+personal-selected = "{plugin}: Twój język jest teraz {locale}."
+server-selected = "{plugin}: język serwera jest teraz {locale}."
+server-default-selected = "{plugin}: twój język jest teraz zgodny z domyślnym językiem serwera."
+
+[language.editor]
+loading = "Wczytywanie wiadomości w języku {locale}..."
+
+[language.editor.section]
+languages = "Języki"
+search = "Szukaj"
+search-title = "{locale} / Szukaj"
+group-title = "{locale} / {group}"
+
+[language.editor.prompt]
+search = "Wyszukaj klucz lub tekst wiadomości. Wpisz cancel, aby wrócić."
+value = "Wpisz na czacie nową wartość dla {key}."
+current = "Bieżąca wartość: {value}"
+variables = "Zmienne: {variables}"
+guidance = "Użyj \\n dla nowej linii, \\\\ dla odwrotnego ukośnika lub wpisz cancel, aby wrócić."
+
+[language.editor.input]
+expired = "Czas na wpisanie tekstu w edytorze języka minął."
+too-long = "Wpisany tekst może mieć najwyżej {maximum} znaków."
+unable-to-save = "Nie udało się zapisać: {reason}"
+
+[language.editor.navigation]
+back = "&eWstecz&r"
+close = "&cZamknij&r"
+previous-page = "&ePoprzednia strona&r"
+next-page = "&eNastępna strona&r"
+
+[language.editor.search]
+messages = "Wyszukaj wiadomości"
+messages-lore = "Kliknij, aby przeszukać wszystkie wiadomości."
+clear = "Wyczyść wyszukiwanie"
+
+[language.editor.message]
+current-value = "&7Bieżąca wartość:&r"
+variables = "&8{variables}&r"
+edit-plural = "&7Kliknij, aby edytować formę liczby mnogiej.&r"
+edit-lines = "&7Kliknij, aby edytować poszczególne linie.&r"
+edit-chat = "&7Kliknij, aby edytować na czacie.&r"
+
+[language.editor.locale]
+open = "&8Kliknij, aby otworzyć ten język.&r"
+
+[language.editor.category]
+message-count = "&7{count} wiadomości&r"
+open = "&8Kliknij, aby otworzyć tę kategorię.&r"
+
+[language.editor.error]
+no-permission = "Nie masz uprawnienia do edycji języków wtyczki {plugin}."
+unable-to-edit = "Nie udało się edytować: {reason}"
+
+[language.editor.saved]
+summary = "Zapisano {locale}. Wybory języka pozostały bez zmian."
+change = "{key}: „{before}” zmieniono na „{after}”."
+
+[language.editor.part]
+line = "Linia {line}"
+
+[language.editor.value]
+none = "Brak"
+empty = "(pusty)"

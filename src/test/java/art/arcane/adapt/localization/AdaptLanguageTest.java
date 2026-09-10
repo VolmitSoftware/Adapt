@@ -472,7 +472,8 @@ class AdaptLanguageTest extends AdaptTestBase {
         .describedAs("protocol tokens for %s:%s", locale, key)
         .containsExactlyElementsOf(protocolTokens(english));
     assertThat(patternTokens(ESCAPE_TOKEN, translated))
-        .describedAs("escape tokens for %s:%s", locale, key)
+        .describedAs("escape tokens for %s:%s: expected %s, found %s", locale, key,
+            patternTokens(ESCAPE_TOKEN, english), patternTokens(ESCAPE_TOKEN, translated))
         .containsExactlyElementsOf(patternTokens(ESCAPE_TOKEN, english));
     if (delimiterIssue(english) == null) {
       assertThat(delimiterIssue(translated))
