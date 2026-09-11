@@ -6330,6 +6330,7 @@ lore3 = "Mücadele"
 lore = ["Max Abors", "Nabızlık için absorbasyon", "Mücadele"]
 
 [command.help]
+version = "Yüklü eklenti sürümünü göster"
 debug_dump = "Tanılama raporu oluştur ve isteğe bağlı olarak yükle"
 debug_upload = "Raporu mclo.gs üzerine yükle"
 adapt_debug_command = "Adapt Debug Komutanlığı"

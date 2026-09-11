@@ -6330,6 +6330,7 @@ lore3 = "作战封锁"
 lore = ["最大吸收量", "每脉冲吸收", "作战封锁"]
 
 [command.help]
+version = "显示已安装的插件版本"
 debug_dump = "创建诊断报告并选择是否上传"
 debug_upload = "将报告上传到 mclo.gs"
 adapt_debug_command = "Adapt 调试命令"

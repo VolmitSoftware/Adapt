@@ -6330,6 +6330,7 @@ lore3 = "Kampffunktion"
 lore = ["Maximale Absorption", "Absorption pro Puls", "Kampffunktion"]
 
 [command.help]
+version = "Installierte Plugin-Version anzeigen"
 debug_dump = "Einen Diagnosebericht erstellen und optional hochladen"
 debug_upload = "Den Bericht zu mclo.gs hochladen"
 adapt_debug_command = "Adapt Debug-Kommando"

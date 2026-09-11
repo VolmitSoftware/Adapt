@@ -6330,6 +6330,7 @@ lore3 = "Blokada walki"
 lore = ["Max Wchłanianie", "Wchłanianie na impuls", "Blokada walki"]
 
 [command.help]
+version = "Pokaż wersję zainstalowanej wtyczki"
 debug_dump = "Utwórz raport diagnostyczny i opcjonalnie go prześlij"
 debug_upload = "Prześlij raport do mclo.gs"
 adapt_debug_command = "Adapt Polecenie debugowania"

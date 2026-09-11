@@ -52,6 +52,11 @@ public class CommandAdapt {
   private CommandDefault defaults;
   private CommandMutation mutations;
 
+  @Director(name = "version", hidden = true, description = "Show the installed plugin version", descriptionKey = "command.help.version")
+  public void version(@Param(name = "sender", contextual = true) CommandSender sender) {
+    debug.version(sender);
+  }
+
   @Director(description = "Choose your language or the server default")
   public void language() {
     AdaptLanguage.language(BukkitDirectorContext.sender(), new String[0]);

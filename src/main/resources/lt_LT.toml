@@ -6330,6 +6330,7 @@ lore3 = "Kovos uždarymas"
 lore = ["Max Absorbcija", "Absorbcija per Pulsą", "Kovos uždarymas"]
 
 [command.help]
+version = "Rodyti įdiegto papildinio versiją"
 debug_dump = "Sukurti diagnostikos ataskaitą ir pasirinktinai ją įkelti"
 debug_upload = "Įkelti ataskaitą į mclo.gs"
 adapt_debug_command = "Adapt Derinimo komanda"

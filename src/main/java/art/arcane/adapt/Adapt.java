@@ -81,6 +81,7 @@ import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.volmlib.util.io.JarScanner;
 import art.arcane.volmlib.util.plugin.ComponentLog;
 import art.arcane.volmlib.util.plugin.ComponentMessenger;
+import art.arcane.volmlib.util.plugin.ComponentText;
 import art.arcane.volmlib.util.plugin.SplashScreenSupport;
 import com.jeff_media.customblockdata.CustomBlockData;
 import de.crazydev22.platformutils.AudienceProvider;
@@ -426,7 +427,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     AdaptLanguage.start();
     debugDump = BukkitDebugDump.create(this, new BukkitDebugDump.Options(() -> true, this::captureDebugState,
         new BukkitDebugDump.Presentation("/adapt debug dump", "/adapt debug",
-            DirectorMiniMenu.Theme.adaptRed(), AdaptLanguage.directorResolver())));
+            DirectorMiniMenu.Theme.adaptRed(),
+            (key, arguments) -> ComponentText.literal(AdaptLanguage.directorResolver().resolve(key, arguments)))));
     vaultEconomy = new VaultEconomy(this);
     if (!runStartupPhase("models-load", CustomModel::reloadFromDisk)) {
       Adapt.warn("Failed to load models config during startup migration.");

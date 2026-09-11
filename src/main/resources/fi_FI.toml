@@ -6330,6 +6330,7 @@ lore3 = "Taistelulukko"
 lore = ["Max Imeytyminen", "Imeytyminen pulssia kohti", "Taistelulukko"]
 
 [command.help]
+version = "Näytä asennetun lisäosan versio"
 debug_dump = "Luo diagnostiikkaraportti ja lähetä se halutessasi"
 debug_upload = "Lähetä raportti mclo.gs-palveluun"
 adapt_debug_command = "Adapt Vianetsintäkomento"

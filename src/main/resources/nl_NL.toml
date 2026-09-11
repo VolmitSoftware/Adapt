@@ -6330,6 +6330,7 @@ lore3 = "Vergrendeling van de strijd"
 lore = ["Max Absorptie", "Absorptie per puls", "Vergrendeling van de strijd"]
 
 [command.help]
+version = "Toon de geïnstalleerde pluginversie"
 debug_dump = "Maak een diagnostisch rapport en upload het desgewenst"
 debug_upload = "Upload het rapport naar mclo.gs"
 adapt_debug_command = "Adapt Opdracht debuggen"

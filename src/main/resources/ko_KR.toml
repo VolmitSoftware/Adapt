@@ -6330,6 +6330,7 @@ lore3 = "Combat 차단"
 lore = ["최대 흡수", "맥박 당 흡수", "Combat 차단"]
 
 [command.help]
+version = "설치된 플러그인 버전 표시"
 debug_dump = "진단 보고서를 생성하고 선택적으로 업로드"
 debug_upload = "보고서를 mclo.gs에 업로드"
 adapt_debug_command = "Adapt Debug 명령"

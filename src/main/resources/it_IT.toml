@@ -6330,6 +6330,7 @@ lore3 = "Combattere il blocco"
 lore = ["Assorbimento massimo", "Assorbimento per impulso", "Combattere il blocco"]
 
 [command.help]
+version = "Mostra la versione del plugin installato"
 debug_dump = "Crea un rapporto diagnostico e caricalo facoltativamente"
 debug_upload = "Carica il rapporto su mclo.gs"
 adapt_debug_command = "Adapt Comando del debito"

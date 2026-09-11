@@ -13,6 +13,8 @@ import art.arcane.volmlib.util.director.DirectorOrigin;
 import art.arcane.volmlib.util.director.annotations.Director;
 import art.arcane.volmlib.util.director.annotations.Param;
 import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
+import art.arcane.volmlib.util.director.help.DirectorMiniMenu;
+import art.arcane.volmlib.util.plugin.ComponentMessenger;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
@@ -27,6 +29,12 @@ import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 @Director(name = "debug", origin = DirectorOrigin.BOTH, description = "Adapt Debug Command", aliases = {"dev"}, descriptionKey = "command.help.adapt_debug_command")
 public class CommandDebug {
+
+  @Director(name = "version", description = "Show the installed plugin version", descriptionKey = "command.help.version")
+  public void version(@Param(name = "sender", contextual = true) CommandSender sender) {
+    ComponentMessenger.sendMarkup(sender, DirectorMiniMenu.version(
+        "Adapt", Adapt.instance.getDescription().getVersion(), DirectorMiniMenu.Theme.adaptRed()));
+  }
 
   @Director(name = "dump", sync = true, description = "Create and optionally upload a diagnostic report", descriptionKey = "command.help.debug_dump")
   public void dump(

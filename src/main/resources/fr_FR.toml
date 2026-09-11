@@ -6330,6 +6330,7 @@ lore3 = "Lockout de combat"
 lore = ["Absorption maximale", "Absorption par impulsion", "Lockout de combat"]
 
 [command.help]
+version = "Afficher la version du plugin installé"
 debug_dump = "Créer un rapport de diagnostic et le publier si souhaité"
 debug_upload = "Publier le rapport sur mclo.gs"
 adapt_debug_command = "Adapt Commande de débogage"

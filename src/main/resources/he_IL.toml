@@ -6330,6 +6330,7 @@ lore3 = "משחק Lockout"
 lore = ["מקס Absorption", "סינון של ספיקה", "משחק Lockout"]
 
 [command.help]
+version = "הצגת גרסת התוסף המותקן"
 debug_dump = "יצירת דוח אבחון והעלאתו לפי בחירה"
 debug_upload = "העלאת הדוח אל mclo.gs"
 adapt_debug_command = "Adapt פקודת דביג"

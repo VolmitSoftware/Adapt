@@ -6330,6 +6330,7 @@ lore3 = "戦闘中の変更禁止"
 lore = ["最大衝撃吸収", "波動ごとの衝撃吸収", "戦闘中の変更禁止"]
 
 [command.help]
+version = "インストールされているプラグインのバージョンを表示"
 debug_dump = "診断レポートを作成し、必要に応じてアップロードする"
 debug_upload = "レポートを mclo.gs にアップロードする"
 adapt_debug_command = "Adapt デバッグコマンド"

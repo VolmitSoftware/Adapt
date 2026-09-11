@@ -6330,6 +6330,7 @@ lore3 = "Khóa Khi Giao Chiến"
 lore = ["Hấp Thụ Tối Đa", "Hấp Thụ Mỗi Xung", "Khóa Khi Giao Chiến"]
 
 [command.help]
+version = "Hiển thị phiên bản plugin đã cài đặt"
 debug_dump = "Tạo báo cáo chẩn đoán và tải lên nếu muốn"
 debug_upload = "Tải báo cáo lên mclo.gs"
 adapt_debug_command = "Adapt Lệnh gỡ lỗi"

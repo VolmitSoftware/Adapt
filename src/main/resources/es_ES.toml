@@ -6330,6 +6330,7 @@ lore3 = "Taquilla de combate"
 lore = ["Absorción máxima", "Absorción por pulso", "Taquilla de combate"]
 
 [command.help]
+version = "Mostrar la versión del plugin instalado"
 debug_dump = "Crear y subir opcionalmente un informe de diagnóstico"
 debug_upload = "Subir el informe a mclo.gs"
 adapt_debug_command = "Herramientas de diagnóstico de Adapt"
