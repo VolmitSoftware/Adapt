@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — pt_PT
 #
 # === Editar o ficheiro ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  Quantidade de Root Charge armazenada
 #   {second}  Segundo grupo de habilidades ou componente de ativação
 #   {seconds}  Duração em segundos
+#   {section}  Secção do editor de idiomas
 #   {separator}  Separador entre o valor estatístico e a etiqueta
 #   {skill}  Nome da habilidade
 #   {slot}  Número do espaço de mutação
@@ -119,7 +121,6 @@
 #   {trigger}  Condição de ativação da habilidade
 #   {trophy}  Estado do troféu associado
 #   {type}  Tipo esperado do parâmetro ou valor
-#   {usage}  Sintaxe do comando
 #   {used}  Poder utilizado ou espaços ocupados
 #   {value}  Valor atual da definição ou estatística
 #   {values}  Valores permitidos da definição
@@ -516,7 +517,6 @@ default = "Predefinição \"{value}\" se não for definido."
 type = "Este parâmetro é do tipo {type}."
 
 [director.runtime]
-usage = "Utilização: {usage}"
 
 [director.runtime.error]
 invalid_origin = "Este comando não pode ser executado a partir desta origem."

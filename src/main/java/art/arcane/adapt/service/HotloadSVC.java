@@ -193,7 +193,6 @@ public class HotloadSVC implements AdaptService {
       }
 
       if (refreshedSomething) {
-        AdaptLanguage.invalidateSelections();
         refreshOpenAdaptGuis();
       }
     } finally {
@@ -209,7 +208,7 @@ public class HotloadSVC implements AdaptService {
 
   private boolean processConfigChange(ConfigHotloadEngine.StableContentSnapshot snapshot) {
     File file = snapshot.file();
-    if ("missing".equals(snapshot.signature())) {
+    if ("missing".equals(snapshot.signature()) && !isLocaleLanguageFile(file)) {
       hotloadEngine.processSnapshotChange(snapshot, ignored -> true, null);
       Adapt.warn("Config was removed; retaining the last valid runtime state without recreating " + file.getPath() + ".");
       return false;
@@ -357,8 +356,10 @@ public class HotloadSVC implements AdaptService {
   }
 
   private void refreshGlobalRuntimeSettings() {
-    AdaptLanguage.reloadPassive();
-    AdaptLanguage.requestConfiguredLocale();
+    String previousLocale = AdaptLanguage.activeLocale();
+    if (AdaptLanguage.reloadPassive() && !previousLocale.equals(AdaptLanguage.activeLocale())) {
+      AdaptLanguage.requestConfiguredLocale();
+    }
 
     ProtectorRegistry protectorRegistry = Adapt.instance.getProtectorRegistry();
     if (protectorRegistry != null) {
@@ -434,7 +435,7 @@ public class HotloadSVC implements AdaptService {
 
   private boolean isLocaleLanguageFile(File file) {
     return isDirectChild(localeLanguageFolder, file)
-        && file.getName().toLowerCase(Locale.ROOT).endsWith(".toml");
+        && AdaptLanguage.isLanguageFile(file);
   }
 
   private boolean isManagedConfigFile(File file) {

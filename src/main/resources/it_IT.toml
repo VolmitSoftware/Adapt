@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — it_IT
 #
 # === Modifica del file ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  Quantità di Root Charge accumulata
 #   {second}  Secondo gruppo di abilità o componente di attivazione
 #   {seconds}  Durata in secondi
+#   {section}  Sezione dell’editor delle lingue
 #   {separator}  Separatore tra valore statistico ed etichetta
 #   {skill}  Nome dell’abilità
 #   {slot}  Numero dello slot mutazione
@@ -119,7 +121,6 @@
 #   {trigger}  Condizione di attivazione dell’abilità
 #   {trophy}  Stato del trofeo collegato
 #   {type}  Tipo previsto del parametro o del valore
-#   {usage}  Sintassi del comando
 #   {used}  Potere usato o slot occupati
 #   {value}  Valore corrente dell’impostazione o della statistica
 #   {values}  Valori consentiti dell’impostazione
@@ -516,7 +517,6 @@ default = "Il valore predefinito è \"{value}\" se non definito."
 type = "Questo parametro è di tipo {type}."
 
 [director.runtime]
-usage = "Utilizzo: {usage}"
 
 [director.runtime.error]
 invalid_origin = "Questo comando non può essere eseguito da questa origine."

@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — tr_TR
 #
 # === Dosyayı düzenleme ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  Depolanan Root Charge miktarı
 #   {second}  İkinci beceri grubu veya tetikleme bileşeni
 #   {seconds}  Saniye cinsinden süre
+#   {section}  Dil düzenleyicisi bölümü
 #   {separator}  İstatistik değeri ile etiketi arasındaki ayırıcı
 #   {skill}  Beceri adı
 #   {slot}  Mutasyon yuvasının numarası
@@ -119,7 +121,6 @@
 #   {trigger}  Yeteneğin etkinleşme koşulu
 #   {trophy}  Bağlı kupanın durumu
 #   {type}  Beklenen parametre veya değer türü
-#   {usage}  Komut sözdizimi
 #   {used}  Kullanılan güç veya dolu yuvalar
 #   {value}  Geçerli ayar veya istatistik değeri
 #   {values}  İzin verilen ayar değerleri
@@ -516,7 +517,6 @@ default = "Belirtilmezse varsayılan değer \"{value}\" olur."
 type = "Bu parametrenin türü {type}."
 
 [director.runtime]
-usage = "Kullanım: {usage}"
 
 [director.runtime.error]
 invalid_origin = "Bu komut bu kaynaktan çalıştırılamaz."

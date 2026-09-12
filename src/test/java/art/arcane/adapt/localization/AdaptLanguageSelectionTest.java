@@ -3,13 +3,17 @@ package art.arcane.adapt.localization;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
 import art.arcane.adapt.service.HotloadSVC;
 import art.arcane.adapt.util.common.plugin.AdaptService;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.hotload.ConfigHotloadEngine;
 import art.arcane.volmlib.util.localization.LocalizationCandidate;
+import art.arcane.volmlib.util.localization.LocalizationManager;
 import art.arcane.volmlib.util.localization.LocalizationSnapshot;
 import art.arcane.volmlib.util.localization.PluginLanguageService;
 import art.arcane.volmlib.util.localization.PluginLanguageEditor;
@@ -20,9 +24,11 @@ import com.sun.net.httpserver.HttpServer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
@@ -31,11 +37,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BooleanSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 class AdaptLanguageSelectionTest extends AdaptTestBase {
   private AdaptConfig previousConfig;
@@ -43,13 +54,16 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
   private HttpServer server;
   private URLClassLoader resources;
   private PluginLanguageService languages;
+  private HotloadSVC hotload;
   private final AtomicReference<LocalizationSnapshot> selected = new AtomicReference<>();
+  private final AtomicInteger downloadRequests = new AtomicInteger();
+  private int hotloadBatches;
 
   @BeforeEach
   void prepareSelectionRuntime() throws Exception {
     previousConfig = (AdaptConfig) field(AdaptConfig.class, "config").get(null);
     field(AdaptConfig.class, "config").set(null, new AdaptConfig());
-    HotloadSVC hotload = new HotloadSVC();
+    hotload = new HotloadSVC();
     KMap<Class<? extends AdaptService>, AdaptService> services = new KMap<>();
     services.put(HotloadSVC.class, hotload);
     field(Adapt.class, "services").set(plugin, services);
@@ -148,6 +162,86 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
     assertThat(AdaptLanguage.text(RuntimeMessages.NO_DESCRIPTION_PROVIDED)).isEqualTo("Customized English");
   }
 
+  @Test
+  void personalFileHotloadRetainsMalformedTranslationsAndFallsBackOnDeletionUntilRestored() throws Exception {
+    installSource(503, "Unavailable");
+    AdaptServer adaptServer = mock(AdaptServer.class);
+    when(plugin.getAdaptServer()).thenReturn(adaptServer);
+    when(adaptServer.getSkillRegistry()).thenReturn(mock(SkillRegistry.class));
+    LocalizationManager manager = (LocalizationManager) field(AdaptLanguage.class, "MANAGER").get(null);
+    languages.close();
+    languages = new PluginLanguageService(new PluginLanguageService.Options(
+        dataFolder.toPath().resolve("languages/language-preferences.properties"),
+        AdaptLanguage::availableLocales, AdaptLanguage::activeLocale, manager::snapshot,
+        AdaptLanguage.editorOptions().loader()::load, (locale, snapshot) -> {
+          throw new AssertionError("File hotloads cannot change the default language");
+        }, plugin.getLogger()));
+    field(AdaptLanguage.class, "selections").set(null, languages);
+    Path personal = dataFolder.toPath().resolve("languages/fi_FI.toml");
+    Files.writeString(personal, "[runtime]\nno_description_provided = 'INITIAL'\n");
+    UUID player = UUID.randomUUID();
+    languages.selectPlayer(player, "fi_FI").get(5L, TimeUnit.SECONDS);
+    Path preferences = dataFolder.toPath().resolve("languages/language-preferences.properties");
+    String savedPreferences = Files.readString(preferences);
+    try (MockedStatic<J> scheduling = mockStatic(J.class)) {
+      Files.writeString(personal, "[runtime]\nno_description_provided = 'LIVE'\n");
+      pollUntil(() -> personalValue(player).equals(new TextValue("LIVE")));
+
+      int previousBatches = hotloadBatches;
+      Files.writeString(personal, "[runtime\n");
+      pollUntil(() -> hotloadBatches > previousBatches);
+      assertThat(personalValue(player)).isEqualTo(new TextValue("LIVE"));
+
+      Path english = AdaptLanguage.languageFolder().toPath().resolve("en_US.toml");
+      Files.writeString(english, "[runtime]\nno_description_provided = 'SERVER'\n"
+          + "[command.runtime]\nplayer_only = 'SERVER ONLY'\n");
+      pollUntil(() -> AdaptLanguage.text(RuntimeMessages.NO_DESCRIPTION_PROVIDED).equals("SERVER"));
+      assertThat(personalValue(player)).isEqualTo(new TextValue("LIVE"));
+      assertThat(Files.readString(personal)).isEqualTo("[runtime\n");
+
+      String partial = "[runtime]\nno_description_provided = 'PARTIAL'\n";
+      Files.writeString(personal, partial);
+      pollUntil(() -> personalValue(player).equals(new TextValue("PARTIAL")));
+      assertThat(languages.snapshot(player).value(CommandRuntimeMessages.PLAYER_ONLY))
+          .isEqualTo(CommandRuntimeMessages.PLAYER_ONLY.englishValue());
+
+      Files.delete(personal);
+      pollUntil(() -> personalValue(player).equals(RuntimeMessages.NO_DESCRIPTION_PROVIDED.englishValue()));
+      assertThat(personal).doesNotExist();
+      assertThat(languages.playerLocale(player)).contains("fi_FI");
+      assertThat(Files.readString(preferences)).isEqualTo(savedPreferences);
+      assertThat(AdaptLanguage.activeLocale()).isEqualTo("en_US");
+      assertThat(AdaptConfig.get().getLanguage()).isEqualTo("en_US");
+      assertThat(AdaptLanguage.reload()).isTrue();
+      assertThat(personalValue(player)).isEqualTo(RuntimeMessages.NO_DESCRIPTION_PROVIDED.englishValue());
+      assertThat(personal).doesNotExist();
+
+      Files.writeString(personal, partial);
+      pollUntil(() -> personalValue(player).equals(new TextValue("PARTIAL")));
+      assertThat(Files.readString(preferences)).isEqualTo(savedPreferences);
+      assertThat(downloadRequests).hasValue(0);
+    }
+  }
+
+  private TextValue personalValue(UUID player) {
+    return (TextValue) languages.snapshot(player).value(RuntimeMessages.NO_DESCRIPTION_PROVIDED);
+  }
+
+  private void pollUntil(BooleanSupplier condition) throws Exception {
+    Method apply = HotloadSVC.class.getDeclaredMethod("applyConfigChanges", long.class, List.class);
+    apply.setAccessible(true);
+    long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5L);
+    while (!condition.getAsBoolean() && System.nanoTime() < deadline) {
+      List<ConfigHotloadEngine.StableContentSnapshot> snapshots = List.copyOf(engine.pollTouchedSnapshots());
+      if (!snapshots.isEmpty()) {
+        apply.invoke(hotload, 0L, snapshots);
+        hotloadBatches++;
+      }
+      Thread.sleep(25L);
+    }
+    assertThat(condition.getAsBoolean()).isTrue();
+  }
+
   private void assertEnglishFallback() throws Exception {
     assertThat(AdaptLanguage.activeLocale()).isEqualTo("en_US");
     assertThat(AdaptConfig.get().getLanguage()).isEqualTo("en_US");
@@ -161,6 +255,7 @@ class AdaptLanguageSelectionTest extends AdaptTestBase {
     byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
     server = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
     server.createContext("/", exchange -> {
+      downloadRequests.incrementAndGet();
       exchange.sendResponseHeaders(status, bytes.length);
       exchange.getResponseBody().write(bytes);
       exchange.close();

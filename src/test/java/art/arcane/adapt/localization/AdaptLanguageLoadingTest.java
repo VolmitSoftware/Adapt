@@ -125,6 +125,21 @@ class AdaptLanguageLoadingTest extends AdaptTestBase {
     assertThat(referencePath()).doesNotExist();
   }
 
+  @Test
+  void malformedStartupLanguageUsesBuiltInEnglishWithoutReplacingTheFile() throws Exception {
+    Path file = writeLanguage("de_DE", "Previous runtime");
+    AdaptConfig config = localeConfig("de_DE");
+    try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
+      configured.when(AdaptConfig::get).thenReturn(config);
+      assertThat(AdaptLanguage.reload()).isTrue();
+      Files.writeString(file, "[runtime\n");
+      assertThat(AdaptLanguage.initialize()).isFalse();
+      assertThat(AdaptLanguage.text(RuntimeMessages.NO_DESCRIPTION_PROVIDED))
+          .isEqualTo(RuntimeMessages.NO_DESCRIPTION_PROVIDED.english());
+      assertThat(Files.readString(file)).isEqualTo("[runtime\n");
+    }
+  }
+
   private AdaptConfig localeConfig(String locale) {
     AdaptConfig config = mock(AdaptConfig.class);
     lenient().when(config.getLanguage()).thenReturn(locale);

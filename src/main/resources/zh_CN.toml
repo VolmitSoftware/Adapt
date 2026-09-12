@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — zh_CN
 #
 # === 编辑文件 ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  已储存的 Root Charge 数量
 #   {second}  第二个技能组或触发条件组成部分
 #   {seconds}  时长（秒）
+#   {section}  语言编辑器分区
 #   {separator}  统计值与标签之间的分隔符
 #   {skill}  技能名称
 #   {slot}  变异槽位编号
@@ -119,7 +121,6 @@
 #   {trigger}  能力触发条件
 #   {trophy}  已绑定的战利品状态
 #   {type}  预期的参数或值类型
-#   {usage}  命令语法
 #   {used}  已用力量或占用的槽位数量
 #   {value}  当前设置或统计值
 #   {values}  允许的设置值
@@ -516,7 +517,6 @@ default = "未指定时默认为 \"{value}\"。"
 type = "此参数的类型为 {type}。"
 
 [director.runtime]
-usage = "用法: {usage}"
 
 [director.runtime.error]
 invalid_origin = "无法从此来源运行该命令。"

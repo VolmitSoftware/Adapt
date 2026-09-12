@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — ja-JP
 #
 # === ファイルの編集 ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  蓄積した Root Charge の量
 #   {second}  2つ目のスキルグループまたは発動条件
 #   {seconds}  秒単位の時間
+#   {section}  言語エディターのセクション
 #   {separator}  統計値とラベルの間の区切り文字
 #   {skill}  スキル名
 #   {slot}  変異スロットの番号
@@ -119,7 +121,6 @@
 #   {trigger}  能力の発動条件
 #   {trophy}  リンクしたトロフィーの状態
 #   {type}  期待されるパラメーターまたは値の型
-#   {usage}  コマンドの構文
 #   {used}  使用中のパワーまたは埋まったスロット数
 #   {value}  現在の設定値または統計値
 #   {values}  設定で使用できる値の一覧
@@ -516,7 +517,6 @@ default = "未指定の場合は \"{value}\" になります。"
 type = "このパラメータの型は {type} です。"
 
 [director.runtime]
-usage = "使用法: {usage}"
 
 [director.runtime.error]
 invalid_origin = "この実行元からはコマンドを実行できません。"

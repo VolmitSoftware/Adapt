@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — vi_VI
 #
 # === Chỉnh sửa tệp ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  Lượng Root Charge đã tích trữ
 #   {second}  Nhóm kỹ năng hoặc thành phần điều kiện kích hoạt thứ hai
 #   {seconds}  Thời lượng tính bằng giây
+#   {section}  Mục trong trình chỉnh sửa ngôn ngữ
 #   {separator}  Dấu phân cách giữa giá trị số liệu và nhãn
 #   {skill}  Tên kỹ năng
 #   {slot}  Số ô đột biến
@@ -119,7 +121,6 @@
 #   {trigger}  Điều kiện kích hoạt năng lực
 #   {trophy}  Trạng thái chiến lợi phẩm đã liên kết
 #   {type}  Kiểu tham số hoặc giá trị được yêu cầu
-#   {usage}  Cú pháp lệnh
 #   {used}  Sức mạnh đã dùng hoặc số ô đã chiếm
 #   {value}  Giá trị thiết lập hoặc số liệu hiện tại
 #   {values}  Các giá trị thiết lập được phép
@@ -516,7 +517,6 @@ default = "Mặc định là \"{value}\" nếu không được chỉ định."
 type = "Tham số này có kiểu {type}."
 
 [director.runtime]
-usage = "Cách dùng: {usage}"
 
 [director.runtime.error]
 invalid_origin = "Không thể chạy lệnh này từ nguồn này."

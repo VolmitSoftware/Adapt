@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — fi_FI
 #
 # === Tiedoston muokkaus ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  Varastoidun Root Chargen määrä
 #   {second}  Toinen taitoryhmä tai laukaisimen osa
 #   {seconds}  Kesto sekunteina
+#   {section}  Kielieditorin osio
 #   {separator}  Tilastoarvon ja nimen erotin
 #   {skill}  Taidon nimi
 #   {slot}  Mutaatiopaikan numero
@@ -119,7 +121,6 @@
 #   {trigger}  Kyvyn aktivoitumisehto
 #   {trophy}  Liitetyn pokaalin tila
 #   {type}  Odotettu parametrin tai arvon tyyppi
-#   {usage}  Komennon syntaksi
 #   {used}  Käytetty voima tai varatut paikat
 #   {value}  Nykyinen asetus- tai tilastoarvo
 #   {values}  Sallitut asetusarvot
@@ -516,7 +517,6 @@ default = "Oletusarvo on \"{value}\", jos sitä ei määritetä."
 type = "Tämän parametrin tyyppi on {type}."
 
 [director.runtime]
-usage = "Käyttö: {usage}"
 
 [director.runtime.error]
 invalid_origin = "Tätä komentoa ei voi suorittaa tästä lähteestä."

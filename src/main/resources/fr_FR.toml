@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — fr_FR
 #
 # === Modifier le fichier ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  Charge de racine stockée
 #   {second}  Deuxième groupe de compétences ou élément du déclencheur
 #   {seconds}  Durée en secondes
+#   {section}  Section de l’éditeur de langues
 #   {separator}  Séparateur entre la valeur statistique et son libellé
 #   {skill}  Nom de la compétence
 #   {slot}  Numéro de l’emplacement de mutation
@@ -119,7 +121,6 @@
 #   {trigger}  Condition d’activation de la capacité
 #   {trophy}  État du trophée lié
 #   {type}  Type de paramètre ou de valeur attendu
-#   {usage}  Syntaxe de la commande
 #   {used}  Puissance utilisée ou emplacements occupés
 #   {value}  Valeur actuelle du réglage ou de la statistique
 #   {values}  Valeurs autorisées pour le réglage
@@ -516,7 +517,6 @@ default = "Vaut \"{value}\" par défaut si non défini."
 type = "Ce paramètre est de type {type}."
 
 [director.runtime]
-usage = "Utilisation: {usage}"
 
 [director.runtime.error]
 invalid_origin = "Cette commande ne peut pas être exécutée depuis cette origine."

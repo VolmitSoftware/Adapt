@@ -48,6 +48,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -74,11 +75,14 @@ public final class AdaptLanguage {
   }
 
   public static boolean initialize() {
+    synchronized (SNAPSHOT_LOCK) {
+      MANAGER.install(LocalizationSnapshot.create(LocalizationCandidate.english(CATALOG, PluralSelector.oneOther())));
+      activeLocale = CATALOG.englishLocale();
+    }
     return reload();
   }
 
   public static boolean reload() {
-    invalidateSelections();
     return reloadInternal(null, null, true);
   }
 
@@ -87,19 +91,25 @@ public final class AdaptLanguage {
   }
 
   public static boolean reloadLanguageSnapshot(File file, String raw) {
-    String configuredLocale = AdaptConfig.get().getLanguage();
-    String normalizedLocale;
-    try {
-      normalizedLocale = normalizeLocale(configuredLocale);
-    } catch (Throwable error) {
-      Adapt.error(error);
+    if (!isLanguageFile(file)) {
       return false;
     }
-    File activeFile = new File(languageFolder(), normalizedLocale + ".toml");
-    if (!activeFile.getAbsoluteFile().equals(file.getAbsoluteFile())) {
+    try {
+      String locale = normalizeLocale(file.getName().substring(0, file.getName().length() - ".toml".length()));
+      String configuredLocale = normalizeLocale(AdaptConfig.get().getLanguage());
+      if (configuredLocale.equals(locale)) {
+        return reloadInternal(file, raw, false);
+      }
+      LocalizationSnapshot prepared = LocalizationSnapshot.create(loadCandidate(locale, file, raw));
+      PluginLanguageService current = selections;
+      if (current != null) {
+        current.cache(locale, prepared);
+      }
       return true;
+    } catch (Exception failure) {
+      Adapt.error("Could not reload Adapt language " + file + "; keeping the last valid messages.", failure);
+      return false;
     }
-    return reloadInternal(file, raw, false);
   }
 
   private static boolean reloadInternal(File snapshotFile, String snapshotRaw, boolean writeGeneratedFiles) {
@@ -138,14 +148,6 @@ public final class AdaptLanguage {
     return true;
   }
 
-  public static void invalidateSelections() {
-    PluginLanguageService current = selections;
-    if (current != null) {
-      current.invalidate();
-      current.cache(activeLocale, MANAGER.snapshot());
-    }
-  }
-
   public static String activeLocale() {
     return activeLocale;
   }
@@ -159,7 +161,9 @@ public final class AdaptLanguage {
       return false;
     }
     File parent = file.getParentFile();
-    return parent != null && parent.getAbsoluteFile().equals(languageFolder().getAbsoluteFile());
+    String locale = file.getName().substring(0, file.getName().length() - ".toml".length());
+    return parent != null && parent.getAbsoluteFile().equals(languageFolder().getAbsoluteFile())
+        && LOCALE_NAME.matcher(locale).matches();
   }
 
   public static String text(MessageKey key) {
@@ -203,6 +207,8 @@ public final class AdaptLanguage {
     if (snapshotFile != null && file.getAbsoluteFile().equals(snapshotFile.getAbsoluteFile())) {
       if (snapshotRaw != null) {
         overlays.add(parseOverlay(snapshotFile.getPath(), locale, snapshotRaw));
+      } else if (!Files.notExists(file.toPath(), LinkOption.NOFOLLOW_LINKS)) {
+        throw new IOException("Language file could not be read: " + file);
       }
     } else if (file.exists()) {
       overlays.add(loadFileOverlay(file, locale));
@@ -211,18 +217,13 @@ public final class AdaptLanguage {
   }
 
   private static LocaleOverlay loadFileOverlay(File file, String locale) throws Exception {
-    try {
-      if (!file.isFile()) {
-        throw new IllegalArgumentException("Locale file is not a regular file: " + file.getPath());
-      }
-      if (file.length() > MAX_LOCALE_BYTES) {
-        throw new IllegalArgumentException("Locale file is too large: " + file.getPath());
-      }
-      return parseOverlay(file.getPath(), locale, Files.readString(file.toPath()));
-    } catch (IOException | IllegalArgumentException invalid) {
-      Adapt.error("Cannot read language " + locale + "; using English.", invalid);
-      return LocaleOverlay.builder(file.getPath(), locale).build();
+    if (!file.isFile()) {
+      throw new IllegalArgumentException("Locale file is not a regular file: " + file.getPath());
     }
+    if (file.length() > MAX_LOCALE_BYTES) {
+      throw new IllegalArgumentException("Locale file is too large: " + file.getPath());
+    }
+    return parseOverlay(file.getPath(), locale, Files.readString(file.toPath()));
   }
 
   static RemoteLanguageCatalog remote() {
@@ -315,7 +316,8 @@ public final class AdaptLanguage {
   public static void requestConfiguredLocale() {
     String locale = normalizeLocale(AdaptConfig.get().getLanguage());
     PluginLanguageService current = selections;
-    if (CATALOG.englishLocale().equals(locale) || current == null) {
+    if (CATALOG.englishLocale().equals(locale) || current == null
+        || Files.exists(new File(languageFolder(), locale + ".toml").toPath(), LinkOption.NOFOLLOW_LINKS)) {
       return;
     }
     current.selectDefault(locale).exceptionally(failure -> {

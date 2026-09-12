@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — pl_PL
 #
 # === Edycja pliku ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  Ilość zgromadzonego Root Charge
 #   {second}  Druga grupa umiejętności lub część wyzwalacza
 #   {seconds}  Czas w sekundach
+#   {section}  Sekcja edytora języków
 #   {separator}  Separator wartości statystyki i etykiety
 #   {skill}  Nazwa umiejętności
 #   {slot}  Numer slotu mutacji
@@ -119,7 +121,6 @@
 #   {trigger}  Warunek aktywacji zdolności
 #   {trophy}  Stan powiązanego trofeum
 #   {type}  Oczekiwany typ parametru lub wartości
-#   {usage}  Składnia polecenia
 #   {used}  Zużyta moc lub zajęte sloty
 #   {value}  Bieżąca wartość ustawienia lub statystyki
 #   {values}  Dozwolone wartości ustawienia
@@ -516,7 +517,6 @@ default = "Domyślnie \"{value}\", jeśli nie określono."
 type = "Ten parametr jest typu {type}."
 
 [director.runtime]
-usage = "Użycie: {usage}"
 
 [director.runtime.error]
 invalid_origin = "Tego polecenia nie można wykonać z tego źródła."

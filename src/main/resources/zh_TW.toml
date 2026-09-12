@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — zh_TW
 #
 # === 編輯檔案 ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  已儲存的 Root Charge 數量
 #   {second}  第二個技能組或觸發條件組成部分
 #   {seconds}  時長（秒）
+#   {section}  語言編輯器區段
 #   {separator}  統計值與標籤之間的分隔符號
 #   {skill}  技能名稱
 #   {slot}  變異欄位編號
@@ -119,7 +121,6 @@
 #   {trigger}  能力觸發條件
 #   {trophy}  已綁定的戰利品狀態
 #   {type}  預期的參數或值類型
-#   {usage}  指令語法
 #   {used}  已用力量或占用的欄位數量
 #   {value}  目前設定或統計值
 #   {values}  允許的設定值
@@ -516,7 +517,6 @@ default = "未指定時預設為 \"{value}\"。"
 type = "此參數的類型為 {type}。"
 
 [director.runtime]
-usage = "用法: {usage}"
 
 [director.runtime.error]
 invalid_origin = "無法從此來源執行該指令。"

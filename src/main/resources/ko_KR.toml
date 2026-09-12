@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — ko_KR
 #
 # === 파일 편집 ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  저장된 Root Charge 양
 #   {second}  두 번째 스킬 그룹 또는 발동 조건
 #   {seconds}  초 단위 시간
+#   {section}  언어 편집기 섹션
 #   {separator}  통계 값과 레이블 사이의 구분자
 #   {skill}  스킬 이름
 #   {slot}  변이 슬롯 번호
@@ -119,7 +121,6 @@
 #   {trigger}  능력 발동 조건
 #   {trophy}  연결된 전리품 상태
 #   {type}  예상되는 매개변수 또는 값 유형
-#   {usage}  명령 구문
 #   {used}  사용 중인 파워 또는 차지한 슬롯 수
 #   {value}  현재 설정 값 또는 통계 값
 #   {values}  설정에 허용되는 값 목록
@@ -516,7 +517,6 @@ default = "지정하지 않으면 기본값은 \"{value}\"입니다."
 type = "이 매개변수의 유형은 {type}입니다."
 
 [director.runtime]
-usage = "사용법: {usage}"
 
 [director.runtime.error]
 invalid_origin = "이 실행 위치에서는 이 명령어를 실행할 수 없습니다."

@@ -1,3 +1,4 @@
+"language.editor.title" = "{plugin} › {section}"
 # Adapt — de_DE
 #
 # === Datei bearbeiten ===
@@ -99,6 +100,7 @@
 #   {rootCharge}  Gespeicherte Wurzelladung
 #   {second}  Zweite Fertigkeitsgruppe oder zweite Auslöserkomponente
 #   {seconds}  Dauer in Sekunden
+#   {section}  Abschnitt im Spracheditor
 #   {separator}  Trennzeichen zwischen Statistikwert und Bezeichnung
 #   {skill}  Name der Fertigkeit
 #   {slot}  Nummer des Mutationsplatzes
@@ -119,7 +121,6 @@
 #   {trigger}  Aktivierungsbedingung der Fähigkeit
 #   {trophy}  Status der verknüpften Trophäe
 #   {type}  Erwarteter Parameter- oder Werttyp
-#   {usage}  Befehlssyntax
 #   {used}  Verbrauchte Kraft oder belegte Plätze
 #   {value}  Aktueller Einstellungs- oder Statistikwert
 #   {values}  Zulässige Einstellungswerte
@@ -516,7 +517,6 @@ default = "Standardmäßig \"{value}\", wenn nicht angegeben."
 type = "Dieser Parameter hat den Typ {type}."
 
 [director.runtime]
-usage = "Verwendung: {usage}"
 
 [director.runtime.error]
 invalid_origin = "Dieser Befehl kann von diesem Ursprung aus nicht ausgeführt werden."
