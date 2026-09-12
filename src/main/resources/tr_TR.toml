@@ -6534,6 +6534,7 @@ server-default-selected = "{plugin}: diliniz artık sunucunun varsayılan dilini
 
 [language.editor]
 loading = "{locale} mesajları yükleniyor..."
+title = "{plugin} / {section}"
 
 [language.editor.section]
 languages = "Diller"

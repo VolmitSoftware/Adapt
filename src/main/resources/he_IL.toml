@@ -6534,6 +6534,7 @@ server-default-selected = "{plugin}: השפה שלך תואמת כעת לשפת 
 
 [language.editor]
 loading = "טוען הודעות עבור {locale}..."
+title = "{plugin} / {section}"
 
 [language.editor.section]
 languages = "שפות"

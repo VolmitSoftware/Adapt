@@ -6534,6 +6534,7 @@ server-default-selected = "{plugin}: je taal volgt nu de standaardtaal van de se
 
 [language.editor]
 loading = "Berichten voor {locale} laden..."
+title = "{plugin} / {section}"
 
 [language.editor.section]
 languages = "Talen"

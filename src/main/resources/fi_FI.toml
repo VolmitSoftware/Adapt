@@ -6534,6 +6534,7 @@ server-default-selected = "{plugin}: kielesi noudattaa nyt palvelimen oletuskiel
 
 [language.editor]
 loading = "Ladataan kielen {locale} viestejä..."
+title = "{plugin} / {section}"
 
 [language.editor.section]
 languages = "Kielet"

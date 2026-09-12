@@ -6534,6 +6534,7 @@ server-default-selected = "{plugin}: ngôn ngữ của bạn hiện theo ngôn n
 
 [language.editor]
 loading = "Đang tải tin nhắn cho {locale}..."
+title = "{plugin} / {section}"
 
 [language.editor.section]
 languages = "Ngôn ngữ"
