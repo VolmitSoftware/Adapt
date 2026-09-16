@@ -29,6 +29,7 @@ import art.arcane.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeDropToInventory;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.hiddenore.HiddenOre;
+import art.arcane.hiddenore.api.BreakCause;
 import art.arcane.hiddenore.api.HiddenOreAPI;
 import art.arcane.hiddenore.api.HiddenVein;
 import art.arcane.hiddenore.api.event.HiddenOreDropsEvent;
@@ -107,6 +108,10 @@ public final class HiddenOreBridge implements Listener {
 
   @EventHandler
   public void on(HiddenOreDropsEvent e) {
+    if (e.getCause() == BreakCause.EXPLODED) {
+      return;
+    }
+
     Player p = e.getPlayer();
     applyAutosmelt(p, e);
     applyDropToInventory(p, e);
