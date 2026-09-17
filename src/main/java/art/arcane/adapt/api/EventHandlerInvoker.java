@@ -35,6 +35,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.plugin.EventExecutor;
 
 import java.lang.invoke.LambdaMetafactory;
@@ -160,6 +161,7 @@ public final class EventHandlerInvoker {
   private static boolean isSkippedEvent(boolean gated, String abilityName, Event event) {
     return (ProtectionEventProbe.isActive(event)
         && (event instanceof PlayerInteractEvent
+        || event instanceof PlayerInteractEntityEvent
         || event instanceof BlockBreakEvent
         || event instanceof BlockPlaceEvent))
         || isSkippedForMissingLearner(gated, abilityName, event);

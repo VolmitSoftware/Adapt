@@ -20,6 +20,7 @@ package art.arcane.adapt.util.common.plugin;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.event.ProtectionProbe;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,7 +33,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
@@ -70,7 +70,7 @@ public final class ProtectionEventProbe {
   }
 
   public static boolean isActive(Event event) {
-    return ACTIVE_PROBES.contains(event);
+    return ProtectionProbe.isProbe(event) || ACTIVE_PROBES.contains(event);
   }
 
   public static List<Block> containerBlocks(Block target, Inventory inventory) {
@@ -101,17 +101,7 @@ public final class ProtectionEventProbe {
     if (!canAttemptBlockAction(player, block)) {
       return false;
     }
-    ItemStack item = hand == EquipmentSlot.OFF_HAND
-        ? player.getInventory().getItemInOffHand()
-        : player.getInventory().getItemInMainHand();
-    PlayerInteractEvent event = new PlayerInteractEvent(
-        player,
-        Action.RIGHT_CLICK_BLOCK,
-        item,
-        block,
-        BlockFace.UP,
-        hand
-    );
+    PlayerInteractEvent event = ProtectionProbe.blockInteract(player, block, hand);
     dispatch(event);
     return event.useInteractedBlock() != Event.Result.DENY;
   }

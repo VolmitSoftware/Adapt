@@ -6,17 +6,20 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -347,33 +350,25 @@ class ProtectionEventProbeTest {
   }
 
   @Test
-  void dispatchAlwaysClearsTheProbeMarker() {
+  void dispatchAlwaysClearsTheScopedProbeMarker() {
     Player player = mock(Player.class);
-    PlayerInventory inventory = mock(PlayerInventory.class);
     Block block = mock(Block.class);
-    World world = mock(World.class);
+    PlayerInteractEvent event = new PlayerInteractEvent(
+        player, Action.RIGHT_CLICK_BLOCK, null, block, BlockFace.UP, EquipmentSlot.HAND);
     PluginManager pluginManager = mock(PluginManager.class);
-    AtomicReference<Event> dispatched = new AtomicReference<>();
-    when(player.isOnline()).thenReturn(true);
-    when(player.getWorld()).thenReturn(world);
-    when(block.getWorld()).thenReturn(world);
-    when(player.getInventory()).thenReturn(inventory);
     doAnswer(invocation -> {
-      Event event = invocation.getArgument(0);
-      dispatched.set(event);
       assertThat(ProtectionEventProbe.isActive(event)).isTrue();
       throw new IllegalStateException("listener failure");
-    }).when(pluginManager).callEvent(any(Event.class));
+    }).when(pluginManager).callEvent(event);
 
     try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
       bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
-      assertThatThrownBy(() -> ProtectionEventProbe.attemptContainerOpen(player, List.of(block)))
+      assertThatThrownBy(() -> ProtectionEventProbe.dispatch(event))
           .isInstanceOf(IllegalStateException.class)
           .hasMessage("listener failure");
     }
 
-    assertThat(dispatched.get()).isExactlyInstanceOf(PlayerInteractEvent.class);
-    assertThat(ProtectionEventProbe.isActive(dispatched.get())).isFalse();
+    assertThat(ProtectionEventProbe.isActive(event)).isFalse();
   }
 
   @Test

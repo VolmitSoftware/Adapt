@@ -8,10 +8,12 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import art.arcane.volmlib.util.event.ProtectionProbe;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -24,6 +26,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.plugin.EventExecutor;
@@ -117,6 +120,14 @@ class EventHandlerInvokerTest extends AdaptTestBase {
     public static class ThrowingListener implements Listener {
         public void onTest(TestEvent e) {
             throw new IllegalStateException("boom");
+        }
+    }
+
+    public static class EntityInteractListener implements Listener {
+        private final AtomicInteger hits = new AtomicInteger();
+
+        public void onInteract(PlayerInteractEntityEvent event) {
+            hits.incrementAndGet();
         }
     }
 
@@ -407,6 +418,40 @@ class EventHandlerInvokerTest extends AdaptTestBase {
 
         assertThat(listener.hits.get()).isZero();
         executor.execute(listener, event);
+        assertThat(listener.hits.get()).isEqualTo(1);
+    }
+
+    @Test
+    void externalProtectionProbeSkipsComponentHandlers() throws Exception {
+        InteractListener listener = new InteractListener();
+        EventExecutor executor = EventHandlerInvoker.createExecutor(
+            listener, interactHandler(), PlayerInteractEvent.class, false);
+        PlayerInteractEvent event = new PlayerInteractEvent(mock(Player.class),
+            Action.RIGHT_CLICK_BLOCK, null, mock(Block.class), BlockFace.UP, EquipmentSlot.HAND) {
+            @Override
+            public String getEventName() {
+                return "VolmLibProtectionProbe";
+            }
+        };
+
+        executor.execute(listener, event);
+
+        assertThat(listener.hits.get()).isZero();
+    }
+
+    @Test
+    void entityProtectionProbeSkipsComponentHandlers() throws Exception {
+        EntityInteractListener listener = new EntityInteractListener();
+        Method method = EntityInteractListener.class.getDeclaredMethod("onInteract", PlayerInteractEntityEvent.class);
+        EventExecutor executor = EventHandlerInvoker.createExecutor(
+            listener, method, PlayerInteractEntityEvent.class, false);
+        Player player = mock(Player.class);
+        Entity entity = mock(Entity.class);
+
+        executor.execute(listener, ProtectionProbe.entityInteract(player, entity));
+
+        assertThat(listener.hits.get()).isZero();
+        executor.execute(listener, new PlayerInteractEntityEvent(player, entity));
         assertThat(listener.hits.get()).isEqualTo(1);
     }
 

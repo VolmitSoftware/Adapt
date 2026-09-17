@@ -47,7 +47,7 @@ class RiftAccessProtectionTest {
     when(inventory.getItemInMainHand()).thenReturn(portkey);
     doAnswer(invocation -> {
       Event rawEvent = invocation.getArgument(0);
-      assertThat(rawEvent).isExactlyInstanceOf(PlayerInteractEvent.class);
+      assertThat(rawEvent).isInstanceOf(PlayerInteractEvent.class);
       PlayerInteractEvent event = (PlayerInteractEvent) rawEvent;
       assertThat(ProtectionEventProbe.isActive(event)).isTrue();
       dispatched.set(event);
@@ -69,7 +69,7 @@ class RiftAccessProtectionTest {
     assertThat(event.getClickedBlock()).isSameAs(block);
     assertThat(event.getBlockFace()).isEqualTo(BlockFace.UP);
     assertThat(event.getHand()).isEqualTo(EquipmentSlot.HAND);
-    assertThat(ProtectionEventProbe.isActive(event)).isFalse();
+    assertThat(ProtectionEventProbe.isActive(event)).isTrue();
   }
 
   @Test
