@@ -31,9 +31,6 @@ class SkillDocumentationCoverageTest {
   private static final Pattern ADAPTATION_HEADING = Pattern.compile(
       "(?m)^###\\s+.+?\\s+\\(`([^`]+)`\\)\\s*$"
   );
-  private static final Pattern ADAPTATION_CONFIG_FILE = Pattern.compile(
-      "plugins/Adapt/adaptations/([a-z0-9-]+)\\.toml"
-  );
   private static final Pattern CONFIG_FIELD = Pattern.compile(
       "@(?:art\\.arcane\\.adapt\\.util\\.config\\.)?ConfigDoc(?:\\([^\\r\\n]*\\))?\\R"
           + "\\s*(?:(?:private|protected|public)\\s+)?(?:static\\s+)?(?:final\\s+)?"
@@ -178,13 +175,11 @@ class SkillDocumentationCoverageTest {
     LinkedHashMap<String, String> sections = new LinkedHashMap<>();
     for (Path doc : docs) {
       String markdown = Files.readString(doc);
-      Matcher configFiles = ADAPTATION_CONFIG_FILE.matcher(markdown);
-      while (configFiles.find()) {
-        String id = configFiles.group(1);
-        int headingMarker = markdown.lastIndexOf("\n### ", configFiles.start());
-        assertThat(headingMarker).as("reference heading for %s in %s", id, doc).isGreaterThanOrEqualTo(0);
-        int end = nextHeading(markdown, configFiles.end());
-        String section = markdown.substring(headingMarker + 1, end);
+      Matcher headings = ADAPTATION_HEADING.matcher(markdown);
+      while (headings.find()) {
+        String id = headings.group(1);
+        int end = nextHeading(markdown, headings.end());
+        String section = markdown.substring(headings.start(), end);
         String previous = sections.put(id, section);
         assertThat(previous).as("duplicate documented adaptation id %s", id).isNull();
       }
