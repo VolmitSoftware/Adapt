@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.Adapt;
+import art.arcane.volmlib.nativelib.NativeAdapters;
+import art.arcane.volmlib.nativelib.entity.VirtualPlayer;
+import art.arcane.volmlib.nativelib.entity.VirtualPlayerAccess;
+import art.arcane.volmlib.nativelib.entity.VirtualPlayers;
+import art.arcane.volmlib.nativelib.entity.ClientPacket;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -65,7 +71,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Config> {
-  private static final PacketDecoyBridge PACKET_DECOY = PacketDecoyBridge.create();
+  private volatile VirtualPlayers nativePlayers;
 
   private final Cooldowns decoyCooldowns = cooldowns();
   private final Map<UUID, DecoySession> activeDecoys = new ConcurrentHashMap<>();
@@ -242,7 +248,8 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
     ArmorStand anchor = spawnAnchor(owner.getLocation());
     anchorOwners.put(anchor.getUniqueId(), owner.getUniqueId());
-    PacketPlayerDecoy packetDecoy = PACKET_DECOY.spawnDecoy(owner, anchor, getConfig().tabListRemoveDelayTicks, getConfig().decoySkinLayerMask);
+    VirtualPlayer nativePlayer = nativePlayers().create(owner, anchor.getLocation(), getConfig().decoySkinLayerMask);
+    PacketPlayerDecoy packetDecoy = nativePlayer == null ? null : new PacketPlayerDecoy(nativePlayer, getConfig().tabListRemoveDelayTicks);
 
     if (packetDecoy == null && getConfig().legacyFallbackEnabled) {
       configureLegacyVisual(anchor, owner);
@@ -441,7 +448,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       return;
     }
 
-    PACKET_DECOY.sendOwnerEquipment(state.owner, true, Math.max(1, getConfig().maxPacketViewers));
+    sendOwnerEquipment(state.owner, true, Math.max(1, getConfig().maxPacketViewers));
     state.ownerEquipmentNextAt = now + Math.max(100L, getConfig().ownerEquipmentHideResendMillis);
   }
 
@@ -461,7 +468,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       }
     }
     state.ownerInvisibilityApplied = false;
-    PACKET_DECOY.sendOwnerEquipment(owner, false, Math.max(1, getConfig().maxPacketViewers));
+    sendOwnerEquipment(owner, false, Math.max(1, getConfig().maxPacketViewers));
     if (feedback) {
       fx(owner.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
           .ring(Particles.END_ROD, 0.6D, 6, 1.0D)
@@ -602,6 +609,36 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       this.packetDecoy = packetDecoy;
       this.expiresAt = expiresAt;
       this.level = level;
+    }
+  }
+
+  private VirtualPlayers nativePlayers() {
+    VirtualPlayers players = nativePlayers;
+    if (players != null) {
+      return players;
+    }
+    synchronized (this) {
+      if (nativePlayers == null) {
+        nativePlayers = NativeAdapters.require(VirtualPlayerAccess.class).create(Adapt.instance, J::runEntity);
+      }
+      return nativePlayers;
+    }
+  }
+
+  private void sendOwnerEquipment(Player owner, boolean hidden, int maxViewers) {
+    ClientPacket packet = nativePlayers().equipment(owner, hidden);
+    if (packet == null) {
+      return;
+    }
+    int remaining = Math.max(1, maxViewers);
+    for (Player viewer : PaperCompat.trackedPlayers(owner)) {
+      if (viewer.getUniqueId().equals(owner.getUniqueId())) {
+        continue;
+      }
+      packet.send(viewer);
+      if (--remaining == 0) {
+        return;
+      }
     }
   }
 

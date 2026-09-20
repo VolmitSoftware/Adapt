@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.volmlib.nativelib.player.PlayerClientAccess;
 import art.arcane.adapt.api.Component;
 import art.arcane.adapt.api.ability.AbilityCharge;
 import art.arcane.adapt.api.ability.AbilityCostKind;
@@ -813,7 +814,7 @@ public interface Adaptation<T> extends Ticked, Component {
     if (!this.getSkill().isEnabled()) {
       return 0;
     }
-    if (!p.getClass().getSimpleName().equals("CraftPlayer")) {
+    if (!PlayerClientAccess.matchesServerPlayer(p)) {
       return 0.0;
     }
     int maxLevel = getMaxLevel();

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.api.runtime;
 
+import art.arcane.volmlib.nativelib.player.PlayerClientAccess;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.skill.Skill;
 import org.bukkit.GameMode;
@@ -33,7 +34,7 @@ public final class AdaptationGate {
       return true;
     }
 
-    if (!player.getClass().getSimpleName().equals("CraftPlayer")) {
+    if (!PlayerClientAccess.matchesServerPlayer(player)) {
       return true;
     }
 

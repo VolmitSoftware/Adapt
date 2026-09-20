@@ -15,19 +15,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-buildscript {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-    }
-    dependencies {
-        classpath('io.papermc.paperweight:paperweight-userdev:2.0.0-beta.21')
-    }
-}
-
 import io.freefair.gradle.plugins.lombok.LombokPlugin
 import io.github.slimjar.resolver.data.Mirror
-import io.papermc.paperweight.userdev.PaperweightUser
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.WriteProperties
 import org.gradle.api.tasks.compile.JavaCompile
@@ -58,8 +47,6 @@ plugins {
 
 apply plugin: 'art.arcane.volmit-packaging'
 
-apply plugin: PaperweightUser
-
 version = '2.0.5-26.2'
 def apiVersion = '26.1'
 def main = 'art.arcane.adapt.Adapt'
@@ -76,6 +63,7 @@ String irisCoordinate = providers.gradleProperty('irisCoordinate')
     .orElse('com.github.VolmitSoftware:Iris:unification-SNAPSHOT')
     .get()
 def platformUtilsConfiguration = configurations.create('platformUtilsLibrary')
+def advancementConfiguration = configurations.create('advancementLibrary')
 
 def shadowJarTask = tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar)
 tasks.named('slimJar').get()
@@ -97,6 +85,15 @@ def strippedPlatformUtils = tasks.register('strippedPlatformUtils', Jar) {
     from({ platformUtilsConfiguration.collect { File dependency -> zipTree(dependency) } })
     exclude('net/kyori/**')
     exclude('META-INF/services/net.kyori.**')
+}
+
+def strippedAdvancementLibrary = tasks.register('strippedAdvancementLibrary', Jar) {
+    archiveClassifier = 'advancement-library'
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from({ advancementConfiguration.collect { File dependency -> zipTree(dependency) } })
+    exclude('com/fren_gor/ultimateAdvancementAPI/nms/v*/**')
+    exclude('com/fren_gor/ultimateAdvancementAPI/nms/util/ReflectionUtil.class')
+    exclude('com/fren_gor/ultimateAdvancementAPI/util/Versions.class')
 }
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
@@ -217,7 +214,18 @@ allprojects {
 }
 
 dependencies {
-    paperweight.paperDevBundle(paperDevBundleVersion)
+    implementation('com.github.VolmitSoftware.VolmLib:native-api:master-SNAPSHOT') {
+        transitive = false
+    }
+    implementation('com.github.VolmitSoftware.VolmLib:native-common:master-SNAPSHOT') {
+        transitive = false
+    }
+    implementation('com.github.VolmitSoftware.VolmLib:native-v26_2_R1:master-SNAPSHOT') {
+        transitive = false
+    }
+    implementation('com.github.VolmitSoftware.VolmLib:native-v26_3_R1:master-SNAPSHOT') {
+        transitive = false
+    }
 
     implementation(volmLibCoordinate) {
         changing = true
@@ -256,7 +264,11 @@ dependencies {
     slimApi(libs.adventure.legacy)
     slimApi(libs.lettuce)
     slimApi(libs.particle)
-    implementation(libs.ultimateAdvancementApi)
+    add('advancementLibrary', libs.ultimateAdvancementApi) {
+        transitive = false
+    }
+    compileOnly(libs.ultimateAdvancementApi)
+    api(files(strippedAdvancementLibrary.flatMap { Jar task -> task.archiveFile }))
     slimApi(libs.customBlockData)
     slimApi(libs.lur)
     slimApi(libs.lang3)
@@ -343,12 +355,24 @@ slimJar {
  * Configure Adapt for shading
  */
 shadowJarTask.configure {
+    manifest.attributes('paperweight-mappings-namespace': 'mojang')
     minimize {
         exclude(dependency('de.crazydev22.slimjar.helper:.*:.*'))
+        exclude(dependency('com.github.VolmitSoftware.VolmLib:.*:.*'))
     }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     exclude('net/kyori/**')
     exclude('com/google/gson/**')
+    exclude('com/fren_gor/ultimateAdvancementAPI/nms/v*/**')
+    exclude { FileTreeElement entry ->
+        String nativePrefix = 'art/arcane/volmlib/nativelib/'
+        String path = entry.path
+        if (!path.startsWith(nativePrefix) || !path.endsWith('.class')) {
+            return false
+        }
+        String relative = path.substring(nativePrefix.length())
+        return relative.contains('/') && !relative.matches('(?:common/|v26_[23]_R1/)?(?:player|entity|advancement)/.*')
+    }
 }
 
 configurations.configureEach {
@@ -439,9 +463,10 @@ pluginPackaging {
             taskName = 'shadowJar'
             policyName = 'Adapt'
             prunePrefixes = ['art/arcane/adapt/util/arcane/volmlib/']
-            keepPrefixes = ['art/arcane/adapt/util/arcane/volmlib/util/matter/slices/']
+            keepPrefixes = ['art/arcane/adapt/util/arcane/volmlib/util/matter/slices/',
+                            'art/arcane/adapt/util/arcane/volmlib/nativelib/']
             shrinkRules = [file('packaging/shrink.pro')]
-            shrinkDontwarn = ['org.sqlite.**']
+            shrinkDontwarn = ['org.sqlite.**', 'net.minecraft.**', 'org.bukkit.craftbukkit.**']
             shrinkRelocations = [
                 'manifold': "${lib}.manifold",
                 'Fukkit.extensions': "${lib}.extensions",

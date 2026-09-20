@@ -10,3 +10,8 @@
     public static org.bukkit.event.HandlerList getHandlerList();
     public org.bukkit.event.HandlerList getHandlers();
 }
+
+-keep class art.arcane.adapt.util.arcane.volmlib.nativelib.** { *; }
+-keep class art.arcane.adapt.util.advancements.nms.util.ReflectionUtil { *; }
+
+-keep class art.arcane.volmlib.nativelib.**.scoreboard.NativeScoreboardPackets { public <init>(); }

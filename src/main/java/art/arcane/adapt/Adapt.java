@@ -88,7 +88,9 @@ import de.crazydev22.platformutils.AudienceProvider;
 import de.crazydev22.platformutils.Platform;
 import de.crazydev22.platformutils.PlatformUtils;
 import de.slikey.effectlib.EffectManager;
-import fr.skytasul.glowingentities.GlowingEntities;
+import art.arcane.volmlib.nativelib.entity.EntityGlow;
+import art.arcane.volmlib.nativelib.entity.EntityGlowAccess;
+import art.arcane.volmlib.nativelib.NativeAdapters;
 import io.github.slimjar.app.builder.SpigotApplicationBuilder;
 import lombok.Getter;
 import org.bukkit.Bukkit;
@@ -147,7 +149,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private final KList<Runnable> postShutdown = new KList<>();
   private KMap<Class<? extends AdaptService>, AdaptService> services;
   @Getter
-  private GlowingEntities glowingEntities;
+  private EntityGlow glowingEntities;
   @Getter
   private ViewerGlowCoordinator viewerGlowCoordinator;
   @Getter
@@ -510,7 +512,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   private void initializeGlowingEntities() {
     GLOWING_ENTITIES_LOGGER.setFilter(record -> record.getLevel().intValue() >= Level.WARNING.intValue());
     try {
-      glowingEntities = new GlowingEntities(this);
+      glowingEntities = NativeAdapters.require(EntityGlowAccess.class).create(this);
     } catch (Throwable t) {
       glowingEntities = null;
       warn("GlowingEntities is unavailable: " + summarizeThrowable(t) + ". Glow-based effects will be disabled.");
@@ -679,7 +681,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
       });
     }
     if (glowingEntities != null) {
-      GlowingEntities activeGlowingEntities = glowingEntities;
+      EntityGlow activeGlowingEntities = glowingEntities;
       glowingEntities = null;
       runShutdownPhase("glowing entities", activeGlowingEntities::disable);
     }

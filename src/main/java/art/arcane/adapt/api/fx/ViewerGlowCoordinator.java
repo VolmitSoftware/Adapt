@@ -2,7 +2,7 @@ package art.arcane.adapt.api.fx;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.util.common.scheduling.J;
-import fr.skytasul.glowingentities.GlowingEntities;
+import art.arcane.volmlib.nativelib.entity.EntityGlow;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -26,7 +26,7 @@ public final class ViewerGlowCoordinator {
   private final ViewerExecutor viewerExecutor;
   private final AtomicBoolean failureLogged = new AtomicBoolean();
 
-  public ViewerGlowCoordinator(GlowingEntities glowingEntities) {
+  public ViewerGlowCoordinator(EntityGlow glowingEntities) {
     this(glowingEntities == null ? null : new GlowingPacketSink(glowingEntities), new ScheduledViewerExecutor());
   }
 
@@ -338,7 +338,7 @@ public final class ViewerGlowCoordinator {
     }
   }
 
-  private record GlowingPacketSink(GlowingEntities glowingEntities) implements PacketSink {
+  private record GlowingPacketSink(EntityGlow glowingEntities) implements PacketSink {
     @Override
     public void set(Entity entity, Player viewer, ChatColor color) throws ReflectiveOperationException {
       glowingEntities.setGlowing(entity, viewer, color);

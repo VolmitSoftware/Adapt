@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.volmlib.nativelib.player.PlayerClientAccess;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.AdaptPermissionRegistrar;
@@ -67,7 +68,6 @@ final class AdaptationRuntimeGuards {
   private static final Map<String, String> USE_PERMISSION_NODES = new ConcurrentHashMap<>();
   private static final Map<String, ProtectorCacheEntry> PROTECTOR_CACHE = new ConcurrentHashMap<>();
   private static final Map<String, UsageConflictCacheEntry> USAGE_CONFLICT_CACHE = new ConcurrentHashMap<>();
-  private static final Map<Class<?>, Boolean> CRAFT_PLAYER_CLASSES = new ConcurrentHashMap<>();
 
   private AdaptationRuntimeGuards() {
   }
@@ -175,7 +175,7 @@ final class AdaptationRuntimeGuards {
   }
 
   static void awardUsageBaselineXp(Adaptation<?> adaptation, Player p, int level) {
-    if (adaptation == null || p == null || level <= 0 || !isCraftPlayer(p) || runtimePlayer(p) == null) {
+    if (adaptation == null || p == null || level <= 0 || !PlayerClientAccess.matchesServerPlayer(p) || runtimePlayer(p) == null) {
       return;
     }
 
@@ -657,8 +657,8 @@ final class AdaptationRuntimeGuards {
     if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p)) {
       return 0;
     }
-    if (!isCraftPlayer(p)) {
-      Adapt.verbose(() -> "Skipped adaptation level lookup for non-CraftPlayer type "
+    if (!PlayerClientAccess.matchesServerPlayer(p)) {
+      Adapt.verbose(() -> "Skipped adaptation level lookup for unsupported native player type "
           + p.getClass().getSimpleName() + ".");
       return 0;
     }
@@ -832,9 +832,6 @@ final class AdaptationRuntimeGuards {
         : null;
   }
 
-  private static boolean isCraftPlayer(Player p) {
-    return CRAFT_PLAYER_CLASSES.computeIfAbsent(p.getClass(), type -> type.getSimpleName().equals("CraftPlayer"));
-  }
 
   private static Set<String> resolveUsageConflicts(Adaptation<?> adaptation) {
     Map<String, List<String>> conflicts = AdaptConfig.get().getAdaptationUsageConflicts();

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
+import art.arcane.volmlib.nativelib.player.PlayerClientAccess;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 
@@ -116,7 +117,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     if (e.getEntity() instanceof Player || getActiveDamageLevel(p, e.getEntity()) <= 0) {
       return;
     }
-    if (e.getEntity().getKiller() != null && e.getEntity().getKiller().getClass().getSimpleName().equals("CraftPlayer")) {
+    if (e.getEntity().getKiller() != null && PlayerClientAccess.matchesServerPlayer(e.getEntity().getKiller())) {
       int itemCount = e.getDrops().size();
       e.getDrops().forEach(i -> {
         HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(i);
