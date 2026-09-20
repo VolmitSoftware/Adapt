@@ -750,7 +750,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (!AdaptConfig.get().isSplashScreen()) {
       return;
     }
-    String supportedMcVersion = "26.1-26.2";
+    String supportedMcVersion = "26.1-26.3";
     Random r = new Random();
     int game = r.nextInt(100);
     if (game < 90) {

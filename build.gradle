@@ -63,7 +63,9 @@ apply plugin: PaperweightUser
 version = '2.0.5-26.2'
 def apiVersion = '26.1'
 def main = 'art.arcane.adapt.Adapt'
-String paperDevBundleVersion = '26.1.2.build.74-stable'
+String paperDevBundleVersion = providers.gradleProperty('paperDevBundleVersion')
+    .orElse('26.1.2.build.74-stable')
+    .get()
 String volmLibCoordinate = providers.gradleProperty('volmLibCoordinate')
     .orElse('com.github.VolmitSoftware:VolmLib:master-SNAPSHOT')
     .get()
@@ -235,7 +237,7 @@ dependencies {
     }
     implementation(files(strippedPlatformUtils.flatMap { Jar task -> task.archiveFile }))
 
-    compileOnly('io.papermc.paper:paper-api:26.1.2.build.74-stable')
+    compileOnly("io.papermc.paper:paper-api:${paperDevBundleVersion}")
 
     // Cancer
     slimApi(libs.fukkit) {
@@ -278,7 +280,7 @@ dependencies {
     compileOnlyApi('com.griefdefender:api:2.1.1-SNAPSHOT')
     compileOnlyApi(fileTree('libs') { include('*.jar') })
 
-    testImplementation('io.papermc.paper:paper-api:26.1.2.build.74-stable')
+    testImplementation("io.papermc.paper:paper-api:${paperDevBundleVersion}")
     testImplementation('me.clip:placeholderapi:2.11.6') {
         transitive = false
     }
@@ -304,6 +306,17 @@ tasks.named('test', Test) {
         events('failed')
         showStandardStreams = false
         exceptionFormat = 'full'
+    }
+}
+
+tasks.register('verifyPaper263Compatibility') {
+    group = 'verification'
+    description = 'Compiles main and test sources with -PpaperDevBundleVersion=26.3.build.25-alpha.'
+    dependsOn(tasks.named('compileJava'), tasks.named('compileTestJava'))
+    doLast {
+        if (paperDevBundleVersion != '26.3.build.25-alpha') {
+            throw new GradleException('Run verifyPaper263Compatibility with -PpaperDevBundleVersion=26.3.build.25-alpha.')
+        }
     }
 }
 
