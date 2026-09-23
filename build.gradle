@@ -408,6 +408,32 @@ tasks.named('build').configure {
     dependsOn(shadowJarTask)
 }
 
+sourceSets {
+    gameplayFixture {
+        java.srcDir('src/test/gameplay/fixture/java')
+        resources.srcDir('src/test/gameplay/fixture/resources')
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+    }
+}
+
+tasks.register('gameplayFixtureJar', Jar) {
+    group = 'verification'
+    description = 'Builds the isolated Paper gameplay observer and arena fixture.'
+    dependsOn(tasks.named('gameplayFixtureClasses'))
+    from(sourceSets.gameplayFixture.output)
+    archiveFileName = 'AdaptGameplayFixture.jar'
+}
+
+tasks.register('gameplayContractTest', Exec) {
+    group = 'verification'
+    commandLine('node', '--test', 'src/test/gameplay/contract.test.mjs')
+}
+
+tasks.named('check').configure {
+    dependsOn(tasks.named('gameplayContractTest'))
+    dependsOn(tasks.named('gameplayFixtureJar'))
+}
+
 tasks.named('check').configure {
     dependsOn(verifyLanguagePackagingTask)
 }

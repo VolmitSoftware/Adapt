@@ -1,0 +1,11 @@
+name: AdaptGameplayFixture
+version: 1.0.0
+main: art.arcane.adapt.gameplay.AdaptGameplayFixture
+api-version: '26.1'
+depend: [Adapt]
+commands:
+  adaptqa:
+    permission: adaptqa.admin
+permissions:
+  adaptqa.admin:
+    default: op
