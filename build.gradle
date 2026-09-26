@@ -47,7 +47,7 @@ plugins {
 
 apply plugin: 'art.arcane.volmit-packaging'
 
-version = '2.0.5-26.2'
+version = '2.0.6-26.2'
 def apiVersion = '26.1'
 def main = 'art.arcane.adapt.Adapt'
 String paperDevBundleVersion = providers.gradleProperty('paperDevBundleVersion')
@@ -439,7 +439,8 @@ tasks.named('check').configure {
 }
 
 tasks.register('adapt', Copy) {
-    from(shadowJarTask.flatMap { it.archiveFile })
+    dependsOn('packedJar')
+    from({ tasks.named('packedJar').get().outputJar })
     into(layout.buildDirectory)
     rename { String ignored -> "Adapt-${version}.jar" }
 }
@@ -460,21 +461,18 @@ void registerCustomOutputTaskUnix(String name, String path, boolean doRename = t
 }
 
 void createOutputTask(String name, String path, boolean doRename = true) {
-    def shadowJarTask = tasks.named('shadowJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar)
     tasks.register("build${name}", Copy) {
         group = 'development'
         outputs.upToDateWhen { false }
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        dependsOn(shadowJarTask)
-        from(shadowJarTask.flatMap { it.archiveFile })
+        dependsOn('packedJar')
+        from({ tasks.named('packedJar').get().outputJar })
         into(file(path))
-        if (doRename) {
-            rename { String ignored -> 'Adapt.jar' }
-        }
+        rename { String fileName -> doRename ? 'Adapt.jar' : fileName.replaceFirst(/-packed\.jar$/, '.jar') }
         if (name == 'PsychoLT') {
             doLast {
                 project.copy {
-                    from(shadowJarTask.get().archiveFile.get().asFile)
+                    from(tasks.named('packedJar').get().outputJar.get().asFile)
                     into(project.file('../PluginOuts'))
                     rename { String ignored -> "Adapt-${project.version}.jar" }
                 }
@@ -486,6 +484,8 @@ void createOutputTask(String name, String path, boolean doRename = true) {
 pluginPackaging {
     artifacts {
         create('distribution') {
+            packed = true
+            packedJarAccessors = ['art/arcane/adapt/Adapt#getJarFile']
             taskName = 'shadowJar'
             policyName = 'Adapt'
             prunePrefixes = ['art/arcane/adapt/util/arcane/volmlib/']
