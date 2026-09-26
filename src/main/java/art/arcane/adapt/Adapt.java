@@ -238,7 +238,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   public static KList<Object> initialize(String s, Class<? extends Annotation> slicedClass) {
-    JarScanner js = new JarScanner(instance.getFile(), s);
+    JarScanner js = new JarScanner(instance.getJarFile(), s);
     KList<Object> v = new KList<>();
     J.attempt(js::scan);
     for (Class<?> i : js.getClasses()) {
