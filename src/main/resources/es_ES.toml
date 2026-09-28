@@ -15,31 +15,24 @@
 # === Variables ===
 # Mantenga los nombres de las variables y use solo las que ya contiene cada mensaje.
 #   {adaptation}  Nombre de la adaptación
-#   {adaptations}  Nombres de las adaptaciones coincidentes
 #   {after}  Valor después del cambio
 #   {amount}  Cantidad de dinero, conocimiento o experiencia
 #   {argument}  Argumento de comando inesperado
 #   {available}  Poder o conocimiento disponible
 #   {before}  Valor antes del cambio
-#   {benefit}  Descripción del beneficio de la mutación
 #   {block}  Bloque indicado en las instrucciones del progreso
 #   {bonus}  Cantidad de la bonificación de Masterwork
-#   {burden}  Descripción de la desventaja de la mutación
 #   {category}  Nombre de la categoría de configuración
 #   {chance}  Probabilidad de activación
 #   {combo}  Combinación de activación de Instant Recall
 #   {command}  Ruta del comando
-#   {control}  Instrucciones de uso de la mutación
 #   {cost}  Coste en conocimiento
 #   {count}  Número de objetos, archivos o mensajes
 #   {damage}  Daño adicional
 #   {danger}  Advertencia de peligro al atravesar el portal
-#   {deepCharge}  Carga profunda almacenada
-#   {deepblood}  Estado de la herramienta Deepblood vinculada
 #   {description}  Descripción del progreso
 #   {direction}  Dirección hacia una estructura
 #   {distance}  Distancia hasta una estructura, en bloques
-#   {domain}  Nombre del grupo de habilidades de la mutación
 #   {duration}  Duración o tiempo de recarga con formato
 #   {effect}  Nombre del efecto de poción
 #   {enchantment}  Nombre del encantamiento
@@ -52,7 +45,6 @@
 #   {group}  Categoría del editor de idiomas
 #   {hits}  Consultas de caché con resultado
 #   {instruction}  Instrucción para desbloquear el progreso
-#   {interaction}  Interacción con la otra ranura de mutación
 #   {key}  Clave del mensaje o de configuración
 #   {knowledge}  Cantidad de conocimiento
 #   {label}  Etiqueta del ajuste o de la estadística
@@ -60,7 +52,6 @@
 #   {levels}  Niveles de experiencia guardados
 #   {line}  Número de línea del mensaje de idioma
 #   {locale}  Código de idioma
-#   {masterwork}  Estado del equipo Masterwork vinculado
 #   {maximum}  Valor máximo permitido o límite de poder
 #   {message}  Mensaje de estado antes de los detalles de recarga
 #   {microsPerCheck}  Microsegundos por comprobación de habilidad
@@ -68,12 +59,10 @@
 #   {minimum}  Valor mínimo permitido
 #   {misses}  Consultas de caché sin resultado almacenado
 #   {multiplier}  Multiplicador de la bonificación de experiencia
-#   {mutation}  Nombre de la mutación
 #   {needed}  Poder o conocimiento necesario
 #   {newValue}  Nuevo valor de configuración
 #   {nextLevel}  Texto del siguiente nivel de habilidad
 #   {oldValue}  Valor anterior de configuración
-#   {other}  Nombre de la mutación incompatible
 #   {page}  Número de la página actual
 #   {pages}  Número total de páginas
 #   {parameter}  Nombre del parámetro del comando
@@ -92,28 +81,23 @@
 #   {progress}  Texto del progreso de la habilidad
 #   {range}  Alcance de búsqueda o de habilidad, en bloques
 #   {ratio}  Proporción de aciertos de caché
-#   {reason}  Explicación del estado de la mutación o del error del editor
+#   {reason}  Error del editor
 #   {refund}  Conocimiento reembolsado al olvidar
 #   {remaining}  Número de cambios de configuración omitidos
-#   {result}  Efecto de la mutación en el nivel 200
-#   {rootCharge}  Carga de raíz almacenada
 #   {second}  Segundo grupo de habilidades o componente del activador
 #   {seconds}  Duración en segundos
 #   {section}  Sección del editor de idiomas
 #   {separator}  Separador entre el valor estadístico y su etiqueta
 #   {skill}  Nombre de la habilidad
-#   {slot}  Número de la ranura de mutación
 #   {slots}  Número de ranuras de la mochila
 #   {stacks}  Acumulaciones de efecto o capacidad de la mochila en pilas
-#   {state}  Estado de activación o de la ranura de mutación
+#   {state}  Estado de activación
 #   {steps}  Pasos completados de fabricación, elaboración de pociones o encantamiento
 #   {strength}  Resistencia de armadura adicional
 #   {structure}  Nombre de la estructura localizada
 #   {surface}  Superficie que afecta al activador
 #   {symbol}  Símbolo del indicador de estructura
 #   {target}  Jugador de destino o plugin cuyo idioma se modifica
-#   {tell}  Descripción del efecto visible de la mutación
-#   {temperbound}  Estado del equipo Temperbound vinculado
 #   {timestamp}  Marca de tiempo del archivo de configuración
 #   {to}  Índice de la última entrada de la página
 #   {total}  Número total de entradas o ranuras
@@ -129,364 +113,6 @@
 #   {x}  Coordenada X del destino
 #   {xp}  Cantidad de experiencia
 #   {z}  Coordenada Z del destino
-
-[mutation.domain]
-body = "Cuerpo"
-hunt = "Caza"
-industry = "Industria"
-wild = "Naturaleza"
-craft = "Artesanía"
-anomaly = "Anomalía"
-
-[mutation.type.gale_lung]
-name = "Pulmón de Vendaval"
-benefit = "Moverte llena Impulso. Cuando Impulso está al máximo, tu siguiente golpe empuja al objetivo o cambia su posición."
-burden = "Mientras Impulso está al máximo, los enemigos te empujan con más fuerza. Bloquear lo vacía."
-perfect = "Los enemigos ya no te empujan con más fuerza. Bloquear todavía vacía Impulso."
-tell = "Un viento turquesa se reúne alrededor de tus pies y tu arma."
-control = "Sigue moviéndote para llenar Impulso y luego asesta un golpe."
-
-[mutation.type.bastion_spine]
-name = "Espina de Bastión"
-benefit = "Permanecer inmóvil acumula Estabilidad. Tu siguiente golpe con escudo, hacha o mano vacía provoca un empujón corto."
-burden = "Mientras mantienes la postura, no puedes esprintar ni saltar. Un golpe por la espalda rompe la postura."
-perfect = "Puedes esprintar y saltar mientras mantienes la postura. Los golpes por la espalda aún pueden romperla."
-tell = "Unas costillas de piedra y grietas brillantes muestran la fuerza que has almacenado."
-control = "Quédate inmóvil sobre el suelo y después golpea con un escudo, un hacha o la mano vacía."
-
-[mutation.type.verdant_molt]
-name = "Muda Frondosa"
-benefit = "Agáchate sin moverte sobre terreno natural para eliminar los efectos perjudiciales."
-burden = "También elimina los efectos beneficiosos, consume hambre y bloquea brevemente los efectos nuevos."
-perfect = "Ya no pierdes los efectos beneficiosos ni el hambre. El breve bloqueo de efectos permanece."
-tell = "Hojas, escamas o esporas salen despedidas de tu cuerpo."
-control = "Mantente agachado e inmóvil sobre terreno natural."
-
-[mutation.type.temperbound]
-name = "Vínculo Templado"
-benefit = "Vincula un conjunto de armadura para que sus piezas compartan durabilidad. Una pieza que fuera a romperse queda Agrietada en su lugar."
-burden = "Quitarte o cambiar una pieza vinculada desactiva el conjunto durante un breve periodo."
-perfect = "Cambiar de armadura ya no desactiva el conjunto. Solo un conjunto puede permanecer vinculado."
-tell = "Unas líneas brillantes conectan las piezas de armadura vinculadas."
-control = "En una estantería de Adapt, ponte cuatro piezas de armadura que hayas fabricado y elige «Vincular armadura actual»."
-
-[mutation.type.paradox_scar]
-name = "Cicatriz Paradójica"
-benefit = "Un desplazamiento largo o un teletransporte deja un punto de retorno. Puedes volver a él una vez."
-burden = "El punto de retorno es visible, impide que se forme otro y los enemigos pueden destruirlo."
-perfect = "Ya no bloquea otros efectos de retorno de Mutación. Los enemigos todavía pueden destruirlo."
-tell = "Una postimagen brillante señala el punto de retorno."
-control = "Después de un desplazamiento largo o un teletransporte, agáchate e intercambia las manos para regresar."
-
-[mutation.type.arsenal_cortex]
-name = "Córtex del Arsenal"
-benefit = "Cambiar de tipo de arma o herramienta entre golpes transfiere un efecto de control al siguiente golpe."
-burden = "Usar dos veces seguidas el mismo tipo bloquea la combinación durante un breve periodo."
-perfect = "Repetir un tipo ya no bloquea la combinación. Todavía debes cambiar de tipo para acumularla."
-tell = "Un símbolo cambiante gira alrededor del objeto que sostienes."
-control = "Asesta golpes con distintos tipos de arma o herramienta."
-
-[mutation.type.packmind]
-name = "Mente de Manada"
-benefit = "Tu primer golpe marca un objetivo. Las mascotas y los aliados que hayan aceptado participar acumulan Ritmo al golpearlo también."
-burden = "Tu daño se reduce hasta que alguien más se une. El Ritmo conseguido en solitario se desvanece rápidamente."
-perfect = "Tu daño ya no se reduce mientras esperas. Para acumular Ritmo todavía hace falta otro participante."
-tell = "Unas líneas de color ámbar conectan al grupo con el objetivo marcado."
-control = "Golpea un objetivo y haz que una mascota o un aliado que haya aceptado participar también lo ataque."
-
-[mutation.type.trophy_crucible]
-name = "Crisol de Trofeos"
-benefit = "Las criaturas que aparecen de forma natural pueden soltar trofeos. Usa uno para preparar un efecto de control contra ese tipo de criatura."
-burden = "Ese tipo de criatura te detecta con más facilidad y ve a través del sigilo de Mutación."
-perfect = "Se elimina la detección adicional. Todavía solo puedes guardar un efecto de trofeo."
-tell = "Una máscara que muestra el tipo de criatura guardado aparece a tu espalda."
-control = "Agáchate y haz clic derecho en una mesa de trabajo mientras sostienes un trofeo natural."
-
-[mutation.type.umbral_echo]
-name = "Eco Umbrío"
-benefit = "Atacar desde un ángulo nuevo o con un nuevo tipo de arma repite, tras una demora, un efecto de control más débil."
-burden = "Repetir el mismo enfoque te revela y desactiva brevemente el sigilo."
-perfect = "Repetir un enfoque ya no te revela. Aún se requieren ángulos o tipos de arma nuevos."
-tell = "Una postimagen morada oscura repite el efecto de control."
-control = "Cambia el ángulo de ataque o el tipo de arma entre golpes."
-
-[mutation.type.living_lattice]
-name = "Entramado Viviente"
-benefit = "Cosechar y replantar genera Carga de Raíz. Gástala para hacer crecer un camino corto y temporal."
-burden = "El fuego y la lava pueden borrar tu carga, y un derrumbe forzado consume hambre."
-perfect = "El fuego y la lava ya no borran la carga. Los caminos todavía desaparecen."
-tell = "Las raíces verdes se vuelven marrones antes de que el camino desaparezca."
-control = "Cosecha y replanta; después, agáchate y haz clic derecho mientras sostienes un brote."
-
-[mutation.type.masterwork_bond]
-name = "Vínculo de Obra Maestra"
-benefit = "Vincula una herramienta que hayas fabricado. En vez de romperse, se detiene en un punto de durabilidad y no puede usarse hasta repararla."
-burden = "Solo la herramienta vinculada recibe protección. Si la pierdes, debes esperar antes de vincular otra."
-perfect = "Las demás herramientas funcionan con normalidad con los efectos de Mutación. Solo la Obra Maestra evita romperse."
-tell = "Las runas de la herramienta se agrietan cuando está a punto de romperse."
-control = "En una estantería de Adapt, sostén una herramienta que hayas fabricado y elige «Vincular herramienta en mano»."
-
-[mutation.type.deepblood]
-name = "Sangre Profunda"
-benefit = "Minar bloques naturales a gran profundidad bajo tierra genera Carga Profunda. Sirve para curarte y salvar una herramienta vinculada."
-burden = "Curarte bajo tierra gasta Carga Profunda, y la carga se consume lentamente en la superficie."
-perfect = "La curación bajo tierra funciona aunque no quede carga. Salvar la herramienta vinculada todavía consume carga."
-tell = "A medida que acumulas carga, unas grietas rojas se extienden por tu cuerpo y la herramienta vinculada."
-control = "Mina bloques naturales a gran profundidad y vincula una herramienta en una estantería de Adapt."
-
-[mutation.type.mycelial_nerve]
-name = "Nervio Micelial"
-benefit = "Los efectos beneficiosos que te aplicas se propagan de forma más débil a las mascotas y los jugadores cercanos que hayan aceptado participar."
-burden = "Tu propio efecto dura menos, y recibir daño de fuego rompe el vínculo."
-perfect = "Tu efecto conserva toda su duración y el fuego ya no rompe el vínculo."
-tell = "Unos rastros de esporas llevan los efectos copiados hasta los aliados cercanos."
-control = "Aplícate un efecto beneficioso cerca de jugadores que hayan aceptado participar o de mascotas que te pertenezcan."
-
-[mutation.type.gravebloom]
-name = "Floración Sepulcral"
-benefit = "Matar una criatura hostil que haya aparecido de forma natural puede crear una floración breve que hace crecer cultivos y cura a tus mascotas."
-burden = "Las floraciones activas reducen tu curación natural, y las más antiguas atraen criaturas hostiles."
-perfect = "Las floraciones ya no reducen tu curación. Todavía desaparecen al poco tiempo."
-tell = "Flores pálidas y partículas de alma se elevan desde el lugar de la muerte."
-control = "Mata una criatura hostil que haya aparecido de forma natural sobre terreno natural."
-
-[mutation.type.resonant_formula]
-name = "Fórmula Resonante"
-benefit = "Fabrica, prepara una poción y encanta una vez cada cosa para preparar una combinación. Tu siguiente efecto de Anomalía que no inflija daño se repite a media potencia."
-burden = "Repetir el mismo paso de preparación rompe la combinación y elimina tu efecto beneficioso más antiguo."
-perfect = "Repetir un paso ya no rompe la combinación. Aún necesitas los tres pasos diferentes."
-tell = "Tres símbolos se unen cuando la combinación está preparada."
-control = "Fabrica, prepara una poción y encanta una vez cada cosa, en cualquier orden."
-
-[mutation.runtime]
-unavailable = "El sistema de Mutaciones no está disponible."
-feature_off = "Las Mutaciones experimentales están desactivadas en este servidor."
-type_off = "{mutation} está desactivada en la configuración del servidor."
-missing_permission = "Falta el permiso {permission}."
-duplicate_slots = "No se puede usar la misma Mutación en las dos ranuras."
-duplicate_occupancy = "La misma mutación no puede ocupar ambas ranuras."
-conflict_other = "Esta elección entra en conflicto con tu otra Mutación."
-conflicts_with = "{mutation} conflictos con {other}."
-slot_locked_current_level = "Esta ranura está bloqueada en su nivel actual."
-first_slot_unlocks = "La primera ranura de Mutación se desbloquea en el nivel {level}."
-world_unavailable = "Esta mutación no funciona en {world}."
-active_perfect = "Activo sin inconvenientes."
-active_burden = "Activo; se aplica la desventaja."
-ready_to_use = "Lista para usar."
-requirements_unavailable = "Los requisitos de mutación no están disponibles."
-learn_both_domains = "Aprende una Adaptación de los grupos de habilidades {first} y {second}."
-learn_domain_level = "Aprender a {domain} Adaptación a nivel {level} o superior."
-ready = "Listo"
-login_requirements = "Inicie sesión para comprobar los requisitos."
-equipped_offline = "Equipado pero inactivo mientras el jugador está fuera de línea."
-first_slot_locked = "La primera ranura de mutación está bloqueada."
-trophy_clear_hint = "Vuelve a hacer clic derecho en la mesa de trabajo con la mano vacía para eliminar el trofeo preparado."
-trophy_cleared = "Se eliminó tu trofeo preparado."
-return_echo_name = "Eco de Retorno"
-
-[mutation.selection]
-invalid = "Selección de mutación inválida."
-player_data_unavailable = "Los datos de la mutación del jugador no están disponibles."
-slot_changed_confirm = "La ranura de mutación cambió mientras la confirmación estaba abierta; volver a revisarlo."
-loadout_changed_confirm = "La carga de la mutación cambió mientras la confirmación estaba abierta; volver a revisarla."
-already_equipped = "{mutation} ya está equipado en ranura {slot}."
-equipped = "Equipado {mutation} en ranura {slot}."
-invalid_slot = "Mutación inválida ranura."
-slot_already_empty = "Mutación ranura {slot} ya está vacío."
-cleared_slot = "Ranura de mutación limpia {slot}."
-changes_off = "Los cambios de mutación se apagan en este servidor."
-bookshelf_required = "Volver a la Adapt estantería antes de cambiar una ranura de mutación."
-slot_unlocks = "Mutación ranura {slot} desbloqueo a nivel {level}."
-permanent_choices = "Este servidor hace que las opciones de mutación sean permanentes."
-slot_cooldown = "Mutación ranura {slot} no se puede cambiar todavía."
-combat_cooldown = "No puedes cambiar Mutaciones durante el combate."
-mutation_disabled = "Que la mutación es deshabilitada."
-world_disabled = "Que la mutación no funciona en este mundo."
-
-[mutation.command]
-toggle_usage = "Usa enabled=on, enabled=off u omite el parámetro para alternar."
-cooperative_enabled = "Los efectos cooperativos de Mutación están activados."
-cooperative_disabled = "Los efectos cooperativos de Mutación están desactivados."
-cooperative_enabled_off = "Los efectos de la mutación cooperativa están habilitados. Preferencia guardada; Mutaciones experimentales están actualmente fuera."
-cooperative_disabled_off = "Los efectos de la mutación cooperativa son discapacitados. Preferencia guardada; Mutaciones experimentales están actualmente fuera."
-choice_saved_off = "La elección se guardó, pero permanecerá inactiva mientras las Mutaciones experimentales estén desactivadas."
-discovered = "Descubierta {mutation} para {player}."
-undiscovered = "Descubierta {mutation} para {player}."
-cooldowns_cleared = "Se restablecieron los tiempos de reutilización para cambiar de Mutación de {player}."
-state_refreshed = "Estado de mutación restringida {player}."
-slot_range = "Mutación ranura debe ser 1 o 2."
-override_usage = "Uso enabled=on, enabled=off, o enabled=clear."
-slot_normal = "Mutación ranura {slot} está utilizando ahora su requisito normal de nivel para {player}."
-slot_forced_unlocked = "Mutación ranura {slot} ahora es forzado desbloqueado {player}."
-slot_forced_locked = "Mutación ranura {slot} ahora es forzado {player}."
-data_cleared = "Datos de mutación despejados {player} sin cambiar XP, habilidades, conocimientos, adaptaciones o avances."
-perfect_normal = "La adaptación perfecta ahora está utilizando su requisito de nivel normal para {player}."
-perfect_forced_on = "Adaptación perfecta ahora es forzada para {player}."
-perfect_forced_off = "Adaptación perfecta ahora es forzada para {player}."
-unavailable = "Las mutaciones no están disponibles ahora mismo."
-reload_failed = "No se pudo recargar la configuración de Mutaciones; la configuración anterior sigue activa."
-reload_enabled = "Configuración de Mutaciones recargada. Las Mutaciones experimentales están activadas y se están actualizando las ranuras de los jugadores conectados."
-reload_disabled = "Configuración de Mutaciones recargada. Las Mutaciones experimentales están desactivadas y se conservaron las elecciones guardadas."
-unknown_mutation = "Mutación desconocida: {mutation}"
-snapshot_title = "Mutaciones experimentales para {player}"
-feature_enabled = "Característica: activada"
-feature_disabled = "Característica: discapacitados"
-perfect_active = "Adaptación perfecta: activo"
-perfect_inactive = "Adaptación perfecta: inactivo"
-cooperative_status_enabled = "Efectos cooperativos: habilitados"
-cooperative_status_disabled = "Efectos cooperativos: discapacitados"
-stored_resources = "Recursos almacenados: Carga profunda {deepCharge} • Carga de raíz {rootCharge} • Pasos de arte/Brew/Encantador {steps}"
-linked_gear = "Engranaje enlazado: Temperatura {temperbound} • Masterwork {masterwork} • Herramienta de análisis profundo {deepblood} • Trofeo {trophy}"
-yes = "Sí."
-no = "no"
-slot_locked = "Ranura {slot}: cerrado"
-slot_empty = "Ranura {slot}: vacío"
-slot_unavailable = "Ranura {slot}: {mutation} (no disponible)"
-slot_value = "Ranura {slot}: {mutation} [{state}]"
-slot_value_reason = "Ranura {slot}: {mutation} [{state}] - {reason}"
-result_updated = "Estado de mutación actualizado."
-result_not_changed = "El estado de mutación no fue cambiado."
-remaining_cooldown = "{message} Tiempo de reutilización restante: {duration}"
-
-[mutation.state]
-ready = "listo"
-active = "activo"
-inactive = "inactivo"
-locked = "cerrado"
-off = "apagado"
-unavailable = "no disponible"
-blocked = "bloqueado"
-
-[mutation.progression]
-slot_unlocked_title = "Ranura de mutación desbloqueada"
-slot_unlocked_subtitle = "Su primera ranura de mutación ahora está desbloqueado. Visitar una Adapt estantería."
-second_slot_title = "Segunda Ranura de Mutación"
-second_slot_subtitle = "Su segunda ranura de mutación ahora está desbloqueado."
-perfect_title = "Adaptación perfecta"
-perfect_subtitle = "Tus Mutaciones equipadas ya no tienen inconvenientes."
-perfect_lost = "La adaptación perfecta ya no es activa; las desventajas de la mutación se aplican de nuevo."
-
-[mutation.model]
-no_selection = "No se ha seleccionado"
-saved_unavailable = "Esta Mutación guardada no está disponible"
-slot_locked = "La ranura necesaria está bloqueada"
-ready = "Listo para usar"
-active = "Activo"
-inactive = "Equipado pero inactivo"
-disabled = "Apagado por el servidor"
-restricted = "No disponible aquí"
-conflict = "Bloqueado por la otra mutación"
-empty = "Vacío"
-
-[mutation.gui]
-disabled = "Las Mutaciones son experimentales y están desactivadas en este servidor."
-title = "Mutaciones experimentales • Nivel {level}"
-perfect = "Adaptación perfecta"
-perfect_active = "Las dos Mutaciones equipadas pierden sus desventajas."
-perfect_locked = "Se desbloquea en el nivel de Adapt configurado."
-cooperative_on = "Efectos cooperativos: En"
-cooperative_off = "Efectos cooperativos: Off"
-cooperative_allow = "Permite recibir efectos de Mutación compartidos por jugadores cercanos."
-cooperative_opt_out = "Haz clic para dejar de participar."
-cooperative_opt_in = "Haga clic para optar."
-changes_available = "Cambios disponibles"
-view_only = "Solo lectura"
-may_change = "Puede cambiar sus ranuras de mutación aquí."
-visit_bookshelf = "Visita una estantería de Adapt válida e interactúa con ella para cambiar las ranuras."
-unavailable_discoveries = "Descubrimientos no disponibles"
-saved_not_installed = "Mutaciones guardadas que no están actualmente instalados:"
-slot_value = "Ranura {slot}: {mutation}"
-slot_locked = "Ranura {slot}: Cerrado"
-right_click_clear = "Haga clic derecho para limpiar esta ranura."
-skill_groups = "Grupos de habilidad: {first} + {second}"
-discovered = "Descubierta"
-undiscovered = "Descubierta"
-equipped_slot = "Equipado en ranura {slot}"
-click_inspect = "Haga clic para inspeccionar"
-requires = "Requisitos: una adaptación aprendida de cada grupo de habilidad a nivel {level}+"
-benefit = "Efecto: {benefit}"
-burden = "Desventaja: {burden}"
-perfect_result = "En el nivel 200: {result}"
-tell = "Señal visual: {tell}"
-control = "Cómo usarlo: {control}"
-pvp = "Afectos PvP"
-no_pvp = "No afecta directamente PvP"
-status = "Situación: {state}"
-matching_none = "Adaptaciones coincidentes: no se ha aprendido actualmente"
-matching = "Adaptaciones de coincidencia: {adaptations}"
-slot_locked_name = "Ranura {slot} Cerrado"
-slot_view_only = "Ranura {slot} • Ver sólo"
-bookshelf_before_change = "Use una valida Adapt estantería antes de cambiar esta ranura."
-equipped_in_slot = "Equipado en Ranura {slot}"
-already_equipped_slot = "Ya Equipado en Ranura {slot}"
-conflicts_with = "Conflictos con {mutation}"
-clear_other_first = "Limpiar o reemplazar la ranura {slot} antes de seleccionar esta mutación."
-unavailable_slot = "No disponible para Ranura {slot}"
-equip_slot = "Equipación en Ranura {slot}"
-current = "Corriente: {mutation}"
-click_preview = "Haga clic para previsualizar y confirmar este cambio."
-confirm_slot = "{mutation} → Ranura {slot}"
-replacing = "Reemplazamiento: {mutation}"
-other_slot = "Otras ranuras: {mutation}"
-with_other = "Con otra ranura: {interaction}"
-slot_cooldown = "tiempo de reutilización de la ranura: {duration}"
-confirm_change = "Cambio de confirmación"
-confirm_change_title = "Confirmación del cambio de mutación"
-clear_slot = "Ranura clara {slot}"
-unequip = "Unequip {mutation}?"
-normal_cooldown = "Esto comienza el tiempo de reutilización normal de la ranura."
-confirm_clear = "Confirmación clara"
-link_armor = "Enlace Armadura actual"
-link_armor_lore = "Use cuatro piezas de armadura duraderas, luego haga clic para enlazarlas."
-unlink_armor = "Armadura de enlace"
-unlink_armor_lore = "Desvincular la armadura actual de cuatro piezas."
-review_confirm = "Haga clic para revisar y confirmar."
-unlink_masterwork = "Unlink Masterwork"
-unlink_masterwork_lore = "Desvincular la herramienta de Masterwork actual."
-replacement_cooldown_begins = "Una tiempo de reutilización de reemplazo comienza después de la confirmación."
-bind_held_tool = "Herramienta de soldada bind"
-deepblood_bind_lore = "Vincular la herramienta duradera en su mano principal a protección de rotura de sangre profunda."
-deepblood_replace_lore = "Vinculación de otra herramienta reemplaza su actual herramienta Deepblood."
-bind_cooling = "Herramienta de soldadura enlatada • Enfriamiento"
-masterwork_bind_lore = "Mantenga una herramienta duradera que usted ha elaborado personalmente."
-replacement_available = "Sustitución disponible en {duration}."
-equipment_changed = "El equipo vinculado cambió antes de que pudiera confirmarse."
-unlink_temperbound = "Armadura sin parpadear?"
-temperbound_unlinked = "El actual conjunto de armaduras de cuatro piezas será sin conexión."
-no_repair_return = "Esto no repara, protege o devuelve ninguna armadura."
-unlink_masterwork_question = "Herramienta de Masterwork Unlink?"
-masterwork_unlinked = "La herramienta de Masterwork actual será sin conexión."
-replacement_cooldown = "Reemplazamiento de tiempo de reutilización: {duration}"
-confirm_equipment_title = "Confirme el cambio de equipo"
-option_unavailable = "Esta opción ya no está disponible."
-equipment_changed_review = "El equipo vinculado cambió mientras se había abierto la confirmación; volver a revisarlo."
-controls_unavailable = "Los controles del equipo de mutación no están disponibles ahora mismo."
-page_count = "Página {page}/{pages} • {count} Mutaciones"
-no_other_selected = "No hay otra mutación seleccionada"
-same_not_allowed = "La misma mutación no puede ocupar ambas ranuras"
-compatible_with = "Compatible con {mutation}"
-unknown = "Desconocido"
-state_ready = "Listo"
-state_active = "Activo"
-state_inactive = "Inactivo"
-state_locked = "Cerrado"
-state_off = "Fuera."
-state_unavailable = "No disponible"
-state_blocked = "Bloqueados"
-
-[mutation.equipment]
-temperbound_success = "Tu armadura actual es ahora Temperbound."
-temperbound_unlinked = "Tu armadura de Temperatura está ahora sin conexión."
-masterwork_success = "La herramienta sostenida es ahora su obra maestra."
-deepblood_success = "La herramienta sostenida está ahora vinculada a su reserva de carga profunda."
-masterwork_unlinked_delay = "Tu herramienta de maestría no estaba conectada. Un reemplazo puede vincularse en {duration}."
-masterwork_unlinked = "Tu herramienta de maestría no estaba conectada."
-replacement_delay = "Un Masterwork sustituto puede vincularse en {duration}."
-temperbound_requirement = "Use un conjunto completo de armadura durable de cuatro piezas que no está conectado."
-temperbound_failure = "La armadura de Temperbound no podía ser desvinculada."
-masterwork_requirement = "Mantenga una herramienta duradera que usted personalmente ha elaborado sin ninguna herramienta de Masterwork vinculada."
-masterwork_failure = "La herramienta de maestría no podría estar aún sin conexión."
-deepblood_requirement = "Mantenga una herramienta duradera en su mano principal antes de vincularla a Deepblood."
 
 [director.help]
 no_subcommands = "No hay subcomandos en esta página."
@@ -3991,6 +3617,9 @@ surface_block = "bloque"
 trigger_join = "{first} + {second}"
 trigger_surface = "{trigger} ({surface})"
 
+
+blink_priority = "Manual Blink takes priority over double-jump Recall"
+
 [chronos.time_bomb]
 name = "Bomba de Tiempo"
 description = "Lanza una bomba crono fabricada que crea un campo temporal, ralentiza entidades y congela proyectiles."
@@ -4885,7 +4514,6 @@ no_previous_page = "No hay página anterior"
 no_next_page = "No hay página siguiente"
 last_page = "Última página"
 back_to_skills = "Volver a Habilidades"
-back_to_mutations = "Volver a Mutaciones"
 skills = "Habilidades"
 adaptations = "Adaptaciones"
 levels = "Niveles"
@@ -4912,11 +4540,6 @@ vault_unavailable_fallback = "La economía de Vault no está disponible — sigu
 vault_insufficient_funds = "El jugador no tiene suficiente dinero en la economía de Vault."
 vault_transaction_failed = "La transacción de Vault falló; no se cambió el progreso."
 power_drain = "{power} Dibujo de energía"
-
-[gui.mutations]
-experimental_mutations = "Mutaciones experimentales"
-menu_summary = "Opciones de configuración de personaje que se desbloquean con tu nivel de Adapt."
-menu_open = "Haz clic para ver tus ranuras y requisitos."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5408,13 +5031,15 @@ lore3 = "Una vez fabricado, mira el objeto para ver su uso"
 notcontainer = "Eso no es un contenedor"
 lore = ["Perla de Ender + Brujula = Traslador Relicario", "Este objeto te permite acceder a contenedores de forma remota", "Una vez fabricado, mira el objeto para ver su uso"]
 
+unbind = "Sneak and left-click air away from a container to unbind."
+
 [rift.blink]
 name = "Parpadeo de Grieta"
-description = "Haz un doble salto para parpadear hacia donde miras. Los parpadeos exitosos no consumen perlas, pero infligen el daño normal de una perla de ender, que disminuye con cada nivel. Agáchate al parpadear para atravesar directamente muros y obstáculos."
+description = "Haz un doble salto para teletransportarte hacia donde miras. Prioriza la distancia o los destinos más altos y atraviesa paredes al agacharte, al apuntar o nunca. En el nivel 2, el modo reactivo sustituye el doble salto por una esquiva al recibir un ataque: teletranspórtate hacia donde miras o aléjate del atacante. Los teletransportes exitosos no consumen perlas, pero causan daño de perla de ender que disminuye con el nivel. Las reglas del servidor limitan las opciones disponibles."
 lore1 = "Alcance del parpadeo"
 lore2 = "Daño propio (corazones)"
-lore3 = "Agáchate al parpadear para atravesar muros"
-lore = ["Alcance del parpadeo", "Daño propio (corazones)", "Agáchate al parpadear para atravesar muros"]
+lore3 = "Elige cuándo el teletransporte atraviesa paredes"
+lore = ["Alcance del parpadeo", "Daño propio (corazones)", "Elige cuándo el teletransporte atraviesa paredes"]
 
 [rift.chest]
 name = "Cofre de Ender Facil"
@@ -6345,21 +5970,14 @@ boost_target_player_experience_gain = "Boost Objetivo de la experiencia ganar."
 bypass_adapt_use_permission_checks_when_opening = "Bypass adapt.use cheques de permiso al abrir"
 bypass_costs_and_restrictions = "Gastos de circunscripción y restricciones"
 bypass_power_knowledge_and_permanence_checks = "Controles de potencia, conocimiento y permanencia"
-clear_a_player_s_mutation_slot = "Limpiar la ranura de Mutación de un jugador"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "Eliminar todos los datos de descubrimiento (biomes, multitudes, alimentos, artículos, recetas, etc. )"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "Limpiar todos los datos del reproductor (XP, conocimiento, adaptaciones, estadísticas, descubrimientos, avances, sabiduría)"
-clear_both_mutation_switching_cooldowns = "Limpiar ambas tiempo de reutilización de conmutación de mutación"
 clear_knowledge_across_all_skill_lines = "Conocimiento claro en todas las líneas de habilidad"
-clear_only_a_player_s_mutation_data = "Limpiar sólo los datos de Mutación de un jugador"
 clear_player_progression_data = "Datos de progresión de reproductores claros"
 clear_the_stats_map = "Limpiar el mapa de las estadísticas"
 clear_xp_across_all_skill_lines = "Despejado XP en todas las líneas de habilidad"
-discover_or_undiscover_a_mutation_for_a_player = "Descubre o descubre una Mutación para un jugador"
-equip_a_mutation_in_a_player_slot = "Equipa una mutación en una ranura de jugador"
 experience_per_orb = "Experiencia por orb"
 explicit_on_off_state_omit_to_toggle = "Explíquese en / apagado estado, omitir a la lucha"
-force_a_mutation_slot_unlocked_locked_or_back_to_its_normal_level_requirement = "Forzar una ranura de Mutación desbloqueado, bloqueado o de vuelta a su requisito de nivel normal"
-force_perfect_adaptation_on_off_or_back_to_its_normal_level_requirement = "Adaptación perfecta de fuerza en, apagado o de vuelta a su requisito de nivel normal"
 generate_perms_for_adaptations = "¡Genera permisos para adaptaciones!"
 generate_perms_for_skills = "¡Generar Permisos para Habilidades!"
 give_a_knowledge_orb_to_yourself_or_a_target_player = "Dar un orbe de conocimiento para usted o un jugador objetivo"
@@ -6368,18 +5986,12 @@ gui_to_open_main_skill_name_or_adaptation_name = "GUI para abrir: principal, hab
 knowledge_per_orb = "Conocimiento por orb"
 level_between_0_and_100 = "Nivel entre 0 y 100"
 level_between_0_and_100_clamped_to_the_adaptation_max = "Nivel entre 0 y 100, sujetado a la adaptación max"
-mutation_id = "Mutación ID"
-on_off_or_clear = "en, fuera o libre"
-on_off_or_toggle = "en, fuera o conmutación"
 open_the_adapt_gui = "Abrir el Adapt GUI"
-open_the_experimental_mutation_menu = "Abrir el menú de mutación experimental"
 open_the_in_game_adapt_config_editor = "Abrir el juego Adapt editor de config"
 particle_type_to_spawn = "Tipo de partícula para desove"
 permanently_delete_all_adapt_data_for_a_player = "Eliminar permanentemente todos Adapt datos para un reproductor"
 permanently_delete_all_adapt_data_for_a_player_requires_adapt_clear_run_twice_to_confirm = "Elimina permanentemente todos los datos de Adapt de un jugador. Requiere el permiso adapt.clear. Ejecuta dos veces para confirmar."
 play_a_sound_at_your_location_for_testing = "Juega un sonido en tu ubicación para probar!"
-refresh_a_player_s_mutation_slots_and_requirements = "Refresque las ranuras y requisitos de la mutación de un jugador"
-reload_mutation_configuration = "Reload Configuración de mutación"
 reset_a_skill_config_to_defaults = "Reiniciar un config de habilidad a defectos"
 reset_all_configs_to_defaults_and_archive_the_old_settings = "Resetear las configuraciones ALL a los valores predeterminados y archivar las configuración antiguas"
 reset_an_adaptation_config_to_defaults = "Reiniciar un config de adaptación a los defectos"
@@ -6391,21 +6003,16 @@ show_adapt_ticker_hotspots = "Show Adapt Puntos de emergencia"
 skill_line_to_set = "Línea de habilidad para establecer"
 skill_name_or_all_random = "Nombre de la piel, o todo / al azar"
 skill_to_reset = "habilidad para restablecer"
-slot_1_or_2 = "ranura 1 o 2"
 sound_to_play = "Suena a juego"
 strength_of_the_boost = "Fuerza del impulso"
 summon_a_particle_at_your_location_for_testing = "Invoca una partícula en tu ubicación para probar!"
 target_player_defaults_to_you = "Jugador de destino, predeterminado para usted"
 toggle_adapt_effect_visibility_for_yourself = "Toggle Adapt visibilidad del efecto para usted"
-toggle_cooperative_mutation_participation = "Cambiar cooperativas Participación en mutaciones"
 toggle_debug_mode_reveals_every_skill_and_adaptation_and_makes_learning_free_and_uncapped = "Modo de depuración de toggle: revela cada habilidad y adaptación y hace el aprendizaje libre y sin explotar"
 toggle_verbose_mode = "Cambiar el modo de verbo"
 top_results_to_print = "Principales resultados para imprimir"
-true_to_discover_false_to_undiscover = "verdadero para descubrir, falso para descubrir"
 true_to_learn_false_to_unlearn = "verdadero para aprender, falso para no aprender"
 unlearn_all_adaptations_across_all_skill_lines = "Desarrollar todas las adaptaciones en todas las líneas de habilidad"
-view_and_manage_experimental_mutations = "Ver y gestionar mutaciones experimentales"
-view_mutation_state_for_yourself_or_another_player = "Ver estado de mutación para usted u otro jugador"
 
 [command.runtime]
 missing_permission = "No tienes el permiso '{permission}'."
@@ -6592,3 +6199,1103 @@ line = "Línea {line}"
 [language.editor.value]
 none = "Ninguno"
 empty = "(vacío)"
+
+[gui.preferences]
+current = "Actual: {value}"
+server_controlled = "Controlado por el servidor"
+server_disabled = "{value}: no disponible en este servidor"
+level_required = "{value}: requiere el nivel de adaptación {level}"
+cycle = "Clic izquierdo: siguiente / Clic derecho: anterior"
+learn_first = "Aprende esta adaptación para cambiar sus ajustes."
+reset = "Restablecer ajustes personales"
+reset_description = "Usar los valores del servidor para esta adaptación."
+
+[rift.blink.setting]
+enabled = "Teletransporte"
+phasing = "Atravesar paredes"
+targeting = "Preferencia de destino"
+activation = "Activación"
+reactive_direction = "Dirección de esquiva"
+
+[rift.blink.option]
+on = "Activado"
+off = "Desactivado"
+sneak = "Mantener agacharse para atravesar"
+aim = "Atravesar hacia donde apuntas"
+never = "Nunca atravesar"
+distance = "Priorizar distancia"
+verticality = "Priorizar destinos más altos"
+manual = "Doble salto"
+reactive = "Esquivar ataques"
+look = "Hacia donde miras"
+away = "Alejarse del atacante"
+
+[agilityairdash.preferences]
+preference_speed = "Dash speed"
+preference_trigger = "Dash trigger"
+preference_trigger_any = "Left click"
+preference_trigger_empty_hand = "Empty hand"
+preference_trigger_sneak = "While sneaking"
+
+[agilityfeatherfoot.preferences]
+preference_berries = "Berry protection"
+preference_farmland = "Farmland protection"
+preference_plates = "Pressure plate protection"
+preference_snow = "Powder snow protection"
+
+[agilitykipup.preferences]
+preference_speed_burst = "Recovery speed burst"
+
+[agilityladderslide.preferences]
+preference_ascent = "Upward assistance"
+preference_descent = "Downward assistance"
+preference_sensitivity = "Look sensitivity"
+preference_sensitivity_normal = "Normal"
+preference_sensitivity_precise = "More deliberate"
+preference_sensitivity_responsive = "More responsive"
+preference_speed = "Assistance speed"
+
+[agilityrolllanding.preferences]
+preference_food_reserve = "Food reserve"
+preference_food_reserve_eight = "Keep 8 food"
+preference_food_reserve_four = "Keep 4 food"
+preference_food_reserve_none = "No reserve"
+
+[agilityslipstreamslide.preferences]
+preference_control = "Slide control"
+preference_control_hold = "Hold sneak"
+preference_control_tap = "Tap sneak"
+preference_duration = "Maximum slide duration"
+
+[agilitysuperjump.preferences]
+preference_control = "Jump control"
+preference_control_every_jump = "Every jump"
+preference_control_sneak = "Sneak and jump"
+preference_height = "Jump height"
+
+[agilityvault.preferences]
+preference_trigger = "Vault trigger"
+preference_trigger_any = "Any jump"
+preference_trigger_sneak = "While sneaking"
+preference_trigger_sprint = "While sprinting"
+
+[agilitywalljump.preferences]
+preference_control = "Wall jump control"
+preference_control_hold = "Hold then release sneak"
+preference_control_tap = "Tap to latch and jump"
+
+[agilitywindup.preferences]
+preference_speed = "Maximum speed"
+
+[architectchalkline.preferences]
+preference_color = "Guide color"
+preference_color_aqua = "Aqua"
+preference_color_gold = "Gold"
+preference_color_purple = "Purple"
+preference_color_shape = "Shape color"
+preference_density = "Guide density"
+
+[architectdemolition.preferences]
+preference_materials = "Block selection"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+preference_sneak = "Require sneaking"
+
+[architectelevator.preferences]
+preference_ascent = "Upward travel"
+preference_descent = "Downward travel"
+preference_sneak_ascent = "Require sneak for ascent"
+
+[architectfoundation.preferences]
+preference_control = "Foundation control"
+preference_control_hold = "Hold sneak"
+preference_control_latch = "Tap sneak to start or stop"
+preference_duration = "Foundation block lifetime"
+preference_empty_hand = "Require empty main hand"
+
+[architectglass.preferences]
+preference_materials = "Glass selection"
+preference_materials_all = "All eligible glass"
+preference_materials_clear = "Clear glass and panes"
+preference_materials_stained = "Stained glass and panes"
+
+[architectplacement.preferences]
+preference_control = "Building control"
+preference_control_armed = "All eligible placements"
+preference_control_sneak = "Sneak to build"
+preference_limit = "Placement size"
+preference_materials = "Block selection"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+preference_preview = "Placement preview"
+
+[architectscaffolder.preferences]
+preference_control = "Scaffold control"
+preference_control_armed = "All eligible placements"
+preference_control_sneak = "Sneak-place"
+preference_materials = "Block selection"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+
+[architectsmartshape.preferences]
+preference_families = "Block families"
+preference_families_all = "All eligible orientations"
+preference_families_directional = "Facing blocks"
+preference_families_pillars = "Axis blocks"
+preference_families_rotatable = "Signs and rotating blocks"
+preference_reverse = "Reverse rotation"
+
+[architectsteadyhands.preferences]
+preference_fall = "Fall protection"
+preference_knockback = "Knockback protection"
+
+[architectstonecuttersavant.preferences]
+preference_offhand = "Require stonecutter in offhand"
+
+[architectsupplyline.preferences]
+preference_backpacks = "Backpacks"
+preference_bundles = "Bundles"
+preference_loose = "Loose inventory"
+preference_named = "Use named containers"
+preference_shulkers = "Shulker boxes"
+
+[architectwirelessredstone.preferences]
+preference_sneak = "Require sneak to activate"
+
+[axe.preferences]
+all = "All permitted"
+always = "Always"
+apples = "Apples only"
+fifteen = "Keep 15 hunger"
+five = "Keep 5 hunger"
+ignore_passive = "Ignore passive mobs"
+items = "Collected items"
+latch = "Latch tree felling; sneak again to cancel"
+logs = "Logs and stems"
+none = "No extra reserve"
+not_sneaking = "While not sneaking"
+players = "Affect players"
+reserve = "Hunger remaining after use"
+saplings = "Saplings and propagules"
+sneak = "Require sneaking"
+ten = "Keep 10 hunger"
+trigger = "Activation gesture"
+while_sneaking = "While sneaking"
+work = "Work limit"
+
+[blocking.preferences]
+all = "All permitted nearby players"
+allies = "Protected allies"
+armor_repair = "Repair armor"
+eight = "8 blocks"
+fall_distance = "Fall distance before elytra swap"
+fall_swap = "Swap to elytra while falling"
+four = "4 blocks"
+ground_swap = "Swap to chestplate on ground"
+half = "Keep 50%"
+ignore_passive = "Ignore passive mobs"
+none = "No extra reserve"
+player_targets = "Affect players"
+quarter = "Keep 25%"
+require_sneak = "Require sneaking"
+reserve = "Shield durability remaining"
+resistance = "Resistance after shield disable"
+shield_recovery = "Faster shield recovery"
+shield_repair = "Repair shield"
+sneak_stance = "Require sneak while blocking"
+stagger = "Retaliatory stagger"
+team = "Same scoreboard team"
+twelve = "12 blocks"
+
+[brewing.preferences.brewinglingering]
+extended-lore = "Extended potion lore"
+
+[chronos.preferences]
+preference_chronosrewind_clock = "Reloj"
+
+[chronos.preferences.chronosaberranttouch]
+clock-sounds = "Clock sounds"
+food-reserve = "Keep at least eight food points"
+passive-targets = "Passive targets"
+player-targets = "Player targets"
+
+[chronos.preferences.chronosaccelerate]
+brewing = "Brewing acceleration"
+crops = "Crop acceleration"
+furnaces = "Furnace acceleration"
+radius = "Acceleration radius"
+
+[chronos.preferences.chronoshourglassguard]
+clock-sounds = "Clock sounds"
+
+[chronos.preferences.chronosinstantrecall]
+air-clicks = "Air clicks"
+block-clicks = "Block clicks"
+clock-click = "Clock-click trigger"
+clock-sounds = "Clock sounds"
+double-jump = "Double-jump trigger"
+jump-clock = "Double-jump also requires held clock"
+jump-sprint = "Double-jump also requires sprint"
+left-click = "Left clicks"
+right-click = "Right clicks"
+sneak-clock = "Sneak also requires held clock"
+sneak-sprint = "Sneak also requires sprint"
+sneak-trigger = "Sneak trigger"
+sprint-click = "Sprint-click trigger"
+
+[chronos.preferences.chronosovertime]
+absorption = "Absorption"
+dolphins-grace = "Dolphins Grace"
+fire-resistance = "Resistencia al Fuego"
+haste = "Haste"
+health-boost = "Health Boost"
+hero-of-the-village = "Hero Of The Village"
+invisibility = "Invisibility"
+jump-boost = "Jump Boost"
+luck = "Luck"
+night-vision = "Night Vision"
+regeneration = "Regeneration"
+resistance = "Resistance"
+saturation = "Saturation"
+shorten-harmful = "Shorten harmful effects"
+slow-falling = "Slow Falling"
+speed = "Velocidad"
+strength = "Strength"
+water-breathing = "Water Breathing"
+
+[chronos.preferences.chronospocketwatch]
+require-sneak = "Hold sneak while falling"
+
+[chronos.preferences.chronosrewind]
+clock-sounds = "Clock sounds"
+
+[chronos.preferences.chronosstasisfield]
+clock-sounds = "Clock sounds"
+offhand-shard = "Require shard in offhand"
+
+[chronos.preferences.chronostemporalecho]
+arrow = "Arrow"
+egg = "Egg"
+ender-pearl = "Ender Pearl"
+snowball = "Snowball"
+
+[chronos.preferences.chronostimebomb]
+clock-sounds = "Clock sounds"
+private-visuals = "Owner-only field visuals"
+
+[chronos.preferences.chronostimeinabottle]
+animals = "Animal aging targets"
+brewing = "Brewing targets"
+campfires = "Campfire targets"
+clock-sounds = "Clock sounds"
+furnaces = "Furnace targets"
+growth = "Growth targets"
+trees = "Sapling tree generation"
+
+[crafting.preferences]
+category_all = "All"
+category_blocks = "Building blocks"
+category_equipment = "Tools and armor"
+category_food = "Food"
+category_minerals = "Minerals"
+reserve_eight = "8"
+reserve_none = "Ninguno"
+reserve_thirty_two = "32"
+storage_bundle = "Bundle"
+storage_server = "Idioma predeterminado del servidor"
+storage_slots = "Slots"
+
+[crafting.preferences.craftingbackpacks]
+mode-switch = "Allow storage mode switching"
+storage = "New backpack storage"
+
+[crafting.preferences.craftingbulkartisan]
+batch-limit = "Extra batch limit"
+ingredient-reserve = "Ingredient reserve"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingcompactor]
+batch-limit = "Compaction batch limit"
+loose-reserve = "Loose ingredient reserve"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingdeconstruction]
+confirmation = "Confirm named or enchanted salvage"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingmasterwork]
+attributes = "Attribute bonus"
+durability = "Durability bonus"
+enchantments = "Enchantment bonus"
+
+[crafting.preferences.craftingsignature]
+signature-lore = "Visible signature lore"
+
+[crafting.preferences.craftingstations]
+anvil = "Anvil"
+cartography = "Cartography table"
+grindstone = "Grindstone"
+loom = "Loom"
+sneak = "Require sneak to open"
+stonecutter = "Stonecutter"
+workbench = "Crafting table"
+
+[discovery.preferences]
+palette_aqua = "Aqua"
+palette_default = "Default colors"
+palette_gold = "Gold"
+palette_purple = "Purple"
+reserve_five = "5"
+reserve_none = "Ninguno"
+reserve_ten = "10"
+structure_default = "Default categories"
+structure_end_city = "End cities"
+structure_fortress = "Nether fortresses"
+structure_mineshaft = "Mineshafts"
+structure_monument = "Ocean monuments"
+structure_settlements = "Jigsaw structures"
+structure_stronghold = "Strongholds"
+
+[discovery.preferences.discoverybettermending]
+repair-limit = "Maximum repaired durability"
+xp-reserve = "XP point reserve"
+
+[discovery.preferences.discoverycartographerpulse]
+color = "Marker color"
+direction-line = "Private direction line"
+structures = "Structure categories"
+
+[discovery.preferences.discoveryfieldnotes]
+species-damage = "Species damage bonus"
+
+[discovery.preferences.discoveryinsight]
+full-details = "Full overlay details"
+hostile = "Hostile targets"
+passive = "Passive targets"
+players = "Player targets"
+
+[discovery.preferences.discoverykeeneye]
+chests = "Chest markers"
+color = "Marker color"
+range = "Marker range"
+spawners = "Spawner markers"
+
+[discovery.preferences.discoveryrelicappraiser]
+confirmation = "Confirm rare item appraisal"
+discs = "Music discs"
+heads = "Heads"
+sherds = "Pottery sherds"
+trims = "Armor trims"
+
+[discovery.preferences.discoverysixthsense]
+cue-frequency = "Cue frequency"
+full-details = "Full structure details"
+hud = "Structure HUD"
+structures = "Structure categories"
+
+[discovery.preferences.discoverytrailblazer]
+speed-burst = "Discovery speed burst"
+
+[discovery.preferences.discoveryvillageratt]
+xp-reserve = "XP level reserve"
+
+[discovery.preferences.discoveryxpresist]
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences]
+reserve_five = "5"
+reserve_none = "Ninguno"
+reserve_ten = "10"
+
+[enchanting.preferences.enchantingarcanesiphon]
+bonus-xp = "Bonus skill XP"
+books = "Siphoned books"
+player-victims = "Player victims"
+
+[enchanting.preferences.enchantingbookshelfattunement]
+power = "Virtual bookshelf contribution"
+
+[enchanting.preferences.enchantingcursecleansing]
+confirmation = "Confirm curse removal"
+
+[enchanting.preferences.enchantingechoofknowledge]
+sneak = "Require sneak to charge"
+
+[enchanting.preferences.enchantinggrindstonerecovery]
+bonus-xp = "Bonus vanilla XP"
+books = "Recovered books"
+
+[enchanting.preferences.enchantinginfusiontransfer]
+confirmation = "Confirm sacrifice risk"
+
+[enchanting.preferences.enchantingofferreroll]
+confirmation = "Confirm paid reroll"
+lapis-reserve = "Lapis reserve"
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences.enchantingquickenchant]
+confirmation = "Confirm book application"
+modified-click = "Require right click"
+
+[enchanting.preferences.enchantingrunesight]
+full-details = "Full offer details"
+
+[enchanting.preferences.enchantingsoullink]
+confirmation = "Confirm item linking"
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences.enchantingtomerebinding]
+confirmation = "Confirm lossy split"
+sneak = "Require sneak-drop"
+
+[excavation.preferences.excavationburrow]
+depth = "Burrow depth"
+durability-reserve = "Keep a quarter of tool durability"
+food-reserve = "Keep eight food points"
+
+[excavation.preferences.excavationdroptoinventory]
+blocks-only = "Only collect block materials"
+materials = "Allowed materials"
+
+[excavation.preferences.excavationearthmover]
+food-reserve = "Keep eight food points"
+ignore-passive = "Exclude neutral mobs"
+offhand-empty = "Require empty offhand"
+
+[excavation.preferences.excavationhaste]
+tier = "Haste tier"
+
+[excavation.preferences.excavationmudlark]
+bonus-drops = "Bonus drops"
+wet-haste = "Wet-weather Haste"
+
+[excavation.preferences.excavationomnitool]
+combat-selection = "Automatic combat selection"
+mining-selection = "Automatic mining selection"
+swap-sounds = "Swap sounds"
+
+[excavation.preferences.excavationseismicping]
+color = "Marker color"
+cue-frequency = "Cue frequency"
+ores = "Allowed ore markers"
+
+[excavation.preferences.excavationspelunker]
+color = "Marker color"
+ores = "Allowed ore markers"
+range = "Reveal range"
+
+[excavation.preferences.excavationtunneler]
+block-limit = "Extra block limit"
+materials = "Allowed materials"
+trigger = "Activation gesture"
+
+[excavation.preferences.materials]
+all = "All"
+clay = "Clay"
+flint = "Flint"
+gravel = "Gravel"
+sand = "Sand"
+snow = "Snow"
+soil = "Soil"
+
+[excavation.preferences.ores]
+all = "All"
+coal = "Coal"
+copper = "Copper"
+diamond = "Diamond"
+emerald = "Emerald"
+gold = "Gold"
+iron = "Iron"
+lapis = "Lapis"
+netherite = "Netherite"
+quartz = "Quartz"
+redstone = "Redstone"
+
+[excavation.preferences.palette]
+aqua = "Aqua"
+default = "Default colors"
+gold = "Gold"
+purple = "Purple"
+
+[excavation.preferences.trigger]
+always = "Always"
+sneak = "Sneak to activate"
+suppress = "Sneak to suppress"
+
+[herbalism.preferences.herbalismbeeshepherd]
+bee-attraction = "Bee attraction"
+food-reserve = "Keep eight food points"
+growth = "Crop growth"
+growth-particles = "Growth particles"
+
+[herbalism.preferences.herbalismcompostcascade]
+dropped-items = "Consume dropped items"
+inventory-items = "Consume inventory items"
+item-reserve = "Keep eight items per stack"
+leaves = "Consume leaves"
+materials = "Allowed plant materials"
+
+[herbalism.preferences.herbalismdroptoinventory]
+materials = "Allowed plant materials"
+seeds-only = "Only collect planting items"
+
+[herbalism.preferences.herbalismgrowthaura]
+food-reserve = "Keep sixteen food points"
+materials = "Allowed plant materials"
+radius = "Growth radius"
+surface-only = "Only surface crops"
+
+[herbalism.preferences.herbalismhungryshield]
+basics = "Environmental damage"
+burst = "Projectile and explosion damage"
+fire = "Fire damage"
+food-reserve = "Keep eight food points"
+magic = "Magic damage"
+melee = "Melee damage"
+
+[herbalism.preferences.herbalismreplant]
+materials = "Allowed plant materials"
+sneak = "Require sneak to replant"
+
+[herbalism.preferences.herbalismrootedfooting]
+fall-conversion = "Fall-to-hunger conversion"
+farmland = "Farmland protection"
+food-reserve = "Keep eight food points"
+
+[herbalism.preferences.herbalismseedsower]
+materials = "Allowed plant materials"
+radius = "Planting radius"
+seed-reserve = "Keep eight held seeds"
+
+[herbalism.preferences.herbalismsporebloom]
+flower-conversion = "Convert flowers to mushrooms"
+soil-conversion = "Convert spread soil"
+spread-limit = "Spread block limit"
+
+[herbalism.preferences.material]
+all = "All supported materials"
+beetroot = "Beetroot"
+berries = "Berries"
+carrot = "Carrots"
+flowers = "Flowers"
+fungi = "Mushrooms and fungi"
+kelp = "Kelp and seagrass"
+leaves = "Leaves"
+melon = "Melons"
+nether = "Nether wart"
+potato = "Potatoes"
+pumpkin = "Pumpkins"
+wheat = "Wheat"
+
+[hunter.preferences]
+all = "All permitted"
+blocks = "Collect block drops"
+blocks_only = "Blocks only"
+blood = "Blood red"
+cyan = "Cyan"
+fifteen = "At least 15 hunger"
+five = "At least 5 hunger"
+food = "Food only"
+glow = "Blood trail color"
+gold = "Gold"
+items = "Collected items"
+materials = "Crafting drops only"
+mobs = "Collect mob drops"
+none = "No extra reserve"
+reserve = "Minimum hunger to activate"
+sneak = "Require sneaking"
+ten = "At least 10 hunger"
+trail = "Private blood trail"
+white = "White"
+
+[kineticsdeadzone.preferences]
+preference_hostiles = "Hostile targets only"
+preference_sneak = "Require sneaking"
+
+[kineticsheavyframe.preferences]
+preference_control = "Stance control"
+preference_control_hold = "Hold sneak"
+preference_control_latch = "Tap to toggle stance"
+
+[kineticslungeconductor.preferences]
+preference_travel = "Extra lunge travel"
+
+[kineticsmassshift.preferences]
+preference_selection = "Form selection"
+preference_selection_cycle = "Cycle Titan, Pocket, normal"
+preference_selection_look = "Look direction"
+
+[kineticsmeteorcadence.preferences]
+preference_control = "Dive control"
+preference_control_automatic = "Every eligible fall"
+preference_control_sneak = "While sneaking"
+
+[kineticsmoonjump.preferences]
+preference_base_jump = "Base jump assistance"
+preference_hop = "Floaty hop"
+preference_hop_always = "Every jump"
+preference_hop_never = "Disabled"
+preference_hop_sneak = "While sneaking"
+
+[kineticsreboundanvil.preferences]
+preference_bounce = "Rebound bounce"
+preference_cushion = "Landing cushion"
+
+[kineticsrubbersoul.preferences]
+preference_bounce = "Base landing bounce"
+preference_springy = "Extra springy-block bounce"
+
+[kineticssurfaceskate.preferences]
+preference_control = "Skating control"
+preference_control_armed = "Always, sneak to brake"
+preference_control_sprint = "While sprinting"
+
+[kineticsterminaltoggle.preferences]
+preference_gesture = "Switch gesture"
+preference_gesture_double = "Double-tap sneak"
+preference_gesture_single = "Tap sneak"
+preference_order = "Midair mode cycle"
+preference_order_dive_first = "Dive then hang"
+preference_order_dive_only = "Dive only"
+preference_order_hang_first = "Hang then dive"
+preference_order_hang_only = "Hang only"
+
+[kineticswindburst.preferences]
+preference_hostiles = "Hostile targets only"
+preference_sneak = "Require sneak for shockwave"
+
+[nethercrimsonfeast.preferences]
+preference_meal_buff = "Nether meal protection"
+preference_sneak = "Require sneak to eat flora"
+
+[netherlavawalker.preferences]
+preference_food_reserve = "Food reserve"
+preference_food_reserve_eight = "Keep 8 food"
+preference_food_reserve_four = "Keep 4 food"
+preference_food_reserve_none = "No reserve"
+preference_sneak_drop = "Sneak to drop through"
+
+[nethermagmaskin.preferences]
+preference_own_fire = "Ignite struck targets"
+preference_retaliation = "Burning retaliation"
+
+[nethernetherrackmason.preferences]
+preference_drops = "Bonus drops"
+preference_mining = "Mining assistance"
+
+[netherskullyeet.preferences]
+preference_sneak = "Require sneak to throw"
+
+[nethersoulstrider.preferences]
+preference_burst = "Mastery speed burst"
+preference_immunity = "Soul-surface slow immunity"
+
+[netherstriderbond.preferences]
+preference_rescue = "Dismount protection"
+preference_speed = "Mounted speed"
+
+[pickaxe.preferences]
+all = "All permitted"
+always = "Always"
+bypass = "Sneak to bypass"
+copper = "Copper only"
+cyan = "Cyan"
+full = "Full learned size"
+gems = "Diamond and emerald"
+glow = "Ore outline color"
+gold = "Gold only"
+gold_color = "Gold"
+half = "Keep 50%"
+iron = "Iron only"
+low_durability = "Your pickaxe has less than 10% durability remaining."
+materials = "Eligible materials"
+no_reserve = "No extra reserve"
+not_sneaking = "While not sneaking"
+notice = "Low durability notice"
+one_by_two = "At most 1 by 2"
+ore_color = "Match ore"
+ores = "Ores and raw minerals"
+quarter = "Keep 25%"
+require_sneak = "Require sneaking"
+reserve = "Durability remaining after use"
+size = "Tunnel size limit"
+sneak = "While sneaking"
+stone = "Stone and deepslate"
+tenth = "Keep 10%"
+three_by_two = "At most 3 by 2"
+trigger = "Activation gesture"
+white = "White"
+
+[preferences]
+confirm = "Repeat the same action within 5 seconds to confirm."
+enabled = "Adaptation enabled"
+full = "Full earned limit"
+half = "Half earned limit"
+off = "Desactivado"
+on = "Activado"
+quarter = "Quarter earned limit"
+skill_enabled = "Skill adaptations enabled"
+
+[ranged.preferences]
+all = "All permitted"
+all_projectiles = "Include permitted thrown projectiles"
+arrows = "All arrows"
+blocks = "Building blocks"
+both = "Drawing or sneaking"
+bow = "Bow arrows"
+crossbow = "Crossbow arrows"
+dampen = "Slow target momentum"
+drawing = "Drawing only"
+food = "Food"
+glow = "Private target glow"
+hostile = "Hostile mobs only"
+ignore_passive = "Ignore passive mobs"
+impact = "Impact marker"
+items = "Collected items"
+non_players = "Exclude players"
+preview = "Preview while"
+projectiles = "Eligible projectiles"
+sneak = "Require sneaking"
+sneaking = "Sneaking only"
+targets = "Eligible targets"
+thrown = "Thrown projectiles"
+trail = "Trajectory trail"
+tridents = "Tridents"
+valuables = "Ores and valuables"
+
+[rift.remote_access.preferences]
+confirm_unbind = "Confirm unbinding"
+
+[riftaccess.preferences]
+preference_confirm_bind = "Confirm binding"
+preference_sneak_open = "Require sneak to open"
+
+[riftblink.preferences]
+preference_auto = "Automatic: upward mantle, level/downward phase"
+preference_landing = "Landing snap"
+preference_landing_near = "Snap down at most 2 blocks"
+preference_landing_none = "Keep aimed height"
+preference_landing_server = "Server landing snap"
+preference_momentum = "Exit momentum"
+preference_momentum_full = "Full server momentum"
+preference_momentum_half = "Half momentum"
+preference_momentum_stop = "Stop after blinking"
+
+[riftconduit.preferences]
+preference_flow = "Transfer on close"
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+preference_linking = "Link containers"
+
+[riftdescent.preferences]
+preference_control = "Levitation cancellation"
+preference_control_automatic = "Automatic"
+preference_control_sneak = "Press sneak"
+
+[riftenderchest.preferences]
+preference_gesture = "Open gesture"
+preference_gesture_current = "Left click or right-click air"
+preference_gesture_left = "Left click only"
+preference_gesture_right_air = "Right-click air only"
+preference_sneak = "Require sneaking"
+
+[riftendertaglock.preferences]
+preference_confirm = "Confirm binding with a second hit"
+preference_targets = "Taglock targets"
+preference_targets_all = "All eligible targets"
+preference_targets_animals = "Animals only"
+preference_targets_hostiles = "Hostile mobs only"
+preference_targets_players = "Players only"
+
+[riftgate.preferences]
+preference_confirm_bind = "Confirm binding"
+preference_confirm_unbind = "Confirm unbinding"
+preference_countdown = "Channel countdown"
+preference_countdown_text = "Recall in {seconds}s"
+
+[riftinflatedpocketdimension.preferences]
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+preference_pull = "Pull on click"
+preference_refill = "Refill building stack"
+preference_store = "Store sneak-dropped items"
+
+[riftpearlrebound.preferences]
+preference_damage = "Pearl damage reduction"
+preference_rebound = "Pearl rebound"
+preference_sneak = "Require sneak when throwing"
+
+[riftvoidmagnet.preferences]
+preference_control = "Collection control"
+preference_control_armed = "Automatic collection"
+preference_control_sneak = "While sneaking"
+preference_destination = "Pickup destination"
+preference_destination_chest_first = "Ender chest then inventory"
+preference_destination_chest_only = "Ender chest only"
+preference_destination_inventory_first = "Inventory then ender chest"
+preference_destination_inventory_only = "Inventory only"
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+
+[riftvoidskin.preferences]
+preference_causes = "Rescue damage causes"
+preference_causes_all = "All lethal damage"
+preference_causes_combat = "Combat damage only"
+preference_causes_environment = "Environmental damage only"
+preference_reserve = "Plain pearl reserve"
+preference_reserve_four = "Keep 4 pearls"
+preference_reserve_none = "No reserve"
+preference_reserve_one = "Keep 1 pearl"
+preference_spawn = "World spawn fallback"
+
+[seabornecoralgardener.preferences]
+preference_growth = "Bonemeal coral growth"
+preference_preservation = "Preserve placed coral"
+
+[seabornedeepsalvager.preferences]
+preference_color = "Outline color"
+preference_color_aqua = "Aqua"
+preference_color_gold = "Gold"
+preference_color_purple = "Purple"
+preference_container_types = "Outlined containers"
+preference_container_types_all = "All treasure containers"
+preference_container_types_barrels = "Barrels only"
+preference_container_types_chests = "Chests only"
+preference_outlines = "Container outlines"
+
+[seabornefishwhisperer.preferences]
+preference_assistance = "Animal combat assistance"
+preference_attraction = "Attract fish"
+preference_luck = "Fishing luck"
+
+[seabornehydrojet.preferences]
+preference_gesture = "Jet gesture"
+preference_gesture_double = "Double sneak"
+preference_gesture_single = "Single sneak"
+preference_priority = "Shared sneak priority"
+preference_priority_hydro = "Hydro Jet first"
+preference_priority_tide = "Tidecaller first"
+preference_reserve = "Food reserve"
+preference_reserve_eight = "Keep 8 food"
+preference_reserve_four = "Keep 4 food"
+preference_reserve_none = "No reserve"
+
+[seaborneinkveil.preferences]
+preference_visuals = "Own ink density"
+
+[seabornetidecaller.preferences]
+preference_attack = "Attack trigger"
+preference_attack_sneak = "Sneak required for attacks"
+preference_attack_water = "Water required for attacks"
+preference_flat = "Horizontal direction"
+preference_rain = "Rain dashes"
+preference_sneak = "Sneak trigger"
+preference_water = "Water dashes"
+
+[seabornetridentmastery.preferences]
+preference_recall = "Trident recall"
+
+[seaborneturtlesminingspeed.preferences]
+preference_floating = "Compensate floating penalty"
+
+[stealthassassinate.preferences]
+preference_sneak = "Require sneaking"
+preference_targets = "Eligible targets"
+preference_targets_all = "All eligible mobs"
+preference_targets_animals = "Animals"
+preference_targets_hostiles = "Hostile monsters"
+
+[stealthcore.preferences]
+preference_detected = "Detected"
+preference_glows = "Private threat outlines"
+preference_hidden = "Undetected"
+preference_status = "Private detection status"
+
+[stealthcutpurse.preferences]
+preference_targets = "Eligible targets"
+preference_targets_all = "All eligible mobs"
+preference_targets_illagers = "Illagers"
+preference_targets_piglins = "Piglins"
+
+[stealthdecoyswap.preferences]
+preference_gesture = "Swap gesture"
+preference_gesture_double = "Double sneak"
+preference_gesture_hand_swap = "Sneak and swap hands"
+
+[stealthshadowdecoy.preferences]
+preference_gesture = "Decoy gesture"
+preference_gesture_armed_release = "Empty-hand right-click then release sneak"
+preference_gesture_double = "Double sneak"
+preference_gesture_release = "Release sneak"
+
+[stealthshadowmeld.preferences]
+preference_gesture = "Meld activation"
+preference_gesture_automatic = "Eligible sneaking"
+preference_gesture_double = "Double sneak to arm"
+
+[stealthsight.preferences]
+preference_blindness = "Prevent blindness"
+preference_night_vision = "Night vision"
+preference_outlines = "Invisible player outlines"
+
+[stealthsmokepellet.preferences]
+preference_gesture = "Smoke gesture"
+preference_gesture_double = "Double sneak"
+preference_gesture_single = "Single sneak"
+preference_hand = "Gunpowder hand"
+preference_hand_either = "Either hand"
+preference_hand_main = "Main hand"
+preference_hand_off = "Off hand"
+preference_reserve = "Gunpowder reserve in selected hand"
+preference_reserve_four = "Keep 4 gunpowder"
+preference_reserve_none = "No reserve"
+preference_reserve_one = "Keep 1 gunpowder"
+
+[stealthsnatch.preferences]
+preference_control = "Collection control"
+preference_control_automatic = "Automatic collection"
+preference_control_sneak = "While sneaking"
+preference_items = "Collected items"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+
+[stealthspeed.preferences]
+preference_particles = "Soul particles"
+preference_speed = "Maximum stealth speed"
+preference_step_down = "Automatic step down"
+preference_step_up = "Automatic step up"
+
+[stealthtrapsense.preferences]
+preference_chests = "Trapped chests"
+preference_outlines = "Private trap outlines"
+preference_plates = "Pressure plates"
+preference_sculk = "Sculk traps"
+preference_tripwires = "Tripwires"
+
+[sword.preferences]
+airborne = "Require an airborne sprint attack"
+all = "All permitted"
+all_foliage = "All permitted foliage"
+all_swords = "All swords"
+diamond = "Diamond only"
+durability = "Durability remaining after ritual"
+five = "Keep 5 levels"
+foliage = "Foliage to cut"
+glow = "Mark focused attacker"
+grass = "Grass and ferns"
+half = "Keep 50%"
+hostile = "Hostile mobs"
+ignore_passive = "Ignore passive mobs"
+leaves = "Leaves only"
+netherite = "Netherite only"
+no_xp = "No extra reserve"
+non_players = "Non-player targets"
+none = "No extra reserve"
+precious = "Diamond and netherite"
+quarter = "Keep 25%"
+sneak = "Require sneaking"
+swords = "Eligible heirloom swords"
+targets = "Eligible targets"
+ten = "Keep 10 levels"
+thirty = "Keep 30 levels"
+vines = "Vines only"
+visuals = "Bleed particles"
+xp = "Experience levels remaining"
+
+[taming.preferences]
+all = "All permitted pets"
+all_collars = "All collar colors"
+all_items = "All permitted items"
+all_targets = "All permitted targets"
+blocks = "Blocks only"
+blue = "Blue collars"
+bones = "Bones remaining after command"
+cats = "Cats only"
+collar = "Wolves allowed to fetch"
+combat = "Mounted combat bonuses"
+eight = "Keep 8"
+food = "Food only"
+four = "Keep 4"
+half = "At least 50% health"
+handling = "Mount speed and jump"
+health = "Pet health remaining after protection"
+horses = "Horses and equines"
+hostile = "Hostile mobs"
+hunger = "Hunger remaining after recall"
+items = "Items to fetch"
+non_players = "Non-player targets"
+none = "No extra reserve"
+pacify = "Pacify neutral mobs"
+pets = "Eligible pet types"
+red = "Red collars"
+regeneration = "Pack regeneration"
+server_health = "Server minimum"
+sitting = "Include sitting pets"
+speed = "Speed bonus"
+taming = "Improved taming"
+targets = "Command targets"
+three_quarters = "At least 75% health"
+valuables = "Ores and minerals"
+visuals = "Bond particles and glow"
+wolves = "Wolves only"
+yellow = "Yellow collars"
+
+[tragoul.preferences]
+all = "All permitted targets"
+arthropods = "Arthropods only"
+assist = "Assist and hunt"
+blood_globes = "Collect blood globes"
+bone_globes = "Collect bone globes"
+bones = "Bones remaining after use"
+cool = "Blue to white"
+defend = "Defend the owner"
+eight = "Keep 8 bones"
+four = "Keep 4 bones"
+ignore_passive = "Ignore passive mobs"
+non_players = "Non-player targets"
+none = "No extra reserve"
+palette = "Health outline palette"
+passive = "Passive"
+replace_oldest = "Replace oldest servant at cap"
+stance = "Servant behavior"
+targets = "Eligible target types"
+undead = "Undead only"
+warm = "Red to yellow"
+
+[unarmed.preferences]
+airborne_only = "Require airborne clap"
+all = "All permitted targets"
+both = "Fists or shield"
+combat = "Unarmed damage bonus"
+fists = "Empty hands only"
+five = "Keep 5 hunger"
+hostile = "Hostile mobs"
+hunger = "Hunger remaining after clap"
+loadout = "Charge loadout"
+manual_meditation = "Require explicit meditation arming"
+meditation_armed = "Meditation armed"
+mob_armor = "Disarm mob armor"
+next_hit = "Punch again only"
+non_players = "Non-player targets"
+none = "No extra reserve"
+player_targets = "Disarm players"
+release = "Release grabbed target"
+require_arming = "Require sneak-right-click arming"
+shield = "Shield only"
+sneak_or_hit = "Release sneak or punch again"
+soft_blocks = "Faster soft block breaking"
+targets = "Eligible targets"
+ten = "Keep 10 hunger"

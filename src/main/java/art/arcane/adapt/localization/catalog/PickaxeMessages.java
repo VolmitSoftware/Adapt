@@ -1,5 +1,6 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.adapt.content.adaptation.pickaxe.PickaxePreferences;
 import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -79,6 +80,7 @@ public final class PickaxeMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    PickaxePreferences.addMessages(builder);
     builder.add(AUTO_SMELT_NAME);
     builder.add(AUTO_SMELT_DESCRIPTION);
     builder.add(AUTO_SMELT_LORE1);

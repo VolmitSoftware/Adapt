@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.NetherMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -50,10 +54,15 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.Set;
 
 public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SPEED = CommonPreferences.toggle("speed", NetherMessages.NETHERSTRIDERBOND_PREFERENCE_SPEED, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> RESCUE = CommonPreferences.toggle("rescue", NetherMessages.NETHERSTRIDERBOND_PREFERENCE_RESCUE, CommonPreferences.Toggle.ON);
+
   private static final String SLOT_RIDE = "ride";
   private static final long SPEED_REFRESH_MILLIS = 500L;
+  private static final Set<Material> RESCUE_AIR = Set.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR);
 
   public NetherStriderBond() {
     super("nether-strider-bond");
@@ -83,6 +92,18 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SPEED, RESCUE);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (player.getPlayer().getVehicle() instanceof Strider strider) {
+      J.runEntity(strider, () -> AdaptAttributeService.get().removeAll(strider, getName()));
+    }
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, getStriderSpeedAmplifier(level) + 1, 1);
     statLore(v, getSearchRadius(level), 2);
@@ -98,7 +119,9 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
     withAdaptedPlayer(p, e, () -> {
       int level = getActiveLevel(p);
       strider.setShivering(false);
-      refreshStriderSpeed(p, strider, level);
+      if (preferenceEnabled(p, SPEED)) {
+        refreshStriderSpeed(p, strider, level);
+      }
 
       Location from = e.getFrom();
       Location to = e.getTo();
@@ -122,20 +145,20 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
     });
   }
 
-  @ReflectiveHandler
+  @ReflectiveHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDismountEvent e) {
     if (!(e.getEntity() instanceof Player p) || !(e.getDismounted() instanceof Strider)) {
       return;
     }
 
     int level = getActiveLevel(p);
-    if (level < getConfig().safetyUnlockLevel) {
+    if (level < getConfig().safetyUnlockLevel || !preferenceEnabled(p, RESCUE)) {
       return;
     }
 
     int radius = getSearchRadius(level);
     J.runEntity(p, () -> {
-      if (!p.isOnline()) {
+      if (!canContinueRescue(p)) {
         return;
       }
 
@@ -175,7 +198,7 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
     }
 
     J.runEntity(p, () -> {
-      if (!shouldCommitRescue(success, failure, p.isOnline())) {
+      if (!canContinueRescue(p) || !shouldCommitRescue(success, failure, true)) {
         return;
       }
       AdaptPlayer adaptPlayer = getPlayer(p);
@@ -196,13 +219,24 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
     });
   }
 
+  private boolean canContinueRescue(Player player) {
+    return isRuntimeRegistered() && player.isOnline() && !player.isDead() && !player.isInsideVehicle()
+        && preferenceEnabled(player, RESCUE) && getActiveLevel(player) >= getConfig().safetyUnlockLevel;
+  }
+
   static boolean shouldCommitRescue(Boolean success, Throwable failure, boolean online) {
     return online && failure == null && Boolean.TRUE.equals(success);
   }
 
   private boolean isOverLava(Location loc) {
-    return loc.getBlock().getType() == Material.LAVA
-        || loc.clone().add(0D, -1D, 0D).getBlock().getType() == Material.LAVA;
+    return isLavaBelowDismount(loc.getBlock().getType(),
+        loc.clone().add(0D, -1D, 0D).getBlock().getType(),
+        loc.clone().add(0D, -2D, 0D).getBlock().getType());
+  }
+
+  static boolean isLavaBelowDismount(Material feet, Material below, Material belowStriderHeight) {
+    return feet == Material.LAVA
+        || (RESCUE_AIR.contains(feet) && (below == Material.LAVA || (RESCUE_AIR.contains(below) && belowStriderHeight == Material.LAVA)));
   }
 
   private Location findSafeLanding(Location origin, int radius) {
@@ -221,10 +255,13 @@ public class NetherStriderBond extends SimpleAdaptation<NetherStriderBond.Config
             continue;
           }
 
+          int x = ox + dx;
+          int z = oz + dz;
+          if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(new Location(world, x, oy, z))) {
+            continue;
+          }
           for (int dy = 2; dy >= -4; dy--) {
-            int x = ox + dx;
             int y = oy + dy;
-            int z = oz + dz;
             Block ground = world.getBlockAt(x, y, z);
             if (!isSolidGround(ground)) {
               continue;

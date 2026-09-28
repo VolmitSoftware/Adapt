@@ -3,13 +3,11 @@ package art.arcane.adapt.service;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.MutationManager;
 import art.arcane.adapt.api.protection.ProtectorRegistry;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.content.gui.ConfigGui;
-import art.arcane.adapt.content.gui.MutationGui;
 import art.arcane.adapt.content.gui.SkillsGui;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
@@ -53,7 +51,6 @@ public class HotloadSVC implements AdaptService {
   private static final long WATCHER_POLL_MS = 500L;
   private static final long HOTLOAD_COOLDOWN_MS = 3_000L;
   private static final int MAX_DIFF_MESSAGES_PER_FILE = 12;
-  private static final int MUTATION_RECONCILIATION_BATCH_SIZE = 32;
   private static final int MAX_HOTLOAD_CONFIG_BYTES = 2 * 1024 * 1024;
   private static final long HOTLOAD_IO_SHUTDOWN_MILLIS = 2_000L;
 
@@ -69,7 +66,6 @@ public class HotloadSVC implements AdaptService {
   private ExecutorService hotloadIo;
   private File adaptConfigFile;
   private File modelsFile;
-  private File mutationsConfigFile;
   private File skillsFolder;
   private File adaptationsFolder;
   private File localeLanguageFolder;
@@ -77,14 +73,13 @@ public class HotloadSVC implements AdaptService {
   public void onEnable() {
     adaptConfigFile = Adapt.instance.getDataFile("adapt.toml");
     modelsFile = Adapt.instance.getDataFile("models.toml");
-    mutationsConfigFile = Adapt.instance.getDataFile("mutations.toml");
     skillsFolder = Adapt.instance.getDataFolder("skills");
     adaptationsFolder = Adapt.instance.getDataFolder("adaptations");
     localeLanguageFolder = AdaptLanguage.languageFolder();
     hotloadEngine.configure(
         WATCHER_POLL_MS,
         HOTLOAD_COOLDOWN_MS,
-        List.of(adaptConfigFile, modelsFile, mutationsConfigFile),
+        List.of(adaptConfigFile, modelsFile),
         List.of(skillsFolder, adaptationsFolder, localeLanguageFolder)
     );
     hotloadGeneration.incrementAndGet();
@@ -231,7 +226,6 @@ public class HotloadSVC implements AdaptService {
         boolean ok = AdaptConfig.reloadSnapshot(raw, file);
         if (ok) {
           refreshGlobalRuntimeSettings();
-          reconcileCurrentMutationQualification();
         } else {
           Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid config.");
         }
@@ -244,10 +238,6 @@ public class HotloadSVC implements AdaptService {
           Adapt.instance.getAdaptServer().getSkillRegistry().synchronizeAdvancementRuntime();
         }
         return ok;
-      }
-
-      if (isMutationsConfigFile(file)) {
-        return reloadMutationsConfig(file, raw);
       }
 
       if (isSkillConfigFile(file)) {
@@ -280,7 +270,6 @@ public class HotloadSVC implements AdaptService {
     boolean ok = registry.hotReloadSkillConfig(skillName, raw, file);
     if (ok) {
       initializeAdaptationListings();
-      reconcileCurrentMutationQualification();
     } else {
       Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid skill config.");
     }
@@ -303,7 +292,6 @@ public class HotloadSVC implements AdaptService {
         boolean ok = registry.hotReloadAdaptationConfig(adaptationName, raw, file);
         if (ok) {
           initializeAdaptationListings();
-          reconcileCurrentMutationQualification();
         } else {
           Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid adaptation config.");
         }
@@ -316,43 +304,6 @@ public class HotloadSVC implements AdaptService {
 
   private boolean reloadModelsConfig(File file, String raw) {
     return CustomModel.reloadSnapshot(raw, file);
-  }
-
-  private boolean reloadMutationsConfig(File file, String raw) {
-    MutationSVC mutationService = MutationSVC.get();
-    if (mutationService == null || !mutationService.reloadSnapshot(raw, file)) {
-      Adapt.warn("Skipped hotload for " + file.getPath() + " due to invalid Mutation config.");
-      return false;
-    }
-    reconcileOnlineMutations(mutationService.getManager());
-    return true;
-  }
-
-  public static void reconcileOnlineMutations(MutationManager manager) {
-    if (manager == null || !manager.getConfig().isEnabled()) {
-      return;
-    }
-    List<Player> players = new ArrayList<>(Adapt.instance.getAdaptServer().getOnlinePlayerSnapshot());
-    for (int start = 0; start < players.size(); start += MUTATION_RECONCILIATION_BATCH_SIZE) {
-      int from = start;
-      int to = Math.min(players.size(), start + MUTATION_RECONCILIATION_BATCH_SIZE);
-      int delay = start / MUTATION_RECONCILIATION_BATCH_SIZE;
-      J.s(() -> {
-        for (int index = from; index < to; index++) {
-          Player player = players.get(index);
-          if (player != null && player.isOnline()) {
-            J.runEntity(player, () -> manager.reconcile(player));
-          }
-        }
-      }, delay);
-    }
-  }
-
-  private void reconcileCurrentMutationQualification() {
-    MutationSVC mutationService = MutationSVC.get();
-    if (mutationService != null) {
-      reconcileOnlineMutations(mutationService.getManager());
-    }
   }
 
   private void refreshGlobalRuntimeSettings() {
@@ -404,13 +355,10 @@ public class HotloadSVC implements AdaptService {
     if (isAdaptationConfigFile(file)) {
       return 2;
     }
-    if (isMutationsConfigFile(file)) {
+    if (isModelsConfigFile(file)) {
       return 3;
     }
-    if (isModelsConfigFile(file)) {
-      return 4;
-    }
-    return 5;
+    return 4;
   }
 
   private boolean isAdaptConfigFile(File file) {
@@ -419,10 +367,6 @@ public class HotloadSVC implements AdaptService {
 
   private boolean isModelsConfigFile(File file) {
     return sameFile(file, modelsFile);
-  }
-
-  private boolean isMutationsConfigFile(File file) {
-    return sameFile(file, mutationsConfigFile);
   }
 
   private boolean isSkillConfigFile(File file) {
@@ -442,7 +386,6 @@ public class HotloadSVC implements AdaptService {
     return !isTemporaryArtifact(file)
         && (isAdaptConfigFile(file)
         || isModelsConfigFile(file)
-        || isMutationsConfigFile(file)
         || isSkillConfigFile(file)
         || isAdaptationConfigFile(file)
         || isLocaleLanguageFile(file));
@@ -488,7 +431,6 @@ public class HotloadSVC implements AdaptService {
 
     addIfManaged(files, added, adaptConfigFile);
     addIfManaged(files, added, modelsFile);
-    addIfManaged(files, added, mutationsConfigFile);
 
     addDirectChildren(skillsFolder, files, added);
     addDirectChildren(adaptationsFolder, files, added);
@@ -689,11 +631,6 @@ public class HotloadSVC implements AdaptService {
 
     if (tag.startsWith("config/")) {
       ConfigGui.reopenFromTag(player, tag);
-      return;
-    }
-
-    if (tag.startsWith("mutations")) {
-      MutationGui.reopenFromTag(player, tag);
       return;
     }
 

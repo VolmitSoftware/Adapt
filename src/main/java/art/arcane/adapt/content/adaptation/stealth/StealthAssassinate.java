@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.StealthMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import org.bukkit.entity.Animals;
+import org.bukkit.entity.Monster;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -50,6 +56,13 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", StealthMessages.STEALTHASSASSINATE_PREFERENCE_SNEAK, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<Targets> TARGETS = new PlayerPreference<>(Targets.class,
+      new PlayerPreference.Definition<>("targets", StealthMessages.STEALTHASSASSINATE_PREFERENCE_TARGETS, Targets.ALL, List.of(
+          new PlayerPreference.Choice<>(Targets.ALL, StealthMessages.STEALTHASSASSINATE_PREFERENCE_TARGETS_ALL, Material.IRON_SWORD, 1),
+          new PlayerPreference.Choice<>(Targets.HOSTILES, StealthMessages.STEALTHASSASSINATE_PREFERENCE_TARGETS_HOSTILES, Material.ZOMBIE_HEAD, 1),
+          new PlayerPreference.Choice<>(Targets.ANIMALS, StealthMessages.STEALTHASSASSINATE_PREFERENCE_TARGETS_ANIMALS, Material.WHEAT, 1))));
+
   private static final Color ASSASSINATE_PURPLE = Color.fromRGB(0x2A0A3A);
 
   private final StealthCore stealth;
@@ -89,6 +102,11 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SNEAK, TARGETS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getHealthCap(level), 0), 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldown(level), 1), 2);
@@ -103,6 +121,12 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
 
     Player attacker = combat.attacker();
     LivingEntity target = combat.target();
+    Targets selection = preference(attacker, TARGETS);
+    if ((preferenceEnabled(attacker, SNEAK) && !attacker.isSneaking())
+        || (selection == Targets.HOSTILES && !(target instanceof Monster))
+        || (selection == Targets.ANIMALS && !(target instanceof Animals))) {
+      return;
+    }
     if (target == attacker || target instanceof Player || target instanceof Boss
         || target.getType() == EntityType.WARDEN) {
       return;
@@ -177,4 +201,6 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
       initialCost = 6;
     }
   }
+
+  public enum Targets { ALL, HOSTILES, ANIMALS }
 }

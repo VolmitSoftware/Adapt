@@ -1,5 +1,6 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.adapt.content.adaptation.sword.SwordPreferences;
 import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -85,6 +86,7 @@ public final class SwordMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    SwordPreferences.addMessages(builder);
     builder.add(MACHETE_NAME);
     builder.add(MACHETE_DESCRIPTION);
     builder.add(MACHETE_LORE1);

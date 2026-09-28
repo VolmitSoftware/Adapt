@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
 
@@ -46,6 +49,10 @@ import org.bukkit.inventory.ItemStack;
 import java.util.Map;
 
 public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config> {
+  public static final PlayerPreference<CraftingPreferences.Category> MATERIALS = CraftingPreferences.categories("materials", CraftingMessages.PREFERENCE_CRAFTINGCOMPACTOR_MATERIALS);
+  public static final PlayerPreference<CommonPreferences.Scale> BATCH = CommonPreferences.scale("batch-limit", CraftingMessages.PREFERENCE_CRAFTINGCOMPACTOR_BATCH);
+  public static final PlayerPreference<CraftingPreferences.Reserve> RESERVE = CraftingPreferences.reserve("loose-reserve", CraftingMessages.PREFERENCE_CRAFTINGCOMPACTOR_RESERVE);
+
   private static final int COMPACTOR_LEVELS = 1;
   private static final int FULL_STACK = 64;
   private static final CompactEntry[] ENTRIES = {
@@ -83,6 +90,12 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
         .build());
     registerMilestone("challenge_crafting_compactor_1k", "crafting.compactor.blocks-compacted", 1000, 400);
     registerMilestone("challenge_crafting_compactor_10k", "crafting.compactor.blocks-compacted", 10000, 1500);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, MATERIALS, BATCH, RESERVE);
   }
 
   @Override
@@ -129,11 +142,14 @@ public class CraftingCompactor extends SimpleAdaptation<CraftingCompactor.Config
   private void compact(Player p) {
     int totalBlocks = 0;
     for (CompactEntry entry : ENTRIES) {
-      int available = availablePlain(p, entry.unit());
+      if (!preference(p, MATERIALS).allows(entry.unit())) {
+        continue;
+      }
+      int available = Math.max(0, availablePlain(p, entry.unit()) - preference(p, RESERVE).amount());
       if (available < FULL_STACK) {
         continue;
       }
-      int blocks = blocksFor(available, entry.unitsPerBlock());
+      int blocks = (int) Math.floor(blocksFor(available, entry.unitsPerBlock()) * preference(p, BATCH).multiplier());
       if (blocks <= 0) {
         continue;
       }

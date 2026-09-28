@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.localization.catalog.DiscoveryMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -48,6 +52,8 @@ import org.bukkit.generator.structure.GeneratedStructure;
 import java.util.UUID;
 
 public class DiscoveryTrailblazer extends SimpleAdaptation<DiscoveryTrailblazer.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SPEED = CommonPreferences.toggle("speed-burst", DiscoveryMessages.PREFERENCE_DISCOVERYTRAILBLAZER_SPEED, CommonPreferences.Toggle.ON);
+
   private static final long SCAN_INTERVAL_MILLIS = 1200L;
 
   private final Cooldowns scanThrottle = cooldowns();
@@ -71,6 +77,19 @@ public class DiscoveryTrailblazer extends SimpleAdaptation<DiscoveryTrailblazer.
         .build());
     registerMilestone("challenge_discovery_trailblazer_25", "discovery.trailblazer.discoveries", 25, 400);
     registerMilestone("challenge_discovery_trailblazer_100", "discovery.trailblazer.discoveries", 100, 1200);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (!hasActiveAdaptation(player.getPlayer()) || !preferenceEnabled(player.getPlayer(), SPEED)) {
+      AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+    }
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SPEED);
   }
 
   @Override
@@ -149,7 +168,7 @@ public class DiscoveryTrailblazer extends SimpleAdaptation<DiscoveryTrailblazer.
     xp(player, xpAmount);
     flushDiscoveryXp(player);
     int speedTicks = speedDurationTicks(getLevelPercent(level), getConfig().speedDurationTicksBase, getConfig().speedDurationTicksFactor);
-    if (speedTicks > 0) {
+    if (speedTicks > 0 && preferenceEnabled(player, SPEED)) {
       AdaptAttributeService.get().applyTimed(player, getName(), "speed", Attributes.MOVEMENT_SPEED, speedBonus(getConfig().speedAmplifier), AttributeModifier.Operation.MULTIPLY_SCALAR_1, speedTicks);
     }
     getPlayer(player).getData().addStat("discovery.trailblazer.discoveries", 1);

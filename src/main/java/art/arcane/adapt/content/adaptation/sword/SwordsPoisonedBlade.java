@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -91,6 +94,11 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SwordPreferences.TARGETS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, "", 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getDurationOfEffect(level), 1), 2);
@@ -113,7 +121,10 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
         return;
       }
       Entity victim = e.getEntity();
-      if (!canDamageTarget(p, victim)) return;
+      if (!(victim instanceof LivingEntity eligible) || !preference(p, SwordPreferences.TARGETS).accepts(eligible)
+          || !canDamageTarget(p, victim)) {
+        return;
+      }
       cooldowns.mark(id);
       if (victim instanceof Player pvic) {
         startBleedVisual(new BleedEffect(Adapt.instance.adaptEffectManager), pvic, p);

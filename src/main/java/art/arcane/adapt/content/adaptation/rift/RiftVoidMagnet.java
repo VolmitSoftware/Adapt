@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.localization.catalog.RiftMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.event.player.PlayerMoveEvent;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -58,6 +64,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongSupplier;
 
 public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", RiftMessages.RIFTVOIDMAGNET_PREFERENCE_CONTROL, Control.SNEAK, List.of(
+          new PlayerPreference.Choice<>(Control.SNEAK, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_CONTROL_SNEAK, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Control.ARMED, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_CONTROL_ARMED, Material.HOPPER, 1))));
+  public static final PlayerPreference<Destination> DESTINATION = new PlayerPreference<>(Destination.class,
+      new PlayerPreference.Definition<>("destination", RiftMessages.RIFTVOIDMAGNET_PREFERENCE_DESTINATION, Destination.CHEST_FIRST, List.of(
+          new PlayerPreference.Choice<>(Destination.CHEST_FIRST, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_DESTINATION_CHEST_FIRST, Material.ENDER_CHEST, 1),
+          new PlayerPreference.Choice<>(Destination.INVENTORY_FIRST, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_DESTINATION_INVENTORY_FIRST, Material.CHEST, 1),
+          new PlayerPreference.Choice<>(Destination.CHEST_ONLY, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_DESTINATION_CHEST_ONLY, Material.ENDER_PEARL, 1),
+          new PlayerPreference.Choice<>(Destination.INVENTORY_ONLY, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_DESTINATION_INVENTORY_ONLY, Material.BUNDLE, 1))));
+  public static final PlayerPreference<Items> ITEMS = new PlayerPreference<>(Items.class,
+      new PlayerPreference.Definition<>("items", RiftMessages.RIFTVOIDMAGNET_PREFERENCE_ITEMS, Items.ALL, List.of(
+          new PlayerPreference.Choice<>(Items.ALL, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_ITEMS_ALL, Material.HOPPER, 1),
+          new PlayerPreference.Choice<>(Items.BLOCKS, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_ITEMS_BLOCKS, Material.STONE, 1),
+          new PlayerPreference.Choice<>(Items.FOOD, RiftMessages.RIFTVOIDMAGNET_PREFERENCE_ITEMS_FOOD, Material.BREAD, 1))));
+
   static final long WORK_WINDOW_MILLIS = 50L;
   static final int HARD_MAX_ACTIVE_SESSIONS = 1024;
   static final int HARD_MAX_SESSION_VISITS_PER_WINDOW = 256;
@@ -107,6 +129,28 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     registerMilestone("challenge_rift_void_magnet_50k", "rift.void-magnet.items-pulled", 50000, 1500);
   }
 
+  private static boolean acceptsItem(Items selection, Material type) {
+    return switch (selection) {
+      case ALL -> true;
+      case BLOCKS -> type.isBlock();
+      case FOOD -> type.isEdible();
+    };
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONTROL, DESTINATION, ITEMS);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    Player p = player.getPlayer();
+    coordinator.remove(p.getUniqueId());
+    if (collectionArmed(p) && hasActiveAdaptation(p)) {
+      startSession(p, getLevel(p));
+    }
+  }
+
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getRadius(level)), 1);
@@ -116,7 +160,7 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerToggleSneakEvent e) {
-    if (!e.isSneaking()) {
+    if (!e.isSneaking() && preference(e.getPlayer(), CONTROL) == Control.SNEAK) {
       coordinator.remove(e.getPlayer().getUniqueId());
       return;
     }
@@ -182,6 +226,21 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     super.unregister();
   }
 
+  private boolean collectionArmed(Player player) {
+    return player.isSneaking() || preference(player, CONTROL) == Control.ARMED;
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerMoveEvent event) {
+    Player player = event.getPlayer();
+    if (preference(player, CONTROL) == Control.ARMED) {
+      int level = getActiveLevel(player);
+      if (level > 0) {
+        startSession(player, level);
+      }
+    }
+  }
+
   private boolean startSession(Player player, int level) {
     UUID playerId = player.getUniqueId();
     long firstPulseAt = System.currentTimeMillis() + (getPulseTicks(level) * 50L);
@@ -194,11 +253,11 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     long nextPulseAt = System.currentTimeMillis();
     try {
       if (!coordinator.isCurrent(dispatch.ownerId(), dispatch.generation())
-          || !player.isOnline() || !player.isSneaking()) {
+          || !player.isOnline() || !collectionArmed(player)) {
         return;
       }
 
-      int level = getActiveLevel(player, Player::isSneaking);
+      int level = getActiveLevel(player, this::collectionArmed);
       if (level <= 0) {
         return;
       }
@@ -263,8 +322,8 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     }
     if (!workBudget.tryItemExecution()
         || !player.isOnline()
-        || !player.isSneaking()
-        || getActiveLevel(player, Player::isSneaking) <= 0
+        || !collectionArmed(player)
+        || getActiveLevel(player, this::collectionArmed) <= 0
         || item.isDead()
         || !item.isValid()
         || !canSnatchItem(player, item)) {
@@ -278,7 +337,8 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     }
 
     ItemStack original = item.getItemStack().clone();
-    if (original == null || original.getType().isAir() || original.getAmount() <= 0) {
+    if (original == null || original.getType().isAir() || original.getAmount() <= 0
+        || !acceptsItem(preference(player, ITEMS), original.getType())) {
       return;
     }
 
@@ -327,30 +387,47 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
     }
   }
 
+  private Destination pickupDestination(Player player) {
+    return getConfig().allowEnderChestOverflow ? preference(player, DESTINATION) : Destination.CHEST_ONLY;
+  }
+
+  private Inventory primaryInventory(Player player, Destination destination) {
+    return destination == Destination.INVENTORY_FIRST || destination == Destination.INVENTORY_ONLY
+        ? player.getInventory() : player.getEnderChest();
+  }
+
+  private Inventory secondaryInventory(Player player, Destination destination) {
+    return switch (destination) {
+      case CHEST_FIRST -> player.getInventory();
+      case INVENTORY_FIRST -> player.getEnderChest();
+      case CHEST_ONLY, INVENTORY_ONLY -> null;
+    };
+  }
+
   private int remainingAfterMagnetPickup(Player player, ItemStack stack) {
-    int remaining = ProtectionEventProbe.remainingAfterPickup(player.getEnderChest(), stack);
-    if (remaining <= 0 || !getConfig().allowEnderChestOverflow) {
+    Destination destination = pickupDestination(player);
+    int remaining = ProtectionEventProbe.remainingAfterPickup(primaryInventory(player, destination), stack);
+    Inventory secondary = secondaryInventory(player, destination);
+    if (remaining <= 0 || secondary == null) {
       return Math.max(0, remaining);
     }
-    ItemStack inventoryRemainder = stack.clone();
-    inventoryRemainder.setAmount(remaining);
-    return ProtectionEventProbe.remainingAfterPickup(player.getInventory(), inventoryRemainder);
+    ItemStack remainder = stack.clone();
+    remainder.setAmount(remaining);
+    return ProtectionEventProbe.remainingAfterPickup(secondary, remainder);
   }
 
   private int depositIntoInventories(Player player, ItemStack stack, int requested) {
-    ItemStack toChest = stack.clone();
-    toChest.setAmount(requested);
-    Map<Integer, ItemStack> chestOverflow = player.getEnderChest().addItem(toChest);
-    int chestRemaining = sumItemAmounts(chestOverflow);
-    int moved = Math.max(0, requested - chestRemaining);
-    if (chestRemaining <= 0 || !getConfig().allowEnderChestOverflow) {
-      return moved;
+    Destination destination = pickupDestination(player);
+    ItemStack transfer = stack.clone();
+    transfer.setAmount(requested);
+    int remaining = sumItemAmounts(primaryInventory(player, destination).addItem(transfer));
+    Inventory secondary = secondaryInventory(player, destination);
+    if (remaining > 0 && secondary != null) {
+      transfer = stack.clone();
+      transfer.setAmount(remaining);
+      remaining = sumItemAmounts(secondary.addItem(transfer));
     }
-
-    ItemStack toInventory = stack.clone();
-    toInventory.setAmount(chestRemaining);
-    Map<Integer, ItemStack> inventoryOverflow = player.getInventory().addItem(toInventory);
-    return moved + Math.max(0, chestRemaining - sumItemAmounts(inventoryOverflow));
+    return Math.max(0, requested - remaining);
   }
 
   private int sumItemAmounts(Map<Integer, ItemStack> overflow) {
@@ -687,4 +764,10 @@ public class RiftVoidMagnet extends SimpleAdaptation<RiftVoidMagnet.Config> {
 
   record MagnetDispatch<T>(UUID ownerId, long generation, T owner) {
   }
+
+  public enum Control { SNEAK, ARMED }
+
+  public enum Destination { CHEST_FIRST, INVENTORY_FIRST, CHEST_ONLY, INVENTORY_ONLY }
+
+  public enum Items { ALL, BLOCKS, FOOD }
 }

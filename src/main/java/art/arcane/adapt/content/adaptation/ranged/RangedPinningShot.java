@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -61,11 +64,13 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
   private final Map<UUID, Long> targetProcTimes = playerState();
   private final NamespacedKey shotLevelKey;
   private final NamespacedKey shotOwnerKey;
+  private final NamespacedKey shotDampenKey;
 
   public RangedPinningShot() {
     super("ranged-pinning-shot");
     shotLevelKey = new NamespacedKey(Adapt.instance, "ranged_pinning_shot_level");
     shotOwnerKey = new NamespacedKey(Adapt.instance, "ranged_pinning_shot_owner");
+    shotDampenKey = new NamespacedKey(Adapt.instance, "ranged_pinning_shot_preference");
     registerConfiguration(Config.class);
     setIcon(Material.TRIPWIRE_HOOK);
     setInterval(2200);
@@ -76,6 +81,11 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_ranged_pinning_300", "ranged.pinning-shot.targets-pinned", 300, 400);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RangedPreferences.SNEAK, RangedPreferences.DAMPEN);
   }
 
   @Override
@@ -94,13 +104,14 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
     }
 
     int level = getActiveLevel(player);
-    if (level <= 0) {
+    if (level <= 0 || (preferenceEnabled(player, RangedPreferences.SNEAK) && !player.isSneaking())) {
       return;
     }
 
     PersistentDataContainer data = projectile.getPersistentDataContainer();
     data.set(shotLevelKey, PersistentDataType.INTEGER, level);
     data.set(shotOwnerKey, PersistentDataType.STRING, player.getUniqueId().toString());
+    data.set(shotDampenKey, PersistentDataType.STRING, Boolean.toString(preferenceEnabled(player, RangedPreferences.DAMPEN)));
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -136,7 +147,8 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
       AdaptAttributeService.get().applyTimed(target, getName(), "pin", Attributes.MOVEMENT_SPEED, pinSpeedScalar(getAmplifier(level)), AttributeModifier.Operation.MULTIPLY_SCALAR_1, durationTicks);
     }
 
-    if (getConfig().dampenVelocityOnProc) {
+    if (getConfig().dampenVelocityOnProc
+        && !"false".equals(projectile.getPersistentDataContainer().get(shotDampenKey, PersistentDataType.STRING))) {
       Vector velocity = target.getVelocity();
       target.setVelocity(new Vector(velocity.getX() * getConfig().horizontalVelocityFactor, velocity.getY(), velocity.getZ() * getConfig().horizontalVelocityFactor));
       fx(target, FxPriority.COMBAT).dustBurst(Color.fromRGB(140, 120, 100), 6, 0.2D, 1.0F);

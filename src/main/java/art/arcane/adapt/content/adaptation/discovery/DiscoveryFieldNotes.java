@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.localization.catalog.DiscoveryMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -44,6 +48,8 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 
 public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> DAMAGE = CommonPreferences.toggle("species-damage", DiscoveryMessages.PREFERENCE_DISCOVERYFIELDNOTES_DAMAGE, CommonPreferences.Toggle.ON);
+
   public DiscoveryFieldNotes() {
     super("discovery-field-notes");
     registerConfiguration(Config.class);
@@ -63,6 +69,12 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
         .build());
     registerMilestone("challenge_discovery_fieldnotes_25", "discovery.field-notes.species", 25, 500);
     registerMilestone("challenge_discovery_fieldnotes_100", "discovery.field-notes.species", 100, 2000);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, DAMAGE);
   }
 
   @Override
@@ -95,7 +107,7 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
       return;
     }
 
-    int level = getActiveLevel(attacker);
+    int level = preferenceEnabled(attacker, DAMAGE) ? getActiveLevel(attacker) : 0;
     if (level <= 0) {
       return;
     }

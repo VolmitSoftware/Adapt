@@ -1,5 +1,6 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.adapt.content.adaptation.tragoul.TragoulPreferences;
 import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -98,6 +99,7 @@ public final class TragoulMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    TragoulPreferences.addMessages(builder);
     builder.add(THORNS_NAME);
     builder.add(THORNS_DESCRIPTION);
     builder.add(THORNS_LORE1);

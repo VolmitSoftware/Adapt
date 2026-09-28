@@ -22,15 +22,24 @@ import art.arcane.volmlib.util.math.M;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @NoArgsConstructor
 @Data
 public class XPMultiplier {
+  private String source;
   private double multiplier = 0D;
   private long goodFor = M.ms() + 10000;
 
   public XPMultiplier(double percentChange, long duration) {
     this.multiplier = percentChange;
     this.goodFor = expirationTime(M.ms(), duration);
+  }
+
+  public static XPMultiplier owned(String source, double percentChange, long duration) {
+    XPMultiplier multiplier = new XPMultiplier(percentChange, duration);
+    multiplier.source = Objects.requireNonNull(source);
+    return multiplier;
   }
 
   public boolean isExpired() {

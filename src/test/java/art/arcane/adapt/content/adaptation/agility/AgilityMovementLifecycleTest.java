@@ -21,6 +21,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -102,7 +104,7 @@ class AgilityMovementLifecycleTest {
 
   @Test
   void slipstreamMaintenanceFailureRestoresPoseBeforeRethrowing() throws Exception {
-    AgilitySlipstreamSlide adaptation = new AgilitySlipstreamSlide();
+    AgilitySlipstreamSlide adaptation = spy(new AgilitySlipstreamSlide());
     Player player = mock(Player.class);
     UUID id = UUID.randomUUID();
     AtomicReference<Runnable> maintenance = new AtomicReference<>();
@@ -110,6 +112,8 @@ class AgilityMovementLifecycleTest {
     when(player.isOnline()).thenReturn(true);
     when(player.isDead()).thenReturn(false);
     when(player.getGameMode()).thenReturn(GameMode.SURVIVAL);
+    doReturn(true).when(adaptation).hasActiveAdaptation(player);
+    doReturn(AgilitySlipstreamSlide.Control.TAP).when(adaptation).preference(player, AgilitySlipstreamSlide.CONTROL);
     when(player.getPose()).thenReturn(Pose.STANDING, Pose.SWIMMING);
     when(player.hasFixedPose()).thenReturn(false, true);
     when(player.isSwimming()).thenReturn(false);

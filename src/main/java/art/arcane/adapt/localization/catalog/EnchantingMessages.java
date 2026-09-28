@@ -5,6 +5,28 @@ import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
 
 public final class EnchantingMessages {
+  public static final TextKey PREFERENCE_ENCHANTINGSOULLINK_XP_RESERVE = TextKey.of("enchanting.preferences.enchantingsoullink.xp-reserve", "XP level reserve");
+  public static final TextKey PREFERENCE_ENCHANTINGSOULLINK_CONFIRM = TextKey.of("enchanting.preferences.enchantingsoullink.confirmation", "Confirm item linking");
+  public static final TextKey PREFERENCE_ENCHANTINGOFFERREROLL_LAPIS_RESERVE = TextKey.of("enchanting.preferences.enchantingofferreroll.lapis-reserve", "Lapis reserve");
+  public static final TextKey PREFERENCE_ENCHANTINGOFFERREROLL_XP_RESERVE = TextKey.of("enchanting.preferences.enchantingofferreroll.xp-reserve", "XP level reserve");
+  public static final TextKey PREFERENCE_ENCHANTINGOFFERREROLL_CONFIRM = TextKey.of("enchanting.preferences.enchantingofferreroll.confirmation", "Confirm paid reroll");
+  public static final TextKey RESERVE_TEN = TextKey.of("enchanting.preferences.reserve_ten", "10");
+  public static final TextKey RESERVE_FIVE = TextKey.of("enchanting.preferences.reserve_five", "5");
+  public static final TextKey RESERVE_NONE = TextKey.of("enchanting.preferences.reserve_none", "None");
+  public static final TextKey PREFERENCE_ENCHANTINGTOMEREBINDING_SNEAK = TextKey.of("enchanting.preferences.enchantingtomerebinding.sneak", "Require sneak-drop");
+  public static final TextKey PREFERENCE_ENCHANTINGTOMEREBINDING_CONFIRM = TextKey.of("enchanting.preferences.enchantingtomerebinding.confirmation", "Confirm lossy split");
+  public static final TextKey PREFERENCE_ENCHANTINGQUICKENCHANT_MODIFIED = TextKey.of("enchanting.preferences.enchantingquickenchant.modified-click", "Require right click");
+  public static final TextKey PREFERENCE_ENCHANTINGQUICKENCHANT_CONFIRM = TextKey.of("enchanting.preferences.enchantingquickenchant.confirmation", "Confirm book application");
+  public static final TextKey PREFERENCE_ENCHANTINGINFUSIONTRANSFER_CONFIRM = TextKey.of("enchanting.preferences.enchantinginfusiontransfer.confirmation", "Confirm sacrifice risk");
+  public static final TextKey PREFERENCE_ENCHANTINGCURSECLEANSING_CONFIRM = TextKey.of("enchanting.preferences.enchantingcursecleansing.confirmation", "Confirm curse removal");
+  public static final TextKey PREFERENCE_ENCHANTINGRUNESIGHT_FULL = TextKey.of("enchanting.preferences.enchantingrunesight.full-details", "Full offer details");
+  public static final TextKey PREFERENCE_ENCHANTINGGRINDSTONERECOVERY_BONUS_XP = TextKey.of("enchanting.preferences.enchantinggrindstonerecovery.bonus-xp", "Bonus vanilla XP");
+  public static final TextKey PREFERENCE_ENCHANTINGGRINDSTONERECOVERY_BOOKS = TextKey.of("enchanting.preferences.enchantinggrindstonerecovery.books", "Recovered books");
+  public static final TextKey PREFERENCE_ENCHANTINGECHOOFKNOWLEDGE_SNEAK = TextKey.of("enchanting.preferences.enchantingechoofknowledge.sneak", "Require sneak to charge");
+  public static final TextKey PREFERENCE_ENCHANTINGBOOKSHELFATTUNEMENT_POWER = TextKey.of("enchanting.preferences.enchantingbookshelfattunement.power", "Virtual bookshelf contribution");
+  public static final TextKey PREFERENCE_ENCHANTINGARCANESIPHON_PLAYER_VICTIMS = TextKey.of("enchanting.preferences.enchantingarcanesiphon.player-victims", "Player victims");
+  public static final TextKey PREFERENCE_ENCHANTINGARCANESIPHON_BONUS_XP = TextKey.of("enchanting.preferences.enchantingarcanesiphon.bonus-xp", "Bonus skill XP");
+  public static final TextKey PREFERENCE_ENCHANTINGARCANESIPHON_BOOKS = TextKey.of("enchanting.preferences.enchantingarcanesiphon.books", "Siphoned books");
   public static final TextKey LAPIS_RETURN_NAME = TextKey.of("enchanting.lapis_return.name", "Lapis Return");
   public static final TextKey LAPIS_RETURN_DESCRIPTION = TextKey.of("enchanting.lapis_return.description", "Enchanting at a table has a chance to refund lapis, more at higher levels.");
   public static final TextKey LAPIS_RETURN_LORE1 = TextKey.of("enchanting.lapis_return.lore1", "Chance to drop free lapis when you enchant; the amount scales with your level");
@@ -91,6 +113,28 @@ public final class EnchantingMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(PREFERENCE_ENCHANTINGSOULLINK_XP_RESERVE);
+    builder.add(PREFERENCE_ENCHANTINGSOULLINK_CONFIRM);
+    builder.add(PREFERENCE_ENCHANTINGOFFERREROLL_LAPIS_RESERVE);
+    builder.add(PREFERENCE_ENCHANTINGOFFERREROLL_XP_RESERVE);
+    builder.add(PREFERENCE_ENCHANTINGOFFERREROLL_CONFIRM);
+    builder.add(RESERVE_TEN);
+    builder.add(RESERVE_FIVE);
+    builder.add(RESERVE_NONE);
+    builder.add(PREFERENCE_ENCHANTINGTOMEREBINDING_SNEAK);
+    builder.add(PREFERENCE_ENCHANTINGTOMEREBINDING_CONFIRM);
+    builder.add(PREFERENCE_ENCHANTINGQUICKENCHANT_MODIFIED);
+    builder.add(PREFERENCE_ENCHANTINGQUICKENCHANT_CONFIRM);
+    builder.add(PREFERENCE_ENCHANTINGINFUSIONTRANSFER_CONFIRM);
+    builder.add(PREFERENCE_ENCHANTINGCURSECLEANSING_CONFIRM);
+    builder.add(PREFERENCE_ENCHANTINGRUNESIGHT_FULL);
+    builder.add(PREFERENCE_ENCHANTINGGRINDSTONERECOVERY_BONUS_XP);
+    builder.add(PREFERENCE_ENCHANTINGGRINDSTONERECOVERY_BOOKS);
+    builder.add(PREFERENCE_ENCHANTINGECHOOFKNOWLEDGE_SNEAK);
+    builder.add(PREFERENCE_ENCHANTINGBOOKSHELFATTUNEMENT_POWER);
+    builder.add(PREFERENCE_ENCHANTINGARCANESIPHON_PLAYER_VICTIMS);
+    builder.add(PREFERENCE_ENCHANTINGARCANESIPHON_BONUS_XP);
+    builder.add(PREFERENCE_ENCHANTINGARCANESIPHON_BOOKS);
     builder.add(LAPIS_RETURN_NAME);
     builder.add(LAPIS_RETURN_DESCRIPTION);
     builder.add(LAPIS_RETURN_LORE1);

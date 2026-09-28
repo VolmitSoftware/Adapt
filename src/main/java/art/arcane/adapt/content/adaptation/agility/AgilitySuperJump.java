@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
 
@@ -56,6 +60,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> {
+  private final AdaptationOwnerPulse.Registration ownerMaintenance;
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", AgilityMessages.AGILITYSUPERJUMP_PREFERENCE_CONTROL, Control.SNEAK, List.of(
+          new PlayerPreference.Choice<>(Control.SNEAK, AgilityMessages.AGILITYSUPERJUMP_PREFERENCE_CONTROL_SNEAK, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Control.EVERY_JUMP, AgilityMessages.AGILITYSUPERJUMP_PREFERENCE_CONTROL_EVERY_JUMP, Material.FEATHER, 1))));
+  public static final PlayerPreference<CommonPreferences.Scale> HEIGHT = CommonPreferences.scale("height", AgilityMessages.AGILITYSUPERJUMP_PREFERENCE_HEIGHT);
+
   private static final String SLOT_JUMP = "jump";
   private static final int SUPER_JUMP_LEVELS = 4;
 
@@ -65,7 +76,8 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     super("agility-super-jump");
     registerConfiguration(Config.class);
     setIcon(Material.LEATHER_BOOTS);
-    setInterval(9999);
+    setInterval(500);
+    ownerMaintenance = AdaptationOwnerPulse.register(this, this::getInterval, this::reconcileJump);
     setMaxLevel(SUPER_JUMP_LEVELS);
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LEATHER_BOOTS)
@@ -111,25 +123,58 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
   }
 
   @Override
+  public void unregister() {
+    ownerMaintenance.unregister();
+    super.unregister();
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONTROL, HEIGHT);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    Player p = player.getPlayer();
+    AdaptAttributeService.get().remove(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH);
+    if (hasActiveAdaptation(p) && (p.isSneaking() || preference(p, CONTROL) == Control.EVERY_JUMP)) {
+      applyBoost(p);
+    }
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getJumpHeight(level), 2), 1);
     v.addLore(C.LIGHT_PURPLE + " " + AdaptLanguage.text(AgilityMessages.SUPER_JUMP_LORE2));
   }
 
+  private void reconcileJump(Player p) {
+    if (isPlayerEnabled(p) && getActiveLevel(p) > 0 && (p.isSneaking() || preference(p, CONTROL) == Control.EVERY_JUMP)) {
+      applyBoost(p);
+    } else {
+      AdaptAttributeService.get().remove(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH);
+    }
+  }
+
+  static double personalJumpHeight(double earnedHeight, double fraction) {
+    double baseline = AgilityJumpPhysics.heightForStrength(AgilityJumpPhysics.VANILLA_JUMP_STRENGTH);
+    return baseline + Math.max(0D, earnedHeight - baseline) * Math.max(0D, Math.min(1D, fraction));
+  }
+
   private void applyBoost(Player p) {
-    AdaptAttributeService.get().apply(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH, jumpStrengthBonus(getJumpHeight(getLevel(p))), AttributeModifier.Operation.ADD_NUMBER);
+    AdaptAttributeService.get().apply(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH, jumpStrengthBonus(personalJumpHeight(getJumpHeight(getLevel(p)), preference(p, HEIGHT).multiplier())), AttributeModifier.Operation.ADD_NUMBER);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    if (!e.isSneaking()) {
+    if (!e.isSneaking() && preference(p, CONTROL) == Control.SNEAK) {
       AdaptAttributeService.get().remove(p, getName(), SLOT_JUMP, Attributes.JUMP_STRENGTH);
       return;
     }
 
     withAdaptedPlayer(p, e, () -> {
-      if (canUse(getPlayer(p))) {
+      if (hasActiveAdaptation(p) && canUse(getPlayer(p))) {
         applyBoost(p);
       }
 
@@ -170,7 +215,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void on(PlayerJumpEvent e) {
       Player p = e.getPlayer();
-      if (!hasAdaptation(p) || !p.isSneaking()) {
+      if (!hasActiveAdaptation(p) || (preference(p, CONTROL) == Control.SNEAK && !p.isSneaking())) {
         return;
       }
 
@@ -221,4 +266,6 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
       initialCost = 5;
     }
   }
+
+  public enum Control { SNEAK, EVERY_JUMP }
 }

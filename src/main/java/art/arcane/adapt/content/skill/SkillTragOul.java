@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerSkillLine;
@@ -245,7 +246,7 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
   }
 
   @NoArgsConstructor
-  protected static class Config {
+  protected static class Config extends SkillConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Amount of tragoul XP removed on death, clamped so XP never drops below zero.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double deathXpLoss = 250;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Take Away Skills On Death for the Trag Oul skill.", impact = "True enables this behavior and false disables it.")

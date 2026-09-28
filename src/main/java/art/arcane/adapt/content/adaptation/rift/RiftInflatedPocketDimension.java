@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 
@@ -51,6 +54,15 @@ import org.bukkit.util.Vector;
 import java.util.Map;
 
 public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPocketDimension.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> PULL = CommonPreferences.toggle("pull", RiftMessages.RIFTINFLATEDPOCKETDIMENSION_PREFERENCE_PULL, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> REFILL = CommonPreferences.toggle("refill", RiftMessages.RIFTINFLATEDPOCKETDIMENSION_PREFERENCE_REFILL, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> STORE = CommonPreferences.toggle("store", RiftMessages.RIFTINFLATEDPOCKETDIMENSION_PREFERENCE_STORE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<Items> ITEMS = new PlayerPreference<>(Items.class,
+      new PlayerPreference.Definition<>("items", RiftMessages.RIFTINFLATEDPOCKETDIMENSION_PREFERENCE_ITEMS, Items.ALL, List.of(
+          new PlayerPreference.Choice<>(Items.ALL, RiftMessages.RIFTINFLATEDPOCKETDIMENSION_PREFERENCE_ITEMS_ALL, Material.HOPPER, 1),
+          new PlayerPreference.Choice<>(Items.BLOCKS, RiftMessages.RIFTINFLATEDPOCKETDIMENSION_PREFERENCE_ITEMS_BLOCKS, Material.STONE, 1),
+          new PlayerPreference.Choice<>(Items.FOOD, RiftMessages.RIFTINFLATEDPOCKETDIMENSION_PREFERENCE_ITEMS_FOOD, Material.BREAD, 1))));
+
   public RiftInflatedPocketDimension() {
     super("rift-inflated-pocket-dimension");
     registerConfiguration(Config.class);
@@ -72,6 +84,19 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     registerMilestone("challenge_rift_pocket_store_10k", "rift.inflated-pocket.items-stored", 10000, 1000);
   }
 
+  private boolean acceptsItem(Player player, Material type) {
+    return switch (preference(player, ITEMS)) {
+      case ALL -> true;
+      case BLOCKS -> type.isBlock();
+      case FOOD -> type.isEdible();
+    };
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, PULL, REFILL, STORE, ITEMS);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + AdaptLanguage.text(RiftMessages.INFLATED_POCKET_DIMENSION_LORE1));
@@ -91,7 +116,7 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
     }
 
     Player p = e.getPlayer();
-    if (!hasActiveAdaptation(p)) {
+    if (!hasActiveAdaptation(p) || !preferenceEnabled(p, PULL)) {
       return;
     }
 
@@ -126,6 +151,9 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockPlaceEvent e) {
+    if (!preferenceEnabled(e.getPlayer(), REFILL)) {
+      return;
+    }
     Player p = e.getPlayer();
     if (!hasActiveAdaptation(p)) {
       return;
@@ -150,6 +178,9 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
         return;
       }
 
+      if (!preferenceEnabled(p, REFILL)) {
+        return;
+      }
       int moved = moveFromEnderToPlayer(p, placed, needed, true);
       if (moved <= 0) {
         return;
@@ -169,11 +200,14 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerDropItemEvent e) {
     Player p = e.getPlayer();
-    if (getActiveLevel(p, Player::isSneaking) <= 0) {
+    if (!preferenceEnabled(p, STORE) || getActiveLevel(p, Player::isSneaking) <= 0) {
       return;
     }
 
     ItemStack dropped = e.getItemDrop().getItemStack().clone();
+    if (!acceptsItem(p, dropped.getType())) {
+      return;
+    }
     if (!canFullyFitInInventory(p.getEnderChest().getContents(), dropped, p.getEnderChest().getMaxStackSize())) {
       e.setCancelled(true);
       fx(p, FxPriority.TRANSITION)
@@ -193,6 +227,9 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
   }
 
   private int moveFromEnderToPlayer(Player p, Material type, int amount, boolean preferMainHand) {
+    if (!hasActiveAdaptation(p) || !acceptsItem(p, type)) {
+      return 0;
+    }
     if (amount <= 0) {
       return 0;
     }
@@ -320,4 +357,6 @@ public class RiftInflatedPocketDimension extends SimpleAdaptation<RiftInflatedPo
       initialCost = 7;
     }
   }
+
+  public enum Items { ALL, BLOCKS, FOOD }
 }

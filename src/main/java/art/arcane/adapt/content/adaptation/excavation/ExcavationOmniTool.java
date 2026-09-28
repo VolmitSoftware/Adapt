@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
 
@@ -60,6 +62,10 @@ import java.util.List;
 import java.util.Map;
 
 public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> COMBAT = CommonPreferences.toggle("combat-selection", ExcavationMessages.PREFERENCE_EXCAVATIONOMNITOOL_COMBAT, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> MINING = CommonPreferences.toggle("mining-selection", ExcavationMessages.PREFERENCE_EXCAVATIONOMNITOOL_MINING, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SOUNDS = CommonPreferences.toggle("swap-sounds", ExcavationMessages.PREFERENCE_EXCAVATIONOMNITOOL_SOUNDS, CommonPreferences.Toggle.ON);
+
   private static final OmniTool omniTool = new OmniTool();
 
   public ExcavationOmniTool() {
@@ -82,6 +88,12 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
         .build());
     registerMilestone("challenge_excavation_omni_1k", "excavation.omni-tool.auto-swaps", 1000, 400);
     registerMilestone("challenge_excavation_omni_25k", "excavation.omni-tool.auto-swaps", 25000, 1500);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, COMBAT, MINING, SOUNDS);
   }
 
   @Override
@@ -116,7 +128,7 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
       if (!validateTool(hand)) {
         return;
       }
-      if (!isSword(hand)) {
+      if (preferenceEnabled(p, COMBAT) && !isSword(hand)) {
         J.runEntity(p, () -> p.getInventory().setItemInMainHand(omniTool.nextSword(hand)));
         swapFx(p);
       }
@@ -242,6 +254,9 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
   @EventHandler(priority = EventPriority.HIGH)
   public void on(BlockDamageEvent e) {
     Player p = e.getPlayer();
+    if (!preferenceEnabled(p, MINING)) {
+      return;
+    }
     Block b = e.getBlock();
     ItemStack hand = p.getInventory().getItemInMainHand();
 
@@ -323,8 +338,10 @@ public class ExcavationOmniTool extends SimpleAdaptation<ExcavationOmniTool.Conf
   private void swapFx(Player p) {
     fx(p, FxPriority.TRANSITION)
         .particle(Particles.ENCHANTMENT_TABLE, 6, 0, 1.0D, 0, 0.3D, 0.05D)
-        .particle(Particles.CRIT_MAGIC, 3, 0, 1.0D, 0, 0.3D, 0.1D)
-        .sound(Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+        .particle(Particles.CRIT_MAGIC, 3, 0, 1.0D, 0, 0.3D, 0.1D);
+    if (preferenceEnabled(p, SOUNDS)) {
+      fx(p, FxPriority.TRANSITION).sound(Sound.ITEM_ARMOR_EQUIP_ELYTRA, 1f, 0.77f);
+    }
   }
 
   private void nearBreakFx(Player p) {

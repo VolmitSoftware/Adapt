@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
@@ -58,6 +61,9 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CLOCK_SOUNDS = CommonPreferences.toggle("clock-sounds", ChronosMessages.PREFERENCE_CHRONOSREWIND_CLOCK_SOUNDS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> CLOCK = CommonPreferences.toggle("require-clock", ChronosMessages.PREFERENCE_CHRONOSREWIND_CLOCK, CommonPreferences.Toggle.OFF);
+
   private final Map<UUID, RewindSnapshot> snapshots = playerState();
   private final Map<UUID, Long> cooldowns = playerState();
   private final Map<UUID, Boolean> cooldownReadyNotify = playerState();
@@ -82,6 +88,12 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
         .build());
     registerMilestone("challenge_chronos_rewind_50", "chronos.rewind.rewinds", 50, 350);
     registerMilestone("challenge_chronos_rewind_500", "chronos.rewind.rewinds", 500, 1400);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CLOCK_SOUNDS, CLOCK);
   }
 
   @Override
@@ -111,7 +123,9 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerSwapHandItemsEvent e) {
     Player p = e.getPlayer();
-    if (!p.isSneaking()) {
+    if (!p.isSneaking() || preferenceEnabled(p, CLOCK)
+        && p.getInventory().getItemInMainHand().getType() != Material.CLOCK
+        && p.getInventory().getItemInOffHand().getType() != Material.CLOCK) {
       return;
     }
 
@@ -139,7 +153,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
     snapshots.put(id, new RewindSnapshot(p.getLocation().clone(), p.getHealth(), p.getFoodLevel(),
         now + Math.max(1000L, getConfig().snapshotWindowMillis)));
 
-    if (getConfig().playClockSounds) {
+    if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
       ChronosSoundFX.playRewindStart(p);
     }
 
@@ -150,7 +164,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
   }
 
   private void reject(Player p) {
-    if (getConfig().playClockSounds) {
+    if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
       ChronosSoundFX.playClockReject(p);
     }
     fx(p.getLocation().add(0, 1.2, 0), FxPriority.TRANSITION).burst(Particles.SMOKE, 3, 0.15D);
@@ -301,7 +315,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
         .particle(Particle.PORTAL, 28, 0, 0, 0, 0.45D, 0.6D)
         .sound(Sound.ENTITY_ENDERMAN_TELEPORT, 0.7F, 0.85F);
 
-    if (getConfig().playClockSounds) {
+    if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
       ChronosSoundFX.playRewindFinish(p);
     }
 
@@ -339,7 +353,7 @@ public class ChronosRewind extends SimpleAdaptation<ChronosRewind.Config> {
 
       if (cooldowns.getOrDefault(id, 0L) <= now && cooldownReadyNotify.remove(id) != null) {
         J.runEntity(p, () -> {
-          if (p.isOnline() && getConfig().playClockSounds) {
+          if (p.isOnline() && (getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
             ChronosSoundFX.playCooldownReady(p);
           }
         });

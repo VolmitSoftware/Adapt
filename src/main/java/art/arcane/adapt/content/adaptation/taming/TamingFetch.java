@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -117,6 +119,16 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    abortOwnerFetches(player.getPlayer().getUniqueId());
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TamingPreferences.ITEMS, TamingPreferences.COLLAR);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getFetchRange(level), 1), 1);
     statLore(v, Form.pc(getCarryRate(level), 0), 2);
@@ -184,7 +196,8 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
       if (dispatched >= maxThisTick) {
         break;
       }
-      if (reservedItems.contains(item.getUniqueId()) || !isFetchable(item, ownerId)) {
+      if (reservedItems.contains(item.getUniqueId()) || !isFetchable(item, ownerId)
+          || !preference(owner, TamingPreferences.ITEMS).accepts(item.getItemStack().getType())) {
         continue;
       }
       if (Math.random() > carryRate) {
@@ -216,7 +229,8 @@ public class TamingFetch extends SimpleAdaptation<TamingFetch.Config> {
         continue;
       }
 
-      if (isFetchWolfEligible(wolf, ownerId) && !activeFetches.containsKey(wolf.getUniqueId())) {
+      if (preference(owner, TamingPreferences.COLLAR).accepts(wolf.getCollarColor())
+          && isFetchWolfEligible(wolf, ownerId) && !activeFetches.containsKey(wolf.getUniqueId())) {
         available.add(wolf);
       }
       if (available.size() >= limit) {

@@ -5,6 +5,70 @@ import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
 
 public final class StealthMessages {
+  public static final TextKey STEALTHSHADOWDECOY_PREFERENCE_GESTURE = TextKey.of("stealthshadowdecoy.preferences.preference_gesture", "Decoy gesture");
+  public static final TextKey STEALTHSHADOWDECOY_PREFERENCE_GESTURE_RELEASE = TextKey.of("stealthshadowdecoy.preferences.preference_gesture_release", "Release sneak");
+  public static final TextKey STEALTHSHADOWDECOY_PREFERENCE_GESTURE_DOUBLE = TextKey.of("stealthshadowdecoy.preferences.preference_gesture_double", "Double sneak");
+  public static final TextKey STEALTHSHADOWDECOY_PREFERENCE_GESTURE_ARMED_RELEASE = TextKey.of("stealthshadowdecoy.preferences.preference_gesture_armed_release", "Empty-hand right-click then release sneak");
+
+  public static final TextKey STEALTHDECOYSWAP_PREFERENCE_GESTURE = TextKey.of("stealthdecoyswap.preferences.preference_gesture", "Swap gesture");
+  public static final TextKey STEALTHDECOYSWAP_PREFERENCE_GESTURE_DOUBLE = TextKey.of("stealthdecoyswap.preferences.preference_gesture_double", "Double sneak");
+  public static final TextKey STEALTHDECOYSWAP_PREFERENCE_GESTURE_HAND_SWAP = TextKey.of("stealthdecoyswap.preferences.preference_gesture_hand_swap", "Sneak and swap hands");
+
+  public static final TextKey STEALTHTRAPSENSE_PREFERENCE_OUTLINES = TextKey.of("stealthtrapsense.preferences.preference_outlines", "Private trap outlines");
+  public static final TextKey STEALTHTRAPSENSE_PREFERENCE_CHESTS = TextKey.of("stealthtrapsense.preferences.preference_chests", "Trapped chests");
+  public static final TextKey STEALTHTRAPSENSE_PREFERENCE_TRIPWIRES = TextKey.of("stealthtrapsense.preferences.preference_tripwires", "Tripwires");
+  public static final TextKey STEALTHTRAPSENSE_PREFERENCE_PLATES = TextKey.of("stealthtrapsense.preferences.preference_plates", "Pressure plates");
+  public static final TextKey STEALTHTRAPSENSE_PREFERENCE_SCULK = TextKey.of("stealthtrapsense.preferences.preference_sculk", "Sculk traps");
+
+  public static final TextKey STEALTHCORE_PREFERENCE_GLOWS = TextKey.of("stealthcore.preferences.preference_glows", "Private threat outlines");
+  public static final TextKey STEALTHCORE_PREFERENCE_STATUS = TextKey.of("stealthcore.preferences.preference_status", "Private detection status");
+  public static final TextKey STEALTHCORE_PREFERENCE_DETECTED = TextKey.of("stealthcore.preferences.preference_detected", "Detected");
+  public static final TextKey STEALTHCORE_PREFERENCE_HIDDEN = TextKey.of("stealthcore.preferences.preference_hidden", "Undetected");
+
+  public static final TextKey STEALTHSNATCH_PREFERENCE_CONTROL = TextKey.of("stealthsnatch.preferences.preference_control", "Collection control");
+  public static final TextKey STEALTHSNATCH_PREFERENCE_CONTROL_SNEAK = TextKey.of("stealthsnatch.preferences.preference_control_sneak", "While sneaking");
+  public static final TextKey STEALTHSNATCH_PREFERENCE_CONTROL_AUTOMATIC = TextKey.of("stealthsnatch.preferences.preference_control_automatic", "Automatic collection");
+  public static final TextKey STEALTHSNATCH_PREFERENCE_ITEMS = TextKey.of("stealthsnatch.preferences.preference_items", "Collected items");
+  public static final TextKey STEALTHSNATCH_PREFERENCE_ITEMS_ALL = TextKey.of("stealthsnatch.preferences.preference_items_all", "All eligible items");
+  public static final TextKey STEALTHSNATCH_PREFERENCE_ITEMS_BLOCKS = TextKey.of("stealthsnatch.preferences.preference_items_blocks", "Blocks only");
+  public static final TextKey STEALTHSNATCH_PREFERENCE_ITEMS_FOOD = TextKey.of("stealthsnatch.preferences.preference_items_food", "Food only");
+
+  public static final TextKey STEALTHSMOKEPELLET_PREFERENCE_HAND = TextKey.of("stealthsmokepellet.preferences.preference_hand", "Gunpowder hand");
+  public static final TextKey STEALTHSMOKEPELLET_PREFERENCE_HAND_EITHER = TextKey.of("stealthsmokepellet.preferences.preference_hand_either", "Either hand");
+  public static final TextKey STEALTHSMOKEPELLET_PREFERENCE_HAND_MAIN = TextKey.of("stealthsmokepellet.preferences.preference_hand_main", "Main hand");
+  public static final TextKey STEALTHSMOKEPELLET_PREFERENCE_HAND_OFF = TextKey.of("stealthsmokepellet.preferences.preference_hand_off", "Off hand");
+  public static final TextKey STEALTHSMOKEPELLET_PREFERENCE_GESTURE = TextKey.of("stealthsmokepellet.preferences.preference_gesture", "Smoke gesture");
+  public static final TextKey STEALTHSMOKEPELLET_PREFERENCE_GESTURE_SINGLE = TextKey.of("stealthsmokepellet.preferences.preference_gesture_single", "Single sneak");
+  public static final TextKey STEALTHSMOKEPELLET_PREFERENCE_GESTURE_DOUBLE = TextKey.of("stealthsmokepellet.preferences.preference_gesture_double", "Double sneak");
+  public static final TextKey STEALTHSMOKEPELLET_PREFERENCE_RESERVE = TextKey.of("stealthsmokepellet.preferences.preference_reserve", "Gunpowder reserve in selected hand");
+  public static final TextKey STEALTHSMOKEPELLET_PREFERENCE_RESERVE_NONE = TextKey.of("stealthsmokepellet.preferences.preference_reserve_none", "No reserve");
+  public static final TextKey STEALTHSMOKEPELLET_PREFERENCE_RESERVE_ONE = TextKey.of("stealthsmokepellet.preferences.preference_reserve_one", "Keep 1 gunpowder");
+  public static final TextKey STEALTHSMOKEPELLET_PREFERENCE_RESERVE_FOUR = TextKey.of("stealthsmokepellet.preferences.preference_reserve_four", "Keep 4 gunpowder");
+
+  public static final TextKey STEALTHSHADOWMELD_PREFERENCE_GESTURE = TextKey.of("stealthshadowmeld.preferences.preference_gesture", "Meld activation");
+  public static final TextKey STEALTHSHADOWMELD_PREFERENCE_GESTURE_AUTOMATIC = TextKey.of("stealthshadowmeld.preferences.preference_gesture_automatic", "Eligible sneaking");
+  public static final TextKey STEALTHSHADOWMELD_PREFERENCE_GESTURE_DOUBLE = TextKey.of("stealthshadowmeld.preferences.preference_gesture_double", "Double sneak to arm");
+
+  public static final TextKey STEALTHSIGHT_PREFERENCE_NIGHT_VISION = TextKey.of("stealthsight.preferences.preference_night_vision", "Night vision");
+  public static final TextKey STEALTHSIGHT_PREFERENCE_BLINDNESS = TextKey.of("stealthsight.preferences.preference_blindness", "Prevent blindness");
+  public static final TextKey STEALTHSIGHT_PREFERENCE_OUTLINES = TextKey.of("stealthsight.preferences.preference_outlines", "Invisible player outlines");
+
+  public static final TextKey STEALTHSPEED_PREFERENCE_STEP_UP = TextKey.of("stealthspeed.preferences.preference_step_up", "Automatic step up");
+  public static final TextKey STEALTHSPEED_PREFERENCE_STEP_DOWN = TextKey.of("stealthspeed.preferences.preference_step_down", "Automatic step down");
+  public static final TextKey STEALTHSPEED_PREFERENCE_PARTICLES = TextKey.of("stealthspeed.preferences.preference_particles", "Soul particles");
+  public static final TextKey STEALTHSPEED_PREFERENCE_SPEED = TextKey.of("stealthspeed.preferences.preference_speed", "Maximum stealth speed");
+
+  public static final TextKey STEALTHCUTPURSE_PREFERENCE_TARGETS = TextKey.of("stealthcutpurse.preferences.preference_targets", "Eligible targets");
+  public static final TextKey STEALTHCUTPURSE_PREFERENCE_TARGETS_ALL = TextKey.of("stealthcutpurse.preferences.preference_targets_all", "All eligible mobs");
+  public static final TextKey STEALTHCUTPURSE_PREFERENCE_TARGETS_ILLAGERS = TextKey.of("stealthcutpurse.preferences.preference_targets_illagers", "Illagers");
+  public static final TextKey STEALTHCUTPURSE_PREFERENCE_TARGETS_PIGLINS = TextKey.of("stealthcutpurse.preferences.preference_targets_piglins", "Piglins");
+
+  public static final TextKey STEALTHASSASSINATE_PREFERENCE_SNEAK = TextKey.of("stealthassassinate.preferences.preference_sneak", "Require sneaking");
+  public static final TextKey STEALTHASSASSINATE_PREFERENCE_TARGETS = TextKey.of("stealthassassinate.preferences.preference_targets", "Eligible targets");
+  public static final TextKey STEALTHASSASSINATE_PREFERENCE_TARGETS_ALL = TextKey.of("stealthassassinate.preferences.preference_targets_all", "All eligible mobs");
+  public static final TextKey STEALTHASSASSINATE_PREFERENCE_TARGETS_HOSTILES = TextKey.of("stealthassassinate.preferences.preference_targets_hostiles", "Hostile monsters");
+  public static final TextKey STEALTHASSASSINATE_PREFERENCE_TARGETS_ANIMALS = TextKey.of("stealthassassinate.preferences.preference_targets_animals", "Animals");
+
   public static final TextKey GHOST_ARMOR_NAME = TextKey.of("stealth.ghost_armor.name", "Ghost's Armor");
   public static final TextKey GHOST_ARMOR_DESCRIPTION = TextKey.of("stealth.ghost_armor.description", "Slowly builds a separate armor layer while you avoid damage. It stacks beyond worn armor and is consumed by the next armor-respecting hit.");
   public static final TextKey GHOST_ARMOR_LORE1 = TextKey.of("stealth.ghost_armor.lore1", "Max Ghost Armor");
@@ -82,6 +146,59 @@ public final class StealthMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(STEALTHSHADOWDECOY_PREFERENCE_GESTURE_ARMED_RELEASE);
+    builder.add(STEALTHSHADOWDECOY_PREFERENCE_GESTURE_DOUBLE);
+    builder.add(STEALTHSHADOWDECOY_PREFERENCE_GESTURE_RELEASE);
+    builder.add(STEALTHSHADOWDECOY_PREFERENCE_GESTURE);
+    builder.add(STEALTHDECOYSWAP_PREFERENCE_GESTURE_HAND_SWAP);
+    builder.add(STEALTHDECOYSWAP_PREFERENCE_GESTURE_DOUBLE);
+    builder.add(STEALTHDECOYSWAP_PREFERENCE_GESTURE);
+    builder.add(STEALTHTRAPSENSE_PREFERENCE_SCULK);
+    builder.add(STEALTHTRAPSENSE_PREFERENCE_PLATES);
+    builder.add(STEALTHTRAPSENSE_PREFERENCE_TRIPWIRES);
+    builder.add(STEALTHTRAPSENSE_PREFERENCE_CHESTS);
+    builder.add(STEALTHTRAPSENSE_PREFERENCE_OUTLINES);
+    builder.add(STEALTHCORE_PREFERENCE_HIDDEN);
+    builder.add(STEALTHCORE_PREFERENCE_DETECTED);
+    builder.add(STEALTHCORE_PREFERENCE_STATUS);
+    builder.add(STEALTHCORE_PREFERENCE_GLOWS);
+    builder.add(STEALTHSNATCH_PREFERENCE_ITEMS_FOOD);
+    builder.add(STEALTHSNATCH_PREFERENCE_ITEMS_BLOCKS);
+    builder.add(STEALTHSNATCH_PREFERENCE_ITEMS_ALL);
+    builder.add(STEALTHSNATCH_PREFERENCE_ITEMS);
+    builder.add(STEALTHSNATCH_PREFERENCE_CONTROL_AUTOMATIC);
+    builder.add(STEALTHSNATCH_PREFERENCE_CONTROL_SNEAK);
+    builder.add(STEALTHSNATCH_PREFERENCE_CONTROL);
+    builder.add(STEALTHSMOKEPELLET_PREFERENCE_RESERVE_FOUR);
+    builder.add(STEALTHSMOKEPELLET_PREFERENCE_RESERVE_ONE);
+    builder.add(STEALTHSMOKEPELLET_PREFERENCE_RESERVE_NONE);
+    builder.add(STEALTHSMOKEPELLET_PREFERENCE_RESERVE);
+    builder.add(STEALTHSMOKEPELLET_PREFERENCE_GESTURE_DOUBLE);
+    builder.add(STEALTHSMOKEPELLET_PREFERENCE_GESTURE_SINGLE);
+    builder.add(STEALTHSMOKEPELLET_PREFERENCE_GESTURE);
+    builder.add(STEALTHSMOKEPELLET_PREFERENCE_HAND_OFF);
+    builder.add(STEALTHSMOKEPELLET_PREFERENCE_HAND_MAIN);
+    builder.add(STEALTHSMOKEPELLET_PREFERENCE_HAND_EITHER);
+    builder.add(STEALTHSMOKEPELLET_PREFERENCE_HAND);
+    builder.add(STEALTHSHADOWMELD_PREFERENCE_GESTURE_DOUBLE);
+    builder.add(STEALTHSHADOWMELD_PREFERENCE_GESTURE_AUTOMATIC);
+    builder.add(STEALTHSHADOWMELD_PREFERENCE_GESTURE);
+    builder.add(STEALTHSIGHT_PREFERENCE_OUTLINES);
+    builder.add(STEALTHSIGHT_PREFERENCE_BLINDNESS);
+    builder.add(STEALTHSIGHT_PREFERENCE_NIGHT_VISION);
+    builder.add(STEALTHSPEED_PREFERENCE_SPEED);
+    builder.add(STEALTHSPEED_PREFERENCE_PARTICLES);
+    builder.add(STEALTHSPEED_PREFERENCE_STEP_DOWN);
+    builder.add(STEALTHSPEED_PREFERENCE_STEP_UP);
+    builder.add(STEALTHCUTPURSE_PREFERENCE_TARGETS_PIGLINS);
+    builder.add(STEALTHCUTPURSE_PREFERENCE_TARGETS_ILLAGERS);
+    builder.add(STEALTHCUTPURSE_PREFERENCE_TARGETS_ALL);
+    builder.add(STEALTHCUTPURSE_PREFERENCE_TARGETS);
+    builder.add(STEALTHASSASSINATE_PREFERENCE_TARGETS_ANIMALS);
+    builder.add(STEALTHASSASSINATE_PREFERENCE_TARGETS_HOSTILES);
+    builder.add(STEALTHASSASSINATE_PREFERENCE_TARGETS_ALL);
+    builder.add(STEALTHASSASSINATE_PREFERENCE_TARGETS);
+    builder.add(STEALTHASSASSINATE_PREFERENCE_SNEAK);
     builder.add(GHOST_ARMOR_NAME);
     builder.add(GHOST_ARMOR_DESCRIPTION);
     builder.add(GHOST_ARMOR_LORE1);

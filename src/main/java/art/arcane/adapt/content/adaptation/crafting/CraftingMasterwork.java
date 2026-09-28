@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
 
@@ -71,6 +73,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> DURABILITY = CommonPreferences.toggle("durability", CraftingMessages.PREFERENCE_CRAFTINGMASTERWORK_DURABILITY, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> ENCHANTMENTS = CommonPreferences.toggle("enchantments", CraftingMessages.PREFERENCE_CRAFTINGMASTERWORK_ENCHANTMENTS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> ATTRIBUTES = CommonPreferences.toggle("attributes", CraftingMessages.PREFERENCE_CRAFTINGMASTERWORK_ATTRIBUTES, CommonPreferences.Toggle.ON);
+
   private static final byte MASTERWORK_FLAG = 1;
   private static final byte ATTRIBUTE_FLAG = 2;
   private static final byte ENCHANT_FLAG = 4;
@@ -125,6 +131,12 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
     shiftBatches.clear();
     pendingSingleMasterworks.clear();
     super.unregister();
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, DURABILITY, ENCHANTMENTS, ATTRIBUTES);
   }
 
   @Override
@@ -209,7 +221,7 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
       J.s(() -> shiftBatches.remove(playerId, createdBatch), 1);
     }
 
-    ItemStack forged = forge(result, level, tool);
+    ItemStack forged = forge(p, result, level, tool);
     boolean masterwork = forged != result;
     if (batch != null) {
       batch.expectMasterwork(masterwork);
@@ -239,7 +251,7 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
     if (prepared == null && batch.isAwaitingNextResult()) {
       ItemStack baseResult = batch.createBaseResult(result.getAmount());
       boolean tool = isTool(baseResult.getType());
-      prepared = forge(baseResult, batch.getLevel(), tool);
+      prepared = forge(p, baseResult, batch.getLevel(), tool);
       batch.cachePreparedResult(prepared, prepared != baseResult);
     }
     if (prepared != null) {
@@ -278,7 +290,7 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
     }
   }
 
-  private ItemStack forge(ItemStack result, int level, boolean tool) {
+  private ItemStack forge(Player player, ItemStack result, int level, boolean tool) {
     if (ThreadLocalRandom.current().nextDouble() >= getRollChance(level)) {
       return result;
     }
@@ -291,14 +303,14 @@ public class CraftingMasterwork extends SimpleAdaptation<CraftingMasterwork.Conf
         getConfig().bonusRollMinimumFraction,
         ThreadLocalRandom.current().nextDouble()
     );
-    int bonus = bonusDurability(baseMax, rolledPercent);
+    int bonus = preferenceEnabled(player, DURABILITY) ? bonusDurability(baseMax, rolledPercent) : 0;
     meta.setMaxDamage(baseMax + bonus);
 
     boolean gotAttribute = level >= getMaxLevel()
         && ThreadLocalRandom.current().nextDouble() < clampChance(getConfig().attributeChance)
-        && applyAttribute(forged.getType(), meta, tool);
+        && preferenceEnabled(player, ATTRIBUTES) && applyAttribute(forged.getType(), meta, tool);
     boolean gotEnchant = ThreadLocalRandom.current().nextDouble() < clampChance(getConfig().enchantmentChance)
-        && applyBeneficialEnchant(forged, meta);
+        && preferenceEnabled(player, ENCHANTMENTS) && applyBeneficialEnchant(forged, meta);
 
     List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
     lore.add(C.AQUA + AdaptLanguage.text(

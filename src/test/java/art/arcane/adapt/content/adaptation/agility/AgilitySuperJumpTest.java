@@ -14,6 +14,15 @@ import static org.assertj.core.api.Assertions.within;
 
 class AgilitySuperJumpTest {
   @Test
+  void personalHeightReducesOnlyTheEarnedBonus() {
+    double baseline = AgilityJumpPhysics.heightForStrength(AgilityJumpPhysics.VANILLA_JUMP_STRENGTH);
+    assertThat(AgilitySuperJump.personalJumpHeight(2.5D, 1D)).isEqualTo(2.5D);
+    assertThat(AgilitySuperJump.personalJumpHeight(2.5D, 0.5D)).isBetween(baseline, 2.5D);
+    assertThat(AgilitySuperJump.personalJumpHeight(2.5D, 0D)).isEqualTo(baseline);
+    assertThat(AgilitySuperJump.personalJumpHeight(2.5D, 4D)).isEqualTo(2.5D);
+  }
+
+  @Test
   void defaultConfigHasExactlyFourLevelsAndARealTwoAndAHalfBlockMaximum() {
     AgilitySuperJump.Config config = new AgilitySuperJump.Config();
 

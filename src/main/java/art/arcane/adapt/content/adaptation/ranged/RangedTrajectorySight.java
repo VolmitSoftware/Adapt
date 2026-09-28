@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -29,7 +31,6 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -110,6 +111,11 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_ranged_trajectory_100", "ranged.trajectory-sight.kills-while-aiming", 100, 400);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RangedPreferences.GLOW, RangedPreferences.PREVIEW, RangedPreferences.IMPACT, RangedPreferences.TRAIL);
   }
 
   @Override
@@ -262,6 +268,12 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       }
     }
     return false;
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    stopAimingSession(player.getPlayer());
+    startIfAiming(player.getPlayer());
   }
 
   @Override
@@ -504,14 +516,15 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
   }
 
   private PreviewContext resolvePreviewContext(Player p) {
+    RangedPreferences.Preview trigger = preference(p, RangedPreferences.PREVIEW);
     ItemStack main = p.getInventory().getItemInMainHand();
     ItemStack off = p.getInventory().getItemInOffHand();
 
-    if (isDrawingBow(p, main)) {
+    if (trigger != RangedPreferences.Preview.SNEAKING && isDrawingBow(p, main)) {
       return new PreviewContext(main, PreviewTrigger.DRAWING_BOW);
     }
 
-    if (!p.isSneaking()) {
+    if (trigger == RangedPreferences.Preview.DRAWING || !p.isSneaking()) {
       return null;
     }
 
@@ -542,8 +555,8 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     Vector velocity = direction.normalize().multiply(launchVelocity * getVelocityMultiplier(level));
     RicochetPreview ricochet = RicochetPreview.disabled();
     if (!isHeartseekerPreview(p, context)) {
-      velocity.multiply(getRangedForceLaunchMultiplier(p));
-      ricochet = getRicochetPreview(p);
+      velocity.multiply(getRangedForceLaunchMultiplier(p, launchType));
+      ricochet = getRicochetPreview(p, launchType);
       if (!supportsRicochet(launchType, ricochet)) {
         ricochet = RicochetPreview.disabled();
       }
@@ -678,7 +691,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
           current.add(hitFace.getDirection().normalize().multiply(ricochet.spawnOffsetFromSurface()))
               .add(reflectedDir.clone().multiply(ricochet.spawnOffsetAlongDirection()));
           ricochets++;
-          if (areParticlesEnabled()) {
+          if (areParticlesEnabled() && preferenceEnabled(p, RangedPreferences.IMPACT)) {
             if (eye.distanceSquared(current) >= minDistanceSq) {
               float bounceSize = getScaledParticleSize(eye.distance(current), 1.15D);
               Particle.DustOptions bounce = new Particle.DustOptions(Color.fromRGB(170, 200, 255), bounceSize);
@@ -700,7 +713,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       velocity.setY(velocity.getY() - shot.profile().gravityStep());
     }
 
-    if (areParticlesEnabled() && eye.distanceSquared(current) >= minDistanceSq) {
+    if (areParticlesEnabled() && preferenceEnabled(p, RangedPreferences.IMPACT) && eye.distanceSquared(current) >= minDistanceSq) {
       float tipSize = getScaledParticleSize(eye.distance(current), 1.2D);
       Particle.DustOptions impact = new Particle.DustOptions(Color.fromRGB(255, 236, 128), tipSize);
       p.spawnParticle(Particle.DUST, current, 1, 0.0, 0.0, 0.0, 0.0, impact);
@@ -709,6 +722,9 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
   }
 
   private double drawDottedSegment(Player p, Location eye, Location from, Location to, Color color, double minDistanceSq, double spacing, double carry) {
+    if (!preferenceEnabled(p, RangedPreferences.TRAIL)) {
+      return carry;
+    }
     Vector delta = to.toVector().subtract(from.toVector());
     double length = delta.length();
     if (length <= EPSILON) {
@@ -733,6 +749,9 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
   }
 
   private void drawImpactMarker(Player p, Location eye, Location impact, Vector incoming, Color color, double minDistanceSq) {
+    if (!preferenceEnabled(p, RangedPreferences.IMPACT)) {
+      return;
+    }
     if (eye.distanceSquared(impact) < minDistanceSq) {
       return;
     }
@@ -854,7 +873,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
       return null;
     }
 
-    if (getAdaptationLevel(p, heartseeker.getName()) <= 0) {
+    if (heartseeker.getActiveLevel(p) <= 0) {
       return null;
     }
 
@@ -895,13 +914,13 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     return direction;
   }
 
-  private double getRangedForceLaunchMultiplier(Player p) {
+  private double getRangedForceLaunchMultiplier(Player p, Material weapon) {
     RangedForce force = getRangedForceAdaptation();
     if (force == null || !force.isEnabled() || !force.getSkill().isEnabled()) {
       return 1D;
     }
 
-    int level = getAdaptationLevel(p, force.getName());
+    int level = force.preference(p, RangedPreferences.SHOTS).accepts(weapon) ? force.getActiveLevel(p) : 0;
     if (level <= 0) {
       return 1D;
     }
@@ -911,13 +930,13 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
     return Math.max(0.1D, 1D + speedBonus);
   }
 
-  private RicochetPreview getRicochetPreview(Player p) {
+  private RicochetPreview getRicochetPreview(Player p, Material weapon) {
     RangedRicochetBolt ricochet = getRicochetAdaptation();
     if (ricochet == null || !ricochet.isEnabled() || !ricochet.getSkill().isEnabled()) {
       return RicochetPreview.disabled();
     }
 
-    int level = getAdaptationLevel(p, ricochet.getName());
+    int level = ricochet.preference(p, RangedPreferences.SHOTS).accepts(weapon) ? ricochet.getActiveLevel(p) : 0;
     if (level <= 0) {
       return RicochetPreview.disabled();
     }
@@ -935,17 +954,8 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
         cfg.minimumPostBounceSpeed,
         cfg.spawnOffsetFromSurface,
         cfg.spawnOffsetAlongDirection,
-        cfg.applyToAllProjectiles
+        cfg.applyToAllProjectiles && ricochet.preferenceEnabled(p, RangedPreferences.ALL_PROJECTILES)
     );
-  }
-
-  private int getAdaptationLevel(Player p, String adaptationId) {
-    AdaptPlayer adaptPlayer = getPlayer(p);
-    if (adaptPlayer == null) {
-      return 0;
-    }
-    PlayerSkillLine line = adaptPlayer.getData().getSkillLineNullable("ranged");
-    return line == null ? 0 : line.getAdaptationLevel(adaptationId);
   }
 
   private RangedForce getRangedForceAdaptation() {
@@ -1041,7 +1051,7 @@ public class RangedTrajectorySight extends SimpleAdaptation<RangedTrajectorySigh
   }
 
   private void updatePreviewGlow(Player p, Entity target) {
-    if (!getConfig().glowPredictedTarget) {
+    if (!getConfig().glowPredictedTarget || !preferenceEnabled(p, RangedPreferences.GLOW)) {
       clearPreviewGlow(p);
       return;
     }

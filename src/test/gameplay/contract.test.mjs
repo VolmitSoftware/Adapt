@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { skillMatrix, assertSkillCoverage, xpEvidence } from './skill-matrix.mjs'
+import { hasCommittedXp } from './all-skills.mjs'
 
 test('matrix covers every registered skill and uses its actual stable name', async () => {
   const registry = await readFile(new URL('../../main/java/art/arcane/adapt/api/skill/SkillRegistry.java', import.meta.url), 'utf8')
@@ -37,4 +38,20 @@ test('fixture never grants Adapt XP or dispatches synthetic gameplay events', as
   assert.match(fixture, /getXp\(\) \+ line\.getPooledXp\(\)/)
   const scenario = await readFile(new URL('./all-skills.mjs', import.meta.url), 'utf8')
   for (const { skill } of skillMatrix) assert.match(scenario, new RegExp(`case '${skill}'`))
+})
+
+test('payout evidence requires the full observed gain in committed XP for the same ordinary player', () => {
+  const earned = [{ skill: 'agility', player: 'ordinary', after: 5 }]
+  const committed = { player: 'ordinary', operator: false, committedXp: { agility: 5 }, pooledXp: { agility: 0 } }
+  assert.equal(hasCommittedXp(committed, earned), true)
+  assert.equal(hasCommittedXp({ ...committed, pooledXp: { agility: 2 } }, earned), true)
+  assert.equal(hasCommittedXp({ ...committed, committedXp: { agility: 2 }, pooledXp: { agility: 3 } }, earned), false)
+  assert.equal(hasCommittedXp({ ...committed, committedXp: { agility: 0 }, pooledXp: { agility: 5 } }, earned), false)
+  assert.equal(hasCommittedXp({ ...committed, committedXp: { agility: NaN } }, earned), false)
+  assert.equal(hasCommittedXp({ ...committed, pooledXp: { agility: -1 } }, earned), false)
+  assert.equal(hasCommittedXp({ ...committed, player: 'different' }, earned), false)
+  assert.equal(hasCommittedXp({ ...committed, operator: true }, earned), false)
+  assert.equal(hasCommittedXp({ ...committed, committedXp: {} }, earned), false)
+  assert.equal(hasCommittedXp(committed, []), false)
+  assert.equal(hasCommittedXp(committed, [...earned, { skill: 'axes', player: 'ordinary', after: 1 }]), false)
 })

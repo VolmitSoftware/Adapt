@@ -1,5 +1,8 @@
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.content.integration.iris.IrisTreeFellerLink;
 import org.bukkit.Location;
@@ -212,6 +215,7 @@ class AxeIrisFellerTest {
       adaptation.on(fixture.event());
 
       assertThat(runHooks.get()).isNotNull();
+      runHooks.get().onActivationAccepted();
       assertThat(runHooks.get().reserveLogCost()).isTrue();
       assertThat(fixture.foodLevel()).hasValue(2);
       runHooks.get().commitLogCost();
@@ -250,6 +254,54 @@ class AxeIrisFellerTest {
     assertThat(claimHandler.ignoreCancelled()).isTrue();
   }
 
+  @Test
+  void personalReserveRejectsWholeLogWithoutDiscountingAcceptedCost() {
+    TestAxeIrisFeller adaptation = new TestAxeIrisFeller();
+    adaptation.reserve = AxePreferences.Reserve.FIVE;
+    RuntimeFixture fixture = runtimeFixture(8);
+    AtomicReference<IrisTreeFellerLink.RunHooks> hooks = new AtomicReference<>();
+    try (MockedStatic<IrisTreeFellerLink> iris = mockStatic(IrisTreeFellerLink.class)) {
+      stubRecognizedTree(iris, fixture);
+      iris.when(() -> IrisTreeFellerLink.tryFell(same(fixture.event()), eq(0), any(IrisTreeFellerLink.RunHooks.class)))
+          .thenAnswer(invocation -> {
+            hooks.set(invocation.getArgument(2));
+            hooks.get().onActivationAccepted();
+            return true;
+          });
+      adaptation.on(fixture.event());
+      assertThat(hooks.get().reserveLogCost()).isTrue();
+      assertThat(fixture.foodLevel()).hasValue(8);
+      hooks.get().commitLogCost();
+      assertThat(fixture.foodLevel()).hasValue(6);
+      assertThat(hooks.get().reserveLogCost()).isFalse();
+      assertThat(fixture.foodLevel()).hasValue(6);
+    }
+  }
+
+  @Test
+  void latchedRunStopsOnNextSneakWithoutRefundingCommittedFood() {
+    TestAxeIrisFeller adaptation = new TestAxeIrisFeller();
+    adaptation.latched = true;
+    RuntimeFixture fixture = runtimeFixture(20);
+    AtomicReference<IrisTreeFellerLink.RunHooks> hooks = new AtomicReference<>();
+    try (MockedStatic<IrisTreeFellerLink> iris = mockStatic(IrisTreeFellerLink.class)) {
+      stubRecognizedTree(iris, fixture);
+      iris.when(() -> IrisTreeFellerLink.tryFell(same(fixture.event()), eq(0), any(IrisTreeFellerLink.RunHooks.class)))
+          .thenAnswer(invocation -> {
+            hooks.set(invocation.getArgument(2));
+            hooks.get().onActivationAccepted();
+            return true;
+          });
+      adaptation.on(fixture.event());
+      assertThat(hooks.get().requiresSneaking()).isFalse();
+      assertThat(hooks.get().reserveLogCost()).isTrue();
+      hooks.get().commitLogCost();
+      adaptation.on(new PlayerToggleSneakEvent(fixture.player(), true));
+      assertThat(hooks.get().reserveLogCost()).isFalse();
+      assertThat(fixture.foodLevel()).hasValue(18);
+    }
+  }
+
   private static void stubRecognizedTree(MockedStatic<IrisTreeFellerLink> iris, RuntimeFixture fixture) {
     iris.when(() -> IrisTreeFellerLink.isManagedBreak(fixture.event())).thenReturn(false);
     iris.when(() -> IrisTreeFellerLink.isTreeBlock(fixture.block())).thenReturn(true);
@@ -282,6 +334,21 @@ class AxeIrisFellerTest {
 
   private static final class TestAxeIrisFeller extends AxeIrisFeller {
     private final Config config = new Config();
+    private AxePreferences.Reserve reserve = AxePreferences.Reserve.NONE;
+    private boolean latched;
+
+    @Override
+    public <E extends Enum<E>> E preference(Player player, PlayerPreference<E> preference) {
+      if (preference == AxePreferences.RESERVE) { return preference.parse(reserve.name()); }
+      if (preference == AxePreferences.LATCH) { return preference.parse(latched ? "ON" : "OFF"); }
+      return preference.defaultValue();
+    }
+
+    @Override
+    public int getActiveLevel(Player player) {
+      return 1;
+    }
+
 
     @Override
     public Config getConfig() {

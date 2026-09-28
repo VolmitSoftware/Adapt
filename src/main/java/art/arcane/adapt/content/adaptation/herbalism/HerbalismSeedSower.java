@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.localization.catalog.HerbalismMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -55,6 +58,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Config> {
+  public static final PlayerPreference<HerbalismPreferences.Materials> MATERIALS = HerbalismPreferences.materials("materials", HerbalismMessages.PREFERENCE_HERBALISMSEEDSOWER_MATERIALS);
+  public static final PlayerPreference<CommonPreferences.Scale> RADIUS = CommonPreferences.scale("radius", HerbalismMessages.PREFERENCE_HERBALISMSEEDSOWER_RADIUS);
+  public static final PlayerPreference<CommonPreferences.Toggle> RESERVE = CommonPreferences.toggle("seed-reserve", HerbalismMessages.PREFERENCE_HERBALISMSEEDSOWER_RESERVE, CommonPreferences.Toggle.OFF);
+
   public HerbalismSeedSower() {
     super("herbalism-seed-sower");
     registerConfiguration(Config.class);
@@ -74,6 +81,11 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
         .build());
     registerMilestone("challenge_herbalism_seed_1k", "herbalism.seed-sower.seeds-planted", 1000, 300);
     registerMilestone("challenge_herbalism_seed_25k", "herbalism.seed-sower.seeds-planted", 25000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, MATERIALS, RADIUS, RESERVE);
   }
 
   @Override
@@ -142,7 +154,7 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
       return;
     }
 
-    int planted = plantNearby(p, origin, seedType, cropType, getRadius(level), getMaxCrops(level));
+    int planted = plantNearby(p, origin, seedType, cropType, Math.max(1, (int) Math.floor(getRadius(level) * preference(p, RADIUS).multiplier())), getMaxCrops(level));
     if (planted <= 0) {
       return;
     }
@@ -163,9 +175,12 @@ public class HerbalismSeedSower extends SimpleAdaptation<HerbalismSeedSower.Conf
   }
 
   private int plantNearby(Player p, Block origin, Material seedType, Material cropType, int radius, int maxCrops) {
+    if (!preference(p, MATERIALS).allows(cropType)) {
+      return 0;
+    }
     int available = p.getGameMode() == GameMode.CREATIVE
         ? maxCrops
-        : p.getInventory().getItemInMainHand().getAmount();
+        : Math.max(0, p.getInventory().getItemInMainHand().getAmount() - (preferenceEnabled(p, RESERVE) ? 8 : 0));
     List<Block> targets = findPlantingTargets(p, origin, seedType, radius, Math.min(maxCrops, available));
     if (targets.isEmpty()) {
       return 0;

@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.UnarmedMessages;
 
@@ -75,6 +79,16 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    grabs.remove(player.getPlayer().getUniqueId());
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, UnarmedPreferences.TARGETS, UnarmedPreferences.RELEASE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getForce(level)), 1);
     statLore(v, C.YELLOW, "* ", Form.duration((double) getCooldownMillis(level), 1), 2);
@@ -113,7 +127,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
       return;
     }
 
-    if (victim instanceof Boss) {
+    if (victim instanceof Boss || !preference(p, UnarmedPreferences.TARGETS).accepts(victim)) {
       return;
     }
 
@@ -123,7 +137,7 @@ public class UnarmedGrapple extends SimpleAdaptation<UnarmedGrapple.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerToggleSneakEvent e) {
-    if (e.isSneaking()) {
+    if (e.isSneaking() || preference(e.getPlayer(), UnarmedPreferences.RELEASE) == UnarmedPreferences.Release.NEXT_HIT) {
       return;
     }
 

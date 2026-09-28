@@ -1,5 +1,10 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.localization.catalog.KineticsMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import org.bukkit.entity.Monster;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -33,6 +38,9 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class KineticsWindburst extends SimpleAdaptation<KineticsWindburst.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> HOSTILES = CommonPreferences.toggle("hostiles", KineticsMessages.KINETICSWINDBURST_PREFERENCE_HOSTILES, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", KineticsMessages.KINETICSWINDBURST_PREFERENCE_SNEAK, CommonPreferences.Toggle.OFF);
+
   private static final String SLOT_BRACE = "brace";
   private static final int HARD_MAX_CANDIDATES = 32;
   private static final int HARD_MAX_AFFECTED = 16;
@@ -46,6 +54,16 @@ public class KineticsWindburst extends SimpleAdaptation<KineticsWindburst.Config
     registerConfiguration(Config.class);
     setIcon(Material.WIND_CHARGE);
     setInterval(9999);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, HOSTILES, SNEAK);
   }
 
   @Override
@@ -65,7 +83,7 @@ public class KineticsWindburst extends SimpleAdaptation<KineticsWindburst.Config
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (level <= 0 || (preferenceEnabled(p, SNEAK) && !p.isSneaking())) {
       return;
     }
 
@@ -120,7 +138,7 @@ public class KineticsWindburst extends SimpleAdaptation<KineticsWindburst.Config
   private List<LivingEntity> collectCandidates(Player player, Location origin, double radius) {
     List<LivingEntity> candidates = new ArrayList<>(HARD_MAX_CANDIDATES);
     for (LivingEntity candidate : PaperCompat.nearbyLivingEntities(origin, radius, radius, radius)) {
-      if (candidate == player) {
+      if (candidate == player || (preferenceEnabled(player, HOSTILES) && !(candidate instanceof Monster))) {
         continue;
       }
       candidates.add(candidate);

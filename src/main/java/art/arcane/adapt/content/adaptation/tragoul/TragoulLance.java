@@ -18,10 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import org.bukkit.entity.EntityType;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -32,6 +36,7 @@ import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -221,6 +226,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         break;
       }
       if (entity instanceof LivingEntity candidate
+          && AdaptationDamageTargets.allows(candidate, getConfig().ignorePassiveMobs)
           && !isCaster(pass.chain().ownerId(), candidate.getUniqueId())) {
         candidates.add(candidate);
         if (candidates.size() >= MAX_CANDIDATE_HANDOFFS) {
@@ -244,7 +250,8 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   }
 
   private TargetSnapshot captureTargetOwned(UUID ownerId, LivingEntity target) {
-    if (!target.isValid() || target.isDead()) {
+    if (!target.isValid() || target.isDead()
+        || !AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs)) {
       return null;
     }
 
@@ -261,7 +268,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
         targetId,
         target.getLocation().clone(),
         target instanceof Player,
-        protectedFriendly
+        protectedFriendly, target.getType(), !AdaptationDamageTargets.allows(target, true)
     );
   }
 
@@ -276,7 +283,9 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
     TargetSnapshot selected = null;
     double bestDistanceSquared = chain.range() * chain.range();
     for (TargetSnapshot candidate : batch.targets()) {
-      if (candidate.location().getWorld() != pass.source().getWorld()
+      if (!preference(chain.owner(), TragoulPreferences.TARGETS).accepts(candidate.type())
+          || (preferenceEnabled(chain.owner(), TragoulPreferences.PASSIVE) && candidate.passive())
+          || candidate.location().getWorld() != pass.source().getWorld()
           || isCaster(chain.ownerId(), candidate.entityId())
           || chain.hitIds().contains(candidate.entityId()) || !canDamageSnapshotOwned(
           chain.owner(), candidate.player(), candidate.protectedFriendly(), null, candidate.location())) {
@@ -526,6 +535,11 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TragoulPreferences.PASSIVE, TragoulPreferences.TARGETS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(TragoulMessages.LANCE_LORE1));
     v.addLore(C.YELLOW + AdaptLanguage.text(TragoulMessages.LANCE_LORE2));
@@ -537,6 +551,8 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
 
   @ConfigDescription("Killing an enemy spawns a lance that seeks and damages a nearby enemy.")
   protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Exclude passive and neutral mobs from every seeking lance and chain hit.", impact = "When enabled, lances skip protected mobs and can seek hostile mobs farther away. Direct attacks and player targeting are unchanged.")
+    boolean ignorePassiveMobs = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Seeker Delay for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     int seekerDelay = 12;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Seeker Damage Multiplier for the Tragoul Lance adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
@@ -559,7 +575,7 @@ public class TragoulLance extends SimpleAdaptation<TragoulLance.Config> {
   }
 
   private record TargetSnapshot(LivingEntity entity, UUID entityId, Location location,
-                                boolean player, boolean protectedFriendly) {
+                                boolean player, boolean protectedFriendly, EntityType type, boolean passive) {
   }
 
   private record SearchPass(LanceChain chain, Location source, double damage, int remainingHits) {

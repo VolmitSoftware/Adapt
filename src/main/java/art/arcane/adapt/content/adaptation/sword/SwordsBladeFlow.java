@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -74,6 +75,13 @@ public class SwordsBladeFlow extends SimpleAdaptation<SwordsBladeFlow.Config> {
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.VANILLA)
         .build());
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (getActiveLevel(player.getPlayer()) <= 0) {
+      AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+    }
   }
 
   @Override

@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
 
@@ -55,6 +59,8 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCleansing.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirmation", EnchantingMessages.PREFERENCE_ENCHANTINGCURSECLEANSING_CONFIRM, CommonPreferences.Toggle.OFF);
+
   public EnchantingCurseCleansing() {
     super("enchanting-curse-cleansing");
     registerConfiguration(Config.class);
@@ -74,6 +80,12 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
         .build());
     registerMilestone("challenge_enchanting_cleanse_10", "enchanting.curse-cleansing.curses-removed", 10, 300);
     registerMilestone("challenge_enchanting_cleanse_100", "enchanting.curse-cleansing.curses-removed", 100, 1000);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONFIRM);
   }
 
   @Override
@@ -114,6 +126,10 @@ public class EnchantingCurseCleansing extends SimpleAdaptation<EnchantingCurseCl
       return;
     }
 
+    if (preferenceEnabled(p, CONFIRM) && !PreferenceConfirmation.confirm(this, p, "cleanse", top.getItem(0), top.getItem(1))) {
+      e.setCancelled(true);
+      return;
+    }
     performCleanse(p, plan, e, top);
   }
 

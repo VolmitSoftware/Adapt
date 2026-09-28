@@ -9,6 +9,38 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class GuiLayoutTest {
   @Test
+  void settingsStayBelowNavigationWithoutConsumingLevelSlots() {
+    GuiLayout.PagePlan small = GuiLayout.planWithSettings(3, true, true);
+    assertThat(small.rows()).isEqualTo(3);
+    assertThat(small.contentRows()).isEqualTo(1);
+    assertThat(small.itemsPerPage()).isEqualTo(9);
+    assertThat(small.pageCount()).isEqualTo(1);
+
+    GuiLayout.PagePlan overflowing = GuiLayout.planWithSettings(46, false, true);
+    assertThat(overflowing.rows()).isEqualTo(6);
+    assertThat(overflowing.contentRows()).isEqualTo(4);
+    assertThat(overflowing.hasNavigationRow()).isTrue();
+    assertThat(overflowing.itemsPerPage()).isEqualTo(36);
+    assertThat(overflowing.pageCount()).isEqualTo(2);
+  }
+
+  @Test
+  void settingsPaginationCoversEveryLevelWithinSixRows() {
+    for (int levels = 0; levels <= 200; levels++) {
+      for (boolean navigation : new boolean[]{false, true}) {
+        GuiLayout.PagePlan plan = GuiLayout.planWithSettings(levels, navigation, true);
+        assertThat(plan.rows()).isBetween(2, 6);
+        assertThat(plan.rows()).isEqualTo(plan.contentRows() + 1 + (plan.hasNavigationRow() ? 1 : 0));
+        assertThat(plan.itemsPerPage()).isEqualTo(plan.contentRows() * 9);
+        assertThat(plan.pageCount() * plan.itemsPerPage()).isGreaterThanOrEqualTo(levels);
+        if (plan.pageCount() > 1) {
+          assertThat(plan.hasNavigationRow()).isTrue();
+        }
+      }
+    }
+  }
+
+  @Test
   void everySupportedRowIsCenteredAndMirrored() {
     for (int count = 1; count <= GuiLayout.WIDTH; count++) {
       Set<Integer> positions = new HashSet<>();
@@ -107,21 +139,6 @@ class GuiLayoutTest {
     assertThat(GuiLayout.fiveWideRowsForPage(25, 3)).isEqualTo(3);
     assertThat(GuiLayout.fiveWideRowsForPage(25, 1)).isEqualTo(2);
     assertThat(GuiLayout.fiveWideRowsForPage(25, 12)).isEqualTo(6);
-  }
-
-  @Test
-  void fifteenMutationCardsFitThreeRowsWithoutCollisions() {
-    Set<String> coordinates = new HashSet<>();
-    for (int index = 0; index < 15; index++) {
-      int row = 2 + (index / 5);
-      int position = GuiLayout.spacedFivePosition(index % 5, 5);
-      coordinates.add(position + ":" + row);
-    }
-
-    assertThat(coordinates).hasSize(15);
-    assertThat(coordinates).allMatch(coordinate -> coordinate.endsWith(":2")
-        || coordinate.endsWith(":3")
-        || coordinate.endsWith(":4"));
   }
 
   private int[] positions(int count) {

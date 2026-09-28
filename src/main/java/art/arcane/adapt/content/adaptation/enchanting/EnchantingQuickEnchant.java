@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
 
@@ -50,6 +54,9 @@ import org.bukkit.inventory.meta.ItemMeta;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnchant.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirmation", EnchantingMessages.PREFERENCE_ENCHANTINGQUICKENCHANT_CONFIRM, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> MODIFIED = CommonPreferences.toggle("modified-click", EnchantingMessages.PREFERENCE_ENCHANTINGQUICKENCHANT_MODIFIED, CommonPreferences.Toggle.OFF);
+
   public EnchantingQuickEnchant() {
     super("enchanting-quick-enchant");
     registerConfiguration(Config.class);
@@ -79,6 +86,12 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
     return level + (level > bonusLimit ? level / Math.max(1, levelsPerBonus) : 0);
   }
 
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONFIRM, MODIFIED);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     statLore(v, getTotalLevelCount(level), 1);
@@ -94,7 +107,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
       return;
     }
 
-    if (e.getAction() != InventoryAction.SWAP_WITH_CURSOR || e.getClick() != ClickType.LEFT) {
+    if (e.getAction() != InventoryAction.SWAP_WITH_CURSOR || e.getClick() != (preferenceEnabled(p, MODIFIED) ? ClickType.RIGHT : ClickType.LEFT)) {
       return;
     }
 
@@ -104,7 +117,7 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
     }
 
     if (e.getAction().equals(InventoryAction.SWAP_WITH_CURSOR)
-        && e.getClick().equals(ClickType.LEFT)
+        && e.getClick() == (preferenceEnabled(p, MODIFIED) ? ClickType.RIGHT : ClickType.LEFT)
         && (e.getSlotType().equals(InventoryType.SlotType.CONTAINER)
         || e.getSlotType().equals(InventoryType.SlotType.ARMOR)
         || e.getSlotType().equals(InventoryType.SlotType.QUICKBAR))
@@ -121,6 +134,9 @@ public class EnchantingQuickEnchant extends SimpleAdaptation<EnchantingQuickEnch
       e.setCancelled(true);
       ItemStack item = e.getCurrentItem();
       ItemStack book = e.getCursor();
+      if (preferenceEnabled(p, CONFIRM) && !PreferenceConfirmation.confirm(this, p, "apply", item, book)) {
+        return;
+      }
       KMap<Enchantment, Integer> itemEnchants = new KMap<>(item.getEnchantments());
       KMap<Enchantment, Integer> bookEnchants = new KMap<>(eb.getStoredEnchants());
       KMap<Enchantment, Integer> newEnchants = itemEnchants.copy();

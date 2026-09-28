@@ -1,5 +1,11 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.KineticsMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import org.bukkit.entity.Monster;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -25,6 +31,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public class KineticsDeadZone extends SimpleAdaptation<KineticsDeadZone.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> HOSTILES = CommonPreferences.toggle("hostiles", KineticsMessages.KINETICSDEADZONE_PREFERENCE_HOSTILES, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", KineticsMessages.KINETICSDEADZONE_PREFERENCE_SNEAK, CommonPreferences.Toggle.OFF);
+
   private static final double SHOVE_DAMPING = 0.2D;
   private static final double SHOVE_LIFT = 0.25D;
   private static final Color ZONE = Color.fromRGB(0xC9D9E8);
@@ -36,6 +45,16 @@ public class KineticsDeadZone extends SimpleAdaptation<KineticsDeadZone.Config> 
     registerConfiguration(Config.class);
     setIcon(Material.ARMOR_STAND);
     setInterval(9999);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, HOSTILES, SNEAK);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    riposteUntil.remove(player.getPlayer().getUniqueId());
   }
 
   @Override
@@ -84,6 +103,10 @@ public class KineticsDeadZone extends SimpleAdaptation<KineticsDeadZone.Config> 
       return;
     }
 
+    if ((preferenceEnabled(defender, HOSTILES) && !(attacker instanceof Monster))
+        || (preferenceEnabled(defender, SNEAK) && !defender.isSneaking())) {
+      return;
+    }
     int level = getActiveLevel(defender);
     if (level <= 0 || !isSpear(defender.getInventory().getItemInMainHand())) {
       return;
@@ -132,7 +155,8 @@ public class KineticsDeadZone extends SimpleAdaptation<KineticsDeadZone.Config> 
     }
 
     Adaptation.MeleeContext combat = resolveMeleeContext(e, this::isSpear);
-    if (combat == null) {
+    if (combat == null || (preferenceEnabled(attacker, HOSTILES) && !(combat.target() instanceof Monster))
+        || (preferenceEnabled(attacker, SNEAK) && !attacker.isSneaking())) {
       return;
     }
 

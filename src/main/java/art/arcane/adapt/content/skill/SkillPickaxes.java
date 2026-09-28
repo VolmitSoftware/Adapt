@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.pickaxe.PickaxeAutosmelt;
@@ -248,7 +249,7 @@ public class SkillPickaxes extends SimpleSkill<SkillPickaxes.Config> {
   }
 
   @NoArgsConstructor
-  protected static class Config {
+  protected static class Config extends SkillConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Debris Bonus for the Pickaxes skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public double debrisBonus = 210;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")

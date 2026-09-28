@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.block.Action;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RangedMessages;
 
@@ -118,6 +122,20 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
     queueLoadedChunkRecovery();
   }
 
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  public void on(PlayerInteractEvent event) {
+    if ((event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK)
+        && event.getItem() != null && BoundSnowBall.isBindableItem(event.getItem())
+        && preferenceEnabled(event.getPlayer(), RangedPreferences.SNEAK) && !event.getPlayer().isSneaking()) {
+      event.setCancelled(true);
+    }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RangedPreferences.SNEAK);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + AdaptLanguage.text(RangedMessages.WEB_SHOT_LORE1));
@@ -213,6 +231,9 @@ public class RangedWebBomb extends SimpleAdaptation<RangedWebBomb.Config> {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(ProjectileLaunchEvent e) {
     if (e.getEntity().getShooter() instanceof Player p && e.getEntity() instanceof Snowball snowball && hasActiveAdaptation(p)) {
+      if (preferenceEnabled(p, RangedPreferences.SNEAK) && !p.isSneaking()) {
+        return;
+      }
       if (BoundSnowBall.isBindableItem(snowball.getItem())) {
         activeSnowballs.put(snowball.getUniqueId(), p.getUniqueId());
       }

@@ -18,19 +18,22 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RangedMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -50,14 +53,12 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.AbstractArrow;
-import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SpectralArrow;
-import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Trident;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -162,6 +163,11 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RangedPreferences.SNEAK, RangedPreferences.TARGETS, RangedPreferences.IGNORE_PASSIVE, RangedPreferences.GLOW);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(RangedMessages.HEARTSEEKER_LORE1));
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 2);
@@ -179,7 +185,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     }
 
     Player player = e.getPlayer();
-    if (getActiveLevel(player) <= 0 || player.hasCooldown(Material.BOW) || !workBudget.tryRayTrace()) {
+    if (getActiveLevel(player) <= 0 || (preferenceEnabled(player, RangedPreferences.SNEAK) && !player.isSneaking())
+        || player.hasCooldown(Material.BOW) || !workBudget.tryRayTrace()) {
       return;
     }
 
@@ -312,6 +319,17 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     handleBlockHitOwned(arrow, state);
   }
 
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void protectPassiveMobs(EntityDamageByEntityEvent e) {
+    if (e.getDamager() instanceof AbstractArrow arrow
+        && isSeekingProjectile(arrow)
+        && arrow.getShooter() instanceof Player owner
+        && (isProtectedFriendly(owner, e.getEntity())
+        || !AdaptationDamageTargets.allows(e.getEntity(), getConfig().ignorePassiveMobs))) {
+      e.setCancelled(true);
+    }
+  }
+
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
     if (!(e.getDamager() instanceof AbstractArrow arrow)
@@ -324,7 +342,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     if (state == null) {
       return;
     }
-    if (isProtectedHeartseekerTarget(state.owner, victim)) {
+    if (isProtectedFriendly(state.owner, victim)) {
       coordinator.remove(arrow.getUniqueId(), state.generation);
       retireHitArrow(arrow);
       applyGlow(state.owner, null);
@@ -401,6 +419,25 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       HomingState state = homing.remove(arrowId);
       if (state != null) {
         removeSeekingArrow(state.arrow, state);
+      }
+    }
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    Player owner = player.getPlayer();
+    UUID ownerId = owner.getUniqueId();
+    locks.remove(ownerId);
+    lockRequests.remove(ownerId);
+    applyGlowOwned(owner, null);
+    if (getActiveLevel(owner) <= 0) {
+      cancelPendingLaunches(ownerId);
+      cancelPendingContinuations(ownerId);
+      cancelCandidateBatches(ownerId);
+      for (HomingState state : homing.values()) {
+        if (state.ownerId.equals(ownerId)) {
+          J.runEntity(state.arrow, () -> endHomingOwned(state.arrow, state, false, false));
+        }
       }
     }
   }
@@ -1084,7 +1121,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
     double radius = getReseekRadius();
     int limit = getCandidateCollectionLimit();
     List<LivingEntity> candidates = new ArrayList<>(Math.min(limit, getCandidateHandoffLimit() + 1));
-    if (fallback != null) {
+    if (fallback != null && AdaptationDamageTargets.allows(fallback, getConfig().ignorePassiveMobs)) {
       candidates.add(fallback);
     }
     if (!isAreaOwned(center, radius)) {
@@ -1104,6 +1141,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       if (!(entity instanceof LivingEntity living)
           || living == context.owner()
           || living instanceof ArmorStand
+          || !AdaptationDamageTargets.allows(living, getConfig().ignorePassiveMobs)
+          || isProtectedFriendlyOwned(context.ownerId(), living)
           || living.getUniqueId().equals(fallbackId)) {
         continue;
       }
@@ -1576,21 +1615,13 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   private TargetSnapshot captureTargetOwned(UUID ownerId, LivingEntity target) {
-    if (!target.isValid() || target.isDead()) {
+    if (!AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs)
+        || !target.isValid() || target.isDead()) {
       return null;
     }
     UUID targetId = target.getUniqueId();
-    boolean servant = TragoulSkeletalServant.isServant(target);
-    UUID servantOwnerId = TragoulSkeletalServant.getServantOwnerId(target);
     boolean protectedFriendly = ownerId.equals(targetId)
-        || (target instanceof ArmorStand stand && stand.isMarker())
-        || target.isInvulnerable()
-        || target.hasMetadata("NPC")
-        || isProtectedServant(ownerId, servant, servantOwnerId);
-    if (!protectedFriendly && target instanceof Tameable tameable && tameable.isTamed()) {
-      AnimalTamer tamer = tameable.getOwner();
-      protectedFriendly = tamer != null && ownerId.equals(tamer.getUniqueId());
-    }
+        || isProtectedFriendlyOwned(ownerId, target);
     Location location = target.getLocation();
     Location aimPoint = location.clone().add(0D, target.getHeight() * 0.6D, 0D);
     return new TargetSnapshot(
@@ -1600,6 +1631,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
         location,
         aimPoint,
         target instanceof Player,
+        !(target instanceof Player) && AdaptationDamageTargets.allows(target, true),
         protectedFriendly,
         target.isInvisible(),
         System.nanoTime()
@@ -1607,7 +1639,9 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   private boolean canDamageSnapshotOwned(Player owner, TargetSnapshot target) {
-    if (target.protectedFriendly() || target.invisible()
+    if ((preferenceEnabled(owner, RangedPreferences.IGNORE_PASSIVE) && !target.player() && !target.hostile())
+        || !preference(owner, RangedPreferences.TARGETS).accepts(target.player(), target.hostile())
+        || target.protectedFriendly() || target.invisible()
         || owner.getUniqueId().equals(target.entityId())
         || !owner.getWorld().getUID().equals(target.worldId())) {
       return false;
@@ -1616,19 +1650,6 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       return false;
     }
     return target.player() ? canPVP(owner, target.location()) : canPVE(owner, target.location());
-  }
-
-  private boolean isProtectedHeartseekerTarget(Player owner, LivingEntity target) {
-    boolean servant = TragoulSkeletalServant.isServant(target);
-    UUID servantOwnerId = TragoulSkeletalServant.getServantOwnerId(target);
-    if (servant) {
-      return isProtectedServant(owner.getUniqueId(), true, servantOwnerId);
-    }
-    return isProtectedFriendly(owner, target);
-  }
-
-  static boolean isProtectedServant(UUID ownerId, boolean servant, UUID servantOwnerId) {
-    return servant && (servantOwnerId == null || ownerId == null || ownerId.equals(servantOwnerId));
   }
 
   private void recordClearPath(HomingState state) {
@@ -1816,7 +1837,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   private int resolvePiercingPasses(Player owner) {
     for (Adaptation<?> adaptation : getSkill().getAdaptations()) {
       if (adaptation instanceof RangedPiercing piercing) {
-        return Math.max(0, piercing.getActiveLevel(owner));
+        return piercing.preference(owner, RangedPreferences.SHOTS).accepts(Material.BOW)
+            ? Math.max(0, piercing.getActiveLevel(owner)) : 0;
       }
     }
     return 0;
@@ -1825,7 +1847,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   private int resolveRicochetPasses(Player owner) {
     for (Adaptation<?> adaptation : getSkill().getAdaptations()) {
       if (adaptation instanceof RangedRicochetBolt ricochet) {
-        return Math.max(0, ricochet.getActiveLevel(owner));
+        return ricochet.preference(owner, RangedPreferences.SHOTS).accepts(Material.BOW)
+            ? Math.max(0, ricochet.getActiveLevel(owner)) : 0;
       }
     }
     return 0;
@@ -1854,7 +1877,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
       unsetGlowOwned(viewer, current);
       viewerGlow.remove(viewerId, current);
     }
-    if (target == null) {
+    if (target == null || !preferenceEnabled(viewer, RangedPreferences.GLOW)) {
       return;
     }
 
@@ -2185,7 +2208,7 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
   }
 
   private record TargetSnapshot(LivingEntity entity, UUID entityId, UUID worldId,
-                                Location location, Location aimPoint, boolean player,
+                                Location location, Location aimPoint, boolean player, boolean hostile,
                                 boolean protectedFriendly, boolean invisible,
                                 long capturedNanos) {
   }
@@ -2234,6 +2257,8 @@ public class RangedHeartseeker extends SimpleAdaptation<RangedHeartseeker.Config
 
   @ConfigDescription("Draw a bow while looking at a creature to lock on; the arrow curves to its mark, exits through targets, and carries Piercing and Ricochet Bolt passes onward.")
   protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Exclude passive and neutral mobs from target locks, automatic chains, and seeking-arrow damage.", impact = "When enabled, normal unassisted arrow hits are unchanged.")
+    boolean ignorePassiveMobs = false;
     @ConfigDoc(value = "Maximum distance at which drawing a bow can lock onto a creature.", impact = "Higher values allow locking targets from further away.")
     double lockRange = 32D;
     @ConfigDoc(value = "Milliseconds a lock stays valid after acquiring it before the shot.", impact = "Higher values let players hold a draw longer without losing the lock.")

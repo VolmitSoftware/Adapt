@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.localization.catalog.HerbalismMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -57,6 +61,11 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Config> {
+  public static final PlayerPreference<HerbalismPreferences.Materials> MATERIALS = HerbalismPreferences.materials("materials", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_MATERIALS);
+  public static final PlayerPreference<CommonPreferences.Toggle> SURFACE = CommonPreferences.toggle("surface-only", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_SURFACE, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> FOOD_RESERVE = CommonPreferences.toggle("food-reserve", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_FOOD_RESERVE, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Scale> RADIUS = CommonPreferences.scale("radius", HerbalismMessages.PREFERENCE_HERBALISMGROWTHAURA_RADIUS);
+
   private static final int PLAYER_CHECKS_PER_TICK = 32;
   private static final int LOCATION_SAMPLES_PER_TICK = 32;
   private static final int MUTATIONS_PER_TICK = 16;
@@ -98,6 +107,11 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
         .build());
     registerMilestone("challenge_herbalism_growth_1k", "herbalism.growth-aura.blocks-grown", 1000, 300);
     registerMilestone("challenge_herbalism_growth_25k", "herbalism.growth-aura.blocks-grown", 25000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, MATERIALS, SURFACE, FOOD_RESERVE, RADIUS);
   }
 
   @Override
@@ -227,7 +241,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
   }
 
   private void startGrowthPulse(Player p, double factor, double strength, double foodCost) {
-    double radius = getRadius(factor);
+    double radius = getRadius(factor) * preference(p, RADIUS).multiplier();
     int sampleCount = sampleCountForRadius(radius);
     if (sampleCount <= 0) {
       pendingPulses.remove(p.getUniqueId());
@@ -243,7 +257,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
       offset.setY(random.nextInt(-1, 2));
       offset.multiply(radius <= 0D ? 0D : random.nextDouble(radius));
       Location target = center.clone().add(offset);
-      GrowthSample sample = new GrowthSample(target, strength, foodCost, getConfig().surfaceOnly, pulse);
+      GrowthSample sample = new GrowthSample(target, strength, foodCost, getConfig().surfaceOnly || preferenceEnabled(p, SURFACE), pulse);
       if (!offerLocationSample(sample)) {
         completeGrowthSample(pulse, 0);
       }
@@ -336,6 +350,10 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
     }
 
     Block block = mutation.location.getBlock();
+    if (!preference(p, MATERIALS).allows(block.getType())) {
+      completeGrowthSample(mutation.pulse, 0);
+      return;
+    }
     if (!(block.getBlockData() instanceof Ageable ageable)
         || ageable.getAge() >= ageable.getMaximumAge()
         || !canInteract(p, block.getLocation())
@@ -351,7 +369,7 @@ public class HerbalismGrowthAura extends SimpleAdaptation<HerbalismGrowthAura.Co
       if (!(block.getBlockData() instanceof Ageable current)
           || current.getAge() >= current.getMaximumAge()
           || !payHungerCost(p, "hunger", (int) Math.ceil(mutation.foodCost),
-          () -> adaptPlayer.consumeFood(mutation.foodCost, 10))) {
+          () -> adaptPlayer.consumeFood(mutation.foodCost, preferenceEnabled(p, FOOD_RESERVE) ? 16 : 10))) {
         break;
       }
       current.setAge(current.getAge() + 1);

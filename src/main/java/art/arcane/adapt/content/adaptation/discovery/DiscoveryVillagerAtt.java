@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 
@@ -61,6 +64,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.Config> {
+  public static final PlayerPreference<DiscoveryPreferences.Reserve> XP_RESERVE = DiscoveryPreferences.reserve("xp-reserve", DiscoveryMessages.PREFERENCE_DISCOVERYVILLAGERATT_XP_RESERVE);
+
   private static final int PENDING_TIMEOUT_TICKS = 20;
   private static final int EFFECT_DURATION_TICKS = 200;
   private static final int EFFECT_REFRESH_TICKS = 160;
@@ -89,6 +94,12 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
     registerMilestone("challenge_discovery_villager_2500", "discovery.villager-att.improved-trades", 2500, 1000);
   }
 
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, XP_RESERVE);
+  }
 
   @Override
   public void addStats(int level, Element v) {
@@ -128,7 +139,7 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
     }
 
     int cost = getXpTaken(level);
-    if (p.getLevel() < cost) {
+    if (p.getLevel() - cost < preference(p, XP_RESERVE).amount()) {
       villager.shakeHead();
       fx(villager.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
           .particle(Particles.SMOKE, 2, 0, 0, 0, 0.05, 0.01)
@@ -163,7 +174,7 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
     PendingTrade candidate = pending.remove(playerId);
     if (candidate == null || event.isCancelled() || !(event.getInventory() instanceof MerchantInventory merchantInventory)
         || !(merchantInventory.getMerchant() instanceof Villager villager)
-        || !candidate.villagerId().equals(villager.getUniqueId()) || p.getLevel() < candidate.cost()) {
+        || !candidate.villagerId().equals(villager.getUniqueId()) || p.getLevel() - candidate.cost() < preference(p, XP_RESERVE).amount() || !hasActiveAdaptation(p)) {
       if (candidate != null) {
         restoreHeroEffect(p, candidate.level(), candidate.previousEffect(), candidate.startedAt());
       }
@@ -210,9 +221,25 @@ public class DiscoveryVillagerAtt extends SimpleAdaptation<DiscoveryVillagerAtt.
     }
   }
 
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    Player owner = player.getPlayer();
+    if (hasActiveAdaptation(owner)) {
+      return;
+    }
+    PendingTrade candidate = pending.remove(owner.getUniqueId());
+    if (candidate != null) {
+      restoreHeroEffect(owner, candidate.level(), candidate.previousEffect(), candidate.startedAt());
+    }
+    TradeSession session = active.remove(owner.getUniqueId());
+    if (session != null) {
+      restoreHeroEffect(owner, session.level(), session.previousEffect(), session.startedAt());
+    }
+  }
+
   private void refreshTradeSession(Player player, TradeSession session) {
     UUID playerId = player.getUniqueId();
-    if (active.get(playerId) != session || !player.isOnline()
+    if (active.get(playerId) != session || !player.isOnline() || !hasActiveAdaptation(player)
         || !(player.getOpenInventory().getTopInventory() instanceof MerchantInventory merchantInventory)
         || !(merchantInventory.getMerchant() instanceof Villager villager)
         || !session.villagerId().equals(villager.getUniqueId())) {

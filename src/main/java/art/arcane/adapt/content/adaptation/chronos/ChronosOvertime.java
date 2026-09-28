@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
@@ -55,6 +58,25 @@ import java.util.Set;
 import java.util.UUID;
 
 public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> HARMFUL = CommonPreferences.toggle("shorten-harmful", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_HARMFUL, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SPEED = CommonPreferences.toggle("speed", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_SPEED, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> JUMP_BOOST = CommonPreferences.toggle("jump-boost", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_JUMP_BOOST, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> REGENERATION = CommonPreferences.toggle("regeneration", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_REGENERATION, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> RESISTANCE = CommonPreferences.toggle("resistance", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_RESISTANCE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FIRE_RESISTANCE = CommonPreferences.toggle("fire-resistance", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_FIRE_RESISTANCE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> WATER_BREATHING = CommonPreferences.toggle("water-breathing", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_WATER_BREATHING, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> INVISIBILITY = CommonPreferences.toggle("invisibility", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_INVISIBILITY, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> NIGHT_VISION = CommonPreferences.toggle("night-vision", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_NIGHT_VISION, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> HEALTH_BOOST = CommonPreferences.toggle("health-boost", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_HEALTH_BOOST, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> ABSORPTION = CommonPreferences.toggle("absorption", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_ABSORPTION, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SATURATION = CommonPreferences.toggle("saturation", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_SATURATION, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> LUCK = CommonPreferences.toggle("luck", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_LUCK, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SLOW_FALLING = CommonPreferences.toggle("slow-falling", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_SLOW_FALLING, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> DOLPHINS_GRACE = CommonPreferences.toggle("dolphins-grace", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_DOLPHINS_GRACE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> HERO_OF_THE_VILLAGE = CommonPreferences.toggle("hero-of-the-village", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_HERO_OF_THE_VILLAGE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> HASTE = CommonPreferences.toggle("haste", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_HASTE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> STRENGTH = CommonPreferences.toggle("strength", ChronosMessages.PREFERENCE_CHRONOSOVERTIME_STRENGTH, CommonPreferences.Toggle.ON);
+
   private final Map<UUID, Boolean> reapplying = playerState();
 
   public ChronosOvertime() {
@@ -102,6 +124,12 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
     if (type != null) {
       set.add(type);
     }
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, HARMFUL, SPEED, JUMP_BOOST, REGENERATION, RESISTANCE, FIRE_RESISTANCE, WATER_BREATHING, INVISIBILITY, NIGHT_VISION, HEALTH_BOOST, ABSORPTION, SATURATION, LUCK, SLOW_FALLING, DOLPHINS_GRACE, HERO_OF_THE_VILLAGE, HASTE, STRENGTH);
   }
 
   @Override
@@ -169,7 +197,7 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
     }
 
     int level = getActiveLevel(p);
-    if (!shortensHarmfulEffect(getConfig().halveHarmfulEffectsAtMaxLevel, level > 0 && level >= getMaxLevel(),
+    if (!shortensHarmfulEffect(getConfig().halveHarmfulEffectsAtMaxLevel && preferenceEnabled(p, HARMFUL), level > 0 && level >= getMaxLevel(),
         incoming.getType().getCategory(), e.getAction())) {
       return;
     }
@@ -226,7 +254,26 @@ public class ChronosOvertime extends SimpleAdaptation<ChronosOvertime.Config> {
     }
 
     PotionEffectType type = newEffect.getType();
-    if (!Beneficial.TYPES.contains(type)) {
+    if (!Beneficial.TYPES.contains(type) || !preferenceEnabled(p, switch (type.getKey().getKey()) {
+      case "speed" -> SPEED;
+      case "jump_boost" -> JUMP_BOOST;
+      case "regeneration" -> REGENERATION;
+      case "resistance" -> RESISTANCE;
+      case "fire_resistance" -> FIRE_RESISTANCE;
+      case "water_breathing" -> WATER_BREATHING;
+      case "invisibility" -> INVISIBILITY;
+      case "night_vision" -> NIGHT_VISION;
+      case "health_boost" -> HEALTH_BOOST;
+      case "absorption" -> ABSORPTION;
+      case "saturation" -> SATURATION;
+      case "luck" -> LUCK;
+      case "slow_falling" -> SLOW_FALLING;
+      case "dolphins_grace" -> DOLPHINS_GRACE;
+      case "hero_of_the_village" -> HERO_OF_THE_VILLAGE;
+      case "haste" -> HASTE;
+      case "strength" -> STRENGTH;
+      default -> CommonPreferences.ENABLED;
+    })) {
       return;
     }
 

@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.NetherMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -44,6 +48,13 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK_DROP = CommonPreferences.toggle("sneak-drop", NetherMessages.NETHERLAVAWALKER_PREFERENCE_SNEAK_DROP, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<FoodReserve> FOOD_RESERVE = new PlayerPreference<>(FoodReserve.class,
+      new PlayerPreference.Definition<>("food-reserve", NetherMessages.NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE, FoodReserve.NONE, List.of(
+          new PlayerPreference.Choice<>(FoodReserve.NONE, NetherMessages.NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_NONE, Material.BOWL, 1),
+          new PlayerPreference.Choice<>(FoodReserve.FOUR, NetherMessages.NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_FOUR, Material.BREAD, 1),
+          new PlayerPreference.Choice<>(FoodReserve.EIGHT, NetherMessages.NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_EIGHT, Material.COOKED_BEEF, 1))));
+
   public NetherLavaWalker() {
     super("nether-lava-walker");
     registerConfiguration(Config.class);
@@ -63,6 +74,11 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
         .build());
     registerMilestone("challenge_nether_lava_1k", "nether.lava-walker.blocks-walked", 1000, 300);
     registerMilestone("challenge_nether_lava_25k", "nether.lava-walker.blocks-walked", 25000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SNEAK_DROP, FOOD_RESERVE);
   }
 
   @Override
@@ -94,6 +110,11 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
         return;
       }
 
+      int reserve = preference(p, FOOD_RESERVE).ordinal() * 4;
+      if ((preferenceEnabled(p, SNEAK_DROP) && p.isSneaking())
+          || (reserve > 0 && p.getFoodLevel() - getHungerCost(level) < reserve)) {
+        return;
+      }
       Vector velocity = p.getVelocity();
       Vector dir = p.getLocation().getDirection().setY(0).normalize().multiply(getStride(level));
       p.setVelocity(new Vector(dir.getX(), Math.max(0.16, velocity.getY()), dir.getZ()));
@@ -161,4 +182,6 @@ public class NetherLavaWalker extends SimpleAdaptation<NetherLavaWalker.Config> 
       initialCost = 4;
     }
   }
+
+  public enum FoodReserve { NONE, FOUR, EIGHT }
 }

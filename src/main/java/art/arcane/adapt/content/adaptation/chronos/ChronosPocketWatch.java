@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
@@ -40,6 +42,8 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -49,12 +53,16 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("require-sneak", ChronosMessages.PREFERENCE_CHRONOSPOCKETWATCH_SNEAK, CommonPreferences.Toggle.ON);
+
   private static final long PULSE_MILLIS = 250L;
   private static final int HARD_MAX_PLAYERS_PER_PASS = 512;
   private static final int MAX_CATCH_UP_PULSES = 4;
 
   private final Map<UUID, Long> airBudgetMillis = playerState();
   private final Map<UUID, Long> nextPulseAt = playerState();
+  private final Map<UUID, FallEffect> fallingEffects = playerState();
+  private final Map<UUID, Boolean> applyingEffects = playerState();
   private int playerCursor;
 
   public ChronosPocketWatch() {
@@ -71,6 +79,12 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
     registerMilestone("challenge_chronos_pocket_watch_500", "chronos.pocket-watch.slow-fall-seconds", 500, 650);
   }
 
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SNEAK);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     statLore(v, (getBudgetMillis(level) / 1000D) + "s", 1);
@@ -84,9 +98,68 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
 
   @EventHandler
   public void on(PlayerQuitEvent e) {
+    clearFallEffect(e.getPlayer());
     UUID playerId = e.getPlayer().getUniqueId();
     airBudgetMillis.remove(playerId);
     nextPulseAt.remove(playerId);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearFallEffect(player.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityPotionEffectEvent event) {
+    if (event.getEntity() instanceof Player player
+        && event.getModifiedType().equals(PotionEffectType.SLOW_FALLING)
+        && !applyingEffects.containsKey(player.getUniqueId())) {
+      fallingEffects.remove(player.getUniqueId());
+    }
+  }
+
+  private void applyFallEffect(Player player) {
+    UUID playerId = player.getUniqueId();
+    int now = player.getTicksLived();
+    FallEffect owned = fallingEffects.get(playerId);
+    PotionEffect previous = owned == null ? player.getPotionEffect(PotionEffectType.SLOW_FALLING) : owned.previous();
+    int previousStartedAt = owned == null ? now : owned.previousStartedAt();
+    applyingEffects.put(playerId, true);
+    try {
+      if (player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING,
+          getConfig().pulseDurationTicks, 0, true, false, false), true)) {
+        fallingEffects.put(playerId, new FallEffect(previous, previousStartedAt));
+      }
+    } finally {
+      applyingEffects.remove(playerId);
+    }
+  }
+
+  private void clearFallEffect(Player player) {
+    if (player == null) {
+      return;
+    }
+    UUID playerId = player.getUniqueId();
+    FallEffect owned = fallingEffects.remove(playerId);
+    if (owned == null) {
+      return;
+    }
+    applyingEffects.put(playerId, true);
+    try {
+      player.removePotionEffect(PotionEffectType.SLOW_FALLING);
+      PotionEffect previous = owned.previous();
+      if (previous == null) {
+        return;
+      }
+      int remaining = previous.isInfinite() ? PotionEffect.INFINITE_DURATION
+          : previous.getDuration() - Math.max(0, player.getTicksLived() - owned.previousStartedAt());
+      if (previous.isInfinite() || remaining > 0) {
+        player.addPotionEffect(new PotionEffect(previous.getType(), remaining, previous.getAmplifier(),
+            previous.isAmbient(), previous.hasParticles(), previous.hasIcon()), true);
+      }
+    } finally {
+      applyingEffects.remove(playerId);
+    }
   }
 
   @Override
@@ -122,7 +195,7 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
       return;
     }
 
-    int level = getActiveLevel(player, Player::isSneaking);
+    int level = getActiveLevel(player, candidate -> !preferenceEnabled(candidate, SNEAK) || candidate.isSneaking());
     if (level <= 0
         || player.isFlying()
         || player.isGliding()
@@ -156,8 +229,7 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
         ? 1.8F
         : (float) (1.2D + (0.6D * (1D - ((double) remaining / (double) maximum))));
 
-    player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING,
-        getConfig().pulseDurationTicks, 0, true, false, false), true);
+    applyFallEffect(player);
     emitPulseFx(player, firstPulse, remaining < PULSE_MILLIS, pulseIndex, driftPitch);
 
     addStat(player, "chronos.pocket-watch.slow-fall-seconds", appliedPulses * (PULSE_MILLIS / 1000D));
@@ -187,6 +259,9 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
     if ((pulseIndex & 1) == 0) {
       drift.sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.15F, driftPitch);
     }
+  }
+
+  private record FallEffect(PotionEffect previous, int previousStartedAt) {
   }
 
   @ConfigDescription("Sneak while airborne to fall in slow motion, with a level scaled time budget per airtime.")

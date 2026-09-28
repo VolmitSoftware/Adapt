@@ -18,7 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -29,6 +32,7 @@ import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -81,6 +85,11 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, AxePreferences.IGNORE_PASSIVE, AxePreferences.RESERVE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     double f = getLevelPercent(level);
     statLore(v, C.RED, "+ ", Form.f(getFalloffDamage(f), 1) + " - " + Form.f(getDamage(f), 1), 1);
@@ -125,7 +134,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
 
     ItemStack mainHand = p.getInventory().getItemInMainHand();
     int level = getActiveLevel(p);
-    if (!shouldActivate(p.isOnGround(), p.isSneaking(), isAxe(mainHand), level)) {
+    if (!preference(p, AxePreferences.RESERVE).permits(p.getFoodLevel()) || !shouldActivate(p.isOnGround(), p.isSneaking(), isAxe(mainHand), level)) {
       return;
     }
 
@@ -178,7 +187,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
   private List<LivingEntity> collectCandidates(Player player, Location center, double radius) {
     List<LivingEntity> candidates = new ArrayList<>(HARD_MAX_CANDIDATES);
     for (LivingEntity candidate : PaperCompat.nearbyLivingEntities(center, radius)) {
-      if (candidate == player) {
+      if (candidate == player || !AdaptationDamageTargets.allows(candidate, getConfig().ignorePassiveMobs || preferenceEnabled(player, AxePreferences.IGNORE_PASSIVE))) {
         continue;
       }
       candidates.add(candidate);
@@ -249,7 +258,8 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
   }
 
   private Location validTargetLocation(GroundSmashBatch batch, LivingEntity target) {
-    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)) {
+    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)
+        || !AdaptationDamageTargets.allows(target, batch.ignorePassive)) {
       return null;
     }
     if (target instanceof Tameable tameable && tameable.isTamed()) {
@@ -325,6 +335,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     private final double maximumDamage;
     private final double minimumDamage;
     private final double maximumForce;
+    private final boolean ignorePassive;
     private final AtomicInteger remaining;
     private final AtomicInteger hits = new AtomicInteger();
     private final AtomicBoolean finalized = new AtomicBoolean();
@@ -332,6 +343,7 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
     private GroundSmashBatch(Player player, Location center, double radius,
         double maximumDamage, double minimumDamage, double maximumForce, int candidateCount) {
       this.player = player;
+      ignorePassive = getConfig().ignorePassiveMobs || preferenceEnabled(player, AxePreferences.IGNORE_PASSIVE);
       playerId = player.getUniqueId();
       this.center = center;
       this.radius = radius;
@@ -384,6 +396,8 @@ public class AxeGroundSmash extends SimpleAdaptation<AxeGroundSmash.Config> {
 
   @ConfigDescription("Jump then crouch to smash all nearby enemies with your axe.")
   protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Exclude passive and neutral mobs from area damage and its secondary effects.", impact = "When enabled, protected mobs do not consume target limits. Direct attacks and player targeting are unchanged.")
+    boolean ignorePassiveMobs = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Falloff Factor for the Axe Ground Smash adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double falloffFactor = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Level Factor Multiplier for the Axe Ground Smash adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

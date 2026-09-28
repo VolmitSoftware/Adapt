@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -35,6 +36,11 @@ public class KineticsPhalanxReach extends SimpleAdaptation<KineticsPhalanxReach.
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    reconcile(player.getPlayer());
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getReach(level), 2), 1);
   }
@@ -60,7 +66,7 @@ public class KineticsPhalanxReach extends SimpleAdaptation<KineticsPhalanxReach.
   }
 
   private void reconcileWith(Player p, ItemStack mainHand) {
-    if (p == null || !p.isOnline() || Attributes.ENTITY_INTERACTION_RANGE == null || getLevel(p) <= 0) {
+    if (p == null || !p.isOnline() || Attributes.ENTITY_INTERACTION_RANGE == null) {
       return;
     }
 

@@ -40,7 +40,7 @@ class AdaptPlaceholderWiringTest {
     AdaptPlaceholders placeholders = AdaptPlaceholders.get();
     UUID playerId = UUID.fromString("00000000-0000-0000-0000-0000000000c3");
     placeholders.publishCatalog(9L, List.of(AdaptPapiFixtures.skill("mining", true, "Mining")));
-    placeholders.players().publish(playerId, AdaptPapiFixtures.player(placeholders.catalog().get()));
+    placeholders.players().publish(playerId, AdaptPapiFixtures.player());
 
     placeholders.clear();
 

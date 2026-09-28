@@ -5,6 +5,48 @@ import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
 
 public final class SeabornMessages {
+  public static final TextKey SEABORNEINKVEIL_PREFERENCE_VISUALS = TextKey.of("seaborneinkveil.preferences.preference_visuals", "Own ink density");
+
+  public static final TextKey SEABORNETIDECALLER_PREFERENCE_SNEAK = TextKey.of("seabornetidecaller.preferences.preference_sneak", "Sneak trigger");
+  public static final TextKey SEABORNETIDECALLER_PREFERENCE_ATTACK = TextKey.of("seabornetidecaller.preferences.preference_attack", "Attack trigger");
+  public static final TextKey SEABORNETIDECALLER_PREFERENCE_ATTACK_SNEAK = TextKey.of("seabornetidecaller.preferences.preference_attack_sneak", "Sneak required for attacks");
+  public static final TextKey SEABORNETIDECALLER_PREFERENCE_ATTACK_WATER = TextKey.of("seabornetidecaller.preferences.preference_attack_water", "Water required for attacks");
+  public static final TextKey SEABORNETIDECALLER_PREFERENCE_WATER = TextKey.of("seabornetidecaller.preferences.preference_water", "Water dashes");
+  public static final TextKey SEABORNETIDECALLER_PREFERENCE_RAIN = TextKey.of("seabornetidecaller.preferences.preference_rain", "Rain dashes");
+  public static final TextKey SEABORNETIDECALLER_PREFERENCE_FLAT = TextKey.of("seabornetidecaller.preferences.preference_flat", "Horizontal direction");
+
+  public static final TextKey SEABORNEHYDROJET_PREFERENCE_GESTURE = TextKey.of("seabornehydrojet.preferences.preference_gesture", "Jet gesture");
+  public static final TextKey SEABORNEHYDROJET_PREFERENCE_GESTURE_SINGLE = TextKey.of("seabornehydrojet.preferences.preference_gesture_single", "Single sneak");
+  public static final TextKey SEABORNEHYDROJET_PREFERENCE_GESTURE_DOUBLE = TextKey.of("seabornehydrojet.preferences.preference_gesture_double", "Double sneak");
+  public static final TextKey SEABORNEHYDROJET_PREFERENCE_RESERVE = TextKey.of("seabornehydrojet.preferences.preference_reserve", "Food reserve");
+  public static final TextKey SEABORNEHYDROJET_PREFERENCE_RESERVE_NONE = TextKey.of("seabornehydrojet.preferences.preference_reserve_none", "No reserve");
+  public static final TextKey SEABORNEHYDROJET_PREFERENCE_RESERVE_FOUR = TextKey.of("seabornehydrojet.preferences.preference_reserve_four", "Keep 4 food");
+  public static final TextKey SEABORNEHYDROJET_PREFERENCE_RESERVE_EIGHT = TextKey.of("seabornehydrojet.preferences.preference_reserve_eight", "Keep 8 food");
+  public static final TextKey SEABORNEHYDROJET_PREFERENCE_PRIORITY = TextKey.of("seabornehydrojet.preferences.preference_priority", "Shared sneak priority");
+  public static final TextKey SEABORNEHYDROJET_PREFERENCE_PRIORITY_HYDRO = TextKey.of("seabornehydrojet.preferences.preference_priority_hydro", "Hydro Jet first");
+  public static final TextKey SEABORNEHYDROJET_PREFERENCE_PRIORITY_TIDE = TextKey.of("seabornehydrojet.preferences.preference_priority_tide", "Tidecaller first");
+
+  public static final TextKey SEABORNEDEEPSALVAGER_PREFERENCE_OUTLINES = TextKey.of("seabornedeepsalvager.preferences.preference_outlines", "Container outlines");
+  public static final TextKey SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES = TextKey.of("seabornedeepsalvager.preferences.preference_container_types", "Outlined containers");
+  public static final TextKey SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES_ALL = TextKey.of("seabornedeepsalvager.preferences.preference_container_types_all", "All treasure containers");
+  public static final TextKey SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES_CHESTS = TextKey.of("seabornedeepsalvager.preferences.preference_container_types_chests", "Chests only");
+  public static final TextKey SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES_BARRELS = TextKey.of("seabornedeepsalvager.preferences.preference_container_types_barrels", "Barrels only");
+  public static final TextKey SEABORNEDEEPSALVAGER_PREFERENCE_COLOR = TextKey.of("seabornedeepsalvager.preferences.preference_color", "Outline color");
+  public static final TextKey SEABORNEDEEPSALVAGER_PREFERENCE_COLOR_AQUA = TextKey.of("seabornedeepsalvager.preferences.preference_color_aqua", "Aqua");
+  public static final TextKey SEABORNEDEEPSALVAGER_PREFERENCE_COLOR_GOLD = TextKey.of("seabornedeepsalvager.preferences.preference_color_gold", "Gold");
+  public static final TextKey SEABORNEDEEPSALVAGER_PREFERENCE_COLOR_PURPLE = TextKey.of("seabornedeepsalvager.preferences.preference_color_purple", "Purple");
+
+  public static final TextKey SEABORNETURTLESMININGSPEED_PREFERENCE_FLOATING = TextKey.of("seaborneturtlesminingspeed.preferences.preference_floating", "Compensate floating penalty");
+
+  public static final TextKey SEABORNETRIDENTMASTERY_PREFERENCE_RECALL = TextKey.of("seabornetridentmastery.preferences.preference_recall", "Trident recall");
+
+  public static final TextKey SEABORNEFISHWHISPERER_PREFERENCE_ATTRACTION = TextKey.of("seabornefishwhisperer.preferences.preference_attraction", "Attract fish");
+  public static final TextKey SEABORNEFISHWHISPERER_PREFERENCE_ASSISTANCE = TextKey.of("seabornefishwhisperer.preferences.preference_assistance", "Animal combat assistance");
+  public static final TextKey SEABORNEFISHWHISPERER_PREFERENCE_LUCK = TextKey.of("seabornefishwhisperer.preferences.preference_luck", "Fishing luck");
+
+  public static final TextKey SEABORNECORALGARDENER_PREFERENCE_PRESERVATION = TextKey.of("seabornecoralgardener.preferences.preference_preservation", "Preserve placed coral");
+  public static final TextKey SEABORNECORALGARDENER_PREFERENCE_GROWTH = TextKey.of("seabornecoralgardener.preferences.preference_growth", "Bonemeal coral growth");
+
   public static final TextKey OXYGEN_NAME = TextKey.of("seaborn.oxygen.name", "Organic Oxygen Tank");
   public static final TextKey OXYGEN_DESCRIPTION = TextKey.of("seaborn.oxygen.description", "Hold more oxygen in your tiny lungs!");
   public static final TextKey OXYGEN_LORE1 = TextKey.of("seaborn.oxygen.lore1", "Oxygen Capacity Increase");
@@ -93,6 +135,40 @@ public final class SeabornMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(SEABORNEINKVEIL_PREFERENCE_VISUALS);
+    builder.add(SEABORNETIDECALLER_PREFERENCE_FLAT);
+    builder.add(SEABORNETIDECALLER_PREFERENCE_RAIN);
+    builder.add(SEABORNETIDECALLER_PREFERENCE_WATER);
+    builder.add(SEABORNETIDECALLER_PREFERENCE_ATTACK_WATER);
+    builder.add(SEABORNETIDECALLER_PREFERENCE_ATTACK_SNEAK);
+    builder.add(SEABORNETIDECALLER_PREFERENCE_ATTACK);
+    builder.add(SEABORNETIDECALLER_PREFERENCE_SNEAK);
+    builder.add(SEABORNEHYDROJET_PREFERENCE_PRIORITY_TIDE);
+    builder.add(SEABORNEHYDROJET_PREFERENCE_PRIORITY_HYDRO);
+    builder.add(SEABORNEHYDROJET_PREFERENCE_PRIORITY);
+    builder.add(SEABORNEHYDROJET_PREFERENCE_RESERVE_EIGHT);
+    builder.add(SEABORNEHYDROJET_PREFERENCE_RESERVE_FOUR);
+    builder.add(SEABORNEHYDROJET_PREFERENCE_RESERVE_NONE);
+    builder.add(SEABORNEHYDROJET_PREFERENCE_RESERVE);
+    builder.add(SEABORNEHYDROJET_PREFERENCE_GESTURE_DOUBLE);
+    builder.add(SEABORNEHYDROJET_PREFERENCE_GESTURE_SINGLE);
+    builder.add(SEABORNEHYDROJET_PREFERENCE_GESTURE);
+    builder.add(SEABORNEDEEPSALVAGER_PREFERENCE_COLOR_PURPLE);
+    builder.add(SEABORNEDEEPSALVAGER_PREFERENCE_COLOR_GOLD);
+    builder.add(SEABORNEDEEPSALVAGER_PREFERENCE_COLOR_AQUA);
+    builder.add(SEABORNEDEEPSALVAGER_PREFERENCE_COLOR);
+    builder.add(SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES_BARRELS);
+    builder.add(SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES_CHESTS);
+    builder.add(SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES_ALL);
+    builder.add(SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES);
+    builder.add(SEABORNEDEEPSALVAGER_PREFERENCE_OUTLINES);
+    builder.add(SEABORNETURTLESMININGSPEED_PREFERENCE_FLOATING);
+    builder.add(SEABORNETRIDENTMASTERY_PREFERENCE_RECALL);
+    builder.add(SEABORNEFISHWHISPERER_PREFERENCE_LUCK);
+    builder.add(SEABORNEFISHWHISPERER_PREFERENCE_ASSISTANCE);
+    builder.add(SEABORNEFISHWHISPERER_PREFERENCE_ATTRACTION);
+    builder.add(SEABORNECORALGARDENER_PREFERENCE_GROWTH);
+    builder.add(SEABORNECORALGARDENER_PREFERENCE_PRESERVATION);
     builder.add(OXYGEN_NAME);
     builder.add(OXYGEN_DESCRIPTION);
     builder.add(OXYGEN_LORE1);

@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.localization.catalog.ExcavationMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -46,6 +50,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Config> {
+  public static final PlayerPreference<ExcavationPreferences.Trigger> TRIGGER = ExcavationPreferences.trigger("trigger", ExcavationMessages.PREFERENCE_EXCAVATIONTUNNELER_TRIGGER);
+  public static final PlayerPreference<ExcavationPreferences.Materials> MATERIALS = ExcavationPreferences.materials("materials", ExcavationMessages.PREFERENCE_EXCAVATIONTUNNELER_MATERIALS);
+  public static final PlayerPreference<CommonPreferences.Scale> BLOCKS = CommonPreferences.scale("block-limit", ExcavationMessages.PREFERENCE_EXCAVATIONTUNNELER_BLOCKS);
+
   private static final int[][] PLANE_OFFSETS = {
       {0, 1}, {0, -1}, {1, 0}, {-1, 0}, {1, 1}, {-1, 1}, {1, -1}, {-1, -1}
   };
@@ -64,6 +72,12 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
     registerMilestone("challenge_excavation_tunneler_10k", "excavation.tunneler.blocks-tunneled", 10000, 600);
   }
 
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TRIGGER, MATERIALS, BLOCKS);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     statLore(v, getBonusBlocks(level), 1);
@@ -73,7 +87,7 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
     Player p = e.getPlayer();
-    if (!p.isSneaking()) {
+    if (!preference(p, TRIGGER).allows(p.isSneaking())) {
       return;
     }
 
@@ -82,17 +96,17 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
       return;
     }
 
-    if (!isShovelable(e.getBlock().getType())) {
+    if (!isShovelable(e.getBlock().getType()) || !preference(p, MATERIALS).allows(e.getBlock().getType())) {
       return;
     }
 
-    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.getBlock().getLocation());
+    Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.getBlock().getLocation());
     if (context == null) {
       return;
     }
 
     int level = context.level();
-    int bonus = getBonusBlocks(level);
+    int bonus = Math.max(1, (int) Math.floor(getBonusBlocks(level) * preference(p, BLOCKS).multiplier()));
     float pitch = p.getLocation().getPitch();
     float yaw = p.getLocation().getYaw();
     boolean horizontal = pitch >= 50 || pitch <= -50;
@@ -122,7 +136,8 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
       Block target = origin.getRelative(dx, dy, dz);
       Location targetLocation = target.getLocation();
       if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(targetLocation))
-          || !isShovelable(target.getType())) {
+          || !isShovelable(target.getType())
+          || !preference(p, MATERIALS).allows(target.getType())) {
         continue;
       }
 
@@ -170,6 +185,7 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
       Location targetLocation = target.getLocation();
       if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(targetLocation))
           || !isShovelable(target.getType())
+          || !preference(player, MATERIALS).allows(target.getType())
           || !canBlockBreak(player, targetLocation)) {
         continue;
       }

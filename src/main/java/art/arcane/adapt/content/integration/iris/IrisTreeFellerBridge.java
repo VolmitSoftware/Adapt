@@ -64,6 +64,11 @@ final class IrisTreeFellerBridge {
   private static TreeFellerRunHooks adapt(IrisTreeFellerLink.RunHooks runHooks) {
     return new TreeFellerRunHooks() {
       @Override
+      public boolean requiresSneaking() {
+        return runHooks.requiresSneaking();
+      }
+
+      @Override
       public void onActivationAccepted() {
         runHooks.onActivationAccepted();
       }

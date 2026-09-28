@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 
@@ -85,6 +88,14 @@ import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> {
+  public static final PlayerPreference<Targets> TARGETS = new PlayerPreference<>(Targets.class,
+      new PlayerPreference.Definition<>("targets", RiftMessages.RIFTENDERTAGLOCK_PREFERENCE_TARGETS, Targets.ALL, List.of(
+          new PlayerPreference.Choice<>(Targets.ALL, RiftMessages.RIFTENDERTAGLOCK_PREFERENCE_TARGETS_ALL, Material.ENDER_PEARL, 1),
+          new PlayerPreference.Choice<>(Targets.HOSTILES, RiftMessages.RIFTENDERTAGLOCK_PREFERENCE_TARGETS_HOSTILES, Material.ZOMBIE_HEAD, 1),
+          new PlayerPreference.Choice<>(Targets.ANIMALS, RiftMessages.RIFTENDERTAGLOCK_PREFERENCE_TARGETS_ANIMALS, Material.WHEAT, 1),
+          new PlayerPreference.Choice<>(Targets.PLAYERS, RiftMessages.RIFTENDERTAGLOCK_PREFERENCE_TARGETS_PLAYERS, Material.PLAYER_HEAD, 1))));
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirm", RiftMessages.RIFTENDERTAGLOCK_PREFERENCE_CONFIRM, CommonPreferences.Toggle.OFF);
+
   private static final double PEARL_TELEPORT_DAMAGE = 5.0;
   private static final int MAX_PENDING_TELEPORTS = 2048;
   private static final int MAX_TARGET_SNAPSHOT_ATTEMPTS = 2;
@@ -124,6 +135,11 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
         .build());
     registerMilestone("challenge_rift_taglock_100", "rift.ender-taglock.entities-tagged", 100, 400);
     registerMilestone("challenge_rift_taglock_500", "rift.ender-taglock.taglocked-teleports", 500, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TARGETS, CONFIRM);
   }
 
   @Override
@@ -169,10 +185,18 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
       return;
     }
 
-    if (!isTaggable(target, level)) {
+    Targets targets = preference(p, TARGETS);
+    if (!isTaggable(target, level)
+        || (targets == Targets.HOSTILES && !(target instanceof Monster))
+        || (targets == Targets.ANIMALS && !(target instanceof Animals))
+        || (targets == Targets.PLAYERS && !(target instanceof Player))) {
       return;
     }
 
+    if (preferenceEnabled(p, CONFIRM) && !PreferenceConfirmation.confirm(this, p, "bind:" + target.getUniqueId(), hand)) {
+      e.setCancelled(true);
+      return;
+    }
     if (!tagIntoPearl(p, hand, target)) {
       return;
     }
@@ -888,4 +912,6 @@ public class RiftEnderTaglock extends SimpleAdaptation<RiftEnderTaglock.Config> 
     private record PendingTeleport(long token, long expiresAt, boolean teleporting) {
     }
   }
+
+  public enum Targets { ALL, HOSTILES, ANIMALS, PLAYERS }
 }

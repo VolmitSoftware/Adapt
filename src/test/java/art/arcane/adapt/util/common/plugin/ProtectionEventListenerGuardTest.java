@@ -2,7 +2,6 @@ package art.arcane.adapt.util.common.plugin;
 
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.xp.XpProvenanceListener;
-import art.arcane.adapt.content.mutation.runtime.MutationRuntimeRouter;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -29,34 +28,6 @@ class ProtectionEventListenerGuardTest {
     dispatch(event, () -> registry.on(event));
 
     verify(event, never()).getPlayer();
-  }
-
-  @Test
-  void mutationRuntimeDoesNotReactToProtectionProbe() {
-    MutationRuntimeRouter router = mock(MutationRuntimeRouter.class, CALLS_REAL_METHODS);
-    PlayerInteractEvent event = mock(PlayerInteractEvent.class);
-
-    dispatch(event, () -> router.on(event));
-
-    verify(event, never()).getPlayer();
-  }
-
-  @Test
-  void mutationRuntimeDoesNotReactToBlockProtectionProbes() {
-    MutationRuntimeRouter router = mock(MutationRuntimeRouter.class, CALLS_REAL_METHODS);
-    BlockBreakEvent breakEvent = mock(BlockBreakEvent.class);
-    BlockPlaceEvent placeEvent = mock(BlockPlaceEvent.class);
-
-    dispatch(breakEvent, () -> {
-      router.on(breakEvent);
-      router.onSuccessful(breakEvent);
-    });
-    dispatch(placeEvent, () -> router.on(placeEvent));
-
-    verify(breakEvent, never()).getPlayer();
-    verify(breakEvent, never()).getBlock();
-    verify(placeEvent, never()).getPlayer();
-    verify(placeEvent, never()).getBlock();
   }
 
   @Test

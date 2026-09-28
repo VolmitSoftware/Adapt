@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.RiftMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -51,6 +55,10 @@ import org.bukkit.util.Vector;
 import java.util.UUID;
 
 public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> REBOUND = CommonPreferences.toggle("rebound", RiftMessages.RIFTPEARLREBOUND_PREFERENCE_REBOUND, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> DAMAGE = CommonPreferences.toggle("damage-reduction", RiftMessages.RIFTPEARLREBOUND_PREFERENCE_DAMAGE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", RiftMessages.RIFTPEARLREBOUND_PREFERENCE_SNEAK, CommonPreferences.Toggle.OFF);
+
   private static final double HARD_MAX_DAMAGE_REDUCTION = 0.9D;
   private static final double HARD_MAX_AIM_BIAS = 0.9D;
 
@@ -80,6 +88,11 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, REBOUND, DAMAGE, SNEAK);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, C.GREEN, "+ ", Form.pc(getDamageReduction(level), 0), 1);
     statLore(v, C.GREEN, "+ ", Form.pc(getAimBias(level), 0), 2);
@@ -100,7 +113,7 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     }
 
     int level = getActiveLevel(p);
-    if (level > 0) {
+    if (level > 0 && preferenceEnabled(p, REBOUND) && (!preferenceEnabled(p, SNEAK) || p.isSneaking())) {
       pearl.getPersistentDataContainer().set(reboundLevelKey, PersistentDataType.INTEGER, level);
     }
   }
@@ -152,7 +165,7 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (level <= 0 || !preferenceEnabled(p, DAMAGE)) {
       return;
     }
 

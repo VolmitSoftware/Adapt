@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
@@ -71,6 +74,19 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Config> {
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_CONTROL, Control.SNEAK, List.of(
+          new PlayerPreference.Choice<>(Control.SNEAK, ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_CONTROL_SNEAK, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Control.ARMED, ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_CONTROL_ARMED, Material.BRICKS, 1))));
+  public static final PlayerPreference<CommonPreferences.Toggle> PREVIEW = CommonPreferences.toggle("preview", ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_PREVIEW, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Scale> LIMIT = CommonPreferences.scale("limit", ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_LIMIT);
+  public static final PlayerPreference<Materials> MATERIALS = new PlayerPreference<>(Materials.class,
+      new PlayerPreference.Definition<>("materials", ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_MATERIALS, Materials.ALL, List.of(
+          new PlayerPreference.Choice<>(Materials.ALL, ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_ALL, Material.STONE, 1),
+          new PlayerPreference.Choice<>(Materials.WOOD, ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_WOOD, Material.OAK_PLANKS, 1),
+          new PlayerPreference.Choice<>(Materials.STONE, ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_STONE, Material.STONE_BRICKS, 1),
+          new PlayerPreference.Choice<>(Materials.GLASS, ArchitectMessages.ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_GLASS, Material.GLASS, 1))));
+
   private static final int MAX_PREVIEW_OWNERS_PER_TICK = 64;
   private static final int MAX_DISPLAY_WORK_PER_TICK = 256;
   private static final int MAX_DISPLAY_REMOVALS_PER_TICK = 256;
@@ -111,9 +127,33 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
     registerMilestone("challenge_architect_placement_25k", "architect.placement.blocks-placed", 25000, 1500);
   }
 
+  private boolean acceptsMaterial(Player player, Material material) {
+    String name = material.name();
+    return switch (preference(player, MATERIALS)) {
+      case ALL -> true;
+      case WOOD -> name.endsWith("_PLANKS") || name.endsWith("_LOG") || name.endsWith("_WOOD") || name.endsWith("_STEM") || name.endsWith("_HYPHAE");
+      case STONE -> name.contains("STONE") || name.contains("BRICK") || name.contains("DEEPSLATE");
+      case GLASS -> name.contains("GLASS");
+    };
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONTROL, PREVIEW, LIMIT, MATERIALS);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearPlayerPreview(player.getPlayer().getUniqueId());
+  }
+
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.PLACEMENT_LORE3));
+  }
+
+  private boolean buildingArmed(Player player) {
+    return player.isSneaking() || preference(player, CONTROL) == Control.ARMED;
   }
 
   private BlockFace getBlockFace(Player player) {
@@ -139,7 +179,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
       }
 
       UUID id = p.getUniqueId();
-      if (getActiveLevel(p, Player::isSneaking) <= 0) {
+      if (getActiveLevel(p, this::buildingArmed) <= 0) {
         return;
       }
 
@@ -230,6 +270,9 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
       }
 
       if (ignored != null && ignoredData != null && ownsBlock(p, e.getBlock())) {
+        if (placedCount > 0) {
+          hand.setAmount(hand.getAmount() - 1);
+        }
         e.getBlock().setBlockData(ignoredData);
         addStat(p, "blocks.placed", 1);
         addStat(p, "blocks.placed.value", v);
@@ -282,7 +325,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
     UUID id = p.getUniqueId();
-    if (!e.isSneaking()) {
+    if (!e.isSneaking() && preference(p, CONTROL) == Control.SNEAK) {
       clearPlayerPreview(id);
       return;
     }
@@ -290,26 +333,27 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
       return;
     }
 
-    withPlayerThread(p, e, () -> {
-      int level = getActiveLevel(p);
-      if (level <= 0) {
-        clearPlayerPreview(id);
-        return;
-      }
+    if (!J.runEntity(p, () -> startSneakingPreview(p, e), 1)) {
+      clearPlayerPreview(id);
+    }
+  }
 
-      if (p.getInventory().getItemInMainHand().getType().isBlock()) {
-        Block block = p.getTargetBlock(null, 5); // 5 is the range of player
-        if (block instanceof Container) { // return if block is a container
-          return;
-        }
-        Material handMaterial = p.getInventory().getItemInMainHand().getType();
-        if (handMaterial.isAir()) {
-          return;
-        }
-        BlockFace viewPortBlock = getBlockFace(p);
-        runPlayerViewport(viewPortBlock, block, handMaterial, p);
-      }
-    });
+  private void startSneakingPreview(Player player, PlayerToggleSneakEvent event) {
+    if (!isRuntimeRegistered() || event.isCancelled() || !player.isOnline() || !buildingArmed(player)
+        || getActiveLevel(player) <= 0) {
+      clearPlayerPreview(player.getUniqueId());
+      return;
+    }
+    Material handMaterial = player.getInventory().getItemInMainHand().getType();
+    if (!handMaterial.isBlock() || handMaterial.isAir()) {
+      clearPlayerPreview(player.getUniqueId());
+      return;
+    }
+    Block block = player.getTargetBlock(null, 5); // 5 is the range of player
+    if (block instanceof Container) { // return if block is a container
+      return;
+    }
+    runPlayerViewport(getBlockFace(player), block, handMaterial, player);
   }
 
 
@@ -317,7 +361,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
   @RunsWithoutLearnedAdaptation
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    if (!p.isSneaking() || !p.getInventory().getItemInMainHand().getType().isBlock()) {
+    if (!buildingArmed(p) || !p.getInventory().getItemInMainHand().getType().isBlock()) {
       clearResidualPreview(p);
       return;
     }
@@ -336,7 +380,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
         return;
       }
 
-      if (p.isSneaking() && p.getInventory().getItemInMainHand().getType().isBlock()) {
+      if (buildingArmed(p) && p.getInventory().getItemInMainHand().getType().isBlock()) {
         Block block = p.getTargetBlock(null, 5); // 5 is the range of player
         if (block instanceof Container) { // return if block is a container
           return;
@@ -353,7 +397,7 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
 
   public void runPlayerViewport(BlockFace viewPortBlock, Block block, Material handMaterial, Player p) {
     UUID id = p.getUniqueId();
-    if (viewPortBlock == null || block == null || handMaterial == null || handMaterial.isAir()) {
+    if (viewPortBlock == null || block == null || handMaterial == null || handMaterial.isAir() || !acceptsMaterial(p, handMaterial)) {
       clearPlayerPreview(id);
       return;
     }
@@ -385,6 +429,10 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
       }
     }
 
+    int personalLimit = Math.max(1, (int) (clampPreviewBlocks(getConfig().maxBlocks) * preference(p, LIMIT).multiplier()));
+    while (map.size() > personalLimit) {
+      map.remove(map.keySet().iterator().next());
+    }
     if (map.isEmpty()) {
       clearPlayerPreview(id);
       return;
@@ -463,8 +511,13 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
   private void renderPreview(Player p) {
     UUID id = p.getUniqueId();
     Map<Block, BlockFace> blockRender = totalMap.get(id);
-    if (getActiveLevel(p, Player::isSneaking) <= 0 || blockRender == null || blockRender.isEmpty()) {
+    if (getActiveLevel(p, this::buildingArmed) <= 0 || blockRender == null || blockRender.isEmpty()) {
       clearPlayerPreview(id);
+      return;
+    }
+
+    if (!preferenceEnabled(p, PREVIEW)) {
+      clearPreviewDisplays(id);
       return;
     }
 
@@ -857,4 +910,8 @@ public class ArchitectPlacement extends SimpleAdaptation<ArchitectPlacement.Conf
       initialCost = 4;
     }
   }
+
+  public enum Control { SNEAK, ARMED }
+
+  public enum Materials { ALL, WOOD, STONE, GLASS }
 }

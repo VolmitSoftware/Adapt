@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import org.bukkit.entity.Enemy;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
@@ -29,8 +34,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.content.mutation.runtime.MutationUtilityTag;
-import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -56,6 +59,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CLOCK_SOUNDS = CommonPreferences.toggle("clock-sounds", ChronosMessages.PREFERENCE_CHRONOSABERRANTTOUCH_CLOCK_SOUNDS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> PASSIVE = CommonPreferences.toggle("passive-targets", ChronosMessages.PREFERENCE_CHRONOSABERRANTTOUCH_PASSIVE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> PLAYERS = CommonPreferences.toggle("player-targets", ChronosMessages.PREFERENCE_CHRONOSABERRANTTOUCH_PLAYERS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FOOD_RESERVE = CommonPreferences.toggle("food-reserve", ChronosMessages.PREFERENCE_CHRONOSABERRANTTOUCH_FOOD_RESERVE, CommonPreferences.Toggle.OFF);
+
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, StackState> targetStacks = new ConcurrentHashMap<>();
 
@@ -77,6 +85,12 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_aberrant_500", "chronos.aberrant-touch.slowness-stacks-applied", 500, 400);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CLOCK_SOUNDS, PASSIVE, PLAYERS, FOOD_RESERVE);
   }
 
   @Override
@@ -114,13 +128,18 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
       return;
     }
 
-    art.arcane.adapt.api.adaptation.Adaptation.MeleeContext combat = resolveMeleeContext(e);
+    Adaptation.MeleeContext combat = resolveMeleeContext(e);
     if (combat == null) {
       return;
     }
 
     attacker = combat.attacker();
     LivingEntity target = combat.target();
+    if (target instanceof Player && !preferenceEnabled(attacker, PLAYERS)
+        || !(target instanceof Player) && !(target instanceof org.bukkit.entity.Enemy) && !preferenceEnabled(attacker, PASSIVE)
+        || preferenceEnabled(attacker, FOOD_RESERVE) && attacker.getFoodLevel() - getConfig().hungerCost < 8) {
+      return;
+    }
     Player payer = attacker;
     if (!payHungerCost(payer, "hunger", (int) Math.ceil(getConfig().hungerCost),
         () -> getPlayer(payer).consumeFood(getConfig().hungerCost, getConfig().minimumFoodLevel))) {
@@ -138,7 +157,7 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     int newAmplifier = Math.min(amplifierCap, currentAmplifier + 1);
     int newDuration = Math.min(durationCap, currentDuration + getDurationAddedTicks(level));
 
-    boolean utilityApplied = target.addPotionEffect(new PotionEffect(
+    target.addPotionEffect(new PotionEffect(
         PotionEffectType.SLOWNESS,
         Math.max(20, newDuration),
         Math.max(0, newAmplifier),
@@ -153,7 +172,7 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     boolean rooted = stacks >= getConfig().rootAtStacks;
     int chargeStacks = stacks;
     if (rooted) {
-      utilityApplied |= target.addPotionEffect(new PotionEffect(
+      target.addPotionEffect(new PotionEffect(
           PotionEffectType.SLOWNESS,
           getConfig().rootDurationTicks,
           getConfig().rootAmplifier,
@@ -169,22 +188,12 @@ public class ChronosAberrantTouch extends SimpleAdaptation<ChronosAberrantTouch.
     }
     targetStacks.put(target.getUniqueId(), new StackState(stacks, now));
 
-    if (getConfig().playClockSounds) {
+    if (getConfig().playClockSounds && preferenceEnabled(attacker, CLOCK_SOUNDS)) {
       ChronosSoundFX.playTouchProc(attacker, target.getLocation());
     }
     emitTouchFx(target, Math.max(0, newAmplifier), rooted, chargeStacks);
-    if (utilityApplied) {
-      emitFormulaUtility(attacker, target, rooted ? 1D : 0.6D);
-    }
     xp(attacker, attacker.getLocation(), getConfig().xpPerProc + (getConfig().xpPerLevel * level));
     cooldowns.mark(attacker.getUniqueId());
-  }
-
-  private void emitFormulaUtility(Player attacker, LivingEntity target, double strength) {
-    MutationRuntimeSVC runtime = MutationRuntimeSVC.get();
-    if (runtime != null) {
-      runtime.emitAnomalyUtility(attacker, target, MutationUtilityTag.PINNING, strength, false);
-    }
   }
 
   private void emitTouchFx(LivingEntity target, int amplifier, boolean rooted, int stacks) {

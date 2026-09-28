@@ -15,31 +15,24 @@
 # === Değişkenler ===
 # Değişken adlarını değiştirmeyin ve yalnızca ilgili iletinin değişkenlerini kullanın.
 #   {adaptation}  Adaptasyon adı
-#   {adaptations}  Eşleşen Adaptasyon adları
 #   {after}  Düzenlemeden sonraki değer
 #   {amount}  Para, bilgi veya deneyim miktarı
 #   {argument}  Beklenmeyen komut argümanı
 #   {available}  Kullanılabilir güç veya bilgi
 #   {before}  Düzenlemeden önceki değer
-#   {benefit}  Mutasyon yararının açıklaması
 #   {block}  İlerleme talimatındaki blok
 #   {bonus}  Masterwork bonus miktarı
-#   {burden}  Mutasyon dezavantajının açıklaması
 #   {category}  Yapılandırma kategorisi adı
 #   {chance}  Etkinleşme olasılığı
 #   {combo}  Instant Recall tetikleme birleşimi
 #   {command}  Komut yolu
-#   {control}  Mutasyon kullanım talimatı
 #   {cost}  Bilgi maliyeti
 #   {count}  Öğe, dosya veya mesaj sayısı
 #   {damage}  Ek hasar miktarı
 #   {danger}  Kapı yolculuğu tehlike uyarısı
-#   {deepCharge}  Depolanan Deep Charge miktarı
-#   {deepblood}  Bağlı Deepblood aletinin durumu
 #   {description}  İlerleme açıklaması
 #   {direction}  Yapıya doğru yön
 #   {distance}  Yapıya olan blok cinsinden mesafe
-#   {domain}  Mutasyon beceri grubunun adı
 #   {duration}  Biçimlendirilmiş süre veya bekleme süresi
 #   {effect}  İksir etkisinin adı
 #   {enchantment}  Büyü adı
@@ -52,7 +45,6 @@
 #   {group}  Dil düzenleyicisi kategorisi
 #   {hits}  Başarılı önbellek aramaları
 #   {instruction}  İlerlemeyi açma talimatı
-#   {interaction}  Diğer mutasyon yuvasıyla etkileşim
 #   {key}  Mesaj veya yapılandırma anahtarı
 #   {knowledge}  Bilgi miktarı
 #   {label}  Ayar veya istatistik etiketi
@@ -60,7 +52,6 @@
 #   {levels}  Tasarruf edilen deneyim seviyeleri
 #   {line}  Dil mesajının satır numarası
 #   {locale}  Dil kodu
-#   {masterwork}  Bağlı Masterwork ekipmanının durumu
 #   {maximum}  İzin verilen en yüksek değer veya güç sınırı
 #   {message}  Bekleme ayrıntılarından önceki durum mesajı
 #   {microsPerCheck}  Yetenek kontrolü başına mikrosaniye
@@ -68,12 +59,10 @@
 #   {minimum}  İzin verilen en düşük değer
 #   {misses}  Kayıtlı sonuç bulunamayan önbellek aramaları
 #   {multiplier}  Deneyim artışı çarpanı
-#   {mutation}  Mutasyon adı
 #   {needed}  Gerekli güç veya bilgi
 #   {newValue}  Yeni yapılandırma değeri
 #   {nextLevel}  Sonraki beceri seviyesi gösterimi
 #   {oldValue}  Önceki yapılandırma değeri
-#   {other}  Çakışan mutasyonun adı
 #   {page}  Geçerli sayfa numarası
 #   {pages}  Toplam sayfa sayısı
 #   {parameter}  Komut parametresinin adı
@@ -92,28 +81,23 @@
 #   {progress}  Beceri ilerleme gösterimi
 #   {range}  Arama veya yetenek menzilinin blok cinsinden değeri
 #   {ratio}  Önbellek isabet oranı
-#   {reason}  Mutasyon durumu veya düzenleyici hatası açıklaması
+#   {reason}  Düzenleyici hatası
 #   {refund}  Öğrenileni geri alırken iade edilen bilgi
 #   {remaining}  Gösterilmeyen yapılandırma değişikliği sayısı
-#   {result}  Mutasyonun 200. seviyedeki etkisi
-#   {rootCharge}  Depolanan Root Charge miktarı
 #   {second}  İkinci beceri grubu veya tetikleme bileşeni
 #   {seconds}  Saniye cinsinden süre
 #   {section}  Dil düzenleyicisi bölümü
 #   {separator}  İstatistik değeri ile etiketi arasındaki ayırıcı
 #   {skill}  Beceri adı
-#   {slot}  Mutasyon yuvasının numarası
 #   {slots}  Sırt çantası yuva sayısı
 #   {stacks}  Etki birikimleri veya çanta yığın kapasitesi
-#   {state}  Etkinlik durumu veya mutasyon yuvası durumu
+#   {state}  Etkinlik durumu
 #   {steps}  Tamamlanan üretim, iksir veya büyü adımları
 #   {strength}  Ek zırh gücü
 #   {structure}  Bulunan yapının adı
 #   {surface}  Tetiklemeyi etkileyen yüzey
 #   {symbol}  Yapı göstergesi simgesi
 #   {target}  Hedef oyuncu veya dil eklentisi
-#   {tell}  Mutasyonun görünür etkisinin açıklaması
-#   {temperbound}  Bağlı Temperbound ekipmanının durumu
 #   {timestamp}  Yapılandırma arşivinin zaman damgası
 #   {to}  Sayfadaki son girdinin indeksi
 #   {total}  Toplam girdi veya yuva sayısı
@@ -129,364 +113,6 @@
 #   {x}  Hedef X koordinatı
 #   {xp}  Deneyim miktarı
 #   {z}  Hedef Z koordinatı
-
-[mutation.domain]
-body = "Vücut Bedeni"
-hunt = "Hunt"
-industry = "Endüstri endüstrisi"
-wild = "Vahşi"
-craft = "zanaatkar"
-anomaly = "Anomaly"
-
-[mutation.type.gale_lung]
-name = "Gale Lung"
-benefit = "Hareket Momentum'u doldurur ve bir sonraki darbe hedefi itirir veya yeniden yerleştirir."
-burden = "Enemies sizi daha zor itiyor, Momentum doluyken. Selam olsun."
-perfect = "Enemies artık seni daha zor itmiyor. Bloklama hala boşluklar Momentum."
-tell = "Teal rüzgar ayaklarınızın ve silahınızın etrafında toplanır."
-control = "Momentum'u doldurmaya devam et, sonra bir hit toprak."
-
-[mutation.type.bastion_spine]
-name = "Bastion Spine"
-benefit = "Ayak hala Stability inşa ediyor. Bir sonraki kalkanınız, axe veya silahsız vuruş kısa bir darbe gönderir."
-burden = "Braced iken, sprint veya atlayamazsın. Arkadan bir vuruş, duruşu kırıyor."
-perfect = "Yavaşlayabilir ve bracederken atabilirsiniz. Arkadan gelen Hits hala kırabilir."
-tell = "Stone kaburgalar ve parlak çatlaklar, depolanmış kuvvetinizi gösteriyor."
-control = "Hala zeminde dur, sonra bir kalkan, axe veya boş el ile grev."
-
-[mutation.type.verdant_molt]
-name = "Verdant Molt"
-benefit = "Sneak, zararlı etkileri temizlemek için doğal zeminde hareket etmeden."
-burden = "Ayrıca yararlı etkiler, açlık maliyeti ve kısa bloklar yeni etkiler."
-perfect = "Yardım edici etkiler ve açlık artık kaybolmaz. Kısa etki bloğu kalır."
-tell = "Leaves, ölçekler veya sporlar sizden uzaklaşır."
-control = "Gizli tutun ve hala doğal zeminde kal."
-
-[mutation.type.temperbound]
-name = "Temperbound"
-benefit = "Bir zırh kurdu, böylece parçaları dayanıklılık paylaşır. Bir parça kıracak, yerine Cracked olurdu."
-burden = "Bağlantılı bir parça yüklemek veya takas etmek kısa süre için seti devre dışı bırakır."
-perfect = "Swapping zırhı artık seti devre dışı bırakmıyor. Sadece bir set bağlantılı kalabilir."
-tell = "Glowing hatları bağlantılı zırh parçalarına bağlanır."
-control = "Bir anda Adapt Kitaplarhelf, dört adet zırhlı zırh parçaları giymek ve Link Şimdiki Zırh seçin."
-
-[mutation.type.paradox_scar]
-name = "Paradoks"
-benefit = "Uzun bir hareket veya telgraf geri dönüş noktası bırakır. Bir kez geri atabilirsiniz."
-burden = "Geri dönüş noktası görünür, oluşturmaktan başka bir tane bloklar ve düşmanları kırabilir."
-perfect = "Artık diğer Mutasyon geri dönüş etkilerini engeller. Enemies hala kırabilir."
-tell = "Parlak bir sonraki imaj geri dönüş noktası işaret eder."
-control = "Uzun bir hareket veya telgraftan sonra, gizlice ve elleri geri döndürün."
-
-[mutation.type.arsenal_cortex]
-name = "Arsenal Cortex"
-benefit = "hit arasındaki değişen silah veya araç türleri bir sonraki vuruşa tek kontrol etkisi taşır."
-burden = "Aynı türü kullanarak kısa bir süre için açılan pencereyi iki kez kilitler."
-perfect = "Bir türü tekrarlamak artık açılanı kilitlemiyor. Anahtarlama türleri hala inşa etmek için gereklidir."
-tell = "Kayıtlı öğe etrafında değişen bir sembolü döndürür."
-control = "Arazi farklı silah veya araç türleri ile vurur."
-
-[mutation.type.packmind]
-name = "Packmind"
-benefit = "İlk vuruşunuz bir hedeftir. Evcil hayvanlar ve tercih edilen müttefikleri Tempo'yu da vurarak inşa etti."
-burden = "Başka biri katılana kadar hasarınız daha az. Solo tempo hızla söner."
-perfect = "Hasarınız artık daha düşük değilken. Tempo hala başka bir katılımcıya ihtiyacı var."
-tell = "Amber hatları grubu işaretli hedefe bağlar."
-control = "Hedefleri vur, sonra evcil hayvanını ya da seçilmiş müttefikini de saldır."
-
-[mutation.type.trophy_crucible]
-name = "Trophy Crucible"
-benefit = "Doğal çeteler trophies düşebilir. Bu çete türüne karşı bir kontrol etkisi hazırlamak için birini kullanın."
-burden = "O kalabalık seni daha kolay fark eder ve Mutasyon gizlileri aracılığıyla görür."
-perfect = "Ekstra algılama kaldırıldı. Hala sadece bir trophy etkisi saklayabilirsiniz."
-tell = "Depolamalı çete türü gösteren bir maske arkanızda görünür."
-control = "Doğal bir ödül tuturken, sağ tıklayarak bir masa yapın."
-
-[mutation.type.umbral_echo]
-name = "Umbral Echo"
-benefit = "Yeni bir açıdan saldırı veya yeni bir silah türü ile gecikmeden sonra daha zayıf bir kontrol etkisini tekrarlamak için."
-burden = "Aynı yaklaşımı tekrarlamak sizi ortaya çıkarır ve kısa bir şekilde kapatılır."
-perfect = "Bir yaklaşımı tekrarlamak artık sizi açığa çıkarmaz. Yeni açılar veya silah türleri hala gereklidir."
-tell = "Daha karanlık bir mor kontrol etkisini tekrarlar."
-control = "Saldırı açınızı veya silah tipini hitler arasında değiştirin."
-
-[mutation.type.living_lattice]
-name = "Yaşamak Lattice"
-benefit = "Hasat etmek ve yeniden dikmek Kök Şarji kazanır. Kısa bir geçici yol büyümek için onu harcayın."
-burden = "Ateş ve lava sizin sorumluluğunuz yok edebilir ve zorla bir çöküntü açlık maliyeti."
-perfect = "Ateş ve lava artık şarj edilemez. Yollar hala yok."
-tell = "Yeşil kökler yol yok etmeden önce kahverengi döndürür."
-control = "Hasat ve replant, sonra bir filing yaparken gizlice tıklanır."
-
-[mutation.type.masterwork_bond]
-name = "Masterwork Bond"
-benefit = "Bind tek bir alet,. kırılma yerine bir dayanıklılıkta durur ve kullanımdan önce tamir edilmelidir."
-burden = "Sadece sınır aracı koruma alır. Kaybedilirse, başka birini bağlamadan önce beklemeniz gerekir."
-perfect = "Diğer araçlar normalde Mutasyon etkileri ile çalışır. Sadece Ustalık kırılmadan kaçınır."
-tell = "Atışın yakınında olduğu gibi alet çatlakları çalıştırın."
-control = "Adapt kitap rafında, kendi yaptığın bir alet tut ve tutulan bir araç seç."
-
-[mutation.type.deepblood]
-name = "Derin kanlı"
-benefit = "Yeraltında doğal blokları madencilik ederek derin yük oluşturur. İyileşmeyi güçlendirir ve bir bağlanmış alet kurtarır."
-burden = "Yeraltı iyileşmesi Deep Charge'u geçirir ve sorumlu yavaşça zeminin üstünden çıkarır."
-perfect = "Yeraltı şifası sıfır şarjda çalışır. Sınır aracı kurtarmak hala maliyetlerden sorumlu."
-tell = "Kırmızı çatlaklar sizinle ve sorumlu inşa olarak sınırlı araç yayıldı."
-control = "Doğal derin bloklar ve bir aracı bir anda bağlar Adapt Kitaplarhelf."
-
-[mutation.type.mycelial_nerve]
-name = "Mycelial Nerve"
-benefit = "Kendinize verdiğiniz faydalı etkileri, yakınlarda bulunan oyuncular ve evcil hayvanlara daha zayıf şekilde yayılır."
-burden = "Kendi etkiniz daha az zaman sürer ve yangın hasarını almak bağlantıyı bozar."
-perfect = "Etkisiniz tam zamanını tutar ve artık bağlantıyı kırmayın."
-tell = "Spor izleri yakındaki müttefiklere kopyalanan etkileri taşır."
-control = "Kendine, seçilmiş oyuncular veya evcil hayvanların yanında yararlı bir etki yap."
-
-[mutation.type.gravebloom]
-name = "Tavşan"
-benefit = "Doğal düşmanca bir kalabalığı öldürmek, bitkiler yetiştiren ve evcil hayvanlarınızı iyileştiren kısa süreli bir çiçek oluşturabilir."
-burden = "Aktif çiçekler doğal şifanızı zayıflatır ve eski çiçekleri düşman çeteleri çekiyor."
-perfect = "Blooms artık şifanızı zayıflatmıyor. Kısa bir süre sonra hala kaybolurlar."
-tell = "Pale çiçekleri ve ruh parçacıkları ölümden yükselir."
-control = "Doğal zeminde doğal düşmanca bir çete öldür."
-
-[mutation.type.resonant_formula]
-name = "Resonant Formula"
-benefit = "Craft, bira ve her biri bir kez daha bir combo hazırlamak. Bir sonraki anomali etkisi yarı güçte tekrarlanır."
-burden = "Aynı prep adımını tekrarlayın ve en eski yararlı etkinizi ortadan kaldırır."
-perfect = "Bir adımı tekrarlamak artık combo kırmıyor. Hala üç farklı adıma ihtiyacınız var."
-tell = "Üç sembol kombinasyon hazır olduğunda bir araya gelir."
-control = "Craft, bira ve her seferinde enchant."
-
-[mutation.runtime]
-unavailable = "Mutasyon çalışması zamanı mevcut değil."
-feature_off = "Deneysel Mutasyonlar bu sunucuda kapatılıyor."
-type_off = "{mutation} sunucu ayarlarında kapalı."
-missing_permission = "Eksik izin {permission}."
-duplicate_slots = "Aynı Mutasyon her iki slotda da kullanılabilir."
-duplicate_occupancy = "Aynı Mutasyon her iki yuvayı işgal edemez."
-conflict_other = "Bu seçim diğer Mutasyonlarınızla çatışma."
-conflicts_with = "{mutation} Çatışmalarla çatışma {other}."
-slot_locked_current_level = "Bu slot şu anki seviyesinde kilitlidir."
-first_slot_unlocks = "İlk Mutasyon slotı seviyede açılır {level}."
-world_unavailable = "Bu Mutasyon, işe yaramıyor {world}."
-active_perfect = "Aktif olarak,."
-active_burden = "Aktif; alt kısım geçerlidir."
-ready_to_use = "kullanmaya hazır."
-requirements_unavailable = "Mutasyon gereksinimleri mevcut değildir."
-learn_both_domains = "Her ikisinden de bir Adaptasyon öğrenin {first} ve {second} Beceri grupları."
-learn_domain_level = "Öğrenin {domain} Düzeyde Adaptasyon {level} veya daha yüksek veya."
-ready = "Hazırlık."
-login_requirements = "Gereksinimleri kontrol etmek için oturum açın."
-equipped_offline = "Equipped ama oyuncu çevrimdışıyken,."
-first_slot_locked = "İlk Mutasyon yuvası kilitlidir."
-trophy_clear_hint = "Hazırlanmış kupanızı temizlemek için tekrar boş bir el ile birlikte,."
-trophy_cleared = "Hazırlanmış kupanız temizlendi."
-return_echo_name = "Return Echo"
-
-[mutation.selection]
-invalid = "Geçersiz Mutasyon seçimi."
-player_data_unavailable = "Oyuncu Mutasyon verileri mevcut değildir."
-slot_changed_confirm = "Mutasyon yuvası açıkken değişti; tekrar gözden geçirin."
-loadout_changed_confirm = "Mutation yüküout açıkken değişti; tekrar gözden geçirin."
-already_equipped = "{mutation} Zaten slotta donatılmıştır {slot}."
-equipped = " {mutation} slotta {slot}."
-invalid_slot = "Geçersiz Mutasyon boşluğu."
-slot_already_empty = "Mutasyon yuvası {slot} zaten boş."
-cleared_slot = "Mutasyon yuvası temizlenmiş {slot}."
-changes_off = "Mutasyon değişiklikleri bu sunucuda kapatılıyor."
-bookshelf_required = "Geri dön Adapt Bir Mutasyon yuvasını değiştirmeden önce kitaplarhelf."
-slot_unlocks = "Mutasyon yuvası {slot} Düzlükte kilitlenir. {level}."
-permanent_choices = "Bu sunucu Mutasyon seçimlerini kalıcı kılar."
-slot_cooldown = "{slot} mutasyon yuvası henüz değiştirilmez."
-combat_cooldown = "Savaş sırasında Mutations değiştiremezsiniz."
-mutation_disabled = "Bu Mutasyon engellidir."
-world_disabled = "Bu Mutasyon bu dünyada çalışmaz."
-
-[mutation.command]
-toggle_usage = "enabled=on, enabled=off kullanın veya değiştirmek için bırakın."
-cooperative_enabled = "Kooperatif Mutasyon etkileri etkinleştirilir."
-cooperative_disabled = "Kooperatif Mutasyon etkileri devre dışı bırakılır."
-cooperative_enabled_off = "Kooperatif Mutasyon etkileri etkinleştirilir. Seçenekler kurtarıldı; deneysel Mutations şu anda kapalı."
-cooperative_disabled_off = "Kooperatif Mutasyon etkileri devre dışı bırakılır. Seçenekler kurtarıldı; deneysel Mutations şu anda kapalı."
-choice_saved_off = "Seçim kurtarıldı ancak deneysel Mutasyonlar kapalıyken aktif olarak kalır."
-discovered = "Keşfedildi {mutation} Çünkü {player}."
-undiscovered = "Selam olsun {mutation} Çünkü {player}."
-cooldowns_cleared = "{player} için temiz Mutasyon değişikliği bekleme süresi."
-state_refreshed = "Yenilenen Mutasyon durumu için {player}."
-slot_range = "Mutasyon yuvası olmalıdır 1 veya 2."
-override_usage = "Kullanım Kullanımı enabled=on, enabled=off, veya enabled=clear."
-slot_normal = "Mutasyon yuvası {slot} Şimdi normal seviyesi gereksinimini kullanıyor. {player}."
-slot_forced_unlocked = "Mutasyon yuvası {slot} Şimdi kilitlenmek zorunda kalıyor. {player}."
-slot_forced_locked = "Mutasyon yuvası {slot} Şimdi zorla kilitlenmiş. {player}."
-data_cleared = "{player} için Mutasyon verileri temizlenir, XP'yi değiştirmeden, beceriler, Bilgi, Adaptasyonlar veya gelişmeler."
-perfect_normal = "Mükemmel Adaptasyon artık normal seviye gereksinimini kullanıyor {player}."
-perfect_forced_on = "Mükemmel Adaptasyon şimdi için zorlanılıyor {player}."
-perfect_forced_off = "Mükemmel Adaptasyon artık zorlanılıyor {player}."
-unavailable = "Mutations şu anda mevcut değil."
-reload_failed = "Mutasyon yapılandırma reload başarısız oldu; önceki ayarlar aktif kalır."
-reload_enabled = "Mutasyon yapılandırma reloaded. Deneysel Mutasyonlar etkinleştirilir; online slotlar yenilenir."
-reload_disabled = "Mutasyon yapılandırma reloaded. Deneysel Mutasyonlar devre dışı bırakılır; kurtarılan seçimler korunmuştur."
-unknown_mutation = "Bilinmeyen Mutasyon: {mutation}"
-snapshot_title = "{player} için deneysel mutasyonlar"
-feature_enabled = "Özellik: etkinleştirilen"
-feature_disabled = "Özellik: engelliler"
-perfect_active = "Mükemmel Adaptasyon: aktif"
-perfect_inactive = "Mükemmel Adaptasyon: inaktif"
-cooperative_status_enabled = "Kooperatif etkiler: etkinleştirilen"
-cooperative_status_disabled = "Kooperatif etkiler: engelliler"
-stored_resources = "Kaydedilen kaynaklar: Derin şarj {deepCharge} • Çökme yükü {rootCharge} • Yürüme/Brew/Enchanting adımları {steps}"
-linked_gear = "Bağlı ekipman: Temer bağlanmış {temperbound} • şaheserlik {masterwork} • derin kanlı alet {deepblood} • ödül {trophy}"
-yes = "Evet ."
-no = "Hayır."
-slot_locked = "{slot}: kilitli."
-slot_empty = "Yuva {slot}: boş"
-slot_unavailable = "Slot {slot}: {mutation} (Yok olmayan hiçbir şekilde kullanılamaz)"
-slot_value = "Slot {slot}: {mutation} [{state}]"
-slot_value_reason = "Slot {slot}: {mutation} [{state}] - {reason}"
-result_updated = "Mutasyon durumu güncellendi."
-result_not_changed = "Mutasyon durumu değişmedi."
-remaining_cooldown = "{message} bekleme süresi: {duration}"
-
-[mutation.state]
-ready = "Hazırlıklı"
-active = "Aktif"
-inactive = "Inaktif"
-locked = "kilitli"
-off = "kapalı"
-unavailable = "Yok olmayan hiçbir şekilde kullanılamaz"
-blocked = "bloke edilmiş bloklar engelledi"
-
-[mutation.progression]
-slot_unlocked_title = "Mutasyon Çatı Açıldı"
-slot_unlocked_subtitle = "İlk Mutasyon slotunuz şimdi açılıyor. Ziyaret edin bir ziyaret Adapt Kitaplarhelf."
-second_slot_title = "İkinci Mutasyon Çubuğu"
-second_slot_subtitle = "İkinci Mutasyon slotunuz şimdi açılıyor."
-perfect_title = "Mükemmel Adaptasyon"
-perfect_subtitle = "Artık donanımlı Mutasyonlarınız artık aşağılıklara sahip değil."
-perfect_lost = "Mükemmel uyum artık aktif değil; mutasyon dezavantajları tekrar geçerlidir."
-
-[mutation.model]
-no_selection = "Hiçbir Mutation seçilmiş"
-saved_unavailable = "Bu kurtarılan Mutasyon mevcut değildir"
-slot_locked = "Gerekli slot kilitlidir"
-ready = "kullanmaya hazır"
-active = "Etkinlik"
-inactive = "Equipped ama inaktif"
-disabled = "Sunucu tarafından dışarı çıktı"
-restricted = "Burada mevcut değil"
-conflict = "Diğer Mutasyona Bağlı"
-empty = "Boş boş"
-
-[mutation.gui]
-disabled = "Mutations bu sunucuda deneysel ve engellidir."
-title = "Deneysel Mutasyonlar • L{level}"
-perfect = "Mükemmel Adaptasyon"
-perfect_active = "Her ikisi de donanımlı Mutasyonlar onların aşağılarını kaybeder."
-perfect_locked = "Yapınışları Adapt seviye seviyesi."
-cooperative_on = "Kooperatif Etkileri: On"
-cooperative_off = "Kooperatif Etkileri: Off"
-cooperative_allow = "Yakındaki oyunculardan paylaşılan Mutation etkileri İzin Ver."
-cooperative_opt_out = "Dışarı çıkmak için tıklayın."
-cooperative_opt_in = "Katılım için tıklayın."
-changes_available = "Mevcut değişiklikler"
-view_only = "Sadece Görüntüle"
-may_change = "Mutasyon yuvalarınızı burada değiştirebilirsiniz."
-visit_bookshelf = "Ziyaret edin ve geçerli bir ile etkileşim Adapt Kitaplarıhelf değiştirmek için."
-unavailable_discoveries = "Un available Discoveries"
-saved_not_installed = "Şu anda yüklü olmayan Mutations:"
-slot_value = "Slot {slot}: {mutation}"
-slot_locked = "Slot {slot}: Locked"
-right_click_clear = "Doğru bu yuvayı temizlemek için tıklayın."
-skill_groups = "Beceri grupları: {first} + {second}"
-discovered = "Keşfedildi"
-undiscovered = "Selam olsun"
-equipped_slot = " {slot}"
-click_inspect = "denetim için tıklayınız"
-requires = "Gereklilikler: Her bir yetenek grubunun her seviyeden gelen Adaptasyon {level}+"
-benefit = "Ne yapar: {benefit}"
-burden = "Downside: {burden}"
-perfect_result = "Seviyede 200: {result}"
-tell = "Ne görüyorsunuz: {tell}"
-control = "Nasıl kullanılır: {control}"
-pvp = "Etkiler Etkiliyor PvP"
-no_pvp = "Doğrudan etkilemez PvP"
-status = "Durum durumu: {state}"
-matching_none = "Adaptasyonlar: Şu anda öğrenilen hiçbir şey"
-matching = "Adaptasyonlar: {adaptations}"
-slot_locked_name = "Slot {slot} Locked"
-slot_view_only = "Slot {slot} • Sadece Görüntüle"
-bookshelf_before_change = "Geçerli bir kullanım kullanın Adapt Bu yuvayı değiştirmeden önce kitaplarhelf."
-equipped_in_slot = "Slot'da {slot}"
-already_equipped_slot = "Zaten Slot'da {slot}"
-conflicts_with = "Çatışmalar ile {mutation}"
-clear_other_first = "Clear veya yerini değiştirmek {slot} Bu Mutasyon seçmeden önce."
-unavailable_slot = "Slot {slot}"
-equip_slot = "Slot {slot}"
-current = "Şimdiki akım: {mutation}"
-click_preview = "önizlemek ve bu değişikliği doğrulamak için tıklayın."
-confirm_slot = "{mutation} → Slot {slot}"
-replacing = "Yeniden yükleme: {mutation}"
-other_slot = "Diğer slot: {mutation}"
-with_other = "Diğer slot ile: {interaction}"
-slot_cooldown = "Slot bekleme süresi: {duration}"
-confirm_change = "Onay Değişikliği Onaylandı"
-confirm_change_title = "Mutasyon Değişikliğini Onaylayın"
-clear_slot = "Clear Slot {slot}"
-unequip = "Unequip {mutation}?"
-normal_cooldown = "Bu normal bir slot bekleme süresi başlatır."
-confirm_clear = "Kesinliği onaylayın."
-link_armor = "Link Şimdiki Zırh"
-link_armor_lore = "Dört dayanıklı zırh parçaları giymek, sonra onları bağlantı kurmak için tıklayın."
-unlink_armor = "Unlink Armor"
-unlink_armor_lore = "Mevcut dört parça zırh seti."
-review_confirm = "İncelemek ve doğrulamak için tıklayın."
-unlink_masterwork = "Unlink Masterwork"
-unlink_masterwork_lore = "Mevcut Masterwork aracı."
-replacement_cooldown_begins = "Bir yedek bekleme süresi onay aldıktan sonra başlar."
-bind_held_tool = "Bağlanmış Bir Araç"
-deepblood_bind_lore = "Temel elinizde dayanıklı aracı Deepkan molasına bağlamak."
-deepblood_replace_lore = "Başka bir araç, mevcut Deepkan aracınızı değiştirir."
-bind_cooling = "• Sıcaklaştırıcı"
-masterwork_bind_lore = "Kişisel olarak hazırlanmış kalıcı bir araç tut."
-replacement_available = "Mevcut yenileme mevcut {duration}."
-equipment_changed = "Bu bağlantılı ekipman onaylanmadan önce değişti."
-unlink_temperbound = "Temperbound zırhını açmak mı?"
-temperbound_unlinked = "Mevcut dört parça zırh seti bağlantılandırılmayacak."
-no_repair_return = "Bu onarım, korumak veya herhangi bir zırh geri dönmez."
-unlink_masterwork_question = "Üstün İş Aracını Açmak mı?"
-masterwork_unlinked = "Mevcut Masterwork aracı bağlantılandırılmayacak."
-replacement_cooldown = "Makyaj: {duration}"
-confirm_equipment_title = "Onay Ekipman Değişimi"
-option_unavailable = "Bu seçenek artık mevcut değil."
-equipment_changed_review = "Bu bağlantılı ekipman açıkken değişti; tekrar gözden geçirin."
-controls_unavailable = "Mutasyon ekipmanı kontrolleri şu anda mevcut değildir."
-page_count = "Page Sayfa {page}/{pages} • {count} Mutasyonlar"
-no_other_selected = "Başka bir Mutasyon seçilmedi"
-same_not_allowed = "Aynı Mutasyon her iki yuvayı işgal edemez"
-compatible_with = "Uyumlu ile uyumlu {mutation}"
-unknown = "Bilinmeyen ."
-state_ready = "Hazırlık."
-state_active = "Etkinlik"
-state_inactive = "Inaktif"
-state_locked = "Locked"
-state_off = "Kapalı"
-state_unavailable = "Un available"
-state_blocked = "Bloked"
-
-[mutation.equipment]
-temperbound_success = "Mevcut zırh setiniz şimdi Temperbound."
-temperbound_unlinked = "Temperbound zırhınız artık bağlantısız."
-masterwork_success = "Toplantı aracı şimdi senin Masterwork."
-deepblood_success = "Tutulan araç şimdi derin yük rezervinle bağlantılı."
-masterwork_unlinked_delay = "Masterwork aracınız bağlantılı değildi. Bir yedek bağlantılı olabilir {duration}."
-masterwork_unlinked = "Masterwork aracınız bağlantılı değildi."
-replacement_delay = "Bir yedek Masterwork bağlantılı olabilir {duration}."
-temperbound_requirement = "Zaten bağlantılı olmayan tam dört parça dayanıklı zırh seti giymek."
-temperbound_failure = "Temperbound zırh bağlantısız olamazdı."
-masterwork_requirement = "Bireysel olarak bağlantılı Masterwork aracı ile hazırlanmış kalıcı bir araç tut."
-masterwork_failure = "Masterwork aracı henüz bağlantılanmamış olamazdı."
-deepblood_requirement = "Derin kanlılara bağlantı kurmadan önce ana elinizde kalıcı bir araç tutun."
 
 [director.help]
 no_subcommands = "Bu sayfada alt komut yok."
@@ -3991,6 +3617,9 @@ surface_block = "blok"
 trigger_join = "{first} + {second}"
 trigger_surface = "{trigger} ({surface})"
 
+
+blink_priority = "Manual Blink takes priority over double-jump Recall"
+
 [chronos.time_bomb]
 name = "Zaman Bombasi"
 description = "Zamansal bir alan yaratan, varliklari yavalatan ve mermileleri donduran üretilmiş bir krono bombasi firlatın."
@@ -4885,7 +4514,6 @@ no_previous_page = "Önceki sayfa yok"
 no_next_page = "Sonraki sayfa yok"
 last_page = "Son sayfa"
 back_to_skills = "Yeteneklere Geri Dönüş"
-back_to_mutations = "Tekrar Mutations"
 skills = "Becerileri"
 adaptations = "Adaptasyonlar"
 levels = "Seviyeler"
@@ -4912,11 +4540,6 @@ vault_unavailable_fallback = "Vault ekonomisi kullanılamıyor — yalnızca bil
 vault_insufficient_funds = "Oyuncunun Vault bakiyesi yetersiz."
 vault_transaction_failed = "Vault işlemi başarısız oldu; ilerleme değiştirilmedi."
 power_drain = "Güç tüketimi: {power}"
-
-[gui.mutations]
-experimental_mutations = "Deneysel Mutations"
-menu_summary = "Seçmeli inşa seçenekleri sizin tarafınızdan açılıyor Adapt seviye seviyesi."
-menu_open = "Evlerinizi ve gereksinimlerinizi görmek için tıklayın."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5408,13 +5031,15 @@ lore3 = "Uretildikten sonra kullanimi gormek icin esyaya bakin"
 notcontainer = "Bu bir konteyner degil"
 lore = ["Ender Incisi + Pusula = Emanet Anahtari", "Bu esya konteynerlere uzaktan erismenizi saglar", "Uretildikten sonra kullanimi gormek icin esyaya bakin"]
 
+unbind = "Sneak and left-click air away from a container to unbind."
+
 [rift.blink]
 name = "Yarik Gozu Kirpma"
-description = "Baktığın yöne ışınlanmak için iki kez zıpla. Başarılı ışınlanma Ender İncisi tüketmez, ancak normal inci hasarı verir ve bu hasar her seviyede azalır. Işınlanırken eğilirsen duvarların ve engellerin içinden doğrudan geçersin."
+description = "Baktığın yöne ışınlanmak için çift zıpla. Mesafeyi veya daha yüksek iniş noktalarını tercih et; duvarlardan eğilirken, nişan alarak geçmeyi ya da hiç geçmemeyi seç. 2. seviyede tepkisel mod, çift zıplamanın yerine saldırıya uğradığında kaçınmayı getirir: baktığın yöne veya saldırgandan uzağa ışınlan. Başarılı ışınlanmalar inci tüketmez ancak seviyeye göre azalan Ender incisi hasarı verir. Sunucu kuralları kullanılabilecek seçenekleri sınırlar."
 lore1 = "Işınlanma menzili"
 lore2 = "Kendine hasar (kalp)"
-lore3 = "Işınlanırken eğilerek duvarlardan geç"
-lore = ["Işınlanma menzili", "Kendine hasar (kalp)", "Işınlanırken eğilerek duvarlardan geç"]
+lore3 = "Işınlanmanın ne zaman duvarlardan geçeceğini seç"
+lore = ["Işınlanma menzili", "Kendine hasar (kalp)", "Işınlanmanın ne zaman duvarlardan geçeceğini seç"]
 
 [rift.chest]
 name = "Kolay Ender Sandigi"
@@ -6345,21 +5970,14 @@ boost_target_player_experience_gain = "Hedef oyuncu deneyimi kazanır."
 bypass_adapt_use_permission_checks_when_opening = "Bypass adapt.use Açılış sırasında izin kontrolleri"
 bypass_costs_and_restrictions = "Bypass maliyetleri ve kısıtlamaları"
 bypass_power_knowledge_and_permanence_checks = "Bypass gücü, bilgi ve permanence kontrolleri"
-clear_a_player_s_mutation_slot = "Bir oyuncunun Mutation slotunu açın"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "Tüm keşif verilerini temizle (biomlar, kalabalıklar, gıdalar, ürünler, tarifler vb.)"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "Tüm oyuncu verilerini temizleyin (XP, Bilgi, adaptasyonlar, istatistikler, keşifler, ilerlemeler, bilgelik)"
-clear_both_mutation_switching_cooldowns = "Hem Mutation switch bekleme süresi"
 clear_knowledge_across_all_skill_lines = "Tüm beceri hatlarında açık bilgi"
-clear_only_a_player_s_mutation_data = "Sadece bir oyuncunun Mutasyon verileri"
 clear_player_progression_data = "Oyuncu ilerleme verileri netleştirilmelidir."
 clear_the_stats_map = "İstatistikler haritasını açın"
 clear_xp_across_all_skill_lines = "XP'i tüm yetenek hatlarında temizle."
-discover_or_undiscover_a_mutation_for_a_player = "Bir oyuncu için bir Mutasyon Keşfedin veya keşfedin"
-equip_a_mutation_in_a_player_slot = "Bir oyuncu slotunda bir Mutasyon"
 experience_per_orb = "orb için deneyim"
 explicit_on_off_state_omit_to_toggle = "açık bir şekilde aç/kaldırma durumu, değiştirmeyi bırakmak"
-force_a_mutation_slot_unlocked_locked_or_back_to_its_normal_level_requirement = "Mutasyon yuvasını normal düzeyinde kilitlenmeye, kilitlemeye veya geri getirmeye zorla."
-force_perfect_adaptation_on_off_or_back_to_its_normal_level_requirement = "Kuvvet Mükemmel Adaptasyon, kapalı veya normal seviyesine geri"
 generate_perms_for_adaptations = "Adaptasyonlar için Genrate Perms!"
 generate_perms_for_skills = "Beceriler için Genrate Perms!"
 give_a_knowledge_orb_to_yourself_or_a_target_player = "Kendinize veya hedef bir oyuncuya bilgi verin"
@@ -6368,18 +5986,12 @@ gui_to_open_main_skill_name_or_adaptation_name = "GUI Açık: ana, beceri:<name>
 knowledge_per_orb = "Bilgi"
 level_between_0_and_100 = "Seviye arasında seviye 0 ve 100"
 level_between_0_and_100_clamped_to_the_adaptation_max = "Seviye arasında seviye 0 ve 100, Adaptasyona sıkıştırın"
-mutation_id = "Mutasyon ID"
-on_off_or_clear = "Hayır, ya da açık"
-on_off_or_toggle = "Onda, dışarıda veya toggle"
 open_the_adapt_gui = "Açık açın Adapt GUI"
-open_the_experimental_mutation_menu = "Deney Mutasyon menüsü açın"
 open_the_in_game_adapt_config_editor = "Oyuna açın Adapt yapılandırılmış editör"
 particle_type_to_spawn = "Parçacık tipi spawn"
 permanently_delete_all_adapt_data_for_a_player = "Sürekli olarak her şeyi silin Adapt Bir oyuncu için veri"
 permanently_delete_all_adapt_data_for_a_player_requires_adapt_clear_run_twice_to_confirm = "Bir oyuncunun tüm Adapt verilerini kalıcı olarak siler. adapt.clear izni gerekir. Onaylamak için iki kez çalıştırın."
 play_a_sound_at_your_location_for_testing = "Test için bulunduğunuz yerde bir ses!"
-refresh_a_player_s_mutation_slots_and_requirements = "Bir oyuncunun Mutasyon yuvalarını ve gereksinimlerini yenileyin"
-reload_mutation_configuration = "Yeniden Yükle Mutasyon yapılandırması"
 reset_a_skill_config_to_defaults = "Varsayılan olarak yapılandırmak için bir yetenek yapılandırın"
 reset_all_configs_to_defaults_and_archive_the_old_settings = "Tamam ALL Varsayılan olarak yapılandırılır ve eski ayarlar"
 reset_an_adaptation_config_to_defaults = "Varsayılan olarak yapılandırmak için bir adaptasyon yapılandırın"
@@ -6391,21 +6003,16 @@ show_adapt_ticker_hotspots = "Adapt işaretleme hotspotlarını göster"
 skill_line_to_set = "ayarlamak için yetenek çizgisi"
 skill_name_or_all_random = "Beceri adı veya tüm / rastgele"
 skill_to_reset = "sıfırlama yeteneği"
-slot_1_or_2 = "slot 1 veya 2"
 sound_to_play = "Oynamak için Ses"
 strength_of_the_boost = "Güçlendiricinin gücü"
 summon_a_particle_at_your_location_for_testing = "Summon, test için bulunduğunuz yerde bir parçacık!"
 target_player_defaults_to_you = "Hedef oyuncu, size varsayılanlar"
 toggle_adapt_effect_visibility_for_yourself = "Toggle Adapt kendiniz için etki görünürlüğü"
-toggle_cooperative_mutation_participation = "Kooperatif Mutasyon katılımı"
 toggle_debug_mode_reveals_every_skill_and_adaptation_and_makes_learning_free_and_uncapped = "Çözüm modunu değiştir: Her beceri ve uyarlanmayı ortaya çıkarır ve öğrenmeyi özgür ve sınırsız hale getirir"
 toggle_verbose_mode = "Cümle fiilose modu"
 top_results_to_print = "Baskı için en iyi sonuçlar"
-true_to_discover_false_to_undiscover = "Gerçek keşfetmek için, keşfedilmemiş yalan"
 true_to_learn_false_to_unlearn = "Öğrenmek için doğru, öğrenmemek yanlış"
 unlearn_all_adaptations_across_all_skill_lines = "Tüm yeteneklerin tüm adaptasyonlarını öğren"
-view_and_manage_experimental_mutations = "Deneysel Mutasyonları görüntüle ve yönetin"
-view_mutation_state_for_yourself_or_another_player = "Kendinizi veya başka bir oyuncu için Mutation durumunu görmek"
 
 [command.runtime]
 missing_permission = "İzinden yoksunsunuz '{permission}'."
@@ -6592,3 +6199,1103 @@ line = "Satır {line}"
 [language.editor.value]
 none = "Yok"
 empty = "(boş)"
+
+[gui.preferences]
+current = "Geçerli: {value}"
+server_controlled = "Sunucu tarafından belirlenir"
+server_disabled = "{value}: bu sunucuda kullanılamaz"
+level_required = "{value}: {level} uyarlama seviyesi gerektirir"
+cycle = "Sol tık: sonraki / Sağ tık: önceki"
+learn_first = "Ayarlarını değiştirmek için bu uyarlamayı öğren."
+reset = "Kişisel ayarları sıfırla"
+reset_description = "Bu uyarlama için sunucunun varsayılanlarını kullan."
+
+[rift.blink.setting]
+enabled = "Işınlanma"
+phasing = "Duvarlardan geçiş"
+targeting = "İniş noktası tercihi"
+activation = "Etkinleştirme"
+reactive_direction = "Kaçınma yönü"
+
+[rift.blink.option]
+on = "Açık"
+off = "Kapalı"
+sneak = "Geçmek için eğilmeyi basılı tut"
+aim = "Nişan aldığın yönde geç"
+never = "Asla duvarlardan geçme"
+distance = "Mesafeyi tercih et"
+verticality = "Daha yüksek iniş noktalarını tercih et"
+manual = "Çift zıplama"
+reactive = "Saldırılardan kaçın"
+look = "Baktığın yöne"
+away = "Saldırgandan uzağa"
+
+[agilityairdash.preferences]
+preference_speed = "Dash speed"
+preference_trigger = "Dash trigger"
+preference_trigger_any = "Left click"
+preference_trigger_empty_hand = "Empty hand"
+preference_trigger_sneak = "While sneaking"
+
+[agilityfeatherfoot.preferences]
+preference_berries = "Berry protection"
+preference_farmland = "Farmland protection"
+preference_plates = "Pressure plate protection"
+preference_snow = "Powder snow protection"
+
+[agilitykipup.preferences]
+preference_speed_burst = "Recovery speed burst"
+
+[agilityladderslide.preferences]
+preference_ascent = "Upward assistance"
+preference_descent = "Downward assistance"
+preference_sensitivity = "Look sensitivity"
+preference_sensitivity_normal = "Normal"
+preference_sensitivity_precise = "More deliberate"
+preference_sensitivity_responsive = "More responsive"
+preference_speed = "Assistance speed"
+
+[agilityrolllanding.preferences]
+preference_food_reserve = "Food reserve"
+preference_food_reserve_eight = "Keep 8 food"
+preference_food_reserve_four = "Keep 4 food"
+preference_food_reserve_none = "No reserve"
+
+[agilityslipstreamslide.preferences]
+preference_control = "Slide control"
+preference_control_hold = "Hold sneak"
+preference_control_tap = "Tap sneak"
+preference_duration = "Maximum slide duration"
+
+[agilitysuperjump.preferences]
+preference_control = "Jump control"
+preference_control_every_jump = "Every jump"
+preference_control_sneak = "Sneak and jump"
+preference_height = "Jump height"
+
+[agilityvault.preferences]
+preference_trigger = "Vault trigger"
+preference_trigger_any = "Any jump"
+preference_trigger_sneak = "While sneaking"
+preference_trigger_sprint = "While sprinting"
+
+[agilitywalljump.preferences]
+preference_control = "Wall jump control"
+preference_control_hold = "Hold then release sneak"
+preference_control_tap = "Tap to latch and jump"
+
+[agilitywindup.preferences]
+preference_speed = "Maximum speed"
+
+[architectchalkline.preferences]
+preference_color = "Guide color"
+preference_color_aqua = "Aqua"
+preference_color_gold = "Gold"
+preference_color_purple = "Purple"
+preference_color_shape = "Shape color"
+preference_density = "Guide density"
+
+[architectdemolition.preferences]
+preference_materials = "Block selection"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+preference_sneak = "Require sneaking"
+
+[architectelevator.preferences]
+preference_ascent = "Upward travel"
+preference_descent = "Downward travel"
+preference_sneak_ascent = "Require sneak for ascent"
+
+[architectfoundation.preferences]
+preference_control = "Foundation control"
+preference_control_hold = "Hold sneak"
+preference_control_latch = "Tap sneak to start or stop"
+preference_duration = "Foundation block lifetime"
+preference_empty_hand = "Require empty main hand"
+
+[architectglass.preferences]
+preference_materials = "Glass selection"
+preference_materials_all = "All eligible glass"
+preference_materials_clear = "Clear glass and panes"
+preference_materials_stained = "Stained glass and panes"
+
+[architectplacement.preferences]
+preference_control = "Building control"
+preference_control_armed = "All eligible placements"
+preference_control_sneak = "Sneak to build"
+preference_limit = "Placement size"
+preference_materials = "Block selection"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+preference_preview = "Placement preview"
+
+[architectscaffolder.preferences]
+preference_control = "Scaffold control"
+preference_control_armed = "All eligible placements"
+preference_control_sneak = "Sneak-place"
+preference_materials = "Block selection"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+
+[architectsmartshape.preferences]
+preference_families = "Block families"
+preference_families_all = "All eligible orientations"
+preference_families_directional = "Facing blocks"
+preference_families_pillars = "Axis blocks"
+preference_families_rotatable = "Signs and rotating blocks"
+preference_reverse = "Reverse rotation"
+
+[architectsteadyhands.preferences]
+preference_fall = "Fall protection"
+preference_knockback = "Knockback protection"
+
+[architectstonecuttersavant.preferences]
+preference_offhand = "Require stonecutter in offhand"
+
+[architectsupplyline.preferences]
+preference_backpacks = "Backpacks"
+preference_bundles = "Bundles"
+preference_loose = "Loose inventory"
+preference_named = "Use named containers"
+preference_shulkers = "Shulker boxes"
+
+[architectwirelessredstone.preferences]
+preference_sneak = "Require sneak to activate"
+
+[axe.preferences]
+all = "All permitted"
+always = "Always"
+apples = "Apples only"
+fifteen = "Keep 15 hunger"
+five = "Keep 5 hunger"
+ignore_passive = "Ignore passive mobs"
+items = "Collected items"
+latch = "Latch tree felling; sneak again to cancel"
+logs = "Logs and stems"
+none = "No extra reserve"
+not_sneaking = "While not sneaking"
+players = "Affect players"
+reserve = "Hunger remaining after use"
+saplings = "Saplings and propagules"
+sneak = "Require sneaking"
+ten = "Keep 10 hunger"
+trigger = "Activation gesture"
+while_sneaking = "While sneaking"
+work = "Work limit"
+
+[blocking.preferences]
+all = "All permitted nearby players"
+allies = "Protected allies"
+armor_repair = "Repair armor"
+eight = "8 blocks"
+fall_distance = "Fall distance before elytra swap"
+fall_swap = "Swap to elytra while falling"
+four = "4 blocks"
+ground_swap = "Swap to chestplate on ground"
+half = "Keep 50%"
+ignore_passive = "Ignore passive mobs"
+none = "No extra reserve"
+player_targets = "Affect players"
+quarter = "Keep 25%"
+require_sneak = "Require sneaking"
+reserve = "Shield durability remaining"
+resistance = "Resistance after shield disable"
+shield_recovery = "Faster shield recovery"
+shield_repair = "Repair shield"
+sneak_stance = "Require sneak while blocking"
+stagger = "Retaliatory stagger"
+team = "Same scoreboard team"
+twelve = "12 blocks"
+
+[brewing.preferences.brewinglingering]
+extended-lore = "Extended potion lore"
+
+[chronos.preferences]
+preference_chronosrewind_clock = "Saat ."
+
+[chronos.preferences.chronosaberranttouch]
+clock-sounds = "Clock sounds"
+food-reserve = "Keep at least eight food points"
+passive-targets = "Passive targets"
+player-targets = "Player targets"
+
+[chronos.preferences.chronosaccelerate]
+brewing = "Brewing acceleration"
+crops = "Crop acceleration"
+furnaces = "Furnace acceleration"
+radius = "Acceleration radius"
+
+[chronos.preferences.chronoshourglassguard]
+clock-sounds = "Clock sounds"
+
+[chronos.preferences.chronosinstantrecall]
+air-clicks = "Air clicks"
+block-clicks = "Block clicks"
+clock-click = "Clock-click trigger"
+clock-sounds = "Clock sounds"
+double-jump = "Double-jump trigger"
+jump-clock = "Double-jump also requires held clock"
+jump-sprint = "Double-jump also requires sprint"
+left-click = "Left clicks"
+right-click = "Right clicks"
+sneak-clock = "Sneak also requires held clock"
+sneak-sprint = "Sneak also requires sprint"
+sneak-trigger = "Sneak trigger"
+sprint-click = "Sprint-click trigger"
+
+[chronos.preferences.chronosovertime]
+absorption = "Absorption"
+dolphins-grace = "Dolphins Grace"
+fire-resistance = "Ates Direnci"
+haste = "Haste"
+health-boost = "Health Boost"
+hero-of-the-village = "Hero Of The Village"
+invisibility = "Invisibility"
+jump-boost = "Jump Boost"
+luck = "Luck"
+night-vision = "Night Vision"
+regeneration = "Regeneration"
+resistance = "Resistance"
+saturation = "Saturation"
+shorten-harmful = "Shorten harmful effects"
+slow-falling = "Slow Falling"
+speed = "Hiz"
+strength = "Strength"
+water-breathing = "Water Breathing"
+
+[chronos.preferences.chronospocketwatch]
+require-sneak = "Hold sneak while falling"
+
+[chronos.preferences.chronosrewind]
+clock-sounds = "Clock sounds"
+
+[chronos.preferences.chronosstasisfield]
+clock-sounds = "Clock sounds"
+offhand-shard = "Require shard in offhand"
+
+[chronos.preferences.chronostemporalecho]
+arrow = "Arrow"
+egg = "Egg"
+ender-pearl = "Ender Pearl"
+snowball = "Snowball"
+
+[chronos.preferences.chronostimebomb]
+clock-sounds = "Clock sounds"
+private-visuals = "Owner-only field visuals"
+
+[chronos.preferences.chronostimeinabottle]
+animals = "Animal aging targets"
+brewing = "Brewing targets"
+campfires = "Campfire targets"
+clock-sounds = "Clock sounds"
+furnaces = "Furnace targets"
+growth = "Growth targets"
+trees = "Sapling tree generation"
+
+[crafting.preferences]
+category_all = "All"
+category_blocks = "Building blocks"
+category_equipment = "Tools and armor"
+category_food = "Food"
+category_minerals = "Minerals"
+reserve_eight = "8"
+reserve_none = "Yok"
+reserve_thirty_two = "32"
+storage_bundle = "Bundle"
+storage_server = "Sunucu varsayılanı"
+storage_slots = "Slots"
+
+[crafting.preferences.craftingbackpacks]
+mode-switch = "Allow storage mode switching"
+storage = "New backpack storage"
+
+[crafting.preferences.craftingbulkartisan]
+batch-limit = "Extra batch limit"
+ingredient-reserve = "Ingredient reserve"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingcompactor]
+batch-limit = "Compaction batch limit"
+loose-reserve = "Loose ingredient reserve"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingdeconstruction]
+confirmation = "Confirm named or enchanted salvage"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingmasterwork]
+attributes = "Attribute bonus"
+durability = "Durability bonus"
+enchantments = "Enchantment bonus"
+
+[crafting.preferences.craftingsignature]
+signature-lore = "Visible signature lore"
+
+[crafting.preferences.craftingstations]
+anvil = "Anvil"
+cartography = "Cartography table"
+grindstone = "Grindstone"
+loom = "Loom"
+sneak = "Require sneak to open"
+stonecutter = "Stonecutter"
+workbench = "Crafting table"
+
+[discovery.preferences]
+palette_aqua = "Aqua"
+palette_default = "Default colors"
+palette_gold = "Gold"
+palette_purple = "Purple"
+reserve_five = "5"
+reserve_none = "Yok"
+reserve_ten = "10"
+structure_default = "Default categories"
+structure_end_city = "End cities"
+structure_fortress = "Nether fortresses"
+structure_mineshaft = "Mineshafts"
+structure_monument = "Ocean monuments"
+structure_settlements = "Jigsaw structures"
+structure_stronghold = "Strongholds"
+
+[discovery.preferences.discoverybettermending]
+repair-limit = "Maximum repaired durability"
+xp-reserve = "XP point reserve"
+
+[discovery.preferences.discoverycartographerpulse]
+color = "Marker color"
+direction-line = "Private direction line"
+structures = "Structure categories"
+
+[discovery.preferences.discoveryfieldnotes]
+species-damage = "Species damage bonus"
+
+[discovery.preferences.discoveryinsight]
+full-details = "Full overlay details"
+hostile = "Hostile targets"
+passive = "Passive targets"
+players = "Player targets"
+
+[discovery.preferences.discoverykeeneye]
+chests = "Chest markers"
+color = "Marker color"
+range = "Marker range"
+spawners = "Spawner markers"
+
+[discovery.preferences.discoveryrelicappraiser]
+confirmation = "Confirm rare item appraisal"
+discs = "Music discs"
+heads = "Heads"
+sherds = "Pottery sherds"
+trims = "Armor trims"
+
+[discovery.preferences.discoverysixthsense]
+cue-frequency = "Cue frequency"
+full-details = "Full structure details"
+hud = "Structure HUD"
+structures = "Structure categories"
+
+[discovery.preferences.discoverytrailblazer]
+speed-burst = "Discovery speed burst"
+
+[discovery.preferences.discoveryvillageratt]
+xp-reserve = "XP level reserve"
+
+[discovery.preferences.discoveryxpresist]
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences]
+reserve_five = "5"
+reserve_none = "Yok"
+reserve_ten = "10"
+
+[enchanting.preferences.enchantingarcanesiphon]
+bonus-xp = "Bonus skill XP"
+books = "Siphoned books"
+player-victims = "Player victims"
+
+[enchanting.preferences.enchantingbookshelfattunement]
+power = "Virtual bookshelf contribution"
+
+[enchanting.preferences.enchantingcursecleansing]
+confirmation = "Confirm curse removal"
+
+[enchanting.preferences.enchantingechoofknowledge]
+sneak = "Require sneak to charge"
+
+[enchanting.preferences.enchantinggrindstonerecovery]
+bonus-xp = "Bonus vanilla XP"
+books = "Recovered books"
+
+[enchanting.preferences.enchantinginfusiontransfer]
+confirmation = "Confirm sacrifice risk"
+
+[enchanting.preferences.enchantingofferreroll]
+confirmation = "Confirm paid reroll"
+lapis-reserve = "Lapis reserve"
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences.enchantingquickenchant]
+confirmation = "Confirm book application"
+modified-click = "Require right click"
+
+[enchanting.preferences.enchantingrunesight]
+full-details = "Full offer details"
+
+[enchanting.preferences.enchantingsoullink]
+confirmation = "Confirm item linking"
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences.enchantingtomerebinding]
+confirmation = "Confirm lossy split"
+sneak = "Require sneak-drop"
+
+[excavation.preferences.excavationburrow]
+depth = "Burrow depth"
+durability-reserve = "Keep a quarter of tool durability"
+food-reserve = "Keep eight food points"
+
+[excavation.preferences.excavationdroptoinventory]
+blocks-only = "Only collect block materials"
+materials = "Allowed materials"
+
+[excavation.preferences.excavationearthmover]
+food-reserve = "Keep eight food points"
+ignore-passive = "Exclude neutral mobs"
+offhand-empty = "Require empty offhand"
+
+[excavation.preferences.excavationhaste]
+tier = "Haste tier"
+
+[excavation.preferences.excavationmudlark]
+bonus-drops = "Bonus drops"
+wet-haste = "Wet-weather Haste"
+
+[excavation.preferences.excavationomnitool]
+combat-selection = "Automatic combat selection"
+mining-selection = "Automatic mining selection"
+swap-sounds = "Swap sounds"
+
+[excavation.preferences.excavationseismicping]
+color = "Marker color"
+cue-frequency = "Cue frequency"
+ores = "Allowed ore markers"
+
+[excavation.preferences.excavationspelunker]
+color = "Marker color"
+ores = "Allowed ore markers"
+range = "Reveal range"
+
+[excavation.preferences.excavationtunneler]
+block-limit = "Extra block limit"
+materials = "Allowed materials"
+trigger = "Activation gesture"
+
+[excavation.preferences.materials]
+all = "All"
+clay = "Clay"
+flint = "Flint"
+gravel = "Gravel"
+sand = "Sand"
+snow = "Snow"
+soil = "Soil"
+
+[excavation.preferences.ores]
+all = "All"
+coal = "Coal"
+copper = "Copper"
+diamond = "Diamond"
+emerald = "Emerald"
+gold = "Gold"
+iron = "Iron"
+lapis = "Lapis"
+netherite = "Netherite"
+quartz = "Quartz"
+redstone = "Redstone"
+
+[excavation.preferences.palette]
+aqua = "Aqua"
+default = "Default colors"
+gold = "Gold"
+purple = "Purple"
+
+[excavation.preferences.trigger]
+always = "Always"
+sneak = "Sneak to activate"
+suppress = "Sneak to suppress"
+
+[herbalism.preferences.herbalismbeeshepherd]
+bee-attraction = "Bee attraction"
+food-reserve = "Keep eight food points"
+growth = "Crop growth"
+growth-particles = "Growth particles"
+
+[herbalism.preferences.herbalismcompostcascade]
+dropped-items = "Consume dropped items"
+inventory-items = "Consume inventory items"
+item-reserve = "Keep eight items per stack"
+leaves = "Consume leaves"
+materials = "Allowed plant materials"
+
+[herbalism.preferences.herbalismdroptoinventory]
+materials = "Allowed plant materials"
+seeds-only = "Only collect planting items"
+
+[herbalism.preferences.herbalismgrowthaura]
+food-reserve = "Keep sixteen food points"
+materials = "Allowed plant materials"
+radius = "Growth radius"
+surface-only = "Only surface crops"
+
+[herbalism.preferences.herbalismhungryshield]
+basics = "Environmental damage"
+burst = "Projectile and explosion damage"
+fire = "Fire damage"
+food-reserve = "Keep eight food points"
+magic = "Magic damage"
+melee = "Melee damage"
+
+[herbalism.preferences.herbalismreplant]
+materials = "Allowed plant materials"
+sneak = "Require sneak to replant"
+
+[herbalism.preferences.herbalismrootedfooting]
+fall-conversion = "Fall-to-hunger conversion"
+farmland = "Farmland protection"
+food-reserve = "Keep eight food points"
+
+[herbalism.preferences.herbalismseedsower]
+materials = "Allowed plant materials"
+radius = "Planting radius"
+seed-reserve = "Keep eight held seeds"
+
+[herbalism.preferences.herbalismsporebloom]
+flower-conversion = "Convert flowers to mushrooms"
+soil-conversion = "Convert spread soil"
+spread-limit = "Spread block limit"
+
+[herbalism.preferences.material]
+all = "All supported materials"
+beetroot = "Beetroot"
+berries = "Berries"
+carrot = "Carrots"
+flowers = "Flowers"
+fungi = "Mushrooms and fungi"
+kelp = "Kelp and seagrass"
+leaves = "Leaves"
+melon = "Melons"
+nether = "Nether wart"
+potato = "Potatoes"
+pumpkin = "Pumpkins"
+wheat = "Wheat"
+
+[hunter.preferences]
+all = "All permitted"
+blocks = "Collect block drops"
+blocks_only = "Blocks only"
+blood = "Blood red"
+cyan = "Cyan"
+fifteen = "At least 15 hunger"
+five = "At least 5 hunger"
+food = "Food only"
+glow = "Blood trail color"
+gold = "Gold"
+items = "Collected items"
+materials = "Crafting drops only"
+mobs = "Collect mob drops"
+none = "No extra reserve"
+reserve = "Minimum hunger to activate"
+sneak = "Require sneaking"
+ten = "At least 10 hunger"
+trail = "Private blood trail"
+white = "White"
+
+[kineticsdeadzone.preferences]
+preference_hostiles = "Hostile targets only"
+preference_sneak = "Require sneaking"
+
+[kineticsheavyframe.preferences]
+preference_control = "Stance control"
+preference_control_hold = "Hold sneak"
+preference_control_latch = "Tap to toggle stance"
+
+[kineticslungeconductor.preferences]
+preference_travel = "Extra lunge travel"
+
+[kineticsmassshift.preferences]
+preference_selection = "Form selection"
+preference_selection_cycle = "Cycle Titan, Pocket, normal"
+preference_selection_look = "Look direction"
+
+[kineticsmeteorcadence.preferences]
+preference_control = "Dive control"
+preference_control_automatic = "Every eligible fall"
+preference_control_sneak = "While sneaking"
+
+[kineticsmoonjump.preferences]
+preference_base_jump = "Base jump assistance"
+preference_hop = "Floaty hop"
+preference_hop_always = "Every jump"
+preference_hop_never = "Disabled"
+preference_hop_sneak = "While sneaking"
+
+[kineticsreboundanvil.preferences]
+preference_bounce = "Rebound bounce"
+preference_cushion = "Landing cushion"
+
+[kineticsrubbersoul.preferences]
+preference_bounce = "Base landing bounce"
+preference_springy = "Extra springy-block bounce"
+
+[kineticssurfaceskate.preferences]
+preference_control = "Skating control"
+preference_control_armed = "Always, sneak to brake"
+preference_control_sprint = "While sprinting"
+
+[kineticsterminaltoggle.preferences]
+preference_gesture = "Switch gesture"
+preference_gesture_double = "Double-tap sneak"
+preference_gesture_single = "Tap sneak"
+preference_order = "Midair mode cycle"
+preference_order_dive_first = "Dive then hang"
+preference_order_dive_only = "Dive only"
+preference_order_hang_first = "Hang then dive"
+preference_order_hang_only = "Hang only"
+
+[kineticswindburst.preferences]
+preference_hostiles = "Hostile targets only"
+preference_sneak = "Require sneak for shockwave"
+
+[nethercrimsonfeast.preferences]
+preference_meal_buff = "Nether meal protection"
+preference_sneak = "Require sneak to eat flora"
+
+[netherlavawalker.preferences]
+preference_food_reserve = "Food reserve"
+preference_food_reserve_eight = "Keep 8 food"
+preference_food_reserve_four = "Keep 4 food"
+preference_food_reserve_none = "No reserve"
+preference_sneak_drop = "Sneak to drop through"
+
+[nethermagmaskin.preferences]
+preference_own_fire = "Ignite struck targets"
+preference_retaliation = "Burning retaliation"
+
+[nethernetherrackmason.preferences]
+preference_drops = "Bonus drops"
+preference_mining = "Mining assistance"
+
+[netherskullyeet.preferences]
+preference_sneak = "Require sneak to throw"
+
+[nethersoulstrider.preferences]
+preference_burst = "Mastery speed burst"
+preference_immunity = "Soul-surface slow immunity"
+
+[netherstriderbond.preferences]
+preference_rescue = "Dismount protection"
+preference_speed = "Mounted speed"
+
+[pickaxe.preferences]
+all = "All permitted"
+always = "Always"
+bypass = "Sneak to bypass"
+copper = "Copper only"
+cyan = "Cyan"
+full = "Full learned size"
+gems = "Diamond and emerald"
+glow = "Ore outline color"
+gold = "Gold only"
+gold_color = "Gold"
+half = "Keep 50%"
+iron = "Iron only"
+low_durability = "Your pickaxe has less than 10% durability remaining."
+materials = "Eligible materials"
+no_reserve = "No extra reserve"
+not_sneaking = "While not sneaking"
+notice = "Low durability notice"
+one_by_two = "At most 1 by 2"
+ore_color = "Match ore"
+ores = "Ores and raw minerals"
+quarter = "Keep 25%"
+require_sneak = "Require sneaking"
+reserve = "Durability remaining after use"
+size = "Tunnel size limit"
+sneak = "While sneaking"
+stone = "Stone and deepslate"
+tenth = "Keep 10%"
+three_by_two = "At most 3 by 2"
+trigger = "Activation gesture"
+white = "White"
+
+[preferences]
+confirm = "Repeat the same action within 5 seconds to confirm."
+enabled = "Adaptation enabled"
+full = "Full earned limit"
+half = "Half earned limit"
+off = "Kapalı"
+on = "Açık"
+quarter = "Quarter earned limit"
+skill_enabled = "Skill adaptations enabled"
+
+[ranged.preferences]
+all = "All permitted"
+all_projectiles = "Include permitted thrown projectiles"
+arrows = "All arrows"
+blocks = "Building blocks"
+both = "Drawing or sneaking"
+bow = "Bow arrows"
+crossbow = "Crossbow arrows"
+dampen = "Slow target momentum"
+drawing = "Drawing only"
+food = "Food"
+glow = "Private target glow"
+hostile = "Hostile mobs only"
+ignore_passive = "Ignore passive mobs"
+impact = "Impact marker"
+items = "Collected items"
+non_players = "Exclude players"
+preview = "Preview while"
+projectiles = "Eligible projectiles"
+sneak = "Require sneaking"
+sneaking = "Sneaking only"
+targets = "Eligible targets"
+thrown = "Thrown projectiles"
+trail = "Trajectory trail"
+tridents = "Tridents"
+valuables = "Ores and valuables"
+
+[rift.remote_access.preferences]
+confirm_unbind = "Confirm unbinding"
+
+[riftaccess.preferences]
+preference_confirm_bind = "Confirm binding"
+preference_sneak_open = "Require sneak to open"
+
+[riftblink.preferences]
+preference_auto = "Automatic: upward mantle, level/downward phase"
+preference_landing = "Landing snap"
+preference_landing_near = "Snap down at most 2 blocks"
+preference_landing_none = "Keep aimed height"
+preference_landing_server = "Server landing snap"
+preference_momentum = "Exit momentum"
+preference_momentum_full = "Full server momentum"
+preference_momentum_half = "Half momentum"
+preference_momentum_stop = "Stop after blinking"
+
+[riftconduit.preferences]
+preference_flow = "Transfer on close"
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+preference_linking = "Link containers"
+
+[riftdescent.preferences]
+preference_control = "Levitation cancellation"
+preference_control_automatic = "Automatic"
+preference_control_sneak = "Press sneak"
+
+[riftenderchest.preferences]
+preference_gesture = "Open gesture"
+preference_gesture_current = "Left click or right-click air"
+preference_gesture_left = "Left click only"
+preference_gesture_right_air = "Right-click air only"
+preference_sneak = "Require sneaking"
+
+[riftendertaglock.preferences]
+preference_confirm = "Confirm binding with a second hit"
+preference_targets = "Taglock targets"
+preference_targets_all = "All eligible targets"
+preference_targets_animals = "Animals only"
+preference_targets_hostiles = "Hostile mobs only"
+preference_targets_players = "Players only"
+
+[riftgate.preferences]
+preference_confirm_bind = "Confirm binding"
+preference_confirm_unbind = "Confirm unbinding"
+preference_countdown = "Channel countdown"
+preference_countdown_text = "Recall in {seconds}s"
+
+[riftinflatedpocketdimension.preferences]
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+preference_pull = "Pull on click"
+preference_refill = "Refill building stack"
+preference_store = "Store sneak-dropped items"
+
+[riftpearlrebound.preferences]
+preference_damage = "Pearl damage reduction"
+preference_rebound = "Pearl rebound"
+preference_sneak = "Require sneak when throwing"
+
+[riftvoidmagnet.preferences]
+preference_control = "Collection control"
+preference_control_armed = "Automatic collection"
+preference_control_sneak = "While sneaking"
+preference_destination = "Pickup destination"
+preference_destination_chest_first = "Ender chest then inventory"
+preference_destination_chest_only = "Ender chest only"
+preference_destination_inventory_first = "Inventory then ender chest"
+preference_destination_inventory_only = "Inventory only"
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+
+[riftvoidskin.preferences]
+preference_causes = "Rescue damage causes"
+preference_causes_all = "All lethal damage"
+preference_causes_combat = "Combat damage only"
+preference_causes_environment = "Environmental damage only"
+preference_reserve = "Plain pearl reserve"
+preference_reserve_four = "Keep 4 pearls"
+preference_reserve_none = "No reserve"
+preference_reserve_one = "Keep 1 pearl"
+preference_spawn = "World spawn fallback"
+
+[seabornecoralgardener.preferences]
+preference_growth = "Bonemeal coral growth"
+preference_preservation = "Preserve placed coral"
+
+[seabornedeepsalvager.preferences]
+preference_color = "Outline color"
+preference_color_aqua = "Aqua"
+preference_color_gold = "Gold"
+preference_color_purple = "Purple"
+preference_container_types = "Outlined containers"
+preference_container_types_all = "All treasure containers"
+preference_container_types_barrels = "Barrels only"
+preference_container_types_chests = "Chests only"
+preference_outlines = "Container outlines"
+
+[seabornefishwhisperer.preferences]
+preference_assistance = "Animal combat assistance"
+preference_attraction = "Attract fish"
+preference_luck = "Fishing luck"
+
+[seabornehydrojet.preferences]
+preference_gesture = "Jet gesture"
+preference_gesture_double = "Double sneak"
+preference_gesture_single = "Single sneak"
+preference_priority = "Shared sneak priority"
+preference_priority_hydro = "Hydro Jet first"
+preference_priority_tide = "Tidecaller first"
+preference_reserve = "Food reserve"
+preference_reserve_eight = "Keep 8 food"
+preference_reserve_four = "Keep 4 food"
+preference_reserve_none = "No reserve"
+
+[seaborneinkveil.preferences]
+preference_visuals = "Own ink density"
+
+[seabornetidecaller.preferences]
+preference_attack = "Attack trigger"
+preference_attack_sneak = "Sneak required for attacks"
+preference_attack_water = "Water required for attacks"
+preference_flat = "Horizontal direction"
+preference_rain = "Rain dashes"
+preference_sneak = "Sneak trigger"
+preference_water = "Water dashes"
+
+[seabornetridentmastery.preferences]
+preference_recall = "Trident recall"
+
+[seaborneturtlesminingspeed.preferences]
+preference_floating = "Compensate floating penalty"
+
+[stealthassassinate.preferences]
+preference_sneak = "Require sneaking"
+preference_targets = "Eligible targets"
+preference_targets_all = "All eligible mobs"
+preference_targets_animals = "Animals"
+preference_targets_hostiles = "Hostile monsters"
+
+[stealthcore.preferences]
+preference_detected = "Detected"
+preference_glows = "Private threat outlines"
+preference_hidden = "Undetected"
+preference_status = "Private detection status"
+
+[stealthcutpurse.preferences]
+preference_targets = "Eligible targets"
+preference_targets_all = "All eligible mobs"
+preference_targets_illagers = "Illagers"
+preference_targets_piglins = "Piglins"
+
+[stealthdecoyswap.preferences]
+preference_gesture = "Swap gesture"
+preference_gesture_double = "Double sneak"
+preference_gesture_hand_swap = "Sneak and swap hands"
+
+[stealthshadowdecoy.preferences]
+preference_gesture = "Decoy gesture"
+preference_gesture_armed_release = "Empty-hand right-click then release sneak"
+preference_gesture_double = "Double sneak"
+preference_gesture_release = "Release sneak"
+
+[stealthshadowmeld.preferences]
+preference_gesture = "Meld activation"
+preference_gesture_automatic = "Eligible sneaking"
+preference_gesture_double = "Double sneak to arm"
+
+[stealthsight.preferences]
+preference_blindness = "Prevent blindness"
+preference_night_vision = "Night vision"
+preference_outlines = "Invisible player outlines"
+
+[stealthsmokepellet.preferences]
+preference_gesture = "Smoke gesture"
+preference_gesture_double = "Double sneak"
+preference_gesture_single = "Single sneak"
+preference_hand = "Gunpowder hand"
+preference_hand_either = "Either hand"
+preference_hand_main = "Main hand"
+preference_hand_off = "Off hand"
+preference_reserve = "Gunpowder reserve in selected hand"
+preference_reserve_four = "Keep 4 gunpowder"
+preference_reserve_none = "No reserve"
+preference_reserve_one = "Keep 1 gunpowder"
+
+[stealthsnatch.preferences]
+preference_control = "Collection control"
+preference_control_automatic = "Automatic collection"
+preference_control_sneak = "While sneaking"
+preference_items = "Collected items"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+
+[stealthspeed.preferences]
+preference_particles = "Soul particles"
+preference_speed = "Maximum stealth speed"
+preference_step_down = "Automatic step down"
+preference_step_up = "Automatic step up"
+
+[stealthtrapsense.preferences]
+preference_chests = "Trapped chests"
+preference_outlines = "Private trap outlines"
+preference_plates = "Pressure plates"
+preference_sculk = "Sculk traps"
+preference_tripwires = "Tripwires"
+
+[sword.preferences]
+airborne = "Require an airborne sprint attack"
+all = "All permitted"
+all_foliage = "All permitted foliage"
+all_swords = "All swords"
+diamond = "Diamond only"
+durability = "Durability remaining after ritual"
+five = "Keep 5 levels"
+foliage = "Foliage to cut"
+glow = "Mark focused attacker"
+grass = "Grass and ferns"
+half = "Keep 50%"
+hostile = "Hostile mobs"
+ignore_passive = "Ignore passive mobs"
+leaves = "Leaves only"
+netherite = "Netherite only"
+no_xp = "No extra reserve"
+non_players = "Non-player targets"
+none = "No extra reserve"
+precious = "Diamond and netherite"
+quarter = "Keep 25%"
+sneak = "Require sneaking"
+swords = "Eligible heirloom swords"
+targets = "Eligible targets"
+ten = "Keep 10 levels"
+thirty = "Keep 30 levels"
+vines = "Vines only"
+visuals = "Bleed particles"
+xp = "Experience levels remaining"
+
+[taming.preferences]
+all = "All permitted pets"
+all_collars = "All collar colors"
+all_items = "All permitted items"
+all_targets = "All permitted targets"
+blocks = "Blocks only"
+blue = "Blue collars"
+bones = "Bones remaining after command"
+cats = "Cats only"
+collar = "Wolves allowed to fetch"
+combat = "Mounted combat bonuses"
+eight = "Keep 8"
+food = "Food only"
+four = "Keep 4"
+half = "At least 50% health"
+handling = "Mount speed and jump"
+health = "Pet health remaining after protection"
+horses = "Horses and equines"
+hostile = "Hostile mobs"
+hunger = "Hunger remaining after recall"
+items = "Items to fetch"
+non_players = "Non-player targets"
+none = "No extra reserve"
+pacify = "Pacify neutral mobs"
+pets = "Eligible pet types"
+red = "Red collars"
+regeneration = "Pack regeneration"
+server_health = "Server minimum"
+sitting = "Include sitting pets"
+speed = "Speed bonus"
+taming = "Improved taming"
+targets = "Command targets"
+three_quarters = "At least 75% health"
+valuables = "Ores and minerals"
+visuals = "Bond particles and glow"
+wolves = "Wolves only"
+yellow = "Yellow collars"
+
+[tragoul.preferences]
+all = "All permitted targets"
+arthropods = "Arthropods only"
+assist = "Assist and hunt"
+blood_globes = "Collect blood globes"
+bone_globes = "Collect bone globes"
+bones = "Bones remaining after use"
+cool = "Blue to white"
+defend = "Defend the owner"
+eight = "Keep 8 bones"
+four = "Keep 4 bones"
+ignore_passive = "Ignore passive mobs"
+non_players = "Non-player targets"
+none = "No extra reserve"
+palette = "Health outline palette"
+passive = "Passive"
+replace_oldest = "Replace oldest servant at cap"
+stance = "Servant behavior"
+targets = "Eligible target types"
+undead = "Undead only"
+warm = "Red to yellow"
+
+[unarmed.preferences]
+airborne_only = "Require airborne clap"
+all = "All permitted targets"
+both = "Fists or shield"
+combat = "Unarmed damage bonus"
+fists = "Empty hands only"
+five = "Keep 5 hunger"
+hostile = "Hostile mobs"
+hunger = "Hunger remaining after clap"
+loadout = "Charge loadout"
+manual_meditation = "Require explicit meditation arming"
+meditation_armed = "Meditation armed"
+mob_armor = "Disarm mob armor"
+next_hit = "Punch again only"
+non_players = "Non-player targets"
+none = "No extra reserve"
+player_targets = "Disarm players"
+release = "Release grabbed target"
+require_arming = "Require sneak-right-click arming"
+shield = "Shield only"
+sneak_or_hit = "Release sneak or punch again"
+soft_blocks = "Faster soft block breaking"
+targets = "Eligible targets"
+ten = "Keep 10 hunger"

@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -69,6 +73,18 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (getActiveLevel(player.getPlayer()) <= 0 || !preferenceEnabled(player.getPlayer(), UnarmedPreferences.BREAKING)) {
+      AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+    }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, UnarmedPreferences.COMBAT, UnarmedPreferences.BREAKING);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getDamageBonus(level)), 1);
     statLore(v, getHasteAmplifier(level) + 1, 2);
@@ -86,6 +102,7 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
       return;
     }
 
+    if (!preferenceEnabled(p, UnarmedPreferences.COMBAT)) { return; }
     e.setDamage(e.getDamage() + getDamageBonus(attack.level()));
     xp(p, getConfig().xpPerHit);
     addStat(p, "unarmed.iron-fists.iron-hits", 1);
@@ -101,7 +118,7 @@ public class UnarmedIronFists extends SimpleAdaptation<UnarmedIronFists.Config> 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(BlockDamageEvent e) {
     Player p = e.getPlayer();
-    if (isItem(p.getInventory().getItemInMainHand())) {
+    if (!preferenceEnabled(p, UnarmedPreferences.BREAKING) || isItem(p.getInventory().getItemInMainHand())) {
       return;
     }
 

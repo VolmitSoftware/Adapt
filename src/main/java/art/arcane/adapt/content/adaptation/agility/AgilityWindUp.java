@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.AgilityMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -58,6 +63,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
+  public static final PlayerPreference<CommonPreferences.Scale> SPEED = CommonPreferences.scale("speed", AgilityMessages.AGILITYWINDUP_PREFERENCE_SPEED);
+
   private static final String SLOT_WINDUP = "windup";
   private static final double DEFAULT_WALK_SPEED = 0.2D;
   private final Map<UUID, RuntimeState> states = playerState();
@@ -74,6 +81,16 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_agility_wind_up_10min", "agility.wind-up.max-speed-ticks", 12000, 400);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SPEED);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearAndRemoveState(player.getPlayer());
   }
 
   @Override
@@ -258,7 +275,7 @@ public class AgilityWindUp extends SimpleAdaptation<AgilityWindUp.Config> {
       state.currentBonus = 0D;
     }
 
-    double target = targetBonus(speedIncrease, getConfig().walkSpeedBonusScalar, getConfig().maxWalkSpeed);
+    double target = targetBonus(speedIncrease, getConfig().walkSpeedBonusScalar, getConfig().maxWalkSpeed) * preference(p, SPEED).multiplier();
     float smoothing = elapsedSmoothing(getConfig().walkSpeedLerpPerTick, elapsedTicks);
     double next = smoothedBonus(state.currentBonus, target, smoothing);
     if (Math.abs(state.currentBonus - next) > 0.0005D) {

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -96,6 +99,11 @@ public class TamingWildEmpathy extends SimpleAdaptation<TamingWildEmpathy.Config
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TamingPreferences.TAMING, TamingPreferences.PACIFY);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getTamingOdds(level), 0), 1);
     statLore(v, C.YELLOW, "* ", Form.pc(getAngerResistance(level), 0), 2);
@@ -113,7 +121,7 @@ public class TamingWildEmpathy extends SimpleAdaptation<TamingWildEmpathy.Config
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (level <= 0 || !preferenceEnabled(p, TamingPreferences.TAMING)) {
       return;
     }
 
@@ -139,7 +147,7 @@ public class TamingWildEmpathy extends SimpleAdaptation<TamingWildEmpathy.Config
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (level <= 0 || !preferenceEnabled(p, TamingPreferences.PACIFY)) {
       return;
     }
 

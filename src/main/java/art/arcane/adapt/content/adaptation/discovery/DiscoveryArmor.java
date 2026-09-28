@@ -95,6 +95,13 @@ public class DiscoveryArmor extends SimpleAdaptation<DiscoveryArmor.Config> {
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (!hasActiveAdaptation(player.getPlayer())) {
+      removeArmorModifier(player.getPlayer());
+    }
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + AdaptLanguage.text(DiscoveryMessages.ARMOR_PASSIVE));
     v.addLore(C.YELLOW + "~ " + AdaptLanguage.text(

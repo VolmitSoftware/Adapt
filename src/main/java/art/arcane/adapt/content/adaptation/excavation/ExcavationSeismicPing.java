@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.localization.catalog.ExcavationMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -55,6 +59,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPing.Config> {
+  public static final PlayerPreference<ExcavationPreferences.Palette> COLOR = ExcavationPreferences.palette("color", ExcavationMessages.PREFERENCE_EXCAVATIONSEISMICPING_COLOR);
+  public static final PlayerPreference<ExcavationPreferences.Ores> ORES = ExcavationPreferences.ores("ores", ExcavationMessages.PREFERENCE_EXCAVATIONSEISMICPING_ORES);
+  public static final PlayerPreference<CommonPreferences.Scale> FREQUENCY = CommonPreferences.scale("cue-frequency", ExcavationMessages.PREFERENCE_EXCAVATIONSEISMICPING_FREQUENCY);
+
   static final int GLOW_DURATION_TICKS = 40;
   private static final int MAX_SCAN_RANGE = 32;
   private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 2048;
@@ -76,6 +84,21 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_seismic_200", "excavation.seismic-ping.pings-triggered", 200, 400);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    UUID playerId = player.getPlayer().getUniqueId();
+    activeScans.remove(playerId);
+    WorldBlockScanScheduler.cancel(this, playerId);
+    activeRevealWindows.remove(playerId);
+    ViewerDisplayDirector.clearViewer(getName(), playerId);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, COLOR, ORES, FREQUENCY);
   }
 
   @Override
@@ -106,7 +129,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
     }
 
     int level = context.level();
-    if (!cooldowns.isReady(playerId, getCooldownMillis(level))) {
+    if (!cooldowns.isReady(playerId, (long) (getCooldownMillis(level) / preference(p, FREQUENCY).multiplier()))) {
       return;
     }
 
@@ -125,9 +148,10 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
       return;
     }
 
+    ExcavationPreferences.Ores ores = preference(p, ORES);
     ArrayList<WorldBlockScanScheduler.AdditionalMatch> hiddenMatches = new ArrayList<>(1);
     HiddenOreLink.VeinTarget hidden = HiddenOreLink.nearestVein(origin, scanRange);
-    if (hidden != null && hidden.location().getWorld() == world) {
+    if (hidden != null && hidden.location().getWorld() == world && ores.allows(hidden.display())) {
       Location at = hidden.location();
       double dx = at.getX() - origin.getX();
       double dy = at.getY() - origin.getY();
@@ -150,7 +174,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
         .maxResults(1)
         .seed(ThreadLocalRandom.current().nextInt())
         .additionalMatches(hiddenMatches)
-        .matcher(this::isOre)
+        .matcher(type -> isOre(type) && ores.allows(type))
         .completion(result -> completeScan(p, origin, scanRange, result))
         .build();
     synchronized (revealLifecycleLock) {
@@ -268,7 +292,7 @@ public class ExcavationSeismicPing extends SimpleAdaptation<ExcavationSeismicPin
           player,
           location,
           target.material().createBlockData(),
-          oreTint(target.material()),
+          preference(player, COLOR).color(oreTint(target.material())),
           GLOW_DURATION_TICKS
       );
       if (!shown) {

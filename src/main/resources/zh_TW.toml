@@ -15,31 +15,24 @@
 # === 變數 ===
 # 請勿變更變數名稱，僅使用各訊息中原有的變數。
 #   {adaptation}  適應能力名稱
-#   {adaptations}  符合的適應能力名稱
 #   {after}  編輯後的值
 #   {amount}  貨幣、知識或經驗的數量
 #   {argument}  非預期的指令引數
 #   {available}  可用的力量或知識
 #   {before}  編輯前的值
-#   {benefit}  變異益處的說明
 #   {block}  進度指引中指定的方塊
 #   {bonus}  Masterwork 加成數量
-#   {burden}  變異缺點的說明
 #   {category}  設定分類名稱
 #   {chance}  觸發機率
 #   {combo}  Instant Recall 觸發條件組合
 #   {command}  完整指令路徑
-#   {control}  變異使用方法
 #   {cost}  所需知識數量
 #   {count}  項目、檔案或訊息數量
 #   {damage}  額外傷害量
 #   {danger}  通過傳送門時的危險警告
-#   {deepCharge}  已儲存的 Deep Charge 數量
-#   {deepblood}  已綁定的 Deepblood 工具狀態
 #   {description}  進度說明
 #   {direction}  結構所在方向
 #   {distance}  到結構的距離（方塊）
-#   {domain}  變異對應的技能組名稱
 #   {duration}  格式化後的持續時間或冷卻時間
 #   {effect}  藥水效果名稱
 #   {enchantment}  附魔名稱
@@ -52,7 +45,6 @@
 #   {group}  語言編輯器分類
 #   {hits}  快取命中次數
 #   {instruction}  解鎖進度的指引
-#   {interaction}  與另一變異欄位的互動
 #   {key}  訊息或設定鍵
 #   {knowledge}  知識數量
 #   {label}  設定或統計值的標籤
@@ -60,7 +52,6 @@
 #   {levels}  節省的經驗等級數量
 #   {line}  語言訊息的行號
 #   {locale}  語言代碼
-#   {masterwork}  已綁定的 Masterwork 裝備狀態
 #   {maximum}  允許的最大值或力量上限
 #   {message}  冷卻時間詳細資訊前的狀態訊息
 #   {microsPerCheck}  每次能力檢查耗時（微秒）
@@ -68,12 +59,10 @@
 #   {minimum}  允許的最小值
 #   {misses}  快取未命中次數
 #   {multiplier}  經驗加成倍率
-#   {mutation}  變異名稱
 #   {needed}  所需的力量或知識
 #   {newValue}  新的設定值
 #   {nextLevel}  下一個技能等級的顯示內容
 #   {oldValue}  先前的設定值
-#   {other}  衝突的變異名稱
 #   {page}  目前頁碼
 #   {pages}  總頁數
 #   {parameter}  指令參數名稱
@@ -92,28 +81,23 @@
 #   {progress}  技能進度顯示內容
 #   {range}  搜尋或能力範圍（方塊）
 #   {ratio}  快取命中率
-#   {reason}  變異狀態或編輯器錯誤的說明
+#   {reason}  編輯器錯誤
 #   {refund}  取消學習時退還的知識
 #   {remaining}  省略顯示的設定變更數量
-#   {result}  200 級時的變異效果
-#   {rootCharge}  已儲存的 Root Charge 數量
 #   {second}  第二個技能組或觸發條件組成部分
 #   {seconds}  時長（秒）
 #   {section}  語言編輯器區段
 #   {separator}  統計值與標籤之間的分隔符號
 #   {skill}  技能名稱
-#   {slot}  變異欄位編號
 #   {slots}  背包欄位數量
 #   {stacks}  效果堆疊層數或背包可容納的物品組數
-#   {state}  啟用狀態或變異欄位狀態
+#   {state}  啟用狀態
 #   {steps}  已完成的合成、釀造或附魔步驟數
 #   {strength}  額外護甲強度
 #   {structure}  已定位的結構名稱
 #   {surface}  影響觸發條件的地表
 #   {symbol}  結構指示符號
 #   {target}  目標玩家或要設定語言的插件
-#   {tell}  可見變異效果的說明
-#   {temperbound}  已綁定的 Temperbound 裝備狀態
 #   {timestamp}  設定封存時間戳記
 #   {to}  頁面中最後一個項目的編號
 #   {total}  項目或欄位總數
@@ -129,364 +113,6 @@
 #   {x}  目標 X 座標
 #   {xp}  經驗數量
 #   {z}  目標 Z 座標
-
-[mutation.domain]
-body = "身體"
-hunt = "狩獵"
-industry = "工業"
-wild = "荒野"
-craft = "製作"
-anomaly = "異常"
-
-[mutation.type.gale_lung]
-name = "疾風之肺"
-benefit = "移動會累積動量。動量充滿時，你的下一次攻擊會推開目標或改變其位置。"
-burden = "動量充滿時，敵人對你的擊退更強。格擋會清空動量。"
-perfect = "敵人不再對你造成更強的擊退。格擋仍會清空動量。"
-tell = "藍綠色的風在你的腳邊和武器周圍聚集。"
-control = "持續移動以累積動量，然後命中一次攻擊。"
-
-[mutation.type.bastion_spine]
-name = "堡壘之脊"
-benefit = "原地站立會累積穩定度。接著用盾牌、斧頭或空手命中時，會產生一次短距離推擊。"
-burden = "蓄勢時無法衝刺或跳躍。從背後受到攻擊會打破架勢。"
-perfect = "蓄勢時也可以衝刺和跳躍。從背後受到攻擊仍可能打破架勢。"
-tell = "石質肋骨和明亮裂紋會顯示你儲存的力量。"
-control = "在地面上原地站立，然後用盾牌、斧頭或空手攻擊。"
-
-[mutation.type.verdant_molt]
-name = "翠綠蛻皮"
-benefit = "在自然地面上潛行並保持不動，可清除有害效果。"
-burden = "這也會清除增益效果、消耗飢餓值，並暫時阻止你獲得新效果。"
-perfect = "不再失去增益效果或飢餓值。短暫的效果阻斷仍然存在。"
-tell = "樹葉、鱗片或孢子會從你身上迸散。"
-control = "在自然地面上保持潛行並原地不動。"
-
-[mutation.type.temperbound]
-name = "淬鍊之契"
-benefit = "連結一套護甲，讓各部件共享耐久度。原本會損壞的部件會改為進入裂損狀態。"
-burden = "脫下或更換任一連結部件，會使整套護甲暫時失效。"
-perfect = "更換護甲不再使整套護甲失效。仍然只能維持一套護甲的連結。"
-tell = "發光的線條將已連結的護甲部件連在一起。"
-control = "在 Adapt 書架前穿上四件親手製作的護甲，然後選擇「連結目前護甲」。"
-
-[mutation.type.paradox_scar]
-name = "悖論傷痕"
-benefit = "進行長距離移動或傳送後會留下返回點。你可以返回那裡一次。"
-burden = "返回點清晰可見，會阻止新返回點形成，而且敵人可以將其破壞。"
-perfect = "它不再阻止其他變異的返回效果生效。敵人仍可以將其破壞。"
-tell = "明亮的殘影標示著返回點。"
-control = "長距離移動或傳送後，潛行並交換主副手即可返回。"
-
-[mutation.type.arsenal_cortex]
-name = "兵器皮層"
-benefit = "在兩次攻擊之間切換武器或工具類型，可將一個控制效果延續到下一次攻擊。"
-burden = "連續使用兩次同一類型，會使連擊暫時鎖定。"
-perfect = "重複使用同一類型不再鎖定連擊。要累積連擊仍需切換類型。"
-tell = "不斷變化的符號會繞著手持物品旋轉。"
-control = "使用不同類型的武器或工具命中目標。"
-
-[mutation.type.packmind]
-name = "群體心智"
-benefit = "你的第一次攻擊會標記目標。寵物和已選擇參與的盟友也攻擊該目標時，會累積節奏。"
-burden = "在其他人加入前，你造成的傷害較低。獨自累積的節奏會迅速消退。"
-perfect = "等待其他人加入時，你的傷害不再降低。累積節奏仍需要另一名參與者。"
-tell = "琥珀色線條將隊伍與被標記的目標相連。"
-control = "攻擊一個目標，然後讓寵物或已選擇參與的盟友也攻擊它。"
-
-[mutation.type.trophy_crucible]
-name = "戰利品熔爐"
-benefit = "自然生成的生物可能掉落戰利品。使用一件戰利品，可準備針對該類生物的控制效果。"
-burden = "該類生物會更容易發現你，並能看穿變異提供的潛行效果。"
-perfect = "額外的偵測效果會被移除。你仍然只能儲存一種戰利品效果。"
-tell = "代表已儲存生物類型的面具會出現在你身後。"
-control = "手持自然戰利品，在潛行時以右鍵點擊工作台。"
-
-[mutation.type.umbral_echo]
-name = "幽影迴響"
-benefit = "從新角度或用新武器類型攻擊，會在短暫延遲後再次觸發較弱的控制效果。"
-burden = "重複使用同一種攻擊方式會暴露你，並暫時停用潛行效果。"
-perfect = "重複攻擊方式不再暴露你。仍需使用新角度或新武器類型。"
-tell = "深紫色殘影會重複觸發控制效果。"
-control = "在兩次攻擊之間改變攻擊角度或武器類型。"
-
-[mutation.type.living_lattice]
-name = "生命網格"
-benefit = "收穫並補種會累積根系能量。消耗根系能量可長出一條短暫存在的路徑。"
-burden = "火焰和熔岩可能清空你的能量，路徑被迫崩塌時還會消耗飢餓值。"
-perfect = "火焰和熔岩不再清空能量。路徑仍會消失。"
-tell = "綠色根系會在路徑消失前變成棕色。"
-control = "收穫並補種後，手持樹苗潛行並按右鍵。"
-
-[mutation.type.masterwork_bond]
-name = "傑作之契"
-benefit = "綁定一件親手製作的工具。它不會損壞，而是停在 1 點耐久度，並且必須修復後才能繼續使用。"
-burden = "只有綁定的工具受到保護。如果工具遺失，必須等待一段時間才能綁定另一件。"
-perfect = "其他工具仍可正常觸發變異效果。只有傑作工具能免於損壞。"
-tell = "工具接近損壞時，上面的符文會逐漸裂開。"
-control = "在 Adapt 書架前手持親手製作的工具，然後選擇「綁定手持工具」。"
-
-[mutation.type.deepblood]
-name = "深血"
-benefit = "在地底深處開採自然方塊會累積深層能量。它可用於治療，並在一次本應損壞時保住綁定工具。"
-burden = "在地底治療會消耗深層能量，而能量在地面上會緩慢流失。"
-perfect = "深層能量為零時也能在地底獲得治療。保護綁定工具仍會消耗能量。"
-tell = "隨著能量累積，紅色裂紋會蔓延到你和綁定的工具上。"
-control = "開採地底深處的自然方塊，並在 Adapt 書架前綁定一件工具。"
-
-[mutation.type.mycelial_nerve]
-name = "菌絲神經"
-benefit = "你施加給自己的增益效果，會以較弱的形式擴散到附近已選擇參與的玩家和寵物。"
-burden = "你自己的效果持續時間會縮短，受到火焰傷害還會中斷連結。"
-perfect = "你自己的效果會保持完整持續時間，火焰也不再中斷連結。"
-tell = "孢子軌跡會將複製的效果傳遞給附近盟友。"
-control = "在已選擇參與的玩家或自己的寵物附近，給自己施加增益效果。"
-
-[mutation.type.gravebloom]
-name = "墓花"
-benefit = "擊殺自然生成的敵對生物時，可能產生短暫存在的花簇，用來催熟作物並治療你的寵物。"
-burden = "活躍的花簇會削弱你的自然治療，存在較久的花簇還會吸引敵對生物。"
-perfect = "花簇不再削弱你的治療。它們仍會在短時間後消失。"
-tell = "蒼白花朵和靈魂粒子會從死亡地點升起。"
-control = "在自然地面上擊殺一隻自然生成的敵對生物。"
-
-[mutation.type.resonant_formula]
-name = "共鳴公式"
-benefit = "製作、釀造和附魔各進行一次即可準備連擊。你下一個不造成傷害的異常效果會以一半強度再觸發一次。"
-burden = "重複同一個準備步驟會中斷連擊，並移除你持續時間最久的增益效果。"
-perfect = "重複步驟不再中斷連擊。仍需完成三個不同的步驟。"
-tell = "連擊準備完成時，三個符號會結合在一起。"
-control = "以任意順序各完成一次製作、釀造和附魔。"
-
-[mutation.runtime]
-unavailable = "變異系統目前無法使用。"
-feature_off = "此伺服器已關閉實驗性變異。"
-type_off = "伺服器設定已關閉 {mutation}。"
-missing_permission = "缺少權限 {permission}。"
-duplicate_slots = "不能在兩個欄位中使用同一個變異。"
-duplicate_occupancy = "相同的突變不能佔據兩個位置."
-conflict_other = "此選擇與你的另一個變異衝突。"
-conflicts_with = "{mutation} 與 {other}."
-slot_locked_current_level = "此槽鎖定在您的當前關卡."
-first_slot_unlocks = "第一個變異欄位在 {level} 級解鎖。"
-world_unavailable = "這種突變在 {world}."
-active_perfect = "無負面活動."
-active_burden = "活動; 下行應用."
-ready_to_use = "可以使用。"
-requirements_unavailable = "變異需求不詳."
-learn_both_domains = "分別從 {first} 和 {second} 技能組中學習一個適應。"
-learn_domain_level = "學一個 {domain} 層面的適應 {level} 或更高階."
-ready = "準備"
-login_requirements = "登入以檢查要求."
-equipped_offline = "玩家離線時已配置但未活動."
-first_slot_locked = "第一個突變槽已鎖定."
-trophy_clear_hint = "空手再次以右鍵點擊工作台，即可清除準備好的戰利品。"
-trophy_cleared = "已清除準備好的戰利品。"
-return_echo_name = "返回迴響"
-
-[mutation.selection]
-invalid = "無效的突變選擇."
-player_data_unavailable = "玩家突變資料無法獲取."
-slot_changed_confirm = "在確認開放時,變換檔位有所改變;再次審查."
-loadout_changed_confirm = "在確認開啟時, 突變載入已更改; 再次審查."
-already_equipped = "{mutation} 已裝入槽 {slot}."
-equipped = "裝置 {mutation} 插槽中 {slot}."
-invalid_slot = "無效的突變槽."
-slot_already_empty = "變位 {slot} 已經空."
-cleared_slot = "清除突變槽 {slot}."
-changes_off = "在此伺服器上關閉變異更改."
-bookshelf_required = "回到原點 Adapt 更改突變槽前的書架."
-slot_unlocks = "變位 {slot} 級別解鎖 {level}."
-permanent_choices = "這個伺服器讓突變選擇永久化."
-slot_cooldown = "變位 {slot} 尚未更改."
-combat_cooldown = "戰鬥中不能改變突變."
-mutation_disabled = "變異是禁用."
-world_disabled = "這種變異在這個世界行不通."
-
-[mutation.command]
-toggle_usage = "使用 enabled=on、enabled=off，或省略此參數以切換狀態。"
-cooperative_enabled = "合作變異效果已啟用。"
-cooperative_disabled = "合作變異效果已停用。"
-cooperative_enabled_off = "啟用了合作突變效應. 首選項已儲存; 實驗性突變目前已關閉."
-cooperative_disabled_off = "合作突變效應被禁用. 首選項已儲存; 實驗性突變目前已關閉."
-choice_saved_off = "選擇已儲存，但在實驗性變異關閉期間不會生效。"
-discovered = "已為 {player} 發現 {mutation}。"
-undiscovered = "已將 {player} 的 {mutation} 標記為未發現。"
-cooldowns_cleared = "已清除 {player} 的變異切換冷卻時間。"
-state_refreshed = "重新整理突變狀態 {player}."
-slot_range = "變位必須是 1 或 2."
-override_usage = "使用 enabled=on, enabled=off, 或 enabled=clear."
-slot_normal = "變位 {slot} 正在使用其正常水平需求 {player}."
-slot_forced_unlocked = "變位 {slot} 現已強制解鎖 {player}."
-slot_forced_locked = "變位 {slot} 現在被迫鎖定 {player}."
-data_cleared = "清除的突變資料 {player} 不更改 XP, 技能、知識、適應或進步."
-perfect_normal = "\"完美適應\"目前正在使用其正常水平要求 {player}."
-perfect_forced_on = "完美適應現在被迫 {player}."
-perfect_forced_off = "完美適應現在被迫離開 {player}."
-unavailable = "現在沒有變異."
-reload_failed = "變異設定重新載入失敗；先前的設定仍然有效。"
-reload_enabled = "變異設定已重新載入。實驗性變異已啟用，正在重新整理線上玩家的欄位。"
-reload_disabled = "變異設定已重新載入。實驗性變異已停用，儲存的選擇會繼續保留。"
-unknown_mutation = "未知變異：{mutation}"
-snapshot_title = "實驗突變 {player}"
-feature_enabled = "特性: 啟用"
-feature_disabled = "特性: 已禁用"
-perfect_active = "完美適應:活動"
-perfect_inactive = "完美適應:不活動"
-cooperative_status_enabled = "合作效果:啟用"
-cooperative_status_disabled = "合作效果:殘疾"
-stored_resources = "儲存資源:深充電 {deepCharge} • 根電荷 {rootCharge} • 工藝/機車/機械步驟 {steps}"
-linked_gear = "連線的齒輪: 淬鍊綁定 {temperbound} • 主作業 {masterwork} • 深血工具 {deepblood} • 綠色 {trophy}"
-yes = "對"
-no = "無"
-slot_locked = "槽 {slot}: 鎖定"
-slot_empty = "槽 {slot}: 空"
-slot_unavailable = "槽 {slot}: {mutation} (無)"
-slot_value = "槽 {slot}: {mutation} [{state}]"
-slot_value_reason = "槽 {slot}: {mutation} [{state}] - {reason}"
-result_updated = "更新突變狀態."
-result_not_changed = "未更改突變狀態."
-remaining_cooldown = "{message} 剩餘冷卻時間：{duration}"
-
-[mutation.state]
-ready = "準備"
-active = "活動"
-inactive = "不活動"
-locked = "鎖定"
-off = "關"
-unavailable = "無"
-blocked = "已封鎖"
-
-[mutation.progression]
-slot_unlocked_title = "突變槽解鎖"
-slot_unlocked_subtitle = "你的第一個突變槽已經解鎖. 訪問a Adapt 書架."
-second_slot_title = "第二次變位槽"
-second_slot_subtitle = "你的第二個突變槽現在解鎖了."
-perfect_title = "完美的適應"
-perfect_subtitle = "你裝備的變種不再有缺點."
-perfect_lost = "完美 重塑不再活動; 突變下行再次應用."
-
-[mutation.model]
-no_selection = "未選擇突變"
-saved_unavailable = "此儲存的突變不可用"
-slot_locked = "需要的插槽已鎖定"
-ready = "準備使用"
-active = "活動"
-inactive = "裝備但無活動"
-disabled = "由伺服器關閉"
-restricted = "此處不可用"
-conflict = "被另一個變異所阻擋"
-empty = "空"
-
-[mutation.gui]
-disabled = "變異仍屬實驗功能，且已在此伺服器上停用。"
-title = "實驗性變異 • 等級 {level}"
-perfect = "完美的適應"
-perfect_active = "已裝備的兩個變異都會失去負面效果。"
-perfect_locked = "達到設定的 Adapt 等級後解鎖。"
-cooperative_on = "合作效果:"
-cooperative_off = "合作效果: 關閉"
-cooperative_allow = "允許接收附近玩家分享的變異效果。"
-cooperative_opt_out = "點擊以退出參與。"
-cooperative_opt_in = "單擊以選擇加入."
-changes_available = "可以變更"
-view_only = "僅檢視"
-may_change = "這裡可以換個變形槽."
-visit_bookshelf = "前往有效的 Adapt 書架並與其互動，即可變更欄位。"
-unavailable_discoveries = "無法獲取的發現"
-saved_not_installed = "目前未安裝的已儲存的突變:"
-slot_value = "槽 {slot}: {mutation}"
-slot_locked = "槽 {slot}: 已鎖定"
-right_click_clear = "右鍵單擊以清除此槽."
-skill_groups = "技能團體: {first} + {second}"
-discovered = "發現"
-undiscovered = "未發現"
-equipped_slot = "插槽 {slot}"
-click_inspect = "單擊以檢查"
-requires = "要求:從各級每個技能組中學習到一個 {level}+"
-benefit = "效果：{benefit}"
-burden = "負面效果：{burden}"
-perfect_result = "達到 200 級時：{result}"
-tell = "外觀提示：{tell}"
-control = "使用方式：{control}"
-pvp = "感染 PvP"
-no_pvp = "不直接影響 PvP"
-status = "狀態: {state}"
-matching_none = "匹配適應:目前沒有學到任何"
-matching = "匹配適應: {adaptations}"
-slot_locked_name = "槽 {slot} 已鎖定"
-slot_view_only = "槽 {slot} • 只檢視"
-bookshelf_before_change = "使用一個有效的 Adapt 更改此位置前的書架."
-equipped_in_slot = "安裝在槽中 {slot}"
-already_equipped_slot = "已裝入槽中 {slot}"
-conflicts_with = "衝突 {mutation}"
-clear_other_first = "清除或替換槽 {slot} 在選擇此突變之前."
-unavailable_slot = "無法用於槽 {slot}"
-equip_slot = "在槽中安裝裝置 {slot}"
-current = "當前: {mutation}"
-click_preview = "單擊以預覽並確認此更改."
-confirm_slot = "{mutation} → 槽 {slot}"
-replacing = "替換: {mutation}"
-other_slot = "其他時間檔: {mutation}"
-with_other = "與其它空檔: {interaction}"
-slot_cooldown = "冷卻時間槽: {duration}"
-confirm_change = "確認更改"
-confirm_change_title = "確認突變變化"
-clear_slot = "清除槽 {slot}"
-unequip = "無裝置 {mutation}?"
-normal_cooldown = "開始正常的槽冷卻時間."
-confirm_clear = "確認清除"
-link_armor = "連結當前裝甲"
-link_armor_lore = "穿4件耐用裝甲,然後點選連線."
-unlink_armor = "解鎖裝甲"
-unlink_armor_lore = "解開當前四件裝甲."
-review_confirm = "單擊以審查和確認."
-unlink_masterwork = "解鎖主工作"
-unlink_masterwork_lore = "解鎖當前主工作工具."
-replacement_cooldown_begins = "在確認後開始更換冷卻時間."
-bind_held_tool = "捆綁工具"
-deepblood_bind_lore = "將主手的持久工具與 深血 斷裂保護連線."
-deepblood_replace_lore = "連結另一個工具替換您的當前 深血 工具."
-bind_cooling = "• 降溫"
-masterwork_bind_lore = "拿著你親自設計的耐用工具."
-replacement_available = "可用替換 {duration}."
-equipment_changed = "連線裝置在確認前就變了."
-unlink_temperbound = "解開淬鍊綁定裝甲?"
-temperbound_unlinked = "現在的四件盔甲將脫鉤."
-no_repair_return = "這不會修復、保護或歸還任何裝甲."
-unlink_masterwork_question = "解鎖主工作工具?"
-masterwork_unlinked = "當前主工作工具將取消連結."
-replacement_cooldown = "替換冷卻時間: {duration}"
-confirm_equipment_title = "確認裝置變更"
-option_unavailable = "此選項已無法使用."
-equipment_changed_review = "連線裝置在確認開放時更換;再次審查."
-controls_unavailable = "現在沒有變異裝置控制."
-page_count = "頁次 {page}/{pages} • {count} 變異"
-no_other_selected = "未選擇其他變異"
-same_not_allowed = "相同的突變不能佔據兩個位置"
-compatible_with = "與 {mutation}"
-unknown = "不詳"
-state_ready = "準備"
-state_active = "活動"
-state_inactive = "非活動"
-state_locked = "已鎖定"
-state_off = "關"
-state_unavailable = "無法獲取"
-state_blocked = "封鎖"
-
-[mutation.equipment]
-temperbound_success = "您現在的盔甲是淬鍊綁定."
-temperbound_unlinked = "你的盔甲已經脫鉤了."
-masterwork_success = "拿著的工具現在是你的主作."
-deepblood_success = "持有的工具現在連結到您的深充電儲備."
-masterwork_unlinked_delay = "您的主工作工具沒有連結. 替換可以連結到 {duration}."
-masterwork_unlinked = "您的主工作工具沒有連結."
-replacement_delay = "替換的主工作可連結到 {duration}."
-temperbound_requirement = "穿一套完整的四件耐用裝甲 尚未連線."
-temperbound_failure = "鐵甲無法脫鉤."
-masterwork_requirement = "持有您親自設計的沒有連結的主工作工具的持久工具."
-masterwork_failure = "大師之作 工具尚未解連結."
-deepblood_requirement = "主手拿著一個耐用工具,然後把它和深血聯絡起來."
 
 [director.help]
 no_subcommands = "此頁面沒有子命令。"
@@ -3991,6 +3617,9 @@ surface_block = "塊"
 trigger_join = "{first} + {second}"
 trigger_surface = "{trigger} ({surface})"
 
+
+blink_priority = "Manual Blink takes priority over double-jump Recall"
+
 [chronos.time_bomb]
 name = "時間炸彈"
 description = "投擲合成的時空炸彈，產生時間力場，減速實體並凍結投射物。"
@@ -4885,7 +4514,6 @@ no_previous_page = "無上一頁"
 no_next_page = "無下一頁"
 last_page = "最後一頁"
 back_to_skills = "返回技能"
-back_to_mutations = "返回變異"
 skills = "技能"
 adaptations = "適應"
 levels = "職等"
@@ -4912,11 +4540,6 @@ vault_unavailable_fallback = "Vault 經濟功能無法使用 — 仍可僅使用
 vault_insufficient_funds = "玩家的 Vault 經濟餘額不足。"
 vault_transaction_failed = "Vault 交易失敗；進度未變更。"
 power_drain = "力量消耗：{power}"
-
-[gui.mutations]
-experimental_mutations = "實驗性變異"
-menu_summary = "由 Adapt 等級解鎖的可選流派配置。"
-menu_open = "點擊以檢視你的欄位和需求。"
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5408,13 +5031,15 @@ lore3 = "製作完成後查看物品以瞭解使用方法"
 notcontainer = "那不是容器"
 lore = ["乖珍珠 + 指南針 = 亞空間之鑰", "此物品允許你遠程存取容器", "製作完成後查看物品以瞭解使用方法"]
 
+unbind = "看向沒有容器的方向，潛行並左擊空氣以解除綁定。"
+
 [rift.blink]
 name = "裂痕閃現"
-description = "連續跳躍兩次即可朝視線方向閃現。成功閃現不會消耗終界珍珠，但會承受普通珍珠傷害，且傷害隨等級降低。潛行時閃現可直接穿過牆壁和障礙物。"
+description = "二段跳可向視線方向閃現。可優先選擇距離或較高的落點，並選擇按住潛行時穿牆、沿瞄準方向穿牆或從不穿牆。達到2級後，反應模式會將二段跳替換為受攻擊時的閃避：向視線方向或遠離攻擊者的方向閃現。成功閃現不消耗終界珍珠，但會造成隨等級提升而降低的終界珍珠傷害。可用選項受伺服器規則限制。"
 lore1 = "閃現距離"
 lore2 = "自身傷害（心）"
-lore3 = "潛行閃現可穿牆"
-lore = ["閃現距離", "自身傷害（心）", "潛行閃現可穿牆"]
+lore3 = "選擇閃現何時穿過牆壁"
+lore = ["閃現距離", "自身傷害（心）", "選擇閃現何時穿過牆壁"]
 
 [rift.chest]
 name = "便攜乖影箱"
@@ -6345,21 +5970,14 @@ boost_target_player_experience_gain = "增強目標玩家的經驗."
 bypass_adapt_use_permission_checks_when_opening = "繞行 adapt.use 開啟時許可權檢查"
 bypass_costs_and_restrictions = "副證費用和限制"
 bypass_power_knowledge_and_permanence_checks = "副動力、知識和永久性檢查"
-clear_a_player_s_mutation_slot = "清除玩家的突變槽"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "清除所有發現資料(生物、暴徒、食品、物品、食譜等.)"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "清除所有玩家資料 (XP, 知識、適應、統計、發現、進步、智慧)"
-clear_both_mutation_switching_cooldowns = "清除兩個突變切換冷卻時間器"
 clear_knowledge_across_all_skill_lines = "清除所有技能領域的知識"
-clear_only_a_player_s_mutation_data = "只清除玩家的突變資料"
 clear_player_progression_data = "清除玩家進度資料"
 clear_the_stats_map = "清除資料對映"
 clear_xp_across_all_skill_lines = "清除 XP 跨越所有技能線"
-discover_or_undiscover_a_mutation_for_a_player = "為玩家發現或未發現突變"
-equip_a_mutation_in_a_player_slot = "在玩家位置安裝突變"
 experience_per_orb = "每個礦井的經驗"
 explicit_on_off_state_omit_to_toggle = "開啟/關閉狀態, 省略切換"
-force_a_mutation_slot_unlocked_locked_or_back_to_its_normal_level_requirement = "強制解鎖、鎖定或恢復到正常水平要求的突變槽"
-force_perfect_adaptation_on_off_or_back_to_its_normal_level_requirement = "完成、關閉或恢復到正常水平要求"
 generate_perms_for_adaptations = "生成用於適應的周邊!"
 generate_perms_for_skills = "生成技能屬性!"
 give_a_knowledge_orb_to_yourself_or_a_target_player = "給自己或目標玩家一個知識球"
@@ -6368,18 +5986,12 @@ gui_to_open_main_skill_name_or_adaptation_name = "GUI 開啟:主、技能:<name>
 knowledge_per_orb = "每個實體的知識"
 level_between_0_and_100 = "級別 0 和 100"
 level_between_0_and_100_clamped_to_the_adaptation_max = "級別 0 和 100, 夾在適應的最大值"
-mutation_id = "變異 ID"
-on_off_or_clear = "開啟、關閉或清除"
-on_off_or_toggle = "開啟、關閉或切換"
 open_the_adapt_gui = "開啟 Adapt GUI"
-open_the_experimental_mutation_menu = "開啟實驗突變選單"
 open_the_in_game_adapt_config_editor = "開啟遊戲 Adapt 配置編輯器"
 particle_type_to_spawn = "要產卵的粒子型別"
 permanently_delete_all_adapt_data_for_a_player = "永久刪除全部 Adapt 玩家的資料"
 permanently_delete_all_adapt_data_for_a_player_requires_adapt_clear_run_twice_to_confirm = "永久刪除玩家的所有 Adapt 資料。需要 adapt.clear 權限。執行兩次以確認。"
 play_a_sound_at_your_location_for_testing = "在您的位置播放一個聲音進行測試!"
-refresh_a_player_s_mutation_slots_and_requirements = "重新整理玩家的突變位置和要求"
-reload_mutation_configuration = "重新裝入突變配置"
 reset_a_skill_config_to_defaults = "重設技能配置為預設值"
 reset_all_configs_to_defaults_and_archive_the_old_settings = "重設 ALL 配置預設並歸檔舊設定"
 reset_an_adaptation_config_to_defaults = "重設預設的適應配置"
@@ -6391,21 +6003,16 @@ show_adapt_ticker_hotspots = "顯示 Adapt 滴答熱點"
 skill_line_to_set = "要設定的技能行"
 skill_name_or_all_random = "技能名稱, 或者全部/ 隨機"
 skill_to_reset = "重設技能"
-slot_1_or_2 = "插槽 1 或 2"
 sound_to_play = "要播放的聲音"
 strength_of_the_boost = "推動的力量"
 summon_a_particle_at_your_location_for_testing = "在您的位置召集一個粒子進行測試!"
 target_player_defaults_to_you = "目標玩家,預設為您"
 toggle_adapt_effect_visibility_for_yourself = "切換 Adapt 給自己效果可見度"
-toggle_cooperative_mutation_participation = "切換合作社的變異參與"
 toggle_debug_mode_reveals_every_skill_and_adaptation_and_makes_learning_free_and_uncapped = "切換除錯模式:揭示每一種技能和適應,使學習自由而無封頂"
 toggle_verbose_mode = "切換動詞模式"
 top_results_to_print = "要列印的頂級結果"
-true_to_discover_false_to_undiscover = "真實到發現 虛假到無法發現"
 true_to_learn_false_to_unlearn = "誠實的學習,虛假的學習"
 unlearn_all_adaptations_across_all_skill_lines = "解開所有技能線上的適應"
-view_and_manage_experimental_mutations = "檢視和管理實驗突變"
-view_mutation_state_for_yourself_or_another_player = "為你自己或另一個玩家檢視突變狀態"
 
 [command.runtime]
 missing_permission = "你沒有權限 '{permission}'。"
@@ -6592,3 +6199,1103 @@ line = "第 {line} 行"
 [language.editor.value]
 none = "無"
 empty = "(空)"
+
+[gui.preferences]
+current = "目前：{value}"
+server_controlled = "由伺服器控制"
+server_disabled = "{value}：此伺服器無法使用"
+level_required = "{value}：需要適應等級 {level}"
+cycle = "左鍵：下一項 / 右鍵：上一項"
+learn_first = "學會此適應後才能修改其設定。"
+reset = "重設個人設定"
+reset_description = "對此適應使用伺服器預設值。"
+
+[rift.blink.setting]
+enabled = "閃現"
+phasing = "穿牆方式"
+targeting = "落點偏好"
+activation = "觸發方式"
+reactive_direction = "反應閃現方向"
+
+[rift.blink.option]
+on = "開啟"
+off = "關閉"
+sneak = "按住潛行以穿牆"
+aim = "沿瞄準方向穿牆"
+never = "從不穿牆"
+distance = "優先距離"
+verticality = "優先較高的落點"
+manual = "二段跳"
+reactive = "閃避攻擊"
+look = "視線方向"
+away = "遠離攻擊者"
+
+[agilityairdash.preferences]
+preference_speed = "Dash speed"
+preference_trigger = "衝刺觸發條件"
+preference_trigger_any = "Left click"
+preference_trigger_empty_hand = "Empty hand"
+preference_trigger_sneak = "While sneaking"
+
+[agilityfeatherfoot.preferences]
+preference_berries = "Berry protection"
+preference_farmland = "Farmland protection"
+preference_plates = "Pressure plate protection"
+preference_snow = "Powder snow protection"
+
+[agilitykipup.preferences]
+preference_speed_burst = "Recovery speed burst"
+
+[agilityladderslide.preferences]
+preference_ascent = "Upward assistance"
+preference_descent = "Downward assistance"
+preference_sensitivity = "Look sensitivity"
+preference_sensitivity_normal = "Normal"
+preference_sensitivity_precise = "More deliberate"
+preference_sensitivity_responsive = "More responsive"
+preference_speed = "Assistance speed"
+
+[agilityrolllanding.preferences]
+preference_food_reserve = "Food reserve"
+preference_food_reserve_eight = "Keep 8 food"
+preference_food_reserve_four = "Keep 4 food"
+preference_food_reserve_none = "No reserve"
+
+[agilityslipstreamslide.preferences]
+preference_control = "Slide control"
+preference_control_hold = "按住潛行"
+preference_control_tap = "輕按潛行"
+preference_duration = "Maximum slide duration"
+
+[agilitysuperjump.preferences]
+preference_control = "Jump control"
+preference_control_every_jump = "Every jump"
+preference_control_sneak = "潛行並跳躍"
+preference_height = "Jump height"
+
+[agilityvault.preferences]
+preference_trigger = "翻越觸發條件"
+preference_trigger_any = "Any jump"
+preference_trigger_sneak = "While sneaking"
+preference_trigger_sprint = "While sprinting"
+
+[agilitywalljump.preferences]
+preference_control = "Wall jump control"
+preference_control_hold = "按住潛行後放開"
+preference_control_tap = "Tap to latch and jump"
+
+[agilitywindup.preferences]
+preference_speed = "Maximum speed"
+
+[architectchalkline.preferences]
+preference_color = "Guide color"
+preference_color_aqua = "Aqua"
+preference_color_gold = "Gold"
+preference_color_purple = "Purple"
+preference_color_shape = "Shape color"
+preference_density = "Guide density"
+
+[architectdemolition.preferences]
+preference_materials = "方塊選擇"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+preference_sneak = "Require sneaking"
+
+[architectelevator.preferences]
+preference_ascent = "Upward travel"
+preference_descent = "Downward travel"
+preference_sneak_ascent = "需要潛行才能上升"
+
+[architectfoundation.preferences]
+preference_control = "Foundation control"
+preference_control_hold = "按住潛行"
+preference_control_latch = "輕按潛行以開始或停止"
+preference_duration = "臨時地基方塊持續時間"
+preference_empty_hand = "Require empty main hand"
+
+[architectglass.preferences]
+preference_materials = "Glass selection"
+preference_materials_all = "All eligible glass"
+preference_materials_clear = "Clear glass and panes"
+preference_materials_stained = "Stained glass and panes"
+
+[architectplacement.preferences]
+preference_control = "Building control"
+preference_control_armed = "All eligible placements"
+preference_control_sneak = "潛行時建造"
+preference_limit = "Placement size"
+preference_materials = "方塊選擇"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+preference_preview = "Placement preview"
+
+[architectscaffolder.preferences]
+preference_control = "Scaffold control"
+preference_control_armed = "All eligible placements"
+preference_control_sneak = "潛行時放置"
+preference_materials = "方塊選擇"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+
+[architectsmartshape.preferences]
+preference_families = "方塊類別"
+preference_families_all = "All eligible orientations"
+preference_families_directional = "Facing blocks"
+preference_families_pillars = "Axis blocks"
+preference_families_rotatable = "Signs and rotating blocks"
+preference_reverse = "Reverse rotation"
+
+[architectsteadyhands.preferences]
+preference_fall = "Fall protection"
+preference_knockback = "擊退保護"
+
+[architectstonecuttersavant.preferences]
+preference_offhand = "Require stonecutter in offhand"
+
+[architectsupplyline.preferences]
+preference_backpacks = "Backpacks"
+preference_bundles = "Bundles"
+preference_loose = "Loose inventory"
+preference_named = "Use named containers"
+preference_shulkers = "Shulker boxes"
+
+[architectwirelessredstone.preferences]
+preference_sneak = "需要潛行才能觸發"
+
+[axe.preferences]
+all = "All permitted"
+always = "Always"
+apples = "Apples only"
+fifteen = "Keep 15 hunger"
+five = "Keep 5 hunger"
+ignore_passive = "忽略被動生物"
+items = "Collected items"
+latch = "持續伐木，再次潛行以取消"
+logs = "Logs and stems"
+none = "No extra reserve"
+not_sneaking = "While not sneaking"
+players = "Affect players"
+reserve = "Hunger remaining after use"
+saplings = "Saplings and propagules"
+sneak = "Require sneaking"
+ten = "Keep 10 hunger"
+trigger = "Activation gesture"
+while_sneaking = "While sneaking"
+work = "Work limit"
+
+[blocking.preferences]
+all = "All permitted nearby players"
+allies = "Protected allies"
+armor_repair = "Repair armor"
+eight = "8 blocks"
+fall_distance = "Fall distance before elytra swap"
+fall_swap = "Swap to elytra while falling"
+four = "4 blocks"
+ground_swap = "Swap to chestplate on ground"
+half = "Keep 50%"
+ignore_passive = "忽略被動生物"
+none = "No extra reserve"
+player_targets = "Affect players"
+quarter = "Keep 25%"
+require_sneak = "Require sneaking"
+reserve = "Shield durability remaining"
+resistance = "Resistance after shield disable"
+shield_recovery = "Faster shield recovery"
+shield_repair = "Repair shield"
+sneak_stance = "格擋時需要潛行"
+stagger = "反擊時造成踉蹌"
+team = "Same scoreboard team"
+twelve = "12 blocks"
+
+[brewing.preferences.brewinglingering]
+extended-lore = "擴充藥水說明"
+
+[chronos.preferences]
+preference_chronosrewind_clock = "時鐘"
+
+[chronos.preferences.chronosaberranttouch]
+clock-sounds = "Clock sounds"
+food-reserve = "Keep at least eight food points"
+passive-targets = "Passive targets"
+player-targets = "Player targets"
+
+[chronos.preferences.chronosaccelerate]
+brewing = "Brewing acceleration"
+crops = "Crop acceleration"
+furnaces = "Furnace acceleration"
+radius = "Acceleration radius"
+
+[chronos.preferences.chronoshourglassguard]
+clock-sounds = "Clock sounds"
+
+[chronos.preferences.chronosinstantrecall]
+air-clicks = "Air clicks"
+block-clicks = "點擊方塊"
+clock-click = "點擊時鐘觸發"
+clock-sounds = "Clock sounds"
+double-jump = "二段跳觸發"
+jump-clock = "Double-jump also requires held clock"
+jump-sprint = "Double-jump also requires sprint"
+left-click = "Left clicks"
+right-click = "Right clicks"
+sneak-clock = "潛行觸發也需要手持時鐘"
+sneak-sprint = "潛行觸發也需要疾跑"
+sneak-trigger = "潛行觸發"
+sprint-click = "疾跑點擊觸發"
+
+[chronos.preferences.chronosovertime]
+absorption = "Absorption"
+dolphins-grace = "Dolphins Grace"
+fire-resistance = "火焰抗性"
+haste = "挖掘加速"
+health-boost = "Health Boost"
+hero-of-the-village = "Hero Of The Village"
+invisibility = "Invisibility"
+jump-boost = "Jump Boost"
+luck = "Luck"
+night-vision = "Night Vision"
+regeneration = "Regeneration"
+resistance = "Resistance"
+saturation = "Saturation"
+shorten-harmful = "Shorten harmful effects"
+slow-falling = "Slow Falling"
+speed = "速度"
+strength = "Strength"
+water-breathing = "Water Breathing"
+
+[chronos.preferences.chronospocketwatch]
+require-sneak = "下落時按住潛行"
+
+[chronos.preferences.chronosrewind]
+clock-sounds = "Clock sounds"
+
+[chronos.preferences.chronosstasisfield]
+clock-sounds = "Clock sounds"
+offhand-shard = "Require shard in offhand"
+
+[chronos.preferences.chronostemporalecho]
+arrow = "Arrow"
+egg = "Egg"
+ender-pearl = "Ender Pearl"
+snowball = "Snowball"
+
+[chronos.preferences.chronostimebomb]
+clock-sounds = "Clock sounds"
+private-visuals = "Owner-only field visuals"
+
+[chronos.preferences.chronostimeinabottle]
+animals = "Animal aging targets"
+brewing = "Brewing targets"
+campfires = "Campfire targets"
+clock-sounds = "Clock sounds"
+furnaces = "Furnace targets"
+growth = "Growth targets"
+trees = "Sapling tree generation"
+
+[crafting.preferences]
+category_all = "All"
+category_blocks = "Building blocks"
+category_equipment = "Tools and armor"
+category_food = "Food"
+category_minerals = "Minerals"
+reserve_eight = "8"
+reserve_none = "無"
+reserve_thirty_two = "32"
+storage_bundle = "Bundle"
+storage_server = "伺服器預設語言"
+storage_slots = "Slots"
+
+[crafting.preferences.craftingbackpacks]
+mode-switch = "Allow storage mode switching"
+storage = "New backpack storage"
+
+[crafting.preferences.craftingbulkartisan]
+batch-limit = "Extra batch limit"
+ingredient-reserve = "Ingredient reserve"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingcompactor]
+batch-limit = "Compaction batch limit"
+loose-reserve = "Loose ingredient reserve"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingdeconstruction]
+confirmation = "Confirm named or enchanted salvage"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingmasterwork]
+attributes = "Attribute bonus"
+durability = "Durability bonus"
+enchantments = "Enchantment bonus"
+
+[crafting.preferences.craftingsignature]
+signature-lore = "Visible signature lore"
+
+[crafting.preferences.craftingstations]
+anvil = "Anvil"
+cartography = "Cartography table"
+grindstone = "Grindstone"
+loom = "Loom"
+sneak = "需要潛行才能開啟"
+stonecutter = "Stonecutter"
+workbench = "Crafting table"
+
+[discovery.preferences]
+palette_aqua = "Aqua"
+palette_default = "Default colors"
+palette_gold = "Gold"
+palette_purple = "Purple"
+reserve_five = "5"
+reserve_none = "無"
+reserve_ten = "10"
+structure_default = "Default categories"
+structure_end_city = "End cities"
+structure_fortress = "地獄要塞"
+structure_mineshaft = "Mineshafts"
+structure_monument = "Ocean monuments"
+structure_settlements = "Jigsaw structures"
+structure_stronghold = "Strongholds"
+
+[discovery.preferences.discoverybettermending]
+repair-limit = "Maximum repaired durability"
+xp-reserve = "XP point reserve"
+
+[discovery.preferences.discoverycartographerpulse]
+color = "Marker color"
+direction-line = "Private direction line"
+structures = "Structure categories"
+
+[discovery.preferences.discoveryfieldnotes]
+species-damage = "Species damage bonus"
+
+[discovery.preferences.discoveryinsight]
+full-details = "Full overlay details"
+hostile = "Hostile targets"
+passive = "Passive targets"
+players = "Player targets"
+
+[discovery.preferences.discoverykeeneye]
+chests = "Chest markers"
+color = "Marker color"
+range = "Marker range"
+spawners = "Spawner markers"
+
+[discovery.preferences.discoveryrelicappraiser]
+confirmation = "Confirm rare item appraisal"
+discs = "Music discs"
+heads = "Heads"
+sherds = "Pottery sherds"
+trims = "Armor trims"
+
+[discovery.preferences.discoverysixthsense]
+cue-frequency = "Cue frequency"
+full-details = "Full structure details"
+hud = "Structure HUD"
+structures = "Structure categories"
+
+[discovery.preferences.discoverytrailblazer]
+speed-burst = "Discovery speed burst"
+
+[discovery.preferences.discoveryvillageratt]
+xp-reserve = "XP level reserve"
+
+[discovery.preferences.discoveryxpresist]
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences]
+reserve_five = "5"
+reserve_none = "無"
+reserve_ten = "10"
+
+[enchanting.preferences.enchantingarcanesiphon]
+bonus-xp = "Bonus skill XP"
+books = "Siphoned books"
+player-victims = "Player victims"
+
+[enchanting.preferences.enchantingbookshelfattunement]
+power = "Virtual bookshelf contribution"
+
+[enchanting.preferences.enchantingcursecleansing]
+confirmation = "Confirm curse removal"
+
+[enchanting.preferences.enchantingechoofknowledge]
+sneak = "需要潛行才能充能"
+
+[enchanting.preferences.enchantinggrindstonerecovery]
+bonus-xp = "Bonus vanilla XP"
+books = "Recovered books"
+
+[enchanting.preferences.enchantinginfusiontransfer]
+confirmation = "Confirm sacrifice risk"
+
+[enchanting.preferences.enchantingofferreroll]
+confirmation = "Confirm paid reroll"
+lapis-reserve = "Lapis reserve"
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences.enchantingquickenchant]
+confirmation = "Confirm book application"
+modified-click = "Require right click"
+
+[enchanting.preferences.enchantingrunesight]
+full-details = "Full offer details"
+
+[enchanting.preferences.enchantingsoullink]
+confirmation = "Confirm item linking"
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences.enchantingtomerebinding]
+confirmation = "Confirm lossy split"
+sneak = "需要潛行丟棄"
+
+[excavation.preferences.excavationburrow]
+depth = "鑽地深度"
+durability-reserve = "Keep a quarter of tool durability"
+food-reserve = "Keep eight food points"
+
+[excavation.preferences.excavationdroptoinventory]
+blocks-only = "僅收集方塊材料"
+materials = "Allowed materials"
+
+[excavation.preferences.excavationearthmover]
+food-reserve = "Keep eight food points"
+ignore-passive = "排除中立生物"
+offhand-empty = "Require empty offhand"
+
+[excavation.preferences.excavationhaste]
+tier = "挖掘加速等級"
+
+[excavation.preferences.excavationmudlark]
+bonus-drops = "Bonus drops"
+wet-haste = "雨天挖掘加速效果"
+
+[excavation.preferences.excavationomnitool]
+combat-selection = "Automatic combat selection"
+mining-selection = "Automatic mining selection"
+swap-sounds = "Swap sounds"
+
+[excavation.preferences.excavationseismicping]
+color = "Marker color"
+cue-frequency = "Cue frequency"
+ores = "Allowed ore markers"
+
+[excavation.preferences.excavationspelunker]
+color = "Marker color"
+ores = "Allowed ore markers"
+range = "Reveal range"
+
+[excavation.preferences.excavationtunneler]
+block-limit = "額外方塊數量上限"
+materials = "Allowed materials"
+trigger = "Activation gesture"
+
+[excavation.preferences.materials]
+all = "All"
+clay = "Clay"
+flint = "Flint"
+gravel = "Gravel"
+sand = "Sand"
+snow = "Snow"
+soil = "Soil"
+
+[excavation.preferences.ores]
+all = "All"
+coal = "Coal"
+copper = "Copper"
+diamond = "Diamond"
+emerald = "Emerald"
+gold = "Gold"
+iron = "Iron"
+lapis = "Lapis"
+netherite = "獄髓"
+quartz = "Quartz"
+redstone = "Redstone"
+
+[excavation.preferences.palette]
+aqua = "Aqua"
+default = "Default colors"
+gold = "Gold"
+purple = "Purple"
+
+[excavation.preferences.trigger]
+always = "Always"
+sneak = "潛行時啟用"
+suppress = "潛行時停用"
+
+[herbalism.preferences.herbalismbeeshepherd]
+bee-attraction = "Bee attraction"
+food-reserve = "Keep eight food points"
+growth = "Crop growth"
+growth-particles = "Growth particles"
+
+[herbalism.preferences.herbalismcompostcascade]
+dropped-items = "Consume dropped items"
+inventory-items = "Consume inventory items"
+item-reserve = "Keep eight items per stack"
+leaves = "Consume leaves"
+materials = "Allowed plant materials"
+
+[herbalism.preferences.herbalismdroptoinventory]
+materials = "Allowed plant materials"
+seeds-only = "Only collect planting items"
+
+[herbalism.preferences.herbalismgrowthaura]
+food-reserve = "Keep sixteen food points"
+materials = "Allowed plant materials"
+radius = "Growth radius"
+surface-only = "Only surface crops"
+
+[herbalism.preferences.herbalismhungryshield]
+basics = "Environmental damage"
+burst = "投射物與爆炸傷害"
+fire = "Fire damage"
+food-reserve = "Keep eight food points"
+magic = "Magic damage"
+melee = "近戰傷害"
+
+[herbalism.preferences.herbalismreplant]
+materials = "Allowed plant materials"
+sneak = "需要潛行才能補種"
+
+[herbalism.preferences.herbalismrootedfooting]
+fall-conversion = "Fall-to-hunger conversion"
+farmland = "Farmland protection"
+food-reserve = "Keep eight food points"
+
+[herbalism.preferences.herbalismseedsower]
+materials = "Allowed plant materials"
+radius = "Planting radius"
+seed-reserve = "Keep eight held seeds"
+
+[herbalism.preferences.herbalismsporebloom]
+flower-conversion = "Convert flowers to mushrooms"
+soil-conversion = "Convert spread soil"
+spread-limit = "擴散方塊數量上限"
+
+[herbalism.preferences.material]
+all = "All supported materials"
+beetroot = "Beetroot"
+berries = "Berries"
+carrot = "Carrots"
+flowers = "Flowers"
+fungi = "Mushrooms and fungi"
+kelp = "Kelp and seagrass"
+leaves = "Leaves"
+melon = "Melons"
+nether = "地獄疙瘩"
+potato = "Potatoes"
+pumpkin = "Pumpkins"
+wheat = "Wheat"
+
+[hunter.preferences]
+all = "All permitted"
+blocks = "收集方塊掉落物"
+blocks_only = "Blocks only"
+blood = "Blood red"
+cyan = "Cyan"
+fifteen = "At least 15 hunger"
+five = "At least 5 hunger"
+food = "Food only"
+glow = "Blood trail color"
+gold = "Gold"
+items = "Collected items"
+materials = "Crafting drops only"
+mobs = "收集生物掉落物"
+none = "No extra reserve"
+reserve = "Minimum hunger to activate"
+sneak = "Require sneaking"
+ten = "At least 10 hunger"
+trail = "Private blood trail"
+white = "White"
+
+[kineticsdeadzone.preferences]
+preference_hostiles = "Hostile targets only"
+preference_sneak = "Require sneaking"
+
+[kineticsheavyframe.preferences]
+preference_control = "Stance control"
+preference_control_hold = "按住潛行"
+preference_control_latch = "Tap to toggle stance"
+
+[kineticslungeconductor.preferences]
+preference_travel = "Extra lunge travel"
+
+[kineticsmassshift.preferences]
+preference_selection = "Form selection"
+preference_selection_cycle = "Cycle Titan, Pocket, normal"
+preference_selection_look = "Look direction"
+
+[kineticsmeteorcadence.preferences]
+preference_control = "Dive control"
+preference_control_automatic = "Every eligible fall"
+preference_control_sneak = "While sneaking"
+
+[kineticsmoonjump.preferences]
+preference_base_jump = "Base jump assistance"
+preference_hop = "Floaty hop"
+preference_hop_always = "Every jump"
+preference_hop_never = "Disabled"
+preference_hop_sneak = "While sneaking"
+
+[kineticsreboundanvil.preferences]
+preference_bounce = "Rebound bounce"
+preference_cushion = "Landing cushion"
+
+[kineticsrubbersoul.preferences]
+preference_bounce = "Base landing bounce"
+preference_springy = "彈性方塊額外彈跳"
+
+[kineticssurfaceskate.preferences]
+preference_control = "Skating control"
+preference_control_armed = "始終啟用，潛行時制動"
+preference_control_sprint = "While sprinting"
+
+[kineticsterminaltoggle.preferences]
+preference_gesture = "Switch gesture"
+preference_gesture_double = "連按兩次潛行"
+preference_gesture_single = "輕按潛行"
+preference_order = "Midair mode cycle"
+preference_order_dive_first = "Dive then hang"
+preference_order_dive_only = "Dive only"
+preference_order_hang_first = "Hang then dive"
+preference_order_hang_only = "Hang only"
+
+[kineticswindburst.preferences]
+preference_hostiles = "Hostile targets only"
+preference_sneak = "需要潛行才能釋放衝擊波"
+
+[nethercrimsonfeast.preferences]
+preference_meal_buff = "地獄食物保護"
+preference_sneak = "需要潛行才能食用植物"
+
+[netherlavawalker.preferences]
+preference_food_reserve = "Food reserve"
+preference_food_reserve_eight = "Keep 8 food"
+preference_food_reserve_four = "Keep 4 food"
+preference_food_reserve_none = "No reserve"
+preference_sneak_drop = "潛行時下沉"
+
+[nethermagmaskin.preferences]
+preference_own_fire = "Ignite struck targets"
+preference_retaliation = "Burning retaliation"
+
+[nethernetherrackmason.preferences]
+preference_drops = "Bonus drops"
+preference_mining = "Mining assistance"
+
+[netherskullyeet.preferences]
+preference_sneak = "需要潛行才能投擲"
+
+[nethersoulstrider.preferences]
+preference_burst = "Mastery speed burst"
+preference_immunity = "Soul-surface slow immunity"
+
+[netherstriderbond.preferences]
+preference_rescue = "Dismount protection"
+preference_speed = "Mounted speed"
+
+[pickaxe.preferences]
+all = "All permitted"
+always = "Always"
+bypass = "潛行時略過"
+copper = "Copper only"
+cyan = "Cyan"
+full = "Full learned size"
+gems = "Diamond and emerald"
+glow = "Ore outline color"
+gold = "Gold only"
+gold_color = "Gold"
+half = "Keep 50%"
+iron = "Iron only"
+low_durability = "Your pickaxe has less than 10% durability remaining."
+materials = "Eligible materials"
+no_reserve = "No extra reserve"
+not_sneaking = "While not sneaking"
+notice = "Low durability notice"
+one_by_two = "At most 1 by 2"
+ore_color = "Match ore"
+ores = "Ores and raw minerals"
+quarter = "Keep 25%"
+require_sneak = "Require sneaking"
+reserve = "Durability remaining after use"
+size = "Tunnel size limit"
+sneak = "While sneaking"
+stone = "Stone and deepslate"
+tenth = "Keep 10%"
+three_by_two = "At most 3 by 2"
+trigger = "Activation gesture"
+white = "White"
+
+[preferences]
+confirm = "Repeat the same action within 5 seconds to confirm."
+enabled = "Adaptation enabled"
+full = "Full earned limit"
+half = "Half earned limit"
+off = "關閉"
+on = "開啟"
+quarter = "Quarter earned limit"
+skill_enabled = "Skill adaptations enabled"
+
+[ranged.preferences]
+all = "All permitted"
+all_projectiles = "包含允許的投擲物"
+arrows = "All arrows"
+blocks = "Building blocks"
+both = "Drawing or sneaking"
+bow = "Bow arrows"
+crossbow = "Crossbow arrows"
+dampen = "減緩目標慣性"
+drawing = "Drawing only"
+food = "Food"
+glow = "Private target glow"
+hostile = "僅敵對生物"
+ignore_passive = "忽略被動生物"
+impact = "Impact marker"
+items = "Collected items"
+non_players = "Exclude players"
+preview = "Preview while"
+projectiles = "可用投射物"
+sneak = "Require sneaking"
+sneaking = "Sneaking only"
+targets = "Eligible targets"
+thrown = "投擲物"
+trail = "Trajectory trail"
+tridents = "Tridents"
+valuables = "Ores and valuables"
+
+[rift.remote_access.preferences]
+confirm_unbind = "Confirm unbinding"
+
+[riftaccess.preferences]
+preference_confirm_bind = "Confirm binding"
+preference_sneak_open = "需要潛行才能開啟"
+
+[riftblink.preferences]
+preference_auto = "Automatic: upward mantle, level/downward phase"
+preference_landing = "Landing snap"
+preference_landing_near = "Snap down at most 2 blocks"
+preference_landing_none = "Keep aimed height"
+preference_landing_server = "Server landing snap"
+preference_momentum = "傳送後的慣性"
+preference_momentum_full = "完整伺服器慣性"
+preference_momentum_half = "一半慣性"
+preference_momentum_stop = "Stop after blinking"
+
+[riftconduit.preferences]
+preference_flow = "Transfer on close"
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+preference_linking = "Link containers"
+
+[riftdescent.preferences]
+preference_control = "Levitation cancellation"
+preference_control_automatic = "Automatic"
+preference_control_sneak = "按下潛行"
+
+[riftenderchest.preferences]
+preference_gesture = "Open gesture"
+preference_gesture_current = "Left click or right-click air"
+preference_gesture_left = "Left click only"
+preference_gesture_right_air = "Right-click air only"
+preference_sneak = "Require sneaking"
+
+[riftendertaglock.preferences]
+preference_confirm = "Confirm binding with a second hit"
+preference_targets = "Taglock targets"
+preference_targets_all = "All eligible targets"
+preference_targets_animals = "Animals only"
+preference_targets_hostiles = "僅敵對生物"
+preference_targets_players = "Players only"
+
+[riftgate.preferences]
+preference_confirm_bind = "Confirm binding"
+preference_confirm_unbind = "Confirm unbinding"
+preference_countdown = "Channel countdown"
+preference_countdown_text = "Recall in {seconds}s"
+
+[riftinflatedpocketdimension.preferences]
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+preference_pull = "Pull on click"
+preference_refill = "Refill building stack"
+preference_store = "儲存潛行丟棄的物品"
+
+[riftpearlrebound.preferences]
+preference_damage = "Pearl damage reduction"
+preference_rebound = "Pearl rebound"
+preference_sneak = "投擲時需要潛行"
+
+[riftvoidmagnet.preferences]
+preference_control = "Collection control"
+preference_control_armed = "Automatic collection"
+preference_control_sneak = "While sneaking"
+preference_destination = "Pickup destination"
+preference_destination_chest_first = "Ender chest then inventory"
+preference_destination_chest_only = "Ender chest only"
+preference_destination_inventory_first = "Inventory then ender chest"
+preference_destination_inventory_only = "Inventory only"
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+
+[riftvoidskin.preferences]
+preference_causes = "Rescue damage causes"
+preference_causes_all = "All lethal damage"
+preference_causes_combat = "Combat damage only"
+preference_causes_environment = "Environmental damage only"
+preference_reserve = "Plain pearl reserve"
+preference_reserve_four = "Keep 4 pearls"
+preference_reserve_none = "No reserve"
+preference_reserve_one = "Keep 1 pearl"
+preference_spawn = "World spawn fallback"
+
+[seabornecoralgardener.preferences]
+preference_growth = "Bonemeal coral growth"
+preference_preservation = "Preserve placed coral"
+
+[seabornedeepsalvager.preferences]
+preference_color = "Outline color"
+preference_color_aqua = "Aqua"
+preference_color_gold = "Gold"
+preference_color_purple = "Purple"
+preference_container_types = "Outlined containers"
+preference_container_types_all = "All treasure containers"
+preference_container_types_barrels = "Barrels only"
+preference_container_types_chests = "Chests only"
+preference_outlines = "Container outlines"
+
+[seabornefishwhisperer.preferences]
+preference_assistance = "Animal combat assistance"
+preference_attraction = "Attract fish"
+preference_luck = "Fishing luck"
+
+[seabornehydrojet.preferences]
+preference_gesture = "Jet gesture"
+preference_gesture_double = "連按兩次潛行"
+preference_gesture_single = "按一次潛行"
+preference_priority = "共用潛行操作的優先順序"
+preference_priority_hydro = "Hydro Jet first"
+preference_priority_tide = "Tidecaller first"
+preference_reserve = "Food reserve"
+preference_reserve_eight = "Keep 8 food"
+preference_reserve_four = "Keep 4 food"
+preference_reserve_none = "No reserve"
+
+[seaborneinkveil.preferences]
+preference_visuals = "Own ink density"
+
+[seabornetidecaller.preferences]
+preference_attack = "攻擊觸發"
+preference_attack_sneak = "攻擊時需要潛行"
+preference_attack_water = "Water required for attacks"
+preference_flat = "Horizontal direction"
+preference_rain = "Rain dashes"
+preference_sneak = "潛行觸發"
+preference_water = "Water dashes"
+
+[seabornetridentmastery.preferences]
+preference_recall = "Trident recall"
+
+[seaborneturtlesminingspeed.preferences]
+preference_floating = "Compensate floating penalty"
+
+[stealthassassinate.preferences]
+preference_sneak = "Require sneaking"
+preference_targets = "Eligible targets"
+preference_targets_all = "所有符合條件的生物"
+preference_targets_animals = "Animals"
+preference_targets_hostiles = "Hostile monsters"
+
+[stealthcore.preferences]
+preference_detected = "Detected"
+preference_glows = "Private threat outlines"
+preference_hidden = "Undetected"
+preference_status = "Private detection status"
+
+[stealthcutpurse.preferences]
+preference_targets = "Eligible targets"
+preference_targets_all = "所有符合條件的生物"
+preference_targets_illagers = "Illagers"
+preference_targets_piglins = "Piglins"
+
+[stealthdecoyswap.preferences]
+preference_gesture = "Swap gesture"
+preference_gesture_double = "連按兩次潛行"
+preference_gesture_hand_swap = "潛行並交換雙手物品"
+
+[stealthshadowdecoy.preferences]
+preference_gesture = "誘餌操作"
+preference_gesture_armed_release = "空手右擊後放開潛行"
+preference_gesture_double = "連按兩次潛行"
+preference_gesture_release = "放開潛行"
+
+[stealthshadowmeld.preferences]
+preference_gesture = "Meld activation"
+preference_gesture_automatic = "Eligible sneaking"
+preference_gesture_double = "連按兩次潛行以準備"
+
+[stealthsight.preferences]
+preference_blindness = "Prevent blindness"
+preference_night_vision = "Night vision"
+preference_outlines = "Invisible player outlines"
+
+[stealthsmokepellet.preferences]
+preference_gesture = "Smoke gesture"
+preference_gesture_double = "連按兩次潛行"
+preference_gesture_single = "按一次潛行"
+preference_hand = "Gunpowder hand"
+preference_hand_either = "Either hand"
+preference_hand_main = "Main hand"
+preference_hand_off = "Off hand"
+preference_reserve = "Gunpowder reserve in selected hand"
+preference_reserve_four = "Keep 4 gunpowder"
+preference_reserve_none = "No reserve"
+preference_reserve_one = "Keep 1 gunpowder"
+
+[stealthsnatch.preferences]
+preference_control = "Collection control"
+preference_control_automatic = "Automatic collection"
+preference_control_sneak = "While sneaking"
+preference_items = "Collected items"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+
+[stealthspeed.preferences]
+preference_particles = "Soul particles"
+preference_speed = "Maximum stealth speed"
+preference_step_down = "Automatic step down"
+preference_step_up = "Automatic step up"
+
+[stealthtrapsense.preferences]
+preference_chests = "Trapped chests"
+preference_outlines = "Private trap outlines"
+preference_plates = "Pressure plates"
+preference_sculk = "Sculk traps"
+preference_tripwires = "Tripwires"
+
+[sword.preferences]
+airborne = "Require an airborne sprint attack"
+all = "All permitted"
+all_foliage = "All permitted foliage"
+all_swords = "All swords"
+diamond = "Diamond only"
+durability = "Durability remaining after ritual"
+five = "Keep 5 levels"
+foliage = "Foliage to cut"
+glow = "Mark focused attacker"
+grass = "Grass and ferns"
+half = "Keep 50%"
+hostile = "敵對生物"
+ignore_passive = "忽略被動生物"
+leaves = "Leaves only"
+netherite = "僅獄髓"
+no_xp = "No extra reserve"
+non_players = "Non-player targets"
+none = "No extra reserve"
+precious = "鑽石和獄髓"
+quarter = "Keep 25%"
+sneak = "Require sneaking"
+swords = "Eligible heirloom swords"
+targets = "Eligible targets"
+ten = "Keep 10 levels"
+thirty = "Keep 30 levels"
+vines = "Vines only"
+visuals = "Bleed particles"
+xp = "Experience levels remaining"
+
+[taming.preferences]
+all = "All permitted pets"
+all_collars = "All collar colors"
+all_items = "All permitted items"
+all_targets = "All permitted targets"
+blocks = "Blocks only"
+blue = "Blue collars"
+bones = "Bones remaining after command"
+cats = "Cats only"
+collar = "Wolves allowed to fetch"
+combat = "Mounted combat bonuses"
+eight = "Keep 8"
+food = "Food only"
+four = "Keep 4"
+half = "At least 50% health"
+handling = "Mount speed and jump"
+health = "Pet health remaining after protection"
+horses = "Horses and equines"
+hostile = "敵對生物"
+hunger = "Hunger remaining after recall"
+items = "Items to fetch"
+non_players = "Non-player targets"
+none = "No extra reserve"
+pacify = "安撫中立生物"
+pets = "Eligible pet types"
+red = "Red collars"
+regeneration = "Pack regeneration"
+server_health = "Server minimum"
+sitting = "Include sitting pets"
+speed = "Speed bonus"
+taming = "Improved taming"
+targets = "Command targets"
+three_quarters = "At least 75% health"
+valuables = "Ores and minerals"
+visuals = "Bond particles and glow"
+wolves = "Wolves only"
+yellow = "Yellow collars"
+
+[tragoul.preferences]
+all = "All permitted targets"
+arthropods = "Arthropods only"
+assist = "Assist and hunt"
+blood_globes = "Collect blood globes"
+bone_globes = "Collect bone globes"
+bones = "Bones remaining after use"
+cool = "Blue to white"
+defend = "Defend the owner"
+eight = "Keep 8 bones"
+four = "Keep 4 bones"
+ignore_passive = "忽略被動生物"
+non_players = "Non-player targets"
+none = "No extra reserve"
+palette = "Health outline palette"
+passive = "Passive"
+replace_oldest = "Replace oldest servant at cap"
+stance = "Servant behavior"
+targets = "Eligible target types"
+undead = "Undead only"
+warm = "Red to yellow"
+
+[unarmed.preferences]
+airborne_only = "Require airborne clap"
+all = "All permitted targets"
+both = "Fists or shield"
+combat = "Unarmed damage bonus"
+fists = "Empty hands only"
+five = "Keep 5 hunger"
+hostile = "敵對生物"
+hunger = "Hunger remaining after clap"
+loadout = "Charge loadout"
+manual_meditation = "Require explicit meditation arming"
+meditation_armed = "Meditation armed"
+mob_armor = "卸下生物護甲"
+next_hit = "Punch again only"
+non_players = "Non-player targets"
+none = "No extra reserve"
+player_targets = "Disarm players"
+release = "Release grabbed target"
+require_arming = "需要潛行右擊以準備"
+shield = "Shield only"
+sneak_or_hit = "放開潛行或再次揮拳"
+soft_blocks = "加快破壞軟質方塊"
+targets = "Eligible targets"
+ten = "Keep 10 hunger"

@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.localization.catalog.ChronosMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -59,6 +63,11 @@ import org.bukkit.util.Vector;
 import java.util.UUID;
 
 public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> ARROW = CommonPreferences.toggle("arrow", ChronosMessages.PREFERENCE_CHRONOSTEMPORALECHO_ARROW, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNOWBALL = CommonPreferences.toggle("snowball", ChronosMessages.PREFERENCE_CHRONOSTEMPORALECHO_SNOWBALL, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> EGG = CommonPreferences.toggle("egg", ChronosMessages.PREFERENCE_CHRONOSTEMPORALECHO_EGG, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> ENDER_PEARL = CommonPreferences.toggle("ender-pearl", ChronosMessages.PREFERENCE_CHRONOSTEMPORALECHO_ENDER_PEARL, CommonPreferences.Toggle.ON);
+
   private static final String ECHO_META = "adapt-chronos-temporal-echo";
   private final Cooldowns cooldowns = cooldowns();
 
@@ -74,6 +83,12 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_echo_200", "chronos.temporal-echo.echo-hits", 200, 400);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, ARROW, SNOWBALL, EGG, ENDER_PEARL);
   }
 
   @Override
@@ -93,7 +108,12 @@ public class ChronosTemporalEcho extends SimpleAdaptation<ChronosTemporalEcho.Co
     }
 
     EchoType echoType = getEchoType(e.getEntity());
-    if (echoType == null) {
+    if (echoType == null || !preferenceEnabled(p, switch (echoType) {
+      case ARROW -> ARROW;
+      case SNOWBALL -> SNOWBALL;
+      case EGG -> EGG;
+      case ENDER_PEARL -> ENDER_PEARL;
+    })) {
       return;
     }
 

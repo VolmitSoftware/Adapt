@@ -18,7 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -27,6 +31,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -76,6 +81,11 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TragoulPreferences.PASSIVE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getConfig().damageMultiplierPerLevel * level, 2), 1);
   }
@@ -105,7 +115,7 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
           le = shooter;
         }
 
-        if (le != null && canDamageTarget(p, le)) {
+        if (le != null && AdaptationDamageTargets.allows(le, getConfig().ignorePassiveMobs || preferenceEnabled(p, TragoulPreferences.PASSIVE)) && canDamageTarget(p, le)) {
           cooldowns.mark(id);
           LivingEntity attacker = le;
           double reflectedDamage = getConfig().damageMultiplierPerLevel * level;
@@ -132,6 +142,8 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
 
   @ConfigDescription("Reflect damage back to your attacker.")
   protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Exclude passive and neutral mobs from reflected damage, including inherited servant thorns.", impact = "When enabled, neutral species remain protected even when provoked; player targeting is unchanged.")
+    boolean ignorePassiveMobs = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Damage Multiplier Per Level for the Tragoul Thorns adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double damageMultiplierPerLevel = 1.75;
 

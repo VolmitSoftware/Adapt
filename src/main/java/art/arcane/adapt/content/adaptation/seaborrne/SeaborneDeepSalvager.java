@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.localization.catalog.SeabornMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -66,6 +69,18 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> OUTLINES = CommonPreferences.toggle("outlines", SeabornMessages.SEABORNEDEEPSALVAGER_PREFERENCE_OUTLINES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<ContainerTypes> CONTAINER_TYPES = new PlayerPreference<>(ContainerTypes.class,
+      new PlayerPreference.Definition<>("container-types", SeabornMessages.SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES, ContainerTypes.ALL, List.of(
+          new PlayerPreference.Choice<>(ContainerTypes.ALL, SeabornMessages.SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES_ALL, Material.CHEST, 1),
+          new PlayerPreference.Choice<>(ContainerTypes.CHESTS, SeabornMessages.SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES_CHESTS, Material.CHEST, 1),
+          new PlayerPreference.Choice<>(ContainerTypes.BARRELS, SeabornMessages.SEABORNEDEEPSALVAGER_PREFERENCE_CONTAINER_TYPES_BARRELS, Material.BARREL, 1))));
+  public static final PlayerPreference<OutlineColor> COLOR = new PlayerPreference<>(OutlineColor.class,
+      new PlayerPreference.Definition<>("color", SeabornMessages.SEABORNEDEEPSALVAGER_PREFERENCE_COLOR, OutlineColor.AQUA, List.of(
+          new PlayerPreference.Choice<>(OutlineColor.AQUA, SeabornMessages.SEABORNEDEEPSALVAGER_PREFERENCE_COLOR_AQUA, Material.CYAN_STAINED_GLASS_PANE, 1),
+          new PlayerPreference.Choice<>(OutlineColor.GOLD, SeabornMessages.SEABORNEDEEPSALVAGER_PREFERENCE_COLOR_GOLD, Material.YELLOW_STAINED_GLASS_PANE, 1),
+          new PlayerPreference.Choice<>(OutlineColor.PURPLE, SeabornMessages.SEABORNEDEEPSALVAGER_PREFERENCE_COLOR_PURPLE, Material.PURPLE_STAINED_GLASS_PANE, 1))));
+
   private static final int HARD_MAX_RANGE = 9;
   private static final int VERTICAL_RANGE = 3;
   private static final int HARD_MAX_BLOCKS = 3200;
@@ -111,6 +126,19 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, OUTLINES, CONTAINER_TYPES, COLOR);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    UUID id = player.getPlayer().getUniqueId();
+    activeScans.remove(id);
+    WorldBlockScanScheduler.cancel(this, id);
+    ViewerDisplayDirector.clearViewer(getName(), id);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getDetectionRange(level), 1), 1);
     statLore(v, getBonusRolls(level), 2);
@@ -131,7 +159,7 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
     for (AdaptPlayer adaptPlayer : learnedCandidates(now)) {
       Player player = adaptPlayer.getPlayer();
       withPlayerThread(player, () -> {
-        if (!player.isOnline() || !player.isInWater()) {
+        if (!player.isOnline() || !player.isInWater() || !preferenceEnabled(player, OUTLINES)) {
           return;
         }
 
@@ -160,13 +188,15 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
       return;
     }
     int baseY = base.getBlockY();
+    ContainerTypes selection = preference(player, CONTAINER_TYPES);
     WorldBlockScanScheduler.ScanRequest request = WorldBlockScanScheduler.ScanRequest.builder(base)
         .radius(range)
         .denseRadius(range)
         .maxSamples(HARD_MAX_BLOCKS)
         .maxResults(MAX_SHIMMER)
         .blockMatcher(block -> Math.abs(block.getY() - baseY) <= VERTICAL_RANGE
-            && CONTAINERS.contains(block.getType()))
+            && CONTAINERS.contains(block.getType())
+            && (selection == ContainerTypes.ALL || (selection == ContainerTypes.BARRELS) == (block.getType() == Material.BARREL)))
         .completion(result -> completeShimmerScan(player, result))
         .build();
     UUID scanId = WorldBlockScanScheduler.submit(this, player.getUniqueId(), request);
@@ -184,7 +214,7 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
   }
 
   private void showShimmersOwned(Player player, UUID playerId, WorldBlockScanScheduler.ScanResult result) {
-    if (!activeScans.remove(playerId, result.scanId()) || !player.isOnline() || !player.isInWater()) {
+    if (!activeScans.remove(playerId, result.scanId()) || !player.isOnline() || !player.isInWater() || !isPlayerEnabled(player) || !preferenceEnabled(player, OUTLINES)) {
       return;
     }
     List<WorldBlockScanScheduler.Match> matches = result.matches();
@@ -197,7 +227,11 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
           player,
           location,
           match.material().createBlockData(),
-          Color.fromRGB(70, 230, 235),
+          switch (preference(player, COLOR)) {
+            case AQUA -> Color.fromRGB(70, 230, 235);
+            case GOLD -> Color.fromRGB(255, 195, 50);
+            case PURPLE -> Color.fromRGB(180, 90, 235);
+          },
           durationTicks
       );
     }
@@ -257,7 +291,7 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
       return;
     }
 
-    BlockState state = block.getState();
+    BlockState state = block.getState(false);
     if (!(state instanceof TileState tile)) {
       return;
     }
@@ -286,6 +320,10 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
     tile.update();
     addStat(p, "seaborne.deep-salvager.containers-salvaged", 1);
     xp(p, getConfig().salvageXp * added);
+    playSalvageEffects(block);
+  }
+
+  void playSalvageEffects(Block block) {
     fx(block.getLocation().add(0.5D, 1.0D, 0.5D), FxPriority.GAMEPLAY)
         .ring(Particle.GLOW, 0.6D, 12, 0.3D)
         .particle(Particle.END_ROD, 6, 0D, 0.3D, 0D, 0.35D, 0.02D)
@@ -358,4 +396,8 @@ public class SeaborneDeepSalvager extends SimpleAdaptation<SeaborneDeepSalvager.
       initialCost = 4;
     }
   }
+
+  public enum ContainerTypes { ALL, CHESTS, BARRELS }
+
+  public enum OutlineColor { AQUA, GOLD, PURPLE }
 }

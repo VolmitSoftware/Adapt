@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -63,6 +66,11 @@ public class BlockingShieldWall extends SimpleAdaptation<BlockingShieldWall.Conf
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BlockingPreferences.ALLIES);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getArcDegrees(level), 0), 1);
     statLore(v, Form.pc(getDamageReduction(level), 0), 2);
@@ -97,7 +105,7 @@ public class BlockingShieldWall extends SimpleAdaptation<BlockingShieldWall.Conf
       }
 
       int level = getActiveLevel(blocker);
-      if (level <= 0) {
+      if (level <= 0 || !preference(blocker, BlockingPreferences.ALLIES).accepts(blocker, ally)) {
         continue;
       }
 

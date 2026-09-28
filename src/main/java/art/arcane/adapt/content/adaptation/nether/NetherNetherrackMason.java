@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.NetherMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -45,6 +50,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NetherNetherrackMason extends SimpleAdaptation<NetherNetherrackMason.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> MINING = CommonPreferences.toggle("mining", NetherMessages.NETHERNETHERRACKMASON_PREFERENCE_MINING, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> DROPS = CommonPreferences.toggle("drops", NetherMessages.NETHERNETHERRACKMASON_PREFERENCE_DROPS, CommonPreferences.Toggle.ON);
+
   public NetherNetherrackMason() {
     super("nether-netherrack-mason");
     registerConfiguration(Config.class);
@@ -67,6 +75,16 @@ public class NetherNetherrackMason extends SimpleAdaptation<NetherNetherrackMaso
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, MINING, DROPS);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, getHasteTier(level), 1);
     statLore(v, Form.pc(getBonusDropChance(level), 0), 2);
@@ -74,6 +92,9 @@ public class NetherNetherrackMason extends SimpleAdaptation<NetherNetherrackMaso
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(BlockDamageEvent e) {
+    if (!preferenceEnabled(e.getPlayer(), MINING)) {
+      return;
+    }
     Player p = e.getPlayer();
     withAdaptedPlayer(p, e, () -> {
       if (!isNether(p) || !isMasonBlock(e.getBlock().getType())) {
@@ -99,6 +120,9 @@ public class NetherNetherrackMason extends SimpleAdaptation<NetherNetherrackMaso
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
+    if (!preferenceEnabled(e.getPlayer(), DROPS)) {
+      return;
+    }
     Player p = e.getPlayer();
     Material material = e.getBlock().getType();
     if (!isMasonBlock(material)) {

@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
@@ -50,6 +52,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToInventory.Config> {
+  public static final PlayerPreference<HerbalismPreferences.Materials> MATERIALS = HerbalismPreferences.materials("materials", HerbalismMessages.PREFERENCE_HERBALISMDROPTOINVENTORY_MATERIALS);
+  public static final PlayerPreference<CommonPreferences.Toggle> SEEDS_ONLY = CommonPreferences.toggle("seeds-only", HerbalismMessages.PREFERENCE_HERBALISMDROPTOINVENTORY_SEEDS_ONLY, CommonPreferences.Toggle.OFF);
+
   public HerbalismDropToInventory() {
     super("herbalism-drop-to-inventory");
     registerConfiguration(HerbalismDropToInventory.Config.class);
@@ -66,8 +71,18 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
     registerMilestone("challenge_herbalism_dti_10k", "herbalism.drop-to-inv.items-caught", 10000, 500);
   }
 
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, MATERIALS, SEEDS_ONLY);
+  }
+
   public void addStats(int level, Element v) {
     v.addLore(C.GRAY + AdaptLanguage.text(PickaxeMessages.DROP_TO_INVENTORY_LORE1));
+  }
+
+  public boolean acceptsDrop(Player player, Material material) {
+    return preference(player, MATERIALS).allows(material)
+        && (!preferenceEnabled(player, SEEDS_ONLY) || HerbalismPreferences.isPlantingItem(material));
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -90,6 +105,9 @@ public class HerbalismDropToInventory extends SimpleAdaptation<HerbalismDropToIn
     boolean overflow = false;
     for (Item i : items) {
       ItemStack stack = i.getItemStack().clone();
+      if (!acceptsDrop(p, stack.getType())) {
+        continue;
+      }
       int remaining = ProtectionEventProbe.remainingAfterPickup(p.getInventory(), stack);
       if (!ProtectionEventProbe.attemptBlockDropPickup(p, i, remaining, e.getBlock().getLocation()) || i.isDead()) {
         continue;

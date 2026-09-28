@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 
@@ -69,6 +72,18 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
+  public static final PlayerPreference<Reserve> RESERVE = new PlayerPreference<>(Reserve.class,
+      new PlayerPreference.Definition<>("reserve", RiftMessages.RIFTVOIDSKIN_PREFERENCE_RESERVE, Reserve.NONE, List.of(
+          new PlayerPreference.Choice<>(Reserve.NONE, RiftMessages.RIFTVOIDSKIN_PREFERENCE_RESERVE_NONE, Material.ENDER_PEARL, 1),
+          new PlayerPreference.Choice<>(Reserve.ONE, RiftMessages.RIFTVOIDSKIN_PREFERENCE_RESERVE_ONE, Material.ENDER_EYE, 1),
+          new PlayerPreference.Choice<>(Reserve.FOUR, RiftMessages.RIFTVOIDSKIN_PREFERENCE_RESERVE_FOUR, Material.ENDER_CHEST, 1))));
+  public static final PlayerPreference<Causes> CAUSES = new PlayerPreference<>(Causes.class,
+      new PlayerPreference.Definition<>("causes", RiftMessages.RIFTVOIDSKIN_PREFERENCE_CAUSES, Causes.ALL, List.of(
+          new PlayerPreference.Choice<>(Causes.ALL, RiftMessages.RIFTVOIDSKIN_PREFERENCE_CAUSES_ALL, Material.TOTEM_OF_UNDYING, 1),
+          new PlayerPreference.Choice<>(Causes.COMBAT, RiftMessages.RIFTVOIDSKIN_PREFERENCE_CAUSES_COMBAT, Material.IRON_SWORD, 1),
+          new PlayerPreference.Choice<>(Causes.ENVIRONMENT, RiftMessages.RIFTVOIDSKIN_PREFERENCE_CAUSES_ENVIRONMENT, Material.LAVA_BUCKET, 1))));
+  public static final PlayerPreference<CommonPreferences.Toggle> SPAWN = CommonPreferences.toggle("spawn-fallback", RiftMessages.RIFTVOIDSKIN_PREFERENCE_SPAWN, CommonPreferences.Toggle.ON);
+
   private static final double HARD_MAX_SEARCH_RADIUS = 16D;
   private static final int SAFE_SAMPLES = 32;
 
@@ -96,6 +111,11 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     registerMilestone("challenge_rift_void_skin_50", "rift.void-skin.escapes", 50, 400);
     registerMilestone("challenge_rift_void_skin_500", "rift.void-skin.escapes", 500, 1500);
     pearlReservationKey = new NamespacedKey(Adapt.instance, "rift_void_skin_pearl_reservation");
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RESERVE, CAUSES, SPAWN);
   }
 
   @Override
@@ -146,6 +166,11 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       return;
     }
 
+    Causes causes = preference(p, CAUSES);
+    boolean combat = e instanceof EntityDamageByEntityEvent;
+    if ((causes == Causes.COMBAT && !combat) || (causes == Causes.ENVIRONMENT && combat)) {
+      return;
+    }
     int level = getActiveLevel(p);
     if (level <= 0 || !acceptingEscapes.get()) {
       return;
@@ -308,7 +333,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
         best = resolved;
       }
     }
-    return best != null ? best : worldSpawnFallback(p.getWorld());
+    return best != null ? best : preferenceEnabled(p, SPAWN) ? worldSpawnFallback(p.getWorld()) : null;
   }
 
   private Location resolveStandable(Block base, int vertical) {
@@ -344,12 +369,14 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
   }
 
   private boolean hasPlainPearl(Player p) {
+    int pearls = 0;
+    int reserve = switch (preference(p, RESERVE)) { case NONE -> 0; case ONE -> 1; case FOUR -> 4; };
     for (ItemStack stack : p.getInventory().getContents()) {
       if (RiftPearls.isPlainPearl(stack)) {
-        return true;
+        pearls += stack.getAmount();
       }
     }
-    return false;
+    return pearls > reserve;
   }
 
   private PearlReservation reservePlainPearl(Player p) {
@@ -504,4 +531,8 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
 
   private record VoidEscape(UUID playerId, Location origin, int level, PearlReservation reservation) {
   }
+
+  public enum Reserve { NONE, ONE, FOUR }
+
+  public enum Causes { ALL, COMBAT, ENVIRONMENT }
 }

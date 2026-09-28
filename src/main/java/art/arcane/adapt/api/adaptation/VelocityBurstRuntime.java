@@ -456,6 +456,23 @@ public final class VelocityBurstRuntime extends TickedObject {
     }
   }
 
+  private void stop(Client client, Player player, BurstSession expected) {
+    if (expected == null) {
+      return;
+    }
+    if (!J.isOwnedByCurrentRegion(player)) {
+      J.runEntity(player, () -> stop(client, player, expected));
+      return;
+    }
+    synchronized (client) {
+      if (!client.sessions.remove(player.getUniqueId(), expected)) {
+        return;
+      }
+      removeSession(client, player.getUniqueId(), expected);
+    }
+    notifyEnded(expected, player);
+  }
+
   private void clearPlayer(UUID playerId) {
     PlayerBucket bucket = buckets.remove(playerId);
     if (bucket == null) {
@@ -619,6 +636,11 @@ public final class VelocityBurstRuntime extends TickedObject {
 
     public void unregister() {
       runtime.unregisterClient(this);
+    }
+
+    public void stop(Player player) {
+      Objects.requireNonNull(player);
+      runtime.stop(this, player, sessions.get(player.getUniqueId()));
     }
   }
 

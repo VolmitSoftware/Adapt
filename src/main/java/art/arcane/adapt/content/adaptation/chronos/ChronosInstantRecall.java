@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.content.adaptation.rift.RiftBlink;
+import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
@@ -88,6 +93,20 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallConfig> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CLOCK_CLICK = CommonPreferences.toggle("clock-click", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_CLOCK_CLICK, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SPRINT_CLICK = CommonPreferences.toggle("sprint-click", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_SPRINT_CLICK, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak-trigger", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_SNEAK, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> DOUBLE_JUMP = CommonPreferences.toggle("double-jump", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_DOUBLE_JUMP, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> LEFT = CommonPreferences.toggle("left-click", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_LEFT, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> RIGHT = CommonPreferences.toggle("right-click", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_RIGHT, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> AIR = CommonPreferences.toggle("air-clicks", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_AIR, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BLOCK = CommonPreferences.toggle("block-clicks", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_BLOCK, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> CLOCK_SOUNDS = CommonPreferences.toggle("clock-sounds", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_CLOCK_SOUNDS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK_SPRINT = CommonPreferences.toggle("sneak-sprint", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_SNEAK_SPRINT, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK_CLOCK = CommonPreferences.toggle("sneak-clock", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_SNEAK_CLOCK, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> JUMP_SPRINT = CommonPreferences.toggle("jump-sprint", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_JUMP_SPRINT, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> JUMP_CLOCK = CommonPreferences.toggle("jump-clock", ChronosMessages.PREFERENCE_CHRONOSINSTANTRECALL_JUMP_CLOCK, CommonPreferences.Toggle.OFF);
+
   private static final EnumSet<Action> RECALL_ACTIONS = EnumSet.of(
       Action.RIGHT_CLICK_AIR,
       Action.RIGHT_CLICK_BLOCK,
@@ -191,11 +210,18 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     return true;
   }
 
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CLOCK_CLICK, SPRINT_CLICK, SNEAK, DOUBLE_JUMP, LEFT, RIGHT, AIR, BLOCK, CLOCK_SOUNDS, SNEAK_SPRINT, SNEAK_CLOCK, JUMP_SPRINT, JUMP_CLOCK);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.duration(getRewindDurationMillis(level), 1), 1);
     statLore(v, C.RED, "* ", Form.duration(getCooldownMillis(level), 1), 2);
     v.addLore(C.GRAY + "* " + AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_LORE3));
+    v.addLore(C.GRAY + "* " + AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_BLINK_PRIORITY));
     if (getConfig().consumeClock) {
       v.addLore(C.RED + "* " + AdaptLanguage.text(ChronosMessages.INSTANT_RECALL_LORE_COST_CLOCK));
     }
@@ -732,15 +758,15 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    if (!e.isSneaking() || !isRecallEligible(p) || !getConfig().enableSingleSneakTrigger) {
+    if (!e.isSneaking() || !isRecallEligible(p) || (!getConfig().enableSingleSneakTrigger || !preferenceEnabled(p, SNEAK))) {
       return;
     }
 
-    if (getConfig().singleSneakRequiresSprint && !p.isSprinting()) {
+    if ((getConfig().singleSneakRequiresSprint || preferenceEnabled(p, SNEAK_SPRINT)) && !p.isSprinting()) {
       return;
     }
 
-    if (getConfig().singleSneakRequiresClockInHand && !hasRecallClockInEitherHand(p)) {
+    if ((getConfig().singleSneakRequiresClockInHand || preferenceEnabled(p, SNEAK_CLOCK)) && !hasRecallClockInEitherHand(p)) {
       return;
     }
 
@@ -794,16 +820,16 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     return action == Action.LEFT_CLICK_BLOCK || action == Action.RIGHT_CLICK_BLOCK;
   }
 
-  private boolean isActionAllowed(Action action) {
+  private boolean isActionAllowed(Player player, Action action) {
     if (!RECALL_ACTIONS.contains(action)) {
       return false;
     }
 
-    if (!getConfig().allowAirClicks && !isBlockClick(action)) {
+    if ((!getConfig().allowAirClicks || !preferenceEnabled(player, AIR)) && !isBlockClick(action)) {
       return false;
     }
 
-    if (!getConfig().allowBlockClicks && isBlockClick(action)) {
+    if ((!getConfig().allowBlockClicks || !preferenceEnabled(player, BLOCK)) && isBlockClick(action)) {
       return false;
     }
 
@@ -811,20 +837,20 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   }
 
   private boolean shouldTriggerClockClick(PlayerInteractEvent e) {
-    if (!getConfig().enableClockClickTrigger) {
+    if ((!getConfig().enableClockClickTrigger || !preferenceEnabled(e.getPlayer(), CLOCK_CLICK))) {
       return false;
     }
 
     Action action = e.getAction();
-    if (!isActionAllowed(action)) {
+    if (!isActionAllowed(e.getPlayer(), action)) {
       return false;
     }
 
-    if (isLeftClick(action) && !getConfig().clockClickLeftClick) {
+    if (isLeftClick(action) && (!getConfig().clockClickLeftClick || !preferenceEnabled(e.getPlayer(), LEFT))) {
       return false;
     }
 
-    if (isRightClick(action) && !getConfig().clockClickRightClick) {
+    if (isRightClick(action) && (!getConfig().clockClickRightClick || !preferenceEnabled(e.getPlayer(), RIGHT))) {
       return false;
     }
 
@@ -832,20 +858,20 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   }
 
   private boolean shouldTriggerSprintClockClick(PlayerInteractEvent e) {
-    if (!getConfig().enableSprintClickTrigger || !e.getPlayer().isSprinting()) {
+    if ((!getConfig().enableSprintClickTrigger || !preferenceEnabled(e.getPlayer(), SPRINT_CLICK)) || !e.getPlayer().isSprinting()) {
       return false;
     }
 
     Action action = e.getAction();
-    if (!isActionAllowed(action)) {
+    if (!isActionAllowed(e.getPlayer(), action)) {
       return false;
     }
 
-    if (isLeftClick(action) && !getConfig().sprintClickLeftClick) {
+    if (isLeftClick(action) && (!getConfig().sprintClickLeftClick || !preferenceEnabled(e.getPlayer(), LEFT))) {
       return false;
     }
 
-    if (isRightClick(action) && !getConfig().sprintClickRightClick) {
+    if (isRightClick(action) && (!getConfig().sprintClickRightClick || !preferenceEnabled(e.getPlayer(), RIGHT))) {
       return false;
     }
 
@@ -858,15 +884,23 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   }
 
   private boolean canTriggerDoubleJump(Player p) {
+    Skill<?> rift = getServer().getSkillRegistry().getSkill("rift");
+    if (rift != null) {
+      for (Adaptation<?> candidate : rift.getAdaptations()) {
+        if (candidate instanceof RiftBlink blink && blink.usesManualTrigger(p)) {
+          return false;
+        }
+      }
+    }
     if (rewinding.containsKey(p.getUniqueId())) {
       return false;
     }
 
-    if (getConfig().doubleJumpRequiresSprint && !p.isSprinting()) {
+    if ((getConfig().doubleJumpRequiresSprint || preferenceEnabled(p, JUMP_SPRINT)) && !p.isSprinting()) {
       return false;
     }
 
-    return !getConfig().doubleJumpRequiresClockInHand || hasRecallClockInEitherHand(p);
+    return !(getConfig().doubleJumpRequiresClockInHand || preferenceEnabled(p, JUMP_CLOCK)) || hasRecallClockInEitherHand(p);
   }
 
   private void clearPlayerState(UUID id) {
@@ -912,14 +946,21 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     return false;
   }
 
-  private void applyRecallHealthCost(Player p) {
+  void applyRecallHealthCost(Player p) {
     double fraction = Math.max(0D, Math.min(1D, getConfig().healthCostFraction));
     if (fraction <= 0D || p.isDead()) {
       return;
     }
 
     double healthAfter = Math.max(1.0D, p.getHealth() * (1D - fraction));
-    applyPlayerDamage(p, p.getHealth() - healthAfter);
+    double amount = p.getHealth() - healthAfter;
+    if (amount <= 0D) {
+      return;
+    }
+    payHealthCost(p, "health", (int) Math.ceil(amount), () -> {
+      p.setHealth(Math.max(1D, p.getHealth() - amount));
+      return true;
+    });
   }
 
   private void attemptRecall(Player p) {
@@ -938,7 +979,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       // A plain clock has no vanilla right-click use, and time bombs carry
       // their own cooldown group, so the whole material can carry the sweep.
       ItemCooldowns.pushMaterial(p, Material.CLOCK, cooldown - now);
-      if (getConfig().playClockSounds) {
+      if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
         ChronosSoundFX.playClockReject(p);
       }
       return;
@@ -948,7 +989,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     long rewindMillis = getRewindDurationMillis(level);
     Snapshot anchor = findSnapshot(p, rewindMillis);
     if (anchor == null) {
-      if (getConfig().playClockSounds) {
+      if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
         ChronosSoundFX.playClockReject(p);
       }
       return;
@@ -958,7 +999,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     List<Snapshot> path = buildRewindPath(p, rewindMillis, anchor);
     List<Snapshot> animationPath = buildAnimationPath(path, animationTicks);
     if (animationPath.isEmpty()) {
-      if (getConfig().playClockSounds) {
+      if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
         ChronosSoundFX.playClockReject(p);
       }
       return;
@@ -1015,7 +1056,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, animationTicks + getConfig().rewindProtectionTicks, 0, true, false, false), true);
 
     FxPresets.chargeRing(this, p.getLocation(), 3);
-    if (getConfig().playClockSounds) {
+    if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
       ChronosSoundFX.playRewindStart(p);
     }
 
@@ -1093,7 +1134,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
         applySnapshotState(p, snapshot);
       }
 
-      if (getConfig().playClockSounds) {
+      if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
         ChronosSoundFX.playRewindStep(p, progress);
       }
 
@@ -1222,7 +1263,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
           }
         })
         .start();
-    if (getConfig().playClockSounds) {
+    if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
       ChronosSoundFX.playRewindFinish(p);
     }
 
@@ -1372,7 +1413,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
   @EventHandler(priority = EventPriority.HIGHEST)
   public void onDoubleJumpMove(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    if (!getConfig().enableDoubleJumpTrigger || !isRecallEligible(p)) {
+    if ((!getConfig().enableDoubleJumpTrigger || !preferenceEnabled(p, DOUBLE_JUMP)) || !isRecallEligible(p)) {
       doubleJump.reset(p);
       return;
     }
@@ -1402,7 +1443,7 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
       long cooldown = cooldowns.getOrDefault(id, 0L);
       if (cooldown <= now && cooldownReadyNotify.remove(id) != null) {
         J.runEntity(p, () -> {
-          if (p.isOnline() && getConfig().playClockSounds) {
+          if (p.isOnline() && (getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
             ChronosSoundFX.playCooldownReady(p);
           }
         });

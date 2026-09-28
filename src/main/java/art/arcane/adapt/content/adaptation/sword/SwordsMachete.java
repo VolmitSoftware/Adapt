@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -94,6 +97,11 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SwordPreferences.SNEAK, SwordPreferences.FOLIAGE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, getRadius(level), 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1), 2);
@@ -113,7 +121,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
     Player p = e.getPlayer();
     ItemStack is = e.getItem();
-    if (is == null || !isSword(is) || p.hasCooldown(is.getType()) || !hasActiveAdaptation(p)) {
+    if ((preferenceEnabled(p, SwordPreferences.SNEAK) && !p.isSneaking()) || is == null || !isSword(is) || p.hasCooldown(is.getType()) || !hasActiveAdaptation(p)) {
       return;
     }
 
@@ -131,7 +139,7 @@ public class SwordsMachete extends SimpleAdaptation<SwordsMachete.Config> {
 
     for (Block i : c) {
       if (M.r((getLevelPercent(lvl) * 2.8) / (i.getLocation().distanceSquared(ctr)))) {
-        if (FOLIAGE.contains(i.getType())) {
+        if (FOLIAGE.contains(i.getType()) && preference(p, SwordPreferences.FOLIAGE).accepts(i.getType())) {
           if (!canBlockBreak(p, i.getLocation())) {
             continue;
           }

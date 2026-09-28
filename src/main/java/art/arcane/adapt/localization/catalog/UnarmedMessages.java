@@ -1,5 +1,6 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.adapt.content.adaptation.unarmed.UnarmedPreferences;
 import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -78,6 +79,7 @@ public final class UnarmedMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    UnarmedPreferences.addMessages(builder);
     builder.add(GLASS_CANNON_NAME);
     builder.add(GLASS_CANNON_DESCRIPTION);
     builder.add(GLASS_CANNON_LORE1);

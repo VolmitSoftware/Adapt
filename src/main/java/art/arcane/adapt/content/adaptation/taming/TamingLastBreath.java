@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -80,6 +83,11 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TamingPreferences.PETS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, C.YELLOW, "* ", Form.duration((double) getCooldownMillis(level), 1), 1);
     statLore(v, C.AQUA, "* ", Form.duration(getInvulnTicks() * 50D, 1), 2);
@@ -115,7 +123,7 @@ public class TamingLastBreath extends SimpleAdaptation<TamingLastBreath.Config> 
     }
 
     int level = getActiveLevel(owner);
-    if (level <= 0) {
+    if (level <= 0 || !preference(owner, TamingPreferences.PETS).accepts(pet.getType())) {
       return;
     }
 

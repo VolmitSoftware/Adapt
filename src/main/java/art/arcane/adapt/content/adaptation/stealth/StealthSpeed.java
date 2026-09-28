@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.StealthMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -58,6 +63,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> STEP_UP = CommonPreferences.toggle("step-up", StealthMessages.STEALTHSPEED_PREFERENCE_STEP_UP, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> STEP_DOWN = CommonPreferences.toggle("step-down", StealthMessages.STEALTHSPEED_PREFERENCE_STEP_DOWN, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> PARTICLES = CommonPreferences.toggle("particles", StealthMessages.STEALTHSPEED_PREFERENCE_PARTICLES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Scale> SPEED = CommonPreferences.scale("speed", StealthMessages.STEALTHSPEED_PREFERENCE_SPEED);
+
   private static final String SLOT_SNEAK = "sneak";
   private static final String SLOT_STEP = "step";
   private static final double VANILLA_SNEAK_FRACTION = 0.3D;
@@ -78,6 +88,16 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_stealth_speed_5k", "stealth.speed.blocks-sneak-sprinted", 5000, 400);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, STEP_UP, STEP_DOWN, PARTICLES, SPEED);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearAndRemoveState(player.getPlayer());
   }
 
   @Override
@@ -137,8 +157,9 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
   private void startSession(Player player) {
     UUID playerId = player.getUniqueId();
     RuntimeState state = states.computeIfAbsent(playerId, key -> new RuntimeState());
-    if (state.refreshScheduled.compareAndSet(false, true)) {
-      refreshSession(player, state);
+    if (state.refreshScheduled.compareAndSet(false, true)
+        && !J.runEntity(player, () -> refreshSession(player, state), 1)) {
+      clearAndRemoveState(player);
     }
   }
 
@@ -166,7 +187,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
       applyAutoStepDown(p, state, now);
 
       if (isMovingHorizontally(p, getConfig().movementVelocityThreshold)) {
-        if (getConfig().showSoulParticles && M.r(getConfig().soulParticleChance)) {
+        if (getConfig().showSoulParticles && preferenceEnabled(p, PARTICLES) && M.r(getConfig().soulParticleChance)) {
           fx(p.getLocation().clone().add(0, getConfig().soulParticleYOffset, 0), FxPriority.TRAIL)
               .particle(crawling ? Particle.ASH : Particle.SOUL, 1, 0, 0, 0, 0.12D, 0);
         }
@@ -185,6 +206,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
   }
 
   private void applyBoost(Player p, RuntimeState state, double sneakScalar, long now) {
+    sneakScalar *= preference(p, SPEED).multiplier();
     AdaptAttributeService attributes = AdaptAttributeService.get();
     boolean starting = !state.boosting;
     if (starting) {
@@ -206,7 +228,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
       state.appliedSneakScalar = sneakScalar;
     }
 
-    boolean wantStepHeight = getConfig().enableAutoStep && getConfig().enableAutoStepUp;
+    boolean wantStepHeight = getConfig().enableAutoStep && getConfig().enableAutoStepUp && preferenceEnabled(p, STEP_UP);
     if (wantStepHeight && !state.stepHeightApplied) {
       attributes.apply(p, getName(), SLOT_STEP, Attributes.STEP_HEIGHT, Math.max(0, getConfig().stepHeightBonus), AttributeModifier.Operation.ADD_NUMBER);
       state.stepHeightApplied = true;
@@ -297,7 +319,7 @@ public class StealthSpeed extends SimpleAdaptation<StealthSpeed.Config> {
   }
 
   private void applyAutoStepDown(Player p, RuntimeState state, long now) {
-    if (!getConfig().enableAutoStep || !getConfig().enableAutoStepDown || !p.isOnGround()) {
+    if (!getConfig().enableAutoStep || !getConfig().enableAutoStepDown || !preferenceEnabled(p, STEP_DOWN) || !p.isOnGround()) {
       return;
     }
 

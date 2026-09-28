@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
 
@@ -60,6 +62,11 @@ import java.util.Set;
 import java.util.UUID;
 
 public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> FARMLAND = CommonPreferences.toggle("farmland", AgilityMessages.AGILITYFEATHERFOOT_PREFERENCE_FARMLAND, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> PLATES = CommonPreferences.toggle("plates", AgilityMessages.AGILITYFEATHERFOOT_PREFERENCE_PLATES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BERRIES = CommonPreferences.toggle("berries", AgilityMessages.AGILITYFEATHERFOOT_PREFERENCE_BERRIES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNOW = CommonPreferences.toggle("snow", AgilityMessages.AGILITYFEATHERFOOT_PREFERENCE_SNOW, CommonPreferences.Toggle.ON);
+
   private static final long SPRINT_INTENT_GRACE_MILLIS = 350L;
 
   private final Cooldowns fxThrottle = cooldowns();
@@ -85,6 +92,11 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
         .build());
     registerMilestone("challenge_agility_featherfoot_500", "agility.featherfoot.surfaces-ignored", 500, 300);
     registerMilestone("challenge_agility_featherfoot_5k", "agility.featherfoot.surfaces-ignored", 5000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, FARMLAND, PLATES, BERRIES, SNOW);
   }
 
   @Override
@@ -118,6 +130,9 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
     }
 
     Player p = e.getPlayer();
+    if (!protectsPreferredSurface(p, type, rules)) {
+      return;
+    }
     if (!ignoresSurface(minimumLevel, hasSprintIntent(p), getActiveLevel(p), rules)) {
       return;
     }
@@ -146,7 +161,7 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
       Material type = block.getType();
       SurfaceRules rules = getSurfaceRules();
       int minimumLevel = minimumLevelForSurface(type, Tag.PRESSURE_PLATES.isTagged(type), rules);
-      if (minimumLevel < 0) {
+      if (minimumLevel < 0 || !protectsPreferredSurface(p, type, rules)) {
         return;
       }
 
@@ -201,13 +216,26 @@ public class AgilityFeatherfoot extends SimpleAdaptation<AgilityFeatherfoot.Conf
 
     Material type = p.getLocation().getBlock().getType();
     SurfaceRules rules = getSurfaceRules();
-    if (!rules.powderSnow().protects(type, false)) {
+    if (!preferenceEnabled(p, SNOW) || !rules.powderSnow().protects(type, false)) {
       return;
     }
 
     if (ignoresSurface(rules.powderSnow().minLevel(), hasSprintIntent(p), level, rules)) {
       p.setFreezeTicks(0);
     }
+  }
+
+  private boolean protectsPreferredSurface(Player player, Material type, SurfaceRules rules) {
+    if (rules.farmland().protects(type, false)) {
+      return preferenceEnabled(player, FARMLAND);
+    }
+    if (rules.pressurePlates().protects(type, Tag.PRESSURE_PLATES.isTagged(type))) {
+      return preferenceEnabled(player, PLATES);
+    }
+    if (rules.berryBushes().protects(type, false)) {
+      return preferenceEnabled(player, BERRIES);
+    }
+    return rules.powderSnow().protects(type, false) && preferenceEnabled(player, SNOW);
   }
 
   private void rememberSprintIntent(Player p) {

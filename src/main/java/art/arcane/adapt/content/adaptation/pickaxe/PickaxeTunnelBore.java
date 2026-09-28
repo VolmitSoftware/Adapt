@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
 
@@ -76,6 +78,11 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, PickaxePreferences.TRIGGER, PickaxePreferences.MATERIALS, PickaxePreferences.SIZE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(PickaxeMessages.TUNNEL_BORE_LORE1));
     statLore(v, C.GREEN, "", getBoreWidth(level) + "x" + getBoreHeight(level), 2);
@@ -99,7 +106,9 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
     }
 
     Player p = e.getPlayer();
-    if (!p.isSneaking() || !isPickaxe(p.getInventory().getItemInMainHand())) {
+    if (!preference(p, PickaxePreferences.TRIGGER).accepts(p.isSneaking())
+        || !preference(p, PickaxePreferences.MATERIALS).accepts(originType)
+        || !isPickaxe(p.getInventory().getItemInMainHand())) {
       return;
     }
 
@@ -108,8 +117,9 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
       return;
     }
 
-    int boreWidth = getBoreWidth(context.level());
-    int boreHeight = getBoreHeight(context.level());
+    PickaxePreferences.Size size = preference(p, PickaxePreferences.SIZE);
+    int boreWidth = size.width(getBoreWidth(context.level()));
+    int boreHeight = size.height(getBoreHeight(context.level()));
     List<Block> targets = collectPlane(p, block, boreWidth, boreHeight);
     if (targets.isEmpty()) {
       return;
@@ -134,7 +144,7 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
     }
 
     ItemStack tool = player.getInventory().getItemInMainHand();
-    if (!isPickaxe(tool)) {
+    if (!isPickaxe(tool) || getActiveLevel(player) <= 0) {
       return;
     }
 
@@ -155,6 +165,7 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
       if ((J.isFoliaThreading()
           && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(location)))
           || !BORE_BLOCKS.contains(target.getType())
+          || !preference(player, PickaxePreferences.MATERIALS).accepts(target.getType())
           || !canBlockBreak(player, location)
           || !ProtectionEventProbe.attemptBlockBreakProbe(player, target)) {
         index++;

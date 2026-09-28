@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
 
@@ -55,6 +59,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfusionTransfer.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirmation", EnchantingMessages.PREFERENCE_ENCHANTINGINFUSIONTRANSFER_CONFIRM, CommonPreferences.Toggle.OFF);
+
   public EnchantingInfusionTransfer() {
     super("enchanting-infusion-transfer");
     registerConfiguration(Config.class);
@@ -74,6 +80,12 @@ public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfus
         .build());
     registerMilestone("challenge_enchanting_infusion_25", "enchanting.infusion-transfer.transfers", 25, 400);
     registerMilestone("challenge_enchanting_infusion_250", "enchanting.infusion-transfer.transfers", 250, 1200);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONFIRM);
   }
 
   @Override
@@ -123,6 +135,10 @@ public class EnchantingInfusionTransfer extends SimpleAdaptation<EnchantingInfus
       return;
     }
 
+    if (preferenceEnabled(p, CONFIRM) && !PreferenceConfirmation.confirm(this, p, "infusion", base, source)) {
+      e.setCancelled(true);
+      return;
+    }
     Enchantment transfer = pickTransferEnchant(base, source);
     if (transfer == null) {
       return;

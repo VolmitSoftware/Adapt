@@ -18,10 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import org.bukkit.entity.EntityType;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -32,6 +36,7 @@ import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -92,6 +97,11 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
         .build());
     registerMilestone("challenge_tragoul_corpse_500", "tragoul.corpse-explosion.mobs-detonated", 500, 400);
     registerMilestone("challenge_tragoul_corpse_5k", "tragoul.corpse-explosion.mobs-detonated", 5000, 1500);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TragoulPreferences.PASSIVE, TragoulPreferences.TARGETS);
   }
 
   @Override
@@ -203,7 +213,7 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     Location source = plan.source();
     double radius = plan.radius();
     for (Entity entity : source.getWorld().getNearbyEntities(source, radius, radius, radius)) {
-      if (!isNovaTarget(entity)) {
+      if (!isNovaTarget(entity) || !AdaptationDamageTargets.allows(entity, getConfig().ignorePassiveMobs)) {
         continue;
       }
       candidates.add((Enemy) entity);
@@ -226,12 +236,13 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
   }
 
   private NovaTargetSnapshot captureTargetOwned(Enemy target) {
-    if (!target.isValid() || target.isDead()) {
+    if (!target.isValid() || target.isDead()
+        || !AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs)) {
       return null;
     }
     Location location = target.getLocation();
     ProtectionSnapshot protection = captureProtectionOwned(target);
-    return new NovaTargetSnapshot(target, location, protection.protectedFriendly(), protection.tameOwnerId());
+    return new NovaTargetSnapshot(target, location, protection.protectedFriendly(), protection.tameOwnerId(), target.getType(), !AdaptationDamageTargets.allows(target, true));
   }
 
   private ProtectionSnapshot captureProtectionOwned(LivingEntity target) {
@@ -257,7 +268,9 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
 
     List<NovaTargetSnapshot> selected = new ArrayList<>(plan.maxTargets());
     for (NovaTargetSnapshot target : batch.targets()) {
-      if (canDamageSnapshotOwned(owner, false, target.protectedFriendly(), target.tameOwnerId(), target.location())) {
+      if (preference(owner, TragoulPreferences.TARGETS).accepts(target.type())
+          && (!preferenceEnabled(owner, TragoulPreferences.PASSIVE) || !target.passive())
+          && canDamageSnapshotOwned(owner, false, target.protectedFriendly(), target.tameOwnerId(), target.location())) {
         selected.add(target);
         if (selected.size() >= plan.maxTargets()) {
           break;
@@ -280,7 +293,8 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
 
   private void applyNovaTargetOwned(NovaApplicationBatch application, NovaTargetSnapshot target, long now) {
     Enemy enemy = target.entity();
-    if (!enemy.isValid() || enemy.isDead()) {
+    if (!enemy.isValid() || enemy.isDead()
+        || !AdaptationDamageTargets.allows(enemy, getConfig().ignorePassiveMobs)) {
       application.complete(false);
       return;
     }
@@ -369,7 +383,7 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
   }
 
   private record NovaTargetSnapshot(Enemy entity, Location location, boolean protectedFriendly,
-                                    UUID tameOwnerId) {
+                                    UUID tameOwnerId, EntityType type, boolean passive) {
   }
 
   private record NovaPlan(Player owner, Location source, double radius, double damage,
@@ -457,6 +471,8 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
 
   @ConfigDescription("Mobs you kill detonate in a blood nova that damages nearby hostile mobs.")
   protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Exclude passive and neutral mobs from corpse explosion damage, including servant-triggered explosions.", impact = "When enabled, neutral enemy species remain protected even when provoked.")
+    boolean ignorePassiveMobs = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base nova radius before level scaling.", impact = "Higher values damage hostile mobs further from the corpse.")
     double radiusBase = 3.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Additional nova radius granted at max level.", impact = "Higher values increase the level-scaled radius growth.")

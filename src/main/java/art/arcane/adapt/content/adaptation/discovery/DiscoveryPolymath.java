@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerData;
+import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -92,9 +93,17 @@ public class DiscoveryPolymath extends SimpleAdaptation<DiscoveryPolymath.Config
     }
   }
 
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (!hasActiveAdaptation(player.getPlayer())) {
+      player.getData().removeGlobalXPMultipliers(getName());
+    }
+  }
+
   private void boostOwned(Player player) {
     int level = getActiveLevel(player);
     if (level <= 0) {
+      getPlayer(player).getData().removeGlobalXPMultipliers(getName());
       return;
     }
 
@@ -111,7 +120,7 @@ public class DiscoveryPolymath extends SimpleAdaptation<DiscoveryPolymath.Config
       return;
     }
 
-    data.globalXPMultiplier(bonus, MULTIPLIER_DURATION_MILLIS);
+    data.globalXPMultiplier(XPMultiplier.owned(getName(), bonus, MULTIPLIER_DURATION_MILLIS));
     data.addStat("discovery.polymath.boosts", 1);
 
     UUID id = player.getUniqueId();

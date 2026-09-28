@@ -1,5 +1,6 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.adapt.content.adaptation.axe.AxePreferences;
 import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -80,6 +81,7 @@ public final class AxeMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    AxePreferences.addMessages(builder);
     builder.add(CHOP_NAME);
     builder.add(CHOP_DESCRIPTION);
     builder.add(CHOP_LORE1);

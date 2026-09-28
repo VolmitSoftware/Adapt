@@ -148,9 +148,9 @@ public class ItemListings {
 
   @Getter
   public static KList<Material> herbalLuckFood = new KList<>(
-      Material.POTATOES,
-      Material.CARROTS,
-      Material.BEETROOTS,
+      Material.POTATO,
+      Material.CARROT,
+      Material.BEETROOT,
       Material.APPLE
   );
 

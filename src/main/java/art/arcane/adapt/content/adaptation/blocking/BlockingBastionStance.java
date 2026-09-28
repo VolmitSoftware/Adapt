@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -81,6 +85,17 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.VANILLA)
         .build());
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    endStance(player.getPlayer());
+    if (getActiveLevel(player.getPlayer()) > 0) { startStance(player.getPlayer()); }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BlockingPreferences.SNEAK_STANCE);
   }
 
   @Override
@@ -184,7 +199,7 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
   @EventHandler
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    if (!p.isSneaking() || stanceStates.containsKey(p.getUniqueId())) {
+    if ((preferenceEnabled(p, BlockingPreferences.SNEAK_STANCE) && !p.isSneaking()) || stanceStates.containsKey(p.getUniqueId())) {
       return;
     }
 
@@ -215,8 +230,9 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
 
   private void startStance(Player p) {
     StanceState state = stanceStates.computeIfAbsent(p.getUniqueId(), key -> new StanceState());
-    if (state.refreshScheduled.compareAndSet(false, true)) {
-      refreshStance(p, state);
+    if (state.refreshScheduled.compareAndSet(false, true)
+        && !J.runEntity(p, () -> refreshStance(p, state), 1)) {
+      endStance(p);
     }
   }
 
@@ -303,7 +319,7 @@ public class BlockingBastionStance extends SimpleAdaptation<BlockingBastionStanc
   }
 
   private boolean isBastionStance(Player p, int level) {
-    return level > 0 && p.isBlocking() && p.isSneaking() && hasShield(p);
+    return level > 0 && p.isBlocking() && (!preferenceEnabled(p, BlockingPreferences.SNEAK_STANCE) || p.isSneaking()) && hasShield(p);
   }
 
   private boolean hasShield(Player p) {

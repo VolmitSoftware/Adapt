@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -70,6 +73,11 @@ public class SwordsDuelistsFocus extends SimpleAdaptation<SwordsDuelistsFocus.Co
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SwordPreferences.GLOW);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getBonusDamage(level), 0), 1);
     statLore(v, Form.pc(getDamageReduction(level), 0), 2);
@@ -91,7 +99,9 @@ public class SwordsDuelistsFocus extends SimpleAdaptation<SwordsDuelistsFocus.Co
       if (level > 0 && isSword(victim.getInventory().getItemInMainHand()) && countEngaged(victim) == 1) {
         e.setDamage(Math.max(0D, e.getDamage() * (1D - getDamageReduction(level))));
         focusFx(victim, false);
-        showThreatGlow(resolveThreat(e.getDamager()));
+        if (preferenceEnabled(victim, SwordPreferences.GLOW)) {
+          showThreatGlow(resolveThreat(e.getDamager()));
+        }
       }
     }
   }

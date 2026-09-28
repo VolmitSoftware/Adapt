@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -78,6 +79,12 @@ public class AgilityArmorUp extends SimpleAdaptation<AgilityArmorUp.Config> {
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_agility_armor_up_30min", "agility.armor-up.ticks-armored", 36000, 500);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearAndRemoveState(player.getPlayer());
+    AdaptAttributeService.get().remove(player.getPlayer(), getName(), SLOT_PLATING, Attributes.ARMOR);
   }
 
   @Override

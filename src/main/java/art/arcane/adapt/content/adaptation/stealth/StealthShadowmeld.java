@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.localization.catalog.StealthMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import java.util.Map;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -54,6 +58,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config> {
+  public static final PlayerPreference<Gesture> GESTURE = new PlayerPreference<>(Gesture.class,
+      new PlayerPreference.Definition<>("gesture", StealthMessages.STEALTHSHADOWMELD_PREFERENCE_GESTURE, Gesture.AUTOMATIC, List.of(
+          new PlayerPreference.Choice<>(Gesture.AUTOMATIC, StealthMessages.STEALTHSHADOWMELD_PREFERENCE_GESTURE_AUTOMATIC, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Gesture.DOUBLE, StealthMessages.STEALTHSHADOWMELD_PREFERENCE_GESTURE_DOUBLE, Material.RABBIT_FOOT, 1))));
+
+  private final Map<UUID, Long> lastArmPress = playerState();
   private static final Set<UUID> MELDED = ConcurrentHashMap.newKeySet();
   private static final int INVISIBILITY_REFRESH_TICKS = 40;
   private static final int HARD_MAX_ACTIVE_SESSIONS = 2_048;
@@ -125,6 +135,17 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, GESTURE);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    endSession(coordinator.get(player.getPlayer().getUniqueId()), true);
+    lastArmPress.remove(player.getPlayer().getUniqueId());
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, C.YELLOW, "* ", Form.duration(getMeldDelay(level), 2), 1);
   }
@@ -135,6 +156,14 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
     if (!e.isSneaking()) {
       endSession(coordinator.get(player.getUniqueId()), true);
       return;
+    }
+    if (preference(player, GESTURE) == Gesture.DOUBLE) {
+      long now = System.currentTimeMillis();
+      Long last = lastArmPress.put(player.getUniqueId(), now);
+      if (last == null || now - last > 350L) {
+        return;
+      }
+      lastArmPress.remove(player.getUniqueId());
     }
     startSessionIfEligible(player);
   }
@@ -380,4 +409,6 @@ public class StealthShadowmeld extends SimpleAdaptation<StealthShadowmeld.Config
       initialCost = 4;
     }
   }
+
+  public enum Gesture { AUTOMATIC, DOUBLE }
 }

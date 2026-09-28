@@ -1,5 +1,10 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.KineticsMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -22,7 +27,13 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.util.Vector;
 
 public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.Config> {
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", KineticsMessages.KINETICSSURFACESKATE_PREFERENCE_CONTROL, Control.SPRINT, List.of(
+          new PlayerPreference.Choice<>(Control.SPRINT, KineticsMessages.KINETICSSURFACESKATE_PREFERENCE_CONTROL_SPRINT, Material.SUGAR, 1),
+          new PlayerPreference.Choice<>(Control.ARMED, KineticsMessages.KINETICSSURFACESKATE_PREFERENCE_CONTROL_ARMED, Material.ICE, 1))));
+
   private static final double MIN_HORIZONTAL_SPEED_SQUARED = 1.0E-6D;
+  private static final double HORIZONTAL_AIR_DRAG = 0.91D;
   private static final long RECONCILE_INTERVAL_MS = 1000L;
   private static final String SLOT_SLIDE = "slide";
 
@@ -38,6 +49,16 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
         this::getInterval,
         this::reconcile
     );
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONTROL);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
   }
 
   @Override
@@ -112,7 +133,7 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
       return;
     }
 
-    if (!shouldSlide(p.isSprinting(), p.isSneaking(), level)) {
+    if (!shouldSlide(p.isSprinting() || preference(p, CONTROL) == Control.ARMED, p.isSneaking(), level)) {
       return;
     }
 
@@ -153,52 +174,26 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
     return surfaceFriction + ((1D - surfaceFriction) * cancelledFriction);
   }
 
-  static double fallbackVelocityScale(double velocityX, double velocityZ, double movementX, double movementZ,
-      double blockSlipperiness, double slidePercent) {
-    if (!Double.isFinite(velocityX) || !Double.isFinite(velocityZ)
-        || !Double.isFinite(movementX) || !Double.isFinite(movementZ)
-        || !Double.isFinite(blockSlipperiness) || !Double.isFinite(slidePercent)) {
-      return 1D;
-    }
-
-    double velocitySquared = (velocityX * velocityX) + (velocityZ * velocityZ);
-    if (velocitySquared <= MIN_HORIZONTAL_SPEED_SQUARED) {
-      return 1D;
-    }
-
-    double baseFriction = Math.min(1D, Math.max(1.0E-6D, blockSlipperiness));
-    double modifiedFriction = modifiedSurfaceFriction(baseFriction, slidePercent);
-    double scale = modifiedFriction / baseFriction;
-
-    double velocity = Math.sqrt(velocitySquared);
-    double movement = Math.sqrt((movementX * movementX) + (movementZ * movementZ));
-    double boundedVelocity = Math.min(velocity * scale, Math.max(velocity, movement));
-    return boundedVelocity / velocity;
-  }
-
   static boolean applyFallbackHorizontalVelocity(Vector velocity, double movementX, double movementZ,
       double blockSlipperiness, double slidePercent) {
     if (velocity == null
         || !Double.isFinite(velocity.getX()) || !Double.isFinite(velocity.getY()) || !Double.isFinite(velocity.getZ())
-        || !Double.isFinite(movementX) || !Double.isFinite(movementZ)) {
+        || !Double.isFinite(movementX) || !Double.isFinite(movementZ)
+        || !Double.isFinite(blockSlipperiness) || !Double.isFinite(slidePercent)
+        || slidePercent <= 0D) {
       return false;
     }
 
-    double velocitySquared = (velocity.getX() * velocity.getX()) + (velocity.getZ() * velocity.getZ());
     double movementSquared = (movementX * movementX) + (movementZ * movementZ);
-    if (velocitySquared <= MIN_HORIZONTAL_SPEED_SQUARED && movementSquared <= MIN_HORIZONTAL_SPEED_SQUARED) {
+    if (movementSquared <= MIN_HORIZONTAL_SPEED_SQUARED) {
       return false;
     }
-
-    double baseX = velocitySquared <= MIN_HORIZONTAL_SPEED_SQUARED ? movementX : velocity.getX();
-    double baseZ = velocitySquared <= MIN_HORIZONTAL_SPEED_SQUARED ? movementZ : velocity.getZ();
-    double scale = fallbackVelocityScale(
-        baseX, baseZ, movementX, movementZ, blockSlipperiness, slidePercent);
-    double adjustedX = baseX * scale;
-    double adjustedZ = baseZ * scale;
-    if (!Double.isFinite(adjustedX) || !Double.isFinite(adjustedZ)
-        || (Math.abs(adjustedX - velocity.getX()) <= 1.0E-9D
-        && Math.abs(adjustedZ - velocity.getZ()) <= 1.0E-9D)) {
+    double retention = HORIZONTAL_AIR_DRAG * modifiedSurfaceFriction(blockSlipperiness, slidePercent);
+    double adjustedX = movementX * retention;
+    double adjustedZ = movementZ * retention;
+    double velocitySquared = (velocity.getX() * velocity.getX()) + (velocity.getZ() * velocity.getZ());
+    double adjustedSquared = (adjustedX * adjustedX) + (adjustedZ * adjustedZ);
+    if (!Double.isFinite(adjustedSquared) || adjustedSquared <= velocitySquared) {
       return false;
     }
 
@@ -241,7 +236,7 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
       return;
     }
 
-    if (shouldSlide(p.isSprinting(), p.isSneaking(), level)) {
+    if (shouldSlide(p.isSprinting() || preference(p, CONTROL) == Control.ARMED, p.isSneaking(), level)) {
       attributes.apply(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER, nativeSlideModifier(getSlidePercent(level)), AttributeModifier.Operation.MULTIPLY_SCALAR_1);
     } else {
       attributes.remove(p, getName(), SLOT_SLIDE, Attributes.FRICTION_MODIFIER);
@@ -287,4 +282,6 @@ public class KineticsSurfaceSkate extends SimpleAdaptation<KineticsSurfaceSkate.
       initialCost = 2;
     }
   }
+
+  public enum Control { SPRINT, ARMED }
 }

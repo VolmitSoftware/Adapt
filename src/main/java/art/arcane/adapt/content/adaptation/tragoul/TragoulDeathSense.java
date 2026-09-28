@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import org.bukkit.entity.EntityType;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 
@@ -103,6 +106,16 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_tragoul_death_sense_1k", "tragoul.death-sense.prey-sensed", 1000, 600);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearOwnerGlowsOwned(player.getPlayer());
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TragoulPreferences.TARGETS, TragoulPreferences.PALETTE);
   }
 
   @Override
@@ -318,7 +331,7 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
       }
       TargetSnapshot snapshot = new TargetSnapshot(target, targetId, location.clone(),
           target instanceof Player, target.isInvisible(), isProtectedFriendly(null, target),
-          tameOwnerId, healthColor(healthFraction));
+          tameOwnerId, healthColor(healthFraction), target.getType());
       for (DeathSenseSpatialIndex.OwnerPoint point : points) {
         OwnerRuntime runtime = ownerRuntimes.get(point.ownerId());
         if (runtime == null) {
@@ -349,7 +362,7 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
   }
 
   private boolean canSenseTargetOwned(Player owner, TargetSnapshot target) {
-    if (target.protectedFriendly() || owner.getUniqueId().equals(target.entityId())
+    if (!preference(owner, TragoulPreferences.TARGETS).accepts(target.type()) || target.protectedFriendly() || owner.getUniqueId().equals(target.entityId())
         || owner.getUniqueId().equals(target.tameOwnerId())
         || owner.getWorld() != target.location().getWorld()) {
       return false;
@@ -364,14 +377,14 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
     Map<UUID, SensedGlow> glows = ownerGlows.computeIfAbsent(owner.getUniqueId(), ignored -> new ConcurrentHashMap<>());
     SensedGlow current = glows.get(target.entityId());
     if (current != null
-        && current.color() == target.color()
+        && current.color() == preference(owner, TragoulPreferences.PALETTE).color(target.color())
         && current.entity() == target.entity()
         && current.runtimeEntityId() == target.entity().getEntityId()) {
       glows.put(target.entityId(), new SensedGlow(
           target.entity(),
           target.entityId(),
           target.entity().getEntityId(),
-          target.color(),
+          preference(owner, TragoulPreferences.PALETTE).color(target.color()),
           expiresAt
       ));
       ensureGlowExpiryOwned(owner);
@@ -390,13 +403,13 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
         ViewerGlowCoordinator.Layer.TRAGOUL_DEATH_SENSE,
         target.entity(),
         owner,
-        target.color()
+        preference(owner, TragoulPreferences.PALETTE).color(target.color())
     )) {
       glows.put(target.entityId(), new SensedGlow(
           target.entity(),
           target.entityId(),
           target.entity().getEntityId(),
-          target.color(),
+          preference(owner, TragoulPreferences.PALETTE).color(target.color()),
           expiresAt
       ));
       ensureGlowExpiryOwned(owner);
@@ -648,7 +661,7 @@ public class TragoulDeathSense extends SimpleAdaptation<TragoulDeathSense.Config
 
   private record TargetSnapshot(LivingEntity entity, UUID entityId, Location location, boolean player,
                                 boolean invisible, boolean protectedFriendly, UUID tameOwnerId,
-                                ChatColor color) {
+                                ChatColor color, EntityType type) {
   }
 
   private record SensedGlow(LivingEntity entity, UUID entityId, int runtimeEntityId, ChatColor color, long expiresAt) {

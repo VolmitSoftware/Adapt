@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 
@@ -51,6 +55,11 @@ import java.util.UUID;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", RiftMessages.RIFTDESCENT_PREFERENCE_CONTROL, Control.SNEAK, List.of(
+          new PlayerPreference.Choice<>(Control.SNEAK, RiftMessages.RIFTDESCENT_PREFERENCE_CONTROL_SNEAK, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Control.AUTOMATIC, RiftMessages.RIFTDESCENT_PREFERENCE_CONTROL_AUTOMATIC, Material.FEATHER, 1))));
+
   private final Cooldowns cooldown = cooldowns();
 
   public RiftDescent() {
@@ -75,6 +84,11 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONTROL);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.YELLOW + AdaptLanguage.text(RiftMessages.DESCENT_LORE1));
     v.addLore(C.GREEN + AdaptLanguage.text(
@@ -86,7 +100,23 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    if (!e.isSneaking() || p.getPotionEffect(PotionEffectType.LEVITATION) == null) {
+    if (!e.isSneaking()) {
+      return;
+    }
+    cancelLevitation(p);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityPotionEffectEvent event) {
+    if (event.getEntity() instanceof Player player && event.getNewEffect() != null
+        && event.getNewEffect().getType().equals(PotionEffectType.LEVITATION)
+        && preference(player, CONTROL) == Control.AUTOMATIC) {
+      J.runEntity(player, () -> cancelLevitation(player), 1);
+    }
+  }
+
+  private void cancelLevitation(Player p) {
+    if (p.getPotionEffect(PotionEffectType.LEVITATION) == null) {
       return;
     }
     if (!hasActiveAdaptation(p)) {
@@ -114,7 +144,7 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
     J.runEntity(p, () -> FxPresets.readyPing(this, p), Math.max(1, (int) Math.round(getConfig().cooldown * 20D)));
 
     J.runEntity(p, () -> fx(p, FxPriority.TRANSITION)
-        .particle(Particle.DRAGON_BREATH, 14, 0, -0.2, 0, 0.2, 0.04)
+        .particle(Particle.DRAGON_BREATH, 14, 0, -0.2, 0, 0.2, 0.04, 1.0F)
         .particle(Particle.CLOUD, 6, 0, -0.1, 0, 0.25, 0.02)
         .chord(Sound.ENTITY_ENDER_DRAGON_FLAP, 1f, 1f, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5f, 1.2f));
   }
@@ -137,4 +167,6 @@ public class RiftDescent extends SimpleAdaptation<RiftDescent.Config> {
     }
   }
 
+
+  public enum Control { SNEAK, AUTOMATIC }
 }

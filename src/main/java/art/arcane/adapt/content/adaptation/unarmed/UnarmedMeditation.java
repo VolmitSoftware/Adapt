@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -95,6 +99,16 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    stopMeditation(player.getPlayer());
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, UnarmedPreferences.MANUAL, UnarmedPreferences.ARMED);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getAbsorptionCap(level)), 1);
     statLore(v, Form.f(getConfig().gainPerPulse), 2);
@@ -169,7 +183,8 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
       return;
     }
 
-    if (!isEnabled() || !hasActiveAdaptation(player)) {
+    if (!isEnabled() || !hasActiveAdaptation(player)
+        || (preferenceEnabled(player, UnarmedPreferences.MANUAL) && !preferenceEnabled(player, UnarmedPreferences.ARMED))) {
       stopMeditation(player);
       if (hasCapacity) {
         removeAbsorptionCapacity(player);
@@ -205,6 +220,7 @@ public class UnarmedMeditation extends SimpleAdaptation<UnarmedMeditation.Config
   private void pulseMeditation(Player player) {
     UUID id = player.getUniqueId();
     if (!activeSessions.contains(id) || !player.isOnline() || player.isDead() || !player.isSneaking()
+        || (preferenceEnabled(player, UnarmedPreferences.MANUAL) && !preferenceEnabled(player, UnarmedPreferences.ARMED))
         || isItem(player.getInventory().getItemInMainHand()) || isItem(player.getInventory().getItemInOffHand())
         || !combatCooldown.isReady(id, getConfig().combatLockoutMillis)) {
       stopMeditation(player);

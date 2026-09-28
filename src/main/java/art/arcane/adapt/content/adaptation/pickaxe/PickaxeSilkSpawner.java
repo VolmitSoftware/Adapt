@@ -1,5 +1,8 @@
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
 
@@ -63,6 +66,9 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void onBlockDropPrepare(BlockDropItemEvent event) {
     Player player = event.getPlayer();
+    if (preferenceEnabled(player, PickaxePreferences.REQUIRE_SNEAK) && !player.isSneaking()) {
+      return;
+    }
     Block block = event.getBlock();
     Adaptation.BlockActionContext context = resolveBlockBreakContext(player, block.getLocation());
     if (event.getBlockState().getType() != Material.SPAWNER || context == null) {
@@ -134,6 +140,11 @@ public class PickaxeSilkSpawner extends SimpleAdaptation<PickaxeSilkSpawner.Conf
     fx(plan.dropLocation(), FxPriority.TRANSITION)
         .column(Particles.END_ROD, 8, 1.0D)
         .sound(Sound.ENTITY_ITEM_PICKUP, 0.6f, 0.7f);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, PickaxePreferences.REQUIRE_SNEAK);
   }
 
   @Override

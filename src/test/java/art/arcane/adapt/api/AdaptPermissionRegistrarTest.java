@@ -2,7 +2,6 @@ package art.arcane.adapt.api;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.volmlib.util.collection.KList;
 import org.bukkit.permissions.Permission;
@@ -37,7 +36,7 @@ class AdaptPermissionRegistrarTest {
     int registered = AdaptPermissionRegistrar.registerAll(pm, List.of(skill));
 
     ArgumentCaptor<Permission> captor = ArgumentCaptor.forClass(Permission.class);
-    int expected = 2 + 1 + MutationType.values().length + 1;
+    int expected = 4;
     assertThat(registered).isEqualTo(expected);
     verify(pm, org.mockito.Mockito.times(expected)).addPermission(captor.capture());
 
@@ -49,7 +48,6 @@ class AdaptPermissionRegistrarTest {
         .containsOnlyKeys("adapt.use.riftconduit", "adapt.use.riftblink");
     assertThat(byName.get("adapt.use.*").getChildren())
         .containsKey("adapt.use.rift")
-        .containsKey(MutationType.values()[0].permission())
         .doesNotContainKey("adapt.use.riftconduit");
   }
 
@@ -62,7 +60,7 @@ class AdaptPermissionRegistrarTest {
 
     int registered = AdaptPermissionRegistrar.registerAll(pm, List.of(skill));
 
-    assertThat(registered).isEqualTo(1 + MutationType.values().length + 1);
+    assertThat(registered).isEqualTo(2);
     ArgumentCaptor<Permission> captor = ArgumentCaptor.forClass(Permission.class);
     verify(pm, org.mockito.Mockito.times(registered)).addPermission(captor.capture());
     assertThat(captor.getAllValues()).noneMatch(p -> p.getName().equals("adapt.use.riftconduit"));

@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import org.bukkit.event.player.PlayerToggleSneakEvent;
+import java.util.Map;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AxeMessages;
 
@@ -44,6 +50,7 @@ import java.util.UUID;
 import static art.arcane.adapt.util.data.Metadata.VEIN_MINED;
 
 public class AxeIrisFeller extends SimpleAdaptation<AxeIrisFeller.Config> {
+  private final Map<UUID, IrisFellerRunHooks> activeRuns = playerState();
   private final Cooldowns activationCooldown = cooldowns();
 
   public AxeIrisFeller() {
@@ -61,6 +68,29 @@ public class AxeIrisFeller extends SimpleAdaptation<AxeIrisFeller.Config> {
       case 3 -> 75;
       default -> throw new IllegalStateException("Unexpected Iris Feller level");
     };
+  }
+
+  @EventHandler(ignoreCancelled = true)
+  public void on(PlayerToggleSneakEvent event) {
+    if (event.isSneaking()) {
+      IrisFellerRunHooks run = activeRuns.remove(event.getPlayer().getUniqueId());
+      if (run != null) {
+        run.cancelled = true;
+      }
+    }
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    IrisFellerRunHooks run = activeRuns.remove(player.getPlayer().getUniqueId());
+    if (run != null) {
+      run.cancelled = true;
+    }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, AxePreferences.LATCH, AxePreferences.RESERVE, AxePreferences.WORK);
   }
 
   public void addStats(int level, Element element) {
@@ -102,7 +132,7 @@ public class AxeIrisFeller extends SimpleAdaptation<AxeIrisFeller.Config> {
     }
 
     int hungerCost = getHungerCost();
-    if (player.getFoodLevel() < hungerCost) {
+    if (!preference(player, AxePreferences.RESERVE).permits(player.getFoodLevel() - hungerCost)) {
       return;
     }
 
@@ -164,21 +194,35 @@ public class AxeIrisFeller extends SimpleAdaptation<AxeIrisFeller.Config> {
   private final class IrisFellerRunHooks implements IrisTreeFellerLink.RunHooks {
     private final RunCost cost;
     private int reservedHunger;
+    private int committedLogs;
+    private boolean cancelled;
+    private final boolean latched;
 
     private IrisFellerRunHooks(RunCost cost) {
       this.cost = cost;
+      latched = preferenceEnabled(cost.player(), AxePreferences.LATCH);
     }
 
     @Override
     public void onActivationAccepted() {
+      activeRuns.put(cost.playerId(), this);
       if (cost.cooldownMillis() > 0L) {
         activationCooldown.mark(cost.playerId());
       }
     }
 
     @Override
+    public boolean requiresSneaking() {
+      return !latched;
+    }
+
+    @Override
     public boolean reserveLogCost() {
-      if (reservedHunger > 0) {
+      if (cancelled || activeRuns.get(cost.playerId()) != this || getActiveLevel(cost.player()) <= 0
+          || (preference(cost.player(), AxePreferences.WORK) != CommonPreferences.Scale.FULL
+          && committedLogs >= (preference(cost.player(), AxePreferences.WORK) == CommonPreferences.Scale.HALF ? 128 : 64))
+          || !preference(cost.player(), AxePreferences.RESERVE).permits(cost.player().getFoodLevel() - cost.hungerCost())
+          || reservedHunger > 0) {
         return false;
       }
       if (cost.hungerCost() == 0) {
@@ -195,6 +239,7 @@ public class AxeIrisFeller extends SimpleAdaptation<AxeIrisFeller.Config> {
 
     @Override
     public void commitLogCost() {
+      committedLogs++;
       if (reservedHunger == 0) {
         return;
       }

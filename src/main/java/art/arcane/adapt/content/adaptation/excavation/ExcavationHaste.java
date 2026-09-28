@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
 
@@ -46,6 +51,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
+  public static final PlayerPreference<CommonPreferences.Scale> TIER = CommonPreferences.scale("tier", ExcavationMessages.PREFERENCE_EXCAVATIONHASTE_TIER);
+
   private final Map<UUID, Long> hasteUntil = playerState();
   private final Map<UUID, Integer> hasteLevel = playerState();
 
@@ -71,6 +78,17 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TIER);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(ExcavationMessages.HASTE_LORE1));
     statLore(v, C.GREEN, "", level, 2);
@@ -79,12 +97,12 @@ public class ExcavationHaste extends SimpleAdaptation<ExcavationHaste.Config> {
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockDamageEvent e) {
     Player p = e.getPlayer();
-    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveInteractContext(p, e.getBlock().getLocation());
+    Adaptation.BlockActionContext context = resolveInteractContext(p, e.getBlock().getLocation());
     if (context == null) {
       return;
     }
 
-    int level = context.level();
+    int level = Math.max(1, (int) Math.floor(context.level() * preference(p, TIER).multiplier()));
     int durationTicks = getHasteDurationTicks();
     AdaptAttributeService.get().applyTimed(p, getName(), "haste", Attributes.BLOCK_BREAK_SPEED,
         hasteAmount(level), AttributeModifier.Operation.ADD_SCALAR, durationTicks);

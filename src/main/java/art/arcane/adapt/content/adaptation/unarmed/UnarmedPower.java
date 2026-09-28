@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -74,6 +75,11 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
         .build());
     registerMilestone("challenge_unarmed_power_500", "unarmed.power.unarmed-kills", 500, 400);
     registerMilestone("challenge_unarmed_power_5k", "unarmed.power.unarmed-kills", 5000, 1500);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    reconcile(player.getPlayer());
   }
 
   @Override
@@ -191,7 +197,7 @@ public class UnarmedPower extends SimpleAdaptation<UnarmedPower.Config> {
   }
 
   private void reconcileWith(Player p, ItemStack mainHand, ItemStack offHand) {
-    if (p == null || !p.isOnline() || getLevel(p) <= 0) {
+    if (p == null || !p.isOnline()) {
       return;
     }
 

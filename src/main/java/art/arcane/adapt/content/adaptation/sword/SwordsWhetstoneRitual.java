@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
@@ -73,6 +77,18 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (getActiveLevel(player.getPlayer()) <= 0) {
+      AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+    }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SwordPreferences.DURABILITY, SwordPreferences.XP);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getBuffStrength(level) + 1D, 0), 1);
     statLore(v, Form.duration(getBuffDurationTicks(level) * 50D, 1), 2);
@@ -120,7 +136,8 @@ public class SwordsWhetstoneRitual extends SimpleAdaptation<SwordsWhetstoneRitua
     }
 
     int xpCost = getConfig().xpCost;
-    if (p.getLevel() < xpCost) {
+    if (!preference(p, SwordPreferences.XP).permits(p.getLevel(), xpCost)
+        || !preference(p, SwordPreferences.DURABILITY).permits(hand, getConfig().durabilityCost)) {
       e.setCancelled(true);
       fx(p.getLocation().add(0, 1, 0), FxPriority.GAMEPLAY)
           .sound(Sound.BLOCK_GRINDSTONE_USE, 0.4F, 0.6F);

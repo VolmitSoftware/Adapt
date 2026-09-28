@@ -1,5 +1,10 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.KineticsMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
@@ -17,6 +22,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 
 public class KineticsReboundAnvil extends SimpleAdaptation<KineticsReboundAnvil.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> BOUNCE = CommonPreferences.toggle("bounce", KineticsMessages.KINETICSREBOUNDANVIL_PREFERENCE_BOUNCE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> CUSHION = CommonPreferences.toggle("cushion", KineticsMessages.KINETICSREBOUNDANVIL_PREFERENCE_CUSHION, CommonPreferences.Toggle.ON);
+
   private static final String SLOT_COIL = "coil";
   private static final String SLOT_CUSHION = "cushion";
 
@@ -25,6 +33,16 @@ public class KineticsReboundAnvil extends SimpleAdaptation<KineticsReboundAnvil.
     registerConfiguration(Config.class);
     setIcon(Material.SLIME_BLOCK);
     setInterval(9999);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BOUNCE, CUSHION);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
   }
 
   @Override
@@ -50,10 +68,10 @@ public class KineticsReboundAnvil extends SimpleAdaptation<KineticsReboundAnvil.
 
     long windowTicks = getWindowTicks(level);
     AdaptAttributeService attributes = AdaptAttributeService.get();
-    if (Attributes.BOUNCINESS != null) {
+    if (Attributes.BOUNCINESS != null && preferenceEnabled(p, BOUNCE)) {
       attributes.applyTimed(p, getName(), SLOT_COIL, Attributes.BOUNCINESS, getBounciness(level), AttributeModifier.Operation.ADD_NUMBER, windowTicks);
     }
-    if (Attributes.FALL_DAMAGE_MULTIPLIER != null) {
+    if (Attributes.FALL_DAMAGE_MULTIPLIER != null && preferenceEnabled(p, CUSHION)) {
       attributes.applyTimed(p, getName(), SLOT_CUSHION, Attributes.FALL_DAMAGE_MULTIPLIER, -getFallRelief(level), AttributeModifier.Operation.MULTIPLY_SCALAR_1, windowTicks);
     }
     addStat(p, "kinetics.rebound.windows", 1);

@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
@@ -88,6 +90,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
 public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CLOCK_SOUNDS = CommonPreferences.toggle("clock-sounds", ChronosMessages.PREFERENCE_CHRONOSTIMEBOMB_CLOCK_SOUNDS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> PRIVATE_VISUALS = CommonPreferences.toggle("private-visuals", ChronosMessages.PREFERENCE_CHRONOSTIMEBOMB_PRIVATE_VISUALS, CommonPreferences.Toggle.OFF);
+
   private static final EnumSet<Action> SUPPORTED_ACTIONS = EnumSet.of(
       Action.RIGHT_CLICK_AIR,
       Action.RIGHT_CLICK_BLOCK
@@ -211,6 +216,12 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     super.unregister();
   }
 
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CLOCK_SOUNDS, PRIVATE_VISUALS);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getRadius(level), 1), 1);
@@ -290,7 +301,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     if (cooldown > now) {
       e.setCancelled(true);
       ItemCooldowns.pushGroup(p, ChronoTimeBombItem.COOLDOWN_GROUP, cooldown - now);
-      if (getConfig().playClockSounds) {
+      if (getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS)) {
         ChronosSoundFX.playClockReject(p);
       }
     }
@@ -327,7 +338,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     long cooldown = cooldowns.getOrDefault(p.getUniqueId(), 0L);
     if (cooldown > now) {
       e.setCancelled(true);
-      if (getConfig().playClockSounds) {
+      if (getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS)) {
         ChronosSoundFX.playClockReject(p);
       }
       return;
@@ -347,7 +358,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     activeBombProjectiles.put(potion.getUniqueId(), new ArmedBombProjectile(p.getUniqueId(), level, now));
     wakeRuntime();
 
-    if (getConfig().playClockSounds) {
+    if (getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS)) {
       ChronosSoundFX.playTimeBombArm(p);
     }
   }
@@ -391,29 +402,31 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         now,
         now,
         now);
+    Player owner = Bukkit.getPlayer(ownerId);
+    field.clockSounds = preferenceEnabled(owner, CLOCK_SOUNDS);
+    field.privateVisuals = preferenceEnabled(owner, PRIVATE_VISUALS);
     TemporalField replaced = addFieldBounded(field);
     wakeRuntime();
     if (replaced != null && claimBudget(immediateFieldFxBudget, 25) == 25) {
       emitFieldThaw(replaced);
     }
 
-    if (getConfig().playClockSounds) {
+    if (getConfig().playClockSounds && field.clockSounds) {
       ChronosSoundFX.playTimeBombDetonate(center);
     }
 
     double fieldRadius = field.radius();
     Location detonateAt = center.clone();
-    fx(detonateAt, FxPriority.GAMEPLAY)
+    fieldFx(field, fx(detonateAt, FxPriority.GAMEPLAY))
         .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
         .particle(Particles.ENCHANTMENT_TABLE, 24, 0, 0.3D, 0, fieldRadius * 0.4D, 0.12D);
     timeline(detonateAt)
         .duration(4)
         .priority(FxPriority.GAMEPLAY)
         .cullRadius(fieldRadius + 24)
-        .frame((f, tick, progress) -> f.ring(Particles.END_ROD, 0.5D + (fieldRadius * progress), 16, 0.2D))
+        .frame((f, tick, progress) -> fieldFx(field, f).ring(Particles.END_ROD, 0.5D + (fieldRadius * progress), 16, 0.2D))
         .start();
 
-    Player owner = Bukkit.getPlayer(ownerId);
     if (owner != null) {
       xp(owner, center, getConfig().xpOnCast + (level * getConfig().xpPerLevel));
     }
@@ -758,6 +771,10 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     return false;
   }
 
+  private FxEmitter fieldFx(TemporalField field, FxEmitter emitter) {
+    return field.privateVisuals ? emitter.only(Bukkit.getPlayer(field.owner())) : emitter;
+  }
+
   private void spawnFieldSphere(TemporalField field, long now, int particleCount) {
     if (particleCount <= 0 || field.center().getWorld() == null) {
       return;
@@ -765,7 +782,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
     double radius = Math.max(0.1, field.radius());
     double spin = ((now % 3000L) / 3000.0D) * Math.PI * 2D;
-    FxEmitter lattice = fx(field.center(), FxPriority.AMBIENT);
+    FxEmitter lattice = fieldFx(field, fx(field.center(), FxPriority.AMBIENT));
     double goldenAngle = Math.PI * (3D - Math.sqrt(5D));
     for (int i = 0; i < particleCount; i++) {
       double y = 1D - (2D * (i + 0.5D) / particleCount);
@@ -791,7 +808,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
 
     Location center = field.center().clone();
     int portalParticles = Math.max(0, particleBudget - 1);
-    J.runAt(center, () -> fx(center, FxPriority.TRANSITION)
+    J.runAt(center, () -> fieldFx(field, fx(center, FxPriority.TRANSITION))
         .particle(Particle.FLASH, 1, 0, 0, 0, 0, 0)
         .particle(Particle.PORTAL, portalParticles, 0, 0, 0, field.radius() * 0.4D, 0.6D)
         .sound(Sound.BLOCK_BEACON_DEACTIVATE, 0.6F, 0.9F));
@@ -877,7 +894,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
         continue;
       }
       Player player = Bukkit.getPlayer(id);
-      if (player != null && getConfig().playClockSounds) {
+      if (player != null && getConfig().playClockSounds && preferenceEnabled(player, CLOCK_SOUNDS)) {
         J.runEntity(player, () -> {
           if (player.isOnline()) {
             ChronosSoundFX.playCooldownReady(player);
@@ -926,7 +943,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     for (int i = 0; i < fieldCount; i++) {
       TemporalField field = activeFields.get(i);
       boolean visualDue = getConfig().showFieldSphere && now >= field.nextVisualAt();
-      boolean soundDue = getConfig().playClockSounds && now >= field.nextTickSoundAt();
+      boolean soundDue = getConfig().playClockSounds && field.clockSounds && now >= field.nextTickSoundAt();
       if (!visualDue && !soundDue) {
         continue;
       }
@@ -1274,6 +1291,8 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   private static final class TemporalField {
     private final UUID id;
     private final UUID owner;
+    private boolean clockSounds = true;
+    private boolean privateVisuals;
     private final Location center;
     private final double radius;
     private final long expiresAt;

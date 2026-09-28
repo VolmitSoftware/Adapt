@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.NetherMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -40,6 +44,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public class NetherMagmaSkin extends SimpleAdaptation<NetherMagmaSkin.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> RETALIATION = CommonPreferences.toggle("retaliation", NetherMessages.NETHERMAGMASKIN_PREFERENCE_RETALIATION, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> OWN_FIRE = CommonPreferences.toggle("own-fire", NetherMessages.NETHERMAGMASKIN_PREFERENCE_OWN_FIRE, CommonPreferences.Toggle.ON);
+
   public NetherMagmaSkin() {
     super("nether-magma-skin");
     registerConfiguration(Config.class);
@@ -62,6 +69,11 @@ public class NetherMagmaSkin extends SimpleAdaptation<NetherMagmaSkin.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RETALIATION, OWN_FIRE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.duration(getReflectFireTicks(level) * 50D, 1), 1);
     statLore(v, C.RED, "+ ", Form.f(getBonusDamage(level), 1), 2);
@@ -74,7 +86,7 @@ public class NetherMagmaSkin extends SimpleAdaptation<NetherMagmaSkin.Config> {
     }
 
     withAdaptedPlayer(p, e, () -> {
-      if (p.getFireTicks() <= 0) {
+      if (p.getFireTicks() <= 0 || !preferenceEnabled(p, RETALIATION)) {
         return;
       }
       if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK
@@ -123,7 +135,9 @@ public class NetherMagmaSkin extends SimpleAdaptation<NetherMagmaSkin.Config> {
 
       e.setDamage(e.getDamage() + bonus);
       int fire = getBonusFireTicks(level);
-      J.runEntity(target, () -> target.setFireTicks(Math.max(target.getFireTicks(), fire)));
+      if (preferenceEnabled(p, OWN_FIRE)) {
+        J.runEntity(target, () -> target.setFireTicks(Math.max(target.getFireTicks(), fire)));
+      }
       xp(p, bonus * getConfig().xpPerBonusDamage);
       fx(target.getLocation().add(0D, 0.8D, 0D), FxPriority.COMBAT)
           .burst(Particle.FLAME, 5, 0.3D)

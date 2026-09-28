@@ -16,7 +16,6 @@ class AdaptPlayerSnapshotBuilderTest {
     return AdaptPlayerSnapshotBuilder.build(
         previous,
         data,
-        AdaptMutationView.unavailable(),
         curve,
         AdaptPapiFixtures.CONFIGURED_MAX_LEVEL,
         AdaptPapiFixtures.POWER_PER_LEVEL
@@ -130,14 +129,6 @@ class AdaptPlayerSnapshotBuilderTest {
     assertEquals("0", snapshot.zeroLine().band().levelText());
     assertEquals("0.00", snapshot.zeroLine().band().xpText());
     assertEquals(0L, snapshot.zeroLine().knowledge());
-  }
-
-  @Test
-  void shouldReportMutationsAsUnavailableWhenNoMutationSnapshotHasBeenPublished() {
-    AdaptMutationView view = AdaptPlayerSnapshotBuilder.mutationView(null, true, 0L, null);
-    assertEquals(false, view.available());
-    assertEquals(null, view.source());
-    assertSame(view, AdaptMutationView.unavailable());
   }
 
   private static final class CountingCurve implements NewtonCurve {

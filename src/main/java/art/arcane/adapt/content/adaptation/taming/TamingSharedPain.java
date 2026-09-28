@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -73,6 +75,11 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
         .build());
     registerMilestone("challenge_taming_shared_500", "taming.shared-pain.damage-taken", 500, 400);
     registerMilestone("challenge_taming_shared_5k", "taming.shared-pain.damage-taken", 5000, 1500);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TamingPreferences.PETS, TamingPreferences.HEALTH);
   }
 
   @Override
@@ -182,10 +189,10 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
           || !J.isOwnedByCurrentRegion(living)) {
         continue;
       }
-      if (!tameable.isTamed() || !living.isValid() || living.isDead() || !isOwnedBy(tameable, ownerId)) {
+      if (!preference(owner, TamingPreferences.PETS).accepts(living.getType()) || !tameable.isTamed() || !living.isValid() || living.isDead() || !isOwnedBy(tameable, ownerId)) {
         continue;
       }
-      double capacity = living.getHealth() + living.getAbsorptionAmount() - healthFloor;
+      double capacity = living.getHealth() + living.getAbsorptionAmount() - preference(owner, TamingPreferences.HEALTH).floor(living.getMaxHealth(), healthFloor);
       if (capacity > MINIMUM_TRANSFER) {
         pets.add(new PetTarget(living, capacity));
       }

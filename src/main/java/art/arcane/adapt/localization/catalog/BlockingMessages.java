@@ -1,5 +1,6 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.adapt.content.adaptation.blocking.BlockingPreferences;
 import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -89,6 +90,7 @@ public final class BlockingMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    BlockingPreferences.addMessages(builder);
     builder.add(CHAIN_ARMORER_NAME);
     builder.add(CHAIN_ARMORER_DESCRIPTION);
     builder.add(CHAIN_ARMORER_LORE1);

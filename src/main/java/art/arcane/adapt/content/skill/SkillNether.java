@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.content.adaptation.nether.NetherAshwalker;
 import art.arcane.adapt.content.adaptation.nether.NetherBlazeLeech;
 import art.arcane.adapt.content.adaptation.nether.NetherCrimsonFeast;
@@ -267,7 +268,7 @@ public class SkillNether extends SimpleSkill<SkillNether.Config> {
   @Getter
   @Setter
   @NoArgsConstructor
-  public static class Config {
+  public static class Config extends SkillConfig {
     String skillColor = "&8";
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
     private boolean enabled = true;

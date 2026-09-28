@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -69,6 +72,11 @@ public class SwordsLungeStrike extends SimpleAdaptation<SwordsLungeStrike.Config
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SwordPreferences.AIRBORNE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getLungeForce(level), 2), 1);
     statLore(v, Form.f(getBonusReach(level), 1), 2);
@@ -82,7 +90,7 @@ public class SwordsLungeStrike extends SimpleAdaptation<SwordsLungeStrike.Config
     }
 
     Player p = combat.attacker();
-    if (!p.isSprinting()) {
+    if (!p.isSprinting() || (preferenceEnabled(p, SwordPreferences.AIRBORNE) && p.isOnGround())) {
       return;
     }
 

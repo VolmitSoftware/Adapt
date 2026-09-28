@@ -50,6 +50,10 @@ public final class IrisTreeFellerLink {
   }
 
   public interface RunHooks {
+    default boolean requiresSneaking() {
+      return true;
+    }
+
     void onActivationAccepted();
 
     boolean reserveLogCost();

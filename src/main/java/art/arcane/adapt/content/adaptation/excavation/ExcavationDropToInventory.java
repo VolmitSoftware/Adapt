@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
@@ -48,6 +50,9 @@ import java.util.HashMap;
 import java.util.List;
 
 public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropToInventory.Config> {
+  public static final PlayerPreference<ExcavationPreferences.Materials> MATERIALS = ExcavationPreferences.materials("materials", ExcavationMessages.PREFERENCE_EXCAVATIONDROPTOINVENTORY_MATERIALS);
+  public static final PlayerPreference<CommonPreferences.Toggle> BLOCKS_ONLY = CommonPreferences.toggle("blocks-only", ExcavationMessages.PREFERENCE_EXCAVATIONDROPTOINVENTORY_BLOCKS_ONLY, CommonPreferences.Toggle.OFF);
+
   public ExcavationDropToInventory() {
     super("excavation-drop-to-inventory");
     registerConfiguration(ExcavationDropToInventory.Config.class);
@@ -62,6 +67,11 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_dti_10k", "excavation.drop-to-inv.items-caught", 10000, 500);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, MATERIALS, BLOCKS_ONLY);
   }
 
   public void addStats(int level, Element v) {
@@ -84,6 +94,10 @@ public class ExcavationDropToInventory extends SimpleAdaptation<ExcavationDropTo
     boolean overflow = false;
     for (Item i : items) {
       ItemStack stack = i.getItemStack().clone();
+      if (preferenceEnabled(p, BLOCKS_ONLY) && !stack.getType().isBlock()
+          || !preference(p, MATERIALS).allows(stack.getType())) {
+        continue;
+      }
       int remaining = ProtectionEventProbe.remainingAfterPickup(p.getInventory(), stack);
       if (!ProtectionEventProbe.attemptBlockDropPickup(p, i, remaining, e.getBlock().getLocation()) || i.isDead()) {
         continue;

@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AxeMessages;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
@@ -65,6 +67,11 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
     registerMilestone("challenge_axe_dti_5k", "axe.drop-to-inv.items-caught", 5000, 500);
   }
 
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, AxePreferences.ITEMS);
+  }
+
   public void addStats(int level, Element v) {
     v.addLore(C.GRAY + AdaptLanguage.text(PickaxeMessages.DROP_TO_INVENTORY_LORE1));
   }
@@ -90,6 +97,9 @@ public class AxeDropToInventory extends SimpleAdaptation<AxeDropToInventory.Conf
     int caught = 0;
     boolean overflow = false;
     for (Item i : items) {
+      if (!preference(p, AxePreferences.ITEMS).accepts(i.getItemStack().getType())) {
+        continue;
+      }
       ItemStack stack = i.getItemStack().clone();
       int remaining = ProtectionEventProbe.remainingAfterPickup(p.getInventory(), stack);
       if (!ProtectionEventProbe.attemptBlockDropPickup(p, i, remaining, e.getBlock().getLocation()) || i.isDead()) {

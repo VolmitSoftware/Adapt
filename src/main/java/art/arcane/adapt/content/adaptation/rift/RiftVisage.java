@@ -10,8 +10,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.content.mutation.runtime.MutationUtilityTag;
-import art.arcane.adapt.service.MutationRuntimeSVC;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -76,7 +74,6 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
     }
 
     event.setCancelled(true);
-    emitFormulaUtility(player, enderman);
     long now = System.currentTimeMillis();
     Long lastCredit = stareCredits.get(enderman.getUniqueId());
     if (lastCredit == null || now - lastCredit >= STARE_STAT_WINDOW_MILLIS) {
@@ -100,13 +97,6 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
     stareCredits.values().removeIf(at -> now - at >= STARE_STAT_WINDOW_MILLIS);
   }
 
-  private void emitFormulaUtility(Player player, Enderman enderman) {
-    MutationRuntimeSVC runtime = MutationRuntimeSVC.get();
-    if (runtime != null) {
-      runtime.emitAnomalyUtility(player, enderman, MutationUtilityTag.INTERRUPTION, 0.5D, false);
-    }
-  }
-
   private boolean hasEnderPearl(Player player) {
     for (ItemStack item : player.getInventory().getContents()) {
       if (item != null && item.getType() == Material.ENDER_PEARL) {
@@ -115,7 +105,6 @@ public class RiftVisage extends SimpleAdaptation<RiftVisage.Config> {
     }
     return false;
   }
-
 
   @ConfigDescription("Prevents Endermen from becoming aggressive when you carry Enderpearls.")
   protected static class Config extends AdaptationConfig {

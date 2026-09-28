@@ -1,5 +1,10 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.KineticsMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -21,6 +26,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 
 public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> BASE_JUMP = CommonPreferences.toggle("base-jump", KineticsMessages.KINETICSMOONJUMP_PREFERENCE_BASE_JUMP, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<Hop> HOP = new PlayerPreference<>(Hop.class,
+      new PlayerPreference.Definition<>("hop", KineticsMessages.KINETICSMOONJUMP_PREFERENCE_HOP, Hop.SNEAK, List.of(
+          new PlayerPreference.Choice<>(Hop.SNEAK, KineticsMessages.KINETICSMOONJUMP_PREFERENCE_HOP_SNEAK, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Hop.ALWAYS, KineticsMessages.KINETICSMOONJUMP_PREFERENCE_HOP_ALWAYS, Material.FEATHER, 1),
+          new PlayerPreference.Choice<>(Hop.NEVER, KineticsMessages.KINETICSMOONJUMP_PREFERENCE_HOP_NEVER, Material.RED_STAINED_GLASS_PANE, 1))));
+
   private static final String SLOT_BASE_JUMP = "base-jump";
   private static final String SLOT_HOP = "hop";
   private static final String SLOT_FLOAT = "float";
@@ -41,6 +53,17 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
         this::getInterval,
         this::reconcileBaseJump
     );
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BASE_JUMP, HOP);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+    reconcileBaseJump(player.getPlayer());
   }
 
   @Override
@@ -68,7 +91,7 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
       }
 
       applyBaseJump(p, level);
-      if (!p.isSneaking() || !canUse(getPlayer(p))) {
+      if (preference(p, HOP) == Hop.NEVER || (preference(p, HOP) == Hop.SNEAK && !p.isSneaking()) || !canUse(getPlayer(p))) {
         return;
       }
 
@@ -132,6 +155,10 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
   }
 
   private void applyBaseJump(Player p, int level) {
+    if (!preferenceEnabled(p, BASE_JUMP)) {
+      removeBaseJump(p);
+      return;
+    }
     if (Attributes.JUMP_STRENGTH != null) {
       AdaptAttributeService.get().apply(p, getName(), SLOT_BASE_JUMP, Attributes.JUMP_STRENGTH,
           baseJumpStrengthBonus(level), AttributeModifier.Operation.ADD_NUMBER);
@@ -178,4 +205,6 @@ public class KineticsMoonJump extends SimpleAdaptation<KineticsMoonJump.Config> 
       initialCost = 2;
     }
   }
+
+  public enum Hop { SNEAK, ALWAYS, NEVER }
 }

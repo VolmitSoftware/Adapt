@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
 
@@ -64,6 +68,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSlide.Config> {
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", AgilityMessages.AGILITYSLIPSTREAMSLIDE_PREFERENCE_CONTROL, Control.TAP, List.of(
+          new PlayerPreference.Choice<>(Control.TAP, AgilityMessages.AGILITYSLIPSTREAMSLIDE_PREFERENCE_CONTROL_TAP, Material.FEATHER, 1),
+          new PlayerPreference.Choice<>(Control.HOLD, AgilityMessages.AGILITYSLIPSTREAMSLIDE_PREFERENCE_CONTROL_HOLD, Material.LEATHER_BOOTS, 1))));
+  public static final PlayerPreference<CommonPreferences.Scale> DURATION = CommonPreferences.scale("duration", AgilityMessages.AGILITYSLIPSTREAMSLIDE_PREFERENCE_DURATION);
+
   private static final int FRICTION_CLEANUP_GRACE_TICKS = 2;
   private static final double LEGACY_SLIDE_TICKS_BASE = 7D;
   private static final double LEGACY_SLIDE_TICKS_FACTOR = 5D;
@@ -94,6 +104,16 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
         .build());
     registerMilestone("challenge_agility_slipstream_500", "agility.slipstream-slide.slides", 500, 400);
     registerMilestone("challenge_agility_slipstream_5k", "agility.slipstream-slide.slides", 5000, 1500);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONTROL, DURATION);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    stopForcedPose(player.getPlayer());
   }
 
   @Override
@@ -143,6 +163,9 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     if (!e.isSneaking()) {
+      if (preference(e.getPlayer(), CONTROL) == Control.HOLD) {
+        stopForcedPose(e.getPlayer());
+      }
       return;
     }
 
@@ -201,7 +224,7 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
     Vector velocity = direction.multiply(force);
     velocity.setY(Math.min(p.getVelocity().getY(), -0.04D));
     p.setVelocity(velocity);
-    startProne(p, getSlideTicks(level), getSlideFrictionReduction(), Attributes.FRICTION_MODIFIER);
+    startProne(p, Math.max(3, (int) (getSlideTicks(level) * preference(p, DURATION).multiplier())), getSlideFrictionReduction(), Attributes.FRICTION_MODIFIER);
 
     fx(p.getLocation(), FxPriority.GAMEPLAY)
         .trail(Particle.CLOUD, -direction.getX(), 0.05D, -direction.getZ(), 1.0D, 6)
@@ -258,7 +281,8 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
       return;
     }
 
-    if (!p.isOnline() || p.isDead() || isSlideInterrupted(p)) {
+    if (!p.isOnline() || p.isDead() || !hasActiveAdaptation(p) || isSlideInterrupted(p)
+        || (preference(p, CONTROL) == Control.HOLD && !p.isSneaking())) {
       finishForcedPose(state);
       return;
     }
@@ -328,7 +352,8 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
   }
 
   private void runSlideSlow(Player p, int ticksLeft, int slowDurationTicks, double slowAmount) {
-    if (ticksLeft <= 0 || slowDurationTicks <= 0 || !p.isOnline() || p.isDead()) {
+    if (ticksLeft <= 0 || slowDurationTicks <= 0 || !p.isOnline() || p.isDead()
+        || !forcedPoses.containsKey(p.getUniqueId()) || !isPlayerEnabled(p)) {
       return;
     }
 
@@ -475,4 +500,6 @@ public class AgilitySlipstreamSlide extends SimpleAdaptation<AgilitySlipstreamSl
       this.frictionApplied = frictionApplied;
     }
   }
+
+  public enum Control { TAP, HOLD }
 }

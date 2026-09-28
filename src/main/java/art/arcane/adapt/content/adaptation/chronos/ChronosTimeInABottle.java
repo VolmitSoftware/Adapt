@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
@@ -76,6 +78,14 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CLOCK_SOUNDS = CommonPreferences.toggle("clock-sounds", ChronosMessages.PREFERENCE_CHRONOSTIMEINABOTTLE_CLOCK_SOUNDS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> TREES = CommonPreferences.toggle("trees", ChronosMessages.PREFERENCE_CHRONOSTIMEINABOTTLE_TREES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FURNACES = CommonPreferences.toggle("furnaces", ChronosMessages.PREFERENCE_CHRONOSTIMEINABOTTLE_FURNACES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BREWING = CommonPreferences.toggle("brewing", ChronosMessages.PREFERENCE_CHRONOSTIMEINABOTTLE_BREWING, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> CAMPFIRES = CommonPreferences.toggle("campfires", ChronosMessages.PREFERENCE_CHRONOSTIMEINABOTTLE_CAMPFIRES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> GROWTH = CommonPreferences.toggle("growth", ChronosMessages.PREFERENCE_CHRONOSTIMEINABOTTLE_GROWTH, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> ANIMALS = CommonPreferences.toggle("animals", ChronosMessages.PREFERENCE_CHRONOSTIMEINABOTTLE_ANIMALS, CommonPreferences.Toggle.ON);
+
   private static final String RECIPE_KEY = "chronos-time-in-a-bottle";
   private static final long CHARGE_INTERVAL_MILLIS = 1000L;
   private static final int HARD_MAX_PLAYERS_PER_PASS = 32;
@@ -151,10 +161,16 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
     if (!hasSwiftnessPotion) {
       e.setCancelled(true);
-      if (e.getWhoClicked() instanceof Player p && getConfig().playClockSounds) {
+      if (e.getWhoClicked() instanceof Player p && (getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
         ChronosSoundFX.playClockReject(p);
       }
     }
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CLOCK_SOUNDS, TREES, FURNACES, BREWING, CAMPFIRES, GROWTH, ANIMALS);
   }
 
   @Override
@@ -361,9 +377,10 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerItemConsumeEvent e) {
+    Player p = e.getPlayer();
     if (ChronoTimeBottle.isBindableItem(e.getItem())) {
       e.setCancelled(true);
-      if (getConfig().playClockSounds) {
+      if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
         ChronosSoundFX.playClockReject(e.getPlayer());
       }
     }
@@ -437,7 +454,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     addStat(p, "chronos.time-bottle.seconds-spent", result.spentSeconds());
 
     Location burstAt = clicked.getLocation().add(0.5, 1.0, 0.5);
-    if (getConfig().playClockSounds) {
+    if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
       ChronosSoundFX.playBottleUse(p, burstAt, result.effectTicks());
     }
     emitBlockUseFx(clicked, burstAt);
@@ -513,7 +530,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
       return;
     }
 
-    if (!(e.getRightClicked() instanceof org.bukkit.entity.Ageable ageable)) {
+    if (!preferenceEnabled(p, ANIMALS) || !(e.getRightClicked() instanceof org.bukkit.entity.Ageable ageable)) {
       return;
     }
 
@@ -542,7 +559,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
     addStat(p, "chronos.time-bottle.seconds-spent", result.spentSeconds());
 
     Location entityBurst = ageable.getLocation().add(0, 1.0, 0);
-    if (getConfig().playClockSounds) {
+    if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
       ChronosSoundFX.playBottleUse(p, entityBurst, result.effectTicks());
     }
     fx(entityBurst, FxPriority.TRANSITION)
@@ -588,18 +605,27 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
 
   private TimeSpendResult accelerateTarget(Player player, Block clicked, double storedSeconds, int level) {
     if (clicked.getState() instanceof Furnace furnace) {
+      if (!preferenceEnabled(player, FURNACES)) {
+        return TimeSpendResult.none();
+      }
       return accelerateFurnace(furnace, storedSeconds, level);
     }
 
     if (clicked.getState() instanceof BrewingStand brewingStand) {
+      if (!preferenceEnabled(player, BREWING)) {
+        return TimeSpendResult.none();
+      }
       return accelerateBrewingStand(brewingStand, storedSeconds, level);
     }
 
     if (clicked.getState() instanceof Campfire campfire) {
+      if (!preferenceEnabled(player, CAMPFIRES)) {
+        return TimeSpendResult.none();
+      }
       return accelerateCampfire(player, clicked, campfire, storedSeconds, level);
     }
 
-    return accelerateGrowables(player, clicked, storedSeconds, level);
+    return preferenceEnabled(player, GROWTH) ? accelerateGrowables(player, clicked, storedSeconds, level) : TimeSpendResult.none();
   }
 
   private TimeSpendResult accelerateFurnace(Furnace furnace, double storedSeconds, int level) {
@@ -760,7 +786,7 @@ public class ChronosTimeInABottle extends SimpleAdaptation<ChronosTimeInABottle.
         return true;
       }
 
-      if (!getConfig().allowSaplingTreeGeneration) {
+      if (!getConfig().allowSaplingTreeGeneration || !preferenceEnabled(player, TREES)) {
         return false;
       }
 

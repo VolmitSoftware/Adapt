@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +83,45 @@ class ChronosBorrowedTimeDamageTest extends AdaptTestBase {
   }
 
   @Test
+  void invulnerabilityPreservesDebtUntilEveryPulseCanBeApplied() throws Exception {
+    QuietBorrowedTime borrowedTime = new QuietBorrowedTime();
+    Player player = mock(Player.class);
+    PersistentDataContainer data = mock(PersistentDataContainer.class);
+    UUID id = UUID.randomUUID();
+    when(player.getUniqueId()).thenReturn(id);
+    when(player.isOnline()).thenReturn(true);
+    when(player.getHealth()).thenReturn(16.4D);
+    when(player.getPersistentDataContainer()).thenReturn(data);
+    when(player.getMaximumNoDamageTicks()).thenReturn(20);
+    when(player.getNoDamageTicks()).thenReturn(11);
+    Deque<ChronosBorrowedTime.DeferredDamage> queue = new ConcurrentLinkedDeque<>();
+    queue.add(new ChronosBorrowedTime.DeferredDamage(0.24D, 10));
+    deferred(borrowedTime).put(id, queue);
+    Method settle = ChronosBorrowedTime.class.getDeclaredMethod("settleDeferredDamage", Player.class, Deque.class);
+    settle.setAccessible(true);
+
+    settle.invoke(borrowedTime, player, queue);
+
+    assertThat(ChronosBorrowedTime.encodeDeferredDamage(queue)).isEqualTo("0.24,10");
+    assertThat(deferred(borrowedTime)).containsEntry(id, queue);
+    assertThat(borrowedTime.paybacks).isEmpty();
+    verify(data, never()).set(any(), same(PersistentDataType.STRING), any());
+    verify(data, never()).remove(any());
+
+    when(player.getNoDamageTicks()).thenReturn(10);
+    settle.invoke(borrowedTime, player, queue);
+    verify(data).set(any(), same(PersistentDataType.STRING), eq("0.24,9"));
+    for (int pulse = 1; pulse < 10; pulse++) {
+      settle.invoke(borrowedTime, player, queue);
+    }
+
+    assertThat(borrowedTime.paybacks).hasSize(10).allMatch(amount -> amount == 0.24D);
+    assertThat(queue).isEmpty();
+    assertThat(deferred(borrowedTime)).doesNotContainKey(id);
+    verify(data).remove(any());
+  }
+
+  @Test
   void logoutPersistsDebtBeforeDroppingTheRuntimeCopy() throws Exception {
     ChronosBorrowedTime borrowedTime = new ChronosBorrowedTime();
     Player player = mock(Player.class);
@@ -111,5 +152,19 @@ class ChronosBorrowedTimeDamageTest extends AdaptTestBase {
     Field field = ChronosBorrowedTime.class.getDeclaredField("deferred");
     field.setAccessible(true);
     return (Map<UUID, Deque<ChronosBorrowedTime.DeferredDamage>>) field.get(borrowedTime);
+  }
+
+  private static final class QuietBorrowedTime extends ChronosBorrowedTime {
+    private final List<Double> paybacks = new ArrayList<>();
+
+    @Override
+    protected void applyPlayerDamage(Player player, double amount) {
+      assertThat(isApplyingPaybackDamage()).isTrue();
+      paybacks.add(amount);
+    }
+
+    @Override
+    void emitPaybackFeedback(Player player, double damage, boolean cleared) {
+    }
   }
 }

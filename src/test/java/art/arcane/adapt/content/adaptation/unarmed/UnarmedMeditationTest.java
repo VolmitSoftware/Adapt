@@ -1,6 +1,14 @@
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.api.version.IAttribute;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerToggleSneakEvent;
+import org.mockito.MockedStatic;
 import art.arcane.volmlib.util.collection.KList;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeModifier;
@@ -14,12 +22,38 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
-class UnarmedMeditationTest {
+class UnarmedMeditationTest extends AdaptTestBase {
+  @Test
+  void unarmedManualMeditationCannotPulseBeforeMaintenance() {
+    UnarmedMeditation adaptation = new UnarmedMeditation() {
+      @Override
+      public boolean preferenceEnabled(Player player, PlayerPreference<CommonPreferences.Toggle> preference) {
+        return preference == UnarmedPreferences.MANUAL;
+      }
+    };
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
+    when(player.getLocation()).thenReturn(new Location(null, 0, 64, 0));
+    when(player.isOnline()).thenReturn(true);
+    when(player.isSneaking()).thenReturn(true);
+    try (MockedStatic<J> scheduler = mockStatic(J.class)) {
+      scheduler.when(() -> J.runEntity(eq(player), any(Runnable.class), eq(20))).thenReturn(true);
+      adaptation.on(new PlayerToggleSneakEvent(player, true));
+      ArgumentCaptor<Runnable> pulse = ArgumentCaptor.forClass(Runnable.class);
+      scheduler.verify(() -> J.runEntity(eq(player), pulse.capture(), eq(20)));
+      pulse.getValue().run();
+      verify(player, never()).getInventory();
+      verify(player, never()).setAbsorptionAmount(anyDouble());
+      scheduler.verify(() -> J.runEntity(eq(player), any(Runnable.class), eq(20)));
+    }
+  }
+
   @Test
   void tickDemandRetainsSessionAndCapacityCleanupWithoutLearners() {
     assertThat(UnarmedMeditation.requiresMaintenance(false, false, false)).isFalse();

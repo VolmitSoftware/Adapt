@@ -83,6 +83,11 @@ public class StealthGhostArmor extends SimpleAdaptation<StealthGhostArmor.Config
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    stopSession(player.getPlayer());
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getMaxArmorPoints(getLevelPercent(level)), 0), 1);
     statLore(v, Form.f(getMaxArmorPerTick(getLevelPercent(level)), 1), 2);

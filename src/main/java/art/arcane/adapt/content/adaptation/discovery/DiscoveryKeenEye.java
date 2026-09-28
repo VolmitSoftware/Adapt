@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.localization.catalog.DiscoveryMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -48,6 +52,11 @@ import java.util.Collection;
 import java.util.UUID;
 
 public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> {
+  public static final PlayerPreference<DiscoveryPreferences.Palette> COLOR = DiscoveryPreferences.palette("color", DiscoveryMessages.PREFERENCE_DISCOVERYKEENEYE_COLOR);
+  public static final PlayerPreference<CommonPreferences.Toggle> CHESTS = CommonPreferences.toggle("chests", DiscoveryMessages.PREFERENCE_DISCOVERYKEENEYE_CHESTS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SPAWNERS = CommonPreferences.toggle("spawners", DiscoveryMessages.PREFERENCE_DISCOVERYKEENEYE_SPAWNERS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Scale> RANGE = CommonPreferences.scale("range", DiscoveryMessages.PREFERENCE_DISCOVERYKEENEYE_RANGE);
+
   private static final int HARD_MAX_HIGHLIGHTS = 8;
   private static final Color CHEST_COLOR = Color.fromRGB(255, 205, 70);
   private static final Color SPAWNER_COLOR = Color.fromRGB(120, 220, 255);
@@ -73,6 +82,17 @@ public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> 
         .build());
     registerMilestone("challenge_discovery_keeneye_250", "discovery.keen-eye.glimmers", 250, 300);
     registerMilestone("challenge_discovery_keeneye_2500", "discovery.keen-eye.glimmers", 2500, 1200);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    ViewerDisplayDirector.clearViewer(getName(), player.getPlayer().getUniqueId());
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, COLOR, CHESTS, SPAWNERS, RANGE);
   }
 
   @Override
@@ -111,7 +131,7 @@ public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> 
       return;
     }
 
-    double range = range(getLevelPercent(level), getConfig().rangeBase, getConfig().rangeFactor);
+    double range = range(getLevelPercent(level), getConfig().rangeBase, getConfig().rangeFactor) * preference(player, RANGE).multiplier();
     int glimmerTicks = glimmerDurationTicks(getLevelPercent(level), getConfig().glimmerDurationTicksBase, getConfig().glimmerDurationTicksFactor);
     Location eye = player.getEyeLocation();
     Vector look = eye.getDirection();
@@ -134,7 +154,7 @@ public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> 
 
         Collection<BlockState> tiles;
         try {
-          tiles = world.getChunkAt(chunkX, chunkZ).getTileEntities(block -> isKeenTarget(block.getType()), false);
+          tiles = world.getChunkAt(chunkX, chunkZ).getTileEntities(block -> isKeenTarget(block.getType()) && preferenceEnabled(player, isSpawner(block.getType()) ? SPAWNERS : CHESTS), false);
         } catch (Throwable t) {
           continue;
         }
@@ -187,7 +207,7 @@ public class DiscoveryKeenEye extends SimpleAdaptation<DiscoveryKeenEye.Config> 
 
   private void glimmer(Player player, BlockState state, int ticks) {
     Location at = new Location(state.getWorld(), state.getX(), state.getY(), state.getZ());
-    Color color = isSpawner(state.getType()) ? SPAWNER_COLOR : CHEST_COLOR;
+    Color color = preference(player, COLOR).color(isSpawner(state.getType()) ? SPAWNER_COLOR : CHEST_COLOR);
     ViewerDisplayDirector.showBlock(
         getName(),
         "target-" + state.getX() + ":" + state.getY() + ":" + state.getZ(),

@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.StealthMessages;
 
@@ -52,6 +53,11 @@ public class StealthEnderVeil extends SimpleAdaptation<StealthEnderVeil.Config> 
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_stealth_ender_veil_200", "stealth.ender-veil.stares-survived", 200, 300);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    stopAmbientSession(player.getPlayer());
   }
 
   @Override

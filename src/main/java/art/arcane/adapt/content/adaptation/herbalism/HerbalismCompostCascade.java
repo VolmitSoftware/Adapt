@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.localization.catalog.HerbalismMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -62,6 +65,12 @@ import java.util.Locale;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCascade.Config> {
+  public static final PlayerPreference<HerbalismPreferences.Materials> MATERIALS = HerbalismPreferences.materials("materials", HerbalismMessages.PREFERENCE_HERBALISMCOMPOSTCASCADE_MATERIALS);
+  public static final PlayerPreference<CommonPreferences.Toggle> LEAVES = CommonPreferences.toggle("leaves", HerbalismMessages.PREFERENCE_HERBALISMCOMPOSTCASCADE_LEAVES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> DROPS = CommonPreferences.toggle("dropped-items", HerbalismMessages.PREFERENCE_HERBALISMCOMPOSTCASCADE_DROPS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> INVENTORY = CommonPreferences.toggle("inventory-items", HerbalismMessages.PREFERENCE_HERBALISMCOMPOSTCASCADE_INVENTORY, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> RESERVE = CommonPreferences.toggle("item-reserve", HerbalismMessages.PREFERENCE_HERBALISMCOMPOSTCASCADE_RESERVE, CommonPreferences.Toggle.OFF);
+
   private static final int MAX_COMPOST_LEVEL = 8;
   private static final int SCAN_BLOCK_BUDGET = 24576;
   private static final int MAX_TRACKED_IMMATURE_CROPS = 512;
@@ -87,6 +96,11 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         .build());
     registerMilestone("challenge_herbalism_compost_1k", "herbalism.compost-cascade.items-composted", 1000, 300);
     registerMilestone("challenge_herbalism_compost_25k", "herbalism.compost-cascade.items-composted", 25000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, MATERIALS, LEAVES, DROPS, INVENTORY, RESERVE);
   }
 
   @Override
@@ -153,11 +167,15 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     List<Block> immatureCrops = new ArrayList<>();
 
     state.beginPhase(budget.drops());
-    processDroppedItems(p, world, center, radius, state, fillChance);
+    if (preferenceEnabled(p, DROPS)) {
+      processDroppedItems(p, world, center, radius, state, fillChance);
+    }
     state.beginPhase(budget.growth());
     scanGrowth(p, world, center, radius, level, state, fillChance, immatureCrops);
     state.beginPhase(budget.inventory());
-    processInventoryItems(p, state, fillChance);
+    if (preferenceEnabled(p, INVENTORY)) {
+      processInventoryItems(p, state, fillChance);
+    }
 
     if (state.consumed <= 0) {
       return;
@@ -229,7 +247,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
         continue;
       }
 
-      int transferable = compostProcessCount(stack.getAmount(), state.phaseLimit, state.phaseProcessed);
+      int transferable = compostProcessCount(Math.max(0, stack.getAmount() - (preferenceEnabled(p, RESERVE) ? 8 : 0)), state.phaseLimit, state.phaseProcessed);
       int remaining = stack.getAmount() - transferable;
       if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(item))
           || !ProtectionEventProbe.attemptItemPickup(p, item, remaining)
@@ -260,7 +278,7 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
     int span = (2 * r) + 1;
     int budget = workFor(span * span * span, SCAN_BLOCK_BUDGET);
     double rs = radius * radius;
-    boolean consumeLeaves = getConfig().consumeLeaves;
+    boolean consumeLeaves = getConfig().consumeLeaves && preferenceEnabled(p, LEAVES);
     int bursts = getLeafCompostBursts(level);
     double leafFillChance = getLeafFillChance(level, fillChance);
     int inspected = 0;
@@ -286,6 +304,9 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
             continue;
           }
           Block b = world.getBlockAt(blockX, blockY, blockZ);
+          if (!preference(p, MATERIALS).allows(b.getType())) {
+            continue;
+          }
           BlockData data = b.getBlockData();
           if (data instanceof Ageable ageable && isCropCandidate(b.getType())) {
             if (ageable.getAge() < ageable.getMaximumAge()) {
@@ -442,7 +463,10 @@ public class HerbalismCompostCascade extends SimpleAdaptation<HerbalismCompostCa
   }
 
   private int compostStack(Player p, ItemStack stack, CompostState state, double fillChance) {
-    int processCount = compostProcessCount(stack.getAmount(), state.phaseLimit, state.phaseProcessed);
+    if (!preference(p, MATERIALS).allows(stack.getType())) {
+      return 0;
+    }
+    int processCount = compostProcessCount(Math.max(0, stack.getAmount() - (preferenceEnabled(p, RESERVE) ? 8 : 0)), state.phaseLimit, state.phaseProcessed);
     if (processCount <= 0) {
       return 0;
     }

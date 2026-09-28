@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.localization.catalog.ExcavationMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
@@ -55,6 +59,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> {
+  public static final PlayerPreference<CommonPreferences.Scale> DEPTH = CommonPreferences.scale("depth", ExcavationMessages.PREFERENCE_EXCAVATIONBURROW_DEPTH);
+  public static final PlayerPreference<CommonPreferences.Toggle> FOOD_RESERVE = CommonPreferences.toggle("food-reserve", ExcavationMessages.PREFERENCE_EXCAVATIONBURROW_FOOD_RESERVE, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> DURABILITY_RESERVE = CommonPreferences.toggle("durability-reserve", ExcavationMessages.PREFERENCE_EXCAVATIONBURROW_DURABILITY_RESERVE, CommonPreferences.Toggle.OFF);
+
   private final Cooldowns cooldowns = cooldowns();
 
   public ExcavationBurrow() {
@@ -69,6 +77,12 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_burrow_100", "excavation.burrow.burrows-dug", 100, 450);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, DEPTH, FOOD_RESERVE, DURABILITY_RESERVE);
   }
 
   @Override
@@ -120,7 +134,7 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
       return;
     }
 
-    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveBlockBreakContext(p, clicked.getLocation());
+    Adaptation.BlockActionContext context = resolveBlockBreakContext(p, clicked.getLocation());
     if (context == null) {
       return;
     }
@@ -138,16 +152,17 @@ public class ExcavationBurrow extends SimpleAdaptation<ExcavationBurrow.Config> 
     }
 
     int hungerCost = getConfig().hungerCost;
-    if (p.getFoodLevel() < hungerCost) {
+    if (p.getFoodLevel() - hungerCost < (preferenceEnabled(p, FOOD_RESERVE) ? 8 : 0)) {
       return;
     }
 
-    List<Block> plan = planDig(p, clicked, getMaxDepth(level));
+    List<Block> plan = planDig(p, clicked, Math.max(1, (int) Math.floor(getMaxDepth(level) * preference(p, DEPTH).multiplier())));
     if (plan.isEmpty()) {
       return;
     }
 
-    if (!canApplyDurability(hand, plan.size() * getConfig().durabilityCostPerBlock)) {
+    if (!canApplyDurability(hand, plan.size() * getConfig().durabilityCostPerBlock
+        + (preferenceEnabled(p, DURABILITY_RESERVE) ? hand.getType().getMaxDurability() / 4 : 0))) {
       fx(p.getLocation(), FxPriority.TRANSITION)
           .particle(Particles.SMOKE, 4, 0, 1.0D, 0, 0.15D, 0.01D)
           .chord(Sound.BLOCK_ANVIL_PLACE, 0.5f, 0.65f, Sound.ITEM_SHIELD_BLOCK, 0.3f, 1.4f);

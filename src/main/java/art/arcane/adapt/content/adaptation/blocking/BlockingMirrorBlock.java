@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -92,6 +95,11 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BlockingPreferences.PLAYERS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getReflectChance(level), 0), 1);
     statLore(v, Form.pc(getReflectedDamageFactor(level), 0), 2);
@@ -111,6 +119,9 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
       return;
     }
 
+    if (projectile.getShooter() instanceof Player && !preferenceEnabled(defender, BlockingPreferences.PLAYERS)) {
+      return;
+    }
     int level = getActiveLevel(defender);
     long now = System.currentTimeMillis();
     long next = getStorageLong(defender, "mirrorBlockNext", 0L);

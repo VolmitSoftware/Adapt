@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -103,6 +106,17 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearTargetGlow(player.getPlayer());
+    clearOwnerFocuses(player.getPlayer().getUniqueId());
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TamingPreferences.PETS, TamingPreferences.TARGETS, TamingPreferences.BONES);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getCommandRange(level), 1), 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getFocusTicks(level) * 50D, 1), 2);
@@ -181,7 +195,8 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
   }
 
   private boolean activateCommand(Player p, LivingEntity target) {
-    if (closed.get() || !isEligibleTarget(p, target)) {
+    if (closed.get() || !isEligibleTarget(p, target) || !preference(p, TamingPreferences.TARGETS).accepts(target)
+        || !preference(p, TamingPreferences.BONES).permits(p.getInventory().getItemInMainHand().getAmount(), 1)) {
       return false;
     }
 
@@ -264,7 +279,7 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
         continue;
       }
       if (entity instanceof Mob mob && mob instanceof Tameable tameable && isCombatCapableTameable(mob)
-          && tameable.isTamed() && mob.isValid() && !mob.isDead() && isOwnedBy(tameable, ownerId)) {
+          && preference(owner, TamingPreferences.PETS).accepts(mob.getType()) && tameable.isTamed() && mob.isValid() && !mob.isDead() && isOwnedBy(tameable, ownerId)) {
         pets.add(mob);
         if (pets.size() >= limit) {
           break;

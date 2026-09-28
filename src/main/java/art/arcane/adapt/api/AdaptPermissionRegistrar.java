@@ -20,7 +20,6 @@ package art.arcane.adapt.api;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.skill.Skill;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -56,14 +55,9 @@ public final class AdaptPermissionRegistrar {
       registered += addIfAbsent(pm, new Permission(skillNode,
           "Allows using the " + skill.getName() + " skill and its adaptations", PermissionDefault.TRUE, skillChildren));
     }
-    for (MutationType type : MutationType.values()) {
-      rootChildren.put(type.permission(), Boolean.TRUE);
-      registered += addIfAbsent(pm, new Permission(type.permission(),
-          "Allows using the " + type.id() + " mutation", PermissionDefault.TRUE));
-    }
     if (!rootChildren.isEmpty()) {
       registered += addIfAbsent(pm, new Permission(USE_WILDCARD,
-          "Grants or denies every Adapt skill, adaptation, and mutation use permission",
+          "Grants or denies every Adapt skill and adaptation use permission",
           PermissionDefault.TRUE, rootChildren));
     }
     return registered;

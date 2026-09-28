@@ -20,6 +20,7 @@ package art.arcane.adapt.api.adaptation;
 
 import art.arcane.volmlib.nativelib.player.PlayerClientAccess;
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.AdaptPermissionRegistrar;
 import art.arcane.adapt.api.protection.Protector;
@@ -31,6 +32,7 @@ import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
+import art.arcane.adapt.content.adaptation.stealth.StealthShadowDecoy;
 import art.arcane.adapt.content.event.AdaptAdaptationUseEvent;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.math.M;
@@ -208,6 +210,9 @@ final class AdaptationRuntimeGuards {
     if (adaptation == null || player == null || !player.isRuntimeReady() || player.getPlayer() == null) {
       return false;
     }
+    if (!PlayerPreferences.isEnabled(adaptation, player.getData(), getLevel(adaptation, player))) {
+      return false;
+    }
     if (AdaptConfig.get().isVerbose()) {
       Adapt.verbose("Checking if " + player.getPlayer().getName() + " can use " + adaptation.getName() + "...");
     }
@@ -290,7 +295,7 @@ final class AdaptationRuntimeGuards {
       return true;
     }
 
-    if (TragoulSkeletalServant.isServant(target)) {
+    if (TragoulSkeletalServant.isServant(target) || StealthShadowDecoy.isDecoy(target)) {
       return true;
     }
 
@@ -605,6 +610,11 @@ final class AdaptationRuntimeGuards {
       long nowMs = M.ms();
       long tick = nowMs / 50L;
       int learnedLevel = getLevel(adaptation, p);
+      AdaptPlayer preferenceOwner = runtimePlayer(p);
+      if (learnedLevel <= 0 || preferenceOwner == null
+          || !PlayerPreferences.isEnabled(adaptation, preferenceOwner.getData(), learnedLevel)) {
+        return 0;
+      }
       Map<String, ActiveLevelCacheEntry> playerCache = ACTIVE_LEVEL_CACHE.computeIfAbsent(
           p.getUniqueId(),
           ignored -> new ConcurrentHashMap<>()

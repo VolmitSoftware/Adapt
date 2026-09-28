@@ -36,7 +36,7 @@ Three answers, three meanings:
 
 Every value is plain text: no colour codes, no unit suffixes, no thousands separators, and never a `%` character. Counts are exact integers; fractions and rates carry exactly two decimals. Booleans are `true` or `false`.
 
-Per-player values come from an immutable snapshot published once per second by the player's own tick, on the thread that owns their data. Nothing is loaded for an offline player: their last snapshot is served for sixty seconds after a normal quit, and then every per-player key answers `---`. If an online player's profile cannot be loaded safely or its SQL fence is retired, Adapt removes the snapshot immediately: `%adapt_available%` answers `false`, every per-player and mutation value answers `---`, and catalogue values remain available. The Minecraft session stays connected while Adapt progression and abilities remain inactive.
+Per-player values come from an immutable snapshot published once per second by the player's own tick, on the thread that owns their data. Nothing is loaded for an offline player: their last snapshot is served for sixty seconds after a normal quit, and then every per-player key answers `---`. If an online player's profile cannot be loaded safely or its SQL fence is retired, Adapt removes the snapshot immediately: `%adapt_available%` answers `false`, every per-player value answers `---`, and catalogue values remain available. The Minecraft session stays connected while Adapt progression and abilities remain inactive.
 
 #### Server
 
@@ -46,7 +46,6 @@ Per-player values come from an immutable snapshot published once per second by t
 | `%adapt_catalog.available%` | `true` once the skill catalogue has been published |
 | `%adapt_catalog.skills%` | registered skills |
 | `%adapt_catalog.adaptations%` | registered adaptations |
-| `%adapt_catalog.mutations%` | mutation types |
 
 #### Player
 
@@ -104,31 +103,6 @@ Per-player values come from an immutable snapshot published once per second by t
 | `can-claim.<n>` | `true` when the player can move to level `<n>` right now |
 | `cost-to.<n>` | knowledge cost to reach level `<n>` from the current level |
 | `power-to.<n>` | ability power cost to reach level `<n>` from the current level |
-
-#### Mutation
-
-| Key | Value |
-|---|---|
-| `%adapt_mutation.available%` | `true` once a mutation snapshot has been published for this player |
-| `%adapt_mutation.enabled%` | `true` when the mutation feature is enabled |
-| `%adapt_mutation.perfect%` | `true` when the player has perfect adaptation |
-| `%adapt_mutation.expressed%` | how many mutations are currently expressed |
-| `%adapt_mutation.slot-1%` / `slot-2%` | the display name in that slot, `---` when empty |
-| `%adapt_mutation.slot-1-id%` / `slot-2-id%` | the identifier in that slot, `---` when empty |
-| `%adapt_mutation.slot-1-unlocked%` / `slot-2-unlocked%` | `true` when that slot is unlocked |
-| `%adapt_mutation.combat-lock%` | seconds left on the combat lock before slots can change |
-| `%adapt_mutation.can-swap%` | `true` when the combat lock has expired |
-
-Per mutation, `%adapt_mutation.<mutation>.<metric>%`, where `<mutation>` is an identifier such as `bastion-spine`:
-
-| Metric | Value |
-|---|---|
-| `id` | the mutation identifier |
-| `name` | the mutation's display name |
-| `state` | `locked`, `available`, `expressed`, `dormant`, `disabled`, `restricted` or `conflict` |
-| `expressed` | `true` when this mutation is currently expressed |
-| `qualified` | `true` when the player qualifies for this mutation |
-| `slot` | `1`, `2`, or `0` when it is not selected |
 
 # [Support](https://discord.gg/volmit) **|** [Documentation](https://docs.volmit.com/adapt/)
 

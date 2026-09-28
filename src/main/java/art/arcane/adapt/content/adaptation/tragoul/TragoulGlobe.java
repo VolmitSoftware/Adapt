@@ -18,10 +18,13 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -33,6 +36,7 @@ import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
@@ -88,6 +92,11 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.VANILLA)
         .build());
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TragoulPreferences.PASSIVE);
   }
 
   @Override
@@ -168,7 +177,9 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
       if (candidate == player || candidate == originalTarget || !J.isOwnedByCurrentRegion(candidate)) {
         continue;
       }
-      if (!candidate.isValid() || candidate.isDead() || !canDamageTarget(player, candidate)) {
+      if (!candidate.isValid() || candidate.isDead()
+          || !AdaptationDamageTargets.allows(candidate, getConfig().ignorePassiveMobs || preferenceEnabled(player, TragoulPreferences.PASSIVE))
+          || !canDamageTarget(player, candidate)) {
         continue;
       }
       targets.add(candidate);
@@ -259,6 +270,8 @@ public class TragoulGlobe extends SimpleAdaptation<TragoulGlobe.Config> {
 
   @ConfigDescription("Spread your damage among all nearby enemies.")
   protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Exclude passive and neutral mobs from secondary shared damage.", impact = "When enabled, protected mobs do not count toward the damage split. Direct attacks and player targeting are unchanged.")
+    boolean ignorePassiveMobs = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Cooldown for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double cooldown = 1;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Range Per Level for the Tragoul Globe adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

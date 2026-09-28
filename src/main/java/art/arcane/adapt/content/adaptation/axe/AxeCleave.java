@@ -18,8 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -28,6 +32,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -70,6 +75,11 @@ public class AxeCleave extends SimpleAdaptation<AxeCleave.Config> {
         .build());
     registerMilestone("challenge_axe_cleave_1k", "axe.cleave.targets-hit", 1000, 500);
     registerMilestone("challenge_axe_cleave_10k", "axe.cleave.targets-hit", 10000, 1800);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, AxePreferences.IGNORE_PASSIVE, AxePreferences.PLAYERS);
   }
 
   @Override
@@ -119,7 +129,8 @@ public class AxeCleave extends SimpleAdaptation<AxeCleave.Config> {
       if (!(nearby instanceof LivingEntity target) || target == p || target == primary || target instanceof ArmorStand) {
         continue;
       }
-      if (!canDamageTarget(p, target)) {
+      if ((!preferenceEnabled(p, AxePreferences.PLAYERS) && target instanceof Player)
+          || !AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs || preferenceEnabled(p, AxePreferences.IGNORE_PASSIVE)) || !canDamageTarget(p, target)) {
         continue;
       }
 
@@ -155,7 +166,8 @@ public class AxeCleave extends SimpleAdaptation<AxeCleave.Config> {
     cleaving.put(id, now + CLEAVE_MARK_MS);
     boolean scheduled = J.runEntity(target, () -> {
       try {
-        if (target.isValid() && !target.isDead()) {
+        if (target.isValid() && !target.isDead() && !isProtectedFriendly(attacker, target)
+            && AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs)) {
           target.damage(damage, attacker);
           fx(target.getLocation().add(0D, target.getHeight() * 0.6D, 0D), FxPriority.COMBAT)
               .burst(Particles.CRIT_MAGIC, 5, 0.25D);
@@ -199,6 +211,8 @@ public class AxeCleave extends SimpleAdaptation<AxeCleave.Config> {
 
   @ConfigDescription("Melee axe swings cleave extra enemies in a short frontal arc.")
   protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Exclude passive and neutral mobs from area damage and its secondary effects.", impact = "When enabled, protected mobs do not consume target limits. Direct attacks and player targeting are unchanged.")
+    boolean ignorePassiveMobs = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Half the cleave arc width in degrees before level scaling.", impact = "Higher values widen the frontal cone that cleave can hit.")
     double halfArcDegreesBase = 25;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra half-arc degrees granted by leveling.", impact = "Higher values widen the cleave cone faster with level.")

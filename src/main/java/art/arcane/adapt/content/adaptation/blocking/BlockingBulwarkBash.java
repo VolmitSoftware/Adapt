@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -82,6 +85,11 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BlockingPreferences.SNEAK, BlockingPreferences.PLAYERS, BlockingPreferences.PASSIVE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getRange(level)), 1);
     statLore(v, Form.pc(getDamageBonus(level), 0), 2);
@@ -108,7 +116,10 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
       return;
     }
 
-    if (!isJumpCrit(p) || !wasRecentlySprinting(p)) {
+    if ((preferenceEnabled(p, BlockingPreferences.SNEAK) && !p.isSneaking())
+        || (!preferenceEnabled(p, BlockingPreferences.PLAYERS) && target instanceof Player)
+        || !AdaptationDamageTargets.allows(target, preferenceEnabled(p, BlockingPreferences.PASSIVE))
+        || !isJumpCrit(p) || !wasRecentlySprinting(p)) {
       return;
     }
 
@@ -145,7 +156,9 @@ public class BlockingBulwarkBash extends SimpleAdaptation<BlockingBulwarkBash.Co
     int limit = getCandidateLimit();
     List<LivingEntity> candidates = new ArrayList<>(limit);
     for (LivingEntity candidate : PaperCompat.nearbyLivingEntities(center, radius, radius, radius)) {
-      if (candidate == player || candidate == primaryTarget) {
+      if (candidate == player || candidate == primaryTarget
+          || (!preferenceEnabled(player, BlockingPreferences.PLAYERS) && candidate instanceof Player)
+          || !AdaptationDamageTargets.allows(candidate, preferenceEnabled(player, BlockingPreferences.PASSIVE))) {
         continue;
       }
       candidates.add(candidate);

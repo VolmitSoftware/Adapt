@@ -18,7 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 
 import art.arcane.adapt.Adapt;
@@ -73,6 +78,10 @@ import java.util.concurrent.atomic.AtomicReference;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM_BIND = CommonPreferences.toggle("confirm-bind", RiftMessages.RIFTGATE_PREFERENCE_CONFIRM_BIND, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM_UNBIND = CommonPreferences.toggle("confirm-unbind", RiftMessages.RIFTGATE_PREFERENCE_CONFIRM_UNBIND, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> COUNTDOWN = CommonPreferences.toggle("countdown", RiftMessages.RIFTGATE_PREFERENCE_COUNTDOWN, CommonPreferences.Toggle.OFF);
+
   private static final int CHANNEL_TICKS = 85;
   private static final int COOLDOWN_TICKS = 150;
   private static final long COOLDOWN_MILLIS = COOLDOWN_TICKS * 50L;
@@ -115,6 +124,16 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
         .build());
     registerMilestone("challenge_rift_gate_100", "rift.gate.teleports", 100, 400);
     registerMilestone("challenge_rift_gate_50k_dist", "rift.gate.total-distance", 50000, 1500);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptHud.clearAmbientStatus(player.getPlayer(), getName());
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONFIRM_BIND, CONFIRM_UNBIND, COUNTDOWN);
   }
 
   @Override
@@ -226,6 +245,9 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
   }
 
   private void unlinkEye(Player p) {
+    if (preferenceEnabled(p, CONFIRM_UNBIND) && !PreferenceConfirmation.confirm(this, p, "unbind", p.getInventory().getItemInMainHand())) {
+      return;
+    }
     ItemStack hand = p.getInventory().getItemInMainHand();
     ItemStack costUnit = hand.clone();
     costUnit.setAmount(1);
@@ -252,6 +274,9 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
   }
 
   private void linkEye(Player p, Location location) {
+    if (preferenceEnabled(p, CONFIRM_BIND) && !PreferenceConfirmation.confirm(this, p, "bind:" + location.getWorld().getUID() + ":" + location.getBlockX() + ":" + location.getBlockY() + ":" + location.getBlockZ(), p.getInventory().getItemInMainHand())) {
+      return;
+    }
     ItemStack hand = p.getInventory().getItemInMainHand();
     ItemStack costUnit = hand.clone();
     costUnit.setAmount(1);
@@ -330,6 +355,7 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
       channel.reservation().set(reservation);
     }
     gateCooldown.mark(p, COOLDOWN_MILLIS);
+    showCountdown(p, channel, CHANNEL_TICKS);
 
     p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 100, 10, true, false, false));
     p.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 85, 0, true, false, false));
@@ -352,6 +378,17 @@ public class RiftGate extends SimpleAdaptation<RiftGate.Config> {
     if (!J.runEntity(p, () -> authorizeAndTeleport(p, channel), CHANNEL_TICKS)) {
       abortGateChannel(p, channel, AbilityRefundReason.ACTIVATION_FAILED, false);
     }
+  }
+
+  private void showCountdown(Player player, GateChannel channel, int ticksLeft) {
+    if (ticksLeft <= 0 || pendingChannels.get(player.getUniqueId()) != channel || !player.isOnline()) {
+      AdaptHud.clearAmbientStatus(player, getName());
+      return;
+    }
+    if (preferenceEnabled(player, COUNTDOWN)) {
+      AdaptHud.ambientStatus(player, getName(), AdaptLanguage.text(RiftMessages.RIFTGATE_PREFERENCE_COUNTDOWN_TEXT, trusted("seconds", String.valueOf((ticksLeft + 19) / 20))));
+    }
+    J.runEntity(player, () -> showCountdown(player, channel, ticksLeft - 20), 20);
   }
 
   private void authorizeAndTeleport(Player p, GateChannel channel) {

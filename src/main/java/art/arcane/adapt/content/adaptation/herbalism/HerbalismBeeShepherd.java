@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.localization.catalog.HerbalismMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -58,6 +62,11 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> PARTICLES = CommonPreferences.toggle("growth-particles", HerbalismMessages.PREFERENCE_HERBALISMBEESHEPHERD_PARTICLES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BEES = CommonPreferences.toggle("bee-attraction", HerbalismMessages.PREFERENCE_HERBALISMBEESHEPHERD_BEES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> GROWTH = CommonPreferences.toggle("growth", HerbalismMessages.PREFERENCE_HERBALISMBEESHEPHERD_GROWTH, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FOOD_RESERVE = CommonPreferences.toggle("food-reserve", HerbalismMessages.PREFERENCE_HERBALISMBEESHEPHERD_FOOD_RESERVE, CommonPreferences.Toggle.OFF);
+
   private static final int PLAYER_CHECKS_PER_TICK = 32;
   private static final int GROWTH_SAMPLES_PER_TICK = 96;
   private static final int BEE_PULLS_PER_TICK = 8;
@@ -101,6 +110,11 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_herbalism_bee_100", "herbalism.bee-shepherd.bees-attracted", 100, 300);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, PARTICLES, BEES, GROWTH, FOOD_RESERVE);
   }
 
   @Override
@@ -211,7 +225,7 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     }
 
     int foodCost = getFoodCost(level);
-    if (p.getFoodLevel() < foodCost) {
+    if (p.getFoodLevel() - foodCost < (preferenceEnabled(p, FOOD_RESERVE) ? 8 : 0)) {
       nextCheckAt.put(id, now + IDLE_CHECK_MILLIS);
       queuePlayer(id);
       return;
@@ -219,11 +233,16 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
 
     pendingPulses.add(id);
     nextCheckAt.put(id, now + pulseMillis);
-    BeeHerd herd = enqueueNearbyBees(p, level, now);
+    BeeHerd herd = preferenceEnabled(p, BEES) ? enqueueNearbyBees(p, level, now) : new BeeHerd(0, 0);
     if (herd.fresh() > 0) {
       addStat(p, "herbalism.bee-shepherd.bees-attracted", herd.fresh());
     }
-    startGrowthPulse(p, level, foodCost, herd.herded());
+    if (preferenceEnabled(p, GROWTH)) {
+      startGrowthPulse(p, level, foodCost, herd.herded());
+    } else {
+      pendingPulses.remove(id);
+      pulseCooldown.mark(id);
+    }
 
     if (auraHint.isReady(id, 8000L)) {
       auraHint.mark(id);
@@ -239,7 +258,7 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     int attempts = growthAttemptsWithBees(getGrowthAttempts(level), herdedBees,
         getConfig().maxBonusBees, getConfig().growthBonusPerBee);
     GrowthPulse pulse = new GrowthPulse(p, p.getLocation(), radius, getGrowthStep(level),
-        getConfig().showGrowthParticles, attempts, foodCost, getConfig().xpPerGrowth);
+        getConfig().showGrowthParticles && preferenceEnabled(p, PARTICLES), attempts, foodCost, getConfig().xpPerGrowth);
     if (!offerGrowthPulse(pulse)) {
       pendingPulses.remove(p.getUniqueId());
     }
@@ -343,7 +362,7 @@ public class HerbalismBeeShepherd extends SimpleAdaptation<HerbalismBeeShepherd.
     try {
       Player player = pulse.player;
       paid = payHungerCost(player, "hunger", pulse.foodCost, () -> {
-        if (player.getFoodLevel() < pulse.foodCost) {
+        if (player.getFoodLevel() - pulse.foodCost < (preferenceEnabled(player, FOOD_RESERVE) ? 8 : 0)) {
           return false;
         }
         player.setFoodLevel(Math.max(0, player.getFoodLevel() - pulse.foodCost));

@@ -42,11 +42,14 @@ class RiftBlinkVoidSkinTest {
   }
 
   @Test
-  void blinkPhasesThroughWallsOnlyWhileSneakingWithTheToggleEnabled() throws IOException {
-    String source = Files.readString(BLINK_SOURCE);
-
-    assertThat(source).contains("getConfig().phaseWhileSneaking && p.isSneaking()");
-    assertThat(fieldNames(RiftBlink.Config.class)).contains("phaseWhileSneaking");
+  void blinkPhasingHonorsTheServerAndPlayerModes() {
+    assertThat(RiftBlink.canPhase(true, RiftBlink.Phasing.SNEAK, true)).isTrue();
+    assertThat(RiftBlink.canPhase(true, RiftBlink.Phasing.SNEAK, false)).isFalse();
+    assertThat(RiftBlink.canPhase(true, RiftBlink.Phasing.AIM, false)).isTrue();
+    assertThat(RiftBlink.canPhase(true, RiftBlink.Phasing.NEVER, true)).isFalse();
+    for (RiftBlink.Phasing mode : RiftBlink.Phasing.values()) {
+      assertThat(RiftBlink.canPhase(false, mode, true)).isFalse();
+    }
   }
 
   @Test

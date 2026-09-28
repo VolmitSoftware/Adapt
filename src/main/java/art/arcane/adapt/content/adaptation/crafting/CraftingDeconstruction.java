@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AdvancementMessages;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
@@ -57,6 +60,9 @@ import java.util.List;
 import java.util.Map;
 
 public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruction.Config> {
+  public static final PlayerPreference<CraftingPreferences.Category> MATERIALS = CraftingPreferences.categories("materials", CraftingMessages.PREFERENCE_CRAFTINGDECONSTRUCTION_MATERIALS);
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirmation", CraftingMessages.PREFERENCE_CRAFTINGDECONSTRUCTION_CONFIRM, CommonPreferences.Toggle.OFF);
+
   public CraftingDeconstruction() {
     super("crafting-deconstruction");
     registerConfiguration(Config.class);
@@ -77,6 +83,12 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     registerAdvancementSpec(deconstruction200);
     registerStatTracker(deconstruction200.statTracker("crafting.deconstruction.items-deconstructed", 200, 300));
     registerStatTracker(deconstruction5k.statTracker("crafting.deconstruction.items-deconstructed", 5000, 1000));
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, MATERIALS, CONFIRM);
   }
 
   @Override
@@ -188,7 +200,8 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
         continue;
       }
       for (int column = 0; column < row.length(); column++) {
-        if (choices.containsKey(row.charAt(column))) {
+        Object choice = choices.get(row.charAt(column));
+        if (choice != null && choice != RecipeChoice.empty()) {
           count++;
         }
       }
@@ -331,6 +344,14 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
     }
 
     ItemStack forStuff = itemEntity.getItemStack().clone();
+    if (preferenceEnabled(player, CONFIRM) && forStuff.hasItemMeta()
+        && (forStuff.getItemMeta().hasDisplayName() || !forStuff.getEnchantments().isEmpty())
+        && !PreferenceConfirmation.confirm(this, player, "salvage:" + itemEntity.getUniqueId(), forStuff)) {
+      return;
+    }
+    if (!preference(player, MATERIALS).allows(forStuff.getType())) {
+      return;
+    }
     List<ItemStack> offerings = getDeconstructionOfferings(forStuff);
     Location itemLocation = itemEntity.getLocation();
 

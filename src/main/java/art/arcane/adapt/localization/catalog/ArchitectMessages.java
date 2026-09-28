@@ -5,6 +5,76 @@ import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
 
 public final class ArchitectMessages {
+  public static final TextKey ARCHITECTFOUNDATION_PREFERENCE_CONTROL = TextKey.of("architectfoundation.preferences.preference_control", "Foundation control");
+  public static final TextKey ARCHITECTFOUNDATION_PREFERENCE_CONTROL_HOLD = TextKey.of("architectfoundation.preferences.preference_control_hold", "Hold sneak");
+  public static final TextKey ARCHITECTFOUNDATION_PREFERENCE_CONTROL_LATCH = TextKey.of("architectfoundation.preferences.preference_control_latch", "Tap sneak to start or stop");
+
+  public static final TextKey ARCHITECTCHALKLINE_PREFERENCE_COLOR = TextKey.of("architectchalkline.preferences.preference_color", "Guide color");
+  public static final TextKey ARCHITECTCHALKLINE_PREFERENCE_COLOR_SHAPE = TextKey.of("architectchalkline.preferences.preference_color_shape", "Shape color");
+  public static final TextKey ARCHITECTCHALKLINE_PREFERENCE_COLOR_AQUA = TextKey.of("architectchalkline.preferences.preference_color_aqua", "Aqua");
+  public static final TextKey ARCHITECTCHALKLINE_PREFERENCE_COLOR_GOLD = TextKey.of("architectchalkline.preferences.preference_color_gold", "Gold");
+  public static final TextKey ARCHITECTCHALKLINE_PREFERENCE_COLOR_PURPLE = TextKey.of("architectchalkline.preferences.preference_color_purple", "Purple");
+  public static final TextKey ARCHITECTCHALKLINE_PREFERENCE_DENSITY = TextKey.of("architectchalkline.preferences.preference_density", "Guide density");
+
+  public static final TextKey ARCHITECTPLACEMENT_PREFERENCE_CONTROL = TextKey.of("architectplacement.preferences.preference_control", "Building control");
+  public static final TextKey ARCHITECTPLACEMENT_PREFERENCE_CONTROL_SNEAK = TextKey.of("architectplacement.preferences.preference_control_sneak", "Sneak to build");
+  public static final TextKey ARCHITECTPLACEMENT_PREFERENCE_CONTROL_ARMED = TextKey.of("architectplacement.preferences.preference_control_armed", "All eligible placements");
+  public static final TextKey ARCHITECTPLACEMENT_PREFERENCE_PREVIEW = TextKey.of("architectplacement.preferences.preference_preview", "Placement preview");
+  public static final TextKey ARCHITECTPLACEMENT_PREFERENCE_LIMIT = TextKey.of("architectplacement.preferences.preference_limit", "Placement size");
+  public static final TextKey ARCHITECTPLACEMENT_PREFERENCE_MATERIALS = TextKey.of("architectplacement.preferences.preference_materials", "Block selection");
+  public static final TextKey ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_ALL = TextKey.of("architectplacement.preferences.preference_materials_all", "All eligible blocks");
+  public static final TextKey ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_WOOD = TextKey.of("architectplacement.preferences.preference_materials_wood", "Wood and planks");
+  public static final TextKey ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_STONE = TextKey.of("architectplacement.preferences.preference_materials_stone", "Stone and bricks");
+  public static final TextKey ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_GLASS = TextKey.of("architectplacement.preferences.preference_materials_glass", "Glass");
+
+  public static final TextKey ARCHITECTSCAFFOLDER_PREFERENCE_CONTROL = TextKey.of("architectscaffolder.preferences.preference_control", "Scaffold control");
+  public static final TextKey ARCHITECTSCAFFOLDER_PREFERENCE_CONTROL_SNEAK = TextKey.of("architectscaffolder.preferences.preference_control_sneak", "Sneak-place");
+  public static final TextKey ARCHITECTSCAFFOLDER_PREFERENCE_CONTROL_ARMED = TextKey.of("architectscaffolder.preferences.preference_control_armed", "All eligible placements");
+  public static final TextKey ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS = TextKey.of("architectscaffolder.preferences.preference_materials", "Block selection");
+  public static final TextKey ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_ALL = TextKey.of("architectscaffolder.preferences.preference_materials_all", "All eligible blocks");
+  public static final TextKey ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_WOOD = TextKey.of("architectscaffolder.preferences.preference_materials_wood", "Wood and planks");
+  public static final TextKey ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_STONE = TextKey.of("architectscaffolder.preferences.preference_materials_stone", "Stone and bricks");
+  public static final TextKey ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_GLASS = TextKey.of("architectscaffolder.preferences.preference_materials_glass", "Glass");
+
+  public static final TextKey ARCHITECTSUPPLYLINE_PREFERENCE_LOOSE = TextKey.of("architectsupplyline.preferences.preference_loose", "Loose inventory");
+  public static final TextKey ARCHITECTSUPPLYLINE_PREFERENCE_BUNDLES = TextKey.of("architectsupplyline.preferences.preference_bundles", "Bundles");
+  public static final TextKey ARCHITECTSUPPLYLINE_PREFERENCE_SHULKERS = TextKey.of("architectsupplyline.preferences.preference_shulkers", "Shulker boxes");
+  public static final TextKey ARCHITECTSUPPLYLINE_PREFERENCE_BACKPACKS = TextKey.of("architectsupplyline.preferences.preference_backpacks", "Backpacks");
+  public static final TextKey ARCHITECTSUPPLYLINE_PREFERENCE_NAMED = TextKey.of("architectsupplyline.preferences.preference_named", "Use named containers");
+
+  public static final TextKey ARCHITECTSTONECUTTERSAVANT_PREFERENCE_OFFHAND = TextKey.of("architectstonecuttersavant.preferences.preference_offhand", "Require stonecutter in offhand");
+
+  public static final TextKey ARCHITECTSTEADYHANDS_PREFERENCE_KNOCKBACK = TextKey.of("architectsteadyhands.preferences.preference_knockback", "Knockback protection");
+  public static final TextKey ARCHITECTSTEADYHANDS_PREFERENCE_FALL = TextKey.of("architectsteadyhands.preferences.preference_fall", "Fall protection");
+
+  public static final TextKey ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES = TextKey.of("architectsmartshape.preferences.preference_families", "Block families");
+  public static final TextKey ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_ALL = TextKey.of("architectsmartshape.preferences.preference_families_all", "All eligible orientations");
+  public static final TextKey ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_DIRECTIONAL = TextKey.of("architectsmartshape.preferences.preference_families_directional", "Facing blocks");
+  public static final TextKey ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_ROTATABLE = TextKey.of("architectsmartshape.preferences.preference_families_rotatable", "Signs and rotating blocks");
+  public static final TextKey ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_PILLARS = TextKey.of("architectsmartshape.preferences.preference_families_pillars", "Axis blocks");
+  public static final TextKey ARCHITECTSMARTSHAPE_PREFERENCE_REVERSE = TextKey.of("architectsmartshape.preferences.preference_reverse", "Reverse rotation");
+
+  public static final TextKey ARCHITECTGLASS_PREFERENCE_MATERIALS = TextKey.of("architectglass.preferences.preference_materials", "Glass selection");
+  public static final TextKey ARCHITECTGLASS_PREFERENCE_MATERIALS_ALL = TextKey.of("architectglass.preferences.preference_materials_all", "All eligible glass");
+  public static final TextKey ARCHITECTGLASS_PREFERENCE_MATERIALS_CLEAR = TextKey.of("architectglass.preferences.preference_materials_clear", "Clear glass and panes");
+  public static final TextKey ARCHITECTGLASS_PREFERENCE_MATERIALS_STAINED = TextKey.of("architectglass.preferences.preference_materials_stained", "Stained glass and panes");
+
+  public static final TextKey ARCHITECTWIRELESSREDSTONE_PREFERENCE_SNEAK = TextKey.of("architectwirelessredstone.preferences.preference_sneak", "Require sneak to activate");
+
+  public static final TextKey ARCHITECTDEMOLITION_PREFERENCE_SNEAK = TextKey.of("architectdemolition.preferences.preference_sneak", "Require sneaking");
+  public static final TextKey ARCHITECTDEMOLITION_PREFERENCE_MATERIALS = TextKey.of("architectdemolition.preferences.preference_materials", "Block selection");
+  public static final TextKey ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_ALL = TextKey.of("architectdemolition.preferences.preference_materials_all", "All eligible blocks");
+  public static final TextKey ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_WOOD = TextKey.of("architectdemolition.preferences.preference_materials_wood", "Wood and planks");
+  public static final TextKey ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_STONE = TextKey.of("architectdemolition.preferences.preference_materials_stone", "Stone and bricks");
+  public static final TextKey ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_GLASS = TextKey.of("architectdemolition.preferences.preference_materials_glass", "Glass");
+
+  public static final TextKey ARCHITECTFOUNDATION_PREFERENCE_EMPTY_HAND = TextKey.of("architectfoundation.preferences.preference_empty_hand", "Require empty main hand");
+  public static final TextKey ARCHITECTFOUNDATION_PREFERENCE_DURATION = TextKey.of("architectfoundation.preferences.preference_duration", "Foundation block lifetime");
+
+  public static final TextKey ARCHITECTELEVATOR_PREFERENCE_ASCENT = TextKey.of("architectelevator.preferences.preference_ascent", "Upward travel");
+  public static final TextKey ARCHITECTELEVATOR_PREFERENCE_DESCENT = TextKey.of("architectelevator.preferences.preference_descent", "Downward travel");
+  public static final TextKey ARCHITECTELEVATOR_PREFERENCE_SNEAK_ASCENT = TextKey.of("architectelevator.preferences.preference_sneak_ascent", "Require sneak for ascent");
+
   public static final TextKey ELEVATOR_NAME = TextKey.of("architect.elevator.name", "Elevator");
   public static final TextKey ELEVATOR_DESCRIPTION = TextKey.of("architect.elevator.description", "Build fast vertical elevators. Craft each Elevator Block with an Ender Pearl in the center, surrounded by 8 Wool.");
   public static final TextKey ELEVATOR_LORE1 = TextKey.of("architect.elevator.lore1", "Unlocks elevator recipe: X=WOOL, Y=ENDER PEARL");
@@ -97,6 +167,63 @@ public final class ArchitectMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(ARCHITECTFOUNDATION_PREFERENCE_CONTROL_LATCH);
+    builder.add(ARCHITECTFOUNDATION_PREFERENCE_CONTROL_HOLD);
+    builder.add(ARCHITECTFOUNDATION_PREFERENCE_CONTROL);
+    builder.add(ARCHITECTCHALKLINE_PREFERENCE_DENSITY);
+    builder.add(ARCHITECTCHALKLINE_PREFERENCE_COLOR_PURPLE);
+    builder.add(ARCHITECTCHALKLINE_PREFERENCE_COLOR_GOLD);
+    builder.add(ARCHITECTCHALKLINE_PREFERENCE_COLOR_AQUA);
+    builder.add(ARCHITECTCHALKLINE_PREFERENCE_COLOR_SHAPE);
+    builder.add(ARCHITECTCHALKLINE_PREFERENCE_COLOR);
+    builder.add(ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_GLASS);
+    builder.add(ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_STONE);
+    builder.add(ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_WOOD);
+    builder.add(ARCHITECTPLACEMENT_PREFERENCE_MATERIALS_ALL);
+    builder.add(ARCHITECTPLACEMENT_PREFERENCE_MATERIALS);
+    builder.add(ARCHITECTPLACEMENT_PREFERENCE_LIMIT);
+    builder.add(ARCHITECTPLACEMENT_PREFERENCE_PREVIEW);
+    builder.add(ARCHITECTPLACEMENT_PREFERENCE_CONTROL_ARMED);
+    builder.add(ARCHITECTPLACEMENT_PREFERENCE_CONTROL_SNEAK);
+    builder.add(ARCHITECTPLACEMENT_PREFERENCE_CONTROL);
+    builder.add(ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_GLASS);
+    builder.add(ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_STONE);
+    builder.add(ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_WOOD);
+    builder.add(ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_ALL);
+    builder.add(ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS);
+    builder.add(ARCHITECTSCAFFOLDER_PREFERENCE_CONTROL_ARMED);
+    builder.add(ARCHITECTSCAFFOLDER_PREFERENCE_CONTROL_SNEAK);
+    builder.add(ARCHITECTSCAFFOLDER_PREFERENCE_CONTROL);
+    builder.add(ARCHITECTSUPPLYLINE_PREFERENCE_NAMED);
+    builder.add(ARCHITECTSUPPLYLINE_PREFERENCE_BACKPACKS);
+    builder.add(ARCHITECTSUPPLYLINE_PREFERENCE_SHULKERS);
+    builder.add(ARCHITECTSUPPLYLINE_PREFERENCE_BUNDLES);
+    builder.add(ARCHITECTSUPPLYLINE_PREFERENCE_LOOSE);
+    builder.add(ARCHITECTSTONECUTTERSAVANT_PREFERENCE_OFFHAND);
+    builder.add(ARCHITECTSTEADYHANDS_PREFERENCE_FALL);
+    builder.add(ARCHITECTSTEADYHANDS_PREFERENCE_KNOCKBACK);
+    builder.add(ARCHITECTSMARTSHAPE_PREFERENCE_REVERSE);
+    builder.add(ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_PILLARS);
+    builder.add(ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_ROTATABLE);
+    builder.add(ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_DIRECTIONAL);
+    builder.add(ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_ALL);
+    builder.add(ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES);
+    builder.add(ARCHITECTGLASS_PREFERENCE_MATERIALS_STAINED);
+    builder.add(ARCHITECTGLASS_PREFERENCE_MATERIALS_CLEAR);
+    builder.add(ARCHITECTGLASS_PREFERENCE_MATERIALS_ALL);
+    builder.add(ARCHITECTGLASS_PREFERENCE_MATERIALS);
+    builder.add(ARCHITECTWIRELESSREDSTONE_PREFERENCE_SNEAK);
+    builder.add(ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_GLASS);
+    builder.add(ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_STONE);
+    builder.add(ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_WOOD);
+    builder.add(ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_ALL);
+    builder.add(ARCHITECTDEMOLITION_PREFERENCE_MATERIALS);
+    builder.add(ARCHITECTDEMOLITION_PREFERENCE_SNEAK);
+    builder.add(ARCHITECTFOUNDATION_PREFERENCE_DURATION);
+    builder.add(ARCHITECTFOUNDATION_PREFERENCE_EMPTY_HAND);
+    builder.add(ARCHITECTELEVATOR_PREFERENCE_SNEAK_ASCENT);
+    builder.add(ARCHITECTELEVATOR_PREFERENCE_DESCENT);
+    builder.add(ARCHITECTELEVATOR_PREFERENCE_ASCENT);
     builder.add(ELEVATOR_NAME);
     builder.add(ELEVATOR_DESCRIPTION);
     builder.add(ELEVATOR_LORE1);

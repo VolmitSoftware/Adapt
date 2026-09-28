@@ -24,8 +24,6 @@ class AdaptPapiExpansionTest {
   private static final UUID OFFLINE = UUID.fromString("00000000-0000-0000-0000-0000000000b2");
   private static final UUID POWER_SPENT = UUID.fromString("00000000-0000-0000-0000-0000000000c3");
   private static final UUID POWER_EDGE = UUID.fromString("00000000-0000-0000-0000-0000000000d4");
-  private static final UUID NO_MUTATIONS = UUID.fromString("00000000-0000-0000-0000-0000000000e5");
-  private static final UUID STALE_MUTATIONS = UUID.fromString("00000000-0000-0000-0000-0000000000f6");
   private static final String UNAVAILABLE = "---";
 
   private PlayerSnapshotStore<AdaptPlayerSnapshot> players;
@@ -40,7 +38,7 @@ class AdaptPapiExpansionTest {
     expansion = new AdaptPapiExpansion(players, catalog, Logger.getLogger("adapt-papi-test"));
     catalogSnapshot = AdaptPapiFixtures.catalog();
     catalog.publish(catalogSnapshot);
-    players.publish(ONLINE, AdaptPapiFixtures.player(catalogSnapshot));
+    players.publish(ONLINE, AdaptPapiFixtures.player());
   }
 
   private String resolve(String path) {
@@ -76,7 +74,6 @@ class AdaptPapiExpansionTest {
     assertTrue(keys.contains("available"), keys.toString());
     assertTrue(keys.contains("skill.*"), keys.toString());
     assertTrue(keys.contains("adaptation.*"), keys.toString());
-    assertTrue(keys.contains("mutation.*"), keys.toString());
     assertTrue(keys.contains("catalog.skills"), keys.toString());
   }
 
@@ -169,7 +166,7 @@ class AdaptPapiExpansionTest {
 
   @Test
   void shouldAnswerCanClaimNextOnlyWhenBothKnowledgeAndAbilityPowerAffordTheNextLevel() {
-    players.publish(POWER_SPENT, AdaptPapiFixtures.powerBoundPlayer(catalogSnapshot, AdaptPapiFixtures.MAX_POWER));
+    players.publish(POWER_SPENT, AdaptPapiFixtures.powerBoundPlayer(AdaptPapiFixtures.MAX_POWER));
 
     assertEquals("8", resolve("player.power"));
     assertEquals("10", resolve("skill.mining.knowledge"));
@@ -194,7 +191,7 @@ class AdaptPapiExpansionTest {
 
   @Test
   void shouldAnswerCanClaimFalseWhenTheTargetLevelCostsMoreAbilityPowerThanTheOwnerHas() {
-    players.publish(POWER_SPENT, AdaptPapiFixtures.powerBoundPlayer(catalogSnapshot, AdaptPapiFixtures.MAX_POWER));
+    players.publish(POWER_SPENT, AdaptPapiFixtures.powerBoundPlayer(AdaptPapiFixtures.MAX_POWER));
 
     assertEquals("15", resolveFor(POWER_SPENT, "adaptation.mining-vein.cost-to.3"));
     assertEquals("2", resolveFor(POWER_SPENT, "adaptation.mining-vein.power-to.3"));
@@ -205,7 +202,7 @@ class AdaptPapiExpansionTest {
 
   @Test
   void shouldClaimExactlyAsFarAsTheRemainingAbilityPowerReaches() {
-    players.publish(POWER_EDGE, AdaptPapiFixtures.powerBoundPlayer(catalogSnapshot, AdaptPapiFixtures.MAX_POWER - 1));
+    players.publish(POWER_EDGE, AdaptPapiFixtures.powerBoundPlayer(AdaptPapiFixtures.MAX_POWER - 1));
 
     assertEquals("1", resolveFor(POWER_EDGE, "player.power"));
     assertEquals("1000", resolveFor(POWER_EDGE, "skill.mining.knowledge"));
@@ -226,7 +223,7 @@ class AdaptPapiExpansionTest {
 
   @Test
   void shouldStillRefundAnAdaptationWhenNoAbilityPowerIsLeft() {
-    players.publish(POWER_SPENT, AdaptPapiFixtures.powerBoundPlayer(catalogSnapshot, AdaptPapiFixtures.MAX_POWER));
+    players.publish(POWER_SPENT, AdaptPapiFixtures.powerBoundPlayer(AdaptPapiFixtures.MAX_POWER));
 
     assertEquals("0", resolveFor(POWER_SPENT, "player.power"));
     assertEquals("true", resolveFor(POWER_SPENT, "adaptation.mining-vein.can-claim.0"));
@@ -251,7 +248,6 @@ class AdaptPapiExpansionTest {
     assertNull(resolve("skill.mining.levle"));
     assertNull(resolve("player.levle"));
     assertNull(resolve("adaptation.mining-bogus.level"));
-    assertNull(resolve("mutation.bogus-mutation.state"));
     assertNull(resolve("bogus"));
     assertNull(resolve("skill"));
     assertNull(resolve("skill.mining"));
@@ -263,7 +259,6 @@ class AdaptPapiExpansionTest {
         "skill.mining.levle",
         "player.levle",
         "adaptation.mining-vein.costnext",
-        "mutation.slot3",
         "catalog.skils"
     );
 
@@ -277,8 +272,6 @@ class AdaptPapiExpansionTest {
     assertEquals(UNAVAILABLE, resolveOffline("player.level"));
     assertEquals(UNAVAILABLE, resolveOffline("skill.mining.level"));
     assertEquals(UNAVAILABLE, resolveOffline("adaptation.mining-vein.level"));
-    assertEquals(UNAVAILABLE, resolveOffline("mutation.bastion-spine.state"));
-    assertEquals(UNAVAILABLE, resolveOffline("mutation.perfect"));
     assertNull(resolveOffline("skill.mynng.level"), "a typo must stay a typo for an offline player");
   }
 
@@ -287,7 +280,6 @@ class AdaptPapiExpansionTest {
     assertEquals("true", resolveOffline("catalog.available"));
     assertEquals("2", resolveOffline("catalog.skills"));
     assertEquals("2", resolveOffline("catalog.adaptations"));
-    assertEquals("15", resolveOffline("catalog.mutations"));
   }
 
   @Test
@@ -298,77 +290,6 @@ class AdaptPapiExpansionTest {
     players.evictAfterGrace(ONLINE, 0L);
     assertEquals(UNAVAILABLE, resolve("player.level"));
     assertEquals("false", resolve("available"));
-  }
-
-  @Test
-  void shouldResolveMutationStateFromThePublishedMutationSnapshotAndNothingWhenNoneIsPublished() {
-    players.publish(NO_MUTATIONS, AdaptPapiFixtures.playerWithoutMutations());
-
-    assertEquals("true", resolve("mutation.available"));
-    assertEquals("true", resolve("mutation.enabled"));
-    assertEquals("false", resolve("mutation.perfect"));
-    assertEquals("1", resolve("mutation.expressed"));
-    assertEquals("true", resolve("mutation.slot-1-unlocked"));
-    assertEquals("false", resolve("mutation.slot-2-unlocked"));
-    assertEquals("bastion-spine", resolve("mutation.slot-1-id"));
-    assertEquals("verdant-molt", resolve("mutation.slot-2-id"));
-    assertEquals("12.50", resolve("mutation.combat-lock"));
-    assertEquals("false", resolve("mutation.can-swap"));
-
-    assertEquals("true", resolveFor(NO_MUTATIONS, "available"));
-    assertEquals("10", resolveFor(NO_MUTATIONS, "player.level"));
-    assertEquals("false", resolveFor(NO_MUTATIONS, "mutation.available"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.enabled"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.perfect"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.can-swap"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.slot-1-unlocked"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.slot-2-unlocked"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.expressed"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.combat-lock"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.slot-1"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.slot-2"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.slot-1-id"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.slot-2-id"));
-    assertEquals(UNAVAILABLE, resolveFor(NO_MUTATIONS, "mutation.bastion-spine.state"));
-    assertNull(resolveFor(NO_MUTATIONS, "mutation.bastion-spine.bogus"));
-  }
-
-  @Test
-  void shouldNeverLeakAMutationViewThatIsCarryingDataButIsMarkedUnavailable() {
-    players.publish(STALE_MUTATIONS, AdaptPapiFixtures.playerWithStaleMutationView());
-
-    assertEquals("true", resolveFor(STALE_MUTATIONS, "available"));
-    assertEquals("false", resolveFor(STALE_MUTATIONS, "mutation.available"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.enabled"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.perfect"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.can-swap"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.slot-1-unlocked"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.slot-2-unlocked"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.expressed"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.combat-lock"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.slot-1"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.slot-2"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.slot-1-id"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.slot-2-id"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.bastion-spine.state"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.bastion-spine.expressed"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.bastion-spine.qualified"));
-    assertEquals(UNAVAILABLE, resolveFor(STALE_MUTATIONS, "mutation.bastion-spine.slot"));
-  }
-
-  @Test
-  void shouldResolvePerMutationStateExpressionAndSlot() {
-    assertEquals("bastion-spine", resolve("mutation.bastion-spine.id"));
-    assertEquals("expressed", resolve("mutation.bastion-spine.state"));
-    assertEquals("true", resolve("mutation.bastion-spine.expressed"));
-    assertEquals("true", resolve("mutation.bastion-spine.qualified"));
-    assertEquals("1", resolve("mutation.bastion-spine.slot"));
-    assertEquals("available", resolve("mutation.verdant-molt.state"));
-    assertEquals("false", resolve("mutation.verdant-molt.expressed"));
-    assertEquals("2", resolve("mutation.verdant-molt.slot"));
-    assertEquals("locked", resolve("mutation.temperbound.state"));
-    assertEquals("false", resolve("mutation.temperbound.qualified"));
-    assertEquals("0", resolve("mutation.temperbound.slot"));
   }
 
   @Test
@@ -397,10 +318,7 @@ class AdaptPapiExpansionTest {
         "skill.mining.progress-percent",
         "skill.mining.xp",
         "adaptation.mining-vein.name",
-        "adaptation.mining-vein.cost-next",
-        "mutation.slot-1",
-        "mutation.combat-lock",
-        "mutation.bastion-spine.state"
+        "adaptation.mining-vein.cost-next"
     );
 
     for (String path : paths) {

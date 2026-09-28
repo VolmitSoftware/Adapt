@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import org.bukkit.entity.Enemy;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -73,6 +76,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> FULL = CommonPreferences.toggle("full-details", DiscoveryMessages.PREFERENCE_DISCOVERYINSIGHT_FULL, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> PLAYERS = CommonPreferences.toggle("players", DiscoveryMessages.PREFERENCE_DISCOVERYINSIGHT_PLAYERS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> HOSTILE = CommonPreferences.toggle("hostile", DiscoveryMessages.PREFERENCE_DISCOVERYINSIGHT_HOSTILE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> PASSIVE = CommonPreferences.toggle("passive", DiscoveryMessages.PREFERENCE_DISCOVERYINSIGHT_PASSIVE, CommonPreferences.Toggle.ON);
+
   private static final int HARD_MAX_HUD_CLEANUPS_PER_TICK = 4;
   private static final long HUD_UPDATE_INTERVAL_MILLIS = 250L;
   private static final long HUD_CLEANUP_INTERVAL_MILLIS = 1000L;
@@ -111,6 +119,17 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
         .build());
     registerMilestone("challenge_discovery_insight_100", "discovery.insight.entities-inspected", 100, 300);
     registerMilestone("challenge_discovery_insight_1000", "discovery.insight.entities-inspected", 1000, 1200);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearHud(player.getPlayer().getUniqueId());
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, FULL, PLAYERS, HOSTILE, PASSIVE);
   }
 
   @Override
@@ -327,7 +346,9 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
 
     Location eye = player.getEyeLocation();
     LivingEntity target = findLookTargetCandidate(player, eye, getRange(level));
-    if (target == null || target instanceof Player other && !player.canSee(other)) {
+    if (target == null || target instanceof Player other && !player.canSee(other)
+        || target != null && !preferenceEnabled(player, target instanceof Player ? PLAYERS
+            : target instanceof Enemy ? HOSTILE : PASSIVE)) {
       clearHudIfCurrent(playerId, token);
       return;
     }
@@ -388,7 +409,7 @@ public class DiscoveryInsight extends SimpleAdaptation<DiscoveryInsight.Config> 
       return;
     }
     if (!owner.isOnline() || getActiveLevel(owner) <= 0
-        || !gloss.update(owner, target, details, INSIGHT_DURATION_MILLIS)) {
+        || !gloss.update(owner, target, preferenceEnabled(owner, FULL) ? details : details.subList(0, Math.min(1, details.size())), INSIGHT_DURATION_MILLIS)) {
       clearHudIfCurrent(playerId, token);
       return;
     }

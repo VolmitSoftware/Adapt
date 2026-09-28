@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RangedMessages;
 
@@ -72,6 +75,11 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_ranged_force_500", "ranged.force.long-range-hits", 500, 500);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RangedPreferences.SHOTS);
   }
 
   @Override
@@ -153,6 +161,9 @@ public class RangedForce extends SimpleAdaptation<RangedForce.Config> {
       return;
     }
     if (e.getEntity().getShooter() instanceof Player p) {
+      if (!preference(p, RangedPreferences.SHOTS).accepts(e.getEntity())) {
+        return;
+      }
       int level = getActiveLevel(p);
       if (level > 0) {
         double factor = getLevelPercent(level);

@@ -1,11 +1,17 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.KineticsMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.content.skill.kinetics.KineticsMotion;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -21,15 +27,20 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.Map;
 import java.util.UUID;
 
 public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> BOUNCE = CommonPreferences.toggle("bounce", KineticsMessages.KINETICSRUBBERSOUL_PREFERENCE_BOUNCE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SPRINGY = CommonPreferences.toggle("springy", KineticsMessages.KINETICSRUBBERSOUL_PREFERENCE_SPRINGY, CommonPreferences.Toggle.ON);
+
   private static final String SLOT_SOLE = "sole";
   private static final String SLOT_SPRINGLOAD = "springload";
 
   private final Map<UUID, Boolean> airborne = playerState();
+  private final Map<UUID, LandingObservation> pendingLandings = playerState();
   private final AdaptationOwnerPulse.Registration ownerMaintenance;
 
   public KineticsRubberSoul() {
@@ -45,6 +56,16 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BOUNCE, SPRINGY);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getBounciness(level), 2), 1);
     statLore(v, Form.f(getSoftBlockBonus(level), 2), 2);
@@ -54,25 +75,76 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
   public void unregister() {
     ownerMaintenance.unregister();
     airborne.clear();
+    pendingLandings.clear();
     super.unregister();
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    if (!hasActiveAdaptation(p)) {
-      if (!airborne.isEmpty()) {
-        airborne.remove(p.getUniqueId());
-      }
+    UUID playerId = p.getUniqueId();
+    if (e.isCancelled() || !hasActiveAdaptation(p)) {
+      airborne.remove(playerId);
+      pendingLandings.remove(playerId);
+      return;
+    }
+    if (!p.isOnGround()) {
+      airborne.put(playerId, true);
+    } else if (!Boolean.TRUE.equals(airborne.get(playerId))) {
+      return;
+    }
+    LandingObservation pending = pendingLandings.get(playerId);
+    if (pending != null) {
+      pending.event = e;
+      return;
+    }
+    LandingObservation observation = new LandingObservation(e);
+    pendingLandings.put(playerId, observation);
+    scheduleObservation(p, observation);
+  }
+
+  private void scheduleObservation(Player p, LandingObservation observation) {
+    if (!J.runEntity(p, () -> observeLanding(p, observation), 1)) {
+      pendingLandings.remove(p.getUniqueId(), observation);
+      airborne.remove(p.getUniqueId());
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerTeleportEvent e) {
+    if (!e.isCancelled()) {
+      airborne.remove(e.getPlayer().getUniqueId());
+      pendingLandings.remove(e.getPlayer().getUniqueId());
+    }
+  }
+
+  private void observeLanding(Player p, LandingObservation observation) {
+    UUID playerId = p.getUniqueId();
+    if (pendingLandings.get(playerId) != observation) {
+      return;
+    }
+    PlayerMoveEvent event = observation.event;
+    if (!isRuntimeRegistered() || !p.isOnline() || !p.isValid() || p.isDead()
+        || event.isCancelled() || !hasActiveAdaptation(p)) {
+      pendingLandings.remove(playerId, observation);
+      airborne.remove(playerId);
       return;
     }
     boolean onGround = p.isOnGround();
-    Boolean wasAirborne = airborne.put(p.getUniqueId(), !onGround);
+    Boolean wasAirborne = airborne.put(playerId, !onGround);
+    if (!onGround) {
+      scheduleObservation(p, observation);
+      return;
+    }
+    pendingLandings.remove(playerId, observation);
     if (!isLanding(onGround, wasAirborne != null && wasAirborne)) {
       return;
     }
+    applySpringload(p, event);
+  }
 
-    if (Attributes.BOUNCINESS == null || !KineticsMotion.isBouncySurface(landingSurface(p))) {
+  void applySpringload(Player p, PlayerMoveEvent e) {
+    if (!preferenceEnabled(p, SPRINGY) || Attributes.BOUNCINESS == null || !KineticsMotion.isBouncySurface(landingSurface(p))) {
       return;
     }
 
@@ -121,7 +193,7 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
     }
 
     AdaptAttributeService attributes = AdaptAttributeService.get();
-    if (!hasActiveAdaptation(player)) {
+    if (!hasActiveAdaptation(player) || !preferenceEnabled(player, BOUNCE)) {
       attributes.remove(player, getName(), SLOT_SOLE, Attributes.BOUNCINESS);
       return;
     }
@@ -145,7 +217,15 @@ public class KineticsRubberSoul extends SimpleAdaptation<KineticsRubberSoul.Conf
     return softBlockBonus(getConfig().softBlockBonusBase, getConfig().softBlockBonusFactor, getLevelPercent(level));
   }
 
-  @ConfigDescription("Your landings carry spring. Bouncy blocks send you higher, and every landing keeps more momentum.")
+  private static final class LandingObservation {
+    private PlayerMoveEvent event;
+
+    private LandingObservation(PlayerMoveEvent event) {
+      this.event = event;
+    }
+  }
+
+  @ConfigDescription("Passive bounciness preserves landing momentum. Slime, honey, and bed landings grant a short springload bonus.")
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Base passive bounciness bonus applied while the adaptation is active.", impact = "Higher values make every landing springier at every level.")
     double bouncinessBase = 0.15;

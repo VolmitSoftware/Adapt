@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -73,6 +76,11 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RangedPreferences.SHOTS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getDamageBonus(level), 0), 1);
     statLore(v, C.RED, "- ", Form.pc(getVelocityPenalty(level), 0), 2);
@@ -88,7 +96,7 @@ public class RangedHeavyDraw extends SimpleAdaptation<RangedHeavyDraw.Config> {
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (level <= 0 || !preference(p, RangedPreferences.SHOTS).accepts(e.getEntity())) {
       return;
     }
 

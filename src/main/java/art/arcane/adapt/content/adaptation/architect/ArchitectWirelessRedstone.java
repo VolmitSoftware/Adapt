@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
@@ -82,6 +84,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWirelessRedstone.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", ArchitectMessages.ARCHITECTWIRELESSREDSTONE_PREFERENCE_SNEAK, CommonPreferences.Toggle.OFF);
+
   private static final int MAX_SCHEDULE_ATTEMPTS = 3;
   private static final long SHUTDOWN_RESTORATION_TIMEOUT_MILLIS = 3000L;
   private static final Map<ArchitectRedstonePulse.Emitter, Long> SHUTDOWN_RESTORATION_OWNERS =
@@ -126,6 +130,11 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
         .build());
     registerMilestone("challenge_architect_wireless_100", "architect.wireless-redstone.pulses", 100, 300);
     registerMilestone("challenge_architect_wireless_5k", "architect.wireless-redstone.pulses", 5000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SNEAK);
   }
 
   @Override
@@ -337,6 +346,9 @@ public class ArchitectWirelessRedstone extends SimpleAdaptation<ArchitectWireles
   }
 
   private void handleRightClick(PlayerInteractEvent event, Player player) {
+    if (preferenceEnabled(player, SNEAK) && !player.isSneaking()) {
+      return;
+    }
     if (event.getAction() == Action.RIGHT_CLICK_BLOCK) {
       event.setUseItemInHand(Result.DENY);
       event.setUseInteractedBlock(Result.DENY);

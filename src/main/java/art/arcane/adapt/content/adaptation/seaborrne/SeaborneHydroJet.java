@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.SeabornMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -42,8 +48,23 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> {
+  public static final PlayerPreference<Gesture> GESTURE = new PlayerPreference<>(Gesture.class,
+      new PlayerPreference.Definition<>("gesture", SeabornMessages.SEABORNEHYDROJET_PREFERENCE_GESTURE, Gesture.SINGLE, List.of(
+          new PlayerPreference.Choice<>(Gesture.SINGLE, SeabornMessages.SEABORNEHYDROJET_PREFERENCE_GESTURE_SINGLE, Material.FEATHER, 1),
+          new PlayerPreference.Choice<>(Gesture.DOUBLE, SeabornMessages.SEABORNEHYDROJET_PREFERENCE_GESTURE_DOUBLE, Material.RABBIT_FOOT, 1))));
+  public static final PlayerPreference<Reserve> RESERVE = new PlayerPreference<>(Reserve.class,
+      new PlayerPreference.Definition<>("reserve", SeabornMessages.SEABORNEHYDROJET_PREFERENCE_RESERVE, Reserve.NONE, List.of(
+          new PlayerPreference.Choice<>(Reserve.NONE, SeabornMessages.SEABORNEHYDROJET_PREFERENCE_RESERVE_NONE, Material.BOWL, 1),
+          new PlayerPreference.Choice<>(Reserve.FOUR, SeabornMessages.SEABORNEHYDROJET_PREFERENCE_RESERVE_FOUR, Material.BREAD, 1),
+          new PlayerPreference.Choice<>(Reserve.EIGHT, SeabornMessages.SEABORNEHYDROJET_PREFERENCE_RESERVE_EIGHT, Material.COOKED_BEEF, 1))));
+  public static final PlayerPreference<Priority> PRIORITY = new PlayerPreference<>(Priority.class,
+      new PlayerPreference.Definition<>("priority", SeabornMessages.SEABORNEHYDROJET_PREFERENCE_PRIORITY, Priority.HYDRO, List.of(
+          new PlayerPreference.Choice<>(Priority.HYDRO, SeabornMessages.SEABORNEHYDROJET_PREFERENCE_PRIORITY_HYDRO, Material.HEART_OF_THE_SEA, 1),
+          new PlayerPreference.Choice<>(Priority.TIDE, SeabornMessages.SEABORNEHYDROJET_PREFERENCE_PRIORITY_TIDE, Material.TRIDENT, 1))));
+
   private static final double MAX_RESULTING_VELOCITY = 2.6;
 
+  private final Map<UUID, Long> lastTap = playerState();
   private final Map<UUID, ChargeState> charges = playerState();
 
   public SeaborneHydroJet() {
@@ -68,6 +89,16 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, GESTURE, RESERVE, PRIORITY);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    lastTap.remove(player.getPlayer().getUniqueId());
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getBurstForce(level), 2), 1);
     statLore(v, getMaxCharges(level), 2);
@@ -80,10 +111,18 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
     }
 
     Player p = e.getPlayer();
-    if (!p.isSwimming()) {
+    if (!reservesSneak(p)) {
       return;
     }
 
+    if (preference(p, GESTURE) == Gesture.DOUBLE) {
+      long now = System.currentTimeMillis();
+      Long previous = lastTap.put(p.getUniqueId(), now);
+      if (previous == null || now - previous > 350L) {
+        return;
+      }
+      lastTap.remove(p.getUniqueId());
+    }
     withAdaptedPlayer(p, () -> tryJet(p));
   }
 
@@ -92,13 +131,39 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
     charges.remove(e.getPlayer().getUniqueId());
   }
 
+  public boolean reservesSneak(Player p) {
+    if (!isPlayerEnabled(p) || getActiveLevel(p) <= 0 || !p.isSwimming()) {
+      return false;
+    }
+    if (preference(p, PRIORITY) == Priority.TIDE) {
+      for (Adaptation<?> candidate : getSkill().getAdaptations()) {
+        if (candidate instanceof SeaborneTidecaller tide && tide.usesSneakTrigger(p)) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  static boolean respectsFoodReserve(int food, float saturation, float exhaustion, double cost, int reserve) {
+    if (food <= 0) {
+      return false;
+    }
+    if (reserve <= 0) {
+      return true;
+    }
+    int exhaustionUnits = (int) Math.ceil(Math.max(0D, exhaustion + cost) / 4D);
+    int saturationUnits = (int) Math.ceil(Math.max(0D, saturation));
+    return food - Math.max(0, exhaustionUnits - saturationUnits) >= reserve;
+  }
+
   private void tryJet(Player p) {
     int level = getActiveLevel(p);
     if (level <= 0 || !p.isSwimming()) {
       return;
     }
 
-    if (p.getFoodLevel() <= 0) {
+    if (!respectsFoodReserve(p.getFoodLevel(), p.getSaturation(), p.getExhaustion(), getConfig().hungerCost, preference(p, RESERVE).ordinal() * 4)) {
       FxPresets.failFizzle(this, p);
       return;
     }
@@ -190,4 +255,10 @@ public class SeaborneHydroJet extends SimpleAdaptation<SeaborneHydroJet.Config> 
       lastRefillAt = now;
     }
   }
+
+  public enum Gesture { SINGLE, DOUBLE }
+
+  public enum Reserve { NONE, FOUR, EIGHT }
+
+  public enum Priority { HYDRO, TIDE }
 }

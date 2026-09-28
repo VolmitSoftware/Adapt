@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.SeabornMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -48,6 +52,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMastery.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> RECALL = CommonPreferences.toggle("recall", SeabornMessages.SEABORNETRIDENTMASTERY_PREFERENCE_RECALL, CommonPreferences.Toggle.ON);
+
   private static final int MAX_RECALL_TICKS = 120;
   private static final double PICKUP_DISTANCE = 1.6;
 
@@ -73,6 +79,11 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
         .build());
     registerMilestone("challenge_seaborne_trident_250", "seaborne.trident-mastery.trident-hits", 250, 400);
     registerMilestone("challenge_seaborne_trident_2500", "seaborne.trident-mastery.trident-hits", 2500, 1500);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RECALL);
   }
 
   @Override
@@ -129,7 +140,7 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
     }
     trident.getPersistentDataContainer().set(masteryLevelKey, PersistentDataType.INTEGER, level);
 
-    if (!getConfig().enableRecall) {
+    if (!getConfig().enableRecall || !preferenceEnabled(p, RECALL)) {
       return;
     }
 
@@ -148,7 +159,7 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
   }
 
   private void captureRecallTargetOwned(Trident trident, UUID tridentId, Player p, int level, int ticksLived) {
-    if (!p.isOnline() || getActiveLevel(p) <= 0) {
+    if (!p.isOnline() || getActiveLevel(p) <= 0 || !preferenceEnabled(p, RECALL)) {
       return;
     }
     Location playerLocation = p.getLocation().clone().add(0D, 1.0D, 0D);

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
 
@@ -68,6 +69,13 @@ public class PickaxeObsidianRush extends SimpleAdaptation<PickaxeObsidianRush.Co
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_obsidianrush_1k", "pickaxe.obsidian-rush.obsidian-mined", 1000, 500);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (getActiveLevel(player.getPlayer()) <= 0) {
+      AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+    }
   }
 
   @Override

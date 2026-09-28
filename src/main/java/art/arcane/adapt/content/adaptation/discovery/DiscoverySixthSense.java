@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 
@@ -68,6 +70,11 @@ import java.util.UUID;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Config> {
+  public static final PlayerPreference<DiscoveryPreferences.Structures> STRUCTURES = DiscoveryPreferences.structures("structures", DiscoveryMessages.PREFERENCE_DISCOVERYSIXTHSENSE_STRUCTURES);
+  public static final PlayerPreference<CommonPreferences.Toggle> HUD = CommonPreferences.toggle("hud", DiscoveryMessages.PREFERENCE_DISCOVERYSIXTHSENSE_HUD, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FULL = CommonPreferences.toggle("full-details", DiscoveryMessages.PREFERENCE_DISCOVERYSIXTHSENSE_FULL, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Scale> FREQUENCY = CommonPreferences.scale("cue-frequency", DiscoveryMessages.PREFERENCE_DISCOVERYSIXTHSENSE_FREQUENCY);
+
   static final double HARD_MAX_RANGE = 500.0D;
   private static final String HUD_GROUP = "discovery-sixth-sense";
   private static volatile List<StructureType> structureTypes;
@@ -121,6 +128,17 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
         .build());
     registerMilestone("challenge_discovery_sixthsense_100", "discovery.sixth-sense.senses", 100, 300);
     registerMilestone("challenge_discovery_sixthsense_1k", "discovery.sixth-sense.senses", 1000, 1000);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearTarget(player.getPlayer());
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, STRUCTURES, HUD, FULL, FREQUENCY);
   }
 
   @Override
@@ -206,7 +224,7 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
     );
     showCurrentTarget(player, origin, range);
 
-    long pulseInterval = pulseIntervalMillis(getConfig().pulseIntervalMillis);
+    long pulseInterval = (long) (pulseIntervalMillis(getConfig().pulseIntervalMillis) / preference(player, FREQUENCY).multiplier());
     if (!pulseThrottle.isReady(playerId, pulseInterval)) {
       return;
     }
@@ -217,7 +235,8 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
   private void searchOwned(Player player, Location origin, double range) {
     UUID playerId = player.getUniqueId();
     int radiusChunks = Math.max(1, (int) Math.ceil(range / 16D));
-    List<StructureType> types = structureTypes();
+    StructureType selected = preference(player, STRUCTURES).type();
+    List<StructureType> types = selected == null ? structureTypes() : List.of(selected);
     int cursor = Math.floorMod(typeCursors.getOrDefault(playerId, 0), types.size());
     StructureType type = types.get(cursor);
     typeCursors.put(playerId, advanceTypeCursor(cursor, types.size()));
@@ -288,6 +307,11 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
       return;
     }
 
+    if (!preferenceEnabled(player, HUD)) {
+      AdaptHud.clearAmbientStatus(player, HUD_GROUP);
+      restoreExpBar(player);
+      return;
+    }
     String message = AdaptLanguage.text(
         DiscoveryMessages.SIXTH_SENSE_HUD,
         trusted("symbol", C.AQUA + target.symbol()),
@@ -295,6 +319,9 @@ public class DiscoverySixthSense extends SimpleAdaptation<DiscoverySixthSense.Co
         trusted("direction", C.YELLOW + compassDirection(dx, dz)),
         trusted("distance", C.GRAY + String.valueOf(Math.round(distance)))
     );
+    if (!preferenceEnabled(player, FULL)) {
+      message = compassDirection(dx, dz) + " " + Math.round(distance);
+    }
     AdaptHud.ambientStatus(player, HUD_GROUP, message);
     pinExpBar(player, distance, range);
 

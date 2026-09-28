@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
@@ -45,6 +48,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
 public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonecutterSavant.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> OFFHAND = CommonPreferences.toggle("offhand", ArchitectMessages.ARCHITECTSTONECUTTERSAVANT_PREFERENCE_OFFHAND, CommonPreferences.Toggle.OFF);
+
   private static final int STONECUTTER_LEVELS = 1;
 
   public ArchitectStonecutterSavant() {
@@ -67,6 +72,11 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
         .build());
     registerMilestone("challenge_architect_stonecutter_savant_50", "architect.stonecutter-savant.uses", 50, 300);
     registerMilestone("challenge_architect_stonecutter_savant_500", "architect.stonecutter-savant.uses", 500, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, OFFHAND);
   }
 
   @Override
@@ -106,7 +116,7 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
       return;
     }
 
-    if (!hasStonecutter(inventory)) {
+    if (!hasStonecutter(inventory) || (preferenceEnabled(p, OFFHAND) && inventory.getItemInOffHand().getType() != Material.STONECUTTER)) {
       return;
     }
     if (resolveInteractContext(p, p.getLocation(), Player::isSneaking) == null) {
@@ -124,11 +134,11 @@ public class ArchitectStonecutterSavant extends SimpleAdaptation<ArchitectStonec
   }
 
   private boolean hasStonecutter(PlayerInventory inventory) {
-    if (getConfig().requireOffhand) {
-      return inventory.getItemInOffHand().getType() == Material.STONECUTTER;
+    if (inventory.getItemInOffHand().getType() == Material.STONECUTTER) {
+      return true;
     }
 
-    return inventory.contains(Material.STONECUTTER);
+    return !getConfig().requireOffhand && inventory.contains(Material.STONECUTTER);
   }
 
   @ConfigDescription("Sneak-punch the air with an empty hand while carrying a stonecutter to open it anywhere.")

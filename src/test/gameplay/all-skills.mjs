@@ -1,19 +1,28 @@
 import { randomBytes } from 'node:crypto'
+import { fixtureJson } from './fixture-json.mjs'
 import { skillMatrix, assertSkillCoverage, xpEvidence } from './skill-matrix.mjs'
+
+export function hasCommittedXp(snapshot, earned) {
+    return earned.length > 0 && !snapshot.operator && earned.every(entry => {
+      const committed = snapshot.committedXp?.[entry.skill]
+      const pending = snapshot.pooledXp?.[entry.skill]
+      return snapshot.player === entry.player && Number.isFinite(entry.after) && entry.after > 0
+        && Number.isFinite(committed) && committed >= entry.after
+        && Number.isFinite(pending) && pending >= 0
+    })
+}
 
 export async function runSkillSuite(context, requestedSkills = skillMatrix.map(entry => entry.skill)) {
     if (!Array.isArray(requestedSkills) || requestedSkills.length === 0 || new Set(requestedSkills).size !== requestedSkills.length || requestedSkills.some(skill => !skillMatrix.some(entry => entry.skill === skill))) throw new Error('Select distinct registered skills')
     const suffix = randomBytes(4).toString('hex')
-    const actor = await context.connectActor(`AQAa${suffix}`)
+    let actor = await context.connectActor(`AQAa${suffix}`)
     const opponent = await context.connectActor(`AQAb${suffix}`)
-    const evidence = context.report.adapt = { skills: [], requestedSkills, actors: [actor.bot.username, opponent.bot.username], fixture: 'AdaptGameplayFixture', coverage: 'gameplay XP; no abilities or menus' }
+    const evidence = context.report.adapt = { skills: [], requestedSkills, actors: [actor.bot.username, opponent.bot.username], fixture: 'AdaptGameplayFixture', coverage: 'gameplay XP, natural pooled payout, and reconnect retention; no process restart, abilities, or menus' }
     let sequence = 0
     let setup = false
     async function snapshot(player = actor) {
       const token = `s${++sequence}`
-      const prefix = `ADAPT_QA SNAPSHOT ${token} `
-      const message = await context.command(`/adaptqa snapshot ${player.bot.username} ${token}`, new RegExp(`^${prefix}`), 5000)
-      return JSON.parse(message.slice(prefix.length))
+      return fixtureJson(context, `/adaptqa snapshot ${player.bot.username} ${token}`, `SNAPSHOT ${token}`)
     }
     async function equip(name, target = actor, destination = 'hand') {
       await context.waitUntil(() => target.bot.inventory.items().some(item => item.name === name), { label: `${name} fixture item`, timeoutMs: 5000 })
@@ -53,7 +62,7 @@ export async function runSkillSuite(context, requestedSkills = skillMatrix.map(e
           try {
             await actor.bot.waitForTicks(8)
             const health = actor.bot.health
-            const target = opponent.bot.players[actor.bot.username]?.entity
+            const target = opponent.bot.entities[actor.bot.entity.id]
             context.expect(Boolean(target), 'Shield defender is visible')
             await opponent.bot.lookAt(target.position.offset(0, 1, 0), true)
             opponent.bot.attack(target)
@@ -166,6 +175,7 @@ export async function runSkillSuite(context, requestedSkills = skillMatrix.map(e
           try { assertSkillCoverage((await snapshot()).registered); return true } catch { return false }
         }, { label: 'all Adapt skills ready', timeoutMs: 30_000, intervalMs: 1000 })
         const initial = await snapshot()
+        evidence.processId = initial.processId
         assertSkillCoverage(initial.registered, initial.enabled)
         context.expect(!initial.operator, 'Skill actor has ordinary permissions')
       })
@@ -185,6 +195,46 @@ export async function runSkillSuite(context, requestedSkills = skillMatrix.map(e
       }
       context.expect(evidence.skills.length === requestedSkills.length, 'Every requested skill earned XP')
       if (requestedSkills.length === skillMatrix.length) assertSkillCoverage(evidence.skills.map(entry => entry.skill))
+      await context.step('commit earned XP through the natural payout window', async () => {
+        actor.bot.clearControlStates()
+        actor.bot.deactivateItem()
+        await context.command('/adaptqa stage agility', /^ADAPT_QA STAGE agility$/, 10_000)
+        let settled = await snapshot()
+        evidence.payout = {
+          pooledWindowMillis: settled.pooledWindowMillis,
+          pooledIdleFlushMillis: settled.pooledIdleFlushMillis,
+          timeoutMs: 45_000,
+        }
+        await context.waitUntil(async () => {
+          settled = await snapshot()
+          return hasCommittedXp(settled, evidence.skills)
+        }, { label: 'every observed gameplay XP gain committed', timeoutMs: 45_000, intervalMs: 1000 })
+        evidence.payout.skills = evidence.skills.map(entry => ({
+          skill: entry.skill, player: entry.player, observedTotal: entry.after,
+          committed: settled.committedXp[entry.skill], pooled: settled.pooledXp[entry.skill],
+        }))
+        context.expect(hasCommittedXp(settled, evidence.skills), 'Every tested skill committed its observed XP gain')
+      })
+      await context.step('retain committed XP after a planned disconnect and reconnect', async () => {
+        const before = await snapshot()
+        const retained = requestedSkills.map(skill => ({ skill, player: before.player, after: before.committedXp[skill] }))
+        actor = await actor.reconnectAfter(() => actor.bot.quit('Adapt gameplay reconnect check'), { timeoutMs: 30_000 })
+        let after
+        await context.waitUntil(async () => {
+          try {
+            after = await snapshot()
+            return hasCommittedXp(after, retained)
+          } catch {
+            return false
+          }
+        }, { label: 'committed XP retained after reconnect', timeoutMs: 30_000, intervalMs: 1000 })
+        evidence.reconnect = {
+          player: after.player,
+          skills: retained.map(entry => ({ skill: entry.skill, before: entry.after, after: after.committedXp[entry.skill] })),
+          processRestartTested: false,
+        }
+        context.expect(hasCommittedXp(after, retained), 'Reconnected player retained every tested skill payout')
+      })
     } finally {
       for (const player of [actor, opponent]) {
         player.bot.deactivateItem()

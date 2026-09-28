@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.StealthMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.Map;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -62,6 +68,22 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Config> {
+  public static final PlayerPreference<Hand> HAND = new PlayerPreference<>(Hand.class,
+      new PlayerPreference.Definition<>("hand", StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_HAND, Hand.EITHER, List.of(
+          new PlayerPreference.Choice<>(Hand.EITHER, StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_HAND_EITHER, Material.GUNPOWDER, 1),
+          new PlayerPreference.Choice<>(Hand.MAIN, StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_HAND_MAIN, Material.IRON_SWORD, 1),
+          new PlayerPreference.Choice<>(Hand.OFF, StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_HAND_OFF, Material.SHIELD, 1))));
+  public static final PlayerPreference<Gesture> GESTURE = new PlayerPreference<>(Gesture.class,
+      new PlayerPreference.Definition<>("gesture", StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_GESTURE, Gesture.SINGLE, List.of(
+          new PlayerPreference.Choice<>(Gesture.SINGLE, StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_GESTURE_SINGLE, Material.FEATHER, 1),
+          new PlayerPreference.Choice<>(Gesture.DOUBLE, StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_GESTURE_DOUBLE, Material.RABBIT_FOOT, 1))));
+  public static final PlayerPreference<Reserve> RESERVE = new PlayerPreference<>(Reserve.class,
+      new PlayerPreference.Definition<>("reserve", StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_RESERVE, Reserve.NONE, List.of(
+          new PlayerPreference.Choice<>(Reserve.NONE, StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_RESERVE_NONE, Material.BOWL, 1),
+          new PlayerPreference.Choice<>(Reserve.ONE, StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_RESERVE_ONE, Material.GUNPOWDER, 1),
+          new PlayerPreference.Choice<>(Reserve.FOUR, StealthMessages.STEALTHSMOKEPELLET_PREFERENCE_RESERVE_FOUR, Material.TNT, 1))));
+
+  private final Map<UUID, Long> lastPress = playerState();
   private static final int PULSE_INTERVAL_TICKS = 10;
   private static final int BLIND_TICKS = PULSE_INTERVAL_TICKS + 30;
   private static final int INVISIBILITY_TICKS = PULSE_INTERVAL_TICKS + 30;
@@ -124,6 +146,16 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, HAND, GESTURE, RESERVE);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    lastPress.remove(player.getPlayer().getUniqueId());
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getRadius(level), 1), 1);
     statLore(v, Form.duration(getPulses(level) * PULSE_INTERVAL_TICKS * 50D, 1), 2);
@@ -135,8 +167,8 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     PlayerInventory inventory = p.getInventory();
     EquipmentSlot hand = gunpowderHand(
         e.isSneaking(),
-        inventory.getItemInMainHand().getType(),
-        inventory.getItemInOffHand().getType()
+        preference(p, HAND) == Hand.OFF ? Material.AIR : inventory.getItemInMainHand().getType(),
+        preference(p, HAND) == Hand.MAIN ? Material.AIR : inventory.getItemInOffHand().getType()
     );
     if (hand == null) {
       return;
@@ -151,6 +183,14 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
       return;
     }
 
+    if (preference(p, GESTURE) == Gesture.DOUBLE) {
+      long now = System.currentTimeMillis();
+      Long last = lastPress.put(p.getUniqueId(), now);
+      if (last == null || now - last > 350L) {
+        return;
+      }
+      lastPress.remove(p.getUniqueId());
+    }
     if (!consumeGunpowder(p, inventory, hand)) {
       return;
     }
@@ -182,6 +222,14 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
     ItemStack held = hand == EquipmentSlot.OFF_HAND
         ? inventory.getItemInOffHand()
         : inventory.getItemInMainHand();
+    int reserve = switch (preference(p, RESERVE)) {
+      case NONE -> 0;
+      case ONE -> 1;
+      case FOUR -> 4;
+    };
+    if (held.getAmount() <= reserve) {
+      return false;
+    }
     return payItemCost(p, "pellet", new ItemStack(Material.GUNPOWDER), 1, () -> {
       held.setAmount(held.getAmount() - 1);
       return true;
@@ -428,4 +476,10 @@ public class StealthSmokePellet extends SimpleAdaptation<StealthSmokePellet.Conf
       initialCost = 4;
     }
   }
+
+  public enum Hand { EITHER, MAIN, OFF }
+
+  public enum Gesture { SINGLE, DOUBLE }
+
+  public enum Reserve { NONE, ONE, FOUR }
 }

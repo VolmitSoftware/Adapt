@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -71,6 +74,11 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RangedPreferences.SHOTS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, level, 1);
   }
@@ -84,7 +92,7 @@ public class RangedPiercing extends SimpleAdaptation<RangedPiercing.Config> {
       return;
     }
     int level = getActiveLevel(player);
-    if (level <= 0) {
+    if (level <= 0 || !preference(player, RangedPreferences.SHOTS).accepts(arrow)) {
       return;
     }
     arrow.setPierceLevel(arrow.getPierceLevel() + level);

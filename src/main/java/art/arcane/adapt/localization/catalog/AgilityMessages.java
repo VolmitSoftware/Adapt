@@ -5,6 +5,53 @@ import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
 
 public final class AgilityMessages {
+  public static final TextKey AGILITYWINDUP_PREFERENCE_SPEED = TextKey.of("agilitywindup.preferences.preference_speed", "Maximum speed");
+
+  public static final TextKey AGILITYWALLJUMP_PREFERENCE_CONTROL = TextKey.of("agilitywalljump.preferences.preference_control", "Wall jump control");
+  public static final TextKey AGILITYWALLJUMP_PREFERENCE_CONTROL_HOLD = TextKey.of("agilitywalljump.preferences.preference_control_hold", "Hold then release sneak");
+  public static final TextKey AGILITYWALLJUMP_PREFERENCE_CONTROL_TAP = TextKey.of("agilitywalljump.preferences.preference_control_tap", "Tap to latch and jump");
+
+  public static final TextKey AGILITYVAULT_PREFERENCE_TRIGGER = TextKey.of("agilityvault.preferences.preference_trigger", "Vault trigger");
+  public static final TextKey AGILITYVAULT_PREFERENCE_TRIGGER_ANY = TextKey.of("agilityvault.preferences.preference_trigger_any", "Any jump");
+  public static final TextKey AGILITYVAULT_PREFERENCE_TRIGGER_SPRINT = TextKey.of("agilityvault.preferences.preference_trigger_sprint", "While sprinting");
+  public static final TextKey AGILITYVAULT_PREFERENCE_TRIGGER_SNEAK = TextKey.of("agilityvault.preferences.preference_trigger_sneak", "While sneaking");
+
+  public static final TextKey AGILITYSUPERJUMP_PREFERENCE_CONTROL = TextKey.of("agilitysuperjump.preferences.preference_control", "Jump control");
+  public static final TextKey AGILITYSUPERJUMP_PREFERENCE_CONTROL_SNEAK = TextKey.of("agilitysuperjump.preferences.preference_control_sneak", "Sneak and jump");
+  public static final TextKey AGILITYSUPERJUMP_PREFERENCE_CONTROL_EVERY_JUMP = TextKey.of("agilitysuperjump.preferences.preference_control_every_jump", "Every jump");
+  public static final TextKey AGILITYSUPERJUMP_PREFERENCE_HEIGHT = TextKey.of("agilitysuperjump.preferences.preference_height", "Jump height");
+
+  public static final TextKey AGILITYSLIPSTREAMSLIDE_PREFERENCE_CONTROL = TextKey.of("agilityslipstreamslide.preferences.preference_control", "Slide control");
+  public static final TextKey AGILITYSLIPSTREAMSLIDE_PREFERENCE_CONTROL_TAP = TextKey.of("agilityslipstreamslide.preferences.preference_control_tap", "Tap sneak");
+  public static final TextKey AGILITYSLIPSTREAMSLIDE_PREFERENCE_CONTROL_HOLD = TextKey.of("agilityslipstreamslide.preferences.preference_control_hold", "Hold sneak");
+  public static final TextKey AGILITYSLIPSTREAMSLIDE_PREFERENCE_DURATION = TextKey.of("agilityslipstreamslide.preferences.preference_duration", "Maximum slide duration");
+
+  public static final TextKey AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE = TextKey.of("agilityrolllanding.preferences.preference_food_reserve", "Food reserve");
+  public static final TextKey AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE_NONE = TextKey.of("agilityrolllanding.preferences.preference_food_reserve_none", "No reserve");
+  public static final TextKey AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE_FOUR = TextKey.of("agilityrolllanding.preferences.preference_food_reserve_four", "Keep 4 food");
+  public static final TextKey AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE_EIGHT = TextKey.of("agilityrolllanding.preferences.preference_food_reserve_eight", "Keep 8 food");
+
+  public static final TextKey AGILITYLADDERSLIDE_PREFERENCE_ASCENT = TextKey.of("agilityladderslide.preferences.preference_ascent", "Upward assistance");
+  public static final TextKey AGILITYLADDERSLIDE_PREFERENCE_DESCENT = TextKey.of("agilityladderslide.preferences.preference_descent", "Downward assistance");
+  public static final TextKey AGILITYLADDERSLIDE_PREFERENCE_SPEED = TextKey.of("agilityladderslide.preferences.preference_speed", "Assistance speed");
+  public static final TextKey AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY = TextKey.of("agilityladderslide.preferences.preference_sensitivity", "Look sensitivity");
+  public static final TextKey AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY_NORMAL = TextKey.of("agilityladderslide.preferences.preference_sensitivity_normal", "Normal");
+  public static final TextKey AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY_PRECISE = TextKey.of("agilityladderslide.preferences.preference_sensitivity_precise", "More deliberate");
+  public static final TextKey AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY_RESPONSIVE = TextKey.of("agilityladderslide.preferences.preference_sensitivity_responsive", "More responsive");
+
+  public static final TextKey AGILITYKIPUP_PREFERENCE_SPEED_BURST = TextKey.of("agilitykipup.preferences.preference_speed_burst", "Recovery speed burst");
+
+  public static final TextKey AGILITYFEATHERFOOT_PREFERENCE_FARMLAND = TextKey.of("agilityfeatherfoot.preferences.preference_farmland", "Farmland protection");
+  public static final TextKey AGILITYFEATHERFOOT_PREFERENCE_PLATES = TextKey.of("agilityfeatherfoot.preferences.preference_plates", "Pressure plate protection");
+  public static final TextKey AGILITYFEATHERFOOT_PREFERENCE_BERRIES = TextKey.of("agilityfeatherfoot.preferences.preference_berries", "Berry protection");
+  public static final TextKey AGILITYFEATHERFOOT_PREFERENCE_SNOW = TextKey.of("agilityfeatherfoot.preferences.preference_snow", "Powder snow protection");
+
+  public static final TextKey AGILITYAIRDASH_PREFERENCE_TRIGGER = TextKey.of("agilityairdash.preferences.preference_trigger", "Dash trigger");
+  public static final TextKey AGILITYAIRDASH_PREFERENCE_TRIGGER_ANY = TextKey.of("agilityairdash.preferences.preference_trigger_any", "Left click");
+  public static final TextKey AGILITYAIRDASH_PREFERENCE_TRIGGER_SNEAK = TextKey.of("agilityairdash.preferences.preference_trigger_sneak", "While sneaking");
+  public static final TextKey AGILITYAIRDASH_PREFERENCE_TRIGGER_EMPTY_HAND = TextKey.of("agilityairdash.preferences.preference_trigger_empty_hand", "Empty hand");
+  public static final TextKey AGILITYAIRDASH_PREFERENCE_SPEED = TextKey.of("agilityairdash.preferences.preference_speed", "Dash speed");
+
   public static final TextKey ARMOR_UP_NAME = TextKey.of("agility.armor_up.name", "Armor-Up");
   public static final TextKey ARMOR_UP_DESCRIPTION = TextKey.of("agility.armor_up.description", "Get more armor the longer you sprint! Stop and it fades away slowly.");
   public static final TextKey ARMOR_UP_LORE1 = TextKey.of("agility.armor_up.lore1", "Max Armor");
@@ -76,6 +123,43 @@ public final class AgilityMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(AGILITYWINDUP_PREFERENCE_SPEED);
+    builder.add(AGILITYWALLJUMP_PREFERENCE_CONTROL_TAP);
+    builder.add(AGILITYWALLJUMP_PREFERENCE_CONTROL_HOLD);
+    builder.add(AGILITYWALLJUMP_PREFERENCE_CONTROL);
+    builder.add(AGILITYVAULT_PREFERENCE_TRIGGER_SNEAK);
+    builder.add(AGILITYVAULT_PREFERENCE_TRIGGER_SPRINT);
+    builder.add(AGILITYVAULT_PREFERENCE_TRIGGER_ANY);
+    builder.add(AGILITYVAULT_PREFERENCE_TRIGGER);
+    builder.add(AGILITYSUPERJUMP_PREFERENCE_HEIGHT);
+    builder.add(AGILITYSUPERJUMP_PREFERENCE_CONTROL_EVERY_JUMP);
+    builder.add(AGILITYSUPERJUMP_PREFERENCE_CONTROL_SNEAK);
+    builder.add(AGILITYSUPERJUMP_PREFERENCE_CONTROL);
+    builder.add(AGILITYSLIPSTREAMSLIDE_PREFERENCE_DURATION);
+    builder.add(AGILITYSLIPSTREAMSLIDE_PREFERENCE_CONTROL_HOLD);
+    builder.add(AGILITYSLIPSTREAMSLIDE_PREFERENCE_CONTROL_TAP);
+    builder.add(AGILITYSLIPSTREAMSLIDE_PREFERENCE_CONTROL);
+    builder.add(AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE_EIGHT);
+    builder.add(AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE_FOUR);
+    builder.add(AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE_NONE);
+    builder.add(AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE);
+    builder.add(AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY_RESPONSIVE);
+    builder.add(AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY_PRECISE);
+    builder.add(AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY_NORMAL);
+    builder.add(AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY);
+    builder.add(AGILITYLADDERSLIDE_PREFERENCE_SPEED);
+    builder.add(AGILITYLADDERSLIDE_PREFERENCE_DESCENT);
+    builder.add(AGILITYLADDERSLIDE_PREFERENCE_ASCENT);
+    builder.add(AGILITYKIPUP_PREFERENCE_SPEED_BURST);
+    builder.add(AGILITYFEATHERFOOT_PREFERENCE_SNOW);
+    builder.add(AGILITYFEATHERFOOT_PREFERENCE_BERRIES);
+    builder.add(AGILITYFEATHERFOOT_PREFERENCE_PLATES);
+    builder.add(AGILITYFEATHERFOOT_PREFERENCE_FARMLAND);
+    builder.add(AGILITYAIRDASH_PREFERENCE_SPEED);
+    builder.add(AGILITYAIRDASH_PREFERENCE_TRIGGER_EMPTY_HAND);
+    builder.add(AGILITYAIRDASH_PREFERENCE_TRIGGER_SNEAK);
+    builder.add(AGILITYAIRDASH_PREFERENCE_TRIGGER_ANY);
+    builder.add(AGILITYAIRDASH_PREFERENCE_TRIGGER);
     builder.add(ARMOR_UP_NAME);
     builder.add(ARMOR_UP_DESCRIPTION);
     builder.add(ARMOR_UP_LORE1);

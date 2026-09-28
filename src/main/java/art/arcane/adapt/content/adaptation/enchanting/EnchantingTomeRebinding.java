@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
 
@@ -55,6 +58,9 @@ import java.util.concurrent.ThreadLocalRandom;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebinding.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirmation", EnchantingMessages.PREFERENCE_ENCHANTINGTOMEREBINDING_CONFIRM, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", EnchantingMessages.PREFERENCE_ENCHANTINGTOMEREBINDING_SNEAK, CommonPreferences.Toggle.OFF);
+
   public EnchantingTomeRebinding() {
     super("enchanting-tome-rebinding");
     registerConfiguration(Config.class);
@@ -74,6 +80,12 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
         .build());
     registerMilestone("challenge_enchanting_rebind_50", "enchanting.tome-rebinding.books-split", 50, 400);
     registerMilestone("challenge_enchanting_rebind_500", "enchanting.tome-rebinding.books-split", 500, 1200);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONFIRM, SNEAK);
   }
 
   @Override
@@ -113,7 +125,7 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
     }
 
     int level = getActiveInteractLevel(p, target.getLocation());
-    if (level <= 0) {
+    if (level <= 0 || preferenceEnabled(p, SNEAK) && !p.isSneaking()) {
       return;
     }
 
@@ -123,6 +135,10 @@ public class EnchantingTomeRebinding extends SimpleAdaptation<EnchantingTomeRebi
       return;
     }
 
+    if (preferenceEnabled(p, CONFIRM) && !PreferenceConfirmation.confirm(this, p, "split", book)) {
+      e.setCancelled(true);
+      return;
+    }
     EnchantmentStorageMeta meta = (EnchantmentStorageMeta) book.getItemMeta();
     List<Map.Entry<Enchantment, Integer>> enchants = new ArrayList<>(meta.getStoredEnchants().entrySet());
     if (ThreadLocalRandom.current().nextDouble() < getLossChance(level) && enchants.size() > 1) {

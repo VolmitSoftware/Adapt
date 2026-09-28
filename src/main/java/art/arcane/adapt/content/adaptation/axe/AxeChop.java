@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -75,6 +78,11 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, AxePreferences.SNEAK, AxePreferences.WORK);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, level, 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTime(getLevelPercent(level)) * 50D, 1), 2);
@@ -104,7 +112,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
       return;
     }
 
-    if (!isAxe(p.getInventory().getItemInMainHand()) || !hasActiveAdaptation(p)) {
+    if ((preferenceEnabled(p, AxePreferences.SNEAK) && !p.isSneaking()) || !isAxe(p.getInventory().getItemInMainHand()) || !hasActiveAdaptation(p)) {
       return;
     }
 
@@ -133,7 +141,7 @@ public class AxeChop extends SimpleAdaptation<AxeChop.Config> {
           })
           .start();
       int logsChopped = 0;
-      for (int i = 0; i < getLevel(p); i++) {
+      for (int i = 0; i < Math.max(1, (int) Math.floor(getActiveLevel(p) * preference(p, AxePreferences.WORK).multiplier())); i++) {
         if (breakStuff(target, getRange(getLevel(p)), p)) {
           logsChopped++;
           p.setCooldown(p.getInventory().getItemInMainHand().getType(), getCooldownTime(getLevelPercent(p)));

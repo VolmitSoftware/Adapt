@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.localization.catalog.EnchantingMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -39,6 +43,8 @@ import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 
 public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBookshelfAttunement.Config> {
+  public static final PlayerPreference<CommonPreferences.Scale> POWER = CommonPreferences.scale("power", EnchantingMessages.PREFERENCE_ENCHANTINGBOOKSHELFATTUNEMENT_POWER);
+
   private final Cooldowns shimmerCooldown = cooldowns();
 
   public EnchantingBookshelfAttunement() {
@@ -53,6 +59,12 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_enchanting_bookshelf_100", "enchanting.bookshelf-attunement.enchants-boosted", 100, 400);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, POWER);
   }
 
   @Override
@@ -85,7 +97,7 @@ public class EnchantingBookshelfAttunement extends SimpleAdaptation<EnchantingBo
       return;
     }
 
-    int power = getVirtualPower(getLevel(p));
+    int power = (int) Math.floor(getVirtualPower(getLevel(p)) * preference(p, POWER).multiplier());
     EnchantmentOffer[] offers = e.getOffers();
     if (offers == null) {
       return;

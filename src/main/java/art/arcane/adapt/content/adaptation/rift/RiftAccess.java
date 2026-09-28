@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 
@@ -85,6 +89,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM_UNBIND = CommonPreferences.toggle("confirm-unbind", RiftMessages.RIFTACCESS_PREFERENCE_CONFIRM_UNBIND, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM_BIND = CommonPreferences.toggle("confirm-bind", RiftMessages.RIFTACCESS_PREFERENCE_CONFIRM_BIND, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK_OPEN = CommonPreferences.toggle("sneak-open", RiftMessages.RIFTACCESS_PREFERENCE_SNEAK_OPEN, CommonPreferences.Toggle.OFF);
+
   private static final int PENDING_OPEN_TIMEOUT_TICKS = 40;
   private static final Object ADVANCED_CHEST_LOOKUP_FAILED = new Object();
   private static final AtomicLong TICKET_OWNER_SEQUENCE = new AtomicLong();
@@ -123,6 +131,19 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONFIRM_BIND, CONFIRM_UNBIND, SNEAK_OPEN);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    RiftAccessViewRegistry.Session session = activeViews.closePlayer(player.getPlayer().getUniqueId());
+    if (session != null) {
+      releaseSession(session, true);
+    }
+  }
+
+  @Override
   public void unregister() {
     if (!acceptingViews.compareAndSet(true, false)) {
       super.unregister();
@@ -145,6 +166,7 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
     v.addLore(C.ITALIC + AdaptLanguage.text(RiftMessages.REMOTE_ACCESS_LORE1));
     v.addLore(C.ITALIC + AdaptLanguage.text(RiftMessages.REMOTE_ACCESS_LORE2));
     v.addLore(C.ITALIC + AdaptLanguage.text(RiftMessages.REMOTE_ACCESS_LORE3));
+    v.addLore(C.ITALIC + AdaptLanguage.text(RiftMessages.REMOTE_ACCESS_UNBIND));
   }
 
 
@@ -257,12 +279,18 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
       if (action == Action.LEFT_CLICK_BLOCK && blockUseDenied) {
         return;
       }
-      if (action == Action.LEFT_CLICK_AIR && J.isFoliaThreading()) {
+      if (action == Action.LEFT_CLICK_AIR && J.isFoliaThreading() && !J.isOwnedByCurrentRegion(player.getLocation(), 6D, 6D)) {
         return;
       }
 
       Block target = action == Action.LEFT_CLICK_BLOCK ? block : player.getTargetBlockExact(5);
-      if (target == null) {
+      if (target == null || !isStorage(target.getBlockData())) {
+        if (action == Action.LEFT_CLICK_AIR) {
+          ItemStack hand = player.getInventory().getItemInMainHand();
+          if ((!preferenceEnabled(player, CONFIRM_UNBIND) || PreferenceConfirmation.confirm(this, player, "unbind", hand)) && BoundEnderPearl.clearBinding(hand)) {
+            player.getInventory().setItemInMainHand(hand);
+          }
+        }
         return;
       }
       if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(target.getLocation())) {
@@ -295,6 +323,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
   private void linkPearl(Player player, Block block, PlayerInteractEvent event) {
     event.setCancelled(true);
     ItemStack hand = player.getInventory().getItemInMainHand();
+    if (preferenceEnabled(player, CONFIRM_BIND) && !PreferenceConfirmation.confirm(this, player, "bind:" + block.getWorld().getUID() + ":" + block.getX() + ":" + block.getY() + ":" + block.getZ(), hand)) {
+      return;
+    }
     ItemStack costUnit = hand.clone();
     costUnit.setAmount(1);
     AtomicBoolean defaultConsumed = new AtomicBoolean();
@@ -342,6 +373,9 @@ public class RiftAccess extends SimpleAdaptation<RiftAccess.Config> {
   }
 
   private void openPearl(Player player) {
+    if (preferenceEnabled(player, SNEAK_OPEN) && !player.isSneaking()) {
+      return;
+    }
     Block block = BoundEnderPearl.getBlock(player.getInventory().getItemInMainHand());
     if (block == null) {
       showOpenFailure(player);

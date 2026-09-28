@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.AgilityMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
@@ -53,6 +58,11 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", AgilityMessages.AGILITYWALLJUMP_PREFERENCE_CONTROL, Control.HOLD, List.of(
+          new PlayerPreference.Choice<>(Control.HOLD, AgilityMessages.AGILITYWALLJUMP_PREFERENCE_CONTROL_HOLD, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Control.TAP, AgilityMessages.AGILITYWALLJUMP_PREFERENCE_CONTROL_TAP, Material.FEATHER, 1))));
+
   private static final String SLOT_LATCH = "latch";
   private static final double GRAVITY_CANCEL = -1D;
   private final Map<UUID, Double> airjumps = playerState();
@@ -82,6 +92,17 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONTROL);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    releaseLatch(player.getPlayer());
+    sneakState.remove(player.getPlayer().getUniqueId());
+  }
+
+  @Override
   public void unregister() {
     super.unregister();
     airjumps.clear();
@@ -101,6 +122,18 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
     UUID id = p.getUniqueId();
+    if (preference(p, CONTROL) == Control.TAP) {
+      if (e.isSneaking()) {
+        if (latchedWalls.containsKey(id)) {
+          releaseJump(p);
+          sneakState.put(id, false);
+        } else {
+          sneakState.put(id, true);
+          updatePlayer(p);
+        }
+      }
+      return;
+    }
     sneakState.put(id, e.isSneaking());
     if (shouldReleaseJump(e.isSneaking(), latchedWalls.containsKey(id))) {
       releaseJump(p);
@@ -134,7 +167,7 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
   @RunsWithoutLearnedAdaptation
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    boolean sneaking = p.isSneaking();
+    boolean sneaking = preference(p, CONTROL) == Control.TAP ? sneakState.getOrDefault(p.getUniqueId(), false) : p.isSneaking();
     if (!sneaking && airjumps.isEmpty() && latchedWalls.isEmpty()) {
       return;
     }
@@ -174,7 +207,10 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
     }
     int level = getActiveInteractLevel(p, p.getLocation());
     if (level <= 0) {
-      clearPlayerState(p);
+      horizontalIntent.remove(id);
+      horizontalIntentTime.remove(id);
+      sneakState.remove(id);
+      releaseLatch(p);
       return;
     }
 
@@ -396,4 +432,6 @@ public class AgilityWallJump extends SimpleAdaptation<AgilityWallJump.Config> {
       initialCost = 8;
     }
   }
+
+  public enum Control { HOLD, TAP }
 }

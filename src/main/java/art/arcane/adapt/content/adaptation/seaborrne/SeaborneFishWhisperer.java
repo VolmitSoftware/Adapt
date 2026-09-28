@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.SeabornMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -52,6 +56,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhisperer.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> ATTRACTION = CommonPreferences.toggle("attraction", SeabornMessages.SEABORNEFISHWHISPERER_PREFERENCE_ATTRACTION, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> ASSISTANCE = CommonPreferences.toggle("assistance", SeabornMessages.SEABORNEFISHWHISPERER_PREFERENCE_ASSISTANCE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> LUCK = CommonPreferences.toggle("luck", SeabornMessages.SEABORNEFISHWHISPERER_PREFERENCE_LUCK, CommonPreferences.Toggle.ON);
+
   private static final String LUCK_SLOT = "luck";
   private static final long LUCK_DURATION_TICKS = 400L;
   private static final int MAX_FISH = 12;
@@ -83,6 +91,16 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, ATTRACTION, ASSISTANCE, LUCK);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().remove(player.getPlayer(), getName(), LUCK_SLOT, Attributes.LUCK);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, luckAmount(level, getMaxLevel()), 1);
     statLore(v, Form.f(getSchoolRange(level), 1), 2);
@@ -104,8 +122,10 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
           return;
         }
 
-        applyLuck(player, level);
-        if (player.isInWater() || player.isSwimming()) {
+        if (preferenceEnabled(player, LUCK)) {
+          applyLuck(player, level);
+        }
+        if (preferenceEnabled(player, ATTRACTION) && (player.isInWater() || player.isSwimming())) {
           schoolFish(player, level);
         }
       });
@@ -188,6 +208,9 @@ public class SeaborneFishWhisperer extends SimpleAdaptation<SeaborneFishWhispere
       return;
     }
 
+    if (!preferenceEnabled(p, ASSISTANCE)) {
+      return;
+    }
     double range = getAssistRange(level);
     Location victimLocation = victim.getLocation().clone();
     int assisted = 0;

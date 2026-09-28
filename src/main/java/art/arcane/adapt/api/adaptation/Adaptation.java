@@ -20,6 +20,9 @@ package art.arcane.adapt.api.adaptation;
 
 import art.arcane.volmlib.nativelib.player.PlayerClientAccess;
 import art.arcane.adapt.api.Component;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.ability.AbilityCharge;
 import art.arcane.adapt.api.ability.AbilityCostKind;
 import art.arcane.adapt.api.ability.AbilityDefaultCost;
@@ -58,6 +61,33 @@ import java.util.function.Predicate;
  */
 public interface Adaptation<T> extends Ticked, Component {
 
+  default List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED);
+  }
+
+  default <E extends Enum<E>> E preference(Player player, PlayerPreference<E> preference) {
+    AdaptPlayer adaptPlayer = getPlayer(player);
+    return PlayerPreferences.resolve(this, adaptPlayer == null ? null : adaptPlayer.getData(),
+        getLevel(player), preference);
+  }
+
+  default boolean preferenceEnabled(Player player, PlayerPreference<CommonPreferences.Toggle> preference) {
+    return preference(player, preference) == CommonPreferences.Toggle.ON;
+  }
+
+  default boolean isPlayerEnabled(Player player) {
+    AdaptPlayer adaptPlayer = getPlayer(player);
+    return adaptPlayer != null && adaptPlayer.isRuntimeReady()
+        && PlayerPreferences.isEnabled(this, adaptPlayer.getData(), getLevel(adaptPlayer));
+  }
+
+  default void onPlayerPreferencesChanged(AdaptPlayer player) {
+  }
+
+  default boolean isPlayerPreferenceVisible(AdaptPlayer player, PlayerPreference<?> preference) {
+    return true;
+  }
+
   /**
    * @return maximum unlockable level for this adaptation.
    */
@@ -75,6 +105,9 @@ public interface Adaptation<T> extends Ticked, Component {
    * suffix.
    */
   default void xp(Player p, double amount, String rewardKey) {
+    if (!isPlayerEnabled(p)) {
+      return;
+    }
     getSkill().xp(p, amount, adaptationRewardKey(rewardKey));
   }
 
@@ -90,6 +123,9 @@ public interface Adaptation<T> extends Ticked, Component {
    * suffix.
    */
   default void xp(Player p, Location l, double amount, String rewardKey) {
+    if (!isPlayerEnabled(p)) {
+      return;
+    }
     getSkill().xp(p, l, amount, adaptationRewardKey(rewardKey));
   }
 
@@ -97,6 +133,9 @@ public interface Adaptation<T> extends Ticked, Component {
    * Grants silent adaptation-attributed xp with an optional reward key suffix.
    */
   default void xpSilent(Player p, double amount, String rewardKey) {
+    if (!isPlayerEnabled(p)) {
+      return;
+    }
     getSkill().xpSilent(p, amount, adaptationRewardKey(rewardKey));
   }
 
@@ -706,7 +745,11 @@ public interface Adaptation<T> extends Ticked, Component {
    * location.
    */
   default boolean checkRegion(Player player) {
-    return evaluateWorldPolicy(protector -> protector.checkRegion(player, player.getLocation(), this));
+    return checkRegion(player, player.getLocation());
+  }
+
+  default boolean checkRegion(Player player, Location location) {
+    return evaluateWorldPolicy(protector -> protector.checkRegion(player, location, this));
   }
 
   private boolean evaluateWorldPolicy(Predicate<Protector> evaluator) {

@@ -102,7 +102,7 @@ public class AdaptConfig {
   private long actionbarXpDurationMillis = 1_500L;
   @ConfigDoc(value = "Shows skill-level notifications on the action bar.", impact = "Disable this to suppress skill-level text while leaving progression and level-up sounds controlled independently.")
   private boolean actionbarNotifyLevel = true;
-  @ConfigDoc(value = "Shows master-level and maximum-power notifications on the action bar.", impact = "Disable this to suppress the account-wide level popup while leaving progression, mutation unlock checks, and level-up sounds controlled independently.")
+  @ConfigDoc(value = "Shows master-level and maximum-power notifications on the action bar.", impact = "Disable this to suppress the account-wide level popup while leaving progression and level-up sounds controlled independently.")
   private boolean actionbarNotifyMasterLevel = true;
   @ConfigDoc(value = "Milliseconds skill-level and master-level notifications remain visible on the action bar.", impact = "Clamped to 100-60000 milliseconds and hot-reloadable. This does not change the XP ticker duration.")
   private long actionbarLevelDurationMillis = 2_500L;

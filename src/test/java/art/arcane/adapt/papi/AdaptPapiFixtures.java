@@ -1,9 +1,6 @@
 package art.arcane.adapt.papi;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.MutationSnapshot;
-import art.arcane.adapt.api.mutation.MutationState;
-import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
@@ -12,10 +9,7 @@ import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.api.xp.NewtonCurve;
 import art.arcane.volmlib.util.collection.KList;
 
-import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -25,9 +19,6 @@ final class AdaptPapiFixtures {
   static final NewtonCurve SQUARE_CURVE = Curves.X2.getCurve();
   static final double POWER_PER_LEVEL = 1.0D;
   static final int CONFIGURED_MAX_LEVEL = 1000;
-  static final MutationType SLOT_ONE_MUTATION = MutationType.BASTION_SPINE;
-  static final MutationType SLOT_TWO_MUTATION = MutationType.VERDANT_MOLT;
-  static final MutationType UNSELECTED_MUTATION = MutationType.TEMPERBOUND;
   static final int MAX_POWER = 10;
   static final int BASE_SPENT_POWER = 2;
   static final long UNBOUNDED_KNOWLEDGE = 1_000L;
@@ -43,22 +34,20 @@ final class AdaptPapiFixtures {
     return AdaptCatalogSnapshot.build(7L, List.of(mining, hunter));
   }
 
-  static AdaptPlayerSnapshot player(AdaptCatalogSnapshot catalog) {
+  static AdaptPlayerSnapshot player() {
     return AdaptPlayerSnapshotBuilder.build(
         null,
         playerData(),
-        AdaptPlayerSnapshotBuilder.mutationView(mutationSnapshot(), true, 12_500L, catalog),
         SQUARE_CURVE,
         CONFIGURED_MAX_LEVEL,
         POWER_PER_LEVEL
     );
   }
 
-  static AdaptPlayerSnapshot powerBoundPlayer(AdaptCatalogSnapshot catalog, int spentPower) {
+  static AdaptPlayerSnapshot powerBoundPlayer(int spentPower) {
     return AdaptPlayerSnapshotBuilder.build(
         null,
         powerBoundPlayerData(spentPower),
-        AdaptPlayerSnapshotBuilder.mutationView(mutationSnapshot(), true, 12_500L, catalog),
         SQUARE_CURVE,
         CONFIGURED_MAX_LEVEL,
         POWER_PER_LEVEL
@@ -75,44 +64,6 @@ final class AdaptPapiFixtures {
     }
 
     return data;
-  }
-
-  static AdaptPlayerSnapshot playerWithoutMutations() {
-    return AdaptPlayerSnapshotBuilder.build(
-        null,
-        playerData(),
-        AdaptPlayerSnapshotBuilder.mutationView(null, true, 0L, null),
-        SQUARE_CURVE,
-        CONFIGURED_MAX_LEVEL,
-        POWER_PER_LEVEL
-    );
-  }
-
-  static AdaptPlayerSnapshot playerWithStaleMutationView() {
-    return AdaptPlayerSnapshotBuilder.build(
-        null,
-        playerData(),
-        new AdaptMutationView(
-            false,
-            true,
-            SLOT_ONE_MUTATION.id(),
-            SLOT_TWO_MUTATION.id(),
-            "Bastion Spine",
-            "Verdant Molt",
-            true,
-            true,
-            true,
-            3,
-            "3",
-            5_000L,
-            "5.00",
-            false,
-            mutationSnapshot()
-        ),
-        SQUARE_CURVE,
-        CONFIGURED_MAX_LEVEL,
-        POWER_PER_LEVEL
-    );
   }
 
   static PlayerData playerData() {
@@ -137,35 +88,6 @@ final class AdaptPapiFixtures {
     adaptation.setId(id);
     adaptation.setLevel(level);
     return adaptation;
-  }
-
-  static MutationSnapshot mutationSnapshot() {
-    Map<MutationType, MutationState> states = new EnumMap<>(MutationType.class);
-    Map<MutationType, String> reasons = new EnumMap<>(MutationType.class);
-
-    for (MutationType type : MutationType.values()) {
-      states.put(type, MutationState.LOCKED);
-      reasons.put(type, "");
-    }
-
-    states.put(SLOT_ONE_MUTATION, MutationState.EXPRESSED);
-    states.put(SLOT_TWO_MUTATION, MutationState.AVAILABLE);
-
-    return new MutationSnapshot(
-        SLOT_ONE_MUTATION.id(),
-        SLOT_TWO_MUTATION.id(),
-        Set.of(SLOT_ONE_MUTATION),
-        false,
-        true,
-        false,
-        true,
-        Set.of(SLOT_ONE_MUTATION.id(), SLOT_TWO_MUTATION.id()),
-        states,
-        reasons,
-        Set.of(SLOT_ONE_MUTATION, SLOT_TWO_MUTATION),
-        Map.of(),
-        Map.of()
-    );
   }
 
   static Skill<?> skill(String name, boolean enabled, String localizedName, Adaptation<?>... adaptations) {

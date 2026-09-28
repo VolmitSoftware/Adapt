@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 
@@ -46,6 +49,10 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFooting.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> FARMLAND = CommonPreferences.toggle("farmland", HerbalismMessages.PREFERENCE_HERBALISMROOTEDFOOTING_FARMLAND, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FALL = CommonPreferences.toggle("fall-conversion", HerbalismMessages.PREFERENCE_HERBALISMROOTEDFOOTING_FALL, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FOOD_RESERVE = CommonPreferences.toggle("food-reserve", HerbalismMessages.PREFERENCE_HERBALISMROOTEDFOOTING_FOOD_RESERVE, CommonPreferences.Toggle.OFF);
+
   private final Cooldowns trampleFx = cooldowns();
 
   public HerbalismRootedFooting() {
@@ -63,6 +70,11 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, FARMLAND, FALL, FOOD_RESERVE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     double absorb = getFallAbsorb(level);
     statLore(v, Form.pc(absorb, 0), 1);
@@ -77,7 +89,7 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
       return;
     }
 
-    if (!hasActiveAdaptation(p)) {
+    if (!hasActiveAdaptation(p) || !preferenceEnabled(p, FARMLAND)) {
       return;
     }
 
@@ -100,7 +112,7 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0 || !isNatureGround(p)) {
+    if (level <= 0 || !isNatureGround(p) || !preferenceEnabled(p, FALL)) {
       return;
     }
 
@@ -111,6 +123,9 @@ public class HerbalismRootedFooting extends SimpleAdaptation<HerbalismRootedFoot
     }
 
     int usableFood = Math.min(p.getFoodLevel(), foodRequired);
+    if (preferenceEnabled(p, FOOD_RESERVE) && p.getFoodLevel() - usableFood < 8) {
+      return;
+    }
     double absorbed = absorbedDamage(absorbCap, usableFood, getConfig().foodPerDamage);
     if (absorbed <= 0) {
       return;

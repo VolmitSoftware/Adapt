@@ -63,6 +63,11 @@ public class SeaborneOxygen extends SimpleAdaptation<SeaborneOxygen.Config> {
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().remove(player.getPlayer(), getName(), ATTRIBUTE_SLOT, Attributes.OXYGEN_BONUS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getAirBoost(level), 0), 1);
   }

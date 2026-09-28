@@ -231,6 +231,10 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
         return;
       }
 
+      if (player.getNoDamageTicks() > player.getMaximumNoDamageTicks() / 2D) {
+        return;
+      }
+
       try {
         applyDeferredDamage(player, damage);
       } catch (Throwable error) {
@@ -249,20 +253,23 @@ public class ChronosBorrowedTime extends SimpleAdaptation<ChronosBorrowedTime.Co
         deferred.remove(id, queue);
       }
       persistDeferredDamage(player, queue);
-
-      int motes = (int) Math.max(2, Math.min(5, Math.round(damage)));
-      float pitch = 0.5F + Math.min(0.9F, (float) (damage * 0.12D));
-      fx(player.getLocation().add(0, 1.0, 0), FxPriority.TRAIL)
-          .particle(Particle.SOUL, motes, 0, 0.1D, 0, 0.2D, 0.02D)
-          .sound(Sound.BLOCK_SAND_STEP, 0.2F, pitch);
-
-      if (cleared && !player.isDead()) {
-        fx(player.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
-            .column(Particles.END_ROD, 6, 1.2D)
-            .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.5F);
-      }
+      emitPaybackFeedback(player, damage, cleared);
     } finally {
       settling.remove(id);
+    }
+  }
+
+  void emitPaybackFeedback(Player player, double damage, boolean cleared) {
+    int motes = (int) Math.max(2, Math.min(5, Math.round(damage)));
+    float pitch = 0.5F + Math.min(0.9F, (float) (damage * 0.12D));
+    fx(player.getLocation().add(0, 1.0, 0), FxPriority.TRAIL)
+        .particle(Particle.SOUL, motes, 0, 0.1D, 0, 0.2D, 0.02D)
+        .sound(Sound.BLOCK_SAND_STEP, 0.2F, pitch);
+
+    if (cleared && !player.isDead()) {
+      fx(player.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)
+          .column(Particles.END_ROD, 6, 1.2D)
+          .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.5F, 1.5F);
     }
   }
 

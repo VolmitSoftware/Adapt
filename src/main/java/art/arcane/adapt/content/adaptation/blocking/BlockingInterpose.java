@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -66,6 +69,11 @@ public class BlockingInterpose extends SimpleAdaptation<BlockingInterpose.Config
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BlockingPreferences.ALLIES, BlockingPreferences.RESERVE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getRedirectShare(level), 0), 1);
     statLore(v, Form.f(getRange(level), 1), 2);
@@ -95,9 +103,14 @@ public class BlockingInterpose extends SimpleAdaptation<BlockingInterpose.Config
       }
 
       int level = getActiveLevel(blocker);
-      if (level <= 0) {
+      if (level <= 0 || !preference(blocker, BlockingPreferences.ALLIES).accepts(blocker, ally)) {
         continue;
       }
+
+      ItemStack shield = blocker.getInventory().getItemInOffHand();
+      if (shield.getType() != Material.SHIELD) { shield = blocker.getInventory().getItemInMainHand(); }
+      int cost = Math.max(1, (int) Math.ceil(e.getDamage() * getRedirectShare(level) * getConfig().durabilityPerDamage));
+      if (!preference(blocker, BlockingPreferences.RESERVE).permits(shield, cost)) { continue; }
 
       double range = getRange(level);
       double distanceSquared = blocker.getLocation().distanceSquared(allyLocation);

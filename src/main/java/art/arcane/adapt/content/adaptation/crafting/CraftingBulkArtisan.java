@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
 
@@ -45,6 +48,10 @@ import org.bukkit.inventory.Recipe;
 import java.util.Map;
 
 public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Config> {
+  public static final PlayerPreference<CraftingPreferences.Category> MATERIALS = CraftingPreferences.categories("materials", CraftingMessages.PREFERENCE_CRAFTINGBULKARTISAN_MATERIALS);
+  public static final PlayerPreference<CommonPreferences.Scale> BATCH = CommonPreferences.scale("batch-limit", CraftingMessages.PREFERENCE_CRAFTINGBULKARTISAN_BATCH);
+  public static final PlayerPreference<CraftingPreferences.Reserve> RESERVE = CraftingPreferences.reserve("ingredient-reserve", CraftingMessages.PREFERENCE_CRAFTINGBULKARTISAN_RESERVE);
+
   private final Cooldowns throttle = cooldowns();
 
   public CraftingBulkArtisan() {
@@ -65,6 +72,12 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
         .build());
     registerMilestone("challenge_crafting_bulk_1k", "crafting.bulk-artisan.batch-crafted", 1000, 400);
     registerMilestone("challenge_crafting_bulk_10k", "crafting.bulk-artisan.batch-crafted", 10000, 1500);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, MATERIALS, BATCH, RESERVE);
   }
 
   @Override
@@ -98,7 +111,7 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
     }
 
     ItemStack result = recipe.getResult();
-    if (result == null || result.getType().isAir()) {
+    if (result == null || result.getType().isAir() || !preference(p, MATERIALS).allows(result.getType())) {
       return;
     }
 
@@ -112,7 +125,7 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
     }
     throttle.mark(p.getUniqueId());
 
-    int cap = getBatchCap(level);
+    int cap = (int) Math.floor(getBatchCap(level) * preference(p, BATCH).multiplier());
     ItemStack template = result.clone();
     J.runEntity(p, () -> augmentBatch(p, perCraft, template, cap));
   }
@@ -133,7 +146,7 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
       if (required <= 0) {
         continue;
       }
-      maxCrafts = Math.min(maxCrafts, availablePlain(p, entry.getKey()) / required);
+      maxCrafts = Math.min(maxCrafts, Math.max(0, availablePlain(p, entry.getKey()) - preference(p, RESERVE).amount()) / required);
       if (maxCrafts <= 0) {
         return;
       }

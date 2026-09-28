@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.taming.TamingAlphasCommand;
 import art.arcane.adapt.content.adaptation.taming.TamingBattleBond;
@@ -246,7 +247,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
   }
 
   @NoArgsConstructor
-  protected static class Config {
+  protected static class Config extends SkillConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
     boolean enabled = true;
     String skillColor = "&6";

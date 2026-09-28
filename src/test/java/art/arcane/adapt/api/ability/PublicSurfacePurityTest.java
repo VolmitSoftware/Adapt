@@ -104,38 +104,39 @@ class PublicSurfacePurityTest {
 
   private static Set<Class<?>> referencedTypes(Class<?> type) {
     Set<Class<?>> out = new LinkedHashSet<>();
+    Set<Type> visited = new LinkedHashSet<>();
 
     for (Method method : type.getDeclaredMethods()) {
       if (!visible(method.getModifiers()) || method.isSynthetic()) {
         continue;
       }
 
-      collect(method.getGenericReturnType(), out);
-      collectAll(method, out);
+      collect(method.getGenericReturnType(), out, visited);
+      collectAll(method, out, visited);
     }
 
     for (Constructor<?> constructor : type.getDeclaredConstructors()) {
       if (visible(constructor.getModifiers())) {
-        collectAll(constructor, out);
+        collectAll(constructor, out, visited);
       }
     }
 
     for (Field field : type.getDeclaredFields()) {
       if (visible(field.getModifiers()) && !field.isSynthetic()) {
-        collect(field.getGenericType(), out);
+        collect(field.getGenericType(), out, visited);
       }
     }
 
     return out;
   }
 
-  private static void collectAll(Executable executable, Set<Class<?>> out) {
+  private static void collectAll(Executable executable, Set<Class<?>> out, Set<Type> visited) {
     for (Type parameter : executable.getGenericParameterTypes()) {
-      collect(parameter, out);
+      collect(parameter, out, visited);
     }
 
     for (Type thrown : executable.getGenericExceptionTypes()) {
-      collect(thrown, out);
+      collect(thrown, out, visited);
     }
   }
 
@@ -143,29 +144,32 @@ class PublicSurfacePurityTest {
     return Modifier.isPublic(modifiers) || Modifier.isProtected(modifiers);
   }
 
-  private static void collect(Type type, Set<Class<?>> out) {
+  private static void collect(Type type, Set<Class<?>> out, Set<Type> visited) {
+    if (!visited.add(type)) {
+      return;
+    }
     switch (type) {
       case Class<?> raw -> out.add(component(raw));
       case ParameterizedType parameterized -> {
-        collect(parameterized.getRawType(), out);
+        collect(parameterized.getRawType(), out, visited);
 
         for (Type argument : parameterized.getActualTypeArguments()) {
-          collect(argument, out);
+          collect(argument, out, visited);
         }
       }
-      case GenericArrayType array -> collect(array.getGenericComponentType(), out);
+      case GenericArrayType array -> collect(array.getGenericComponentType(), out, visited);
       case WildcardType wildcard -> {
         for (Type bound : wildcard.getUpperBounds()) {
-          collect(bound, out);
+          collect(bound, out, visited);
         }
 
         for (Type bound : wildcard.getLowerBounds()) {
-          collect(bound, out);
+          collect(bound, out, visited);
         }
       }
       case TypeVariable<?> variable -> {
         for (Type bound : variable.getBounds()) {
-          collect(bound, out);
+          collect(bound, out, visited);
         }
       }
       default -> {

@@ -226,7 +226,7 @@ public class MaterialValue {
         ignore.add(i);
         double vx = v;
         for (MaterialCount j : i.getInput()) {
-          vx += getValue(j.getMaterial(), ignore, cache);
+          vx += getValue(j.getMaterial(), ignore, cache) * j.getAmount();
         }
         d.add(vx / i.getOutput().getAmount());
       }
@@ -284,12 +284,14 @@ public class MaterialValue {
             .output(new MaterialCount(recipe.getResult().getType(), recipe.getResult().getAmount()))
             .build();
         Map<Material, Integer> f = new HashMap<>();
-        for (ItemStack i : recipe.getIngredientMap().values()) {
-          if (i == null || i.getType().isAir()) {
-            continue;
+        Map<Character, ItemStack> ingredients = recipe.getIngredientMap();
+        for (String row : recipe.getShape()) {
+          for (int column = 0; column < row.length(); column++) {
+            ItemStack ingredient = ingredients.get(row.charAt(column));
+            if (ingredient != null && !ingredient.getType().isAir()) {
+              f.merge(ingredient.getType(), 1, Integer::sum);
+            }
           }
-
-          f.compute(i.getType(), (k, v) -> v == null ? 1 : v + 1);
         }
 
         f.forEach((k, v) -> re.getInput().add(new MaterialCount(k, v)));

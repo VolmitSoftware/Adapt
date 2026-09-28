@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
 
@@ -80,6 +82,11 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     registerMilestone("challenge_pickaxe_veinminer_2500", "pickaxe.veinminer.ores-veinmined", 2500, 500);
   }
 
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, PickaxePreferences.TRIGGER, PickaxePreferences.MATERIALS);
+  }
+
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(PickaxeMessages.VEIN_MINER_LORE1));
     statLore(v, C.GREEN, "", level + getConfig().baseRange, 2);
@@ -113,11 +120,11 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
 
     Player p = e.getPlayer();
     ItemStack tool = p.getInventory().getItemInMainHand();
-    if (!p.isSneaking() || !isPickaxe(tool)) {
+    if (!preference(p, PickaxePreferences.TRIGGER).accepts(p.isSneaking()) || !isPickaxe(tool)) {
       return;
     }
 
-    int level = getActiveLevel(p, Player::isSneaking);
+    int level = getActiveLevel(p);
     if (level <= 0) {
       return;
     }
@@ -127,6 +134,9 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
       return;
     }
     Block block = e.getBlock();
+    if (!preference(p, PickaxePreferences.MATERIALS).accepts(block.getType())) {
+      return;
+    }
     Material targetFamily = veinFamily(block.getType());
     Set<Block> blockMap = new HashSet<>();
     Set<Block> queued = new HashSet<>();
@@ -206,6 +216,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
       if (player.getWorld() != sibling.getWorld()
           || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(location))
           || veinFamily(sibling.getType()) != targetFamily
+          || !preference(player, PickaxePreferences.MATERIALS).accepts(sibling.getType())
           || !canBlockBreak(player, location)) {
         continue;
       }
@@ -263,6 +274,19 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
   }
 
   private void chainHiddenVein(Block block, Player p, int level) {
+    PickaxePreferences.Materials selection = preference(p, PickaxePreferences.MATERIALS);
+    if (selection != PickaxePreferences.Materials.ALL) {
+      boolean accepted = false;
+      for (HiddenOreLink.VeinTarget target : HiddenOreLink.veins(block.getLocation(), 1)) {
+        if (target.location().getBlock().equals(block) && selection.accepts(target.display())) {
+          accepted = true;
+          break;
+        }
+      }
+      if (!accepted) {
+        return;
+      }
+    }
     List<Block> siblings = HiddenOreLink.veinSiblings(block);
     if (siblings.isEmpty()) {
       return;
@@ -287,7 +311,7 @@ public class PickaxeVeinminer extends SimpleAdaptation<PickaxeVeinminer.Config> 
     }
 
     J.runEntity(p, () -> {
-      if (!p.isOnline()
+      if (!p.isOnline() || getActiveLevel(p) <= 0
           || p.getWorld() != block.getWorld()
           || (J.isFoliaThreading()
           && (!J.isOwnedByCurrentRegion(p) || !J.isOwnedByCurrentRegion(block.getLocation())))

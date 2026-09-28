@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.content.adaptation.crafting.CraftingBackpacks;
 import art.arcane.adapt.content.adaptation.crafting.CraftingBulkArtisan;
 import art.arcane.adapt.content.adaptation.crafting.CraftingCompactor;
@@ -315,7 +316,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
   }
 
   @NoArgsConstructor
-  protected static class Config {
+  protected static class Config extends SkillConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
     boolean enabled = true;
     String skillColor = "&e";

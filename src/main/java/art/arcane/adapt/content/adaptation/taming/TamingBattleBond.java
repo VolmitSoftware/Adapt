@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -86,6 +88,11 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TamingPreferences.SPEED, TamingPreferences.VISUALS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, 1 + getBuffTier(level), 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getBuffTicks(level) * 50D, 1), 2);
@@ -134,12 +141,12 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
       return;
     }
 
-    applyBuffs(owner, amplifier, duration);
+    applyBuffs(owner, amplifier, duration, preferenceEnabled(owner, TamingPreferences.SPEED), preferenceEnabled(owner, TamingPreferences.VISUALS));
 
     UUID ownerId = owner.getUniqueId();
     int limit = getPackLimit();
     Location ownerChest = owner.getLocation().add(0, 1, 0);
-    BondBatch batch = new BondBatch(ownerId, ownerChest, amplifier, duration, getGlowTicks(), limit);
+    BondBatch batch = new BondBatch(ownerId, ownerChest, amplifier, duration, getGlowTicks(), limit, preferenceEnabled(owner, TamingPreferences.SPEED), preferenceEnabled(owner, TamingPreferences.VISUALS));
     int candidates = 0;
     for (Entity entity : owner.getNearbyEntities(radius, radius, radius)) {
       if (candidates >= HARD_MAX_CANDIDATES) {
@@ -151,7 +158,7 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
       }
     }
 
-    if (fxCd.isReady(ownerId, 800L)) {
+    if (preferenceEnabled(owner, TamingPreferences.VISUALS) && fxCd.isReady(ownerId, 800L)) {
       fxCd.mark(ownerId);
       fx(owner.getLocation().add(0, 1, 0), FxPriority.COMBAT)
           .dustRing(Color.fromRGB(0xFF5B4A), 1.6D, 10, 1.0F)
@@ -170,18 +177,19 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
     return pet;
   }
 
-  static void applyBuffs(LivingEntity entity, int amplifier, int duration) {
+  static void applyBuffs(LivingEntity entity, int amplifier, int duration, boolean speed, boolean visuals) {
     if (!entity.isValid() || entity.isDead()) {
       return;
     }
 
     for (BondBuff buff : buffTypes(PotionEffectTypes.INCREASE_DAMAGE != null)) {
+      if (buff == BondBuff.SPEED && !speed) { continue; }
       PotionEffectType effectType = switch (buff) {
         case SPEED -> PotionEffectType.SPEED;
         case REGENERATION -> PotionEffectType.REGENERATION;
         case ATTACK_STRENGTH -> PotionEffectTypes.INCREASE_DAMAGE;
       };
-      entity.addPotionEffect(new PotionEffect(effectType, duration, amplifier, false, true, true));
+      entity.addPotionEffect(new PotionEffect(effectType, duration, amplifier, false, visuals, true));
     }
   }
 
@@ -198,7 +206,8 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
         || !batch.claim()) {
       return;
     }
-    applyBuffs(pet, batch.amplifier(), batch.duration());
+    applyBuffs(pet, batch.amplifier(), batch.duration(), batch.speed(), batch.visuals());
+    if (!batch.visuals()) { return; }
     applyGlow(pet, batch.glowTicks());
     fx(pet, FxPriority.COMBAT)
         .burst(Particle.ELECTRIC_SPARK, 5, 0.25D)
@@ -237,9 +246,9 @@ public class TamingBattleBond extends SimpleAdaptation<TamingBattleBond.Config> 
   }
 
   private record BondBatch(UUID ownerId, Location ownerChest, int amplifier, int duration, int glowTicks,
-                           int limit, AtomicInteger claimed) {
-    private BondBatch(UUID ownerId, Location ownerChest, int amplifier, int duration, int glowTicks, int limit) {
-      this(ownerId, ownerChest, amplifier, duration, glowTicks, limit, new AtomicInteger());
+                           int limit, boolean speed, boolean visuals, AtomicInteger claimed) {
+    private BondBatch(UUID ownerId, Location ownerChest, int amplifier, int duration, int glowTicks, int limit, boolean speed, boolean visuals) {
+      this(ownerId, ownerChest, amplifier, duration, glowTicks, limit, speed, visuals, new AtomicInteger());
     }
 
     private boolean claim() {

@@ -18,11 +18,16 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.NetherMessages;
 
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -33,6 +38,7 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import lombok.Getter;
@@ -47,16 +53,22 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.WitherSkull;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
 
 public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", NetherMessages.NETHERSKULLYEET_PREFERENCE_SNEAK, CommonPreferences.Toggle.OFF);
+
+  private static final String SKULL_META = "adapt-nether-skull-toss";
 
   /**
    * The skull is both the ability trigger and the ammunition, so the sweep and
@@ -92,6 +104,11 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SNEAK);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     int cooldown = cooldownSeconds(getConfig().getBaseCooldown(), getConfig().getLevelCooldown(), level);
     v.addLore(C.GREEN + String.valueOf(cooldown) + C.GRAY + " " + AdaptLanguage.text(NetherMessages.SKULL_TOSS_LORE1));
@@ -110,6 +127,9 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
   @EventHandler
   public void onRightClick(PlayerInteractEvent e) {
     Player p = e.getPlayer();
+    if (preferenceEnabled(p, SNEAK) && !p.isSneaking()) {
+      return;
+    }
     withAdaptedPlayer(p, () -> {
       if (e.getAction() != Action.RIGHT_CLICK_AIR && e.getAction() != Action.RIGHT_CLICK_BLOCK) {
         return;
@@ -155,6 +175,7 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
         entity.setBounce(false);
         entity.setDirection(dir);
         entity.setShooter(p);
+        entity.setMetadata(SKULL_META, new FixedMetadataValue(Adapt.instance, true));
         xp(p, 100);
       });
       fx(spawn, FxPriority.GAMEPLAY)
@@ -171,6 +192,18 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
           .start();
       addStat(p, "nether.skull-yeet.skulls-thrown", 1);
     });
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void protectPassiveMobs(EntityDamageByEntityEvent e) {
+    if (e.getDamager() instanceof WitherSkull skull
+        && skull.hasMetadata(SKULL_META)
+        && skull.getShooter() instanceof Player owner
+        && (isProtectedFriendly(owner, e.getEntity())
+        || (e.getCause() == EntityDamageEvent.DamageCause.ENTITY_EXPLOSION
+        && !AdaptationDamageTargets.allows(e.getEntity(), getConfig().isIgnorePassiveMobs())))) {
+      e.setCancelled(true);
+    }
   }
 
   @EventHandler
@@ -212,6 +245,8 @@ public class NetherSkullYeet extends SimpleAdaptation<NetherSkullYeet.Config> {
   @Setter
   @ConfigDescription("Throw Wither Skulls that explode on impact.")
   public static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Prevent Skull Toss explosions from damaging passive and neutral mobs.", impact = "When enabled, direct skull impact damage is unchanged.")
+    private boolean ignorePassiveMobs = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Base Cooldown for the Nether Skull Yeet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     private int baseCooldown = 15;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Level Cooldown for the Nether Skull Yeet adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

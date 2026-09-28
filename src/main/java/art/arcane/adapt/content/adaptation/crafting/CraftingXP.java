@@ -101,7 +101,7 @@ public class CraftingXP extends SimpleAdaptation<CraftingXP.Config> {
       return;
     }
 
-    int level = getLevel(p);
+    int level = getActiveLevel(p);
     int rewardXp = rewardXp(level, getConfig().vanillaXpAtLevelOne, getConfig().vanillaXpPerAdditionalLevel, getConfig().maximumXpPerCraft);
     if (rewardXp <= 0) {
       return;

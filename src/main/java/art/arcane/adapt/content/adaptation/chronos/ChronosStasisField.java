@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
@@ -82,6 +84,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongSupplier;
 
 public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CLOCK_SOUNDS = CommonPreferences.toggle("clock-sounds", ChronosMessages.PREFERENCE_CHRONOSSTASISFIELD_CLOCK_SOUNDS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> OFFHAND = CommonPreferences.toggle("offhand-shard", ChronosMessages.PREFERENCE_CHRONOSSTASISFIELD_OFFHAND, CommonPreferences.Toggle.OFF);
+
   static final int HARD_MAX_ACTIVE_BUBBLES = 256;
   static final int HARD_MAX_BUBBLES_PER_OWNER = 2;
   static final int HARD_MAX_FROZEN_PROJECTILES = 1_024;
@@ -167,6 +172,12 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     super.unregister();
   }
 
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CLOCK_SOUNDS, OFFHAND);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getRadius(level)), 1);
@@ -217,7 +228,8 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     ItemStack held = hand == EquipmentSlot.OFF_HAND
         ? player.getInventory().getItemInOffHand()
         : player.getInventory().getItemInMainHand();
-    if (held.getType() != Material.AMETHYST_SHARD) {
+    if (held.getType() != Material.AMETHYST_SHARD
+        || preferenceEnabled(player, OFFHAND) && hand != EquipmentSlot.OFF_HAND) {
       return;
     }
 
@@ -667,7 +679,7 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
   }
 
   private void emitDeploy(Player player, StasisBubble bubble, int level) {
-    if (getConfig().playClockSounds) {
+    if ((getConfig().playClockSounds && preferenceEnabled(player, CLOCK_SOUNDS))) {
       ChronosSoundFX.playTimeBombDetonate(bubble.center);
     }
     if (workBudget.tryCastFx()) {
@@ -733,7 +745,7 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
   }
 
   private void playReject(Player player) {
-    if (getConfig().playClockSounds) {
+    if ((getConfig().playClockSounds && preferenceEnabled(player, CLOCK_SOUNDS))) {
       ChronosSoundFX.playClockReject(player);
     }
   }

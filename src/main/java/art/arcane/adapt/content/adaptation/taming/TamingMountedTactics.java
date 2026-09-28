@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -107,6 +111,17 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
         .build());
     registerMilestone("challenge_taming_mounted_200", "taming.mounted-tactics.mounted-kills", 200, 400);
     registerMilestone("challenge_taming_mounted_50k", "taming.mounted-tactics.distance", 50000, 1000);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    removeMountBuffs(player.getPlayer().getVehicle());
+    clearPlayerState(player.getPlayer().getUniqueId());
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TamingPreferences.HANDLING, TamingPreferences.COMBAT);
   }
 
   @Override
@@ -222,7 +237,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
 
   private boolean updateMountedPlayer(Player p, Entity vehicle, Boolean sprintingOverride) {
     UUID id = p.getUniqueId();
-    int level = getActiveLevel(p);
+    int level = preferenceEnabled(p, TamingPreferences.HANDLING) ? getActiveLevel(p) : 0;
     if (level <= 0) {
       removeMountBuffs(vehicle);
       return false;
@@ -366,7 +381,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
     if (e.getDamager() instanceof Player attacker && isTacticalMount(attacker.getVehicle())) {
-      int level = getActiveLevel(attacker);
+      int level = preferenceEnabled(attacker, TamingPreferences.COMBAT) ? getActiveLevel(attacker) : 0;
       if (level > 0) {
         if (!canDamageTarget(attacker, e.getEntity())) {
           return;
@@ -386,7 +401,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
     }
 
     if (e.getEntity() instanceof Player defender && isTacticalMount(defender.getVehicle())) {
-      int level = getActiveLevel(defender);
+      int level = preferenceEnabled(defender, TamingPreferences.COMBAT) ? getActiveLevel(defender) : 0;
       if (level > 0) {
         e.setDamage(e.getDamage() * (1D - getMountedDamageReduction(level)));
         Vector face = defender.getLocation().getDirection().setY(0);

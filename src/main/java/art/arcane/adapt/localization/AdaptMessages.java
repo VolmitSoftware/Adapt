@@ -1,7 +1,5 @@
 package art.arcane.adapt.localization;
 
-import art.arcane.adapt.api.mutation.MutationDomain;
-import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.localization.catalog.AdvancementMessages;
 import art.arcane.adapt.localization.catalog.AgilityMessages;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
@@ -21,9 +19,9 @@ import art.arcane.adapt.localization.catalog.HunterMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.ItemsMessages;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
-import art.arcane.adapt.localization.catalog.MutationMessages;
 import art.arcane.adapt.localization.catalog.NetherMessages;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
+import art.arcane.adapt.localization.catalog.PreferenceMessages;
 import art.arcane.adapt.localization.catalog.RangedMessages;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 import art.arcane.adapt.localization.catalog.RuntimeMessages;
@@ -56,8 +54,6 @@ public final class AdaptMessages {
 
   private static MessageCatalog createCatalog() {
     MessageCatalog.Builder builder = MessageCatalog.builder("en_US");
-    builder.addAll(MutationDomain.keys());
-    builder.addAll(MutationType.keys());
     builder.addAll(DirectorMessages.keys());
     builder.addAll(BukkitLanguageMessages.keys());
     AdvancementMessages.addTo(builder);
@@ -77,9 +73,9 @@ public final class AdaptMessages {
     GuiMessages.addTo(builder);
     ItemsMessages.addTo(builder);
     KineticsMessages.addTo(builder);
-    MutationMessages.addTo(builder);
     NetherMessages.addTo(builder);
     PickaxeMessages.addTo(builder);
+    PreferenceMessages.addTo(builder);
     RangedMessages.addTo(builder);
     RiftMessages.addTo(builder);
     RuntimeMessages.addTo(builder);

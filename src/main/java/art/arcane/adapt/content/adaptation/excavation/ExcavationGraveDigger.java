@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -104,7 +105,7 @@ public class ExcavationGraveDigger extends SimpleAdaptation<ExcavationGraveDigge
       return;
     }
 
-    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.getBlock().getLocation());
+    Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.getBlock().getLocation());
     if (context == null) {
       return;
     }

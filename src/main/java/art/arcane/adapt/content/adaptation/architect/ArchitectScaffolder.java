@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
@@ -59,6 +61,17 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Config> {
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", ArchitectMessages.ARCHITECTSCAFFOLDER_PREFERENCE_CONTROL, Control.SNEAK, List.of(
+          new PlayerPreference.Choice<>(Control.SNEAK, ArchitectMessages.ARCHITECTSCAFFOLDER_PREFERENCE_CONTROL_SNEAK, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Control.ARMED, ArchitectMessages.ARCHITECTSCAFFOLDER_PREFERENCE_CONTROL_ARMED, Material.SCAFFOLDING, 1))));
+  public static final PlayerPreference<Materials> MATERIALS = new PlayerPreference<>(Materials.class,
+      new PlayerPreference.Definition<>("materials", ArchitectMessages.ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS, Materials.ALL, List.of(
+          new PlayerPreference.Choice<>(Materials.ALL, ArchitectMessages.ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_ALL, Material.STONE, 1),
+          new PlayerPreference.Choice<>(Materials.WOOD, ArchitectMessages.ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_WOOD, Material.OAK_PLANKS, 1),
+          new PlayerPreference.Choice<>(Materials.STONE, ArchitectMessages.ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_STONE, Material.STONE_BRICKS, 1),
+          new PlayerPreference.Choice<>(Materials.GLASS, ArchitectMessages.ARCHITECTSCAFFOLDER_PREFERENCE_MATERIALS_GLASS, Material.GLASS, 1))));
+
   private final Map<Block, ScaffoldMark> scaffolds = new ConcurrentHashMap<>();
   private final Map<UUID, Set<Block>> byPlayer = playerState();
   private final Cooldowns denyCd = cooldowns();
@@ -85,6 +98,21 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
     registerMilestone("challenge_architect_scaffolder_5k", "architect.scaffolder.blocks-scaffolded", 5000, 1000);
   }
 
+  private boolean acceptsMaterial(Player player, Material material) {
+    String name = material.name();
+    return switch (preference(player, MATERIALS)) {
+      case ALL -> true;
+      case WOOD -> name.endsWith("_PLANKS") || name.endsWith("_LOG") || name.endsWith("_WOOD") || name.endsWith("_STEM") || name.endsWith("_HYPHAE");
+      case STONE -> name.contains("STONE") || name.contains("BRICK") || name.contains("DEEPSLATE");
+      case GLASS -> name.contains("GLASS");
+    };
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONTROL, MATERIALS);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.SCAFFOLDER_LORE1));
@@ -94,12 +122,12 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockPlaceEvent e) {
     Player p = e.getPlayer();
-    if (!p.isSneaking()) {
+    if (!buildingArmed(p)) {
       return;
     }
 
     Block block = e.getBlock();
-    Adaptation.BlockActionContext context = resolveBlockPlaceContext(p, block.getLocation(), Player::isSneaking);
+    Adaptation.BlockActionContext context = resolveBlockPlaceContext(p, block.getLocation(), this::buildingArmed);
     if (context == null) {
       return;
     }
@@ -109,7 +137,7 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
       return;
     }
 
-    if (!isScaffoldAllowed(type)) {
+    if (!isScaffoldAllowed(type) || !acceptsMaterial(p, type)) {
       playScaffoldDenied(p);
       return;
     }
@@ -138,6 +166,10 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
       J.runAt(block.getLocation(), () -> warnScaffold(block), delayTicks - 20);
     }
     J.runAt(block.getLocation(), () -> removeScaffold(block), delayTicks);
+  }
+
+  private boolean buildingArmed(Player player) {
+    return player.isSneaking() || preference(player, CONTROL) == Control.ARMED;
   }
 
   private void warnScaffold(Block block) {
@@ -300,4 +332,8 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
       costFactor = 0.5;
     }
   }
+
+  public enum Control { SNEAK, ARMED }
+
+  public enum Materials { ALL, WOOD, STONE, GLASS }
 }

@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.AgilityMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -49,6 +54,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SPEED_BURST = CommonPreferences.toggle("speed-burst", AgilityMessages.AGILITYKIPUP_PREFERENCE_SPEED_BURST, CommonPreferences.Toggle.ON);
+
   private final Cooldowns knockbackAt = cooldowns();
   private final Cooldowns kipCooldown = cooldowns();
   private final Map<UUID, Boolean> wasOnGround = playerState();
@@ -71,6 +78,16 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
         .build());
     registerMilestone("challenge_agility_kip_up_100", "agility.kip-up.recoveries", 100, 300);
     registerMilestone("challenge_agility_kip_up_1k", "agility.kip-up.recoveries", 1000, 1200);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SPEED_BURST);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().remove(player.getPlayer(), getName(), "speed", Attributes.MOVEMENT_SPEED);
   }
 
   @Override
@@ -148,7 +165,7 @@ public class AgilityKipUp extends SimpleAdaptation<AgilityKipUp.Config> {
     p.setVelocity(new Vector(direction.getX() * magnitude, current.getY(), direction.getZ() * magnitude));
 
     int speedDurationTicks = getSpeedDurationTicks();
-    if (speedDurationTicks > 0) {
+    if (speedDurationTicks > 0 && preferenceEnabled(p, SPEED_BURST)) {
       AdaptAttributeService.get().applyTimed(p, getName(), "speed", Attributes.MOVEMENT_SPEED,
           speedBonus(getSpeedAmplifier(level)), AttributeModifier.Operation.MULTIPLY_SCALAR_1, speedDurationTicks);
     }

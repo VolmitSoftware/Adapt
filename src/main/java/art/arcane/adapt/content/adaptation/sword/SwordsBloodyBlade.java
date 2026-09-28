@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -78,6 +81,11 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SwordPreferences.TARGETS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, "", 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getDurationOfEffect(level), 1), 2);
@@ -96,7 +104,7 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
     art.arcane.adapt.api.adaptation.Adaptation.MeleeContext combat = resolveMeleeContext(e, this::isSword);
-    if (combat == null) {
+    if (combat == null || !preference(combat.attacker(), SwordPreferences.TARGETS).accepts(combat.target())) {
       return;
     }
 

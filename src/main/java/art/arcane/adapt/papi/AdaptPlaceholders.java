@@ -2,13 +2,10 @@ package art.arcane.adapt.papi;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.mutation.MutationManager;
-import art.arcane.adapt.api.mutation.MutationSnapshot;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.xp.NewtonCurve;
-import art.arcane.adapt.service.MutationSVC;
 import art.arcane.volmlib.util.bukkit.papi.PlaceholderSnapshot;
 import art.arcane.volmlib.util.bukkit.papi.PlayerSnapshotStore;
 
@@ -76,7 +73,6 @@ public final class AdaptPlaceholders {
       players.publish(playerId, AdaptPlayerSnapshotBuilder.build(
           players.get(playerId),
           data,
-          mutationView(playerId),
           curve,
           config.experienceMaxLevel,
           config.getPowerPerLevel()
@@ -97,33 +93,6 @@ public final class AdaptPlaceholders {
   public void clear() {
     players.clear();
     catalog.publish(null);
-  }
-
-  private AdaptMutationView mutationView(UUID playerId) {
-    MutationSVC service = MutationSVC.get();
-
-    if (service == null) {
-      return AdaptMutationView.unavailable();
-    }
-
-    MutationManager manager = service.getManager();
-
-    if (manager == null) {
-      return AdaptMutationView.unavailable();
-    }
-
-    MutationSnapshot source = manager.publishedSnapshot(playerId);
-
-    if (source == null) {
-      return AdaptMutationView.unavailable();
-    }
-
-    return AdaptPlayerSnapshotBuilder.mutationView(
-        source,
-        manager.getConfig().isEnabled(),
-        manager.getCombatLock().remainingMillis(playerId),
-        catalog.get()
-    );
   }
 
   private void reportPublishFailure(Throwable failure) {

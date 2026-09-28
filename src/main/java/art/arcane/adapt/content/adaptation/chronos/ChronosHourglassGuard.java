@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
@@ -60,6 +62,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongSupplier;
 
 public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuard.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CLOCK_SOUNDS = CommonPreferences.toggle("clock-sounds", ChronosMessages.PREFERENCE_CHRONOSHOURGLASSGUARD_CLOCK_SOUNDS, CommonPreferences.Toggle.ON);
+
   private static final double HARD_MAX_ENEMY_SLOW_RADIUS = 12D;
   private static final int HARD_MAX_CANDIDATES_PER_SAVE = 32;
   private static final int HARD_MAX_AFFECTED_PER_SAVE = 16;
@@ -86,6 +90,12 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_hourglass_10", "chronos.hourglass-guard.saves", 10, 800);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CLOCK_SOUNDS);
   }
 
   @Override
@@ -158,7 +168,7 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
         })
         .start();
 
-    if (getConfig().playClockSounds) {
+    if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
       ChronosSoundFX.playRewindFinish(p);
     }
 
@@ -275,7 +285,7 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
               return;
             }
             FxPresets.readyPing(this, p);
-            if (getConfig().playClockSounds) {
+            if ((getConfig().playClockSounds && preferenceEnabled(p, CLOCK_SOUNDS))) {
               ChronosSoundFX.playCooldownReady(p);
             }
           });

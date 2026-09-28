@@ -86,8 +86,7 @@ class AdaptCatalogSnapshotTest {
     for (String value : List.of(
         catalog.adaptation("mining-vein").nameText(),
         catalog.adaptation("mining-ore-scan").nameText(),
-        catalog.skill("mining").nameText(),
-        catalog.mutation("bastion-spine").nameText()
+        catalog.skill("mining").nameText()
     )) {
       assertTrue(value.indexOf('§') < 0, value);
       assertTrue(value.indexOf('%') < 0, value);
@@ -103,15 +102,5 @@ class AdaptCatalogSnapshotTest {
     assertTrue(catalog.adaptation("mining-ore-scan").permanent());
     assertTrue(!catalog.adaptation("mining-ore-scan").enabled());
     assertEquals("mining", catalog.adaptation("mining-vein").skillId());
-  }
-
-  @Test
-  void shouldIndexEveryMutationTypeByIdentifier() {
-    AdaptCatalogSnapshot catalog = AdaptPapiFixtures.catalog();
-
-    assertNotNull(catalog.mutation("bastion-spine"));
-    assertNotNull(catalog.mutation("verdant-molt"));
-    assertNull(catalog.mutation("bastion_spine"));
-    assertNull(catalog.mutation("nothing-here"));
   }
 }

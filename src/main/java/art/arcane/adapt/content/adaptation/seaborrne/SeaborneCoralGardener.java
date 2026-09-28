@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.SeabornMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -55,6 +59,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardener.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> PRESERVATION = CommonPreferences.toggle("preservation", SeabornMessages.SEABORNECORALGARDENER_PREFERENCE_PRESERVATION, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> GROWTH = CommonPreferences.toggle("growth", SeabornMessages.SEABORNECORALGARDENER_PREFERENCE_GROWTH, CommonPreferences.Toggle.ON);
+
   private static final int MAX_TRACKED_CORAL = 8192;
   private static final Material[] CORAL_BLOCKS = {
       Material.TUBE_CORAL_BLOCK,
@@ -99,6 +106,11 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, PRESERVATION, GROWTH);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.duration(getSurvivalMillis(level), 0), 1);
     statLore(v, Form.pc(getGrowthChance(level), 0), 2);
@@ -123,7 +135,7 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
       }
 
       xp(p, getConfig().reefPlaceXp);
-      if (coral) {
+      if (coral && preferenceEnabled(p, PRESERVATION)) {
         trackCoral(location, level);
         addStat(p, "seaborne.coral-gardener.coral-placed", 1);
         fx(location.clone().add(0.5D, 0.6D, 0.5D), FxPriority.AMBIENT)
@@ -173,7 +185,7 @@ public class SeaborneCoralGardener extends SimpleAdaptation<SeaborneCoralGardene
     }
 
     Player p = e.getPlayer();
-    if (!ownsCoralTarget(p, clicked) || !isFadeableCoral(clicked.getType())) {
+    if (!preferenceEnabled(p, GROWTH) || !ownsCoralTarget(p, clicked) || !isFadeableCoral(clicked.getType())) {
       return;
     }
 

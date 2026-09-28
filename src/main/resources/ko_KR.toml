@@ -15,31 +15,24 @@
 # === 변수 ===
 # 변수 이름을 변경하지 말고 각 메시지에 원래 있는 변수만 사용하세요.
 #   {adaptation}  적응 능력 이름
-#   {adaptations}  일치하는 적응 능력 이름 목록
 #   {after}  편집 후 값
 #   {amount}  통화, 지식 또는 경험치의 양
 #   {argument}  예상하지 못한 명령 인수
 #   {available}  사용 가능한 파워 또는 지식
 #   {before}  편집 전 값
-#   {benefit}  변이의 이점 설명
 #   {block}  발전 과제 안내에 지정된 블록
 #   {bonus}  Masterwork 보너스 양
-#   {burden}  변이의 단점 설명
 #   {category}  설정 범주 이름
 #   {chance}  발동 확률
 #   {combo}  Instant Recall 발동 조건 조합
 #   {command}  전체 명령 경로
-#   {control}  변이 사용 방법
 #   {cost}  필요한 지식의 양
 #   {count}  항목, 파일 또는 메시지 수
 #   {damage}  추가 피해량
 #   {danger}  게이트 이동 시 위험 경고
-#   {deepCharge}  저장된 Deep Charge 양
-#   {deepblood}  연결된 Deepblood 도구 상태
 #   {description}  발전 과제 설명
 #   {direction}  구조물 방향
 #   {distance}  구조물까지의 거리(블록 단위)
-#   {domain}  변이에 해당하는 스킬 그룹 이름
 #   {duration}  서식이 적용된 지속 시간 또는 재사용 대기시간
 #   {effect}  물약 효과 이름
 #   {enchantment}  마법 부여 이름
@@ -52,7 +45,6 @@
 #   {group}  언어 편집기 범주
 #   {hits}  캐시에서 결과를 찾은 횟수
 #   {instruction}  발전 과제를 달성하는 방법
-#   {interaction}  다른 변이 슬롯과의 상호작용
 #   {key}  메시지 또는 설정 키
 #   {knowledge}  지식의 양
 #   {label}  설정 또는 통계 값의 레이블
@@ -60,7 +52,6 @@
 #   {levels}  절약한 경험치 레벨 수
 #   {line}  언어 메시지의 줄 번호
 #   {locale}  언어 코드
-#   {masterwork}  연결된 Masterwork 장비 상태
 #   {maximum}  허용 최댓값 또는 파워 한도
 #   {message}  재사용 대기시간 앞에 표시할 상태 메시지
 #   {microsPerCheck}  능력 검사 한 번에 소요되는 마이크로초
@@ -68,12 +59,10 @@
 #   {minimum}  허용 최솟값
 #   {misses}  캐시에 결과가 없었던 횟수
 #   {multiplier}  경험치 증가 배율
-#   {mutation}  변이 이름
 #   {needed}  필요한 파워 또는 지식
 #   {newValue}  새 설정 값
 #   {nextLevel}  다음 스킬 레벨 표시
 #   {oldValue}  이전 설정 값
-#   {other}  충돌하는 변이 이름
 #   {page}  현재 페이지 번호
 #   {pages}  전체 페이지 수
 #   {parameter}  명령 매개변수 이름
@@ -92,28 +81,23 @@
 #   {progress}  스킬 진행 상황 표시
 #   {range}  탐색 또는 능력 범위(블록 단위)
 #   {ratio}  캐시 적중률
-#   {reason}  변이 상태 또는 편집기 오류 설명
+#   {reason}  편집기 오류
 #   {refund}  습득 해제 시 반환되는 지식
 #   {remaining}  표시를 생략한 설정 변경 수
-#   {result}  레벨 200의 변이 효과
-#   {rootCharge}  저장된 Root Charge 양
 #   {second}  두 번째 스킬 그룹 또는 발동 조건
 #   {seconds}  초 단위 시간
 #   {section}  언어 편집기 섹션
 #   {separator}  통계 값과 레이블 사이의 구분자
 #   {skill}  스킬 이름
-#   {slot}  변이 슬롯 번호
 #   {slots}  배낭 슬롯 수
 #   {stacks}  효과 중첩 수 또는 배낭에 들어가는 묶음 수
-#   {state}  활성화 상태 또는 변이 슬롯 상태
+#   {state}  활성화 상태
 #   {steps}  완료한 제작, 양조 또는 마법 부여 단계 수
 #   {strength}  추가 방어력
 #   {structure}  탐지한 구조물 이름
 #   {surface}  발동 조건에 영향을 주는 표면
 #   {symbol}  구조물 위치 표시 기호
 #   {target}  대상 플레이어 또는 언어 설정 대상 플러그인
-#   {tell}  눈에 보이는 변이 효과 설명
-#   {temperbound}  연결된 Temperbound 장비 상태
 #   {timestamp}  설정 보관 파일의 타임스탬프
 #   {to}  페이지의 마지막 항목 번호
 #   {total}  항목 또는 슬롯의 총수
@@ -129,364 +113,6 @@
 #   {x}  대상의 X 좌표
 #   {xp}  경험치의 양
 #   {z}  대상의 Z 좌표
-
-[mutation.domain]
-body = "신체"
-hunt = "사냥"
-industry = "산업"
-wild = "야생"
-craft = "제작"
-anomaly = "변칙"
-
-[mutation.type.gale_lung]
-name = "질풍의 폐"
-benefit = "움직이면 추진력이 차오릅니다. 추진력이 가득 찬 상태에서 다음 공격은 대상을 밀어내거나 위치를 바꿉니다."
-burden = "추진력이 가득 차 있으면 적에게 더 강하게 밀려납니다. 방어하면 추진력이 사라집니다."
-perfect = "더 이상 적에게 강하게 밀려나지 않습니다. 방어하면 추진력이 사라지는 효과는 유지됩니다."
-tell = "청록색 바람이 발과 무기 주변에 모입니다."
-control = "계속 움직여 추진력을 채운 뒤 공격을 적중시키세요."
-
-[mutation.type.bastion_spine]
-name = "요새의 척추"
-benefit = "가만히 서 있으면 안정성이 쌓입니다. 다음 방패, 도끼 또는 맨손 공격이 짧은 밀치기 효과를 일으킵니다."
-burden = "자세를 굳힌 동안에는 질주하거나 점프할 수 없습니다. 뒤에서 공격받으면 자세가 무너집니다."
-perfect = "자세를 굳힌 동안에도 질주하고 점프할 수 있습니다. 뒤에서 공격받으면 여전히 자세가 무너질 수 있습니다."
-tell = "돌로 된 갈비뼈와 밝은 균열이 비축된 힘을 드러냅니다."
-control = "지상에서 가만히 선 뒤 방패, 도끼 또는 맨손으로 공격하세요."
-
-[mutation.type.verdant_molt]
-name = "녹음의 탈피"
-benefit = "자연 지형에서 움직이지 않은 채 웅크리면 해로운 효과가 제거됩니다."
-burden = "이때 이로운 효과도 제거되고 허기가 소모되며, 잠시 새 효과를 받을 수 없습니다."
-perfect = "이로운 효과와 허기가 더 이상 사라지지 않습니다. 짧은 효과 차단은 유지됩니다."
-tell = "나뭇잎, 비늘 또는 포자가 몸에서 터져 나옵니다."
-control = "자연 지형에서 웅크린 채 움직이지 마세요."
-
-[mutation.type.temperbound]
-name = "단련의 결속"
-benefit = "방어구 세트 하나를 연결해 모든 부위가 내구도를 공유하게 합니다. 파괴될 부위는 대신 금이 간 상태가 됩니다."
-burden = "연결된 부위를 벗거나 교체하면 잠시 세트가 비활성화됩니다."
-perfect = "방어구를 교체해도 더 이상 세트가 비활성화되지 않습니다. 한 세트만 연결된 상태로 유지할 수 있습니다."
-tell = "빛나는 선이 연결된 방어구 부위들을 잇습니다."
-control = "Adapt 책장에서 직접 제작한 방어구 네 부위를 착용하고 '현재 방어구 연결'을 선택하세요."
-
-[mutation.type.paradox_scar]
-name = "역설의 흉터"
-benefit = "긴 거리를 이동하거나 순간이동하면 귀환 지점이 남습니다. 그곳으로 한 번 되돌아갈 수 있습니다."
-burden = "귀환 지점이 눈에 보이고, 새 지점의 생성을 막으며, 적이 이를 파괴할 수 있습니다."
-perfect = "다른 변이의 귀환 효과를 더 이상 막지 않습니다. 적은 여전히 귀환 지점을 파괴할 수 있습니다."
-tell = "밝은 잔상이 귀환 지점을 표시합니다."
-control = "긴 거리를 이동하거나 순간이동한 뒤, 웅크린 채 손을 바꾸면 돌아갑니다."
-
-[mutation.type.arsenal_cortex]
-name = "무기고 피질"
-benefit = "공격 사이에 무기나 도구 종류를 바꾸면 하나의 제어 효과가 다음 공격으로 이어집니다."
-burden = "같은 종류를 두 번 연속 사용하면 잠시 연계가 잠깁니다."
-perfect = "같은 종류를 반복해도 더 이상 연계가 잠기지 않습니다. 연계를 쌓으려면 여전히 종류를 바꿔야 합니다."
-tell = "모양이 변하는 문양이 손에 든 아이템 주위를 회전합니다."
-control = "서로 다른 종류의 무기나 도구로 공격을 적중시키세요."
-
-[mutation.type.packmind]
-name = "무리의식"
-benefit = "첫 공격이 대상을 표식합니다. 펫과 참여를 허용한 아군도 그 대상을 공격하면 템포가 쌓입니다."
-burden = "다른 이가 합류하기 전까지 자신의 피해량이 감소합니다. 혼자 쌓은 템포는 빠르게 사라집니다."
-perfect = "기다리는 동안 자신의 피해량이 더 이상 감소하지 않습니다. 템포를 쌓으려면 여전히 다른 참여자가 필요합니다."
-tell = "호박색 선이 무리와 표식된 대상을 연결합니다."
-control = "대상을 공격한 뒤 펫이나 참여를 허용한 아군도 공격하게 하세요."
-
-[mutation.type.trophy_crucible]
-name = "전리품 도가니"
-benefit = "자연 생성 몹이 전리품을 떨어뜨릴 수 있습니다. 전리품 하나를 사용하면 해당 몹 종류를 상대할 제어 효과가 준비됩니다."
-burden = "해당 몹 종류가 자신을 더 쉽게 발견하고 변이의 은신도 꿰뚫어 봅니다."
-perfect = "추가 감지 효과가 사라집니다. 준비해 둘 수 있는 전리품 효과는 여전히 하나뿐입니다."
-tell = "저장된 몹 종류를 나타내는 가면이 등 뒤에 나타납니다."
-control = "자연 전리품을 든 채 웅크리고 제작대를 우클릭하세요."
-
-[mutation.type.umbral_echo]
-name = "그림자 메아리"
-benefit = "새로운 각도나 새로운 무기 종류로 공격하면 잠시 뒤 더 약한 제어 효과가 한 번 더 발생합니다."
-burden = "같은 방식으로 반복 공격하면 모습이 드러나고 잠시 은신할 수 없습니다."
-perfect = "같은 방식을 반복해도 더 이상 모습이 드러나지 않습니다. 새로운 각도나 무기 종류는 여전히 필요합니다."
-tell = "짙은 보라색 잔상이 제어 효과를 반복합니다."
-control = "공격 사이에 공격 각도나 무기 종류를 바꾸세요."
-
-[mutation.type.living_lattice]
-name = "생명의 격자"
-benefit = "작물을 수확하고 다시 심으면 뿌리 충전이 쌓입니다. 이를 소모해 짧은 임시 길을 자라게 할 수 있습니다."
-burden = "불과 용암이 충전을 모두 없앨 수 있으며, 길이 강제로 붕괴하면 허기가 소모됩니다."
-perfect = "불과 용암이 더 이상 충전을 없애지 않습니다. 길은 여전히 사라집니다."
-tell = "초록색 뿌리가 갈색으로 변한 뒤 길이 사라집니다."
-control = "작물을 수확하고 다시 심은 뒤, 묘목을 든 채 웅크리고 우클릭하세요."
-
-[mutation.type.masterwork_bond]
-name = "명작의 결속"
-benefit = "직접 제작한 도구 하나를 결속합니다. 도구가 파괴되는 대신 내구도 1에서 멈추며, 수리하기 전에는 사용할 수 없습니다."
-burden = "결속된 도구만 보호됩니다. 도구를 잃으면 다른 도구를 결속하기 전에 기다려야 합니다."
-perfect = "다른 도구에도 변이 효과가 정상적으로 작동합니다. 파괴를 피하는 것은 명작 도구뿐입니다."
-tell = "도구가 파괴될 때가 가까워지면 룬에 금이 갑니다."
-control = "Adapt 책장에서 직접 제작한 도구를 들고 '든 도구 결속'을 선택하세요."
-
-[mutation.type.deepblood]
-name = "심층혈"
-benefit = "깊은 지하에서 자연 블록을 채굴하면 심층 충전이 쌓입니다. 이 충전은 치유에 사용되며 결속된 도구 하나를 보호합니다."
-burden = "지하에서 치유하면 심층 충전이 소모되고, 지상에서는 충전이 서서히 줄어듭니다."
-perfect = "충전이 없어도 지하에서 치유됩니다. 결속된 도구를 보호할 때는 여전히 충전이 소모됩니다."
-tell = "충전이 쌓일수록 자신과 결속된 도구에 붉은 균열이 퍼집니다."
-control = "깊은 지하의 자연 블록을 채굴하고 Adapt 책장에서 도구 하나를 결속하세요."
-
-[mutation.type.mycelial_nerve]
-name = "균사 신경"
-benefit = "자신에게 부여한 이로운 효과가 약해진 형태로 주변의 참여 허용 플레이어와 펫에게 퍼집니다."
-burden = "자신이 받는 효과의 지속 시간이 짧아지고, 화염 피해를 받으면 연결이 끊어집니다."
-perfect = "자신의 효과가 원래 지속 시간을 유지하며, 화염 피해로도 연결이 끊어지지 않습니다."
-tell = "포자 흔적이 복제된 효과를 주변 아군에게 전달합니다."
-control = "참여를 허용한 플레이어나 소유한 펫 근처에서 자신에게 이로운 효과를 부여하세요."
-
-[mutation.type.gravebloom]
-name = "무덤꽃"
-benefit = "자연 생성 적대적 몹을 처치하면 잠시 피어나는 꽃이 생겨 작물을 성장시키고 펫을 치유할 수 있습니다."
-burden = "활성화된 꽃은 자신의 자연 치유를 약화하며, 오래된 꽃은 적대적 몹을 끌어들입니다."
-perfect = "꽃이 더 이상 자신의 치유를 약화하지 않습니다. 꽃은 여전히 잠시 뒤 사라집니다."
-tell = "죽은 자리에서 창백한 꽃과 영혼 입자가 솟아오릅니다."
-control = "자연 지형 위에서 자연 생성 적대적 몹을 처치하세요."
-
-[mutation.type.resonant_formula]
-name = "공명 공식"
-benefit = "제작, 양조, 마법 부여를 각각 한 번씩 하면 연계가 준비됩니다. 다음 비피해 변칙 효과가 절반의 위력으로 반복됩니다."
-burden = "같은 준비 단계를 반복하면 연계가 끊기고 가장 오래된 이로운 효과가 제거됩니다."
-perfect = "단계를 반복해도 더 이상 연계가 끊기지 않습니다. 서로 다른 세 단계는 여전히 모두 필요합니다."
-tell = "연계가 준비되면 세 문양이 하나로 합쳐집니다."
-control = "순서에 상관없이 제작, 양조, 마법 부여를 각각 한 번씩 하세요."
-
-[mutation.runtime]
-unavailable = "변이 시스템을 사용할 수 없습니다."
-feature_off = "이 서버에서는 실험적 변이가 꺼져 있습니다."
-type_off = "{mutation}은(는) 서버 설정에서 비활성화되어 있습니다."
-missing_permission = "{permission} 권한이 필요합니다."
-duplicate_slots = "같은 변이를 두 슬롯에 모두 사용할 수 없습니다."
-duplicate_occupancy = "동일한 돌연변이는 두 개의 슬롯을 점유 할 수 없습니다."
-conflict_other = "이 선택은 다른 변이와 충돌합니다."
-conflicts_with = "{mutation} 분쟁 해결 {other}."
-slot_locked_current_level = "이 구멍은 현재 수준에 잠깁니다."
-first_slot_unlocks = "첫 번째 변이 슬롯은 {level}레벨에 잠금 해제됩니다."
-world_unavailable = "이 명상은 작동하지 않습니다 {world}."
-active_perfect = "활동 없음 단점."
-active_burden = "활동; 단점 적용."
-ready_to_use = "사용할 준비가 되었습니다."
-requirements_unavailable = "돌연변이 요구 사항은 없습니다."
-learn_both_domains = "{first} 및 {second} 기술 그룹에서 적응을 하나씩 습득하세요."
-learn_domain_level = "더 알아보기 {domain} 수준에 적응 {level} 또는 더 높은."
-ready = "준비됨"
-login_requirements = "요구 조건을 확인하려면 로그인하세요."
-equipped_offline = "플레이어가 오프라인 동안 갖춰져 있지만 비활성화."
-first_slot_locked = "첫번째 돌연변이 구멍은 잠깁니다."
-trophy_clear_hint = "빈손으로 제작대를 다시 우클릭하면 준비된 전리품을 제거할 수 있습니다."
-trophy_cleared = "준비된 전리품을 제거했습니다."
-return_echo_name = "귀환의 메아리"
-
-[mutation.selection]
-invalid = "잘못된 돌연변이 선택."
-player_data_unavailable = "플레이어 돌연변이 데이터는 사용할 수 없습니다."
-slot_changed_confirm = "돌연변이 슬롯은 확인이 열렸다 동안 변경; 다시 검토."
-loadout_changed_confirm = "확인이 열려있던 동안 돌연변이가 변경되었습니다. 다시 검토하십시오."
-already_equipped = "{mutation} 슬롯에 이미 장착 {slot}."
-equipped = "{mutation}을(를) 슬롯 {slot}에 장착했습니다."
-invalid_slot = "잘못된 돌연변이 슬롯."
-slot_already_empty = "돌연변이 구멍 {slot} 이미 빈."
-cleared_slot = "명확한 돌연변이 구멍 {slot}."
-changes_off = "이 서버에서 돌연변이 변경은 꺼져 있습니다."
-bookshelf_required = "돌연변이 슬롯을 바꾸려면 Adapt 책장으로 돌아가세요."
-slot_unlocks = "돌연변이 구멍 {slot} 수준에서 잠금 해제 {level}."
-permanent_choices = "이 서버는 돌연변이 선택 영구적으로 만듭니다."
-slot_cooldown = "돌연변이 구멍 {slot} 변경할 수 없습니다."
-combat_cooldown = "전투 중에 돌연변이를 바꿀 수 없습니다."
-mutation_disabled = "즉 돌연변이은 비활성화."
-world_disabled = "이 세상엔 돌연변이가 작동하지 않습니다."
-
-[mutation.command]
-toggle_usage = "enabled=on, enabled=off 중 하나를 사용하거나 생략하여 전환하세요."
-cooperative_enabled = "협동 변이 효과가 활성화되었습니다."
-cooperative_disabled = "협동 변이 효과가 비활성화되었습니다."
-cooperative_enabled_off = "협력 돌연변이 효과 활성화. 선호 저장된; 실험적인 돌연변이는 현재 떨어져 있습니다."
-cooperative_disabled_off = "협력적인 돌연변이 효력은 비활성화됩니다. 선호 저장된; 실험적인 돌연변이는 현재 떨어져 있습니다."
-choice_saved_off = "선택은 저장되었지만 실험적 변이가 꺼져 있는 동안에는 비활성 상태로 유지됩니다."
-discovered = "{mutation}에 대한 {player}가 발견되었습니다."
-undiscovered = "{player}에 대한 발견되지 않은 {mutation}"
-cooldowns_cleared = "{player}의 변이 전환 재사용 대기시간을 초기화했습니다."
-state_refreshed = "새로 고침된 돌연변이 국가 {player}."
-slot_range = "진흙 구멍은 있어야 합니다 1 또는 2."
-override_usage = "enabled=on, enabled=off 또는 enabled=clear 를 사용하세요."
-slot_normal = "돌연변이 구멍 {slot} 지금 그것의 정상적인 수평 필요조건을 사용하여 {player}."
-slot_forced_unlocked = "돌연변이 구멍 {slot} 지금 강제로 잠금 해제 {player}."
-slot_forced_locked = "돌연변이 구멍 {slot} 지금 강제 잠겨 {player}."
-data_cleared = "명확한 돌연변이 자료 {player} 변화 없음 XP, 기술, 지식, 적응 또는 발전."
-perfect_normal = "완벽한 적응은 지금 그것의 정상적인 수평 필요조건을 사용하여 입니다 {player}."
-perfect_forced_on = "완벽한 적응은 이제에 강제됩니다 {player}."
-perfect_forced_off = "완벽한 적응은 이제 강제로 {player}."
-unavailable = "돌연변이가 아직 없습니다."
-reload_failed = "변이 설정을 다시 불러오지 못했습니다. 이전 설정은 계속 적용됩니다."
-reload_enabled = "변이 설정을 다시 불러왔습니다. 실험적 변이가 활성화되었으며 접속 중인 플레이어의 슬롯을 갱신하고 있습니다."
-reload_disabled = "변이 설정을 다시 불러왔습니다. 실험적 변이가 비활성화되었으며 저장된 선택은 유지됩니다."
-unknown_mutation = "알 수 없는 변이: {mutation}"
-snapshot_title = "실험적인 돌연변이 {player}"
-feature_enabled = "기능: 활성화"
-feature_disabled = "기능: 비활성화"
-perfect_active = "완벽한 적응: 활동"
-perfect_inactive = "완벽한 적응: 비활성"
-cooperative_status_enabled = "협력적인 효력: 활성화"
-cooperative_status_disabled = "협력적인 효력: 비활성화"
-stored_resources = "저장된 자원: 딥 충전 {deepCharge} • 루트 충전 {rootCharge} • 공예/조류/마녀 단계 {steps}"
-linked_gear = "연결된 장비: 온도형 {temperbound} • 마스터워크 {masterwork} • 딥블러드 도구 {deepblood} • 트로피 {trophy}"
-yes = "그래요"
-no = "없음"
-slot_locked = "슬롯 {slot}: 잠금"
-slot_empty = "슬롯 {slot}: 빈"
-slot_unavailable = "슬롯 {slot}: {mutation} (무ಲಭ್ಯ)"
-slot_value = "슬롯 {slot}: {mutation} [{state}]"
-slot_value_reason = "슬롯 {slot}: {mutation} [{state}] - {reason}"
-result_updated = "돌연변이 상태 업데이트."
-result_not_changed = "돌연변이 상태는 변경되지 않았습니다."
-remaining_cooldown = "{message} 남은 재사용 대기시간: {duration}"
-
-[mutation.state]
-ready = "준비됨"
-active = "활성"
-inactive = "비활성"
-locked = "잠금"
-off = "가동"
-unavailable = "사용 불가"
-blocked = "차단"
-
-[mutation.progression]
-slot_unlocked_title = "돌연변이 슬롯 잠금 해제"
-slot_unlocked_subtitle = "첫 번째 돌연변이 슬롯은 이제 열렸어요 Adapt 책상도 방문하세요."
-second_slot_title = "두 번째 돌연변이 슬롯"
-second_slot_subtitle = "두 번째 돌연변이 슬롯은 이제 잠금 해제되었습니다."
-perfect_title = "완벽한 적응"
-perfect_subtitle = "당신의 갖춰진 돌연변이에는 더 이상 있습니다."
-perfect_lost = "완벽한 적응은 더 이상 활성화되지 않습니다. 변동의 단점은 다시 적용됩니다."
-
-[mutation.model]
-no_selection = "선택 없음"
-saved_unavailable = "이 저장된 돌연변이는 사용할 수 없습니다"
-slot_locked = "필요한 슬롯이 잠겨 있습니다."
-ready = "사용 준비됨"
-active = "활성"
-inactive = "장비를 갖추고 있지만 활동하지 않습니다."
-disabled = "서버로 해제"
-restricted = "이용안내"
-conflict = "다른 돌연변이에 의해 차단"
-empty = "텅 비어"
-
-[mutation.gui]
-disabled = "이 서버에서는 실험적 변이가 비활성화되어 있습니다."
-title = "실험적 변이 • 레벨 {level}"
-perfect = "완벽한 적응"
-perfect_active = "장착한 두 변이의 단점이 모두 사라집니다."
-perfect_locked = "설정된 Adapt 레벨에 도달하면 잠금 해제됩니다."
-cooperative_on = "협력적인 효력: 에"
-cooperative_off = "협력적인 효력: 떨어져"
-cooperative_allow = "주변 플레이어가 공유하는 변이 효과를 허용합니다."
-cooperative_opt_out = "클릭하여 참여를 해제하세요."
-cooperative_opt_in = "클릭하여 참여합니다."
-changes_available = "변경 가능"
-view_only = "보기 전용"
-may_change = "당신은 여기 돌연변이 슬롯을 변경할 수 있습니다."
-visit_bookshelf = "유효한 Adapt 책장을 찾아 상호작용하면 슬롯을 변경할 수 있습니다."
-unavailable_discoveries = "이용 약관"
-saved_not_installed = "현재 설치되지 않은 저장 된 돌연변이:"
-slot_value = "슬롯 {slot}: {mutation}"
-slot_locked = "슬롯 {slot}: 잠금"
-right_click_clear = "이 슬롯을 취소하려면."
-skill_groups = "기술 그룹: {first} + {second}"
-discovered = "발견됨"
-undiscovered = "분류되지 않음"
-equipped_slot = "슬롯에 장착 {slot}"
-click_inspect = "클릭하여 확인"
-requires = "요구 사항 : 각 기술 그룹에서 한 번의 배운 적응 {level}+"
-benefit = "효과: {benefit}"
-burden = "단점: {burden}"
-perfect_result = "레벨 200 효과: {result}"
-tell = "시각적 표시: {tell}"
-control = "사용 방법: {control}"
-pvp = "PvP에 영향을 미친다"
-no_pvp = "직접 영향을 미치지 않습니다. PvP"
-status = "상태: {state}"
-matching_none = "일치 적응: 현재 배운 아무도"
-matching = "일치 적응: {adaptations}"
-slot_locked_name = "슬롯 {slot} 잠금"
-slot_view_only = "슬롯 {slot} • 보기만"
-bookshelf_before_change = "유효한 사용 Adapt 이 슬롯을 변경하기 전에 책장."
-equipped_in_slot = "슬롯에 장착 {slot}"
-already_equipped_slot = "Already 에 구멍 {slot}"
-conflicts_with = "Conflicts와 {mutation}"
-clear_other_first = "명확한 또는 교체 구멍 {slot} 이 명상을 선택하기 전에."
-unavailable_slot = "슬롯에 사용할 수 없음 {slot}"
-equip_slot = "슬롯의 장착 {slot}"
-current = "현재 위치: {mutation}"
-click_preview = "본문 바로가기."
-confirm_slot = "{mutation} → 슬롯 {slot}"
-replacing = "구독하기: {mutation}"
-other_slot = "다른 구멍: {mutation}"
-with_other = "다른 구멍으로: {interaction}"
-slot_cooldown = "슬롯 재사용 대기시간: {duration}"
-confirm_change = "변경 확인"
-confirm_change_title = "돌연변이 변경"
-clear_slot = "명확한 구멍 {slot}"
-unequip = "계정 정보 {mutation}?"
-normal_cooldown = "이게 정상적인 슬롯 재사용 대기시간 시작하죠."
-confirm_clear = "초기화 확인"
-link_armor = "연결 현재 기갑"
-link_armor_lore = "4개의 튼튼한 기갑 조각을 착용하고, 그것들을 연결하기 위하여 누르십시오."
-unlink_armor = "링크 장갑"
-unlink_armor_lore = "현재 4 조각 기갑 세트를 연결하십시오."
-review_confirm = "클릭하여 검토 후 확인합니다."
-unlink_masterwork = "링크 명품"
-unlink_masterwork_lore = "현재 명품 도구를 연결."
-replacement_cooldown_begins = "확인 후 대체 재사용 대기시간 시작됩니다."
-bind_held_tool = "묶어 잡힌 도구"
-deepblood_bind_lore = "딥블러드 파손 보호에 당신의 주요 손에 있는 튼튼한 공구를 연결하십시오."
-deepblood_replace_lore = "다른 도구를 연결하면 현재의 딥블러드 도구가 대체됩니다."
-bind_cooling = "기 를 잡으 • 냉각 시킬 수 있다"
-masterwork_bind_lore = "개인적으로 제작 된 튼튼한 도구를 잡아."
-replacement_available = "교체 가능 {duration}."
-equipment_changed = "그 연결 장비는 확인될 수 있었습니다 전에 변화했습니다."
-unlink_temperbound = "링크 템퍼바운드 기갑?"
-temperbound_unlinked = "현재 4 조각 기갑 세트는 연결될 것입니다."
-no_repair_return = "이것은 수리하지 않습니다, 보호하거나, 어떤 기갑을 반환."
-unlink_masterwork_question = "마스터워크 툴을 해제할 수 있습니까?"
-masterwork_unlinked = "현재 마스터워크 도구는 연결되지 않습니다."
-replacement_cooldown = "대체 재사용 대기시간: {duration}"
-confirm_equipment_title = "장비 변경"
-option_unavailable = "이 옵션은 더 이상 사용할 수 없습니다."
-equipment_changed_review = "그 연결 장비는 확인이 열었을 때 변경; 다시 검토."
-controls_unavailable = "돌연변이 장비 제어는 지금 사용할 수 없습니다."
-page_count = "페이지 {page}/{pages} • {count} 돌연변이"
-no_other_selected = "선택 없음 돌연변이"
-same_not_allowed = "동일한 돌연변이는 두 개의 슬롯을 점유 할 수 없습니다"
-compatible_with = "호환 가능 {mutation}"
-unknown = "알려지지 않은"
-state_ready = "준비됨"
-state_active = "활성"
-state_inactive = "비활성"
-state_locked = "잠김"
-state_off = "꺼져"
-state_unavailable = "이용안내"
-state_blocked = "차단됨"
-
-[mutation.equipment]
-temperbound_success = "현재 기갑 세트는 지금 템퍼바운드입니다."
-temperbound_unlinked = "당신의 템퍼바운드 기갑은 지금 unlinked입니다."
-masterwork_success = "지금 이 도구는 당신의 걸작입니다."
-deepblood_success = "열린 도구는 이제 딥 충전 예약에 연결됩니다."
-masterwork_unlinked_delay = "마스터워크 도구는 연결되지 않았어, 대신 {duration}에 연결할 수 있습니다."
-masterwork_unlinked = "네 마스터워크 도구는 연결되지 않았습니다."
-replacement_delay = "교체 명품는 연결될 수 있습니다 {duration}."
-temperbound_requirement = "이미 연결되지 않는 완전한 4 조각 튼튼한 기갑 세트를 착용하십시오."
-temperbound_failure = "템퍼바운드 기갑은 연결되지 않을 수 있었습니다."
-masterwork_requirement = "연결된 명품 도구 없이 개인적으로 제작된 튼튼한 도구를 보유."
-masterwork_failure = "명품 도구는 아직 연결할 수 없습니다."
-deepblood_requirement = "딥블러드에 연결하기 전에 당신의 주요 손에 있는 튼튼한 공구를 붙듭니다."
 
 [director.help]
 no_subcommands = "이 페이지에는 하위 명령어가 없습니다."
@@ -3991,6 +3617,9 @@ surface_block = "블록"
 trigger_join = "{first} + {second}"
 trigger_surface = "{trigger} ({surface})"
 
+
+blink_priority = "Manual Blink takes priority over double-jump Recall"
+
 [chronos.time_bomb]
 name = "시간 폭탄"
 description = "제작된 시간 폭탄을 던져 시간의 장을 생성하고, 엔티티를 느리게 하며, 투사체를 정지시킵니다."
@@ -4885,7 +4514,6 @@ no_previous_page = "이전 페이지"
 no_next_page = "다음 페이지"
 last_page = "최근 페이지"
 back_to_skills = "기술로 돌아가기"
-back_to_mutations = "변이로 돌아가기"
 skills = "한국어"
 adaptations = "적응"
 levels = "한국어"
@@ -4912,11 +4540,6 @@ vault_unavailable_fallback = "Vault 경제 기능을 사용할 수 없습니다 
 vault_insufficient_funds = "플레이어의 Vault 잔액이 부족합니다."
 vault_transaction_failed = "Vault 거래에 실패했습니다. 진행도는 변경되지 않았습니다."
 power_drain = "파워 소모 {power}"
-
-[gui.mutations]
-experimental_mutations = "실험적 변이"
-menu_summary = "Adapt 레벨에 따라 잠금 해제되는 선택형 빌드 옵션입니다."
-menu_open = "클릭하여 슬롯과 요구 조건을 확인하세요."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5408,13 +5031,15 @@ lore3 = "제작 후 아이템을 보고 사용법을 확인하세요"
 notcontainer = "그것은 보관함이 아닙니다"
 lore = ["엔더 진주 + 나침반 = 유물 포트키", "이 아이템으로 원격으로 보관함에 접근할 수 있습니다", "제작 후 아이템을 보고 사용법을 확인하세요"]
 
+unbind = "용기가 없는 방향을 보고 웅크린 채 허공을 왼쪽 클릭하면 연결을 해제합니다."
+
 [rift.blink]
 name = "균열 점멸"
-description = "이단 점프로 바라보는 방향으로 점멸합니다. 성공한 점멸은 엔더 진주를 소모하지 않지만 일반 진주 피해를 입으며, 피해량은 레벨마다 감소합니다. 웅크린 채 점멸하면 벽과 장애물을 그대로 통과합니다."
+description = "이단 점프로 바라보는 방향으로 순간이동합니다. 거리 또는 높은 착지 지점을 우선하고, 벽 통과는 웅크리는 동안, 조준에 따라, 또는 사용 안 함으로 선택할 수 있습니다. 레벨 2에서는 반응 모드가 이단 점프를 공격 시 회피로 바꾸며, 바라보는 방향 또는 공격자에게서 멀어지는 방향으로 순간이동합니다. 성공한 순간이동은 진주를 소비하지 않지만, 레벨에 따라 감소하는 엔더 진주 피해를 줍니다. 서버 규칙이 선택 가능한 옵션을 제한합니다."
 lore1 = "점멸 범위"
 lore2 = "자기 피해 (하트)"
-lore3 = "웅크린 채 점멸하면 벽을 통과"
-lore = ["점멸 범위", "자기 피해 (하트)", "웅크린 채 점멸하면 벽을 통과"]
+lore3 = "순간이동이 벽을 통과하는 조건 선택"
+lore = ["점멸 범위", "자기 피해 (하트)", "순간이동이 벽을 통과하는 조건 선택"]
 
 [rift.chest]
 name = "간편 엔더 상자"
@@ -6345,21 +5970,14 @@ boost_target_player_experience_gain = "타겟 플레이어 경험의 증진을 �
 bypass_adapt_use_permission_checks_when_opening = "비밀번호 adapt.use 이용 약관"
 bypass_costs_and_restrictions = "Bypass 비용 및 제한"
 bypass_power_knowledge_and_permanence_checks = "우회 힘, 지식 및 permanence 체크"
-clear_a_player_s_mutation_slot = "플레이어의 돌연변이 슬롯"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "모든 발견 데이터를 삭제합니다. (바이오, 붐, 음식, 아이템, 레시피 등.)"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "모든 플레이어 데이터 삭제 (XP, 지식, 적응, 통계, 발견, 발전, 지혜)"
-clear_both_mutation_switching_cooldowns = "두 개의 돌진 전환 재사용 대기시간"
 clear_knowledge_across_all_skill_lines = "모든 기술 라인의 명확한 지식"
-clear_only_a_player_s_mutation_data = "플레이어의 실수 데이터 만 제거"
 clear_player_progression_data = "플레이어 진행 데이터를 명확하게 합니다."
 clear_the_stats_map = "stats 지도를 취소"
 clear_xp_across_all_skill_lines = "모든 스킬 라인을 통해 XP를 명확하게 합니다."
-discover_or_undiscover_a_mutation_for_a_player = "플레이어를 위한 돌연변이 발견 또는 undiscover"
-equip_a_mutation_in_a_player_slot = "플레이어 슬롯에서 돌연변이을 장착"
 experience_per_orb = "구슬 당 경험"
 explicit_on_off_state_omit_to_toggle = "Explicit 온/오프 국가, toggle에 omit"
-force_a_mutation_slot_unlocked_locked_or_back_to_its_normal_level_requirement = "힘 돌연변이 구멍은 그것의 정상적인 수준 필요조건에, 잠긴, 또는 뒤 자물쇠로 엽니다"
-force_perfect_adaptation_on_off_or_back_to_its_normal_level_requirement = "힘에 완벽한 적응, 떨어져, 또는 그것의 정상적인 수준 필요조건에 뒤"
 generate_perms_for_adaptations = "적응을 위한 Perms 생성!"
 generate_perms_for_skills = "기술에 대한 Perms 생성!"
 give_a_knowledge_orb_to_yourself_or_a_target_player = "지식 구슬를 자신 또는 대상 플레이어에게 제공"
@@ -6368,18 +5986,12 @@ gui_to_open_main_skill_name_or_adaptation_name = "GUI 개방: 주요, 기술:<na
 knowledge_per_orb = "구슬에 대한 지식"
 level_between_0_and_100 = "수평 사이 0 · 100"
 level_between_0_and_100_clamped_to_the_adaptation_max = "수평 사이 0 · 100, 최대 적응에 클램핑"
-mutation_id = "기타 ID"
-on_off_or_clear = "에, 떨어져, 또는 명확"
-on_off_or_toggle = "에, 륙, 또는 toggle"
 open_the_adapt_gui = "Adapt GUI 열기"
-open_the_experimental_mutation_menu = "실험적인 명상 메뉴 열기"
 open_the_in_game_adapt_config_editor = "게임 열기 Adapt 설정 편집기"
 particle_type_to_spawn = "spwn에 입자 유형"
 permanently_delete_all_adapt_data_for_a_player = "모두 삭제 Adapt 플레이어의 데이터"
 permanently_delete_all_adapt_data_for_a_player_requires_adapt_clear_run_twice_to_confirm = "플레이어의 모든 Adapt 데이터를 영구적으로 삭제합니다. adapt.clear 권한이 필요합니다. 확인하려면 두 번 실행하세요."
 play_a_sound_at_your_location_for_testing = "테스트의 위치에 사운드를 재생!"
-refresh_a_player_s_mutation_slots_and_requirements = "플레이어의 돌연변이 슬롯 및 요구 사항을 새로 고침"
-reload_mutation_configuration = "로드 변경 설정"
 reset_a_skill_config_to_defaults = "기술 설정을 기본값으로 재설정"
 reset_all_configs_to_defaults_and_archive_the_old_settings = "모든 설정를 기본으로 설정하고 오래된 설정를 보관합니다"
 reset_an_adaptation_config_to_defaults = "설정를 기본값으로 재설정"
@@ -6391,21 +6003,16 @@ show_adapt_ticker_hotspots = "Adapt 티커 핫스팟을 표시"
 skill_line_to_set = "기술 라인 설정"
 skill_name_or_all_random = "기술 이름, 또는 모든 / 무작위"
 skill_to_reset = "기술 재설정"
-slot_1_or_2 = "슬롯 1 또는 2"
 sound_to_play = "놀이 소리"
 strength_of_the_boost = "부스트의 힘"
 summon_a_particle_at_your_location_for_testing = "테스트에 대한 위치에 입자를 요약!"
 target_player_defaults_to_you = "대상 플레이어, 기본적으로"
 toggle_adapt_effect_visibility_for_yourself = "Adapt 효과 가시성을 직접 조정하십시오"
-toggle_cooperative_mutation_participation = "협력 돌연변이 참여"
 toggle_debug_mode_reveals_every_skill_and_adaptation_and_makes_learning_free_and_uncapped = "토글 디버그 모드 : 모든 기술 및 적응을 밝혀 무료 학습과 uncapped"
 toggle_verbose_mode = "토글 동사 모드"
 top_results_to_print = "인쇄하는 최고 결과"
-true_to_discover_false_to_undiscover = "사실 발견, undiscover에 거짓"
 true_to_learn_false_to_unlearn = "진정한 학습, unlearn에 거짓"
 unlearn_all_adaptations_across_all_skill_lines = "모든 기술 라인의 모든 적응"
-view_and_manage_experimental_mutations = "실험 돌연변이보기 및 관리"
-view_mutation_state_for_yourself_or_another_player = "자신 또는 다른 플레이어의 돌연변이 상태보기"
 
 [command.runtime]
 missing_permission = "'{permission}' 권한이 없습니다."
@@ -6592,3 +6199,1103 @@ line = "{line}번째 줄"
 [language.editor.value]
 none = "없음"
 empty = "(비어 있음)"
+
+[gui.preferences]
+current = "현재: {value}"
+server_controlled = "서버에서 고정한 설정"
+server_disabled = "{value}: 이 서버에서 사용할 수 없음"
+level_required = "{value}: 적응 레벨 {level} 필요"
+cycle = "왼쪽 클릭: 다음 / 오른쪽 클릭: 이전"
+learn_first = "이 적응을 배워야 설정을 변경할 수 있습니다."
+reset = "개인 설정 초기화"
+reset_description = "이 적응에 서버 기본값을 사용합니다."
+
+[rift.blink.setting]
+enabled = "순간이동"
+phasing = "벽 통과"
+targeting = "착지 지점 선호"
+activation = "발동 방식"
+reactive_direction = "회피 방향"
+
+[rift.blink.option]
+on = "켜짐"
+off = "꺼짐"
+sneak = "웅크리기를 누른 채 통과"
+aim = "조준 방향으로 통과"
+never = "통과하지 않음"
+distance = "거리 우선"
+verticality = "높은 착지 지점 우선"
+manual = "이단 점프"
+reactive = "공격 회피"
+look = "바라보는 방향"
+away = "공격자에게서 멀어지는 방향"
+
+[agilityairdash.preferences]
+preference_speed = "Dash speed"
+preference_trigger = "돌진 발동 조건"
+preference_trigger_any = "Left click"
+preference_trigger_empty_hand = "Empty hand"
+preference_trigger_sneak = "While sneaking"
+
+[agilityfeatherfoot.preferences]
+preference_berries = "Berry protection"
+preference_farmland = "Farmland protection"
+preference_plates = "Pressure plate protection"
+preference_snow = "Powder snow protection"
+
+[agilitykipup.preferences]
+preference_speed_burst = "Recovery speed burst"
+
+[agilityladderslide.preferences]
+preference_ascent = "Upward assistance"
+preference_descent = "Downward assistance"
+preference_sensitivity = "Look sensitivity"
+preference_sensitivity_normal = "Normal"
+preference_sensitivity_precise = "More deliberate"
+preference_sensitivity_responsive = "More responsive"
+preference_speed = "Assistance speed"
+
+[agilityrolllanding.preferences]
+preference_food_reserve = "Food reserve"
+preference_food_reserve_eight = "Keep 8 food"
+preference_food_reserve_four = "Keep 4 food"
+preference_food_reserve_none = "No reserve"
+
+[agilityslipstreamslide.preferences]
+preference_control = "Slide control"
+preference_control_hold = "웅크리기 길게 누르기"
+preference_control_tap = "웅크리기 한 번 누르기"
+preference_duration = "Maximum slide duration"
+
+[agilitysuperjump.preferences]
+preference_control = "Jump control"
+preference_control_every_jump = "Every jump"
+preference_control_sneak = "웅크리며 점프"
+preference_height = "Jump height"
+
+[agilityvault.preferences]
+preference_trigger = "넘어가기 발동 조건"
+preference_trigger_any = "Any jump"
+preference_trigger_sneak = "While sneaking"
+preference_trigger_sprint = "While sprinting"
+
+[agilitywalljump.preferences]
+preference_control = "Wall jump control"
+preference_control_hold = "웅크리기를 누른 뒤 놓기"
+preference_control_tap = "Tap to latch and jump"
+
+[agilitywindup.preferences]
+preference_speed = "Maximum speed"
+
+[architectchalkline.preferences]
+preference_color = "Guide color"
+preference_color_aqua = "Aqua"
+preference_color_gold = "Gold"
+preference_color_purple = "Purple"
+preference_color_shape = "Shape color"
+preference_density = "Guide density"
+
+[architectdemolition.preferences]
+preference_materials = "블록 선택"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+preference_sneak = "Require sneaking"
+
+[architectelevator.preferences]
+preference_ascent = "Upward travel"
+preference_descent = "Downward travel"
+preference_sneak_ascent = "웅크려야 상승"
+
+[architectfoundation.preferences]
+preference_control = "Foundation control"
+preference_control_hold = "웅크리기 길게 누르기"
+preference_control_latch = "웅크리기로 시작 또는 중지"
+preference_duration = "임시 발판 블록 유지 시간"
+preference_empty_hand = "Require empty main hand"
+
+[architectglass.preferences]
+preference_materials = "Glass selection"
+preference_materials_all = "All eligible glass"
+preference_materials_clear = "Clear glass and panes"
+preference_materials_stained = "Stained glass and panes"
+
+[architectplacement.preferences]
+preference_control = "Building control"
+preference_control_armed = "All eligible placements"
+preference_control_sneak = "웅크리는 동안 건축"
+preference_limit = "Placement size"
+preference_materials = "블록 선택"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+preference_preview = "Placement preview"
+
+[architectscaffolder.preferences]
+preference_control = "Scaffold control"
+preference_control_armed = "All eligible placements"
+preference_control_sneak = "웅크리며 설치"
+preference_materials = "블록 선택"
+preference_materials_all = "All eligible blocks"
+preference_materials_glass = "Glass"
+preference_materials_stone = "Stone and bricks"
+preference_materials_wood = "Wood and planks"
+
+[architectsmartshape.preferences]
+preference_families = "블록 종류"
+preference_families_all = "All eligible orientations"
+preference_families_directional = "Facing blocks"
+preference_families_pillars = "Axis blocks"
+preference_families_rotatable = "Signs and rotating blocks"
+preference_reverse = "Reverse rotation"
+
+[architectsteadyhands.preferences]
+preference_fall = "Fall protection"
+preference_knockback = "밀치기 저항"
+
+[architectstonecuttersavant.preferences]
+preference_offhand = "Require stonecutter in offhand"
+
+[architectsupplyline.preferences]
+preference_backpacks = "Backpacks"
+preference_bundles = "Bundles"
+preference_loose = "Loose inventory"
+preference_named = "Use named containers"
+preference_shulkers = "Shulker boxes"
+
+[architectwirelessredstone.preferences]
+preference_sneak = "웅크려야 발동"
+
+[axe.preferences]
+all = "All permitted"
+always = "Always"
+apples = "Apples only"
+fifteen = "Keep 15 hunger"
+five = "Keep 5 hunger"
+ignore_passive = "비공격적 생물 제외"
+items = "Collected items"
+latch = "벌목 유지, 다시 웅크리면 취소"
+logs = "Logs and stems"
+none = "No extra reserve"
+not_sneaking = "While not sneaking"
+players = "Affect players"
+reserve = "Hunger remaining after use"
+saplings = "Saplings and propagules"
+sneak = "Require sneaking"
+ten = "Keep 10 hunger"
+trigger = "Activation gesture"
+while_sneaking = "While sneaking"
+work = "Work limit"
+
+[blocking.preferences]
+all = "All permitted nearby players"
+allies = "Protected allies"
+armor_repair = "Repair armor"
+eight = "8 blocks"
+fall_distance = "Fall distance before elytra swap"
+fall_swap = "Swap to elytra while falling"
+four = "4 blocks"
+ground_swap = "Swap to chestplate on ground"
+half = "Keep 50%"
+ignore_passive = "비공격적 생물 제외"
+none = "No extra reserve"
+player_targets = "Affect players"
+quarter = "Keep 25%"
+require_sneak = "Require sneaking"
+reserve = "Shield durability remaining"
+resistance = "Resistance after shield disable"
+shield_recovery = "Faster shield recovery"
+shield_repair = "Repair shield"
+sneak_stance = "방어 중 웅크리기 필요"
+stagger = "반격으로 비틀거리게 하기"
+team = "Same scoreboard team"
+twelve = "12 blocks"
+
+[brewing.preferences.brewinglingering]
+extended-lore = "물약 상세 설명"
+
+[chronos.preferences]
+preference_chronosrewind_clock = "시계"
+
+[chronos.preferences.chronosaberranttouch]
+clock-sounds = "Clock sounds"
+food-reserve = "Keep at least eight food points"
+passive-targets = "Passive targets"
+player-targets = "Player targets"
+
+[chronos.preferences.chronosaccelerate]
+brewing = "Brewing acceleration"
+crops = "Crop acceleration"
+furnaces = "Furnace acceleration"
+radius = "Acceleration radius"
+
+[chronos.preferences.chronoshourglassguard]
+clock-sounds = "Clock sounds"
+
+[chronos.preferences.chronosinstantrecall]
+air-clicks = "Air clicks"
+block-clicks = "블록 클릭"
+clock-click = "시계 클릭으로 발동"
+clock-sounds = "Clock sounds"
+double-jump = "이중 점프로 발동"
+jump-clock = "Double-jump also requires held clock"
+jump-sprint = "Double-jump also requires sprint"
+left-click = "Left clicks"
+right-click = "Right clicks"
+sneak-clock = "웅크릴 때도 시계를 들고 있어야 함"
+sneak-sprint = "웅크릴 때도 달리기 필요"
+sneak-trigger = "웅크리기로 발동"
+sprint-click = "달리며 클릭하여 발동"
+
+[chronos.preferences.chronosovertime]
+absorption = "Absorption"
+dolphins-grace = "Dolphins Grace"
+fire-resistance = "화염 저항"
+haste = "성급함"
+health-boost = "Health Boost"
+hero-of-the-village = "Hero Of The Village"
+invisibility = "Invisibility"
+jump-boost = "Jump Boost"
+luck = "Luck"
+night-vision = "Night Vision"
+regeneration = "Regeneration"
+resistance = "Resistance"
+saturation = "Saturation"
+shorten-harmful = "Shorten harmful effects"
+slow-falling = "Slow Falling"
+speed = "속도"
+strength = "Strength"
+water-breathing = "Water Breathing"
+
+[chronos.preferences.chronospocketwatch]
+require-sneak = "낙하 중 웅크리기 유지"
+
+[chronos.preferences.chronosrewind]
+clock-sounds = "Clock sounds"
+
+[chronos.preferences.chronosstasisfield]
+clock-sounds = "Clock sounds"
+offhand-shard = "Require shard in offhand"
+
+[chronos.preferences.chronostemporalecho]
+arrow = "Arrow"
+egg = "Egg"
+ender-pearl = "Ender Pearl"
+snowball = "Snowball"
+
+[chronos.preferences.chronostimebomb]
+clock-sounds = "Clock sounds"
+private-visuals = "Owner-only field visuals"
+
+[chronos.preferences.chronostimeinabottle]
+animals = "Animal aging targets"
+brewing = "Brewing targets"
+campfires = "Campfire targets"
+clock-sounds = "Clock sounds"
+furnaces = "Furnace targets"
+growth = "Growth targets"
+trees = "Sapling tree generation"
+
+[crafting.preferences]
+category_all = "All"
+category_blocks = "Building blocks"
+category_equipment = "Tools and armor"
+category_food = "Food"
+category_minerals = "Minerals"
+reserve_eight = "8"
+reserve_none = "없음"
+reserve_thirty_two = "32"
+storage_bundle = "Bundle"
+storage_server = "서버 기본값"
+storage_slots = "Slots"
+
+[crafting.preferences.craftingbackpacks]
+mode-switch = "Allow storage mode switching"
+storage = "New backpack storage"
+
+[crafting.preferences.craftingbulkartisan]
+batch-limit = "Extra batch limit"
+ingredient-reserve = "Ingredient reserve"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingcompactor]
+batch-limit = "Compaction batch limit"
+loose-reserve = "Loose ingredient reserve"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingdeconstruction]
+confirmation = "Confirm named or enchanted salvage"
+materials = "Allowed material categories"
+
+[crafting.preferences.craftingmasterwork]
+attributes = "Attribute bonus"
+durability = "Durability bonus"
+enchantments = "Enchantment bonus"
+
+[crafting.preferences.craftingsignature]
+signature-lore = "Visible signature lore"
+
+[crafting.preferences.craftingstations]
+anvil = "Anvil"
+cartography = "Cartography table"
+grindstone = "Grindstone"
+loom = "Loom"
+sneak = "웅크려야 열기 가능"
+stonecutter = "Stonecutter"
+workbench = "Crafting table"
+
+[discovery.preferences]
+palette_aqua = "Aqua"
+palette_default = "Default colors"
+palette_gold = "Gold"
+palette_purple = "Purple"
+reserve_five = "5"
+reserve_none = "없음"
+reserve_ten = "10"
+structure_default = "Default categories"
+structure_end_city = "End cities"
+structure_fortress = "네더 요새"
+structure_mineshaft = "Mineshafts"
+structure_monument = "Ocean monuments"
+structure_settlements = "Jigsaw structures"
+structure_stronghold = "Strongholds"
+
+[discovery.preferences.discoverybettermending]
+repair-limit = "Maximum repaired durability"
+xp-reserve = "XP point reserve"
+
+[discovery.preferences.discoverycartographerpulse]
+color = "Marker color"
+direction-line = "Private direction line"
+structures = "Structure categories"
+
+[discovery.preferences.discoveryfieldnotes]
+species-damage = "Species damage bonus"
+
+[discovery.preferences.discoveryinsight]
+full-details = "Full overlay details"
+hostile = "Hostile targets"
+passive = "Passive targets"
+players = "Player targets"
+
+[discovery.preferences.discoverykeeneye]
+chests = "Chest markers"
+color = "Marker color"
+range = "Marker range"
+spawners = "Spawner markers"
+
+[discovery.preferences.discoveryrelicappraiser]
+confirmation = "Confirm rare item appraisal"
+discs = "Music discs"
+heads = "Heads"
+sherds = "Pottery sherds"
+trims = "Armor trims"
+
+[discovery.preferences.discoverysixthsense]
+cue-frequency = "Cue frequency"
+full-details = "Full structure details"
+hud = "Structure HUD"
+structures = "Structure categories"
+
+[discovery.preferences.discoverytrailblazer]
+speed-burst = "Discovery speed burst"
+
+[discovery.preferences.discoveryvillageratt]
+xp-reserve = "XP level reserve"
+
+[discovery.preferences.discoveryxpresist]
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences]
+reserve_five = "5"
+reserve_none = "없음"
+reserve_ten = "10"
+
+[enchanting.preferences.enchantingarcanesiphon]
+bonus-xp = "Bonus skill XP"
+books = "Siphoned books"
+player-victims = "Player victims"
+
+[enchanting.preferences.enchantingbookshelfattunement]
+power = "Virtual bookshelf contribution"
+
+[enchanting.preferences.enchantingcursecleansing]
+confirmation = "Confirm curse removal"
+
+[enchanting.preferences.enchantingechoofknowledge]
+sneak = "웅크려야 충전"
+
+[enchanting.preferences.enchantinggrindstonerecovery]
+bonus-xp = "Bonus vanilla XP"
+books = "Recovered books"
+
+[enchanting.preferences.enchantinginfusiontransfer]
+confirmation = "Confirm sacrifice risk"
+
+[enchanting.preferences.enchantingofferreroll]
+confirmation = "Confirm paid reroll"
+lapis-reserve = "Lapis reserve"
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences.enchantingquickenchant]
+confirmation = "Confirm book application"
+modified-click = "Require right click"
+
+[enchanting.preferences.enchantingrunesight]
+full-details = "Full offer details"
+
+[enchanting.preferences.enchantingsoullink]
+confirmation = "Confirm item linking"
+xp-reserve = "XP level reserve"
+
+[enchanting.preferences.enchantingtomerebinding]
+confirmation = "Confirm lossy split"
+sneak = "웅크리며 버리기 필요"
+
+[excavation.preferences.excavationburrow]
+depth = "파고들 깊이"
+durability-reserve = "Keep a quarter of tool durability"
+food-reserve = "Keep eight food points"
+
+[excavation.preferences.excavationdroptoinventory]
+blocks-only = "블록 재료만 수집"
+materials = "Allowed materials"
+
+[excavation.preferences.excavationearthmover]
+food-reserve = "Keep eight food points"
+ignore-passive = "중립 생물 제외"
+offhand-empty = "Require empty offhand"
+
+[excavation.preferences.excavationhaste]
+tier = "성급함 단계"
+
+[excavation.preferences.excavationmudlark]
+bonus-drops = "Bonus drops"
+wet-haste = "비 오는 날 성급함"
+
+[excavation.preferences.excavationomnitool]
+combat-selection = "Automatic combat selection"
+mining-selection = "Automatic mining selection"
+swap-sounds = "Swap sounds"
+
+[excavation.preferences.excavationseismicping]
+color = "Marker color"
+cue-frequency = "Cue frequency"
+ores = "Allowed ore markers"
+
+[excavation.preferences.excavationspelunker]
+color = "Marker color"
+ores = "Allowed ore markers"
+range = "Reveal range"
+
+[excavation.preferences.excavationtunneler]
+block-limit = "추가 블록 수 제한"
+materials = "Allowed materials"
+trigger = "Activation gesture"
+
+[excavation.preferences.materials]
+all = "All"
+clay = "Clay"
+flint = "Flint"
+gravel = "Gravel"
+sand = "Sand"
+snow = "Snow"
+soil = "Soil"
+
+[excavation.preferences.ores]
+all = "All"
+coal = "Coal"
+copper = "Copper"
+diamond = "Diamond"
+emerald = "Emerald"
+gold = "Gold"
+iron = "Iron"
+lapis = "Lapis"
+netherite = "네더라이트"
+quartz = "Quartz"
+redstone = "Redstone"
+
+[excavation.preferences.palette]
+aqua = "Aqua"
+default = "Default colors"
+gold = "Gold"
+purple = "Purple"
+
+[excavation.preferences.trigger]
+always = "Always"
+sneak = "웅크려서 발동"
+suppress = "웅크리는 동안 억제"
+
+[herbalism.preferences.herbalismbeeshepherd]
+bee-attraction = "Bee attraction"
+food-reserve = "Keep eight food points"
+growth = "Crop growth"
+growth-particles = "Growth particles"
+
+[herbalism.preferences.herbalismcompostcascade]
+dropped-items = "Consume dropped items"
+inventory-items = "Consume inventory items"
+item-reserve = "Keep eight items per stack"
+leaves = "Consume leaves"
+materials = "Allowed plant materials"
+
+[herbalism.preferences.herbalismdroptoinventory]
+materials = "Allowed plant materials"
+seeds-only = "Only collect planting items"
+
+[herbalism.preferences.herbalismgrowthaura]
+food-reserve = "Keep sixteen food points"
+materials = "Allowed plant materials"
+radius = "Growth radius"
+surface-only = "Only surface crops"
+
+[herbalism.preferences.herbalismhungryshield]
+basics = "Environmental damage"
+burst = "투사체 및 폭발 피해"
+fire = "Fire damage"
+food-reserve = "Keep eight food points"
+magic = "Magic damage"
+melee = "근접 공격 피해"
+
+[herbalism.preferences.herbalismreplant]
+materials = "Allowed plant materials"
+sneak = "웅크려야 다시 심기"
+
+[herbalism.preferences.herbalismrootedfooting]
+fall-conversion = "Fall-to-hunger conversion"
+farmland = "Farmland protection"
+food-reserve = "Keep eight food points"
+
+[herbalism.preferences.herbalismseedsower]
+materials = "Allowed plant materials"
+radius = "Planting radius"
+seed-reserve = "Keep eight held seeds"
+
+[herbalism.preferences.herbalismsporebloom]
+flower-conversion = "Convert flowers to mushrooms"
+soil-conversion = "Convert spread soil"
+spread-limit = "확산 블록 수 제한"
+
+[herbalism.preferences.material]
+all = "All supported materials"
+beetroot = "Beetroot"
+berries = "Berries"
+carrot = "Carrots"
+flowers = "Flowers"
+fungi = "Mushrooms and fungi"
+kelp = "Kelp and seagrass"
+leaves = "Leaves"
+melon = "Melons"
+nether = "네더 사마귀"
+potato = "Potatoes"
+pumpkin = "Pumpkins"
+wheat = "Wheat"
+
+[hunter.preferences]
+all = "All permitted"
+blocks = "블록 드롭 수집"
+blocks_only = "Blocks only"
+blood = "Blood red"
+cyan = "Cyan"
+fifteen = "At least 15 hunger"
+five = "At least 5 hunger"
+food = "Food only"
+glow = "Blood trail color"
+gold = "Gold"
+items = "Collected items"
+materials = "Crafting drops only"
+mobs = "생물 드롭 수집"
+none = "No extra reserve"
+reserve = "Minimum hunger to activate"
+sneak = "Require sneaking"
+ten = "At least 10 hunger"
+trail = "Private blood trail"
+white = "White"
+
+[kineticsdeadzone.preferences]
+preference_hostiles = "Hostile targets only"
+preference_sneak = "Require sneaking"
+
+[kineticsheavyframe.preferences]
+preference_control = "Stance control"
+preference_control_hold = "웅크리기 길게 누르기"
+preference_control_latch = "Tap to toggle stance"
+
+[kineticslungeconductor.preferences]
+preference_travel = "Extra lunge travel"
+
+[kineticsmassshift.preferences]
+preference_selection = "Form selection"
+preference_selection_cycle = "Cycle Titan, Pocket, normal"
+preference_selection_look = "Look direction"
+
+[kineticsmeteorcadence.preferences]
+preference_control = "Dive control"
+preference_control_automatic = "Every eligible fall"
+preference_control_sneak = "While sneaking"
+
+[kineticsmoonjump.preferences]
+preference_base_jump = "Base jump assistance"
+preference_hop = "Floaty hop"
+preference_hop_always = "Every jump"
+preference_hop_never = "Disabled"
+preference_hop_sneak = "While sneaking"
+
+[kineticsreboundanvil.preferences]
+preference_bounce = "Rebound bounce"
+preference_cushion = "Landing cushion"
+
+[kineticsrubbersoul.preferences]
+preference_bounce = "Base landing bounce"
+preference_springy = "탄성 블록의 추가 반동"
+
+[kineticssurfaceskate.preferences]
+preference_control = "Skating control"
+preference_control_armed = "항상 활성화, 웅크리면 제동"
+preference_control_sprint = "While sprinting"
+
+[kineticsterminaltoggle.preferences]
+preference_gesture = "Switch gesture"
+preference_gesture_double = "웅크리기 두 번 누르기"
+preference_gesture_single = "웅크리기 한 번 누르기"
+preference_order = "Midair mode cycle"
+preference_order_dive_first = "Dive then hang"
+preference_order_dive_only = "Dive only"
+preference_order_hang_first = "Hang then dive"
+preference_order_hang_only = "Hang only"
+
+[kineticswindburst.preferences]
+preference_hostiles = "Hostile targets only"
+preference_sneak = "웅크려야 충격파 발동"
+
+[nethercrimsonfeast.preferences]
+preference_meal_buff = "네더 음식 보호 효과"
+preference_sneak = "웅크려야 식물 먹기"
+
+[netherlavawalker.preferences]
+preference_food_reserve = "Food reserve"
+preference_food_reserve_eight = "Keep 8 food"
+preference_food_reserve_four = "Keep 4 food"
+preference_food_reserve_none = "No reserve"
+preference_sneak_drop = "웅크려서 아래로 내려가기"
+
+[nethermagmaskin.preferences]
+preference_own_fire = "Ignite struck targets"
+preference_retaliation = "Burning retaliation"
+
+[nethernetherrackmason.preferences]
+preference_drops = "Bonus drops"
+preference_mining = "Mining assistance"
+
+[netherskullyeet.preferences]
+preference_sneak = "웅크려야 던지기"
+
+[nethersoulstrider.preferences]
+preference_burst = "Mastery speed burst"
+preference_immunity = "Soul-surface slow immunity"
+
+[netherstriderbond.preferences]
+preference_rescue = "Dismount protection"
+preference_speed = "Mounted speed"
+
+[pickaxe.preferences]
+all = "All permitted"
+always = "Always"
+bypass = "웅크려서 건너뛰기"
+copper = "Copper only"
+cyan = "Cyan"
+full = "Full learned size"
+gems = "Diamond and emerald"
+glow = "Ore outline color"
+gold = "Gold only"
+gold_color = "Gold"
+half = "Keep 50%"
+iron = "Iron only"
+low_durability = "Your pickaxe has less than 10% durability remaining."
+materials = "Eligible materials"
+no_reserve = "No extra reserve"
+not_sneaking = "While not sneaking"
+notice = "Low durability notice"
+one_by_two = "At most 1 by 2"
+ore_color = "Match ore"
+ores = "Ores and raw minerals"
+quarter = "Keep 25%"
+require_sneak = "Require sneaking"
+reserve = "Durability remaining after use"
+size = "Tunnel size limit"
+sneak = "While sneaking"
+stone = "Stone and deepslate"
+tenth = "Keep 10%"
+three_by_two = "At most 3 by 2"
+trigger = "Activation gesture"
+white = "White"
+
+[preferences]
+confirm = "Repeat the same action within 5 seconds to confirm."
+enabled = "Adaptation enabled"
+full = "Full earned limit"
+half = "Half earned limit"
+off = "꺼짐"
+on = "켜짐"
+quarter = "Quarter earned limit"
+skill_enabled = "Skill adaptations enabled"
+
+[ranged.preferences]
+all = "All permitted"
+all_projectiles = "허용된 투척물 포함"
+arrows = "All arrows"
+blocks = "Building blocks"
+both = "Drawing or sneaking"
+bow = "Bow arrows"
+crossbow = "Crossbow arrows"
+dampen = "대상 이동 기세 줄이기"
+drawing = "Drawing only"
+food = "Food"
+glow = "Private target glow"
+hostile = "적대적 생물만"
+ignore_passive = "비공격적 생물 제외"
+impact = "Impact marker"
+items = "Collected items"
+non_players = "Exclude players"
+preview = "Preview while"
+projectiles = "적용할 투사체"
+sneak = "Require sneaking"
+sneaking = "Sneaking only"
+targets = "Eligible targets"
+thrown = "투척물"
+trail = "Trajectory trail"
+tridents = "Tridents"
+valuables = "Ores and valuables"
+
+[rift.remote_access.preferences]
+confirm_unbind = "Confirm unbinding"
+
+[riftaccess.preferences]
+preference_confirm_bind = "Confirm binding"
+preference_sneak_open = "웅크려야 열기 가능"
+
+[riftblink.preferences]
+preference_auto = "Automatic: upward mantle, level/downward phase"
+preference_landing = "Landing snap"
+preference_landing_near = "Snap down at most 2 blocks"
+preference_landing_none = "Keep aimed height"
+preference_landing_server = "Server landing snap"
+preference_momentum = "순간이동 후 이동 기세"
+preference_momentum_full = "서버 설정의 이동 기세 전체"
+preference_momentum_half = "이동 기세 절반"
+preference_momentum_stop = "Stop after blinking"
+
+[riftconduit.preferences]
+preference_flow = "Transfer on close"
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+preference_linking = "Link containers"
+
+[riftdescent.preferences]
+preference_control = "Levitation cancellation"
+preference_control_automatic = "Automatic"
+preference_control_sneak = "웅크리기 누르기"
+
+[riftenderchest.preferences]
+preference_gesture = "Open gesture"
+preference_gesture_current = "Left click or right-click air"
+preference_gesture_left = "Left click only"
+preference_gesture_right_air = "Right-click air only"
+preference_sneak = "Require sneaking"
+
+[riftendertaglock.preferences]
+preference_confirm = "Confirm binding with a second hit"
+preference_targets = "Taglock targets"
+preference_targets_all = "All eligible targets"
+preference_targets_animals = "Animals only"
+preference_targets_hostiles = "적대적 생물만"
+preference_targets_players = "Players only"
+
+[riftgate.preferences]
+preference_confirm_bind = "Confirm binding"
+preference_confirm_unbind = "Confirm unbinding"
+preference_countdown = "Channel countdown"
+preference_countdown_text = "Recall in {seconds}s"
+
+[riftinflatedpocketdimension.preferences]
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+preference_pull = "Pull on click"
+preference_refill = "Refill building stack"
+preference_store = "웅크리며 버린 아이템 보관"
+
+[riftpearlrebound.preferences]
+preference_damage = "Pearl damage reduction"
+preference_rebound = "Pearl rebound"
+preference_sneak = "던질 때 웅크리기 필요"
+
+[riftvoidmagnet.preferences]
+preference_control = "Collection control"
+preference_control_armed = "Automatic collection"
+preference_control_sneak = "While sneaking"
+preference_destination = "Pickup destination"
+preference_destination_chest_first = "Ender chest then inventory"
+preference_destination_chest_only = "Ender chest only"
+preference_destination_inventory_first = "Inventory then ender chest"
+preference_destination_inventory_only = "Inventory only"
+preference_items = "Item selection"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+
+[riftvoidskin.preferences]
+preference_causes = "Rescue damage causes"
+preference_causes_all = "All lethal damage"
+preference_causes_combat = "Combat damage only"
+preference_causes_environment = "Environmental damage only"
+preference_reserve = "Plain pearl reserve"
+preference_reserve_four = "Keep 4 pearls"
+preference_reserve_none = "No reserve"
+preference_reserve_one = "Keep 1 pearl"
+preference_spawn = "World spawn fallback"
+
+[seabornecoralgardener.preferences]
+preference_growth = "Bonemeal coral growth"
+preference_preservation = "Preserve placed coral"
+
+[seabornedeepsalvager.preferences]
+preference_color = "Outline color"
+preference_color_aqua = "Aqua"
+preference_color_gold = "Gold"
+preference_color_purple = "Purple"
+preference_container_types = "Outlined containers"
+preference_container_types_all = "All treasure containers"
+preference_container_types_barrels = "Barrels only"
+preference_container_types_chests = "Chests only"
+preference_outlines = "Container outlines"
+
+[seabornefishwhisperer.preferences]
+preference_assistance = "Animal combat assistance"
+preference_attraction = "Attract fish"
+preference_luck = "Fishing luck"
+
+[seabornehydrojet.preferences]
+preference_gesture = "Jet gesture"
+preference_gesture_double = "웅크리기 두 번"
+preference_gesture_single = "웅크리기 한 번"
+preference_priority = "공유 웅크리기 입력 우선순위"
+preference_priority_hydro = "Hydro Jet first"
+preference_priority_tide = "Tidecaller first"
+preference_reserve = "Food reserve"
+preference_reserve_eight = "Keep 8 food"
+preference_reserve_four = "Keep 4 food"
+preference_reserve_none = "No reserve"
+
+[seaborneinkveil.preferences]
+preference_visuals = "Own ink density"
+
+[seabornetidecaller.preferences]
+preference_attack = "공격으로 발동"
+preference_attack_sneak = "공격 시 웅크리기 필요"
+preference_attack_water = "Water required for attacks"
+preference_flat = "Horizontal direction"
+preference_rain = "Rain dashes"
+preference_sneak = "웅크리기로 발동"
+preference_water = "Water dashes"
+
+[seabornetridentmastery.preferences]
+preference_recall = "Trident recall"
+
+[seaborneturtlesminingspeed.preferences]
+preference_floating = "Compensate floating penalty"
+
+[stealthassassinate.preferences]
+preference_sneak = "Require sneaking"
+preference_targets = "Eligible targets"
+preference_targets_all = "허용된 모든 생물"
+preference_targets_animals = "Animals"
+preference_targets_hostiles = "Hostile monsters"
+
+[stealthcore.preferences]
+preference_detected = "Detected"
+preference_glows = "Private threat outlines"
+preference_hidden = "Undetected"
+preference_status = "Private detection status"
+
+[stealthcutpurse.preferences]
+preference_targets = "Eligible targets"
+preference_targets_all = "허용된 모든 생물"
+preference_targets_illagers = "Illagers"
+preference_targets_piglins = "Piglins"
+
+[stealthdecoyswap.preferences]
+preference_gesture = "Swap gesture"
+preference_gesture_double = "웅크리기 두 번"
+preference_gesture_hand_swap = "웅크리며 양손 바꾸기"
+
+[stealthshadowdecoy.preferences]
+preference_gesture = "미끼 동작"
+preference_gesture_armed_release = "빈손으로 오른쪽 클릭 후 웅크리기 해제"
+preference_gesture_double = "웅크리기 두 번"
+preference_gesture_release = "웅크리기 해제"
+
+[stealthshadowmeld.preferences]
+preference_gesture = "Meld activation"
+preference_gesture_automatic = "Eligible sneaking"
+preference_gesture_double = "두 번 웅크려 준비"
+
+[stealthsight.preferences]
+preference_blindness = "Prevent blindness"
+preference_night_vision = "Night vision"
+preference_outlines = "Invisible player outlines"
+
+[stealthsmokepellet.preferences]
+preference_gesture = "Smoke gesture"
+preference_gesture_double = "웅크리기 두 번"
+preference_gesture_single = "웅크리기 한 번"
+preference_hand = "Gunpowder hand"
+preference_hand_either = "Either hand"
+preference_hand_main = "Main hand"
+preference_hand_off = "Off hand"
+preference_reserve = "Gunpowder reserve in selected hand"
+preference_reserve_four = "Keep 4 gunpowder"
+preference_reserve_none = "No reserve"
+preference_reserve_one = "Keep 1 gunpowder"
+
+[stealthsnatch.preferences]
+preference_control = "Collection control"
+preference_control_automatic = "Automatic collection"
+preference_control_sneak = "While sneaking"
+preference_items = "Collected items"
+preference_items_all = "All eligible items"
+preference_items_blocks = "Blocks only"
+preference_items_food = "Food only"
+
+[stealthspeed.preferences]
+preference_particles = "Soul particles"
+preference_speed = "Maximum stealth speed"
+preference_step_down = "Automatic step down"
+preference_step_up = "Automatic step up"
+
+[stealthtrapsense.preferences]
+preference_chests = "Trapped chests"
+preference_outlines = "Private trap outlines"
+preference_plates = "Pressure plates"
+preference_sculk = "Sculk traps"
+preference_tripwires = "Tripwires"
+
+[sword.preferences]
+airborne = "Require an airborne sprint attack"
+all = "All permitted"
+all_foliage = "All permitted foliage"
+all_swords = "All swords"
+diamond = "Diamond only"
+durability = "Durability remaining after ritual"
+five = "Keep 5 levels"
+foliage = "Foliage to cut"
+glow = "Mark focused attacker"
+grass = "Grass and ferns"
+half = "Keep 50%"
+hostile = "적대적 생물"
+ignore_passive = "비공격적 생물 제외"
+leaves = "Leaves only"
+netherite = "네더라이트만"
+no_xp = "No extra reserve"
+non_players = "Non-player targets"
+none = "No extra reserve"
+precious = "다이아몬드 및 네더라이트"
+quarter = "Keep 25%"
+sneak = "Require sneaking"
+swords = "Eligible heirloom swords"
+targets = "Eligible targets"
+ten = "Keep 10 levels"
+thirty = "Keep 30 levels"
+vines = "Vines only"
+visuals = "Bleed particles"
+xp = "Experience levels remaining"
+
+[taming.preferences]
+all = "All permitted pets"
+all_collars = "All collar colors"
+all_items = "All permitted items"
+all_targets = "All permitted targets"
+blocks = "Blocks only"
+blue = "Blue collars"
+bones = "Bones remaining after command"
+cats = "Cats only"
+collar = "Wolves allowed to fetch"
+combat = "Mounted combat bonuses"
+eight = "Keep 8"
+food = "Food only"
+four = "Keep 4"
+half = "At least 50% health"
+handling = "Mount speed and jump"
+health = "Pet health remaining after protection"
+horses = "Horses and equines"
+hostile = "적대적 생물"
+hunger = "Hunger remaining after recall"
+items = "Items to fetch"
+non_players = "Non-player targets"
+none = "No extra reserve"
+pacify = "중립 생물 진정시키기"
+pets = "Eligible pet types"
+red = "Red collars"
+regeneration = "Pack regeneration"
+server_health = "Server minimum"
+sitting = "Include sitting pets"
+speed = "Speed bonus"
+taming = "Improved taming"
+targets = "Command targets"
+three_quarters = "At least 75% health"
+valuables = "Ores and minerals"
+visuals = "Bond particles and glow"
+wolves = "Wolves only"
+yellow = "Yellow collars"
+
+[tragoul.preferences]
+all = "All permitted targets"
+arthropods = "Arthropods only"
+assist = "Assist and hunt"
+blood_globes = "Collect blood globes"
+bone_globes = "Collect bone globes"
+bones = "Bones remaining after use"
+cool = "Blue to white"
+defend = "Defend the owner"
+eight = "Keep 8 bones"
+four = "Keep 4 bones"
+ignore_passive = "비공격적 생물 제외"
+non_players = "Non-player targets"
+none = "No extra reserve"
+palette = "Health outline palette"
+passive = "Passive"
+replace_oldest = "Replace oldest servant at cap"
+stance = "Servant behavior"
+targets = "Eligible target types"
+undead = "Undead only"
+warm = "Red to yellow"
+
+[unarmed.preferences]
+airborne_only = "Require airborne clap"
+all = "All permitted targets"
+both = "Fists or shield"
+combat = "Unarmed damage bonus"
+fists = "Empty hands only"
+five = "Keep 5 hunger"
+hostile = "적대적 생물"
+hunger = "Hunger remaining after clap"
+loadout = "Charge loadout"
+manual_meditation = "Require explicit meditation arming"
+meditation_armed = "Meditation armed"
+mob_armor = "생물 방어구 해제"
+next_hit = "Punch again only"
+non_players = "Non-player targets"
+none = "No extra reserve"
+player_targets = "Disarm players"
+release = "Release grabbed target"
+require_arming = "웅크린 채 오른쪽 클릭하여 준비 필요"
+shield = "Shield only"
+sneak_or_hit = "웅크리기를 풀거나 다시 때리기"
+soft_blocks = "부드러운 블록을 더 빠르게 파괴"
+targets = "Eligible targets"
+ten = "Keep 10 hunger"

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -60,6 +61,13 @@ public class AxeBarkHide extends SimpleAdaptation<AxeBarkHide.Config> {
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_axe_bark_hide_2500", "axe.bark-hide.stacks-gained", 2500, 700);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (getActiveLevel(player.getPlayer()) <= 0) {
+      AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+    }
   }
 
   @Override

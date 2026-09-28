@@ -1,5 +1,10 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.KineticsMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -26,11 +31,17 @@ import java.util.Map;
 import java.util.UUID;
 
 public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Config> {
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", KineticsMessages.KINETICSHEAVYFRAME_PREFERENCE_CONTROL, Control.HOLD, List.of(
+          new PlayerPreference.Choice<>(Control.HOLD, KineticsMessages.KINETICSHEAVYFRAME_PREFERENCE_CONTROL_HOLD, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Control.LATCH, KineticsMessages.KINETICSHEAVYFRAME_PREFERENCE_CONTROL_LATCH, Material.IRON_CHAIN, 1))));
+
   private static final long RECONCILE_INTERVAL_MS = 1000L;
   private static final String SLOT_KB = "plant-kb";
   private static final String SLOT_BLAST = "plant-blast";
   private static final String SLOT_SLOW = "plant-slow";
 
+  private final Map<UUID, Boolean> latched = playerState();
   private final Map<UUID, Boolean> planted = playerState();
   private final AdaptationOwnerPulse.Registration ownerMaintenance;
 
@@ -46,6 +57,17 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
         this::requiresOwnerMaintenance,
         this::maintainOwner
     );
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONTROL);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    latched.remove(player.getPlayer().getUniqueId());
+    clearStance(player.getPlayer());
   }
 
   @Override
@@ -65,6 +87,17 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
   @EventHandler(ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
+    if (preference(p, CONTROL) == Control.LATCH) {
+      if (e.isSneaking()) {
+        if (latched.remove(p.getUniqueId()) != null) {
+          clearStance(p);
+        } else {
+          latched.put(p.getUniqueId(), true);
+          reconcile(p);
+        }
+      }
+      return;
+    }
     if (!e.isSneaking()) {
       clearStance(p);
       return;
@@ -88,7 +121,7 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
     Player p = e.getPlayer();
     ItemStack next = p.getInventory().getItem(e.getNewSlot());
     int level = getActiveLevel(p);
-    if (!shouldPlant(p.isSneaking(), isMace(next), isSpear(next), level)) {
+    if (!shouldPlant(stanceArmed(p), isMace(next), isSpear(next), level)) {
       clearStance(p);
       return;
     }
@@ -124,6 +157,10 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
     reconcile(player);
   }
 
+  private boolean stanceArmed(Player player) {
+    return preference(player, CONTROL) == Control.HOLD ? player.isSneaking() : latched.containsKey(player.getUniqueId());
+  }
+
   private void reconcile(Player p) {
     if (p == null || !p.isOnline()) {
       return;
@@ -131,7 +168,7 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
 
     ItemStack mainHand = p.getInventory().getItemInMainHand();
     int level = getActiveLevel(p);
-    if (!shouldPlant(p.isSneaking(), isMace(mainHand), isSpear(mainHand), level)) {
+    if (!shouldPlant(stanceArmed(p), isMace(mainHand), isSpear(mainHand), level)) {
       clearStance(p);
       return;
     }
@@ -201,4 +238,6 @@ public class KineticsHeavyFrame extends SimpleAdaptation<KineticsHeavyFrame.Conf
       initialCost = 2;
     }
   }
+
+  public enum Control { HOLD, LATCH }
 }

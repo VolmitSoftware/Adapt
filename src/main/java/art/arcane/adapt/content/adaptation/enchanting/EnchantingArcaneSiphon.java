@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.localization.catalog.EnchantingMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -48,6 +51,10 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSiphon.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> BOOKS = CommonPreferences.toggle("books", EnchantingMessages.PREFERENCE_ENCHANTINGARCANESIPHON_BOOKS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BONUS_XP = CommonPreferences.toggle("bonus-xp", EnchantingMessages.PREFERENCE_ENCHANTINGARCANESIPHON_BONUS_XP, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> PLAYER_VICTIMS = CommonPreferences.toggle("player-victims", EnchantingMessages.PREFERENCE_ENCHANTINGARCANESIPHON_PLAYER_VICTIMS, CommonPreferences.Toggle.ON);
+
   public EnchantingArcaneSiphon() {
     super("enchanting-arcane-siphon");
     registerConfiguration(Config.class);
@@ -67,6 +74,12 @@ public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSip
         .build());
     registerMilestone("challenge_enchanting_siphon_25", "enchanting.arcane-siphon.books-siphoned", 25, 400);
     registerMilestone("challenge_enchanting_siphon_250", "enchanting.arcane-siphon.books-siphoned", 250, 1200);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BOOKS, BONUS_XP, PLAYER_VICTIMS);
   }
 
   @Override
@@ -103,7 +116,8 @@ public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSip
     if (level <= 0) {
       return;
     }
-    if (!isEligibleVictim(victim instanceof Player, level, getConfig().maxLevel)) {
+    if (!isEligibleVictim(victim instanceof Player, level, getConfig().maxLevel)
+        || victim instanceof Player && !preferenceEnabled(killer, PLAYER_VICTIMS)) {
       return;
     }
 
@@ -113,9 +127,11 @@ public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSip
     }
 
     int enchantCount = gearEnchants.size();
-    xp(killer, getConfig().bonusXpPerEnchant * enchantCount);
+    if (preferenceEnabled(killer, BONUS_XP)) {
+      xp(killer, getConfig().bonusXpPerEnchant * enchantCount);
+    }
 
-    if (ThreadLocalRandom.current().nextDouble() > getDropChance(level)) {
+    if (ThreadLocalRandom.current().nextDouble() > getDropChance(level) || !preferenceEnabled(killer, BOOKS)) {
       return;
     }
 

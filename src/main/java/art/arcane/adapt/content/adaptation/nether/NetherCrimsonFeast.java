@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.NetherMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
@@ -47,6 +51,9 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", NetherMessages.NETHERCRIMSONFEAST_PREFERENCE_SNEAK, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> MEAL_BUFF = CommonPreferences.toggle("meal-buff", NetherMessages.NETHERCRIMSONFEAST_PREFERENCE_MEAL_BUFF, CommonPreferences.Toggle.ON);
+
   private final Cooldowns eatCooldowns = cooldowns();
 
   public NetherCrimsonFeast() {
@@ -71,6 +78,11 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SNEAK, MEAL_BUFF);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, getFloraFood(level), 1);
     statLore(v, C.YELLOW, "+ ", Form.f(getFloraSaturation(level), 1), 2);
@@ -92,6 +104,9 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
     }
 
     Player p = e.getPlayer();
+    if (preferenceEnabled(p, SNEAK) && !p.isSneaking()) {
+      return;
+    }
     withAdaptedPlayer(p, () -> {
       int level = getActiveLevel(p);
       if (level <= 0) {
@@ -158,7 +173,7 @@ public class NetherCrimsonFeast extends SimpleAdaptation<NetherCrimsonFeast.Conf
   }
 
   private void grantNetherFireResist(Player p, int level) {
-    if (!isNether(p)) {
+    if (!isNether(p) || !preferenceEnabled(p, MEAL_BUFF)) {
       return;
     }
 

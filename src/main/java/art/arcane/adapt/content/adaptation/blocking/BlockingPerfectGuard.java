@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -74,6 +77,11 @@ public class BlockingPerfectGuard extends SimpleAdaptation<BlockingPerfectGuard.
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BlockingPreferences.STAGGER);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, C.YELLOW, "* ", Form.duration(getWindowMillis(level), 2), 1);
     statLore(v, Form.duration(getStaggerTicks(level) * 50D, 1), 2);
@@ -87,7 +95,7 @@ public class BlockingPerfectGuard extends SimpleAdaptation<BlockingPerfectGuard.
     }
 
     Player p = e.getPlayer();
-    if (getLevel(p) <= 0 || !hasShield(p)) {
+    if (getActiveLevel(p) <= 0 || !hasShield(p)) {
       return;
     }
     raiseAt.put(p.getUniqueId(), System.currentTimeMillis());
@@ -145,7 +153,7 @@ public class BlockingPerfectGuard extends SimpleAdaptation<BlockingPerfectGuard.
     addStat(defender, "blocking.perfect-guard.hits-negated", 1);
     parryFlash(defender);
 
-    if (attacker == null || !canDamageTarget(defender, attacker)) {
+    if (!preferenceEnabled(defender, BlockingPreferences.STAGGER) || attacker == null || !canDamageTarget(defender, attacker)) {
       return;
     }
 

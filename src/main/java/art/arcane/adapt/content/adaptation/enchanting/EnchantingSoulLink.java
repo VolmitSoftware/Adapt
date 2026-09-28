@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
 
@@ -70,6 +73,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirmation", EnchantingMessages.PREFERENCE_ENCHANTINGSOULLINK_CONFIRM, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<EnchantingPreferences.Reserve> XP_RESERVE = EnchantingPreferences.reserve("xp-reserve", EnchantingMessages.PREFERENCE_ENCHANTINGSOULLINK_XP_RESERVE);
+
   private static final NamespacedKey TOKEN_KEY = new NamespacedKey("adapt", "soul-link-token");
   private static final String PENDING_STORAGE_KEY = "soul-link-pending";
   private static final int DROPPED_XP_PER_LEVEL = 7;
@@ -95,6 +101,12 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
         .build());
     registerMilestone("challenge_enchanting_soul_10", "enchanting.soul-link.items-saved", 10, 400);
     registerMilestone("challenge_enchanting_soul_100", "enchanting.soul-link.items-saved", 100, 1200);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONFIRM, XP_RESERVE);
   }
 
   @Override
@@ -162,6 +174,10 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
       return;
     }
 
+    if (preference(p, XP_RESERVE).amount() > 0 && p.getLevel() - getSaveCost(level) < preference(p, XP_RESERVE).amount()
+        || preferenceEnabled(p, CONFIRM) && !PreferenceConfirmation.confirm(this, p, "link", hand)) {
+      return;
+    }
     String token = UUID.randomUUID().toString();
     ItemStack marked = hand.clone();
     ItemMeta meta = marked.getItemMeta();
@@ -212,7 +228,7 @@ public class EnchantingSoulLink extends SimpleAdaptation<EnchantingSoulLink.Conf
     }
 
     int cost = getSaveCost(level);
-    if (p.getLevel() < cost) {
+    if (p.getLevel() - cost < preference(p, XP_RESERVE).amount()) {
       e.getDrops().add(found);
       FxPresets.failFizzle(this, p.getLocation().add(0, 1.0D, 0));
       return;

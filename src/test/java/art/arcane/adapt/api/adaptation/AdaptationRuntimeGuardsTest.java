@@ -150,6 +150,20 @@ class AdaptationRuntimeGuardsTest {
   }
 
   @Test
+  void shadowDecoysAreProtectedWithoutTreatingOrdinaryArmorStandsAsSummons() {
+    ArmorStand decoy = mock(ArmorStand.class);
+    PersistentDataContainer data = mock(PersistentDataContainer.class);
+    when(decoy.getPersistentDataContainer()).thenReturn(data);
+    NamespacedKey decoyKey = NamespacedKey.fromString("adapt:shadow_decoy_owner");
+
+    assertThat(AdaptationRuntimeGuards.isProtectedFriendlyOwned(UUID.randomUUID(), decoy)).isFalse();
+
+    when(data.has(decoyKey, PersistentDataType.STRING)).thenReturn(true);
+    assertThat(AdaptationRuntimeGuards.isProtectedFriendlyOwned(UUID.randomUUID(), decoy)).isTrue();
+    assertThat(AdaptationRuntimeGuards.isProtectedFriendlyOwned(null, decoy)).isTrue();
+  }
+
+  @Test
   void uuidFriendlyCheckProtectsOnlyTheActorsOwnTameable() {
     UUID ownerId = UUID.randomUUID();
     AnimalTamer owner = mock(AnimalTamer.class);

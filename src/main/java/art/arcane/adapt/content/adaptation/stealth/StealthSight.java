@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.StealthMessages;
 
@@ -59,6 +63,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> NIGHT_VISION = CommonPreferences.toggle("night-vision", StealthMessages.STEALTHSIGHT_PREFERENCE_NIGHT_VISION, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BLINDNESS = CommonPreferences.toggle("blindness", StealthMessages.STEALTHSIGHT_PREFERENCE_BLINDNESS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> OUTLINES = CommonPreferences.toggle("outlines", StealthMessages.STEALTHSIGHT_PREFERENCE_OUTLINES, CommonPreferences.Toggle.ON);
+
   private static final long TICK_INTERVAL_MILLIS = 50L;
   private static final long TRACKING_INTERVAL_NANOS = 500_000_000L;
   private static final long GLOW_LEASE_MILLIS = 1_500L;
@@ -96,6 +104,26 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
         72000,
         400
     );
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, NIGHT_VISION, BLINDNESS, OUTLINES);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    Player p = player.getPlayer();
+    clearTrackingState(p.getUniqueId());
+    clearSightGlowsOwned(p);
+    clearNightVisionIfApplied(p, p.getUniqueId());
+    if (isPlayerEnabled(p) && p.isSneaking()) {
+      long generation = trackingSequence.incrementAndGet();
+      sneaking.put(p.getUniqueId(), generation);
+      lastTrackedAt.put(p.getUniqueId(), System.nanoTime());
+      applyNightVisionIfNeeded(p, p.getUniqueId());
+      enqueueTracking(p.getUniqueId(), generation);
+    }
   }
 
   @Override
@@ -145,7 +173,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   public void onBlindness(EntityPotionEffectEvent e) {
     if (!(PaperCompat.livingEntity(e) instanceof Player player)
         || !blocksBlindness(
-        getActiveLevel(player) > 0 && player.isSneaking(),
+        getActiveLevel(player) > 0 && player.isSneaking() && preferenceEnabled(player, BLINDNESS),
         e.getModifiedType() == PotionEffectType.BLINDNESS,
         e.getAction()
     )) {
@@ -316,6 +344,9 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   }
 
   private void applyNightVisionIfNeeded(Player player, UUID id) {
+    if (!preferenceEnabled(player, NIGHT_VISION)) {
+      return;
+    }
     if (player.hasPotionEffect(PotionEffectType.NIGHT_VISION)) {
       appliedNightVision.remove(id);
       return;
@@ -330,6 +361,10 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   }
 
   private void refreshNightVisionIfApplied(Player player, UUID id) {
+    if (!preferenceEnabled(player, NIGHT_VISION)) {
+      clearNightVisionIfApplied(player, id);
+      return;
+    }
     if (!appliedNightVision.containsKey(id)) {
       return;
     }
@@ -390,12 +425,19 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
   }
 
   private void removeBlindnessOwned(Player player) {
+    if (!preferenceEnabled(player, BLINDNESS)) {
+      return;
+    }
     if (player.hasPotionEffect(PotionEffectType.BLINDNESS)) {
       player.removePotionEffect(PotionEffectType.BLINDNESS);
     }
   }
 
   private void refreshInvisiblePlayerGlowsOwned(Player viewer, long generation) {
+    if (!preferenceEnabled(viewer, OUTLINES)) {
+      clearSightGlowsOwned(viewer);
+      return;
+    }
     expireSightGlowsOwned(viewer, System.currentTimeMillis());
     double range = Math.min(MAX_SIGHT_RANGE, Math.max(16D, viewer.getServer().getViewDistance() * 16D));
     int inspections = 0;
@@ -433,7 +475,7 @@ public class StealthSight extends SimpleAdaptation<StealthSight.Config> {
                                                   double range) {
     UUID targetId = target.getUniqueId();
     if (!isCurrentSession(viewer.getUniqueId(), generation)
-        || !viewer.isOnline()
+        || !viewer.isOnline() || !preferenceEnabled(viewer, OUTLINES)
         || getActiveLevel(viewer, Player::isSneaking) <= 0
         || !invisible
         || viewer.getWorld() != targetLocation.getWorld()

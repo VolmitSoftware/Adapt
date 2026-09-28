@@ -88,8 +88,9 @@ class KineticsSurfaceSkateTest {
 
   @Test
   void fallbackSlideMatchesNativeFrictionFormula() {
-    double scale = KineticsSurfaceSkate.fallbackVelocityScale(0.3D, 0D, 0.5D, 0D, 0.6D, 0.5D);
-    assertThat(scale).isCloseTo(4D / 3D, offset(1.0E-9D));
+    Vector velocity = new Vector(0.3D, 0D, 0D);
+    assertThat(KineticsSurfaceSkate.applyFallbackHorizontalVelocity(velocity, 0.5D, 0D, 0.6D, 0.5D)).isTrue();
+    assertThat(velocity.getX()).isCloseTo(0.5D * 0.91D * 0.8D, offset(1.0E-9D));
   }
 
   @Test
@@ -99,7 +100,7 @@ class KineticsSurfaceSkateTest {
         velocity, 0.5D, 0D, 0.6D, 0.5D);
 
     assertThat(changed).isTrue();
-    assertThat(velocity.getX()).isCloseTo(0.5D, offset(1.0E-9D));
+    assertThat(velocity.getX()).isCloseTo(0.5D * 0.91D * 0.8D, offset(1.0E-9D));
     assertThat(velocity.getZ()).isZero();
     assertThat(velocity.getY()).isCloseTo(0.25D, offset(1.0E-9D));
   }
@@ -116,9 +117,6 @@ class KineticsSurfaceSkateTest {
 
   @Test
   void fallbackSlideCannotExceedObservedOrExistingKnockbackMovement() {
-    double scale = KineticsSurfaceSkate.fallbackVelocityScale(0.4D, 0D, 0.42D, 0D, 0.6D, 0.5D);
-    assertThat(0.4D * scale).isCloseTo(0.42D, offset(1.0E-9D));
-
     Vector velocity = new Vector(0.8D, 0.25D, 0D);
     boolean changed = KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
         velocity, 0.42D, 0D, 0.6D, 0.5D);
@@ -133,10 +131,38 @@ class KineticsSurfaceSkateTest {
     for (int tick = 0; tick < 12; tick++) {
       double previous = speed;
       double vanillaDamped = previous * 0.6D * 0.91D;
-      double scale = KineticsSurfaceSkate.fallbackVelocityScale(
-          vanillaDamped, 0D, previous, 0D, 0.6D, 0.5D);
-      speed = vanillaDamped * scale;
+      Vector velocity = new Vector(vanillaDamped, 0D, 0D);
+      assertThat(KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
+          velocity, previous, 0D, 0.6D, 0.5D)).isTrue();
+      speed = velocity.getX();
       assertThat(speed).isLessThan(previous);
+    }
+  }
+
+  @Test
+  void fallbackUsesCurrentMovementInsteadOfThePreviousDecayingImpulse() {
+    Vector velocity = new Vector(0D, -0.078D, -0.067D);
+    assertThat(KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
+        velocity, 0D, -0.28D, 0.6D, 0.5D)).isTrue();
+    assertThat(velocity.getZ()).isCloseTo(-0.20384D, offset(1.0E-9D));
+    assertThat(velocity.getY()).isEqualTo(-0.078D);
+  }
+
+  @Test
+  void fallbackDoesNotReplayMomentumFromRotationOnlyPackets() {
+    Vector velocity = new Vector(0.1D, -0.078D, 0.1D);
+    assertThat(KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
+        velocity, 0D, 0D, 0.6D, 0.5D)).isFalse();
+    assertThat(velocity).isEqualTo(new Vector(0.1D, -0.078D, 0.1D));
+  }
+
+  @Test
+  void fallbackRejectsDisabledAndNonFiniteFrictionWithoutChangingMotion() {
+    for (double percent : new double[]{0D, -1D, Double.NaN, Double.POSITIVE_INFINITY}) {
+      Vector velocity = new Vector(0.01D, 0.2D, 0D);
+      assertThat(KineticsSurfaceSkate.applyFallbackHorizontalVelocity(
+          velocity, 0.28D, 0D, 0.6D, percent)).isFalse();
+      assertThat(velocity).isEqualTo(new Vector(0.01D, 0.2D, 0D));
     }
   }
 

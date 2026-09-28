@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.StealthMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -52,6 +58,11 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> {
+  public static final PlayerPreference<Gesture> GESTURE = new PlayerPreference<>(Gesture.class,
+      new PlayerPreference.Definition<>("gesture", StealthMessages.STEALTHDECOYSWAP_PREFERENCE_GESTURE, Gesture.DOUBLE, List.of(
+          new PlayerPreference.Choice<>(Gesture.DOUBLE, StealthMessages.STEALTHDECOYSWAP_PREFERENCE_GESTURE_DOUBLE, Material.RABBIT_FOOT, 1),
+          new PlayerPreference.Choice<>(Gesture.HAND_SWAP, StealthMessages.STEALTHDECOYSWAP_PREFERENCE_GESTURE_HAND_SWAP, Material.SHIELD, 1))));
+
   private final StealthShadowDecoy shadowDecoy;
   private final Cooldowns cooldowns = cooldowns();
   private final Map<UUID, Long> lastSneakPress;
@@ -88,6 +99,16 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, GESTURE);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    lastSneakPress.remove(player.getPlayer().getUniqueId());
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getSwapRange(level), 1), 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldown(level), 1), 2);
@@ -95,7 +116,7 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerToggleSneakEvent e) {
-    if (!e.isSneaking()) {
+    if (!e.isSneaking() || preference(e.getPlayer(), GESTURE) != Gesture.DOUBLE || shadowDecoy.spawnedOn(e)) {
       return;
     }
 
@@ -122,6 +143,25 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
     UUID id = e.getPlayer().getUniqueId();
     lastSneakPress.remove(id);
     cooldowns.clear(id);
+  }
+
+  public boolean reservesDoubleSneak(Player player) {
+    return isPlayerEnabled(player) && getActiveLevel(player) > 0 && preference(player, GESTURE) == Gesture.DOUBLE
+        && shadowDecoy.hasActiveDecoy(player.getUniqueId());
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void on(PlayerSwapHandItemsEvent e) {
+    Player p = e.getPlayer();
+    if (!p.isSneaking() || preference(p, GESTURE) != Gesture.HAND_SWAP) {
+      return;
+    }
+    int level = getActiveLevel(p);
+    if (level <= 0 || shadowDecoy.getActiveLevel(p) <= 0 || !shadowDecoy.hasActiveDecoy(p.getUniqueId())) {
+      return;
+    }
+    e.setCancelled(true);
+    attemptSwap(p, p.getUniqueId(), level);
   }
 
   private void attemptSwap(Player p, UUID id, int level) {
@@ -333,4 +373,6 @@ public class StealthDecoySwap extends SimpleAdaptation<StealthDecoySwap.Config> 
       initialCost = 4;
     }
   }
+
+  public enum Gesture { DOUBLE, HAND_SWAP }
 }

@@ -30,6 +30,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.stealth.StealthAssassinate;
@@ -249,7 +250,7 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
   }
 
   @NoArgsConstructor
-  protected static class Config {
+  protected static class Config extends SkillConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
     boolean enabled = true;
     String skillColor = "&8";

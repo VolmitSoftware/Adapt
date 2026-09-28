@@ -6,7 +6,6 @@ import org.bukkit.entity.Player;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -119,20 +118,6 @@ class ViewerGlowCoordinatorTest {
     verify(sink).unset(11, viewer);
     assertThat(coordinator.visibleLayer(viewer.getUniqueId(), first.getUniqueId())).isNull();
     assertThat(coordinator.visibleLayer(viewer.getUniqueId(), second.getUniqueId())).isNull();
-  }
-
-  @Test
-  void mutationPriorityIsExplicitAgainstEveryAdaptationGlowLayer() {
-    assertThat(Arrays.stream(ViewerGlowCoordinator.Layer.values())
-        .mapToInt(ViewerGlowCoordinator.Layer::priority)
-        .toArray()).containsExactly(100, 200, 300, 400, 500, 600, 700);
-    assertThat(ViewerGlowCoordinator.Layer.MUTATION_UMBRAL_ECHO.priority())
-        .isGreaterThan(ViewerGlowCoordinator.Layer.STEALTH_SIGHT.priority())
-        .isGreaterThan(ViewerGlowCoordinator.Layer.TRAGOUL_DEATH_SENSE.priority())
-        .isGreaterThan(ViewerGlowCoordinator.Layer.RANGED_TRAJECTORY_SIGHT.priority())
-        .isGreaterThan(ViewerGlowCoordinator.Layer.STEALTH_THREAT.priority())
-        .isLessThan(ViewerGlowCoordinator.Layer.TAMING_ALPHAS_COMMAND.priority())
-        .isLessThan(ViewerGlowCoordinator.Layer.RANGED_HEARTSEEKER.priority());
   }
 
   private static Player player(UUID id) {

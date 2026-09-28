@@ -9,8 +9,6 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
-import art.arcane.adapt.service.HotloadSVC;
-import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.director.context.AdaptationListingHandler;
 import art.arcane.volmlib.util.director.DirectorOrigin;
@@ -68,7 +66,6 @@ public class CommandDefault {
           .send(BukkitDirectorContext.sender());
       return;
     }
-    reconcileMutations();
     FConst.success(AdaptLanguage.text(CommandRuntimeMessages.SKILL_RESET, untrusted("skill", skill.getName())))
         .send(BukkitDirectorContext.sender());
   }
@@ -137,7 +134,6 @@ public class CommandDefault {
       )).send(BukkitDirectorContext.sender());
       return;
     }
-    reconcileMutations();
     FConst.success(AdaptLanguage.text(
         CommandRuntimeMessages.ADAPTATION_RESET,
         untrusted("adaptation", adaptation.getName())
@@ -215,7 +211,6 @@ public class CommandDefault {
         reset += configCount;
       }
     }
-    reconcileMutations();
 
     FConst.success(AdaptLanguage.text(
         CommandRuntimeMessages.CONFIGS_ARCHIVED,
@@ -234,13 +229,6 @@ public class CommandDefault {
     } catch (IOException e) {
       Adapt.warn("Failed to archive " + source.getPath() + ": " + e.getMessage());
       return false;
-    }
-  }
-
-  private void reconcileMutations() {
-    MutationSVC service = MutationSVC.get();
-    if (service != null) {
-      HotloadSVC.reconcileOnlineMutations(service.getManager());
     }
   }
 }

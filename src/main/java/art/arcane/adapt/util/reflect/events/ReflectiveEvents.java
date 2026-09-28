@@ -18,6 +18,7 @@ import org.bukkit.plugin.RegisteredListener;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
 
 public class ReflectiveEvents {
   private static final KMap<Class<? extends Event>, Class<?>> EVENTS = new KMap<>();
-  private static final KMap<Class<?>, HandlerList> HANDLERS = new KMap<>();
+  private static final KMap<Class<? extends Event>, HandlerList> HANDLERS = new KMap<>();
 
   static {
     register(EntityMountEvent.class, "org.bukkit.event.entity.EntityMountEvent", "org.spigotmc.event.entity.EntityMountEvent");
@@ -62,7 +63,7 @@ public class ReflectiveEvents {
                   return;
 
                 try {
-                  method.invoke(obj, newProxy(obj, eventClass));
+                  method.invoke(obj, newProxy(event, eventClass));
                 } catch (InvocationTargetException e) {
                   throw new EventException(e.getCause());
                 } catch (Throwable e) {
@@ -84,14 +85,14 @@ public class ReflectiveEvents {
       if (opt.isEmpty())
         continue;
 
-      org.bukkit.event.HandlerList handlerList = getHandlerList(opt.get());
+      HandlerList handlerList = getHandlerList(opt.get());
       if (handlerList == null) {
         Adapt.warn("Event class does not contain HandlerList: " + clazz);
         continue;
       }
 
       EVENTS.put(eventInterface, opt.get());
-      HANDLERS.put(opt.get(), handlerList);
+      HANDLERS.put(eventInterface, handlerList);
       return;
     }
   }
@@ -107,7 +108,7 @@ public class ReflectiveEvents {
         return null;
 
       try {
-        java.lang.reflect.Method method = parent.getDeclaredMethod("getHandlerList");
+        Method method = parent.getDeclaredMethod("getHandlerList");
         return (HandlerList) method.invoke(null);
       } catch (Throwable e) {
         parent = parent.getSuperclass();
@@ -117,6 +118,7 @@ public class ReflectiveEvents {
   }
 
   private static Object newProxy(Object o, Class<?>... interfaces) {
-    return Proxy.newProxyInstance(Event.class.getClassLoader(), interfaces, (proxy, method, args) -> method.invoke(o, args));
+    return Proxy.newProxyInstance(Event.class.getClassLoader(), interfaces,
+        (proxy, method, args) -> o.getClass().getMethod(method.getName(), method.getParameterTypes()).invoke(o, args));
   }
 }

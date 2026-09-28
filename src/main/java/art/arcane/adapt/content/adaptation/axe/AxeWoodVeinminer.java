@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AxeMessages;
 
@@ -74,6 +76,11 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     registerMilestone("challenge_axe_wood_vein_2500", "axe.wood-veinminer.logs-veinmined", 2500, 500);
   }
 
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, AxePreferences.TRIGGER, AxePreferences.WORK);
+  }
+
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(AxeMessages.WOOD_MINER_LORE1));
     statLore(v, C.GREEN, "", level + getConfig().baseRange, 2);
@@ -92,7 +99,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
 
     Player p = e.getPlayer();
     ItemStack tool = p.getInventory().getItemInMainHand();
-    if (!p.isSneaking() || !isAxe(tool) || !isLogMaterial(e.getBlock().getType())) {
+    if (!preference(p, AxePreferences.TRIGGER).accepts(p.isSneaking()) || !isAxe(tool) || !isLogMaterial(e.getBlock().getType())) {
       return;
     }
 
@@ -104,7 +111,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
     Block block = e.getBlock();
     Material blockType = block.getType();
     BlockData logData = block.getBlockData();
-    int maxBlocks = Math.max(1, getConfig().maxBlocks);
+    int maxBlocks = Math.max(1, (int) Math.floor(getConfig().maxBlocks * preference(p, AxePreferences.WORK).multiplier()));
     Set<Block> blockMap = new HashSet<>(maxBlocks);
     int radius = getRadius(getLevel(p));
     int radiusSquared = radius * radius;
@@ -147,7 +154,7 @@ public class AxeWoodVeinminer extends SimpleAdaptation<AxeWoodVeinminer.Config> 
   private void mineWood(Player player, Block origin, Material blockType, BlockData logData,
                         Set<Block> targets) {
     Location originLocation = origin.getLocation();
-    if (!player.isOnline()
+    if (!player.isOnline() || getActiveLevel(player) <= 0
         || player.getWorld() != origin.getWorld()
         || (J.isFoliaThreading()
         && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(originLocation)))

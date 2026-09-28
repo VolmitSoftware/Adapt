@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.brewing;
 
+import org.bukkit.Bukkit;
+import art.arcane.adapt.localization.catalog.BrewingMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -62,6 +67,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> LORE = CommonPreferences.toggle("extended-lore", BrewingMessages.PREFERENCE_BREWINGLINGERING_LORE, CommonPreferences.Toggle.ON);
+
   private static final Function<PotionEffectType, TextColor> getColor;
   private static final Function<PotionEffectType, Map<Attribute, AttributeModifier>> getEffectAttributes;
   private static final Function3<PotionEffectType, Attribute, Integer, Double> getAttributeModifierAmount;
@@ -145,6 +152,12 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
     registerMilestone("challenge_brewing_lingering_5k", "brewing.lingering.potions-extended", 5000, 1000);
   }
 
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, LORE);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.duration((long) getDurationBoost(getLevelPercent(level)), 0), 1);
@@ -185,7 +198,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
         continue;
       }
 
-      if (enhance(getLevelPercent(level), is, p)) {
+      if (enhance(getLevelPercent(level), is, p, preferenceEnabled(Bukkit.getPlayer(owner.getOwner()), LORE))) {
         enhancedPotions++;
       }
       results.set(i, is);
@@ -202,7 +215,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
           .frame((f, tick, progress) -> {
             f.ring(Particle.DUST_COLOR_TRANSITION, 0.4D + (0.6D * progress), 10, 0.3D, transition);
             if (tick == 0) {
-              f.particle(Particle.DRAGON_BREATH, 16, 0, 0.2D, 0, 0.4D, 0.01D)
+              f.particle(Particle.DRAGON_BREATH, 16, 0, 0.2D, 0, 0.4D, 0.01D, 1.0F)
                   .chord(Sound.BLOCK_BREWING_STAND_BREW, 1.0F, 0.75F, Sound.BLOCK_BREWING_STAND_BREW, 1.0F, 1.75F, Sound.ENTITY_ENDER_DRAGON_FLAP, 0.3F, 1.2F)
                   .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.4F, 1.2F);
             }
@@ -214,7 +227,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
     }
   }
 
-  private boolean enhance(double factor, ItemStack is, PotionMeta p) {
+  private boolean enhance(double factor, ItemStack is, PotionMeta p, boolean customLore) {
     org.bukkit.potion.PotionType baseType = p.getBasePotionType();
     if (baseType == null) {
       return false;
@@ -243,7 +256,7 @@ public class BrewingLingering extends SimpleAdaptation<BrewingLingering.Config> 
     p.addItemFlags(ItemFlags.HIDE_POTION_EFFECTS);
     is.setItemMeta(p);
 
-    if (getConfig().useCustomLore) {
+    if (getConfig().useCustomLore && customLore) {
       KList<Component> lore = new KList<>();
       KList<Modifier> modifiers = new KList<>();
       for (org.bukkit.potion.PotionEffect effect : p.getCustomEffects()) {

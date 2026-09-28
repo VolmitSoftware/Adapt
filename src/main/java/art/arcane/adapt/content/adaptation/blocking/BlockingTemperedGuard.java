@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -64,6 +67,11 @@ public class BlockingTemperedGuard extends SimpleAdaptation<BlockingTemperedGuar
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BlockingPreferences.SHIELD, BlockingPreferences.ARMOR);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getRepairChance(level), 0), 1);
     statLore(v, Form.f(getRepairAmount(level), 0), 2);
@@ -95,8 +103,8 @@ public class BlockingTemperedGuard extends SimpleAdaptation<BlockingTemperedGuar
     }
 
     PlayerInventory inventory = p.getInventory();
-    int repaired = repairShield(inventory, amount);
-    repaired += repairArmor(inventory, amount);
+    int repaired = preferenceEnabled(p, BlockingPreferences.SHIELD) ? repairShield(inventory, amount) : 0;
+    repaired += preferenceEnabled(p, BlockingPreferences.ARMOR) ? repairArmor(inventory, amount) : 0;
     if (repaired <= 0) {
       return;
     }

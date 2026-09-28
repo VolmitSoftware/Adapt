@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import org.bukkit.entity.Sittable;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.catalog.TamingMessages;
 
@@ -87,6 +90,11 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TamingPreferences.PETS, TamingPreferences.SITTING, TamingPreferences.HUNGER);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getSearchRadius(level)), 1);
     statLore(v, C.YELLOW, "* ", Form.duration(getCooldownTicks(level) * 50D, 1), 2);
@@ -120,7 +128,7 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
     }
 
     int hungerCost = Math.max(0, getConfig().hungerCost);
-    if (hungerCost > 0 && p.getFoodLevel() < hungerCost) {
+    if (!preference(p, TamingPreferences.HUNGER).permits(p.getFoodLevel(), hungerCost)) {
       return;
     }
 
@@ -165,7 +173,9 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
   }
 
   private void inspectCandidateOwned(RecallScan scan, Tameable tameable) {
-    if (!tameable.isValid() || tameable.isDead() || !tameable.isTamed()) {
+    if (!tameable.isValid() || tameable.isDead() || !tameable.isTamed()
+        || !scan.petTypes.accepts(tameable.getType())
+        || (!scan.includeSitting && tameable instanceof Sittable sitting && sitting.isSitting())) {
       scan.complete();
       return;
     }
@@ -389,6 +399,8 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
   }
 
   private final class RecallScan {
+    private final TamingPreferences.Pets petTypes;
+    private final boolean includeSitting;
     private final Player player;
     private final UUID playerId;
     private final Location origin;
@@ -405,6 +417,8 @@ public class TamingBeastRecall extends SimpleAdaptation<TamingBeastRecall.Config
     private RecallScan(Player player, Location origin, double radiusSquared, double minDistanceSquared,
                        int level, int hungerCost, double xpOnRecall, long token, int candidates) {
       this.player = player;
+      petTypes = preference(player, TamingPreferences.PETS);
+      includeSitting = preferenceEnabled(player, TamingPreferences.SITTING);
       playerId = player.getUniqueId();
       this.origin = origin;
       this.radiusSquared = radiusSquared;

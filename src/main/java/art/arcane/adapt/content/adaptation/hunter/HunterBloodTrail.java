@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -32,7 +36,6 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -50,7 +53,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> {
-  private static final Color BLOOD_COLOR = Color.fromRGB(150, 10, 10);
   private final Map<UUID, Wound> wounds = new ConcurrentHashMap<>();
 
   public HunterBloodTrail() {
@@ -72,6 +74,11 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
         .build());
     registerMilestone("challenge_hunter_blood_trail_250", "hunter.blood-trail.trails-followed", 250, 400);
     registerMilestone("challenge_hunter_blood_trail_2500", "hunter.blood-trail.trails-followed", 2500, 1500);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, HunterPreferences.TRAIL, HunterPreferences.GLOW);
   }
 
   @Override
@@ -184,7 +191,8 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
   }
 
   private void emitTrail(Player hunter, UUID entityId, Wound wound, Location current) {
-    if (!hunter.isOnline()) {
+    if (!hunter.isOnline() || wounds.get(entityId) != wound || getActiveLevel(hunter) <= 0
+        || !preferenceEnabled(hunter, HunterPreferences.TRAIL)) {
       return;
     }
 
@@ -215,7 +223,7 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
             previous,
             current,
             Material.RED_STAINED_GLASS.createBlockData(),
-            BLOOD_COLOR,
+            preference(hunter, HunterPreferences.GLOW).color(),
             getConfig().trailThickness,
             getConfig().displayDurationTicks
         );
@@ -227,6 +235,13 @@ public class HunterBloodTrail extends SimpleAdaptation<HunterBloodTrail.Config> 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent event) {
     UUID playerId = event.getPlayer().getUniqueId();
+    wounds.entrySet().removeIf(entry -> entry.getValue().hunterId.equals(playerId));
+    ViewerDisplayDirector.clearViewer(getName(), playerId);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    UUID playerId = player.getPlayer().getUniqueId();
     wounds.entrySet().removeIf(entry -> entry.getValue().hunterId.equals(playerId));
     ViewerDisplayDirector.clearViewer(getName(), playerId);
   }

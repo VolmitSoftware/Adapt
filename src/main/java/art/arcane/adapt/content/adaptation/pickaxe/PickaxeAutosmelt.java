@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
 
@@ -150,6 +153,11 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
     }
   }
 
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, PickaxePreferences.BYPASS, PickaxePreferences.MATERIALS);
+  }
+
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(PickaxeMessages.AUTO_SMELT_LORE1));
     statLore(v, C.GREEN, "", level * 1.25, 2);
@@ -159,6 +167,10 @@ public class PickaxeAutosmelt extends SimpleAdaptation<PickaxeAutosmelt.Config> 
   public void on(BlockDropItemEvent e) {
     Player p = e.getPlayer();
     Material ore = e.getBlockState().getType();
+    if ((preferenceEnabled(p, PickaxePreferences.BYPASS) && p.isSneaking())
+        || !preference(p, PickaxePreferences.MATERIALS).accepts(ore)) {
+      return;
+    }
     if (getIngotFor(ore) == null || e.getItems().isEmpty()) {
       return;
     }

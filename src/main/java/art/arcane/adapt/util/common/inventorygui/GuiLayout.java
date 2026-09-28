@@ -29,12 +29,17 @@ public final class GuiLayout {
   }
 
   public static PagePlan plan(int totalItems, boolean reserveNavigationRow) {
+    return planWithSettings(totalItems, reserveNavigationRow, false);
+  }
+
+  public static PagePlan planWithSettings(int totalItems, boolean reserveNavigationRow, boolean reserveSettingsRow) {
     int items = Math.max(0, totalItems);
+    int availableRows = MAX_ROWS - (reserveSettingsRow ? 1 : 0);
     boolean navigation = reserveNavigationRow;
-    int maxContentRows = MAX_ROWS - (navigation ? 1 : 0);
+    int maxContentRows = availableRows - (navigation ? 1 : 0);
     if (items > maxContentRows * WIDTH) {
       navigation = true;
-      maxContentRows = MAX_ROWS - 1;
+      maxContentRows = availableRows - 1;
     }
 
     int contentRows;
@@ -47,7 +52,7 @@ public final class GuiLayout {
     }
 
     contentRows = Math.max(1, Math.min(maxContentRows, contentRows));
-    int rows = contentRows + (navigation ? 1 : 0);
+    int rows = contentRows + (navigation ? 1 : 0) + (reserveSettingsRow ? 1 : 0);
     rows = Math.max(1, Math.min(MAX_ROWS, rows));
 
     int itemsPerPage = contentRows * WIDTH;

@@ -5,6 +5,29 @@ import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
 
 public final class NetherMessages {
+  public static final TextKey NETHERSKULLYEET_PREFERENCE_SNEAK = TextKey.of("netherskullyeet.preferences.preference_sneak", "Require sneak to throw");
+
+  public static final TextKey NETHERSTRIDERBOND_PREFERENCE_SPEED = TextKey.of("netherstriderbond.preferences.preference_speed", "Mounted speed");
+  public static final TextKey NETHERSTRIDERBOND_PREFERENCE_RESCUE = TextKey.of("netherstriderbond.preferences.preference_rescue", "Dismount protection");
+
+  public static final TextKey NETHERSOULSTRIDER_PREFERENCE_IMMUNITY = TextKey.of("nethersoulstrider.preferences.preference_immunity", "Soul-surface slow immunity");
+  public static final TextKey NETHERSOULSTRIDER_PREFERENCE_BURST = TextKey.of("nethersoulstrider.preferences.preference_burst", "Mastery speed burst");
+
+  public static final TextKey NETHERNETHERRACKMASON_PREFERENCE_MINING = TextKey.of("nethernetherrackmason.preferences.preference_mining", "Mining assistance");
+  public static final TextKey NETHERNETHERRACKMASON_PREFERENCE_DROPS = TextKey.of("nethernetherrackmason.preferences.preference_drops", "Bonus drops");
+
+  public static final TextKey NETHERMAGMASKIN_PREFERENCE_RETALIATION = TextKey.of("nethermagmaskin.preferences.preference_retaliation", "Burning retaliation");
+  public static final TextKey NETHERMAGMASKIN_PREFERENCE_OWN_FIRE = TextKey.of("nethermagmaskin.preferences.preference_own_fire", "Ignite struck targets");
+
+  public static final TextKey NETHERLAVAWALKER_PREFERENCE_SNEAK_DROP = TextKey.of("netherlavawalker.preferences.preference_sneak_drop", "Sneak to drop through");
+  public static final TextKey NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE = TextKey.of("netherlavawalker.preferences.preference_food_reserve", "Food reserve");
+  public static final TextKey NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_NONE = TextKey.of("netherlavawalker.preferences.preference_food_reserve_none", "No reserve");
+  public static final TextKey NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_FOUR = TextKey.of("netherlavawalker.preferences.preference_food_reserve_four", "Keep 4 food");
+  public static final TextKey NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_EIGHT = TextKey.of("netherlavawalker.preferences.preference_food_reserve_eight", "Keep 8 food");
+
+  public static final TextKey NETHERCRIMSONFEAST_PREFERENCE_SNEAK = TextKey.of("nethercrimsonfeast.preferences.preference_sneak", "Require sneak to eat flora");
+  public static final TextKey NETHERCRIMSONFEAST_PREFERENCE_MEAL_BUFF = TextKey.of("nethercrimsonfeast.preferences.preference_meal_buff", "Nether meal protection");
+
   public static final TextKey SKULL_TOSS_NAME = TextKey.of("nether.skull_toss.name", "Wither Skull Throw");
   public static final TextKey SKULL_TOSS_DESCRIPTION = TextKey.of("nether.skull_toss.description", "Unleash your inner Wither by using &osomeone's &7head.");
   public static final TextKey SKULL_TOSS_LORE1 = TextKey.of("nether.skull_toss.lore1", "Seconds of cooldown between skull tosses.");
@@ -89,6 +112,22 @@ public final class NetherMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(NETHERSKULLYEET_PREFERENCE_SNEAK);
+    builder.add(NETHERSTRIDERBOND_PREFERENCE_RESCUE);
+    builder.add(NETHERSTRIDERBOND_PREFERENCE_SPEED);
+    builder.add(NETHERSOULSTRIDER_PREFERENCE_BURST);
+    builder.add(NETHERSOULSTRIDER_PREFERENCE_IMMUNITY);
+    builder.add(NETHERNETHERRACKMASON_PREFERENCE_DROPS);
+    builder.add(NETHERNETHERRACKMASON_PREFERENCE_MINING);
+    builder.add(NETHERMAGMASKIN_PREFERENCE_OWN_FIRE);
+    builder.add(NETHERMAGMASKIN_PREFERENCE_RETALIATION);
+    builder.add(NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_EIGHT);
+    builder.add(NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_FOUR);
+    builder.add(NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE_NONE);
+    builder.add(NETHERLAVAWALKER_PREFERENCE_FOOD_RESERVE);
+    builder.add(NETHERLAVAWALKER_PREFERENCE_SNEAK_DROP);
+    builder.add(NETHERCRIMSONFEAST_PREFERENCE_MEAL_BUFF);
+    builder.add(NETHERCRIMSONFEAST_PREFERENCE_SNEAK);
     builder.add(SKULL_TOSS_NAME);
     builder.add(SKULL_TOSS_DESCRIPTION);
     builder.add(SKULL_TOSS_LORE1);

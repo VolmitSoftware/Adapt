@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AdvancementMessages;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
@@ -46,6 +49,14 @@ import org.bukkit.inventory.ItemStack;
 
 
 public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", CraftingMessages.PREFERENCE_CRAFTINGSTATIONS_SNEAK, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> WORKBENCH = CommonPreferences.toggle("workbench", CraftingMessages.PREFERENCE_CRAFTINGSTATIONS_WORKBENCH, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> GRINDSTONE = CommonPreferences.toggle("grindstone", CraftingMessages.PREFERENCE_CRAFTINGSTATIONS_GRINDSTONE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> ANVIL = CommonPreferences.toggle("anvil", CraftingMessages.PREFERENCE_CRAFTINGSTATIONS_ANVIL, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> STONECUTTER = CommonPreferences.toggle("stonecutter", CraftingMessages.PREFERENCE_CRAFTINGSTATIONS_STONECUTTER, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> CARTOGRAPHY = CommonPreferences.toggle("cartography", CraftingMessages.PREFERENCE_CRAFTINGSTATIONS_CARTOGRAPHY, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> LOOM = CommonPreferences.toggle("loom", CraftingMessages.PREFERENCE_CRAFTINGSTATIONS_LOOM, CommonPreferences.Toggle.ON);
+
   private final Cooldowns blockedCue = cooldowns();
 
   public CraftingStations() {
@@ -68,6 +79,12 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
     registerAdvancementSpec(stations200);
     registerStatTracker(stations200.statTracker("crafting.stations.portable-opens", 200, 300));
     registerStatTracker(stations5k.statTracker("crafting.stations.portable-opens", 5000, 1000));
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SNEAK, WORKBENCH, GRINDSTONE, ANVIL, STONECUTTER, CARTOGRAPHY, LOOM);
   }
 
   @Override
@@ -101,7 +118,16 @@ public class CraftingStations extends SimpleAdaptation<CraftingStations.Config> 
       default -> null;
     };
 
-    if (station == null) {
+    if (station == null || preferenceEnabled(p, SNEAK) && !p.isSneaking()
+        || station != null && !preferenceEnabled(p, switch (station) {
+          case WORKBENCH -> WORKBENCH;
+          case GRINDSTONE -> GRINDSTONE;
+          case ANVIL -> ANVIL;
+          case STONECUTTER -> STONECUTTER;
+          case CARTOGRAPHY -> CARTOGRAPHY;
+          case LOOM -> LOOM;
+          default -> CommonPreferences.ENABLED;
+        })) {
       return;
     }
 

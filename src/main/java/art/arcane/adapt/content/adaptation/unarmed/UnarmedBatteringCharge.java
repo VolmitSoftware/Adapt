@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -79,6 +85,22 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     registerMilestone("challenge_unarmed_charge_kills_100", "unarmed.battering-charge.charge-kills", 100, 1000);
   }
 
+  private final Map<UUID, Long> armedUntil = playerState();
+
+  @EventHandler(ignoreCancelled = true)
+  public void on(PlayerInteractEvent event) {
+    Player player = event.getPlayer();
+    if (event.getHand() == EquipmentSlot.HAND && event.getAction() == Action.RIGHT_CLICK_AIR
+        && player.isSneaking() && getActiveLevel(player) > 0 && preferenceEnabled(player, UnarmedPreferences.ARM)) {
+      armedUntil.put(player.getUniqueId(), System.currentTimeMillis() + 5000L);
+    }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, UnarmedPreferences.LOADOUT, UnarmedPreferences.ARM);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getDamageBonus(level)), 1);
@@ -134,6 +156,7 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     primedState.put(p.getUniqueId(), false);
     xp(p, e.getDamage() * getConfig().xpPerDamage);
     addStat(p, "unarmed.battering-charge.charges", 1);
+    armedUntil.remove(p.getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -181,7 +204,8 @@ public class UnarmedBatteringCharge extends SimpleAdaptation<UnarmedBatteringCha
     ItemStack off = p.getInventory().getItemInOffHand();
     boolean fists = (!isItem(main) || main.getType() == Material.AIR) && (!isItem(off) || off.getType() == Material.AIR);
     boolean shieldLoadout = (isItem(main) && main.getType() == Material.SHIELD) || (isItem(off) && off.getType() == Material.SHIELD);
-    return fists || shieldLoadout;
+    return preference(p, UnarmedPreferences.LOADOUT).accepts(fists, shieldLoadout)
+        && (!preferenceEnabled(p, UnarmedPreferences.ARM) || armedUntil.getOrDefault(p.getUniqueId(), 0L) > System.currentTimeMillis());
   }
 
   private ItemStack getCooldownItem(Player p) {

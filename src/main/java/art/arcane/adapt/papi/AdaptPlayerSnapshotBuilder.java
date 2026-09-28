@@ -1,6 +1,5 @@
 package art.arcane.adapt.papi;
 
-import art.arcane.adapt.api.mutation.MutationSnapshot;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
@@ -22,7 +21,6 @@ public final class AdaptPlayerSnapshotBuilder {
   public static AdaptPlayerSnapshot build(
       AdaptPlayerSnapshot previous,
       PlayerData data,
-      AdaptMutationView mutations,
       NewtonCurve curve,
       int configuredMaxLevel,
       double powerPerLevel
@@ -118,8 +116,7 @@ public final class AdaptPlayerSnapshotBuilder {
         PlaceholderValues.count(learnedAdaptations),
         immutableSnapshot(previousSkills, skills),
         immutableSnapshot(previousAdaptationLevels, adaptationLevels),
-        zeroLine(previous, curve),
-        mutations == null ? AdaptMutationView.unavailable() : mutations
+        zeroLine(previous, curve)
     );
   }
 
@@ -137,55 +134,6 @@ public final class AdaptPlayerSnapshotBuilder {
         0,
         PlaceholderValues.count(0)
     );
-  }
-
-  public static AdaptMutationView mutationView(
-      MutationSnapshot source,
-      boolean enabled,
-      long combatLockRemainingMs,
-      AdaptCatalogSnapshot catalog
-  ) {
-    if (source == null) {
-      return AdaptMutationView.unavailable();
-    }
-
-    long remaining = Math.max(0L, combatLockRemainingMs);
-    int expressed = source.expressed().size();
-    String slotOneId = normalize(source.slotOneId());
-    String slotTwoId = normalize(source.slotTwoId());
-
-    return new AdaptMutationView(
-        true,
-        enabled,
-        slotOneId == null ? "" : slotOneId,
-        slotTwoId == null ? "" : slotTwoId,
-        mutationName(catalog, source.slotOneId()),
-        mutationName(catalog, source.slotTwoId()),
-        source.slotOneUnlocked(),
-        source.slotTwoUnlocked(),
-        source.perfect(),
-        expressed,
-        PlaceholderValues.count(expressed),
-        remaining,
-        PlaceholderValues.num(remaining / 1000.0D),
-        remaining <= 0L,
-        source
-    );
-  }
-
-  private static String mutationName(AdaptCatalogSnapshot catalog, String mutationId) {
-    String id = normalize(mutationId);
-
-    if (id == null) {
-      return "";
-    }
-
-    if (catalog == null) {
-      return id;
-    }
-
-    AdaptCatalogMutation mutation = catalog.mutation(id);
-    return mutation == null ? id : mutation.nameText();
   }
 
   private static AdaptSkillLineSnapshot lineSnapshot(

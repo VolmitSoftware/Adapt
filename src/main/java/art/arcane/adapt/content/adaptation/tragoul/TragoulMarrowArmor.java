@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 
@@ -72,6 +75,11 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TragoulPreferences.BONES);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(TragoulMessages.MARROW_ARMOR_LORE1));
     statLore(v, Form.pc(getAbsorbPercent(level), 0), 2);
@@ -99,7 +107,7 @@ public class TragoulMarrowArmor extends SimpleAdaptation<TragoulMarrowArmor.Conf
         return;
       }
 
-      if (!p.getInventory().containsAtLeast(new ItemStack(Material.BONE), 1)) {
+      if (!p.getInventory().containsAtLeast(new ItemStack(Material.BONE), preference(p, TragoulPreferences.BONES).required(1))) {
         if (clickFx.isReady(id, 1500L)) {
           clickFx.mark(id);
           fx(p.getLocation().add(0, 1.0, 0), FxPriority.TRANSITION)

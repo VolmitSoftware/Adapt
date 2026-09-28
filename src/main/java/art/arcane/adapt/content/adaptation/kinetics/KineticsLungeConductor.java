@@ -1,5 +1,9 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.KineticsMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -20,6 +24,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.util.Vector;
 
 public class KineticsLungeConductor extends SimpleAdaptation<KineticsLungeConductor.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> TRAVEL = CommonPreferences.toggle("travel", KineticsMessages.KINETICSLUNGECONDUCTOR_PREFERENCE_TRAVEL, CommonPreferences.Toggle.ON);
+
   private static final Color CONDUCTOR = Color.fromRGB(0xBFE8FF);
   private final Cooldowns lungeCooldown = cooldowns();
 
@@ -28,6 +34,11 @@ public class KineticsLungeConductor extends SimpleAdaptation<KineticsLungeConduc
     registerConfiguration(Config.class);
     setIcon(Material.FEATHER);
     setInterval(9999);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TRAVEL);
   }
 
   @Override
@@ -78,7 +89,9 @@ public class KineticsLungeConductor extends SimpleAdaptation<KineticsLungeConduc
         return;
       }
 
-      p.setVelocity(assistVelocity(p.getVelocity(), direction, boost));
+      if (hasActiveAdaptation(p) && preferenceEnabled(p, TRAVEL)) {
+        p.setVelocity(assistVelocity(p.getVelocity(), direction, boost));
+      }
       fx(p.getLocation().add(0, 1, 0), FxPriority.GAMEPLAY)
           .particle(Particle.CLOUD, 4, 0, 0.1D, 0, 0.15D, 0.02D)
           .dustBurst(CONDUCTOR, 4, 0.3D, 1.0F)

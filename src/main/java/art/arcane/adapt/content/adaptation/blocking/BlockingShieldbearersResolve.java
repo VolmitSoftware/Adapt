@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -62,6 +65,11 @@ public class BlockingShieldbearersResolve extends SimpleAdaptation<BlockingShiel
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BlockingPreferences.RESISTANCE, BlockingPreferences.RECOVERY);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getRecoverySpeed(level), 0), 1);
     statLore(v, Form.f(getResistanceAmplifier(level) + 1, 0), 2);
@@ -96,7 +104,8 @@ public class BlockingShieldbearersResolve extends SimpleAdaptation<BlockingShiel
   }
 
   private void resolveDisable(Player p, int level) {
-    if (!p.isOnline()) {
+    if (!p.isOnline() || getActiveLevel(p) <= 0
+        || (!preferenceEnabled(p, BlockingPreferences.RECOVERY) && !preferenceEnabled(p, BlockingPreferences.RESISTANCE))) {
       return;
     }
 
@@ -113,12 +122,14 @@ public class BlockingShieldbearersResolve extends SimpleAdaptation<BlockingShiel
 
     int reduced = (int) Math.round(cooldown * (1.0D - getRecoverySpeed(level)));
     reduced = Math.max(getConfig().minCooldownTicks, reduced);
-    if (reduced < cooldown) {
+    if (reduced < cooldown && preferenceEnabled(p, BlockingPreferences.RECOVERY)) {
       p.setCooldown(Material.SHIELD, reduced);
     }
 
     int resistanceTicks = Math.max(getConfig().minResistanceTicks, Math.min(cooldown, reduced));
-    p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, resistanceTicks, getResistanceAmplifier(level), false, false, true), true);
+    if (preferenceEnabled(p, BlockingPreferences.RESISTANCE)) {
+      p.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, resistanceTicks, getResistanceAmplifier(level), false, false, true), true);
+    }
 
     addStat(p, "blocking.shieldbearers-resolve.recoveries", 1);
     xp(p, getConfig().xpOnResolve);

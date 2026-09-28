@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
@@ -83,6 +86,14 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Config> {
+  public static final PlayerPreference<GuideColor> COLOR = new PlayerPreference<>(GuideColor.class,
+      new PlayerPreference.Definition<>("color", ArchitectMessages.ARCHITECTCHALKLINE_PREFERENCE_COLOR, GuideColor.SHAPE, List.of(
+          new PlayerPreference.Choice<>(GuideColor.SHAPE, ArchitectMessages.ARCHITECTCHALKLINE_PREFERENCE_COLOR_SHAPE, Material.WHITE_STAINED_GLASS, 1),
+          new PlayerPreference.Choice<>(GuideColor.AQUA, ArchitectMessages.ARCHITECTCHALKLINE_PREFERENCE_COLOR_AQUA, Material.CYAN_STAINED_GLASS, 1),
+          new PlayerPreference.Choice<>(GuideColor.GOLD, ArchitectMessages.ARCHITECTCHALKLINE_PREFERENCE_COLOR_GOLD, Material.YELLOW_STAINED_GLASS, 1),
+          new PlayerPreference.Choice<>(GuideColor.PURPLE, ArchitectMessages.ARCHITECTCHALKLINE_PREFERENCE_COLOR_PURPLE, Material.PURPLE_STAINED_GLASS, 1))));
+  public static final PlayerPreference<CommonPreferences.Scale> DENSITY = CommonPreferences.scale("density", ArchitectMessages.ARCHITECTCHALKLINE_PREFERENCE_DENSITY);
+
   private static final int CHALK_LEVELS = 4;
   private static final int MAX_PLAYERS_PER_TICK = 32;
   private static final int MARKERS_PER_RECONCILIATION = 8;
@@ -122,6 +133,17 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
         .build());
     registerMilestone("challenge_architect_chalk_line_50", "architect.chalk-line.guides-drafted", 50, 300);
     registerMilestone("challenge_architect_chalk_line_500", "architect.chalk-line.guides-drafted", 500, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, COLOR, DENSITY);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearPlayerState(player.getPlayer().getUniqueId());
+    refreshHeldState(player.getPlayer());
   }
 
   @Override
@@ -607,6 +629,19 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
   private void reconcileMarker(Player player, Location viewerLocation, VisiblePreview preview,
                                GuidePoint point) {
     UUID playerId = player.getUniqueId();
+    int stride = (int) Math.round(1D / preference(player, DENSITY).multiplier());
+    if (Math.floorMod(point.x() + point.y() + point.z(), stride) != 0) {
+      if (preview.renderedPoints().remove(point)) {
+        clearMarker(playerId, preview.tool(), point);
+      }
+      return;
+    }
+    Color color = switch (preference(player, COLOR)) {
+      case SHAPE -> displayColor(preview.tool());
+      case AQUA -> Color.AQUA;
+      case GOLD -> Color.YELLOW;
+      case PURPLE -> Color.PURPLE;
+    };
     World world = Bukkit.getWorld(point.worldId());
     if (world == null
         || viewerLocation.getWorld() != world
@@ -652,7 +687,7 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
           player,
           markerLocation,
           displayData,
-          displayColor(preview.tool())
+          color
       );
       if (!scheduled) {
         preview.renderedPoints().remove(point);
@@ -919,4 +954,6 @@ public class ArchitectChalkLine extends SimpleAdaptation<ArchitectChalkLine.Conf
       initialCost = 1;
     }
   }
+
+  public enum GuideColor { SHAPE, AQUA, GOLD, PURPLE }
 }

@@ -29,14 +29,13 @@ import art.arcane.adapt.api.notification.ActionBarNotification;
 import art.arcane.adapt.api.notification.Notification;
 import art.arcane.adapt.api.notification.SoundNotification;
 import art.arcane.adapt.api.notification.TitleNotification;
-import art.arcane.adapt.api.mutation.PlayerMutationData;
+import art.arcane.adapt.api.preference.PlayerPreferenceData;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.api.xp.XP;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.io.Json;
-import art.arcane.adapt.service.MutationSVC;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.collection.KSet;
@@ -56,6 +55,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -126,7 +126,7 @@ public class PlayerData {
   private volatile boolean effectsEnabled = true;
   private String inspiredSkill = "";
   private long inspiredAssignedAt = 0;
-  private PlayerMutationData mutationData = new PlayerMutationData();
+  private PlayerPreferenceData preferences = new PlayerPreferenceData();
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private transient volatile int regionPowerBonus;
@@ -157,7 +157,6 @@ public class PlayerData {
     if (data == null) {
       return null;
     }
-    data.getMutationData().normalize();
     data.normalizeInspiredAssignment();
     data.removeRetiredAxesContent();
     data.removeRetiredDowsingContent();
@@ -167,11 +166,11 @@ public class PlayerData {
     return data;
   }
 
-  public PlayerMutationData getMutationData() {
-    if (mutationData == null) {
-      mutationData = new PlayerMutationData();
+  public PlayerPreferenceData getPreferences() {
+    if (preferences == null) {
+      preferences = new PlayerPreferenceData();
     }
-    return mutationData;
+    return preferences;
   }
 
   public void giveMasterXp(double xp) {
@@ -180,6 +179,15 @@ public class PlayerData {
 
   public void globalXPMultiplier(double v, long duration) {
     multipliers.add(new XPMultiplier(v, duration));
+  }
+
+  public void globalXPMultiplier(XPMultiplier multiplier) {
+    multipliers.add(Objects.requireNonNull(multiplier));
+  }
+
+  public void removeGlobalXPMultipliers(String source) {
+    Objects.requireNonNull(source);
+    multipliers.removeIf(multiplier -> multiplier != null && source.equals(multiplier.getSource()));
   }
 
   public boolean isGranted(String advancement) {
@@ -258,12 +266,6 @@ public class PlayerData {
     if (oldLevel != level) {
       setLastMasterXp(getMasterXp());
       notifyMasterLevel(p, level);
-
-      MutationSVC mutationService = MutationSVC.get();
-      if (mutationService != null && mutationService.getManager() != null) {
-        mutationService.onLevelChanged(p, oldLevel, level);
-      }
-
     }
   }
 
@@ -763,11 +765,6 @@ public class PlayerData {
     seenBlocks = new Discovery<>();
   }
 
-  public void clearMutations() {
-    getMutationData().clearAll();
-    refreshLearnedIndex();
-  }
-
   public void pruneAdaptationsForPowerBudget() {
     if (isDebugLearning()) {
       return;
@@ -858,7 +855,6 @@ public class PlayerData {
     advancements.clear();
     multipliers.clear();
     wisdom = 0;
-    clearMutations();
   }
 
   public String toJson(boolean raw) {

@@ -238,7 +238,8 @@ final class AdaptationGuiSupport {
     spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
 
     boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
-    GuiLayout.PagePlan plan = GuiLayout.plan(adaptation.getMaxLevel(), reserveNavigation);
+    boolean hasPreferences = !adaptation.getPlayerPreferences().isEmpty();
+    GuiLayout.PagePlan plan = GuiLayout.planWithSettings(adaptation.getMaxLevel(), reserveNavigation, hasPreferences);
     int currentPage = GuiLayout.clampPage(page, plan.pageCount());
     int start = currentPage * plan.itemsPerPage();
     int end = Math.min(adaptation.getMaxLevel(), start + plan.itemsPerPage());
@@ -380,7 +381,7 @@ final class AdaptationGuiSupport {
     GuiEffects.applyReveal(w, reveal);
 
     if (plan.hasNavigationRow()) {
-      int navRow = plan.rows() - 1;
+      int navRow = plan.rows() - (hasPreferences ? 2 : 1);
       int jumpPages = 5;
       int jumpBack = Math.max(0, currentPage - jumpPages);
       int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
@@ -437,6 +438,10 @@ final class AdaptationGuiSupport {
           trusted("total", adaptation.getMaxLevel())
       ));
       w.setElement(0, navRow, center.setProgress(1D));
+    }
+
+    if (hasPreferences) {
+      PreferenceGuiSupport.populate(adaptation, w, plan.rows() - 1);
     }
 
     w.setTitle(adaptation.getDisplayName());

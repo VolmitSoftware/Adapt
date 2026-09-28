@@ -31,7 +31,6 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.localization.catalog.SnippetsMessages;
-import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiConfig;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
@@ -119,11 +118,6 @@ public class SkillsGui {
               .thenComparing(entry -> entry.skill().getName(), String.CASE_INSENSITIVE_ORDER)
       );
 
-      MutationSVC mutationService = MutationSVC.get();
-      boolean showMutations = (player.hasPermission("adapt.mutations") || debugMode)
-          && mutationService != null
-          && mutationService.getManager() != null
-          && mutationService.getManager().getConfig().isEnabled();
       int configuredRows = GuiConfig.skillsGuiRows();
       GuiLayout.PagePlan plan = GuiLayout.planFiveWide(entries.size(), configuredRows);
       int currentPage = GuiLayout.clampPage(page, plan.pageCount());
@@ -183,7 +177,7 @@ public class SkillsGui {
         GuiEffects.applyReveal(w, reveal);
       }
 
-      applyPageControls(w, player, navRow, currentPage, plan.pageCount(), entries.size(), start, end, showMutations);
+      applyPageControls(w, player, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
 
       w.setTitle(AdaptLanguage.text(
           GuiMessages.SKILLS_TITLE,
@@ -260,8 +254,7 @@ public class SkillsGui {
       int pageCount,
       int totalEntries,
       int start,
-      int end,
-      boolean showMutations
+      int end
   ) {
     int jumpBack = Math.max(0, currentPage - PAGE_JUMP);
     int jumpForward = Math.min(pageCount - 1, currentPage + PAGE_JUMP);
@@ -300,19 +293,9 @@ public class SkillsGui {
 
     int from = totalEntries <= 0 ? 0 : (start + 1);
     int to = totalEntries <= 0 ? 0 : end;
-    Element center;
-    if (showMutations) {
-      center = new UIElement("mutations")
-          .setMaterial(new MaterialBlock(Material.AMETHYST_CLUSTER))
-          .setName(C.LIGHT_PURPLE + AdaptLanguage.text(GuiMessages.EXPERIMENTAL_MUTATIONS))
-          .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.MUTATIONS_MENU_SUMMARY))
-          .addLore(C.WHITE + AdaptLanguage.text(GuiMessages.MUTATIONS_MENU_OPEN))
-          .onLeftClick(event -> MutationGui.open(player));
-    } else {
-      center = new UIElement("skills-page-info")
-          .setMaterial(new MaterialBlock(Material.PAPER))
-          .setName(C.AQUA + AdaptLanguage.text(GuiMessages.SKILLS));
-    }
+    Element center = new UIElement("skills-page-info")
+        .setMaterial(new MaterialBlock(Material.PAPER))
+        .setName(C.AQUA + AdaptLanguage.text(GuiMessages.SKILLS));
     center.addLore(C.DARK_GRAY + AdaptLanguage.text(
         GuiMessages.PAGE_SHOWING_RANGE,
         trusted("page", currentPage + 1),

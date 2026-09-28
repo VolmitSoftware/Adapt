@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.localization.catalog.ChronosMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -58,6 +61,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CROPS = CommonPreferences.toggle("crops", ChronosMessages.PREFERENCE_CHRONOSACCELERATE_CROPS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FURNACES = CommonPreferences.toggle("furnaces", ChronosMessages.PREFERENCE_CHRONOSACCELERATE_FURNACES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BREWING = CommonPreferences.toggle("brewing", ChronosMessages.PREFERENCE_CHRONOSACCELERATE_BREWING, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Scale> RADIUS = CommonPreferences.scale("radius", ChronosMessages.PREFERENCE_CHRONOSACCELERATE_RADIUS);
+
   private static final Color AURA_COLOR = Color.fromRGB(230, 210, 150);
   private static final int HARD_MAX_PLAYERS_PER_PASS = 512;
   private static final int HARD_MAX_SAMPLES_PER_PASS = 8192;
@@ -78,6 +86,12 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_chronos_accelerate_1k", "chronos.accelerate.blocks-accelerated", 1000, 600);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CROPS, FURNACES, BREWING, RADIUS);
   }
 
   @Override
@@ -166,7 +180,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
 
     AccelerationBatch acceleration = new AccelerationBatch(player, center, level, granted);
     ThreadLocalRandom random = ThreadLocalRandom.current();
-    int radius = Math.max(1, (int) Math.round(getRadius(level)));
+    int radius = Math.max(1, (int) Math.round(getRadius(level) * preference(player, RADIUS).multiplier()));
     for (int i = 0; i < granted; i++) {
       int x = center.getBlockX() + random.nextInt(-radius, radius + 1);
       int y = center.getBlockY() + random.nextInt(-2, 3);
@@ -196,7 +210,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     }
 
     if (type == Material.FURNACE || type == Material.BLAST_FURNACE || type == Material.SMOKER) {
-      if (block.getState() instanceof Furnace furnace && accelerateFurnace(player, block, furnace, level)) {
+      if (preferenceEnabled(player, FURNACES) && block.getState() instanceof Furnace furnace && accelerateFurnace(player, block, furnace, level)) {
         emitStationFx(world, target.getBlockX(), target.getBlockY(), target.getBlockZ(), true);
         return true;
       }
@@ -204,7 +218,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     }
 
     if (type == Material.BREWING_STAND) {
-      if (block.getState() instanceof BrewingStand stand && accelerateBrewingStand(player, block, stand, level)) {
+      if (preferenceEnabled(player, BREWING) && block.getState() instanceof BrewingStand stand && accelerateBrewingStand(player, block, stand, level)) {
         emitStationFx(world, target.getBlockX(), target.getBlockY(), target.getBlockZ(), false);
         return true;
       }
@@ -212,7 +226,7 @@ public class ChronosAccelerate extends SimpleAdaptation<ChronosAccelerate.Config
     }
 
     BlockData data = block.getBlockData();
-    if (!(data instanceof Ageable ageable)
+    if (!preferenceEnabled(player, CROPS) || !(data instanceof Ageable ageable)
         || ageable.getAge() >= ageable.getMaximumAge()
         || ThreadLocalRandom.current().nextDouble() >= getGrowChance(level)) {
       return false;

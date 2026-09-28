@@ -216,20 +216,20 @@ class AdaptLanguageTest extends AdaptTestBase {
   );
   private static final Map<String, Pattern> CJK_ASCII_ARTIFACTS = Map.ofEntries(
       Map.entry("ja-JP", Pattern.compile(
-          "(?i)\\b(?:Mutation|Sneak|Proc|Momentum|Nether|Void|Shapeless|potion|servants|melee"
+          "(?i)\\b(?:Sneak|Proc|Momentum|Nether|Void|Shapeless|potion|servants|melee"
               + "|Block|sec|Axe|Stagger|haste|Projectile|Enemies|Config)\\b"
       )),
       Map.entry("ko_KR", Pattern.compile(
-          "(?i)\\b(?:Mutation|Sneak|mobs?|Block|Knockback|Haste|sec|Shred|Proc|Trigger"
+          "(?i)\\b(?:Sneak|mobs?|Block|Knockback|Haste|sec|Shred|Proc|Trigger"
               + "|Projectiles?|config|Decoys?|Buff|axe|Weakness|Riposte|Ricochet|combo|orb"
               + "|enchant|stasis|plague|villager|Netherite)\\b"
       )),
       Map.entry("zh_CN", Pattern.compile(
-          "(?i)\\b(?:Block|sec|Bash|Shapeless|Proc|Burrow|Bloom|Temperbound|Deepblood|Tick"
+          "(?i)\\b(?:Block|sec|Bash|Shapeless|Proc|Burrow|Bloom|Tick"
               + "|Skeleton|Ricochet|Weder|works)\\b"
       )),
       Map.entry("zh_TW", Pattern.compile(
-          "(?i)\\b(?:Block|sec|Bash|Shapeless|Proc|Burrow|Bloom|Temperbound|Deepblood|Tick"
+          "(?i)\\b(?:Block|sec|Bash|Shapeless|Proc|Burrow|Bloom|Tick"
               + "|Skeleton|Ricochet|Weder|works)\\b"
       ))
   );

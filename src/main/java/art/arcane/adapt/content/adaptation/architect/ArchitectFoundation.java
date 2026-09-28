@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
@@ -75,6 +79,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Config> {
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", ArchitectMessages.ARCHITECTFOUNDATION_PREFERENCE_CONTROL, Control.HOLD, List.of(
+          new PlayerPreference.Choice<>(Control.HOLD, ArchitectMessages.ARCHITECTFOUNDATION_PREFERENCE_CONTROL_HOLD, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Control.LATCH, ArchitectMessages.ARCHITECTFOUNDATION_PREFERENCE_CONTROL_LATCH, Material.LEVER, 1))));
+  public static final PlayerPreference<CommonPreferences.Toggle> EMPTY_HAND = CommonPreferences.toggle("empty-hand", ArchitectMessages.ARCHITECTFOUNDATION_PREFERENCE_EMPTY_HAND, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Scale> DURATION = CommonPreferences.scale("duration", ArchitectMessages.ARCHITECTFOUNDATION_PREFERENCE_DURATION);
+
   private static final NamespacedKey JOURNAL_KEY = new NamespacedKey("adapt", "architect-foundation");
   private static final int MAX_JOURNALED_BLOCKS_PER_CHUNK = 4096;
   private static final int MAX_RECOVERY_CHUNKS_PER_TICK = 32;
@@ -115,6 +126,16 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, EMPTY_HAND, DURATION, CONTROL);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    deactivateFoundation(player.getPlayer(), player.getPlayer().getUniqueId());
+  }
+
+  @Override
   protected void onRuntimeActivated() {
     queueLoadedChunkRecovery();
   }
@@ -134,7 +155,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
 
     Player p = e.getPlayer();
-    if (!p.isSneaking()) {
+    if (!p.isSneaking() && preference(p, CONTROL) == Control.HOLD) {
       return;
     }
 
@@ -144,7 +165,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
     }
 
     withPlayerThread(p, e, () -> {
-      if (!p.isSneaking() || !active.containsKey(id)) {
+      if ((!p.isSneaking() && preference(p, CONTROL) == Control.HOLD) || !active.containsKey(id) || !isPlayerEnabled(p)) {
         return;
       }
       placeFoundation(p, to);
@@ -256,7 +277,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
     UUID id = p.getUniqueId();
-    if (!e.isSneaking() && active.containsKey(id)) {
+    if (active.containsKey(id) && (preference(p, CONTROL) == Control.LATCH ? e.isSneaking() : !e.isSneaking())) {
       withPlayerThread(p, e, () -> deactivateFoundation(p, id));
       return;
     }
@@ -270,7 +291,8 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
       boolean ready = !hasCooldown(id);
       boolean activeNow = active.containsKey(id);
 
-      if (e.isSneaking() && ready && !activeNow) {
+      if (e.isSneaking() && ready && !activeNow
+          && (!preferenceEnabled(p, EMPTY_HAND) || p.getInventory().getItemInMainHand().getType().isAir())) {
         active.put(id, Boolean.TRUE);
         blockPower.put(id, getBlockPower(getLevelPercent(p)));
         FxPresets.chargeRing(this, p.getLocation(), 6);
@@ -312,7 +334,7 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
       block.setType(Material.TINTED_GLASS, false);
       activeBlocks.add(block);
       int durationTicks = (int) Math.max(1L,
-          Math.min(Integer.MAX_VALUE, (long) Math.ceil(getConfig().duration / 50D)));
+          Math.min(Integer.MAX_VALUE, (long) Math.ceil(getConfig().duration * preference(player, DURATION).multiplier() / 50D)));
       cleanupScheduled = J.runAt(location, () -> removeFoundation(block), durationTicks);
       return cleanupScheduled;
     } finally {
@@ -609,4 +631,6 @@ public class ArchitectFoundation extends SimpleAdaptation<ArchitectFoundation.Co
       initialCost = 1;
     }
   }
+
+  public enum Control { HOLD, LATCH }
 }

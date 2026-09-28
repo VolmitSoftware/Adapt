@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
@@ -51,6 +55,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> KNOCKBACK = CommonPreferences.toggle("knockback", ArchitectMessages.ARCHITECTSTEADYHANDS_PREFERENCE_KNOCKBACK, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FALL = CommonPreferences.toggle("fall", ArchitectMessages.ARCHITECTSTEADYHANDS_PREFERENCE_FALL, CommonPreferences.Toggle.ON);
+
   private static final String SLOT_HASTE = "haste";
   private static final String SLOT_BRACE = "brace";
   private static final String SLOT_BLAST = "blast";
@@ -81,6 +88,21 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, KNOCKBACK, FALL);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    Player p = player.getPlayer();
+    AdaptAttributeService attributes = AdaptAttributeService.get();
+    attributes.remove(p, getName(), SLOT_HASTE, Attributes.BLOCK_BREAK_SPEED);
+    attributes.remove(p, getName(), SLOT_BRACE, Attributes.KNOCKBACK_RESISTANCE);
+    attributes.remove(p, getName(), SLOT_BLAST, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE);
+    attributes.remove(p, getName(), SLOT_FALL, Attributes.SAFE_FALL_DISTANCE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.STEADY_HANDS_LORE1));
     statLore(v, C.GREEN, "", (int) getShieldedHeight(getLevelPercent(level)), 2);
@@ -107,9 +129,13 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
     if (getConfig().hasteDurationTicks > 0) {
       attributes.applyTimed(p, getName(), SLOT_HASTE, Attributes.BLOCK_BREAK_SPEED, hasteBreakSpeedBonus(getConfig().hasteAmplifier), AttributeModifier.Operation.MULTIPLY_SCALAR_1, getConfig().hasteDurationTicks);
     }
-    attributes.applyTimed(p, getName(), SLOT_BRACE, Attributes.KNOCKBACK_RESISTANCE, 1.0D, AttributeModifier.Operation.ADD_NUMBER, graceTicks);
-    attributes.applyTimed(p, getName(), SLOT_BLAST, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE, 1.0D, AttributeModifier.Operation.ADD_NUMBER, graceTicks);
-    attributes.applyTimed(p, getName(), SLOT_FALL, Attributes.SAFE_FALL_DISTANCE, getShieldedHeight(getLevelPercent(context.level())), AttributeModifier.Operation.ADD_NUMBER, graceTicks);
+    if (preferenceEnabled(p, KNOCKBACK)) {
+      attributes.applyTimed(p, getName(), SLOT_BRACE, Attributes.KNOCKBACK_RESISTANCE, 1.0D, AttributeModifier.Operation.ADD_NUMBER, graceTicks);
+      attributes.applyTimed(p, getName(), SLOT_BLAST, Attributes.EXPLOSION_KNOCKBACK_RESISTANCE, 1.0D, AttributeModifier.Operation.ADD_NUMBER, graceTicks);
+    }
+    if (preferenceEnabled(p, FALL)) {
+      attributes.applyTimed(p, getName(), SLOT_FALL, Attributes.SAFE_FALL_DISTANCE, getShieldedHeight(getLevelPercent(context.level())), AttributeModifier.Operation.ADD_NUMBER, graceTicks);
+    }
     bridgeGraceUntil.put(p.getUniqueId(), M.ms() + (graceTicks * 50L));
     addStat(p, "architect.steady-hands.bridge-blocks", 1);
     if (auraCd.isReady(p.getUniqueId(), 250)) {
@@ -123,7 +149,7 @@ public class ArchitectSteadyHands extends SimpleAdaptation<ArchitectSteadyHands.
   @EventHandler
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    if (getActiveLevel(p) <= 0) {
+    if (getActiveLevel(p) <= 0 || !preferenceEnabled(p, KNOCKBACK)) {
       return;
     }
 

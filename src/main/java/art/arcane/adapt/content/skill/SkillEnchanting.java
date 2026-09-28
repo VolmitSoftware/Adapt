@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingAnvilSavant;
 import art.arcane.adapt.content.adaptation.enchanting.EnchantingArcaneSiphon;
@@ -205,7 +206,7 @@ public class SkillEnchanting extends SimpleSkill<SkillEnchanting.Config> {
   }
 
   @NoArgsConstructor
-  protected static class Config {
+  protected static class Config extends SkillConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
     boolean enabled = true;
     String skillColor = "&d";

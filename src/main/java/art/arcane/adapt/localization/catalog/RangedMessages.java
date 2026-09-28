@@ -1,5 +1,6 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.adapt.content.adaptation.ranged.RangedPreferences;
 import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -73,6 +74,7 @@ public final class RangedMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    RangedPreferences.addMessages(builder);
     builder.add(ARROW_RECOVERY_NAME);
     builder.add(ARROW_RECOVERY_DESCRIPTION);
     builder.add(ARROW_RECOVERY_LORE1);

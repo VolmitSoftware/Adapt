@@ -33,6 +33,7 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.potion.BrewingRecipe;
+import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.tick.TickedObject;
@@ -191,6 +192,9 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       config = loaded;
       applySharedConfigValues(loaded);
       onConfigReload(previous, loaded);
+      if (previous != null) {
+        PlayerPreferences.reconcileOnline(this);
+      }
       if (announce) {
         Adapt.info("Hotloaded " + file.getPath());
       }
@@ -214,11 +218,14 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
           sourceFile,
           getConfigurationClass(),
           "adaptation:" + getName(),
-          this::normalizeLoadedConfig
+          this::normalizeConfiguration
       );
       config = loaded;
       applySharedConfigValues(loaded);
       onConfigReload(previous, loaded);
+      if (previous != null) {
+        PlayerPreferences.reconcileOnline(this);
+      }
       if (announce) {
         Adapt.info("Hotloaded " + sourceFile.getPath());
       }
@@ -254,7 +261,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         overwriteOnReadFailure,
         "adaptation:" + getName(),
         "Created missing adaptation config [adaptations/" + getName() + ".toml] from defaults.",
-        this::normalizeLoadedConfig,
+        this::normalizeConfiguration,
         shouldCanonicalizeConfigOnLoad()
     );
   }
@@ -273,8 +280,15 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   protected void normalizeLoadedConfig(T loadedConfig) {
   }
 
+  private void normalizeConfiguration(T loadedConfig) {
+    normalizeLoadedConfig(loadedConfig);
+    if (loadedConfig instanceof AdaptationConfig adaptationConfig) {
+      PlayerPreferences.validate(this, adaptationConfig);
+    }
+  }
+
   protected boolean shouldCanonicalizeConfigOnLoad() {
-    return false;
+    return true;
   }
 
   private void applyIntField(T source, String fieldName, java.util.function.IntConsumer consumer) {
@@ -347,7 +361,7 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       local = config;
       if (!loaded || local == null) {
         local = createDefaultConfig();
-        normalizeLoadedConfig(local);
+        normalizeConfiguration(local);
         applySharedConfigValues(local);
         onConfigReload(null, local);
         config = local;

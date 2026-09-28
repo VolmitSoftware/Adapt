@@ -79,7 +79,8 @@ public class AxeShieldSplitter extends SimpleAdaptation<AxeShieldSplitter.Config
     e.setDamage(e.getDamage() * (1D + getBonusDamagePct(level)));
 
     if (target instanceof Player blocker) {
-      blocker.setCooldown(Material.SHIELD, getDisableTicks(level));
+      int ticks = getDisableTicks(level);
+      J.runEntity(blocker, () -> finishShieldDisable(blocker, ticks, e), 1);
     }
 
     fx(target.getLocation().add(0D, target.getHeight() * 0.6D, 0D), FxPriority.COMBAT)
@@ -95,6 +96,13 @@ public class AxeShieldSplitter extends SimpleAdaptation<AxeShieldSplitter.Config
     }
     addStat(p, "axe.shield-splitter.shields-broken", 1);
     xp(p, getConfig().xpPerBreak);
+  }
+
+  private void finishShieldDisable(Player blocker, int ticks, EntityDamageByEntityEvent event) {
+    if (!isRuntimeRegistered() || event.isCancelled() || !blocker.isOnline() || !blocker.isValid() || blocker.isDead()) {
+      return;
+    }
+    blocker.setCooldown(Material.SHIELD, Math.max(blocker.getCooldown(Material.SHIELD), ticks - 1));
   }
 
   private boolean isActivelyBlocking(LivingEntity target) {

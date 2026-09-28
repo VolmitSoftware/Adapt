@@ -25,8 +25,7 @@ public record AdaptPlayerSnapshot(
     String learnedAdaptationsText,
     Map<String, AdaptSkillLineSnapshot> skills,
     Map<String, Integer> adaptationLevels,
-    AdaptSkillLineSnapshot zeroLine,
-    AdaptMutationView mutations
+    AdaptSkillLineSnapshot zeroLine
 ) {
   public AdaptSkillLineSnapshot skill(String id) {
     return skills.get(id);

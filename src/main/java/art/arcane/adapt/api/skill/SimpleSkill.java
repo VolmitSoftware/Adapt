@@ -19,6 +19,7 @@
 package art.arcane.adapt.api.skill;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
@@ -147,6 +148,9 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
       T loaded = loadConfig(file, previous == null ? createDefaultConfig() : previous, overwriteOnReadFailure);
       config = loaded;
       onConfigReload(previous, loaded);
+      if (previous != null) {
+        PlayerPreferences.reconcileOnline(this);
+      }
       if (announce) {
         Adapt.info("Hotloaded " + file.getPath());
       }
@@ -170,10 +174,13 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
           sourceFile,
           getConfigurationClass(),
           "skill:" + getName(),
-          this::normalizeLoadedConfig
+          this::normalizeConfiguration
       );
       config = loaded;
       onConfigReload(previous, loaded);
+      if (previous != null) {
+        PlayerPreferences.reconcileOnline(this);
+      }
       if (announce) {
         Adapt.info("Hotloaded " + sourceFile.getPath());
       }
@@ -209,7 +216,7 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
         overwriteOnReadFailure,
         "skill:" + getName(),
         "Created missing skill config [skills/" + getName() + ".toml] from defaults.",
-        this::normalizeLoadedConfig,
+        this::normalizeConfiguration,
         shouldCanonicalizeConfigOnLoad()
     );
   }
@@ -217,8 +224,15 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   protected void normalizeLoadedConfig(T loadedConfig) {
   }
 
+  private void normalizeConfiguration(T loadedConfig) {
+    normalizeLoadedConfig(loadedConfig);
+    if (loadedConfig instanceof SkillConfig skillConfig) {
+      PlayerPreferences.validate(this, skillConfig);
+    }
+  }
+
   protected boolean shouldCanonicalizeConfigOnLoad() {
-    return false;
+    return true;
   }
 
   protected void onConfigReload(T previousConfig, T newConfig) {

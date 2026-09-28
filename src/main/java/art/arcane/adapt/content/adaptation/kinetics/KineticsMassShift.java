@@ -1,5 +1,9 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.KineticsMessages;
 
@@ -34,6 +38,11 @@ import java.util.Set;
 import java.util.UUID;
 
 public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config> {
+  public static final PlayerPreference<Selection> SELECTION = new PlayerPreference<>(Selection.class,
+      new PlayerPreference.Definition<>("selection", KineticsMessages.KINETICSMASSSHIFT_PREFERENCE_SELECTION, Selection.LOOK, List.of(
+          new PlayerPreference.Choice<>(Selection.LOOK, KineticsMessages.KINETICSMASSSHIFT_PREFERENCE_SELECTION_LOOK, Material.SPYGLASS, 1),
+          new PlayerPreference.Choice<>(Selection.CYCLE, KineticsMessages.KINETICSMASSSHIFT_PREFERENCE_SELECTION_CYCLE, Material.COMPASS, 1))));
+
   static final int FORM_NORMAL = 0;
   static final int FORM_TITAN = 1;
   static final int FORM_POCKET = 2;
@@ -57,6 +66,16 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
     registerConfiguration(Config.class);
     setIcon(Material.TOTEM_OF_UNDYING);
     setInterval(RECONCILE_INTERVAL_MS);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SELECTION);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    resetForm(player.getPlayer());
   }
 
   @Override
@@ -116,7 +135,9 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
     }
 
     e.setCancelled(true);
-    applyForm(p, formForPitch(p.getLocation().getPitch(), LOOK_PITCH_THRESHOLD), level);
+    FormState current = forms.get(p.getUniqueId());
+    int next = current == null ? FORM_TITAN : current.form() == FORM_TITAN ? FORM_POCKET : FORM_NORMAL;
+    applyForm(p, preference(p, SELECTION) == Selection.CYCLE ? next : formForPitch(p.getLocation().getPitch(), LOOK_PITCH_THRESHOLD), level);
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
@@ -358,4 +379,6 @@ public class KineticsMassShift extends SimpleAdaptation<KineticsMassShift.Config
       initialCost = 5;
     }
   }
+
+  public enum Selection { LOOK, CYCLE }
 }

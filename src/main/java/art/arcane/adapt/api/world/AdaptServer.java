@@ -21,6 +21,7 @@ package art.arcane.adapt.api.world;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
@@ -39,7 +40,6 @@ import art.arcane.adapt.api.xp.SpatialXP;
 import art.arcane.adapt.api.xp.XpNovelty;
 import art.arcane.adapt.api.xp.XPMultiplier;
 import art.arcane.adapt.content.gui.SkillsGui;
-import art.arcane.adapt.service.MutationSVC;
 import art.arcane.adapt.content.item.ExperienceOrb;
 import art.arcane.adapt.content.item.KnowledgeOrb;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -350,7 +350,6 @@ public class AdaptServer extends TickedObject {
           existing.loggedIn();
           unavailableOnlinePlayers.remove(playerId);
           profileFailureReported.invalidate(playerId);
-          reconcileMutations(existing);
           onlineMembershipRevision.incrementAndGet();
           if (refreshSnapshots) {
             scheduleOnlinePlayerSnapshotRefresh();
@@ -402,7 +401,6 @@ public class AdaptServer extends TickedObject {
       a.loggedIn();
       unavailableOnlinePlayers.remove(playerId);
       profileFailureReported.invalidate(playerId);
-      reconcileMutations(a);
       onlineMembershipRevision.incrementAndGet();
       if (refreshSnapshots) {
         scheduleOnlinePlayerSnapshotRefresh();
@@ -811,7 +809,7 @@ public class AdaptServer extends TickedObject {
   public void on(CraftItemEvent e) {
     if (e.getWhoClicked() instanceof Player p) {
       Adaptation<?> required = getSkillRegistry().getRequiredAdaptation(e.getRecipe());
-      if (required == null || required.hasAdaptation(p)) {
+      if (required == null || required.getActiveLevel(p) >= getSkillRegistry().getRequiredRecipeLevel(e.getRecipe())) {
         return;
       }
 
@@ -921,7 +919,20 @@ public class AdaptServer extends TickedObject {
       return 0;
     }
     Map<String, Integer> levels = learnedAdaptationLevelsByPlayer.get(playerId);
-    return levels == null ? 0 : levels.getOrDefault(adaptationName, 0);
+    int level = levels == null ? 0 : levels.getOrDefault(adaptationName, 0);
+    if (level <= 0) {
+      return 0;
+    }
+    Skill<?> skill = skillRegistry.getSkill(skillName);
+    if (skill == null || !skill.isEnabled()) {
+      return 0;
+    }
+    for (Adaptation<?> adaptation : skill.getAdaptations()) {
+      if (adaptation.getName().equals(adaptationName)) {
+        return adaptation.isEnabled() && PlayerPreferences.isEnabled(adaptation, online.getData(), level) ? level : 0;
+      }
+    }
+    return 0;
   }
 
   public boolean hasOnlineLearner(String adaptationName) {
@@ -978,7 +989,6 @@ public class AdaptServer extends TickedObject {
       playersByLearnedAdaptation.computeIfAbsent(adaptationName, unused -> ConcurrentHashMap.newKeySet()).add(playerId);
       learnedAdaptPlayerSnapshots.remove(adaptationName);
       learnerIndexRevision.incrementAndGet();
-      reconcileMutations(player);
       synchronizeRecipeBook(playerId, player);
       return;
     }
@@ -992,7 +1002,6 @@ public class AdaptServer extends TickedObject {
       learnedAdaptationsByPlayer.remove(playerId, learned);
     }
     removeLearnedAdaptationPlayer(adaptationName, playerId);
-    reconcileMutations(player);
     synchronizeRecipeBook(playerId, player);
   }
 
@@ -1043,7 +1052,6 @@ public class AdaptServer extends TickedObject {
       learnedAdaptationsByPlayer.remove(playerId, indexed);
     }
     learnerIndexRevision.incrementAndGet();
-    reconcileMutations(player);
     synchronizeRecipeBook(playerId, player);
   }
 
@@ -1053,7 +1061,7 @@ public class AdaptServer extends TickedObject {
     }
   }
 
-  private void synchronizeRecipeBook(UUID playerId, AdaptPlayer adaptPlayer) {
+  public void synchronizeRecipeBook(UUID playerId, AdaptPlayer adaptPlayer) {
     if (playerId == null || adaptPlayer == null) {
       return;
     }
@@ -1079,19 +1087,13 @@ public class AdaptServer extends TickedObject {
 
       AdaptRecipeBook.Plan plan = AdaptRecipeBook.plan(
           skillRegistry.getRegisteredRecipeUnlocks(),
-          adaptation -> adaptation.getLevel(adaptPlayer)
+          adaptation -> PlayerPreferences.isEnabled(adaptation, adaptPlayer.getData(), adaptation.getLevel(adaptPlayer))
+              ? adaptation.getLevel(adaptPlayer) : 0
       );
       AdaptRecipeBook.synchronize(player, plan);
     }, 1);
     if (!scheduled) {
       recipeBookSyncScheduled.remove(playerId);
-    }
-  }
-
-  private void reconcileMutations(AdaptPlayer player) {
-    MutationSVC mutationService = MutationSVC.get();
-    if (mutationService != null && mutationService.getManager() != null) {
-      mutationService.getManager().reconcile(player);
     }
   }
 
@@ -1654,10 +1656,6 @@ public class AdaptServer extends TickedObject {
       }
     }
 
-    MutationSVC mutationService = MutationSVC.get();
-    if (mutationService != null && mutationService.getManager() != null) {
-      mutationService.getManager().cleanup(playerId);
-    }
     MinionBurden.get().clearOwner(playerId);
     AdaptPotionRegistry.forget(playerId);
     XpNovelty.clear(playerId);
@@ -1671,10 +1669,6 @@ public class AdaptServer extends TickedObject {
   private void tearDownPlayerRuntime(Player player) {
     UUID playerId = player.getUniqueId();
     AdaptPlaceholders.get().evictNow(playerId);
-    MutationSVC mutationService = MutationSVC.get();
-    if (mutationService != null && mutationService.getManager() != null) {
-      mutationService.getManager().cleanup(playerId);
-    }
     UIWindow window = Adapt.instance.getGuiLeftovers().remove(playerId.toString());
     if (window != null) {
       window.close();

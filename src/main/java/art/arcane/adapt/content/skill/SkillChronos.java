@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.chronos.ChronosAberrantTouch;
 import art.arcane.adapt.content.adaptation.chronos.ChronosAccelerate;
@@ -659,7 +660,7 @@ public class SkillChronos extends SimpleSkill<SkillChronos.Config> {
   }
 
   @NoArgsConstructor
-  protected static class Config {
+  protected static class Config extends SkillConfig {
     // Existing
     @art.arcane.adapt.util.config.ConfigDoc(value = "Tick interval used by this logic.", impact = "Lower values run logic more often; higher values run it less often.")
     long setInterval = 5050;

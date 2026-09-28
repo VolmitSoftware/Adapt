@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.nether;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.NetherMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -42,6 +47,9 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.player.PlayerMoveEvent;
 
 public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> IMMUNITY = CommonPreferences.toggle("immunity", NetherMessages.NETHERSOULSTRIDER_PREFERENCE_IMMUNITY, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BURST = CommonPreferences.toggle("burst", NetherMessages.NETHERSOULSTRIDER_PREFERENCE_BURST, CommonPreferences.Toggle.ON);
+
   private static final String SLOT_SOUL = "soul";
   private static final String SLOT_STRIDE = "stride";
   private static final String SLOT_BURST = "burst";
@@ -67,6 +75,17 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
         .build());
     registerMilestone("challenge_nether_soul_1k", "nether.soul-strider.blocks-walked", 1000, 300);
     registerMilestone("challenge_nether_soul_25k", "nether.soul-strider.blocks-walked", 25000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, IMMUNITY, BURST);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    releaseStride(player.getPlayer());
+    AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
   }
 
   @Override
@@ -109,7 +128,7 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
 
       long lastOn = getStorageLong(p, "soulStriderLastOn", 0L);
       setStorage(p, "soulStriderLastOn", now);
-      if (level >= getMaxLevel() && now - lastOn > getConfig().burstGapMillis
+      if (preferenceEnabled(p, BURST) && level >= getMaxLevel() && now - lastOn > getConfig().burstGapMillis
           && getStorageLong(p, "soulStriderBurstNext", 0L) <= now) {
         setStorage(p, "soulStriderBurstNext", now + getConfig().burstCooldownMillis);
         applyBurst(p);
@@ -134,7 +153,9 @@ public class NetherSoulStrider extends SimpleAdaptation<NetherSoulStrider.Config
 
     setStorage(p, "soulStriderHoldUntil", now + (HOLD_TICKS * 50L));
     AdaptAttributeService attributes = AdaptAttributeService.get();
-    attributes.applyTimed(p, getName(), SLOT_SOUL, Attributes.MOVEMENT_EFFICIENCY, 1.0D, AttributeModifier.Operation.ADD_NUMBER, HOLD_TICKS);
+    if (preferenceEnabled(p, IMMUNITY)) {
+      attributes.applyTimed(p, getName(), SLOT_SOUL, Attributes.MOVEMENT_EFFICIENCY, 1.0D, AttributeModifier.Operation.ADD_NUMBER, HOLD_TICKS);
+    }
     double bonus = getStrideBonus(level);
     if (bonus > 0D) {
       attributes.applyTimed(p, getName(), SLOT_STRIDE, Attributes.MOVEMENT_SPEED, bonus, AttributeModifier.Operation.MULTIPLY_SCALAR_1, HOLD_TICKS);

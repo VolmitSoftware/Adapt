@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.localization.catalog.HerbalismMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -55,6 +58,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
 
 public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> FLOWERS = CommonPreferences.toggle("flower-conversion", HerbalismMessages.PREFERENCE_HERBALISMSPOREBLOOM_FLOWERS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SOIL = CommonPreferences.toggle("soil-conversion", HerbalismMessages.PREFERENCE_HERBALISMSPOREBLOOM_SOIL, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Scale> SPREAD = CommonPreferences.scale("spread-limit", HerbalismMessages.PREFERENCE_HERBALISMSPOREBLOOM_SPREAD);
+
   private static final int CHARGE_UNPAID = 0;
   private static final int CHARGE_IN_PROGRESS = 1;
   private static final int CHARGE_PAID = 2;
@@ -74,6 +81,11 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_herbalism_spore_500", "herbalism.spore-bloom.blocks-spread", 500, 300);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, FLOWERS, SOIL, SPREAD);
   }
 
   @Override
@@ -270,7 +282,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     Block above = ground.getRelative(0, 1, 0);
 
     Material groundType = ground.getType();
-    if (spreadSurface != null && isConvertibleSoil(groundType) && groundType != spreadSurface
+    if (preferenceEnabled(player, SOIL) && spreadSurface != null && isConvertibleSoil(groundType) && groundType != spreadSurface
         && canBlockBreak(player, ground.getLocation())
         && canBlockPlace(player, ground.getLocation())
         && ProtectionEventProbe.attemptBlockBreakProbe(player, ground)
@@ -283,7 +295,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
     }
 
     Material aboveType = above.getType();
-    if (getConfig().swapFlowersToMushrooms && isFlower(aboveType)) {
+    if (getConfig().swapFlowersToMushrooms && preferenceEnabled(player, FLOWERS) && isFlower(aboveType)) {
       Material replacement = getFlowerReplacement(aboveType, catalyst);
       if (replacement != null && aboveType != replacement
           && canBlockBreak(player, above.getLocation())
@@ -362,7 +374,7 @@ public class HerbalismSporeBloom extends SimpleAdaptation<HerbalismSporeBloom.Co
         center,
         radius,
         getSpokes(level),
-        getBloomAttempts(level),
+        Math.max(1, (int) Math.floor(getBloomAttempts(level) * preference(player, SPREAD).multiplier())),
         getGuaranteedReach(level)
     );
     if (path.isEmpty()) {

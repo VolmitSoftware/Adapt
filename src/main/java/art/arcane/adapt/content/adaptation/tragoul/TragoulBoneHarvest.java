@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 
@@ -119,6 +121,11 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TragoulPreferences.BLOOD, TragoulPreferences.BONE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getGlobeChance(level), 0), 1);
     statLore(v, Form.duration(getGlobeLifetimeTicks(level) * 50D, 1), 2);
@@ -161,6 +168,8 @@ public class TragoulBoneHarvest extends SimpleAdaptation<TragoulBoneHarvest.Conf
       }
 
       e.setCancelled(true);
+      if ((blood && !preferenceEnabled(p, TragoulPreferences.BLOOD))
+          || (bone && !preferenceEnabled(p, TragoulPreferences.BONE))) { return; }
       e.getItem().remove();
       bloodGlobes.remove(id);
       boneGlobes.remove(id);

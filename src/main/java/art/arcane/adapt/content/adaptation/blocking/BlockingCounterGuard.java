@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -93,6 +96,11 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BlockingPreferences.PLAYERS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, getMaxStacks(level), 1);
     statLore(v, Form.pc(getReflectChance(level), 0), 2);
@@ -148,7 +156,8 @@ public class BlockingCounterGuard extends SimpleAdaptation<BlockingCounterGuard.
       source = shooter;
     }
 
-    if (!(source instanceof LivingEntity attacker)) {
+    if (!(source instanceof LivingEntity attacker)
+        || (attacker instanceof Player && !preferenceEnabled(defender, BlockingPreferences.PLAYERS))) {
       return;
     }
 

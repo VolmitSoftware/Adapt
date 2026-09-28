@@ -154,7 +154,7 @@ final class SkillGuiSupport {
     );
 
     boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
-    GuiLayout.PagePlan plan = GuiLayout.plan(visibleAdaptations.size(), reserveNavigation);
+    GuiLayout.PagePlan plan = GuiLayout.planWithSettings(visibleAdaptations.size(), reserveNavigation, true);
     int currentPage = GuiLayout.clampPage(page, plan.pageCount());
     int start = currentPage * plan.itemsPerPage();
     int end = Math.min(visibleAdaptations.size(), start + plan.itemsPerPage());
@@ -205,7 +205,7 @@ final class SkillGuiSupport {
     }
 
     if (plan.hasNavigationRow()) {
-      int navRow = plan.rows() - 1;
+      int navRow = plan.rows() - 2;
       int jumpPages = 5;
       int jumpBack = Math.max(0, currentPage - jumpPages);
       int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
@@ -264,6 +264,7 @@ final class SkillGuiSupport {
       window.setElement(0, navRow, center.setProgress(1D));
     }
 
+    SkillPreferenceGuiSupport.populate(skill, window, plan.rows() - 1);
     window.setTitle(AdaptLanguage.text(
         GuiMessages.SKILL_TITLE,
         trusted("skill", skill.getDisplayName(adaptPlayer.getSkillLine(skill.getName()).getLevel())),

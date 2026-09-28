@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.AgilityMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -46,6 +50,13 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
+  public static final PlayerPreference<Trigger> TRIGGER = new PlayerPreference<>(Trigger.class,
+      new PlayerPreference.Definition<>("trigger", AgilityMessages.AGILITYAIRDASH_PREFERENCE_TRIGGER, Trigger.ANY, List.of(
+          new PlayerPreference.Choice<>(Trigger.ANY, AgilityMessages.AGILITYAIRDASH_PREFERENCE_TRIGGER_ANY, Material.FEATHER, 1),
+          new PlayerPreference.Choice<>(Trigger.SNEAK, AgilityMessages.AGILITYAIRDASH_PREFERENCE_TRIGGER_SNEAK, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Trigger.EMPTY_HAND, AgilityMessages.AGILITYAIRDASH_PREFERENCE_TRIGGER_EMPTY_HAND, Material.WHITE_STAINED_GLASS_PANE, 1))));
+  public static final PlayerPreference<CommonPreferences.Scale> SPEED = CommonPreferences.scale("speed", AgilityMessages.AGILITYAIRDASH_PREFERENCE_SPEED);
+
   private final Cooldowns debounce = cooldowns();
   private final Map<UUID, Boolean> sprintJumpActive = playerState();
   private final Map<UUID, Boolean> wasOnGround = playerState();
@@ -69,6 +80,11 @@ public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
         .build());
     registerMilestone("challenge_agility_air_dash_500", "agility.air-dash.dashes", 500, 400);
     registerMilestone("challenge_agility_air_dash_5k", "agility.air-dash.dashes", 5000, 1500);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TRIGGER, SPEED);
   }
 
   @Override
@@ -120,7 +136,8 @@ public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
   }
 
   private void attemptDash(Player p) {
-    if (!isDashEligible(p)) {
+    if (!isDashEligible(p) || (preference(p, TRIGGER) == Trigger.SNEAK && !p.isSneaking())
+        || (preference(p, TRIGGER) == Trigger.EMPTY_HAND && !p.getInventory().getItemInMainHand().getType().isAir())) {
       return;
     }
 
@@ -157,7 +174,7 @@ public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
     chargesUsed.merge(id, 1, Integer::sum);
     applyHungerCost(p, getConfig().hungerCost);
 
-    double force = getDashForce(level);
+    double force = getDashForce(level) * preference(p, SPEED).multiplier();
     Vector current = p.getVelocity();
     double liftedY = Math.max(current.getY(), -0.15D) + getConfig().upwardLift;
     p.setVelocity(new Vector(direction.getX() * force, liftedY, direction.getZ() * force));
@@ -230,4 +247,6 @@ public class AgilityAirDash extends SimpleAdaptation<AgilityAirDash.Config> {
       initialCost = 5;
     }
   }
+
+  public enum Trigger { ANY, SNEAK, EMPTY_HAND }
 }

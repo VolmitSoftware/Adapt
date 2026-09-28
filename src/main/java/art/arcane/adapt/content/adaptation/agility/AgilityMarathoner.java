@@ -66,8 +66,7 @@ public class AgilityMarathoner extends SimpleAdaptation<AgilityMarathoner.Config
     }
 
     EntityExhaustionEvent.ExhaustionReason reason = e.getExhaustionReason();
-    if (reason != EntityExhaustionEvent.ExhaustionReason.SPRINT
-        && reason != EntityExhaustionEvent.ExhaustionReason.JUMP_SPRINT) {
+    if (!isSprintExhaustion(reason, p.isSprinting())) {
       return;
     }
 
@@ -90,6 +89,12 @@ public class AgilityMarathoner extends SimpleAdaptation<AgilityMarathoner.Config
     double saved = before - after;
     addStat(p, "agility.marathoner.saturation-saved", saved);
     xpSilent(p, saved * getConfig().xpPerSaturationSaved, "agility:marathoner");
+  }
+
+  static boolean isSprintExhaustion(EntityExhaustionEvent.ExhaustionReason reason, boolean sprinting) {
+    return reason == EntityExhaustionEvent.ExhaustionReason.SPRINT
+        || reason == EntityExhaustionEvent.ExhaustionReason.JUMP_SPRINT
+        || (reason == EntityExhaustionEvent.ExhaustionReason.WALK && sprinting);
   }
 
   private double getDrainReduction(int level) {

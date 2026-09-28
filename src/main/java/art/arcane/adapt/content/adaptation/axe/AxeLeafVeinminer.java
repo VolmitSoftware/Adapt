@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AxeMessages;
 
@@ -70,6 +72,11 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     registerMilestone("challenge_axe_leaf_5k", "axe.leaf-veinminer.leaves-broken", 5000, 400);
   }
 
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, AxePreferences.TRIGGER, AxePreferences.WORK);
+  }
+
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(AxeMessages.LEAF_MINER_LORE1));
     statLore(v, C.GREEN, "", level + getConfig().baseRange, 2);
@@ -89,7 +96,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
 
     Player p = e.getPlayer();
     ItemStack tool = p.getInventory().getItemInMainHand();
-    if (!p.isSneaking() || !isAxe(tool)) {
+    if (!preference(p, AxePreferences.TRIGGER).accepts(p.isSneaking()) || !isAxe(tool)) {
       return;
     }
 
@@ -113,7 +120,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
     queued.add(block);
     int radius = getRadius(getLevel(p));
     int radiusSquared = radius * radius;
-    int maxBlocks = Math.max(1, getConfig().maxBlocks);
+    int maxBlocks = Math.max(1, (int) Math.floor(getConfig().maxBlocks * preference(p, AxePreferences.WORK).multiplier()));
     while (!stack.isEmpty() && blockMap.size() < maxBlocks) {
       Block currentBlock = stack.pop();
       if (blockMap.contains(currentBlock)) {
@@ -158,7 +165,7 @@ public class AxeLeafVeinminer extends SimpleAdaptation<AxeLeafVeinminer.Config> 
   private void mineLeaves(Player player, Block origin, Material blockType, BlockData leafData,
                           Set<Block> targets, int radius) {
     Location originLocation = origin.getLocation();
-    if (!player.isOnline()
+    if (!player.isOnline() || getActiveLevel(player) <= 0
         || player.getWorld() != origin.getWorld()
         || (J.isFoliaThreading()
         && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(originLocation)))

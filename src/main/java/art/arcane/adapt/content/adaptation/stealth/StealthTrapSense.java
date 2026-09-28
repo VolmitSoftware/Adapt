@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.localization.catalog.StealthMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -56,6 +59,12 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> OUTLINES = CommonPreferences.toggle("outlines", StealthMessages.STEALTHTRAPSENSE_PREFERENCE_OUTLINES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> CHESTS = CommonPreferences.toggle("chests", StealthMessages.STEALTHTRAPSENSE_PREFERENCE_CHESTS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> TRIPWIRES = CommonPreferences.toggle("tripwires", StealthMessages.STEALTHTRAPSENSE_PREFERENCE_TRIPWIRES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> PLATES = CommonPreferences.toggle("plates", StealthMessages.STEALTHTRAPSENSE_PREFERENCE_PLATES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SCULK = CommonPreferences.toggle("sculk", StealthMessages.STEALTHTRAPSENSE_PREFERENCE_SCULK, CommonPreferences.Toggle.ON);
+
   private static final int MAX_SESSION_VISITS_PER_TICK = 32;
   private static final int MAX_BLOCKS_PER_SCAN = 4096;
   private static final int MAX_MARKERS_PER_SCAN = 96;
@@ -84,6 +93,15 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
         .build());
     registerMilestone("challenge_stealth_trap_500", "stealth.trap-sense.traps-revealed", 500, 400);
     registerMilestone("challenge_stealth_trap_5k", "stealth.trap-sense.traps-revealed", 5000, 1500);
+  }
+
+  static boolean matchesTrap(Material type, boolean chests, boolean tripwires, boolean plates, boolean sculk) {
+    return switch (type) {
+      case TRAPPED_CHEST -> chests;
+      case TRIPWIRE, TRIPWIRE_HOOK -> tripwires;
+      case SCULK_SENSOR, CALIBRATED_SCULK_SENSOR, SCULK_SHRIEKER -> sculk;
+      default -> plates && type.name().endsWith("_PRESSURE_PLATE");
+    };
   }
 
   static boolean isTrapBlock(Material type) {
@@ -147,6 +165,24 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
 
   static long blockKey(int x, int y, int z) {
     return (((long) x & 0x3FFFFFFL) << 38) | (((long) z & 0x3FFFFFFL) << 12) | ((long) y & 0xFFFL);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, OUTLINES, CHESTS, TRIPWIRES, PLATES, SCULK);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    Player p = player.getPlayer();
+    UUID id = p.getUniqueId();
+    sessions.remove(id);
+    WorldBlockScanScheduler.cancel(this, id);
+    ViewerDisplayDirector.clearViewer(getName(), id);
+    cacheSculkState(p, p.isSneaking());
+    if (isPlayerEnabled(p) && p.isSneaking()) {
+      sessions.put(id, new TrapSession(p, id));
+    }
   }
 
   @Override
@@ -254,12 +290,16 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
     int level = getActiveLevel(p);
     int r = (int) Math.ceil(getRange(level));
     Location base = p.getLocation().clone();
+    boolean chests = preferenceEnabled(p, CHESTS);
+    boolean tripwires = preferenceEnabled(p, TRIPWIRES);
+    boolean plates = preferenceEnabled(p, PLATES);
+    boolean sculk = preferenceEnabled(p, SCULK);
     WorldBlockScanScheduler.ScanRequest request = WorldBlockScanScheduler.ScanRequest.builder(base)
         .radius(r)
         .denseRadius(r)
         .maxSamples(MAX_BLOCKS_PER_SCAN)
         .maxResults(MAX_MARKERS_PER_SCAN)
-        .blockMatcher(block -> isTrapBlock(block.getType()))
+        .blockMatcher(block -> matchesTrap(block.getType(), chests, tripwires, plates, sculk))
         .completion(result -> completeScan(session, result))
         .build();
     session.scanId = WorldBlockScanScheduler.submit(this, id, request);
@@ -315,9 +355,17 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
 
   private void showTrap(Player player, Location location, int durationTicks) {
     Location anchor = location.clone();
-    J.runAt(anchor, () -> {
+    J.runEntity(player, () -> {
+      if (!isPlayerEnabled(player) || !preferenceEnabled(player, OUTLINES)) {
+        return;
+      }
+      boolean chests = preferenceEnabled(player, CHESTS);
+      boolean tripwires = preferenceEnabled(player, TRIPWIRES);
+      boolean plates = preferenceEnabled(player, PLATES);
+      boolean sculk = preferenceEnabled(player, SCULK);
+      J.runAt(anchor, () -> {
       Material currentType = anchor.getBlock().getType();
-      if (!isTrapBlock(currentType)) {
+      if (!matchesTrap(currentType, chests, tripwires, plates, sculk)) {
         return;
       }
       ViewerDisplayDirector.showBlock(
@@ -329,6 +377,7 @@ public class StealthTrapSense extends SimpleAdaptation<StealthTrapSense.Config> 
           trapColor(currentType),
           durationTicks
       );
+      });
     });
   }
 

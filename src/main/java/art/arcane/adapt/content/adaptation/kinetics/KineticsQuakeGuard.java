@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
@@ -26,6 +27,11 @@ public class KineticsQuakeGuard extends SimpleAdaptation<KineticsQuakeGuard.Conf
     registerConfiguration(Config.class);
     setIcon(Material.POLISHED_DEEPSLATE);
     setInterval(9999);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
   }
 
   @Override

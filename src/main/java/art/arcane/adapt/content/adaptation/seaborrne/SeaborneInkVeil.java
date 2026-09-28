@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.SeabornMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -53,6 +59,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
+  public static final PlayerPreference<CommonPreferences.Scale> VISUALS = CommonPreferences.scale("visuals", SeabornMessages.SEABORNEINKVEIL_PREFERENCE_VISUALS);
+
   private static final double MAX_CLOUD_RADIUS = 16D;
   private static final int MAX_AFFECTED_HOSTILES = 128;
   private static final int MAX_EFFECT_TICKS = 20 * 60;
@@ -80,6 +88,18 @@ public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
         .build());
     registerMilestone("challenge_seaborne_ink_100", "seaborne.ink-veil.clouds-burst", 100, 300);
     registerMilestone("challenge_seaborne_ink_1k", "seaborne.ink-veil.clouds-burst", 1000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, VISUALS);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (!isPlayerEnabled(player.getPlayer())) {
+      concealedUntil.remove(player.getPlayer().getUniqueId());
+    }
   }
 
   @Override
@@ -170,22 +190,33 @@ public class SeaborneInkVeil extends SimpleAdaptation<SeaborneInkVeil.Config> {
 
     addStat(p, "seaborne.ink-veil.clouds-burst", 1);
     xp(p, getConfig().burstXp);
-    fx(center, FxPriority.COMBAT)
-        .particle(Particle.SQUID_INK, (int) Math.min(48D, radius * 8D), 0D, 0D, 0D, radius * 0.35D, 0.02D)
-        .dustBurst(Color.BLACK, (int) Math.min(24D, radius * 3D), radius * 0.5D, 1.4F)
-        .chord(Sound.ENTITY_DOLPHIN_SPLASH, 0.6F, 0.6F, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5F, 0.7F);
+    double density = preference(p, VISUALS).multiplier();
+    FxEmitter burst = fx(center, FxPriority.COMBAT);
+    emitInkBurst(burst.except(p), radius, 1D);
+    emitInkBurst(burst.only(p), radius, density);
+    burst.chord(Sound.ENTITY_DOLPHIN_SPLASH, 0.6F, 0.6F, Sound.BLOCK_CONDUIT_DEACTIVATE, 0.5F, 0.7F);
     timeline(center)
         .duration(getCloudVisualTicks())
         .priority(FxPriority.COMBAT)
         .cullRadius(radius + 16D)
         .frame((f, tick, progress) -> {
           double cloudRadius = radius * (0.2D + (progress * 0.8D));
-          f.ring(Particle.SQUID_INK, cloudRadius, Math.max(8, (int) Math.round(radius * 3D)), 0D);
-          if ((tick & 1) == 0) {
-            f.dome(Particle.SQUID_INK, cloudRadius, Math.max(4, (int) Math.round(radius)));
-          }
+          emitInkFrame(f.except(p), cloudRadius, radius, tick, 1D);
+          emitInkFrame(f.only(p), cloudRadius, radius, tick, density);
         })
         .start();
+  }
+
+  private void emitInkBurst(FxEmitter emitter, double radius, double density) {
+    emitter.particle(Particle.SQUID_INK, (int) (Math.min(48D, radius * 8D) * density), 0D, 0D, 0D, radius * 0.35D, 0.02D)
+        .dustBurst(Color.BLACK, (int) (Math.min(24D, radius * 3D) * density), radius * 0.5D, 1.4F);
+  }
+
+  private void emitInkFrame(FxEmitter emitter, double cloudRadius, double radius, int tick, double density) {
+    emitter.ring(Particle.SQUID_INK, cloudRadius, (int) (Math.max(8D, Math.round(radius * 3D)) * density), 0D);
+    if ((tick & 1) == 0) {
+      emitter.dome(Particle.SQUID_INK, cloudRadius, (int) (Math.max(4D, Math.round(radius)) * density));
+    }
   }
 
   private double getCloudSize(int level) {

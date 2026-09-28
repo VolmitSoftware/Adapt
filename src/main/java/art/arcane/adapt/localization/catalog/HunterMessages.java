@@ -1,5 +1,6 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.adapt.content.adaptation.hunter.HunterPreferences;
 import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -107,6 +108,7 @@ public final class HunterMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    HunterPreferences.addMessages(builder);
     builder.add(ADRENALINE_NAME);
     builder.add(ADRENALINE_DESCRIPTION);
     builder.add(ADRENALINE_LORE1);

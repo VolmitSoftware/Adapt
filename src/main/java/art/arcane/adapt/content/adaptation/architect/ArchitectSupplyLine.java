@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
@@ -56,6 +58,12 @@ import java.util.Map;
 import java.util.UUID;
 
 public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> LOOSE = CommonPreferences.toggle("loose", ArchitectMessages.ARCHITECTSUPPLYLINE_PREFERENCE_LOOSE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BUNDLES = CommonPreferences.toggle("bundles", ArchitectMessages.ARCHITECTSUPPLYLINE_PREFERENCE_BUNDLES, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SHULKERS = CommonPreferences.toggle("shulkers", ArchitectMessages.ARCHITECTSUPPLYLINE_PREFERENCE_SHULKERS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BACKPACKS = CommonPreferences.toggle("backpacks", ArchitectMessages.ARCHITECTSUPPLYLINE_PREFERENCE_BACKPACKS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> NAMED = CommonPreferences.toggle("named-containers", ArchitectMessages.ARCHITECTSUPPLYLINE_PREFERENCE_NAMED, CommonPreferences.Toggle.ON);
+
   private final Map<UUID, RefillWindow> windows = playerState();
   private final Cooldowns failCd = cooldowns();
 
@@ -78,6 +86,11 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
         .build());
     registerMilestone("challenge_architect_supply_line_100", "architect.supply-line.refills", 100, 300);
     registerMilestone("challenge_architect_supply_line_1k", "architect.supply-line.refills", 1000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, LOOSE, BUNDLES, SHULKERS, BACKPACKS, NAMED);
   }
 
   @Override
@@ -178,7 +191,7 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
   private ItemStack pullMatching(Player p, ItemStack template) {
     ItemStack[] contents = p.getInventory().getStorageContents();
     int loose = matchingSlot(contents, template, p.getInventory().getHeldItemSlot());
-    if (loose >= 0) {
+    if (loose >= 0 && preferenceEnabled(p, LOOSE)) {
       ItemStack pulled = contents[loose].clone();
       p.getInventory().setItem(loose, null);
       return pulled;
@@ -189,11 +202,14 @@ public class ArchitectSupplyLine extends SimpleAdaptation<ArchitectSupplyLine.Co
         continue;
       }
 
-      ItemStack pulled = pullFromBundle(candidate, template);
-      if (pulled == null) {
+      if (!preferenceEnabled(p, NAMED) && candidate.hasItemMeta() && candidate.getItemMeta().hasDisplayName()) {
+        continue;
+      }
+      ItemStack pulled = preferenceEnabled(p, BUNDLES) ? pullFromBundle(candidate, template) : null;
+      if (pulled == null && preferenceEnabled(p, BACKPACKS)) {
         pulled = pullFromBackpack(candidate, template);
       }
-      if (pulled == null) {
+      if (pulled == null && preferenceEnabled(p, SHULKERS)) {
         pulled = pullFromShulker(candidate, template);
       }
 

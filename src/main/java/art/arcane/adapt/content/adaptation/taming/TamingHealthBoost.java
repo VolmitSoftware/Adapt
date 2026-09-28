@@ -99,6 +99,24 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    UUID ownerId = player.getPlayer().getUniqueId();
+    ownerStates.remove(ownerId);
+    nextOwnerLevelRefresh = 0L;
+    Iterator<TameableOwnershipIndex.TrackedTameable> pets = ownershipIndex.iterator();
+    while (pets.hasNext()) {
+      TameableOwnershipIndex.TrackedTameable tracked = pets.next();
+      if (ownerId.equals(tracked.ownerId())) {
+        J.runEntity(tracked.entity(), () -> {
+          if (ownerId.equals(ownershipIndex.refreshOwner(tracked))) {
+            removeHealthModifier(tracked.entity());
+          }
+        });
+      }
+    }
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getHealthBoost(level), 0), 1);
   }
@@ -281,6 +299,9 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     if (level <= 0) {
       if (appliedLevel != null || attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
         attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+        if (!j.isDead() && j.getHealth() > attribute.getValue()) {
+          j.setHealth(Math.max(0D, attribute.getValue()));
+        }
       }
       appliedLevels.remove(tameableId);
       return;
@@ -342,6 +363,9 @@ public class TamingHealthBoost extends SimpleAdaptation<TamingHealthBoost.Config
     IAttribute attribute = Version.get().getAttribute(tameable, Attributes.MAX_HEALTH);
     if (attribute != null && attribute.hasModifier(MODIFIER, MODIFIER_KEY)) {
       attribute.removeModifier(MODIFIER, MODIFIER_KEY);
+      if (tameable.getHealth() > attribute.getValue()) {
+        tameable.setHealth(Math.max(0D, attribute.getValue()));
+      }
     }
     appliedLevels.remove(tameable.getUniqueId());
   }

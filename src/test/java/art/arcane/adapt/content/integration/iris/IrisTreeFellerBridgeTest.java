@@ -33,6 +33,10 @@ class IrisTreeFellerBridgeTest {
     assertThat(options.getValue().access()).isEqualTo(TreeFellerAccess.INTEGRATION_OVERRIDE);
     assertThat(options.getValue().durabilityPreservationChance()).isEqualTo(75);
     TreeFellerRunHooks forwarded = options.getValue().runHooks();
+    when(runHooks.requiresSneaking()).thenReturn(false);
+    assertThat(forwarded.requiresSneaking()).isFalse();
+    when(runHooks.requiresSneaking()).thenReturn(true);
+    assertThat(forwarded.requiresSneaking()).isTrue();
     forwarded.onActivationAccepted();
     assertThat(forwarded.reserveLogCost()).isTrue();
     forwarded.commitLogCost();

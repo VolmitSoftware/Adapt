@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -84,6 +86,11 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, UnarmedPreferences.AIRBORNE, UnarmedPreferences.HUNGER, UnarmedPreferences.TARGETS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getRange(level)), 1);
     statLore(v, Form.f(getForce(level)), 2);
@@ -99,7 +106,7 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
     }
 
     Player p = e.getPlayer();
-    if (!p.isSneaking()) {
+    if (!p.isSneaking() || (preferenceEnabled(p, UnarmedPreferences.AIRBORNE) && p.isOnGround())) {
       return;
     }
 
@@ -116,7 +123,7 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
     }
 
     int hungerCost = getConfig().hungerCost;
-    if (p.getFoodLevel() < hungerCost) {
+    if (!preference(p, UnarmedPreferences.HUNGER).permits(p.getFoodLevel(), hungerCost)) {
       playBlocked(p);
       return;
     }
@@ -157,7 +164,7 @@ public class UnarmedShockwaveClap extends SimpleAdaptation<UnarmedShockwaveClap.
     int limit = getCandidateLimit();
     List<LivingEntity> candidates = new ArrayList<>(limit);
     for (LivingEntity candidate : PaperCompat.nearbyLivingEntities(origin, range, range, range)) {
-      if (candidate == player) {
+      if (candidate == player || !preference(player, UnarmedPreferences.TARGETS).accepts(candidate)) {
         continue;
       }
       candidates.add(candidate);

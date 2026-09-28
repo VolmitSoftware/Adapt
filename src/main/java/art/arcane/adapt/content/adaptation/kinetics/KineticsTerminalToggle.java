@@ -1,5 +1,10 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.KineticsMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
@@ -20,6 +25,17 @@ import java.util.Map;
 import java.util.UUID;
 
 public class KineticsTerminalToggle extends SimpleAdaptation<KineticsTerminalToggle.Config> {
+  public static final PlayerPreference<Order> ORDER = new PlayerPreference<>(Order.class,
+      new PlayerPreference.Definition<>("order", KineticsMessages.KINETICSTERMINALTOGGLE_PREFERENCE_ORDER, Order.DIVE_FIRST, List.of(
+          new PlayerPreference.Choice<>(Order.DIVE_FIRST, KineticsMessages.KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_DIVE_FIRST, Material.ANVIL, 1),
+          new PlayerPreference.Choice<>(Order.HANG_FIRST, KineticsMessages.KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_HANG_FIRST, Material.FEATHER, 1),
+          new PlayerPreference.Choice<>(Order.DIVE_ONLY, KineticsMessages.KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_DIVE_ONLY, Material.POINTED_DRIPSTONE, 1),
+          new PlayerPreference.Choice<>(Order.HANG_ONLY, KineticsMessages.KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_HANG_ONLY, Material.PHANTOM_MEMBRANE, 1))));
+  public static final PlayerPreference<Gesture> GESTURE = new PlayerPreference<>(Gesture.class,
+      new PlayerPreference.Definition<>("gesture", KineticsMessages.KINETICSTERMINALTOGGLE_PREFERENCE_GESTURE, Gesture.SINGLE, List.of(
+          new PlayerPreference.Choice<>(Gesture.SINGLE, KineticsMessages.KINETICSTERMINALTOGGLE_PREFERENCE_GESTURE_SINGLE, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Gesture.DOUBLE, KineticsMessages.KINETICSTERMINALTOGGLE_PREFERENCE_GESTURE_DOUBLE, Material.RABBIT_FOOT, 1))));
+
   static final int MODE_NONE = 0;
   static final int MODE_DIVE = 1;
   static final int MODE_HANG = 2;
@@ -27,6 +43,7 @@ public class KineticsTerminalToggle extends SimpleAdaptation<KineticsTerminalTog
   private static final String SLOT_GRAVITY = "terminal-gravity";
   private static final long REFRESH_WINDOW_TICKS = 10L;
 
+  private final Map<UUID, Long> lastTap = playerState();
   private final Map<UUID, AirState> states = playerState();
 
   public KineticsTerminalToggle() {
@@ -34,6 +51,18 @@ public class KineticsTerminalToggle extends SimpleAdaptation<KineticsTerminalTog
     registerConfiguration(Config.class);
     setIcon(Material.PHANTOM_MEMBRANE);
     setInterval(9999);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, ORDER, GESTURE);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+    states.remove(player.getPlayer().getUniqueId());
+    lastTap.remove(player.getPlayer().getUniqueId());
   }
 
   @Override
@@ -59,8 +88,21 @@ public class KineticsTerminalToggle extends SimpleAdaptation<KineticsTerminalTog
       return;
     }
 
+    if (preference(p, GESTURE) == Gesture.DOUBLE) {
+      long now = System.currentTimeMillis();
+      Long previous = lastTap.put(p.getUniqueId(), now);
+      if (previous == null || now - previous > 350L) {
+        return;
+      }
+      lastTap.remove(p.getUniqueId());
+    }
     AirState active = state == null ? new AirState() : state;
-    active.mode = nextMode(active.mode);
+    active.mode = switch (preference(p, ORDER)) {
+      case DIVE_FIRST -> nextMode(active.mode);
+      case HANG_FIRST -> active.mode == MODE_NONE ? MODE_HANG : nextMode(active.mode);
+      case DIVE_ONLY -> active.mode == MODE_DIVE ? MODE_NONE : MODE_DIVE;
+      case HANG_ONLY -> active.mode == MODE_HANG ? MODE_NONE : MODE_HANG;
+    };
     states.put(p.getUniqueId(), active);
   }
 
@@ -167,4 +209,8 @@ public class KineticsTerminalToggle extends SimpleAdaptation<KineticsTerminalTog
       initialCost = 2;
     }
   }
+
+  public enum Order { DIVE_FIRST, HANG_FIRST, DIVE_ONLY, HANG_ONLY }
+
+  public enum Gesture { SINGLE, DOUBLE }
 }

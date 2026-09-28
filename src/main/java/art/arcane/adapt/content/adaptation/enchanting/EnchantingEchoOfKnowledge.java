@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
 
@@ -50,6 +53,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class EnchantingEchoOfKnowledge extends SimpleAdaptation<EnchantingEchoOfKnowledge.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", EnchantingMessages.PREFERENCE_ENCHANTINGECHOOFKNOWLEDGE_SNEAK, CommonPreferences.Toggle.OFF);
+
   private static final NamespacedKey CHARGE_KEY = new NamespacedKey("adapt", "echo-charge");
   private final Cooldowns chargeThrottle = cooldowns();
 
@@ -74,6 +79,12 @@ public class EnchantingEchoOfKnowledge extends SimpleAdaptation<EnchantingEchoOf
     registerMilestone("challenge_enchanting_echo_250", "enchanting.echo-of-knowledge.levels-charged", 250, 1200);
   }
 
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SNEAK);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getChargeRate(level), 1), 1);
@@ -95,7 +106,7 @@ public class EnchantingEchoOfKnowledge extends SimpleAdaptation<EnchantingEchoOf
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (level <= 0 || preferenceEnabled(p, SNEAK) && !p.isSneaking()) {
       return;
     }
 

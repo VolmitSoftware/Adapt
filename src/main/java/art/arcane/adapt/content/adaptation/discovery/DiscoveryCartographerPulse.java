@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 
@@ -57,6 +61,10 @@ import java.util.UUID;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartographerPulse.Config> {
+  public static final PlayerPreference<DiscoveryPreferences.Structures> STRUCTURES = DiscoveryPreferences.structures("structures", DiscoveryMessages.PREFERENCE_DISCOVERYCARTOGRAPHERPULSE_STRUCTURES);
+  public static final PlayerPreference<DiscoveryPreferences.Palette> COLOR = DiscoveryPreferences.palette("color", DiscoveryMessages.PREFERENCE_DISCOVERYCARTOGRAPHERPULSE_COLOR);
+  public static final PlayerPreference<CommonPreferences.Toggle> LINE = CommonPreferences.toggle("direction-line", DiscoveryMessages.PREFERENCE_DISCOVERYCARTOGRAPHERPULSE_LINE, CommonPreferences.Toggle.ON);
+
   private static final int MAX_SEARCH_RADIUS_CHUNKS = 96;
   private final Cooldowns cooldowns = cooldowns();
 
@@ -79,6 +87,17 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
         .build());
     registerMilestone("challenge_discovery_cartographer_100", "discovery.cartographer-pulse.pulses", 100, 300);
     registerMilestone("challenge_discovery_cartographer_1k", "discovery.cartographer-pulse.pulses", 1000, 1000);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    ViewerDisplayDirector.clearViewer(getName(), player.getPlayer().getUniqueId());
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, STRUCTURES, COLOR, LINE);
   }
 
   @Override
@@ -122,7 +141,7 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
       return;
     }
 
-    Location target = locateNearestStructure(p.getWorld(), p.getLocation(), getSearchRange(level));
+    Location target = locateNearestStructure(p, p.getWorld(), p.getLocation(), getSearchRange(level));
     cooldowns.mark(p.getUniqueId());
     if (target == null) {
       fx(p.getLocation(), FxPriority.TRANSITION)
@@ -161,6 +180,7 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
     Vector direction = target.toVector().subtract(eye.toVector()).normalize();
     Location lineStart = eye.clone().add(direction.clone().multiply(0.65D));
     Location lineEnd = lineStart.clone().add(direction.multiply(8D));
+    if (preferenceEnabled(p, LINE)) {
     ViewerDisplayDirector.showLine(
         getName(),
         "compass-direction",
@@ -168,11 +188,12 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
         lineStart,
         lineEnd,
         Material.CYAN_STAINED_GLASS.createBlockData(),
-        Color.fromRGB(45, 220, 235),
+        preference(p, COLOR).color(Color.fromRGB(45, 220, 235)),
         0.09D,
         80
     );
 
+    }
     xp(p, getConfig().xpPerPulse);
     addStat(p, "discovery.cartographer-pulse.pulses", 1);
   }
@@ -190,11 +211,11 @@ public class DiscoveryCartographerPulse extends SimpleAdaptation<DiscoveryCartog
     super.unregister();
   }
 
-  private Location locateNearestStructure(World world, Location from, int rangeBlocks) {
+  private Location locateNearestStructure(Player player, World world, Location from, int rangeBlocks) {
     int radiusChunks = Math.max(1, Math.min(MAX_SEARCH_RADIUS_CHUNKS, (int) Math.ceil(rangeBlocks / 16D)));
     StructureSearchResult result;
     try {
-      result = world.locateNearestStructure(from, StructureType.JIGSAW, radiusChunks, false);
+      result = world.locateNearestStructure(from, preference(player, STRUCTURES).type() == null ? StructureType.JIGSAW : preference(player, STRUCTURES).type(), radiusChunks, false);
     } catch (Throwable t) {
       return null;
     }

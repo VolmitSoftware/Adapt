@@ -37,3 +37,5 @@ AGENTS.md
 build-lt.sh
 BUILDS/
 .run/
+
+src/test/client/__pycache__/

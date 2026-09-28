@@ -18,12 +18,15 @@
 
 package art.arcane.adapt.content.adaptation.axe;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.AxeMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -36,6 +39,7 @@ import art.arcane.adapt.content.adaptation.ranged.RangedRicochetBolt;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -173,6 +177,11 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, AxePreferences.SNEAK, AxePreferences.IGNORE_PASSIVE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     double f = getLevelPercent(level);
     statLore(v, C.RED, "+ ", Form.f(getDamageMultiplier(f), 2), 1);
@@ -198,7 +207,9 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       return;
     }
 
-    withAdaptedPlayer(p, () -> throwAxe(p));
+    if (!preferenceEnabled(p, AxePreferences.SNEAK) || p.isSneaking()) {
+      withAdaptedPlayer(p, () -> throwAxe(p));
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -496,15 +507,17 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       ThrownAxe thrown,
       RangedRicochetBolt.RicochetImpact ricochet
   ) {
-    if (!isEligibleThrowTarget(target, thrown.ownerId())) {
+    if (!isEligibleThrowTarget(target, thrown.ownerId())
+        || !allowsThrowImpact(target, ricochet.count(), getConfig().ignorePassiveMobs)) {
       return;
     }
 
     Location targetLocation = target.getLocation().clone();
     boolean playerTarget = target instanceof Player;
+    boolean passive = !AdaptationDamageTargets.allows(target, true);
     J.runEntity(
         owner,
-        () -> authorizeThrowHit(owner, target, targetLocation, playerTarget, thrown, ricochet)
+        () -> authorizeThrowHit(owner, target, targetLocation, playerTarget, passive, thrown, ricochet)
     );
   }
 
@@ -513,10 +526,12 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       LivingEntity target,
       Location targetLocation,
       boolean playerTarget,
+      boolean passive,
       ThrownAxe thrown,
       RangedRicochetBolt.RicochetImpact ricochet
   ) {
-    if (!owner.isOnline() || !hasActiveAdaptation(owner)) {
+    if (!owner.isOnline() || !hasActiveAdaptation(owner)
+        || (ricochet.count() > 0 && passive && preferenceEnabled(owner, AxePreferences.IGNORE_PASSIVE))) {
       return;
     }
     boolean allowed = playerTarget ? canPVP(owner, targetLocation) : canPVE(owner, targetLocation);
@@ -531,7 +546,8 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
       ThrownAxe thrown,
       RangedRicochetBolt.RicochetImpact ricochet
   ) {
-    if (!isEligibleThrowTarget(target, thrown.ownerId())) {
+    if (!isEligibleThrowTarget(target, thrown.ownerId())
+        || !allowsThrowImpact(target, ricochet.count(), getConfig().ignorePassiveMobs)) {
       return;
     }
     ThrowDamageAttempt attempt = new ThrowDamageAttempt(owner, target);
@@ -584,6 +600,10 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
         return;
       }
     }
+  }
+
+  static boolean allowsThrowImpact(LivingEntity target, int ricochetCount, boolean ignorePassiveMobs) {
+    return ricochetCount <= 0 || AdaptationDamageTargets.allows(target, ignorePassiveMobs);
   }
 
   private boolean isEligibleThrowTarget(LivingEntity target, UUID ownerId) {
@@ -1194,6 +1214,8 @@ public class AxeThrowingAxe extends SimpleAdaptation<AxeThrowingAxe.Config> {
 
   @ConfigDescription("Left-click air with an axe to hurl it as a spinning projectile that deals its melee damage.")
   protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Exclude passive and neutral mobs from thrown axe impacts after a ricochet.", impact = "When enabled, bounced axes cannot damage protected mobs. Direct throws and player targeting are unchanged.")
+    boolean ignorePassiveMobs = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base fraction of the axe's melee damage dealt on a throw hit.", impact = "Higher values make thrown axes hit harder at every level.")
     double damageMultiplierBase = 0.6;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Extra melee-damage fraction added by leveling this adaptation.", impact = "Higher values reward leveling with stronger throws.")

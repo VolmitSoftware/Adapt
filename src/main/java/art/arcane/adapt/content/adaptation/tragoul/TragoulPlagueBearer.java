@@ -18,10 +18,14 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import org.bukkit.entity.EntityType;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -31,6 +35,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -112,6 +117,11 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
         .build());
     registerMilestone("challenge_tragoul_plague_100", "tragoul.plague-bearer.mobs-infected", 100, 400);
     registerMilestone("challenge_tragoul_plague_1k", "tragoul.plague-bearer.mobs-infected", 1000, 1500);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TragoulPreferences.PASSIVE, TragoulPreferences.TARGETS);
   }
 
   @Override
@@ -296,7 +306,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
       if (examined++ >= MAX_CANDIDATES_PER_SPREAD) {
         break;
       }
-      if (entity instanceof Mob mob) {
+      if (entity instanceof Mob mob && AdaptationDamageTargets.allows(mob, getConfig().ignorePassiveMobs)) {
         candidates.add(mob);
         if (candidates.size() >= MAX_CANDIDATE_HANDOFFS) {
           break;
@@ -319,6 +329,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
 
   private SpreadTarget captureSpreadTargetOwned(SpreadPlan plan, Mob target) {
     if (!target.isValid() || target.isDead()
+        || !AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs)
         || isProtectedFriendlyOwned(plan.ownerId(), target)) {
       return null;
     }
@@ -327,7 +338,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
         || location.distanceSquared(plan.corpse()) > plan.radius() * plan.radius()) {
       return null;
     }
-    return new SpreadTarget(target, target.getUniqueId(), location);
+    return new SpreadTarget(target, target.getUniqueId(), location, target.getType(), !AdaptationDamageTargets.allows(target, true));
   }
 
   private void selectSpreadTargetsOwnerOwned(SpreadCandidateBatch batch) {
@@ -339,7 +350,9 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
 
     List<SpreadTarget> selected = new ArrayList<>(plan.maxTargets());
     for (SpreadTarget target : batch.targets()) {
-      if (canPVE(plan.owner(), target.location().clone())) {
+      if (preference(plan.owner(), TragoulPreferences.TARGETS).accepts(target.type())
+          && (!preferenceEnabled(plan.owner(), TragoulPreferences.PASSIVE) || !target.passive())
+          && canPVE(plan.owner(), target.location().clone())) {
         selected.add(target);
         if (selected.size() >= plan.maxTargets()) {
           break;
@@ -366,6 +379,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
     }
     Mob target = snapshot.entity();
     if (!target.isValid() || target.isDead()
+        || !AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs)
         || isProtectedFriendlyOwned(plan.ownerId(), target)) {
       batch.complete(null);
       return;
@@ -510,6 +524,8 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
 
   @ConfigDescription("Mobs that die poisoned or withered by you spread an amplified affliction to nearby damageable mobs.")
   protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Exclude passive and neutral mobs from spreading poison and wither.", impact = "When enabled, protected mobs cannot receive secondary infections. Direct attacks and directly applied effects are unchanged.")
+    boolean ignorePassiveMobs = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Spread radius at adaptation level one.", impact = "Higher values infect eligible mobs further from the corpse at low levels.")
     double spreadRadiusStart = 8;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Spread radius at maximum adaptation level.", impact = "Higher values increase the maximum plague reach up to the runtime ceiling.")
@@ -545,7 +561,7 @@ public class TragoulPlagueBearer extends SimpleAdaptation<TragoulPlagueBearer.Co
                             boolean withered, SpreadLease lease) {
   }
 
-  private record SpreadTarget(Mob entity, UUID entityId, Location location) {
+  private record SpreadTarget(Mob entity, UUID entityId, Location location, EntityType type, boolean passive) {
   }
 
   private final class SpreadLease {

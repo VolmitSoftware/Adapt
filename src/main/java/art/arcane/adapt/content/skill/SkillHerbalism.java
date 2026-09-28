@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.xp.XpNovelty;
 import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismBeeShepherd;
@@ -292,7 +293,7 @@ public class SkillHerbalism extends SimpleSkill<SkillHerbalism.Config> {
   }
 
   @NoArgsConstructor
-  public static class Config {
+  public static class Config extends SkillConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
     public boolean enabled = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Harvest Xp Cooldown for the Herbalism skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
@@ -53,6 +55,14 @@ import java.util.List;
 import java.util.Set;
 
 public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Config> {
+  public static final PlayerPreference<Families> FAMILIES = new PlayerPreference<>(Families.class,
+      new PlayerPreference.Definition<>("families", ArchitectMessages.ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES, Families.ALL, List.of(
+          new PlayerPreference.Choice<>(Families.ALL, ArchitectMessages.ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_ALL, Material.COMPASS, 1),
+          new PlayerPreference.Choice<>(Families.DIRECTIONAL, ArchitectMessages.ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_DIRECTIONAL, Material.PISTON, 1),
+          new PlayerPreference.Choice<>(Families.ROTATABLE, ArchitectMessages.ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_ROTATABLE, Material.OAK_SIGN, 1),
+          new PlayerPreference.Choice<>(Families.PILLARS, ArchitectMessages.ARCHITECTSMARTSHAPE_PREFERENCE_FAMILIES_PILLARS, Material.OAK_LOG, 1))));
+  public static final PlayerPreference<CommonPreferences.Toggle> REVERSE = CommonPreferences.toggle("reverse", ArchitectMessages.ARCHITECTSMARTSHAPE_PREFERENCE_REVERSE, CommonPreferences.Toggle.OFF);
+
   private static final List<BlockFace> YAW_ORDER = List.of(
       BlockFace.NORTH,
       BlockFace.EAST,
@@ -101,6 +111,11 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, FAMILIES, REVERSE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + AdaptLanguage.text(ArchitectMessages.SMART_SHAPE_LORE1));
     v.addLore(C.GREEN + "+ " + AdaptLanguage.text(ArchitectMessages.SMART_SHAPE_LORE2));
@@ -138,7 +153,18 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
       }
 
       BlockData data = target.getBlockData().clone();
+      Families family = preference(p, FAMILIES);
+      if ((family == Families.DIRECTIONAL && !(data instanceof Directional))
+          || (family == Families.ROTATABLE && !(data instanceof Rotatable))
+          || (family == Families.PILLARS && !(data instanceof Orientable))) {
+        return;
+      }
       int options = rotateData(data);
+      if (options > 1 && preferenceEnabled(p, REVERSE)) {
+        for (int index = 1; index < options - 1; index++) {
+          rotateData(data);
+        }
+      }
       if (options <= 0) {
         fx(target.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
             .sound(Sound.BLOCK_WOODEN_BUTTON_CLICK_OFF, 0.25f, 0.9f);
@@ -245,4 +271,6 @@ public class ArchitectSmartShape extends SimpleAdaptation<ArchitectSmartShape.Co
       initialCost = 3;
     }
   }
+
+  public enum Families { ALL, DIRECTIONAL, ROTATABLE, PILLARS }
 }

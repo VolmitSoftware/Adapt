@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
@@ -61,6 +64,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", SeabornMessages.SEABORNETIDECALLER_PREFERENCE_SNEAK, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> ATTACK = CommonPreferences.toggle("attack", SeabornMessages.SEABORNETIDECALLER_PREFERENCE_ATTACK, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> ATTACK_SNEAK = CommonPreferences.toggle("attack-sneak", SeabornMessages.SEABORNETIDECALLER_PREFERENCE_ATTACK_SNEAK, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> ATTACK_WATER = CommonPreferences.toggle("attack-water", SeabornMessages.SEABORNETIDECALLER_PREFERENCE_ATTACK_WATER, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> WATER = CommonPreferences.toggle("water", SeabornMessages.SEABORNETIDECALLER_PREFERENCE_WATER, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> RAIN = CommonPreferences.toggle("rain", SeabornMessages.SEABORNETIDECALLER_PREFERENCE_RAIN, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FLAT = CommonPreferences.toggle("flat", SeabornMessages.SEABORNETIDECALLER_PREFERENCE_FLAT, CommonPreferences.Toggle.OFF);
+
   private final Cooldowns fizzleThrottle = cooldowns();
   private final Set<UUID> teleportDashes = ConcurrentHashMap.newKeySet();
 
@@ -84,6 +95,11 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
         .build());
     registerMilestone("challenge_seaborne_tidecaller_200", "seaborne.tidecaller.dashes", 200, 300);
     registerMilestone("challenge_seaborne_tidecaller_5k", "seaborne.tidecaller.dashes", 5000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SNEAK, ATTACK, ATTACK_SNEAK, ATTACK_WATER, WATER, RAIN, FLAT);
   }
 
   @Override
@@ -181,7 +197,7 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
       return;
     }
 
-    if (!getConfig().enableSneakTrigger || p.hasCooldown(Material.HEART_OF_THE_SEA)) {
+    if (!usesSneakTrigger(p) || hydroReservesSneak(p) || p.hasCooldown(Material.HEART_OF_THE_SEA)) {
       return;
     }
 
@@ -195,11 +211,25 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
     }
 
     Player p = e.getPlayer();
-    if (!getConfig().enableAttackTrigger || p.hasCooldown(Material.HEART_OF_THE_SEA)) {
+    if (!getConfig().enableAttackTrigger || !preferenceEnabled(p, ATTACK) || p.hasCooldown(Material.HEART_OF_THE_SEA)) {
       return;
     }
 
     tryDash(p, TriggerType.ATTACK);
+  }
+
+  public boolean usesSneakTrigger(Player p) {
+    return isPlayerEnabled(p) && getActiveLevel(p) > 0 && getConfig().enableSneakTrigger
+        && preferenceEnabled(p, SNEAK) && isDashEnvironmentValid(p);
+  }
+
+  private boolean hydroReservesSneak(Player p) {
+    for (Adaptation<?> candidate : getSkill().getAdaptations()) {
+      if (candidate instanceof SeaborneHydroJet hydro && hydro.reservesSneak(p)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private void tryDash(Player p, TriggerType triggerType) {
@@ -211,20 +241,20 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
         return;
       }
 
-      if (triggerType == TriggerType.SNEAK && !getConfig().enableSneakTrigger) {
+      if (triggerType == TriggerType.SNEAK && (!usesSneakTrigger(p) || hydroReservesSneak(p))) {
         return;
       }
 
       if (triggerType == TriggerType.ATTACK) {
-        if (!getConfig().enableAttackTrigger) {
+        if (!getConfig().enableAttackTrigger || !preferenceEnabled(p, ATTACK)) {
           return;
         }
 
-        if (getConfig().attackTriggerRequiresSneak && !p.isSneaking()) {
+        if ((getConfig().attackTriggerRequiresSneak || preferenceEnabled(p, ATTACK_SNEAK)) && !p.isSneaking()) {
           return;
         }
 
-        if (getConfig().attackTriggerWaterOnly && !isInWaterDashState(p)) {
+        if ((getConfig().attackTriggerWaterOnly || preferenceEnabled(p, ATTACK_WATER)) && !isInWaterDashState(p)) {
           return;
         }
       }
@@ -439,7 +469,7 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
 
   private Vector resolveDashDirection(Player p) {
     Vector direction = p.getLocation().getDirection().clone();
-    if (getConfig().flattenVelocityDashDirection) {
+    if (getConfig().flattenVelocityDashDirection || preferenceEnabled(p, FLAT)) {
       direction.setY(0);
     }
 
@@ -478,11 +508,11 @@ public class SeaborneTidecaller extends SimpleAdaptation<SeaborneTidecaller.Conf
   }
 
   private boolean isDashEnvironmentValid(Player p) {
-    if (getConfig().allowWaterTrigger && isInWaterDashState(p)) {
+    if (getConfig().allowWaterTrigger && preferenceEnabled(p, WATER) && isInWaterDashState(p)) {
       return true;
     }
 
-    return getConfig().allowRainTrigger && isRainingAt(p);
+    return getConfig().allowRainTrigger && preferenceEnabled(p, RAIN) && isRainingAt(p);
   }
 
   private boolean isInWaterDashState(Player p) {

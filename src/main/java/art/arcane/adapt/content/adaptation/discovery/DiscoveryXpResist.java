@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
@@ -47,6 +50,8 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import java.util.UUID;
 
 public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config> {
+  public static final PlayerPreference<DiscoveryPreferences.Reserve> XP_RESERVE = DiscoveryPreferences.reserve("xp-reserve", DiscoveryMessages.PREFERENCE_DISCOVERYXPRESIST_XP_RESERVE);
+
   private static final long COOLDOWN_MILLIS = 15000L;
   private static final long FAIL_FX_THROTTLE_MILLIS = 3000L;
   private final Cooldowns cooldowns = cooldowns();
@@ -80,6 +85,12 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     registerMilestone("challenge_discovery_xp_resist_250", "discovery.xp-resist.saves", 250, 2000);
   }
 
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, XP_RESERVE);
+  }
 
   @Override
   public void addStats(int level, Element v) {
@@ -115,6 +126,9 @@ public class DiscoveryXpResist extends SimpleAdaptation<DiscoveryXpResist.Config
     UUID id = p.getUniqueId();
     if (cooldowns.isReady(id, COOLDOWN_MILLIS)) {
       int xpCost = getXpTaken(level);
+      if (preference(p, XP_RESERVE).amount() > 0 && p.getLevel() - xpCost < preference(p, XP_RESERVE).amount()) {
+        return;
+      }
       double effectiveness = getEffectiveness(getLevelPercent(level));
       double originalDamage = e.getDamage();
       ExperienceLevelCharge defaultCharge = new ExperienceLevelCharge(p, xpCost);

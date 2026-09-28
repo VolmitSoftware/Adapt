@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
@@ -62,6 +64,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", ArchitectMessages.ARCHITECTDEMOLITION_PREFERENCE_SNEAK, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<Materials> MATERIALS = new PlayerPreference<>(Materials.class,
+      new PlayerPreference.Definition<>("materials", ArchitectMessages.ARCHITECTDEMOLITION_PREFERENCE_MATERIALS, Materials.ALL, List.of(
+          new PlayerPreference.Choice<>(Materials.ALL, ArchitectMessages.ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_ALL, Material.STONE, 1),
+          new PlayerPreference.Choice<>(Materials.WOOD, ArchitectMessages.ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_WOOD, Material.OAK_PLANKS, 1),
+          new PlayerPreference.Choice<>(Materials.STONE, ArchitectMessages.ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_STONE, Material.STONE_BRICKS, 1),
+          new PlayerPreference.Choice<>(Materials.GLASS, ArchitectMessages.ARCHITECTDEMOLITION_PREFERENCE_MATERIALS_GLASS, Material.GLASS, 1))));
+
   private final Map<Block, DemolitionMark> placed;
   private final Map<UUID, ConcurrentLinkedDeque<Block>> order;
 
@@ -86,6 +96,21 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
         .build());
     registerMilestone("challenge_architect_demolition_500", "architect.demolition.blocks-demolished", 500, 300);
     registerMilestone("challenge_architect_demolition_5k", "architect.demolition.blocks-demolished", 5000, 1000);
+  }
+
+  private boolean acceptsMaterial(Player player, Material material) {
+    String name = material.name();
+    return switch (preference(player, MATERIALS)) {
+      case ALL -> true;
+      case WOOD -> name.endsWith("_PLANKS") || name.endsWith("_LOG") || name.endsWith("_WOOD") || name.endsWith("_STEM") || name.endsWith("_HYPHAE");
+      case STONE -> name.contains("STONE") || name.contains("BRICK") || name.contains("DEEPSLATE");
+      case GLASS -> name.contains("GLASS");
+    };
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SNEAK, MATERIALS);
   }
 
   @Override
@@ -129,7 +154,8 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     }
 
     Player p = e.getPlayer();
-    if (!mark.owner().equals(p.getUniqueId())) {
+    if (!mark.owner().equals(p.getUniqueId()) || !acceptsMaterial(p, e.getBlock().getType())
+        || (preferenceEnabled(p, SNEAK) && !p.isSneaking())) {
       return;
     }
 
@@ -160,7 +186,8 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     }
 
     Player p = e.getPlayer();
-    if (!mark.owner().equals(p.getUniqueId())) {
+    if (!mark.owner().equals(p.getUniqueId()) || !acceptsMaterial(p, e.getBlock().getType())
+        || (preferenceEnabled(p, SNEAK) && !p.isSneaking())) {
       return;
     }
 
@@ -318,4 +345,6 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     @art.arcane.adapt.util.config.ConfigDoc(value = "Adaptation xp granted per demolished block.", impact = "Higher values speed up adaptation progression from demolition.")
     double xpPerDemolish = 1;
   }
+
+  public enum Materials { ALL, WOOD, STONE, GLASS }
 }

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.localization.catalog.EnchantingMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -48,6 +51,9 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGrindstoneRecovery.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> BOOKS = CommonPreferences.toggle("books", EnchantingMessages.PREFERENCE_ENCHANTINGGRINDSTONERECOVERY_BOOKS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BONUS_XP = CommonPreferences.toggle("bonus-xp", EnchantingMessages.PREFERENCE_ENCHANTINGGRINDSTONERECOVERY_BONUS_XP, CommonPreferences.Toggle.ON);
+
   public EnchantingGrindstoneRecovery() {
     super("enchanting-grindstone-recovery");
     registerConfiguration(Config.class);
@@ -67,6 +73,12 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
         .build());
     registerMilestone("challenge_enchanting_grindstone_50", "enchanting.grindstone-recovery.enchants-recovered", 50, 300);
     registerMilestone("challenge_enchanting_grindstone_500", "enchanting.grindstone-recovery.enchants-recovered", 500, 1000);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BOOKS, BONUS_XP);
   }
 
   @Override
@@ -101,7 +113,8 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
     }
 
     int level = getActiveLevel(p);
-    if (level <= 0 || p.hasCooldown(Material.GRINDSTONE)) {
+    if (level <= 0 || p.hasCooldown(Material.GRINDSTONE)
+        || !preferenceEnabled(p, BOOKS) && !preferenceEnabled(p, BONUS_XP)) {
       return;
     }
 
@@ -119,10 +132,12 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
       return;
     }
 
-    Map<Integer, ItemStack> overflow = p.getInventory().addItem(recovered);
-    overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
+    if (preferenceEnabled(p, BOOKS)) {
+      Map<Integer, ItemStack> overflow = p.getInventory().addItem(recovered);
+      overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
+    }
     int xp = Math.max(0, (int) Math.round(getBonusXp(level)));
-    if (xp > 0) {
+    if (xp > 0 && preferenceEnabled(p, BONUS_XP)) {
       p.giveExp(xp);
     }
 

@@ -8,15 +8,21 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.util.Vector;
+import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
+
+import java.util.Map;
+import java.util.UUID;
 
 public class KineticsChargeLance extends SimpleAdaptation<KineticsChargeLance.Config> {
   private final Cooldowns cooldowns = cooldowns();
+  private final Map<UUID, Movement> movement = playerState();
 
   public KineticsChargeLance() {
     super("kinetics-charge-lance");
@@ -26,9 +32,50 @@ public class KineticsChargeLance extends SimpleAdaptation<KineticsChargeLance.Co
   }
 
   @Override
+  public void unregister() {
+    movement.clear();
+    super.unregister();
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getSpeedDamageFactor(level), 2), 1);
     statLore(v, Form.pc(getBonusCap(level), 0), 2);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerMoveEvent event) {
+    Player player = event.getPlayer();
+    if (event instanceof PlayerTeleportEvent || player.isInsideVehicle() || !hasActiveAdaptation(player)
+        || !isSpear(player.getInventory().getItemInMainHand())) {
+      movement.remove(player.getUniqueId());
+      return;
+    }
+    if (!event.hasChangedPosition()) {
+      return;
+    }
+    Location from = event.getFrom();
+    Location to = event.getTo();
+    int tick = player.getTicksLived();
+    Movement previous = movement.get(player.getUniqueId());
+    double x = to.getX() - from.getX();
+    double z = to.getZ() - from.getZ();
+    if (previous != null && previous.tick == tick) {
+      x += previous.x;
+      z += previous.z;
+    }
+    if (previous == null) {
+      previous = new Movement();
+      movement.put(player.getUniqueId(), previous);
+    }
+    previous.tick = tick;
+    previous.x = x;
+    previous.z = z;
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerTeleportEvent event) {
+    movement.remove(event.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -47,8 +94,9 @@ public class KineticsChargeLance extends SimpleAdaptation<KineticsChargeLance.Co
       return;
     }
 
-    Vector velocity = p.getVelocity();
-    double speed = horizontalSpeed(velocity.getX(), velocity.getZ());
+    Movement sample = movement.get(p.getUniqueId());
+    int age = sample == null ? -1 : p.getTicksLived() - sample.tick;
+    double speed = age >= 0 && age <= 1 ? horizontalSpeed(sample.x, sample.z) : 0D;
     double bonus = chargeBonus(speed, getConfig().minSpeed, getSpeedDamageFactor(combat.level()), getBonusCap(combat.level()));
     if (bonus <= 0D) {
       return;
@@ -77,6 +125,12 @@ public class KineticsChargeLance extends SimpleAdaptation<KineticsChargeLance.Co
     }
 
     return Math.max(0D, Math.min(cap, horizontalSpeed * factor));
+  }
+
+  private static final class Movement {
+    private int tick;
+    private double x;
+    private double z;
   }
 
   @ConfigDescription("Spear hits scale with your speed. Hit them at a run.")

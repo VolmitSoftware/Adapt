@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.localization.catalog.HerbalismMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -51,6 +55,9 @@ import java.util.List;
 import java.util.Map;
 
 public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> {
+  public static final PlayerPreference<HerbalismPreferences.Materials> MATERIALS = HerbalismPreferences.materials("materials", HerbalismMessages.PREFERENCE_HERBALISMREPLANT_MATERIALS);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", HerbalismMessages.PREFERENCE_HERBALISMREPLANT_SNEAK, CommonPreferences.Toggle.OFF);
+
 
   public HerbalismReplant() {
     super("herbalism-replant");
@@ -71,6 +78,11 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
         .build());
     registerMilestone("challenge_herbalism_replant_500", "herbalism.replant.crops-replanted", 500, 300);
     registerMilestone("challenge_herbalism_replant_25k", "herbalism.replant.crops-replanted", 25000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, MATERIALS, SNEAK);
   }
 
   @Override
@@ -107,7 +119,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
       return;
     }
     int lvl = getActiveLevel(p);
-    if (lvl <= 0) {
+    if (lvl <= 0 || preferenceEnabled(p, SNEAK) && !p.isSneaking()) {
       return;
     }
 
@@ -187,7 +199,7 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
     if (b == null || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(p))) {
       return false;
     }
-    if (!(b.getBlockData() instanceof Ageable ageable)
+    if (!preference(p, MATERIALS).allows(b.getType()) || !(b.getBlockData() instanceof Ageable ageable)
         || ageable.getAge() != ageable.getMaximumAge()
         || getActiveBlockBreakLevel(p, b.getLocation()) <= 0
         || !canBlockBreak(p, b.getLocation())
@@ -225,6 +237,17 @@ public class HerbalismReplant extends SimpleAdaptation<HerbalismReplant.Config> 
       boolean caught = false;
       for (ItemStack i : items) {
         if (!isItem(i) || i.getAmount() <= 0) {
+          continue;
+        }
+        boolean allowedDrop = true;
+        for (Adaptation<?> sibling : getSkill().getAdaptations()) {
+          if (sibling instanceof HerbalismDropToInventory pickup) {
+            allowedDrop = pickup.acceptsDrop(p, i.getType());
+            break;
+          }
+        }
+        if (!allowedDrop) {
+          p.getWorld().dropItemNaturally(b.getLocation().add(0.5, 0.5, 0.5), i);
           continue;
         }
         Map<Integer, ItemStack> overflow = p.getInventory().addItem(i);

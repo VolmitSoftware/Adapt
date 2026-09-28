@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -64,6 +67,11 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RangedPreferences.SNEAK);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getSpeed(getLevelPercent(level)), 0), 1);
   }
@@ -74,6 +82,9 @@ public class RangedLungeShot extends SimpleAdaptation<RangedLungeShot.Config> {
       return;
     }
     if (e.getEntity().getShooter() instanceof Player p) {
+      if (preferenceEnabled(p, RangedPreferences.SNEAK) && !p.isSneaking()) {
+        return;
+      }
       if (e.getEntity() instanceof AbstractArrow a) {
         if (hasActiveAdaptation(p)) {
           if (!p.isOnGround()) {

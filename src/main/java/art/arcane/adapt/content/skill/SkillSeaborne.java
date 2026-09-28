@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -408,7 +409,7 @@ public class SkillSeaborne extends SimpleSkill<SkillSeaborne.Config> {
   }
 
   @NoArgsConstructor
-  protected static class Config {
+  protected static class Config extends SkillConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Sea Pickle Cooldown for the Seaborne skill.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     public long seaPickleCooldown = 60000;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Cooldown between XP awards for damaging drowned.", impact = "Higher values reduce repeated combat XP frequency; lower values reward hits more often.")

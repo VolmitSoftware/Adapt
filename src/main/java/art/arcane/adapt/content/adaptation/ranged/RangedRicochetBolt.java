@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -110,6 +113,11 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RangedPreferences.SHOTS, RangedPreferences.ALL_PROJECTILES);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, getMaxRicochets(level), 1);
     statLore(v, Form.pc(getSpeedBonusPerRicochet(level), 0), 2);
@@ -122,7 +130,9 @@ public class RangedRicochetBolt extends SimpleAdaptation<RangedRicochetBolt.Conf
     if (RangedHeartseeker.isSeekingProjectile(projectile)
         || getMetadataProfile(projectile) != null
         || !(projectile.getShooter() instanceof Player player)
-        || !supportsRicochet(projectile)) {
+        || !supportsRicochet(projectile)
+        || !preference(player, RangedPreferences.SHOTS).accepts(projectile)
+        || (!(projectile instanceof AbstractArrow) && !preferenceEnabled(player, RangedPreferences.ALL_PROJECTILES))) {
       return;
     }
 

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ArchitectMessages;
 
@@ -41,6 +44,12 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
+  public static final PlayerPreference<Materials> MATERIALS = new PlayerPreference<>(Materials.class,
+      new PlayerPreference.Definition<>("materials", ArchitectMessages.ARCHITECTGLASS_PREFERENCE_MATERIALS, Materials.ALL, List.of(
+          new PlayerPreference.Choice<>(Materials.ALL, ArchitectMessages.ARCHITECTGLASS_PREFERENCE_MATERIALS_ALL, Material.GLASS, 1),
+          new PlayerPreference.Choice<>(Materials.CLEAR, ArchitectMessages.ARCHITECTGLASS_PREFERENCE_MATERIALS_CLEAR, Material.GLASS_PANE, 1),
+          new PlayerPreference.Choice<>(Materials.STAINED, ArchitectMessages.ARCHITECTGLASS_PREFERENCE_MATERIALS_STAINED, Material.BLUE_STAINED_GLASS, 1))));
+
   public ArchitectGlass() {
     super("architect-glass");
     registerConfiguration(ArchitectGlass.Config.class);
@@ -63,6 +72,11 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, MATERIALS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(ArchitectMessages.GLASS_LORE1));
   }
@@ -72,6 +86,12 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
   public void on(BlockBreakEvent e) {
     Player p = e.getPlayer();
     withAdaptedPlayer(p, e, () -> {
+      String materialName = e.getBlock().getType().name();
+      Materials selection = preference(p, MATERIALS);
+      if ((selection == Materials.CLEAR && materialName.contains("STAINED"))
+          || (selection == Materials.STAINED && !materialName.contains("STAINED"))) {
+        return;
+      }
       if (p.getInventory().getItemInMainHand().getType() == Material.AIR || !isTool(p.getInventory().getItemInMainHand())) {
         if (!canBlockBreak(p, e.getBlock().getLocation())) {
           return;
@@ -101,4 +121,6 @@ public class ArchitectGlass extends SimpleAdaptation<ArchitectGlass.Config> {
       initialCost = 0;
     }
   }
+
+  public enum Materials { ALL, CLEAR, STAINED }
 }

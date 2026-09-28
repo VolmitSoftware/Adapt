@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 
@@ -85,6 +87,14 @@ import java.util.concurrent.atomic.AtomicReference;
 import static art.arcane.adapt.api.adaptation.chunk.ChunkLoading.loadChunkAsync;
 
 public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> LINKING = CommonPreferences.toggle("linking", RiftMessages.RIFTCONDUIT_PREFERENCE_LINKING, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FLOW = CommonPreferences.toggle("flow", RiftMessages.RIFTCONDUIT_PREFERENCE_FLOW, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<Items> ITEMS = new PlayerPreference<>(Items.class,
+      new PlayerPreference.Definition<>("items", RiftMessages.RIFTCONDUIT_PREFERENCE_ITEMS, Items.ALL, List.of(
+          new PlayerPreference.Choice<>(Items.ALL, RiftMessages.RIFTCONDUIT_PREFERENCE_ITEMS_ALL, Material.HOPPER, 1),
+          new PlayerPreference.Choice<>(Items.BLOCKS, RiftMessages.RIFTCONDUIT_PREFERENCE_ITEMS_BLOCKS, Material.STONE, 1),
+          new PlayerPreference.Choice<>(Items.FOOD, RiftMessages.RIFTCONDUIT_PREFERENCE_ITEMS_FOOD, Material.BREAD, 1))));
+
   static final int HARD_MAX_FLOW_ITEMS = 1152;
   static final double HARD_MAX_RANGE = 512D;
   static final int FLOW_DELIVERY_TIMEOUT_TICKS = 100;
@@ -93,6 +103,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
   static final String TAGLOCK_LOC_KEY_NAME = "rift_conduit_taglock_loc";
   static final String TAGLOCK_ID_KEY_NAME = "rift_conduit_taglock_id";
 
+  private final NamespacedKey ownerKey;
   private final NamespacedKey partnerKey;
   private final NamespacedKey linkKey;
   private final NamespacedKey taglockLocKey;
@@ -107,6 +118,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     registerConfiguration(Config.class);
     setIcon(Material.CONDUIT);
     setInterval(1000);
+    ownerKey = new NamespacedKey(Adapt.instance, "rift_conduit_owner");
     partnerKey = new NamespacedKey(Adapt.instance, "rift_conduit_partner");
     linkKey = new NamespacedKey(Adapt.instance, "rift_conduit_link");
     taglockLocKey = new NamespacedKey(Adapt.instance, TAGLOCK_LOC_KEY_NAME);
@@ -126,6 +138,19 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
         .build());
     registerMilestone("challenge_rift_conduit_10", "rift.conduit.links-formed", 10, 500);
     registerMilestone("challenge_rift_conduit_10k", "rift.conduit.items-flowed", 10000, 1500);
+  }
+
+  private static boolean acceptsItem(Items selection, Material type) {
+    return switch (selection) {
+      case ALL -> true;
+      case BLOCKS -> type.isBlock();
+      case FOOD -> type.isEdible();
+    };
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, LINKING, FLOW, ITEMS);
   }
 
   @Override
@@ -172,7 +197,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     }
 
     int level = getActiveLevel(p);
-    boolean learned = level > 0;
+    boolean learned = level > 0 && preferenceEnabled(p, LINKING);
     Block clicked = e.getClickedBlock();
     boolean container = learned && clicked != null && isConduitContainer(clicked);
     boolean blockUseDenied = clicked != null && e.useInteractedBlock() == Event.Result.DENY;
@@ -246,10 +271,15 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       return;
     }
 
+    if (!preferenceEnabled(p, FLOW)) {
+      return;
+    }
+    Items selection = preference(p, ITEMS);
+    UUID closingPlayerId = p.getUniqueId();
     int throughput = getThroughput(level);
     double xpPerFlow = getConfig().xpPerFlow;
     for (Location sourceLoc : sources) {
-      J.runAt(sourceLoc, () -> flowFromSource(p, sourceLoc, throughput, xpPerFlow), 1);
+      J.runAt(sourceLoc, () -> flowFromSource(p, sourceLoc, throughput, xpPerFlow, closingPlayerId, selection), 1);
     }
   }
 
@@ -416,7 +446,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       }
 
       operation.sourceSnapshot().set(snapshotLink(aContainer));
-      if (!writeLink(aContainer, operation.partner(), operation.linkId())) {
+      if (!writeLink(aContainer, operation.partner(), operation.linkId(), operation.player().getUniqueId())) {
         failBindOperation(operation, RiftMessages.CONDUIT_MSG_STALE,
             AbilityRefundReason.ACTIVATION_FAILED, true);
         return;
@@ -443,7 +473,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       }
 
       operation.partnerSnapshot().set(snapshotLink(bContainer));
-      if (!writeLink(bContainer, operation.source(), operation.linkId())) {
+      if (!writeLink(bContainer, operation.source(), operation.linkId(), operation.player().getUniqueId())) {
         failBindOperation(operation, RiftMessages.CONDUIT_MSG_STALE,
             AbilityRefundReason.ACTIVATION_FAILED, true);
         return;
@@ -676,7 +706,8 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     PersistentDataContainer data = container.getPersistentDataContainer();
     return new EndpointSnapshot(
         data.get(partnerKey, PersistentDataType.STRING),
-        data.get(linkKey, PersistentDataType.STRING)
+        data.get(linkKey, PersistentDataType.STRING),
+        data.get(ownerKey, PersistentDataType.STRING)
     );
   }
 
@@ -733,6 +764,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     }
     restoreValue(data, partnerKey, snapshot.partner());
     restoreValue(data, linkKey, snapshot.linkId());
+    restoreValue(data, ownerKey, snapshot.owner());
     if (!container.update(true)) {
       reportRollbackFailure(location, operationLinkId);
     }
@@ -861,7 +893,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
         .forEach(leftover -> p.getWorld().dropItemNaturally(p.getLocation(), leftover));
   }
 
-  private void flowFromSource(Player p, Location sourceLoc, int throughput, double xpPerFlow) {
+  private void flowFromSource(Player p, Location sourceLoc, int throughput, double xpPerFlow, UUID closingPlayerId, Items selection) {
     BlockState st = sourceLoc.getBlock().getState();
     if (!(st instanceof Container source) || !canUseContainer(p, source)) {
       return;
@@ -872,7 +904,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       return;
     }
 
-    List<ItemStack> moving = extractItems(source.getInventory(), throughput);
+    List<ItemStack> moving = extractItems(source.getInventory(), throughput, closingPlayerId.toString().equals(source.getPersistentDataContainer().get(ownerKey, PersistentDataType.STRING)) ? selection : Items.ALL);
     if (moving.isEmpty()) {
       return;
     }
@@ -989,13 +1021,13 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     }
   }
 
-  private List<ItemStack> extractItems(Inventory inventory, int budget) {
+  private List<ItemStack> extractItems(Inventory inventory, int budget, Items selection) {
     List<ItemStack> removed = new ArrayList<>();
     int remaining = Math.max(0, budget);
     ItemStack[] contents = inventory.getContents();
     for (int slot = 0; slot < contents.length && remaining > 0; slot++) {
       ItemStack stack = contents[slot];
-      if (stack == null || stack.getType().isAir() || stack.getAmount() <= 0) {
+      if (stack == null || stack.getType().isAir() || stack.getAmount() <= 0 || !acceptsItem(selection, stack.getType())) {
         continue;
       }
       int take = Math.min(remaining, stack.getAmount());
@@ -1117,7 +1149,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     return new LinkRef(new Location(world, decoded.x(), decoded.y(), decoded.z()), linkId);
   }
 
-  private boolean writeLink(Container container, Location partner, String linkId) {
+  private boolean writeLink(Container container, Location partner, String linkId, UUID owner) {
     World world = partner.getWorld();
     if (world == null) {
       return false;
@@ -1126,6 +1158,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
     pdc.set(partnerKey, PersistentDataType.STRING,
         encodeLocation(WorldIdentity.serialize(world), partner.getBlockX(), partner.getBlockY(), partner.getBlockZ()));
     pdc.set(linkKey, PersistentDataType.STRING, linkId);
+    pdc.set(ownerKey, PersistentDataType.STRING, owner.toString());
     return container.update();
   }
 
@@ -1300,7 +1333,7 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
   private record LinkRef(Location location, String linkId) {
   }
 
-  record EndpointSnapshot(String partner, String linkId) {
+  record EndpointSnapshot(String partner, String linkId, String owner) {
   }
 
   private record EndpointKey(UUID worldId, int x, int y, int z) {
@@ -1325,4 +1358,6 @@ public class RiftConduit extends SimpleAdaptation<RiftConduit.Config> {
       AtomicBoolean completed
   ) {
   }
+
+  public enum Items { ALL, BLOCKS, FOOD }
 }

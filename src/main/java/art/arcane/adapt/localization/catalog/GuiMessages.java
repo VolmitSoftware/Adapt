@@ -24,7 +24,6 @@ public final class GuiMessages {
   public static final TextKey NO_NEXT_PAGE = TextKey.of("gui.common.no_next_page", "No next page");
   public static final TextKey LAST_PAGE = TextKey.of("gui.common.last_page", "Last page");
   public static final TextKey BACK_TO_SKILLS = TextKey.of("gui.common.back_to_skills", "Back to Skills");
-  public static final TextKey BACK_TO_MUTATIONS = TextKey.of("gui.common.back_to_mutations", "Back to Mutations");
   public static final TextKey SKILLS = TextKey.of("gui.common.skills", "Skills");
   public static final TextKey ADAPTATIONS = TextKey.of("gui.common.adaptations", "Adaptations");
   public static final TextKey LEVELS = TextKey.of("gui.common.levels", "Levels");
@@ -46,16 +45,30 @@ public final class GuiMessages {
   public static final TextKey VAULT_INSUFFICIENT_FUNDS = TextKey.of("gui.adaptations.vault_insufficient_funds", "You do not have enough Vault currency to learn this adaptation.");
   public static final TextKey VAULT_TRANSACTION_FAILED = TextKey.of("gui.adaptations.vault_transaction_failed", "The Vault economy transaction failed; your progression was not changed.");
   public static final TextKey POWER_DRAIN = TextKey.of("gui.adaptations.power_drain", "{power} Power Drain");
-  public static final TextKey EXPERIMENTAL_MUTATIONS = TextKey.of("gui.mutations.experimental_mutations", "Experimental Mutations");
-  public static final TextKey MUTATIONS_MENU_SUMMARY = TextKey.of("gui.mutations.menu_summary", "Optional build choices unlocked by your Adapt level.");
-  public static final TextKey MUTATIONS_MENU_OPEN = TextKey.of("gui.mutations.menu_open", "Click to view your slots and requirements.");
   public static final TextKey SKILLS_TITLE = TextKey.of("gui.skills.title", "Level {level} ({used}/{maximum} Power Used)");
   public static final TextKey SKILL_TITLE = TextKey.of("gui.skill.title", "{skill} {progress} ({xp}XP {nextLevel})");
+
+  public static final TextKey PREFERENCE_CURRENT = TextKey.of("gui.preferences.current", "Current: {value}");
+  public static final TextKey PREFERENCE_SERVER_CONTROLLED = TextKey.of("gui.preferences.server_controlled", "Controlled by the server");
+  public static final TextKey PREFERENCE_SERVER_DISABLED = TextKey.of("gui.preferences.server_disabled", "{value}: unavailable on this server");
+  public static final TextKey PREFERENCE_LEVEL_REQUIRED = TextKey.of("gui.preferences.level_required", "{value}: requires adaptation level {level}");
+  public static final TextKey PREFERENCE_CYCLE = TextKey.of("gui.preferences.cycle", "Left click: next / Right click: previous");
+  public static final TextKey PREFERENCE_LEARN_FIRST = TextKey.of("gui.preferences.learn_first", "Learn this adaptation to change its settings.");
+  public static final TextKey PREFERENCE_RESET = TextKey.of("gui.preferences.reset", "Reset personal settings");
+  public static final TextKey PREFERENCE_RESET_DESCRIPTION = TextKey.of("gui.preferences.reset_description", "Use the server defaults for this adaptation.");
 
   private GuiMessages() {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(PREFERENCE_CURRENT);
+    builder.add(PREFERENCE_SERVER_CONTROLLED);
+    builder.add(PREFERENCE_SERVER_DISABLED);
+    builder.add(PREFERENCE_LEVEL_REQUIRED);
+    builder.add(PREFERENCE_CYCLE);
+    builder.add(PREFERENCE_LEARN_FIRST);
+    builder.add(PREFERENCE_RESET);
+    builder.add(PREFERENCE_RESET_DESCRIPTION);
     builder.add(FIRST);
     builder.add(PREVIOUS);
     builder.add(NEXT);
@@ -76,7 +89,6 @@ public final class GuiMessages {
     builder.add(NO_NEXT_PAGE);
     builder.add(LAST_PAGE);
     builder.add(BACK_TO_SKILLS);
-    builder.add(BACK_TO_MUTATIONS);
     builder.add(SKILLS);
     builder.add(ADAPTATIONS);
     builder.add(LEVELS);
@@ -98,9 +110,6 @@ public final class GuiMessages {
     builder.add(VAULT_INSUFFICIENT_FUNDS);
     builder.add(VAULT_TRANSACTION_FAILED);
     builder.add(POWER_DRAIN);
-    builder.add(EXPERIMENTAL_MUTATIONS);
-    builder.add(MUTATIONS_MENU_SUMMARY);
-    builder.add(MUTATIONS_MENU_OPEN);
     builder.add(SKILLS_TITLE);
     builder.add(SKILL_TITLE);
   }

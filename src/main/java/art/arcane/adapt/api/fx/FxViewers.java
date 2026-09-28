@@ -285,6 +285,20 @@ public final class FxViewers {
       return dispatchIndices.containsKey(viewer);
     }
 
+    int indexOf(Player viewer) {
+      return dispatchIndices.getOrDefault(viewer, UNINDEXED_VIEWER_INDEX);
+    }
+
+    boolean withinRange(int index, double x, double y, double z, double radius) {
+      if (index < 0 || index >= players.length) {
+        return false;
+      }
+      double dx = xs[index] - x;
+      double dy = ys[index] - y;
+      double dz = zs[index] - z;
+      return dx * dx + dy * dy + dz * dz <= radius * radius;
+    }
+
     boolean shouldFallback(Player viewer) {
       Integer index = dispatchIndices.get(viewer);
       return index == null || index == UNINDEXED_VIEWER_INDEX;

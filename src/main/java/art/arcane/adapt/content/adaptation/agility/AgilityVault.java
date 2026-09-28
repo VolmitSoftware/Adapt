@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.localization.catalog.AgilityMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -60,6 +64,12 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
+  public static final PlayerPreference<Trigger> TRIGGER = new PlayerPreference<>(Trigger.class,
+      new PlayerPreference.Definition<>("trigger", AgilityMessages.AGILITYVAULT_PREFERENCE_TRIGGER, Trigger.ANY, List.of(
+          new PlayerPreference.Choice<>(Trigger.ANY, AgilityMessages.AGILITYVAULT_PREFERENCE_TRIGGER_ANY, Material.FEATHER, 1),
+          new PlayerPreference.Choice<>(Trigger.SPRINT, AgilityMessages.AGILITYVAULT_PREFERENCE_TRIGGER_SPRINT, Material.SUGAR, 1),
+          new PlayerPreference.Choice<>(Trigger.SNEAK, AgilityMessages.AGILITYVAULT_PREFERENCE_TRIGGER_SNEAK, Material.LEATHER_BOOTS, 1))));
+
   private static final String SLOT_VAULT = "vault";
   private static final int VAULT_LEVELS = 1;
   private static final long RECONCILE_INTERVAL_MILLIS = 1000L;
@@ -100,6 +110,16 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
         .build());
     registerMilestone("challenge_agility_vault_250", "agility.vault.vaults", 250, 300);
     registerMilestone("challenge_agility_vault_2500", "agility.vault.vaults", 2500, 1200);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TRIGGER);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearArmedState(player.getPlayer());
   }
 
   @Override
@@ -147,7 +167,7 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void on(PlayerJumpEvent e) {
       Player p = e.getPlayer();
-      if (!hasAdaptation(p)) {
+      if (!hasActiveAdaptation(p)) {
         return;
       }
 
@@ -325,7 +345,11 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
     return null;
   }
 
-  private static boolean isVaultEligible(Player p) {
+  private boolean isVaultEligible(Player p) {
+    if ((preference(p, TRIGGER) == Trigger.SPRINT && !p.isSprinting())
+        || (preference(p, TRIGGER) == Trigger.SNEAK && !p.isSneaking())) {
+      return false;
+    }
     GameMode mode = p.getGameMode();
     if (mode != GameMode.SURVIVAL && mode != GameMode.ADVENTURE) {
       return false;
@@ -360,4 +384,6 @@ public class AgilityVault extends SimpleAdaptation<AgilityVault.Config> {
       initialCost = 4;
     }
   }
+
+  public enum Trigger { ANY, SPRINT, SNEAK }
 }

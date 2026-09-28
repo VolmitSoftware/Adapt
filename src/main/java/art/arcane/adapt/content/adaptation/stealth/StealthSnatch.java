@@ -18,6 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.localization.catalog.StealthMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import org.bukkit.event.player.PlayerMoveEvent;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -52,6 +57,16 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", StealthMessages.STEALTHSNATCH_PREFERENCE_CONTROL, Control.SNEAK, List.of(
+          new PlayerPreference.Choice<>(Control.SNEAK, StealthMessages.STEALTHSNATCH_PREFERENCE_CONTROL_SNEAK, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Control.AUTOMATIC, StealthMessages.STEALTHSNATCH_PREFERENCE_CONTROL_AUTOMATIC, Material.HOPPER, 1))));
+  public static final PlayerPreference<Items> ITEMS = new PlayerPreference<>(Items.class,
+      new PlayerPreference.Definition<>("items", StealthMessages.STEALTHSNATCH_PREFERENCE_ITEMS, Items.ALL, List.of(
+          new PlayerPreference.Choice<>(Items.ALL, StealthMessages.STEALTHSNATCH_PREFERENCE_ITEMS_ALL, Material.CHEST, 1),
+          new PlayerPreference.Choice<>(Items.BLOCKS, StealthMessages.STEALTHSNATCH_PREFERENCE_ITEMS_BLOCKS, Material.STONE, 1),
+          new PlayerPreference.Choice<>(Items.FOOD, StealthMessages.STEALTHSNATCH_PREFERENCE_ITEMS_FOOD, Material.BREAD, 1))));
+
   private static final int MAX_ITEMS_PER_PULSE = 32;
   private static final int MAX_CANDIDATES_PER_PULSE = 128;
   private static final int MAX_SESSION_VISITS_PER_TICK = 32;
@@ -86,6 +101,20 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONTROL, ITEMS);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    Player p = player.getPlayer();
+    removePlayerSession(p.getUniqueId());
+    if (hasActiveAdaptation(p) && (p.isSneaking() || preference(p, CONTROL) == Control.AUTOMATIC)) {
+      startCollection(p);
+    }
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getRange(getLevelPercent(level)), 1), 1);
   }
@@ -94,7 +123,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
     UUID playerId = p.getUniqueId();
-    if (!e.isSneaking()) {
+    if (!e.isSneaking() && preference(p, CONTROL) == Control.SNEAK) {
       removePlayerSession(playerId);
       return;
     }
@@ -102,6 +131,22 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
       return;
     }
 
+    startCollection(p);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerMoveEvent e) {
+    Player p = e.getPlayer();
+    if (preference(p, CONTROL) == Control.AUTOMATIC && hasActiveAdaptation(p) && !activeSessions.containsKey(p.getUniqueId())) {
+      startCollection(p);
+    }
+  }
+
+  private void startCollection(Player p) {
+    UUID playerId = p.getUniqueId();
+    if (activeSessions.containsKey(playerId)) {
+      return;
+    }
     double range = getRange(getLevelPercent(p));
     timeline(p).duration(6).priority(FxPriority.TRANSITION).cullRadius(range + 8)
         .frame((fx, tick, progress) -> {
@@ -120,6 +165,14 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
         retick();
       }
     }
+  }
+
+  private boolean acceptsItem(Player player, Material type) {
+    return switch (preference(player, ITEMS)) {
+      case ALL -> true;
+      case BLOCKS -> type.isBlock();
+      case FOOD -> type.isEdible();
+    };
   }
 
   private void snatch(Player player) {
@@ -146,6 +199,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
       }
       if (droppedItemEntity instanceof Item droppedItem
           && (!J.isFoliaThreading() || J.isOwnedByCurrentRegion(droppedItem))
+          && acceptsItem(player, droppedItem.getItemStack().getType())
           && canSnatchItem(player, droppedItem)) {
         items.add(droppedItem);
       }
@@ -236,7 +290,7 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
     try {
       Player player = session.player;
       if (activeSessions.get(session.playerId) != session
-          || !player.isOnline() || player.isDead() || !player.isSneaking()
+          || !player.isOnline() || player.isDead() || (!player.isSneaking() && preference(player, CONTROL) == Control.SNEAK)
           || !hasActiveAdaptation(player)) {
         removeSession(session);
         return;
@@ -305,4 +359,8 @@ public class StealthSnatch extends SimpleAdaptation<StealthSnatch.Config> {
       initialCost = 12;
     }
   }
+
+  public enum Control { SNEAK, AUTOMATIC }
+
+  public enum Items { ALL, BLOCKS, FOOD }
 }

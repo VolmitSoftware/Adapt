@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -55,11 +58,13 @@ import java.util.concurrent.ThreadLocalRandom;
 public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
   private final NamespacedKey shotLevelKey;
   private final NamespacedKey shotOwnerKey;
+  private final NamespacedKey shotTargetsKey;
 
   public RangedFloaters() {
     super("ranged-floaters");
     shotLevelKey = new NamespacedKey(Adapt.instance, "ranged_floaters_level");
     shotOwnerKey = new NamespacedKey(Adapt.instance, "ranged_floaters_owner");
+    shotTargetsKey = new NamespacedKey(Adapt.instance, "ranged_floaters_preference");
     registerConfiguration(Config.class);
     setIcon(Material.SHULKER_SHELL);
     setInterval(2400);
@@ -70,6 +75,11 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_ranged_floaters_200", "ranged.floaters.targets-levitated", 200, 300);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RangedPreferences.SNEAK, RangedPreferences.TARGETS);
   }
 
   @Override
@@ -88,13 +98,14 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
     }
 
     int level = getActiveLevel(player);
-    if (level <= 0) {
+    if (level <= 0 || (preferenceEnabled(player, RangedPreferences.SNEAK) && !player.isSneaking())) {
       return;
     }
 
     PersistentDataContainer data = projectile.getPersistentDataContainer();
     data.set(shotLevelKey, PersistentDataType.INTEGER, level);
     data.set(shotOwnerKey, PersistentDataType.STRING, player.getUniqueId().toString());
+    data.set(shotTargetsKey, PersistentDataType.STRING, preference(player, RangedPreferences.TARGETS).name());
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -110,6 +121,10 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
       return;
     }
 
+    String selection = projectile.getPersistentDataContainer().get(shotTargetsKey, PersistentDataType.STRING);
+    if (selection != null && !RangedPreferences.Targets.valueOf(selection).accepts(target)) {
+      return;
+    }
     int level = authorization.level();
     if (ThreadLocalRandom.current().nextDouble() > getProcChance(level)) {
       return;

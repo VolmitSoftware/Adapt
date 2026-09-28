@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
 
@@ -52,6 +55,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtlesMiningSpeed.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> FLOATING = CommonPreferences.toggle("floating", SeabornMessages.SEABORNETURTLESMININGSPEED_PREFERENCE_FLOATING, CommonPreferences.Toggle.ON);
+
   private static final String SUBMERGED_ATTRIBUTE_SLOT = "submerged-mining";
   private static final String FLOATING_ATTRIBUTE_SLOT = "floating-mining";
   private static final int MIN_REFRESH_INTERVAL_MILLIS = 250;
@@ -83,6 +88,16 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
         .build());
     registerMilestone("challenge_seaborne_mining_2500", "seaborne.turtles-mining.blocks-underwater", 2500, 300);
     registerMilestone("challenge_seaborne_mining_25k", "seaborne.turtles-mining.blocks-underwater", 25000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, FLOATING);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearMiningState(player.getPlayer(), player.getPlayer().getUniqueId());
   }
 
   @Override
@@ -180,7 +195,7 @@ public class SeaborneTurtlesMiningSpeed extends SimpleAdaptation<SeaborneTurtles
       attributes.remove(player, getName(), SUBMERGED_ATTRIBUTE_SLOT, Attributes.SUBMERGED_MINING_SPEED);
     }
 
-    boolean compensateFloating = getConfig().compensateFloatingPenalty && !player.isOnGround();
+    boolean compensateFloating = getConfig().compensateFloatingPenalty && preferenceEnabled(player, FLOATING) && !player.isOnGround();
     double floatingScalar = multiplierScalar(getConfig().floatingMiningSpeedMultiplier);
     if (compensateFloating && floatingScalar > 0D) {
       attributes.applyTimed(player, getName(), FLOATING_ATTRIBUTE_SLOT, Attributes.BLOCK_BREAK_SPEED,

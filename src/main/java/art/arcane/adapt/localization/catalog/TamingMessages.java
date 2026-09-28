@@ -1,5 +1,6 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.adapt.content.adaptation.taming.TamingPreferences;
 import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -78,6 +79,7 @@ public final class TamingMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    TamingPreferences.addMessages(builder);
     builder.add(DAMAGE_NAME);
     builder.add(DAMAGE_DESCRIPTION);
     builder.add(DAMAGE_LORE1);

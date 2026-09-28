@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.ranged;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -33,6 +35,9 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.Sound;
 import org.bukkit.entity.FishHook;
 import org.bukkit.entity.Item;
@@ -51,6 +56,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
+  private static final NamespacedKey LAUNCH_SNEAK_KEY = NamespacedKey.fromString("adapt:fetch-launch-sneak");
   private static final int HARD_MAX_CANDIDATES_PER_ACTIVATION = 32;
   private static final int HARD_MAX_AFFECTED_PER_ACTIVATION = 16;
   private static final int HARD_MAX_TARGET_FX_PER_ACTIVATION = 8;
@@ -77,8 +83,21 @@ public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, RangedPreferences.SNEAK, RangedPreferences.ITEMS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getRadius(level), 1), 1);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(ProjectileLaunchEvent event) {
+    if (event.getEntity().getShooter() instanceof Player player && J.isOwnedByCurrentRegion(player)) {
+      event.getEntity().getPersistentDataContainer().set(LAUNCH_SNEAK_KEY, PersistentDataType.BYTE,
+          player.isSneaking() ? (byte) 1 : (byte) 0);
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -91,16 +110,17 @@ public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
     }
 
     Location impact = projectile.getLocation().clone();
-    J.runEntity(p, () -> startFetchOwned(p, impact));
+    boolean sneakingAtLaunch = projectile.getPersistentDataContainer().getOrDefault(LAUNCH_SNEAK_KEY, PersistentDataType.BYTE, (byte) 0) == 1;
+    J.runEntity(p, () -> startFetchOwned(p, impact, sneakingAtLaunch));
   }
 
-  private void startFetchOwned(Player player, Location impact) {
+  private void startFetchOwned(Player player, Location impact, boolean sneakingAtLaunch) {
     if (!player.isOnline()) {
       return;
     }
 
     int level = getActiveLevel(player);
-    if (level <= 0) {
+    if (level <= 0 || (preferenceEnabled(player, RangedPreferences.SNEAK) && !sneakingAtLaunch)) {
       return;
     }
 
@@ -154,7 +174,8 @@ public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
   }
 
   private void prepareTransferOwned(FetchBatch batch, Item item, Location itemLocation, ItemStack stack) {
-    if (batch.isFinalized() || !batch.player.isOnline()) {
+    if (batch.isFinalized() || !batch.player.isOnline() || getActiveLevel(batch.player) <= 0
+        || !preference(batch.player, RangedPreferences.ITEMS).accepts(stack.getType())) {
       batch.complete(false);
       return;
     }

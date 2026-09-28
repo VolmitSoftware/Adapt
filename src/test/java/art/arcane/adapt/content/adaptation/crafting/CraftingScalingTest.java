@@ -10,8 +10,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.RecipeChoice;
+import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.Damageable;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -22,6 +25,7 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -146,6 +150,49 @@ class CraftingScalingTest {
     assertThat(CraftingDeconstruction.salvageAmount(ingredients, 1, 1)).isEqualTo(4);
     assertThat(CraftingDeconstruction.salvageAmount(ingredients, 64, 1)).isEqualTo(256);
     assertThat(CraftingDeconstruction.splitAmounts(256, 64)).containsExactly(64, 64, 64, 64);
+  }
+
+  @Test
+  void deconstructionIgnoresNativeEmptyRecipeCells() {
+    String[] shape = {"abc", "def", "ghi"};
+    Map<Character, Object> choices = new HashMap<>();
+    for (char symbol : "acdefghi".toCharArray()) {
+      choices.put(symbol, Material.IRON_INGOT);
+    }
+    choices.put('b', null);
+
+    assertThat(CraftingDeconstruction.shapedIngredientCount(shape, choices)).isEqualTo(8);
+    choices.put('b', RecipeChoice.empty());
+    assertThat(CraftingDeconstruction.shapedIngredientCount(shape, choices)).isEqualTo(8);
+  }
+
+  @Test
+  void deconstructionOffersFourIngotsFromNativeChestplateRecipe() {
+    Material ingot = mock(Material.class);
+    when(ingot.getMaxStackSize()).thenReturn(64);
+    RecipeChoice.MaterialChoice iron = mock(RecipeChoice.MaterialChoice.class);
+    when(iron.getChoices()).thenReturn(List.of(ingot));
+    Map<Character, RecipeChoice> choices = new HashMap<>();
+    for (char symbol : "acdefghi".toCharArray()) {
+      choices.put(symbol, iron);
+    }
+    choices.put('b', null);
+    ItemStack source = mock(ItemStack.class);
+    when(source.getAmount()).thenReturn(1);
+    ShapedRecipe recipe = mock(ShapedRecipe.class);
+    when(recipe.getShape()).thenReturn(new String[]{"abc", "def", "ghi"});
+    when(recipe.getChoiceMap()).thenReturn(choices);
+    when(recipe.getResult()).thenReturn(source);
+
+    try (MockedConstruction<ItemStack> items = mockConstruction(ItemStack.class, (item, construction) -> {
+      when(item.getType()).thenReturn((Material) construction.arguments().getFirst());
+      when(item.getAmount()).thenReturn((int) construction.arguments().get(1));
+    })) {
+      List<ItemStack> offerings = CraftingDeconstruction.getDeconstructionOfferings(source, recipe);
+      assertThat(offerings).hasSize(1);
+      assertThat(offerings.getFirst().getType()).isSameAs(ingot);
+      assertThat(offerings.getFirst().getAmount()).isEqualTo(4);
+    }
   }
 
   @Test

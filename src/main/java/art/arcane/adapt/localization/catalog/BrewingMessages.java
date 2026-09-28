@@ -5,6 +5,7 @@ import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
 
 public final class BrewingMessages {
+  public static final TextKey PREFERENCE_BREWINGLINGERING_LORE = TextKey.of("brewing.preferences.brewinglingering.extended-lore", "Extended potion lore");
   public static final TextKey LINGERING_NAME = TextKey.of("brewing.lingering.name", "Lingering Brew");
   public static final TextKey LINGERING_DESCRIPTION = TextKey.of("brewing.lingering.description", "Brewed potions last longer!");
   public static final TextKey LINGERING_LORE1 = TextKey.of("brewing.lingering.lore1", "Duration");
@@ -85,6 +86,7 @@ public final class BrewingMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(PREFERENCE_BREWINGLINGERING_LORE);
     builder.add(LINGERING_NAME);
     builder.add(LINGERING_DESCRIPTION);
     builder.add(LINGERING_LORE1);

@@ -1,10 +1,106 @@
 package art.arcane.adapt.api.adaptation;
 
 import org.junit.jupiter.api.Test;
+import art.arcane.adapt.util.common.scheduling.J;
+import org.bukkit.entity.Player;
+import org.mockito.MockedStatic;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class VelocityBurstRuntimeTest {
+  @Test
+  void stoppingOneClientSettlesItsEndCallbackOnceWithoutStoppingAnother() throws Exception {
+    Constructor<VelocityBurstRuntime> constructor = VelocityBurstRuntime.class.getDeclaredConstructor();
+    constructor.setAccessible(true);
+    VelocityBurstRuntime runtime = constructor.newInstance();
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
+    VelocityBurstRuntime.Feedback firstFeedback = mock(VelocityBurstRuntime.Feedback.class);
+    VelocityBurstRuntime.Feedback secondFeedback = mock(VelocityBurstRuntime.Feedback.class);
+    VelocityBurstRuntime.Client first = client(runtime, firstFeedback);
+    VelocityBurstRuntime.Client second = client(runtime, secondFeedback);
+    Object firstSession = session(first);
+    Object secondSession = session(second);
+    sessions(first).put(player.getUniqueId(), firstSession);
+    sessions(second).put(player.getUniqueId(), secondSession);
+    try (MockedStatic<J> scheduling = mockStatic(J.class)) {
+      scheduling.when(() -> J.isOwnedByCurrentRegion(player)).thenReturn(true);
+      first.stop(player);
+      first.stop(player);
+    }
+    assertThat(sessions(first)).isEmpty();
+    assertThat(sessions(second).get(player.getUniqueId())).isSameAs(secondSession);
+    verify(firstFeedback, times(1)).onEnded(player);
+    verify(secondFeedback, never()).onEnded(player);
+  }
+
+  @Test
+  void queuedStopCannotRemoveAReplacementSession() throws Exception {
+    Constructor<VelocityBurstRuntime> constructor = VelocityBurstRuntime.class.getDeclaredConstructor();
+    constructor.setAccessible(true);
+    VelocityBurstRuntime runtime = constructor.newInstance();
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
+    VelocityBurstRuntime.Feedback feedback = mock(VelocityBurstRuntime.Feedback.class);
+    VelocityBurstRuntime.Client client = client(runtime, feedback);
+    sessions(client).put(player.getUniqueId(), session(client));
+    List<Runnable> scheduled = new ArrayList<>();
+    try (MockedStatic<J> scheduling = mockStatic(J.class)) {
+      scheduling.when(() -> J.isOwnedByCurrentRegion(player)).thenReturn(false);
+      scheduling.when(() -> J.runEntity(eq(player), any(Runnable.class))).thenAnswer(invocation -> {
+        scheduled.add(invocation.getArgument(1));
+        return true;
+      });
+      client.stop(player);
+      Object replacement = session(client);
+      sessions(client).put(player.getUniqueId(), replacement);
+      scheduling.when(() -> J.isOwnedByCurrentRegion(player)).thenReturn(true);
+      assertThat(scheduled).hasSize(1);
+      scheduled.getFirst().run();
+      assertThat(sessions(client).get(player.getUniqueId())).isSameAs(replacement);
+      verify(feedback, never()).onEnded(player);
+    }
+  }
+
+  private static VelocityBurstRuntime.Client client(VelocityBurstRuntime runtime,
+                                                   VelocityBurstRuntime.Feedback feedback) throws Exception {
+    Constructor<VelocityBurstRuntime.Client> constructor = VelocityBurstRuntime.Client.class.getDeclaredConstructor(
+        VelocityBurstRuntime.class, String.class, VelocityBurstRuntime.Feedback.class);
+    constructor.setAccessible(true);
+    return constructor.newInstance(runtime, "test", feedback);
+  }
+
+  private static Object session(VelocityBurstRuntime.Client client) throws Exception {
+    Class<?> type = Class.forName(VelocityBurstRuntime.class.getName() + "$BurstSession");
+    Constructor<?> constructor = type.getDeclaredConstructor(VelocityBurstRuntime.Client.class,
+        long.class, int.class, VelocityBurstRuntime.Profile.class);
+    constructor.setAccessible(true);
+    return constructor.newInstance(client, Long.MAX_VALUE, 1,
+        new VelocityBurstRuntime.Profile(0.1D, 0.5D, 0.1D, 0.1D, 0.01D, false, 0.01D));
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Map<UUID, Object> sessions(VelocityBurstRuntime.Client client) throws Exception {
+    Field field = VelocityBurstRuntime.Client.class.getDeclaredField("sessions");
+    field.setAccessible(true);
+    return (Map<UUID, Object>) field.get(client);
+  }
+
   @Test
   void productionScaleHasAnExactGlobalCallbackCeiling() {
     assertThat(VelocityBurstRuntime.boundedOwnerCallbacks(-1)).isZero();

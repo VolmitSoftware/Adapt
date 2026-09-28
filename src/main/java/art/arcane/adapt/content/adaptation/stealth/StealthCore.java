@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.localization.catalog.StealthMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.localization.AdaptLanguage;
+import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -79,6 +85,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongSupplier;
 
 public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> GLOWS = CommonPreferences.toggle("glows", StealthMessages.STEALTHCORE_PREFERENCE_GLOWS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> STATUS = CommonPreferences.toggle("status", StealthMessages.STEALTHCORE_PREFERENCE_STATUS, CommonPreferences.Toggle.OFF);
+
   static final int HARD_MAX_ACTIVE_SESSIONS = 2_048;
   static final int HARD_MAX_OWNER_REFRESH_DISPATCHES_PER_TICK = 128;
   static final int HARD_MAX_SCAN_DISPATCHES_PER_TICK = 16;
@@ -147,6 +156,20 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, GLOWS, STATUS);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    Player p = player.getPlayer();
+    stopSession(p, true);
+    if (isPlayerEnabled(p) && p.isSneaking()) {
+      startSession(p);
+    }
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getStealthRadius(level)), 1);
     statLore(v, Form.pc(getMobBackstabMultiplier(level) - 1D, 0), 2);
@@ -178,7 +201,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   public boolean isCurrentlyUndetected(Player player) {
-    if (player == null || !player.isSneaking()) {
+    if (player == null || !player.isSneaking() || !isPlayerEnabled(player)) {
       return false;
     }
     SneakSession session = coordinator.get(player.getUniqueId());
@@ -612,6 +635,9 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
       boolean completeSnapshot = scan.hasCompleteSnapshot();
       session.threatStateKnown = completeSnapshot;
       session.detected = !completeSnapshot || scan.snapshot.canDetect();
+      if (preferenceEnabled(player, STATUS)) {
+        AdaptHud.ambientStatus(player, getName(), AdaptLanguage.text(session.detected ? StealthMessages.STEALTHCORE_PREFERENCE_DETECTED : StealthMessages.STEALTHCORE_PREFERENCE_HIDDEN));
+      }
       boolean forcedConcealment = isForcedConcealed(player);
       if (forcedConcealment) {
         applyDimming(player, getActiveLevel(player));
@@ -695,6 +721,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   private void stopSession(Player player, boolean discardGlows) {
+    AdaptHud.clearAmbientStatus(player, getName());
     UUID playerId = player.getUniqueId();
     SneakSession session = coordinator.get(playerId);
     if (session == null) {
@@ -707,6 +734,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
   }
 
   private void stopSession(SneakSession session, boolean discardGlows) {
+    AdaptHud.clearAmbientStatus(session.owner, getName());
     if (!coordinator.remove(session.playerId, session)) {
       session.active.set(false);
       session.discardGlowOperations.set(true);
@@ -769,7 +797,7 @@ public class StealthCore extends SimpleAdaptation<StealthCore.Config> {
 
   private void updateThreatGlows(SneakSession session, ThreatSnapshot snapshot) {
     Player player = session.owner;
-    if (!getConfig().showThreatGlows) {
+    if (!getConfig().showThreatGlows || !preferenceEnabled(player, GLOWS)) {
       clearThreatGlows(player, session, false);
       return;
     }

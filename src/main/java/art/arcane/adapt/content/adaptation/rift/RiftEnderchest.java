@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.rift;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RiftMessages;
 
@@ -44,6 +47,13 @@ import org.bukkit.inventory.ItemStack;
 
 
 public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
+  public static final PlayerPreference<Gesture> GESTURE = new PlayerPreference<>(Gesture.class,
+      new PlayerPreference.Definition<>("gesture", RiftMessages.RIFTENDERCHEST_PREFERENCE_GESTURE, Gesture.CURRENT, List.of(
+          new PlayerPreference.Choice<>(Gesture.CURRENT, RiftMessages.RIFTENDERCHEST_PREFERENCE_GESTURE_CURRENT, Material.ENDER_CHEST, 1),
+          new PlayerPreference.Choice<>(Gesture.LEFT, RiftMessages.RIFTENDERCHEST_PREFERENCE_GESTURE_LEFT, Material.ARROW, 1),
+          new PlayerPreference.Choice<>(Gesture.RIGHT_AIR, RiftMessages.RIFTENDERCHEST_PREFERENCE_GESTURE_RIGHT_AIR, Material.FEATHER, 1))));
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("sneak", RiftMessages.RIFTENDERCHEST_PREFERENCE_SNEAK, CommonPreferences.Toggle.OFF);
+
   public RiftEnderchest() {
     super("rift-enderchest");
     setLocalizationKey("rift.chest");
@@ -57,6 +67,11 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_rift_enderchest_200", "rift.enderchest.opens", 200, 300);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, GESTURE, SNEAK);
   }
 
   @Override
@@ -76,6 +91,12 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
     }
 
     Player p = e.getPlayer();
+    Gesture gesture = preference(p, GESTURE);
+    if ((preferenceEnabled(p, SNEAK) && !p.isSneaking())
+        || (gesture == Gesture.LEFT && action == Action.RIGHT_CLICK_AIR)
+        || (gesture == Gesture.RIGHT_AIR && action != Action.RIGHT_CLICK_AIR)) {
+      return;
+    }
     ItemStack hand = p.getInventory().getItemInMainHand();
     if (hand.getType() != Material.ENDER_CHEST || !hasActiveAdaptation(p)) {
       return;
@@ -113,4 +134,6 @@ public class RiftEnderchest extends SimpleAdaptation<RiftEnderchest.Config> {
       initialCost = 10;
     }
   }
+
+  public enum Gesture { CURRENT, LEFT, RIGHT_AIR }
 }

@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 
@@ -60,6 +63,12 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppraiser.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirmation", DiscoveryMessages.PREFERENCE_DISCOVERYRELICAPPRAISER_CONFIRM, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> DISCS = CommonPreferences.toggle("discs", DiscoveryMessages.PREFERENCE_DISCOVERYRELICAPPRAISER_DISCS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> HEADS = CommonPreferences.toggle("heads", DiscoveryMessages.PREFERENCE_DISCOVERYRELICAPPRAISER_HEADS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> TRIMS = CommonPreferences.toggle("trims", DiscoveryMessages.PREFERENCE_DISCOVERYRELICAPPRAISER_TRIMS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SHERDS = CommonPreferences.toggle("sherds", DiscoveryMessages.PREFERENCE_DISCOVERYRELICAPPRAISER_SHERDS, CommonPreferences.Toggle.ON);
+
   private static final long COOLDOWN_MILLIS = 400L;
   static final double MAX_RANDOM_SKILL_XP = 10_000D;
 
@@ -86,6 +95,12 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
         .build());
     registerMilestone("challenge_discovery_appraiser_50", "discovery.relic-appraiser.appraised", 50, 300);
     registerMilestone("challenge_discovery_appraiser_500", "discovery.relic-appraiser.appraised", 500, 1200);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONFIRM, DISCS, HEADS, TRIMS, SHERDS);
   }
 
   @Override
@@ -187,6 +202,16 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
       return;
     }
 
+    String materialName = hand.getType().name();
+    if (!preferenceEnabled(p, materialName.startsWith("MUSIC_DISC_") ? DISCS
+        : materialName.endsWith("_HEAD") || materialName.endsWith("_SKULL") ? HEADS
+        : materialName.endsWith("_SMITHING_TEMPLATE") ? TRIMS : SHERDS)) {
+      return;
+    }
+    if (preferenceEnabled(p, CONFIRM) && !PreferenceConfirmation.confirm(this, p, "appraise", hand)) {
+      e.setCancelled(true);
+      return;
+    }
     cooldowns.mark(id);
     if (action == Action.RIGHT_CLICK_BLOCK) {
       e.setCancelled(true);

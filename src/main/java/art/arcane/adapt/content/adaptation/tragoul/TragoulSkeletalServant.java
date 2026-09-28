@@ -18,11 +18,16 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
@@ -61,6 +66,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Tameable;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
@@ -139,6 +145,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   private final Map<UUID, TargetRequest> latestTargetRequests = new ConcurrentHashMap<>();
   private final Set<UUID> activeTargetRequests = ConcurrentHashMap.newKeySet();
   private final Map<UUID, Long> pendingLocalRetargets = new ConcurrentHashMap<>();
+  private final Map<UUID, TragoulPreferences.Stance> stances = new ConcurrentHashMap<>();
   private final Cooldowns cooldowns = cooldowns();
   private final MinionBurden burden = MinionBurden.get();
   private final AtomicLong localRetargetSequence = new AtomicLong();
@@ -186,6 +193,28 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    Player owner = player.getPlayer();
+    UUID id = owner.getUniqueId();
+    stances.put(id, preference(owner, TragoulPreferences.STANCE));
+    if (getActiveLevel(owner) <= 0) {
+      dismissPack(id);
+      return;
+    }
+    threats.remove(id);
+    latestTargetRequests.remove(id);
+    CopyOnWriteArrayList<Skeleton> pack = servants.get(id);
+    if (pack != null) {
+      for (Skeleton servant : pack) { J.runEntity(servant, () -> servant.setTarget(null)); }
+    }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TragoulPreferences.REPLACE, TragoulPreferences.STANCE, TragoulPreferences.BONES);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(TragoulMessages.SKELETAL_SERVANT_LORE1));
     statLore(v, getServantCap(level), 5);
@@ -198,7 +227,15 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
   }
 
-  @EventHandler
+  static boolean allowsSummonInteraction(PlayerInteractEvent event) {
+    if (event.useItemInHand() == Event.Result.DENY) {
+      return false;
+    }
+    return event.getAction() == Action.RIGHT_CLICK_AIR
+        || event.getAction() == Action.RIGHT_CLICK_BLOCK && event.useInteractedBlock() != Event.Result.DENY;
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
     Player p = e.getPlayer();
     if (!p.isSneaking()) {
@@ -214,13 +251,17 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    withAdaptedPlayer(p, e, () -> {
+    withAdaptedPlayer(p, () -> {
+      if (!allowsSummonInteraction(e)) {
+        return;
+      }
       int level = getActiveLevel(p);
       if (level <= 0) {
         return;
       }
 
       UUID id = p.getUniqueId();
+      stances.put(id, preference(p, TragoulPreferences.STANCE));
       long now = System.currentTimeMillis();
       if (!cooldowns.isReady(id, getCooldownMillis(level))) {
         sfx(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 0.8F);
@@ -229,14 +270,14 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
       CopyOnWriteArrayList<Skeleton> list = servants.computeIfAbsent(id, k -> new CopyOnWriteArrayList<>());
       int cap = getServantCap(level);
-      if (list.size() >= cap && !getConfig().replaceOldestAtCap) {
+      if (list.size() >= cap && (!getConfig().replaceOldestAtCap || !preferenceEnabled(p, TragoulPreferences.REPLACE))) {
         sfx(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 1.2F);
         return;
       }
 
       int boneCost = getBoneCost(level);
       if (p.getGameMode() != GameMode.CREATIVE) {
-        if (!p.getInventory().containsAtLeast(new ItemStack(Material.BONE), boneCost)) {
+        if (!p.getInventory().containsAtLeast(new ItemStack(Material.BONE), preference(p, TragoulPreferences.BONES).required(boneCost))) {
           sfx(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 0.6F);
           return;
         }
@@ -314,6 +355,13 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
+    TragoulPreferences.Stance stance = stances.getOrDefault(ownerId, TragoulPreferences.Stance.ASSIST);
+    if (stance == TragoulPreferences.Stance.PASSIVE
+        || (stance == TragoulPreferences.Stance.DEFEND && !isPriorityTarget(ownerId, target))) {
+      e.setCancelled(true);
+      skeleton.setTarget(null);
+      return;
+    }
     if (target instanceof Player player) {
       if (!isPriorityTarget(ownerId, player)) {
         e.setCancelled(true);
@@ -477,7 +525,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   private void handleOwnerDamaged(EntityDamageByEntityEvent e, Player owner) {
     LivingEntity attacker = resolveLivingDamager(e.getDamager());
-    if (attacker == null || attacker == owner) {
+    if (attacker == null || attacker == owner || preference(owner, TragoulPreferences.STANCE) == TragoulPreferences.Stance.PASSIVE) {
       return;
     }
 
@@ -492,7 +540,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       owner = shooter;
     }
 
-    if (owner == null || owner == victim) {
+    if (owner == null || owner == victim || preference(owner, TragoulPreferences.STANCE) != TragoulPreferences.Stance.ASSIST) {
       return;
     }
 
@@ -530,7 +578,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   private void startTargetRequestOwned(UUID ownerId, Player owner) {
     TargetRequest request = latestTargetRequests.get(ownerId);
-    if (request == null || !owner.isOnline() || getLevel(owner) <= 0) {
+    if (request == null || !owner.isOnline() || getActiveLevel(owner) <= 0) {
       finishTargetRequestOwned(ownerId, owner, request);
       return;
     }
@@ -559,7 +607,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    if (snapshot != null && owner.isOnline() && getLevel(owner) > 0 && canDamageSnapshotOwned(owner, snapshot)) {
+    if (snapshot != null && owner.isOnline() && getActiveLevel(owner) > 0 && canDamageSnapshotOwned(owner, snapshot)) {
       publishThreatOwned(ownerId, owner, snapshot, request.requestedAt());
     }
     finishTargetRequestOwned(ownerId, owner, request);
@@ -658,7 +706,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     double reflectedDamage = 0D;
     TragoulThorns thorns = refs.thorns();
     Long thornsUntil = servantThornsCooldowns.get(servantId);
-    if (thorns != null && (thornsUntil == null || thornsUntil <= now)) {
+    if (thorns != null && (!(thorns.getConfig().ignorePassiveMobs || thorns.preferenceEnabled(owner, TragoulPreferences.PASSIVE)) || !attacker.passiveOrNeutral())
+        && (thornsUntil == null || thornsUntil <= now)) {
       int level = thorns.getActiveLevel(owner);
       if (level > 0) {
         servantThornsCooldowns.put(servantId, now + 1500L);
@@ -704,7 +753,9 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    if (effect.thornsApplied()) {
+    TragoulThorns thorns = perks().thorns();
+    if (effect.thornsApplied() && thorns != null
+        && AdaptationDamageTargets.allows(target, thorns.getConfig().ignorePassiveMobs)) {
       TragoulReactiveDamage.apply(() -> target.damage(effect.reflectedDamage(), effect.owner()));
     }
     if (effect.frailtyApplied()) {
@@ -905,7 +956,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private void completeLocalRetargetOwnerOwned(Player owner, Skeleton servant, UUID servantId, long token, TargetSnapshot target) {
-    if (!owner.isOnline() || getLevel(owner) <= 0 || !canDamageSnapshotOwned(owner, target)) {
+    if (!owner.isOnline() || getActiveLevel(owner) <= 0 || !canDamageSnapshotOwned(owner, target)) {
       pendingLocalRetargets.remove(servantId, token);
       return;
     }
@@ -992,7 +1043,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         return;
       }
       Player owner = threat.owner();
-      if (snapshot == null || !owner.isOnline() || getLevel(owner) <= 0 || !canDamageSnapshotOwned(owner, snapshot)) {
+      if (snapshot == null || !owner.isOnline() || getActiveLevel(owner) <= 0 || !canDamageSnapshotOwned(owner, snapshot)) {
         threats.remove(threat.ownerId(), threat);
         return;
       }
@@ -1022,11 +1073,14 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         || target.hasPotionEffect(PotionEffectType.WITHER);
     Location location = target.getLocation();
     return new TargetSnapshot(target, targetId, location.getWorld().getUID(), location,
-        target instanceof Player, target instanceof Mob, protectedFriendly, afflicted);
+        target instanceof Player, target instanceof Mob, protectedFriendly, afflicted,
+        !AdaptationDamageTargets.allows(target, true));
   }
 
   private boolean canDamageSnapshotOwned(Player owner, TargetSnapshot target) {
-    if (target.protectedFriendly() || owner.getUniqueId().equals(target.entityId())) {
+    if (preference(owner, TragoulPreferences.STANCE) == TragoulPreferences.Stance.PASSIVE
+        || (preference(owner, TragoulPreferences.STANCE) == TragoulPreferences.Stance.DEFEND && !isDefenseTarget(owner.getUniqueId(), target.entity()))
+        || target.protectedFriendly() || owner.getUniqueId().equals(target.entityId())) {
       return false;
     }
     return target.player() ? canPVP(owner, target.location()) : canPVE(owner, target.location());
@@ -1101,6 +1155,11 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
     requestThreatRefresh(threat, now);
     return target.entity();
+  }
+
+  private boolean isDefenseTarget(UUID ownerId, LivingEntity candidate) {
+    TargetRequest request = latestTargetRequests.get(ownerId);
+    return isPriorityTarget(ownerId, candidate) || (request != null && request.target() == candidate);
   }
 
   private boolean isPriorityTarget(UUID ownerId, LivingEntity candidate) {
@@ -1383,7 +1442,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private record TargetSnapshot(LivingEntity entity, UUID entityId, UUID worldId, Location location,
-                                boolean player, boolean mob, boolean protectedFriendly, boolean afflicted) {
+                                boolean player, boolean mob, boolean protectedFriendly, boolean afflicted,
+                                boolean passiveOrNeutral) {
   }
 
   private record ServantDamager(Skeleton servant, UUID ownerId) {

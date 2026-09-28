@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
 
@@ -80,7 +81,7 @@ public class ExcavationTreasureHunter extends SimpleAdaptation<ExcavationTreasur
       return;
     }
 
-    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.getBlock().getLocation());
+    Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.getBlock().getLocation());
     if (context == null) {
       return;
     }

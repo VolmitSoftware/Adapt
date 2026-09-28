@@ -416,17 +416,30 @@ sourceSets {
     }
 }
 
-tasks.register('gameplayFixtureJar', Jar) {
+tasks.register('gameplayFixtureJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
     group = 'verification'
     description = 'Builds the isolated Paper gameplay observer and arena fixture.'
     dependsOn(tasks.named('gameplayFixtureClasses'))
     from(sourceSets.gameplayFixture.output)
+    configurations = []
+    relocate('art.arcane.volmlib', 'art.arcane.adapt.util.arcane.volmlib')
     archiveFileName = 'AdaptGameplayFixture.jar'
 }
 
 tasks.register('gameplayContractTest', Exec) {
     group = 'verification'
-    commandLine('node', '--test', 'src/test/gameplay/contract.test.mjs')
+    commandLine(['node', '--test'] + fileTree('src/test/gameplay').matching { include '*.test.mjs' }.files.collect { File file -> file.path }.sort())
+}
+
+tasks.register('prepareGameplay', Sync) {
+    group = 'verification'
+    description = 'Stages the current runtime and isolated gameplay fixture under build/gameplay/plugins.'
+    dependsOn(shadowJarTask, tasks.named('gameplayFixtureJar'))
+    into(layout.buildDirectory.dir('gameplay/plugins'))
+    from(shadowJarTask.flatMap { it.archiveFile }) {
+        rename { 'Adapt.jar' }
+    }
+    from(tasks.named('gameplayFixtureJar').flatMap { it.archiveFile })
 }
 
 tasks.named('check').configure {

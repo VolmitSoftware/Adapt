@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -95,6 +98,9 @@ import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
  * cycles the mode.
  */
 public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config> {
+  public static final PlayerPreference<CraftingPreferences.Storage> STORAGE = CraftingPreferences.storage("storage", CraftingMessages.PREFERENCE_CRAFTINGBACKPACKS_STORAGE);
+  public static final PlayerPreference<CommonPreferences.Toggle> MODE_SWITCH = CommonPreferences.toggle("mode-switch", CraftingMessages.PREFERENCE_CRAFTINGBACKPACKS_MODE_SWITCH, CommonPreferences.Toggle.ON);
+
   static final String CRAFT_RECIPE_KEY = "crafting-backpacks";
   static final String CYCLE_RECIPE_KEY = "crafting-backpacks-mode";
   private static final int NAV_PREV = 0;
@@ -155,6 +161,12 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
     loadedConfig.maxStoredBytes = Math.max(4096, loadedConfig.maxStoredBytes);
   }
 
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, STORAGE, MODE_SWITCH);
+  }
+
   @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(CraftingMessages.BACKPACKS_LORE1));
@@ -165,6 +177,13 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
 
   private int capacity() {
     return BackpackItem.snapCapacity(getConfig().slots);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (!hasActiveAdaptation(player.getPlayer())) {
+      closeAndPersist(player.getPlayer());
+    }
   }
 
   private BackpackItem.Mode defaultMode() {
@@ -924,6 +943,15 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
     CraftingInventory inventory = e.getInventory();
     Recipe recipe = e.getRecipe();
     ItemStack[] matrix = inventory.getMatrix();
+    if (recipe != null && craftRecipe.is(recipe) && e.getView().getPlayer() instanceof Player player) {
+      if (!hasActiveAdaptation(player)) {
+        inventory.setResult(null);
+        return;
+      }
+      CraftingPreferences.Storage preferred = preference(player, STORAGE);
+      BackpackItem.Mode mode = preferred == CraftingPreferences.Storage.SERVER ? defaultMode() : BackpackItem.Mode.valueOf(preferred.name());
+      inventory.setResult(BackpackItem.io.withData(BackpackItem.Data.of(null, mode, capacity(), 0)));
+    }
     if (recipe == null || !cycleRecipe.is(recipe)) {
       // A backpack consumed as an ingredient anywhere else would delete its
       // stored contents along with the item.
@@ -933,7 +961,9 @@ public class CraftingBackpacks extends SimpleAdaptation<CraftingBackpacks.Config
       return;
     }
 
-    if (!getConfig().allowModeToggle || !isLoneBackpack(matrix)) {
+    if (!getConfig().allowModeToggle || !isLoneBackpack(matrix)
+        || !(e.getView().getPlayer() instanceof Player player) || !hasActiveAdaptation(player)
+        || !preferenceEnabled(player, MODE_SWITCH)) {
       inventory.setResult(null);
       return;
     }

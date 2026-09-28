@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Consumer;
@@ -34,6 +35,7 @@ public final class FxEmitter {
   private final int viewerCount;
   private final Consumer<Throwable> failureHandler;
   private int emittedParticles;
+  private boolean restrictedAudience;
 
   private FxEmitter() {
     this.world = null;
@@ -386,9 +388,22 @@ public final class FxEmitter {
       return;
     }
 
-    double radius = Math.min(48.0D, Math.max(8.0D, 16.0D * volume));
+    double radius = soundRadius(volume);
     Location location = new Location(world, x, y, z);
+    if (restrictedAudience) {
+      FxDispatch.Emission soundEmission = emission(player -> player.playSound(location, sound, volume, pitch));
+      for (int viewerIndex : viewerIndices) {
+        if (viewersSnapshot.withinRange(viewerIndex, x, y, z, radius)) {
+          viewersSnapshot.dispatch(viewerIndex, soundEmission);
+        }
+      }
+      return;
+    }
     viewersSnapshot.dispatch(world, x, y, z, radius, emission(player -> player.playSound(location, sound, volume, pitch)));
+  }
+
+  static double soundRadius(float volume) {
+    return Math.min(FxViewers.MAX_CULL_RADIUS, Math.max(16.0D, 16.0D * volume));
   }
 
   public Color color() {
@@ -397,6 +412,55 @@ public final class FxEmitter {
 
   public int viewerCount() {
     return viewerCount;
+  }
+
+  public FxEmitter only(Player viewer) {
+    if (viewer == null || viewersSnapshot == null || viewerCount == 0) {
+      return NO_OP;
+    }
+    int index = viewersSnapshot.indexOf(viewer);
+    for (int position = 0; position < viewerCount; position++) {
+      if (viewerIndices[position] == index) {
+        FxEmitter filtered = new FxEmitter(world, x, y, z, priority, particlesOn, soundsOn, color,
+            viewersSnapshot, new int[]{index}, 1, failureHandler);
+        filtered.emittedParticles = emittedParticles;
+        filtered.restrictedAudience = true;
+        return filtered;
+      }
+    }
+    return NO_OP;
+  }
+
+  public FxEmitter except(Player viewer) {
+    if (viewer == null || viewersSnapshot == null || viewerCount == 0) {
+      return this;
+    }
+    int excluded = viewersSnapshot.indexOf(viewer);
+    int removed = -1;
+    for (int position = 0; position < viewerCount; position++) {
+      if (viewerIndices[position] == excluded) {
+        removed = position;
+        break;
+      }
+    }
+    if (removed < 0) {
+      FxEmitter filtered = new FxEmitter(world, x, y, z, priority, particlesOn, soundsOn, color,
+          viewersSnapshot, viewerIndices, viewerCount, failureHandler);
+      filtered.emittedParticles = emittedParticles;
+      filtered.restrictedAudience = true;
+      return filtered;
+    }
+    if (viewerCount == 1) {
+      return NO_OP;
+    }
+    int[] indices = new int[viewerCount - 1];
+    System.arraycopy(viewerIndices, 0, indices, 0, removed);
+    System.arraycopy(viewerIndices, removed + 1, indices, removed, viewerCount - removed - 1);
+    FxEmitter filtered = new FxEmitter(world, x, y, z, priority, particlesOn, soundsOn, color,
+        viewersSnapshot, indices, indices.length, failureHandler);
+    filtered.emittedParticles = emittedParticles;
+    filtered.restrictedAudience = true;
+    return filtered;
   }
 
   private static Object particleData(Particle particle, Object data, Color fallbackColor) {

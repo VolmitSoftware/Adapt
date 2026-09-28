@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.unarmed;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -74,6 +77,11 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, UnarmedPreferences.PLAYERS, UnarmedPreferences.ARMOR);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getChance(level), 0), 1);
     statLore(v, C.YELLOW, "* ", Form.duration((double) getConfig().targetCooldownMillis, 1), 2);
@@ -101,7 +109,7 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
     }
 
     boolean victimIsPlayer = victim instanceof Player;
-    if (victimIsPlayer && !getConfig().allowDisarmPlayers) {
+    if (victimIsPlayer && (!getConfig().allowDisarmPlayers || !preferenceEnabled(p, UnarmedPreferences.PLAYERS))) {
       return;
     }
 
@@ -136,7 +144,7 @@ public class UnarmedDisarm extends SimpleAdaptation<UnarmedDisarm.Config> {
     }
 
     ItemStack armor = null;
-    if (!victimIsPlayer && ThreadLocalRandom.current().nextDouble() < getConfig().mobArmorDropChance) {
+    if (!victimIsPlayer && preferenceEnabled(p, UnarmedPreferences.ARMOR) && ThreadLocalRandom.current().nextDouble() < getConfig().mobArmorDropChance) {
       armor = takeRandomArmorPiece(equipment);
     }
 

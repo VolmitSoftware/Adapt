@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.architect;
 
+import art.arcane.adapt.localization.catalog.ArchitectMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ItemsMessages;
 
@@ -74,6 +77,10 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> ASCENT = CommonPreferences.toggle("ascent", ArchitectMessages.ARCHITECTELEVATOR_PREFERENCE_ASCENT, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> DESCENT = CommonPreferences.toggle("descent", ArchitectMessages.ARCHITECTELEVATOR_PREFERENCE_DESCENT, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> SNEAK_ASCENT = CommonPreferences.toggle("sneak-ascent", ArchitectMessages.ARCHITECTELEVATOR_PREFERENCE_SNEAK_ASCENT, CommonPreferences.Toggle.OFF);
+
   private static final int ELEVATOR_LEVELS = 1;
   private static final NamespacedKey ELEVATOR_KEY = new NamespacedKey(Adapt.instance, "elevator");
   private static final NamespacedKey TARGET_DOWN = new NamespacedKey(Adapt.instance, "target_down");
@@ -110,6 +117,11 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
             .build())
         .build());
     registerMilestone("challenge_architect_elevator_100", "architect.elevator.trips", 100, 300);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, ASCENT, DESCENT, SNEAK_ASCENT);
   }
 
   @Override
@@ -364,7 +376,9 @@ public class ArchitectElevator extends SimpleAdaptation<ArchitectElevator.Config
   }
 
   private void handleElevatorMovement(Block block, Player player, boolean down) {
-    if (!isElevator(block) || player.isInsideVehicle())
+    if (!hasActiveAdaptation(player) || !preferenceEnabled(player, down ? DESCENT : ASCENT)
+        || (!down && preferenceEnabled(player, SNEAK_ASCENT) && !player.isSneaking())
+        || !isElevator(block) || player.isInsideVehicle())
       return;
 
     CustomBlockData data = new CustomBlockData(block, Adapt.instance);

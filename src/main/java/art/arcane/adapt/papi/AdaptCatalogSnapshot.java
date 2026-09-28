@@ -1,7 +1,6 @@
 package art.arcane.adapt.papi;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.mutation.MutationType;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.volmlib.util.bukkit.papi.PlaceholderValues;
 
@@ -14,24 +13,19 @@ public final class AdaptCatalogSnapshot {
   private final long revision;
   private final Map<String, AdaptCatalogSkill> skills;
   private final Map<String, AdaptCatalogAdaptation> adaptations;
-  private final Map<String, AdaptCatalogMutation> mutations;
   private final String skillCountText;
   private final String adaptationCountText;
-  private final String mutationCountText;
 
   private AdaptCatalogSnapshot(
       long revision,
       Map<String, AdaptCatalogSkill> skills,
-      Map<String, AdaptCatalogAdaptation> adaptations,
-      Map<String, AdaptCatalogMutation> mutations
+      Map<String, AdaptCatalogAdaptation> adaptations
   ) {
     this.revision = revision;
     this.skills = Map.copyOf(skills);
     this.adaptations = Map.copyOf(adaptations);
-    this.mutations = Map.copyOf(mutations);
     this.skillCountText = PlaceholderValues.count(this.skills.size());
     this.adaptationCountText = PlaceholderValues.count(this.adaptations.size());
-    this.mutationCountText = PlaceholderValues.count(this.mutations.size());
   }
 
   public static AdaptCatalogSnapshot build(long revision, List<Skill<?>> skills) {
@@ -78,23 +72,7 @@ public final class AdaptCatalogSnapshot {
       ));
     }
 
-    return new AdaptCatalogSnapshot(revision, skillIndex, adaptationIndex, buildMutations());
-  }
-
-  private static Map<String, AdaptCatalogMutation> buildMutations() {
-    Map<String, AdaptCatalogMutation> index = new HashMap<>();
-
-    for (MutationType type : MutationType.values()) {
-      String id = normalize(type.id());
-
-      if (id == null) {
-        continue;
-      }
-
-      index.putIfAbsent(id, new AdaptCatalogMutation(id, PlaceholderValues.text(type.displayName()), type));
-    }
-
-    return index;
+    return new AdaptCatalogSnapshot(revision, skillIndex, adaptationIndex);
   }
 
   private static AdaptCatalogAdaptation describe(
@@ -147,10 +125,6 @@ public final class AdaptCatalogSnapshot {
     return adaptations.get(id);
   }
 
-  public AdaptCatalogMutation mutation(String id) {
-    return mutations.get(id);
-  }
-
   public String skillCountText() {
     return skillCountText;
   }
@@ -159,7 +133,4 @@ public final class AdaptCatalogSnapshot {
     return adaptationCountText;
   }
 
-  public String mutationCountText() {
-    return mutationCountText;
-  }
 }

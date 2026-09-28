@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PreferenceConfirmation;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.ability.AbilityCharge;
 import art.arcane.adapt.api.ability.AbilityRefundReason;
@@ -53,6 +57,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferReroll.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> CONFIRM = CommonPreferences.toggle("confirmation", EnchantingMessages.PREFERENCE_ENCHANTINGOFFERREROLL_CONFIRM, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<EnchantingPreferences.Reserve> XP_RESERVE = EnchantingPreferences.reserve("xp-reserve", EnchantingMessages.PREFERENCE_ENCHANTINGOFFERREROLL_XP_RESERVE);
+  public static final PlayerPreference<EnchantingPreferences.Reserve> LAPIS_RESERVE = EnchantingPreferences.reserve("lapis-reserve", EnchantingMessages.PREFERENCE_ENCHANTINGOFFERREROLL_LAPIS_RESERVE);
+
   private static volatile Method setSeedMethod;
 
   public EnchantingOfferReroll() {
@@ -74,6 +82,12 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
         .build());
     registerMilestone("challenge_enchanting_reroll_100", "enchanting.offer-reroll.rerolls", 100, 300);
     registerMilestone("challenge_enchanting_reroll_1k", "enchanting.offer-reroll.rerolls", 1000, 1000);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONFIRM, XP_RESERVE, LAPIS_RESERVE);
   }
 
   @Override
@@ -112,12 +126,19 @@ public class EnchantingOfferReroll extends SimpleAdaptation<EnchantingOfferRerol
     }
 
     Location tableTop = table.getLocation().add(0.5D, 1.0D, 0.5D);
-    if (p.getLevel() < getConfig().xpLevelCost) {
+    if (p.getLevel() - getConfig().xpLevelCost < preference(p, XP_RESERVE).amount()) {
       FxPresets.failFizzle(this, tableTop);
       return;
     }
 
     int lapisCost = getLapisCost(level);
+    if (!hasLapis(p, lapisCost + preference(p, LAPIS_RESERVE).amount())) {
+      return;
+    }
+    if (preferenceEnabled(p, CONFIRM) && !PreferenceConfirmation.confirm(this, p, "reroll:" + table.getLocation(), p.getInventory().getItemInMainHand())) {
+      e.setCancelled(true);
+      return;
+    }
     RerollReservation reservation = reserveRerollCost(p, lapisCost);
     if (reservation == null) {
       FxPresets.failFizzle(this, tableTop);

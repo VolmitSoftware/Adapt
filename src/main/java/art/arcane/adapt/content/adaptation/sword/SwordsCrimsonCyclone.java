@@ -18,8 +18,11 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -31,6 +34,7 @@ import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -91,6 +95,11 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SwordPreferences.IGNORE_PASSIVE, SwordPreferences.VISUALS, SwordPreferences.SNEAK);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getRadius(level)), 1);
     statLore(v, Form.f(getBaseDamage(level), 2), 2);
@@ -107,7 +116,7 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     Player p = combat.attacker();
     LivingEntity primaryTarget = combat.target();
     ItemStack hand = combat.mainHand();
-    if (!isCritTrigger(PaperCompat.isCritical(e))) {
+    if ((preferenceEnabled(p, SwordPreferences.SNEAK) && !p.isSneaking()) || !isCritTrigger(PaperCompat.isCritical(e))) {
       return;
     }
 
@@ -129,7 +138,7 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     double radius = getRadius(level);
     double damage = getBaseDamage(level);
     Location center = primaryTarget.getLocation().clone();
-    int targetFxLimit = getTargetFxLimit();
+    int targetFxLimit = preferenceEnabled(p, SwordPreferences.VISUALS) ? getTargetFxLimit() : 0;
     p.setFoodLevel(Math.max(0, p.getFoodLevel() - hungerCost));
     cooldowns.mark(playerId);
 
@@ -159,7 +168,8 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
     int limit = getCandidateLimit();
     List<LivingEntity> candidates = new ArrayList<>(limit);
     for (LivingEntity candidate : PaperCompat.nearbyLivingEntities(center, radius, radius, radius)) {
-      if (candidate == player || candidate == primaryTarget) {
+      if (candidate == player || candidate == primaryTarget
+          || !AdaptationDamageTargets.allows(candidate, getConfig().ignorePassiveMobs || preferenceEnabled(player, SwordPreferences.IGNORE_PASSIVE))) {
         continue;
       }
       candidates.add(candidate);
@@ -218,7 +228,8 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
   }
 
   private Location validTargetLocation(CycloneBatch batch, LivingEntity target) {
-    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)) {
+    if (!target.isValid() || target.isDead() || isProtectedFriendly(null, target)
+        || !AdaptationDamageTargets.allows(target, getConfig().ignorePassiveMobs)) {
       return null;
     }
     if (target instanceof Tameable tameable && tameable.isTamed()) {
@@ -350,6 +361,8 @@ public class SwordsCrimsonCyclone extends SimpleAdaptation<SwordsCrimsonCyclone.
 
   @ConfigDescription("Land a sword crit while falling to unleash a bleeding crimson cyclone around your target.")
   protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Exclude passive and neutral mobs from area damage and its secondary effects.", impact = "When enabled, protected mobs do not consume target limits. Direct attacks and player targeting are unchanged.")
+    boolean ignorePassiveMobs = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Show Bleed Particles for the Swords Crimson Cyclone adaptation.", impact = "True enables this behavior and false disables it.")
     boolean showBleedParticles = true;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Swords Crimson Cyclone adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

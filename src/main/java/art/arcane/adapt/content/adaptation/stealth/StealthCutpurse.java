@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import art.arcane.adapt.localization.catalog.StealthMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
@@ -56,6 +59,12 @@ import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
+  public static final PlayerPreference<Targets> TARGET_FILTER = new PlayerPreference<>(Targets.class,
+      new PlayerPreference.Definition<>("targets", StealthMessages.STEALTHCUTPURSE_PREFERENCE_TARGETS, Targets.ALL, List.of(
+          new PlayerPreference.Choice<>(Targets.ALL, StealthMessages.STEALTHCUTPURSE_PREFERENCE_TARGETS_ALL, Material.GOLD_INGOT, 1),
+          new PlayerPreference.Choice<>(Targets.ILLAGERS, StealthMessages.STEALTHCUTPURSE_PREFERENCE_TARGETS_ILLAGERS, Material.CROSSBOW, 1),
+          new PlayerPreference.Choice<>(Targets.PIGLINS, StealthMessages.STEALTHCUTPURSE_PREFERENCE_TARGETS_PIGLINS, Material.GOLDEN_SWORD, 1))));
+
   private static final EnumSet<EntityType> TARGETS = EnumSet.of(
       EntityType.PILLAGER,
       EntityType.VINDICATOR,
@@ -96,6 +105,11 @@ public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TARGET_FILTER);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getStealChance(level), 0), 1);
     statLore(v, Form.f(getLootStacks(level), 0), 2);
@@ -110,6 +124,11 @@ public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
 
     Player attacker = combat.attacker();
     LivingEntity target = combat.target();
+    Targets selection = preference(attacker, TARGET_FILTER);
+    boolean piglin = target.getType().name().startsWith("PIGLIN");
+    if ((selection == Targets.PIGLINS && !piglin) || (selection == Targets.ILLAGERS && piglin)) {
+      return;
+    }
     if (!TARGETS.contains(target.getType()) || !(target instanceof Mob mob)
         || !stealth.isUndetected(attacker, target)) {
       return;
@@ -232,4 +251,6 @@ public class StealthCutpurse extends SimpleAdaptation<StealthCutpurse.Config> {
       initialCost = 4;
     }
   }
+
+  public enum Targets { ALL, ILLAGERS, PIGLINS }
 }

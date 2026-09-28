@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.enchanting;
 
+import art.arcane.adapt.localization.catalog.EnchantingMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -38,6 +42,8 @@ import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import java.util.UUID;
 
 public class EnchantingRuneSight extends SimpleAdaptation<EnchantingRuneSight.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> FULL = CommonPreferences.toggle("full-details", EnchantingMessages.PREFERENCE_ENCHANTINGRUNESIGHT_FULL, CommonPreferences.Toggle.ON);
+
   private final Cooldowns revealThrottle = cooldowns();
 
   public EnchantingRuneSight() {
@@ -59,6 +65,12 @@ public class EnchantingRuneSight extends SimpleAdaptation<EnchantingRuneSight.Co
         .build());
     registerMilestone("challenge_enchanting_rune_100", "enchanting.rune-sight.offers-revealed", 100, 300);
     registerMilestone("challenge_enchanting_rune_1k", "enchanting.rune-sight.offers-revealed", 1000, 1000);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, FULL);
   }
 
   @Override
@@ -92,7 +104,7 @@ public class EnchantingRuneSight extends SimpleAdaptation<EnchantingRuneSight.Co
       return;
     }
 
-    int depth = getRevealDepth(level);
+    int depth = preferenceEnabled(p, FULL) ? getRevealDepth(level) : 1;
     StringBuilder message = new StringBuilder();
     int revealed = 0;
     for (int i = 0; i < offers.length && revealed < depth; i++) {

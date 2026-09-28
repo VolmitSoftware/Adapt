@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import art.arcane.adapt.localization.catalog.AgilityMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.Adapt;
 import art.arcane.volmlib.nativelib.NativeAdapters;
 import art.arcane.volmlib.nativelib.player.ClientBlockTags;
@@ -67,6 +71,15 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Predicate;
 
 public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> ASCENT = CommonPreferences.toggle("ascent", AgilityMessages.AGILITYLADDERSLIDE_PREFERENCE_ASCENT, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> DESCENT = CommonPreferences.toggle("descent", AgilityMessages.AGILITYLADDERSLIDE_PREFERENCE_DESCENT, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Scale> SPEED = CommonPreferences.scale("speed", AgilityMessages.AGILITYLADDERSLIDE_PREFERENCE_SPEED);
+  public static final PlayerPreference<Sensitivity> SENSITIVITY = new PlayerPreference<>(Sensitivity.class,
+      new PlayerPreference.Definition<>("sensitivity", AgilityMessages.AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY, Sensitivity.NORMAL, List.of(
+          new PlayerPreference.Choice<>(Sensitivity.NORMAL, AgilityMessages.AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY_NORMAL, Material.SPYGLASS, 1),
+          new PlayerPreference.Choice<>(Sensitivity.PRECISE, AgilityMessages.AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY_PRECISE, Material.TARGET, 1),
+          new PlayerPreference.Choice<>(Sensitivity.RESPONSIVE, AgilityMessages.AGILITYLADDERSLIDE_PREFERENCE_SENSITIVITY_RESPONSIVE, Material.FEATHER, 1))));
+
   private static final double TICKS_PER_SECOND = 20.0D;
   private static final int COLUMN_END_BUFFER_BLOCKS = 2;
   private static final long SLIDE_GRACE_MS = 700L;
@@ -107,6 +120,16 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
         .build());
     registerMilestone("challenge_agility_ladder_500", "agility.ladder-slide.blocks-climbed", 500, 300);
     registerMilestone("challenge_agility_ladder_10k", "agility.ladder-slide.blocks-climbed", 10000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, ASCENT, DESCENT, SPEED, SENSITIVITY);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearPlayerState(player.getPlayer(), false);
   }
 
   @Override
@@ -342,10 +365,14 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     Mode mode = resolveMode(
         session.mode,
         current.getPitch(),
-        getLookActivation(),
-        getLookRelease(),
+        getLookActivation() * lookSensitivity(p),
+        getLookRelease() * lookSensitivity(p),
         p.isSneaking()
     );
+    if ((mode == Mode.CLIMB && !preferenceEnabled(p, ASCENT))
+        || (mode == Mode.SLIDE && !preferenceEnabled(p, DESCENT))) {
+      mode = Mode.NONE;
+    }
     if (!applyMode(session, context.level(), climbable, mode)) {
       finishControlSession(session);
       return;
@@ -403,8 +430,8 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
 
     double targetY = targetVerticalVelocity(
         mode,
-        getClimbAssist(level),
-        getDescentSpeed(level)
+        getClimbAssist(level) * preference(p, SPEED).multiplier(),
+        getDescentSpeed(level) * preference(p, SPEED).multiplier()
     );
     if (!sendVerticalMotion(p, targetY)) {
       return false;
@@ -662,6 +689,14 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
     return normalizeSpeed(getConfig().climbAssistBase + (getLevelPercent(level) * getConfig().climbAssistPerLevel));
   }
 
+  private double lookSensitivity(Player player) {
+    return switch (preference(player, SENSITIVITY)) {
+      case NORMAL -> 1D;
+      case PRECISE -> 1.5D;
+      case RESPONSIVE -> 0.5D;
+    };
+  }
+
   private double getLookActivation() {
     return normalizeActivation(getConfig().lookActivationDegrees);
   }
@@ -717,4 +752,6 @@ public class AgilityLadderSlide extends SimpleAdaptation<AgilityLadderSlide.Conf
       this.lastY = origin.getY();
     }
   }
+
+  public enum Sensitivity { NORMAL, PRECISE, RESPONSIVE }
 }

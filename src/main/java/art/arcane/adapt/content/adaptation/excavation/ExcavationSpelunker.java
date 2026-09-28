@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
 
@@ -61,6 +64,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Config> {
+  public static final PlayerPreference<ExcavationPreferences.Palette> COLOR = ExcavationPreferences.palette("color", ExcavationMessages.PREFERENCE_EXCAVATIONSPELUNKER_COLOR);
+  public static final PlayerPreference<ExcavationPreferences.Ores> ORES = ExcavationPreferences.ores("ores", ExcavationMessages.PREFERENCE_EXCAVATIONSPELUNKER_ORES);
+  public static final PlayerPreference<CommonPreferences.Scale> RANGE = CommonPreferences.scale("range", ExcavationMessages.PREFERENCE_EXCAVATIONSPELUNKER_RANGE);
+
   private static final int MAX_SCAN_RADIUS = 32;
   private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 8192;
   private static final int MAX_HIGHLIGHTS_PER_ACTIVATION = 16;
@@ -89,6 +96,23 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         .build());
     registerMilestone("challenge_excavation_spelunker_1k", "excavation.spelunker.ores-revealed", 1000, 400);
     registerMilestone("challenge_excavation_spelunker_25k", "excavation.spelunker.ores-revealed", 25000, 1500);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    UUID playerId = player.getPlayer().getUniqueId();
+    activeScans.remove(playerId);
+    WorldBlockScanScheduler.cancel(this, playerId);
+    for (Map.Entry<UUID, DisplayHandle> entry : activeMarkers.entrySet()) {
+      if (entry.getValue().owner().equals(playerId)) {
+        removeMarker(entry.getKey());
+      }
+    }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, COLOR, ORES, RANGE);
   }
 
   @Override
@@ -128,9 +152,12 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
       return;
     }
 
-    int radius = getScanRadius(level);
+    int radius = Math.max(1, (int) Math.floor(getScanRadius(level) * preference(p, RANGE).multiplier()));
     Location origin = p.getLocation();
     Material targetOre = p.getInventory().getItemInOffHand().getType();
+    if (!preference(p, ORES).allows(targetOre)) {
+      return;
+    }
     startScan(p, origin, targetOre, radius);
     cooldowns.mark(p.getUniqueId());
   }
@@ -254,7 +281,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
         display.setShadowStrength(0f);
         display.setBrightness(new Display.Brightness(15, 15));
         display.setBlock(targetOre.createBlockData());
-        display.setGlowColorOverride(color);
+        display.setGlowColorOverride(preference(p, COLOR).color(color));
         display.setGlowing(true);
       });
     } catch (Throwable error) {
@@ -266,7 +293,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     }
 
     UUID markerId = marker.getUniqueId();
-    DisplayHandle handle = new DisplayHandle(marker, markerLocation.clone());
+    DisplayHandle handle = new DisplayHandle(marker, markerLocation.clone(), p.getUniqueId());
     synchronized (markerLifecycleLock) {
       if (!acceptingMarkers.get()) {
         removeDisplayOwned(marker);
@@ -284,7 +311,7 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
   }
 
   private void showMarkerToPlayer(Player player, UUID markerId, BlockDisplay marker) {
-    if (!player.isOnline() || !activeMarkers.containsKey(markerId)) {
+    if (!player.isOnline() || !isPlayerEnabled(player) || !activeMarkers.containsKey(markerId)) {
       removeMarker(markerId);
       return;
     }
@@ -405,6 +432,6 @@ public class ExcavationSpelunker extends SimpleAdaptation<ExcavationSpelunker.Co
     }
   }
 
-  private record DisplayHandle(BlockDisplay display, Location anchor) {
+  private record DisplayHandle(BlockDisplay display, Location anchor, UUID owner) {
   }
 }

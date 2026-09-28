@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 
@@ -67,6 +70,11 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, HunterPreferences.RESERVE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GRAY + AdaptLanguage.text(HunterMessages.INVISIBILITY_LORE1));
     statLore(v, level, 2);
@@ -85,6 +93,9 @@ public class HunterInvis extends SimpleAdaptation<HunterInvis.Config> {
       return;
     }
 
+    if (!preference(p, HunterPreferences.RESERVE).permits(p.getFoodLevel())) {
+      return;
+    }
     int level = getActiveLevel(p);
     if (level <= 0
         || (AdaptConfig.get().isPreventHunterSkillsWhenHungerApplied()

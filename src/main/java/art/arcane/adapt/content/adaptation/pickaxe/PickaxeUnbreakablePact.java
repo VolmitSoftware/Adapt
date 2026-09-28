@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import java.util.UUID;
+import java.util.Map;
+import art.arcane.adapt.api.notification.AdaptHud;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
 
@@ -44,6 +50,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 
 public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakablePact.Config> {
+  private final Map<UUID, Long> noticeTimes = playerState();
   public PickaxeUnbreakablePact() {
     super("pickaxe-unbreakable-pact");
     registerConfiguration(PickaxeUnbreakablePact.Config.class);
@@ -56,6 +63,11 @@ public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakableP
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_pact_100", "pickaxe.unbreakable-pact.saves", 100, 400);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, PickaxePreferences.NOTICE);
   }
 
   @Override
@@ -79,6 +91,16 @@ public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakableP
     int level = getActiveLevel(p);
     if (level <= 0) {
       return;
+    }
+
+    if (preferenceEnabled(p, PickaxePreferences.NOTICE) && item.getItemMeta() instanceof Damageable current) {
+      int maximum = current.hasMaxDamage() ? current.getMaxDamage() : item.getType().getMaxDurability();
+      long now = System.currentTimeMillis();
+      if (maximum - current.getDamage() - e.getDamage() <= maximum / 10
+          && now - noticeTimes.getOrDefault(p.getUniqueId(), 0L) >= 5_000L) {
+        noticeTimes.put(p.getUniqueId(), now);
+        AdaptHud.actionBar(p, AdaptLanguage.text(PickaxePreferences.LOW_DURABILITY));
+      }
     }
 
     if (M.r(getIgnoreChance(level))) {

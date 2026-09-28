@@ -18,6 +18,15 @@
 
 package art.arcane.adapt.content.adaptation.stealth;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.StealthMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.Adapt;
 import art.arcane.volmlib.nativelib.NativeAdapters;
 import art.arcane.volmlib.nativelib.entity.VirtualPlayer;
@@ -41,6 +50,7 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.ArmorStand;
@@ -60,6 +70,7 @@ import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.RayTraceResult;
@@ -71,6 +82,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Config> {
+  public static final PlayerPreference<Gesture> GESTURE = new PlayerPreference<>(Gesture.class,
+      new PlayerPreference.Definition<>("gesture", StealthMessages.STEALTHSHADOWDECOY_PREFERENCE_GESTURE, Gesture.RELEASE, List.of(
+          new PlayerPreference.Choice<>(Gesture.RELEASE, StealthMessages.STEALTHSHADOWDECOY_PREFERENCE_GESTURE_RELEASE, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Gesture.DOUBLE, StealthMessages.STEALTHSHADOWDECOY_PREFERENCE_GESTURE_DOUBLE, Material.RABBIT_FOOT, 1),
+          new PlayerPreference.Choice<>(Gesture.ARMED_RELEASE, StealthMessages.STEALTHSHADOWDECOY_PREFERENCE_GESTURE_ARMED_RELEASE, Material.SHIELD, 1))));
+
+  private final Map<UUID, Long> lastGesturePress = playerState();
+  private final Map<UUID, Boolean> armedRelease = playerState();
+  private final Map<UUID, PlayerToggleSneakEvent> gestureSpawnEvents = playerState();
+  private static final NamespacedKey DECOY_OWNER_KEY = NamespacedKey.fromString("adapt:shadow_decoy_owner");
   private volatile VirtualPlayers nativePlayers;
 
   private final Cooldowns decoyCooldowns = cooldowns();
@@ -98,6 +119,11 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     registerMilestone("challenge_stealth_decoy_distract_500", "stealth.shadow-decoy.mobs-distracted", 500, 1000);
   }
 
+  public static boolean isDecoy(Entity target) {
+    return target instanceof ArmorStand
+        && target.getPersistentDataContainer().has(DECOY_OWNER_KEY, PersistentDataType.STRING);
+  }
+
   public Entity activeDecoyAnchor(UUID ownerId) {
     if (ownerId == null) {
       return null;
@@ -120,6 +146,25 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         && state.active.get()
         && state.anchor != null
         && state.expiresAt > now;
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, GESTURE);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    Player p = player.getPlayer();
+    lastGesturePress.remove(p.getUniqueId());
+    armedRelease.remove(p.getUniqueId());
+    gestureSpawnEvents.remove(p.getUniqueId());
+    if (!isPlayerEnabled(p)) {
+      DecoySession state = activeDecoys.get(p.getUniqueId());
+      if (state != null) {
+        terminateDecoy(state, true);
+      }
+    }
   }
 
   @Override
@@ -220,8 +265,24 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    if (e.isSneaking() || p.hasMetadata("adapt-mutation-exposed")) {
-      return;
+    Gesture gesture = preference(p, GESTURE);
+    if (gesture == Gesture.DOUBLE) {
+      if (!e.isSneaking() || swapReservesGesture(p)) {
+        return;
+      }
+      long now = System.currentTimeMillis();
+      Long last = lastGesturePress.put(p.getUniqueId(), now);
+      if (last == null || now - last > 350L) {
+        return;
+      }
+      lastGesturePress.remove(p.getUniqueId());
+    } else {
+      if (e.isSneaking() || swapReservesGesture(p)) {
+        return;
+      }
+      if (gesture == Gesture.ARMED_RELEASE && armedRelease.remove(p.getUniqueId()) == null) {
+        return;
+      }
     }
 
     int level = getActiveLevel(p);
@@ -234,10 +295,36 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       return;
     }
 
+    if (gesture == Gesture.DOUBLE) {
+      gestureSpawnEvents.put(id, e);
+    }
     spawnDecoy(p, level);
     decoyCooldowns.mark(id);
     xp(p, getConfig().xpOnDecoy);
     addStat(p, "stealth.shadow-decoy.decoys-spawned", 1);
+  }
+
+  public boolean spawnedOn(PlayerToggleSneakEvent event) {
+    return gestureSpawnEvents.get(event.getPlayer().getUniqueId()) == event;
+  }
+
+  private boolean swapReservesGesture(Player player) {
+    for (Adaptation<?> candidate : getSkill().getAdaptations()) {
+      if (candidate instanceof StealthDecoySwap swap && swap.reservesDoubleSneak(player)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  public void on(PlayerInteractEvent e) {
+    Player p = e.getPlayer();
+    if (e.getHand() == EquipmentSlot.HAND && e.getAction() == Action.RIGHT_CLICK_AIR
+        && p.isSneaking() && p.getInventory().getItemInMainHand().getType().isAir()
+        && preference(p, GESTURE) == Gesture.ARMED_RELEASE && hasActiveAdaptation(p)) {
+      armedRelease.put(p.getUniqueId(), true);
+    }
   }
 
   private void spawnDecoy(Player owner, int level) {
@@ -246,7 +333,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       terminateDecoy(previous, false);
     }
 
-    ArmorStand anchor = spawnAnchor(owner.getLocation());
+    ArmorStand anchor = spawnAnchor(owner);
     anchorOwners.put(anchor.getUniqueId(), owner.getUniqueId());
     VirtualPlayer nativePlayer = nativePlayers().create(owner, anchor.getLocation(), getConfig().decoySkinLayerMask);
     PacketPlayerDecoy packetDecoy = nativePlayer == null ? null : new PacketPlayerDecoy(nativePlayer, getConfig().tabListRemoveDelayTicks);
@@ -271,8 +358,10 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
         }).start();
   }
 
-  private ArmorStand spawnAnchor(Location location) {
+  private ArmorStand spawnAnchor(Player owner) {
+    Location location = owner.getLocation();
     ArmorStand spawned = location.getWorld().spawn(location, ArmorStand.class, stand -> {
+      stand.getPersistentDataContainer().set(DECOY_OWNER_KEY, PersistentDataType.STRING, owner.getUniqueId().toString());
       StackExclusion.exclude(stand);
       stand.setPersistent(false);
       stand.setMarker(false);
@@ -359,8 +448,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     long now = System.currentTimeMillis();
     if (!state.active.get()
         || activeDecoys.get(owner.getUniqueId()) != state
-        || !owner.isOnline()
-        || owner.hasMetadata("adapt-mutation-exposed")
+        || !owner.isOnline() || !isPlayerEnabled(owner)
         || state.expiresAt <= now) {
       terminateDecoy(state, true);
       return;
@@ -642,4 +730,6 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
   }
 
+
+  public enum Gesture { RELEASE, DOUBLE, ARMED_RELEASE }
 }

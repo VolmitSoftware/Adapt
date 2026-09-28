@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.blocking;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.BlockingMessages;
 
@@ -84,6 +86,11 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, BlockingPreferences.GROUND, BlockingPreferences.FALL, BlockingPreferences.FALL_DISTANCE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GRAY + AdaptLanguage.text(BlockingMessages.MULTI_ARMOR_LORE1));
     v.addLore(C.GRAY + "" + C.GRAY + AdaptLanguage.text(BlockingMessages.MULTI_ARMOR_LORE2));
@@ -110,7 +117,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
       return;
     }
 
-    if (p.isOnGround() && !p.isFlying()) {
+    if (p.isOnGround() && !p.isFlying() && preferenceEnabled(p, BlockingPreferences.GROUND)) {
       if (isChestplate(chest)) {
         return;
       }
@@ -118,7 +125,7 @@ public class BlockingMultiArmor extends SimpleAdaptation<BlockingMultiArmor.Conf
       swapCooldowns.mark(p.getUniqueId());
       transformFx(p, false);
       addStat(p, "blocking.multi-armor.swaps", 1);
-    } else if (p.getFallDistance() > 4) {
+    } else if (preferenceEnabled(p, BlockingPreferences.FALL) && preference(p, BlockingPreferences.FALL_DISTANCE).exceeded(p.getFallDistance())) {
       if (isElytra(chest)) {
         return;
       }

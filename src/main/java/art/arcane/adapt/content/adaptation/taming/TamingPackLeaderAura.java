@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -89,6 +91,28 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_taming_pack_72k", "taming.pack-leader.buffed-ticks", 72000, 400);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TamingPreferences.SPEED, TamingPreferences.REGEN);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    UUID ownerId = player.getPlayer().getUniqueId();
+    removeOwner(ownerId);
+    Iterator<TameableOwnershipIndex.TrackedTameable> pets = ownershipIndex.iterator();
+    while (pets.hasNext()) {
+      TameableOwnershipIndex.TrackedTameable tracked = pets.next();
+      if (ownerId.equals(tracked.ownerId())) {
+        J.runEntity(tracked.entity(), () -> {
+          if (ownerId.equals(ownershipIndex.refreshOwner(tracked))) {
+            AdaptAttributeService.get().removeAll(tracked.entity(), getName());
+          }
+        });
+      }
+    }
   }
 
   @Override
@@ -197,7 +221,7 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
           radius * radius,
           amplifier,
           Math.max(1, getConfig().effectTicks),
-          System.currentTimeMillis()));
+          System.currentTimeMillis(), preferenceEnabled(owner, TamingPreferences.SPEED), preferenceEnabled(owner, TamingPreferences.REGEN)));
 
       if (accruedTicks != null && accruedTicks > 0D && ringCd.isReady(ownerId, 1000L)) {
         ringCd.mark(ownerId);
@@ -257,7 +281,7 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
       }
 
       int durationTicks = snapshot.effectTicks();
-      if (durationTicks > 0) {
+      if (durationTicks > 0 && snapshot.speed()) {
         AdaptAttributeService.get().applyTimed(
             tameable,
             getName(),
@@ -267,7 +291,9 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
             AttributeModifier.Operation.MULTIPLY_SCALAR_1,
             durationTicks);
       }
-      tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, durationTicks, snapshot.amplifier(), false, false));
+      if (snapshot.regeneration()) {
+        tameable.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, durationTicks, snapshot.amplifier(), false, false));
+      }
       Long previous = lastPetBuffAt.put(entityId, now);
       double elapsedTicks = PackLeaderCadence.elapsedTicks(previous, now, 250L, snapshot.effectTicks() * 50L);
       pendingBuffedTicks.merge(ownerId, elapsedTicks, Double::sum);
@@ -305,7 +331,7 @@ public class TamingPackLeaderAura extends SimpleAdaptation<TamingPackLeaderAura.
   }
 
   private record OwnerAuraSnapshot(UUID worldId, double x, double y, double z, double radiusSquared,
-                                   int amplifier, int effectTicks, long capturedAt) {
+                                   int amplifier, int effectTicks, long capturedAt, boolean speed, boolean regeneration) {
     private double distanceSquared(Location location) {
       double dx = x - location.getX();
       double dy = y - location.getY();

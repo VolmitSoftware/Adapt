@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.sword;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -92,6 +94,11 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, SwordPreferences.SWORDS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.f(getGrowthPerBank(level), 2), 1);
     statLore(v, getConfig().killsPerBank, 2);
@@ -114,7 +121,7 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
     }
 
     ItemStack result = e.getResult();
-    if (result == null || !isSword(result)) {
+    if (result == null || !isSword(result) || !preference(p, SwordPreferences.SWORDS).accepts(result.getType())) {
       return;
     }
 
@@ -157,7 +164,7 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
     }
 
     ItemStack hand = p.getInventory().getItemInMainHand();
-    if (!isSword(hand)) {
+    if (!isSword(hand) || !preference(p, SwordPreferences.SWORDS).accepts(hand.getType())) {
       return;
     }
 

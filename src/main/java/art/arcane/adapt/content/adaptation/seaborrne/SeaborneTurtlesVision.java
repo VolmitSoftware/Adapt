@@ -77,6 +77,11 @@ public class SeaborneTurtlesVision extends SimpleAdaptation<SeaborneTurtlesVisio
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearNightVisionIfApplied(player.getPlayer(), player.getPlayer().getUniqueId());
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GRAY + AdaptLanguage.text(SeabornMessages.NIGHT_VISION_LORE1));
   }

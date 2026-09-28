@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.item;
 
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.io.BukkitGson;
+import org.bukkit.NamespacedKey;
+import org.bukkit.persistence.PersistentDataType;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ItemsMessages;
 
@@ -49,6 +53,18 @@ public class BoundEnderPearl implements DataItem<BoundEnderPearl.Data> {
 
   public static void setData(ItemStack item, Block t) {
     io.setData(item, new Data(t));
+  }
+
+  public static boolean clearBinding(ItemStack item) {
+    Data data = io.getData(item);
+    if (data == null || data.getBlock() == null) {
+      return false;
+    }
+    data.setBlock(null);
+    ItemMeta meta = item.getItemMeta();
+    meta.getPersistentDataContainer().set(new NamespacedKey(Adapt.instance, io.getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING, BukkitGson.gson.toJson(data));
+    item.setItemMeta(meta);
+    return true;
   }
 
   public static ItemStack withData(Block t) {

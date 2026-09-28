@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -65,6 +68,11 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, PickaxePreferences.REQUIRE_SNEAK, PickaxePreferences.RESERVE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getDropChance(getLevelPercent(level)), 0), 1);
     statLore(v, C.RED, "- ", getDamagePerBlock(getLevelPercent(level)), 2);
@@ -103,7 +111,9 @@ public class PickaxeChisel extends SimpleAdaptation<PickaxeChisel.Config> {
     }
 
     Player p = e.getPlayer();
-    if (!isPickaxe(p.getInventory().getItemInMainHand()) || !hasActiveAdaptation(p)) {
+    if (!isPickaxe(p.getInventory().getItemInMainHand()) || !hasActiveAdaptation(p)
+        || (preferenceEnabled(p, PickaxePreferences.REQUIRE_SNEAK) && !p.isSneaking())
+        || !preference(p, PickaxePreferences.RESERVE).permits(p.getInventory().getItemInMainHand(), getDamagePerBlock(getLevelPercent(p)))) {
       return;
     }
     if (action == Action.RIGHT_CLICK_AIR && J.isFoliaThreading()) {

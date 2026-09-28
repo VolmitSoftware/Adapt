@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
+import java.util.Iterator;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.volmlib.nativelib.player.PlayerClientAccess;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
@@ -70,6 +73,11 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
     registerMilestone("challenge_hunter_dti_10k", "hunter.drop-to-inv.items-caught", 10000, 500);
   }
 
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, HunterPreferences.BLOCK_DROPS, HunterPreferences.MOB_DROPS, HunterPreferences.ITEMS);
+  }
+
   public void addStats(int level, Element v) {
     v.addLore(C.GRAY + AdaptLanguage.text(HunterMessages.DROP_TO_INVENTORY_LORE1));
   }
@@ -78,7 +86,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
   public void on(BlockDropItemEvent e) {
 
     Player p = e.getPlayer();
-    if (resolveInteractContext(p, e.getBlock().getLocation(), null, true) == null
+    if (!preferenceEnabled(p, HunterPreferences.BLOCK_DROPS) || resolveInteractContext(p, e.getBlock().getLocation(), null, true) == null
         || !canBlockBreak(p, e.getBlock().getLocation())) {
       return;
     }
@@ -87,6 +95,9 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
       List<Item> items = new KList<>(e.getItems());
       int caught = 0;
       for (Item i : items) {
+        if (!preference(p, HunterPreferences.ITEMS).accepts(i.getItemStack().getType())) {
+          continue;
+        }
         ItemStack stack = i.getItemStack().clone();
         int remaining = ProtectionEventProbe.remainingAfterPickup(p.getInventory(), stack);
         if (!ProtectionEventProbe.attemptBlockDropPickup(p, i, remaining, e.getBlock().getLocation()) || i.isDead()) {
@@ -114,16 +125,22 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
       return;
     }
     Player p = k.getKiller();
-    if (e.getEntity() instanceof Player || getActiveDamageLevel(p, e.getEntity()) <= 0) {
+    if (!preferenceEnabled(p, HunterPreferences.MOB_DROPS) || e.getEntity() instanceof Player || getActiveDamageLevel(p, e.getEntity()) <= 0) {
       return;
     }
     if (e.getEntity().getKiller() != null && PlayerClientAccess.matchesServerPlayer(e.getEntity().getKiller())) {
-      int itemCount = e.getDrops().size();
-      e.getDrops().forEach(i -> {
-        HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(i);
-        leftovers.values().forEach(item -> p.getWorld().dropItem(p.getLocation(), item));
-      });
-      e.getDrops().clear();
+      int itemCount = 0;
+      Iterator<ItemStack> drops = e.getDrops().iterator();
+      while (drops.hasNext()) {
+        ItemStack item = drops.next();
+        if (!preference(p, HunterPreferences.ITEMS).accepts(item.getType())) {
+          continue;
+        }
+        HashMap<Integer, ItemStack> leftovers = p.getInventory().addItem(item);
+        leftovers.values().forEach(leftover -> p.getWorld().dropItem(p.getLocation(), leftover));
+        drops.remove();
+        itemCount++;
+      }
       addStat(p, "hunter.drop-to-inv.items-caught", itemCount);
       emitCatch(p, e.getEntity().getLocation(), itemCount);
     }

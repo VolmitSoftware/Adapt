@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -60,6 +64,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
   private static final int MAX_SCAN_RADIUS = 32;
   private static final int MAX_BLOCK_CHECKS_PER_ACTIVATION = 4096;
   private static final int MAX_HIGHLIGHTS_PER_ACTIVATION = 16;
+  private final Map<UUID, Long> markerGenerations = new ConcurrentHashMap<>();
   private final Map<UUID, UUID> activeScans = new ConcurrentHashMap<>();
 
   public PickaxeQuarrySense() {
@@ -74,6 +79,11 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_pickaxe_quarry_200", "pickaxe.quarry-sense.scans", 200, 300);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, PickaxePreferences.TRIGGER, PickaxePreferences.MATERIALS, PickaxePreferences.GLOW);
   }
 
   @Override
@@ -96,7 +106,20 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
     }
 
     Player p = e.getPlayer();
-    int level = getActiveLevel(p, Player::isSneaking);
+    if (!preference(p, PickaxePreferences.TRIGGER).accepts(p.isSneaking())) {
+      return;
+    }
+    if (!p.isSneaking()) {
+      if (e.getClickedBlock() != null && e.getClickedBlock().getType().isInteractable()) {
+        return;
+      }
+      for (Adaptation<?> sibling : getSkill().getAdaptations()) {
+        if (sibling instanceof PickaxeChisel && sibling.getActiveLevel(p) > 0) {
+          return;
+        }
+      }
+    }
+    int level = getActiveLevel(p);
     if (level <= 0) {
       return;
     }
@@ -132,10 +155,11 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
       return;
     }
 
+    PickaxePreferences.Materials filter = preference(p, PickaxePreferences.MATERIALS);
     ArrayList<WorldBlockScanScheduler.AdditionalMatch> hiddenMatches = new ArrayList<>();
     for (HiddenOreLink.VeinTarget vein : HiddenOreLink.veins(origin, radius)) {
       Location at = vein.location();
-      if (at.getWorld() != world
+      if (!filter.accepts(vein.display()) || at.getWorld() != world
           || at.getBlockY() < world.getMinHeight()
           || at.getBlockY() >= world.getMaxHeight()) {
         continue;
@@ -159,7 +183,7 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         .maxResults(getMaxHighlights(level))
         .seed(ThreadLocalRandom.current().nextInt())
         .additionalMatches(hiddenMatches)
-        .matcher(this::isQuarryOre)
+        .matcher(material -> isQuarryOre(material) && filter.accepts(material))
         .completion(result -> completeScan(p, pickaxeType, radius, result))
         .build();
     UUID scanId = WorldBlockScanScheduler.submit(this, p.getUniqueId(), request);
@@ -244,11 +268,18 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
 
   private void showOreMarker(Player p, World world, WorldBlockScanScheduler.Match ore, int durationTicks) {
     Location location = new Location(world, ore.x(), ore.y(), ore.z());
-    J.runAt(location, () -> showOreMarkerAtRegion(p, world, ore, location, durationTicks));
+    Color color = preference(p, PickaxePreferences.GLOW).color(oreColor(ore.material()));
+    UUID playerId = p.getUniqueId();
+    long generation = markerGenerations.getOrDefault(playerId, 0L);
+    J.runAt(location, () -> {
+      if (generation == markerGenerations.getOrDefault(playerId, 0L)) {
+        showOreMarkerAtRegion(p, world, ore, location, durationTicks, color);
+      }
+    });
   }
 
   private void showOreMarkerAtRegion(Player p, World world, WorldBlockScanScheduler.Match ore, Location location,
-                                     int durationTicks) {
+                                     int durationTicks, Color color) {
     if (!world.isChunkLoaded(ore.x() >> 4, ore.z() >> 4)) {
       return;
     }
@@ -262,14 +293,24 @@ public class PickaxeQuarrySense extends SimpleAdaptation<PickaxeQuarrySense.Conf
         p,
         location,
         ore.material().createBlockData(),
-        oreColor(ore.material()),
+        color,
         durationTicks
     );
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    UUID playerId = player.getPlayer().getUniqueId();
+    markerGenerations.merge(playerId, 1L, Long::sum);
+    activeScans.remove(playerId);
+    WorldBlockScanScheduler.cancel(this, playerId);
+    ViewerDisplayDirector.clearViewer(getName(), playerId);
   }
 
   @EventHandler
   public void on(PlayerQuitEvent e) {
     UUID playerId = e.getPlayer().getUniqueId();
+    markerGenerations.merge(playerId, 1L, Long::sum);
     activeScans.remove(playerId);
     WorldBlockScanScheduler.cancel(this, playerId);
     ViewerDisplayDirector.clearViewer(getName(), playerId);

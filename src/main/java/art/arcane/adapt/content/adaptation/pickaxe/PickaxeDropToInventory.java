@@ -18,6 +18,8 @@
 
 package art.arcane.adapt.content.adaptation.pickaxe;
 
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
 
@@ -63,6 +65,11 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
     registerMilestone("challenge_pickaxe_dti_25k", "pickaxe.drop-to-inv.items-caught", 25000, 500);
   }
 
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, PickaxePreferences.BYPASS, PickaxePreferences.MATERIALS);
+  }
+
   public void addStats(int level, Element v) {
     v.addLore(C.GRAY + AdaptLanguage.text(PickaxeMessages.DROP_TO_INVENTORY_LORE1));
   }
@@ -70,6 +77,9 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockDropItemEvent e) {
     Player p = e.getPlayer();
+    if (preferenceEnabled(p, PickaxePreferences.BYPASS) && p.isSneaking()) {
+      return;
+    }
     if (resolveBlockBreakContext(p, e.getBlock().getLocation(), null, true) == null) {
       return;
     }
@@ -79,6 +89,9 @@ public class PickaxeDropToInventory extends SimpleAdaptation<PickaxeDropToInvent
       boolean overflow = false;
       for (Item i : items) {
         ItemStack stack = i.getItemStack().clone();
+        if (!preference(p, PickaxePreferences.MATERIALS).accepts(stack.getType())) {
+          continue;
+        }
         int remaining = ProtectionEventProbe.remainingAfterPickup(p.getInventory(), stack);
         if (!ProtectionEventProbe.attemptBlockDropPickup(p, i, remaining, e.getBlock().getLocation()) || i.isDead()) {
           continue;

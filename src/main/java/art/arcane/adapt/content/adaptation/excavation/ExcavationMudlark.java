@@ -18,6 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.localization.catalog.ExcavationMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -48,6 +54,9 @@ import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> HASTE = CommonPreferences.toggle("wet-haste", ExcavationMessages.PREFERENCE_EXCAVATIONMUDLARK_HASTE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> DROPS = CommonPreferences.toggle("bonus-drops", ExcavationMessages.PREFERENCE_EXCAVATIONMUDLARK_DROPS, CommonPreferences.Toggle.ON);
+
   private static final long MILLIS_PER_TICK = 50L;
 
   private final Map<UUID, Long> wetHasteUntil = playerState();
@@ -67,6 +76,16 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    AdaptAttributeService.get().removeAll(player.getPlayer(), getName());
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, HASTE, DROPS);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getBonusChance(level), 1), 1);
     statLore(v, getHasteAmplifier(level) + 1, 2);
@@ -75,6 +94,9 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(BlockDamageEvent e) {
     Player p = e.getPlayer();
+    if (!preferenceEnabled(p, HASTE)) {
+      return;
+    }
     if (!isShovel(p.getInventory().getItemInMainHand())) {
       return;
     }
@@ -83,7 +105,7 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
       return;
     }
 
-    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveInteractContext(p, e.getBlock().getLocation());
+    Adaptation.BlockActionContext context = resolveInteractContext(p, e.getBlock().getLocation());
     if (context == null) {
       return;
     }
@@ -110,7 +132,7 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
     Material type = e.getBlock().getType();
-    if (!isMudlarkBlock(type)) {
+    if (!isMudlarkBlock(type) || !preferenceEnabled(e.getPlayer(), DROPS)) {
       return;
     }
 
@@ -119,7 +141,7 @@ public class ExcavationMudlark extends SimpleAdaptation<ExcavationMudlark.Config
       return;
     }
 
-    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.getBlock().getLocation());
+    Adaptation.BlockActionContext context = resolveBlockBreakContext(p, e.getBlock().getLocation());
     if (context == null) {
       return;
     }

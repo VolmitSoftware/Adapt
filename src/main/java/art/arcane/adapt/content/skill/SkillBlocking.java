@@ -29,6 +29,7 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
+import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.blocking.BlockingBastionStance;
 import art.arcane.adapt.content.adaptation.blocking.BlockingBulwarkBash;
@@ -252,7 +253,7 @@ public class SkillBlocking extends SimpleSkill<SkillBlocking.Config> {
   }
 
   @NoArgsConstructor
-  protected static class Config {
+  protected static class Config extends SkillConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Enables or disables this feature.", impact = "Set to false to disable behavior without uninstalling files.")
     boolean enabled = true;
     String skillColor = "&8";

@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "id": "adapt_client_qa",
+  "version": "1.0.0",
+  "name": "Adapt Client QA",
+  "environment": "client",
+  "mixins": ["adapt-client-qa.mixins.json"],
+  "depends": {"fabricloader": ">=0.18.4", "minecraft": "26.2", "java": ">=25"}
+}

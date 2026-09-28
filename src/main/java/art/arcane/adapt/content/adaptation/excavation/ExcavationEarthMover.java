@@ -18,7 +18,12 @@
 
 package art.arcane.adapt.content.adaptation.excavation;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.localization.catalog.ExcavationMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -28,6 +33,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.util.reflect.registries.RegistryUtil;
 import art.arcane.volmlib.util.format.Form;
@@ -56,6 +62,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> IGNORE_PASSIVE = CommonPreferences.toggle("ignore-passive", ExcavationMessages.PREFERENCE_EXCAVATIONEARTHMOVER_IGNORE_PASSIVE, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> FOOD_RESERVE = CommonPreferences.toggle("food-reserve", ExcavationMessages.PREFERENCE_EXCAVATIONEARTHMOVER_FOOD_RESERVE, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> OFFHAND = CommonPreferences.toggle("offhand-empty", ExcavationMessages.PREFERENCE_EXCAVATIONEARTHMOVER_OFFHAND, CommonPreferences.Toggle.OFF);
+
   private static final int HARD_MAX_CANDIDATES_PER_ACTIVATION = 32;
   private static final int HARD_MAX_AFFECTED_PER_ACTIVATION = 16;
   private static final int HARD_MAX_TARGET_FX_PER_ACTIVATION = 12;
@@ -76,6 +86,12 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_excavation_earthmover_250", "excavation.earth-mover.waves-unleashed", 250, 450);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, IGNORE_PASSIVE, FOOD_RESERVE, OFFHAND);
   }
 
   @Override
@@ -100,7 +116,7 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     }
 
     Player p = e.getPlayer();
-    if (!p.isSneaking()) {
+    if (!p.isSneaking() || preferenceEnabled(p, OFFHAND) && !p.getInventory().getItemInOffHand().getType().isAir()) {
       return;
     }
 
@@ -109,11 +125,11 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     }
 
     int hungerCost = getConfig().hungerCost;
-    if (p.getFoodLevel() < hungerCost) {
+    if (p.getFoodLevel() - hungerCost < (preferenceEnabled(p, FOOD_RESERVE) ? 8 : 0)) {
       return;
     }
 
-    art.arcane.adapt.api.adaptation.Adaptation.BlockActionContext context = resolveInteractContext(p, p.getLocation());
+    Adaptation.BlockActionContext context = resolveInteractContext(p, p.getLocation());
     if (context == null) {
       return;
     }
@@ -136,7 +152,7 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     int slowAmplifier = getSlowAmplifier(level);
     Location origin = p.getLocation().clone();
     BlockData dirtData = Material.DIRT.createBlockData();
-    List<Enemy> candidates = collectCandidates(origin, radius);
+    List<Enemy> candidates = collectCandidates(p, origin, radius);
     renderWave(origin, radius);
     addStat(p, "excavation.earth-mover.waves-unleashed", 1);
 
@@ -156,12 +172,12 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
     J.runEntity(p, batch::finishTimedOut, BATCH_TIMEOUT_TICKS);
   }
 
-  private List<Enemy> collectCandidates(Location origin, double radius) {
+  private List<Enemy> collectCandidates(Player player, Location origin, double radius) {
     int limit = getCandidateLimit();
     List<Enemy> candidates = new ArrayList<>(limit);
     for (Entity entity : origin.getWorld().getNearbyEntities(
         origin, radius, getConfig().verticalRange, radius)) {
-      if (!isEarthMoverTarget(entity)) {
+      if (!isEarthMoverTarget(entity) || !AdaptationDamageTargets.allows(entity, getConfig().ignorePassiveMobs || preferenceEnabled(player, IGNORE_PASSIVE))) {
         continue;
       }
       candidates.add((Enemy) entity);
@@ -237,7 +253,8 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
   }
 
   private Location validTargetLocation(EarthMoverBatch batch, Enemy enemy) {
-    if (!enemy.isValid() || enemy.isDead() || isProtectedFriendly(null, enemy)) {
+    if (!enemy.isValid() || enemy.isDead() || isProtectedFriendly(null, enemy)
+        || !AdaptationDamageTargets.allows(enemy, getConfig().ignorePassiveMobs)) {
       return null;
     }
 
@@ -338,6 +355,8 @@ public class ExcavationEarthMover extends SimpleAdaptation<ExcavationEarthMover.
 
   @ConfigDescription("Sneak-right-click the air with a shovel to damage, knock back, and slow hostile mobs with damage based on shovel tier.")
   protected static class Config extends AdaptationConfig {
+    @ConfigDoc(value = "Exclude passive and neutral mobs from area damage and its secondary effects.", impact = "When enabled, protected mobs do not consume target limits. Direct attacks and player targeting are unchanged.")
+    boolean ignorePassiveMobs = false;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Base for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")
     double radiusBase = 3;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Controls Radius Factor for the Excavation Earth Mover adaptation.", impact = "Higher values usually increase intensity, limits, or frequency; lower values reduce it.")

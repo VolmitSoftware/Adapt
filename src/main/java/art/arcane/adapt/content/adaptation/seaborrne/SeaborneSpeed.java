@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.SeabornMessages;
 
@@ -89,6 +90,11 @@ public class SeaborneSpeed extends SimpleAdaptation<SeaborneSpeed.Config> {
         .build());
     registerMilestone("challenge_seaborne_speed_10k", "seaborne.speed.blocks-swum", 10000, 300);
     registerMilestone("challenge_seaborne_speed_100k", "seaborne.speed.blocks-swum", 100000, 1500);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    endSession(player.getPlayer());
   }
 
   @Override

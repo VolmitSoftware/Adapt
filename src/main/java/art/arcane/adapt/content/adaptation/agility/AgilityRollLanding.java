@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.agility;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.AgilityMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -47,6 +51,12 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Config> {
+  public static final PlayerPreference<FoodReserve> FOOD_RESERVE = new PlayerPreference<>(FoodReserve.class,
+      new PlayerPreference.Definition<>("food-reserve", AgilityMessages.AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE, FoodReserve.NONE, List.of(
+          new PlayerPreference.Choice<>(FoodReserve.NONE, AgilityMessages.AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE_NONE, Material.BOWL, 1),
+          new PlayerPreference.Choice<>(FoodReserve.FOUR, AgilityMessages.AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE_FOUR, Material.BREAD, 1),
+          new PlayerPreference.Choice<>(FoodReserve.EIGHT, AgilityMessages.AGILITYROLLLANDING_PREFERENCE_FOOD_RESERVE_EIGHT, Material.COOKED_BEEF, 1))));
+
   private final Cooldowns rollInputs = cooldowns();
   private final Map<UUID, Long> proneUntilMillis = playerState();
 
@@ -75,6 +85,11 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
         .build());
     registerMilestone("challenge_agility_roll_100", "agility.roll-landing.damage-prevented", 100, 300);
     registerMilestone("challenge_agility_roll_1000", "agility.roll-landing.damage-prevented", 1000, 1000);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, FOOD_RESERVE);
   }
 
   @Override
@@ -120,7 +135,7 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
         return;
       }
 
-      RollAbsorption absorption = computeRollAbsorption(e.getDamage(), getFallReduction(level), getHungerPerDamage(level), p.getFoodLevel());
+      RollAbsorption absorption = computeRollAbsorption(e.getDamage(), getFallReduction(level), getHungerPerDamage(level), Math.max(0, p.getFoodLevel() - preference(p, FOOD_RESERVE).ordinal() * 4));
       double absorbed = absorption.absorbed();
       if (absorbed <= 0) {
         return;
@@ -293,4 +308,6 @@ public class AgilityRollLanding extends SimpleAdaptation<AgilityRollLanding.Conf
       initialCost = 3;
     }
   }
+
+  public enum FoodReserve { NONE, FOUR, EIGHT }
 }

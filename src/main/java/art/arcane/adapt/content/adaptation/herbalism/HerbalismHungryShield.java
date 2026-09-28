@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.herbalism;
 
+import art.arcane.adapt.localization.catalog.HerbalismMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -40,6 +44,13 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShield.Config> {
+  public static final PlayerPreference<CommonPreferences.Toggle> FOOD_RESERVE = CommonPreferences.toggle("food-reserve", HerbalismMessages.PREFERENCE_HERBALISMHUNGRYSHIELD_FOOD_RESERVE, CommonPreferences.Toggle.OFF);
+  public static final PlayerPreference<CommonPreferences.Toggle> BASICS = CommonPreferences.toggle("basics", HerbalismMessages.PREFERENCE_HERBALISMHUNGRYSHIELD_BASICS, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> MELEE = CommonPreferences.toggle("melee", HerbalismMessages.PREFERENCE_HERBALISMHUNGRYSHIELD_MELEE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> FIRE = CommonPreferences.toggle("fire", HerbalismMessages.PREFERENCE_HERBALISMHUNGRYSHIELD_FIRE, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> BURST = CommonPreferences.toggle("burst", HerbalismMessages.PREFERENCE_HERBALISMHUNGRYSHIELD_BURST, CommonPreferences.Toggle.ON);
+  public static final PlayerPreference<CommonPreferences.Toggle> MAGIC = CommonPreferences.toggle("magic", HerbalismMessages.PREFERENCE_HERBALISMHUNGRYSHIELD_MAGIC, CommonPreferences.Toggle.ON);
+
   private static final int MIN_FOOD = 6;
   private final Cooldowns shieldBreakCooldown = cooldowns();
   private final Cooldowns absorbFxCooldown = cooldowns();
@@ -64,6 +75,11 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
         .build());
     registerMilestone("challenge_herbalism_shield_500", "herbalism.hungry-shield.damage-absorbed", 500, 400);
     registerMilestone("challenge_herbalism_shield_5k", "herbalism.hungry-shield.damage-absorbed", 5000, 1500);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, FOOD_RESERVE, BASICS, MELEE, FIRE, BURST, MAGIC);
   }
 
   @Override
@@ -94,7 +110,14 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
   private void absorb(Player p, EntityDamageEvent e) {
     int level = getActiveLevel(p);
     EntityDamageEvent.DamageCause cause = e.getCause();
-    if (level <= 0 || !covers(cause, level, getConfig())) {
+    if (level <= 0 || !covers(cause, level, getConfig()) || !preferenceEnabled(p, switch (cause) {
+      case CONTACT, CRAMMING, DROWNING, SUFFOCATION, FLY_INTO_WALL, HOT_FLOOR, FREEZE -> BASICS;
+      case ENTITY_ATTACK, ENTITY_SWEEP_ATTACK, THORNS -> MELEE;
+      case FIRE, FIRE_TICK, LAVA, CAMPFIRE -> FIRE;
+      case PROJECTILE, BLOCK_EXPLOSION, ENTITY_EXPLOSION, FALLING_BLOCK, LIGHTNING -> BURST;
+      case MAGIC, POISON, WITHER, DRAGON_BREATH, SONIC_BOOM -> MAGIC;
+      default -> CommonPreferences.ENABLED;
+    })) {
       return;
     }
 
@@ -110,6 +133,9 @@ public class HerbalismHungryShield extends SimpleAdaptation<HerbalismHungryShiel
       return;
     }
 
+    if (preferenceEnabled(p, FOOD_RESERVE) && available - absorbed < 8) {
+      return;
+    }
     AdaptPlayer adaptPlayer = getPlayer(p);
     if (!payHungerCost(p, "hunger", (int) Math.ceil(absorbed), () -> {
       adaptPlayer.applyFoodCharge(absorbed);

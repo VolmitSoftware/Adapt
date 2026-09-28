@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.hunter;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 
@@ -67,6 +71,18 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
   }
 
   @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    if (getActiveLevel(player.getPlayer()) <= 0) {
+      speedBursts.stop(player.getPlayer());
+    }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, HunterPreferences.RESERVE);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GRAY + AdaptLanguage.text(HunterMessages.SPEED_LORE1));
     statLore(v, level, 2);
@@ -81,7 +97,10 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
   @EventHandler(ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
     if (e.getEntity() instanceof Player p && isAdaptableDamageCause(e)) {
-      int level = getActiveLevel(p);
+      if (!preference(p, HunterPreferences.RESERVE).permits(p.getFoodLevel())) {
+      return;
+    }
+    int level = getActiveLevel(p);
       if (level <= 0) {
         return;
       }

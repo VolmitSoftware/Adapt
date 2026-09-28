@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.seaborrne;
 
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.RunsWithoutLearnedAdaptation;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -89,6 +90,11 @@ public class SeabornePressureDiver extends SimpleAdaptation<SeabornePressureDive
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerMilestone("challenge_seaborne_pressure_1k", "seaborne.pressure-diver.deep-blocks-mined", 1000, 400);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    clearDepthState(player.getPlayer().getUniqueId(), true);
   }
 
   @Override

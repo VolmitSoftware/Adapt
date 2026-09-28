@@ -5,6 +5,51 @@ import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
 
 public final class KineticsMessages {
+  public static final TextKey KINETICSWINDBURST_PREFERENCE_HOSTILES = TextKey.of("kineticswindburst.preferences.preference_hostiles", "Hostile targets only");
+  public static final TextKey KINETICSWINDBURST_PREFERENCE_SNEAK = TextKey.of("kineticswindburst.preferences.preference_sneak", "Require sneak for shockwave");
+
+  public static final TextKey KINETICSTERMINALTOGGLE_PREFERENCE_ORDER = TextKey.of("kineticsterminaltoggle.preferences.preference_order", "Midair mode cycle");
+  public static final TextKey KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_DIVE_FIRST = TextKey.of("kineticsterminaltoggle.preferences.preference_order_dive_first", "Dive then hang");
+  public static final TextKey KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_HANG_FIRST = TextKey.of("kineticsterminaltoggle.preferences.preference_order_hang_first", "Hang then dive");
+  public static final TextKey KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_DIVE_ONLY = TextKey.of("kineticsterminaltoggle.preferences.preference_order_dive_only", "Dive only");
+  public static final TextKey KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_HANG_ONLY = TextKey.of("kineticsterminaltoggle.preferences.preference_order_hang_only", "Hang only");
+  public static final TextKey KINETICSTERMINALTOGGLE_PREFERENCE_GESTURE = TextKey.of("kineticsterminaltoggle.preferences.preference_gesture", "Switch gesture");
+  public static final TextKey KINETICSTERMINALTOGGLE_PREFERENCE_GESTURE_SINGLE = TextKey.of("kineticsterminaltoggle.preferences.preference_gesture_single", "Tap sneak");
+  public static final TextKey KINETICSTERMINALTOGGLE_PREFERENCE_GESTURE_DOUBLE = TextKey.of("kineticsterminaltoggle.preferences.preference_gesture_double", "Double-tap sneak");
+
+  public static final TextKey KINETICSSURFACESKATE_PREFERENCE_CONTROL = TextKey.of("kineticssurfaceskate.preferences.preference_control", "Skating control");
+  public static final TextKey KINETICSSURFACESKATE_PREFERENCE_CONTROL_SPRINT = TextKey.of("kineticssurfaceskate.preferences.preference_control_sprint", "While sprinting");
+  public static final TextKey KINETICSSURFACESKATE_PREFERENCE_CONTROL_ARMED = TextKey.of("kineticssurfaceskate.preferences.preference_control_armed", "Always, sneak to brake");
+
+  public static final TextKey KINETICSRUBBERSOUL_PREFERENCE_BOUNCE = TextKey.of("kineticsrubbersoul.preferences.preference_bounce", "Base landing bounce");
+  public static final TextKey KINETICSRUBBERSOUL_PREFERENCE_SPRINGY = TextKey.of("kineticsrubbersoul.preferences.preference_springy", "Extra springy-block bounce");
+
+  public static final TextKey KINETICSREBOUNDANVIL_PREFERENCE_BOUNCE = TextKey.of("kineticsreboundanvil.preferences.preference_bounce", "Rebound bounce");
+  public static final TextKey KINETICSREBOUNDANVIL_PREFERENCE_CUSHION = TextKey.of("kineticsreboundanvil.preferences.preference_cushion", "Landing cushion");
+
+  public static final TextKey KINETICSMOONJUMP_PREFERENCE_BASE_JUMP = TextKey.of("kineticsmoonjump.preferences.preference_base_jump", "Base jump assistance");
+  public static final TextKey KINETICSMOONJUMP_PREFERENCE_HOP = TextKey.of("kineticsmoonjump.preferences.preference_hop", "Floaty hop");
+  public static final TextKey KINETICSMOONJUMP_PREFERENCE_HOP_SNEAK = TextKey.of("kineticsmoonjump.preferences.preference_hop_sneak", "While sneaking");
+  public static final TextKey KINETICSMOONJUMP_PREFERENCE_HOP_ALWAYS = TextKey.of("kineticsmoonjump.preferences.preference_hop_always", "Every jump");
+  public static final TextKey KINETICSMOONJUMP_PREFERENCE_HOP_NEVER = TextKey.of("kineticsmoonjump.preferences.preference_hop_never", "Disabled");
+
+  public static final TextKey KINETICSMETEORCADENCE_PREFERENCE_CONTROL = TextKey.of("kineticsmeteorcadence.preferences.preference_control", "Dive control");
+  public static final TextKey KINETICSMETEORCADENCE_PREFERENCE_CONTROL_SNEAK = TextKey.of("kineticsmeteorcadence.preferences.preference_control_sneak", "While sneaking");
+  public static final TextKey KINETICSMETEORCADENCE_PREFERENCE_CONTROL_AUTOMATIC = TextKey.of("kineticsmeteorcadence.preferences.preference_control_automatic", "Every eligible fall");
+
+  public static final TextKey KINETICSMASSSHIFT_PREFERENCE_SELECTION = TextKey.of("kineticsmassshift.preferences.preference_selection", "Form selection");
+  public static final TextKey KINETICSMASSSHIFT_PREFERENCE_SELECTION_LOOK = TextKey.of("kineticsmassshift.preferences.preference_selection_look", "Look direction");
+  public static final TextKey KINETICSMASSSHIFT_PREFERENCE_SELECTION_CYCLE = TextKey.of("kineticsmassshift.preferences.preference_selection_cycle", "Cycle Titan, Pocket, normal");
+
+  public static final TextKey KINETICSLUNGECONDUCTOR_PREFERENCE_TRAVEL = TextKey.of("kineticslungeconductor.preferences.preference_travel", "Extra lunge travel");
+
+  public static final TextKey KINETICSHEAVYFRAME_PREFERENCE_CONTROL = TextKey.of("kineticsheavyframe.preferences.preference_control", "Stance control");
+  public static final TextKey KINETICSHEAVYFRAME_PREFERENCE_CONTROL_HOLD = TextKey.of("kineticsheavyframe.preferences.preference_control_hold", "Hold sneak");
+  public static final TextKey KINETICSHEAVYFRAME_PREFERENCE_CONTROL_LATCH = TextKey.of("kineticsheavyframe.preferences.preference_control_latch", "Tap to toggle stance");
+
+  public static final TextKey KINETICSDEADZONE_PREFERENCE_HOSTILES = TextKey.of("kineticsdeadzone.preferences.preference_hostiles", "Hostile targets only");
+  public static final TextKey KINETICSDEADZONE_PREFERENCE_SNEAK = TextKey.of("kineticsdeadzone.preferences.preference_sneak", "Require sneaking");
+
   public static final TextKey MOON_JUMP_NAME = TextKey.of("kinetics.moon_jump.name", "Moon Jump");
   public static final TextKey MOON_JUMP_DESCRIPTION = TextKey.of("kinetics.moon_jump.description", "Each level raises every jump by 0.5 blocks. Sneak-jump for an additional floaty, low-gravity hop.");
   public static final TextKey MOON_JUMP_LORE1 = TextKey.of("kinetics.moon_jump.lore1", "Base Jump Height");
@@ -107,6 +152,40 @@ public final class KineticsMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(KINETICSWINDBURST_PREFERENCE_SNEAK);
+    builder.add(KINETICSWINDBURST_PREFERENCE_HOSTILES);
+    builder.add(KINETICSTERMINALTOGGLE_PREFERENCE_GESTURE_DOUBLE);
+    builder.add(KINETICSTERMINALTOGGLE_PREFERENCE_GESTURE_SINGLE);
+    builder.add(KINETICSTERMINALTOGGLE_PREFERENCE_GESTURE);
+    builder.add(KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_HANG_ONLY);
+    builder.add(KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_DIVE_ONLY);
+    builder.add(KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_HANG_FIRST);
+    builder.add(KINETICSTERMINALTOGGLE_PREFERENCE_ORDER_DIVE_FIRST);
+    builder.add(KINETICSTERMINALTOGGLE_PREFERENCE_ORDER);
+    builder.add(KINETICSSURFACESKATE_PREFERENCE_CONTROL_ARMED);
+    builder.add(KINETICSSURFACESKATE_PREFERENCE_CONTROL_SPRINT);
+    builder.add(KINETICSSURFACESKATE_PREFERENCE_CONTROL);
+    builder.add(KINETICSRUBBERSOUL_PREFERENCE_SPRINGY);
+    builder.add(KINETICSRUBBERSOUL_PREFERENCE_BOUNCE);
+    builder.add(KINETICSREBOUNDANVIL_PREFERENCE_CUSHION);
+    builder.add(KINETICSREBOUNDANVIL_PREFERENCE_BOUNCE);
+    builder.add(KINETICSMOONJUMP_PREFERENCE_HOP_NEVER);
+    builder.add(KINETICSMOONJUMP_PREFERENCE_HOP_ALWAYS);
+    builder.add(KINETICSMOONJUMP_PREFERENCE_HOP_SNEAK);
+    builder.add(KINETICSMOONJUMP_PREFERENCE_HOP);
+    builder.add(KINETICSMOONJUMP_PREFERENCE_BASE_JUMP);
+    builder.add(KINETICSMETEORCADENCE_PREFERENCE_CONTROL_AUTOMATIC);
+    builder.add(KINETICSMETEORCADENCE_PREFERENCE_CONTROL_SNEAK);
+    builder.add(KINETICSMETEORCADENCE_PREFERENCE_CONTROL);
+    builder.add(KINETICSMASSSHIFT_PREFERENCE_SELECTION_CYCLE);
+    builder.add(KINETICSMASSSHIFT_PREFERENCE_SELECTION_LOOK);
+    builder.add(KINETICSMASSSHIFT_PREFERENCE_SELECTION);
+    builder.add(KINETICSLUNGECONDUCTOR_PREFERENCE_TRAVEL);
+    builder.add(KINETICSHEAVYFRAME_PREFERENCE_CONTROL_LATCH);
+    builder.add(KINETICSHEAVYFRAME_PREFERENCE_CONTROL_HOLD);
+    builder.add(KINETICSHEAVYFRAME_PREFERENCE_CONTROL);
+    builder.add(KINETICSDEADZONE_PREFERENCE_SNEAK);
+    builder.add(KINETICSDEADZONE_PREFERENCE_HOSTILES);
     builder.add(MOON_JUMP_NAME);
     builder.add(MOON_JUMP_DESCRIPTION);
     builder.add(MOON_JUMP_LORE1);

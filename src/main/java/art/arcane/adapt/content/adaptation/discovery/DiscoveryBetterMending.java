@@ -18,6 +18,10 @@
 
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.localization.catalog.DiscoveryMessages;
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -45,6 +49,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 
 public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMending.Config> {
+  public static final PlayerPreference<DiscoveryPreferences.Reserve> XP_RESERVE = DiscoveryPreferences.reserve("xp-reserve", DiscoveryMessages.PREFERENCE_DISCOVERYBETTERMENDING_XP_RESERVE);
+  public static final PlayerPreference<CommonPreferences.Scale> REPAIR_LIMIT = CommonPreferences.scale("repair-limit", DiscoveryMessages.PREFERENCE_DISCOVERYBETTERMENDING_REPAIR_LIMIT);
+
   public DiscoveryBetterMending() {
     super("discovery-better-mending");
     registerConfiguration(Config.class);
@@ -64,6 +71,12 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
         .build());
     registerMilestone("challenge_discovery_mending_10k", "discovery.better-mending.durability-restored", 10000, 400);
     registerMilestone("challenge_discovery_mending_100k", "discovery.better-mending.durability-restored", 100000, 1500);
+  }
+
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, XP_RESERVE, REPAIR_LIMIT);
   }
 
   @Override
@@ -100,7 +113,7 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
       return;
     }
 
-    int availableXp = p.calculateTotalExperiencePoints();
+    int availableXp = Math.max(0, p.calculateTotalExperiencePoints() - preference(p, XP_RESERVE).amount());
     if (availableXp <= 0) {
       FxPresets.failFizzle(this, p);
       return;
@@ -109,7 +122,10 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
     double repairPerXp = getRepairPerXp(level);
     int maxXpSpend = Math.min(getMaxXpSpend(level), availableXp);
     int currentDamage = damageable.getDamage();
-    int xpNeeded = (int) Math.ceil(currentDamage / repairPerXp);
+    int maximumDurability = damageable.hasMaxDamage() ? damageable.getMaxDamage() : hand.getType().getMaxDurability();
+    int minimumDamage = (int) Math.floor(maximumDurability * (1D - preference(p, REPAIR_LIMIT).multiplier()));
+    int repairable = Math.max(0, currentDamage - minimumDamage);
+    int xpNeeded = (int) Math.ceil(repairable / repairPerXp);
     int xpSpent = Math.min(maxXpSpend, xpNeeded);
     if (xpSpent <= 0) {
       FxPresets.failFizzle(this, p);
@@ -117,7 +133,7 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
     }
 
     int repaired = Math.max(1, (int) Math.round(xpSpent * repairPerXp));
-    int newDamage = Math.max(0, currentDamage - repaired);
+    int newDamage = Math.max(minimumDamage, currentDamage - repaired);
 
     if (!payExperienceCost(p, "experience", xpSpent, () -> spendExperiencePoints(p, xpSpent))) {
       return;
@@ -151,7 +167,7 @@ public class DiscoveryBetterMending extends SimpleAdaptation<DiscoveryBetterMend
         .start();
 
     xp(p, Math.max(1D, (currentDamage - newDamage) * getConfig().skillXpPerDurability));
-    addStat(p, "discovery.better-mending.durability-restored", restoredDurability(currentDamage, repaired));
+    addStat(p, "discovery.better-mending.durability-restored", restoredDurability(currentDamage, currentDamage - newDamage));
   }
 
   private boolean canMend(ItemStack hand) {

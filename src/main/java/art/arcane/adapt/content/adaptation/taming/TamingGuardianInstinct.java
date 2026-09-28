@@ -18,6 +18,9 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import java.util.List;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -72,6 +75,11 @@ public class TamingGuardianInstinct extends SimpleAdaptation<TamingGuardianInsti
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, TamingPreferences.PETS, TamingPreferences.HEALTH);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getInterceptChance(level), 0), 1);
     statLore(v, C.YELLOW, "* ", Form.pc(getPetReduction(level), 0), 2);
@@ -102,7 +110,7 @@ public class TamingGuardianInstinct extends SimpleAdaptation<TamingGuardianInsti
       return;
     }
 
-    LivingEntity pet = findNearestPet(owner, ownerId, getInterceptRadius(level));
+    LivingEntity pet = findNearestPet(owner, ownerId, getInterceptRadius(level), Math.max(0D, damage * (1D - getPetReduction(level))));
     if (pet == null) {
       return;
     }
@@ -122,7 +130,7 @@ public class TamingGuardianInstinct extends SimpleAdaptation<TamingGuardianInsti
     xp(owner, damage * getConfig().xpPerDamageIntercepted);
   }
 
-  private LivingEntity findNearestPet(Player owner, UUID ownerId, double radius) {
+  private LivingEntity findNearestPet(Player owner, UUID ownerId, double radius, double petDamage) {
     LivingEntity nearest = null;
     double nearestSquared = Double.MAX_VALUE;
     Location origin = owner.getLocation();
@@ -130,7 +138,10 @@ public class TamingGuardianInstinct extends SimpleAdaptation<TamingGuardianInsti
       if (!(entity instanceof LivingEntity living) || !(entity instanceof Tameable tameable)) {
         continue;
       }
-      if (!tameable.isTamed() || !living.isValid() || living.isDead() || !isOwnedBy(tameable, ownerId)) {
+      if (!preference(owner, TamingPreferences.PETS).accepts(living.getType())
+          || (preference(owner, TamingPreferences.HEALTH) != TamingPreferences.Health.DEFAULT
+          && living.getHealth() - petDamage < preference(owner, TamingPreferences.HEALTH).floor(living.getMaxHealth(), 0D))
+          || !tameable.isTamed() || !living.isValid() || living.isDead() || !isOwnedBy(tameable, ownerId)) {
         continue;
       }
 

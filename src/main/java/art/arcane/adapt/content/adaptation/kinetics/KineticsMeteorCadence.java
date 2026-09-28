@@ -1,5 +1,10 @@
 package art.arcane.adapt.content.adaptation.kinetics;
 
+import java.util.List;
+import art.arcane.adapt.localization.catalog.KineticsMessages;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
@@ -22,6 +27,11 @@ import java.util.Map;
 import java.util.UUID;
 
 public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadence.Config> {
+  public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
+      new PlayerPreference.Definition<>("control", KineticsMessages.KINETICSMETEORCADENCE_PREFERENCE_CONTROL, Control.SNEAK, List.of(
+          new PlayerPreference.Choice<>(Control.SNEAK, KineticsMessages.KINETICSMETEORCADENCE_PREFERENCE_CONTROL_SNEAK, Material.LEATHER_BOOTS, 1),
+          new PlayerPreference.Choice<>(Control.AUTOMATIC, KineticsMessages.KINETICSMETEORCADENCE_PREFERENCE_CONTROL_AUTOMATIC, Material.MACE, 1))));
+
   private static final String SLOT_GRAVITY = "dive-gravity";
   private static final String SLOT_DRAG = "dive-drag";
   private static final int REFRESH_TICKS = 8;
@@ -37,6 +47,16 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CONTROL);
+  }
+
+  @Override
+  public void onPlayerPreferencesChanged(AdaptPlayer player) {
+    endDive(player.getPlayer());
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     statLore(v, Form.pc(getGravityBoost(level), 0), 1);
     statLore(v, Form.pc(getDragCut(level), 0), 2);
@@ -47,7 +67,7 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
   @EventHandler(ignoreCancelled = true)
   public void on(PlayerToggleSneakEvent e) {
     Player p = e.getPlayer();
-    if (!e.isSneaking()) {
+    if (!e.isSneaking() && preference(p, CONTROL) == Control.SNEAK) {
       removeDiveModifiers(p);
       return;
     }
@@ -101,7 +121,7 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
   }
 
   private void refreshDive(Player p, double deltaY) {
-    if (!isDiving(p.isOnGround(), deltaY, p.isSneaking(), isMace(p.getInventory().getItemInMainHand()))) {
+    if (!isDiving(p.isOnGround(), deltaY, (p.isSneaking() || preference(p, CONTROL) == Control.AUTOMATIC), isMace(p.getInventory().getItemInMainHand()))) {
       return;
     }
 
@@ -214,4 +234,6 @@ public class KineticsMeteorCadence extends SimpleAdaptation<KineticsMeteorCadenc
       initialCost = 2;
     }
   }
+
+  public enum Control { SNEAK, AUTOMATIC }
 }
