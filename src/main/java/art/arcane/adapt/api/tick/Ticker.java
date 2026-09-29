@@ -19,6 +19,7 @@
 package art.arcane.adapt.api.tick;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.telemetry.AbilityCheckTelemetry;
 import art.arcane.adapt.api.telemetry.AdaptTelemetryClock;
 import art.arcane.adapt.util.common.scheduling.J;
 
@@ -51,6 +52,7 @@ public class Ticker {
   private final AtomicBoolean ticking;
   private final AtomicLong windowStartMs;
   private final LongSupplier clock;
+  private final TickLoadWindow loadWindow;
   private final boolean refreshTelemetryClock;
   private final int schedulerTaskId;
   private long nextSequence;
@@ -73,6 +75,7 @@ public class Ticker {
     this.ticking = new AtomicBoolean(false);
     this.windowStartMs = new AtomicLong(System.currentTimeMillis());
     this.clock = Objects.requireNonNull(clock);
+    this.loadWindow = new TickLoadWindow(clock.getAsLong());
     this.refreshTelemetryClock = startScheduler;
     this.nextSequence = 0L;
     this.schedulerTaskId = startScheduler ? J.sr(this::tick, 1) : -1;
@@ -148,6 +151,7 @@ public class Ticker {
     }
     metrics.clear();
     windowStartMs.set(System.currentTimeMillis());
+    loadWindow.reset(clock.getAsLong());
   }
 
   public void shutdown() {
@@ -163,6 +167,7 @@ public class Ticker {
   public void resetMetrics() {
     metrics.clear();
     windowStartMs.set(System.currentTimeMillis());
+    loadWindow.reset(clock.getAsLong());
   }
 
   public long getMetricsWindowMs() {
@@ -170,21 +175,7 @@ public class Ticker {
   }
 
   public double getWindowLoadPercent() {
-    long windowMs = getMetricsWindowMs();
-    if (windowMs <= 0L) {
-      return 0D;
-    }
-
-    double totalMs = 0D;
-    for (TickMetric metric : metrics.values()) {
-      totalMs += metric.totalNanos.get() / 1_000_000D;
-    }
-    double percent = (totalMs / (double) windowMs) * 100D;
-    if (!Double.isFinite(percent)) {
-      return 0D;
-    }
-
-    return Math.max(0D, percent);
+    return loadWindow.loadPercent(clock.getAsLong());
   }
 
   public List<String> topMetrics(int limit) {
@@ -224,6 +215,7 @@ public class Ticker {
     try {
       if (refreshTelemetryClock) {
         AdaptTelemetryClock.refresh();
+        AbilityCheckTelemetry.recordServerTick(AdaptTelemetryClock.millis());
       }
       long now = clock.getAsLong();
       drainDueRegistrations(now);
@@ -377,6 +369,7 @@ public class Ticker {
       return;
     }
 
+    loadWindow.record(clock.getAsLong(), durationNs);
     TickMetric metric = metrics.computeIfAbsent(ticked, entry -> new TickMetric(label(entry)));
     metric.calls.incrementAndGet();
     metric.totalNanos.addAndGet(durationNs);

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 class AbilityCheckTelemetryTest {
   @AfterEach
@@ -47,6 +48,42 @@ class AbilityCheckTelemetryTest {
     assertThat(AbilityCheckTelemetry.checksPerSecond(now)).isZero();
     assertThat(AbilityCheckTelemetry.estimatedTimingMillisPerSecond(now)).isEqualTo(1D);
     assertThat(AbilityCheckTelemetry.timingBudgetPercent(now)).isEqualTo(2D);
+  }
+
+  @Test
+  void subMicrosecondChecksKeepTheirPrecision() {
+    long now = 240_000L;
+
+    AbilityCheckTelemetry.recordUncachedCheck("agility-wall-jump", now, 1_900L, true);
+    AbilityCheckTelemetry.recordUncachedCheck("agility-wall-jump", now, 200L, true);
+
+    assertThat(AbilityCheckTelemetry.averageCheckMicros(now)).isCloseTo(1.05D, within(1.0E-9D));
+    assertThat(AbilityCheckTelemetry.abilitySnapshots(now).get("agility-wall-jump").guardTimingMillis())
+        .isCloseTo(0.0021D, within(1.0E-12D));
+  }
+
+  @Test
+  void checksPerTickDividesByTheTicksTheServerActuallyRan() {
+    long now = 300_000L;
+    for (int second = 0; second < 60; second++) {
+      long at = now - (second * 1_000L);
+      for (int tick = 0; tick < 10; tick++) {
+        AbilityCheckTelemetry.recordServerTick(at);
+      }
+    }
+    for (int check = 0; check < 1_200; check++) {
+      AbilityCheckTelemetry.recordUncachedCheck("agility-wall-jump", now, 1_000L, true);
+    }
+
+    assertThat(AbilityCheckTelemetry.checksPerTick(now)).isEqualTo(2D);
+  }
+
+  @Test
+  void checksPerTickIsZeroWithoutObservedTicks() {
+    long now = 360_000L;
+    AbilityCheckTelemetry.recordUncachedCheck("agility-wall-jump", now, 1_000L, true);
+
+    assertThat(AbilityCheckTelemetry.checksPerTick(now)).isZero();
   }
 
   @Test

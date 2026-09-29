@@ -11,7 +11,9 @@ public final class FxBudget {
   public static final int PER_VIEWER_EMISSION_CAP = 64;
   private static final long TPS_SAMPLE_INTERVAL_MS = 1_000L;
   private static final long BAND_UPGRADE_HOLD_MS = 1_000L;
+  private static final long PACKET_AVERAGE_MAX_AGE_SECONDS = 2L;
   private static final Object SAMPLE_LOCK = new Object();
+  private static final Object PACKET_WINDOW_LOCK = new Object();
   private static final AtomicInteger USED_PACKETS = new AtomicInteger();
   private static volatile double cachedTps = 20.0D;
   private static volatile int appliedBand = 0;
@@ -19,6 +21,11 @@ public final class FxBudget {
   private static volatile boolean tpsUnavailable = false;
   private static int candidateBand = 0;
   private static long candidateSince = 0L;
+  private static long packetWindowSecond = Long.MIN_VALUE;
+  private static long packetWindowTotal = 0L;
+  private static int packetWindowTicks = 0;
+  private static volatile long averagedPacketSecond = Long.MIN_VALUE;
+  private static volatile double averagedPacketsPerTick = 0.0D;
 
   private FxBudget() {
   }
@@ -56,14 +63,37 @@ public final class FxBudget {
   }
 
   static void resetTick() {
-    USED_PACKETS.set(0);
+    foldTick(M.ms(), USED_PACKETS.getAndSet(0));
+  }
+
+  static void foldTick(long now, int packets) {
+    long second = Math.floorDiv(now, 1_000L);
+    synchronized (PACKET_WINDOW_LOCK) {
+      if (second != packetWindowSecond) {
+        if (packetWindowTicks > 0) {
+          averagedPacketsPerTick = packetWindowTotal / (double) packetWindowTicks;
+          averagedPacketSecond = packetWindowSecond;
+        }
+        packetWindowSecond = second;
+        packetWindowTotal = 0L;
+        packetWindowTicks = 0;
+      }
+      packetWindowTotal += Math.max(0, packets);
+      packetWindowTicks++;
+    }
   }
 
   public static int usedPackets() {
     return USED_PACKETS.get();
   }
 
+  public static double averagePacketsPerTick(long now) {
+    long age = Math.floorDiv(now, 1_000L) - averagedPacketSecond;
+    return age >= 0L && age <= PACKET_AVERAGE_MAX_AGE_SECONDS ? averagedPacketsPerTick : 0.0D;
+  }
+
   public static int shedBand() {
+    sampleIfDue();
     return appliedBand;
   }
 

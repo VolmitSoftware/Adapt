@@ -325,7 +325,7 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
 
   private IntegrationMetricSample sampleFxPacketsUsed(long now) {
     IntegrationMetricDescriptor descriptor = IntegrationMetricSchema.descriptor(IntegrationMetricSchema.ADAPT_FX_PACKETS_USED);
-    return IntegrationMetricSample.available(descriptor, FxBudget.usedPackets(), now);
+    return IntegrationMetricSample.available(descriptor, FxBudget.averagePacketsPerTick(now), now);
   }
 
   private IntegrationMetricSample sampleFxShedBand(long now) {

@@ -31,6 +31,9 @@ import java.util.concurrent.atomic.AtomicLongArray;
 public final class AbilityCheckTelemetry {
   private static final int WINDOW_SECONDS = 60;
   private static final int TIMING_SAMPLE_INTERVAL = 16;
+  private static final long NANOS_PER_TIMING_UNIT = 100L;
+  private static final double TIMING_UNITS_PER_MICRO = 10D;
+  private static final double TIMING_UNITS_PER_MILLI = 10_000D;
   private static final int EXECUTION_STACK_CAPACITY = 8;
   private static final long NESTED_EXECUTION = Long.MIN_VALUE;
   private static final long UNSAMPLED_EXECUTION = Long.MIN_VALUE + 1L;
@@ -38,8 +41,9 @@ public final class AbilityCheckTelemetry {
   private static final AtomicLongArray successfulOps = new AtomicLongArray(WINDOW_SECONDS);
   private static final AtomicLongArray cacheHits = new AtomicLongArray(WINDOW_SECONDS);
   private static final AtomicLongArray cacheMisses = new AtomicLongArray(WINDOW_SECONDS);
-  private static final AtomicLongArray timingMicros = new AtomicLongArray(WINDOW_SECONDS);
+  private static final AtomicLongArray timingUnits = new AtomicLongArray(WINDOW_SECONDS);
   private static final AtomicLongArray timingSamples = new AtomicLongArray(WINDOW_SECONDS);
+  private static final AtomicLongArray serverTicks = new AtomicLongArray(WINDOW_SECONDS);
   private static final Map<String, AbilityWindow> abilityWindows = new ConcurrentHashMap<>();
   private static final ThreadLocal<ExecutionState> executionState = ThreadLocal.withInitial(ExecutionState::new);
 
@@ -53,8 +57,8 @@ public final class AbilityCheckTelemetry {
   public static void recordUncachedCheck(String abilityId, long now, long nanos, boolean successful) {
     increment(cacheMisses, now, 1);
     increment(checkOps, now, 1);
-    long microsLong = Math.min(Integer.MAX_VALUE, Math.max(1L, nanos / 1_000L));
-    increment(timingMicros, now, (int) microsLong);
+    int units = toTimingUnits(nanos);
+    increment(timingUnits, now, units);
     increment(timingSamples, now, 1);
     if (successful) {
       increment(successfulOps, now, 1);
@@ -65,7 +69,7 @@ public final class AbilityCheckTelemetry {
     }
     while (true) {
       AbilityWindow window = abilityWindows.computeIfAbsent(abilityId, ignored -> new AbilityWindow());
-      if (window.recordGuardCheck(now, (int) microsLong)) {
+      if (window.recordGuardCheck(now, units)) {
         return;
       }
       abilityWindows.remove(abilityId, window);
@@ -77,10 +81,10 @@ public final class AbilityCheckTelemetry {
       return;
     }
 
-    long microsLong = Math.min(Integer.MAX_VALUE, Math.max(1L, nanos / 1_000L));
+    int units = toTimingUnits(nanos);
     while (true) {
       AbilityWindow window = abilityWindows.computeIfAbsent(abilityId, ignored -> new AbilityWindow());
-      if (window.recordExecution(now, (int) microsLong)) {
+      if (window.recordExecution(now, units)) {
         return;
       }
       abilityWindows.remove(abilityId, window);
@@ -117,6 +121,10 @@ public final class AbilityCheckTelemetry {
     }
 
     recordSampledExecution(abilityId, now, System.nanoTime() - startedNanos);
+  }
+
+  public static void recordServerTick(long now) {
+    increment(serverTicks, now, 1);
   }
 
   public static long checksPerMinute(long now) {
@@ -160,16 +168,16 @@ public final class AbilityCheckTelemetry {
       return 0D;
     }
 
-    long micros = sumWindow(timingMicros, now);
-    return micros / (double) samples;
+    long units = sumWindow(timingUnits, now);
+    return (units / TIMING_UNITS_PER_MICRO) / samples;
   }
 
   public static double estimatedTimingMillisPerSecond(long now) {
-    long rollingMicros = sumWindow(timingMicros, now);
-    if (rollingMicros <= 0L) {
+    long rollingUnits = sumWindow(timingUnits, now);
+    if (rollingUnits <= 0L) {
       return 0D;
     }
-    return rollingMicros / (WINDOW_SECONDS * 1_000D);
+    return rollingUnits / (WINDOW_SECONDS * TIMING_UNITS_PER_MILLI);
   }
 
   public static double timingBudgetPercent(long now) {
@@ -186,7 +194,11 @@ public final class AbilityCheckTelemetry {
   }
 
   public static double checksPerTick(long now) {
-    return checksPerMinute(now) / 1200D;
+    long ticks = sumWindow(serverTicks, now);
+    if (ticks <= 0L) {
+      return 0D;
+    }
+    return checksPerMinute(now) / (double) ticks;
   }
 
   public static Set<String> abilityIds(long now) {
@@ -212,8 +224,9 @@ public final class AbilityCheckTelemetry {
       successfulOps.set(i, 0L);
       cacheHits.set(i, 0L);
       cacheMisses.set(i, 0L);
-      timingMicros.set(i, 0L);
+      timingUnits.set(i, 0L);
       timingSamples.set(i, 0L);
+      serverTicks.set(i, 0L);
     }
     abilityWindows.clear();
     executionState.remove();
@@ -238,10 +251,10 @@ public final class AbilityCheckTelemetry {
       return;
     }
 
-    long microsLong = Math.max(1L, nanos / 1_000L);
+    long units = toTimingUnits(nanos);
     while (true) {
       AbilityWindow window = abilityWindows.computeIfAbsent(abilityId, ignored -> new AbilityWindow());
-      if (window.recordSampledExecution(now, microsLong)) {
+      if (window.recordSampledExecution(now, units)) {
         return;
       }
       abilityWindows.remove(abilityId, window);
@@ -257,6 +270,11 @@ public final class AbilityCheckTelemetry {
       }
       abilityWindows.remove(entry.getKey(), window);
     }
+  }
+
+  private static int toTimingUnits(long nanos) {
+    long rounded = (Math.max(0L, nanos) + (NANOS_PER_TIMING_UNIT / 2L)) / NANOS_PER_TIMING_UNIT;
+    return (int) Math.min(Integer.MAX_VALUE, Math.max(1L, rounded));
   }
 
   private static void increment(AtomicLongArray buckets, long now, int delta) {
@@ -338,9 +356,9 @@ public final class AbilityCheckTelemetry {
   private static final class AbilityWindow {
     private static final int SIGNAL_COUNT = 4;
     private static final int EXECUTION_OPS = 0;
-    private static final int EXECUTION_MICROS = 1;
+    private static final int EXECUTION_UNITS = 1;
     private static final int GUARD_CHECKS = 2;
-    private static final int GUARD_MICROS = 3;
+    private static final int GUARD_UNITS = 3;
 
     private final AtomicLongArray buckets = new AtomicLongArray(WINDOW_SECONDS * SIGNAL_COUNT);
     private final AtomicLong lastRecordedSecond = new AtomicLong(Long.MIN_VALUE);
@@ -351,31 +369,31 @@ public final class AbilityCheckTelemetry {
       return pendingTimingOps.incrementAndGet() >= TIMING_SAMPLE_INTERVAL;
     }
 
-    private boolean recordGuardCheck(long now, int micros) {
+    private boolean recordGuardCheck(long now, int units) {
       if (!prepareRecord(now)) {
         return false;
       }
       incrementSignal(GUARD_CHECKS, now, 1);
-      incrementSignal(GUARD_MICROS, now, micros);
+      incrementSignal(GUARD_UNITS, now, units);
       return true;
     }
 
-    private boolean recordExecution(long now, int micros) {
+    private boolean recordExecution(long now, int units) {
       if (!prepareRecord(now)) {
         return false;
       }
       incrementSignal(EXECUTION_OPS, now, 1);
-      incrementSignal(EXECUTION_MICROS, now, micros);
+      incrementSignal(EXECUTION_UNITS, now, units);
       return true;
     }
 
-    private boolean recordSampledExecution(long now, long micros) {
+    private boolean recordSampledExecution(long now, long units) {
       if (!prepareRecord(now)) {
         return false;
       }
       int weight = Math.max(1, pendingTimingOps.getAndSet(0));
       incrementSignal(EXECUTION_OPS, now, 1);
-      incrementSignal(EXECUTION_MICROS, now, (int) Math.min(Integer.MAX_VALUE, micros * weight));
+      incrementSignal(EXECUTION_UNITS, now, (int) Math.min(Integer.MAX_VALUE, units * weight));
       return true;
     }
 
@@ -423,17 +441,22 @@ public final class AbilityCheckTelemetry {
       long epochSecondLong = now / 1_000L;
       int epochSecond = (int) epochSecondLong;
       long executionOps = 0L;
-      long executionMicros = 0L;
+      long executionUnits = 0L;
       long guardChecks = 0L;
-      long guardMicros = 0L;
+      long guardUnits = 0L;
       for (int slot = 0; slot < WINDOW_SECONDS; slot++) {
         int base = slot * SIGNAL_COUNT;
         executionOps += currentWindowValue(buckets.get(base + EXECUTION_OPS), epochSecond);
-        executionMicros += currentWindowValue(buckets.get(base + EXECUTION_MICROS), epochSecond);
+        executionUnits += currentWindowValue(buckets.get(base + EXECUTION_UNITS), epochSecond);
         guardChecks += currentWindowValue(buckets.get(base + GUARD_CHECKS), epochSecond);
-        guardMicros += currentWindowValue(buckets.get(base + GUARD_MICROS), epochSecond);
+        guardUnits += currentWindowValue(buckets.get(base + GUARD_UNITS), epochSecond);
       }
-      return new AbilitySnapshot(executionOps, executionMicros / 1_000D, guardChecks, guardMicros / 1_000D);
+      return new AbilitySnapshot(
+          executionOps,
+          executionUnits / TIMING_UNITS_PER_MILLI,
+          guardChecks,
+          guardUnits / TIMING_UNITS_PER_MILLI
+      );
     }
 
     private long currentWindowValue(long packed, int epochSecond) {
