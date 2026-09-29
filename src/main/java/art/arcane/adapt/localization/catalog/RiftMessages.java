@@ -101,6 +101,7 @@ public final class RiftMessages {
   public static final TextKey BLINK_SETTING_PHASING = TextKey.of("rift.blink.setting.phasing", "Wall phasing");
   public static final TextKey BLINK_SETTING_TARGETING = TextKey.of("rift.blink.setting.targeting", "Landing preference");
   public static final TextKey BLINK_SETTING_ACTIVATION = TextKey.of("rift.blink.setting.activation", "Activation");
+  public static final TextKey BLINK_SETTING_DIRECTION = TextKey.of("rift.blink.setting.direction", "Blink Direction");
   public static final TextKey BLINK_SETTING_REACTIVE_DIRECTION = TextKey.of("rift.blink.setting.reactive_direction", "Reactive direction");
   public static final TextKey BLINK_OPTION_ON = TextKey.of("rift.blink.option.on", "On");
   public static final TextKey BLINK_OPTION_OFF = TextKey.of("rift.blink.option.off", "Off");
@@ -112,6 +113,7 @@ public final class RiftMessages {
   public static final TextKey BLINK_OPTION_MANUAL = TextKey.of("rift.blink.option.manual", "Double-jump");
   public static final TextKey BLINK_OPTION_REACTIVE = TextKey.of("rift.blink.option.reactive", "Dodge attacks");
   public static final TextKey BLINK_OPTION_LOOK = TextKey.of("rift.blink.option.look", "Where you look");
+  public static final TextKey BLINK_OPTION_MOMENTUM = TextKey.of("rift.blink.option.momentum", "Movement Direction");
   public static final TextKey BLINK_OPTION_AWAY = TextKey.of("rift.blink.option.away", "Away from attacker");
   public static final TextKey CHEST_NAME = TextKey.of("rift.chest.name", "Easy Enderchest");
   public static final TextKey CHEST_DESCRIPTION = TextKey.of("rift.chest.description", "Click while holding an ender chest to open your ender chest without placing it.");
@@ -279,6 +281,7 @@ public final class RiftMessages {
     builder.add(BLINK_SETTING_PHASING);
     builder.add(BLINK_SETTING_TARGETING);
     builder.add(BLINK_SETTING_ACTIVATION);
+    builder.add(BLINK_SETTING_DIRECTION);
     builder.add(BLINK_SETTING_REACTIVE_DIRECTION);
     builder.add(BLINK_OPTION_ON);
     builder.add(BLINK_OPTION_OFF);
@@ -290,6 +293,7 @@ public final class RiftMessages {
     builder.add(BLINK_OPTION_MANUAL);
     builder.add(BLINK_OPTION_REACTIVE);
     builder.add(BLINK_OPTION_LOOK);
+    builder.add(BLINK_OPTION_MOMENTUM);
     builder.add(BLINK_OPTION_AWAY);
     builder.add(CHEST_NAME);
     builder.add(CHEST_DESCRIPTION);

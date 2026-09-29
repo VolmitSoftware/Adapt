@@ -6216,6 +6216,7 @@ phasing = "Perėjimas kiaurai sienas"
 targeting = "Nusileidimo vietos pasirinkimas"
 activation = "Aktyvinimas"
 reactive_direction = "Išsisukimo kryptis"
+direction = "Teleportacijos kryptis"
 
 [rift.blink.option]
 on = "Įjungta"
@@ -6229,6 +6230,7 @@ manual = "Dvigubas šuolis"
 reactive = "Vengti atakų"
 look = "Žvilgsnio kryptimi"
 away = "Tolyn nuo užpuoliko"
+momentum = "Judėjimo kryptis"
 
 [agilityairdash.preferences]
 preference_speed = "Dash speed"

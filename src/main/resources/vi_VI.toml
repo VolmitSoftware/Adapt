@@ -6216,6 +6216,7 @@ phasing = "Xuyên tường"
 targeting = "Ưu tiên điểm đáp"
 activation = "Cách kích hoạt"
 reactive_direction = "Hướng né đòn"
+direction = "Hướng dịch chuyển"
 
 [rift.blink.option]
 on = "Bật"
@@ -6229,6 +6230,7 @@ manual = "Nhảy hai lần"
 reactive = "Né đòn tấn công"
 look = "Theo hướng nhìn"
 away = "Ra xa kẻ tấn công"
+momentum = "Hướng di chuyển"
 
 [agilityairdash.preferences]
 preference_speed = "Dash speed"

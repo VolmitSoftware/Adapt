@@ -15,6 +15,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import art.arcane.volmit.packaging.PackagingMode
 import io.freefair.gradle.plugins.lombok.LombokPlugin
 import io.github.slimjar.resolver.data.Mirror
 import org.gradle.api.tasks.Copy
@@ -47,7 +48,7 @@ plugins {
 
 apply plugin: 'art.arcane.volmit-packaging'
 
-version = '2.0.6-26.2'
+version = '2.1.0-26.2'
 def apiVersion = '26.1'
 def main = 'art.arcane.adapt.Adapt'
 String paperDevBundleVersion = providers.gradleProperty('paperDevBundleVersion')
@@ -497,6 +498,10 @@ void createOutputTask(String name, String path, boolean doRename = true) {
 pluginPackaging {
     artifacts {
         create('distribution') {
+            stripDirectories = true
+            stripLocalVariables = true
+            releaseCompression = providers.gradleProperty('compactRelease').map { it.toBoolean() }
+                    .getOrElse(!PackagingMode.resolve(providers).development())
             packed = true
             packedJarAccessors = ['art/arcane/adapt/Adapt#getJarFile']
             taskName = 'shadowJar'

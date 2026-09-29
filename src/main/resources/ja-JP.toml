@@ -6216,6 +6216,7 @@ phasing = "壁の通り抜け"
 targeting = "着地点の優先設定"
 activation = "発動方法"
 reactive_direction = "回避方向"
+direction = "ブリンク方向"
 
 [rift.blink.option]
 on = "オン"
@@ -6229,6 +6230,7 @@ manual = "二段ジャンプ"
 reactive = "攻撃を回避"
 look = "視線の方向"
 away = "攻撃者から離れる方向"
+momentum = "移動方向"
 
 [agilityairdash.preferences]
 preference_speed = "Dash speed"

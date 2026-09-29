@@ -5505,7 +5505,8 @@
       "triggers": [
         "EntityDamageByEntityEvent",
         "PlayerMoveEvent",
-        "PlayerQuitEvent"
+        "PlayerQuitEvent",
+        "PlayerTeleportEvent"
       ],
       "expectation": "Blink with player-selectable activation, targeting and phasing. Reactive activation unlocks at level 2 and replaces double-jump with an attack dodge. Successful blinks deal level-scaled ender pearl damage.",
       "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/rift/RiftBlink.java",

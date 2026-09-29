@@ -16,7 +16,7 @@ export default {
             await actor.bot.waitForTicks(20)
             const state = await fixtureJson(context, `/adaptqa blink ${actor.bot.username} snapshot`, 'BLINK snapshot')
             context.expect(state.processId !== previous.blink.processId, 'Preferences load in a different server process')
-            for (const key of ['enabled', 'phasing', 'targeting', 'activation', 'reactive-direction']) {
+            for (const key of ['enabled', 'phasing', 'targeting', 'activation', 'direction', 'reactive-direction']) {
                 context.expect(state[key] === previous.blink.retained[key], `${key} survives complete server restart`)
             }
             context.report.blink = { beforeProcess: previous.blink.processId, afterProcess: state.processId, retained: state }
@@ -339,6 +339,7 @@ export default {
                 evidence.trials.push({ name: 'reactive-projectile', before, after })
             })
             await context.step('all player preferences persist through disconnect and reconnect', async () => {
+                await action(actor, 'direction', 'MOMENTUM')
                 await action(actor, 'phasing', 'AIM')
                 await action(actor, 'targeting', 'VERTICALITY')
                 await action(actor, 'reactive-direction', 'AWAY_FROM_ATTACKER')
@@ -347,7 +348,7 @@ export default {
                 actor = await actor.reconnectAfter(() => actor.bot.quit('Blink preference persistence'), { timeoutMs: 30000 })
                 await actor.bot.waitForTicks(20)
                 const after = await snapshot()
-                for (const key of ['enabled', 'phasing', 'targeting', 'activation', 'reactive-direction']) {
+                for (const key of ['enabled', 'phasing', 'targeting', 'activation', 'direction', 'reactive-direction']) {
                     context.expect(after[key] === before[key], `${key} survives reconnect`)
                 }
                 evidence.retained = after

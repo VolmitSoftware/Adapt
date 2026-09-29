@@ -6216,6 +6216,7 @@ phasing = "Прохождение сквозь стены"
 targeting = "Предпочтение места приземления"
 activation = "Активация"
 reactive_direction = "Направление уклонения"
+direction = "Направление скачка"
 
 [rift.blink.option]
 on = "Включено"
@@ -6229,6 +6230,7 @@ manual = "Двойной прыжок"
 reactive = "Уклоняться от атак"
 look = "В направлении взгляда"
 away = "Прочь от нападающего"
+momentum = "Направление движения"
 
 [agilityairdash.preferences]
 preference_speed = "Dash speed"

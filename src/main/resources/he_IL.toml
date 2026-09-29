@@ -6216,6 +6216,7 @@ phasing = "מעבר דרך קירות"
 targeting = "העדפת מקום נחיתה"
 activation = "הפעלה"
 reactive_direction = "כיוון התחמקות"
+direction = "כיוון ההבהוב"
 
 [rift.blink.option]
 on = "פעיל"
@@ -6229,6 +6230,7 @@ manual = "קפיצה כפולה"
 reactive = "התחמקות מהתקפות"
 look = "בכיוון המבט"
 away = "הרחק מהתוקף"
+momentum = "כיוון התנועה"
 
 [agilityairdash.preferences]
 preference_speed = "Dash speed"

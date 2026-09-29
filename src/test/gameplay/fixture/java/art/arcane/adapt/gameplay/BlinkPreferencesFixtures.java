@@ -32,6 +32,7 @@ import java.util.UUID;
 public final class BlinkPreferencesFixtures implements Listener {
     private static final Map<UUID, JsonObject> attacks = new HashMap<>();
     private static final Map<UUID, Integer> teleports = new HashMap<>();
+    private static final Map<UUID, JsonObject> destinations = new HashMap<>();
     private static final Set<UUID> denied = new HashSet<>();
 
     public BlinkPreferencesFixtures() {
@@ -50,6 +51,8 @@ public final class BlinkPreferencesFixtures implements Listener {
             case "phasing" -> changed = PlayerPreferences.set(blink, runtime, RiftBlink.PHASING, RiftBlink.Phasing.valueOf(args[3]));
             case "targeting" -> changed = PlayerPreferences.set(blink, runtime, RiftBlink.TARGETING, RiftBlink.Targeting.valueOf(args[3]));
             case "activation" -> changed = PlayerPreferences.set(blink, runtime, RiftBlink.ACTIVATION, RiftBlink.Activation.valueOf(args[3]));
+            case "direction" -> changed = PlayerPreferences.set(blink, runtime, RiftBlink.DIRECTION, RiftBlink.Direction.valueOf(args[3]));
+            case "direction-lock" -> PlayerPreferences.policy(blink, RiftBlink.DIRECTION).playerEditable = !Boolean.parseBoolean(args[3]);
             case "reactive-direction" -> changed = PlayerPreferences.set(blink, runtime, RiftBlink.REACTIVE_DIRECTION, RiftBlink.ReactiveDirection.valueOf(args[3]));
             case "lock" -> PlayerPreferences.policy(blink, RiftBlink.ACTIVATION).playerEditable = !Boolean.parseBoolean(args[3]);
             case "deny" -> {
@@ -91,6 +94,8 @@ public final class BlinkPreferencesFixtures implements Listener {
         result.addProperty("phasing", PlayerPreferences.resolve(blink, runtime.getData(), level, RiftBlink.PHASING).name());
         result.addProperty("targeting", PlayerPreferences.resolve(blink, runtime.getData(), level, RiftBlink.TARGETING).name());
         result.addProperty("activation", PlayerPreferences.resolve(blink, runtime.getData(), level, RiftBlink.ACTIVATION).name());
+        result.addProperty("direction", PlayerPreferences.resolve(blink, runtime.getData(), level, RiftBlink.DIRECTION).name());
+        result.addProperty("savedDirection", runtime.getData().getPreferences().get("rift-blink", "direction"));
         result.addProperty("reactive-direction", PlayerPreferences.resolve(blink, runtime.getData(), level, RiftBlink.REACTIVE_DIRECTION).name());
         result.addProperty("health", player.getHealth());
         result.addProperty("x", player.getX());
@@ -100,6 +105,7 @@ public final class BlinkPreferencesFixtures implements Listener {
         result.addProperty("teleports", teleports.getOrDefault(player.getUniqueId(), 0));
         result.addProperty("savedActivation", runtime.getData().getPreferences().get("rift-blink", "activation"));
         result.add("attack", attacks.get(player.getUniqueId()));
+        result.add("destination", destinations.get(player.getUniqueId()));
         Inventory inventory = player.getOpenInventory().getTopInventory();
         JsonArray slots = new JsonArray();
         for (int slot = 0; slot < inventory.getSize(); slot++) {
@@ -126,6 +132,14 @@ public final class BlinkPreferencesFixtures implements Listener {
     public void observeTeleport(PlayerTeleportEvent event) {
         if (event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN && event.getPlayer().getName().startsWith("AQA")) {
             teleports.merge(event.getPlayer().getUniqueId(), 1, Integer::sum);
+            JsonObject destination = new JsonObject();
+            destination.addProperty("x", event.getTo().getX());
+            destination.addProperty("y", event.getTo().getY());
+            destination.addProperty("z", event.getTo().getZ());
+            destination.addProperty("dx", event.getTo().getX() - event.getFrom().getX());
+            destination.addProperty("dy", event.getTo().getY() - event.getFrom().getY());
+            destination.addProperty("dz", event.getTo().getZ() - event.getFrom().getZ());
+            destinations.put(event.getPlayer().getUniqueId(), destination);
         }
     }
 

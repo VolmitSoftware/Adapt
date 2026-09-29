@@ -6216,6 +6216,7 @@ phasing = "穿墙方式"
 targeting = "落点偏好"
 activation = "触发方式"
 reactive_direction = "反应闪现方向"
+direction = "闪现方向"
 
 [rift.blink.option]
 on = "开启"
@@ -6229,6 +6230,7 @@ manual = "二段跳"
 reactive = "闪避攻击"
 look = "视线方向"
 away = "远离攻击者"
+momentum = "移动方向"
 
 [agilityairdash.preferences]
 preference_speed = "Dash speed"

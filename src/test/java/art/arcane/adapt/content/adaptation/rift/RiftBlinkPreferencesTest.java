@@ -4,6 +4,7 @@ import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.preference.PlayerPreferenceData;
+import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.preference.PreferencePolicy;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -35,6 +36,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.BoundingBox;
@@ -42,12 +44,14 @@ import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 import org.mockito.MockedStatic;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.Offset.offset;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -140,6 +144,137 @@ class RiftBlinkPreferencesTest {
       policy.playerEditable = false;
       fixture.blink.getConfig().playerPreferences = Map.of("activation", policy);
       assertThat(fixture.blink.isPlayerPreferenceVisible(owner, RiftBlink.REACTIVE_DIRECTION)).isFalse();
+    }
+  }
+
+  @Test
+  void manualDirectionDefaultsToLookAndBothChoicesUnlockAtLevelOne() {
+    assertThat(RiftBlink.DIRECTION.defaultValue()).isEqualTo(RiftBlink.Direction.LOOK);
+    assertThat(RiftBlink.DIRECTION.choices()).allMatch(choice -> choice.minimumLevel() == 1);
+    try (Fixture fixture = new Fixture()) {
+      AdaptPlayer owner = fixture.blink.getPlayer(fixture.player);
+      fixture.preferences.set("rift-blink", "activation", "MANUAL");
+      doReturn(1).when(fixture.blink).getLevel(owner);
+      assertThat(fixture.blink.isPlayerPreferenceVisible(owner, RiftBlink.DIRECTION)).isTrue();
+      assertThat(PlayerPreferences.resolve(fixture.blink, owner.getData(), 1, RiftBlink.DIRECTION))
+          .isEqualTo(RiftBlink.Direction.LOOK);
+      fixture.preferences.set("rift-blink", "direction", "MOMENTUM");
+      assertThat(PlayerPreferences.resolve(fixture.blink, owner.getData(), 1, RiftBlink.DIRECTION))
+          .isEqualTo(RiftBlink.Direction.MOMENTUM);
+      doReturn(2).when(fixture.blink).getLevel(owner);
+      fixture.preferences.set("rift-blink", "activation", "REACTIVE");
+      assertThat(fixture.blink.isPlayerPreferenceVisible(owner, RiftBlink.DIRECTION)).isFalse();
+      assertThat(fixture.preferences.get("rift-blink", "direction")).isEqualTo("MOMENTUM");
+      PreferencePolicy policy = PreferencePolicy.defaults(RiftBlink.ACTIVATION);
+      policy.playerEditable = false;
+      fixture.blink.getConfig().playerPreferences = Map.of("activation", policy);
+      assertThat(fixture.blink.isPlayerPreferenceVisible(owner, RiftBlink.DIRECTION)).isTrue();
+    }
+  }
+
+  @Test
+  void serverCanLockOrRestrictManualDirectionWithoutDiscardingTheSavedChoice() {
+    try (Fixture fixture = new Fixture()) {
+      AdaptPlayer owner = fixture.blink.getPlayer(fixture.player);
+      fixture.preferences.set("rift-blink", "direction", "MOMENTUM");
+      PreferencePolicy policy = PreferencePolicy.defaults(RiftBlink.DIRECTION);
+      policy.playerEditable = false;
+      fixture.blink.getConfig().playerPreferences = Map.of("direction", policy);
+      assertThat(PlayerPreferences.resolve(fixture.blink, owner.getData(), 1, RiftBlink.DIRECTION))
+          .isEqualTo(RiftBlink.Direction.LOOK);
+      fixture.blink.getConfig().playerPreferences = Map.of("direction", PreferencePolicy.of(RiftBlink.Direction.LOOK, RiftBlink.Direction.LOOK));
+      assertThat(PlayerPreferences.resolve(fixture.blink, owner.getData(), 1, RiftBlink.DIRECTION))
+          .isEqualTo(RiftBlink.Direction.LOOK);
+      assertThat(fixture.preferences.get("rift-blink", "direction")).isEqualTo("MOMENTUM");
+    }
+  }
+
+  @Test
+  void reactiveMovementUsesFullMotionInsteadOfLookOrBukkitVelocity() {
+    try (Fixture fixture = new Fixture()) {
+      fixture.preferences.set("rift-blink", "reactive-direction", "MOMENTUM");
+      fixture.preferences.set("rift-blink", "landing", "NONE");
+      when(fixture.player.getVelocity()).thenReturn(new Vector(-1D, 0D, 0D));
+      fixture.move(new Vector(0D, 3D, 4D));
+      Vector displacement = fixture.reactiveDestination().toVector().subtract(fixture.player.getLocation().toVector());
+      assertThat(displacement.getX()).isCloseTo(0D, offset(0.000001D));
+      assertThat(displacement.getY()).isPositive();
+      assertThat(displacement.getZ()).isPositive();
+      assertThat(displacement.clone().normalize().getY()).isCloseTo(0.6D, offset(0.000001D));
+      assertThat(displacement.clone().normalize().getZ()).isCloseTo(0.8D, offset(0.000001D));
+      assertThat(displacement.length()).isBetween(7D, 8D);
+    }
+  }
+
+  @Test
+  void movementSpeedDoesNotIncreaseBlinkRange() {
+    Vector slowDestination;
+    try (Fixture fixture = new Fixture()) {
+      fixture.preferences.set("rift-blink", "reactive-direction", "MOMENTUM");
+      fixture.preferences.set("rift-blink", "landing", "NONE");
+      fixture.move(new Vector(0D, 0D, 0.05D));
+      slowDestination = fixture.reactiveDestination().toVector();
+    }
+    try (Fixture fixture = new Fixture()) {
+      fixture.preferences.set("rift-blink", "reactive-direction", "MOMENTUM");
+      fixture.preferences.set("rift-blink", "landing", "NONE");
+      fixture.move(new Vector(0D, 0D, 20D));
+      Location destination = fixture.reactiveDestination();
+      assertThat(destination.toVector()).isEqualTo(slowDestination);
+      assertThat(destination.distance(fixture.player.getLocation())).isCloseTo(8D, offset(0.000001D));
+    }
+  }
+
+  @Test
+  void missingZeroAndNonFiniteMotionFallBackToLooking() {
+    for (Vector motion : new Vector[]{new Vector(), new Vector(0D, 0D, 0.00001D),
+        new Vector(Double.NaN, 0D, 0D), new Vector(0D, Double.POSITIVE_INFINITY, 0D)}) {
+      try (Fixture fixture = new Fixture()) {
+        fixture.preferences.set("rift-blink", "reactive-direction", "MOMENTUM");
+        fixture.move(motion);
+        fixture.assertReactiveLooksForward();
+      }
+    }
+    try (Fixture fixture = new Fixture()) {
+      fixture.preferences.set("rift-blink", "reactive-direction", "MOMENTUM");
+      fixture.assertReactiveLooksForward();
+    }
+  }
+
+  @Test
+  void staleOrFutureMotionFallsBackToLooking() {
+    for (int currentTick : new int[]{104, 99}) {
+      try (Fixture fixture = new Fixture()) {
+        fixture.preferences.set("rift-blink", "reactive-direction", "MOMENTUM");
+        when(fixture.player.getTicksLived()).thenReturn(100);
+        fixture.move(new Vector(0D, 0D, 1D));
+        when(fixture.player.getTicksLived()).thenReturn(currentTick);
+        fixture.assertReactiveLooksForward();
+      }
+    }
+  }
+
+  @Test
+  void teleportClearsMovementBeforeTheNextReactiveBlink() {
+    try (Fixture fixture = new Fixture()) {
+      fixture.preferences.set("rift-blink", "reactive-direction", "MOMENTUM");
+      fixture.move(new Vector(0D, 0D, 1D));
+      fixture.blink.on(new PlayerTeleportEvent(fixture.player, fixture.player.getLocation(),
+          fixture.player.getLocation().add(0D, 0D, 100D), PlayerTeleportEvent.TeleportCause.PLUGIN));
+      fixture.assertReactiveLooksForward();
+    }
+  }
+
+  @Test
+  void reactiveServerDirectionLockOverridesPersonalMovement() {
+    try (Fixture fixture = new Fixture()) {
+      fixture.preferences.set("rift-blink", "reactive-direction", "MOMENTUM");
+      fixture.move(new Vector(0D, 0D, 1D));
+      PreferencePolicy policy = PreferencePolicy.defaults(RiftBlink.REACTIVE_DIRECTION);
+      policy.playerEditable = false;
+      fixture.blink.getConfig().playerPreferences = Map.of("reactive-direction", policy);
+      fixture.assertReactiveLooksForward();
+      assertThat(fixture.preferences.get("rift-blink", "reactive-direction")).isEqualTo("MOMENTUM");
     }
   }
 
@@ -456,6 +591,7 @@ class RiftBlinkPreferencesTest {
       when(data.getPreferences()).thenReturn(preferences);
       doReturn(owner).when(blink).getPlayer(actor);
       doReturn(2).when(blink).getLevel(actor);
+      doReturn(2).when(blink).getLevel(owner);
       doReturn(true).when(blink).hasActiveAdaptation(actor);
       doReturn(true).when(blink).canInteract(eq(actor), any(Location.class));
       doReturn(true).when(blink).checkRegion(eq(actor), any(Location.class));
@@ -464,6 +600,28 @@ class RiftBlinkPreferencesTest {
         call.getArgument(1, Runnable.class).run();
         return true;
       });
+    }
+
+    private void move(Vector displacement) {
+      Location from = player.getLocation();
+      blink.on(new PlayerMoveEvent(player, from, from.clone().add(displacement)));
+    }
+
+    private Location reactiveDestination() {
+      teleports.when(() -> PaperCompat.teleportAsync(eq(player), any(Location.class), eq(PlayerTeleportEvent.TeleportCause.PLUGIN)))
+          .thenReturn(new CompletableFuture<>());
+      EntityDamageByEntityEvent attack = attack();
+      blink.on(attack);
+      verify(attack).setCancelled(true);
+      ArgumentCaptor<Location> destination = ArgumentCaptor.forClass(Location.class);
+      teleports.verify(() -> PaperCompat.teleportAsync(eq(player), destination.capture(), eq(PlayerTeleportEvent.TeleportCause.PLUGIN)));
+      return destination.getValue();
+    }
+
+    private void assertReactiveLooksForward() {
+      Location destination = reactiveDestination();
+      assertThat(destination.getX()).isGreaterThan(player.getLocation().getX());
+      assertThat(destination.getZ()).isCloseTo(player.getLocation().getZ(), offset(0.000001D));
     }
 
     private Block block(int x, int y, int z) {

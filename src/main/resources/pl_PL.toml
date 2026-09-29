@@ -6216,6 +6216,7 @@ phasing = "Przenikanie przez ściany"
 targeting = "Preferowane miejsce lądowania"
 activation = "Aktywacja"
 reactive_direction = "Kierunek uniku"
+direction = "Kierunek mignięcia"
 
 [rift.blink.option]
 on = "Włączone"
@@ -6229,6 +6230,7 @@ manual = "Podwójny skok"
 reactive = "Unikaj ataków"
 look = "W kierunku patrzenia"
 away = "Z dala od napastnika"
+momentum = "Kierunek ruchu"
 
 [agilityairdash.preferences]
 preference_speed = "Dash speed"

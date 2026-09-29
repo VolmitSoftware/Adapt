@@ -6216,6 +6216,7 @@ phasing = "Seinien läpäisy"
 targeting = "Laskeutumispaikan valinta"
 activation = "Aktivointi"
 reactive_direction = "Väistön suunta"
+direction = "Teleportin suunta"
 
 [rift.blink.option]
 on = "Päällä"
@@ -6229,6 +6230,7 @@ manual = "Kaksoishyppy"
 reactive = "Väistä hyökkäyksiä"
 look = "Katseen suuntaan"
 away = "Poispäin hyökkääjästä"
+momentum = "Liikesuunta"
 
 [agilityairdash.preferences]
 preference_speed = "Dash speed"

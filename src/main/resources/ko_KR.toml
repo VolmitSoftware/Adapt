@@ -6216,6 +6216,7 @@ phasing = "벽 통과"
 targeting = "착지 지점 선호"
 activation = "발동 방식"
 reactive_direction = "회피 방향"
+direction = "점멸 방향"
 
 [rift.blink.option]
 on = "켜짐"
@@ -6229,6 +6230,7 @@ manual = "이단 점프"
 reactive = "공격 회피"
 look = "바라보는 방향"
 away = "공격자에게서 멀어지는 방향"
+momentum = "이동 방향"
 
 [agilityairdash.preferences]
 preference_speed = "Dash speed"

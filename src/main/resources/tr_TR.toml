@@ -6216,6 +6216,7 @@ phasing = "Duvarlardan geçiş"
 targeting = "İniş noktası tercihi"
 activation = "Etkinleştirme"
 reactive_direction = "Kaçınma yönü"
+direction = "Işınlanma yönü"
 
 [rift.blink.option]
 on = "Açık"
@@ -6229,6 +6230,7 @@ manual = "Çift zıplama"
 reactive = "Saldırılardan kaçın"
 look = "Baktığın yöne"
 away = "Saldırgandan uzağa"
+momentum = "Hareket yönü"
 
 [agilityairdash.preferences]
 preference_speed = "Dash speed"

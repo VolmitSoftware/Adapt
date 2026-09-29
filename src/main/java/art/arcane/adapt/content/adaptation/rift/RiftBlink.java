@@ -88,10 +88,15 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
       new PlayerPreference.Definition<>("activation", RiftMessages.BLINK_SETTING_ACTIVATION, Activation.MANUAL, List.of(
           new PlayerPreference.Choice<>(Activation.MANUAL, RiftMessages.BLINK_OPTION_MANUAL, Material.FEATHER, 1),
           new PlayerPreference.Choice<>(Activation.REACTIVE, RiftMessages.BLINK_OPTION_REACTIVE, Material.SHIELD, 2))));
+  public static final PlayerPreference<Direction> DIRECTION = new PlayerPreference<>(Direction.class,
+      new PlayerPreference.Definition<>("direction", RiftMessages.BLINK_SETTING_DIRECTION, Direction.LOOK, List.of(
+          new PlayerPreference.Choice<>(Direction.LOOK, RiftMessages.BLINK_OPTION_LOOK, Material.COMPASS, 1),
+          new PlayerPreference.Choice<>(Direction.MOMENTUM, RiftMessages.BLINK_OPTION_MOMENTUM, Material.WIND_CHARGE, 1))));
   public static final PlayerPreference<ReactiveDirection> REACTIVE_DIRECTION = new PlayerPreference<>(ReactiveDirection.class,
       new PlayerPreference.Definition<>("reactive-direction", RiftMessages.BLINK_SETTING_REACTIVE_DIRECTION, ReactiveDirection.LOOK, List.of(
           new PlayerPreference.Choice<>(ReactiveDirection.LOOK, RiftMessages.BLINK_OPTION_LOOK, Material.SPYGLASS, 2),
-          new PlayerPreference.Choice<>(ReactiveDirection.AWAY_FROM_ATTACKER, RiftMessages.BLINK_OPTION_AWAY, Material.ENDER_PEARL, 2))));
+          new PlayerPreference.Choice<>(ReactiveDirection.AWAY_FROM_ATTACKER, RiftMessages.BLINK_OPTION_AWAY, Material.ENDER_PEARL, 2),
+          new PlayerPreference.Choice<>(ReactiveDirection.MOMENTUM, RiftMessages.BLINK_OPTION_MOMENTUM, Material.WIND_CHARGE, 2))));
   public static final PlayerPreference<Landing> LANDING = new PlayerPreference<>(Landing.class,
       new PlayerPreference.Definition<>("landing", RiftMessages.RIFTBLINK_PREFERENCE_LANDING, Landing.SERVER, List.of(
           new PlayerPreference.Choice<>(Landing.SERVER, RiftMessages.RIFTBLINK_PREFERENCE_LANDING_SERVER, Material.GRASS_BLOCK, 1),
@@ -102,13 +107,14 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
           new PlayerPreference.Choice<>(Momentum.FULL, RiftMessages.RIFTBLINK_PREFERENCE_MOMENTUM_FULL, Material.ARROW, 1),
           new PlayerPreference.Choice<>(Momentum.HALF, RiftMessages.RIFTBLINK_PREFERENCE_MOMENTUM_HALF, Material.FEATHER, 1),
           new PlayerPreference.Choice<>(Momentum.STOP, RiftMessages.RIFTBLINK_PREFERENCE_MOMENTUM_STOP, Material.BARRIER, 1))));
-  private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, PHASING, TARGETING, ACTIVATION, REACTIVE_DIRECTION, LANDING, MOMENTUM);
+  private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, PHASING, TARGETING, ACTIVATION, DIRECTION, REACTIVE_DIRECTION, LANDING, MOMENTUM);
 
   private final Cooldowns lastBlink = cooldowns();
   private final DoubleJumpGesture doubleJump = new DoubleJumpGesture();
   private final Map<UUID, UUID> pendingBlinks = new ConcurrentHashMap<>();
   private final Map<UUID, Boolean> replayingAttacks = playerState();
   private final Map<UUID, PendingAttack> deferredAttacks = new ConcurrentHashMap<>();
+  private final Map<UUID, MotionSample> movement = playerState();
 
   public RiftBlink() {
     super("rift-blink");
@@ -142,6 +148,9 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
   @Override
   public boolean isPlayerPreferenceVisible(AdaptPlayer player, PlayerPreference<?> preference) {
+    if (preference == DIRECTION) {
+      return PlayerPreferences.resolve(this, player.getData(), getLevel(player), ACTIVATION) == Activation.MANUAL;
+    }
     return preference != REACTIVE_DIRECTION || (getLevel(player) >= 2
         && PlayerPreferences.resolve(this, player.getData(), getLevel(player), ACTIVATION) == Activation.REACTIVE);
   }
@@ -163,7 +172,23 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerMoveEvent e) {
     Player p = e.getPlayer();
-    if (!usesManualTrigger(p)) {
+    if (!isBlinkEligible(p)) {
+      movement.remove(p.getUniqueId());
+      doubleJump.reset(p);
+      return;
+    }
+    Activation activation = preference(p, ACTIVATION);
+    boolean useMovement = activation == Activation.MANUAL ? preference(p, DIRECTION) == Direction.MOMENTUM
+        : preference(p, REACTIVE_DIRECTION) == ReactiveDirection.MOMENTUM;
+    if (useMovement && e.hasChangedPosition()) {
+      Location from = e.getFrom();
+      Location to = e.getTo();
+      movement.put(p.getUniqueId(), new MotionSample(to.getX() - from.getX(), to.getY() - from.getY(),
+          to.getZ() - from.getZ(), p.getTicksLived()));
+    } else if (!useMovement) {
+      movement.remove(p.getUniqueId());
+    }
+    if (activation != Activation.MANUAL) {
       doubleJump.reset(p);
       return;
     }
@@ -172,7 +197,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
       return;
     }
 
-    attemptBlink(p, p.getEyeLocation().getDirection(), null);
+    attemptBlink(p, useMovement ? movementDirection(p) : p.getEyeLocation().getDirection(), null);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -186,16 +211,25 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
         || isOnCooldown(player.getUniqueId())) {
       return;
     }
-    Vector direction = player.getEyeLocation().getDirection();
-    if (preference(player, REACTIVE_DIRECTION) == ReactiveDirection.AWAY_FROM_ATTACKER) {
-      direction = awayDirection(player.getLocation(), direction, attackLocation(event.getDamageSource()));
-    }
+    Vector direction = switch (preference(player, REACTIVE_DIRECTION)) {
+      case LOOK -> player.getEyeLocation().getDirection();
+      case MOMENTUM -> movementDirection(player);
+      case AWAY_FROM_ATTACKER -> awayDirection(player.getLocation(), player.getEyeLocation().getDirection(),
+          attackLocation(event.getDamageSource()));
+    };
     attemptBlink(player, direction, event);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerTeleportEvent event) {
+    movement.remove(event.getPlayer().getUniqueId());
+    doubleJump.reset(event.getPlayer());
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
   public void on(PlayerQuitEvent event) {
     Player player = event.getPlayer();
+    movement.remove(player.getUniqueId());
     pendingBlinks.remove(player.getUniqueId());
     PendingAttack attack = deferredAttacks.remove(player.getUniqueId());
     if (attack != null) {
@@ -228,6 +262,17 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
   private boolean isOnCooldown(UUID id) {
     return pendingBlinks.containsKey(id) || !lastBlink.isReady(id, Math.max(0L, getConfig().cooldownMillis));
+  }
+
+  private Vector movementDirection(Player player) {
+    MotionSample sample = movement.get(player.getUniqueId());
+    Vector look = player.getEyeLocation().getDirection();
+    if (sample == null || player.getTicksLived() - sample.tick() > 3 || player.getTicksLived() < sample.tick()) {
+      return look;
+    }
+    Vector direction = new Vector(sample.x(), sample.y(), sample.z());
+    double lengthSquared = direction.lengthSquared();
+    return Double.isFinite(lengthSquared) && lengthSquared > 0.000001D ? direction.normalize() : look;
   }
 
   private double getBlinkDistance(int level) {
@@ -631,7 +676,7 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
     double distanceFactor = 20;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Blocks searched downward from the aimed point to prefer landing on solid ground, bounded from 0 to 32.", impact = "Higher values snap blinks to ground from further above it; lower values allow more mid-air blinks.")
     int groundSnapDepth = 5;
-    @art.arcane.adapt.util.config.ConfigDoc(value = "Velocity carried along the look direction after a blink.", impact = "Higher values give a stronger dash feel on arrival; 0 stops the player dead.")
+    @art.arcane.adapt.util.config.ConfigDoc(value = "Velocity carried along the selected travel direction after a blink.", impact = "Higher values give a stronger dash feel on arrival; 0 stops the player dead.")
     double momentumCarry = 0.35;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Minimum distance a blink must cover to trigger.", impact = "Higher values prevent short hops from consuming the blink.")
     double minBlinkDistance = 1.5;
@@ -653,7 +698,11 @@ public class RiftBlink extends SimpleAdaptation<RiftBlink.Config> {
 
   public enum Activation { MANUAL, REACTIVE }
 
-  public enum ReactiveDirection { LOOK, AWAY_FROM_ATTACKER }
+  public enum Direction { LOOK, MOMENTUM }
+
+  public enum ReactiveDirection { LOOK, AWAY_FROM_ATTACKER, MOMENTUM }
+
+  private record MotionSample(double x, double y, double z, int tick) { }
 
   private record PendingAttack(UUID ticket, DamageSource source, double damage) {
   }
