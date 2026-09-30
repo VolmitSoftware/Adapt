@@ -59,7 +59,7 @@ class AdaptLanguageTest extends AdaptTestBase {
   private static final Pattern ESCAPE_TOKEN = Pattern.compile("\\\\.");
   private static final Pattern PROTECTED_TERM = Pattern.compile(
       "(?<![A-Za-z0-9])(?:PlaceholderAPI|GriefDefender|CraftBukkit|WorldGuard|NeoForge|Minecraft"
-          + "|TragOul|Chronos|Adapt|Bukkit|Paper|Folia|Purpur|Fabric|Iris|PAPI|NMS|NBT|JSON"
+          + "|Adapt|Bukkit|Paper|Folia|Purpur|Fabric|Iris|PAPI|NMS|NBT|JSON"
           + "|TOML|YAML)(?![A-Za-z0-9])"
   );
   private static final Pattern WORD_TOKEN = Pattern.compile("[\\p{L}\\p{N}_]+");
