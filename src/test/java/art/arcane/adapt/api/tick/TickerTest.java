@@ -17,6 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.within;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
@@ -61,6 +62,55 @@ class TickerTest extends AdaptTestBase {
     tickMethod().invoke(ticker);
 
     assertThat(goodTicks.get()).isEqualTo(1);
+    ticker.clear();
+  }
+
+  @Test
+  @DisplayName("session load reflects the last minute even after hours of uptime")
+  void sessionLoadIsARollingMinute() {
+    AtomicLong now = new AtomicLong(1_000L);
+    Ticker ticker = new Ticker(now::get);
+    Ticked busy = baseMock("busy");
+    now.set(1_000L + 3_600_000L);
+
+    ticker.recordMetric(busy, 6_000_000_000L);
+
+    assertThat(ticker.getWindowLoadPercent()).isCloseTo(100D * 6_000D / 59_000D, within(1.0E-9D));
+    now.addAndGet(61_000L);
+    assertThat(ticker.getWindowLoadPercent()).isZero();
+    ticker.clear();
+  }
+
+  @Test
+  @DisplayName("unregistering a ticked keeps its time in the session load")
+  void unregisterKeepsRecordedLoad() {
+    AtomicLong now = new AtomicLong(0L);
+    Ticker ticker = new Ticker(now::get);
+    Ticked busy = baseMock("busy");
+    ticker.register(busy);
+    now.set(10_000L);
+    ticker.recordMetric(busy, 1_000_000_000L);
+    double before = ticker.getWindowLoadPercent();
+
+    ticker.unregister(busy);
+
+    assertThat(before).isCloseTo(10D, within(1.0E-9D));
+    assertThat(ticker.getWindowLoadPercent()).isEqualTo(before);
+    ticker.clear();
+  }
+
+  @Test
+  @DisplayName("resetting metrics restarts the session load window")
+  void resetRestartsSessionLoad() {
+    AtomicLong now = new AtomicLong(0L);
+    Ticker ticker = new Ticker(now::get);
+    now.set(5_000L);
+    ticker.recordMetric(baseMock("busy"), 2_500_000_000L);
+
+    ticker.resetMetrics();
+    now.set(6_000L);
+
+    assertThat(ticker.getWindowLoadPercent()).isZero();
     ticker.clear();
   }
 
