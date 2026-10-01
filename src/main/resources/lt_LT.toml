@@ -2553,14 +2553,6 @@ description = "Išeiga 500 papildomas maisto porcijas"
 title = "Laivo kapitonas"
 description = "Išeiga 5,000 papildomas maisto porcijas"
 
-[advancement.challenge_crafting_signature_100]
-title = "Pasirašyta"
-description = "Baigti 100 klajoklių pervežimai su pasirašytomis prekėmis"
-
-[advancement.challenge_crafting_signature_1k]
-title = "\"Artisan Renhold\""
-description = "Baigti 1,000 klajoklių pervežimai su pasirašytomis prekėmis"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Curse Breaker"
 description = "Kleanse 10 prakeiksmai prie grindstone"
@@ -3892,9 +3884,9 @@ lore = ["Shift- spustelėkite taip pat traukia atitikimo ingredientų iš savo i
 
 [crafting.thrifty_hands]
 name = "Thrifty Rankos"
-description = "Kiekvienas laivas turi galimybę grąžinti vieną iš savo sudedamųjų dalių."
-lore1 = "šansas grąžinti meistriškumo ingredientą"
-lore = ["šansas grąžinti meistriškumo ingredientą"]
+description = "Receptai su bent trimis skirtingomis medžiagomis gali grąžinti vieną ingrediento vienetą."
+lore1 = "galimybė grąžinti vieną ingrediento vienetą (3+ skirtingos medžiagos)"
+lore = ["galimybė grąžinti vieną ingrediento vienetą (3+ skirtingos medžiagos)"]
 
 [crafting.masterwork]
 name = "Didysis darbas"
@@ -3930,15 +3922,6 @@ description = "Crafting arba virimo maisto turi galimybę gauti bonus porcijas."
 lore1 = "galimybė papildomai maisto porcijas"
 lore2 = "pridėtinės dalis per proc."
 lore = ["galimybė papildomai maisto porcijas", "pridėtinės dalis per proc."]
-
-[crafting.signature]
-name = "Artistano parašas"
-description = "Straipsniai, kuriuos jūs plaukiojate nešiotis savo parašą, ir kaimiečiai siūlo geresnių sandorių, o jūs vežate savo pasirašytas prekes."
-lore1 = "Įspūdingi daiktai pasirašomi su jūsų vardu"
-lore2 = "Kaimiečiai pasiūlyti geresnių sandorių, o jūs atliekate pasirašytas prekes"
-tag = "Pasirašė"
-item_lore = "Pasirašė {player}"
-lore = ["Įspūdingi daiktai pasirašomi su jūsų vardu", "Kaimiečiai pasiūlyti geresnių sandorių, o jūs atliekate pasirašytas prekes"]
 
 [discovery.armor]
 name = "Pasaulio Sarvai"
@@ -4056,9 +4039,9 @@ lore = ["Šoninis-erdvinis nuotolis", "Glimmer trukmė"]
 
 [enchanting.lapis_return]
 name = "Lapis Sugrizimas"
-description = "Kaina dar 1 XP lygis, o mainais turite sansa gauti nemokamu lapis"
-lore1 = "Kiekvienam lygiui tai padidina kerejimo kaina - 1, bet gali grazinti daugiau nei 3 lapis"
-lore = ["Kiekvienam lygiui tai padidina kerejimo kaina - 1, bet gali grazinti daugiau nei 3 lapis"]
+description = "Kerėjimas prie stalo gali grąžinti sunaudotą lazuritą; aukštesni lygiai grąžina daugiau."
+lore1 = "Galimybė grąžinti sunaudotą lazuritą iki adaptacijos lygio, bet ne daugiau, nei kainavo kerėjimas"
+lore = ["Galimybė grąžinti sunaudotą lazuritą iki adaptacijos lygio, bet ne daugiau, nei kainavo kerėjimas"]
 
 [enchanting.quick_enchant]
 name = "Staigus Burtas"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

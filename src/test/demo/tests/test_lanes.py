@@ -138,7 +138,8 @@ class LaneLaunchTest(unittest.TestCase):
         self.launch = mock.patch.object(studio, 'launch_prism').start()
         self.addCleanup(mock.patch.stopall)
         bridge = mock.MagicMock()
-        bridge.state.return_value = {'connected': True}
+        bridge.state.return_value = {'connected': True, 'hiddenRenderer': True, 'windowVisible': False, 'windowFocused': False,
+                                     'mouseGrabbed': False, 'cursorMode': 212993, 'renderWidth': 1920, 'renderHeight': 1080}
         mock.patch.object(studio, 'DemoBridge', return_value=bridge).start()
         self.bridge_jar = self.root / 'adapt-client-qa.jar'
         self.bridge_jar.write_text('bridge')
@@ -164,7 +165,7 @@ class LaneLaunchTest(unittest.TestCase):
         config = (demo.instance / 'instance.cfg').read_text()
         command: list[str] = self.launch.call_args.args[0]
         self.assertIn('name=Adapt Demo Studio 2\n', config)
-        self.assertIn('JvmArgs=-Dadapt.qa.port=51234 -Dadapt.qa.token=' + demo.token + ' -Dadapt.qa.output="' + str(demo.output) + '"\n', config)
+        self.assertIn('JvmArgs=-Dadapt.qa.hidden=true -Dadapt.qa.port=51234 -Dadapt.qa.token=' + demo.token + ' -Dadapt.qa.output="' + str(demo.output) + '"\n', config)
         self.assertIn('OverrideJavaArgs=true\n', config)
         self.assertEqual((demo.game / 'mods' / 'AdaptClientQa.jar').read_text(), 'bridge')
         self.assertEqual((demo.game / 'mods' / 'sodium-fabric-0.9.2+mc26.2.jar').read_text(), 'user mod')
@@ -224,7 +225,8 @@ class OpponentLaunchTest(unittest.TestCase):
         self.launch = mock.patch.object(studio, 'launch_prism').start()
         self.addCleanup(mock.patch.stopall)
         self.bridge = mock.MagicMock()
-        self.bridge.state.return_value = {'connected': True}
+        self.bridge.state.return_value = {'connected': True, 'hiddenRenderer': True, 'windowVisible': False, 'windowFocused': False,
+                                          'mouseGrabbed': False, 'cursorMode': 212993, 'renderWidth': 1920, 'renderHeight': 1080}
         mock.patch.object(studio, 'DemoBridge', return_value=self.bridge).start()
         self.instances: Path = self.root / 'instances'
         write_tree(self.instances / 'AdaptDemoStudio', BASE_FILES)
@@ -255,7 +257,7 @@ class OpponentLaunchTest(unittest.TestCase):
         command: list[str] = self.launch.call_args.args[0]
         self.assertIn('name=Adapt Demo Opponent\n', config)
         self.assertNotIn('uuid=', config)
-        self.assertIn('JvmArgs=-Dadapt.qa.port=' + str(demo.opponent_port) + ' -Dadapt.qa.token=' + demo.opponent_token, config)
+        self.assertIn('JvmArgs=-Dadapt.qa.hidden=true -Dadapt.qa.port=' + str(demo.opponent_port) + ' -Dadapt.qa.token=' + demo.opponent_token, config)
         self.assertIn('.minecraft/mods/sodium-fabric-0.9.2+mc26.2.jar', tree(demo.opponent_instance))
         self.assertNotIn('.minecraft/flashback/replays/take.zip', tree(demo.opponent_instance))
         self.assertEqual((demo.opponent_instance / '.minecraft' / 'mods' / 'AdaptClientQa.jar').read_text(), 'bridge')
@@ -327,6 +329,14 @@ class OpponentLaunchTest(unittest.TestCase):
         with mock.patch.object(studio.time, 'sleep'), mock.patch.object(studio.time, 'monotonic', side_effect=iter(range(0, 1000, 60))):
             with self.assertRaisesRegex(RuntimeError, 'AdaptDemoOpponent did not connect within 180 s'):
                 demo.launch_opponent([])
+        self.assertTrue(demo.launched_opponent)
+        self.assertIsNone(demo.opponent_bridge)
+
+    def test_visible_opponent_fails_before_it_is_available_to_the_take(self) -> None:
+        demo: studio.Studio = self.studio_for(1)
+        self.bridge.state.return_value['windowVisible'] = True
+        with self.assertRaisesRegex(RuntimeError, 'windowVisible'):
+            demo.launch_opponent([])
         self.assertTrue(demo.launched_opponent)
         self.assertIsNone(demo.opponent_bridge)
 
@@ -517,7 +527,8 @@ class RunJarsTest(unittest.TestCase):
                                'server/plugins/Adapt/adapt.toml': 'actionbarNotifyXp = true\nactionbarNotifyLevel = true\nactionbarNotifyMasterLevel = true\n',
                                'server/plugins/Adapt/skills/discovery.toml': 'enabled = true\n'})
         self.bridge: mock.MagicMock = mock.MagicMock()
-        self.bridge.state.return_value = {'connected': True}
+        self.bridge.state.return_value = {'connected': True, 'hiddenRenderer': True, 'windowVisible': False, 'windowFocused': False,
+                                          'mouseGrabbed': False, 'cursorMode': 212993, 'renderWidth': 1920, 'renderHeight': 1080}
         for patcher in (mock.patch.object(studio, 'ROOT', self.root), mock.patch.object(studio, 'LOCKS', self.root / 'locks'),
                         mock.patch('sys.stdout', new_callable=io.StringIO),
                         mock.patch.object(studio.subprocess, 'run', return_value=subprocess.CompletedProcess([], 0)),

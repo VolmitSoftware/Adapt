@@ -232,10 +232,34 @@ class ChoreographyTest(unittest.TestCase):
             problems = choreography.validate(choreography.load_skill(root, 'x').entries, {'x-one'})
             self.assertTrue(any('skip' in p and 'beats' in p for p in problems))
 
-    def test_agility_marathoner_is_skipped_with_reason(self) -> None:
-        entry = choreography.load_skill(ROOT, 'agility').entries['agility-marathoner']
-        self.assertEqual(entry.skip, 'Reduces hunger drain while sprinting; nothing visible in a learned-only clip.')
-        self.assertEqual(entry.beats, [])
+    def test_agility_marathoner_compares_matched_live_sprints(self) -> None:
+        entry: choreography.Entry = choreography.load_skill(ROOT, 'agility').entries['agility-marathoner']
+        self.assertEqual(entry.skip, '')
+        self.assertTrue(entry.pov_capture)
+        self.assertIsNotNone(entry.expect_visual)
+        runs: list[dict] = [beat for beat in entry.beats if beat['verb'] == 'keys']
+        self.assertEqual(runs, [{'verb': 'keys', 'hold': ['forward', 'sprint'], 'ticks': 80}] * 2)
+        actions: list[str] = [beat['text'].split()[-1] if beat['verb'] == 'command' else 'sprint'
+                             for beat in entry.beats if beat['verb'] in ('command', 'keys')]
+        self.assertEqual(actions, ['baseline', 'sprint', 'finish', 'learned', 'sprint', 'finish', 'clear'])
+
+    def test_discovery_polymath_compares_actual_sword_awards(self) -> None:
+        entry: choreography.Entry = choreography.load_skill(ROOT, 'discovery').entries['discovery-polymath']
+        self.assertEqual(entry.skip, '')
+        self.assertTrue(entry.pov_capture)
+        self.assertIsNotNone(entry.expect_visual)
+        actions: list[str] = [beat['text'].split()[-1] if beat['verb'] == 'command' else beat['key']
+                             for beat in entry.beats if beat['verb'] in ('command', 'click')]
+        self.assertEqual(actions, ['baseline', 'attack', 'finish', 'learned', 'attack', 'finish', 'clear'])
+
+    def test_lapis_return_keeps_table_open_until_actual_refund(self) -> None:
+        entry: choreography.Entry = choreography.load_skill(ROOT, 'enchanting').entries['enchanting-lapis-return']
+        button: int = next(index for index, beat in enumerate(entry.beats)
+                           if beat['verb'] == 'window' and beat['action'] == 'button')
+        self.assertEqual(entry.beats[button + 1], {'verb': 'wait', 'ticks': 5})
+        self.assertEqual(entry.beats[button + 2], {'verb': 'window', 'action': 'close'})
+        self.assertEqual(entry.expect_sound, 'minecraft:block.amethyst_block.chime')
+        self.assertEqual(entry.expect_particle, 'glow')
 
     def test_keys_and_press_need_a_hold(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

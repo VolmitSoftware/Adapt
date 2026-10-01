@@ -89,6 +89,15 @@ public final class ExcavationSets implements DemoSetProvider {
 
     private static void buildWorkbench(World world, int x, int y, int z) {
         world.getBlockAt(x, y, z - 1).setType(Material.CRAFTING_TABLE, false);
-        DemoGeometry.fill(world, Material.OAK_LOG, x + 1, y, z - 1, x + 1, y + 1, z - 1);
+        DemoGeometry.fill(world, Material.STONE, x - 2, y, z - 2, x + 2, y, z - 2);
+        DemoGeometry.fill(world, Material.STONE, x - 3, y, z - 3, x, y, z - 3);
+        world.getBlockAt(x - 2, y + 1, z - 2).setType(Material.STONE, false);
+        world.getBlockAt(x - 1, y + 1, z - 2).setType(Material.OAK_LOG, false);
+        world.getBlockAt(x, y + 1, z - 2).setType(Material.DIRT, false);
+        world.getBlockAt(x + 1, y + 1, z - 2).setType(Material.COBWEB, false);
+        world.getBlockAt(x + 2, y, z - 2).setType(Material.GRASS_BLOCK, false);
+        world.getBlockAt(x - 3, y + 1, z - 3).setType(Material.IRON_ORE, false);
+        world.getBlockAt(x - 1, y + 1, z - 3).setType(Material.OAK_PLANKS, false);
+        world.getBlockAt(x, y + 1, z - 3).setType(Material.SAND, false);
     }
 }

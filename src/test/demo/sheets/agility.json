@@ -170,7 +170,28 @@
     ],
     "expect": {"sound": "minecraft:item.armor.equip_leather", "particle": "block"}, "maxTicks": 200
   },
-  "agility-marathoner": {"skip": "Reduces hunger drain while sprinting; nothing visible in a learned-only clip."},
+  "agility-marathoner": {
+    "set": "runway", "level": 5, "povCapture": true,
+    "pre": ["execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 5}],
+    "beats": [
+      {"verb": "command", "text": "adaptqa demo passive {actor} marathoner baseline"},
+      {"verb": "wait", "ticks": 60},
+      {"verb": "keys", "hold": ["forward", "sprint"], "ticks": 80},
+      {"verb": "command", "text": "adaptqa demo passive {actor} marathoner finish"},
+      {"verb": "wait", "ticks": 70},
+      {"verb": "look", "yaw": 0, "pitch": 5, "ticks": 20},
+      {"verb": "command", "text": "adaptqa demo passive {actor} marathoner learned"},
+      {"verb": "wait", "ticks": 60},
+      {"verb": "keys", "hold": ["forward", "sprint"], "ticks": 80},
+      {"verb": "command", "text": "adaptqa demo passive {actor} marathoner finish"},
+      {"verb": "wait", "ticks": 70},
+      {"verb": "command", "text": "adaptqa demo passive {actor} marathoner clear"},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {"visual": "Two labelled, matched 80-tick sprints start at 20 hunger, zero saturation and the same exhaustion. The unlearned run drops to 19 hunger; the learned run retains 20. The live hunger HUD and Demo comparison sidebar show the measured results; exhaustion is seeded only before each pass, never injected during the sprint."},
+    "maxTicks": 650
+  },
   "agility-kip-up": {
     "set": "arena", "level": 4, "opponent": true,
     "prelude": [

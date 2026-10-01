@@ -2,6 +2,29 @@
   "required": true,
   "package": "art.arcane.adapt.clientqa.mixin",
   "compatibilityLevel": "JAVA_25",
-  "client": ["MinecraftMixin", "ParticleEngineMixin", "SoundEngineMixin", "ParticleRenderMixin", "ParticleExtractMixin", "KeyMappingAccessor", "AnvilScreenAccessor", "DefaultPlayerSkinAccessor", "MinecraftAccessor", "ContainerScreenAccessor", "MouseHandlerMixin", "ScreenMixin", "StonecutterScreenAccessor"],
-  "injectors": {"defaultRequire": 1}
+  "client": [
+    "MinecraftMixin",
+    "ParticleEngineMixin",
+    "SoundEngineMixin",
+    "ParticleRenderMixin",
+    "ParticleExtractMixin",
+    "KeyMappingAccessor",
+    "AnvilScreenAccessor",
+    "DefaultPlayerSkinAccessor",
+    "MinecraftAccessor",
+    "ContainerScreenAccessor",
+    "MouseHandlerMixin",
+    "ScreenMixin",
+    "StonecutterScreenAccessor",
+    "WindowMixin",
+    "GlfwInitMixin",
+    "FlashbackWindowMixin",
+    "FlashbackShowWindowMixin",
+    "FlashbackWindowFocusMixin",
+    "FlashbackReplayUiMixin",
+    "FlashbackExportMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

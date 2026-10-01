@@ -1,6 +1,243 @@
 {
-  "kinetics-breachwright": {"skip": "Lowers the smashed target's armor and armor toughness for a few seconds; nothing beyond the vanilla mace smash is visible in a learned-only clip."},
-  "kinetics-charge-lance": {"skip": "Adds bonus damage to spear hits landed at running speed; the extra damage is not visible in a learned-only clip."},
+  "kinetics-breachwright": {
+    "set": "kinetics-inspection-smash",
+    "level": 5,
+    "povCapture": true,
+    "plugins": [
+      "Gloss"
+    ],
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:mace",
+      "adapt claim-adaptation discovery:discovery-insight 5 force=true player={actor}"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.8,
+          -1.8
+        ]
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tag @e[type=minecraft:cow,distance=..24] add adapt-qa-kinetic-demo-target"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} as @e[type=minecraft:cow,tag=adapt-qa-kinetic-demo-target,distance=..24] run attribute @s minecraft:movement_speed base set 0"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} as @e[type=minecraft:cow,distance=..24] run attribute @s minecraft:max_health base set 200"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} as @e[type=minecraft:cow,distance=..24] run attribute @s minecraft:knockback_resistance base set 1"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} as @e[type=minecraft:cow,distance=..24] run data merge entity @s {NoAI:1b,Health:200.0f,Motion:[0.0d,0.0d,0.0d]}"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=minecraft:cow,tag=adapt-qa-kinetic-demo-target,distance=..24] ~ ~-5 ~-2.3"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} as @e[type=minecraft:cow,distance=..24] run attribute @s minecraft:armor base set 20"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} as @e[type=minecraft:cow,distance=..24] run attribute @s minecraft:armor_toughness base set 8"
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.8,
+          -1.8
+        ]
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 2
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 2
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "left"
+        ],
+        "ticks": 16
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.1,
+          -1.8
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 170
+      }
+    ],
+    "expect": {
+      "visual": "The actual cow overlay starts at ARM 20 and toughness 8. A falling mace smash changes those values to ARM 14 and toughness 4, then they recover after the temporary shred expires."
+    },
+    "maxTicks": 365
+  },
+  "kinetics-charge-lance": {
+    "set": "kinetics-charge-comparison",
+    "level": 5,
+    "povCapture": true,
+    "plugins": [
+      "Gloss"
+    ],
+    "pre": [
+      "adapt clear adaptations player={actor}",
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_spear",
+      "execute at {actor} run tag @e[type=minecraft:cow,distance=..24] add adapt-qa-kinetic-demo-target",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..24] run attribute @s minecraft:max_health base set 200",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..24] run attribute @s minecraft:knockback_resistance base set 1",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..24] run data merge entity @s {NoAI:1b,Health:200.0f}"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.8,
+          -5.7
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "forward",
+          "sprint"
+        ],
+        "ticks": 14
+      },
+      {
+        "verb": "wait",
+        "ticks": 9
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 20
+      },
+      {
+        "verb": "command",
+        "text": "adapt claim-adaptation kinetics:kinetics-charge-lance 5 force=true player={actor}"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.8,
+          -5.7
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "forward",
+          "sprint"
+        ],
+        "ticks": 14
+      },
+      {
+        "verb": "wait",
+        "ticks": 9
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      }
+    ],
+    "expect": {
+      "visual": "Two real running iron-spear jabs hit the stationary high-health cow. The first is unlearned; the second has level-five Charge Lance. Gloss shows the actual health and damage, with the second running hit removing more health."
+    },
+    "maxTicks": 360
+  },
   "kinetics-dead-zone": {
     "set": "kinetics-deadzone", "level": 3,
     "pre": [
@@ -244,8 +481,219 @@
     ],
     "expect": {"sound": "minecraft:entity.horse.gallop", "particle": "sweep_attack"}, "maxTicks": 180
   },
-  "kinetics-phalanx-reach": {"skip": "Extends entity reach while a spear is held; the longer reach cannot be told apart from normal reach in a learned-only clip."},
-  "kinetics-quake-guard": {"skip": "Grants knockback resistance, armor toughness and safe fall distance for a moment after a landed smash; nothing beyond the vanilla mace smash is visible in a learned-only clip."},
+  "kinetics-phalanx-reach": {
+    "set": "kinetics-reach-comparison",
+    "level": 5,
+    "povCapture": true,
+    "pre": [
+      "adapt clear adaptations player={actor}",
+      "item replace entity {actor} weapon.mainhand with minecraft:wooden_spear",
+      "item replace entity {actor} weapon.offhand with minecraft:air",
+      "execute at {actor} run setblock ~ ~-1 ~ minecraft:gold_block",
+      "execute at {actor} as @e[type=minecraft:villager,distance=..12] run data merge entity @s {NoAI:1b,VillagerData:{profession:\"minecraft:farmer\",level:2,type:\"minecraft:plains\"},Offers:{Recipes:[{buy:{id:\"minecraft:emerald\",count:1},sell:{id:\"minecraft:bread\",count:6},maxUses:100,xp:0,rewardExp:0b,priceMultiplier:0.0f}]}}"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          -1.3,
+          0.8,
+          -3.8
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "command",
+        "text": "adapt claim-adaptation kinetics:kinetics-phalanx-reach 5 force=true player={actor}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          2.3,
+          0.8,
+          -3.8
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "visual": "Standing on the same gold marker beyond ordinary entity-interaction reach, the first attempt cannot open a villager trade menu. With level-five Phalanx Reach and a spear held, the menu opens from that same position. After closing the menu and switching away from the spear, a second equally distant villager remains out of reach."
+    },
+    "maxTicks": 380
+  },
+  "kinetics-quake-guard": {
+    "set": "kinetics-brace-inspection",
+    "level": 5,
+    "opponent": true,
+    "povCapture": true,
+    "plugins": [
+      "Gloss"
+    ],
+    "pre": [
+      "adapt clear adaptations player={actor}",
+      "adapt claim-adaptation discovery:discovery-insight 5 force=true player={actor}",
+      "adapt clear adaptations player={opponent}",
+      "adapt claim-adaptation kinetics:kinetics-quake-guard 5 force=true player={opponent}",
+      "item replace entity {opponent} weapon.mainhand with minecraft:mace",
+      "execute at {actor} run tag @e[type=minecraft:cow,distance=..24] add adapt-qa-kinetic-demo-target",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..24] run attribute @s minecraft:max_health base set 200",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..24] run attribute @s minecraft:knockback_resistance base set 1",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..24] run data merge entity @s {NoAI:1b,Health:200.0f}"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          6.0,
+          0.5
+        ]
+      },
+      {
+        "verb": "lookAt",
+        "actor": "opponent",
+        "offset": [
+          0.5,
+          0.8,
+          -1.8
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "press",
+        "actor": "opponent",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.2,
+          -0.95
+        ],
+        "ticks": 14
+      },
+      {
+        "verb": "lookAt",
+        "actor": "opponent",
+        "offset": [
+          0.5,
+          0.8,
+          -1.8
+        ],
+        "ticks": 2
+      },
+      {
+        "verb": "click",
+        "actor": "opponent",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 2
+      },
+      {
+        "verb": "click",
+        "actor": "opponent",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 2
+      },
+      {
+        "verb": "click",
+        "actor": "opponent",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 2
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.2,
+          -0.95
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 130
+      }
+    ],
+    "expect": {
+      "visual": "The inspecting player sees the other player make a real falling mace smash. Insight shows that player gaining toughness 6 and knockback resistance 0.8 after the smash, then returning to the baseline after the brace expires."
+    },
+    "maxTicks": 290
+  },
   "kinetics-rebound-anvil": {
     "set": "kinetics-rebound",
     "level": 3,
@@ -324,7 +772,111 @@
     ],
     "expect": {"sound": "minecraft:block.wool.fall", "particle": "cloud"}, "maxTicks": 140
   },
-  "kinetics-surface-skate": {"skip": "Lowers ground friction only while sprinting; the extra glide cannot be told apart from a normal sprint, and the sneak brake stops no visibly faster than vanilla deceleration, in a learned-only clip."},
+  "kinetics-surface-skate": {
+    "set": "kinetics-skate-comparison",
+    "level": 5,
+    "povCapture": true,
+    "pre": [
+      "adapt clear adaptations player={actor}",
+      "execute at {actor} run setblock ~ ~-1 ~ minecraft:gold_block"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 20
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward",
+          "sprint"
+        ],
+        "ticks": 35
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run setblock ~ ~-1 ~ minecraft:red_concrete"
+      },
+      {
+        "verb": "command",
+        "text": "adapt claim-adaptation kinetics:kinetics-surface-skate 5 force=true player={actor}"
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo preference {actor} kinetics-surface-skate control ARMED"
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward",
+          "sprint"
+        ],
+        "ticks": 35
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run setblock ~ ~-1 ~ minecraft:lime_concrete"
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "forward",
+          "sprint"
+        ],
+        "ticks": 16
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "off": [
+          "forward",
+          "sprint"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "visual": "The gold, red, and lime blocks mark actual resting positions along the stone runway. The unlearned and level-five runs use equal-duration sprint inputs. With the supported Always, sneak to brake control, the learned player retains ground momentum after forward input ends. The final grounded crouch restores normal friction, and the player settles to a stop."
+    },
+    "maxTicks": 410
+  },
   "kinetics-terminal-toggle": {
     "set": "kinetics-spire", "level": 3,
     "prelude": [{"verb": "look", "yaw": 180, "pitch": 35}],

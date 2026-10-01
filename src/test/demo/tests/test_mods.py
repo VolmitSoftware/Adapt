@@ -1,5 +1,7 @@
 import hashlib
 import json
+import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -89,6 +91,25 @@ class FlashbackConfigTest(unittest.TestCase):
 
 
 class PrepareInstanceTest(unittest.TestCase):
+    @unittest.skipUnless(sys.platform == 'darwin' and shutil.which('clang++')
+                         and (clientqa.LAUNCHER.parent.parent / 'Frameworks' / 'QtCore.framework').is_dir(),
+                         'Prism QtCore and clang++ are required for the native settings parser')
+    def test_native_prism_settings_preserve_hidden_argument_and_output_path(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            instance: Path = root / 'instances' / 'AdaptDemoStudio'
+            self.prepare(root, instance, 18762, 'native-settings-test')
+            executable: Path = root / 'qsettings-arguments'
+            frameworks: str = str(clientqa.LAUNCHER.parent.parent / 'Frameworks')
+            source: Path = Path(__file__).with_name('qsettings_arguments.cpp')
+            subprocess.run(['clang++', '-std=c++17', '-F' + frameworks, '-framework', 'QtCore', '-Wl,-rpath,' + frameworks,
+                            str(source), '-o', str(executable)], capture_output=True, text=True, check=True, timeout=30)
+            result: subprocess.CompletedProcess = subprocess.run([str(executable), str(instance / 'instance.cfg')],
+                                                                   capture_output=True, text=True, check=True, timeout=5)
+            arguments: list[str] = json.loads(result.stdout)
+        self.assertEqual(arguments, ['-Dadapt.qa.hidden=true', '-Dadapt.qa.port=18762', '-Dadapt.qa.token=native-settings-test',
+                                     '-Dadapt.qa.output=' + str(root / 'out')])
+
     def pinned(self, root: Path) -> tuple[list[Path], Path]:
         cache = root / 'cache'
         mods = [mod_jar(cache / 'Flashback-0.43.6-for-MC26.2.jar', 'flashback', '0.43.6'),
@@ -114,7 +135,7 @@ class PrepareInstanceTest(unittest.TestCase):
         self.assertIn('name=Adapt Demo Studio', config)
         self.assertIn('MaxMemAlloc=4096', config)
         self.assertIn('OverrideJavaArgs=true', config)
-        self.assertIn('JvmArgs=-Dadapt.qa.port=18762 -Dadapt.qa.token=' + 't' * 48 + ' -Dadapt.qa.output="' + str(root / 'out') + '"', config)
+        self.assertIn('JvmArgs=-Dadapt.qa.hidden=true -Dadapt.qa.port=18762 -Dadapt.qa.token=' + 't' * 48 + ' -Dadapt.qa.output="' + str(root / 'out') + '"', config)
         self.assertEqual([line for line in config if line.startswith(('OverrideWindow=', 'MinecraftWin'))],
                          ['OverrideWindow=true', 'MinecraftWinWidth=1920', 'MinecraftWinHeight=1080'])
         self.assertEqual([component['uid'] for component in pack['components']],
@@ -131,7 +152,7 @@ class PrepareInstanceTest(unittest.TestCase):
             instance = root / 'instances' / 'AdaptDemoStudio'
             game = instance / '.minecraft'
             (game / 'config' / 'flashback').mkdir(parents=True)
-            (instance / 'instance.cfg').write_text('[General]\nJvmArgs="-Dadapt.qa.port=1 -Dadapt.qa.token=old"\nMaxMemAlloc=8192\n'
+            (instance / 'instance.cfg').write_text('[General]\nJvmArgs="-Dadapt.qa.port=1 -Dadapt.qa.token=old -Dadapt.qa.hidden=false"\nMaxMemAlloc=8192\n'
                                                    'name=Adapt Demo Studio\nOverrideJavaArgs=true\n\n[UI]\nmods_Page\\Columns="AAAA"\n')
             (instance / 'mmc-pack.json').write_text('{"components": []}')
             mod_jar(game / 'mods' / 'sodium-0.8.jar', 'sodium', '0.8.0')
@@ -151,7 +172,7 @@ class PrepareInstanceTest(unittest.TestCase):
             flashback = json.loads((game / 'config' / 'flashback' / 'flashback.json').read_text())
             options = (game / 'options.txt').read_text().splitlines()
         self.assertFalse(created)
-        self.assertEqual(config, ['[General]', 'JvmArgs=-Dadapt.qa.port=40111 -Dadapt.qa.token=' + 'n' * 48 + ' -Dadapt.qa.output="' + str(root / 'out') + '"',
+        self.assertEqual(config, ['[General]', 'JvmArgs=-Dadapt.qa.hidden=true -Dadapt.qa.port=40111 -Dadapt.qa.token=' + 'n' * 48 + ' -Dadapt.qa.output="' + str(root / 'out') + '"',
                                   'MaxMemAlloc=8192', 'name=Adapt Demo Studio', 'OverrideJavaArgs=true', '', 'OverrideWindow=true',
                                   'MinecraftWinWidth=1920', 'MinecraftWinHeight=1080', '[UI]', 'mods_Page\\Columns="AAAA"'])
         self.assertEqual(pack, '{"components": []}')

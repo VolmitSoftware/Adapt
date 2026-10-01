@@ -2553,14 +2553,6 @@ description = "Uprawa 500 premiowe porcje żywności"
 title = "Kwatermistrz"
 description = "Uprawa 5,000 premiowe porcje żywności"
 
-[advancement.challenge_crafting_signature_100]
-title = "Podpisane"
-description = "Kompletny 100 handel wiejski przewożący towary podpisane"
-
-[advancement.challenge_crafting_signature_1k]
-title = "Rzemieślnik"
-description = "Kompletny 1,000 handel wiejski przewożący towary podpisane"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Klątwa"
 description = "Oczyść 10 Klątwy na skałach"
@@ -3892,9 +3884,9 @@ lore = ["Kliknięcie na zmianę wyciąga również pasujące składniki z zapas�
 
 [crafting.thrifty_hands]
 name = "Oszczędne ręce"
-description = "Każdy statek ma szansę zwrócić jeden z jego składników."
-lore1 = "możliwość zwrotu składnika rzemiosła"
-lore = ["możliwość zwrotu składnika rzemiosła"]
+description = "Receptury z co najmniej trzema różnymi materiałami mogą zwrócić jedną sztukę składnika."
+lore1 = "szansa na zwrot jednej sztuki składnika (3+ różne materiały)"
+lore = ["szansa na zwrot jednej sztuki składnika (3+ różne materiały)"]
 
 [crafting.masterwork]
 name = "Masterwork"
@@ -3930,15 +3922,6 @@ description = "Produkcja lub gotowanie żywności ma szansę uzyskać bonusowe p
 lore1 = "szansa na dodatkowe porcje żywności"
 lore2 = "porcje bonusowe na oś"
 lore = ["szansa na dodatkowe porcje żywności", "porcje bonusowe na oś"]
-
-[crafting.signature]
-name = "Podpis rzemieślnika"
-description = "Przedmioty, z których korzystasz, noszą swój podpis, a wieśniacy oferują lepsze transakcje podczas transportu podpisanych towarów."
-lore1 = "Przedmioty wykonane są podpisane Twoim imieniem"
-lore2 = "Villagers oferują lepsze transakcje podczas transportu podpisanych towarów"
-tag = "Podpisano"
-item_lore = "Podpisano {player}"
-lore = ["Przedmioty wykonane są podpisane Twoim imieniem", "Villagers oferują lepsze transakcje podczas transportu podpisanych towarów"]
 
 [discovery.armor]
 name = "Pancerz Swiata"
@@ -4056,9 +4039,9 @@ lore = ["Zakres widoczności", "Czas trwania błysku"]
 
 [enchanting.lapis_return]
 name = "Zwrot Lazurytu"
-description = "Kosztem 1 dodatkowego poziomu PD, masz szanse na darmowy lazuryt w zamian"
-lore1 = "Za kazdy poziom zwieksza koszt zaklecia o 1, ale moze zwrocic do 3 Lazurytu"
-lore = ["Za kazdy poziom zwieksza koszt zaklecia o 1, ale moze zwrocic do 3 Lazurytu"]
+description = "Zaklinanie przy stole ma szansę zwrócić zużyty lazuryt; wyższe poziomy zwracają więcej."
+lore1 = "Szansa na zwrot zużytego lazurytu do poziomu adaptacji, lecz nie więcej niż koszt zaklęcia"
+lore = ["Szansa na zwrot zużytego lazurytu do poziomu adaptacji, lecz nie więcej niż koszt zaklęcia"]
 
 [enchanting.quick_enchant]
 name = "Szybkie Zaklecie Kliknieciem"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

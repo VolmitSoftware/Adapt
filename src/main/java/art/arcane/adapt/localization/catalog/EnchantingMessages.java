@@ -28,9 +28,9 @@ public final class EnchantingMessages {
   public static final TextKey PREFERENCE_ENCHANTINGARCANESIPHON_BONUS_XP = TextKey.of("enchanting.preferences.enchantingarcanesiphon.bonus-xp", "Bonus skill XP");
   public static final TextKey PREFERENCE_ENCHANTINGARCANESIPHON_BOOKS = TextKey.of("enchanting.preferences.enchantingarcanesiphon.books", "Siphoned books");
   public static final TextKey LAPIS_RETURN_NAME = TextKey.of("enchanting.lapis_return.name", "Lapis Return");
-  public static final TextKey LAPIS_RETURN_DESCRIPTION = TextKey.of("enchanting.lapis_return.description", "Enchanting at a table has a chance to refund lapis, more at higher levels.");
-  public static final TextKey LAPIS_RETURN_LORE1 = TextKey.of("enchanting.lapis_return.lore1", "Chance to drop free lapis when you enchant; the amount scales with your level");
-  public static final LinesKey LAPIS_RETURN_LORE = LinesKey.of("enchanting.lapis_return.lore", "Chance to drop free lapis when you enchant; the amount scales with your level");
+  public static final TextKey LAPIS_RETURN_DESCRIPTION = TextKey.of("enchanting.lapis_return.description", "Enchanting at a table has a chance to refund spent lapis, more at higher levels.");
+  public static final TextKey LAPIS_RETURN_LORE1 = TextKey.of("enchanting.lapis_return.lore1", "Chance to refund spent lapis, up to your level and never more than the enchant costs");
+  public static final LinesKey LAPIS_RETURN_LORE = LinesKey.of("enchanting.lapis_return.lore", "Chance to refund spent lapis, up to your level and never more than the enchant costs");
   public static final TextKey QUICK_ENCHANT_NAME = TextKey.of("enchanting.quick_enchant.name", "Quick-Click Enchant");
   public static final TextKey QUICK_ENCHANT_DESCRIPTION = TextKey.of("enchanting.quick_enchant.description", "Enchant items by clicking enchant books directly on them.");
   public static final TextKey QUICK_ENCHANT_LORE1 = TextKey.of("enchanting.quick_enchant.lore1", "Max Combined Levels");

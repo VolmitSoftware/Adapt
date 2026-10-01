@@ -2553,14 +2553,6 @@ description = "Ertrag 500 Bonus-Lebensmittelportionen"
 title = "Quartermaster"
 description = "Ertrag 5,000 Bonus-Lebensmittelportionen"
 
-[advancement.challenge_crafting_signature_100]
-title = "Unterzeichnet"
-description = "Vollständige Geschäfte mit dem Beförderungsgeschäft von 100"
-
-[advancement.challenge_crafting_signature_1k]
-title = "Bekannte Handwerker"
-description = "Vollständige Geschäfte mit dem Beförderungsgeschäft von 1,000"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Verfluchtbrücher"
 description = "Reinigen Sie 10-Flügel am Schleifstein"
@@ -3892,9 +3884,9 @@ lore = ["Der Shift-Klick zieht auch die passenden Zutaten aus Ihrem Inventar", "
 
 [crafting.thrifty_hands]
 name = "Sparbare Hände"
-description = "Jedes Schiff hat die Möglichkeit, einen seiner Zutaten zurückzuzahlen."
-lore1 = "Möglichkeit, einen Zutaten aus der Herstellung zu erstatten"
-lore = ["Möglichkeit, einen Zutaten aus der Herstellung zu erstatten"]
+description = "Rezepte mit mindestens drei verschiedenen Materialien können eine Einheit einer Zutat zurückgeben."
+lore1 = "Chance auf eine Zutateneinheit (3+ verschiedene Materialien)"
+lore = ["Chance auf eine Zutateneinheit (3+ verschiedene Materialien)"]
 
 [crafting.masterwork]
 name = "Meisterwerk"
@@ -3930,15 +3922,6 @@ description = "Das Handwerk oder das Kochen von Lebensmitteln hat die Möglichke
 lore1 = "Chance auf Bonus-Gebühren"
 lore2 = "Bonusanteile pro Proz"
 lore = ["Chance auf Bonus-Gebühren", "Bonusanteile pro Proz"]
-
-[crafting.signature]
-name = "Die Handwerksfirma"
-description = "Die Gegenstände, die Sie handhaben, tragen Ihre Unterschrift, und die Dorfbewohner bieten bessere Geschäfte, während Sie Ihre unterschriebenen Waren tragen."
-lore1 = "Handwerksachen sind mit Ihrem Namen unterschrieben"
-lore2 = "Die Dorfbewohner bieten bessere Geschäfte , während Sie unterschriebenen Waren tragen"
-tag = "Unterzeichnet von"
-item_lore = "Unterzeichnet von {player}"
-lore = ["Handwerksachen sind mit Ihrem Namen unterschrieben", "Die Dorfbewohner bieten bessere Geschäfte , während Sie unterschriebenen Waren tragen"]
 
 [discovery.armor]
 name = "Weltrüstung"
@@ -4056,9 +4039,9 @@ lore = ["Sichtlinie", "Glimmer Dauer"]
 
 [enchanting.lapis_return]
 name = "Lapislazuli-Rückgabe"
-description = "Auf Kosten von 1 Stufe mehr EP, mit einer Chance, kostenlos Lapislazuli zurückzubekommen"
-lore1 = "Für jede Stufe erhöhen sich die Verzauberungskosten um 1, können aber bis zu 3 Lapislazuli zurückgeben"
-lore = ["Für jede Stufe erhöhen sich die Verzauberungskosten um 1, können aber bis zu 3 Lapislazuli zurückgeben"]
+description = "Verzaubern am Tisch kann verbrauchten Lapislazuli zurückgeben; höhere Stufen geben mehr zurück."
+lore1 = "Chance auf Rückgabe verbrauchten Lapislazulis, bis zu deiner Stufe und höchstens den Kosten der Verzauberung"
+lore = ["Chance auf Rückgabe verbrauchten Lapislazulis, bis zu deiner Stufe und höchstens den Kosten der Verzauberung"]
 
 [enchanting.quick_enchant]
 name = "Schnellklick-Verzauberung"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

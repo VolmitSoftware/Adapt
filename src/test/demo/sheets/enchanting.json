@@ -357,6 +357,10 @@
         "index": 0
       },
       {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
         "verb": "window",
         "action": "close"
       },
@@ -420,7 +424,7 @@
     ],
     "expect": {
       "sound": "minecraft:block.amethyst_block.chime",
-      "particle": "item"
+      "particle": "glow"
     },
     "maxTicks": 520
   },

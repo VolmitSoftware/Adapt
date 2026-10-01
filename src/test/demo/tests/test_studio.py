@@ -184,6 +184,16 @@ def http_error(code: int, error: str) -> urllib.error.HTTPError:
 
 
 class DemoBridgeTest(unittest.TestCase):
+    def test_state_respects_the_remaining_window_fit_timeout(self) -> None:
+        bridge: studio.DemoBridge = studio.DemoBridge(4321, 'token')
+        response = mock.MagicMock()
+        response.__enter__.return_value = io.BytesIO(b'{"hiddenRenderer":true}')
+        with mock.patch.object(studio.urllib.request, 'urlopen', return_value=response) as urlopen:
+            state: dict = bridge.state(timeout=0.25)
+        self.assertEqual(state, {'hiddenRenderer': True})
+        self.assertEqual(urlopen.call_args.args[0].full_url, 'http://127.0.0.1:4321/state')
+        self.assertEqual(urlopen.call_args.kwargs['timeout'], 0.25)
+
     def test_gateway_timeout_becomes_bridge_timeout(self) -> None:
         bridge = studio.DemoBridge(1, 'token')
         with mock.patch.object(studio.urllib.request, 'urlopen', side_effect=http_error(504, 'Client did not process command within five seconds')):
@@ -306,10 +316,11 @@ DISCOVERY_TOML: str = ('# Adapt configuration - skill:discovery\n\n# Enables or 
 
 
 class StudioRestartTest(unittest.TestCase):
-    def restart(self, skill: str) -> tuple[list[str], str, str]:
+    def restart(self, skill: str, plugins: tuple[str, ...] = ()) -> tuple[list[str], str, str]:
         with tempfile.TemporaryDirectory() as tmp, mock.patch.object(studio, 'LOCKS', Path(tmp) / 'locks'):
             root = Path(tmp)
             demo = studio.Studio(root / 'out', skip_build=True)
+            demo.required_plugins = plugins
             demo.output.mkdir()
             demo.server = root / 'server'
             (demo.server / 'logs').mkdir(parents=True)
@@ -346,6 +357,10 @@ class StudioRestartTest(unittest.TestCase):
     def test_restart_keeps_the_discovery_skill_on_for_the_discovery_batch(self) -> None:
         events, _, discovery = self.restart('discovery')
         self.assertEqual(events, ['runtime status log-present', 'runtime stop log-present', 'runtime status log-present', 'runtime start muted', 'wait'])
+        self.assertEqual(discovery, DISCOVERY_TOML)
+
+    def test_gloss_comparisons_keep_discovery_available_for_insight(self) -> None:
+        _, _, discovery = self.restart('kinetics', ('Gloss',))
         self.assertEqual(discovery, DISCOVERY_TOML)
 
 
@@ -882,6 +897,35 @@ class StudioWorldTest(unittest.TestCase):
         self.assertEqual(demo.rcon.command.call_count, 3)
         self.assertEqual(demo.plate_label(), '')
         self.assertFalse(self.cache.exists())
+
+
+class DemoSkinProfileTest(unittest.TestCase):
+    def test_signed_profile_is_deployed_to_the_fixture_without_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root: Path = Path(folder)
+            profile: Path = root / 'profile.json'
+            payload: str = json.dumps({'properties': [{'name': 'textures', 'value': 'texture', 'signature': 'signed'}]})
+            profile.write_text(payload)
+            with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_SKIN_PROFILE': str(profile)}):
+                studio.install_skin_profile(root / 'plugins')
+            self.assertEqual((root / 'plugins/AdaptGameplayFixture/skin-profile.json').read_text(), payload)
+
+    def test_no_profile_keeps_normal_login_profiles(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_SKIN_PROFILE': ''}):
+                studio.install_skin_profile(Path(folder) / 'plugins')
+            self.assertFalse((Path(folder) / 'plugins').exists())
+
+    def test_missing_or_unsigned_textures_fail_before_recording(self) -> None:
+        for properties in ([], [{'name': 'textures', 'value': 'texture'}], [{'name': 'textures', 'value': '', 'signature': 'signed'}]):
+            with self.subTest(properties=properties), tempfile.TemporaryDirectory() as folder:
+                root: Path = Path(folder)
+                profile: Path = root / 'profile.json'
+                profile.write_text(json.dumps({'properties': properties}))
+                with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_SKIN_PROFILE': str(profile)}):
+                    with self.assertRaisesRegex(RuntimeError, 'signed textures'):
+                        studio.install_skin_profile(root / 'plugins')
+                self.assertFalse((root / 'plugins').exists())
 
 
 class SeedServerTest(unittest.TestCase):

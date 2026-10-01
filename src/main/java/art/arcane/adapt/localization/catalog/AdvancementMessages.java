@@ -1205,10 +1205,6 @@ public final class AdvancementMessages {
   public static final TextKey CHALLENGE_CRAFTING_PROVISIONER_500_DESCRIPTION = TextKey.of("advancement.challenge_crafting_provisioner_500.description", "Yield 500 bonus food portions");
   public static final TextKey CHALLENGE_CRAFTING_PROVISIONER_5K_TITLE = TextKey.of("advancement.challenge_crafting_provisioner_5k.title", "Quartermaster");
   public static final TextKey CHALLENGE_CRAFTING_PROVISIONER_5K_DESCRIPTION = TextKey.of("advancement.challenge_crafting_provisioner_5k.description", "Yield 5,000 bonus food portions");
-  public static final TextKey CHALLENGE_CRAFTING_SIGNATURE_100_TITLE = TextKey.of("advancement.challenge_crafting_signature_100.title", "Signed");
-  public static final TextKey CHALLENGE_CRAFTING_SIGNATURE_100_DESCRIPTION = TextKey.of("advancement.challenge_crafting_signature_100.description", "Complete 100 villager trades carrying signed goods");
-  public static final TextKey CHALLENGE_CRAFTING_SIGNATURE_1K_TITLE = TextKey.of("advancement.challenge_crafting_signature_1k.title", "Renowned Artisan");
-  public static final TextKey CHALLENGE_CRAFTING_SIGNATURE_1K_DESCRIPTION = TextKey.of("advancement.challenge_crafting_signature_1k.description", "Complete 1,000 villager trades carrying signed goods");
   public static final TextKey CHALLENGE_ENCHANTING_CLEANSE_10_TITLE = TextKey.of("advancement.challenge_enchanting_cleanse_10.title", "Curse Breaker");
   public static final TextKey CHALLENGE_ENCHANTING_CLEANSE_10_DESCRIPTION = TextKey.of("advancement.challenge_enchanting_cleanse_10.description", "Cleanse 10 curses at the grindstone");
   public static final TextKey CHALLENGE_ENCHANTING_CLEANSE_100_TITLE = TextKey.of("advancement.challenge_enchanting_cleanse_100.title", "Unbound");
@@ -2664,10 +2660,6 @@ public final class AdvancementMessages {
     builder.add(CHALLENGE_CRAFTING_PROVISIONER_500_DESCRIPTION);
     builder.add(CHALLENGE_CRAFTING_PROVISIONER_5K_TITLE);
     builder.add(CHALLENGE_CRAFTING_PROVISIONER_5K_DESCRIPTION);
-    builder.add(CHALLENGE_CRAFTING_SIGNATURE_100_TITLE);
-    builder.add(CHALLENGE_CRAFTING_SIGNATURE_100_DESCRIPTION);
-    builder.add(CHALLENGE_CRAFTING_SIGNATURE_1K_TITLE);
-    builder.add(CHALLENGE_CRAFTING_SIGNATURE_1K_DESCRIPTION);
     builder.add(CHALLENGE_ENCHANTING_CLEANSE_10_TITLE);
     builder.add(CHALLENGE_ENCHANTING_CLEANSE_10_DESCRIPTION);
     builder.add(CHALLENGE_ENCHANTING_CLEANSE_100_TITLE);

@@ -30,9 +30,11 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -42,6 +44,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
@@ -81,25 +84,72 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
   public void on(EnchantItemEvent e) {
     Player p = e.getEnchanter();
     int level = getActiveLevel(p);
-    if (level <= 0) {
+    if (level <= 0 || e.isCancelled() || !paysLapis(p)) {
       return;
     }
 
-    if (ThreadLocalRandom.current().nextDouble() < getRefundChance(level)) {
-      UUID playerId = p.getUniqueId();
-      if (!cooldown.isReady(playerId, 20000L)) {
-        return;
-      }
-
-      cooldown.mark(playerId);
-      Location drop = p.getLocation();
-      Map<Integer, ItemStack> overflow = p.getInventory().addItem(new ItemStack(Material.LAPIS_LAZULI, level));
-      for (ItemStack leftover : overflow.values()) {
-        p.getWorld().dropItemNaturally(drop, leftover);
-      }
-      addStat(p, "enchanting.lapis-return.lapis-saved", level);
-      lapisRefundFx(e, drop);
+    Inventory inventory = e.getInventory();
+    int lapisBefore = lapisAmount(inventory);
+    int cost = lapisCost(e.whichButton());
+    if (cost <= 0 || lapisBefore < cost || e.getExpLevelCost() > p.getLevel() || e.getEnchantsToAdd().isEmpty()) {
+      return;
     }
+    if (!cooldown.isReady(p.getUniqueId(), 20000L) || ThreadLocalRandom.current().nextDouble() >= getRefundChance(level)) {
+      return;
+    }
+
+    Refund refund = new Refund(e, inventory, level, lapisBefore, p.getEnchantmentSeed());
+    J.runEntity(p, () -> completeRefund(refund), 1);
+  }
+
+  static int refundAmount(Refund refund) {
+    EnchantItemEvent event = refund.event();
+    Player player = event.getEnchanter();
+    if (event.isCancelled() || !player.isOnline() || !paysLapis(player) || event.getEnchantsToAdd().isEmpty()
+        || player.getEnchantmentSeed() == refund.enchantmentSeed()
+        || !player.getOpenInventory().getTopInventory().equals(refund.inventory())) {
+      return 0;
+    }
+    int cost = lapisCost(event.whichButton());
+    int consumed = refund.lapisBefore() - lapisAmount(refund.inventory());
+    if (cost <= 0 || consumed != cost) {
+      return 0;
+    }
+    return Math.max(0, Math.min(refund.level(), consumed));
+  }
+
+  private void completeRefund(Refund refund) {
+    Player player = refund.event().getEnchanter();
+    UUID playerId = player.getUniqueId();
+    if (!cooldown.isReady(playerId, 20000L)) {
+      return;
+    }
+    int amount = refundAmount(refund);
+    if (amount <= 0) {
+      return;
+    }
+
+    cooldown.mark(playerId);
+    Location drop = player.getLocation();
+    Map<Integer, ItemStack> overflow = player.getInventory().addItem(new ItemStack(Material.LAPIS_LAZULI, amount));
+    for (ItemStack leftover : overflow.values()) {
+      player.getWorld().dropItemNaturally(drop, leftover);
+    }
+    addStat(player, "enchanting.lapis-return.lapis-saved", amount);
+    lapisRefundFx(refund.event(), drop);
+  }
+
+  private static boolean paysLapis(Player player) {
+    return player.getGameMode() == GameMode.SURVIVAL || player.getGameMode() == GameMode.ADVENTURE;
+  }
+
+  private static int lapisCost(int button) {
+    return button >= 0 && button < 3 ? button + 1 : 0;
+  }
+
+  private static int lapisAmount(Inventory inventory) {
+    ItemStack lapis = inventory.getItem(1);
+    return lapis != null && lapis.getType() == Material.LAPIS_LAZULI ? Math.max(0, lapis.getAmount()) : 0;
   }
 
   private double getRefundChance(int level) {
@@ -129,7 +179,10 @@ public class EnchantingLapisReturn extends SimpleAdaptation<EnchantingLapisRetur
   }
 
 
-  @ConfigDescription("Chance to refund lapis when enchanting, scaling with level.")
+  record Refund(EnchantItemEvent event, Inventory inventory, int level, int lapisBefore, int enchantmentSeed) {
+  }
+
+  @ConfigDescription("Chance to refund paid lapis when enchanting, capped at the amount consumed.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Base chance to refund lapis on an enchant.", impact = "Higher values refund lapis more often at every level.")
     double refundChanceBase = 0.1;

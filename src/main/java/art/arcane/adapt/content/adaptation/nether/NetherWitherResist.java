@@ -22,6 +22,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.NetherMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -47,6 +48,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Config> {
+  private static final long FEEDBACK_INTERVAL_MILLIS = 1000L;
+
+  private final Cooldowns feedbackCooldowns = cooldowns();
 
   public NetherWitherResist() {
     super("nether-wither-resist");
@@ -85,6 +89,10 @@ public class NetherWitherResist extends SimpleAdaptation<NetherWitherResist.Conf
         if (winsChanceRoll(chance, roll)) {
           e.setCancelled(true);
           addStat(p, "nether.wither-resist.negated", 1);
+          if (!feedbackCooldowns.isReady(p.getUniqueId(), FEEDBACK_INTERVAL_MILLIS)) {
+            return;
+          }
+          feedbackCooldowns.mark(p.getUniqueId());
           boolean mastery = chance >= 100D;
           Location center = p.getLocation().add(0D, 1.0D, 0D);
           FxEmitter emit = fx(center, FxPriority.COMBAT)

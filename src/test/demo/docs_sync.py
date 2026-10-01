@@ -25,8 +25,8 @@ class PageNotFound(RuntimeError):
 def block(skill: str, identifier: str) -> str:
     base: str = '/adapt-assets/demos/' + skill + '/' + identifier
     return ('<div class="adapt-demo">\n'
-            '<video src="' + base + '-pov.webm" autoplay muted loop playsinline controls preload="metadata"></video>\n'
-            '<video src="' + base + '-observer.webm" autoplay muted loop playsinline controls preload="metadata"></video>\n'
+            '<video src="' + base + '-pov.webm" muted loop playsinline controls preload="none"></video>\n'
+            '<video src="' + base + '-observer.webm" muted loop playsinline controls preload="none"></video>\n'
             '</div>\n')
 
 

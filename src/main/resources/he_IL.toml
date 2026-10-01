@@ -2553,14 +2553,6 @@ description = "יגאל 500 בונוס חלקי מזון"
 title = "Quartermaster"
 description = "יגאל 5,000 בונוס חלקי מזון"
 
-[advancement.challenge_crafting_signature_100]
-title = "חתום"
-description = "שלמות 100 סוחרי הכפר הנושאים סחורות"
-
-[advancement.challenge_crafting_signature_1k]
-title = "מונה Artisan"
-description = "שלמות 1,000 סוחרי הכפר הנושאים סחורות"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "תגית: Breaker"
 description = "ניקוי 10 קללות ב grind"
@@ -3892,9 +3884,9 @@ lore = ["לחיצה מחודש גם מושכת מרכיבים מתאימים מ�
 
 [crafting.thrifty_hands]
 name = "כפות ידיים"
-description = "לכל מלאכה יש הזדמנות להחזיר את אחד המרכיבים שלה."
-lore1 = "הזדמנות להחזיר מרכיב"
-lore = ["הזדמנות להחזיר מרכיב"]
+description = "מתכונים המשתמשים לפחות בשלושה חומרים שונים עשויים להחזיר יחידה אחת של מרכיב."
+lore1 = "סיכוי להחזיר יחידה אחת של מרכיב (3+ חומרים שונים)"
+lore = ["סיכוי להחזיר יחידה אחת של מרכיב (3+ חומרים שונים)"]
 
 [crafting.masterwork]
 name = "עבודת המאסטר"
@@ -3930,15 +3922,6 @@ description = "לבישול או בישול יש הזדמנות להניב מנ�
 lore1 = "הזדמנות לחלקי מזון בונוס"
 lore2 = "בונוסים עבור Proc"
 lore = ["הזדמנות לחלקי מזון בונוס", "בונוסים עבור Proc"]
-
-[crafting.signature]
-name = "חתימתו של ארטמן"
-description = "פריטים שאתה ממלא את החתימה שלך, כפריים מציעים סחר טוב יותר בזמן שאתה נושא את הסחורה החתומה שלך."
-lore1 = "פריטים מלאים חתומה עם שמך"
-lore2 = "הכפרים מציעים סחר טוב יותר בזמן שאתה נושא סחורות חתום"
-tag = "חתום על"
-item_lore = "חתום על {player}"
-lore = ["פריטים מלאים חתומה עם שמך", "הכפרים מציעים סחר טוב יותר בזמן שאתה נושא סחורות חתום"]
 
 [discovery.armor]
 name = "שריון עולמי"
@@ -4056,9 +4039,9 @@ lore = ["טווח קו הראייה", "גלימר משך"]
 
 [enchanting.lapis_return]
 name = "החזר לאפיס"
-description = "במחיר רמה אחת נוספת של XP, ויש סיכוי לקבל לאפיס חינם בתמורה"
-lore1 = "לכל רמה, מגדיל את עלות הכישוף ב-1, אבל יכול להחזיר עד 3 לאפיס"
-lore = ["לכל רמה, מגדיל את עלות הכישוף ב-1, אבל יכול להחזיר עד 3 לאפיס"]
+description = "כישוף בשולחן עשוי להחזיר לאפיס שנצרך; ברמות גבוהות יותר ההחזר גדול יותר."
+lore1 = "סיכוי להחזיר לאפיס שנצרך, עד לרמת ההסתגלות ולעולם לא יותר מעלות הכישוף"
+lore = ["סיכוי להחזיר לאפיס שנצרך, עד לרמת ההסתגלות ולעולם לא יותר מעלות הכישוף"]
 
 [enchanting.quick_enchant]
 name = "כישוף בלחיצה מהירה"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

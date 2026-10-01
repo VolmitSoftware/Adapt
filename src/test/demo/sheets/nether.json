@@ -268,15 +268,20 @@
     "expect": {"sound": "minecraft:entity.wither_skeleton.hurt", "particle": "soul"}, "maxTicks": 200
   },
   "nether-wither-resist": {
+    "povCapture": true,
     "set": "nether-wither", "level": 3,
     "pre": ["advancement grant {actor} only minecraft:nether/netherite_armor", "experience set {actor} 0 levels", "experience set {actor} 0 points", "item replace entity {actor} armor.chest with minecraft:netherite_chestplate", "item replace entity {actor} armor.head with minecraft:netherite_helmet", "item replace entity {actor} armor.legs with minecraft:netherite_leggings", "item replace entity {actor} armor.feet with minecraft:netherite_boots"],
     "prelude": [{"verb": "look", "yaw": -90, "pitch": 15}],
     "beats": [
       {"verb": "keys", "hold": ["forward"], "ticks": 10},
-      {"verb": "wait", "ticks": 30},
+      {"verb": "wait", "ticks": 80},
       {"verb": "keys", "hold": ["back"], "ticks": 12},
-      {"verb": "wait", "ticks": 50}
+      {"verb": "wait", "ticks": 30},
+      {"verb": "keys", "hold": ["forward"], "ticks": 12},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "keys", "hold": ["back"], "ticks": 12},
+      {"verb": "wait", "ticks": 30}
     ],
-    "expect": {"sound": "minecraft:particle.soul_escape", "particle": "sculk_soul"}, "maxTicks": 200
+    "expect": {"sound": "minecraft:particle.soul_escape", "particle": "sculk_soul"}, "maxTicks": 350
   }
 }

@@ -2553,14 +2553,6 @@ description = "Rendimiento 500 porciones de alimentos extra"
 title = "Intendente"
 description = "Rendimiento 5,000 porciones de alimentos extra"
 
-[advancement.challenge_crafting_signature_100]
-title = "Firmado"
-description = "Completo comercio de aldeanos 100 que transportan mercancías firmadas"
-
-[advancement.challenge_crafting_signature_1k]
-title = "Renombrada Artisan"
-description = "Completo comercio de aldeanos 1,000 que transportan mercancías firmadas"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Rompe-maldiciones"
 description = "Limpiar 10 maldiciones en la piedra angular"
@@ -3892,9 +3884,9 @@ lore = ["El clic de cambio también extrae los ingredientes correspondientes de 
 
 [crafting.thrifty_hands]
 name = "Manos Thrifty"
-description = "Cada nave tiene la oportunidad de devolver uno de sus ingredientes."
-lore1 = "oportunidad de devolver un ingrediente de la artesanía"
-lore = ["oportunidad de devolver un ingrediente de la artesanía"]
+description = "Las recetas con al menos tres materiales diferentes pueden devolver una unidad de un ingrediente."
+lore1 = "probabilidad de devolver una unidad de ingrediente (3+ materiales diferentes)"
+lore = ["probabilidad de devolver una unidad de ingrediente (3+ materiales diferentes)"]
 
 [crafting.masterwork]
 name = "Obra maestra"
@@ -3930,15 +3922,6 @@ description = "La preparación o la cocina de alimentos tiene la oportunidad de 
 lore1 = "oportunidad para las porciones de comida de bonificación"
 lore2 = "porciones de bonificación por proc"
 lore = ["oportunidad para las porciones de comida de bonificación", "porciones de bonificación por proc"]
-
-[crafting.signature]
-name = "Firma de Artisan"
-description = "Los artículos que usted realiza llevan su firma, y los aldeanos ofrecen mejores oficios mientras usted lleva sus mercancías firmadas."
-lore1 = "Los artículos elaborados están firmados con su nombre"
-lore2 = "Los Villagers ofrecen mejores oficios mientras usted lleva mercancías firmadas"
-tag = "Firmada por"
-item_lore = "Firmado por {player}"
-lore = ["Los artículos elaborados están firmados con su nombre", "Los Villagers ofrecen mejores oficios mientras usted lleva mercancías firmadas"]
 
 [discovery.armor]
 name = "Armadura del Mundo"
@@ -4056,9 +4039,9 @@ lore = ["Línea de alcance", "Glimmer Duración"]
 
 [enchanting.lapis_return]
 name = "Retorno de Lapislazuli"
-description = "A costa de 1 nivel mas de XP, tiene la posibilidad de darte lapislazuli gratis a cambio"
-lore1 = "Por cada nivel, aumenta el coste de encantamiento en 1, pero puede devolver hasta 3 lapislazuli"
-lore = ["Por cada nivel, aumenta el coste de encantamiento en 1, pero puede devolver hasta 3 lapislazuli"]
+description = "Encantar en una mesa puede devolver lapislázuli gastado; los niveles más altos devuelven más."
+lore1 = "Probabilidad de devolver lapislázuli gastado, hasta tu nivel y nunca más de lo que cuesta el encantamiento"
+lore = ["Probabilidad de devolver lapislázuli gastado, hasta tu nivel y nunca más de lo que cuesta el encantamiento"]
 
 [enchanting.quick_enchant]
 name = "Encantamiento Rapido"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

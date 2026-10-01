@@ -71,18 +71,18 @@ class Bridge:
         self.url = f'http://127.0.0.1:{port}'
         self.token = token
 
-    def request(self, operation=None):
+    def request(self, operation: dict | None = None, *, timeout: float = 10.0) -> dict:
         data = None if operation is None else json.dumps(operation).encode()
         request = urllib.request.Request(self.url + ('/state' if data is None else '/command'), data=data,
                                          headers={'X-Adapt-QA-Token': self.token, 'Content-Type': 'application/json'})
-        with urllib.request.urlopen(request, timeout=10) as response:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
             result = json.load(response)
         if result.get('error'):
             raise RuntimeError(result['error'])
         return result
 
-    def state(self):
-        return self.request()
+    def state(self, *, timeout: float = 10.0) -> dict:
+        return self.request(timeout=timeout)
 
     def command(self, operation: str, **values):
         return self.request({'op': operation, **values})
@@ -224,7 +224,7 @@ def set_instance_keys(config: Path, values: dict[str, str]) -> None:
 
 
 def jvm_arguments(port: int, token: str, output: Path) -> str:
-    return '-Dadapt.qa.port=' + str(port) + ' -Dadapt.qa.token=' + token + ' -Dadapt.qa.output="' + str(output) + '"'
+    return '-Dadapt.qa.hidden=true -Dadapt.qa.port=' + str(port) + ' -Dadapt.qa.token=' + token + ' -Dadapt.qa.output="' + str(output) + '"'
 
 
 def mod_identity(jar: Path) -> tuple[str, str] | None:

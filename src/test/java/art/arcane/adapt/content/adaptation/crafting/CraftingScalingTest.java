@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
@@ -21,6 +22,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
@@ -41,6 +43,60 @@ class CraftingScalingTest {
   void refundChanceIsFeltAtBaseAndClampedToMax() {
     assertThat(CraftingThriftyHands.refundChance(0.15, 0.5, 0.6, 0.0)).isCloseTo(0.15, offset(1.0E-9));
     assertThat(CraftingThriftyHands.refundChance(0.15, 0.5, 0.6, 1.0)).isCloseTo(0.6, offset(1.0E-9));
+  }
+
+  @Test
+  void thriftyHandsRequiresThreeDistinctActualMaterials() {
+    ItemStack logs = ingredient(Material.OAK_LOG, 64);
+    ItemStack planks = ingredient(Material.OAK_PLANKS, 1);
+    ItemStack sticks = ingredient(Material.STICK, 1);
+
+    assertThat(CraftingThriftyHands.refundMaterials(new ItemStack[]{logs, logs, logs})).isEmpty();
+    assertThat(CraftingThriftyHands.refundMaterials(new ItemStack[]{logs, planks, planks})).isEmpty();
+    assertThat(CraftingThriftyHands.refundMaterials(new ItemStack[]{logs, planks, sticks}))
+        .containsExactlyInAnyOrder(Material.OAK_LOG, Material.OAK_PLANKS, Material.STICK);
+  }
+
+  @Test
+  void thriftyHandsIgnoresEmptyCellsAndUsesTheChosenWoodVariant() {
+    ItemStack birch = ingredient(Material.BIRCH_PLANKS, 1);
+    ItemStack iron = ingredient(Material.IRON_INGOT, 1);
+    ItemStack redstone = ingredient(Material.REDSTONE, 1);
+    ItemStack empty = ingredient(Material.AIR, 1);
+    ItemStack exhausted = ingredient(Material.DIAMOND, 0);
+
+    assertThat(CraftingThriftyHands.refundMaterials(new ItemStack[]{birch, iron, redstone, null, empty, exhausted}))
+        .containsExactlyInAnyOrder(Material.BIRCH_PLANKS, Material.IRON_INGOT, Material.REDSTONE);
+  }
+
+  @Test
+  void thriftyHandsConsumesOnlyOneRefundForCommittedOutput() {
+    UUID playerId = UUID.randomUUID();
+    CraftItemEvent click = mock(CraftItemEvent.class);
+    Map<UUID, CraftingThriftyHands.PendingRefund> refunds = new HashMap<>();
+    refunds.put(playerId, new CraftingThriftyHands.PendingRefund(click, Material.IRON_INGOT, Material.PISTON));
+    ItemStack output = ingredient(Material.PISTON, 16);
+
+    assertThat(CraftingThriftyHands.committedRefund(refunds, playerId, output)).isEqualTo(Material.IRON_INGOT);
+    assertThat(CraftingThriftyHands.committedRefund(refunds, playerId, output)).isNull();
+  }
+
+  @Test
+  void thriftyHandsRejectsCancelledClicksAndMissingOrEmptyCommittedOutput() {
+    UUID playerId = UUID.randomUUID();
+    CraftItemEvent click = mock(CraftItemEvent.class);
+    Map<UUID, CraftingThriftyHands.PendingRefund> refunds = new HashMap<>();
+    CraftingThriftyHands.PendingRefund pending = new CraftingThriftyHands.PendingRefund(click, Material.IRON_INGOT, Material.PISTON);
+    refunds.put(playerId, pending);
+    assertThat(CraftingThriftyHands.committedRefund(refunds, playerId, ingredient(Material.PISTON, 0))).isNull();
+    refunds.put(playerId, pending);
+    assertThat(CraftingThriftyHands.committedRefund(refunds, playerId, ingredient(Material.LEVER, 1))).isNull();
+    refunds.put(playerId, pending);
+    when(click.isCancelled()).thenReturn(true);
+    assertThat(CraftingThriftyHands.committedRefund(refunds, playerId, ingredient(Material.PISTON, 1))).isNull();
+    refunds.put(playerId, pending);
+    refunds.remove(playerId, pending);
+    assertThat(CraftingThriftyHands.committedRefund(refunds, playerId, ingredient(Material.PISTON, 1))).isNull();
   }
 
   @Test
@@ -83,13 +139,6 @@ class CraftingScalingTest {
     );
 
     assertThat(selected).isSameAs(firstTie);
-  }
-
-  @Test
-  void signatureAmplifierIsSlightAtLowLevelAndClampedAtMax() {
-    assertThat(CraftingSignature.tradeAmplifier(0, 1, 1, 0.0)).isEqualTo(0);
-    assertThat(CraftingSignature.tradeAmplifier(0, 1, 1, 1.0)).isEqualTo(1);
-    assertThat(CraftingSignature.tradeAmplifier(0, 1, 1, 2.0)).isEqualTo(1);
   }
 
   @Test
@@ -271,5 +320,12 @@ class CraftingScalingTest {
     Player player = mock(Player.class);
     when(player.getLocation()).thenReturn(new Location(world, x, y, z));
     return player;
+  }
+
+  private static ItemStack ingredient(Material material, int amount) {
+    ItemStack item = mock(ItemStack.class);
+    when(item.getType()).thenReturn(material);
+    when(item.getAmount()).thenReturn(amount);
+    return item;
   }
 }

@@ -2553,14 +2553,6 @@ description = "Saada 500 bonusruoka-annokset"
 title = "Qartermaster"
 description = "Saada 5,000 bonusruoka-annokset"
 
-[advancement.challenge_crafting_signature_100]
-title = "Allekirjoitus"
-description = "Täydellinen 100 Kyläläiset myyvät allekirjoitettuja tavaroita"
-
-[advancement.challenge_crafting_signature_1k]
-title = "Nimetty Artisan"
-description = "Täydellinen 1,000 Kyläläiset myyvät allekirjoitettuja tavaroita"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Kirouksen katkaisija"
 description = "Puhdistus 10 kiroukset jauhatuskivessä"
@@ -3892,9 +3884,9 @@ lore = ["Shift-klikkaa myös vetää vastaavia ainesosia varastosta", "bonuserä
 
 [crafting.thrifty_hands]
 name = "Kädet"
-description = "Jokaisella aluksella on mahdollisuus palauttaa yksi ainesosista."
-lore1 = "mahdollisuus palauttaa valmistusaine"
-lore = ["mahdollisuus palauttaa valmistusaine"]
+description = "Vähintään kolmea eri materiaalia käyttävä resepti voi palauttaa yhden ainesosan yksikön."
+lore1 = "mahdollisuus palauttaa yksi ainesosan yksikkö (3+ eri materiaalia)"
+lore = ["mahdollisuus palauttaa yksi ainesosan yksikkö (3+ eri materiaalia)"]
 
 [crafting.masterwork]
 name = "Masterointi"
@@ -3930,15 +3922,6 @@ description = "Käsityö tai ruoanlaitto on mahdollisuus saada bonus-osuuksia."
 lore1 = "mahdollisuus bonus ruoka-annoksia"
 lore2 = "bonukset proc"
 lore = ["mahdollisuus bonus ruoka-annoksia", "bonukset proc"]
-
-[crafting.signature]
-name = "Artisanin allekirjoitus"
-description = "Tavarat käsityö kantaa allekirjoitus, ja kyläläiset tarjoavat parempia kauppoja, kun kuljetatte allekirjoitettuja tavaroita."
-lore1 = "Käsityötuotteet allekirjoitetaan omalla nimelläsi"
-lore2 = "Kyläläiset tarjoavat parempia kauppoja, kun kuljetat allekirjoitettuja tavaroita"
-tag = "Allekirjoittanut"
-item_lore = "Allekirjoittanut {player}"
-lore = ["Käsityötuotteet allekirjoitetaan omalla nimelläsi", "Kyläläiset tarjoavat parempia kauppoja, kun kuljetat allekirjoitettuja tavaroita"]
 
 [discovery.armor]
 name = "Maailmanpanssari"
@@ -4056,9 +4039,9 @@ lore = ["Näkymälinja", "Kesto"]
 
 [enchanting.lapis_return]
 name = "Lapislazulin palautus"
-description = "Yhden ylimääräisen XP-tason hinnalla, sinulla on mahdollisuus saada ilmaista lapislazulia takaisin"
-lore1 = "Jokaista tasoa kohden lumoamisen hinta nousee yhdellä, mutta voi palauttaa jopa 3 lapislazulia"
-lore = ["Jokaista tasoa kohden lumoamisen hinta nousee yhdellä, mutta voi palauttaa jopa 3 lapislazulia"]
+description = "Lumouspöydässä on mahdollisuus saada käytettyä lapislazulia takaisin; korkeampi taso palauttaa enemmän."
+lore1 = "Mahdollisuus palauttaa käytettyä lapislazulia tasosi verran, enintään lumouksen kuluttama määrä"
+lore = ["Mahdollisuus palauttaa käytettyä lapislazulia tasosi verran, enintään lumouksen kuluttama määrä"]
 
 [enchanting.quick_enchant]
 name = "Pikaklikkaus-lumoaminen"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

@@ -101,8 +101,8 @@ class DocsSyncTest(unittest.TestCase):
         self.assertEqual(changed, 1)
         self.assertIn('date: 2026-09-30T12:00:00.000Z', text)
         self.assertIn('### Wall Jump (`agility-wall-jump`)\n\n<div class="adapt-demo">', text)
-        self.assertIn('<video src="/adapt-assets/demos/agility/agility-wall-jump-pov.webm" autoplay muted loop playsinline controls preload="metadata"></video>\n', text)
-        self.assertIn('<video src="/adapt-assets/demos/agility/agility-wall-jump-observer.webm" autoplay muted loop playsinline controls preload="metadata"></video>\n', text)
+        self.assertIn('<video src="/adapt-assets/demos/agility/agility-wall-jump-pov.webm" muted loop playsinline controls preload="none"></video>\n', text)
+        self.assertIn('<video src="/adapt-assets/demos/agility/agility-wall-jump-observer.webm" muted loop playsinline controls preload="none"></video>\n', text)
         self.assertNotIn('agility-wind-up-pov', text)
 
     def test_second_run_is_idempotent(self) -> None:
@@ -193,7 +193,7 @@ class DocsSyncTest(unittest.TestCase):
             second_changed: int = docs_sync.sync_page(page, 'agility', ['agility-wall-jump'], lambda i: True, '2026-09-30T13:00:00.000Z')
             text: str = page.read_text()
         self.assertEqual((first_changed, second_changed), (1, 0))
-        self.assertEqual(text.count('preload="metadata"'), 2)
+        self.assertEqual(text.count('preload="none"'), 2)
         self.assertEqual(text.count('<video '), 2)
         self.assertIn('</div>\n\n5 levels\n\nMore text.', text)
 

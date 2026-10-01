@@ -40,79 +40,497 @@
     ],
     "expect": {"sound": "minecraft:entity.experience_orb.pickup", "particle": "enchant"}, "maxTicks": 200
   },
-  "discovery-cartographer-pulse": {"skip": "needs off-plate location"},
+  "discovery-cartographer-pulse": {
+    "set": "discovery-structure-approach",
+    "level": 4,
+    "povCapture": true,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:compass",
+      "adaptqa demo preference {actor} discovery-cartographer-pulse structures SETTLEMENTS"
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 100
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 70
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:item.lodestone_compass.lock",
+      "particle": "electric_spark"
+    },
+    "maxTicks": 250,
+    "prelude": [
+      {
+        "verb": "wait",
+        "ticks": 200
+      }
+    ]
+  },
   "discovery-field-notes": {
-    "set": "discovery-pasture", "level": 5,
+    "set": "discovery-pasture",
+    "level": 5,
     "pre": [
       "adapt clear stats player={actor}",
       "item replace entity {actor} weapon.mainhand with minecraft:wooden_sword",
       "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..8,limit=1,sort=nearest] {NoAI:1b,Health:1.0f}",
       "execute at {actor} run data merge entity @e[type=minecraft:pig,distance=..8,limit=1,sort=nearest] {NoAI:1b,Health:1.0f}"
     ],
-    "prelude": [{"verb": "lookAt", "offset": [-1.0, 0.7, -1.8]}],
-    "beats": [
-      {"verb": "wait", "ticks": 15},
-      {"verb": "click", "key": "attack"},
-      {"verb": "wait", "ticks": 45},
-      {"verb": "lookAt", "offset": [2.0, 0.45, -1.8]},
-      {"verb": "wait", "ticks": 10},
-      {"verb": "click", "key": "attack"},
-      {"verb": "wait", "ticks": 50}
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          -1.0,
+          0.7,
+          -1.8
+        ]
+      }
     ],
-    "expect": {"sound": "minecraft:ui.toast.challenge_complete", "particle": "totem_of_undying"}, "maxTicks": 200
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 45
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          2.0,
+          0.45,
+          -1.8
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:ui.toast.challenge_complete",
+      "particle": "totem_of_undying"
+    },
+    "maxTicks": 200
   },
-  "discovery-insight": {"skip": "plugin-conditional: Gloss"},
-  "discovery-keen-eye": {
-    "set": "discovery-cache", "level": 5,
-    "prelude": [{"verb": "look", "yaw": 0, "pitch": 5}, {"verb": "wait", "ticks": 60}],
-    "beats": [
-      {"verb": "wait", "ticks": 20},
-      {"verb": "look", "yaw": 180, "pitch": 5},
-      {"verb": "wait", "ticks": 90},
-      {"verb": "look", "yaw": 0, "pitch": 5},
-      {"verb": "wait", "ticks": 70},
-      {"verb": "look", "yaw": 180, "pitch": 5},
-      {"verb": "wait", "ticks": 70}
+  "discovery-insight": {
+    "plugins": [
+      "Gloss"
     ],
-    "expect": {"visual": "Three chests and a spawner ahead of the actor light up with glowing outlines while it faces them, fade after it turns away, and light up again when it turns back."},
+    "povCapture": true,
+    "set": "discovery-pasture",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run tp {actor} ~ ~ ~2.5 180 0",
+      "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..8,limit=1,sort=nearest] {NoAI:1b}",
+      "execute at {actor} run data merge entity @e[type=minecraft:pig,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 0,
+        "pitch": 5
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -1.0,
+          0.7,
+          -1.8
+        ],
+        "ticks": 20
+      },
+      {
+        "verb": "wait",
+        "ticks": 80
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          2.0,
+          0.45,
+          -1.8
+        ],
+        "ticks": 20
+      },
+      {
+        "verb": "wait",
+        "ticks": 80
+      },
+      {
+        "verb": "look",
+        "yaw": 0,
+        "pitch": 5,
+        "ticks": 20
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "camera": {
+      "x": 0.5,
+      "y": 4.0,
+      "z": 6.0,
+      "yaw": 180,
+      "pitch": 17
+    },
+    "expect": {
+      "visual": "Aiming at the cow and pig adds hovering Insight species and Speed details to their Gloss overlays; details switch with the inspected target and clear when looking away."
+    },
+    "maxTicks": 360
+  },
+  "discovery-keen-eye": {
+    "set": "discovery-cache",
+    "level": 5,
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 0,
+        "pitch": 5
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 5
+      },
+      {
+        "verb": "wait",
+        "ticks": 90
+      },
+      {
+        "verb": "look",
+        "yaw": 0,
+        "pitch": 5
+      },
+      {
+        "verb": "wait",
+        "ticks": 70
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 5
+      },
+      {
+        "verb": "wait",
+        "ticks": 70
+      }
+    ],
+    "expect": {
+      "visual": "Three chests and a spawner ahead of the actor light up with glowing outlines while it faces them, fade after it turns away, and light up again when it turns back."
+    },
     "maxTicks": 330
   },
-  "discovery-polymath": {"skip": "Adds a global skill XP bonus for each skill past level 5; the bonus is not visible in a learned-only clip, only a faint chime and enchant puff every 30 s."},
+  "discovery-polymath": {
+    "set": "sparring",
+    "level": 5,
+    "povCapture": true,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:iron_sword"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.0,
+          -2.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "command",
+        "text": "adaptqa demo passive {actor} polymath baseline"
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 120
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo passive {actor} polymath finish"
+      },
+      {
+        "verb": "wait",
+        "ticks": 70
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo passive {actor} polymath learned"
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 120
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo passive {actor} polymath finish"
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "command",
+        "text": "adaptqa demo passive {actor} polymath clear"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      }
+    ],
+    "expect": {
+      "visual": "Without Polymath and With Polymath captions identify two equal-damage charged sword hits. The Demo comparison sidebar displays rounded, measured sword-skill XP earned by each real hit; the learned pass earns over 50 percent more XP with qualifying skills at level 5. No bonus XP is directly granted by the fixture."
+    },
+    "maxTicks": 800
+  },
   "discovery-relic-appraiser": {
-    "set": "arena", "level": 5,
+    "set": "arena",
+    "level": 5,
     "pre": [
       "item replace entity {actor} hotbar.0 with minecraft:archer_pottery_sherd",
       "item replace entity {actor} hotbar.1 with minecraft:music_disc_cat",
       "item replace entity {actor} hotbar.2 with minecraft:coast_armor_trim_smithing_template"
     ],
-    "prelude": [{"verb": "slot", "index": 0}, {"verb": "look", "yaw": 180, "pitch": 50}],
-    "beats": [
-      {"verb": "press", "hold": ["sneak"], "ticks": 160},
-      {"verb": "wait", "ticks": 10},
-      {"verb": "click", "key": "use"},
-      {"verb": "wait", "ticks": 30},
-      {"verb": "slot", "index": 1},
-      {"verb": "wait", "ticks": 5},
-      {"verb": "click", "key": "use"},
-      {"verb": "wait", "ticks": 30},
-      {"verb": "slot", "index": 2},
-      {"verb": "wait", "ticks": 5},
-      {"verb": "click", "key": "use"},
-      {"verb": "wait", "ticks": 40}
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 50
+      }
     ],
-    "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "wax_on"}, "maxTicks": 220
+    "beats": [
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 160
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "slot",
+        "index": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "wax_on"
+    },
+    "maxTicks": 220
   },
-  "discovery-sixth-sense": {"skip": "needs off-plate location"},
-  "discovery-trailblazer": {
-    "set": "discovery-frontier", "level": 5,
-    "pre": ["adapt clear stats player={actor}"],
-    "prelude": [{"verb": "look", "yaw": 180, "pitch": 15}, {"verb": "wait", "ticks": 200}],
-    "beats": [
-      {"verb": "wait", "ticks": 10},
-      {"verb": "keys", "hold": ["forward"], "ticks": 110},
-      {"verb": "wait", "ticks": 40}
+  "discovery-sixth-sense": {
+    "set": "discovery-structure-approach",
+    "level": 5,
+    "povCapture": true,
+    "pre": [
+      "adaptqa demo preference {actor} discovery-sixth-sense structures SETTLEMENTS"
     ],
-    "expect": {"sound": "minecraft:entity.player.levelup", "particle": "dust"}, "maxTicks": 250
+    "prelude": [
+      {
+        "verb": "wait",
+        "ticks": 200
+      }
+    ],
+    "beats": [
+      {
+        "verb": "command",
+        "text": "adaptqa demo preference {actor} discovery-sixth-sense structures SETTLEMENTS"
+      },
+      {
+        "verb": "wait",
+        "ticks": 110
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 35
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 20
+      },
+      {
+        "verb": "wait",
+        "ticks": 55
+      }
+    ],
+    "expect": {
+      "visual": "The structure HUD names a nearby generated settlement, shows direction and distance, and changes its distance and experience compass bar as the player moves."
+    },
+    "maxTicks": 350
+  },
+  "discovery-trailblazer": {
+    "set": "discovery-frontier",
+    "level": 5,
+    "pre": [
+      "adapt clear stats player={actor}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 15
+      },
+      {
+        "verb": "wait",
+        "ticks": 200
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 110
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.player.levelup",
+      "particle": "dust"
+    },
+    "maxTicks": 250
   },
   "discovery-unity": {
     "set": "arena", "level": 7,

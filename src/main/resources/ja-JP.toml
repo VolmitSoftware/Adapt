@@ -2553,14 +2553,6 @@ description = "追加の食料を500個得る"
 title = "クォーターマスター"
 description = "追加の食料を5,000個得る"
 
-[advancement.challenge_crafting_signature_100]
-title = "署名入り"
-description = "署名品を持って村人取引を100回完了する"
-
-[advancement.challenge_crafting_signature_1k]
-title = "有名な職人"
-description = "署名品を持って村人取引を1,000回完了する"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "呪いブレーカ"
 description = "砥石で呪いを10個浄化する"
@@ -3892,9 +3884,9 @@ lore = ["Shiftクリックで一致する素材もインベントリから取得
 
 [crafting.thrifty_hands]
 name = "倹約の手"
-description = "クラフトするたびに素材が一つ返却されることがあります。"
-lore1 = "クラフト素材を返却する確率"
-lore = ["クラフト素材を返却する確率"]
+description = "3種類以上の異なる素材を使うレシピでは、材料が1個返却されることがあります。"
+lore1 = "材料を1個返却する確率（異なる素材3種類以上）"
+lore = ["材料を1個返却する確率（異なる素材3種類以上）"]
 
 [crafting.masterwork]
 name = "傑作"
@@ -3930,15 +3922,6 @@ description = "食料のクラフトや調理時に追加分が得られるこ�
 lore1 = "追加食料を得る確率"
 lore2 = "発動ごとの追加食料"
 lore = ["追加食料を得る確率", "発動ごとの追加食料"]
-
-[crafting.signature]
-name = "職人の署名"
-description = "作成したアイテムに署名が入り、署名品を持っている間は村人の取引条件が良くなります。"
-lore1 = "作成品へ自分の名前を署名"
-lore2 = "署名品を持つ間は村人の取引条件が向上"
-tag = "サインイン"
-item_lore = "サインイン {player}"
-lore = ["作成品へ自分の名前を署名", "署名品を持つ間は村人の取引条件が向上"]
 
 [discovery.armor]
 name = "ワールドアーマー"
@@ -4056,9 +4039,9 @@ lore = ["視線範囲", "発光時間"]
 
 [enchanting.lapis_return]
 name = "ラピスリターン"
-description = "1レベル分追加のXPを消費する代わりに、ラピスラズリが無料で返ってくるチャンスがある"
-lore1 = "レベルごとにエンチャント費用が1増加するが、最大3個のラピスを返却する可能性がある"
-lore = ["レベルごとにエンチャント費用が1増加するが、最大3個のラピスを返却する可能性がある"]
+description = "エンチャントテーブルで消費したラピスラズリが一定確率で返還され、レベルが高いほど返還量が増えます。"
+lore1 = "消費したラピスラズリを適応レベルまで返還する確率がありますが、実際のエンチャント費用は超えません"
+lore = ["消費したラピスラズリを適応レベルまで返還する確率がありますが、実際のエンチャント費用は超えません"]
 
 [enchanting.quick_enchant]
 name = "クイッククリックエンチャント"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

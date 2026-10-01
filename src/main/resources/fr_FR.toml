@@ -2553,14 +2553,6 @@ description = "Rendement 500 portions alimentaires bonus"
 title = "Quartier-maître"
 description = "Rendement 5,000 portions alimentaires bonus"
 
-[advancement.challenge_crafting_signature_100]
-title = "Signé"
-description = "Terminé 100 commerce de villageois transportant des marchandises signées"
-
-[advancement.challenge_crafting_signature_1k]
-title = "Artisan renommé"
-description = "Terminé 1,000 commerce de villageois transportant des marchandises signées"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Breaker de malédiction"
 description = "Nettoyer 10 des malédictions à la meule"
@@ -3892,9 +3884,9 @@ lore = ["Cliquez sur Shift et tirez les ingrédients correspondants de votre inv
 
 [crafting.thrifty_hands]
 name = "Mains trop grandes"
-description = "Chaque bateau a une chance de rembourser un de ses ingrédients."
-lore1 = "possibilité de rembourser un ingrédient d'artisanat"
-lore = ["possibilité de rembourser un ingrédient d'artisanat"]
+description = "Les recettes utilisant au moins trois matériaux différents peuvent rendre une unité d'un ingrédient."
+lore1 = "chance de récupérer une unité d'ingrédient (3+ matériaux différents)"
+lore = ["chance de récupérer une unité d'ingrédient (3+ matériaux différents)"]
 
 [crafting.masterwork]
 name = "Maîtrise"
@@ -3930,15 +3922,6 @@ description = "L'artisanat ou la cuisson des aliments a une chance de donner des
 lore1 = "Possibilité de portions alimentaires bonus"
 lore2 = "portions de bonus par proc"
 lore = ["Possibilité de portions alimentaires bonus", "portions de bonus par proc"]
-
-[crafting.signature]
-name = "Signature de l'Artisan"
-description = "Les articles que vous fabriquez portent votre signature, et les villageois offrent de meilleurs métiers pendant que vous transportez vos marchandises signées."
-lore1 = "Les articles confectionnés sont signés avec votre nom"
-lore2 = "Villagers offrent de meilleurs métiers pendant que vous transportez des marchandises signées"
-tag = "Signé par"
-item_lore = "Signé par {player}"
-lore = ["Les articles confectionnés sont signés avec votre nom", "Villagers offrent de meilleurs métiers pendant que vous transportez des marchandises signées"]
 
 [discovery.armor]
 name = "Armure du monde"
@@ -4056,9 +4039,9 @@ lore = ["Portée en ligne de vue", "Durée du glimmer"]
 
 [enchanting.lapis_return]
 name = "Retour de lapis"
-description = "Au cout d'1 niveau d'XP supplementaire, avec une chance de vous donner du lapis gratuit en retour"
-lore1 = "Pour chaque niveau, le cout d'enchantement augmente de 1, mais peut rendre jusqu'a 3 lapis"
-lore = ["Pour chaque niveau, le cout d'enchantement augmente de 1, mais peut rendre jusqu'a 3 lapis"]
+description = "Enchanter à une table peut rendre le lapis dépensé ; les niveaux supérieurs en rendent davantage."
+lore1 = "Chance de récupérer le lapis dépensé, jusqu’à votre niveau et jamais plus que le coût de l’enchantement"
+lore = ["Chance de récupérer le lapis dépensé, jusqu’à votre niveau et jamais plus que le coût de l’enchantement"]
 
 [enchanting.quick_enchant]
 name = "Enchantement rapide au clic"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

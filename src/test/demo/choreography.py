@@ -39,6 +39,7 @@ class Entry:
     expect_visual: str | None = None
     opponent: bool = False
     pov_capture: bool = False
+    plugins: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -59,6 +60,9 @@ def load_skill(root: Path, skill: str) -> Sheet:
     entries: dict[str, Entry] = {}
     for identifier, body in raw.items():
         expect: dict = body.get('expect', {})
+        plugins: object = body.get('plugins', [])
+        if not isinstance(plugins, list) or not all(isinstance(plugin, str) for plugin in plugins):
+            raise ValueError(identifier + ': plugins must be a list of names')
         entries[identifier] = Entry(
             id=identifier,
             set=body.get('set', ''),
@@ -74,6 +78,7 @@ def load_skill(root: Path, skill: str) -> Sheet:
             skip=str(body.get('skip', '')),
             opponent=body.get('opponent') is True,
             pov_capture=body.get('povCapture') is True,
+            plugins=tuple(plugins),
         )
     return Sheet(world=world if isinstance(world, str) else json.dumps(world), entries=entries)
 
@@ -85,6 +90,9 @@ def validate(entries: dict[str, Entry], matrix_ids: set[str]) -> list[str]:
     for extra in sorted(set(entries) - matrix_ids):
         problems.append('choreography for unknown adaptation ' + extra)
     for identifier, entry in entries.items():
+        for plugin in entry.plugins:
+            if plugin != 'Gloss':
+                problems.append(identifier + ': unsupported plugin ' + plugin)
         if entry.skip:
             if entry.beats:
                 problems.append(identifier + ': skip cannot be combined with beats')

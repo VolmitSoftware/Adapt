@@ -113,13 +113,13 @@ class AdaptPlayerSnapshotBuilderTest {
   void firstSnapshotSizesTheAdaptationIndexFromCurrentPlayerData() {
     PlayerData data = AdaptPapiFixtures.playerData();
     PlayerSkillLine mining = data.getSkillLines().get("mining");
-    for (int index = 0; index < 310; index++) {
+    for (int index = 0; index < 309; index++) {
       String id = "full-catalog-" + index;
       mining.getAdaptations().put(id, AdaptPapiFixtures.playerAdaptation(id, 1));
     }
 
-    assertEquals(312, AdaptPlayerSnapshotBuilder.expectedAdaptationCount(data.getSkillLines()));
-    assertEquals(312, build(null, data, AdaptPapiFixtures.SQUARE_CURVE).adaptationLevels().size());
+    assertEquals(311, AdaptPlayerSnapshotBuilder.expectedAdaptationCount(data.getSkillLines()));
+    assertEquals(311, build(null, data, AdaptPapiFixtures.SQUARE_CURVE).adaptationLevels().size());
   }
 
   @Test

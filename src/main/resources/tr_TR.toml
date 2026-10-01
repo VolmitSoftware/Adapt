@@ -2553,14 +2553,6 @@ description = "Yardım 500 bonus gıda porsiyonları"
 title = "Quartermaster"
 description = "Yardım 5,000 bonus gıda porsiyonları"
 
-[advancement.challenge_crafting_signature_100]
-title = "İmzalandı"
-description = "Tamam 100 İmzalanan mallar taşıyan köy ticaretleri"
-
-[advancement.challenge_crafting_signature_1k]
-title = "Ünlü Artisan"
-description = "Tamam 1,000 İmzalanan mallar taşıyan köy ticaretleri"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Curse Breaker"
 description = "Temiz 10 Taşınırda lanetler"
@@ -3892,9 +3884,9 @@ lore = ["Shift-kupun aynı zamanda envanterinizden eşleşen malzemeleri de çek
 
 [crafting.thrifty_hands]
 name = "Thrifty Hands"
-description = "Her zanaat, malzemelerinden birini geri ödeme şansına sahiptir."
-lore1 = "Bir zanaat materyali geri ödeme şansı"
-lore = ["Bir zanaat materyali geri ödeme şansı"]
+description = "En az üç farklı malzeme kullanan tarifler bir malzemeden bir adet iade edebilir."
+lore1 = "bir malzemeden bir adet iade şansı (3+ farklı malzeme)"
+lore = ["bir malzemeden bir adet iade şansı (3+ farklı malzeme)"]
 
 [crafting.masterwork]
 name = "Masterwork"
@@ -3930,15 +3922,6 @@ description = "Yemek yapmak veya yemek pişirmek bonus porsiyonları elde etmek 
 lore1 = "bonus gıda porsiyonları için şans"
 lore2 = "Bonus porsiyonları procc"
 lore = ["bonus gıda porsiyonları için şans", "Bonus porsiyonları procc"]
-
-[crafting.signature]
-name = "Artisan'ın İmzaları"
-description = "Yaptığınız eşyalar imzanızı taşıyor ve siz imzalanmış mallarınızı taşırken köylüler daha iyi ticaret sunuyor."
-lore1 = "Crafted eşyaları adınızla imzalanır"
-lore2 = "Köylüler imzaladığınız malları taşırken daha iyi ticaret sunar"
-tag = "Tarafından"
-item_lore = "Tarafından {player}"
-lore = ["Crafted eşyaları adınızla imzalanır", "Köylüler imzaladığınız malları taşırken daha iyi ticaret sunar"]
 
 [discovery.armor]
 name = "Dunya Zirhi"
@@ -4056,9 +4039,9 @@ lore = ["Görüş Linesinin Aralıkları", "Glimmer Süre"]
 
 [enchanting.lapis_return]
 name = "Lapis Iadesi"
-description = "1 XP seviyesi daha fazla maliyetine, karsiliginda ucretsiz lapis verme sansi var"
-lore1 = "Her seviye, buyuleme maliyetini 1 arttirir ama 3 Lapis'e kadar iade edebilir"
-lore = ["Her seviye, buyuleme maliyetini 1 arttirir ama 3 Lapis'e kadar iade edebilir"]
+description = "Masada büyü yaparken harcanan lapisin iade edilme şansı vardır; yüksek seviyeler daha fazlasını iade eder."
+lore1 = "Harcanan lapisi seviyen kadar iade etme şansı; büyünün tükettiği miktarı asla aşmaz"
+lore = ["Harcanan lapisi seviyen kadar iade etme şansı; büyünün tükettiği miktarı asla aşmaz"]
 
 [enchanting.quick_enchant]
 name = "Hizli Tikla Buyule"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

@@ -12,13 +12,16 @@ import art.arcane.adapt.gameplay.demo.sets.EnchantingSets;
 import art.arcane.adapt.gameplay.demo.sets.ExcavationSets;
 import art.arcane.adapt.gameplay.demo.sets.HerbalismSets;
 import art.arcane.adapt.gameplay.demo.sets.HunterSets;
+import art.arcane.adapt.gameplay.demo.sets.IrisFellerSets;
 import art.arcane.adapt.gameplay.demo.sets.KineticsSets;
+import art.arcane.adapt.gameplay.demo.sets.KineticsComparisonSets;
 import art.arcane.adapt.gameplay.demo.sets.NetherSets;
 import art.arcane.adapt.gameplay.demo.sets.PickaxeSets;
 import art.arcane.adapt.gameplay.demo.sets.RangedSets;
 import art.arcane.adapt.gameplay.demo.sets.RiftSets;
 import art.arcane.adapt.gameplay.demo.sets.SeaborneSets;
 import art.arcane.adapt.gameplay.demo.sets.StealthSets;
+import art.arcane.adapt.gameplay.demo.sets.StructureDiscoverySets;
 import art.arcane.adapt.gameplay.demo.sets.SwordsSets;
 import art.arcane.adapt.gameplay.demo.sets.TamingSets;
 import art.arcane.adapt.gameplay.demo.sets.TragoulSets;
@@ -42,13 +45,16 @@ public final class DemoSets {
             new ExcavationSets(),
             new HerbalismSets(),
             new HunterSets(),
+            new IrisFellerSets(),
             new KineticsSets(),
+            new KineticsComparisonSets(),
             new NetherSets(),
             new PickaxeSets(),
             new RangedSets(),
             new RiftSets(),
             new SeaborneSets(),
             new StealthSets(),
+            new StructureDiscoverySets(),
             new SwordsSets(),
             new TamingSets(),
             new TragoulSets(),

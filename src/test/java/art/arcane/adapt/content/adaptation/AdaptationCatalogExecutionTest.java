@@ -156,7 +156,7 @@ class AdaptationCatalogExecutionTest extends AdaptTestBase {
           .map(path -> SOURCE_ROOT.relativize(path).toString().replace('/', '.').replace(".java", ""))
           .sorted()
           .toList();
-      assertThat(classes).hasSize(312);
+      assertThat(classes).hasSize(311);
       return classes;
     }
   }

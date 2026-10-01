@@ -36,7 +36,6 @@ import art.arcane.adapt.content.adaptation.crafting.CraftingLeather;
 import art.arcane.adapt.content.adaptation.crafting.CraftingMasterwork;
 import art.arcane.adapt.content.adaptation.crafting.CraftingProvisioner;
 import art.arcane.adapt.content.adaptation.crafting.CraftingReconstruction;
-import art.arcane.adapt.content.adaptation.crafting.CraftingSignature;
 import art.arcane.adapt.content.adaptation.crafting.CraftingSkulls;
 import art.arcane.adapt.content.adaptation.crafting.CraftingStations;
 import art.arcane.adapt.content.adaptation.crafting.CraftingThriftyHands;
@@ -85,7 +84,6 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     registerAdaptation(new CraftingCompactor());
     registerAdaptation(new CraftingTinkerer());
     registerAdaptation(new CraftingProvisioner());
-    registerAdaptation(new CraftingSignature());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CRAFTING_TABLE).key("challenge_craft_1k")
         .model(CustomModel.get(Material.CRAFTING_TABLE, "advancement", "crafting", "challenge_craft_1k"))

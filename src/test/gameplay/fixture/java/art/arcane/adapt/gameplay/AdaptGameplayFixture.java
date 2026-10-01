@@ -10,7 +10,10 @@ import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.gameplay.demo.DemoSkin;
 import art.arcane.adapt.gameplay.demo.DemoStudio;
+import art.arcane.adapt.gameplay.demo.sets.StructureDiscoverySets;
+import art.arcane.adapt.gameplay.demo.PassiveComparisonFixtures;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
@@ -67,6 +70,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
                     || !source.lines().anyMatch("isolated=true"::equals)) {
                 throw new IllegalStateException("Fixture requires an isolated offline loopback Paper Multiplexor instance");
             }
+            DemoSkin.install(this);
             RangedFixtures.install(this);
             HarvestFixtures.install(this);
             TamingFixtures.install(this);
@@ -184,6 +188,10 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             case "sparring" -> demoStudio.sparring();
             case "hit" -> demoStudio.hit(demoArgument(args, 2), demoArgument(args, 3));
             case "sync" -> demoStudio.sync(demoArgument(args, 2));
+            case "preference" -> StructureDiscoverySets.preference(ordinaryPlayer(demoArgument(args, 2)), demoArgument(args, 3),
+                    demoArgument(args, 4), demoArgument(args, 5));
+            case "passive" -> PassiveComparisonFixtures.control(ordinaryPlayer(demoArgument(args, 2)), demoArgument(args, 3),
+                    demoArgument(args, 4));
             case "reset" -> demoStudio.reset();
             default -> throw new IllegalArgumentException("Unknown demo command " + args[1]);
         };

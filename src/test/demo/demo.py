@@ -48,6 +48,10 @@ def needs_opponent(entries: dict[str, choreography.Entry], ids: list[str], expor
     return not export_only and any(entries[identifier].opponent and not entries[identifier].skip for identifier in ids)
 
 
+def required_plugins(entries: dict[str, choreography.Entry], ids: list[str]) -> tuple[str, ...]:
+    return tuple(sorted({plugin for identifier in ids if not entries[identifier].skip for plugin in entries[identifier].plugins}))
+
+
 def main() -> int:
     args: argparse.Namespace = arguments()
     output: Path = (Path(args.output) if args.output else ROOT / 'build' / 'demo' / args.skill).resolve()
@@ -83,7 +87,11 @@ def batch(args: argparse.Namespace, output: Path) -> int:
         if args.export_only:
             studio.start_replay()
         else:
-            studio.start(args.skill, opponent=needs_opponent(entries, ids, args.export_only), world=sheet.world)
+            plugins: tuple[str, ...] = required_plugins(entries, ids)
+            if plugins:
+                studio.start(args.skill, opponent=needs_opponent(entries, ids, args.export_only), world=sheet.world, plugins=plugins)
+            else:
+                studio.start(args.skill, opponent=needs_opponent(entries, ids, args.export_only), world=sheet.world)
         if not args.export_only:
             takes = record_phase.record(studio, entries, ids, manifest_path, args.skill, ffmpeg=Path(args.ffmpeg).resolve())
         if not args.record_only:

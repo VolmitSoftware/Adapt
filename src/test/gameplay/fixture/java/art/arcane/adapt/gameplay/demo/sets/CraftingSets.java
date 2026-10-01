@@ -17,14 +17,11 @@ public final class CraftingSets implements DemoSetProvider {
     private static final DemoSet.Pose ACTOR_NORTH = new DemoSet.Pose(0.5, 0, 0.5, 180f, 0f);
     private static final DemoSet.Pose CAMERA_BENCH = new DemoSet.Pose(3.5, 2.7, -2.5, 50.2f, 22.3f);
     private static final DemoSet.Pose CAMERA_CAMPFIRE = new DemoSet.Pose(3.5, 2.7, -2.5, 50.2f, 23.5f);
-    private static final DemoSet.Pose CAMERA_MARKET = new DemoSet.Pose(2.5, 2.8, -4.0, 37.3f, 22.6f);
     private static final DemoSet.Pose CAMERA_SALVAGE = new DemoSet.Pose(3.5, 2.0, 0.0, 108.4f, 25.4f);
     private static final DemoSet.Pose CAMERA_OPEN = new DemoSet.Pose(3.0, 2.4, -3.0, 42.8f, 12.3f);
-    private static final List<DemoSet.Sparring> MERCHANT = List.of(new DemoSet.Sparring("VILLAGER", -1.5, 0, -1.5));
     private static final List<DemoSet> SETS = List.of(
             new SimpleSet("crafting-bench", ACTOR_NORTH, CAMERA_BENCH, false, List.of(), CraftingSets::buildBench),
             new SimpleSet("crafting-campfire", ACTOR_NORTH, CAMERA_CAMPFIRE, false, List.of(), CraftingSets::buildCampfire),
-            new SimpleSet("crafting-market", ACTOR_NORTH, CAMERA_MARKET, false, MERCHANT, CraftingSets::buildBench),
             new SimpleSet("crafting-salvage", ACTOR_NORTH, CAMERA_SALVAGE, false, List.of(), CraftingSets::buildSalvage),
             new SimpleSet("crafting-open", ACTOR_NORTH, CAMERA_OPEN, false, List.of(), SimpleSet.OPEN_PLATE)
     );

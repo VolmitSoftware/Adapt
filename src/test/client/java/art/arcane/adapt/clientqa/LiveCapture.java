@@ -95,6 +95,10 @@ public final class LiveCapture {
     public static LiveCapture start(Minecraft client, Settings settings) {
         validate(settings);
         RenderTarget target = client.gameRenderer.mainRenderTarget();
+        if (target.width != settings.width() || target.height != settings.height()) {
+            throw new IllegalStateException("The live render target is " + target.width + "x" + target.height
+                    + "; expected " + settings.width() + "x" + settings.height());
+        }
         GpuTexture texture = target.getColorTexture();
         if (texture == null) {
             throw new IllegalStateException("The main render target has no color texture");
@@ -132,7 +136,9 @@ public final class LiveCapture {
         int[] right = new int[1];
         int[] bottom = new int[1];
         GLFW.glfwGetWindowFrameSize(handle, left, top, right, bottom);
-        GLFW.glfwSetWindowPos(handle, left[0], top[0] + MENU_BAR_MARGIN);
+        if (!Boolean.parseBoolean(System.getProperty("adapt.qa.hidden", "true"))) {
+            GLFW.glfwSetWindowPos(handle, left[0], top[0] + MENU_BAR_MARGIN);
+        }
         GLFW.glfwSetWindowSize(handle, width, height);
         String fitted = contentSize(handle);
         if (!fitted.equals(width + "x" + height)) {

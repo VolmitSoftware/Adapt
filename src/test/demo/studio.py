@@ -58,6 +58,9 @@ WORLD_TIMEOUT: float = 600.0
 CLIENT_TIMEOUT: float = 180.0
 SKIN_TIMEOUT: float = 30.0
 SKIN_POLL: float = 0.5
+WINDOW_FIT_TIMEOUT: float = 5.0
+WINDOW_FIT_POLL: float = 0.05
+CURSOR_NORMAL: int = 212993
 RUNTIME_EXIT_TIMEOUT: float = 120.0
 RUNTIME_POLL: float = 1.0
 START_RETRY_SECONDS: float = 5.0
@@ -68,6 +71,20 @@ LAUNCH_WATCH: float = 15.0
 RESCAN_WAIT: float = 30.0
 IRIS_LIBS: Path = ROOT.parent / 'Iris' / 'build' / 'libs'
 IRIS_DENIALS: tuple[str, ...] = ('denied', 'locked', 'cannot', 'restart', 'could not find', 'already exists', 'exception raised')
+
+
+def install_skin_profile(plugins: Path) -> None:
+    source: str = os.environ.get('ADAPT_DEMO_SKIN_PROFILE', '')
+    if not source:
+        return
+    profile: Path = Path(source).expanduser()
+    document: dict = json.loads(profile.read_text())
+    properties: list[dict] = document.get('properties', [])
+    if not any(property.get('name') == 'textures' and property.get('value') and property.get('signature') for property in properties):
+        raise RuntimeError('ADAPT_DEMO_SKIN_PROFILE requires signed textures')
+    destination: Path = plugins / 'AdaptGameplayFixture' / 'skin-profile.json'
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(profile, destination)
 
 
 class BridgeTimeout(RuntimeError):
@@ -91,9 +108,9 @@ class DemoRcon(clientqa.Rcon):
 
 
 class DemoBridge(clientqa.Bridge):
-    def request(self, operation: dict | None = None) -> dict:
+    def request(self, operation: dict | None = None, *, timeout: float = 10.0) -> dict:
         try:
-            return super().request(operation)
+            return super().request(operation, timeout=timeout)
         except urllib.error.HTTPError as failure:
             raise bridge_failure(failure, 'state' if operation is None else str(operation.get('op'))) from failure
 
@@ -560,8 +577,12 @@ class Studio:
         self.created_server: bool = False
         self.launched_client: bool = False
         self.launched_opponent: bool = False
+        self.required_plugins: tuple[str, ...] = ()
 
-    def start(self, skill: str, opponent: bool = False, world: str = choreography.OVERWORLD) -> None:
+    def start(self, skill: str, opponent: bool = False, world: str = choreography.OVERWORLD, plugins: tuple[str, ...] = ()) -> None:
+        if any(plugin != 'Gloss' for plugin in plugins):
+            raise ValueError('The demo studio supports only Gloss as a required plugin')
+        self.required_plugins = plugins
         self.output.mkdir(parents=True, exist_ok=True)
         mods: list[Path] = self.prepare_jars()
         self.start_server(skill)
@@ -587,6 +608,12 @@ class Studio:
             jars: list[Path] = [ROOT / 'build' / 'client-qa' / BRIDGE_JAR] if client_only else built_jars()
             for jar in jars:
                 shutil.copy2(jar, self.jars / jar.name)
+            if not client_only and 'Gloss' in self.required_plugins:
+                candidates: list[Path] = [path for path in (ROOT.parent / 'Gloss' / 'build' / 'libs').glob('Gloss-*-packed.jar')
+                                          if path.is_file() and path.stat().st_size > 0]
+                if not candidates:
+                    raise RuntimeError('Gloss is required for this sheet; run ./gradlew shadowJar in ../Gloss before recording')
+                shutil.copy2(max(candidates, key=lambda path: path.stat().st_mtime_ns), self.jars / 'Gloss.jar')
         return mods
 
     def build(self, command: list[str], log_name: str) -> None:
@@ -602,6 +629,9 @@ class Studio:
         clientqa.configure_server(self.server, self.jars / ADAPT_JAR)
         seed_server(self.server / 'server.properties', SEED)
         plugins: Path = self.server / 'plugins'
+        install_skin_profile(plugins)
+        for plugin in self.required_plugins:
+            shutil.copy2(self.jars / (plugin + '.jar'), plugins / (plugin + '.jar'))
         shutil.copy2(self.jars / FIXTURE_JAR, plugins / FIXTURE_JAR)
         shutil.copy2(iris_jar(), plugins / 'Iris.jar')
         install_pack(iris_pack(), plugins / 'Iris' / 'packs')
@@ -622,7 +652,7 @@ class Studio:
             shutil.move(str(latest), str(install_log))
         adapt: Path = self.server / 'plugins' / 'Adapt'
         switch_off(adapt / 'adapt.toml', NOTIFY_KEYS)
-        if skill != DISCOVERY_SKILL:
+        if skill != DISCOVERY_SKILL and 'Gloss' not in self.required_plugins:
             switch_off(adapt / 'skills' / (DISCOVERY_SKILL + '.toml'), (SKILL_SWITCH,))
         self.start_runtime()
         clientqa.wait_server(self.server)
@@ -685,14 +715,29 @@ class Studio:
         else:
             await_connected(self.bridge, self.client_name)
         self.connected_at = time.monotonic()
-        self.fit_window()
+        self.fit_window(self.bridge)
 
-    def fit_window(self) -> None:
-        try:
-            self.bridge.command('fit-window', width=clientqa.WINDOW_WIDTH, height=clientqa.WINDOW_HEIGHT)
-        except RuntimeError as failure:
-            print('[WINDOW] warning: ' + str(failure) + '; live pov captures are cropped and scaled to ' + str(clientqa.WINDOW_WIDTH) + 'x'
-                  + str(clientqa.WINDOW_HEIGHT), flush=True)
+    def fit_window(self, bridge: DemoBridge) -> None:
+        bridge.command('fit-window', width=clientqa.WINDOW_WIDTH, height=clientqa.WINDOW_HEIGHT)
+        deadline: float = time.monotonic() + WINDOW_FIT_TIMEOUT
+        width: object = None
+        height: object = None
+        while True:
+            remaining: float = deadline - time.monotonic()
+            if remaining <= 0:
+                raise RuntimeError('Hidden framebuffer stayed ' + str(width) + 'x' + str(height) + '; expected '
+                                   + str(clientqa.WINDOW_WIDTH) + 'x' + str(clientqa.WINDOW_HEIGHT))
+            state: dict = bridge.state(timeout=remaining)
+            for field, expected in (('hiddenRenderer', True), ('windowVisible', False), ('windowFocused', False), ('mouseGrabbed', False)):
+                if state.get(field) is not expected:
+                    raise RuntimeError('Hidden client state requires ' + field + '=' + str(expected) + '; received ' + str(state.get(field)))
+            if state.get('cursorMode') != CURSOR_NORMAL:
+                raise RuntimeError('Hidden client cursorMode must be ' + str(CURSOR_NORMAL) + '; received ' + str(state.get('cursorMode')))
+            width = state.get('renderWidth')
+            height = state.get('renderHeight')
+            if width == clientqa.WINDOW_WIDTH and height == clientqa.WINDOW_HEIGHT:
+                return
+            time.sleep(min(WINDOW_FIT_POLL, remaining))
 
     def launch_opponent(self, mods: list[Path]) -> None:
         if clientqa.client_processes(self.opponent_instance):
@@ -707,6 +752,7 @@ class Studio:
         self.launched_opponent = True
         self.open_client(self.opponent_instance, self.opponent_title, self.opponent_port, self.opponent_token, self.opponent, mods, LAUNCHER_LOGS[1])
         await_connected(bridge, self.opponent_name)
+        self.fit_window(bridge)
         self.opponent_bridge = bridge
 
     def open_client(self, instance: Path, title: str, port: int, token: str, player: str, mods: list[Path], launcher_log: str, *, replay_only: bool = False) -> None:

@@ -2208,29 +2208,6 @@
     },
     {
       "skill": "crafting",
-      "name": "crafting-signature",
-      "class": "CraftingSignature",
-      "source": "src/main/java/art/arcane/adapt/content/adaptation/crafting/CraftingSignature.java",
-      "availability": {
-        "kind": "always"
-      },
-      "triggers": [
-        "CraftItemEvent",
-        "PlayerInteractEntityEvent"
-      ],
-      "expectation": "Items you craft carry your signature, and villagers offer better trades while you carry your signed goods.",
-      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/crafting/CraftingSignature.java",
-      "sounds": [
-        "BLOCK_AMETHYST_BLOCK_CHIME",
-        "ENTITY_VILLAGER_YES"
-      ],
-      "particles": [
-        "VILLAGER_HAPPY"
-      ],
-      "feedbackPresets": []
-    },
-    {
-      "skill": "crafting",
       "name": "crafting-skulls",
       "class": "CraftingSkulls",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/crafting/CraftingSkulls.java",
@@ -2297,9 +2274,10 @@
         "kind": "always"
       },
       "triggers": [
-        "CraftItemEvent"
+        "CraftItemEvent",
+        "ItemCraftedEvent"
       ],
-      "expectation": "Every craft has a chance to refund one of its ingredients back into your inventory.",
+      "expectation": "Crafts using at least three different materials have a chance to refund one ingredient unit.",
       "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/crafting/CraftingThriftyHands.java",
       "sounds": [
         "ENTITY_ITEM_PICKUP"
@@ -2870,7 +2848,7 @@
       "triggers": [
         "EnchantItemEvent"
       ],
-      "expectation": "Chance to refund lapis when enchanting, scaling with level.",
+      "expectation": "Chance to refund paid lapis when enchanting, capped at the amount consumed.",
       "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/enchanting/EnchantingLapisReturn.java",
       "sounds": [
         "BLOCK_AMETHYST_BLOCK_CHIME",

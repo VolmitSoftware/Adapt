@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { itemBehaviorCases } from './adaptation-item-actions.mjs'
 
-test('crafting XP measures natural crafting without requiring the signature villager fixture', async () => {
+test('crafting XP measures natural crafting without requiring a villager fixture', async () => {
     const recipe = { result: { id: 1, count: 4 } }
     const bot = {
         registry: { itemsByName: { oak_planks: { id: 1 } } },

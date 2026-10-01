@@ -2553,14 +2553,6 @@ description = "儀表 500 食品部分"
 title = "軍需長"
 description = "儀表 5,000 食品部分"
 
-[advancement.challenge_crafting_signature_100]
-title = "已簽署"
-description = "完成 100 攜帶簽名貨物的村民交易"
-
-[advancement.challenge_crafting_signature_1k]
-title = "著名藝術家"
-description = "完成 1,000 攜帶簽名貨物的村民交易"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "詛咒斷開器"
 description = "清理 10 磨石上的詛咒"
@@ -3892,9 +3884,9 @@ lore = ["單擊 Shift 也可以從您的目錄中提取匹配的成分", "每一
 
 [crafting.thrifty_hands]
 name = "顫抖的手"
-description = "每艘船都有退貨的機會."
-lore1 = "退款加工成份的機會"
-lore = ["退款加工成份的機會"]
+description = "使用至少三種不同材料的配方有機率返還一個原料。"
+lore1 = "返還一個原料的機率（至少3種不同材料）"
+lore = ["返還一個原料的機率（至少3種不同材料）"]
 
 [crafting.masterwork]
 name = "主作業"
@@ -3930,15 +3922,6 @@ description = "製作或烹飪食品有機會產生獎金部分."
 lore1 = "獲得額外食物的機會"
 lore2 = "每個觸發的獎金部分"
 lore = ["獲得額外食物的機會", "每個觸發的獎金部分"]
-
-[crafting.signature]
-name = "阿爾蒂桑的簽名"
-description = "攜帶簽名的商品 村民在攜帶簽名商品時提供更好的交易."
-lore1 = "手工藝品由您簽名"
-lore2 = "村民在攜帶簽名貨物時提供更好的交易"
-tag = "簽名:"
-item_lore = "由 {player} 簽名"
-lore = ["手工藝品由您簽名", "村民在攜帶簽名貨物時提供更好的交易"]
 
 [discovery.armor]
 name = "世界之甲"
@@ -4056,9 +4039,9 @@ lore = ["視線範圍", "閃光持續時間"]
 
 [enchanting.lapis_return]
 name = "青金石回饋"
-description = "多消耗 1 級經驗，但有機率免費返還青金石"
-lore1 = "每升一級，附魔花費增加 1 級，但最多可返還 3 個青金石"
-lore = ["每升一級，附魔花費增加 1 級，但最多可返還 3 個青金石"]
+description = "在附魔台附魔時有機率返還已消耗的青金石，等級越高可返還越多。"
+lore1 = "有機率返還已消耗的青金石，數量最多等於適應等級，且絕不超過附魔實際消耗量"
+lore = ["有機率返還已消耗的青金石，數量最多等於適應等級，且絕不超過附魔實際消耗量"]
 
 [enchanting.quick_enchant]
 name = "快速附魔"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

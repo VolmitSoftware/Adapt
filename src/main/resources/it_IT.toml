@@ -2553,14 +2553,6 @@ description = "Rendimento 500 porzioni di cibo bonus"
 title = "Quartermaster"
 description = "Rendimento 5,000 porzioni di cibo bonus"
 
-[advancement.challenge_crafting_signature_100]
-title = "Firmato"
-description = "Completa 100 commercianti di villaggio che trasportano merci firmate"
-
-[advancement.challenge_crafting_signature_1k]
-title = "Artigianato rinomato"
-description = "Completa 1,000 commercianti di villaggio che trasportano merci firmate"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Interruttore di curse"
 description = "Pulire 10 maledizioni al grindstone"
@@ -3892,9 +3884,9 @@ lore = ["Il clic di turno toglie anche gli ingredienti corrispondenti dal tuo in
 
 [crafting.thrifty_hands]
 name = "Mani transessuali"
-description = "Ogni mestiere ha la possibilità di rimborsare uno dei suoi ingredienti."
-lore1 = "possibilità di rimborsare un ingrediente artigianale"
-lore = ["possibilità di rimborsare un ingrediente artigianale"]
+description = "Le ricette con almeno tre materiali diversi possono restituire una unità di un ingrediente."
+lore1 = "probabilità di restituire una unità di ingrediente (3+ materiali diversi)"
+lore = ["probabilità di restituire una unità di ingrediente (3+ materiali diversi)"]
 
 [crafting.masterwork]
 name = "Masterwork"
@@ -3930,15 +3922,6 @@ description = "Lavorare o cucinare cibo ha la possibilità di produrre porzioni 
 lore1 = "possibilità per porzioni di cibo bonus"
 lore2 = "porzioni bonus per proc"
 lore = ["possibilità per porzioni di cibo bonus", "porzioni bonus per proc"]
-
-[crafting.signature]
-name = "Firma dell'artigiano"
-description = "Articoli che si artigianato portare la vostra firma, e gli abitanti del villaggio offrono migliori mestieri mentre porti i vostri prodotti firmati."
-lore1 = "Articoli artigianali sono firmati con il tuo nome"
-lore2 = "Gli abitanti offrono scambi migliori mentre porti merci firmate"
-tag = "Firmato da"
-item_lore = "Firmato da {player}"
-lore = ["Articoli artigianali sono firmati con il tuo nome", "Gli abitanti offrono scambi migliori mentre porti merci firmate"]
 
 [discovery.armor]
 name = "Armatura del Mondo"
@@ -4056,9 +4039,9 @@ lore = ["Gamma di sicurezza", "Durata Glimmer"]
 
 [enchanting.lapis_return]
 name = "Ritorno del Lapislazzuli"
-description = "Al costo di 1 livello in piu' di XP, ha una probabilita' di restituirti lapislazzuli gratis"
-lore1 = "Per ogni livello, aumenta il costo dell'incantamento di 1, ma puo' restituire fino a 3 Lapislazzuli"
-lore = ["Per ogni livello, aumenta il costo dell'incantamento di 1, ma puo' restituire fino a 3 Lapislazzuli"]
+description = "Incantare al tavolo può restituire lapislazzuli speso; i livelli più alti ne restituiscono di più."
+lore1 = "Possibilità di recuperare lapislazzuli speso, fino al tuo livello e mai oltre il costo dell’incantesimo"
+lore = ["Possibilità di recuperare lapislazzuli speso, fino al tuo livello e mai oltre il costo dell’incantesimo"]
 
 [enchanting.quick_enchant]
 name = "Incantamento Rapido"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

@@ -36,7 +36,6 @@ public final class CraftingMessages {
   public static final TextKey PREFERENCE_CRAFTINGCOMPACTOR_BATCH = TextKey.of("crafting.preferences.craftingcompactor.batch-limit", "Compaction batch limit");
   public static final TextKey PREFERENCE_CRAFTINGBULKARTISAN_RESERVE = TextKey.of("crafting.preferences.craftingbulkartisan.ingredient-reserve", "Ingredient reserve");
   public static final TextKey PREFERENCE_CRAFTINGBULKARTISAN_BATCH = TextKey.of("crafting.preferences.craftingbulkartisan.batch-limit", "Extra batch limit");
-  public static final TextKey PREFERENCE_CRAFTINGSIGNATURE_LORE = TextKey.of("crafting.preferences.craftingsignature.signature-lore", "Visible signature lore");
   public static final TextKey DECONSTRUCTION_NAME = TextKey.of("crafting.deconstruction.name", "Deconstruction");
   public static final TextKey DECONSTRUCTION_DESCRIPTION = TextKey.of("crafting.deconstruction.description", "Deconstruct blocks & items into salvageable base components!");
   public static final TextKey DECONSTRUCTION_LORE1 = TextKey.of("crafting.deconstruction.lore1", "Drop an item; armor must be fully repaired.");
@@ -92,9 +91,9 @@ public final class CraftingMessages {
   public static final TextKey BULK_ARTISAN_LORE2 = TextKey.of("crafting.bulk_artisan.lore2", "bonus items per shift-craft");
   public static final LinesKey BULK_ARTISAN_LORE = LinesKey.of("crafting.bulk_artisan.lore", "Shift-click also pulls matching ingredients from your inventory", "bonus items per shift-craft");
   public static final TextKey THRIFTY_HANDS_NAME = TextKey.of("crafting.thrifty_hands.name", "Thrifty Hands");
-  public static final TextKey THRIFTY_HANDS_DESCRIPTION = TextKey.of("crafting.thrifty_hands.description", "Every craft has a chance to refund one of its ingredients.");
-  public static final TextKey THRIFTY_HANDS_LORE1 = TextKey.of("crafting.thrifty_hands.lore1", "chance to refund a crafting ingredient");
-  public static final LinesKey THRIFTY_HANDS_LORE = LinesKey.of("crafting.thrifty_hands.lore", "chance to refund a crafting ingredient");
+  public static final TextKey THRIFTY_HANDS_DESCRIPTION = TextKey.of("crafting.thrifty_hands.description", "Crafts using at least three different materials have a chance to refund one ingredient unit.");
+  public static final TextKey THRIFTY_HANDS_LORE1 = TextKey.of("crafting.thrifty_hands.lore1", "chance to refund one ingredient unit (3+ different materials)");
+  public static final LinesKey THRIFTY_HANDS_LORE = LinesKey.of("crafting.thrifty_hands.lore", "chance to refund one ingredient unit (3+ different materials)");
   public static final TextKey MASTERWORK_NAME = TextKey.of("crafting.masterwork.name", "Masterwork");
   public static final TextKey MASTERWORK_DESCRIPTION = TextKey.of("crafting.masterwork.description", "Each tool and armor piece you craft independently rolls variable bonus durability, a minor beneficial enchantment, and a full-level attribute bonus.");
   public static final TextKey MASTERWORK_LORE1 = TextKey.of("crafting.masterwork.lore1", "chance to forge a masterwork piece");
@@ -122,13 +121,6 @@ public final class CraftingMessages {
   public static final TextKey PROVISIONER_LORE1 = TextKey.of("crafting.provisioner.lore1", "chance for bonus food portions");
   public static final TextKey PROVISIONER_LORE2 = TextKey.of("crafting.provisioner.lore2", "bonus portions per proc");
   public static final LinesKey PROVISIONER_LORE = LinesKey.of("crafting.provisioner.lore", "chance for bonus food portions", "bonus portions per proc");
-  public static final TextKey SIGNATURE_NAME = TextKey.of("crafting.signature.name", "Artisan's Signature");
-  public static final TextKey SIGNATURE_DESCRIPTION = TextKey.of("crafting.signature.description", "Items you craft carry your signature, and villagers offer better trades while you carry your signed goods.");
-  public static final TextKey SIGNATURE_LORE1 = TextKey.of("crafting.signature.lore1", "Crafted items are signed with your name");
-  public static final TextKey SIGNATURE_LORE2 = TextKey.of("crafting.signature.lore2", "Villagers offer better trades while you carry signed goods");
-  public static final TextKey SIGNATURE_TAG = TextKey.of("crafting.signature.tag", "Signed by");
-  public static final TextKey SIGNATURE_ITEM_LORE = TextKey.of("crafting.signature.item_lore", "Signed by {player}");
-  public static final LinesKey SIGNATURE_LORE = LinesKey.of("crafting.signature.lore", "Crafted items are signed with your name", "Villagers offer better trades while you carry signed goods");
 
   private CraftingMessages() {
   }
@@ -165,7 +157,6 @@ public final class CraftingMessages {
     builder.add(PREFERENCE_CRAFTINGCOMPACTOR_BATCH);
     builder.add(PREFERENCE_CRAFTINGBULKARTISAN_RESERVE);
     builder.add(PREFERENCE_CRAFTINGBULKARTISAN_BATCH);
-    builder.add(PREFERENCE_CRAFTINGSIGNATURE_LORE);
     builder.add(DECONSTRUCTION_NAME);
     builder.add(DECONSTRUCTION_DESCRIPTION);
     builder.add(DECONSTRUCTION_LORE1);
@@ -251,12 +242,5 @@ public final class CraftingMessages {
     builder.add(PROVISIONER_LORE1);
     builder.add(PROVISIONER_LORE2);
     builder.add(PROVISIONER_LORE);
-    builder.add(SIGNATURE_NAME);
-    builder.add(SIGNATURE_DESCRIPTION);
-    builder.add(SIGNATURE_LORE1);
-    builder.add(SIGNATURE_LORE2);
-    builder.add(SIGNATURE_TAG);
-    builder.add(SIGNATURE_ITEM_LORE);
-    builder.add(SIGNATURE_LORE);
   }
 }

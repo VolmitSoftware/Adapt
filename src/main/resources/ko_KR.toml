@@ -2553,14 +2553,6 @@ description = "생산 라인 500 보너스 음식 부분"
 title = "카테고리"
 description = "생산 라인 5,000 보너스 음식 부분"
 
-[advancement.challenge_crafting_signature_100]
-title = "서명"
-description = "서명된 상품으로 주민 거래 100회를 완료하세요"
-
-[advancement.challenge_crafting_signature_1k]
-title = "모리셔스"
-description = "서명된 상품으로 주민 거래 1,000회를 완료하세요"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Curse 차단기"
 description = "숫돌에서 저주 10개를 정화하세요"
@@ -3892,9 +3884,9 @@ lore = ["Shift 키를 누른 채 클릭하면 인벤토리에서 일치하는 �
 
 [crafting.thrifty_hands]
 name = "거친 손"
-description = "각 공예는 재료 중 하나를 환불 할 수있는 기회를 가지고."
-lore1 = "기술 성분을 환불 할 수있는 기회"
-lore = ["기술 성분을 환불 할 수있는 기회"]
+description = "서로 다른 재료를 3종류 이상 사용하는 제작법은 재료 한 개를 돌려받을 확률이 있습니다."
+lore1 = "재료 한 개를 돌려받을 확률 (서로 다른 재료 3종류 이상)"
+lore = ["재료 한 개를 돌려받을 확률 (서로 다른 재료 3종류 이상)"]
 
 [crafting.masterwork]
 name = "마스터 워크"
@@ -3930,15 +3922,6 @@ description = "음식물을 만드는 일이나 요리하는 일은 부너스 �
 lore1 = "보너스 음식에 대한 기회"
 lore2 = "발동 당 보너스 부분"
 lore = ["보너스 음식에 대한 기회", "발동 당 보너스 부분"]
-
-[crafting.signature]
-name = "장인의 시그니처"
-description = "당신이 기술 당신의 서명을 나르는 품목, 및 주민 제안 더 나은 무역은 당신이 서명한 상품을 실행하는 동안."
-lore1 = "제작됨 항목은 이름과 서명됩니다."
-lore2 = "주민 제안 더 나은 거래 동안 당신은 서명 한 상품을 수행"
-tag = "서명:"
-item_lore = "{player}의 서명"
-lore = ["제작됨 항목은 이름과 서명됩니다.", "주민 제안 더 나은 거래 동안 당신은 서명 한 상품을 수행"]
 
 [discovery.armor]
 name = "세계의 갑옷"
@@ -4056,9 +4039,9 @@ lore = ["시선 범위", "희미한 빛 기간"]
 
 [enchanting.lapis_return]
 name = "청금석 반환"
-description = "XP 1레벨 추가 비용 대신, 무료 청금석을 돌려받을 확률이 있습니다"
-lore1 = "레벨당 마법부여 비용이 1 증가하지만, 최대 3개의 청금석을 돌려받을 수 있습니다"
-lore = ["레벨당 마법부여 비용이 1 증가하지만, 최대 3개의 청금석을 돌려받을 수 있습니다"]
+description = "마법부여대에서 마법을 부여하면 소비한 청금석을 돌려받을 확률이 있으며, 레벨이 높을수록 더 많이 반환합니다."
+lore1 = "소비한 청금석을 적응 레벨만큼 반환할 확률이 있지만, 실제 마법부여 비용을 넘지 않습니다"
+lore = ["소비한 청금석을 적응 레벨만큼 반환할 확률이 있지만, 실제 마법부여 비용을 넘지 않습니다"]
 
 [enchanting.quick_enchant]
 name = "퀵클릭 마법부여"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

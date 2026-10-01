@@ -132,8 +132,10 @@ class PovCaptureRecordTest(unittest.TestCase):
         take, studio, _ = self.shoot(capture_entry(True), fail_on='capture:start')
         self.assertEqual(take.status, 'failed')
         self.assertIn('ffmpeg is not an executable file', take.evidence_detail)
-        self.assertIn('record:stop', studio.log)
+        self.assertEqual([label for label in studio.log if label.startswith(('record:', 'capture:'))],
+                         ['record:start', 'capture:start', 'record:stop'])
         self.assertFalse(studio.recording)
+        self.assertFalse(studio.capturing)
 
     def test_abandoned_take_stops_a_running_capture(self) -> None:
         with mock.patch.object(record_phase.beats, 'run_beats', side_effect=RuntimeError('beat exploded')):
@@ -261,20 +263,66 @@ class PovCaptureSheetTest(unittest.TestCase):
 
 
 class WindowFitTest(unittest.TestCase):
+    HIDDEN_STATE: dict = {'hiddenRenderer': True, 'windowVisible': False, 'windowFocused': False, 'mouseGrabbed': False,
+                          'cursorMode': 212993, 'renderWidth': 1920, 'renderHeight': 1080}
+
     def setUp(self) -> None:
         console: mock._patch = mock.patch('sys.stdout', new_callable=io.StringIO)
         console.start()
         self.addCleanup(console.stop)
 
-    def test_window_that_cannot_be_fitted_warns_and_the_run_continues(self) -> None:
+    def fitted_studio(self, state: dict) -> studio.Studio:
+        demo: studio.Studio = studio.Studio(Path('/unused'), skip_build=True)
+        demo.bridge = mock.MagicMock(spec=studio.DemoBridge)
+        demo.bridge.state.return_value = state
+        return demo
+
+    def test_visible_focused_or_grabbed_client_is_rejected_immediately(self) -> None:
+        for field, value in [('hiddenRenderer', False), ('windowVisible', True), ('windowFocused', True),
+                             ('mouseGrabbed', True), ('cursorMode', 212995)]:
+            with self.subTest(field=field):
+                state: dict = dict(self.HIDDEN_STATE)
+                state[field] = value
+                demo: studio.Studio = self.fitted_studio(state)
+                with mock.patch.object(studio.time, 'sleep') as sleep:
+                    with self.assertRaisesRegex(RuntimeError, field):
+                        demo.fit_window(demo.bridge)
+                sleep.assert_not_called()
+                demo.bridge.state.assert_called_once()
+
+    def test_missing_visibility_state_is_rejected(self) -> None:
+        state: dict = dict(self.HIDDEN_STATE)
+        del state['windowVisible']
+        demo: studio.Studio = self.fitted_studio(state)
+        with self.assertRaisesRegex(RuntimeError, 'windowVisible'):
+            demo.fit_window(demo.bridge)
+
+    def test_clipped_framebuffer_times_out_after_five_seconds(self) -> None:
+        state: dict = dict(self.HIDDEN_STATE)
+        state['renderHeight'] = 1022
+        demo: studio.Studio = self.fitted_studio(state)
+        with mock.patch.object(studio.time, 'monotonic', side_effect=[0.0, 0.0, 5.0]), mock.patch.object(studio.time, 'sleep'):
+            with self.assertRaisesRegex(RuntimeError, '1920x1022'):
+                demo.fit_window(demo.bridge)
+        demo.bridge.state.assert_called_once_with(timeout=5.0)
+
+    def test_native_resize_can_settle_before_capture(self) -> None:
+        clipped: dict = dict(self.HIDDEN_STATE)
+        clipped['renderHeight'] = 1022
+        demo: studio.Studio = self.fitted_studio(clipped)
+        demo.bridge.state.side_effect = [clipped, dict(self.HIDDEN_STATE)]
+        with mock.patch.object(studio.time, 'monotonic', side_effect=[0.0, 0.0, 0.05]), mock.patch.object(studio.time, 'sleep'):
+            demo.fit_window(demo.bridge)
+        self.assertEqual(demo.bridge.state.call_args_list, [mock.call(timeout=5.0), mock.call(timeout=4.95)])
+
+    def test_rejected_hidden_window_fit_stops_startup(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             demo: studio.Studio = studio.Studio(Path(tmp) / 'out', skip_build=True, lane=1)
             demo.bridge = mock.MagicMock()
-            demo.bridge.command.side_effect = RuntimeError('fit-window rejected with HTTP 400: No monitor work area holds a 1920x1080 window')
-            demo.fit_window()
+            demo.bridge.command.side_effect = RuntimeError('fit-window rejected with HTTP 400: Framebuffer is 1920x1022, not 1920x1080')
+            with self.assertRaisesRegex(RuntimeError, 'Framebuffer is 1920x1022'):
+                demo.fit_window(demo.bridge)
         demo.bridge.command.assert_called_once_with('fit-window', width=1920, height=1080)
-        self.assertIn('[WINDOW] warning: fit-window rejected with HTTP 400: No monitor work area holds a 1920x1080 window; live pov captures are '
-                      'cropped and scaled to 1920x1080', sys.stdout.getvalue())
 
 
 class LiveTrimEncodeTest(unittest.TestCase):

@@ -2553,14 +2553,6 @@ description = "Rendimento 500 porções de alimentos bônus"
 title = "Intendente"
 description = "Rendimento 5,000 porções de alimentos bônus"
 
-[advancement.challenge_crafting_signature_100]
-title = "Assinado"
-description = "Completa 100 comércios de aldeões que transportam mercadorias assinadas"
-
-[advancement.challenge_crafting_signature_1k]
-title = "Artisã de renome"
-description = "Completa 1,000 comércios de aldeões que transportam mercadorias assinadas"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Quebrador de Maldição"
 description = "Limpar 10 maldições na pedra de moagem"
@@ -3892,9 +3884,9 @@ lore = ["Shift-clique também puxa ingredientes correspondentes do seu inventár
 
 [crafting.thrifty_hands]
 name = "Mãos Thrifty"
-description = "Cada embarcação tem a oportunidade de reembolsar um dos seus ingredientes."
-lore1 = "possibilidade de reembolsar um ingrediente artesanal"
-lore = ["possibilidade de reembolsar um ingrediente artesanal"]
+description = "Receitas com pelo menos três materiais diferentes podem devolver uma unidade de um ingrediente."
+lore1 = "probabilidade de devolver uma unidade de ingrediente (3+ materiais diferentes)"
+lore = ["probabilidade de devolver uma unidade de ingrediente (3+ materiais diferentes)"]
 
 [crafting.masterwork]
 name = "Trabalho de mestre"
@@ -3930,15 +3922,6 @@ description = "A elaboração ou a cozinha de alimentos tem uma chance de produz
 lore1 = "chance para porções de alimentos bônus"
 lore2 = "porções de bônus por processo"
 lore = ["chance para porções de alimentos bônus", "porções de bônus por processo"]
-
-[crafting.signature]
-name = "Assinatura do Artesão"
-description = "Itens que você artesanato carregam sua assinatura, e os aldeões oferecem negócios melhores enquanto você carrega seus bens assinados."
-lore1 = "Artigos artesanais são assinados com o seu nome"
-lore2 = "Os aldeões oferecem melhores trocas enquanto você carrega mercadorias assinadas"
-tag = "Assinado por"
-item_lore = "Assinado por {player}"
-lore = ["Artigos artesanais são assinados com o seu nome", "Os aldeões oferecem melhores trocas enquanto você carrega mercadorias assinadas"]
 
 [discovery.armor]
 name = "Armadura do Mundo"
@@ -4056,9 +4039,9 @@ lore = ["Faixa de Linha de Visão", "Duração do lume"]
 
 [enchanting.lapis_return]
 name = "Retorno de Lapis"
-description = "Ao custo de mais 1 nivel de XP, tem chance de te dar lapis gratis em troca"
-lore1 = "Por cada nivel, aumenta o custo de encantamento em 1, mas pode devolver ate 3 Lapis"
-lore = ["Por cada nivel, aumenta o custo de encantamento em 1, mas pode devolver ate 3 Lapis"]
+description = "Encantar numa mesa pode devolver lápis-lazúli gasto; níveis mais altos devolvem mais."
+lore1 = "Probabilidade de devolver lápis-lazúli gasto, até ao teu nível e nunca mais do que o encantamento custa"
+lore = ["Probabilidade de devolver lápis-lazúli gasto, até ao teu nível e nunca mais do que o encantamento custa"]
 
 [enchanting.quick_enchant]
 name = "Encantamento Rapido"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

@@ -2553,14 +2553,6 @@ description = "Tạo thêm 500 khẩu phần thức ăn"
 title = "Quản Lý Tiếp Vận"
 description = "Tạo thêm 5,000 khẩu phần thức ăn"
 
-[advancement.challenge_crafting_signature_100]
-title = "Đã Ký Tên"
-description = "Hoàn thành 100 giao dịch dân làng khi mang hàng đã ký"
-
-[advancement.challenge_crafting_signature_1k]
-title = "Nghệ Nhân Danh Tiếng"
-description = "Hoàn thành 1,000 giao dịch dân làng khi mang hàng đã ký"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Kẻ Phá Lời Nguyền"
 description = "Thanh tẩy 10 lời nguyền tại đá mài"
@@ -3892,9 +3884,9 @@ lore = ["Shift-nhấp cũng lấy nguyên liệu tương ứng từ kho đồ", 
 
 [crafting.thrifty_hands]
 name = "Đôi Tay Tiết Kiệm"
-description = "Mỗi lần chế tạo có cơ hội hoàn lại một nguyên liệu."
-lore1 = "cơ hội hoàn lại một nguyên liệu chế tạo"
-lore = ["cơ hội hoàn lại một nguyên liệu chế tạo"]
+description = "Công thức dùng ít nhất ba loại vật liệu khác nhau có cơ hội hoàn lại một đơn vị nguyên liệu."
+lore1 = "cơ hội hoàn lại một đơn vị nguyên liệu (3+ loại vật liệu khác nhau)"
+lore = ["cơ hội hoàn lại một đơn vị nguyên liệu (3+ loại vật liệu khác nhau)"]
 
 [crafting.masterwork]
 name = "Tuyệt Tác"
@@ -3930,15 +3922,6 @@ description = "Chế tạo hoặc nấu thức ăn có cơ hội tạo thêm kh�
 lore1 = "cơ hội nhận thêm khẩu phần thức ăn"
 lore2 = "khẩu phần thưởng mỗi lần kích hoạt"
 lore = ["cơ hội nhận thêm khẩu phần thức ăn", "khẩu phần thưởng mỗi lần kích hoạt"]
-
-[crafting.signature]
-name = "Chữ Ký Nghệ Nhân"
-description = "Vật phẩm bạn chế tạo mang chữ ký của bạn; dân làng đưa ra giao dịch tốt hơn khi bạn mang theo hàng đã ký."
-lore1 = "Vật phẩm chế tạo được ký tên bạn"
-lore2 = "Dân làng đưa giao dịch tốt hơn khi bạn mang hàng đã ký"
-tag = "Được ký bởi"
-item_lore = "Được ký bởi {player}"
-lore = ["Vật phẩm chế tạo được ký tên bạn", "Dân làng đưa giao dịch tốt hơn khi bạn mang hàng đã ký"]
 
 [discovery.armor]
 name = "Giáp Thế Giới"
@@ -4056,9 +4039,9 @@ lore = ["Tầm Nhìn Thẳng", "Thời Gian Phát Sáng"]
 
 [enchanting.lapis_return]
 name = "Hoàn Lapis"
-description = "Với cái giá tăng thêm 1 cấp XP, và có cơ hội nhận lại lapis miễn phí"
-lore1 = "Mỗi cấp độ tăng chi phí phù phép thêm 1, nhưng có thể trả lại tối đa 3 Lapis"
-lore = ["Mỗi cấp độ tăng chi phí phù phép thêm 1, nhưng có thể trả lại tối đa 3 Lapis"]
+description = "Phù phép tại bàn có cơ hội hoàn lại lapis đã dùng; cấp cao hơn hoàn lại nhiều hơn."
+lore1 = "Có cơ hội hoàn lại lapis đã dùng, tối đa bằng cấp thích nghi và không vượt quá lượng phù phép tiêu thụ"
+lore = ["Có cơ hội hoàn lại lapis đã dùng, tối đa bằng cấp thích nghi và không vượt quá lượng phù phép tiêu thụ"]
 
 [enchanting.quick_enchant]
 name = "Phù Phép Nhanh"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

@@ -82,7 +82,39 @@
     ],
     "expect": {"sound": "minecraft:entity.zombie.attack_iron_door", "particle": "dust"}, "maxTicks": 200
   },
-  "axe-iris-feller": {"skip": "plugin-conditional: Iris"},
+  "axe-iris-feller": {
+    "set": "axes-iris-tree", "level": 3,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:netherite_axe",
+      "attribute {actor} minecraft:block_break_speed base set 64",
+      "effect give {actor} minecraft:saturation 1 19 true",
+      "adaptqa demo preference {actor} axe-iris-feller hunger-reserve FIVE"
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "press", "hold": ["sneak"], "ticks": 200},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "look", "yaw": 180, "pitch": 14.4, "ticks": 6},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "look", "yaw": 180, "pitch": 0, "ticks": 6},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "look", "yaw": 180, "pitch": -32, "ticks": 14},
+      {"verb": "press", "hold": ["back", "sneak"], "ticks": 200},
+      {"verb": "wait", "ticks": 80},
+      {"verb": "press", "hold": ["sneak"], "off": ["back"], "ticks": 200},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "look", "yaw": 180, "pitch": 5, "ticks": 18},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "keys", "hold": ["sneak"], "ticks": 1},
+      {"verb": "wait", "ticks": 10}
+    ],
+    "expect": {"visual": "Sneaking with an axe removes multiple genuine Iris tree blocks and returns their drops. The configured five-point hunger reserve stops the run after the affordable log removals; the wider views show the removed section and the remaining tree."},
+    "maxTicks": 400
+  },
   "axe-leaf-veinminer": {
     "set": "axes-tree", "level": 5,
     "camera": {"x": 7.3, "y": 3.4, "z": -3.3, "yaw": 75, "pitch": 3},

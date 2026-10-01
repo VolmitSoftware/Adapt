@@ -47,7 +47,9 @@ public final class CraftingFixtures implements Listener {
         actor.setSaturation(0);
         switch (name) {
             case "craft-bulk" -> actor.getInventory().addItem(new ItemStack(Material.OAK_LOG, 9));
-            case "craft-thrifty" -> actor.getInventory().addItem(new ItemStack(Material.OAK_LOG, 20));
+            case "craft-thrifty" -> actor.getInventory().addItem(new ItemStack(Material.OAK_LOG, 20),
+                    new ItemStack(Material.OAK_PLANKS, 48), new ItemStack(Material.COBBLESTONE, 64),
+                    new ItemStack(Material.IRON_INGOT, 16), new ItemStack(Material.REDSTONE, 16));
             case "craft-provision" -> actor.getInventory().addItem(new ItemStack(Material.WHEAT, 36));
             case "craft-masterwork" -> actor.getInventory().addItem(new ItemStack(Material.OAK_PLANKS, 12), new ItemStack(Material.STICK, 24));
             case "craft-tinkerer" -> {

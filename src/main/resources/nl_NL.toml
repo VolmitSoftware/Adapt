@@ -2553,14 +2553,6 @@ description = "Opbrengst 500 bonus voedsel porties"
 title = "Kwartiermeester"
 description = "Opbrengst 5,000 bonus voedsel porties"
 
-[advancement.challenge_crafting_signature_100]
-title = "Ondertekend"
-description = "Voltooid 100 dorpshandel met ondertekende goederen"
-
-[advancement.challenge_crafting_signature_1k]
-title = "Bekend Artisan"
-description = "Voltooid 1,000 dorpshandel met ondertekende goederen"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "Vervloekte breker"
 description = "Reinigen 10 vloeken op de grindstone"
@@ -3892,9 +3884,9 @@ lore = ["Het klikken op een verschuiving trekt ook overeenkomende ingrediënten 
 
 [crafting.thrifty_hands]
 name = "Thrifty Hands"
-description = "Elk vaartuig heeft de kans om een van zijn ingrediënten terug te betalen."
-lore1 = "kans om een ambachtelijk ingrediënt terug te betalen"
-lore = ["kans om een ambachtelijk ingrediënt terug te betalen"]
+description = "Recepten met minstens drie verschillende materialen kunnen één eenheid van een ingrediënt teruggeven."
+lore1 = "kans op één ingrediënteenheid (3+ verschillende materialen)"
+lore = ["kans op één ingrediënteenheid (3+ verschillende materialen)"]
 
 [crafting.masterwork]
 name = "Meesterwerk"
@@ -3930,15 +3922,6 @@ description = "Crafting of koken voedsel heeft een kans om bonus porties te prod
 lore1 = "kans voor bonus voedsel porties"
 lore2 = "bonusporties per proc"
 lore = ["kans voor bonus voedsel porties", "bonusporties per proc"]
-
-[crafting.signature]
-name = "Handtekening van Artisan"
-description = "Items die je ambachtelijk draagt uw handtekening, en dorpelingen bieden betere handel terwijl u het dragen van uw ondertekende goederen."
-lore1 = "Bewerkte items worden ondertekend met uw naam"
-lore2 = "Dorpen bieden betere handel terwijl u gesigneerde goederen"
-tag = "Ondertekend door"
-item_lore = "Ondertekend door {player}"
-lore = ["Bewerkte items worden ondertekend met uw naam", "Dorpen bieden betere handel terwijl u gesigneerde goederen"]
 
 [discovery.armor]
 name = "Wereldpantser"
@@ -4056,9 +4039,9 @@ lore = ["Bereik van het zicht", "Glimmerduur"]
 
 [enchanting.lapis_return]
 name = "Lapis Teruggave"
-description = "Ten koste van 1 extra level XP, met een kans om gratis lapis terug te krijgen"
-lore1 = "Voor elk niveau verhoogt het de kosten van betoveren met 1, maar kan tot 3 Lapis teruggeven"
-lore = ["Voor elk niveau verhoogt het de kosten van betoveren met 1, maar kan tot 3 Lapis teruggeven"]
+description = "Betoveren aan een tafel kan gebruikte lapis teruggeven; hogere niveaus geven meer terug."
+lore1 = "Kans om gebruikte lapis terug te krijgen, tot je niveau en nooit meer dan de betovering kost"
+lore = ["Kans om gebruikte lapis terug te krijgen, tot je niveau en nooit meer dan de betovering kost"]
 
 [enchanting.quick_enchant]
 name = "Snelklik Betoveren"
@@ -6535,9 +6518,6 @@ materials = "Allowed material categories"
 attributes = "Attribute bonus"
 durability = "Durability bonus"
 enchantments = "Enchantment bonus"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "Visible signature lore"
 
 [crafting.preferences.craftingstations]
 anvil = "Anvil"

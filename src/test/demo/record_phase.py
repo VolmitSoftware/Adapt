@@ -191,7 +191,11 @@ def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attem
     bridge.command('clear-events')
     start_tick: int = int(bridge.command('record', action='start')['recordStartTick'])
     if entry.pov_capture:
-        start_capture(bridge, manifest.live_pov_path(output, entry.id), ffmpeg)
+        try:
+            start_capture(bridge, manifest.live_pov_path(output, entry.id), ffmpeg)
+        except RuntimeError:
+            stop_recording(bridge)
+            raise
     wait_ticks(SETTLE_TICKS)
     bounded: beats.BeatContext = dataclasses.replace(context, wait_ticks=wait_ticks_factory(bridge, start_tick, entry.max_ticks))
     timeout: str | None = None

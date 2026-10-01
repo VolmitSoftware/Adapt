@@ -102,20 +102,6 @@ async function craftPlanks({ context, actor }) {
     return { count: planks.count, metadata: JSON.stringify(planks.components ?? planks.nbt ?? null), owner: actor.bot.player.uuid }
 }
 
-async function signedPlanks(input) {
-    const { context, actor, snapshot } = input
-    const crafted = await craftPlanks(input)
-    const villager = Object.values(actor.bot.entities).find(entity => entity.name === 'villager')
-    context.expect(Boolean(villager), 'A real villager is available to inspect the naturally crafted goods')
-    await actor.bot.lookAt(villager.position.offset(0, 1, 0), true)
-    await actor.bot.waitForTicks(3)
-    actor.bot.activateEntity(villager)
-    await actor.bot.waitForTicks(6)
-    if (actor.bot.currentWindow) actor.bot.closeWindow(actor.bot.currentWindow)
-    const after = await snapshot()
-    return { ...crafted, effects: after.effects, signedTrades: after.stats['crafting.signature.signed-trades'] ?? 0 }
-}
-
 async function compact(input) {
     const { actor } = input
     const block = await tableBlock(input)
@@ -215,27 +201,6 @@ export const itemBehaviorCases = new Map([
             context.expect(active.after.food > unlearned.after.food, 'Learned apple consumption restores more hunger')
             context.expect(active.after.saturation > unlearned.after.saturation, 'Learned apple consumption restores more saturation')
             return { assertions: ['identical food starts with equal hunger and saturation', 'learned consumption restores more hunger and saturation'], measurements: { unlearned, active } }
-        },
-    }],
-    ['crafting-signature', {
-        stage: 'crafting', negativeWindowTicks: 20,
-        description: 'crafting adds the crafter identity to the returned item',
-        sound: 'minecraft:entity.villager.yes', soundVolume: 0.6, soundPitch: 1.1,
-        particle: 'happy_villager', particleCount: 6, particleOffset: 0.3,
-        prepare: async ({ context, actor }) => {
-            await context.command(`/execute at ${actor.bot.username} run summon minecraft:villager 2.5 100 2.5 {NoAI:1b,VillagerData:{type:"minecraft:plains",profession:"minecraft:farmer",level:2}}`, /Summoned/i, 5000)
-            await context.waitUntil(() => Object.values(actor.bot.entities).some(entity => entity.name === 'villager'), {
-                label: 'signature trading villager is client visible', timeoutMs: 3000,
-            })
-        },
-        trigger: signedPlanks,
-        async verify({ context, unlearned, active }) {
-            context.expect(unlearned.count === 4 && active.count === 4, 'Both crafting trials return four planks')
-            context.expect(!unlearned.metadata.includes('adapt:crafting_signature_owner'), 'Unlearned crafted item has no signature')
-            context.expect(active.metadata.includes('adapt:crafting_signature_owner') && active.metadata.includes(active.owner), 'Learned crafted item stores the actual crafter UUID')
-            context.expect(!unlearned.effects.some(effect => effect.type === 'minecraft:hero_of_the_village'), 'Unsigned goods grant no village trading effect')
-            context.expect(active.effects.some(effect => effect.type === 'minecraft:hero_of_the_village') && active.signedTrades > unlearned.signedTrades, 'Villager interaction recognizes naturally signed goods and grants its trade benefit')
-            return { assertions: ['unlearned output has no crafter signature', 'learned output includes the actual crafter UUID', 'real villager interaction grants the signed-goods trade effect'], measurements: { unlearned, active } }
         },
     }],
     ['crafting-compactor', {

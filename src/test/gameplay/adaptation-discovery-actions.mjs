@@ -107,6 +107,7 @@ async function lapis(input) {
     let spent = 0
     let attempts = 0
     for (; attempts < 30;) {
+        const paymentBefore = count(await input.snapshot(), 'lapis_lazuli')
         const table = await input.actor.bot.openEnchantmentTable(block(input))
         try {
             const sword = table.items().find(item => item.name === 'iron_sword' && !enchanted(item))
@@ -118,13 +119,16 @@ async function lapis(input) {
             })
             const option = table.enchantments.findIndex(value => value.level > 0)
             await table.enchant(option)
+            await input.actor.bot.waitForTicks(2)
             const output = await table.takeTargetItem()
             input.context.expect(enchanted(output), 'Natural table operation creates an enchanted sword')
             spent += option + 1
             attempts++
         } finally { table.close() }
         await input.actor.bot.waitForTicks(4)
-        const refund = count(await input.snapshot(), 'lapis_lazuli') - count(before, 'lapis_lazuli') + spent
+        const balance = count(await input.snapshot(), 'lapis_lazuli')
+        input.context.expect(balance <= paymentBefore, 'Completed enchanting never increases the prepayment lapis balance')
+        const refund = balance - count(before, 'lapis_lazuli') + spent
         if (refund > 0) return { attempts, spent, refund }
     }
     return { attempts, spent, refund: 0 }
@@ -274,8 +278,8 @@ export const discoveryBehaviorCases = new Map([
         sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.7, soundPitch: 0.9, particle: 'glow', particleCount: 3,
         verify: ({ context, unlearned, active }) => {
             context.expect(unlearned.attempts === 30 && unlearned.refund === 0, 'Thirty unlearned enchants consume exactly their ordinary lapis costs')
-            context.expect(active.attempts > 0 && active.refund === 3, 'Max-level natural enchanting returns three lapis above the ordinary cost')
-            return result(['unlearned enchanting consumes ordinary lapis', 'max-level completed enchanting refunds three actual lapis'], unlearned, active)
+            context.expect(active.attempts > 0 && active.refund > 0 && active.refund <= active.spent, 'Completed natural enchanting refunds at most the actual lapis paid')
+            return result(['unlearned enchanting consumes ordinary lapis', 'completed enchanting refunds paid lapis without increasing the prepayment balance'], unlearned, active)
         },
     }],
     ['enchanting-soul-link', {

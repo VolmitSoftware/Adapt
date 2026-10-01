@@ -2553,14 +2553,6 @@ description = "额外制作 500 份食物"
 title = "军需官"
 description = "额外制作 5,000 份食物"
 
-[advancement.challenge_crafting_signature_100]
-title = "亲笔署名"
-description = "携带署名物品完成 100 次村民交易"
-
-[advancement.challenge_crafting_signature_1k]
-title = "名匠"
-description = "携带署名物品完成 1,000 次村民交易"
-
 [advancement.challenge_enchanting_cleanse_10]
 title = "破咒者"
 description = "在砂轮上净化 10 个诅咒"
@@ -3892,9 +3884,9 @@ lore = ["Shift 点击合成时还会提取背包中的同类材料", "每次 Shi
 
 [crafting.thrifty_hands]
 name = "节俭之手"
-description = "每次合成都有概率返还一份材料。"
-lore1 = "合成材料返还概率"
-lore = ["合成材料返还概率"]
+description = "使用至少三种不同材料的配方有几率返还一个原料。"
+lore1 = "返还一个原料的几率（至少3种不同材料）"
+lore = ["返还一个原料的几率（至少3种不同材料）"]
 
 [crafting.masterwork]
 name = "精工制作"
@@ -3930,15 +3922,6 @@ description = "合成或烹饪食物时，有概率获得额外份数。"
 lore1 = "获得额外食物的概率"
 lore2 = "每次触发增加的食物份数"
 lore = ["获得额外食物的概率", "每次触发增加的食物份数"]
-
-[crafting.signature]
-name = "工匠署名"
-description = "你制作的物品会带上你的署名；携带自己署名的物品时，村民会提供更优惠的交易。"
-lore1 = "制作的物品会署上你的名字"
-lore2 = "携带署名物品时，村民交易更优惠"
-tag = "制作者"
-item_lore = "制作者：{player}"
-lore = ["制作的物品会署上你的名字", "携带署名物品时，村民交易更优惠"]
 
 [discovery.armor]
 name = "大地之甲"
@@ -4056,9 +4039,9 @@ lore = ["视线侦测范围", "闪光持续时间"]
 
 [enchanting.lapis_return]
 name = "青金石回馈"
-description = "在附魔台附魔时有概率返还青金石，等级越高返还越多。"
-lore1 = "附魔时有概率获得免费青金石，数量随等级提升"
-lore = ["附魔时有概率获得免费青金石，数量随等级提升"]
+description = "在附魔台附魔时有概率返还已消耗的青金石，等级越高可返还越多。"
+lore1 = "有概率返还已消耗的青金石，数量最多等于适应等级，且绝不超过附魔实际消耗量"
+lore = ["有概率返还已消耗的青金石，数量最多等于适应等级，且绝不超过附魔实际消耗量"]
 
 [enchanting.quick_enchant]
 name = "快捷附魔"
@@ -6535,9 +6518,6 @@ materials = "允许的材料类别"
 attributes = "属性加成"
 durability = "耐久度加成"
 enchantments = "附魔加成"
-
-[crafting.preferences.craftingsignature]
-signature-lore = "显示署名说明"
 
 [crafting.preferences.craftingstations]
 anvil = "铁砧"

@@ -29,20 +29,27 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import io.papermc.paper.event.inventory.ItemCraftedEvent;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.ShapelessRecipe;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class CraftingThriftyHands extends SimpleAdaptation<CraftingThriftyHands.Config> {
+  private final Map<UUID, PendingRefund> pendingRefunds = playerState();
 
   public CraftingThriftyHands() {
     super("crafting-thrifty-hands");
@@ -77,11 +84,27 @@ public class CraftingThriftyHands extends SimpleAdaptation<CraftingThriftyHands.
     return refundChance(getConfig().refundChanceBase, getConfig().refundChanceFactor, getConfig().refundChanceMax, getLevelPercent(level));
   }
 
-  @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
+  static Set<Material> refundMaterials(ItemStack[] matrix) {
+    Set<Material> materials = new HashSet<>();
+    for (ItemStack ingredient : matrix) {
+      if (ingredient == null || ingredient.getAmount() <= 0) {
+        continue;
+      }
+      Material material = ingredient.getType();
+      if (material != Material.AIR && material != Material.CAVE_AIR && material != Material.VOID_AIR) {
+        materials.add(material);
+      }
+    }
+    return materials.size() >= 3 ? materials : Set.of();
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(CraftItemEvent e) {
     if (!(e.getWhoClicked() instanceof Player p)) {
       return;
     }
+    UUID playerId = p.getUniqueId();
+    pendingRefunds.remove(playerId);
 
     int level = getActiveLevel(p);
     if (level <= 0) {
@@ -89,12 +112,21 @@ public class CraftingThriftyHands extends SimpleAdaptation<CraftingThriftyHands.
     }
 
     Recipe recipe = e.getRecipe();
-    if (recipe == null) {
+    if (!(recipe instanceof ShapedRecipe) && !(recipe instanceof ShapelessRecipe)) {
       return;
     }
 
-    Map<Material, Integer> perCraft = CraftingIngredients.perCraftCounts(recipe);
-    if (perCraft == null) {
+    if (e.getAction() == InventoryAction.NOTHING || e.getAction() == InventoryAction.CLONE_STACK) {
+      return;
+    }
+
+    ItemStack result = e.getCurrentItem();
+    if (result == null || result.getType().isAir() || result.getAmount() <= 0) {
+      return;
+    }
+
+    Set<Material> materials = refundMaterials(e.getInventory().getMatrix());
+    if (materials.isEmpty()) {
       return;
     }
 
@@ -102,12 +134,32 @@ public class CraftingThriftyHands extends SimpleAdaptation<CraftingThriftyHands.
       return;
     }
 
-    Material refund = pickRandom(perCraft.keySet());
+    Material refund = pickRandom(materials);
     if (refund == null) {
       return;
     }
 
-    J.runEntity(p, () -> giveRefund(p, refund));
+    PendingRefund pending = new PendingRefund(e, refund, result.getType());
+    pendingRefunds.put(playerId, pending);
+    J.runEntity(p, () -> pendingRefunds.remove(playerId, pending), 1);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(ItemCraftedEvent e) {
+    Player player = e.getPlayer();
+    Material refund = committedRefund(pendingRefunds, player.getUniqueId(), e.getCraftedItem());
+    if (refund != null) {
+      J.runEntity(player, () -> giveRefund(player, refund), 1);
+    }
+  }
+
+  static Material committedRefund(Map<UUID, PendingRefund> pendingRefunds, UUID playerId, ItemStack crafted) {
+    PendingRefund pending = pendingRefunds.remove(playerId);
+    if (pending == null || pending.event().isCancelled() || crafted == null || crafted.getAmount() <= 0
+        || crafted.getType() != pending.result()) {
+      return null;
+    }
+    return pending.material();
   }
 
   private Material pickRandom(Set<Material> materials) {
@@ -144,7 +196,10 @@ public class CraftingThriftyHands extends SimpleAdaptation<CraftingThriftyHands.
         .sound(Sound.ENTITY_ITEM_PICKUP, 0.4F, 1.6F);
   }
 
-  @ConfigDescription("Every craft has a chance to refund one of its ingredients back into your inventory.")
+  record PendingRefund(CraftItemEvent event, Material material, Material result) {
+  }
+
+  @ConfigDescription("Crafts using at least three different materials have a chance to refund one ingredient unit.")
   protected static class Config extends AdaptationConfig {
     @art.arcane.adapt.util.config.ConfigDoc(value = "Refund chance at level 1.", impact = "Higher values refund ingredients more often even at low levels.")
     double refundChanceBase = 0.15;

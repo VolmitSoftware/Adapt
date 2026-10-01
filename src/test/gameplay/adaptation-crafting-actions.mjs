@@ -31,8 +31,17 @@ async function put(input, window, target, name, amount) {
     }
 }
 
-async function take(input, window, slot) {
+async function take(input, window, slot, stackOutput = false) {
+    const output = window.slots[slot]
     await click(input, slot)
+    if (stackOutput) {
+        const destination = window.slots.findIndex((value, index) => index >= window.inventoryStart && index < window.inventoryEnd
+            && value?.name === output.name && value.count + output.count <= output.stackSize)
+        if (destination >= 0) {
+            await click(input, destination)
+            return
+        }
+    }
     const empty = window.slots.findIndex((value, index) => index >= window.inventoryStart && index < window.inventoryEnd && !value)
     input.context.expect(empty >= 0, 'Crafted output has an empty survival inventory slot')
     await click(input, empty)
@@ -57,12 +66,42 @@ async function craft(input, specification) {
                 label: `craft ${index + 1} has natural ${specification.output} recipe output`, timeoutMs: 4000,
             })
             if (specification.shift) await click(input, 0, 0, 1)
-            else await take(input, window, 0)
+            else await take(input, window, 0, specification.stackOutput)
         }
         await input.actor.bot.waitForTicks(6)
     } finally { input.actor.bot.closeWindow(window) }
     await input.actor.bot.waitForTicks(4)
     return { before, after: await input.snapshot(), trials: specification.trials ?? 1 }
+}
+
+async function blockedThrifty(input) {
+    for (const [material, amount] of [['oak_planks', 3], ['cobblestone', 4], ['iron_ingot', 1], ['redstone', 1]]) {
+        await input.context.command(`/give ${input.actor.bot.username} minecraft:${material} ${amount}`, /Gave /, 5000)
+    }
+    const window = await table(input)
+    try {
+        for (const [slot, material] of [[1, 'oak_planks'], [2, 'oak_planks'], [3, 'oak_planks'], [4, 'cobblestone'], [6, 'cobblestone'], [7, 'cobblestone'], [9, 'cobblestone'], [5, 'iron_ingot'], [8, 'redstone']]) {
+            await put(input, window, slot, material, 1)
+        }
+        for (let slot = window.inventoryStart; slot < window.inventoryEnd; slot++) {
+            const destination = slot < 37 ? `inventory.${slot - 10}` : `hotbar.${slot - 37}`
+            await input.context.command(`/item replace entity ${input.actor.bot.username} ${destination} with minecraft:stone 64`, /Replaced /, 5000)
+        }
+        await input.context.waitUntil(() => window.slots.slice(window.inventoryStart, window.inventoryEnd).every(item => item?.name === 'stone' && item.count === 64)
+            && window.slots[0]?.name === 'piston', { label: 'all 36 output destinations are full and piston recipe remains available', timeoutMs: 5000 })
+        const before = await input.snapshot()
+        const gridBefore = window.slots.slice(1, 10).map(item => ({ name: item.name, count: item.count }))
+        for (let attempt = 0; attempt < 16; attempt++) await click(input, 0, 0, 1)
+        await input.actor.bot.waitForTicks(6)
+        const after = await input.snapshot()
+        const gridAfter = window.slots.slice(1, 10).map(item => item && ({ name: item.name, count: item.count }))
+        input.context.expect(JSON.stringify(gridAfter) === JSON.stringify(gridBefore), 'Sixteen blocked shift-clicks consume no recipe inputs')
+        input.context.expect(window.slots[0]?.name === 'piston' && !window.selectedItem, 'Blocked crafting leaves its result available and cursor empty')
+        input.context.expect(JSON.stringify(after.crafting.inventory) === JSON.stringify(before.crafting.inventory), 'Blocked crafting adds no items to the full inventory')
+        input.context.expect(JSON.stringify(after.crafting.drops) === JSON.stringify(before.crafting.drops), 'Blocked crafting drops no refunded inputs or crafted output')
+        input.context.expect((after.stats['crafting.thrifty-hands.ingredients-refunded'] ?? 0) === (before.stats['crafting.thrifty-hands.ingredients-refunded'] ?? 0), 'Blocked crafting records no ingredient refunds')
+        return { attempts: 16, gridBefore, gridAfter, refunded: 0 }
+    } finally { input.actor.bot.closeWindow(window) }
 }
 
 async function backpack(input) {
@@ -206,11 +245,20 @@ export const craftingBehaviorCases = new Map([
     }],
     ['crafting-thrifty-hands', {
         stage: 'craft-thrifty', sound: 'minecraft:entity.item.pickup', soundVolume: 0.4, soundPitch: 1.6, particle: 'crit',
-        prepare: input => prepare(input), trigger: input => craft(input, { output: 'oak_planks', grid: [[1, 'oak_log', 20]], trials: 20 }),
+        prepare: input => prepare(input), trigger: async input => {
+            const simple = await craft(input, { output: 'oak_planks', grid: [[1, 'oak_log', 20]], trials: 20, stackOutput: true })
+            const complex = await craft(input, { output: 'piston', grid: [[1, 'oak_planks', 16], [2, 'oak_planks', 16], [3, 'oak_planks', 16], [4, 'cobblestone', 16], [6, 'cobblestone', 16], [7, 'cobblestone', 16], [9, 'cobblestone', 16], [5, 'iron_ingot', 16], [8, 'redstone', 16]], trials: 16, stackOutput: true })
+            const blocked = await blockedThrifty(input)
+            return { before: simple.before, after: complex.after, simple, complex, blocked }
+        },
         verify: ({ context, unlearned, active }) => {
-            context.expect(count(unlearned.after, 'oak_planks') === 80 && count(unlearned.after, 'oak_log') === 0, 'Control crafts consume all 20 logs')
-            context.expect(count(active.after, 'oak_planks') === 80 && count(active.after, 'oak_log') > 0, 'Twenty learned crafts refund at least one ingredient at 60 percent per craft')
-            return report(['twenty natural crafts preserve exact output and return actual input materials; no-refund probability 0.4^20'], unlearned, active)
+            context.expect(count(unlearned.simple.after, 'oak_log') === 0 && count(active.simple.after, 'oak_log') === 0, 'Single-material recipes consume every input and never refund logs')
+            context.expect(count(unlearned.after, 'piston') === 16 && count(active.after, 'piston') === 16, 'Both players craft the exact sixteen-piston output')
+            const materials = ['oak_planks', 'cobblestone', 'iron_ingot', 'redstone']
+            const refunds = materials.reduce((total, material) => total + count(active.after, material) - count(unlearned.after, material), 0)
+            context.expect(refunds > 0 && refunds <= 16, 'Sixteen eligible crafts return between one and sixteen actual ingredient units')
+            context.expect(active.blocked.attempts === 16 && active.blocked.refunded === 0, 'Sixteen full-inventory shift-clicks yield no output and no input refunds')
+            return report(['single-material recipes never refund', 'eligible crafts preserve exact output and refund at most one ingredient unit per click; no-refund probability 0.4^16', 'blocked full-inventory shift crafting consumes no input and returns no ingredient'], unlearned, active)
         },
     }],
     ['crafting-provisioner', {
