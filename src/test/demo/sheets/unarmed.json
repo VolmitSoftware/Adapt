@@ -1,0 +1,225 @@
+{
+  "unarmed-battering-charge": {
+    "set": "unarmed-lane", "level": 5,
+    "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..12] run attribute @s minecraft:movement_speed base set 0"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.0, -6.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 24},
+      {"verb": "wait", "ticks": 18},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:entity.player.attack.knockback", "particle": "explosion"}, "maxTicks": 160
+  },
+  "unarmed-combo-chain": {
+    "set": "unarmed-dummy", "level": 3,
+    "pre": [
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:max_health base set 40",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b,Health:40.0f}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.experience_orb.pickup", "particle": "crit"}, "maxTicks": 200
+  },
+  "unarmed-disarm": {
+    "set": "unarmed-dummy", "level": 5,
+    "pre": [
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run item replace entity @s weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run item replace entity @s armor.head with minecraft:iron_helmet"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:item.lead.break", "particle": "crit"}, "maxTicks": 260
+  },
+  "unarmed-glass-cannon": {
+    "set": "unarmed-dummy", "level": 7,
+    "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b,Health:15.0f}"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.glass.break", "particle": "block"}, "maxTicks": 160
+  },
+  "unarmed-grapple": {
+    "set": "unarmed-throw", "level": 3,
+    "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 30},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "look", "yaw": 180, "pitch": -8},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:entity.player.attack.knockback", "particle": "cloud"}, "maxTicks": 180
+  },
+  "unarmed-iron-fists": {
+    "set": "unarmed-fists", "level": 5,
+    "pre": [
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,type=!minecraft:zombie,distance=..48] ~ -200 ~"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [-1.5, 1.5, 1.5]},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} run kill @e[type=minecraft:item,distance=..6]"},
+      {"verb": "lookAt", "offset": [-1.5, 0.5, 1.5]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} run kill @e[type=minecraft:item,distance=..6]"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.anvil.land", "particle": "electric_spark"}, "maxTicks": 220
+  },
+  "unarmed-meditation": {
+    "set": "unarmed-calm", "level": 5,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 50}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 150},
+      {"verb": "wait", "ticks": 190}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.resonate", "particle": "end_rod"}, "maxTicks": 260
+  },
+  "unarmed-power": {
+    "set": "unarmed-dummy", "level": 7,
+    "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b,Health:10.0f}"],
+    "prelude": [
+      {"verb": "slot", "index": 1},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "slot", "index": 0},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:entity.player.attack.strong", "particle": "crit"}, "maxTicks": 200
+  },
+  "unarmed-pressure-point": {
+    "set": "unarmed-dummy", "level": 5,
+    "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b}"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.pointed_dripstone.land", "particle": "wax_on"}, "maxTicks": 160
+  },
+  "unarmed-second-wind": {
+    "povCapture": true,
+    "set": "unarmed-dummy", "level": 5,
+    "pre": [
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b,Health:0.5f}",
+      "effect give {actor} minecraft:hunger 5 255 true"
+    ],
+    "prelude": [
+      {"verb": "wait", "ticks": 50},
+      {"verb": "command", "text": "damage {actor} 6 minecraft:generic"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 70}
+    ],
+    "expect": {"sound": "minecraft:entity.player.levelup", "particle": "heart"}, "maxTicks": 150
+  },
+  "unarmed-shockwave-clap": {
+    "set": "unarmed-trio", "level": 3,
+    "pre": [
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..12] run attribute @s minecraft:movement_speed base set 0",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,type=!minecraft:zombie,distance=..48] ~ -200 ~"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 5}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 40},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:block.bell.resonate", "particle": "explosion"}, "maxTicks": 150
+  },
+  "unarmed-sucker-punch": {
+    "set": "unarmed-lane", "level": 5,
+    "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..12] run attribute @s minecraft:movement_speed base set 0"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.0, -6.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 24},
+      {"verb": "wait", "ticks": 18},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:entity.player.attack.strong", "particle": "sweep_attack"}, "maxTicks": 150
+  }
+}

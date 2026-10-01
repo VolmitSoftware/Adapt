@@ -1,0 +1,424 @@
+{
+  "pickaxe-autosmelt": {
+    "set": "pickaxe-orewall", "level": 4,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe"],
+    "prelude": [{"verb": "lookAt", "offset": [-0.5, 1.5, -1.0]}],
+    "beats": [
+      {"verb": "keys", "hold": ["attack"], "ticks": 22},
+      {"verb": "lookAt", "offset": [0.5, 1.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 22},
+      {"verb": "lookAt", "offset": [1.5, 1.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 22},
+      {"verb": "look", "yaw": 180, "pitch": 30, "ticks": 6},
+      {"verb": "keys", "hold": ["forward"], "ticks": 12},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.lava.pop", "particle": "flame"}, "maxTicks": 318
+  },
+  "pickaxe-chisel": {
+    "set": "pickaxe-orewall", "level": 7,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe"],
+    "prelude": [{"verb": "lookAt", "offset": [-0.5, 1.5, -1.0]}],
+    "beats": [
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "lookAt", "offset": [0.5, 1.5, -1.0]},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "lookAt", "offset": [1.5, 1.5, -1.0]},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.metal.hit", "particle": "electric_spark"}, "maxTicks": 250
+  },
+  "pickaxe-deep-core": {
+    "set": "pickaxe-deepslate", "level": 3,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe"],
+    "prelude": [{"verb": "lookAt", "offset": [-0.5, 3.5, -1.0]}],
+    "beats": [
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 3.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [1.5, 3.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [1.5, 2.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 2.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [-0.5, 2.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [-0.5, 1.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 1.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [1.5, 1.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [1.5, 0.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [-0.5, 0.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "electric_spark"}, "maxTicks": 466
+  },
+  "pickaxe-drop-to-inventory": {
+    "set": "pickaxe-orewall", "level": 1,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe"],
+    "prelude": [{"verb": "lookAt", "offset": [-0.5, 1.5, -1.0]}],
+    "beats": [
+      {"verb": "keys", "hold": ["attack"], "ticks": 22},
+      {"verb": "lookAt", "offset": [0.5, 1.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 22},
+      {"verb": "lookAt", "offset": [1.5, 1.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 22},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -1.0], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 16},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "wax_on"}, "maxTicks": 318
+  },
+  "pickaxe-gem-polish": {
+    "set": "pickaxe-trophy", "level": 5,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe", "xp set {actor} 0 levels", "xp set {actor} 0 points", "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.25, -1.25]}],
+    "beats": [
+      {"verb": "keys", "hold": ["attack"], "ticks": 40},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:entity.experience_orb.pickup", "particle": "end_rod"}, "maxTicks": 250
+  },
+  "pickaxe-obsidian-rush": {
+    "set": "pickaxe-obsidian", "level": 3,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.5, -1.0]}],
+    "beats": [
+      {"verb": "keys", "hold": ["attack"], "ticks": 185},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.respawn_anchor.charge", "particle": "dust"}, "maxTicks": 350
+  },
+  "pickaxe-quarry-sense": {
+    "set": "pickaxe-quarry", "level": 5,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.5, -1.0]}],
+    "beats": [
+      {"verb": "press", "hold": ["sneak"], "ticks": 30},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "wait", "ticks": 120}
+    ],
+    "expect": {"sound": "minecraft:block.respawn_anchor.charge", "particle": "enchant"}, "maxTicks": 300
+  },
+  "pickaxe-repair-rhythm": {
+    "set": "pickaxe-floor", "level": 5,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe[minecraft:damage=200]"],
+    "prelude": [{"verb": "lookAt", "offset": [-0.5, 0.0, -0.5]}],
+    "beats": [
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 0.0, -0.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [1.5, 0.0, -0.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [1.5, 0.0, -1.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 0.0, -1.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [-0.5, 0.0, -1.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [-0.5, 0.0, -2.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 0.0, -2.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [1.5, 0.0, -2.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "wax_on"}, "maxTicks": 398
+  },
+  "pickaxe-silk-spawner": {
+    "set": "pickaxe-spawner", "level": 2,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.5, -1.0]}],
+    "beats": [
+      {"verb": "press", "hold": ["sneak"], "ticks": 40},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "press", "hold": ["sneak", "attack"], "ticks": 26},
+      {"verb": "wait", "ticks": 26},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "keys", "hold": ["forward"], "ticks": 12},
+      {"verb": "wait", "ticks": 25}
+    ],
+    "expect": {"sound": "minecraft:entity.item.pickup", "particle": "portal"}, "maxTicks": 300
+  },
+  "pickaxe-stone-skin": {
+    "povCapture": true,
+    "set": "pickaxe-stonewall",
+    "level": 3,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          -0.5,
+          3.5,
+          -2.0
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          3.5,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          1.5,
+          3.5,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          1.5,
+          2.5,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          2.5,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -0.5,
+          2.5,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -0.5,
+          1.5,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.5,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          1.5,
+          1.5,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          1.5,
+          0.5,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -0.5,
+          0.5,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "attack"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.stone.place",
+      "particle": "cloud"
+    },
+    "maxTicks": 546
+  },
+  "pickaxe-tunnel-bore": {
+    "set": "pickaxe-tunnel", "level": 3,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "press", "hold": ["sneak"], "ticks": 70},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "press", "hold": ["sneak", "attack"], "ticks": 55},
+      {"verb": "wait", "ticks": 55},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:entity.ravager.step", "particle": "cloud"}, "maxTicks": 250
+  },
+  "pickaxe-unbreakable-pact": {
+    "set": "pickaxe-floor", "level": 5,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe[minecraft:damage=1560]", "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],
+    "prelude": [{"verb": "lookAt", "offset": [-0.5, 0.0, -0.5]}],
+    "beats": [
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 0.0, -0.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [1.5, 0.0, -0.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [1.5, 0.0, -1.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 0.0, -1.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [-0.5, 0.0, -1.5], "ticks": 6},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.anvil.place", "particle": "crit"}, "maxTicks": 330
+  },
+  "pickaxe-veinminer": {
+    "set": "pickaxe-vein", "level": 5,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.5, -2.0]}],
+    "beats": [
+      {"verb": "press", "hold": ["sneak"], "ticks": 40},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "press", "hold": ["sneak", "attack"], "ticks": 18},
+      {"verb": "wait", "ticks": 18},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_cluster.break", "particle": "electric_spark"}, "maxTicks": 250
+  }
+}

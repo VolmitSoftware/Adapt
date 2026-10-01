@@ -47,6 +47,10 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.localization.MessageKey;
+import io.papermc.paper.event.entity.EntityKnockbackEvent;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -72,6 +76,8 @@ import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 @Getter
 @Setter
 public abstract class SimpleAdaptation<T> extends TickedObject implements Adaptation<T> {
+  private static final ThreadLocal<Player> HEALTH_COST_TARGET = new ThreadLocal<>();
+
   private int maxLevel;
   private int initialCost;
   private int baseCost;
@@ -524,7 +530,17 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   }
 
   static void dispatchPlayerDamage(Player player, double amount, DamageSource source) {
-    player.damage(amount, source);
+    Player previous = HEALTH_COST_TARGET.get();
+    HEALTH_COST_TARGET.set(player);
+    try {
+      player.damage(amount, source);
+    } finally {
+      if (previous == null) {
+        HEALTH_COST_TARGET.remove();
+      } else {
+        HEALTH_COST_TARGET.set(previous);
+      }
+    }
   }
 
   protected FxTimeline timeline(Location location) {
@@ -651,5 +667,14 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     }
 
     return resolved;
+  }
+  public static final class PlayerDamageListener implements Listener {
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void on(EntityKnockbackEvent event) {
+      if (event.getCause() == EntityKnockbackEvent.Cause.DAMAGE
+          && event.getEntity() == HEALTH_COST_TARGET.get()) {
+        event.setCancelled(true);
+      }
+    }
   }
 }

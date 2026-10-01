@@ -7,6 +7,7 @@ import org.bukkit.Registry;
 import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.util.Vector;
 import org.bukkit.potion.PotionEffectType;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -84,6 +85,40 @@ class ChronosPocketWatchPreferencesTest {
     verify(player, never()).addPotionEffect(any(PotionEffect.class), eq(true));
   }
 
+  @Test
+  void acceptedPulseBrakesExistingDownwardMomentum() throws ReflectiveOperationException {
+    ChronosPocketWatch adaptation = adaptation();
+    Player player = player();
+    when(player.getVelocity()).thenReturn(new Vector(0.3, -1.8, -0.2));
+
+    apply(adaptation, player);
+
+    verify(player).setVelocity(new Vector(0.3, -0.49, -0.2));
+  }
+
+  @Test
+  void rejectedPulseLeavesMomentumAlone() throws ReflectiveOperationException {
+    ChronosPocketWatch adaptation = adaptation();
+    Player player = player();
+    when(player.addPotionEffect(any(PotionEffect.class), eq(true))).thenReturn(false);
+    when(player.getVelocity()).thenReturn(new Vector(0.3, -1.8, -0.2));
+
+    apply(adaptation, player);
+
+    verify(player, never()).setVelocity(any(Vector.class));
+  }
+
+  @Test
+  void acceptedPulsePreservesUpwardMomentum() throws ReflectiveOperationException {
+    ChronosPocketWatch adaptation = adaptation();
+    Player player = player();
+    when(player.getVelocity()).thenReturn(new Vector(0.3, 0.42, -0.2));
+
+    apply(adaptation, player);
+
+    verify(player, never()).setVelocity(any(Vector.class));
+  }
+
   private static ChronosPocketWatch adaptation() throws ReflectiveOperationException {
     ChronosPocketWatch adaptation = mock(ChronosPocketWatch.class, CALLS_REAL_METHODS);
     doReturn(new ChronosPocketWatch.Config()).when(adaptation).getConfig();
@@ -96,6 +131,7 @@ class ChronosPocketWatchPreferencesTest {
     Player player = mock(Player.class);
     when(player.getUniqueId()).thenReturn(UUID.randomUUID());
     when(player.getTicksLived()).thenReturn(10);
+    when(player.getVelocity()).thenReturn(new Vector());
     when(player.addPotionEffect(any(PotionEffect.class), eq(true))).thenReturn(true);
     return player;
   }

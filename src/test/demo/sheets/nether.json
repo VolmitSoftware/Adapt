@@ -1,0 +1,282 @@
+{
+  "world": "minecraft:the_nether",
+  "nether-ashwalker": {
+    "set": "nether-magma", "level": 3,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 65}],
+    "beats": [
+      {"verb": "keys", "hold": ["forward"], "ticks": 10},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "keys", "hold": ["back"], "ticks": 12},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"particle": "ash"}, "maxTicks": 200
+  },
+  "nether-blaze-leech": {
+    "povCapture": true,
+    "set": "nether-magma",
+    "level": 5,
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 45
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.blaze.ambient",
+      "particle": "happy_villager"
+    },
+    "maxTicks": 260
+  },
+  "nether-crimson-feast": {
+    "povCapture": true,
+    "set": "nether-feast", "level": 4,
+    "pre": ["give {actor} minecraft:crimson_fungus 3", "effect give {actor} minecraft:hunger 6 255 true"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}, {"verb": "wait", "ticks": 80}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.generic.eat", "particle": "crimson_spore"}, "maxTicks": 200
+  },
+  "nether-fire-resist": {
+    "set": "nether-fire", "level": 3,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 55}],
+    "beats": [
+      {"verb": "keys", "hold": ["forward"], "ticks": 10},
+      {"verb": "wait", "ticks": 50},
+      {"verb": "keys", "hold": ["back"], "ticks": 12},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.fire.extinguish", "particle": "splash"}, "maxTicks": 220
+  },
+  "nether-ghast-ward": {
+    "set": "nether-blast", "level": 6,
+    "pre": ["give {actor} minecraft:flint_and_steel"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.5, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "keys", "hold": ["back"], "ticks": 12},
+      {"verb": "wait", "ticks": 100}
+    ],
+    "expect": {"sound": "minecraft:block.beacon.deactivate", "particle": "sculk_soul"}, "maxTicks": 220
+  },
+  "nether-lava-walker": {
+    "povCapture": true,
+    "set": "nether-lava",
+    "level": 5,
+    "camera": {
+      "x": 0.0,
+      "y": 3.0,
+      "z": 5.0,
+      "yaw": 0,
+      "pitch": 25,
+      "follow": true
+    },
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 20
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 30
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.fire.extinguish",
+      "particle": "lava"
+    },
+    "maxTicks": 220
+  },
+  "nether-magma-skin": {
+    "set": "nether-brawl", "level": 4,
+    "pre": ["execute at {actor} as @e[type=minecraft:piglin,distance=..16] run data merge entity @s {NoAI:1b}"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}],
+    "beats": [
+      {"verb": "keys", "hold": ["forward"], "ticks": 10},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [2.5, 1.2, -2.0]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:entity.blaze.hurt", "particle": "soul_fire_flame"}, "maxTicks": 200
+  },
+  "nether-netherrack-mason": {
+    "set": "nether-quarry", "level": 4,
+    "pre": ["give {actor} minecraft:stone_pickaxe"],
+    "prelude": [{"verb": "lookAt", "offset": [-1.5, 1.5, -0.05]}],
+    "beats": [
+      {"verb": "keys", "hold": ["attack"], "ticks": 12},
+      {"verb": "lookAt", "offset": [-0.5, 1.5, -0.05]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 12},
+      {"verb": "lookAt", "offset": [0.5, 1.5, -0.05]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 12},
+      {"verb": "lookAt", "offset": [1.5, 1.5, -0.05]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 12},
+      {"verb": "lookAt", "offset": [2.5, 1.5, -0.05]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 12},
+      {"verb": "lookAt", "offset": [2.5, 0.5, -0.05]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 12},
+      {"verb": "lookAt", "offset": [1.5, 0.5, -0.05]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 12},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -0.05]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 12},
+      {"verb": "lookAt", "offset": [-0.5, 0.5, -0.05]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 12},
+      {"verb": "lookAt", "offset": [-1.5, 0.5, -0.05]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 12},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.netherrack.break", "particle": "lava"}, "maxTicks": 300
+  },
+  "nether-piglin-broker": {
+    "set": "nether-barter", "level": 5,
+    "pre": [
+      "execute at {actor} as @e[type=minecraft:piglin,distance=..16] run attribute @s minecraft:movement_speed base set 0",
+      "item replace entity {actor} armor.head with minecraft:golden_helmet",
+      "give {actor} minecraft:gold_ingot 6"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [-1.0, 1.0, -1.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 6},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "lookAt", "offset": [0.5, 1.0, -2.0]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "lookAt", "offset": [2.0, 1.0, -1.5]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "lookAt", "offset": [0.5, 1.0, -1.5]},
+      {"verb": "wait", "ticks": 160}
+    ],
+    "expect": {"sound": "minecraft:entity.piglin.admiring_item", "particle": "wax_on"}, "maxTicks": 300
+  },
+  "nether-skull-toss": {
+    "set": "nether-skull", "level": 3,
+    "pre": ["give {actor} minecraft:wither_skeleton_skull 3", "execute at {actor} run gamerule mob_griefing false"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.wither.shoot", "particle": "soul"}, "maxTicks": 200
+  },
+  "nether-soul-strider": {
+    "set": "nether-soul", "level": 5,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}],
+    "beats": [
+      {"verb": "keys", "hold": ["forward"], "ticks": 60},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {"sound": "minecraft:particle.soul_escape", "particle": "soul_fire_flame"}, "maxTicks": 200
+  },
+  "nether-strider-bond": {
+    "set": "nether-strider", "level": 4,
+    "camera": {"x": 8.5, "y": 3.5, "z": -2.5, "yaw": 90, "pitch": 15},
+    "pre": [
+      "execute at {actor} as @e[type=minecraft:strider,distance=..16] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} run item replace entity @e[type=minecraft:strider,distance=..16] saddle with minecraft:saddle"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.8, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "look", "yaw": 180, "pitch": 60},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "tap", "key": "sneak", "ticks": 4},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:entity.strider.happy", "particle": "cloud"}, "maxTicks": 220
+  },
+  "nether-wither-harvest": {
+    "set": "nether-harvest", "level": 4,
+    "pre": [
+      "give {actor} minecraft:stone_sword",
+      "execute at {actor} as @e[type=minecraft:wither_skeleton,distance=..16] run data merge entity @s {NoAI:1b,Health:1.0f}",
+      "execute at {actor} run item replace entity @e[type=minecraft:wither_skeleton,distance=..16] weapon.mainhand with minecraft:stone_sword"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.4, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "keys", "hold": ["forward"], "ticks": 10},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:entity.wither_skeleton.hurt", "particle": "soul"}, "maxTicks": 200
+  },
+  "nether-wither-resist": {
+    "set": "nether-wither", "level": 3,
+    "pre": ["advancement grant {actor} only minecraft:nether/netherite_armor", "experience set {actor} 0 levels", "experience set {actor} 0 points", "item replace entity {actor} armor.chest with minecraft:netherite_chestplate", "item replace entity {actor} armor.head with minecraft:netherite_helmet", "item replace entity {actor} armor.legs with minecraft:netherite_leggings", "item replace entity {actor} armor.feet with minecraft:netherite_boots"],
+    "prelude": [{"verb": "look", "yaw": -90, "pitch": 15}],
+    "beats": [
+      {"verb": "keys", "hold": ["forward"], "ticks": 10},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "keys", "hold": ["back"], "ticks": 12},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:particle.soul_escape", "particle": "sculk_soul"}, "maxTicks": 200
+  }
+}

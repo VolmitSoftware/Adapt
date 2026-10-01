@@ -47,6 +47,7 @@ import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.util.Vector;
 
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ import java.util.UUID;
 public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> SNEAK = CommonPreferences.toggle("require-sneak", ChronosMessages.PREFERENCE_CHRONOSPOCKETWATCH_SNEAK, CommonPreferences.Toggle.ON);
 
+  private static final double MAX_DESCENT_PER_TICK = 0.49D;
   private static final long PULSE_MILLIS = 250L;
   private static final int HARD_MAX_PLAYERS_PER_PASS = 512;
   private static final int MAX_CATCH_UP_PULSES = 4;
@@ -129,6 +131,10 @@ public class ChronosPocketWatch extends SimpleAdaptation<ChronosPocketWatch.Conf
       if (player.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING,
           getConfig().pulseDurationTicks, 0, true, false, false), true)) {
         fallingEffects.put(playerId, new FallEffect(previous, previousStartedAt));
+        Vector velocity = player.getVelocity();
+        if (velocity.getY() < -MAX_DESCENT_PER_TICK) {
+          player.setVelocity(velocity.setY(-MAX_DESCENT_PER_TICK));
+        }
       }
     } finally {
       applyingEffects.remove(playerId);

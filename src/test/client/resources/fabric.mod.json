@@ -5,5 +5,5 @@
   "name": "Adapt Client QA",
   "environment": "client",
   "mixins": ["adapt-client-qa.mixins.json"],
-  "depends": {"fabricloader": ">=0.18.4", "minecraft": "26.2", "java": ">=25"}
+  "depends": {"fabricloader": ">=0.18.4", "minecraft": "26.2", "java": ">=25", "flashback": "0.43.6"}
 }

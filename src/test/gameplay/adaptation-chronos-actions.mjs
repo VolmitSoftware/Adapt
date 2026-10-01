@@ -72,20 +72,25 @@ export const chronosBehaviorCases = new Map([
             const hit = await input.snapshot()
             const deferred = (hit.stats['chronos.borrowed-time.damage-deferred'] ?? 0)
                 - (before.stats['chronos.borrowed-time.damage-deferred'] ?? 0)
+            await input.actor.bot.waitForTicks(24)
+            const settledPosition = input.actor.bot.entity.position.clone()
+            let paybackDisplacement = 0
             if (deferred > 0) {
                 await input.context.waitUntil(async () => {
                     const state = await input.snapshot()
+                    paybackDisplacement = Math.max(paybackDisplacement, input.actor.bot.entity.position.distanceTo(settledPosition))
                     return before.health - state.health >= immediate + deferred - 0.02
                 }, { label: 'natural payback pulses settle the recorded damage debt', timeoutMs: 20000, intervalMs: 250 })
             } else await input.actor.bot.waitForTicks(240)
             const after = await input.snapshot()
-            return { immediate, deferred, total: before.health - after.health }
+            return { immediate, deferred, total: before.health - after.health, paybackDisplacement }
         },
         async verify({ context, unlearned, active }) {
             context.expect(Math.abs(unlearned.immediate - unlearned.total) < 0.01, 'Unlearned damage has no later payback')
             context.expect(active.immediate < unlearned.immediate && active.total > active.immediate, 'Learned damage is deferred and later repaid')
             context.expect(Math.abs(active.total - unlearned.total) < 0.02, 'Deferral preserves the complete damage amount')
-            return { assertions: ['unlearned damage is immediate', 'learned damage is initially reduced', 'natural payback pulses settle the full deferred damage'], measurements: { unlearned, active } }
+            context.expect(active.paybackDisplacement < 0.08, 'Payback pulses leave the player stationary after melee knockback settles')
+            return { assertions: ['unlearned damage is immediate', 'learned damage is initially reduced', 'natural payback pulses settle the full deferred damage without additional knockback'], measurements: { unlearned, active } }
         },
     }],
     ['chronos-overtime', {
@@ -137,14 +142,30 @@ export const chronosBehaviorCases = new Map([
 chronosBehaviorCases.set('chronos-pocket-watch', {
     stage: 'chronos-fall', negativeWindowTicks: 1, effect: 'minecraft:slow_falling',
     sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.3, soundPitch: 1.2, particle: 'cloud',
-    async trigger({ actor, context }) {
-        await actor.bot.look(0, 0, true)
-        actor.bot.setControlState('forward', true)
-        await actor.bot.waitForTicks(9)
-        actor.bot.setControlState('forward', false)
-        actor.bot.setControlState('sneak', true)
-        await actor.bot.waitForTicks(10)
-        context.expect(!actor.bot.entity.onGround && actor.bot.entity.position.y > 101, 'Sneaking player is genuinely airborne above the catch pool')
+    async trigger({ actor, context, snapshot }) {
+        try {
+            await actor.bot.look(0, 0, true)
+            actor.bot.setControlState('forward', true)
+            await actor.bot.waitForTicks(9)
+            actor.bot.setControlState('forward', false)
+            await context.waitUntil(() => actor.bot.entity.velocity.y < -0.7, {
+                label: 'natural fall accumulates downward momentum before sneaking', timeoutMs: 3000, intervalMs: 20,
+            })
+            const beforeVelocity = actor.bot.entity.velocity.y
+            actor.bot.setControlState('sneak', true)
+            await actor.bot.waitForTicks(8)
+            context.expect(!actor.bot.entity.onGround && actor.bot.entity.position.y > 101, 'Sneaking player remains airborne above the catch pool')
+            return { beforeVelocity, afterVelocity: actor.bot.entity.velocity.y, after: await snapshot() }
+        } finally {
+            actor.bot.clearControlStates()
+        }
+    },
+    async verify({ context, unlearned, active }) {
+        context.expect(unlearned.beforeVelocity < -0.7 && active.beforeVelocity < -0.7, 'Both trials build downward momentum before the first possible pulse')
+        context.expect(!unlearned.after.effects.some(effect => effect.type === 'minecraft:slow_falling') && active.after.effects.some(effect => effect.type === 'minecraft:slow_falling'), 'Only the learned airborne sneak applies Slow Falling')
+        context.expect(unlearned.afterVelocity < -0.7, 'Unlearned sneaking leaves the accumulated descent intact')
+        context.expect(active.afterVelocity >= -0.55 && active.afterVelocity < 0, 'The learned pulse brakes existing downward speed to Slow Falling descent')
+        return { assertions: ['both trials accumulate descent before sneaking', 'only learned sneaking grants Slow Falling', 'learned pulse brakes existing momentum while the control continues falling quickly'], measurements: { unlearned, active } }
     },
 })
 chronosBehaviorCases.set('chronos-temporal-echo', {

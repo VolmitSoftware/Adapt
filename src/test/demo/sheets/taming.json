@@ -1,0 +1,311 @@
+{
+  "tame-alphas-command": {
+    "set": "taming-cow", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bone 16",
+      "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..6,limit=1,sort=nearest] {NoAI:1b,Rotation:[0.0f,0.0f]}",
+      "execute at {actor} run summon minecraft:wolf ~-2 ~ ~-1 {Tags:[\"adapt_demo_pet\"],Sitting:1b,Rotation:[180.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:40.0d}],Health:40.0f}",
+      "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data modify entity @s Owner set from entity {actor} UUID"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 15}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "press", "hold": ["sneak"], "ticks": 120},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "lookAt", "offset": [0.5, 0.8, -2.0]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "keys", "hold": ["sprint"], "ticks": 1},
+      {"verb": "wait", "ticks": 90}
+    ],
+    "expect": {"sound": "minecraft:entity.wolf.growl", "particle": "happy_villager"}, "maxTicks": 250
+  },
+  "tame-battle-bond": {
+    "povCapture": true,
+    "set": "taming-cow",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..6,limit=1,sort=nearest] {NoAI:1b,Health:3.0f,Rotation:[0.0f,0.0f]}",
+      "execute at {actor} run summon minecraft:wolf ~-2 ~ ~-1 {Tags:[\"adapt_demo_pet\"],Rotation:[180.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:40.0d}],Health:40.0f}",
+      "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data modify entity @s Owner set from entity {actor} UUID"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 15
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.8,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.beacon.power_select",
+        "timeout": 120
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data merge entity @s {Sitting:1b}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 70
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.beacon.power_select",
+      "particle": "dust"
+    },
+    "maxTicks": 256
+  },
+  "tame-beast-recall": {
+    "set": "taming-field", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:lead",
+      "execute at {actor} run summon minecraft:wolf ~ ~ ~-14.5 {Tags:[\"adapt_demo_pet\"],Sitting:1b,Rotation:[0.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:40.0d}],Health:40.0f}",
+      "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data modify entity @s Owner set from entity {actor} UUID"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 4}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "press", "hold": ["sneak"], "ticks": 60},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "keys", "hold": ["sprint"], "ticks": 1},
+      {"verb": "look", "yaw": 180, "pitch": 55},
+      {"verb": "wait", "ticks": 45}
+    ],
+    "expect": {"sound": "minecraft:item.lead.break", "particle": "reverse_portal"}, "maxTicks": 250
+  },
+  "tame-damage": {
+    "set": "taming-wild", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bone 32",
+      "execute at {actor} run data merge entity @e[type=minecraft:wolf,distance=..6,limit=1,sort=nearest] {NoAI:1b,Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.45, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "press", "hold": ["use"], "ticks": 160},
+      {"verb": "waitFor", "sound": "minecraft:entity.wolf.growl", "timeout": 150},
+      {"verb": "keys", "hold": ["sprint"], "ticks": 1},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:entity.wolf.growl", "particle": "dust"}, "maxTicks": 300
+  },
+  "tame-fetch": {
+    "set": "taming-run", "level": 5,
+    "pre": [
+      "execute at {actor} run summon minecraft:wolf ~1 ~ ~1 {Tags:[\"adapt_demo_pet\"],Sitting:1b,Rotation:[180.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:40.0d}],Health:40.0f}",
+      "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data modify entity @s Owner set from entity {actor} UUID"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "command", "text": "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data merge entity @s {Sitting:0b}"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:item ~ ~1.4 ~-0.4 {Item:{id:\"minecraft:bone\",count:1},PickupDelay:40s,Motion:[0.0d,0.25d,-0.4d]}"},
+      {"verb": "waitFor", "sound": "minecraft:entity.item.pickup", "timeout": 200},
+      {"verb": "wait", "ticks": 35},
+      {"verb": "command", "text": "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data merge entity @s {Sitting:1b}"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.item.pickup", "particle": "happy_villager"}, "maxTicks": 340
+  },
+  "tame-guardian-instinct": {
+    "set": "archery", "level": 5,
+    "pre": [
+      "execute at {actor} run data merge entity @e[type=minecraft:skeleton,distance=..16,limit=1,sort=nearest] {NoAI:1b}",
+      "execute at {actor} run summon minecraft:wolf ~-1.5 ~ ~-3 {Tags:[\"adapt_demo_pet\"],Sitting:1b,Rotation:[180.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:40.0d}],Health:40.0f}",
+      "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data modify entity @s Owner set from entity {actor} UUID"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 8}],
+    "beats": [
+      {"verb": "command", "text": "execute at {actor} run data merge entity @e[type=minecraft:skeleton,distance=..16,limit=1,sort=nearest] {NoAI:0b}"},
+      {"verb": "waitFor", "sound": "minecraft:item.shield.block", "timeout": 220},
+      {"verb": "command", "text": "execute at {actor} run data merge entity @e[type=minecraft:skeleton,distance=..24,limit=1,sort=nearest] {NoAI:1b}"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "command", "text": "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data merge entity @s {Sitting:1b}"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "camera": {"x": 6.0, "y": 2.8, "z": 3.0, "yaw": 137, "pitch": 9},
+    "expect": {"sound": "minecraft:item.shield.block", "particle": "crit"}, "maxTicks": 300
+  },
+  "tame-health": {
+    "set": "taming-wild", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bone 32",
+      "execute at {actor} run data merge entity @e[type=minecraft:wolf,distance=..6,limit=1,sort=nearest] {NoAI:1b,Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.45, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "press", "hold": ["use"], "ticks": 160},
+      {"verb": "waitFor", "sound": "minecraft:block.note_block.chime", "timeout": 150},
+      {"verb": "keys", "hold": ["sprint"], "ticks": 1},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.note_block.chime", "particle": "happy_villager"}, "maxTicks": 300
+  },
+  "tame-health-regeneration": {
+    "set": "taming-yard", "level": 3,
+    "pre": [
+      "execute at {actor} run summon minecraft:wolf ~ ~ ~-2.5 {Tags:[\"adapt_demo_pet\"],Sitting:1b,Rotation:[0.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:40.0d}],Health:10.0f}",
+      "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data modify entity @s Owner set from entity {actor} UUID"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.35, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:entity.wolf.pant", "particle": "heart"}, "maxTicks": 200
+  },
+  "tame-last-breath": {
+    "set": "taming-run", "level": 5,
+    "pre": [
+      "execute at {actor} run summon minecraft:wolf ~ ~ ~-6 {Tags:[\"adapt_demo_pet\"],Sitting:1b,Rotation:[0.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:40.0d}],Health:1.0f}",
+      "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data modify entity @s Owner set from entity {actor} UUID"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 12}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data merge entity @s {Fire:79s}"},
+      {"verb": "wait", "ticks": 50},
+      {"verb": "look", "yaw": 180, "pitch": 55},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:item.totem.use", "particle": "totem_of_undying"}, "maxTicks": 250
+  },
+  "tame-mounted-tactics": {
+    "set": "taming-stable", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..6,limit=1,sort=nearest] {NoAI:1b,Rotation:[0.0f,0.0f]}",
+      "execute at {actor} run tp @e[type=minecraft:zombie,distance=..6,limit=1,sort=nearest] ~1.0 ~ ~-1.8",
+      "execute at {actor} run summon minecraft:horse ~ ~ ~ {Tags:[\"adapt_demo_mount\"],Tame:1b,NoAI:1b,Rotation:[180.0f,0.0f],attributes:[{id:\"minecraft:movement_speed\",base:0.25d},{id:\"minecraft:jump_strength\",base:0.7d},{id:\"minecraft:max_health\",base:30.0d}],Health:30.0f}",
+      "execute at {actor} run ride {actor} mount @e[tag=adapt_demo_mount,distance=..4,limit=1]"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [1.5, 1.3, -1.3]}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [1.5, 1.3, -1.3]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "lookAt", "offset": [1.5, 1.3, -1.3]},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:entity.horse.breathe", "particle": "crit"}, "maxTicks": 250
+  },
+  "tame-pack-leader-aura": {
+    "set": "taming-wild", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bone 32",
+      "execute at {actor} run data merge entity @e[type=minecraft:wolf,distance=..6,limit=1,sort=nearest] {NoAI:1b,Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [0.5, 0.45, -2.0]},
+      {"verb": "press", "hold": ["use"], "ticks": 160},
+      {"verb": "waitFor", "particle": "heart", "timeout": 150},
+      {"verb": "keys", "hold": ["sprint"], "ticks": 1},
+      {"verb": "command", "text": "execute at {actor} run data merge entity @e[type=minecraft:wolf,distance=..6,limit=1,sort=nearest] {NoAI:0b,Sitting:1b,Health:12.0f}"},
+      {"verb": "look", "yaw": 180, "pitch": 28},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 50},
+      {"verb": "look", "yaw": 205, "pitch": 30},
+      {"verb": "wait", "ticks": 50},
+      {"verb": "look", "yaw": 155, "pitch": 30},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"particle": "dust"}, "maxTicks": 250
+  },
+  "tame-shared-pain": {
+    "set": "sparring", "level": 5,
+    "pre": [
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}",
+      "execute at {actor} run summon minecraft:wolf ~-1.5 ~ ~-2 {Tags:[\"adapt_demo_pet\"],Sitting:1b,Rotation:[180.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:40.0d}],Health:40.0f}",
+      "execute at {actor} as @e[tag=adapt_demo_pet,distance=..24] run data modify entity @s Owner set from entity {actor} UUID"
+    ],
+    "prelude": [{"verb": "look", "yaw": 168, "pitch": 16}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "camera": {"x": 6.5, "y": 2.4, "z": 0.5, "yaw": 90, "pitch": 10},
+    "expect": {"sound": "minecraft:block.amethyst_cluster.hit", "particle": "crit"}, "maxTicks": 250
+  },
+  "tame-stable-hand": {
+    "set": "taming-wild", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bone 32",
+      "execute at {actor} run data merge entity @e[type=minecraft:wolf,distance=..6,limit=1,sort=nearest] {NoAI:1b,Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.45, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "press", "hold": ["use"], "ticks": 160},
+      {"verb": "waitFor", "sound": "minecraft:entity.horse.breathe", "timeout": 150},
+      {"verb": "keys", "hold": ["sprint"], "ticks": 1},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:entity.horse.breathe", "particle": "heart"}, "maxTicks": 300
+  },
+  "tame-wild-empathy": {
+    "set": "taming-pack", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bone 16",
+      "execute at {actor} as @e[type=minecraft:wolf,distance=..8] run data merge entity @s {NoAI:1b,Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [-1.0, 0.45, -1.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [0.5, 0.45, -2.0]},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [2.0, 0.45, -1.5]},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.wolf.pant", "particle": "heart"}, "maxTicks": 250
+  }
+}

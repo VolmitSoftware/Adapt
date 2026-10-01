@@ -186,14 +186,54 @@ async function hunterSpeed(input) {
     context.expect(Boolean(victim), 'Speed-burst defender is visible')
     await opponent.bot.lookAt(victim.position.offset(0, 1, 0), true)
     opponent.bot.attack(victim)
-    await actor.bot.waitForTicks(4)
+    await actor.bot.waitForTicks(12)
+    const idleStart = actor.bot.entity.position.clone()
+    await actor.bot.waitForTicks(8)
+    const idleDrift = actor.bot.entity.position.distanceTo(idleStart)
     const start = actor.bot.entity.position.clone()
+    const velocities = []
+    const onVelocity = packet => {
+        if (packet.entityId === actor.bot.entity.id) velocities.push({ velocity: packet.velocity, forward: actor.bot.getControlState('forward') })
+    }
+    actor.bot._client.on('entity_velocity', onVelocity)
     actor.bot.setControlState('forward', true)
     try {
-        await actor.bot.waitForTicks(20)
-        return { before, after: await snapshot(), distance: actor.bot.entity.position.z - start.z }
+        await actor.bot.waitForTicks(60)
+        const result = { before, after: await snapshot(), distance: actor.bot.entity.position.z - start.z, idleDrift, velocities, activeImpulses: velocities.length }
+        if (before.learned['hunter-speed'] > 0) {
+            await context.command(`/adapt clear adaptations player=${actor.bot.username}`, /Cleared adaptations/, 5000)
+            await actor.bot.waitForTicks(4)
+            const clearedStart = actor.bot.entity.position.clone()
+            const clearedPackets = velocities.length
+            await actor.bot.waitForTicks(60)
+            result.clearedDistance = actor.bot.entity.position.z - clearedStart.z
+            result.clearedImpulses = velocities.length - clearedPackets
+            context.expect((await snapshot()).learned['hunter-speed'] === 0, 'Clear adaptations removes Hunter Speed while moving')
+            actor.bot.clearControlStates()
+            await context.command('/adaptqa stage projectile-speed', /^ADAPT_QA STAGE projectile-speed$/, 10000)
+            await context.command(`/adaptqa learn hunter-speed ${before.learned['hunter-speed']}`, /^ADAPT_QA LEARN hunter-speed /, 5000)
+            await actor.bot.waitForTicks(6)
+            await actor.bot.lookAt(actor.bot.entity.position.offset(0, 1.6, 15), true)
+            const secondVictim = opponent.bot.entities[actor.bot.entity.id]
+            context.expect(Boolean(secondVictim), 'Relearned speed-burst defender is visible')
+            await opponent.bot.lookAt(secondVictim.position.offset(0, 1, 0), true)
+            opponent.bot.attack(secondVictim)
+            actor.bot.setControlState('forward', true)
+            await actor.bot.waitForTicks(12)
+            context.expect((await snapshot()).stats['hunter.speed.activations'] > result.after.stats['hunter.speed.activations'], 'A fresh real hit starts another burst before unlearning')
+            await context.command(`/adapt determine adaptationTarget=hunter:hunter-speed assign=false force=true level=1 player=${actor.bot.username}`, /Unlearned .*now at level 0/, 5000)
+            await actor.bot.waitForTicks(4)
+            const unlearnedStart = actor.bot.entity.position.clone()
+            const unlearnedPackets = velocities.length
+            await actor.bot.waitForTicks(60)
+            result.unlearnedDistance = actor.bot.entity.position.z - unlearnedStart.z
+            result.unlearnedImpulses = velocities.length - unlearnedPackets
+            context.expect((await snapshot()).learned['hunter-speed'] === 0, 'Unlearning removes Hunter Speed while moving')
+        }
+        return result
     } finally {
-        actor.bot.setControlState('forward', false)
+        actor.bot._client.off('entity_velocity', onVelocity)
+        actor.bot.clearControlStates()
     }
 }
 
@@ -372,9 +412,15 @@ export const projectileBehaviorCases = new Map([
         description: 'a real opponent hit grants faster physical movement with a hunger penalty',
         sound: 'minecraft:entity.ender_dragon.flap', soundVolume: 0.5, soundPitch: 1.5, particle: 'cloud',
         async verify({ context, unlearned, active }) {
+            context.expect(active.activeImpulses > 0 && unlearned.activeImpulses === 0, 'Only the learned burst applies server velocity impulses while holding forward')
+            context.expect(active.clearedImpulses === 0 && active.unlearnedImpulses === 0, 'Clear and unlearn both stop server burst impulses while forward remains held')
+            context.expect(active.clearedDistance >= unlearned.distance * 0.9 && active.unlearnedDistance >= unlearned.distance * 0.9, 'Ordinary forward walking remains available after clearing and unlearning')
             context.expect(active.distance > unlearned.distance + 0.4, 'Learned defender moves farther during the same real forward-input window')
             context.expect(active.after.effects.some(entry => entry.type === 'minecraft:hunger') && !unlearned.after.effects.some(entry => entry.type === 'minecraft:hunger'), 'Only learned speed burst incurs the actual hunger penalty')
-            return report(['unlearned hit establishes physical walking distance', 'learned hit grants faster real movement and hunger'], unlearned, active)
+            context.expect(active.idleDrift < 0.25 && unlearned.idleDrift < 0.25, 'Knockback settles without movement keys instead of driving a speed burst')
+            context.expect(active.clearedDistance <= unlearned.distance + 0.4, 'Clearing adaptations returns an active burst to ordinary walking speed')
+            context.expect(active.unlearnedDistance <= unlearned.distance + 0.4, 'Unlearning returns a newly activated burst to ordinary walking speed')
+            return report(['unlearned hit establishes physical walking distance', 'learned hit grants faster real movement and hunger', 'neutral input does not sustain knockback', 'clear adaptations and unlearning both stop active bursts'], unlearned, active)
         },
     }],
     ['hunter-trophy-skinner', {

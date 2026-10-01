@@ -1,0 +1,637 @@
+{
+  "enchanting-anvil-savant": {
+    "set": "enchanting-anvil",
+    "level": 4,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:diamond_sword",
+      "item replace entity {actor} hotbar.1 with minecraft:enchanted_book[minecraft:stored_enchantments={'minecraft:sharpness':5,'minecraft:unbreaking':3,'minecraft:looting':3,'minecraft:mending':1}]",
+      "xp add {actor} 30 levels"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.95, -0.4]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "click", "slot": 30},
+      {"verb": "window", "action": "click", "slot": 0},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "window", "action": "click", "slot": 31},
+      {"verb": "window", "action": "click", "slot": 1},
+      {"verb": "wait", "ticks": 18},
+      {"verb": "window", "action": "hover", "slot": 2},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "window", "action": "shift", "slot": 2},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {
+      "visual": "The anvil prices the diamond sword plus the four-enchantment book at 9 levels instead of the vanilla 16, the actionbar reads - 7 Levels Saved, and taking the result lowers the XP level from 30 to 21."
+    },
+    "maxTicks": 431
+  },
+  "enchanting-arcane-siphon": {
+    "set": "enchanting-siphon",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:iron_sword",
+      "execute at {actor} run summon minecraft:husk ~-1.75 ~ ~-1.0 {NoAI:1b,Health:1.0f,Rotation:[-60.0f,0.0f],drop_chances:{head:0.0f}}",
+      "execute at {actor} run summon minecraft:husk ~-1.0 ~ ~-1.75 {NoAI:1b,Health:1.0f,Rotation:[-30.0f,0.0f],drop_chances:{head:0.0f}}",
+      "execute at {actor} run summon minecraft:husk ~ ~ ~-2.0 {NoAI:1b,Health:1.0f,Rotation:[0.0f,0.0f],drop_chances:{head:0.0f}}",
+      "execute at {actor} run summon minecraft:husk ~1.0 ~ ~-1.75 {NoAI:1b,Health:1.0f,Rotation:[30.0f,0.0f],drop_chances:{head:0.0f}}",
+      "execute at {actor} run summon minecraft:husk ~1.75 ~ ~-1.0 {NoAI:1b,Health:1.0f,Rotation:[60.0f,0.0f],drop_chances:{head:0.0f}}",
+      "execute at {actor} run item replace entity @e[type=minecraft:husk,distance=..4] armor.head with minecraft:diamond_helmet[minecraft:enchantments={'minecraft:protection':2}]"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [-1.25, 1.3, -0.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "lookAt", "offset": [-0.5, 1.3, -1.25], "ticks": 12},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 1.3, -1.5], "ticks": 12},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "lookAt", "offset": [1.5, 1.3, -1.25], "ticks": 12},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "lookAt", "offset": [2.25, 1.3, -0.5], "ticks": 12},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "look", "yaw": 180, "pitch": 40, "ticks": 12},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "enchant"
+    },
+    "maxTicks": 360,
+    "povCapture": true
+  },
+  "enchanting-bookshelf-attunement": {
+    "set": "enchanting-table",
+    "level": 4,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:iron_sword",
+      "item replace entity {actor} hotbar.1 with minecraft:lapis_lazuli 16",
+      "xp add {actor} 30 levels"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.75, -0.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "shift", "slot": 29},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "window", "action": "shift", "slot": 30},
+      {"verb": "wait", "ticks": 50},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 25}
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "enchant"
+    },
+    "maxTicks": 258
+  },
+  "enchanting-curse-cleansing": {
+    "set": "swords-grindstone",
+    "level": 4,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:iron_sword[minecraft:enchantments={'minecraft:vanishing_curse':1,'minecraft:sharpness':2}]"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -0.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "click", "slot": 30},
+      {"verb": "window", "action": "click", "slot": 0},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "window", "action": "hover", "slot": 2},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "press", "hold": ["sneak"], "ticks": 100},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "window", "action": "shift", "slot": 2},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "hover", "slot": 30},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {
+      "sound": "minecraft:block.grindstone.use",
+      "particle": "end_rod"
+    },
+    "maxTicks": 390
+  },
+  "enchanting-echo-of-knowledge": {
+    "set": "arena",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:enchanted_book[minecraft:stored_enchantments={'minecraft:sharpness':1}]"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "look", "yaw": 180, "pitch": 25}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:experience_orb ~ ~0.5 ~-4 {Value:40s}"},
+      {"verb": "wait", "ticks": 80}
+    ],
+    "expect": {
+      "sound": "minecraft:block.enchantment_table.use",
+      "particle": "enchant"
+    },
+    "maxTicks": 200,
+    "povCapture": true
+  },
+  "enchanting-grindstone-recovery": {
+    "set": "swords-grindstone",
+    "level": 5,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "give {actor} minecraft:iron_sword[minecraft:enchantments={'minecraft:sharpness':2}] 8"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -0.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "click", "slot": 30},
+      {"verb": "window", "action": "click", "slot": 0},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "hover", "slot": 2},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "window", "action": "shift", "slot": 2},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "click", "slot": 31},
+      {"verb": "window", "action": "click", "slot": 0},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "shift", "slot": 2},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "click", "slot": 32},
+      {"verb": "window", "action": "click", "slot": 0},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "shift", "slot": 2},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "click", "slot": 33},
+      {"verb": "window", "action": "click", "slot": 0},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "shift", "slot": 2},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "click", "slot": 34},
+      {"verb": "window", "action": "click", "slot": 0},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "shift", "slot": 2},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "click", "slot": 35},
+      {"verb": "window", "action": "click", "slot": 0},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "shift", "slot": 2},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "click", "slot": 36},
+      {"verb": "window", "action": "click", "slot": 0},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "shift", "slot": 2},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "click", "slot": 37},
+      {"verb": "window", "action": "click", "slot": 0},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "shift", "slot": 2},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 25}
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "enchant"
+    },
+    "maxTicks": 679
+  },
+  "enchanting-infusion-transfer": {
+    "set": "enchanting-anvil",
+    "level": 5,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:iron_sword",
+      "item replace entity {actor} hotbar.1 with minecraft:enchanted_book[minecraft:stored_enchantments={'minecraft:sharpness':3,'minecraft:looting':2}]",
+      "xp add {actor} 10 levels"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.95, -0.4]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "click", "slot": 30},
+      {"verb": "window", "action": "click", "slot": 0},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "window", "action": "click", "slot": 31},
+      {"verb": "window", "action": "click", "slot": 1},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "window", "action": "click", "slot": 0, "button": 1},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "window", "action": "click", "slot": 0, "button": 1},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "hover", "slot": 0},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 25}
+    ],
+    "expect": {
+      "sound": "minecraft:block.anvil.use",
+      "particle": "enchant"
+    },
+    "maxTicks": 422
+  },
+  "enchanting-lapis-return": {
+    "set": "enchanting-library",
+    "level": 3,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:iron_sword",
+      "item replace entity {actor} hotbar.1 with minecraft:lapis_lazuli 16",
+      "xp set {actor} 30 levels"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.75,
+          -0.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 29
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 30
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "window",
+        "action": "button",
+        "index": 0
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 85,
+        "ticks": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "click",
+        "key": "inventory"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 36
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 37
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.75,
+          -0.5
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "item"
+    },
+    "maxTicks": 520
+  },
+  "enchanting-offer-reroll": {
+    "set": "enchanting-library",
+    "level": 4,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:iron_sword",
+      "item replace entity {actor} hotbar.1 with minecraft:lapis_lazuli 16",
+      "xp add {actor} 30 levels"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.75, -0.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "shift", "slot": 29},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "window", "action": "shift", "slot": 30},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 20},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "lookAt", "offset": [0.5, 1.4, -0.5], "ticks": 12},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "lookAt", "offset": [0.5, 0.75, -0.5], "ticks": 12},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "shift", "slot": 29},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "window", "action": "shift", "slot": 30},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {
+      "sound": "minecraft:block.enchantment_table.use",
+      "particle": "portal"
+    },
+    "maxTicks": 420
+  },
+  "enchanting-quick-enchant": {
+    "set": "enchanting-chest",
+    "level": 7,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:iron_sword",
+      "item replace entity {actor} hotbar.1 with minecraft:enchanted_book[minecraft:stored_enchantments={'minecraft:sharpness':3,'minecraft:unbreaking':2}]"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -0.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "window", "action": "click", "slot": 55},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "window", "action": "click", "slot": 54},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "hover", "slot": 54},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {
+      "sound": "minecraft:block.enchantment_table.use",
+      "particle": "enchant"
+    },
+    "maxTicks": 326
+  },
+  "enchanting-rune-sight": {
+    "set": "enchanting-library",
+    "level": 3,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:iron_sword",
+      "item replace entity {actor} hotbar.1 with minecraft:lapis_lazuli 16",
+      "xp add {actor} 30 levels"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.75, -0.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "shift", "slot": 30},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "window", "action": "shift", "slot": 29},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {
+      "visual": "With the sword in the enchanting table, the actionbar names the enchantment, level and cost behind each of the three offers (for example sharpness 3 (21)) and stays readable after the screen closes."
+    },
+    "maxTicks": 268
+  },
+  "enchanting-soul-link": {
+    "set": "enchanting-anvil",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:diamond_pickaxe[minecraft:enchantments={'minecraft:efficiency':3}]",
+      "xp add {actor} 3 levels",
+      "execute at {actor} run spawnpoint {actor} ~ ~ ~",
+      "execute at {actor} run gamerule keep_inventory false",
+      "execute at {actor} run gamerule immediate_respawn true"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.95, -0.4]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 20},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "hit", "amount": 100},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "look", "yaw": 180, "pitch": 35, "ticks": 12},
+      {"verb": "wait", "ticks": 50},
+      {"verb": "command", "text": "execute at {actor} run gamerule keep_inventory true"},
+      {"verb": "command", "text": "execute at {actor} run gamerule immediate_respawn false"},
+      {"verb": "wait", "ticks": 10}
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "totem_of_undying"
+    },
+    "maxTicks": 272
+  },
+  "enchanting-tome-rebinding": {
+    "set": "enchanting-anvil",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:enchanted_book[minecraft:stored_enchantments={'minecraft:sharpness':3,'minecraft:unbreaking':2,'minecraft:looting':2}]",
+      "xp add {actor} 5 levels"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.95, -0.4]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "click", "key": "drop"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {
+      "sound": "minecraft:item.book.page_turn",
+      "particle": "enchant"
+    },
+    "maxTicks": 180,
+    "povCapture": true
+  },
+  "enchanting-xp-return": {
+    "set": "enchanting-library",
+    "level": 7,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:iron_sword",
+      "item replace entity {actor} hotbar.1 with minecraft:lapis_lazuli 16",
+      "xp set {actor} 30 levels"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.75, -0.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "shift", "slot": 29},
+      {"verb": "window", "action": "shift", "slot": 30},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "button", "index": 0},
+      {"verb": "wait", "ticks": 35},
+      {"verb": "window", "action": "hover", "slot": 0},
+      {"verb": "wait", "ticks": 35},
+      {"verb": "window", "action": "shift", "slot": 0},
+      {"verb": "wait", "ticks": 50},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "happy_villager"
+    },
+    "maxTicks": 420
+  }
+}

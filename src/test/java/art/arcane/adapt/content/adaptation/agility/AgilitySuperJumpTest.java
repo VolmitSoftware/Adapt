@@ -23,12 +23,14 @@ class AgilitySuperJumpTest {
   }
 
   @Test
-  void defaultConfigHasExactlyFourLevelsAndARealTwoAndAHalfBlockMaximum() {
+  void defaultConfigHasExactlyFourLevelsAndAMaximumOfThreeVanillaJumps() {
     AgilitySuperJump.Config config = new AgilitySuperJump.Config();
+    double vanillaHeight = AgilityJumpPhysics.heightForStrength(AgilityJumpPhysics.VANILLA_JUMP_STRENGTH);
 
     assertThat(config.maxLevel).isEqualTo(4);
     assertThat(config.minimumJumpHeight).isCloseTo(1.5D, within(1.0E-9D));
-    assertThat(config.maximumJumpHeight).isCloseTo(2.5D, within(1.0E-9D));
+    assertThat(config.maximumJumpHeight).isCloseTo(3.75D, within(1.0E-9D));
+    assertThat(config.maximumJumpHeight / vanillaHeight).isCloseTo(3.0D, within(0.01D));
   }
 
   @Test

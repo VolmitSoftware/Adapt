@@ -1,0 +1,192 @@
+{
+  "agility-wind-up": {
+    "set": "runway", "level": 5,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "keys", "hold": ["forward", "sprint"], "ticks": 140}
+    ],
+    "expect": {"sound": "minecraft:entity.blaze.shoot", "particle": "flame"}, "maxTicks": 300
+  },
+  "agility-wall-jump": {
+    "set": "corridor", "level": 5,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": -30}],
+    "beats": [
+      {"verb": "press", "hold": ["jump"], "ticks": 3},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "press", "hold": ["sneak"], "off": ["jump"], "ticks": 20},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "press", "hold": ["right"], "off": ["sneak"], "ticks": 11},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak", "right"], "ticks": 20},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "press", "hold": ["left"], "off": ["sneak", "right"], "ticks": 11},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak", "left"], "ticks": 20},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "press", "hold": ["right"], "off": ["sneak", "left"], "ticks": 11},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak", "right"], "ticks": 20},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:item.armor.equip_leather", "particle": "cloud"}, "maxTicks": 400
+  },
+  "agility-super-jump": {
+    "set": "arena", "level": 4,
+    "camera": {"x": 9.5, "y": 3.0, "z": 0.5, "yaw": 90, "pitch": -8},
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "press", "hold": ["sneak"], "ticks": 40},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak", "jump"], "ticks": 4},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:item.armor.equip_leather", "particle": "cloud"}, "maxTicks": 200
+  },
+  "agility-armor-up": {
+    "set": "runway", "level": 5,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "keys", "hold": ["forward", "sprint"], "ticks": 120}
+    ],
+    "expect": {"sound": "minecraft:item.armor.equip_iron", "particle": "end_rod"}, "maxTicks": 300
+  },
+  "agility-ladder-slide": {
+    "set": "ladder", "level": 1,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": -70}],
+    "beats": [
+      {"verb": "keys", "hold": ["forward"], "ticks": 30},
+      {"verb": "look", "yaw": 180, "pitch": 70},
+      {"verb": "keys", "hold": ["forward"], "ticks": 30},
+      {"verb": "wait", "ticks": 10}
+    ],
+    "expect": {"sound": "minecraft:entity.phantom.flap", "particle": "crit"}, "maxTicks": 300
+  },
+  "agility-roll-landing": {
+    "set": "ledge", "level": 5,
+    "pre": ["execute at {actor} run gamerule fall_damage true"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "keys", "hold": ["forward"], "ticks": 8},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "keys", "hold": ["sneak"], "ticks": 20},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {"sound": "minecraft:item.armor.equip_leather", "particle": "cloud"}, "maxTicks": 200
+  },
+  "agility-slipstream-slide": {
+    "set": "runway", "level": 4,
+    "camera": {"x": 12.5, "y": 3.0, "z": -9.5, "yaw": 90, "pitch": 6},
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "keys", "hold": ["forward", "sprint"], "ticks": 14},
+      {"verb": "keys", "hold": ["forward", "sprint", "sneak"], "ticks": 3},
+      {"verb": "keys", "hold": ["forward"], "ticks": 30},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {"sound": "minecraft:block.ladder.step", "particle": "cloud"}, "maxTicks": 250
+  },
+  "agility-air-dash": {
+    "set": "runway", "level": 4,
+    "camera": {"x": 12.5, "y": 3.0, "z": -9.5, "yaw": 90, "pitch": 6},
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 40},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["forward", "sprint", "jump"], "ticks": 30},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "press", "hold": ["forward", "sprint"], "off": ["jump"], "ticks": 20},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.phantom.flap", "particle": "crit"}, "maxTicks": 200
+  },
+  "agility-cat-reflexes": {
+    "set": "archery", "level": 5,
+    "pre": ["item replace entity {actor} armor.chest with minecraft:netherite_chestplate", "item replace entity {actor} armor.head with minecraft:netherite_helmet", "item replace entity {actor} armor.legs with minecraft:netherite_leggings", "item replace entity {actor} armor.feet with minecraft:netherite_boots"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 36},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~-3 {Motion:[0.0,0.0,1.0]}"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~-3 {Motion:[0.0,0.0,1.0]}"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~-3 {Motion:[0.0,0.0,1.0]}"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "look", "yaw": 0, "pitch": 0},
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 36},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~3 {Motion:[0.0,0.0,-1.0]}"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~3 {Motion:[0.0,0.0,-1.0]}"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~3 {Motion:[0.0,0.0,-1.0]}"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "look", "yaw": 180, "pitch": 0},
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 36},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~-3 {Motion:[0.0,0.0,1.0]}"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~-3 {Motion:[0.0,0.0,1.0]}"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~-3 {Motion:[0.0,0.0,1.0]}"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "look", "yaw": 0, "pitch": 0},
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 36},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~3 {Motion:[0.0,0.0,-1.0]}"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~3 {Motion:[0.0,0.0,-1.0]}"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:arrow ~ ~1.4 ~3 {Motion:[0.0,0.0,-1.0]}"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:entity.player.attack.sweep", "particle": "crit"}, "maxTicks": 500
+  },
+  "agility-featherfoot": {
+    "set": "pressure", "level": 4,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 10}],
+    "beats": [
+      {"verb": "press", "hold": ["forward"], "ticks": 135},
+      {"verb": "wait", "ticks": 155},
+      {"verb": "look", "yaw": 0, "pitch": 10},
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 105},
+      {"verb": "wait", "ticks": 135}
+    ],
+    "expect": {"sound": "minecraft:item.armor.equip_leather", "particle": "cloud"}, "maxTicks": 400
+  },
+  "agility-vault": {
+    "set": "fence", "level": 1,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 40},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "press", "hold": ["forward", "sprint", "jump"], "ticks": 30},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "press", "hold": ["forward", "sprint"], "off": ["jump"], "ticks": 20},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:item.armor.equip_leather", "particle": "block"}, "maxTicks": 200
+  },
+  "agility-marathoner": {"skip": "Reduces hunger drain while sprinting; nothing visible in a learned-only clip."},
+  "agility-kip-up": {
+    "set": "arena", "level": 4, "opponent": true,
+    "prelude": [
+      {"verb": "look", "yaw": 0, "pitch": 0},
+      {"verb": "lookAt", "offset": [0.5, 1.2, 0.5], "actor": "opponent"}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["forward"], "ticks": 6, "actor": "opponent"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "lookAt", "offset": [0.5, 1.2, 0.5], "actor": "opponent"},
+      {"verb": "click", "key": "attack", "actor": "opponent"},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "keys", "hold": ["jump"], "ticks": 5},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.player.attack.sweep", "particle": "crit"}, "maxTicks": 200
+  }
+}

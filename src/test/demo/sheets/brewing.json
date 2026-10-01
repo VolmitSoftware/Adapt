@@ -1,0 +1,2491 @@
+{
+  "brewing-absorption": {
+    "set": "brewing-stand",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:healing\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:quartz 1",
+      "item replace entity {actor} hotbar.7 with minecraft:milk_bucket"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 190
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.beacon.power_select",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "slot",
+        "index": 7
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.beacon.power_select",
+      "particle": "end_rod"
+    },
+    "maxTicks": 750
+  },
+  "brewing-blindness": {
+    "set": "brewing-stand",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:awkward\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:ink_sac 1",
+      "item replace entity {actor} hotbar.7 with minecraft:milk_bucket"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 190
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:entity.elder_guardian.curse",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "slot",
+        "index": 7
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.elder_guardian.curse",
+      "particle": "soul"
+    },
+    "maxTicks": 750
+  },
+  "brewing-darkness": {
+    "set": "brewing-stand",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:night_vision\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:black_concrete 1",
+      "item replace entity {actor} hotbar.7 with minecraft:milk_bucket"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 190
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.sculk_catalyst.break",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "slot",
+        "index": 7
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.sculk_catalyst.break",
+      "particle": "sculk_soul"
+    },
+    "maxTicks": 750
+  },
+  "brewing-decay": {
+    "set": "brewing-stand",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:weakness\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:poisonous_potato 1",
+      "item replace entity {actor} hotbar.7 with minecraft:milk_bucket"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 190
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:entity.wither.shoot",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "slot",
+        "index": 7
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.wither.shoot",
+      "particle": "ash"
+    },
+    "maxTicks": 750
+  },
+  "brewing-fatigue": {
+    "set": "brewing-stand",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:weakness\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:slime_ball 1",
+      "item replace entity {actor} hotbar.7 with minecraft:milk_bucket"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 190
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.note_block.didgeridoo",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "slot",
+        "index": 7
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.note_block.didgeridoo",
+      "particle": "smoke"
+    },
+    "maxTicks": 750
+  },
+  "brewing-haste": {
+    "set": "brewing-stand",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:swiftness\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:amethyst_shard 1",
+      "item replace entity {actor} hotbar.7 with minecraft:milk_bucket"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 190
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.amethyst_block.chime",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "slot",
+        "index": 7
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "end_rod"
+    },
+    "maxTicks": 750
+  },
+  "brewing-healthboost": {
+    "set": "brewing-stand",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:healing\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:golden_apple 1",
+      "item replace entity {actor} hotbar.7 with minecraft:milk_bucket"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 190
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:entity.player.levelup",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "slot",
+        "index": 7
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.player.levelup",
+      "particle": "heart"
+    },
+    "maxTicks": 750
+  },
+  "brewing-hunger": {
+    "set": "brewing-stand",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:awkward\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:rotten_flesh 1",
+      "item replace entity {actor} hotbar.7 with minecraft:milk_bucket"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 190
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:entity.player.burp",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "slot",
+        "index": 7
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.player.burp",
+      "particle": "sneeze"
+    },
+    "maxTicks": 750
+  },
+  "brewing-lingering": {
+    "set": "brewing-stand",
+    "level": 5,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:awkward\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:sugar 1"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 270
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:entity.ender_dragon.flap",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.ender_dragon.flap",
+      "particle": "dragon_breath"
+    },
+    "maxTicks": 483
+  },
+  "brewing-nausea": {
+    "set": "brewing-stand",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:awkward\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:brown_mushroom 1",
+      "item replace entity {actor} hotbar.7 with minecraft:milk_bucket"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 190
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:entity.enderman.teleport",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "slot",
+        "index": 7
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.enderman.teleport",
+      "particle": "witch"
+    },
+    "maxTicks": 750
+  },
+  "brewing-resistance": {
+    "set": "brewing-stand",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:awkward\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:iron_ingot 1",
+      "item replace entity {actor} hotbar.7 with minecraft:milk_bucket"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 190
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.anvil.land",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "slot",
+        "index": 7
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.anvil.land",
+      "particle": "end_rod"
+    },
+    "maxTicks": 750
+  },
+  "brewing-saturation": {
+    "set": "brewing-stand",
+    "level": 1,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:regeneration\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:baked_potato 1",
+      "effect give {actor} minecraft:hunger 5 255 true"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 190
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      },
+      {
+        "verb": "command",
+        "text": "effect clear {actor} minecraft:hunger"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:entity.generic.eat",
+        "timeout": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.generic.eat",
+      "particle": "campfire_cosy_smoke"
+    },
+    "maxTicks": 750
+  },
+  "brewing-super-heated": {
+    "set": "brewing-heated",
+    "level": 5,
+    "povCapture": true,
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "give {actor} minecraft:potion[minecraft:potion_contents={potion:\"minecraft:awkward\"}] 1",
+      "give {actor} minecraft:blaze_powder 2",
+      "give {actor} minecraft:sugar 1"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -0.5
+        ]
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 32
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 33
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 34
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 110
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:entity.blaze.shoot",
+        "timeout": 240
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.lava.pop",
+      "particle": "lava"
+    },
+    "maxTicks": 637
+  }
+}

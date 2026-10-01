@@ -1,0 +1,348 @@
+{
+  "seaborne-brine-skin": {
+    "povCapture": true,
+    "set": "seaborne-duel", "level": 5,
+    "camera": {"x": 6.0, "y": 6.5, "z": -2.5, "yaw": 90, "pitch": 45},
+    "pre": ["execute at {actor} run data merge entity @e[type=minecraft:drowned,distance=..8,limit=1,sort=nearest] {NoAI:1b}",
+            "xp set {actor} 0 levels", "xp set {actor} 0 points", "execute at {actor} run tp {actor} ~ ~3 ~2"],
+    "prelude": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} run tp {actor} ~ ~-3 ~-2"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "lookAt", "offset": [0.5, 0.9, -3.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 30},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 50},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 70}
+    ],
+    "expect": {"sound": "minecraft:item.shield.block", "particle": "glow"}, "maxTicks": 260
+  },
+  "seaborne-coral-gardener": {
+    "set": "arena", "level": 5,
+    "camera": {"x": 0.0, "y": 2.6, "z": -7.5, "yaw": 0, "pitch": 14},
+    "pre": ["give {actor} minecraft:tube_coral_block 1"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.0, -1.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "command", "text": "execute at {actor} run setblock ~-1 ~ ~-2 minecraft:tube_coral_block"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 140}
+    ],
+    "expect": {"sound": "minecraft:block.coral_block.place", "particle": "happy_villager"}, "maxTicks": 260
+  },
+  "seaborne-deep-salvager": {
+    "set": "seaborne-wreck", "level": 4,
+    "camera": {"x": 6.0, "y": 6.5, "z": -3.0, "yaw": 90, "pitch": 45},
+    "pre": ["xp set {actor} 0 levels", "xp set {actor} 0 points", "execute at {actor} run tp {actor} ~ ~3 ~2"],
+    "prelude": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} run tp {actor} ~ ~-3 ~-2"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -4.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 50},
+      {"verb": "keys", "hold": ["forward"], "ticks": 10},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -4.5]},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:block.conduit.activate", "particle": "end_rod"}, "maxTicks": 240
+  },
+  "seaborne-fish-whisperer": {
+    "set": "seaborne-shoal", "level": 5,
+    "camera": {"x": 7.0, "y": 7.0, "z": -5.0, "yaw": 90, "pitch": 42},
+    "pre": ["xp set {actor} 0 levels", "xp set {actor} 0 points", "execute at {actor} run tp {actor} ~ ~3 ~2"],
+    "prelude": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} run tp {actor} ~ ~-3 ~-2"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "look", "yaw": 180, "pitch": 12}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 170}
+    ],
+    "expect": {"particle": "bubble"}, "maxTicks": 260
+  },
+  "seaborne-fishers-fantasy": {
+    "set": "seaborne-pool", "level": 7,
+    "pre": ["give {actor} minecraft:fishing_rod 1", "enchant {actor} minecraft:lure 3"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 35}],
+    "beats": [
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "look", "yaw": 180, "pitch": 60},
+      {"verb": "waitFor", "sound": "minecraft:entity.fishing_bobber.splash", "timeout": 450},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "look", "yaw": 180, "pitch": 35},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "look", "yaw": 180, "pitch": 60},
+      {"verb": "waitFor", "sound": "minecraft:entity.fishing_bobber.splash", "timeout": 450},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "look", "yaw": 180, "pitch": 35},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "look", "yaw": 180, "pitch": 60},
+      {"verb": "waitFor", "sound": "minecraft:entity.fishing_bobber.splash", "timeout": 450},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.conduit.activate", "particle": "glow"}, "maxTicks": 1600
+  },
+  "seaborne-hydro-jet": {
+    "set": "seaborne-swim", "level": 5,
+    "camera": {"x": 3.0, "y": 4.0, "z": 2.5, "yaw": -50.2, "pitch": 45.7, "follow": true},
+    "pre": ["execute at {actor} run tp {actor} ~ ~3 ~2"],
+    "prelude": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} run tp {actor} ~ ~-3 ~-2"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "look", "yaw": 180, "pitch": 0}
+    ],
+    "beats": [
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 24},
+      {"verb": "wait", "ticks": 16},
+      {"verb": "press", "hold": ["forward", "sprint", "sneak"], "ticks": 4},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "press", "hold": ["forward", "sprint"], "off": ["sneak"], "ticks": 10},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.dolphin.splash", "particle": "splash"}, "maxTicks": 160
+  },
+  "seaborne-ink-veil": {
+    "set": "seaborne-duel", "level": 5,
+    "camera": {"x": 6.0, "y": 6.5, "z": -4.5, "yaw": 90, "pitch": 45},
+    "pre": ["execute at {actor} run data merge entity @e[type=minecraft:drowned,distance=..8,limit=1,sort=nearest] {NoAI:1b}",
+            "xp set {actor} 0 levels", "xp set {actor} 0 points",
+            "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:drowned,distance=..24] ~ -300 ~",
+            "execute at {actor} run tp {actor} ~ ~3 ~2"],
+    "prelude": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} run tp {actor} ~ ~-3 ~-6"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "lookAt", "offset": [0.5, 0.9, -3.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 30},
+      {"verb": "hit", "amount": 3},
+      {"verb": "wait", "ticks": 90}
+    ],
+    "expect": {"sound": "minecraft:entity.dolphin.splash", "particle": "squid_ink"}, "maxTicks": 200
+  },
+  "seaborne-oxygen": {
+    "set": "seaborne-pool", "level": 5,
+    "camera": {"x": 6.0, "y": 6.5, "z": -2.0, "yaw": 90, "pitch": 42},
+    "pre": ["xp set {actor} 0 levels", "xp set {actor} 0 points"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 35}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "keys", "hold": ["forward"], "ticks": 8},
+      {"verb": "wait", "ticks": 110},
+      {"verb": "look", "yaw": 180, "pitch": 0},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.conduit.activate", "particle": "dust"}, "maxTicks": 300
+  },
+  "seaborne-pressure-diver": {
+    "povCapture": true,
+    "set": "seaborne-shaft", "level": 4,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 50}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["forward"], "ticks": 14},
+      {"verb": "wait", "ticks": 16},
+      {"verb": "press", "hold": ["sneak"], "ticks": 100},
+      {"verb": "wait", "ticks": 130}
+    ],
+    "expect": {"sound": "minecraft:block.conduit.activate", "particle": "bubble"}, "maxTicks": 260
+  },
+  "seaborne-speed": {
+    "povCapture": true,
+    "set": "seaborne-pool",
+    "level": 7,
+    "camera": {
+      "x": 3.0,
+      "y": 4.0,
+      "z": 2.5,
+      "yaw": -50.2,
+      "pitch": 45.7,
+      "follow": true
+    },
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,distance=..24] ~ -300 ~"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 45
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 24
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 8,
+        "ticks": 6
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "forward",
+          "sprint"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.dolphin.splash",
+      "particle": "dust"
+    },
+    "maxTicks": 226
+  },
+  "seaborne-tidecaller": {
+    "set": "seaborne-swim", "level": 5,
+    "camera": {"x": 3.0, "y": 4.0, "z": 2.5, "yaw": -50.2, "pitch": 45.7, "follow": true},
+    "pre": ["execute at {actor} run tp {actor} ~ ~3 ~2"],
+    "prelude": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} run tp {actor} ~ ~-3 ~-2"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "look", "yaw": 180, "pitch": 0}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "tap", "key": "sneak", "ticks": 4},
+      {"verb": "wait", "ticks": 74},
+      {"verb": "tap", "key": "sneak", "ticks": 4},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:item.trident.riptide_2", "particle": "splash"}, "maxTicks": 240
+  },
+  "seaborne-trident-mastery": {
+    "set": "seaborne-duel", "level": 5,
+    "camera": {"x": 6.0, "y": 6.5, "z": -2.5, "yaw": 90, "pitch": 45},
+    "pre": ["give {actor} minecraft:trident 1",
+            "execute at {actor} run data merge entity @e[type=minecraft:drowned,distance=..8,limit=1,sort=nearest] {NoAI:1b,DeathLootTable:\"minecraft:empty\"}",
+            "xp set {actor} 0 levels", "xp set {actor} 0 points", "execute at {actor} run tp {actor} ~ ~3 ~2"],
+    "prelude": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} run tp {actor} ~ ~-3 ~-2"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "lookAt", "offset": [0.5, 1.2, -3.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "keys", "hold": ["use"], "ticks": 15},
+      {"verb": "wait", "ticks": 70}
+    ],
+    "expect": {"sound": "minecraft:item.trident.hit", "particle": "bubble"}, "maxTicks": 220
+  },
+  "seaborne-turtles-mining-speed": {
+    "set": "seaborne-dig", "level": 1,
+    "camera": {"x": 6.0, "y": 6.5, "z": -2.5, "yaw": 90, "pitch": 42},
+    "pre": ["give {actor} minecraft:iron_shovel 1", "xp set {actor} 0 levels", "xp set {actor} 0 points"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 35}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "keys", "hold": ["forward"], "ticks": 8},
+      {"verb": "wait", "ticks": 70},
+      {"verb": "keys", "hold": ["forward"], "ticks": 12},
+      {"verb": "lookAt", "offset": [0.5, 1.5, -3.5]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 36},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -3.5]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -4.5]},
+      {"verb": "keys", "hold": ["attack"], "ticks": 14},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.hit", "particle": "crit"}, "maxTicks": 340
+  },
+  "seaborne-turtles-vision": {
+    "povCapture": true,
+    "set": "seaborne-pool",
+    "level": 1,
+    "camera": {
+      "x": 6.0,
+      "y": 6.5,
+      "z": -2.0,
+      "yaw": 90,
+      "pitch": 42
+    },
+    "pre": [
+      "xp set {actor} 0 levels",
+      "xp set {actor} 0 points"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 45
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 90
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 5,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.conduit.activate",
+      "particle": "glow"
+    },
+    "maxTicks": 286
+  }
+}

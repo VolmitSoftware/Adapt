@@ -1,0 +1,715 @@
+{
+  "herbalism-bee-shepherd": {
+    "set": "herbalism-apiary", "level": 3,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}, {"verb": "command", "text": "execute at {actor} run fill ~-13 ~ ~-15 ~12 ~ ~-1 minecraft:wheat[age=5] replace minecraft:wheat"}, {"verb": "command", "text": "item replace entity {actor} weapon.mainhand with minecraft:dandelion"}],
+    "beats": [
+      {"verb": "wait", "ticks": 180}
+    ],
+    "expect": {"sound": "minecraft:entity.bee.pollinate", "particle": "happy_villager"}, "maxTicks": 300
+  },
+  "herbalism-cobweb": {
+    "set": "herbalism-workbench",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:string 9"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.35,
+          -0.05
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 37
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 1,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 2,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 5,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 6,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 7,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 8,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 9,
+        "button": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.wool.break",
+      "particle": "end_rod"
+    },
+    "maxTicks": 459,
+    "povCapture": true
+  },
+  "herbalism-compost-cascade": {
+    "set": "herbalism-compost", "level": 6,
+    "pre": ["execute at {actor} run gamerule random_tick_speed 0", "execute at {actor} run summon minecraft:item ~-1 ~0.2 ~-3 {Item:{id:\"minecraft:wheat_seeds\",count:24}}", "execute at {actor} run summon minecraft:item ~1 ~0.2 ~-3 {Item:{id:\"minecraft:wheat_seeds\",count:24}}", "execute at {actor} run summon minecraft:item ~-1 ~0.2 ~-2 {Item:{id:\"minecraft:beetroot_seeds\",count:16}}", "execute at {actor} run summon minecraft:item ~1 ~0.2 ~-2 {Item:{id:\"minecraft:wheat_seeds\",count:16}}"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.85, -2.5]}],
+    "beats": [
+      {"verb": "press", "hold": ["sneak"], "ticks": 60},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:block.composter.fill", "particle": "spore_blossom_air"}, "maxTicks": 200
+  },
+  "herbalism-drop-to-inventory": {
+    "set": "herbalism-wheat", "level": 1,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_hoe"],
+    "prelude": [{"verb": "lookAt", "offset": [-1.5, 0.5, -1.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [-0.5, 0.5, -1.5]},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -1.5]},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [1.5, 0.5, -1.5]},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [2.5, 0.5, -1.5]},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [2.5, 0.5, -2.5]},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [1.5, 0.5, -2.5]},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -2.5]},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [-0.5, 0.5, -2.5]},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [-1.5, 0.5, -2.5]},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 36}
+    ],
+    "expect": {"sound": "minecraft:block.note_block.chime", "particle": "happy_villager"}, "maxTicks": 250
+  },
+  "herbalism-growth-aura": {
+    "set": "herbalism-seedlings", "level": 7,
+    "pre": ["execute at {actor} run gamerule random_tick_speed 0", "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 30}, {"verb": "command", "text": "execute at {actor} run fill ~-7 ~ ~-11 ~6 ~ ~-1 minecraft:wheat[age=0] replace minecraft:wheat"}],
+    "beats": [
+      {"verb": "wait", "ticks": 200}
+    ],
+    "expect": {"sound": "minecraft:item.crop.plant", "particle": "happy_villager"}, "maxTicks": 300
+  },
+  "herbalism-hippo": {
+    "set": "arena", "level": 7,
+    "pre": ["effect give {actor} minecraft:hunger 5 255 true", "item replace entity {actor} weapon.mainhand with minecraft:apple 4"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 60}, {"verb": "wait", "ticks": 60}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "keys", "hold": ["use"], "ticks": 40},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.pointed_dripstone.land", "particle": "composter"}, "maxTicks": 150
+  },
+  "herbalism-hungry-shield": {
+    "set": "sparring", "level": 5,
+    "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 10}],
+    "beats": [
+      {"verb": "command", "text": "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:0b}"},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 140}
+    ],
+    "expect": {"sound": "minecraft:item.shield.block", "particle": "dust"}, "maxTicks": 240,
+    "camera": {"x": 5.0, "y": 1.0, "z": -1.5, "yaw": -92.9, "pitch": 10.2, "follow": true}
+  },
+  "herbalism-luck": {
+    "set": "herbalism-meadow", "level": 7,
+    "prelude": [{"verb": "lookAt", "offset": [-1.5, 0.3, -1.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [-0.5, 0.3, -1.5], "ticks": 6},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [0.5, 0.3, -1.5], "ticks": 6},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [1.5, 0.3, -1.5], "ticks": 6},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [2.5, 0.3, -1.5], "ticks": 6},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [2.5, 0.3, -2.5], "ticks": 6},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [1.5, 0.3, -2.5], "ticks": 6},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [0.5, 0.3, -2.5], "ticks": 6},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [-0.5, 0.3, -2.5], "ticks": 6},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [-1.5, 0.3, -2.5], "ticks": 6},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 36}
+    ],
+    "expect": {"sound": "minecraft:entity.experience_orb.pickup", "particle": "wax_on"}, "maxTicks": 354
+  },
+  "herbalism-mushroom-blocks": {
+    "set": "herbalism-workbench",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:red_mushroom 4"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.35,
+          -0.05
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 37
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 1,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 2,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 5,
+        "button": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.fungus.place",
+      "particle": "end_rod"
+    },
+    "maxTicks": 414,
+    "povCapture": true
+  },
+  "herbalism-myconid": {
+    "set": "herbalism-workbench",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:dirt 1",
+      "item replace entity {actor} hotbar.1 with minecraft:red_mushroom 1",
+      "item replace entity {actor} hotbar.2 with minecraft:brown_mushroom 1"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.35,
+          -0.05
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 37
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 1,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 38
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 2,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 39
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3,
+        "button": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.fungus.place",
+      "particle": "end_rod"
+    },
+    "maxTicks": 423,
+    "povCapture": true
+  },
+  "herbalism-replant": {
+    "set": "herbalism-wheat", "level": 3,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:diamond_hoe"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.5, -1.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:item.shovel.flatten", "particle": "composter"}, "maxTicks": 200
+  },
+  "herbalism-rooted-footing": {
+    "set": "herbalism-ledge", "level": 1,
+    "pre": ["execute at {actor} run gamerule fall_damage true", "execute at {actor} run gamerule random_tick_speed 0", "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 40}],
+    "beats": [
+      {"verb": "keys", "hold": ["forward"], "ticks": 8},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.grass.break", "particle": "dust"}, "maxTicks": 150,
+    "camera": {"x": 10.0, "y": 4.8, "z": -0.5, "yaw": 90, "pitch": 0}
+  },
+  "herbalism-seed-sower": {
+    "set": "herbalism-farmland", "level": 5,
+    "pre": ["execute at {actor} run gamerule random_tick_speed 0", "item replace entity {actor} weapon.mainhand with minecraft:wheat_seeds 64"],
+    "prelude": [{"verb": "lookAt", "offset": [-0.5, 0.29, -2.5]}],
+    "beats": [
+      {"verb": "press", "hold": ["sneak"], "ticks": 90},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 26},
+      {"verb": "lookAt", "offset": [2.5, 0.29, -2.5]},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:item.crop.plant", "particle": "dust"}, "maxTicks": 200
+  },
+  "herbalism-spore-bloom": {
+    "set": "herbalism-mycelium", "level": 5,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:red_mushroom 16"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.25, -2.5]}],
+    "beats": [
+      {"verb": "press", "hold": ["sneak"], "ticks": 60},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:block.fungus.place", "particle": "spore_blossom_air"}, "maxTicks": 200
+  },
+  "herbalism-terralid": {
+    "set": "herbalism-workbench",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:wheat_seeds 3",
+      "item replace entity {actor} hotbar.1 with minecraft:dirt 3"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.35,
+          -0.05
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "window",
+        "action": "list"
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 37
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 1,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 2,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 3,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 38
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 5,
+        "button": 1
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 6,
+        "button": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.grass.break",
+      "particle": "end_rod"
+    },
+    "maxTicks": 441,
+    "povCapture": true
+  }
+}

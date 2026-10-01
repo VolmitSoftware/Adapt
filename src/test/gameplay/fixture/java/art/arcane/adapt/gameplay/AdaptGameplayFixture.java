@@ -10,6 +10,7 @@ import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.gameplay.demo.DemoStudio;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
@@ -21,11 +22,14 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Registry;
 import org.bukkit.World;
+import org.bukkit.Input;
 import org.bukkit.WorldCreator;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.command.RemoteConsoleCommandSender;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -50,6 +54,7 @@ import java.util.logging.Level;
 public final class AdaptGameplayFixture extends JavaPlugin {
     private final Map<UUID, Location> origins = new HashMap<>();
     private final Map<UUID, GameMode> gameModes = new HashMap<>();
+    private final DemoStudio demoStudio = new DemoStudio(this);
     private World arena;
     private Player actor;
     private Player opponent;
@@ -91,6 +96,10 @@ public final class AdaptGameplayFixture extends JavaPlugin {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (args.length >= 2 && args[0].equals("demo")) {
+            demoCommand(sender, args);
+            return true;
+        }
         if (!(sender instanceof Player admin) || !admin.isOp()) {
             sender.sendMessage("ADAPT_QA ERROR operator player required");
             return true;
@@ -147,10 +156,65 @@ public final class AdaptGameplayFixture extends JavaPlugin {
                 sender.sendMessage("ADAPT_QA ERROR invalid fixture command");
             }
         } catch (RuntimeException failure) {
-            getLogger().log(Level.SEVERE, "Adapt gameplay fixture command failed", failure);
-            sender.sendMessage("ADAPT_QA ERROR " + failure.getMessage());
+            reportFailure(sender, failure);
         }
         return true;
+    }
+
+    private void demoCommand(CommandSender sender, String[] args) {
+        if (!demoOperator(sender)) {
+            sender.sendMessage("ADAPT_QA ERROR console or operator player required");
+            return;
+        }
+        try {
+            sender.sendMessage(demo(args));
+        } catch (RuntimeException failure) {
+            reportFailure(sender, failure);
+        }
+    }
+
+    private String demo(String[] args) {
+        return switch (args[1]) {
+            case "world" -> demoStudio.world(demoArgument(args, 2));
+            case "locate" -> demoStudio.locate(Integer.parseInt(demoArgument(args, 2)), Integer.parseInt(demoArgument(args, 3)));
+            case "plate" -> demoStudio.plate(Integer.parseInt(demoArgument(args, 2)), Integer.parseInt(demoArgument(args, 3)));
+            case "set" -> demoStudio.set(demoArgument(args, 2));
+            case "actor" -> demoStudio.actor(demoArgument(args, 2), opponentRole(args));
+            case "park" -> demoStudio.park(demoArgument(args, 2));
+            case "sparring" -> demoStudio.sparring();
+            case "hit" -> demoStudio.hit(demoArgument(args, 2), demoArgument(args, 3));
+            case "sync" -> demoStudio.sync(demoArgument(args, 2));
+            case "reset" -> demoStudio.reset();
+            default -> throw new IllegalArgumentException("Unknown demo command " + args[1]);
+        };
+    }
+
+    private static String demoArgument(String[] args, int index) {
+        if (index >= args.length) {
+            throw new IllegalArgumentException("Missing argument for demo " + args[1]);
+        }
+        return args[index];
+    }
+
+    private static boolean opponentRole(String[] args) {
+        if (args.length <= 3) {
+            return false;
+        }
+        if (!args[3].equals("opponent")) {
+            throw new IllegalArgumentException("demo actor takes opponent as its only role, not " + args[3]);
+        }
+        return true;
+    }
+
+    private static boolean demoOperator(CommandSender sender) {
+        return sender instanceof ConsoleCommandSender
+                || sender instanceof RemoteConsoleCommandSender
+                || sender instanceof Player player && player.isOp();
+    }
+
+    private void reportFailure(CommandSender sender, RuntimeException failure) {
+        getLogger().log(Level.SEVERE, "Adapt gameplay fixture command failed", failure);
+        sender.sendMessage("ADAPT_QA ERROR " + failure.getMessage());
     }
 
     private void sendJson(CommandSender sender, String response, JsonObject value) {
@@ -507,7 +571,25 @@ public final class AdaptGameplayFixture extends JavaPlugin {
         location.addProperty("x", player.getX());
         location.addProperty("y", player.getY());
         location.addProperty("z", player.getZ());
+        location.addProperty("yaw", player.getLocation().getYaw());
+        location.addProperty("pitch", player.getLocation().getPitch());
         result.add("location", location);
+        Vector currentVelocity = player.getVelocity();
+        JsonObject velocity = new JsonObject();
+        velocity.addProperty("x", currentVelocity.getX());
+        velocity.addProperty("y", currentVelocity.getY());
+        velocity.addProperty("z", currentVelocity.getZ());
+        result.add("velocity", velocity);
+        Input currentInput = player.getCurrentInput();
+        JsonObject input = new JsonObject();
+        input.addProperty("forward", currentInput.isForward());
+        input.addProperty("backward", currentInput.isBackward());
+        input.addProperty("left", currentInput.isLeft());
+        input.addProperty("right", currentInput.isRight());
+        input.addProperty("jump", currentInput.isJump());
+        input.addProperty("sneak", currentInput.isSneak());
+        input.addProperty("sprint", currentInput.isSprint());
+        result.add("input", input);
         JsonObject xp = new JsonObject();
         JsonObject committedXp = new JsonObject();
         JsonObject pooledXp = new JsonObject();

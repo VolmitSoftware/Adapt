@@ -3,6 +3,7 @@ version: 1.0.0
 main: art.arcane.adapt.gameplay.AdaptGameplayFixture
 api-version: '26.1'
 depend: [Adapt]
+softdepend: [Iris]
 commands:
   adaptqa:
     permission: adaptqa.admin

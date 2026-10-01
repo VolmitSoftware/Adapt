@@ -1,0 +1,374 @@
+{
+  "tragoul-blood-pact": {
+    "povCapture": true,
+    "set": "sparring", "level": 5,
+    "camera": {"x": 13.5, "y": 3.5, "z": 3.5, "yaw": 90, "pitch": 10},
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,type=!minecraft:zombie,distance=..48] ~ -200 ~",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 50}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.respawn_anchor.charge", "particle": "totem_of_undying"}, "maxTicks": 300
+  },
+  "tragoul-bone-harvest": {
+    "povCapture": true,
+    "set": "tragoul-harvest",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run gamerule mob_drops false",
+      "item replace entity {actor} weapon.mainhand with minecraft:wooden_axe",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..16] run data merge entity @s {NoAI:1b,Health:1.0f}"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.8,
+          -2.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 16
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.8,
+          -5.5
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 16
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.8,
+          -8.5
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 16
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.8,
+          -11.5
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.experience_orb.pickup",
+      "particle": "dust"
+    },
+    "maxTicks": 318
+  },
+  "tragoul-corpse-explosion": {
+    "set": "tragoul-nova", "level": 5,
+    "pre": [
+      "execute at {actor} run gamerule mob_drops false",
+      "item replace entity {actor} weapon.mainhand with minecraft:wooden_sword",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..12] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:husk,distance=..12] run data merge entity @s {NoAI:1b,Health:1.0f}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:entity.generic.explode", "particle": "soul"}, "maxTicks": 200
+  },
+  "tragoul-curse-of-frailty": {
+    "set": "sparring", "level": 5,
+    "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 10}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "hit", "amount": 3},
+      {"verb": "wait", "ticks": 80}
+    ],
+    "expect": {"sound": "minecraft:entity.elder_guardian.curse", "particle": "warped_spore"}, "maxTicks": 200
+  },
+  "tragoul-death-sense": {
+    "set": "tragoul-sense", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..12] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..12] run attribute @s minecraft:knockback_resistance base set 1",
+      "execute at {actor} run damage @e[type=minecraft:cow,distance=6..12,limit=1,sort=nearest] 3 minecraft:generic"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.8, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 100}
+    ],
+    "expect": {"sound": "minecraft:block.note_block.bass"}, "maxTicks": 220
+  },
+  "tragoul-globe": {
+    "set": "tragoul-globe", "level": 5,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,distance=12..48] ~ -200 ~",
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..12] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..12] run attribute @s minecraft:knockback_resistance base set 1"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.4, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "lookAt", "offset": [0.5, 1.4, -2.0]},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:entity.wither.shoot", "particle": "soul"}, "maxTicks": 220
+  },
+  "tragoul-healing": {
+    "set": "sparring", "level": 5,
+    "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 10}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 50},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.respawn_anchor.charge", "particle": "dust_color_transition"}, "maxTicks": 220
+  },
+  "tragoul-lance": {
+    "set": "tragoul-lance", "level": 5,
+    "pre": [
+      "execute at {actor} run gamerule mob_drops false",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,type=!minecraft:zombie,type=!minecraft:husk,distance=..48] ~ -200 ~",
+      "item replace entity {actor} weapon.mainhand with minecraft:wooden_sword",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..12] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:husk,distance=..12] run data merge entity @s {NoAI:1b,Health:1.0f}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 70}
+    ],
+    "expect": {"sound": "minecraft:item.trident.riptide_1", "particle": "sculk_soul"}, "maxTicks": 200
+  },
+  "tragoul-last-rites": {
+    "povCapture": true,
+    "set": "sparring", "level": 5,
+    "pre": [
+      "execute at {actor} run gamerule immediate_respawn true",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 30}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "hit", "amount": 30},
+      {"verb": "wait", "ticks": 90}
+    ],
+    "expect": {"sound": "minecraft:item.totem.use", "particle": "sculk_soul"}, "maxTicks": 220
+  },
+  "tragoul-marrow-armor": {
+    "set": "sparring", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bone 8",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 45}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "hit", "amount": 6},
+      {"verb": "wait", "ticks": 50},
+      {"verb": "hit", "amount": 6},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.bone_block.place", "particle": "block"}, "maxTicks": 220
+  },
+  "tragoul-plague-bearer": {
+    "set": "tragoul-plague", "level": 5,
+    "pre": [
+      "execute at {actor} run gamerule mob_drops false",
+      "execute at {actor} run tp @e[type=!minecraft:player,distance=12..48] ~ -200 ~",
+      "item replace entity {actor} hotbar.0 with minecraft:bow",
+      "item replace entity {actor} hotbar.1 with minecraft:netherite_sword",
+      "item replace entity {actor} hotbar.2 with minecraft:tipped_arrow[minecraft:potion_contents={potion:\"minecraft:long_poison\"}] 4",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..12] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..12] run attribute @s minecraft:knockback_resistance base set 1"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.8, -2.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "keys", "hold": ["use"], "ticks": 10},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "slot", "index": 1},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "lookAt", "offset": [0.5, 0.8, -2.5]},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 70}
+    ],
+    "expect": {"sound": "minecraft:entity.zombie.infect", "particle": "spore_blossom_air"}, "maxTicks": 250
+  },
+  "tragoul-skeletal-servant": {
+    "set": "sparring", "level": 5,
+    "camera": {"x": 6.5, "y": 6.0, "z": 5.5, "yaw": 137, "pitch": 25},
+    "pre": [
+      "execute at {actor} run gamerule mob_drops false",
+      "item replace entity {actor} weapon.mainhand with minecraft:bone 8",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 55}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 16},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "lookAt", "offset": [0.5, 1.4, -2.5]},
+      {"verb": "keys", "hold": ["forward"], "ticks": 6},
+      {"verb": "lookAt", "offset": [0.5, 1.4, -2.5]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 120}
+    ],
+    "expect": {"sound": "minecraft:block.bone_block.place", "particle": "soul"}, "maxTicks": 300
+  },
+  "tragoul-soul-siphon": {
+    "set": "sparring", "level": 5,
+    "pre": [
+      "effect give {actor} minecraft:hunger 4 255 true",
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:knockback_resistance base set 1"
+    ],
+    "prelude": [
+      {"verb": "wait", "ticks": 40},
+      {"verb": "command", "text": "damage {actor} 8 minecraft:generic"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [0.5, 1.4, -2.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "lookAt", "offset": [0.5, 1.4, -2.5]},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:particle.soul_escape", "particle": "soul"}, "maxTicks": 200
+  },
+  "tragoul-thorns": {
+    "set": "sparring", "level": 5,
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,type=!minecraft:zombie,distance=..48] ~ -200 ~",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 10}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "hit", "amount": 3},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "hit", "amount": 3},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.player.attack.crit", "particle": "dust"}, "maxTicks": 200
+  }
+}

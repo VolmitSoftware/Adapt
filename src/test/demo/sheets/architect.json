@@ -1,0 +1,733 @@
+{
+  "architect-chalk-line": {
+    "set": "architect-lawn",
+    "level": 4,
+    "povCapture": true,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:stick[minecraft:custom_data={PublicBukkitValues:{\"adapt:architect_chalk_tool\":\"straightedge\"}},minecraft:custom_name={text:\"Chalk Straightedge\",color:\"aqua\",italic:false},minecraft:enchantment_glint_override=true,minecraft:max_stack_size=1]",
+      "item replace entity {actor} hotbar.1 with minecraft:stick[minecraft:custom_data={PublicBukkitValues:{\"adapt:architect_chalk_tool\":\"polyline\"}},minecraft:custom_name={text:\"Chalk Polyline Wand\",color:\"aqua\",italic:false},minecraft:enchantment_glint_override=true,minecraft:max_stack_size=1]",
+      "item replace entity {actor} hotbar.2 with minecraft:stick[minecraft:custom_data={PublicBukkitValues:{\"adapt:architect_chalk_tool\":\"compass\"}},minecraft:custom_name={text:\"Chalk Circle Compass\",color:\"aqua\",italic:false},minecraft:enchantment_glint_override=true,minecraft:max_stack_size=1]",
+      "item replace entity {actor} hotbar.3 with minecraft:stick[minecraft:custom_data={PublicBukkitValues:{\"adapt:architect_chalk_tool\":\"arc_bow\"}},minecraft:custom_name={text:\"Chalk Arc Bow\",color:\"aqua\",italic:false},minecraft:enchantment_glint_override=true,minecraft:max_stack_size=1]",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..96] ~ -200 ~"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -1.5,
+          -0.02,
+          -1.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "click",
+        "key": "inventory"
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 36
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          2.5,
+          -0.02,
+          -1.5
+        ],
+        "ticks": 14
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.0,
+          -2.5
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "click",
+        "key": "inventory"
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 37
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -1.5,
+          -0.02,
+          -1.5
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -1.5,
+          -0.02,
+          -2.5
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          1.5,
+          -0.02,
+          -2.5
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          2.5,
+          -0.02,
+          -1.5
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.0,
+          -2.5
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "slot",
+        "index": 2
+      },
+      {
+        "verb": "click",
+        "key": "inventory"
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 38
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          -0.02,
+          -2.5
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          2.5,
+          -0.02,
+          -2.5
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.0,
+          -3.0
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "slot",
+        "index": 3
+      },
+      {
+        "verb": "click",
+        "key": "inventory"
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 39
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -1.5,
+          -0.02,
+          -1.5
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          -0.02,
+          -3.5
+        ],
+        "ticks": 14
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          2.5,
+          -0.02,
+          -1.5
+        ],
+        "ticks": 14
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.0,
+          -2.5
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime"
+    },
+    "maxTicks": 1080
+  },
+  "architect-demolition": {
+    "set": "architect-yard",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:stone_bricks 16"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [-0.5, -0.02, -1.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [0.5, -0.02, -1.5], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [1.5, -0.02, -1.5], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "slot", "index": 8},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "lookAt", "offset": [-0.5, 0.5, -1.05], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -1.05], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "lookAt", "offset": [1.5, 0.5, -1.05], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.hit",
+      "particle": "scrape"
+    },
+    "maxTicks": 320
+  },
+  "architect-elevator": {
+    "set": "architect-elevator",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:note_block[minecraft:custom_data={PublicBukkitValues:{\"adapt:elevator\":0b}},minecraft:custom_name={text:\"Elevator Block\",italic:false}] 2"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, -1.02, -0.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "lookAt", "offset": [0.5, 3.5, -1.05], "ticks": 12},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "look", "yaw": 180, "pitch": 10, "ticks": 12},
+      {"verb": "keys", "hold": ["forward"], "ticks": 10},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "tap", "key": "jump", "ticks": 3},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "tap", "key": "sneak", "ticks": 4},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {
+      "sound": "minecraft:entity.enderman.teleport",
+      "particle": "portal"
+    },
+    "maxTicks": 264
+  },
+  "architect-foundation": {
+    "set": "architect-ledge",
+    "level": 5,
+    "pre": [
+      "execute as {actor} at @s run tp @s ~1 ~ ~",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..96] ~ -200 ~"
+    ],
+    "prelude": [
+      {"verb": "look", "yaw": 180, "pitch": 55}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 100},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak", "forward"], "ticks": 100},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "press", "hold": ["back"], "off": ["sneak", "forward"], "ticks": 16},
+      {"verb": "wait", "ticks": 70}
+    ],
+    "expect": {
+      "sound": "minecraft:block.note_block.hat",
+      "particle": "dust"
+    },
+    "maxTicks": 220
+  },
+  "architect-glass": {
+    "set": "architect-window",
+    "level": 1,
+    "camera": {
+      "x": 2.5,
+      "y": 2.6,
+      "z": 3.0,
+      "yaw": 156.0,
+      "pitch": 18.0
+    },
+    "prelude": [
+      {"verb": "lookAt", "offset": [0.5, 1.5, -1.5]},
+      {"verb": "command", "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..96] ~ -200 ~"}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "keys", "hold": ["attack"], "ticks": 24},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "lookAt", "offset": [0.5, 0.5, -1.5], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "keys", "hold": ["attack"], "ticks": 24},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {
+      "sound": "minecraft:block.large_amethyst_bud.break",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 212
+  },
+  "architect-placement": {
+    "set": "architect-planks",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:oak_planks 32",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..96] ~ -200 ~"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 1.85, -2.05]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 100},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "press", "hold": ["back"], "off": ["sneak"], "ticks": 12},
+      {"verb": "wait", "ticks": 35}
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.place",
+      "particle": "dust"
+    },
+    "maxTicks": 200
+  },
+  "architect-scaffolder": {
+    "set": "architect-yard",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:stone_bricks 16",
+      "execute at {actor} run gamerule random_tick_speed 0",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..96] ~ -200 ~"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [-0.5, 0.33, -1.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 60},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "lookAt", "offset": [0.5, 0.33, -1.5], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "lookAt", "offset": [1.5, 0.33, -1.5], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 230}
+    ],
+    "expect": {
+      "sound": "minecraft:block.deepslate.place",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 384
+  },
+  "architect-smart-shape": {
+    "set": "architect-logs",
+    "level": 1,
+    "prelude": [
+      {"verb": "lookAt", "offset": [0.5, 1.85, -1.05]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 100},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {
+      "sound": "minecraft:item.axe.strip",
+      "particle": "crit"
+    },
+    "maxTicks": 200
+  },
+  "architect-steady-hands": {
+    "set": "architect-ledge",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:stone_bricks 16",
+      "execute as {actor} at @s run tp @s ~1 ~ ~",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..96] ~ -200 ~"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "look", "yaw": 0, "pitch": 80}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak", "back"], "ticks": 200},
+      {"verb": "wait", "ticks": 18},
+      {"verb": "press", "hold": ["sneak"], "off": ["back"], "ticks": 200},
+      {"verb": "lookAt", "offset": [1.5, 3.55, 0.02], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak", "back"], "ticks": 200},
+      {"verb": "wait", "ticks": 18},
+      {"verb": "press", "hold": ["sneak"], "off": ["back"], "ticks": 200},
+      {"verb": "lookAt", "offset": [1.5, 3.55, -0.98], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak", "back"], "ticks": 200},
+      {"verb": "wait", "ticks": 18},
+      {"verb": "press", "hold": ["sneak"], "off": ["back"], "ticks": 200},
+      {"verb": "lookAt", "offset": [1.5, 3.55, -1.98], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {
+      "sound": "minecraft:block.wool.step",
+      "particle": "dust"
+    },
+    "maxTicks": 276
+  },
+  "architect-stonecutter-savant": {
+    "set": "architect-cutter",
+    "level": 1,
+    "povCapture": true,
+    "camera": {
+      "x": 3.0,
+      "y": 2.0,
+      "z": -2.0,
+      "yaw": 45.0,
+      "pitch": 17.3
+    },
+    "pre": [
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..96] ~ -200 ~",
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "item replace entity {actor} weapon.offhand with minecraft:stonecutter",
+      "item replace entity {actor} hotbar.1 with minecraft:stone 16"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "look", "yaw": 180, "pitch": 35}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 14},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "window", "action": "list"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "window", "action": "shift", "slot": 30},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "button", "index": 0},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "window", "action": "hover", "slot": 1},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "window", "action": "shift", "slot": 1},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 15}
+    ],
+    "expect": {
+      "sound": "minecraft:block.grindstone.use",
+      "particle": "enchant"
+    },
+    "maxTicks": 335
+  },
+  "architect-supply-line": {
+    "set": "architect-yard",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:stone_bricks 2",
+      "item replace entity {actor} inventory.0 with minecraft:stone_bricks 16",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..96] ~ -200 ~"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [-0.5, -0.02, -2.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "lookAt", "offset": [0.5, -0.02, -2.5], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [1.5, -0.02, -2.5], "ticks": 12},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {
+      "sound": "minecraft:block.composter.fill",
+      "particle": "wax_on"
+    },
+    "maxTicks": 224,
+    "povCapture": true
+  },
+  "architect-wireless-redstone": {
+    "set": "architect-signal",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:redstone_torch[minecraft:custom_data={PublicBukkitValues:{\"adapt:1798296241\":\"{}\"}},minecraft:custom_name={text:\"Redstone Remote\",italic:false},minecraft:enchantment_glint_override=true]"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 1.85, -2.05]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 30},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 22},
+      {"verb": "press", "hold": ["back"], "off": ["sneak"], "ticks": 14},
+      {"verb": "wait", "ticks": 18},
+      {"verb": "lookAt", "offset": [0.5, 1.5, -2.5], "ticks": 12},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {
+      "sound": "minecraft:block.note_block.pling",
+      "particle": "electric_spark"
+    },
+    "maxTicks": 252
+  }
+}

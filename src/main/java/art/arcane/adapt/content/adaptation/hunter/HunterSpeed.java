@@ -52,7 +52,7 @@ public class HunterSpeed extends SimpleAdaptation<HunterSpeed.Config> {
 
   public HunterSpeed() {
     super("hunter-speed");
-    speedBursts = VelocityBurstRuntime.register(getName(), new BurstFeedback());
+    speedBursts = VelocityBurstRuntime.register(this, new BurstFeedback());
     registerConfiguration(Config.class);
     setIcon(Material.SUGAR);
     registerAdvancement(AdaptAdvancement.builder()

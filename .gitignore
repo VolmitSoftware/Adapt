@@ -39,3 +39,8 @@ BUILDS/
 .run/
 
 src/test/client/__pycache__/
+src/test/demo/**/__pycache__/
+.local-notes/
+HANDOFF.md
+
+.superpowers/

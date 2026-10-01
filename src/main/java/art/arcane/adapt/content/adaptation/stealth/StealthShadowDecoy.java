@@ -76,6 +76,7 @@ import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -365,8 +366,9 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
       StackExclusion.exclude(stand);
       stand.setPersistent(false);
       stand.setMarker(false);
-      stand.setVisible(false);
-      stand.setInvisible(true);
+      stand.setVisibleByDefault(false);
+      stand.setVisible(true);
+      stand.setInvisible(false);
       stand.setGravity(true);
       stand.setInvulnerable(false);
       stand.setSilent(true);
@@ -379,6 +381,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
   }
 
   private void configureLegacyVisual(ArmorStand stand, Player owner) {
+    stand.setVisibleByDefault(true);
     stand.setMarker(false);
     stand.setVisible(true);
     stand.setInvisible(false);
@@ -480,10 +483,11 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
     PacketPlayerDecoy packetDecoy = state.packetDecoy;
     if (packetDecoy != null) {
+      Location location = anchor.getLocation();
       packetDecoy.refresh(
-          anchor.getLocation(),
+          location,
           anchor.isOnGround(),
-          PaperCompat.trackedPlayers(anchor),
+          new HashSet<>(anchor.getWorld().getPlayersSeeingChunk(location.getBlockX() >> 4, location.getBlockZ() >> 4)),
           Math.max(1, getConfig().maxPacketViewers),
           Math.max(1, getConfig().maxViewerAddsPerRefresh),
           Math.max(1, getConfig().maxViewerLookUpdatesPerRefresh),

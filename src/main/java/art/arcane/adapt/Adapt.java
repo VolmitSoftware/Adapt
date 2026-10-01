@@ -459,6 +459,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     });
     CustomBlockData.registerListener(this);
     registerListener(new BrewingManager());
+    registerListener(new SimpleAdaptation.PlayerDamageListener());
     registerListener(new XpProvenanceListener());
     registerListener(new XpNoveltyListener());
     registerListener(Version.get());

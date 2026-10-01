@@ -4,9 +4,12 @@ import org.junit.jupiter.api.Test;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.entity.Player;
 import org.mockito.MockedStatic;
+import org.mockito.ArgumentCaptor;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import org.bukkit.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +26,78 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class VelocityBurstRuntimeTest {
+  @Test
+  void accelerationBuildsAcrossNeutralServerVelocityAndBrakingResetsIt() throws Exception {
+    Constructor<VelocityBurstRuntime> constructor = VelocityBurstRuntime.class.getDeclaredConstructor();
+    constructor.setAccessible(true);
+    VelocityBurstRuntime runtime = constructor.newInstance();
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
+    when(player.getVelocity()).thenAnswer(invocation -> new Vector(0, -0.2, 0));
+    VelocityBurstRuntime.Client client = client(runtime, mock(VelocityBurstRuntime.Feedback.class));
+    Object bucket = bucket(player);
+    ledger(bucket).put(client, session(client));
+    Method accelerate = VelocityBurstRuntime.class.getDeclaredMethod("accelerateSessions", bucket.getClass(), Player.class, Vector.class, double.class);
+    accelerate.setAccessible(true);
+    Method brake = VelocityBurstRuntime.class.getDeclaredMethod("brakeSessions", bucket.getClass(), Player.class, double.class);
+    brake.setAccessible(true);
+
+    accelerate.invoke(runtime, bucket, player, new Vector(1, 0, 0), 1D);
+    accelerate.invoke(runtime, bucket, player, new Vector(1, 0, 0), 1D);
+    accelerate.invoke(runtime, bucket, player, new Vector(1, 0, 0), 1D);
+    brake.invoke(runtime, bucket, player, 1D);
+    brake.invoke(runtime, bucket, player, 1D);
+    accelerate.invoke(runtime, bucket, player, new Vector(1, 0, 0), 1D);
+
+    ArgumentCaptor<Vector> velocities = ArgumentCaptor.forClass(Vector.class);
+    verify(player, times(6)).setVelocity(velocities.capture());
+    assertThat(velocities.getAllValues()).containsExactly(
+        new Vector(0.1, -0.2, 0), new Vector(0.14, -0.2, 0), new Vector(0.14, -0.2, 0),
+        new Vector(0.04, -0.2, 0), new Vector(0, -0.2, 0), new Vector(0.1, -0.2, 0));
+  }
+
+  @Test
+  void simultaneousUnlearningStopsAnEarlierBoostingSession() throws Exception {
+    Constructor<VelocityBurstRuntime> constructor = VelocityBurstRuntime.class.getDeclaredConstructor();
+    constructor.setAccessible(true);
+    VelocityBurstRuntime runtime = constructor.newInstance();
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
+    when(player.getVelocity()).thenReturn(new Vector(0.3, -0.2, 0.1));
+    Object bucket = bucket(player);
+    for (int i = 0; i < 2; i++) {
+      VelocityBurstRuntime.Client client = client(runtime, mock(VelocityBurstRuntime.Feedback.class));
+      Object session = session(client);
+      sessions(client).put(player.getUniqueId(), session);
+      ledger(bucket).put(client, session);
+    }
+    Object first = ledger(bucket).entries().iterator().next().getValue();
+    Field boosting = first.getClass().getDeclaredField("boosting");
+    boosting.setAccessible(true);
+    boosting.setBoolean(first, true);
+    Method remove = VelocityBurstRuntime.class.getDeclaredMethod("removeExpiredSessions", bucket.getClass(), Player.class, long.class);
+    remove.setAccessible(true);
+
+    remove.invoke(runtime, bucket, player, 1L);
+
+    assertThat(ledger(bucket).isEmpty()).isTrue();
+    verify(player).setVelocity(new Vector(0, -0.2, 0));
+  }
+
+  private static Object bucket(Player player) throws Exception {
+    Class<?> type = Class.forName(VelocityBurstRuntime.class.getName() + "$PlayerBucket");
+    Constructor<?> constructor = type.getDeclaredConstructor(UUID.class, Player.class, long.class);
+    constructor.setAccessible(true);
+    return constructor.newInstance(player.getUniqueId(), player, 0L);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static VelocityBurstRuntime.SessionLedger<VelocityBurstRuntime.Client, Object> ledger(Object bucket) throws Exception {
+    Field field = bucket.getClass().getDeclaredField("sessions");
+    field.setAccessible(true);
+    return (VelocityBurstRuntime.SessionLedger<VelocityBurstRuntime.Client, Object>) field.get(bucket);
+  }
+
   @Test
   void stoppingOneClientSettlesItsEndCallbackOnceWithoutStoppingAnother() throws Exception {
     Constructor<VelocityBurstRuntime> constructor = VelocityBurstRuntime.class.getDeclaredConstructor();
@@ -77,12 +152,57 @@ class VelocityBurstRuntimeTest {
     }
   }
 
+  @Test
+  void unlearnedOwnerEndsAnActiveBurstBeforeItCanAccelerate() throws Exception {
+    Constructor<VelocityBurstRuntime> constructor = VelocityBurstRuntime.class.getDeclaredConstructor();
+    constructor.setAccessible(true);
+    VelocityBurstRuntime runtime = constructor.newInstance();
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
+    when(player.getVelocity()).thenReturn(new Vector(0.3, -0.2, 0.1));
+    VelocityBurstRuntime.Feedback feedback = mock(VelocityBurstRuntime.Feedback.class);
+    VelocityBurstRuntime.Client client = client(runtime, feedback);
+    Object session = session(client);
+    sessions(client).put(player.getUniqueId(), session);
+    Class<?> bucketType = Class.forName(VelocityBurstRuntime.class.getName() + "$PlayerBucket");
+    Constructor<?> bucketConstructor = bucketType.getDeclaredConstructor(UUID.class, Player.class, long.class);
+    bucketConstructor.setAccessible(true);
+    Object bucket = bucketConstructor.newInstance(player.getUniqueId(), player, 0L);
+    Field ledgerField = bucketType.getDeclaredField("sessions");
+    ledgerField.setAccessible(true);
+    @SuppressWarnings("unchecked")
+    VelocityBurstRuntime.SessionLedger<VelocityBurstRuntime.Client, Object> ledger =
+        (VelocityBurstRuntime.SessionLedger<VelocityBurstRuntime.Client, Object>) ledgerField.get(bucket);
+    ledger.put(client, session);
+    Method removeExpired = VelocityBurstRuntime.class.getDeclaredMethod("removeExpiredSessions", bucketType, Player.class, long.class);
+    removeExpired.setAccessible(true);
+    Field sourceField = VelocityBurstRuntime.Client.class.getDeclaredField("source");
+    sourceField.setAccessible(true);
+    Adaptation<?> source = (Adaptation<?>) sourceField.get(client);
+    when(source.getActiveLevel(player)).thenReturn(1);
+    Field boostingField = session.getClass().getDeclaredField("boosting");
+    boostingField.setAccessible(true);
+    boostingField.setBoolean(session, true);
+
+    removeExpired.invoke(runtime, bucket, player, 1L);
+
+    assertThat(ledger.isEmpty()).isFalse();
+    verify(feedback, never()).onEnded(player);
+    when(source.getActiveLevel(player)).thenReturn(0);
+    removeExpired.invoke(runtime, bucket, player, 2L);
+
+    assertThat(ledger.isEmpty()).isTrue();
+    assertThat(sessions(client)).isEmpty();
+    verify(feedback).onEnded(player);
+    verify(player).setVelocity(new Vector(0, -0.2, 0));
+  }
+
   private static VelocityBurstRuntime.Client client(VelocityBurstRuntime runtime,
                                                    VelocityBurstRuntime.Feedback feedback) throws Exception {
     Constructor<VelocityBurstRuntime.Client> constructor = VelocityBurstRuntime.Client.class.getDeclaredConstructor(
-        VelocityBurstRuntime.class, String.class, VelocityBurstRuntime.Feedback.class);
+        VelocityBurstRuntime.class, Adaptation.class, VelocityBurstRuntime.Feedback.class);
     constructor.setAccessible(true);
-    return constructor.newInstance(runtime, "test", feedback);
+    return constructor.newInstance(runtime, mock(Adaptation.class), feedback);
   }
 
   private static Object session(VelocityBurstRuntime.Client client) throws Exception {
@@ -91,7 +211,7 @@ class VelocityBurstRuntimeTest {
         long.class, int.class, VelocityBurstRuntime.Profile.class);
     constructor.setAccessible(true);
     return constructor.newInstance(client, Long.MAX_VALUE, 1,
-        new VelocityBurstRuntime.Profile(0.1D, 0.5D, 0.1D, 0.1D, 0.01D, false, 0.01D));
+        new VelocityBurstRuntime.Profile(0.1D, 0.5D, 0.1D, 0.1D, 0.01D, true, 0.01D));
   }
 
   @SuppressWarnings("unchecked")

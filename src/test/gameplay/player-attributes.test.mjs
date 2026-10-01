@@ -7,7 +7,7 @@ const registry = { 0: 'minecraft:armor', 22: 'minecraft:movement_speed', 35: 'mi
 function bot() {
     return { version: '26.1.2', physics: { sprintingUUID: 'old-sprint-uuid' }, entities: {
         1: { attributes: { 'generic.scale': { value: 0.1, modifiers: [] } } },
-    }, _client: { state: 'play', decompressor: new EventEmitter() }, registry: { protocol: { play: { toClient: { types: {
+    }, _client: { state: 'play', decompressor: new EventEmitter() }, registry: { attributesArray: Array.from({ length: 36 }, (_, id) => ({ resource: registry[id] ?? `minecraft:unused_${id}` })), protocol: { play: { toClient: { types: {
         packet: ['container', [{ name: 'name', type: ['mapper', { mappings: { 4: 'entity_update_attributes' } }] }]],
         packet_entity_update_attributes: ['container', [{ name: 'properties', type: ['array', { type: ['container', [
             { name: 'key', type: ['mapper', { mappings: { 0: 'generic.armor', 22: 'generic.scale' } }] },
@@ -33,8 +33,8 @@ function packet(properties) {
     return Buffer.concat(chunks)
 }
 
-test('raw attributes resolve shifted and previously unknown IDs through the observed server registry', () => {
-    const decode = createAttributePacketDecoder(bot(), registry)
+test('raw attributes use the negotiated client registry despite a stale protocol name mapper', () => {
+    const decode = createAttributePacketDecoder(bot())
     const modifiers = [
         { uuid: 'adapt:agility-windup', amount: 0.4, operation: 1 },
         { uuid: 'minecraft:sprinting', amount: Math.fround(0.3), operation: 2 },
@@ -53,7 +53,7 @@ test('attribute observation corrects client physics keys and preserves modifier 
     const stream = player._client.decompressor
     const ordinary = () => { player.entities[1].attributes['generic.scale'] = { value: 0.1, modifiers: [] } }
     stream.on('data', ordinary)
-    const stop = synchronizePlayerAttributes(player, registry, error => { throw error })
+    const stop = synchronizePlayerAttributes(player, error => { throw error })
     assert.equal(player.entities[1].attributes['minecraft:movement_speed'].value, 0.1)
     assert.equal(player.physics.sprintingUUID, 'minecraft:sprinting')
     const modifiers = [{ uuid: 'adapt:windup', amount: 0.4, operation: 1 }]
@@ -64,9 +64,9 @@ test('attribute observation corrects client physics keys and preserves modifier 
     assert.equal(player.physics.sprintingUUID, 'old-sprint-uuid')
 })
 
-test('malformed or unknown server attributes cannot silently become a movement value', () => {
-    const decode = createAttributePacketDecoder(bot(), registry)
-    assert.throws(() => decode(packet([{ id: 21, value: 0.1 }])), /Unknown server attribute/)
+test('malformed or unknown client attributes cannot silently become a movement value', () => {
+    const decode = createAttributePacketDecoder(bot())
+    assert.throws(() => decode(packet([{ id: 36, value: 0.1 }])), /Unknown client attribute/)
     assert.throws(() => decode(packet([{ id: 22, value: NaN }])), /Invalid attribute/)
     assert.throws(() => decode(packet([{ id: 22, value: 0.1 }]).subarray(0, -2)))
     assert.throws(() => decode(Buffer.concat([packet([]), Buffer.from([0])])), /suffix/)

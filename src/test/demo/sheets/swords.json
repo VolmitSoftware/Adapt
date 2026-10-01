@@ -1,0 +1,257 @@
+{
+  "sword-blade-flow": {
+    "set": "sparring", "level": 5,
+    "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} as @e[type=minecraft:zombie,distance=..16] run data merge entity @s {NoAI:1b}"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "hit", "amount": 2},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.break"}, "maxTicks": 180
+  },
+  "sword-bloody-blade": {
+    "set": "sparring", "level": 7,
+    "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} as @e[type=minecraft:zombie,distance=..16] run data merge entity @s {NoAI:1b}"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 80}
+    ],
+    "expect": {"sound": "minecraft:block.honey_block.slide", "particle": "dust"}, "maxTicks": 160
+  },
+  "sword-crescent-guard": {
+    "povCapture": true,
+    "set": "swords-coop", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} as @e[type=minecraft:chicken,distance=..8] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} run gamerule mob_drops false"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [2.0, 0.35, 2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:item.totem.use", "particle": "heart"}, "maxTicks": 140
+  },
+  "sword-crimson-cyclone": {
+    "set": "swords-cluster", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..16] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=!minecraft:player,type=!minecraft:zombie,distance=..96] run tp @s ~ -200 ~"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.7, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["jump"], "ticks": 2},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "lookAt", "offset": [0.5, 1.0, -2.0]},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:entity.ender_dragon.flap", "particle": "crimson_spore"}, "maxTicks": 150
+  },
+  "sword-dual-wield": {
+    "set": "sparring", "level": 5,
+    "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "item replace entity {actor} weapon.offhand with minecraft:iron_sword",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..16] run data merge entity @s {NoAI:1b}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 16},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.chime"}, "maxTicks": 150
+  },
+  "sword-duelists-focus": {
+    "set": "sparring", "level": 5,
+    "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "hit", "amount": 2},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:item.shield.block", "particle": "dust"}, "maxTicks": 160
+  },
+  "sword-executioners-edge": {
+    "set": "sparring", "level": 6,
+    "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..16] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} run gamerule mob_drops false"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 16},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 16},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.anvil.land", "particle": "dust"}, "maxTicks": 180
+  },
+  "sword-hamstring": {
+    "set": "swords-pursuit", "level": 5, "opponent": true,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword"],
+    "prelude": [
+      {"verb": "look", "yaw": 180, "pitch": 0, "actor": "opponent"},
+      {"verb": "lookAt", "offset": [0.5, 1.2, -1.0]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 30, "actor": "opponent"},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:block.honey_block.slide", "particle": "dust"}, "maxTicks": 200
+  },
+  "sword-heirloom-edge": {
+    "set": "swords-heirloom", "level": 5,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:iron_sword",
+      "xp add {actor} 3 levels",
+      "execute at {actor} as @e[type=minecraft:chicken,distance=..8] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} run gamerule mob_drops false"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 1.0, 2.5]},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "shift", "slot": 30},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "anvilName", "text": "Heirloom"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "shift", "slot": 2},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "close"},
+      {"verb": "lookAt", "offset": [-1.96, 0.35, 0.07]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "slot", "index": 8},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [-1.96, 0.35, 0.07]},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "lookAt", "offset": [-1.11, 0.35, -1.42]},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "lookAt", "offset": [0.5, 0.35, -2.0]},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "lookAt", "offset": [2.11, 0.35, -1.42]},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 14},
+      {"verb": "lookAt", "offset": [2.96, 0.35, 0.07]},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.anvil.use"}, "maxTicks": 260
+  },
+  "sword-lunge-strike": {
+    "set": "swords-lunge", "level": 5,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} as @e[type=minecraft:zombie,distance=..16] run data merge entity @s {NoAI:1b,IsBaby:1b}"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.0, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 16},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 34}
+    ],
+    "expect": {"sound": "minecraft:item.trident.riptide_1", "particle": "sweep_attack"}, "maxTicks": 150
+  },
+  "sword-machete": {
+    "set": "swords-meadow", "level": 3,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} run gamerule block_drops false"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.3, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:item.axe.strip", "particle": "wax_on"}, "maxTicks": 120
+  },
+  "sword-poison-blade": {
+    "set": "swords-cow", "level": 7,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:iron_sword", "execute at {actor} as @e[type=minecraft:cow,distance=..8] run data merge entity @s {NoAI:1b}"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.9, -2.0]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 80}
+    ],
+    "expect": {"sound": "minecraft:entity.bee.sting", "particle": "sneeze"}, "maxTicks": 160
+  },
+  "sword-riposte-window": {
+    "set": "sparring", "level": 5,
+    "camera": {"x": 5.3, "y": 2.4, "z": 1.25, "yaw": 115, "pitch": 15},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "item replace entity {actor} weapon.offhand with minecraft:shield",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..16] run data merge entity @s {NoAI:1b}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["use"], "ticks": 14},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "hit", "amount": 3},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.anvil.land"}, "maxTicks": 150
+  },
+  "sword-whetstone-ritual": {
+    "set": "swords-grindstone", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "xp add {actor} 5 levels",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.5, -0.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 40},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.grindstone.use"}, "maxTicks": 150
+  }
+}

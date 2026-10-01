@@ -1,0 +1,672 @@
+{
+  "stealth-assassinate": {
+    "povCapture": true,
+    "set": "stealth-backstab",
+    "level": 4,
+    "pre": [
+      "adapt claim-adaptation stealth:stealth-silent-step 1 force=true player={actor}",
+      "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..12,limit=1,sort=nearest] {NoAI:1b,Rotation:[180.0f,0.0f]}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 15
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak",
+          "forward"
+        ],
+        "ticks": 60
+      },
+      {
+        "verb": "wait",
+        "ticks": 24
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "off": [
+          "forward"
+        ],
+        "ticks": 100
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -3.5
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.player.attack.crit",
+      "particle": "soul"
+    },
+    "maxTicks": 276
+  },
+  "stealth-cutpurse": {
+    "povCapture": true,
+    "set": "stealth-pickpocket",
+    "level": 4,
+    "pre": [
+      "adapt claim-adaptation stealth:stealth-silent-step 1 force=true player={actor}",
+      "execute at {actor} run data merge entity @e[type=minecraft:vindicator,distance=..12,limit=1,sort=nearest] {NoAI:1b,Rotation:[180.0f,0.0f]}",
+      "execute at {actor} run attribute @e[type=minecraft:vindicator,distance=..12,limit=1,sort=nearest] minecraft:knockback_resistance base set 1"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.2,
+          -2.0
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.item.pickup",
+      "particle": "enchant"
+    },
+    "maxTicks": 320
+  },
+  "stealth-decoy-swap": {
+    "povCapture": true,
+    "set": "arena",
+    "level": 3,
+    "camera": {
+      "x": 9.5,
+      "y": 3.0,
+      "z": -1.5,
+      "yaw": 90,
+      "pitch": 8
+    },
+    "pre": [
+      "adapt claim-adaptation stealth:stealth-shadow-decoy 5 force=true player={actor}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 5
+      },
+      {
+        "verb": "tap",
+        "key": "sneak",
+        "ticks": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 18
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 75,
+        "ticks": 6
+      },
+      {
+        "verb": "tap",
+        "key": "sneak",
+        "ticks": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 1
+      },
+      {
+        "verb": "tap",
+        "key": "sneak",
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 5,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.enderman.teleport",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 282
+  },
+  "stealth-enderveil": {
+    "set": "stealth-veil", "level": 2,
+    "pre": [
+      "execute at {actor} run gamerule mob_griefing false",
+      "execute at {actor} run attribute @e[type=minecraft:enderman,distance=..16,limit=1,sort=nearest] minecraft:movement_speed base set 0"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [0.5, 2.55, -6.5]},
+      {"verb": "wait", "ticks": 80},
+      {"verb": "look", "yaw": 180, "pitch": 0},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {"sound": "minecraft:entity.enderman.stare", "particle": "reverse_portal"}, "maxTicks": 250
+  },
+  "stealth-ghost-armor": {
+    "set": "sparring", "level": 7,
+    "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..12,limit=1,sort=nearest] {NoAI:1b}"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 15}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "keys", "hold": ["left"], "ticks": 12},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "keys", "hold": ["right"], "ticks": 12},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "hit", "amount": 3},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:item.shield.break", "particle": "crit"}, "maxTicks": 250
+  },
+  "stealth-shadow-decoy": {
+    "povCapture": true,
+    "set": "stealth-lure",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..16,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 5
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..16,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 55
+      },
+      {
+        "verb": "tap",
+        "key": "sneak",
+        "ticks": 5
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back",
+          "right"
+        ],
+        "ticks": 14
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.enderman.teleport",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 300
+  },
+  "stealth-shadowmeld": {
+    "povCapture": true,
+    "set": "arena", "level": 2,
+    "pre": ["adapt claim-adaptation stealth:stealth-silent-step 1 force=true player={actor}"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 10}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "press", "hold": ["sneak"], "ticks": 90},
+      {"verb": "wait", "ticks": 110},
+      {"verb": "wait", "ticks": 10}
+    ],
+    "expect": {"sound": "minecraft:block.sculk_sensor.clicking_stop", "particle": "squid_ink"}, "maxTicks": 250
+  },
+  "stealth-silent-step": {
+    "povCapture": true,
+    "set": "stealth-backstab",
+    "level": 2,
+    "pre": [
+      "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..12,limit=1,sort=nearest] {NoAI:1b,Rotation:[180.0f,0.0f]}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 15
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak",
+          "forward"
+        ],
+        "ticks": 60
+      },
+      {
+        "verb": "wait",
+        "ticks": 24
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "off": [
+          "forward"
+        ],
+        "ticks": 100
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -3.5
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.player.attack.crit",
+      "particle": "damage_indicator"
+    },
+    "maxTicks": 276
+  },
+  "stealth-smoke-pellet": {
+    "povCapture": true,
+    "set": "stealth-lure",
+    "level": 3,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:gunpowder 8",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..16,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 5
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..16,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 55
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 40,
+        "ticks": 6
+      },
+      {
+        "verb": "tap",
+        "key": "sneak",
+        "ticks": 6
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 5,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 250
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.witch.throw",
+      "particle": "smoke"
+    },
+    "maxTicks": 442
+  },
+  "stealth-snatch": {
+    "set": "arena", "level": 3,
+    "camera": {"x": 8.5, "y": 3.5, "z": -1.0, "yaw": 90, "pitch": 14},
+    "pre": [
+      "execute at {actor} run summon minecraft:item ~ ~0.2 ~-4 {Item:{id:\"minecraft:diamond\",count:1},PickupDelay:200s}",
+      "execute at {actor} run summon minecraft:item ~-3 ~0.2 ~-2.5 {Item:{id:\"minecraft:emerald\",count:3},PickupDelay:200s}",
+      "execute at {actor} run summon minecraft:item ~3 ~0.2 ~-2.5 {Item:{id:\"minecraft:gold_ingot\",count:2},PickupDelay:200s}"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 25}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "press", "hold": ["sneak"], "ticks": 60},
+      {"verb": "wait", "ticks": 70},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.resonate", "particle": "enchant"}, "maxTicks": 250
+  },
+  "stealth-speed": {
+    "set": "runway", "level": 3,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 80}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 200},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "press", "hold": ["sneak", "forward"], "ticks": 120},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "look", "yaw": 180, "pitch": 15},
+      {"verb": "wait", "ticks": 90},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {"sound": "minecraft:particle.soul_escape", "particle": "soul"}, "maxTicks": 300
+  },
+  "stealth-trap-sense": {
+    "set": "stealth-traps", "level": 4,
+    "camera": {"x": 4.0, "y": 4.2, "z": 2.0, "yaw": 129, "pitch": 27},
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 50},
+      {"verb": "wait", "ticks": 60},
+      {"verb": "keys", "hold": ["forward"], "ticks": 25},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:block.sculk_sensor.clicking_stop"}, "maxTicks": 250
+  },
+  "stealth-umbral-recovery": {
+    "povCapture": true,
+    "set": "stealth-backstab",
+    "level": 4,
+    "pre": [
+      "effect give {actor} minecraft:hunger 4 255 true",
+      "item replace entity {actor} weapon.mainhand with minecraft:wooden_sword",
+      "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..12,limit=1,sort=nearest] {NoAI:1b,Health:1.0f,Rotation:[180.0f,0.0f]}"
+    ],
+    "prelude": [
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 15
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 200
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak",
+          "forward"
+        ],
+        "ticks": 60
+      },
+      {
+        "verb": "wait",
+        "ticks": 24
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "off": [
+          "forward"
+        ],
+        "ticks": 100
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -3.5
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.generic.eat"
+    },
+    "maxTicks": 276
+  },
+  "stealth-vision": {
+    "povCapture": true,
+    "set": "arena", "level": 1,
+    "pre": ["execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": -15}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "press", "hold": ["sneak"], "ticks": 80},
+      {"verb": "wait", "ticks": 100}
+    ],
+    "expect": {"sound": "minecraft:block.sculk_sensor.clicking", "particle": "end_rod"}, "maxTicks": 250
+  }
+}

@@ -1,0 +1,248 @@
+{
+  "discovery-archaeologist": {
+    "set": "discovery-dig", "level": 6,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:brush"],
+    "prelude": [
+      {"verb": "lookAt", "offset": [-1.5, -0.1, -0.5]},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "lookAt", "offset": [-0.5, -0.1, -1.5]},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "keys", "hold": ["use"], "ticks": 120},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "lookAt", "offset": [0.5, -0.1, -1.5]},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "keys", "hold": ["use"], "ticks": 120},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "lookAt", "offset": [1.5, -0.1, -1.5]},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "keys", "hold": ["use"], "ticks": 120},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:item.brush.brushing.sand.complete", "particle": "enchant"}, "maxTicks": 560
+  },
+  "discovery-better-mending": {
+    "set": "arena", "level": 6,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:diamond_pickaxe[minecraft:enchantments={'minecraft:mending':1},minecraft:damage=1500]",
+      "xp add {actor} 20 levels"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 55}],
+    "beats": [
+      {"verb": "press", "hold": ["sneak"], "ticks": 120},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:entity.experience_orb.pickup", "particle": "enchant"}, "maxTicks": 200
+  },
+  "discovery-cartographer-pulse": {"skip": "needs off-plate location"},
+  "discovery-field-notes": {
+    "set": "discovery-pasture", "level": 5,
+    "pre": [
+      "adapt clear stats player={actor}",
+      "item replace entity {actor} weapon.mainhand with minecraft:wooden_sword",
+      "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..8,limit=1,sort=nearest] {NoAI:1b,Health:1.0f}",
+      "execute at {actor} run data merge entity @e[type=minecraft:pig,distance=..8,limit=1,sort=nearest] {NoAI:1b,Health:1.0f}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [-1.0, 0.7, -1.8]}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 45},
+      {"verb": "lookAt", "offset": [2.0, 0.45, -1.8]},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:ui.toast.challenge_complete", "particle": "totem_of_undying"}, "maxTicks": 200
+  },
+  "discovery-insight": {"skip": "plugin-conditional: Gloss"},
+  "discovery-keen-eye": {
+    "set": "discovery-cache", "level": 5,
+    "prelude": [{"verb": "look", "yaw": 0, "pitch": 5}, {"verb": "wait", "ticks": 60}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "look", "yaw": 180, "pitch": 5},
+      {"verb": "wait", "ticks": 90},
+      {"verb": "look", "yaw": 0, "pitch": 5},
+      {"verb": "wait", "ticks": 70},
+      {"verb": "look", "yaw": 180, "pitch": 5},
+      {"verb": "wait", "ticks": 70}
+    ],
+    "expect": {"visual": "Three chests and a spawner ahead of the actor light up with glowing outlines while it faces them, fade after it turns away, and light up again when it turns back."},
+    "maxTicks": 330
+  },
+  "discovery-polymath": {"skip": "Adds a global skill XP bonus for each skill past level 5; the bonus is not visible in a learned-only clip, only a faint chime and enchant puff every 30 s."},
+  "discovery-relic-appraiser": {
+    "set": "arena", "level": 5,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:archer_pottery_sherd",
+      "item replace entity {actor} hotbar.1 with minecraft:music_disc_cat",
+      "item replace entity {actor} hotbar.2 with minecraft:coast_armor_trim_smithing_template"
+    ],
+    "prelude": [{"verb": "slot", "index": 0}, {"verb": "look", "yaw": 180, "pitch": 50}],
+    "beats": [
+      {"verb": "press", "hold": ["sneak"], "ticks": 160},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "slot", "index": 1},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "slot", "index": 2},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "wax_on"}, "maxTicks": 220
+  },
+  "discovery-sixth-sense": {"skip": "needs off-plate location"},
+  "discovery-trailblazer": {
+    "set": "discovery-frontier", "level": 5,
+    "pre": ["adapt clear stats player={actor}"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 15}, {"verb": "wait", "ticks": 200}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "keys", "hold": ["forward"], "ticks": 110},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.player.levelup", "particle": "dust"}, "maxTicks": 250
+  },
+  "discovery-unity": {
+    "set": "arena", "level": 7,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:experience_orb ~ ~0.5 ~-4 {Value:7s}"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:experience_orb ~-1.5 ~0.5 ~-4 {Value:7s}"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "command", "text": "execute at {actor} run summon minecraft:experience_orb ~1.5 ~0.5 ~-4 {Value:7s}"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "wax_on"}, "maxTicks": 200
+  },
+  "discovery-villager-att": {
+    "povCapture": true,
+    "set": "discovery-market",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run data merge entity @e[type=minecraft:villager,distance=..8,limit=1,sort=nearest] {NoAI:1b,VillagerData:{profession:\"minecraft:farmer\",level:2,type:\"minecraft:plains\"},Offers:{Recipes:[{buy:{id:\"minecraft:emerald\",count:20},sell:{id:\"minecraft:bread\",count:1},maxUses:100,xp:0,rewardExp:0b,priceMultiplier:0.0f}]}}",
+      "item replace entity {actor} hotbar.0 with minecraft:emerald 20",
+      "xp add {actor} 5 levels"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.5,
+          -1.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 30
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "window",
+        "action": "shift",
+        "slot": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.villager.celebrate",
+      "particle": "wax_on"
+    },
+    "maxTicks": 387
+  },
+  "discovery-world-armor": {
+    "set": "discovery-vault", "level": 3,
+    "pre": ["execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 35}, {"verb": "wait", "ticks": 200}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "keys", "hold": ["forward"], "ticks": 46},
+      {"verb": "wait", "ticks": 260}
+    ],
+    "expect": {"sound": "minecraft:block.stone.place", "particle": "dust"}, "maxTicks": 400,
+    "camera": {"x": 0.5, "y": 5.5, "z": 7.5, "yaw": 180, "pitch": 20}
+  },
+  "discovery-xp-resist": {
+    "set": "sparring", "level": 5,
+    "pre": [
+      "xp add {actor} 10 levels",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 30}],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "hit", "amount": 14},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:entity.iron_golem.repair", "particle": "electric_spark"}, "maxTicks": 150
+  }
+}

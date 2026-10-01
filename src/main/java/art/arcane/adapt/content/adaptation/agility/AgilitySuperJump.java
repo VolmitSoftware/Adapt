@@ -257,7 +257,7 @@ public class AgilitySuperJump extends SimpleAdaptation<AgilitySuperJump.Config> 
     @art.arcane.adapt.util.config.ConfigDoc(value = "Jump apex in blocks at level 1.", impact = "Higher values make the first super-jump level rise further.")
     double minimumJumpHeight = 1.5D;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Jump apex in blocks at the configured maximum level.", impact = "Higher values make the final super-jump level rise further.")
-    double maximumJumpHeight = 2.5D;
+    double maximumJumpHeight = 3.75D;
 
     public Config() {
       baseCost = 2;

@@ -1,0 +1,686 @@
+{
+  "chronos-aberrant-touch": {
+    "set": "sparring",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:knockback_resistance base set 1",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:max_health base set 100",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {Health:100.0f}"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.2,
+          -2.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.lever.click",
+      "particle": "sculk_soul"
+    },
+    "maxTicks": 200
+  },
+  "chronos-accelerate": {
+    "set": "chronos-workshop",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run gamerule random_tick_speed 0"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 30
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 360
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "enchant"
+    },
+    "maxTicks": 420
+  },
+  "chronos-borrowed-time": {
+    "set": "sparring",
+    "level": 5,
+    "pre": [
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 40
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "hit",
+        "amount": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 250
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.sculk_catalyst.bloom",
+      "particle": "soul"
+    },
+    "maxTicks": 320
+  },
+  "chronos-deja-vu": {
+    "set": "sparring",
+    "level": 5,
+    "pre": [
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 25
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "hit",
+        "amount": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "hit",
+        "amount": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 35
+      },
+      {
+        "verb": "hit",
+        "amount": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.beacon.ambient",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 200
+  },
+  "chronos-hourglass-guard": {
+    "set": "sparring",
+    "level": 3,
+    "pre": [
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 15
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "hit",
+        "amount": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 80
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.bell.use",
+      "particle": "end_rod"
+    },
+    "maxTicks": 160
+  },
+  "chronos-instant-recall": {
+    "povCapture": true,
+    "set": "chronos-recall",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:clock 2"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 40
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 24
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 80
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.note_block.bass",
+      "particle": "totem_of_undying"
+    },
+    "maxTicks": 200
+  },
+  "chronos-overtime": {
+    "povCapture": true,
+    "set": "arena",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:potion[minecraft:potion_contents={potion:\"minecraft:long_swiftness\"}]"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 40
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "click",
+        "key": "inventory"
+      },
+      {
+        "verb": "wait",
+        "ticks": 55
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "enchant"
+    },
+    "maxTicks": 240
+  },
+  "chronos-pocket-watch": {
+    "povCapture": true,
+    "set": "kinetics-spire",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:clock"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 60
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 9
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 110
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "cloud"
+    },
+    "maxTicks": 280
+  },
+  "chronos-rewind": {
+    "povCapture": true,
+    "set": "arena",
+    "level": 5,
+    "camera": {
+      "x": 10.5,
+      "y": 3.0,
+      "z": -2.5,
+      "yaw": 90,
+      "pitch": 10
+    },
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 15
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "swapHands"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 28
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "hit",
+        "amount": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "swapHands"
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.enderman.teleport",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 220
+  },
+  "chronos-stasis-field": {
+    "set": "chronos-horde",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:amethyst_shard 2",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..24] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 15
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      }
+    ],
+    "beats": [
+      {
+        "verb": "command",
+        "text": "execute at {actor} as @e[type=minecraft:zombie,distance=..24] run attribute @s minecraft:movement_speed base set 0.23"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run summon minecraft:arrow ~-2 ~2.5 ~-5 {Motion:[0.0,0.05,0.35]}"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run summon minecraft:arrow ~2 ~2.5 ~-5 {Motion:[0.0,0.05,0.35]}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 140
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.note_block.bass",
+      "particle": "end_rod"
+    },
+    "maxTicks": 280
+  },
+  "chronos-temporal-echo": {
+    "set": "ranged-range",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "give {actor} minecraft:arrow 16"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          2.5,
+          -39.0
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 25
+      },
+      {
+        "verb": "wait",
+        "ticks": 55
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "use"
+        ],
+        "ticks": 25
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 220
+  },
+  "chronos-time-bomb": {
+    "set": "chronos-horde",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:lingering_potion[minecraft:custom_data={PublicBukkitValues:{\"adapt:703518614\":'{\"created\":1}'}},minecraft:potion_contents={potion:\"minecraft:weakness\"},minecraft:enchantment_glint_override=true]",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..24] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": -10
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "beats": [
+      {
+        "verb": "command",
+        "text": "execute at {actor} as @e[type=minecraft:zombie,distance=..24] run attribute @s minecraft:movement_speed base set 0.23"
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run summon minecraft:arrow ~-2 ~2.5 ~-4 {Motion:[0.0,0.05,0.35]}"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run summon minecraft:arrow ~2 ~2.5 ~-4 {Motion:[0.0,0.05,0.35]}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 160
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.note_block.bass",
+      "particle": "flash"
+    },
+    "maxTicks": 280
+  },
+  "chronos-time-bottle": {
+    "set": "chronos-garden",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run gamerule random_tick_speed 0",
+      "item replace entity {actor} weapon.mainhand with minecraft:potion[minecraft:custom_data={PublicBukkitValues:{\"adapt:1823321605\":'{\"storedSeconds\":900.0}'}},minecraft:potion_contents={potion:\"minecraft:water\",custom_color:15463935},minecraft:enchantment_glint_override=true]"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          -0.5,
+          0.15,
+          -1.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.15,
+          -1.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          1.5,
+          0.15,
+          -1.5
+        ]
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.lever.click",
+      "particle": "composter"
+    },
+    "maxTicks": 200
+  }
+}

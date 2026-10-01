@@ -1,0 +1,472 @@
+{
+  "blocking-bastion-stance": {
+    "set": "blocking-rearguard",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.offhand with minecraft:shield",
+      "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [
+      {"verb": "look", "yaw": 180, "pitch": 5}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak", "use"], "ticks": 200},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run data merge entity @s {NoAI:0b}"},
+      {"verb": "wait", "ticks": 180}
+    ],
+    "expect": {
+      "sound": "minecraft:item.shield.block",
+      "particle": "cloud"
+    },
+    "maxTicks": 280
+  },
+  "blocking-bulwark-bash": {
+    "set": "blocking-bash",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "item replace entity {actor} weapon.offhand with minecraft:shield",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run effect give @s minecraft:weakness 60 0 true"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [0.5, 0.3, -2.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["forward", "sprint"], "ticks": 4},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "press", "hold": ["jump"], "off": ["forward", "sprint"], "ticks": 2},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "look", "yaw": 180, "pitch": 12, "ticks": 12},
+      {"verb": "wait", "ticks": 55}
+    ],
+    "expect": {
+      "sound": "minecraft:item.shield.block",
+      "particle": "cloud"
+    },
+    "maxTicks": 172
+  },
+  "blocking-chainarmorer": {
+    "set": "herbalism-workbench",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:iron_nugget 4"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.35, -0.05]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "click", "slot": 37},
+      {"verb": "window", "action": "click", "slot": 1, "button": 1},
+      {"verb": "window", "action": "click", "slot": 3, "button": 1},
+      {"verb": "window", "action": "click", "slot": 4, "button": 1},
+      {"verb": "window", "action": "click", "slot": 6, "button": 1},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "hover", "slot": 0},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "window", "action": "shift", "slot": 0},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "slot", "index": 8},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {
+      "sound": "minecraft:item.armor.equip_chain",
+      "particle": "wax_on"
+    },
+    "maxTicks": 382,
+    "povCapture": true
+  },
+  "blocking-counter-guard": {
+    "set": "sparring",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.offhand with minecraft:shield",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:max_health base set 100",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {Health:100f}"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [0.5, 1.2, -1.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["use"], "ticks": 200},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:0b}"},
+      {"verb": "wait", "ticks": 175},
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:attack_damage base set 0"},
+      {"verb": "wait", "ticks": 15}
+    ],
+    "expect": {
+      "sound": "minecraft:item.trident.return",
+      "particle": "end_rod"
+    },
+    "maxTicks": 280
+  },
+  "blocking-horsearmorer": {
+    "set": "herbalism-workbench",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:iron_ingot 8",
+      "item replace entity {actor} hotbar.1 with minecraft:saddle 1"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.35, -0.05]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "click", "slot": 37},
+      {"verb": "window", "action": "click", "slot": 1, "button": 1},
+      {"verb": "window", "action": "click", "slot": 2, "button": 1},
+      {"verb": "window", "action": "click", "slot": 3, "button": 1},
+      {"verb": "window", "action": "click", "slot": 4, "button": 1},
+      {"verb": "window", "action": "click", "slot": 6, "button": 1},
+      {"verb": "window", "action": "click", "slot": 7, "button": 1},
+      {"verb": "window", "action": "click", "slot": 8, "button": 1},
+      {"verb": "window", "action": "click", "slot": 9, "button": 1},
+      {"verb": "window", "action": "click", "slot": 38},
+      {"verb": "window", "action": "click", "slot": 5},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "hover", "slot": 0},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "window", "action": "shift", "slot": 0},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "slot", "index": 8},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {
+      "sound": "minecraft:entity.horse.saddle",
+      "particle": "wax_on"
+    },
+    "maxTicks": 436,
+    "povCapture": true
+  },
+  "blocking-interpose": {
+    "set": "blocking-cactus",
+    "level": 5,
+    "opponent": true,
+    "pre": [
+      "item replace entity {actor} weapon.offhand with minecraft:shield",
+      "effect give {opponent} minecraft:hunger 4 255 true"
+    ],
+    "prelude": [
+      {"verb": "wait", "ticks": 40},
+      {"verb": "command", "text": "damage {opponent} 13"},
+      {"verb": "lookAt", "offset": [0.5, 1.2, -2.0]},
+      {"verb": "lookAt", "offset": [0.5, 1.0, -4.5], "actor": "opponent"},
+      {"verb": "wait", "ticks": 10}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak", "use"], "ticks": 150},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "press", "hold": ["forward"], "ticks": 70, "actor": "opponent"},
+      {"verb": "wait", "ticks": 80},
+      {"verb": "keys", "hold": ["back"], "ticks": 5, "actor": "opponent"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {
+      "sound": "minecraft:item.shield.block",
+      "particle": "end_rod"
+    },
+    "maxTicks": 240
+  },
+  "blocking-mirror-block": {
+    "set": "blocking-volley",
+    "level": 5,
+    "camera": {
+      "x": 6.5,
+      "y": 2.6,
+      "z": -3.5,
+      "yaw": 90,
+      "pitch": 8
+    },
+    "pre": [
+      "item replace entity {actor} weapon.offhand with minecraft:shield",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,type=!minecraft:skeleton,distance=..48] ~ -200 ~",
+      "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run attribute @s minecraft:movement_speed base set 0",
+      "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run attribute @s minecraft:knockback_resistance base set 1"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [0.5, 1.2, -7.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["use"], "ticks": 200},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run data merge entity @s {NoAI:0b}"},
+      {"verb": "wait", "ticks": 185},
+      {"verb": "press", "hold": ["use"], "ticks": 100},
+      {"verb": "wait", "ticks": 70},
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run data merge entity @s {NoAI:1b}"},
+      {"verb": "wait", "ticks": 25}
+    ],
+    "expect": {
+      "sound": "minecraft:item.shield.block",
+      "particle": "wax_on"
+    },
+    "maxTicks": 380
+  },
+  "blocking-multiarmor": {
+    "set": "herbalism-workbench",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:elytra",
+      "item replace entity {actor} hotbar.1 with minecraft:iron_chestplate"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.35, -0.05]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "click", "slot": 37},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "window", "action": "click", "slot": 38},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "hover", "slot": 38},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "command", "text": "adaptqa demo sync {actor}"},
+      {"verb": "slot", "index": 1},
+      {"verb": "look", "yaw": 180, "pitch": 0, "ticks": 12},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "look", "yaw": 180, "pitch": 75, "ticks": 12},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "keys", "hold": ["back"], "ticks": 8},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {
+      "sound": "minecraft:item.armor.equip_elytra",
+      "particle": "end_rod"
+    },
+    "maxTicks": 380,
+    "povCapture": true
+  },
+  "blocking-perfect-guard": {
+    "set": "sparring",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.offhand with minecraft:shield",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [0.5, 1.2, -2.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "press", "hold": ["use"], "ticks": 30},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "hit", "amount": 3},
+      {"verb": "wait", "ticks": 60},
+      {"verb": "lookAt", "offset": [0.5, 1.2, -3.5], "ticks": 12},
+      {"verb": "press", "hold": ["use"], "ticks": 30},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "hit", "amount": 3},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {
+      "sound": "minecraft:item.shield.block",
+      "particle": "end_rod"
+    },
+    "maxTicks": 232
+  },
+  "blocking-phalanx-crafter": {
+    "set": "herbalism-workbench",
+    "level": 2,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:white_wool 3",
+      "item replace entity {actor} hotbar.1 with minecraft:oak_planks 3",
+      "item replace entity {actor} hotbar.2 with minecraft:iron_ingot 1",
+      "item replace entity {actor} hotbar.3 with minecraft:netherite_ingot 4"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.35, -0.05]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "click", "slot": 37},
+      {"verb": "window", "action": "click", "slot": 1, "button": 1},
+      {"verb": "window", "action": "click", "slot": 2, "button": 1},
+      {"verb": "window", "action": "click", "slot": 3, "button": 1},
+      {"verb": "window", "action": "click", "slot": 38},
+      {"verb": "window", "action": "click", "slot": 4, "button": 1},
+      {"verb": "window", "action": "click", "slot": 6, "button": 1},
+      {"verb": "window", "action": "click", "slot": 8, "button": 1},
+      {"verb": "window", "action": "click", "slot": 39},
+      {"verb": "window", "action": "click", "slot": 5},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "hover", "slot": 0},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "window", "action": "shift", "slot": 0},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "window", "action": "click", "slot": 40},
+      {"verb": "window", "action": "click", "slot": 2, "button": 1},
+      {"verb": "window", "action": "click", "slot": 4, "button": 1},
+      {"verb": "window", "action": "click", "slot": 6, "button": 1},
+      {"verb": "window", "action": "click", "slot": 8, "button": 1},
+      {"verb": "window", "action": "click", "slot": 45},
+      {"verb": "window", "action": "click", "slot": 5},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "shift", "slot": 0},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "slot", "index": 8},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {
+      "sound": "minecraft:block.anvil.use",
+      "particle": "wax_on"
+    },
+    "maxTicks": 549,
+    "povCapture": true
+  },
+  "blocking-saddlecrafter": {
+    "set": "herbalism-workbench",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:leather 5"
+    ],
+    "prelude": [
+      {"verb": "slot", "index": 0},
+      {"verb": "lookAt", "offset": [0.5, 0.35, -0.05]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "click", "slot": 37},
+      {"verb": "window", "action": "click", "slot": 1, "button": 1},
+      {"verb": "window", "action": "click", "slot": 3, "button": 1},
+      {"verb": "window", "action": "click", "slot": 4, "button": 1},
+      {"verb": "window", "action": "click", "slot": 5, "button": 1},
+      {"verb": "window", "action": "click", "slot": 6, "button": 1},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "hover", "slot": 0},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "window", "action": "shift", "slot": 0},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "slot", "index": 8},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {
+      "sound": "minecraft:entity.horse.saddle",
+      "particle": "wax_on"
+    },
+    "maxTicks": 391,
+    "povCapture": true
+  },
+  "blocking-shield-wall": {
+    "set": "blocking-wall",
+    "level": 5,
+    "opponent": true,
+    "pre": [
+      "item replace entity {actor} weapon.offhand with minecraft:shield",
+      "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [0.5, 1.2, -6.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["use"], "ticks": 200},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run damage @s 1 minecraft:player_attack by {opponent}"},
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:skeleton,distance=..24] run data merge entity @s {NoAI:0b}"},
+      {"verb": "wait", "ticks": 180}
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.hit",
+      "particle": "end_rod"
+    },
+    "maxTicks": 280
+  },
+  "blocking-shieldbearers-resolve": {
+    "set": "sparring",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.offhand with minecraft:shield",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run item replace entity @s weapon.mainhand with minecraft:wooden_axe",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run effect give @s minecraft:weakness 60 1 true",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,type=!minecraft:zombie,distance=..48] ~ -200 ~"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [0.5, 1.15, -0.9]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["use"], "ticks": 140},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:0b}"},
+      {"verb": "wait", "ticks": 130}
+    ],
+    "expect": {
+      "sound": "minecraft:block.anvil.use",
+      "particle": "end_rod"
+    },
+    "maxTicks": 220,
+    "povCapture": true
+  },
+  "blocking-tempered-guard": {
+    "set": "sparring",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.offhand with minecraft:shield[minecraft:damage=200]",
+      "item replace entity {actor} armor.feet with minecraft:iron_boots[minecraft:damage=150]",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b}",
+      "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,type=!minecraft:zombie,distance=..48] ~ -200 ~"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [0.5, 1.2, -1.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["use"], "ticks": 200},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:0b}"},
+      {"verb": "wait", "ticks": 175},
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:attack_damage base set 0"},
+      {"verb": "wait", "ticks": 15}
+    ],
+    "expect": {
+      "sound": "minecraft:block.anvil.land"
+    },
+    "maxTicks": 280
+  }
+}

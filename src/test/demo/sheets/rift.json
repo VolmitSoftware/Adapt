@@ -1,0 +1,414 @@
+{
+  "rift-access": {
+    "set": "rift-access",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:ender_pearl 1",
+      "item replace entity {actor} hotbar.1 with minecraft:compass 1"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [-1.5, 0.5, 0.5]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "click", "slot": 37},
+      {"verb": "window", "action": "click", "slot": 1},
+      {"verb": "window", "action": "click", "slot": 38},
+      {"verb": "window", "action": "click", "slot": 2},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "shift", "slot": 0},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "window", "action": "close"},
+      {"verb": "slot", "index": 8},
+      {"verb": "lookAt", "offset": [2.5, 0.5, -0.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 25},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "look", "yaw": 180, "pitch": 0, "ticks": 12},
+      {"verb": "keys", "hold": ["forward"], "ticks": 40},
+      {"verb": "look", "yaw": 180, "pitch": 25, "ticks": 12},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "window", "action": "list"},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "window", "action": "shift", "slot": 0},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {
+      "sound": "minecraft:particle.soul_escape",
+      "particle": "portal"
+    },
+    "maxTicks": 353,
+    "povCapture": true
+  },
+  "rift-blink": {
+    "set": "arena",
+    "level": 2,
+    "camera": {
+      "x": 14.5,
+      "y": 3.5,
+      "z": -9.5,
+      "yaw": 90,
+      "pitch": 8
+    },
+    "prelude": [
+      {"verb": "look", "yaw": 180, "pitch": 0}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "keys", "hold": ["jump"], "ticks": 4},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "keys", "hold": ["jump"], "ticks": 3},
+      {"verb": "wait", "ticks": 45}
+    ],
+    "expect": {
+      "sound": "minecraft:entity.enderman.teleport",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 200
+  },
+  "rift-conduit": {
+    "set": "rift-conduit",
+    "level": 2,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:ender_pearl 1"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [3.5, 0.5, -0.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 20},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [3.5, 0.5, 1.5], "ticks": 12},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "lookAt", "offset": [3.5, 0.5, -0.5], "ticks": 12},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "window", "action": "list"},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "lookAt", "offset": [3.5, 0.5, 1.5], "ticks": 12},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "window", "action": "list"},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "window", "action": "shift", "slot": 0},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 10}
+    ],
+    "expect": {
+      "sound": "minecraft:block.conduit.activate",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 400,
+    "povCapture": true
+  },
+  "rift-descent": {
+    "set": "arena",
+    "level": 1,
+    "camera": {
+      "x": 9.5,
+      "y": 3.4,
+      "z": 0.5,
+      "yaw": 90,
+      "pitch": -4
+    },
+    "prelude": [
+      {"verb": "look", "yaw": 180, "pitch": 65}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "command", "text": "effect give {actor} minecraft:levitation 10 1 true"},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "tap", "key": "sneak", "ticks": 6},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.break",
+      "particle": "dragon_breath"
+    },
+    "maxTicks": 250,
+    "povCapture": true
+  },
+  "rift-ender-taglock": {
+    "set": "rift-taglock",
+    "level": 3,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:ender_pearl 1",
+      "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..12,limit=1,sort=nearest] {NoAI:1b,Rotation:[270.0f,0.0f]}"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [-0.5, 0.7, -1.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 22},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [2.5, 2.5, -12.0], "ticks": 12},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {
+      "sound": "minecraft:entity.ender_eye.launch",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 262
+  },
+  "rift-enderchest": {
+    "povCapture": true,
+    "set": "arena",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:ender_chest 1",
+      "item replace entity {actor} enderchest.0 with minecraft:diamond 12",
+      "item replace entity {actor} enderchest.1 with minecraft:ender_pearl 16",
+      "item replace entity {actor} enderchest.2 with minecraft:emerald 24"
+    ],
+    "prelude": [
+      {"verb": "look", "yaw": 180, "pitch": -10}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "window", "action": "list"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "window", "action": "shift", "slot": 0},
+      {"verb": "wait", "ticks": 50},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {
+      "sound": "minecraft:block.ender_chest.open",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 249
+  },
+  "rift-gate": {
+    "set": "rift-gate",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:ender_pearl 1",
+      "item replace entity {actor} hotbar.1 with minecraft:amethyst_shard 1",
+      "item replace entity {actor} hotbar.2 with minecraft:emerald 1"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [-1.5, 0.5, 0.5]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "list"},
+      {"verb": "window", "action": "click", "slot": 37},
+      {"verb": "window", "action": "click", "slot": 1},
+      {"verb": "window", "action": "click", "slot": 38},
+      {"verb": "window", "action": "click", "slot": 2},
+      {"verb": "window", "action": "click", "slot": 39},
+      {"verb": "window", "action": "click", "slot": 3},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "window", "action": "shift", "slot": 0},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "window", "action": "close"},
+      {"verb": "slot", "index": 8},
+      {"verb": "look", "yaw": 180, "pitch": -10}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 20},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "look", "yaw": 180, "pitch": 60, "ticks": 12},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "look", "yaw": 180, "pitch": 0, "ticks": 12},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "keys", "hold": ["forward"], "ticks": 40},
+      {"verb": "look", "yaw": 0, "pitch": 10, "ticks": 12},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 115}
+    ],
+    "expect": {
+      "sound": "minecraft:block.lodestone.place",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 336,
+    "povCapture": true
+  },
+  "rift-inflated-pocket-dimension": {
+    "set": "rift-pocket",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} enderchest.0 with minecraft:stone_bricks 64"
+    ],
+    "prelude": [
+      {"verb": "lookAt", "offset": [0.5, 1.5, -2.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "lookAt", "offset": [-1.5, 0.0, -1.5], "ticks": 12},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {
+      "sound": "minecraft:block.ender_chest.open",
+      "particle": "portal"
+    },
+    "maxTicks": 212,
+    "povCapture": true
+  },
+  "rift-pearl-rebound": {
+    "set": "rift-rebound",
+    "level": 4,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:ender_pearl 1"
+    ],
+    "prelude": [
+      {"verb": "look", "yaw": 180, "pitch": 0}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "look", "yaw": 210, "pitch": -5, "ticks": 12},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "look", "yaw": 180, "pitch": -5, "ticks": 12},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {
+      "sound": "minecraft:block.slime_block.hit",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 224
+  },
+  "rift-resist": {
+    "set": "ledge",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:ender_pearl 1"
+    ],
+    "prelude": [
+      {"verb": "look", "yaw": 180, "pitch": 50}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 40},
+      {"verb": "look", "yaw": 180, "pitch": 10, "ticks": 12},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {
+      "sound": "minecraft:item.armor.equip_iron",
+      "particle": "witch"
+    },
+    "maxTicks": 212,
+    "povCapture": true
+  },
+  "rift-visage": {
+    "set": "stealth-veil",
+    "level": 1,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:ender_pearl 16",
+      "execute at {actor} run gamerule mob_griefing false",
+      "execute at {actor} run attribute @e[type=minecraft:enderman,distance=..16,limit=1,sort=nearest] minecraft:movement_speed base set 0"
+    ],
+    "prelude": [
+      {"verb": "look", "yaw": 180, "pitch": 0}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "lookAt", "offset": [0.5, 2.55, -6.5], "ticks": 12},
+      {"verb": "wait", "ticks": 80},
+      {"verb": "look", "yaw": 180, "pitch": 0, "ticks": 12},
+      {"verb": "wait", "ticks": 20}
+    ],
+    "expect": {
+      "sound": "minecraft:entity.enderman.ambient",
+      "particle": "smoke"
+    },
+    "maxTicks": 274
+  },
+  "rift-void-magnet": {
+    "set": "arena",
+    "level": 3,
+    "camera": {
+      "x": 8.5,
+      "y": 3.5,
+      "z": -1.5,
+      "yaw": 90,
+      "pitch": 14
+    },
+    "pre": [
+      "execute at {actor} run summon minecraft:item ~ ~0.2 ~-4 {Item:{id:\"minecraft:diamond\",count:3},PickupDelay:200s}",
+      "execute at {actor} run summon minecraft:item ~-3 ~0.2 ~-2 {Item:{id:\"minecraft:emerald\",count:3},PickupDelay:200s}",
+      "execute at {actor} run summon minecraft:item ~3 ~0.2 ~-2 {Item:{id:\"minecraft:gold_ingot\",count:2},PickupDelay:200s}",
+      "execute at {actor} run summon minecraft:item ~-1 ~0.2 ~-7 {Item:{id:\"minecraft:iron_ingot\",count:4},PickupDelay:200s}"
+    ],
+    "prelude": [
+      {"verb": "look", "yaw": 180, "pitch": 20}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 20},
+      {"verb": "press", "hold": ["sneak"], "ticks": 60},
+      {"verb": "wait", "ticks": 75}
+    ],
+    "expect": {
+      "sound": "minecraft:block.beacon.power_select",
+      "particle": "end_rod"
+    },
+    "maxTicks": 250
+  },
+  "rift-void-skin": {
+    "set": "rift-escape",
+    "level": 4,
+    "camera": {
+      "x": 0.5,
+      "y": 9.0,
+      "z": 12.0,
+      "yaw": 180,
+      "pitch": 28
+    },
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:ender_pearl 1",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..12,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [
+      {"verb": "look", "yaw": 180, "pitch": 45}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "hit", "amount": 16},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "hit", "amount": 12},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {
+      "sound": "minecraft:entity.enderman.teleport",
+      "particle": "reverse_portal"
+    },
+    "maxTicks": 200,
+    "povCapture": true
+  }
+}

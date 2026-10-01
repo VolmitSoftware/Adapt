@@ -8,11 +8,11 @@ import json
 import pathlib
 import shutil
 import subprocess
+import tempfile
 
 source = pathlib.Path(os.environ['CLIENT_SOURCE_DIR'])
 project = source.parents[2]
 output = project / 'build' / 'client-qa'
-classes = output / 'classes'
 libraries = pathlib.Path(os.environ.get('PRISM_LIBRARIES', str(pathlib.Path.home() / 'Library/Application Support/PrismLauncher/libraries')))
 metadata = pathlib.Path(os.environ.get('PRISM_META', str(libraries.parent / 'meta')))
 components = [('net.minecraft', '26.2'), ('net.fabricmc.fabric-loader', '0.19.5'), ('org.lwjgl3', '3.4.1')]
@@ -45,10 +45,12 @@ for component, version in components:
         if key in dependencies and dependencies[key] != dependency:
             raise SystemExit(f'Conflicting metadata versions for {group}:{artifact}:{classifier}')
         dependencies[key] = dependency
-if classes.exists():
-    shutil.rmtree(classes)
-classes.mkdir(parents=True)
-classpath = os.pathsep.join(str(path) for path in dependencies.values())
+output.mkdir(parents=True, exist_ok=True)
+classpath_entries = [str(path) for path in dependencies.values()]
+mods = output / 'mods'
+if mods.is_dir():
+    classpath_entries.extend(str(p) for p in sorted(mods.glob('*.jar')))
+classpath = os.pathsep.join(classpath_entries)
 (output / 'compile-classpath.json').write_text(json.dumps({
     'components': dict(components),
     'libraries': [str(path.relative_to(libraries)) for path in dependencies.values()],
@@ -56,10 +58,18 @@ classpath = os.pathsep.join(str(path) for path in dependencies.values())
 java_home = os.environ.get('JAVA_HOME')
 javac = str(pathlib.Path(java_home) / 'bin/javac') if java_home else 'javac'
 jar = str(pathlib.Path(java_home) / 'bin/jar') if java_home else 'jar'
-subprocess.run([javac, '--release', '25', '-proc:none', '-parameters', '-classpath', classpath,
-                '-d', str(classes), *map(str, sorted((source / 'java').rglob('*.java')))], check=True)
-shutil.copytree(source / 'resources', classes, dirs_exist_ok=True)
-artifact = output / 'adapt-client-qa.jar'
-subprocess.run([jar, '--create', '--file', str(artifact), '-C', str(classes), '.'], check=True)
+artifact: pathlib.Path = output / 'adapt-client-qa.jar'
+workspace: pathlib.Path = pathlib.Path(tempfile.mkdtemp(prefix='.build-', dir=output))
+try:
+    classes: pathlib.Path = workspace / 'classes'
+    classes.mkdir()
+    subprocess.run([javac, '--release', '25', '-proc:none', '-parameters', '-classpath', classpath,
+                    '-d', str(classes), *map(str, sorted((source / 'java').rglob('*.java')))], check=True)
+    shutil.copytree(source / 'resources', classes, dirs_exist_ok=True)
+    staged: pathlib.Path = workspace / (artifact.name + '.tmp')
+    subprocess.run([jar, '--create', '--file', str(staged), '-C', str(classes), '.'], check=True)
+    os.replace(staged, artifact)
+finally:
+    shutil.rmtree(workspace, ignore_errors=True)
 print(artifact)
 PY

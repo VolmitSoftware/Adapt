@@ -120,8 +120,7 @@ export async function runAdaptationSuite(context, { requireComplete = true, case
     await context.step('prepare ordinary adaptation players and validate live catalog', async () => {
       await context.command(`/adaptqa setup ${actor.bot.username} ${opponent.bot.username}`, /^ADAPT_QA SETUP /, 60000)
       setup = true
-      const attributeRegistry = await fixtureJson(context, '/adaptqa attribute-registry p1', 'ATTRIBUTE_REGISTRY p1')
-      for (const player of [actor, opponent]) stopInputs.push(synchronizePlayerAttributes(player.bot, attributeRegistry))
+      for (const player of [actor, opponent]) stopInputs.push(synchronizePlayerAttributes(player.bot))
       const initial = await snapshot()
       context.expect(!initial.operator, 'Adaptation actor is not an operator')
       assertSkillCoverage(initial.registered, initial.enabled)

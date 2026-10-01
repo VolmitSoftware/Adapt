@@ -1,0 +1,368 @@
+{
+  "kinetics-breachwright": {"skip": "Lowers the smashed target's armor and armor toughness for a few seconds; nothing beyond the vanilla mace smash is visible in a learned-only clip."},
+  "kinetics-charge-lance": {"skip": "Adds bonus damage to spear hits landed at running speed; the extra damage is not visible in a learned-only clip."},
+  "kinetics-dead-zone": {
+    "set": "kinetics-deadzone", "level": 3,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:wooden_spear",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -1.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "hit", "amount": 2},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "lookAt", "offset": [0.5, 1.0, -2.7]},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:item.shield.block", "particle": "dust"}, "maxTicks": 160
+  },
+  "kinetics-heavy-frame": {
+    "set": "sparring", "level": 5,
+    "camera": {"x": 6.0, "y": 2.2, "z": -1.0, "yaw": 90, "pitch": 8},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:mace",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..8] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [{"verb": "wait", "ticks": 100}, {"verb": "look", "yaw": 180, "pitch": 40}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 70},
+      {"verb": "wait", "ticks": 15},
+      {"verb": "look", "yaw": 180, "pitch": 8},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "hit", "amount": 2},
+      {"verb": "wait", "ticks": 70}
+    ],
+    "expect": {"sound": "minecraft:block.chain.place", "particle": "cloud"}, "maxTicks": 200
+  },
+  "kinetics-impale-pin": {
+    "set": "kinetics-spear", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:wooden_spear",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..8] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.8, -3.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.chain.place", "particle": "dust"}, "maxTicks": 140
+  },
+  "kinetics-lunge-conductor": {
+    "set": "kinetics-spear", "level": 3,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:wooden_spear",
+      "enchant {actor} minecraft:lunge 1",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..8] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.8, -3.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:item.trident.riptide_1", "particle": "cloud"}, "maxTicks": 140
+  },
+  "kinetics-mass-shift": {
+    "povCapture": true,
+    "set": "arena",
+    "level": 3,
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=!minecraft:player,type=!minecraft:item,distance=..48] ~ -200 ~"
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": -40,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "swapHands"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 55,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "swapHands"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "swapHands"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.iron_golem.repair",
+      "particle": "cloud"
+    },
+    "maxTicks": 304
+  },
+  "kinetics-meteor-cadence": {
+    "set": "kinetics-tower", "level": 5,
+    "pre": ["item replace entity {actor} weapon.mainhand with minecraft:mace"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 30}],
+    "beats": [
+      {"verb": "press", "hold": ["forward"], "ticks": 6},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak"], "ticks": 60},
+      {"verb": "wait", "ticks": 70}
+    ],
+    "expect": {"visual": "The actor walks off the tower with a mace, sneaks a moment into the fall and plummets to the ground far faster than a normal fall."},
+    "maxTicks": 180
+  },
+  "kinetics-moon-jump": {
+    "set": "arena", "level": 5,
+    "camera": {"x": 11.5, "y": 4.0, "z": 0.5, "yaw": 90, "pitch": -10},
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "wait", "ticks": 5},
+      {"verb": "keys", "hold": ["jump"], "ticks": 3},
+      {"verb": "wait", "ticks": 32},
+      {"verb": "press", "hold": ["sneak"], "ticks": 40},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["sneak", "jump"], "ticks": 4},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:entity.rabbit.jump", "particle": "cloud"}, "maxTicks": 220
+  },
+  "kinetics-mounted-shock": {
+    "set": "kinetics-rails", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:wooden_spear",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..20] run attribute @s minecraft:movement_speed base set 0",
+      "execute at {actor} run ride {actor} mount @e[type=minecraft:minecart,sort=nearest,limit=1]"
+    ],
+    "prelude": [{"verb": "look", "yaw": 155, "pitch": 12}],
+    "beats": [
+      {"verb": "wait", "ticks": 5},
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:minecart,sort=nearest,limit=1] run data merge entity @s {Motion:[0.0d,0.0d,-0.35d]}"},
+      {"verb": "wait", "ticks": 23},
+      {"verb": "lookAt", "offset": [-0.9, 0.9, -12.0]},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "lookAt", "offset": [-0.9, 0.9, -12.0]},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 3},
+      {"verb": "lookAt", "offset": [-0.9, 0.9, -12.0]},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "tap", "key": "sneak", "ticks": 3},
+      {"verb": "wait", "ticks": 34}
+    ],
+    "expect": {"sound": "minecraft:entity.horse.gallop", "particle": "sweep_attack"}, "maxTicks": 180
+  },
+  "kinetics-phalanx-reach": {"skip": "Extends entity reach while a spear is held; the longer reach cannot be told apart from normal reach in a learned-only clip."},
+  "kinetics-quake-guard": {"skip": "Grants knockback resistance, armor toughness and safe fall distance for a moment after a landed smash; nothing beyond the vanilla mace smash is visible in a learned-only clip."},
+  "kinetics-rebound-anvil": {
+    "set": "kinetics-rebound",
+    "level": 3,
+    "camera": {
+      "x": -8.5,
+      "y": 6,
+      "z": -15.5,
+      "yaw": -33,
+      "pitch": 0
+    },
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:mace",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..12] run attribute @s minecraft:max_health base set 200",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..12] run data merge entity @s {Health:200.0f}",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..12] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [
+      {
+        "verb": "wait",
+        "ticks": 100
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 50
+      }
+    ],
+    "beats": [
+      {
+        "verb": "press",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "look",
+        "yaw": -105,
+        "pitch": 20
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 85
+      }
+    ],
+    "expect": {
+      "visual": "The actor strikes the cow on its raised perch while falling, drops past it, then rebounds from the grass below without jumping."
+    },
+    "maxTicks": 200
+  },
+  "kinetics-rubber-soul": {
+    "set": "kinetics-slime", "level": 5,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 60}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["forward"], "ticks": 6},
+      {"verb": "wait", "ticks": 100}
+    ],
+    "expect": {"sound": "minecraft:block.slime_block.fall", "particle": "item_slime"}, "maxTicks": 180
+  },
+  "kinetics-soft-catch": {
+    "set": "kinetics-sponge", "level": 5,
+    "pre": ["execute at {actor} run gamerule fall_damage true"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 45}],
+    "beats": [
+      {"verb": "press", "hold": ["forward"], "ticks": 6},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.wool.fall", "particle": "cloud"}, "maxTicks": 140
+  },
+  "kinetics-surface-skate": {"skip": "Lowers ground friction only while sprinting; the extra glide cannot be told apart from a normal sprint, and the sneak brake stops no visibly faster than vanilla deceleration, in a learned-only clip."},
+  "kinetics-terminal-toggle": {
+    "set": "kinetics-spire", "level": 3,
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 35}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "press", "hold": ["forward"], "ticks": 6},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "press", "hold": ["sneak"], "ticks": 1},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "press", "hold": ["sneak"], "ticks": 1},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "press", "hold": ["sneak"], "ticks": 1},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"visual": "The actor steps off the 50-block spire, sneaks twice into the hang and falls at a steady capped pace past the bricks, then sneaks once more and dives, accelerating hard into the ground."},
+    "maxTicks": 200
+  },
+  "kinetics-windburst": {
+    "set": "kinetics-smash", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:mace",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..12] run attribute @s minecraft:max_health base set 200",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..12] run data merge entity @s {Health:200.0f}",
+      "execute at {actor} as @e[type=minecraft:cow,distance=..12] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 50}],
+    "beats": [
+      {"verb": "press", "hold": ["forward"], "ticks": 6},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "lookAt", "offset": [0.5, 0.7, -1.8]},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "lookAt", "offset": [0.5, 0.7, -1.8]},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 1},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.wind_charge.wind_burst", "particle": "gust"}, "maxTicks": 160
+  }
+}

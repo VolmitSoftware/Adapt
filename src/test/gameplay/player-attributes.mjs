@@ -22,10 +22,17 @@ function protocol(bot) {
     return { id: Number(id), keys }
 }
 
-export function createAttributePacketDecoder(bot, registry) {
+function clientRegistry(bot) {
+    const attributes = bot.registry.attributesArray
+    if (!Array.isArray(attributes) || attributes.length === 0) throw new Error('Missing client attribute registry')
+    return Object.fromEntries(attributes.map((attribute, id) => [id, attribute.resource]))
+}
+
+export function createAttributePacketDecoder(bot) {
     const { id } = protocol(bot)
+    const registry = clientRegistry(bot)
     if (Object.keys(registry).length === 0 || Object.entries(registry).some(([key, name]) => !/^\d+$/.test(key) || !/^[a-z0-9_.-]+:[a-z0-9_/.-]+$/.test(name))) {
-        throw new Error('Invalid server attribute registry')
+        throw new Error('Invalid client attribute registry')
     }
     return buffer => {
         const cursor = { offset: 0 }
@@ -37,7 +44,7 @@ export function createAttributePacketDecoder(bot, registry) {
         for (let index = 0; index < count; index++) {
             const registryId = varInt(buffer, cursor)
             const key = registry[registryId]
-            if (!key) throw new Error(`Unknown server attribute ID ${registryId}`)
+            if (!key) throw new Error(`Unknown client attribute ID ${registryId}`)
             const value = buffer.readDoubleBE(cursor.offset)
             cursor.offset += 8
             const modifierCount = varInt(buffer, cursor)
@@ -61,9 +68,10 @@ export function createAttributePacketDecoder(bot, registry) {
     }
 }
 
-export function synchronizePlayerAttributes(bot, registry, onError = error => bot.emit('error', error)) {
+export function synchronizePlayerAttributes(bot, onError = error => bot.emit('error', error)) {
     const { keys } = protocol(bot)
-    const decode = createAttributePacketDecoder(bot, registry)
+    const registry = clientRegistry(bot)
+    const decode = createAttributePacketDecoder(bot)
     const reverse = new Map(Object.entries(keys).map(([id, name]) => [name, id]))
     for (const entity of Object.values(bot.entities)) {
         if (!entity.attributes) continue

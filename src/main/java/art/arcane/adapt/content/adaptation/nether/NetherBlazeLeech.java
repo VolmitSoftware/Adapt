@@ -33,6 +33,7 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.damage.DamageType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -79,7 +80,7 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
 
     withAdaptedPlayer(p, e, () -> {
       int level = getActiveLevel(p);
-      if (!isFireCause(e.getCause()) || !isReady(p)) {
+      if (!isFireDamage(e) || !isReady(p)) {
         return;
       }
 
@@ -117,11 +118,12 @@ public class NetherBlazeLeech extends SimpleAdaptation<NetherBlazeLeech.Config> 
     });
   }
 
-  private boolean isFireCause(EntityDamageEvent.DamageCause cause) {
+  static boolean isFireDamage(EntityDamageEvent event) {
+    EntityDamageEvent.DamageCause cause = event.getCause();
     return cause == EntityDamageEvent.DamageCause.FIRE
         || cause == EntityDamageEvent.DamageCause.FIRE_TICK
         || cause == EntityDamageEvent.DamageCause.LAVA
-        || cause == EntityDamageEvent.DamageCause.HOT_FLOOR;
+        || event.getDamageSource().getDamageType() == DamageType.HOT_FLOOR;
   }
 
   private boolean isReady(Player p) {

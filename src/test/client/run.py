@@ -13,6 +13,7 @@ import subprocess
 import time
 import urllib.error
 import urllib.request
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[3]
 PRISM = Path.home() / 'Library/Application Support/PrismLauncher'
@@ -103,13 +104,16 @@ def free_port():
         return listener.getsockname()[1]
 
 
-def mux(*arguments, timeout=180):
-    result = subprocess.run([str(MULTIPLEXOR / 'start.sh'), '--consumer', 'plugin', *arguments],
-                            cwd=MULTIPLEXOR, check=True, capture_output=True, text=True, timeout=timeout)
+def mux(*arguments: str, timeout: int = 180) -> str:
+    result: subprocess.CompletedProcess = subprocess.run([str(MULTIPLEXOR / 'start.sh'), '--consumer', 'plugin', *arguments],
+                                                         cwd=MULTIPLEXOR, capture_output=True, text=True, timeout=timeout)
+    if result.returncode != 0:
+        raise RuntimeError('Multiplexor ' + ' '.join(arguments) + ' failed with exit ' + str(result.returncode) + ': '
+                           + (result.stdout + result.stderr).strip()[-2000:])
     return result.stdout.strip()
 
 
-def configure_server(server: Path):
+def configure_server(server: Path, adapt: Path) -> None:
     properties = {}
     for line in (server / 'server.properties').read_text().splitlines():
         if line and not line.startswith('#') and '=' in line:
@@ -121,25 +125,155 @@ def configure_server(server: Path):
                            {'block': 'minecraft:bedrock', 'height': 1}, {'block': 'minecraft:dirt', 'height': 2},
                            {'block': 'minecraft:grass_block', 'height': 1}]}, separators=(',', ':'))})
     (server / 'server.properties').write_text(''.join(key + '=' + value + '\n' for key, value in properties.items()))
-    shutil.copy2(ROOT / 'build/gameplay/plugins/Adapt.jar', server / 'plugins/Adapt.jar')
+    shutil.copy2(adapt, server / 'plugins/Adapt.jar')
 
 
-def configure_client(instance: Path, port: int, token: str, output: Path):
-    game = instance / '.minecraft'
-    (game / 'mods').mkdir(parents=True)
-    (instance / 'mmc-pack.json').write_text(json.dumps({'formatVersion': 1, 'components': [
-        {'uid': 'org.lwjgl3', 'version': '3.4.1'}, {'uid': 'net.minecraft', 'version': '26.2'},
-        {'uid': 'net.fabricmc.intermediary', 'version': '26.2'},
-        {'uid': 'net.fabricmc.fabric-loader', 'version': '0.19.5'}]}, indent=2) + '\n')
-    java = PRISM / 'java/java-runtime-epsilon/bin/java'
-    (instance / 'instance.cfg').write_text(
-        '[General]\nInstanceType=OneSix\nname=Adapt Client QA\nOverrideJavaLocation=true\nJavaPath=' + str(java)
-        + '\nOverrideJavaArgs=true\nJvmArgs=-Dadapt.qa.port=' + str(port) + ' -Dadapt.qa.token=' + token
-        + ' -Dadapt.qa.output="' + str(output) + '"\nOverrideMemory=true\nMinMemAlloc=512\nMaxMemAlloc=2048\n'
-        + 'OverrideWindow=true\nMinecraftWinWidth=960\nMinecraftWinHeight=540\nShowConsole=false\nShowConsoleOnError=false\n')
-    (game / 'options.txt').write_text('autoJump:false\npauseOnLostFocus:false\nsoundCategory_master:1.0\n'
-                                    'soundCategory_music:0.0\nparticles:0\nrenderDistance:6\nsimulationDistance:5\n'
-                                    'maxFps:30\nenableVsync:false\n')
+def file_sha1(path: Path) -> str:
+    with path.open('rb') as handle:
+        return hashlib.file_digest(handle, 'sha1').hexdigest()
+
+
+def ensure_mods(root: Path) -> list[Path]:
+    manifest: dict = json.loads((root / 'src' / 'test' / 'client' / 'mods.json').read_text())
+    cache: Path = root / 'build' / 'client-qa' / 'mods'
+    cache.mkdir(parents=True, exist_ok=True)
+    jars: list[Path] = []
+    for entry in manifest['mods']:
+        target: Path = cache / entry['file']
+        if not target.is_file() or file_sha1(target) != entry['sha1']:
+            partial: Path = target.with_suffix('.part')
+            with urllib.request.urlopen(entry['url'], timeout=60) as response, partial.open('wb') as sink:
+                while True:
+                    chunk: bytes = response.read(1 << 20)
+                    if not chunk:
+                        break
+                    sink.write(chunk)
+            digest: str = file_sha1(partial)
+            if digest != entry['sha1']:
+                partial.unlink()
+                raise RuntimeError('Mod ' + entry['id'] + ' sha1 mismatch: ' + digest)
+            os.replace(partial, target)
+        jars.append(target)
+    return jars
+
+
+FLASHBACK_SETTINGS: dict[str, object] = {'configVersion': 2, 'recording': {'recordHotbar': True, 'localPlayerUpdatesPerSecond': 60},
+                                          'recordingControls': {'quicksave': True}}
+OPTION_OVERRIDES: dict[str, str] = {'pauseOnLostFocus': 'false', 'tutorialStep': 'none', 'autoJump': 'false'}
+WINDOW_WIDTH: int = 1920
+WINDOW_HEIGHT: int = 1080
+WINDOW_KEYS: dict[str, str] = {'OverrideWindow': 'true', 'MinecraftWinWidth': str(WINDOW_WIDTH), 'MinecraftWinHeight': str(WINDOW_HEIGHT)}
+DEFAULT_OPTIONS: str = ('autoJump:false\npauseOnLostFocus:false\ntutorialStep:none\nsoundCategory_master:1.0\nsoundCategory_music:0.0\n'
+                        'particles:0\nrenderDistance:6\nsimulationDistance:5\nmaxFps:30\nenableVsync:false\n')
+PACK_COMPONENTS: list[dict[str, str]] = [{'uid': 'org.lwjgl3', 'version': '3.4.1'}, {'uid': 'net.minecraft', 'version': '26.2'},
+                                         {'uid': 'net.fabricmc.intermediary', 'version': '26.2'},
+                                         {'uid': 'net.fabricmc.fabric-loader', 'version': '0.19.5'}]
+BRIDGE_JAR: str = 'AdaptClientQa.jar'
+PINNED_EXACT: frozenset[str] = frozenset({'flashback'})
+
+
+def write_flashback_config(game: Path) -> None:
+    path: Path = game / 'config' / 'flashback' / 'flashback.json'
+    path.parent.mkdir(parents=True, exist_ok=True)
+    data: dict = json.loads(path.read_text()) if path.is_file() else {}
+    for key, value in FLASHBACK_SETTINGS.items():
+        if isinstance(value, dict):
+            section: object = data.get(key)
+            merged: dict = dict(section) if isinstance(section, dict) else {}
+            merged.update(value)
+            data[key] = merged
+        else:
+            data[key] = value
+    path.write_text(json.dumps(data, indent=2))
+
+
+def merge_options(game: Path) -> None:
+    path: Path = game / 'options.txt'
+    if not path.is_file():
+        path.write_text(DEFAULT_OPTIONS)
+        return
+    pending: dict[str, str] = dict(OPTION_OVERRIDES)
+    lines: list[str] = []
+    for line in path.read_text(errors='replace').splitlines():
+        key: str = line.split(':', 1)[0]
+        lines.append(key + ':' + pending.pop(key) if key in pending else line)
+    lines.extend(key + ':' + value for key, value in pending.items())
+    path.write_text('\n'.join(lines) + '\n')
+
+
+def set_instance_keys(config: Path, values: dict[str, str]) -> None:
+    pending: dict[str, str] = dict(values)
+    lines: list[str] = config.read_text(errors='replace').splitlines()
+    result: list[str] = []
+    general: bool = False
+    for line in lines:
+        stripped: str = line.strip()
+        if stripped.startswith('[') and stripped.endswith(']'):
+            if general:
+                result.extend(key + '=' + value for key, value in pending.items())
+                pending.clear()
+            general = stripped == '[General]'
+        elif general and '=' in line and line.split('=', 1)[0].strip() in pending:
+            key: str = line.split('=', 1)[0].strip()
+            line = key + '=' + pending.pop(key)
+        result.append(line)
+    if pending and not any(line.strip() == '[General]' for line in lines):
+        result.insert(0, '[General]')
+    result.extend(key + '=' + value for key, value in pending.items())
+    config.write_text('\n'.join(result) + '\n')
+
+
+def jvm_arguments(port: int, token: str, output: Path) -> str:
+    return '-Dadapt.qa.port=' + str(port) + ' -Dadapt.qa.token=' + token + ' -Dadapt.qa.output="' + str(output) + '"'
+
+
+def mod_identity(jar: Path) -> tuple[str, str] | None:
+    try:
+        with zipfile.ZipFile(jar) as archive:
+            data: dict = json.loads(archive.read('fabric.mod.json'))
+    except (OSError, KeyError, ValueError, zipfile.BadZipFile):
+        return None
+    return str(data.get('id', '')), str(data.get('version', ''))
+
+
+def install_mods(folder: Path, pinned: list[Path]) -> None:
+    installed: dict[str, list[tuple[Path, str]]] = {}
+    for jar in sorted(folder.glob('*.jar')):
+        identity: tuple[str, str] | None = mod_identity(jar)
+        if identity is not None:
+            installed.setdefault(identity[0], []).append((jar, identity[1]))
+    for source in pinned:
+        identity = mod_identity(source)
+        if identity is None:
+            raise RuntimeError('Pinned mod ' + str(source) + ' has no readable fabric.mod.json')
+        mod_id, version = identity
+        present: list[tuple[Path, str]] = installed.get(mod_id, [])
+        stale: list[tuple[Path, str]] = [(jar, found) for jar, found in present if found != version]
+        if stale and mod_id in PINNED_EXACT:
+            raise RuntimeError(mod_id + ' ' + stale[0][1] + ' is installed at ' + str(stale[0][0]) + ', but the client bridge is built against '
+                               + mod_id + ' ' + version + '; replace it with ' + source.name)
+        for jar, _ in stale:
+            jar.unlink()
+        if len(stale) == len(present):
+            shutil.copy2(source, folder / source.name)
+
+
+def prepare_instance(instance: Path, name: str, port: int, token: str, output: Path, mods: list[Path], bridge: Path) -> bool:
+    game: Path = instance / '.minecraft'
+    config: Path = instance / 'instance.cfg'
+    created: bool = not config.is_file()
+    (game / 'mods').mkdir(parents=True, exist_ok=True)
+    if created:
+        (instance / 'mmc-pack.json').write_text(json.dumps({'formatVersion': 1, 'components': PACK_COMPONENTS}, indent=2) + '\n')
+        java: Path = PRISM / 'java/java-runtime-epsilon/bin/java'
+        config.write_text('[General]\nInstanceType=OneSix\nname=' + name + '\nOverrideJavaLocation=true\nJavaPath=' + str(java)
+                          + '\nOverrideMemory=true\nMinMemAlloc=512\nMaxMemAlloc=4096\nShowConsole=false\nShowConsoleOnError=false\n')
+    set_instance_keys(config, {'OverrideJavaArgs': 'true', 'JvmArgs': jvm_arguments(port, token, output), **WINDOW_KEYS})
+    install_mods(game / 'mods', mods)
+    shutil.copy2(bridge, game / 'mods' / BRIDGE_JAR)
+    write_flashback_config(game)
+    merge_options(game)
+    return created
 
 
 def wait_server(server: Path):
@@ -157,12 +291,13 @@ def run_scenarios(bridge: Bridge, rcon: Rcon, output: Path, cases):
     return run(bridge, rcon, output, cases)
 
 
-def client_processes(client: Path):
-    listing = subprocess.run(['ps', '-axo', 'pid=,args='], capture_output=True, text=True, check=True).stdout
-    result = []
+def client_processes(client: Path) -> list[int]:
+    listing: str = subprocess.run(['ps', '-axo', 'pid=,args='], capture_output=True, text=True, check=True).stdout
+    folder: re.Pattern[str] = re.compile(re.escape(str(client)) + r'(?=[/\s"]|$)')
+    result: list[int] = []
     for line in listing.splitlines():
-        fields = line.strip().split(None, 1)
-        if len(fields) == 2 and str(client) in fields[1] and 'org.prismlauncher.EntryPoint' in fields[1]:
+        fields: list[str] = line.strip().split(None, 1)
+        if len(fields) == 2 and folder.search(fields[1]) and 'org.prismlauncher.EntryPoint' in fields[1]:
             result.append(int(fields[0]))
     return result
 
@@ -243,6 +378,7 @@ def main():
             environment.pop('GIT_CONFIG_COUNT', None)
             with (output / 'build.log').open('w') as log:
                 subprocess.run(['./gradlew', 'build', 'prepareGameplay'], cwd=ROOT, env=environment, stdout=log, stderr=subprocess.STDOUT, check=True)
+        mods = ensure_mods(ROOT)
         with (output / 'client-build.log').open('w') as log:
             subprocess.run(['bash', str(ROOT / 'src/test/client/build.sh')], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
         mux('server', 'create', server_name, '--type', 'paper', '--mc', '26.2', '--isolated')
@@ -250,14 +386,13 @@ def main():
         mux('instance', 'port', server_name, str(free_port()))
         mux('gameplay', 'prepare', server_name)
         server = Path(mux('instance', 'path', server_name))
-        configure_server(server)
+        configure_server(server, ROOT / 'build/gameplay/plugins/Adapt.jar')
         mux('runtime', 'start', server_name, '--no-console')
         wait_server(server)
         print('[READY] Isolated Paper 26.2 server', flush=True)
         client.mkdir()
         created_client = True
-        configure_client(client, port, token, output)
-        shutil.copy2(ROOT / 'build/client-qa/adapt-client-qa.jar', client / '.minecraft/mods/AdaptClientQa.jar')
+        prepare_instance(client, 'Adapt Client QA', port, token, output, mods, ROOT / 'build/client-qa/adapt-client-qa.jar')
         properties = dict(line.split('=', 1) for line in (server / 'server.properties').read_text().splitlines()
                           if line and not line.startswith('#') and '=' in line)
         report['artifactSha256'] = hashlib.sha256((server / 'plugins/Adapt.jar').read_bytes()).hexdigest()

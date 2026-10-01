@@ -51,8 +51,12 @@ public final class NetherFixtures implements Listener {
         opponent.teleport(new Location(world, 8.5, 100, 8.5));
         switch (name) {
             case "nether-qa-ash" -> {
-                world.getBlockAt(0, 99, -1).setType(Material.SOUL_SOIL, false);
-                world.getBlockAt(0, 100, -1).setType(Material.SOUL_FIRE, false);
+                for (int x = -1; x <= 1; x++) {
+                    for (int z = -8; z < 0; z++) {
+                        world.getBlockAt(x, 99, z).setType(Material.SOUL_SOIL, false);
+                        world.getBlockAt(x, 100, z).setType(Material.SOUL_FIRE, false);
+                    }
+                }
             }
             case "nether-qa-feast" -> {
                 actor.setFoodLevel(10);

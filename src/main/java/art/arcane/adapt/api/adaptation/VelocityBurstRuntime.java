@@ -59,8 +59,8 @@ public final class VelocityBurstRuntime extends TickedObject {
     super("adaptations", "velocity-burst-runtime", UPDATE_INTERVAL_MILLIS);
   }
 
-  public static Client register(String sourceName, Feedback feedback) {
-    Objects.requireNonNull(sourceName);
+  public static Client register(Adaptation<?> source, Feedback feedback) {
+    Objects.requireNonNull(source);
     Objects.requireNonNull(feedback);
 
     synchronized (INSTANCE_LOCK) {
@@ -70,7 +70,7 @@ public final class VelocityBurstRuntime extends TickedObject {
         instance = runtime;
       }
 
-      Client client = new Client(runtime, sourceName, feedback);
+      Client client = new Client(runtime, source, feedback);
       runtime.clients.add(client);
       return client;
     }
@@ -302,6 +302,7 @@ public final class VelocityBurstRuntime extends TickedObject {
   }
 
   private void removeExpiredSessions(PlayerBucket bucket, Player player, long now) {
+    boolean hardStop = false;
     Iterator<Map.Entry<Client, BurstSession>> iterator = bucket.sessions.entries().iterator();
     while (iterator.hasNext()) {
       Map.Entry<Client, BurstSession> entry = iterator.next();
@@ -311,17 +312,26 @@ public final class VelocityBurstRuntime extends TickedObject {
         iterator.remove();
         continue;
       }
-      if (session.expiresAt > now) {
+      boolean active = client.source.getActiveLevel(player) > 0;
+      if (active && session.expiresAt > now) {
         continue;
       }
 
       iterator.remove();
       client.sessions.remove(bucket.playerId, session);
+      hardStop |= !active && session.boosting && session.profile.hardStopOnInvalidState();
       notifyEnded(session, player);
+    }
+    if (bucket.sessions.isEmpty()) {
+      bucket.controllingVelocity = false;
+      if (hardStop) {
+        VelocitySpeed.hardStopHorizontal(player);
+      }
     }
   }
 
   private void invalidateSessions(PlayerBucket bucket, Player player) {
+    bucket.controllingVelocity = false;
     boolean hardStop = false;
     for (BurstSession session : bucket.sessions.values()) {
       if (!session.boosting) {
@@ -360,12 +370,12 @@ public final class VelocityBurstRuntime extends TickedObject {
       return;
     }
 
-    Vector horizontal = VelocitySpeed.horizontalOnly(player.getVelocity());
+    Vector horizontal = controlledHorizontal(bucket, player);
     Vector targetHorizontal = direction.multiply(Math.max(0D, targetSpeed));
     double acceleration = controller.profile.accelerationPerTick() * tickScale;
     Vector nextHorizontal = VelocitySpeed.moveTowards(horizontal, targetHorizontal, acceleration);
     nextHorizontal = VelocitySpeed.clampHorizontal(nextHorizontal, controller.profile.maxHorizontalSpeed());
-    VelocitySpeed.setHorizontalVelocity(player, nextHorizontal);
+    applyHorizontal(bucket, player, nextHorizontal);
 
     for (BurstSession session : bucket.sessions.values()) {
       session.boosting = true;
@@ -389,7 +399,7 @@ public final class VelocityBurstRuntime extends TickedObject {
       return;
     }
 
-    Vector horizontal = VelocitySpeed.horizontalOnly(player.getVelocity());
+    Vector horizontal = controlledHorizontal(bucket, player);
     double stopThresholdSquared = stopThreshold * stopThreshold;
     if (horizontal.lengthSquared() <= stopThresholdSquared) {
       finishBraking(bucket, player);
@@ -401,10 +411,11 @@ public final class VelocityBurstRuntime extends TickedObject {
       finishBraking(bucket, player);
       return;
     }
-    VelocitySpeed.setHorizontalVelocity(player, nextHorizontal);
+    applyHorizontal(bucket, player, nextHorizontal);
   }
 
   private void finishBraking(PlayerBucket bucket, Player player) {
+    bucket.controllingVelocity = false;
     VelocitySpeed.hardStopHorizontal(player);
     for (BurstSession session : bucket.sessions.values()) {
       if (!session.boosting) {
@@ -413,6 +424,19 @@ public final class VelocityBurstRuntime extends TickedObject {
       session.boosting = false;
       notifyBraked(session, player);
     }
+  }
+
+  private Vector controlledHorizontal(PlayerBucket bucket, Player player) {
+    return bucket.controllingVelocity
+        ? new Vector(bucket.horizontalX, 0D, bucket.horizontalZ)
+        : VelocitySpeed.horizontalOnly(player.getVelocity());
+  }
+
+  private void applyHorizontal(PlayerBucket bucket, Player player, Vector horizontal) {
+    bucket.horizontalX = horizontal.getX();
+    bucket.horizontalZ = horizontal.getZ();
+    bucket.controllingVelocity = true;
+    VelocitySpeed.setHorizontalVelocity(player, horizontal);
   }
 
   private boolean isVelocityEligible(Player player) {
@@ -550,7 +574,7 @@ public final class VelocityBurstRuntime extends TickedObject {
   }
 
   private void reportFeedbackFailure(Client client, Throwable error) {
-    Adapt.error("Exception rendering velocity burst feedback for " + client.sourceName);
+    Adapt.error("Exception rendering velocity burst feedback for " + client.source.getName());
     Adapt.error(error);
   }
 
@@ -617,14 +641,14 @@ public final class VelocityBurstRuntime extends TickedObject {
 
   public static final class Client {
     private final VelocityBurstRuntime runtime;
-    private final String sourceName;
+    private final Adaptation<?> source;
     private final Feedback feedback;
     private final Map<UUID, BurstSession> sessions = new ConcurrentHashMap<>();
     private final AtomicBoolean active = new AtomicBoolean(true);
 
-    private Client(VelocityBurstRuntime runtime, String sourceName, Feedback feedback) {
+    private Client(VelocityBurstRuntime runtime, Adaptation<?> source, Feedback feedback) {
       this.runtime = runtime;
-      this.sourceName = sourceName;
+      this.source = source;
       this.feedback = feedback;
     }
 
@@ -718,6 +742,9 @@ public final class VelocityBurstRuntime extends TickedObject {
     private final SessionLedger<Client, BurstSession> sessions = new SessionLedger<>(MAX_SESSIONS_PER_PLAYER);
     private final AtomicBoolean queuedOrPending = new AtomicBoolean(false);
     private long lastUpdateMillis;
+    private double horizontalX;
+    private double horizontalZ;
+    private boolean controllingVelocity;
     private volatile long lastDispatchCycle;
 
     private PlayerBucket(UUID playerId, Player player, long now) {

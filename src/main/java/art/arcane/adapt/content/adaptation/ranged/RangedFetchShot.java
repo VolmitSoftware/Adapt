@@ -94,10 +94,13 @@ public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(ProjectileLaunchEvent event) {
-    if (event.getEntity().getShooter() instanceof Player player && J.isOwnedByCurrentRegion(player)) {
-      event.getEntity().getPersistentDataContainer().set(LAUNCH_SNEAK_KEY, PersistentDataType.BYTE,
-          player.isSneaking() ? (byte) 1 : (byte) 0);
+    if (!(event.getEntity().getShooter() instanceof Player player)
+        || !J.isOwnedByCurrentRegion(player)
+        || !hasActiveAdaptation(player)) {
+      return;
     }
+    event.getEntity().getPersistentDataContainer().set(LAUNCH_SNEAK_KEY, PersistentDataType.BYTE,
+        player.isSneaking() ? (byte) 1 : (byte) 0);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

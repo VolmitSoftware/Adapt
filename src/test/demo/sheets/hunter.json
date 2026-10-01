@@ -1,0 +1,326 @@
+{
+  "hunter-adrenaline": {
+    "set": "hunter-duel", "level": 5,
+    "pre": [
+      "effect give {actor} minecraft:hunger 5 255 true",
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [
+      {"verb": "wait", "ticks": 60},
+      {"verb": "command", "text": "damage {actor} 14 minecraft:generic"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "lookAt", "offset": [0.5, 0.4, -1.5]}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.player.attack.crit", "particle": "dust"}, "maxTicks": 160
+  },
+  "hunter-big-game": {
+    "set": "hunter-golem", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} run data merge entity @e[type=minecraft:iron_golem,distance=..8,limit=1,sort=nearest] {NoAI:1b,Health:16.0f}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.3, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:entity.player.attack.strong", "particle": "crit"}, "maxTicks": 180
+  },
+  "hunter-blood-trail": {
+    "set": "hunter-wound", "level": 5,
+    "camera": {"x": 5.0, "y": 3.2, "z": 4.0, "yaw": 138, "pitch": 20},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.7, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "command", "text": "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..8,limit=1,sort=nearest] {NoAI:0b}"},
+      {"verb": "wait", "ticks": 2},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 120}
+    ],
+    "expect": {"visual": "The wounded cow bolts away and a thin glowing red line trails behind it along the path it runs."}, "maxTicks": 200
+  },
+  "hunter-drop-to-inventory": {
+    "set": "hunter-range", "level": 1,
+    "pre": [
+      "execute at {actor} run tp @e[type=minecraft:cow,distance=11..48] ~ -200 ~",
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "give {actor} minecraft:arrow 16",
+      "execute at {actor} run tp @e[type=minecraft:cow,distance=..16,limit=1,sort=nearest] ~ ~ ~-10 0 0",
+      "execute at {actor} run data merge entity @e[type=minecraft:cow,distance=..16,limit=1,sort=nearest] {NoAI:1b,Health:1.0f}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.0, -9.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "keys", "hold": ["use"], "ticks": 25},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "wax_on"}, "maxTicks": 160
+  },
+  "hunter-invis": {
+    "povCapture": true,
+    "set": "hunter-duel", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:iron_sword",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 20}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "hit", "amount": 3},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "keys", "hold": ["back"], "ticks": 14},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "keys", "hold": ["forward"], "ticks": 14},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:entity.illusioner.mirror_move", "particle": "portal"}, "maxTicks": 200
+  },
+  "hunter-jumpboost": {
+    "povCapture": true,
+    "set": "hunter-duel", "level": 5,
+    "camera": {"x": 10.5, "y": 4.2, "z": -0.5, "yaw": 90, "pitch": 0},
+    "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 50}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "hit", "amount": 2},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "keys", "hold": ["jump"], "ticks": 4},
+      {"verb": "wait", "ticks": 50},
+      {"verb": "keys", "hold": ["jump"], "ticks": 4},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.note_block.pling", "particle": "cloud"}, "maxTicks": 200
+  },
+  "hunter-luck": {
+    "povCapture": true,
+    "set": "hunter-duel", "level": 5,
+    "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 30}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "hit", "amount": 3},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "happy_villager"}, "maxTicks": 140
+  },
+  "hunter-predator-focus": {
+    "set": "hunter-duel", "level": 5,
+    "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.0, -1.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 11},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:entity.player.attack.crit", "particle": "dust"}, "maxTicks": 260
+  },
+  "hunter-regen": {
+    "povCapture": true,
+    "set": "hunter-duel", "level": 3,
+    "pre": [
+      "effect give {actor} minecraft:hunger 5 255 true",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [
+      {"verb": "wait", "ticks": 60},
+      {"verb": "look", "yaw": 180, "pitch": 30}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "hit", "amount": 8},
+      {"verb": "wait", "ticks": 90}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "heart"}, "maxTicks": 160
+  },
+  "hunter-resistance": {
+    "povCapture": true,
+    "set": "hunter-duel", "level": 5,
+    "pre": [
+      "effect give {actor} minecraft:hunger 5 255 true",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [
+      {"verb": "wait", "ticks": 60},
+      {"verb": "look", "yaw": 180, "pitch": 45}
+    ],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 25},
+      {"verb": "hit", "amount": 4},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:item.shield.block", "particle": "electric_spark"}, "maxTicks": 160
+  },
+  "hunter-snare-line": {
+    "set": "hunter-snare", "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:tripwire_hook[minecraft:custom_data={PublicBukkitValues:{\"adapt:hunter-snare-item\":1b}},minecraft:custom_name={text:\"Hunter's Snare\",color:\"green\",italic:false}] 2",
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..16,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 0.0, -2.5]}],
+    "beats": [
+      {"verb": "wait", "ticks": 10},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "command", "text": "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..16,limit=1,sort=nearest] {NoAI:0b}"},
+      {"verb": "wait", "ticks": 130}
+    ],
+    "expect": {"sound": "minecraft:block.tripwire.click_on", "particle": "dust"}, "maxTicks": 240
+  },
+  "hunter-speed": {
+    "povCapture": true,
+    "set": "hunter-retreat", "level": 5,
+    "pre": ["execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 38}],
+    "beats": [
+      {"verb": "wait", "ticks": 15},
+      {"verb": "hit", "amount": 2},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "keys", "hold": ["back"], "ticks": 40},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:entity.ender_dragon.flap", "particle": "cloud"}, "maxTicks": 160
+  },
+  "hunter-strength": {
+    "povCapture": true,
+    "set": "hunter-duel",
+    "level": 5,
+    "pre": [
+      "execute at {actor} run data merge entity @e[type=minecraft:zombie,distance=..8,limit=1,sort=nearest] {NoAI:1b}"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.0,
+          -1.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "hit",
+        "amount": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.0,
+          -1.5
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.zoglin.attack",
+      "particle": "flame"
+    },
+    "maxTicks": 186
+  },
+  "hunter-trophy-skinner": {
+    "set": "hunter-trophy", "level": 5,
+    "pre": ["execute at {actor} as @e[type=minecraft:zombie,distance=..8] run data merge entity @s {NoAI:1b,Health:0.5f}"],
+    "prelude": [{"verb": "lookAt", "offset": [-1.415, 1.0, -1.107]}],
+    "beats": [
+      {"verb": "press", "hold": ["sneak"], "ticks": 200},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "lookAt", "offset": [-0.75, 1.0, -1.665]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "lookAt", "offset": [0.066, 1.0, -1.962]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "lookAt", "offset": [0.934, 1.0, -1.962]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "lookAt", "offset": [1.75, 1.0, -1.665]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 12},
+      {"verb": "lookAt", "offset": [2.415, 1.0, -1.107]},
+      {"verb": "wait", "ticks": 4},
+      {"verb": "click", "key": "attack"},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.wolf.shake", "particle": "happy_villager"}, "maxTicks": 240
+  }
+}

@@ -14,10 +14,7 @@ public final class VelocitySpeed {
     try {
       Input input = p.getCurrentInput();
       if (input != null) {
-        InputSnapshot snapshot = new InputSnapshot(input.isForward(), input.isBackward(), input.isLeft(), input.isRight());
-        if (snapshot.hasHorizontal()) {
-          return snapshot;
-        }
+        return new InputSnapshot(input.isForward(), input.isBackward(), input.isLeft(), input.isRight());
       }
     } catch (NoSuchMethodError ignored) {
       // Fallback path for runtimes without Player#getCurrentInput.

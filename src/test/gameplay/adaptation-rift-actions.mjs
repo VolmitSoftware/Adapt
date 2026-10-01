@@ -113,20 +113,41 @@ async function throwPearl(input) {
     const { actor, context, snapshot } = input
     const before = await snapshot()
     const pearlIds = new Set()
-    const onSpawn = entity => { if (entity.name === 'ender_pearl') pearlIds.add(entity.id) }
+    const pearlSpawns = []
+    const pearlVelocities = []
+    const onVelocity = packet => {
+        if (pearlIds.has(packet.entityId)) pearlVelocities.push({ entityId: packet.entityId, velocity: packet.velocity })
+    }
+    const onSpawn = entity => {
+        if (entity.name !== 'ender_pearl') return
+        pearlIds.add(entity.id)
+        pearlSpawns.push({ id: entity.id, position: entity.position.clone(), velocity: entity.velocity?.clone(), yaw: actor.bot.entity.yaw, pitch: actor.bot.entity.pitch })
+    }
     actor.bot.on('entitySpawn', onSpawn)
+    actor.bot._client.on('entity_velocity', onVelocity)
     try {
         await actor.bot.lookAt(point(actor, 8, 102.8, 0.5), true)
         actor.bot.activateItem()
         actor.bot.deactivateItem()
-        await actor.bot.waitForTicks(2)
+        await actor.bot.waitForTicks(1)
         await actor.bot.lookAt(point(actor, -8, 103.5, 0.5), true)
+        actor.bot._client.write('look', {
+            yaw: 180 - actor.bot.entity.yaw * 180 / Math.PI,
+            pitch: -actor.bot.entity.pitch * 180 / Math.PI,
+            flags: { onGround: actor.bot.entity.onGround, hasHorizontalCollision: false },
+        })
+        let steering
+        await context.waitUntil(async () => {
+            steering = await snapshot()
+            return Math.abs(steering.location.yaw - 90) < 1
+        }, { label: 'server receives the backward aim before pearl impact', timeoutMs: 2000, intervalMs: 25 })
         await context.waitUntil(() => Math.abs(actor.bot.entity.position.x - before.location.x) > 3,
             { label: 'natural thrown pearl resolves to a teleport', timeoutMs: 8000, intervalMs: 50 })
         await actor.bot.waitForTicks(5)
-        return { before, after: await snapshot(), pearlEntities: pearlIds.size, remainingPearls: count(actor, 'ender_pearl') }
+        return { before, after: await snapshot(), pearlEntities: pearlIds.size, pearlSpawns, pearlVelocities, steering: { location: steering.location, input: steering.input }, remainingPearls: count(actor, 'ender_pearl') }
     } finally {
         actor.bot.off('entitySpawn', onSpawn)
+        actor.bot._client.off('entity_velocity', onVelocity)
     }
 }
 

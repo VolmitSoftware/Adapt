@@ -36,6 +36,7 @@ import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Lightable;
 import org.bukkit.entity.Player;
+import org.bukkit.damage.DamageType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByBlockEvent;
@@ -82,7 +83,7 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
     }
 
     EntityDamageEvent.DamageCause cause = e.getCause();
-    if (cause == EntityDamageEvent.DamageCause.HOT_FLOOR) {
+    if (isMagmaDamage(e)) {
       negate(p, e, "magma");
       return;
     }
@@ -195,6 +196,10 @@ public class NetherAshwalker extends SimpleAdaptation<NetherAshwalker.Config> {
     }
 
     return null;
+  }
+
+  static boolean isMagmaDamage(EntityDamageEvent event) {
+    return event.getDamageSource().getDamageType() == DamageType.HOT_FLOOR;
   }
 
   static boolean isFireDamage(EntityDamageEvent.DamageCause cause) {

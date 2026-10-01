@@ -77,8 +77,14 @@ public final class NatureFixtures implements Listener {
         opponent.teleport(new Location(world, 10.5, 100, 10.5));
         switch (name) {
             case "nature-blaze", "nature-fire" -> {
-                world.getBlockAt(0, 99, -1).setType(name.equals("nature-blaze") ? Material.MAGMA_BLOCK : Material.NETHERRACK, false);
-                if (name.equals("nature-fire")) world.getBlockAt(0, 100, -1).setType(Material.FIRE, false);
+                for (int x = -1; x <= 1; x++) {
+                    for (int z = -8; z < 0; z++) {
+                        world.getBlockAt(x, 99, z).setType(name.equals("nature-blaze") ? Material.MAGMA_BLOCK : Material.NETHERRACK, false);
+                        if (name.equals("nature-fire")) {
+                            world.getBlockAt(x, 100, z).setType(Material.FIRE, false);
+                        }
+                    }
+                }
             }
             case "nature-broker" -> {
                 actor.getInventory().setHelmet(new ItemStack(Material.GOLDEN_HELMET));

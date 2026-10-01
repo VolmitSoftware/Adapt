@@ -1,0 +1,224 @@
+{
+  "ranged-fetch-shot": {
+    "set": "ranged-fetch", "level": 3,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "give {actor} minecraft:arrow 16",
+      "execute at {actor} run summon minecraft:item ~-1 ~0.2 ~-9 {Item:{id:\"minecraft:diamond\",count:3}}",
+      "execute at {actor} run summon minecraft:item ~ ~0.2 ~-9 {Item:{id:\"minecraft:emerald\",count:2}}",
+      "execute at {actor} run summon minecraft:item ~1 ~0.2 ~-9 {Item:{id:\"minecraft:gold_ingot\",count:4}}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.4, -9.0]}],
+    "beats": [
+      {"verb": "keys", "hold": ["use"], "ticks": 25},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:entity.item.pickup", "particle": "enchant"}, "maxTicks": 160
+  },
+  "ranged-floaters": {
+    "set": "ranged-lane", "level": 6,
+    "camera": {"x": 12.0, "y": 3.5, "z": -6.0, "yaw": 90, "pitch": -8},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "execute at {actor} as @e[type=minecraft:chicken,distance=..64] run tp @s ~ -200 ~",
+      "give {actor} minecraft:arrow 16",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:movement_speed base set 0",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:knockback_resistance base set 1",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:max_health base set 200",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run data merge entity @s {Health:200.0f}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.8, -12.5]}],
+    "beats": [
+      {"verb": "keys", "hold": ["use"], "ticks": 26},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "keys", "hold": ["use"], "ticks": 26},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "keys", "hold": ["use"], "ticks": 26},
+      {"verb": "wait", "ticks": 60}
+    ],
+    "expect": {"sound": "minecraft:entity.shulker.shoot", "particle": "end_rod"}, "maxTicks": 260
+  },
+  "ranged-force": {
+    "set": "ranged-range", "level": 7,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "give {actor} minecraft:arrow 16"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 2.5, -39.0]}],
+    "beats": [
+      {"verb": "keys", "hold": ["use"], "ticks": 25},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "keys", "hold": ["use"], "ticks": 25},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:entity.snowball.throw", "particle": "crit"}, "maxTicks": 200
+  },
+  "ranged-heartseeker": {
+    "set": "ranged-lane", "level": 5,
+    "camera": {"x": 0.5, "y": 7.0, "z": 6.0, "yaw": 180, "pitch": 28},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "execute at {actor} as @e[type=minecraft:chicken,distance=..64] run tp @s ~ -200 ~",
+      "give {actor} minecraft:arrow 16",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.2, -12.5]}],
+    "beats": [
+      {"verb": "press", "hold": ["use"], "ticks": 30},
+      {"verb": "wait", "ticks": 6},
+      {"verb": "look", "yaw": 204, "pitch": -6},
+      {"verb": "wait", "ticks": 64}
+    ],
+    "expect": {"sound": "minecraft:entity.arrow.hit_player", "particle": "dust"}, "maxTicks": 200
+  },
+  "ranged-heavy-draw": {
+    "set": "ranged-lane", "level": 5,
+    "camera": {"x": 2.5, "y": 1.4, "z": 3.5, "yaw": -17.4, "pitch": 8.8, "follow": true},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "give {actor} minecraft:arrow 16",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.9, -12.5]}],
+    "beats": [
+      {"verb": "keys", "hold": ["use"], "ticks": 25},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:block.anvil.land", "particle": "crit"}, "maxTicks": 160
+  },
+  "ranged-lunge-shot": {
+    "set": "ranged-range", "level": 3,
+    "camera": {"x": 11.5, "y": 3.0, "z": 2.0, "yaw": 90, "pitch": 5},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "give {actor} minecraft:arrow 16"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 4.5, -39.0]}],
+    "beats": [
+      {"verb": "press", "hold": ["use"], "ticks": 40},
+      {"verb": "wait", "ticks": 24},
+      {"verb": "press", "hold": ["jump"], "ticks": 4},
+      {"verb": "wait", "ticks": 50}
+    ],
+    "expect": {"sound": "minecraft:item.armor.equip_turtle", "particle": "cloud"}, "maxTicks": 160
+  },
+  "ranged-piercing": {
+    "set": "ranged-column", "level": 5,
+    "camera": {"x": 9.5, "y": 2.8, "z": -6.5, "yaw": 90, "pitch": 5},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "execute at {actor} as @e[type=minecraft:chicken,distance=..64] run tp @s ~ -200 ~",
+      "give {actor} minecraft:arrow 16",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:movement_speed base set 0",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:knockback_resistance base set 1",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:max_health base set 200",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run data merge entity @s {Health:200.0f}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.5, -12.5]}],
+    "beats": [
+      {"verb": "keys", "hold": ["use"], "ticks": 25},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.amethyst_block.chime", "particle": "dust"}, "maxTicks": 160
+  },
+  "ranged-pinning-shot": {
+    "set": "ranged-charge", "level": 6,
+    "camera": {"x": 11.0, "y": 3.0, "z": -8.0, "yaw": 90, "pitch": 6},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "execute at {actor} as @e[type=!minecraft:player,type=!minecraft:zombie,distance=..96] run tp @s ~ -200 ~",
+      "give {actor} minecraft:arrow 16",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:movement_speed base set 0",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:max_health base set 60",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run data merge entity @s {Health:60.0f}"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 0}],
+    "beats": [
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:movement_speed base set 0.23"},
+      {"verb": "keys", "hold": ["use"], "ticks": 26},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "keys", "hold": ["use"], "ticks": 26},
+      {"verb": "wait", "ticks": 5},
+      {"verb": "keys", "hold": ["use"], "ticks": 26},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.bell.use", "particle": "dust"}, "maxTicks": 220
+  },
+  "ranged-recovery": {
+    "set": "ranged-lane", "level": 8,
+    "camera": {"x": 2.5, "y": 1.4, "z": 3.5, "yaw": -17.4, "pitch": 8.8, "follow": true},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "give {actor} minecraft:arrow 16",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:movement_speed base set 0",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:knockback_resistance base set 1",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:max_health base set 200",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run data merge entity @s {Health:200.0f}"
+    ],
+    "prelude": [{"verb": "lookAt", "offset": [0.5, 1.8, -12.5]}],
+    "beats": [
+      {"verb": "keys", "hold": ["use"], "ticks": 25},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "keys", "hold": ["use"], "ticks": 25},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "keys", "hold": ["use"], "ticks": 25},
+      {"verb": "wait", "ticks": 30}
+    ],
+    "expect": {"sound": "minecraft:entity.item.pickup", "particle": "dust"}, "maxTicks": 200
+  },
+  "ranged-ricochet-bolt": {
+    "set": "ranged-corridor", "level": 5,
+    "camera": {"x": 0.5, "y": 10.0, "z": 6.0, "yaw": 180, "pitch": 32},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "give {actor} minecraft:arrow 16",
+      "execute at {actor} as @e[type=minecraft:chicken,distance=..64] run tp @s ~ -200 ~"
+    ],
+    "prelude": [{"verb": "look", "yaw": 215, "pitch": -3}, {"verb": "wait", "ticks": 100}],
+    "beats": [
+      {"verb": "keys", "hold": ["use"], "ticks": 25},
+      {"verb": "wait", "ticks": 40}
+    ],
+    "expect": {"sound": "minecraft:block.anvil.hit", "particle": "electric_spark"}, "maxTicks": 160
+  },
+  "ranged-trajectory-sight": {
+    "set": "ranged-lane", "level": 5,
+    "camera": {"x": 2.0, "y": 2.9, "z": 4.0, "yaw": 176, "pitch": 14},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bow",
+      "execute at {actor} as @e[type=!minecraft:player,type=!minecraft:zombie,distance=..96] run tp @s ~ -200 ~",
+      "give {actor} minecraft:arrow 16",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": 30}, {"verb": "wait", "ticks": 100}],
+    "beats": [
+      {"verb": "press", "hold": ["use"], "ticks": 120},
+      {"verb": "wait", "ticks": 16},
+      {"verb": "look", "yaw": 180, "pitch": 20},
+      {"verb": "wait", "ticks": 16},
+      {"verb": "look", "yaw": 180, "pitch": 12},
+      {"verb": "wait", "ticks": 16},
+      {"verb": "look", "yaw": 180, "pitch": 6},
+      {"verb": "wait", "ticks": 16},
+      {"verb": "lookAt", "offset": [0.5, 2.2, -12.5]},
+      {"verb": "wait", "ticks": 86}
+    ],
+    "expect": {"sound": "minecraft:block.note_block.hat", "particle": "dust"}, "maxTicks": 260
+  },
+  "ranged-webshot": {
+    "set": "ranged-charge", "level": 5,
+    "camera": {"x": 2.5, "y": 1.4, "z": 3.5, "yaw": -17.4, "pitch": 8.8, "follow": true},
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:snowball[minecraft:custom_data={PublicBukkitValues:{\"adapt:669102293\":\"{}\"}},minecraft:enchantment_glint_override=true]",
+      "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:movement_speed base set 0"
+    ],
+    "prelude": [{"verb": "look", "yaw": 180, "pitch": -3}],
+    "beats": [
+      {"verb": "command", "text": "execute at {actor} as @e[type=minecraft:zombie,distance=..40] run attribute @s minecraft:movement_speed base set 0.23"},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "click", "key": "use"},
+      {"verb": "wait", "ticks": 70}
+    ],
+    "expect": {"sound": "minecraft:block.wool.place", "particle": "cloud"}, "maxTicks": 160
+  }
+}
