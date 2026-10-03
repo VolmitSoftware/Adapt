@@ -11,11 +11,13 @@ import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 public final class PlayerPreferences {
   private PlayerPreferences() {
@@ -119,7 +121,7 @@ public final class PlayerPreferences {
   private static Map<String, PreferencePolicy> validate(String owner, List<PlayerPreference<?>> preferences,
                                                         Map<String, PreferencePolicy> configured) {
     Map<String, PreferencePolicy> policies = configured == null
-        ? new LinkedHashMap<>() : new LinkedHashMap<>(configured);
+        ? new TreeMap<>() : new TreeMap<>(configured);
     Set<String> registered = new HashSet<>();
     for (PlayerPreference<?> preference : preferences) {
       if (!registered.add(preference.id())) {
@@ -136,7 +138,7 @@ public final class PlayerPreferences {
       snapshot.allowedValues = List.copyOf(policy.allowedValues);
       policies.put(preference.id(), snapshot);
     }
-    return Map.copyOf(policies);
+    return Collections.unmodifiableMap(new LinkedHashMap<>(policies));
   }
 
   public static PreferencePolicy policy(Skill<?> skill, PlayerPreference<?> preference) {

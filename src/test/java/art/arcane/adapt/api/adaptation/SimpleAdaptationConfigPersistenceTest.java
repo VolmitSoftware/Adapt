@@ -1,6 +1,9 @@
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.localization.TextKey;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -8,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -40,6 +45,23 @@ class SimpleAdaptationConfigPersistenceTest {
   }
 
   @Test
+  void freshStartupLeavesCanonicalConfigBytesAndModificationTimeUntouched() throws IOException {
+    Path configPath = temporaryDirectory.resolve("normalized-adaptation.toml");
+    TestAdaptation initial = new TestAdaptation(configPath);
+    assertThat(initial.reloadConfigFromDisk(false)).isTrue();
+    String canonical = Files.readString(configPath);
+    Files.setLastModifiedTime(configPath, FileTime.fromMillis(1_000L));
+    FileTime modified = Files.getLastModifiedTime(configPath);
+
+    for (int startup = 0; startup < 3; startup++) {
+      TestAdaptation restarted = new TestAdaptation(configPath);
+      assertThat(restarted.reloadConfigFromDisk(false)).isTrue();
+      assertThat(Files.readString(configPath)).isEqualTo(canonical);
+      assertThat(Files.getLastModifiedTime(configPath)).isEqualTo(modified);
+    }
+  }
+
+  @Test
   void snapshotReloadAppliesCapturedContentWithoutRereadingOrRewritingDisk() throws IOException {
     Path configPath = temporaryDirectory.resolve("normalized-adaptation.toml");
     String diskContent = """
@@ -63,12 +85,22 @@ class SimpleAdaptationConfigPersistenceTest {
   }
 
   private static final class TestAdaptation extends SimpleAdaptation<TestConfig> {
+    private static final List<PlayerPreference<?>> PREFERENCES = List.of(
+        CommonPreferences.ENABLED,
+        CommonPreferences.toggle("particles", TextKey.of("test.particles", "Particles")),
+        CommonPreferences.toggle("activation", TextKey.of("test.activation", "Activation"))
+    );
     private final File configFile;
 
     private TestAdaptation(Path configPath) {
       super("normalized-adaptation");
       configFile = configPath.toFile();
       registerConfiguration(TestConfig.class);
+    }
+
+    @Override
+    public List<PlayerPreference<?>> getPlayerPreferences() {
+      return PREFERENCES;
     }
 
     @Override

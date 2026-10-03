@@ -5,11 +5,14 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.util.config.TomlCodec;
 import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.Material;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,6 +40,39 @@ class PlayerPreferencesTest extends AdaptTestBase {
     when(adaptation.getPlayerPreferences()).thenReturn(List.of(MODE));
     doReturn(config).when(adaptation).getConfig();
     PlayerPreferences.validate(adaptation, config);
+  }
+
+  @Test
+  void policyOrderAndTomlRemainStableAcrossInputOrdersAndRoundTrips() throws IOException {
+    when(adaptation.getPlayerPreferences()).thenReturn(List.of(CommonPreferences.ENABLED, MODE));
+    PreferencePolicy mode = PreferencePolicy.of(Mode.REACTIVE, Mode.MANUAL, Mode.REACTIVE);
+    mode.playerEditable = false;
+    Map<String, PreferencePolicy> configured = new LinkedHashMap<>();
+    configured.put("retained-policy", PreferencePolicy.of(Mode.MANUAL, Mode.MANUAL));
+    configured.put("enabled", PreferencePolicy.defaults(CommonPreferences.ENABLED));
+    configured.put("activation", mode);
+    config.playerPreferences = configured;
+
+    PlayerPreferences.validate(adaptation, config);
+    String canonical = TomlCodec.toToml(config, "adaptation:rift-blink");
+
+    assertThat(config.playerPreferences.keySet()).containsExactly("activation", "enabled", "retained-policy");
+    assertThat(config.playerPreferences.get("activation").defaultValue).isEqualTo("REACTIVE");
+    assertThat(config.playerPreferences.get("activation").playerEditable).isFalse();
+    assertThat(config.playerPreferences.get("activation").allowedValues).containsExactly("MANUAL", "REACTIVE");
+    assertThatThrownBy(() -> config.playerPreferences.clear()).isInstanceOf(UnsupportedOperationException.class);
+    configured.clear();
+    assertThat(config.playerPreferences).hasSize(3);
+
+    config.playerPreferences = new LinkedHashMap<>(config.playerPreferences);
+    PreferencePolicy activation = config.playerPreferences.remove("activation");
+    config.playerPreferences.put("activation", activation);
+    PlayerPreferences.validate(adaptation, config);
+    assertThat(TomlCodec.toToml(config, "adaptation:rift-blink")).isEqualTo(canonical);
+
+    AdaptationConfig restored = TomlCodec.fromToml(canonical, AdaptationConfig.class);
+    PlayerPreferences.validate(adaptation, restored);
+    assertThat(TomlCodec.toToml(restored, "adaptation:rift-blink")).isEqualTo(canonical);
   }
 
   @Test
