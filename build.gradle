@@ -48,7 +48,7 @@ plugins {
 
 apply plugin: 'art.arcane.volmit-packaging'
 
-version = '2.2.0-26.2'
+version = '2.2.1-26.2'
 def apiVersion = '26.1'
 def main = 'art.arcane.adapt.Adapt'
 String paperDevBundleVersion = providers.gradleProperty('paperDevBundleVersion')
