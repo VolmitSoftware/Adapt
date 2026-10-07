@@ -18,6 +18,8 @@
 
 package art.arcane.adapt;
 
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
 import art.arcane.volmlib.util.diagnostics.BukkitDebugDump;
 import art.arcane.volmlib.util.director.help.DirectorMiniMenu;
 import art.arcane.volmlib.util.diagnostics.DebugDumpContributor;
@@ -744,9 +746,10 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   }
 
   @Override
-  public void onPreUnload(ReloadAware.PreUnloadReason reason) {
+  public CompletionStage<Void> commitReload(ReloadAware.PreUnloadReason reason) {
     Adapt.info("BileTools pre-unload hook fired (" + reason + "). Draining Adapt (persistence flush + services).");
     stop();
+    return CompletableFuture.completedFuture(null);
   }
 
   private void startupPrint() {
