@@ -27,6 +27,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.volmlib.util.format.Form;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -67,7 +68,17 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
 
   @Override
   public Material getMaterial() {
-    return Material.SNOWBALL;
+    return CustomModel.get(Material.SNOWBALL, "items", "experience-orb").material();
+  }
+
+  @Override
+  public ItemStack blank() {
+    return CustomModel.get(Material.SNOWBALL, "items", "experience-orb").toItemStack();
+  }
+
+  @Override
+  public boolean acceptsMaterial(Material material) {
+    return true;
   }
 
   @Override
@@ -80,13 +91,13 @@ public class ExperienceOrb implements DataItem<ExperienceOrb.Data> {
     for (Map.Entry<String, Double> entry : data.getExperienceMap().entrySet()) {
       String skill = entry.getKey();
       double experience = entry.getValue();
-      lore.add(C.WHITE + AdaptLanguage.text(
+      lore.add(AdaptLanguage.textStyled(C.WHITE.toString(),
           SnippetsMessages.EXPERIENCE_ORB_CONTENTS,
           trusted("experience", C.UNDERLINE + "" + C.WHITE + Form.f(experience, 0)),
           trusted("skill", Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName() + C.GRAY)
       ));
     }
-    lore.add(C.LIGHT_PURPLE + AdaptLanguage.text(SnippetsMessages.EXPERIENCE_ORB_USE));
+    lore.add(AdaptLanguage.textStyled(C.LIGHT_PURPLE.toString(), SnippetsMessages.EXPERIENCE_ORB_USE));
   }
 
   @Override

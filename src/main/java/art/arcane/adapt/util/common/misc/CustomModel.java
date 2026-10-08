@@ -11,22 +11,45 @@ import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.io.IO;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static art.arcane.adapt.Adapt.instance;
 
 public record CustomModel(Material material, int model,
-                          NamespacedKey modelKey) {
+                          NamespacedKey modelKey, String headTexture) {
   public static final NamespacedKey EMPTY_KEY = NamespacedKey.minecraft("empty");
+  private static final Map<String, URL> SKIN_URLS = new ConcurrentHashMap<>();
   private static volatile UpdateChecker updateChecker = null;
+
+  public CustomModel {
+    if (headTexture != null && !headTexture.isBlank()) {
+      try {
+        skinUrl(headTexture);
+      } catch (IOException error) {
+        Adapt.warn("Invalid player head texture: " + error.getMessage());
+        headTexture = null;
+      }
+    }
+  }
 
   private static UpdateChecker checker() {
     UpdateChecker current = updateChecker;
@@ -59,7 +82,7 @@ public record CustomModel(Material material, int model,
 
   public static CustomModel get(Material fallback, String... path) {
     if (!AdaptConfig.get().isCustomModels())
-      return new CustomModel(fallback, 0, null);
+      return new CustomModel(fallback, 0, null, null);
 
     return checker().get(fallback, path);
   }
@@ -106,8 +129,15 @@ public record CustomModel(Material material, int model,
     if (meta == null)
       return itemStack;
 
-    if (model != 0) {
+    if (model != 0 || modelKey != null && !EMPTY_KEY.equals(modelKey)) {
       Version.get().applyModel(this, meta);
+    }
+    if (headTexture != null && !headTexture.isBlank() && meta instanceof SkullMeta skull) {
+      PlayerProfile profile = Bukkit.createPlayerProfile(UUID.nameUUIDFromBytes(headTexture.getBytes(StandardCharsets.UTF_8)));
+      PlayerTextures textures = profile.getTextures();
+      textures.setSkin(SKIN_URLS.get(headTexture));
+      profile.setTextures(textures);
+      skull.setOwnerProfile(profile);
     }
 
     // Menu tiles are decoration, so vanilla component tooltips (bee counts, potion effects,
@@ -119,6 +149,28 @@ public record CustomModel(Material material, int model,
 
     itemStack.setItemMeta(meta);
     return itemStack;
+  }
+
+  private static URL skinUrl(String texture) throws IOException {
+    URL cached = SKIN_URLS.get(texture);
+    if (cached != null) {
+      return cached;
+    }
+    try {
+      String decoded = new String(Base64.getDecoder().decode(texture), StandardCharsets.UTF_8);
+      JsonObject skin = Json.fromJson(decoded, JsonObject.class)
+          .getAsJsonObject("textures").getAsJsonObject("SKIN");
+      URI uri = URI.create(skin.get("url").getAsString());
+      if (!("https".equals(uri.getScheme()) || "http".equals(uri.getScheme()))
+          || !"textures.minecraft.net".equals(uri.getHost()) || uri.getUserInfo() != null) {
+        throw new IllegalArgumentException("Skin URL must use textures.minecraft.net");
+      }
+      URL url = uri.toURL();
+      SKIN_URLS.put(texture, url);
+      return url;
+    } catch (RuntimeException error) {
+      throw new IOException("Expected a base64 Minecraft skin texture", error);
+    }
   }
 
   private static class UpdateChecker {
@@ -194,22 +246,36 @@ public record CustomModel(Material material, int model,
         JsonObject node = this.json;
         for (String s : path) {
           if (!node.has(s)) {
-            return set(new CustomModel(fallback, 0, EMPTY_KEY), path);
+            return set(new CustomModel(fallback, 0, EMPTY_KEY, null), path);
           }
 
           JsonElement v = node.get(s);
           if (!v.isJsonObject()) {
             Adapt.warn("Invalid json at path: " + String.join(".", path));
-            return new CustomModel(fallback, 0, EMPTY_KEY);
+            return new CustomModel(fallback, 0, EMPTY_KEY, null);
           }
           node = v.getAsJsonObject();
         }
 
-        return new CustomModel(
-            node.has("material") ? Material.valueOf(node.get("material").getAsString()) : fallback,
-            node.has("model") ? node.get("model").getAsInt() : 0,
-            node.has("modelKey") ? NamespacedKey.fromString(node.get("modelKey").getAsString()) : EMPTY_KEY
-        );
+        try {
+          Material material = node.has("material") ? Material.valueOf(node.get("material").getAsString()) : fallback;
+          if (!material.isItem() || material.isAir()) {
+            throw new IllegalArgumentException("Material must be a usable item");
+          }
+          String texture = node.has("headTexture") ? node.get("headTexture").getAsString() : null;
+          if (texture != null && !texture.isBlank()) {
+            skinUrl(texture);
+          }
+          return new CustomModel(
+              material,
+              node.has("model") ? node.get("model").getAsInt() : 0,
+              node.has("modelKey") ? NamespacedKey.fromString(node.get("modelKey").getAsString()) : EMPTY_KEY,
+              texture
+          );
+        } catch (RuntimeException | IOException error) {
+          Adapt.warn("Invalid model at " + String.join(".", path) + ": " + error.getMessage());
+          return new CustomModel(fallback, 0, EMPTY_KEY, null);
+        }
       }
     }
 
@@ -231,6 +297,7 @@ public record CustomModel(Material material, int model,
         node.addProperty("material", data.material.name());
         node.addProperty("model", data.model);
         node.addProperty("modelKey", (data.modelKey == null ? EMPTY_KEY : data.modelKey).toString());
+        node.addProperty("headTexture", data.headTexture == null ? "" : data.headTexture);
       }
 
       scheduleWrite();
@@ -262,12 +329,7 @@ public record CustomModel(Material material, int model,
             return;
           }
 
-          JsonElement parsed = ConfigFileSupport.parseToJsonElement(raw, modelsFile);
-          if (parsed == null || !parsed.isJsonObject()) {
-            throw new IOException("Invalid models.toml");
-          }
-
-          json = parsed.getAsJsonObject();
+          json = parseSnapshot(raw, modelsFile);
           return;
         }
 
@@ -292,7 +354,36 @@ public record CustomModel(Material material, int model,
       if (parsed == null || !parsed.isJsonObject()) {
         throw new IOException("Invalid models config snapshot");
       }
-      return parsed.getAsJsonObject();
+      JsonObject loaded = parsed.getAsJsonObject();
+      validateModels(loaded, "models");
+      return loaded;
+    }
+
+    private void validateModels(JsonObject node, String path) throws IOException {
+      try {
+        if (node.has("material")) {
+          Material material = Material.valueOf(node.get("material").getAsString());
+          if (!material.isItem() || material.isAir()) {
+            throw new IllegalArgumentException("Material must be a usable item");
+          }
+        }
+        if (node.has("model")) {
+          node.get("model").getAsInt();
+        }
+        if (node.has("modelKey") && NamespacedKey.fromString(node.get("modelKey").getAsString()) == null) {
+          throw new IllegalArgumentException("Invalid item model key");
+        }
+        if (node.has("headTexture") && !node.get("headTexture").getAsString().isBlank()) {
+          skinUrl(node.get("headTexture").getAsString());
+        }
+        for (Map.Entry<String, JsonElement> entry : node.entrySet()) {
+          if (entry.getValue().isJsonObject()) {
+            validateModels(entry.getValue().getAsJsonObject(), path + "." + entry.getKey());
+          }
+        }
+      } catch (RuntimeException | IOException error) {
+        throw new IOException("Invalid custom model at " + path, error);
+      }
     }
 
     public void writeFile() throws IOException {

@@ -260,12 +260,10 @@ public class SkillsGui {
     int jumpForward = Math.min(pageCount - 1, currentPage + PAGE_JUMP);
 
     if (pageCount > 1 && currentPage > 0) {
-      window.setElement(-4, navRow, new UIElement("skills-first")
-          .setMaterial(new MaterialBlock(Material.LECTERN))
+      window.setElement(-4, navRow, GuiTheme.element("skills-first", Material.LECTERN, "gui", "navigation", "first")
           .setName(C.GRAY + AdaptLanguage.text(GuiMessages.FIRST))
           .onLeftClick((e) -> open(player, 0)));
-      window.setElement(-3, navRow, new UIElement("skills-prev")
-          .setMaterial(new MaterialBlock(Material.ARROW))
+      window.setElement(-3, navRow, GuiTheme.element("skills-prev", Material.ARROW, "gui", "navigation", "previous")
           .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
           .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", PAGE_JUMP)))
           .onLeftClick((e) -> open(player, currentPage - 1))
@@ -276,14 +274,12 @@ public class SkillsGui {
     }
 
     if (pageCount > 1 && currentPage < pageCount - 1) {
-      window.setElement(3, navRow, new UIElement("skills-next")
-          .setMaterial(new MaterialBlock(Material.ARROW))
+      window.setElement(3, navRow, GuiTheme.element("skills-next", Material.ARROW, "gui", "navigation", "next")
           .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
           .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", PAGE_JUMP)))
           .onLeftClick((e) -> open(player, currentPage + 1))
           .onRightClick((e) -> open(player, jumpForward)));
-      window.setElement(4, navRow, new UIElement("skills-last")
-          .setMaterial(new MaterialBlock(Material.LECTERN))
+      window.setElement(4, navRow, GuiTheme.element("skills-last", Material.LECTERN, "gui", "navigation", "last")
           .setName(C.GRAY + AdaptLanguage.text(GuiMessages.LAST))
           .onLeftClick((e) -> open(player, pageCount - 1)));
     } else if (pageCount > 1) {
@@ -293,8 +289,7 @@ public class SkillsGui {
 
     int from = totalEntries <= 0 ? 0 : (start + 1);
     int to = totalEntries <= 0 ? 0 : end;
-    Element center = new UIElement("skills-page-info")
-        .setMaterial(new MaterialBlock(Material.PAPER))
+    Element center = GuiTheme.element("skills-page-info", Material.PAPER, "gui", "navigation", "page")
         .setName(C.AQUA + AdaptLanguage.text(GuiMessages.SKILLS));
     center.addLore(C.DARK_GRAY + AdaptLanguage.text(
         GuiMessages.PAGE_SHOWING_RANGE,
@@ -308,8 +303,7 @@ public class SkillsGui {
   }
 
   private static Element boundaryElement(String id, TextKey name) {
-    return new UIElement(id)
-        .setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE))
+    return GuiTheme.element(id, Material.GRAY_STAINED_GLASS_PANE, "gui", "navigation", "disabled")
         .setName(C.DARK_GRAY + AdaptLanguage.text(name));
   }
 

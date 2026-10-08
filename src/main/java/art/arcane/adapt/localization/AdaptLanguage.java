@@ -39,6 +39,12 @@ import art.arcane.volmlib.util.plugin.ComponentText;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import net.kyori.adventure.text.minimessage.Context;
+import net.kyori.adventure.text.minimessage.MiniMessage;
+import net.kyori.adventure.text.minimessage.tag.Tag;
+import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
+import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.minimessage.tag.standard.StandardTags;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,12 +60,19 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 public final class AdaptLanguage {
   private static final Object SNAPSHOT_LOCK = new Object();
   private static final long MAX_LOCALE_BYTES = 2L * 1024L * 1024L;
   private static final int MAX_REPORTED_ISSUES = 12;
+  private static final int MAX_COLOR_CACHE_ENTRIES = 2048;
+  private static final int MAX_COLOR_CACHE_TEMPLATE_LENGTH = 4096;
+  private static final Map<String, Boolean> EXPLICIT_COLORS = new ConcurrentHashMap<>();
+  private static final MiniMessage MINI_MESSAGE = MiniMessage.miniMessage();
+  private static final TagResolver COLOR_TAGS = TagResolver.resolver(StandardTags.color(), StandardTags.reset(),
+      StandardTags.gradient(), StandardTags.rainbow(), StandardTags.transition(), StandardTags.pride());
   static final Pattern LOCALE_NAME = Pattern.compile("[A-Za-z0-9_-]+");
   private static final MessageCatalog CATALOG = AdaptMessages.catalog();
   private static final LocalizationManager MANAGER = new LocalizationManager(
@@ -179,14 +192,29 @@ public final class AdaptLanguage {
   }
 
   public static String text(MessageKey key, MessageArgs arguments) {
+    return textStyled("", key, arguments);
+  }
+
+  public static String textStyled(String defaultStyle, MessageKey key, MessageArgument... arguments) {
+    MessageArgs.Builder builder = MessageArgs.builder();
+    for (MessageArgument argument : arguments) {
+      builder.add(argument);
+    }
+    return textStyled(defaultStyle, key, builder.build());
+  }
+
+  public static String textStyled(String defaultStyle, MessageKey key, MessageArgs arguments) {
     if (key instanceof TextKey textKey) {
-      return render(snapshot().resolve(textKey, arguments));
+      ResolvedText resolved = snapshot().resolve(textKey, arguments);
+      return renderTemplate(resolved.template(), resolved.arguments(), AdaptConfig.get().isAutomaticGradients(), defaultStyle);
     }
     if (key instanceof LinesKey linesKey) {
-      return render(snapshot().resolve(linesKey, arguments));
+      ResolvedLines resolved = snapshot().resolve(linesKey, arguments);
+      return renderTemplate(String.join("\n", resolved.lines()), resolved.arguments(), AdaptConfig.get().isAutomaticGradients(), defaultStyle);
     }
     if (key instanceof PluralKey pluralKey) {
-      return render(snapshot().resolve(pluralKey, arguments));
+      ResolvedText resolved = snapshot().resolve(pluralKey, arguments);
+      return renderTemplate(resolved.template(), resolved.arguments(), AdaptConfig.get().isAutomaticGradients(), defaultStyle);
     }
     throw new IllegalArgumentException("Unsupported message key: " + key.id());
   }
@@ -481,61 +509,81 @@ public final class AdaptLanguage {
     return forms;
   }
 
-  private static String render(ResolvedText resolved) {
-    return renderTemplate(resolved.template(), resolved.arguments());
-  }
-
-  private static String render(ResolvedLines resolved) {
-    return renderTemplate(String.join("\n", resolved.lines()), resolved.arguments());
-  }
-
   static String renderTemplate(String template, MessageArgs arguments) {
     return renderTemplate(template, arguments, AdaptConfig.get().isAutomaticGradients());
   }
 
   static String renderTemplate(String template, MessageArgs arguments, boolean automaticGradients) {
-    String prepared = template;
+    return renderTemplate(template, arguments, automaticGradients, "");
+  }
+
+  static String renderTemplate(String template, MessageArgs arguments, boolean automaticGradients, String defaultStyle) {
+    String normalized = ComponentText.normalizeMarkup(template);
+    boolean explicitColor = hasExplicitColor(normalized);
+    String prepared = explicitColor ? normalized : ComponentText.normalizeMarkup(defaultStyle) + normalized;
     List<RenderedArgument> replacements = new ArrayList<>(arguments.size());
     int index = 0;
     for (MessageArgument argument : arguments.arguments().values()) {
       String token = "\uE000" + index + "\uE001";
       prepared = prepared.replace("{" + argument.name() + "}", token);
-      replacements.add(new RenderedArgument(token, argument));
+      String value = String.valueOf(argument.value());
+      String replacement;
+      if (argument.kind() != MessageArgumentKind.TRUSTED) {
+        replacement = MINI_MESSAGE.escapeTags(escapeUntrusted(value));
+      } else if (explicitColor) {
+        replacement = MINI_MESSAGE.escapeTags(ComponentText.markup(value).plain());
+      } else {
+        replacement = ComponentText.normalizeMarkup(renderMarkup(value, automaticGradients));
+      }
+      replacements.add(new RenderedArgument(token, replacement));
       index++;
     }
-
-    return applyReplacements(renderMarkup(prepared, automaticGradients), replacements, automaticGradients);
+    String rendered = ComponentText.component(MINI_MESSAGE.deserialize(applyReplacements(prepared, replacements))).legacy();
+    return explicitColor ? C.RESET + rendered : rendered;
   }
 
-  private static String applyReplacements(
-      String rendered,
-      List<RenderedArgument> replacements,
-      boolean automaticGradients
-  ) {
-    StringBuilder output = new StringBuilder(rendered.length());
+  private static String applyReplacements(String template, List<RenderedArgument> replacements) {
+    StringBuilder output = new StringBuilder(template.length());
     int cursor = 0;
-    while (cursor < rendered.length()) {
+    while (cursor < template.length()) {
       RenderedArgument match = null;
       for (RenderedArgument replacement : replacements) {
-        if (rendered.startsWith(replacement.token(), cursor)) {
+        if (template.startsWith(replacement.token(), cursor)) {
           match = replacement;
           break;
         }
       }
       if (match == null) {
-        output.append(rendered.charAt(cursor));
-        cursor++;
-        continue;
+        output.append(template.charAt(cursor++));
+      } else {
+        output.append(match.value());
+        cursor += match.token().length();
       }
-
-      MessageArgument argument = match.argument();
-      String value = String.valueOf(argument.value());
-      output.append(argument.kind() == MessageArgumentKind.TRUSTED
-          ? renderMarkup(value, automaticGradients)
-          : escapeUntrusted(value));
-      cursor += match.token().length();
     }
     return output.toString();
+  }
+
+  private static boolean hasExplicitColor(String normalized) {
+    if (normalized.indexOf('<') < 0) {
+      return false;
+    }
+    if (normalized.length() > MAX_COLOR_CACHE_TEMPLATE_LENGTH) {
+      return detectExplicitColor(normalized);
+    }
+    Boolean cached = EXPLICIT_COLORS.get(normalized);
+    if (cached != null) {
+      return cached;
+    }
+    if (EXPLICIT_COLORS.size() >= MAX_COLOR_CACHE_ENTRIES) {
+      EXPLICIT_COLORS.clear();
+    }
+    return EXPLICIT_COLORS.computeIfAbsent(normalized, AdaptLanguage::detectExplicitColor);
+  }
+
+  private static boolean detectExplicitColor(String normalized) {
+    ColorPresence colors = new ColorPresence();
+    MINI_MESSAGE.deserializeToTree(normalized, colors);
+    return colors.present;
   }
 
   private static String renderMarkup(String value, boolean automaticGradients) {
@@ -578,6 +626,24 @@ public final class AdaptLanguage {
     }
   }
 
-  private record RenderedArgument(String token, MessageArgument argument) {
+  private static final class ColorPresence implements TagResolver {
+    private boolean present;
+
+    @Override
+    public Tag resolve(String name, ArgumentQueue arguments, Context context) {
+      Tag tag = COLOR_TAGS.resolve(name, arguments, context);
+      if (tag != null) {
+        present = true;
+      }
+      return tag;
+    }
+
+    @Override
+    public boolean has(String name) {
+      return COLOR_TAGS.has(name);
+    }
+  }
+
+  private record RenderedArgument(String token, String value) {
   }
 }

@@ -210,12 +210,10 @@ final class SkillGuiSupport {
       int jumpBack = Math.max(0, currentPage - jumpPages);
       int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
       if (plan.pageCount() > 1 && currentPage > 0) {
-        window.setElement(-4, navRow, new UIElement("skill-first")
-            .setMaterial(new MaterialBlock(Material.LECTERN))
+        window.setElement(-4, navRow, GuiTheme.element("skill-first", Material.LECTERN, "gui", "navigation", "first")
             .setName(C.GRAY + AdaptLanguage.text(GuiMessages.FIRST))
             .onLeftClick((e) -> openSkillPage(skill, player, 0)));
-        window.setElement(-3, navRow, new UIElement("skill-prev")
-            .setMaterial(new MaterialBlock(Material.ARROW))
+        window.setElement(-3, navRow, GuiTheme.element("skill-prev", Material.ARROW, "gui", "navigation", "previous")
             .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
             .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", jumpPages)))
             .onLeftClick((e) -> openSkillPage(skill, player, currentPage - 1))
@@ -225,14 +223,12 @@ final class SkillGuiSupport {
         window.setElement(-3, navRow, boundaryElement("skill-prev-disabled", GuiMessages.NO_PREVIOUS_PAGE));
       }
       if (plan.pageCount() > 1 && currentPage < plan.pageCount() - 1) {
-        window.setElement(3, navRow, new UIElement("skill-next")
-            .setMaterial(new MaterialBlock(Material.ARROW))
+        window.setElement(3, navRow, GuiTheme.element("skill-next", Material.ARROW, "gui", "navigation", "next")
             .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
             .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", jumpPages)))
             .onLeftClick((e) -> openSkillPage(skill, player, currentPage + 1))
             .onRightClick((e) -> openSkillPage(skill, player, jumpForward)));
-        window.setElement(4, navRow, new UIElement("skill-last")
-            .setMaterial(new MaterialBlock(Material.LECTERN))
+        window.setElement(4, navRow, GuiTheme.element("skill-last", Material.LECTERN, "gui", "navigation", "last")
             .setName(C.GRAY + AdaptLanguage.text(GuiMessages.LAST))
             .onLeftClick((e) -> openSkillPage(skill, player, plan.pageCount() - 1)));
       } else if (plan.pageCount() > 1) {
@@ -244,13 +240,11 @@ final class SkillGuiSupport {
       int to = visibleAdaptations.isEmpty() ? 0 : end;
       Element center;
       if (AdaptConfig.get().isGuiBackButton()) {
-        center = new UIElement("back")
-            .setMaterial(new MaterialBlock(Material.ARROW))
+        center = GuiTheme.element("back", Material.ARROW, "gui", "navigation", "back")
             .setName("" + C.RESET + C.GRAY + AdaptLanguage.text(SnippetsMessages.GUI_BACK))
             .onLeftClick((e) -> navigateBack(player));
       } else {
-        center = new UIElement("skill-page-info")
-            .setMaterial(new MaterialBlock(Material.PAPER))
+        center = GuiTheme.element("skill-page-info", Material.PAPER, "gui", "navigation", "page")
             .setName(C.AQUA + AdaptLanguage.text(GuiMessages.ADAPTATIONS));
       }
       center.addLore(C.DARK_GRAY + AdaptLanguage.text(
@@ -329,8 +323,7 @@ final class SkillGuiSupport {
   }
 
   private static Element boundaryElement(String id, TextKey name) {
-    return new UIElement(id)
-        .setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE))
+    return GuiTheme.element(id, Material.GRAY_STAINED_GLASS_PANE, "gui", "navigation", "disabled")
         .setName(C.DARK_GRAY + AdaptLanguage.text(name));
   }
 

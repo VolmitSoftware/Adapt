@@ -105,13 +105,15 @@ public final class GuiConfig {
       return model;
     }
     if (model == null) {
-      return new CustomModel(configured, 0, CustomModel.EMPTY_KEY);
+      return new CustomModel(configured, 0, CustomModel.EMPTY_KEY, null);
     }
-    if (model.model() != 0 || model.material() != defaultIcon) {
+    if (model.model() != 0 || model.material() != defaultIcon
+        || model.modelKey() != null && !CustomModel.EMPTY_KEY.equals(model.modelKey())
+        || model.headTexture() != null && !model.headTexture().isBlank()) {
       return model;
     }
 
-    return new CustomModel(configured, 0, model.modelKey());
+    return new CustomModel(configured, 0, model.modelKey(), model.headTexture());
   }
 
   static Material resolveMaterial(Map<String, String> overrides, String section, String name, Material defaultIcon) {

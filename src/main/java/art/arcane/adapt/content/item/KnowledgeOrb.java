@@ -27,6 +27,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Material;
@@ -82,7 +83,17 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
 
   @Override
   public Material getMaterial() {
-    return Material.SNOWBALL;
+    return CustomModel.get(Material.SNOWBALL, "items", "knowledge-orb").material();
+  }
+
+  @Override
+  public ItemStack blank() {
+    return CustomModel.get(Material.SNOWBALL, "items", "knowledge-orb").toItemStack();
+  }
+
+  @Override
+  public boolean acceptsMaterial(Material material) {
+    return true;
   }
 
   @Override
@@ -95,13 +106,13 @@ public class KnowledgeOrb implements DataItem<KnowledgeOrb.Data> {
     for (Map.Entry<String, Integer> entry : data.getKnowledgeMap().entrySet()) {
       String skill = entry.getKey();
       int knowledge = entry.getValue();
-      lore.add(C.WHITE + AdaptLanguage.text(
+      lore.add(AdaptLanguage.textStyled(C.WHITE.toString(),
           SnippetsMessages.KNOWLEDGE_ORB_CONTENTS,
           trusted("knowledge", C.UNDERLINE + "" + C.WHITE + knowledge),
           trusted("skill", Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(skill).getDisplayName())
       ));
     }
-    lore.add(C.LIGHT_PURPLE + AdaptLanguage.text(SnippetsMessages.KNOWLEDGE_ORB_USE));
+    lore.add(AdaptLanguage.textStyled(C.LIGHT_PURPLE.toString(), SnippetsMessages.KNOWLEDGE_ORB_USE));
   }
 
   @Override

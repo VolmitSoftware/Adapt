@@ -295,12 +295,13 @@ class AdaptLanguageTest extends AdaptTestBase {
   }
 
   @Test
-  void everyDownloadSourceLocaleCoversTheEntireCatalog() {
+  void everyDownloadSourceLocaleCoversRequiredTranslationsAndContainsOnlyCatalogKeys() {
     MessageCatalog catalog = AdaptMessages.catalog();
     for (Map.Entry<String, LocaleOverlay> entry : downloadSourceOverlays.entrySet()) {
       assertThat(entry.getValue().values().keySet())
           .describedAs("catalog coverage in %s", entry.getKey())
-          .containsExactlyInAnyOrderElementsOf(catalog.byId().keySet());
+          .containsAll(catalog.ids().stream().filter(id -> !id.startsWith("config.fields.")).toList())
+          .isSubsetOf(catalog.ids());
     }
   }
 
@@ -313,6 +314,9 @@ class AdaptLanguageTest extends AdaptTestBase {
       String locale = entry.getKey();
       LocaleOverlay overlay = entry.getValue();
       for (MessageKey key : catalog.keys()) {
+        if (key.id().startsWith("config.fields.") && overlay.value(key.id()) == null) {
+          continue;
+        }
         try {
           assertValueIntegrity(locale, key.id(), key.englishValue(), overlay.value(key.id()));
         } catch (AssertionError error) {

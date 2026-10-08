@@ -1,11 +1,43 @@
 package art.arcane.adapt.util.common.inventorygui;
 
+import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.volmlib.util.inventorygui.UIElement;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.mockito.MockedStatic;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 class GuiThemeTest {
+  @Test
+  void configuredItemsRetainTheirBaseStackAndMaterial() {
+    CustomModel model = mock(CustomModel.class);
+    ItemStack item = mock(ItemStack.class);
+    when(model.material()).thenReturn(Material.PLAYER_HEAD);
+    when(model.toItemStack()).thenReturn(item);
+    when(item.clone()).thenReturn(item);
+    try (MockedStatic<CustomModel> models = mockStatic(CustomModel.class)) {
+      models.when(() -> CustomModel.get(Material.ARROW, "gui", "navigation", "back")).thenReturn(model);
+      UIElement element = GuiTheme.element("back", Material.ARROW, "gui", "navigation", "back");
+      assertThat(element.getMaterial().getMaterial()).isEqualTo(Material.PLAYER_HEAD);
+      assertThat(element.getBaseItemStack()).isSameAs(item);
+    }
+  }
+
+  @Test
+  void backgroundVariantsHaveStableIndependentModelPaths() {
+    assertThat(GuiTheme.backgroundKey(0, 0, 6)).isEqualTo("header-even");
+    assertThat(GuiTheme.backgroundKey(0, 1, 6)).isEqualTo("header-odd");
+    assertThat(GuiTheme.backgroundKey(1, 0, 6)).isEqualTo("separator");
+    assertThat(GuiTheme.backgroundKey(5, 0, 6)).isEqualTo("body-even");
+    assertThat(GuiTheme.backgroundKey(5, 1, 6)).isEqualTo("body-odd");
+    assertThat(GuiTheme.backgroundKey(0, 0, 2)).isEqualTo("body-even");
+  }
+
   @Test
   void fullHeightWindowsKeepTheHeaderBandAndCheckerboardBody() {
     assertThat(GuiTheme.background(0, 0, 6)).isEqualTo(Material.GRAY_STAINED_GLASS_PANE);

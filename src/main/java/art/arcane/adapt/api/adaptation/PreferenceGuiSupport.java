@@ -9,11 +9,10 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
+import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.volmlib.util.data.MaterialBlock;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.inventorygui.UIElement;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -21,6 +20,7 @@ import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -63,19 +63,18 @@ final class PreferenceGuiSupport {
       controls[position + 4] = control(preference, player, position);
     }
     int resetPosition = paged ? 4 : GuiLayout.centeredPosition(count, count + 1);
-    controls[resetPosition + 4] = new UIElement("preference-reset")
-        .setMaterial(new MaterialBlock(Material.MILK_BUCKET))
-        .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREFERENCE_RESET))
-        .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.PREFERENCE_RESET_DESCRIPTION))
+    controls[resetPosition + 4] = GuiTheme.element("preference-reset", Material.MILK_BUCKET, "gui", "preferences", "reset")
+        .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREFERENCE_RESET))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_RESET_DESCRIPTION))
         .onLeftClick(element -> onOwner(this::reset));
     if (paged) {
-      controls[0] = new UIElement("preference-previous")
-          .setMaterial(new MaterialBlock(page > 0 ? Material.ARROW : Material.GRAY_STAINED_GLASS_PANE))
-          .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
+      controls[0] = GuiTheme.element("preference-previous", page > 0 ? Material.ARROW : Material.GRAY_STAINED_GLASS_PANE,
+          "gui", "navigation", page > 0 ? "previous" : "previous-disabled")
+          .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREVIOUS))
           .onLeftClick(element -> onOwner(() -> changePage(-1)));
-      controls[7] = new UIElement("preference-next")
-          .setMaterial(new MaterialBlock(start + count < preferences.size() ? Material.ARROW : Material.GRAY_STAINED_GLASS_PANE))
-          .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
+      controls[7] = GuiTheme.element("preference-next", start + count < preferences.size() ? Material.ARROW : Material.GRAY_STAINED_GLASS_PANE,
+          "gui", "navigation", start + count < preferences.size() ? "next" : "next-disabled")
+          .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.NEXT))
           .onLeftClick(element -> onOwner(() -> changePage(1)));
     }
     for (int slot = 0; slot < controls.length; slot++) {
@@ -94,25 +93,26 @@ final class PreferenceGuiSupport {
     PlayerPreference.Choice<E> selected = preference.choice(value);
     List<PlayerPreference.Choice<E>> allowed = PlayerPreferences.allowedChoices(adaptation, preference, level);
     boolean serverControlled = !policy.playerEditable || policy.allowedValues.size() == 1;
-    Element element = new UIElement("preference-" + preference.id())
-        .setMaterial(new MaterialBlock(serverControlled || allowed.isEmpty()
-            ? Material.GRAY_STAINED_GLASS_PANE : selected.icon()))
-        .setName(C.WHITE + AdaptLanguage.text(preference.label()))
-        .addLore(C.WHITE + AdaptLanguage.text(GuiMessages.PREFERENCE_CURRENT,
+    Element element = GuiTheme.element("preference-" + preference.id(), serverControlled || allowed.isEmpty()
+            ? Material.GRAY_STAINED_GLASS_PANE : selected.icon(),
+            "gui", "preferences", "adaptation", adaptation.getName(), preference.id(),
+            serverControlled || allowed.isEmpty() ? "locked" : value.name().toLowerCase(Locale.ROOT))
+        .setName(AdaptLanguage.textStyled(C.WHITE.toString(), preference.label()))
+        .addLore(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREFERENCE_CURRENT,
             trusted("value", AdaptLanguage.text(selected.label()))));
     if (serverControlled) {
-      element.addLore(C.GOLD + AdaptLanguage.text(GuiMessages.PREFERENCE_SERVER_CONTROLLED));
+      element.addLore(AdaptLanguage.textStyled(C.GOLD.toString(), GuiMessages.PREFERENCE_SERVER_CONTROLLED));
     } else if (level < 1) {
-      element.addLore(C.GRAY + AdaptLanguage.text(GuiMessages.PREFERENCE_LEARN_FIRST));
+      element.addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_LEARN_FIRST));
     } else if (allowed.size() > 1) {
-      element.addLore(C.GRAY + AdaptLanguage.text(GuiMessages.PREFERENCE_CYCLE));
+      element.addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_CYCLE));
     }
     for (PlayerPreference.Choice<E> choice : preference.choices()) {
       if (choice.minimumLevel() > level) {
-        element.addLore(C.DARK_GRAY + AdaptLanguage.text(GuiMessages.PREFERENCE_LEVEL_REQUIRED,
+        element.addLore(AdaptLanguage.textStyled(C.DARK_GRAY.toString(), GuiMessages.PREFERENCE_LEVEL_REQUIRED,
             trusted("value", AdaptLanguage.text(choice.label())), trusted("level", choice.minimumLevel())));
       } else if (!allowed.contains(choice)) {
-        element.addLore(C.DARK_GRAY + AdaptLanguage.text(GuiMessages.PREFERENCE_SERVER_DISABLED,
+        element.addLore(AdaptLanguage.textStyled(C.DARK_GRAY.toString(), GuiMessages.PREFERENCE_SERVER_DISABLED,
             trusted("value", AdaptLanguage.text(choice.label()))));
       }
     }

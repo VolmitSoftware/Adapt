@@ -386,12 +386,10 @@ final class AdaptationGuiSupport {
       int jumpBack = Math.max(0, currentPage - jumpPages);
       int jumpForward = Math.min(plan.pageCount() - 1, currentPage + jumpPages);
       if (plan.pageCount() > 1 && currentPage > 0) {
-        w.setElement(-4, navRow, new UIElement("adapt-first")
-            .setMaterial(new MaterialBlock(Material.LECTERN))
+        w.setElement(-4, navRow, GuiTheme.element("adapt-first", Material.LECTERN, "gui", "navigation", "first")
             .setName(C.GRAY + AdaptLanguage.text(GuiMessages.FIRST))
             .onLeftClick((e) -> openAdaptationPage(adaptation, player, 0)));
-        w.setElement(-3, navRow, new UIElement("adapt-prev")
-            .setMaterial(new MaterialBlock(Material.ARROW))
+        w.setElement(-3, navRow, GuiTheme.element("adapt-prev", Material.ARROW, "gui", "navigation", "previous")
             .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
             .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", jumpPages)))
             .onLeftClick((e) -> openAdaptationPage(adaptation, player, currentPage - 1))
@@ -401,14 +399,12 @@ final class AdaptationGuiSupport {
         w.setElement(-3, navRow, boundaryElement("adapt-prev-disabled", GuiMessages.NO_PREVIOUS_PAGE));
       }
       if (plan.pageCount() > 1 && currentPage < plan.pageCount() - 1) {
-        w.setElement(3, navRow, new UIElement("adapt-next")
-            .setMaterial(new MaterialBlock(Material.ARROW))
+        w.setElement(3, navRow, GuiTheme.element("adapt-next", Material.ARROW, "gui", "navigation", "next")
             .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
             .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", jumpPages)))
             .onLeftClick((e) -> openAdaptationPage(adaptation, player, currentPage + 1))
             .onRightClick((e) -> openAdaptationPage(adaptation, player, jumpForward)));
-        w.setElement(4, navRow, new UIElement("adapt-last")
-            .setMaterial(new MaterialBlock(Material.LECTERN))
+        w.setElement(4, navRow, GuiTheme.element("adapt-last", Material.LECTERN, "gui", "navigation", "last")
             .setName(C.GRAY + AdaptLanguage.text(GuiMessages.LAST))
             .onLeftClick((e) -> openAdaptationPage(adaptation, player, plan.pageCount() - 1)));
       } else if (plan.pageCount() > 1) {
@@ -420,13 +416,11 @@ final class AdaptationGuiSupport {
       int to = adaptation.getMaxLevel() <= 0 ? 0 : end;
       Element center;
       if (AdaptConfig.get().isGuiBackButton()) {
-        center = new UIElement("back")
-            .setMaterial(new MaterialBlock(Material.ARROW))
+        center = GuiTheme.element("back", Material.ARROW, "gui", "navigation", "back")
             .setName("" + C.RESET + C.GRAY + AdaptLanguage.text(SnippetsMessages.GUI_BACK))
             .onLeftClick((e) -> navigateBack(adaptation, player));
       } else {
-        center = new UIElement("adapt-page-info")
-            .setMaterial(new MaterialBlock(Material.PAPER))
+        center = GuiTheme.element("adapt-page-info", Material.PAPER, "gui", "navigation", "page")
             .setName(C.AQUA + AdaptLanguage.text(GuiMessages.LEVELS));
       }
       center.addLore(C.DARK_GRAY + AdaptLanguage.text(
@@ -533,8 +527,7 @@ final class AdaptationGuiSupport {
   }
 
   private static Element boundaryElement(String id, TextKey name) {
-    return new UIElement(id)
-        .setMaterial(new MaterialBlock(Material.GRAY_STAINED_GLASS_PANE))
+    return GuiTheme.element(id, Material.GRAY_STAINED_GLASS_PANE, "gui", "navigation", "disabled")
         .setName(C.DARK_GRAY + AdaptLanguage.text(name));
   }
 

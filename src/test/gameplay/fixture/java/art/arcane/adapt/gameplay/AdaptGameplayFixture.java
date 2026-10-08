@@ -109,7 +109,9 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             return true;
         }
         try {
-            if (args.length >= 3 && args[0].equals("catalog-behavior")) {
+            if (args.length >= 3 && args[0].equals("appearance")) {
+                sendJson(sender, "APPEARANCE " + args[2], AppearanceFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length >= 3 && args[0].equals("catalog-behavior")) {
                 sendJson(sender, "CATALOG_BEHAVIOR " + args[2], CatalogPreferenceFixtures.execute(ordinaryPlayer(args[1]), args));
             } else if (args.length >= 3 && args[0].equals("preferences")) {
                 sendJson(sender, "PREFERENCES " + args[2], PreferenceFixtures.execute(ordinaryPlayer(args[1]), args));

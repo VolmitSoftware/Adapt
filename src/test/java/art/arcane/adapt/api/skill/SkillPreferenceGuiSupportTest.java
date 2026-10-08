@@ -1,6 +1,8 @@
 package art.arcane.adapt.api.skill;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.util.common.misc.CustomModel;
+import org.bukkit.inventory.ItemStack;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -38,6 +40,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class SkillPreferenceGuiSupportTest extends AdaptTestBase {
+  private MockedStatic<CustomModel> models;
   private MockedStatic<J> scheduler;
   private MockedStatic<AdaptLanguage> language;
   private SkillRegistry registry;
@@ -53,6 +56,16 @@ class SkillPreferenceGuiSupportTest extends AdaptTestBase {
 
   @BeforeEach
   void prepare() {
+    models = mockStatic(CustomModel.class, invocation -> {
+      Material material = invocation.getArgument(0);
+      CustomModel model = mock(CustomModel.class);
+      ItemStack item = mock(ItemStack.class);
+      when(model.material()).thenReturn(material);
+      when(model.toItemStack()).thenReturn(item);
+      when(item.clone()).thenReturn(item);
+      when(item.getType()).thenReturn(material);
+      return model;
+    });
     scheduler = mockStatic(J.class);
     language = mockStatic(AdaptLanguage.class,
         invocation -> invocation.getMethod().getReturnType() == String.class ? "Text" : null);
@@ -100,8 +113,16 @@ class SkillPreferenceGuiSupportTest extends AdaptTestBase {
 
   @AfterEach
   void closeMocks() {
+    models.close();
     language.close();
     scheduler.close();
+  }
+
+  @Test
+  void resetAndSkillToggleUseTheirConfiguredModelPaths() {
+    models.verify(() -> CustomModel.get(Material.MILK_BUCKET, "gui", "preferences", "reset"));
+    models.verify(() -> CustomModel.get(Material.LIME_STAINED_GLASS_PANE,
+        "gui", "preferences", "skill", "agility", "enabled", "on"));
   }
 
   @Test

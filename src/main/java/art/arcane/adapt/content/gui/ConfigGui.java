@@ -8,6 +8,7 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.adapt.localization.catalog.ConfigMessages;
+import art.arcane.adapt.localization.catalog.ConfigFieldMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.service.ConfigInputSVC;
 import art.arcane.adapt.util.common.format.C;
@@ -18,12 +19,9 @@ import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.adapt.util.config.ConfigDocumentation;
 import art.arcane.adapt.util.config.TomlCodec;
-import art.arcane.volmlib.util.data.MaterialBlock;
 import art.arcane.volmlib.util.format.ColorFormatter;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.inventorygui.UIElement;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.volmlib.util.inventorygui.Window;
 import art.arcane.volmlib.util.io.IO;
@@ -83,7 +81,7 @@ public final class ConfigGui {
       }
 
       if (!canConfigure(player)) {
-        Adapt.messagePlayer(player, C.RED + AdaptLanguage.text(ConfigMessages.NO_PERMISSION));
+        Adapt.messagePlayer(player, AdaptLanguage.textStyled(C.RED.toString(), ConfigMessages.NO_PERMISSION));
         return;
       }
 
@@ -134,7 +132,7 @@ public final class ConfigGui {
 
       SectionTarget target = resolveSectionTarget(safePath, false);
       if (target == null || target.sectionObject() == null) {
-        Adapt.messagePlayer(player, C.RED + AdaptLanguage.text(
+        Adapt.messagePlayer(player, AdaptLanguage.textStyled(C.RED.toString(),
             ConfigMessages.UNABLE_OPEN_SECTION,
             untrusted("path", safePath)
         ));
@@ -186,7 +184,7 @@ public final class ConfigGui {
       EditTarget target = resolveEditTarget(path);
       if (target == null) {
         if (actor != null) {
-          Adapt.messagePlayer(actor, C.RED + AdaptLanguage.text(ConfigMessages.FAILED_SET_VALUE, untrusted("path", path)));
+          Adapt.messagePlayer(actor, AdaptLanguage.textStyled(C.RED.toString(), ConfigMessages.FAILED_SET_VALUE, untrusted("path", path)));
         }
         return false;
       }
@@ -196,7 +194,7 @@ public final class ConfigGui {
 
       if (!setPathValue(target.rootObject(), target.objectPath(), value, true)) {
         if (actor != null) {
-          Adapt.messagePlayer(actor, C.RED + AdaptLanguage.text(ConfigMessages.FAILED_SET_VALUE, untrusted("path", path)));
+          Adapt.messagePlayer(actor, AdaptLanguage.textStyled(C.RED.toString(), ConfigMessages.FAILED_SET_VALUE, untrusted("path", path)));
         }
         return false;
       }
@@ -208,7 +206,7 @@ public final class ConfigGui {
         J.attempt(() -> IO.writeAll(target.file(), beforeToml));
         target.reload().getAsBoolean();
         if (actor != null) {
-          Adapt.messagePlayer(actor, C.RED + AdaptLanguage.text(
+          Adapt.messagePlayer(actor, AdaptLanguage.textStyled(C.RED.toString(),
               ConfigMessages.FAILED_PERSIST_UPDATE,
               untrusted("error", e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage())
           ));
@@ -220,14 +218,14 @@ public final class ConfigGui {
         J.attempt(() -> IO.writeAll(target.file(), beforeToml));
         target.reload().getAsBoolean();
         if (actor != null) {
-          Adapt.messagePlayer(actor, C.RED + AdaptLanguage.text(ConfigMessages.RELOAD_REVERTED));
+          Adapt.messagePlayer(actor, AdaptLanguage.textStyled(C.RED.toString(), ConfigMessages.RELOAD_REVERTED));
         }
         return false;
       }
 
       target.afterReload().run();
       if (actor != null) {
-        Adapt.messagePlayer(actor, C.GREEN + AdaptLanguage.text(
+        Adapt.messagePlayer(actor, AdaptLanguage.textStyled(C.GREEN.toString(),
             ConfigMessages.UPDATED_VALUE,
             untrusted("path", path),
             untrusted("before", summarizeValue(before)),
@@ -302,14 +300,14 @@ public final class ConfigGui {
       case LIST -> C.GOLD + "[" + AdaptLanguage.text(ConfigMessages.TYPE_LIST) + "] ";
       case UNSUPPORTED -> C.RED + "[" + AdaptLanguage.text(ConfigMessages.TYPE_UNSUPPORTED) + "] ";
     };
-    String name = displayName(entry.field().getName());
+    String name = AdaptLanguage.text(ConfigFieldMessages.field(entry.path()).label());
     String value = summarizeValue(entry.value());
 
-    Element element = new UIElement("cfg-" + entry.path())
-        .setMaterial(new MaterialBlock(material))
+    Element element = GuiTheme.element("cfg-" + entry.path(), material, "gui", "config", "fields", entry.path(),
+        entry.descriptor().kind() == ElementKind.BOOLEAN ? String.valueOf(entry.value()) : "item")
         .setName(typePrefix + C.WHITE + name);
-    element.addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.VALUE, untrusted("value", value)));
-    element.addLore(C.DARK_GRAY + AdaptLanguage.text(ConfigMessages.PATH, untrusted("path", entry.path())));
+    element.addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.VALUE, untrusted("value", value)));
+    element.addLore(AdaptLanguage.textStyled(C.DARK_GRAY.toString(), ConfigMessages.PATH, untrusted("path", entry.path())));
     element.setProgress(1D);
     if (entry.descriptor().kind() == ElementKind.BOOLEAN && Boolean.TRUE.equals(entry.value())) {
       element.setEnchanted(true);
@@ -317,8 +315,8 @@ public final class ConfigGui {
 
     if (entry.descriptor().kind() == ElementKind.SECTION && entry.value() != null) {
       int nested = getSerializableFields(entry.value().getClass()).size();
-      element.addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.CONTAINS_SETTINGS, trusted("count", nested)));
-      element.addLore(C.DARK_GRAY + AdaptLanguage.text(
+      element.addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.CONTAINS_SETTINGS, trusted("count", nested)));
+      element.addLore(AdaptLanguage.textStyled(C.DARK_GRAY.toString(),
           ConfigMessages.CATEGORY,
           untrusted("category", sectionCategory(entry.field().getName()))
       ));
@@ -340,16 +338,16 @@ public final class ConfigGui {
     ElementKind kind = entry.descriptor().kind();
     if (kind == ElementKind.BOOLEAN) {
       element.addLore(Boolean.TRUE.equals(entry.value())
-          ? C.GREEN + AdaptLanguage.text(ConfigMessages.STATE_ENABLED)
-          : C.RED + AdaptLanguage.text(ConfigMessages.STATE_DISABLED));
-      element.addLore(C.GREEN + AdaptLanguage.text(ConfigMessages.LEFT_CLICK_TOGGLE));
+          ? AdaptLanguage.textStyled(C.GREEN.toString(), ConfigMessages.STATE_ENABLED)
+          : AdaptLanguage.textStyled(C.RED.toString(), ConfigMessages.STATE_DISABLED));
+      element.addLore(AdaptLanguage.textStyled(C.GREEN.toString(), ConfigMessages.LEFT_CLICK_TOGGLE));
       element.onLeftClick((e) -> {
         boolean toggled = !Boolean.TRUE.equals(entry.value());
         confirmAndApply(player, sectionPath, currentPage, entry.path(), toggled);
       });
     } else if (kind == ElementKind.ENUM) {
-      element.addLore(C.GREEN + AdaptLanguage.text(ConfigMessages.LEFT_CLICK_NEXT_VALUE));
-      element.addLore(C.GREEN + AdaptLanguage.text(ConfigMessages.RIGHT_CLICK_PREVIOUS_VALUE));
+      element.addLore(AdaptLanguage.textStyled(C.GREEN.toString(), ConfigMessages.LEFT_CLICK_NEXT_VALUE));
+      element.addLore(AdaptLanguage.textStyled(C.GREEN.toString(), ConfigMessages.RIGHT_CLICK_PREVIOUS_VALUE));
       element.onLeftClick((e) -> {
         Object next = cycleEnum(entry.field().getType(), entry.value(), 1);
         if (next != null) {
@@ -363,23 +361,23 @@ public final class ConfigGui {
         }
       });
     } else if (kind == ElementKind.NUMBER || kind == ElementKind.STRING) {
-      element.addLore(C.YELLOW + AdaptLanguage.text(ConfigMessages.LEFT_CLICK_EDIT_CHAT));
+      element.addLore(AdaptLanguage.textStyled(C.YELLOW.toString(), ConfigMessages.LEFT_CLICK_EDIT_CHAT));
       element.onLeftClick((e) -> {
         ConfigInputSVC service = Adapt.service(ConfigInputSVC.class);
         if (service == null) {
-          Adapt.messagePlayer(player, C.RED + AdaptLanguage.text(ConfigMessages.INPUT_UNAVAILABLE));
+          Adapt.messagePlayer(player, AdaptLanguage.textStyled(C.RED.toString(), ConfigMessages.INPUT_UNAVAILABLE));
           return;
         }
 
-        service.beginSession(player, entry.path(), sectionPath, currentPage, entry.field().getType(), displayName(entry.field().getName()));
+        service.beginSession(player, entry.path(), sectionPath, currentPage, entry.field().getType(), AdaptLanguage.text(ConfigFieldMessages.field(entry.path()).label()));
       });
     } else if (kind == ElementKind.SECTION) {
-      element.addLore(C.GREEN + AdaptLanguage.text(ConfigMessages.LEFT_CLICK_OPEN_SECTION));
+      element.addLore(AdaptLanguage.textStyled(C.GREEN.toString(), ConfigMessages.LEFT_CLICK_OPEN_SECTION));
       element.onLeftClick((e) -> navigateTo(player, entry.path(), 0));
     } else if (kind == ElementKind.MAP || kind == ElementKind.LIST) {
-      element.addLore(C.RED + AdaptLanguage.text(ConfigMessages.READ_ONLY));
+      element.addLore(AdaptLanguage.textStyled(C.RED.toString(), ConfigMessages.READ_ONLY));
     } else if (kind == ElementKind.UNSUPPORTED) {
-      element.addLore(C.RED + AdaptLanguage.text(ConfigMessages.UNSUPPORTED_TYPE));
+      element.addLore(AdaptLanguage.textStyled(C.RED.toString(), ConfigMessages.UNSUPPORTED_TYPE));
     }
 
     return element;
@@ -470,7 +468,7 @@ public final class ConfigGui {
       Object value = getFieldValue(field, sectionObject);
       String childPath = joinPath(sectionPath, field.getName());
       ElementDescriptor descriptor = describe(field, value);
-      List<String> docs = ConfigDocumentation.buildFieldComments(sourceTag, childPath, field, value);
+      List<String> docs = List.of(AdaptLanguage.text(ConfigFieldMessages.field(childPath).description()).split("\\n"));
       FieldEntry entry = new FieldEntry(field, childPath, value, descriptor, docs);
       if (descriptor.kind() == ElementKind.SECTION) {
         sections.add(entry);
@@ -496,7 +494,7 @@ public final class ConfigGui {
       }
 
       String childPath = joinPath(ROOT_CORE, field.getName());
-      List<String> docs = ConfigDocumentation.buildFieldComments(SOURCE_TAG_CORE, childPath, field, value);
+      List<String> docs = List.of(AdaptLanguage.text(ConfigFieldMessages.field(childPath).description()).split("\\n"));
       values.add(new FieldEntry(field, childPath, value, descriptor, docs));
     }
 
@@ -515,9 +513,8 @@ public final class ConfigGui {
     w.setViewportHeight(plan.rows());
 
     if (entries.isEmpty()) {
-      w.setElement(0, 0, new UIElement("cfg-empty")
-          .setMaterial(new MaterialBlock(Material.PAPER))
-          .setName(C.GRAY + AdaptLanguage.text(ConfigMessages.NO_SETTINGS)));
+      w.setElement(0, 0, GuiTheme.element("cfg-empty", Material.PAPER, "gui", "navigation", "empty")
+          .setName(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.NO_SETTINGS)));
     } else {
       List<GuiEffects.Placement> reveal = new ArrayList<>();
       for (int row = 0; row < plan.contentRows(); row++) {
@@ -541,9 +538,8 @@ public final class ConfigGui {
     applyPageControls(w, player, safePath, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
     if (AdaptConfig.get().isGuiBackButton() && !safePath.isBlank()) {
       String parent = parentPath(safePath);
-      w.setElement(0, navRow, new UIElement("cfg-back")
-          .setMaterial(new MaterialBlock(Material.ARROW))
-          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.BACK))
+      w.setElement(0, navRow, GuiTheme.element("cfg-back", Material.ARROW, "gui", "navigation", "back")
+          .setName(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.BACK))
           .onLeftClick((e) -> navigateTo(player, parent, 0)));
     }
     addSectionOverview(w, navRow, safePath, entries, currentPage, plan.pageCount());
@@ -555,7 +551,7 @@ public final class ConfigGui {
     if (titlePath.length() > 24) {
       titlePath = "..." + titlePath.substring(titlePath.length() - 21);
     }
-    w.setTitle(C.GRAY + AdaptLanguage.text(ConfigMessages.CONFIGURE_PATH, untrusted("path", titlePath)));
+    w.setTitle(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.CONFIGURE_PATH, untrusted("path", titlePath)));
     w.onClosed((closed) -> onGuiClosed(player, w, safePath));
     w.open();
     Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), w);
@@ -572,7 +568,7 @@ public final class ConfigGui {
         int nested = value == null ? 0 : getSerializableFields(value.getClass()).size();
         entries.add(new SectionIndexEntry(
             ROOT_CORE + "." + field.getName(),
-            displayName(field.getName()),
+            AdaptLanguage.text(ConfigFieldMessages.field(ROOT_CORE + "." + field.getName()).label()),
             materialForSection(field.getName()),
             AdaptLanguage.text(ConfigMessages.OPEN_SETTINGS, trusted("count", nested))
         ));
@@ -695,7 +691,7 @@ public final class ConfigGui {
   private static void openAdaptationIndexForSkill(Player player, String skillName, int page) {
     Skill<?> skill = resolveSkill(skillName);
     if (skill == null) {
-      Adapt.messagePlayer(player, C.RED + AdaptLanguage.text(ConfigMessages.UNKNOWN_SKILL, untrusted("skill", skillName)));
+      Adapt.messagePlayer(player, AdaptLanguage.textStyled(C.RED.toString(), ConfigMessages.UNKNOWN_SKILL, untrusted("skill", skillName)));
       navigateTo(player, ROOT_ADAPTATIONS_SKILLS, 0);
       return;
     }
@@ -754,9 +750,8 @@ public final class ConfigGui {
     w.setViewportHeight(plan.rows());
 
     if (entries.isEmpty()) {
-      w.setElement(0, 0, new UIElement("cfg-empty")
-          .setMaterial(new MaterialBlock(Material.PAPER))
-          .setName(C.GRAY + AdaptLanguage.text(ConfigMessages.NO_ENTRIES)));
+      w.setElement(0, 0, GuiTheme.element("cfg-empty", Material.PAPER, "gui", "navigation", "empty")
+          .setName(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.NO_ENTRIES)));
     } else {
       List<GuiEffects.Placement> reveal = new ArrayList<>();
       for (int row = 0; row < plan.contentRows(); row++) {
@@ -769,11 +764,10 @@ public final class ConfigGui {
         for (int i = 0; i < rowCount; i++) {
           SectionIndexEntry entry = entries.get(rowStart + i);
           int pos = GuiLayout.centeredPosition(i, rowCount);
-          Element element = new UIElement("cfg-index-" + entry.path())
-              .setMaterial(new MaterialBlock(entry.material()))
+          Element element = GuiTheme.element("cfg-index-" + entry.path(), entry.material(), "gui", "config", "sections", entry.path())
               .setName(C.WHITE + entry.displayName())
               .addLore(C.GRAY + entry.lore())
-              .addLore(C.DARK_GRAY + AdaptLanguage.text(ConfigMessages.PATH, untrusted("path", entry.path())))
+              .addLore(AdaptLanguage.textStyled(C.DARK_GRAY.toString(), ConfigMessages.PATH, untrusted("path", entry.path())))
               .setProgress(1D)
               .onLeftClick((e) -> navigateTo(player, entry.path(), 0));
           reveal.add(new GuiEffects.Placement(pos, row, element));
@@ -785,9 +779,8 @@ public final class ConfigGui {
     int navRow = plan.rows() - 1;
     applyPageControls(w, player, safePath, navRow, currentPage, plan.pageCount(), entries.size(), start, end);
     if (AdaptConfig.get().isGuiBackButton() && !safePath.isBlank()) {
-      w.setElement(0, navRow, new UIElement("cfg-back")
-          .setMaterial(new MaterialBlock(Material.ARROW))
-          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.BACK))
+      w.setElement(0, navRow, GuiTheme.element("cfg-back", Material.ARROW, "gui", "navigation", "back")
+          .setName(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.BACK))
           .onLeftClick((e) -> navigateTo(player, parentPath(safePath), 0)));
     }
     addIndexOverview(w, navRow, safePath, entries.size(), currentPage, plan.pageCount(), title);
@@ -826,43 +819,38 @@ public final class ConfigGui {
     int jumpForward = Math.min(pageCount - 1, currentPage + PAGE_JUMP);
 
     if (currentPage > 0) {
-      window.setElement(-4, navRow, new UIElement("cfg-prev")
-          .setMaterial(new MaterialBlock(Material.ARROW))
-          .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREVIOUS))
-          .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.LEFT_CLICK_PREVIOUS))
-          .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", PAGE_JUMP)))
+      window.setElement(-4, navRow, GuiTheme.element("cfg-prev", Material.ARROW, "gui", "navigation", "previous")
+          .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREVIOUS))
+          .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.LEFT_CLICK_PREVIOUS))
+          .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.RIGHT_CLICK_JUMP_BACK, trusted("pages", PAGE_JUMP)))
           .onLeftClick((e) -> navigateTo(player, safePath, currentPage - 1))
           .onRightClick((e) -> navigateTo(player, safePath, jumpBack)));
-      window.setElement(-3, navRow, new UIElement("cfg-first")
-          .setMaterial(new MaterialBlock(Material.LECTERN))
-          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.FIRST))
+      window.setElement(-3, navRow, GuiTheme.element("cfg-first", Material.LECTERN, "gui", "navigation", "first")
+          .setName(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.FIRST))
           .onLeftClick((e) -> navigateTo(player, safePath, 0)));
     }
 
     if (currentPage < pageCount - 1) {
-      window.setElement(4, navRow, new UIElement("cfg-next")
-          .setMaterial(new MaterialBlock(Material.ARROW))
-          .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
-          .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.LEFT_CLICK_NEXT))
-          .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", PAGE_JUMP)))
+      window.setElement(4, navRow, GuiTheme.element("cfg-next", Material.ARROW, "gui", "navigation", "next")
+          .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.NEXT))
+          .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.LEFT_CLICK_NEXT))
+          .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.RIGHT_CLICK_JUMP_FORWARD, trusted("pages", PAGE_JUMP)))
           .onLeftClick((e) -> navigateTo(player, safePath, currentPage + 1))
           .onRightClick((e) -> navigateTo(player, safePath, jumpForward)));
-      window.setElement(3, navRow, new UIElement("cfg-last")
-          .setMaterial(new MaterialBlock(Material.LECTERN))
-          .setName(C.GRAY + AdaptLanguage.text(GuiMessages.LAST))
+      window.setElement(3, navRow, GuiTheme.element("cfg-last", Material.LECTERN, "gui", "navigation", "last")
+          .setName(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.LAST))
           .onLeftClick((e) -> navigateTo(player, safePath, pageCount - 1)));
     }
 
     int from = totalEntries <= 0 ? 0 : (start + 1);
     int to = totalEntries <= 0 ? 0 : end;
-    window.setElement(-1, navRow, new UIElement("cfg-page-info")
-        .setMaterial(new MaterialBlock(Material.PAPER))
-        .setName(C.AQUA + AdaptLanguage.text(
+    window.setElement(-1, navRow, GuiTheme.element("cfg-page-info", Material.PAPER, "gui", "navigation", "page-info")
+        .setName(AdaptLanguage.textStyled(C.AQUA.toString(),
             GuiMessages.PAGE_OF,
             trusted("page", currentPage + 1),
             trusted("pages", pageCount)
         ))
-        .addLore(C.GRAY + AdaptLanguage.text(
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(),
             GuiMessages.SHOWING_RANGE,
             trusted("from", from),
             trusted("to", to),
@@ -891,22 +879,20 @@ public final class ConfigGui {
     }
 
     String safePath = path == null || path.isBlank() ? AdaptLanguage.text(ConfigMessages.ROOT) : path;
-    window.setElement(1, navRow, new UIElement("cfg-overview")
-        .setMaterial(new MaterialBlock(Material.BOOK))
-        .setName(C.AQUA + AdaptLanguage.text(ConfigMessages.OVERVIEW))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.PATH, untrusted("path", safePath)))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.SECTIONS_COUNT, trusted("count", sections)))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.EDITABLE_COUNT, trusted("count", editable)))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.ENTRIES_COUNT, trusted("count", entries.size())))
+    window.setElement(1, navRow, GuiTheme.element("cfg-overview", Material.BOOK, "gui", "config", "overview")
+        .setName(AdaptLanguage.textStyled(C.AQUA.toString(), ConfigMessages.OVERVIEW))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.PATH, untrusted("path", safePath)))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.SECTIONS_COUNT, trusted("count", sections)))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.EDITABLE_COUNT, trusted("count", editable)))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.ENTRIES_COUNT, trusted("count", entries.size())))
         .setProgress(1D));
 
-    window.setElement(2, navRow, new UIElement("cfg-help")
-        .setMaterial(new MaterialBlock(Material.KNOWLEDGE_BOOK))
-        .setName(C.GRAY + AdaptLanguage.text(ConfigMessages.HELP))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.HELP_LEFT_CLICK))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.HELP_RIGHT_CLICK))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.HELP_ESCAPE))
-        .addLore(C.DARK_GRAY + AdaptLanguage.text(
+    window.setElement(2, navRow, GuiTheme.element("cfg-help", Material.KNOWLEDGE_BOOK, "gui", "config", "help")
+        .setName(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.HELP))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.HELP_LEFT_CLICK))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.HELP_RIGHT_CLICK))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.HELP_ESCAPE))
+        .addLore(AdaptLanguage.textStyled(C.DARK_GRAY.toString(),
             GuiMessages.PAGE_OF,
             trusted("page", currentPage + 1),
             trusted("pages", pageCount)
@@ -924,12 +910,11 @@ public final class ConfigGui {
       String title
   ) {
     String safePath = path == null || path.isBlank() ? AdaptLanguage.text(ConfigMessages.ROOT) : path;
-    window.setElement(1, navRow, new UIElement("cfg-index-overview")
-        .setMaterial(new MaterialBlock(Material.BOOK))
-        .setName(C.AQUA + AdaptLanguage.text(ConfigMessages.DIRECTORY))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.PATH, untrusted("path", safePath)))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.ENTRIES_COUNT, trusted("count", totalEntries)))
-        .addLore(C.GRAY + AdaptLanguage.text(
+    window.setElement(1, navRow, GuiTheme.element("cfg-index-overview", Material.BOOK, "gui", "config", "index-overview")
+        .setName(AdaptLanguage.textStyled(C.AQUA.toString(), ConfigMessages.DIRECTORY))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.PATH, untrusted("path", safePath)))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.ENTRIES_COUNT, trusted("count", totalEntries)))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(),
             ConfigMessages.PAGE,
             trusted("page", currentPage + 1),
             trusted("pages", pageCount)
@@ -937,12 +922,11 @@ public final class ConfigGui {
         .addLore(C.DARK_GRAY + title)
         .setProgress(1D));
 
-    window.setElement(2, navRow, new UIElement("cfg-index-help")
-        .setMaterial(new MaterialBlock(Material.KNOWLEDGE_BOOK))
-        .setName(C.GRAY + AdaptLanguage.text(ConfigMessages.NAVIGATION))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.NAV_OPEN_SECTION))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.NAV_JUMP_PAGES))
-        .addLore(C.GRAY + AdaptLanguage.text(ConfigMessages.HELP_ESCAPE))
+    window.setElement(2, navRow, GuiTheme.element("cfg-index-help", Material.KNOWLEDGE_BOOK, "gui", "config", "index-help")
+        .setName(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.NAVIGATION))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.NAV_OPEN_SECTION))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.NAV_JUMP_PAGES))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), ConfigMessages.HELP_ESCAPE))
         .setProgress(1D));
   }
 
@@ -1220,22 +1204,6 @@ public final class ConfigGui {
 
   private static String enumConstants(Class<?> enumType) {
     return ConfigGuiValueCodec.enumConstants(enumType);
-  }
-
-  private static String displayName(String key) {
-    if (key == null || key.isBlank()) {
-      return AdaptLanguage.text(ConfigMessages.UNNAMED);
-    }
-
-    String spaced = key
-        .replace('_', ' ')
-        .replace('-', ' ')
-        .replaceAll("([a-z])([A-Z])", "$1 $2")
-        .trim();
-    if (spaced.isBlank()) {
-      return key;
-    }
-    return Character.toUpperCase(spaced.charAt(0)) + spaced.substring(1);
   }
 
   private static String summarizeValue(Object value) {

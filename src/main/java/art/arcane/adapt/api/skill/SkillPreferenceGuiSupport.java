@@ -8,15 +8,16 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.volmlib.util.data.MaterialBlock;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.inventorygui.UIElement;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
+
+import java.util.Locale;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -43,19 +44,19 @@ final class SkillPreferenceGuiSupport {
     CommonPreferences.Toggle value = PlayerPreferences.resolve(skill, player.getData(), CommonPreferences.SKILL_ENABLED);
     PreferencePolicy policy = PlayerPreferences.policy(skill, CommonPreferences.SKILL_ENABLED);
     boolean locked = !policy.playerEditable || policy.allowedValues.size() < 2;
-    Element toggle = new UIElement("skill-preference-enabled")
-        .setMaterial(new MaterialBlock(locked ? Material.GRAY_STAINED_GLASS_PANE
-            : CommonPreferences.SKILL_ENABLED.choice(value).icon()))
-        .setName(C.WHITE + AdaptLanguage.text(CommonPreferences.SKILL_ENABLED.label()))
-        .addLore(C.WHITE + AdaptLanguage.text(GuiMessages.PREFERENCE_CURRENT,
+    Element toggle = GuiTheme.element("skill-preference-enabled", locked ? Material.GRAY_STAINED_GLASS_PANE
+            : CommonPreferences.SKILL_ENABLED.choice(value).icon(),
+            "gui", "preferences", "skill", skill.getName(), "enabled",
+            locked ? "locked" : value.name().toLowerCase(Locale.ROOT))
+        .setName(AdaptLanguage.textStyled(C.WHITE.toString(), CommonPreferences.SKILL_ENABLED.label()))
+        .addLore(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREFERENCE_CURRENT,
             trusted("value", AdaptLanguage.text(CommonPreferences.SKILL_ENABLED.choice(value).label()))))
-        .addLore(C.GRAY + AdaptLanguage.text(locked ? GuiMessages.PREFERENCE_SERVER_CONTROLLED : GuiMessages.PREFERENCE_CYCLE))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), locked ? GuiMessages.PREFERENCE_SERVER_CONTROLLED : GuiMessages.PREFERENCE_CYCLE))
         .onLeftClick(element -> onOwner(false))
         .onRightClick(element -> onOwner(false));
-    Element reset = new UIElement("skill-preference-reset")
-        .setMaterial(new MaterialBlock(Material.MILK_BUCKET))
-        .setName(C.WHITE + AdaptLanguage.text(GuiMessages.PREFERENCE_RESET))
-        .addLore(C.GRAY + AdaptLanguage.text(GuiMessages.PREFERENCE_RESET_DESCRIPTION))
+    Element reset = GuiTheme.element("skill-preference-reset", Material.MILK_BUCKET, "gui", "preferences", "reset")
+        .setName(AdaptLanguage.textStyled(C.WHITE.toString(), GuiMessages.PREFERENCE_RESET))
+        .addLore(AdaptLanguage.textStyled(C.GRAY.toString(), GuiMessages.PREFERENCE_RESET_DESCRIPTION))
         .onLeftClick(element -> onOwner(true));
     if (update) {
       window.updateElement(-1, row, toggle);

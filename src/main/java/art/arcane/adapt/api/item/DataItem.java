@@ -53,6 +53,10 @@ public interface DataItem<T> {
     return new ItemStack(getMaterial());
   }
 
+  default boolean acceptsMaterial(Material material) {
+    return material == getMaterial();
+  }
+
   /**
    * Stamps the declared cooldown group onto a stack that predates the group,
    * so items already in player inventories still render their own sweep.
@@ -70,7 +74,7 @@ public interface DataItem<T> {
 
   default T getData(ItemStack stack) {
     if (stack != null
-        && stack.getType().equals(getMaterial())
+        && acceptsMaterial(stack.getType())
         && stack.getItemMeta() != null) {
       String r = stack.getItemMeta().getPersistentDataContainer().get(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING);
       if (r != null) {
@@ -83,7 +87,7 @@ public interface DataItem<T> {
 
   default boolean hasData(ItemStack stack) {
     if (stack != null
-        && stack.getType().equals(getMaterial())
+        && acceptsMaterial(stack.getType())
         && stack.getItemMeta() != null) {
       return stack.getItemMeta().getPersistentDataContainer().has(new NamespacedKey(Adapt.instance, getType().getCanonicalName().hashCode() + ""), PersistentDataType.STRING);
     }
@@ -92,7 +96,12 @@ public interface DataItem<T> {
 
 
   default void setData(ItemStack item, T t) {
-    item.setItemMeta(withData(t).getItemMeta());
+    ItemStack updated = withData(t);
+    if (updated == null) {
+      return;
+    }
+    item.setType(updated.getType());
+    item.setItemMeta(updated.getItemMeta());
   }
 
   default ItemStack withData(T t) {

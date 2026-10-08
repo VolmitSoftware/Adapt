@@ -45,6 +45,8 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Represents a volume sender. A command sender with extra crap in its
@@ -52,6 +54,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author cyberpwn
  */
 public class VolmitSender implements CommandSender {
+  private static final Pattern EXPLICIT_STYLE = Pattern.compile("(?i)§r|§x(?:§[0-9a-f]){6}");
   private final CommandSender s;
   public boolean useConsoleCustomColors = true;
   public boolean useCustomColorsIngame = true;
@@ -270,9 +273,7 @@ public class VolmitSender implements CommandSender {
       return ComponentText.legacyOnly(message);
     }
 
-    String t = C.translateAlternateColorCodes('&', message);
-    String a = C.aura(t, spinh, spins, spinb, 0.36);
-    return ComponentText.markup(a);
+    return ComponentText.markup(automaticGradient(message, 0.36));
   }
 
   private ComponentText createComponent(String message) {
@@ -282,8 +283,17 @@ public class VolmitSender implements CommandSender {
   }
 
   private String createMiniMessage(String message) {
-    String t = C.translateAlternateColorCodes('&', getTag() + message);
-    return C.aura(t, spinh, spins, spinb);
+    return automaticGradient(getTag(), 0.3) + automaticGradient(message, 0.3);
+  }
+
+  private String automaticGradient(String message, double pulse) {
+    String translated = C.translateAlternateColorCodes('&', message);
+    Matcher explicit = EXPLICIT_STYLE.matcher(translated);
+    if (!explicit.find()) {
+      return C.aura(translated, spinh, spins, spinb, pulse);
+    }
+    return C.aura(translated.substring(0, explicit.start()), spinh, spins, spinb, pulse)
+        + translated.substring(explicit.start());
   }
 
   private ComponentText createComponentRaw(String message) {

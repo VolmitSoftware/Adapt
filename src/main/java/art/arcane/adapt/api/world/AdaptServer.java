@@ -67,10 +67,15 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.Event;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -114,6 +119,7 @@ public class AdaptServer extends TickedObject {
   private final ReentrantLock clearLock = new ReentrantLock();
   private final Object[] playerOperationLocks = createPlayerOperationLocks();
   private final ExecutorService playerClaimExecutor = Executors.newVirtualThreadPerTaskExecutor();
+  private final Map<UUID, Integer> orbUseTicks = new ConcurrentHashMap<>();
   private final Map<UUID, AdaptPlayer> players = new ConcurrentHashMap<>();
   private final ConcurrentMap<UUID, CompletableFuture<LoadedPlayerData>> playerDataClaims =
       new ConcurrentHashMap<>();
@@ -494,6 +500,7 @@ public class AdaptServer extends TickedObject {
       Adapt.warn("Adapt potion-state retention was incomplete at shutdown.");
     }
     players.clear();
+    orbUseTicks.clear();
     prefetchedPlayerData.invalidateAll();
     resetFenceEpochs.invalidateAll();
     runtimeSessions.clear();
@@ -515,54 +522,126 @@ public class AdaptServer extends TickedObject {
     super.unregister();
   }
 
-  @EventHandler(priority = EventPriority.LOWEST)
-  public void on(ProjectileLaunchEvent e) {
-    if (e.getEntity() instanceof Snowball s && e.getEntity().getShooter() instanceof Player p) {
-      KnowledgeOrb.Data data = KnowledgeOrb.get(s.getItem());
-      if (data != null) {
-        AdaptPlayer adaptPlayer = getPlayer(p);
-        Skill<?> skill = getSkillRegistry().getSkill(data.getSkill());
-        if (adaptPlayer == null || skill == null || !data.apply(p)) {
-          e.setCancelled(true);
-          return;
-        }
-        SoundNotification.builder()
-            .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
-            .volume(0.35f).pitch(1.455f)
-            .build().play(adaptPlayer);
-        SoundNotification.builder()
-            .sound(Sound.ENTITY_SHULKER_OPEN)
-            .volume(1f).pitch(1.655f)
-            .build().play(adaptPlayer);
-        adaptPlayer.getNot().queue(AdvancementNotification.builder()
-            .icon(Material.BOOK)
-            .model(CustomModel.get(Material.BOOK, "snippets", "gui", "knowledge"))
-            .title(C.GRAY + AdaptLanguage.text(
-                RuntimeMessages.KNOWLEDGE_GAIN,
-                trusted("amount", C.WHITE + String.valueOf(data.getKnowledge())),
-                trusted("skill", skill.getDisplayName())
-            ))
-            .build());
-      } else {
-        ExperienceOrb.Data datax = ExperienceOrb.get(s.getItem());
-        if (datax != null) {
-          AdaptPlayer adaptPlayer = getPlayer(p);
-          if (adaptPlayer == null || !datax.apply(p)) {
-            e.setCancelled(true);
-            return;
-          }
-          SoundNotification.builder()
-              .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
-              .volume(0.35f).pitch(1.455f)
-              .build().play(adaptPlayer);
-          SoundNotification.builder()
-              .sound(Sound.ENTITY_SHULKER_OPEN)
-              .volume(1f).pitch(1.655f)
-              .build().play(adaptPlayer);
-        }
-      }
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PlayerInteractEvent event) {
+    if (event.getAction() != Action.RIGHT_CLICK_AIR && event.getAction() != Action.RIGHT_CLICK_BLOCK) {
+      return;
     }
+    Player player = event.getPlayer();
+    EquipmentSlot hand = event.getHand();
+    if (hand == null) {
+      return;
+    }
+    ItemStack item = player.getInventory().getItem(hand);
+    if (!isOrb(item) && !usedOrbThisTick(player)) {
+      return;
+    }
+    boolean denied = event.useItemInHand() == Event.Result.DENY;
+    event.setUseInteractedBlock(Event.Result.DENY);
+    event.setUseItemInHand(Event.Result.DENY);
+    if (!denied) {
+      useOrb(player, hand);
+    }
+  }
 
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PlayerInteractEntityEvent event) {
+    handleOrbEntityInteraction(event);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PlayerInteractAtEntityEvent event) {
+    handleOrbEntityInteraction(event);
+  }
+
+  private void handleOrbEntityInteraction(PlayerInteractEntityEvent event) {
+    Player player = event.getPlayer();
+    if (!isOrb(player.getInventory().getItem(event.getHand())) && !usedOrbThisTick(player)) {
+      return;
+    }
+    boolean denied = event.isCancelled();
+    event.setCancelled(true);
+    if (!denied) {
+      useOrb(player, event.getHand());
+    }
+  }
+
+  private boolean isOrb(ItemStack item) {
+    return KnowledgeOrb.io.hasData(item) || ExperienceOrb.io.hasData(item);
+  }
+
+  private boolean usedOrbThisTick(Player player) {
+    Integer tick = orbUseTicks.get(player.getUniqueId());
+    return tick != null && tick == player.getTicksLived();
+  }
+
+  private void useOrb(Player player, EquipmentSlot hand) {
+    if (usedOrbThisTick(player)) {
+      return;
+    }
+    ItemStack item = player.getInventory().getItem(hand);
+    if (item == null || item.getAmount() < 1 || !isOrb(item)) {
+      return;
+    }
+    orbUseTicks.put(player.getUniqueId(), player.getTicksLived());
+    KnowledgeOrb.Data knowledge;
+    ExperienceOrb.Data experience;
+    try {
+      knowledge = KnowledgeOrb.get(item);
+      experience = knowledge == null ? ExperienceOrb.get(item) : null;
+    } catch (RuntimeException error) {
+      Adapt.warn("Unable to read orb for " + player.getUniqueId());
+      Adapt.error(error);
+      return;
+    }
+    if (knowledge == null && experience == null) {
+      return;
+    }
+    ItemStack remaining = item.clone();
+    remaining.setAmount(item.getAmount() - 1);
+    player.getInventory().setItem(hand, remaining.getAmount() == 0 ? null : remaining);
+    try {
+      boolean applied = knowledge != null ? knowledge.apply(player) : experience.apply(player);
+      if (!applied) {
+        player.getInventory().setItem(hand, item);
+        return;
+      }
+      notifyOrbUse(player, knowledge);
+    } catch (RuntimeException error) {
+      Adapt.warn("Unable to finish orb reward for " + player.getUniqueId());
+      Adapt.error(error);
+    }
+  }
+
+  private void notifyOrbUse(Player player, KnowledgeOrb.Data knowledge) {
+    AdaptPlayer adaptPlayer = getOnlineAdaptPlayer(player.getUniqueId());
+    if (adaptPlayer == null) {
+      return;
+    }
+    SoundNotification.builder()
+        .sound(Sound.ENTITY_ALLAY_AMBIENT_WITHOUT_ITEM)
+        .volume(0.35f).pitch(1.455f)
+        .build().play(adaptPlayer);
+    SoundNotification.builder()
+        .sound(Sound.ENTITY_SHULKER_OPEN)
+        .volume(1f).pitch(1.655f)
+        .build().play(adaptPlayer);
+    if (knowledge == null) {
+      return;
+    }
+    for (Map.Entry<String, Integer> entry : knowledge.getKnowledgeMap().entrySet()) {
+      Skill<?> skill = getSkillRegistry().getSkill(entry.getKey());
+      if (skill == null) {
+        continue;
+      }
+      adaptPlayer.getNot().queue(AdvancementNotification.builder()
+          .icon(Material.BOOK)
+          .model(CustomModel.get(Material.BOOK, "snippets", "gui", "knowledge"))
+          .title(AdaptLanguage.textStyled(C.GRAY.toString(), RuntimeMessages.KNOWLEDGE_GAIN,
+              trusted("amount", C.WHITE + String.valueOf(entry.getValue())),
+              trusted("skill", skill.getDisplayName())))
+          .build());
+    }
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
@@ -800,6 +879,7 @@ public class AdaptServer extends TickedObject {
   public void on(PlayerQuitEvent e) {
     Player p = e.getPlayer();
     UUID playerId = p.getUniqueId();
+    orbUseTicks.remove(playerId);
     quit(playerId);
     ViewerDisplayDirector.retireViewer(playerId);
     AdaptHud.clear(p);

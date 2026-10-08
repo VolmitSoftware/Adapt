@@ -1,6 +1,8 @@
 package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.util.common.misc.CustomModel;
+import org.bukkit.inventory.ItemStack;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PlayerPreferenceData;
@@ -62,6 +64,7 @@ class PreferenceGuiSupportTest {
           new PlayerPreference.Choice<>(Mode.ON, TextKey.of("test.on", "On"), Material.LIME_STAINED_GLASS_PANE, 1),
           new PlayerPreference.Choice<>(Mode.REACTIVE, TextKey.of("test.reactive", "Reactive"), Material.ENDER_PEARL, 2))));
 
+  private MockedStatic<CustomModel> models;
   private Adapt previousPlugin;
   private MockedStatic<J> scheduler;
   private MockedStatic<AdaptLanguage> language;
@@ -99,6 +102,16 @@ class PreferenceGuiSupportTest {
   @BeforeEach
   @SuppressWarnings("unchecked")
   void prepare() {
+    models = mockStatic(CustomModel.class, invocation -> {
+      Material material = invocation.getArgument(0);
+      CustomModel model = mock(CustomModel.class);
+      ItemStack item = mock(ItemStack.class);
+      when(model.material()).thenReturn(material);
+      when(model.toItemStack()).thenReturn(item);
+      when(item.clone()).thenReturn(item);
+      when(item.getType()).thenReturn(material);
+      return model;
+    });
     previousPlugin = Adapt.instance;
     Adapt.instance = mock(Adapt.class);
     scheduler = mockStatic(J.class);
@@ -163,10 +176,18 @@ class PreferenceGuiSupportTest {
 
   @AfterEach
   void restore() {
+    models.close();
     soundPlayers.close();
     language.close();
     scheduler.close();
     Adapt.instance = previousPlugin;
+  }
+
+  @Test
+  void resetAndChoiceItemsUseTheirConfiguredModelPaths() {
+    models.verify(() -> CustomModel.get(Material.MILK_BUCKET, "gui", "preferences", "reset"));
+    models.verify(() -> CustomModel.get(Material.RED_STAINED_GLASS_PANE,
+        "gui", "preferences", "adaptation", "test-adaptation", "mode", "off"));
   }
 
   @Test

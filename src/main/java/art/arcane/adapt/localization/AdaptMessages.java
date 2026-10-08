@@ -10,6 +10,7 @@ import art.arcane.adapt.localization.catalog.ChronosMessages;
 import art.arcane.adapt.localization.catalog.CommandMessages;
 import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.localization.catalog.ConfigMessages;
+import art.arcane.adapt.localization.catalog.ConfigFieldMessages;
 import art.arcane.adapt.localization.catalog.CraftingMessages;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
@@ -64,6 +65,7 @@ public final class AdaptMessages {
     BrewingMessages.addTo(builder);
     ChronosMessages.addTo(builder);
     ConfigMessages.addTo(builder);
+    ConfigFieldMessages.addTo(builder);
     CraftingMessages.addTo(builder);
     DiscoveryMessages.addTo(builder);
     EnchantingMessages.addTo(builder);

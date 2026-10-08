@@ -7,6 +7,12 @@ import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.collection.KMap;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.Material;
+import org.bukkit.Registry;
+import org.bukkit.inventory.ItemType;
+import org.bukkit.block.BlockType;
+import io.papermc.paper.registry.RegistryAccess;
+import net.kyori.adventure.key.Key;
+import org.junit.jupiter.api.BeforeAll;
 import org.bukkit.NamespacedKey;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,11 +33,29 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 
 class GuiConfigTest extends AdaptTestBase {
   private AdaptConfig previousConfig;
   private AdaptConfig config;
+
+  @BeforeAll
+  static void initializeItemRegistry() {
+    RegistryAccess access = mock(RegistryAccess.class, RETURNS_DEEP_STUBS);
+    try (MockedStatic<RegistryAccess> registryAccess = mockStatic(RegistryAccess.class)) {
+      registryAccess.when(RegistryAccess::registryAccess).thenReturn(access);
+      Registry<ItemType> items = Registry.ITEM;
+      Registry<BlockType> blocks = Registry.BLOCK;
+      doAnswer(call -> mock(BlockType.Typed.class)).when(blocks).get(any(NamespacedKey.class));
+      doAnswer(call -> mock(BlockType.Typed.class)).when(blocks).getOrThrow(any(Key.class));
+      doAnswer(call -> mock(ItemType.Typed.class)).when(items).get(any(NamespacedKey.class));
+      doAnswer(call -> mock(ItemType.Typed.class)).when(items).getOrThrow(any(Key.class));
+    }
+  }
 
   @BeforeEach
   void installConfig() throws Exception {
@@ -104,7 +128,7 @@ class GuiConfigTest extends AdaptTestBase {
 
   @Test
   void aCustomModelNumberKeepsTheModelsTomlIconEvenWhenTheMaterialMatchesTheDefault() {
-    CustomModel modelled = new CustomModel(Material.STONE, 41, NamespacedKey.minecraft("empty"));
+    CustomModel modelled = new CustomModel(Material.STONE, 41, NamespacedKey.minecraft("empty"), null);
 
     CustomModel resolved = GuiConfig.applyConfiguredMaterial(modelled, Material.STONE, Material.DIAMOND);
 
