@@ -55,6 +55,8 @@ public class AdaptConfig {
   private String language = "en_US";
   @ConfigDoc(value = "Enables anonymous bStats usage reporting for Adapt.", impact = "Set to false to disable Adapt's bStats submissions entirely. Requires a restart to take effect.")
   private boolean metrics = true;
+  @ConfigDoc(value = "Maximum distinct metrics retained for integration snapshot demand.", impact = "Clamped to 1 through 65536. Changes clear cached publications on the next one-second collection cycle.")
+  private int integrationSnapshotMaxMetrics = 65_536;
   public boolean debug = false;
   public boolean autoUpdateCheck = true;
   public boolean splashScreen = true;
@@ -131,6 +133,10 @@ public class AdaptConfig {
 
   @Setter
   private boolean verbose = false;
+
+  public int getIntegrationSnapshotMaxMetrics() {
+    return Math.max(1, Math.min(65_536, integrationSnapshotMaxMetrics));
+  }
 
   public static AdaptConfig get() {
     AdaptConfig current = config;
@@ -277,6 +283,7 @@ public class AdaptConfig {
   }
 
   void normalize() {
+    integrationSnapshotMaxMetrics = getIntegrationSnapshotMaxMetrics();
     adaptActivatorMaterial = normalizeActivatorMaterial(adaptActivatorBlock);
     adaptActivatorBlock = adaptActivatorMaterial.name();
     experienceMaxLevel = Math.max(1, experienceMaxLevel);

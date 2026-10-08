@@ -1,6 +1,8 @@
 package art.arcane.adapt.service;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.api.fx.FxBudget;
 import art.arcane.adapt.api.fx.FxDirector;
 import art.arcane.adapt.api.minion.MinionBurden;
@@ -15,6 +17,9 @@ import art.arcane.volmlib.integration.IntegrationHandshakeResponse;
 import art.arcane.volmlib.integration.IntegrationHeartbeat;
 import art.arcane.volmlib.integration.IntegrationMetricDescriptor;
 import art.arcane.volmlib.integration.IntegrationMetricSample;
+import art.arcane.volmlib.integration.IntegrationMetricPublisher;
+import art.arcane.volmlib.integration.IntegrationMetricSnapshot;
+import art.arcane.volmlib.integration.IntegrationSnapshotProvider;
 import art.arcane.volmlib.integration.IntegrationMetricSchema;
 import art.arcane.volmlib.integration.IntegrationProtocolNegotiator;
 import art.arcane.volmlib.integration.IntegrationProtocolVersion;
@@ -29,7 +34,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class AdaptIntegrationService implements AdaptService, IntegrationServiceContract {
+public class AdaptIntegrationService implements AdaptService, IntegrationSnapshotProvider {
   private static final Set<IntegrationProtocolVersion> SUPPORTED_PROTOCOLS = Set.of(
       new IntegrationProtocolVersion(1, 0),
       new IntegrationProtocolVersion(1, 1)
@@ -38,6 +43,7 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
       "handshake",
       "heartbeat",
       "metrics",
+      IntegrationSnapshotProvider.CAPABILITY,
       "adapt-runtime-metrics",
       "adapt-ability-execution-metrics"
   );
@@ -49,6 +55,8 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
   private final Map<String, Set<String>> abilityKeyCache = new ConcurrentHashMap<>();
   private final Map<String, Set<IntegrationMetricDescriptor>> abilityDescriptorCache = new ConcurrentHashMap<>();
   private final Map<String, AbilityDetailBinding> abilityDetailBindings = new ConcurrentHashMap<>();
+  private final IntegrationMetricPublisher snapshots = new IntegrationMetricPublisher(65_536, 30_000L);
+  private int snapshotTaskId = -1;
   private volatile IntegrationProtocolVersion negotiatedProtocol = new IntegrationProtocolVersion(1, 1);
   private volatile Set<String> cachedDescriptorAbilityIds = Set.of();
   private volatile Set<IntegrationMetricDescriptor> cachedDescriptors = STATIC_ADAPT_DESCRIPTORS;
@@ -67,12 +75,19 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
 
   @Override
   public void onEnable() {
+    refreshSnapshots();
     Bukkit.getServicesManager().register(IntegrationServiceContract.class, this, Adapt.instance, ServicePriority.Normal);
+    snapshotTaskId = J.sr(this::refreshSnapshots, 20);
     Adapt.verbose("Integration provider registered for Adapt");
   }
 
   @Override
   public void onDisable() {
+    if (snapshotTaskId != -1) {
+      J.csr(snapshotTaskId);
+      snapshotTaskId = -1;
+    }
+    snapshots.clear();
     Bukkit.getServicesManager().unregister(IntegrationServiceContract.class, this);
     AbilityCheckTelemetry.clear();
     WorldPolicyLatencyTelemetry.clear();
@@ -172,7 +187,19 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
   @Override
   public Map<String, IntegrationMetricSample> sampleMetrics(Set<String> metricKeys) {
     long now = System.currentTimeMillis();
-    Map<String, AbilityCheckTelemetry.AbilitySnapshot> abilitySnapshots = AbilityCheckTelemetry.abilitySnapshots(now);
+    Map<String, AbilityCheckTelemetry.AbilitySnapshot> abilitySnapshots;
+    if (metricKeys == null || metricKeys.isEmpty()) {
+      abilitySnapshots = AbilityCheckTelemetry.abilitySnapshots(now);
+    } else {
+      Set<String> abilityIds = new HashSet<>();
+      for (String key : metricKeys) {
+        AbilityDetailBinding binding = abilityDetailBinding(key);
+        if (binding != NOT_ABILITY_DETAIL) {
+          abilityIds.add(binding.abilityId());
+        }
+      }
+      abilitySnapshots = AbilityCheckTelemetry.abilitySnapshots(abilityIds, now);
+    }
     Set<String> requested = metricKeys == null || metricKeys.isEmpty()
         ? allSampleKeys(abilitySnapshots.keySet())
         : metricKeys;
@@ -392,6 +419,27 @@ public class AdaptIntegrationService implements AdaptService, IntegrationService
       default -> 0D;
     };
     return IntegrationMetricSample.available(binding.descriptor(), value, now);
+  }
+
+  @Override
+  public IntegrationMetricSnapshot snapshotMetrics(Set<String> metricKeys) {
+    return snapshots.snapshotMetrics(metricKeys, System.currentTimeMillis());
+  }
+
+  void publishSnapshots() {
+    IntegrationMetricPublisher publisher = snapshots;
+    IntegrationMetricPublisher.Demand demand = publisher.demandedKeys(System.currentTimeMillis());
+    if (demand.keys().isEmpty()) {
+      return;
+    }
+    Map<String, IntegrationMetricSample> samples = sampleMetrics(demand.keys());
+    publisher.publish(demand, System.currentTimeMillis(), samples);
+  }
+
+  private void refreshSnapshots() {
+    int capacity = AdaptConfig.get().getIntegrationSnapshotMaxMetrics();
+    snapshots.reconfigureCapacity(capacity);
+    publishSnapshots();
   }
 
   private Set<String> allSampleKeys(Set<String> abilityIds) {

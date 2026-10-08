@@ -218,6 +218,21 @@ public final class AbilityCheckTelemetry {
     return Collections.unmodifiableMap(snapshots);
   }
 
+  public static Map<String, AbilitySnapshot> abilitySnapshots(Set<String> abilityIds, long now) {
+    Map<String, AbilitySnapshot> snapshots = new HashMap<>(abilityIds.size());
+    for (String abilityId : abilityIds) {
+      AbilityWindow window = abilityWindows.get(abilityId);
+      if (window == null) {
+        continue;
+      }
+      AbilitySnapshot snapshot = window.snapshot(now);
+      if (snapshot.hasActivity()) {
+        snapshots.put(abilityId, snapshot);
+      }
+    }
+    return Collections.unmodifiableMap(snapshots);
+  }
+
   public static void clear() {
     for (int i = 0; i < WINDOW_SECONDS; i++) {
       checkOps.set(i, 0L);

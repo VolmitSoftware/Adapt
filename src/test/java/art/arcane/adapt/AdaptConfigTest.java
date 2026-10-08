@@ -18,6 +18,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class AdaptConfigTest {
     @Test
+    void integrationSnapshotCapacityIsBoundedAndSerialized() throws IOException {
+        AdaptConfig config = new AdaptConfig();
+        assertThat(config.getIntegrationSnapshotMaxMetrics()).isEqualTo(65_536);
+        String canonical = TomlCodec.toToml(config, "core-config");
+        assertThat(canonical).contains("integrationSnapshotMaxMetrics = 65536");
+        AdaptConfig below = TomlCodec.fromToml(
+            canonical.replace("integrationSnapshotMaxMetrics = 65536", "integrationSnapshotMaxMetrics = 0"),
+            AdaptConfig.class);
+        AdaptConfig above = TomlCodec.fromToml(
+            canonical.replace("integrationSnapshotMaxMetrics = 65536", "integrationSnapshotMaxMetrics = 999999"),
+            AdaptConfig.class);
+        assertThat(below.getIntegrationSnapshotMaxMetrics()).isEqualTo(1);
+        assertThat(above.getIntegrationSnapshotMaxMetrics()).isEqualTo(65_536);
+    }
+
+    @Test
     void activatorMaterialNormalizationCachesOnlyUsableBlocks() {
         AdaptConfig config = new AdaptConfig();
         config.adaptActivatorBlock = "stone";
