@@ -28,6 +28,9 @@ commands:
   adapt: { }
 
 permissions:
+  adapt.update:
+    description: Allows viewing Adapt in shared Volmit update notices and reports.
+    default: op
   adapt.debugdump:
     description: Allows creating and optionally uploading diagnostic reports.
     default: op

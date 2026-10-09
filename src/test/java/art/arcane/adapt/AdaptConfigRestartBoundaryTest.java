@@ -8,6 +8,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class AdaptConfigRestartBoundaryTest {
   @Test
+  void updateChecksDefaultOnAndRetainAnOptOutAcrossReload() throws Exception {
+    AdaptConfig previous = new AdaptConfig();
+    assertThat(previous.isAutoUpdateCheck()).isTrue();
+    AdaptConfig loaded = art.arcane.adapt.util.config.TomlCodec.fromToml(
+        "autoUpdateCheck = false\n", AdaptConfig.class);
+
+    AdaptConfig installed = AdaptConfig.preserveRestartBoundSettings(previous, loaded);
+
+    assertThat(installed.isAutoUpdateCheck()).isFalse();
+    assertThat(art.arcane.adapt.util.config.TomlCodec.toToml(installed, "core-config"))
+        .contains("autoUpdateCheck = false");
+  }
+
+  @Test
   void reloadKeepsPersistenceAndMetricsSettingsFromStartup() throws Exception {
     AdaptConfig previous = new AdaptConfig();
     AdaptConfig loaded = new AdaptConfig();

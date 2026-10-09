@@ -58,7 +58,8 @@ public class AdaptConfig {
   @ConfigDoc(value = "Maximum distinct metrics retained for integration snapshot demand.", impact = "Clamped to 1 through 65536. Changes clear cached publications on the next one-second collection cycle.")
   private int integrationSnapshotMaxMetrics = 65_536;
   public boolean debug = false;
-  public boolean autoUpdateCheck = true;
+  @ConfigDoc(value = "Checks stable GitHub releases and includes Adapt in shared Volmit update notices.", impact = "Enabled by default and hot-reloadable. Disable to stop Adapt checks and notifications; /volmit plugins updates reports the disabled state.")
+  public volatile boolean autoUpdateCheck = true;
   public boolean splashScreen = true;
   public boolean xpInCreative = false;
   public boolean allowAdaptationsInCreative = false;
@@ -172,6 +173,9 @@ public class AdaptConfig {
     }
     if (reloaded) {
       MaterialValue.invalidateCache();
+      if (Adapt.instance != null) {
+        Adapt.instance.reconfigureUpdates();
+      }
     }
     return reloaded;
   }
@@ -197,6 +201,9 @@ public class AdaptConfig {
     }
     if (reloaded) {
       MaterialValue.invalidateCache();
+      if (Adapt.instance != null) {
+        Adapt.instance.reconfigureUpdates();
+      }
     }
     return reloaded;
   }

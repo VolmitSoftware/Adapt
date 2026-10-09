@@ -23,7 +23,7 @@ public final class ConfigDocumentation {
               + " languages/en_US.toml is created when missing. Edit languages/<locale>.toml directly;"
               + " local changes are preserved and missing or invalid entries use built-in English."
       ),
-      Map.entry("autoUpdateCheck", "Checks for plugin updates during startup."),
+      Map.entry("autoUpdateCheck", "Checks stable GitHub releases and includes Adapt in shared Volmit update notices."),
       Map.entry("metrics", "Sends anonymous bStats usage metrics."),
       Map.entry("xpInCreative", "Allows skill xp gain while players are in creative or spectator."),
       Map.entry("allowAdaptationsInCreative", "Allows using adaptations in creative mode."),

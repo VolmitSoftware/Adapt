@@ -21,6 +21,7 @@ package art.arcane.adapt;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
 import art.arcane.volmlib.util.diagnostics.BukkitDebugDump;
+import art.arcane.volmlib.util.update.BukkitUpdateService;
 import art.arcane.volmlib.util.director.help.DirectorMiniMenu;
 import art.arcane.volmlib.util.diagnostics.DebugDumpContributor;
 import art.arcane.adapt.api.adaptation.AbilityApiBridge;
@@ -103,45 +104,30 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.PluginManager;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.annotation.Annotation;
-import java.net.URI;
-import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
-import java.text.MessageFormat;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.function.Supplier;
 
 import static art.arcane.adapt.util.director.context.AdaptationListingHandler.initializeAdaptationListings;
 
 public class Adapt extends VolmitPlugin implements ReloadAware {
   private static final long STARTUP_SLOW_PHASE_MS = 1500L;
-  private static final int UPDATE_CONNECT_TIMEOUT_MS = 3_000;
-  private static final int UPDATE_READ_TIMEOUT_MS = 3_000;
   private static final long SHUTDOWN_CLEANUP_TIMEOUT_MS = 5_000L;
   private static final int BSTATS_PLUGIN_ID = 24221;
   private static final boolean SLIMJAR_DEBUG = Boolean.getBoolean("adapt.debug-slimjar");
   private static final Logger FALLBACK_LOGGER = Logger.getLogger("Adapt");
   private static final String LOG_DISCRIMINATOR = ComponentLog.discriminator("Adapt", "&4");
   private static final Object GLOWING_ENTITIES_LOCK = new Object();
-  private static final List<String> UPDATE_SOURCES = List.of(
-      "https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle.kts",
-      "https://raw.githubusercontent.com/VolmitSoftware/Adapt/main/build.gradle"
-  );
-  private static final Pattern REMOTE_VERSION_PATTERN = Pattern.compile("^version\\s*=?\\s*['\"]([^'\"]+)['\"]");
-  private static final Pattern VERSION_PREFIX_PATTERN = Pattern.compile("^(\\d+)\\.(\\d+)(?:\\.(\\d+))?");
   public static Adapt instance;
   public static Platform platform;
   public static AudienceProvider audiences;
@@ -178,6 +164,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
   // AdaptMetrics owns all bstats types; never reference them from this class (slimjar link trap)
   private AdaptMetrics metrics;
   private BukkitDebugDump debugDump;
+  private volatile BukkitUpdateService updates;
 
 
   public Adapt() {
@@ -269,78 +256,6 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     info("Language: " + AdaptLanguage.activeLocale());
   }
 
-  public static void autoUpdateCheck() {
-    String localVersion = instance.getDescription().getVersion();
-    if (localVersion.contains("development")) {
-      verbose("Development build detected. Skipping update check.");
-      return;
-    }
-
-    verbose("Checking for updates...");
-    String remoteVersion = fetchRemoteVersion();
-    if (remoteVersion == null) {
-      warn("Failed to check for updates.");
-      return;
-    }
-
-    int comparison = compareVersionPrefixes(localVersion, remoteVersion);
-    if (comparison < 0) {
-      info(MessageFormat.format("Please update your Adapt plugin to the latest version! (Current: {0} Latest: {1})", localVersion, remoteVersion));
-    } else if (comparison > 0) {
-      info("Running a build ahead of the published release. (Current: " + localVersion + " Published: " + remoteVersion + ")");
-    } else {
-      verbose("Adapt is running the latest published version.");
-    }
-  }
-
-  private static String fetchRemoteVersion() {
-    for (String source : UPDATE_SOURCES) {
-      try {
-        URLConnection connection = URI.create(source).toURL().openConnection();
-        connection.setConnectTimeout(UPDATE_CONNECT_TIMEOUT_MS);
-        connection.setReadTimeout(UPDATE_READ_TIMEOUT_MS);
-        try (BufferedReader in = new BufferedReader(
-            new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
-          String line;
-          while ((line = in.readLine()) != null) {
-            Matcher matcher = REMOTE_VERSION_PATTERN.matcher(line.trim());
-            if (matcher.find()) {
-              return matcher.group(1);
-            }
-          }
-        }
-      } catch (IOException | IllegalArgumentException error) {
-        verbose("Update source unavailable (" + source + "): " + error.getMessage());
-      }
-    }
-
-    return null;
-  }
-
-  private static int compareVersionPrefixes(String local, String remote) {
-    int[] a = parseVersionPrefix(local);
-    int[] b = parseVersionPrefix(remote);
-    for (int i = 0; i < 3; i++) {
-      if (a[i] != b[i]) {
-        return Integer.compare(a[i], b[i]);
-      }
-    }
-
-    return 0;
-  }
-
-  private static int[] parseVersionPrefix(String version) {
-    int[] parts = new int[3];
-    Matcher matcher = VERSION_PREFIX_PATTERN.matcher(version);
-    if (matcher.find()) {
-      parts[0] = Integer.parseInt(matcher.group(1));
-      parts[1] = Integer.parseInt(matcher.group(2));
-      parts[2] = matcher.group(3) == null ? 0 : Integer.parseInt(matcher.group(3));
-    }
-
-    return parts;
-  }
-
   public static void actionbar(Player p, String msg) {
     AdaptHud.actionBar(p, msg);
   }
@@ -429,6 +344,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
 
     runStartupPhaseVoid("language-load", AdaptLanguage::initialize);
     AdaptLanguage.start();
+    updates = BukkitUpdateService.register(this, new BukkitUpdateService.Options(
+        "VolmitSoftware", "Adapt", "adapt.update", () -> AdaptConfig.get().isAutoUpdateCheck()));
     debugDump = BukkitDebugDump.create(this, new BukkitDebugDump.Options(() -> true, this::captureDebugState,
         new BukkitDebugDump.Presentation("/adapt debug dump", "/adapt debug",
             DirectorMiniMenu.Theme.adaptRed(),
@@ -467,9 +384,6 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     registerListener(Version.get());
     setupMetrics();
     startupPrint(); // Splash screen
-    if (AdaptConfig.get().isAutoUpdateCheck()) {
-      J.a(Adapt::autoUpdateCheck);
-    }
     AbilityApiBridge.install(this);
     protectorRegistry = new ProtectorRegistry();
     PluginManager pluginManager = getServer().getPluginManager();
@@ -589,6 +503,13 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     return () -> state;
   }
 
+  public void reconfigureUpdates() {
+    BukkitUpdateService current = updates;
+    if (current != null) {
+      current.reconfigure();
+    }
+  }
+
   public BukkitDebugDump debugDump() {
     return debugDump;
   }
@@ -645,6 +566,10 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (debugDump != null) {
       debugDump.close();
       debugDump = null;
+    }
+    if (updates != null) {
+      updates.close();
+      updates = null;
     }
     runShutdownPhase("language downloader", AdaptLanguage::shutdown);
     runShutdownPhase("Ability API", AbilityApiBridge::uninstall);
