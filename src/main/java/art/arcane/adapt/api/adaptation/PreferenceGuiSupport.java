@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.adaptation;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.preference.PreferencePolicy;
@@ -42,6 +43,14 @@ final class PreferenceGuiSupport {
   }
 
   private void render(boolean update) {
+    if (!AdaptConfig.get().isPlayerSettingsEnabled()) {
+      if (update) {
+        for (int slot = 0; slot < GuiLayout.WIDTH; slot++) {
+          window.updateElement(slot - 4, row, null);
+        }
+      }
+      return;
+    }
     AdaptPlayer player = adaptation.getPlayer(window.getViewer());
     if (player == null) {
       return;
@@ -187,6 +196,10 @@ final class PreferenceGuiSupport {
     Player viewer = window.getViewer();
     if (!J.isOwnedByCurrentRegion(viewer)) {
       J.runEntity(viewer, () -> onOwner(action));
+      return;
+    }
+    if (!AdaptConfig.get().isPlayerSettingsEnabled()) {
+      render(true);
       return;
     }
     if (!viewer.isOnline() || !window.isVisible()

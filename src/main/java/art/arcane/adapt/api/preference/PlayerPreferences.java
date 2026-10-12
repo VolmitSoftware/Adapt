@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.preference;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -47,7 +48,7 @@ public final class PlayerPreferences {
   private static <E extends Enum<E>> E resolve(PlayerPreference<E> preference, PreferencePolicy policy,
                                                int level, String stored) {
     E serverDefault = preference.parse(policy.defaultValue);
-    if (!policy.playerEditable) {
+    if (!AdaptConfig.get().isPlayerSettingsEnabled() || !policy.playerEditable) {
       return serverDefault == null ? preference.defaultValue() : serverDefault;
     }
     if (stored != null) {
@@ -209,6 +210,22 @@ public final class PlayerPreferences {
     }
   }
 
+  public static void reconcileOnline() {
+    if (Adapt.instance == null || Adapt.instance.getAdaptServer() == null
+        || Adapt.instance.getAdaptServer().getSkillRegistry() == null) {
+      return;
+    }
+    for (AdaptPlayer player : Adapt.instance.getAdaptServer().getOnlineAdaptPlayerSnapshot()) {
+      J.runEntity(player.getPlayer(), () -> {
+        if (player.isRuntimeReady()) {
+          for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getSkills()) {
+            reconcileSkill(skill, player);
+          }
+        }
+      });
+    }
+  }
+
   public static void reconcileOnline(Skill<?> skill) {
     if (Adapt.instance == null || Adapt.instance.getAdaptServer() == null) {
       return;
@@ -235,7 +252,8 @@ public final class PlayerPreferences {
   }
 
   private static boolean canEdit(Skill<?> skill, AdaptPlayer player) {
-    if (skill == null || player == null || !player.isRuntimeReady() || !skill.isEnabled() || !isCurrentSkill(skill)) {
+    if (!AdaptConfig.get().isPlayerSettingsEnabled() || skill == null || player == null
+        || !player.isRuntimeReady() || !skill.isEnabled() || !isCurrentSkill(skill)) {
       return false;
     }
     Player owner = player.getPlayer();
@@ -244,7 +262,8 @@ public final class PlayerPreferences {
   }
 
   private static boolean canEdit(Adaptation<?> adaptation, AdaptPlayer player) {
-    if (adaptation == null || player == null || !player.isRuntimeReady() || !adaptation.isEnabled()
+    if (!AdaptConfig.get().isPlayerSettingsEnabled() || adaptation == null || player == null
+        || !player.isRuntimeReady() || !adaptation.isEnabled()
         || adaptation.getSkill() == null || !adaptation.getSkill().isEnabled()
         || !isCurrentSkill(adaptation.getSkill())
         || !adaptation.getSkill().getAdaptations().contains(adaptation)) {

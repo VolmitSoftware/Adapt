@@ -1,6 +1,7 @@
 package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreference;
@@ -30,23 +31,35 @@ public final class PreferenceFixtures {
         AdaptPlayer runtime = Objects.requireNonNull(Adapt.instance.getAdaptServer().getPlayer(player));
         if (!runtime.isRuntimeReady()) throw new IllegalStateException("Player runtime is not ready");
         if (args[2].equals("catalog")) return catalog();
+        if (args[2].equals("lock-audit")) return auditLock(runtime);
         if (args[2].equals("skill")) {
             Skill<?> skill = Objects.requireNonNull(Adapt.instance.getAdaptServer().getSkillRegistry().getSkill(args[3]));
             if (args.length > 4 && args[4].equals("open")) skill.openGui(player);
             JsonObject result = inventory(player);
+            if (args.length > 4 && args[4].equals("set")) {
+                result.addProperty("accepted", PlayerPreferences.setSkillEnabled(skill, runtime, CommonPreferences.Toggle.valueOf(args[5])));
+            }
+            if (args.length > 4 && args[4].equals("reset")) result.addProperty("accepted", PlayerPreferences.resetSkill(skill, runtime));
             result.addProperty("enabled", PlayerPreferences.resolve(skill, runtime.getData(), CommonPreferences.SKILL_ENABLED).name());
+            result.addProperty("stored", runtime.getData().getPreferences().getSkill(skill.getName(), CommonPreferences.SKILL_ENABLED.id()));
+            result.addProperty("playerSettingsEnabled", AdaptConfig.get().isPlayerSettingsEnabled());
             return result;
         }
         Adaptation<?> adaptation = adaptation(args[3]);
         if (args[2].equals("audit")) return audit(adaptation, runtime);
         if (args[2].equals("learn")) runtime.getData().getSkillLine(adaptation.getSkill().getName()).setAdaptation(adaptation, adaptation.getMaxLevel());
         if (args[2].equals("open")) adaptation.openGui(player);
-        if (args[2].equals("set")) {
+        Boolean accepted = null;
+        if (args[2].equals("set") || args[2].equals("try-set")) {
             PlayerPreference<?> preference = adaptation.getPlayerPreferences().stream()
                 .filter(candidate -> candidate.id().equals(args[4])).findFirst().orElseThrow();
-            if (!set(adaptation, runtime, preference, args[5])) throw new IllegalStateException("Preference write rejected");
+            accepted = set(adaptation, runtime, preference, args[5]);
+            if (args[2].equals("set") && !accepted) throw new IllegalStateException("Preference write rejected");
         }
+        if (args[2].equals("reset")) accepted = PlayerPreferences.reset(adaptation, runtime);
         JsonObject result = inventory(player);
+        if (accepted != null) result.addProperty("accepted", accepted);
+        result.addProperty("playerSettingsEnabled", AdaptConfig.get().isPlayerSettingsEnabled());
         result.addProperty("learned", adaptation.getLevel(runtime));
         result.addProperty("active", adaptation.getActiveLevel(player));
         JsonArray settings = new JsonArray();
@@ -55,11 +68,65 @@ public final class PreferenceFixtures {
             entry.addProperty("id", preference.id());
             entry.addProperty("label", AdaptLanguage.text(preference.label()));
             entry.addProperty("value", resolve(adaptation, runtime, preference));
-            entry.addProperty("visible", adaptation.isPlayerPreferenceVisible(runtime, preference));
+            entry.addProperty("stored", runtime.getData().getPreferences().get(adaptation.getName(), preference.id()));
+            entry.addProperty("visible", AdaptConfig.get().isPlayerSettingsEnabled() && adaptation.isPlayerPreferenceVisible(runtime, preference));
             settings.add(entry);
         }
         result.add("settings", settings);
         return result;
+    }
+
+    private static JsonObject auditLock(AdaptPlayer runtime) {
+        if (AdaptConfig.get().isPlayerSettingsEnabled()) throw new IllegalStateException("Player settings are not locked");
+        int adaptations = 0;
+        int controls = 0;
+        int skills = 0;
+        for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills()) {
+            String storedSkill = runtime.getData().getPreferences().getSkill(skill.getName(), CommonPreferences.SKILL_ENABLED.id());
+            if (!PlayerPreferences.resolve(skill, runtime.getData(), CommonPreferences.SKILL_ENABLED).name()
+                .equals(PlayerPreferences.policy(skill, CommonPreferences.SKILL_ENABLED).defaultValue)
+                || PlayerPreferences.setSkillEnabled(skill, runtime, CommonPreferences.Toggle.OFF)
+                || PlayerPreferences.resetSkill(skill, runtime)
+                || !Objects.equals(storedSkill, runtime.getData().getPreferences().getSkill(skill.getName(), CommonPreferences.SKILL_ENABLED.id()))) {
+                throw new IllegalStateException("Locked skill preference changed for " + skill.getName());
+            }
+            skills++;
+            for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                int previous = adaptation.getLevel(runtime);
+                runtime.getData().getSkillLine(skill.getName()).setAdaptation(adaptation, adaptation.getMaxLevel());
+                try {
+                    for (PlayerPreference<?> preference : adaptation.getPlayerPreferences()) {
+                        auditLockedPreference(adaptation, runtime, preference);
+                        controls++;
+                    }
+                    if (PlayerPreferences.reset(adaptation, runtime) || adaptation.getLevel(runtime) != adaptation.getMaxLevel()) {
+                        throw new IllegalStateException("Locked adaptation reset changed " + adaptation.getName());
+                    }
+                    adaptations++;
+                } finally {
+                    runtime.getData().getSkillLine(skill.getName()).setAdaptation(adaptation, previous);
+                }
+            }
+        }
+        JsonObject result = new JsonObject();
+        result.addProperty("adaptations", adaptations);
+        result.addProperty("controls", controls);
+        result.addProperty("skills", skills);
+        result.addProperty("passed", true);
+        return result;
+    }
+
+    private static <E extends Enum<E>> void auditLockedPreference(Adaptation<?> adaptation, AdaptPlayer runtime, PlayerPreference<E> preference) {
+        String stored = runtime.getData().getPreferences().get(adaptation.getName(), preference.id());
+        if (!resolve(adaptation, runtime, preference).equals(PlayerPreferences.policy(adaptation, preference).defaultValue)) {
+            throw new IllegalStateException("Locked adaptation did not use server default for " + adaptation.getName() + "." + preference.id());
+        }
+        for (PlayerPreference.Choice<E> choice : preference.choices()) {
+            if (PlayerPreferences.set(adaptation, runtime, preference, choice.value())
+                || !Objects.equals(stored, runtime.getData().getPreferences().get(adaptation.getName(), preference.id()))) {
+                throw new IllegalStateException("Locked adaptation write changed " + adaptation.getName() + "." + preference.id());
+            }
+        }
     }
 
     private static JsonObject catalog() {

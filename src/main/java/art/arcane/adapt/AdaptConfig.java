@@ -19,6 +19,7 @@
 package art.arcane.adapt;
 
 import art.arcane.adapt.api.value.MaterialValue;
+import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.xp.Curves;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.config.ConfigFileSupport;
@@ -63,6 +64,9 @@ public class AdaptConfig {
   public boolean splashScreen = true;
   public boolean xpInCreative = false;
   public boolean allowAdaptationsInCreative = false;
+  @ConfigDoc(value = "Allows players to customize their skill and adaptation settings.", impact = "Disable to force server defaults for every skill and adaptation preference and hide their settings controls. Saved choices are retained, and learning and unlearning remain available. Personal effects and language settings remain available. Hot-reloadable.")
+  private boolean playerSettingsEnabled = true;
+  private transient boolean appliedPlayerSettingsEnabled = true;
   public String adaptActivatorBlock = "BOOKSHELF";
   private transient Material adaptActivatorMaterial = Material.BOOKSHELF;
   public String adaptActivatorBlockName = "a Bookshelf";
@@ -148,7 +152,7 @@ public class AdaptConfig {
     synchronized (CONFIG_LOCK) {
       try {
         if (config == null) {
-          config = loadConfig(new AdaptConfig(), true);
+          installSnapshot(loadConfig(new AdaptConfig(), true));
         }
       } catch (Throwable e) {
         Adapt.error(e);
@@ -161,11 +165,12 @@ public class AdaptConfig {
 
   public static boolean reload() {
     boolean reloaded;
+    boolean reconcilePreferences = false;
     synchronized (CONFIG_LOCK) {
       try {
         AdaptConfig previous = config;
         AdaptConfig loaded = loadConfig(previous == null ? new AdaptConfig() : previous, false);
-        config = preserveRestartBoundSettings(previous, loaded);
+        reconcilePreferences = installSnapshot(loaded);
         reloaded = true;
       } catch (Throwable e) {
         reloaded = false;
@@ -173,6 +178,9 @@ public class AdaptConfig {
     }
     if (reloaded) {
       MaterialValue.invalidateCache();
+      if (reconcilePreferences) {
+        PlayerPreferences.reconcileOnline();
+      }
       if (Adapt.instance != null) {
         Adapt.instance.reconfigureUpdates();
       }
@@ -182,9 +190,9 @@ public class AdaptConfig {
 
   public static boolean reloadSnapshot(String raw, File sourceFile) {
     boolean reloaded;
+    boolean reconcilePreferences = false;
     synchronized (CONFIG_LOCK) {
       try {
-        AdaptConfig previous = config;
         AdaptConfig loaded = ConfigFileSupport.parseSnapshot(
             raw,
             sourceFile,
@@ -192,7 +200,7 @@ public class AdaptConfig {
             "core-config",
             AdaptConfig::normalize
         );
-        config = preserveRestartBoundSettings(previous, loaded);
+        reconcilePreferences = installSnapshot(loaded);
         reloaded = true;
       } catch (Throwable error) {
         Adapt.error(error);
@@ -201,6 +209,9 @@ public class AdaptConfig {
     }
     if (reloaded) {
       MaterialValue.invalidateCache();
+      if (reconcilePreferences) {
+        PlayerPreferences.reconcileOnline();
+      }
       if (Adapt.instance != null) {
         Adapt.instance.reconfigureUpdates();
       }
@@ -240,6 +251,15 @@ public class AdaptConfig {
     loaded.redis = previous.redis;
     loaded.metrics = previous.metrics;
     return loaded;
+  }
+
+  private static boolean installSnapshot(AdaptConfig loaded) {
+    AdaptConfig previous = config;
+    boolean settingsChanged = previous != null
+        && previous.appliedPlayerSettingsEnabled != loaded.playerSettingsEnabled;
+    loaded.appliedPlayerSettingsEnabled = loaded.playerSettingsEnabled;
+    config = preserveRestartBoundSettings(previous, loaded);
+    return settingsChanged;
   }
 
   public boolean isWorldBlacklisted(WorldInfo world) {

@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.skill;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.preference.PreferencePolicy;
@@ -37,6 +38,13 @@ final class SkillPreferenceGuiSupport {
   }
 
   private void render(boolean update) {
+    if (!AdaptConfig.get().isPlayerSettingsEnabled()) {
+      if (update) {
+        window.updateElement(-1, row, null);
+        window.updateElement(1, row, null);
+      }
+      return;
+    }
     AdaptPlayer player = skill.getPlayer(window.getViewer());
     if (player == null || !player.isRuntimeReady()) {
       return;
@@ -71,6 +79,10 @@ final class SkillPreferenceGuiSupport {
     Player viewer = window.getViewer();
     if (!J.isOwnedByCurrentRegion(viewer)) {
       J.runEntity(viewer, () -> onOwner(reset));
+      return;
+    }
+    if (!AdaptConfig.get().isPlayerSettingsEnabled()) {
+      render(true);
       return;
     }
     if (!viewer.isOnline() || !window.isVisible() || !skill.isEnabled()

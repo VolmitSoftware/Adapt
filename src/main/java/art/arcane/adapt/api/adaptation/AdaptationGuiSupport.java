@@ -238,7 +238,7 @@ final class AdaptationGuiSupport {
     spw.play(player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 0.3f, 0.855f);
 
     boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
-    boolean hasPreferences = !adaptation.getPlayerPreferences().isEmpty();
+    boolean hasPreferences = AdaptConfig.get().isPlayerSettingsEnabled() && !adaptation.getPlayerPreferences().isEmpty();
     GuiLayout.PagePlan plan = GuiLayout.planWithSettings(adaptation.getMaxLevel(), reserveNavigation, hasPreferences);
     int currentPage = GuiLayout.clampPage(page, plan.pageCount());
     int start = currentPage * plan.itemsPerPage();

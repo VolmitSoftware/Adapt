@@ -297,6 +297,7 @@ class PreferenceGuiSupportTest {
   @Test
   void globalSoundSettingMutesFeedbackWithoutBlockingChanges() {
     AdaptConfig config = mock(AdaptConfig.class);
+    when(config.isPlayerSettingsEnabled()).thenReturn(true);
     AdaptConfig.Effects effects = mock(AdaptConfig.Effects.class);
     when(config.getEffects()).thenReturn(effects);
     when(effects.isSoundsEnabled()).thenReturn(false);
@@ -308,6 +309,30 @@ class PreferenceGuiSupportTest {
 
     assertThat(preferences.get("test-adaptation", "mode")).isEqualTo("ON");
     soundPlayers.verify(() -> SoundPlayer.of(player), never());
+  }
+
+  @Test
+  void globalLockRejectsPreviouslyRenderedControlsAndResets() {
+    AdaptConfig config = mock(AdaptConfig.class);
+    try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
+      configured.when(AdaptConfig::get).thenReturn(config);
+      control.call(ElementEvent.LEFT, control);
+      reset.call(ElementEvent.LEFT, reset);
+    }
+    assertThat(preferences.get("test-adaptation", "mode")).isNull();
+    verify(adaptPlayer, never()).requestSave();
+    verify(adaptation, never()).onPlayerPreferencesChanged(adaptPlayer);
+  }
+
+  @Test
+  void globalLockOmitsSettingsWhenPopulatingAMenu() {
+    AdaptConfig config = mock(AdaptConfig.class);
+    clearInvocations(window);
+    try (MockedStatic<AdaptConfig> configured = mockStatic(AdaptConfig.class)) {
+      configured.when(AdaptConfig::get).thenReturn(config);
+      PreferenceGuiSupport.populate(adaptation, window, 0);
+    }
+    verify(window, never()).setElement(anyInt(), anyInt(), any());
   }
 
   @Test
