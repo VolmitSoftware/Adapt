@@ -1,16 +1,19 @@
 package art.arcane.adapt.content.adaptation.sword.effects;
 
+import art.arcane.adapt.api.adaptation.DamageAttributionTestSupport;
 import de.slikey.effectlib.EffectManager;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.BeforeAll;
 
-import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 
 class DamagingBleedEffectAttributionTest {
+  @BeforeAll
+  static void initializeDamageTypes() {
+    DamageAttributionTestSupport.initializeDamageTypes();
+  }
   @Test
   void damagingBleedRetainsTheCaster() {
     EffectManager effectManager = mock(EffectManager.class);
@@ -19,9 +22,7 @@ class DamagingBleedEffectAttributionTest {
     DamagingBleedEffect.DamageContext context = new DamagingBleedEffect.DamageContext(1.25D, target, caster);
     DamagingBleedEffect effect = new DamagingBleedEffect(effectManager, context);
 
-    effect.applyDamage();
-
-    verify(target).damage(1.25D, caster);
-    verify(target, never()).damage(anyDouble());
+    DamageAttributionTestSupport.assertMagicDamage(
+        new DamageAttributionTestSupport.DamageProbe(target, caster, 1.25D), effect::applyDamage);
   }
 }

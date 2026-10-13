@@ -1936,6 +1936,7 @@
       },
       "triggers": [
         "EntitiesLoadEvent",
+        "EntityRemoveEvent",
         "LingeringPotionSplashEvent",
         "PlayerInteractEvent",
         "PlayerJoinEvent",
@@ -2041,7 +2042,8 @@
         "kind": "always"
       },
       "triggers": [
-        "CraftItemEvent"
+        "CraftItemEvent",
+        "ItemCraftedEvent"
       ],
       "expectation": "Shift-click a craft result to pull extra ingredients from your inventory and craft a bigger batch in one action.",
       "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/crafting/CraftingBulkArtisan.java",
@@ -2166,7 +2168,8 @@
       },
       "triggers": [
         "CraftItemEvent",
-        "FurnaceSmeltEvent"
+        "FurnaceSmeltEvent",
+        "ItemCraftedEvent"
       ],
       "expectation": "Crafting or cooking food has a chance to yield bonus portions.",
       "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/crafting/CraftingProvisioner.java",

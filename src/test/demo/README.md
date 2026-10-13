@@ -113,6 +113,7 @@ The opponent client has its own persistent instances, created and refreshed the 
 - Every Multiplexor command the studio runs (`server create`, `instance port`, `gameplay prepare`, `instance path`, `runtime start`, `runtime status`, `runtime stop`, `instance delete`) holds the file lock `build/demo/mux.lock`, so lanes never change the Multiplexor registry at the same time. The lock is taken per command, so the status polls of a restart let other lanes run their commands in between.
 - The server port and the client bridge port come from `build/demo/ports.json`. Each port is bind-tested while `mux.lock` is held and recorded with the run's process id. A port recorded by a live run is never handed out again, records of runs that have ended are dropped, and a run removes its own ports when it stops.
 - Each run has its own server instance and bridge token, and records into its own lane's Prism folder.
+- The launcher starts in a separate process session, so ending the initiating run's process group does not stop clients on other lanes. Cleanup still stops only the run's own Minecraft clients.
 
 ## World and plate
 

@@ -58,6 +58,7 @@ import org.bukkit.entity.ZombieHorse;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -115,6 +116,10 @@ public class SwordsPoisonedBlade extends SimpleAdaptation<SwordsPoisonedBlade.Co
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
+    if (e.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK
+        && e.getCause() != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK) {
+      return;
+    }
     if (e.getDamager() instanceof Player p && hasActiveAdaptation(p) && ItemListings.getToolSwords().contains(p.getInventory().getItemInMainHand().getType())) {
       UUID id = p.getUniqueId();
       if (!cooldowns.isReady(id, getCooldown(getLevel(p)))) {

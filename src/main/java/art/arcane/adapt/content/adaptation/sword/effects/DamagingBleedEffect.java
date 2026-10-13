@@ -23,6 +23,8 @@ import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.effect.BleedEffect;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 
 public class DamagingBleedEffect extends BleedEffect {
   private final double damage;
@@ -43,7 +45,9 @@ public class DamagingBleedEffect extends BleedEffect {
   }
 
   void applyDamage() {
-    target.damage(damage, source);
+    DamageSource damageSource = DamageSource.builder(DamageType.MAGIC)
+        .withCausingEntity(source).withDirectEntity(source).build();
+    target.damage(damage, damageSource);
   }
 
   public record DamageContext(double damage, LivingEntity target, Player source) {

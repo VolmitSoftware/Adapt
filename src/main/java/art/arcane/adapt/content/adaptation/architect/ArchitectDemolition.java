@@ -126,11 +126,16 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
       return;
     }
 
+    ItemStack placedItem = snapshotPlacedItem(e.getItemInHand(), e.getBlock().getBlockData().getPlacementMaterial());
+    if (placedItem == null) {
+      return;
+    }
+
     UUID id = p.getUniqueId();
     Block block = e.getBlock();
     ConcurrentLinkedDeque<Block> deque = order.computeIfAbsent(id, unused -> new ConcurrentLinkedDeque<>());
     deque.addLast(block);
-    placed.put(block, new DemolitionMark(id, M.ms(), snapshotPlacedItem(e.getItemInHand())));
+    placed.put(block, new DemolitionMark(id, M.ms(), placedItem));
     fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.AMBIENT)
         .burst(Particles.CRIT_MAGIC, 2, 0.1D);
     int cap = trackingCap(getConfig().maxTrackedPerPlayer);
@@ -283,8 +288,9 @@ public class ArchitectDemolition extends SimpleAdaptation<ArchitectDemolition.Co
     return Math.max(0, configuredCap);
   }
 
-  static ItemStack snapshotPlacedItem(ItemStack hand) {
-    if (hand == null || hand.getType() == Material.AIR) {
+  static ItemStack snapshotPlacedItem(ItemStack hand, Material placementMaterial) {
+    if (hand == null || hand.getType() == Material.AIR || hand.getAmount() <= 0
+        || hand.getType() != placementMaterial) {
       return null;
     }
 

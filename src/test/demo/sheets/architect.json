@@ -368,6 +368,7 @@
   "architect-demolition": {
     "set": "architect-yard",
     "level": 5,
+    "povCapture": true,
     "pre": [
       "item replace entity {actor} hotbar.0 with minecraft:stone_bricks 16"
     ],
@@ -376,6 +377,13 @@
       {"verb": "lookAt", "offset": [-0.5, -0.02, -1.5]}
     ],
     "beats": [
+      {"verb": "click", "key": "inventory"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "window", "action": "hover", "slot": 36},
+      {"verb": "wait", "ticks": 20},
+      {"verb": "window", "action": "hover", "slot": 37},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "window", "action": "close"},
       {"verb": "wait", "ticks": 10},
       {"verb": "click", "key": "use"},
       {"verb": "wait", "ticks": 6},
@@ -400,13 +408,21 @@
       {"verb": "lookAt", "offset": [1.5, 0.5, -1.05], "ticks": 12},
       {"verb": "wait", "ticks": 4},
       {"verb": "click", "key": "attack"},
-      {"verb": "wait", "ticks": 30}
+      {"verb": "wait", "ticks": 30},
+      {"verb": "click", "key": "inventory"},
+      {"verb": "wait", "ticks": 8},
+      {"verb": "window", "action": "hover", "slot": 36},
+      {"verb": "wait", "ticks": 30},
+      {"verb": "window", "action": "hover", "slot": 37},
+      {"verb": "wait", "ticks": 10},
+      {"verb": "window", "action": "close"},
+      {"verb": "wait", "ticks": 10}
     ],
     "expect": {
       "sound": "minecraft:block.amethyst_block.hit",
       "particle": "scrape"
     },
-    "maxTicks": 320
+    "maxTicks": 540
   },
   "architect-elevator": {
     "set": "architect-elevator",
@@ -534,7 +550,7 @@
     ],
     "beats": [
       {"verb": "wait", "ticks": 10},
-      {"verb": "press", "hold": ["sneak"], "ticks": 60},
+      {"verb": "press", "hold": ["sneak"], "ticks": 120},
       {"verb": "wait", "ticks": 8},
       {"verb": "click", "key": "use"},
       {"verb": "wait", "ticks": 8},

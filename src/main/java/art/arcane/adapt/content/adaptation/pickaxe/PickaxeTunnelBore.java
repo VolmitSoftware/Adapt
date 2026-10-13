@@ -24,6 +24,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.PickaxeMessages;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -31,7 +32,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -99,6 +99,9 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
+    if (BonusBlockBreaks.isActive(e.getPlayer())) {
+      return;
+    }
     Block block = e.getBlock();
     Material originType = block.getType();
     if (!BORE_BLOCKS.contains(originType)) {
@@ -161,13 +164,15 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
     int index = 0;
     int broken = 0;
     for (Block target : targets) {
+      if (!isPickaxe(player.getInventory().getItemInMainHand())) {
+        break;
+      }
       Location location = target.getLocation();
       if ((J.isFoliaThreading()
           && (!J.isOwnedByCurrentRegion(player) || !J.isOwnedByCurrentRegion(location)))
           || !BORE_BLOCKS.contains(target.getType())
           || !preference(player, PickaxePreferences.MATERIALS).accepts(target.getType())
-          || !canBlockBreak(player, location)
-          || !ProtectionEventProbe.attemptBlockBreakProbe(player, target)) {
+          || !canBlockBreak(player, location)) {
         index++;
         continue;
       }
@@ -177,14 +182,13 @@ public class PickaxeTunnelBore extends SimpleAdaptation<PickaxeTunnelBore.Config
         fx(location.add(0.5, 0.5, 0.5), FxPriority.TRAIL)
             .particle(Particles.BLOCK_CRACK, 3, 0, 0, 0, 0.2, 0.0, blockData);
       }
-      if (target.breakNaturally(tool)) {
+      if (BonusBlockBreaks.breakBlock(player, target, getConfig().durabilityPerBonusBlock)) {
         broken++;
       }
       index++;
     }
 
     if (broken > 0) {
-      damageHand(player, broken * getConfig().durabilityPerBonusBlock);
       addStat(player, "pickaxe.tunnel-bore.blocks-bored", broken);
     }
   }

@@ -1,11 +1,30 @@
 package art.arcane.adapt.content.adaptation.taming;
 
 import org.junit.jupiter.api.Test;
+import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 
 class TamingSharedPainTest {
+  @Test
+  void fullyMitigatedHitCannotReachPetSelection() {
+    TamingSharedPain adaptation = mock(TamingSharedPain.class, CALLS_REAL_METHODS);
+    Player owner = mock(Player.class);
+    EntityDamageEvent event = mock(EntityDamageEvent.class);
+    when(event.getEntity()).thenReturn(owner);
+    when(event.getDamage()).thenReturn(12D);
+    when(event.getFinalDamage()).thenReturn(0D);
+
+    adaptation.on(event);
+
+    verifyNoInteractions(owner);
+  }
   @Test
   void redirectPercentCannotExceedTheIncomingHit() {
     assertThat(TamingSharedPain.clampRedirectPercent(1.5D, 2D)).isEqualTo(1D);

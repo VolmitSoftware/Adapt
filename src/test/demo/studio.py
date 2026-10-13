@@ -279,7 +279,7 @@ def log_since(log: Path, offset: int) -> str:
 def launch_prism(command: list[str], instance: str, accepted: str, sink: TextIO, log: Path, watch: float = LAUNCH_WATCH,
                  poll: float = 0.25) -> subprocess.Popen:
     offset: int = log.stat().st_size if log.is_file() else 0
-    process: subprocess.Popen = subprocess.Popen(command, stdout=sink, stderr=subprocess.STDOUT)
+    process: subprocess.Popen = subprocess.Popen(command, stdout=sink, stderr=subprocess.STDOUT, start_new_session=True)
     rejection: str = '"' + instance + '" resolves to nothing'
     deadline: float = time.monotonic() + watch
     while time.monotonic() < deadline:
@@ -287,7 +287,7 @@ def launch_prism(command: list[str], instance: str, accepted: str, sink: TextIO,
         if rejection in text:
             await_rescan(log, offset, instance, poll)
             print('[PRISM] running launcher rejected ' + instance + ' before rescanning; launching again', flush=True)
-            return subprocess.Popen(command, stdout=sink, stderr=subprocess.STDOUT)
+            return subprocess.Popen(command, stdout=sink, stderr=subprocess.STDOUT, start_new_session=True)
         if accepted in text:
             return process
         time.sleep(poll)

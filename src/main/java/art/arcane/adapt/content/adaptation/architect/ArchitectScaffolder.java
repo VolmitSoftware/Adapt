@@ -38,16 +38,20 @@ import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.meta.BlockStateMeta;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,6 +63,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Config> {
   public static final PlayerPreference<Control> CONTROL = new PlayerPreference<>(Control.class,
@@ -136,6 +141,10 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
     if (type.isAir() || !type.isBlock()) {
       return;
     }
+    ItemStack placedItem = ArchitectDemolition.snapshotPlacedItem(e.getItemInHand(), block.getBlockData().getPlacementMaterial());
+    if (placedItem == null) {
+      return;
+    }
 
     if (!isScaffoldAllowed(type) || !acceptsMaterial(p, type)) {
       playScaffoldDenied(p);
@@ -154,7 +163,7 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
     }
 
     mine.add(block);
-    scaffolds.put(block, new ScaffoldMark(id, type));
+    scaffolds.put(block, new ScaffoldMark(id, type, placedItem));
     fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
         .burst(Particle.CLOUD, 8, 0.25D)
         .burst(Particles.CRIT_MAGIC, 2, 0.15D)
@@ -213,23 +222,75 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
       return;
     }
 
+    List<ItemStack> refunds = collectRestitution(block, mark.placed());
     block.setType(Material.AIR);
     fx(block.getLocation().add(0.5, 0.5, 0.5), FxPriority.TRANSITION)
         .burst(Particle.REVERSE_PORTAL, 6, 0.2D)
         .sound(Sound.BLOCK_DEEPSLATE_BREAK, 0.6f, 1.4f);
 
-    ItemStack refund = new ItemStack(mark.material());
     Player owner = Bukkit.getPlayer(mark.owner());
     if (owner != null && owner.isOnline()) {
-      J.runEntity(owner, () -> {
-        safeGiveItem(owner, refund);
+      restitute(owner, block.getLocation(), refunds, () -> {
         fx(owner.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
             .column(Particles.END_ROD, 4, 1.0D)
             .sound(Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.3f, 1.6f);
       });
     } else {
-      block.getWorld().dropItemNaturally(block.getLocation(), refund);
+      for (ItemStack refund : refunds) {
+        block.getWorld().dropItemNaturally(block.getLocation(), refund);
+      }
     }
+  }
+
+  static void restitute(Player owner, Location source, List<ItemStack> refunds, Runnable delivered) {
+    AtomicBoolean claimed = new AtomicBoolean();
+    Runnable fallback = () -> {
+      if (claimed.compareAndSet(false, true)) {
+        J.runAt(source, () -> {
+          for (ItemStack refund : refunds) {
+            source.getWorld().dropItemNaturally(source, refund);
+          }
+        });
+      }
+    };
+    Runnable give = () -> {
+      if (!owner.isOnline()) {
+        fallback.run();
+        return;
+      }
+      if (!claimed.compareAndSet(false, true)) {
+        return;
+      }
+      for (ItemStack refund : refunds) {
+        for (ItemStack overflow : owner.getInventory().addItem(refund).values()) {
+          owner.getWorld().dropItemNaturally(owner.getLocation(), overflow);
+        }
+      }
+      delivered.run();
+    };
+    if (!J.runEntity(owner, give, fallback)) {
+      fallback.run();
+    }
+  }
+
+  static List<ItemStack> collectRestitution(Block block, ItemStack placed) {
+    BlockState state = block.getState();
+    if (ArchitectDemolition.keepsContentsInItem(block.getType())) {
+      ItemStack refund = placed.clone();
+      if (refund.getItemMeta() instanceof BlockStateMeta metadata) {
+        metadata.setBlockState(state);
+        refund.setItemMeta(metadata);
+        return List.of(refund);
+      }
+      return new ArrayList<>(block.getDrops());
+    }
+    Inventory inventory = ArchitectDemolition.blockInventory(state);
+    List<ItemStack> refunds = ArchitectDemolition.restitution(placed.clone(),
+        inventory == null ? null : inventory.getContents());
+    if (inventory != null) {
+      inventory.clear();
+    }
+    return refunds;
   }
 
   private int getDurationSeconds(double factor) {
@@ -307,7 +368,7 @@ public class ArchitectScaffolder extends SimpleAdaptation<ArchitectScaffolder.Co
     };
   }
 
-  private record ScaffoldMark(UUID owner, Material material) {
+  private record ScaffoldMark(UUID owner, Material material, ItemStack placed) {
   }
 
   private record FilterCache(List<String> source, String mode, Set<Material> materials) {

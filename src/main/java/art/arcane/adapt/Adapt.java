@@ -27,6 +27,7 @@ import art.arcane.volmlib.util.diagnostics.DebugDumpContributor;
 import art.arcane.adapt.api.adaptation.AbilityApiBridge;
 import art.arcane.adapt.api.AdaptPermissionRegistrar;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
 import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.notification.AdaptHud;
@@ -378,6 +379,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     });
     CustomBlockData.registerListener(this);
     registerListener(new BrewingManager());
+    registerListener(new BonusBlockBreaks());
     registerListener(new SimpleAdaptation.PlayerDamageListener());
     registerListener(new XpProvenanceListener());
     registerListener(new XpNoveltyListener());

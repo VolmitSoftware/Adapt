@@ -1,6 +1,11 @@
 package art.arcane.adapt.gameplay.demo.sets;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.volmlib.nativelib.NativeAdapters;
+import art.arcane.volmlib.nativelib.chunk.GeneratedChunkStructures;
+import art.arcane.volmlib.nativelib.chunk.ChunkPosition;
+import io.papermc.paper.registry.RegistryAccess;
+import io.papermc.paper.registry.RegistryKey;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.PlayerPreferences;
@@ -10,9 +15,11 @@ import art.arcane.adapt.gameplay.demo.DemoSet;
 import art.arcane.adapt.gameplay.demo.DemoSetProvider;
 import java.util.List;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.HeightMap;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -112,14 +119,48 @@ public final class StructureDiscoverySets implements DemoSetProvider {
             int chunkZ = target.getLocation().getBlockZ() >> 4;
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dz = -1; dz <= 1; dz++) {
-                    for (GeneratedStructure structure : world.getChunkAt(chunkX + dx, chunkZ + dz).getStructures()) {
+                    Chunk chunk = world.getChunkAt(chunkX + dx, chunkZ + dz);
+                    GeneratedChunkStructures.Snapshot snapshot = NativeAdapters.require(GeneratedChunkStructures.class).read(chunk);
+                    for (GeneratedStructure structure : chunk.getStructures()) {
                         if (structure.getStructure().equals(target.getStructure())) {
+                            prepareNativeStart(world, snapshot, structure);
                             return structure;
                         }
                     }
                 }
             }
             return null;
+        }
+
+        private static void prepareNativeStart(World world, GeneratedChunkStructures.Snapshot snapshot, GeneratedStructure structure) {
+            NamespacedKey key = RegistryAccess.registryAccess().getRegistry(RegistryKey.STRUCTURE).getKey(structure.getStructure());
+            BoundingBox bounds = structure.getBoundingBox();
+            if (containsStart(snapshot, key, bounds)) {
+                return;
+            }
+            if (snapshot.references().size() > 64) {
+                throw new IllegalStateException("Structure approach exceeds its native start preparation budget");
+            }
+            for (ChunkPosition reference : snapshot.references()) {
+                Chunk start = world.getChunkAt(reference.x(), reference.z());
+                if (containsStart(NativeAdapters.require(GeneratedChunkStructures.class).read(start), key, bounds)) {
+                    Bukkit.getLogger().info("Demo generated native start prepared at " + reference.x() + " " + reference.z());
+                    return;
+                }
+            }
+            throw new IllegalStateException("Located structure has no matching generated native start");
+        }
+
+        private static boolean containsStart(GeneratedChunkStructures.Snapshot snapshot, NamespacedKey key, BoundingBox expected) {
+            for (GeneratedChunkStructures.Entry entry : snapshot.starts()) {
+                GeneratedChunkStructures.Bounds bounds = entry.bounds();
+                if (entry.structureKey().equals(key) && bounds.minX() == expected.getMinX() && bounds.minY() == expected.getMinY()
+                        && bounds.minZ() == expected.getMinZ() && bounds.maxX() == expected.getMaxX()
+                        && bounds.maxY() == expected.getMaxY() && bounds.maxZ() == expected.getMaxZ()) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private boolean select(World world, Location target, BoundingBox bounds, int originX, int originY, int originZ, int x, int z) {

@@ -476,17 +476,17 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
       return;
     }
 
+    TemporalFreezeRegistry.Lease lease = TemporalFreezeRegistry.acquire(projectile);
     FrozenProjectileState state = new FrozenProjectileState(
         projectileId,
         projectile,
         bubble.id,
         bubble.generation,
-        projectile.getVelocity().clone(),
-        projectile.hasGravity(),
-        projectile.isPersistent()
+        lease
     );
     FrozenProjectileState existing = frozenProjectiles.putIfAbsent(projectileId, state);
     if (existing != null) {
+      TemporalFreezeRegistry.release(projectile, lease, null);
       frozenCapacity.release();
       return;
     }
@@ -601,18 +601,19 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
   private void restoreProjectileValuesOwned(FrozenProjectileState state, boolean remove) {
     Projectile projectile = state.projectile;
     if (!projectile.isValid() || projectile.isDead()) {
+      TemporalFreezeRegistry.forget(projectile.getUniqueId());
       return;
     }
     if (remove) {
+      TemporalFreezeRegistry.forget(projectile.getUniqueId());
       projectile.remove();
       return;
     }
-    projectile.setPersistent(state.persistent);
-    projectile.setGravity(state.gravity);
-    projectile.setVelocity(state.velocity);
+    TemporalFreezeRegistry.release(projectile, state.lease, null);
   }
 
   private void forgetFrozenProjectile(UUID projectileId) {
+    TemporalFreezeRegistry.forget(projectileId);
     FrozenProjectileState state = frozenProjectiles.remove(projectileId);
     if (state == null) {
       return;
@@ -857,21 +858,16 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
     private final Projectile projectile;
     private final UUID bubbleId;
     private final long bubbleGeneration;
-    private final Vector velocity;
-    private final boolean gravity;
-    private final boolean persistent;
+    private final TemporalFreezeRegistry.Lease lease;
     private final AtomicBoolean restorationQueued = new AtomicBoolean();
 
     private FrozenProjectileState(UUID projectileId, Projectile projectile, UUID bubbleId,
-                                  long bubbleGeneration, Vector velocity, boolean gravity,
-                                  boolean persistent) {
+                                  long bubbleGeneration, TemporalFreezeRegistry.Lease lease) {
       this.projectileId = projectileId;
       this.projectile = projectile;
       this.bubbleId = bubbleId;
       this.bubbleGeneration = bubbleGeneration;
-      this.velocity = velocity;
-      this.gravity = gravity;
-      this.persistent = persistent;
+      this.lease = lease;
     }
   }
 

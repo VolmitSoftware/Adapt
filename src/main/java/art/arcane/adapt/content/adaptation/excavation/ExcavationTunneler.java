@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.excavation;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -29,7 +30,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -86,6 +86,9 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
+    if (BonusBlockBreaks.isActive(e.getPlayer())) {
+      return;
+    }
     Player p = e.getPlayer();
     if (!preference(p, TRIGGER).allows(p.isSneaking())) {
       return;
@@ -195,13 +198,8 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
         break;
       }
 
-      if (!ProtectionEventProbe.attemptBlockBreakProbe(player, target)) {
-        continue;
-      }
-
       BlockData blockData = target.getBlockData();
-      if (target.breakNaturally(hand)) {
-        applyDurability(player, hand, getConfig().durabilityCostPerBonusBlock);
+      if (BonusBlockBreaks.breakBlock(player, target, getConfig().durabilityCostPerBonusBlock)) {
         sweepCells.add(offset);
         sweepData.add(blockData);
         broken++;
@@ -246,27 +244,6 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
     return (normalized >= 45 && normalized < 135) || (normalized >= 225 && normalized < 315);
   }
 
-  private boolean applyDurability(Player p, ItemStack hand, int cost) {
-    if (cost <= 0) {
-      return true;
-    }
-
-    if (!(hand.getItemMeta() instanceof Damageable damageable)) {
-      return false;
-    }
-
-    int maxDurability = hand.getType().getMaxDurability();
-    int currentDamage = damageable.getDamage();
-    if (currentDamage + cost >= maxDurability) {
-      return false;
-    }
-
-    damageable.setDamage(currentDamage + cost);
-    hand.setItemMeta(damageable);
-    p.getInventory().setItemInMainHand(hand);
-    return true;
-  }
-
   private boolean canApplyDurability(ItemStack hand, int cost) {
     if (cost <= 0) {
       return true;
@@ -276,7 +253,8 @@ public class ExcavationTunneler extends SimpleAdaptation<ExcavationTunneler.Conf
       return false;
     }
 
-    return damageable.getDamage() + cost < hand.getType().getMaxDurability();
+    int maximum = damageable.hasMaxDamage() ? damageable.getMaxDamage() : hand.getType().getMaxDurability();
+    return damageable.isUnbreakable() || damageable.getDamage() + cost < maximum;
   }
 
   private boolean isShovelable(Material type) {

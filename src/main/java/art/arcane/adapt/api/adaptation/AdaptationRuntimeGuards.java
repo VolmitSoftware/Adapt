@@ -50,6 +50,7 @@ import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collections;
@@ -472,7 +473,9 @@ final class AdaptationRuntimeGuards {
   }
 
   static Adaptation.AttackContext resolveAttackContext(Adaptation<?> adaptation, EntityDamageByEntityEvent event, Predicate<ItemStack> mainHandRequirement) {
-    if (event == null || !(event.getDamager() instanceof Player attacker)) {
+    if (event == null || (event.getCause() != EntityDamageEvent.DamageCause.ENTITY_ATTACK
+        && event.getCause() != EntityDamageEvent.DamageCause.ENTITY_SWEEP_ATTACK)
+        || !(event.getDamager() instanceof Player attacker)) {
       return null;
     }
 

@@ -3,7 +3,6 @@ package art.arcane.adapt.content.adaptation.ranged;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.RangedMessages;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -11,6 +10,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Enchantments;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -19,15 +19,16 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Map;
 
@@ -35,7 +36,7 @@ import static xyz.xenondevs.particle.utils.MathUtils.RANDOM;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Config> {
-  private static final String RECOVERY_META = "adapt-recover-arrow";
+  private static final NamespacedKey RECOVERY_KEY = NamespacedKey.fromString("adapt:arrow-recovery");
 
   public RangedArrowRecovery() {
     super("ranged-recovery");
@@ -65,7 +66,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         && hasActiveAdaptation(player)) {
       if (!event.getBow().containsEnchantment(Enchantments.ARROW_INFINITE)) {
         if (event.getProjectile() instanceof Arrow arrow) {
-          arrow.setMetadata(RECOVERY_META, new FixedMetadataValue(Adapt.instance, true));
+          arrow.getPersistentDataContainer().set(RECOVERY_KEY, PersistentDataType.BYTE, (byte) 1);
         }
       }
     }
@@ -78,17 +79,23 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         || !isRecoverable(arrow)) {
       return;
     }
-    arrow.removeMetadata(RECOVERY_META, Adapt.instance);
     if (event.getHitEntity() == null || !(arrow.getShooter() instanceof Player shooter)) {
       return;
     }
+    arrow.getPersistentDataContainer().remove(RECOVERY_KEY);
+    AbstractArrow.PickupStatus pickupStatus = arrow.getPickupStatus();
+    arrow.setPickupStatus(AbstractArrow.PickupStatus.DISALLOWED);
     Location impact = arrow.getLocation().clone();
-    withPlayerThread(shooter, event, () -> recoverArrow(shooter, impact));
+    if (!J.runEntity(shooter, () -> recoverArrow(shooter, arrow, impact, pickupStatus),
+        () -> J.runEntity(arrow, () -> restorePickup(arrow, pickupStatus)))) {
+      arrow.setPickupStatus(pickupStatus);
+    }
   }
 
-  private void recoverArrow(Player shooter, Location impact) {
+  private void recoverArrow(Player shooter, Arrow arrow, Location impact, AbstractArrow.PickupStatus pickupStatus) {
     int level = getActiveLevel(shooter);
-    if (level <= 0 || RANDOM.nextDouble() >= chancePerLevel(level)) {
+    if (!shooter.isOnline() || level <= 0 || RANDOM.nextDouble() >= chancePerLevel(level)) {
+      J.runEntity(arrow, () -> restorePickup(arrow, pickupStatus));
       return;
     }
 
@@ -101,6 +108,12 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
         .chord(Sound.ENTITY_ITEM_PICKUP, 0.5F, 1.4F, Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.3F, 1.8F);
   }
 
+  static void restorePickup(Arrow arrow, AbstractArrow.PickupStatus pickupStatus) {
+    if (arrow.isValid() && arrow.getPickupStatus() == AbstractArrow.PickupStatus.DISALLOWED) {
+      arrow.setPickupStatus(pickupStatus);
+    }
+  }
+
   static void deliverRecoveredArrow(Player shooter, ItemStack recoveredArrow) {
     Map<Integer, ItemStack> leftovers = shooter.getInventory().addItem(recoveredArrow);
     for (ItemStack leftover : leftovers.values()) {
@@ -109,12 +122,7 @@ public class RangedArrowRecovery extends SimpleAdaptation<RangedArrowRecovery.Co
   }
 
   private boolean isRecoverable(Arrow arrow) {
-    for (MetadataValue value : arrow.getMetadata(RECOVERY_META)) {
-      if (value.getOwningPlugin() == Adapt.instance) {
-        return value.asBoolean();
-      }
-    }
-    return false;
+    return arrow.getPersistentDataContainer().getOrDefault(RECOVERY_KEY, PersistentDataType.BYTE, (byte) 0) == 1;
   }
 
   static double chanceFromTable(double[] chances, int level) {

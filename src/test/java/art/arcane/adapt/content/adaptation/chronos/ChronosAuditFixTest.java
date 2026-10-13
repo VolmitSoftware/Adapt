@@ -8,6 +8,7 @@ import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
@@ -33,6 +34,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -252,6 +255,43 @@ class ChronosAuditFixTest extends AdaptTestBase {
       order.verify(player).setAllowFlight(false);
       verify(data).remove(any(NamespacedKey.class));
       assertThat(frozenPlayers(adaptation)).doesNotContainKey(playerId);
+    }
+  }
+
+  @Test
+  void queuedTimeBombCleanupPreservesTheNewFreezeAndRecoveryStamp() throws Exception {
+    try (MockedStatic<ChronoTimeBombItem> itemFactory = mockStatic(ChronoTimeBombItem.class)) {
+      itemFactory.when(ChronoTimeBombItem::withData).thenReturn(mock(ItemStack.class));
+      ChronosTimeBomb adaptation = new ChronosTimeBomb();
+      adaptation.setConfig(new ChronosTimeBomb.Config());
+      LivingEntity entity = mock(LivingEntity.class);
+      PersistentDataContainer data = mock(PersistentDataContainer.class);
+      UUID entityId = UUID.randomUUID();
+      when(entity.getUniqueId()).thenReturn(entityId);
+      when(entity.getPersistentDataContainer()).thenReturn(data);
+      when(entity.getVelocity()).thenReturn(new Vector(0.4D, 0D, 0D));
+      when(entity.hasGravity()).thenReturn(true);
+      when(entity.hasAI()).thenReturn(true);
+      freezeEntity(adaptation, entity);
+      Map<UUID, Object> states = frozenEntities(adaptation);
+      Object old = states.remove(entityId);
+      when(entity.hasGravity()).thenReturn(false);
+      when(entity.hasAI()).thenReturn(false);
+      freezeEntity(adaptation, entity);
+      Object current = states.get(entityId);
+      Method release = ChronosTimeBomb.class.getDeclaredMethod("unfreezeEntity", Entity.class, old.getClass());
+      release.setAccessible(true);
+      clearInvocations(entity, data);
+      release.invoke(adaptation, entity, old);
+      verify(entity, never()).setGravity(true);
+      verify(entity, never()).setAI(true);
+      verify(data, never()).remove(any(NamespacedKey.class));
+      release.invoke(adaptation, entity, current);
+      states.remove(entityId);
+      verify(entity).setGravity(true);
+      verify(entity).setAI(true);
+      verify(data).remove(any(NamespacedKey.class));
+      assertThat(TemporalFreezeRegistry.isFrozen(entity)).isFalse();
     }
   }
 

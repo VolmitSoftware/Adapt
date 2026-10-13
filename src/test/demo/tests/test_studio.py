@@ -2,9 +2,12 @@ import contextlib
 import io
 import json
 import os
+import signal
 import struct
+import subprocess
 import sys
 import tempfile
+import time
 import unittest
 import urllib.error
 from pathlib import Path
@@ -127,6 +130,70 @@ class PrismLaunchTest(unittest.TestCase):
             with mock.patch.object(studio.subprocess, 'Popen', side_effect=start) as popen:
                 studio.launch_prism(['/launcher'], INSTANCE, TOKEN, mock.MagicMock(), log, watch=0.3, poll=0.01)
         self.assertEqual(popen.call_count, 2)
+
+    @unittest.skipUnless(hasattr(os, 'killpg'), 'Process groups require POSIX')
+    def test_launcher_survives_the_initiating_worker_process_group_ending(self) -> None:
+        launcher_code: str = r'''
+import os, sys, time
+from pathlib import Path
+folder = Path(sys.argv[1])
+log = folder / 'launcher.log'
+if sys.argv[2] == 'retry' and not (folder / 'rejected').exists():
+    (folder / 'rejected').touch()
+    log.write_text('"AdaptDemoStudio" resolves to nothing\nFound instance ID "AdaptDemoStudio"\n')
+    sys.exit(0)
+(folder / 'ready').write_text(str(os.getpid()))
+with log.open('a') as handle:
+    handle.write('accepted\n')
+deadline = time.monotonic() + 8
+while not (folder / 'stop').exists() and time.monotonic() < deadline:
+    if (folder / 'probe').exists():
+        (folder / 'alive').touch()
+    time.sleep(0.01)
+(folder / 'stopped').touch()
+'''
+        worker_code: str = '''
+import sys, time
+from pathlib import Path
+sys.path.insert(0, sys.argv[1])
+import studio
+folder = Path(sys.argv[2])
+with (folder / 'launcher.log').open('a') as sink:
+    child = studio.launch_prism([sys.executable, str(folder / 'launcher.py'), str(folder), sys.argv[3]],
+        'AdaptDemoStudio', 'accepted', sink, folder / 'launcher.log', watch=1, poll=0.01)
+(folder / 'child').write_text(str(child.pid))
+time.sleep(8)
+'''
+        for mode in ('initial', 'retry'):
+            with self.subTest(mode=mode), tempfile.TemporaryDirectory() as tmp:
+                folder: Path = Path(tmp)
+                (folder / 'launcher.py').write_text(launcher_code)
+                worker: subprocess.Popen = subprocess.Popen(
+                    [sys.executable, '-c', worker_code, str(ROOT / 'src' / 'test' / 'demo'), tmp, mode],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
+                child_pid: int | None = None
+                try:
+                    self.wait_for_file(folder / 'child')
+                    child_pid = int((folder / 'child').read_text())
+                    self.wait_for_file(folder / 'ready')
+                    self.assertEqual(int((folder / 'ready').read_text()), child_pid)
+                    os.killpg(worker.pid, signal.SIGTERM)
+                    worker.wait(timeout=2)
+                    (folder / 'probe').touch()
+                    self.wait_for_file(folder / 'alive')
+                finally:
+                    (folder / 'stop').touch()
+                    if worker.poll() is None:
+                        os.killpg(worker.pid, signal.SIGTERM)
+                        worker.wait(timeout=2)
+                    if child_pid is not None:
+                        self.wait_for_file(folder / 'stopped')
+
+    def wait_for_file(self, path: Path) -> None:
+        deadline: float = time.monotonic() + 3
+        while not path.exists() and time.monotonic() < deadline:
+            time.sleep(0.01)
+        self.assertTrue(path.exists(), str(path))
 
 
 class FakeConnection:

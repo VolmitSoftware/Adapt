@@ -117,7 +117,7 @@ public class PickaxeUnbreakablePact extends SimpleAdaptation<PickaxeUnbreakableP
       return;
     }
 
-    int maxDurability = item.getType().getMaxDurability();
+    int maxDurability = damageable.hasMaxDamage() ? damageable.getMaxDamage() : item.getType().getMaxDurability();
     if (damageable.getDamage() + e.getDamage() < maxDurability) {
       return;
     }

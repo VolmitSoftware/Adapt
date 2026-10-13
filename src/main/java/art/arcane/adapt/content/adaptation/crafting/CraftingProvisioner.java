@@ -30,6 +30,7 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
+import io.papermc.paper.event.inventory.ItemCraftedEvent;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -38,14 +39,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
 public class CraftingProvisioner extends SimpleAdaptation<CraftingProvisioner.Config> {
+  private final Map<UUID, PendingPortions> pendingPortions = playerState();
 
   public CraftingProvisioner() {
     super("crafting-provisioner");
@@ -94,6 +98,11 @@ public class CraftingProvisioner extends SimpleAdaptation<CraftingProvisioner.Co
     if (!(e.getWhoClicked() instanceof Player p)) {
       return;
     }
+    UUID playerId = p.getUniqueId();
+    pendingPortions.remove(playerId);
+    if (e.getAction() == InventoryAction.NOTHING || e.getAction() == InventoryAction.CLONE_STACK) {
+      return;
+    }
 
     int level = getActiveLevel(p);
     if (level <= 0) {
@@ -114,9 +123,27 @@ public class CraftingProvisioner extends SimpleAdaptation<CraftingProvisioner.Co
       return;
     }
 
-    int portions = getBonusPortions(level);
-    Material food = result.getType();
-    J.runEntity(p, () -> giveBonusFood(p, food, portions));
+    PendingPortions pending = new PendingPortions(e, result.getType(), getBonusPortions(level));
+    pendingPortions.put(playerId, pending);
+    J.runEntity(p, () -> pendingPortions.remove(playerId, pending), 1);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(ItemCraftedEvent e) {
+    Player player = e.getPlayer();
+    PendingPortions pending = committedPortions(pendingPortions, player.getUniqueId(), e.getCraftedItem());
+    if (pending != null) {
+      J.runEntity(player, () -> giveBonusFood(player, pending.food(), pending.portions()), 1);
+    }
+  }
+
+  static PendingPortions committedPortions(Map<UUID, PendingPortions> pendingPortions, UUID playerId, ItemStack crafted) {
+    PendingPortions pending = pendingPortions.remove(playerId);
+    if (pending == null || pending.event().isCancelled() || crafted == null || crafted.getAmount() <= 0
+        || crafted.getType() != pending.food()) {
+      return null;
+    }
+    return pending;
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -203,6 +230,9 @@ public class CraftingProvisioner extends SimpleAdaptation<CraftingProvisioner.Co
     fx(p.getLocation().add(0, 1, 0), FxPriority.AMBIENT)
         .particle(Particles.CRIT_MAGIC, 4, 0, 0.2D, 0, 0.2D, 0.15D)
         .sound(Sound.ENTITY_GENERIC_EAT, 0.4F, 1.5F);
+  }
+
+  record PendingPortions(CraftItemEvent event, Material food, int portions) {
   }
 
   @ConfigDescription("Crafting or cooking food has a chance to yield bonus portions.")

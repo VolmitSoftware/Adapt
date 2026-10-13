@@ -63,6 +63,7 @@ import org.bukkit.entity.ThrownPotion;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityRemoveEvent;
 import org.bukkit.event.entity.LingeringPotionSplashEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -460,9 +461,12 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     FrozenEntityState state = frozenEntities.get(entityId);
     boolean created = false;
     if (state == null) {
-      Boolean hadAi = entity instanceof LivingEntity living ? living.hasAI() : null;
-      FrozenEntityState candidate = new FrozenEntityState(entity.getVelocity(), entity.hasGravity(), hadAi);
+      TemporalFreezeRegistry.Lease lease = TemporalFreezeRegistry.acquire(entity);
+      FrozenEntityState candidate = new FrozenEntityState(lease);
       FrozenEntityState existing = frozenEntities.putIfAbsent(entityId, candidate);
+      if (existing != null) {
+        TemporalFreezeRegistry.release(entity, lease, null);
+      }
       state = existing == null ? candidate : existing;
       created = existing == null;
     }
@@ -518,6 +522,14 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
   }
 
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntityRemoveEvent e) {
+    UUID entityId = e.getEntity().getUniqueId();
+    if (frozenEntities.remove(entityId) != null) {
+      TemporalFreezeRegistry.forget(entityId);
+    }
+  }
+
   private void sweepStrandedFrozenEntities() {
     if (J.isFoliaThreading()) {
       return;
@@ -545,8 +557,12 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     UUID playerId = player.getUniqueId();
     FrozenPlayerState state = frozenPlayers.get(playerId);
     if (state == null) {
-      FrozenPlayerState candidate = new FrozenPlayerState(player.getAllowFlight(), player.isFlying(), player.hasGravity());
+      TemporalFreezeRegistry.Lease lease = TemporalFreezeRegistry.acquire(player);
+      FrozenPlayerState candidate = new FrozenPlayerState(lease);
       FrozenPlayerState existing = frozenPlayers.putIfAbsent(playerId, candidate);
+      if (existing != null) {
+        TemporalFreezeRegistry.release(player, lease, null);
+      }
       state = existing == null ? candidate : existing;
       if (existing == null) {
         stampFrozenPlayer(player, candidate);
@@ -604,24 +620,19 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   }
 
   private void unfreezePlayer(Player player, FrozenPlayerState state) {
-    player.getPersistentDataContainer().remove(frozenPlayerStampKey);
-    player.setGravity(state.gravity());
-    if (state.allowFlight()) {
-      player.setAllowFlight(true);
-      player.setFlying(state.flying());
-      return;
+    FrozenPlayerState current = frozenPlayers.get(player.getUniqueId());
+    if (current == null || current == state) {
+      player.getPersistentDataContainer().remove(frozenPlayerStampKey);
     }
-    player.setFlying(false);
-    player.setAllowFlight(false);
+    TemporalFreezeRegistry.release(player, state.lease, null);
   }
 
   private void unfreezeEntity(Entity entity, FrozenEntityState state) {
-    entity.setGravity(state.gravity());
-    entity.setVelocity(state.buildReleaseVelocity(getConfig().frozenImpulseReleaseCap));
-    if (entity instanceof LivingEntity living && state.hadAi() != null) {
-      living.setAI(state.hadAi());
+    TemporalFreezeRegistry.release(entity, state.lease, state.buildReleaseVelocity(getConfig().frozenImpulseReleaseCap));
+    FrozenEntityState current = frozenEntities.get(entity.getUniqueId());
+    if (current == null || current == state) {
+      entity.getPersistentDataContainer().remove(frozenStampKey);
     }
-    entity.getPersistentDataContainer().remove(frozenStampKey);
   }
 
   private void evaluateFieldEntity(TemporalField field, Entity entity, FieldPulseState pulse, long now) {
@@ -1120,6 +1131,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
     if (!player.isOnline() || player.isDead()) {
       frozenPlayers.remove(playerId, state);
+      TemporalFreezeRegistry.forget(playerId);
       return;
     }
 
@@ -1149,7 +1161,6 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
       FrozenEntityState state = entry.getValue();
       Entity entity = Bukkit.getEntity(entityId);
       if (entity == null) {
-        frozenEntities.remove(entityId, state);
         continue;
       }
       J.runEntity(entity, () -> reconcileFrozenEntity(entity, state, now));
@@ -1163,6 +1174,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     }
     if (entity.isDead() || !entity.isValid()) {
       frozenEntities.remove(entityId, state);
+      TemporalFreezeRegistry.forget(entityId);
       return;
     }
 
@@ -1382,6 +1394,7 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   }
 
   private static final class FrozenEntityState {
+    private final TemporalFreezeRegistry.Lease lease;
     private final Vector originalVelocity;
     private final boolean gravity;
     private final Boolean hadAi;
@@ -1390,10 +1403,11 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
     private double impulseMagnitudeAccumulator;
     private int impulseSamples;
 
-    private FrozenEntityState(Vector originalVelocity, boolean gravity, Boolean hadAi) {
-      this.originalVelocity = originalVelocity.clone();
-      this.gravity = gravity;
-      this.hadAi = hadAi;
+    private FrozenEntityState(TemporalFreezeRegistry.Lease lease) {
+      this.lease = lease;
+      this.originalVelocity = lease.snapshot().velocity();
+      this.gravity = lease.snapshot().gravity();
+      this.hadAi = lease.snapshot().hadAi();
       this.impulseDirectionAccumulator = new Vector();
       this.fieldIds = ConcurrentHashMap.newKeySet();
       this.impulseMagnitudeAccumulator = 0D;
@@ -1469,15 +1483,17 @@ public class ChronosTimeBomb extends SimpleAdaptation<ChronosTimeBomb.Config> {
   }
 
   private static final class FrozenPlayerState {
+    private final TemporalFreezeRegistry.Lease lease;
     private final boolean allowFlight;
     private final boolean flying;
     private final boolean gravity;
     private final Set<UUID> fieldIds;
 
-    private FrozenPlayerState(boolean allowFlight, boolean flying, boolean gravity) {
-      this.allowFlight = allowFlight;
-      this.flying = flying;
-      this.gravity = gravity;
+    private FrozenPlayerState(TemporalFreezeRegistry.Lease lease) {
+      this.lease = lease;
+      this.allowFlight = lease.snapshot().flight().allowFlight();
+      this.flying = lease.snapshot().flight().flying();
+      this.gravity = lease.snapshot().gravity();
       this.fieldIds = ConcurrentHashMap.newKeySet();
     }
 

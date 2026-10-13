@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.crafting;
 
-import java.util.List;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -36,22 +35,28 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
+import io.papermc.paper.event.inventory.ItemCraftedEvent;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.CraftItemEvent;
+import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
+import org.bukkit.inventory.RecipeChoice;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Config> {
   public static final PlayerPreference<CraftingPreferences.Category> MATERIALS = CraftingPreferences.categories("materials", CraftingMessages.PREFERENCE_CRAFTINGBULKARTISAN_MATERIALS);
   public static final PlayerPreference<CommonPreferences.Scale> BATCH = CommonPreferences.scale("batch-limit", CraftingMessages.PREFERENCE_CRAFTINGBULKARTISAN_BATCH);
   public static final PlayerPreference<CraftingPreferences.Reserve> RESERVE = CraftingPreferences.reserve("ingredient-reserve", CraftingMessages.PREFERENCE_CRAFTINGBULKARTISAN_RESERVE);
 
+  private final Map<UUID, PendingBatch> pendingBatches = playerState();
   private final Cooldowns throttle = cooldowns();
 
   public CraftingBulkArtisan() {
@@ -94,9 +99,14 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
     return batchCap(getConfig().batchCapBase, getConfig().batchCapFactor, getLevelPercent(level));
   }
 
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(CraftItemEvent e) {
     if (!(e.getWhoClicked() instanceof Player p) || !e.isShiftClick()) {
+      return;
+    }
+    UUID playerId = p.getUniqueId();
+    pendingBatches.remove(playerId);
+    if (e.getAction() == InventoryAction.NOTHING || e.getAction() == InventoryAction.CLONE_STACK) {
       return;
     }
 
@@ -110,13 +120,13 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
       return;
     }
 
-    ItemStack result = recipe.getResult();
+    ItemStack result = e.getCurrentItem();
     if (result == null || result.getType().isAir() || !preference(p, MATERIALS).allows(result.getType())) {
       return;
     }
 
-    Map<Material, Integer> perCraft = CraftingIngredients.perCraftCounts(recipe);
-    if (perCraft == null) {
+    List<RecipeChoice> perCraft = CraftingIngredients.perCraftChoices(recipe);
+    if (perCraft.isEmpty()) {
       return;
     }
 
@@ -126,11 +136,32 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
     throttle.mark(p.getUniqueId());
 
     int cap = (int) Math.floor(getBatchCap(level) * preference(p, BATCH).multiplier());
-    ItemStack template = result.clone();
-    J.runEntity(p, () -> augmentBatch(p, perCraft, template, cap));
+    PendingBatch pending = new PendingBatch(e, perCraft, result.getType(), result.getAmount(), cap);
+    pendingBatches.put(playerId, pending);
+    J.runEntity(p, () -> pendingBatches.remove(playerId, pending), 1);
   }
 
-  private void augmentBatch(Player p, Map<Material, Integer> perCraft, ItemStack template, int capItems) {
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(ItemCraftedEvent e) {
+    Player player = e.getPlayer();
+    PendingBatch pending = committedBatch(pendingBatches, player.getUniqueId(), e.getCraftedItem());
+    if (pending != null) {
+      ItemStack template = e.getCraftedItem().clone();
+      template.setAmount(pending.resultAmount());
+      J.runEntity(player, () -> augmentBatch(player, pending.choices(), template, pending.cap()), 1);
+    }
+  }
+
+  static PendingBatch committedBatch(Map<UUID, PendingBatch> pendingBatches, UUID playerId, ItemStack crafted) {
+    PendingBatch pending = pendingBatches.remove(playerId);
+    if (pending == null || pending.event().isCancelled() || crafted == null || crafted.getAmount() <= 0
+        || crafted.getType() != pending.result()) {
+      return null;
+    }
+    return pending;
+  }
+
+  private void augmentBatch(Player p, List<RecipeChoice> perCraft, ItemStack template, int capItems) {
     if (!p.isOnline() || getActiveLevel(p) <= 0) {
       return;
     }
@@ -141,35 +172,19 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
       return;
     }
 
-    for (Map.Entry<Material, Integer> entry : perCraft.entrySet()) {
-      int required = entry.getValue();
-      if (required <= 0) {
-        continue;
-      }
-      maxCrafts = Math.min(maxCrafts, Math.max(0, availablePlain(p, entry.getKey()) - preference(p, RESERVE).amount()) / required);
-      if (maxCrafts <= 0) {
-        return;
-      }
-    }
-
     int capacityItems = capacityFor(p, template);
     maxCrafts = Math.min(maxCrafts, capacityItems / resultAmount);
     if (maxCrafts <= 0) {
       return;
     }
 
-    int crafts = maxCrafts;
-    if (!payItemCost(p, "materials", null, crafts, () -> {
-      for (Map.Entry<Material, Integer> entry : perCraft.entrySet()) {
-        p.getInventory().removeItem(new ItemStack(entry.getKey(), entry.getValue() * crafts));
-      }
-
-      return true;
-    })) {
+    ItemStack[] storage = p.getInventory().getStorageContents();
+    CraftingIngredients.BatchPlan plan = CraftingIngredients.plan(perCraft, storage, maxCrafts, preference(p, RESERVE).amount());
+    if (plan.crafts() <= 0 || !payItemCost(p, "materials", null, plan.crafts(), () -> consumePlan(p, storage, plan))) {
       return;
     }
 
-    int produced = maxCrafts * resultAmount;
+    int produced = plan.crafts() * resultAmount;
     ItemStack give = template.clone();
     give.setAmount(produced);
     Map<Integer, ItemStack> leftovers = p.getInventory().addItem(give);
@@ -186,15 +201,23 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
         .chord(Sound.BLOCK_BARREL_CLOSE, 0.5F, 1.4F, Sound.ENTITY_ITEM_PICKUP, 0.5F, 1.2F);
   }
 
-  private int availablePlain(Player p, Material material) {
-    ItemStack unit = new ItemStack(material);
-    int total = 0;
-    for (ItemStack slot : p.getInventory().getStorageContents()) {
-      if (slot != null && slot.isSimilar(unit)) {
-        total += slot.getAmount();
+  private boolean consumePlan(Player p, ItemStack[] storage, CraftingIngredients.BatchPlan plan) {
+    for (int slot = 0; slot < plan.costs().length; slot++) {
+      int cost = plan.costs()[slot];
+      ItemStack current = p.getInventory().getItem(slot);
+      if (cost > 0 && (current == null || !current.isSimilar(storage[slot]) || current.getAmount() < cost)) {
+        return false;
       }
     }
-    return total;
+    for (int slot = 0; slot < plan.costs().length; slot++) {
+      int cost = plan.costs()[slot];
+      if (cost > 0) {
+        ItemStack remaining = p.getInventory().getItem(slot).clone();
+        remaining.setAmount(remaining.getAmount() - cost);
+        p.getInventory().setItem(slot, remaining.getAmount() > 0 ? remaining : null);
+      }
+    }
+    return true;
   }
 
   private int capacityFor(Player p, ItemStack template) {
@@ -208,6 +231,9 @@ public class CraftingBulkArtisan extends SimpleAdaptation<CraftingBulkArtisan.Co
       }
     }
     return capacity;
+  }
+
+  record PendingBatch(CraftItemEvent event, List<RecipeChoice> choices, Material result, int resultAmount, int cap) {
   }
 
   @ConfigDescription("Shift-click a craft result to pull extra ingredients from your inventory and craft a bigger batch in one action.")

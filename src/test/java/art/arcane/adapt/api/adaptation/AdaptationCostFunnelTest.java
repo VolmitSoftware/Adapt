@@ -8,6 +8,7 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
@@ -101,19 +102,13 @@ class AdaptationCostFunnelTest {
   @Test
   void theMigratedDurabilityAnchorStillReachesTheVanillaItemDamagePath() {
     Player player = mock(Player.class);
-    PlayerInventory inventory = mock(PlayerInventory.class);
-    ItemStack held = mock(ItemStack.class);
-    when(player.getInventory()).thenReturn(inventory);
-    when(inventory.getItemInMainHand()).thenReturn(held);
-    when(inventory.getItemInOffHand()).thenReturn(held);
-    when(held.getItemMeta()).thenReturn(null);
 
     TestAdaptation adaptation = new TestAdaptation();
     adaptation.damageHand(player, 3);
     adaptation.damageOffHand(player, 3);
 
-    verify(inventory).getItemInMainHand();
-    verify(inventory).getItemInOffHand();
+    verify(player).damageItemStack(EquipmentSlot.HAND, 3);
+    verify(player).damageItemStack(EquipmentSlot.OFF_HAND, 3);
   }
 
   @Test

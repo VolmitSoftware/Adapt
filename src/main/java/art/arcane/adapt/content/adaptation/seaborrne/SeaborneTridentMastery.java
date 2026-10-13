@@ -23,6 +23,7 @@ import art.arcane.adapt.localization.catalog.SeabornMessages;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.content.adaptation.chronos.TemporalFreezeRegistry;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
@@ -172,6 +173,10 @@ public class SeaborneTridentMastery extends SimpleAdaptation<SeaborneTridentMast
   private void applyRecallTargetOwned(Trident trident, UUID tridentId, Player p, int level, int ticksLived,
                                       Location playerLocation) {
     if (!trident.isValid() || trident.isDead() || ticksLived > MAX_RECALL_TICKS) {
+      return;
+    }
+    if (TemporalFreezeRegistry.isFrozen(trident)) {
+      J.runEntity(trident, () -> recallTick(trident, p, level, ticksLived), 1);
       return;
     }
 

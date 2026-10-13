@@ -373,7 +373,7 @@ shadowJarTask.configure {
             return false
         }
         String relative = path.substring(nativePrefix.length())
-        return relative.contains('/') && !relative.matches('(?:common/|v26_[23]_R1/)?(?:player|entity|advancement)/.*')
+        return relative.contains('/') && !relative.matches('(?:common/|v26_[23]_R1/)?(?:(?:player|entity|advancement)/.*|chunk/(?:GeneratedChunkStructures|ChunkPosition).*)')
     }
 }
 

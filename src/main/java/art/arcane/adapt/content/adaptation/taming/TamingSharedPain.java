@@ -90,7 +90,7 @@ public class TamingSharedPain extends SimpleAdaptation<TamingSharedPain.Config> 
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
-    if (!(e.getEntity() instanceof Player owner)) {
+    if (!(e.getEntity() instanceof Player owner) || e.getFinalDamage() <= MINIMUM_TRANSFER) {
       return;
     }
 

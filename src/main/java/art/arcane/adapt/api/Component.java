@@ -42,9 +42,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.PlayerInventory;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -307,55 +306,15 @@ public interface Component {
   }
 
   default void damageHand(Player p, int damage) {
-    ItemStack is = p.getInventory().getItemInMainHand();
-    ItemMeta im = is.getItemMeta();
-
-    if (im == null) {
-      return;
+    if (damage > 0) {
+      p.damageItemStack(EquipmentSlot.HAND, damage);
     }
-
-    if (im.isUnbreakable()) {
-      return;
-    }
-
-    Damageable dm = (Damageable) im;
-    dm.setDamage(dm.getDamage() + damage);
-
-    if (dm.getDamage() > is.getType().getMaxDurability()) {
-      p.getInventory().setItemInMainHand(new ItemStack(Material.AIR));
-      SoundPlayer spw = SoundPlayer.of(p.getWorld());
-      spw.play(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
-      return;
-    }
-
-    is.setItemMeta(im);
-    p.getInventory().setItemInMainHand(is);
   }
 
   default void damageOffHand(Player p, int damage) {
-    ItemStack is = p.getInventory().getItemInOffHand();
-    ItemMeta im = is.getItemMeta();
-
-    if (im == null) {
-      return;
+    if (damage > 0) {
+      p.damageItemStack(EquipmentSlot.OFF_HAND, damage);
     }
-
-    if (im.isUnbreakable()) {
-      return;
-    }
-
-    Damageable dm = (Damageable) im;
-    dm.setDamage(dm.getDamage() + damage);
-
-    if (dm.getDamage() > is.getType().getMaxDurability()) {
-      p.getInventory().setItemInOffHand(new ItemStack(Material.AIR));
-      SoundPlayer spw = SoundPlayer.of(p.getWorld());
-      spw.play(p.getLocation(), Sound.ENTITY_ITEM_BREAK, 1f, 1f);
-      return;
-    }
-
-    is.setItemMeta(im);
-    p.getInventory().setItemInOffHand(is);
   }
 
   default Block getRightBlock(Player p, Block b) {

@@ -37,6 +37,7 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -45,8 +46,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.metadata.MetadataValue;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
 import java.util.Set;
@@ -57,8 +57,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Config> {
-  private static final String REFLECTED_META = "adapt-mirror-reflected";
-  private static final String DAMAGE_FACTOR_META = "adapt-mirror-damage-factor";
+  private static final NamespacedKey REFLECTED_KEY = NamespacedKey.fromString("adapt:mirror-reflected");
+  private static final NamespacedKey DAMAGE_FACTOR_KEY = NamespacedKey.fromString("adapt:mirror-damage-factor");
   private final Set<UUID> pendingDefenders = ConcurrentHashMap.newKeySet();
   private final AtomicBoolean acceptingReflections = new AtomicBoolean(true);
 
@@ -115,7 +115,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     applyReflectedDamageModifier(e, projectile);
 
     if (!(e.getEntity() instanceof Player defender) || !acceptingReflections.get()
-        || !isMirrorReady(defender) || projectile.hasMetadata(REFLECTED_META)) {
+        || !isMirrorReady(defender) || projectile.getPersistentDataContainer().has(REFLECTED_KEY)) {
       return;
     }
 
@@ -171,7 +171,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
   }
 
   private void applyReflectedDamageModifier(EntityDamageByEntityEvent e, Projectile projectile) {
-    if (!(projectile.getShooter() instanceof Player shooter) || !projectile.hasMetadata(DAMAGE_FACTOR_META)) {
+    if (!(projectile.getShooter() instanceof Player shooter) || !projectile.getPersistentDataContainer().has(DAMAGE_FACTOR_KEY)) {
       return;
     }
 
@@ -179,7 +179,7 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
       return;
     }
 
-    double factor = getMetadataDouble(projectile, DAMAGE_FACTOR_META, 1D);
+    double factor = projectile.getPersistentDataContainer().getOrDefault(DAMAGE_FACTOR_KEY, PersistentDataType.DOUBLE, 1D);
     e.setDamage(e.getDamage() * factor);
   }
 
@@ -242,11 +242,8 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
 
       projectile.setShooter(defender);
       projectile.setVelocity(reflection.velocity());
-      projectile.setMetadata(REFLECTED_META, new FixedMetadataValue(Adapt.instance, true));
-      projectile.setMetadata(
-          DAMAGE_FACTOR_META,
-          new FixedMetadataValue(Adapt.instance, reflection.damageFactor())
-      );
+      projectile.getPersistentDataContainer().set(REFLECTED_KEY, PersistentDataType.BYTE, (byte) 1);
+      projectile.getPersistentDataContainer().set(DAMAGE_FACTOR_KEY, PersistentDataType.DOUBLE, reflection.damageFactor());
       reflectTrail(projectile);
       boolean scheduled = J.runEntity(defender, () ->
           commitReflection(defender, reflection));
@@ -305,16 +302,6 @@ public class BlockingMirrorBlock extends SimpleAdaptation<BlockingMirrorBlock.Co
     ItemStack main = p.getInventory().getItemInMainHand();
     ItemStack off = p.getInventory().getItemInOffHand();
     return (isItem(main) && main.getType() == Material.SHIELD) || (isItem(off) && off.getType() == Material.SHIELD);
-  }
-
-  private double getMetadataDouble(Projectile projectile, String key, double fallback) {
-    for (MetadataValue value : projectile.getMetadata(key)) {
-      if (value.getOwningPlugin() == Adapt.instance) {
-        return value.asDouble();
-      }
-    }
-
-    return fallback;
   }
 
   private double getReflectChance(int level) {

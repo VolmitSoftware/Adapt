@@ -1015,8 +1015,9 @@ public class ChronosInstantRecall extends SimpleAdaptation<ChronosInstantRecallC
     double healthAfterRecall = finalSnapshot.health();
     long castAt = M.ms();
     GameMode originalGameMode = p.getGameMode();
-    boolean originalAllowFlight = p.getAllowFlight();
-    boolean originalFlying = p.isFlying();
+    TemporalFreezeRegistry.Flight originalFlight = TemporalFreezeRegistry.flightBeforeFreeze(p);
+    boolean originalAllowFlight = originalFlight.allowFlight();
+    boolean originalFlying = originalFlight.flying();
     boolean temporarySpectator = getConfig().rewindUseTemporarySpectator && originalGameMode == GameMode.SURVIVAL;
     boolean allowClientCamera = temporarySpectator
         && getConfig().rewindUseClientCamera

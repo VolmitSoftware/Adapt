@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -43,16 +44,19 @@ import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGrindstoneRecovery.Config> {
   public static final PlayerPreference<CommonPreferences.Toggle> BOOKS = CommonPreferences.toggle("books", EnchantingMessages.PREFERENCE_ENCHANTINGGRINDSTONERECOVERY_BOOKS, CommonPreferences.Toggle.ON);
   public static final PlayerPreference<CommonPreferences.Toggle> BONUS_XP = CommonPreferences.toggle("bonus-xp", EnchantingMessages.PREFERENCE_ENCHANTINGGRINDSTONERECOVERY_BONUS_XP, CommonPreferences.Toggle.ON);
+  private final Map<UUID, PendingRecovery> pendingRecoveries = playerState();
 
   public EnchantingGrindstoneRecovery() {
     super("enchanting-grindstone-recovery");
@@ -98,7 +102,7 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
     return true;
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(InventoryClickEvent e) {
     if (!(e.getWhoClicked() instanceof Player p)) {
       return;
@@ -108,7 +112,8 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
       return;
     }
 
-    if (!isItem(e.getCurrentItem()) || e.getAction() == InventoryAction.NOTHING) {
+    if (!isItem(e.getCurrentItem()) || e.getAction() == InventoryAction.NOTHING
+        || e.getAction() == InventoryAction.CLONE_STACK) {
       return;
     }
 
@@ -132,19 +137,50 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
       return;
     }
 
+    PendingRecovery pending = new PendingRecovery(e, e.getView().getTopInventory(), recovered, level);
+    UUID playerId = p.getUniqueId();
+    pendingRecoveries.put(playerId, pending);
+    J.runEntity(p, () -> commitRecovery(p, pending), 1);
+  }
+
+  private void commitRecovery(Player p, PendingRecovery pending) {
+    if (!pendingRecoveries.remove(p.getUniqueId(), pending) || !p.isOnline()
+        || getActiveLevel(p) <= 0 || p.hasCooldown(Material.GRINDSTONE)
+        || !p.getOpenInventory().getTopInventory().equals(pending.inventory())
+        || (J.isFoliaThreading() && pending.inventory().getLocation() != null
+        && !J.isOwnedByCurrentRegion(pending.inventory().getLocation()))
+        || !committedRemoval(pending.event(), pending.inventory())) {
+      return;
+    }
+
     if (preferenceEnabled(p, BOOKS)) {
-      Map<Integer, ItemStack> overflow = p.getInventory().addItem(recovered);
+      Map<Integer, ItemStack> overflow = p.getInventory().addItem(pending.book());
       overflow.values().forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
     }
-    int xp = Math.max(0, (int) Math.round(getBonusXp(level)));
+    int xp = Math.max(0, (int) Math.round(getBonusXp(pending.level())));
     if (xp > 0 && preferenceEnabled(p, BONUS_XP)) {
       p.giveExp(xp);
     }
 
-    p.setCooldown(Material.GRINDSTONE, getCooldownTicks(level));
-    recoverySuccessFx(p, level);
+    p.setCooldown(Material.GRINDSTONE, getCooldownTicks(pending.level()));
+    recoverySuccessFx(p, pending.level());
     xp(p, getConfig().skillXpOnRecovery);
     addStat(p, "enchanting.grindstone-recovery.enchants-recovered", 1);
+  }
+
+  static boolean committedRemoval(InventoryClickEvent event, Inventory inventory) {
+    return !event.isCancelled() && isEmpty(inventory.getItem(0))
+        && isEmpty(inventory.getItem(1)) && isEmpty(inventory.getItem(2));
+  }
+
+  private static boolean isEmpty(ItemStack item) {
+    if (item == null || item.getAmount() <= 0) {
+      return true;
+    }
+    return switch (item.getType()) {
+      case AIR, CAVE_AIR, VOID_AIR -> true;
+      default -> false;
+    };
   }
 
   private void recoverySuccessFx(Player p, int level) {
@@ -231,6 +267,9 @@ public class EnchantingGrindstoneRecovery extends SimpleAdaptation<EnchantingGri
     return Math.max(Math.max(0, minimum), (int) Math.round(Math.max(0D, Math.min(Integer.MAX_VALUE, scaled))));
   }
 
+
+  private record PendingRecovery(InventoryClickEvent event, Inventory inventory, ItemStack book, int level) {
+  }
 
   @ConfigDescription("Using a grindstone can recover one removed enchant on a book with bonus XP.")
   protected static class Config extends AdaptationConfig {

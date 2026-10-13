@@ -1,0 +1,16 @@
+name: FoliaCombatAuditFixture
+version: 1.0.0
+main: art.arcane.adapt.gameplay.FoliaCombatAuditFixture
+api-version: '26.1'
+folia-supported: true
+depend: [Adapt]
+commands:
+  adaptqa:
+    permission: adaptqa.admin
+  adaptcombatqa:
+    permission: adaptcombatqa.admin
+permissions:
+  adaptqa.admin:
+    default: op
+  adaptcombatqa.admin:
+    default: op

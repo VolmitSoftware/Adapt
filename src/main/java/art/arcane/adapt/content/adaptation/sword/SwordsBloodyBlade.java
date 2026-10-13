@@ -40,6 +40,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -224,7 +226,9 @@ public class SwordsBloodyBlade extends SimpleAdaptation<SwordsBloodyBlade.Config
   }
 
   static void applyBleedDamage(BleedPulse pulse) {
-    pulse.target().damage(pulse.damage(), pulse.source());
+    DamageSource source = DamageSource.builder(DamageType.MAGIC)
+        .withCausingEntity(pulse.source()).withDirectEntity(pulse.source()).build();
+    pulse.target().damage(pulse.damage(), source);
   }
 
   private record BleedMark(UUID source, long expiresAt) {

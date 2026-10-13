@@ -85,7 +85,7 @@ public class TamingGuardianInstinct extends SimpleAdaptation<TamingGuardianInsti
     statLore(v, C.YELLOW, "* ", Form.pc(getPetReduction(level), 0), 2);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
     if (!(e.getEntity() instanceof Player owner) || !(e.getDamager() instanceof Projectile)) {
       return;
@@ -96,7 +96,7 @@ public class TamingGuardianInstinct extends SimpleAdaptation<TamingGuardianInsti
       return;
     }
 
-    double damage = e.getDamage();
+    double damage = e.getFinalDamage();
     if (damage <= 0) {
       return;
     }

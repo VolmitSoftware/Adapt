@@ -72,6 +72,8 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             }
             DemoSkin.install(this);
             RangedFixtures.install(this);
+            CombatAuditFixtures.install(this);
+            SenseAuditFixtures.install(this);
             HarvestFixtures.install(this);
             TamingFixtures.install(this);
             DefenseFixtures.install(this);
@@ -81,6 +83,8 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             GuardFixtures.install(this);
             getServer().getPluginManager().registerEvents(new BlinkPreferencesFixtures(), this);
             getServer().getPluginManager().registerEvents(new CraftingFixtures(), this);
+            getServer().getPluginManager().registerEvents(new ItemsAuditFixtures(), this);
+            getServer().getPluginManager().registerEvents(new MiningAuditFixtures(), this);
             getServer().getPluginManager().registerEvents(new ChronosFixtures(), this);
             getServer().getPluginManager().registerEvents(new TraversalFixtures(), this);
             getServer().getPluginManager().registerEvents(new NatureFixtures(), this);
@@ -109,7 +113,17 @@ public final class AdaptGameplayFixture extends JavaPlugin {
             return true;
         }
         try {
-            if (args.length >= 3 && args[0].equals("appearance")) {
+            if (args.length >= 3 && args[0].equals("temporal")) {
+                sendJson(sender, "TEMPORAL " + args[2], TemporalAuditFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length >= 3 && args[0].equals("sense")) {
+                sendJson(sender, "SENSE " + args[2], SenseAuditFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length >= 3 && args[0].equals("items-audit")) {
+                sendJson(sender, "ITEMS_AUDIT " + args[2], ItemsAuditFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length >= 3 && args[0].equals("mining-audit")) {
+                sendJson(sender, "MINING_AUDIT " + args[2], MiningAuditFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length >= 3 && args[0].equals("demolition")) {
+                sendJson(sender, "DEMOLITION " + args[2], DemolitionFixtures.execute(ordinaryPlayer(args[1]), args));
+            } else if (args.length >= 3 && args[0].equals("appearance")) {
                 sendJson(sender, "APPEARANCE " + args[2], AppearanceFixtures.execute(ordinaryPlayer(args[1]), args));
             } else if (args.length >= 3 && args[0].equals("catalog-behavior")) {
                 sendJson(sender, "CATALOG_BEHAVIOR " + args[2], CatalogPreferenceFixtures.execute(ordinaryPlayer(args[1]), args));
@@ -539,6 +553,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
         result.add("taming", TamingFixtures.snapshot(player));
         result.add("nether", NetherFixtures.snapshot(player));
         result.add("defense", DefenseFixtures.snapshot(player));
+        result.add("combatAudit", CombatAuditFixtures.snapshot(player));
         result.add("harvest", HarvestFixtures.snapshot(player));
         result.add("tragoul", TragoulFixtures.snapshot(player));
         result.add("areaTargets", AreaTargetingFixtures.snapshot(player));

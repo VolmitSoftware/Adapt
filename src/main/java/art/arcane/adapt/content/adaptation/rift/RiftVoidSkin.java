@@ -162,7 +162,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       return;
     }
 
-    if (!isLethalDamage(survivableHealth(p.getHealth(), p.getAbsorptionAmount()), e.getFinalDamage())) {
+    if (!isLethalDamage(p.getHealth(), e.getFinalDamage())) {
       return;
     }
 
@@ -462,20 +462,6 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
         && Double.isFinite(finalDamage)
         && health > 0D
         && finalDamage >= health;
-  }
-
-  /**
-   * Absorption soaks damage before health does, so a hit that only eats
-   * absorption is not lethal and must not burn an escape.
-   */
-  static double survivableHealth(double health, double absorption) {
-    if (!Double.isFinite(health)) {
-      return health;
-    }
-    if (!Double.isFinite(absorption) || absorption <= 0D) {
-      return health;
-    }
-    return health + absorption;
   }
 
   static boolean cancelLethalDamage(EntityDamageEvent event, boolean escapeReserved) {

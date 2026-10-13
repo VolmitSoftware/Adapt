@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -37,8 +38,11 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Color;
 import org.bukkit.Material;
+import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
+import org.bukkit.damage.DamageSource;
+import org.bukkit.damage.DamageType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -49,6 +53,7 @@ import java.util.UUID;
 
 
 public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
+  private static final int MAX_TARGET_RECHECKS = 4;
   private static final Color THORN_CRIMSON = Color.fromRGB(140, 10, 10);
   private static final Color THORN_LETHAL = Color.fromRGB(120, 0, 0);
   private final Cooldowns cooldowns = cooldowns();
@@ -115,27 +120,93 @@ public class TragoulThorns extends SimpleAdaptation<TragoulThorns.Config> {
           le = shooter;
         }
 
-        if (le != null && AdaptationDamageTargets.allows(le, getConfig().ignorePassiveMobs || preferenceEnabled(p, TragoulPreferences.PASSIVE)) && canDamageTarget(p, le)) {
+        if (le != null) {
           cooldowns.mark(id);
-          LivingEntity attacker = le;
-          double reflectedDamage = getConfig().damageMultiplierPerLevel * level;
-          double healthBefore = attacker.getHealth();
-          fx(attacker, FxPriority.COMBAT)
-              .ring(Particles.CRIT_MAGIC, 0.6D, 10, 1.0D)
-              .dustBurst(THORN_CRIMSON, 4, 0.4D, 1.0F)
-              .chord(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.5F, 1.4F, Sound.ENTITY_ARROW_HIT, 0.4F, 0.8F);
-          TragoulReactiveDamage.apply(() -> attacker.damage(reflectedDamage, p));
-          addStat(p, "tragoul.thorns.damage-reflected", (int) reflectedDamage);
-          if (healthBefore <= reflectedDamage) {
-            fx(attacker, FxPriority.COMBAT)
-                .particle(Particle.DAMAGE_INDICATOR, 6, 0, 1.0D, 0, 0.3D, 0.05D)
-                .dustBurst(THORN_LETHAL, 10, 0.4D, 1.0F)
-                .chord(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.7F, 0.7F, Sound.BLOCK_BONE_BLOCK_BREAK, 0.5F, 1.2F);
-            grantOnce(p, "challenge_tragoul_thorns_kill");
-          }
+          Reflection reflection = new Reflection(p, le, getConfig().damageMultiplierPerLevel * level,
+              getConfig().ignorePassiveMobs || preferenceEnabled(p, TragoulPreferences.PASSIVE));
+          J.runEntity(le, () -> captureReflectionTargetOwned(reflection));
         }
       });
     }
+  }
+
+  private void captureReflectionTargetOwned(Reflection reflection) {
+    LivingEntity attacker = reflection.attacker();
+    if (!attacker.isValid() || attacker.isDead()
+        || !AdaptationDamageTargets.allows(attacker, reflection.ignorePassiveMobs())
+        || isProtectedFriendlyOwned(reflection.owner().getUniqueId(), attacker)) {
+      return;
+    }
+    ReflectionTarget target = new ReflectionTarget(attacker.getLocation().clone(), attacker instanceof Player, 0);
+    J.runEntity(reflection.owner(), () -> authorizeReflectionOwnerOwned(reflection, target));
+  }
+
+  private void authorizeReflectionOwnerOwned(Reflection reflection, ReflectionTarget target) {
+    Player owner = reflection.owner();
+    if (!owner.isOnline() || !isRuntimeRegistered() || getActiveLevel(owner) <= 0) {
+      return;
+    }
+    boolean allowed = target.playerTarget() ? canPVP(owner, target.location()) : canPVE(owner, target.location());
+    if (allowed) {
+      J.runEntity(reflection.attacker(), () -> applyReflectionTargetOwned(reflection, target));
+    }
+  }
+
+  private void applyReflectionTargetOwned(Reflection reflection, ReflectionTarget authorization) {
+    LivingEntity attacker = reflection.attacker();
+    if (!isRuntimeRegistered() || !attacker.isValid() || attacker.isDead()
+        || isProtectedFriendlyOwned(reflection.owner().getUniqueId(), attacker)
+        || !AdaptationDamageTargets.allows(attacker, reflection.ignorePassiveMobs())) {
+      return;
+    }
+    Location current = attacker.getLocation();
+    if (!sameTargetBlock(current, authorization.location())) {
+      if (authorization.rechecks() < MAX_TARGET_RECHECKS) {
+        ReflectionTarget moved = new ReflectionTarget(current.clone(), attacker instanceof Player, authorization.rechecks() + 1);
+        J.runEntity(reflection.owner(), () -> authorizeReflectionOwnerOwned(reflection, moved));
+      }
+      return;
+    }
+    double before = attacker.getHealth() + attacker.getAbsorptionAmount();
+    DamageSource source = DamageSource.builder(DamageType.THORNS)
+        .withCausingEntity(reflection.owner()).withDirectEntity(reflection.owner()).build();
+    TragoulReactiveDamage.apply(() -> attacker.damage(reflection.damage(), source));
+    double dealt = Math.max(0D, before - attacker.getHealth() - attacker.getAbsorptionAmount());
+    if (dealt <= 0D) {
+      return;
+    }
+    fx(attacker, FxPriority.COMBAT)
+        .ring(Particles.CRIT_MAGIC, 0.6D, 10, 1.0D)
+        .dustBurst(THORN_CRIMSON, 4, 0.4D, 1.0F)
+        .chord(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.5F, 1.4F, Sound.ENTITY_ARROW_HIT, 0.4F, 0.8F);
+    boolean killed = attacker.isDead();
+    if (killed) {
+      fx(attacker, FxPriority.COMBAT)
+          .particle(Particle.DAMAGE_INDICATOR, 6, 0, 1.0D, 0, 0.3D, 0.05D)
+          .dustBurst(THORN_LETHAL, 10, 0.4D, 1.0F)
+          .chord(Sound.ENTITY_PLAYER_ATTACK_CRIT, 0.7F, 0.7F, Sound.BLOCK_BONE_BLOCK_BREAK, 0.5F, 1.2F);
+    }
+    J.runEntity(reflection.owner(), () -> {
+      if (reflection.owner().isOnline()) {
+        addStat(reflection.owner(), "tragoul.thorns.damage-reflected", dealt);
+        if (killed) {
+          grantOnce(reflection.owner(), "challenge_tragoul_thorns_kill");
+        }
+      }
+    });
+  }
+
+  static boolean sameTargetBlock(Location current, Location authorized) {
+    return current.getWorld() == authorized.getWorld()
+        && current.getBlockX() == authorized.getBlockX()
+        && current.getBlockY() == authorized.getBlockY()
+        && current.getBlockZ() == authorized.getBlockZ();
+  }
+
+  private record Reflection(Player owner, LivingEntity attacker, double damage, boolean ignorePassiveMobs) {
+  }
+
+  private record ReflectionTarget(Location location, boolean playerTarget, int rechecks) {
   }
 
 

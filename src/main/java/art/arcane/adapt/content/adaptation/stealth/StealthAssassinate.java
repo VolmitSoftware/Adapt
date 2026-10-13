@@ -51,6 +51,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDamageEvent;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -101,6 +102,15 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
     return Math.max(0D, currentHealth);
   }
 
+  static void applyExecutionDamage(EntityDamageByEntityEvent event, double currentHealth) {
+    event.setDamage(executionDamage(currentHealth));
+    for (EntityDamageEvent.DamageModifier modifier : EntityDamageEvent.DamageModifier.values()) {
+      if (modifier != EntityDamageEvent.DamageModifier.BASE && event.isApplicable(modifier)) {
+        event.setDamage(modifier, 0D);
+      }
+    }
+  }
+
   @Override
   public List<PlayerPreference<?>> getPlayerPreferences() {
     return List.of(CommonPreferences.ENABLED, SNEAK, TARGETS);
@@ -148,7 +158,7 @@ public class StealthAssassinate extends SimpleAdaptation<StealthAssassinate.Conf
     }
 
     cooldowns.mark(id);
-    e.setDamage(executionDamage(target.getHealth()));
+    applyExecutionDamage(e, target.getHealth());
     xp(attacker, getConfig().xpOnExecution);
     addStat(attacker, "stealth.assassinate.executions", 1);
 
