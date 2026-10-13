@@ -6915,6 +6915,10 @@ trigger = "激活操作"
 white = "白色"
 
 [preferences]
+death_save_priority = "免死优先级"
+first = "优先"
+normal = "普通"
+last = "最后"
 confirm = "请在 5 秒内重复相同操作以确认。"
 enabled = "启用此适应能力"
 full = "使用已解锁的全部上限"

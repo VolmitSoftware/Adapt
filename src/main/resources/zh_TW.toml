@@ -6915,6 +6915,10 @@ trigger = "Activation gesture"
 white = "White"
 
 [preferences]
+death_save_priority = "免死優先級"
+first = "優先"
+normal = "普通"
+last = "最後"
 confirm = "Repeat the same action within 5 seconds to confirm."
 enabled = "Adaptation enabled"
 full = "Full earned limit"

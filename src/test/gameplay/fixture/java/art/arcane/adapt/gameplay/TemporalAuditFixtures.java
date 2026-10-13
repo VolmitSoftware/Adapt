@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
@@ -19,6 +20,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
 import java.lang.reflect.Field;
@@ -139,6 +141,15 @@ public final class TemporalAuditFixtures {
         result.addProperty("flying", player.isFlying());
         result.addProperty("pearls", player.getInventory().all(Material.ENDER_PEARL).values().stream().mapToInt(ItemStack::getAmount).sum());
         result.addProperty("escapes", Adapt.instance.getAdaptServer().getPlayer(player).getData().getStat("rift.void-skin.escapes"));
+        result.addProperty("now", System.currentTimeMillis());
+        JsonObject deadlines = new JsonObject();
+        for (String id : new String[]{"tragoul-last-rites", "chronos-hourglass-guard", "rift-void-skin"}) {
+            deadlines.addProperty(id, player.getPersistentDataContainer().getOrDefault(
+                    new NamespacedKey(Adapt.instance, "death_save_" + id.replace('-', '_')), PersistentDataType.LONG, 0L));
+        }
+        result.add("deathSaveDeadlines", deadlines);
+        result.addProperty("borrowedDebt", player.getPersistentDataContainer().get(
+                new NamespacedKey(Adapt.instance, "chronos_borrowed_time_debt"), PersistentDataType.STRING));
         return result;
     }
 

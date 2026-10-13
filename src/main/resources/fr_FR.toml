@@ -6911,6 +6911,10 @@ trigger = "Geste d'activation"
 white = "Blanc"
 
 [preferences]
+death_save_priority = "Priorité de survie"
+first = "En premier"
+normal = "Normale"
+last = "En dernier"
 confirm = "Répétez la même action dans les 5 secondes pour confirmer."
 enabled = "Adaptation activée"
 full = "Limite débloquée complète"

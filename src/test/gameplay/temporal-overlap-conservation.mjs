@@ -7,7 +7,7 @@ export default {
   name: 'adapt-temporal-overlap-conservation',
   description: 'Exercise absorbed lethal damage, overlapping production freezes, recall flight restoration and frozen trident recall on live entities.',
   async run(context) {
-    context.expect(context.report.server.instance.startsWith('adapt-temporal-audit-'), 'Temporal audit targets its disposable instance')
+    context.expect(['adapt-temporal-audit-', 'adapt-interactions-'].some(prefix => context.report.server.instance.startsWith(prefix)), 'Temporal audit targets its disposable instance')
     const suffix = randomBytes(4).toString('hex')
     const actor = await context.connectActor(`AQATm${suffix}`)
     const other = await context.connectActor(`AQATo${suffix}`)

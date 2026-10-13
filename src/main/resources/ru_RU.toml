@@ -6915,6 +6915,10 @@ trigger = "Activation gesture"
 white = "White"
 
 [preferences]
+death_save_priority = "Приоритет спасения от смерти"
+first = "В первую очередь"
+normal = "Обычный"
+last = "В последнюю очередь"
 confirm = "Repeat the same action within 5 seconds to confirm."
 enabled = "Adaptation enabled"
 full = "Full earned limit"

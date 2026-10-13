@@ -1,7 +1,10 @@
 package art.arcane.adapt.content.adaptation.chronos;
 
 import art.arcane.adapt.AdaptTestBase;
+import com.google.common.base.Function;
+import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -12,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Deque;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -23,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -80,6 +85,71 @@ class ChronosBorrowedTimeDamageTest extends AdaptTestBase {
         .isInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> ChronosBorrowedTime.decodeDeferredDamage("broken"))
         .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void cancelledHitCreatesNoDebtOrDeferredDamageCredit() throws Exception {
+    QuietBorrowedTime borrowedTime = new QuietBorrowedTime();
+    Player player = damagePlayer();
+    EntityDamageEvent hit = damage(player, 100D, 8D);
+
+    borrowedTime.on(hit);
+    hit.setCancelled(true);
+    borrowedTime.finishDamage(hit);
+
+    assertThat(deferred(borrowedTime)).isEmpty();
+    assertThat(borrowedTime.damageCredit).isZero();
+    verify(player.getPersistentDataContainer(), never()).set(any(), any(), any());
+  }
+
+  @Test
+  void acceptedHitOwesTheHealthDamageActuallyDeferred() throws Exception {
+    QuietBorrowedTime borrowedTime = new QuietBorrowedTime();
+    Player player = damagePlayer();
+    EntityDamageEvent hit = damage(player, 10D, 8D);
+
+    borrowedTime.on(hit);
+    assertThat(hit.getFinalDamage()).isZero();
+    borrowedTime.finishDamage(hit);
+    borrowedTime.finishDamage(hit);
+
+    assertThat(deferred(borrowedTime).get(player.getUniqueId())).hasSize(1);
+    assertThat(ChronosBorrowedTime.pendingPulseAmount(deferred(borrowedTime).get(player.getUniqueId())))
+        .isEqualTo(0.2D);
+    assertThat(borrowedTime.damageCredit).isEqualTo(2D);
+  }
+
+  @Test
+  void nestedHitsCommitIndependentlyAndCancellationKeepsExistingDebt() throws Exception {
+    QuietBorrowedTime borrowedTime = new QuietBorrowedTime();
+    Player player = damagePlayer();
+    EntityDamageEvent outer = damage(player, 10D, 0D);
+    EntityDamageEvent inner = damage(player, 20D, 0D);
+
+    borrowedTime.on(outer);
+    borrowedTime.on(inner);
+    borrowedTime.finishDamage(inner);
+    outer.setCancelled(true);
+    borrowedTime.finishDamage(outer);
+
+    assertThat(deferred(borrowedTime).get(player.getUniqueId())).hasSize(1);
+    assertThat(borrowedTime.damageCredit).isEqualTo(8D);
+  }
+
+  @Test
+  void persistenceFailureRetainsDebtAlreadyGrantedByTheHit() throws Exception {
+    QuietBorrowedTime borrowedTime = new QuietBorrowedTime();
+    Player player = damagePlayer();
+    PersistentDataContainer data = player.getPersistentDataContainer();
+    doThrow(new IllegalStateException("Storage unavailable"))
+        .when(data).set(any(), same(PersistentDataType.STRING), any());
+    EntityDamageEvent hit = damage(player, 10D, 0D);
+
+    borrowedTime.on(hit);
+    borrowedTime.finishDamage(hit);
+
+    assertThat(deferred(borrowedTime).get(player.getUniqueId())).hasSize(1);
+    assertThat(borrowedTime.damageCredit).isEqualTo(4D);
   }
 
   @Test
@@ -156,6 +226,21 @@ class ChronosBorrowedTimeDamageTest extends AdaptTestBase {
 
   private static final class QuietBorrowedTime extends ChronosBorrowedTime {
     private final List<Double> paybacks = new ArrayList<>();
+    private double damageCredit;
+
+    @Override
+    public int getActiveLevel(Player player) {
+      return 5;
+    }
+
+    @Override
+    protected void addStat(Player player, String stat, double amount) {
+      damageCredit += amount;
+    }
+
+    @Override
+    void emitDeferralFeedback(Player player) {
+    }
 
     @Override
     protected void applyPlayerDamage(Player player, double amount) {
@@ -166,5 +251,22 @@ class ChronosBorrowedTimeDamageTest extends AdaptTestBase {
     @Override
     void emitPaybackFeedback(Player player, double damage, boolean cleared) {
     }
+  }
+
+  private static Player damagePlayer() {
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
+    when(player.getPersistentDataContainer()).thenReturn(mock(PersistentDataContainer.class));
+    return player;
+  }
+
+  private static EntityDamageEvent damage(Player player, double damage, double absorption) {
+    Map<EntityDamageEvent.DamageModifier, Double> modifiers = new EnumMap<>(EntityDamageEvent.DamageModifier.class);
+    modifiers.put(EntityDamageEvent.DamageModifier.BASE, damage);
+    modifiers.put(EntityDamageEvent.DamageModifier.ABSORPTION, -Math.min(damage, absorption));
+    Map<EntityDamageEvent.DamageModifier, Function<? super Double, Double>> functions = new EnumMap<>(EntityDamageEvent.DamageModifier.class);
+    functions.put(EntityDamageEvent.DamageModifier.BASE, amount -> 0D);
+    functions.put(EntityDamageEvent.DamageModifier.ABSORPTION, amount -> -Math.min(amount, absorption));
+    return new EntityDamageEvent(player, EntityDamageEvent.DamageCause.CUSTOM, mock(DamageSource.class), modifiers, functions);
   }
 }

@@ -97,6 +97,7 @@
     "maxTicks": 420
   },
   "chronos-borrowed-time": {
+    "povCapture": true,
     "set": "sparring",
     "level": 5,
     "pre": [
@@ -179,6 +180,7 @@
     "maxTicks": 200
   },
   "chronos-hourglass-guard": {
+    "povCapture": true,
     "set": "sparring",
     "level": 3,
     "pre": [

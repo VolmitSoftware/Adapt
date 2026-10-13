@@ -39,21 +39,21 @@ class RangedFetchShotTest extends AdaptTestBase {
   }
 
   @Test
-  void launchWithoutSneakingByActivePlayerClaimsThePearlWithZero() {
+  void launchWithoutSneakingStoresIntentWithoutClaimingThePearl() {
     Map<NamespacedKey, Object> stored = new HashMap<>();
     EnderPearl pearl = launch(new TestFetchShot(2, true), false, stored);
 
     assertThat(stored).containsOnlyKeys(LAUNCH_SNEAK).containsEntry(LAUNCH_SNEAK, (byte) 0);
-    assertThat(ProjectileClaims.isUnclaimed(pearl, REBOUND_LEVEL, REBOUNDED)).isFalse();
+    assertThat(ProjectileClaims.isUnclaimed(pearl, REBOUND_LEVEL, REBOUNDED)).isTrue();
   }
 
   @Test
-  void launchWithSneakRuleOffByActivePlayerStillClaimsThePearl() {
+  void launchWithSneakRuleOffStoresIntentWithoutClaimingThePearl() {
     Map<NamespacedKey, Object> stored = new HashMap<>();
     EnderPearl pearl = launch(new TestFetchShot(2, false), true, stored);
 
     assertThat(stored).containsOnlyKeys(LAUNCH_SNEAK).containsEntry(LAUNCH_SNEAK, (byte) 1);
-    assertThat(ProjectileClaims.isUnclaimed(pearl, REBOUND_LEVEL, REBOUNDED)).isFalse();
+    assertThat(ProjectileClaims.isUnclaimed(pearl, REBOUND_LEVEL, REBOUNDED)).isTrue();
   }
 
   @Test

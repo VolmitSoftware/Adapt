@@ -24,6 +24,8 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ChronosMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
+import art.arcane.adapt.api.adaptation.DeathSaveCooldown;
+import art.arcane.adapt.api.damage.PlayerDeathSave;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -61,7 +63,7 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongSupplier;
 
-public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuard.Config> {
+public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuard.Config> implements PlayerDeathSave {
   public static final PlayerPreference<CommonPreferences.Toggle> CLOCK_SOUNDS = CommonPreferences.toggle("clock-sounds", ChronosMessages.PREFERENCE_CHRONOSHOURGLASSGUARD_CLOCK_SOUNDS, CommonPreferences.Toggle.ON);
 
   private static final double HARD_MAX_ENEMY_SLOW_RADIUS = 12D;
@@ -69,9 +71,8 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
   private static final int HARD_MAX_AFFECTED_PER_SAVE = 16;
   private static final int HARD_MAX_TARGET_CHAINS_PER_WINDOW = 128;
 
-  private final Map<UUID, Long> cooldowns = playerState();
   private final Map<UUID, Long> invulnerableUntil = playerState();
-  private final Map<UUID, Boolean> cooldownReadyNotify = playerState();
+  private final Map<UUID, Long> cooldownReadyNotify = playerState();
   private final HourglassWorkBudget slowBudget = new HourglassWorkBudget(
       HARD_MAX_TARGET_CHAINS_PER_WINDOW,
       50L,
@@ -95,7 +96,23 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
 
   @Override
   public List<PlayerPreference<?>> getPlayerPreferences() {
-    return List.of(CommonPreferences.ENABLED, CLOCK_SOUNDS);
+    return List.of(CommonPreferences.ENABLED, CommonPreferences.DEATH_SAVE_PRIORITY, CLOCK_SOUNDS);
+  }
+
+  @Override
+  public int deathSavePriority(Player player) {
+    return preference(player, CommonPreferences.DEATH_SAVE_PRIORITY).ordinal();
+  }
+
+  @Override
+  public int defaultOrder() {
+    return 1;
+  }
+
+  @Override
+  public boolean protectsFromDamage(EntityDamageEvent event) {
+    return event.getEntity() instanceof Player player
+        && invulnerableUntil.getOrDefault(player.getUniqueId(), 0L) > M.ms();
   }
 
   @Override
@@ -113,14 +130,18 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
   @EventHandler
   public void on(PlayerQuitEvent e) {
     UUID id = e.getPlayer().getUniqueId();
-    cooldowns.remove(id);
     invulnerableUntil.remove(id);
     cooldownReadyNotify.remove(id);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
-    if (!(e.getEntity() instanceof Player p)) {
+    tryPreventDeath(e);
+  }
+
+  @Override
+  public void tryPreventDeath(EntityDamageEvent e) {
+    if (e.isCancelled() || !(e.getEntity() instanceof Player p)) {
       return;
     }
 
@@ -135,7 +156,7 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
       return;
     }
 
-    if (cooldowns.getOrDefault(id, 0L) > now) {
+    if (!DeathSaveCooldown.HOURGLASS_GUARD.isReady(p, now)) {
       return;
     }
 
@@ -144,10 +165,13 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
       return;
     }
 
+    long cooldownMillis = getCooldownMillis(level);
+    if (!DeathSaveCooldown.HOURGLASS_GUARD.activate(p, now, cooldownMillis)) {
+      return;
+    }
     e.setCancelled(true);
     p.setHealth(Math.max(0.5D, getConfig().survivalHealth));
     invulnerableUntil.put(id, now + getConfig().invulnerabilityMillis);
-    cooldowns.put(id, now + getCooldownMillis(level));
     p.setNoDamageTicks(Math.max(p.getNoDamageTicks(), (int) (getConfig().invulnerabilityMillis / 50L)));
 
     slowNearbyEnemies(p);
@@ -172,7 +196,7 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
       ChronosSoundFX.playRewindFinish(p);
     }
 
-    cooldownReadyNotify.put(id, true);
+    cooldownReadyNotify.put(id, now > Long.MAX_VALUE - cooldownMillis ? Long.MAX_VALUE : now + cooldownMillis);
     addStat(p, "chronos.hourglass-guard.saves", 1);
     xp(p, p.getLocation(), getConfig().xpOnSave + (level * getConfig().xpPerLevel));
   }
@@ -279,7 +303,7 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
           continue;
         }
 
-        if (cooldowns.getOrDefault(id, 0L) <= now && cooldownReadyNotify.remove(id) != null) {
+        if (cooldownReadyNotify.getOrDefault(id, Long.MAX_VALUE) <= now && cooldownReadyNotify.remove(id) != null) {
           J.runEntity(p, () -> {
             if (!p.isOnline()) {
               return;
@@ -292,8 +316,6 @@ public class ChronosHourglassGuard extends SimpleAdaptation<ChronosHourglassGuar
         }
       }
     }
-
-    cooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
   }
 
   @ConfigDescription("A killing blow instead leaves you at half a heart, granting brief invulnerability and slowing nearby enemies, on a long cooldown.")

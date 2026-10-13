@@ -8,6 +8,10 @@ import java.util.List;
 public final class PreferenceMessages {
   public static final TextKey ENABLED = TextKey.of("preferences.enabled", "Adaptation enabled");
   public static final TextKey SKILL_ENABLED = TextKey.of("preferences.skill_enabled", "Skill adaptations enabled");
+  public static final TextKey DEATH_SAVE_PRIORITY = TextKey.of("preferences.death_save_priority", "Death-save priority");
+  public static final TextKey FIRST = TextKey.of("preferences.first", "First");
+  public static final TextKey NORMAL = TextKey.of("preferences.normal", "Normal");
+  public static final TextKey LAST = TextKey.of("preferences.last", "Last");
   public static final TextKey ON = TextKey.of("preferences.on", "On");
   public static final TextKey OFF = TextKey.of("preferences.off", "Off");
   public static final TextKey FULL = TextKey.of("preferences.full", "Full earned limit");
@@ -19,6 +23,6 @@ public final class PreferenceMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
-    builder.addAll(List.of(ENABLED, SKILL_ENABLED, ON, OFF, FULL, HALF, QUARTER, CONFIRM));
+    builder.addAll(List.of(ENABLED, SKILL_ENABLED, DEATH_SAVE_PRIORITY, FIRST, NORMAL, LAST, ON, OFF, FULL, HALF, QUARTER, CONFIRM));
   }
 }

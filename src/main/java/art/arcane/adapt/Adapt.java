@@ -26,6 +26,7 @@ import art.arcane.volmlib.util.director.help.DirectorMiniMenu;
 import art.arcane.volmlib.util.diagnostics.DebugDumpContributor;
 import art.arcane.adapt.api.adaptation.AbilityApiBridge;
 import art.arcane.adapt.api.AdaptPermissionRegistrar;
+import art.arcane.adapt.api.ComponentEventRegistrar;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
@@ -101,6 +102,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.plugin.PluginManager;
@@ -520,6 +522,22 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     postShutdown.add(r);
   }
 
+  @Override
+  public void unregisterListener(Listener listener) {
+    if (listener == this) {
+      ComponentEventRegistrar.unregisterAll(this);
+    } else {
+      ComponentEventRegistrar.unregister(this, listener);
+    }
+    super.unregisterListener(listener);
+  }
+
+  @Override
+  public void unregisterListeners() {
+    ComponentEventRegistrar.unregisterAll(this);
+    super.unregisterListeners();
+  }
+
   public void stopSim() {
     runShutdownPhase("world block scan scheduler", WorldBlockScanScheduler::reset);
     if (ticker != null) {
@@ -534,6 +552,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     if (adaptServer != null) {
       runShutdownPhase("Adapt server", () -> adaptServer.unregister());
     }
+    runShutdownPhase("damage handlers", () -> ComponentEventRegistrar.unregisterAll(this));
     runShutdownPhase("projectile replacements", ProjectileReplacementRegistry::clear);
     runShutdownPhase("player state registry", PlayerStateRegistry::reset);
     if (manager != null) {

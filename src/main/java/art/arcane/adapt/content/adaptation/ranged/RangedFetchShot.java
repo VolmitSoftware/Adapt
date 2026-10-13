@@ -26,6 +26,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.projectile.ProjectileClaims;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -63,6 +64,7 @@ public class RangedFetchShot extends SimpleAdaptation<RangedFetchShot.Config> {
 
   public RangedFetchShot() {
     super("ranged-fetch-shot");
+    ProjectileClaims.registerCooperativeKeys(LAUNCH_SNEAK_KEY);
     registerConfiguration(Config.class);
     setIcon(Material.FISHING_ROD);
     setInterval(2751);

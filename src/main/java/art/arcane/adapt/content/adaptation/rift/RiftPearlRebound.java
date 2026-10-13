@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.projectile.ProjectileClaims;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -49,6 +50,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 
@@ -150,11 +152,12 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     reflected.normalize();
 
     Location spawnAt = pearl.getLocation().clone().add(normal.clone().multiply(0.35));
+    PersistentDataContainer modifiers = ProjectileClaims.snapshotCooperativeData(pearl.getPersistentDataContainer());
     e.setCancelled(true);
     pearl.remove();
 
     Vector finalReflected = reflected;
-    J.runEntity(p, () -> finishRebound(p, spawnAt, normal, finalReflected, level));
+    J.runEntity(p, () -> finishRebound(p, spawnAt, normal, finalReflected, level, modifiers));
   }
 
   @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -172,7 +175,8 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     e.setDamage(calculateReducedDamage(e.getDamage(), getDamageReduction(level)));
   }
 
-  private boolean launchReboundPearl(Player p, UUID playerId, Location spawnAt, Vector velocity) {
+  private boolean launchReboundPearl(Player p, UUID playerId, Location spawnAt, Vector velocity,
+                                     PersistentDataContainer modifiers) {
     World world = spawnAt.getWorld();
     if (world == null) {
       Adapt.error("Rift Pearl Rebound could not spawn a pearl for " + playerId
@@ -183,6 +187,7 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     try {
       pearl = world.spawn(spawnAt, EnderPearl.class);
       pearl.setShooter(p);
+      modifiers.copyTo(pearl.getPersistentDataContainer(), true);
       pearl.getPersistentDataContainer().set(reboundedKey, PersistentDataType.BYTE, (byte) 1);
       pearl.setVelocity(velocity);
       fx(spawnAt, FxPriority.TRAIL)
@@ -201,7 +206,8 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     }
   }
 
-  private void finishRebound(Player p, Location spawnAt, Vector normal, Vector reflected, int level) {
+  private void finishRebound(Player p, Location spawnAt, Vector normal, Vector reflected, int level,
+                             PersistentDataContainer modifiers) {
     if (!p.isOnline()) {
       return;
     }
@@ -219,17 +225,18 @@ public class RiftPearlRebound extends SimpleAdaptation<RiftPearlRebound.Config> 
     }
     Vector velocity = direction.normalize().multiply(getReboundSpeed());
     UUID playerId = p.getUniqueId();
-    if (!J.runAt(spawnAt, () -> completeReboundSpawn(p, playerId, spawnAt, velocity))) {
+    if (!J.runAt(spawnAt, () -> completeReboundSpawn(p, playerId, spawnAt, velocity, modifiers))) {
       Adapt.error("Rift Pearl Rebound could not schedule pearl creation for " + playerId
           + " at " + spawnAt + ".");
     }
   }
 
-  private void completeReboundSpawn(Player p, UUID playerId, Location spawnAt, Vector velocity) {
+  private void completeReboundSpawn(Player p, UUID playerId, Location spawnAt, Vector velocity,
+                                    PersistentDataContainer modifiers) {
     if (!isRuntimeRegistered()) {
       return;
     }
-    if (!launchReboundPearl(p, playerId, spawnAt, velocity)) {
+    if (!launchReboundPearl(p, playerId, spawnAt, velocity, modifiers)) {
       return;
     }
     if (!J.runEntity(p, () -> rewardRebound(p))) {

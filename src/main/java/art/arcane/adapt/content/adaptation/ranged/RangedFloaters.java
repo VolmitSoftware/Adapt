@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.projectile.ProjectileClaims;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -65,6 +66,7 @@ public class RangedFloaters extends SimpleAdaptation<RangedFloaters.Config> {
     shotLevelKey = new NamespacedKey(Adapt.instance, "ranged_floaters_level");
     shotOwnerKey = new NamespacedKey(Adapt.instance, "ranged_floaters_owner");
     shotTargetsKey = new NamespacedKey(Adapt.instance, "ranged_floaters_preference");
+    ProjectileClaims.registerCooperativeKeys(shotLevelKey, shotOwnerKey, shotTargetsKey);
     registerConfiguration(Config.class);
     setIcon(Material.SHULKER_SHELL);
     setInterval(2400);

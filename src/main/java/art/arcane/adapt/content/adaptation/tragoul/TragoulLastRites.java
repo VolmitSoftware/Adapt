@@ -22,12 +22,15 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.DeathSaveCooldown;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.damage.PlayerDeathSave;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -45,11 +48,9 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.UUID;
+import java.util.List;
 
-public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> {
-  private final Cooldowns cooldowns = cooldowns();
-
+public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> implements PlayerDeathSave {
   public TragoulLastRites() {
     super("tragoul-last-rites");
     registerConfiguration(Config.class);
@@ -72,6 +73,21 @@ public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> 
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return List.of(CommonPreferences.ENABLED, CommonPreferences.DEATH_SAVE_PRIORITY);
+  }
+
+  @Override
+  public int deathSavePriority(Player player) {
+    return preference(player, CommonPreferences.DEATH_SAVE_PRIORITY).ordinal();
+  }
+
+  @Override
+  public int defaultOrder() {
+    return 0;
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     v.addLore(C.GREEN + AdaptLanguage.text(TragoulMessages.LAST_RITES_LORE1));
     statLore(v, Form.duration(getConfig().spiritDurationTicks * 50D, 1), 2);
@@ -80,7 +96,12 @@ public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> 
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
-    if (!(e.getEntity() instanceof Player p)) {
+    tryPreventDeath(e);
+  }
+
+  @Override
+  public void tryPreventDeath(EntityDamageEvent e) {
+    if (e.isCancelled() || !(e.getEntity() instanceof Player p)) {
       return;
     }
 
@@ -94,12 +115,10 @@ public class TragoulLastRites extends SimpleAdaptation<TragoulLastRites.Config> 
         return;
       }
 
-      UUID id = p.getUniqueId();
-      if (!cooldowns.isReady(id, getCooldownMillis(level))) {
+      if (!DeathSaveCooldown.LAST_RITES.activate(p, System.currentTimeMillis(), getCooldownMillis(level))) {
         return;
       }
 
-      cooldowns.mark(id);
       e.setCancelled(true);
       p.setHealth(1.0);
 

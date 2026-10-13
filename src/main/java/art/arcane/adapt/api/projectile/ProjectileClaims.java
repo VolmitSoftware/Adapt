@@ -22,16 +22,37 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Projectile;
 import org.bukkit.persistence.PersistentDataContainer;
 
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Adaptations that launch or repurpose projectiles stamp an ownership key on the projectile's
  * persistent data container before it spawns. Any feature that clones, redirects, or replaces
- * projectiles must refuse ones carrying a foreign key, or it will hijack another adaptation's
- * projectile mid-flight.
+ * projectiles must refuse ones carrying a foreign ownership key, or it will hijack another
+ * adaptation's projectile mid-flight. Registered cooperative modifier keys do not claim ownership.
  */
 public final class ProjectileClaims {
+  private static final Set<NamespacedKey> COOPERATIVE_KEYS = ConcurrentHashMap.newKeySet();
+
   private ProjectileClaims() {
+  }
+
+  public static void registerCooperativeKeys(NamespacedKey... keys) {
+    for (NamespacedKey key : keys) {
+      COOPERATIVE_KEYS.add(Objects.requireNonNull(key));
+    }
+  }
+
+  public static PersistentDataContainer snapshotCooperativeData(PersistentDataContainer data) {
+    PersistentDataContainer snapshot = data.getAdapterContext().newPersistentDataContainer();
+    data.copyTo(snapshot, true);
+    for (NamespacedKey key : snapshot.getKeys()) {
+      if (!COOPERATIVE_KEYS.contains(key)) {
+        snapshot.remove(key);
+      }
+    }
+    return snapshot;
   }
 
   public static boolean isUnclaimed(Projectile projectile, NamespacedKey... ownedKeys) {
@@ -49,7 +70,7 @@ public final class ProjectileClaims {
     }
 
     for (NamespacedKey key : keys) {
-      if (!isOwnedKey(key, ownedKeys)) {
+      if (!COOPERATIVE_KEYS.contains(key) && !isOwnedKey(key, ownedKeys)) {
         return false;
       }
     }

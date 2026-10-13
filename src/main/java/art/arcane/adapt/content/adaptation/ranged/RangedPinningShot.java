@@ -29,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.projectile.ProjectileClaims;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -71,6 +72,7 @@ public class RangedPinningShot extends SimpleAdaptation<RangedPinningShot.Config
     shotLevelKey = new NamespacedKey(Adapt.instance, "ranged_pinning_shot_level");
     shotOwnerKey = new NamespacedKey(Adapt.instance, "ranged_pinning_shot_owner");
     shotDampenKey = new NamespacedKey(Adapt.instance, "ranged_pinning_shot_preference");
+    ProjectileClaims.registerCooperativeKeys(shotLevelKey, shotOwnerKey, shotDampenKey);
     registerConfiguration(Config.class);
     setIcon(Material.TRIPWIRE_HOOK);
     setInterval(2200);

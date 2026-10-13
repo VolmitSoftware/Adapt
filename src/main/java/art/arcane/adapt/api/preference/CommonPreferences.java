@@ -9,6 +9,12 @@ import java.util.List;
 public final class CommonPreferences {
   public static final PlayerPreference<Toggle> ENABLED = toggle("enabled", PreferenceMessages.ENABLED);
   public static final PlayerPreference<Toggle> SKILL_ENABLED = toggle("enabled", PreferenceMessages.SKILL_ENABLED);
+  public static final PlayerPreference<DeathSavePriority> DEATH_SAVE_PRIORITY = new PlayerPreference<>(
+      DeathSavePriority.class, new PlayerPreference.Definition<>("death-save-priority", PreferenceMessages.DEATH_SAVE_PRIORITY,
+      DeathSavePriority.NORMAL, List.of(
+      new PlayerPreference.Choice<>(DeathSavePriority.FIRST, PreferenceMessages.FIRST, Material.LIME_STAINED_GLASS_PANE, 1),
+      new PlayerPreference.Choice<>(DeathSavePriority.NORMAL, PreferenceMessages.NORMAL, Material.YELLOW_STAINED_GLASS_PANE, 1),
+      new PlayerPreference.Choice<>(DeathSavePriority.LAST, PreferenceMessages.LAST, Material.ORANGE_STAINED_GLASS_PANE, 1))));
 
   private CommonPreferences() {
   }
@@ -32,6 +38,10 @@ public final class CommonPreferences {
 
   public enum Toggle {
     ON, OFF
+  }
+
+  public enum DeathSavePriority {
+    FIRST, NORMAL, LAST
   }
 
   public enum Scale {

@@ -20,21 +20,28 @@ package art.arcane.adapt.api;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.damage.DamageEventDispatcher;
 import art.arcane.adapt.api.skill.Skill;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.Plugin;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class ComponentEventRegistrar {
+  private static final Map<Plugin, DamageEventDispatcher> DAMAGE_DISPATCHERS = new IdentityHashMap<>();
+
   private ComponentEventRegistrar() {
   }
 
@@ -75,11 +82,48 @@ public final class ComponentEventRegistrar {
           EventHandlerInvoker.enforcesInteractionValidity(method, eventType)
       );
       boolean ignoreCancelled = EventHandlerInvoker.shouldIgnoreCancelled(method, annotation, eventType);
-      Bukkit.getPluginManager().registerEvent(eventType, listener, annotation.priority(), executor, plugin, ignoreCancelled);
+      if (annotation.priority() == EventPriority.HIGHEST && EntityDamageEvent.class.isAssignableFrom(eventType)) {
+        registerDamageHandler(plugin, listener, eventType.asSubclass(EntityDamageEvent.class), executor, ignoreCancelled);
+      } else {
+        Bukkit.getPluginManager().registerEvent(eventType, listener, annotation.priority(), executor, plugin, ignoreCancelled);
+      }
       registeredAny = true;
     }
 
     return registeredAny;
+  }
+
+  public static synchronized void unregister(Plugin plugin, Listener listener) {
+    DamageEventDispatcher dispatcher = DAMAGE_DISPATCHERS.get(plugin);
+    if (dispatcher != null) {
+      dispatcher.unregister(listener);
+    }
+  }
+
+  public static synchronized void unregisterAll(Plugin plugin) {
+    DamageEventDispatcher dispatcher = DAMAGE_DISPATCHERS.remove(plugin);
+    if (dispatcher != null) {
+      dispatcher.clear();
+      HandlerList.unregisterAll(dispatcher);
+    }
+  }
+
+  private static synchronized void registerDamageHandler(Plugin plugin, Listener listener,
+                                                        Class<? extends EntityDamageEvent> eventType,
+                                                        EventExecutor executor, boolean ignoreCancelled) {
+    DamageEventDispatcher dispatcher = DAMAGE_DISPATCHERS.get(plugin);
+    if (dispatcher == null) {
+      dispatcher = new DamageEventDispatcher(plugin);
+      DamageEventDispatcher registeredDispatcher = dispatcher;
+      Bukkit.getPluginManager().registerEvent(EntityDamageEvent.class, dispatcher, EventPriority.HIGHEST,
+          (target, event) -> {
+            if (event instanceof EntityDamageEvent damage) {
+              registeredDispatcher.onDamage(damage);
+            }
+          }, plugin, false);
+      DAMAGE_DISPATCHERS.put(plugin, dispatcher);
+    }
+    dispatcher.register(listener, eventType, executor, ignoreCancelled);
   }
 
   private static String componentType(Listener listener) {

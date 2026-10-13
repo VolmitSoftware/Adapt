@@ -28,7 +28,8 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.ability.AbilityCharge;
 import art.arcane.adapt.api.ability.AbilityRefundReason;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
-import art.arcane.adapt.api.adaptation.Cooldowns;
+import art.arcane.adapt.api.adaptation.DeathSaveCooldown;
+import art.arcane.adapt.api.damage.PlayerDeathSave;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -71,7 +72,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
+public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> implements PlayerDeathSave {
   public static final PlayerPreference<Reserve> RESERVE = new PlayerPreference<>(Reserve.class,
       new PlayerPreference.Definition<>("reserve", RiftMessages.RIFTVOIDSKIN_PREFERENCE_RESERVE, Reserve.NONE, List.of(
           new PlayerPreference.Choice<>(Reserve.NONE, RiftMessages.RIFTVOIDSKIN_PREFERENCE_RESERVE_NONE, Material.ENDER_PEARL, 1),
@@ -87,7 +88,6 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
   private static final double HARD_MAX_SEARCH_RADIUS = 16D;
   private static final int SAFE_SAMPLES = 32;
 
-  private final Cooldowns cooldown = cooldowns();
   private final Map<UUID, VoidEscape> pendingEscapes = new ConcurrentHashMap<>();
   private final NamespacedKey pearlReservationKey;
   private final AtomicBoolean acceptingEscapes = new AtomicBoolean(true);
@@ -110,12 +110,29 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
         .build());
     registerMilestone("challenge_rift_void_skin_50", "rift.void-skin.escapes", 50, 400);
     registerMilestone("challenge_rift_void_skin_500", "rift.void-skin.escapes", 500, 1500);
-    pearlReservationKey = new NamespacedKey(Adapt.instance, "rift_void_skin_pearl_reservation");
+    pearlReservationKey = new NamespacedKey(Adapt.instance, "rift_void_skin_reserved_pearl");
   }
 
   @Override
   public List<PlayerPreference<?>> getPlayerPreferences() {
-    return List.of(CommonPreferences.ENABLED, RESERVE, CAUSES, SPAWN);
+    return List.of(CommonPreferences.ENABLED, CommonPreferences.DEATH_SAVE_PRIORITY, RESERVE, CAUSES, SPAWN);
+  }
+
+  @Override
+  public int deathSavePriority(Player player) {
+    return preference(player, CommonPreferences.DEATH_SAVE_PRIORITY).ordinal();
+  }
+
+  @Override
+  public int defaultOrder() {
+    return 2;
+  }
+
+  @Override
+  public boolean protectsFromDamage(EntityDamageEvent event) {
+    return event.getEntity() instanceof Player player
+        && isLethalDamage(player.getHealth(), event.getFinalDamage())
+        && pendingEscapes.containsKey(player.getUniqueId());
   }
 
   @Override
@@ -158,7 +175,12 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
-    if (!(e.getEntity() instanceof Player p)) {
+    tryPreventDeath(e);
+  }
+
+  @Override
+  public void tryPreventDeath(EntityDamageEvent e) {
+    if (e.isCancelled() || !(e.getEntity() instanceof Player p)) {
       return;
     }
 
@@ -182,9 +204,11 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       return;
     }
     long cooldownMillis = getCooldownMillis(level);
-    if (!cooldown.isReady(id, cooldownMillis)) {
+    long now = System.currentTimeMillis();
+    long remainingCooldown = DeathSaveCooldown.VOID_SKIN.remaining(p, now);
+    if (remainingCooldown > 0L) {
       Adapt.verbose(() -> "Void Skin skipped " + id + ": "
-          + cooldown.remaining(id, cooldownMillis) + "ms cooldown left.");
+          + remainingCooldown + "ms cooldown left.");
       return;
     }
 
@@ -208,6 +232,10 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       return;
     }
 
+    if (!DeathSaveCooldown.VOID_SKIN.activate(p, now, cooldownMillis)) {
+      refundReservation(p, reservation, AbilityRefundReason.ACTIVATION_FAILED);
+      return;
+    }
     VoidEscape operation = new VoidEscape(id, origin, level, reservation);
     pendingEscapes.put(id, operation);
     // Survive first. The promise is that lethal damage never kills while the
@@ -239,7 +267,6 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
   @EventHandler
   public void on(PlayerQuitEvent e) {
     UUID id = e.getPlayer().getUniqueId();
-    cooldown.clear(id);
     VoidEscape operation = pendingEscapes.remove(id);
     if (operation != null) {
       refundReservation(e.getPlayer(), operation.reservation(), AbilityRefundReason.PLAYER_LEFT);
@@ -282,7 +309,6 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       if (!settleReservation(p, operation.reservation())) {
         return;
       }
-      cooldown.mark(operation.playerId());
       p.setFallDistance(0f);
       p.addPotionEffect(new PotionEffect(PotionEffectTypes.DAMAGE_RESISTANCE,
           getResistanceTicks(operation.level()), getResistanceAmplifier(), true, false, false));
@@ -384,13 +410,14 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       return null;
     }
 
+    String token = UUID.randomUUID().toString();
     AtomicBoolean defaultConsumed = new AtomicBoolean();
     AbilityCharge charge = payItemCostDeferred(p, "pearl", new ItemStack(Material.ENDER_PEARL), 1, () -> {
       for (ItemStack stack : p.getInventory().getContents()) {
         if (RiftPearls.isPlainPearl(stack)) {
+          p.getPersistentDataContainer().set(pearlReservationKey, PersistentDataType.STRING, token);
           stack.setAmount(stack.getAmount() - 1);
           defaultConsumed.set(true);
-          p.getPersistentDataContainer().set(pearlReservationKey, PersistentDataType.BYTE, (byte) 1);
           return true;
         }
       }
@@ -398,7 +425,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       return false;
     });
     return charge.allowed()
-        ? new PearlReservation(charge, defaultConsumed.get(), new AtomicBoolean())
+        ? new PearlReservation(charge, token, defaultConsumed.get(), new AtomicBoolean())
         : null;
   }
 
@@ -407,14 +434,14 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
       return;
     }
     refundCost(reservation.charge().activationId(), reason);
-    if (!reservation.defaultConsumed()) {
+    if (!reservation.defaultConsumed() || !ownsReservation(p, reservation.token())) {
       return;
     }
 
     try {
       p.getInventory().addItem(new ItemStack(Material.ENDER_PEARL)).values()
           .forEach(item -> p.getWorld().dropItemNaturally(p.getLocation(), item));
-      p.getPersistentDataContainer().remove(pearlReservationKey);
+      clearReservation(p, reservation.token());
     } catch (Throwable error) {
       Adapt.error("Void Skin could not return a reserved ender pearl to " + p.getUniqueId() + ".");
       Adapt.error(error);
@@ -425,16 +452,21 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     if (!reservation.resolved().compareAndSet(false, true)) {
       return false;
     }
+    if (reservation.defaultConsumed() && !ownsReservation(player, reservation.token())) {
+      refundCost(reservation.charge().activationId(), AbilityRefundReason.ACTIVATION_FAILED);
+      return false;
+    }
     boolean settled = settleCost(reservation.charge().activationId());
     if (!acceptSettlement(
         reservation.defaultConsumed(),
         reservation.charge().defaultCostSuppressed(),
         settled
     )) {
+      refundCost(reservation.charge().activationId(), AbilityRefundReason.ACTIVATION_FAILED);
       return false;
     }
     if (reservation.defaultConsumed()) {
-      player.getPersistentDataContainer().remove(pearlReservationKey);
+      clearReservation(player, reservation.token());
     }
     return true;
   }
@@ -444,16 +476,27 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
   }
 
   private void restoreStrandedReservation(Player player) {
-    if (!player.getPersistentDataContainer().has(pearlReservationKey, PersistentDataType.BYTE)) {
+    String token = player.getPersistentDataContainer().get(pearlReservationKey, PersistentDataType.STRING);
+    if (token == null) {
       return;
     }
     try {
       player.getInventory().addItem(new ItemStack(Material.ENDER_PEARL)).values()
           .forEach(item -> player.getWorld().dropItemNaturally(player.getLocation(), item));
-      player.getPersistentDataContainer().remove(pearlReservationKey);
+      clearReservation(player, token);
     } catch (Throwable error) {
       Adapt.error("Void Skin could not recover a reserved ender pearl for " + player.getUniqueId() + ".");
       Adapt.error(error);
+    }
+  }
+
+  private boolean ownsReservation(Player player, String token) {
+    return token.equals(player.getPersistentDataContainer().get(pearlReservationKey, PersistentDataType.STRING));
+  }
+
+  private void clearReservation(Player player, String token) {
+    if (ownsReservation(player, token)) {
+      player.getPersistentDataContainer().remove(pearlReservationKey);
     }
   }
 
@@ -512,7 +555,7 @@ public class RiftVoidSkin extends SimpleAdaptation<RiftVoidSkin.Config> {
     }
   }
 
-  private record PearlReservation(AbilityCharge charge, boolean defaultConsumed, AtomicBoolean resolved) {
+  private record PearlReservation(AbilityCharge charge, String token, boolean defaultConsumed, AtomicBoolean resolved) {
   }
 
   private record VoidEscape(UUID playerId, Location origin, int level, PearlReservation reservation) {
