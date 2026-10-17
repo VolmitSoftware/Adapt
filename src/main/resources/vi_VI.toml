@@ -4248,6 +4248,82 @@ lore1 = "Cơ Hội Rơi Thêm"
 lore2 = "x cấp Đào Nhanh khi đào lúc ướt"
 lore = ["Cơ Hội Rơi Thêm", "x cấp Đào Nhanh khi đào lúc ướt"]
 
+[golemancy.item.crook]
+name = "Gậy của Thợ Chế Tác"
+lore = "Chỉ huy các golem đã liên kết và các nút nơi chúng làm việc"
+
+[golemancy.item.blank_core]
+name = "Lõi Animus Trống"
+lore = "Liên kết golem làm bạn đồng hành hoặc chế thành lõi vai trò"
+
+[golemancy.item.core]
+name = "Lõi {role}"
+lore = "Liên kết golem với vai trò {role}"
+
+[golemancy.item.blank_node]
+name = "Nút Trống"
+lore = "Chế thành nút thuộc bất kỳ loại nào"
+
+[golemancy.item.node]
+name = "Nút {node}"
+lore = "Gắn vào mặt khối để điều hướng công việc của golem"
+
+[golemancy.item.blank_rune]
+name = "Cổ Tự Trống"
+lore = "Truyền thành cổ tự tại Bệ Animus"
+
+[golemancy.item.rune]
+name = "Cổ Tự {aspect}"
+tier = "Bậc {tier}"
+lore = "Gắn vào golem để cường hóa nó"
+
+[golemancy.item.dormant_golem]
+name = "Golem Ngủ Đông"
+core = "Lõi: {core}"
+runes = "Cổ tự: {runes}"
+health = "Máu: {health}/{maximum}"
+lore = "Đặt xuống để đánh thức golem này"
+
+[golemancy.item.shattered_core]
+name = "Lõi Vỡ Nát"
+lore = "Tái tạo golem đã ngã cùng các nâng cấp của nó"
+
+[golemancy.item.masterwork_heart]
+name = "Trái Tim Kiệt Tác"
+lore = "Chỉ định một golem kiệt tác"
+
+[golemancy.role]
+blank = "Bạn Đồng Hành"
+guardian = "Hộ Vệ"
+gatherer = "Người Thu Gom"
+harvester = "Người Thu Hoạch"
+lumber = "Tiều Phu"
+breaker = "Kẻ Phá Vỡ"
+rancher = "Người Chăn Nuôi"
+sorter = "Người Phân Loại"
+angler = "Ngư Phủ"
+
+[golemancy.node]
+guard = "Canh Gác"
+collection = "Thu Gom"
+deposit = "Gửi Đồ"
+harvest = "Thu Hoạch"
+lumber = "Đốn Gỗ"
+breaker = "Khai Thác"
+pasture = "Đồng Cỏ"
+input = "Đầu Vào"
+filter = "Bộ Lọc"
+fishing = "Câu Cá"
+
+[golemancy.aspect]
+swiftness = "Thần Tốc"
+might = "Sức Mạnh"
+ember = "Than Hồng"
+tide = "Thủy Triều"
+order = "Trật Tự"
+entropy = "Hỗn Mang"
+bulwark = "Thành Lũy"
+
 [herbalism.growth_aura]
 name = "Hào Quang Tăng Trưởng"
 description = "Phát triển thiên nhiên xung quanh bạn trong một hào quang"

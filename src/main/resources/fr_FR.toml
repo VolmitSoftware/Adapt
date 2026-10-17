@@ -4244,6 +4244,82 @@ lore1 = "Chance de butin bonus"
 lore2 = "x niveaux de Célérité en creusant mouillé"
 lore = ["Chance de butin bonus", "x niveaux de Célérité en creusant mouillé"]
 
+[golemancy.item.crook]
+name = "Houlette de l'artificier"
+lore = "Commande les golems liés et les nœuds où ils travaillent"
+
+[golemancy.item.blank_core]
+name = "Noyau d'Animus vierge"
+lore = "Lie un golem comme compagnon ou se transforme en noyau de rôle"
+
+[golemancy.item.core]
+name = "Noyau de {role}"
+lore = "Lie un golem au rôle de {role}"
+
+[golemancy.item.blank_node]
+name = "Nœud vierge"
+lore = "Se fabrique en nœud de n'importe quel type"
+
+[golemancy.item.node]
+name = "Nœud de {node}"
+lore = "S'ancre sur la face d'un bloc pour diriger le travail des golems"
+
+[golemancy.item.blank_rune]
+name = "Rune vierge"
+lore = "S'infuse en rune sur un socle d'Animus"
+
+[golemancy.item.rune]
+name = "Rune de {aspect}"
+tier = "Rang {tier}"
+lore = "S'enchâsse dans un golem pour le renforcer"
+
+[golemancy.item.dormant_golem]
+name = "Golem dormant"
+core = "Noyau : {core}"
+runes = "Runes : {runes}"
+health = "Santé : {health}/{maximum}"
+lore = "Placez-le pour réveiller ce golem"
+
+[golemancy.item.shattered_core]
+name = "Noyau brisé"
+lore = "Reconstruit un golem tombé avec ses améliorations"
+
+[golemancy.item.masterwork_heart]
+name = "Cœur de chef-d'œuvre"
+lore = "Désigne un golem chef-d'œuvre"
+
+[golemancy.role]
+blank = "Compagnon"
+guardian = "Gardien"
+gatherer = "Cueilleur"
+harvester = "Moissonneur"
+lumber = "Bûcheron"
+breaker = "Briseur"
+rancher = "Éleveur"
+sorter = "Trieur"
+angler = "Pêcheur"
+
+[golemancy.node]
+guard = "Garde"
+collection = "Collecte"
+deposit = "Dépôt"
+harvest = "Récolte"
+lumber = "Coupe"
+breaker = "Minage"
+pasture = "Pâturage"
+input = "Entrée"
+filter = "Filtre"
+fishing = "Pêche"
+
+[golemancy.aspect]
+swiftness = "Célérité"
+might = "Puissance"
+ember = "Braise"
+tide = "Marée"
+order = "Ordre"
+entropy = "Entropie"
+bulwark = "Rempart"
+
 [herbalism.growth_aura]
 name = "Aura de Croissance"
 description = "Fait pousser la végétation autour de vous dans une aura."

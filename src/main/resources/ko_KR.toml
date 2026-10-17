@@ -4248,6 +4248,82 @@ lore1 = "보너스 드롭 기회"
 lore2 = "x 수염을 파는 동안 성급함의 수준"
 lore = ["보너스 드롭 기회", "x 수염을 파는 동안 성급함의 수준"]
 
+[golemancy.item.crook]
+name = "장인의 지팡이"
+lore = "결속된 골렘과 그들이 일하는 노드를 지휘합니다"
+
+[golemancy.item.blank_core]
+name = "빈 아니무스 핵"
+lore = "골렘을 동료로 결속하거나 역할 핵으로 제작됩니다"
+
+[golemancy.item.core]
+name = "{role} 핵"
+lore = "골렘을 {role} 역할에 결속합니다"
+
+[golemancy.item.blank_node]
+name = "빈 노드"
+lore = "어떤 종류의 노드로든 제작됩니다"
+
+[golemancy.item.node]
+name = "{node} 노드"
+lore = "블록 면에 고정되어 골렘의 작업을 지시합니다"
+
+[golemancy.item.blank_rune]
+name = "빈 룬"
+lore = "아니무스 받침대에서 룬으로 주입됩니다"
+
+[golemancy.item.rune]
+name = "{aspect}의 룬"
+tier = "등급 {tier}"
+lore = "골렘에 장착하여 강화합니다"
+
+[golemancy.item.dormant_golem]
+name = "휴면 골렘"
+core = "핵: {core}"
+runes = "룬: {runes}"
+health = "체력: {health}/{maximum}"
+lore = "설치하면 이 골렘이 깨어납니다"
+
+[golemancy.item.shattered_core]
+name = "부서진 핵"
+lore = "쓰러진 골렘을 강화와 함께 재건합니다"
+
+[golemancy.item.masterwork_heart]
+name = "걸작의 심장"
+lore = "걸작 골렘을 지정합니다"
+
+[golemancy.role]
+blank = "동료"
+guardian = "수호자"
+gatherer = "채집가"
+harvester = "수확가"
+lumber = "벌목꾼"
+breaker = "파괴자"
+rancher = "목장주"
+sorter = "분류가"
+angler = "낚시꾼"
+
+[golemancy.node]
+guard = "경비"
+collection = "수집"
+deposit = "보관"
+harvest = "수확"
+lumber = "벌목"
+breaker = "채굴"
+pasture = "목초지"
+input = "입력"
+filter = "필터"
+fishing = "낚시"
+
+[golemancy.aspect]
+swiftness = "신속"
+might = "힘"
+ember = "잉걸불"
+tide = "조류"
+order = "질서"
+entropy = "엔트로피"
+bulwark = "방벽"
+
 [herbalism.growth_aura]
 name = "성장의 오라"
 description = "주변의 자연을 오라로 성장시킵니다"

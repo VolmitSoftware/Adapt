@@ -4248,6 +4248,82 @@ lore1 = "Бонусный шанс скачать"
 lore2 = "x Уровни поспешности при копании влажные"
 lore = ["Бонусный шанс скачать", "x Уровни поспешности при копании влажные"]
 
+[golemancy.item.crook]
+name = "Посох мастера"
+lore = "Командует связанными големами и узлами, на которых они работают"
+
+[golemancy.item.blank_core]
+name = "Пустое ядро анимуса"
+lore = "Связывает голема как спутника или превращается в ядро роли"
+
+[golemancy.item.core]
+name = "Ядро: {role}"
+lore = "Связывает голема с ролью {role}"
+
+[golemancy.item.blank_node]
+name = "Пустой узел"
+lore = "Превращается в узел любого типа"
+
+[golemancy.item.node]
+name = "Узел: {node}"
+lore = "Крепится к грани блока и направляет работу големов"
+
+[golemancy.item.blank_rune]
+name = "Пустая руна"
+lore = "Насыщается в руну на пьедестале анимуса"
+
+[golemancy.item.rune]
+name = "Руна: {aspect}"
+tier = "Ранг {tier}"
+lore = "Вставляется в голема, чтобы усилить его"
+
+[golemancy.item.dormant_golem]
+name = "Спящий голем"
+core = "Ядро: {core}"
+runes = "Руны: {runes}"
+health = "Здоровье: {health}/{maximum}"
+lore = "Поставьте, чтобы пробудить этого голема"
+
+[golemancy.item.shattered_core]
+name = "Расколотое ядро"
+lore = "Восстанавливает павшего голема со всеми улучшениями"
+
+[golemancy.item.masterwork_heart]
+name = "Сердце шедевра"
+lore = "Отмечает голема-шедевр"
+
+[golemancy.role]
+blank = "Спутник"
+guardian = "Страж"
+gatherer = "Собиратель"
+harvester = "Жнец"
+lumber = "Лесоруб"
+breaker = "Разрушитель"
+rancher = "Скотовод"
+sorter = "Сортировщик"
+angler = "Рыболов"
+
+[golemancy.node]
+guard = "Охрана"
+collection = "Сбор"
+deposit = "Хранение"
+harvest = "Урожай"
+lumber = "Рубка"
+breaker = "Добыча"
+pasture = "Пастбище"
+input = "Ввод"
+filter = "Фильтр"
+fishing = "Рыбалка"
+
+[golemancy.aspect]
+swiftness = "Стремительность"
+might = "Мощь"
+ember = "Жар"
+tide = "Прилив"
+order = "Порядок"
+entropy = "Энтропия"
+bulwark = "Бастион"
+
 [herbalism.growth_aura]
 name = "Аура роста"
 description = "Выращивайте природу вокруг себя аурой"

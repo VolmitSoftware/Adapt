@@ -4248,6 +4248,82 @@ lore1 = "额外掉落概率"
 lore2 = "潮湿环境下挖掘时的急迫等级"
 lore = ["额外掉落概率", "潮湿环境下挖掘时的急迫等级"]
 
+[golemancy.item.crook]
+name = "巧匠之杖"
+lore = "指挥已绑定的魔像及其工作的节点"
+
+[golemancy.item.blank_core]
+name = "空白灵魂核心"
+lore = "将魔像绑定为伙伴，或合成为职能核心"
+
+[golemancy.item.core]
+name = "{role}核心"
+lore = "将魔像绑定为{role}职能"
+
+[golemancy.item.blank_node]
+name = "空白节点"
+lore = "可合成为任意类型的节点"
+
+[golemancy.item.node]
+name = "{node}节点"
+lore = "固定在方块表面以指引魔像工作"
+
+[golemancy.item.blank_rune]
+name = "空白符文"
+lore = "在灵魂基座上灌注成符文"
+
+[golemancy.item.rune]
+name = "{aspect}符文"
+tier = "阶级 {tier}"
+lore = "镶嵌到魔像上以强化它"
+
+[golemancy.item.dormant_golem]
+name = "休眠魔像"
+core = "核心：{core}"
+runes = "符文：{runes}"
+health = "生命值：{health}/{maximum}"
+lore = "放置以唤醒这个魔像"
+
+[golemancy.item.shattered_core]
+name = "破碎核心"
+lore = "连同升级一起重建倒下的魔像"
+
+[golemancy.item.masterwork_heart]
+name = "杰作之心"
+lore = "指定一个杰作魔像"
+
+[golemancy.role]
+blank = "伙伴"
+guardian = "守护者"
+gatherer = "采集者"
+harvester = "收割者"
+lumber = "伐木者"
+breaker = "破坏者"
+rancher = "牧场主"
+sorter = "分拣者"
+angler = "垂钓者"
+
+[golemancy.node]
+guard = "守卫"
+collection = "收集"
+deposit = "存放"
+harvest = "收割"
+lumber = "伐木"
+breaker = "采掘"
+pasture = "牧场"
+input = "输入"
+filter = "过滤"
+fishing = "钓鱼"
+
+[golemancy.aspect]
+swiftness = "迅捷"
+might = "力量"
+ember = "余烬"
+tide = "潮汐"
+order = "秩序"
+entropy = "熵"
+bulwark = "壁垒"
+
 [herbalism.growth_aura]
 name = "生长光环"
 description = "以光环促进周围植物生长。"

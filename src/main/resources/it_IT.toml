@@ -4248,6 +4248,82 @@ lore1 = "Bonus Goccia Chance"
 lore2 = "x Livelli di fretta durante lo scavo bagnato"
 lore = ["Bonus Goccia Chance", "x Livelli di fretta durante lo scavo bagnato"]
 
+[golemancy.item.crook]
+name = "Bastone dell'artefice"
+lore = "Comanda i golem vincolati e i nodi in cui lavorano"
+
+[golemancy.item.blank_core]
+name = "Nucleo di Animus vuoto"
+lore = "Vincola un golem come compagno o si trasforma in un nucleo di ruolo"
+
+[golemancy.item.core]
+name = "Nucleo di {role}"
+lore = "Vincola un golem al ruolo di {role}"
+
+[golemancy.item.blank_node]
+name = "Nodo vuoto"
+lore = "Si trasforma in un nodo di qualsiasi tipo"
+
+[golemancy.item.node]
+name = "Nodo di {node}"
+lore = "Si ancora alla faccia di un blocco per dirigere il lavoro dei golem"
+
+[golemancy.item.blank_rune]
+name = "Runa vuota"
+lore = "Si infonde in una runa su un Piedistallo di Animus"
+
+[golemancy.item.rune]
+name = "Runa di {aspect}"
+tier = "Grado {tier}"
+lore = "Si incastona in un golem per potenziarlo"
+
+[golemancy.item.dormant_golem]
+name = "Golem dormiente"
+core = "Nucleo: {core}"
+runes = "Rune: {runes}"
+health = "Salute: {health}/{maximum}"
+lore = "Piazzalo per risvegliare questo golem"
+
+[golemancy.item.shattered_core]
+name = "Nucleo infranto"
+lore = "Ricostruisce un golem caduto con i suoi potenziamenti"
+
+[golemancy.item.masterwork_heart]
+name = "Cuore del capolavoro"
+lore = "Designa un golem capolavoro"
+
+[golemancy.role]
+blank = "Compagno"
+guardian = "Guardiano"
+gatherer = "Raccoglitore"
+harvester = "Mietitore"
+lumber = "Taglialegna"
+breaker = "Demolitore"
+rancher = "Allevatore"
+sorter = "Smistatore"
+angler = "Pescatore"
+
+[golemancy.node]
+guard = "Guardia"
+collection = "Raccolta"
+deposit = "Deposito"
+harvest = "Mietitura"
+lumber = "Taglio"
+breaker = "Scavo"
+pasture = "Pascolo"
+input = "Ingresso"
+filter = "Filtro"
+fishing = "Pesca"
+
+[golemancy.aspect]
+swiftness = "Rapidità"
+might = "Potenza"
+ember = "Brace"
+tide = "Marea"
+order = "Ordine"
+entropy = "Entropia"
+bulwark = "Baluardo"
+
 [herbalism.growth_aura]
 name = "Aura di Crescita"
 description = "Fai crescere la natura intorno a te in un'aura"

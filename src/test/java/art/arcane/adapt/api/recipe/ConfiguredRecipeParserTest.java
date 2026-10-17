@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,13 +29,15 @@ import static org.mockito.Mockito.when;
 class ConfiguredRecipeParserTest {
   private final Map<String, Material> materials = new HashMap<>();
   private final Map<NamespacedKey, Tag<Material>> tags = new HashMap<>();
-  private final Map<NamespacedKey, ItemStack> exactItems = new HashMap<>();
+  private final Map<NamespacedKey, ExactIngredient> exactIngredients = new HashMap<>();
+  private final Map<NamespacedKey, ItemStack> exactResults = new HashMap<>();
+  private final ExactIngredientBook book = new ExactIngredientBook();
   private ConfiguredRecipeParser parser;
   private MockedConstruction<ItemStack> constructedItems;
 
   @BeforeEach
   void setUp() {
-    parser = new ConfiguredRecipeParser(new FakeCatalog(), exactItems::get);
+    parser = new ConfiguredRecipeParser(new FakeCatalog(), new FakeResolver(), book);
     constructedItems = mockConstruction(ItemStack.class, (item, context) -> {
       when(item.getType()).thenReturn((Material) context.arguments().getFirst());
       when(item.getAmount()).thenReturn((Integer) context.arguments().get(1));
@@ -95,9 +98,10 @@ class ConfiguredRecipeParserTest {
   }
 
   @Test
-  void namespacedKeysResolveExactItemsForIngredientsAndResult() {
-    ItemStack blankCore = exactItem(new NamespacedKey("golemancy", "blank_core"), "AMETHYST_SHARD");
-    ItemStack crook = exactItem(new NamespacedKey("golemancy", "crook"), "IRON_HOE");
+  void namespacedIngredientsBecomeBaseMaterialChoicesAndExactResultsClone() {
+    Material star = material("FIREWORK_STAR");
+    ExactIngredient blankCore = exactIngredient(new NamespacedKey("golemancy", "blank_core"), star);
+    ItemStack crook = exactResult(new NamespacedKey("golemancy", "crook"), "IRON_HOE");
     ItemStack crookCopy = countedItem();
     when(crook.clone()).thenReturn(crookCopy);
     material("REDSTONE");
@@ -111,11 +115,38 @@ class ConfiguredRecipeParserTest {
 
     assertThat(result.problems()).isEmpty();
     AdaptRecipe.Shaped shaped = result.builder().key("test").build();
-    RecipeChoice choice = choice(shaped, 'C');
-    assertThat(choice).isInstanceOf(RecipeChoice.ExactChoice.class);
-    assertThat(((RecipeChoice.ExactChoice) choice).getChoices()).containsExactly(blankCore);
+    assertThat(materialChoices(shaped, 'C')).containsExactly(star);
+    assertThat(result.exactIngredients()).containsExactly(blankCore, blankCore);
     assertThat(shaped.getResult()).isSameAs(crookCopy);
     assertThat(shaped.getResult().getAmount()).isEqualTo(2);
+  }
+
+  @Test
+  void builderRecordsExactIngredientsUnderTheRecipeKeyAndClearsThemWhenDisabled() throws IOException {
+    NamespacedKey recipeKey = new NamespacedKey("adapt", "golemancy-guardian-core");
+    Material star = material("FIREWORK_STAR");
+    ExactIngredient blankCore = exactIngredient(new NamespacedKey("golemancy", "blank_core"), star);
+    ItemStack guardianCore = exactResult(new NamespacedKey("golemancy", "core/guardian"), "FIREWORK_STAR");
+    ItemStack guardianCopy = countedItem();
+    when(guardianCore.clone()).thenReturn(guardianCopy);
+    material("IRON_INGOT");
+    ConfiguredShapedRecipe spec = new ConfiguredShapedRecipe()
+        .rows("IBI")
+        .key('B', "golemancy:blank_core")
+        .key('I', "IRON_INGOT")
+        .result("golemancy:core/guardian", 1);
+
+    Optional<AdaptRecipe.Shaped.ShapedBuilder> builder = parser.builder(recipeKey, spec);
+
+    assertThat(builder).isPresent();
+    assertThat(builder.get().build().getKey()).isEqualTo("golemancy-guardian-core");
+    assertThat(book.required(recipeKey)).containsExactly(blankCore);
+
+    ConfiguredShapedRecipe disabled = TomlCodec.fromToml(
+        "rows = [\"B\"]\nresult = \"golemancy:core/guardian\"\nenabled = false\n\n[keys]\nB = \"golemancy:blank_core\"\n",
+        ConfiguredShapedRecipe.class);
+    assertThat(parser.builder(recipeKey, disabled)).isEmpty();
+    assertThat(book.required(recipeKey)).isEmpty();
   }
 
   @Test
@@ -297,7 +328,7 @@ class ConfiguredRecipeParserTest {
         ConfiguredShapedRecipe.class);
 
     assertThat(parser.parse(spec).problems()).isEmpty();
-    assertThat(parser.builder("disabled", spec)).isEmpty();
+    assertThat(parser.builder(new NamespacedKey("adapt", "disabled"), spec)).isEmpty();
   }
 
   private Material material(String name) {
@@ -325,11 +356,17 @@ class ConfiguredRecipeParserTest {
     return tag;
   }
 
-  private ItemStack exactItem(NamespacedKey key, String materialName) {
-    Material material = material(materialName);
+  private ExactIngredient exactIngredient(NamespacedKey key, Material base) {
+    ExactIngredient ingredient = new ExactIngredient(base, item -> false);
+    exactIngredients.put(key, ingredient);
+    return ingredient;
+  }
+
+  private ItemStack exactResult(NamespacedKey key, String materialName) {
+    Material material = materials.containsKey(materialName) ? materials.get(materialName) : material(materialName);
     ItemStack item = mock(ItemStack.class);
     when(item.getType()).thenReturn(material);
-    exactItems.put(key, item);
+    exactResults.put(key, item);
     return item;
   }
 
@@ -369,6 +406,18 @@ class ConfiguredRecipeParserTest {
     @Override
     public NamespacedKey getKey() {
       return key;
+    }
+  }
+
+  private final class FakeResolver implements ExactItemResolver {
+    @Override
+    public ExactIngredient ingredient(NamespacedKey id) {
+      return exactIngredients.get(id);
+    }
+
+    @Override
+    public ItemStack result(NamespacedKey id) {
+      return exactResults.get(id);
     }
   }
 

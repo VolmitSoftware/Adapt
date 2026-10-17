@@ -4248,6 +4248,82 @@ lore1 = "Bonus- mahdollisuus pudotetaan"
 lore2 = "x Kiirettä kaivaessa märkää"
 lore = ["Bonus- mahdollisuus pudotetaan", "x Kiirettä kaivaessa märkää"]
 
+[golemancy.item.crook]
+name = "Artefaktisepän sauva"
+lore = "Komentaa sidottuja golemeja ja solmuja, joilla ne työskentelevät"
+
+[golemancy.item.blank_core]
+name = "Tyhjä animusydin"
+lore = "Sitoo golemin seuralaiseksi tai valmistetaan rooliytimeksi"
+
+[golemancy.item.core]
+name = "Ydin: {role}"
+lore = "Sitoo golemin rooliin {role}"
+
+[golemancy.item.blank_node]
+name = "Tyhjä solmu"
+lore = "Valmistetaan minkä tahansa tyyppiseksi solmuksi"
+
+[golemancy.item.node]
+name = "Solmu: {node}"
+lore = "Kiinnittyy palikan pintaan ja ohjaa golemien työtä"
+
+[golemancy.item.blank_rune]
+name = "Tyhjä riimu"
+lore = "Infusoidaan riimuksi animusjalustalla"
+
+[golemancy.item.rune]
+name = "Riimu: {aspect}"
+tier = "Taso {tier}"
+lore = "Asetetaan golemiin sen vahvistamiseksi"
+
+[golemancy.item.dormant_golem]
+name = "Uinuva golem"
+core = "Ydin: {core}"
+runes = "Riimut: {runes}"
+health = "Terveys: {health}/{maximum}"
+lore = "Aseta herättääksesi tämän golemin"
+
+[golemancy.item.shattered_core]
+name = "Särkynyt ydin"
+lore = "Rakentaa kaatuneen golemin uudelleen sen parannuksineen"
+
+[golemancy.item.masterwork_heart]
+name = "Mestariteoksen sydän"
+lore = "Merkitsee mestariteosgolemin"
+
+[golemancy.role]
+blank = "Seuralainen"
+guardian = "Vartija"
+gatherer = "Keräilijä"
+harvester = "Sadonkorjaaja"
+lumber = "Metsuri"
+breaker = "Murtaja"
+rancher = "Karjanhoitaja"
+sorter = "Lajittelija"
+angler = "Kalastaja"
+
+[golemancy.node]
+guard = "Vartio"
+collection = "Keräys"
+deposit = "Talletus"
+harvest = "Sadonkorjuu"
+lumber = "Puunkaato"
+breaker = "Louhinta"
+pasture = "Laidun"
+input = "Syöte"
+filter = "Suodatin"
+fishing = "Kalastus"
+
+[golemancy.aspect]
+swiftness = "Nopeus"
+might = "Mahti"
+ember = "Hiillos"
+tide = "Vuorovesi"
+order = "Järjestys"
+entropy = "Entropia"
+bulwark = "Suojavalli"
+
 [herbalism.growth_aura]
 name = "Kasvuaura"
 description = "Kasvata luontoa ympärilläsi auralla"
