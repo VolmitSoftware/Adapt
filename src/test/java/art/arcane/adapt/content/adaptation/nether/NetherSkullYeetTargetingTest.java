@@ -1,6 +1,8 @@
 package art.arcane.adapt.content.adaptation.nether;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.EntityType;
@@ -12,6 +14,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +29,11 @@ class NetherSkullYeetTargetingTest extends AdaptTestBase {
   private NetherSkullYeet adaptation;
   private WitherSkull skull;
   private EntityDamageByEntityEvent event;
+
+  @BeforeAll
+  static void registerMinionKinds() {
+    MinionIdentity.registerKind(TragoulSkeletalServant.MINION_KIND);
+  }
 
   @BeforeEach
   void prepare() {

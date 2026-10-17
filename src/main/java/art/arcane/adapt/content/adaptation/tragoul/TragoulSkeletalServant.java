@@ -32,6 +32,9 @@ import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.minion.MinionBurden;
+import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.api.minion.MinionKind;
+import art.arcane.adapt.api.minion.MinionTargeting;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -56,8 +59,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.AnimalTamer;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -65,7 +66,6 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
-import org.bukkit.entity.Tameable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -109,6 +109,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   private static final NamespacedKey PLAGUE_OWNER_KEY = NamespacedKey.fromString("adapt:tragoul_plague_owner");
   private static final NamespacedKey PLAGUE_GENERATION_KEY = NamespacedKey.fromString("adapt:tragoul_plague_generation");
   private static final NamespacedKey PLAGUE_STAMP_KEY = NamespacedKey.fromString("adapt:tragoul_plague_stamp");
+  public static final MinionKind MINION_KIND = new ServantMinionKind();
 
   private static final Material[][] HELMETS = {
       {Material.LEATHER_HELMET, Material.CHAINMAIL_HELMET},
@@ -157,6 +158,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   public TragoulSkeletalServant() {
     super("tragoul-skeletal-servant");
+    MinionIdentity.registerKind(MINION_KIND);
     registerConfiguration(Config.class);
     setIcon(Material.SKELETON_SKULL);
     setInterval(25000);
@@ -1054,36 +1056,23 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private TargetSnapshot captureTargetOwned(UUID ownerId, LivingEntity target) {
-    if (!target.isValid() || target.isDead()) {
+    MinionTargeting.Candidate candidate = MinionTargeting.captureOwned(ownerId, target);
+    if (candidate == null) {
       return null;
-    }
-
-    UUID targetId = target.getUniqueId();
-    boolean protectedFriendly = ownerId.equals(targetId)
-        || (target instanceof ArmorStand stand && stand.isMarker())
-        || target.isInvulnerable()
-        || target.hasMetadata("NPC")
-        || isServant(target);
-    if (!protectedFriendly && target instanceof Tameable tameable && tameable.isTamed()) {
-      AnimalTamer tamer = tameable.getOwner();
-      protectedFriendly = tamer != null && ownerId.equals(tamer.getUniqueId());
     }
 
     boolean afflicted = target.hasPotionEffect(PotionEffectType.POISON)
         || target.hasPotionEffect(PotionEffectType.WITHER);
-    Location location = target.getLocation();
-    return new TargetSnapshot(target, targetId, location.getWorld().getUID(), location,
-        target instanceof Player, target instanceof Mob, protectedFriendly, afflicted,
+    return new TargetSnapshot(candidate, target instanceof Mob, afflicted,
         !AdaptationDamageTargets.allows(target, true));
   }
 
   private boolean canDamageSnapshotOwned(Player owner, TargetSnapshot target) {
     if (preference(owner, TragoulPreferences.STANCE) == TragoulPreferences.Stance.PASSIVE
-        || (preference(owner, TragoulPreferences.STANCE) == TragoulPreferences.Stance.DEFEND && !isDefenseTarget(owner.getUniqueId(), target.entity()))
-        || target.protectedFriendly() || owner.getUniqueId().equals(target.entityId())) {
+        || (preference(owner, TragoulPreferences.STANCE) == TragoulPreferences.Stance.DEFEND && !isDefenseTarget(owner.getUniqueId(), target.entity()))) {
       return false;
     }
-    return target.player() ? canPVP(owner, target.location()) : canPVE(owner, target.location());
+    return MinionTargeting.canDamageOwned(this, owner, target.candidate());
   }
 
   private void removeServantOwned(UUID ownerId, Skeleton servant, boolean showFx) {
@@ -1441,9 +1430,19 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   private record TargetRequest(LivingEntity target, long requestedAt) {
   }
 
-  private record TargetSnapshot(LivingEntity entity, UUID entityId, UUID worldId, Location location,
-                                boolean player, boolean mob, boolean protectedFriendly, boolean afflicted,
+  private record TargetSnapshot(MinionTargeting.Candidate candidate, boolean mob, boolean afflicted,
                                 boolean passiveOrNeutral) {
+    private LivingEntity entity() {
+      return candidate.entity();
+    }
+
+    private UUID entityId() {
+      return candidate.entityId();
+    }
+
+    private UUID worldId() {
+      return candidate.worldId();
+    }
   }
 
   private record ServantDamager(Skeleton servant, UUID ownerId) {
@@ -1461,6 +1460,18 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
                           TragoulCurseOfFrailty frailty,
                           TragoulCorpseExplosion nova,
                           TragoulPlagueBearer plague) {
+  }
+
+  private static final class ServantMinionKind implements MinionKind {
+    @Override
+    public boolean matches(Entity entity) {
+      return isServant(entity);
+    }
+
+    @Override
+    public UUID ownerOf(Entity entity) {
+      return getServantOwnerId(entity);
+    }
   }
 
   @ConfigDescription("Sneak right-click with bones to raise a pack of temporary skeletal servants that gear up with your level, inherit your Tragoul perks, and hunt whatever you strike or whoever strikes you.")

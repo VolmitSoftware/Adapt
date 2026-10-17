@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 
@@ -45,7 +46,6 @@ import art.arcane.adapt.content.adaptation.hunter.HunterSnareLine;
 import art.arcane.adapt.content.adaptation.hunter.HunterSpeed;
 import art.arcane.adapt.content.adaptation.hunter.HunterStrength;
 import art.arcane.adapt.content.adaptation.hunter.HunterTrophySkinner;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -210,7 +210,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
       return;
     }
 
-    if (TragoulSkeletalServant.isServant(e.getEntity()) || ExcavationGraveDigger.isGraveMob(e.getEntity())) {
+    if (MinionIdentity.isMinion(e.getEntity()) || ExcavationGraveDigger.isGraveMob(e.getEntity())) {
       return;
     }
 

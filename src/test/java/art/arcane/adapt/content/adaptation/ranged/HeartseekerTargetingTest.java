@@ -1,6 +1,8 @@
 package art.arcane.adapt.content.adaptation.ranged;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.Cow;
@@ -9,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,6 +29,11 @@ class HeartseekerTargetingTest extends AdaptTestBase {
   private AbstractArrow arrow;
   private EntityDamageByEntityEvent event;
   private Cow target;
+
+  @BeforeAll
+  static void registerMinionKinds() {
+    MinionIdentity.registerKind(TragoulSkeletalServant.MINION_KIND);
+  }
 
   @BeforeEach
   void prepare() {

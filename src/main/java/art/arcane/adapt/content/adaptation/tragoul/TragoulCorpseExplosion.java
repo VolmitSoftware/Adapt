@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.minion.MinionIdentity;
 import org.bukkit.entity.EntityType;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -249,7 +250,7 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     if (target instanceof ArmorStand stand && stand.isMarker()) {
       return new ProtectionSnapshot(true, null);
     }
-    if (target.isInvulnerable() || target.hasMetadata("NPC") || TragoulSkeletalServant.isServant(target)) {
+    if (target.isInvulnerable() || target.hasMetadata("NPC") || MinionIdentity.isMinion(target)) {
       return new ProtectionSnapshot(true, null);
     }
     if (target instanceof Tameable tameable && tameable.isTamed()) {

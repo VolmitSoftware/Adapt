@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 
@@ -148,8 +149,8 @@ public class TragoulHealing extends SimpleAdaptation<TragoulHealing.Config> {
   }
 
   private boolean isProtectedAttacker(Player defender, LivingEntity attacker) {
-    if (TragoulSkeletalServant.isServant(attacker)) {
-      UUID ownerId = TragoulSkeletalServant.getServantOwnerId(attacker);
+    if (MinionIdentity.isMinion(attacker)) {
+      UUID ownerId = MinionIdentity.ownerOf(attacker);
       return ownerId == null || defender.getUniqueId().equals(ownerId);
     }
     return isProtectedFriendly(defender, attacker);

@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.volmlib.nativelib.player.PlayerClientAccess;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.preference.PlayerPreferences;
@@ -31,8 +32,6 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
-import art.arcane.adapt.content.adaptation.stealth.StealthShadowDecoy;
 import art.arcane.adapt.content.event.AdaptAdaptationUseEvent;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.math.M;
@@ -296,7 +295,7 @@ final class AdaptationRuntimeGuards {
       return true;
     }
 
-    if (TragoulSkeletalServant.isServant(target) || StealthShadowDecoy.isDecoy(target)) {
+    if (MinionIdentity.isMinion(target)) {
       return true;
     }
 
