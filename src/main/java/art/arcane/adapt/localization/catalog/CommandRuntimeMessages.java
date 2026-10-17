@@ -44,6 +44,8 @@ public final class CommandRuntimeMessages {
   public static final TextKey VAULT_TRANSACTION_FAILED = TextKey.of("command.runtime.vault_transaction_failed", "The Vault economy transaction failed; no progression was changed.");
   public static final TextKey SET_ADAPTATION_LEVEL = TextKey.of("command.runtime.set_adaptation_level", "Set {player} {adaptation} to level {level}.");
   public static final TextKey PERMANENT_ADAPTATION_LOWER = TextKey.of("command.runtime.permanent_adaptation_lower", "{adaptation} is permanent and cannot be lowered without force=true.");
+  public static final TextKey REQUIREMENTS_MISSING = TextKey.of("command.runtime.requirements_missing", "{player} needs {requirements} before learning {adaptation}.");
+  public static final TextKey REQUIRED_BY_DEPENDENTS = TextKey.of("command.runtime.required_by_dependents", "{adaptation} is required by {dependents} for {player}; use force=true to remove them as well.");
   public static final TextKey ADAPT_SERVER_NOT_READY = TextKey.of("command.runtime.adapt_server_not_ready", "Adapt server is not ready yet. Try again in a few seconds.");
   public static final TextKey TARGET_DISPATCH_FAILED = TextKey.of("command.runtime.target_dispatch_failed", "Could not schedule the target player operation. Try again.");
   public static final TextKey CLEARED_ALL = TextKey.of("command.runtime.cleared_all", "Cleared all data for {player}.");
@@ -127,6 +129,8 @@ public final class CommandRuntimeMessages {
     builder.add(VAULT_TRANSACTION_FAILED);
     builder.add(SET_ADAPTATION_LEVEL);
     builder.add(PERMANENT_ADAPTATION_LOWER);
+    builder.add(REQUIREMENTS_MISSING);
+    builder.add(REQUIRED_BY_DEPENDENTS);
     builder.add(ADAPT_SERVER_NOT_READY);
     builder.add(TARGET_DISPATCH_FAILED);
     builder.add(CLEARED_ALL);

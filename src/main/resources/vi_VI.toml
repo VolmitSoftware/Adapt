@@ -4523,6 +4523,10 @@ vault_unavailable_fallback = "Không thể dùng hệ thống kinh tế Vault �
 vault_insufficient_funds = "Người chơi không có đủ tiền trong hệ thống kinh tế Vault."
 vault_transaction_failed = "Giao dịch Vault thất bại; tiến độ không thay đổi."
 power_drain = "Tiêu hao sức mạnh: {power}"
+requirement_level = "{adaptation} cấp {level}"
+requires = "Yêu cầu: {requirement}"
+requirements_missing = "Hãy học {requirements} trước khi học {adaptation}."
+required_by_dependents = "Hãy hủy học {dependents} trước; chúng cần {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -6038,6 +6042,8 @@ vault_insufficient_funds = "Người chơi không có đủ tiền trong hệ th
 vault_transaction_failed = "Giao dịch Vault thất bại; tiến độ không thay đổi."
 set_adaptation_level = "Đặt {player} {adaptation} cấp {level}."
 permanent_adaptation_lower = "{adaptation} là vĩnh viễn và không thể bị hạ nếu thiếu force=true."
+requirements_missing = "{player} cần {requirements} trước khi học {adaptation}."
+required_by_dependents = "{adaptation} là yêu cầu của {dependents} cho {player}; dùng force=true để gỡ bỏ cả chúng."
 adapt_server_not_ready = "Server Adapt chưa sẵn sàng."
 target_dispatch_failed = "Không thể lên lịch thao tác cho người chơi mục tiêu. Hãy thử lại."
 cleared_all = "Xóa mọi dữ liệu cho {player}."

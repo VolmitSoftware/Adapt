@@ -25,6 +25,7 @@ import art.arcane.adapt.localization.catalog.RuntimeMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.AdaptationRequirements;
 import art.arcane.adapt.api.notification.ActionBarNotification;
 import art.arcane.adapt.api.notification.Notification;
 import art.arcane.adapt.api.notification.SoundNotification;
@@ -766,10 +767,13 @@ public class PlayerData {
   }
 
   public void pruneAdaptationsForPowerBudget() {
-    if (isDebugLearning()) {
-      return;
+    if (!isDebugLearning()) {
+      trimToPowerBudget();
     }
+    AdaptationRequirements.removeUnmet(this, ownerName());
+  }
 
+  private void trimToPowerBudget() {
     int usedPower = getUsedPower();
     int maxPower = getMaxPower();
 
@@ -807,6 +811,12 @@ public class PlayerData {
       }
     }
     refreshLearnedIndex();
+  }
+
+  private String ownerName() {
+    AdaptPlayer owner = runtimeOwner;
+    Player player = owner == null ? null : owner.getPlayer();
+    return player == null ? "an offline player" : player.getName();
   }
 
   private void refreshLearnedIndex() {

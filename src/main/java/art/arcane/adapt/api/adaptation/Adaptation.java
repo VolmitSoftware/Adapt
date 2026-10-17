@@ -93,6 +93,10 @@ public interface Adaptation<T> extends Ticked, Component {
    */
   int getMaxLevel();
 
+  default List<AdaptationRequirement> getRequirements() {
+    return List.of();
+  }
+
   /**
    * Grants adaptation-attributed xp to a player.
    */
@@ -1019,15 +1023,15 @@ public interface Adaptation<T> extends Ticked, Component {
   /**
    * Unlearns levels from this adaptation.
    */
-  default void unlearn(Player player, int lvl, boolean force) {
-    AdaptationGuiSupport.unlearn(this, player, lvl, force);
+  default AdaptationLearningTransaction.Result unlearn(Player player, int lvl, boolean force) {
+    return AdaptationGuiSupport.unlearn(this, player, lvl, force);
   }
 
   /**
    * Learns levels into this adaptation.
    */
-  default void learn(Player player, int lvl, boolean force) {
-    AdaptationGuiSupport.learn(this, player, lvl, force);
+  default AdaptationLearningTransaction.Result learn(Player player, int lvl, boolean force) {
+    return AdaptationGuiSupport.learn(this, player, lvl, force);
   }
 
   /**

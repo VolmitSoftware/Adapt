@@ -4,6 +4,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationLearningTransaction;
+import art.arcane.adapt.api.adaptation.AdaptationRequirements;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.Skill;
@@ -522,12 +523,13 @@ public class CommandAdapt {
             PlayerSkillLine skillLine = adaptPlayer.getData().getSkillLine(skill.getName());
             int previousLevel = skillLine == null ? 0 : skillLine.getAdaptationLevel(adaptation.getName());
 
-            if (assign) {
-              adaptation.learn(targetPlayer, level, force);
-            } else {
-              adaptation.unlearn(targetPlayer, level, force);
-            }
+            AdaptationLearningTransaction.Result result = assign
+                ? adaptation.learn(targetPlayer, level, force)
+                : adaptation.unlearn(targetPlayer, level, force);
 
+            if (sendRequirementFailure(result, adaptation, targetPlayer, adaptPlayer.getData(), level - 1, sender)) {
+              return;
+            }
             int resultingLevel = skillLine == null ? 0 : skillLine.getAdaptationLevel(adaptation.getName());
             if (resultingLevel == previousLevel) {
               CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
@@ -741,6 +743,9 @@ public class CommandAdapt {
       AdaptationLearningTransaction.Result result =
           AdaptationLearningTransaction.learn(adaptation, targetPlayer, targetLevel, force);
       if (result != AdaptationLearningTransaction.Result.LEARNED) {
+        if (sendRequirementFailure(result, adaptation, targetPlayer, playerData, targetLevel, sender)) {
+          return;
+        }
         sendLearningFailure(
             result,
             skill,
@@ -766,6 +771,9 @@ public class CommandAdapt {
     AdaptationLearningTransaction.Result result =
         AdaptationLearningTransaction.unlearn(adaptation, targetPlayer, targetLevel, force);
     if (result != AdaptationLearningTransaction.Result.UNLEARNED) {
+      if (sendRequirementFailure(result, adaptation, targetPlayer, playerData, targetLevel, sender)) {
+        return;
+      }
       sendLearningFailure(result, skill, adaptation, targetPlayer, playerData, skillLine, 0, 0, sender);
       return;
     }
@@ -776,6 +784,39 @@ public class CommandAdapt {
         untrusted("adaptation", adaptation.getName()),
         trusted("level", targetLevel)
     )));
+  }
+
+  private boolean sendRequirementFailure(
+      AdaptationLearningTransaction.Result result,
+      Adaptation<?> adaptation,
+      Player targetPlayer,
+      PlayerData playerData,
+      int targetLevel,
+      CommandSender sender
+  ) {
+    if (result == AdaptationLearningTransaction.Result.REQUIREMENTS_MISSING) {
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.REQUIREMENTS_MISSING,
+          untrusted("player", targetPlayer.getName()),
+          untrusted("requirements", AdaptationRequirements.describe(
+              AdaptationRequirements.missing(adaptation, playerData)
+          )),
+          untrusted("adaptation", adaptation.getName())
+      )));
+      return true;
+    }
+    if (result == AdaptationLearningTransaction.Result.REQUIRED_BY_DEPENDENTS) {
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(
+          CommandRuntimeMessages.REQUIRED_BY_DEPENDENTS,
+          untrusted("adaptation", adaptation.getName()),
+          untrusted("dependents", AdaptationRequirements.names(
+              AdaptationRequirements.dependents(adaptation, playerData, targetLevel)
+          )),
+          untrusted("player", targetPlayer.getName())
+      )));
+      return true;
+    }
+    return false;
   }
 
   private void sendLearningFailure(

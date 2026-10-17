@@ -4523,6 +4523,10 @@ vault_unavailable_fallback = "Vaultの経済機能を利用できません — �
 vault_insufficient_funds = "プレイヤーのVault経済残高が不足しています。"
 vault_transaction_failed = "Vaultの取引に失敗しました。進行状況は変更されていません。"
 power_drain = "パワー消費 {power}"
+requirement_level = "{adaptation} Lv {level}"
+requires = "必要: {requirement}"
+requirements_missing = "{requirements} を習得してから {adaptation} を習得してください。"
+required_by_dependents = "先に {dependents} の習得を解除してください。これらは {adaptation} を必要とします。"
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -6038,6 +6042,8 @@ vault_insufficient_funds = "プレイヤーのVault経済残高が不足して�
 vault_transaction_failed = "Vaultの取引に失敗しました。進行状況は変更されていません。"
 set_adaptation_level = "セット {player} {adaptation} レベルまで {level}."
 permanent_adaptation_lower = "{adaptation} 永続的であり、不要で下がることはできません。 force=true."
+requirements_missing = "{player} には {requirements} が必要です。その後で {adaptation} を習得できます。"
+required_by_dependents = "{adaptation} は {dependents} に必要です（対象: {player}）。それらも削除するには force=true を使用してください。"
 adapt_server_not_ready = "Adapt サーバーはまだ準備が整っていない. 数秒でもう一度お試しください."
 target_dispatch_failed = "対象プレイヤーの操作をスケジュールできませんでした。もう一度お試しください。"
 cleared_all = "すべてのデータを消去 {player}."

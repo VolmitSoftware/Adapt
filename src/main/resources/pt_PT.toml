@@ -4523,6 +4523,10 @@ vault_unavailable_fallback = "A economia Vault está indisponível — continua 
 vault_insufficient_funds = "O jogador não tem dinheiro suficiente na economia Vault."
 vault_transaction_failed = "A transação Vault falhou; o progresso não foi alterado."
 power_drain = "Consumo de poder: {power}"
+requirement_level = "{adaptation} Nv. {level}"
+requires = "Requer: {requirement}"
+requirements_missing = "Aprende {requirements} antes de aprender {adaptation}."
+required_by_dependents = "Desaprende primeiro {dependents}; estes requerem {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -6038,6 +6042,8 @@ vault_insufficient_funds = "O jogador não tem dinheiro suficiente na economia V
 vault_transaction_failed = "A transação Vault falhou; o progresso não foi alterado."
 set_adaptation_level = "Definir {player} {adaptation} ao nível {level}."
 permanent_adaptation_lower = "{adaptation} é permanente e não pode ser reduzida sem force=true."
+requirements_missing = "{player} precisa de {requirements} antes de aprender {adaptation}."
+required_by_dependents = "{adaptation} é necessária para {dependents} de {player}; usa force=true para as remover também."
 adapt_server_not_ready = "O servidor Adapt ainda não está pronto."
 target_dispatch_failed = "Não foi possível agendar a operação para o jogador alvo. Tente novamente."
 cleared_all = "Limpar todos os dados para {player}."

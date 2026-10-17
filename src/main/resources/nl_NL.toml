@@ -4523,6 +4523,10 @@ vault_unavailable_fallback = "De Vault-economie is niet beschikbaar — leren me
 vault_insufficient_funds = "De speler heeft onvoldoende geld in de Vault-economie."
 vault_transaction_failed = "De Vault-transactie is mislukt; de voortgang is niet gewijzigd."
 power_drain = "Krachtverbruik: {power}"
+requirement_level = "{adaptation} niv. {level}"
+requires = "Vereist: {requirement}"
+requirements_missing = "Leer {requirements} voordat je {adaptation} leert."
+required_by_dependents = "Leer eerst {dependents} af; die vereisen {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -6038,6 +6042,8 @@ vault_insufficient_funds = "De speler heeft onvoldoende geld in de Vault-economi
 vault_transaction_failed = "De Vault-transactie is mislukt; de voortgang is niet gewijzigd."
 set_adaptation_level = "Instellen {player} {adaptation} naar niveau {level}."
 permanent_adaptation_lower = "{adaptation} is permanent en kan niet worden verlaagd zonder force=true."
+requirements_missing = "{player} heeft {requirements} nodig voordat {adaptation} geleerd kan worden."
+required_by_dependents = "{adaptation} is vereist door {dependents} voor {player}; gebruik force=true om die ook te verwijderen."
 adapt_server_not_ready = "De Adapt-server is nog niet klaar. Probeer het over een paar seconden opnieuw."
 target_dispatch_failed = "De bewerking voor de doelspeler kon niet worden gepland. Probeer het opnieuw."
 cleared_all = "Alle gegevens gewist voor {player}."

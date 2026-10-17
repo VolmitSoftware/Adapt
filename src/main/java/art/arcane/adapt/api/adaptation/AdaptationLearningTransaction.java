@@ -4,6 +4,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
+import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.volmlib.integration.VaultEconomy;
 import org.bukkit.entity.Player;
@@ -37,6 +38,9 @@ public final class AdaptationLearningTransaction {
     int normalizedTarget = Math.max(0, Math.min(targetLevel, adaptation.getMaxLevel()));
     if (normalizedTarget <= paidLevel) {
       return Result.NO_CHANGE;
+    }
+    if (!AdaptationRequirements.missing(adaptation, adaptPlayer.getData()).isEmpty()) {
+      return Result.REQUIREMENTS_MISSING;
     }
     int knowledgeCost = adaptation.getCostFor(normalizedTarget, paidLevel);
     int powerCost = adaptation.getPowerCostFor(normalizedTarget, paidLevel);
@@ -130,6 +134,9 @@ public final class AdaptationLearningTransaction {
     if (adaptation.isPermanent() && !bypassCosts) {
       return Result.PERMANENT;
     }
+    if (!bypassCosts && !AdaptationRequirements.dependents(adaptation, adaptPlayer.getData(), normalizedTarget).isEmpty()) {
+      return Result.REQUIRED_BY_DEPENDENTS;
+    }
 
     int paidLevel = isRegionGranted(skillLine, adaptation.getName()) ? 0 : currentLevel;
     int refundFloor = Math.min(normalizedTarget, paidLevel);
@@ -141,6 +148,9 @@ public final class AdaptationLearningTransaction {
       refundOrQueue(player, skillLine, vaultRefund, adaptation.getName());
     }
     clearRefundReceipts(skillLine, adaptation.getName(), normalizedTarget, currentLevel);
+    if (bypassCosts) {
+      removeDependents(adaptPlayer.getData(), player);
+    }
     return Result.UNLEARNED;
   }
 
@@ -231,6 +241,16 @@ public final class AdaptationLearningTransaction {
   ) {
     for (int level = targetLevel + 1; level <= currentLevel; level++) {
       skillLine.getStorage().remove(receiptKey(adaptationName, level));
+    }
+  }
+
+  private static void removeDependents(PlayerData data, Player player) {
+    for (AdaptationRequirements.Removal removal : AdaptationRequirements.removeUnmet(data, player.getName())) {
+      Adaptation<?> removed = removal.adaptation();
+      PlayerSkillLine line = data.getSkillLineNullable(removed.getSkill().getName());
+      if (line != null) {
+        clearRefundReceipts(line, removed.getName(), 0, removal.previousLevel());
+      }
     }
   }
 
@@ -348,6 +368,8 @@ public final class AdaptationLearningTransaction {
     INSUFFICIENT_FUNDS,
     ECONOMY_UNAVAILABLE,
     ECONOMY_FAILED,
-    PERMANENT
+    PERMANENT,
+    REQUIREMENTS_MISSING,
+    REQUIRED_BY_DEPENDENTS
   }
 }

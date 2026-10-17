@@ -96,6 +96,9 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   private String localizationKey;
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
+  private volatile List<AdaptationRequirement> requirements = List.of();
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private long cachedDemandRevision = Long.MIN_VALUE;
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
@@ -277,6 +280,9 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     applyIntField(currentConfig, "initialCost", this::setInitialCost);
     applyIntField(currentConfig, "maxLevel", this::setMaxLevel);
     applyLongField(currentConfig, "setInterval", this::setInterval);
+    requirements = currentConfig instanceof AdaptationConfig shared
+        ? AdaptationRequirement.parseAll(getName(), shared.requires)
+        : List.of();
   }
 
   protected void onConfigReload(T previousConfig, T newConfig) {
@@ -432,6 +438,16 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       return shared.enabled;
     }
     return true;
+  }
+
+  @Override
+  public List<AdaptationRequirement> getRequirements() {
+    if (getConfigurationClass() == null) {
+      return List.of();
+    }
+
+    getConfig();
+    return requirements;
   }
 
   @Override

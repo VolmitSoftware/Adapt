@@ -45,6 +45,10 @@ public final class GuiMessages {
   public static final TextKey VAULT_INSUFFICIENT_FUNDS = TextKey.of("gui.adaptations.vault_insufficient_funds", "You do not have enough Vault currency to learn this adaptation.");
   public static final TextKey VAULT_TRANSACTION_FAILED = TextKey.of("gui.adaptations.vault_transaction_failed", "The Vault economy transaction failed; your progression was not changed.");
   public static final TextKey POWER_DRAIN = TextKey.of("gui.adaptations.power_drain", "{power} Power Drain");
+  public static final TextKey REQUIREMENT_LEVEL = TextKey.of("gui.adaptations.requirement_level", "{adaptation} Lv {level}");
+  public static final TextKey REQUIRES = TextKey.of("gui.adaptations.requires", "Requires: {requirement}");
+  public static final TextKey REQUIREMENTS_MISSING = TextKey.of("gui.adaptations.requirements_missing", "Learn {requirements} before learning {adaptation}.");
+  public static final TextKey REQUIRED_BY_DEPENDENTS = TextKey.of("gui.adaptations.required_by_dependents", "Unlearn {dependents} first; they require {adaptation}.");
   public static final TextKey SKILLS_TITLE = TextKey.of("gui.skills.title", "Level {level} ({used}/{maximum} Power Used)");
   public static final TextKey SKILL_TITLE = TextKey.of("gui.skill.title", "{skill} {progress} ({xp}XP {nextLevel})");
 
@@ -110,6 +114,10 @@ public final class GuiMessages {
     builder.add(VAULT_INSUFFICIENT_FUNDS);
     builder.add(VAULT_TRANSACTION_FAILED);
     builder.add(POWER_DRAIN);
+    builder.add(REQUIREMENT_LEVEL);
+    builder.add(REQUIRES);
+    builder.add(REQUIREMENTS_MISSING);
+    builder.add(REQUIRED_BY_DEPENDENTS);
     builder.add(SKILLS_TITLE);
     builder.add(SKILL_TITLE);
   }

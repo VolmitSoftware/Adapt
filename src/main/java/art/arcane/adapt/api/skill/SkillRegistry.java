@@ -22,6 +22,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
+import art.arcane.adapt.api.adaptation.AdaptationRequirements;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.VelocityBurstRuntime;
 import art.arcane.adapt.api.advancement.AdvancementManager;
@@ -149,6 +150,7 @@ public class SkillRegistry extends TickedObject {
     bootstrapLoading = false;
     rebuildStatTrackerIndex();
     publishPlaceholderCatalog(catalogRevision.get());
+    AdaptationRequirements.warnUnresolved(getSkills());
   }
 
   public synchronized void startRuntime() {
@@ -924,6 +926,7 @@ public class SkillRegistry extends TickedObject {
     if (!bootstrapLoading) {
       rebuildStatTrackerIndex();
       publishPlaceholderCatalog(revision);
+      AdaptationRequirements.warnUnresolved(getSkills());
       if (reconcilePlayers) {
         synchronizeAdvancementRuntime(revision);
         synchronizeRecipeBookRuntime();

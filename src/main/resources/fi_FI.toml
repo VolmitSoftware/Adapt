@@ -4523,6 +4523,10 @@ vault_unavailable_fallback = "Vault-talous ei ole käytettävissä — oppiminen
 vault_insufficient_funds = "Pelaajalla ei ole tarpeeksi Vault-talouden valuuttaa."
 vault_transaction_failed = "Vault-tapahtuma epäonnistui; edistymistä ei muutettu."
 power_drain = "Voiman kulutus: {power}"
+requirement_level = "{adaptation} taso {level}"
+requires = "Vaatii: {requirement}"
+requirements_missing = "Opi {requirements} ennen kuin opit {adaptation}."
+required_by_dependents = "Poista ensin {dependents}; ne vaativat {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -6038,6 +6042,8 @@ vault_insufficient_funds = "Pelaajalla ei ole tarpeeksi Vault-talouden valuuttaa
 vault_transaction_failed = "Vault-tapahtuma epäonnistui; edistymistä ei muutettu."
 set_adaptation_level = "Aseta {player} {adaptation} Tasolle {level}."
 permanent_adaptation_lower = "{adaptation} on pysyvä eikä sitä voida laskea ilman force=true."
+requirements_missing = "{player} tarvitsee {requirements} ennen kuin voi oppia {adaptation}."
+required_by_dependents = "{adaptation} vaaditaan sopeutumille {dependents} pelaajalla {player}; käytä force=true poistaaksesi myös ne."
 adapt_server_not_ready = "Adapt palvelin ei ole vielä valmis. Yritä uudelleen muutamassa sekunnissa."
 target_dispatch_failed = "Kohdepelaajan toimintoa ei voitu ajoittaa. Yritä uudelleen."
 cleared_all = "Tyhjensi kaikki tiedot {player}."

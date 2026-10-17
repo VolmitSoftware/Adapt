@@ -4523,6 +4523,10 @@ vault_unavailable_fallback = "Экономика Vault недоступна — 
 vault_insufficient_funds = "У игрока недостаточно средств в экономике Vault."
 vault_transaction_failed = "Операция Vault не удалась; прогресс не изменён."
 power_drain = "Расход силы: {power}"
+requirement_level = "{adaptation} ур. {level}"
+requires = "Требуется: {requirement}"
+requirements_missing = "Изучите {requirements}, прежде чем изучать {adaptation}."
+required_by_dependents = "Сначала отмените изучение {dependents}: им требуется {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -6038,6 +6042,8 @@ vault_insufficient_funds = "У игрока недостаточно средс�
 vault_transaction_failed = "Операция Vault не удалась; прогресс не изменён."
 set_adaptation_level = "Настройка {player} {adaptation} на уровень {level}."
 permanent_adaptation_lower = "{adaptation} является постоянным и не может быть понижен без force=true."
+requirements_missing = "{player} нужно изучить {requirements}, прежде чем изучать {adaptation}."
+required_by_dependents = "{adaptation} требуется для {dependents} у {player}; используйте force=true, чтобы удалить и их."
 adapt_server_not_ready = "Adapt Сервер еще не готов. Попробуйте еще раз через несколько секунд."
 target_dispatch_failed = "Не удалось запланировать операцию для целевого игрока. Повторите попытку."
 cleared_all = "Очистить все данные для {player}."
