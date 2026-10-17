@@ -15,6 +15,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRecipeBookClickEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
@@ -77,8 +78,20 @@ public final class RecipeTithe implements Listener {
     openCharges.remove(e.getWhoClicked().getUniqueId());
   }
 
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(CraftItemEvent e) {
+    if (!(e.getWhoClicked() instanceof Player p)) {
+      return;
+    }
+
+    int levels = levels(e.getRecipe());
+    if (levels > 0 && !isExempt(p) && affordableCrafts(p.getLevel(), levels) < 1) {
+      e.setCancelled(true);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void openCharge(CraftItemEvent e) {
     if (!(e.getWhoClicked() instanceof Player p)) {
       return;
     }
@@ -87,16 +100,17 @@ public final class RecipeTithe implements Listener {
     if (levels <= 0 || isExempt(p)) {
       return;
     }
-    if (affordableCrafts(p.getLevel(), levels) < 1) {
-      e.setCancelled(true);
-      return;
-    }
-    openCharges.put(p.getUniqueId(), OpenCharge.open(e.getInventory().getMatrix(), levels));
+    openCharges.put(p.getUniqueId(), OpenCharge.open(e.getInventory().getMatrix(), levels, p.getTicksLived()));
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
   public void on(InventoryDragEvent e) {
     openCharges.remove(e.getWhoClicked().getUniqueId());
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST)
+  public void on(PlayerRecipeBookClickEvent e) {
+    openCharges.remove(e.getPlayer().getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -126,8 +140,18 @@ public final class RecipeTithe implements Listener {
     return started;
   }
 
-  private static void collect(Player p, OpenCharge charge, ItemStack[] matrix) {
-    int due = charge.levelsDue(matrix);
+  static boolean isCraftStep(int chargedCrafts, int started) {
+    return started >= 0 && started <= chargedCrafts + 1;
+  }
+
+  private void collect(Player p, OpenCharge charge, ItemStack[] matrix) {
+    int started = charge.tick == p.getTicksLived() ? charge.craftsStarted(matrix) : -1;
+    if (!isCraftStep(charge.chargedCrafts, started)) {
+      openCharges.remove(p.getUniqueId(), charge);
+      return;
+    }
+
+    int due = charge.charge(started);
     if (due > 0) {
       p.setLevel(Math.max(0, p.getLevel() - due));
     }
@@ -145,15 +169,17 @@ public final class RecipeTithe implements Listener {
     private final Material[] types;
     private final int[] amounts;
     private final int levelsPerCraft;
+    private final int tick;
     private int chargedCrafts;
 
-    private OpenCharge(Material[] types, int[] amounts, int levelsPerCraft) {
+    private OpenCharge(Material[] types, int[] amounts, int levelsPerCraft, int tick) {
       this.types = types;
       this.amounts = amounts;
       this.levelsPerCraft = levelsPerCraft;
+      this.tick = tick;
     }
 
-    private static OpenCharge open(ItemStack[] matrix, int levelsPerCraft) {
+    private static OpenCharge open(ItemStack[] matrix, int levelsPerCraft, int tick) {
       Material[] types = new Material[matrix.length];
       int[] amounts = new int[matrix.length];
       for (int slot = 0; slot < matrix.length; slot++) {
@@ -163,12 +189,12 @@ public final class RecipeTithe implements Listener {
           amounts[slot] = stack.getAmount();
         }
       }
-      return new OpenCharge(types, amounts, levelsPerCraft);
+      return new OpenCharge(types, amounts, levelsPerCraft, tick);
     }
 
-    private int levelsDue(ItemStack[] matrix) {
+    private int craftsStarted(ItemStack[] matrix) {
       if (matrix.length != amounts.length) {
-        return 0;
+        return -1;
       }
 
       int[] remaining = new int[matrix.length];
@@ -176,7 +202,10 @@ public final class RecipeTithe implements Listener {
         ItemStack stack = matrix[slot];
         remaining[slot] = isEmpty(stack) || stack.getType() != types[slot] ? 0 : stack.getAmount();
       }
-      int started = craftsStarted(amounts, remaining);
+      return RecipeTithe.craftsStarted(amounts, remaining);
+    }
+
+    private int charge(int started) {
       if (started <= chargedCrafts) {
         return 0;
       }

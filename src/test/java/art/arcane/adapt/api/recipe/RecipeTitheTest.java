@@ -5,17 +5,29 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventException;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.CrafterCraftEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.player.PlayerRecipeBookClickEvent;
 import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredListener;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -33,8 +45,9 @@ class RecipeTitheTest {
   private static final NamespacedKey FREE = new NamespacedKey("adapt", "free-recipe");
 
   private final RecipeTithe tithe = new RecipeTithe();
+  private final Plugin plugin = mock(Plugin.class);
   private final AtomicInteger level = new AtomicInteger();
-  private final AtomicBoolean cancelled = new AtomicBoolean();
+  private final AtomicInteger ticksLived = new AtomicInteger(100);
   private final AtomicBoolean resultShown = new AtomicBoolean();
   private final Material[] types = new Material[9];
   private final int[] amounts = new int[9];
@@ -54,6 +67,7 @@ class RecipeTitheTest {
       return null;
     }).when(player).setLevel(anyInt());
     when(player.getGameMode()).thenAnswer(invocation -> gameMode);
+    when(player.getTicksLived()).thenAnswer(invocation -> ticksLived.get());
 
     for (int slot = 0; slot < slots.length; slot++) {
       int index = slot;
@@ -89,6 +103,15 @@ class RecipeTitheTest {
     assertThat(RecipeTithe.craftsStarted(new int[]{4, 4, 0}, new int[]{2, 3, 0})).isEqualTo(2);
     assertThat(RecipeTithe.craftsStarted(new int[]{1, 4, 0}, new int[]{0, 4, 0})).isEqualTo(1);
     assertThat(RecipeTithe.craftsStarted(new int[]{1, 4, 0}, new int[]{2, 4, 0})).isZero();
+  }
+
+  @Test
+  void onlySingleCraftStepsAreCharged() {
+    assertThat(RecipeTithe.isCraftStep(0, 1)).isTrue();
+    assertThat(RecipeTithe.isCraftStep(2, 2)).isTrue();
+    assertThat(RecipeTithe.isCraftStep(2, 0)).isTrue();
+    assertThat(RecipeTithe.isCraftStep(1, 3)).isFalse();
+    assertThat(RecipeTithe.isCraftStep(1, -1)).isFalse();
   }
 
   @Test
@@ -133,15 +156,97 @@ class RecipeTitheTest {
     level.set(10);
     fill(5, Material.REDSTONE, Material.AMETHYST_SHARD);
 
-    CraftItemEvent click = craftEvent(TITHED);
-    tithe.on((InventoryClickEvent) click);
-    tithe.on(click);
-    tithe.on((InventoryClickEvent) craftEvent(FREE));
-    amounts[0] = 2;
-    tithe.on(prepareEvent(TITHED));
+    dispatch(craftEvent(TITHED));
+    dispatch(craftEvent(FREE));
+    amounts[0] = 4;
+    dispatch(prepareEvent(TITHED));
 
-    assertThat(cancelled.get()).isFalse();
     assertThat(level.get()).isEqualTo(10);
+  }
+
+  @Test
+  void emptiedGridInALaterTickChargesNothing() {
+    level.set(10);
+    fill(5, Material.REDSTONE, Material.AMETHYST_SHARD);
+    craftAll(false);
+
+    ticksLived.incrementAndGet();
+    amounts[0] = 0;
+    amounts[1] = 0;
+    dispatch(prepareEvent(null));
+
+    assertThat(level.get()).isEqualTo(7);
+  }
+
+  @Test
+  void emptiedGridWithinTheClickTickChargesNothing() {
+    level.set(10);
+    fill(5, Material.REDSTONE, Material.AMETHYST_SHARD);
+    craftAll(false);
+
+    amounts[0] = 0;
+    dispatch(prepareEvent(null));
+    amounts[1] = 0;
+    dispatch(prepareEvent(null));
+
+    assertThat(level.get()).isEqualTo(7);
+  }
+
+  @Test
+  void unevenRefillChargesNothing() {
+    level.set(20);
+    fill(5, Material.REDSTONE, Material.AMETHYST_SHARD);
+    amounts[1] = 3;
+    craftAll(false);
+
+    amounts[0] = 1;
+    dispatch(prepareEvent(TITHED));
+    amounts[0] = 2;
+    amounts[1] = 1;
+    dispatch(prepareEvent(TITHED));
+
+    assertThat(level.get()).isEqualTo(17);
+  }
+
+  @Test
+  void recipeBookClickClosesTheChargeWindow() {
+    level.set(10);
+    fill(5, Material.REDSTONE, Material.AMETHYST_SHARD);
+    craftAll(false);
+
+    dispatch(new PlayerRecipeBookClickEvent(player, recipe(TITHED), false));
+    amounts[0] = 3;
+    amounts[1] = 3;
+    dispatch(prepareEvent(TITHED));
+
+    assertThat(level.get()).isEqualTo(7);
+  }
+
+  @Test
+  void clickCancelledByALaterHandlerChargesNothing() {
+    level.set(10);
+    fill(5, Material.REDSTONE, Material.AMETHYST_SHARD);
+
+    CraftItemEvent click = craftEvent(TITHED);
+    dispatch(click, new LateCanceller());
+    amounts[0] = 4;
+    amounts[1] = 4;
+    dispatch(prepareEvent(TITHED));
+
+    assertThat(click.isCancelled()).isTrue();
+    assertThat(level.get()).isEqualTo(10);
+  }
+
+  @Test
+  void unaffordableCraftStaysCancelledWhenAnEarlierHandlerUncancels() {
+    level.set(2);
+    fill(5, Material.REDSTONE);
+
+    CraftItemEvent click = craftEvent(TITHED);
+    dispatch(click, new EarlyUncanceller());
+
+    assertThat(click.isCancelled()).isTrue();
+    assertThat(level.get()).isEqualTo(2);
   }
 
   @Test
@@ -150,7 +255,7 @@ class RecipeTitheTest {
     fill(5, Material.REDSTONE);
     resultShown.set(true);
 
-    tithe.on(prepareEvent(TITHED));
+    dispatch(prepareEvent(TITHED));
 
     assertThat(resultShown.get()).isFalse();
   }
@@ -160,9 +265,10 @@ class RecipeTitheTest {
     level.set(2);
     fill(5, Material.REDSTONE);
 
-    tithe.on(craftEvent(TITHED));
+    CraftItemEvent click = craftEvent(TITHED);
+    dispatch(click);
 
-    assertThat(cancelled.get()).isTrue();
+    assertThat(click.isCancelled()).isTrue();
     assertThat(level.get()).isEqualTo(2);
   }
 
@@ -173,7 +279,7 @@ class RecipeTitheTest {
     fill(3, Material.REDSTONE);
     resultShown.set(true);
 
-    tithe.on(prepareEvent(TITHED));
+    dispatch(prepareEvent(TITHED));
     int crafts = craftAll(true);
 
     assertThat(crafts).isEqualTo(3);
@@ -186,12 +292,12 @@ class RecipeTitheTest {
     fill(3, Material.REDSTONE);
     resultShown.set(true);
 
-    tithe.on(prepareEvent(FREE));
+    dispatch(prepareEvent(FREE));
     CraftItemEvent click = craftEvent(FREE);
-    tithe.on(click);
+    dispatch(click);
 
     assertThat(resultShown.get()).isTrue();
-    assertThat(cancelled.get()).isFalse();
+    assertThat(click.isCancelled()).isFalse();
   }
 
   @Test
@@ -206,8 +312,8 @@ class RecipeTitheTest {
     CrafterCraftEvent tithed = new CrafterCraftEvent(mock(Block.class), recipe(TITHED), mock(ItemStack.class));
     CrafterCraftEvent free = new CrafterCraftEvent(mock(Block.class), recipe(FREE), mock(ItemStack.class));
 
-    tithe.on(tithed);
-    tithe.on(free);
+    dispatch(tithed);
+    dispatch(free);
 
     assertThat(tithed.isCancelled()).isTrue();
     assertThat(free.isCancelled()).isFalse();
@@ -215,9 +321,8 @@ class RecipeTitheTest {
 
   private int craftAll(boolean shiftClick) {
     CraftItemEvent click = craftEvent(TITHED);
-    tithe.on((InventoryClickEvent) click);
-    tithe.on(click);
-    if (cancelled.get()) {
+    dispatch(click);
+    if (click.isCancelled()) {
       return 0;
     }
 
@@ -231,7 +336,7 @@ class RecipeTitheTest {
         }
         amounts[slot]--;
         resultShown.set(matches());
-        tithe.on(prepareEvent(matches() ? TITHED : null));
+        dispatch(prepareEvent(matches() ? TITHED : null));
       }
       if (!shiftClick) {
         break;
@@ -264,9 +369,47 @@ class RecipeTitheTest {
     return matrix;
   }
 
+  private void dispatch(Event event, Listener... others) {
+    List<RegisteredListener> handlers = new ArrayList<>();
+    collectHandlers(tithe, event, handlers);
+    for (Listener other : others) {
+      collectHandlers(other, event, handlers);
+    }
+    handlers.sort(Comparator.comparing(RegisteredListener::getPriority));
+    try {
+      for (RegisteredListener handler : handlers) {
+        handler.callEvent(event);
+      }
+    } catch (EventException e) {
+      throw new IllegalStateException(e.getCause());
+    }
+  }
+
+  private void collectHandlers(Listener listener, Event event, List<RegisteredListener> handlers) {
+    for (Method method : listener.getClass().getDeclaredMethods()) {
+      EventHandler annotation = method.getAnnotation(EventHandler.class);
+      if (annotation == null || method.getParameterCount() != 1 || !method.getParameterTypes()[0].isInstance(event)) {
+        continue;
+      }
+      method.setAccessible(true);
+      handlers.add(new RegisteredListener(listener, (target, fired) -> invoke(method, target, fired), annotation.priority(), plugin, annotation.ignoreCancelled()));
+    }
+  }
+
+  private static void invoke(Method method, Listener target, Event event) throws EventException {
+    try {
+      method.invoke(target, event);
+    } catch (InvocationTargetException e) {
+      throw new EventException(e.getCause());
+    } catch (IllegalAccessException e) {
+      throw new EventException(e);
+    }
+  }
+
   private CraftItemEvent craftEvent(NamespacedKey key) {
     CraftItemEvent event = mock(CraftItemEvent.class);
     ShapedRecipe recipe = recipe(key);
+    AtomicBoolean cancelled = new AtomicBoolean();
     when(event.getWhoClicked()).thenReturn(player);
     when(event.getRecipe()).thenReturn(recipe);
     when(event.getInventory()).thenReturn(inventory);
@@ -293,5 +436,19 @@ class RecipeTitheTest {
     ShapedRecipe recipe = mock(ShapedRecipe.class);
     when(recipe.getKey()).thenReturn(key);
     return recipe;
+  }
+
+  static final class LateCanceller implements Listener {
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void on(CraftItemEvent e) {
+      e.setCancelled(true);
+    }
+  }
+
+  static final class EarlyUncanceller implements Listener {
+    @EventHandler(priority = EventPriority.HIGH)
+    public void on(CraftItemEvent e) {
+      e.setCancelled(false);
+    }
   }
 }
