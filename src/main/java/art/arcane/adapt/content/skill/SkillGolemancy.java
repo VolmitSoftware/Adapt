@@ -21,17 +21,69 @@ package art.arcane.adapt.content.skill;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
+import art.arcane.adapt.api.version.IAttribute;
+import art.arcane.adapt.api.version.Version;
+import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
+import art.arcane.adapt.content.skill.golemancy.CopperCare;
+import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
+import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
+import art.arcane.adapt.content.skill.golemancy.GolemXpRules;
+import art.arcane.adapt.content.skill.golemancy.HostileDamagePool;
+import art.arcane.adapt.content.skill.golemancy.RollingXpCap;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDoc;
+import art.arcane.adapt.util.reflect.registries.Attributes;
+import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.volmlib.util.math.M;
+import io.papermc.paper.world.WeatheringCopperState;
 import lombok.NoArgsConstructor;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.Tag;
+import org.bukkit.block.Block;
+import org.bukkit.entity.CopperGolem;
+import org.bukkit.entity.Enemy;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Golem;
+import org.bukkit.entity.IronGolem;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
+  private static final long CARE_CHECK_STALE_MILLIS = 5_000L;
+
+  private final GolemBuildAttribution buildAttribution = new GolemBuildAttribution();
+  private final GolemXpCooldowns<BuildCooldownKey> buildCooldowns = new GolemXpCooldowns<>();
+  private final GolemXpCooldowns<WitnessCooldownKey> witnessCooldowns = new GolemXpCooldowns<>();
+  private final RollingXpCap witnessCap = new RollingXpCap();
+  private final ConcurrentHashMap<UUID, Long> careChecks = new ConcurrentHashMap<>();
+
   public SkillGolemancy() {
     super("golemancy", SkillPresentation.of(SkillMessages.GOLEMANCY_NAME, SkillMessages.GOLEMANCY_ICON, SkillMessages.GOLEMANCY_DESCRIPTION));
     registerConfiguration(Config.class);
@@ -52,11 +104,241 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
             .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
+    registerMilestone("challenge_golemancy_built_10", "golemancy.built", 10, () -> getConfig().challengeBuiltReward);
+    registerMilestone("challenge_golemancy_built_100", "golemancy.built", 100, () -> getConfig().challengeBuiltReward * 5);
+  }
+
+  @Override
+  public void onTick() {
+    long nowMillis = M.ms();
+    buildAttribution.expire(System.nanoTime(), getConfig().buildAttributionWindowMillis);
+    buildCooldowns.sweep(nowMillis, getConfig().buildXpCooldownMillis);
+    witnessCooldowns.sweep(nowMillis, getConfig().witnessCooldownMillis);
+    witnessCap.sweep(nowMillis);
+    careChecks.values().removeIf(scheduledAt -> nowMillis - scheduledAt > CARE_CHECK_STALE_MILLIS);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(BlockPlaceEvent e) {
+    Block block = e.getBlockPlaced();
+    Material type = block.getType();
+    if ((type != Material.CARVED_PUMPKIN && type != Material.JACK_O_LANTERN) || shouldReturnForWorld(block.getWorld(), this)) {
+      return;
+    }
+    GolemBuildAttribution.HeadPlacement placement = new GolemBuildAttribution.HeadPlacement(
+        block.getWorld().getName(), block.getX(), block.getY(), block.getZ(), e.getPlayer().getUniqueId(), System.nanoTime());
+    buildAttribution.recordPlacement(placement, getConfig().buildAttributionRadius, getConfig().buildAttributionWindowMillis)
+        .ifPresent(build -> J.runEntity(build.spawn().golem(), () -> applyBuild(build)));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(CreatureSpawnEvent e) {
+    SpawnReason reason = e.getSpawnReason();
+    LivingEntity golem = e.getEntity();
+    if (GolemBuildAttribution.bodyKey(reason) == null || shouldReturnForWorld(golem.getWorld(), this)) {
+      return;
+    }
+    Location at = golem.getLocation();
+    GolemBuildAttribution.GolemSpawn spawn = new GolemBuildAttribution.GolemSpawn(
+        golem, reason, golem.getWorld().getName(), at.getX(), at.getY(), at.getZ(), System.nanoTime());
+    buildAttribution.recordSpawn(spawn, getConfig().buildAttributionRadius, getConfig().buildAttributionWindowMillis)
+        .ifPresent(this::applyBuild);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityDamageByEntityEvent e) {
+    if (!(e.getEntity() instanceof LivingEntity golem)
+        || !HostileDamagePool.isPoolBody(golem.getType())
+        || !HostileDamagePool.isHostileDamager(e.getDamager())
+        || shouldReturnForWorld(golem.getWorld(), this)) {
+      return;
+    }
+    HostileDamagePool.add(golem, e.getFinalDamage(), maxHealthOf(golem));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(PlayerInteractEntityEvent e) {
+    if (!(e.getRightClicked() instanceof IronGolem golem) || !golem.isPlayerCreated()) {
+      return;
+    }
+    Player player = e.getPlayer();
+    if (heldType(player, e.getHand()) != Material.IRON_INGOT) {
+      return;
+    }
+    double before = golem.getHealth();
+    shouldReturnForPlayer(player, e, () -> scheduleCareCheck(golem, () -> settleRepair(player, golem, before)));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityDeathEvent e) {
+    LivingEntity victim = e.getEntity();
+    if (!(victim instanceof Enemy) || !(victim.getLastDamageCause() instanceof EntityDamageByEntityEvent lastDamage)) {
+      return;
+    }
+    Golem golem = GolemXpRules.witnessGolem(lastDamage.getDamager());
+    if (golem == null
+        || MinionIdentity.isMinion(victim)
+        || ExcavationGraveDigger.isGraveMob(victim)
+        || MinionIdentity.isMinion(golem)
+        || shouldReturnForWorld(victim.getWorld(), this)
+        || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(golem))) {
+      return;
+    }
+    double killValue = GolemXpRules.killValue(getConfig().golemKillXpBase, maxHealthOf(victim), getConfig().golemKillMaxHealthMultiplier);
+    double xp = GolemXpRules.witnessXp(killValue, getConfig().witnessXpMultiplier, SkillHunter.isSpawnerMob(victim), getConfig().spawnerMobXpMultiplier);
+    if (xp <= 0D) {
+      return;
+    }
+    Location center = golem.getLocation();
+    double radius = getConfig().witnessRadius;
+    UUID golemId = golem.getUniqueId();
+    for (Player witness : PaperCompat.nearbyPlayers(center, radius)) {
+      if (witness.getLocation().distanceSquared(center) <= radius * radius) {
+        shouldReturnForPlayer(witness, () -> payWitness(witness, golemId, center, xp));
+      }
+    }
   }
 
   @Override
   public boolean isEnabled() {
     return getConfig().enabled;
+  }
+
+  @Override
+  protected List<Listener> createCompanionListeners() {
+    if (!PaperCompat.hasClass("io.papermc.paper.world.WeatheringCopperState")) {
+      return List.of();
+    }
+    return List.of(new CopperCareListener());
+  }
+
+  private void applyBuild(GolemBuildAttribution.Build build) {
+    Entity golem = build.spawn().golem();
+    GolemBuildAttribution.stamp(golem, build.builder(), System.currentTimeMillis());
+    Player builder = Bukkit.getPlayer(build.builder());
+    if (builder == null) {
+      return;
+    }
+    Location at = golem.getLocation();
+    SpawnReason reason = build.spawn().reason();
+    shouldReturnForPlayer(builder, () -> rewardBuild(builder, reason, at));
+  }
+
+  private void rewardBuild(Player builder, SpawnReason reason, Location at) {
+    addStat(builder, "golemancy.built", 1);
+    double xp = buildXp(reason);
+    if (xp <= 0D || !buildCooldowns.tryClaim(new BuildCooldownKey(builder.getUniqueId(), reason), M.ms(), getConfig().buildXpCooldownMillis)) {
+      return;
+    }
+    xp(builder, at, xp, "golemancy:build:" + GolemBuildAttribution.bodyKey(reason));
+    fx(at, FxPriority.TRANSITION)
+        .column(Particles.END_ROD, 5, 1.2D)
+        .particle(Particles.VILLAGER_HAPPY, 4, 0D, 0.8D, 0D, 0.3D, 0D)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.8F);
+  }
+
+  private double buildXp(SpawnReason reason) {
+    return switch (reason) {
+      case BUILD_SNOWMAN -> getConfig().buildSnowXp;
+      case BUILD_COPPERGOLEM -> getConfig().buildCopperXp;
+      case BUILD_IRONGOLEM -> getConfig().buildIronXp;
+      default -> 0D;
+    };
+  }
+
+  private void settleRepair(Player player, IronGolem golem, double before) {
+    double healed = golem.getHealth() - before;
+    if (!(healed > 0D)) {
+      return;
+    }
+    double xp = GolemXpRules.repairXp(HostileDamagePool.consume(golem, healed), getConfig().repairXpPerHealth);
+    if (xp <= 0D) {
+      return;
+    }
+    Location at = golem.getLocation();
+    shouldReturnForPlayer(player, () -> xp(player, at, xp, "golemancy:repair"));
+    fx(at.clone().add(0D, 1.5D, 0D), FxPriority.AMBIENT)
+        .burst(Particles.VILLAGER_HAPPY, 5, 0.6D)
+        .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.5F);
+  }
+
+  private void payWitness(Player witness, UUID golemId, Location center, double xp) {
+    long nowMillis = M.ms();
+    if (!witnessCooldowns.tryClaim(new WitnessCooldownKey(golemId, witness.getUniqueId()), nowMillis, getConfig().witnessCooldownMillis)) {
+      return;
+    }
+    double granted = witnessCap.claim(witness.getUniqueId(), xp, getConfig().witnessHourlyCap, nowMillis);
+    if (granted > 0D) {
+      xp(witness, center, granted, "golemancy:witness");
+    }
+  }
+
+  private void scheduleCareCheck(Entity golem, Runnable settle) {
+    UUID golemId = golem.getUniqueId();
+    long scheduledAt = M.ms();
+    if (careChecks.putIfAbsent(golemId, scheduledAt) != null) {
+      return;
+    }
+    Runnable check = () -> {
+      careChecks.remove(golemId, scheduledAt);
+      settle.run();
+    };
+    if (!J.runEntity(golem, check, 1)) {
+      careChecks.remove(golemId, scheduledAt);
+    }
+  }
+
+  private static Material heldType(Player player, EquipmentSlot hand) {
+    ItemStack held = player.getInventory().getItem(hand);
+    return held == null ? Material.AIR : held.getType();
+  }
+
+  private static double maxHealthOf(LivingEntity entity) {
+    if (Attributes.MAX_HEALTH == null) {
+      return 20D;
+    }
+    IAttribute attribute = Version.get().getAttribute(entity, Attributes.MAX_HEALTH);
+    return attribute == null ? 20D : attribute.getValue();
+  }
+
+  private record BuildCooldownKey(UUID player, SpawnReason reason) {
+  }
+
+  private record WitnessCooldownKey(UUID golem, UUID player) {
+  }
+
+  private final class CopperCareListener implements Listener {
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void on(PlayerInteractEntityEvent e) {
+      if (!(e.getRightClicked() instanceof CopperGolem golem)) {
+        return;
+      }
+      Player player = e.getPlayer();
+      Material held = heldType(player, e.getHand());
+      if (Tag.ITEMS_AXES.isTagged(held)) {
+        WeatheringCopperState before = golem.getWeatheringState();
+        shouldReturnForPlayer(player, e, () -> scheduleCareCheck(golem, () -> settleScrape(player, golem, before)));
+      } else if (held == Material.HONEYCOMB) {
+        boolean waxedBefore = CopperCare.waxed(golem.getOxidizing());
+        shouldReturnForPlayer(player, e, () -> scheduleCareCheck(golem, () -> settleWax(player, golem, waxedBefore)));
+      }
+    }
+
+    private void settleScrape(Player player, CopperGolem golem, WeatheringCopperState before) {
+      if (!CopperCare.scraped(before, golem.getWeatheringState())) {
+        return;
+      }
+      Location at = golem.getLocation();
+      shouldReturnForPlayer(player, () -> xp(player, at, getConfig().copperScrapeXp, "golemancy:copper:scrape"));
+    }
+
+    private void settleWax(Player player, CopperGolem golem, boolean waxedBefore) {
+      if (!CopperCare.newlyWaxed(waxedBefore, CopperCare.waxed(golem.getOxidizing())) || !CopperCare.claimWaxPayment(golem)) {
+        return;
+      }
+      Location at = golem.getLocation();
+      shouldReturnForPlayer(player, () -> xp(player, at, getConfig().copperWaxXp, "golemancy:copper:wax"));
+    }
   }
 
   @NoArgsConstructor
@@ -71,7 +353,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double buildCopperXp = 90;
     @ConfigDoc(value = "Skill XP paid for building an iron golem.", impact = "Higher values reward iron golem builds more; 0 pays nothing.")
     double buildIronXp = 180;
-    @ConfigDoc(value = "Milliseconds before one player earns build XP again for the same golem body.", impact = "Higher values limit repeated build XP; the builder record is still written during the cooldown.")
+    @ConfigDoc(value = "Milliseconds before one player earns build XP again for the same golem type.", impact = "Higher values limit repeated build XP; the builder record is still written during the cooldown.")
     long buildXpCooldownMillis = 20000;
     @ConfigDoc(value = "Milliseconds a placed carved pumpkin or jack o'lantern and a golem spawn may be apart and still credit the builder.", impact = "Higher values tolerate more delay between the head placement and the spawn.")
     long buildAttributionWindowMillis = 250;
