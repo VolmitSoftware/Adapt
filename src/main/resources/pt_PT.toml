@@ -4248,6 +4248,82 @@ lore1 = "Possibilidade de Queda de Bônus"
 lore2 = "x Níveis de pressa ao cavar molhado"
 lore = ["Possibilidade de Queda de Bônus", "x Níveis de pressa ao cavar molhado"]
 
+[golemancy.item.crook]
+name = "Cajado do Artífice"
+lore = "Comanda golems vinculados e os nós onde trabalham"
+
+[golemancy.item.blank_core]
+name = "Núcleo de Ânimus vazio"
+lore = "Vincula um golem como companheiro ou é fabricado num núcleo de função"
+
+[golemancy.item.core]
+name = "Núcleo de {role}"
+lore = "Vincula um golem à função de {role}"
+
+[golemancy.item.blank_node]
+name = "Nó vazio"
+lore = "É fabricado num nó de qualquer tipo"
+
+[golemancy.item.node]
+name = "Nó de {node}"
+lore = "Fixa-se à face de um bloco para dirigir o trabalho dos golems"
+
+[golemancy.item.blank_rune]
+name = "Runa vazia"
+lore = "É infundida numa runa num Pedestal de Ânimus"
+
+[golemancy.item.rune]
+name = "Runa de {aspect}"
+tier = "Nível {tier}"
+lore = "Encaixa num golem para o fortalecer"
+
+[golemancy.item.dormant_golem]
+name = "Golem adormecido"
+core = "Núcleo: {core}"
+runes = "Runas: {runes}"
+health = "Vida: {health}/{maximum}"
+lore = "Coloca-o para despertar este golem"
+
+[golemancy.item.shattered_core]
+name = "Núcleo despedaçado"
+lore = "Reconstrói um golem caído com as suas melhorias"
+
+[golemancy.item.masterwork_heart]
+name = "Coração de obra-prima"
+lore = "Designa um golem obra-prima"
+
+[golemancy.role]
+blank = "Companheiro"
+guardian = "Guardião"
+gatherer = "Coletor"
+harvester = "Ceifeiro"
+lumber = "Lenhador"
+breaker = "Demolidor"
+rancher = "Criador"
+sorter = "Classificador"
+angler = "Pescador"
+
+[golemancy.node]
+guard = "Guarda"
+collection = "Recolha"
+deposit = "Depósito"
+harvest = "Colheita"
+lumber = "Corte"
+breaker = "Escavação"
+pasture = "Pasto"
+input = "Entrada"
+filter = "Filtro"
+fishing = "Pesca"
+
+[golemancy.aspect]
+swiftness = "Celeridade"
+might = "Poder"
+ember = "Brasa"
+tide = "Maré"
+order = "Ordem"
+entropy = "Entropia"
+bulwark = "Baluarte"
+
 [herbalism.growth_aura]
 name = "Aura de Crescimento"
 description = "Faz crescer a natureza a tua volta numa aura"

@@ -4248,6 +4248,82 @@ lore1 = "Bonus kans op drop"
 lore2 = "x niveaus van haast tijdens het graven nat"
 lore = ["Bonus kans op drop", "x niveaus van haast tijdens het graven nat"]
 
+[golemancy.item.crook]
+name = "Staf van de ambachtsmeester"
+lore = "Beveelt gebonden golems en de knooppunten waar ze werken"
+
+[golemancy.item.blank_core]
+name = "Lege animuskern"
+lore = "Bindt een golem als metgezel of wordt verwerkt tot een rolkern"
+
+[golemancy.item.core]
+name = "{role}-kern"
+lore = "Bindt een golem aan de rol {role}"
+
+[golemancy.item.blank_node]
+name = "Leeg knooppunt"
+lore = "Wordt verwerkt tot een knooppunt van elk type"
+
+[golemancy.item.node]
+name = "{node}-knooppunt"
+lore = "Hecht zich aan een blokzijde om golemwerk te sturen"
+
+[golemancy.item.blank_rune]
+name = "Lege rune"
+lore = "Wordt op een animussokkel tot een rune doordrenkt"
+
+[golemancy.item.rune]
+name = "{aspect}-rune"
+tier = "Rang {tier}"
+lore = "Wordt in een golem gezet om hem te versterken"
+
+[golemancy.item.dormant_golem]
+name = "Sluimerende golem"
+core = "Kern: {core}"
+runes = "Runen: {runes}"
+health = "Gezondheid: {health}/{maximum}"
+lore = "Plaats om deze golem te wekken"
+
+[golemancy.item.shattered_core]
+name = "Verbrijzelde kern"
+lore = "Herbouwt een gevallen golem met zijn verbeteringen"
+
+[golemancy.item.masterwork_heart]
+name = "Meesterwerkhart"
+lore = "Wijst een meesterwerkgolem aan"
+
+[golemancy.role]
+blank = "Metgezel"
+guardian = "Beschermer"
+gatherer = "Verzamelaar"
+harvester = "Oogster"
+lumber = "Houthakker"
+breaker = "Breker"
+rancher = "Veehoeder"
+sorter = "Sorteerder"
+angler = "Visser"
+
+[golemancy.node]
+guard = "Bewaking"
+collection = "Verzameling"
+deposit = "Opslag"
+harvest = "Oogst"
+lumber = "Houtkap"
+breaker = "Mijnbouw"
+pasture = "Weide"
+input = "Invoer"
+filter = "Filter"
+fishing = "Visserij"
+
+[golemancy.aspect]
+swiftness = "Snelheid"
+might = "Kracht"
+ember = "Sintel"
+tide = "Getij"
+order = "Orde"
+entropy = "Entropie"
+bulwark = "Bolwerk"
+
 [herbalism.growth_aura]
 name = "Groeiaura"
 description = "Laat de natuur om je heen groeien in een aura"

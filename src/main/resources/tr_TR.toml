@@ -4248,6 +4248,82 @@ lore1 = "Bonus İndirme Şansı"
 lore2 = "x Çürük kazırken acele seviyeleri"
 lore = ["Bonus İndirme Şansı", "x Çürük kazırken acele seviyeleri"]
 
+[golemancy.item.crook]
+name = "Zanaatkârın Asası"
+lore = "Bağlı golemleri ve çalıştıkları düğümleri yönetir"
+
+[golemancy.item.blank_core]
+name = "Boş Animus Çekirdeği"
+lore = "Bir golemi yoldaş olarak bağlar ya da bir rol çekirdeğine dönüştürülür"
+
+[golemancy.item.core]
+name = "{role} Çekirdeği"
+lore = "Bir golemi {role} rolüne bağlar"
+
+[golemancy.item.blank_node]
+name = "Boş Düğüm"
+lore = "Her türden bir düğüme dönüştürülür"
+
+[golemancy.item.node]
+name = "{node} Düğümü"
+lore = "Golem işini yönlendirmek için bir blok yüzeyine tutunur"
+
+[golemancy.item.blank_rune]
+name = "Boş Rün"
+lore = "Bir Animus Kaidesinde bir rüne aşılanır"
+
+[golemancy.item.rune]
+name = "{aspect} Rünü"
+tier = "Kademe {tier}"
+lore = "Güçlendirmek için bir goleme takılır"
+
+[golemancy.item.dormant_golem]
+name = "Uykudaki Golem"
+core = "Çekirdek: {core}"
+runes = "Rünler: {runes}"
+health = "Can: {health}/{maximum}"
+lore = "Bu golemi uyandırmak için yerleştir"
+
+[golemancy.item.shattered_core]
+name = "Parçalanmış Çekirdek"
+lore = "Düşmüş bir golemi yükseltmeleriyle yeniden inşa eder"
+
+[golemancy.item.masterwork_heart]
+name = "Başyapıt Kalbi"
+lore = "Bir başyapıt golemi belirler"
+
+[golemancy.role]
+blank = "Yoldaş"
+guardian = "Muhafız"
+gatherer = "Toplayıcı"
+harvester = "Hasatçı"
+lumber = "Oduncu"
+breaker = "Yıkıcı"
+rancher = "Çoban"
+sorter = "Ayıklayıcı"
+angler = "Balıkçı"
+
+[golemancy.node]
+guard = "Nöbet"
+collection = "Toplama"
+deposit = "Depolama"
+harvest = "Hasat"
+lumber = "Kesim"
+breaker = "Kazı"
+pasture = "Mera"
+input = "Girdi"
+filter = "Filtre"
+fishing = "Balıkçılık"
+
+[golemancy.aspect]
+swiftness = "Çeviklik"
+might = "Kudret"
+ember = "Kor"
+tide = "Gelgit"
+order = "Düzen"
+entropy = "Entropi"
+bulwark = "Siper"
+
 [herbalism.growth_aura]
 name = "Buyume Aurasi"
 description = "Cevrenizdeki dogayi bir aura icinde buyutun"

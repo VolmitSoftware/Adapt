@@ -4248,6 +4248,82 @@ lore1 = "סיכוי להפסד בונוס"
 lore2 = "רמות x של haste בעוד לחפור רטוב"
 lore = ["סיכוי להפסד בונוס", "רמות x של haste בעוד לחפור רטוב"]
 
+[golemancy.item.crook]
+name = "מטה האומן"
+lore = "מפקד על גולמים כבולים ועל הצמתים שבהם הם עובדים"
+
+[golemancy.item.blank_core]
+name = "ליבת אנימוס ריקה"
+lore = "כובלת גולם כמלווה או נוצרת לליבת תפקיד"
+
+[golemancy.item.core]
+name = "ליבת {role}"
+lore = "כובלת גולם לתפקיד {role}"
+
+[golemancy.item.blank_node]
+name = "צומת ריק"
+lore = "נוצר לצומת מכל סוג"
+
+[golemancy.item.node]
+name = "צומת {node}"
+lore = "נצמד לפאת בלוק כדי לכוון את עבודת הגולמים"
+
+[golemancy.item.blank_rune]
+name = "רונה ריקה"
+lore = "מוחדרת לרונה על כן אנימוס"
+
+[golemancy.item.rune]
+name = "רונת {aspect}"
+tier = "דרגה {tier}"
+lore = "משובצת בגולם כדי לחזק אותו"
+
+[golemancy.item.dormant_golem]
+name = "גולם רדום"
+core = "ליבה: {core}"
+runes = "רונות: {runes}"
+health = "בריאות: {health}/{maximum}"
+lore = "הנח כדי להעיר את הגולם הזה"
+
+[golemancy.item.shattered_core]
+name = "ליבה מנופצת"
+lore = "בונה מחדש גולם שנפל עם השדרוגים שלו"
+
+[golemancy.item.masterwork_heart]
+name = "לב יצירת מופת"
+lore = "מייעד גולם יצירת מופת"
+
+[golemancy.role]
+blank = "מלווה"
+guardian = "שומר"
+gatherer = "אוסף"
+harvester = "קוצר"
+lumber = "חוטב עצים"
+breaker = "שובר"
+rancher = "בוקר"
+sorter = "ממיין"
+angler = "דייג"
+
+[golemancy.node]
+guard = "שמירה"
+collection = "איסוף"
+deposit = "הפקדה"
+harvest = "קציר"
+lumber = "כריתה"
+breaker = "כרייה"
+pasture = "מרעה"
+input = "קלט"
+filter = "מסנן"
+fishing = "דיג"
+
+[golemancy.aspect]
+swiftness = "מהירות"
+might = "עוצמה"
+ember = "גחלת"
+tide = "גאות"
+order = "סדר"
+entropy = "אנטרופיה"
+bulwark = "חומת מגן"
+
 [herbalism.growth_aura]
 name = "הילת צמיחה"
 description = "גדל טבע סביבך בהילה"

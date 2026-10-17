@@ -4248,6 +4248,82 @@ lore1 = "La oportunidad de caer en el bono"
 lore2 = "x Niveles de prisa al cavar mojado"
 lore = ["La oportunidad de caer en el bono", "x Niveles de prisa al cavar mojado"]
 
+[golemancy.item.crook]
+name = "Cayado del Artífice"
+lore = "Dirige gólems vinculados y los nodos donde trabajan"
+
+[golemancy.item.blank_core]
+name = "Núcleo de Ánima vacío"
+lore = "Vincula un gólem como compañero o se fabrica en un núcleo de rol"
+
+[golemancy.item.core]
+name = "Núcleo de {role}"
+lore = "Vincula un gólem al rol de {role}"
+
+[golemancy.item.blank_node]
+name = "Nodo vacío"
+lore = "Se fabrica en un nodo de cualquier tipo"
+
+[golemancy.item.node]
+name = "Nodo de {node}"
+lore = "Se fija a la cara de un bloque para dirigir el trabajo de los gólems"
+
+[golemancy.item.blank_rune]
+name = "Runa vacía"
+lore = "Se infunde en una runa en un Pedestal de Ánima"
+
+[golemancy.item.rune]
+name = "Runa de {aspect}"
+tier = "Nivel {tier}"
+lore = "Se engarza en un gólem para potenciarlo"
+
+[golemancy.item.dormant_golem]
+name = "Gólem latente"
+core = "Núcleo: {core}"
+runes = "Runas: {runes}"
+health = "Salud: {health}/{maximum}"
+lore = "Colócalo para despertar a este gólem"
+
+[golemancy.item.shattered_core]
+name = "Núcleo destrozado"
+lore = "Reconstruye un gólem caído con sus mejoras"
+
+[golemancy.item.masterwork_heart]
+name = "Corazón de obra maestra"
+lore = "Designa un gólem de obra maestra"
+
+[golemancy.role]
+blank = "Compañero"
+guardian = "Guardián"
+gatherer = "Recolector"
+harvester = "Cosechador"
+lumber = "Leñador"
+breaker = "Rompedor"
+rancher = "Ganadero"
+sorter = "Clasificador"
+angler = "Pescador"
+
+[golemancy.node]
+guard = "Guardia"
+collection = "Recolección"
+deposit = "Depósito"
+harvest = "Cosecha"
+lumber = "Tala"
+breaker = "Minería"
+pasture = "Pasto"
+input = "Entrada"
+filter = "Filtro"
+fishing = "Pesca"
+
+[golemancy.aspect]
+swiftness = "Celeridad"
+might = "Poder"
+ember = "Brasa"
+tide = "Marea"
+order = "Orden"
+entropy = "Entropía"
+bulwark = "Baluarte"
+
 [herbalism.growth_aura]
 name = "Aura de Crecimiento"
 description = "Haz crecer la naturaleza a tu alrededor en un aura"

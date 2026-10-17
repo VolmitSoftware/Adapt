@@ -4248,6 +4248,82 @@ lore1 = "Bonus-Trop-Chance"
 lore2 = "x Eile beim graben nass"
 lore = ["Bonus-Trop-Chance", "x Eile beim graben nass"]
 
+[golemancy.item.crook]
+name = "Stab des Artefaktschmieds"
+lore = "Befehligt gebundene Golems und die Knoten, an denen sie arbeiten"
+
+[golemancy.item.blank_core]
+name = "Leerer Animus-Kern"
+lore = "Bindet einen Golem als Begleiter oder wird zu einem Rollenkern verarbeitet"
+
+[golemancy.item.core]
+name = "{role}-Kern"
+lore = "Bindet einen Golem an die Rolle {role}"
+
+[golemancy.item.blank_node]
+name = "Leerer Knoten"
+lore = "Wird zu einem Knoten beliebigen Typs verarbeitet"
+
+[golemancy.item.node]
+name = "{node}-Knoten"
+lore = "Haftet an einer Blockseite und lenkt die Arbeit von Golems"
+
+[golemancy.item.blank_rune]
+name = "Leere Rune"
+lore = "Wird an einem Animus-Sockel zu einer Rune infundiert"
+
+[golemancy.item.rune]
+name = "{aspect}-Rune"
+tier = "Stufe {tier}"
+lore = "Wird in einen Golem eingesetzt, um ihn zu stärken"
+
+[golemancy.item.dormant_golem]
+name = "Ruhender Golem"
+core = "Kern: {core}"
+runes = "Runen: {runes}"
+health = "Gesundheit: {health}/{maximum}"
+lore = "Platzieren, um diesen Golem zu erwecken"
+
+[golemancy.item.shattered_core]
+name = "Zersplitterter Kern"
+lore = "Baut einen gefallenen Golem mit seinen Verbesserungen wieder auf"
+
+[golemancy.item.masterwork_heart]
+name = "Meisterwerk-Herz"
+lore = "Kennzeichnet einen Meisterwerk-Golem"
+
+[golemancy.role]
+blank = "Begleiter"
+guardian = "Wächter"
+gatherer = "Sammler"
+harvester = "Ernter"
+lumber = "Holzfäller"
+breaker = "Brecher"
+rancher = "Viehhüter"
+sorter = "Sortierer"
+angler = "Angler"
+
+[golemancy.node]
+guard = "Wache"
+collection = "Sammlung"
+deposit = "Ablage"
+harvest = "Ernte"
+lumber = "Holzfällen"
+breaker = "Abbau"
+pasture = "Weide"
+input = "Eingabe"
+filter = "Filter"
+fishing = "Fischen"
+
+[golemancy.aspect]
+swiftness = "Schnelligkeit"
+might = "Macht"
+ember = "Glut"
+tide = "Gezeiten"
+order = "Ordnung"
+entropy = "Entropie"
+bulwark = "Bollwerk"
+
 [herbalism.growth_aura]
 name = "Wachstumsaura"
 description = "Lasse die Natur um dich herum in einer Aura wachsen"

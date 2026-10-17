@@ -1,0 +1,113 @@
+package art.arcane.adapt.localization.catalog;
+
+import art.arcane.volmlib.util.localization.MessageCatalog;
+import art.arcane.volmlib.util.localization.TextKey;
+
+public final class GolemancyMessages {
+  public static final TextKey CROOK_NAME = TextKey.of("golemancy.item.crook.name", "Artificer's Crook");
+  public static final TextKey CROOK_LORE = TextKey.of("golemancy.item.crook.lore", "Commands bound golems and the nodes they work");
+  public static final TextKey BLANK_CORE_NAME = TextKey.of("golemancy.item.blank_core.name", "Blank Animus Core");
+  public static final TextKey BLANK_CORE_LORE = TextKey.of("golemancy.item.blank_core.lore", "Binds a golem as a companion or crafts into a role core");
+  public static final TextKey CORE_NAME = TextKey.of("golemancy.item.core.name", "{role} Core");
+  public static final TextKey CORE_LORE = TextKey.of("golemancy.item.core.lore", "Binds a golem to the {role} role");
+  public static final TextKey BLANK_NODE_NAME = TextKey.of("golemancy.item.blank_node.name", "Blank Node");
+  public static final TextKey BLANK_NODE_LORE = TextKey.of("golemancy.item.blank_node.lore", "Crafts into a node of any type");
+  public static final TextKey NODE_NAME = TextKey.of("golemancy.item.node.name", "{node} Node");
+  public static final TextKey NODE_LORE = TextKey.of("golemancy.item.node.lore", "Anchors to a block face to direct golem work");
+  public static final TextKey BLANK_RUNE_NAME = TextKey.of("golemancy.item.blank_rune.name", "Blank Rune");
+  public static final TextKey BLANK_RUNE_LORE = TextKey.of("golemancy.item.blank_rune.lore", "Infuses into a rune at an Animus Plinth");
+  public static final TextKey RUNE_NAME = TextKey.of("golemancy.item.rune.name", "{aspect} Rune");
+  public static final TextKey RUNE_TIER = TextKey.of("golemancy.item.rune.tier", "Tier {tier}");
+  public static final TextKey RUNE_LORE = TextKey.of("golemancy.item.rune.lore", "Slots into a golem to empower it");
+  public static final TextKey DORMANT_GOLEM_NAME = TextKey.of("golemancy.item.dormant_golem.name", "Dormant Golem");
+  public static final TextKey DORMANT_GOLEM_CORE = TextKey.of("golemancy.item.dormant_golem.core", "Core: {core}");
+  public static final TextKey DORMANT_GOLEM_RUNES = TextKey.of("golemancy.item.dormant_golem.runes", "Runes: {runes}");
+  public static final TextKey DORMANT_GOLEM_HEALTH = TextKey.of("golemancy.item.dormant_golem.health", "Health: {health}/{maximum}");
+  public static final TextKey DORMANT_GOLEM_LORE = TextKey.of("golemancy.item.dormant_golem.lore", "Place to awaken this golem");
+  public static final TextKey SHATTERED_CORE_NAME = TextKey.of("golemancy.item.shattered_core.name", "Shattered Core");
+  public static final TextKey SHATTERED_CORE_LORE = TextKey.of("golemancy.item.shattered_core.lore", "Rebuilds a fallen golem with its upgrades");
+  public static final TextKey MASTERWORK_HEART_NAME = TextKey.of("golemancy.item.masterwork_heart.name", "Masterwork Heart");
+  public static final TextKey MASTERWORK_HEART_LORE = TextKey.of("golemancy.item.masterwork_heart.lore", "Designates a masterwork golem");
+  public static final TextKey ROLE_COMPANION = TextKey.of("golemancy.role.blank", "Companion");
+  public static final TextKey ROLE_GUARDIAN = TextKey.of("golemancy.role.guardian", "Guardian");
+  public static final TextKey ROLE_GATHERER = TextKey.of("golemancy.role.gatherer", "Gatherer");
+  public static final TextKey ROLE_HARVESTER = TextKey.of("golemancy.role.harvester", "Harvester");
+  public static final TextKey ROLE_LUMBER = TextKey.of("golemancy.role.lumber", "Lumber");
+  public static final TextKey ROLE_BREAKER = TextKey.of("golemancy.role.breaker", "Breaker");
+  public static final TextKey ROLE_RANCHER = TextKey.of("golemancy.role.rancher", "Rancher");
+  public static final TextKey ROLE_SORTER = TextKey.of("golemancy.role.sorter", "Sorter");
+  public static final TextKey ROLE_ANGLER = TextKey.of("golemancy.role.angler", "Angler");
+  public static final TextKey NODE_GUARD = TextKey.of("golemancy.node.guard", "Guard");
+  public static final TextKey NODE_COLLECTION = TextKey.of("golemancy.node.collection", "Collection");
+  public static final TextKey NODE_DEPOSIT = TextKey.of("golemancy.node.deposit", "Deposit");
+  public static final TextKey NODE_HARVEST = TextKey.of("golemancy.node.harvest", "Harvest");
+  public static final TextKey NODE_LUMBER = TextKey.of("golemancy.node.lumber", "Lumber");
+  public static final TextKey NODE_BREAKER = TextKey.of("golemancy.node.breaker", "Breaker");
+  public static final TextKey NODE_PASTURE = TextKey.of("golemancy.node.pasture", "Pasture");
+  public static final TextKey NODE_INPUT = TextKey.of("golemancy.node.input", "Input");
+  public static final TextKey NODE_FILTER = TextKey.of("golemancy.node.filter", "Filter");
+  public static final TextKey NODE_FISHING = TextKey.of("golemancy.node.fishing", "Fishing");
+  public static final TextKey ASPECT_SWIFTNESS = TextKey.of("golemancy.aspect.swiftness", "Swiftness");
+  public static final TextKey ASPECT_MIGHT = TextKey.of("golemancy.aspect.might", "Might");
+  public static final TextKey ASPECT_EMBER = TextKey.of("golemancy.aspect.ember", "Ember");
+  public static final TextKey ASPECT_TIDE = TextKey.of("golemancy.aspect.tide", "Tide");
+  public static final TextKey ASPECT_ORDER = TextKey.of("golemancy.aspect.order", "Order");
+  public static final TextKey ASPECT_ENTROPY = TextKey.of("golemancy.aspect.entropy", "Entropy");
+  public static final TextKey ASPECT_BULWARK = TextKey.of("golemancy.aspect.bulwark", "Bulwark");
+
+  private GolemancyMessages() {
+  }
+
+  public static void addTo(MessageCatalog.Builder builder) {
+    builder.add(CROOK_NAME);
+    builder.add(CROOK_LORE);
+    builder.add(BLANK_CORE_NAME);
+    builder.add(BLANK_CORE_LORE);
+    builder.add(CORE_NAME);
+    builder.add(CORE_LORE);
+    builder.add(BLANK_NODE_NAME);
+    builder.add(BLANK_NODE_LORE);
+    builder.add(NODE_NAME);
+    builder.add(NODE_LORE);
+    builder.add(BLANK_RUNE_NAME);
+    builder.add(BLANK_RUNE_LORE);
+    builder.add(RUNE_NAME);
+    builder.add(RUNE_TIER);
+    builder.add(RUNE_LORE);
+    builder.add(DORMANT_GOLEM_NAME);
+    builder.add(DORMANT_GOLEM_CORE);
+    builder.add(DORMANT_GOLEM_RUNES);
+    builder.add(DORMANT_GOLEM_HEALTH);
+    builder.add(DORMANT_GOLEM_LORE);
+    builder.add(SHATTERED_CORE_NAME);
+    builder.add(SHATTERED_CORE_LORE);
+    builder.add(MASTERWORK_HEART_NAME);
+    builder.add(MASTERWORK_HEART_LORE);
+    builder.add(ROLE_COMPANION);
+    builder.add(ROLE_GUARDIAN);
+    builder.add(ROLE_GATHERER);
+    builder.add(ROLE_HARVESTER);
+    builder.add(ROLE_LUMBER);
+    builder.add(ROLE_BREAKER);
+    builder.add(ROLE_RANCHER);
+    builder.add(ROLE_SORTER);
+    builder.add(ROLE_ANGLER);
+    builder.add(NODE_GUARD);
+    builder.add(NODE_COLLECTION);
+    builder.add(NODE_DEPOSIT);
+    builder.add(NODE_HARVEST);
+    builder.add(NODE_LUMBER);
+    builder.add(NODE_BREAKER);
+    builder.add(NODE_PASTURE);
+    builder.add(NODE_INPUT);
+    builder.add(NODE_FILTER);
+    builder.add(NODE_FISHING);
+    builder.add(ASPECT_SWIFTNESS);
+    builder.add(ASPECT_MIGHT);
+    builder.add(ASPECT_EMBER);
+    builder.add(ASPECT_TIDE);
+    builder.add(ASPECT_ORDER);
+    builder.add(ASPECT_ENTROPY);
+    builder.add(ASPECT_BULWARK);
+  }
+}

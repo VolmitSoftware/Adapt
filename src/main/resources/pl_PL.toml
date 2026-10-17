@@ -4248,6 +4248,82 @@ lore1 = "Szansa na spadek bonusu"
 lore2 = "x Poziomy pośpiechu podczas kopania na mokro"
 lore = ["Szansa na spadek bonusu", "x Poziomy pośpiechu podczas kopania na mokro"]
 
+[golemancy.item.crook]
+name = "Laska rzemieślnika"
+lore = "Dowodzi związanymi golemami i węzłami, przy których pracują"
+
+[golemancy.item.blank_core]
+name = "Pusty rdzeń animusa"
+lore = "Wiąże golema jako towarzysza lub służy do wytworzenia rdzenia roli"
+
+[golemancy.item.core]
+name = "Rdzeń: {role}"
+lore = "Wiąże golema z rolą {role}"
+
+[golemancy.item.blank_node]
+name = "Pusty węzeł"
+lore = "Służy do wytworzenia węzła dowolnego typu"
+
+[golemancy.item.node]
+name = "Węzeł: {node}"
+lore = "Mocuje się do ściany bloku, aby kierować pracą golemów"
+
+[golemancy.item.blank_rune]
+name = "Pusta runa"
+lore = "Nasyca się w runę na Postumencie Animusa"
+
+[golemancy.item.rune]
+name = "Runa: {aspect}"
+tier = "Poziom {tier}"
+lore = "Osadzana w golemie, aby go wzmocnić"
+
+[golemancy.item.dormant_golem]
+name = "Uśpiony golem"
+core = "Rdzeń: {core}"
+runes = "Runy: {runes}"
+health = "Zdrowie: {health}/{maximum}"
+lore = "Postaw, aby obudzić tego golema"
+
+[golemancy.item.shattered_core]
+name = "Roztrzaskany rdzeń"
+lore = "Odbudowuje poległego golema wraz z jego ulepszeniami"
+
+[golemancy.item.masterwork_heart]
+name = "Serce arcydzieła"
+lore = "Wyznacza golema-arcydzieło"
+
+[golemancy.role]
+blank = "Towarzysz"
+guardian = "Strażnik"
+gatherer = "Zbieracz"
+harvester = "Żniwiarz"
+lumber = "Drwal"
+breaker = "Burzyciel"
+rancher = "Hodowca"
+sorter = "Sortownik"
+angler = "Wędkarz"
+
+[golemancy.node]
+guard = "Straż"
+collection = "Zbiórka"
+deposit = "Składowanie"
+harvest = "Żniwa"
+lumber = "Wyrąb"
+breaker = "Wydobycie"
+pasture = "Pastwisko"
+input = "Wejście"
+filter = "Filtr"
+fishing = "Wędkowanie"
+
+[golemancy.aspect]
+swiftness = "Chyżość"
+might = "Moc"
+ember = "Żar"
+tide = "Przypływ"
+order = "Ład"
+entropy = "Entropia"
+bulwark = "Bastion"
+
 [herbalism.growth_aura]
 name = "Aura Wzrostu"
 description = "Rozwijaj nature wokol siebie w aurze"

@@ -4248,6 +4248,82 @@ lore1 = "追加ドロップ確率"
 lore2 = "濡れた状態で掘る際の採掘速度上昇レベル"
 lore = ["追加ドロップ確率", "濡れた状態で掘る際の採掘速度上昇レベル"]
 
+[golemancy.item.crook]
+name = "アーティフィサーの杖"
+lore = "結びつけたゴーレムと、その作業場となるノードを指揮する"
+
+[golemancy.item.blank_core]
+name = "空のアニムスコア"
+lore = "ゴーレムを仲間として結びつけるか、役割コアの素材になる"
+
+[golemancy.item.core]
+name = "{role}のコア"
+lore = "ゴーレムを{role}の役割に結びつける"
+
+[golemancy.item.blank_node]
+name = "空のノード"
+lore = "あらゆる種類のノードの素材になる"
+
+[golemancy.item.node]
+name = "{node}ノード"
+lore = "ブロックの面に固定し、ゴーレムの作業を指示する"
+
+[golemancy.item.blank_rune]
+name = "空のルーン"
+lore = "アニムスの台座でルーンに注入される"
+
+[golemancy.item.rune]
+name = "{aspect}のルーン"
+tier = "ティア{tier}"
+lore = "ゴーレムにはめ込んで強化する"
+
+[golemancy.item.dormant_golem]
+name = "休眠ゴーレム"
+core = "コア：{core}"
+runes = "ルーン：{runes}"
+health = "体力：{health}/{maximum}"
+lore = "設置するとこのゴーレムが目覚める"
+
+[golemancy.item.shattered_core]
+name = "砕けたコア"
+lore = "倒れたゴーレムを強化ごと再構築する"
+
+[golemancy.item.masterwork_heart]
+name = "傑作の心臓"
+lore = "傑作ゴーレムを指定する"
+
+[golemancy.role]
+blank = "仲間"
+guardian = "守護者"
+gatherer = "採集者"
+harvester = "収穫者"
+lumber = "木こり"
+breaker = "破壊者"
+rancher = "牧場主"
+sorter = "仕分け係"
+angler = "釣り人"
+
+[golemancy.node]
+guard = "警備"
+collection = "回収"
+deposit = "預け入れ"
+harvest = "収穫"
+lumber = "伐採"
+breaker = "採掘"
+pasture = "牧草地"
+input = "搬入"
+filter = "フィルター"
+fishing = "釣り"
+
+[golemancy.aspect]
+swiftness = "迅速"
+might = "剛力"
+ember = "残り火"
+tide = "潮流"
+order = "秩序"
+entropy = "エントロピー"
+bulwark = "防壁"
+
 [herbalism.growth_aura]
 name = "成長のオーラ"
 description = "周囲の自然をオーラで成長させる"

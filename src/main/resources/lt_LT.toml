@@ -4248,6 +4248,82 @@ lore1 = "Papildomo grobio tikimybė"
 lore2 = "x Skubėjimo lygių kasant šlapioje aplinkoje"
 lore = ["Papildomo grobio tikimybė", "x Skubėjimo lygių kasant šlapioje aplinkoje"]
 
+[golemancy.item.crook]
+name = "Meistro lazda"
+lore = "Valdo susietus golemus ir mazgus, kuriuose jie dirba"
+
+[golemancy.item.blank_core]
+name = "Tuščia animus šerdis"
+lore = "Susieja golemą kaip palydovą arba gaminama į vaidmens šerdį"
+
+[golemancy.item.core]
+name = "Šerdis: {role}"
+lore = "Susieja golemą su vaidmeniu {role}"
+
+[golemancy.item.blank_node]
+name = "Tuščias mazgas"
+lore = "Gaminamas į bet kokio tipo mazgą"
+
+[golemancy.item.node]
+name = "Mazgas: {node}"
+lore = "Prisitvirtina prie bloko sienelės ir nukreipia golemų darbą"
+
+[golemancy.item.blank_rune]
+name = "Tuščia runa"
+lore = "Ant animus pakylos įliejama į runą"
+
+[golemancy.item.rune]
+name = "Runa: {aspect}"
+tier = "Lygis {tier}"
+lore = "Įstatoma į golemą, kad jį sustiprintų"
+
+[golemancy.item.dormant_golem]
+name = "Snaudžiantis golemas"
+core = "Šerdis: {core}"
+runes = "Runos: {runes}"
+health = "Sveikata: {health}/{maximum}"
+lore = "Padėkite, kad pažadintumėte šį golemą"
+
+[golemancy.item.shattered_core]
+name = "Sudužusi šerdis"
+lore = "Atstato žuvusį golemą su jo patobulinimais"
+
+[golemancy.item.masterwork_heart]
+name = "Šedevro širdis"
+lore = "Pažymi šedevrinį golemą"
+
+[golemancy.role]
+blank = "Palydovas"
+guardian = "Sargas"
+gatherer = "Rinkėjas"
+harvester = "Pjovėjas"
+lumber = "Medkirtys"
+breaker = "Griovėjas"
+rancher = "Gyvulininkas"
+sorter = "Rūšiuotojas"
+angler = "Žvejys"
+
+[golemancy.node]
+guard = "Sargyba"
+collection = "Rinkimas"
+deposit = "Padėjimas"
+harvest = "Derlius"
+lumber = "Kirtimas"
+breaker = "Kasimas"
+pasture = "Ganykla"
+input = "Įvestis"
+filter = "Filtras"
+fishing = "Žvejyba"
+
+[golemancy.aspect]
+swiftness = "Greitis"
+might = "Galia"
+ember = "Žarija"
+tide = "Potvynis"
+order = "Tvarka"
+entropy = "Entropija"
+bulwark = "Bastionas"
+
 [herbalism.growth_aura]
 name = "Augimo Aura"
 description = "Auginkite gamta aplink save auroje"

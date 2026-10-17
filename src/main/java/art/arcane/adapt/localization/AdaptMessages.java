@@ -15,6 +15,7 @@ import art.arcane.adapt.localization.catalog.CraftingMessages;
 import art.arcane.adapt.localization.catalog.DiscoveryMessages;
 import art.arcane.adapt.localization.catalog.EnchantingMessages;
 import art.arcane.adapt.localization.catalog.ExcavationMessages;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.localization.catalog.HerbalismMessages;
 import art.arcane.adapt.localization.catalog.HunterMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
@@ -70,6 +71,7 @@ public final class AdaptMessages {
     DiscoveryMessages.addTo(builder);
     EnchantingMessages.addTo(builder);
     ExcavationMessages.addTo(builder);
+    GolemancyMessages.addTo(builder);
     HerbalismMessages.addTo(builder);
     HunterMessages.addTo(builder);
     GuiMessages.addTo(builder);
