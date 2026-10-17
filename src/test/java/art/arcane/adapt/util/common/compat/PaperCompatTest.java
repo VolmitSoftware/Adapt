@@ -1,20 +1,26 @@
 package art.arcane.adapt.util.common.compat;
 
 import art.arcane.adapt.util.common.scheduling.J;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.TextDisplay;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -103,5 +109,26 @@ class PaperCompatTest {
     }
 
     verifyNoInteractions(world);
+  }
+
+  @Test
+  void textSetsTheComponentOnPaperTextDisplays() {
+    TextDisplay display = mock(TextDisplay.class);
+    Component text = Component.text("Guard", NamedTextColor.GOLD);
+
+    PaperCompat.text(display, text);
+
+    verify(display).text(text);
+  }
+
+  @Test
+  void textFallsBackToLegacyTextWhereComponentsAreMissing() {
+    TextDisplay display = mock(TextDisplay.class);
+    Component text = Component.text("Guard", NamedTextColor.GOLD);
+    doThrow(new NoSuchMethodError("text")).when(display).text(any(Component.class));
+
+    PaperCompat.text(display, text);
+
+    verify(display).setText("\u00a76Guard");
   }
 }

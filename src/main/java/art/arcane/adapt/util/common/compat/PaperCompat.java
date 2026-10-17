@@ -44,6 +44,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.Trident;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityEvent;
@@ -550,6 +551,14 @@ public final class PaperCompat {
       entity.customName(name);
     } catch (NoSuchMethodError absent) {
       entity.setCustomName(name == null ? null : LegacyComponentSerializer.legacySection().serialize(name));
+    }
+  }
+
+  public static void text(TextDisplay display, Component text) {
+    try {
+      display.text(text);
+    } catch (NoSuchMethodError absent) {
+      display.setText(text == null ? null : LegacyComponentSerializer.legacySection().serialize(text));
     }
   }
 
