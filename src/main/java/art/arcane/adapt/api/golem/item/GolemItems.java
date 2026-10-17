@@ -4,6 +4,9 @@ import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.recipe.ExactIngredient;
+import art.arcane.adapt.api.recipe.ExactIngredientBook;
+import art.arcane.adapt.api.recipe.ExactItemResolver;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
@@ -23,6 +26,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -37,6 +41,8 @@ public final class GolemItems {
   private static final String FILLED_PIP = "◆";
   private static final String EMPTY_PIP = "◇";
   private static final Gson GSON = new Gson();
+  private static final ExactIngredientBook RECIPE_BOOK = new ExactIngredientBook();
+  private static final ExactItemResolver RESOLVER = new Resolver();
   private static final List<Material> COPPER_BLOCKS = List.of(
       Material.COPPER_BLOCK, Material.EXPOSED_COPPER, Material.WEATHERED_COPPER, Material.OXIDIZED_COPPER);
   private static final List<Material> WAXED_COPPER_BLOCKS = List.of(
@@ -46,12 +52,12 @@ public final class GolemItems {
   }
 
   public static ItemStack crook() {
-    return build(new Spec(GolemItemKind.CROOK, Material.IRON_HOE, GolemItemData.EMPTY,
+    return build(new Spec(GolemItemKind.CROOK, baseMaterial(GolemItemKind.CROOK), GolemItemData.EMPTY,
         AdaptLanguage.text(GolemancyMessages.CROOK_NAME), List.of(AdaptLanguage.text(GolemancyMessages.CROOK_LORE))));
   }
 
   public static ItemStack blankCore() {
-    return build(new Spec(GolemItemKind.BLANK_CORE, Material.FIREWORK_STAR, GolemItemData.EMPTY,
+    return build(new Spec(GolemItemKind.BLANK_CORE, baseMaterial(GolemItemKind.BLANK_CORE), GolemItemData.EMPTY,
         AdaptLanguage.text(GolemancyMessages.BLANK_CORE_NAME), List.of(AdaptLanguage.text(GolemancyMessages.BLANK_CORE_LORE))));
   }
 
@@ -60,31 +66,31 @@ public final class GolemItems {
       return blankCore();
     }
     String roleName = AdaptLanguage.text(role.displayName());
-    return build(new Spec(GolemItemKind.CORE, Material.FIREWORK_STAR, GolemItemData.role(role),
+    return build(new Spec(GolemItemKind.CORE, baseMaterial(GolemItemKind.CORE), GolemItemData.role(role),
         AdaptLanguage.text(GolemancyMessages.CORE_NAME, trusted("role", roleName)),
         List.of(AdaptLanguage.text(GolemancyMessages.CORE_LORE, trusted("role", roleName)))));
   }
 
   public static ItemStack blankNode() {
-    return build(new Spec(GolemItemKind.BLANK_NODE, Material.CLAY_BALL, GolemItemData.EMPTY,
+    return build(new Spec(GolemItemKind.BLANK_NODE, baseMaterial(GolemItemKind.BLANK_NODE), GolemItemData.EMPTY,
         AdaptLanguage.text(GolemancyMessages.BLANK_NODE_NAME), List.of(AdaptLanguage.text(GolemancyMessages.BLANK_NODE_LORE))));
   }
 
   public static ItemStack node(NodeType type) {
     String nodeName = AdaptLanguage.text(Objects.requireNonNull(type).displayName());
-    return build(new Spec(GolemItemKind.NODE, Material.BRICK, GolemItemData.node(type),
+    return build(new Spec(GolemItemKind.NODE, baseMaterial(GolemItemKind.NODE), GolemItemData.node(type),
         AdaptLanguage.text(GolemancyMessages.NODE_NAME, trusted("node", nodeName)),
         List.of(AdaptLanguage.text(GolemancyMessages.NODE_LORE))));
   }
 
   public static ItemStack blankRune() {
-    return build(new Spec(GolemItemKind.BLANK_RUNE, Material.DISC_FRAGMENT_5, GolemItemData.EMPTY,
+    return build(new Spec(GolemItemKind.BLANK_RUNE, baseMaterial(GolemItemKind.BLANK_RUNE), GolemItemData.EMPTY,
         AdaptLanguage.text(GolemancyMessages.BLANK_RUNE_NAME), List.of(AdaptLanguage.text(GolemancyMessages.BLANK_RUNE_LORE))));
   }
 
   public static ItemStack rune(GolemRune rune) {
     String aspectName = AdaptLanguage.text(Objects.requireNonNull(rune).aspect().displayName());
-    return build(new Spec(GolemItemKind.RUNE, Material.DISC_FRAGMENT_5, GolemItemData.rune(rune),
+    return build(new Spec(GolemItemKind.RUNE, baseMaterial(GolemItemKind.RUNE), GolemItemData.rune(rune),
         AdaptLanguage.text(GolemancyMessages.RUNE_NAME, trusted("aspect", aspectName)),
         List.of(AdaptLanguage.text(GolemancyMessages.RUNE_TIER, trusted("tier", pips(rune.tier()))),
             AdaptLanguage.text(GolemancyMessages.RUNE_LORE))));
@@ -107,35 +113,29 @@ public final class GolemItems {
   }
 
   public static ItemStack shatteredCore(PackedGolem golem) {
-    return build(new Spec(GolemItemKind.SHATTERED_CORE, Material.FIREWORK_STAR, GolemItemData.packed(Objects.requireNonNull(golem)),
+    return build(new Spec(GolemItemKind.SHATTERED_CORE, baseMaterial(GolemItemKind.SHATTERED_CORE), GolemItemData.packed(Objects.requireNonNull(golem)),
         AdaptLanguage.text(GolemancyMessages.SHATTERED_CORE_NAME), List.of(AdaptLanguage.text(GolemancyMessages.SHATTERED_CORE_LORE))));
   }
 
   public static ItemStack masterworkHeart() {
-    return build(new Spec(GolemItemKind.MASTERWORK_HEART, Material.HEART_OF_THE_SEA, GolemItemData.EMPTY,
+    return build(new Spec(GolemItemKind.MASTERWORK_HEART, baseMaterial(GolemItemKind.MASTERWORK_HEART), GolemItemData.EMPTY,
         AdaptLanguage.text(GolemancyMessages.MASTERWORK_HEART_NAME), List.of(AdaptLanguage.text(GolemancyMessages.MASTERWORK_HEART_LORE))));
   }
 
   public static ItemStack resolve(NamespacedKey id) {
-    if (id == null || !NAMESPACE.equals(id.getNamespace())) {
-      return null;
-    }
+    return variant(id).map(GolemItems::create).orElse(null);
+  }
 
-    String[] parts = id.getKey().split("/", -1);
-    GolemItemKind kind = GolemItemKind.fromId(parts[0]).orElse(null);
-    if (kind == null) {
-      return null;
-    }
-    return switch (kind) {
-      case CROOK -> parts.length == 1 ? crook() : null;
-      case BLANK_CORE -> parts.length == 1 ? blankCore() : null;
-      case BLANK_NODE -> parts.length == 1 ? blankNode() : null;
-      case BLANK_RUNE -> parts.length == 1 ? blankRune() : null;
-      case CORE -> parts.length == 2 ? resolveCore(parts[1]) : null;
-      case NODE -> parts.length == 2 ? NodeType.fromId(parts[1]).map(GolemItems::node).orElse(null) : null;
-      case RUNE -> parts.length == 3 ? resolveRune(parts[1], parts[2]) : null;
-      case DORMANT_GOLEM, SHATTERED_CORE, MASTERWORK_HEART -> null;
-    };
+  public static ExactIngredient ingredient(NamespacedKey id) {
+    return variant(id).map(GolemItems::ingredientFor).orElse(null);
+  }
+
+  public static ExactItemResolver resolver() {
+    return RESOLVER;
+  }
+
+  public static ExactIngredientBook recipeBook() {
+    return RECIPE_BOOK;
   }
 
   public static Material copperBlock(int oxidationStage, boolean waxed) {
@@ -189,8 +189,7 @@ public final class GolemItems {
   }
 
   private static ItemStack build(Spec spec) {
-    CustomModel model = CustomModel.get(spec.base(), MODEL_ROOT, spec.kind().id());
-    ItemStack item = spec.kind() == GolemItemKind.DORMANT_GOLEM ? model.toItemStack(new ItemStack(spec.base())) : model.toItemStack();
+    ItemStack item = model(spec.kind(), spec.base()).toItemStack();
     ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
     List<String> lore = new ArrayList<>(spec.lore().size());
     for (String line : spec.lore()) {
@@ -248,21 +247,81 @@ public final class GolemItems {
     };
   }
 
-  private static ItemStack resolveCore(String role) {
-    return GolemCoreType.fromId(role)
-        .filter(type -> type != GolemCoreType.BLANK)
-        .map(GolemItems::core)
-        .orElse(null);
+  private static CustomModel model(GolemItemKind kind, Material base) {
+    if (kind == GolemItemKind.DORMANT_GOLEM) {
+      return CustomModel.get(base, MODEL_ROOT, kind.id(), base.name().toLowerCase(Locale.ROOT));
+    }
+    return CustomModel.get(base, MODEL_ROOT, kind.id());
   }
 
-  private static ItemStack resolveRune(String aspect, String tier) {
+  private static Material baseMaterial(GolemItemKind kind) {
+    return switch (kind) {
+      case CROOK -> Material.IRON_HOE;
+      case BLANK_CORE, CORE, SHATTERED_CORE -> Material.FIREWORK_STAR;
+      case BLANK_NODE -> Material.CLAY_BALL;
+      case NODE -> Material.BRICK;
+      case BLANK_RUNE, RUNE -> Material.DISC_FRAGMENT_5;
+      case MASTERWORK_HEART -> Material.HEART_OF_THE_SEA;
+      case DORMANT_GOLEM -> throw new IllegalArgumentException("Dormant golems use the block of the packed golem");
+    };
+  }
+
+  private static Optional<Variant> variant(NamespacedKey id) {
+    if (id == null || !NAMESPACE.equals(id.getNamespace())) {
+      return Optional.empty();
+    }
+
+    String[] parts = id.getKey().split("/", -1);
+    Optional<GolemItemKind> kind = GolemItemKind.fromId(parts[0]);
+    if (kind.isEmpty()) {
+      return Optional.empty();
+    }
+    return switch (kind.get()) {
+      case CROOK, BLANK_CORE, BLANK_NODE, BLANK_RUNE -> parts.length == 1 ? Optional.of(new Variant(kind.get(), GolemItemData.EMPTY)) : Optional.empty();
+      case CORE -> parts.length == 2
+          ? GolemCoreType.fromId(parts[1]).filter(role -> role != GolemCoreType.BLANK).map(role -> new Variant(GolemItemKind.CORE, GolemItemData.role(role)))
+          : Optional.empty();
+      case NODE -> parts.length == 2
+          ? NodeType.fromId(parts[1]).map(type -> new Variant(GolemItemKind.NODE, GolemItemData.node(type)))
+          : Optional.empty();
+      case RUNE -> parts.length == 3
+          ? runeVariant(parts[1], parts[2]).map(rune -> new Variant(GolemItemKind.RUNE, GolemItemData.rune(rune)))
+          : Optional.empty();
+      case DORMANT_GOLEM, SHATTERED_CORE, MASTERWORK_HEART -> Optional.empty();
+    };
+  }
+
+  private static Optional<GolemRune> runeVariant(String aspect, String tier) {
     int parsedTier = tier.length() == 1 ? tier.charAt(0) - '0' : -1;
     if (!GolemRuneType.isTier(parsedTier)) {
-      return null;
+      return Optional.empty();
     }
-    return GolemRuneType.fromId(aspect)
-        .map(type -> rune(new GolemRune(type, parsedTier)))
-        .orElse(null);
+    return GolemRuneType.fromId(aspect).map(type -> new GolemRune(type, parsedTier));
+  }
+
+  private static ItemStack create(Variant variant) {
+    GolemItemData data = variant.data();
+    return switch (variant.kind()) {
+      case CROOK -> crook();
+      case BLANK_CORE -> blankCore();
+      case CORE -> core(data.role());
+      case BLANK_NODE -> blankNode();
+      case NODE -> node(data.type());
+      case BLANK_RUNE -> blankRune();
+      case RUNE -> rune(new GolemRune(data.aspect(), data.tier()));
+      case DORMANT_GOLEM, SHATTERED_CORE, MASTERWORK_HEART -> throw new IllegalArgumentException("No shared recipe item for " + variant.kind().id());
+    };
+  }
+
+  private static ExactIngredient ingredientFor(Variant variant) {
+    Material base = model(variant.kind(), baseMaterial(variant.kind())).material();
+    return new ExactIngredient(base, item -> isVariant(item, variant));
+  }
+
+  private static boolean isVariant(ItemStack item, Variant variant) {
+    return read(item)
+        .filter(tag -> tag.kind() == variant.kind() && tag.data().sameVariant(variant.data()))
+        .isPresent();
   }
 
   private static String runeList(List<GolemRune> runes) {
@@ -315,5 +374,20 @@ public final class GolemItems {
   }
 
   private record Tag(GolemItemKind kind, GolemItemData data) {
+  }
+
+  private record Variant(GolemItemKind kind, GolemItemData data) {
+  }
+
+  private static final class Resolver implements ExactItemResolver {
+    @Override
+    public ExactIngredient ingredient(NamespacedKey id) {
+      return GolemItems.ingredient(id);
+    }
+
+    @Override
+    public ItemStack result(NamespacedKey id) {
+      return GolemItems.resolve(id);
+    }
   }
 }

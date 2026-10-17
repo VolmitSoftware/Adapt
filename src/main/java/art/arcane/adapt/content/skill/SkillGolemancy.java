@@ -22,7 +22,6 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.api.golem.item.GolemItemGuard;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
@@ -208,9 +207,9 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   @Override
   protected List<Listener> createCompanionListeners() {
     if (!PaperCompat.hasClass("io.papermc.paper.world.WeatheringCopperState")) {
-      return List.of(new GolemItemGuard());
+      return List.of();
     }
-    return List.of(new GolemItemGuard(), new CopperCareListener());
+    return List.of(new CopperCareListener());
   }
 
   private void applyBuild(GolemBuildAttribution.Build build) {

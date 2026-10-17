@@ -3,21 +3,24 @@ package art.arcane.adapt.api.golem;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.volmlib.util.localization.TextKey;
 
-import java.util.Locale;
 import java.util.Optional;
 
 public enum GolemCoreType {
-  BLANK,
-  GUARDIAN,
-  GATHERER,
-  HARVESTER,
-  LUMBER,
-  BREAKER,
-  RANCHER,
-  SORTER,
-  ANGLER;
+  BLANK("blank"),
+  GUARDIAN("guardian"),
+  GATHERER("gatherer"),
+  HARVESTER("harvester"),
+  LUMBER("lumber"),
+  BREAKER("breaker"),
+  RANCHER("rancher"),
+  SORTER("sorter"),
+  ANGLER("angler");
 
-  private final String id = name().toLowerCase(Locale.ROOT);
+  private final String id;
+
+  GolemCoreType(String id) {
+    this.id = id;
+  }
 
   public static Optional<GolemCoreType> fromId(String id) {
     for (GolemCoreType type : values()) {

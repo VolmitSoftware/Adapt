@@ -5,14 +5,15 @@ import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.NodeType;
 
+import java.util.Objects;
 import java.util.UUID;
 
 final class GolemItemData {
   static final GolemItemData EMPTY = new GolemItemData();
 
-  private GolemCoreType role;
-  private NodeType type;
-  private GolemRuneType aspect;
+  private String role;
+  private String type;
+  private String aspect;
   private int tier;
   private UUID golem;
   private UUID owner;
@@ -23,19 +24,19 @@ final class GolemItemData {
 
   static GolemItemData role(GolemCoreType role) {
     GolemItemData data = new GolemItemData();
-    data.role = role;
+    data.role = role.id();
     return data;
   }
 
   static GolemItemData node(NodeType type) {
     GolemItemData data = new GolemItemData();
-    data.type = type;
+    data.type = type.id();
     return data;
   }
 
   static GolemItemData rune(GolemRune rune) {
     GolemItemData data = new GolemItemData();
-    data.aspect = rune.aspect();
+    data.aspect = rune.aspect().id();
     data.tier = rune.tier();
     return data;
   }
@@ -49,15 +50,15 @@ final class GolemItemData {
   }
 
   GolemCoreType role() {
-    return role;
+    return GolemCoreType.fromId(role).orElse(null);
   }
 
   NodeType type() {
-    return type;
+    return NodeType.fromId(type).orElse(null);
   }
 
   GolemRuneType aspect() {
-    return aspect;
+    return GolemRuneType.fromId(aspect).orElse(null);
   }
 
   int tier() {
@@ -78,5 +79,9 @@ final class GolemItemData {
 
   boolean isEmpty() {
     return role == null && type == null && aspect == null && tier == 0 && golem == null && owner == null && state == null;
+  }
+
+  boolean sameVariant(GolemItemData other) {
+    return Objects.equals(role, other.role) && Objects.equals(type, other.type) && Objects.equals(aspect, other.aspect) && tier == other.tier;
   }
 }

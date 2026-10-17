@@ -30,6 +30,8 @@ import art.arcane.adapt.api.ComponentEventRegistrar;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
+import art.arcane.adapt.api.golem.item.GolemItemGuard;
+import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -385,6 +387,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     registerListener(new SimpleAdaptation.PlayerDamageListener());
     registerListener(new XpProvenanceListener());
     registerListener(new XpNoveltyListener());
+    registerListener(new GolemItemGuard(GolemItems.recipeBook()));
     registerListener(Version.get());
     setupMetrics();
     startupPrint(); // Splash screen

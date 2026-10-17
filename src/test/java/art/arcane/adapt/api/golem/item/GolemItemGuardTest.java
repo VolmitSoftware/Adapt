@@ -1,17 +1,22 @@
 package art.arcane.adapt.api.golem.item;
 
+import art.arcane.adapt.api.recipe.ExactIngredient;
+import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Crafter;
+import org.bukkit.enchantments.EnchantmentOffer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.CrafterCraftEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryAction;
@@ -32,12 +37,17 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
+import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.inventory.StonecutterInventory;
 import org.bukkit.inventory.view.AnvilView;
+import org.bukkit.inventory.view.EnchantmentView;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,13 +59,17 @@ import static org.mockito.Mockito.when;
 class GolemItemGuardTest {
   private static final NamespacedKey VANILLA_RECIPE = NamespacedKey.minecraft("iron_ingot_from_iron_block");
   private static final NamespacedKey GOLEMANCY_RECIPE = new NamespacedKey("adapt", "golemancy-guardian-core");
+  private static final NamespacedKey GOLEMANCY_CROOK_RECIPE = new NamespacedKey("adapt", "golemancy-artificers-crook");
+  private static final ExactIngredient BLANK_CORE = spec(GolemItemKind.BLANK_CORE, Material.FIREWORK_STAR);
+  private static final ExactIngredient BLANK_NODE = spec(GolemItemKind.BLANK_NODE, Material.CLAY_BALL);
 
-  private final GolemItemGuard guard = new GolemItemGuard();
+  private final ExactIngredientBook book = new ExactIngredientBook();
+  private final GolemItemGuard guard = new GolemItemGuard(book);
 
   @Test
   void golemancyRecipesAreAdaptKeysWithTheGolemancyPrefix() {
     assertThat(GolemItemGuard.isGolemancyRecipe(GOLEMANCY_RECIPE)).isTrue();
-    assertThat(GolemItemGuard.isGolemancyRecipe(new NamespacedKey("adapt", "golemancy-artificers-crook"))).isTrue();
+    assertThat(GolemItemGuard.isGolemancyRecipe(GOLEMANCY_CROOK_RECIPE)).isTrue();
     assertThat(GolemItemGuard.isGolemancyRecipe(new NamespacedKey("adapt", "crafting-backpack"))).isFalse();
     assertThat(GolemItemGuard.isGolemancyRecipe(new NamespacedKey("other", "golemancy-crook"))).isFalse();
     assertThat(GolemItemGuard.isGolemancyRecipe(VANILLA_RECIPE)).isFalse();
@@ -63,13 +77,87 @@ class GolemItemGuardTest {
   }
 
   @Test
-  void golemItemIngredientsBlockEveryRecipeExceptGolemancyRecipes() {
-    assertThat(GolemItemGuard.blocksRecipe(VANILLA_RECIPE, true)).isTrue();
-    assertThat(GolemItemGuard.blocksRecipe(new NamespacedKey("adapt", "crafting-backpack"), true)).isTrue();
-    assertThat(GolemItemGuard.blocksRecipe(null, true)).isTrue();
-    assertThat(GolemItemGuard.blocksRecipe(GOLEMANCY_RECIPE, true)).isFalse();
-    assertThat(GolemItemGuard.blocksRecipe(VANILLA_RECIPE, false)).isFalse();
-    assertThat(GolemItemGuard.blocksRecipe(null, false)).isFalse();
+  void golemItemsBlockEveryRecipeOutsideGolemancy() {
+    List<ItemStack> dormant = List.of(GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", null));
+
+    assertThat(guard.blocksRecipe(VANILLA_RECIPE, dormant)).isTrue();
+    assertThat(guard.blocksRecipe(new NamespacedKey("adapt", "crafting-backpack"), dormant)).isTrue();
+    assertThat(guard.blocksRecipe(null, dormant)).isTrue();
+    assertThat(guard.blocksRecipe(VANILLA_RECIPE, List.of())).isFalse();
+    assertThat(guard.blocksRecipe(null, List.of())).isFalse();
+  }
+
+  @Test
+  void golemancyRecipesNeedEveryRequiredGolemItemAndNoOther() {
+    book.set(GOLEMANCY_RECIPE, List.of(BLANK_CORE, BLANK_NODE));
+    ItemStack core = blankCore();
+    ItemStack node = GolemItemStacks.tagged(Material.CLAY_BALL, "blank_node", null);
+
+    assertThat(guard.blocksRecipe(GOLEMANCY_RECIPE, List.of(node, core))).isFalse();
+    assertThat(guard.blocksRecipe(GOLEMANCY_RECIPE, List.of(core))).isTrue();
+    assertThat(guard.blocksRecipe(GOLEMANCY_RECIPE, List.of(core, node, crook()))).isTrue();
+    assertThat(guard.blocksRecipe(GOLEMANCY_RECIPE, List.of(core, crook()))).isTrue();
+    assertThat(guard.blocksRecipe(GOLEMANCY_RECIPE, List.of(core, blankCore()))).isTrue();
+  }
+
+  @Test
+  void plainBaseItemsNeverStandInForGolemIngredients() {
+    book.set(GOLEMANCY_RECIPE, List.of(BLANK_CORE));
+    CraftingInventory plainStar = craftingGrid(GOLEMANCY_RECIPE, GolemItemStacks.plain(Material.FIREWORK_STAR), GolemItemStacks.plain(Material.IRON_INGOT));
+    CraftingInventory taggedCore = craftingGrid(GOLEMANCY_RECIPE, blankCore(), GolemItemStacks.plain(Material.IRON_INGOT));
+
+    guard.on(new PrepareItemCraftEvent(plainStar, view(plainStar), false));
+    guard.on(new PrepareItemCraftEvent(taggedCore, view(taggedCore), false));
+
+    verify(plainStar).setResult(null);
+    verify(taggedCore, never()).setResult(any());
+  }
+
+  @Test
+  void golemancyRecipesWithoutGolemIngredientsRefuseGolemItemsInMaterialSlots() {
+    CraftingInventory plainHoe = craftingGrid(GOLEMANCY_CROOK_RECIPE, GolemItemStacks.plain(Material.IRON_HOE));
+    CraftingInventory crookAsHoe = craftingGrid(GOLEMANCY_CROOK_RECIPE, crook());
+
+    guard.on(new PrepareItemCraftEvent(plainHoe, view(plainHoe), false));
+    guard.on(new PrepareItemCraftEvent(crookAsHoe, view(crookAsHoe), false));
+
+    verify(plainHoe, never()).setResult(any());
+    verify(crookAsHoe).setResult(null);
+  }
+
+  @Test
+  void craftingGridResultsClearForGolemItemsOutsideGolemancyRecipes() {
+    book.set(GOLEMANCY_RECIPE, List.of(BLANK_CORE));
+    CraftingInventory vanilla = craftingGrid(VANILLA_RECIPE, GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", null));
+    CraftingInventory golemancy = craftingGrid(GOLEMANCY_RECIPE, blankCore());
+    CraftingInventory plain = craftingGrid(VANILLA_RECIPE, GolemItemStacks.plain(Material.IRON_BLOCK));
+
+    guard.on(new PrepareItemCraftEvent(vanilla, view(vanilla), false));
+    guard.on(new PrepareItemCraftEvent(golemancy, view(golemancy), false));
+    guard.on(new PrepareItemCraftEvent(plain, view(plain), false));
+
+    verify(vanilla).setResult(null);
+    verify(golemancy, never()).setResult(any());
+    verify(plain, never()).setResult(any());
+  }
+
+  @Test
+  void craftersFollowTheSameRecipeRules() {
+    book.set(GOLEMANCY_RECIPE, List.of(BLANK_CORE));
+    CrafterCraftEvent vanilla = crafterCraft(VANILLA_RECIPE, GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", null));
+    CrafterCraftEvent golemancy = crafterCraft(GOLEMANCY_RECIPE, blankCore());
+    CrafterCraftEvent plainStar = crafterCraft(GOLEMANCY_RECIPE, GolemItemStacks.plain(Material.FIREWORK_STAR));
+    CrafterCraftEvent plain = crafterCraft(VANILLA_RECIPE, GolemItemStacks.plain(Material.IRON_BLOCK));
+
+    guard.on(vanilla);
+    guard.on(golemancy);
+    guard.on(plainStar);
+    guard.on(plain);
+
+    assertThat(vanilla.isCancelled()).isTrue();
+    assertThat(golemancy.isCancelled()).isFalse();
+    assertThat(plainStar.isCancelled()).isTrue();
+    assertThat(plain.isCancelled()).isFalse();
   }
 
   @Test
@@ -121,36 +209,6 @@ class GolemItemGuardTest {
   }
 
   @Test
-  void craftingGridResultsClearForGolemItemsOutsideGolemancyRecipes() {
-    CraftingInventory vanilla = craftingGrid(VANILLA_RECIPE, GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", null));
-    CraftingInventory golemancy = craftingGrid(GOLEMANCY_RECIPE, GolemItemStacks.tagged(Material.FIREWORK_STAR, "blank_core", null));
-    CraftingInventory plain = craftingGrid(VANILLA_RECIPE, GolemItemStacks.plain(Material.IRON_BLOCK));
-
-    guard.on(new PrepareItemCraftEvent(vanilla, view(vanilla), false));
-    guard.on(new PrepareItemCraftEvent(golemancy, view(golemancy), false));
-    guard.on(new PrepareItemCraftEvent(plain, view(plain), false));
-
-    verify(vanilla).setResult(null);
-    verify(golemancy, never()).setResult(any());
-    verify(plain, never()).setResult(any());
-  }
-
-  @Test
-  void craftersRefuseGolemItemsOutsideGolemancyRecipes() {
-    CrafterCraftEvent vanilla = crafterCraft(VANILLA_RECIPE, GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", null));
-    CrafterCraftEvent golemancy = crafterCraft(GOLEMANCY_RECIPE, GolemItemStacks.tagged(Material.FIREWORK_STAR, "blank_core", null));
-    CrafterCraftEvent plain = crafterCraft(VANILLA_RECIPE, GolemItemStacks.plain(Material.IRON_BLOCK));
-
-    guard.on(vanilla);
-    guard.on(golemancy);
-    guard.on(plain);
-
-    assertThat(vanilla.isCancelled()).isTrue();
-    assertThat(golemancy.isCancelled()).isFalse();
-    assertThat(plain.isCancelled()).isFalse();
-  }
-
-  @Test
   void smithingAnvilAndGrindstoneResultsClearForGolemItems() {
     ItemStack crook = crook();
     SmithingInventory smithingTable = inventory(SmithingInventory.class, null, crook, null);
@@ -161,7 +219,7 @@ class GolemItemGuardTest {
     PrepareSmithingEvent smithing = new PrepareSmithingEvent(view(smithingTable), mock(ItemStack.class));
     PrepareAnvilEvent anvilEvent = new PrepareAnvilEvent(anvilView, mock(ItemStack.class));
     PrepareGrindstoneEvent grindstoneEvent = new PrepareGrindstoneEvent(view(grindstone), mock(ItemStack.class));
-    GrindstoneInventory plainGrindstone = inventory(GrindstoneInventory.class, GolemItemStacks.plain(Material.IRON_HOE), null);
+    GrindstoneInventory plainGrindstone = inventory(GrindstoneInventory.class, GolemItemStacks.plain(Material.IRON_HOE), null, crook());
     ItemStack plainResult = mock(ItemStack.class);
     PrepareGrindstoneEvent plainEvent = new PrepareGrindstoneEvent(view(plainGrindstone), plainResult);
 
@@ -177,6 +235,24 @@ class GolemItemGuardTest {
   }
 
   @Test
+  void enchantingTablesRefuseGolemItems() {
+    PrepareItemEnchantEvent prepareCrook = prepareEnchant(crook());
+    PrepareItemEnchantEvent prepareHoe = prepareEnchant(GolemItemStacks.plain(Material.IRON_HOE));
+    EnchantItemEvent enchantCrook = enchant(crook());
+    EnchantItemEvent enchantHoe = enchant(GolemItemStacks.plain(Material.IRON_HOE));
+
+    guard.on(prepareCrook);
+    guard.on(prepareHoe);
+    guard.on(enchantCrook);
+    guard.on(enchantHoe);
+
+    assertThat(prepareCrook.isCancelled()).isTrue();
+    assertThat(prepareHoe.isCancelled()).isFalse();
+    assertThat(enchantCrook.isCancelled()).isTrue();
+    assertThat(enchantHoe.isCancelled()).isFalse();
+  }
+
+  @Test
   void furnacesNeverCookGolemItems() {
     FurnaceSmeltEvent node = smelt(GolemItemStacks.tagged(Material.CLAY_BALL, "blank_node", null));
     FurnaceSmeltEvent clay = smelt(GolemItemStacks.plain(Material.CLAY_BALL));
@@ -189,40 +265,73 @@ class GolemItemGuardTest {
   }
 
   @Test
-  void stonecutterAndMerchantResultsLockWhileAGolemItemIsAnInput() {
+  void stonecuttersCheckOnlyTheirInput() {
     ItemStack dormantCopper = GolemItemStacks.tagged(Material.COPPER_BLOCK, "dormant_golem", null);
-    InventoryClickEvent stonecutter = resultClick(inventory(StonecutterInventory.class, dormantCopper, null));
-    InventoryClickEvent merchant = resultClick(inventory(MerchantInventory.class,
-        GolemItemStacks.tagged(Material.CLAY_BALL, "blank_node", null), null, null));
-    InventoryClickEvent plainStonecutter = resultClick(inventory(StonecutterInventory.class,
-        GolemItemStacks.plain(Material.COPPER_BLOCK), null));
+    InventoryClickEvent taggedInput = resultClick(stonecutter(dormantCopper, GolemItemStacks.plain(Material.CUT_COPPER)));
+    InventoryClickEvent taggedResultOnly = resultClick(stonecutter(GolemItemStacks.plain(Material.COPPER_BLOCK), dormantCopper));
     InventoryClickEvent workbench = resultClick(inventory(CraftingInventory.class, null, dormantCopper));
 
-    guard.on(stonecutter);
-    guard.on(merchant);
-    guard.on(plainStonecutter);
+    guard.on(taggedInput);
+    guard.on(taggedResultOnly);
     guard.on(workbench);
 
-    assertThat(stonecutter.isCancelled()).isTrue();
-    assertThat(merchant.isCancelled()).isTrue();
-    assertThat(plainStonecutter.isCancelled()).isFalse();
+    assertThat(taggedInput.isCancelled()).isTrue();
+    assertThat(taggedResultOnly.isCancelled()).isFalse();
     assertThat(workbench.isCancelled()).isFalse();
   }
 
   @Test
-  void dispensersHoldGolemItems() {
-    BlockDispenseEvent crook = new BlockDispenseEvent(mock(Block.class), crook(), new Vector());
-    BlockDispenseEvent hoe = new BlockDispenseEvent(mock(Block.class), GolemItemStacks.plain(Material.IRON_HOE), new Vector());
+  void merchantsRefuseOnlyTradesThatWouldSwallowAGolemItemAsAPlainItem() {
+    ItemStack node = GolemItemStacks.tagged(Material.CLAY_BALL, "blank_node", null);
+    ItemStack plainClay = GolemItemStacks.plain(Material.CLAY_BALL);
+    ItemStack emerald = GolemItemStacks.plain(Material.EMERALD);
+    InventoryClickEvent genericTrade = resultClick(merchant(node, null, plainClay, emerald));
+    InventoryClickEvent golemTrade = resultClick(merchant(node, null, GolemItemStacks.tagged(Material.CLAY_BALL, "blank_node", null), emerald));
+    InventoryClickEvent buyingAGolemItem = resultClick(merchant(emerald, null, emerald, node));
+    InventoryClickEvent plainTrade = resultClick(merchant(plainClay, null, plainClay, emerald));
 
-    guard.on(crook);
+    guard.on(genericTrade);
+    guard.on(golemTrade);
+    guard.on(buyingAGolemItem);
+    guard.on(plainTrade);
+
+    assertThat(genericTrade.isCancelled()).isTrue();
+    assertThat(golemTrade.isCancelled()).isFalse();
+    assertThat(buyingAGolemItem.isCancelled()).isFalse();
+    assertThat(plainTrade.isCancelled()).isFalse();
+  }
+
+  @Test
+  void dispensersHoldGolemItemsWhileDroppersStillMoveThem() {
+    BlockDispenseEvent dispenser = new BlockDispenseEvent(block(Material.DISPENSER), crook(), new Vector());
+    BlockDispenseEvent dropper = new BlockDispenseEvent(block(Material.DROPPER), crook(), new Vector());
+    BlockDispenseEvent hoe = new BlockDispenseEvent(block(Material.DISPENSER), GolemItemStacks.plain(Material.IRON_HOE), new Vector());
+
+    guard.on(dispenser);
+    guard.on(dropper);
     guard.on(hoe);
 
-    assertThat(crook.isCancelled()).isTrue();
+    assertThat(dispenser.isCancelled()).isTrue();
+    assertThat(dropper.isCancelled()).isFalse();
     assertThat(hoe.isCancelled()).isFalse();
+  }
+
+  private static ExactIngredient spec(GolemItemKind kind, Material base) {
+    return new ExactIngredient(base, item -> GolemItems.kindOf(item).filter(found -> found == kind).isPresent());
   }
 
   private static ItemStack crook() {
     return GolemItemStacks.tagged(Material.IRON_HOE, "crook", null);
+  }
+
+  private static ItemStack blankCore() {
+    return GolemItemStacks.tagged(Material.FIREWORK_STAR, "blank_core", null);
+  }
+
+  private static Block block(Material type) {
+    Block block = mock(Block.class);
+    when(block.getType()).thenReturn(type);
+    return block;
   }
 
   private static PlayerInteractEvent interact(Action action, ItemStack item, EquipmentSlot hand) {
@@ -234,12 +343,12 @@ class GolemItemGuardTest {
     return new BlockPlaceEvent(mock(Block.class), mock(BlockState.class), mock(Block.class), item, mock(Player.class), true, EquipmentSlot.HAND);
   }
 
-  private static CraftingInventory craftingGrid(NamespacedKey recipeKey, ItemStack ingredient) {
+  private static CraftingInventory craftingGrid(NamespacedKey recipeKey, ItemStack... ingredients) {
     ShapedRecipe recipe = mock(ShapedRecipe.class);
     when(recipe.getKey()).thenReturn(recipeKey);
     CraftingInventory inventory = mock(CraftingInventory.class);
     when(inventory.getRecipe()).thenReturn(recipe);
-    when(inventory.getMatrix()).thenReturn(new ItemStack[]{null, ingredient, null});
+    when(inventory.getMatrix()).thenReturn(ingredients);
     return inventory;
   }
 
@@ -255,8 +364,32 @@ class GolemItemGuardTest {
     return new CrafterCraftEvent(block, recipe, mock(ItemStack.class));
   }
 
+  private static PrepareItemEnchantEvent prepareEnchant(ItemStack item) {
+    return new PrepareItemEnchantEvent(mock(Player.class), mock(EnchantmentView.class), mock(Block.class), item, new EnchantmentOffer[3], 0);
+  }
+
+  private static EnchantItemEvent enchant(ItemStack item) {
+    return new EnchantItemEvent(mock(Player.class), mock(InventoryView.class), mock(Block.class), item, 1, new HashMap<>(), null, 0, 0);
+  }
+
   private static FurnaceSmeltEvent smelt(ItemStack source) {
     return new FurnaceSmeltEvent(mock(Block.class), source, mock(ItemStack.class), mock(CookingRecipe.class));
+  }
+
+  private static StonecutterInventory stonecutter(ItemStack input, ItemStack result) {
+    StonecutterInventory inventory = inventory(StonecutterInventory.class, input, result);
+    when(inventory.getInputItem()).thenReturn(input);
+    when(inventory.getResult()).thenReturn(result);
+    return inventory;
+  }
+
+  private static MerchantInventory merchant(ItemStack firstInput, ItemStack secondInput, ItemStack tradeIngredient, ItemStack tradeResult) {
+    MerchantRecipe recipe = mock(MerchantRecipe.class);
+    when(recipe.getIngredients()).thenReturn(List.of(tradeIngredient));
+    when(recipe.getResult()).thenReturn(tradeResult);
+    MerchantInventory inventory = inventory(MerchantInventory.class, firstInput, secondInput, tradeResult);
+    when(inventory.getSelectedRecipe()).thenReturn(recipe);
+    return inventory;
   }
 
   private static InventoryClickEvent resultClick(Inventory top) {
@@ -266,6 +399,9 @@ class GolemItemGuardTest {
   private static <T extends Inventory> T inventory(Class<T> type, ItemStack... contents) {
     T inventory = mock(type);
     when(inventory.getContents()).thenReturn(contents);
+    for (int slot = 0; slot < contents.length; slot++) {
+      when(inventory.getItem(slot)).thenReturn(contents[slot]);
+    }
     return inventory;
   }
 

@@ -23,26 +23,31 @@ public final class ConfiguredRecipeParser {
 
   private final RecipeItemCatalog catalog;
   private final ExactItemResolver exactItems;
+  private final ExactIngredientBook book;
 
-  public ConfiguredRecipeParser(RecipeItemCatalog catalog, ExactItemResolver exactItems) {
+  public ConfiguredRecipeParser(RecipeItemCatalog catalog, ExactItemResolver exactItems, ExactIngredientBook book) {
     this.catalog = Objects.requireNonNull(catalog);
     this.exactItems = Objects.requireNonNull(exactItems);
+    this.book = Objects.requireNonNull(book);
   }
 
-  public static ConfiguredRecipeParser bukkit(ExactItemResolver exactItems) {
-    return new ConfiguredRecipeParser(new BukkitItemCatalog(), exactItems);
+  public static ConfiguredRecipeParser bukkit(ExactItemResolver exactItems, ExactIngredientBook book) {
+    return new ConfiguredRecipeParser(new BukkitItemCatalog(), exactItems, book);
   }
 
-  public Optional<AdaptRecipe.Shaped.ShapedBuilder> builder(String id, ConfiguredShapedRecipe spec) {
+  public Optional<AdaptRecipe.Shaped.ShapedBuilder> builder(NamespacedKey recipeKey, ConfiguredShapedRecipe spec) {
+    Objects.requireNonNull(recipeKey);
     if (!spec.isEnabled()) {
+      book.set(recipeKey, List.of());
       return Optional.empty();
     }
 
     Result result = parse(spec);
     for (String problem : result.problems()) {
-      Adapt.warn("Skipping configured recipe " + id + ": " + problem);
+      Adapt.warn("Skipping configured recipe " + recipeKey + ": " + problem);
     }
-    return Optional.ofNullable(result.builder());
+    book.set(recipeKey, result.exactIngredients());
+    return Optional.ofNullable(result.builder()).map(builder -> builder.key(recipeKey.getKey()));
   }
 
   public Result parse(ConfiguredShapedRecipe spec) {
@@ -50,22 +55,22 @@ public final class ConfiguredRecipeParser {
     List<String> rows = spec.getRows() == null ? List.of() : spec.getRows();
     Map<String, String> keys = spec.getKeys() == null ? Map.of() : spec.getKeys();
     validateRows(rows, problems);
-    Map<Character, MaterialChar> ingredients = resolveKeys(keys, problems);
+    Map<Character, Ingredient> ingredients = resolveKeys(keys, problems);
     validateSymbols(rows, keys, problems);
     ResultItem result = resolveResult(spec.getResult(), problems);
     validateAmount(spec.getAmount(), problems);
     validateTithe(spec.getTithe(), problems);
     if (!problems.isEmpty()) {
-      return new Result(null, List.copyOf(problems));
+      return new Result(null, List.of(), List.copyOf(problems));
     }
 
     AdaptRecipe.Shaped.ShapedBuilder builder = AdaptRecipe.shaped()
         .shapes(rows)
         .result(result.create(spec.getAmount()));
     for (char symbol : symbols(rows)) {
-      builder.ingredient(ingredients.get(symbol));
+      builder.ingredient(ingredients.get(symbol).choice());
     }
-    return new Result(builder, List.of());
+    return new Result(builder, exactIngredients(rows, ingredients), List.of());
   }
 
   private static void validateRows(List<String> rows, List<String> problems) {
@@ -100,8 +105,8 @@ public final class ConfiguredRecipeParser {
     }
   }
 
-  private Map<Character, MaterialChar> resolveKeys(Map<String, String> keys, List<String> problems) {
-    Map<Character, MaterialChar> ingredients = new LinkedHashMap<>();
+  private Map<Character, Ingredient> resolveKeys(Map<String, String> keys, List<String> problems) {
+    Map<Character, Ingredient> ingredients = new LinkedHashMap<>();
     for (Map.Entry<String, String> entry : keys.entrySet()) {
       String symbolText = entry.getKey();
       if (symbolText == null || symbolText.length() != 1 || symbolText.charAt(0) == ' ') {
@@ -116,7 +121,7 @@ public final class ConfiguredRecipeParser {
         continue;
       }
 
-      MaterialChar resolved = resolveIngredient(symbol, ingredient, problems);
+      Ingredient resolved = resolveIngredient(symbol, ingredient, problems);
       if (resolved != null) {
         ingredients.put(symbol, resolved);
       }
@@ -124,19 +129,19 @@ public final class ConfiguredRecipeParser {
     return ingredients;
   }
 
-  private MaterialChar resolveIngredient(char symbol, String ingredient, List<String> problems) {
+  private Ingredient resolveIngredient(char symbol, String ingredient, List<String> problems) {
     String subject = "key '" + symbol + "'";
     if (ingredient.startsWith("#")) {
       Tag<Material> tag = resolveTag(subject, ingredient, problems);
-      return tag == null ? null : new MaterialChar(symbol, tag);
+      return tag == null ? null : new Ingredient(new MaterialChar(symbol, tag), null);
     }
     if (ingredient.indexOf(':') >= 0) {
-      ItemStack item = resolveExactItem(subject, ingredient, problems);
-      return item == null ? null : new MaterialChar(symbol, item);
+      ExactIngredient exact = resolveExactIngredient(subject, ingredient, problems);
+      return exact == null ? null : new Ingredient(new MaterialChar(symbol, exact.base()), exact);
     }
 
     Material material = resolveMaterial(subject, ingredient, problems);
-    return material == null ? null : new MaterialChar(symbol, material);
+    return material == null ? null : new Ingredient(new MaterialChar(symbol, material), null);
   }
 
   private static void validateSymbols(List<String> rows, Map<String, String> keys, List<String> problems) {
@@ -158,7 +163,7 @@ public final class ConfiguredRecipeParser {
       return null;
     }
     if (raw.indexOf(':') >= 0) {
-      ItemStack item = resolveExactItem("result", raw, problems);
+      ItemStack item = resolveExactResult(raw, problems);
       return item == null ? null : new ExactResult(item);
     }
 
@@ -185,18 +190,51 @@ public final class ConfiguredRecipeParser {
     return tag;
   }
 
-  private ItemStack resolveExactItem(String subject, String raw, List<String> problems) {
-    NamespacedKey key = namespacedKey(raw);
+  private ExactIngredient resolveExactIngredient(String subject, String raw, List<String> problems) {
+    NamespacedKey key = exactKey(subject, raw, problems);
     if (key == null) {
-      problems.add(subject + " item \"" + raw + "\" is not a valid namespaced id");
       return null;
     }
 
-    ItemStack item = exactItems.resolve(key);
-    if (item == null) {
+    ExactIngredient ingredient = exactItems.ingredient(key);
+    if (ingredient == null) {
       problems.add(subject + " item \"" + raw + "\" is not a known item");
     }
+    return ingredient;
+  }
+
+  private ItemStack resolveExactResult(String raw, List<String> problems) {
+    NamespacedKey key = exactKey("result", raw, problems);
+    if (key == null) {
+      return null;
+    }
+
+    ItemStack item = exactItems.result(key);
+    if (item == null) {
+      problems.add("result item \"" + raw + "\" is not a known item");
+    }
     return item;
+  }
+
+  private static NamespacedKey exactKey(String subject, String raw, List<String> problems) {
+    NamespacedKey key = namespacedKey(raw);
+    if (key == null) {
+      problems.add(subject + " item \"" + raw + "\" is not a valid namespaced id");
+    }
+    return key;
+  }
+
+  private static List<ExactIngredient> exactIngredients(List<String> rows, Map<Character, Ingredient> ingredients) {
+    List<ExactIngredient> exact = new ArrayList<>();
+    for (String row : rows) {
+      for (int i = 0; i < row.length(); i++) {
+        Ingredient ingredient = ingredients.get(row.charAt(i));
+        if (ingredient != null && ingredient.exact() != null) {
+          exact.add(ingredient.exact());
+        }
+      }
+    }
+    return exact;
   }
 
   private Material resolveMaterial(String subject, String raw, List<String> problems) {
@@ -247,7 +285,10 @@ public final class ConfiguredRecipeParser {
     }
   }
 
-  public record Result(AdaptRecipe.Shaped.ShapedBuilder builder, List<String> problems) {
+  public record Result(AdaptRecipe.Shaped.ShapedBuilder builder, List<ExactIngredient> exactIngredients, List<String> problems) {
+  }
+
+  private record Ingredient(MaterialChar choice, ExactIngredient exact) {
   }
 
   private sealed interface ResultItem permits MaterialResult, ExactResult {

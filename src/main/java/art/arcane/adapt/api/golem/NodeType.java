@@ -3,22 +3,25 @@ package art.arcane.adapt.api.golem;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.volmlib.util.localization.TextKey;
 
-import java.util.Locale;
 import java.util.Optional;
 
 public enum NodeType {
-  GUARD,
-  COLLECTION,
-  DEPOSIT,
-  HARVEST,
-  LUMBER,
-  BREAKER,
-  PASTURE,
-  INPUT,
-  FILTER,
-  FISHING;
+  GUARD("guard"),
+  COLLECTION("collection"),
+  DEPOSIT("deposit"),
+  HARVEST("harvest"),
+  LUMBER("lumber"),
+  BREAKER("breaker"),
+  PASTURE("pasture"),
+  INPUT("input"),
+  FILTER("filter"),
+  FISHING("fishing");
 
-  private final String id = name().toLowerCase(Locale.ROOT);
+  private final String id;
+
+  NodeType(String id) {
+    this.id = id;
+  }
 
   public static Optional<NodeType> fromId(String id) {
     for (NodeType type : values()) {

@@ -3,22 +3,25 @@ package art.arcane.adapt.api.golem;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.volmlib.util.localization.TextKey;
 
-import java.util.Locale;
 import java.util.Optional;
 
 public enum GolemRuneType {
-  SWIFTNESS,
-  MIGHT,
-  EMBER,
-  TIDE,
-  ORDER,
-  ENTROPY,
-  BULWARK;
+  SWIFTNESS("swiftness"),
+  MIGHT("might"),
+  EMBER("ember"),
+  TIDE("tide"),
+  ORDER("order"),
+  ENTROPY("entropy"),
+  BULWARK("bulwark");
 
   public static final int MIN_TIER = 1;
   public static final int MAX_TIER = 3;
 
-  private final String id = name().toLowerCase(Locale.ROOT);
+  private final String id;
+
+  GolemRuneType(String id) {
+    this.id = id;
+  }
 
   public static Optional<GolemRuneType> fromId(String id) {
     for (GolemRuneType type : values()) {

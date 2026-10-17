@@ -1,6 +1,8 @@
 package art.arcane.adapt.api.golem.item;
 
+import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import org.bukkit.Keyed;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Container;
 import org.bukkit.event.Event;
@@ -12,6 +14,8 @@ import org.bukkit.event.block.BlockCookEvent;
 import org.bukkit.event.block.BlockDispenseEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.CrafterCraftEvent;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
@@ -24,21 +28,37 @@ import org.bukkit.inventory.CraftingInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
+import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.StonecutterInventory;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public final class GolemItemGuard implements Listener {
   public static final String RECIPE_NAMESPACE = "adapt";
   public static final String RECIPE_PREFIX = "golemancy-";
+  private static final int SMITHING_INPUTS = 3;
+  private static final int ANVIL_INPUTS = 2;
+  private static final int GRINDSTONE_INPUTS = 2;
+
+  private final ExactIngredientBook recipes;
+
+  public GolemItemGuard(ExactIngredientBook recipes) {
+    this.recipes = Objects.requireNonNull(recipes);
+  }
 
   public static boolean isGolemancyRecipe(NamespacedKey key) {
     return key != null && RECIPE_NAMESPACE.equals(key.getNamespace()) && key.getKey().startsWith(RECIPE_PREFIX);
   }
 
-  public static boolean blocksRecipe(NamespacedKey recipeKey, boolean golemItemIngredient) {
-    return golemItemIngredient && !isGolemancyRecipe(recipeKey);
+  public boolean blocksRecipe(NamespacedKey recipeKey, List<ItemStack> golemItems) {
+    if (!isGolemancyRecipe(recipeKey)) {
+      return !golemItems.isEmpty();
+    }
+    return !recipes.satisfiedBy(recipeKey, golemItems);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -63,35 +83,32 @@ public final class GolemItemGuard implements Listener {
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PrepareItemCraftEvent e) {
     CraftingInventory inventory = e.getInventory();
-    if (blocksRecipe(recipeKey(e.getRecipe()), containsGolemItem(inventory.getMatrix()))) {
+    if (blocksRecipe(recipeKey(e.getRecipe()), golemItems(inventory.getMatrix()))) {
       inventory.setResult(null);
     }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(CrafterCraftEvent e) {
-    NamespacedKey key = e.getRecipe().getKey();
-    if (isGolemancyRecipe(key) || !(e.getBlock().getState() instanceof Container crafter)) {
-      return;
-    }
-    if (blocksRecipe(key, containsGolemItem(crafter.getInventory().getContents()))) {
+    if (e.getBlock().getState() instanceof Container crafter
+        && blocksRecipe(e.getRecipe().getKey(), golemItems(crafter.getInventory().getContents()))) {
       e.setCancelled(true);
     }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PrepareSmithingEvent e) {
-    clearResultForGolemItems(e);
+    clearResultForGolemInputs(e, SMITHING_INPUTS);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PrepareAnvilEvent e) {
-    clearResultForGolemItems(e);
+    clearResultForGolemInputs(e, ANVIL_INPUTS);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PrepareGrindstoneEvent e) {
-    clearResultForGolemItems(e);
+    clearResultForGolemInputs(e, GRINDSTONE_INPUTS);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -107,34 +124,62 @@ public final class GolemItemGuard implements Listener {
       return;
     }
     Inventory top = e.getView().getTopInventory();
-    if ((top instanceof StonecutterInventory || top instanceof MerchantInventory) && containsGolemItem(top.getContents())) {
+    if (top instanceof StonecutterInventory stonecutter && GolemItems.isGolemItem(stonecutter.getInputItem())) {
+      e.setCancelled(true);
+    } else if (top instanceof MerchantInventory merchant && tradeSwallowsGolemItem(merchant)) {
       e.setCancelled(true);
     }
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(BlockDispenseEvent e) {
+    if (e.getBlock().getType() != Material.DROPPER && GolemItems.isGolemItem(e.getItem())) {
+      e.setCancelled(true);
+    }
+  }
+
+  private static void clearResultForGolemInputs(PrepareInventoryResultEvent e, int inputSlots) {
+    Inventory inventory = e.getInventory();
+    for (int slot = 0; slot < inputSlots; slot++) {
+      if (GolemItems.isGolemItem(inventory.getItem(slot))) {
+        e.setResult(null);
+        return;
+      }
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PrepareItemEnchantEvent e) {
     if (GolemItems.isGolemItem(e.getItem())) {
       e.setCancelled(true);
     }
   }
 
-  private static void clearResultForGolemItems(PrepareInventoryResultEvent e) {
-    if (containsGolemItem(e.getInventory().getContents())) {
-      e.setResult(null);
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(EnchantItemEvent e) {
+    if (GolemItems.isGolemItem(e.getItem())) {
+      e.setCancelled(true);
     }
   }
 
-  private static boolean containsGolemItem(ItemStack[] items) {
+  private static List<ItemStack> golemItems(ItemStack[] items) {
+    List<ItemStack> golemItems = new ArrayList<>();
     if (items == null) {
-      return false;
+      return golemItems;
     }
     for (ItemStack item : items) {
       if (GolemItems.isGolemItem(item)) {
-        return true;
+        golemItems.add(item);
       }
     }
-    return false;
+    return golemItems;
+  }
+
+  private static boolean tradeSwallowsGolemItem(MerchantInventory merchant) {
+    MerchantRecipe trade = merchant.getSelectedRecipe();
+    List<ItemStack> tradeIngredients = trade == null ? List.of() : trade.getIngredients();
+    return golemItems(new ItemStack[]{merchant.getItem(0), merchant.getItem(1)}).size()
+        > golemItems(tradeIngredients.toArray(new ItemStack[0])).size();
   }
 
   private static NamespacedKey recipeKey(Recipe recipe) {

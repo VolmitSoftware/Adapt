@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -24,8 +25,10 @@ import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -45,6 +48,7 @@ class GolemItemsTest extends AdaptTestBase {
   private static final PackedGolem PACKED = new PackedGolem(GOLEM, OWNER, "{\"body\":\"IRON\"}");
 
   private final List<List<String>> modelPaths = new ArrayList<>();
+  private final Map<List<String>, Material> materialOverrides = new HashMap<>();
   private MockedConstruction<ItemStack> stacks;
   private MockedStatic<CustomModel> models;
 
@@ -155,7 +159,11 @@ class GolemItemsTest extends AdaptTestBase {
       assertThat(GolemItems.packedGolemOf(dormant)).contains(PACKED);
       verify(dormant.getItemMeta()).setMaxStackSize(1);
     }
-    assertThat(modelPaths).containsOnly(List.of("golemancy", "dormant_golem"));
+    assertThat(modelPaths).containsExactly(
+        List.of("golemancy", "dormant_golem", "snow_block"),
+        List.of("golemancy", "dormant_golem", "iron_block"),
+        List.of("golemancy", "dormant_golem", "copper_block"),
+        List.of("golemancy", "dormant_golem", "waxed_oxidized_copper"));
   }
 
   @Test
@@ -220,7 +228,7 @@ class GolemItemsTest extends AdaptTestBase {
 
     List<List<String>> expected = new ArrayList<>();
     for (GolemItemKind kind : GolemItemKind.values()) {
-      expected.add(List.of("golemancy", kind.id()));
+      expected.add(kind == GolemItemKind.DORMANT_GOLEM ? List.of("golemancy", kind.id(), "snow_block") : List.of("golemancy", kind.id()));
     }
     assertThat(modelPaths).containsExactlyElementsOf(expected);
     for (ItemStack item : items) {
@@ -235,7 +243,7 @@ class GolemItemsTest extends AdaptTestBase {
 
     assertThat(GolemItemStacks.stored(core, GolemItemStacks.KIND_KEY)).isEqualTo("core");
     JsonObject payload = new Gson().fromJson(GolemItemStacks.stored(core, GolemItemStacks.DATA_KEY), JsonObject.class);
-    assertThat(payload.get("role").getAsString()).isEqualTo("GUARDIAN");
+    assertThat(payload.get("role").getAsString()).isEqualTo("guardian");
     assertThat(GolemItemStacks.stored(crook, GolemItemStacks.KIND_KEY)).isEqualTo("crook");
     assertThat(GolemItemStacks.stored(crook, GolemItemStacks.DATA_KEY)).isNull();
   }
@@ -284,6 +292,67 @@ class GolemItemsTest extends AdaptTestBase {
   }
 
   @Test
+  void enumIdsAreStableLowercaseStrings() {
+    assertThat(GolemCoreType.GUARDIAN.id()).isEqualTo("guardian");
+    assertThat(NodeType.COLLECTION.id()).isEqualTo("collection");
+    assertThat(GolemRuneType.BULWARK.id()).isEqualTo("bulwark");
+    assertThat(GolemCoreType.fromId("sorter")).contains(GolemCoreType.SORTER);
+    assertThat(NodeType.fromId("FISHING")).isEmpty();
+    assertThat(GolemRuneType.fromId("ember")).contains(GolemRuneType.EMBER);
+  }
+
+  @Test
+  void ingredientsMatchTheirExactVariantOnTheBaseMaterial() {
+    assertIngredient("golemancy:crook", Material.IRON_HOE, GolemItems.crook(), GolemItems.blankCore());
+    assertIngredient("golemancy:blank_core", Material.FIREWORK_STAR, GolemItems.blankCore(), GolemItems.core(GolemCoreType.GUARDIAN));
+    assertIngredient("golemancy:core/guardian", Material.FIREWORK_STAR, GolemItems.core(GolemCoreType.GUARDIAN), GolemItems.core(GolemCoreType.SORTER));
+    assertIngredient("golemancy:blank_node", Material.CLAY_BALL, GolemItems.blankNode(), GolemItems.node(NodeType.GUARD));
+    assertIngredient("golemancy:node/deposit", Material.BRICK, GolemItems.node(NodeType.DEPOSIT), GolemItems.node(NodeType.INPUT));
+    assertIngredient("golemancy:blank_rune", Material.DISC_FRAGMENT_5, GolemItems.blankRune(), GolemItems.rune(new GolemRune(GolemRuneType.TIDE, 1)));
+    assertIngredient("golemancy:rune/tide/2", Material.DISC_FRAGMENT_5,
+        GolemItems.rune(new GolemRune(GolemRuneType.TIDE, 2)), GolemItems.rune(new GolemRune(GolemRuneType.TIDE, 3)));
+  }
+
+  @Test
+  void ingredientsRejectPlainBaseItems() {
+    assertThat(ingredient("golemancy:blank_core").matches().test(GolemItemStacks.plain(Material.FIREWORK_STAR))).isFalse();
+    assertThat(ingredient("golemancy:crook").matches().test(GolemItemStacks.plain(Material.IRON_HOE))).isFalse();
+    assertThat(ingredient("golemancy:crook").matches().test(null)).isFalse();
+  }
+
+  @Test
+  void ingredientsMatchByTagRegardlessOfNameLoreOrLocale() {
+    ItemStack english = GolemItemStacks.tagged(Material.FIREWORK_STAR, "core", "{\"role\":\"guardian\"}");
+    ItemStack german = GolemItemStacks.tagged(Material.FIREWORK_STAR, "core", "{\"role\":\"guardian\"}");
+    when(english.getItemMeta().getDisplayName()).thenReturn("Guardian Core");
+    when(german.getItemMeta().getDisplayName()).thenReturn("Wächter-Kern");
+    when(german.getItemMeta().getLore()).thenReturn(List.of("Bindet einen Golem an die Rolle Wächter"));
+
+    ExactIngredient guardianCore = ingredient("golemancy:core/guardian");
+
+    assertThat(guardianCore.matches().test(english)).isTrue();
+    assertThat(guardianCore.matches().test(german)).isTrue();
+  }
+
+  @Test
+  void ingredientBasesFollowCustomModelMaterialOverrides() {
+    materialOverrides.put(List.of("golemancy", "crook"), Material.STICK);
+
+    assertThat(ingredient("golemancy:crook").base()).isEqualTo(Material.STICK);
+    assertThat(GolemItems.crook().getType()).isEqualTo(Material.STICK);
+  }
+
+  @Test
+  void ingredientsReturnNullForUnknownIds() {
+    for (String id : List.of("minecraft:crook", "golemancy:core/blank", "golemancy:rune/might/4", "golemancy:dormant_golem", "golemancy:masterwork_heart")) {
+      assertThat(ingredient(id)).describedAs(id).isNull();
+    }
+    assertThat(GolemItems.ingredient(null)).isNull();
+    assertThat(GolemItems.resolver().ingredient(NamespacedKey.fromString("golemancy:blank_node")).base()).isEqualTo(Material.CLAY_BALL);
+    assertThat(GolemItems.kindOf(GolemItems.resolver().result(NamespacedKey.fromString("golemancy:blank_node")))).contains(GolemItemKind.BLANK_NODE);
+  }
+
+  @Test
   void plainAndMalformedItemsReadAsNothing() {
     assertThat(GolemItems.kindOf(null)).isEmpty();
     assertThat(GolemItems.kindOf(GolemItemStacks.plain(Material.IRON_HOE))).isEmpty();
@@ -295,16 +364,19 @@ class GolemItemsTest extends AdaptTestBase {
     assertThat(GolemItems.kindOf(malformedCore)).contains(GolemItemKind.CORE);
     assertThat(GolemItems.coreOf(malformedCore)).isEmpty();
     assertThat(GolemItems.coreOf(GolemItemStacks.tagged(Material.FIREWORK_STAR, "core", null))).isEmpty();
-    assertThat(GolemItems.coreOf(GolemItemStacks.tagged(Material.FIREWORK_STAR, "core", "{\"role\":\"BLANK\"}"))).isEmpty();
-    assertThat(GolemItems.runeOf(GolemItemStacks.tagged(Material.DISC_FRAGMENT_5, "rune", "{\"aspect\":\"MIGHT\",\"tier\":7}"))).isEmpty();
+    assertThat(GolemItems.coreOf(GolemItemStacks.tagged(Material.FIREWORK_STAR, "core", "{\"role\":\"blank\"}"))).isEmpty();
+    assertThat(GolemItems.runeOf(GolemItemStacks.tagged(Material.DISC_FRAGMENT_5, "rune", "{\"aspect\":\"might\",\"tier\":7}"))).isEmpty();
     assertThat(GolemItems.packedGolemOf(GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", "{\"golem\":\"" + GOLEM + "\"}"))).isEmpty();
-    assertThat(GolemItems.nodeTypeOf(GolemItemStacks.tagged(Material.BRICK, "rune", "{\"type\":\"GUARD\"}"))).isEmpty();
+    assertThat(GolemItems.nodeTypeOf(GolemItemStacks.tagged(Material.BRICK, "rune", "{\"type\":\"guard\"}"))).isEmpty();
   }
 
   private CustomModel model(Material fallback, String[] path) {
-    modelPaths.add(List.of(path));
+    List<String> modelPath = List.of(path);
+    modelPaths.add(modelPath);
+    Material material = materialOverrides.getOrDefault(modelPath, fallback);
     CustomModel model = mock(CustomModel.class);
-    when(model.toItemStack()).thenAnswer(call -> new ItemStack(fallback));
+    when(model.material()).thenReturn(material);
+    when(model.toItemStack()).thenAnswer(call -> new ItemStack(material));
     when(model.toItemStack(any(ItemStack.class))).thenAnswer(call -> call.getArgument(0));
     return model;
   }
@@ -316,6 +388,18 @@ class GolemItemsTest extends AdaptTestBase {
 
   private static ItemStack resolve(String id) {
     return GolemItems.resolve(NamespacedKey.fromString(id));
+  }
+
+  private static ExactIngredient ingredient(String id) {
+    return GolemItems.ingredient(NamespacedKey.fromString(id));
+  }
+
+  private static void assertIngredient(String id, Material base, ItemStack variant, ItemStack otherVariant) {
+    ExactIngredient ingredient = ingredient(id);
+
+    assertThat(ingredient.base()).describedAs(id).isEqualTo(base);
+    assertThat(ingredient.matches().test(variant)).describedAs("%s matches its variant", id).isTrue();
+    assertThat(ingredient.matches().test(otherVariant)).describedAs("%s rejects another variant", id).isFalse();
   }
 
   private static Color tint(ItemStack item) {
