@@ -3053,6 +3053,14 @@ description = "Zamień ruch w moc."
 title = "Odbiór Newtona"
 description = "Zabij mafię swoim własnym kowadłem. 8 lub więcej bloków."
 
+[advancement.challenge_golemancy_built_10]
+title = "Glina i iskra"
+description = "Zbuduj 10 golemów"
+
+[advancement.challenge_golemancy_built_100]
+title = "Odlewnia olbrzymów"
+description = "Zbuduj 100 golemów"
+
 [agility.armor_up]
 name = "Pancerz-Up"
 description = "Zdobywaj wiecej pancerza im dluzej sprintujesz!"
@@ -5365,6 +5373,11 @@ description = "Bez broni nie znaczy bez sily."
 name = "Kinetyka"
 icon = "⚒"
 description = "Wniosek to władza. Smash z makaronem, ładować włócznie i zginać pęd sam: odbicia, wyrzutnie, lewitacja, i dobrze ukierunkowane spadające kowadła wszystkie karmić swoje mistrzostwo."
+
+[skill.golemancy]
+name = "Golemancja"
+icon = "⚙"
+description = "Zdobywaj poziomy, budując, naprawiając i pielęgnując golemy, a potem ożyw je, by walczyły i pracowały u twojego boku."
 
 [snippets.gui]
 level = "Poziom"

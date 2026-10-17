@@ -11,6 +11,7 @@ import art.arcane.adapt.content.skill.SkillCrafting;
 import art.arcane.adapt.content.skill.SkillDiscovery;
 import art.arcane.adapt.content.skill.SkillEnchanting;
 import art.arcane.adapt.content.skill.SkillExcavation;
+import art.arcane.adapt.content.skill.SkillGolemancy;
 import art.arcane.adapt.content.skill.SkillHerbalism;
 import art.arcane.adapt.content.skill.SkillHunter;
 import art.arcane.adapt.content.skill.SkillKinetics;
@@ -380,6 +381,7 @@ public final class ConfigFieldMessages {
     addConfiguration(fields, "skills.discovery", "skill:discovery", SkillDiscovery.class);
     addConfiguration(fields, "skills.enchanting", "skill:enchanting", SkillEnchanting.class);
     addConfiguration(fields, "skills.excavation", "skill:excavation", SkillExcavation.class);
+    addConfiguration(fields, "skills.golemancy", "skill:golemancy", SkillGolemancy.class);
     addConfiguration(fields, "skills.herbalism", "skill:herbalism", SkillHerbalism.class);
     addConfiguration(fields, "skills.hunter", "skill:hunter", SkillHunter.class);
     addConfiguration(fields, "skills.kinetics", "skill:kinetics", SkillKinetics.class);

@@ -3053,6 +3053,14 @@ description = "将运动化为力量。"
 title = "牛顿的回执"
 description = "用自己从至少 8 格高处投下的铁砧击杀一只生物。"
 
+[advancement.challenge_golemancy_built_10]
+title = "泥土与火花"
+description = "建造 10 个魔像"
+
+[advancement.challenge_golemancy_built_100]
+title = "巨人铸造厂"
+description = "建造 100 个魔像"
+
 [agility.armor_up]
 name = "疾行护甲"
 description = "疾跑越久，获得的护甲越多！停止疾跑后，加成会缓慢消退。"
@@ -5365,6 +5373,11 @@ description = "赤手空拳，也能拥有强大力量。通过徒手战斗升�
 name = "动能"
 icon = "⚒"
 description = "运动即力量。挥动重锤、持矛冲锋，驾驭惯性：弹跳、发射、飘浮，以及精准投下的铁砧，都能提高你的掌握程度。"
+
+[skill.golemancy]
+name = "魔像术"
+icon = "⚙"
+description = "通过建造、修理和照料魔像来升级，然后赋予它们生命，让它们在你身边战斗和劳作。"
 
 [snippets.gui]
 level = "等级"

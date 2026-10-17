@@ -164,6 +164,14 @@ export async function runSkillSuite(context, requestedSkills = skillMatrix.map(e
           finally { actor.bot.clearControlStates() }
           return
         case 'seaborne': return mine(2, 99, 2, 'dirt', 'iron_shovel')
+        case 'golemancy':
+          await equip('snow_block')
+          await actor.bot.placeBlock(await blockAt(2, 99, 2, 'stone'), position(0, 1, 0))
+          await actor.bot.placeBlock(await blockAt(2, 100, 2, 'snow_block'), position(0, 1, 0))
+          await equip('carved_pumpkin')
+          await actor.bot.activateBlock(await blockAt(2, 101, 2, 'snow_block'), position(0, 1, 0))
+          await context.waitUntil(() => Object.values(actor.bot.entities).some(entity => entity.name === 'snow_golem'), { label: 'player-built snow golem', timeoutMs: 5000 })
+          return
         default: throw new Error(`No gameplay action for ${skill}`)
       }
     }

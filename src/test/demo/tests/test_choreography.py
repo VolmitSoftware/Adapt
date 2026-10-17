@@ -160,6 +160,12 @@ class ChoreographyTest(unittest.TestCase):
         self.assertEqual(problems, [])
         self.assertEqual(set(entries), matrix_ids('architect'))
 
+    def test_golemancy_covers_every_matrix_id_exactly_once(self) -> None:
+        entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, 'golemancy').entries
+        problems: list[str] = choreography.validate(entries, matrix_ids('golemancy'))
+        self.assertEqual(problems, [])
+        self.assertEqual(set(entries), matrix_ids('golemancy'))
+
     def test_nether_covers_every_matrix_id_exactly_once(self) -> None:
         sheet: choreography.Sheet = choreography.load_skill(ROOT, 'nether')
         problems: list[str] = choreography.validate(sheet.entries, matrix_ids('nether'))

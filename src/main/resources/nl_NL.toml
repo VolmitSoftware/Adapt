@@ -3053,6 +3053,14 @@ description = "Zet beweging in kracht."
 title = "Ontvangst van Newton"
 description = "Dood een menigte met je eigen vallende aambeeld. 8 of meer blokken."
 
+[advancement.challenge_golemancy_built_10]
+title = "Klei en vonk"
+description = "Bouw 10 golems"
+
+[advancement.challenge_golemancy_built_100]
+title = "Gieterij der reuzen"
+description = "Bouw 100 golems"
+
 [agility.armor_up]
 name = "Pantser-Up"
 description = "Krijg meer pantser hoe langer je sprint!"
@@ -5365,6 +5373,11 @@ description = "Zonder wapen is niet zonder kracht."
 name = "Kinetica"
 icon = "⚒"
 description = "Beweging is macht. Smash met maces, lading met speren, en bocht momentum zelf: stuiters, lanceringen, levitatie, en goed uitgeruste vallende aambeelden voeden allemaal uw meesterschap."
+
+[skill.golemancy]
+name = "Golemantie"
+icon = "⚙"
+description = "Stijg in level door golems te bouwen, te repareren en te verzorgen, en breng ze daarna tot leven om aan je zijde te vechten en te werken."
 
 [snippets.gui]
 level = "Niveau"

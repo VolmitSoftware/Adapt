@@ -3053,6 +3053,14 @@ description = "Trasformare il movimento in potenza."
 title = "Ricezione di Newton"
 description = "Uccidi un mob con il tuo male caduto da 8 o più blocchi."
 
+[advancement.challenge_golemancy_built_10]
+title = "Argilla e scintilla"
+description = "Costruisci 10 golem"
+
+[advancement.challenge_golemancy_built_100]
+title = "Fonderia di giganti"
+description = "Costruisci 100 golem"
+
 [agility.armor_up]
 name = "Armatura Crescente"
 description = "Ottieni piu' armatura quanto piu' a lungo scatti!"
@@ -5365,6 +5373,11 @@ description = "Senza un'arma non significa senza forza."
 name = "Kinetics"
 icon = "⚒"
 description = "Il movimento è potere. Smash con i maci, carica con le lance e piega il momento stesso: rimbalzi, lanci, levitazione, e bene-aimed cadere male tutti alimentano la vostra padronanza."
+
+[skill.golemancy]
+name = "Golemanzia"
+icon = "⚙"
+description = "Sali di livello costruendo, riparando e curando i golem, poi dai loro vita perché combattano e lavorino al tuo fianco."
 
 [snippets.gui]
 level = "Livello"

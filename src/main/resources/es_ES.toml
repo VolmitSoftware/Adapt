@@ -3053,6 +3053,14 @@ description = "Convertir movimiento en poder."
 title = "Receipt de Newton"
 description = "Matar a una turba con tu propio mal caído 8 o más bloques."
 
+[advancement.challenge_golemancy_built_10]
+title = "Arcilla y chispa"
+description = "Construye 10 gólems"
+
+[advancement.challenge_golemancy_built_100]
+title = "Fundición de gigantes"
+description = "Construye 100 gólems"
+
 [agility.armor_up]
 name = "Blindaje"
 description = "¡Consigue mas armadura cuanto mas tiempo esprintees!"
@@ -5365,6 +5373,11 @@ description = "Sin arma no significa sin fuerza."
 name = "Kinetics"
 icon = "⚒"
 description = "La moción es poder. Smash con maces, carga con lanzas, y doblar el impulso en sí mismo: bounces, lanzamientos, levitación, y bien adicto cayendo los demonios todos alimentan su maestría."
+
+[skill.golemancy]
+name = "Golemancia"
+icon = "⚙"
+description = "Sube de nivel construyendo, reparando y cuidando gólems, y luego dales vida para que luchen y trabajen a tu lado."
 
 [snippets.gui]
 level = "Nivel"

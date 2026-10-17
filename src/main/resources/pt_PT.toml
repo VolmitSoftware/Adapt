@@ -3053,6 +3053,14 @@ description = "Transformar movimento em potência."
 title = "Recepção de Newton"
 description = "Mata uma multidão com a tua própria bigorna caída 8 ou mais blocos."
 
+[advancement.challenge_golemancy_built_10]
+title = "Barro e faísca"
+description = "Constrói 10 golems"
+
+[advancement.challenge_golemancy_built_100]
+title = "Fundição de gigantes"
+description = "Constrói 100 golems"
+
 [agility.armor_up]
 name = "Armadura Crescente"
 description = "Ganha mais armadura quanto mais tempo correres!"
@@ -5365,6 +5373,11 @@ description = "Sem arma nao significa sem forca."
 name = "Cinética"
 icon = "⚒"
 description = "Movimento é poder. Esmague com maces, carregue com lanças, e dobre o momento em si: saltos, lançamentos, levitação e bigornas que caem bem apontadas alimentam seu domínio."
+
+[skill.golemancy]
+name = "Golemância"
+icon = "⚙"
+description = "Sobe de nível construindo, reparando e cuidando de golems, e depois dá-lhes vida para lutarem e trabalharem ao teu lado."
 
 [snippets.gui]
 level = "Nivel"

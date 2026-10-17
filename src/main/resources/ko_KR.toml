@@ -3053,6 +3053,14 @@ description = "힘으로 움직이기."
 title = "뉴턴의 영수증"
 description = "당신의 자신의 떨어지는 모루에 몹를 죽이십시오 8 또는 더 많은 블록."
 
+[advancement.challenge_golemancy_built_10]
+title = "점토와 불꽃"
+description = "골렘 10기 만들기"
+
+[advancement.challenge_golemancy_built_100]
+title = "거인의 주조소"
+description = "골렘 100기 만들기"
+
 [agility.armor_up]
 name = "방어구 강화"
 description = "오래 달릴수록 더 많은 방어력을 얻습니다!"
@@ -5365,6 +5373,11 @@ description = "무기가 없다고 힘이 없는 것은 아닙니다."
 name = "한국어"
 icon = "⚒"
 description = "운동은 힘입니다. Maces와 Smash, spears로 충전, 그리고 구부린 순간 자체 : 바운드, 발사, levitation 및 잘 겨냥 떨어지는 악마 모든 먹이 마스터리."
+
+[skill.golemancy]
+name = "골렘술"
+icon = "⚙"
+description = "골렘을 만들고, 수리하고, 돌보며 레벨을 올린 뒤, 생명을 불어넣어 곁에서 싸우고 일하게 하세요."
 
 [snippets.gui]
 level = "레벨"

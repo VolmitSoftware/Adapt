@@ -3053,6 +3053,14 @@ description = "Muuta liike voimaksi."
 title = "Newtonin kuitti"
 description = "Tappaa mobi oman putoava alasin putosi 8 tai enemmän lohkoja."
 
+[advancement.challenge_golemancy_built_10]
+title = "Savea ja kipinä"
+description = "Rakenna 10 golemia"
+
+[advancement.challenge_golemancy_built_100]
+title = "Jättiläisten valimo"
+description = "Rakenna 100 golemia"
+
 [agility.armor_up]
 name = "Panssarointi"
 description = "Saat enemmän panssaria mitä pidempään juokset!"
@@ -5365,6 +5373,11 @@ description = "Ilman asetta ei tarkoita ilman voimaa."
 name = "Kinetiikka"
 icon = "⚒"
 description = "Liike on valta. Smash kanssa maces, lataa keihäät, ja taivuta vauhtia itse: pomppii, käynnistää, levitation, ja hyvin suunnattu putoavat alasimet kaikki ruokkia mestari."
+
+[skill.golemancy]
+name = "Golemantia"
+icon = "⚙"
+description = "Nouse tasoja rakentamalla, korjaamalla ja hoitamalla golemeja, ja herätä ne sitten henkiin taistelemaan ja työskentelemään rinnallasi."
 
 [snippets.gui]
 level = "Taso"

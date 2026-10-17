@@ -3053,6 +3053,14 @@ description = "動きを力へ変える。"
 title = "ニュートンのレシート"
 description = "自分が8ブロック以上の高さから落とした金床でモブを倒す。"
 
+[advancement.challenge_golemancy_built_10]
+title = "粘土と火花"
+description = "ゴーレムを10体作る"
+
+[advancement.challenge_golemancy_built_100]
+title = "巨人の鋳造所"
+description = "ゴーレムを100体作る"
+
 [agility.armor_up]
 name = "アーマーアップ"
 description = "ダッシュし続けるほど防具が強化される！"
@@ -5365,6 +5373,11 @@ description = "武器が無くとも、力が無いわけではない。"
 name = "キネティックス"
 icon = "⚒"
 description = "動きは力です. macesでスマッシュ, スピアーズと充電します。, そして、それ自体の曲がり: バウンス, 起動, levitation, よくエイド落下アンビルズすべてのあなたのマスターをフィード."
+
+[skill.golemancy]
+name = "ゴーレム術"
+icon = "⚙"
+description = "ゴーレムを作り、修理し、世話をしてレベルを上げ、やがて命を吹き込んで共に戦い、働かせましょう。"
 
 [snippets.gui]
 level = "レベル"

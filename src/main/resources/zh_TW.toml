@@ -3053,6 +3053,14 @@ description = "將運動變成動力."
 title = "牛頓的收據"
 description = "殺死一個暴徒 用你自己掉下來的陰道掉下來 8 或更多塊."
 
+[advancement.challenge_golemancy_built_10]
+title = "泥土與火花"
+description = "建造 10 個魔像"
+
+[advancement.challenge_golemancy_built_100]
+title = "巨人鑄造廠"
+description = "建造 100 個魔像"
+
 [agility.armor_up]
 name = "裝甲強化"
 description = "衝刺時間越長，獲得的護甲值越多！"
@@ -5365,6 +5373,11 @@ description = "沒有武器並不意味著沒有力量。"
 name = "動詞"
 icon = "⚒"
 description = "運動就是力量. 用梅子砸,用長矛充電, 彎曲動力本身: 彈跳、發射、懸浮和發音良好的墜落 都餵你掌握的."
+
+[skill.golemancy]
+name = "魔像術"
+icon = "⚙"
+description = "透過建造、修理和照料魔像來升級，然後賦予它們生命，讓它們在你身邊戰鬥和勞作。"
 
 [snippets.gui]
 level = "等級"

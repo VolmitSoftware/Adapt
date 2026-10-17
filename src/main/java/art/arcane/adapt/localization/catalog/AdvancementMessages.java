@@ -1455,6 +1455,10 @@ public final class AdvancementMessages {
   public static final TextKey SKILL_KINETICS_DESCRIPTION = TextKey.of("advancement.skill_kinetics.description", "Turn motion into power.");
   public static final TextKey CHALLENGE_KINETICS_ANVIL_DROP_TITLE = TextKey.of("advancement.challenge_kinetics_anvil_drop.title", "Newton's Receipt");
   public static final TextKey CHALLENGE_KINETICS_ANVIL_DROP_DESCRIPTION = TextKey.of("advancement.challenge_kinetics_anvil_drop.description", "Kill a mob with your own falling anvil dropped from 8 or more blocks.");
+  public static final TextKey CHALLENGE_GOLEMANCY_BUILT_10_TITLE = TextKey.of("advancement.challenge_golemancy_built_10.title", "Clay and Spark");
+  public static final TextKey CHALLENGE_GOLEMANCY_BUILT_10_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_built_10.description", "Build 10 golems");
+  public static final TextKey CHALLENGE_GOLEMANCY_BUILT_100_TITLE = TextKey.of("advancement.challenge_golemancy_built_100.title", "Foundry of Giants");
+  public static final TextKey CHALLENGE_GOLEMANCY_BUILT_100_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_built_100.description", "Build 100 golems");
 
   private AdvancementMessages() {
   }
@@ -2910,5 +2914,9 @@ public final class AdvancementMessages {
     builder.add(SKILL_KINETICS_DESCRIPTION);
     builder.add(CHALLENGE_KINETICS_ANVIL_DROP_TITLE);
     builder.add(CHALLENGE_KINETICS_ANVIL_DROP_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_BUILT_10_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_BUILT_10_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_BUILT_100_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_BUILT_100_DESCRIPTION);
   }
 }

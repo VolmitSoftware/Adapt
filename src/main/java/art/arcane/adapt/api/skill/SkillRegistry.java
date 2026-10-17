@@ -48,6 +48,7 @@ import art.arcane.adapt.content.skill.SkillCrafting;
 import art.arcane.adapt.content.skill.SkillDiscovery;
 import art.arcane.adapt.content.skill.SkillEnchanting;
 import art.arcane.adapt.content.skill.SkillExcavation;
+import art.arcane.adapt.content.skill.SkillGolemancy;
 import art.arcane.adapt.content.skill.SkillHerbalism;
 import art.arcane.adapt.content.skill.SkillHunter;
 import art.arcane.adapt.content.skill.SkillKinetics;
@@ -147,6 +148,7 @@ public class SkillRegistry extends TickedObject {
     registerSkill(SkillBrewing.class);
     registerSkill(SkillNether.class);
     registerSkill(SkillKinetics.class);
+    registerSkill(SkillGolemancy.class);
     bootstrapLoading = false;
     rebuildStatTrackerIndex();
     publishPlaceholderCatalog(catalogRevision.get());

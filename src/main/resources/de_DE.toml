@@ -3053,6 +3053,14 @@ description = "Verwandeln Sie die Bewegung in Energie."
 title = "Newtons Gutschein"
 description = "Töten Sie eine Menge mit Ihrem eigenen fallenden Anvil fallen aus 8 oder mehr Blöcken."
 
+[advancement.challenge_golemancy_built_10]
+title = "Lehm und Funke"
+description = "Baue 10 Golems"
+
+[advancement.challenge_golemancy_built_100]
+title = "Gießerei der Riesen"
+description = "Baue 100 Golems"
+
 [agility.armor_up]
 name = "Aufrüstung"
 description = "Erhalte mehr Rüstung, je länger du sprintest!"
@@ -5365,6 +5373,11 @@ description = "Ohne Waffe heißt nicht ohne Stärke."
 name = "Kinetik"
 icon = "⚒"
 description = "Bewegung ist Kraft. Schlagen Sie mit Mazen, laden Sie mit Speeren und biegen Sie den Momentum selbst: Sprünge, Start, Levitation und gut zielte fallende Anvilen versorgen Ihre Meisterschaft."
+
+[skill.golemancy]
+name = "Golemantie"
+icon = "⚙"
+description = "Steige auf, indem du Golems baust, reparierst und pflegst, und erwecke sie dann zum Leben, damit sie an deiner Seite kämpfen und arbeiten."
 
 [snippets.gui]
 level = "Stufe"

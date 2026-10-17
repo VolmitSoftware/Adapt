@@ -3053,6 +3053,14 @@ description = "Judėjimas į galią."
 title = "Niutono kvitas"
 description = "Nužudyti minią su savo mažėja priekalas nukrito iš 8 arba daugiau blokų."
 
+[advancement.challenge_golemancy_built_10]
+title = "Molis ir kibirkštis"
+description = "Pastatyk 10 golemų"
+
+[advancement.challenge_golemancy_built_100]
+title = "Milžinų liejykla"
+description = "Pastatyk 100 golemų"
+
 [agility.armor_up]
 name = "Sarvai Aukstyn"
 description = "Kuo ilgiau begsite, tuo daugiau sarvu!"
@@ -5365,6 +5373,11 @@ description = "Be ginklo nebunate be jegos."
 name = "Kinetika"
 icon = "⚒"
 description = "Judėjimas yra galia. Smash su makaromis, įkrovimas ietimis, ir lenkimo pagreitis pats: Bounces, paleidimas, levitacija, ir gerai orientuota mažėja anvils visi pašarų savo meistriškumą."
+
+[skill.golemancy]
+name = "Golemantija"
+icon = "⚙"
+description = "Kelk lygį statydamas, taisydamas ir prižiūrėdamas golemus, o tada įkvėpk jiems gyvybę, kad kovotų ir dirbtų šalia tavęs."
 
 [snippets.gui]
 level = "Lygis"

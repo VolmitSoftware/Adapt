@@ -3053,6 +3053,14 @@ description = "להפוך את התנועה לכוח."
 title = "חידושו של ניוטון"
 description = "להרוג אספסוף עם הנפילה שלך צנח מן 8 או יותר בלוקים."
 
+[advancement.challenge_golemancy_built_10]
+title = "חומר וניצוץ"
+description = "בנה 10 גולמים"
+
+[advancement.challenge_golemancy_built_100]
+title = "בית היציקה של הענקים"
+description = "בנה 100 גולמים"
+
 [agility.armor_up]
 name = "שריון-אפ"
 description = "קבל יותר שריון ככל שאתה רץ יותר זמן!"
@@ -5365,6 +5373,11 @@ description = "בלי נשק לא אומר בלי כוח."
 name = "קינטי"
 icon = "⚒"
 description = "תנועה היא כוח. לחץ עם מקלות, לטען עם רדפים, ולגלג את האימנטום עצמו: קפיצות, שיטורים, לוויטה, וניקי נפילה מכוונים היטב כל אלה מאכילים את הבעלים שלך."
+
+[skill.golemancy]
+name = "כישוף גולמים"
+icon = "⚙"
+description = "עלה ברמה על ידי בנייה, תיקון וטיפול בגולמים, ואז הפח בהם חיים כדי שילחמו ויעבדו לצדך."
 
 [snippets.gui]
 level = "רמה"

@@ -436,6 +436,10 @@ public final class AdaptGameplayFixture extends JavaPlugin {
                 arena.getBlockAt(0, 107, 0).setType(Material.STONE, false);
                 actor.teleport(new Location(arena, 0.5, 108, 0.5, -90, 0));
             }
+            case "golemancy" -> {
+                give(actor, Material.SNOW_BLOCK, 2);
+                give(actor, Material.CARVED_PUMPKIN, 1);
+            }
             default -> {
                 if (!BrewingFixtures.stage(name, arena, actor) && !MovementFixtures.stage(name, arena, actor)
                         && !RangedFixtures.stage(name, arena, actor, opponent) && !ArchitectFixtures.stage(name, arena, actor)

@@ -3053,6 +3053,14 @@ description = "Güç içine hareket et."
 title = "Newton'un Receipt"
 description = "Kendi başına düşen bir çeteyi öldür 8 veya daha fazla blok."
 
+[advancement.challenge_golemancy_built_10]
+title = "Kil ve kıvılcım"
+description = "10 golem inşa et"
+
+[advancement.challenge_golemancy_built_100]
+title = "Devlerin dökümhanesi"
+description = "100 golem inşa et"
+
 [agility.armor_up]
 name = "Zirhlan"
 description = "Ne kadar uzun sure kosarsan o kadar cok zirh al!"
@@ -5365,6 +5373,11 @@ description = "Silahsiz olmak gucsuz olmak degildir."
 name = "Kinetics"
 icon = "⚒"
 description = "Hareket güçtür. Makullarla, mızraklar ile şarj edin ve momentumun kendisini bükmek: Adımlar, fırlatmalar, Yararlanma ve iyi niyetli düşenler tüm ustanızı besledi."
+
+[skill.golemancy]
+name = "Golemcilik"
+icon = "⚙"
+description = "Golem inşa ederek, onararak ve onlara bakarak seviye atla, ardından onlara can vererek yanında savaşmalarını ve çalışmalarını sağla."
 
 [snippets.gui]
 level = "Seviye"

@@ -3053,6 +3053,14 @@ description = "Biến chuyển động thành sức mạnh."
 title = "Hóa Đơn Của Newton"
 description = "Hạ một sinh vật bằng chiếc đe do bạn thả rơi từ độ cao ít nhất 8 khối."
 
+[advancement.challenge_golemancy_built_10]
+title = "Đất sét và tia lửa"
+description = "Chế tạo 10 golem"
+
+[advancement.challenge_golemancy_built_100]
+title = "Xưởng đúc người khổng lồ"
+description = "Chế tạo 100 golem"
+
 [agility.armor_up]
 name = "Tăng Giáp"
 description = "Nhận thêm giáp khi bạn chạy nước rút càng lâu!"
@@ -5365,6 +5373,11 @@ description = "Không vũ khí không có nghĩa là không có sức mạnh."
 name = "Kinetics"
 icon = "⚒"
 description = "Hành động là sức mạnh. Đánh đập bằng dao, sạc bằng giáo, và xoay động lực chính nó: nhảy, phóng, bơm, và những chiếc đũa rơi được nhắm mục tiêu tốt tất cả đều nuôi dưỡng khả năng làm chủ của bạn."
+
+[skill.golemancy]
+name = "Thuật Golem"
+icon = "⚙"
+description = "Lên cấp bằng cách chế tạo, sửa chữa và chăm sóc golem, rồi thổi hồn để chúng chiến đấu và làm việc bên cạnh bạn."
 
 [snippets.gui]
 level = "Cấp Độ"

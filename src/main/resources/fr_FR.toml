@@ -3049,6 +3049,14 @@ description = "Transformez le mouvement en puissance."
 title = "La Facture de Newton"
 description = "Tuer une créature avec votre propre enclume lâchée d'au moins 8 blocs de haut."
 
+[advancement.challenge_golemancy_built_10]
+title = "Argile et étincelle"
+description = "Construisez 10 golems"
+
+[advancement.challenge_golemancy_built_100]
+title = "Fonderie de géants"
+description = "Construisez 100 golems"
+
 [agility.armor_up]
 name = "Armure Cinétique"
 description = "Gagnez davantage d'armure plus vous sprintez longtemps ! Si vous vous arrêtez, elle se dissipe lentement."
@@ -5361,6 +5369,11 @@ description = "Être sans arme ne signifie pas être sans force. Montez de nivea
 name = "Cinétique"
 icon = "⚒"
 description = "Le mouvement est synonyme de puissance. Écrasez vos ennemis à la masse, chargez à la lance et pliez l'élan lui-même : rebonds, propulsions, lévitation et chutes d'enclumes bien visées nourrissent votre maîtrise."
+
+[skill.golemancy]
+name = "Golémancie"
+icon = "⚙"
+description = "Progressez en construisant, réparant et entretenant des golems, puis animez-les pour qu'ils combattent et travaillent à vos côtés."
 
 [snippets.gui]
 level = "Niveau"
