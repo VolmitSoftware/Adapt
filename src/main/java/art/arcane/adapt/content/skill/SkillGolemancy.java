@@ -34,6 +34,7 @@ import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
 import art.arcane.adapt.content.skill.golemancy.GolemXpRules;
 import art.arcane.adapt.content.skill.golemancy.HostileDamagePool;
 import art.arcane.adapt.content.skill.golemancy.RollingXpCap;
+import art.arcane.adapt.content.skill.golemancy.SpawnerMobTag;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
@@ -135,6 +136,10 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   public void on(CreatureSpawnEvent e) {
     SpawnReason reason = e.getSpawnReason();
     LivingEntity golem = e.getEntity();
+    if (SpawnerMobTag.isSpawnerReason(reason) && isEnabled()) {
+      SpawnerMobTag.mark(golem);
+      return;
+    }
     if (GolemBuildAttribution.bodyKey(reason) == null || shouldReturnForWorld(golem.getWorld(), this)) {
       return;
     }
@@ -177,15 +182,15 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     }
     Golem golem = GolemXpRules.witnessGolem(lastDamage.getDamager());
     if (golem == null
+        || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(golem))
         || MinionIdentity.isMinion(victim)
         || ExcavationGraveDigger.isGraveMob(victim)
         || MinionIdentity.isMinion(golem)
-        || shouldReturnForWorld(victim.getWorld(), this)
-        || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(golem))) {
+        || shouldReturnForWorld(victim.getWorld(), this)) {
       return;
     }
     double killValue = GolemXpRules.killValue(getConfig().golemKillXpBase, maxHealthOf(victim), getConfig().golemKillMaxHealthMultiplier);
-    double xp = GolemXpRules.witnessXp(killValue, getConfig().witnessXpMultiplier, SkillHunter.isSpawnerMob(victim), getConfig().spawnerMobXpMultiplier);
+    double xp = GolemXpRules.witnessXp(killValue, getConfig().witnessXpMultiplier, SpawnerMobTag.isTagged(victim), getConfig().spawnerMobXpMultiplier);
     if (xp <= 0D) {
       return;
     }
@@ -231,7 +236,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
       return;
     }
     xp(builder, at, xp, "golemancy:build:" + GolemBuildAttribution.bodyKey(reason));
-    fx(at, FxPriority.TRANSITION)
+    fx(at, FxPriority.AMBIENT)
         .column(Particles.END_ROD, 5, 1.2D)
         .particle(Particles.VILLAGER_HAPPY, 4, 0D, 0.8D, 0D, 0.3D, 0D)
         .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.8F);
@@ -377,7 +382,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double copperScrapeXp = 60;
     @ConfigDoc(value = "Skill XP paid the first time you wax a copper golem with honeycomb.", impact = "Higher values reward waxing more; each golem pays once.")
     double copperWaxXp = 30;
-    @ConfigDoc(value = "Multiplier applied to Golemancy XP from mobs that came from a spawner.", impact = "Lower values make spawner farms pay less; 1.0 pays the same as natural mobs.")
+    @ConfigDoc(value = "Multiplier applied to Golemancy XP from mobs that came from a spawner or trial spawner.", impact = "Lower values make spawner farms pay less; 1.0 pays the same as natural mobs.")
     double spawnerMobXpMultiplier = 0.3;
     @ConfigDoc(value = "Knowledge paid by the golem building challenges.", impact = "Higher values pay more knowledge; the 100 builds challenge pays five times this value.")
     double challengeBuiltReward = 500;

@@ -246,10 +246,6 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     }
   }
 
-  public static boolean isSpawnerMob(Entity entity) {
-    return entity.getPersistentDataContainer().has(SPAWNER_MOB_KEY, PersistentDataType.BYTE);
-  }
-
   private void recordKillStats(Player p, Entity entity) {
     addStat(p, "killed.kills", 1);
     if (entity instanceof Monster) {
@@ -258,6 +254,10 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
     if (entity.getType() == EntityType.CREEPER) {
       addStat(p, "killed.creepers", 1);
     }
+  }
+
+  private boolean isSpawnerMob(Entity entity) {
+    return entity.getPersistentDataContainer().has(SPAWNER_MOB_KEY, PersistentDataType.BYTE);
   }
 
   private void handleEntityKill(Player p, Entity entity) {
