@@ -4,11 +4,11 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
-import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.volmlib.integration.VaultEconomy;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class AdaptationLearningTransaction {
@@ -149,7 +149,11 @@ public final class AdaptationLearningTransaction {
     }
     clearRefundReceipts(skillLine, adaptation.getName(), normalizedTarget, currentLevel);
     if (bypassCosts) {
-      removeDependents(adaptPlayer.getData(), player);
+      AdaptationRequirements.forfeitLevels(
+          List.of(new AdaptationRequirements.Lowering(adaptation, paidLevel)),
+          adaptPlayer.getData(),
+          player.getName()
+      );
     }
     return Result.UNLEARNED;
   }
@@ -186,6 +190,17 @@ public final class AdaptationLearningTransaction {
   static boolean isConfigured() {
     AdaptConfig.LearningEconomy config = AdaptConfig.get().getLearningEconomy();
     return config != null && config.isEnabled() && positiveFinite(config.getMoneyPerKnowledge()) > 0D;
+  }
+
+  static void clearRefundReceipts(
+      PlayerSkillLine skillLine,
+      String adaptationName,
+      int targetLevel,
+      int currentLevel
+  ) {
+    for (int level = targetLevel + 1; level <= currentLevel; level++) {
+      skillLine.getStorage().remove(receiptKey(adaptationName, level));
+    }
   }
 
   private static boolean isRegionGranted(PlayerSkillLine skillLine, String adaptationName) {
@@ -231,27 +246,6 @@ public final class AdaptationLearningTransaction {
       refund += positiveFinite(storedDouble(skillLine, receiptKey(adaptationName, level)));
     }
     return refund;
-  }
-
-  private static void clearRefundReceipts(
-      PlayerSkillLine skillLine,
-      String adaptationName,
-      int targetLevel,
-      int currentLevel
-  ) {
-    for (int level = targetLevel + 1; level <= currentLevel; level++) {
-      skillLine.getStorage().remove(receiptKey(adaptationName, level));
-    }
-  }
-
-  private static void removeDependents(PlayerData data, Player player) {
-    for (AdaptationRequirements.Removal removal : AdaptationRequirements.removeUnmet(data, player.getName())) {
-      Adaptation<?> removed = removal.adaptation();
-      PlayerSkillLine line = data.getSkillLineNullable(removed.getSkill().getName());
-      if (line != null) {
-        clearRefundReceipts(line, removed.getName(), 0, removal.previousLevel());
-      }
-    }
   }
 
   private static void refundOrQueue(Player player, PlayerSkillLine skillLine, double amount, String adaptationName) {

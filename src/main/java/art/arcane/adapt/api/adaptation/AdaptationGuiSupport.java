@@ -343,7 +343,13 @@ final class AdaptationGuiSupport {
               boolean debugLearningClick = AdaptDebugMode.isActive(player);
               long currentKnowledge = skillLine.getKnowledge();
               if (debugLearningClick || (currentKnowledge >= c && currentPlayer.getData().hasPowerAvailable(pc))) {
-                if (adaptation.isPermanent() && !debugLearningClick && !consumePermanentLearnConfirmation(player, adaptation, lvl)) {
+                LearnGate gate = learnGate(adaptation, player, currentPlayer, lvl, debugLearningClick);
+                if (gate == LearnGate.REQUIREMENTS_MISSING) {
+                  spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                  notifyLearningFailure(adaptation, player, currentPlayer, AdaptationLearningTransaction.Result.REQUIREMENTS_MISSING);
+                  return;
+                }
+                if (gate == LearnGate.CONFIRM_PERMANENT) {
                   spw.play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.85f);
                   AdaptHud.guiTitle(player, " ", C.GOLD + "" + C.BOLD + AdaptLanguage.text(GuiMessages.PERMANENT_LEARN_CONFIRM));
                   J.runEntity(player, () -> openAdaptationPage(adaptation, player, currentPage), 1);
@@ -479,6 +485,22 @@ final class AdaptationGuiSupport {
     PERMANENT_LEARN_CONFIRMATIONS.keySet().removeIf(existing -> existing.startsWith(prefix));
     PERMANENT_LEARN_CONFIRMATIONS.put(key, now + PERMANENT_LEARN_CONFIRM_WINDOW_MS);
     return false;
+  }
+
+  static LearnGate learnGate(
+      Adaptation<?> adaptation,
+      Player player,
+      AdaptPlayer adaptPlayer,
+      int level,
+      boolean debugLearning
+  ) {
+    if (!AdaptationRequirements.missing(adaptation, adaptPlayer.getData()).isEmpty()) {
+      return LearnGate.REQUIREMENTS_MISSING;
+    }
+    if (adaptation.isPermanent() && !debugLearning && !consumePermanentLearnConfirmation(player, adaptation, level)) {
+      return LearnGate.CONFIRM_PERMANENT;
+    }
+    return LearnGate.READY;
   }
 
   static AdaptationLearningTransaction.Result unlearn(Adaptation<?> adaptation, Player player, int lvl, boolean force) {
@@ -772,5 +794,11 @@ final class AdaptationGuiSupport {
 
   private static String permanentConfirmKey(Player player, Adaptation<?> adaptation, int level) {
     return permanentConfirmPrefix(player, adaptation) + level;
+  }
+
+  enum LearnGate {
+    READY,
+    REQUIREMENTS_MISSING,
+    CONFIRM_PERMANENT
   }
 }

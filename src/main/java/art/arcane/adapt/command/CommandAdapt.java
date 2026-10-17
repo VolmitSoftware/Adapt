@@ -468,7 +468,7 @@ public class CommandAdapt {
       AdaptationListingHandler.AdaptationProvider adaptationTarget,
       @Param(aliases = "assign", description = "true to learn, false to unlearn", descriptionKey = "command.help.true_to_learn_false_to_unlearn")
       boolean assign,
-      @Param(aliases = "force", description = "Bypass costs and restrictions", descriptionKey = "command.help.bypass_costs_and_restrictions")
+      @Param(aliases = "force", description = "Bypass costs and permanence; prerequisites still apply", descriptionKey = "command.help.bypass_costs_and_permanence_prerequisites_still_apply")
       boolean force,
       @Param(aliases = "level", description = "Adaptation level to apply", descriptionKey = "command.help.adaptation_level_to_apply")
       int level,

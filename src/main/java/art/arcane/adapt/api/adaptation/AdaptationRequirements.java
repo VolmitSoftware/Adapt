@@ -11,7 +11,9 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
 import art.arcane.adapt.util.common.format.C;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -24,6 +26,20 @@ public final class AdaptationRequirements {
   private static final String SEPARATOR = ", ";
 
   private AdaptationRequirements() {
+  }
+
+  public static Adaptation<?> find(String adaptationId) {
+    if (adaptationId == null) {
+      return null;
+    }
+    for (Skill<?> skill : registeredSkills()) {
+      for (Adaptation<?> adaptation : skill.getAdaptations()) {
+        if (adaptation.getName().equalsIgnoreCase(adaptationId)) {
+          return adaptation;
+        }
+      }
+    }
+    return null;
   }
 
   public static List<AdaptationRequirement> missing(Adaptation<?> adaptation, PlayerData data) {
@@ -43,35 +59,22 @@ public final class AdaptationRequirements {
   }
 
   public static List<Adaptation<?>> dependents(Adaptation<?> adaptation, PlayerData data, int targetLevel) {
-    List<Adaptation<?>> dependents = new ArrayList<>();
-    for (Skill<?> skill : registeredSkills()) {
-      for (Adaptation<?> candidate : skill.getAdaptations()) {
-        if (candidate != adaptation
-            && requiresAbove(candidate, adaptation.getName(), targetLevel)
-            && learnedLevel(candidate, data) > 0) {
-          dependents.add(candidate);
-        }
-      }
-    }
-    return dependents;
+    return brokenDependents(adaptation, data, learnedLevel(adaptation, data), targetLevel);
   }
 
-  public static List<Removal> removeUnmet(PlayerData data, String playerName) {
-    List<Removal> removals = new ArrayList<>();
-    boolean removedAny = true;
-    while (removedAny) {
-      removedAny = false;
-      for (Skill<?> skill : registeredSkills()) {
-        for (Adaptation<?> adaptation : skill.getAdaptations()) {
-          Removal removal = removeIfUnmet(adaptation, data, playerName);
-          if (removal != null) {
-            removals.add(removal);
-            removedAny = true;
-          }
-        }
+  public static void forfeitLevels(List<Lowering> lowered, PlayerData data, String playerName) {
+    for (Lowering lowering : lowered) {
+      clearReceipts(lowering.adaptation(), data, learnedLevel(lowering.adaptation(), data), lowering.previousLevel());
+    }
+
+    Deque<Lowering> pending = new ArrayDeque<>(lowered);
+    while (!pending.isEmpty()) {
+      Lowering current = pending.poll();
+      int currentLevel = learnedLevel(current.adaptation(), data);
+      for (Adaptation<?> dependent : brokenDependents(current.adaptation(), data, current.previousLevel(), currentLevel)) {
+        pending.add(remove(dependent, data, current, currentLevel, playerName));
       }
     }
-    return removals;
   }
 
   public static void warnUnresolved(List<Skill<?>> skills) {
@@ -123,57 +126,66 @@ public final class AdaptationRequirements {
     return displayName == null ? adaptation.getName() : C.stripColor(displayName);
   }
 
-  private static Adaptation<?> find(String adaptationId) {
-    if (adaptationId == null) {
-      return null;
-    }
-    for (Skill<?> skill : registeredSkills()) {
-      for (Adaptation<?> adaptation : skill.getAdaptations()) {
-        if (adaptation.getName().equalsIgnoreCase(adaptationId)) {
-          return adaptation;
-        }
-      }
-    }
-    return null;
-  }
-
   private static int learnedLevel(Adaptation<?> adaptation, PlayerData data) {
     PlayerSkillLine line = data.getSkillLineNullable(adaptation.getSkill().getName());
     PlayerAdaptation stored = line == null ? null : line.getAdaptation(adaptation.getName());
     return stored == null || stored.isRegionGranted() ? 0 : Math.max(0, stored.getLevel());
   }
 
-  private static boolean requiresAbove(Adaptation<?> candidate, String adaptationName, int level) {
+  private static List<Adaptation<?>> brokenDependents(
+      Adaptation<?> adaptation,
+      PlayerData data,
+      int fromLevel,
+      int toLevel
+  ) {
+    List<Adaptation<?>> dependents = new ArrayList<>();
+    if (toLevel >= fromLevel) {
+      return dependents;
+    }
+    for (Skill<?> skill : registeredSkills()) {
+      for (Adaptation<?> candidate : skill.getAdaptations()) {
+        if (candidate != adaptation
+            && breaksRequirement(candidate, adaptation.getName(), fromLevel, toLevel)
+            && learnedLevel(candidate, data) > 0) {
+          dependents.add(candidate);
+        }
+      }
+    }
+    return dependents;
+  }
+
+  private static boolean breaksRequirement(Adaptation<?> candidate, String adaptationName, int fromLevel, int toLevel) {
     for (AdaptationRequirement requirement : candidate.getRequirements()) {
-      if (requirement.level() > level && requirement.adaptationId().equalsIgnoreCase(adaptationName)) {
+      if (requirement.level() > toLevel
+          && requirement.level() <= fromLevel
+          && requirement.adaptationId().equalsIgnoreCase(adaptationName)) {
         return true;
       }
     }
     return false;
   }
 
-  private static Removal removeIfUnmet(Adaptation<?> adaptation, PlayerData data, String playerName) {
-    int level = learnedLevel(adaptation, data);
-    if (level <= 0) {
-      return null;
-    }
-    List<AdaptationRequirement> missing = missing(adaptation, data);
-    if (missing.isEmpty()) {
-      return null;
-    }
-
-    data.getSkillLineNullable(adaptation.getSkill().getName()).setAdaptation(adaptation, 0);
-    Adapt.info("Removed " + adaptation.getName() + " level " + level + " from " + playerName
-        + " because its requirements are no longer met: " + requirementIds(missing) + ".");
-    return new Removal(adaptation, level);
+  private static Lowering remove(
+      Adaptation<?> dependent,
+      PlayerData data,
+      Lowering cause,
+      int causeLevel,
+      String playerName
+  ) {
+    int previousLevel = learnedLevel(dependent, data);
+    data.getSkillLineNullable(dependent.getSkill().getName()).setAdaptation(dependent, 0);
+    clearReceipts(dependent, data, 0, previousLevel);
+    Adapt.info("Removed " + dependent.getName() + " level " + previousLevel + " from " + playerName
+        + " because " + cause.adaptation().getName() + " dropped from level " + cause.previousLevel()
+        + " to " + causeLevel + ".");
+    return new Lowering(dependent, previousLevel);
   }
 
-  private static String requirementIds(List<AdaptationRequirement> requirements) {
-    List<String> ids = new ArrayList<>(requirements.size());
-    for (AdaptationRequirement requirement : requirements) {
-      ids.add(requirement.adaptationId() + ":" + requirement.level());
+  private static void clearReceipts(Adaptation<?> adaptation, PlayerData data, int targetLevel, int previousLevel) {
+    PlayerSkillLine line = data.getSkillLineNullable(adaptation.getSkill().getName());
+    if (line != null) {
+      AdaptationLearningTransaction.clearRefundReceipts(line, adaptation.getName(), targetLevel, previousLevel);
     }
-    return String.join(SEPARATOR, ids);
   }
 
   private static List<Skill<?>> registeredSkills() {
@@ -183,6 +195,6 @@ public final class AdaptationRequirements {
     return registry == null ? List.of() : registry.getSkills();
   }
 
-  public record Removal(Adaptation<?> adaptation, int previousLevel) {
+  public record Lowering(Adaptation<?> adaptation, int previousLevel) {
   }
 }

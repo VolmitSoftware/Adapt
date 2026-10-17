@@ -6,6 +6,7 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.util.common.format.C;
@@ -220,7 +221,7 @@ class AdaptationRequirementsTest {
   }
 
   @Test
-  void forcedRemovalCascadesThroughDependentsAndLogsEachRemoval() {
+  void forcedRemovalCascadesThroughATransitiveChainAndLogsEachRemoval() {
     fixture.requires(fixture.dependent, new AdaptationRequirement("alpha-base", 2));
     fixture.requires(fixture.cross, new AdaptationRequirement("alpha-dependent", 1));
     fixture.setLevel(fixture.base, 2);
@@ -228,6 +229,7 @@ class AdaptationRequirementsTest {
     fixture.setLevel(fixture.cross, 1);
     fixture.setLevel(fixture.other, 2);
     fixture.line(fixture.dependent).getStorage().put("vault-learning-refund-alpha-dependent-level-1", 4D);
+    fixture.line(fixture.cross).getStorage().put("vault-learning-refund-beta-cross-level-1", 3D);
 
     assertThat(fixture.unlearn(fixture.base, 1, true)).isEqualTo(AdaptationLearningTransaction.Result.UNLEARNED);
 
@@ -237,6 +239,8 @@ class AdaptationRequirementsTest {
     assertThat(fixture.level(fixture.other)).isEqualTo(2);
     assertThat(fixture.line(fixture.dependent).getStorage())
         .doesNotContainKey("vault-learning-refund-alpha-dependent-level-1");
+    assertThat(fixture.line(fixture.cross).getStorage())
+        .doesNotContainKey("vault-learning-refund-beta-cross-level-1");
     assertThat(handler.messages(Level.INFO))
         .hasSize(2)
         .anyMatch(message -> message.contains("alpha-dependent") && message.contains("Steve"))
@@ -244,17 +248,89 @@ class AdaptationRequirementsTest {
   }
 
   @Test
-  void powerBudgetPruneRemovesDependentsLeftWithoutTheirRequirement() {
+  void forcedUnlearnLeavesAdaptationsBrokenByConfigAlone() {
+    fixture.requires(fixture.dependent, new AdaptationRequirement("alpha-base", 3));
+    fixture.setLevel(fixture.base, 2);
+    fixture.setLevel(fixture.dependent, 1);
+    fixture.setLevel(fixture.other, 2);
+
+    assertThat(fixture.unlearn(fixture.other, 0, true)).isEqualTo(AdaptationLearningTransaction.Result.UNLEARNED);
+    assertThat(fixture.unlearn(fixture.base, 1, false)).isEqualTo(AdaptationLearningTransaction.Result.UNLEARNED);
+    assertThat(fixture.unlearn(fixture.base, 0, true)).isEqualTo(AdaptationLearningTransaction.Result.UNLEARNED);
+
+    assertThat(fixture.level(fixture.dependent)).isEqualTo(1);
+    assertThat(handler.messages(Level.INFO)).isEmpty();
+  }
+
+  @Test
+  void unresolvableRequirementsNeverCauseRemoval() {
+    fixture.requires(fixture.cross, new AdaptationRequirement("ghost-adaptation", 1));
+    fixture.requires(fixture.dependent, new AdaptationRequirement("gamma-hidden", 1));
+    fixture.setLevel(fixture.base, 2);
+    fixture.setLevel(fixture.dependent, 3);
+    fixture.setLevel(fixture.cross, 3);
+    fixture.storeDisabledSkillAdaptation("gamma", "gamma-hidden", 1);
+
+    assertThat(fixture.unlearn(fixture.base, 0, true)).isEqualTo(AdaptationLearningTransaction.Result.UNLEARNED);
+    fixture.data.setRegionPowerBonus(6);
+    fixture.data.pruneAdaptationsForPowerBudget();
+
+    assertThat(fixture.data.getSkillLines().get("gamma").getAdaptations()).doesNotContainKey("gamma-hidden");
+    assertThat(fixture.level(fixture.dependent)).isEqualTo(3);
+    assertThat(fixture.level(fixture.cross)).isEqualTo(3);
+    assertThat(handler.messages(Level.INFO)).isEmpty();
+  }
+
+  @Test
+  void powerTrimLowersDependentsBeforeTheirPrerequisite() {
     fixture.requires(fixture.dependent, new AdaptationRequirement("alpha-base", 1));
     fixture.setLevel(fixture.base, 1);
-    fixture.setLevel(fixture.dependent, 2);
-    fixture.data.setRegionPowerBonus(2);
+    fixture.setLevel(fixture.dependent, 3);
+    fixture.data.setRegionPowerBonus(3);
+
+    fixture.data.pruneAdaptationsForPowerBudget();
+
+    assertThat(fixture.level(fixture.base)).isEqualTo(1);
+    assertThat(fixture.level(fixture.dependent)).isEqualTo(2);
+    assertThat(handler.messages(Level.INFO)).isEmpty();
+  }
+
+  @Test
+  void powerTrimCascadesLikeAForcedUnlearnWhenOnlyAPrerequisiteCanDrop() {
+    fixture.requires(fixture.base, new AdaptationRequirement("alpha-dependent", 1));
+    fixture.requires(fixture.dependent, new AdaptationRequirement("alpha-base", 1));
+    fixture.setLevel(fixture.base, 1);
+    fixture.setLevel(fixture.dependent, 1);
+    fixture.line(fixture.base).getStorage().put("vault-learning-refund-alpha-base-level-1", 2D);
+    fixture.line(fixture.dependent).getStorage().put("vault-learning-refund-alpha-dependent-level-1", 4D);
+    fixture.data.setRegionPowerBonus(1);
 
     fixture.data.pruneAdaptationsForPowerBudget();
 
     assertThat(fixture.level(fixture.base)).isZero();
     assertThat(fixture.level(fixture.dependent)).isZero();
-    assertThat(handler.messages(Level.INFO)).hasSize(1).allMatch(message -> message.contains("alpha-dependent"));
+    assertThat(fixture.line(fixture.base).getStorage()).doesNotContainKeys(
+        "vault-learning-refund-alpha-base-level-1",
+        "vault-learning-refund-alpha-dependent-level-1"
+    );
+    assertThat(handler.messages(Level.INFO)).hasSize(1);
+  }
+
+  @Test
+  void unmetRequirementDeniesBeforeThePermanentConfirmation() {
+    fixture.requires(fixture.dependent, new AdaptationRequirement("alpha-base", 1));
+    when(fixture.dependent.isPermanent()).thenReturn(true);
+
+    assertThat(AdaptationGuiSupport.learnGate(fixture.dependent, fixture.player, fixture.adaptPlayer, 1, false))
+        .isEqualTo(AdaptationGuiSupport.LearnGate.REQUIREMENTS_MISSING);
+    assertThat(AdaptationGuiSupport.isPermanentLearnConfirmationPending(fixture.player, fixture.dependent, 1)).isFalse();
+
+    fixture.setLevel(fixture.base, 1);
+
+    assertThat(AdaptationGuiSupport.learnGate(fixture.dependent, fixture.player, fixture.adaptPlayer, 1, false))
+        .isEqualTo(AdaptationGuiSupport.LearnGate.CONFIRM_PERMANENT);
+    assertThat(AdaptationGuiSupport.learnGate(fixture.dependent, fixture.player, fixture.adaptPlayer, 1, false))
+        .isEqualTo(AdaptationGuiSupport.LearnGate.READY);
   }
 
   private static final class Fixture {
@@ -279,6 +355,7 @@ class AdaptationRequirementsTest {
       doReturn(adaptations(base, dependent)).when(alpha).getAdaptations();
       doReturn(adaptations(other, cross)).when(beta).getAdaptations();
       when(player.getName()).thenReturn("Steve");
+      when(player.getUniqueId()).thenReturn(UUID.randomUUID());
       when(adaptPlayer.getData()).thenReturn(data);
       data.setRegionPowerBonus(64);
       for (Skill<?> skill : List.of(alpha, beta)) {
@@ -323,6 +400,16 @@ class AdaptationRequirementsTest {
 
     private void setLevel(Adaptation<?> adaptation, int level) {
       line(adaptation).setAdaptation(adaptation, level);
+    }
+
+    private void storeDisabledSkillAdaptation(String skillName, String adaptationId, int level) {
+      PlayerSkillLine line = new PlayerSkillLine();
+      line.setLine(skillName);
+      PlayerAdaptation stored = new PlayerAdaptation();
+      stored.setId(adaptationId);
+      stored.setLevel(level);
+      line.getAdaptations().put(adaptationId, stored);
+      data.getSkillLines().put(skillName, line);
     }
 
     private int level(Adaptation<?> adaptation) {

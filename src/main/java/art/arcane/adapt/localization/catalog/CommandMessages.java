@@ -18,7 +18,7 @@ public final class CommandMessages {
   public static final TextKey HELP_BOOST_GLOBAL_EXPERIENCE_GAIN = TextKey.of("command.help.boost_global_experience_gain", "Boost Global Experience gain.");
   public static final TextKey HELP_BOOST_TARGET_PLAYER_EXPERIENCE_GAIN = TextKey.of("command.help.boost_target_player_experience_gain", "Boost Target player Experience gain.");
   public static final TextKey HELP_BYPASS_ADAPT_USE_PERMISSION_CHECKS_WHEN_OPENING = TextKey.of("command.help.bypass_adapt_use_permission_checks_when_opening", "Bypass adapt.use permission checks when opening");
-  public static final TextKey HELP_BYPASS_COSTS_AND_RESTRICTIONS = TextKey.of("command.help.bypass_costs_and_restrictions", "Bypass costs and restrictions");
+  public static final TextKey HELP_BYPASS_COSTS_AND_PERMANENCE_PREREQUISITES_STILL_APPLY = TextKey.of("command.help.bypass_costs_and_permanence_prerequisites_still_apply", "Bypass costs and permanence; prerequisites still apply");
   public static final TextKey HELP_BYPASS_POWER_KNOWLEDGE_AND_PERMANENCE_CHECKS = TextKey.of("command.help.bypass_power_knowledge_and_permanence_checks", "Bypass power, knowledge, and permanence checks");
   public static final TextKey HELP_CLEAR_ALL_DISCOVERY_DATA_BIOMES_MOBS_FOODS_ITEMS_RECIPES_ETC = TextKey.of("command.help.clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc", "Clear all discovery data (biomes, mobs, foods, items, recipes, etc.)");
   public static final TextKey HELP_CLEAR_ALL_PLAYER_DATA_XP_KNOWLEDGE_ADAPTATIONS_STATS_DISCOVERIES_ADVANCEMENTS_WISDOM = TextKey.of("command.help.clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom", "Clear all player data (XP, knowledge, adaptations, stats, discoveries, advancements, wisdom)");
@@ -82,7 +82,7 @@ public final class CommandMessages {
     builder.add(HELP_BOOST_GLOBAL_EXPERIENCE_GAIN);
     builder.add(HELP_BOOST_TARGET_PLAYER_EXPERIENCE_GAIN);
     builder.add(HELP_BYPASS_ADAPT_USE_PERMISSION_CHECKS_WHEN_OPENING);
-    builder.add(HELP_BYPASS_COSTS_AND_RESTRICTIONS);
+    builder.add(HELP_BYPASS_COSTS_AND_PERMANENCE_PREREQUISITES_STILL_APPLY);
     builder.add(HELP_BYPASS_POWER_KNOWLEDGE_AND_PERMANENCE_CHECKS);
     builder.add(HELP_CLEAR_ALL_DISCOVERY_DATA_BIOMES_MOBS_FOODS_ITEMS_RECIPES_ETC);
     builder.add(HELP_CLEAR_ALL_PLAYER_DATA_XP_KNOWLEDGE_ADAPTATIONS_STATS_DISCOVERIES_ADVANCEMENTS_WISDOM);
