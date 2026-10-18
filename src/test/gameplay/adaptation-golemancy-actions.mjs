@@ -217,6 +217,22 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
+    ['golem-rancher-core', {
+        stage: 'golemancy-rancher-binding', trigger: bindCopper,
+        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }],
+        prepare: ({ equip }) => equip('firework_star'),
+        description: 'binding a copper golem with a Rancher Core needs Rancher Core learned and turns the golem into a working Rancher',
+        async verify({ context, unlearned, active }) {
+            context.expect(!unlearned.bound, 'Without Rancher Core the copper golem refuses the Rancher Core and stays unbound')
+            context.expect(active.bound && active.boundToPlayer, 'With Rancher Core the copper golem binds to the player')
+            context.expect(active.core === 'rancher', 'The bound golem carries the Rancher Core')
+            context.expect(active.mode === 'work', 'A new Rancher starts in Work mode, ready for Pasture Nodes')
+            return {
+                assertions: ['unlearned binding leaves the copper golem unbound', 'learned binding makes the copper golem a Rancher in Work mode'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
     ['golem-angler-core', {
         stage: 'golemancy-angler-binding', trigger: bindCopper,
         prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }],

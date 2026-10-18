@@ -36,6 +36,7 @@ public final class GolemancyFixtures {
     private static final String HARVESTER_BINDING_STAGE = "golemancy-harvester-binding";
     private static final String LUMBER_BINDING_STAGE = "golemancy-lumber-binding";
     private static final String BREAKER_BINDING_STAGE = "golemancy-breaker-binding";
+    private static final String RANCHER_BINDING_STAGE = "golemancy-rancher-binding";
     private static final String ANGLER_BINDING_STAGE = "golemancy-angler-binding";
     private static final String COPPER_BINDING_STAGE = "golemancy-copper-binding";
     private static final String IRON_BINDING_STAGE = "golemancy-iron-binding";
@@ -104,6 +105,14 @@ public final class GolemancyFixtures {
             IronGolem golem = world.spawn(new Location(world, 2.5, 100, 0.5), IronGolem.class);
             golem.setPlayerCreated(true);
             golem.addScoreboardTag(IRON_GOLEM_TAG);
+            return true;
+        }
+        if (RANCHER_BINDING_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.setLevel(5);
+            actor.getInventory().addItem(GolemItems.core(GolemCoreType.RANCHER));
+            CopperGolem golem = world.spawn(new Location(world, 2.5, 100, 0.5), CopperGolem.class);
+            golem.addScoreboardTag(COPPER_GOLEM_TAG);
             return true;
         }
         if (ANGLER_BINDING_STAGE.equals(name)) {
