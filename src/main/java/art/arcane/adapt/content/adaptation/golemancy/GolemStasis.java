@@ -457,22 +457,23 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
 
   private void packNow(Player player, GolemHandle handle, Runnable refused) {
     GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
-    Optional<GolemRegistry.Packing> packing = Optional.empty();
-    boolean answered = false;
+    Optional<GolemRegistry.Packing> packing;
     try {
-      if (registry != null && !handle.isRetired()) {
-        packing = registry.pack(handle);
+      packing = registry == null || handle.isRetired() ? Optional.empty() : registry.pack(handle);
+    } catch (Throwable failure) {
+      try {
+        refuse(player, refused, GolemancyMessages.STASIS_PACK_FAILED);
+      } catch (Throwable undo) {
+        failure.addSuppressed(undo);
       }
-      answered = true;
-    } catch (RuntimeException failure) {
-      Adapt.warn("Stasis could not pack golem " + handle.id() + " for " + player.getName() + ".", failure);
-    } finally {
-      if (!answered || packing.isEmpty()) {
-        refused.run();
-        warn(player, GolemancyMessages.STASIS_PACK_FAILED);
+      if (failure instanceof RuntimeException) {
+        Adapt.warn("Stasis could not pack golem " + handle.id() + " for " + player.getName() + ".", failure);
+        return;
       }
+      throw failure;
     }
     if (packing.isEmpty()) {
+      refuse(player, refused, GolemancyMessages.STASIS_PACK_FAILED);
       return;
     }
     GolemRegistry.Packing packed = packing.get();
@@ -480,6 +481,14 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     handOver(player, packed.item(), packed.at(), body);
     GolemancyRuntime.reveal().ifPresent(reveal -> reveal.forget(handle));
     packFx(packed.at(), body);
+  }
+
+  private static void refuse(Player player, Runnable refused, TextKey message) {
+    try {
+      refused.run();
+    } finally {
+      warn(player, message);
+    }
   }
 
   private void handOver(Player player, ItemStack item, Location at, GolemBody body) {
@@ -524,21 +533,21 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
   private void deploy(Awaken awaken) {
     Player player = awaken.player();
     GolemSnapshot snapshot = awaken.snapshot();
-    Optional<GolemHandle> handle = Optional.empty();
-    boolean answered = false;
+    Optional<GolemHandle> handle;
     try {
       handle = awaken.registry().awaken(player, awaken.at(), new GolemRegistry.Restore(awaken.item(), GolemRoster.Status.PACKED),
           body -> prepare(body, snapshot));
-      answered = true;
-    } catch (RuntimeException failure) {
-      Adapt.warn("Stasis could not awaken golem " + snapshot.id() + " for " + player.getName() + "; its Dormant Golem was kept.", failure);
-    } finally {
-      if (!answered) {
+    } catch (Throwable failure) {
+      try {
         warn(player, GolemancyMessages.STASIS_AWAKEN_FAILED);
+      } catch (Throwable undo) {
+        failure.addSuppressed(undo);
       }
-    }
-    if (!answered) {
-      return;
+      if (failure instanceof RuntimeException) {
+        Adapt.warn("Stasis could not awaken golem " + snapshot.id() + " for " + player.getName() + "; its Dormant Golem was kept.", failure);
+        return;
+      }
+      throw failure;
     }
     if (handle.isEmpty()) {
       crumble(awaken);

@@ -232,17 +232,18 @@ public final class GolemRegistry extends TickedObject {
     if (!claim(ownerId, snapshot, request)) {
       return Optional.empty();
     }
-    boolean restored = false;
     try {
+      platform.rosterChanged(ownerId);
       GolemState state = GolemState.restored(snapshot, GolemState.Anchor.at(golem.getLocation()));
       writeBound(golem, state, restoredName(owner, snapshot));
-      GolemHandle handle = adoptBound(golem, state);
-      restored = true;
-      return Optional.of(handle);
-    } finally {
-      if (!restored) {
+      return Optional.of(adoptBound(golem, state));
+    } catch (Throwable failure) {
+      try {
         undoRestore(golem, ownerId, request);
+      } catch (Throwable undo) {
+        failure.addSuppressed(undo);
       }
+      throw failure;
     }
   }
 
@@ -260,8 +261,8 @@ public final class GolemRegistry extends TickedObject {
       return Optional.empty();
     }
     AtomicReference<Mob> spawned = new AtomicReference<>();
-    boolean awakened = false;
     try {
+      platform.rosterChanged(ownerId);
       GolemState state = GolemState.restored(snapshot, GolemState.Anchor.at(at));
       Component name = restoredName(owner, snapshot);
       Mob golem = platform.spawn(at, snapshot.body().entityClass(), body -> {
@@ -272,13 +273,14 @@ public final class GolemRegistry extends TickedObject {
       if (!golem.isValid()) {
         throw new IllegalStateException("The body of golem " + snapshot.id() + " was refused when it spawned at " + at);
       }
-      GolemHandle handle = adoptBound(golem, state);
-      awakened = true;
-      return Optional.of(handle);
-    } finally {
-      if (!awakened) {
+      return Optional.of(adoptBound(golem, state));
+    } catch (Throwable failure) {
+      try {
         undoAwaken(spawned.get(), ownerId, request);
+      } catch (Throwable undo) {
+        failure.addSuppressed(undo);
       }
+      throw failure;
     }
   }
 
@@ -298,26 +300,33 @@ public final class GolemRegistry extends TickedObject {
     AttributeInstance maximum = platform.attribute(golem, GolemStat.MAX_HEALTH);
     double maxHealth = maximum == null ? golem.getHealth() : maximum.getValue();
     unindex(handle);
-    GolemSnapshot snapshot = null;
-    PackedGolem packed = null;
-    ItemStack item = null;
-    boolean prepared = false;
+    GolemRoster known = roster.get();
+    GolemSnapshot snapshot;
+    PackedGolem packed;
+    ItemStack item;
+    boolean stowed = false;
     try {
       snapshot = snapshot(handle);
       packed = new PackedGolem(handle.id(), owner, snapshot.toJson());
       item = GolemItems.dormantGolem(new DormantGolem(packed, GolemItems.dormantBlock(snapshot.body(), snapshot.copperStage(), snapshot.waxed()),
           snapshot.cores(), snapshot.runes(), snapshot.health(), maxHealth));
-      prepared = roster.get().stow(handle.id(), GolemRoster.Status.PACKED, packed.state());
-    } finally {
-      if (!prepared) {
-        adopt(golem);
+      stowed = known.stow(handle.id(), GolemRoster.Status.PACKED, packed.state());
+      if (stowed) {
+        missingWatch.forget(handle.id());
+        platform.rosterChanged(owner);
       }
+    } catch (Throwable failure) {
+      try {
+        undoPack(golem, owner, known, handle.id(), stowed);
+      } catch (Throwable undo) {
+        failure.addSuppressed(undo);
+      }
+      throw failure;
     }
-    if (!prepared) {
+    if (!stowed) {
+      adopt(golem);
       return Optional.empty();
     }
-    missingWatch.forget(handle.id());
-    platform.rosterChanged(owner);
     golem.remove();
     return Optional.of(new Packing(packed, snapshot, item, at));
   }
@@ -834,11 +843,7 @@ public final class GolemRegistry extends TickedObject {
       throw new IllegalStateException("Golem " + snapshot.id() + " is a " + entry.get().body() + " " + entry.get().core() + " golem in the roster of "
           + owner + ", not the " + snapshot.body() + " " + snapshot.primaryCore() + " golem its item describes");
     }
-    if (!roster.unstow(snapshot.id(), request.from(), request.item().state())) {
-      return false;
-    }
-    platform.rosterChanged(owner);
-    return true;
+    return roster.unstow(snapshot.id(), request.from(), request.item().state());
   }
 
   private Component restoredName(Player owner, GolemSnapshot snapshot) {
@@ -846,21 +851,37 @@ public final class GolemRegistry extends TickedObject {
   }
 
   private void undoRestore(Mob golem, UUID owner, Restore request) {
-    Optional<GolemHandle> adopted = handle(golem);
-    if (adopted.isPresent()) {
-      revert(adopted.get());
-    } else {
-      GolemState.clear(golem);
+    try {
+      Optional<GolemHandle> adopted = handle(golem);
+      if (adopted.isPresent()) {
+        revert(adopted.get());
+      } else {
+        GolemState.clear(golem);
+      }
+    } finally {
+      restow(owner, request);
     }
-    restow(owner, request);
   }
 
   private void undoAwaken(Mob golem, UUID owner, Restore request) {
-    if (golem != null) {
-      handle(golem).ifPresent(this::unindex);
-      golem.remove();
+    try {
+      if (golem != null) {
+        handle(golem).ifPresent(this::unindex);
+        golem.remove();
+      }
+    } finally {
+      restow(owner, request);
     }
-    restow(owner, request);
+  }
+
+  private void undoPack(Mob golem, UUID owner, GolemRoster roster, UUID id, boolean stowed) {
+    try {
+      if (stowed && roster.transition(id, GolemRoster.Status.PACKED, GolemRoster.Status.ACTIVE)) {
+        platform.rosterChanged(owner);
+      }
+    } finally {
+      adopt(golem);
+    }
   }
 
   private void restow(UUID owner, Restore request) {

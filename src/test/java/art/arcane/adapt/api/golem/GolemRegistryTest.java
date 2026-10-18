@@ -45,11 +45,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.Assertions.offset;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
@@ -1707,6 +1709,72 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster.GolemEntry entry = roster.golem(handle.id()).orElseThrow();
     assertThat(entry.status()).isEqualTo(GolemRoster.Status.PACKED);
     assertThat(entry.holds(packing.packed().state())).isTrue();
+  }
+
+  @Test
+  void aThrowingRollbackKeepsTheRootCauseAndStillRestowsTheEntry() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    IronGolem body = golem(new AtomicReference<>(at(9, 64, 9)));
+    doThrow(new IllegalStateException("remove failed")).when(body).remove();
+    platform.spawns.add(body);
+
+    Throwable thrown = catchThrowable(() -> registry.awaken(owner, at(9, 64, 9), new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED),
+        mob -> {
+          throw new IllegalStateException("prepare failed");
+        }));
+
+    assertThat(thrown).hasMessage("prepare failed");
+    assertThat(thrown.getSuppressed()).singleElement().satisfies(suppressed -> assertThat(suppressed).hasMessage("remove failed"));
+    GolemRoster.GolemEntry entry = roster.golem(handle.id()).orElseThrow();
+    assertThat(entry.status()).isEqualTo(GolemRoster.Status.PACKED);
+    assertThat(entry.holds(packing.packed().state())).isTrue();
+  }
+
+  @Test
+  void aFailedSaveOfTheAwakenedEntryRollsTheAwakeningBack() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    platform.spawns.add(golem(new AtomicReference<>(at(9, 64, 9))));
+    AtomicBoolean failedOnce = new AtomicBoolean();
+    platform.rosterListener = changed -> {
+      if (roster.golem(handle.id()).orElseThrow().status() == GolemRoster.Status.ACTIVE && failedOnce.compareAndSet(false, true)) {
+        throw new IllegalStateException("save refused");
+      }
+    };
+
+    assertThatThrownBy(() -> registry.awaken(owner, at(9, 64, 9), new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), mob -> {
+    })).hasMessage("save refused");
+
+    assertThat(platform.spawnedAt).isEmpty();
+    GolemRoster.GolemEntry entry = roster.golem(handle.id()).orElseThrow();
+    assertThat(entry.status()).isEqualTo(GolemRoster.Status.PACKED);
+    assertThat(entry.holds(packing.packed().state())).isTrue();
+  }
+
+  @Test
+  void aFailedSaveOfThePackedEntryLeavesTheGolemBoundAndActive() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    AtomicBoolean failedOnce = new AtomicBoolean();
+    platform.rosterListener = changed -> {
+      if (roster.golem(handle.id()).orElseThrow().status() == GolemRoster.Status.PACKED && failedOnce.compareAndSet(false, true)) {
+        throw new IllegalStateException("save refused");
+      }
+    };
+
+    assertThatThrownBy(() -> registry.pack(handle)).hasMessage("save refused");
+
+    verify(golem, never()).remove();
+    assertThat(registry.handle(golem)).isPresent();
+    GolemRoster.GolemEntry entry = roster.golem(handle.id()).orElseThrow();
+    assertThat(entry.status()).isEqualTo(GolemRoster.Status.ACTIVE);
+    assertThat(entry.digest()).isNull();
   }
 
   @Test

@@ -316,6 +316,18 @@ class GolemItemGuardTest {
   }
 
   @Test
+  void stonecuttersReadTheirInputSlotWithoutThePaperOnlyAccessor() {
+    StonecutterInventory stonecutter = stonecutter(GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", null), GolemItemStacks.plain(Material.IRON_BARS));
+    InventoryClickEvent click = resultClick(stonecutter);
+
+    guard.on(click);
+
+    assertThat(click.isCancelled()).isTrue();
+    verify(stonecutter).getItem(0);
+    verify(stonecutter, never()).getInputItem();
+  }
+
+  @Test
   void merchantsRefuseOnlyTradesThatWouldSwallowAGolemItemAsAPlainItem() {
     ItemStack node = GolemItemStacks.tagged(Material.CLAY_BALL, "blank_node", null);
     ItemStack plainClay = GolemItemStacks.plain(Material.CLAY_BALL);
@@ -491,10 +503,7 @@ class GolemItemGuardTest {
   }
 
   private static StonecutterInventory stonecutter(ItemStack input, ItemStack result) {
-    StonecutterInventory inventory = inventory(StonecutterInventory.class, input, result);
-    when(inventory.getInputItem()).thenReturn(input);
-    when(inventory.getResult()).thenReturn(result);
-    return inventory;
+    return inventory(StonecutterInventory.class, input, result);
   }
 
   private static MerchantInventory merchant(ItemStack firstInput, ItemStack secondInput, ItemStack tradeIngredient, ItemStack tradeResult) {

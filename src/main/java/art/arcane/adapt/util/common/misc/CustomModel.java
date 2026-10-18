@@ -99,17 +99,30 @@ public record CustomModel(Material material, int model,
   }
 
   public static boolean reloadFromDisk() {
-    GENERATION.incrementAndGet();
-    return checker().reloadFromDisk(false);
+    try {
+      return checker().reloadFromDisk(false);
+    } finally {
+      GENERATION.incrementAndGet();
+    }
   }
 
   public static boolean reloadFromDiskPassive() {
-    GENERATION.incrementAndGet();
-    return passiveChecker().reloadFromDisk(true);
+    try {
+      return passiveChecker().reloadFromDisk(true);
+    } finally {
+      GENERATION.incrementAndGet();
+    }
   }
 
   public static boolean reloadSnapshot(String raw, File sourceFile) {
-    GENERATION.incrementAndGet();
+    try {
+      return applySnapshot(raw, sourceFile);
+    } finally {
+      GENERATION.incrementAndGet();
+    }
+  }
+
+  private static boolean applySnapshot(String raw, File sourceFile) {
     UpdateChecker current = updateChecker;
     if (current == null) {
       synchronized (CustomModel.class) {

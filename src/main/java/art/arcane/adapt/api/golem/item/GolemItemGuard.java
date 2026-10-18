@@ -44,6 +44,7 @@ public final class GolemItemGuard implements Listener {
   private static final int SMITHING_INPUTS = 3;
   private static final int ANVIL_INPUTS = 2;
   private static final int GRINDSTONE_INPUTS = 2;
+  private static final int STONECUTTER_INPUT_SLOT = 0;
 
   private final ExactIngredientBook recipes;
 
@@ -133,7 +134,7 @@ public final class GolemItemGuard implements Listener {
       return;
     }
     Inventory top = e.getView().getTopInventory();
-    if (top instanceof StonecutterInventory stonecutter && GolemItems.isGolemItem(stonecutter.getInputItem())) {
+    if (top instanceof StonecutterInventory stonecutter && GolemItems.isGolemItem(stonecutter.getItem(STONECUTTER_INPUT_SLOT))) {
       e.setCancelled(true);
     } else if (top instanceof MerchantInventory merchant && tradeSwallowsGolemItem(merchant)) {
       e.setCancelled(true);
