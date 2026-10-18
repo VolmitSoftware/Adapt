@@ -4569,6 +4569,20 @@ lore4 = "Danni ridotti vicino ai tuoi guardiani"
 lore5 = "Secondi di Resistenza dall'Ultima Difesa"
 lore = ["Raggio di guardia in blocchi", "Intercettazione: i mob che ti inseguono si rivolgono contro i tuoi guardiani", "Rappresaglia: i guardiani attaccano ciò che ti ha ferito", "Danni ridotti vicino ai tuoi guardiani", "Secondi di Resistenza dall'Ultima Difesa"]
 
+[golemancy.gatherer_core]
+name = "Nucleo di Raccoglitore"
+description = "I golem legati con un Nucleo di Raccoglitore raccolgono gli oggetti caduti intorno alla loro casa o a un Nodo di Raccolta e li consegnano, e conservano le sfere di esperienza come essenza man mano che il nucleo si rafforza."
+lore1 = "Raggio di raccolta in blocchi"
+lore2 = "Punti esperienza di riserva di essenza"
+lore3 = "Blocchi di calamita per oggetti"
+lore4 = "Blocchi di raccolta istantanea"
+lore5 = "Capacità di trasporto"
+lore = ["Raggio di raccolta in blocchi", "Punti esperienza di riserva di essenza", "Blocchi di calamita per oggetti", "Blocchi di raccolta istantanea", "Capacità di trasporto"]
+essence = "Essenza: {value} punti esperienza"
+essence_lore = "Fai clic per prendere l'esperienza conservata"
+essence_taken = "Hai preso {value} punti esperienza di essenza"
+essence_empty = "Questo golem non ha essenza conservata"
+
 [golemancy.runic_augments]
 name = "Potenziamenti runici"
 description = "Ti permette di infondere rune sul Piedistallo di Animus e incastonarle nei tuoi golem legati per velocità, carico, fuoco, portata, canali, resa e armatura."

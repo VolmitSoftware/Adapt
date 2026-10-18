@@ -31,6 +31,7 @@ import java.util.Optional;
 
 public final class GolemancyFixtures {
     private static final String BINDING_STAGE = "golemancy-binding";
+    private static final String GATHERER_BINDING_STAGE = "golemancy-gatherer-binding";
     private static final String GUARDIAN_BINDING_STAGE = "golemancy-guardian-binding";
     private static final String COPPER_BINDING_STAGE = "golemancy-copper-binding";
     private static final String IRON_BINDING_STAGE = "golemancy-iron-binding";
@@ -56,6 +57,14 @@ public final class GolemancyFixtures {
             opponent.teleport(new Location(world, 0.5, 100, 8.5));
             actor.setLevel(0);
             actor.getInventory().addItem(GolemItems.blankCore());
+            Snowman golem = world.spawn(new Location(world, 2.5, 100, 0.5), Snowman.class);
+            golem.addScoreboardTag(GOLEM_TAG);
+            return true;
+        }
+        if (GATHERER_BINDING_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.setLevel(0);
+            actor.getInventory().addItem(GolemItems.core(GolemCoreType.GATHERER));
             Snowman golem = world.spawn(new Location(world, 2.5, 100, 0.5), Snowman.class);
             golem.addScoreboardTag(GOLEM_TAG);
             return true;

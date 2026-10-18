@@ -4569,6 +4569,20 @@ lore4 = "Vähemmän vahinkoa vartijoidesi lähellä"
 lore5 = "Sekuntia Vastustuskyky-tehostetta viimeisestä puolustuksesta"
 lore = ["Vartiosäde palikoina", "Sieppaus: sinua jahtaavat olennot kääntyvät vartijoidesi kimppuun", "Kosto: vartijat hyökkäävät sen kimppuun, joka satutti sinua", "Vähemmän vahinkoa vartijoidesi lähellä", "Sekuntia Vastustuskyky-tehostetta viimeisestä puolustuksesta"]
 
+[golemancy.gatherer_core]
+name = "Keräilijäydin"
+description = "Keräilijäytimellä sidotut golemit poimivat pudonneet esineet kotinsa tai keräyssolmun ympäriltä ja toimittavat ne perille, ja ytimen vahvistuessa ne varastoivat kokemuspalloja esanssiksi."
+lore1 = "Poimintasäde palikoina"
+lore2 = "Kokemuspistettä esanssivarastoa"
+lore3 = "Palikan esinemagneetti"
+lore4 = "Palikan välitön poiminta"
+lore5 = "Kantokyky"
+lore = ["Poimintasäde palikoina", "Kokemuspistettä esanssivarastoa", "Palikan esinemagneetti", "Palikan välitön poiminta", "Kantokyky"]
+essence = "Esanssi: {value} kokemuspistettä"
+essence_lore = "Ota varastoitu kokemus napsauttamalla"
+essence_taken = "Otit {value} kokemuspistettä esanssia"
+essence_empty = "Tällä golemilla ei ole varastoitua esanssia"
+
 [golemancy.runic_augments]
 name = "Riimuvahvistukset"
 description = "Antaa sinun infusoida riimuja Animusjalustalla ja asettaa ne sidottuihin golemeihisi nopeuden, kantokyvyn, tulen, ulottuvuuden, kanavien, saaliin ja panssarin vuoksi."

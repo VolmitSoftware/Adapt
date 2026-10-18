@@ -4565,6 +4565,20 @@ lore4 = "Dégâts réduits près de tes gardiens"
 lore5 = "Secondes de Résistance du Dernier Rempart"
 lore = ["Rayon de garde en blocs", "Interception : les mobs qui te poursuivent se retournent contre tes gardiens", "Représailles : les gardiens attaquent ce qui t'a blessé", "Dégâts réduits près de tes gardiens", "Secondes de Résistance du Dernier Rempart"]
 
+[golemancy.gatherer_core]
+name = "Noyau de Cueilleur"
+description = "Les golems liés avec un Noyau de Cueilleur ramassent les objets tombés autour de leur foyer ou d'un Nœud de Collecte et les livrent, et stockent les orbes d'expérience sous forme d'essence à mesure que le noyau se renforce."
+lore1 = "Rayon de ramassage en blocs"
+lore2 = "Points d'expérience de réserve d'essence"
+lore3 = "Blocs d'aimant à objets"
+lore4 = "Blocs de ramassage instantané"
+lore5 = "Capacité de transport"
+lore = ["Rayon de ramassage en blocs", "Points d'expérience de réserve d'essence", "Blocs d'aimant à objets", "Blocs de ramassage instantané", "Capacité de transport"]
+essence = "Essence : {value} points d'expérience"
+essence_lore = "Cliquez pour prendre l'expérience stockée"
+essence_taken = "Vous avez pris {value} points d'expérience d'essence"
+essence_empty = "Ce golem n'a aucune essence stockée"
+
 [golemancy.runic_augments]
 name = "Augmentations runiques"
 description = "Vous permet d'infuser des runes sur le Socle d'Animus et de les sertir dans vos golems liés pour la vitesse, la charge, le feu, la portée, les canaux, le rendement et l'armure."

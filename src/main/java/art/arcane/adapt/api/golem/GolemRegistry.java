@@ -16,6 +16,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -206,12 +207,16 @@ public final class GolemRegistry extends TickedObject {
     for (GolemRune rune : state.runes()) {
       drops.add(GolemItems.rune(rune));
     }
+    int essence = state.essencePoints();
     Location at = golem.getLocation();
     revert(handle);
     forgetRosterEntry(handle);
     World world = golem.getWorld();
     for (ItemStack drop : drops) {
       world.dropItemNaturally(at, drop);
+    }
+    if (essence > 0) {
+      world.spawn(at, ExperienceOrb.class, orb -> orb.setExperience(essence));
     }
     return true;
   }
@@ -253,7 +258,7 @@ public final class GolemRegistry extends TickedObject {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
-    handle(e.getEntity()).ifPresent(handle -> die(handle, e.getDrops()));
+    handle(e.getEntity()).ifPresent(handle -> die(handle, e));
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -624,7 +629,7 @@ public final class GolemRegistry extends TickedObject {
     golem.setInvulnerable(false);
   }
 
-  private void die(GolemHandle handle, List<ItemStack> drops) {
+  private void die(GolemHandle handle, EntityDeathEvent e) {
     boolean validated = handle.isValidated();
     unindex(handle);
     if (!validated) {
@@ -632,7 +637,11 @@ public final class GolemRegistry extends TickedObject {
     }
     GolemSettings current = settings.get();
     GolemState state = handle.state();
+    List<ItemStack> drops = e.getDrops();
     drops.addAll(state.carriedItems());
+    if (state.essencePoints() > 0) {
+      e.setDroppedExp((int) Math.min(Integer.MAX_VALUE, (long) e.getDroppedExp() + state.essencePoints()));
+    }
     GolemDeathDrops.Roll roll = GolemDeathDrops.roll(state.cores(), state.runes(), current.deathDropCoreChance(), current.deathDropRuneChance(),
         () -> ThreadLocalRandom.current().nextDouble());
     for (GolemCoreType core : roll.cores()) {

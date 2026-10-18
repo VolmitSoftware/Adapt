@@ -75,6 +75,7 @@ final class GolemWorker {
       return null;
     }
     expireBackoff(nowMillis);
+    tickCores(nowMillis);
     GolemWorkSettings settings = context.work().get();
     if (job != null) {
       GolemBrainState pursuing = pursue(nowMillis, here, settings);
@@ -366,6 +367,20 @@ final class GolemWorker {
       }
     }
     return false;
+  }
+
+  private void tickCores(long nowMillis) {
+    for (GolemCoreType core : handle.state().cores()) {
+      GolemCoreBehavior behavior = GolemCoreBehaviors.of(core).orElse(null);
+      if (behavior == null) {
+        continue;
+      }
+      try {
+        behavior.tick(new GolemContext(this, new GolemContext.Scope(behavior.policy(), null, null, core, nowMillis)));
+      } catch (RuntimeException failure) {
+        logFailure(null, failure);
+      }
+    }
   }
 
   private boolean reserveCoreJob(GolemTask task, long nowMillis) {

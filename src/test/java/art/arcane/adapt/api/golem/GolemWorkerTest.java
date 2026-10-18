@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -1073,6 +1074,62 @@ class GolemWorkerTest extends AdaptTestBase {
 
     assertThat(actedAt).containsExactly(arrival, arrival + 1_000L);
     assertThat(arrivals).containsOnly(arrival);
+  }
+
+  @Test
+  void coreBehaviorsTickEveryWorkingPulseEvenWhilePursuingAJob() {
+    List<String> ticks = new ArrayList<>();
+    tickingCore(golem -> ticks.add(golem.core().id() + ":" + golem.targetEntity().isPresent()));
+    brain.start();
+
+    platform.runDelayed();
+    pulse(250L);
+
+    assertThat(ticks).containsExactly("gatherer:false", "gatherer:false");
+    assertThat(brain.state()).isEqualTo(GolemBrainState.MOVE);
+
+    brain.handle().setMode(GolemMode.FOLLOW);
+    pulse(250L);
+
+    assertThat(ticks).hasSize(2);
+  }
+
+  @Test
+  void aThrowingCoreTickLeavesTheGolemWorking() {
+    tickingCore(golem -> {
+      throw new IllegalStateException("tick failed");
+    });
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.MOVE);
+  }
+
+  private void tickingCore(Consumer<GolemContext> tick) {
+    GolemCoreBehavior behavior = new GolemCoreBehavior() {
+      @Override
+      public Adaptation<?> policy() {
+        return nodePolicy;
+      }
+
+      @Override
+      public Optional<GolemTask> seek(GolemContext golem) {
+        return Optional.of(GolemTask.builder("pickup", GolemTarget.block(WORLD, 12, 64, 0)).build());
+      }
+
+      @Override
+      public GolemActResult act(GolemContext golem, GolemTask task) {
+        return GolemActResult.WORKING;
+      }
+
+      @Override
+      public void tick(GolemContext golem) {
+        tick.accept(golem);
+      }
+    };
+    GolemCoreBehaviors.register(GolemCoreType.GATHERER, behavior);
+    cores.add(behavior);
   }
 
   private GolemBrain gatherer() {

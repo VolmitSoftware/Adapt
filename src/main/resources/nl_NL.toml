@@ -4569,6 +4569,20 @@ lore4 = "Minder schade in de buurt van je beschermers"
 lore5 = "Seconden Weerstand door Laatste Stand"
 lore = ["Bewakingsstraal in blokken", "Onderscheppen: mobs die jou achtervolgen keren zich tegen je beschermers", "Vergelding: beschermers vallen aan wat jou verwondde", "Minder schade in de buurt van je beschermers", "Seconden Weerstand door Laatste Stand"]
 
+[golemancy.gatherer_core]
+name = "Verzamelaar-kern"
+description = "Golems die met een Verzamelaar-kern zijn gebonden, rapen gevallen voorwerpen op rond hun thuis of een Verzameling-knooppunt en leveren ze af, en slaan ervaringsbollen op als essentie naarmate de kern sterker wordt."
+lore1 = "Opraapstraal in blokken"
+lore2 = "Ervaringspunten essentieopslag"
+lore3 = "Blokken voorwerpmagneet"
+lore4 = "Blokken direct oprapen"
+lore5 = "Draagvermogen"
+lore = ["Opraapstraal in blokken", "Ervaringspunten essentieopslag", "Blokken voorwerpmagneet", "Blokken direct oprapen", "Draagvermogen"]
+essence = "Essentie: {value} ervaringspunten"
+essence_lore = "Klik om de opgeslagen ervaring te pakken"
+essence_taken = "Je hebt {value} ervaringspunten essentie gepakt"
+essence_empty = "Deze golem heeft geen essentie opgeslagen"
+
 [golemancy.runic_augments]
 name = "Runenversterkingen"
 description = "Laat je runen infuseren op de Animussokkel en ze in je gebonden golems zetten voor snelheid, draagvermogen, vuur, bereik, kanalen, opbrengst en harnas."

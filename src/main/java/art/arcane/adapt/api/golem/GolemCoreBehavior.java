@@ -20,4 +20,7 @@ public interface GolemCoreBehavior extends GolemActor {
    * or reserved by another golem is ignored. A FAILED act backs the key off for 10 seconds.
    */
   Optional<GolemTask> seek(GolemContext golem);
+
+  default void tick(GolemContext golem) {
+  }
 }

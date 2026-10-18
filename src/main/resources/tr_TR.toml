@@ -4569,6 +4569,20 @@ lore4 = "Muhafızlarının yakınında daha az hasar"
 lore5 = "Son Direniş'ten Direnç saniyesi"
 lore = ["Blok cinsinden nöbet yarıçapı", "Önleme: seni kovalayan moblar muhafızlarına yönelir", "Misilleme: muhafızlar seni yaralayana saldırır", "Muhafızlarının yakınında daha az hasar", "Son Direniş'ten Direnç saniyesi"]
 
+[golemancy.gatherer_core]
+name = "Toplayıcı Çekirdeği"
+description = "Toplayıcı Çekirdeği ile bağlanan golemler evlerinin ya da bir Toplama Düğümü'nün çevresine düşen eşyaları toplayıp teslim eder ve çekirdek güçlendikçe deneyim kürelerini öz olarak biriktirir."
+lore1 = "Blok cinsinden toplama yarıçapı"
+lore2 = "Deneyim puanı öz deposu"
+lore3 = "Blok eşya mıknatısı"
+lore4 = "Blok anında toplama"
+lore5 = "Taşıma kapasitesi"
+lore = ["Blok cinsinden toplama yarıçapı", "Deneyim puanı öz deposu", "Blok eşya mıknatısı", "Blok anında toplama", "Taşıma kapasitesi"]
+essence = "Öz: {value} deneyim puanı"
+essence_lore = "Biriken deneyimi almak için tıklayın"
+essence_taken = "{value} deneyim puanı öz aldın"
+essence_empty = "Bu golemin biriktirdiği öz yok"
+
 [golemancy.runic_augments]
 name = "Rün Güçlendirmeleri"
 description = "Animus Kaidesi'nde rün aşılamanızı ve bunları bağlı golemlerinize takarak hız, taşıma, ateş, menzil, kanal, verim ve zırh kazanmanızı sağlar."

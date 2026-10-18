@@ -4569,6 +4569,20 @@ lore4 = "Menos daño cerca de tus guardianes"
 lore5 = "Segundos de Resistencia por Última Defensa"
 lore = ["Radio de guardia en bloques", "Interceptar: los mobs que te persiguen se vuelven contra tus guardianes", "Represalia: los guardianes atacan a lo que te hirió", "Menos daño cerca de tus guardianes", "Segundos de Resistencia por Última Defensa"]
 
+[golemancy.gatherer_core]
+name = "Núcleo de Recolector"
+description = "Los gólems vinculados con un Núcleo de Recolector recogen los objetos tirados alrededor de su hogar o de un Nodo de Recolección y los entregan, y guardan orbes de experiencia como esencia a medida que el núcleo se fortalece."
+lore1 = "Radio de recogida en bloques"
+lore2 = "Puntos de experiencia de almacén de esencia"
+lore3 = "Bloques de imán de objetos"
+lore4 = "Bloques de recogida instantánea"
+lore5 = "Capacidad de carga"
+lore = ["Radio de recogida en bloques", "Puntos de experiencia de almacén de esencia", "Bloques de imán de objetos", "Bloques de recogida instantánea", "Capacidad de carga"]
+essence = "Esencia: {value} puntos de experiencia"
+essence_lore = "Haz clic para coger la experiencia guardada"
+essence_taken = "Has cogido {value} puntos de experiencia de esencia"
+essence_empty = "Este gólem no tiene esencia guardada"
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Te permite infundir runas en el Pedestal de Ánima y engarzarlas en tus gólems vinculados para ganar velocidad, carga, fuego, alcance, canales, rendimiento y armadura."

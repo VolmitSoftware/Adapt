@@ -183,6 +183,10 @@ public final class GolemState {
     return essence;
   }
 
+  public int essencePoints() {
+    return (int) Math.max(0D, essence);
+  }
+
   public double hostileDamagePool() {
     return hostileDamagePool;
   }

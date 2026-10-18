@@ -200,6 +200,74 @@
     },
     "maxTicks": 360
   },
+  "golem-gatherer-core": {
+    "set": "taming-field",
+    "level": 5,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      },
+      {
+        "name": "golem-node-weaving",
+        "level": 1
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"gatherer\\\"}\"}}]",
+      "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 25
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 60
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.enchantment_table.use",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run summon minecraft:item ~1 ~ ~-4 {Item:{id:\"minecraft:wheat\",count:16},PickupDelay:0}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.enchantment_table.use",
+      "particle": "end_rod"
+    },
+    "maxTicks": 360
+  },
   "golem-guardian-core": {
     "set": "taming-field",
     "level": 5,
