@@ -217,6 +217,22 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
+    ['golem-sorter-core', {
+        stage: 'golemancy-sorter-binding', trigger: bindCopper,
+        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }],
+        prepare: ({ equip }) => equip('firework_star'),
+        description: 'binding a copper golem with a Sorter Core needs Sorter Core learned and turns the golem into a working Sorter',
+        async verify({ context, unlearned, active }) {
+            context.expect(!unlearned.bound, 'Without Sorter Core the copper golem refuses the Sorter Core and stays unbound')
+            context.expect(active.bound && active.boundToPlayer, 'With Sorter Core the copper golem binds to the player')
+            context.expect(active.core === 'sorter', 'The bound golem carries the Sorter Core')
+            context.expect(active.mode === 'work', 'A new Sorter starts in Work mode, ready for Input Nodes')
+            return {
+                assertions: ['unlearned binding leaves the copper golem unbound', 'learned binding makes the copper golem a Sorter in Work mode'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
     ['golem-runic-augments', {
         stage: 'golemancy-plinth', trigger: loadPlinth, prerequisites: [{ name: 'golem-animus-binding', level: 2 }],
         prepare: ({ equip }) => equip('disc_fragment_5'),

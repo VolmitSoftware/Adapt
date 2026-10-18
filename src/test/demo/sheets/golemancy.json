@@ -895,5 +895,119 @@
       "particle": "end_rod"
     },
     "maxTicks": 160
+  },
+  "golem-sorter-core": {
+    "set": "taming-field",
+    "level": 5,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      },
+      {
+        "name": "golem-node-weaving",
+        "level": 1
+      },
+      {
+        "name": "golem-copper-frame",
+        "level": 1
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"sorter\\\"}\"}}]",
+      "experience set {actor} 5 levels",
+      "execute at {actor} run setblock ~1 ~ ~-4 minecraft:chest{Items:[{Slot:0b,id:\"minecraft:cobblestone\",count:16}]}",
+      "execute at {actor} run setblock ~-1 ~ ~-4 minecraft:chest{Items:[{Slot:0b,id:\"minecraft:cobblestone\",count:1}]}",
+      "execute at {actor} run summon minecraft:copper_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 25
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 60
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.enchantment_table.use",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      },
+      {
+        "verb": "command",
+        "text": "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"input\\\"}\"}}]"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          1.5,
+          0.9,
+          -3.5
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 30
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.amethyst_block.place",
+        "timeout": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 10
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:entity.copper_golem.item_drop",
+        "timeout": 300
+      },
+      {
+        "verb": "wait",
+        "ticks": 120
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.copper_golem.item_drop"
+    },
+    "maxTicks": 720
   }
 }

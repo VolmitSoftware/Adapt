@@ -292,6 +292,9 @@ public final class NodeGui {
     if (control.leftClick() != null) {
       element.onLeftClick(clicked -> edit(control.leftClick()));
     }
+    if (control.open() != null) {
+      element.onLeftClick(clicked -> control.open().accept(player));
+    }
     if (control.rightClick() != null) {
       element.onRightClick(clicked -> edit(control.rightClick()));
     }

@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 
 public final class NodeFilters {
   private static final String DEFAULT_NAMESPACE = "minecraft";
@@ -109,6 +110,13 @@ public final class NodeFilters {
     return matches(record, type, tags) == record.whitelist();
   }
 
+  public static boolean accepts(NodeRecord record, ItemStack item, NodeTagLookup tags, BiPredicate<ItemStack, ItemStack> same) {
+    if (record.filterCount() == 0) {
+      return true;
+    }
+    return matches(record, item, tags, same) == record.whitelist();
+  }
+
   public static Optional<String> normalizeTag(String input) {
     if (input == null) {
       return Optional.empty();
@@ -132,6 +140,20 @@ public final class NodeFilters {
     }
     for (String tag : record.filterTags()) {
       if (tags.tagged(tag, type)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean matches(NodeRecord record, ItemStack item, NodeTagLookup tags, BiPredicate<ItemStack, ItemStack> same) {
+    for (ItemStack stored : record.filterItems()) {
+      if (same.test(stored, item)) {
+        return true;
+      }
+    }
+    for (String tag : record.filterTags()) {
+      if (tags.tagged(tag, item.getType())) {
         return true;
       }
     }

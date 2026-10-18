@@ -3556,6 +3556,27 @@
       "feedbackPresets": []
     },
     {
+      "skill": "golemancy",
+      "name": "golem-sorter-core",
+      "class": "GolemSorterCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemSorterCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "InventoryClickEvent",
+        "InventoryCloseEvent",
+        "InventoryMoveItemEvent",
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Copper golems bound with a Sorter Core empty the container under an Input Node into nearby containers that already hold each item, and learn item groups, Filter Nodes, restocking and fetching as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemSorterCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
       "skill": "herbalism",
       "name": "herbalism-bee-shepherd",
       "class": "HerbalismBeeShepherd",

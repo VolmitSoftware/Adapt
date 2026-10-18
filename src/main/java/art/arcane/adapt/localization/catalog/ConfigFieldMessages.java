@@ -165,6 +165,7 @@ import art.arcane.adapt.content.adaptation.golemancy.GolemIronFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemLumberCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRunicAugments;
+import art.arcane.adapt.content.adaptation.golemancy.GolemSorterCore;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismBeeShepherd;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismCompostCascade;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismCraftableCobweb;
@@ -546,6 +547,7 @@ public final class ConfigFieldMessages {
     addConfiguration(fields, "adaptations.golem-lumber-core", "adaptation:golem-lumber-core", GolemLumberCore.class);
     addConfiguration(fields, "adaptations.golem-node-weaving", "adaptation:golem-node-weaving", GolemNodeWeaving.class);
     addConfiguration(fields, "adaptations.golem-runic-augments", "adaptation:golem-runic-augments", GolemRunicAugments.class);
+    addConfiguration(fields, "adaptations.golem-sorter-core", "adaptation:golem-sorter-core", GolemSorterCore.class);
     addConfiguration(fields, "adaptations.herbalism-bee-shepherd", "adaptation:herbalism-bee-shepherd", HerbalismBeeShepherd.class);
     addConfiguration(fields, "adaptations.herbalism-compost-cascade", "adaptation:herbalism-compost-cascade", HerbalismCompostCascade.class);
     addConfiguration(fields, "adaptations.herbalism-cobweb", "adaptation:herbalism-cobweb", HerbalismCraftableCobweb.class);

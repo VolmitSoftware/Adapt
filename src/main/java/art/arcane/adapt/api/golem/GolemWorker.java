@@ -49,6 +49,7 @@ final class GolemWorker {
   private Delivery delivery;
   private WorkedNode lastNode;
   private boolean arrived;
+  private boolean routeHeld;
   private int stuckReleases;
   private int pulseCapacity = -1;
   private GolemRuneEffects pulseRunes;
@@ -91,8 +92,11 @@ final class GolemWorker {
       }
     }
     int carried = cargo.count();
+    if (carried == 0) {
+      routeHeld = false;
+    }
     boolean full = carried > 0 && carried >= capacity();
-    if (!full && nowMillis >= nextSeekAt) {
+    if (!full && nowMillis >= nextSeekAt && !deliveringFirst(carried)) {
       nextSeekAt = nowMillis + SEEK_INTERVAL_MILLIS;
       if (claim(nowMillis, here, settings) || seekCores(nowMillis)) {
         return pursue(nowMillis, here, settings);
@@ -307,6 +311,8 @@ final class GolemWorker {
         if (current.source != Source.ROUTE) {
           handle.addTasks(1L);
           GolemWorkStats.completed(handle);
+        } else {
+          nextRouteAt = nowMillis;
         }
         dropJob();
       }
@@ -477,9 +483,21 @@ final class GolemWorker {
     if (items.isEmpty()) {
       return false;
     }
-    if (routeByNode(nowMillis, items)) {
-      return true;
+    boolean routed = routeByNode(nowMillis, items) || routeByDefault(here, items);
+    routeHeld = !routed;
+    return routed;
+  }
+
+  private boolean deliveringFirst(int carried) {
+    WorkedNode worked = lastNode;
+    if (carried <= 0 || routeHeld || worked == null) {
+      return false;
     }
+    NodeBehavior behavior = NodeBehaviors.of(worked.type()).orElse(null);
+    return behavior != null && behavior.deliversBeforeClaiming();
+  }
+
+  private boolean routeByDefault(Location here, List<ItemStack> items) {
     World world = home.getWorld();
     GolemDeliveryRoute.Route route = GolemDeliveryRoute.choose(depositOptions(world, here, home, items), homeOption(world, items));
     delivery = switch (route.kind()) {

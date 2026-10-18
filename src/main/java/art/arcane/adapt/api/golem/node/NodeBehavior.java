@@ -25,4 +25,8 @@ public interface NodeBehavior extends GolemActor {
   default Optional<GolemTask> route(GolemContext golem, NodeKey node, List<ItemStack> carried) {
     return Optional.empty();
   }
+
+  default boolean deliversBeforeClaiming() {
+    return false;
+  }
 }

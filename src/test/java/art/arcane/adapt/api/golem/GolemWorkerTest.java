@@ -651,6 +651,100 @@ class GolemWorkerTest extends AdaptTestBase {
   }
 
   @Test
+  void aGolemLoadedByANodeThatDeliversFirstRoutesBeforeClaimingMoreWork() {
+    Inventory stash = chest(0, 64, -5, 27);
+    List<String> acted = new ArrayList<>();
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      acted.add(task.type() + " " + task.target().blockX());
+      if (task.type().equals("pickup")) {
+        golem.carry(GolemTestItems.stack(Material.WHEAT, 10));
+      } else {
+        golem.container(world.getBlockAt(0, 64, -5)).ifPresent(inventory -> golem.deliver(inventory, item -> true));
+      }
+      return GolemActResult.DONE;
+    });
+    behavior.deliversFirst = true;
+    behavior.route = (golem, carried) -> Optional.of(GolemTask.builder(COLLECTION, NodeType.COLLECTION, "stash",
+        GolemTarget.block(WORLD, 0, 64, -5)).build());
+    collectionNode(3);
+    GolemTask second = pickup(2, 64, 0);
+    board.offer(pickup(1, 64, 0), 16);
+    board.offer(second, 16);
+    brain.start();
+
+    platform.runDelayed();
+    pulse(1_000L);
+
+    assertThat(acted).containsExactly("pickup 1");
+    assertThat(brain.state()).isEqualTo(GolemBrainState.DELIVER);
+    assertThat(second.holder(platform.now)).isEmpty();
+
+    position.set(at(0, 64, -4));
+    pulse(250L);
+    position.set(at(0, 64, 0));
+    pulse(1_000L);
+
+    assertThat(acted).containsExactly("pickup 1", "stash 0", "pickup 2");
+    assertThat(GolemTestItems.count(stash, Material.WHEAT)).isEqualTo(10);
+  }
+
+  @Test
+  void aNodeThatDeliversFirstLetsTheGolemClaimAgainOnceItsRouteFindsNowhereToGo() {
+    List<String> acted = new ArrayList<>();
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      acted.add(task.type() + " " + task.target().blockX());
+      golem.carry(GolemTestItems.stack(Material.WHEAT, 10));
+      return GolemActResult.DONE;
+    });
+    behavior.deliversFirst = true;
+    collectionNode(3);
+    board.offer(pickup(1, 64, 0), 16);
+    board.offer(pickup(2, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    pulse(1_000L);
+    assertThat(acted).containsExactly("pickup 1");
+
+    pulse(1_000L);
+    assertThat(acted).containsExactly("pickup 1", "pickup 2");
+  }
+
+  @Test
+  void aFinishedRouteStopRoutesTheRestOfTheCargoAtOnce() {
+    chest(0, 64, -5, 27);
+    chest(0, 64, 5, 27);
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      if (task.type().equals("pickup")) {
+        golem.carry(GolemTestItems.stack(Material.WHEAT, 10));
+        golem.carry(GolemTestItems.stack(Material.CARROT, 10));
+        return GolemActResult.DONE;
+      }
+      Material kept = task.target().blockZ() < 0 ? Material.WHEAT : Material.CARROT;
+      golem.container(world.getBlockAt(0, 64, task.target().blockZ())).ifPresent(inventory -> golem.deliver(inventory, item -> item.getType() == kept));
+      return GolemActResult.DONE;
+    });
+    behavior.route = (golem, carried) -> {
+      boolean wheat = carried.stream().anyMatch(item -> item.getType() == Material.WHEAT);
+      return Optional.of(GolemTask.builder(COLLECTION, NodeType.COLLECTION, "stash", GolemTarget.block(WORLD, 0, 64, wheat ? -5 : 5)).build());
+    };
+    collectionNode(3);
+    board.offer(pickup(1, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    pulse(1_000L);
+    position.set(at(0, 64, -4));
+    pulse(250L);
+    assertThat(carried(Material.WHEAT)).isZero();
+
+    pulse(250L);
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.DELIVER);
+    assertThat(controller.lastMove()).isEqualTo("0.5,64.5,5.5");
+  }
+
+  @Test
   void anEmptyRouteFallsBackToTheDefaultRoute() {
     homeChest(27);
     ScriptedBehavior behavior = collector((golem, task) -> {
@@ -892,6 +986,36 @@ class GolemWorkerTest extends AdaptTestBase {
     assertThat(GolemTestItems.count(stash, Material.WHEAT)).isEqualTo(10);
     assertThat(carried(Material.WHEAT)).isZero();
     assertThat(carried(Material.CARROT)).isEqualTo(10);
+    assertThat(carried(Material.POTATO)).isEqualTo(10);
+  }
+
+  @Test
+  void deliveringUpToAnAmountInsertsOnlyThatManyOfEachStackAndKeepsTheRest() {
+    Inventory stash = chest(0, 64, -2, 27);
+    brain.handle().setCarriedEncoded(List.of(platform.encodeItem(GolemTestItems.stack(Material.WHEAT, 10)),
+        platform.encodeItem(GolemTestItems.stack(Material.CARROT, 10)), platform.encodeItem(GolemTestItems.stack(Material.POTATO, 10))));
+    List<Integer> moved = new ArrayList<>();
+    collector((golem, task) -> {
+      Inventory inventory = golem.container(world.getBlockAt(0, 64, -2)).orElseThrow();
+      moved.add(golem.deliverUpTo(inventory, item -> switch (item.getType()) {
+        case WHEAT -> 4;
+        case CARROT -> 25;
+        default -> 0;
+      }));
+      return GolemActResult.DONE;
+    });
+    collectionNode(3);
+    board.offer(pickup(1, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(moved).containsExactly(14);
+    assertThat(GolemTestItems.count(stash, Material.WHEAT)).isEqualTo(4);
+    assertThat(GolemTestItems.count(stash, Material.CARROT)).isEqualTo(10);
+    assertThat(GolemTestItems.count(stash, Material.POTATO)).isZero();
+    assertThat(carried(Material.WHEAT)).isEqualTo(6);
+    assertThat(carried(Material.CARROT)).isZero();
     assertThat(carried(Material.POTATO)).isEqualTo(10);
   }
 
@@ -1476,6 +1600,7 @@ class GolemWorkerTest extends AdaptTestBase {
     private final BiFunction<GolemContext, GolemTask, GolemActResult> act;
     private int intervalTicks = DEFAULT_ACT_INTERVAL_TICKS;
     private BiFunction<GolemContext, List<ItemStack>, Optional<GolemTask>> route = (golem, carried) -> Optional.empty();
+    private boolean deliversFirst;
 
     private ScriptedBehavior(BiFunction<GolemContext, GolemTask, GolemActResult> act) {
       this.act = act;
@@ -1503,6 +1628,11 @@ class GolemWorkerTest extends AdaptTestBase {
     @Override
     public Optional<GolemTask> route(GolemContext golem, NodeKey node, List<ItemStack> carried) {
       return route.apply(golem, carried);
+    }
+
+    @Override
+    public boolean deliversBeforeClaiming() {
+      return deliversFirst;
     }
   }
 
