@@ -78,6 +78,7 @@ public final class GolemRegistry extends TickedObject {
   private final Set<UUID> capQueue = new LinkedHashSet<>();
   private final GolemMissingWatch missingWatch = new GolemMissingWatch();
   private final Set<UUID> mismatchWarned = ConcurrentHashMap.newKeySet();
+  private final Set<UUID> invalidOnce = ConcurrentHashMap.newKeySet();
   private long nextPruneAt;
 
   GolemRegistry(GolemPlatform platform, Supplier<GolemSettings> settings, GolemLifecycle lifecycle) {
@@ -300,13 +301,13 @@ public final class GolemRegistry extends TickedObject {
     Location at = golem.getLocation();
     AttributeInstance maximum = platform.attribute(golem, GolemStat.MAX_HEALTH);
     double maxHealth = maximum == null ? golem.getHealth() : maximum.getValue();
-    unindex(handle);
     GolemRoster known = roster.get();
     GolemSnapshot snapshot;
     PackedGolem packed;
     ItemStack item;
     boolean stowed = false;
     try {
+      unindex(handle);
       snapshot = snapshot(handle);
       packed = new PackedGolem(handle.id(), owner, snapshot.toJson());
       item = GolemItems.dormantGolem(new DormantGolem(packed, GolemItems.dormantBlock(snapshot.body(), snapshot.copperStage(), snapshot.waxed()),
@@ -315,6 +316,7 @@ public final class GolemRegistry extends TickedObject {
       if (stowed) {
         missingWatch.forget(handle.id());
         platform.rosterChanged(owner);
+        golem.remove();
       }
     } catch (Throwable failure) {
       try {
@@ -328,7 +330,6 @@ public final class GolemRegistry extends TickedObject {
       adopt(golem);
       return Optional.empty();
     }
-    golem.remove();
     return Optional.of(new Packing(packed, snapshot, item, at));
   }
 
@@ -645,17 +646,19 @@ public final class GolemRegistry extends TickedObject {
     }
     OptionalLong next = nextSighting(handle);
     next.ifPresent(handle.state()::setSighting);
-    detach(handle);
-    commitSighting(handle, next);
+    if (detach(handle)) {
+      commitSighting(handle, next);
+    }
   }
 
-  void detach(GolemHandle handle) {
+  boolean detach(GolemHandle handle) {
     if (handle.isRetired()) {
-      return;
+      return false;
     }
-    handle.flush();
+    boolean written = handle.flush();
     rememberPosition(handle, true);
     unindex(handle);
+    return written;
   }
 
   void joinOnlineOwners() {
@@ -694,7 +697,7 @@ public final class GolemRegistry extends TickedObject {
       Runnable flush = () -> completion.complete(sleepForShutdown(handle));
       if (platform.owns(handle.entity())) {
         flush.run();
-      } else if (!platform.runEntity(handle.entity(), flush, 0)) {
+      } else if (!platform.runEntity(handle.entity(), flush, () -> completion.complete(true))) {
         completion.complete(false);
       }
     }
@@ -718,8 +721,9 @@ public final class GolemRegistry extends TickedObject {
       OptionalLong next = nextSighting(handle);
       rememberPosition(handle, false);
       next.ifPresent(handle.state()::setSighting);
-      putToSleep(handle);
-      commitSighting(handle, next);
+      if (putToSleep(handle)) {
+        commitSighting(handle, next);
+      }
       lifecycle.asleep(handle);
       lifecycle.detached(handle);
       return true;
@@ -823,14 +827,14 @@ public final class GolemRegistry extends TickedObject {
     handle.flush();
   }
 
-  private void putToSleep(GolemHandle handle) {
+  private boolean putToSleep(GolemHandle handle) {
     Mob golem = handle.entity();
     golem.setAware(false);
     golem.setTarget(null);
     PaperCompat.stopPathfinding(golem);
     golem.setInvulnerable(settings.get().dormantInvulnerable());
     handle.state().setDormant(true);
-    handle.flush();
+    return handle.flush();
   }
 
   private boolean claimAwake(GolemHandle handle) {
@@ -871,6 +875,7 @@ public final class GolemRegistry extends TickedObject {
         return true;
       }
       entityByGolem.put(handle.id(), handle.entityId());
+      other.setValidated(false);
       outdated = other;
     }
     runOwned(outdated, () -> revert(outdated));
@@ -897,6 +902,7 @@ public final class GolemRegistry extends TickedObject {
       handle.retire();
       awake.remove(handle.entityId());
       capQueue.remove(handle.entityId());
+      invalidOnce.remove(handle.entityId());
       removed = handles.remove(handle.entityId(), handle);
       entityByGolem.remove(handle.id(), handle.entityId());
       Set<UUID> owned = entitiesByOwner.get(handle.owner());
@@ -1003,36 +1009,58 @@ public final class GolemRegistry extends TickedObject {
   }
 
   private void undoRestore(Mob golem, UUID owner, Restore request) {
-    try {
+    undoSteps(() -> {
       Optional<GolemHandle> adopted = handle(golem);
       if (adopted.isPresent()) {
         revert(adopted.get());
       } else {
         GolemState.clear(golem);
       }
-    } finally {
-      restow(owner, request);
-    }
+    }, () -> restow(owner, request));
   }
 
   private void undoAwaken(Mob golem, UUID owner, Restore request) {
-    try {
+    undoSteps(() -> {
       if (golem != null) {
-        handle(golem).ifPresent(this::unindex);
-        golem.remove();
+        undoSteps(() -> handle(golem).ifPresent(this::unindex), golem::remove);
       }
-    } finally {
-      restow(owner, request);
-    }
+    }, () -> restow(owner, request));
   }
 
   private void undoPack(Mob golem, UUID owner, GolemRoster roster, UUID id, boolean stowed) {
-    try {
+    undoSteps(() -> {
       if (stowed && roster.transition(id, GolemRoster.Status.PACKED, GolemRoster.Status.ACTIVE)) {
         platform.rosterChanged(owner);
       }
-    } finally {
-      adopt(golem);
+    }, () -> adopt(golem));
+  }
+
+  private static void undoSteps(Runnable first, Runnable then) {
+    RuntimeException failure = null;
+    Error fatal = null;
+    try {
+      first.run();
+    } catch (RuntimeException thrown) {
+      failure = thrown;
+    } catch (Error thrown) {
+      fatal = thrown;
+    }
+    try {
+      then.run();
+    } catch (RuntimeException | Error second) {
+      if (failure != null) {
+        second.addSuppressed(failure);
+      }
+      if (fatal != null) {
+        second.addSuppressed(fatal);
+      }
+      throw second;
+    }
+    if (fatal != null) {
+      throw fatal;
+    }
+    if (failure != null) {
+      throw failure;
     }
   }
 
@@ -1175,7 +1203,9 @@ public final class GolemRegistry extends TickedObject {
 
   private void pruneInvalid() {
     for (GolemHandle handle : List.copyOf(handles.values())) {
-      if (!handle.entity().isValid()) {
+      if (handle.entity().isValid()) {
+        invalidOnce.remove(handle.entityId());
+      } else if (!invalidOnce.add(handle.entityId())) {
         unindex(handle);
       }
     }

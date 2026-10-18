@@ -119,7 +119,7 @@ public final class GolemRoster {
         return entry;
       }
       changed.set(true);
-      return entry.withStatus(Status.ACTIVE);
+      return entry.withStatus(Status.ACTIVE).withSighting(entry.sighting + 1L);
     });
     return changed.get();
   }

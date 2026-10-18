@@ -233,6 +233,7 @@ class GolemRosterTest {
     GolemRoster.GolemEntry entry = roster.golem(GOLEM).orElseThrow();
     assertThat(entry.status()).isEqualTo(GolemRoster.Status.ACTIVE);
     assertThat(entry.digest()).isNull();
+    assertThat(entry.sighting()).isEqualTo(1L);
     assertThat(roster.unstow(GOLEM, GolemRoster.Status.SHATTERED, "current")).isFalse();
   }
 
@@ -380,7 +381,7 @@ class GolemRosterTest {
   }
 
   @Test
-  void statusSealAndMasterworkChangesKeepTheSighting() {
+  void statusSealAndMasterworkChangesKeepTheSightingAndUnstowingAdvancesIt() {
     GolemRoster roster = new GolemRoster();
     roster.add(binding(GOLEM, 0L, 0L));
     roster.raiseSighting(GOLEM, 6L);
@@ -390,9 +391,10 @@ class GolemRosterTest {
     roster.stow(GOLEM, GolemRoster.Status.PACKED, "{\"packed\":true}");
     assertThat(roster.golem(GOLEM).orElseThrow().sighting()).isEqualTo(6L);
     roster.unstow(GOLEM, GolemRoster.Status.PACKED, "{\"packed\":true}");
+    assertThat(roster.golem(GOLEM).orElseThrow().sighting()).isEqualTo(7L);
     roster.transition(GOLEM, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
 
-    assertThat(roster.golem(GOLEM).orElseThrow().sighting()).isEqualTo(6L);
+    assertThat(roster.golem(GOLEM).orElseThrow().sighting()).isEqualTo(7L);
   }
 
   @Test

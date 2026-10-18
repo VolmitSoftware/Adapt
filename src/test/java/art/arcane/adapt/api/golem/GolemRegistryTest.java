@@ -1547,16 +1547,38 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
-  void handlesOfSilentlyRemovedEntitiesArePruned() {
+  void handlesOfSilentlyRemovedEntitiesArePrunedAfterTwoSightings() {
     onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
     when(golem.isValid()).thenReturn(false);
 
     registry.onTick();
+    assertThat(registry.handle(golem)).isPresent();
+
+    platform.now += 30_000L;
+    registry.onTick();
 
     assertThat(registry.handle(golem)).isEmpty();
     assertThat(registry.activeCount()).isZero();
+  }
+
+  @Test
+  void aGolemSeenInvalidOnceThenValidAgainIsNeverPruned() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    when(golem.isValid()).thenReturn(false);
+    registry.onTick();
+    when(golem.isValid()).thenReturn(true);
+    platform.now += 30_000L;
+    registry.onTick();
+    when(golem.isValid()).thenReturn(false);
+    platform.now += 30_000L;
+
+    registry.onTick();
+
+    assertThat(registry.handle(golem)).isPresent();
   }
 
   @Test
@@ -2266,17 +2288,47 @@ class GolemRegistryTest extends AdaptTestBase {
     }).orElseThrow();
 
     assertThat(awakened.isValidated()).isTrue();
-    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isZero();
-    assertThat(GolemState.read(body).orElseThrow().sighting()).isZero();
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(1L);
+    assertThat(GolemState.read(body).orElseThrow().sighting()).isEqualTo(1L);
 
     registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(body)));
-    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(1L);
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(2L);
     IronGolem prePackCopy = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemState.fromJson(prePackChunk).orElseThrow().write(prePackCopy);
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(prePackCopy)));
 
     assertThat(GolemState.has(prePackCopy)).isFalse();
     assertThat(roster.golem(handle.id()).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+  }
+
+  @Test
+  void aPrePackCopyRevertsEvenWhenTheAwakenedBodyUnloadedWhileItsOwnerWasOffline() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
+    String prePackChunk = GolemState.read(golem).orElseThrow().toJson();
+    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    Location spot = at(30, 70, 30);
+    IronGolem body = golem(new AtomicReference<>(spot));
+    platform.spawns.add(body);
+    registry.awaken(owner, spot, new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), mob -> {
+    }).orElseThrow();
+    registry.on(new PlayerQuitEvent(owner, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
+    platform.quit(OWNER);
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(body)));
+    chunkEntities.values().forEach(entities -> entities.remove(body));
+    platform.join(OWNER, roster);
+    registry.on(new PlayerJoinEvent(owner, (Component) null));
+    IronGolem prePackCopy = golem(new AtomicReference<>(at(3, 64, 3)));
+    GolemState.fromJson(prePackChunk).orElseThrow().write(prePackCopy);
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(prePackCopy)));
+
+    assertThat(GolemState.has(prePackCopy)).isFalse();
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(1L);
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(body)));
+    assertThat(registry.handle(body)).isPresent();
+    assertThat(GolemState.has(body)).isTrue();
   }
 
   @Test
@@ -2294,8 +2346,8 @@ class GolemRegistryTest extends AdaptTestBase {
 
     assertThat(restored.isValidated()).isTrue();
     assertThat(GolemState.has(fresh)).isTrue();
-    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(5L);
-    assertThat(GolemState.read(fresh).orElseThrow().sighting()).isEqualTo(5L);
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(6L);
+    assertThat(GolemState.read(fresh).orElseThrow().sighting()).isEqualTo(6L);
   }
 
   @Test

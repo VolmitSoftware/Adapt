@@ -192,13 +192,14 @@ public final class GolemHandle {
     markDebounced();
   }
 
-  public void flush() {
+  public boolean flush() {
     if (retired) {
-      return;
+      return false;
     }
     trackPosition(entity.getLocation());
     state.write(entity);
     writePolicy.flushed();
+    return true;
   }
 
   void settleFullHealth() {
