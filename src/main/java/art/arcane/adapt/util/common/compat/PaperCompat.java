@@ -18,7 +18,9 @@
 
 package art.arcane.adapt.util.common.compat;
 
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.format.Form;
 import com.destroystokyo.paper.entity.Pathfinder;
 import com.destroystokyo.paper.entity.RangedEntity;
 import net.kyori.adventure.text.Component;
@@ -69,6 +71,7 @@ import java.lang.invoke.MethodType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -126,6 +129,7 @@ public final class PaperCompat {
   // EntityPotionEffectEvent.getSource() is 26.2+; resolved reflectively so the 26.1.2 compile baseline builds.
   private static final MethodHandle POTION_SOURCE_HANDLE = resolvePotionSourceHandle();
   private static volatile boolean trackedPlayersSupported = true;
+  private static volatile boolean itemNameSupported = true;
 
   private PaperCompat() {
   }
@@ -605,6 +609,17 @@ public final class PaperCompat {
     } catch (NoSuchMethodError absent) {
       entity.setCustomName(name == null ? null : LegacyComponentSerializer.legacySection().serialize(name));
     }
+  }
+
+  public static String itemName(ItemStack item) {
+    if (itemNameSupported) {
+      try {
+        return C.stripColor(LegacyComponentSerializer.legacySection().serialize(item.effectiveName()));
+      } catch (NoSuchMethodError absent) {
+        itemNameSupported = false;
+      }
+    }
+    return Form.capitalizeWords(item.getType().name().toLowerCase(Locale.ROOT).replace('_', ' '));
   }
 
   public static void text(TextDisplay display, Component text) {

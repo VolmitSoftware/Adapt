@@ -34,6 +34,8 @@ interface NodePlatform {
 
   boolean savePlate(World world, int x, int z);
 
+  boolean powered(World world, int x, int y, int z);
+
   World world(UUID id);
 
   ItemStack icon(NodeType type);

@@ -14,6 +14,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -54,6 +55,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -560,6 +562,107 @@ class NodeServiceTest extends AdaptTestBase {
 
     assertThat(service.index().isReady(WORLD, GolemRoster.chunkKey(0, 0))).isTrue();
     assertThat(service.node(new NodeKey(WORLD, 1, 64, 1, BlockFace.UP))).contains(guard);
+  }
+
+  @Test
+  void theOwnersEditIsStoredIndexedAndRefreshesTheLabelAndGlow() {
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    NodeBundle bundle = service.renderer().bundle(key).orElseThrow();
+
+    Optional<NodeRecord> updated = service.update(OWNER, key, record -> record.toBuilder().channel(DyeColor.RED).priority(5).build());
+
+    assertThat(updated).map(NodeRecord::channel).contains(DyeColor.RED);
+    assertThat(platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP)).isEqualTo(updated.get());
+    assertThat(service.node(key)).isEqualTo(updated);
+    assertThat(service.renderer().bundle(key)).containsSame(bundle);
+    verify(bundle.label()).text(any(Component.class));
+    verify(bundle.icon()).setGlowColorOverride(DyeColor.RED.getColor());
+    verify(bundle.icon(), atLeastOnce()).setGlowing(true);
+  }
+
+  @Test
+  void strangersAndVanishedNodesCannotBeEdited() {
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    NodeRecord before = service.node(key).orElseThrow();
+
+    assertThat(service.update(STRANGER, key, record -> record.toBuilder().priority(1).build())).isEmpty();
+    assertThat(service.update(OWNER, new NodeKey(WORLD, 3, 64, 3, BlockFace.EAST), record -> record)).isEmpty();
+    platform.ownsEverything = false;
+    assertThat(service.update(OWNER, key, record -> record.toBuilder().priority(1).build())).isEmpty();
+
+    assertThat(service.node(key)).contains(before);
+    assertThat(platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP)).isEqualTo(before);
+  }
+
+  @Test
+  void anEditCannotChangeTheNodesOwnerTypeOrFace() {
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+
+    assertThat(service.update(OWNER, key, record -> NodeRecord.builder(STRANGER, NodeType.GUARD, BlockFace.UP).build())).isEmpty();
+    assertThat(service.update(OWNER, key, record -> NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).build())).isEmpty();
+    assertThat(service.node(key)).map(NodeRecord::owner).contains(OWNER);
+    assertThat(service.node(key)).map(NodeRecord::type).contains(NodeType.GUARD);
+  }
+
+  @Test
+  void anUnchangedEditWritesNothing() {
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    NodeBundle bundle = service.renderer().bundle(key).orElseThrow();
+
+    assertThat(service.update(OWNER, key, record -> record)).isEqualTo(service.node(key));
+
+    verify(bundle.label(), never()).text(any(Component.class));
+  }
+
+  @Test
+  void aNodeWaitingForPowerSkipsItsScanUntilTheAnchorIsPowered() {
+    List<NodeScanPass> passes = new ArrayList<>();
+    service.setScanHook(passes::add);
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    service.update(OWNER, key, record -> record.toBuilder().redstone(RedstoneMode.POWERED).build());
+
+    platform.runScheduled();
+    assertThat(passes).isEmpty();
+    assertThat(platform.scheduled).hasSize(1);
+
+    platform.powered.add("3,64,3");
+    platform.runScheduled();
+    assertThat(passes).hasSize(1);
+    assertThat(passes.getFirst().window()).isEqualTo(new NodeScanCursor.Window(0, 64));
+  }
+
+  @Test
+  void anUnpoweredModeNodeStopsScanningWhilePowered() {
+    List<NodeScanPass> passes = new ArrayList<>();
+    service.setScanHook(passes::add);
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    service.update(OWNER, key, record -> record.toBuilder().redstone(RedstoneMode.UNPOWERED).build());
+    platform.powered.add("3,64,3");
+
+    platform.runScheduled();
+    assertThat(passes).isEmpty();
+
+    platform.powered.clear();
+    platform.runScheduled();
+    assertThat(passes).hasSize(1);
+  }
+
+  @Test
+  void anIgnoringNodeNeverReadsRedstonePower() {
+    List<NodeScanPass> passes = new ArrayList<>();
+    service.setScanHook(passes::add);
+    placedGuard();
+
+    platform.runScheduled();
+
+    assertThat(passes).hasSize(1);
+    assertThat(platform.powerReads).isZero();
   }
 
   private Player placedGuard() {

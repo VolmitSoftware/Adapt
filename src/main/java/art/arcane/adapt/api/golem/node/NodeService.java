@@ -31,6 +31,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 public final class NodeService extends TickedObject {
   private static final double DROP_FACE_DISTANCE = 0.45D;
@@ -139,6 +140,33 @@ public final class NodeService extends TickedObject {
     }
     saveThen(world, key, () -> giveBack(owner, world, key, record.type()), SAVE_ATTEMPTS, 0);
     return true;
+  }
+
+  public Optional<NodeRecord> update(UUID owner, NodeKey key, UnaryOperator<NodeRecord> change) {
+    World world = platform.world(key.world());
+    if (world == null || !platform.owns(key.center(world))) {
+      return Optional.empty();
+    }
+    NodeRecord current = index.get(key).orElse(null);
+    if (current == null || !current.owner().equals(owner)) {
+      return Optional.empty();
+    }
+    NodeRecord next = change.apply(current);
+    if (!next.owner().equals(owner) || next.type() != current.type() || next.face() != current.face()) {
+      return Optional.empty();
+    }
+    if (next.equals(current)) {
+      return Optional.of(current);
+    }
+    NodeFaces faces = platform.read(world, key.x(), key.y(), key.z());
+    NodeRecord stored = faces.get(key.face());
+    if (stored == null || !stored.owner().equals(owner) || stored.type() != current.type()) {
+      return Optional.empty();
+    }
+    platform.write(world, key.x(), key.y(), key.z(), faces.with(next));
+    index.put(key, next);
+    renderer.refresh(key, next);
+    return Optional.of(next);
   }
 
   public void shutdown() {
@@ -258,11 +286,15 @@ public final class NodeService extends TickedObject {
     }
     NodeScanHook hook = scanHook;
     NodeSettings current = settings.get();
-    if (hook != null) {
+    if (hook != null && active(world, key, record)) {
       NodeScanCursor.Window window = state.cursor.next(current.blocksPerScan(), NodeArea.volume(record));
       hook.scan(new NodeScanPass(world, key, record, window, current.maxOpenTasksPerNode()));
     }
     scheduleScan(world, key, token, current.scanIntervalTicks());
+  }
+
+  private boolean active(World world, NodeKey key, NodeRecord record) {
+    return record.redstone() == RedstoneMode.IGNORE || NodeRules.active(record.redstone(), platform.powered(world, key.x(), key.y(), key.z()));
   }
 
   private boolean anchorValid(World world, NodeKey key, NodeRecord record) {

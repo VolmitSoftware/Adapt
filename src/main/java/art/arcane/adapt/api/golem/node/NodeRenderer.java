@@ -5,6 +5,7 @@ import art.arcane.adapt.api.fx.display.HiddenDisplays;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import net.kyori.adventure.text.Component;
@@ -44,6 +45,7 @@ public final class NodeRenderer {
   private final Function<NodeType, ItemStack> icons;
   private final Map<NodeKey, NodeBundle> bundles = new ConcurrentHashMap<>();
   private final Map<UUID, NodeKey> entities = new ConcurrentHashMap<>();
+  private final Map<NodeKey, NodeStatus> statuses = new ConcurrentHashMap<>();
 
   public NodeRenderer(Function<NodeType, ItemStack> icons) {
     this.icons = Objects.requireNonNull(icons);
@@ -63,10 +65,20 @@ public final class NodeRenderer {
     label.setTransformation(new Transformation(new Vector3f(0F, labelLift(face), 0F), base.getLeftRotation(), base.getScale(), base.getRightRotation()));
     NodeBundle bundle = new NodeBundle(icon, hitbox, label);
     bundles.put(key, bundle);
+    statuses.put(key, status);
     for (Entity entity : bundle.entities()) {
       entities.put(entity.getUniqueId(), key);
     }
     return bundle;
+  }
+
+  public void refresh(NodeKey key, NodeRecord record) {
+    NodeBundle bundle = bundles.get(key);
+    if (bundle == null) {
+      return;
+    }
+    applyGlow(bundle.icon(), record.channel());
+    PaperCompat.text(bundle.label(), label(record, statuses.getOrDefault(key, NodeStatus.IDLE)));
   }
 
   public Optional<NodeBundle> bundle(NodeKey key) {
@@ -79,6 +91,7 @@ public final class NodeRenderer {
 
   public void despawn(NodeKey key) {
     NodeBundle bundle = bundles.remove(key);
+    statuses.remove(key);
     if (bundle == null) {
       return;
     }

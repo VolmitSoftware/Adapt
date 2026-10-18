@@ -27,12 +27,14 @@ final class FakeNodePlatform implements NodePlatform {
   final List<Scheduled> scheduled = new ArrayList<>();
   final List<Runnable> asyncTasks = new ArrayList<>();
   final List<String> events = new ArrayList<>();
+  final Set<String> powered = new HashSet<>();
   boolean ownsEverything = true;
   boolean deferAsync;
   boolean refuseRunAt;
   int busySaves;
   RuntimeException saveFailure;
   int chunkReads;
+  int powerReads;
 
   @Override
   public Optional<GolemRoster> roster(UUID owner) {
@@ -126,6 +128,12 @@ final class FakeNodePlatform implements NodePlatform {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public boolean powered(World world, int x, int y, int z) {
+    powerReads++;
+    return powered.contains(x + "," + y + "," + z);
   }
 
   @Override

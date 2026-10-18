@@ -108,4 +108,14 @@ class NodeRulesTest {
     assertThat(NodeRules.allowsBlacklistAndTags(4)).isFalse();
     assertThat(NodeRules.allowsBlacklistAndTags(5)).isTrue();
   }
+
+  @Test
+  void redstoneModesGateTheNodeOnItsAnchorsPower() {
+    assertThat(NodeRules.active(RedstoneMode.IGNORE, false)).isTrue();
+    assertThat(NodeRules.active(RedstoneMode.IGNORE, true)).isTrue();
+    assertThat(NodeRules.active(RedstoneMode.POWERED, true)).isTrue();
+    assertThat(NodeRules.active(RedstoneMode.POWERED, false)).isFalse();
+    assertThat(NodeRules.active(RedstoneMode.UNPOWERED, false)).isTrue();
+    assertThat(NodeRules.active(RedstoneMode.UNPOWERED, true)).isFalse();
+  }
 }
