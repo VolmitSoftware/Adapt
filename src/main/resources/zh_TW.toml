@@ -3061,6 +3061,38 @@ description = "建造 10 個魔像"
 title = "巨人鑄造廠"
 description = "建造 100 個魔像"
 
+[advancement.challenge_golemancy_bound_5]
+title = "小小隨從"
+description = "縛約 5 個魔像"
+
+[advancement.challenge_golemancy_bound_25]
+title = "靈魂軍團"
+description = "縛約 25 個魔像"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "石之哨兵"
+description = "你縛約的魔像擊殺 50 個敵對生物"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "活體城牆"
+description = "你縛約的魔像擊殺 500 個敵對生物"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "不破之軍"
+description = "你縛約的魔像擊殺 5,000 個敵對生物"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "寒冬之僕"
+description = "縛約一個霜魔像"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "銅綠之契"
+description = "縛約一個銅魔像"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "鋼鐵之誓"
+description = "縛約一個鐵魔像"
+
 [agility.armor_up]
 name = "裝甲強化"
 description = "衝刺時間越長，獲得的護甲值越多！"

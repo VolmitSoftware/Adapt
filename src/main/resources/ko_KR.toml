@@ -3061,6 +3061,38 @@ description = "골렘 10기 만들기"
 title = "거인의 주조소"
 description = "골렘 100기 만들기"
 
+[advancement.challenge_golemancy_bound_5]
+title = "작은 수행단"
+description = "골렘 5기 결속하기"
+
+[advancement.challenge_golemancy_bound_25]
+title = "아니무스 군단"
+description = "골렘 25기 결속하기"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "돌의 파수꾼"
+description = "결속한 골렘이 적대적 몹 50마리 처치하기"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "살아 있는 성벽"
+description = "결속한 골렘이 적대적 몹 500마리 처치하기"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "무너지지 않는 군세"
+description = "결속한 골렘이 적대적 몹 5,000마리 처치하기"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "겨울의 종복"
+description = "서리 골렘 결속하기"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "녹청의 인연"
+description = "구리 골렘 결속하기"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "강철의 맹세"
+description = "철 골렘 결속하기"
+
 [agility.armor_up]
 name = "방어구 강화"
 description = "오래 달릴수록 더 많은 방어력을 얻습니다!"

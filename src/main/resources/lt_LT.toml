@@ -3061,6 +3061,38 @@ description = "Pastatyk 10 golemų"
 title = "Milžinų liejykla"
 description = "Pastatyk 100 golemų"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Maža palyda"
+description = "Sujunk 5 golemus"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Animus legionas"
+description = "Sujunk 25 golemus"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Akmens sargybiniai"
+description = "Tavo sujungti golemai nukauna 50 priešiškų padarų"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Gyvas pylimas"
+description = "Tavo sujungti golemai nukauna 500 priešiškų padarų"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Nepalaužiama kariauna"
+description = "Tavo sujungti golemai nukauna 5 000 priešiškų padarų"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Žiemos tarnas"
+description = "Sujunk šerkšno golemą"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Patinos saitas"
+description = "Sujunk vario golemą"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Geležinė priesaika"
+description = "Sujunk geležies golemą"
+
 [agility.armor_up]
 name = "Sarvai Aukstyn"
 description = "Kuo ilgiau begsite, tuo daugiau sarvu!"

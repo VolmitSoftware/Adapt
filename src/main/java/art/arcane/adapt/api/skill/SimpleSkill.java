@@ -19,6 +19,7 @@
 package art.arcane.adapt.api.skill;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.Cooldowns;
@@ -433,14 +434,22 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
   }
 
   protected void addStat(Player p, String stat, double amount) {
-    if (p == null) {
-      return;
-    }
-    AdaptPlayer adaptPlayer = getServer().getOnlineAdaptPlayer(p.getUniqueId());
-    if (adaptPlayer == null || !adaptPlayer.isRuntimeReady() || adaptPlayer.getPlayer() != p) {
+    AdaptPlayer adaptPlayer = readyPlayer(p);
+    if (adaptPlayer == null) {
       return;
     }
     adaptPlayer.getData().addStat(stat, amount);
+  }
+
+  protected boolean grantOnce(Player p, String advancementKey) {
+    if (!AdaptConfig.get().isAdvancements()) {
+      return false;
+    }
+    AdaptPlayer adaptPlayer = readyPlayer(p);
+    if (adaptPlayer == null || adaptPlayer.getData().isGranted(advancementKey)) {
+      return false;
+    }
+    return adaptPlayer.getAdvancementHandler().grant(advancementKey);
   }
 
   public void setColor(C color) {
@@ -561,6 +570,14 @@ public abstract class SimpleSkill<T> extends TickedObject implements Skill<T> {
     }
     super.unregister();
     adaptations.forEach(Adaptation::unregister);
+  }
+
+  private AdaptPlayer readyPlayer(Player player) {
+    if (player == null) {
+      return null;
+    }
+    AdaptPlayer adaptPlayer = getServer().getOnlineAdaptPlayer(player.getUniqueId());
+    return adaptPlayer != null && adaptPlayer.isRuntimeReady() && adaptPlayer.getPlayer() == player ? adaptPlayer : null;
   }
 
   private String colorPrefixValue() {

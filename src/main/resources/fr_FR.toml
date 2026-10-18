@@ -3057,6 +3057,38 @@ description = "Construisez 10 golems"
 title = "Fonderie de géants"
 description = "Construisez 100 golems"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Petite escorte"
+description = "Liez 5 golems"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Légion d'Animus"
+description = "Liez 25 golems"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Sentinelles de pierre"
+description = "Vos golems liés tuent 50 créatures hostiles"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Rempart vivant"
+description = "Vos golems liés tuent 500 créatures hostiles"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Armée inébranlable"
+description = "Vos golems liés tuent 5 000 créatures hostiles"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Serviteur de l'hiver"
+description = "Liez un golem de givre"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Lien de vert-de-gris"
+description = "Liez un golem de cuivre"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Serment de fer"
+description = "Liez un golem de fer"
+
 [agility.armor_up]
 name = "Armure Cinétique"
 description = "Gagnez davantage d'armure plus vous sprintez longtemps ! Si vous vous arrêtez, elle se dissipe lentement."

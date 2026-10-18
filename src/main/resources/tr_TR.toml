@@ -3061,6 +3061,38 @@ description = "10 golem inşa et"
 title = "Devlerin dökümhanesi"
 description = "100 golem inşa et"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Küçük maiyet"
+description = "5 golem bağla"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Animus lejyonu"
+description = "25 golem bağla"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Taş nöbetçiler"
+description = "Bağlı golemlerin 50 düşman yaratık öldürsün"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Yaşayan sur"
+description = "Bağlı golemlerin 500 düşman yaratık öldürsün"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Kırılmaz ordu"
+description = "Bağlı golemlerin 5.000 düşman yaratık öldürsün"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Kışın hizmetkârı"
+description = "Bir ayaz golemi bağla"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Bakır pası bağı"
+description = "Bir bakır golemi bağla"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Demir yemin"
+description = "Bir demir golemi bağla"
+
 [agility.armor_up]
 name = "Zirhlan"
 description = "Ne kadar uzun sure kosarsan o kadar cok zirh al!"

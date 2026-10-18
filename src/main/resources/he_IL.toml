@@ -3061,6 +3061,38 @@ description = "בנה 10 גולמים"
 title = "בית היציקה של הענקים"
 description = "בנה 100 גולמים"
 
+[advancement.challenge_golemancy_bound_5]
+title = "פמליה קטנה"
+description = "כרוך 5 גולמים"
+
+[advancement.challenge_golemancy_bound_25]
+title = "לגיון האנימוס"
+description = "כרוך 25 גולמים"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "זקיפי אבן"
+description = "הגולמים הכרוכים שלך הורגים 50 יצורים עוינים"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "חומה חיה"
+description = "הגולמים הכרוכים שלך הורגים 500 יצורים עוינים"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "צבא בלתי שביר"
+description = "הגולמים הכרוכים שלך הורגים 5,000 יצורים עוינים"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "משרת החורף"
+description = "כרוך גולם כפור"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "ברית הירקן"
+description = "כרוך גולם נחושת"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "שבועת ברזל"
+description = "כרוך גולם ברזל"
+
 [agility.armor_up]
 name = "שריון-אפ"
 description = "קבל יותר שריון ככל שאתה רץ יותר זמן!"

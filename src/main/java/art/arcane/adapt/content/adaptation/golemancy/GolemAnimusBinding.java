@@ -29,6 +29,7 @@ import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRitualMarker;
 import art.arcane.adapt.api.golem.GolemScale;
+import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.notification.AdaptHud;
@@ -276,15 +277,19 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
       return;
     }
     unwind(ritual);
-    GolemHandle handle;
+    Optional<GolemHandle> handle;
     try {
-      handle = registry.get().bind(owner, golem, target.body(), target.core());
+      handle = Optional.of(registry.get().bind(owner, golem, target.body(), target.core()));
     } catch (RuntimeException failure) {
-      refundTithe(owner, assessment.tithe());
-      fizzle(golem);
-      warn(owner, GolemancyMessages.BINDING_INTERRUPTED);
-      Adapt.warn("Animus Binding could not bind golem " + golem.getUniqueId() + " for " + owner.getName() + "; the tithe was refunded.", failure);
-      return;
+      if (!GolemState.has(golem)) {
+        refundTithe(owner, assessment.tithe());
+        fizzle(golem);
+        warn(owner, GolemancyMessages.BINDING_INTERRUPTED);
+        Adapt.warn("Animus Binding could not bind golem " + golem.getUniqueId() + " for " + owner.getName() + "; the tithe was refunded.", failure);
+        return;
+      }
+      Adapt.warn("Animus Binding failed after golem " + golem.getUniqueId() + " was bound to " + owner.getName() + "; the core was taken and the tithe was kept.", failure);
+      handle = registry.get().handle(golem);
     }
     decrementItemstack(owner.getInventory().getItemInMainHand(), owner);
     fx(golem, FxPriority.TRANSITION)
@@ -293,7 +298,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
         .sound(Sound.BLOCK_AMETHYST_BLOCK_RESONATE, 0.8F, 1.2F)
         .sound(Sound.BLOCK_BEACON_POWER_SELECT, 0.5F, 1.6F);
     notify(owner, GolemancyMessages.BINDING_BOUND, trusted("body", AdaptLanguage.text(target.body().displayName())));
-    GolemancyRuntime.bindListener().bound(owner, handle);
+    handle.ifPresent(bound -> GolemancyRuntime.bindListener().bound(owner, bound));
   }
 
   private void abort(BindingRitual ritual, boolean announce) {

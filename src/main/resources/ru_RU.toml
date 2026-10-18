@@ -3061,6 +3061,38 @@ description = "Создайте 10 големов"
 title = "Литейная великанов"
 description = "Создайте 100 големов"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Малая свита"
+description = "Свяжите 5 големов"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Легион анимуса"
+description = "Свяжите 25 големов"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Каменные стражи"
+description = "Ваши связанные големы убивают 50 враждебных мобов"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Живой вал"
+description = "Ваши связанные големы убивают 500 враждебных мобов"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Несокрушимое воинство"
+description = "Ваши связанные големы убивают 5 000 враждебных мобов"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Слуга зимы"
+description = "Свяжите морозного голема"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Узы патины"
+description = "Свяжите медного голема"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Железная клятва"
+description = "Свяжите железного голема"
+
 [agility.armor_up]
 name = "Укрепление брони"
 description = "Чем дольше бежите, тем больше брони!"

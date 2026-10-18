@@ -25,7 +25,9 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemSettings;
+import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.HostileDamagePool;
 import art.arcane.adapt.api.golem.gui.CrookInteractions;
@@ -60,6 +62,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.Tag;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Enemy;
@@ -67,6 +70,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Golem;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -83,10 +87,13 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private static final long CARE_CHECK_STALE_MILLIS = 5_000L;
@@ -95,6 +102,8 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private final GolemXpCooldowns<BuildCooldownKey> buildCooldowns = new GolemXpCooldowns<>();
   private final GolemXpCooldowns<WitnessCooldownKey> witnessCooldowns = new GolemXpCooldowns<>();
   private final RollingXpCap witnessCap = new RollingXpCap();
+  private final GolemXpCooldowns<UUID> assistCooldowns = new GolemXpCooldowns<>();
+  private final GolemXpCooldowns<UUID> tankCooldowns = new GolemXpCooldowns<>();
   private final ConcurrentHashMap<UUID, Long> careChecks = new ConcurrentHashMap<>();
 
   public SkillGolemancy() {
@@ -118,8 +127,70 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
             .visibility(AdvancementVisibility.VANILLA)
             .build())
         .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.FIREWORK_STAR)
+        .key("challenge_golemancy_bound_5")
+        .model(CustomModel.get(Material.FIREWORK_STAR, "advancement", "golemancy", "challenge_golemancy_bound_5"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.NETHER_STAR)
+            .key("challenge_golemancy_bound_25")
+            .model(CustomModel.get(Material.NETHER_STAR, "advancement", "golemancy", "challenge_golemancy_bound_25"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.VANILLA)
+            .build())
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.IRON_SWORD)
+        .key("challenge_golemancy_golem_kills_50")
+        .model(CustomModel.get(Material.IRON_SWORD, "advancement", "golemancy", "challenge_golemancy_golem_kills_50"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.DIAMOND_SWORD)
+            .key("challenge_golemancy_golem_kills_500")
+            .model(CustomModel.get(Material.DIAMOND_SWORD, "advancement", "golemancy", "challenge_golemancy_golem_kills_500"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.VANILLA)
+            .child(AdaptAdvancement.builder()
+                .icon(Material.NETHERITE_SWORD)
+                .key("challenge_golemancy_golem_kills_5000")
+                .model(CustomModel.get(Material.NETHERITE_SWORD, "advancement", "golemancy", "challenge_golemancy_golem_kills_5000"))
+                .frame(AdaptAdvancementFrame.CHALLENGE)
+                .visibility(AdvancementVisibility.VANILLA)
+                .build())
+            .build())
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.SNOWBALL)
+        .key("challenge_golemancy_first_bind_frost")
+        .model(CustomModel.get(Material.SNOWBALL, "advancement", "golemancy", "challenge_golemancy_first_bind_frost"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.COPPER_INGOT)
+        .key("challenge_golemancy_first_bind_copper")
+        .model(CustomModel.get(Material.COPPER_INGOT, "advancement", "golemancy", "challenge_golemancy_first_bind_copper"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.IRON_INGOT)
+        .key("challenge_golemancy_first_bind_iron")
+        .model(CustomModel.get(Material.IRON_INGOT, "advancement", "golemancy", "challenge_golemancy_first_bind_iron"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .build());
     registerMilestone("challenge_golemancy_built_10", "golemancy.built", 10, () -> getConfig().challengeBuiltReward);
     registerMilestone("challenge_golemancy_built_100", "golemancy.built", 100, () -> getConfig().challengeBuiltReward * 5);
+    registerMilestone("challenge_golemancy_bound_5", "golemancy.bound", 5, () -> getConfig().challengeBoundReward);
+    registerMilestone("challenge_golemancy_bound_25", "golemancy.bound", 25, () -> getConfig().challengeBoundReward * 5);
+    registerMilestone("challenge_golemancy_golem_kills_50", "golemancy.golem.kills", 50, () -> getConfig().challengeGolemKillsReward);
+    registerMilestone("challenge_golemancy_golem_kills_500", "golemancy.golem.kills", 500, () -> getConfig().challengeGolemKillsReward * 2);
+    registerMilestone("challenge_golemancy_golem_kills_5000", "golemancy.golem.kills", 5000, () -> getConfig().challengeGolemKillsReward * 5);
+    GolemancyRuntime.setBindListener(this::golemBound);
   }
 
   @Override
@@ -129,6 +200,8 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     buildCooldowns.sweep(nowMillis, getConfig().buildXpCooldownMillis);
     witnessCooldowns.sweep(nowMillis, getConfig().witnessCooldownMillis);
     witnessCap.sweep(nowMillis);
+    assistCooldowns.sweep(nowMillis, getConfig().assistCooldownMillis);
+    tankCooldowns.sweep(nowMillis, getConfig().tankCooldownMillis);
     careChecks.values().removeIf(scheduledAt -> nowMillis - scheduledAt > CARE_CHECK_STALE_MILLIS);
   }
 
@@ -165,13 +238,24 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageByEntityEvent e) {
-    if (!(e.getEntity() instanceof LivingEntity golem)
-        || !HostileDamagePool.isPoolBody(golem.getType())
-        || !HostileDamagePool.isHostileDamager(e.getDamager())
-        || shouldReturnForWorld(golem.getWorld(), this)) {
+    if (!(e.getEntity() instanceof LivingEntity victim)) {
       return;
     }
-    HostileDamagePool.add(golem, e.getFinalDamage(), maxHealthOf(golem));
+    Entity damager = e.getDamager();
+    double damage = e.getFinalDamage();
+    if (HostileDamagePool.isPoolBody(victim.getType())
+        && HostileDamagePool.isHostileDamager(damager)
+        && !shouldReturnForWorld(victim.getWorld(), this)) {
+      HostileDamagePool.add(victim, damage, maxHealthOf(victim));
+      GolemancyRuntime.handle(victim).ifPresent(handle -> rewardTank(handle, victim, damager, damage));
+    }
+    if (!(victim instanceof Enemy)) {
+      return;
+    }
+    Optional<GolemHandle> golem = GolemancyRuntime.handle(GolemXpRules.golemSource(damager));
+    if (golem.isPresent() && !excludedMob(victim) && !shouldReturnForWorld(victim.getWorld(), this)) {
+      rewardAssist(golem.get(), victim, damage);
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -193,28 +277,17 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     if (!(victim instanceof Enemy) || !(victim.getLastDamageCause() instanceof EntityDamageByEntityEvent lastDamage)) {
       return;
     }
-    Golem golem = GolemXpRules.witnessGolem(lastDamage.getDamager());
-    if (golem == null
-        || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(golem))
-        || MinionIdentity.isMinion(victim)
-        || ExcavationGraveDigger.isGraveMob(victim)
-        || MinionIdentity.isMinion(golem)
-        || shouldReturnForWorld(victim.getWorld(), this)) {
+    Entity damager = lastDamage.getDamager();
+    Optional<GolemHandle> owned = GolemancyRuntime.handle(GolemXpRules.golemSource(damager));
+    Golem witnessed = owned.isPresent() ? null : GolemXpRules.witnessGolem(damager);
+    if ((owned.isEmpty() && witnessed == null) || excludedMob(victim) || shouldReturnForWorld(victim.getWorld(), this)) {
       return;
     }
-    double killValue = GolemXpRules.killValue(getConfig().golemKillXpBase, maxHealthOf(victim), getConfig().golemKillMaxHealthMultiplier);
-    double xp = GolemXpRules.witnessXp(killValue, getConfig().witnessXpMultiplier, SpawnerMobTag.isTagged(victim), getConfig().spawnerMobXpMultiplier);
-    if (xp <= 0D) {
+    if (owned.isPresent()) {
+      rewardOwnedKill(owned.get(), victim);
       return;
     }
-    Location center = golem.getLocation();
-    double radius = getConfig().witnessRadius;
-    UUID golemId = golem.getUniqueId();
-    for (Player witness : PaperCompat.nearbyPlayers(center, radius)) {
-      if (witness.getLocation().distanceSquared(center) <= radius * radius) {
-        shouldReturnForPlayer(witness, () -> payWitness(witness, golemId, center, xp));
-      }
-    }
+    rewardWitnesses(victim, witnessed);
   }
 
   @Override
@@ -259,6 +332,24 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
 
   static RevealSettings revealSettings(Config config) {
     return new RevealSettings(config.revealRange, config.labelRange, config.revealPollTicks);
+  }
+
+  static double bindXp(Config config, GolemBody body) {
+    return switch (body) {
+      case FROST -> config.bindSnowXp;
+      case COPPER -> config.bindCopperXp;
+      case IRON -> config.bindIronXp;
+      case BONE -> 0D;
+    };
+  }
+
+  static double assistBodyMultiplier(Config config, GolemBody body) {
+    return switch (body) {
+      case FROST -> config.assistBodyMultiplierFrost;
+      case COPPER -> config.assistBodyMultiplierCopper;
+      case IRON -> config.assistBodyMultiplierIron;
+      case BONE -> config.assistBodyMultiplierBone;
+    };
   }
 
   private void applyBuild(GolemBuildAttribution.Build build) {
@@ -311,6 +402,123 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
         .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.5F);
   }
 
+  private void rewardWitnesses(LivingEntity victim, Golem golem) {
+    if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(golem))
+        || GolemState.has(golem)
+        || MinionIdentity.isMinion(golem)) {
+      return;
+    }
+    double killValue = GolemXpRules.killValue(getConfig().golemKillXpBase, maxHealthOf(victim), getConfig().golemKillMaxHealthMultiplier);
+    double xp = GolemXpRules.witnessXp(killValue, getConfig().witnessXpMultiplier, SpawnerMobTag.isTagged(victim), getConfig().spawnerMobXpMultiplier);
+    if (xp <= 0D) {
+      return;
+    }
+    Location center = golem.getLocation();
+    double radius = getConfig().witnessRadius;
+    UUID golemId = golem.getUniqueId();
+    for (Player witness : PaperCompat.nearbyPlayers(center, radius)) {
+      if (witness.getLocation().distanceSquared(center) <= radius * radius) {
+        shouldReturnForPlayer(witness, () -> payWitness(witness, golemId, center, xp));
+      }
+    }
+  }
+
+  private void golemBound(Player owner, GolemHandle handle) {
+    Mob golem = handle.entity();
+    if (shouldReturnForWorld(golem.getWorld(), this)) {
+      return;
+    }
+    GolemBody body = handle.body();
+    boolean firstBindOfGolem = !handle.state().previouslyBound();
+    Location at = golem.getLocation();
+    J.runEntity(owner, () -> shouldReturnForPlayer(owner, () -> rewardBind(owner, body, firstBindOfGolem, at)));
+  }
+
+  private void rewardBind(Player owner, GolemBody body, boolean firstBindOfGolem, Location at) {
+    if (firstBindOfGolem) {
+      addStat(owner, "golemancy.bound", 1);
+      xp(owner, at, bindXp(getConfig(), body), "golemancy:bind");
+    }
+    if (body != GolemBody.BONE && grantOnce(owner, "challenge_golemancy_first_bind_" + body.id())) {
+      xp(owner, at, getConfig().firstBindXp, "golemancy:first_bind:" + body.id());
+    }
+  }
+
+  private void rewardAssist(GolemHandle handle, LivingEntity victim, double damage) {
+    double dealt = GolemXpRules.effectiveDamage(damage, victim.getHealth());
+    if (dealt <= 0D) {
+      return;
+    }
+    Mob golem = handle.entity();
+    J.runEntity(golem, () -> handle.addDamage(dealt));
+    Config config = getConfig();
+    double xp = GolemXpRules.assistXp(dealt, config.assistDamageXpMultiplier, assistBodyMultiplier(config, handle.body()),
+        SpawnerMobTag.isTagged(victim), config.spawnerMobXpMultiplier);
+    Location at = combatLocation(golem, victim);
+    rewardOwner(handle.owner(), owner -> payAssist(owner, at, dealt, xp));
+  }
+
+  private void payAssist(Player owner, Location at, double dealt, double xp) {
+    addStat(owner, "golemancy.golem.damage", dealt);
+    if (xp <= 0D || !assistCooldowns.tryClaim(owner.getUniqueId(), M.ms(), getConfig().assistCooldownMillis)) {
+      return;
+    }
+    xp(owner, at, xp * distanceFactor(owner, at), "golemancy:assist");
+  }
+
+  private void rewardOwnedKill(GolemHandle handle, LivingEntity victim) {
+    Mob golem = handle.entity();
+    J.runEntity(golem, () -> handle.addKills(1));
+    Config config = getConfig();
+    double killValue = GolemXpRules.killValue(config.golemKillXpBase, maxHealthOf(victim), config.golemKillMaxHealthMultiplier);
+    double xp = GolemXpRules.ownedKillXp(killValue, GolemXpRules.inActiveRaid(victim), config.raidXpMultiplier,
+        SpawnerMobTag.isTagged(victim), config.spawnerMobXpMultiplier);
+    String rewardKey = "golemancy:kill:" + victim.getType().name().toLowerCase(Locale.ROOT);
+    Location at = combatLocation(golem, victim);
+    rewardOwner(handle.owner(), owner -> payKill(owner, at, xp, rewardKey));
+  }
+
+  private void payKill(Player owner, Location at, double xp, String rewardKey) {
+    addStat(owner, "golemancy.golem.kills", 1);
+    xp(owner, at, xp * distanceFactor(owner, at), rewardKey);
+  }
+
+  private void rewardTank(GolemHandle handle, LivingEntity golem, Entity damager, double damage) {
+    Entity attacker = GolemXpRules.attacker(damager);
+    if ((J.isFoliaThreading() && !J.isOwnedByCurrentRegion(attacker)) || excludedMob(attacker)) {
+      return;
+    }
+    double taken = GolemXpRules.effectiveDamage(damage, golem.getHealth());
+    double xp = GolemXpRules.tankXp(taken, getConfig().tankXpMultiplier, SpawnerMobTag.isTagged(attacker), getConfig().spawnerMobXpMultiplier);
+    if (xp <= 0D) {
+      return;
+    }
+    Location at = golem.getLocation();
+    rewardOwner(handle.owner(), owner -> payTank(owner, at, xp));
+  }
+
+  private void payTank(Player owner, Location at, double xp) {
+    if (!tankCooldowns.tryClaim(owner.getUniqueId(), M.ms(), getConfig().tankCooldownMillis)) {
+      return;
+    }
+    xp(owner, at, xp * distanceFactor(owner, at), "golemancy:tank");
+  }
+
+  private void rewardOwner(UUID ownerId, Consumer<Player> reward) {
+    Player owner = Bukkit.getPlayer(ownerId);
+    if (owner == null) {
+      return;
+    }
+    J.runEntity(owner, () -> shouldReturnForPlayer(owner, () -> reward.accept(owner)));
+  }
+
+  private double distanceFactor(Player owner, Location at) {
+    Location ownerAt = owner.getLocation();
+    World world = ownerAt.getWorld();
+    double distanceSquared = world != null && world.equals(at.getWorld()) ? ownerAt.distanceSquared(at) : Double.POSITIVE_INFINITY;
+    return GolemXpRules.ownerDistanceFactor(distanceSquared, getConfig().ownerProximityRadius, getConfig().distantOwnerXpMultiplier);
+  }
+
   private void payWitness(Player witness, UUID golemId, Location center, double xp) {
     long nowMillis = M.ms();
     if (!witnessCooldowns.tryClaim(new WitnessCooldownKey(golemId, witness.getUniqueId()), nowMillis, getConfig().witnessCooldownMillis)) {
@@ -335,6 +543,14 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     if (!J.runEntity(golem, check, 1)) {
       careChecks.remove(golemId, scheduledAt);
     }
+  }
+
+  private static boolean excludedMob(Entity entity) {
+    return MinionIdentity.isMinion(entity) || ExcavationGraveDigger.isGraveMob(entity);
+  }
+
+  private static Location combatLocation(Entity golem, Entity victim) {
+    return J.isOwnedByCurrentRegion(golem) ? golem.getLocation() : victim.getLocation();
   }
 
   private static Material heldType(Player player, EquipmentSlot hand) {
@@ -428,8 +644,42 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double copperWaxXp = 30;
     @ConfigDoc(value = "Multiplier applied to Golemancy XP from mobs that came from a spawner or trial spawner.", impact = "Lower values make spawner farms pay less; 1.0 pays the same as natural mobs.")
     double spawnerMobXpMultiplier = 0.3;
-    @ConfigDoc(value = "Knowledge paid by the golem building challenges.", impact = "Higher values pay more knowledge; the 100 builds challenge pays five times this value.")
+    @ConfigDoc(value = "Skill XP paid by the golem building challenges.", impact = "Higher values pay more; the 100 builds challenge pays five times this value.")
     double challengeBuiltReward = 500;
+    @ConfigDoc(value = "Skill XP paid the first time a snow golem is bound.", impact = "Higher values reward binding snow golems more; a golem that was bound before pays nothing.")
+    double bindSnowXp = 100;
+    @ConfigDoc(value = "Skill XP paid the first time a copper golem is bound.", impact = "Higher values reward binding copper golems more; a golem that was bound before pays nothing.")
+    double bindCopperXp = 220;
+    @ConfigDoc(value = "Skill XP paid the first time an iron golem is bound.", impact = "Higher values reward binding iron golems more; a golem that was bound before pays nothing.")
+    double bindIronXp = 450;
+    @ConfigDoc(value = "Skill XP paid with each first-bind challenge, the first time you bind a frost, copper or iron golem.", impact = "Higher values make each first bind worth more; each challenge pays once per player.")
+    double firstBindXp = 600;
+    @ConfigDoc(value = "Skill XP per point of damage your bound golems deal to hostile mobs, before the body multiplier. Damage beyond the victim's remaining health does not count.", impact = "Higher values pay more for golem combat.")
+    double assistDamageXpMultiplier = 3.0;
+    @ConfigDoc(value = "Body multiplier for damage XP from bound frost golems, including their snowballs.", impact = "Higher values pay more for frost golem damage.")
+    double assistBodyMultiplierFrost = 2.0;
+    @ConfigDoc(value = "Body multiplier for damage XP from bound copper golems.", impact = "Higher values pay more for copper golem damage.")
+    double assistBodyMultiplierCopper = 1.0;
+    @ConfigDoc(value = "Body multiplier for damage XP from bound iron golems.", impact = "Higher values pay more for iron golem damage.")
+    double assistBodyMultiplierIron = 1.0;
+    @ConfigDoc(value = "Body multiplier for damage XP from bound bone golems.", impact = "Higher values pay more for bone golem damage.")
+    double assistBodyMultiplierBone = 0.35;
+    @ConfigDoc(value = "Milliseconds before one player earns damage XP from their bound golems again.", impact = "Higher values limit damage XP from many golems or fast hits; damage still counts toward golemancy.golem.damage.")
+    long assistCooldownMillis = 1500;
+    @ConfigDoc(value = "Multiplier on kill XP when a bound golem kills a raider that belongs to an active raid.", impact = "Higher values reward defending villages from raids more; 1.0 pays the same as other kills.")
+    double raidXpMultiplier = 1.5;
+    @ConfigDoc(value = "Blocks from a bound golem within which its owner earns full damage, kill and tanking XP.", impact = "Higher values let owners stay farther from their golems without losing XP.")
+    double ownerProximityRadius = 48.0;
+    @ConfigDoc(value = "Multiplier on damage, kill and tanking XP when the owner is farther than ownerProximityRadius from the golem or in another world. Clamped to 0-1.", impact = "Lower values pay less to owners who leave their golems fighting alone; 0 pays nothing.")
+    double distantOwnerXpMultiplier = 0.25;
+    @ConfigDoc(value = "Skill XP per point of damage your bound golems take from hostile mobs. Damage beyond the golem's remaining health does not count.", impact = "Higher values pay more for golems that soak up hits.")
+    double tankXpMultiplier = 1.5;
+    @ConfigDoc(value = "Milliseconds before one player earns tanking XP from their bound golems again.", impact = "Higher values limit tanking XP from many golems or fast hits.")
+    long tankCooldownMillis = 2000;
+    @ConfigDoc(value = "Skill XP paid by the golem binding challenges.", impact = "Higher values pay more; the 25 binds challenge pays five times this value.")
+    double challengeBoundReward = 500;
+    @ConfigDoc(value = "Skill XP paid by the bound golem kill challenges.", impact = "Higher values pay more; the 500 kills challenge pays twice and the 5,000 kills challenge five times this value.")
+    double challengeGolemKillsReward = 500;
     @ConfigDoc(value = "Makes bound golems invulnerable while they are dormant.", impact = "Set to false to let dormant golems take damage while their owner is offline.")
     boolean dormantInvulnerable = true;
     @ConfigDoc(value = "Keeps Guardian golems awake while their owner is offline.", impact = "Set to true to let Guardian golems keep defending while their owner is away.")

@@ -3061,6 +3061,38 @@ description = "Baue 10 Golems"
 title = "Gießerei der Riesen"
 description = "Baue 100 Golems"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Kleines Gefolge"
+description = "Binde 5 Golems"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Animus-Legion"
+description = "Binde 25 Golems"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Steinerne Wächter"
+description = "Deine gebundenen Golems töten 50 feindliche Mobs"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Lebender Wall"
+description = "Deine gebundenen Golems töten 500 feindliche Mobs"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Unzerbrechliches Heer"
+description = "Deine gebundenen Golems töten 5.000 feindliche Mobs"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Diener des Winters"
+description = "Binde einen Frostgolem"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Grünspanbund"
+description = "Binde einen Kupfergolem"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Eiserner Eid"
+description = "Binde einen Eisengolem"
+
 [agility.armor_up]
 name = "Aufrüstung"
 description = "Erhalte mehr Rüstung, je länger du sprintest!"

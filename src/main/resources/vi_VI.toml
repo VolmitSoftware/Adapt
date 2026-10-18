@@ -3061,6 +3061,38 @@ description = "Chế tạo 10 golem"
 title = "Xưởng đúc người khổng lồ"
 description = "Chế tạo 100 golem"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Đoàn tùy tùng nhỏ"
+description = "Liên kết 5 golem"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Quân đoàn Animus"
+description = "Liên kết 25 golem"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Lính canh đá"
+description = "Golem đã liên kết của bạn tiêu diệt 50 sinh vật thù địch"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Thành lũy sống"
+description = "Golem đã liên kết của bạn tiêu diệt 500 sinh vật thù địch"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Đạo quân bất khuất"
+description = "Golem đã liên kết của bạn tiêu diệt 5.000 sinh vật thù địch"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Kẻ hầu của mùa đông"
+description = "Liên kết một golem Băng Giá"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Mối gắn kết gỉ đồng"
+description = "Liên kết một golem Đồng"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Lời thề sắt"
+description = "Liên kết một golem Sắt"
+
 [agility.armor_up]
 name = "Tăng Giáp"
 description = "Nhận thêm giáp khi bạn chạy nước rút càng lâu!"

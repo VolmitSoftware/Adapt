@@ -3061,6 +3061,38 @@ description = "Costruisci 10 golem"
 title = "Fonderia di giganti"
 description = "Costruisci 100 golem"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Piccolo seguito"
+description = "Lega 5 golem"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Legione dell'Animus"
+description = "Lega 25 golem"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Sentinelle di pietra"
+description = "I tuoi golem legati uccidono 50 creature ostili"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Bastione vivente"
+description = "I tuoi golem legati uccidono 500 creature ostili"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Schiera infrangibile"
+description = "I tuoi golem legati uccidono 5.000 creature ostili"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Servitore dell'inverno"
+description = "Lega un golem di brina"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Legame di verderame"
+description = "Lega un golem di rame"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Giuramento di ferro"
+description = "Lega un golem di ferro"
+
 [agility.armor_up]
 name = "Armatura Crescente"
 description = "Ottieni piu' armatura quanto piu' a lungo scatti!"

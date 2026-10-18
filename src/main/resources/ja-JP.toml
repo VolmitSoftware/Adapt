@@ -3061,6 +3061,38 @@ description = "ゴーレムを10体作る"
 title = "巨人の鋳造所"
 description = "ゴーレムを100体作る"
 
+[advancement.challenge_golemancy_bound_5]
+title = "小さな従者団"
+description = "ゴーレムを5体結びつける"
+
+[advancement.challenge_golemancy_bound_25]
+title = "アニムスの軍団"
+description = "ゴーレムを25体結びつける"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "石の哨兵"
+description = "結びつけたゴーレムが敵対モブを50体倒す"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "生ける城壁"
+description = "結びつけたゴーレムが敵対モブを500体倒す"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "不壊の軍勢"
+description = "結びつけたゴーレムが敵対モブを5,000体倒す"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "冬の従者"
+description = "霜ゴーレムを結びつける"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "緑青の絆"
+description = "銅ゴーレムを結びつける"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "鉄の誓い"
+description = "鉄ゴーレムを結びつける"
+
 [agility.armor_up]
 name = "アーマーアップ"
 description = "ダッシュし続けるほど防具が強化される！"

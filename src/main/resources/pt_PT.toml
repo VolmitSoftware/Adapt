@@ -3061,6 +3061,38 @@ description = "Constrói 10 golems"
 title = "Fundição de gigantes"
 description = "Constrói 100 golems"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Pequeno séquito"
+description = "Vincula 5 golems"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Legião do Ânimus"
+description = "Vincula 25 golems"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Sentinelas de pedra"
+description = "Os teus golems vinculados matam 50 criaturas hostis"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Muralha viva"
+description = "Os teus golems vinculados matam 500 criaturas hostis"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Hoste inquebrável"
+description = "Os teus golems vinculados matam 5 000 criaturas hostis"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Servo do inverno"
+description = "Vincula um golem de geada"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Laço de verdete"
+description = "Vincula um golem de cobre"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Juramento de ferro"
+description = "Vincula um golem de ferro"
+
 [agility.armor_up]
 name = "Armadura Crescente"
 description = "Ganha mais armadura quanto mais tempo correres!"

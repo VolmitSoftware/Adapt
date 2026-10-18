@@ -3061,6 +3061,38 @@ description = "建造 10 个魔像"
 title = "巨人铸造厂"
 description = "建造 100 个魔像"
 
+[advancement.challenge_golemancy_bound_5]
+title = "小小随从"
+description = "缚约 5 个魔像"
+
+[advancement.challenge_golemancy_bound_25]
+title = "灵魂军团"
+description = "缚约 25 个魔像"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "石之哨兵"
+description = "你缚约的魔像击杀 50 个敌对生物"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "活体城墙"
+description = "你缚约的魔像击杀 500 个敌对生物"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "不破之军"
+description = "你缚约的魔像击杀 5,000 个敌对生物"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "寒冬之仆"
+description = "缚约一个霜魔像"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "铜绿之契"
+description = "缚约一个铜魔像"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "钢铁之誓"
+description = "缚约一个铁魔像"
+
 [agility.armor_up]
 name = "疾行护甲"
 description = "疾跑越久，获得的护甲越多！停止疾跑后，加成会缓慢消退。"

@@ -3061,6 +3061,38 @@ description = "Zbuduj 10 golemów"
 title = "Odlewnia olbrzymów"
 description = "Zbuduj 100 golemów"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Mała świta"
+description = "Zwiąż 5 golemów"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Legion animusa"
+description = "Zwiąż 25 golemów"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Kamienni wartownicy"
+description = "Twoje związane golemy zabijają 50 wrogich mobów"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Żywy bastion"
+description = "Twoje związane golemy zabijają 500 wrogich mobów"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Niezłomny zastęp"
+description = "Twoje związane golemy zabijają 5 000 wrogich mobów"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Sługa zimy"
+description = "Zwiąż szronowego golema"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Więź patyny"
+description = "Zwiąż miedzianego golema"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Żelazna przysięga"
+description = "Zwiąż żelaznego golema"
+
 [agility.armor_up]
 name = "Pancerz-Up"
 description = "Zdobywaj wiecej pancerza im dluzej sprintujesz!"

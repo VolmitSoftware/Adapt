@@ -81,7 +81,7 @@ class SkillDocumentationCoverageTest {
       documentedAdaptationFields += documentedFields.size();
     }
 
-    assertThat(documentedSkillFields).isEqualTo(360);
+    assertThat(documentedSkillFields).isEqualTo(377);
     assertThat(documentedAdaptationFields).isEqualTo(2110);
   }
 

@@ -3061,6 +3061,38 @@ description = "Rakenna 10 golemia"
 title = "Jättiläisten valimo"
 description = "Rakenna 100 golemia"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Pieni seurue"
+description = "Sido 5 golemia"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Animuslegioona"
+description = "Sido 25 golemia"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Kivivartijat"
+description = "Sidotut golemisi surmaavat 50 vihamielistä olentoa"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Elävä muuri"
+description = "Sidotut golemisi surmaavat 500 vihamielistä olentoa"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Murtumaton joukko"
+description = "Sidotut golemisi surmaavat 5 000 vihamielistä olentoa"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Talven palvelija"
+description = "Sido huurregolemi"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Vaskiviheriän side"
+description = "Sido kuparigolemi"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Rautainen vala"
+description = "Sido rautagolemi"
+
 [agility.armor_up]
 name = "Panssarointi"
 description = "Saat enemmän panssaria mitä pidempään juokset!"

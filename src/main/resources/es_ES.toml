@@ -3061,6 +3061,38 @@ description = "Construye 10 gólems"
 title = "Fundición de gigantes"
 description = "Construye 100 gólems"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Pequeño séquito"
+description = "Vincula 5 gólems"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Legión de Ánima"
+description = "Vincula 25 gólems"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Centinelas de piedra"
+description = "Tus gólems vinculados matan 50 criaturas hostiles"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Muralla viviente"
+description = "Tus gólems vinculados matan 500 criaturas hostiles"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Hueste inquebrantable"
+description = "Tus gólems vinculados matan 5.000 criaturas hostiles"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Siervo del invierno"
+description = "Vincula un gólem de escarcha"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Vínculo de verdín"
+description = "Vincula un gólem de cobre"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Juramento de hierro"
+description = "Vincula un gólem de hierro"
+
 [agility.armor_up]
 name = "Blindaje"
 description = "¡Consigue mas armadura cuanto mas tiempo esprintees!"

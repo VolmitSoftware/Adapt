@@ -3061,6 +3061,38 @@ description = "Bouw 10 golems"
 title = "Gieterij der reuzen"
 description = "Bouw 100 golems"
 
+[advancement.challenge_golemancy_bound_5]
+title = "Klein gevolg"
+description = "Bind 5 golems"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Animuslegioen"
+description = "Bind 25 golems"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Stenen schildwachten"
+description = "Je gebonden golems doden 50 vijandige wezens"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Levend bolwerk"
+description = "Je gebonden golems doden 500 vijandige wezens"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Onbreekbare schare"
+description = "Je gebonden golems doden 5.000 vijandige wezens"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Dienaar van de winter"
+description = "Bind een vorstgolem"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Kopergroene band"
+description = "Bind een kopergolem"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "IJzeren eed"
+description = "Bind een ijzergolem"
+
 [agility.armor_up]
 name = "Pantser-Up"
 description = "Krijg meer pantser hoe langer je sprint!"
