@@ -4577,6 +4577,28 @@ lore5 = "Dodatkowi wrogowie trafieni każdym ciosem"
 lore6 = "Obrażenia od ataku w Formie Kolosa"
 lore = ["Dodatkowe zdrowie żelaznych golemów", "Dodatkowy pancerz żelaznych golemów", "Dodatkowe obrażenia od ataku żelaznych golemów", "Dodatkowe zdrowie za naprawę sztabką żelaza", "Dodatkowi wrogowie trafieni każdym ciosem", "Obrażenia od ataku w Formie Kolosa"]
 
+[golemancy.bone_frame]
+name = "Kościany szkielet"
+description = "Wprowadza twoje szkieletowe sługi Tragoula do golemancji: słuchają sygnałów twojej laski, świecą w kolorze kanału sług z etykietami stanu widocznymi tylko dla ciebie, noszą Kościaną kratę run i dają XP golemancji za swoje zabójstwa."
+lore1 = "Sługi słuchają sygnałów laski i pokazują etykiety stanu"
+lore2 = "Miejsca na runy w Kościanej kracie"
+lore3 = "XP golemancji za zabójstwa twoich sług"
+lore = ["Sługi słuchają sygnałów laski i pokazują etykiety stanu", "Miejsca na runy w Kościanej kracie", "XP golemancji za zabójstwa twoich sług"]
+lattice = "Kościana krata"
+lattice_lore = "Kliknij, aby ustawić runy i kanał swoich sług"
+slot_empty = "Puste miejsce w kracie"
+slot_empty_lore = "Podnieś runę ({aspects}) i kliknij tutaj"
+slot_locked = "Zablokowane miejsce w kracie"
+slot_unlock_level = "Odblokowywane przez Kościany szkielet na poziomie {level}"
+slot_inert = "Bezczynna: to miejsce wymaga Kościanego szkieletu na poziomie {level}"
+rune_tier = "Działa na twoje sługi na poziomie {tier}"
+channel = "Kanał sług: {channel}"
+channel_set = "Twoje sługi używają teraz kanału {channel}"
+refused_aspect = "Runy {aspect} nie pasują do Kościanej kraty"
+duplicate = "Twoja Kościana krata ma już runę: {aspect}"
+no_slot = "Twoja Kościana krata nie ma wolnego miejsca"
+time_left = "zostało {seconds} s"
+
 [golemancy.guardian_core]
 name = "Rdzeń Strażnika"
 description = "Golemy związane Rdzeniem Strażnika bronią swojego domu, ciebie lub obszaru Węzła Straży i chronią cię tym lepiej, im silniejszy staje się rdzeń."

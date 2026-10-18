@@ -3364,6 +3364,23 @@
     },
     {
       "skill": "golemancy",
+      "name": "golem-bone-frame",
+      "class": "GolemBoneFrame",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemBoneFrame.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "tick"
+      ],
+      "expectation": "Brings your Tragoul skeletal servants into Golemancy: they answer your Crook signals, glow in your servant channel with owner-only status labels, wear a Bone Lattice of runes, and pay Golemancy XP for their kills.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemBoneFrame.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
       "name": "golem-breaker-core",
       "class": "GolemBreakerCore",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemBreakerCore.java",

@@ -1,0 +1,56 @@
+package art.arcane.adapt.api.golem;
+
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Skeleton;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
+
+public final class ServantFrame {
+  private static final AtomicReference<Frame> FRAME = new AtomicReference<>();
+
+  private ServantFrame() {
+  }
+
+  public static void register(Frame frame) {
+    FRAME.set(Objects.requireNonNull(frame));
+  }
+
+  public static boolean unregister(Frame frame) {
+    return FRAME.compareAndSet(frame, null);
+  }
+
+  public static Optional<Frame> frame() {
+    return Optional.ofNullable(FRAME.get());
+  }
+
+  public static boolean latticeUnlocked(Player player) {
+    return frame().map(frame -> frame.latticeUnlocked(player)).orElse(false);
+  }
+
+  public interface Frame {
+    int level(UUID owner);
+
+    int channels(UUID owner);
+
+    double labelRange();
+
+    List<Skeleton> servants(UUID owner);
+
+    long expiresAt(Skeleton servant);
+
+    void summoned(Player owner, Skeleton servant);
+
+    void struck(Skeleton servant, LivingEntity victim);
+
+    double share(UUID owner);
+
+    boolean latticeUnlocked(Player player);
+
+    void openLattice(Player player, int rosterPage);
+  }
+}

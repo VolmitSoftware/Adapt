@@ -779,6 +779,74 @@
     },
     "maxTicks": 400
   },
+  "golem-bone-frame": {
+    "set": "taming-field",
+    "level": 3,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 1
+      },
+      {
+        "name": "tragoul-skeletal-servant",
+        "level": 5
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:bone 16",
+      "item replace entity {actor} hotbar.1 with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 55
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 16
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 20,
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 100
+      }
+    ],
+    "expect": {
+      "visual": "A skeletal servant rises from the bones; once the actor switches to the Crook, the servant glows and carries an owner-only status label with its name, health bar, seconds left and channel swatch."
+    },
+    "maxTicks": 300
+  },
   "golem-lumber-core": {
     "set": "taming-field",
     "level": 5,

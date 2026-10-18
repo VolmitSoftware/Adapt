@@ -4577,6 +4577,28 @@ lore5 = "주먹마다 추가로 맞는 적대적 몹 수"
 lore6 = "거상 형태의 공격력"
 lore = ["철 골렘 추가 체력", "철 골렘 추가 방어력", "철 골렘 추가 공격력", "철 주괴 수리당 추가 회복량", "주먹마다 추가로 맞는 적대적 몹 수", "거상 형태의 공격력"]
 
+[golemancy.bone_frame]
+name = "뼈 골격"
+description = "트라굴의 해골 하수인을 골렘술로 끌어들입니다. 하수인은 지팡이 신호를 따르고, 나에게만 보이는 상태 표시와 함께 하수인 채널 색으로 빛나며, 룬으로 만든 뼈 격자를 두르고, 처치할 때마다 골렘술 XP를 줍니다."
+lore1 = "하수인이 지팡이 신호를 따르고 상태 표시를 보여줌"
+lore2 = "뼈 격자 룬 슬롯"
+lore3 = "하수인 처치로 얻는 골렘술 XP"
+lore = ["하수인이 지팡이 신호를 따르고 상태 표시를 보여줌", "뼈 격자 룬 슬롯", "하수인 처치로 얻는 골렘술 XP"]
+lattice = "뼈 격자"
+lattice_lore = "클릭하여 하수인의 룬과 채널 설정"
+slot_empty = "빈 격자 슬롯"
+slot_empty_lore = "룬({aspects})을 집은 뒤 여기를 클릭"
+slot_locked = "잠긴 격자 슬롯"
+slot_unlock_level = "뼈 골격 레벨 {level}에서 해금"
+slot_inert = "비활성: 이 슬롯에는 뼈 골격 레벨 {level}이 필요합니다"
+rune_tier = "하수인에게 등급 {tier}로 작동"
+channel = "하수인 채널: {channel}"
+channel_set = "이제 하수인이 {channel} 채널을 사용합니다"
+refused_aspect = "{aspect}의 룬은 뼈 격자에 맞지 않습니다"
+duplicate = "뼈 격자에 이미 {aspect}의 룬이 있습니다"
+no_slot = "뼈 격자에 빈 슬롯이 없습니다"
+time_left = "{seconds}초 남음"
+
 [golemancy.guardian_core]
 name = "수호자 핵"
 description = "수호자 핵으로 결속한 골렘은 거처, 당신 또는 경비 노드의 영역을 지키며, 핵이 강해질수록 당신을 더 잘 보호합니다."

@@ -4577,6 +4577,28 @@ lore5 = "Zusätzlich getroffene Feinde pro Schlag"
 lore6 = "Angriffsschaden in Kolossform"
 lore = ["Zusätzliche Gesundheit für Eisengolems", "Zusätzliche Rüstung für Eisengolems", "Zusätzlicher Angriffsschaden für Eisengolems", "Zusätzliche Gesundheit pro Eisenbarren-Reparatur", "Zusätzlich getroffene Feinde pro Schlag", "Angriffsschaden in Kolossform"]
 
+[golemancy.bone_frame]
+name = "Knochenrahmen"
+description = "Holt deine Tragoul-Skelettdiener in die Golemantie: Sie folgen den Signalen deines Stabs, leuchten in deinem Dienerkanal mit Statusanzeigen nur für dich, tragen ein Knochengitter aus Runen und bringen Golemantie-XP für ihre Tötungen."
+lore1 = "Diener folgen Stabsignalen und zeigen Statusanzeigen"
+lore2 = "Runenplätze im Knochengitter"
+lore3 = "Golemantie-XP aus Tötungen deiner Diener"
+lore = ["Diener folgen Stabsignalen und zeigen Statusanzeigen", "Runenplätze im Knochengitter", "Golemantie-XP aus Tötungen deiner Diener"]
+lattice = "Knochengitter"
+lattice_lore = "Klicken, um Runen und Kanal deiner Diener festzulegen"
+slot_empty = "Leerer Gitterplatz"
+slot_empty_lore = "Nimm eine Rune ({aspects}) auf und klicke hier"
+slot_locked = "Gesperrter Gitterplatz"
+slot_unlock_level = "Freigeschaltet ab Knochenrahmen Stufe {level}"
+slot_inert = "Wirkungslos: Dieser Platz braucht Knochenrahmen Stufe {level}"
+rune_tier = "Wirkt mit Stufe {tier} auf deine Diener"
+channel = "Dienerkanal: {channel}"
+channel_set = "Deine Diener nutzen jetzt den Kanal {channel}"
+refused_aspect = "{aspect}-Runen passen nicht in ein Knochengitter"
+duplicate = "Dein Knochengitter hat bereits eine {aspect}-Rune"
+no_slot = "Dein Knochengitter hat keinen freien Platz"
+time_left = "noch {seconds} s"
+
 [golemancy.guardian_core]
 name = "Wächter-Kern"
 description = "Mit einem Wächter-Kern gebundene Golems verteidigen ihr Zuhause, dich oder den Bereich eines Wache-Knotens und schützen dich umso besser, je stärker der Kern wird."

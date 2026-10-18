@@ -1,11 +1,13 @@
 package art.arcane.adapt.api.golem;
 
 import art.arcane.volmlib.util.collection.KMap;
+import org.bukkit.DyeColor;
 import org.bukkit.block.BlockFace;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
@@ -18,6 +20,8 @@ public final class GolemRoster {
 
   private KMap<String, GolemEntry> golems = new KMap<>();
   private KMap<String, NodeEntry> nodes = new KMap<>();
+  private volatile String servantChannel;
+  private volatile List<LatticeRune> lattice = new ArrayList<>();
 
   public static long chunkKey(int chunkX, int chunkZ) {
     return (chunkX & 0xFFFFFFFFL) | ((chunkZ & 0xFFFFFFFFL) << 32);
@@ -153,6 +157,70 @@ public final class GolemRoster {
 
   public int nodeCount() {
     return nodeMap().size();
+  }
+
+  public Optional<DyeColor> servantChannel() {
+    String stored = servantChannel;
+    if (stored == null) {
+      return Optional.empty();
+    }
+    for (DyeColor color : DyeColor.values()) {
+      if (color.name().equals(stored)) {
+        return Optional.of(color);
+      }
+    }
+    return Optional.empty();
+  }
+
+  public void setServantChannel(DyeColor channel) {
+    servantChannel = channel == null ? null : channel.name();
+  }
+
+  public List<GolemRune> lattice() {
+    List<LatticeRune> stored = lattice;
+    if (stored == null || stored.isEmpty()) {
+      return List.of();
+    }
+    List<GolemRune> runes = new ArrayList<>(stored.size());
+    for (LatticeRune entry : stored) {
+      if (entry != null) {
+        entry.rune().ifPresent(runes::add);
+      }
+    }
+    return List.copyOf(runes);
+  }
+
+  public synchronized boolean addLattice(GolemRune rune) {
+    List<GolemRune> current = lattice();
+    for (GolemRune slotted : current) {
+      if (slotted.aspect() == rune.aspect()) {
+        return false;
+      }
+    }
+    List<GolemRune> next = new ArrayList<>(current.size() + 1);
+    next.addAll(current);
+    next.add(rune);
+    storeLattice(next);
+    return true;
+  }
+
+  public synchronized boolean removeLattice(int index, GolemRune expected) {
+    List<GolemRune> current = lattice();
+    if (index < 0 || index >= current.size() || !current.get(index).equals(expected)) {
+      return false;
+    }
+    List<GolemRune> next = new ArrayList<>(current);
+    next.remove(index);
+    storeLattice(next);
+    return true;
+  }
+
+  private void storeLattice(List<GolemRune> runes) {
+    List<LatticeRune> stored = new ArrayList<>(runes.size());
+    for (GolemRune rune : runes) {
+      stored.add(LatticeRune.of(rune));
+    }
+    lattice = stored;
   }
 
   private KMap<String, GolemEntry> golemMap() {
@@ -344,6 +412,25 @@ public final class GolemRoster {
 
     private static String key(GolemState.Anchor block, BlockFace face) {
       return block + "@" + face.name();
+    }
+  }
+
+  private static final class LatticeRune {
+    private String aspect;
+    private int tier;
+
+    private LatticeRune() {
+    }
+
+    private static LatticeRune of(GolemRune rune) {
+      LatticeRune entry = new LatticeRune();
+      entry.aspect = rune.aspect().id();
+      entry.tier = rune.tier();
+      return entry;
+    }
+
+    private Optional<GolemRune> rune() {
+      return GolemRuneType.isTier(tier) ? GolemRuneType.fromId(aspect).map(type -> new GolemRune(type, tier)) : Optional.empty();
     }
   }
 }

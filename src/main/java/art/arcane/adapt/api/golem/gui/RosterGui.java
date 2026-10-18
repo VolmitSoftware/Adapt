@@ -9,6 +9,7 @@ import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.golem.reveal.RevealService;
@@ -56,6 +57,7 @@ public final class RosterGui {
   private static final int RIGHT_EDGE = 4;
   private static final int CHANNELS_PER_ROW = 8;
   private static final int CHANNEL_ROWS = 3;
+  private static final int BONE_LATTICE_CELL = 1;
 
   private RosterGui() {
   }
@@ -82,7 +84,8 @@ public final class RosterGui {
       Map<UUID, GolemHandle> loaded = loaded(player.getUniqueId());
       boolean channelFilter = filtersChannels(player);
       boolean recalls = GolemPacking.recalls(player);
-      GuiLayout.PagePlan plan = GuiLayout.plan(entries.size(), channelFilter);
+      boolean lattice = ServantFrame.latticeUnlocked(player);
+      GuiLayout.PagePlan plan = GuiLayout.plan(entries.size(), channelFilter || lattice);
       int current = GuiLayout.clampPage(page, plan.pageCount());
       int start = current * plan.itemsPerPage();
       int end = Math.min(entries.size(), start + plan.itemsPerPage());
@@ -106,6 +109,9 @@ public final class RosterGui {
         }
         if (channelFilter) {
           window.setElement(0, plan.rows() - 1, crookChannelElement(player, current));
+        }
+        if (lattice) {
+          window.setElement(BONE_LATTICE_CELL, plan.rows() - 1, boneLatticeElement(player, current));
         }
       });
       window.setTitle(AdaptLanguage.text(GolemancyMessages.ROSTER_TITLE));
@@ -158,6 +164,14 @@ public final class RosterGui {
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.ROSTER_CROOK_CHANNEL_LORE))
         .setProgress(1D)
         .onLeftClick(clicked -> openCrookChannels(player, page));
+  }
+
+  private static Element boneLatticeElement(Player player, int page) {
+    return GuiTheme.element("roster-bone-lattice", Material.BONE_BLOCK, "gui", "golemancy", "bone_lattice")
+        .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_LATTICE))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_LATTICE_LORE))
+        .setProgress(1D)
+        .onLeftClick(clicked -> ServantFrame.frame().ifPresent(frame -> frame.openLattice(player, page)));
   }
 
   private static Element channelChoice(Player player, DyeColor color, boolean selected, int page) {

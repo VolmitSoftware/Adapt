@@ -4577,6 +4577,28 @@ lore5 = "Extra vijandige wezens geraakt per vuistslag"
 lore6 = "Aanvalsschade in Kolossusvorm"
 lore = ["Extra gezondheid voor ijzergolems", "Extra bepantsering voor ijzergolems", "Extra aanvalsschade voor ijzergolems", "Extra gezondheid per reparatie met een ijzerstaaf", "Extra vijandige wezens geraakt per vuistslag", "Aanvalsschade in Kolossusvorm"]
 
+[golemancy.bone_frame]
+name = "Botframe"
+description = "Brengt je Tragoul-skeletdienaren in de golemantie: ze volgen de signalen van je staf, gloeien in je dienaarkanaal met statuslabels die alleen jij ziet, dragen een Botrooster van runen en leveren golemantie-XP op voor hun kills."
+lore1 = "Dienaren volgen stafsignalen en tonen statuslabels"
+lore2 = "Runeslots in het Botrooster"
+lore3 = "Golemantie-XP voor kills van je dienaren"
+lore = ["Dienaren volgen stafsignalen en tonen statuslabels", "Runeslots in het Botrooster", "Golemantie-XP voor kills van je dienaren"]
+lattice = "Botrooster"
+lattice_lore = "Klik om de runen en het kanaal van je dienaren in te stellen"
+slot_empty = "Leeg roosterslot"
+slot_empty_lore = "Pak een rune ({aspects}) op en klik hier"
+slot_locked = "Vergrendeld roosterslot"
+slot_unlock_level = "Ontgrendeld bij Botframe niveau {level}"
+slot_inert = "Inert: dit slot vereist Botframe niveau {level}"
+rune_tier = "Werkt op rang {tier} bij je dienaren"
+channel = "Dienaarkanaal: {channel}"
+channel_set = "Je dienaren gebruiken nu het kanaal {channel}"
+refused_aspect = "{aspect}-runen passen niet in een Botrooster"
+duplicate = "Je Botrooster heeft al een {aspect}-rune"
+no_slot = "Je Botrooster heeft geen vrij slot"
+time_left = "nog {seconds} s"
+
 [golemancy.guardian_core]
 name = "Beschermer-kern"
 description = "Golems die met een Beschermer-kern zijn gebonden, verdedigen hun thuis, jou of het gebied van een Bewaking-knooppunt en beschermen je beter naarmate de kern sterker wordt."

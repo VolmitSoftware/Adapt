@@ -4577,6 +4577,28 @@ lore5 = "Yumruk başına vurulan ek düşman"
 lore6 = "Dev Formunda saldırı hasarı"
 lore = ["Demir golemleri için ek can", "Demir golemleri için ek zırh", "Demir golemleri için ek saldırı hasarı", "Demir külçesi onarımı başına ek can", "Yumruk başına vurulan ek düşman", "Dev Formunda saldırı hasarı"]
 
+[golemancy.bone_frame]
+name = "Kemik Çatısı"
+description = "Tragoul iskelet hizmetkârlarını Golemcilik'e katar: asanın işaretlerine uyarlar, yalnızca senin görebildiğin durum etiketleriyle hizmetkâr kanalının renginde parlarlar, rünlerden bir Kemik Kafes takarlar ve öldürdükleri için Golemcilik XP'si kazandırırlar."
+lore1 = "Hizmetkârlar asa işaretlerine uyar ve durum etiketlerini gösterir"
+lore2 = "Kemik Kafes rün yuvaları"
+lore3 = "Hizmetkârlarının öldürmelerinden Golemcilik XP'si"
+lore = ["Hizmetkârlar asa işaretlerine uyar ve durum etiketlerini gösterir", "Kemik Kafes rün yuvaları", "Hizmetkârlarının öldürmelerinden Golemcilik XP'si"]
+lattice = "Kemik Kafes"
+lattice_lore = "Hizmetkârlarının rünlerini ve kanalını ayarlamak için tıklayın"
+slot_empty = "Boş kafes yuvası"
+slot_empty_lore = "Bir rün ({aspects}) alın ve buraya tıklayın"
+slot_locked = "Kilitli kafes yuvası"
+slot_unlock_level = "Kemik Çatısı {level}. seviyede açılır"
+slot_inert = "Etkisiz: bu yuva için Kemik Çatısı {level}. seviye gerekir"
+rune_tier = "Hizmetkârlarında {tier}. kademede çalışır"
+channel = "Hizmetkâr kanalı: {channel}"
+channel_set = "Hizmetkârların artık {channel} kanalını kullanıyor"
+refused_aspect = "{aspect} rünleri bir Kemik Kafes'e uymaz"
+duplicate = "Kemik Kafes'inde zaten bir {aspect} rünü var"
+no_slot = "Kemik Kafes'inde boş yuva yok"
+time_left = "{seconds} sn kaldı"
+
 [golemancy.guardian_core]
 name = "Muhafız Çekirdeği"
 description = "Muhafız Çekirdeği ile bağlanan golemler evlerini, seni ya da bir Nöbet Düğümü'nün alanını savunur ve çekirdek güçlendikçe seni daha iyi korur."

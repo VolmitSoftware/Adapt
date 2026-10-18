@@ -4577,6 +4577,28 @@ lore5 = "Số kẻ thù bị đánh thêm mỗi cú đấm"
 lore6 = "Sát thương tấn công ở Dạng Khổng Lồ"
 lore = ["Máu bổ sung cho golem Sắt", "Giáp bổ sung cho golem Sắt", "Sát thương tấn công bổ sung cho golem Sắt", "Máu hồi thêm mỗi lần sửa bằng thỏi sắt", "Số kẻ thù bị đánh thêm mỗi cú đấm", "Sát thương tấn công ở Dạng Khổng Lồ"]
 
+[golemancy.bone_frame]
+name = "Khung Xương"
+description = "Đưa các tôi tớ xương Tragoul của bạn vào Thuật Golem: chúng nghe theo hiệu lệnh của Gậy, phát sáng theo kênh tôi tớ của bạn kèm nhãn trạng thái chỉ bạn thấy, mang một Lưới Xương gắn Cổ Tự và đem lại XP Thuật Golem khi hạ gục kẻ địch."
+lore1 = "Tôi tớ nghe hiệu lệnh của Gậy và hiện nhãn trạng thái"
+lore2 = "Ô Cổ Tự của Lưới Xương"
+lore3 = "XP Thuật Golem từ các lần tôi tớ hạ gục"
+lore = ["Tôi tớ nghe hiệu lệnh của Gậy và hiện nhãn trạng thái", "Ô Cổ Tự của Lưới Xương", "XP Thuật Golem từ các lần tôi tớ hạ gục"]
+lattice = "Lưới Xương"
+lattice_lore = "Nhấp để đặt Cổ Tự và kênh cho tôi tớ của bạn"
+slot_empty = "Ô lưới trống"
+slot_empty_lore = "Cầm một Cổ Tự ({aspects}) rồi nhấp vào đây"
+slot_locked = "Ô lưới bị khóa"
+slot_unlock_level = "Mở khóa ở Khung Xương cấp {level}"
+slot_inert = "Vô hiệu: ô này cần Khung Xương cấp {level}"
+rune_tier = "Có tác dụng ở bậc {tier} trên tôi tớ của bạn"
+channel = "Kênh tôi tớ: {channel}"
+channel_set = "Tôi tớ của bạn giờ dùng kênh {channel}"
+refused_aspect = "Cổ Tự {aspect} không vừa với Lưới Xương"
+duplicate = "Lưới Xương của bạn đã có Cổ Tự {aspect}"
+no_slot = "Lưới Xương của bạn không còn ô trống"
+time_left = "còn {seconds} giây"
+
 [golemancy.guardian_core]
 name = "Lõi Hộ Vệ"
 description = "Golem được liên kết bằng Lõi Hộ Vệ bảo vệ nhà của chúng, bạn hoặc khu vực của một Nút Canh Gác, và che chở bạn tốt hơn khi lõi mạnh lên."

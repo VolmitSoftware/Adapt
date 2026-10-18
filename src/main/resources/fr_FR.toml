@@ -4573,6 +4573,28 @@ lore5 = "Hostiles supplémentaires touchés par coup"
 lore6 = "Dégâts d'attaque en Forme Colosse"
 lore = ["Santé supplémentaire des golems de Fer", "Armure supplémentaire des golems de Fer", "Dégâts d'attaque supplémentaires des golems de Fer", "Santé supplémentaire par réparation au lingot de fer", "Hostiles supplémentaires touchés par coup", "Dégâts d'attaque en Forme Colosse"]
 
+[golemancy.bone_frame]
+name = "Armature d'Os"
+description = "Fait entrer vos serviteurs squelettiques de Tragoul dans la Golémancie : ils obéissent aux signaux de votre houlette, brillent dans votre canal de serviteurs avec des étiquettes d'état visibles de vous seul, portent un Treillis d'Os de runes et rapportent de l'XP de Golémancie pour leurs victimes."
+lore1 = "Les serviteurs obéissent aux signaux de la houlette et affichent leur état"
+lore2 = "Emplacements de rune du Treillis d'Os"
+lore3 = "XP de Golémancie pour les victimes de vos serviteurs"
+lore = ["Les serviteurs obéissent aux signaux de la houlette et affichent leur état", "Emplacements de rune du Treillis d'Os", "XP de Golémancie pour les victimes de vos serviteurs"]
+lattice = "Treillis d'Os"
+lattice_lore = "Cliquez pour choisir les runes et le canal de vos serviteurs"
+slot_empty = "Emplacement de treillis vide"
+slot_empty_lore = "Prenez une rune ({aspects}) et cliquez ici"
+slot_locked = "Emplacement de treillis verrouillé"
+slot_unlock_level = "Débloqué au niveau {level} d'Armature d'Os"
+slot_inert = "Inerte : cet emplacement exige Armature d'Os niveau {level}"
+rune_tier = "Agit au rang {tier} sur vos serviteurs"
+channel = "Canal des serviteurs : {channel}"
+channel_set = "Vos serviteurs utilisent maintenant le canal {channel}"
+refused_aspect = "Les runes de {aspect} ne vont pas dans un Treillis d'Os"
+duplicate = "Votre Treillis d'Os a déjà une rune de {aspect}"
+no_slot = "Votre Treillis d'Os n'a aucun emplacement libre"
+time_left = "encore {seconds} s"
+
 [golemancy.guardian_core]
 name = "Noyau de Gardien"
 description = "Les golems liés avec un Noyau de Gardien défendent leur foyer, toi ou la zone d'un Nœud de Garde, et te protègent davantage à mesure que le noyau se renforce."

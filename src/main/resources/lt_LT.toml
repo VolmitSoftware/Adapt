@@ -4577,6 +4577,28 @@ lore5 = "Papildomi priešai, pataikomi kiekvienu smūgiu"
 lore6 = "Atakos žala Koloso formoje"
 lore = ["Papildoma Geležies golemų sveikata", "Papildomi Geležies golemų šarvai", "Papildoma Geležies golemų atakos žala", "Papildoma sveikata už kiekvieną taisymą geležies luitu", "Papildomi priešai, pataikomi kiekvienu smūgiu", "Atakos žala Koloso formoje"]
 
+[golemancy.bone_frame]
+name = "Kaulo karkasas"
+description = "Įtraukia jūsų Tragoul skeletinius tarnus į golemantiją: jie paklūsta jūsų lazdos ženklams, šviečia jūsų tarnų kanalo spalva su tik jums matomomis būsenos etiketėmis, nešioja runų Kaulo grotelę ir už savo nužudymus duoda golemantijos XP."
+lore1 = "Tarnai paklūsta lazdos ženklams ir rodo būsenos etiketes"
+lore2 = "Kaulo grotelės runų lizdai"
+lore3 = "Golemantijos XP už tarnų nužudymus"
+lore = ["Tarnai paklūsta lazdos ženklams ir rodo būsenos etiketes", "Kaulo grotelės runų lizdai", "Golemantijos XP už tarnų nužudymus"]
+lattice = "Kaulo grotelė"
+lattice_lore = "Spustelėkite, kad nustatytumėte tarnų runas ir kanalą"
+slot_empty = "Tuščias grotelės lizdas"
+slot_empty_lore = "Paimkite runą ({aspects}) ir spustelėkite čia"
+slot_locked = "Užrakintas grotelės lizdas"
+slot_unlock_level = "Atrakinama su Kaulo karkaso {level} lygiu"
+slot_inert = "Neveikia: šiam lizdui reikia Kaulo karkaso {level} lygio"
+rune_tier = "Jūsų tarnams veikia {tier} lygiu"
+channel = "Tarnų kanalas: {channel}"
+channel_set = "Jūsų tarnai dabar naudoja kanalą {channel}"
+refused_aspect = "Runos {aspect} netinka Kaulo grotelei"
+duplicate = "Jūsų Kaulo grotelė jau turi runą: {aspect}"
+no_slot = "Jūsų Kaulo grotelė neturi laisvo lizdo"
+time_left = "liko {seconds} s"
+
 [golemancy.guardian_core]
 name = "Sargo šerdis"
 description = "Sargo šerdimi sujungti golemai gina savo namus, tave arba Sargybos mazgo zoną ir vis geriau tave saugo, kai šerdis stiprėja."

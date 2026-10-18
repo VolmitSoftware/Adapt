@@ -4577,6 +4577,28 @@ lore5 = "Ostili extra colpiti per pugno"
 lore6 = "Danno d'attacco in Forma Colosso"
 lore = ["Salute extra per i golem di Ferro", "Armatura extra per i golem di Ferro", "Danno d'attacco extra per i golem di Ferro", "Salute extra per riparazione con lingotto di ferro", "Ostili extra colpiti per pugno", "Danno d'attacco in Forma Colosso"]
 
+[golemancy.bone_frame]
+name = "Telaio d'Osso"
+description = "Porta i tuoi servi scheletro di Tragoul nella Golemanzia: obbediscono ai segnali del tuo bastone, brillano nel tuo canale dei servi con etichette di stato visibili solo a te, indossano un Reticolo d'Osso di rune e danno XP di Golemanzia per le loro uccisioni."
+lore1 = "I servi obbediscono ai segnali del bastone e mostrano il loro stato"
+lore2 = "Slot runa del Reticolo d'Osso"
+lore3 = "XP di Golemanzia dalle uccisioni dei tuoi servi"
+lore = ["I servi obbediscono ai segnali del bastone e mostrano il loro stato", "Slot runa del Reticolo d'Osso", "XP di Golemanzia dalle uccisioni dei tuoi servi"]
+lattice = "Reticolo d'Osso"
+lattice_lore = "Fai clic per scegliere le rune e il canale dei tuoi servi"
+slot_empty = "Slot del reticolo vuoto"
+slot_empty_lore = "Prendi una runa ({aspects}) e fai clic qui"
+slot_locked = "Slot del reticolo bloccato"
+slot_unlock_level = "Si sblocca con Telaio d'Osso livello {level}"
+slot_inert = "Inerte: questo slot richiede Telaio d'Osso livello {level}"
+rune_tier = "Agisce al grado {tier} sui tuoi servi"
+channel = "Canale dei servi: {channel}"
+channel_set = "I tuoi servi ora usano il canale {channel}"
+refused_aspect = "Le rune di {aspect} non entrano in un Reticolo d'Osso"
+duplicate = "Il tuo Reticolo d'Osso ha già una runa di {aspect}"
+no_slot = "Il tuo Reticolo d'Osso non ha slot liberi"
+time_left = "ancora {seconds} s"
+
 [golemancy.guardian_core]
 name = "Nucleo di Guardiano"
 description = "I golem legati con un Nucleo di Guardiano difendono la loro casa, te o l'area di un Nodo di Guardia, e ti proteggono sempre di più man mano che il nucleo si rafforza."

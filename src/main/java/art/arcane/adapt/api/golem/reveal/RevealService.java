@@ -9,6 +9,7 @@ import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBundle;
 import art.arcane.adapt.api.golem.node.NodeIndex;
@@ -20,6 +21,7 @@ import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.localization.catalog.TragoulMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -33,6 +35,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -57,6 +60,7 @@ import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -84,6 +88,9 @@ public final class RevealService extends TickedObject {
   private final Supplier<RevealSettings> settings;
   private final RevealTracker<UUID> golems = new RevealTracker<>();
   private final RevealTracker<NodeKey> nodes = new RevealTracker<>();
+  private final RevealTracker<UUID> servantGlows = new RevealTracker<>();
+  private final RevealTracker<UUID> servantLabels = new RevealTracker<>();
+  private final Map<UUID, Integer> glowIds = new ConcurrentHashMap<>();
   private final NodeOutline outline = new NodeOutline();
   private final Set<UUID> armed = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingUpdates = ConcurrentHashMap.newKeySet();
@@ -129,6 +136,7 @@ public final class RevealService extends TickedObject {
     if (!holdsRevealItem(viewer)) {
       armed.remove(viewerId);
       apply(viewer, golems.update(viewerId, Set.of()), Map.of());
+      hideServants(viewer);
       applyNodes(viewer, nodes.update(viewerId, Set.of()));
       outline.forget(viewerId);
       return;
@@ -138,6 +146,8 @@ public final class RevealService extends TickedObject {
     RevealTracker.Delta<UUID> delta = golems.update(viewerId, inRange.keySet());
     apply(viewer, delta, inRange);
     syncStayingLabels(viewer, inRange, delta);
+    glowGolems(viewer, inRange);
+    revealServants(viewer);
     applyNodes(viewer, nodes.update(viewerId, nodesInRange(viewer)));
     outlineLookedAtNode(viewer);
   }
@@ -147,6 +157,13 @@ public final class RevealService extends TickedObject {
     armed.remove(viewerId);
     for (UUID golem : golems.reset(viewerId)) {
       hideLabel(viewer, golem);
+      unglow(viewer, golem);
+    }
+    for (UUID servant : servantLabels.reset(viewerId)) {
+      hideLabel(viewer, servant);
+    }
+    for (UUID servant : servantGlows.reset(viewerId)) {
+      unglow(viewer, servant);
     }
     for (NodeKey node : nodes.reset(viewerId)) {
       hideNode(viewer, node);
@@ -173,7 +190,7 @@ public final class RevealService extends TickedObject {
 
   public void forget(GolemHandle handle) {
     UUID golem = handle.entityId();
-    golems.drop(golem);
+    unglowFor(golems.drop(golem), golem);
     retireLabel(golem);
   }
 
@@ -232,6 +249,7 @@ public final class RevealService extends TickedObject {
       removeDisplay(label.display());
     }
     labels.clear();
+    glowIds.clear();
     armed.clear();
     pendingUpdates.clear();
     spawning.clear();
@@ -341,11 +359,15 @@ public final class RevealService extends TickedObject {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDeathEvent e) {
-    UUID golem = e.getEntity().getUniqueId();
-    if (labels.containsKey(golem)) {
-      golems.drop(golem);
-      retireLabel(golem);
+    UUID entity = e.getEntity().getUniqueId();
+    if (!labels.containsKey(entity) && !glowIds.containsKey(entity)) {
+      return;
     }
+    List<UUID> viewers = new ArrayList<>(golems.drop(entity));
+    viewers.addAll(servantGlows.drop(entity));
+    servantLabels.drop(entity);
+    unglowFor(viewers, entity);
+    retireLabel(entity);
   }
 
   private Map<UUID, GolemHandle> golemsInRange(Player viewer) {
@@ -456,6 +478,7 @@ public final class RevealService extends TickedObject {
   private void apply(Player viewer, RevealTracker.Delta<UUID> delta, Map<UUID, GolemHandle> inRange) {
     for (UUID golem : delta.leaving()) {
       hideLabel(viewer, golem);
+      unglow(viewer, golem);
     }
     for (UUID golem : delta.entering()) {
       GolemHandle handle = inRange.get(golem);
@@ -498,28 +521,32 @@ public final class RevealService extends TickedObject {
       if (handle.isRetired() || !entity.isValid() || !golems.isShown(viewer.getUniqueId(), golem)) {
         return;
       }
-      GolemLabel.Content content = content(handle);
-      TextDisplay display = HiddenDisplays.spawnLabel(entity.getLocation(), GolemLabel.compose(content),
-          Color.fromARGB(LABEL_BACKGROUND_ALPHA, 0, 0, 0), settings.get().labelViewRange());
-      Transformation base = display.getTransformation();
-      display.setTransformation(new Transformation(new Vector3f(0F, LABEL_LIFT, 0F), base.getLeftRotation(), base.getScale(), base.getRightRotation()));
-      if (!entity.addPassenger(display)) {
-        display.remove();
-        return;
-      }
-      Label previous = labels.put(golem, new Label(display, handle.owner(), content));
-      if (previous != null) {
-        removeDisplay(previous.display());
-      }
-      J.runEntity(viewer, () -> showSpawned(viewer, golem, display));
+      attachLabel(viewer, entity, handle.owner(), content(handle), settings.get().labelViewRange(), golems);
     } finally {
       spawning.remove(golem);
     }
   }
 
-  private void showSpawned(Player viewer, UUID golem, TextDisplay display) {
-    Label current = labels.get(golem);
-    if (viewer.isOnline() && current != null && current.display() == display && golems.isShown(viewer.getUniqueId(), golem)) {
+  private void attachLabel(Player viewer, Entity carrier, UUID owner, GolemLabel.Content content, float viewRange, RevealTracker<UUID> tracker) {
+    TextDisplay display = HiddenDisplays.spawnLabel(carrier.getLocation(), GolemLabel.compose(content),
+        Color.fromARGB(LABEL_BACKGROUND_ALPHA, 0, 0, 0), viewRange);
+    Transformation base = display.getTransformation();
+    display.setTransformation(new Transformation(new Vector3f(0F, LABEL_LIFT, 0F), base.getLeftRotation(), base.getScale(), base.getRightRotation()));
+    if (!carrier.addPassenger(display)) {
+      display.remove();
+      return;
+    }
+    UUID carrierId = carrier.getUniqueId();
+    Label previous = labels.put(carrierId, new Label(display, owner, content));
+    if (previous != null) {
+      removeDisplay(previous.display());
+    }
+    J.runEntity(viewer, () -> showSpawned(viewer, carrierId, display, tracker));
+  }
+
+  private void showSpawned(Player viewer, UUID carrier, TextDisplay display, RevealTracker<UUID> tracker) {
+    Label current = labels.get(carrier);
+    if (viewer.isOnline() && current != null && current.display() == display && tracker.isShown(viewer.getUniqueId(), carrier)) {
       HiddenDisplays.show(viewer, display);
     }
   }
@@ -562,12 +589,15 @@ public final class RevealService extends TickedObject {
   }
 
   private void applyText(GolemHandle handle, Label label) {
-    GolemLabel.Content content = content(handle);
+    applyContent(handle.entityId(), label, content(handle));
+  }
+
+  private void applyContent(UUID carrier, Label label, GolemLabel.Content content) {
     if (content.equals(label.content())) {
       return;
     }
     Label updated = new Label(label.display(), label.owner(), content);
-    if (labels.replace(handle.entityId(), label, updated)) {
+    if (labels.replace(carrier, label, updated)) {
       PaperCompat.text(label.display(), GolemLabel.compose(content));
     }
   }
@@ -585,6 +615,139 @@ public final class RevealService extends TickedObject {
     }
   }
 
+  private void glowGolems(Player viewer, Map<UUID, GolemHandle> inRange) {
+    for (GolemHandle handle : inRange.values()) {
+      glow(viewer, handle.entity(), RevealRules.glowColor(GolemRunes.channels(handle)));
+    }
+  }
+
+  private void revealServants(Player viewer) {
+    UUID viewerId = viewer.getUniqueId();
+    ServantFrame.Frame frame = ServantFrame.frame().filter(found -> found.level(viewerId) >= 1).orElse(null);
+    if (frame == null) {
+      hideServants(viewer);
+      return;
+    }
+    Map<UUID, Skeleton> glowing = servantsInRange(viewer, frame.servants(viewerId), settings.get().revealRange(), servantGlows);
+    Map<UUID, Skeleton> labeled = servantsInRange(viewer, glowing.values(), frame.labelRange(), servantLabels);
+    int channels = frame.channels(viewerId);
+    for (UUID servant : servantGlows.update(viewerId, glowing.keySet()).leaving()) {
+      unglow(viewer, servant);
+    }
+    ChatColor color = RevealRules.glowColor(channels);
+    for (Skeleton servant : glowing.values()) {
+      glow(viewer, servant, color);
+    }
+    RevealTracker.Delta<UUID> delta = servantLabels.update(viewerId, labeled.keySet());
+    for (UUID servant : delta.leaving()) {
+      hideLabel(viewer, servant);
+    }
+    ServantView view = new ServantView(frame, channels);
+    for (Skeleton servant : labeled.values()) {
+      showServantLabel(viewer, servant, view, delta.entering().contains(servant.getUniqueId()));
+    }
+  }
+
+  private void hideServants(Player viewer) {
+    UUID viewerId = viewer.getUniqueId();
+    for (UUID servant : servantLabels.update(viewerId, Set.of()).leaving()) {
+      hideLabel(viewer, servant);
+    }
+    for (UUID servant : servantGlows.update(viewerId, Set.of()).leaving()) {
+      unglow(viewer, servant);
+    }
+  }
+
+  private Map<UUID, Skeleton> servantsInRange(Player viewer, Collection<Skeleton> candidates, double range, RevealTracker<UUID> tracker) {
+    if (candidates.isEmpty()) {
+      return Map.of();
+    }
+    UUID viewerId = viewer.getUniqueId();
+    Location center = viewer.getLocation();
+    World world = center.getWorld();
+    Map<UUID, Skeleton> inRange = new HashMap<>(candidates.size() * 2);
+    for (Skeleton servant : candidates) {
+      if (!servant.isValid() || !Objects.equals(world, servant.getWorld()) || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(servant))) {
+        continue;
+      }
+      UUID servantId = servant.getUniqueId();
+      if (RevealRules.inRevealRange(servant.getLocation().distanceSquared(center), range, tracker.isShown(viewerId, servantId))) {
+        inRange.put(servantId, servant);
+      }
+    }
+    return inRange;
+  }
+
+  private void showServantLabel(Player viewer, Skeleton servant, ServantView view, boolean entering) {
+    UUID servantId = servant.getUniqueId();
+    Label label = labels.get(servantId);
+    if (label != null && label.display().isValid()) {
+      if (entering) {
+        HiddenDisplays.show(viewer, label.display());
+      }
+      if (J.isOwnedByCurrentRegion(servant)) {
+        applyContent(servantId, label, servantContent(servant, view, viewer.getUniqueId()));
+      }
+      return;
+    }
+    if (spawning.add(servantId) && !J.runEntity(servant, () -> spawnServantLabel(viewer, servant, view))) {
+      spawning.remove(servantId);
+    }
+  }
+
+  private void spawnServantLabel(Player viewer, Skeleton servant, ServantView view) {
+    UUID servantId = servant.getUniqueId();
+    try {
+      UUID viewerId = viewer.getUniqueId();
+      if (!servant.isValid() || !servantLabels.isShown(viewerId, servantId)) {
+        return;
+      }
+      attachLabel(viewer, servant, viewerId, servantContent(servant, view, viewerId), RevealSettings.viewRange(view.frame().labelRange()), servantLabels);
+    } finally {
+      spawning.remove(servantId);
+    }
+  }
+
+  private GolemLabel.Content servantContent(Skeleton servant, ServantView view, UUID owner) {
+    try (LanguageAudience.Scope audience = LanguageAudience.open(owner)) {
+      long seconds = RevealRules.secondsLeft(view.frame().expiresAt(servant), System.currentTimeMillis());
+      return new GolemLabel.Content(Component.text(AdaptLanguage.text(TragoulMessages.SKELETAL_SERVANT_NAME)), servant.getHealth(),
+          GolemVitals.maxHealth(servant), AdaptLanguage.text(GolemancyMessages.BONE_FRAME_TIME_LEFT, trusted("seconds", seconds)), "", view.channels());
+    }
+  }
+
+  private void glow(Player viewer, Entity entity, ChatColor color) {
+    ViewerGlowCoordinator coordinator = glowCoordinator();
+    if (coordinator != null && coordinator.isAvailable() && coordinator.set(ViewerGlowCoordinator.Layer.GOLEMANCY, entity, viewer, color)) {
+      glowIds.put(entity.getUniqueId(), entity.getEntityId());
+    }
+  }
+
+  private void unglow(Player viewer, UUID entity) {
+    Integer runtimeId = glowIds.remove(entity);
+    ViewerGlowCoordinator coordinator = glowCoordinator();
+    if (runtimeId != null && coordinator != null) {
+      coordinator.unset(ViewerGlowCoordinator.Layer.GOLEMANCY, entity, runtimeId, viewer);
+    }
+  }
+
+  private void unglowFor(List<UUID> viewers, UUID entity) {
+    for (UUID viewerId : viewers) {
+      Player viewer = Bukkit.getPlayer(viewerId);
+      if (viewer != null) {
+        J.runEntity(viewer, () -> unglow(viewer, entity));
+      }
+    }
+    if (viewers.isEmpty()) {
+      glowIds.remove(entity);
+    }
+  }
+
+  private static ViewerGlowCoordinator glowCoordinator() {
+    Adapt plugin = Adapt.instance;
+    return plugin == null ? null : plugin.getViewerGlowCoordinator();
+  }
+
   private void refreshLabeled(Entity entity) {
     if (!labels.containsKey(entity.getUniqueId())) {
       return;
@@ -596,10 +759,20 @@ public final class RevealService extends TickedObject {
     armed.remove(viewerId);
     pendingUpdates.remove(viewerId);
     for (UUID golem : golems.reset(viewerId)) {
+      glowIds.remove(golem);
       Label label = labels.remove(golem);
       if (label != null) {
         removeDisplay(label.display());
       }
+    }
+    for (UUID servant : servantLabels.reset(viewerId)) {
+      Label label = labels.remove(servant);
+      if (label != null) {
+        removeDisplay(label.display());
+      }
+    }
+    for (UUID servant : servantGlows.reset(viewerId)) {
+      glowIds.remove(servant);
     }
     nodes.reset(viewerId);
     outline.forget(viewerId);
@@ -651,5 +824,8 @@ public final class RevealService extends TickedObject {
   }
 
   private record LocateKey(UUID viewer, UUID golem, int runtimeEntityId) {
+  }
+
+  private record ServantView(ServantFrame.Frame frame, int channels) {
   }
 }
