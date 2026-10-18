@@ -28,9 +28,10 @@ final class RancherRules {
   static final int MIN_KEEP = 2;
   static final int MAX_KEEP = 64;
   static final int LOVE_TICKS = 600;
+  static final double PARTNER_RANGE = 8D;
   static final List<String> DEFAULT_SPECIES = List.of("COW", "MOOSHROOM", "SHEEP", "PIG", "CHICKEN", "GOAT", "RABBIT");
 
-  private static final Comparator<Choice> NEAREST = Comparator.comparingDouble(choice -> choice.beast().distanceSquared());
+  private static final Comparator<Ranked> RANKED = Comparator.comparingInt(Ranked::tier).thenComparingDouble(Ranked::rank);
 
   private RancherRules() {
   }
@@ -124,53 +125,71 @@ final class RancherRules {
     for (Beast beast : herd) {
       bySpecies.computeIfAbsent(beast.species(), ignored -> new ArrayList<>()).add(beast);
     }
-    List<Choice> culls = new ArrayList<>();
-    List<Choice> breeds = new ArrayList<>();
-    List<Choice> shears = new ArrayList<>();
-    List<Choice> milks = new ArrayList<>();
+    List<Ranked> culls = new ArrayList<>();
+    List<Ranked> breeds = new ArrayList<>();
+    List<Ranked> shears = new ArrayList<>();
+    List<Ranked> milks = new ArrayList<>();
     for (Map.Entry<EntityType, List<Beast>> species : bySpecies.entrySet()) {
       List<Beast> group = species.getValue();
-      int adults = adults(group);
+      Census census = census(group);
       if (actions.contains(Action.CULL)) {
-        addMatching(culls, Action.CULL, group, adults, keep);
+        addMatching(culls, Action.CULL, group, census, keep);
       }
-      if (actions.contains(Action.BREED) && adults < keep) {
-        addBreeding(breeds, group, supplies.food(species.getKey()));
+      if (actions.contains(Action.BREED) && breedRoom(census, keep)) {
+        addBreeding(breeds, group, census, supplies.food(species.getKey()));
       }
       if (actions.contains(Action.SHEAR)) {
-        addMatching(shears, Action.SHEAR, group, adults, keep);
+        addMatching(shears, Action.SHEAR, group, census, keep);
       }
       if (actions.contains(Action.MILK)) {
         addMilking(milks, group, supplies);
       }
     }
     List<Choice> choices = new ArrayList<>(culls.size() + breeds.size() + shears.size() + milks.size());
-    for (List<Choice> kind : List.of(culls, breeds, shears, milks)) {
-      kind.sort(NEAREST);
-      choices.addAll(kind);
+    for (List<Ranked> kind : List.of(culls, breeds, shears, milks)) {
+      kind.sort(RANKED);
+      for (Ranked ranked : kind) {
+        choices.add(ranked.choice());
+      }
     }
     return choices;
   }
 
-  static int adults(List<Beast> herd) {
+  static Census census(List<Beast> group) {
     int adults = 0;
-    for (Beast beast : herd) {
-      if (beast.adult()) {
-        adults++;
+    int babies = 0;
+    int inLove = 0;
+    int waiting = 0;
+    for (Beast beast : group) {
+      if (!beast.adult()) {
+        babies++;
+        continue;
+      }
+      adults++;
+      if (beast.inLove()) {
+        inLove++;
+      }
+      if (beast.waiting() && !beast.untouchable()) {
+        waiting++;
       }
     }
-    return adults;
+    return new Census(adults, babies, inLove, waiting);
   }
 
-  static boolean fits(Action action, Beast beast, int adults, int keep) {
+  static boolean breedRoom(Census census, int keep) {
+    int expected = census.adults() + census.babies() + (census.inLove() + 1) / 2;
+    return census.waiting() % 2 == 1 ? expected <= keep : expected < keep;
+  }
+
+  static boolean fits(Action action, Beast beast, Census census, int keep) {
     if (beast.untouchable() || !beast.adult()) {
       return false;
     }
     return switch (action) {
-      case BREED -> beast.breedable() && adults < keep;
+      case BREED -> beast.breedable() && breedRoom(census, keep);
       case SHEAR -> beast.shearable();
       case MILK -> beast.milk() != Milk.NONE;
-      case CULL -> !beast.guarded() && adults > keep;
+      case CULL -> !beast.guarded() && census.adults() > keep;
     };
   }
 
@@ -186,37 +205,60 @@ final class RancherRules {
     return Double.isFinite(value) ? Math.max(0D, value) : 0D;
   }
 
-  private static void addMatching(List<Choice> choices, Action action, List<Beast> group, int adults, int keep) {
+  private static void addMatching(List<Ranked> choices, Action action, List<Beast> group, Census census, int keep) {
     for (Beast beast : group) {
-      if (fits(action, beast, adults, keep)) {
-        choices.add(new Choice(action, beast));
+      if (fits(action, beast, census, keep)) {
+        choices.add(nearest(action, beast));
       }
     }
   }
 
-  private static void addBreeding(List<Choice> choices, List<Beast> group, int food) {
-    int waiting = 0;
+  private static void addBreeding(List<Ranked> choices, List<Beast> group, Census census, int food) {
+    List<Beast> waiting = new ArrayList<>(census.waiting());
     List<Beast> ready = new ArrayList<>(group.size());
     for (Beast beast : group) {
       if (beast.untouchable() || !beast.adult()) {
         continue;
       }
-      if (beast.inLove()) {
-        waiting++;
+      if (beast.waiting()) {
+        waiting.add(beast);
       } else if (beast.breedable()) {
         ready.add(beast);
       }
     }
-    boolean partnerWanted = waiting % 2 == 1;
-    if (partnerWanted ? food < 1 || ready.isEmpty() : food < 2 || ready.size() < 2) {
+    if (waiting.size() % 2 == 1) {
+      addPartners(choices, waiting, ready, food);
+      return;
+    }
+    if (food < 2 || ready.size() < 2) {
       return;
     }
     for (Beast beast : ready) {
-      choices.add(new Choice(Action.BREED, beast));
+      choices.add(new Ranked(new Choice(Action.BREED, beast), 1, beast.distanceSquared()));
     }
   }
 
-  private static void addMilking(List<Choice> choices, List<Beast> group, Supplies supplies) {
+  private static void addPartners(List<Ranked> choices, List<Beast> waiting, List<Beast> ready, int food) {
+    if (food < 1) {
+      return;
+    }
+    double range = PARTNER_RANGE * PARTNER_RANGE;
+    for (Beast partner : ready) {
+      double closest = Double.MAX_VALUE;
+      for (Beast fed : waiting) {
+        closest = Math.min(closest, partner.distanceSquared(fed));
+      }
+      if (closest <= range) {
+        choices.add(new Ranked(new Choice(Action.BREED, partner), 0, closest));
+      }
+    }
+  }
+
+  private static Ranked nearest(Action action, Beast beast) {
+    return new Ranked(new Choice(action, beast), 0, beast.distanceSquared());
+  }
+
+  private static void addMilking(List<Ranked> choices, List<Beast> group, Supplies supplies) {
     for (Beast beast : group) {
       if (beast.untouchable() || !beast.adult()) {
         continue;
@@ -227,7 +269,7 @@ final class RancherRules {
         case BUCKET_OR_BOWL -> supplies.buckets() > 0 || supplies.bowls() > 0;
       };
       if (milkable) {
-        choices.add(new Choice(Action.MILK, beast));
+        choices.add(nearest(Action.MILK, beast));
       }
     }
   }
@@ -298,10 +340,22 @@ final class RancherRules {
   record Levels(int shear, int milk, int cull) {
   }
 
-  record Beast(UUID id, EntityType species, double distanceSquared, boolean adult, boolean breedable, boolean inLove,
-               boolean shearable, Milk milk, boolean guarded, boolean untouchable) {
+  record Beast(UUID id, EntityType species, double x, double y, double z, double distanceSquared, boolean adult, boolean breedable,
+               boolean inLove, boolean waiting, boolean shearable, Milk milk, boolean guarded, boolean untouchable) {
+    double distanceSquared(Beast other) {
+      double dx = x - other.x;
+      double dy = y - other.y;
+      double dz = z - other.z;
+      return dx * dx + dy * dy + dz * dz;
+    }
+  }
+
+  record Census(int adults, int babies, int inLove, int waiting) {
   }
 
   record Choice(Action action, Beast beast) {
+  }
+
+  private record Ranked(Choice choice, int tier, double rank) {
   }
 }

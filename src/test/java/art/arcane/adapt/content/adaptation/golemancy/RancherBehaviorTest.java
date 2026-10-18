@@ -33,6 +33,7 @@ import org.bukkit.entity.MushroomCow;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
+import org.bukkit.entity.Tameable;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.EquipmentSlot;
@@ -62,7 +63,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doAnswer;
@@ -101,6 +101,8 @@ class RancherBehaviorTest {
   private GolemBody body = GolemBody.COPPER;
   private int channels = ChannelMask.NONE;
   private int level = 5;
+  private boolean mobLoot = true;
+  private EntityDeathEvent death;
   private UUID current;
 
   @BeforeEach
@@ -110,7 +112,7 @@ class RancherBehaviorTest {
     lenient().when(core.ownerLevel(OWNER)).thenAnswer(invocation -> level);
     lenient().when(core.species()).thenReturn(RancherRules.parseSpecies(config.species));
     lenient().when(random.nextInt(anyInt())).thenReturn(1);
-    actions = new RancherActions(core, GolemTestItems::stack, () -> random);
+    actions = new RancherActions(core, new RancherActions.Hooks(GolemTestItems::stack, () -> random, ignored -> mobLoot));
     behavior = new RancherBehavior(core, actions);
     lenient().when(world.getUID()).thenReturn(WORLD);
     lenient().when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
@@ -170,6 +172,20 @@ class RancherBehaviorTest {
     cargo.clear();
     assertThat(seek(golem(0))).isEmpty();
     assertThat(far.getUniqueId()).isNotEqualTo(near.getUniqueId());
+  }
+
+  @Test
+  void onlyLoveARancherStartedGetsAPartner() {
+    node();
+    Cow waiting = cow(1, 64, 0);
+    when(waiting.isLoveMode()).thenReturn(true);
+    Cow partner = cow(3, 64, 0);
+    carry(Material.WHEAT, 1);
+
+    assertThat(seek(golem(0))).isEqualTo("breed " + partner.getUniqueId());
+
+    when(waiting.getBreedCause()).thenReturn(STRANGER);
+    assertThat(seek(golem(0))).isEmpty();
   }
 
   @Test
@@ -298,7 +314,7 @@ class RancherBehaviorTest {
     verify(target).setBreedCause(null);
     verify(target).setLoveModeTicks(RancherRules.LOVE_TICKS);
     verify(golem).workXp(config.workXpPerPair / 2D);
-    verify(core, never()).markHusbandry(any(), anyLong());
+    verify(core).markFed(target.getUniqueId(), NOW, false);
     feedback.verify(() -> RancherFeedback.play(eq(core), any(Location.class), eq(RancherFeedback.Kind.BREED)));
   }
 
@@ -310,7 +326,7 @@ class RancherBehaviorTest {
     assertThat(behavior.act(golem(1), task("breed", target))).isEqualTo(GolemActResult.DONE);
 
     assertThat(chest[3].getAmount()).isEqualTo(2);
-    verify(core).markHusbandry(target.getUniqueId(), NOW);
+    verify(core).markFed(target.getUniqueId(), NOW, true);
   }
 
   @Test
@@ -344,6 +360,19 @@ class RancherBehaviorTest {
     carry(Material.WHEAT, 1);
 
     assertThat(behavior.act(golem(1), task("breed", target))).isEqualTo(GolemActResult.DONE);
+  }
+
+  @Test
+  void aCalfInTheAreaBlocksFeedingAtTheKeepCount() {
+    record = record.toBuilder().data(Map.of("keep", "3")).build();
+    Cow target = cow(1, 64, 0);
+    cow(2, 64, 0);
+    Cow calf = cow(3, 64, 0);
+    when(calf.isAdult()).thenReturn(false);
+    carry(Material.WHEAT, 2);
+
+    assertThat(behavior.act(golem(1), task("breed", target))).isEqualTo(GolemActResult.FAILED);
+    verify(target, never()).setLoveModeTicks(anyInt());
   }
 
   @Test
@@ -447,6 +476,7 @@ class RancherBehaviorTest {
 
     Mob striker = golem.golem();
     verify(victim).damage(10D, striker);
+    verify(death).setDroppedExp(0);
     assertThat(count(cargo, Material.BEEF)).isEqualTo(2);
     verify(golem).workXp(config.workXpPerCull);
     feedback.verify(() -> RancherFeedback.play(eq(core), any(Location.class), eq(RancherFeedback.Kind.CULL)));
@@ -469,6 +499,42 @@ class RancherBehaviorTest {
 
     assertThat(count(cargo, Material.BEEF)).isEqualTo(1);
     assertThat(count(cargo, Material.LEATHER)).isEqualTo(1);
+  }
+
+  @Test
+  void husbandryRollsNoExtraLootWhileMobsDropNothing() {
+    body = GolemBody.IRON;
+    mobLoot = false;
+    record = RancherRules.toggle(record.toBuilder().data(Map.of("keep", "2")).build(), RancherRules.Action.CULL);
+    Cow victim = cow(1, 64, 0);
+    cow(2, 64, 0);
+    cow(3, 64, 0);
+    LootTable table = mock(LootTable.class);
+    when(victim.getLootTable()).thenReturn(table);
+    dies(victim, GolemTestItems.stack(Material.BEEF, 1));
+
+    assertThat(behavior.act(golem(1), task("cull", victim))).isEqualTo(GolemActResult.DONE);
+
+    verify(table, never()).populateLoot(any(), any());
+    assertThat(count(cargo, Material.BEEF)).isEqualTo(1);
+  }
+
+  @Test
+  void tamedAnimalsAndAnimalsInAVehicleAreNeverCulled() {
+    body = GolemBody.IRON;
+    record = RancherRules.toggle(record.toBuilder().data(Map.of("keep", "2")).build(), RancherRules.Action.CULL);
+    Cow tamed = animal(Cow.class, EntityType.COW, 1, 64, 0, Tameable.class);
+    when(((Tameable) tamed).isTamed()).thenReturn(true);
+    Cow riding = cow(2, 64, 0);
+    when(riding.isInsideVehicle()).thenReturn(true);
+    cow(3, 64, 0);
+    cow(4, 64, 0);
+
+    assertThat(behavior.act(golem(1), task("cull", tamed))).isEqualTo(GolemActResult.FAILED);
+    assertThat(behavior.act(golem(1), task("cull", riding))).isEqualTo(GolemActResult.FAILED);
+
+    verify(tamed, never()).damage(anyDouble(), any(Entity.class));
+    verify(riding, never()).damage(anyDouble(), any(Entity.class));
   }
 
   @Test
@@ -563,7 +629,7 @@ class RancherBehaviorTest {
     when(victim.isDead()).thenAnswer(invocation -> dead.get());
     doAnswer(invocation -> {
       List<ItemStack> drops = new ArrayList<>(List.of(drop));
-      EntityDeathEvent death = mock(EntityDeathEvent.class);
+      death = mock(EntityDeathEvent.class);
       when(death.getEntity()).thenReturn(victim);
       when(death.getDrops()).thenReturn(drops);
       actions.on(death);
@@ -587,8 +653,10 @@ class RancherBehaviorTest {
     return animal(MushroomCow.class, EntityType.MOOSHROOM, x, y, z);
   }
 
-  private <T extends Animals> T animal(Class<T> type, EntityType species, int x, int y, int z) {
-    T animal = mock(type, withSettings().strictness(Strictness.LENIENT));
+  private <T extends Animals> T animal(Class<T> type, EntityType species, int x, int y, int z, Class<?>... traits) {
+    T animal = traits.length == 0
+        ? mock(type, withSettings().strictness(Strictness.LENIENT))
+        : mock(type, withSettings().strictness(Strictness.LENIENT).extraInterfaces(traits));
     UUID id = UUID.randomUUID();
     PersistentDataContainer data = mock(PersistentDataContainer.class, withSettings().strictness(Strictness.LENIENT));
     lenient().when(animal.getPersistentDataContainer()).thenReturn(data);

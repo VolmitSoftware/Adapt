@@ -95,9 +95,9 @@ final class RancherBehavior implements NodeBehavior, GolemCoreBehavior {
     if (animal == null || !actions.tends(animal, key, record)) {
       return GolemActResult.FAILED;
     }
-    RancherRules.Beast beast = actions.beast(animal, animal.getLocation(), golem.handle().owner(), action == RancherRules.Action.CULL);
-    int adults = adults(actions.herd(golem.world(), key, record), animal);
-    if (!RancherRules.fits(action, beast, adults, keep(record))) {
+    UUID owner = golem.handle().owner();
+    RancherRules.Beast beast = actions.beast(animal, animal.getLocation(), owner, action == RancherRules.Action.CULL);
+    if (!RancherRules.fits(action, beast, census(actions.herd(golem.world(), key, record), animal, owner), keep(record))) {
       return GolemActResult.FAILED;
     }
     if (!permitted(golem, action, animal)) {
@@ -223,14 +223,14 @@ final class RancherBehavior implements NodeBehavior, GolemCoreBehavior {
     return action == RancherRules.Action.CULL ? golem.canDamage(animal) : golem.canInteract(animal.getLocation());
   }
 
-  private static int adults(List<Animals> herd, Animals target) {
-    int adults = 0;
+  private RancherRules.Census census(List<Animals> herd, Animals target, UUID owner) {
+    List<RancherRules.Beast> kin = new ArrayList<>(herd.size());
     for (Animals animal : herd) {
-      if (animal.getType() == target.getType() && animal.isAdult()) {
-        adults++;
+      if (animal.getType() == target.getType()) {
+        kin.add(actions.beast(animal, animal.getLocation(), owner, false));
       }
     }
-    return adults;
+    return RancherRules.census(kin);
   }
 
   private static List<NodeIndex.Entry> pastureNodes(GolemContext golem, World world) {

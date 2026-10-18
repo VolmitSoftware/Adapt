@@ -56,18 +56,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> {
   static final String CORE_RECIPE = "golemancy-rancher-core";
   static final String NODE_RECIPE = "golemancy-pasture-node";
-  static final long HUSBANDRY_MARK_MILLIS = 40_000L;
+  static final long FED_MARK_MILLIS = 40_000L;
   private static final int RECIPE_LEVEL = 1;
   private static final int COOLDOWN_DELAY_TICKS = 1;
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
 
-  private final Map<UUID, Long> husbandry = new ConcurrentHashMap<>();
-  private final RancherActions actions = new RancherActions(this, ItemStack::new, ThreadLocalRandom::current);
+  private final Map<UUID, Fed> fed = new ConcurrentHashMap<>();
+  private final RancherActions actions = new RancherActions(this, RancherActions.Hooks.server());
   private final RancherBehavior work = new RancherBehavior(this, actions);
   private final RancherNodePanel panel = new RancherNodePanel(this, ItemStack::new);
   private volatile ParsedSpecies parsed;
@@ -88,7 +87,7 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
     NodeBehaviors.unregister(NodeType.PASTURE, work);
     GolemCoreBehaviors.unregister(GolemCoreType.RANCHER, work);
     NodePanels.unregister(NodeType.PASTURE, panel);
-    husbandry.clear();
+    fed.clear();
     super.unregister();
   }
 
@@ -137,7 +136,7 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
 
   @Override
   public boolean hasTickDemand() {
-    return !husbandry.isEmpty();
+    return !fed.isEmpty();
   }
 
   @Override
@@ -145,10 +144,19 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
     sweep(M.ms());
   }
 
-  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(EntityBreedEvent e) {
-    shortenCooldown(e.getMother());
-    shortenCooldown(e.getFather());
+    long now = M.ms();
+    if (fresh(e.getMother(), now) || fresh(e.getFather(), now)) {
+      e.setExperience(0);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void afterBreeding(EntityBreedEvent e) {
+    long now = M.ms();
+    shortenCooldown(e.getMother(), now);
+    shortenCooldown(e.getFather(), now);
   }
 
   Config config() {
@@ -170,20 +178,28 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
     return player == null ? 0 : getLevel(player);
   }
 
-  void markHusbandry(UUID animal, long nowMillis) {
-    husbandry.put(animal, nowMillis);
+  void markFed(UUID animal, long nowMillis, boolean husbandry) {
+    fed.put(animal, new Fed(nowMillis, husbandry));
   }
 
   void sweep(long nowMillis) {
-    husbandry.values().removeIf(fedAt -> nowMillis - fedAt >= HUSBANDRY_MARK_MILLIS);
+    fed.values().removeIf(mark -> !mark.freshAt(nowMillis));
   }
 
-  private void shortenCooldown(LivingEntity parent) {
-    if (!(parent instanceof Ageable ageable)) {
+  private boolean fresh(LivingEntity parent, long nowMillis) {
+    if (parent == null) {
+      return false;
+    }
+    Fed mark = fed.get(parent.getUniqueId());
+    return mark != null && mark.freshAt(nowMillis);
+  }
+
+  private void shortenCooldown(LivingEntity parent, long nowMillis) {
+    if (parent == null) {
       return;
     }
-    Long fedAt = husbandry.remove(parent.getUniqueId());
-    if (fedAt == null || M.ms() - fedAt >= HUSBANDRY_MARK_MILLIS) {
+    Fed mark = fed.remove(parent.getUniqueId());
+    if (mark == null || !mark.husbandry() || !mark.freshAt(nowMillis) || !(parent instanceof Ageable ageable)) {
       return;
     }
     double multiplier = getConfig().husbandryCooldownMultiplier;
@@ -201,6 +217,12 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
   }
 
   private record ParsedSpecies(List<String> names, List<EntityType> species) {
+  }
+
+  private record Fed(long at, boolean husbandry) {
+    boolean freshAt(long nowMillis) {
+      return nowMillis - at < FED_MARK_MILLIS;
+    }
   }
 
   @ConfigDescription("Golems bound with a Rancher Core tend the animals in a Pasture Node's area: they breed pairs up to the node's keep count, then shear sheep, milk cows and goats, and cull spare adults as the core grows stronger.")

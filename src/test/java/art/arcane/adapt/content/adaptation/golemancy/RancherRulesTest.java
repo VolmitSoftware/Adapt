@@ -122,10 +122,48 @@ class RancherRulesTest {
     RancherRules.Beast far = adult(EntityType.COW, 4);
     List<RancherRules.Beast> herd = List.of(far, near, baby(EntityType.COW, 0.2), baby(EntityType.COW, 0.3));
 
-    assertThat(RancherRules.choose(herd, 3, ALL, supplies(2, 0, 0))).containsExactly(breed(near), breed(far));
-    assertThat(RancherRules.choose(herd, 2, ALL, supplies(2, 0, 0))).isEmpty();
-    assertThat(RancherRules.choose(herd, 3, ALL, supplies(1, 0, 0))).isEmpty();
+    assertThat(RancherRules.choose(herd, 5, ALL, supplies(2, 0, 0))).containsExactly(breed(near), breed(far));
+    assertThat(RancherRules.choose(herd, 4, ALL, supplies(2, 0, 0))).isEmpty();
+    assertThat(RancherRules.choose(herd, 5, ALL, supplies(1, 0, 0))).isEmpty();
     assertThat(RancherRules.choose(List.of(near, cooling(EntityType.COW, 2)), 8, ALL, supplies(5, 0, 0))).isEmpty();
+  }
+
+  @Test
+  void babiesAndPairsAlreadyInLoveBlockNewFeedingAtTheKeepCount() {
+    RancherRules.Beast near = adult(EntityType.PIG, 1);
+    RancherRules.Beast far = adult(EntityType.PIG, 2);
+    List<RancherRules.Beast> withBaby = List.of(near, far, baby(EntityType.PIG, 3));
+    List<RancherRules.Beast> withPair = List.of(near, far, playerInLove(EntityType.PIG, 4), playerInLove(EntityType.PIG, 5));
+
+    assertThat(RancherRules.choose(withBaby, 4, ALL, supplies(2, 0, 0))).containsExactly(breed(near), breed(far));
+    assertThat(RancherRules.choose(withBaby, 3, ALL, supplies(2, 0, 0))).isEmpty();
+    assertThat(RancherRules.choose(withPair, 6, ALL, supplies(2, 0, 0))).containsExactly(breed(near), breed(far));
+    assertThat(RancherRules.choose(withPair, 5, ALL, supplies(2, 0, 0))).isEmpty();
+    assertThat(RancherRules.breedRoom(new RancherRules.Census(4, 0, 1, 1), 5)).isTrue();
+    assertThat(RancherRules.breedRoom(new RancherRules.Census(4, 0, 1, 1), 4)).isFalse();
+    assertThat(RancherRules.breedRoom(new RancherRules.Census(4, 0, 0, 0), 5)).isTrue();
+    assertThat(RancherRules.breedRoom(new RancherRules.Census(4, 1, 0, 0), 5)).isFalse();
+  }
+
+  @Test
+  void loveAPlayerStartedIsNeverFinishedByARancher() {
+    RancherRules.Beast playerFed = playerInLove(EntityType.SHEEP, 2);
+    RancherRules.Beast partner = adult(EntityType.SHEEP, 3);
+
+    assertThat(RancherRules.choose(List.of(playerFed, partner), 8, EnumSet.of(RancherRules.Action.BREED), supplies(1, 0, 0))).isEmpty();
+    assertThat(RancherRules.census(List.of(playerFed, partner)).waiting()).isZero();
+  }
+
+  @Test
+  void aWaitingAnimalGetsTheNearestPartnerWithinEightBlocks() {
+    RancherRules.Beast waiting = inLove(EntityType.COW, 20);
+    RancherRules.Beast nearGolem = adult(EntityType.COW, 1);
+    RancherRules.Beast besideIt = adult(EntityType.COW, 21);
+    RancherRules.Beast inReach = adult(EntityType.COW, 13);
+    RancherRules.Beast outOfReach = adult(EntityType.COW, 29);
+
+    assertThat(RancherRules.choose(List.of(nearGolem, outOfReach, inReach, besideIt, waiting), 8, EnumSet.of(RancherRules.Action.BREED),
+        supplies(1, 0, 0))).containsExactly(breed(besideIt), breed(inReach));
   }
 
   @Test
@@ -209,18 +247,20 @@ class RancherRulesTest {
   void anActStillFitsOnlyWhileItsAnimalAndTheCountAllowIt() {
     RancherRules.Beast cow = adult(EntityType.COW, 1);
 
-    assertThat(RancherRules.fits(RancherRules.Action.BREED, cow, 1, 2)).isTrue();
-    assertThat(RancherRules.fits(RancherRules.Action.BREED, cow, 2, 2)).isFalse();
-    assertThat(RancherRules.fits(RancherRules.Action.BREED, inLove(EntityType.COW, 1), 1, 2)).isFalse();
-    assertThat(RancherRules.fits(RancherRules.Action.CULL, cow, 3, 2)).isTrue();
-    assertThat(RancherRules.fits(RancherRules.Action.CULL, cow, 2, 2)).isFalse();
-    assertThat(RancherRules.fits(RancherRules.Action.CULL, guarded(EntityType.COW, 1), 3, 2)).isFalse();
-    assertThat(RancherRules.fits(RancherRules.Action.CULL, baby(EntityType.COW, 1), 3, 2)).isFalse();
-    assertThat(RancherRules.fits(RancherRules.Action.SHEAR, shearable(1), 9, 2)).isTrue();
-    assertThat(RancherRules.fits(RancherRules.Action.SHEAR, cow, 9, 2)).isFalse();
-    assertThat(RancherRules.fits(RancherRules.Action.MILK, milkable(EntityType.COW, 1, RancherRules.Milk.BUCKET), 9, 2)).isTrue();
-    assertThat(RancherRules.fits(RancherRules.Action.MILK, cow, 9, 2)).isFalse();
-    assertThat(RancherRules.fits(RancherRules.Action.MILK, untouchable(EntityType.COW, 1), 9, 2)).isFalse();
+    assertThat(RancherRules.fits(RancherRules.Action.BREED, cow, adults(1), 2)).isTrue();
+    assertThat(RancherRules.fits(RancherRules.Action.BREED, cow, adults(2), 2)).isFalse();
+    assertThat(RancherRules.fits(RancherRules.Action.BREED, cow, new RancherRules.Census(1, 1, 0, 0), 2)).isFalse();
+    assertThat(RancherRules.fits(RancherRules.Action.BREED, inLove(EntityType.COW, 1), adults(1), 2)).isFalse();
+    assertThat(RancherRules.fits(RancherRules.Action.CULL, cow, adults(3), 2)).isTrue();
+    assertThat(RancherRules.fits(RancherRules.Action.CULL, cow, new RancherRules.Census(3, 4, 2, 0), 2)).isTrue();
+    assertThat(RancherRules.fits(RancherRules.Action.CULL, cow, adults(2), 2)).isFalse();
+    assertThat(RancherRules.fits(RancherRules.Action.CULL, guarded(EntityType.COW, 1), adults(3), 2)).isFalse();
+    assertThat(RancherRules.fits(RancherRules.Action.CULL, baby(EntityType.COW, 1), adults(3), 2)).isFalse();
+    assertThat(RancherRules.fits(RancherRules.Action.SHEAR, shearable(1), adults(9), 2)).isTrue();
+    assertThat(RancherRules.fits(RancherRules.Action.SHEAR, cow, adults(9), 2)).isFalse();
+    assertThat(RancherRules.fits(RancherRules.Action.MILK, milkable(EntityType.COW, 1, RancherRules.Milk.BUCKET), adults(9), 2)).isTrue();
+    assertThat(RancherRules.fits(RancherRules.Action.MILK, cow, adults(9), 2)).isFalse();
+    assertThat(RancherRules.fits(RancherRules.Action.MILK, untouchable(EntityType.COW, 1), adults(9), 2)).isFalse();
   }
 
   @Test
@@ -253,6 +293,12 @@ class RancherRulesTest {
     return beast(species, distance, true, false, true, false, RancherRules.Milk.NONE, false, false);
   }
 
+  private RancherRules.Beast playerInLove(EntityType species, double distance) {
+    beasts++;
+    return new RancherRules.Beast(new UUID(0x25A0L, beasts), species, distance, 0D, 0D, distance * distance, true, false, true, false, false,
+        RancherRules.Milk.NONE, false, false);
+  }
+
   private RancherRules.Beast baby(EntityType species, double distance) {
     return beast(species, distance, false, false, false, false, RancherRules.Milk.NONE, true, false);
   }
@@ -277,7 +323,12 @@ class RancherRulesTest {
                                    RancherRules.Milk milk, boolean guarded, boolean untouchable) {
     beasts++;
     UUID id = new UUID(0x25A0L, beasts);
-    return new RancherRules.Beast(id, species, distance * distance, adult, breedable, love, shearable, milk, guarded, untouchable);
+    return new RancherRules.Beast(id, species, distance, 0D, 0D, distance * distance, adult, breedable, love, love, shearable, milk, guarded,
+        untouchable);
+  }
+
+  private static RancherRules.Census adults(int adults) {
+    return new RancherRules.Census(adults, 0, 0, 0);
   }
 
   private static RancherRules.Supplies supplies(int food, int buckets, int bowls) {

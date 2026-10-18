@@ -217,21 +217,54 @@ class GolemRancherCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
+  void birthsFromARancherFedParentGiveNoExperience() {
+    Cow fed = cow();
+    Cow other = cow();
+    adaptation.markFed(fed.getUniqueId(), M.ms(), false);
+    EntityBreedEvent rancherBirth = breeding(other, fed);
+    EntityBreedEvent wildBirth = breeding(cow(), cow());
+
+    adaptation.on(rancherBirth);
+    adaptation.on(wildBirth);
+
+    verify(rancherBirth).setExperience(0);
+    verify(wildBirth, never()).setExperience(anyInt());
+  }
+
+  @Test
+  void aStaleFeedingMarkLeavesTheExperienceAndCooldownAlone() {
+    Cow fed = cow();
+    adaptation.markFed(fed.getUniqueId(), M.ms() - GolemRancherCore.FED_MARK_MILLIS, true);
+    EntityBreedEvent event = breeding(fed, cow());
+    when(fed.getAge()).thenReturn(5999);
+
+    try (MockedStatic<J> scheduler = mockStatic(J.class)) {
+      adaptation.on(event);
+      adaptation.afterBreeding(event);
+      scheduler.verify(() -> J.runEntity(any(), any(Runnable.class), anyInt()), never());
+    }
+
+    verify(event, never()).setExperience(anyInt());
+  }
+
+  @Test
   void husbandryHalvesTheBreedingCooldownOfParentsARancherFed() {
     Cow fed = cow();
     Cow other = cow();
-    adaptation.markHusbandry(fed.getUniqueId(), M.ms());
+    Cow plain = cow();
+    adaptation.markFed(fed.getUniqueId(), M.ms(), true);
+    adaptation.markFed(plain.getUniqueId(), M.ms(), false);
     assertThat(adaptation.hasTickDemand()).isTrue();
-    EntityBreedEvent event = mock(EntityBreedEvent.class);
-    when(event.getMother()).thenReturn(fed);
-    when(event.getFather()).thenReturn(other);
+    EntityBreedEvent event = breeding(fed, other);
     when(fed.getAge()).thenReturn(5999);
 
     try (MockedStatic<J> scheduler = mockStatic(J.class)) {
       ArgumentCaptor<Runnable> later = ArgumentCaptor.forClass(Runnable.class);
-      adaptation.on(event);
+      adaptation.afterBreeding(event);
+      adaptation.afterBreeding(breeding(plain, cow()));
       scheduler.verify(() -> J.runEntity(eq(fed), later.capture(), eq(1)));
       scheduler.verify(() -> J.runEntity(eq(other), any(Runnable.class), anyInt()), never());
+      scheduler.verify(() -> J.runEntity(eq(plain), any(Runnable.class), anyInt()), never());
       later.getValue().run();
     }
 
@@ -241,12 +274,12 @@ class GolemRancherCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void husbandryMarksExpireOnTick() {
-    adaptation.markHusbandry(UUID.randomUUID(), 1_000L);
+  void feedingMarksExpireOnTick() {
+    adaptation.markFed(UUID.randomUUID(), 1_000L, false);
 
-    adaptation.sweep(1_000L + GolemRancherCore.HUSBANDRY_MARK_MILLIS - 1L);
+    adaptation.sweep(1_000L + GolemRancherCore.FED_MARK_MILLIS - 1L);
     assertThat(adaptation.hasTickDemand()).isTrue();
-    adaptation.sweep(1_000L + GolemRancherCore.HUSBANDRY_MARK_MILLIS);
+    adaptation.sweep(1_000L + GolemRancherCore.FED_MARK_MILLIS);
     assertThat(adaptation.hasTickDemand()).isFalse();
   }
 
@@ -263,6 +296,13 @@ class GolemRancherCoreExecutionTest extends AdaptTestBase {
     ((RancherActions) companions.getFirst()).on(event);
 
     assertThat(drops).hasSize(1);
+  }
+
+  private static EntityBreedEvent breeding(Cow mother, Cow father) {
+    EntityBreedEvent event = mock(EntityBreedEvent.class);
+    when(event.getMother()).thenReturn(mother);
+    when(event.getFather()).thenReturn(father);
+    return event;
   }
 
   private Cow cow() {

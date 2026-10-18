@@ -8,6 +8,7 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.minion.MinionTargeting;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.DyeColor;
+import org.bukkit.GameRules;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -42,6 +43,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -56,14 +58,12 @@ final class RancherActions implements Listener {
   private static final List<Material> BOWL_FIRST = List.of(Material.BOWL, Material.BUCKET);
 
   private final GolemRancherCore core;
-  private final BiFunction<Material, Integer, ItemStack> items;
-  private final Supplier<Random> random;
+  private final Hooks hooks;
   private final Map<UUID, Harvest> culls = new ConcurrentHashMap<>();
 
-  RancherActions(GolemRancherCore core, BiFunction<Material, Integer, ItemStack> items, Supplier<Random> random) {
+  RancherActions(GolemRancherCore core, Hooks hooks) {
     this.core = Objects.requireNonNull(core);
-    this.items = Objects.requireNonNull(items);
-    this.random = Objects.requireNonNull(random);
+    this.hooks = Objects.requireNonNull(hooks);
   }
 
   int level(GolemContext golem) {
@@ -95,11 +95,13 @@ final class RancherActions implements Listener {
   }
 
   RancherRules.Beast beast(Animals animal, Location from, UUID owner, boolean cullFacts) {
+    Location at = animal.getLocation();
     boolean adult = animal.isAdult();
     boolean inLove = animal.isLoveMode();
     boolean shearable = animal instanceof Sheep sheep && adult && !sheep.isSheared();
-    return new RancherRules.Beast(animal.getUniqueId(), animal.getType(), animal.getLocation().distanceSquared(from), adult,
-        adult && !inLove && animal.canBreed(), inLove, shearable, milk(animal), cullFacts && guarded(animal), untouchable(owner, animal));
+    return new RancherRules.Beast(animal.getUniqueId(), animal.getType(), at.getX(), at.getY(), at.getZ(), at.distanceSquared(from), adult,
+        adult && !inLove && animal.canBreed(), inLove, inLove && animal.getBreedCause() == null, shearable, milk(animal),
+        cullFacts && guarded(animal), untouchable(owner, animal));
   }
 
   Stock stock(GolemContext golem) {
@@ -127,20 +129,18 @@ final class RancherActions implements Listener {
   void feed(GolemContext golem, Animals animal, boolean husbandry) {
     animal.setBreedCause(null);
     animal.setLoveModeTicks(RancherRules.LOVE_TICKS);
-    if (husbandry) {
-      core.markHusbandry(animal.getUniqueId(), golem.nowMillis());
-    }
+    core.markFed(animal.getUniqueId(), golem.nowMillis(), husbandry);
   }
 
   void shear(GolemContext golem, Sheep sheep) {
     sheep.setSheared(true);
-    int amount = 1 + random.get().nextInt(WOOL_ROLLS);
-    stow(golem, List.of(items.apply(wool(sheep.getColor()), amount)), sheep.getLocation());
+    int amount = 1 + hooks.random().get().nextInt(WOOL_ROLLS);
+    stow(golem, List.of(hooks.items().apply(wool(sheep.getColor()), amount)), sheep.getLocation());
   }
 
   void fill(GolemContext golem, Animals animal, Material container) {
     Material filled = container == Material.BOWL ? Material.MUSHROOM_STEW : Material.MILK_BUCKET;
-    stow(golem, List.of(items.apply(filled, 1)), animal.getLocation());
+    stow(golem, List.of(hooks.items().apply(filled, 1)), animal.getLocation());
   }
 
   Strike cull(GolemContext golem, Animals victim, int extraRolls) {
@@ -167,12 +167,14 @@ final class RancherActions implements Listener {
     if (harvest == null) {
       return;
     }
+    e.setDroppedExp(0);
     List<ItemStack> drops = e.getDrops();
     List<ItemStack> taken = new ArrayList<>(drops);
-    if (harvest.extraRolls() > 0 && victim instanceof Lootable lootable && lootable.getLootTable() != null) {
+    if (harvest.extraRolls() > 0 && victim instanceof Lootable lootable && lootable.getLootTable() != null
+        && hooks.mobLoot().test(victim.getWorld())) {
       LootTable table = lootable.getLootTable();
       for (int roll = 0; roll < harvest.extraRolls(); roll++) {
-        taken.addAll(table.populateLoot(random.get(), new LootContext.Builder(victim.getLocation()).lootedEntity(victim).build()));
+        taken.addAll(table.populateLoot(hooks.random().get(), new LootContext.Builder(victim.getLocation()).lootedEntity(victim).build()));
       }
     }
     drops.clear();
@@ -303,6 +305,18 @@ final class RancherActions implements Listener {
     KILLED,
     HURT,
     REFUSED
+  }
+
+  record Hooks(BiFunction<Material, Integer, ItemStack> items, Supplier<Random> random, Predicate<World> mobLoot) {
+    Hooks {
+      Objects.requireNonNull(items);
+      Objects.requireNonNull(random);
+      Objects.requireNonNull(mobLoot);
+    }
+
+    static Hooks server() {
+      return new Hooks(ItemStack::new, ThreadLocalRandom::current, world -> Boolean.TRUE.equals(world.getGameRuleValue(GameRules.MOB_DROPS)));
+    }
   }
 
   private record Harvest(int extraRolls, List<ItemStack> collected) {
