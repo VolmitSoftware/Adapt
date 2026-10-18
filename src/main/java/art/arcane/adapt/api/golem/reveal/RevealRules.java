@@ -3,6 +3,8 @@ package art.arcane.adapt.api.golem.reveal;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 
 public final class RevealRules {
+  public static final double LEAVE_MARGIN = 2D;
+
   private RevealRules() {
   }
 
@@ -19,5 +21,9 @@ public final class RevealRules {
 
   public static boolean withinRange(double distanceSquared, double range) {
     return distanceSquared <= range * range;
+  }
+
+  public static boolean inRevealRange(double distanceSquared, double range, boolean shown) {
+    return withinRange(distanceSquared, shown ? range + LEAVE_MARGIN : range);
   }
 }

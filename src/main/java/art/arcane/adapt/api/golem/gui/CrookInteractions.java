@@ -28,6 +28,8 @@ import java.util.Optional;
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public final class CrookInteractions implements Listener {
+  private static final double LEASH_RADIUS = 32D;
+
   private final CrookGestures<GolemHandle> gestures = new CrookGestures<>();
 
   @EventHandler(priority = EventPriority.HIGH)
@@ -86,7 +88,6 @@ public final class CrookInteractions implements Listener {
       GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_CHEST_DENIED);
       return;
     }
-    gestures.clearLink(player.getUniqueId());
     GolemHandle handle = target.get();
     GolemState.Anchor chest = GolemState.Anchor.at(chestLocation);
     boolean scheduled = J.runEntity(handle.entity(), () -> {
@@ -94,7 +95,14 @@ public final class CrookInteractions implements Listener {
         GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
         return;
       }
+      GolemState.Anchor home = handle.state().home();
+      GolemState.Anchor center = home == null ? GolemState.Anchor.at(handle.entity().getLocation()) : home;
+      if (!GolemGuiActions.chestInReach(chest, handle.entity().getWorld().getUID(), center, LEASH_RADIUS)) {
+        GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_CHEST_OUT_OF_REACH, trusted("radius", (int) LEASH_RADIUS));
+        return;
+      }
       handle.setHomeChest(chest);
+      gestures.clearLink(player.getUniqueId());
       GolemGuiSupport.notify(player, GolemancyMessages.MESSAGE_CHEST_LINKED,
           trusted("x", chest.x()), trusted("y", chest.y()), trusted("z", chest.z()));
     });

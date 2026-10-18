@@ -44,7 +44,6 @@ public final class GolemGui {
   private static final int HEADER_ROW = 0;
   private static final int RUNE_ROW = 1;
   private static final int CARRIED_ROW = 2;
-  private static final int CARRIED_SLOTS = GuiLayout.WIDTH * 2;
   private static final int FOOTER_ROW = 4;
   private static final int LEFT_EDGE = -4;
   private static final int RIGHT_EDGE = 4;
@@ -174,6 +173,14 @@ public final class GolemGui {
           .onShiftLeftClick(clicked -> take(entry));
       target.setElement(LEFT_EDGE + index % GuiLayout.WIDTH, CARRIED_ROW + index / GuiLayout.WIDTH, element);
     }
+    int hidden = view.carriedTotal() - carried.size();
+    if (hidden > 0) {
+      int slot = carried.size();
+      target.setElement(LEFT_EDGE + slot % GuiLayout.WIDTH, CARRIED_ROW + slot / GuiLayout.WIDTH,
+          GuiTheme.element("golem-carried-more", Material.PAPER, "gui", "golemancy", "carried_more")
+              .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_MORE_CARRIED, trusted("count", hidden)))
+              .setProgress(1D));
+    }
   }
 
   private void placeFooter(UIWindow target, View view) {
@@ -222,7 +229,7 @@ public final class GolemGui {
         snapshot();
         return;
       }
-      ItemStack item = entry.item();
+      ItemStack item = entry.item().clone();
       if (!J.runEntity(player, () -> give(item))) {
         golem.getWorld().dropItemNaturally(golem.getLocation(), item);
       }
@@ -238,6 +245,7 @@ public final class GolemGui {
     for (ItemStack leftover : leftovers.values()) {
       player.getWorld().dropItemNaturally(player.getLocation(), leftover);
     }
+    GolemancyRuntime.reveal().ifPresent(reveal -> reveal.requestUpdate(player));
   }
 
   private void confirmRelease() {
@@ -294,21 +302,22 @@ public final class GolemGui {
 
   private record View(GolemBody body, double health, double maxHealth, boolean dormant, List<GolemCoreType> cores,
                       List<GolemRune> runes, GolemMode mode, int channels, GolemState.Anchor home, GolemState.Anchor homeChest,
-                      List<Carried> carried, long kills, double damage, long tasks, long itemsMoved) {
+                      List<Carried> carried, int carriedTotal, long kills, double damage, long tasks, long itemsMoved) {
     private static View of(GolemHandle handle) {
       GolemState state = handle.state();
       Mob golem = handle.entity();
       GolemState.Stats stats = state.stats();
       return new View(state.body(), golem.getHealth(), GolemVitals.maxHealth(golem), handle.isDormant(), state.cores(),
-          state.runes(), state.mode(), state.channels(), state.home(), state.homeChest(), carried(handle),
+          state.runes(), state.mode(), state.channels(), state.home(), state.homeChest(), carried(handle), state.carried().size(),
           stats.kills(), stats.damage(), stats.tasks(), stats.itemsMoved());
     }
 
     private static List<Carried> carried(GolemHandle handle) {
       List<String> stored = handle.state().carried();
-      List<Carried> carried = new ArrayList<>(Math.min(CARRIED_SLOTS, stored.size()));
+      int shown = GolemGuiActions.carriedShown(stored.size());
+      List<Carried> carried = new ArrayList<>(shown);
       for (String encoded : stored) {
-        if (carried.size() >= CARRIED_SLOTS) {
+        if (carried.size() >= shown) {
           break;
         }
         try {

@@ -99,6 +99,7 @@ public final class GolemancyMessages {
   public static final TextKey GUI_RUNE_LOCKED = TextKey.of("golemancy.gui.rune_locked", "Locked Rune Slot");
   public static final TextKey GUI_RUNE_UNLOCK = TextKey.of("golemancy.gui.rune_unlock", "Unlocked by Runic Augments");
   public static final TextKey GUI_TAKE = TextKey.of("golemancy.gui.take", "Click to take");
+  public static final TextKey GUI_MORE_CARRIED = TextKey.of("golemancy.gui.more_carried", "+{count} more");
   public static final TextKey GUI_STATS = TextKey.of("golemancy.gui.stats", "Statistics");
   public static final TextKey GUI_KILLS = TextKey.of("golemancy.gui.kills", "Kills: {value}");
   public static final TextKey GUI_DAMAGE = TextKey.of("golemancy.gui.damage", "Damage dealt: {value}");
@@ -120,6 +121,7 @@ public final class GolemancyMessages {
   public static final TextKey MESSAGE_LINK_ARMED = TextKey.of("golemancy.message.link_armed", "Right-click a container with the Crook to link it");
   public static final TextKey MESSAGE_CHEST_LINKED = TextKey.of("golemancy.message.chest_linked", "Home chest linked at {x}, {y}, {z}");
   public static final TextKey MESSAGE_CHEST_DENIED = TextKey.of("golemancy.message.chest_denied", "That container is protected");
+  public static final TextKey MESSAGE_CHEST_OUT_OF_REACH = TextKey.of("golemancy.message.chest_out_of_reach", "That container must be within {radius} blocks of the golem's home");
   public static final TextKey MESSAGE_RELEASED = TextKey.of("golemancy.message.released", "Golem released");
   public static final TextKey MESSAGE_RELEASE_FAILED = TextKey.of("golemancy.message.release_failed", "This golem can't be released right now");
   public static final TextKey MESSAGE_GONE = TextKey.of("golemancy.message.gone", "That golem is no longer here");
@@ -223,6 +225,7 @@ public final class GolemancyMessages {
     builder.add(GUI_RUNE_LOCKED);
     builder.add(GUI_RUNE_UNLOCK);
     builder.add(GUI_TAKE);
+    builder.add(GUI_MORE_CARRIED);
     builder.add(GUI_STATS);
     builder.add(GUI_KILLS);
     builder.add(GUI_DAMAGE);
@@ -244,6 +247,7 @@ public final class GolemancyMessages {
     builder.add(MESSAGE_LINK_ARMED);
     builder.add(MESSAGE_CHEST_LINKED);
     builder.add(MESSAGE_CHEST_DENIED);
+    builder.add(MESSAGE_CHEST_OUT_OF_REACH);
     builder.add(MESSAGE_RELEASED);
     builder.add(MESSAGE_RELEASE_FAILED);
     builder.add(MESSAGE_GONE);

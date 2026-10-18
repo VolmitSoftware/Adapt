@@ -38,6 +38,16 @@ class RevealRulesTest {
   }
 
   @Test
+  void shownTargetsGetTwoBlocksOfSlackBeforeTheyLeave() {
+    assertThat(RevealRules.inRevealRange(32D * 32D, 32D, false)).isTrue();
+    assertThat(RevealRules.inRevealRange(33D * 33D, 32D, false)).isFalse();
+    assertThat(RevealRules.inRevealRange(33D * 33D, 32D, true)).isTrue();
+    assertThat(RevealRules.inRevealRange(34D * 34D, 32D, true)).isTrue();
+    assertThat(RevealRules.inRevealRange(34.01D * 34.01D, 32D, true)).isFalse();
+    assertThat(RevealRules.LEAVE_MARGIN).isEqualTo(2D);
+  }
+
+  @Test
   void rangeIsInclusiveAndCompareSquaredDistances() {
     assertThat(RevealRules.withinRange(32D * 32D, 32D)).isTrue();
     assertThat(RevealRules.withinRange(32D * 32D + 0.01D, 32D)).isFalse();

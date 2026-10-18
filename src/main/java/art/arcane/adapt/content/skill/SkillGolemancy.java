@@ -449,11 +449,11 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double deathDropCoreChance = 0.5;
     @ConfigDoc(value = "Chance that each rune drops when a bound golem dies.", impact = "Higher values return more runes on death; 1.0 always drops them.")
     double deathDropRuneChance = 0.5;
-    @ConfigDoc(value = "Blocks around you within which your golems show their status labels while you hold a Golemancy item.", impact = "Higher values reveal golems farther away; lower values do less work on busy servers.")
+    @ConfigDoc(value = "Blocks around you within which your golems show their status labels while you hold the Crook, a Node, a Core or a Dormant Golem.", impact = "Higher values reveal golems farther away; lower values do less work on busy servers.")
     double revealRange = 32.0;
     @ConfigDoc(value = "Blocks within which revealed golem labels are drawn on screen.", impact = "Higher values let you read labels from farther away.")
     double labelRange = 8.0;
-    @ConfigDoc(value = "Ticks between checks that reveal or hide golems as you move while holding a Golemancy item.", impact = "Lower values react to movement faster; holding no Golemancy item costs nothing.")
+    @ConfigDoc(value = "Ticks between checks that reveal or hide golems as you move while holding the Crook, a Node, a Core or a Dormant Golem.", impact = "Lower values react to movement faster; holding none of them costs nothing.")
     int revealPollTicks = 10;
   }
 }

@@ -4,6 +4,7 @@ import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRoster;
+import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -114,6 +116,27 @@ class GolemGuiActionsTest {
     assertThat(modeIcons).hasSize(GolemMode.values().length);
     assertThat(modeNames).hasSize(GolemMode.values().length);
     assertThat(statusNames).hasSize(GolemRoster.Status.values().length);
+  }
+
+  @Test
+  void homeChestsMustShareTheGolemsWorldAndSitWithinTheLeashOfItsHome() {
+    UUID overworld = UUID.fromString("00000000-0000-0000-0000-0000000000c1");
+    UUID nether = UUID.fromString("00000000-0000-0000-0000-0000000000c2");
+    GolemState.Anchor home = GolemState.Anchor.of(overworld, 0, 64, 0);
+
+    assertThat(GolemGuiActions.chestInReach(GolemState.Anchor.of(overworld, 32, 64, 0), overworld, home, 32D)).isTrue();
+    assertThat(GolemGuiActions.chestInReach(GolemState.Anchor.of(overworld, 20, 84, 20), overworld, home, 32D)).isFalse();
+    assertThat(GolemGuiActions.chestInReach(GolemState.Anchor.of(overworld, 33, 64, 0), overworld, home, 32D)).isFalse();
+    assertThat(GolemGuiActions.chestInReach(GolemState.Anchor.of(nether, 0, 64, 0), overworld, home, 32D)).isFalse();
+    assertThat(GolemGuiActions.chestInReach(GolemState.Anchor.of(nether, 0, 64, 0), nether, home, 32D)).isFalse();
+  }
+
+  @Test
+  void carriedViewShowsEighteenStacksOrSeventeenAndAMoreMarker() {
+    assertThat(GolemGuiActions.carriedShown(0)).isZero();
+    assertThat(GolemGuiActions.carriedShown(18)).isEqualTo(18);
+    assertThat(GolemGuiActions.carriedShown(19)).isEqualTo(17);
+    assertThat(GolemGuiActions.carriedShown(40)).isEqualTo(17);
   }
 
   @Test

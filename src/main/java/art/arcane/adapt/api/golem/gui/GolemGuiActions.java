@@ -4,14 +4,17 @@ import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRoster;
+import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 
 import java.util.List;
+import java.util.UUID;
 
 public final class GolemGuiActions {
+  public static final int CARRIED_SLOTS = 18;
   private static final List<GolemMode> MODES = List.of(GolemMode.values());
   private static final List<DyeColor> COLORS = List.of(DyeColor.values());
 
@@ -53,6 +56,20 @@ public final class GolemGuiActions {
       return LocateAction.REPORT;
     }
     return loaded ? LocateAction.GLOW : LocateAction.POINT;
+  }
+
+  public static boolean chestInReach(GolemState.Anchor chest, UUID golemWorld, GolemState.Anchor center, double leashRadius) {
+    if (!chest.world().equals(golemWorld) || !center.world().equals(golemWorld)) {
+      return false;
+    }
+    double dx = chest.x() - center.x();
+    double dy = chest.y() - center.y();
+    double dz = chest.z() - center.z();
+    return dx * dx + dy * dy + dz * dz <= leashRadius * leashRadius;
+  }
+
+  public static int carriedShown(int stored) {
+    return stored > CARRIED_SLOTS ? CARRIED_SLOTS - 1 : stored;
   }
 
   public static int chunkCenterX(long chunkKey) {

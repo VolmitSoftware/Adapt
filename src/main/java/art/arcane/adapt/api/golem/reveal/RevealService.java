@@ -35,6 +35,7 @@ import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
@@ -80,8 +81,8 @@ public final class RevealService extends TickedObject {
   private final Map<LocateKey, Long> locates = new ConcurrentHashMap<>();
 
   public RevealService(Supplier<RevealSettings> settings) {
-    super("golemancy", "golem-reveal", settings.get().pollMillis());
-    this.settings = Objects.requireNonNull(settings);
+    super("golemancy", "golem-reveal", Objects.requireNonNull(settings).get().pollMillis());
+    this.settings = settings;
   }
 
   public static boolean isRevealItem(ItemStack item) {
@@ -122,7 +123,7 @@ public final class RevealService extends TickedObject {
     Map<UUID, GolemHandle> inRange = golemsInRange(viewer);
     RevealTracker.Delta delta = golems.update(viewerId, inRange.keySet());
     apply(viewer, delta, inRange);
-    syncStayingLabels(inRange, delta);
+    syncStayingLabels(viewer, inRange, delta);
   }
 
   public void reset(Player viewer) {
@@ -247,6 +248,13 @@ public final class RevealService extends TickedObject {
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
+  public void on(InventoryDragEvent e) {
+    if (e.getWhoClicked() instanceof Player player && (isArmed(player.getUniqueId()) || isRevealItem(e.getOldCursor()))) {
+      requestUpdate(player);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerDropItemEvent e) {
     if (isArmed(e.getPlayer().getUniqueId())) {
       requestUpdate(e.getPlayer());
@@ -314,6 +322,7 @@ public final class RevealService extends TickedObject {
     if (owned.isEmpty()) {
       return Map.of();
     }
+    UUID viewerId = viewer.getUniqueId();
     Location center = viewer.getLocation();
     World world = center.getWorld();
     double range = settings.get().revealRange();
@@ -326,7 +335,7 @@ public final class RevealService extends TickedObject {
       if (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(golem)) {
         continue;
       }
-      if (RevealRules.withinRange(golem.getLocation().distanceSquared(center), range)) {
+      if (RevealRules.inRevealRange(golem.getLocation().distanceSquared(center), range, golems.isShown(viewerId, handle.entityId()))) {
         inRange.put(handle.entityId(), handle);
       }
     }
@@ -345,13 +354,17 @@ public final class RevealService extends TickedObject {
     }
   }
 
-  private void syncStayingLabels(Map<UUID, GolemHandle> inRange, RevealTracker.Delta delta) {
+  private void syncStayingLabels(Player viewer, Map<UUID, GolemHandle> inRange, RevealTracker.Delta delta) {
     for (Map.Entry<UUID, GolemHandle> entry : inRange.entrySet()) {
-      Label label = labels.get(entry.getKey());
-      if (label == null || delta.entering().contains(entry.getKey()) || !J.isOwnedByCurrentRegion(entry.getValue().entity())) {
+      if (delta.entering().contains(entry.getKey())) {
         continue;
       }
-      applyText(entry.getValue(), label);
+      Label label = labels.get(entry.getKey());
+      if (label == null || !label.display().isValid()) {
+        showLabel(viewer, entry.getValue());
+      } else if (J.isOwnedByCurrentRegion(entry.getValue().entity())) {
+        applyText(entry.getValue(), label);
+      }
     }
   }
 
@@ -422,8 +435,18 @@ public final class RevealService extends TickedObject {
   }
 
   private void removeDisplay(TextDisplay display) {
+    if (!Adapt.instance.isEnabled()) {
+      if (!J.isFoliaThreading() || J.isOwnedByCurrentRegion(display)) {
+        removeDisplayOwned(display);
+      }
+      return;
+    }
+    J.runEntity(display, () -> removeDisplayOwned(display));
+  }
+
+  private void removeDisplayOwned(TextDisplay display) {
     if (display.isValid()) {
-      J.runEntity(display, display::remove);
+      display.remove();
     }
   }
 
