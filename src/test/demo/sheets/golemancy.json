@@ -1547,5 +1547,236 @@
       "particle": "end_rod"
     },
     "maxTicks": 400
+  },
+  "golem-masterwork": {
+    "set": "taming-field",
+    "level": 1,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      },
+      {
+        "name": "golem-runic-augments",
+        "level": 3
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} hotbar.0 with minecraft:heart_of_the_sea",
+      "item replace entity {actor} hotbar.1 with minecraft:diamond_block",
+      "item replace entity {actor} hotbar.2 with minecraft:iron_block",
+      "item replace entity {actor} hotbar.3 with minecraft:copper_block",
+      "item replace entity {actor} hotbar.4 with minecraft:snow_block",
+      "item replace entity {actor} hotbar.5 with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]",
+      "experience add {actor} 20 levels",
+      "execute at {actor} run setblock ~ ~ ~-4 minecraft:lodestone",
+      "execute at {actor} run setblock ~2 ~ ~-4 minecraft:chiseled_copper",
+      "execute at {actor} run setblock ~-2 ~ ~-4 minecraft:chiseled_copper",
+      "execute at {actor} run setblock ~ ~ ~-2 minecraft:chiseled_copper",
+      "execute at {actor} run setblock ~ ~ ~-6 minecraft:chiseled_copper"
+    ],
+    "prelude": [
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -3.5
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -5.5
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "slot",
+        "index": 2
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          2.5,
+          0.5,
+          -3.5
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "slot",
+        "index": 3
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -1.5
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "slot",
+        "index": 4
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -1.5,
+          0.5,
+          -3.5
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "slot",
+        "index": 5
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -3.5
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.beacon.activate",
+        "timeout": 40
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.amethyst_block.resonate",
+        "timeout": 340
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.resonate",
+      "particle": "end_rod"
+    },
+    "maxTicks": 620
   }
 }

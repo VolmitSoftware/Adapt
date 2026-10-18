@@ -4,6 +4,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemBrain;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRunes;
@@ -46,7 +47,7 @@ final class OverseerGolems implements OverseerReceiver {
       return;
     }
     Location at = golem.getLocation();
-    OverseerRules.Hearing hearing = new OverseerRules.Hearing(signal.signal(), handle.body(), handle.core(), handle.state().cores(),
+    OverseerRules.Hearing hearing = new OverseerRules.Hearing(signal.signal(), handle.body(), GolemMastery.cores(handle),
         signal.hears(GolemRunes.channels(handle)), signal.sameWorld(at), signal.inRange(at), reachable(handle, signal.target(), at),
         signal.rally() != null);
     switch (OverseerRules.answer(hearing)) {

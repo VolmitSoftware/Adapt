@@ -47,6 +47,7 @@ public final class GolemancyFixtures {
     private static final String PLINTH_STAGE = "golemancy-plinth";
     private static final String MENDING_STAGE = "golemancy-mending";
     private static final String STASIS_STAGE = "golemancy-stasis";
+    private static final String MASTERWORK_STAGE = "golemancy-masterwork";
     private static final String GOLEM_TAG = "adapt-qa-golemancy-golem";
     private static final String COPPER_GOLEM_TAG = "adapt-qa-golemancy-copper-golem";
     private static final String IRON_GOLEM_TAG = "adapt-qa-golemancy-iron-golem";
@@ -59,6 +60,9 @@ public final class GolemancyFixtures {
     private static final int PEDESTAL_DISTANCE = 2;
     private static final double MENDING_MAX_HEALTH = 20D;
     private static final double MENDING_START_HEALTH = 2D;
+    private static final int MASTERWORK_LEVELS = 20;
+    private static final List<Material> MASTERWORK_ITEMS = List.of(Material.HEART_OF_THE_SEA, Material.DIAMOND_BLOCK, Material.IRON_BLOCK,
+        Material.COPPER_BLOCK, Material.SNOW_BLOCK);
     private static final List<BlockFace> FACES = List.of(BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
 
     private GolemancyFixtures() {
@@ -204,12 +208,20 @@ public final class GolemancyFixtures {
         if (PLINTH_STAGE.equals(name)) {
             opponent.teleport(new Location(world, 0.5, 100, 8.5));
             actor.getInventory().clear();
-            world.getBlockAt(PLINTH_X, PLINTH_Y, PLINTH_Z).setType(Material.LODESTONE, false);
-            world.getBlockAt(PLINTH_X + PEDESTAL_DISTANCE, PLINTH_Y, PLINTH_Z).setType(Material.CHISELED_COPPER, false);
-            world.getBlockAt(PLINTH_X - PEDESTAL_DISTANCE, PLINTH_Y, PLINTH_Z).setType(Material.CHISELED_COPPER, false);
-            world.getBlockAt(PLINTH_X, PLINTH_Y, PLINTH_Z + PEDESTAL_DISTANCE).setType(Material.CHISELED_COPPER, false);
-            world.getBlockAt(PLINTH_X, PLINTH_Y, PLINTH_Z - PEDESTAL_DISTANCE).setType(Material.CHISELED_COPPER, false);
+            buildPlinth(world);
             actor.getInventory().setItem(0, GolemItems.blankRune());
+            actor.getInventory().setHeldItemSlot(0);
+            return true;
+        }
+        if (MASTERWORK_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.getInventory().clear();
+            actor.setLevel(MASTERWORK_LEVELS);
+            buildPlinth(world);
+            for (int slot = 0; slot < MASTERWORK_ITEMS.size(); slot++) {
+                actor.getInventory().setItem(slot, new ItemStack(MASTERWORK_ITEMS.get(slot)));
+            }
+            actor.getInventory().setItem(MASTERWORK_ITEMS.size(), GolemItems.crook());
             actor.getInventory().setHeldItemSlot(0);
             return true;
         }
@@ -243,6 +255,14 @@ public final class GolemancyFixtures {
             }
         }
         return dormant;
+    }
+
+    private static void buildPlinth(World world) {
+        world.getBlockAt(PLINTH_X, PLINTH_Y, PLINTH_Z).setType(Material.LODESTONE, false);
+        world.getBlockAt(PLINTH_X + PEDESTAL_DISTANCE, PLINTH_Y, PLINTH_Z).setType(Material.CHISELED_COPPER, false);
+        world.getBlockAt(PLINTH_X - PEDESTAL_DISTANCE, PLINTH_Y, PLINTH_Z).setType(Material.CHISELED_COPPER, false);
+        world.getBlockAt(PLINTH_X, PLINTH_Y, PLINTH_Z + PEDESTAL_DISTANCE).setType(Material.CHISELED_COPPER, false);
+        world.getBlockAt(PLINTH_X, PLINTH_Y, PLINTH_Z - PEDESTAL_DISTANCE).setType(Material.CHISELED_COPPER, false);
     }
 
     private static void clearNodes(World world, Player actor) {
@@ -289,6 +309,7 @@ public final class GolemancyFixtures {
             .flatMap(item -> GolemItems.kindOf(item.item()))
             .map(GolemItemKind::id);
         result.addProperty("center", stored.orElse(null));
+        result.addProperty("ritual", GolemancyRuntime.plinths().flatMap(service -> service.ritual(center)).isPresent());
         int blankRunes = 0;
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && GolemItems.kindOf(item).orElse(null) == GolemItemKind.BLANK_RUNE) {

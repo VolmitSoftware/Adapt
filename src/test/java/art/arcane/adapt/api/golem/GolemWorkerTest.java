@@ -1552,16 +1552,65 @@ class GolemWorkerTest extends AdaptTestBase {
       }
     };
     GolemCoreBehaviors.register(GolemCoreType.BREAKER, breaker);
+    FakeMastery mastery = new FakeMastery();
+    mastery.perks = new GolemMastery.Perks(1, true, false, 0D);
+    GolemMastery.register(mastery);
     try {
       brain.handle().setCores(List.of(GolemCoreType.GATHERER, GolemCoreType.BREAKER));
+      brain.handle().setMasterwork(true);
       brain.start();
 
       platform.runDelayed();
     } finally {
       GolemCoreBehaviors.unregister(GolemCoreType.BREAKER, breaker);
+      GolemMastery.unregister(mastery);
     }
 
     assertThat(yields).containsExactly(0D, 0.15D);
+  }
+
+  @Test
+  void aSecondCoreRestsUntilItsOwnerHoldsTheDualCorePerk() {
+    List<GolemCoreType> sought = new ArrayList<>();
+    coreSeeker(golem -> {
+      sought.add(golem.core());
+      return Optional.empty();
+    }, (golem, task) -> GolemActResult.DONE);
+    GolemCoreBehavior breaker = new GolemCoreBehavior() {
+      @Override
+      public Adaptation<?> policy() {
+        return nodePolicy;
+      }
+
+      @Override
+      public Optional<GolemTask> seek(GolemContext golem) {
+        sought.add(golem.core());
+        return Optional.empty();
+      }
+
+      @Override
+      public GolemActResult act(GolemContext golem, GolemTask task) {
+        return GolemActResult.DONE;
+      }
+    };
+    GolemCoreBehaviors.register(GolemCoreType.BREAKER, breaker);
+    FakeMastery mastery = new FakeMastery();
+    GolemMastery.register(mastery);
+    try {
+      brain.handle().setCores(List.of(GolemCoreType.GATHERER, GolemCoreType.BREAKER));
+      brain.handle().setMasterwork(true);
+      brain.start();
+      platform.runDelayed();
+      assertThat(sought).containsExactly(GolemCoreType.GATHERER);
+
+      mastery.perks = new GolemMastery.Perks(1, true, false, 0D);
+      pulse(1_000L);
+    } finally {
+      GolemCoreBehaviors.unregister(GolemCoreType.BREAKER, breaker);
+      GolemMastery.unregister(mastery);
+    }
+
+    assertThat(sought).containsExactly(GolemCoreType.GATHERER, GolemCoreType.GATHERER, GolemCoreType.BREAKER);
   }
 
   private void pulse(long millis) {
@@ -1600,7 +1649,7 @@ class GolemWorkerTest extends AdaptTestBase {
   private void runes(GolemRuneEffects effects) {
     GolemRunes.Augments fixed = new GolemRunes.Augments() {
       @Override
-      public GolemRuneLayout layout(GolemBody body, UUID owner) {
+      public GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
         return GolemRuneLayout.NONE;
       }
 

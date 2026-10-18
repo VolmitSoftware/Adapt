@@ -71,7 +71,7 @@ final class OverseerRules {
     if (mode.isEmpty()) {
       return hearing.inRange() && hearing.reachable() && combatCapable(hearing.body(), hearing.cores()) ? Answer.COMMAND : Answer.SKIP;
     }
-    if (!GolemMode.selectableFor(hearing.core()).contains(mode.get())) {
+    if (!GolemMode.selectableFor(hearing.cores()).contains(mode.get())) {
       return Answer.SKIP;
     }
     if (hearing.inRange()) {
@@ -148,7 +148,7 @@ final class OverseerRules {
     REMOVE
   }
 
-  record Hearing(GolemSignal signal, GolemBody body, GolemCoreType core, List<GolemCoreType> cores, boolean heard, boolean sameWorld,
+  record Hearing(GolemSignal signal, GolemBody body, List<GolemCoreType> cores, boolean heard, boolean sameWorld,
                  boolean inRange, boolean reachable, boolean rallies) {
   }
 

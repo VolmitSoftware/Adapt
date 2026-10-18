@@ -357,6 +357,9 @@ public final class GolemRegistry extends TickedObject {
     for (GolemRune rune : state.runes()) {
       drops.add(GolemItems.rune(rune));
     }
+    if (state.masterwork()) {
+      drops.add(GolemItems.masterworkHeart());
+    }
     int essence = state.essencePoints();
     Location at = golem.getLocation();
     revert(handle);
@@ -379,6 +382,105 @@ public final class GolemRegistry extends TickedObject {
     }
     missingWatch.forget(golem);
     platform.rosterChanged(owner);
+    return true;
+  }
+
+  public int masterworks(UUID owner) {
+    return platform.roster(owner).map(GolemRoster::masterworkCount).orElse(0);
+  }
+
+  public Designation designate(GolemHandle handle, int maxMasterworks) {
+    requireOwned(handle.entity(), "designate");
+    GolemState state = handle.state();
+    if (handle.isRetired()) {
+      return Designation.UNAVAILABLE;
+    }
+    if (state.body() == GolemBody.BONE) {
+      return Designation.BODY;
+    }
+    if (state.masterwork()) {
+      return Designation.ALREADY;
+    }
+    if (maxMasterworks <= 0) {
+      return Designation.LOCKED;
+    }
+    Optional<GolemRoster> roster = activeRoster(handle);
+    if (roster.isEmpty()) {
+      return Designation.UNAVAILABLE;
+    }
+    switch (roster.get().markMasterworkWithin(handle.id(), maxMasterworks)) {
+      case FULL -> {
+        return Designation.CAP;
+      }
+      case UNAVAILABLE -> {
+        return Designation.UNAVAILABLE;
+      }
+      case MARKED -> platform.rosterChanged(handle.owner());
+    }
+    handle.setMasterwork(true);
+    GolemStats.recompute(handle);
+    return Designation.DESIGNATED;
+  }
+
+  public Optional<List<ItemStack>> undesignate(GolemHandle handle, int keptRunes) {
+    requireOwned(handle.entity(), "undesignate");
+    GolemState state = handle.state();
+    if (handle.isRetired() || !state.masterwork()) {
+      return Optional.empty();
+    }
+    Optional<GolemRoster> roster = activeRoster(handle);
+    if (roster.isEmpty() || !roster.get().markMasterwork(handle.id(), false)) {
+      return Optional.empty();
+    }
+    platform.rosterChanged(handle.owner());
+    List<GolemCoreType> cores = state.cores();
+    List<GolemRune> runes = state.runes();
+    int kept = Math.clamp(keptRunes, 0, runes.size());
+    List<ItemStack> returned = new ArrayList<>(cores.size() + runes.size() - kept);
+    returned.add(GolemItems.masterworkHeart());
+    for (GolemCoreType core : cores.subList(1, cores.size())) {
+      returned.add(GolemItems.core(core));
+    }
+    for (GolemRune rune : runes.subList(kept, runes.size())) {
+      returned.add(GolemItems.rune(rune));
+    }
+    List<GolemCoreType> primary = List.of(state.primaryCore());
+    state.setCores(primary);
+    state.setRunes(runes.subList(0, kept));
+    state.setMasterwork(false);
+    state.setMode(GolemMode.keptOrDefault(primary, state.mode()));
+    handle.flush();
+    GolemStats.recompute(handle);
+    return Optional.of(List.copyOf(returned));
+  }
+
+  public Optional<GolemMastery.CoreRefusal> addCore(GolemHandle handle, GolemCoreType core) {
+    requireOwned(handle.entity(), "addCore");
+    if (handle.isRetired() || activeRoster(handle).isEmpty()) {
+      return Optional.of(GolemMastery.CoreRefusal.UNAVAILABLE);
+    }
+    GolemState state = handle.state();
+    List<GolemCoreType> cores = state.cores();
+    Optional<GolemMastery.CoreRefusal> refusal = GolemMastery.coreRefusal(cores, core, GolemMastery.perks(handle).dualCore(),
+        settings.get().allows(state.body(), core), GolemMastery.coreUnlocked(handle.owner(), core));
+    if (refusal.isPresent()) {
+      return refusal;
+    }
+    handle.setCores(List.of(state.primaryCore(), core));
+    return Optional.empty();
+  }
+
+  public boolean removeCore(GolemHandle handle, GolemCoreType core) {
+    requireOwned(handle.entity(), "removeCore");
+    GolemState state = handle.state();
+    List<GolemCoreType> cores = state.cores();
+    if (handle.isRetired() || cores.size() < GolemState.MAX_CORES || cores.getLast() != core) {
+      return false;
+    }
+    List<GolemCoreType> primary = List.of(cores.getFirst());
+    state.setCores(primary);
+    state.setMode(GolemMode.keptOrDefault(primary, state.mode()));
+    handle.flush();
     return true;
   }
 
@@ -805,6 +907,9 @@ public final class GolemRegistry extends TickedObject {
     for (GolemRune rune : roll.runes()) {
       drops.add(GolemItems.rune(rune));
     }
+    if (GolemDeathDrops.heart(state.masterwork(), GolemMastery.heartDropChance(), () -> ThreadLocalRandom.current().nextDouble())) {
+      drops.add(GolemItems.masterworkHeart());
+    }
     forgetRosterEntry(handle);
   }
 
@@ -1046,6 +1151,17 @@ public final class GolemRegistry extends TickedObject {
     if (position != null) {
       roster.seen(handle.id(), position.world(), position.chunkKey(), platform.nowMillis());
     }
+    if (roster.markMasterwork(handle.id(), handle.state().masterwork())) {
+      platform.rosterChanged(handle.owner());
+    }
+  }
+
+  private Optional<GolemRoster> activeRoster(GolemHandle handle) {
+    if (!handle.isValidated()) {
+      return Optional.empty();
+    }
+    return platform.roster(handle.owner())
+        .filter(roster -> roster.golem(handle.id()).map(GolemRoster.GolemEntry::status).orElse(null) == GolemRoster.Status.ACTIVE);
   }
 
   private void rememberPosition(GolemHandle handle, boolean expectReturn) {
@@ -1121,6 +1237,15 @@ public final class GolemRegistry extends TickedObject {
     public Location at() {
       return at.clone();
     }
+  }
+
+  public enum Designation {
+    DESIGNATED,
+    LOCKED,
+    CAP,
+    BODY,
+    ALREADY,
+    UNAVAILABLE
   }
 
   public enum BindBlock {

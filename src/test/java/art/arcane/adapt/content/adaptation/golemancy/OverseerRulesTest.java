@@ -87,6 +87,14 @@ class OverseerRulesTest {
   }
 
   @Test
+  void aCompanionWithASecondRoleCoreAcceptsWork() {
+    assertThat(OverseerRules.answer(new OverseerRules.Hearing(GolemSignal.WORK, GolemBody.IRON,
+        List.of(GolemCoreType.BLANK, GolemCoreType.GATHERER), true, true, true, true, false))).isEqualTo(OverseerRules.Answer.MODE);
+    assertThat(OverseerRules.answer(new OverseerRules.Hearing(GolemSignal.WORK, GolemBody.IRON,
+        List.of(GolemCoreType.BLANK), true, true, true, true, false))).isEqualTo(OverseerRules.Answer.SKIP);
+  }
+
+  @Test
   void golemsOffTheCrookChannelOrInAnotherWorldNeverAnswer() {
     assertThat(answer(GolemSignal.FOLLOW, GolemCoreType.BLANK, false, true, true, true)).isEqualTo(OverseerRules.Answer.SKIP);
     assertThat(answer(GolemSignal.FOLLOW, GolemCoreType.BLANK, true, false, false, true)).isEqualTo(OverseerRules.Answer.SKIP);
@@ -114,7 +122,7 @@ class OverseerRulesTest {
     assertThat(OverseerRules.reaches(GolemBody.FROST, 100.1D, 10D)).isFalse();
     assertThat(OverseerRules.reaches(GolemBody.IRON, 400D, 10D)).isTrue();
     assertThat(OverseerRules.reaches(GolemBody.FROST, Double.NaN, 10D)).isFalse();
-    assertThat(OverseerRules.answer(new OverseerRules.Hearing(GolemSignal.SIC, GolemBody.FROST, GolemCoreType.GUARDIAN, List.of(GolemCoreType.GUARDIAN),
+    assertThat(OverseerRules.answer(new OverseerRules.Hearing(GolemSignal.SIC, GolemBody.FROST, List.of(GolemCoreType.GUARDIAN),
         true, true, true, false, false))).isEqualTo(OverseerRules.Answer.SKIP);
   }
 
@@ -205,11 +213,11 @@ class OverseerRulesTest {
   }
 
   private static OverseerRules.Answer answer(GolemSignal signal, GolemCoreType core, boolean heard, boolean sameWorld, boolean inRange, boolean rallies) {
-    return OverseerRules.answer(new OverseerRules.Hearing(signal, GolemBody.IRON, core, List.of(core), heard, sameWorld, inRange, true, rallies));
+    return OverseerRules.answer(new OverseerRules.Hearing(signal, GolemBody.IRON, List.of(core), heard, sameWorld, inRange, true, rallies));
   }
 
   private static OverseerRules.Answer hear(GolemSignal signal, GolemBody body, GolemCoreType core, boolean heard, boolean inRange) {
-    return OverseerRules.answer(new OverseerRules.Hearing(signal, body, core, List.of(core), heard, true, inRange, true, false));
+    return OverseerRules.answer(new OverseerRules.Hearing(signal, body, List.of(core), heard, true, inRange, true, false));
   }
 
   private static void assertOffset(OverseerRules.Offset offset, double x, double z) {

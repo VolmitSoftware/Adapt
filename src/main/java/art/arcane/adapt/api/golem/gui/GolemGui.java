@@ -6,6 +6,7 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemPacking;
 import art.arcane.adapt.api.golem.GolemRegistry;
@@ -17,6 +18,7 @@ import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
@@ -45,6 +47,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -59,6 +62,9 @@ public final class GolemGui {
   private static final int RIGHT_EDGE = 4;
   private static final int CHANNELS_PER_ROW = 8;
   private static final int ESSENCE_SLOT = 2;
+  private static final int PRIMARY_CORE_SLOT = LEFT_EDGE + 1;
+  private static final int SECOND_CORE_SLOT = LEFT_EDGE + 2;
+  private static final int MASTERWORK_SLOT = LEFT_EDGE + 2;
 
   private final Player player;
   private final GolemHandle handle;
@@ -140,8 +146,9 @@ public final class GolemGui {
       body.addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.GUI_DORMANT));
     }
     target.setElement(LEFT_EDGE, HEADER_ROW, body.setProgress(1D));
-    for (int index = 0; index < view.cores().size(); index++) {
-      target.setElement(LEFT_EDGE + 1 + index, HEADER_ROW, itemElement("golem-core-" + index, GolemItems.core(view.cores().get(index))));
+    target.setElement(PRIMARY_CORE_SLOT, HEADER_ROW, itemElement("golem-core-0", GolemItems.core(view.cores().getFirst())));
+    if (GolemGuiActions.showsSecondCore(view.cores(), view.dualCore())) {
+      target.setElement(SECOND_CORE_SLOT, HEADER_ROW, secondCoreElement(view));
     }
     target.setElement(0, HEADER_ROW, GuiTheme.element("golem-mode", GolemGuiActions.modeIcon(view.mode()), "gui", "golemancy", "mode")
         .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.GUI_MODE, trusted("mode", AdaptLanguage.text(view.mode().displayName()))))
@@ -164,6 +171,36 @@ public final class GolemGui {
         .setProgress(1D)
         .onLeftClick(clicked -> armChestLink());
     target.setElement(RIGHT_EDGE, HEADER_ROW, chest);
+  }
+
+  private Element secondCoreElement(View view) {
+    if (view.cores().size() > 1) {
+      GolemCoreType core = view.cores().get(1);
+      return itemElement("golem-core-1", GolemItems.core(core))
+          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.MASTERWORK_CORE_REMOVE))
+          .onLeftClick(clicked -> takeCore(core));
+    }
+    return GuiTheme.element("golem-core-1", Material.LIGHT_GRAY_STAINED_GLASS_PANE, "gui", "golemancy", "core_empty")
+        .setName(C.GOLD + AdaptLanguage.text(GolemancyMessages.MASTERWORK_CORE_EMPTY))
+        .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.MASTERWORK_CORE_EMPTY_LORE))
+        .setProgress(1D)
+        .onLeftClick(clicked -> slotCoreFromCursor());
+  }
+
+  private Element masterworkElement(View view) {
+    if (view.masterwork()) {
+      return itemElement("golem-masterwork", GolemItems.masterworkHeart())
+          .setName(C.GOLD + AdaptLanguage.text(GolemancyMessages.MASTERWORK_SLOT))
+          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.MASTERWORK_SLOT_LORE))
+          .setEnchanted(true)
+          .onLeftClick(clicked -> undesignate());
+    }
+    return GuiTheme.element("golem-masterwork", Material.YELLOW_STAINED_GLASS_PANE, "gui", "golemancy", "masterwork_empty")
+        .setName(C.GOLD + AdaptLanguage.text(GolemancyMessages.MASTERWORK_SLOT_EMPTY))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.MASTERWORK_SLOT_EMPTY_LORE,
+            trusted("count", view.masterworks()), trusted("maximum", view.maxMasterworks())))
+        .setProgress(1D)
+        .onLeftClick(clicked -> designateFromCursor());
   }
 
   private Element channelElement(View view) {
@@ -299,6 +336,9 @@ public final class GolemGui {
           .setProgress(1D)
           .onLeftClick(clicked -> toggleColossus()));
     }
+    if (GolemGuiActions.showsMasterwork(view.body(), view.masterwork(), view.maxMasterworks())) {
+      target.setElement(MASTERWORK_SLOT, FOOTER_ROW, masterworkElement(view));
+    }
     if (GolemGuiActions.showsEssence(view.cores(), view.essence())) {
       target.setElement(ESSENCE_SLOT, FOOTER_ROW, GuiTheme.element("golem-essence", Material.EXPERIENCE_BOTTLE, "gui", "golemancy", "essence")
           .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.GATHERER_CORE_ESSENCE, trusted("value", view.essence())))
@@ -321,7 +361,7 @@ public final class GolemGui {
   }
 
   private void cycleMode(boolean forward) {
-    mutate(() -> handle.setMode(GolemGuiActions.cycleMode(handle.core(), handle.state().mode(), forward)));
+    mutate(() -> handle.setMode(GolemGuiActions.cycleMode(GolemMastery.cores(handle), handle.state().mode(), forward)));
   }
 
   private void cycleChannel(boolean forward) {
@@ -354,11 +394,124 @@ public final class GolemGui {
       return;
     }
     GolemRune rune = held.get();
+    ItemStack taken = takeOne(cursor);
+    GolemGuiItems.toGolem(handle.entity(), player, taken, () -> slot(rune, taken));
+  }
+
+  private void designateFromCursor() {
+    ItemStack cursor = player.getItemOnCursor();
+    if (GolemItems.kindOf(cursor).orElse(null) != GolemItemKind.MASTERWORK_HEART) {
+      GolemGuiSupport.warn(player, GolemancyMessages.MASTERWORK_HEART_NEEDED);
+      return;
+    }
+    ItemStack taken = takeOne(cursor);
+    GolemGuiItems.toGolem(handle.entity(), player, taken, () -> designate(taken));
+  }
+
+  private void designate(ItemStack taken) {
+    GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
+    if (registry == null || handle.isRetired() || !handle.entity().isValid()) {
+      handBack(taken);
+      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+      return;
+    }
+    GolemRegistry.Designation designation = registry.designate(handle, GolemMastery.maxMasterworks(handle.owner()));
+    if (designation != GolemRegistry.Designation.DESIGNATED) {
+      handBack(taken);
+      GolemGuiSupport.warn(player, GolemGuiActions.designationMessage(designation),
+          trusted("count", registry.masterworks(handle.owner())), trusted("body", GolemGuiSupport.localized(handle.body().displayName())));
+      snapshot();
+      return;
+    }
+    J.runEntity(player, player::saveData);
+    GolemancyRuntime.reveal().ifPresent(reveal -> reveal.refresh(handle));
+    GolemGuiSupport.notify(player, GolemancyMessages.MASTERWORK_DESIGNATED);
+    snapshot();
+  }
+
+  private void undesignate() {
+    Mob golem = handle.entity();
+    GolemGuiItems.fromGolem(golem, player, () -> {
+      GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
+      if (registry == null || handle.isRetired() || !golem.isValid()) {
+        GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+        return;
+      }
+      int kept = GolemRunes.layout(handle.body(), handle.owner(), false).unlockedSlots();
+      Optional<List<ItemStack>> returned = registry.undesignate(handle, kept);
+      if (returned.isEmpty()) {
+        snapshot();
+        return;
+      }
+      GolemancyRuntime.reveal().ifPresent(reveal -> reveal.refresh(handle));
+      for (ItemStack item : returned.get()) {
+        handBack(item);
+      }
+      J.runEntity(player, player::saveData);
+      GolemGuiSupport.notify(player, GolemancyMessages.MASTERWORK_REMOVED);
+      snapshot();
+    });
+  }
+
+  private void slotCoreFromCursor() {
+    ItemStack cursor = player.getItemOnCursor();
+    Optional<GolemCoreType> held = GolemItems.coreOf(cursor);
+    if (held.isEmpty()) {
+      GolemGuiSupport.warn(player, GolemancyMessages.MASTERWORK_CORE_NEEDED);
+      return;
+    }
+    GolemCoreType core = held.get();
+    ItemStack taken = takeOne(cursor);
+    GolemGuiItems.toGolem(handle.entity(), player, taken, () -> addCore(core, taken));
+  }
+
+  private void addCore(GolemCoreType core, ItemStack taken) {
+    GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
+    if (registry == null || handle.isRetired() || !handle.entity().isValid()) {
+      handBack(taken);
+      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+      return;
+    }
+    Optional<GolemMastery.CoreRefusal> refusal = registry.addCore(handle, core);
+    if (refusal.isPresent()) {
+      handBack(taken);
+      GolemGuiSupport.warn(player, GolemGuiActions.coreRefusalMessage(refusal.get()),
+          trusted("core", GolemGuiSupport.localized(core.displayName())), trusted("body", GolemGuiSupport.localized(handle.body().displayName())));
+      snapshot();
+      return;
+    }
+    J.runEntity(player, player::saveData);
+    GolemancyRuntime.reveal().ifPresent(reveal -> reveal.refresh(handle));
+    GolemGuiSupport.notify(player, GolemancyMessages.MASTERWORK_CORE_SLOTTED, trusted("core", GolemGuiSupport.localized(core.displayName())));
+    snapshot();
+  }
+
+  private void takeCore(GolemCoreType core) {
+    Mob golem = handle.entity();
+    GolemGuiItems.fromGolem(golem, player, () -> {
+      GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
+      if (registry == null || handle.isRetired() || !golem.isValid()) {
+        GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+        return;
+      }
+      if (!registry.removeCore(handle, core)) {
+        snapshot();
+        return;
+      }
+      GolemancyRuntime.reveal().ifPresent(reveal -> reveal.refresh(handle));
+      handBack(GolemItems.core(core));
+      J.runEntity(player, player::saveData);
+      GolemGuiSupport.notify(player, GolemancyMessages.MASTERWORK_CORE_REMOVED, trusted("core", GolemGuiSupport.localized(core.displayName())));
+      snapshot();
+    });
+  }
+
+  private ItemStack takeOne(ItemStack cursor) {
     ItemStack taken = cursor.clone();
     taken.setAmount(1);
     cursor.setAmount(cursor.getAmount() - 1);
     player.setItemOnCursor(cursor.getAmount() > 0 ? cursor : null);
-    GolemGuiItems.toGolem(handle.entity(), player, taken, () -> slot(rune, taken));
+    return taken;
   }
 
   private void slot(GolemRune rune, ItemStack taken) {
@@ -368,7 +521,7 @@ public final class GolemGui {
       return;
     }
     List<GolemRune> runes = handle.state().runes();
-    Optional<GolemRuneLayout.Refusal> refusal = GolemRunes.layout(handle.body(), handle.owner()).refuse(runes, rune.aspect());
+    Optional<GolemRuneLayout.Refusal> refusal = GolemRunes.layout(handle.body(), handle.owner(), handle.state().masterwork()).refuse(runes, rune.aspect());
     if (refusal.isPresent()) {
       handBack(taken);
       GolemGuiSupport.warn(player, GolemGuiActions.refusalMessage(refusal.get()),
@@ -572,17 +725,21 @@ public final class GolemGui {
   private record View(GolemBody body, double health, double maxHealth, boolean dormant, List<GolemCoreType> cores,
                       List<GolemRune> runes, GolemRuneLayout runeLayout, GolemMode mode, int channels, int channelSlots,
                       GolemState.Anchor home, GolemState.Anchor homeChest, List<Carried> carried, int carriedTotal, long kills, double damage,
-                      long tasks, long itemsMoved, boolean snowTrail, boolean colossus, boolean colossusAvailable, int essence) {
+                      long tasks, long itemsMoved, boolean snowTrail, boolean colossus, boolean colossusAvailable, int essence,
+                      boolean masterwork, boolean dualCore, int masterworks, int maxMasterworks) {
     private static View of(GolemHandle handle) {
       GolemState state = handle.state();
       Mob golem = handle.entity();
       GolemState.Stats stats = state.stats();
       GolemRuneEffects runes = GolemRunes.effects(handle);
-      return new View(state.body(), golem.getHealth(), GolemVitals.maxHealth(golem), handle.isDormant(), state.cores(),
-          state.runes(), GolemRunes.layout(state.body(), handle.owner()), state.mode(), runes.channels(state.channels()), runes.channelSlots(),
+      UUID owner = handle.owner();
+      List<GolemCoreType> cores = state.cores();
+      return new View(state.body(), golem.getHealth(), GolemVitals.maxHealth(golem), handle.isDormant(), cores.isEmpty() ? List.of(state.primaryCore()) : cores,
+          state.runes(), GolemRunes.layout(state.body(), owner, state.masterwork()), state.mode(), runes.channels(state.channels()), runes.channelSlots(),
           state.home(), state.homeChest(), carried(handle), state.carried().size(), stats.kills(), stats.damage(), stats.tasks(),
           stats.itemsMoved(), state.snowTrail(), state.colossus(), GolemColossus.form().map(form -> form.available(handle)).orElse(false),
-          state.essencePoints());
+          state.essencePoints(), state.masterwork(), GolemMastery.perks(handle).dualCore(),
+          GolemancyRuntime.registry().map(registry -> registry.masterworks(owner)).orElse(0), GolemMastery.maxMasterworks(owner));
     }
 
     private static List<Carried> carried(GolemHandle handle) {

@@ -43,9 +43,9 @@ public final class GolemRunes {
     }
   }
 
-  public static GolemRuneLayout layout(GolemBody body, UUID owner) {
+  public static GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
     Augments current = AUGMENTS.get();
-    return current == null ? GolemRuneLayout.NONE : current.layout(body, owner);
+    return current == null ? GolemRuneLayout.NONE : current.layout(body, owner, masterwork);
   }
 
   public static int channels(GolemHandle handle) {
@@ -53,7 +53,7 @@ public final class GolemRunes {
   }
 
   public interface Augments {
-    GolemRuneLayout layout(GolemBody body, UUID owner);
+    GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork);
 
     GolemRuneEffects effects(GolemHandle handle);
   }

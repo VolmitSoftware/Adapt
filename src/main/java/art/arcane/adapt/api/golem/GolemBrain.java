@@ -8,6 +8,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -278,7 +279,7 @@ public final class GolemBrain {
       command = null;
       return null;
     }
-    GolemTargetPolicy policy = context.policies().apply(handle.core());
+    GolemTargetPolicy policy = context.policies().apply(GolemMastery.cores(handle));
     policy.tick(handle, owner);
     LivingEntity commanded = commanded(now);
     if (commanded != null) {
@@ -399,7 +400,7 @@ public final class GolemBrain {
     return from.distance(to);
   }
 
-  record Context(GolemPlatform platform, Supplier<GolemBrainSettings> settings, Function<GolemCoreType, GolemTargetPolicy> policies,
+  record Context(GolemPlatform platform, Supplier<GolemBrainSettings> settings, Function<List<GolemCoreType>, GolemTargetPolicy> policies,
                  Supplier<GolemWorkSettings> work, Function<UUID, GolemTaskBoard> boards) {
     Context {
       Objects.requireNonNull(platform);

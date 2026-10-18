@@ -20,6 +20,16 @@ public record GolemRuneEffects(double radiusBonus, int extraChannels, double rec
     bonusYield = Double.isFinite(bonusYield) ? Math.clamp(bonusYield, 0D, 1D) : 0D;
   }
 
+  public static Tier effectiveTier(int slottedTier, boolean tierUp, double tierThreeBoost) {
+    if (!tierUp || !GolemRuneType.isTier(slottedTier)) {
+      return new Tier(slottedTier, 1D);
+    }
+    if (slottedTier < GolemRuneType.MAX_TIER) {
+      return new Tier(slottedTier + 1, 1D);
+    }
+    return new Tier(GolemRuneType.MAX_TIER, 1D + (Double.isFinite(tierThreeBoost) ? Math.max(0D, tierThreeBoost) : 0D));
+  }
+
   public int channelSlots() {
     return 1 + extraChannels;
   }
@@ -52,5 +62,15 @@ public record GolemRuneEffects(double radiusBonus, int extraChannels, double rec
       }
     }
     return yielded;
+  }
+
+  public record Tier(int tier, double multiplier) {
+    public double scale(double value) {
+      return value * multiplier;
+    }
+
+    public int scale(int value) {
+      return Math.clamp(Math.round(value * multiplier), Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
   }
 }

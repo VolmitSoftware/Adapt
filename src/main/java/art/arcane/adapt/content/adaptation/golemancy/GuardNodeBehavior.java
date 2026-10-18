@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemRuneEffects;
 import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
@@ -105,7 +106,7 @@ final class GuardNodeBehavior implements NodeBehavior {
       return List.of();
     }
     int channels = runes.channels(state.channels());
-    List<GolemCoreType> cores = state.cores();
+    List<GolemCoreType> cores = GolemMastery.cores(golem);
     UUID owner = golem.owner();
     List<NodeIndex.Entry> found = new ArrayList<>(near.size());
     for (NodeIndex.Entry entry : near) {

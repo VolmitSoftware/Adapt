@@ -104,6 +104,42 @@ public final class GolemRoster {
     return changed.get();
   }
 
+  public synchronized MasterworkMark markMasterworkWithin(UUID id, int maxMasterworks) {
+    GolemEntry entry = id == null ? null : golemMap().get(id.toString());
+    if (entry == null || entry.status() != Status.ACTIVE || entry.masterwork) {
+      return MasterworkMark.UNAVAILABLE;
+    }
+    if (masterworkCount() >= maxMasterworks) {
+      return MasterworkMark.FULL;
+    }
+    return markMasterwork(id, true) ? MasterworkMark.MARKED : MasterworkMark.UNAVAILABLE;
+  }
+
+  public synchronized boolean markMasterwork(UUID id, boolean masterwork) {
+    if (id == null) {
+      return false;
+    }
+    AtomicBoolean changed = new AtomicBoolean();
+    golemMap().computeIfPresent(id.toString(), (key, entry) -> {
+      if (entry.status() != Status.ACTIVE || entry.masterwork == masterwork) {
+        return entry;
+      }
+      changed.set(true);
+      return entry.withMasterwork(masterwork);
+    });
+    return changed.get();
+  }
+
+  public int masterworkCount() {
+    int count = 0;
+    for (GolemEntry entry : golemMap().values()) {
+      if (entry.masterwork) {
+        count++;
+      }
+    }
+    return count;
+  }
+
   public boolean seen(UUID id, UUID world, long chunkKey, long nowMillis) {
     if (id == null || world == null) {
       return false;
@@ -173,6 +209,12 @@ public final class GolemRoster {
     return local;
   }
 
+  public enum MasterworkMark {
+    MARKED,
+    FULL,
+    UNAVAILABLE
+  }
+
   public enum Status {
     ACTIVE,
     PACKED,
@@ -205,6 +247,7 @@ public final class GolemRoster {
     private long chunkKey;
     private long lastSeen;
     private String digest;
+    private boolean masterwork;
 
     private GolemEntry() {
     }
@@ -258,6 +301,10 @@ public final class GolemRoster {
       return digest;
     }
 
+    public boolean masterwork() {
+      return masterwork;
+    }
+
     public boolean holds(String itemState) {
       return digest != null && itemState != null && digest.equals(GolemRoster.digest(itemState));
     }
@@ -272,6 +319,12 @@ public final class GolemRoster {
     private GolemEntry stowed(Status next, String sealed) {
       GolemEntry copy = withStatus(next);
       copy.digest = sealed;
+      return copy;
+    }
+
+    private GolemEntry withMasterwork(boolean next) {
+      GolemEntry copy = copy();
+      copy.masterwork = next;
       return copy;
     }
 
@@ -295,6 +348,7 @@ public final class GolemRoster {
       copy.chunkKey = chunkKey;
       copy.lastSeen = lastSeen;
       copy.digest = digest;
+      copy.masterwork = masterwork;
       return copy;
     }
   }

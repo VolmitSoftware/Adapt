@@ -24,6 +24,10 @@ public final class GolemDeathDrops {
     return new Roll(List.copyOf(droppedCores), List.copyOf(droppedRunes));
   }
 
+  public static boolean heart(boolean masterwork, double heartChance, DoubleSupplier random) {
+    return masterwork && random.getAsDouble() < heartChance;
+  }
+
   public record Roll(List<GolemCoreType> cores, List<GolemRune> runes) {
   }
 }

@@ -24,6 +24,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCapacity;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneEffects;
 import art.arcane.adapt.api.golem.GolemRuneLayout;
@@ -58,12 +59,12 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Config> {
   static final String SOURCE = "runic_augments";
@@ -124,18 +125,17 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     if (bound.isEmpty() || bound.get().isDormant()) {
       return;
     }
-    Map<GolemRuneType, Integer> active = active(bound.get());
+    ActiveRunes active = runes(bound.get());
     if (active.isEmpty()) {
       return;
     }
     Config config = getConfig();
-    int igniteTicks = RunicAugmentsRules.atTier(config.emberIgniteSecondsByTier, active.getOrDefault(GolemRuneType.EMBER, 0), 0) * TICKS_PER_SECOND;
+    int igniteTicks = active.count(config.emberIgniteSecondsByTier, GolemRuneType.EMBER) * TICKS_PER_SECOND;
     if (igniteTicks > 0) {
       ignite(victim, igniteTicks);
     }
-    int entropy = active.getOrDefault(GolemRuneType.ENTROPY, 0);
-    int weakness = RunicAugmentsRules.atTier(config.entropyWeaknessLevelByTier, entropy, 0);
-    int weaknessTicks = RunicAugmentsRules.atTier(config.entropyWeaknessSecondsByTier, entropy, 0) * TICKS_PER_SECOND;
+    int weakness = active.count(config.entropyWeaknessLevelByTier, GolemRuneType.ENTROPY);
+    int weaknessTicks = active.count(config.entropyWeaknessSecondsByTier, GolemRuneType.ENTROPY) * TICKS_PER_SECOND;
     if (weakness > 0 && weaknessTicks > 0) {
       weaken(victim, weakness - 1, weaknessTicks);
     }
@@ -151,7 +151,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     if (bound.isEmpty()) {
       return;
     }
-    Map<GolemRuneType, Integer> active = active(bound.get());
+    ActiveRunes active = runes(bound.get());
     if (!active.isEmpty() && wards(getConfig(), active, ward)) {
       e.setCancelled(true);
     }
@@ -162,20 +162,22 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     return player == null ? 0 : getLevel(player);
   }
 
-  GolemRuneLayout layout(GolemBody body, UUID owner) {
-    return layout(body, level(owner));
+  GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
+    return layout(body, level(owner), GolemMastery.perks(owner, masterwork).extraRuneSlots());
   }
 
-  Map<GolemRuneType, Integer> active(GolemHandle handle) {
+  ActiveRunes runes(GolemHandle handle) {
     List<GolemRune> runes = handle.state().runes();
     if (runes.isEmpty()) {
-      return Map.of();
+      return ActiveRunes.NONE;
     }
-    return layout(handle.body(), level(handle.owner())).active(runes);
+    GolemMastery.Perks perks = GolemMastery.perks(handle);
+    Map<GolemRuneType, Integer> active = layout(handle.body(), level(handle.owner()), perks.extraRuneSlots()).active(runes);
+    return active.isEmpty() ? ActiveRunes.NONE : new ActiveRunes(active, perks.tierUp(), perks.tierThreeBoost());
   }
 
   GolemRuneEffects effects(GolemHandle handle) {
-    Map<GolemRuneType, Integer> active = active(handle);
+    ActiveRunes active = runes(handle);
     return active.isEmpty() ? GolemRuneEffects.NONE : runeEffects(getConfig(), active);
   }
 
@@ -187,49 +189,44 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     victim.addPotionEffect(new PotionEffect(PotionEffectType.WEAKNESS, ticks, amplifier, false, true, true));
   }
 
-  static List<GolemStatDelta> runeStats(Config config, Map<GolemRuneType, Integer> active) {
+  static List<GolemStatDelta> runeStats(Config config, ActiveRunes active) {
     List<GolemStatDelta> deltas = new ArrayList<>(6);
-    int swiftness = active.getOrDefault(GolemRuneType.SWIFTNESS, 0);
-    addDelta(deltas, GolemStat.MOVEMENT_SPEED, true, RunicAugmentsRules.atTier(config.swiftnessSpeedByTier, swiftness, 0D));
-    addDelta(deltas, GolemStat.ATTACK_DAMAGE, false, RunicAugmentsRules.atTier(config.mightAttackByTier, active.getOrDefault(GolemRuneType.MIGHT, 0), 0D));
-    int tide = active.getOrDefault(GolemRuneType.TIDE, 0);
-    addDelta(deltas, GolemStat.FOLLOW_RANGE, false, RunicAugmentsRules.atTier(config.tideRadiusByTier, tide, 0D));
-    addDelta(deltas, GolemStat.WATER_MOVEMENT_EFFICIENCY, false, RunicAugmentsRules.atTier(config.tideSwimSpeedByTier, tide, 0D));
-    int bulwark = active.getOrDefault(GolemRuneType.BULWARK, 0);
-    addDelta(deltas, GolemStat.ARMOR, false, RunicAugmentsRules.atTier(config.bulwarkArmorByTier, bulwark, 0D));
-    addDelta(deltas, GolemStat.ARMOR_TOUGHNESS, false, RunicAugmentsRules.atTier(config.bulwarkToughnessByTier, bulwark, 0D));
-    addDelta(deltas, GolemStat.KNOCKBACK_RESISTANCE, false, RunicAugmentsRules.atTier(config.bulwarkKnockbackResistanceByTier, bulwark, 0D));
+    addDelta(deltas, GolemStat.MOVEMENT_SPEED, true, active.value(config.swiftnessSpeedByTier, GolemRuneType.SWIFTNESS));
+    addDelta(deltas, GolemStat.ATTACK_DAMAGE, false, active.value(config.mightAttackByTier, GolemRuneType.MIGHT));
+    addDelta(deltas, GolemStat.FOLLOW_RANGE, false, active.value(config.tideRadiusByTier, GolemRuneType.TIDE));
+    addDelta(deltas, GolemStat.WATER_MOVEMENT_EFFICIENCY, false, active.value(config.tideSwimSpeedByTier, GolemRuneType.TIDE));
+    addDelta(deltas, GolemStat.ARMOR, false, active.value(config.bulwarkArmorByTier, GolemRuneType.BULWARK));
+    addDelta(deltas, GolemStat.ARMOR_TOUGHNESS, false, active.value(config.bulwarkToughnessByTier, GolemRuneType.BULWARK));
+    addDelta(deltas, GolemStat.KNOCKBACK_RESISTANCE, false, active.value(config.bulwarkKnockbackResistanceByTier, GolemRuneType.BULWARK));
     return deltas;
   }
 
-  static GolemCapacity.Contribution runeCarry(Config config, Map<GolemRuneType, Integer> active) {
-    double bonus = RunicAugmentsRules.atTier(config.mightCarryByTier, active.getOrDefault(GolemRuneType.MIGHT, 0), 0D);
+  static GolemCapacity.Contribution runeCarry(Config config, ActiveRunes active) {
+    double bonus = active.value(config.mightCarryByTier, GolemRuneType.MIGHT);
     return Double.isFinite(bonus) && bonus != 0D ? GolemCapacity.Contribution.bonus(bonus) : GolemCapacity.Contribution.NONE;
   }
 
-  static double runeWorkInterval(Config config, Map<GolemRuneType, Integer> active) {
-    double reduction = RunicAugmentsRules.atTier(config.swiftnessWorkIntervalByTier, active.getOrDefault(GolemRuneType.SWIFTNESS, 0), 0D);
+  static double runeWorkInterval(Config config, ActiveRunes active) {
+    double reduction = active.value(config.swiftnessWorkIntervalByTier, GolemRuneType.SWIFTNESS);
     return Double.isFinite(reduction) ? Math.clamp(1D - reduction, MIN_WORK_INTERVAL, 1D) : 1D;
   }
 
-  static GolemRuneEffects runeEffects(Config config, Map<GolemRuneType, Integer> active) {
-    int order = active.getOrDefault(GolemRuneType.ORDER, 0);
-    double reclaimReduction = RunicAugmentsRules.atTier(config.orderReclaimDelayByTier, order, 0D);
+  static GolemRuneEffects runeEffects(Config config, ActiveRunes active) {
     return new GolemRuneEffects(
-        RunicAugmentsRules.atTier(config.tideRadiusByTier, active.getOrDefault(GolemRuneType.TIDE, 0), 0D),
-        RunicAugmentsRules.atTier(config.orderChannelsByTier, order, 0),
-        1D - reclaimReduction,
-        RunicAugmentsRules.atTier(config.entropyBonusYieldByTier, active.getOrDefault(GolemRuneType.ENTROPY, 0), 0D));
+        active.value(config.tideRadiusByTier, GolemRuneType.TIDE),
+        active.count(config.orderChannelsByTier, GolemRuneType.ORDER),
+        1D - active.value(config.orderReclaimDelayByTier, GolemRuneType.ORDER),
+        active.value(config.entropyBonusYieldByTier, GolemRuneType.ENTROPY));
   }
 
-  private GolemRuneLayout layout(GolemBody body, int level) {
+  private GolemRuneLayout layout(GolemBody body, int level, int masterworkSlots) {
     Config config = getConfig();
     LayoutCache cache = layouts;
     if (cache == null || cache.config() != config) {
-      cache = LayoutCache.of(config);
+      cache = new LayoutCache(config);
       layouts = cache;
     }
-    return cache.layout(body, level);
+    return cache.layout(body, level, masterworkSlots);
   }
 
   private void registerBlankRuneRecipe(ConfiguredRecipeParser parser, ConfiguredShapedRecipe spec) {
@@ -245,11 +242,11 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     deltas.add(multiply ? GolemStatDelta.multiplyBase(stat, amount) : GolemStatDelta.add(stat, amount));
   }
 
-  private static boolean wards(Config config, Map<GolemRuneType, Integer> active, Ward ward) {
+  private static boolean wards(Config config, ActiveRunes active, Ward ward) {
     return switch (ward) {
-      case FIRE -> RunicAugmentsRules.atTier(config.emberFireImmuneByTier, active.getOrDefault(GolemRuneType.EMBER, 0), false);
-      case LAVA -> RunicAugmentsRules.atTier(config.emberLavaImmuneByTier, active.getOrDefault(GolemRuneType.EMBER, 0), false);
-      case WATER -> RunicAugmentsRules.atTier(config.tideWaterBreathingByTier, active.getOrDefault(GolemRuneType.TIDE, 0), false);
+      case FIRE -> active.flag(config.emberFireImmuneByTier, GolemRuneType.EMBER);
+      case LAVA -> active.flag(config.emberLavaImmuneByTier, GolemRuneType.EMBER);
+      case WATER -> active.flag(config.tideWaterBreathingByTier, GolemRuneType.TIDE);
     };
   }
 
@@ -277,32 +274,37 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     WATER
   }
 
-  private record LayoutCache(Config config, Map<GolemBody, List<GolemRuneLayout>> byBody) {
-    private static LayoutCache of(Config config) {
-      Map<GolemBody, Set<GolemRuneType>> blocks = RunicAugmentsRules.bodyBlocks(config.runeBodyBlocks, Adapt::warn);
-      int maxLevel = Math.max(1, config.maxLevel);
-      Map<GolemBody, List<GolemRuneLayout>> byBody = new EnumMap<>(GolemBody.class);
-      for (GolemBody body : GolemBody.values()) {
-        byBody.put(body, layouts(config, body, blocks.getOrDefault(body, Set.of()), maxLevel));
-      }
-      return new LayoutCache(config, byBody);
+  private static final class LayoutCache {
+    private final Config config;
+    private final Map<GolemBody, Set<GolemRuneType>> blocks;
+    private final int maxLevel;
+    private final Map<LayoutKey, GolemRuneLayout> layouts = new ConcurrentHashMap<>();
+
+    private LayoutCache(Config config) {
+      this.config = config;
+      this.blocks = RunicAugmentsRules.bodyBlocks(config.runeBodyBlocks, Adapt::warn);
+      this.maxLevel = Math.max(1, config.maxLevel);
     }
 
-    private static List<GolemRuneLayout> layouts(Config config, GolemBody body, Set<GolemRuneType> blocked, int maxLevel) {
+    private Config config() {
+      return config;
+    }
+
+    private GolemRuneLayout layout(GolemBody body, int level, int masterworkSlots) {
       if (body == GolemBody.BONE) {
-        return List.of(GolemRuneLayout.NONE);
+        return GolemRuneLayout.NONE;
       }
-      List<GolemRuneLayout> byLevel = new ArrayList<>(maxLevel + 1);
-      for (int level = 0; level <= maxLevel; level++) {
-        byLevel.add(RunicAugmentsRules.layout(baseSlots(config, body), config.extraSlotsByLevel, config.maxTierByLevel, maxLevel, blocked, level));
-      }
-      return List.copyOf(byLevel);
+      LayoutKey key = new LayoutKey(body, Math.clamp(level, 0, maxLevel), Math.clamp(masterworkSlots, 0, GolemRuneLayout.MAX_SLOTS));
+      return layouts.computeIfAbsent(key, this::compute);
     }
 
-    private GolemRuneLayout layout(GolemBody body, int level) {
-      List<GolemRuneLayout> byLevel = byBody.get(body);
-      return byLevel.get(Math.clamp(level, 0, byLevel.size() - 1));
+    private GolemRuneLayout compute(LayoutKey key) {
+      return RunicAugmentsRules.layout(baseSlots(config, key.body()), config.extraSlotsByLevel, config.maxTierByLevel, maxLevel,
+          blocks.getOrDefault(key.body(), Set.of()), key.level(), key.masterworkSlots());
     }
+  }
+
+  private record LayoutKey(GolemBody body, int level, int masterworkSlots) {
   }
 
   private final class RuneStats implements GolemStatSource {
@@ -313,7 +315,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
 
     @Override
     public List<GolemStatDelta> deltas(GolemHandle handle) {
-      Map<GolemRuneType, Integer> active = active(handle);
+      ActiveRunes active = runes(handle);
       return active.isEmpty() ? List.of() : runeStats(getConfig(), active);
     }
   }
@@ -326,7 +328,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
 
     @Override
     public GolemCapacity.Contribution carry(GolemHandle handle) {
-      Map<GolemRuneType, Integer> active = active(handle);
+      ActiveRunes active = runes(handle);
       return active.isEmpty() ? GolemCapacity.Contribution.NONE : runeCarry(getConfig(), active);
     }
   }
@@ -339,15 +341,15 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
 
     @Override
     public double intervalMultiplier(GolemHandle handle) {
-      Map<GolemRuneType, Integer> active = active(handle);
+      ActiveRunes active = runes(handle);
       return active.isEmpty() ? 1D : runeWorkInterval(getConfig(), active);
     }
   }
 
   private final class Augments implements GolemRunes.Augments {
     @Override
-    public GolemRuneLayout layout(GolemBody body, UUID owner) {
-      return GolemRunicAugments.this.layout(body, owner);
+    public GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
+      return GolemRunicAugments.this.layout(body, owner, masterwork);
     }
 
     @Override

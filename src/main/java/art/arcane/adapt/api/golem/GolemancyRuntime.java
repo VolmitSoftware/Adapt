@@ -225,8 +225,14 @@ public final class GolemancyRuntime {
     brainSettings = Objects.requireNonNull(next);
   }
 
-  public static GolemTargetPolicy targetPolicy(GolemCoreType core) {
-    return TARGET_POLICIES.getOrDefault(core, COMPANION);
+  public static GolemTargetPolicy targetPolicy(List<GolemCoreType> cores) {
+    for (GolemCoreType core : cores) {
+      GolemTargetPolicy policy = TARGET_POLICIES.get(core);
+      if (policy != null) {
+        return policy;
+      }
+    }
+    return COMPANION;
   }
 
   public static void setTargetPolicy(GolemCoreType core, GolemTargetPolicy policy) {

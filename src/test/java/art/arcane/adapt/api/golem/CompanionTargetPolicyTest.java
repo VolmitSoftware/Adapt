@@ -106,7 +106,7 @@ class CompanionTargetPolicyTest {
   private void tide(double radius) {
     augments = new GolemRunes.Augments() {
       @Override
-      public GolemRuneLayout layout(GolemBody body, UUID owner) {
+      public GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
         return GolemRuneLayout.NONE;
       }
 

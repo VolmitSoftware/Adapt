@@ -3,7 +3,9 @@ package art.arcane.adapt.api.golem.reveal;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.fx.display.HiddenDisplays;
+import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
@@ -57,6 +59,7 @@ import org.bukkit.util.Transformation;
 import org.bukkit.util.Vector;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -80,6 +83,7 @@ public final class RevealService extends TickedObject {
   private static final int LINE_MAX_POINTS = 64;
   private static final float LABEL_LIFT = 0.2F;
   private static final int LABEL_BACKGROUND_ALPHA = 64;
+  private static final String CORE_SEPARATOR = " + ";
 
   private final Supplier<RevealSettings> settings;
   private final RevealTracker<UUID> golems = new RevealTracker<>();
@@ -580,9 +584,17 @@ public final class RevealService extends TickedObject {
       if (name == null) {
         name = Component.text(AdaptLanguage.text(GolemancyMessages.GUI_TITLE, trusted("body", AdaptLanguage.text(state.body().displayName()))));
       }
-      return new GolemLabel.Content(name, golem.getHealth(), GolemVitals.maxHealth(golem),
-          AdaptLanguage.text(state.primaryCore().displayName()), AdaptLanguage.text(state.mode().displayName()), GolemRunes.channels(handle));
+      return new GolemLabel.Content(name, golem.getHealth(), GolemVitals.maxHealth(golem), coreNames(GolemMastery.cores(handle)),
+          AdaptLanguage.text(state.mode().displayName()), GolemRunes.channels(handle), state.masterwork());
     }
+  }
+
+  private static String coreNames(List<GolemCoreType> cores) {
+    List<String> names = new ArrayList<>(cores.size());
+    for (GolemCoreType core : cores) {
+      names.add(AdaptLanguage.text(core.displayName()));
+    }
+    return String.join(CORE_SEPARATOR, names);
   }
 
   private void refreshLabeled(Entity entity) {

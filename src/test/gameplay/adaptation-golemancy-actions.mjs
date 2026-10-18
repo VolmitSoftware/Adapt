@@ -117,6 +117,32 @@ async function packGolem(input) {
     return { golem: state.golem ?? null, dormantGolems: state.dormantGolems }
 }
 
+async function infuseHeart(input) {
+    const { context, actor, snapshot } = input
+    const center = actor.bot.entity.position.clone().set(2, 100, 3)
+    await context.waitUntil(() => actor.bot.blockAt(center)?.name === 'lodestone', {
+        label: 'golemancy plinth lodestone available', timeoutMs: 5000,
+    })
+    const spots = [center, center.offset(0, 0, -2), center.offset(2, 0, 0), center.offset(0, 0, 2), center.offset(-2, 0, 0)]
+    for (let slot = 0; slot < spots.length; slot++) {
+        actor.bot.setQuickBarSlot(slot)
+        await actor.bot.waitForTicks(2)
+        actor.bot.setControlState('sneak', true)
+        try {
+            await actor.bot.waitForTicks(4)
+            await actor.bot.activateBlock(actor.bot.blockAt(spots[slot]))
+            await actor.bot.waitForTicks(10)
+        } finally {
+            actor.bot.setControlState('sneak', false)
+        }
+    }
+    actor.bot.setQuickBarSlot(spots.length)
+    await actor.bot.waitForTicks(4)
+    await actor.bot.activateBlock(actor.bot.blockAt(center))
+    await actor.bot.waitForTicks(10)
+    return (await snapshot()).golemancy.plinth
+}
+
 export const golemancyBehaviorCases = new Map([
     ['golem-animus-binding', {
         stage: 'golemancy-binding', trigger: bind,
@@ -354,6 +380,19 @@ export const golemancyBehaviorCases = new Map([
             context.expect(active.nodeItems === 1, 'Placing the node uses up one Deposit Node')
             return {
                 assertions: ['unlearned click anchors nothing and keeps both nodes', 'learned click anchors one player-owned Deposit Node on the chest top and uses one item'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
+    ['golem-masterwork', {
+        stage: 'golemancy-masterwork', trigger: infuseHeart,
+        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-runic-augments', level: 3 }],
+        description: 'right-clicking a loaded Animus Plinth with the Crook starts the Masterwork Heart infusion once Masterwork is learned',
+        async verify({ context, unlearned, active }) {
+            context.expect(!unlearned.ritual, 'Without Masterwork the plinth refuses to start the Masterwork Heart infusion')
+            context.expect(active.ritual, 'With Masterwork the Masterwork Heart infusion starts on the plinth')
+            return {
+                assertions: ['unlearned Crook click leaves the plinth idle', 'learned Crook click starts the Masterwork Heart ritual'],
                 measurements: { unlearned, active },
             }
         },

@@ -4,6 +4,7 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCapacity;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneEffects;
 import art.arcane.adapt.api.golem.GolemRuneLayout;
@@ -179,7 +180,7 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
   @Test
   void plinthLoadingAndEveryRuneInfusionUnlockThroughThisAdaptation() {
     GolemRunicAugments.Config config = new GolemRunicAugments.Config();
-    GolemRuneLayout table = RunicAugmentsRules.layout(1, config.extraSlotsByLevel, config.maxTierByLevel, config.maxLevel, Set.of(), config.maxLevel);
+    GolemRuneLayout table = RunicAugmentsRules.layout(1, config.extraSlotsByLevel, config.maxTierByLevel, config.maxLevel, Set.of(), config.maxLevel, 0);
     int runeRecipes = 0;
     for (InfusionRecipe recipe : InfusionRecipe.defaults().values()) {
       if (!recipe.getResult().startsWith("golemancy:rune/")) {
@@ -232,8 +233,8 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
   void theOwnersLevelDecidesOpenSlotsAndTheHighestUsableTierForEachBody() {
     GolemRunicAugments learned = learned(3);
 
-    GolemRuneLayout frost = learned.layout(GolemBody.FROST, OWNER);
-    GolemRuneLayout iron = learned.layout(GolemBody.IRON, OWNER);
+    GolemRuneLayout frost = learned.layout(GolemBody.FROST, OWNER, false);
+    GolemRuneLayout iron = learned.layout(GolemBody.IRON, OWNER, false);
 
     assertThat(frost.unlockedSlots()).isEqualTo(2);
     assertThat(frost.slotUnlockLevels()).containsExactly(1, 3, 5);
@@ -242,8 +243,8 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     assertThat(iron.slotUnlockLevels()).containsExactly(1, 1, 1, 3, 5);
     assertThat(iron.maxTier()).isEqualTo(2);
     assertThat(iron.blocks(GolemRuneType.EMBER)).isFalse();
-    assertThat(learned.layout(GolemBody.BONE, OWNER).maxSlots()).isZero();
-    assertThat(learned(0).layout(GolemBody.IRON, OWNER).unlockedSlots()).isZero();
+    assertThat(learned.layout(GolemBody.BONE, OWNER, false).maxSlots()).isZero();
+    assertThat(learned(0).layout(GolemBody.IRON, OWNER, false).unlockedSlots()).isZero();
   }
 
   @Test
@@ -252,8 +253,8 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
         rune(GolemRuneType.MIGHT, 3), rune(GolemRuneType.SWIFTNESS, 1), rune(GolemRuneType.TIDE, 1));
     GolemHandle frost = bound(golem(Snowman.class), GolemBody.FROST, false, rune(GolemRuneType.EMBER, 1));
 
-    assertThat(learned(1).active(copper)).containsExactlyEntriesOf(Map.of(GolemRuneType.SWIFTNESS, 1));
-    assertThat(learned(5).active(frost)).isEmpty();
+    assertThat(learned(1).runes(copper).slotted()).containsExactlyEntriesOf(Map.of(GolemRuneType.SWIFTNESS, 1));
+    assertThat(learned(5).runes(frost).isEmpty()).isTrue();
     assertThat(learned(0).effects(copper)).isEqualTo(GolemRuneEffects.NONE);
   }
 
@@ -268,7 +269,7 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     assertThat(effects.channelSlots()).isEqualTo(4);
     assertThat(effects.reclaimDelayMultiplier()).isCloseTo(0.25D, offset(1e-9));
     assertThat(effects.bonusYield()).isEqualTo(0.05D);
-    assertThat(GolemRunicAugments.runeEffects(new GolemRunicAugments.Config(), Map.of(GolemRuneType.ORDER, 1)))
+    assertThat(GolemRunicAugments.runeEffects(new GolemRunicAugments.Config(), new ActiveRunes(Map.of(GolemRuneType.ORDER, 1), false, 0D)))
         .isEqualTo(new GolemRuneEffects(0D, 1, 1D, 0D));
   }
 
@@ -276,20 +277,20 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
   void eachAspectsStatsCarryAndWorkSpeedFollowItsTierTable() {
     GolemRunicAugments.Config config = new GolemRunicAugments.Config();
 
-    assertThat(GolemRunicAugments.runeStats(config, Map.of(GolemRuneType.SWIFTNESS, 2)))
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.SWIFTNESS, 2), false, 0D)))
         .containsExactly(GolemStatDelta.multiplyBase(GolemStat.MOVEMENT_SPEED, 0.20D));
-    assertThat(GolemRunicAugments.runeStats(config, Map.of(GolemRuneType.MIGHT, 3))).containsExactly(GolemStatDelta.add(GolemStat.ATTACK_DAMAGE, 6D));
-    assertThat(GolemRunicAugments.runeStats(config, Map.of(GolemRuneType.TIDE, 1))).containsExactly(GolemStatDelta.add(GolemStat.FOLLOW_RANGE, 4D));
-    assertThat(GolemRunicAugments.runeStats(config, Map.of(GolemRuneType.TIDE, 3)))
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.MIGHT, 3), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.ATTACK_DAMAGE, 6D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.TIDE, 1), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.FOLLOW_RANGE, 4D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.TIDE, 3), false, 0D)))
         .containsExactly(GolemStatDelta.add(GolemStat.FOLLOW_RANGE, 12D), GolemStatDelta.add(GolemStat.WATER_MOVEMENT_EFFICIENCY, 1D));
-    assertThat(GolemRunicAugments.runeStats(config, Map.of(GolemRuneType.BULWARK, 1))).containsExactly(GolemStatDelta.add(GolemStat.ARMOR, 4D));
-    assertThat(GolemRunicAugments.runeStats(config, Map.of(GolemRuneType.BULWARK, 3))).containsExactly(GolemStatDelta.add(GolemStat.ARMOR, 12D),
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.BULWARK, 1), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.ARMOR, 4D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.BULWARK, 3), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.ARMOR, 12D),
         GolemStatDelta.add(GolemStat.ARMOR_TOUGHNESS, 4D), GolemStatDelta.add(GolemStat.KNOCKBACK_RESISTANCE, 0.5D));
-    assertThat(GolemRunicAugments.runeStats(config, Map.of(GolemRuneType.EMBER, 3, GolemRuneType.ORDER, 3, GolemRuneType.ENTROPY, 3))).isEmpty();
-    assertThat(GolemRunicAugments.runeCarry(config, Map.of(GolemRuneType.MIGHT, 2))).isEqualTo(GolemCapacity.Contribution.bonus(1D));
-    assertThat(GolemRunicAugments.runeCarry(config, Map.of())).isEqualTo(GolemCapacity.Contribution.NONE);
-    assertThat(GolemRunicAugments.runeWorkInterval(config, Map.of(GolemRuneType.SWIFTNESS, 3))).isCloseTo(0.7D, offset(1e-9));
-    assertThat(GolemRunicAugments.runeWorkInterval(config, Map.of())).isEqualTo(1D);
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.EMBER, 3, GolemRuneType.ORDER, 3, GolemRuneType.ENTROPY, 3), false, 0D))).isEmpty();
+    assertThat(GolemRunicAugments.runeCarry(config, new ActiveRunes(Map.of(GolemRuneType.MIGHT, 2), false, 0D))).isEqualTo(GolemCapacity.Contribution.bonus(1D));
+    assertThat(GolemRunicAugments.runeCarry(config, new ActiveRunes(Map.of(), false, 0D))).isEqualTo(GolemCapacity.Contribution.NONE);
+    assertThat(GolemRunicAugments.runeWorkInterval(config, new ActiveRunes(Map.of(GolemRuneType.SWIFTNESS, 3), false, 0D))).isCloseTo(0.7D, offset(1e-9));
+    assertThat(GolemRunicAugments.runeWorkInterval(config, new ActiveRunes(Map.of(), false, 0D))).isEqualTo(1D);
   }
 
   @Test
@@ -359,6 +360,101 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     assertThat(cancels(learned(5), damp, DamageCause.DROWNING)).isFalse();
   }
 
+  @Test
+  void aMasterworkGainsItsExtraSlotsOnlyWhileItsOwnerHasLearnedMasterwork() {
+    GolemMastery.Source source = mastery(new GolemMastery.Perks(1, false, false, 0D));
+    try {
+      GolemRunicAugments learned = learned(3);
+      GolemRuneLayout plain = learned.layout(GolemBody.IRON, OWNER, false);
+      GolemRuneLayout masterwork = learned.layout(GolemBody.IRON, OWNER, true);
+
+      assertThat(plain.unlockedSlots()).isEqualTo(4);
+      assertThat(masterwork.unlockedSlots()).isEqualTo(5);
+      assertThat(masterwork.slotUnlockLevels()).containsExactly(1, 1, 1, 1, 3, 5);
+      assertThat(learned.layout(GolemBody.IRON, OWNER, true)).isSameAs(masterwork);
+      assertThat(learned.layout(GolemBody.IRON, OWNER, false)).isSameAs(plain);
+      assertThat(learned.layout(GolemBody.BONE, OWNER, true).maxSlots()).isZero();
+
+      when(source.perks(OWNER)).thenReturn(GolemMastery.Perks.NONE);
+      assertThat(learned.layout(GolemBody.IRON, OWNER, true).unlockedSlots()).isEqualTo(4);
+    } finally {
+      GolemMastery.unregister(source);
+    }
+  }
+
+  @Test
+  void theFifthRuneOfAMasterworkIronGolemIsActive() {
+    GolemMastery.Source source = mastery(new GolemMastery.Perks(1, false, false, 0D));
+    try {
+      GolemRune[] five = {rune(GolemRuneType.MIGHT, 1), rune(GolemRuneType.SWIFTNESS, 1), rune(GolemRuneType.TIDE, 1),
+          rune(GolemRuneType.ORDER, 1), rune(GolemRuneType.BULWARK, 1)};
+      GolemHandle masterwork = masterwork(golem(IronGolem.class), GolemBody.IRON, five);
+      GolemHandle plain = bound(golem(IronGolem.class), GolemBody.IRON, false, five);
+
+      assertThat(learned(3).runes(masterwork).slotted()).containsKey(GolemRuneType.BULWARK).hasSize(5);
+      assertThat(learned(3).runes(plain).slotted()).doesNotContainKey(GolemRuneType.BULWARK).hasSize(4);
+    } finally {
+      GolemMastery.unregister(source);
+    }
+  }
+
+  @Test
+  void tieredUpRunesUseTheNextTiersNumbersAndTierThreeGainsTheBoost() {
+    GolemRunicAugments.Config config = new GolemRunicAugments.Config();
+    ActiveRunes tieredUp = new ActiveRunes(Map.of(GolemRuneType.SWIFTNESS, 1, GolemRuneType.BULWARK, 3, GolemRuneType.MIGHT, 2), true, 0.25D);
+
+    assertThat(GolemRunicAugments.runeStats(config, tieredUp)).containsExactly(
+        GolemStatDelta.multiplyBase(GolemStat.MOVEMENT_SPEED, 0.20D),
+        GolemStatDelta.add(GolemStat.ATTACK_DAMAGE, 6D),
+        GolemStatDelta.add(GolemStat.ARMOR, 15D),
+        GolemStatDelta.add(GolemStat.ARMOR_TOUGHNESS, 5D),
+        GolemStatDelta.add(GolemStat.KNOCKBACK_RESISTANCE, 0.625D));
+    assertThat(GolemRunicAugments.runeCarry(config, tieredUp)).isEqualTo(GolemCapacity.Contribution.bonus(1.5D));
+    assertThat(GolemRunicAugments.runeWorkInterval(config, tieredUp)).isCloseTo(0.8D, offset(1e-9));
+    GolemRuneEffects effects = GolemRunicAugments.runeEffects(config, new ActiveRunes(Map.of(GolemRuneType.ORDER, 3, GolemRuneType.ENTROPY, 3), true, 0.25D));
+    assertThat(effects.extraChannels()).isEqualTo(4);
+    assertThat(effects.reclaimDelayMultiplier()).isCloseTo(0.0625D, offset(1e-9));
+    assertThat(effects.bonusYield()).isCloseTo(0.1875D, offset(1e-9));
+  }
+
+  @Test
+  void tierUpLeavesBooleanWardsAndOverTierInertnessOnTheSlottedTier() {
+    GolemMastery.Source source = mastery(new GolemMastery.Perks(1, true, true, 0.25D));
+    try {
+      IronGolem ember = golem(IronGolem.class);
+      masterwork(ember, GolemBody.IRON, rune(GolemRuneType.EMBER, 1));
+      IronGolem overTier = golem(IronGolem.class);
+      GolemHandle unpowered = masterwork(overTier, GolemBody.IRON, rune(GolemRuneType.SWIFTNESS, 2));
+
+      assertThat(cancels(learned(3), ember, DamageCause.FIRE)).isFalse();
+      assertThat(learned(1).runes(unpowered).isEmpty()).isTrue();
+      assertThat(learned(1).effects(unpowered)).isEqualTo(GolemRuneEffects.NONE);
+    } finally {
+      GolemMastery.unregister(source);
+    }
+  }
+
+  @Test
+  void aTieredUpEmberRuneBurnsForTheNextTiersSeconds() {
+    GolemMastery.Source source = mastery(new GolemMastery.Perks(1, true, true, 0.25D));
+    try {
+      IronGolem masterwork = golem(IronGolem.class);
+      masterwork(masterwork, GolemBody.IRON, rune(GolemRuneType.EMBER, 1));
+      IronGolem plain = golem(IronGolem.class);
+      bound(plain, GolemBody.IRON, false, rune(GolemRuneType.EMBER, 1));
+      Zombie burned = mock(Zombie.class);
+      Zombie singed = mock(Zombie.class);
+
+      learned(3).on(hit(masterwork, burned));
+      learned(3).on(hit(plain, singed));
+
+      verify(burned).setFireTicks(80);
+      verify(singed).setFireTicks(40);
+    } finally {
+      GolemMastery.unregister(source);
+    }
+  }
+
   private boolean cancels(GolemRunicAugments learned, Mob golem, DamageCause cause) {
     EntityDamageEvent event = mock(EntityDamageEvent.class);
     lenient().when(event.getCause()).thenReturn(cause);
@@ -391,6 +487,19 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     lenient().when(handle.isDormant()).thenReturn(dormant);
     runtime.when(() -> GolemancyRuntime.handle(golem)).thenReturn(Optional.of(handle));
     return handle;
+  }
+
+  private GolemHandle masterwork(Mob golem, GolemBody body, GolemRune... runes) {
+    GolemHandle handle = bound(golem, body, false, runes);
+    when(handle.state().masterwork()).thenReturn(true);
+    return handle;
+  }
+
+  private static GolemMastery.Source mastery(GolemMastery.Perks perks) {
+    GolemMastery.Source source = mock(GolemMastery.Source.class);
+    lenient().when(source.perks(OWNER)).thenReturn(perks);
+    GolemMastery.register(source);
+    return source;
   }
 
   private static <T extends Mob> T golem(Class<T> type) {

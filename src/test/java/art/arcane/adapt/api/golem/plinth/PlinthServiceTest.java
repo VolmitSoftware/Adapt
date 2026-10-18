@@ -481,6 +481,39 @@ class PlinthServiceTest extends AdaptTestBase {
   }
 
   @Test
+  void aMasterworkHeartInfusesEndToEndOnceMasterworkIsLearned() {
+    InfusionIngredient diamond = item -> item != null && item.getType() == Material.DIAMOND_BLOCK;
+    InfusionIngredient iron = item -> item != null && item.getType() == Material.IRON_BLOCK;
+    InfusionIngredient copper = item -> item != null && item.getType() == Material.COPPER_BLOCK;
+    InfusionIngredient snow = item -> item != null && item.getType() == Material.SNOW_BLOCK;
+    InfusionRecipe heart = InfusionRecipe.defaults().get("masterwork_heart");
+    Infusion masterwork = new Infusion("masterwork_heart", NamespacedKey.fromString(heart.getResult()), this::buildResult,
+        item -> item != null && item.getType() == Material.HEART_OF_THE_SEA, List.of(diamond, iron, copper, snow), heart.getEssenceLevels(),
+        heart.getDurationTicks(), heart.getUnlockAdaptation(), heart.getUnlockLevel());
+    settings = new PlinthSettings(settings.pedestals(), InfusionRecipes.of(List.of(masterwork)));
+    stock.put(PlinthSlot.CENTER, item(Material.HEART_OF_THE_SEA));
+    stock.put(PlinthSlot.NORTH, item(Material.DIAMOND_BLOCK));
+    stock.put(PlinthSlot.EAST, item(Material.IRON_BLOCK));
+    stock.put(PlinthSlot.SOUTH, item(Material.COPPER_BLOCK));
+    stock.put(PlinthSlot.WEST, item(Material.SNOW_BLOCK));
+    stockPlinth();
+    holdCrook();
+    click(CENTER, EquipmentSlot.HAND);
+    assertThat(events).containsExactly("warn golemancy.plinth.locked");
+
+    host.levels.put(InfusionRecipe.MASTERWORK, 1);
+    events.clear();
+    click(CENTER, EquipmentSlot.HAND);
+    tick(heart.getDurationTicks() - 1);
+    assertThat(resultsBuilt.get()).isZero();
+    tick(1);
+
+    assertThat(events).containsSubsequence("pay golem-masterwork 15", "save 0,0", "pop 8,65,8", "settle", "infused masterwork_heart");
+    assertThat(resultsBuilt.get()).isEqualTo(1);
+    assertThat(platform.store).isEmpty();
+  }
+
+  @Test
   void breakingAPedestalDropsItsItemAfterThePlateIsSaved() {
     stockPlinth();
     events.clear();

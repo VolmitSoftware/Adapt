@@ -56,6 +56,7 @@ final class GolemWorker {
   private int stuckReleases;
   private int pulseCapacity = -1;
   private GolemRuneEffects pulseRunes;
+  private List<GolemCoreType> pulseCores;
   private long nextActAt;
   private long nextSeekAt;
   private long nextRouteAt;
@@ -75,6 +76,7 @@ final class GolemWorker {
     home = currentHome;
     pulseCapacity = -1;
     pulseRunes = null;
+    pulseCores = null;
     if (!canWork(here, brain)) {
       abandon();
       return null;
@@ -160,6 +162,13 @@ final class GolemWorker {
       pulseRunes = GolemRunes.effects(handle);
     }
     return pulseRunes;
+  }
+
+  List<GolemCoreType> cores() {
+    if (pulseCores == null) {
+      pulseCores = GolemMastery.cores(handle);
+    }
+    return pulseCores;
   }
 
   Location home() {
@@ -333,7 +342,7 @@ final class GolemWorker {
   private boolean claim(long nowMillis, Location here, GolemWorkSettings settings) {
     GolemTaskBoard board = board(home.getWorld().getUID());
     GolemState state = handle.state();
-    List<GolemCoreType> cores = state.cores();
+    List<GolemCoreType> cores = cores();
     GolemTaskBoard.Seeker seeker = new GolemTaskBoard.Seeker(handle.id(), handle.owner(), cores, handle.body(), runes().channels(state.channels()),
         home.getX(), home.getY(), home.getZ(), workRadius(), here.getX(), here.getY(), here.getZ());
     Optional<GolemTask> claimed = board.claim(seeker, candidate -> skips(candidate, nowMillis), nowMillis, settings.leaseMillis());
@@ -354,7 +363,7 @@ final class GolemWorker {
   }
 
   private boolean seekCores(long nowMillis) {
-    for (GolemCoreType core : handle.state().cores()) {
+    for (GolemCoreType core : cores()) {
       GolemCoreBehavior behavior = GolemCoreBehaviors.of(core).orElse(null);
       if (behavior == null) {
         continue;
@@ -376,7 +385,7 @@ final class GolemWorker {
   }
 
   private void tickCores(long nowMillis) {
-    for (GolemCoreType core : handle.state().cores()) {
+    for (GolemCoreType core : cores()) {
       GolemCoreBehavior behavior = GolemCoreBehaviors.of(core).orElse(null);
       if (behavior == null) {
         continue;
@@ -516,7 +525,7 @@ final class GolemWorker {
     if (record == null) {
       return false;
     }
-    GolemCoreType core = GolemTaskMatch.consumer(worked.type(), handle.state().cores()).orElse(handle.core());
+    GolemCoreType core = GolemTaskMatch.consumer(worked.type(), cores()).orElse(handle.core());
     GolemContext golem = new GolemContext(this, new GolemContext.Scope(behavior.policy(), null, record, core, nowMillis));
     Optional<GolemTask> routed;
     try {

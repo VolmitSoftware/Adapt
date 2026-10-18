@@ -11,6 +11,7 @@ public final class GolemLabel {
   public static final int HEALTH_SEGMENTS = 10;
   public static final String SWATCH = "■";
   public static final String NO_CHANNEL = "□";
+  public static final String MASTERWORK_TRIM = "✦";
   private static final String SEGMENT = "|";
   private static final String SEPARATOR = " · ";
   private static final double HEALTHY_FRACTION = 0.5D;
@@ -37,7 +38,7 @@ public final class GolemLabel {
 
   public static Component compose(Content content) {
     TextComponent.Builder label = Component.text();
-    label.append(content.name().colorIfAbsent(NamedTextColor.WHITE));
+    appendName(label, content);
     label.append(Component.newline());
     appendHealth(label, content.health(), content.maxHealth());
     label.append(Component.newline());
@@ -47,6 +48,17 @@ public final class GolemLabel {
     label.append(Component.text(SEPARATOR, NamedTextColor.DARK_GRAY));
     appendChannels(label, content.channels());
     return label.build();
+  }
+
+  private static void appendName(TextComponent.Builder label, Content content) {
+    Component name = content.name().colorIfAbsent(NamedTextColor.WHITE);
+    if (!content.masterwork()) {
+      label.append(name);
+      return;
+    }
+    label.append(Component.text(MASTERWORK_TRIM + " ", NamedTextColor.GOLD));
+    label.append(name);
+    label.append(Component.text(" " + MASTERWORK_TRIM, NamedTextColor.GOLD));
   }
 
   private static void appendHealth(TextComponent.Builder label, double health, double maxHealth) {
@@ -66,6 +78,6 @@ public final class GolemLabel {
     }
   }
 
-  public record Content(Component name, double health, double maxHealth, String core, String mode, int channels) {
+  public record Content(Component name, double health, double maxHealth, String core, String mode, int channels, boolean masterwork) {
   }
 }
