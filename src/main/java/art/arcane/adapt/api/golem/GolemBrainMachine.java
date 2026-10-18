@@ -147,7 +147,7 @@ final class GolemBrainMachine {
       case STAND -> stand();
       case KEEP -> Movement.NONE;
     };
-    return new Decision(state, movement);
+    return new Decision(state, movement, leashBroken);
   }
 
   private Movement move(Movement movement) {
@@ -190,6 +190,6 @@ final class GolemBrainMachine {
     }
   }
 
-  record Decision(GolemBrainState state, Movement movement) {
+  record Decision(GolemBrainState state, Movement movement, boolean dropTarget) {
   }
 }

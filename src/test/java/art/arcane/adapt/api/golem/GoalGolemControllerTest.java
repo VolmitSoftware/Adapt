@@ -9,17 +9,18 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
-import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Zombie;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.InOrder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumSet;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +29,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -56,17 +56,9 @@ class GoalGolemControllerTest {
   }
 
   @Test
-  void boneRemovesNearestAttackableStrollAndSunGoals() {
-    assertThat(keys(GolemBody.BONE)).containsExactly(
-        "minecraft:nearest_attackable",
-        "minecraft:water_avoiding_random_stroll",
-        "minecraft:restrict_sun",
-        "minecraft:flee_sun");
-  }
-
-  @Test
-  void copperKeepsItsBrainAndRemovesNoGoals() {
+  void copperAndBoneKeepTheirVanillaGoals() {
     assertThat(GoalGolemController.removedGoals(GolemBody.COPPER)).isEmpty();
+    assertThat(GoalGolemController.removedGoals(GolemBody.BONE)).isEmpty();
   }
 
   @Test
@@ -79,19 +71,14 @@ class GoalGolemControllerTest {
   @Test
   void removedGoalsRememberTheirVanillaPriorities() {
     assertThat(priorities(GolemBody.IRON)).containsExactlyInAnyOrderEntriesOf(Map.of(
-        "minecraft:iron_golem_defend_village", List.of(1),
-        "minecraft:iron_golem_offer_flower", List.of(5),
-        "minecraft:move_back_to_village", List.of(2),
-        "minecraft:golem_random_stroll_in_village", List.of(4),
-        "minecraft:nearest_attackable", List.of(3, 3)));
+        "minecraft:iron_golem_defend_village", 1,
+        "minecraft:iron_golem_offer_flower", 5,
+        "minecraft:move_back_to_village", 2,
+        "minecraft:golem_random_stroll_in_village", 4,
+        "minecraft:nearest_attackable", 3));
     assertThat(priorities(GolemBody.FROST)).containsExactlyInAnyOrderEntriesOf(Map.of(
-        "minecraft:nearest_attackable", List.of(1),
-        "minecraft:water_avoiding_random_stroll", List.of(2)));
-    assertThat(priorities(GolemBody.BONE)).containsExactlyInAnyOrderEntriesOf(Map.of(
-        "minecraft:nearest_attackable", List.of(2, 3, 3),
-        "minecraft:water_avoiding_random_stroll", List.of(5),
-        "minecraft:restrict_sun", List.of(2),
-        "minecraft:flee_sun", List.of(3)));
+        "minecraft:nearest_attackable", 1,
+        "minecraft:water_avoiding_random_stroll", 2));
   }
 
   @Test
@@ -137,7 +124,7 @@ class GoalGolemControllerTest {
     Mob golem = mock(IronGolem.class);
     MobGoals goals = mock(MobGoals.class);
     List<Goal<Mob>> vanilla = vanillaIronGoals();
-    when(goals.getAllGoals(golem)).thenReturn(vanilla);
+    when(goals.getAllGoals(golem)).thenReturn(new HashSet<>(vanilla));
     GoalGolemController controller = new GoalGolemController(golem, GolemBody.IRON, goals);
     controller.attach();
     GolemWorkGoal work = added(goals, golem, GoalGolemController.WORK_PRIORITY, GolemWorkGoal.class);
@@ -165,31 +152,11 @@ class GoalGolemControllerTest {
   }
 
   @Test
-  void boneRestoresNearestAttackableGoalsInRegistrationOrder() {
-    Mob golem = mock(Skeleton.class);
-    MobGoals goals = mock(MobGoals.class);
-    List<Goal<Mob>> vanilla = List.of(
-        vanillaGoal("restrict_sun", EnumSet.noneOf(GoalType.class)),
-        vanillaGoal("flee_sun", EnumSet.of(GoalType.MOVE)),
-        vanillaGoal("water_avoiding_random_stroll", EnumSet.of(GoalType.MOVE)),
-        vanillaGoal("hurt_by", EnumSet.of(GoalType.TARGET)),
-        vanillaGoal("nearest_attackable", EnumSet.of(GoalType.TARGET)),
-        vanillaGoal("nearest_attackable", EnumSet.of(GoalType.TARGET)),
-        vanillaGoal("nearest_attackable", EnumSet.of(GoalType.TARGET)));
-    when(goals.getAllGoals(golem)).thenReturn(vanilla);
-    GoalGolemController controller = new GoalGolemController(golem, GolemBody.BONE, goals);
-    controller.attach();
-
-    controller.release();
-
-    InOrder order = inOrder(goals);
-    order.verify(goals).addGoal(golem, 2, vanilla.get(4));
-    order.verify(goals).addGoal(golem, 3, vanilla.get(5));
-    order.verify(goals).addGoal(golem, 3, vanilla.get(6));
-    verify(goals).addGoal(golem, 2, vanilla.get(0));
-    verify(goals).addGoal(golem, 3, vanilla.get(1));
-    verify(goals).addGoal(golem, 5, vanilla.get(2));
-    verify(goals, never()).removeGoal(golem, vanilla.get(3));
+  void restorePrioritiesDoNotDependOnGoalIterationOrder() {
+    for (int seed = 0; seed < 12; seed++) {
+      assertRestoredInAnyOrder(GolemBody.IRON, vanillaIronGoals(), seed);
+      assertRestoredInAnyOrder(GolemBody.FROST, vanillaFrostGoals(), seed);
+    }
   }
 
   @Test
@@ -272,12 +239,36 @@ class GoalGolemControllerTest {
     return keys;
   }
 
-  private static Map<String, List<Integer>> priorities(GolemBody body) {
-    Map<String, List<Integer>> priorities = new LinkedHashMap<>();
+  private static Map<String, Integer> priorities(GolemBody body) {
+    Map<String, Integer> priorities = new LinkedHashMap<>();
     for (GoalGolemController.VanillaGoal goal : GoalGolemController.removedGoals(body)) {
-      priorities.put(goal.key().toString(), goal.priorities());
+      priorities.put(goal.key().toString(), goal.priority());
     }
     return priorities;
+  }
+
+  private static void assertRestoredInAnyOrder(GolemBody body, List<Goal<Mob>> vanilla, int seed) {
+    Mob golem = mock(IronGolem.class);
+    MobGoals goals = mock(MobGoals.class);
+    List<Goal<Mob>> shuffled = new ArrayList<>(vanilla);
+    Collections.shuffle(shuffled, new Random(seed));
+    when(goals.getAllGoals(golem)).thenReturn(shuffled);
+    Map<String, Integer> expected = priorities(body);
+    Map<Goal<Mob>, Integer> restored = new LinkedHashMap<>();
+    for (Goal<Mob> goal : vanilla) {
+      Integer priority = expected.get(goal.getKey().getNamespacedKey().toString());
+      if (priority != null) {
+        restored.put(goal, priority);
+      }
+    }
+    GoalGolemController controller = new GoalGolemController(golem, body, goals);
+    controller.attach();
+
+    controller.release();
+
+    for (Map.Entry<Goal<Mob>, Integer> entry : restored.entrySet()) {
+      verify(goals).addGoal(golem, entry.getValue().intValue(), entry.getKey());
+    }
   }
 
   private static List<Goal<Mob>> vanillaIronGoals() {
@@ -292,6 +283,15 @@ class GoalGolemControllerTest {
         vanillaGoal("iron_golem_defend_village", EnumSet.of(GoalType.TARGET)),
         vanillaGoal("hurt_by", EnumSet.of(GoalType.TARGET)),
         vanillaGoal("nearest_attackable", EnumSet.of(GoalType.TARGET)),
+        vanillaGoal("nearest_attackable", EnumSet.of(GoalType.TARGET)));
+  }
+
+  private static List<Goal<Mob>> vanillaFrostGoals() {
+    return List.of(
+        vanillaGoal("ranged_attack", EnumSet.of(GoalType.MOVE, GoalType.LOOK)),
+        vanillaGoal("water_avoiding_random_stroll", EnumSet.of(GoalType.MOVE)),
+        vanillaGoal("look_at_player", EnumSet.of(GoalType.LOOK)),
+        vanillaGoal("random_look_around", EnumSet.of(GoalType.MOVE, GoalType.LOOK)),
         vanillaGoal("nearest_attackable", EnumSet.of(GoalType.TARGET)));
   }
 

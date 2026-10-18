@@ -830,15 +830,6 @@ public final class PaperCompat {
    * the class still verifies on Spigot, where the type does not exist. Only the
    * probe-guarded call sites above load this holder.
    */
-  private static final class TeleportFlagBridge {
-    private TeleportFlagBridge() {
-    }
-
-    private static CompletableFuture<Boolean> teleportRetainingPassengers(Entity entity, Location destination) {
-      return entity.teleportAsync(destination, PlayerTeleportEvent.TeleportCause.PLUGIN, TeleportFlag.EntityState.RETAIN_PASSENGERS);
-    }
-  }
-
   private static final class PathfinderBridge {
     private PathfinderBridge() {
     }
@@ -853,6 +844,15 @@ public final class PaperCompat {
       if (pathfinder != null) {
         pathfinder.stopPathfinding();
       }
+    }
+  }
+
+  private static final class TeleportFlagBridge {
+    private TeleportFlagBridge() {
+    }
+
+    private static CompletableFuture<Boolean> teleportRetainingPassengers(Entity entity, Location destination) {
+      return entity.teleportAsync(destination, PlayerTeleportEvent.TeleportCause.PLUGIN, TeleportFlag.EntityState.RETAIN_PASSENGERS);
     }
   }
 }

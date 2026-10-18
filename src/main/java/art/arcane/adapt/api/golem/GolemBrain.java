@@ -64,6 +64,7 @@ public final class GolemBrain {
     }
     running = true;
     machine.reset();
+    ownerLookPending.set(false);
     lastMode = null;
     combatTarget = null;
     appliedTarget = null;
@@ -86,6 +87,7 @@ public final class GolemBrain {
       return;
     }
     running = false;
+    ownerLookPending.set(false);
     combatTarget = null;
     appliedTarget = null;
     controller.setTarget(null);
@@ -149,10 +151,13 @@ public final class GolemBrain {
     GolemBrainMachine.Senses senses = new GolemBrainMachine.Senses(now, mode, distance(here, ownerAt), sighting != null && sighting.grounded(),
         distance(here, home), distance(here, stayAnchor), target != null);
     GolemBrainMachine.Decision decision = machine.decide(senses, settings);
-    if (machine.combatSuppressed()) {
+    if (decision.dropTarget()) {
       combatTarget = null;
     }
     applyTarget(decision.state() == GolemBrainState.COMBAT ? target : null);
+    if (decision.dropTarget() && golem.getTarget() != null) {
+      golem.setTarget(null);
+    }
     move(decision.movement(), golem, ownerAt, home);
     controller.tick();
   }
@@ -207,7 +212,7 @@ public final class GolemBrain {
       return fresh;
     }
     if (ownerLookPending.compareAndSet(false, true)
-        && !context.platform().runEntity(owner, () -> lookAtOwner(owner), 0)) {
+        && !context.platform().runEntity(owner, () -> lookAtOwner(owner), () -> ownerLookPending.set(false))) {
       ownerLookPending.set(false);
     }
     return ownerSighting;

@@ -153,6 +153,56 @@ class GolemBrainTest extends AdaptTestBase {
   }
 
   @Test
+  void ownerLookupRetiredBeforeItRunsIsRequestedAgain() {
+    owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.start();
+    platform.ownsEntities = false;
+
+    platform.runDelayed();
+    assertThat(platform.retirable()).isEqualTo(1);
+    platform.retireDelayed();
+    platform.runDelayed();
+
+    assertThat(platform.retirable()).isEqualTo(1);
+  }
+
+  @Test
+  void sleepAndWakeForgetAPendingOwnerLookup() {
+    owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.start();
+    platform.ownsEntities = false;
+    platform.runDelayed();
+    platform.delayed.removeIf(task -> task.retired() != null);
+
+    brain.sleep();
+    platform.ownsEntities = true;
+    brain.start();
+    platform.ownsEntities = false;
+    platform.runDelayed();
+
+    assertThat(platform.retirable()).isEqualTo(1);
+  }
+
+  @Test
+  void leashBreakAlsoClearsAVanillaTarget() {
+    LivingEntity zombie = mock(Zombie.class);
+    IronGolem golem = golem(IronGolem.class, at(40, 64, 0));
+    lenient().when(golem.getTarget()).thenReturn(zombie);
+    GolemBrain brain = brain(golem, GolemBody.IRON);
+    brain.handle().setMode(GolemMode.HOME);
+    policy.next = zombie;
+    policy.holding = true;
+    brain.start();
+
+    platform.runDelayed();
+
+    verify(golem).setTarget(null);
+    assertThat(brain.state()).isEqualTo(GolemBrainState.HOME);
+  }
+
+  @Test
   void followModePathsTowardTheOwner() {
     Player owner = owner(at(10, 64, 0));
     GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);

@@ -56,6 +56,18 @@ final class FakeGolemPlatform implements GolemPlatform {
     return rosterChanges.getOrDefault(owner, 0);
   }
 
+  long retirable() {
+    return delayed.stream().filter(task -> task.retired() != null).count();
+  }
+
+  void retireDelayed() {
+    List<Delayed> retiring = delayed.stream().filter(task -> task.retired() != null).toList();
+    delayed.removeAll(retiring);
+    for (Delayed task : retiring) {
+      task.retired().run();
+    }
+  }
+
   void runDelayed() {
     List<Delayed> due = List.copyOf(delayed);
     delayed.clear();
@@ -105,7 +117,17 @@ final class FakeGolemPlatform implements GolemPlatform {
       task.run();
       return true;
     }
-    delayed.add(new Delayed(task, delayTicks));
+    delayed.add(new Delayed(task, delayTicks, null));
+    return true;
+  }
+
+  @Override
+  public boolean runEntity(Entity entity, Runnable task, Runnable retired) {
+    if (ownsEntities) {
+      task.run();
+      return true;
+    }
+    delayed.add(new Delayed(task, 0, retired));
     return true;
   }
 
@@ -143,6 +165,6 @@ final class FakeGolemPlatform implements GolemPlatform {
     return now;
   }
 
-  record Delayed(Runnable task, int delayTicks) {
+  record Delayed(Runnable task, int delayTicks, Runnable retired) {
   }
 }

@@ -8,9 +8,7 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 final class GoalGolemController implements GolemController {
@@ -23,15 +21,10 @@ final class GoalGolemController implements GolemController {
       VanillaGoal.of("iron_golem_offer_flower", 5),
       VanillaGoal.of("move_back_to_village", 2),
       VanillaGoal.of("golem_random_stroll_in_village", 4),
-      VanillaGoal.of("nearest_attackable", 3, 3));
+      VanillaGoal.of("nearest_attackable", 3));
   private static final List<VanillaGoal> FROST_GOALS = List.of(
       VanillaGoal.of("nearest_attackable", 1),
       VanillaGoal.of("water_avoiding_random_stroll", 2));
-  private static final List<VanillaGoal> BONE_GOALS = List.of(
-      VanillaGoal.of("nearest_attackable", 2, 3, 3),
-      VanillaGoal.of("water_avoiding_random_stroll", 5),
-      VanillaGoal.of("restrict_sun", 2),
-      VanillaGoal.of("flee_sun", 3));
 
   private final Mob golem;
   private final GolemBody body;
@@ -55,8 +48,7 @@ final class GoalGolemController implements GolemController {
     return switch (body) {
       case IRON -> IRON_GOALS;
       case FROST -> FROST_GOALS;
-      case BONE -> BONE_GOALS;
-      case COPPER -> List.of();
+      case COPPER, BONE -> List.of();
     };
   }
 
@@ -113,13 +105,10 @@ final class GoalGolemController implements GolemController {
 
   private void captureVanillaGoals() {
     List<VanillaGoal> listed = removedGoals(body);
-    Map<NamespacedKey, Integer> occurrences = new HashMap<>();
     for (Goal<Mob> goal : List.copyOf(goals.getAllGoals(golem))) {
-      NamespacedKey key = goal.getKey().getNamespacedKey();
-      VanillaGoal vanilla = find(listed, key);
+      VanillaGoal vanilla = find(listed, goal.getKey().getNamespacedKey());
       if (vanilla != null) {
-        int occurrence = occurrences.merge(key, 1, Integer::sum) - 1;
-        removed.add(new RemovedGoal(goal, vanilla.priority(occurrence)));
+        removed.add(new RemovedGoal(goal, vanilla.priority()));
       }
     }
   }
@@ -133,13 +122,9 @@ final class GoalGolemController implements GolemController {
     return null;
   }
 
-  record VanillaGoal(NamespacedKey key, List<Integer> priorities) {
-    static VanillaGoal of(String key, Integer... priorities) {
-      return new VanillaGoal(NamespacedKey.minecraft(key), List.of(priorities));
-    }
-
-    int priority(int occurrence) {
-      return priorities.get(Math.min(occurrence, priorities.size() - 1));
+  record VanillaGoal(NamespacedKey key, int priority) {
+    static VanillaGoal of(String key, int priority) {
+      return new VanillaGoal(NamespacedKey.minecraft(key), priority);
     }
   }
 

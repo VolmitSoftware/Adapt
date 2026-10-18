@@ -26,6 +26,8 @@ interface GolemPlatform {
 
   boolean runEntity(Entity entity, Runnable task, int delayTicks);
 
+  boolean runEntity(Entity entity, Runnable task, Runnable retired);
+
   boolean isChunkLoaded(UUID world, long chunkKey);
 
   void sweepChunk(UUID world, long chunkKey, Consumer<Mob> boundGolem);

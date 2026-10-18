@@ -121,7 +121,7 @@ public final class GolemancyRuntime {
     }
   }
 
-  private static Optional<GolemController> controllerFor(GolemHandle handle) {
+  static Optional<GolemController> controllerFor(GolemHandle handle) {
     if (!PaperCompat.supportsPathfinding()) {
       return Optional.empty();
     }
@@ -130,9 +130,10 @@ public final class GolemancyRuntime {
       case COPPER -> golem instanceof CopperGolem copper
           ? Optional.of(new CopperGolemController(copper, () -> brainSettings.copperRepathTicks()))
           : Optional.empty();
-      case FROST, IRON, BONE -> PaperCompat.hasClass(MOB_GOALS_CLASS)
+      case FROST, IRON -> PaperCompat.hasClass(MOB_GOALS_CLASS)
           ? Optional.of(new GoalGolemController(golem, handle.body(), Bukkit.getMobGoals()))
           : Optional.empty();
+      case BONE -> Optional.empty();
     };
   }
 
@@ -206,6 +207,11 @@ public final class GolemancyRuntime {
     @Override
     public boolean runEntity(Entity entity, Runnable task, int delayTicks) {
       return delayTicks <= 0 ? J.runEntity(entity, task) : J.runEntity(entity, task, delayTicks);
+    }
+
+    @Override
+    public boolean runEntity(Entity entity, Runnable task, Runnable retired) {
+      return J.runEntity(entity, task, retired);
     }
 
     @Override

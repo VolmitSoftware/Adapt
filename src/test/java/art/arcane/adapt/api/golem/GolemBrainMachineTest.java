@@ -102,14 +102,28 @@ class GolemBrainMachineTest {
     assertThat(step(senses(GolemMode.HOME).home(31D).target()).state()).isEqualTo(GolemBrainState.COMBAT);
     assertThat(machine.combatSuppressed()).isFalse();
 
-    assertThat(step(senses(GolemMode.HOME).home(33D).target())).isEqualTo(decision(GolemBrainState.HOME, Movement.HOME));
+    assertThat(step(senses(GolemMode.HOME).home(33D).target())).isEqualTo(dropping(GolemBrainState.HOME, Movement.HOME));
     assertThat(machine.combatSuppressed()).isTrue();
-    assertThat(step(senses(GolemMode.HOME).home(20D).target())).isEqualTo(decision(GolemBrainState.HOME, Movement.HOME));
+    assertThat(step(senses(GolemMode.HOME).home(20D).target())).isEqualTo(dropping(GolemBrainState.HOME, Movement.HOME));
     assertThat(machine.combatSuppressed()).isTrue();
 
     assertThat(step(senses(GolemMode.HOME).home(16D))).isEqualTo(decision(GolemBrainState.HOME, Movement.HOME));
     assertThat(machine.combatSuppressed()).isFalse();
     assertThat(step(senses(GolemMode.HOME).home(15D).target()).state()).isEqualTo(GolemBrainState.COMBAT);
+  }
+
+  @Test
+  void leashBreakDropsEveryTargetEachPulseUntilTheGolemIsBack() {
+    for (GolemMode mode : GolemMode.values()) {
+      GolemBrainMachine leashed = new GolemBrainMachine();
+      assertThat(leashed.decide(leashedSenses(mode, 40D, true), SETTINGS).dropTarget()).as(mode + " break").isTrue();
+      assertThat(leashed.decide(leashedSenses(mode, 30D, false), SETTINGS).dropTarget()).as(mode + " returning").isTrue();
+      assertThat(leashed.decide(leashedSenses(mode, 10D, false), SETTINGS).dropTarget()).as(mode + " back").isFalse();
+      assertThat(leashed.decide(leashedSenses(mode, 10D, true), SETTINGS)).as(mode + " fighting").satisfies(decision -> {
+        assertThat(decision.state()).isEqualTo(GolemBrainState.COMBAT);
+        assertThat(decision.dropTarget()).isFalse();
+      });
+    }
   }
 
   @Test
@@ -200,7 +214,24 @@ class GolemBrainMachineTest {
   }
 
   private static Decision decision(GolemBrainState state, Movement movement) {
-    return new Decision(state, movement);
+    return new Decision(state, movement, false);
+  }
+
+  private static Decision dropping(GolemBrainState state, Movement movement) {
+    return new Decision(state, movement, true);
+  }
+
+  private Senses leashedSenses(GolemMode mode, double distance, boolean target) {
+    SensesBuilder senses = senses(mode);
+    switch (mode) {
+      case FOLLOW -> senses.owner(distance, false);
+      case STAY -> senses.anchor(distance);
+      case HOME, WORK -> senses.home(distance);
+    }
+    if (target) {
+      senses.target();
+    }
+    return senses.build(now);
   }
 
   private static SensesBuilder senses(GolemMode mode) {
