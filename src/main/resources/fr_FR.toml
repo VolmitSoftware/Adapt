@@ -4555,6 +4555,16 @@ lore5 = "Hostiles supplémentaires touchés par coup"
 lore6 = "Dégâts d'attaque en Forme Colosse"
 lore = ["Santé supplémentaire des golems de Fer", "Armure supplémentaire des golems de Fer", "Dégâts d'attaque supplémentaires des golems de Fer", "Santé supplémentaire par réparation au lingot de fer", "Hostiles supplémentaires touchés par coup", "Dégâts d'attaque en Forme Colosse"]
 
+[golemancy.guardian_core]
+name = "Noyau de Gardien"
+description = "Les golems liés avec un Noyau de Gardien défendent leur foyer, toi ou la zone d'un Nœud de Garde, et te protègent davantage à mesure que le noyau se renforce."
+lore1 = "Rayon de garde en blocs"
+lore2 = "Interception : les mobs qui te poursuivent se retournent contre tes gardiens"
+lore3 = "Représailles : les gardiens attaquent ce qui t'a blessé"
+lore4 = "Dégâts réduits près de tes gardiens"
+lore5 = "Secondes de Résistance du Dernier Rempart"
+lore = ["Rayon de garde en blocs", "Interception : les mobs qui te poursuivent se retournent contre tes gardiens", "Représailles : les gardiens attaquent ce qui t'a blessé", "Dégâts réduits près de tes gardiens", "Secondes de Résistance du Dernier Rempart"]
+
 [golemancy.runic_augments]
 name = "Augmentations runiques"
 description = "Vous permet d'infuser des runes sur le Socle d'Animus et de les sertir dans vos golems liés pour la vitesse, la charge, le feu, la portée, les canaux, le rendement et l'armure."

@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.LongSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
@@ -40,6 +41,7 @@ class GolemBrainTest extends AdaptTestBase {
   @BeforeEach
   void setUp() {
     platform = new FakeGolemPlatform();
+    policy.clock = () -> platform.now;
     world = mock(World.class);
     lenient().when(world.getUID()).thenReturn(WORLD);
   }
@@ -413,7 +415,68 @@ class GolemBrainTest extends AdaptTestBase {
     platform.runDelayed();
 
     assertThat(policy.selections).isZero();
+    assertThat(policy.ticks).isZero();
     assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
+  }
+
+  @Test
+  void policiesThatAskBackOffIdleScansToTwoSecondsAndAnAlertScansAtOnce() {
+    policy.backoff = true;
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    long start = platform.now;
+    brain.start();
+
+    pulseFor(6_000L);
+
+    assertThat(policy.selectedAt).extracting(at -> at - start).containsExactly(0L, 500L, 1_500L, 3_500L, 5_500L);
+
+    brain.alert();
+    pulseFor(1_000L);
+
+    assertThat(policy.selectedAt).extracting(at -> at - start).containsExactly(0L, 500L, 1_500L, 3_500L, 5_500L, 6_000L, 6_500L);
+  }
+
+  @Test
+  void policiesWithoutBackoffKeepScanningEveryHalfSecond() {
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    long start = platform.now;
+    brain.start();
+
+    pulseFor(2_000L);
+
+    assertThat(policy.selectedAt).extracting(at -> at - start).containsExactly(0L, 500L, 1_000L, 1_500L);
+  }
+
+  @Test
+  void theStayAnchorIsTheSpotWhereStayBeganUntilTheModeChanges() {
+    AtomicReference<Location> position = new AtomicReference<>(at(0, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, position), GolemBody.IRON);
+    brain.handle().setMode(GolemMode.STAY);
+    brain.start();
+
+    platform.runDelayed();
+    position.set(at(5, 64, 0));
+    platform.runDelayed();
+
+    assertThat(brain.stayAnchor()).hasValueSatisfying(anchor -> assertThat(anchor.getX()).isEqualTo(0.5D));
+
+    brain.handle().setMode(GolemMode.HOME);
+    platform.runDelayed();
+
+    assertThat(brain.stayAnchor()).isEmpty();
+  }
+
+  @Test
+  void fightingBodiesTickTheirTargetPolicyOnEveryPulseWithTheOwner() {
+    Player owner = owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.start();
+
+    platform.runDelayed();
+    platform.runDelayed();
+
+    assertThat(policy.ticks).isEqualTo(2);
+    assertThat(policy.tickedOwner).isSameAs(owner);
   }
 
   @Test
@@ -438,6 +501,14 @@ class GolemBrainTest extends AdaptTestBase {
     platform.runDelayed();
 
     assertThat(brain.handle().position().chunkKey()).isEqualTo(GolemRoster.chunkKey(2, 2));
+  }
+
+  private void pulseFor(long millis) {
+    long end = platform.now + millis;
+    while (platform.now < end) {
+      platform.runDelayed();
+      platform.now += 250L;
+    }
   }
 
   private GolemBrain brain(Mob golem, GolemBody body) {
@@ -530,10 +601,27 @@ class GolemBrainTest extends AdaptTestBase {
     private LivingEntity next;
     private boolean holding;
     private int selections;
+    private int ticks;
+    private Player tickedOwner;
+    private boolean backoff;
+    private LongSupplier clock;
+    private final List<Long> selectedAt = new ArrayList<>();
+
+    @Override
+    public boolean idleBackoff() {
+      return backoff;
+    }
+
+    @Override
+    public void tick(GolemHandle golem, Player owner) {
+      ticks++;
+      tickedOwner = owner;
+    }
 
     @Override
     public LivingEntity select(GolemHandle golem, Player owner) {
       selections++;
+      selectedAt.add(clock.getAsLong());
       return next;
     }
 

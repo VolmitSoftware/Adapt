@@ -4559,6 +4559,16 @@ lore5 = "Yumruk başına vurulan ek düşman"
 lore6 = "Dev Formunda saldırı hasarı"
 lore = ["Demir golemleri için ek can", "Demir golemleri için ek zırh", "Demir golemleri için ek saldırı hasarı", "Demir külçesi onarımı başına ek can", "Yumruk başına vurulan ek düşman", "Dev Formunda saldırı hasarı"]
 
+[golemancy.guardian_core]
+name = "Muhafız Çekirdeği"
+description = "Muhafız Çekirdeği ile bağlanan golemler evlerini, seni ya da bir Nöbet Düğümü'nün alanını savunur ve çekirdek güçlendikçe seni daha iyi korur."
+lore1 = "Blok cinsinden nöbet yarıçapı"
+lore2 = "Önleme: seni kovalayan moblar muhafızlarına yönelir"
+lore3 = "Misilleme: muhafızlar seni yaralayana saldırır"
+lore4 = "Muhafızlarının yakınında daha az hasar"
+lore5 = "Son Direniş'ten Direnç saniyesi"
+lore = ["Blok cinsinden nöbet yarıçapı", "Önleme: seni kovalayan moblar muhafızlarına yönelir", "Misilleme: muhafızlar seni yaralayana saldırır", "Muhafızlarının yakınında daha az hasar", "Son Direniş'ten Direnç saniyesi"]
+
 [golemancy.runic_augments]
 name = "Rün Güçlendirmeleri"
 description = "Animus Kaidesi'nde rün aşılamanızı ve bunları bağlı golemlerinize takarak hız, taşıma, ateş, menzil, kanal, verim ve zırh kazanmanızı sağlar."

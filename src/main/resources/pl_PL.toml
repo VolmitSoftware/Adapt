@@ -4559,6 +4559,16 @@ lore5 = "Dodatkowi wrogowie trafieni każdym ciosem"
 lore6 = "Obrażenia od ataku w Formie Kolosa"
 lore = ["Dodatkowe zdrowie żelaznych golemów", "Dodatkowy pancerz żelaznych golemów", "Dodatkowe obrażenia od ataku żelaznych golemów", "Dodatkowe zdrowie za naprawę sztabką żelaza", "Dodatkowi wrogowie trafieni każdym ciosem", "Obrażenia od ataku w Formie Kolosa"]
 
+[golemancy.guardian_core]
+name = "Rdzeń Strażnika"
+description = "Golemy związane Rdzeniem Strażnika bronią swojego domu, ciebie lub obszaru Węzła Straży i chronią cię tym lepiej, im silniejszy staje się rdzeń."
+lore1 = "Promień straży w blokach"
+lore2 = "Przechwycenie: moby, które cię ścigają, zwracają się przeciw twoim strażnikom"
+lore3 = "Odwet: strażnicy atakują to, co cię zraniło"
+lore4 = "Mniej obrażeń w pobliżu twoich strażników"
+lore5 = "Sekundy Odporności z Ostatniego Bastionu"
+lore = ["Promień straży w blokach", "Przechwycenie: moby, które cię ścigają, zwracają się przeciw twoim strażnikom", "Odwet: strażnicy atakują to, co cię zraniło", "Mniej obrażeń w pobliżu twoich strażników", "Sekundy Odporności z Ostatniego Bastionu"]
+
 [golemancy.runic_augments]
 name = "Runiczne ulepszenia"
 description = "Pozwala nasycać runy na Postumencie animusa i osadzać je w związanych golemach, by zyskać szybkość, udźwig, ogień, zasięg, kanały, plony i pancerz."

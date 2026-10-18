@@ -3403,6 +3403,27 @@
     },
     {
       "skill": "golemancy",
+      "name": "golem-guardian-core",
+      "class": "GolemGuardianCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemGuardianCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageByEntityEvent",
+        "EntityDamageEvent",
+        "EntityTargetLivingEntityEvent",
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Golems bound with a Guardian Core defend their home, you or a Guard Node's area, and shield you as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemGuardianCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
       "name": "golem-iron-frame",
       "class": "GolemIronFrame",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemIronFrame.java",

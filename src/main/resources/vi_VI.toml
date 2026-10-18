@@ -4559,6 +4559,16 @@ lore5 = "Số kẻ thù bị đánh thêm mỗi cú đấm"
 lore6 = "Sát thương tấn công ở Dạng Khổng Lồ"
 lore = ["Máu bổ sung cho golem Sắt", "Giáp bổ sung cho golem Sắt", "Sát thương tấn công bổ sung cho golem Sắt", "Máu hồi thêm mỗi lần sửa bằng thỏi sắt", "Số kẻ thù bị đánh thêm mỗi cú đấm", "Sát thương tấn công ở Dạng Khổng Lồ"]
 
+[golemancy.guardian_core]
+name = "Lõi Hộ Vệ"
+description = "Golem được liên kết bằng Lõi Hộ Vệ bảo vệ nhà của chúng, bạn hoặc khu vực của một Nút Canh Gác, và che chở bạn tốt hơn khi lõi mạnh lên."
+lore1 = "Bán kính canh gác (khối)"
+lore2 = "Chặn Đánh: mob đang đuổi theo bạn quay sang các hộ vệ của bạn"
+lore3 = "Trả Đũa: hộ vệ tấn công thứ đã làm bạn bị thương"
+lore4 = "Giảm sát thương khi ở gần hộ vệ của bạn"
+lore5 = "Số giây Kháng Cự từ Trận Chiến Cuối"
+lore = ["Bán kính canh gác (khối)", "Chặn Đánh: mob đang đuổi theo bạn quay sang các hộ vệ của bạn", "Trả Đũa: hộ vệ tấn công thứ đã làm bạn bị thương", "Giảm sát thương khi ở gần hộ vệ của bạn", "Số giây Kháng Cự từ Trận Chiến Cuối"]
+
 [golemancy.runic_augments]
 name = "Cường hóa Rune"
 description = "Cho phép bạn truyền Cổ Tự tại Bệ Animus và gắn chúng vào các golem đã liên kết để tăng tốc độ, sức chở, lửa, tầm hoạt động, kênh, sản lượng và giáp."

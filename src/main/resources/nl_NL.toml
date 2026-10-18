@@ -4559,6 +4559,16 @@ lore5 = "Extra vijandige wezens geraakt per vuistslag"
 lore6 = "Aanvalsschade in Kolossusvorm"
 lore = ["Extra gezondheid voor ijzergolems", "Extra bepantsering voor ijzergolems", "Extra aanvalsschade voor ijzergolems", "Extra gezondheid per reparatie met een ijzerstaaf", "Extra vijandige wezens geraakt per vuistslag", "Aanvalsschade in Kolossusvorm"]
 
+[golemancy.guardian_core]
+name = "Beschermer-kern"
+description = "Golems die met een Beschermer-kern zijn gebonden, verdedigen hun thuis, jou of het gebied van een Bewaking-knooppunt en beschermen je beter naarmate de kern sterker wordt."
+lore1 = "Bewakingsstraal in blokken"
+lore2 = "Onderscheppen: mobs die jou achtervolgen keren zich tegen je beschermers"
+lore3 = "Vergelding: beschermers vallen aan wat jou verwondde"
+lore4 = "Minder schade in de buurt van je beschermers"
+lore5 = "Seconden Weerstand door Laatste Stand"
+lore = ["Bewakingsstraal in blokken", "Onderscheppen: mobs die jou achtervolgen keren zich tegen je beschermers", "Vergelding: beschermers vallen aan wat jou verwondde", "Minder schade in de buurt van je beschermers", "Seconden Weerstand door Laatste Stand"]
+
 [golemancy.runic_augments]
 name = "Runenversterkingen"
 description = "Laat je runen infuseren op de Animussokkel en ze in je gebonden golems zetten voor snelheid, draagvermogen, vuur, bereik, kanalen, opbrengst en harnas."

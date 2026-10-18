@@ -214,6 +214,14 @@ public final class GolemancyMessages {
   public static final TextKey RUNIC_AUGMENTS_LORE3 = TextKey.of("golemancy.runic_augments.lore3", "Animus Plinth and Blank Rune Recipe");
   public static final LinesKey RUNIC_AUGMENTS_LORE = LinesKey.of("golemancy.runic_augments.lore", "Extra Rune Slots per Golem", "Highest Usable Rune Tier", "Animus Plinth and Blank Rune Recipe");
   public static final LinesKey IRON_FRAME_LORE = LinesKey.of("golemancy.iron_frame.lore", "Bonus Health for Iron Golems", "Bonus Armor for Iron Golems", "Bonus Attack Damage for Iron Golems", "Extra Health per Iron Ingot Repair", "Extra Hostiles Hit per Punch", "Attack Damage in Colossus Form");
+  public static final TextKey GUARDIAN_CORE_NAME = TextKey.of("golemancy.guardian_core.name", "Guardian Core");
+  public static final TextKey GUARDIAN_CORE_DESCRIPTION = TextKey.of("golemancy.guardian_core.description", "Golems bound with a Guardian Core defend their home, you or a Guard Node's area, and shield you as the core grows stronger.");
+  public static final TextKey GUARDIAN_CORE_LORE1 = TextKey.of("golemancy.guardian_core.lore1", "Block Guard Radius");
+  public static final TextKey GUARDIAN_CORE_LORE2 = TextKey.of("golemancy.guardian_core.lore2", "Intercept: Mobs Chasing You Turn on Your Guardians");
+  public static final TextKey GUARDIAN_CORE_LORE3 = TextKey.of("golemancy.guardian_core.lore3", "Retaliate: Guardians Attack Whatever Hurt You");
+  public static final TextKey GUARDIAN_CORE_LORE4 = TextKey.of("golemancy.guardian_core.lore4", "Less Damage Near Your Guardians");
+  public static final TextKey GUARDIAN_CORE_LORE5 = TextKey.of("golemancy.guardian_core.lore5", "Seconds of Last Stand Resistance");
+  public static final LinesKey GUARDIAN_CORE_LORE = LinesKey.of("golemancy.guardian_core.lore", "Block Guard Radius", "Intercept: Mobs Chasing You Turn on Your Guardians", "Retaliate: Guardians Attack Whatever Hurt You", "Less Damage Near Your Guardians", "Seconds of Last Stand Resistance");
 
   public static final TextKey NODE_STATUS_IDLE = TextKey.of("golemancy.node_status.idle", "Idle");
   public static final TextKey NODE_STATUS_WORKING = TextKey.of("golemancy.node_status.working", "Working");
@@ -493,6 +501,14 @@ public final class GolemancyMessages {
     builder.add(IRON_FRAME_LORE5);
     builder.add(IRON_FRAME_LORE6);
     builder.add(IRON_FRAME_LORE);
+    builder.add(GUARDIAN_CORE_NAME);
+    builder.add(GUARDIAN_CORE_DESCRIPTION);
+    builder.add(GUARDIAN_CORE_LORE1);
+    builder.add(GUARDIAN_CORE_LORE2);
+    builder.add(GUARDIAN_CORE_LORE3);
+    builder.add(GUARDIAN_CORE_LORE4);
+    builder.add(GUARDIAN_CORE_LORE5);
+    builder.add(GUARDIAN_CORE_LORE);
     builder.add(RUNIC_AUGMENTS_NAME);
     builder.add(RUNIC_AUGMENTS_DESCRIPTION);
     builder.add(RUNIC_AUGMENTS_LORE1);

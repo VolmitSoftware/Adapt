@@ -4559,6 +4559,16 @@ lore5 = "Ylimääräiset viholliset, joihin isku osuu"
 lore6 = "Hyökkäysvahinko Kolossimuodossa"
 lore = ["Lisäterveys rautagolemeille", "Lisäpanssari rautagolemeille", "Lisähyökkäysvahinko rautagolemeille", "Lisäterveys rautaharkkokorjausta kohden", "Ylimääräiset viholliset, joihin isku osuu", "Hyökkäysvahinko Kolossimuodossa"]
 
+[golemancy.guardian_core]
+name = "Vartijaydin"
+description = "Vartijaytimellä sidotut golemit puolustavat kotiaan, sinua tai vartiosolmun aluetta ja suojaavat sinua sitä paremmin, mitä vahvemmaksi ydin kasvaa."
+lore1 = "Vartiosäde palikoina"
+lore2 = "Sieppaus: sinua jahtaavat olennot kääntyvät vartijoidesi kimppuun"
+lore3 = "Kosto: vartijat hyökkäävät sen kimppuun, joka satutti sinua"
+lore4 = "Vähemmän vahinkoa vartijoidesi lähellä"
+lore5 = "Sekuntia Vastustuskyky-tehostetta viimeisestä puolustuksesta"
+lore = ["Vartiosäde palikoina", "Sieppaus: sinua jahtaavat olennot kääntyvät vartijoidesi kimppuun", "Kosto: vartijat hyökkäävät sen kimppuun, joka satutti sinua", "Vähemmän vahinkoa vartijoidesi lähellä", "Sekuntia Vastustuskyky-tehostetta viimeisestä puolustuksesta"]
+
 [golemancy.runic_augments]
 name = "Riimuvahvistukset"
 description = "Antaa sinun infusoida riimuja Animusjalustalla ja asettaa ne sidottuihin golemeihisi nopeuden, kantokyvyn, tulen, ulottuvuuden, kanavien, saaliin ja panssarin vuoksi."

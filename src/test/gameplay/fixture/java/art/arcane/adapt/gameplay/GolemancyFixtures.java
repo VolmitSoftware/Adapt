@@ -1,5 +1,6 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
@@ -30,6 +31,7 @@ import java.util.Optional;
 
 public final class GolemancyFixtures {
     private static final String BINDING_STAGE = "golemancy-binding";
+    private static final String GUARDIAN_BINDING_STAGE = "golemancy-guardian-binding";
     private static final String COPPER_BINDING_STAGE = "golemancy-copper-binding";
     private static final String IRON_BINDING_STAGE = "golemancy-iron-binding";
     private static final String NODE_STAGE = "golemancy-node";
@@ -54,6 +56,14 @@ public final class GolemancyFixtures {
             opponent.teleport(new Location(world, 0.5, 100, 8.5));
             actor.setLevel(0);
             actor.getInventory().addItem(GolemItems.blankCore());
+            Snowman golem = world.spawn(new Location(world, 2.5, 100, 0.5), Snowman.class);
+            golem.addScoreboardTag(GOLEM_TAG);
+            return true;
+        }
+        if (GUARDIAN_BINDING_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.setLevel(0);
+            actor.getInventory().addItem(GolemItems.core(GolemCoreType.GUARDIAN));
             Snowman golem = world.spawn(new Location(world, 2.5, 100, 0.5), Snowman.class);
             golem.addScoreboardTag(GOLEM_TAG);
             return true;
@@ -178,6 +188,8 @@ public final class GolemancyFixtures {
         result.addProperty("entityId", golem.getEntityId());
         result.addProperty("bound", state.isPresent());
         result.addProperty("boundToPlayer", state.map(bound -> bound.owner().equals(player.getUniqueId())).orElse(false));
+        result.addProperty("core", state.map(bound -> bound.primaryCore().id()).orElse(""));
+        result.addProperty("mode", state.map(bound -> bound.mode().id()).orElse(""));
         result.addProperty("aware", golem.isAware());
         AttributeInstance scale = golem.getAttribute(Attribute.SCALE);
         result.addProperty("scale", scale == null ? 1D : scale.getValue());
