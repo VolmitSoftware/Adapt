@@ -37,10 +37,13 @@ import art.arcane.volmlib.util.io.CountingDataInputStream;
 import art.arcane.volmlib.util.mantle.io.IOWorkerCodecSupport;
 import art.arcane.volmlib.util.mantle.runtime.IOWorker;
 import art.arcane.volmlib.util.mantle.runtime.Mantle;
+import art.arcane.volmlib.util.mantle.runtime.MantleChunk;
 import art.arcane.volmlib.util.mantle.runtime.MantleDataAdapter;
 import art.arcane.volmlib.util.mantle.runtime.MantleHooks;
 import art.arcane.volmlib.util.mantle.runtime.TectonicPlate;
 import art.arcane.volmlib.util.parallel.HyperLockSupport;
+import art.arcane.volmlib.util.parallel.MultiBurstSupport;
+import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -51,6 +54,8 @@ import org.bukkit.event.world.WorldUnloadEvent;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 
 public class WorldData extends TickedObject {
   private static final KMap<World, WorldData> mantles = new KMap<>();
@@ -63,7 +68,7 @@ public class WorldData extends TickedObject {
 
   private final World world;
   private final int minHeight;
-  private final Mantle<Matter> mantle;
+  private final AdaptMantle mantle;
 
   public WorldData(World world) {
     super("world-data", world.getUID().toString(), 30_000);
@@ -72,24 +77,16 @@ public class WorldData extends TickedObject {
     NamespacedKey worldKey = WorldIdentity.key(world);
     mantle = createMantle(
         Adapt.instance.getDataFolder("data", "mantle", worldKey.getNamespace(), worldKey.getKey()),
-        world.getMaxHeight()
+        world.getMaxHeight() - minHeight
     );
   }
 
-  private static Mantle<Matter> createMantle(File dataFolder, int worldHeight) {
+  private static AdaptMantle createMantle(File dataFolder, int worldHeight) {
     MantleDataAdapter<Matter> adapter = createAdapter();
     MantleHooks hooks = createHooks();
     art.arcane.volmlib.util.mantle.Mantle.RegionIO<TectonicPlate<Matter>> regionIO =
         createRegionIO(dataFolder, worldHeight, adapter, hooks);
-    return new Mantle<>(
-        dataFolder,
-        worldHeight,
-        new HyperLockSupport(),
-        MultiBurst.burst,
-        regionIO,
-        adapter,
-        hooks
-    );
+    return new AdaptMantle(dataFolder, worldHeight, MultiBurst.burst, regionIO, adapter, hooks);
   }
 
   private static MantleDataAdapter<Matter> createAdapter() {
@@ -308,6 +305,10 @@ public class WorldData extends TickedObject {
     mantles.clear();
   }
 
+  public static Optional<WorldData> loaded(World world) {
+    return Bukkit.getWorld(world.getUID()) == world ? Optional.of(of(world)) : Optional.empty();
+  }
+
   public static WorldData of(World world) {
     return mantles.computeIfAbsent(world, key -> {
       WorldData data = new WorldData(key);
@@ -351,12 +352,13 @@ public class WorldData extends TickedObject {
   }
 
   public <T> void iterateChunk(int chunkX, int chunkZ, Class<T> type, Consumer4<Integer, Integer, Integer, T> visitor) {
-    if (!mantle.hasTectonicPlate(chunkX >> 5, chunkZ >> 5)) {
-      return;
-    }
     int baseX = chunkX << 4;
     int baseZ = chunkZ << 4;
-    mantle.iterateChunk(chunkX, chunkZ, type, (x, y, z, value) -> visitor.accept(baseX + x, y + minHeight, baseZ + z, value));
+    mantle.iterateExisting(chunkX, chunkZ, type, (x, y, z, value) -> visitor.accept(baseX + x, y + minHeight, baseZ + z, value));
+  }
+
+  public boolean savePlate(int x, int z) {
+    return mantle.saveIdleTectonicPlates(List.of(Mantle.key(x >> 9, z >> 9))).isEmpty();
   }
 
   public double reportEarnings(Block block) {
@@ -392,5 +394,36 @@ public class WorldData extends TickedObject {
   @Override
   public void onTick() {
     mantle.trim(60_000);
+  }
+
+  private static final class AdaptMantle extends Mantle<Matter> {
+    private AdaptMantle(File dataFolder,
+                        int worldHeight,
+                        MultiBurstSupport ioBurst,
+                        Mantle.RegionIO<TectonicPlate<Matter>> regionIO,
+                        MantleDataAdapter<Matter> adapter,
+                        MantleHooks hooks) {
+      super(dataFolder, worldHeight, new HyperLockSupport(), ioBurst, regionIO, adapter, hooks);
+    }
+
+    private <T> void iterateExisting(int chunkX, int chunkZ, Class<T> type, Consumer4<Integer, Integer, Integer, T> visitor) {
+      int regionX = chunkX >> 5;
+      int regionZ = chunkZ >> 5;
+      if (isClosed() || !hasTectonicPlate(regionX, regionZ)) {
+        return;
+      }
+      TectonicPlate<Matter> plate = accessRegion(regionX, regionZ);
+      while (!plate.pin()) {
+        plate = accessRegion(regionX, regionZ);
+      }
+      try {
+        MantleChunk<Matter> chunk = plate.get(chunkX & 31, chunkZ & 31);
+        if (chunk != null && !chunk.isClosed()) {
+          chunk.iterate(type, visitor);
+        }
+      } finally {
+        plate.unpin();
+      }
+    }
   }
 }

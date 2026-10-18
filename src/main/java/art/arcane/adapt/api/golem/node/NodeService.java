@@ -36,6 +36,8 @@ public final class NodeService extends TickedObject {
   private static final double DROP_FACE_DISTANCE = 0.45D;
   private static final int RECONCILE_DELAY_TICKS = 40;
   private static final int RECONCILE_ATTEMPTS = 5;
+  private static final int SAVE_ATTEMPTS = 20;
+  private static final int SAVE_RETRY_TICKS = 2;
 
   private final NodePlatform platform;
   private final Supplier<NodeSettings> settings;
@@ -112,10 +114,14 @@ public final class NodeService extends TickedObject {
     NodeRecord record = NodeRecord.builder(ownerId, type, face).radii(radius, radius, radius).build();
     platform.write(world, key.x(), key.y(), key.z(), faces.with(record));
     index.put(key, record);
-    if (roster.get().addNode(GolemRoster.NodeEntry.at(key.anchor(), face, type))) {
-      platform.rosterChanged(ownerId);
+    roster.get().removeNode(key.anchor(), face);
+    roster.get().addNode(GolemRoster.NodeEntry.at(key.anchor(), face, type));
+    platform.rosterChanged(ownerId);
+    try {
+      track(world, key, record);
+    } catch (RuntimeException failure) {
+      Adapt.warn("Golemancy node " + key + " was stored but could not be shown or scheduled; it appears when its chunk reloads.", failure);
     }
-    track(world, key, record);
     return verdict;
   }
 
@@ -128,10 +134,10 @@ public final class NodeService extends TickedObject {
     if (record == null || !record.owner().equals(owner.getUniqueId())) {
       return false;
     }
-    purge(world, key, record, false);
-    for (ItemStack leftover : owner.getInventory().addItem(GolemItems.node(record.type())).values()) {
-      owner.getWorld().dropItemNaturally(owner.getLocation(), leftover);
+    if (!release(world, key, record)) {
+      return false;
     }
+    saveThen(world, key, () -> giveBack(owner, world, key, record.type()), SAVE_ATTEMPTS, 0);
     return true;
   }
 
@@ -144,6 +150,12 @@ public final class NodeService extends TickedObject {
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(ChunkLoadEvent e) {
     Chunk chunk = e.getChunk();
+    if (e.isNewChunk()) {
+      UUID worldId = chunk.getWorld().getUID();
+      long chunkKey = GolemRoster.chunkKey(chunk.getX(), chunk.getZ());
+      index.completeLoad(worldId, chunkKey, index.beginLoad(worldId, chunkKey), Map.of());
+      return;
+    }
     load(chunk.getWorld(), chunk.getX(), chunk.getZ());
   }
 
@@ -175,10 +187,14 @@ public final class NodeService extends TickedObject {
         Adapt.warn("Could not read Golemancy nodes for chunk " + chunkX + ", " + chunkZ + " in " + world.getName() + "; they stay hidden until the chunk reloads.", failure);
         stored = Map.of();
       }
+      if (stored.isEmpty()) {
+        index.completeLoad(worldId, chunkKey, generation, Map.of());
+        return;
+      }
       Map<NodeKey, NodeRecord> nodes = stored;
       Location center = new Location(world, (chunkX << 4) + 8D, world.getMinHeight(), (chunkZ << 4) + 8D);
       if (!platform.runAt(center, () -> finishLoad(world, chunkX, chunkZ, generation, nodes), 0)) {
-        index.unload(worldId, chunkKey);
+        index.unload(worldId, chunkKey, generation);
       }
     }, 0);
   }
@@ -190,7 +206,7 @@ public final class NodeService extends TickedObject {
       return;
     }
     if (!world.isChunkLoaded(chunkX, chunkZ)) {
-      index.unload(worldId, chunkKey);
+      index.unload(worldId, chunkKey, generation);
       return;
     }
     Map<NodeKey, NodeRecord> valid = new HashMap<>(stored.size() * 2);
@@ -200,7 +216,7 @@ public final class NodeService extends TickedObject {
       if (anchorValid(world, key, record)) {
         valid.put(key, record);
       } else {
-        purge(world, key, record, true);
+        drop(world, key, record);
       }
     }
     if (!index.completeLoad(worldId, chunkKey, generation, valid)) {
@@ -237,7 +253,7 @@ public final class NodeService extends TickedObject {
       return;
     }
     if (!anchorValid(world, key, record)) {
-      purge(world, key, record, true);
+      drop(world, key, record);
       return;
     }
     NodeScanHook hook = scanHook;
@@ -253,10 +269,17 @@ public final class NodeService extends TickedObject {
     return NodeRules.validate(record.type(), world.getBlockAt(key.x(), key.y(), key.z()).getType()) == NodeValidation.KEEP;
   }
 
-  private void purge(World world, NodeKey key, NodeRecord record, boolean drop) {
+  private void drop(World world, NodeKey key, NodeRecord record) {
+    if (release(world, key, record)) {
+      saveThen(world, key, () -> world.dropItemNaturally(dropLocation(world, key), GolemItems.node(record.type())), SAVE_ATTEMPTS, 0);
+    }
+  }
+
+  private boolean release(World world, NodeKey key, NodeRecord record) {
     NodeFaces faces = platform.read(world, key.x(), key.y(), key.z());
     NodeRecord stored = faces.get(key.face());
-    if (stored != null && stored.owner().equals(record.owner())) {
+    boolean taken = stored != null && stored.owner().equals(record.owner()) && stored.type() == record.type();
+    if (taken) {
       platform.write(world, key.x(), key.y(), key.z(), faces.without(key.face()));
     }
     index.remove(key);
@@ -269,11 +292,47 @@ public final class NodeService extends TickedObject {
         platform.rosterChanged(owner);
       }
     });
-    if (drop) {
-      BlockFace face = key.face();
-      Location at = key.center(world).add(face.getModX() * DROP_FACE_DISTANCE, face.getModY() * DROP_FACE_DISTANCE, face.getModZ() * DROP_FACE_DISTANCE);
-      world.dropItemNaturally(at, GolemItems.node(record.type()));
+    return taken;
+  }
+
+  private void saveThen(World world, NodeKey key, Runnable handOut, int attemptsLeft, int delayTicks) {
+    platform.async(() -> {
+      boolean saved;
+      try {
+        saved = platform.savePlate(world, key.x(), key.z());
+      } catch (RuntimeException failure) {
+        Adapt.warn("Could not save the removal of Golemancy node " + key + "; its item is withheld so it can never be duplicated.", failure);
+        return;
+      }
+      if (!saved && attemptsLeft > 1) {
+        saveThen(world, key, handOut, attemptsLeft - 1, SAVE_RETRY_TICKS);
+        return;
+      }
+      if (!saved) {
+        Adapt.warn("Could not save the removal of Golemancy node " + key + "; its item is withheld so it can never be duplicated.",
+            new IllegalStateException("The mantle plate stayed busy for " + SAVE_ATTEMPTS + " save attempts"));
+        return;
+      }
+      if (!platform.runAt(key.center(world), handOut, 0)) {
+        Adapt.warn("The item for removed Golemancy node " + key + " could not be handed out because its region refused the task.");
+      }
+    }, delayTicks);
+  }
+
+  private void giveBack(Player owner, World world, NodeKey key, NodeType type) {
+    ItemStack item = GolemItems.node(type);
+    if (!owner.isOnline() || !platform.owns(owner)) {
+      world.dropItemNaturally(dropLocation(world, key), item);
+      return;
     }
+    for (ItemStack leftover : owner.getInventory().addItem(item).values()) {
+      owner.getWorld().dropItemNaturally(owner.getLocation(), leftover);
+    }
+  }
+
+  private static Location dropLocation(World world, NodeKey key) {
+    BlockFace face = key.face();
+    return key.center(world).add(face.getModX() * DROP_FACE_DISTANCE, face.getModY() * DROP_FACE_DISTANCE, face.getModZ() * DROP_FACE_DISTANCE);
   }
 
   private void forget(List<NodeKey> keys) {

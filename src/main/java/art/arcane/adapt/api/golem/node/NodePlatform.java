@@ -4,6 +4,7 @@ import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
@@ -28,6 +29,10 @@ interface NodePlatform {
   void async(Runnable task, int delayTicks);
 
   boolean owns(Location location);
+
+  boolean owns(Entity entity);
+
+  boolean savePlate(World world, int x, int z);
 
   World world(UUID id);
 

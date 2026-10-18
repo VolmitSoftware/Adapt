@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -14,6 +15,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class NodeRecordTest {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000000a1");
@@ -53,7 +55,7 @@ class NodeRecordTest {
   void theFilterHoldsAtMostEighteenItemsAndTagsTogether() {
     List<ItemStack> items = new ArrayList<>();
     for (int index = 0; index < 12; index++) {
-      items.add(mock(ItemStack.class));
+      items.add(stack());
     }
     List<String> tags = List.of("#logs", "#planks", "#minecraft:wool", "#saplings", "#flowers", "#leaves");
 
@@ -82,7 +84,7 @@ class NodeRecordTest {
 
   @Test
   void recordsAreImmutableValuesThatCopyThroughTheirBuilder() {
-    Map<String, String> data = new java.util.HashMap<>(Map.of("replant", "true"));
+    Map<String, String> data = new HashMap<>(Map.of("replant", "true"));
     NodeRecord original = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP)
         .channel(DyeColor.LIME).priority(4).redstone(RedstoneMode.POWERED).radii(3, 1, 3)
         .filterTags(List.of("#crops")).whitelist(false).data(data).build();
@@ -97,5 +99,22 @@ class NodeRecordTest {
     assertThat(changed.channel()).isNull();
     assertThatThrownBy(() -> original.data().put("x", "y")).isInstanceOf(UnsupportedOperationException.class);
     assertThatThrownBy(() -> original.filterTags().add("#x")).isInstanceOf(UnsupportedOperationException.class);
+  }
+
+  @Test
+  void filterItemsAreClonedSoCallersCannotChangeAStoredNode() {
+    ItemStack original = mock(ItemStack.class);
+    ItemStack copy = mock(ItemStack.class);
+    when(original.clone()).thenReturn(copy);
+
+    NodeRecord node = NodeRecord.builder(OWNER, NodeType.FILTER, BlockFace.EAST).filterItems(List.of(original)).build();
+
+    assertThat(node.filterItems()).containsExactly(copy);
+  }
+
+  private static ItemStack stack() {
+    ItemStack item = mock(ItemStack.class);
+    when(item.clone()).thenReturn(item);
+    return item;
   }
 }

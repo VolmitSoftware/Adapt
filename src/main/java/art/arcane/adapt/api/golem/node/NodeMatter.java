@@ -21,6 +21,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class NodeMatter extends RawMatter<NodeFaces> {
+  public static final int MAX_FACES = 6;
+  public static final int MAX_RECORD_BYTES = 8 * 1024 * 1024;
   private static final String NO_CHANNEL = "";
 
   public NodeMatter(int width, int height, int depth) {
@@ -33,22 +35,37 @@ public class NodeMatter extends RawMatter<NodeFaces> {
 
   @Override
   public void writeNode(NodeFaces faces, DataOutputStream out) throws IOException {
-    out.writeByte(faces.size());
+    Map<BlockFace, byte[]> encoded = new LinkedHashMap<>(faces.size() * 2);
     for (NodeRecord record : faces.records()) {
       byte[] bytes = encode(record);
-      out.writeUTF(record.face().name());
-      out.writeInt(bytes.length);
-      out.write(bytes);
+      if (bytes.length > MAX_RECORD_BYTES) {
+        Adapt.error("Not saving Golemancy node " + record + ": it encodes to " + bytes.length + " bytes, more than the " + MAX_RECORD_BYTES + " byte limit.");
+        continue;
+      }
+      encoded.put(record.face(), bytes);
+    }
+    out.writeByte(encoded.size());
+    for (Map.Entry<BlockFace, byte[]> entry : encoded.entrySet()) {
+      out.writeUTF(entry.getKey().name());
+      out.writeInt(entry.getValue().length);
+      out.write(entry.getValue());
     }
   }
 
   @Override
   public NodeFaces readNode(DataInputStream in) throws IOException {
     int count = in.readUnsignedByte();
+    if (count > MAX_FACES) {
+      throw rejected("Golemancy node block claims " + count + " faces; a block has at most " + MAX_FACES + ".");
+    }
     NodeFaces faces = NodeFaces.EMPTY;
     for (int index = 0; index < count; index++) {
       String faceName = in.readUTF();
-      byte[] bytes = new byte[in.readInt()];
+      int length = in.readInt();
+      if (length < 0 || length > MAX_RECORD_BYTES) {
+        throw rejected("Golemancy node on face " + faceName + " claims " + length + " bytes; records hold 0-" + MAX_RECORD_BYTES + ".");
+      }
+      byte[] bytes = new byte[length];
       in.readFully(bytes);
       try {
         faces = faces.with(decode(BlockFace.valueOf(faceName), bytes));
@@ -57,6 +74,11 @@ public class NodeMatter extends RawMatter<NodeFaces> {
       }
     }
     return faces;
+  }
+
+  private static IOException rejected(String message) {
+    Adapt.error(message);
+    return new IOException(message);
   }
 
   private static byte[] encode(NodeRecord record) throws IOException {
@@ -107,7 +129,11 @@ public class NodeMatter extends RawMatter<NodeFaces> {
       int itemCount = in.readUnsignedByte();
       List<ItemStack> items = new ArrayList<>(itemCount);
       for (int index = 0; index < itemCount; index++) {
-        byte[] encoded = new byte[in.readInt()];
+        int length = in.readInt();
+        if (length < 0 || length > in.available()) {
+          throw new IOException("Filter item claims " + length + " bytes with " + in.available() + " left in the record");
+        }
+        byte[] encoded = new byte[length];
         in.readFully(encoded);
         items.add(NMS.deserializeStack(new String(encoded, StandardCharsets.US_ASCII)));
       }

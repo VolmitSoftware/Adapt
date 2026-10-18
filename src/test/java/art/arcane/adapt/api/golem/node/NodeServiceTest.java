@@ -11,6 +11,7 @@ import art.arcane.adapt.api.golem.reveal.RevealService;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.util.common.scheduling.J;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.Location;
@@ -44,6 +45,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
+import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -67,10 +71,26 @@ class NodeServiceTest extends AdaptTestBase {
   private final Map<String, Material> blocks = new HashMap<>();
   private final Map<NodeType, ItemStack> nodeItems = new EnumMap<>(NodeType.class);
   private final List<Entity> spawned = new ArrayList<>();
+  private final List<LogRecord> logged = new ArrayList<>();
+  private final Handler capture = new Handler() {
+    @Override
+    public void publish(LogRecord record) {
+      logged.add(record);
+    }
+
+    @Override
+    public void flush() {
+    }
+
+    @Override
+    public void close() {
+    }
+  };
   private MockedStatic<HiddenDisplays> displays;
   private MockedStatic<GolemItems> items;
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<J> scheduling;
+  private MockedStatic<ComponentLogger> componentLogger;
   private RevealService reveal;
   private World world;
   private NodeService service;
@@ -102,11 +122,16 @@ class NodeServiceTest extends AdaptTestBase {
     scheduling = mockStatic(J.class);
     scheduling.when(() -> J.isOwnedByCurrentRegion(any(Entity.class))).thenReturn(true);
     lenient().when(plugin.isEnabled()).thenReturn(true);
+    componentLogger = mockStatic(ComponentLogger.class);
+    componentLogger.when(ComponentLogger::logger).thenReturn(null);
+    Logger.getLogger("AdaptTest").addHandler(capture);
     service = new NodeService(platform, NodeSettings::defaults, RevealSettings::defaults);
   }
 
   @AfterEach
   void tearDown() {
+    Logger.getLogger("AdaptTest").removeHandler(capture);
+    componentLogger.close();
     scheduling.close();
     runtime.close();
     items.close();
@@ -369,6 +394,183 @@ class NodeServiceTest extends AdaptTestBase {
     assertThat(platform.rosterSaves).containsEntry(OWNER, 1);
   }
 
+  @Test
+  void aRemovedNodesItemIsHandedOutOnlyAfterItsPlateIsSaved() {
+    Player owner = placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    platform.deferAsync = true;
+
+    assertThat(service.remove(owner, key)).isTrue();
+
+    assertThat(platform.stored(WORLD, 3, 64, 3).isEmpty()).isTrue();
+    verify(owner.getInventory(), never()).addItem(any(ItemStack[].class));
+    platform.runAsync();
+    assertThat(platform.events).containsExactly("save 3,3");
+    verify(owner.getInventory()).addItem(nodeItems.get(NodeType.GUARD));
+  }
+
+  @Test
+  void aFailedSaveLogsItsStackTraceAndWithholdsTheItem() {
+    Player owner = placedGuard();
+    platform.saveFailure = new IllegalStateException("disk full");
+
+    assertThat(service.remove(owner, new NodeKey(WORLD, 3, 64, 3, BlockFace.UP))).isTrue();
+
+    verify(owner.getInventory(), never()).addItem(any(ItemStack[].class));
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+    assertThat(logged).anySatisfy(record -> assertThat(record.getThrown()).hasMessage("disk full"));
+    assertThat(platform.stored(WORLD, 3, 64, 3).isEmpty()).isTrue();
+  }
+
+  @Test
+  void aPlateThatStaysBusyIsRetriedThenGivenUpLoudlyWithoutAnItem() {
+    Player owner = placedGuard();
+    platform.busySaves = 1000;
+
+    service.remove(owner, new NodeKey(WORLD, 3, 64, 3, BlockFace.UP));
+    platform.drainAsync();
+
+    assertThat(platform.events).hasSize(20);
+    verify(owner.getInventory(), never()).addItem(any(ItemStack[].class));
+    assertThat(logged).anySatisfy(record -> assertThat(record.getThrown()).hasMessageContaining("busy"));
+  }
+
+  @Test
+  void aPlateThatFreesUpIsSavedAndTheItemHandedOutOnce() {
+    Player owner = placedGuard();
+    platform.busySaves = 2;
+
+    service.remove(owner, new NodeKey(WORLD, 3, 64, 3, BlockFace.UP));
+    platform.drainAsync();
+
+    assertThat(platform.events).hasSize(3);
+    verify(owner.getInventory()).addItem(nodeItems.get(NodeType.GUARD));
+  }
+
+  @Test
+  void anOwnerWhoLeftTheRegionGetsTheItemDroppedAtTheNode() {
+    Player owner = placedGuard();
+    platform.deferAsync = true;
+    service.remove(owner, new NodeKey(WORLD, 3, 64, 3, BlockFace.UP));
+    when(owner.isOnline()).thenReturn(false);
+
+    platform.runAsync();
+
+    verify(owner.getInventory(), never()).addItem(any(ItemStack[].class));
+    verify(world).dropItemNaturally(any(Location.class), eq(nodeItems.get(NodeType.GUARD)));
+  }
+
+  @Test
+  void aBrokenAnchorDropsItsItemOnlyAfterTheSave() {
+    placedGuard();
+    blocks.put("3,64,3", Material.AIR);
+    platform.deferAsync = true;
+
+    platform.runScheduled();
+
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+    platform.runAsync();
+    verify(world).dropItemNaturally(any(Location.class), eq(nodeItems.get(NodeType.GUARD)));
+  }
+
+  @Test
+  void aNodeWhoseStoredRecordIsAlreadyGoneYieldsNoItem() {
+    Player owner = placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    platform.store.clear();
+
+    assertThat(service.remove(owner, key)).isFalse();
+
+    assertThat(service.node(key)).isEmpty();
+    assertThat(platform.events).isEmpty();
+    verify(owner.getInventory(), never()).addItem(any(ItemStack[].class));
+  }
+
+  @Test
+  void aBrokenAnchorWhoseRecordIsAlreadyGoneDropsNothing() {
+    placedGuard();
+    platform.store.clear();
+    blocks.put("3,64,3", Material.AIR);
+
+    platform.runScheduled();
+
+    assertThat(platform.events).isEmpty();
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+  }
+
+  @Test
+  void aFailureAfterTheNodeIsStoredStillReportsReadySoTheItemIsConsumed() {
+    readyChunk();
+    blocks.put("3,64,3", Material.STONE);
+    onlineRoster(OWNER);
+    displays.when(() -> HiddenDisplays.spawnFaceItem(any(Block.class), any(BlockFace.class), any(ItemStack.class), anyFloat(), any(Vector3f.class)))
+        .thenThrow(new IllegalStateException("display failed"));
+
+    NodePlacementVerdict verdict = service.place(player(OWNER), block(3, 64, 3), BlockFace.UP, NodeType.GUARD, policy);
+
+    assertThat(verdict).isEqualTo(NodePlacementVerdict.READY);
+    assertThat(platform.stored(WORLD, 3, 64, 3).get(BlockFace.UP)).isNotNull();
+    assertThat(logged).anySatisfy(record -> assertThat(record.getThrown()).hasMessage("display failed"));
+  }
+
+  @Test
+  void placementReplacesAStaleRosterEntryOnTheSameFace() {
+    readyChunk();
+    blocks.put("3,64,3", Material.STONE);
+    GolemRoster roster = onlineRoster(OWNER);
+    roster.addNode(GolemRoster.NodeEntry.at(GolemState.Anchor.of(WORLD, 3, 64, 3), BlockFace.UP, NodeType.HARVEST));
+
+    service.place(player(OWNER), block(3, 64, 3), BlockFace.UP, NodeType.GUARD, policy);
+
+    assertThat(roster.nodes()).extracting(GolemRoster.NodeEntry::type).containsExactly(NodeType.GUARD);
+  }
+
+  @Test
+  void newChunksAreReadyWithoutReadingTheMantle() {
+    service.on(new ChunkLoadEvent(chunk(0, 0), true));
+
+    assertThat(platform.chunkReads).isZero();
+    assertThat(service.index().isReady(WORLD, GolemRoster.chunkKey(0, 0))).isTrue();
+  }
+
+  @Test
+  void anEmptyChunkReadCompletesWithoutHoppingToTheRegion() {
+    platform.refuseRunAt = true;
+
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+
+    assertThat(platform.chunkReads).isEqualTo(1);
+    assertThat(service.index().isReady(WORLD, GolemRoster.chunkKey(0, 0))).isTrue();
+  }
+
+  @Test
+  void aRefusedRegionHopOnlyForgetsItsOwnLoad() {
+    blocks.put("1,64,1", Material.STONE);
+    NodeRecord guard = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).build();
+    platform.put(WORLD, 1, 64, 1, NodeFaces.EMPTY.with(guard));
+    platform.deferAsync = true;
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    service.on(new ChunkLoadEvent(chunk(0, 0), false));
+    Runnable stale = platform.asyncTasks.get(0);
+    Runnable current = platform.asyncTasks.get(1);
+
+    current.run();
+    platform.refuseRunAt = true;
+    stale.run();
+
+    assertThat(service.index().isReady(WORLD, GolemRoster.chunkKey(0, 0))).isTrue();
+    assertThat(service.node(new NodeKey(WORLD, 1, 64, 1, BlockFace.UP))).contains(guard);
+  }
+
+  private Player placedGuard() {
+    readyChunk();
+    blocks.put("3,64,3", Material.STONE);
+    onlineRoster(OWNER);
+    Player owner = player(OWNER);
+    service.place(owner, block(3, 64, 3), BlockFace.UP, NodeType.GUARD, policy);
+    return owner;
+  }
+
   private void readyChunk() {
     service.on(new ChunkLoadEvent(chunk(0, 0), false));
   }
@@ -384,6 +586,7 @@ class NodeServiceTest extends AdaptTestBase {
     Player player = mock(Player.class);
     PlayerInventory inventory = mock(PlayerInventory.class);
     lenient().when(player.getUniqueId()).thenReturn(id);
+    lenient().when(player.isOnline()).thenReturn(true);
     lenient().when(player.getInventory()).thenReturn(inventory);
     lenient().when(inventory.addItem(any(ItemStack[].class))).thenReturn(new HashMap<>());
     lenient().when(player.getWorld()).thenReturn(world);

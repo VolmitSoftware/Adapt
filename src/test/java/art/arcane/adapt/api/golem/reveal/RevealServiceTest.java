@@ -23,6 +23,7 @@ import art.arcane.adapt.api.golem.node.NodeVisibility;
 import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
 import art.arcane.adapt.util.common.scheduling.J;
 import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -232,17 +233,33 @@ class RevealServiceTest extends AdaptTestBase {
     }
   }
 
+  @Test
+  void aReplacementBundleUnderTheSameKeyIsShownToArmedViewers() {
+    NodeKey key = new NodeKey(WORLD, 4, 64, 0, BlockFace.UP);
+    nodeBundle(key, OWNER);
+    runtime.when(GolemancyRuntime::nodeSettings).thenReturn(NodeSettings.defaults());
+    lenient().when(viewer.getWorld()).thenReturn(world);
+    RevealService service = new RevealService(RevealSettings::defaults);
+    service.update(viewer);
+    NodeBundle replacement = bundle();
+    NodeRenderer renderer = GolemancyRuntime.nodes().orElseThrow().renderer();
+    when(renderer.bundle(key)).thenReturn(Optional.of(replacement));
+
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      bukkit.when(() -> Bukkit.getPlayer(OWNER)).thenReturn(viewer);
+      service.nodeSpawned(key);
+    }
+
+    for (Entity entity : replacement.entities()) {
+      displays.verify(() -> HiddenDisplays.show(viewer, entity));
+    }
+  }
+
   private NodeBundle nodeBundle(NodeKey key, UUID owner) {
     NodeIndex index = new NodeIndex();
     long generation = index.beginLoad(WORLD, key.chunkKey());
     index.completeLoad(WORLD, key.chunkKey(), generation, Map.of(key, NodeRecord.builder(owner, NodeType.GUARD, BlockFace.UP).build()));
-    ItemDisplay icon = mock(ItemDisplay.class);
-    Interaction hitbox = mock(Interaction.class);
-    TextDisplay label = mock(TextDisplay.class);
-    for (Entity entity : List.of(icon, hitbox, label)) {
-      lenient().when(entity.isValid()).thenReturn(true);
-    }
-    NodeBundle bundle = new NodeBundle(icon, hitbox, label);
+    NodeBundle bundle = bundle();
     NodeRenderer renderer = mock(NodeRenderer.class);
     lenient().when(renderer.bundle(key)).thenReturn(Optional.of(bundle));
     NodeService nodes = mock(NodeService.class);
@@ -251,6 +268,16 @@ class RevealServiceTest extends AdaptTestBase {
     runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(nodes));
     lenient().when(registry.loadedOf(any(UUID.class))).thenReturn(List.of());
     return bundle;
+  }
+
+  private static NodeBundle bundle() {
+    ItemDisplay icon = mock(ItemDisplay.class);
+    Interaction hitbox = mock(Interaction.class);
+    TextDisplay label = mock(TextDisplay.class);
+    for (Entity entity : List.of(icon, hitbox, label)) {
+      lenient().when(entity.isValid()).thenReturn(true);
+    }
+    return new NodeBundle(icon, hitbox, label);
   }
 
   private Player viewer(UUID id) {

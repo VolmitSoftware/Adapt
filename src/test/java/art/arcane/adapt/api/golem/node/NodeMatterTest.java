@@ -22,10 +22,12 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 class NodeMatterTest extends AdaptTestBase {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000000a1");
@@ -113,12 +115,71 @@ class NodeMatterTest extends AdaptTestBase {
   }
 
   @Test
+  void aBlockClaimingMoreThanSixFacesIsRejected() throws IOException {
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    try (DataOutputStream out = new DataOutputStream(bytes)) {
+      out.writeByte(7);
+    }
+
+    assertThatThrownBy(() -> read(bytes.toByteArray())).isInstanceOf(IOException.class).hasMessageContaining("7 faces");
+  }
+
+  @Test
+  void negativeAndHugeRecordLengthsAreRejectedBeforeAllocating() throws IOException {
+    for (int length : new int[]{-1, NodeMatter.MAX_RECORD_BYTES + 1, Integer.MAX_VALUE}) {
+      ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+      try (DataOutputStream out = new DataOutputStream(bytes)) {
+        out.writeByte(1);
+        out.writeUTF("UP");
+        out.writeInt(length);
+      }
+
+      assertThatThrownBy(() -> read(bytes.toByteArray())).as("length %s", length).isInstanceOf(IOException.class).hasMessageContaining(String.valueOf(length));
+    }
+  }
+
+  @Test
+  void aFilterItemLengthPastTheRecordSkipsOnlyThatRecord() throws IOException {
+    NodeRecord intact = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).build();
+    byte[] good = write(NodeFaces.EMPTY.with(intact));
+    ByteArrayOutputStream record = new ByteArrayOutputStream();
+    try (DataOutputStream out = new DataOutputStream(record)) {
+      out.writeLong(OWNER.getMostSignificantBits());
+      out.writeLong(OWNER.getLeastSignificantBits());
+      out.writeUTF("filter");
+      out.writeUTF("");
+      out.writeByte(3);
+      out.writeUTF("ignore");
+      out.writeByte(1);
+      out.writeByte(1);
+      out.writeByte(1);
+      out.writeBoolean(true);
+      out.writeByte(1);
+      out.writeInt(5000);
+    }
+    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+    try (DataOutputStream out = new DataOutputStream(bytes)) {
+      out.writeByte(2);
+      out.writeUTF("EAST");
+      out.writeInt(record.size());
+      out.write(record.toByteArray());
+      out.write(good, 1, good.length - 1);
+    }
+
+    NodeFaces read = read(bytes.toByteArray());
+
+    assertThat(read.get(BlockFace.EAST)).isNull();
+    assertThat(read.get(BlockFace.UP)).isEqualTo(intact);
+  }
+
+  @Test
   void theCodecIsTheSliceForNodeFaces() {
     assertThat(new NodeMatter().getType()).isEqualTo(NodeFaces.class);
   }
 
   private ItemStack item(String id) {
     ItemStack item = mock(ItemStack.class);
+    when(item.clone()).thenReturn(item);
     encoded.put(item, id);
     decoded.put(id, item);
     return item;

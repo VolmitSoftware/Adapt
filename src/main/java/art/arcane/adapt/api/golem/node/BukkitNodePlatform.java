@@ -10,6 +10,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -39,13 +40,13 @@ final class BukkitNodePlatform implements NodePlatform {
 
   @Override
   public NodeFaces read(World world, int x, int y, int z) {
-    NodeFaces faces = WorldData.of(world).get(x, y, z, NodeFaces.class);
+    NodeFaces faces = WorldData.loaded(world).map(data -> data.get(x, y, z, NodeFaces.class)).orElse(null);
     return faces == null ? NodeFaces.EMPTY : faces;
   }
 
   @Override
   public void write(World world, int x, int y, int z, NodeFaces faces) {
-    WorldData data = WorldData.of(world);
+    WorldData data = loaded(world);
     if (faces.isEmpty()) {
       data.remove(x, y, z, NodeFaces.class);
     } else {
@@ -55,14 +56,23 @@ final class BukkitNodePlatform implements NodePlatform {
 
   @Override
   public Map<NodeKey, NodeRecord> readChunk(World world, int chunkX, int chunkZ) {
+    Optional<WorldData> data = WorldData.loaded(world);
+    if (data.isEmpty()) {
+      return Map.of();
+    }
     UUID worldId = world.getUID();
     Map<NodeKey, NodeRecord> nodes = new HashMap<>();
-    WorldData.of(world).iterateChunk(chunkX, chunkZ, NodeFaces.class, (x, y, z, faces) -> {
+    data.get().iterateChunk(chunkX, chunkZ, NodeFaces.class, (x, y, z, faces) -> {
       for (NodeRecord record : faces.records()) {
         nodes.put(new NodeKey(worldId, x, y, z, record.face()), record);
       }
     });
     return nodes;
+  }
+
+  @Override
+  public boolean savePlate(World world, int x, int z) {
+    return loaded(world).savePlate(x, z);
   }
 
   @Override
@@ -85,6 +95,11 @@ final class BukkitNodePlatform implements NodePlatform {
   }
 
   @Override
+  public boolean owns(Entity entity) {
+    return J.isOwnedByCurrentRegion(entity);
+  }
+
+  @Override
   public World world(UUID id) {
     return Bukkit.getWorld(id);
   }
@@ -92,6 +107,10 @@ final class BukkitNodePlatform implements NodePlatform {
   @Override
   public ItemStack icon(NodeType type) {
     return new ItemStack(NodeIcons.icon(type));
+  }
+
+  private static WorldData loaded(World world) {
+    return WorldData.loaded(world).orElseThrow(() -> new IllegalStateException("World " + world.getName() + " is no longer loaded"));
   }
 
   private static AdaptPlayer onlinePlayer(UUID owner) {

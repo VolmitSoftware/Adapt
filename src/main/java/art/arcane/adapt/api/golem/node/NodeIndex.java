@@ -46,6 +46,12 @@ public final class NodeIndex {
     return removed == null ? List.of() : List.copyOf(removed.nodes.keySet());
   }
 
+  public boolean unload(UUID world, long chunkKey, long generation) {
+    Map<Long, ChunkNodes> chunks = worlds.get(world);
+    ChunkNodes chunk = chunks == null ? null : chunks.get(chunkKey);
+    return chunk != null && chunk.generation == generation && chunks.remove(chunkKey, chunk);
+  }
+
   public List<NodeKey> unloadWorld(UUID world) {
     Map<Long, ChunkNodes> removed = worlds.remove(world);
     if (removed == null) {

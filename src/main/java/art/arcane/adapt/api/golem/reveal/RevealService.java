@@ -172,6 +172,7 @@ public final class RevealService extends TickedObject {
   }
 
   public void nodeSpawned(NodeKey key) {
+    nodes.drop(key);
     for (UUID viewerId : armed) {
       Player viewer = Bukkit.getPlayer(viewerId);
       if (viewer != null && viewer.getWorld().getUID().equals(key.world())) {

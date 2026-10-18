@@ -4,6 +4,7 @@ import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -25,7 +26,13 @@ final class FakeNodePlatform implements NodePlatform {
   final Map<UUID, World> worlds = new HashMap<>();
   final List<Scheduled> scheduled = new ArrayList<>();
   final List<Runnable> asyncTasks = new ArrayList<>();
+  final List<String> events = new ArrayList<>();
   boolean ownsEverything = true;
+  boolean deferAsync;
+  boolean refuseRunAt;
+  int busySaves;
+  RuntimeException saveFailure;
+  int chunkReads;
 
   @Override
   public Optional<GolemRoster> roster(UUID owner) {
@@ -58,6 +65,7 @@ final class FakeNodePlatform implements NodePlatform {
 
   @Override
   public Map<NodeKey, NodeRecord> readChunk(World world, int chunkX, int chunkZ) {
+    chunkReads++;
     Map<NodeKey, NodeRecord> nodes = new HashMap<>();
     for (Map.Entry<String, NodeFaces> entry : store.entrySet()) {
       String[] parts = entry.getKey().split(",");
@@ -77,6 +85,9 @@ final class FakeNodePlatform implements NodePlatform {
 
   @Override
   public boolean runAt(Location location, Runnable task, int delayTicks) {
+    if (refuseRunAt) {
+      return false;
+    }
     if (delayTicks <= 0) {
       task.run();
     } else {
@@ -87,7 +98,7 @@ final class FakeNodePlatform implements NodePlatform {
 
   @Override
   public void async(Runnable task, int delayTicks) {
-    if (delayTicks <= 0) {
+    if (delayTicks <= 0 && !deferAsync) {
       task.run();
     } else {
       asyncTasks.add(task);
@@ -97,6 +108,24 @@ final class FakeNodePlatform implements NodePlatform {
   @Override
   public boolean owns(Location location) {
     return ownsEverything;
+  }
+
+  @Override
+  public boolean owns(Entity entity) {
+    return ownsEverything;
+  }
+
+  @Override
+  public boolean savePlate(World world, int x, int z) {
+    events.add("save " + x + "," + z);
+    if (saveFailure != null) {
+      throw saveFailure;
+    }
+    if (busySaves > 0) {
+      busySaves--;
+      return false;
+    }
+    return true;
   }
 
   @Override
@@ -130,6 +159,12 @@ final class FakeNodePlatform implements NodePlatform {
     asyncTasks.clear();
     for (Runnable task : due) {
       task.run();
+    }
+  }
+
+  void drainAsync() {
+    while (!asyncTasks.isEmpty()) {
+      runAsync();
     }
   }
 
