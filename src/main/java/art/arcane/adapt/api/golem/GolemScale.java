@@ -35,6 +35,11 @@ public final class GolemScale {
     return modifierAmount(target) * progress;
   }
 
+  public static double transitionStep(double from, double to, double fraction) {
+    double progress = Double.isFinite(fraction) ? Math.max(0D, Math.min(1D, fraction)) : 0D;
+    return (clampScale(from) - clampScale(to)) * (1D - progress);
+  }
+
   public static double target(GolemBody body) {
     return GolemancyRuntime.settings().bodyScale(body);
   }
@@ -47,6 +52,13 @@ public final class GolemScale {
     GolemBody.of(entity).ifPresent(body -> setStepModifier(instance, stepAmount(target(body), fraction)));
   }
 
+  public static void stepTo(LivingEntity entity, double from, double to, double fraction) {
+    AttributeInstance instance = scaleOf(entity);
+    if (instance != null) {
+      stepTo(instance, from, to, fraction);
+    }
+  }
+
   public static void clearStep(LivingEntity entity) {
     AttributeInstance instance = scaleOf(entity);
     if (instance != null) {
@@ -57,6 +69,14 @@ public final class GolemScale {
   static AttributeInstance scaleOf(LivingEntity entity) {
     Attribute scale = Attributes.SCALE;
     return scale == null ? null : entity.getAttribute(scale);
+  }
+
+  static void stepTo(AttributeInstance instance, double from, double to, double fraction) {
+    double settled = modifierAmount(to);
+    if (!settledAt(instance, settled)) {
+      setModifier(instance, settled);
+    }
+    setStepModifier(instance, transitionStep(from, to, fraction));
   }
 
   static void setModifier(AttributeInstance instance, double amount) {
@@ -79,6 +99,20 @@ public final class GolemScale {
 
   static void clearStepModifier(AttributeInstance instance) {
     removeKeyed(instance, RITUAL_KEY);
+  }
+
+  private static boolean settledAt(AttributeInstance instance, double amount) {
+    boolean present = false;
+    for (AttributeModifier modifier : instance.getModifiers()) {
+      if (!MODIFIER_KEY.equals(modifier.getKey())) {
+        continue;
+      }
+      if (present || Math.abs(modifier.getAmount() - amount) > EPSILON) {
+        return false;
+      }
+      present = true;
+    }
+    return present == Math.abs(amount) > EPSILON;
   }
 
   private static void removeKeyed(AttributeInstance instance, NamespacedKey key) {

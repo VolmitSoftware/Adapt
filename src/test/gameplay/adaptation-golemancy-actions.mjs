@@ -26,6 +26,7 @@ function bindGolem(key, label, aimHeight) {
 
 const bind = bindGolem('golem', 'snow golem', 0.9)
 const bindCopper = bindGolem('copperGolem', 'copper golem', 0.5)
+const bindIron = bindGolem('ironGolem', 'iron golem', 1.2)
 
 async function placeNode(input) {
     const { context, actor, snapshot } = input
@@ -90,6 +91,24 @@ export const golemancyBehaviorCases = new Map([
             context.expect(Math.abs(active.speed - active.speedBase * 1.2) < 0.0001, 'Copper Frame level 5 makes the unweathered copper golem 20% faster')
             return {
                 assertions: ['unlearned binding leaves the copper golem unbound', 'learned binding adds 20 maximum health, heals the golem to full, and raises its speed by 20%'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
+    ['golem-iron-frame', {
+        stage: 'golemancy-iron-binding', trigger: bindIron, prerequisites: [{ name: 'golem-animus-binding', level: 5 }],
+        prepare: ({ equip }) => equip('firework_star'),
+        description: 'binding an iron golem needs Iron Frame, which raises its maximum health, armor and attack and heals it by the health bonus',
+        async verify({ context, unlearned, active }) {
+            context.expect(!unlearned.bound, 'Without Iron Frame the iron golem stays unbound')
+            context.expect(active.bound && active.boundToPlayer, 'With Iron Frame the iron golem binds to the player')
+            context.expect(Math.abs(active.scale - 0.36) < 0.0001, 'The bound iron golem shrinks to the configured iron scale')
+            context.expect(Math.abs(active.maxHealth - (active.maxHealthBase + 50)) < 0.0001, 'Iron Frame level 5 adds 50 maximum health to the bound iron golem')
+            context.expect(Math.abs(active.health - active.maxHealth) < 0.0001, 'The health bonus also heals the golem to its new maximum')
+            context.expect(Math.abs(active.armor - (active.armorBase + 10)) < 0.0001, 'Iron Frame level 5 adds 10 armor')
+            context.expect(Math.abs(active.attack - (active.attackBase + 7.5)) < 0.0001, 'Iron Frame level 5 adds 7.5 attack damage')
+            return {
+                assertions: ['unlearned binding leaves the iron golem unbound', 'learned binding shrinks the golem to 0.36 scale, adds 50 maximum health, 10 armor and 7.5 attack, and heals it to full'],
                 measurements: { unlearned, active },
             }
         },

@@ -4424,6 +4424,9 @@ release_confirm = "Deze golem vrijlaten?"
 snow_trail_on = "Sneeuwspoor: aan"
 snow_trail_off = "Sneeuwspoor: uit"
 snow_trail_lore = "Klik om de sneeuw die deze golem achterlaat aan of uit te zetten"
+colossus_on = "Kolossusvorm: aan"
+colossus_off = "Kolossusvorm: uit"
+colossus_lore = "Klik om volle grootte voor gevechten aan of uit te zetten; een gegroeide golem werkt niet"
 
 [golemancy.roster]
 title = "Golemlijst"
@@ -4495,6 +4498,17 @@ lore5 = "Bepantsering per patinastadium"
 lore6 = "Snelheidsverlies per patinastadium"
 lore7 = "Seconden Snelheid II door bliksem in de buurt"
 lore = ["Extra gezondheid voor kopergolems", "Draagvermogen in voorwerpen", "Bewegingssnelheid", "Wordt nooit een standbeeld", "Bepantsering per patinastadium", "Snelheidsverlies per patinastadium", "Seconden Snelheid II door bliksem in de buurt"]
+
+[golemancy.iron_frame]
+name = "IJzerframe"
+description = "Laat je ijzergolems binden en versterkt ze met extra gezondheid, bepantsering en aanvalskracht, sterkere reparaties met staven, vegende vuistslagen en een Kolossusvorm op volle grootte."
+lore1 = "Extra gezondheid voor ijzergolems"
+lore2 = "Extra bepantsering voor ijzergolems"
+lore3 = "Extra aanvalsschade voor ijzergolems"
+lore4 = "Extra gezondheid per reparatie met een ijzerstaaf"
+lore5 = "Extra vijandige wezens geraakt per vuistslag"
+lore6 = "Aanvalsschade in Kolossusvorm"
+lore = ["Extra gezondheid voor ijzergolems", "Extra bepantsering voor ijzergolems", "Extra aanvalsschade voor ijzergolems", "Extra gezondheid per reparatie met een ijzerstaaf", "Extra vijandige wezens geraakt per vuistslag", "Aanvalsschade in Kolossusvorm"]
 
 [golemancy.node_status]
 idle = "Inactief"

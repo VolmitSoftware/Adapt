@@ -127,6 +127,54 @@ class GolemScaleTest {
     assertThat(modifiers).singleElement().satisfies(modifier -> assertThat(modifier.getKey()).isEqualTo(GolemScale.MODIFIER_KEY));
   }
 
+  @Test
+  void transitionStepsStartAtTheOldScaleAndFadeToTheNewOne() {
+    assertThat(GolemScale.transitionStep(0.36D, 1D, 0D)).isCloseTo(-0.64D, offset(1e-9));
+    assertThat(GolemScale.transitionStep(0.36D, 1D, 0.5D)).isCloseTo(-0.32D, offset(1e-9));
+    assertThat(GolemScale.transitionStep(0.36D, 1D, 1D)).isCloseTo(0D, offset(1e-9));
+    assertThat(GolemScale.transitionStep(1D, 0.36D, 0.25D)).isCloseTo(0.48D, offset(1e-9));
+    assertThat(GolemScale.transitionStep(1D, 0.36D, 7D)).isCloseTo(0D, offset(1e-9));
+    assertThat(GolemScale.transitionStep(1D, 0.36D, Double.NaN)).isCloseTo(0.64D, offset(1e-9));
+    assertThat(GolemScale.transitionStep(0.36D, 99D, 0D)).isCloseTo(0.36D - GolemScale.MAX_SCALE, offset(1e-9));
+  }
+
+  @Test
+  void transitionsSettleTheNewScaleAtOnceAndAnimateWithATransientStep() {
+    List<AttributeModifier> modifiers = new ArrayList<>();
+    List<AttributeModifier> persistentAdds = new ArrayList<>();
+    AttributeInstance instance = trackedInstance(modifiers);
+    doAnswer(invocation -> {
+      persistentAdds.add(invocation.getArgument(0));
+      return modifiers.add(invocation.getArgument(0));
+    }).when(instance).addModifier(any(AttributeModifier.class));
+    doAnswer(invocation -> modifiers.add(invocation.getArgument(0))).when(instance).addTransientModifier(any(AttributeModifier.class));
+    GolemScale.setModifier(instance, -0.64D);
+
+    GolemScale.stepTo(instance, 0.36D, 1D, 0D);
+    assertThat(amount(modifiers, GolemScale.MODIFIER_KEY)).isNull();
+    assertThat(amount(modifiers, GolemScale.RITUAL_KEY)).isCloseTo(-0.64D, offset(1e-9));
+
+    GolemScale.stepTo(instance, 0.36D, 1D, 0.5D);
+    assertThat(amount(modifiers, GolemScale.RITUAL_KEY)).isCloseTo(-0.32D, offset(1e-9));
+
+    GolemScale.stepTo(instance, 0.36D, 1D, 1D);
+    assertThat(modifiers).isEmpty();
+
+    persistentAdds.clear();
+    GolemScale.stepTo(instance, 1D, 0.36D, 0D);
+    GolemScale.stepTo(instance, 1D, 0.36D, 0.5D);
+    assertThat(amount(modifiers, GolemScale.MODIFIER_KEY)).isCloseTo(-0.64D, offset(1e-9));
+    assertThat(amount(modifiers, GolemScale.RITUAL_KEY)).isCloseTo(0.32D, offset(1e-9));
+    assertThat(persistentAdds).singleElement().satisfies(modifier -> assertThat(modifier.getKey()).isEqualTo(GolemScale.MODIFIER_KEY));
+
+    GolemScale.stepTo(instance, 1D, 0.36D, 1D);
+    assertThat(modifiers).singleElement().satisfies(modifier -> assertThat(modifier.getAmount()).isCloseTo(-0.64D, offset(1e-9)));
+  }
+
+  private static Double amount(List<AttributeModifier> modifiers, NamespacedKey key) {
+    return modifiers.stream().filter(modifier -> key.equals(modifier.getKey())).map(AttributeModifier::getAmount).findFirst().orElse(null);
+  }
+
   private static AttributeInstance trackedInstance(List<AttributeModifier> modifiers) {
     AttributeInstance instance = mock(AttributeInstance.class);
     when(instance.getModifiers()).thenAnswer(invocation -> List.copyOf(modifiers));

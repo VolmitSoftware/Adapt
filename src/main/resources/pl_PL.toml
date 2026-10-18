@@ -4424,6 +4424,9 @@ release_confirm = "Uwolnić tego golema?"
 snow_trail_on = "Ślad śniegu: wł."
 snow_trail_off = "Ślad śniegu: wył."
 snow_trail_lore = "Kliknij, aby przełączyć śnieg zostawiany przez tego golema"
+colossus_on = "Forma Kolosa: wł."
+colossus_off = "Forma Kolosa: wył."
+colossus_lore = "Kliknij, aby przełączyć pełny rozmiar do walki; powiększony golem nie pracuje"
 
 [golemancy.roster]
 title = "Spis golemów"
@@ -4495,6 +4498,17 @@ lore5 = "Pancerz za każdy etap patyny"
 lore6 = "Utracona szybkość za każdy etap patyny"
 lore7 = "Sekundy Szybkości II od pobliskiego pioruna"
 lore = ["Dodatkowe zdrowie miedzianych golemów", "Udźwig w przedmiotach", "Szybkość ruchu", "Nigdy nie zmienia się w posąg", "Pancerz za każdy etap patyny", "Utracona szybkość za każdy etap patyny", "Sekundy Szybkości II od pobliskiego pioruna"]
+
+[golemancy.iron_frame]
+name = "Żelazny szkielet"
+description = "Pozwala wiązać żelazne golemy i wzmacnia je dodatkowym zdrowiem, pancerzem i atakiem, silniejszymi naprawami sztabkami, zamaszystymi ciosami oraz Formą Kolosa w pełnym rozmiarze."
+lore1 = "Dodatkowe zdrowie żelaznych golemów"
+lore2 = "Dodatkowy pancerz żelaznych golemów"
+lore3 = "Dodatkowe obrażenia od ataku żelaznych golemów"
+lore4 = "Dodatkowe zdrowie za naprawę sztabką żelaza"
+lore5 = "Dodatkowi wrogowie trafieni każdym ciosem"
+lore6 = "Obrażenia od ataku w Formie Kolosa"
+lore = ["Dodatkowe zdrowie żelaznych golemów", "Dodatkowy pancerz żelaznych golemów", "Dodatkowe obrażenia od ataku żelaznych golemów", "Dodatkowe zdrowie za naprawę sztabką żelaza", "Dodatkowi wrogowie trafieni każdym ciosem", "Obrażenia od ataku w Formie Kolosa"]
 
 [golemancy.node_status]
 idle = "Bezczynny"

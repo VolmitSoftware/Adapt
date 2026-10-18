@@ -4424,6 +4424,9 @@ release_confirm = "Diesen Golem freilassen?"
 snow_trail_on = "Schneespur: An"
 snow_trail_off = "Schneespur: Aus"
 snow_trail_lore = "Klicken, um den Schnee umzuschalten, den dieser Golem hinterlässt"
+colossus_on = "Kolossform: An"
+colossus_off = "Kolossform: Aus"
+colossus_lore = "Klicken, um für den Kampf volle Größe umzuschalten; ein gewachsener Golem arbeitet nicht"
 
 [golemancy.roster]
 title = "Golem-Liste"
@@ -4495,6 +4498,17 @@ lore5 = "Rüstung pro Patinastufe"
 lore6 = "Geschwindigkeitsverlust pro Patinastufe"
 lore7 = "Sekunden Schnelligkeit II durch nahe Blitze"
 lore = ["Zusätzliche Gesundheit für Kupfergolems", "Tragekapazität in Gegenständen", "Bewegungsgeschwindigkeit", "Wird nie zur Statue", "Rüstung pro Patinastufe", "Geschwindigkeitsverlust pro Patinastufe", "Sekunden Schnelligkeit II durch nahe Blitze"]
+
+[golemancy.iron_frame]
+name = "Eisenrahmen"
+description = "Lässt dich Eisengolems binden und stärkt sie mit zusätzlicher Gesundheit, Rüstung und Angriff, stärkeren Barrenreparaturen, Rundumschlägen und einer Kolossform in voller Größe."
+lore1 = "Zusätzliche Gesundheit für Eisengolems"
+lore2 = "Zusätzliche Rüstung für Eisengolems"
+lore3 = "Zusätzlicher Angriffsschaden für Eisengolems"
+lore4 = "Zusätzliche Gesundheit pro Eisenbarren-Reparatur"
+lore5 = "Zusätzlich getroffene Feinde pro Schlag"
+lore6 = "Angriffsschaden in Kolossform"
+lore = ["Zusätzliche Gesundheit für Eisengolems", "Zusätzliche Rüstung für Eisengolems", "Zusätzlicher Angriffsschaden für Eisengolems", "Zusätzliche Gesundheit pro Eisenbarren-Reparatur", "Zusätzlich getroffene Feinde pro Schlag", "Angriffsschaden in Kolossform"]
 
 [golemancy.node_status]
 idle = "Untätig"

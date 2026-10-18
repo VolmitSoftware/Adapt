@@ -4424,6 +4424,9 @@ release_confirm = "Libertar este golem?"
 snow_trail_on = "Rasto de neve: ligado"
 snow_trail_off = "Rasto de neve: desligado"
 snow_trail_lore = "Clica para alternar a neve que este golem deixa para trás"
+colossus_on = "Forma Colosso: ligada"
+colossus_off = "Forma Colosso: desligada"
+colossus_lore = "Clica para alternar o tamanho real para combate; um golem crescido não trabalha"
 
 [golemancy.roster]
 title = "Lista de golems"
@@ -4495,6 +4498,17 @@ lore5 = "Armadura por fase de pátina"
 lore6 = "Velocidade perdida por fase de pátina"
 lore7 = "Segundos de Velocidade II por relâmpagos próximos"
 lore = ["Vida extra para golems de Cobre", "Capacidade de carga em itens", "Velocidade de movimento", "Nunca se transforma em estátua", "Armadura por fase de pátina", "Velocidade perdida por fase de pátina", "Segundos de Velocidade II por relâmpagos próximos"]
+
+[golemancy.iron_frame]
+name = "Estrutura de Ferro"
+description = "Permite-te vincular golems de Ferro e fortalece-os com vida, armadura e ataque extra, reparações com lingotes mais fortes, socos de varrimento e uma Forma Colosso em tamanho real."
+lore1 = "Vida extra para golems de Ferro"
+lore2 = "Armadura extra para golems de Ferro"
+lore3 = "Dano de ataque extra para golems de Ferro"
+lore4 = "Vida extra por reparação com lingote de ferro"
+lore5 = "Hostis extra atingidos por soco"
+lore6 = "Dano de ataque na Forma Colosso"
+lore = ["Vida extra para golems de Ferro", "Armadura extra para golems de Ferro", "Dano de ataque extra para golems de Ferro", "Vida extra por reparação com lingote de ferro", "Hostis extra atingidos por soco", "Dano de ataque na Forma Colosso"]
 
 [golemancy.node_status]
 idle = "Inativo"

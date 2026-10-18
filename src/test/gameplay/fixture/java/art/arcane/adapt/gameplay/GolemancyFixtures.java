@@ -16,6 +16,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowman;
@@ -27,9 +28,11 @@ import java.util.Optional;
 public final class GolemancyFixtures {
     private static final String BINDING_STAGE = "golemancy-binding";
     private static final String COPPER_BINDING_STAGE = "golemancy-copper-binding";
+    private static final String IRON_BINDING_STAGE = "golemancy-iron-binding";
     private static final String NODE_STAGE = "golemancy-node";
     private static final String GOLEM_TAG = "adapt-qa-golemancy-golem";
     private static final String COPPER_GOLEM_TAG = "adapt-qa-golemancy-copper-golem";
+    private static final String IRON_GOLEM_TAG = "adapt-qa-golemancy-iron-golem";
     private static final int NODE_X = 2;
     private static final int NODE_Y = 100;
     private static final int NODE_Z = 0;
@@ -55,6 +58,15 @@ public final class GolemancyFixtures {
             golem.addScoreboardTag(COPPER_GOLEM_TAG);
             return true;
         }
+        if (IRON_BINDING_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.setLevel(5);
+            actor.getInventory().addItem(GolemItems.blankCore());
+            IronGolem golem = world.spawn(new Location(world, 2.5, 100, 0.5), IronGolem.class);
+            golem.setPlayerCreated(true);
+            golem.addScoreboardTag(IRON_GOLEM_TAG);
+            return true;
+        }
         if (NODE_STAGE.equals(name)) {
             opponent.teleport(new Location(world, 0.5, 100, 8.5));
             clearNodes(world, actor);
@@ -76,6 +88,9 @@ public final class GolemancyFixtures {
             }
             if (entity instanceof CopperGolem golem && golem.getScoreboardTags().contains(COPPER_GOLEM_TAG)) {
                 result.add("copperGolem", state(golem, player));
+            }
+            if (entity instanceof IronGolem golem && golem.getScoreboardTags().contains(IRON_GOLEM_TAG)) {
+                result.add("ironGolem", state(golem, player));
             }
         }
         result.add("node", node(player));
@@ -133,6 +148,12 @@ public final class GolemancyFixtures {
         AttributeInstance speed = golem.getAttribute(Attribute.MOVEMENT_SPEED);
         result.addProperty("speed", speed == null ? 0D : speed.getValue());
         result.addProperty("speedBase", speed == null ? 0D : speed.getBaseValue());
+        AttributeInstance armor = golem.getAttribute(Attribute.ARMOR);
+        result.addProperty("armor", armor == null ? 0D : armor.getValue());
+        result.addProperty("armorBase", armor == null ? 0D : armor.getBaseValue());
+        AttributeInstance attack = golem.getAttribute(Attribute.ATTACK_DAMAGE);
+        result.addProperty("attack", attack == null ? 0D : attack.getValue());
+        result.addProperty("attackBase", attack == null ? 0D : attack.getBaseValue());
         return result;
     }
 }

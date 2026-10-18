@@ -4424,6 +4424,9 @@ release_confirm = "Giải phóng golem này?"
 snow_trail_on = "Vệt tuyết: Bật"
 snow_trail_off = "Vệt tuyết: Tắt"
 snow_trail_lore = "Nhấp để bật hoặc tắt tuyết mà golem này để lại"
+colossus_on = "Dạng Khổng Lồ: Bật"
+colossus_off = "Dạng Khổng Lồ: Tắt"
+colossus_lore = "Nhấp để bật hoặc tắt kích thước đầy đủ khi chiến đấu; golem đã lớn sẽ không làm việc"
 
 [golemancy.roster]
 title = "Danh sách golem"
@@ -4495,6 +4498,17 @@ lore5 = "Giáp mỗi giai đoạn gỉ đồng"
 lore6 = "Tốc độ mất đi mỗi giai đoạn gỉ đồng"
 lore7 = "Số giây Tốc Độ II từ sét gần đó"
 lore = ["Máu bổ sung cho golem Đồng", "Sức chứa vật phẩm", "Tốc độ di chuyển", "Không bao giờ hóa thành tượng", "Giáp mỗi giai đoạn gỉ đồng", "Tốc độ mất đi mỗi giai đoạn gỉ đồng", "Số giây Tốc Độ II từ sét gần đó"]
+
+[golemancy.iron_frame]
+name = "Khung Sắt"
+description = "Cho phép bạn liên kết golem Sắt và củng cố chúng với máu, giáp và sát thương bổ sung, sửa chữa bằng thỏi mạnh hơn, cú đấm quét và Dạng Khổng Lồ với kích thước đầy đủ."
+lore1 = "Máu bổ sung cho golem Sắt"
+lore2 = "Giáp bổ sung cho golem Sắt"
+lore3 = "Sát thương tấn công bổ sung cho golem Sắt"
+lore4 = "Máu hồi thêm mỗi lần sửa bằng thỏi sắt"
+lore5 = "Số kẻ thù bị đánh thêm mỗi cú đấm"
+lore6 = "Sát thương tấn công ở Dạng Khổng Lồ"
+lore = ["Máu bổ sung cho golem Sắt", "Giáp bổ sung cho golem Sắt", "Sát thương tấn công bổ sung cho golem Sắt", "Máu hồi thêm mỗi lần sửa bằng thỏi sắt", "Số kẻ thù bị đánh thêm mỗi cú đấm", "Sát thương tấn công ở Dạng Khổng Lồ"]
 
 [golemancy.node_status]
 idle = "Đang rảnh"

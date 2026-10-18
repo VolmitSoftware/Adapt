@@ -63,6 +63,14 @@ public final class GolemGuiActions {
     return snowTrail ? GolemancyMessages.GUI_SNOW_TRAIL_ON : GolemancyMessages.GUI_SNOW_TRAIL_OFF;
   }
 
+  public static Material colossusIcon(boolean colossus) {
+    return colossus ? Material.IRON_BLOCK : Material.IRON_INGOT;
+  }
+
+  public static TextKey colossusName(boolean colossus) {
+    return colossus ? GolemancyMessages.GUI_COLOSSUS_ON : GolemancyMessages.GUI_COLOSSUS_OFF;
+  }
+
   public static boolean releasableFromRoster(GolemRoster.Status status) {
     return status == GolemRoster.Status.MISSING;
   }

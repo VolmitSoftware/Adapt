@@ -4424,6 +4424,9 @@ release_confirm = "Bu golem serbest bırakılsın mı?"
 snow_trail_on = "Kar izi: açık"
 snow_trail_off = "Kar izi: kapalı"
 snow_trail_lore = "Bu golemin arkasında bıraktığı karı açıp kapatmak için tıklayın"
+colossus_on = "Dev Formu: açık"
+colossus_off = "Dev Formu: kapalı"
+colossus_lore = "Savaş için tam boyutu açıp kapatmak için tıklayın; büyümüş bir golem çalışmaz"
 
 [golemancy.roster]
 title = "Golem Listesi"
@@ -4495,6 +4498,17 @@ lore5 = "Patina aşaması başına zırh"
 lore6 = "Patina aşaması başına kaybedilen hız"
 lore7 = "Yakındaki yıldırımdan Hız II saniyesi"
 lore = ["Bakır golemleri için ek can", "Eşya taşıma kapasitesi", "Hareket hızı", "Asla heykele dönüşmez", "Patina aşaması başına zırh", "Patina aşaması başına kaybedilen hız", "Yakındaki yıldırımdan Hız II saniyesi"]
+
+[golemancy.iron_frame]
+name = "Demir Çatısı"
+description = "Demir golemleri bağlamanı sağlar ve onları ek can, zırh ve saldırıyla, daha güçlü külçe onarımlarıyla, süpüren yumruklarla ve tam boyutlu Dev Formuyla güçlendirir."
+lore1 = "Demir golemleri için ek can"
+lore2 = "Demir golemleri için ek zırh"
+lore3 = "Demir golemleri için ek saldırı hasarı"
+lore4 = "Demir külçesi onarımı başına ek can"
+lore5 = "Yumruk başına vurulan ek düşman"
+lore6 = "Dev Formunda saldırı hasarı"
+lore = ["Demir golemleri için ek can", "Demir golemleri için ek zırh", "Demir golemleri için ek saldırı hasarı", "Demir külçesi onarımı başına ek can", "Yumruk başına vurulan ek düşman", "Dev Formunda saldırı hasarı"]
 
 [golemancy.node_status]
 idle = "Boşta"

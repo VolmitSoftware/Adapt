@@ -4424,6 +4424,9 @@ release_confirm = "Vapautetaanko tämä golemi?"
 snow_trail_on = "Lumijälki: päällä"
 snow_trail_off = "Lumijälki: pois"
 snow_trail_lore = "Napsauta vaihtaaksesi lumen, jonka tämä golemi jättää jälkeensä"
+colossus_on = "Kolossimuoto: päällä"
+colossus_off = "Kolossimuoto: pois"
+colossus_lore = "Napsauta vaihtaaksesi täyden koon taistelua varten; kasvanut golemi ei tee töitä"
 
 [golemancy.roster]
 title = "Golemiluettelo"
@@ -4495,6 +4498,17 @@ lore5 = "Panssaria patinavaihetta kohden"
 lore6 = "Nopeuden menetys patinavaihetta kohden"
 lore7 = "Sekuntia Nopeus II -tehostetta läheisestä salamasta"
 lore = ["Lisäterveys kuparigolemeille", "Kantokyky esineinä", "Liikkumisnopeus", "Ei koskaan muutu patsaaksi", "Panssaria patinavaihetta kohden", "Nopeuden menetys patinavaihetta kohden", "Sekuntia Nopeus II -tehostetta läheisestä salamasta"]
+
+[golemancy.iron_frame]
+name = "Rautarunko"
+description = "Antaa sinun sitoa rautagolemeita ja vahvistaa niitä lisäterveydellä, panssarilla ja hyökkäyksellä, tehokkaammilla harkkokorjauksilla, pyyhkäisyiskuilla ja täysikokoisella Kolossimuodolla."
+lore1 = "Lisäterveys rautagolemeille"
+lore2 = "Lisäpanssari rautagolemeille"
+lore3 = "Lisähyökkäysvahinko rautagolemeille"
+lore4 = "Lisäterveys rautaharkkokorjausta kohden"
+lore5 = "Ylimääräiset viholliset, joihin isku osuu"
+lore6 = "Hyökkäysvahinko Kolossimuodossa"
+lore = ["Lisäterveys rautagolemeille", "Lisäpanssari rautagolemeille", "Lisähyökkäysvahinko rautagolemeille", "Lisäterveys rautaharkkokorjausta kohden", "Ylimääräiset viholliset, joihin isku osuu", "Hyökkäysvahinko Kolossimuodossa"]
 
 [golemancy.node_status]
 idle = "Joutilas"

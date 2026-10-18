@@ -4424,6 +4424,9 @@ release_confirm = "Liberare questo golem?"
 snow_trail_on = "Scia di neve: attiva"
 snow_trail_off = "Scia di neve: disattiva"
 snow_trail_lore = "Clicca per attivare o disattivare la neve che lascia questo golem"
+colossus_on = "Forma Colosso: attiva"
+colossus_off = "Forma Colosso: disattiva"
+colossus_lore = "Clicca per passare alla grandezza piena per il combattimento; un golem cresciuto non lavora"
 
 [golemancy.roster]
 title = "Elenco dei golem"
@@ -4495,6 +4498,17 @@ lore5 = "Armatura per stadio di patina"
 lore6 = "Velocità persa per stadio di patina"
 lore7 = "Secondi di Velocità II da fulmini vicini"
 lore = ["Salute extra per i golem di Rame", "Capacità di trasporto in oggetti", "Velocità di movimento", "Non diventa mai una statua", "Armatura per stadio di patina", "Velocità persa per stadio di patina", "Secondi di Velocità II da fulmini vicini"]
+
+[golemancy.iron_frame]
+name = "Telaio di Ferro"
+description = "Ti permette di legare i golem di Ferro e li rafforza con salute, armatura e attacco extra, riparazioni con lingotti più efficaci, pugni ad ampio raggio e una Forma Colosso a grandezza piena."
+lore1 = "Salute extra per i golem di Ferro"
+lore2 = "Armatura extra per i golem di Ferro"
+lore3 = "Danno d'attacco extra per i golem di Ferro"
+lore4 = "Salute extra per riparazione con lingotto di ferro"
+lore5 = "Ostili extra colpiti per pugno"
+lore6 = "Danno d'attacco in Forma Colosso"
+lore = ["Salute extra per i golem di Ferro", "Armatura extra per i golem di Ferro", "Danno d'attacco extra per i golem di Ferro", "Salute extra per riparazione con lingotto di ferro", "Ostili extra colpiti per pugno", "Danno d'attacco in Forma Colosso"]
 
 [golemancy.node_status]
 idle = "Inattivo"

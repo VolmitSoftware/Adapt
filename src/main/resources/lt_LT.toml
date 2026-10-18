@@ -4424,6 +4424,9 @@ release_confirm = "Paleisti šį golemą?"
 snow_trail_on = "Sniego pėdsakas: įjungtas"
 snow_trail_off = "Sniego pėdsakas: išjungtas"
 snow_trail_lore = "Spustelėkite, kad įjungtumėte ar išjungtumėte šio golemo paliekamą sniegą"
+colossus_on = "Koloso forma: įjungta"
+colossus_off = "Koloso forma: išjungta"
+colossus_lore = "Spustelėkite, kad perjungtumėte visą dydį kovai; išaugęs golemas nedirba"
 
 [golemancy.roster]
 title = "Golemų sąrašas"
@@ -4495,6 +4498,17 @@ lore5 = "Šarvai už kiekvieną patinos etapą"
 lore6 = "Prarandamas greitis už kiekvieną patinos etapą"
 lore7 = "Greičio II sekundės nuo netoliese trenkusio žaibo"
 lore = ["Papildoma Vario golemų sveikata", "Nešimo talpa daiktais", "Judėjimo greitis", "Niekada nevirsta statula", "Šarvai už kiekvieną patinos etapą", "Prarandamas greitis už kiekvieną patinos etapą", "Greičio II sekundės nuo netoliese trenkusio žaibo"]
+
+[golemancy.iron_frame]
+name = "Geležies karkasas"
+description = "Leidžia sujungti Geležies golemus ir sustiprina juos papildoma sveikata, šarvais ir ataka, stipresniais taisymais luitais, šluojančiais smūgiais ir viso dydžio Koloso forma."
+lore1 = "Papildoma Geležies golemų sveikata"
+lore2 = "Papildomi Geležies golemų šarvai"
+lore3 = "Papildoma Geležies golemų atakos žala"
+lore4 = "Papildoma sveikata už kiekvieną taisymą geležies luitu"
+lore5 = "Papildomi priešai, pataikomi kiekvienu smūgiu"
+lore6 = "Atakos žala Koloso formoje"
+lore = ["Papildoma Geležies golemų sveikata", "Papildomi Geležies golemų šarvai", "Papildoma Geležies golemų atakos žala", "Papildoma sveikata už kiekvieną taisymą geležies luitu", "Papildomi priešai, pataikomi kiekvienu smūgiu", "Atakos žala Koloso formoje"]
 
 [golemancy.node_status]
 idle = "Laukia"

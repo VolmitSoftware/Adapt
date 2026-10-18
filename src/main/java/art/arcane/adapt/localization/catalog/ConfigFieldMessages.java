@@ -157,6 +157,7 @@ import art.arcane.adapt.content.adaptation.excavation.ExcavationTunneler;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnimusBinding;
 import art.arcane.adapt.content.adaptation.golemancy.GolemCopperFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemFrostFrame;
+import art.arcane.adapt.content.adaptation.golemancy.GolemIronFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismBeeShepherd;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismCompostCascade;
@@ -531,6 +532,7 @@ public final class ConfigFieldMessages {
     addConfiguration(fields, "adaptations.golem-animus-binding", "adaptation:golem-animus-binding", GolemAnimusBinding.class);
     addConfiguration(fields, "adaptations.golem-copper-frame", "adaptation:golem-copper-frame", GolemCopperFrame.class);
     addConfiguration(fields, "adaptations.golem-frost-frame", "adaptation:golem-frost-frame", GolemFrostFrame.class);
+    addConfiguration(fields, "adaptations.golem-iron-frame", "adaptation:golem-iron-frame", GolemIronFrame.class);
     addConfiguration(fields, "adaptations.golem-node-weaving", "adaptation:golem-node-weaving", GolemNodeWeaving.class);
     addConfiguration(fields, "adaptations.herbalism-bee-shepherd", "adaptation:herbalism-bee-shepherd", HerbalismBeeShepherd.class);
     addConfiguration(fields, "adaptations.herbalism-compost-cascade", "adaptation:herbalism-compost-cascade", HerbalismCompostCascade.class);

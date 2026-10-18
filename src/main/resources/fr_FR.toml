@@ -4420,6 +4420,9 @@ release_confirm = "Libérer ce golem ?"
 snow_trail_on = "Traînée de neige : activée"
 snow_trail_off = "Traînée de neige : désactivée"
 snow_trail_lore = "Cliquez pour activer ou désactiver la neige que laisse ce golem"
+colossus_on = "Forme Colosse : activée"
+colossus_off = "Forme Colosse : désactivée"
+colossus_lore = "Cliquez pour passer en taille réelle pour le combat ; un golem agrandi ne travaille pas"
 
 [golemancy.roster]
 title = "Registre des golems"
@@ -4491,6 +4494,17 @@ lore5 = "Armure par stade de patine"
 lore6 = "Vitesse perdue par stade de patine"
 lore7 = "Secondes de Vitesse II grâce à la foudre proche"
 lore = ["Santé supplémentaire des golems de Cuivre", "Capacité de transport en objets", "Vitesse de déplacement", "Ne se change jamais en statue", "Armure par stade de patine", "Vitesse perdue par stade de patine", "Secondes de Vitesse II grâce à la foudre proche"]
+
+[golemancy.iron_frame]
+name = "Armature de Fer"
+description = "Te permet de lier des golems de Fer et les renforce avec de la santé, de l'armure et de l'attaque supplémentaires, des réparations au lingot plus efficaces, des coups balayants et une Forme Colosse en taille réelle."
+lore1 = "Santé supplémentaire des golems de Fer"
+lore2 = "Armure supplémentaire des golems de Fer"
+lore3 = "Dégâts d'attaque supplémentaires des golems de Fer"
+lore4 = "Santé supplémentaire par réparation au lingot de fer"
+lore5 = "Hostiles supplémentaires touchés par coup"
+lore6 = "Dégâts d'attaque en Forme Colosse"
+lore = ["Santé supplémentaire des golems de Fer", "Armure supplémentaire des golems de Fer", "Dégâts d'attaque supplémentaires des golems de Fer", "Santé supplémentaire par réparation au lingot de fer", "Hostiles supplémentaires touchés par coup", "Dégâts d'attaque en Forme Colosse"]
 
 [golemancy.node_status]
 idle = "Inactif"

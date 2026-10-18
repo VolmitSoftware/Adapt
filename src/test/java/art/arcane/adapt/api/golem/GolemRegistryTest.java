@@ -205,6 +205,34 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
+  void releasingAGolemMidResizeLeavesNoSizeModifierBehind() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
+    handle.setColossus(true);
+    platform.scale(golem).add(new AttributeModifier(GolemScale.RITUAL_KEY, -0.3D, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY));
+
+    assertThat(registry.release(handle)).isTrue();
+
+    assertThat(platform.scale(golem)).isEmpty();
+    assertThat(GolemState.has(golem)).isFalse();
+  }
+
+  @Test
+  void aBoundGolemLoadedWithAStaleResizeStepKeepsOnlyItsSettledScale() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = activeGolem(roster, at(0, 64, 0));
+    AttributeModifier settled = new AttributeModifier(GolemScale.MODIFIER_KEY, -0.64D, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY);
+    platform.scale(golem).add(settled);
+    platform.scale(golem).add(new AttributeModifier(GolemScale.RITUAL_KEY, 0.3D, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY));
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+
+    assertThat(registry.handle(golem)).isPresent();
+    assertThat(platform.scale(golem)).containsExactly(settled);
+  }
+
+  @Test
   void bindingAppliesTheStatSourcesAndReleaseRemovesTheirModifiers() {
     onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));

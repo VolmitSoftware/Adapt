@@ -316,7 +316,8 @@ public final class GolemRegistry extends TickedObject {
   }
 
   void adopt(Mob mob) {
-    GolemRitualMarker.recover(mob, platform.scaleOf(mob));
+    AttributeInstance scale = platform.scaleOf(mob);
+    GolemRitualMarker.recover(mob, scale);
     if (handle(mob).isPresent()) {
       return;
     }
@@ -329,6 +330,9 @@ public final class GolemRegistry extends TickedObject {
         Adapt.warn("Ignoring bound golem " + mob.getUniqueId() + " because its adapt:golem body " + state.get().body().id() + " does not match the entity.");
       }
       return;
+    }
+    if (scale != null) {
+      GolemScale.clearStepModifier(scale);
     }
     GolemHandle handle = new GolemHandle(mob, state.get(), platform);
     if (index(handle)) {
@@ -600,6 +604,7 @@ public final class GolemRegistry extends TickedObject {
     AttributeInstance scale = platform.scaleOf(golem);
     if (scale != null) {
       GolemScale.clearModifier(scale);
+      GolemScale.clearStepModifier(scale);
     }
     GolemStats.clear(handle);
     PaperCompat.customName(golem, null);

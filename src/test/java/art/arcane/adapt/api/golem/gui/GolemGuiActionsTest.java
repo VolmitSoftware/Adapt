@@ -51,6 +51,14 @@ class GolemGuiActionsTest {
   }
 
   @Test
+  void theColossusToggleShowsWhetherTheFormIsOn() {
+    assertThat(GolemGuiActions.colossusIcon(true)).isEqualTo(Material.IRON_BLOCK);
+    assertThat(GolemGuiActions.colossusIcon(false)).isEqualTo(Material.IRON_INGOT);
+    assertThat(GolemGuiActions.colossusName(true)).isEqualTo(GolemancyMessages.GUI_COLOSSUS_ON);
+    assertThat(GolemGuiActions.colossusName(false)).isEqualTo(GolemancyMessages.GUI_COLOSSUS_OFF);
+  }
+
+  @Test
   void channelCyclesThroughNoneAndAllSixteenDyes() {
     int mask = ChannelMask.NONE;
     Set<Integer> seen = new HashSet<>();

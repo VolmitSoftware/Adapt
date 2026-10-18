@@ -3403,6 +3403,26 @@
     },
     {
       "skill": "golemancy",
+      "name": "golem-iron-frame",
+      "class": "GolemIronFrame",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemIronFrame.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageByEntityEvent",
+        "EntityRegainHealthEvent",
+        "PlayerInteractEntityEvent",
+        "tick"
+      ],
+      "expectation": "Lets you bind iron golems and strengthens them with extra health, armor and attack, stronger ingot repairs, sweeping punches and a full-size Colossus Form.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemIronFrame.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
       "name": "golem-node-weaving",
       "class": "GolemNodeWeaving",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemNodeWeaving.java",

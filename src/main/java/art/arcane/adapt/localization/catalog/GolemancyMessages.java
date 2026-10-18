@@ -112,6 +112,9 @@ public final class GolemancyMessages {
   public static final TextKey GUI_SNOW_TRAIL_ON = TextKey.of("golemancy.gui.snow_trail_on", "Snow Trail: On");
   public static final TextKey GUI_SNOW_TRAIL_OFF = TextKey.of("golemancy.gui.snow_trail_off", "Snow Trail: Off");
   public static final TextKey GUI_SNOW_TRAIL_LORE = TextKey.of("golemancy.gui.snow_trail_lore", "Click to toggle the snow this golem leaves behind");
+  public static final TextKey GUI_COLOSSUS_ON = TextKey.of("golemancy.gui.colossus_on", "Colossus Form: On");
+  public static final TextKey GUI_COLOSSUS_OFF = TextKey.of("golemancy.gui.colossus_off", "Colossus Form: Off");
+  public static final TextKey GUI_COLOSSUS_LORE = TextKey.of("golemancy.gui.colossus_lore", "Click to toggle full size for combat; a grown golem does no work");
   public static final TextKey ROSTER_TITLE = TextKey.of("golemancy.roster.title", "Golem Roster");
   public static final TextKey ROSTER_EMPTY = TextKey.of("golemancy.roster.empty", "You have no golems");
   public static final TextKey ROSTER_ENTRY = TextKey.of("golemancy.roster.entry", "{body} Golem ({core})");
@@ -171,6 +174,15 @@ public final class GolemancyMessages {
   public static final TextKey COPPER_FRAME_LORE6 = TextKey.of("golemancy.copper_frame.lore6", "Speed Lost per Patina Stage");
   public static final TextKey COPPER_FRAME_LORE7 = TextKey.of("golemancy.copper_frame.lore7", "Seconds of Speed II from Nearby Lightning");
   public static final LinesKey COPPER_FRAME_LORE = LinesKey.of("golemancy.copper_frame.lore", "Bonus Health for Copper Golems", "Item Carry Capacity", "Movement Speed", "Never Turns into a Statue", "Armor per Patina Stage", "Speed Lost per Patina Stage", "Seconds of Speed II from Nearby Lightning");
+  public static final TextKey IRON_FRAME_NAME = TextKey.of("golemancy.iron_frame.name", "Iron Frame");
+  public static final TextKey IRON_FRAME_DESCRIPTION = TextKey.of("golemancy.iron_frame.description", "Lets you bind iron golems and strengthens them with extra health, armor and attack, stronger ingot repairs, sweeping punches and a full-size Colossus Form.");
+  public static final TextKey IRON_FRAME_LORE1 = TextKey.of("golemancy.iron_frame.lore1", "Bonus Health for Iron Golems");
+  public static final TextKey IRON_FRAME_LORE2 = TextKey.of("golemancy.iron_frame.lore2", "Bonus Armor for Iron Golems");
+  public static final TextKey IRON_FRAME_LORE3 = TextKey.of("golemancy.iron_frame.lore3", "Bonus Attack Damage for Iron Golems");
+  public static final TextKey IRON_FRAME_LORE4 = TextKey.of("golemancy.iron_frame.lore4", "Extra Health per Iron Ingot Repair");
+  public static final TextKey IRON_FRAME_LORE5 = TextKey.of("golemancy.iron_frame.lore5", "Extra Hostiles Hit per Punch");
+  public static final TextKey IRON_FRAME_LORE6 = TextKey.of("golemancy.iron_frame.lore6", "Attack Damage in Colossus Form");
+  public static final LinesKey IRON_FRAME_LORE = LinesKey.of("golemancy.iron_frame.lore", "Bonus Health for Iron Golems", "Bonus Armor for Iron Golems", "Bonus Attack Damage for Iron Golems", "Extra Health per Iron Ingot Repair", "Extra Hostiles Hit per Punch", "Attack Damage in Colossus Form");
 
   public static final TextKey NODE_STATUS_IDLE = TextKey.of("golemancy.node_status.idle", "Idle");
   public static final TextKey NODE_STATUS_WORKING = TextKey.of("golemancy.node_status.working", "Working");
@@ -308,6 +320,9 @@ public final class GolemancyMessages {
     builder.add(GUI_SNOW_TRAIL_ON);
     builder.add(GUI_SNOW_TRAIL_OFF);
     builder.add(GUI_SNOW_TRAIL_LORE);
+    builder.add(GUI_COLOSSUS_ON);
+    builder.add(GUI_COLOSSUS_OFF);
+    builder.add(GUI_COLOSSUS_LORE);
     builder.add(ROSTER_TITLE);
     builder.add(ROSTER_EMPTY);
     builder.add(ROSTER_ENTRY);
@@ -367,6 +382,15 @@ public final class GolemancyMessages {
     builder.add(COPPER_FRAME_LORE6);
     builder.add(COPPER_FRAME_LORE7);
     builder.add(COPPER_FRAME_LORE);
+    builder.add(IRON_FRAME_NAME);
+    builder.add(IRON_FRAME_DESCRIPTION);
+    builder.add(IRON_FRAME_LORE1);
+    builder.add(IRON_FRAME_LORE2);
+    builder.add(IRON_FRAME_LORE3);
+    builder.add(IRON_FRAME_LORE4);
+    builder.add(IRON_FRAME_LORE5);
+    builder.add(IRON_FRAME_LORE6);
+    builder.add(IRON_FRAME_LORE);
     builder.add(NODE_STATUS_IDLE);
     builder.add(NODE_STATUS_WORKING);
     builder.add(NODE_STATUS_BLOCKED);

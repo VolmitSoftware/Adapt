@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem.gui;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMode;
@@ -198,6 +199,13 @@ public final class GolemGui {
           .setProgress(1D)
           .onLeftClick(clicked -> toggleSnowTrail()));
     }
+    if (view.colossusAvailable()) {
+      target.setElement(0, FOOTER_ROW, GuiTheme.element("golem-colossus", GolemGuiActions.colossusIcon(view.colossus()), "gui", "golemancy", "colossus")
+          .setName(C.GOLD + AdaptLanguage.text(GolemGuiActions.colossusName(view.colossus())))
+          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_COLOSSUS_LORE))
+          .setProgress(1D)
+          .onLeftClick(clicked -> toggleColossus()));
+    }
     target.setElement(RIGHT_EDGE, FOOTER_ROW, GuiTheme.element("golem-release", Material.SHEARS, "gui", "golemancy", "release")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.GUI_RELEASE))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RELEASE_LORE))
@@ -215,6 +223,10 @@ public final class GolemGui {
 
   private void toggleSnowTrail() {
     mutate(() -> handle.setSnowTrail(!handle.state().snowTrail()));
+  }
+
+  private void toggleColossus() {
+    mutate(() -> GolemColossus.form().ifPresent(form -> form.toggle(handle)));
   }
 
   private void setHome() {
@@ -313,14 +325,16 @@ public final class GolemGui {
 
   private record View(GolemBody body, double health, double maxHealth, boolean dormant, List<GolemCoreType> cores,
                       List<GolemRune> runes, GolemMode mode, int channels, GolemState.Anchor home, GolemState.Anchor homeChest,
-                      List<Carried> carried, int carriedTotal, long kills, double damage, long tasks, long itemsMoved, boolean snowTrail) {
+                      List<Carried> carried, int carriedTotal, long kills, double damage, long tasks, long itemsMoved, boolean snowTrail,
+                      boolean colossus, boolean colossusAvailable) {
     private static View of(GolemHandle handle) {
       GolemState state = handle.state();
       Mob golem = handle.entity();
       GolemState.Stats stats = state.stats();
       return new View(state.body(), golem.getHealth(), GolemVitals.maxHealth(golem), handle.isDormant(), state.cores(),
           state.runes(), state.mode(), state.channels(), state.home(), state.homeChest(), carried(handle), state.carried().size(),
-          stats.kills(), stats.damage(), stats.tasks(), stats.itemsMoved(), state.snowTrail());
+          stats.kills(), stats.damage(), stats.tasks(), stats.itemsMoved(), state.snowTrail(), state.colossus(),
+          GolemColossus.form().map(form -> form.available(handle)).orElse(false));
     }
 
     private static List<Carried> carried(GolemHandle handle) {
