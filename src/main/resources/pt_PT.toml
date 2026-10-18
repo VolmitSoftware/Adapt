@@ -4324,6 +4324,15 @@ order = "Ordem"
 entropy = "Entropia"
 bulwark = "Baluarte"
 
+[golemancy.body]
+frost = "Geada"
+copper = "Cobre"
+iron = "Ferro"
+bone = "Osso"
+
+[golemancy.golem]
+name = "Golem de {body} de {owner}"
+
 [herbalism.growth_aura]
 name = "Aura de Crescimento"
 description = "Faz crescer a natureza a tua volta numa aura"

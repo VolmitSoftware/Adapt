@@ -27,6 +27,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationRequirements;
+import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.notification.ActionBarNotification;
 import art.arcane.adapt.api.notification.Notification;
 import art.arcane.adapt.api.notification.SoundNotification;
@@ -130,6 +131,7 @@ public class PlayerData {
   private String inspiredSkill = "";
   private long inspiredAssignedAt = 0;
   private PlayerPreferenceData preferences = new PlayerPreferenceData();
+  private GolemRoster golemancy = new GolemRoster();
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private transient volatile int regionPowerBonus;
@@ -161,6 +163,9 @@ public class PlayerData {
       return null;
     }
     data.normalizeInspiredAssignment();
+    if (data.golemancy == null) {
+      data.golemancy = new GolemRoster();
+    }
     data.removeRetiredAxesContent();
     data.removeRetiredDowsingContent();
     data.removeRetiredRiftStepContent();

@@ -4324,6 +4324,15 @@ order = "Tvarka"
 entropy = "Entropija"
 bulwark = "Bastionas"
 
+[golemancy.body]
+frost = "Šerkšno"
+copper = "Vario"
+iron = "Geležies"
+bone = "Kaulo"
+
+[golemancy.golem]
+name = "{body} golemas ({owner})"
+
 [herbalism.growth_aura]
 name = "Augimo Aura"
 description = "Auginkite gamta aplink save auroje"

@@ -4324,6 +4324,15 @@ order = "סדר"
 entropy = "אנטרופיה"
 bulwark = "חומת מגן"
 
+[golemancy.body]
+frost = "כפור"
+copper = "נחושת"
+iron = "ברזל"
+bone = "עצם"
+
+[golemancy.golem]
+name = "גולם {body} של {owner}"
+
 [herbalism.growth_aura]
 name = "הילת צמיחה"
 description = "גדל טבע סביבך בהילה"

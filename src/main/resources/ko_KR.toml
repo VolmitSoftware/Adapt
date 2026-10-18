@@ -4324,6 +4324,15 @@ order = "질서"
 entropy = "엔트로피"
 bulwark = "방벽"
 
+[golemancy.body]
+frost = "서리"
+copper = "구리"
+iron = "철"
+bone = "뼈"
+
+[golemancy.golem]
+name = "{owner}의 {body} 골렘"
+
 [herbalism.growth_aura]
 name = "성장의 오라"
 description = "주변의 자연을 오라로 성장시킵니다"

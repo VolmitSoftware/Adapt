@@ -22,6 +22,11 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemSettings;
+import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.HostileDamagePool;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
@@ -32,7 +37,6 @@ import art.arcane.adapt.content.skill.golemancy.CopperCare;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
 import art.arcane.adapt.content.skill.golemancy.GolemXpRules;
-import art.arcane.adapt.content.skill.golemancy.HostileDamagePool;
 import art.arcane.adapt.content.skill.golemancy.RollingXpCap;
 import art.arcane.adapt.content.skill.golemancy.SpawnerMobTag;
 import art.arcane.adapt.localization.SkillPresentation;
@@ -72,7 +76,11 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -210,11 +218,31 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   }
 
   @Override
+  protected void onConfigReload(Config previousConfig, Config newConfig) {
+    super.onConfigReload(previousConfig, newConfig);
+    GolemancyRuntime.configure(golemSettings(newConfig));
+  }
+
+  @Override
   protected List<Listener> createCompanionListeners() {
     if (!PaperCompat.hasClass("io.papermc.paper.world.WeatheringCopperState")) {
       return List.of();
     }
     return List.of(new CopperCareListener());
+  }
+
+  static GolemSettings golemSettings(Config config) {
+    Map<GolemBody, Double> scales = new EnumMap<>(GolemBody.class);
+    scales.put(GolemBody.FROST, config.bodyScaleFrost);
+    scales.put(GolemBody.COPPER, config.bodyScaleCopper);
+    scales.put(GolemBody.IRON, config.bodyScaleIron);
+    scales.put(GolemBody.BONE, config.bodyScaleBone);
+    Map<GolemBody, Set<GolemCoreType>> cores = new EnumMap<>(GolemBody.class);
+    cores.put(GolemBody.FROST, GolemSettings.parseCores(config.allowedCoresFrost));
+    cores.put(GolemBody.COPPER, GolemSettings.parseCores(config.allowedCoresCopper));
+    cores.put(GolemBody.IRON, GolemSettings.parseCores(config.allowedCoresIron));
+    return new GolemSettings(config.dormantInvulnerable, config.guardWhileOwnerOffline, config.serverMaxActiveGolems,
+        config.maxBoundGolemsPerChunk, config.hardCapPerPlayer, scales, cores, config.deathDropCoreChance, config.deathDropRuneChance);
   }
 
   private void applyBuild(GolemBuildAttribution.Build build) {
@@ -386,5 +414,33 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double spawnerMobXpMultiplier = 0.3;
     @ConfigDoc(value = "Knowledge paid by the golem building challenges.", impact = "Higher values pay more knowledge; the 100 builds challenge pays five times this value.")
     double challengeBuiltReward = 500;
+    @ConfigDoc(value = "Makes bound golems invulnerable while they are dormant.", impact = "Set to false to let dormant golems take damage while their owner is offline.")
+    boolean dormantInvulnerable = true;
+    @ConfigDoc(value = "Keeps Guardian golems awake while their owner is offline.", impact = "Set to true to let Guardian golems keep defending while their owner is away.")
+    boolean guardWhileOwnerOffline = false;
+    @ConfigDoc(value = "Most bound golems that may be awake on the whole server at once.", impact = "Lower values save server performance; golems beyond the limit stay dormant until room frees.")
+    int serverMaxActiveGolems = 1500;
+    @ConfigDoc(value = "Most bound golems allowed in one chunk when binding.", impact = "Lower values spread golems out; binding fails in a chunk that is already full.")
+    int maxBoundGolemsPerChunk = 8;
+    @ConfigDoc(value = "Most golems one player can own at once, counting bound, packed, and shattered golems.", impact = "Lower values limit every player, whatever their adaptation levels allow.")
+    int hardCapPerPlayer = 32;
+    @ConfigDoc(value = "Size of a bound frost golem as a multiple of its normal size.", impact = "Lower values make bound frost golems smaller; 1.0 keeps the normal size.")
+    double bodyScaleFrost = 0.50;
+    @ConfigDoc(value = "Size of a bound copper golem as a multiple of its normal size.", impact = "Lower values make bound copper golems smaller; 1.0 keeps the normal size.")
+    double bodyScaleCopper = 1.00;
+    @ConfigDoc(value = "Size of a bound iron golem as a multiple of its normal size.", impact = "Lower values make bound iron golems smaller; 1.0 keeps the normal size.")
+    double bodyScaleIron = 0.36;
+    @ConfigDoc(value = "Size of a bound bone golem as a multiple of its normal size.", impact = "Lower values make bound bone golems smaller; 1.0 keeps the normal size.")
+    double bodyScaleBone = 1.00;
+    @ConfigDoc(value = "Cores a frost golem can be bound with.", impact = "Remove a core to stop frost golems taking that role.")
+    List<String> allowedCoresFrost = new ArrayList<>(List.of("BLANK", "GUARDIAN", "GATHERER", "HARVESTER"));
+    @ConfigDoc(value = "Cores a copper golem can be bound with.", impact = "Remove a core to stop copper golems taking that role.")
+    List<String> allowedCoresCopper = new ArrayList<>(List.of("BLANK", "GATHERER", "HARVESTER", "LUMBER", "RANCHER", "SORTER", "ANGLER"));
+    @ConfigDoc(value = "Cores an iron golem can be bound with.", impact = "Remove a core to stop iron golems taking that role.")
+    List<String> allowedCoresIron = new ArrayList<>(List.of("BLANK", "GUARDIAN", "GATHERER", "LUMBER", "BREAKER", "RANCHER", "ANGLER"));
+    @ConfigDoc(value = "Chance that each core drops when a bound golem dies.", impact = "Higher values return more cores on death; 1.0 always drops them.")
+    double deathDropCoreChance = 0.5;
+    @ConfigDoc(value = "Chance that each rune drops when a bound golem dies.", impact = "Higher values return more runes on death; 1.0 always drops them.")
+    double deathDropRuneChance = 0.5;
   }
 }

@@ -4324,6 +4324,15 @@ order = "Trật Tự"
 entropy = "Hỗn Mang"
 bulwark = "Thành Lũy"
 
+[golemancy.body]
+frost = "Băng Giá"
+copper = "Đồng"
+iron = "Sắt"
+bone = "Xương"
+
+[golemancy.golem]
+name = "Golem {body} của {owner}"
+
 [herbalism.growth_aura]
 name = "Hào Quang Tăng Trưởng"
 description = "Phát triển thiên nhiên xung quanh bạn trong một hào quang"

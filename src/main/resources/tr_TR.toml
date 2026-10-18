@@ -4324,6 +4324,15 @@ order = "Düzen"
 entropy = "Entropi"
 bulwark = "Siper"
 
+[golemancy.body]
+frost = "Ayaz"
+copper = "Bakır"
+iron = "Demir"
+bone = "Kemik"
+
+[golemancy.golem]
+name = "{body} Golemi ({owner})"
+
 [herbalism.growth_aura]
 name = "Buyume Aurasi"
 description = "Cevrenizdeki dogayi bir aura icinde buyutun"

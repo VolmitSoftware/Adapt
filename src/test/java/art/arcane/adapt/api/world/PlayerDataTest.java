@@ -2,10 +2,15 @@ package art.arcane.adapt.api.world;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.xp.XP;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -79,6 +84,37 @@ class PlayerDataTest extends AdaptTestBase {
         PlayerData back = PlayerData.fromJson(d.toJson(false));
         assertThat(back.getStat("mined")).isEqualTo(10.0);
         assertThat(back.getStat("crafted")).isEqualTo(2.5);
+    }
+
+    @Test
+    @DisplayName("the golem roster survives a json round trip")
+    void golemRosterSurvivesJsonRoundTrip() {
+        PlayerData data = new PlayerData();
+        UUID golem = UUID.randomUUID();
+        UUID world = UUID.randomUUID();
+        data.getGolemancy().add(new GolemRoster.Binding(golem, GolemBody.FROST, GolemCoreType.HARVESTER, world, GolemRoster.chunkKey(2, -3), 99L));
+        data.getGolemancy().transition(golem, GolemRoster.Status.ACTIVE, GolemRoster.Status.PACKED);
+
+        PlayerData back = PlayerData.fromJson(data.toJson(false));
+
+        GolemRoster.GolemEntry entry = back.getGolemancy().golem(golem).orElseThrow();
+        assertThat(entry.body()).isEqualTo(GolemBody.FROST);
+        assertThat(entry.core()).isEqualTo(GolemCoreType.HARVESTER);
+        assertThat(entry.status()).isEqualTo(GolemRoster.Status.PACKED);
+        assertThat(entry.world()).isEqualTo(world);
+        assertThat(entry.chunkKey()).isEqualTo(GolemRoster.chunkKey(2, -3));
+    }
+
+    @Test
+    @DisplayName("player data without a roster reads an empty one")
+    void missingGolemRosterReadsEmpty() {
+        PlayerData legacy = PlayerData.fromJson("{\"wisdom\":3}");
+        PlayerData explicitNull = PlayerData.fromJson("{\"golemancy\":null}");
+
+        assertThat(legacy.getGolemancy()).isNotNull();
+        assertThat(legacy.getGolemancy().golemCount()).isZero();
+        assertThat(explicitNull.getGolemancy()).isNotNull();
+        assertThat(explicitNull.getGolemancy().golemCount()).isZero();
     }
 
     @Test

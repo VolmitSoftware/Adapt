@@ -16,7 +16,7 @@
  -   along with this program.  If not, see <https://www.gnu.org/licenses/>.
  -----------------------------------------------------------------------------*/
 
-package art.arcane.adapt.content.skill.golemancy;
+package art.arcane.adapt.api.golem;
 
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Enemy;
@@ -25,6 +25,8 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Projectile;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+
+import java.util.Optional;
 
 public final class HostileDamagePool {
   public static final NamespacedKey POOL_KEY = NamespacedKey.fromString("adapt:golem_hostile_pool");
@@ -56,12 +58,18 @@ public final class HostileDamagePool {
     }
     double next = Math.min(maxHealth, current + damage);
     write(golem, next);
-    return next;
+    return pool(golem);
   }
 
   public static double pool(Entity golem) {
-    Double stored = golem.getPersistentDataContainer().get(POOL_KEY, PersistentDataType.DOUBLE);
-    return stored != null && isPositiveFinite(stored) ? stored : 0D;
+    Optional<GolemHandle> handle = GolemancyRuntime.handle(golem);
+    if (handle.isPresent()) {
+      return handle.get().hostileDamagePool();
+    }
+    if (GolemState.has(golem)) {
+      return GolemState.read(golem).map(GolemState::hostileDamagePool).orElse(0D);
+    }
+    return unbound(golem);
   }
 
   public static double consume(Entity golem, double amount) {
@@ -77,13 +85,40 @@ public final class HostileDamagePool {
     return paid;
   }
 
-  private static void write(Entity golem, double value) {
+  static double takeUnbound(Entity golem) {
+    double stored = unbound(golem);
+    golem.getPersistentDataContainer().remove(POOL_KEY);
+    return stored;
+  }
+
+  static void putUnbound(Entity golem, double value) {
     PersistentDataContainer data = golem.getPersistentDataContainer();
-    if (value <= 0D) {
+    if (!isPositiveFinite(value)) {
       data.remove(POOL_KEY);
       return;
     }
     data.set(POOL_KEY, PersistentDataType.DOUBLE, value);
+  }
+
+  private static double unbound(Entity golem) {
+    Double stored = golem.getPersistentDataContainer().get(POOL_KEY, PersistentDataType.DOUBLE);
+    return stored != null && isPositiveFinite(stored) ? stored : 0D;
+  }
+
+  private static void write(Entity golem, double value) {
+    Optional<GolemHandle> handle = GolemancyRuntime.handle(golem);
+    if (handle.isPresent()) {
+      handle.get().setHostileDamagePool(value);
+      return;
+    }
+    if (GolemState.has(golem)) {
+      GolemState.read(golem).ifPresent(state -> {
+        state.setHostileDamagePool(value);
+        state.write(golem);
+      });
+      return;
+    }
+    putUnbound(golem, value);
   }
 
   private static boolean isPositiveFinite(double value) {

@@ -4324,6 +4324,15 @@ order = "Ład"
 entropy = "Entropia"
 bulwark = "Bastion"
 
+[golemancy.body]
+frost = "Szronowy"
+copper = "Miedziany"
+iron = "Żelazny"
+bone = "Kościany"
+
+[golemancy.golem]
+name = "{body} golem gracza {owner}"
+
 [herbalism.growth_aura]
 name = "Aura Wzrostu"
 description = "Rozwijaj nature wokol siebie w aurze"

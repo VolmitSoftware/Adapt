@@ -54,6 +54,11 @@ public final class GolemancyMessages {
   public static final TextKey ASPECT_ORDER = TextKey.of("golemancy.aspect.order", "Order");
   public static final TextKey ASPECT_ENTROPY = TextKey.of("golemancy.aspect.entropy", "Entropy");
   public static final TextKey ASPECT_BULWARK = TextKey.of("golemancy.aspect.bulwark", "Bulwark");
+  public static final TextKey BODY_FROST = TextKey.of("golemancy.body.frost", "Frost");
+  public static final TextKey BODY_COPPER = TextKey.of("golemancy.body.copper", "Copper");
+  public static final TextKey BODY_IRON = TextKey.of("golemancy.body.iron", "Iron");
+  public static final TextKey BODY_BONE = TextKey.of("golemancy.body.bone", "Bone");
+  public static final TextKey GOLEM_NAME = TextKey.of("golemancy.golem.name", "{owner}'s {body} Golem");
 
   private GolemancyMessages() {
   }
@@ -109,5 +114,10 @@ public final class GolemancyMessages {
     builder.add(ASPECT_ORDER);
     builder.add(ASPECT_ENTROPY);
     builder.add(ASPECT_BULWARK);
+    builder.add(BODY_FROST);
+    builder.add(BODY_COPPER);
+    builder.add(BODY_IRON);
+    builder.add(BODY_BONE);
+    builder.add(GOLEM_NAME);
   }
 }

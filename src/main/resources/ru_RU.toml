@@ -4324,6 +4324,15 @@ order = "Порядок"
 entropy = "Энтропия"
 bulwark = "Бастион"
 
+[golemancy.body]
+frost = "Морозный"
+copper = "Медный"
+iron = "Железный"
+bone = "Костяной"
+
+[golemancy.golem]
+name = "{body} голем игрока {owner}"
+
 [herbalism.growth_aura]
 name = "Аура роста"
 description = "Выращивайте природу вокруг себя аурой"

@@ -4324,6 +4324,15 @@ order = "秩序"
 entropy = "熵"
 bulwark = "壁壘"
 
+[golemancy.body]
+frost = "霜"
+copper = "銅"
+iron = "鐵"
+bone = "骨"
+
+[golemancy.golem]
+name = "{owner}的{body}魔像"
+
 [herbalism.growth_aura]
 name = "生長光環"
 description = "在你周圍的光環中加速自然生長"

@@ -4324,6 +4324,15 @@ order = "Järjestys"
 entropy = "Entropia"
 bulwark = "Suojavalli"
 
+[golemancy.body]
+frost = "Huurre"
+copper = "Kupari"
+iron = "Rauta"
+bone = "Luu"
+
+[golemancy.golem]
+name = "{body}golemi ({owner})"
+
 [herbalism.growth_aura]
 name = "Kasvuaura"
 description = "Kasvata luontoa ympärilläsi auralla"

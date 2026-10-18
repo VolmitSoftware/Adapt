@@ -4324,6 +4324,15 @@ order = "秩序"
 entropy = "エントロピー"
 bulwark = "防壁"
 
+[golemancy.body]
+frost = "霜"
+copper = "銅"
+iron = "鉄"
+bone = "骨"
+
+[golemancy.golem]
+name = "{owner}の{body}ゴーレム"
+
 [herbalism.growth_aura]
 name = "成長のオーラ"
 description = "周囲の自然をオーラで成長させる"
