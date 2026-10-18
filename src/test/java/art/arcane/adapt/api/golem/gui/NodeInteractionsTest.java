@@ -44,6 +44,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -182,8 +183,9 @@ class NodeInteractionsTest extends AdaptTestBase {
   }
 
   @Test
-  void anyOtherItemWithTheCrookInTheOffHandTogglesTheFilterUpToTheCap() {
-    Player owner = player(OWNER, stack(Material.WHEAT), crook, false);
+  void anyOtherItemWithTheCrookInTheOffHandTogglesItsGhostInTheFilter() {
+    ItemStack held = stack(Material.WHEAT);
+    Player owner = player(OWNER, held, crook, false);
     ItemStack ghost = stack(Material.WHEAT);
     try (MockedStatic<NodeFilters> filters = mockStatic(NodeFilters.class,
         invocation -> invocation.getMethod().getName().equals("ghost") ? ghost : invocation.callRealMethod())) {
@@ -193,6 +195,7 @@ class NodeInteractionsTest extends AdaptTestBase {
 
       interactions.on(rightClick(owner, hitbox, EquipmentSlot.HAND));
       assertThat(record.filterItems()).isEmpty();
+      filters.verify(() -> NodeFilters.ghost(held), times(2));
     }
   }
 
@@ -243,6 +246,7 @@ class NodeInteractionsTest extends AdaptTestBase {
     ItemStack item = mock(ItemStack.class);
     lenient().when(item.getType()).thenReturn(type);
     lenient().when(item.clone()).thenReturn(item);
+    lenient().when(item.isSimilar(item)).thenReturn(true);
     return item;
   }
 }

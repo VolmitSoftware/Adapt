@@ -10,8 +10,8 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.ConfigMessages;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
-import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -46,11 +46,12 @@ public final class NodeTagPrompt implements Listener {
   public void begin(Player player, NodeKey key) {
     Session session = new Session(key);
     sessions.put(player.getUniqueId(), session);
-    GuiCloseSuppression.suppress(player);
     player.closeInventory();
-    Adapt.messagePlayer(player, C.AQUA + AdaptLanguage.text(GolemancyMessages.NODE_TAG_PROMPT));
-    Adapt.messagePlayer(player, AdaptLanguage.text(ConfigMessages.TYPE_CANCEL));
-    if (!J.runEntity(player, () -> expire(player, session), TIMEOUT_TICKS)) {
+    LanguageAudience.run(player.getUniqueId(), () -> {
+      Adapt.messagePlayer(player, C.AQUA + AdaptLanguage.text(GolemancyMessages.NODE_TAG_PROMPT));
+      Adapt.messagePlayer(player, AdaptLanguage.text(ConfigMessages.TYPE_CANCEL));
+    });
+    if (!J.runEntity(player, () -> LanguageAudience.run(player.getUniqueId(), () -> expire(player, session)), TIMEOUT_TICKS)) {
       sessions.remove(player.getUniqueId(), session);
     }
   }
@@ -64,7 +65,7 @@ public final class NodeTagPrompt implements Listener {
     }
     e.setCancelled(true);
     String message = e.getMessage() == null ? "" : e.getMessage().trim();
-    if (!J.runEntity(player, () -> submit(player, session, message))) {
+    if (!J.runEntity(player, () -> LanguageAudience.run(player.getUniqueId(), () -> submit(player, session, message)))) {
       sessions.remove(player.getUniqueId(), session);
     }
   }

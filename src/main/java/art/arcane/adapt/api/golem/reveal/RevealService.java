@@ -79,7 +79,6 @@ public final class RevealService extends TickedObject {
   private static final int LINE_MAX_POINTS = 64;
   private static final float LABEL_LIFT = 0.2F;
   private static final int LABEL_BACKGROUND_ALPHA = 64;
-  private static final int OUTLINE_GRACE_TICKS = 10;
 
   private final Supplier<RevealSettings> settings;
   private final RevealTracker<UUID> golems = new RevealTracker<>();
@@ -414,7 +413,7 @@ public final class RevealService extends TickedObject {
       outline.forget(viewer.getUniqueId());
       return;
     }
-    outline.update(viewer, service.get().index(), settings.get().pollTicks() + OUTLINE_GRACE_TICKS);
+    outline.update(viewer, service.get().index(), settings.get().pollTicks());
   }
 
   private static int nodeWeavingLevel(Player viewer) {

@@ -10,14 +10,11 @@ import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeRules;
 import art.arcane.adapt.api.golem.node.NodeService;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.scheduling.J;
-import art.arcane.volmlib.util.format.Form;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
@@ -32,7 +29,6 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
-import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -41,6 +37,7 @@ import java.util.function.Consumer;
 import java.util.function.UnaryOperator;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 public final class NodeInteractions implements Listener {
   private final NodeTagPrompt prompt;
@@ -94,7 +91,7 @@ public final class NodeInteractions implements Listener {
         DyeColor dye = NodeEdits.dyeChannel(mainHand.getType()).orElse(null);
         setChannel(player, key, current -> dye);
       }
-      case TOGGLE_FILTER -> toggleFilter(player, key, mainHand.getType());
+      case TOGGLE_FILTER -> toggleFilter(player, key, mainHand);
       case CYCLE_PRIORITY -> cyclePriority(player, key);
       case REMOVE -> remove(player, key, record);
     }
@@ -103,14 +100,14 @@ public final class NodeInteractions implements Listener {
   private void setChannel(Player player, NodeKey key, UnaryOperator<DyeColor> channel) {
     edit(player, key, current -> current.toBuilder().channel(channel.apply(current.channel())).build(), updated -> {
       int mask = updated.channel() == null ? ChannelMask.NONE : ChannelMask.of(updated.channel());
-      GolemGuiSupport.notify(player, GolemancyMessages.GUI_CHANNEL, trusted("channel", AdaptLanguage.text(GolemGuiActions.channelName(mask))));
+      GolemGuiSupport.notify(player, GolemancyMessages.GUI_CHANNEL, trusted("channel", GolemGuiSupport.localized(GolemGuiActions.channelName(mask))));
     });
   }
 
-  private void toggleFilter(Player player, NodeKey key, Material type) {
+  private void toggleFilter(Player player, NodeKey key, ItemStack held) {
     int slots = NodeGui.filterSlots(NodeGui.level(player));
-    ItemStack ghost = NodeFilters.ghost(type);
-    String name = Form.capitalizeWords(type.name().toLowerCase(Locale.ROOT).replace('_', ' '));
+    ItemStack ghost = NodeFilters.ghost(held);
+    Object name = GolemGuiSupport.itemName(ghost);
     AtomicReference<NodeFilters.Outcome> outcome = new AtomicReference<>(NodeFilters.Outcome.UNCHANGED);
     edit(player, key, current -> {
       NodeFilters.FilterEdit change = NodeFilters.toggleItem(current, ghost, slots);
@@ -118,8 +115,8 @@ public final class NodeInteractions implements Listener {
       return change.record();
     }, updated -> {
       switch (outcome.get()) {
-        case ADDED -> GolemGuiSupport.notify(player, GolemancyMessages.NODE_FILTER_ADDED, trusted("item", name));
-        case REMOVED -> GolemGuiSupport.notify(player, GolemancyMessages.NODE_FILTER_REMOVED, trusted("item", name));
+        case ADDED -> GolemGuiSupport.notify(player, GolemancyMessages.NODE_FILTER_ADDED, untrusted("item", name));
+        case REMOVED -> GolemGuiSupport.notify(player, GolemancyMessages.NODE_FILTER_REMOVED, untrusted("item", name));
         case FULL -> GolemGuiSupport.warn(player, GolemancyMessages.NODE_FILTER_FULL, trusted("count", slots));
         case REPLACED, UNCHANGED -> {
         }
@@ -140,7 +137,7 @@ public final class NodeInteractions implements Listener {
   private void remove(Player player, NodeKey key, NodeRecord record) {
     onAnchor(player, key, service -> {
       if (service.remove(player, key)) {
-        GolemGuiSupport.notify(player, GolemancyMessages.NODE_REMOVED, trusted("node", AdaptLanguage.text(record.type().displayName())));
+        GolemGuiSupport.notify(player, GolemancyMessages.NODE_REMOVED, trusted("node", GolemGuiSupport.localized(record.type().displayName())));
       } else {
         GolemGuiSupport.warn(player, GolemancyMessages.NODE_REMOVE_FAILED);
       }

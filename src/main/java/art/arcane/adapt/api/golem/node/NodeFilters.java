@@ -1,7 +1,11 @@
 package art.arcane.adapt.api.golem.node;
 
 import org.bukkit.Material;
+import org.bukkit.block.Container;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BlockStateMeta;
+import org.bukkit.inventory.meta.BundleMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,13 +20,24 @@ public final class NodeFilters {
   private NodeFilters() {
   }
 
-  public static ItemStack ghost(Material type) {
-    return new ItemStack(type);
+  public static ItemStack ghost(ItemStack held) {
+    ItemStack ghost = held.clone();
+    ghost.setAmount(1);
+    ItemMeta meta = ghost.getItemMeta();
+    if (meta instanceof BundleMeta bundle && bundle.hasItems()) {
+      bundle.setItems(List.of());
+      ghost.setItemMeta(bundle);
+    } else if (meta instanceof BlockStateMeta state && state.hasBlockState() && state.getBlockState() instanceof Container container) {
+      container.getInventory().clear();
+      state.setBlockState(container);
+      ghost.setItemMeta(state);
+    }
+    return ghost;
   }
 
-  public static FilterEdit toggleItem(NodeRecord record, ItemStack item, int slots) {
+  public static FilterEdit toggleItem(NodeRecord record, ItemStack ghost, int slots) {
     List<ItemStack> items = new ArrayList<>(record.filterItems());
-    int existing = indexOf(items, item.getType());
+    int existing = indexOfSimilar(items, ghost);
     if (existing >= 0) {
       items.remove(existing);
       return new FilterEdit(record.toBuilder().filterItems(items).build(), Outcome.REMOVED);
@@ -30,7 +45,7 @@ public final class NodeFilters {
     if (isFull(record, slots)) {
       return new FilterEdit(record, Outcome.FULL);
     }
-    items.add(item);
+    items.add(ghost);
     return new FilterEdit(record.toBuilder().filterItems(items).build(), Outcome.ADDED);
   }
 
@@ -46,33 +61,35 @@ public final class NodeFilters {
     return new FilterEdit(record.toBuilder().filterTags(tags).build(), Outcome.ADDED);
   }
 
-  public static FilterEdit setItem(NodeRecord record, int index, ItemStack item, int slots) {
+  public static FilterEdit addItem(NodeRecord record, ItemStack ghost, int slots) {
     List<ItemStack> items = new ArrayList<>(record.filterItems());
-    Material type = item.getType();
-    int existing = indexOf(items, type);
-    if (index >= 0 && index < items.size()) {
-      if (existing == index) {
-        return new FilterEdit(record, Outcome.UNCHANGED);
-      }
-      items.set(index, item);
-      if (existing >= 0) {
-        items.remove(existing);
-      }
-      return new FilterEdit(record.toBuilder().filterItems(items).build(), Outcome.REPLACED);
-    }
-    if (existing >= 0) {
+    if (indexOfSimilar(items, ghost) >= 0) {
       return new FilterEdit(record, Outcome.UNCHANGED);
     }
     if (isFull(record, slots)) {
       return new FilterEdit(record, Outcome.FULL);
     }
-    items.add(item);
+    items.add(ghost);
     return new FilterEdit(record.toBuilder().filterItems(items).build(), Outcome.ADDED);
   }
 
-  public static NodeRecord removeItem(NodeRecord record, Material type) {
+  public static FilterEdit replaceItem(NodeRecord record, ItemStack previous, ItemStack ghost) {
     List<ItemStack> items = new ArrayList<>(record.filterItems());
-    int existing = indexOf(items, type);
+    int target = indexOfSimilar(items, previous);
+    if (target < 0 || previous.isSimilar(ghost)) {
+      return new FilterEdit(record, Outcome.UNCHANGED);
+    }
+    int duplicate = indexOfSimilar(items, ghost);
+    items.set(target, ghost);
+    if (duplicate >= 0) {
+      items.remove(duplicate);
+    }
+    return new FilterEdit(record.toBuilder().filterItems(items).build(), Outcome.REPLACED);
+  }
+
+  public static NodeRecord removeItem(NodeRecord record, ItemStack item) {
+    List<ItemStack> items = new ArrayList<>(record.filterItems());
+    int existing = indexOfSimilar(items, item);
     if (existing < 0) {
       return record;
     }
@@ -123,6 +140,15 @@ public final class NodeFilters {
 
   private static boolean isFull(NodeRecord record, int slots) {
     return record.filterCount() >= Math.min(NodeRecord.MAX_FILTER_ENTRIES, slots);
+  }
+
+  private static int indexOfSimilar(List<ItemStack> items, ItemStack item) {
+    for (int index = 0; index < items.size(); index++) {
+      if (items.get(index).isSimilar(item)) {
+        return index;
+      }
+    }
+    return -1;
   }
 
   private static int indexOf(List<ItemStack> items, Material type) {

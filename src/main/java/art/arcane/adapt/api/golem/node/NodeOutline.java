@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem.node;
 import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -20,23 +21,29 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import java.util.function.LongSupplier;
 
 public final class NodeOutline {
   public static final String CHANNEL = "golemancy-node-outline";
   public static final double LOOK_DISTANCE = 6D;
+  public static final int DURATION_TICKS = 200;
+  private static final long TICK_MILLIS = 50L;
+  private static final int REFRESH_MARGIN_TICKS = 10;
   private static final double THICKNESS = 0.04D;
   private static final String EDGE_KEY = "edge-";
   private static final int EDGES = 12;
 
   private final Function<DyeColor, BlockData> blocks;
+  private final LongSupplier clock;
   private final Map<UUID, Outlined> outlined = new ConcurrentHashMap<>();
 
   public NodeOutline() {
-    this(NodeOutline::glass);
+    this(NodeOutline::glass, System::currentTimeMillis);
   }
 
-  NodeOutline(Function<DyeColor, BlockData> blocks) {
+  NodeOutline(Function<DyeColor, BlockData> blocks, LongSupplier clock) {
     this.blocks = Objects.requireNonNull(blocks);
+    this.clock = Objects.requireNonNull(clock);
   }
 
   public static List<Edge> edges(NodeKey key, NodeRecord record) {
@@ -66,7 +73,7 @@ public final class NodeOutline {
     return edges;
   }
 
-  public void update(Player viewer, NodeIndex index, int durationTicks) {
+  public void update(Player viewer, NodeIndex index, int pollTicks) {
     UUID viewerId = viewer.getUniqueId();
     NodeKey key = lookedAt(viewer);
     NodeRecord record = key == null ? null : index.get(key).filter(found -> found.owner().equals(viewerId)).orElse(null);
@@ -74,12 +81,18 @@ public final class NodeOutline {
       forget(viewerId);
       return;
     }
-    Outlined next = new Outlined(key, record);
-    Outlined previous = outlined.put(viewerId, next);
-    if (previous != null && !previous.equals(next)) {
+    long now = clock.getAsLong();
+    Outlined previous = outlined.get(viewerId);
+    boolean same = previous != null && previous.key().equals(key) && sameShape(previous.record(), record);
+    if (same && now < previous.expiresAt() - (pollTicks + REFRESH_MARGIN_TICKS) * TICK_MILLIS) {
+      return;
+    }
+    if (previous != null && !same) {
       ViewerDisplayDirector.clearViewer(CHANNEL, viewerId);
     }
-    draw(viewer, next, durationTicks);
+    Outlined next = new Outlined(key, record, now + DURATION_TICKS * TICK_MILLIS);
+    outlined.put(viewerId, next);
+    draw(viewer, next);
   }
 
   public void forget(UUID viewer) {
@@ -93,7 +106,7 @@ public final class NodeOutline {
     ViewerDisplayDirector.clearChannel(CHANNEL);
   }
 
-  private void draw(Player viewer, Outlined target, int durationTicks) {
+  private void draw(Player viewer, Outlined target) {
     World world = viewer.getWorld();
     DyeColor channel = target.record().channel();
     Color glow = channel == null ? Color.WHITE : channel.getColor();
@@ -102,12 +115,18 @@ public final class NodeOutline {
     for (int index = 0; index < edges.size(); index++) {
       Edge edge = edges.get(index);
       ViewerDisplayDirector.showLine(CHANNEL, EDGE_KEY + index, viewer, edge.start().toLocation(world), edge.end().toLocation(world),
-          block, glow, THICKNESS, durationTicks);
+          block, glow, THICKNESS, DURATION_TICKS);
     }
   }
 
+  private static boolean sameShape(NodeRecord drawn, NodeRecord current) {
+    return drawn.radiusX() == current.radiusX() && drawn.radiusY() == current.radiusY() && drawn.radiusZ() == current.radiusZ()
+        && drawn.channel() == current.channel();
+  }
+
   private static NodeKey lookedAt(Player viewer) {
-    RayTraceResult hit = viewer.rayTraceBlocks(LOOK_DISTANCE);
+    Location eye = viewer.getEyeLocation();
+    RayTraceResult hit = viewer.getWorld().rayTraceBlocks(eye, eye.getDirection(), LOOK_DISTANCE, FluidCollisionMode.NEVER, true);
     if (hit == null) {
       return null;
     }
@@ -124,6 +143,6 @@ public final class NodeOutline {
   public record Edge(Vector start, Vector end) {
   }
 
-  private record Outlined(NodeKey key, NodeRecord record) {
+  private record Outlined(NodeKey key, NodeRecord record, long expiresAt) {
   }
 }

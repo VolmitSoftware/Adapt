@@ -254,12 +254,12 @@ public final class NodeGui {
   private Element filterSlot(int index, List<ItemStack> items, List<String> tags, int slots) {
     String id = "node-filter-" + index;
     if (index < items.size()) {
-      Material type = items.get(index).getType();
-      return itemElement(id, items.get(index).clone())
+      ItemStack shown = items.get(index);
+      return itemElement(id, shown.clone())
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_SET))
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_CLEAR))
-          .onLeftClick(clicked -> setFromCursor(index, slots))
-          .onRightClick(clicked -> edit(current -> NodeFilters.removeItem(current, type)));
+          .onLeftClick(clicked -> replaceFromCursor(shown))
+          .onRightClick(clicked -> edit(current -> NodeFilters.removeItem(current, shown)));
     }
     if (index < items.size() + tags.size()) {
       String tag = tags.get(index - items.size());
@@ -275,7 +275,7 @@ public final class NodeGui {
           .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_EMPTY))
           .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_SET))
           .setProgress(1D)
-          .onLeftClick(clicked -> setFromCursor(index, slots));
+          .onLeftClick(clicked -> addFromCursor(slots));
     }
     return GuiTheme.element(id, Material.BARRIER, "gui", "golemancy", "filter_locked")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.NODE_GUI_FILTER_LOCKED))
@@ -315,19 +315,23 @@ public final class NodeGui {
     return element;
   }
 
-  private void setFromCursor(int index, int slots) {
-    ItemStack cursor = player.getItemOnCursor();
-    if (cursor.getType() == Material.AIR) {
-      return;
-    }
-    ItemStack ghost = NodeFilters.ghost(cursor.getType());
-    edit(current -> {
-      NodeFilters.FilterEdit change = NodeFilters.setItem(current, index, ghost, slots);
+  private void replaceFromCursor(ItemStack shown) {
+    cursorGhost().ifPresent(ghost -> edit(current -> NodeFilters.replaceItem(current, shown, ghost).record()));
+  }
+
+  private void addFromCursor(int slots) {
+    cursorGhost().ifPresent(ghost -> edit(current -> {
+      NodeFilters.FilterEdit change = NodeFilters.addItem(current, ghost, slots);
       if (change.outcome() == NodeFilters.Outcome.FULL) {
         GolemGuiSupport.warn(player, GolemancyMessages.NODE_FILTER_FULL, trusted("count", slots));
       }
       return change.record();
-    });
+    }));
+  }
+
+  private Optional<ItemStack> cursorGhost() {
+    ItemStack cursor = player.getItemOnCursor();
+    return cursor.getType() == Material.AIR ? Optional.empty() : Optional.of(NodeFilters.ghost(cursor));
   }
 
   private void beginTag(NodeRecord record, int slots) {
