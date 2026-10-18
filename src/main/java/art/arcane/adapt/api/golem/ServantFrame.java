@@ -28,8 +28,8 @@ public final class ServantFrame {
     return Optional.ofNullable(FRAME.get());
   }
 
-  public static boolean latticeUnlocked(Player player) {
-    return frame().map(frame -> frame.latticeUnlocked(player)).orElse(false);
+  public static boolean servantMenuUnlocked(Player player) {
+    return frame().map(frame -> frame.servantMenuUnlocked(player)).orElse(false);
   }
 
   public interface Frame {
@@ -49,7 +49,7 @@ public final class ServantFrame {
 
     double share(UUID owner);
 
-    boolean latticeUnlocked(Player player);
+    boolean servantMenuUnlocked(Player player);
 
     void openLattice(Player player, int rosterPage);
   }

@@ -18,6 +18,7 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.util.common.scheduling.J;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.DyeColor;
@@ -28,6 +29,7 @@ import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.Transformation;
@@ -225,6 +227,42 @@ class RevealServiceServantsTest extends AdaptTestBase {
     displays.verify(() -> HiddenDisplays.hide(viewer, label));
     verify(label).remove();
     verify(glow).unset(ViewerGlowCoordinator.Layer.GOLEMANCY, servant.getUniqueId(), SERVANT_RUNTIME_ID, viewer);
+  }
+
+  @Test
+  void aDyingServantLosesItsLabelAndGlow() {
+    Skeleton servant = servant(new AtomicReference<>(5D));
+    RevealService service = new RevealService(RevealSettings::defaults);
+    service.update(viewer);
+    TextDisplay label = spawned.getFirst();
+    EntityDeathEvent death = mock(EntityDeathEvent.class);
+    when(death.getEntity()).thenReturn(servant);
+
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      bukkit.when(() -> Bukkit.getPlayer(OWNER)).thenReturn(viewer);
+      service.on(death);
+    }
+
+    displays.verify(() -> HiddenDisplays.hide(viewer, label));
+    verify(label).remove();
+    verify(glow).unset(ViewerGlowCoordinator.Layer.GOLEMANCY, servant.getUniqueId(), SERVANT_RUNTIME_ID, viewer);
+  }
+
+  @Test
+  void aServantThatLeavesThePackOnExpiryLosesItsLabelAndGlowOnTheNextPoll() {
+    Skeleton servant = servant(new AtomicReference<>(5D));
+    RevealService service = new RevealService(RevealSettings::defaults);
+    service.update(viewer);
+    TextDisplay label = spawned.getFirst();
+
+    pack.remove(servant);
+    service.update(viewer);
+
+    displays.verify(() -> HiddenDisplays.hide(viewer, label));
+    verify(label).remove();
+    verify(glow).unset(ViewerGlowCoordinator.Layer.GOLEMANCY, servant.getUniqueId(), SERVANT_RUNTIME_ID, viewer);
+    service.update(viewer);
+    assertThat(spawned).hasSize(1);
   }
 
   @Test

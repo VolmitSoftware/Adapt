@@ -138,6 +138,10 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     return BoneFrameRules.share(getConfig().servantShareByLevel, level(owner));
   }
 
+  boolean servantMenuUnlocked(UUID owner) {
+    return level(owner) >= 1;
+  }
+
   int latticeSlots(int level) {
     return BoneFrameRules.latticeSlots(getConfig().latticeSlotsByLevel, level);
   }
@@ -294,8 +298,8 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     }
 
     @Override
-    public boolean latticeUnlocked(Player player) {
-      return latticeSlots(GolemBoneFrame.this.level(player.getUniqueId())) > 0;
+    public boolean servantMenuUnlocked(Player player) {
+      return GolemBoneFrame.this.servantMenuUnlocked(player.getUniqueId());
     }
 
     @Override

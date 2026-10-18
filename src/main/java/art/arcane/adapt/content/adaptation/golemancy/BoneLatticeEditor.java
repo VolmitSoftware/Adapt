@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.gui.GolemGuiItems;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,14 +15,14 @@ import java.util.Optional;
 import java.util.Set;
 
 final class BoneLatticeEditor {
+  private final AdaptPlayer owner;
   private final GolemRoster roster;
-  private final Runnable saveRoster;
   private final int slots;
   private final Set<GolemRuneType> allowed;
 
-  BoneLatticeEditor(GolemRoster roster, Runnable saveRoster, int slots, Set<GolemRuneType> allowed) {
-    this.roster = Objects.requireNonNull(roster);
-    this.saveRoster = Objects.requireNonNull(saveRoster);
+  BoneLatticeEditor(AdaptPlayer owner, int slots, Set<GolemRuneType> allowed) {
+    this.owner = Objects.requireNonNull(owner);
+    this.roster = owner.getData().getGolemancy();
     this.slots = slots;
     this.allowed = Objects.requireNonNull(allowed);
   }
@@ -44,7 +45,7 @@ final class BoneLatticeEditor {
       GolemGuiItems.toPlayer(player, GolemItems.rune(rune), player.getLocation());
       return new Outcome(Result.DUPLICATE, rune);
     }
-    saveRoster.run();
+    owner.saveNow();
     return new Outcome(Result.SLOTTED, rune);
   }
 
@@ -52,7 +53,7 @@ final class BoneLatticeEditor {
     if (!roster.removeLattice(index, rune)) {
       return new Outcome(Result.STALE, rune);
     }
-    saveRoster.run();
+    owner.saveNow();
     GolemGuiItems.toPlayer(player, GolemItems.rune(rune), player.getLocation());
     J.runEntity(player, player::saveData);
     return new Outcome(Result.TAKEN, rune);

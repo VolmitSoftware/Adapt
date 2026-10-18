@@ -5,6 +5,8 @@ import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -41,8 +43,9 @@ import static org.mockito.Mockito.when;
 class BoneLatticeEditorTest extends AdaptTestBase {
   private static final Set<GolemRuneType> ALLOWED = EnumSet.of(GolemRuneType.SWIFTNESS, GolemRuneType.MIGHT, GolemRuneType.EMBER, GolemRuneType.BULWARK);
 
-  private final GolemRoster roster = new GolemRoster();
-  private final Runnable saveRoster = mock(Runnable.class);
+  private final PlayerData data = new PlayerData();
+  private final GolemRoster roster = data.getGolemancy();
+  private final AdaptPlayer owner = mock(AdaptPlayer.class);
   private final Player player = mock(Player.class);
   private final PlayerInventory inventory = mock(PlayerInventory.class);
   private final World world = mock(World.class);
@@ -64,6 +67,7 @@ class BoneLatticeEditorTest extends AdaptTestBase {
       call.<Runnable>getArgument(1).run();
       return true;
     });
+    lenient().when(owner.getData()).thenReturn(data);
     lenient().when(player.getInventory()).thenReturn(inventory);
     lenient().when(player.getLocation()).thenReturn(new Location(world, 0D, 64D, 0D));
     lenient().when(inventory.addItem(any(ItemStack[].class))).thenReturn(new HashMap<>());
@@ -85,10 +89,11 @@ class BoneLatticeEditorTest extends AdaptTestBase {
     assertThat(outcome).isEqualTo(new BoneLatticeEditor.Outcome(BoneLatticeEditor.Result.SLOTTED, new GolemRune(GolemRuneType.MIGHT, 2)));
     assertThat(cursor.getAmount()).isEqualTo(2);
     assertThat(roster.lattice()).containsExactly(new GolemRune(GolemRuneType.MIGHT, 2));
-    InOrder order = inOrder(player, saveRoster);
+    InOrder order = inOrder(player, owner);
     order.verify(player).setItemOnCursor(cursor);
     order.verify(player).saveData();
-    order.verify(saveRoster).run();
+    order.verify(owner).saveNow();
+    verify(owner, never()).requestSave();
   }
 
   @Test
@@ -111,7 +116,7 @@ class BoneLatticeEditorTest extends AdaptTestBase {
 
     verify(player, never()).setItemOnCursor(any());
     verify(player, never()).saveData();
-    verify(saveRoster, never()).run();
+    verify(owner, never()).saveNow();
     assertThat(roster.lattice()).containsExactly(new GolemRune(GolemRuneType.MIGHT, 1));
   }
 
@@ -120,11 +125,11 @@ class BoneLatticeEditorTest extends AdaptTestBase {
     when(player.getItemOnCursor()).thenReturn(mock(ItemStack.class));
 
     assertThat(editor(2).insert(player).result()).isEqualTo(BoneLatticeEditor.Result.NO_RUNE);
-    verify(saveRoster, never()).run();
+    verify(owner, never()).saveNow();
   }
 
   @Test
-  void takingARuneSavesTheLatticeThenHandsTheRuneBackOnce() {
+  void takingARuneWritesTheRosterBeforeTheRuneIsHandedBackOnce() {
     GolemRune ember = new GolemRune(GolemRuneType.EMBER, 2);
     roster.addLattice(ember);
 
@@ -135,11 +140,24 @@ class BoneLatticeEditorTest extends AdaptTestBase {
     assertThat(second.result()).isEqualTo(BoneLatticeEditor.Result.STALE);
     assertThat(roster.lattice()).isEmpty();
     verify(inventory, times(1)).addItem(any(ItemStack[].class));
-    verify(saveRoster, times(1)).run();
-    InOrder order = inOrder(saveRoster, inventory, player);
-    order.verify(saveRoster).run();
+    verify(owner, times(1)).saveNow();
+    verify(owner, never()).requestSave();
+    InOrder order = inOrder(owner, inventory, player);
+    order.verify(owner).saveNow();
     order.verify(inventory).addItem(any(ItemStack[].class));
     order.verify(player).saveData();
+  }
+
+  @Test
+  void atLevelOneEverySlotIsLockedButSlottedRunesStillComeOut() {
+    GolemRune might = new GolemRune(GolemRuneType.MIGHT, 2);
+    roster.addLattice(might);
+
+    assertThat(editor(0).insert(cursorOf(new GolemRune(GolemRuneType.EMBER, 1))).result()).isEqualTo(BoneLatticeEditor.Result.NO_SLOT);
+    assertThat(editor(0).take(player, 0, might).result()).isEqualTo(BoneLatticeEditor.Result.TAKEN);
+
+    assertThat(roster.lattice()).isEmpty();
+    verify(inventory, times(1)).addItem(any(ItemStack[].class));
   }
 
   private BoneLatticeEditor.Outcome insertFrom(GolemRune rune, int slots) {
@@ -153,7 +171,7 @@ class BoneLatticeEditorTest extends AdaptTestBase {
   }
 
   private BoneLatticeEditor editor(int slots) {
-    return new BoneLatticeEditor(roster, saveRoster, slots, ALLOWED);
+    return new BoneLatticeEditor(owner, slots, ALLOWED);
   }
 
   private ItemStack runeItem(GolemRune rune, int amount) {

@@ -32,6 +32,7 @@ import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
+import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.minion.MinionIdentity;
@@ -420,8 +421,13 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    if (!ServantPulse.allowsTarget(order(skeleton), e.getReason())) {
+    ServantOrder order = order(skeleton);
+    if (!ServantPulse.allowsTarget(order, e.getReason())) {
       e.setCancelled(true);
+      return;
+    }
+    long now = System.currentTimeMillis();
+    if (ServantPulse.commanded(order, target, now)) {
       return;
     }
 
@@ -429,14 +435,14 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     if (stance == TragoulPreferences.Stance.PASSIVE
         || (stance == TragoulPreferences.Stance.DEFEND && !isPriorityTarget(ownerId, target))) {
       e.setCancelled(true);
-      skeleton.setTarget(null);
+      releaseTarget(skeleton, order, now);
       return;
     }
     if (target instanceof Player player) {
       if (!isPriorityTarget(ownerId, player)) {
         e.setCancelled(true);
         if (skeleton.getTarget() instanceof Player) {
-          skeleton.setTarget(null);
+          releaseTarget(skeleton, order, now);
         }
       }
       return;
@@ -974,7 +980,10 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     Location here = servant.getLocation();
     Location ownerAt = order.mode() == ServantOrder.Mode.FOLLOW ? sightOwner(record, ownerId) : null;
     Location anchor = order.anchor();
-    switch (ServantPulse.step(order, holds, distanceSquared(here, ownerAt), distanceSquared(here, anchor), servant.getTarget() != null)) {
+    LivingEntity current = servant.getTarget();
+    ServantPulse.Senses senses = new ServantPulse.Senses(holds, distanceSquared(here, ownerAt), distanceSquared(here, anchor),
+        current != null && current.isValid() && !current.isDead(), GolemancyRuntime.brainSettings().leashRadius());
+    switch (ServantPulse.step(order, senses)) {
       case HUNT -> retargetOwned(servant, servantId, ownerId);
       case ATTACK -> {
         if (servant.getTarget() != commanded) {
@@ -1017,8 +1026,13 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private boolean isCommandedTarget(Skeleton servant, LivingEntity victim) {
-    ServantOrder order = order(servant);
-    return order.target() == victim && order.commandHolds(System.currentTimeMillis(), true);
+    return ServantPulse.commanded(order(servant), victim, System.currentTimeMillis());
+  }
+
+  private static void releaseTarget(Skeleton servant, ServantOrder order, long now) {
+    if (!ServantPulse.commanded(order, servant.getTarget(), now)) {
+      servant.setTarget(null);
+    }
   }
 
   private void retargetOwned(Skeleton servant, UUID servantId, UUID ownerId) {
@@ -1109,7 +1123,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       if (!Long.valueOf(token).equals(pendingLocalRetargets.get(servantId))) {
         return;
       }
-      if (!ownerId.equals(servantOwners.get(servantId)) || !servant.isValid() || servant.isDead()) {
+      if (!ownerId.equals(servantOwners.get(servantId)) || !servant.isValid() || servant.isDead()
+          || !ServantPulse.takesPriority(order(servant))) {
         return;
       }
 

@@ -150,6 +150,20 @@ class GolemBoneFrameTest extends AdaptTestBase {
   }
 
   @Test
+  void theServantMenuOpensFromLevelOneWhileLatticeSlotsWaitForLevelTwo() {
+    GolemBoneFrame learned = spy(adaptation);
+
+    doReturn(0).when(learned).level(OWNER);
+    assertThat(learned.servantMenuUnlocked(OWNER)).isFalse();
+    doReturn(1).when(learned).level(OWNER);
+    assertThat(learned.servantMenuUnlocked(OWNER)).isTrue();
+    assertThat(learned.latticeSlots(1)).isZero();
+    assertThat(learned.slotUnlockLevel(0)).isEqualTo(2);
+    assertThat(learned.slotUnlockLevel(2)).isEqualTo(3);
+    assertThat(learned.mostLatticeSlots()).isEqualTo(3);
+  }
+
+  @Test
   void summoningScalesServantsOnlyWithBoneFrameAndABoneScaleOtherThanOne() {
     GolemBoneFrame learned = spy(adaptation);
     Skeleton servant = mock(Skeleton.class);

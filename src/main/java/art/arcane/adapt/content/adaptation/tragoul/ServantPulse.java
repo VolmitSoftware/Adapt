@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.adaptation.tragoul;
 
 import art.arcane.adapt.api.minion.ServantOrder;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.entity.EntityTargetEvent;
 
 final class ServantPulse {
@@ -11,14 +12,14 @@ final class ServantPulse {
   private ServantPulse() {
   }
 
-  static Step step(ServantOrder order, boolean commandHolds, double ownerDistanceSquared, double anchorDistanceSquared, boolean fighting) {
-    if (commandHolds) {
+  static Step step(ServantOrder order, Senses senses) {
+    if (senses.commandHolds()) {
       return Step.ATTACK;
     }
     return switch (order.mode()) {
       case FREE -> Step.HUNT;
-      case FOLLOW -> ownerDistanceSquared > FOLLOW_DISTANCE * FOLLOW_DISTANCE ? Step.FOLLOW : Step.HUNT;
-      case HOLD -> !fighting && anchorDistanceSquared > ANCHOR_TOLERANCE * ANCHOR_TOLERANCE ? Step.RETURN : Step.STAND;
+      case FOLLOW -> follows(senses) ? Step.FOLLOW : Step.HUNT;
+      case HOLD -> !senses.fighting() && senses.anchorDistanceSquared() > ANCHOR_TOLERANCE * ANCHOR_TOLERANCE ? Step.RETURN : Step.STAND;
     };
   }
 
@@ -30,11 +31,24 @@ final class ServantPulse {
     return order.mode() != ServantOrder.Mode.HOLD || reason == EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY;
   }
 
+  static boolean commanded(ServantOrder order, LivingEntity target, long now) {
+    return target != null && order.target() == target && order.commandHolds(now, true);
+  }
+
+  private static boolean follows(Senses senses) {
+    double owner = senses.ownerDistanceSquared();
+    double leash = senses.leashRadius();
+    return owner > leash * leash || (!senses.fighting() && owner > FOLLOW_DISTANCE * FOLLOW_DISTANCE);
+  }
+
   enum Step {
     HUNT,
     ATTACK,
     FOLLOW,
     RETURN,
     STAND
+  }
+
+  record Senses(boolean commandHolds, double ownerDistanceSquared, double anchorDistanceSquared, boolean fighting, double leashRadius) {
   }
 }

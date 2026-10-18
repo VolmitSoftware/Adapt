@@ -6460,7 +6460,7 @@ lore2 = "max gezondheid hersteld per seconde"
 lore = ["van alle als gezondheid teruggegeven schade", "max gezondheid hersteld per seconde"]
 
 [tragoul.skeletal_servant]
-name = "Sceletal Servant"
+name = "Skeletdienaar"
 description = "Sneak en rechts-klik met botten te verhogen tijdelijke skelet bedienden, een levende bediende per niveau! Bedienden paaien met trapsgewijze willekeurige uitrusting, erven je andere Tragoul-voordelen en jagen op je merk: wat je ook toeslaat of wat je het laatst treft. Oproep aan de kap recycleert uw oudste bediende. Consulaat botten op oproep, minder bij hogere niveaus."
 lore1 = "Sneak + Rechtsklik met botten in de hand om een bediende op te roepen"
 lore2 = "Levenslang dienend"

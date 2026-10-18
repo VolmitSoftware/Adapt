@@ -1,13 +1,20 @@
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.runtime.AdaptationGate;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
+import art.arcane.adapt.util.common.scheduling.J;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.World;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -25,6 +32,13 @@ import java.util.UUID;
 
 import static org.mockito.Answers.CALLS_REAL_METHODS;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyDouble;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.doubleThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -37,7 +51,13 @@ class SkillGolemancyServantKillTest {
   private static final NamespacedKey SERVANT_KEY = NamespacedKey.fromString("adapt:tragoul_servant_owner");
 
   private final ServantFrame.Frame frame = mock(ServantFrame.Frame.class);
+  private final World world = mock(World.class);
+  private final Player owner = mock(Player.class);
   private MockedStatic<AdaptationGate> gate;
+  private MockedStatic<Bukkit> bukkit;
+  private MockedStatic<J> scheduling;
+  private MockedStatic<GolemVitals> vitals;
+  private SkillGolemancy skill;
 
   @BeforeAll
   static void registerKinds() {
@@ -45,62 +65,109 @@ class SkillGolemancyServantKillTest {
   }
 
   @BeforeEach
-  void openTheWorldGate() {
+  void setUp() {
     gate = mockStatic(AdaptationGate.class);
     gate.when(() -> AdaptationGate.shouldSkipWorld(any(), any())).thenReturn(false);
+    gate.when(() -> AdaptationGate.shouldSkipPlayer(any(), any(), anyBoolean())).thenReturn(false);
+    bukkit = mockStatic(Bukkit.class);
+    bukkit.when(() -> Bukkit.getPlayer(OWNER)).thenReturn(owner);
+    scheduling = mockStatic(J.class);
+    scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(call -> {
+      call.<Runnable>getArgument(1).run();
+      return true;
+    });
+    vitals = mockStatic(GolemVitals.class);
+    vitals.when(() -> GolemVitals.maxHealth(any())).thenReturn(20D);
+    lenient().when(owner.getUniqueId()).thenReturn(OWNER);
+    lenient().when(owner.getLocation()).thenAnswer(call -> new Location(world, 10D, 64D, 0D));
+    skill = mock(SkillGolemancy.class, CALLS_REAL_METHODS);
+    lenient().doReturn(new SkillGolemancy.Config()).when(skill).getConfig();
+    lenient().doReturn(true).when(skill).isRuntimeRegistered();
+    lenient().doNothing().when(skill).xp(any(Player.class), any(Location.class), anyDouble(), anyString());
   }
 
   @AfterEach
   void tearDown() {
     ServantFrame.unregister(frame);
+    vitals.close();
+    scheduling.close();
+    bukkit.close();
     gate.close();
   }
 
   @Test
-  void aServantKillPaysNothingWithoutBoneFrame() {
-    SkillGolemancy skill = mock(SkillGolemancy.class, CALLS_REAL_METHODS);
+  void aServantKillPaysTheShareOfTheKillValueToTheOwner() {
+    when(frame.share(OWNER)).thenReturn(0.35D);
+    ServantFrame.register(frame);
 
-    skill.on(death(entity(Zombie.class, Map.of()), servant()));
+    skill.on(death(zombie(), servant()));
+
+    verify(skill).xp(eq(owner), any(Location.class), doubleThat(xp -> Math.abs(xp - 12.25D) < 1e-9), eq("golemancy:servant:zombie"));
+  }
+
+  @Test
+  void aDistantOwnerEarnsTheDistantShareOfTheServantKill() {
+    when(frame.share(OWNER)).thenReturn(1D);
+    when(owner.getLocation()).thenAnswer(call -> new Location(world, 200D, 64D, 0D));
+    ServantFrame.register(frame);
+
+    skill.on(death(zombie(), servant()));
+
+    verify(skill).xp(eq(owner), any(Location.class), doubleThat(xp -> Math.abs(xp - 8.75D) < 1e-9), eq("golemancy:servant:zombie"));
+  }
+
+  @Test
+  void aServantKillPaysNothingWithoutBoneFrame() {
+    skill.on(death(zombie(), servant()));
     when(frame.share(OWNER)).thenReturn(0D);
     ServantFrame.register(frame);
-    skill.on(death(entity(Zombie.class, Map.of()), servant()));
+    skill.on(death(zombie(), servant()));
 
     verify(frame).share(OWNER);
-    verify(skill, never()).getConfig();
+    verifyNoGrant();
   }
 
   @Test
   void killingAnotherMinionNeverPays() {
-    SkillGolemancy skill = mock(SkillGolemancy.class, CALLS_REAL_METHODS);
     when(frame.share(OWNER)).thenReturn(1D);
     ServantFrame.register(frame);
 
     skill.on(death(entity(Skeleton.class, Map.of(SERVANT_KEY, UUID.randomUUID().toString())), servant()));
 
-    verify(skill, never()).getConfig();
+    verifyNoGrant();
   }
 
   @Test
   void onlyHostileVictimsAreConsidered() {
-    SkillGolemancy skill = mock(SkillGolemancy.class, CALLS_REAL_METHODS);
     when(frame.share(OWNER)).thenReturn(1D);
     ServantFrame.register(frame);
 
     skill.on(death(entity(Cow.class, Map.of()), servant()));
 
     verify(frame, never()).share(any(UUID.class));
-    verify(skill, never()).getConfig();
+    verifyNoGrant();
   }
 
   @Test
   void aKillByAnythingButAServantNeverAsksForTheShare() {
-    SkillGolemancy skill = mock(SkillGolemancy.class, CALLS_REAL_METHODS);
     ServantFrame.register(frame);
 
-    skill.on(death(entity(Zombie.class, Map.of()), entity(Zombie.class, Map.of())));
+    skill.on(death(zombie(), entity(Zombie.class, Map.of())));
 
     verify(frame, never()).share(any(UUID.class));
-    verify(skill, never()).getConfig();
+    verifyNoGrant();
+  }
+
+  private void verifyNoGrant() {
+    verify(skill, never()).xp(any(Player.class), any(Location.class), anyDouble(), anyString());
+  }
+
+  private Zombie zombie() {
+    Zombie zombie = entity(Zombie.class, Map.of());
+    lenient().when(zombie.getType()).thenReturn(EntityType.ZOMBIE);
+    lenient().when(zombie.getWorld()).thenReturn(world);
+    lenient().when(zombie.getLocation()).thenAnswer(call -> new Location(world, 0D, 64D, 0D));
+    return zombie;
   }
 
   private static Skeleton servant() {

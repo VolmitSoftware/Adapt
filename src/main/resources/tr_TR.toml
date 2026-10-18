@@ -6460,7 +6460,7 @@ lore2 = "En düşük sağlık ikinci başına restore edildi"
 lore = ["Tüm atfedilen hasar sağlık olarak geri döndü", "En düşük sağlık ikinci başına restore edildi"]
 
 [tragoul.skeletal_servant]
-name = "Skeletal"
+name = "İskelet Hizmetkâr"
 description = "Sneak ve kemikleri geçici iskelet hizmetkarlarını yükseltmek için sağ tıkır, bir üst düzeye kadar hizmet eden! Servants, seviye ölçekli rastgele dişli ile spawn, diğer Tragoul perksinizi devralın ve işaretini avlayın: greviniz ne olursa olsun veya her neyse seni sonlandırdınız. Kapakta summoning en eski hizmetkarını geri döndürür. Çağrıda kemikler, daha yüksek seviyelerde daha az."
 lore1 = "Sneak + Sağ tarafta bir hizmetkar çağırmak için kemikleri ile tıklayın"
 lore2 = "Servant Lifetime"

@@ -33,6 +33,7 @@ import art.arcane.adapt.api.golem.GolemRepairXp;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemWorkSettings;
 import art.arcane.adapt.api.golem.GolemWorkStats;
 import art.arcane.adapt.api.golem.GolemWorkXp;
@@ -60,8 +61,6 @@ import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
-import art.arcane.adapt.api.version.IAttribute;
-import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnglerCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnimusBinding;
@@ -95,7 +94,6 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDoc;
-import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.spatial.matter.SpatialMatter;
 import art.arcane.volmlib.util.math.M;
@@ -810,11 +808,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   }
 
   private static double maxHealthOf(LivingEntity entity) {
-    if (Attributes.MAX_HEALTH == null) {
-      return 20D;
-    }
-    IAttribute attribute = Version.get().getAttribute(entity, Attributes.MAX_HEALTH);
-    return attribute == null ? 20D : attribute.getValue();
+    return GolemVitals.maxHealth(entity);
   }
 
   private record BuildCooldownKey(UUID player, SpawnReason reason) {

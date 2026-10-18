@@ -6460,7 +6460,7 @@ lore2 = "max. Gesundheit wiederhergestellt pro Sekunde"
 lore = ["von allen zugeschriebenen Schäden, die als gesundheitlich zurückgegeben wurden", "max. Gesundheit wiederhergestellt pro Sekunde"]
 
 [tragoul.skeletal_servant]
-name = "Skelettservice"
+name = "Skelettdiener"
 description = "Schleichen Sie sich und klicken Sie mit der rechten Knie, um temporäre Skelettsjüter zu erziehen, einen lebenden Diener pro Stufe! Diener züchten mit gleichmäßigen zufälligen Geräten, erben Ihre anderen Tragoul-Verteilungen und jagen Ihr Zeichen: Was auch immer Sie schlagen, oder was auch immer Sie zuletzt getroffen haben."
 lore1 = "Schleichen + Rechte-Klick mit Knochen in der Hand , um einen Diener zu rufen"
 lore2 = "Die Lebensdauer des Dieners"

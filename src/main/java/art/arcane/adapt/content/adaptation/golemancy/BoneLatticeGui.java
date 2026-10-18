@@ -58,13 +58,13 @@ final class BoneLatticeGui {
     }
     AdaptPlayer adaptPlayer = frame.adaptPlayer(player).orElse(null);
     int level = frame.level(player.getUniqueId());
-    if (adaptPlayer == null || frame.latticeSlots(level) <= 0) {
+    if (adaptPlayer == null || level < 1) {
       RosterGui.open(player, rosterPage);
       return;
     }
     try (LanguageAudience.Scope audience = LanguageAudience.open(player.getUniqueId())) {
       GolemRoster roster = adaptPlayer.getData().getGolemancy();
-      View view = new View(frame, player, rosterPage, roster, new BoneLatticeEditor(roster, adaptPlayer::requestSave, frame.latticeSlots(level), frame.aspects()),
+      View view = new View(frame, player, rosterPage, roster, new BoneLatticeEditor(adaptPlayer, frame.latticeSlots(level), frame.aspects()),
           frame.latticeSlots(level), maxTier(frame, player));
       UIWindow window = new UIWindow(Adapt.instance, player);
       GuiTheme.apply(window, "golemancy-roster");

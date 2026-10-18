@@ -84,7 +84,7 @@ public final class RosterGui {
       Map<UUID, GolemHandle> loaded = loaded(player.getUniqueId());
       boolean channelFilter = filtersChannels(player);
       boolean recalls = GolemPacking.recalls(player);
-      boolean lattice = ServantFrame.latticeUnlocked(player);
+      boolean lattice = ServantFrame.servantMenuUnlocked(player);
       GuiLayout.PagePlan plan = GuiLayout.plan(entries.size(), channelFilter || lattice);
       int current = GuiLayout.clampPage(page, plan.pageCount());
       int start = current * plan.itemsPerPage();
