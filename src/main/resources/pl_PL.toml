@@ -4580,6 +4580,25 @@ lore5 = "Uprawa: ponownie orze ziemię i obsiewa pustą ziemię uprawną"
 lore6 = "Szansa na dodatkowe losowanie łupów"
 lore = ["Uprawy na akcję zbioru", "Sekundy na akcję zbioru", "Zbiera arbuzy, dynie, trzcinę cukrową, bambus i kaktusy", "Pielęgnacja: mączka kostna ze skrzyni domowej na młode uprawy", "Uprawa: ponownie orze ziemię i obsiewa pustą ziemię uprawną", "Szansa na dodatkowe losowanie łupów"]
 
+[golemancy.breaker_core]
+name = "Rdzeń Burzyciela"
+description = "Golemy związane Rdzeniem Burzyciela niszczą w obszarze Węzła Wydobycia bloki wymienione w jego filtrze i niosą to, co z nich wypadnie, a w miarę jak rdzeń się wzmacnia, kopią twardsze bloki lepszymi kilofami."
+lore1 = "Maksymalna twardość bloku"
+lore2 = "Sekundy na blok"
+lore3 = "Narzędzie wydobywcze"
+lore4 = "Przełącznik Jedwabnego dotyku w Węzłach Wydobycia"
+lore5 = "Przełącznik Szczęścia I w Węzłach Wydobycia"
+lore = ["Maksymalna twardość bloku", "Sekundy na blok", "Narzędzie wydobywcze", "Przełącznik Jedwabnego dotyku w Węzłach Wydobycia", "Przełącznik Szczęścia I w Węzłach Wydobycia"]
+filter_ready = "Niszczy bloki z filtra"
+filter_needed = "Dodaj bloki do białej listy"
+filter_lore = "Burzyciele niszczą tylko bloki wymienione na białej liście"
+silk_on = "Jedwabny dotyk: wł."
+silk_off = "Jedwabny dotyk: wył."
+fortune_on = "Szczęście I: wł."
+fortune_off = "Szczęście I: wył."
+locked = "Odblokowuje się na poziomie {level} Rdzenia Burzyciela"
+exclusive = "Jedwabny dotyk i Szczęście I wyłączają się nawzajem"
+
 [golemancy.runic_augments]
 name = "Runiczne ulepszenia"
 description = "Pozwala nasycać runy na Postumencie animusa i osadzać je w związanych golemach, by zyskać szybkość, udźwig, ogień, zasięg, kanały, plony i pancerz."

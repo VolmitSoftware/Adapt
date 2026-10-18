@@ -169,6 +169,22 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
+    ['golem-breaker-core', {
+        stage: 'golemancy-breaker-binding', trigger: bindIron,
+        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-iron-frame', level: 1 }],
+        prepare: ({ equip }) => equip('firework_star'),
+        description: 'binding an iron golem with a Breaker Core needs Breaker Core learned and turns the golem into a working Breaker',
+        async verify({ context, unlearned, active }) {
+            context.expect(!unlearned.bound, 'Without Breaker Core the iron golem refuses the Breaker Core and stays unbound')
+            context.expect(active.bound && active.boundToPlayer, 'With Breaker Core the iron golem binds to the player')
+            context.expect(active.core === 'breaker', 'The bound golem carries the Breaker Core')
+            context.expect(active.mode === 'work', 'A new Breaker starts in Work mode, ready for Breaker Nodes')
+            return {
+                assertions: ['unlearned binding leaves the iron golem unbound', 'learned binding makes the iron golem a Breaker in Work mode'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
     ['golem-runic-augments', {
         stage: 'golemancy-plinth', trigger: loadPlinth, prerequisites: [{ name: 'golem-animus-binding', level: 2 }],
         prepare: ({ equip }) => equip('disc_fragment_5'),

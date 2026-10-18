@@ -3364,6 +3364,23 @@
     },
     {
       "skill": "golemancy",
+      "name": "golem-breaker-core",
+      "class": "GolemBreakerCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemBreakerCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "recipe"
+      ],
+      "expectation": "Golems bound with a Breaker Core break the blocks a Breaker Node's filter lists inside its area and carry the drops, mining harder blocks with better pickaxes as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemBreakerCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
       "name": "golem-copper-frame",
       "class": "GolemCopperFrame",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemCopperFrame.java",

@@ -4580,6 +4580,25 @@ lore5 = "Labranza: vuelve a arar la tierra y siembra la tierra de cultivo vacía
 lore6 = "Probabilidad de una tirada de botín extra"
 lore = ["Cultivos por acción de cosecha", "Segundos por acción de cosecha", "Cosecha sandías, calabazas, caña de azúcar, bambú y cactus", "Cuidado: polvo de hueso del cofre del hogar en cultivos jóvenes", "Labranza: vuelve a arar la tierra y siembra la tierra de cultivo vacía", "Probabilidad de una tirada de botín extra"]
 
+[golemancy.breaker_core]
+name = "Núcleo de Rompedor"
+description = "Los gólems vinculados con un Núcleo de Rompedor rompen los bloques que indica el filtro de un Nodo de Minería dentro de su área y cargan lo que sueltan, y minan bloques más duros con mejores picos a medida que el núcleo se fortalece."
+lore1 = "Dureza máxima de bloque"
+lore2 = "Segundos por bloque"
+lore3 = "Herramienta de minería"
+lore4 = "Interruptor de Toque de seda en los Nodos de Minería"
+lore5 = "Interruptor de Fortuna I en los Nodos de Minería"
+lore = ["Dureza máxima de bloque", "Segundos por bloque", "Herramienta de minería", "Interruptor de Toque de seda en los Nodos de Minería", "Interruptor de Fortuna I en los Nodos de Minería"]
+filter_ready = "Rompe los bloques del filtro"
+filter_needed = "Añade bloques a la lista blanca"
+filter_lore = "Los rompedores solo rompen los bloques que indica una lista blanca"
+silk_on = "Toque de seda: Sí"
+silk_off = "Toque de seda: No"
+fortune_on = "Fortuna I: Sí"
+fortune_off = "Fortuna I: No"
+locked = "Se desbloquea con Núcleo de Rompedor nivel {level}"
+exclusive = "Toque de seda y Fortuna I se desactivan entre sí"
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Te permite infundir runas en el Pedestal de Ánima y engarzarlas en tus gólems vinculados para ganar velocidad, carga, fuego, alcance, canales, rendimiento y armadura."

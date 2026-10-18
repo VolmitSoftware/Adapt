@@ -33,6 +33,7 @@ public final class GolemancyFixtures {
     private static final String BINDING_STAGE = "golemancy-binding";
     private static final String GUARDIAN_BINDING_STAGE = "golemancy-guardian-binding";
     private static final String HARVESTER_BINDING_STAGE = "golemancy-harvester-binding";
+    private static final String BREAKER_BINDING_STAGE = "golemancy-breaker-binding";
     private static final String COPPER_BINDING_STAGE = "golemancy-copper-binding";
     private static final String IRON_BINDING_STAGE = "golemancy-iron-binding";
     private static final String NODE_STAGE = "golemancy-node";
@@ -75,6 +76,15 @@ public final class GolemancyFixtures {
             actor.getInventory().addItem(GolemItems.core(GolemCoreType.HARVESTER));
             Snowman golem = world.spawn(new Location(world, 2.5, 100, 0.5), Snowman.class);
             golem.addScoreboardTag(GOLEM_TAG);
+            return true;
+        }
+        if (BREAKER_BINDING_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.setLevel(5);
+            actor.getInventory().addItem(GolemItems.core(GolemCoreType.BREAKER));
+            IronGolem golem = world.spawn(new Location(world, 2.5, 100, 0.5), IronGolem.class);
+            golem.setPlayerCreated(true);
+            golem.addScoreboardTag(IRON_GOLEM_TAG);
             return true;
         }
         if (COPPER_BINDING_STAGE.equals(name)) {

@@ -155,6 +155,7 @@ import art.arcane.adapt.content.adaptation.excavation.ExcavationSpelunker;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationTreasureHunter;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationTunneler;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnimusBinding;
+import art.arcane.adapt.content.adaptation.golemancy.GolemBreakerCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemCopperFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemFrostFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemGuardianCore;
@@ -533,6 +534,7 @@ public final class ConfigFieldMessages {
     addConfiguration(fields, "adaptations.excavation-treasure-hunter", "adaptation:excavation-treasure-hunter", ExcavationTreasureHunter.class);
     addConfiguration(fields, "adaptations.excavation-tunneler", "adaptation:excavation-tunneler", ExcavationTunneler.class);
     addConfiguration(fields, "adaptations.golem-animus-binding", "adaptation:golem-animus-binding", GolemAnimusBinding.class);
+    addConfiguration(fields, "adaptations.golem-breaker-core", "adaptation:golem-breaker-core", GolemBreakerCore.class);
     addConfiguration(fields, "adaptations.golem-copper-frame", "adaptation:golem-copper-frame", GolemCopperFrame.class);
     addConfiguration(fields, "adaptations.golem-frost-frame", "adaptation:golem-frost-frame", GolemFrostFrame.class);
     addConfiguration(fields, "adaptations.golem-guardian-core", "adaptation:golem-guardian-core", GolemGuardianCore.class);

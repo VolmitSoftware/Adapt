@@ -4576,6 +4576,25 @@ lore5 = "Labour : relaboure la terre et sème la terre labourée vide"
 lore6 = "Chance d'un tirage de butin supplémentaire"
 lore = ["Cultures par action de récolte", "Secondes par action de récolte", "Récolte les pastèques, citrouilles, cannes à sucre, bambous et cactus", "Entretien : poudre d'os du coffre de maison sur les jeunes cultures", "Labour : relaboure la terre et sème la terre labourée vide", "Chance d'un tirage de butin supplémentaire"]
 
+[golemancy.breaker_core]
+name = "Noyau de Briseur"
+description = "Les golems liés avec un Noyau de Briseur cassent les blocs que liste le filtre d'un Nœud de Minage dans sa zone et emportent ce qu'ils lâchent, puis minent des blocs plus durs avec de meilleures pioches à mesure que le noyau se renforce."
+lore1 = "Dureté maximale des blocs"
+lore2 = "Secondes par bloc"
+lore3 = "Outil de minage"
+lore4 = "Interrupteur Toucher de soie sur les Nœuds de Minage"
+lore5 = "Interrupteur Fortune I sur les Nœuds de Minage"
+lore = ["Dureté maximale des blocs", "Secondes par bloc", "Outil de minage", "Interrupteur Toucher de soie sur les Nœuds de Minage", "Interrupteur Fortune I sur les Nœuds de Minage"]
+filter_ready = "Casse les blocs du filtre"
+filter_needed = "Ajoutez des blocs à la liste blanche"
+filter_lore = "Les briseurs ne cassent que les blocs listés par une liste blanche"
+silk_on = "Toucher de soie : activé"
+silk_off = "Toucher de soie : désactivé"
+fortune_on = "Fortune I : activée"
+fortune_off = "Fortune I : désactivée"
+locked = "Se débloque au niveau {level} de Noyau de Briseur"
+exclusive = "Toucher de soie et Fortune I se désactivent mutuellement"
+
 [golemancy.runic_augments]
 name = "Augmentations runiques"
 description = "Vous permet d'infuser des runes sur le Socle d'Animus et de les sertir dans vos golems liés pour la vitesse, la charge, le feu, la portée, les canaux, le rendement et l'armure."

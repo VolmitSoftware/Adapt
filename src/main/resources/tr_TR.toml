@@ -4580,6 +4580,25 @@ lore5 = "Sürme: toprağı yeniden sürer ve boş tarlaya tohum eker"
 lore6 = "Ek ganimet zarı şansı"
 lore = ["Hasat eylemi başına ekin", "Hasat eylemi başına saniye", "Karpuz, balkabağı, şeker kamışı, bambu ve kaktüs de hasat eder", "Bakım: ev sandığındaki kemik tozunu genç ekinlere kullanır", "Sürme: toprağı yeniden sürer ve boş tarlaya tohum eker", "Ek ganimet zarı şansı"]
 
+[golemancy.breaker_core]
+name = "Yıkıcı Çekirdeği"
+description = "Yıkıcı Çekirdeği ile bağlanan golemler bir Kazı Düğümü'nün alanında filtresinin listelediği blokları kırar ve düşenleri taşır; çekirdek güçlendikçe daha iyi kazmalarla daha sert blokları kazar."
+lore1 = "En yüksek blok sertliği"
+lore2 = "Blok başına saniye"
+lore3 = "Kazı aleti"
+lore4 = "Kazı Düğümlerinde İpek Dokunuşu anahtarı"
+lore5 = "Kazı Düğümlerinde Servet I anahtarı"
+lore = ["En yüksek blok sertliği", "Blok başına saniye", "Kazı aleti", "Kazı Düğümlerinde İpek Dokunuşu anahtarı", "Kazı Düğümlerinde Servet I anahtarı"]
+filter_ready = "Filtredeki blokları kırar"
+filter_needed = "Beyaz listeye blok ekleyin"
+filter_lore = "Yıkıcılar yalnızca beyaz listenin listelediği blokları kırar"
+silk_on = "İpek Dokunuşu: açık"
+silk_off = "İpek Dokunuşu: kapalı"
+fortune_on = "Servet I: açık"
+fortune_off = "Servet I: kapalı"
+locked = "Yıkıcı Çekirdeği {level}. seviyede açılır"
+exclusive = "İpek Dokunuşu ve Servet I birbirini kapatır"
+
 [golemancy.runic_augments]
 name = "Rün Güçlendirmeleri"
 description = "Animus Kaidesi'nde rün aşılamanızı ve bunları bağlı golemlerinize takarak hız, taşıma, ateş, menzil, kanal, verim ve zırh kazanmanızı sağlar."

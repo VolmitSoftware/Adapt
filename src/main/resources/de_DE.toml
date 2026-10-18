@@ -4580,6 +4580,25 @@ lore5 = "Bestellen: Pflügt Erde neu und bepflanzt leeres Ackerland"
 lore6 = "Chance auf einen zusätzlichen Beutewurf"
 lore = ["Pflanzen pro Erntevorgang", "Sekunden pro Erntevorgang", "Erntet Melonen, Kürbisse, Zuckerrohr, Bambus und Kakteen", "Pflege: Knochenmehl aus der Heimtruhe für junge Pflanzen", "Bestellen: Pflügt Erde neu und bepflanzt leeres Ackerland", "Chance auf einen zusätzlichen Beutewurf"]
 
+[golemancy.breaker_core]
+name = "Brecher-Kern"
+description = "Mit einem Brecher-Kern gebundene Golems bauen die Blöcke ab, die der Filter eines Abbau-Knotens in dessen Bereich aufführt, und tragen die Beute davon. Je stärker der Kern wird, desto härtere Blöcke bauen sie mit besseren Spitzhacken ab."
+lore1 = "Maximale Blockhärte"
+lore2 = "Sekunden pro Block"
+lore3 = "Abbauwerkzeug"
+lore4 = "Behutsamkeit-Schalter an Abbau-Knoten"
+lore5 = "Glück-I-Schalter an Abbau-Knoten"
+lore = ["Maximale Blockhärte", "Sekunden pro Block", "Abbauwerkzeug", "Behutsamkeit-Schalter an Abbau-Knoten", "Glück-I-Schalter an Abbau-Knoten"]
+filter_ready = "Baut die Blöcke im Filter ab"
+filter_needed = "Füge der Positivliste Blöcke hinzu"
+filter_lore = "Brecher bauen nur Blöcke ab, die eine Positivliste aufführt"
+silk_on = "Behutsamkeit: An"
+silk_off = "Behutsamkeit: Aus"
+fortune_on = "Glück I: An"
+fortune_off = "Glück I: Aus"
+locked = "Wird mit Brecher-Kern Stufe {level} freigeschaltet"
+exclusive = "Behutsamkeit und Glück I schalten sich gegenseitig aus"
+
 [golemancy.runic_augments]
 name = "Runenverstärkung"
 description = "Lässt dich am Animus-Sockel Runen infundieren und in deine gebundenen Golems einsetzen: für Tempo, Tragekapazität, Feuer, Reichweite, Kanäle, Ertrag und Rüstung."

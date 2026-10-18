@@ -124,6 +124,22 @@ class NodeIndexTest {
     assertThat(index.get(c)).isPresent();
   }
 
+  @Test
+  void aBlockMayAnchorANodeOnAnyFaceOrWhileItsChunksNodesAreUnknown() {
+    NodeIndex index = new NodeIndex();
+    NodeKey anchored = new NodeKey(WORLD, -17, 70, 33, BlockFace.WEST);
+    ready(index, Map.of(anchored, record(BlockFace.WEST)));
+    long loading = new NodeKey(WORLD, 40, 64, 40, BlockFace.UP).chunkKey();
+    index.beginLoad(WORLD, loading);
+
+    assertThat(index.mayAnchor(WORLD, -17, 70, 33)).isTrue();
+    assertThat(index.mayAnchor(WORLD, -17, 71, 33)).isFalse();
+    assertThat(index.mayAnchor(WORLD, -18, 70, 33)).isFalse();
+    assertThat(index.mayAnchor(OTHER_WORLD, -17, 70, 33)).isTrue();
+    assertThat(index.mayAnchor(WORLD, 40, 64, 40)).isTrue();
+    assertThat(index.mayAnchor(WORLD, 200, 64, 200)).isTrue();
+  }
+
   private static void ready(NodeIndex index, Map<NodeKey, NodeRecord> nodes) {
     NodeKey any = nodes.keySet().iterator().next();
     index.completeLoad(any.world(), any.chunkKey(), index.beginLoad(any.world(), any.chunkKey()), nodes);
