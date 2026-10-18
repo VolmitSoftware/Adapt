@@ -229,6 +229,10 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
   }
 
+  static boolean isAlliedTarget(Skeleton servant, LivingEntity target, boolean trackedServant) {
+    return trackedServant || MinionIdentity.sameOwner(servant, target);
+  }
+
   static boolean allowsSummonInteraction(PlayerInteractEvent event) {
     if (event.useItemInHand() == Event.Result.DENY) {
       return false;
@@ -374,7 +378,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
-    if (target instanceof Skeleton other && servantOwnersByEntity.containsKey(other)) {
+    if (isAlliedTarget(skeleton, target, target instanceof Skeleton other && servantOwnersByEntity.containsKey(other))) {
       e.setCancelled(true);
     }
   }

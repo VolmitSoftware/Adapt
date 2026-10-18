@@ -20,6 +20,7 @@ package art.arcane.adapt.util.common.compat;
 
 import art.arcane.adapt.util.common.scheduling.J;
 import com.destroystokyo.paper.entity.Pathfinder;
+import io.papermc.paper.entity.TeleportFlag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.util.TriState;
@@ -112,10 +113,12 @@ public final class PaperCompat {
   );
   private static final Map<String, Boolean> CLASS_PRESENCE = new ConcurrentHashMap<>();
   private static final String PATHFINDER_CLASS = "com.destroystokyo.paper.entity.Pathfinder";
+  private static final String TELEPORT_FLAG_CLASS = "io.papermc.paper.entity.TeleportFlag";
   private static volatile boolean pathfindingSupported = true;
   private static volatile boolean blockReplaceableSupported = true;
   private static volatile boolean teleportAsyncSupported = true;
   private static volatile boolean teleportAsyncCauseSupported = true;
+  private static volatile boolean teleportFlagsSupported = true;
   private static volatile boolean transientModifierSupported = true;
   private static volatile boolean damageCriticalSupported = true;
   // EntityPotionEffectEvent.getSource() is 26.2+; resolved reflectively so the 26.1.2 compile baseline builds.
@@ -158,6 +161,33 @@ public final class PaperCompat {
     }
 
     return CompletableFuture.completedFuture(entity.teleport(destination, cause));
+  }
+
+  public static CompletableFuture<Boolean> teleportWithPassengers(Entity entity, Location destination) {
+    if (teleportFlagsSupported && hasClass(TELEPORT_FLAG_CLASS)) {
+      try {
+        return TeleportFlagBridge.teleportRetainingPassengers(entity, destination);
+      } catch (NoSuchMethodError | NoClassDefFoundError absent) {
+        teleportFlagsSupported = false;
+      }
+    }
+
+    return teleportRemountingPassengers(entity, destination);
+  }
+
+  static CompletableFuture<Boolean> teleportRemountingPassengers(Entity entity, Location destination) {
+    List<Entity> passengers = List.copyOf(entity.getPassengers());
+    for (Entity passenger : passengers) {
+      entity.removePassenger(passenger);
+    }
+    boolean moved = entity.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+    for (Entity passenger : passengers) {
+      if (moved) {
+        passenger.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
+      }
+      entity.addPassenger(passenger);
+    }
+    return CompletableFuture.completedFuture(moved);
   }
 
   public static void addTransientModifier(AttributeInstance instance, AttributeModifier modifier) {
@@ -800,6 +830,15 @@ public final class PaperCompat {
    * the class still verifies on Spigot, where the type does not exist. Only the
    * probe-guarded call sites above load this holder.
    */
+  private static final class TeleportFlagBridge {
+    private TeleportFlagBridge() {
+    }
+
+    private static CompletableFuture<Boolean> teleportRetainingPassengers(Entity entity, Location destination) {
+      return entity.teleportAsync(destination, PlayerTeleportEvent.TeleportCause.PLUGIN, TeleportFlag.EntityState.RETAIN_PASSENGERS);
+    }
+  }
+
   private static final class PathfinderBridge {
     private PathfinderBridge() {
     }

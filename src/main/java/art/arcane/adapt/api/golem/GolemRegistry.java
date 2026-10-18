@@ -61,6 +61,7 @@ public final class GolemRegistry extends TickedObject {
 
   private final GolemPlatform platform;
   private final Supplier<GolemSettings> settings;
+  private final GolemLifecycle lifecycle;
   private final Object lock = new Object();
   private final Map<UUID, GolemHandle> handles = new ConcurrentHashMap<>();
   private final Map<UUID, UUID> entityByGolem = new ConcurrentHashMap<>();
@@ -72,10 +73,11 @@ public final class GolemRegistry extends TickedObject {
   private final Set<UUID> mismatchWarned = ConcurrentHashMap.newKeySet();
   private long nextPruneAt;
 
-  GolemRegistry(GolemPlatform platform, Supplier<GolemSettings> settings) {
+  GolemRegistry(GolemPlatform platform, Supplier<GolemSettings> settings, GolemLifecycle lifecycle) {
     super("golemancy", "golem-registry", TICK_INTERVAL_MILLIS);
     this.platform = Objects.requireNonNull(platform);
     this.settings = Objects.requireNonNull(settings);
+    this.lifecycle = Objects.requireNonNull(lifecycle);
   }
 
   public Optional<GolemHandle> handle(Entity entity) {
@@ -288,10 +290,15 @@ public final class GolemRegistry extends TickedObject {
 
   @Override
   protected List<Listener> createCompanionListeners() {
-    if (!PaperCompat.hasClass("com.destroystokyo.paper.event.entity.EntityAddToWorldEvent")) {
-      return List.of();
+    List<Listener> listeners = new ArrayList<>(3);
+    listeners.add(new GolemGuardListener(platform::player));
+    if (PaperCompat.hasClass("com.destroystokyo.paper.event.entity.EntityAddToWorldEvent")) {
+      listeners.add(new PaperEntityListener(this));
     }
-    return List.of(new PaperEntityListener(this));
+    if (PaperCompat.hasClass(CopperTransportGuard.EVENT_CLASS)) {
+      listeners.add(new CopperTransportGuard());
+    }
+    return listeners;
   }
 
   void adopt(Mob mob) {
@@ -388,6 +395,8 @@ public final class GolemRegistry extends TickedObject {
     try {
       rememberPosition(handle, false);
       putToSleep(handle);
+      lifecycle.asleep(handle);
+      lifecycle.detached(handle);
       return true;
     } catch (RuntimeException failure) {
       Adapt.warn("Failed to save bound golem " + handle.id() + " at shutdown.", failure);
@@ -469,6 +478,11 @@ public final class GolemRegistry extends TickedObject {
       case NONE -> {
       }
     }
+    if (reason == DormancyReason.NONE) {
+      lifecycle.awake(handle);
+    } else {
+      lifecycle.asleep(handle);
+    }
   }
 
   private void wake(GolemHandle handle) {
@@ -541,11 +555,12 @@ public final class GolemRegistry extends TickedObject {
   }
 
   private void unindex(GolemHandle handle) {
+    boolean removed;
     synchronized (lock) {
       handle.retire();
       awake.remove(handle.entityId());
       capQueue.remove(handle.entityId());
-      handles.remove(handle.entityId(), handle);
+      removed = handles.remove(handle.entityId(), handle);
       entityByGolem.remove(handle.id(), handle.entityId());
       Set<UUID> owned = entitiesByOwner.get(handle.owner());
       if (owned != null) {
@@ -554,6 +569,9 @@ public final class GolemRegistry extends TickedObject {
           entitiesByOwner.remove(handle.owner(), owned);
         }
       }
+    }
+    if (removed) {
+      lifecycle.detached(handle);
     }
   }
 

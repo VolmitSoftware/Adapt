@@ -23,6 +23,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
@@ -221,6 +222,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   protected void onConfigReload(Config previousConfig, Config newConfig) {
     super.onConfigReload(previousConfig, newConfig);
     GolemancyRuntime.configure(golemSettings(newConfig));
+    GolemancyRuntime.configureBrain(brainSettings(newConfig));
   }
 
   @Override
@@ -243,6 +245,11 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     cores.put(GolemBody.IRON, GolemSettings.parseCores(config.allowedCoresIron));
     return new GolemSettings(config.dormantInvulnerable, config.guardWhileOwnerOffline, config.serverMaxActiveGolems,
         config.maxBoundGolemsPerChunk, config.hardCapPerPlayer, scales, cores, config.deathDropCoreChance, config.deathDropRuneChance);
+  }
+
+  static GolemBrainSettings brainSettings(Config config) {
+    return new GolemBrainSettings(config.brainIntervalTicks, config.followTeleportDistance, config.leashRadius,
+        config.idleReturnSeconds, config.copperRepathTicks);
   }
 
   private void applyBuild(GolemBuildAttribution.Build build) {
@@ -442,5 +449,15 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double deathDropCoreChance = 0.5;
     @ConfigDoc(value = "Chance that each rune drops when a bound golem dies.", impact = "Higher values return more runes on death; 1.0 always drops them.")
     double deathDropRuneChance = 0.5;
+    @ConfigDoc(value = "Ticks between bound golem decisions, clamped to 2-20.", impact = "Lower values make golems react faster but cost more server time.")
+    int brainIntervalTicks = 5;
+    @ConfigDoc(value = "Blocks from its owner, in the same world, at which a following golem teleports to them instead of walking. The minimum is 8.", impact = "Lower values teleport golems sooner; higher values make them walk farther first.")
+    double followTeleportDistance = 32;
+    @ConfigDoc(value = "Blocks a fighting golem may stray from its owner, home, or stay spot before it drops the fight and walks back. The minimum is 8.", impact = "Higher values let golems chase enemies farther.")
+    double leashRadius = 32;
+    @ConfigDoc(value = "Seconds a working golem stands idle away from home before it walks back.", impact = "Lower values send idle golems home sooner; 0 sends them home at once.")
+    int idleReturnSeconds = 8;
+    @ConfigDoc(value = "Ticks between path refreshes for a moving copper golem, clamped to 1-20.", impact = "Lower values keep copper golems on course; above 10, their own wandering can pull them off course.")
+    int copperRepathTicks = 10;
   }
 }

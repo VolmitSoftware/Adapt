@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.skill;
 
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemSettings;
 import org.junit.jupiter.api.Test;
@@ -50,5 +51,35 @@ class SkillGolemancySettingsTest {
     assertThat(settings.allowedCores(GolemBody.IRON)).isEmpty();
     assertThat(settings.deathDropCoreChance()).isEqualTo(0.25D);
     assertThat(settings.deathDropRuneChance()).isEqualTo(0.75D);
+  }
+
+  @Test
+  void configDefaultsProduceTheBrainDefaults() {
+    assertThat(SkillGolemancy.brainSettings(new SkillGolemancy.Config())).isEqualTo(GolemBrainSettings.defaults());
+    assertThat(GolemBrainSettings.defaults()).isEqualTo(new GolemBrainSettings(5, 32D, 32D, 8, 10));
+  }
+
+  @Test
+  void brainConfigValuesReachTheBrainSettingsClamped() {
+    SkillGolemancy.Config config = new SkillGolemancy.Config();
+    config.brainIntervalTicks = 40;
+    config.followTeleportDistance = 48D;
+    config.leashRadius = 2D;
+    config.idleReturnSeconds = 3;
+    config.copperRepathTicks = 0;
+
+    GolemBrainSettings settings = SkillGolemancy.brainSettings(config);
+
+    assertThat(settings.brainIntervalTicks()).isEqualTo(20);
+    assertThat(settings.followTeleportDistance()).isEqualTo(48D);
+    assertThat(settings.leashRadius()).isEqualTo(GolemBrainSettings.MIN_LEASH_RADIUS);
+    assertThat(settings.idleReturnSeconds()).isEqualTo(3);
+    assertThat(settings.copperRepathTicks()).isEqualTo(1);
+    assertThat(SkillGolemancy.brainSettings(withInterval(config, 1)).brainIntervalTicks()).isEqualTo(2);
+  }
+
+  private static SkillGolemancy.Config withInterval(SkillGolemancy.Config config, int ticks) {
+    config.brainIntervalTicks = ticks;
+    return config;
   }
 }

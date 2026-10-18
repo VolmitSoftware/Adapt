@@ -5,6 +5,7 @@ import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 final class FakeGolemPlatform implements GolemPlatform {
   final Set<UUID> online = new HashSet<>();
+  final Map<UUID, Player> players = new HashMap<>();
   final Map<UUID, GolemRoster> rosters = new HashMap<>();
   final Map<UUID, Integer> rosterChanges = new HashMap<>();
   final Set<String> loadedChunks = new HashSet<>();
@@ -75,6 +77,11 @@ final class FakeGolemPlatform implements GolemPlatform {
   @Override
   public Collection<UUID> onlineOwners() {
     return List.copyOf(online);
+  }
+
+  @Override
+  public Player player(UUID owner) {
+    return players.get(owner);
   }
 
   @Override

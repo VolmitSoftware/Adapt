@@ -51,6 +51,10 @@ public enum GolemBody {
     return entityClass;
   }
 
+  public boolean fights() {
+    return this != COPPER;
+  }
+
   public TextKey displayName() {
     return switch (this) {
       case FROST -> GolemancyMessages.BODY_FROST;

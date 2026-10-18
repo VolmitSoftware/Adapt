@@ -40,6 +40,14 @@ class GolemTypesTest {
   }
 
   @Test
+  void everyBodyButCopperFights() {
+    assertThat(GolemBody.FROST.fights()).isTrue();
+    assertThat(GolemBody.IRON.fights()).isTrue();
+    assertThat(GolemBody.BONE.fights()).isTrue();
+    assertThat(GolemBody.COPPER.fights()).isFalse();
+  }
+
+  @Test
   void bodyDisplayNamesAreDistinctLocaleKeys() {
     Set<String> keys = new HashSet<>();
     for (GolemBody body : GolemBody.values()) {

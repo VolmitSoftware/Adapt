@@ -4,6 +4,7 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -14,6 +15,8 @@ interface GolemPlatform {
   boolean isOnline(UUID owner);
 
   Collection<UUID> onlineOwners();
+
+  Player player(UUID owner);
 
   Optional<GolemRoster> roster(UUID owner);
 

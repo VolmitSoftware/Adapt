@@ -5,11 +5,13 @@ import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.minion.MinionKind;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -18,16 +20,23 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public final class GolemancyRuntime {
   public static final MinionKind MINION_KIND = new BoundGolemKind();
 
+  private static final String MOB_GOALS_CLASS = "com.destroystokyo.paper.entity.ai.MobGoals";
+  private static final GolemTargetPolicy COMPANION = new CompanionTargetPolicy();
+  private static final Map<GolemCoreType, GolemTargetPolicy> TARGET_POLICIES = new ConcurrentHashMap<>();
   private static volatile GolemRegistry registry;
+  private static volatile GolemBrains brains;
   private static volatile GolemSettings settings = GolemSettings.defaults();
+  private static volatile GolemBrainSettings brainSettings = GolemBrainSettings.defaults();
 
   private GolemancyRuntime() {
   }
@@ -37,8 +46,12 @@ public final class GolemancyRuntime {
     if (registry != null) {
       return;
     }
-    GolemRegistry created = new GolemRegistry(new BukkitGolemPlatform(), GolemancyRuntime::settings);
+    GolemPlatform platform = new BukkitGolemPlatform();
+    GolemBrains createdBrains = new GolemBrains(new GolemBrain.Context(platform, GolemancyRuntime::brainSettings, GolemancyRuntime::targetPolicy),
+        GolemancyRuntime::controllerFor);
+    GolemRegistry created = new GolemRegistry(platform, GolemancyRuntime::settings, createdBrains);
     created.activateRuntime();
+    brains = createdBrains;
     registry = created;
     adoptLoaded(created);
     created.joinOnlineOwners();
@@ -49,6 +62,7 @@ public final class GolemancyRuntime {
     synchronized (GolemancyRuntime.class) {
       local = registry;
       registry = null;
+      brains = null;
     }
     if (local == null) {
       return true;
@@ -73,8 +87,29 @@ public final class GolemancyRuntime {
     return local == null ? Optional.empty() : local.handle(entity);
   }
 
+  public static Optional<GolemBrain> brain(Entity entity) {
+    GolemBrains local = brains;
+    return local == null ? Optional.empty() : local.brain(entity);
+  }
+
   public static GolemSettings settings() {
     return settings;
+  }
+
+  public static GolemBrainSettings brainSettings() {
+    return brainSettings;
+  }
+
+  public static void configureBrain(GolemBrainSettings next) {
+    brainSettings = Objects.requireNonNull(next);
+  }
+
+  public static GolemTargetPolicy targetPolicy(GolemCoreType core) {
+    return TARGET_POLICIES.getOrDefault(core, COMPANION);
+  }
+
+  public static void setTargetPolicy(GolemCoreType core, GolemTargetPolicy policy) {
+    TARGET_POLICIES.put(Objects.requireNonNull(core), Objects.requireNonNull(policy));
   }
 
   public static void configure(GolemSettings next) {
@@ -84,6 +119,21 @@ public final class GolemancyRuntime {
     if (local != null && next.serverMaxActiveGolems() < previous.serverMaxActiveGolems()) {
       local.enforceCap();
     }
+  }
+
+  private static Optional<GolemController> controllerFor(GolemHandle handle) {
+    if (!PaperCompat.supportsPathfinding()) {
+      return Optional.empty();
+    }
+    Mob golem = handle.entity();
+    return switch (handle.body()) {
+      case COPPER -> golem instanceof CopperGolem copper
+          ? Optional.of(new CopperGolemController(copper, () -> brainSettings.copperRepathTicks()))
+          : Optional.empty();
+      case FROST, IRON, BONE -> PaperCompat.hasClass(MOB_GOALS_CLASS)
+          ? Optional.of(new GoalGolemController(golem, handle.body(), Bukkit.getMobGoals()))
+          : Optional.empty();
+    };
   }
 
   private static void adoptLoaded(GolemRegistry target) {
@@ -127,6 +177,11 @@ public final class GolemancyRuntime {
         owners.add(player.getUniqueId());
       }
       return owners;
+    }
+
+    @Override
+    public Player player(UUID owner) {
+      return Bukkit.getPlayer(owner);
     }
 
     @Override

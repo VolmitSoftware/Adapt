@@ -59,6 +59,7 @@ class GolemRegistryTest extends AdaptTestBase {
   private final Map<Long, List<Entity>> chunkEntities = new HashMap<>();
   private final AtomicReference<GolemSettings> settings = new AtomicReference<>(GolemSettings.defaults());
   private FakeGolemPlatform platform;
+  private RecordingGolemLifecycle lifecycle;
   private GolemRegistry registry;
   private World world;
   private Player owner;
@@ -74,7 +75,8 @@ class GolemRegistryTest extends AdaptTestBase {
   @BeforeEach
   void setUp() {
     platform = new FakeGolemPlatform();
-    registry = new GolemRegistry(platform, settings::get);
+    lifecycle = new RecordingGolemLifecycle();
+    registry = new GolemRegistry(platform, settings::get, lifecycle);
     world = mock(World.class);
     lenient().when(world.getUID()).thenReturn(WORLD);
     lenient().when(world.getChunkAt(any(Location.class))).thenAnswer(invocation -> chunk(invocation.<Location>getArgument(0)));
@@ -627,8 +629,7 @@ class GolemRegistryTest extends AdaptTestBase {
     UUID id = UUID.randomUUID();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
     IronGolem golem = persistedGolem(id, false, at(0, 64, 0));
-    List<Listener> companions = registry.createCompanionListeners();
-    GolemRegistry.PaperEntityListener listener = (GolemRegistry.PaperEntityListener) companions.getFirst();
+    GolemRegistry.PaperEntityListener listener = companion(GolemRegistry.PaperEntityListener.class);
 
     listener.on(new EntityAddToWorldEvent(golem, world));
     listener.on(new EntityAddToWorldEvent(golem, world));
@@ -648,6 +649,14 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(registry.handle(golem)).containsSame(handle);
     assertThat(registry.loadedOf(OWNER)).containsExactly(handle);
     assertThat(registry.activeCount()).isEqualTo(1);
+  }
+
+  @Test
+  void companionsGuardBoundGolemsAndBlockCopperTransport() {
+    assertThat(registry.createCompanionListeners())
+        .hasAtLeastOneElementOfType(GolemGuardListener.class)
+        .hasAtLeastOneElementOfType(CopperTransportGuard.class)
+        .hasAtLeastOneElementOfType(GolemRegistry.PaperEntityListener.class);
   }
 
   @Test
@@ -799,6 +808,116 @@ class GolemRegistryTest extends AdaptTestBase {
 
     assertThat(GolemState.read(here).orElseThrow().stats().kills()).isEqualTo(1L);
     assertThat(GolemState.read(there).orElseThrow().stats().kills()).isZero();
+  }
+
+  @Test
+  void bindWakesTheGolemBrain() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+
+    assertThat(lifecycle.events).containsExactly(new RecordingGolemLifecycle.Event(RecordingGolemLifecycle.Kind.AWAKE, handle));
+  }
+
+  @Test
+  void dormancySleepsTheGolemBrainAndWakingStartsItAgain() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    lifecycle.events.clear();
+
+    registry.on(new PlayerQuitEvent(owner, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
+    platform.quit(OWNER);
+    platform.join(OWNER, roster);
+    registry.on(new PlayerJoinEvent(owner, (Component) null));
+
+    assertThat(lifecycle.events).containsExactly(
+        new RecordingGolemLifecycle.Event(RecordingGolemLifecycle.Kind.ASLEEP, handle),
+        new RecordingGolemLifecycle.Event(RecordingGolemLifecycle.Kind.AWAKE, handle));
+  }
+
+  @Test
+  void golemLoadingWhileItsOwnerIsOfflineNeverWakesABrain() {
+    IronGolem golem = persistedGolem(UUID.randomUUID(), false, at(0, 64, 0));
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+
+    assertThat(lifecycle.kinds()).containsExactly(RecordingGolemLifecycle.Kind.ASLEEP);
+  }
+
+  @Test
+  void unloadDetachesTheGolemBrain() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    lifecycle.events.clear();
+
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)));
+
+    assertThat(lifecycle.events).containsExactly(new RecordingGolemLifecycle.Event(RecordingGolemLifecycle.Kind.DETACHED, handle));
+  }
+
+  @Test
+  void releaseDetachesTheGolemBrainWhileTheGolemIsStillBound() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    lifecycle.events.clear();
+
+    assertThat(registry.release(handle)).isTrue();
+
+    assertThat(lifecycle.events).containsExactly(new RecordingGolemLifecycle.Event(RecordingGolemLifecycle.Kind.DETACHED, handle));
+    assertThat(lifecycle.boundOnDetach).containsExactly(true);
+  }
+
+  @Test
+  void deathDetachesTheGolemBrain() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    lifecycle.events.clear();
+    EntityDeathEvent death = mock(EntityDeathEvent.class);
+    when(death.getEntity()).thenReturn(golem);
+    when(death.getDrops()).thenReturn(new ArrayList<>());
+
+    registry.on(death);
+
+    assertThat(lifecycle.events).containsExactly(new RecordingGolemLifecycle.Event(RecordingGolemLifecycle.Kind.DETACHED, handle));
+  }
+
+  @Test
+  void shutdownSleepsAndDetachesEveryGolemBrain() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    lifecycle.events.clear();
+
+    registry.flushAll(1_000L);
+
+    assertThat(lifecycle.events).containsExactly(
+        new RecordingGolemLifecycle.Event(RecordingGolemLifecycle.Kind.ASLEEP, handle),
+        new RecordingGolemLifecycle.Event(RecordingGolemLifecycle.Kind.DETACHED, handle));
+  }
+
+  @Test
+  void antiDupeRevertDetachesWithoutWaking() {
+    GolemRoster roster = onlineOwner();
+    IronGolem unknown = persistedGolem(UUID.randomUUID(), false, at(0, 64, 0));
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(unknown)));
+
+    assertThat(lifecycle.kinds()).containsExactly(RecordingGolemLifecycle.Kind.DETACHED);
+    assertThat(roster.golems()).isEmpty();
+  }
+
+  private <T extends Listener> T companion(Class<T> type) {
+    for (Listener listener : registry.createCompanionListeners()) {
+      if (type.isInstance(listener)) {
+        return type.cast(listener);
+      }
+    }
+    throw new AssertionError("no companion " + type.getSimpleName());
   }
 
   private GolemRoster onlineOwner() {
