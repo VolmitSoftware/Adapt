@@ -9,6 +9,12 @@ import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.node.NodeBundle;
+import art.arcane.adapt.api.golem.node.NodeIndex;
+import art.arcane.adapt.api.golem.node.NodeKey;
+import art.arcane.adapt.api.golem.node.NodeService;
+import art.arcane.adapt.api.golem.node.NodeVisibility;
+import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
@@ -51,9 +57,11 @@ import org.joml.Vector3f;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,7 +80,8 @@ public final class RevealService extends TickedObject {
   private static final int LABEL_BACKGROUND_ALPHA = 64;
 
   private final Supplier<RevealSettings> settings;
-  private final RevealTracker golems = new RevealTracker();
+  private final RevealTracker<UUID> golems = new RevealTracker<>();
+  private final RevealTracker<NodeKey> nodes = new RevealTracker<>();
   private final Set<UUID> armed = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingUpdates = ConcurrentHashMap.newKeySet();
   private final Set<UUID> spawning = ConcurrentHashMap.newKeySet();
@@ -117,13 +126,15 @@ public final class RevealService extends TickedObject {
     if (!holdsRevealItem(viewer)) {
       armed.remove(viewerId);
       apply(viewer, golems.update(viewerId, Set.of()), Map.of());
+      applyNodes(viewer, nodes.update(viewerId, Set.of()));
       return;
     }
     armed.add(viewerId);
     Map<UUID, GolemHandle> inRange = golemsInRange(viewer);
-    RevealTracker.Delta delta = golems.update(viewerId, inRange.keySet());
+    RevealTracker.Delta<UUID> delta = golems.update(viewerId, inRange.keySet());
     apply(viewer, delta, inRange);
     syncStayingLabels(viewer, inRange, delta);
+    applyNodes(viewer, nodes.update(viewerId, nodesInRange(viewer)));
   }
 
   public void reset(Player viewer) {
@@ -131,6 +142,9 @@ public final class RevealService extends TickedObject {
     armed.remove(viewerId);
     for (UUID golem : golems.reset(viewerId)) {
       hideLabel(viewer, golem);
+    }
+    for (NodeKey node : nodes.reset(viewerId)) {
+      hideNode(viewer, node);
     }
   }
 
@@ -155,6 +169,20 @@ public final class RevealService extends TickedObject {
     UUID golem = handle.entityId();
     golems.drop(golem);
     retireLabel(golem);
+  }
+
+  public void nodeSpawned(NodeKey key) {
+    nodes.drop(key);
+    for (UUID viewerId : armed) {
+      Player viewer = Bukkit.getPlayer(viewerId);
+      if (viewer != null && viewer.getWorld().getUID().equals(key.world())) {
+        requestUpdate(viewer);
+      }
+    }
+  }
+
+  public void nodeGone(NodeKey key) {
+    nodes.drop(key);
   }
 
   public void locate(Player owner, GolemHandle handle) {
@@ -342,7 +370,74 @@ public final class RevealService extends TickedObject {
     return inRange;
   }
 
-  private void apply(Player viewer, RevealTracker.Delta delta, Map<UUID, GolemHandle> inRange) {
+  private Set<NodeKey> nodesInRange(Player viewer) {
+    NodeService service = GolemancyRuntime.nodes().orElse(null);
+    Location center = viewer.getLocation();
+    World world = center.getWorld();
+    if (service == null || world == null) {
+      return Set.of();
+    }
+    double range = settings.get().revealRange();
+    List<NodeIndex.Entry> candidates = service.index().near(world.getUID(), center.getX(), center.getY(), center.getZ(), range + RevealRules.LEAVE_MARGIN);
+    if (candidates.isEmpty()) {
+      return Set.of();
+    }
+    UUID viewerId = viewer.getUniqueId();
+    NodeVisibility visibility = GolemancyRuntime.nodeSettings().visibility();
+    int nodeWeaving = visibility == NodeVisibility.ANY_GOLEMANCER ? nodeWeavingLevel(viewer) : 0;
+    Set<NodeKey> visible = new HashSet<>(candidates.size() * 2);
+    for (NodeIndex.Entry entry : candidates) {
+      NodeKey key = entry.key();
+      if (!RevealRules.nodeVisible(true, entry.record().owner().equals(viewerId), visibility, nodeWeaving)
+          || !RevealRules.inRevealRange(key.distanceSquared(center.getX(), center.getY(), center.getZ()), range, nodes.isShown(viewerId, key))) {
+        continue;
+      }
+      Optional<NodeBundle> bundle = service.renderer().bundle(key);
+      if (bundle.isEmpty() || (J.isFoliaThreading() && !J.isOwnedByCurrentRegion(bundle.get().icon()))) {
+        continue;
+      }
+      visible.add(key);
+    }
+    return visible;
+  }
+
+  private static int nodeWeavingLevel(Player viewer) {
+    Optional<NodeWeavingPolicy> policy = GolemancyRuntime.nodeWeaving();
+    return policy.map(nodeWeaving -> nodeWeaving.level(viewer)).orElse(0);
+  }
+
+  private void applyNodes(Player viewer, RevealTracker.Delta<NodeKey> delta) {
+    for (NodeKey node : delta.leaving()) {
+      hideNode(viewer, node);
+    }
+    for (NodeKey node : delta.entering()) {
+      showNode(viewer, node);
+    }
+  }
+
+  private static void showNode(Player viewer, NodeKey node) {
+    Optional<NodeBundle> bundle = GolemancyRuntime.nodes().flatMap(service -> service.renderer().bundle(node));
+    if (bundle.isEmpty()) {
+      return;
+    }
+    for (Entity entity : bundle.get().entities()) {
+      HiddenDisplays.show(viewer, entity);
+    }
+  }
+
+  private static void hideNode(Player viewer, NodeKey node) {
+    Optional<NodeBundle> bundle = GolemancyRuntime.nodes().flatMap(service -> service.renderer().bundle(node));
+    if (bundle.isEmpty()) {
+      return;
+    }
+    for (Entity entity : bundle.get().entities()) {
+      if (entity.isValid()) {
+        HiddenDisplays.hide(viewer, entity);
+      }
+    }
+  }
+
+  private void apply(Player viewer, RevealTracker.Delta<UUID> delta, Map<UUID, GolemHandle> inRange) {
     for (UUID golem : delta.leaving()) {
       hideLabel(viewer, golem);
     }
@@ -354,7 +449,7 @@ public final class RevealService extends TickedObject {
     }
   }
 
-  private void syncStayingLabels(Player viewer, Map<UUID, GolemHandle> inRange, RevealTracker.Delta delta) {
+  private void syncStayingLabels(Player viewer, Map<UUID, GolemHandle> inRange, RevealTracker.Delta<UUID> delta) {
     for (Map.Entry<UUID, GolemHandle> entry : inRange.entrySet()) {
       if (delta.entering().contains(entry.getKey())) {
         continue;
@@ -490,6 +585,7 @@ public final class RevealService extends TickedObject {
         removeDisplay(label.display());
       }
     }
+    nodes.reset(viewerId);
     locates.keySet().removeIf(key -> key.viewer().equals(viewerId));
   }
 

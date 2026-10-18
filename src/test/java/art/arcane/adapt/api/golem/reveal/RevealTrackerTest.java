@@ -17,10 +17,10 @@ class RevealTrackerTest {
 
   @Test
   void targetsEnteringTheDesiredSetAreShownOnce() {
-    RevealTracker tracker = new RevealTracker();
+    RevealTracker<UUID> tracker = new RevealTracker<>();
 
-    RevealTracker.Delta first = tracker.update(VIEWER, Set.of(FIRST, SECOND));
-    RevealTracker.Delta again = tracker.update(VIEWER, Set.of(FIRST, SECOND));
+    RevealTracker.Delta<UUID> first = tracker.update(VIEWER, Set.of(FIRST, SECOND));
+    RevealTracker.Delta<UUID> again = tracker.update(VIEWER, Set.of(FIRST, SECOND));
 
     assertThat(first.entering()).containsExactlyInAnyOrder(FIRST, SECOND);
     assertThat(first.leaving()).isEmpty();
@@ -31,10 +31,10 @@ class RevealTrackerTest {
 
   @Test
   void targetsLeavingTheDesiredSetAreHiddenWhileStayersAreUntouched() {
-    RevealTracker tracker = new RevealTracker();
+    RevealTracker<UUID> tracker = new RevealTracker<>();
     tracker.update(VIEWER, Set.of(FIRST, SECOND));
 
-    RevealTracker.Delta delta = tracker.update(VIEWER, Set.of(SECOND, THIRD));
+    RevealTracker.Delta<UUID> delta = tracker.update(VIEWER, Set.of(SECOND, THIRD));
 
     assertThat(delta.entering()).containsExactly(THIRD);
     assertThat(delta.leaving()).containsExactly(FIRST);
@@ -45,16 +45,16 @@ class RevealTrackerTest {
 
   @Test
   void swappingAwayFromARevealItemHidesEverythingAndSwappingBackShowsItAgain() {
-    RevealTracker tracker = new RevealTracker();
+    RevealTracker<UUID> tracker = new RevealTracker<>();
     tracker.update(VIEWER, Set.of(FIRST, SECOND));
 
-    RevealTracker.Delta swappedAway = tracker.update(VIEWER, Set.of());
+    RevealTracker.Delta<UUID> swappedAway = tracker.update(VIEWER, Set.of());
 
     assertThat(swappedAway.entering()).isEmpty();
     assertThat(swappedAway.leaving()).containsExactlyInAnyOrder(FIRST, SECOND);
     assertThat(tracker.isShown(VIEWER, FIRST)).isFalse();
 
-    RevealTracker.Delta swappedBack = tracker.update(VIEWER, Set.of(FIRST, SECOND));
+    RevealTracker.Delta<UUID> swappedBack = tracker.update(VIEWER, Set.of(FIRST, SECOND));
 
     assertThat(swappedBack.entering()).containsExactlyInAnyOrder(FIRST, SECOND);
     assertThat(swappedBack.leaving()).isEmpty();
@@ -62,7 +62,7 @@ class RevealTrackerTest {
 
   @Test
   void anEmptyUpdateForAnUnknownViewerChangesNothing() {
-    RevealTracker tracker = new RevealTracker();
+    RevealTracker<UUID> tracker = new RevealTracker<>();
 
     assertThat(tracker.update(VIEWER, Set.of()).isEmpty()).isTrue();
     assertThat(tracker.reset(VIEWER)).isEmpty();
@@ -70,7 +70,7 @@ class RevealTrackerTest {
 
   @Test
   void quitReturnsEverythingShownAndTheNextUpdateStartsFresh() {
-    RevealTracker tracker = new RevealTracker();
+    RevealTracker<UUID> tracker = new RevealTracker<>();
     tracker.update(VIEWER, Set.of(FIRST, SECOND));
     tracker.update(OTHER_VIEWER, Set.of(THIRD));
 
@@ -83,7 +83,7 @@ class RevealTrackerTest {
 
   @Test
   void droppingATargetForgetsItForEveryViewer() {
-    RevealTracker tracker = new RevealTracker();
+    RevealTracker<UUID> tracker = new RevealTracker<>();
     tracker.update(VIEWER, Set.of(FIRST, SECOND));
     tracker.update(OTHER_VIEWER, Set.of(FIRST));
 
@@ -96,7 +96,7 @@ class RevealTrackerTest {
 
   @Test
   void theDesiredSetIsCopiedRatherThanRetained() {
-    RevealTracker tracker = new RevealTracker();
+    RevealTracker<UUID> tracker = new RevealTracker<>();
     HashSet<UUID> desired = new HashSet<>(Set.of(FIRST));
     tracker.update(VIEWER, desired);
 

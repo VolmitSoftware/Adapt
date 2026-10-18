@@ -4484,6 +4484,38 @@ lore6 = "Mahdollisuus ylimääräiseen lumipalloon"
 lore7 = "Lumipallo-osumat kohteen jäädyttämiseen"
 lore = ["Lisäterveys huurregolemeille", "Lumipallon vahinko", "Vahinko lämpimissä biomeissa", "Immuuni sateelle ja vedelle", "Sekuntia hitautta osumasta", "Mahdollisuus ylimääräiseen lumipalloon", "Lumipallo-osumat kohteen jäädyttämiseen"]
 
+[golemancy.node_status]
+idle = "Joutilas"
+working = "Työssä"
+blocked = "Suojauksen estämä"
+full = "Säiliö täynnä"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Suodatin: {count}"
+
+[golemancy.node_message]
+placed = "Solmu asetettu: {node}"
+occupied = "Tällä pinnalla on jo solmu"
+protected = "Et voi asettaa solmuja tähän"
+needs_container = "Solmu {node} asetetaan arkkuun, tynnyriin tai shulker-laatikkoon"
+container_protected = "Tämä säiliö on suojattu"
+chunk_full = "Tässä lohkossa on jo {count} solmua"
+cap = "Omistat jo enimmäismäärän, {count} solmua"
+loading = "Täällä olevia solmuja ladataan vielä"
+unavailable = "Golemiluettelosi ei ole vielä valmis"
+
+[golemancy.node_weaving]
+name = "Solmujen punonta"
+description = "Kyykisty ja napsauta palikan pintaa oikealla painikkeella solmu kädessä kiinnittääksesi sen siihen ja ohjataksesi golemiesi työtä."
+lore1 = "Omistettavat solmut"
+lore2 = "Työalueen säde palikoina"
+lore3 = "Suodatinpaikat"
+lore4 = "Solmun prioriteetti 1-5"
+lore5 = "Redstone-ohjaus"
+lore6 = "Estolista- ja tunnistesuodattimet"
+lore = ["Omistettavat solmut", "Työalueen säde palikoina", "Suodatinpaikat", "Solmun prioriteetti 1-5", "Redstone-ohjaus", "Estolista- ja tunnistesuodattimet"]
+
 [herbalism.growth_aura]
 name = "Kasvuaura"
 description = "Kasvata luontoa ympärilläsi auralla"

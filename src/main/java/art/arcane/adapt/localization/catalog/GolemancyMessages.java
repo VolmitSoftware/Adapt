@@ -162,6 +162,31 @@ public final class GolemancyMessages {
   public static final TextKey FROST_FRAME_LORE7 = TextKey.of("golemancy.frost_frame.lore7", "Snowball Hits to Freeze a Target");
   public static final LinesKey FROST_FRAME_LORE = LinesKey.of("golemancy.frost_frame.lore", "Bonus Health for Frost Golems", "Snowball Damage", "Warm Biome Damage Taken", "Immune to Rain and Water", "Seconds of Slowness on Hit", "Chance of an Extra Snowball", "Snowball Hits to Freeze a Target");
 
+  public static final TextKey NODE_STATUS_IDLE = TextKey.of("golemancy.node_status.idle", "Idle");
+  public static final TextKey NODE_STATUS_WORKING = TextKey.of("golemancy.node_status.working", "Working");
+  public static final TextKey NODE_STATUS_BLOCKED = TextKey.of("golemancy.node_status.blocked", "Blocked by protection");
+  public static final TextKey NODE_STATUS_FULL = TextKey.of("golemancy.node_status.full", "Container full");
+  public static final TextKey NODE_LABEL_PRIORITY = TextKey.of("golemancy.node_label.priority", "P{priority}");
+  public static final TextKey NODE_LABEL_FILTERS = TextKey.of("golemancy.node_label.filters", "Filter: {count}");
+  public static final TextKey NODE_PLACED = TextKey.of("golemancy.node_message.placed", "{node} Node placed");
+  public static final TextKey NODE_OCCUPIED = TextKey.of("golemancy.node_message.occupied", "This face already holds a node");
+  public static final TextKey NODE_PROTECTED = TextKey.of("golemancy.node_message.protected", "You can't place nodes here");
+  public static final TextKey NODE_NEEDS_CONTAINER = TextKey.of("golemancy.node_message.needs_container", "A {node} Node goes on a chest, barrel or shulker box");
+  public static final TextKey NODE_CONTAINER_PROTECTED = TextKey.of("golemancy.node_message.container_protected", "That container is protected");
+  public static final TextKey NODE_CHUNK_FULL = TextKey.of("golemancy.node_message.chunk_full", "This chunk already holds {count} nodes");
+  public static final TextKey NODE_CAP = TextKey.of("golemancy.node_message.cap", "You already own your limit of {count} nodes");
+  public static final TextKey NODE_LOADING = TextKey.of("golemancy.node_message.loading", "Nodes here are still loading");
+  public static final TextKey NODE_UNAVAILABLE = TextKey.of("golemancy.node_message.unavailable", "Your golem roster isn't ready yet");
+  public static final TextKey NODE_WEAVING_NAME = TextKey.of("golemancy.node_weaving.name", "Node Weaving");
+  public static final TextKey NODE_WEAVING_DESCRIPTION = TextKey.of("golemancy.node_weaving.description", "Sneak-right-click a block face while holding a node to anchor it there and direct your golems' work.");
+  public static final TextKey NODE_WEAVING_LORE1 = TextKey.of("golemancy.node_weaving.lore1", "Nodes You Can Own");
+  public static final TextKey NODE_WEAVING_LORE2 = TextKey.of("golemancy.node_weaving.lore2", "Block Work Area Radius");
+  public static final TextKey NODE_WEAVING_LORE3 = TextKey.of("golemancy.node_weaving.lore3", "Filter Slots");
+  public static final TextKey NODE_WEAVING_LORE4 = TextKey.of("golemancy.node_weaving.lore4", "Node Priority 1-5");
+  public static final TextKey NODE_WEAVING_LORE5 = TextKey.of("golemancy.node_weaving.lore5", "Redstone Gating");
+  public static final TextKey NODE_WEAVING_LORE6 = TextKey.of("golemancy.node_weaving.lore6", "Blacklist and Tag Filters");
+  public static final LinesKey NODE_WEAVING_LORE = LinesKey.of("golemancy.node_weaving.lore", "Nodes You Can Own", "Block Work Area Radius", "Filter Slots", "Node Priority 1-5", "Redstone Gating", "Blacklist and Tag Filters");
+
   private GolemancyMessages() {
   }
 
@@ -322,5 +347,29 @@ public final class GolemancyMessages {
     builder.add(FROST_FRAME_LORE6);
     builder.add(FROST_FRAME_LORE7);
     builder.add(FROST_FRAME_LORE);
+    builder.add(NODE_STATUS_IDLE);
+    builder.add(NODE_STATUS_WORKING);
+    builder.add(NODE_STATUS_BLOCKED);
+    builder.add(NODE_STATUS_FULL);
+    builder.add(NODE_LABEL_PRIORITY);
+    builder.add(NODE_LABEL_FILTERS);
+    builder.add(NODE_PLACED);
+    builder.add(NODE_OCCUPIED);
+    builder.add(NODE_PROTECTED);
+    builder.add(NODE_NEEDS_CONTAINER);
+    builder.add(NODE_CONTAINER_PROTECTED);
+    builder.add(NODE_CHUNK_FULL);
+    builder.add(NODE_CAP);
+    builder.add(NODE_LOADING);
+    builder.add(NODE_UNAVAILABLE);
+    builder.add(NODE_WEAVING_NAME);
+    builder.add(NODE_WEAVING_DESCRIPTION);
+    builder.add(NODE_WEAVING_LORE1);
+    builder.add(NODE_WEAVING_LORE2);
+    builder.add(NODE_WEAVING_LORE3);
+    builder.add(NODE_WEAVING_LORE4);
+    builder.add(NODE_WEAVING_LORE5);
+    builder.add(NODE_WEAVING_LORE6);
+    builder.add(NODE_WEAVING_LORE);
   }
 }

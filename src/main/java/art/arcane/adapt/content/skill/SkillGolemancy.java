@@ -31,6 +31,9 @@ import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.HostileDamagePool;
 import art.arcane.adapt.api.golem.gui.CrookInteractions;
+import art.arcane.adapt.api.golem.node.NodeMatter;
+import art.arcane.adapt.api.golem.node.NodeSettings;
+import art.arcane.adapt.api.golem.node.NodeVisibility;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.skill.SimpleSkill;
@@ -40,6 +43,7 @@ import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnimusBinding;
 import art.arcane.adapt.content.adaptation.golemancy.GolemFrostFrame;
+import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
 import art.arcane.adapt.content.skill.golemancy.CopperCare;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
@@ -55,6 +59,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
+import art.arcane.spatial.matter.SpatialMatter;
 import art.arcane.volmlib.util.math.M;
 import io.papermc.paper.world.WeatheringCopperState;
 import lombok.NoArgsConstructor;
@@ -114,6 +119,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     setInterval(3620);
     setIcon(Material.CARVED_PUMPKIN);
     registerAdaptation(new GolemAnimusBinding());
+    registerAdaptation(new GolemNodeWeaving());
     registerAdaptation(new GolemFrostFrame());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CARVED_PUMPKIN)
@@ -193,6 +199,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerMilestone("challenge_golemancy_golem_kills_500", "golemancy.golem.kills", 500, () -> getConfig().challengeGolemKillsReward * 2);
     registerMilestone("challenge_golemancy_golem_kills_5000", "golemancy.golem.kills", 5000, () -> getConfig().challengeGolemKillsReward * 5);
     GolemancyRuntime.setBindListener(this::golemBound);
+    SpatialMatter.registerSliceType(new NodeMatter());
   }
 
   @Override
@@ -303,6 +310,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     GolemancyRuntime.configure(golemSettings(newConfig));
     GolemancyRuntime.configureBrain(brainSettings(newConfig));
     GolemancyRuntime.configureReveal(revealSettings(newConfig));
+    GolemancyRuntime.configureNodes(nodeSettings(newConfig));
   }
 
   @Override
@@ -352,6 +360,11 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
       case IRON -> config.assistBodyMultiplierIron;
       case BONE -> config.assistBodyMultiplierBone;
     };
+  }
+
+  static NodeSettings nodeSettings(Config config) {
+    return new NodeSettings(config.maxNodesPerChunk, config.nodeScanIntervalTicks, config.blocksPerNodeScan,
+        config.maxOpenTasksPerNode, NodeVisibility.parse(config.nodeVisibility));
   }
 
   private void applyBuild(GolemBuildAttribution.Build build) {
@@ -720,11 +733,21 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     int idleReturnSeconds = 8;
     @ConfigDoc(value = "Ticks between path refreshes for a moving copper golem, clamped to 1-20.", impact = "Lower values keep copper golems on course; above 10, their own wandering can pull them off course.")
     int copperRepathTicks = 10;
-    @ConfigDoc(value = "Blocks around you within which your golems show their status labels while you hold the Crook, a Node, a Core or a Dormant Golem.", impact = "Higher values reveal golems farther away; lower values do less work on busy servers.")
+    @ConfigDoc(value = "Blocks around you within which your golems show their status labels and your nodes appear while you hold the Crook, a Node, a Core or a Dormant Golem.", impact = "Higher values reveal golems and nodes farther away; lower values do less work on busy servers.")
     double revealRange = 32.0;
-    @ConfigDoc(value = "Blocks within which revealed golem labels are drawn on screen.", impact = "Higher values let you read labels from farther away.")
+    @ConfigDoc(value = "Blocks within which revealed golem and node labels are drawn on screen.", impact = "Higher values let you read labels from farther away.")
     double labelRange = 8.0;
-    @ConfigDoc(value = "Ticks between checks that reveal or hide golems as you move while holding the Crook, a Node, a Core or a Dormant Golem.", impact = "Lower values react to movement faster; holding none of them costs nothing.")
+    @ConfigDoc(value = "Ticks between checks that reveal or hide golems and nodes as you move while holding the Crook, a Node, a Core or a Dormant Golem.", impact = "Lower values react to movement faster; holding none of them costs nothing.")
     int revealPollTicks = 10;
+    @ConfigDoc(value = "Most nodes allowed in one chunk, counting every player's nodes.", impact = "Lower values spread nodes out; placing a node fails in a chunk that is already full.")
+    int maxNodesPerChunk = 16;
+    @ConfigDoc(value = "Ticks between checks of each node, clamped to 5-1200. Each check confirms the node's block is still there.", impact = "Lower values notice broken node blocks sooner but cost more server time.")
+    int nodeScanIntervalTicks = 40;
+    @ConfigDoc(value = "Most blocks of a node's work area looked at in one check, clamped to 1-4096.", impact = "Higher values let nodes find work faster in large areas but cost more server time.")
+    int blocksPerNodeScan = 64;
+    @ConfigDoc(value = "Most unfinished jobs one node can hand out to golems at once, clamped to 1-256.", impact = "Higher values let more golems work one node at the same time.")
+    int maxOpenTasksPerNode = 16;
+    @ConfigDoc(value = "Who can see nodes while holding the Crook, a Node, a Core or a Dormant Golem: OWNER shows each player only their own nodes, ANY_GOLEMANCER also shows every node to players with Node Weaving.", impact = "Set to ANY_GOLEMANCER to let golemancers see each other's nodes.")
+    String nodeVisibility = "OWNER";
   }
 }

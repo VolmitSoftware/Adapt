@@ -4480,6 +4480,38 @@ lore6 = "Chance d'une boule de neige supplémentaire"
 lore7 = "Impacts de boule de neige pour geler une cible"
 lore = ["Santé supplémentaire des golems de Givre", "Dégâts des boules de neige", "Dégâts subis dans les biomes chauds", "Insensible à la pluie et à l'eau", "Secondes de lenteur par impact", "Chance d'une boule de neige supplémentaire", "Impacts de boule de neige pour geler une cible"]
 
+[golemancy.node_status]
+idle = "Inactif"
+working = "Au travail"
+blocked = "Bloqué par une protection"
+full = "Conteneur plein"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filtre : {count}"
+
+[golemancy.node_message]
+placed = "Nœud de {node} placé"
+occupied = "Cette face porte déjà un nœud"
+protected = "Tu ne peux pas placer de nœuds ici"
+needs_container = "Un nœud de {node} se place sur un coffre, un tonneau ou une boîte de Shulker"
+container_protected = "Ce conteneur est protégé"
+chunk_full = "Ce chunk contient déjà {count} nœuds"
+cap = "Tu possèdes déjà ta limite de {count} nœuds"
+loading = "Les nœuds d'ici sont encore en chargement"
+unavailable = "Ta liste de golems n'est pas encore prête"
+
+[golemancy.node_weaving]
+name = "Tissage de nœuds"
+description = "Accroupis-toi et fais un clic droit sur la face d'un bloc avec un nœud en main pour l'y ancrer et diriger le travail de tes golems."
+lore1 = "Nœuds que tu peux posséder"
+lore2 = "Rayon de la zone de travail en blocs"
+lore3 = "Emplacements de filtre"
+lore4 = "Priorité de nœud 1-5"
+lore5 = "Contrôle par redstone"
+lore6 = "Filtres liste noire et tags"
+lore = ["Nœuds que tu peux posséder", "Rayon de la zone de travail en blocs", "Emplacements de filtre", "Priorité de nœud 1-5", "Contrôle par redstone", "Filtres liste noire et tags"]
+
 [herbalism.growth_aura]
 name = "Aura de Croissance"
 description = "Fait pousser la végétation autour de vous dans une aura."

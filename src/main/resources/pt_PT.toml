@@ -4484,6 +4484,38 @@ lore6 = "Probabilidade de uma bola de neve extra"
 lore7 = "Impactos de bola de neve para congelar um alvo"
 lore = ["Vida extra para golems de Geada", "Dano das bolas de neve", "Dano sofrido em biomas quentes", "Imune à chuva e à água", "Segundos de lentidão por impacto", "Probabilidade de uma bola de neve extra", "Impactos de bola de neve para congelar um alvo"]
 
+[golemancy.node_status]
+idle = "Inativo"
+working = "A trabalhar"
+blocked = "Bloqueado por proteção"
+full = "Contentor cheio"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filtro: {count}"
+
+[golemancy.node_message]
+placed = "Nó de {node} colocado"
+occupied = "Esta face já tem um nó"
+protected = "Não podes colocar nós aqui"
+needs_container = "Um nó de {node} vai num baú, num barril ou numa caixa de shulker"
+container_protected = "Esse contentor está protegido"
+chunk_full = "Este chunk já tem {count} nós"
+cap = "Já possuis o teu limite de {count} nós"
+loading = "Os nós daqui ainda estão a carregar"
+unavailable = "A tua lista de golems ainda não está pronta"
+
+[golemancy.node_weaving]
+name = "Tecelagem de nós"
+description = "Agacha-te e clica com o botão direito na face de um bloco com um nó na mão para o ancorar aí e dirigir o trabalho dos teus golems."
+lore1 = "Nós que podes possuir"
+lore2 = "Raio da área de trabalho em blocos"
+lore3 = "Espaços de filtro"
+lore4 = "Prioridade do nó 1-5"
+lore5 = "Controlo por redstone"
+lore6 = "Filtros de lista negra e etiquetas"
+lore = ["Nós que podes possuir", "Raio da área de trabalho em blocos", "Espaços de filtro", "Prioridade do nó 1-5", "Controlo por redstone", "Filtros de lista negra e etiquetas"]
+
 [herbalism.growth_aura]
 name = "Aura de Crescimento"
 description = "Faz crescer a natureza a tua volta numa aura"

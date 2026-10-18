@@ -4484,6 +4484,38 @@ lore6 = "Probabilità di una palla di neve extra"
 lore7 = "Colpi di palla di neve per congelare un bersaglio"
 lore = ["Salute extra per i golem di Brina", "Danno delle palle di neve", "Danno subito nei biomi caldi", "Immune a pioggia e acqua", "Secondi di lentezza per colpo", "Probabilità di una palla di neve extra", "Colpi di palla di neve per congelare un bersaglio"]
 
+[golemancy.node_status]
+idle = "Inattivo"
+working = "Al lavoro"
+blocked = "Bloccato da una protezione"
+full = "Contenitore pieno"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filtro: {count}"
+
+[golemancy.node_message]
+placed = "Nodo di {node} piazzato"
+occupied = "Questa faccia ha già un nodo"
+protected = "Qui non puoi piazzare nodi"
+needs_container = "Un nodo di {node} va su una cassa, un barile o una scatola di shulker"
+container_protected = "Quel contenitore è protetto"
+chunk_full = "Questo chunk ha già {count} nodi"
+cap = "Possiedi già il tuo limite di {count} nodi"
+loading = "I nodi qui si stanno ancora caricando"
+unavailable = "Il tuo elenco di golem non è ancora pronto"
+
+[golemancy.node_weaving]
+name = "Tessitura dei nodi"
+description = "Accovacciati e fai clic destro sulla faccia di un blocco tenendo un nodo per ancorarlo lì e dirigere il lavoro dei tuoi golem."
+lore1 = "Nodi che puoi possedere"
+lore2 = "Raggio dell'area di lavoro in blocchi"
+lore3 = "Slot del filtro"
+lore4 = "Priorità del nodo 1-5"
+lore5 = "Controllo redstone"
+lore6 = "Filtri lista nera e tag"
+lore = ["Nodi che puoi possedere", "Raggio dell'area di lavoro in blocchi", "Slot del filtro", "Priorità del nodo 1-5", "Controllo redstone", "Filtri lista nera e tag"]
+
 [herbalism.growth_aura]
 name = "Aura di Crescita"
 description = "Fai crescere la natura intorno a te in un'aura"

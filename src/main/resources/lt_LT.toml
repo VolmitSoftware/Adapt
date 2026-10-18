@@ -4484,6 +4484,38 @@ lore6 = "Tikimybė mesti papildomą sniego gniūžtę"
 lore7 = "Pataikymai sniego gniūžte taikiniui užšaldyti"
 lore = ["Papildoma Šerkšno golemų sveikata", "Sniego gniūžtės žala", "Gaunama žala šiltuose biomuose", "Atsparus lietui ir vandeniui", "Sulėtinimo sekundės po pataikymo", "Tikimybė mesti papildomą sniego gniūžtę", "Pataikymai sniego gniūžte taikiniui užšaldyti"]
 
+[golemancy.node_status]
+idle = "Laukia"
+working = "Dirba"
+blocked = "Užblokuota apsaugos"
+full = "Talpykla pilna"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filtras: {count}"
+
+[golemancy.node_message]
+placed = "Mazgas padėtas: {node}"
+occupied = "Ant šios sienelės jau yra mazgas"
+protected = "Čia negali dėti mazgų"
+needs_container = "Mazgas {node} dedamas ant skrynios, statinės arba shulker dėžės"
+container_protected = "Ši talpykla apsaugota"
+chunk_full = "Šiame gabale jau yra {count} mazgų"
+cap = "Jau turi didžiausią leistiną skaičių – {count} mazgų"
+loading = "Čia esantys mazgai dar įkeliami"
+unavailable = "Tavo golemų sąrašas dar neparuoštas"
+
+[golemancy.node_weaving]
+name = "Mazgų pynimas"
+description = "Pritūpk ir dešiniuoju pelės klavišu spustelėk bloko sienelę laikydamas mazgą, kad pritvirtintum jį ten ir nukreiptum savo golemų darbą."
+lore1 = "Mazgai, kuriuos gali turėti"
+lore2 = "Darbo zonos spindulys blokais"
+lore3 = "Filtro vietos"
+lore4 = "Mazgo prioritetas 1-5"
+lore5 = "Redstone valdymas"
+lore6 = "Draudžiamųjų sąrašų ir žymų filtrai"
+lore = ["Mazgai, kuriuos gali turėti", "Darbo zonos spindulys blokais", "Filtro vietos", "Mazgo prioritetas 1-5", "Redstone valdymas", "Draudžiamųjų sąrašų ir žymų filtrai"]
+
 [herbalism.growth_aura]
 name = "Augimo Aura"
 description = "Auginkite gamta aplink save auroje"

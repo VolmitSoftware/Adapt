@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem.reveal;
 
 import art.arcane.adapt.api.golem.item.GolemItemKind;
+import art.arcane.adapt.api.golem.node.NodeVisibility;
 
 public final class RevealRules {
   public static final double LEAVE_MARGIN = 2D;
@@ -25,5 +26,9 @@ public final class RevealRules {
 
   public static boolean inRevealRange(double distanceSquared, double range, boolean shown) {
     return withinRange(distanceSquared, shown ? range + LEAVE_MARGIN : range);
+  }
+
+  public static boolean nodeVisible(boolean armed, boolean owner, NodeVisibility visibility, int nodeWeavingLevel) {
+    return armed && (owner || (visibility == NodeVisibility.ANY_GOLEMANCER && nodeWeavingLevel >= 1));
   }
 }

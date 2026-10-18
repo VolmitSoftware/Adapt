@@ -4484,6 +4484,38 @@ lore6 = "Kans op een extra sneeuwbal"
 lore7 = "Sneeuwbaltreffers om een doelwit te bevriezen"
 lore = ["Extra gezondheid voor vorstgolems", "Sneeuwbalschade", "Schade in warme biomen", "Immuun voor regen en water", "Seconden traagheid per treffer", "Kans op een extra sneeuwbal", "Sneeuwbaltreffers om een doelwit te bevriezen"]
 
+[golemancy.node_status]
+idle = "Inactief"
+working = "Aan het werk"
+blocked = "Geblokkeerd door bescherming"
+full = "Opslagblok vol"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filter: {count}"
+
+[golemancy.node_message]
+placed = "{node}-knooppunt geplaatst"
+occupied = "Deze zijde heeft al een knooppunt"
+protected = "Je kunt hier geen knooppunten plaatsen"
+needs_container = "Een {node}-knooppunt hoort op een kist, ton of shulkerdoos"
+container_protected = "Dat opslagblok is beschermd"
+chunk_full = "Deze chunk bevat al {count} knooppunten"
+cap = "Je bezit al je maximum van {count} knooppunten"
+loading = "De knooppunten hier worden nog geladen"
+unavailable = "Je golemlijst is nog niet klaar"
+
+[golemancy.node_weaving]
+name = "Knooppuntweven"
+description = "Sluip en klik met rechts op een blokzijde met een knooppunt in je hand om het daar te verankeren en het werk van je golems te sturen."
+lore1 = "Knooppunten die je kunt bezitten"
+lore2 = "Straal van het werkgebied in blokken"
+lore3 = "Filtervakken"
+lore4 = "Knooppuntprioriteit 1-5"
+lore5 = "Redstonesturing"
+lore6 = "Zwarte-lijst- en tagfilters"
+lore = ["Knooppunten die je kunt bezitten", "Straal van het werkgebied in blokken", "Filtervakken", "Knooppuntprioriteit 1-5", "Redstonesturing", "Zwarte-lijst- en tagfilters"]
+
 [herbalism.growth_aura]
 name = "Groeiaura"
 description = "Laat de natuur om je heen groeien in een aura"

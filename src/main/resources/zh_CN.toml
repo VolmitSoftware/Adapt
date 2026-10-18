@@ -4484,6 +4484,38 @@ lore6 = "额外投掷雪球的几率"
 lore7 = "冻结目标所需的雪球命中数"
 lore = ["霜魔像额外生命值", "雪球伤害", "温暖生物群系中受到的伤害", "免疫雨水和水", "命中时缓慢的秒数", "额外投掷雪球的几率", "冻结目标所需的雪球命中数"]
 
+[golemancy.node_status]
+idle = "空闲"
+working = "工作中"
+blocked = "被保护阻挡"
+full = "容器已满"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "过滤: {count}"
+
+[golemancy.node_message]
+placed = "已放置{node}节点"
+occupied = "这个面已经有节点了"
+protected = "你不能在这里放置节点"
+needs_container = "{node}节点需要放在箱子、木桶或潜影盒上"
+container_protected = "该容器受保护"
+chunk_full = "该区块已有{count}个节点"
+cap = "你已拥有上限数量的{count}个节点"
+loading = "这里的节点仍在加载"
+unavailable = "你的魔像名册尚未准备好"
+
+[golemancy.node_weaving]
+name = "节点编织"
+description = "手持节点潜行并右键点击方块表面，即可将其固定在那里并指引你的魔像工作。"
+lore1 = "可拥有的节点数量"
+lore2 = "工作区域半径（方块）"
+lore3 = "过滤槽位"
+lore4 = "节点优先级1-5"
+lore5 = "红石控制"
+lore6 = "黑名单与标签过滤"
+lore = ["可拥有的节点数量", "工作区域半径（方块）", "过滤槽位", "节点优先级1-5", "红石控制", "黑名单与标签过滤"]
+
 [herbalism.growth_aura]
 name = "生长光环"
 description = "以光环促进周围植物生长。"

@@ -4484,6 +4484,38 @@ lore6 = "Szansa na dodatkową śnieżkę"
 lore7 = "Trafienia śnieżką potrzebne do zamrożenia celu"
 lore = ["Dodatkowe zdrowie szronowych golemów", "Obrażenia śnieżek", "Obrażenia otrzymywane w ciepłych biomach", "Odporność na deszcz i wodę", "Sekundy spowolnienia po trafieniu", "Szansa na dodatkową śnieżkę", "Trafienia śnieżką potrzebne do zamrożenia celu"]
 
+[golemancy.node_status]
+idle = "Bezczynny"
+working = "Pracuje"
+blocked = "Zablokowany przez ochronę"
+full = "Pojemnik pełny"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filtr: {count}"
+
+[golemancy.node_message]
+placed = "Postawiono węzeł: {node}"
+occupied = "Na tej ścianie jest już węzeł"
+protected = "Nie możesz tu stawiać węzłów"
+needs_container = "Węzeł {node} stawia się na skrzyni, beczce lub shulkerze"
+container_protected = "Ten pojemnik jest chroniony"
+chunk_full = "W tym chunku jest już {count} węzłów"
+cap = "Masz już swój limit {count} węzłów"
+loading = "Węzły w tym miejscu wciąż się wczytują"
+unavailable = "Twoja lista golemów nie jest jeszcze gotowa"
+
+[golemancy.node_weaving]
+name = "Tkanie węzłów"
+description = "Kucnij i kliknij prawym przyciskiem ścianę bloku, trzymając węzeł, aby go tam zakotwiczyć i kierować pracą swoich golemów."
+lore1 = "Węzły, które możesz posiadać"
+lore2 = "Promień obszaru pracy w blokach"
+lore3 = "Miejsca filtra"
+lore4 = "Priorytet węzła 1-5"
+lore5 = "Sterowanie redstone"
+lore6 = "Filtry czarnej listy i tagów"
+lore = ["Węzły, które możesz posiadać", "Promień obszaru pracy w blokach", "Miejsca filtra", "Priorytet węzła 1-5", "Sterowanie redstone", "Filtry czarnej listy i tagów"]
+
 [herbalism.growth_aura]
 name = "Aura Wzrostu"
 description = "Rozwijaj nature wokol siebie w aurze"

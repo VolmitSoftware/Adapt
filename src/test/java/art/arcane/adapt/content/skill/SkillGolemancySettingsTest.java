@@ -4,6 +4,8 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemSettings;
+import art.arcane.adapt.api.golem.node.NodeSettings;
+import art.arcane.adapt.api.golem.node.NodeVisibility;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import org.junit.jupiter.api.Test;
 
@@ -96,6 +98,23 @@ class SkillGolemancySettingsTest {
     assertThat(settings.revealRange()).isEqualTo(20D);
     assertThat(settings.labelRange()).isEqualTo(5D);
     assertThat(settings.pollTicks()).isEqualTo(4);
+  }
+
+  @Test
+  void nodeConfigDefaultsProduceTheNodeDefaults() {
+    assertThat(SkillGolemancy.nodeSettings(new SkillGolemancy.Config())).isEqualTo(NodeSettings.defaults());
+  }
+
+  @Test
+  void nodeConfigValuesReachTheNodeSettings() {
+    SkillGolemancy.Config config = new SkillGolemancy.Config();
+    config.maxNodesPerChunk = 4;
+    config.nodeScanIntervalTicks = 20;
+    config.blocksPerNodeScan = 128;
+    config.maxOpenTasksPerNode = 8;
+    config.nodeVisibility = "any_golemancer";
+
+    assertThat(SkillGolemancy.nodeSettings(config)).isEqualTo(new NodeSettings(4, 20, 128, 8, NodeVisibility.ANY_GOLEMANCER));
   }
 
   private static SkillGolemancy.Config withInterval(SkillGolemancy.Config config, int ticks) {

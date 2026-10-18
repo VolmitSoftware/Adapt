@@ -4484,6 +4484,38 @@ lore6 = "Probabilidad de una bola de nieve extra"
 lore7 = "Impactos de bola de nieve para congelar un objetivo"
 lore = ["Salud extra para gólems de Escarcha", "Daño de bolas de nieve", "Daño recibido en biomas cálidos", "Inmune a la lluvia y al agua", "Segundos de lentitud por impacto", "Probabilidad de una bola de nieve extra", "Impactos de bola de nieve para congelar un objetivo"]
 
+[golemancy.node_status]
+idle = "Inactivo"
+working = "Trabajando"
+blocked = "Bloqueado por protección"
+full = "Contenedor lleno"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filtro: {count}"
+
+[golemancy.node_message]
+placed = "Nodo de {node} colocado"
+occupied = "Esta cara ya tiene un nodo"
+protected = "No puedes colocar nodos aquí"
+needs_container = "Un nodo de {node} va en un cofre, un barril o una caja de shulker"
+container_protected = "Ese contenedor está protegido"
+chunk_full = "Este chunk ya tiene {count} nodos"
+cap = "Ya tienes tu límite de {count} nodos"
+loading = "Los nodos de aquí aún se están cargando"
+unavailable = "Tu lista de gólems aún no está lista"
+
+[golemancy.node_weaving]
+name = "Tejido de nodos"
+description = "Agáchate y haz clic derecho en la cara de un bloque con un nodo en la mano para anclarlo allí y dirigir el trabajo de tus gólems."
+lore1 = "Nodos que puedes tener"
+lore2 = "Radio del área de trabajo en bloques"
+lore3 = "Espacios de filtro"
+lore4 = "Prioridad de nodo 1-5"
+lore5 = "Control por redstone"
+lore6 = "Filtros de lista negra y etiquetas"
+lore = ["Nodos que puedes tener", "Radio del área de trabajo en bloques", "Espacios de filtro", "Prioridad de nodo 1-5", "Control por redstone", "Filtros de lista negra y etiquetas"]
+
 [herbalism.growth_aura]
 name = "Aura de Crecimiento"
 description = "Haz crecer la naturaleza a tu alrededor en un aura"
