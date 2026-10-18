@@ -231,7 +231,7 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
     List<String> species = new ArrayList<>(RancherRules.DEFAULT_SPECIES);
     @ConfigDoc(value = "Keep count of a Pasture Node whose keep count was never changed in its Node GUI. Ranchers breed a species while its adults and babies in the area, plus one for each pair in love, number fewer than this; a lone animal in love counts as a pair. They cull adults above it, counting adults only. Values load between 2 and 64.", impact = "Higher values keep bigger herds.")
     int defaultKeep = 8;
-    @ConfigDoc(value = "Ticks a Rancher spends on each breeding, shearing, milking or culling action after it reaches the animal. Static Overdrive and Swiftness runes shorten it. Values below 1 load as 1.", impact = "Lower values make Ranchers work faster.")
+    @ConfigDoc(value = "Ticks a Rancher spends on each breeding, shearing, milking or culling action after it reaches the animal. Swiftness runes and Copper Frame's Static Overdrive shorten it. Values below 1 load as 1.", impact = "Lower values make Ranchers work faster.")
     int actionIntervalTicks = 40;
     @ConfigDoc(value = "Rancher Core level at which Ranchers shear sheep.", impact = "Lower values unlock shearing sooner.")
     int shearLevel = 2;
