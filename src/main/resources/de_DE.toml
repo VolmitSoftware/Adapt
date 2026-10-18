@@ -4569,6 +4569,20 @@ lore4 = "Weniger Schaden in der Nähe deiner Wächter"
 lore5 = "Sekunden Resistenz durch Letztes Gefecht"
 lore = ["Wachradius in Blöcken", "Abfangen: Mobs, die dich jagen, wenden sich gegen deine Wächter", "Vergeltung: Wächter greifen an, was dich verletzt hat", "Weniger Schaden in der Nähe deiner Wächter", "Sekunden Resistenz durch Letztes Gefecht"]
 
+[golemancy.gatherer_core]
+name = "Sammler-Kern"
+description = "Mit einem Sammler-Kern gebundene Golems sammeln fallengelassene Gegenstände rund um ihr Zuhause oder einen Sammlung-Knoten ein, liefern sie ab und speichern Erfahrungskugeln als Essenz, je stärker der Kern wird."
+lore1 = "Aufsammelradius in Blöcken"
+lore2 = "Erfahrungspunkte Essenzspeicher"
+lore3 = "Blöcke Gegenstandsmagnet"
+lore4 = "Blöcke sofortiges Aufsammeln"
+lore5 = "Tragekapazität"
+lore = ["Aufsammelradius in Blöcken", "Erfahrungspunkte Essenzspeicher", "Blöcke Gegenstandsmagnet", "Blöcke sofortiges Aufsammeln", "Tragekapazität"]
+essence = "Essenz: {value} Erfahrungspunkte"
+essence_lore = "Klicken, um die gespeicherte Erfahrung zu nehmen"
+essence_taken = "Du hast {value} Erfahrungspunkte Essenz genommen"
+essence_empty = "Dieser Golem hat keine Essenz gespeichert"
+
 [golemancy.harvester_core]
 name = "Ernter-Kern"
 description = "Mit einem Ernter-Kern gebundene Golems ernten reife Pflanzen im Bereich eines Ernte-Knotens, pflanzen sie neu und pflegen und bestellen das Feld umso besser, je stärker der Kern wird."

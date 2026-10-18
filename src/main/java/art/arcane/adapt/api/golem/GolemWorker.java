@@ -57,6 +57,7 @@ final class GolemWorker {
   private long nextRouteAt;
   private long nextSignalAt;
   private boolean failureLogged;
+  private boolean tickFailureLogged;
 
   GolemWorker(GolemHandle handle, GolemController controller, GolemBrain.Context context) {
     this.handle = Objects.requireNonNull(handle);
@@ -75,6 +76,7 @@ final class GolemWorker {
       return null;
     }
     expireBackoff(nowMillis);
+    tickCores(nowMillis);
     GolemWorkSettings settings = context.work().get();
     if (job != null) {
       GolemBrainState pursuing = pursue(nowMillis, here, settings);
@@ -366,6 +368,20 @@ final class GolemWorker {
       }
     }
     return false;
+  }
+
+  private void tickCores(long nowMillis) {
+    for (GolemCoreType core : handle.state().cores()) {
+      GolemCoreBehavior behavior = GolemCoreBehaviors.of(core).orElse(null);
+      if (behavior == null) {
+        continue;
+      }
+      try {
+        behavior.tick(new GolemContext(this, new GolemContext.Scope(behavior.policy(), null, null, core, nowMillis)));
+      } catch (RuntimeException failure) {
+        logTickFailure(core, failure);
+      }
+    }
   }
 
   private boolean reserveCoreJob(GolemTask task, long nowMillis) {
@@ -690,6 +706,14 @@ final class GolemWorker {
     failureLogged = true;
     String what = failed == null ? "find work" : "work " + failed;
     Adapt.warn("Bound golem " + handle.id() + " failed to " + what + "; the golem keeps working.", failure);
+  }
+
+  private void logTickFailure(GolemCoreType core, RuntimeException failure) {
+    if (tickFailureLogged) {
+      return;
+    }
+    tickFailureLogged = true;
+    Adapt.warn("Bound golem " + handle.id() + " failed to run its " + core.id() + " core tick; the golem keeps working.", failure);
   }
 
   private enum Source {

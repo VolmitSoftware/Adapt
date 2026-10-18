@@ -16,6 +16,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,6 +50,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -206,12 +208,16 @@ public final class GolemRegistry extends TickedObject {
     for (GolemRune rune : state.runes()) {
       drops.add(GolemItems.rune(rune));
     }
+    int essence = state.essencePoints();
     Location at = golem.getLocation();
     revert(handle);
     forgetRosterEntry(handle);
     World world = golem.getWorld();
     for (ItemStack drop : drops) {
       world.dropItemNaturally(at, drop);
+    }
+    if (essence > 0) {
+      returnEssence(golem, world, at, essence, platform.player(handle.owner()));
     }
     return true;
   }
@@ -253,7 +259,7 @@ public final class GolemRegistry extends TickedObject {
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
-    handle(e.getEntity()).ifPresent(handle -> die(handle, e.getDrops()));
+    handle(e.getEntity()).ifPresent(handle -> die(handle, e));
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -624,7 +630,7 @@ public final class GolemRegistry extends TickedObject {
     golem.setInvulnerable(false);
   }
 
-  private void die(GolemHandle handle, List<ItemStack> drops) {
+  private void die(GolemHandle handle, EntityDeathEvent e) {
     boolean validated = handle.isValidated();
     unindex(handle);
     if (!validated) {
@@ -632,7 +638,11 @@ public final class GolemRegistry extends TickedObject {
     }
     GolemSettings current = settings.get();
     GolemState state = handle.state();
+    List<ItemStack> drops = e.getDrops();
     drops.addAll(state.carriedItems());
+    if (state.essencePoints() > 0) {
+      e.setDroppedExp((int) Math.min(Integer.MAX_VALUE, (long) e.getDroppedExp() + state.essencePoints()));
+    }
     GolemDeathDrops.Roll roll = GolemDeathDrops.roll(state.cores(), state.runes(), current.deathDropCoreChance(), current.deathDropRuneChance(),
         () -> ThreadLocalRandom.current().nextDouble());
     for (GolemCoreType core : roll.cores()) {
@@ -642,6 +652,23 @@ public final class GolemRegistry extends TickedObject {
       drops.add(GolemItems.rune(rune));
     }
     forgetRosterEntry(handle);
+  }
+
+  private void returnEssence(Mob golem, World world, Location at, int points, Player owner) {
+    AtomicBoolean settled = new AtomicBoolean();
+    Runnable drop = () -> {
+      if (settled.compareAndSet(false, true)) {
+        world.spawn(at, ExperienceOrb.class, orb -> orb.setExperience(points));
+      }
+    };
+    Runnable give = () -> {
+      if (settled.compareAndSet(false, true)) {
+        owner.giveExp(points);
+      }
+    };
+    if (owner == null || !owner.isOnline() || !platform.runEntity(owner, give, () -> platform.runEntity(golem, drop, 0))) {
+      drop.run();
+    }
   }
 
   private void forgetRosterEntry(GolemHandle handle) {

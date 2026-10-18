@@ -4569,6 +4569,20 @@ lore4 = "Mažesnė žala šalia tavo sargų"
 lore5 = "Atsparumo sekundės nuo Paskutinio stovėjimo"
 lore = ["Sargybos spindulys blokais", "Perėmimas: tave persekiojantys padarai atsisuka prieš tavo sargus", "Atpildas: sargai puola tai, kas tave sužeidė", "Mažesnė žala šalia tavo sargų", "Atsparumo sekundės nuo Paskutinio stovėjimo"]
 
+[golemancy.gatherer_core]
+name = "Rinkėjo šerdis"
+description = "Rinkėjo šerdimi sujungti golemai surenka numestus daiktus aplink savo namus arba Rinkimo mazgą ir juos pristato, o šerdžiai stiprėjant kaupia patirties sferas kaip esenciją."
+lore1 = "Rinkimo spindulys blokais"
+lore2 = "Patirties taškų esencijos atsarga"
+lore3 = "Blokų daiktų magnetas"
+lore4 = "Blokų akimirksnio rinkimas"
+lore5 = "Nešimo talpa"
+lore = ["Rinkimo spindulys blokais", "Patirties taškų esencijos atsarga", "Blokų daiktų magnetas", "Blokų akimirksnio rinkimas", "Nešimo talpa"]
+essence = "Esencija: {value} patirties taškų"
+essence_lore = "Spustelėkite, kad paimtumėte sukauptą patirtį"
+essence_taken = "Paėmėte {value} patirties taškų esencijos"
+essence_empty = "Šis golemas neturi sukauptos esencijos"
+
 [golemancy.harvester_core]
 name = "Pjovėjo šerdis"
 description = "Pjovėjo šerdimi sujungti golemai nuima ir vėl pasodina prinokusius augalus Derliaus mazgo zonoje, o šerdžiai stiprėjant prižiūri ir dirba lauką."

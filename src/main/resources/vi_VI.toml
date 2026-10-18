@@ -4569,6 +4569,20 @@ lore4 = "Giảm sát thương khi ở gần hộ vệ của bạn"
 lore5 = "Số giây Kháng Cự từ Trận Chiến Cuối"
 lore = ["Bán kính canh gác (khối)", "Chặn Đánh: mob đang đuổi theo bạn quay sang các hộ vệ của bạn", "Trả Đũa: hộ vệ tấn công thứ đã làm bạn bị thương", "Giảm sát thương khi ở gần hộ vệ của bạn", "Số giây Kháng Cự từ Trận Chiến Cuối"]
 
+[golemancy.gatherer_core]
+name = "Lõi Người Thu Gom"
+description = "Golem được liên kết bằng Lõi Người Thu Gom nhặt các vật phẩm rơi quanh nhà của chúng hoặc quanh một Nút Thu Gom rồi mang đi giao, và tích trữ các quả cầu kinh nghiệm thành tinh chất khi lõi mạnh lên."
+lore1 = "Bán kính nhặt đồ (khối)"
+lore2 = "Điểm kinh nghiệm tinh chất tích trữ"
+lore3 = "Khối nam châm vật phẩm"
+lore4 = "Khối nhặt đồ tức thì"
+lore5 = "Sức chứa mang vác"
+lore = ["Bán kính nhặt đồ (khối)", "Điểm kinh nghiệm tinh chất tích trữ", "Khối nam châm vật phẩm", "Khối nhặt đồ tức thì", "Sức chứa mang vác"]
+essence = "Tinh chất: {value} điểm kinh nghiệm"
+essence_lore = "Nhấp để lấy kinh nghiệm đã tích trữ"
+essence_taken = "Bạn đã lấy {value} điểm kinh nghiệm tinh chất"
+essence_empty = "Golem này không có tinh chất tích trữ"
+
 [golemancy.harvester_core]
 name = "Lõi Người Thu Hoạch"
 description = "Golem được liên kết bằng Lõi Người Thu Hoạch thu hoạch và trồng lại cây chín trong khu vực của một Nút Thu Hoạch, đồng thời chăm sóc và cày xới cánh đồng khi lõi mạnh lên."

@@ -232,6 +232,14 @@ class GolemGuiActionsTest {
   }
 
   @Test
+  void theEssenceButtonShowsForGatherersAndForAnyGolemStillHoldingEssence() {
+    assertThat(GolemGuiActions.showsEssence(List.of(GolemCoreType.GATHERER), 0)).isTrue();
+    assertThat(GolemGuiActions.showsEssence(List.of(GolemCoreType.GUARDIAN), 0)).isFalse();
+    assertThat(GolemGuiActions.showsEssence(List.of(GolemCoreType.GUARDIAN, GolemCoreType.GATHERER), 0)).isTrue();
+    assertThat(GolemGuiActions.showsEssence(List.of(GolemCoreType.GUARDIAN), 12)).isTrue();
+  }
+
+  @Test
   void approximateChunkCentersComeFromTheChunkKey() {
     long key = GolemRoster.chunkKey(-3, 5);
 

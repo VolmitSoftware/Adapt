@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.golem;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.golem.node.DepositBehavior;
@@ -28,6 +29,7 @@ import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,14 +39,19 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 
 class GolemWorkerTest extends AdaptTestBase {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-000000000201");
@@ -1096,6 +1103,68 @@ class GolemWorkerTest extends AdaptTestBase {
 
     assertThat(actedAt).containsExactly(arrival, arrival + 1_000L);
     assertThat(arrivals).containsOnly(arrival);
+  }
+
+  @Test
+  void coreBehaviorsTickEveryWorkingPulseEvenWhilePursuingAJob() {
+    List<String> ticks = new ArrayList<>();
+    tickingCore(golem -> ticks.add(golem.core().id() + ":" + golem.targetEntity().isPresent()));
+    brain.start();
+
+    platform.runDelayed();
+    pulse(250L);
+
+    assertThat(ticks).containsExactly("gatherer:false", "gatherer:false");
+    assertThat(brain.state()).isEqualTo(GolemBrainState.MOVE);
+
+    brain.handle().setMode(GolemMode.FOLLOW);
+    pulse(250L);
+
+    assertThat(ticks).hasSize(2);
+  }
+
+  @Test
+  void aThrowingCoreTickIsLoggedOnceWithItsOwnMessageAndTheGolemKeepsWorking() {
+    tickingCore(golem -> {
+      throw new IllegalStateException("tick failed");
+    });
+    try (MockedStatic<Adapt> adapt = mockStatic(Adapt.class)) {
+      brain.start();
+
+      platform.runDelayed();
+      pulse(250L);
+      pulse(250L);
+
+      assertThat(brain.state()).isEqualTo(GolemBrainState.MOVE);
+      adapt.verify(() -> Adapt.warn(contains("failed to run its gatherer core tick"), any(Throwable.class)), times(1));
+      adapt.verify(() -> Adapt.warn(contains("failed to find work"), any(Throwable.class)), never());
+    }
+  }
+
+  private void tickingCore(Consumer<GolemContext> tick) {
+    GolemCoreBehavior behavior = new GolemCoreBehavior() {
+      @Override
+      public Adaptation<?> policy() {
+        return nodePolicy;
+      }
+
+      @Override
+      public Optional<GolemTask> seek(GolemContext golem) {
+        return Optional.of(GolemTask.builder("pickup", GolemTarget.block(WORLD, 12, 64, 0)).build());
+      }
+
+      @Override
+      public GolemActResult act(GolemContext golem, GolemTask task) {
+        return GolemActResult.WORKING;
+      }
+
+      @Override
+      public void tick(GolemContext golem) {
+        tick.accept(golem);
+      }
+    };
+    GolemCoreBehaviors.register(GolemCoreType.GATHERER, behavior);
+    cores.add(behavior);
   }
 
   private GolemBrain gatherer() {

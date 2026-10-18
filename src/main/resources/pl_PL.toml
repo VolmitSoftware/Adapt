@@ -4569,6 +4569,20 @@ lore4 = "Mniej obrażeń w pobliżu twoich strażników"
 lore5 = "Sekundy Odporności z Ostatniego Bastionu"
 lore = ["Promień straży w blokach", "Przechwycenie: moby, które cię ścigają, zwracają się przeciw twoim strażnikom", "Odwet: strażnicy atakują to, co cię zraniło", "Mniej obrażeń w pobliżu twoich strażników", "Sekundy Odporności z Ostatniego Bastionu"]
 
+[golemancy.gatherer_core]
+name = "Rdzeń Zbieracza"
+description = "Golemy związane Rdzeniem Zbieracza podnoszą upuszczone przedmioty wokół swojego domu lub Węzła Zbiórki i je dostarczają, a gdy rdzeń staje się silniejszy, gromadzą kule doświadczenia jako esencję."
+lore1 = "Promień podnoszenia w blokach"
+lore2 = "Punktów doświadczenia magazynu esencji"
+lore3 = "Bloków magnesu przedmiotów"
+lore4 = "Bloków natychmiastowego podnoszenia"
+lore5 = "Udźwig"
+lore = ["Promień podnoszenia w blokach", "Punktów doświadczenia magazynu esencji", "Bloków magnesu przedmiotów", "Bloków natychmiastowego podnoszenia", "Udźwig"]
+essence = "Esencja: {value} punktów doświadczenia"
+essence_lore = "Kliknij, aby zabrać zgromadzone doświadczenie"
+essence_taken = "Zabrano {value} punktów doświadczenia esencji"
+essence_empty = "Ten golem nie ma zgromadzonej esencji"
+
 [golemancy.harvester_core]
 name = "Rdzeń Żniwiarza"
 description = "Golemy związane Rdzeniem Żniwiarza zbierają i ponownie sadzą dojrzałe uprawy w obszarze Węzła Żniw, a w miarę jak rdzeń się wzmacnia, pielęgnują i uprawiają pole."

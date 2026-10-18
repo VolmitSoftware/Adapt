@@ -4569,6 +4569,20 @@ lore4 = "Menos dano perto dos teus guardiões"
 lore5 = "Segundos de Resistência da Última Defesa"
 lore = ["Raio de guarda em blocos", "Interceção: os mobs que te perseguem viram-se contra os teus guardiões", "Retaliação: os guardiões atacam o que te feriu", "Menos dano perto dos teus guardiões", "Segundos de Resistência da Última Defesa"]
 
+[golemancy.gatherer_core]
+name = "Núcleo de Coletor"
+description = "Os golems vinculados com um Núcleo de Coletor apanham os itens caídos à volta da sua casa ou de um Nó de Recolha e entregam-nos, e guardam orbes de experiência como essência à medida que o núcleo se fortalece."
+lore1 = "Raio de recolha em blocos"
+lore2 = "Pontos de experiência de reserva de essência"
+lore3 = "Blocos de íman de itens"
+lore4 = "Blocos de recolha instantânea"
+lore5 = "Capacidade de carga"
+lore = ["Raio de recolha em blocos", "Pontos de experiência de reserva de essência", "Blocos de íman de itens", "Blocos de recolha instantânea", "Capacidade de carga"]
+essence = "Essência: {value} pontos de experiência"
+essence_lore = "Clica para tirar a experiência guardada"
+essence_taken = "Tiraste {value} pontos de experiência de essência"
+essence_empty = "Este golem não tem essência guardada"
+
 [golemancy.harvester_core]
 name = "Núcleo de Ceifeiro"
 description = "Os golems vinculados com um Núcleo de Ceifeiro colhem e replantam as culturas maduras na área de um Nó de Colheita, e cuidam e lavram o campo à medida que o núcleo se fortalece."

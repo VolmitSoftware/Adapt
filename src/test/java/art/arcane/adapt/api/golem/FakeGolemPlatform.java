@@ -46,6 +46,7 @@ final class FakeGolemPlatform implements GolemPlatform {
   final Map<String, ItemStack> encoded = new HashMap<>();
   final Map<UUID, Entity> entities = new HashMap<>();
   boolean ownsEntities = true;
+  boolean refuseRetiring;
   boolean ownsLocations = true;
   int fullSignals;
   Adaptation<?> bindingPolicy;
@@ -151,6 +152,10 @@ final class FakeGolemPlatform implements GolemPlatform {
 
   @Override
   public boolean runEntity(Entity entity, Runnable task, Runnable retired) {
+    if (refuseRetiring) {
+      retired.run();
+      return false;
+    }
     if (ownsEntities) {
       task.run();
       return true;

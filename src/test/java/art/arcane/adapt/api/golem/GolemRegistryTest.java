@@ -13,6 +13,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Listener;
@@ -31,6 +32,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatchers;
 import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
@@ -40,11 +42,13 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.offset;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
@@ -52,6 +56,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -507,6 +512,81 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(roster.golem(handle.id())).isEmpty();
     assertThat(registry.handle(golem)).isEmpty();
     assertThat(registry.activeCount()).isZero();
+  }
+
+  @Test
+  void aDyingGolemDropsItsStoredEssenceAsExperience() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
+    handle.setEssence(140.6D);
+    EntityDeathEvent death = mock(EntityDeathEvent.class);
+    when(death.getEntity()).thenReturn(golem);
+    when(death.getDrops()).thenReturn(new ArrayList<>());
+    when(death.getDroppedExp()).thenReturn(5);
+
+    registry.on(death);
+
+    verify(death).setDroppedExp(145);
+  }
+
+  @Test
+  void releasingAGolemGivesItsStoredEssenceToTheOnlineOwner() {
+    onlineOwner();
+    platform.players.put(OWNER, owner);
+    when(owner.isOnline()).thenReturn(true);
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
+    handle.setEssence(60.7D);
+
+    assertThat(registry.release(handle)).isTrue();
+
+    verify(owner).giveExp(60);
+    verify(world, never()).spawn(any(Location.class), eq(ExperienceOrb.class), ArgumentMatchers.<Consumer<ExperienceOrb>>any());
+  }
+
+  @Test
+  void releasingAGolemWhileItsOwnerIsAwayDropsTheEssenceAsAnExperienceOrb() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
+    handle.setEssence(60D);
+    ArgumentCaptor<Consumer<ExperienceOrb>> spawn = consumerCaptor();
+
+    assertThat(registry.release(handle)).isTrue();
+
+    verify(world).spawn(any(Location.class), eq(ExperienceOrb.class), spawn.capture());
+    ExperienceOrb orb = mock(ExperienceOrb.class);
+    spawn.getValue().accept(orb);
+    verify(orb).setExperience(60);
+    verify(owner, never()).giveExp(anyInt());
+  }
+
+  @Test
+  void aRefusedGiftThatAlsoRetiresDropsTheReleasedEssenceOnlyOnce() {
+    onlineOwner();
+    platform.players.put(OWNER, owner);
+    when(owner.isOnline()).thenReturn(true);
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
+    handle.setEssence(60D);
+    platform.refuseRetiring = true;
+
+    assertThat(registry.release(handle)).isTrue();
+
+    verify(world, times(1)).spawn(any(Location.class), eq(ExperienceOrb.class), ArgumentMatchers.<Consumer<ExperienceOrb>>any());
+    verify(owner, never()).giveExp(anyInt());
+  }
+
+  @Test
+  void aGolemWithNoEssenceDropsNoExtraExperience() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
+
+    assertThat(registry.release(handle)).isTrue();
+
+    verify(world, never()).spawn(any(Location.class), eq(ExperienceOrb.class), ArgumentMatchers.<Consumer<ExperienceOrb>>any());
   }
 
   @Test
@@ -1213,5 +1293,10 @@ class GolemRegistryTest extends AdaptTestBase {
   private static GolemSettings withCaps(int perPlayer, int perChunk, int server) {
     GolemSettings defaults = GolemSettings.defaults();
     return new GolemSettings(true, false, server, perChunk, perPlayer, defaults.bodyScales(), defaults.bodyCarry(), defaults.allowedCores(), 0.5D, 0.5D);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static ArgumentCaptor<Consumer<ExperienceOrb>> consumerCaptor() {
+    return ArgumentCaptor.forClass((Class<Consumer<ExperienceOrb>>) (Class<?>) Consumer.class);
   }
 }

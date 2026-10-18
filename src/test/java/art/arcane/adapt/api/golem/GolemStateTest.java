@@ -42,6 +42,26 @@ class GolemStateTest {
   }
 
   @Test
+  void essenceCountsInWholeExperiencePoints() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.IRON, GolemCoreType.GATHERER, GolemState.Anchor.of(WORLD, 0, 64, 0)));
+
+    assertThat(state.essencePoints()).isZero();
+    state.setEssence(14.7D);
+    assertThat(state.essencePoints()).isEqualTo(14);
+    state.setEssence(1500D);
+    assertThat(state.essencePoints()).isEqualTo(1500);
+    state.setEssence(-3D);
+    assertThat(state.essencePoints()).isZero();
+    state.setEssence(Double.NaN);
+    assertThat(state.essencePoints()).isZero();
+    state.setEssence(1.0E12D);
+    assertThat(state.essencePoints()).isEqualTo(Integer.MAX_VALUE);
+    JsonObject stored = new Gson().fromJson(state.toJson(), JsonObject.class);
+    stored.addProperty("essence", -5.5D);
+    assertThat(GolemState.fromJson(stored.toString()).orElseThrow().essencePoints()).isZero();
+  }
+
+  @Test
   void companionCoresDefaultToFollow() {
     GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
 

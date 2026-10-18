@@ -44,6 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -56,6 +57,7 @@ public final class GolemGui {
   private static final int LEFT_EDGE = -4;
   private static final int RIGHT_EDGE = 4;
   private static final int CHANNELS_PER_ROW = 8;
+  private static final int ESSENCE_SLOT = 2;
 
   private final Player player;
   private final GolemHandle handle;
@@ -296,6 +298,13 @@ public final class GolemGui {
           .setProgress(1D)
           .onLeftClick(clicked -> toggleColossus()));
     }
+    if (GolemGuiActions.showsEssence(view.cores(), view.essence())) {
+      target.setElement(ESSENCE_SLOT, FOOTER_ROW, GuiTheme.element("golem-essence", Material.EXPERIENCE_BOTTLE, "gui", "golemancy", "essence")
+          .setName(C.GREEN + AdaptLanguage.text(GolemancyMessages.GATHERER_CORE_ESSENCE, trusted("value", view.essence())))
+          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GATHERER_CORE_ESSENCE_LORE))
+          .setProgress(1D)
+          .onLeftClick(clicked -> withdrawEssence()));
+    }
     target.setElement(RIGHT_EDGE, FOOTER_ROW, GuiTheme.element("golem-release", Material.SHEARS, "gui", "golemancy", "release")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.GUI_RELEASE))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RELEASE_LORE))
@@ -388,6 +397,31 @@ public final class GolemGui {
     });
   }
 
+  private void withdrawEssence() {
+    Mob golem = handle.entity();
+    boolean scheduled = J.runEntity(golem, () -> {
+      if (handle.isRetired() || !golem.isValid()) {
+        GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+        return;
+      }
+      int points = handle.state().essencePoints();
+      EssenceWithdrawal withdrawal = takeEssence(handle, player);
+      if (withdrawal == EssenceWithdrawal.REFUSED) {
+        GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+        return;
+      }
+      if (withdrawal == EssenceWithdrawal.EMPTY) {
+        GolemGuiSupport.warn(player, GolemancyMessages.GATHERER_CORE_ESSENCE_EMPTY);
+      } else {
+        GolemGuiSupport.notify(player, GolemancyMessages.GATHERER_CORE_ESSENCE_TAKEN, trusted("value", points));
+      }
+      snapshot();
+    });
+    if (!scheduled) {
+      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+    }
+  }
+
   private void handBack(ItemStack item) {
     GolemGuiItems.toPlayer(player, item, handle.entity().getLocation());
   }
@@ -467,6 +501,30 @@ public final class GolemGui {
     }
   }
 
+  static EssenceWithdrawal takeEssence(GolemHandle handle, Player player) {
+    int points = handle.state().essencePoints();
+    if (points <= 0) {
+      return EssenceWithdrawal.EMPTY;
+    }
+    handle.setEssence(handle.state().essence() - points);
+    AtomicBoolean settled = new AtomicBoolean();
+    Runnable restore = () -> {
+      if (settled.compareAndSet(false, true) && !handle.isRetired()) {
+        handle.setEssence(handle.state().essence() + points);
+      }
+    };
+    Runnable give = () -> {
+      if (settled.compareAndSet(false, true)) {
+        player.giveExp(points);
+      }
+    };
+    if (J.runEntity(player, give, () -> J.runEntity(handle.entity(), restore))) {
+      return EssenceWithdrawal.TAKEN;
+    }
+    restore.run();
+    return EssenceWithdrawal.REFUSED;
+  }
+
   private static String channelList(int mask) {
     List<TextKey> names = GolemGuiActions.channelNames(mask);
     List<String> texts = new ArrayList<>(names.size());
@@ -490,6 +548,12 @@ public final class GolemGui {
   private record Carried(String encoded, ItemStack item) {
   }
 
+  enum EssenceWithdrawal {
+    EMPTY,
+    TAKEN,
+    REFUSED
+  }
+
   private enum Page {
     MAIN,
     CHANNELS
@@ -498,7 +562,7 @@ public final class GolemGui {
   private record View(GolemBody body, double health, double maxHealth, boolean dormant, List<GolemCoreType> cores,
                       List<GolemRune> runes, GolemRuneLayout runeLayout, GolemMode mode, int channels, int channelSlots,
                       GolemState.Anchor home, GolemState.Anchor homeChest, List<Carried> carried, int carriedTotal, long kills, double damage,
-                      long tasks, long itemsMoved, boolean snowTrail, boolean colossus, boolean colossusAvailable) {
+                      long tasks, long itemsMoved, boolean snowTrail, boolean colossus, boolean colossusAvailable, int essence) {
     private static View of(GolemHandle handle) {
       GolemState state = handle.state();
       Mob golem = handle.entity();
@@ -507,7 +571,8 @@ public final class GolemGui {
       return new View(state.body(), golem.getHealth(), GolemVitals.maxHealth(golem), handle.isDormant(), state.cores(),
           state.runes(), GolemRunes.layout(state.body(), handle.owner()), state.mode(), runes.channels(state.channels()), runes.channelSlots(),
           state.home(), state.homeChest(), carried(handle), state.carried().size(), stats.kills(), stats.damage(), stats.tasks(),
-          stats.itemsMoved(), state.snowTrail(), state.colossus(), GolemColossus.form().map(form -> form.available(handle)).orElse(false));
+          stats.itemsMoved(), state.snowTrail(), state.colossus(), GolemColossus.form().map(form -> form.available(handle)).orElse(false),
+          state.essencePoints());
     }
 
     private static List<Carried> carried(GolemHandle handle) {

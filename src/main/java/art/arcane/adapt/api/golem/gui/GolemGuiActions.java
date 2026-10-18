@@ -154,6 +154,10 @@ public final class GolemGuiActions {
     return stored > CARRIED_SLOTS ? CARRIED_SLOTS - 1 : stored;
   }
 
+  public static boolean showsEssence(List<GolemCoreType> cores, int essencePoints) {
+    return cores.contains(GolemCoreType.GATHERER) || essencePoints > 0;
+  }
+
   public static int chunkCenterX(long chunkKey) {
     return (GolemRoster.chunkX(chunkKey) << 4) + 8;
   }

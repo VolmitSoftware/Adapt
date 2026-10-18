@@ -41,6 +41,7 @@ import org.bukkit.entity.AbstractSkeleton;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -482,6 +483,30 @@ public final class PaperCompat {
   public static boolean canPlayerPickup(Item item) {
     try {
       return item.canPlayerPickup();
+    } catch (NoSuchMethodError absent) {
+      return true;
+    }
+  }
+
+  public static int experienceOrbCount(ExperienceOrb orb) {
+    try {
+      return orb.getCount();
+    } catch (NoSuchMethodError absent) {
+      return 1;
+    }
+  }
+
+  public static void setExperienceOrbTotal(ExperienceOrb orb, int experience) {
+    try {
+      orb.setCount(1);
+    } catch (NoSuchMethodError ignored) {
+    }
+    orb.setExperience(experience);
+  }
+
+  public static boolean canMobPickup(Item item) {
+    try {
+      return item.canMobPickup();
     } catch (NoSuchMethodError absent) {
       return true;
     }
