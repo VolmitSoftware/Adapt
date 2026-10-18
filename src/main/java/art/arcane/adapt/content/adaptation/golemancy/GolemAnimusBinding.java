@@ -27,6 +27,7 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemRegistry;
+import art.arcane.adapt.api.golem.GolemRitualMarker;
 import art.arcane.adapt.api.golem.GolemScale;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItems;
@@ -56,6 +57,7 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -119,7 +121,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     }
     Optional<GolemCoreType> core = GolemItems.coreOf(player.getInventory().getItemInMainHand());
     Optional<GolemBody> body = GolemBody.of(golem);
-    if (core.isEmpty() || body.isEmpty()) {
+    if (core.isEmpty() || body.isEmpty() || body.get() == GolemBody.BONE) {
       return;
     }
     int level = getActiveLevel(player);
@@ -133,7 +135,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDamageEvent e) {
     BindingRitual ritual = ritualsByGolem.get(e.getEntity().getUniqueId());
-    if (ritual != null) {
+    if (ritual != null && AnimusBindingRules.interrupts(e.getCause(), e instanceof EntityDamageByEntityEvent)) {
       abort(ritual, true);
     }
   }
@@ -152,6 +154,11 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
       onGolemThread(ritual, () -> abort(ritual, false));
     }
     super.unregister();
+  }
+
+  @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    loadedConfig.ritualSecondsByLevel = AnimusBindingRules.clampRitualSeconds(loadedConfig.ritualSecondsByLevel);
   }
 
   static int golemCap(Config config, int level, int hardCap) {
@@ -199,11 +206,16 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     BindingRitual ritual = new BindingRitual(target, ticks, now);
     ritualsByOwner.put(owner.getUniqueId(), ritual);
     ritualsByGolem.put(golem.getUniqueId(), ritual);
+    GolemRitualMarker.start(golem, ritual.wasAware());
     golem.setAware(false);
     FxTimeline timeline = ritualTimeline(target, ticks);
     ritual.attach(timeline);
     timeline.start();
-    if (!J.runEntity(golem, () -> pulse(ritual), 1)) {
+    schedulePulse(ritual);
+  }
+
+  private void schedulePulse(BindingRitual ritual) {
+    if (!J.runEntity(ritual.target().golem(), () -> pulse(ritual), 1, () -> abort(ritual, true))) {
       abort(ritual, true);
     }
   }
@@ -212,20 +224,18 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     if (ritual.isFinished()) {
       return;
     }
-    BindingTarget target = ritual.target();
+    ritual.pulsed(System.currentTimeMillis());
     if (!holds(ritual)) {
       abort(ritual, true);
       return;
     }
     ritual.advance();
-    GolemScale.stepTo(target.golem(), ritual.progress());
+    GolemScale.stepTo(ritual.target().golem(), ritual.progress());
     if (ritual.complete()) {
       complete(ritual);
       return;
     }
-    if (!J.runEntity(target.golem(), () -> pulse(ritual), 1)) {
-      abort(ritual, true);
-    }
+    schedulePulse(ritual);
   }
 
   private boolean holds(BindingRitual ritual) {
@@ -247,27 +257,36 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     BindingTarget target = ritual.target();
     Mob golem = target.golem();
     Player owner = target.owner();
-    golem.setAware(ritual.wasAware());
     Optional<GolemRegistry> registry = GolemancyRuntime.registry();
     int level = getActiveLevel(owner);
     if (registry.isEmpty() || level <= 0 || !ritual.stillHeld()) {
-      unwind(golem);
+      fail(ritual);
       warn(owner, GolemancyMessages.BINDING_INTERRUPTED);
       return;
     }
     Assessment assessment = assess(target, level, registry.get());
     if (assessment.verdict() != BindingVerdict.READY) {
-      unwind(golem);
+      fail(ritual);
       deny(target, assessment);
       return;
     }
     if (!payTithe(owner, assessment.tithe())) {
-      unwind(golem);
+      fail(ritual);
       deny(target, assessment.withVerdict(BindingVerdict.NOT_ENOUGH_LEVELS));
       return;
     }
+    unwind(ritual);
+    GolemHandle handle;
+    try {
+      handle = registry.get().bind(owner, golem, target.body(), target.core());
+    } catch (RuntimeException failure) {
+      refundTithe(owner, assessment.tithe());
+      fizzle(golem);
+      warn(owner, GolemancyMessages.BINDING_INTERRUPTED);
+      Adapt.warn("Animus Binding could not bind golem " + golem.getUniqueId() + " for " + owner.getName() + "; the tithe was refunded.", failure);
+      return;
+    }
     decrementItemstack(owner.getInventory().getItemInMainHand(), owner);
-    GolemHandle handle = registry.get().bind(owner, golem, target.body(), target.core());
     fx(golem, FxPriority.TRANSITION)
         .burst(Particles.END_ROD, 24, 0.5D)
         .burst(bodyParticle(target.body()), 12, 0.4D)
@@ -283,11 +302,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     }
     forget(ritual);
     BindingTarget target = ritual.target();
-    Mob golem = target.golem();
-    if (golem.isValid()) {
-      golem.setAware(ritual.wasAware());
-      unwind(golem);
-    }
+    fail(ritual);
     if (announce && target.owner().isOnline()) {
       warn(target.owner(), GolemancyMessages.BINDING_INTERRUPTED);
     }
@@ -304,11 +319,14 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     if (existing == null) {
       return false;
     }
-    if (!existing.isFinished() && !existing.stale(now)) {
+    if (existing.isFinished()) {
+      forget(existing);
+      return false;
+    }
+    if (!existing.stale(now)) {
       return true;
     }
-    existing.finish();
-    forget(existing);
+    onGolemThread(existing, () -> abort(existing, false));
     return false;
   }
 
@@ -316,10 +334,15 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     Mob golem = ritual.target().golem();
     if (J.isOwnedByCurrentRegion(golem)) {
       task.run();
-    } else if (!J.runEntity(golem, task)) {
-      ritual.finish();
-      forget(ritual);
+    } else if (!J.runEntity(golem, task, () -> lose(ritual))) {
+      lose(ritual);
     }
+  }
+
+  private void lose(BindingRitual ritual) {
+    ritual.finish();
+    forget(ritual);
+    GolemRitualMarker.release(ritual.target().golem());
   }
 
   private Assessment assess(BindingTarget target, int level, GolemRegistry registry) {
@@ -348,6 +371,12 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
 
   private boolean payTithe(Player owner, int levels) {
     return levels <= 0 || payExperienceCost(owner, "tithe", levels, () -> spendLevels(owner, levels));
+  }
+
+  private static void refundTithe(Player owner, int levels) {
+    if (levels > 0) {
+      owner.giveExpLevels(levels);
+    }
   }
 
   private void deny(BindingTarget target, Assessment assessment) {
@@ -389,8 +418,22 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
         });
   }
 
-  private void unwind(Mob golem) {
-    GolemScale.restore(golem);
+  private void fail(BindingRitual ritual) {
+    if (unwind(ritual)) {
+      fizzle(ritual.target().golem());
+    }
+  }
+
+  private boolean unwind(BindingRitual ritual) {
+    Mob golem = ritual.target().golem();
+    if (!GolemRitualMarker.finish(golem) && golem.isValid()) {
+      golem.setAware(ritual.wasAware());
+      GolemScale.clearStep(golem);
+    }
+    return golem.isValid();
+  }
+
+  private void fizzle(Mob golem) {
     fx(golem, FxPriority.AMBIENT)
         .burst(Particles.SMOKE, 10, 0.4D)
         .sound(Sound.BLOCK_FIRE_EXTINGUISH, 0.4F, 1.6F);
@@ -431,7 +474,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Most golems you can own at once, by Animus Binding level from level 1 upward.", impact = "Higher values let players keep more golems; hardCapPerPlayer in the Golemancy skill config still caps every level.")
     List<Integer> golemCapByLevel = new ArrayList<>(List.of(1, 2, 3, 5, 7));
-    @ConfigDoc(value = "Seconds the binding ritual takes, by Animus Binding level from level 1 upward.", impact = "Lower values bind golems faster.")
+    @ConfigDoc(value = "Seconds the binding ritual takes, by Animus Binding level from level 1 upward. Each value is clamped to 0.5-30.", impact = "Lower values bind golems faster.")
     List<Double> ritualSecondsByLevel = new ArrayList<>(List.of(4.0, 3.5, 3.0, 2.5, 2.0));
     @ConfigDoc(value = "Experience levels it costs to bind a frost golem, by Animus Binding level from level 1 upward.", impact = "Higher values make frost golems cost more to bind; 0 binds them free.")
     List<Integer> titheSnowByLevel = new ArrayList<>(List.of(1, 1, 1, 1, 0));

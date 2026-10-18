@@ -219,7 +219,7 @@ public final class GolemRegistry extends TickedObject {
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntitiesLoadEvent e) {
     for (Entity entity : e.getEntities()) {
-      if (entity instanceof Mob mob && GolemState.has(mob)) {
+      if (entity instanceof Mob mob && adoptable(mob)) {
         adopt(mob);
       }
     }
@@ -311,7 +311,12 @@ public final class GolemRegistry extends TickedObject {
     return listeners;
   }
 
+  static boolean adoptable(Mob mob) {
+    return GolemState.has(mob) || GolemRitualMarker.has(mob);
+  }
+
   void adopt(Mob mob) {
+    GolemRitualMarker.recover(mob, platform.scaleOf(mob));
     if (handle(mob).isPresent()) {
       return;
     }

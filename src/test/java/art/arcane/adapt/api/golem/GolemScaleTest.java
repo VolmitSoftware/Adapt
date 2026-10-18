@@ -102,6 +102,31 @@ class GolemScaleTest {
     assertThat(added.getValue().getAmount()).isCloseTo(-0.5D, offset(1e-9));
   }
 
+  @Test
+  void ritualStepsUseATransientModifierUnderTheirOwnKeyAndLeaveTheBoundScaleAlone() {
+    List<AttributeModifier> modifiers = new ArrayList<>();
+    List<AttributeModifier> transientAdds = new ArrayList<>();
+    AttributeInstance instance = trackedInstance(modifiers);
+    doAnswer(invocation -> {
+      transientAdds.add(invocation.getArgument(0));
+      return modifiers.add(invocation.getArgument(0));
+    }).when(instance).addTransientModifier(any(AttributeModifier.class));
+    GolemScale.setModifier(instance, -0.5D);
+
+    GolemScale.setStepModifier(instance, -0.1D);
+    GolemScale.setStepModifier(instance, -0.25D);
+
+    assertThat(GolemScale.RITUAL_KEY.toString()).isEqualTo("adapt:golem_ritual_scale");
+    assertThat(modifiers).hasSize(2);
+    assertThat(transientAdds).hasSize(2).allMatch(modifier -> GolemScale.RITUAL_KEY.equals(modifier.getKey()));
+    AttributeModifier step = modifiers.stream().filter(modifier -> GolemScale.RITUAL_KEY.equals(modifier.getKey())).findFirst().orElseThrow();
+    assertThat(step.getAmount()).isCloseTo(-0.25D, offset(1e-9));
+
+    GolemScale.clearStepModifier(instance);
+
+    assertThat(modifiers).singleElement().satisfies(modifier -> assertThat(modifier.getKey()).isEqualTo(GolemScale.MODIFIER_KEY));
+  }
+
   private static AttributeInstance trackedInstance(List<AttributeModifier> modifiers) {
     AttributeInstance instance = mock(AttributeInstance.class);
     when(instance.getModifiers()).thenAnswer(invocation -> List.copyOf(modifiers));

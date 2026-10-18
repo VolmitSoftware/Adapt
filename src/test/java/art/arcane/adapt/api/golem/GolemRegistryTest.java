@@ -10,6 +10,7 @@ import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
@@ -21,6 +22,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.AfterEach;
@@ -852,6 +854,37 @@ class GolemRegistryTest extends AdaptTestBase {
     platform.now += GolemMissingWatch.GRACE_MILLIS;
     registry.onTick();
     assertThat(roster.golem(id).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+  }
+
+  @Test
+  void anUnboundGolemLoadedWithARitualMarkerGetsItsAwarenessAndSizeBack() {
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    golem.getPersistentDataContainer().set(GolemRitualMarker.KEY, PersistentDataType.BYTE, (byte) 1);
+    platform.scale(golem).add(new AttributeModifier(GolemScale.RITUAL_KEY, -0.3D, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY));
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+
+    verify(golem).setAware(true);
+    assertThat(platform.scale(golem)).isEmpty();
+    assertThat(GolemRitualMarker.has(golem)).isFalse();
+    assertThat(registry.handle(golem)).isEmpty();
+  }
+
+  @Test
+  void joinSweepsRecoverRitualMarkedGolemsInTheSweptChunks() {
+    GolemRoster roster = onlineOwner();
+    long chunk = GolemRoster.chunkKey(1, 1);
+    roster.add(new GolemRoster.Binding(UUID.randomUUID(), GolemBody.IRON, GolemCoreType.BLANK, WORLD, chunk, 0L));
+    IronGolem stranded = golem(new AtomicReference<>(at(20, 64, 20)));
+    stranded.getPersistentDataContainer().set(GolemRitualMarker.KEY, PersistentDataType.BYTE, (byte) 0);
+    platform.scale(stranded).add(new AttributeModifier(GolemScale.RITUAL_KEY, -0.3D, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY));
+    platform.loadChunk(WORLD, chunk, stranded);
+
+    registry.joinOnlineOwners();
+
+    verify(stranded).setAware(false);
+    assertThat(platform.scale(stranded)).isEmpty();
+    assertThat(GolemRitualMarker.has(stranded)).isFalse();
   }
 
   @Test

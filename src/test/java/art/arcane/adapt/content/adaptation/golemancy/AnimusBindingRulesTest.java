@@ -2,8 +2,10 @@ package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemRegistry;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.OptionalLong;
 import java.util.UUID;
@@ -58,6 +60,28 @@ class AnimusBindingRulesTest {
     assertThat(AnimusBindingRules.ritualTicks(List.of(0.0), 1)).isEqualTo(1);
     assertThat(AnimusBindingRules.ritualTicks(List.of(Double.NaN), 1)).isEqualTo(1);
     assertThat(AnimusBindingRules.ritualTicks(List.of(), 1)).isEqualTo(1);
+  }
+
+  @Test
+  void ritualSecondsAreClampedToHalfASecondThroughThirtySeconds() {
+    assertThat(AnimusBindingRules.clampRitualSeconds(Arrays.asList(4.0, 0.1, 99.0, null, Double.NaN, Double.POSITIVE_INFINITY, 1e300)))
+        .containsExactly(4.0, 0.5, 30.0, 0.5, 0.5, 30.0, 30.0);
+    assertThat(AnimusBindingRules.clampRitualSeconds(null)).isEmpty();
+  }
+
+  @Test
+  void onlyAttacksFireLavaAndExplosionsInterruptTheRitual() {
+    assertThat(AnimusBindingRules.interrupts(DamageCause.ENTITY_ATTACK, true)).isTrue();
+    assertThat(AnimusBindingRules.interrupts(DamageCause.PROJECTILE, true)).isTrue();
+    assertThat(AnimusBindingRules.interrupts(DamageCause.ENTITY_EXPLOSION, true)).isTrue();
+    assertThat(AnimusBindingRules.interrupts(DamageCause.BLOCK_EXPLOSION, false)).isTrue();
+    assertThat(AnimusBindingRules.interrupts(DamageCause.FIRE, false)).isTrue();
+    assertThat(AnimusBindingRules.interrupts(DamageCause.LAVA, false)).isTrue();
+    assertThat(AnimusBindingRules.interrupts(DamageCause.DROWNING, false)).isFalse();
+    assertThat(AnimusBindingRules.interrupts(DamageCause.MELTING, false)).isFalse();
+    assertThat(AnimusBindingRules.interrupts(DamageCause.FIRE_TICK, false)).isFalse();
+    assertThat(AnimusBindingRules.interrupts(DamageCause.FALL, false)).isFalse();
+    assertThat(AnimusBindingRules.interrupts(DamageCause.CONTACT, false)).isFalse();
   }
 
   @Test

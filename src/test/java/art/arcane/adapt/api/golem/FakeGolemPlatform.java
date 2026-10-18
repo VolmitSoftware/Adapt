@@ -144,7 +144,7 @@ final class FakeGolemPlatform implements GolemPlatform {
       return;
     }
     for (Mob mob : chunkMobs.getOrDefault(key, List.of())) {
-      if (GolemState.has(mob)) {
+      if (GolemRegistry.adoptable(mob)) {
         boundGolem.accept(mob);
       }
     }

@@ -2,12 +2,16 @@ package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemRegistry;
+import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.OptionalLong;
 import java.util.UUID;
 
 final class AnimusBindingRules {
+  static final double MIN_RITUAL_SECONDS = 0.5D;
+  static final double MAX_RITUAL_SECONDS = 30D;
   private static final int TICKS_PER_SECOND = 20;
 
   private AnimusBindingRules() {
@@ -32,6 +36,24 @@ final class AnimusBindingRules {
   static int ritualTicks(List<Double> secondsByLevel, int level) {
     double seconds = atLevel(secondsByLevel, level, 0D);
     return Double.isFinite(seconds) ? Math.max(1, (int) Math.round(seconds * TICKS_PER_SECOND)) : 1;
+  }
+
+  static List<Double> clampRitualSeconds(List<Double> secondsByLevel) {
+    List<Double> clamped = new ArrayList<>(secondsByLevel == null ? 0 : secondsByLevel.size());
+    if (secondsByLevel == null) {
+      return clamped;
+    }
+    for (Double seconds : secondsByLevel) {
+      clamped.add(seconds == null || seconds.isNaN() ? MIN_RITUAL_SECONDS : Math.max(MIN_RITUAL_SECONDS, Math.min(MAX_RITUAL_SECONDS, seconds)));
+    }
+    return clamped;
+  }
+
+  static boolean interrupts(DamageCause cause, boolean byEntity) {
+    return byEntity || switch (cause) {
+      case FIRE, LAVA, BLOCK_EXPLOSION, ENTITY_EXPLOSION -> true;
+      default -> false;
+    };
   }
 
   static boolean bodyUnlocked(GolemBody body, int copperFrameLevel, int ironFrameLevel) {

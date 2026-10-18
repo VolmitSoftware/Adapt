@@ -192,7 +192,7 @@ public final class GolemancyRuntime {
     }
     for (World world : Bukkit.getWorlds()) {
       for (Mob mob : world.getEntitiesByClass(Mob.class)) {
-        if (GolemState.has(mob)) {
+        if (GolemRegistry.adoptable(mob)) {
           target.adopt(mob);
         }
       }
@@ -283,7 +283,7 @@ public final class GolemancyRuntime {
           return;
         }
         for (Entity entity : world.getChunkAt(chunkX, chunkZ).getEntities()) {
-          if (entity instanceof Mob mob && GolemState.has(mob)) {
+          if (entity instanceof Mob mob && GolemRegistry.adoptable(mob)) {
             boundGolem.accept(mob);
           }
         }
