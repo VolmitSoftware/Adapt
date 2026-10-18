@@ -3,9 +3,13 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemActResult;
+import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemRuneEffects;
+import art.arcane.adapt.api.golem.GolemRuneLayout;
+import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTaskBoards;
@@ -192,6 +196,72 @@ class GuardNodeBehaviorTest {
 
     behavior.sweep(1_100L + GuardNodeBehavior.NODE_CACHE_MILLIS * 2L);
     assertThat(behavior.pending()).isFalse();
+  }
+
+  @Test
+  void aTideRuneWidensTheGuardNodeSearchAroundHome() {
+    World world = mock(World.class);
+    when(world.getUID()).thenReturn(WORLD);
+    NodeKey near = new NodeKey(WORLD, 20, 64, 0, BlockFace.UP);
+    NodeKey tideOnly = new NodeKey(WORLD, 28, 64, 0, BlockFace.UP);
+    NodeKey beyond = new NodeKey(WORLD, 36, 64, 0, BlockFace.UP);
+    Map<NodeKey, NodeRecord> nodes = new HashMap<>();
+    nodes.put(near, guard(OWNER).build());
+    nodes.put(tideOnly, guard(OWNER).build());
+    nodes.put(beyond, guard(OWNER).build());
+    NodeService service = service(nodes);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
+    runtime.when(GolemancyRuntime::workSettings).thenReturn(GolemWorkSettings.defaults());
+    Location home = new Location(world, 0.5D, 64D, 0.5D);
+
+    assertThat(behavior.nodesFor(golem(ChannelMask.NONE), world, home, 1_000L)).extracting(NodeIndex.Entry::key).containsExactly(near);
+    GolemRunes.Augments tide = runes(new GolemRuneEffects(8D, 0, 1D, 0D));
+    try {
+      assertThat(behavior.nodesFor(golem(ChannelMask.NONE), world, home, 1_000L)).extracting(NodeIndex.Entry::key)
+          .containsExactlyInAnyOrder(near, tideOnly);
+    } finally {
+      GolemRunes.unregister(tide);
+    }
+  }
+
+  @Test
+  void aGuardianGuardsOnlyTheChannelsItsRunesLetItUse() {
+    World world = mock(World.class);
+    when(world.getUID()).thenReturn(WORLD);
+    NodeKey white = new NodeKey(WORLD, 6, 64, 0, BlockFace.UP);
+    NodeKey red = new NodeKey(WORLD, 0, 64, 6, BlockFace.UP);
+    Map<NodeKey, NodeRecord> nodes = new HashMap<>();
+    nodes.put(white, guard(OWNER).channel(DyeColor.WHITE).build());
+    nodes.put(red, guard(OWNER).channel(DyeColor.RED).build());
+    NodeService service = service(nodes);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
+    runtime.when(GolemancyRuntime::workSettings).thenReturn(GolemWorkSettings.defaults());
+    Location home = new Location(world, 0.5D, 64D, 0.5D);
+    int both = ChannelMask.of(DyeColor.WHITE, DyeColor.RED);
+
+    assertThat(behavior.nodesFor(golem(both), world, home, 1_000L)).extracting(NodeIndex.Entry::key).containsExactly(white);
+    GolemRunes.Augments order = runes(new GolemRuneEffects(0D, 1, 1D, 0D));
+    try {
+      assertThat(behavior.nodesFor(golem(both), world, home, 1_000L)).extracting(NodeIndex.Entry::key).containsExactlyInAnyOrder(white, red);
+    } finally {
+      GolemRunes.unregister(order);
+    }
+  }
+
+  private static GolemRunes.Augments runes(GolemRuneEffects effects) {
+    GolemRunes.Augments fixed = new GolemRunes.Augments() {
+      @Override
+      public GolemRuneLayout layout(GolemBody body, UUID owner) {
+        return GolemRuneLayout.NONE;
+      }
+
+      @Override
+      public GolemRuneEffects effects(GolemHandle handle) {
+        return effects;
+      }
+    };
+    GolemRunes.register(fixed);
+    return fixed;
   }
 
   private static NodeService service(Map<NodeKey, NodeRecord> nodes) {

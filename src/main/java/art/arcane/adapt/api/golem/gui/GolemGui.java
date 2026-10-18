@@ -43,7 +43,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -342,9 +341,8 @@ public final class GolemGui {
     taken.setAmount(1);
     cursor.setAmount(cursor.getAmount() - 1);
     player.setItemOnCursor(cursor.getAmount() > 0 ? cursor : null);
-    boolean scheduled = J.runEntity(handle.entity(), () -> slot(rune, taken));
-    if (!scheduled) {
-      give(taken);
+    if (!GolemGuiItems.toGolem(handle.entity(), player, taken, () -> slot(rune, taken))) {
+      GolemGuiItems.give(player, taken);
       GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
     }
   }
@@ -397,10 +395,7 @@ public final class GolemGui {
   }
 
   private void handBack(ItemStack item) {
-    Mob golem = handle.entity();
-    if (!J.runEntity(player, () -> give(item))) {
-      golem.getWorld().dropItemNaturally(golem.getLocation(), item);
-    }
+    GolemGuiItems.toPlayer(player, item, handle.entity().getLocation());
   }
 
   private void toggleSnowTrail() {
@@ -442,14 +437,6 @@ public final class GolemGui {
     if (!scheduled) {
       GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
     }
-  }
-
-  private void give(ItemStack item) {
-    Map<Integer, ItemStack> leftovers = player.getInventory().addItem(item);
-    for (ItemStack leftover : leftovers.values()) {
-      player.getWorld().dropItemNaturally(player.getLocation(), leftover);
-    }
-    GolemancyRuntime.reveal().ifPresent(reveal -> reveal.requestUpdate(player));
   }
 
   private void confirmRelease() {

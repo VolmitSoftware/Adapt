@@ -293,7 +293,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
 
   @ConfigDescription("Golems bound with a Guardian Core defend their home, you or a Guard Node's area, and shield you as the core grows stronger.")
   protected static class Config extends AdaptationConfig {
-    @ConfigDoc(value = "Blocks around a Guardian's guard point within which it attacks hostile mobs, by Guardian Core level from level 1 upward. The guard point is you while the golem follows you, the spot where it was told to stay while it stays, and its home otherwise. Each value is clamped to 1 up to the skill's leashRadius.", impact = "Higher values let Guardians defend a wider area.")
+    @ConfigDoc(value = "Blocks around a Guardian's guard point within which it attacks hostile mobs, by Guardian Core level from level 1 upward. The guard point is you while the golem follows you, the spot where it was told to stay while it stays, and its home otherwise. Each value, plus the golem's Tide rune bonus, is clamped to 1 up to the skill's leashRadius.", impact = "Higher values let Guardians defend a wider area.")
     List<Integer> perceptionByLevel = new ArrayList<>(List.of(8, 12, 16, 20, 24));
     @ConfigDoc(value = "Lets Guardians attack creepers.", impact = "Turn on to have Guardians fight creepers, which can explode next to them.")
     boolean targetCreepers = false;

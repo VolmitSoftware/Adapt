@@ -5,6 +5,8 @@ import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemRuneEffects;
+import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTaskMatch;
@@ -102,12 +104,13 @@ final class GuardNodeBehavior implements NodeBehavior {
     if (service.isEmpty()) {
       return List.of();
     }
-    double radius = GolemancyRuntime.workSettings().baseWorkRadius();
+    GolemRuneEffects runes = GolemRunes.effects(golem);
+    double radius = GolemancyRuntime.workSettings().baseWorkRadius() + runes.radiusBonus();
     List<NodeIndex.Entry> near = service.get().index().near(world.getUID(), home.getX(), home.getY(), home.getZ(), radius);
     if (near.isEmpty()) {
       return List.of();
     }
-    int channels = state.channels();
+    int channels = runes.channels(state.channels());
     List<GolemCoreType> cores = state.cores();
     UUID owner = golem.owner();
     List<NodeIndex.Entry> found = new ArrayList<>(near.size());

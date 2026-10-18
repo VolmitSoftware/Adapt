@@ -390,7 +390,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     List<Boolean> emberFireImmuneByTier = new ArrayList<>(List.of(false, true, true));
     @ConfigDoc(value = "Whether an Ember rune of tier 1, 2 and 3 makes its golem immune to lava damage.", impact = "Set a tier to true to protect its golems from lava.")
     List<Boolean> emberLavaImmuneByTier = new ArrayList<>(List.of(false, false, true));
-    @ConfigDoc(value = "Blocks a Tide rune of tier 1, 2 and 3 adds to its golem's work radius and to how far it notices mobs.", impact = "Higher values let Tide golems work and notice mobs farther away.")
+    @ConfigDoc(value = "Blocks a Tide rune of tier 1, 2 and 3 adds to its golem's work radius, to the range in which a Companion or Guardian golem attacks mobs (up to the skill's leashRadius), and to its follow range.", impact = "Higher values let Tide golems work, guard and notice mobs farther away.")
     List<Double> tideRadiusByTier = new ArrayList<>(List.of(4.0, 8.0, 12.0));
     @ConfigDoc(value = "Whether a Tide rune of tier 1, 2 and 3 lets its golem breathe underwater.", impact = "Set a tier to true to protect its golems from drowning and water damage.")
     List<Boolean> tideWaterBreathingByTier = new ArrayList<>(List.of(false, true, true));

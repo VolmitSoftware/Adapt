@@ -12,8 +12,6 @@ import java.util.UUID;
 final class CompanionTargetPolicy implements GolemTargetPolicy {
   static final double RANGE = 12D;
 
-  private static final double RANGE_SQUARED = RANGE * RANGE;
-
   @Override
   public LivingEntity select(GolemHandle golem, Player owner) {
     if (owner == null) {
@@ -23,9 +21,10 @@ final class CompanionTargetPolicy implements GolemTargetPolicy {
     Location center = body.getLocation();
     UUID ownerId = owner.getUniqueId();
     UUID golemId = body.getUniqueId();
+    double range = range(golem);
     Mob nearest = null;
-    double nearestDistance = RANGE_SQUARED;
-    for (Mob candidate : PaperCompat.nearbyEntitiesByType(Mob.class, center, RANGE)) {
+    double nearestDistance = range * range;
+    for (Mob candidate : PaperCompat.nearbyEntitiesByType(Mob.class, center, range)) {
       if (candidate == body || !threatens(targetOf(candidate), ownerId, golemId)) {
         continue;
       }
@@ -46,13 +45,22 @@ final class CompanionTargetPolicy implements GolemTargetPolicy {
     Mob body = golem.entity();
     Location center = body.getLocation();
     Location at = mob.getLocation();
+    double range = range(golem);
     return Objects.equals(center.getWorld(), at.getWorld())
-        && at.distanceSquared(center) <= RANGE_SQUARED
+        && at.distanceSquared(center) <= range * range
         && threatens(targetOf(mob), owner.getUniqueId(), body.getUniqueId());
+  }
+
+  static double range(double radiusBonus, double leashRadius) {
+    return Math.min(RANGE + radiusBonus, leashRadius);
   }
 
   static boolean threatens(UUID targetId, UUID ownerId, UUID golemId) {
     return targetId != null && (targetId.equals(ownerId) || targetId.equals(golemId));
+  }
+
+  private static double range(GolemHandle golem) {
+    return range(GolemRunes.effects(golem).radiusBonus(), GolemancyRuntime.brainSettings().leashRadius());
   }
 
   private static UUID targetOf(Mob mob) {
