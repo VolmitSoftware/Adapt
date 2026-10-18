@@ -46,6 +46,7 @@ public final class GolemancyFixtures {
     private static final String NODE_STAGE = "golemancy-node";
     private static final String PLINTH_STAGE = "golemancy-plinth";
     private static final String MENDING_STAGE = "golemancy-mending";
+    private static final String STASIS_STAGE = "golemancy-stasis";
     private static final String GOLEM_TAG = "adapt-qa-golemancy-golem";
     private static final String COPPER_GOLEM_TAG = "adapt-qa-golemancy-copper-golem";
     private static final String IRON_GOLEM_TAG = "adapt-qa-golemancy-iron-golem";
@@ -180,6 +181,16 @@ public final class GolemancyFixtures {
             golem.setHealth(MENDING_START_HEALTH);
             return true;
         }
+        if (STASIS_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.getInventory().clear();
+            actor.getInventory().setItem(0, GolemItems.crook());
+            actor.getInventory().setHeldItemSlot(0);
+            Snowman golem = world.spawn(new Location(world, 2.5, 100, 0.5), Snowman.class);
+            golem.addScoreboardTag(GOLEM_TAG);
+            GolemancyRuntime.registry().orElseThrow().bind(actor, golem, GolemBody.FROST, GolemCoreType.BLANK);
+            return true;
+        }
         if (NODE_STAGE.equals(name)) {
             opponent.teleport(new Location(world, 0.5, 100, 8.5));
             clearNodes(world, actor);
@@ -220,7 +231,18 @@ public final class GolemancyFixtures {
         }
         result.add("node", node(player));
         result.add("plinth", plinth(player));
+        result.addProperty("dormantGolems", dormantGolems(player));
         return result;
+    }
+
+    private static int dormantGolems(Player player) {
+        int dormant = 0;
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && GolemItems.kindOf(item).orElse(null) == GolemItemKind.DORMANT_GOLEM) {
+                dormant += item.getAmount();
+            }
+        }
+        return dormant;
     }
 
     private static void clearNodes(World world, Player actor) {

@@ -78,6 +78,7 @@ import art.arcane.adapt.content.adaptation.golemancy.GolemOverseer;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRancherCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRunicAugments;
 import art.arcane.adapt.content.adaptation.golemancy.GolemSorterCore;
+import art.arcane.adapt.content.adaptation.golemancy.GolemStasis;
 import art.arcane.adapt.content.skill.golemancy.CopperCare;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
@@ -172,6 +173,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerAdaptation(new GolemRunicAugments());
     registerAdaptation(new GolemOverseer());
     registerAdaptation(new GolemMending());
+    registerAdaptation(new GolemStasis());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CARVED_PUMPKIN)
         .key("challenge_golemancy_built_10")

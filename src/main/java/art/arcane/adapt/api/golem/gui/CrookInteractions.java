@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem.gui;
 
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemPacking;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
@@ -40,12 +41,19 @@ public final class CrookInteractions implements Listener {
     }
     Optional<GolemHandle> handle = GolemancyRuntime.handle(e.getRightClicked());
     boolean ownGolem = handle.isPresent() && handle.get().owner().equals(player.getUniqueId());
-    if (CrookGestures.onEntity(ownGolem) != CrookGestures.Action.GOLEM_GUI) {
+    boolean sneaking = player.isSneaking();
+    CrookGestures.Action action = CrookGestures.onEntity(ownGolem, sneaking, ownGolem && sneaking && GolemPacking.packs(player));
+    if (action == CrookGestures.Action.NONE) {
       return;
     }
     e.setCancelled(true);
     gestures.entityClicked(player.getUniqueId(), System.currentTimeMillis());
-    if (e.getHand() == EquipmentSlot.HAND) {
+    if (e.getHand() != EquipmentSlot.HAND) {
+      return;
+    }
+    if (action == CrookGestures.Action.PACK) {
+      GolemPacking.packer().ifPresent(packer -> packer.pack(player, handle.get()));
+    } else {
       GolemGui.open(player, handle.get(), gestures);
     }
   }
@@ -86,7 +94,7 @@ public final class CrookInteractions implements Listener {
     switch (action) {
       case SEND_SIGNAL -> Overseer.commander().ifPresent(commander -> commander.send(player));
       case CYCLE_SIGNAL -> Overseer.commander().ifPresent(commander -> commander.cycle(player));
-      case NONE, GOLEM_GUI, ROSTER_GUI, LINK_CHEST -> {
+      case NONE, GOLEM_GUI, PACK, ROSTER_GUI, LINK_CHEST -> {
       }
     }
   }

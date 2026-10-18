@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.golem.item;
 
+import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
@@ -151,6 +152,15 @@ public final class GolemItems {
       throw new IllegalArgumentException("Copper oxidation stage must be 0 to 3, found " + oxidationStage);
     }
     return waxed ? WAXED_COPPER_BLOCKS.get(oxidationStage) : COPPER_BLOCKS.get(oxidationStage);
+  }
+
+  public static Material dormantBlock(GolemBody body, int copperStage, boolean waxed) {
+    return switch (body) {
+      case FROST -> Material.SNOW_BLOCK;
+      case COPPER -> copperBlock(Math.max(0, Math.min(COPPER_BLOCKS.size() - 1, copperStage)), waxed);
+      case IRON -> Material.IRON_BLOCK;
+      case BONE -> throw new IllegalArgumentException("Bone golems have no Dormant Golem block");
+    };
   }
 
   public static boolean isDormantBlock(Material material) {

@@ -324,7 +324,6 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
     PackedGolem item = GolemItems.packedGolemOf(held).orElse(null);
     GolemSnapshot snapshot = item == null ? null : GolemSnapshot.fromJson(item.state())
         .filter(read -> read.id().equals(item.golemId()) && read.owner().equals(item.owner()))
-        .map(GolemSnapshot::withoutCargo)
         .orElse(null);
     Rebuild rebuild = new Rebuild(player, golem, item, snapshot, GolemancyRuntime.registry().orElse(null), getActiveLevel(player));
     RebuildVerdict verdict = MendingRules.rebuildVerdict(assess(rebuild));
@@ -361,7 +360,7 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
     GolemSnapshot snapshot = rebuild.snapshot();
     Optional<GolemHandle> handle;
     try {
-      handle = rebuild.registry().restore(player, golem, new GolemRegistry.Restore(rebuild.item(), snapshot, GolemRoster.Status.SHATTERED));
+      handle = rebuild.registry().restore(player, golem, new GolemRegistry.Restore(rebuild.item(), GolemRoster.Status.SHATTERED));
     } catch (RuntimeException failure) {
       Adapt.warn("Golem Mending could not rebuild golem " + snapshot.id() + " for " + player.getName() + "; its Shattered Core was kept.", failure);
       warn(player, GolemancyMessages.BINDING_INTERRUPTED);

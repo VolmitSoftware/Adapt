@@ -100,6 +100,23 @@ async function mendGolem(input) {
     return (await snapshot()).golemancy.golem
 }
 
+async function packGolem(input) {
+    const { actor, snapshot } = input
+    const golem = await visibleGolem(input, 'golem', 'bound snow golem')
+    actor.bot.setControlState('sneak', true)
+    try {
+        await actor.bot.waitForTicks(4)
+        await actor.bot.lookAt(golem.position.offset(0, 0.5, 0), true)
+        actor.bot.activateEntity(golem)
+        await actor.bot.waitForTicks(10)
+    } finally {
+        actor.bot.setControlState('sneak', false)
+    }
+    if (actor.bot.currentWindow) actor.bot.closeWindow(actor.bot.currentWindow)
+    const state = (await snapshot()).golemancy
+    return { golem: state.golem ?? null, dormantGolems: state.dormantGolems }
+}
+
 export const golemancyBehaviorCases = new Map([
     ['golem-animus-binding', {
         stage: 'golemancy-binding', trigger: bind,
@@ -353,6 +370,22 @@ export const golemancyBehaviorCases = new Map([
             context.expect(active.health >= 6 - 0.0001 && active.health <= 7 + 0.0001, 'Golem Mending level 5 heals 2 health doubled by the level bonus')
             return {
                 assertions: ['unlearned snow block click leaves the bound golem at 2 health', 'learned snow block click heals the bound golem by 4 health'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
+    ['golem-stasis', {
+        stage: 'golemancy-stasis', trigger: packGolem, prerequisites: [{ name: 'golem-animus-binding', level: 2 }],
+        prepare: ({ equip }) => equip('iron_hoe'),
+        description: 'sneak-right-clicking your bound snow golem with the Crook packs it into a Dormant Golem in your inventory',
+        sound: 'minecraft:block.respawn_anchor.deplete', soundVolume: 0.8, soundPitch: 1.4, particle: 'reverse_portal',
+        async verify({ context, unlearned, active }) {
+            context.expect(Boolean(unlearned.golem?.bound && unlearned.golem.boundToPlayer), 'Without Stasis the bound snow golem stays in the world')
+            context.expect(unlearned.dormantGolems === 0, 'Without Stasis no Dormant Golem is handed out')
+            context.expect(!active.golem, 'With Stasis the bound snow golem leaves the world')
+            context.expect(active.dormantGolems === 1, 'With Stasis the player receives one Dormant Golem')
+            return {
+                assertions: ['unlearned Crook sneak-click leaves the bound golem in the world', 'learned Crook sneak-click packs the golem into one Dormant Golem'],
                 measurements: { unlearned, active },
             }
         },

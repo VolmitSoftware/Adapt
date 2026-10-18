@@ -12,8 +12,11 @@ public final class CrookGestures<T> {
   private final Map<UUID, Link<T>> links = new ConcurrentHashMap<>();
   private final Map<UUID, Long> entityClicks = new ConcurrentHashMap<>();
 
-  public static Action onEntity(boolean ownGolem) {
-    return ownGolem ? Action.GOLEM_GUI : Action.NONE;
+  public static Action onEntity(boolean ownGolem, boolean sneaking, boolean packs) {
+    if (!ownGolem) {
+      return Action.NONE;
+    }
+    return sneaking && packs ? Action.PACK : Action.GOLEM_GUI;
   }
 
   public static Action onAir(boolean sneaking, boolean entityClickEcho) {
@@ -68,6 +71,7 @@ public final class CrookGestures<T> {
   public enum Action {
     NONE,
     GOLEM_GUI,
+    PACK,
     ROSTER_GUI,
     LINK_CHEST,
     SEND_SIGNAL,

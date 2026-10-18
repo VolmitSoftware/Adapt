@@ -56,6 +56,8 @@ interface GolemPlatform {
 
   void dropOwnerBound(Location at, ItemStack item, UUID owner);
 
+  <T extends Mob> T spawn(Location at, Class<T> type, Consumer<? super T> prepare);
+
   long nowMillis();
 
   List<NodeIndex.Entry> nodesNear(UUID world, double x, double y, double z, double range);

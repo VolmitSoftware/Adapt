@@ -156,17 +156,27 @@ class GolemGuiActionsTest {
   }
 
   @Test
-  void missingAndShatteredEntriesCanBeReleasedFromTheRoster() {
+  void missingShatteredAndPackedEntriesCanBeReleasedFromTheRoster() {
     assertThat(GolemGuiActions.releasableFromRoster(GolemRoster.Status.MISSING)).isTrue();
     assertThat(GolemGuiActions.releasableFromRoster(GolemRoster.Status.SHATTERED)).isTrue();
+    assertThat(GolemGuiActions.releasableFromRoster(GolemRoster.Status.PACKED)).isTrue();
     assertThat(GolemGuiActions.releasableFromRoster(GolemRoster.Status.ACTIVE)).isFalse();
-    assertThat(GolemGuiActions.releasableFromRoster(GolemRoster.Status.PACKED)).isFalse();
   }
 
   @Test
-  void releasingAShatteredEntryWarnsThatItsCoreCrumbles() {
+  void releasingAShatteredOrPackedEntryWarnsThatItsItemCrumbles() {
     assertThat(GolemGuiActions.releaseConfirm(GolemRoster.Status.SHATTERED)).isEqualTo(GolemancyMessages.ROSTER_RELEASE_SHATTERED_CONFIRM);
+    assertThat(GolemGuiActions.releaseConfirm(GolemRoster.Status.PACKED)).isEqualTo(GolemancyMessages.ROSTER_RELEASE_PACKED_CONFIRM);
     assertThat(GolemGuiActions.releaseConfirm(GolemRoster.Status.MISSING)).isEqualTo(GolemancyMessages.ROSTER_RELEASE_CONFIRM);
+  }
+
+  @Test
+  void onlyLoadedActiveGolemsInTheOwnersWorldCanBeRecalled() {
+    assertThat(GolemGuiActions.recallable(GolemRoster.Status.ACTIVE, true, true)).isTrue();
+    assertThat(GolemGuiActions.recallable(GolemRoster.Status.ACTIVE, false, true)).isFalse();
+    assertThat(GolemGuiActions.recallable(GolemRoster.Status.ACTIVE, true, false)).isFalse();
+    assertThat(GolemGuiActions.recallable(GolemRoster.Status.PACKED, true, true)).isFalse();
+    assertThat(GolemGuiActions.recallable(GolemRoster.Status.MISSING, true, true)).isFalse();
   }
 
   @Test

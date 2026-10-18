@@ -51,6 +51,11 @@ final class FakeGolemPlatform implements GolemPlatform {
   final Set<UUID> waxedGolems = new HashSet<>();
   final List<OwnerBoundDrop> ownerBoundDrops = new ArrayList<>();
   final List<Double> heals = new ArrayList<>();
+  final List<Mob> spawns = new ArrayList<>();
+  final List<Location> spawnedAt = new ArrayList<>();
+  final List<Class<?>> spawnedTypes = new ArrayList<>();
+  Consumer<Mob> spawnListener = spawned -> {
+  };
   Consumer<UUID> rosterListener = owner -> {
   };
   Runnable dropListener = () -> {
@@ -251,6 +256,19 @@ final class FakeGolemPlatform implements GolemPlatform {
   public void dropOwnerBound(Location at, ItemStack item, UUID owner) {
     dropListener.run();
     ownerBoundDrops.add(new OwnerBoundDrop(at.clone(), item, owner));
+  }
+
+  @Override
+  public <T extends Mob> T spawn(Location at, Class<T> type, Consumer<? super T> prepare) {
+    if (spawns.isEmpty()) {
+      throw new IllegalStateException("No body queued to spawn at " + at);
+    }
+    T spawned = type.cast(spawns.removeFirst());
+    spawnedAt.add(at.clone());
+    spawnedTypes.add(type);
+    spawnListener.accept(spawned);
+    prepare.accept(spawned);
+    return spawned;
   }
 
   @Override

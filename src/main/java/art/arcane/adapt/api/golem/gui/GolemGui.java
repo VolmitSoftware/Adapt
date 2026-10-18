@@ -7,6 +7,7 @@ import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMode;
+import art.arcane.adapt.api.golem.GolemPacking;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneEffects;
@@ -305,6 +306,13 @@ public final class GolemGui {
           .setProgress(1D)
           .onLeftClick(clicked -> withdrawEssence()));
     }
+    if (GolemPacking.packs(player)) {
+      target.setElement(RIGHT_EDGE - 1, FOOTER_ROW, GuiTheme.element("golem-pack", GolemGuiActions.bodyIcon(view.body()), "gui", "golemancy", "pack")
+          .setName(C.AQUA + AdaptLanguage.text(GolemancyMessages.GUI_PACK))
+          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_PACK_LORE))
+          .setProgress(1D)
+          .onLeftClick(clicked -> pack()));
+    }
     target.setElement(RIGHT_EDGE, FOOTER_ROW, GuiTheme.element("golem-release", Material.SHEARS, "gui", "golemancy", "release")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.GUI_RELEASE))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RELEASE_LORE))
@@ -458,6 +466,11 @@ public final class GolemGui {
       handBack(entry.item().clone());
       snapshot();
     });
+  }
+
+  private void pack() {
+    window.close();
+    GolemPacking.packer().ifPresent(packer -> packer.pack(player, handle));
   }
 
   private void confirmRelease() {

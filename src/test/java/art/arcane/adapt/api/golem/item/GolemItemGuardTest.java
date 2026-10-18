@@ -210,12 +210,27 @@ class GolemItemGuardTest {
   }
 
   @Test
-  void golemItemsNeverPlaceAsBlocks() {
+  void golemItemsNeverPlaceAsBlocksButDormantGolemsReachTheirPlacementListener() {
     BlockPlaceEvent dormant = place(GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", null));
+    BlockPlaceEvent node = place(GolemItemStacks.tagged(Material.BRICK, "node", null));
     BlockPlaceEvent plain = place(GolemItemStacks.plain(Material.IRON_BLOCK));
 
     guard.on(dormant);
+    guard.on(node);
     guard.on(plain);
+
+    assertThat(dormant.isCancelled()).isFalse();
+    assertThat(node.isCancelled()).isTrue();
+    assertThat(plain.isCancelled()).isFalse();
+  }
+
+  @Test
+  void theMonitorSafetyNetCancelsADormantGolemPlacementNothingElseCancelled() {
+    BlockPlaceEvent dormant = place(GolemItemStacks.tagged(Material.WAXED_EXPOSED_COPPER, "dormant_golem", null));
+    BlockPlaceEvent plain = place(GolemItemStacks.plain(Material.SNOW_BLOCK));
+
+    guard.placed(dormant);
+    guard.placed(plain);
 
     assertThat(dormant.isCancelled()).isTrue();
     assertThat(plain.isCancelled()).isFalse();
@@ -344,6 +359,18 @@ class GolemItemGuardTest {
     assertThat(dormant.isCancelled()).isTrue();
     assertThat(core.isCancelled()).isFalse();
     assertThat(plain.isCancelled()).isFalse();
+  }
+
+  @Test
+  void hopperPickupsOfOtherMaterialsNeverReadItemMeta() {
+    ItemStack dirt = GolemItemStacks.plain(Material.DIRT);
+    InventoryPickupItemEvent pickup = hopperPickup(dirt);
+
+    guard.on(pickup);
+
+    assertThat(pickup.isCancelled()).isFalse();
+    verify(dirt, never()).hasItemMeta();
+    verify(dirt, never()).getItemMeta();
   }
 
   private static InventoryPickupItemEvent hopperPickup(ItemStack stack) {

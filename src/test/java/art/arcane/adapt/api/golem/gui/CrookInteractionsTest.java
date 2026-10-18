@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem.gui;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemPacking;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -280,6 +282,50 @@ class CrookInteractionsTest extends AdaptTestBase {
     CrookGestures<GolemHandle> gestures = openedGestures.get();
     assertThat(gestures).isNotNull();
     gestures.armLink(OWNER, handle, System.currentTimeMillis());
+  }
+
+  @Test
+  void sneakRightClickingYourGolemWithStasisPacksItInsteadOfOpeningTheGui() {
+    GolemPacking.Packer packer = mock(GolemPacking.Packer.class);
+    when(packer.packs(player)).thenReturn(true);
+    GolemPacking.register(packer);
+    try {
+      when(player.isSneaking()).thenReturn(true);
+      PlayerInteractEntityEvent main = new PlayerInteractEntityEvent(player, golem, EquipmentSlot.HAND);
+      PlayerInteractEntityEvent off = new PlayerInteractEntityEvent(player, golem, EquipmentSlot.OFF_HAND);
+
+      interactions.on(main);
+      interactions.on(off);
+
+      assertThat(main.isCancelled()).isTrue();
+      assertThat(off.isCancelled()).isTrue();
+      verify(packer).pack(player, handle);
+      golemGui.verify(() -> GolemGui.open(any(), any(), any()), never());
+    } finally {
+      GolemPacking.unregister(packer);
+    }
+  }
+
+  @Test
+  void withoutStasisOrWithoutSneakingTheCrookOpensTheGolemGui() {
+    GolemPacking.Packer packer = mock(GolemPacking.Packer.class);
+    when(packer.packs(player)).thenReturn(false);
+    GolemPacking.register(packer);
+    try {
+      when(player.isSneaking()).thenReturn(true);
+      interactions.on(new PlayerInteractEntityEvent(player, golem, EquipmentSlot.HAND));
+      when(player.isSneaking()).thenReturn(false);
+      when(packer.packs(player)).thenReturn(true);
+      interactions.on(new PlayerInteractEntityEvent(player, golem, EquipmentSlot.HAND));
+
+      verify(packer, never()).pack(any(), any());
+      golemGui.verify(() -> GolemGui.open(eq(player), eq(handle), any()), times(2));
+    } finally {
+      GolemPacking.unregister(packer);
+    }
+    when(player.isSneaking()).thenReturn(true);
+    interactions.on(new PlayerInteractEntityEvent(player, golem, EquipmentSlot.HAND));
+    golemGui.verify(() -> GolemGui.open(eq(player), eq(handle), any()), times(3));
   }
 
   @Test

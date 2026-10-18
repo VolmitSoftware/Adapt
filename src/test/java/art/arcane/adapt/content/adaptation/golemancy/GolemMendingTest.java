@@ -46,7 +46,6 @@ import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.MockedStatic;
 
@@ -368,7 +367,7 @@ class GolemMendingTest extends AdaptTestBase {
 
     assertThat(rebuild.click.isCancelled()).isTrue();
     InOrder order = inOrder(rebuild.registry, inventory, player);
-    order.verify(rebuild.registry).restore(player, rebuild.golem, new GolemRegistry.Restore(rebuild.item, rebuild.snapshot, GolemRoster.Status.SHATTERED));
+    order.verify(rebuild.registry).restore(player, rebuild.golem, new GolemRegistry.Restore(rebuild.item, GolemRoster.Status.SHATTERED));
     order.verify(inventory).setItemInMainHand(null);
     order.verify(player).saveData();
     verify(rebuild.handle).restoreFullHealth();
@@ -463,28 +462,6 @@ class GolemMendingTest extends AdaptTestBase {
     verify(rebuild.registry, never()).restore(any(), any(), any());
     verify(inventory).setItemInMainHand(null);
     verify(rebuild.adaptation).crumbleFx(player);
-  }
-
-  @Test
-  void aCoreCarryingCargoRebuildsWithoutIt() {
-    Rebuild rebuild = rebuild(5);
-    GolemSnapshot base = rebuild.snapshot;
-    GolemSnapshot laden = new GolemSnapshot(base.id(), base.owner(), base.body(), base.cores(), base.runes(), base.channels(), base.mode(),
-        base.home(), base.homeChest(), base.customName(), base.stats(), base.masterwork(), base.snowTrail(), 500D, List.of("stack"), base.health(),
-        base.maxHealthMark(), base.copperStage(), base.waxed(), base.takenAt());
-    PackedGolem ladenItem = new PackedGolem(base.id(), player.getUniqueId(), laden.toJson());
-    ItemStack core = rebuild.core;
-    items.when(() -> GolemItems.packedGolemOf(core)).thenReturn(Optional.of(ladenItem));
-    rebuild.roster.unstow(rebuild.snapshot.id(), GolemRoster.Status.SHATTERED, rebuild.item.state());
-    rebuild.roster.stow(rebuild.snapshot.id(), GolemRoster.Status.SHATTERED, ladenItem.state());
-    ArgumentCaptor<GolemRegistry.Restore> request = ArgumentCaptor.forClass(GolemRegistry.Restore.class);
-
-    rebuild.adaptation.on(rebuild.click);
-
-    verify(rebuild.registry).restore(eq(player), eq(rebuild.golem), request.capture());
-    assertThat(request.getValue().item()).isEqualTo(ladenItem);
-    assertThat(request.getValue().snapshot().carried()).isEmpty();
-    assertThat(request.getValue().snapshot().essence()).isZero();
   }
 
   @Test

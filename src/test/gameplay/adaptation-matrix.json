@@ -3674,6 +3674,37 @@
       "feedbackPresets": []
     },
     {
+      "skill": "golemancy",
+      "name": "golem-stasis",
+      "class": "GolemStasis",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemStasis.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageEvent",
+        "PlayerQuitEvent"
+      ],
+      "expectation": "Pack your bound golems into Dormant Golem blocks with the Crook and place the block to wake them anywhere, with their cores, runes, cargo and health intact.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemStasis.java",
+      "sounds": [
+        "BLOCK_AMETHYST_BLOCK_RESONATE",
+        "BLOCK_BEACON_ACTIVATE",
+        "BLOCK_FIRE_EXTINGUISH",
+        "BLOCK_RESPAWN_ANCHOR_CHARGE",
+        "BLOCK_RESPAWN_ANCHOR_DEPLETE"
+      ],
+      "particles": [
+        "ASH",
+        "END_ROD",
+        "REVERSE_PORTAL",
+        "SMOKE",
+        "SNOWFLAKE",
+        "WAX_ON"
+      ],
+      "feedbackPresets": []
+    },
+    {
       "skill": "herbalism",
       "name": "herbalism-bee-shepherd",
       "class": "HerbalismBeeShepherd",

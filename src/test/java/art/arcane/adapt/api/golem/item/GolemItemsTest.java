@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem.item;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
@@ -199,6 +200,16 @@ class GolemItemsTest extends AdaptTestBase {
     assertThat(GolemItems.copperBlock(2, true)).isEqualTo(Material.WAXED_WEATHERED_COPPER);
     assertThat(GolemItems.copperBlock(3, true)).isEqualTo(Material.WAXED_OXIDIZED_COPPER);
     assertThatThrownBy(() -> GolemItems.copperBlock(4, false)).isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void dormantBlocksFollowTheBodyAndTheCopperStage() {
+    assertThat(GolemItems.dormantBlock(GolemBody.FROST, 2, true)).isEqualTo(Material.SNOW_BLOCK);
+    assertThat(GolemItems.dormantBlock(GolemBody.IRON, 0, false)).isEqualTo(Material.IRON_BLOCK);
+    assertThat(GolemItems.dormantBlock(GolemBody.COPPER, 0, false)).isEqualTo(Material.COPPER_BLOCK);
+    assertThat(GolemItems.dormantBlock(GolemBody.COPPER, 2, true)).isEqualTo(Material.WAXED_WEATHERED_COPPER);
+    assertThat(GolemItems.dormantBlock(GolemBody.COPPER, 9, false)).isEqualTo(Material.OXIDIZED_COPPER);
+    assertThatThrownBy(() -> GolemItems.dormantBlock(GolemBody.BONE, 0, false)).isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test

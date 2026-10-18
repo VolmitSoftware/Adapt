@@ -1431,5 +1431,121 @@
       "sound": "minecraft:entity.copper_golem.item_drop"
     },
     "maxTicks": 720
+  },
+  "golem-stasis": {
+    "set": "taming-field",
+    "level": 3,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_core\"}}]",
+      "item replace entity {actor} hotbar.1 with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]",
+      "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 25
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 60
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.enchantment_table.use",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 20
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.respawn_anchor.deplete",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 55,
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.respawn_anchor.charge",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.respawn_anchor.charge",
+      "particle": "end_rod"
+    },
+    "maxTicks": 400
   }
 }

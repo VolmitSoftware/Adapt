@@ -11,9 +11,13 @@ class CrookGesturesTest {
   private static final UUID OTHER = UUID.fromString("00000000-0000-0000-0000-0000000000a2");
 
   @Test
-  void ownGolemsOpenTheGolemGuiWithOrWithoutSneakAndOthersGetNothing() {
-    assertThat(CrookGestures.onEntity(true)).isEqualTo(CrookGestures.Action.GOLEM_GUI);
-    assertThat(CrookGestures.onEntity(false)).isEqualTo(CrookGestures.Action.NONE);
+  void ownGolemsOpenTheGolemGuiUnlessASneakingStasisOwnerPacksThem() {
+    assertThat(CrookGestures.onEntity(true, false, false)).isEqualTo(CrookGestures.Action.GOLEM_GUI);
+    assertThat(CrookGestures.onEntity(true, true, false)).isEqualTo(CrookGestures.Action.GOLEM_GUI);
+    assertThat(CrookGestures.onEntity(true, false, true)).isEqualTo(CrookGestures.Action.GOLEM_GUI);
+    assertThat(CrookGestures.onEntity(true, true, true)).isEqualTo(CrookGestures.Action.PACK);
+    assertThat(CrookGestures.onEntity(false, true, true)).isEqualTo(CrookGestures.Action.NONE);
+    assertThat(CrookGestures.onEntity(false, false, false)).isEqualTo(CrookGestures.Action.NONE);
   }
 
   @Test

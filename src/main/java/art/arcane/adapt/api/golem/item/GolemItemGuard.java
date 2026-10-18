@@ -76,7 +76,15 @@ public final class GolemItemGuard implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(BlockPlaceEvent e) {
-    if (GolemItems.isGolemItem(e.getItemInHand())) {
+    Optional<GolemItemKind> kind = GolemItems.kindOf(e.getItemInHand());
+    if (kind.isPresent() && kind.get() != GolemItemKind.DORMANT_GOLEM) {
+      e.setCancelled(true);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void placed(BlockPlaceEvent e) {
+    if (GolemItems.kindOf(e.getItemInHand()).filter(kind -> kind == GolemItemKind.DORMANT_GOLEM).isPresent()) {
       e.setCancelled(true);
     }
   }
@@ -141,7 +149,12 @@ public final class GolemItemGuard implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(InventoryPickupItemEvent e) {
-    if (GolemItems.kindOf(e.getItem().getItemStack()).filter(GolemItemGuard::ownerBound).isPresent()) {
+    ItemStack item = e.getItem().getItemStack();
+    Material type = item.getType();
+    if (type != Material.FIREWORK_STAR && !GolemItems.isDormantBlock(type)) {
+      return;
+    }
+    if (GolemItems.kindOf(item).filter(GolemItemGuard::ownerBound).isPresent()) {
       e.setCancelled(true);
     }
   }

@@ -4,6 +4,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemPacking;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemVitals;
@@ -80,6 +81,7 @@ public final class RosterGui {
       List<GolemRoster.GolemEntry> entries = entries(adaptPlayer.getData().getGolemancy());
       Map<UUID, GolemHandle> loaded = loaded(player.getUniqueId());
       boolean channelFilter = filtersChannels(player);
+      boolean recalls = GolemPacking.recalls(player);
       GuiLayout.PagePlan plan = GuiLayout.plan(entries.size(), channelFilter);
       int current = GuiLayout.clampPage(page, plan.pageCount());
       int start = current * plan.itemsPerPage();
@@ -97,7 +99,7 @@ public final class RosterGui {
           int slot = index - start;
           GolemRoster.GolemEntry entry = entries.get(index);
           window.setElement(LEFT_EDGE + slot % GuiLayout.WIDTH, slot / GuiLayout.WIDTH,
-              entryElement(player, window, entry, loaded.get(entry.id()), current));
+              entryElement(new EntryContext(player, window, current, recalls), entry, loaded.get(entry.id())));
         }
         if (plan.hasNavigationRow()) {
           placeNavigation(window, player, plan.rows() - 1, current, plan.pageCount());
@@ -213,7 +215,10 @@ public final class RosterGui {
     return loaded;
   }
 
-  private static Element entryElement(Player player, UIWindow window, GolemRoster.GolemEntry entry, GolemHandle handle, int page) {
+  private static Element entryElement(EntryContext context, GolemRoster.GolemEntry entry, GolemHandle handle) {
+    Player player = context.player();
+    UIWindow window = context.window();
+    int page = context.page();
     GolemBody body = entry.body();
     Element element = GuiTheme.element("roster-" + entry.id(), GolemGuiActions.bodyIcon(body), "gui", "golemancy", "roster_" + body.id())
         .setName(C.AQUA + AdaptLanguage.text(GolemancyMessages.ROSTER_ENTRY,
@@ -236,11 +241,21 @@ public final class RosterGui {
         trusted("status", AdaptLanguage.text(GolemGuiActions.statusName(entry.status())))));
     element.addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.ROSTER_LOCATE));
     element.onLeftClick(clicked -> locate(player, window, entry, handle));
+    boolean loaded = handle != null && !handle.isRetired();
+    if (context.recalls() && GolemGuiActions.recallable(entry.status(), loaded, loaded && player.getWorld().equals(handle.entity().getWorld()))) {
+      element.addLore(C.AQUA + AdaptLanguage.text(GolemancyMessages.ROSTER_RECALL));
+      element.onRightClick(clicked -> recall(player, window, handle));
+    }
     if (GolemGuiActions.releasableFromRoster(entry.status())) {
       element.addLore(C.RED + AdaptLanguage.text(GolemancyMessages.ROSTER_RELEASE));
       element.onShiftRightClick(clicked -> confirmRelease(player, entry, page));
     }
     return element;
+  }
+
+  private static void recall(Player player, UIWindow window, GolemHandle handle) {
+    window.close();
+    GolemPacking.packer().ifPresent(packer -> packer.recall(player, handle));
   }
 
   private static Mob readable(GolemHandle handle) {
@@ -318,5 +333,8 @@ public final class RosterGui {
         trusted("x", GolemGuiActions.chunkCenterX(entry.chunkKey())),
         trusted("z", GolemGuiActions.chunkCenterZ(entry.chunkKey()))
     };
+  }
+
+  private record EntryContext(Player player, UIWindow window, int page, boolean recalls) {
   }
 }
