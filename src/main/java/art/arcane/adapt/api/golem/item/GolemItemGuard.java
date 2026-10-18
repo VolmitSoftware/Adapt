@@ -17,6 +17,7 @@ import org.bukkit.event.block.CrafterCraftEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.PrepareGrindstoneEvent;
@@ -139,6 +140,13 @@ public final class GolemItemGuard implements Listener {
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(InventoryPickupItemEvent e) {
+    if (GolemItems.kindOf(e.getItem().getItemStack()).filter(GolemItemGuard::ownerBound).isPresent()) {
+      e.setCancelled(true);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PrepareItemEnchantEvent e) {
     if (GolemItems.isGolemItem(e.getItem())) {
       e.setCancelled(true);
@@ -150,6 +158,10 @@ public final class GolemItemGuard implements Listener {
     if (GolemItems.isGolemItem(e.getItem())) {
       e.setCancelled(true);
     }
+  }
+
+  private static boolean ownerBound(GolemItemKind kind) {
+    return kind == GolemItemKind.SHATTERED_CORE || kind == GolemItemKind.DORMANT_GOLEM;
   }
 
   private static void clearResultForGolemInputs(PrepareInventoryResultEvent e, int inputSlots) {

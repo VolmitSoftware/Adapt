@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.golem.item.OwnerBoundDrop;
 import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.NodeSettings;
@@ -439,12 +440,7 @@ public final class GolemancyRuntime {
 
     @Override
     public void dropOwnerBound(Location at, ItemStack item, UUID owner) {
-      World world = Objects.requireNonNull(at.getWorld());
-      world.dropItem(at, item, drop -> {
-        drop.setOwner(owner);
-        drop.setInvulnerable(true);
-        drop.setUnlimitedLifetime(true);
-      });
+      OwnerBoundDrop.drop(at, item, owner);
     }
 
     @Override

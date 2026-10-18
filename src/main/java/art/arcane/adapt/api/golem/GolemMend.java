@@ -5,16 +5,19 @@ import org.bukkit.Location;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 public final class GolemMend {
   private static final AtomicReference<Mender> MENDER = new AtomicReference<>();
+  private static final AtomicBoolean REGEN_FAILURE_LOGGED = new AtomicBoolean();
 
   private GolemMend() {
   }
 
   public static void register(Mender mender) {
     MENDER.set(Objects.requireNonNull(mender));
+    REGEN_FAILURE_LOGGED.set(false);
   }
 
   public static boolean unregister(Mender mender) {
@@ -25,8 +28,31 @@ public final class GolemMend {
     return Optional.ofNullable(MENDER.get());
   }
 
-  static Mender active() {
-    return MENDER.get();
+  static long regenIntervalMillis() {
+    Mender current = MENDER.get();
+    if (current == null) {
+      return 0L;
+    }
+    try {
+      return Math.max(1L, current.regenIntervalMillis());
+    } catch (RuntimeException failure) {
+      logRegenFailure(failure);
+      return 0L;
+    }
+  }
+
+  static double regen(GolemHandle handle, RegenSenses senses) {
+    Mender current = MENDER.get();
+    if (current == null) {
+      return 0D;
+    }
+    try {
+      double amount = current.regen(handle, senses);
+      return Double.isFinite(amount) ? Math.max(0D, amount) : 0D;
+    } catch (RuntimeException failure) {
+      logRegenFailure(failure);
+      return 0D;
+    }
   }
 
   static boolean shatters(GolemHandle handle) {
@@ -51,6 +77,12 @@ public final class GolemMend {
       current.shattered(handle, at);
     } catch (RuntimeException failure) {
       Adapt.warn("Golem Mending could not show that golem " + handle.id() + " shattered; its Shattered Core was dropped.", failure);
+    }
+  }
+
+  private static void logRegenFailure(RuntimeException failure) {
+    if (REGEN_FAILURE_LOGGED.compareAndSet(false, true)) {
+      Adapt.warn("Golem Mending regeneration failed; golems skip regeneration while it keeps failing.", failure);
     }
   }
 

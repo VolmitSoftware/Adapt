@@ -70,7 +70,7 @@ final class MendingRules {
     if (!check.rosterKnown()) {
       return RebuildVerdict.UNAVAILABLE;
     }
-    if (check.status() != GolemRoster.Status.SHATTERED) {
+    if (check.status() != GolemRoster.Status.SHATTERED || !check.sealed()) {
       return RebuildVerdict.VOID;
     }
     if (!unlocked(check.level(), check.shatterLevel())) {

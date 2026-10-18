@@ -159,6 +159,13 @@ class MendingRulesTest {
     }
   }
 
+  @Test
+  void aCoreWhoseStateDoesNotMatchTheEntryDigestVoids() {
+    assertThat(MendingRules.rebuildVerdict(ready().staleCopy().build())).isEqualTo(RebuildVerdict.VOID);
+    assertThat(MendingRules.rebuildVerdict(ready().staleCopy().atLevel(1).protectedArea().build())).isEqualTo(RebuildVerdict.VOID);
+    assertThat(MendingRules.rebuildVerdict(ready().staleCopy().notOwner().build())).isEqualTo(RebuildVerdict.NOT_OWNER);
+  }
+
   private static GolemMend.RegenSenses senses(double ownerDistance, double homeDistance, boolean idle) {
     return new GolemMend.RegenSenses(ownerDistance, homeDistance, idle);
   }
@@ -172,6 +179,7 @@ class MendingRulesTest {
     private boolean ownsItem = true;
     private boolean rosterKnown = true;
     private GolemRoster.Status status = GolemRoster.Status.SHATTERED;
+    private boolean sealed = true;
     private int level = 4;
     private GolemRegistry.BindBlock block;
     private boolean playerCreated = true;
@@ -197,6 +205,11 @@ class MendingRulesTest {
 
     private Check withStatus(GolemRoster.Status next) {
       status = next;
+      return this;
+    }
+
+    private Check staleCopy() {
+      sealed = false;
       return this;
     }
 
@@ -232,7 +245,7 @@ class MendingRulesTest {
     }
 
     private RebuildCheck build() {
-      return new RebuildCheck(readable, ownsItem, rosterKnown, status, level, 4, block, playerCreated, allowVillageGolems, builderExclusive,
+      return new RebuildCheck(readable, ownsItem, rosterKnown, status, sealed, level, 4, block, playerCreated, allowVillageGolems, builderExclusive,
           bodyUnlocked, canInteract);
     }
   }

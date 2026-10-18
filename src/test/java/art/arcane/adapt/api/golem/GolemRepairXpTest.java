@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowman;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -32,7 +33,25 @@ class GolemRepairXpTest {
   }
 
   @Test
-  void repairsPayUnderOneRewardKey() {
-    assertThat(GolemRepairXp.REWARD_KEY).isEqualTo("golemancy:repair");
+  void eachHealReachesTheCurrentSinkWithItsHealerAndGolem() {
+    Player first = mock(Player.class);
+    Player second = mock(Player.class);
+    LivingEntity copper = mock(CopperGolem.class);
+    LivingEntity frost = mock(Snowman.class);
+    List<String> replaced = new ArrayList<>();
+    List<String> current = new ArrayList<>();
+    GolemRepairXp.setSink((healer, golem, healed) -> replaced.add("old"));
+    GolemRepairXp.setSink((healer, golem, healed) -> current.add((healer == first ? "first" : "second") + ":" + (golem == copper ? "copper" : "frost")
+        + ":" + healed));
+    try {
+      GolemRepairXp.repaired(first, copper, 4.8D);
+      GolemRepairXp.repaired(second, frost, 2D);
+    } finally {
+      GolemRepairXp.setSink(GolemRepairXp.Sink.NONE);
+    }
+    GolemRepairXp.repaired(first, copper, 1D);
+
+    assertThat(replaced).isEmpty();
+    assertThat(current).containsExactly("first:copper:4.8", "second:frost:2.0");
   }
 }

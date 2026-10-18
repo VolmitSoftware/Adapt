@@ -188,6 +188,81 @@ class GolemRosterTest {
     assertThat(back.add(binding(UUID.randomUUID(), 0L, 0L))).isTrue();
   }
 
+  @Test
+  void stowingSealsTheEntryToTheExactItemState() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+
+    assertThat(roster.stow(GOLEM, GolemRoster.Status.SHATTERED, "{\"state\":1}")).isTrue();
+
+    GolemRoster.GolemEntry entry = roster.golem(GOLEM).orElseThrow();
+    assertThat(entry.status()).isEqualTo(GolemRoster.Status.SHATTERED);
+    assertThat(entry.digest()).isEqualTo(GolemRoster.digest("{\"state\":1}")).hasSize(64).matches("[0-9a-f]+");
+    assertThat(entry.holds("{\"state\":1}")).isTrue();
+    assertThat(entry.holds("{\"state\":2}")).isFalse();
+    assertThat(entry.holds(null)).isFalse();
+    assertThat(roster.stow(GOLEM, GolemRoster.Status.PACKED, "{\"state\":2}")).isFalse();
+    assertThat(roster.golem(GOLEM).orElseThrow().holds("{\"state\":1}")).isTrue();
+  }
+
+  @Test
+  void stowingOnlyMovesActiveEntriesToPackedOrShattered() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+
+    assertThat(roster.stow(GOLEM, GolemRoster.Status.MISSING, "state")).isFalse();
+    assertThat(roster.stow(GOLEM, GolemRoster.Status.ACTIVE, "state")).isFalse();
+    assertThat(roster.stow(GOLEM, GolemRoster.Status.SHATTERED, null)).isFalse();
+    assertThat(roster.stow(OTHER, GolemRoster.Status.SHATTERED, "state")).isFalse();
+    assertThat(roster.stow(GOLEM, GolemRoster.Status.PACKED, "state")).isTrue();
+    assertThat(roster.golem(GOLEM).orElseThrow().status()).isEqualTo(GolemRoster.Status.PACKED);
+  }
+
+  @Test
+  void unstowingNeedsTheSealedStateAndClearsTheDigest() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.stow(GOLEM, GolemRoster.Status.SHATTERED, "current");
+
+    assertThat(roster.unstow(GOLEM, GolemRoster.Status.SHATTERED, "stale copy")).isFalse();
+    assertThat(roster.unstow(GOLEM, GolemRoster.Status.PACKED, "current")).isFalse();
+    assertThat(roster.golem(GOLEM).orElseThrow().status()).isEqualTo(GolemRoster.Status.SHATTERED);
+
+    assertThat(roster.unstow(GOLEM, GolemRoster.Status.SHATTERED, "current")).isTrue();
+
+    GolemRoster.GolemEntry entry = roster.golem(GOLEM).orElseThrow();
+    assertThat(entry.status()).isEqualTo(GolemRoster.Status.ACTIVE);
+    assertThat(entry.digest()).isNull();
+    assertThat(roster.unstow(GOLEM, GolemRoster.Status.SHATTERED, "current")).isFalse();
+  }
+
+  @Test
+  void anUnsealedOrReactivatedEntryHoldsNoItem() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.transition(GOLEM, GolemRoster.Status.ACTIVE, GolemRoster.Status.SHATTERED);
+    assertThat(roster.golem(GOLEM).orElseThrow().digest()).isNull();
+    assertThat(roster.unstow(GOLEM, GolemRoster.Status.SHATTERED, "anything")).isFalse();
+
+    roster.transition(GOLEM, GolemRoster.Status.SHATTERED, GolemRoster.Status.ACTIVE);
+    roster.stow(GOLEM, GolemRoster.Status.SHATTERED, "sealed");
+    roster.transition(GOLEM, GolemRoster.Status.SHATTERED, GolemRoster.Status.ACTIVE);
+
+    assertThat(roster.golem(GOLEM).orElseThrow().digest()).isNull();
+    assertThat(roster.golem(GOLEM).orElseThrow().holds("sealed")).isFalse();
+  }
+
+  @Test
+  void theDigestSurvivesGson() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.stow(GOLEM, GolemRoster.Status.SHATTERED, "sealed");
+
+    GolemRoster back = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+
+    assertThat(back.golem(GOLEM).orElseThrow().holds("sealed")).isTrue();
+  }
+
   private static GolemRoster.Binding binding(UUID id, long chunkKey, long seenAt) {
     return new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, chunkKey, seenAt);
   }

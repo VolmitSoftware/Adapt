@@ -46,6 +46,7 @@ import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.MockedStatic;
 
@@ -367,10 +368,10 @@ class GolemMendingTest extends AdaptTestBase {
 
     assertThat(rebuild.click.isCancelled()).isTrue();
     InOrder order = inOrder(rebuild.registry, inventory, player);
-    order.verify(rebuild.registry).restore(player, rebuild.golem, rebuild.snapshot, GolemRoster.Status.SHATTERED);
+    order.verify(rebuild.registry).restore(player, rebuild.golem, new GolemRegistry.Restore(rebuild.item, rebuild.snapshot, GolemRoster.Status.SHATTERED));
     order.verify(inventory).setItemInMainHand(null);
     order.verify(player).saveData();
-    verify(rebuild.golem).setHealth(MAX_HEALTH);
+    verify(rebuild.handle).restoreFullHealth();
     verify(rebuild.adaptation, never()).applyRebornBoon(any(), any());
     verify(rebuild.adaptation).rebornFx(rebuild.golem);
   }
@@ -392,7 +393,7 @@ class GolemMendingTest extends AdaptTestBase {
 
     rebuild.adaptation.on(rebuild.click);
 
-    verify(rebuild.registry, never()).restore(any(), any(), any(), any());
+    verify(rebuild.registry, never()).restore(any(), any(), any());
     verify(inventory).setItemInMainHand(null);
     verify(rebuild.adaptation).crumbleFx(player);
     verify(player, never()).saveData();
@@ -407,7 +408,7 @@ class GolemMendingTest extends AdaptTestBase {
 
     rebuild.adaptation.on(rebuild.click);
 
-    verify(rebuild.registry, never()).restore(any(), any(), any(), any());
+    verify(rebuild.registry, never()).restore(any(), any(), any());
     verify(inventory, never()).setItemInMainHand(any());
   }
 
@@ -415,12 +416,12 @@ class GolemMendingTest extends AdaptTestBase {
   void rebuildingNeedsTheShatterLevelAndABodyInReach() {
     Rebuild locked = rebuild(3);
     locked.adaptation.on(locked.click);
-    verify(locked.registry, never()).restore(any(), any(), any(), any());
+    verify(locked.registry, never()).restore(any(), any(), any());
 
     Rebuild far = rebuild(5);
     when(player.getEyeLocation()).thenReturn(new Location(world, 0.5D, 65.6D, 9D));
     far.adaptation.on(far.click);
-    verify(far.registry, never()).restore(any(), any(), any(), any());
+    verify(far.registry, never()).restore(any(), any(), any());
     verify(inventory, never()).setItemInMainHand(any());
   }
 
@@ -435,26 +436,61 @@ class GolemMendingTest extends AdaptTestBase {
 
     assertThat(cow.isCancelled()).isFalse();
     assertThat(skeleton.isCancelled()).isFalse();
-    verify(rebuild.registry, never()).restore(any(), any(), any(), any());
+    verify(rebuild.registry, never()).restore(any(), any(), any());
     verify(inventory, never()).setItemInMainHand(any());
   }
 
   @Test
   void aCoreWhoseEntryChangedBeforeTheSwapCrumbles() {
     Rebuild rebuild = rebuild(5);
-    when(rebuild.registry.restore(player, rebuild.golem, rebuild.snapshot, GolemRoster.Status.SHATTERED)).thenReturn(Optional.empty());
+    when(rebuild.registry.restore(any(), any(), any())).thenReturn(Optional.empty());
 
     rebuild.adaptation.on(rebuild.click);
 
     verify(inventory).setItemInMainHand(null);
     verify(player, never()).saveData();
-    verify(rebuild.golem, never()).setHealth(anyDouble());
+    verify(rebuild.handle, never()).restoreFullHealth();
+  }
+
+  @Test
+  void anOlderCopyOfTheCoreCrumblesBecauseTheEntryIsSealedToTheNewestOne() {
+    Rebuild rebuild = rebuild(5);
+    rebuild.roster.unstow(rebuild.snapshot.id(), GolemRoster.Status.SHATTERED, rebuild.item.state());
+    rebuild.roster.stow(rebuild.snapshot.id(), GolemRoster.Status.SHATTERED, "{\"newer\":true}");
+
+    rebuild.adaptation.on(rebuild.click);
+
+    verify(rebuild.registry, never()).restore(any(), any(), any());
+    verify(inventory).setItemInMainHand(null);
+    verify(rebuild.adaptation).crumbleFx(player);
+  }
+
+  @Test
+  void aCoreCarryingCargoRebuildsWithoutIt() {
+    Rebuild rebuild = rebuild(5);
+    GolemSnapshot base = rebuild.snapshot;
+    GolemSnapshot laden = new GolemSnapshot(base.id(), base.owner(), base.body(), base.cores(), base.runes(), base.channels(), base.mode(),
+        base.home(), base.homeChest(), base.customName(), base.stats(), base.masterwork(), base.snowTrail(), 500D, List.of("stack"), base.health(),
+        base.maxHealthMark(), base.copperStage(), base.waxed(), base.takenAt());
+    PackedGolem ladenItem = new PackedGolem(base.id(), player.getUniqueId(), laden.toJson());
+    ItemStack core = rebuild.core;
+    items.when(() -> GolemItems.packedGolemOf(core)).thenReturn(Optional.of(ladenItem));
+    rebuild.roster.unstow(rebuild.snapshot.id(), GolemRoster.Status.SHATTERED, rebuild.item.state());
+    rebuild.roster.stow(rebuild.snapshot.id(), GolemRoster.Status.SHATTERED, ladenItem.state());
+    ArgumentCaptor<GolemRegistry.Restore> request = ArgumentCaptor.forClass(GolemRegistry.Restore.class);
+
+    rebuild.adaptation.on(rebuild.click);
+
+    verify(rebuild.registry).restore(eq(player), eq(rebuild.golem), request.capture());
+    assertThat(request.getValue().item()).isEqualTo(ladenItem);
+    assertThat(request.getValue().snapshot().carried()).isEmpty();
+    assertThat(request.getValue().snapshot().essence()).isZero();
   }
 
   @Test
   void aFailedRestoreKeepsTheCore() {
     Rebuild rebuild = rebuild(5);
-    doThrow(new IllegalStateException("boom")).when(rebuild.registry).restore(player, rebuild.golem, rebuild.snapshot, GolemRoster.Status.SHATTERED);
+    doThrow(new IllegalStateException("boom")).when(rebuild.registry).restore(any(), any(), any());
 
     rebuild.adaptation.on(rebuild.click);
 
@@ -469,7 +505,8 @@ class GolemMendingTest extends AdaptTestBase {
     GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 0D, 0, false), 1L);
     GolemRoster roster = new GolemRoster();
     roster.add(new GolemRoster.Binding(golemId, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
-    roster.transition(golemId, GolemRoster.Status.ACTIVE, GolemRoster.Status.SHATTERED);
+    PackedGolem packed = new PackedGolem(golemId, player.getUniqueId(), snapshot.toJson());
+    roster.stow(golemId, GolemRoster.Status.SHATTERED, packed.state());
     IronGolem golem = living(IronGolem.class, new AtomicReference<>(100D));
     when(golem.isPlayerCreated()).thenReturn(true);
     when(golem.getBoundingBox()).thenReturn(new BoundingBox(0D, 64D, 0D, 1D, 65D, 1D));
@@ -477,11 +514,11 @@ class GolemMendingTest extends AdaptTestBase {
     when(inventory.getItemInMainHand()).thenReturn(core);
     when(player.isSneaking()).thenReturn(true);
     items.when(() -> GolemItems.kindOf(core)).thenReturn(Optional.of(GolemItemKind.SHATTERED_CORE));
-    PackedGolem packed = new PackedGolem(golemId, player.getUniqueId(), snapshot.toJson());
     items.when(() -> GolemItems.packedGolemOf(core)).thenReturn(Optional.of(packed));
     GolemRegistry registry = mock(GolemRegistry.class);
+    GolemHandle handle = mock(GolemHandle.class);
     when(registry.restoreBlock(golem, snapshot)).thenReturn(Optional.empty());
-    lenient().when(registry.restore(player, golem, snapshot, GolemRoster.Status.SHATTERED)).thenReturn(Optional.of(mock(GolemHandle.class)));
+    lenient().when(registry.restore(any(), any(), any())).thenReturn(Optional.of(handle));
     runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
     GolemAnimusBinding binding = mock(GolemAnimusBinding.class);
     when(binding.bodyUnlocked(player, GolemBody.IRON)).thenReturn(true);
@@ -489,7 +526,7 @@ class GolemMendingTest extends AdaptTestBase {
     doReturn(Optional.of(binding)).when(learned).binding();
     doReturn(Optional.of(roster)).when(learned).roster(player);
     lenient().doNothing().when(learned).applyRebornBoon(any(), any());
-    return new Rebuild(learned, registry, roster, golem, core, snapshot, click(golem, EquipmentSlot.HAND));
+    return new Rebuild(learned, registry, roster, golem, core, packed, snapshot, handle, click(golem, EquipmentSlot.HAND));
   }
 
   private GolemMending learned(int level) {
@@ -553,7 +590,7 @@ class GolemMendingTest extends AdaptTestBase {
     return lines;
   }
 
-  private record Rebuild(GolemMending adaptation, GolemRegistry registry, GolemRoster roster, IronGolem golem, ItemStack core,
-                         GolemSnapshot snapshot, PlayerInteractEntityEvent click) {
+  private record Rebuild(GolemMending adaptation, GolemRegistry registry, GolemRoster roster, IronGolem golem, ItemStack core, PackedGolem item,
+                         GolemSnapshot snapshot, GolemHandle handle, PlayerInteractEntityEvent click) {
   }
 }

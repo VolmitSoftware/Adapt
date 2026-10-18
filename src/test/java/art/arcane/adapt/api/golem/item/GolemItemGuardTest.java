@@ -9,6 +9,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Crafter;
 import org.bukkit.enchantments.EnchantmentOffer;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
@@ -21,6 +22,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.FurnaceSmeltEvent;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.inventory.PrepareAnvilEvent;
 import org.bukkit.event.inventory.PrepareGrindstoneEvent;
@@ -325,6 +327,29 @@ class GolemItemGuardTest {
     assertThat(dispenser.isCancelled()).isTrue();
     assertThat(dropper.isCancelled()).isFalse();
     assertThat(hoe.isCancelled()).isFalse();
+  }
+
+  @Test
+  void hoppersNeverPickUpShatteredCoresOrDormantGolems() {
+    InventoryPickupItemEvent shattered = hopperPickup(GolemItemStacks.tagged(Material.FIREWORK_STAR, "shattered_core", null));
+    InventoryPickupItemEvent dormant = hopperPickup(GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", null));
+    InventoryPickupItemEvent core = hopperPickup(GolemItemStacks.tagged(Material.FIREWORK_STAR, "blank_core", null));
+    InventoryPickupItemEvent plain = hopperPickup(GolemItemStacks.plain(Material.FIREWORK_STAR));
+
+    for (InventoryPickupItemEvent pickup : List.of(shattered, dormant, core, plain)) {
+      guard.on(pickup);
+    }
+
+    assertThat(shattered.isCancelled()).isTrue();
+    assertThat(dormant.isCancelled()).isTrue();
+    assertThat(core.isCancelled()).isFalse();
+    assertThat(plain.isCancelled()).isFalse();
+  }
+
+  private static InventoryPickupItemEvent hopperPickup(ItemStack stack) {
+    Item item = mock(Item.class);
+    when(item.getItemStack()).thenReturn(stack);
+    return new InventoryPickupItemEvent(mock(Inventory.class), item);
   }
 
   private static ExactIngredient spec(GolemItemKind kind, Material base) {

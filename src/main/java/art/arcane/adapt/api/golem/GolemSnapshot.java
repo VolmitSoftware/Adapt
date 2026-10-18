@@ -26,7 +26,7 @@ public record GolemSnapshot(UUID id, UUID owner, GolemBody body, List<GolemCoreT
     if (cores.isEmpty() || cores.size() > GolemState.MAX_CORES) {
       throw new IllegalArgumentException("A golem snapshot holds 1 to " + GolemState.MAX_CORES + " cores, found " + cores.size());
     }
-    runes = List.copyOf(runes);
+    runes = List.copyOf(runes.size() > GolemRuneLayout.MAX_SLOTS ? runes.subList(0, GolemRuneLayout.MAX_SLOTS) : runes);
     channels = ChannelMask.normalize(channels);
     stats = stats == null ? Stats.NONE : stats;
     essence = nonNegative(essence);
@@ -165,9 +165,26 @@ public record GolemSnapshot(UUID id, UUID owner, GolemBody body, List<GolemCoreT
         return Optional.empty();
       }
       GolemMode resolvedMode = GolemMode.fromId(mode).orElse(GolemMode.defaultFor(resolvedCores.getFirst()));
-      return Optional.of(new GolemSnapshot(id, owner, resolvedBody.get(), resolvedCores, resolveRunes(), channels, resolvedMode, home, homeChest,
-          customName, new Stats(kills, damage, tasks, itemsMoved), masterwork, snowTrail, essence, carried == null ? List.of() : carried, health,
+      return Optional.of(new GolemSnapshot(id, owner, resolvedBody.get(), resolvedCores, resolveRunes(), channels, resolvedMode, placed(home),
+          placed(homeChest), customName, new Stats(kills, damage, tasks, itemsMoved), masterwork, snowTrail, essence, resolveCarried(), health,
           maxHealthMark, copperStage, waxed, takenAt));
+    }
+
+    private List<String> resolveCarried() {
+      List<String> resolved = new ArrayList<>(carried == null ? 0 : carried.size());
+      if (carried == null) {
+        return resolved;
+      }
+      for (String stack : carried) {
+        if (stack != null) {
+          resolved.add(stack);
+        }
+      }
+      return resolved;
+    }
+
+    private static GolemState.Anchor placed(GolemState.Anchor anchor) {
+      return anchor == null || anchor.world() == null ? null : anchor;
     }
 
     private List<GolemCoreType> resolveCores() {

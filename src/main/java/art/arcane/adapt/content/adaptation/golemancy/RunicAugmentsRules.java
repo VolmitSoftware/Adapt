@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 final class RunicAugmentsRules {
-  static final int MAX_SLOTS = 9;
 
   private RunicAugmentsRules() {
   }
@@ -34,12 +33,12 @@ final class RunicAugmentsRules {
 
   static GolemRuneLayout layout(int baseSlots, List<Integer> extraSlotsByLevel, List<Integer> maxTierByLevel, int maxLevel,
                                 Set<GolemRuneType> blocked, int level) {
-    int base = Math.clamp(baseSlots, 0, MAX_SLOTS);
+    int base = Math.clamp(baseSlots, 0, GolemRuneLayout.MAX_SLOTS);
     int mostExtra = 0;
     for (int candidate = 1; candidate <= maxLevel; candidate++) {
       mostExtra = Math.max(mostExtra, extraSlots(extraSlotsByLevel, candidate));
     }
-    int maxSlots = Math.min(MAX_SLOTS, base + mostExtra);
+    int maxSlots = Math.min(GolemRuneLayout.MAX_SLOTS, base + mostExtra);
     List<Integer> slotLevels = new ArrayList<>(maxSlots);
     for (int index = 0; index < maxSlots; index++) {
       slotLevels.add(slotUnlockLevel(base, extraSlotsByLevel, maxLevel, index));
@@ -70,7 +69,7 @@ final class RunicAugmentsRules {
 
   private static int slotUnlockLevel(int base, List<Integer> extraSlotsByLevel, int maxLevel, int index) {
     for (int level = 1; level <= maxLevel; level++) {
-      if (Math.min(MAX_SLOTS, base + extraSlots(extraSlotsByLevel, level)) > index) {
+      if (Math.min(GolemRuneLayout.MAX_SLOTS, base + extraSlots(extraSlotsByLevel, level)) > index) {
         return level;
       }
     }

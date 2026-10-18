@@ -228,7 +228,7 @@ public final class GolemancyMessages {
   public static final TextKey MENDING_FULL_HEALTH = TextKey.of("golemancy.mending.full_health", "This golem is already at full health");
   public static final TextKey MENDING_SHATTERED = TextKey.of("golemancy.mending.shattered", "Your {body} golem shattered and left its Shattered Core behind");
   public static final TextKey MENDING_REBORN = TextKey.of("golemancy.mending.reborn", "Your {body} golem is reborn");
-  public static final TextKey MENDING_VOID = TextKey.of("golemancy.mending.void", "This Shattered Core crumbles: its golem was released");
+  public static final TextKey MENDING_VOID = TextKey.of("golemancy.mending.void", "This Shattered Core crumbles: its golem is no longer shattered");
   public static final TextKey MENDING_NOT_OWNER = TextKey.of("golemancy.mending.not_owner", "This Shattered Core belongs to another player");
   public static final TextKey MENDING_LOCKED = TextKey.of("golemancy.mending.locked", "Rebuilding a golem needs Golem Mending level {level}");
   public static final TextKey MENDING_WRONG_BODY = TextKey.of("golemancy.mending.wrong_body", "This Shattered Core needs a freshly built {body} golem");

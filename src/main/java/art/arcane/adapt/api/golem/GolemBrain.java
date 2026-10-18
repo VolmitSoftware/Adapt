@@ -222,21 +222,21 @@ public final class GolemBrain {
   }
 
   private void regen(long now, Location here, Location ownerAt, Location home, boolean idle) {
-    GolemMend.Mender mender = GolemMend.active();
-    if (mender == null) {
+    long interval = GolemMend.regenIntervalMillis();
+    if (interval <= 0L) {
       nextRegenAt = 0L;
       return;
     }
     if (nextRegenAt == 0L) {
-      nextRegenAt = now + Math.max(1L, mender.regenIntervalMillis());
+      nextRegenAt = now + interval;
       return;
     }
     if (now < nextRegenAt) {
       return;
     }
-    nextRegenAt = now + Math.max(1L, mender.regenIntervalMillis());
-    double amount = mender.regen(handle, new GolemMend.RegenSenses(distance(here, ownerAt), distance(here, home), idle));
-    if (Double.isFinite(amount) && amount > 0D) {
+    nextRegenAt = now + interval;
+    double amount = GolemMend.regen(handle, new GolemMend.RegenSenses(distance(here, ownerAt), distance(here, home), idle));
+    if (amount > 0D) {
       context.platform().heal(handle.entity(), amount);
     }
   }

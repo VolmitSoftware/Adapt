@@ -9,6 +9,7 @@ import java.util.Set;
 
 public record GolemRuneLayout(int unlockedSlots, List<Integer> slotUnlockLevels, int maxTier, List<Integer> tierUnlockLevels,
                               Set<GolemRuneType> blocked) {
+  public static final int MAX_SLOTS = 9;
   public static final GolemRuneLayout NONE = new GolemRuneLayout(0, List.of(), 0, List.of(), Set.of());
 
   public GolemRuneLayout {

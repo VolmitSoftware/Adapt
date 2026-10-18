@@ -6,10 +6,14 @@ import java.util.List;
 final class RecordingGolemLifecycle implements GolemLifecycle {
   final List<Event> events = new ArrayList<>();
   final List<Boolean> boundOnDetach = new ArrayList<>();
+  RuntimeException awakeFailure;
 
   @Override
   public void awake(GolemHandle handle) {
     events.add(new Event(Kind.AWAKE, handle));
+    if (awakeFailure != null) {
+      throw awakeFailure;
+    }
   }
 
   @Override

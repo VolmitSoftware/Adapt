@@ -3,6 +3,10 @@ package art.arcane.adapt.api.golem;
 import art.arcane.volmlib.util.collection.KMap;
 import org.bukkit.block.BlockFace;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -10,11 +14,22 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class GolemRoster {
+  private static final String DIGEST_ALGORITHM = "SHA-256";
+
   private KMap<String, GolemEntry> golems = new KMap<>();
   private KMap<String, NodeEntry> nodes = new KMap<>();
 
   public static long chunkKey(int chunkX, int chunkZ) {
     return (chunkX & 0xFFFFFFFFL) | ((chunkZ & 0xFFFFFFFFL) << 32);
+  }
+
+  public static String digest(String itemState) {
+    try {
+      MessageDigest sha = MessageDigest.getInstance(DIGEST_ALGORITHM);
+      return HexFormat.of().formatHex(sha.digest(itemState.getBytes(StandardCharsets.UTF_8)));
+    } catch (NoSuchAlgorithmException missing) {
+      throw new IllegalStateException(DIGEST_ALGORITHM + " is not available on this Java runtime", missing);
+    }
   }
 
   public static int chunkX(long chunkKey) {
@@ -53,6 +68,38 @@ public final class GolemRoster {
       }
       changed.set(true);
       return entry.withStatus(to);
+    });
+    return changed.get();
+  }
+
+  public boolean stow(UUID id, Status to, String itemState) {
+    if (id == null || itemState == null || (to != Status.PACKED && to != Status.SHATTERED)) {
+      return false;
+    }
+    String sealed = digest(itemState);
+    AtomicBoolean changed = new AtomicBoolean();
+    golemMap().computeIfPresent(id.toString(), (key, entry) -> {
+      if (entry.status() != Status.ACTIVE) {
+        return entry;
+      }
+      changed.set(true);
+      return entry.stowed(to, sealed);
+    });
+    return changed.get();
+  }
+
+  public boolean unstow(UUID id, Status from, String itemState) {
+    if (id == null || itemState == null || (from != Status.PACKED && from != Status.SHATTERED)) {
+      return false;
+    }
+    String sealed = digest(itemState);
+    AtomicBoolean changed = new AtomicBoolean();
+    golemMap().computeIfPresent(id.toString(), (key, entry) -> {
+      if (entry.status() != from || !sealed.equals(entry.digest)) {
+        return entry;
+      }
+      changed.set(true);
+      return entry.withStatus(Status.ACTIVE);
     });
     return changed.get();
   }
@@ -157,6 +204,7 @@ public final class GolemRoster {
     private UUID world;
     private long chunkKey;
     private long lastSeen;
+    private String digest;
 
     private GolemEntry() {
     }
@@ -206,9 +254,24 @@ public final class GolemRoster {
       return lastSeen;
     }
 
+    public String digest() {
+      return digest;
+    }
+
+    public boolean holds(String itemState) {
+      return digest != null && itemState != null && digest.equals(GolemRoster.digest(itemState));
+    }
+
     private GolemEntry withStatus(Status next) {
       GolemEntry copy = copy();
       copy.state = next.name();
+      copy.digest = null;
+      return copy;
+    }
+
+    private GolemEntry stowed(Status next, String sealed) {
+      GolemEntry copy = withStatus(next);
+      copy.digest = sealed;
       return copy;
     }
 
@@ -218,6 +281,7 @@ public final class GolemRoster {
       copy.world = nextWorld;
       copy.chunkKey = nextChunkKey;
       copy.lastSeen = nowMillis;
+      copy.digest = null;
       return copy;
     }
 
@@ -230,6 +294,7 @@ public final class GolemRoster {
       copy.world = world;
       copy.chunkKey = chunkKey;
       copy.lastSeen = lastSeen;
+      copy.digest = digest;
       return copy;
     }
   }

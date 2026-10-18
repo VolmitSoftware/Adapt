@@ -50,11 +50,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.offset;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -1309,6 +1311,8 @@ class GolemRegistryTest extends AdaptTestBase {
       });
       assertThat(packed.get().golemId()).isEqualTo(handle.id());
       assertThat(packed.get().owner()).isEqualTo(OWNER);
+      assertThat(roster.golem(handle.id()).orElseThrow().digest()).isEqualTo(GolemRoster.digest(packed.get().state()));
+      assertThat(roster.golem(handle.id()).orElseThrow().holds(packed.get().state())).isTrue();
       GolemSnapshot snapshot = GolemSnapshot.fromJson(packed.get().state()).orElseThrow();
       assertThat(snapshot.id()).isEqualTo(handle.id());
       assertThat(snapshot.body()).isEqualTo(GolemBody.IRON);
@@ -1432,16 +1436,15 @@ class GolemRegistryTest extends AdaptTestBase {
   void restoreRebindsAFreshBodyUnderTheShatteredIdAfterSavingTheRoster() {
     GolemRoster roster = onlineOwner();
     UUID id = UUID.randomUUID();
-    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, GolemRoster.chunkKey(9, 9), 0L));
-    roster.transition(id, GolemRoster.Status.ACTIVE, GolemRoster.Status.SHATTERED);
     Component name = Component.text("Old Clank");
     GolemSnapshot snapshot = snapshot(id, GolemBody.IRON, GolemCoreType.GUARDIAN, GolemSnapshot.serializeName(name));
+    PackedGolem item = shattered(roster, snapshot, GolemRoster.chunkKey(9, 9));
     IronGolem fresh = golem(new AtomicReference<>(at(3, 64, -20)));
     List<Boolean> boundAtSave = new ArrayList<>();
     platform.rosterListener = changed -> boundAtSave.add(GolemState.has(fresh));
     int changesBefore = platform.changes(OWNER);
 
-    Optional<GolemHandle> restored = registry.restore(owner, fresh, snapshot, GolemRoster.Status.SHATTERED);
+    Optional<GolemHandle> restored = registry.restore(owner, fresh, new GolemRegistry.Restore(item, snapshot, GolemRoster.Status.SHATTERED));
 
     assertThat(restored).isPresent();
     GolemHandle handle = restored.orElseThrow();
@@ -1451,6 +1454,7 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(roster.golemCount()).isEqualTo(1);
     GolemRoster.GolemEntry entry = roster.golem(id).orElseThrow();
     assertThat(entry.status()).isEqualTo(GolemRoster.Status.ACTIVE);
+    assertThat(entry.digest()).isNull();
     assertThat(entry.chunkKey()).isEqualTo(GolemRoster.chunkKey(0, -2));
     GolemState stored = GolemState.read(fresh).orElseThrow();
     assertThat(stored.id()).isEqualTo(id);
@@ -1473,12 +1477,11 @@ class GolemRegistryTest extends AdaptTestBase {
   @Test
   void aRestoredGolemWithoutASavedNameTakesItsOwnersBoundName() {
     GolemRoster roster = onlineOwner();
-    UUID id = UUID.randomUUID();
-    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    roster.transition(id, GolemRoster.Status.ACTIVE, GolemRoster.Status.SHATTERED);
+    GolemSnapshot snapshot = snapshot(UUID.randomUUID(), GolemBody.IRON, GolemCoreType.BLANK, null);
+    PackedGolem item = shattered(roster, snapshot, 0L);
     IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
 
-    registry.restore(owner, fresh, snapshot(id, GolemBody.IRON, GolemCoreType.BLANK, null), GolemRoster.Status.SHATTERED);
+    registry.restore(owner, fresh, new GolemRegistry.Restore(item, snapshot, GolemRoster.Status.SHATTERED));
 
     ArgumentCaptor<Component> shownName = ArgumentCaptor.forClass(Component.class);
     verify(fresh).customName(shownName.capture());
@@ -1490,17 +1493,123 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     UUID active = UUID.randomUUID();
     roster.add(new GolemRoster.Binding(active, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    GolemSnapshot activeSnapshot = snapshot(active, GolemBody.IRON, GolemCoreType.BLANK, null);
+    GolemSnapshot unknown = snapshot(UUID.randomUUID(), GolemBody.IRON, GolemCoreType.BLANK, null);
     IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
     int changesBefore = platform.changes(OWNER);
 
-    assertThat(registry.restore(owner, fresh, snapshot(active, GolemBody.IRON, GolemCoreType.BLANK, null), GolemRoster.Status.SHATTERED)).isEmpty();
-    assertThat(registry.restore(owner, fresh, snapshot(UUID.randomUUID(), GolemBody.IRON, GolemCoreType.BLANK, null), GolemRoster.Status.SHATTERED))
-        .isEmpty();
+    assertThat(registry.restore(owner, fresh, restoreOf(activeSnapshot))).isEmpty();
+    assertThat(registry.restore(owner, fresh, restoreOf(unknown))).isEmpty();
 
     assertThat(GolemState.has(fresh)).isFalse();
     assertThat(registry.handle(fresh)).isEmpty();
     assertThat(platform.changes(OWNER)).isEqualTo(changesBefore);
     assertThat(roster.golem(active).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+  }
+
+  @Test
+  void restoreRefusesAnItemWhoseStateDoesNotMatchTheEntryDigest() {
+    GolemRoster roster = onlineOwner();
+    GolemSnapshot snapshot = snapshot(UUID.randomUUID(), GolemBody.IRON, GolemCoreType.GUARDIAN, null);
+    PackedGolem item = shattered(roster, snapshot, 0L);
+    GolemSnapshot older = GolemSnapshot.capture(GolemState.restored(snapshot, GolemState.Anchor.of(WORLD, 0, 64, 0)),
+        new GolemSnapshot.Traits(null, 3D, 0, false), platform.now - 1L);
+    PackedGolem staleCopy = new PackedGolem(snapshot.id(), OWNER, older.toJson());
+    IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
+    int changesBefore = platform.changes(OWNER);
+
+    assertThat(registry.restore(owner, fresh, new GolemRegistry.Restore(staleCopy, older, GolemRoster.Status.SHATTERED))).isEmpty();
+    assertThat(registry.restore(owner, fresh, new GolemRegistry.Restore(item, snapshot, GolemRoster.Status.PACKED))).isEmpty();
+
+    assertThat(GolemState.has(fresh)).isFalse();
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore);
+    GolemRoster.GolemEntry entry = roster.golem(snapshot.id()).orElseThrow();
+    assertThat(entry.status()).isEqualTo(GolemRoster.Status.SHATTERED);
+    assertThat(entry.holds(item.state())).isTrue();
+    assertThat(entry.holds(staleCopy.state())).isFalse();
+  }
+
+  @Test
+  void restoreRefusesASnapshotWhoseBodyOrCoreDiffersFromTheEntry() {
+    GolemRoster roster = onlineOwner();
+    UUID otherCoreId = UUID.randomUUID();
+    UUID otherBodyId = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(otherCoreId, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    roster.add(new GolemRoster.Binding(otherBodyId, GolemBody.FROST, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    GolemSnapshot otherCore = snapshot(otherCoreId, GolemBody.IRON, GolemCoreType.BREAKER, null);
+    GolemSnapshot otherBody = snapshot(otherBodyId, GolemBody.IRON, GolemCoreType.BLANK, null);
+    PackedGolem otherCoreItem = new PackedGolem(otherCoreId, OWNER, otherCore.toJson());
+    PackedGolem otherBodyItem = new PackedGolem(otherBodyId, OWNER, otherBody.toJson());
+    roster.stow(otherCoreId, GolemRoster.Status.SHATTERED, otherCoreItem.state());
+    roster.stow(otherBodyId, GolemRoster.Status.SHATTERED, otherBodyItem.state());
+    IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
+
+    assertThat(registry.restore(owner, fresh, new GolemRegistry.Restore(otherCoreItem, otherCore, GolemRoster.Status.SHATTERED))).isEmpty();
+    assertThat(registry.restore(owner, fresh, new GolemRegistry.Restore(otherBodyItem, otherBody, GolemRoster.Status.SHATTERED))).isEmpty();
+
+    assertThat(GolemState.has(fresh)).isFalse();
+    assertThat(roster.golem(otherCoreId).orElseThrow().status()).isEqualTo(GolemRoster.Status.SHATTERED);
+    assertThat(roster.golem(otherBodyId).orElseThrow().status()).isEqualTo(GolemRoster.Status.SHATTERED);
+  }
+
+  @Test
+  void aFailedRestoreRollsTheRosterBackToTheSealedEntry() {
+    GolemRoster roster = onlineOwner();
+    GolemSnapshot snapshot = snapshot(UUID.randomUUID(), GolemBody.IRON, GolemCoreType.BLANK, null);
+    PackedGolem item = shattered(roster, snapshot, 0L);
+    IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
+    doThrow(new IllegalStateException("persistence refused")).when(fresh).setPersistent(true);
+    int changesBefore = platform.changes(OWNER);
+
+    assertThatThrownBy(() -> registry.restore(owner, fresh, new GolemRegistry.Restore(item, snapshot, GolemRoster.Status.SHATTERED)))
+        .hasMessage("persistence refused");
+
+    assertThat(GolemState.has(fresh)).isFalse();
+    assertThat(registry.handle(fresh)).isEmpty();
+    GolemRoster.GolemEntry entry = roster.golem(snapshot.id()).orElseThrow();
+    assertThat(entry.status()).isEqualTo(GolemRoster.Status.SHATTERED);
+    assertThat(entry.holds(item.state())).isTrue();
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore + 2);
+  }
+
+  @Test
+  void aRestoreThatFailsAfterAdoptionRevertsTheBodyAndRestoresTheEntry() {
+    GolemRoster roster = onlineOwner();
+    GolemSnapshot snapshot = snapshot(UUID.randomUUID(), GolemBody.IRON, GolemCoreType.BLANK, null);
+    PackedGolem item = shattered(roster, snapshot, 0L);
+    IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
+    lifecycle.awakeFailure = new IllegalStateException("brain refused");
+
+    assertThatThrownBy(() -> registry.restore(owner, fresh, new GolemRegistry.Restore(item, snapshot, GolemRoster.Status.SHATTERED)))
+        .hasMessage("brain refused");
+
+    assertThat(GolemState.has(fresh)).isFalse();
+    assertThat(registry.handle(fresh)).isEmpty();
+    assertThat(platform.scale(fresh)).isEmpty();
+    assertThat(roster.golem(snapshot.id()).orElseThrow().holds(item.state())).isTrue();
+  }
+
+  @Test
+  void aGolemRestoredUnderTheFullServerCapWakesAtFullHealth() {
+    settings.set(withCaps(32, 8, 1));
+    GolemRoster roster = onlineOwner();
+    registry.bind(owner, golem(new AtomicReference<>(at(40, 64, 40))), GolemBody.IRON, GolemCoreType.BLANK);
+    GolemSnapshot snapshot = snapshot(UUID.randomUUID(), GolemBody.IRON, GolemCoreType.BLANK, null);
+    PackedGolem item = shattered(roster, snapshot, 0L);
+    IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
+    platform.stat(fresh, GolemStat.MAX_HEALTH, 150D);
+    GolemHandle handle = registry.restore(owner, fresh, new GolemRegistry.Restore(item, snapshot, GolemRoster.Status.SHATTERED)).orElseThrow();
+    assertThat(handle.isDormant()).isTrue();
+
+    handle.restoreFullHealth();
+    verify(fresh, never()).setHealth(anyDouble());
+    settings.set(withCaps(32, 8, 2));
+    registry.onTick();
+
+    assertThat(handle.isDormant()).isFalse();
+    verify(fresh).setHealth(150D);
+    handle.restoreFullHealth();
+    verify(fresh, times(2)).setHealth(150D);
   }
 
   @Test
@@ -1513,8 +1622,7 @@ class GolemRegistryTest extends AdaptTestBase {
 
     GolemRoster roster = onlineOwner();
     settings.set(withCaps(1, 1, 1500));
-    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    roster.transition(id, GolemRoster.Status.ACTIVE, GolemRoster.Status.SHATTERED);
+    shattered(roster, snapshot(id, GolemBody.IRON, GolemCoreType.BLANK, null), 0L);
     assertThat(registry.restoreBlock(fresh, snapshot(id, GolemBody.IRON, GolemCoreType.BLANK, null))).isEmpty();
     assertThat(registry.restoreBlock(fresh, snapshot(id, GolemBody.FROST, GolemCoreType.BLANK, null))).contains(GolemRegistry.BindBlock.BODY_MISMATCH);
     assertThat(registry.restoreBlock(fresh, snapshot(id, GolemBody.IRON, GolemCoreType.SORTER, null))).contains(GolemRegistry.BindBlock.CORE_NOT_ALLOWED);
@@ -1530,14 +1638,17 @@ class GolemRegistryTest extends AdaptTestBase {
   void restoreNeedsTheGolemsThreadAndAnOpenBody() {
     GolemRoster roster = onlineOwner();
     UUID id = UUID.randomUUID();
-    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    roster.transition(id, GolemRoster.Status.ACTIVE, GolemRoster.Status.SHATTERED);
+    GolemSnapshot iron = snapshot(id, GolemBody.IRON, GolemCoreType.BLANK, null);
+    PackedGolem item = shattered(roster, iron, 0L);
     IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemSnapshot frost = snapshot(id, GolemBody.FROST, GolemCoreType.BLANK, null);
 
-    assertThatThrownBy(() -> registry.restore(owner, fresh, frost, GolemRoster.Status.SHATTERED)).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(() -> registry.restore(owner, fresh, new GolemRegistry.Restore(item, frost, GolemRoster.Status.SHATTERED)))
+        .isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(() -> registry.restore(owner, fresh, new GolemRegistry.Restore(new PackedGolem(UUID.randomUUID(), OWNER, item.state()), iron,
+        GolemRoster.Status.SHATTERED))).isInstanceOf(IllegalStateException.class);
     platform.ownsEntities = false;
-    assertThatThrownBy(() -> registry.restore(owner, fresh, snapshot(id, GolemBody.IRON, GolemCoreType.BLANK, null), GolemRoster.Status.SHATTERED))
+    assertThatThrownBy(() -> registry.restore(owner, fresh, new GolemRegistry.Restore(item, iron, GolemRoster.Status.SHATTERED)))
         .isInstanceOf(IllegalStateException.class);
 
     assertThat(roster.golem(id).orElseThrow().status()).isEqualTo(GolemRoster.Status.SHATTERED);
@@ -1610,6 +1721,17 @@ class GolemRegistryTest extends AdaptTestBase {
     state.setRunes(List.of(new GolemRune(GolemRuneType.BULWARK, 3)));
     state.stats().addKills(12L);
     return GolemSnapshot.capture(state, new GolemSnapshot.Traits(name, 0D, 0, false), platform.now);
+  }
+
+  private PackedGolem shattered(GolemRoster roster, GolemSnapshot snapshot, long chunkKey) {
+    roster.add(new GolemRoster.Binding(snapshot.id(), snapshot.body(), snapshot.primaryCore(), WORLD, chunkKey, 0L));
+    PackedGolem item = new PackedGolem(snapshot.id(), OWNER, snapshot.toJson());
+    roster.stow(snapshot.id(), GolemRoster.Status.SHATTERED, item.state());
+    return item;
+  }
+
+  private static GolemRegistry.Restore restoreOf(GolemSnapshot snapshot) {
+    return new GolemRegistry.Restore(new PackedGolem(snapshot.id(), OWNER, snapshot.toJson()), snapshot, GolemRoster.Status.SHATTERED);
   }
 
   private void assertDroppedOnceAt(Location location, int experience) {

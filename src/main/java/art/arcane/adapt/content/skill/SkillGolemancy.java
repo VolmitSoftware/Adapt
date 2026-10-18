@@ -572,13 +572,17 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     GolemRepairXp.repaired(player, golem, golem.getHealth() - before);
   }
 
-  private void payRepair(Player player, LivingEntity golem, double healed) {
+  void payRepair(Player player, LivingEntity golem, double healed) {
     double xp = GolemXpRules.repairXp(HostileDamagePool.consume(golem, healed), getConfig().repairXpPerHealth);
     if (xp <= 0D) {
       return;
     }
     Location at = golem.getLocation();
     shouldReturnForPlayer(player, () -> xp(player, at, xp, GolemRepairXp.REWARD_KEY));
+    repairFx(at);
+  }
+
+  void repairFx(Location at) {
     fx(at.clone().add(0D, 1.5D, 0D), FxPriority.AMBIENT)
         .burst(Particles.VILLAGER_HAPPY, 5, 0.6D)
         .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.5F);

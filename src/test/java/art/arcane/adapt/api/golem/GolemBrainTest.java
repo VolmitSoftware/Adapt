@@ -629,6 +629,76 @@ class GolemBrainTest extends AdaptTestBase {
     }
   }
 
+  @Test
+  void aFailingMenderHealsNothingAndLeavesThePulseRunning() {
+    owner(at(1, 64, 0));
+    IronGolem golem = golem(IronGolem.class, at(0, 64, 0));
+    GolemMend.Mender failing = failingMender(false);
+    GolemMend.register(failing);
+    try {
+      GolemBrain brain = brain(golem, GolemBody.IRON);
+      brain.start();
+      platform.runDelayed();
+      platform.now += 1_000L;
+      platform.runDelayed();
+      platform.now += 1_000L;
+      platform.runDelayed();
+
+      assertThat(platform.heals).isEmpty();
+      assertThat(GolemMend.regen(brain.handle(), new GolemMend.RegenSenses(1D, 1D, true))).isZero();
+      assertThat(controller.calls.stream().filter("tick"::equals).count()).isEqualTo(3L);
+      assertThat(platform.delayed).singleElement();
+    } finally {
+      GolemMend.unregister(failing);
+    }
+  }
+
+  @Test
+  void aMenderWhoseIntervalFailsTurnsRegenOff() {
+    owner(at(1, 64, 0));
+    IronGolem golem = golem(IronGolem.class, at(0, 64, 0));
+    GolemMend.Mender failing = failingMender(true);
+    GolemMend.register(failing);
+    try {
+      GolemBrain brain = brain(golem, GolemBody.IRON);
+      brain.start();
+      platform.runDelayed();
+      platform.now += 60_000L;
+      platform.runDelayed();
+
+      assertThat(GolemMend.regenIntervalMillis()).isZero();
+      assertThat(platform.heals).isEmpty();
+    } finally {
+      GolemMend.unregister(failing);
+    }
+  }
+
+  private static GolemMend.Mender failingMender(boolean intervalFails) {
+    return new GolemMend.Mender() {
+      @Override
+      public long regenIntervalMillis() {
+        if (intervalFails) {
+          throw new IllegalStateException("interval unavailable");
+        }
+        return 1_000L;
+      }
+
+      @Override
+      public double regen(GolemHandle handle, GolemMend.RegenSenses senses) {
+        throw new IllegalStateException("regen unavailable");
+      }
+
+      @Override
+      public boolean shatters(GolemHandle handle) {
+        return false;
+      }
+
+      @Override
+      public void shattered(GolemHandle handle, Location at) {
+      }
+    };
+  }
+
   private void pulseFor(long millis) {
     long end = platform.now + millis;
     while (platform.now < end) {

@@ -198,24 +198,31 @@ public final class GolemRegistry extends TickedObject {
     return Optional.empty();
   }
 
-  public Optional<GolemHandle> restore(Player owner, Mob golem, GolemSnapshot snapshot, GolemRoster.Status from) {
+  public Optional<GolemHandle> restore(Player owner, Mob golem, Restore request) {
     requireOwned(golem, "restore");
+    GolemSnapshot snapshot = request.snapshot();
+    PackedGolem item = request.item();
     UUID ownerId = owner.getUniqueId();
-    if (!ownerId.equals(snapshot.owner())) {
-      throw new IllegalStateException("Golem " + snapshot.id() + " belongs to " + snapshot.owner() + ", not " + ownerId);
+    if (!ownerId.equals(snapshot.owner()) || !ownerId.equals(item.owner()) || !snapshot.id().equals(item.golemId())) {
+      throw new IllegalStateException("Golem " + snapshot.id() + " in item " + item.golemId() + " of " + item.owner() + " cannot be restored for " + ownerId);
     }
     Optional<BindBlock> block = restoreBlock(golem, snapshot);
     if (block.isPresent()) {
       throw new IllegalStateException("Golem " + snapshot.id() + " cannot be restored into " + golem.getUniqueId() + ": " + block.get());
     }
     GolemRoster roster = platform.roster(ownerId).orElseThrow();
-    if (!roster.transition(snapshot.id(), from, GolemRoster.Status.ACTIVE)) {
+    if (!matchesEntry(roster, snapshot) || !roster.unstow(snapshot.id(), request.from(), item.state())) {
       return Optional.empty();
     }
     platform.rosterChanged(ownerId);
-    GolemState state = GolemState.restored(snapshot, GolemState.Anchor.at(golem.getLocation()));
-    writeBound(golem, state, snapshot.name().orElseGet(() -> Component.text(boundName(owner, snapshot.body()))));
-    return Optional.of(adoptBound(golem, state));
+    try {
+      GolemState state = GolemState.restored(snapshot, GolemState.Anchor.at(golem.getLocation()));
+      writeBound(golem, state, snapshot.name().orElseGet(() -> Component.text(boundName(owner, snapshot.body()))));
+      return Optional.of(adoptBound(golem, state));
+    } catch (RuntimeException failure) {
+      undoRestore(golem, ownerId, request);
+      throw failure;
+    }
   }
 
   public GolemSnapshot snapshot(GolemHandle handle) {
@@ -552,6 +559,7 @@ public final class GolemRegistry extends TickedObject {
     GolemColossus.reconcile(handle);
     if (reason == DormancyReason.NONE) {
       GolemStats.recompute(handle);
+      handle.settleFullHealth();
       lifecycle.awake(handle);
     } else {
       lifecycle.asleep(handle);
@@ -699,16 +707,29 @@ public final class GolemRegistry extends TickedObject {
     if (roster.isEmpty()) {
       return false;
     }
-    GolemSnapshot snapshot = snapshot(handle).withoutCargo();
-    if (!roster.get().transition(handle.id(), GolemRoster.Status.ACTIVE, GolemRoster.Status.SHATTERED)) {
+    String itemState = snapshot(handle).withoutCargo().toJson();
+    if (!roster.get().stow(handle.id(), GolemRoster.Status.SHATTERED, itemState)) {
       return false;
     }
     missingWatch.forget(handle.id());
     platform.rosterChanged(owner);
     Location at = handle.entity().getLocation();
-    platform.dropOwnerBound(at, GolemItems.shatteredCore(new PackedGolem(handle.id(), owner, snapshot.toJson())), owner);
+    platform.dropOwnerBound(at, GolemItems.shatteredCore(new PackedGolem(handle.id(), owner, itemState)), owner);
     GolemMend.shattered(handle, at);
     return true;
+  }
+
+  private void undoRestore(Mob golem, UUID owner, Restore request) {
+    Optional<GolemHandle> adopted = handle(golem);
+    if (adopted.isPresent()) {
+      revert(adopted.get());
+    } else {
+      GolemState.clear(golem);
+    }
+    Optional<GolemRoster> roster = platform.roster(owner);
+    if (roster.isPresent() && roster.get().stow(request.snapshot().id(), request.from(), request.item().state())) {
+      platform.rosterChanged(owner);
+    }
   }
 
   private void writeBound(Mob golem, GolemState state, Component name) {
@@ -911,6 +932,12 @@ public final class GolemRegistry extends TickedObject {
     return bound;
   }
 
+  private static boolean matchesEntry(GolemRoster roster, GolemSnapshot snapshot) {
+    return roster.golem(snapshot.id())
+        .filter(entry -> entry.body() == snapshot.body() && entry.core() == snapshot.primaryCore())
+        .isPresent();
+  }
+
   private static long chunkKey(Location location) {
     return GolemRoster.chunkKey(location.getBlockX() >> 4, location.getBlockZ() >> 4);
   }
@@ -919,6 +946,14 @@ public final class GolemRegistry extends TickedObject {
     return AdaptLanguage.text(GolemancyMessages.GOLEM_NAME,
         untrusted("owner", owner.getName()),
         trusted("body", AdaptLanguage.text(body.displayName())));
+  }
+
+  public record Restore(PackedGolem item, GolemSnapshot snapshot, GolemRoster.Status from) {
+    public Restore {
+      Objects.requireNonNull(item);
+      Objects.requireNonNull(snapshot);
+      Objects.requireNonNull(from);
+    }
   }
 
   public enum BindBlock {

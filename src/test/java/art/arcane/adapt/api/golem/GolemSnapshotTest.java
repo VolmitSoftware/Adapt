@@ -1,11 +1,14 @@
 package art.arcane.adapt.api.golem;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -179,6 +182,43 @@ class GolemSnapshotTest {
     assertThat(GolemSnapshot.fromJson(without(stored, "body"))).isEmpty();
     assertThat(GolemSnapshot.fromJson(with(stored, "body", "clay"))).isEmpty();
     assertThat(GolemSnapshot.fromJson(without(stored, "cores"))).isEmpty();
+    JsonObject nullCargo = new Gson().fromJson(stored.toString(), JsonObject.class);
+    JsonArray carried = new JsonArray();
+    carried.add(JsonNull.INSTANCE);
+    carried.add("stack-one");
+    nullCargo.add("carried", carried);
+    assertThat(GolemSnapshot.fromJson(nullCargo.toString())).hasValueSatisfying(read -> assertThat(read.carried()).containsExactly("stack-one"));
+    JsonObject worldless = new Gson().fromJson(stored.toString(), JsonObject.class);
+    worldless.getAsJsonObject("home").remove("world");
+    worldless.getAsJsonObject("homeChest").add("world", JsonNull.INSTANCE);
+    assertThat(GolemSnapshot.fromJson(worldless.toString())).hasValueSatisfying(read -> {
+      assertThat(read.home()).isNull();
+      assertThat(read.homeChest()).isNull();
+    });
+    JsonObject nullRune = new Gson().fromJson(stored.toString(), JsonObject.class);
+    nullRune.getAsJsonArray("runes").add(JsonNull.INSTANCE);
+    nullRune.getAsJsonArray("cores").add(JsonNull.INSTANCE);
+    assertThat(GolemSnapshot.fromJson(nullRune.toString())).hasValueSatisfying(read -> {
+      assertThat(read.runes()).hasSize(2);
+      assertThat(read.cores()).hasSize(2);
+    });
+    assertThat(GolemSnapshot.fromJson(with(stored, "carried", "not a list"))).isEmpty();
+    assertThat(GolemSnapshot.fromJson(with(stored, "id", "not a uuid"))).isEmpty();
+  }
+
+  @Test
+  void runesAreCappedAtTheMostRuneSlots() {
+    GolemState state = populated();
+    List<GolemRune> crowded = new ArrayList<>();
+    for (int index = 0; index < GolemRuneLayout.MAX_SLOTS + 3; index++) {
+      crowded.add(new GolemRune(GolemRuneType.values()[index % GolemRuneType.values().length], 1));
+    }
+    state.setRunes(crowded);
+
+    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 1D, 0, false), TAKEN_AT);
+
+    assertThat(snapshot.runes()).hasSize(GolemRuneLayout.MAX_SLOTS).containsExactlyElementsOf(crowded.subList(0, GolemRuneLayout.MAX_SLOTS));
+    assertThat(GolemSnapshot.fromJson(snapshot.toJson()).orElseThrow().runes()).hasSize(GolemRuneLayout.MAX_SLOTS);
   }
 
   @Test

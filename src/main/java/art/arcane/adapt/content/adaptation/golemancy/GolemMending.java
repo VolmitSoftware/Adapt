@@ -321,37 +321,47 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
     if (!MendingRules.withinReach(player.getEyeLocation().toVector(), golem.getBoundingBox())) {
       return;
     }
-    Optional<PackedGolem> packed = GolemItems.packedGolemOf(held);
-    GolemSnapshot snapshot = packed.flatMap(item -> GolemSnapshot.fromJson(item.state())
-        .filter(read -> read.id().equals(item.golemId()) && read.owner().equals(item.owner()))).orElse(null);
-    GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
-    int level = getActiveLevel(player);
-    RebuildVerdict verdict = MendingRules.rebuildVerdict(assess(player, golem, packed.orElse(null), snapshot, registry, level));
+    PackedGolem item = GolemItems.packedGolemOf(held).orElse(null);
+    GolemSnapshot snapshot = item == null ? null : GolemSnapshot.fromJson(item.state())
+        .filter(read -> read.id().equals(item.golemId()) && read.owner().equals(item.owner()))
+        .map(GolemSnapshot::withoutCargo)
+        .orElse(null);
+    Rebuild rebuild = new Rebuild(player, golem, item, snapshot, GolemancyRuntime.registry().orElse(null), getActiveLevel(player));
+    RebuildVerdict verdict = MendingRules.rebuildVerdict(assess(rebuild));
     switch (verdict) {
-      case READY -> reborn(player, golem, snapshot, registry, level);
+      case READY -> reborn(rebuild);
       case VOID -> crumble(player, held);
       default -> deny(player, verdict, snapshot);
     }
   }
 
-  private RebuildCheck assess(Player player, Mob golem, PackedGolem packed, GolemSnapshot snapshot, GolemRegistry registry, int level) {
+  private RebuildCheck assess(Rebuild rebuild) {
+    Player player = rebuild.player();
+    Mob golem = rebuild.golem();
+    PackedGolem item = rebuild.item();
+    GolemSnapshot snapshot = rebuild.snapshot();
+    GolemRegistry registry = rebuild.registry();
     UUID playerId = player.getUniqueId();
     GolemAnimusBinding binding = binding().orElse(null);
     Optional<GolemRoster> roster = registry == null || binding == null ? Optional.empty() : roster(player);
-    GolemRoster.Status status = packed == null ? null : roster.flatMap(known -> known.golem(packed.golemId())).map(GolemRoster.GolemEntry::status).orElse(null);
+    Optional<GolemRoster.GolemEntry> entry = item == null ? Optional.empty() : roster.flatMap(known -> known.golem(item.golemId()));
     GolemRegistry.BindBlock block = registry == null || snapshot == null ? null : registry.restoreBlock(golem, snapshot).orElse(null);
     GolemBody body = snapshot == null ? GolemBody.of(golem).orElseThrow() : snapshot.body();
     boolean exclusive = binding != null && binding.builderExclusive(golem, playerId, System.currentTimeMillis());
     boolean bodyUnlocked = binding != null && binding.bodyUnlocked(player, body);
-    return new RebuildCheck(snapshot != null, packed != null && playerId.equals(packed.owner()), roster.isPresent(), status, level,
+    return new RebuildCheck(snapshot != null, item != null && playerId.equals(item.owner()), roster.isPresent(),
+        entry.map(GolemRoster.GolemEntry::status).orElse(null), entry.filter(known -> known.holds(item.state())).isPresent(), rebuild.level(),
         getConfig().shatterLevel, block, GolemAnimusBinding.playerCreated(golem), binding != null && binding.villageGolemsAllowed(), exclusive,
         bodyUnlocked, canInteract(player, golem.getLocation()));
   }
 
-  private void reborn(Player player, Mob golem, GolemSnapshot snapshot, GolemRegistry registry, int level) {
+  private void reborn(Rebuild rebuild) {
+    Player player = rebuild.player();
+    Mob golem = rebuild.golem();
+    GolemSnapshot snapshot = rebuild.snapshot();
     Optional<GolemHandle> handle;
     try {
-      handle = registry.restore(player, golem, snapshot, GolemRoster.Status.SHATTERED);
+      handle = rebuild.registry().restore(player, golem, new GolemRegistry.Restore(rebuild.item(), snapshot, GolemRoster.Status.SHATTERED));
     } catch (RuntimeException failure) {
       Adapt.warn("Golem Mending could not rebuild golem " + snapshot.id() + " for " + player.getName() + "; its Shattered Core was kept.", failure);
       warn(player, GolemancyMessages.BINDING_INTERRUPTED);
@@ -362,10 +372,10 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
       crumble(player, inventory.getItemInMainHand());
       return;
     }
-    if (MendingRules.unlocked(level, getConfig().rebornLevel)) {
+    if (MendingRules.unlocked(rebuild.level(), getConfig().rebornLevel)) {
       applyRebornBoon(golem, snapshot);
     }
-    golem.setHealth(GolemVitals.maxHealth(golem));
+    handle.get().restoreFullHealth();
     decrementItemstack(inventory.getItemInMainHand(), player);
     player.saveData();
     rebornFx(golem);
@@ -448,6 +458,9 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
   }
 
   private record PendingRepair(double bonus, long until) {
+  }
+
+  private record Rebuild(Player player, Mob golem, PackedGolem item, GolemSnapshot snapshot, GolemRegistry registry, int level) {
   }
 
   private final class Mender implements GolemMend.Mender {

@@ -55,8 +55,8 @@ class RunicAugmentsRulesTest {
     GolemRuneLayout crowded = RunicAugmentsRules.layout(8, List.of(0, 5), MAX_TIERS, 2, Set.of(), 2);
     GolemRuneLayout empty = RunicAugmentsRules.layout(0, List.of(0, 0, 0, 0, 0), MAX_TIERS, 5, Set.of(), 5);
 
-    assertThat(crowded.maxSlots()).isEqualTo(RunicAugmentsRules.MAX_SLOTS);
-    assertThat(crowded.unlockedSlots()).isEqualTo(RunicAugmentsRules.MAX_SLOTS);
+    assertThat(crowded.maxSlots()).isEqualTo(GolemRuneLayout.MAX_SLOTS);
+    assertThat(crowded.unlockedSlots()).isEqualTo(GolemRuneLayout.MAX_SLOTS);
     assertThat(empty.maxSlots()).isZero();
     assertThat(empty.unlockedSlots()).isZero();
   }

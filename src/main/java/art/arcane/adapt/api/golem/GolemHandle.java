@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem;
 
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Mob;
 import org.bukkit.inventory.ItemStack;
 
@@ -22,6 +23,7 @@ public final class GolemHandle {
   private volatile boolean retired;
   private volatile GolemStatPlan appliedStats;
   private volatile int patinaStage;
+  private volatile boolean fullHealthOwed;
 
   GolemHandle(Mob entity, GolemState state, GolemPlatform platform) {
     this.entity = Objects.requireNonNull(entity);
@@ -153,6 +155,14 @@ public final class GolemHandle {
     flush();
   }
 
+  public void restoreFullHealth() {
+    if (isDormant()) {
+      fullHealthOwed = true;
+      return;
+    }
+    fillHealth();
+  }
+
   public void addKills(long kills) {
     state.stats().addKills(kills);
     markDebounced();
@@ -189,6 +199,13 @@ public final class GolemHandle {
     trackPosition(entity.getLocation());
     state.write(entity);
     writePolicy.flushed();
+  }
+
+  void settleFullHealth() {
+    if (fullHealthOwed) {
+      fullHealthOwed = false;
+      fillHealth();
+    }
   }
 
   boolean isDirty() {
@@ -252,6 +269,13 @@ public final class GolemHandle {
 
   void retire() {
     retired = true;
+  }
+
+  private void fillHealth() {
+    AttributeInstance maximum = platform.attribute(entity, GolemStat.MAX_HEALTH);
+    if (maximum != null && !entity.isDead()) {
+      entity.setHealth(maximum.getValue());
+    }
   }
 
   private void markDebounced() {
