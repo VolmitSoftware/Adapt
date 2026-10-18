@@ -38,7 +38,6 @@ class GolemGuiActionsTest {
 
   @Test
   void companionGolemsCycleOnlyFollowStayAndHome() {
-    assertThat(GolemMode.selectableFor(GolemCoreType.BLANK)).containsExactly(GolemMode.FOLLOW, GolemMode.STAY, GolemMode.HOME);
     assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.BLANK), GolemMode.FOLLOW, true)).isEqualTo(GolemMode.STAY);
     assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.BLANK), GolemMode.HOME, true)).isEqualTo(GolemMode.FOLLOW);
     assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.BLANK), GolemMode.FOLLOW, false)).isEqualTo(GolemMode.HOME);

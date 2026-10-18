@@ -9,10 +9,6 @@ import java.util.Map;
 record ActiveRunes(Map<GolemRuneType, Integer> slotted, boolean tierUp, double tierThreeBoost) {
   static final ActiveRunes NONE = new ActiveRunes(Map.of(), false, 0D);
 
-  static ActiveRunes slotted(Map<GolemRuneType, Integer> slotted) {
-    return new ActiveRunes(slotted, false, 0D);
-  }
-
   boolean isEmpty() {
     return slotted.isEmpty();
   }

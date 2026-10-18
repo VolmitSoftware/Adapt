@@ -301,13 +301,15 @@ public final class GolemRegistry extends TickedObject {
     if (roster.isEmpty()) {
       return Designation.UNAVAILABLE;
     }
-    if (roster.get().masterworkCount() >= maxMasterworks) {
-      return Designation.CAP;
+    switch (roster.get().markMasterworkWithin(handle.id(), maxMasterworks)) {
+      case FULL -> {
+        return Designation.CAP;
+      }
+      case UNAVAILABLE -> {
+        return Designation.UNAVAILABLE;
+      }
+      case MARKED -> platform.rosterChanged(handle.owner());
     }
-    if (!roster.get().markMasterwork(handle.id(), true)) {
-      return Designation.UNAVAILABLE;
-    }
-    platform.rosterChanged(handle.owner());
     handle.setMasterwork(true);
     GolemStats.recompute(handle);
     return Designation.DESIGNATED;

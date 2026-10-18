@@ -18,7 +18,6 @@
 
 package art.arcane.adapt.content.adaptation.golemancy;
 
-import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.fx.FxPriority;
@@ -33,7 +32,6 @@ import art.arcane.adapt.api.golem.GolemStatDelta;
 import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
@@ -57,6 +55,7 @@ import java.util.UUID;
 public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
   static final String SOURCE = "masterwork";
   private static final long MILLIS_PER_TICK = 50L;
+  private static final double MAX_TIER_THREE_BOOST = 4D;
   private static final Color AURA_COLOR = Color.fromRGB(0xFFC83D);
   private static final double AURA_RADIUS = 0.6D;
   private static final int AURA_POINTS = 6;
@@ -92,7 +91,7 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
     loadedConfig.extraRuneSlots = Math.clamp(loadedConfig.extraRuneSlots, 0, GolemRuneLayout.MAX_SLOTS);
     loadedConfig.dualCoreLevel = Math.max(1, loadedConfig.dualCoreLevel);
     loadedConfig.tierUpLevel = Math.max(1, loadedConfig.tierUpLevel);
-    loadedConfig.tierThreeBoost = nonNegative(loadedConfig.tierThreeBoost);
+    loadedConfig.tierThreeBoost = Math.min(MAX_TIER_THREE_BOOST, nonNegative(loadedConfig.tierThreeBoost));
     loadedConfig.heartDeathDropChance = Double.isFinite(loadedConfig.heartDeathDropChance)
         ? Math.clamp(loadedConfig.heartDeathDropChance, 0D, 1D)
         : 0D;
@@ -151,17 +150,7 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
 
   boolean coreUnlocked(UUID owner, GolemCoreType core) {
     AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
-    Skill<?> skill = getSkill();
-    if (player == null || skill == null) {
-      return false;
-    }
-    String coreAdaptation = "golem-" + core.id() + "-core";
-    for (Adaptation<?> sibling : skill.getAdaptations()) {
-      if (sibling.getName().equals(coreAdaptation)) {
-        return sibling.getLevel(player) >= 1;
-      }
-    }
-    return false;
+    return player != null && getActiveSiblingLevel(player.getPlayer(), "golem-" + core.id() + "-core") >= 1;
   }
 
   void aura(GolemHandle handle) {
@@ -260,7 +249,7 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
     int dualCoreLevel = 2;
     @ConfigDoc(value = "Masterwork level at which a masterwork golem's runes act one tier higher.", impact = "Lower values unlock stronger runes sooner.")
     int tierUpLevel = 3;
-    @ConfigDoc(value = "Fraction added to the numbers of a tier 3 rune in a masterwork golem once its runes act one tier higher. 0.25 is 25% more. Values below 0 load as 0.", impact = "Higher values make tier 3 runes in masterwork golems stronger.")
+    @ConfigDoc(value = "Fraction added to the numbers of a tier 3 rune in a masterwork golem once its runes act one tier higher, from 0 to 4. 0.25 is 25% more. Values outside that range load as the nearest limit.", impact = "Higher values make tier 3 runes in masterwork golems stronger.")
     double tierThreeBoost = 0.25;
     @ConfigDoc(value = "Chance a masterwork golem drops its Masterwork Heart when it dies, from 0 to 1. A golem that leaves a Shattered Core keeps its Heart instead.", impact = "Lower values make a masterwork's death cost its Heart more often.")
     double heartDeathDropChance = 1.0;

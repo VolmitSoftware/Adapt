@@ -70,7 +70,7 @@ public record GolemRuneEffects(double radiusBonus, int extraChannels, double rec
     }
 
     public int scale(int value) {
-      return (int) Math.round(value * multiplier);
+      return Math.clamp(Math.round(value * multiplier), Integer.MIN_VALUE, Integer.MAX_VALUE);
     }
   }
 }

@@ -117,6 +117,13 @@ class GolemMasterworkTest extends AdaptTestBase {
   }
 
   @Test
+  void loadingCapsTheTierThreeBoostAtFour() {
+    assertThat(adaptation.reloadConfigSnapshot("tierThreeBoost = 9.0\n", dataFolder.toPath().resolve("boost.toml").toFile(), false)).isTrue();
+
+    assertThat(adaptation.getConfig().tierThreeBoost).isEqualTo(4D);
+  }
+
+  @Test
   void loadingClampsFractionsSlotsLevelsTheChanceAndTheAuraInterval() {
     String toml = "healthBonusFraction = -0.5\nextraRuneSlots = 40\ndualCoreLevel = 0\ntierUpLevel = -2\ntierThreeBoost = -1.0\n"
         + "heartDeathDropChance = 4.0\nauraIntervalTicks = 0\n";
@@ -230,14 +237,16 @@ class GolemMasterworkTest extends AdaptTestBase {
   }
 
   @Test
-  void aSecondCoreNeedsItsCoreAdaptationLearned() {
+  void aSecondCoreNeedsItsCoreAdaptationActive() {
     AdaptPlayer owner = learnedOwner(1);
+    Player player = mock(Player.class);
+    when(owner.getPlayer()).thenReturn(player);
     Adaptation<?> lumber = mock(Adaptation.class);
     when(lumber.getName()).thenReturn("golem-lumber-core");
-    when(lumber.getLevel(owner)).thenReturn(1);
+    when(lumber.getActiveLevel(player)).thenReturn(1);
     Adaptation<?> breaker = mock(Adaptation.class);
     lenient().when(breaker.getName()).thenReturn("golem-breaker-core");
-    lenient().when(breaker.getLevel(owner)).thenReturn(0);
+    lenient().when(breaker.getActiveLevel(player)).thenReturn(0);
     doReturn(new KList<>(List.of(lumber, breaker))).when(adaptation.getSkill()).getAdaptations();
 
     assertThat(adaptation.coreUnlocked(OWNER, GolemCoreType.LUMBER)).isTrue();

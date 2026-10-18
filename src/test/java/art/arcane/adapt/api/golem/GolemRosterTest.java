@@ -316,6 +316,26 @@ class GolemRosterTest {
   }
 
   @Test
+  void markingAMasterworkWithinTheCapChecksTheCountAndMarksInOneStep() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.add(binding(OTHER, 0L, 0L));
+    UUID missing = UUID.randomUUID();
+    roster.add(binding(missing, 0L, 0L));
+    roster.transition(missing, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+
+    assertThat(roster.markMasterworkWithin(missing, 3)).isEqualTo(GolemRoster.MasterworkMark.UNAVAILABLE);
+    assertThat(roster.markMasterworkWithin(UUID.randomUUID(), 3)).isEqualTo(GolemRoster.MasterworkMark.UNAVAILABLE);
+    assertThat(roster.markMasterworkWithin(GOLEM, 0)).isEqualTo(GolemRoster.MasterworkMark.FULL);
+    assertThat(roster.markMasterworkWithin(GOLEM, 1)).isEqualTo(GolemRoster.MasterworkMark.MARKED);
+    assertThat(roster.markMasterworkWithin(GOLEM, 1)).isEqualTo(GolemRoster.MasterworkMark.UNAVAILABLE);
+    assertThat(roster.markMasterworkWithin(OTHER, 1)).isEqualTo(GolemRoster.MasterworkMark.FULL);
+    assertThat(roster.golem(OTHER).orElseThrow().masterwork()).isFalse();
+    assertThat(roster.markMasterworkWithin(OTHER, 2)).isEqualTo(GolemRoster.MasterworkMark.MARKED);
+    assertThat(roster.masterworkCount()).isEqualTo(2);
+  }
+
+  @Test
   void theMasterworkMarkSurvivesGson() {
     GolemRoster roster = new GolemRoster();
     roster.add(binding(GOLEM, 0L, 0L));

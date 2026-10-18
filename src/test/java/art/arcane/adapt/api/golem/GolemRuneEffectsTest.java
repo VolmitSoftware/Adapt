@@ -118,4 +118,13 @@ class GolemRuneEffectsTest {
     assertThat(new GolemRuneEffects.Tier(2, 1D).scale(4)).isEqualTo(4);
     assertThat(new GolemRuneEffects.Tier(2, 1D).scale(0.2D)).isEqualTo(0.2D);
   }
+
+  @Test
+  void aHugeMultiplierSaturatesWholeValuesInsteadOfOverflowing() {
+    GolemRuneEffects.Tier huge = new GolemRuneEffects.Tier(3, 1e12D);
+
+    assertThat(huge.scale(Integer.MAX_VALUE)).isEqualTo(Integer.MAX_VALUE);
+    assertThat(huge.scale(-5)).isEqualTo(Integer.MIN_VALUE);
+    assertThat(huge.scale(3)).isEqualTo(Integer.MAX_VALUE);
+  }
 }

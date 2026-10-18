@@ -34,10 +34,6 @@ public enum GolemMode {
     return core == GolemCoreType.BLANK ? FOLLOW : WORK;
   }
 
-  public static List<GolemMode> selectableFor(GolemCoreType core) {
-    return core == GolemCoreType.BLANK ? COMPANION_MODES : ALL_MODES;
-  }
-
   public static List<GolemMode> selectableFor(List<GolemCoreType> cores) {
     for (GolemCoreType core : cores) {
       if (core != GolemCoreType.BLANK) {

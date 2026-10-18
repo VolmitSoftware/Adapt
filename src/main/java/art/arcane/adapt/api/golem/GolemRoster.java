@@ -104,7 +104,18 @@ public final class GolemRoster {
     return changed.get();
   }
 
-  public boolean markMasterwork(UUID id, boolean masterwork) {
+  public synchronized MasterworkMark markMasterworkWithin(UUID id, int maxMasterworks) {
+    GolemEntry entry = id == null ? null : golemMap().get(id.toString());
+    if (entry == null || entry.status() != Status.ACTIVE || entry.masterwork) {
+      return MasterworkMark.UNAVAILABLE;
+    }
+    if (masterworkCount() >= maxMasterworks) {
+      return MasterworkMark.FULL;
+    }
+    return markMasterwork(id, true) ? MasterworkMark.MARKED : MasterworkMark.UNAVAILABLE;
+  }
+
+  public synchronized boolean markMasterwork(UUID id, boolean masterwork) {
     if (id == null) {
       return false;
     }
@@ -196,6 +207,12 @@ public final class GolemRoster {
       nodes = local;
     }
     return local;
+  }
+
+  public enum MasterworkMark {
+    MARKED,
+    FULL,
+    UNAVAILABLE
   }
 
   public enum Status {

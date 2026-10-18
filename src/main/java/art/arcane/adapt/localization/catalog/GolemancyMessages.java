@@ -123,7 +123,7 @@ public final class GolemancyMessages {
   public static final TextKey GUI_TASKS = TextKey.of("golemancy.gui.tasks", "Tasks completed: {value}");
   public static final TextKey GUI_ITEMS_MOVED = TextKey.of("golemancy.gui.items_moved", "Items moved: {value}");
   public static final TextKey GUI_RELEASE = TextKey.of("golemancy.gui.release", "Release");
-  public static final TextKey GUI_RELEASE_LORE = TextKey.of("golemancy.gui.release_lore", "Returns it to a vanilla golem and drops its core, runes and carried items");
+  public static final TextKey GUI_RELEASE_LORE = TextKey.of("golemancy.gui.release_lore", "Returns it to a vanilla golem and drops its core, runes, carried items and any second core or Masterwork Heart");
   public static final TextKey GUI_RELEASE_CONFIRM = TextKey.of("golemancy.gui.release_confirm", "Release this golem?");
   public static final TextKey GUI_SNOW_TRAIL_ON = TextKey.of("golemancy.gui.snow_trail_on", "Snow Trail: On");
   public static final TextKey GUI_SNOW_TRAIL_OFF = TextKey.of("golemancy.gui.snow_trail_off", "Snow Trail: Off");

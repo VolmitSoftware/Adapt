@@ -269,7 +269,7 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     assertThat(effects.channelSlots()).isEqualTo(4);
     assertThat(effects.reclaimDelayMultiplier()).isCloseTo(0.25D, offset(1e-9));
     assertThat(effects.bonusYield()).isEqualTo(0.05D);
-    assertThat(GolemRunicAugments.runeEffects(new GolemRunicAugments.Config(), ActiveRunes.slotted(Map.of(GolemRuneType.ORDER, 1))))
+    assertThat(GolemRunicAugments.runeEffects(new GolemRunicAugments.Config(), new ActiveRunes(Map.of(GolemRuneType.ORDER, 1), false, 0D)))
         .isEqualTo(new GolemRuneEffects(0D, 1, 1D, 0D));
   }
 
@@ -277,20 +277,20 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
   void eachAspectsStatsCarryAndWorkSpeedFollowItsTierTable() {
     GolemRunicAugments.Config config = new GolemRunicAugments.Config();
 
-    assertThat(GolemRunicAugments.runeStats(config, ActiveRunes.slotted(Map.of(GolemRuneType.SWIFTNESS, 2))))
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.SWIFTNESS, 2), false, 0D)))
         .containsExactly(GolemStatDelta.multiplyBase(GolemStat.MOVEMENT_SPEED, 0.20D));
-    assertThat(GolemRunicAugments.runeStats(config, ActiveRunes.slotted(Map.of(GolemRuneType.MIGHT, 3)))).containsExactly(GolemStatDelta.add(GolemStat.ATTACK_DAMAGE, 6D));
-    assertThat(GolemRunicAugments.runeStats(config, ActiveRunes.slotted(Map.of(GolemRuneType.TIDE, 1)))).containsExactly(GolemStatDelta.add(GolemStat.FOLLOW_RANGE, 4D));
-    assertThat(GolemRunicAugments.runeStats(config, ActiveRunes.slotted(Map.of(GolemRuneType.TIDE, 3))))
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.MIGHT, 3), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.ATTACK_DAMAGE, 6D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.TIDE, 1), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.FOLLOW_RANGE, 4D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.TIDE, 3), false, 0D)))
         .containsExactly(GolemStatDelta.add(GolemStat.FOLLOW_RANGE, 12D), GolemStatDelta.add(GolemStat.WATER_MOVEMENT_EFFICIENCY, 1D));
-    assertThat(GolemRunicAugments.runeStats(config, ActiveRunes.slotted(Map.of(GolemRuneType.BULWARK, 1)))).containsExactly(GolemStatDelta.add(GolemStat.ARMOR, 4D));
-    assertThat(GolemRunicAugments.runeStats(config, ActiveRunes.slotted(Map.of(GolemRuneType.BULWARK, 3)))).containsExactly(GolemStatDelta.add(GolemStat.ARMOR, 12D),
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.BULWARK, 1), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.ARMOR, 4D));
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.BULWARK, 3), false, 0D))).containsExactly(GolemStatDelta.add(GolemStat.ARMOR, 12D),
         GolemStatDelta.add(GolemStat.ARMOR_TOUGHNESS, 4D), GolemStatDelta.add(GolemStat.KNOCKBACK_RESISTANCE, 0.5D));
-    assertThat(GolemRunicAugments.runeStats(config, ActiveRunes.slotted(Map.of(GolemRuneType.EMBER, 3, GolemRuneType.ORDER, 3, GolemRuneType.ENTROPY, 3)))).isEmpty();
-    assertThat(GolemRunicAugments.runeCarry(config, ActiveRunes.slotted(Map.of(GolemRuneType.MIGHT, 2)))).isEqualTo(GolemCapacity.Contribution.bonus(1D));
-    assertThat(GolemRunicAugments.runeCarry(config, ActiveRunes.slotted(Map.of()))).isEqualTo(GolemCapacity.Contribution.NONE);
-    assertThat(GolemRunicAugments.runeWorkInterval(config, ActiveRunes.slotted(Map.of(GolemRuneType.SWIFTNESS, 3)))).isCloseTo(0.7D, offset(1e-9));
-    assertThat(GolemRunicAugments.runeWorkInterval(config, ActiveRunes.slotted(Map.of()))).isEqualTo(1D);
+    assertThat(GolemRunicAugments.runeStats(config, new ActiveRunes(Map.of(GolemRuneType.EMBER, 3, GolemRuneType.ORDER, 3, GolemRuneType.ENTROPY, 3), false, 0D))).isEmpty();
+    assertThat(GolemRunicAugments.runeCarry(config, new ActiveRunes(Map.of(GolemRuneType.MIGHT, 2), false, 0D))).isEqualTo(GolemCapacity.Contribution.bonus(1D));
+    assertThat(GolemRunicAugments.runeCarry(config, new ActiveRunes(Map.of(), false, 0D))).isEqualTo(GolemCapacity.Contribution.NONE);
+    assertThat(GolemRunicAugments.runeWorkInterval(config, new ActiveRunes(Map.of(GolemRuneType.SWIFTNESS, 3), false, 0D))).isCloseTo(0.7D, offset(1e-9));
+    assertThat(GolemRunicAugments.runeWorkInterval(config, new ActiveRunes(Map.of(), false, 0D))).isEqualTo(1D);
   }
 
   @Test
