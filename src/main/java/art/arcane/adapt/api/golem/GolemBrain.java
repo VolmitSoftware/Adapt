@@ -42,6 +42,7 @@ public final class GolemBrain {
   private long nextScanAt;
   private long scanDelay = TARGET_SCAN_MILLIS;
   private long nextStatsAt;
+  private long nextRegenAt;
 
   GolemBrain(GolemHandle handle, GolemController controller, Context context) {
     this.handle = Objects.requireNonNull(handle);
@@ -88,6 +89,7 @@ public final class GolemBrain {
     lastMode = null;
     combatTarget = null;
     appliedTarget = null;
+    nextRegenAt = 0L;
     if (!attached) {
       try {
         controller.attach();
@@ -176,7 +178,9 @@ public final class GolemBrain {
     Location ownerAt = sighting == null ? null : sighting.location();
     Location home = homeIn(here.getWorld());
     LivingEntity target = combat(owner, now);
-    if (work(mode, target, now, here, owner, home, settings)) {
+    boolean working = work(mode, target, now, here, owner, home, settings);
+    regen(now, here, ownerAt, home, !working && target == null);
+    if (working) {
       return;
     }
     GolemBrainMachine.Senses senses = new GolemBrainMachine.Senses(now, mode, distance(here, ownerAt), sighting != null && sighting.grounded(),
@@ -215,6 +219,26 @@ public final class GolemBrain {
     applyTarget(null);
     controller.tick();
     return true;
+  }
+
+  private void regen(long now, Location here, Location ownerAt, Location home, boolean idle) {
+    GolemMend.Mender mender = GolemMend.active();
+    if (mender == null) {
+      nextRegenAt = 0L;
+      return;
+    }
+    if (nextRegenAt == 0L) {
+      nextRegenAt = now + Math.max(1L, mender.regenIntervalMillis());
+      return;
+    }
+    if (now < nextRegenAt) {
+      return;
+    }
+    nextRegenAt = now + Math.max(1L, mender.regenIntervalMillis());
+    double amount = mender.regen(handle, new GolemMend.RegenSenses(distance(here, ownerAt), distance(here, home), idle));
+    if (Double.isFinite(amount) && amount > 0D) {
+      context.platform().heal(handle.entity(), amount);
+    }
   }
 
   private void refreshStats(long now) {

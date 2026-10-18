@@ -4478,6 +4478,7 @@ status = "Stan: {status}"
 locate = "Lewy przycisk, aby zlokalizować"
 release = "Shift + prawy przycisk, aby uwolnić"
 release_confirm = "Uwolnić na zawsze tego zaginionego golema?"
+release_shattered_confirm = "Uwolnić na zawsze tego roztrzaskanego golema? Jego Roztrzaskany rdzeń się rozsypie."
 
 [golemancy.message]
 home_set = "Dom ustawiony na {x}, {y}, {z}"
@@ -4674,6 +4675,27 @@ lore1 = "Dodatkowe miejsca na runy na golema"
 lore2 = "Najwyższy dostępny poziom run"
 lore3 = "Postument animusa i przepis na Pustą runę"
 lore = ["Dodatkowe miejsca na runy na golema", "Najwyższy dostępny poziom run", "Postument animusa i przepis na Pustą runę"]
+
+[golemancy.mending]
+name = "Naprawa golemów"
+description = "Lecz swoje golemy sztabkami miedzi, blokami śniegu i mączką kostną, pozwól im regenerować się przy tobie i w domu, a poległe golemy odbudowuj z ich Roztrzaskanego rdzenia."
+lore1 = "Dodatkowe leczenie z napraw"
+lore2 = "Sztabki miedzi, bloki śniegu i mączka kostna leczą twoje golemy"
+lore3 = "Zdrowie regenerowane przy tobie"
+lore4 = "Zdrowie regenerowane podczas odpoczynku w domu"
+lore5 = "Sekundy między regeneracjami"
+lore6 = "Roztrzaskany rdzeń: odbudowa poległych golemów"
+lore7 = "Sekundy Odporności dla odrodzonych golemów"
+lore8 = "Odrodzone golemy zachowują stan miedzi"
+lore = ["Dodatkowe leczenie z napraw", "Sztabki miedzi, bloki śniegu i mączka kostna leczą twoje golemy", "Zdrowie regenerowane przy tobie", "Zdrowie regenerowane podczas odpoczynku w domu", "Sekundy między regeneracjami", "Roztrzaskany rdzeń: odbudowa poległych golemów", "Sekundy Odporności dla odrodzonych golemów", "Odrodzone golemy zachowują stan miedzi"]
+full_health = "Ten golem ma już pełne zdrowie"
+shattered = "Twój {body} golem roztrzaskał się i zostawił swój Roztrzaskany rdzeń"
+reborn = "Twój {body} golem odrodził się"
+void = "Ten Roztrzaskany rdzeń rozsypuje się: jego golem został uwolniony"
+not_owner = "Ten Roztrzaskany rdzeń należy do innego gracza"
+locked = "Odbudowa golema wymaga Naprawy golemów na poziomie {level}"
+wrong_body = "Ten Roztrzaskany rdzeń potrzebuje świeżo zbudowanego golema typu {body}"
+unreadable = "Ten Roztrzaskany rdzeń jest uszkodzony i nie może odbudować golema"
 
 [golemancy.node_status]
 idle = "Bezczynny"

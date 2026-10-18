@@ -162,6 +162,23 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     loadedConfig.ritualSecondsByLevel = AnimusBindingRules.clampRitualSeconds(loadedConfig.ritualSecondsByLevel);
   }
 
+  boolean builderExclusive(Mob golem, UUID player, long nowMillis) {
+    return AnimusBindingRules.builderExclusive(GolemBuildAttribution.builderOf(golem).orElse(null), GolemBuildAttribution.builtAt(golem), player,
+        nowMillis, Math.max(0, getConfig().builderExclusiveSeconds) * MILLIS_PER_SECOND);
+  }
+
+  boolean villageGolemsAllowed() {
+    return getConfig().allowBindingVillageGolems;
+  }
+
+  boolean bodyUnlocked(Player player, GolemBody body) {
+    return AnimusBindingRules.bodyUnlocked(body, getActiveSiblingLevel(player, COPPER_FRAME), getActiveSiblingLevel(player, IRON_FRAME));
+  }
+
+  static boolean playerCreated(Mob golem) {
+    return !(golem instanceof IronGolem iron) || iron.isPlayerCreated();
+  }
+
   static int golemCap(Config config, int level, int hardCap) {
     return AnimusBindingRules.golemCap(config.golemCapByLevel, level, hardCap);
   }
@@ -357,15 +374,11 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     GolemCoreType core = target.core();
     int cap = golemCap(config, level, GolemancyRuntime.settings().hardCapPerPlayer());
     int tithe = owner.getGameMode() == GameMode.CREATIVE ? 0 : tithe(config, target.body(), level);
-    boolean exclusive = AnimusBindingRules.builderExclusive(GolemBuildAttribution.builderOf(golem).orElse(null),
-        GolemBuildAttribution.builtAt(golem), owner.getUniqueId(), System.currentTimeMillis(),
-        Math.max(0, config.builderExclusiveSeconds) * MILLIS_PER_SECOND);
-    boolean bodyUnlocked = AnimusBindingRules.bodyUnlocked(target.body(),
-        getActiveSiblingLevel(owner, COPPER_FRAME), getActiveSiblingLevel(owner, IRON_FRAME));
+    boolean exclusive = builderExclusive(golem, owner.getUniqueId(), System.currentTimeMillis());
     boolean coreUnlocked = core == GolemCoreType.BLANK || getActiveSiblingLevel(owner, "golem-" + core.id() + "-core") >= 1;
     BindingCheck check = new BindingCheck(registry.bindBlock(owner, golem, target.body(), core).orElse(null),
-        !(golem instanceof IronGolem iron) || iron.isPlayerCreated(), config.allowBindingVillageGolems, exclusive,
-        bodyUnlocked, coreUnlocked, canInteract(owner, golem.getLocation()), ownedGolems(owner), cap, owner.getLevel(), tithe);
+        playerCreated(golem), config.allowBindingVillageGolems, exclusive,
+        bodyUnlocked(owner, target.body()), coreUnlocked, canInteract(owner, golem.getLocation()), ownedGolems(owner), cap, owner.getLevel(), tithe);
     return new Assessment(AnimusBindingRules.verdict(check), cap, tithe);
   }
 

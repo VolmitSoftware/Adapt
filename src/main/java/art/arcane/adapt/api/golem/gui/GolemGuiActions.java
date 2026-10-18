@@ -130,7 +130,11 @@ public final class GolemGuiActions {
   }
 
   public static boolean releasableFromRoster(GolemRoster.Status status) {
-    return status == GolemRoster.Status.MISSING;
+    return status == GolemRoster.Status.MISSING || status == GolemRoster.Status.SHATTERED;
+  }
+
+  public static TextKey releaseConfirm(GolemRoster.Status status) {
+    return status == GolemRoster.Status.SHATTERED ? GolemancyMessages.ROSTER_RELEASE_SHATTERED_CONFIRM : GolemancyMessages.ROSTER_RELEASE_CONFIRM;
   }
 
   public static LocateAction locateAction(boolean loaded, boolean sameWorld) {

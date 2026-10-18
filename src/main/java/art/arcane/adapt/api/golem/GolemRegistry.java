@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.item.PackedGolem;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
@@ -30,7 +31,6 @@ import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
@@ -168,25 +168,61 @@ public final class GolemRegistry extends TickedObject {
     Location at = golem.getLocation();
     UUID worldId = Objects.requireNonNull(at.getWorld()).getUID();
     GolemState state = GolemState.create(new GolemState.Seed(UUID.randomUUID(), ownerId, body, core, GolemState.Anchor.at(at)));
-    PersistentDataContainer data = golem.getPersistentDataContainer();
-    state.setPreviouslyBound(data.has(BOUND_ONCE_KEY, PersistentDataType.BYTE));
-    state.setHostileDamagePool(HostileDamagePool.takeUnbound(golem));
-    state.write(golem);
-    data.set(BOUND_ONCE_KEY, PersistentDataType.BYTE, (byte) 1);
-    StackExclusion.exclude(golem);
-    golem.setPersistent(true);
-    golem.setRemoveWhenFarAway(false);
-    PaperCompat.customName(golem, Component.text(boundName(owner, body)));
-    AttributeInstance scale = platform.scaleOf(golem);
-    if (scale != null) {
-      GolemScale.setModifier(scale, GolemScale.modifierAmount(settings.get().bodyScale(body)));
-    }
+    state.setPreviouslyBound(golem.getPersistentDataContainer().has(BOUND_ONCE_KEY, PersistentDataType.BYTE));
+    writeBound(golem, state, Component.text(boundName(owner, body)));
     roster.add(new GolemRoster.Binding(state.id(), body, core, worldId, chunkKey(at), platform.nowMillis()));
     platform.rosterChanged(ownerId);
-    GolemHandle handle = new GolemHandle(golem, state, platform);
-    index(handle);
-    evaluate(handle, true);
-    return handle;
+    return adoptBound(golem, state);
+  }
+
+  public Optional<BindBlock> restoreBlock(Mob golem, GolemSnapshot snapshot) {
+    if (GolemState.has(golem)) {
+      return Optional.of(BindBlock.ALREADY_BOUND);
+    }
+    GolemBody body = snapshot.body();
+    if (GolemBody.of(golem).orElse(null) != body) {
+      return Optional.of(BindBlock.BODY_MISMATCH);
+    }
+    GolemSettings current = settings.get();
+    for (GolemCoreType core : snapshot.cores()) {
+      if (!current.allows(body, core)) {
+        return Optional.of(BindBlock.CORE_NOT_ALLOWED);
+      }
+    }
+    if (platform.roster(snapshot.owner()).isEmpty()) {
+      return Optional.of(BindBlock.OWNER_DATA_UNAVAILABLE);
+    }
+    if (boundInChunk(golem) >= current.maxBoundGolemsPerChunk()) {
+      return Optional.of(BindBlock.CHUNK_CAP);
+    }
+    return Optional.empty();
+  }
+
+  public Optional<GolemHandle> restore(Player owner, Mob golem, GolemSnapshot snapshot, GolemRoster.Status from) {
+    requireOwned(golem, "restore");
+    UUID ownerId = owner.getUniqueId();
+    if (!ownerId.equals(snapshot.owner())) {
+      throw new IllegalStateException("Golem " + snapshot.id() + " belongs to " + snapshot.owner() + ", not " + ownerId);
+    }
+    Optional<BindBlock> block = restoreBlock(golem, snapshot);
+    if (block.isPresent()) {
+      throw new IllegalStateException("Golem " + snapshot.id() + " cannot be restored into " + golem.getUniqueId() + ": " + block.get());
+    }
+    GolemRoster roster = platform.roster(ownerId).orElseThrow();
+    if (!roster.transition(snapshot.id(), from, GolemRoster.Status.ACTIVE)) {
+      return Optional.empty();
+    }
+    platform.rosterChanged(ownerId);
+    GolemState state = GolemState.restored(snapshot, GolemState.Anchor.at(golem.getLocation()));
+    writeBound(golem, state, snapshot.name().orElseGet(() -> Component.text(boundName(owner, snapshot.body()))));
+    return Optional.of(adoptBound(golem, state));
+  }
+
+  public GolemSnapshot snapshot(GolemHandle handle) {
+    Mob golem = handle.entity();
+    GolemSnapshot.Traits traits = new GolemSnapshot.Traits(GolemSnapshot.serializeName(PaperCompat.customName(golem)), golem.getHealth(),
+        platform.patinaStage(golem), platform.waxed(golem));
+    return GolemSnapshot.capture(handle.state(), traits, platform.nowMillis());
   }
 
   public boolean release(GolemHandle handle) {
@@ -222,9 +258,9 @@ public final class GolemRegistry extends TickedObject {
     return true;
   }
 
-  public boolean releaseMissing(UUID owner, UUID golem) {
+  public boolean releaseEntry(UUID owner, UUID golem) {
     Optional<GolemRoster> roster = platform.roster(owner);
-    if (roster.isEmpty() || !roster.get().remove(golem, GolemRoster.Status.MISSING)) {
+    if (roster.isEmpty() || !(roster.get().remove(golem, GolemRoster.Status.MISSING) || roster.get().remove(golem, GolemRoster.Status.SHATTERED))) {
       return false;
     }
     missingWatch.forget(golem);
@@ -643,6 +679,9 @@ public final class GolemRegistry extends TickedObject {
     if (state.essencePoints() > 0) {
       e.setDroppedExp((int) Math.min(Integer.MAX_VALUE, (long) e.getDroppedExp() + state.essencePoints()));
     }
+    if (GolemMend.shatters(handle) && shatter(handle)) {
+      return;
+    }
     GolemDeathDrops.Roll roll = GolemDeathDrops.roll(state.cores(), state.runes(), current.deathDropCoreChance(), current.deathDropRuneChance(),
         () -> ThreadLocalRandom.current().nextDouble());
     for (GolemCoreType core : roll.cores()) {
@@ -652,6 +691,45 @@ public final class GolemRegistry extends TickedObject {
       drops.add(GolemItems.rune(rune));
     }
     forgetRosterEntry(handle);
+  }
+
+  private boolean shatter(GolemHandle handle) {
+    UUID owner = handle.owner();
+    Optional<GolemRoster> roster = platform.roster(owner);
+    if (roster.isEmpty()) {
+      return false;
+    }
+    GolemSnapshot snapshot = snapshot(handle).withoutCargo();
+    if (!roster.get().transition(handle.id(), GolemRoster.Status.ACTIVE, GolemRoster.Status.SHATTERED)) {
+      return false;
+    }
+    missingWatch.forget(handle.id());
+    platform.rosterChanged(owner);
+    Location at = handle.entity().getLocation();
+    platform.dropOwnerBound(at, GolemItems.shatteredCore(new PackedGolem(handle.id(), owner, snapshot.toJson())), owner);
+    GolemMend.shattered(handle, at);
+    return true;
+  }
+
+  private void writeBound(Mob golem, GolemState state, Component name) {
+    state.setHostileDamagePool(HostileDamagePool.takeUnbound(golem));
+    state.write(golem);
+    golem.getPersistentDataContainer().set(BOUND_ONCE_KEY, PersistentDataType.BYTE, (byte) 1);
+    StackExclusion.exclude(golem);
+    golem.setPersistent(true);
+    golem.setRemoveWhenFarAway(false);
+    PaperCompat.customName(golem, name);
+    AttributeInstance scale = platform.scaleOf(golem);
+    if (scale != null) {
+      GolemScale.setModifier(scale, GolemScale.modifierAmount(settings.get().bodyScale(state.body())));
+    }
+  }
+
+  private GolemHandle adoptBound(Mob golem, GolemState state) {
+    GolemHandle handle = new GolemHandle(golem, state, platform);
+    index(handle);
+    evaluate(handle, true);
+    return handle;
   }
 
   private void returnEssence(Mob golem, World world, Location at, int points, Player owner) {

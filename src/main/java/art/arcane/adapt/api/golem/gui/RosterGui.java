@@ -191,10 +191,10 @@ public final class RosterGui {
   private static void confirmRelease(Player player, GolemRoster.GolemEntry entry, int page) {
     GuiConfirm.open(player,
         AdaptLanguage.text(GolemancyMessages.GUI_RELEASE),
-        AdaptLanguage.text(GolemancyMessages.ROSTER_RELEASE_CONFIRM),
+        AdaptLanguage.text(GolemGuiActions.releaseConfirm(entry.status())),
         () -> {
           GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
-          if (registry != null && registry.releaseMissing(player.getUniqueId(), entry.id())) {
+          if (registry != null && registry.releaseEntry(player.getUniqueId(), entry.id())) {
             GolemGuiSupport.notify(player, GolemancyMessages.MESSAGE_RELEASED);
           } else {
             GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_RELEASE_FAILED);

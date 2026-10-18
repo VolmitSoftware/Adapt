@@ -1124,5 +1124,87 @@
       "particle": "end_rod"
     },
     "maxTicks": 160
+  },
+  "golem-mending": {
+    "set": "taming-field",
+    "level": 5,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_core\"}}]",
+      "item replace entity {actor} hotbar.1 with minecraft:snow_block 4",
+      "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 25
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 60
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.enchantment_table.use",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run damage @e[type=minecraft:snow_golem,limit=1,sort=nearest] 3 minecraft:generic"
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.amethyst_block.chime",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.chime",
+      "particle": "heart"
+    },
+    "maxTicks": 360
   }
 }

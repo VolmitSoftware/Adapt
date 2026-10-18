@@ -29,6 +29,7 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemRepairXp;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemState;
@@ -71,6 +72,7 @@ import art.arcane.adapt.content.adaptation.golemancy.GolemGuardianCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemHarvesterCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemIronFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemLumberCore;
+import art.arcane.adapt.content.adaptation.golemancy.GolemMending;
 import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRancherCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRunicAugments;
@@ -165,6 +167,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerAdaptation(new GolemRancherCore());
     registerAdaptation(new GolemAnglerCore());
     registerAdaptation(new GolemRunicAugments());
+    registerAdaptation(new GolemMending());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CARVED_PUMPKIN)
         .key("challenge_golemancy_built_10")
@@ -293,6 +296,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     GolemancyRuntime.setBindListener(this::golemBound);
     GolemancyRuntime.setPlinthHost(new GolemancyPlinthHost());
     GolemWorkXp.setSink(this::golemWorked);
+    GolemRepairXp.setSink(this::payRepair);
     GolemWorkStats.setSink(new WorkStats());
     SpatialMatter.registerSliceType(new NodeMatter());
     SpatialMatter.registerSliceType(new PlinthSlotMatter());
@@ -564,17 +568,17 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     };
   }
 
-  private void settleRepair(Player player, IronGolem golem, double before) {
-    double healed = golem.getHealth() - before;
-    if (!(healed > 0D)) {
-      return;
-    }
+  private void settleRepair(Player player, LivingEntity golem, double before) {
+    GolemRepairXp.repaired(player, golem, golem.getHealth() - before);
+  }
+
+  private void payRepair(Player player, LivingEntity golem, double healed) {
     double xp = GolemXpRules.repairXp(HostileDamagePool.consume(golem, healed), getConfig().repairXpPerHealth);
     if (xp <= 0D) {
       return;
     }
     Location at = golem.getLocation();
-    shouldReturnForPlayer(player, () -> xp(player, at, xp, "golemancy:repair"));
+    shouldReturnForPlayer(player, () -> xp(player, at, xp, GolemRepairXp.REWARD_KEY));
     fx(at.clone().add(0D, 1.5D, 0D), FxPriority.AMBIENT)
         .burst(Particles.VILLAGER_HAPPY, 5, 0.6D)
         .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME, 0.3F, 1.5F);
@@ -900,7 +904,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double golemKillXpBase = 15;
     @ConfigDoc(value = "Skill XP added to a golem kill value per point of the victim's maximum health.", impact = "Higher values make tougher victims worth more.")
     double golemKillMaxHealthMultiplier = 1.0;
-    @ConfigDoc(value = "Skill XP per point of health restored when repairing an iron golem that hostile mobs damaged.", impact = "Higher values pay more for repairs; damage from players never counts.")
+    @ConfigDoc(value = "Skill XP per point of health restored when repairing an iron golem, or healing a bound golem with Golem Mending, that hostile mobs damaged.", impact = "Higher values pay more for repairs; damage from players never counts.")
     double repairXpPerHealth = 2.0;
     @ConfigDoc(value = "Skill XP paid for scraping one oxidation stage off a copper golem with an axe.", impact = "Higher values reward copper golem care more.")
     double copperScrapeXp = 60;
@@ -974,9 +978,9 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     List<String> allowedCoresCopper = new ArrayList<>(List.of("BLANK", "GATHERER", "HARVESTER", "LUMBER", "RANCHER", "SORTER", "ANGLER"));
     @ConfigDoc(value = "Cores an iron golem can be bound with.", impact = "Remove a core to stop iron golems taking that role.")
     List<String> allowedCoresIron = new ArrayList<>(List.of("BLANK", "GUARDIAN", "GATHERER", "LUMBER", "BREAKER", "RANCHER", "ANGLER"));
-    @ConfigDoc(value = "Chance that each core drops when a bound golem dies.", impact = "Higher values return more cores on death; 1.0 always drops them.")
+    @ConfigDoc(value = "Chance that each core drops when a bound golem dies without leaving a Shattered Core.", impact = "Higher values return more cores on death; 1.0 always drops them.")
     double deathDropCoreChance = 0.5;
-    @ConfigDoc(value = "Chance that each rune drops when a bound golem dies.", impact = "Higher values return more runes on death; 1.0 always drops them.")
+    @ConfigDoc(value = "Chance that each rune drops when a bound golem dies without leaving a Shattered Core.", impact = "Higher values return more runes on death; 1.0 always drops them.")
     double deathDropRuneChance = 0.5;
     @ConfigDoc(value = "Ticks between bound golem decisions, clamped to 2-20.", impact = "Lower values make golems react faster but cost more server time.")
     int brainIntervalTicks = 5;

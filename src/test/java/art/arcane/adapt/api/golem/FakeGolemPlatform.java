@@ -48,6 +48,13 @@ final class FakeGolemPlatform implements GolemPlatform {
   final Set<Entity> refusing = new HashSet<>();
   final Set<Entity> deferring = new HashSet<>();
   final List<RegionTask> regionTasks = new ArrayList<>();
+  final Set<UUID> waxedGolems = new HashSet<>();
+  final List<OwnerBoundDrop> ownerBoundDrops = new ArrayList<>();
+  final List<Double> heals = new ArrayList<>();
+  Consumer<UUID> rosterListener = owner -> {
+  };
+  Runnable dropListener = () -> {
+  };
   boolean ownsEntities = true;
   boolean refuseRetiring;
   boolean refuseRegions;
@@ -144,6 +151,7 @@ final class FakeGolemPlatform implements GolemPlatform {
 
   @Override
   public void rosterChanged(UUID owner) {
+    rosterListener.accept(owner);
     rosterChanges.merge(owner, 1, Integer::sum);
   }
 
@@ -229,6 +237,23 @@ final class FakeGolemPlatform implements GolemPlatform {
   }
 
   @Override
+  public boolean waxed(Mob golem) {
+    return waxedGolems.contains(golem.getUniqueId());
+  }
+
+  @Override
+  public double heal(LivingEntity entity, double amount) {
+    heals.add(amount);
+    return amount;
+  }
+
+  @Override
+  public void dropOwnerBound(Location at, ItemStack item, UUID owner) {
+    dropListener.run();
+    ownerBoundDrops.add(new OwnerBoundDrop(at.clone(), item, owner));
+  }
+
+  @Override
   public long nowMillis() {
     return now;
   }
@@ -290,5 +315,8 @@ final class FakeGolemPlatform implements GolemPlatform {
   }
 
   record RegionTask(Location location, Runnable task) {
+  }
+
+  record OwnerBoundDrop(Location location, ItemStack item, UUID owner) {
   }
 }

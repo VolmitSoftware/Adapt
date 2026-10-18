@@ -4478,6 +4478,7 @@ status = "Zustand: {status}"
 locate = "Linksklick zum Orten"
 release = "Shift-Rechtsklick zum Freilassen"
 release_confirm = "Diesen vermissten Golem endgültig freilassen?"
+release_shattered_confirm = "Diesen zersplitterten Golem endgültig freilassen? Sein Zersplitterter Kern zerfällt."
 
 [golemancy.message]
 home_set = "Zuhause gesetzt auf {x}, {y}, {z}"
@@ -4674,6 +4675,27 @@ lore1 = "Zusätzliche Runenplätze pro Golem"
 lore2 = "Höchste nutzbare Runenstufe"
 lore3 = "Animus-Sockel und Rezept für Leere Runen"
 lore = ["Zusätzliche Runenplätze pro Golem", "Höchste nutzbare Runenstufe", "Animus-Sockel und Rezept für Leere Runen"]
+
+[golemancy.mending]
+name = "Golemheilung"
+description = "Heile deine Golems mit Kupferbarren, Schneeblöcken und Knochenmehl, lass sie in deiner Nähe und zu Hause genesen und baue gefallene Golems aus ihrem Zersplitterten Kern wieder auf."
+lore1 = "Bonusheilung durch Reparaturen"
+lore2 = "Kupferbarren, Schneeblöcke und Knochenmehl heilen deine Golems"
+lore3 = "Regenerierte Gesundheit in deiner Nähe"
+lore4 = "Regenerierte Gesundheit im Leerlauf zu Hause"
+lore5 = "Sekunden zwischen Regenerationen"
+lore6 = "Zersplitterter Kern: Gefallene Golems wieder aufbauen"
+lore7 = "Sekunden Resistenz für wiedergeborene Golems"
+lore8 = "Wiedergeborene Golems behalten ihren Kupferzustand"
+lore = ["Bonusheilung durch Reparaturen", "Kupferbarren, Schneeblöcke und Knochenmehl heilen deine Golems", "Regenerierte Gesundheit in deiner Nähe", "Regenerierte Gesundheit im Leerlauf zu Hause", "Sekunden zwischen Regenerationen", "Zersplitterter Kern: Gefallene Golems wieder aufbauen", "Sekunden Resistenz für wiedergeborene Golems", "Wiedergeborene Golems behalten ihren Kupferzustand"]
+full_health = "Dieser Golem hat bereits volle Gesundheit"
+shattered = "Dein {body}golem ist zersplittert und hat seinen Zersplitterten Kern zurückgelassen"
+reborn = "Dein {body}golem ist wiedergeboren"
+void = "Dieser Zersplitterte Kern zerfällt: Sein Golem wurde freigelassen"
+not_owner = "Dieser Zersplitterte Kern gehört einem anderen Spieler"
+locked = "Einen Golem wieder aufzubauen erfordert Golemheilung Stufe {level}"
+wrong_body = "Dieser Zersplitterte Kern braucht einen frisch gebauten {body}golem"
+unreadable = "Dieser Zersplitterte Kern ist beschädigt und kann keinen Golem wieder aufbauen"
 
 [golemancy.node_status]
 idle = "Untätig"

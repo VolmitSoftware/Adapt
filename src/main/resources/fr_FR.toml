@@ -4474,6 +4474,7 @@ status = "État : {status}"
 locate = "Clic gauche pour localiser"
 release = "Maj + clic droit pour libérer"
 release_confirm = "Libérer définitivement ce golem disparu ?"
+release_shattered_confirm = "Libérer définitivement ce golem brisé ? Son Noyau brisé s'effritera."
 
 [golemancy.message]
 home_set = "Maison définie en {x}, {y}, {z}"
@@ -4670,6 +4671,27 @@ lore1 = "Emplacements de rune supplémentaires par golem"
 lore2 = "Rang de rune utilisable le plus élevé"
 lore3 = "Socle d'Animus et recette de Rune vierge"
 lore = ["Emplacements de rune supplémentaires par golem", "Rang de rune utilisable le plus élevé", "Socle d'Animus et recette de Rune vierge"]
+
+[golemancy.mending]
+name = "Réparation de Golem"
+description = "Soigne tes golems avec des lingots de cuivre, des blocs de neige et de la poudre d'os, laisse-les se rétablir près de toi et chez eux, et reconstruis les golems tombés à partir de leur Noyau brisé."
+lore1 = "Soins bonus des réparations"
+lore2 = "Les lingots de cuivre, les blocs de neige et la poudre d'os soignent tes golems"
+lore3 = "Santé régénérée près de toi"
+lore4 = "Santé régénérée au repos chez soi"
+lore5 = "Secondes entre les régénérations"
+lore6 = "Noyau brisé : reconstruis les golems tombés"
+lore7 = "Secondes de Résistance pour les golems renés"
+lore8 = "Les golems renés gardent leur état de cuivre"
+lore = ["Soins bonus des réparations", "Les lingots de cuivre, les blocs de neige et la poudre d'os soignent tes golems", "Santé régénérée près de toi", "Santé régénérée au repos chez soi", "Secondes entre les régénérations", "Noyau brisé : reconstruis les golems tombés", "Secondes de Résistance pour les golems renés", "Les golems renés gardent leur état de cuivre"]
+full_health = "Ce golem a déjà toute sa santé"
+shattered = "Ton golem de {body} s'est brisé et a laissé son Noyau brisé"
+reborn = "Ton golem de {body} renaît"
+void = "Ce Noyau brisé s'effrite : son golem a été libéré"
+not_owner = "Ce Noyau brisé appartient à un autre joueur"
+locked = "Reconstruire un golem nécessite Réparation de Golem niveau {level}"
+wrong_body = "Ce Noyau brisé a besoin d'un golem de {body} fraîchement construit"
+unreadable = "Ce Noyau brisé est endommagé et ne peut pas reconstruire de golem"
 
 [golemancy.node_status]
 idle = "Inactif"

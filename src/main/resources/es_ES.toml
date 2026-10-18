@@ -4478,6 +4478,7 @@ status = "Estado: {status}"
 locate = "Clic izquierdo para localizar"
 release = "Mayús + clic derecho para liberar"
 release_confirm = "¿Liberar para siempre este gólem desaparecido?"
+release_shattered_confirm = "¿Liberar para siempre este gólem destrozado? Su Núcleo destrozado se desmoronará."
 
 [golemancy.message]
 home_set = "Hogar fijado en {x}, {y}, {z}"
@@ -4674,6 +4675,27 @@ lore1 = "Ranuras de runa extra por gólem"
 lore2 = "Nivel de runa más alto utilizable"
 lore3 = "Pedestal de Ánima y receta de Runa vacía"
 lore = ["Ranuras de runa extra por gólem", "Nivel de runa más alto utilizable", "Pedestal de Ánima y receta de Runa vacía"]
+
+[golemancy.mending]
+name = "Reparación de Gólems"
+description = "Cura a tus gólems con lingotes de cobre, bloques de nieve y harina de hueso, deja que se recuperen cerca de ti y en casa, y reconstruye a los gólems caídos a partir de su Núcleo destrozado."
+lore1 = "Curación extra con reparaciones"
+lore2 = "Los lingotes de cobre, los bloques de nieve y la harina de hueso curan a tus gólems"
+lore3 = "Salud regenerada cerca de ti"
+lore4 = "Salud regenerada en reposo en casa"
+lore5 = "Segundos entre regeneraciones"
+lore6 = "Núcleo destrozado: reconstruye gólems caídos"
+lore7 = "Segundos de Resistencia para gólems renacidos"
+lore8 = "Los gólems renacidos conservan su estado de cobre"
+lore = ["Curación extra con reparaciones", "Los lingotes de cobre, los bloques de nieve y la harina de hueso curan a tus gólems", "Salud regenerada cerca de ti", "Salud regenerada en reposo en casa", "Segundos entre regeneraciones", "Núcleo destrozado: reconstruye gólems caídos", "Segundos de Resistencia para gólems renacidos", "Los gólems renacidos conservan su estado de cobre"]
+full_health = "Este gólem ya tiene la salud completa"
+shattered = "Tu gólem de {body} se ha destrozado y ha dejado su Núcleo destrozado"
+reborn = "Tu gólem de {body} ha renacido"
+void = "Este Núcleo destrozado se desmorona: su gólem fue liberado"
+not_owner = "Este Núcleo destrozado pertenece a otro jugador"
+locked = "Reconstruir un gólem requiere Reparación de Gólems nivel {level}"
+wrong_body = "Este Núcleo destrozado necesita un gólem de {body} recién construido"
+unreadable = "Este Núcleo destrozado está dañado y no puede reconstruir un gólem"
 
 [golemancy.node_status]
 idle = "Inactivo"

@@ -164,6 +164,7 @@ import art.arcane.adapt.content.adaptation.golemancy.GolemGuardianCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemHarvesterCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemIronFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemLumberCore;
+import art.arcane.adapt.content.adaptation.golemancy.GolemMending;
 import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRancherCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRunicAugments;
@@ -547,6 +548,7 @@ public final class ConfigFieldMessages {
     addConfiguration(fields, "adaptations.golem-harvester-core", "adaptation:golem-harvester-core", GolemHarvesterCore.class);
     addConfiguration(fields, "adaptations.golem-iron-frame", "adaptation:golem-iron-frame", GolemIronFrame.class);
     addConfiguration(fields, "adaptations.golem-lumber-core", "adaptation:golem-lumber-core", GolemLumberCore.class);
+    addConfiguration(fields, "adaptations.golem-mending", "adaptation:golem-mending", GolemMending.class);
     addConfiguration(fields, "adaptations.golem-node-weaving", "adaptation:golem-node-weaving", GolemNodeWeaving.class);
     addConfiguration(fields, "adaptations.golem-rancher-core", "adaptation:golem-rancher-core", GolemRancherCore.class);
     addConfiguration(fields, "adaptations.golem-runic-augments", "adaptation:golem-runic-augments", GolemRunicAugments.class);

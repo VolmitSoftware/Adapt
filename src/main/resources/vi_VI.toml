@@ -4478,6 +4478,7 @@ status = "Trạng thái: {status}"
 locate = "Nhấp chuột trái để định vị"
 release = "Shift + nhấp chuột phải để giải phóng"
 release_confirm = "Giải phóng vĩnh viễn golem mất tích này?"
+release_shattered_confirm = "Giải phóng vĩnh viễn golem vỡ nát này? Lõi Vỡ Nát của nó sẽ tan rã."
 
 [golemancy.message]
 home_set = "Đã đặt nhà tại {x}, {y}, {z}"
@@ -4674,6 +4675,27 @@ lore1 = "Ô Cổ Tự bổ sung cho mỗi golem"
 lore2 = "Bậc Cổ Tự cao nhất có thể dùng"
 lore3 = "Bệ Animus và công thức Cổ Tự Trống"
 lore = ["Ô Cổ Tự bổ sung cho mỗi golem", "Bậc Cổ Tự cao nhất có thể dùng", "Bệ Animus và công thức Cổ Tự Trống"]
+
+[golemancy.mending]
+name = "Sửa Chữa Golem"
+description = "Chữa lành golem của bạn bằng thỏi đồng, khối tuyết và bột xương, để chúng tự hồi phục khi ở gần bạn và ở nhà, và tái tạo golem đã ngã từ Lõi Vỡ Nát của chúng."
+lore1 = "Hồi máu thêm từ việc sửa chữa"
+lore2 = "Thỏi đồng, khối tuyết và bột xương chữa lành golem của bạn"
+lore3 = "Máu hồi phục khi ở gần bạn"
+lore4 = "Máu hồi phục khi nghỉ ở nhà"
+lore5 = "Số giây giữa các lần hồi phục"
+lore6 = "Lõi Vỡ Nát: tái tạo golem đã ngã"
+lore7 = "Số giây Kháng Cự cho golem tái sinh"
+lore8 = "Golem tái sinh giữ nguyên trạng thái đồng"
+lore = ["Hồi máu thêm từ việc sửa chữa", "Thỏi đồng, khối tuyết và bột xương chữa lành golem của bạn", "Máu hồi phục khi ở gần bạn", "Máu hồi phục khi nghỉ ở nhà", "Số giây giữa các lần hồi phục", "Lõi Vỡ Nát: tái tạo golem đã ngã", "Số giây Kháng Cự cho golem tái sinh", "Golem tái sinh giữ nguyên trạng thái đồng"]
+full_health = "Golem này đã đầy máu"
+shattered = "Golem {body} của bạn đã vỡ nát và để lại Lõi Vỡ Nát"
+reborn = "Golem {body} của bạn đã tái sinh"
+void = "Lõi Vỡ Nát này tan rã: golem của nó đã được giải phóng"
+not_owner = "Lõi Vỡ Nát này thuộc về người chơi khác"
+locked = "Tái tạo golem cần Sửa Chữa Golem cấp {level}"
+wrong_body = "Lõi Vỡ Nát này cần một golem {body} vừa được tạo"
+unreadable = "Lõi Vỡ Nát này đã hư hỏng và không thể tái tạo golem"
 
 [golemancy.node_status]
 idle = "Đang rảnh"

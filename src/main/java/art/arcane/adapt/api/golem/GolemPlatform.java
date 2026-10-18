@@ -50,6 +50,12 @@ interface GolemPlatform {
 
   int patinaStage(Mob golem);
 
+  boolean waxed(Mob golem);
+
+  double heal(LivingEntity entity, double amount);
+
+  void dropOwnerBound(Location at, ItemStack item, UUID owner);
+
   long nowMillis();
 
   List<NodeIndex.Entry> nodesNear(UUID world, double x, double y, double z, double range);

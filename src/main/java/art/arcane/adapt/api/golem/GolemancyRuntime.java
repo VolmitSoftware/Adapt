@@ -30,6 +30,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -424,6 +425,26 @@ public final class GolemancyRuntime {
     @Override
     public int patinaStage(Mob golem) {
       return PaperCompat.weatheringStage(golem);
+    }
+
+    @Override
+    public boolean waxed(Mob golem) {
+      return PaperCompat.copperWaxed(golem);
+    }
+
+    @Override
+    public double heal(LivingEntity entity, double amount) {
+      return GolemVitals.heal(entity, amount, RegainReason.REGEN);
+    }
+
+    @Override
+    public void dropOwnerBound(Location at, ItemStack item, UUID owner) {
+      World world = Objects.requireNonNull(at.getWorld());
+      world.dropItem(at, item, drop -> {
+        drop.setOwner(owner);
+        drop.setInvulnerable(true);
+        drop.setUnlimitedLifetime(true);
+      });
     }
 
     @Override

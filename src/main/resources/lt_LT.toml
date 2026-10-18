@@ -4478,6 +4478,7 @@ status = "Būsena: {status}"
 locate = "Kairiuoju pelės mygtuku – rasti"
 release = "Shift ir dešiniuoju pelės mygtuku – paleisti"
 release_confirm = "Visam laikui paleisti šį dingusį golemą?"
+release_shattered_confirm = "Visam laikui paleisti šį sudužusį golemą? Jo Sudužusi šerdis subyrės."
 
 [golemancy.message]
 home_set = "Namai nustatyti ties {x}, {y}, {z}"
@@ -4674,6 +4675,27 @@ lore1 = "Papildomi runų lizdai kiekvienam golemui"
 lore2 = "Aukščiausias naudojamas runų lygis"
 lore3 = "Animus pakyla ir tuščios runos receptas"
 lore = ["Papildomi runų lizdai kiekvienam golemui", "Aukščiausias naudojamas runų lygis", "Animus pakyla ir tuščios runos receptas"]
+
+[golemancy.mending]
+name = "Golemų taisymas"
+description = "Gydyk savo golemus vario luitais, sniego blokais ir kaulų miltais, leisk jiems atsigauti šalia tavęs ir namuose, o žuvusius golemus atstatyk iš jų Sudužusios šerdies."
+lore1 = "Papildomas gydymas taisant"
+lore2 = "Vario luitai, sniego blokai ir kaulų miltai gydo tavo golemus"
+lore3 = "Atsikurianti sveikata šalia tavęs"
+lore4 = "Atsikurianti sveikata ilsintis namuose"
+lore5 = "Sekundės tarp atsikūrimų"
+lore6 = "Sudužusi šerdis: atstatyk žuvusius golemus"
+lore7 = "Atsparumo sekundės atgimusiems golemams"
+lore8 = "Atgimę golemai išlaiko savo vario būseną"
+lore = ["Papildomas gydymas taisant", "Vario luitai, sniego blokai ir kaulų miltai gydo tavo golemus", "Atsikurianti sveikata šalia tavęs", "Atsikurianti sveikata ilsintis namuose", "Sekundės tarp atsikūrimų", "Sudužusi šerdis: atstatyk žuvusius golemus", "Atsparumo sekundės atgimusiems golemams", "Atgimę golemai išlaiko savo vario būseną"]
+full_health = "Šis golemas jau turi visą sveikatą"
+shattered = "Tavo {body} golemas sudužo ir paliko savo Sudužusią šerdį"
+reborn = "Tavo {body} golemas atgimė"
+void = "Ši Sudužusi šerdis subyra: jos golemas buvo paleistas"
+not_owner = "Ši Sudužusi šerdis priklauso kitam žaidėjui"
+locked = "Golemui atstatyti reikia Golemų taisymo {level} lygio"
+wrong_body = "Šiai Sudužusiai šerdžiai reikia ką tik pastatyto {body} golemo"
+unreadable = "Ši Sudužusi šerdis pažeista ir negali atstatyti golemo"
 
 [golemancy.node_status]
 idle = "Laukia"

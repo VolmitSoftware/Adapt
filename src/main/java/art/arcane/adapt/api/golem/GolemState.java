@@ -61,6 +61,31 @@ public final class GolemState {
     return state;
   }
 
+  static GolemState restored(GolemSnapshot snapshot, Anchor fallbackHome) {
+    GolemState state = new GolemState();
+    state.id = snapshot.id();
+    state.owner = snapshot.owner();
+    state.body = snapshot.body().id();
+    state.setCores(snapshot.cores());
+    state.setRunes(snapshot.runes());
+    state.setChannels(snapshot.channels());
+    state.mode = snapshot.mode().id();
+    state.home = snapshot.home() == null ? Objects.requireNonNull(fallbackHome) : snapshot.home();
+    state.homeChest = snapshot.homeChest();
+    state.carried = new ArrayList<>(snapshot.carried());
+    state.setEssence(snapshot.essence());
+    GolemSnapshot.Stats stats = snapshot.stats();
+    state.stats.addKills(stats.kills());
+    state.stats.addDamage(stats.damage());
+    state.stats.addTasks(stats.tasks());
+    state.stats.addItemsMoved(stats.itemsMoved());
+    state.masterwork = snapshot.masterwork();
+    state.snowTrail = snapshot.snowTrail();
+    state.setMaxHealthMark(snapshot.maxHealthMark());
+    state.previouslyBound = true;
+    return state;
+  }
+
   public static Optional<GolemState> fromJson(String json) {
     if (json == null || json.isBlank()) {
       return Optional.empty();

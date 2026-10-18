@@ -53,6 +53,38 @@ class PaperCompatTest {
   }
 
   @Test
+  void copperWaxReadsTheOxidizingStateOfCopperGolemsOnly() {
+    CopperGolem waxed = mock(CopperGolem.class);
+    when(waxed.getOxidizing()).thenReturn(CopperGolem.Oxidizing.waxed());
+    CopperGolem oxidizing = mock(CopperGolem.class);
+    when(oxidizing.getOxidizing()).thenReturn(CopperGolem.Oxidizing.atTime(40L));
+
+    assertThat(PaperCompat.copperWaxed(waxed)).isTrue();
+    assertThat(PaperCompat.copperWaxed(oxidizing)).isFalse();
+    assertThat(PaperCompat.copperWaxed(mock(IronGolem.class))).isFalse();
+  }
+
+  @Test
+  void restoringCopperSetsTheStageAndOnlyWaxesWhenAsked() {
+    CopperGolem waxed = mock(CopperGolem.class);
+    CopperGolem bare = mock(CopperGolem.class);
+    CopperGolem clamped = mock(CopperGolem.class);
+    IronGolem iron = mock(IronGolem.class);
+
+    PaperCompat.restoreCopper(waxed, 2, true);
+    PaperCompat.restoreCopper(bare, 1, false);
+    PaperCompat.restoreCopper(clamped, 9, false);
+    PaperCompat.restoreCopper(iron, 3, true);
+
+    verify(waxed).setWeatheringState(WeatheringCopperState.WEATHERED);
+    verify(waxed).setOxidizing(CopperGolem.Oxidizing.waxed());
+    verify(bare).setWeatheringState(WeatheringCopperState.EXPOSED);
+    verify(bare, times(0)).setOxidizing(any());
+    verify(clamped).setWeatheringState(WeatheringCopperState.OXIDIZED);
+    verifyNoInteractions(iron);
+  }
+
+  @Test
   void rangedAttackFiresARangedMobsOwnAttackAndSkipsOtherMobs() {
     Snowman golem = mock(Snowman.class);
     IronGolem iron = mock(IronGolem.class);

@@ -4478,6 +4478,7 @@ status = "Staat: {status}"
 locate = "Klik met links om te lokaliseren"
 release = "Shift + rechtsklik om vrij te laten"
 release_confirm = "Deze vermiste golem voorgoed vrijlaten?"
+release_shattered_confirm = "Deze verbrijzelde golem voorgoed vrijlaten? Zijn Verbrijzelde kern brokkelt af."
 
 [golemancy.message]
 home_set = "Thuis ingesteld op {x}, {y}, {z}"
@@ -4674,6 +4675,27 @@ lore1 = "Extra runeslots per golem"
 lore2 = "Hoogste bruikbare runerang"
 lore3 = "Animussokkel en recept voor Lege rune"
 lore = ["Extra runeslots per golem", "Hoogste bruikbare runerang", "Animussokkel en recept voor Lege rune"]
+
+[golemancy.mending]
+name = "Golemherstel"
+description = "Genees je golems met koperstaven, sneeuwblokken en beendermeel, laat ze herstellen in je buurt en thuis, en herbouw gevallen golems uit hun Verbrijzelde kern."
+lore1 = "Extra genezing door reparaties"
+lore2 = "Koperstaven, sneeuwblokken en beendermeel genezen je golems"
+lore3 = "Gezondheid die herstelt in je buurt"
+lore4 = "Gezondheid die thuis in rust herstelt"
+lore5 = "Seconden tussen herstel"
+lore6 = "Verbrijzelde kern: herbouw gevallen golems"
+lore7 = "Seconden Weerstand voor herboren golems"
+lore8 = "Herboren golems behouden hun koperstaat"
+lore = ["Extra genezing door reparaties", "Koperstaven, sneeuwblokken en beendermeel genezen je golems", "Gezondheid die herstelt in je buurt", "Gezondheid die thuis in rust herstelt", "Seconden tussen herstel", "Verbrijzelde kern: herbouw gevallen golems", "Seconden Weerstand voor herboren golems", "Herboren golems behouden hun koperstaat"]
+full_health = "Deze golem heeft al volle gezondheid"
+shattered = "Je {body}golem is verbrijzeld en liet zijn Verbrijzelde kern achter"
+reborn = "Je {body}golem is herboren"
+void = "Deze Verbrijzelde kern brokkelt af: zijn golem is vrijgelaten"
+not_owner = "Deze Verbrijzelde kern is van een andere speler"
+locked = "Een golem herbouwen vereist Golemherstel niveau {level}"
+wrong_body = "Deze Verbrijzelde kern heeft een pas gebouwde {body}golem nodig"
+unreadable = "Deze Verbrijzelde kern is beschadigd en kan geen golem herbouwen"
 
 [golemancy.node_status]
 idle = "Inactief"

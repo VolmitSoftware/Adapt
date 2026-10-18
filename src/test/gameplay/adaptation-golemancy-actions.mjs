@@ -70,6 +70,16 @@ async function loadPlinth(input) {
     return { loaded, retrieved }
 }
 
+async function mendGolem(input) {
+    const { actor, snapshot } = input
+    const golem = await visibleGolem(input, 'golem', 'bound snow golem')
+    await actor.bot.waitForTicks(4)
+    await actor.bot.lookAt(golem.position.offset(0, 0.5, 0), true)
+    actor.bot.activateEntity(golem)
+    await actor.bot.waitForTicks(10)
+    return (await snapshot()).golemancy.golem
+}
+
 export const golemancyBehaviorCases = new Map([
     ['golem-animus-binding', {
         stage: 'golemancy-binding', trigger: bind,
@@ -276,6 +286,22 @@ export const golemancyBehaviorCases = new Map([
             context.expect(active.nodeItems === 1, 'Placing the node uses up one Deposit Node')
             return {
                 assertions: ['unlearned click anchors nothing and keeps both nodes', 'learned click anchors one player-owned Deposit Node on the chest top and uses one item'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
+    ['golem-mending', {
+        stage: 'golemancy-mending', trigger: mendGolem, prerequisites: [{ name: 'golem-animus-binding', level: 1 }],
+        prepare: ({ equip }) => equip('snow_block'),
+        description: 'right-clicking your hurt bound snow golem with a snow block heals it by the base amount plus the level bonus',
+        sound: 'minecraft:block.amethyst_block.chime', soundVolume: 0.6, soundPitch: 1.6, particle: 'heart',
+        async verify({ context, unlearned, active }) {
+            context.expect(unlearned.bound && unlearned.boundToPlayer, 'The snow golem is bound to the player before the unlearned click')
+            context.expect(Math.abs(unlearned.health - 2) < 0.0001, 'Without Golem Mending the snow block leaves the golem at 2 health')
+            context.expect(active.bound && active.boundToPlayer, 'The snow golem is bound to the player before the learned click')
+            context.expect(active.health >= 6 - 0.0001 && active.health <= 7 + 0.0001, 'Golem Mending level 5 heals 2 health doubled by the level bonus')
+            return {
+                assertions: ['unlearned snow block click leaves the bound golem at 2 health', 'learned snow block click heals the bound golem by 4 health'],
                 measurements: { unlearned, active },
             }
         },

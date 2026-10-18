@@ -4478,6 +4478,7 @@ status = "Estado: {status}"
 locate = "Clique esquerdo para localizar"
 release = "Shift + clique direito para libertar"
 release_confirm = "Libertar para sempre este golem desaparecido?"
+release_shattered_confirm = "Libertar para sempre este golem despedaçado? O seu Núcleo despedaçado vai desfazer-se."
 
 [golemancy.message]
 home_set = "Casa definida em {x}, {y}, {z}"
@@ -4674,6 +4675,27 @@ lore1 = "Ranhuras de runa extra por golem"
 lore2 = "Nível de runa mais alto utilizável"
 lore3 = "Pedestal de Ânimus e receita de Runa vazia"
 lore = ["Ranhuras de runa extra por golem", "Nível de runa mais alto utilizável", "Pedestal de Ânimus e receita de Runa vazia"]
+
+[golemancy.mending]
+name = "Reparação de Golems"
+description = "Cura os teus golems com lingotes de cobre, blocos de neve e farinha de osso, deixa-os recuperar perto de ti e em casa, e reconstrói golems caídos a partir do seu Núcleo despedaçado."
+lore1 = "Cura extra das reparações"
+lore2 = "Lingotes de cobre, blocos de neve e farinha de osso curam os teus golems"
+lore3 = "Vida regenerada perto de ti"
+lore4 = "Vida regenerada em repouso em casa"
+lore5 = "Segundos entre regenerações"
+lore6 = "Núcleo despedaçado: reconstrói golems caídos"
+lore7 = "Segundos de Resistência para golems renascidos"
+lore8 = "Os golems renascidos mantêm o seu estado de cobre"
+lore = ["Cura extra das reparações", "Lingotes de cobre, blocos de neve e farinha de osso curam os teus golems", "Vida regenerada perto de ti", "Vida regenerada em repouso em casa", "Segundos entre regenerações", "Núcleo despedaçado: reconstrói golems caídos", "Segundos de Resistência para golems renascidos", "Os golems renascidos mantêm o seu estado de cobre"]
+full_health = "Este golem já tem a vida cheia"
+shattered = "O teu golem de {body} despedaçou-se e deixou o seu Núcleo despedaçado"
+reborn = "O teu golem de {body} renasceu"
+void = "Este Núcleo despedaçado desfaz-se: o seu golem foi libertado"
+not_owner = "Este Núcleo despedaçado pertence a outro jogador"
+locked = "Reconstruir um golem requer Reparação de Golems no nível {level}"
+wrong_body = "Este Núcleo despedaçado precisa de um golem de {body} acabado de construir"
+unreadable = "Este Núcleo despedaçado está danificado e não pode reconstruir um golem"
 
 [golemancy.node_status]
 idle = "Inativo"

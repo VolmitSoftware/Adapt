@@ -156,11 +156,17 @@ class GolemGuiActionsTest {
   }
 
   @Test
-  void onlyMissingEntriesCanBeReleasedFromTheRoster() {
+  void missingAndShatteredEntriesCanBeReleasedFromTheRoster() {
     assertThat(GolemGuiActions.releasableFromRoster(GolemRoster.Status.MISSING)).isTrue();
+    assertThat(GolemGuiActions.releasableFromRoster(GolemRoster.Status.SHATTERED)).isTrue();
     assertThat(GolemGuiActions.releasableFromRoster(GolemRoster.Status.ACTIVE)).isFalse();
     assertThat(GolemGuiActions.releasableFromRoster(GolemRoster.Status.PACKED)).isFalse();
-    assertThat(GolemGuiActions.releasableFromRoster(GolemRoster.Status.SHATTERED)).isFalse();
+  }
+
+  @Test
+  void releasingAShatteredEntryWarnsThatItsCoreCrumbles() {
+    assertThat(GolemGuiActions.releaseConfirm(GolemRoster.Status.SHATTERED)).isEqualTo(GolemancyMessages.ROSTER_RELEASE_SHATTERED_CONFIRM);
+    assertThat(GolemGuiActions.releaseConfirm(GolemRoster.Status.MISSING)).isEqualTo(GolemancyMessages.ROSTER_RELEASE_CONFIRM);
   }
 
   @Test

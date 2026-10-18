@@ -519,6 +519,116 @@ class GolemBrainTest extends AdaptTestBase {
     assertThat(brain.handle().position().chunkKey()).isEqualTo(GolemRoster.chunkKey(2, 2));
   }
 
+  @Test
+  void regenWaitsOneIntervalThenHealsOnTheMenderCadence() {
+    owner(at(3, 64, 0));
+    IronGolem golem = golem(IronGolem.class, at(0, 64, 0));
+    RecordingMender mender = new RecordingMender();
+    mender.regenAmount = 0.5D;
+    GolemMend.register(mender);
+    try {
+      GolemBrain brain = brain(golem, GolemBody.IRON);
+      brain.start();
+
+      platform.runDelayed();
+      assertThat(platform.heals).isEmpty();
+      platform.now += 4_999L;
+      platform.runDelayed();
+      assertThat(platform.heals).isEmpty();
+      platform.now += 1L;
+      platform.runDelayed();
+      assertThat(platform.heals).containsExactly(0.5D);
+      platform.now += 250L;
+      platform.runDelayed();
+      assertThat(platform.heals).containsExactly(0.5D);
+      platform.now += 5_000L;
+      platform.runDelayed();
+      assertThat(platform.heals).containsExactly(0.5D, 0.5D);
+    } finally {
+      GolemMend.unregister(mender);
+    }
+  }
+
+  @Test
+  void regenSeesTheOwnerAndHomeDistancesAndWhetherTheGolemIsIdle() {
+    owner(at(3, 64, 4));
+    IronGolem golem = golem(IronGolem.class, at(0, 64, 0));
+    RecordingMender mender = new RecordingMender();
+    mender.intervalMillis = 1_000L;
+    GolemMend.register(mender);
+    try {
+      GolemBrain brain = brain(golem, GolemBody.IRON);
+      brain.start();
+      platform.runDelayed();
+      platform.now += 1_000L;
+      platform.runDelayed();
+
+      assertThat(mender.senses).singleElement().satisfies(senses -> {
+        assertThat(senses.ownerDistance()).isEqualTo(5D);
+        assertThat(senses.homeDistance()).isZero();
+        assertThat(senses.idle()).isTrue();
+      });
+
+      policy.next = mock(Zombie.class);
+      policy.holding = true;
+      platform.now += 1_000L;
+      platform.runDelayed();
+
+      assertThat(mender.senses).hasSize(2);
+      assertThat(mender.senses.get(1).idle()).isFalse();
+      assertThat(platform.heals).isEmpty();
+    } finally {
+      GolemMend.unregister(mender);
+    }
+  }
+
+  @Test
+  void anOfflineOwnerLeavesNoOwnerDistance() {
+    IronGolem golem = golem(IronGolem.class, at(0, 64, 0));
+    RecordingMender mender = new RecordingMender();
+    mender.intervalMillis = 1_000L;
+    GolemMend.register(mender);
+    try {
+      GolemBrain brain = brain(golem, GolemBody.IRON);
+      brain.start();
+      platform.runDelayed();
+      platform.now += 1_000L;
+      platform.runDelayed();
+
+      assertThat(mender.senses).singleElement().satisfies(senses -> assertThat(senses.ownerDistance()).isNaN());
+    } finally {
+      GolemMend.unregister(mender);
+    }
+  }
+
+  @Test
+  void aSleepingBrainNeverRegensAndNoMenderMeansNoRegen() {
+    owner(at(1, 64, 0));
+    IronGolem golem = golem(IronGolem.class, at(0, 64, 0));
+    GolemBrain brain = brain(golem, GolemBody.IRON);
+    brain.start();
+    platform.runDelayed();
+    platform.now += 60_000L;
+    platform.runDelayed();
+    assertThat(platform.heals).isEmpty();
+
+    RecordingMender mender = new RecordingMender();
+    mender.regenAmount = 1D;
+    mender.intervalMillis = 1_000L;
+    GolemMend.register(mender);
+    try {
+      brain.sleep();
+      platform.now += 60_000L;
+      platform.runDelayed();
+      platform.runDelayed();
+
+      assertThat(mender.senses).isEmpty();
+      assertThat(platform.heals).isEmpty();
+    } finally {
+      GolemMend.unregister(mender);
+    }
+  }
+
   private void pulseFor(long millis) {
     long end = platform.now + millis;
     while (platform.now < end) {

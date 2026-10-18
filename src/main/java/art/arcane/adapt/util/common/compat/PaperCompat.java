@@ -23,6 +23,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.format.Form;
 import com.destroystokyo.paper.entity.Pathfinder;
 import com.destroystokyo.paper.entity.RangedEntity;
+import io.papermc.paper.world.WeatheringCopperState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.util.TriState;
@@ -223,6 +224,40 @@ public final class PaperCompat {
     } catch (NoClassDefFoundError | NoSuchMethodError absent) {
       weatheringSupported = false;
       return 0;
+    }
+  }
+
+  public static boolean copperWaxed(Entity entity) {
+    if (!weatheringSupported) {
+      return false;
+    }
+    try {
+      return entity instanceof CopperGolem golem && golem.getOxidizing() instanceof CopperGolem.Oxidizing.Waxed;
+    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
+      weatheringSupported = false;
+      return false;
+    }
+  }
+
+  public static void restoreCopper(Entity entity, int stage, boolean waxed) {
+    if (!weatheringSupported) {
+      return;
+    }
+    try {
+      if (!(entity instanceof CopperGolem golem)) {
+        return;
+      }
+      golem.setWeatheringState(switch (Math.max(0, Math.min(3, stage))) {
+        case 0 -> WeatheringCopperState.UNAFFECTED;
+        case 1 -> WeatheringCopperState.EXPOSED;
+        case 2 -> WeatheringCopperState.WEATHERED;
+        default -> WeatheringCopperState.OXIDIZED;
+      });
+      if (waxed) {
+        golem.setOxidizing(CopperGolem.Oxidizing.waxed());
+      }
+    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
+      weatheringSupported = false;
     }
   }
 

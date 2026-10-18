@@ -4478,6 +4478,7 @@ status = "Durum: {status}"
 locate = "Bulmak için sol tıklayın"
 release = "Serbest bırakmak için Shift + sağ tıklayın"
 release_confirm = "Bu kayıp golem kalıcı olarak serbest bırakılsın mı?"
+release_shattered_confirm = "Bu parçalanmış golem kalıcı olarak serbest bırakılsın mı? Parçalanmış Çekirdeği ufalanacak."
 
 [golemancy.message]
 home_set = "Ev {x}, {y}, {z} olarak belirlendi"
@@ -4674,6 +4675,27 @@ lore1 = "Golem başına ek rün yuvası"
 lore2 = "Kullanılabilir en yüksek rün kademesi"
 lore3 = "Animus Kaidesi ve Boş Rün tarifi"
 lore = ["Golem başına ek rün yuvası", "Kullanılabilir en yüksek rün kademesi", "Animus Kaidesi ve Boş Rün tarifi"]
+
+[golemancy.mending]
+name = "Golem Onarımı"
+description = "Golemlerini bakır külçeleri, kar blokları ve kemik tozuyla iyileştir, yakınında ve evde toparlanmalarını sağla ve düşen golemleri Parçalanmış Çekirdeklerinden yeniden inşa et."
+lore1 = "Onarımlardan ek iyileşme"
+lore2 = "Bakır külçeleri, kar blokları ve kemik tozu golemlerini iyileştirir"
+lore3 = "Yakınındayken yenilenen can"
+lore4 = "Evde boştayken yenilenen can"
+lore5 = "Yenilenmeler arası saniye"
+lore6 = "Parçalanmış Çekirdek: düşen golemleri yeniden inşa et"
+lore7 = "Yeniden doğan golemler için Direnç saniyesi"
+lore8 = "Yeniden doğan golemler bakır durumlarını korur"
+lore = ["Onarımlardan ek iyileşme", "Bakır külçeleri, kar blokları ve kemik tozu golemlerini iyileştirir", "Yakınındayken yenilenen can", "Evde boştayken yenilenen can", "Yenilenmeler arası saniye", "Parçalanmış Çekirdek: düşen golemleri yeniden inşa et", "Yeniden doğan golemler için Direnç saniyesi", "Yeniden doğan golemler bakır durumlarını korur"]
+full_health = "Bu golemin canı zaten dolu"
+shattered = "{body} Golemin parçalandı ve Parçalanmış Çekirdeğini geride bıraktı"
+reborn = "{body} Golemin yeniden doğdu"
+void = "Bu Parçalanmış Çekirdek ufalanıyor: golemi serbest bırakıldı"
+not_owner = "Bu Parçalanmış Çekirdek başka bir oyuncuya ait"
+locked = "Bir golemi yeniden inşa etmek için Golem Onarımı {level}. seviye gerekir"
+wrong_body = "Bu Parçalanmış Çekirdeğin yeni inşa edilmiş bir {body} Golemine ihtiyacı var"
+unreadable = "Bu Parçalanmış Çekirdek hasarlı ve golemi yeniden inşa edemez"
 
 [golemancy.node_status]
 idle = "Boşta"

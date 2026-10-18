@@ -1,5 +1,6 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
@@ -42,6 +43,7 @@ public final class GolemancyFixtures {
     private static final String IRON_BINDING_STAGE = "golemancy-iron-binding";
     private static final String NODE_STAGE = "golemancy-node";
     private static final String PLINTH_STAGE = "golemancy-plinth";
+    private static final String MENDING_STAGE = "golemancy-mending";
     private static final String GOLEM_TAG = "adapt-qa-golemancy-golem";
     private static final String COPPER_GOLEM_TAG = "adapt-qa-golemancy-copper-golem";
     private static final String IRON_GOLEM_TAG = "adapt-qa-golemancy-iron-golem";
@@ -52,6 +54,8 @@ public final class GolemancyFixtures {
     private static final int PLINTH_Y = 100;
     private static final int PLINTH_Z = 3;
     private static final int PEDESTAL_DISTANCE = 2;
+    private static final double MENDING_MAX_HEALTH = 20D;
+    private static final double MENDING_START_HEALTH = 2D;
     private static final List<BlockFace> FACES = List.of(BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
 
     private GolemancyFixtures() {
@@ -138,6 +142,21 @@ public final class GolemancyFixtures {
             IronGolem golem = world.spawn(new Location(world, 2.5, 100, 0.5), IronGolem.class);
             golem.setPlayerCreated(true);
             golem.addScoreboardTag(IRON_GOLEM_TAG);
+            return true;
+        }
+        if (MENDING_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.getInventory().clear();
+            actor.getInventory().setItem(0, new ItemStack(Material.SNOW_BLOCK, 4));
+            actor.getInventory().setHeldItemSlot(0);
+            Snowman golem = world.spawn(new Location(world, 2.5, 100, 0.5), Snowman.class);
+            golem.addScoreboardTag(GOLEM_TAG);
+            GolemancyRuntime.registry().orElseThrow().bind(actor, golem, GolemBody.FROST, GolemCoreType.BLANK);
+            AttributeInstance maxHealth = golem.getAttribute(Attribute.MAX_HEALTH);
+            if (maxHealth != null) {
+                maxHealth.setBaseValue(MENDING_MAX_HEALTH);
+            }
+            golem.setHealth(MENDING_START_HEALTH);
             return true;
         }
         if (NODE_STAGE.equals(name)) {

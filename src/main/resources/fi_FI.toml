@@ -4478,6 +4478,7 @@ status = "Tila: {status}"
 locate = "Paikanna vasemmalla napsautuksella"
 release = "Vapauta Shift + oikealla napsautuksella"
 release_confirm = "Vapautetaanko tämä kadonnut golemi lopullisesti?"
+release_shattered_confirm = "Vapautetaanko tämä särkynyt golemi lopullisesti? Sen Särkynyt ydin murenee."
 
 [golemancy.message]
 home_set = "Koti asetettu kohtaan {x}, {y}, {z}"
@@ -4674,6 +4675,27 @@ lore1 = "Lisäriimupaikkoja golemia kohden"
 lore2 = "Korkein käytettävä riimutaso"
 lore3 = "Animusjalusta ja tyhjän riimun resepti"
 lore = ["Lisäriimupaikkoja golemia kohden", "Korkein käytettävä riimutaso", "Animusjalusta ja tyhjän riimun resepti"]
+
+[golemancy.mending]
+name = "Golemien korjaus"
+description = "Paranna golemeitasi kupariharkoilla, lumikuutioilla ja luujauholla, anna niiden toipua lähelläsi ja kotona, ja rakenna kaatuneet golemit uudelleen niiden Särkyneestä ytimestä."
+lore1 = "Lisäparannus korjauksista"
+lore2 = "Kupariharkot, lumikuutiot ja luujauho parantavat golemeitasi"
+lore3 = "Palautuva terveys lähelläsi"
+lore4 = "Palautuva terveys kotona joutilaana"
+lore5 = "Sekuntia palautumisten välillä"
+lore6 = "Särkynyt ydin: rakenna kaatuneet golemit uudelleen"
+lore7 = "Sekuntia Vastustuskykyä uudelleensyntyneille golemeille"
+lore8 = "Uudelleensyntyneet golemit säilyttävät kuparitilansa"
+lore = ["Lisäparannus korjauksista", "Kupariharkot, lumikuutiot ja luujauho parantavat golemeitasi", "Palautuva terveys lähelläsi", "Palautuva terveys kotona joutilaana", "Sekuntia palautumisten välillä", "Särkynyt ydin: rakenna kaatuneet golemit uudelleen", "Sekuntia Vastustuskykyä uudelleensyntyneille golemeille", "Uudelleensyntyneet golemit säilyttävät kuparitilansa"]
+full_health = "Tällä golemilla on jo täysi terveys"
+shattered = "{body}golemisi särkyi ja jätti jälkeensä Särkyneen ytimen"
+reborn = "{body}golemisi syntyi uudelleen"
+void = "Tämä Särkynyt ydin murenee: sen golemi vapautettiin"
+not_owner = "Tämä Särkynyt ydin kuuluu toiselle pelaajalle"
+locked = "Golemin uudelleenrakentaminen vaatii Golemien korjauksen tason {level}"
+wrong_body = "Tämä Särkynyt ydin tarvitsee juuri rakennetun {body}golemin"
+unreadable = "Tämä Särkynyt ydin on vahingoittunut eikä voi rakentaa golemia uudelleen"
 
 [golemancy.node_status]
 idle = "Joutilas"

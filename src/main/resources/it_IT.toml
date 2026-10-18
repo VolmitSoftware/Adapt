@@ -4478,6 +4478,7 @@ status = "Stato: {status}"
 locate = "Clic sinistro per localizzare"
 release = "Maiusc + clic destro per liberare"
 release_confirm = "Liberare per sempre questo golem disperso?"
+release_shattered_confirm = "Liberare per sempre questo golem infranto? Il suo Nucleo infranto si sbriciolerà."
 
 [golemancy.message]
 home_set = "Casa impostata a {x}, {y}, {z}"
@@ -4674,6 +4675,27 @@ lore1 = "Slot runa extra per golem"
 lore2 = "Grado di runa più alto utilizzabile"
 lore3 = "Piedistallo di Animus e ricetta della Runa vuota"
 lore = ["Slot runa extra per golem", "Grado di runa più alto utilizzabile", "Piedistallo di Animus e ricetta della Runa vuota"]
+
+[golemancy.mending]
+name = "Riparazione dei Golem"
+description = "Cura i tuoi golem con lingotti di rame, blocchi di neve e farina d'ossa, lasciali rigenerarsi vicino a te e a casa, e ricostruisci i golem caduti dal loro Nucleo infranto."
+lore1 = "Cura bonus dalle riparazioni"
+lore2 = "Lingotti di rame, blocchi di neve e farina d'ossa curano i tuoi golem"
+lore3 = "Salute rigenerata vicino a te"
+lore4 = "Salute rigenerata a riposo a casa"
+lore5 = "Secondi tra le rigenerazioni"
+lore6 = "Nucleo infranto: ricostruisci i golem caduti"
+lore7 = "Secondi di Resistenza per i golem rinati"
+lore8 = "I golem rinati mantengono il loro stato del rame"
+lore = ["Cura bonus dalle riparazioni", "Lingotti di rame, blocchi di neve e farina d'ossa curano i tuoi golem", "Salute rigenerata vicino a te", "Salute rigenerata a riposo a casa", "Secondi tra le rigenerazioni", "Nucleo infranto: ricostruisci i golem caduti", "Secondi di Resistenza per i golem rinati", "I golem rinati mantengono il loro stato del rame"]
+full_health = "Questo golem ha già la salute piena"
+shattered = "Il tuo golem di {body} si è infranto e ha lasciato il suo Nucleo infranto"
+reborn = "Il tuo golem di {body} è rinato"
+void = "Questo Nucleo infranto si sbriciola: il suo golem è stato liberato"
+not_owner = "Questo Nucleo infranto appartiene a un altro giocatore"
+locked = "Ricostruire un golem richiede Riparazione dei Golem al livello {level}"
+wrong_body = "Questo Nucleo infranto ha bisogno di un golem di {body} appena costruito"
+unreadable = "Questo Nucleo infranto è danneggiato e non può ricostruire un golem"
 
 [golemancy.node_status]
 idle = "Inattivo"
