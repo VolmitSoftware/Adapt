@@ -3,12 +3,14 @@ package art.arcane.adapt.api.golem;
 import art.arcane.adapt.Adapt;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -24,6 +26,7 @@ public final class GolemBrain {
   private final GolemController controller;
   private final Context context;
   private final GolemBrainMachine machine = new GolemBrainMachine();
+  private final GolemWorker worker;
   private final AtomicLong generation = new AtomicLong();
   private final AtomicBoolean ownerLookPending = new AtomicBoolean();
   private volatile boolean running;
@@ -34,6 +37,7 @@ public final class GolemBrain {
   private Location stayAnchor;
   private LivingEntity combatTarget;
   private LivingEntity appliedTarget;
+  private GolemBrainState workState;
   private long nextScanAt;
   private long nextStatsAt;
 
@@ -41,6 +45,7 @@ public final class GolemBrain {
     this.handle = Objects.requireNonNull(handle);
     this.controller = Objects.requireNonNull(controller);
     this.context = Objects.requireNonNull(context);
+    this.worker = new GolemWorker(handle, controller, context);
   }
 
   public GolemHandle handle() {
@@ -52,7 +57,8 @@ public final class GolemBrain {
   }
 
   public GolemBrainState state() {
-    return machine.state();
+    GolemBrainState working = workState;
+    return working == null ? machine.state() : working;
   }
 
   public Optional<LivingEntity> combatTarget() {
@@ -65,6 +71,7 @@ public final class GolemBrain {
     }
     running = true;
     machine.reset();
+    workState = null;
     ownerLookPending.set(false);
     lastMode = null;
     combatTarget = null;
@@ -89,6 +96,8 @@ public final class GolemBrain {
     }
     running = false;
     ownerLookPending.set(false);
+    worker.abandon();
+    workState = null;
     combatTarget = null;
     appliedTarget = null;
     controller.setTarget(null);
@@ -98,7 +107,12 @@ public final class GolemBrain {
   void detach() {
     generation.incrementAndGet();
     running = false;
-    if (attached && context.platform().owns(handle.entity())) {
+    if (!context.platform().owns(handle.entity())) {
+      return;
+    }
+    worker.abandon();
+    workState = null;
+    if (attached) {
       attached = false;
       try {
         controller.release();
@@ -106,6 +120,10 @@ public final class GolemBrain {
         Adapt.warn("Failed to restore the vanilla behavior of golem " + handle.id() + ".", failure);
       }
     }
+  }
+
+  boolean interacting(Block block) {
+    return controller.interacting(block);
   }
 
   private void schedule(long token, int delayTicks) {
@@ -150,6 +168,9 @@ public final class GolemBrain {
     Location ownerAt = sighting == null ? null : sighting.location();
     Location home = homeIn(here.getWorld());
     LivingEntity target = combat(owner, now);
+    if (work(mode, target, now, here, owner, home, settings)) {
+      return;
+    }
     GolemBrainMachine.Senses senses = new GolemBrainMachine.Senses(now, mode, distance(here, ownerAt), sighting != null && sighting.grounded(),
         distance(here, home), distance(here, stayAnchor), target != null);
     GolemBrainMachine.Decision decision = machine.decide(senses, settings);
@@ -162,6 +183,27 @@ public final class GolemBrain {
     }
     move(decision.movement(), ownerAt, home);
     controller.tick();
+  }
+
+  private boolean work(GolemMode mode, LivingEntity target, long now, Location here, Player owner, Location home, GolemBrainSettings settings) {
+    GolemBrainState working = null;
+    if (mode == GolemMode.WORK && target == null && !machine.combatSuppressed()) {
+      working = worker.pulse(now, here, owner != null && owner.isOnline() ? owner : null, home, settings);
+    } else {
+      worker.abandon();
+    }
+    if (working == null) {
+      if (workState != null) {
+        workState = null;
+        controller.stop();
+      }
+      return false;
+    }
+    workState = working;
+    machine.working(now);
+    applyTarget(null);
+    controller.tick();
+    return true;
   }
 
   private void refreshStats(long now) {
@@ -263,11 +305,14 @@ public final class GolemBrain {
     return from.distance(to);
   }
 
-  record Context(GolemPlatform platform, Supplier<GolemBrainSettings> settings, Function<GolemCoreType, GolemTargetPolicy> policies) {
+  record Context(GolemPlatform platform, Supplier<GolemBrainSettings> settings, Function<GolemCoreType, GolemTargetPolicy> policies,
+                 Supplier<GolemWorkSettings> work, Function<UUID, GolemTaskBoard> boards) {
     Context {
       Objects.requireNonNull(platform);
       Objects.requireNonNull(settings);
       Objects.requireNonNull(policies);
+      Objects.requireNonNull(work);
+      Objects.requireNonNull(boards);
     }
   }
 

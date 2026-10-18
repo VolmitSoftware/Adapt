@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem;
 
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 
 public interface GolemController {
@@ -11,6 +12,10 @@ public interface GolemController {
   void stop();
 
   void setTarget(LivingEntity target);
+
+  void interact(Block container, int ticks);
+
+  boolean interacting(Block block);
 
   void tick();
 

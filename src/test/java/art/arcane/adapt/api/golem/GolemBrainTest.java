@@ -4,6 +4,7 @@ import art.arcane.adapt.AdaptTestBase;
 import io.papermc.paper.entity.TeleportFlag;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -401,7 +403,8 @@ class GolemBrainTest extends AdaptTestBase {
     GolemState state = GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, body, GolemCoreType.BLANK,
         GolemState.Anchor.of(WORLD, 0, 64, 0)));
     GolemHandle handle = new GolemHandle(golem, state, platform);
-    return new GolemBrain(handle, controller, new GolemBrain.Context(platform, settings::get, core -> policy));
+    return new GolemBrain(handle, controller, new GolemBrain.Context(platform, settings::get, core -> policy, GolemWorkSettings::defaults,
+        world -> new GolemTaskBoard(world, key -> Optional.empty())));
   }
 
   private <T extends Mob> T golem(Class<T> type, Location location) {
@@ -457,6 +460,16 @@ class GolemBrainTest extends AdaptTestBase {
     @Override
     public void setTarget(LivingEntity target) {
       calls.add(target == null ? "target:null" : "target:zombie");
+    }
+
+    @Override
+    public void interact(Block container, int ticks) {
+      calls.add("interact");
+    }
+
+    @Override
+    public boolean interacting(Block block) {
+      return false;
     }
 
     @Override

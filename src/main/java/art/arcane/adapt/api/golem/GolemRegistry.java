@@ -306,7 +306,7 @@ public final class GolemRegistry extends TickedObject {
       listeners.add(new PaperEntityListener(this));
     }
     if (PaperCompat.hasClass(CopperTransportGuard.EVENT_CLASS)) {
-      listeners.add(new CopperTransportGuard());
+      listeners.add(new CopperTransportGuard(GolemancyRuntime::brain));
     }
     return listeners;
   }

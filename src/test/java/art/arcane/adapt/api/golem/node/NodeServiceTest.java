@@ -60,6 +60,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -579,6 +580,25 @@ class NodeServiceTest extends AdaptTestBase {
     verify(bundle.label()).text(any(Component.class));
     verify(bundle.icon()).setGlowColorOverride(DyeColor.RED.getColor());
     verify(bundle.icon(), atLeastOnce()).setGlowing(true);
+  }
+
+  @Test
+  void statusChangesRedrawTheLabelOnceAndSurviveAnEdit() {
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    NodeBundle bundle = service.renderer().bundle(key).orElseThrow();
+
+    service.status(key, NodeStatus.WORKING);
+    service.status(key, NodeStatus.WORKING);
+
+    verify(bundle.label(), times(1)).text(any(Component.class));
+    assertThat(service.renderer().status(key)).contains(NodeStatus.WORKING);
+
+    service.update(OWNER, key, record -> record.toBuilder().priority(5).build());
+
+    assertThat(service.renderer().status(key)).contains(NodeStatus.WORKING);
+    service.status(new NodeKey(WORLD, 3, 64, 3, BlockFace.EAST), NodeStatus.FULL);
+    assertThat(service.renderer().status(new NodeKey(WORLD, 3, 64, 3, BlockFace.EAST))).isEmpty();
   }
 
   @Test

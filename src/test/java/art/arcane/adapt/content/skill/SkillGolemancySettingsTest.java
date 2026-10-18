@@ -4,6 +4,7 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemSettings;
+import art.arcane.adapt.api.golem.GolemWorkSettings;
 import art.arcane.adapt.api.golem.node.NodeSettings;
 import art.arcane.adapt.api.golem.node.NodeVisibility;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
@@ -115,6 +116,25 @@ class SkillGolemancySettingsTest {
     config.nodeVisibility = "any_golemancer";
 
     assertThat(SkillGolemancy.nodeSettings(config)).isEqualTo(new NodeSettings(4, 20, 128, 8, NodeVisibility.ANY_GOLEMANCER));
+  }
+
+  @Test
+  void workConfigDefaultsProduceTheWorkDefaults() {
+    SkillGolemancy.Config config = new SkillGolemancy.Config();
+
+    assertThat(SkillGolemancy.workSettings(config)).isEqualTo(GolemWorkSettings.defaults());
+    assertThat(config.workXpHourlyCap).isEqualTo(1200D);
+    assertThat(config.workXpOwnerRadius).isEqualTo(96D);
+  }
+
+  @Test
+  void workConfigValuesReachTheWorkSettings() {
+    SkillGolemancy.Config config = new SkillGolemancy.Config();
+    config.taskLeaseSeconds = 30;
+    config.baseWorkRadius = 16D;
+    config.stuckTimeoutSeconds = 6;
+
+    assertThat(SkillGolemancy.workSettings(config)).isEqualTo(new GolemWorkSettings(30, 16D, 6));
   }
 
   private static SkillGolemancy.Config withInterval(SkillGolemancy.Config config, int ticks) {

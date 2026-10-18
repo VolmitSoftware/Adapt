@@ -169,6 +169,10 @@ public final class NodeService extends TickedObject {
     return Optional.of(next);
   }
 
+  public void status(NodeKey key, NodeStatus status) {
+    index.get(key).ifPresent(record -> renderer.status(key, record, status));
+  }
+
   public void shutdown() {
     unregister();
     scans.clear();

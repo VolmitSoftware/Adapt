@@ -28,6 +28,8 @@ import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.api.golem.GolemWorkSettings;
+import art.arcane.adapt.api.golem.GolemWorkXp;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.HostileDamagePool;
 import art.arcane.adapt.api.golem.gui.CrookInteractions;
@@ -116,6 +118,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private final GolemXpCooldowns<BuildCooldownKey> buildCooldowns = new GolemXpCooldowns<>();
   private final GolemXpCooldowns<WitnessCooldownKey> witnessCooldowns = new GolemXpCooldowns<>();
   private final RollingXpCap witnessCap = new RollingXpCap();
+  private final RollingXpCap workCap = new RollingXpCap();
   private final GolemXpCooldowns<UUID> assistCooldowns = new GolemXpCooldowns<>();
   private final GolemXpCooldowns<UUID> tankCooldowns = new GolemXpCooldowns<>();
   private final ConcurrentHashMap<UUID, Long> careChecks = new ConcurrentHashMap<>();
@@ -209,6 +212,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerMilestone("challenge_golemancy_golem_kills_500", "golemancy.golem.kills", 500, () -> getConfig().challengeGolemKillsReward * 2);
     registerMilestone("challenge_golemancy_golem_kills_5000", "golemancy.golem.kills", 5000, () -> getConfig().challengeGolemKillsReward * 5);
     GolemancyRuntime.setBindListener(this::golemBound);
+    GolemWorkXp.setSink(this::golemWorked);
     SpatialMatter.registerSliceType(new NodeMatter());
   }
 
@@ -219,6 +223,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     buildCooldowns.sweep(nowMillis, getConfig().buildXpCooldownMillis);
     witnessCooldowns.sweep(nowMillis, getConfig().witnessCooldownMillis);
     witnessCap.sweep(nowMillis);
+    workCap.sweep(nowMillis);
     assistCooldowns.sweep(nowMillis, getConfig().assistCooldownMillis);
     tankCooldowns.sweep(nowMillis, getConfig().tankCooldownMillis);
     careChecks.values().removeIf(scheduledAt -> nowMillis - scheduledAt > CARE_CHECK_STALE_MILLIS);
@@ -321,6 +326,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     GolemancyRuntime.configureBrain(brainSettings(newConfig));
     GolemancyRuntime.configureReveal(revealSettings(newConfig));
     GolemancyRuntime.configureNodes(nodeSettings(newConfig));
+    GolemancyRuntime.configureWork(workSettings(newConfig));
   }
 
   @Override
@@ -363,6 +369,18 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
 
   static RevealSettings revealSettings(Config config) {
     return new RevealSettings(config.revealRange, config.labelRange, config.revealPollTicks);
+  }
+
+  static GolemWorkSettings workSettings(Config config) {
+    return new GolemWorkSettings(config.taskLeaseSeconds, config.baseWorkRadius, config.stuckTimeoutSeconds);
+  }
+
+  static double grantWorkXp(RollingXpCap cap, UUID owner, double xp, double distanceSquared, Config config, long nowMillis) {
+    double radius = config.workXpOwnerRadius;
+    if (!(distanceSquared <= radius * radius)) {
+      return 0D;
+    }
+    return cap.claim(owner, xp, config.workXpHourlyCap, nowMillis);
   }
 
   static double bindXp(Config config, GolemBody body) {
@@ -468,6 +486,26 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     boolean firstBindOfGolem = !handle.state().previouslyBound();
     Location at = golem.getLocation();
     J.runEntity(owner, () -> shouldReturnForPlayer(owner, () -> rewardBind(owner, body, firstBindOfGolem, at)));
+  }
+
+  private void golemWorked(GolemHandle handle, GolemCoreType core, double xp) {
+    Mob golem = handle.entity();
+    if (shouldReturnForWorld(golem.getWorld(), this)) {
+      return;
+    }
+    Location at = golem.getLocation();
+    String rewardKey = GolemWorkXp.rewardKey(core);
+    rewardOwner(handle.owner(), owner -> payWork(owner, at, xp, rewardKey));
+  }
+
+  private void payWork(Player owner, Location at, double xp, String rewardKey) {
+    Location ownerAt = owner.getLocation();
+    World world = ownerAt.getWorld();
+    double distanceSquared = world != null && world.equals(at.getWorld()) ? ownerAt.distanceSquared(at) : Double.POSITIVE_INFINITY;
+    double granted = grantWorkXp(workCap, owner.getUniqueId(), xp, distanceSquared, getConfig(), M.ms());
+    if (granted > 0D) {
+      xp(owner, at, granted, rewardKey);
+    }
   }
 
   private void rewardBind(Player owner, GolemBody body, boolean firstBindOfGolem, Location at) {
@@ -776,5 +814,15 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     int maxOpenTasksPerNode = 16;
     @ConfigDoc(value = "Who can see nodes while holding the Crook, a Node, a Core or a Dormant Golem: OWNER shows each player only their own nodes, ANY_GOLEMANCER also shows every node to players with Node Weaving.", impact = "Set to ANY_GOLEMANCER to let golemancers see each other's nodes.")
     String nodeVisibility = "OWNER";
+    @ConfigDoc(value = "Seconds a golem keeps its claim on a node job without making progress before another golem may take it, clamped to 5-600.", impact = "Lower values let other golems take over stalled jobs sooner; higher values tolerate slow walks to far jobs.")
+    int taskLeaseSeconds = 20;
+    @ConfigDoc(value = "Blocks around its home within which a working golem takes node jobs and finds Deposit Nodes, clamped to 4-128.", impact = "Higher values let golems work and deliver farther from home.")
+    double baseWorkRadius = 24;
+    @ConfigDoc(value = "Seconds a golem walking to a job or a container may go without getting half a block closer before it gives up and skips that job or container for 10 seconds, clamped to 1-60.", impact = "Lower values give up on blocked paths sooner; higher values keep trying longer.")
+    int stuckTimeoutSeconds = 4;
+    @ConfigDoc(value = "Most work XP one player can earn from their golems' finished jobs in any rolling 60 minutes.", impact = "Higher values allow more passive XP from golem labor per hour.")
+    double workXpHourlyCap = 1200;
+    @ConfigDoc(value = "Blocks from a working golem within which its owner earns work XP for its finished jobs. Owners farther away or in another world earn none.", impact = "Higher values let owners earn work XP while farther from their golems.")
+    double workXpOwnerRadius = 96;
   }
 }
