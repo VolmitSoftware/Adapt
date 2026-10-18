@@ -661,6 +661,23 @@ class GathererWorkTest {
   }
 
   @Test
+  void aFullGathererThatOnlyAbsorbsSkipsTheMagnetProtectionQueryAndTheItemSearch() {
+    level.set(5);
+    item(Material.WHEAT, 1, at(2.5D, 64D, 0.5D));
+    ExperienceOrb orb = orb(5, 1, at(0.5D, 64D, 1.0D));
+    carried.set(64);
+    List<Location> queried = new ArrayList<>();
+    interact.set(location -> queried.add(location.clone()));
+
+    work.tick(golem);
+
+    assertThat(removed).contains(orb);
+    assertThat(essence.get()).isEqualTo(5D);
+    assertThat(queried).containsExactly(at(0.5D, 64D, 1.0D));
+    verify(world, times(1)).getNearbyEntities(any(BoundingBox.class), any());
+  }
+
+  @Test
   void aSwitchedOffCollectionNodePausesGatheringInsteadOfFallingBackToHome() {
     Block anchor = mock(Block.class);
     when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);

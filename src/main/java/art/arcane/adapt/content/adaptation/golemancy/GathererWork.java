@@ -127,16 +127,18 @@ final class GathererWork implements GolemCoreBehavior {
     double instant = GathererRules.unlocked(level, config.instantPickupLevel) ? config.instantPickupRadius : 0D;
     double reach = Math.max(magnet, instant);
     boolean absorbing = instant > 0D && GathererRules.essenceRoom(handle.state().essencePoints(), essenceCap(level)) > 0;
-    if (reach <= 0D || (golem.room() <= 0 && !absorbing)) {
+    boolean carrying = golem.room() > 0;
+    if (reach <= 0D || (!carrying && !absorbing)) {
       return;
     }
     GatherArea area = area(golem, level);
     Location here = golem.golem().getLocation();
     long now = golem.nowMillis();
-    boolean pulling = magnet > 0D && area.contains(here) && golem.canInteract(here);
+    boolean pulling = carrying && magnet > 0D && area.contains(here) && golem.canInteract(here);
     int attempts = 0;
     int pulled = 0;
-    for (Item item : PaperCompat.nearbyEntitiesByType(Item.class, here, reach, reach, reach)) {
+    List<Item> items = carrying ? PaperCompat.nearbyEntitiesByType(Item.class, here, reach, reach, reach) : List.of();
+    for (Item item : items) {
       Location at = item.getLocation();
       double distance = at.distanceSquared(here);
       ItemStack stack = item.getItemStack();

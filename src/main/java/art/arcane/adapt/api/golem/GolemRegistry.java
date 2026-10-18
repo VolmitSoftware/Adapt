@@ -666,7 +666,18 @@ public final class GolemRegistry extends TickedObject {
         owner.giveExp(points);
       }
     };
-    if (owner == null || !owner.isOnline() || !platform.runEntity(owner, give, () -> platform.runEntity(golem, drop, 0))) {
+    AtomicBoolean fellBack = new AtomicBoolean();
+    Runnable dropAtLastLocation = () -> {
+      if (fellBack.compareAndSet(false, true) && !platform.runAt(at, drop)) {
+        Adapt.warn("Released golem " + golem.getUniqueId() + " could not drop its " + points + " experience points of essence at " + at + "; the essence was lost.");
+      }
+    };
+    Runnable ownerGone = () -> {
+      if (!platform.runEntity(golem, drop, dropAtLastLocation)) {
+        dropAtLastLocation.run();
+      }
+    };
+    if (owner == null || !owner.isOnline() || !platform.runEntity(owner, give, ownerGone)) {
       drop.run();
     }
   }

@@ -379,6 +379,11 @@ public final class GolemancyRuntime {
     }
 
     @Override
+    public boolean runAt(Location location, Runnable task) {
+      return J.runAt(location, task);
+    }
+
+    @Override
     public boolean isChunkLoaded(UUID world, long chunkKey) {
       World loaded = Bukkit.getWorld(world);
       return loaded != null && loaded.isChunkLoaded(GolemRoster.chunkX(chunkKey), GolemRoster.chunkZ(chunkKey));

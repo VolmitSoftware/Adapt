@@ -45,8 +45,12 @@ final class FakeGolemPlatform implements GolemPlatform {
   final Map<NodeKey, NodeRecord> nodes = new HashMap<>();
   final Map<String, ItemStack> encoded = new HashMap<>();
   final Map<UUID, Entity> entities = new HashMap<>();
+  final Set<Entity> refusing = new HashSet<>();
+  final Set<Entity> deferring = new HashSet<>();
+  final List<RegionTask> regionTasks = new ArrayList<>();
   boolean ownsEntities = true;
   boolean refuseRetiring;
+  boolean refuseRegions;
   boolean ownsLocations = true;
   int fullSignals;
   Adaptation<?> bindingPolicy;
@@ -89,6 +93,14 @@ final class FakeGolemPlatform implements GolemPlatform {
     delayed.removeAll(retiring);
     for (Delayed task : retiring) {
       task.retired().run();
+    }
+  }
+
+  void runRegionTasks() {
+    List<RegionTask> due = List.copyOf(regionTasks);
+    regionTasks.clear();
+    for (RegionTask task : due) {
+      task.task().run();
     }
   }
 
@@ -142,7 +154,10 @@ final class FakeGolemPlatform implements GolemPlatform {
 
   @Override
   public boolean runEntity(Entity entity, Runnable task, int delayTicks) {
-    if (delayTicks <= 0 && ownsEntities) {
+    if (refusing.contains(entity)) {
+      return false;
+    }
+    if (delayTicks <= 0 && ownsEntities && !deferring.contains(entity)) {
       task.run();
       return true;
     }
@@ -152,15 +167,24 @@ final class FakeGolemPlatform implements GolemPlatform {
 
   @Override
   public boolean runEntity(Entity entity, Runnable task, Runnable retired) {
-    if (refuseRetiring) {
+    if (refuseRetiring || refusing.contains(entity)) {
       retired.run();
       return false;
     }
-    if (ownsEntities) {
+    if (ownsEntities && !deferring.contains(entity)) {
       task.run();
       return true;
     }
     delayed.add(new Delayed(task, 0, retired));
+    return true;
+  }
+
+  @Override
+  public boolean runAt(Location location, Runnable task) {
+    if (refuseRegions) {
+      return false;
+    }
+    regionTasks.add(new RegionTask(location.clone(), task));
     return true;
   }
 
@@ -263,5 +287,8 @@ final class FakeGolemPlatform implements GolemPlatform {
   }
 
   record Delayed(Runnable task, int delayTicks, Runnable retired) {
+  }
+
+  record RegionTask(Location location, Runnable task) {
   }
 }

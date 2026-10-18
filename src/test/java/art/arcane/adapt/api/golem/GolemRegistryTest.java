@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.golem;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.minion.MinionIdentity;
@@ -49,6 +50,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.offset;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
@@ -575,6 +577,59 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(registry.release(handle)).isTrue();
 
     verify(world, times(1)).spawn(any(Location.class), eq(ExperienceOrb.class), ArgumentMatchers.<Consumer<ExperienceOrb>>any());
+    verify(owner, never()).giveExp(anyInt());
+  }
+
+  @Test
+  void anOwnerWhoLeavesWhileTheGolemRefusesTheDropStillGetsTheEssenceDroppedOnceAtTheGolemsLastLocation() {
+    GolemHandle handle = releasableGatherer(60D);
+    Entity golem = handle.entity();
+    platform.deferring.add(owner);
+
+    assertThat(registry.release(handle)).isTrue();
+    platform.refusing.add(golem);
+    platform.retireDelayed();
+
+    assertThat(platform.regionTasks).extracting(FakeGolemPlatform.RegionTask::location).containsExactly(at(0, 64, 0));
+    verify(world, never()).spawn(any(Location.class), eq(ExperienceOrb.class), ArgumentMatchers.<Consumer<ExperienceOrb>>any());
+    platform.runRegionTasks();
+
+    assertDroppedOnceAt(at(0, 64, 0), 60);
+  }
+
+  @Test
+  void anOwnerWhoLeavesWhileTheGolemRetiresBeforeTheDropStillGetsTheEssenceDroppedOnceAtTheGolemsLastLocation() {
+    GolemHandle handle = releasableGatherer(60D);
+    Entity golem = handle.entity();
+    platform.deferring.add(owner);
+
+    assertThat(registry.release(handle)).isTrue();
+    platform.deferring.add(golem);
+    platform.retireDelayed();
+    assertThat(platform.regionTasks).isEmpty();
+    platform.retireDelayed();
+
+    assertThat(platform.regionTasks).extracting(FakeGolemPlatform.RegionTask::location).containsExactly(at(0, 64, 0));
+    platform.runRegionTasks();
+
+    assertDroppedOnceAt(at(0, 64, 0), 60);
+  }
+
+  @Test
+  void returnedEssenceThatNoRegionWillDropIsLoggedAsLost() {
+    GolemHandle handle = releasableGatherer(60D);
+    Entity golem = handle.entity();
+    platform.deferring.add(owner);
+
+    assertThat(registry.release(handle)).isTrue();
+    platform.refusing.add(golem);
+    platform.refuseRegions = true;
+    try (MockedStatic<Adapt> adapt = mockStatic(Adapt.class)) {
+      platform.retireDelayed();
+
+      adapt.verify(() -> Adapt.warn(contains("60 experience points")), times(1));
+    }
+    verify(world, never()).spawn(any(Location.class), eq(ExperienceOrb.class), ArgumentMatchers.<Consumer<ExperienceOrb>>any());
     verify(owner, never()).giveExp(anyInt());
   }
 
@@ -1236,6 +1291,25 @@ class GolemRegistryTest extends AdaptTestBase {
         return List.of(GolemStatDelta.add(GolemStat.ARMOR, armor.get()));
       }
     };
+  }
+
+  private GolemHandle releasableGatherer(double essence) {
+    onlineOwner();
+    platform.players.put(OWNER, owner);
+    when(owner.isOnline()).thenReturn(true);
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
+    handle.setEssence(essence);
+    return handle;
+  }
+
+  private void assertDroppedOnceAt(Location location, int experience) {
+    ArgumentCaptor<Consumer<ExperienceOrb>> spawn = consumerCaptor();
+    verify(world, times(1)).spawn(eq(location), eq(ExperienceOrb.class), spawn.capture());
+    ExperienceOrb orb = mock(ExperienceOrb.class);
+    spawn.getValue().accept(orb);
+    verify(orb).setExperience(experience);
+    verify(owner, never()).giveExp(anyInt());
   }
 
   private GolemRoster onlineOwner() {

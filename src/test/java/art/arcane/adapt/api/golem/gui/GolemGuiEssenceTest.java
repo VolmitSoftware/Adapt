@@ -24,6 +24,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
@@ -55,10 +56,7 @@ class GolemGuiEssenceTest {
       return null;
     }).when(handle).setEssence(anyDouble());
     scheduling = mockStatic(J.class);
-    scheduling.when(() -> J.runEntity(eq(golem), any(Runnable.class))).thenAnswer(invocation -> {
-      invocation.<Runnable>getArgument(1).run();
-      return true;
-    });
+    golemSchedule(false, true);
   }
 
   @AfterEach
@@ -75,6 +73,32 @@ class GolemGuiEssenceTest {
     assertThat(writes).containsExactly(0.5D, 140.5D);
     assertThat(essence.get()).isEqualTo(140.5D);
     verify(player, never()).giveExp(anyInt());
+  }
+
+  @Test
+  void aRestoreHopThatTheGolemAlsoRetiresAndRefusesWarnsOnceAndRestoresOnce() {
+    playerSchedule(true, false);
+    golemSchedule(true, false);
+
+    assertThat(GolemGui.takeEssence(handle, player)).isEqualTo(GolemGui.EssenceWithdrawal.REFUSED);
+
+    assertThat(writes).containsExactly(0.5D, 140.5D);
+    verify(player, never()).giveExp(anyInt());
+    scheduling.verify(() -> J.runEntity(eq(golem), any(Runnable.class), any(Runnable.class)), times(1));
+    scheduling.verify(() -> J.runEntity(eq(player), any(Runnable.class)), times(1));
+  }
+
+  @Test
+  void anOwnerWhoLeavesAfterTheGiftIsQueuedRestoresTheEssenceThroughTheGolemScheduler() {
+    playerSchedule(false, true);
+    golemSchedule(false, true);
+
+    assertThat(GolemGui.takeEssence(handle, player)).isEqualTo(GolemGui.EssenceWithdrawal.TAKEN);
+    retired.get().run();
+
+    assertThat(writes).containsExactly(0.5D, 140.5D);
+    scheduling.verify(() -> J.runEntity(eq(golem), any(Runnable.class), any(Runnable.class)), times(1));
+    scheduling.verify(() -> J.runEntity(eq(player), any(Runnable.class)), never());
   }
 
   @Test
@@ -123,6 +147,18 @@ class GolemGuiEssenceTest {
 
     assertThat(writes).isEmpty();
     scheduling.verify(() -> J.runEntity(eq(player), any(Runnable.class), any(Runnable.class)), never());
+  }
+
+  private void golemSchedule(boolean runRetired, boolean accepted) {
+    scheduling.when(() -> J.runEntity(eq(golem), any(Runnable.class), any(Runnable.class))).thenAnswer(invocation -> {
+      if (runRetired) {
+        invocation.<Runnable>getArgument(2).run();
+      }
+      if (accepted) {
+        invocation.<Runnable>getArgument(1).run();
+      }
+      return accepted;
+    });
   }
 
   private void playerSchedule(boolean runRetired, boolean accepted) {

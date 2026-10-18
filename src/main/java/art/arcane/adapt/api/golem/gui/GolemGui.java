@@ -399,7 +399,7 @@ public final class GolemGui {
 
   private void withdrawEssence() {
     Mob golem = handle.entity();
-    boolean scheduled = J.runEntity(golem, () -> {
+    GolemGuiItems.fromGolem(golem, player, () -> {
       if (handle.isRetired() || !golem.isValid()) {
         GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
         return;
@@ -417,9 +417,6 @@ public final class GolemGui {
       }
       snapshot();
     });
-    if (!scheduled) {
-      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
-    }
   }
 
   private void handBack(ItemStack item) {
@@ -518,7 +515,7 @@ public final class GolemGui {
         player.giveExp(points);
       }
     };
-    if (J.runEntity(player, give, () -> J.runEntity(handle.entity(), restore))) {
+    if (J.runEntity(player, give, () -> GolemGuiItems.fromGolem(handle.entity(), player, restore))) {
       return EssenceWithdrawal.TAKEN;
     }
     restore.run();
