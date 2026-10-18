@@ -422,13 +422,17 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
 
     ServantOrder order = order(skeleton);
-    if (!ServantPulse.allowsTarget(order, e.getReason())) {
-      e.setCancelled(true);
-      return;
-    }
     long now = System.currentTimeMillis();
-    if (ServantPulse.commanded(order, target, now)) {
-      return;
+    switch (ServantPulse.gate(order, e.getReason(), target, now)) {
+      case COMMANDED -> {
+        return;
+      }
+      case REFUSED -> {
+        e.setCancelled(true);
+        return;
+      }
+      case USUAL -> {
+      }
     }
 
     TragoulPreferences.Stance stance = stances.getOrDefault(ownerId, TragoulPreferences.Stance.ASSIST);

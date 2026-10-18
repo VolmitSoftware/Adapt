@@ -62,11 +62,27 @@ class ServantPulseTest {
 
   @Test
   void heldServantsOnlyRetaliate() {
-    assertThat(ServantPulse.allowsTarget(hold(), EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY)).isTrue();
-    assertThat(ServantPulse.allowsTarget(hold(), EntityTargetEvent.TargetReason.CLOSEST_ENTITY)).isFalse();
-    assertThat(ServantPulse.allowsTarget(hold(), EntityTargetEvent.TargetReason.CLOSEST_PLAYER)).isFalse();
-    assertThat(ServantPulse.allowsTarget(ServantOrder.FREE, EntityTargetEvent.TargetReason.CLOSEST_ENTITY)).isTrue();
-    assertThat(ServantPulse.allowsTarget(ServantOrder.follow(), EntityTargetEvent.TargetReason.CLOSEST_ENTITY)).isTrue();
+    assertThat(gate(hold(), EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY, target)).isEqualTo(ServantPulse.TargetGate.USUAL);
+    assertThat(gate(hold(), EntityTargetEvent.TargetReason.CLOSEST_ENTITY, target)).isEqualTo(ServantPulse.TargetGate.REFUSED);
+    assertThat(gate(hold(), EntityTargetEvent.TargetReason.CLOSEST_PLAYER, target)).isEqualTo(ServantPulse.TargetGate.REFUSED);
+    assertThat(gate(hold(), EntityTargetEvent.TargetReason.UNKNOWN, target)).isEqualTo(ServantPulse.TargetGate.REFUSED);
+    assertThat(gate(ServantOrder.FREE, EntityTargetEvent.TargetReason.CLOSEST_ENTITY, target)).isEqualTo(ServantPulse.TargetGate.USUAL);
+    assertThat(gate(ServantOrder.follow(), EntityTargetEvent.TargetReason.CLOSEST_ENTITY, target)).isEqualTo(ServantPulse.TargetGate.USUAL);
+  }
+
+  @Test
+  void aLiveSicTargetPassesTheGateInEveryOrderWhateverTheReason() {
+    LivingEntity player = mock(Player.class);
+    for (ServantOrder base : new ServantOrder[]{ServantOrder.FREE, ServantOrder.follow(), hold()}) {
+      ServantOrder sic = base.command(player, 20_000L);
+      for (EntityTargetEvent.TargetReason reason : new EntityTargetEvent.TargetReason[]{EntityTargetEvent.TargetReason.UNKNOWN,
+          EntityTargetEvent.TargetReason.CUSTOM, EntityTargetEvent.TargetReason.CLOSEST_PLAYER, EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY}) {
+        assertThat(ServantPulse.gate(sic, reason, player, 10_000L)).as("%s %s", base.mode(), reason).isEqualTo(ServantPulse.TargetGate.COMMANDED);
+      }
+    }
+    ServantOrder heldSic = hold().command(player, 20_000L);
+    assertThat(ServantPulse.gate(heldSic, EntityTargetEvent.TargetReason.UNKNOWN, player, 20_000L)).isEqualTo(ServantPulse.TargetGate.REFUSED);
+    assertThat(ServantPulse.gate(heldSic, EntityTargetEvent.TargetReason.UNKNOWN, target, 10_000L)).isEqualTo(ServantPulse.TargetGate.REFUSED);
   }
 
   @Test
@@ -84,6 +100,10 @@ class ServantPulseTest {
 
   private ServantPulse.Senses senses(boolean commandHolds, double ownerDistanceSquared, double anchorDistanceSquared, boolean fighting) {
     return new ServantPulse.Senses(commandHolds, ownerDistanceSquared, anchorDistanceSquared, fighting, LEASH);
+  }
+
+  private static ServantPulse.TargetGate gate(ServantOrder order, EntityTargetEvent.TargetReason reason, LivingEntity candidate) {
+    return ServantPulse.gate(order, reason, candidate, 10_000L);
   }
 
   private ServantOrder hold() {

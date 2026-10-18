@@ -27,8 +27,11 @@ final class ServantPulse {
     return !order.commanded() && order.mode() != ServantOrder.Mode.HOLD;
   }
 
-  static boolean allowsTarget(ServantOrder order, EntityTargetEvent.TargetReason reason) {
-    return order.mode() != ServantOrder.Mode.HOLD || reason == EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY;
+  static TargetGate gate(ServantOrder order, EntityTargetEvent.TargetReason reason, LivingEntity target, long now) {
+    if (commanded(order, target, now)) {
+      return TargetGate.COMMANDED;
+    }
+    return order.mode() != ServantOrder.Mode.HOLD || reason == EntityTargetEvent.TargetReason.TARGET_ATTACKED_ENTITY ? TargetGate.USUAL : TargetGate.REFUSED;
   }
 
   static boolean commanded(ServantOrder order, LivingEntity target, long now) {
@@ -39,6 +42,12 @@ final class ServantPulse {
     double owner = senses.ownerDistanceSquared();
     double leash = senses.leashRadius();
     return owner > leash * leash || (!senses.fighting() && owner > FOLLOW_DISTANCE * FOLLOW_DISTANCE);
+  }
+
+  enum TargetGate {
+    COMMANDED,
+    REFUSED,
+    USUAL
   }
 
   enum Step {
