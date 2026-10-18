@@ -36,6 +36,7 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AbstractSkeleton;
 import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
@@ -120,6 +121,7 @@ public final class PaperCompat {
   private static volatile boolean transientModifierSupported = true;
   private static volatile boolean damageCriticalSupported = true;
   private static volatile boolean rangedAttackSupported = true;
+  private static volatile boolean weatheringSupported = true;
   // EntityPotionEffectEvent.getSource() is 26.2+; resolved reflectively so the 26.1.2 compile baseline builds.
   private static final MethodHandle POTION_SOURCE_HANDLE = resolvePotionSourceHandle();
   private static volatile boolean trackedPlayersSupported = true;
@@ -189,6 +191,26 @@ public final class PaperCompat {
     } catch (NoClassDefFoundError | NoSuchMethodError absent) {
       rangedAttackSupported = false;
       return false;
+    }
+  }
+
+  public static int weatheringStage(Entity entity) {
+    if (!weatheringSupported) {
+      return 0;
+    }
+    try {
+      if (!(entity instanceof CopperGolem golem)) {
+        return 0;
+      }
+      return switch (golem.getWeatheringState()) {
+        case UNAFFECTED -> 0;
+        case EXPOSED -> 1;
+        case WEATHERED -> 2;
+        case OXIDIZED -> 3;
+      };
+    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
+      weatheringSupported = false;
+      return 0;
     }
   }
 

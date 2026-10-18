@@ -4480,6 +4480,18 @@ lore6 = "Chance d'une boule de neige supplémentaire"
 lore7 = "Impacts de boule de neige pour geler une cible"
 lore = ["Santé supplémentaire des golems de Givre", "Dégâts des boules de neige", "Dégâts subis dans les biomes chauds", "Insensible à la pluie et à l'eau", "Secondes de lenteur par impact", "Chance d'une boule de neige supplémentaire", "Impacts de boule de neige pour geler une cible"]
 
+[golemancy.copper_frame]
+name = "Armature de Cuivre"
+description = "Te permet de lier des golems de Cuivre et les renforce avec de la santé supplémentaire, de la capacité de transport et de la vitesse, ainsi qu'une armure issue de leur patine."
+lore1 = "Santé supplémentaire des golems de Cuivre"
+lore2 = "Capacité de transport en objets"
+lore3 = "Vitesse de déplacement"
+lore4 = "Ne se change jamais en statue"
+lore5 = "Armure par stade de patine"
+lore6 = "Vitesse perdue par stade de patine"
+lore7 = "Secondes de Vitesse II grâce à la foudre proche"
+lore = ["Santé supplémentaire des golems de Cuivre", "Capacité de transport en objets", "Vitesse de déplacement", "Ne se change jamais en statue", "Armure par stade de patine", "Vitesse perdue par stade de patine", "Secondes de Vitesse II grâce à la foudre proche"]
+
 [golemancy.node_status]
 idle = "Inactif"
 working = "Au travail"

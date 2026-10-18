@@ -34,6 +34,7 @@ final class FakeGolemPlatform implements GolemPlatform {
   final Map<String, List<Mob>> chunkMobs = new HashMap<>();
   final List<String> sweeps = new ArrayList<>();
   final Map<String, FakeAttribute> stats = new HashMap<>();
+  final Map<UUID, Integer> patina = new HashMap<>();
   boolean ownsEntities = true;
   long now = 1_000_000L;
 
@@ -178,6 +179,11 @@ final class FakeGolemPlatform implements GolemPlatform {
   public AttributeInstance attribute(LivingEntity entity, GolemStat stat) {
     FakeAttribute attribute = stat(entity, stat);
     return attribute == null ? null : attribute.instance;
+  }
+
+  @Override
+  public int patinaStage(Mob golem) {
+    return patina.getOrDefault(golem.getUniqueId(), 0);
   }
 
   @Override

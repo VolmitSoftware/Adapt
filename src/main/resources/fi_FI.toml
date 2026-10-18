@@ -4484,6 +4484,18 @@ lore6 = "Mahdollisuus ylimääräiseen lumipalloon"
 lore7 = "Lumipallo-osumat kohteen jäädyttämiseen"
 lore = ["Lisäterveys huurregolemeille", "Lumipallon vahinko", "Vahinko lämpimissä biomeissa", "Immuuni sateelle ja vedelle", "Sekuntia hitautta osumasta", "Mahdollisuus ylimääräiseen lumipalloon", "Lumipallo-osumat kohteen jäädyttämiseen"]
 
+[golemancy.copper_frame]
+name = "Kuparirunko"
+description = "Antaa sinun sitoa kuparigolemeita ja vahvistaa niitä lisäterveydellä, kantokyvyllä ja nopeudella sekä patinasta saatavalla panssarilla."
+lore1 = "Lisäterveys kuparigolemeille"
+lore2 = "Kantokyky esineinä"
+lore3 = "Liikkumisnopeus"
+lore4 = "Ei koskaan muutu patsaaksi"
+lore5 = "Panssaria patinavaihetta kohden"
+lore6 = "Nopeuden menetys patinavaihetta kohden"
+lore7 = "Sekuntia Nopeus II -tehostetta läheisestä salamasta"
+lore = ["Lisäterveys kuparigolemeille", "Kantokyky esineinä", "Liikkumisnopeus", "Ei koskaan muutu patsaaksi", "Panssaria patinavaihetta kohden", "Nopeuden menetys patinavaihetta kohden", "Sekuntia Nopeus II -tehostetta läheisestä salamasta"]
+
 [golemancy.node_status]
 idle = "Joutilas"
 working = "Työssä"

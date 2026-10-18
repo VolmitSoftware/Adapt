@@ -62,6 +62,7 @@ public final class GolemStats {
     if (handle.isRetired() || !handle.platform().ownerReady(handle.owner())) {
       return;
     }
+    handle.refreshPatinaStage();
     Optional<GolemStatPlan> next = plan(handle);
     if (next.isEmpty() || next.get().equals(handle.appliedStats())) {
       return;

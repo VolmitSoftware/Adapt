@@ -21,6 +21,7 @@ public final class GolemHandle {
   private volatile boolean validated;
   private volatile boolean retired;
   private volatile GolemStatPlan appliedStats;
+  private volatile int patinaStage;
 
   GolemHandle(Mob entity, GolemState state, GolemPlatform platform) {
     this.entity = Objects.requireNonNull(entity);
@@ -72,6 +73,10 @@ public final class GolemHandle {
 
   public boolean isValidated() {
     return validated;
+  }
+
+  public int patinaStage() {
+    return patinaStage;
   }
 
   public void setCarried(List<ItemStack> items) {
@@ -206,6 +211,18 @@ public final class GolemHandle {
 
   void setAppliedStats(GolemStatPlan plan) {
     appliedStats = plan;
+  }
+
+  boolean refreshPatinaStage() {
+    if (body() != GolemBody.COPPER) {
+      return false;
+    }
+    int stage = platform.patinaStage(entity);
+    if (stage == patinaStage) {
+      return false;
+    }
+    patinaStage = stage;
+    return true;
   }
 
   void setValidated(boolean validated) {

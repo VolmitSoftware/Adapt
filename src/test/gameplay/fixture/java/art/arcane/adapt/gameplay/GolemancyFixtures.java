@@ -14,7 +14,9 @@ import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowman;
 import org.bukkit.inventory.ItemStack;
@@ -24,8 +26,10 @@ import java.util.Optional;
 
 public final class GolemancyFixtures {
     private static final String BINDING_STAGE = "golemancy-binding";
+    private static final String COPPER_BINDING_STAGE = "golemancy-copper-binding";
     private static final String NODE_STAGE = "golemancy-node";
     private static final String GOLEM_TAG = "adapt-qa-golemancy-golem";
+    private static final String COPPER_GOLEM_TAG = "adapt-qa-golemancy-copper-golem";
     private static final int NODE_X = 2;
     private static final int NODE_Y = 100;
     private static final int NODE_Z = 0;
@@ -41,6 +45,14 @@ public final class GolemancyFixtures {
             actor.getInventory().addItem(GolemItems.blankCore());
             Snowman golem = world.spawn(new Location(world, 2.5, 100, 0.5), Snowman.class);
             golem.addScoreboardTag(GOLEM_TAG);
+            return true;
+        }
+        if (COPPER_BINDING_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.setLevel(5);
+            actor.getInventory().addItem(GolemItems.blankCore());
+            CopperGolem golem = world.spawn(new Location(world, 2.5, 100, 0.5), CopperGolem.class);
+            golem.addScoreboardTag(COPPER_GOLEM_TAG);
             return true;
         }
         if (NODE_STAGE.equals(name)) {
@@ -61,6 +73,9 @@ public final class GolemancyFixtures {
         for (Entity entity : player.getWorld().getEntities()) {
             if (entity instanceof Snowman golem && golem.getScoreboardTags().contains(GOLEM_TAG)) {
                 result.add("golem", state(golem, player));
+            }
+            if (entity instanceof CopperGolem golem && golem.getScoreboardTags().contains(COPPER_GOLEM_TAG)) {
+                result.add("copperGolem", state(golem, player));
             }
         }
         result.add("node", node(player));
@@ -102,7 +117,7 @@ public final class GolemancyFixtures {
         return result;
     }
 
-    private static JsonObject state(Snowman golem, Player player) {
+    private static JsonObject state(Mob golem, Player player) {
         JsonObject result = new JsonObject();
         Optional<GolemState> state = GolemState.read(golem);
         result.addProperty("entityId", golem.getEntityId());
@@ -113,7 +128,11 @@ public final class GolemancyFixtures {
         result.addProperty("scale", scale == null ? 1D : scale.getValue());
         AttributeInstance maxHealth = golem.getAttribute(Attribute.MAX_HEALTH);
         result.addProperty("maxHealth", maxHealth == null ? 0D : maxHealth.getValue());
+        result.addProperty("maxHealthBase", maxHealth == null ? 0D : maxHealth.getBaseValue());
         result.addProperty("health", golem.getHealth());
+        AttributeInstance speed = golem.getAttribute(Attribute.MOVEMENT_SPEED);
+        result.addProperty("speed", speed == null ? 0D : speed.getValue());
+        result.addProperty("speedBase", speed == null ? 0D : speed.getBaseValue());
         return result;
     }
 }

@@ -4484,6 +4484,18 @@ lore6 = "Cơ hội ném thêm cầu tuyết"
 lore7 = "Số lần trúng cầu tuyết để đóng băng mục tiêu"
 lore = ["Máu bổ sung cho golem Băng Giá", "Sát thương cầu tuyết", "Sát thương nhận ở quần xã ấm", "Miễn nhiễm mưa và nước", "Số giây làm chậm khi trúng", "Cơ hội ném thêm cầu tuyết", "Số lần trúng cầu tuyết để đóng băng mục tiêu"]
 
+[golemancy.copper_frame]
+name = "Khung Đồng"
+description = "Cho phép bạn liên kết golem Đồng và củng cố chúng với máu bổ sung, sức chứa và tốc độ, cùng giáp từ lớp gỉ đồng của chúng."
+lore1 = "Máu bổ sung cho golem Đồng"
+lore2 = "Sức chứa vật phẩm"
+lore3 = "Tốc độ di chuyển"
+lore4 = "Không bao giờ hóa thành tượng"
+lore5 = "Giáp mỗi giai đoạn gỉ đồng"
+lore6 = "Tốc độ mất đi mỗi giai đoạn gỉ đồng"
+lore7 = "Số giây Tốc Độ II từ sét gần đó"
+lore = ["Máu bổ sung cho golem Đồng", "Sức chứa vật phẩm", "Tốc độ di chuyển", "Không bao giờ hóa thành tượng", "Giáp mỗi giai đoạn gỉ đồng", "Tốc độ mất đi mỗi giai đoạn gỉ đồng", "Số giây Tốc Độ II từ sét gần đó"]
+
 [golemancy.node_status]
 idle = "Đang rảnh"
 working = "Đang làm việc"

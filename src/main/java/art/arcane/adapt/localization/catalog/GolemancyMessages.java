@@ -161,6 +161,16 @@ public final class GolemancyMessages {
   public static final TextKey FROST_FRAME_LORE6 = TextKey.of("golemancy.frost_frame.lore6", "Chance of an Extra Snowball");
   public static final TextKey FROST_FRAME_LORE7 = TextKey.of("golemancy.frost_frame.lore7", "Snowball Hits to Freeze a Target");
   public static final LinesKey FROST_FRAME_LORE = LinesKey.of("golemancy.frost_frame.lore", "Bonus Health for Frost Golems", "Snowball Damage", "Warm Biome Damage Taken", "Immune to Rain and Water", "Seconds of Slowness on Hit", "Chance of an Extra Snowball", "Snowball Hits to Freeze a Target");
+  public static final TextKey COPPER_FRAME_NAME = TextKey.of("golemancy.copper_frame.name", "Copper Frame");
+  public static final TextKey COPPER_FRAME_DESCRIPTION = TextKey.of("golemancy.copper_frame.description", "Lets you bind copper golems and strengthens them with extra health, carry capacity and speed, plus armor from their patina.");
+  public static final TextKey COPPER_FRAME_LORE1 = TextKey.of("golemancy.copper_frame.lore1", "Bonus Health for Copper Golems");
+  public static final TextKey COPPER_FRAME_LORE2 = TextKey.of("golemancy.copper_frame.lore2", "Item Carry Capacity");
+  public static final TextKey COPPER_FRAME_LORE3 = TextKey.of("golemancy.copper_frame.lore3", "Movement Speed");
+  public static final TextKey COPPER_FRAME_LORE4 = TextKey.of("golemancy.copper_frame.lore4", "Never Turns into a Statue");
+  public static final TextKey COPPER_FRAME_LORE5 = TextKey.of("golemancy.copper_frame.lore5", "Armor per Patina Stage");
+  public static final TextKey COPPER_FRAME_LORE6 = TextKey.of("golemancy.copper_frame.lore6", "Speed Lost per Patina Stage");
+  public static final TextKey COPPER_FRAME_LORE7 = TextKey.of("golemancy.copper_frame.lore7", "Seconds of Speed II from Nearby Lightning");
+  public static final LinesKey COPPER_FRAME_LORE = LinesKey.of("golemancy.copper_frame.lore", "Bonus Health for Copper Golems", "Item Carry Capacity", "Movement Speed", "Never Turns into a Statue", "Armor per Patina Stage", "Speed Lost per Patina Stage", "Seconds of Speed II from Nearby Lightning");
 
   public static final TextKey NODE_STATUS_IDLE = TextKey.of("golemancy.node_status.idle", "Idle");
   public static final TextKey NODE_STATUS_WORKING = TextKey.of("golemancy.node_status.working", "Working");
@@ -347,6 +357,16 @@ public final class GolemancyMessages {
     builder.add(FROST_FRAME_LORE6);
     builder.add(FROST_FRAME_LORE7);
     builder.add(FROST_FRAME_LORE);
+    builder.add(COPPER_FRAME_NAME);
+    builder.add(COPPER_FRAME_DESCRIPTION);
+    builder.add(COPPER_FRAME_LORE1);
+    builder.add(COPPER_FRAME_LORE2);
+    builder.add(COPPER_FRAME_LORE3);
+    builder.add(COPPER_FRAME_LORE4);
+    builder.add(COPPER_FRAME_LORE5);
+    builder.add(COPPER_FRAME_LORE6);
+    builder.add(COPPER_FRAME_LORE7);
+    builder.add(COPPER_FRAME_LORE);
     builder.add(NODE_STATUS_IDLE);
     builder.add(NODE_STATUS_WORKING);
     builder.add(NODE_STATUS_BLOCKED);

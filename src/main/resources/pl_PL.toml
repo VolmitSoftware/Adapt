@@ -4484,6 +4484,18 @@ lore6 = "Szansa na dodatkową śnieżkę"
 lore7 = "Trafienia śnieżką potrzebne do zamrożenia celu"
 lore = ["Dodatkowe zdrowie szronowych golemów", "Obrażenia śnieżek", "Obrażenia otrzymywane w ciepłych biomach", "Odporność na deszcz i wodę", "Sekundy spowolnienia po trafieniu", "Szansa na dodatkową śnieżkę", "Trafienia śnieżką potrzebne do zamrożenia celu"]
 
+[golemancy.copper_frame]
+name = "Miedziany szkielet"
+description = "Pozwala wiązać miedziane golemy i wzmacnia je dodatkowym zdrowiem, udźwigiem i szybkością oraz pancerzem z ich patyny."
+lore1 = "Dodatkowe zdrowie miedzianych golemów"
+lore2 = "Udźwig w przedmiotach"
+lore3 = "Szybkość ruchu"
+lore4 = "Nigdy nie zmienia się w posąg"
+lore5 = "Pancerz za każdy etap patyny"
+lore6 = "Utracona szybkość za każdy etap patyny"
+lore7 = "Sekundy Szybkości II od pobliskiego pioruna"
+lore = ["Dodatkowe zdrowie miedzianych golemów", "Udźwig w przedmiotach", "Szybkość ruchu", "Nigdy nie zmienia się w posąg", "Pancerz za każdy etap patyny", "Utracona szybkość za każdy etap patyny", "Sekundy Szybkości II od pobliskiego pioruna"]
+
 [golemancy.node_status]
 idle = "Bezczynny"
 working = "Pracuje"

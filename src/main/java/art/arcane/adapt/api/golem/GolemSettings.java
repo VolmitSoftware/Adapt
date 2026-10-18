@@ -14,6 +14,7 @@ public record GolemSettings(
     int maxBoundGolemsPerChunk,
     int hardCapPerPlayer,
     Map<GolemBody, Double> bodyScales,
+    Map<GolemBody, Integer> bodyCarry,
     Map<GolemBody, Set<GolemCoreType>> allowedCores,
     double deathDropCoreChance,
     double deathDropRuneChance) {
@@ -25,6 +26,7 @@ public record GolemSettings(
       8,
       32,
       Map.of(GolemBody.FROST, 0.50D, GolemBody.COPPER, 1.00D, GolemBody.IRON, 0.36D, GolemBody.BONE, 1.00D),
+      Map.of(GolemBody.FROST, 8, GolemBody.COPPER, 16, GolemBody.IRON, 64),
       Map.of(
           GolemBody.FROST, EnumSet.of(GolemCoreType.BLANK, GolemCoreType.GUARDIAN, GolemCoreType.GATHERER, GolemCoreType.HARVESTER),
           GolemBody.COPPER, EnumSet.of(GolemCoreType.BLANK, GolemCoreType.GATHERER, GolemCoreType.HARVESTER, GolemCoreType.LUMBER,
@@ -39,6 +41,7 @@ public record GolemSettings(
     maxBoundGolemsPerChunk = Math.max(0, maxBoundGolemsPerChunk);
     hardCapPerPlayer = Math.max(0, hardCapPerPlayer);
     bodyScales = normalizedScales(bodyScales);
+    bodyCarry = normalizedCarry(bodyCarry);
     allowedCores = normalizedCores(allowedCores);
     deathDropCoreChance = clampChance(deathDropCoreChance);
     deathDropRuneChance = clampChance(deathDropRuneChance);
@@ -65,6 +68,10 @@ public record GolemSettings(
     return bodyScales.get(body);
   }
 
+  public int bodyCarry(GolemBody body) {
+    return bodyCarry.get(body);
+  }
+
   public Set<GolemCoreType> allowedCores(GolemBody body) {
     return allowedCores.get(body);
   }
@@ -80,6 +87,15 @@ public record GolemSettings(
       scales.put(body, GolemScale.clampScale(configured == null ? 1D : configured));
     }
     return Map.copyOf(scales);
+  }
+
+  private static Map<GolemBody, Integer> normalizedCarry(Map<GolemBody, Integer> source) {
+    Map<GolemBody, Integer> carry = new EnumMap<>(GolemBody.class);
+    for (GolemBody body : GolemBody.values()) {
+      Integer configured = source == null || body == GolemBody.BONE ? null : source.get(body);
+      carry.put(body, configured == null ? 0 : Math.max(0, configured));
+    }
+    return Map.copyOf(carry);
   }
 
   private static Map<GolemBody, Set<GolemCoreType>> normalizedCores(Map<GolemBody, Set<GolemCoreType>> source) {

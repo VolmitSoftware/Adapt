@@ -165,7 +165,8 @@ public final class GolemBrain {
   }
 
   private void refreshStats(long now) {
-    if (now < nextStatsAt) {
+    boolean weathered = handle.refreshPatinaStage();
+    if (!weathered && now < nextStatsAt) {
       return;
     }
     nextStatsAt = now + STATS_REFRESH_MILLIS;

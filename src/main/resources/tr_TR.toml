@@ -4484,6 +4484,18 @@ lore6 = "Ek kar topu şansı"
 lore7 = "Hedefi dondurmak için kar topu isabeti"
 lore = ["Ayaz golemleri için ek can", "Kar topu hasarı", "Sıcak biyomlarda alınan hasar", "Yağmura ve suya karşı bağışık", "İsabet başına yavaşlık saniyesi", "Ek kar topu şansı", "Hedefi dondurmak için kar topu isabeti"]
 
+[golemancy.copper_frame]
+name = "Bakır Çatısı"
+description = "Bakır golemleri bağlamanı sağlar ve onları ek can, taşıma kapasitesi ve hızla, ayrıca patinalarından gelen zırhla güçlendirir."
+lore1 = "Bakır golemleri için ek can"
+lore2 = "Eşya taşıma kapasitesi"
+lore3 = "Hareket hızı"
+lore4 = "Asla heykele dönüşmez"
+lore5 = "Patina aşaması başına zırh"
+lore6 = "Patina aşaması başına kaybedilen hız"
+lore7 = "Yakındaki yıldırımdan Hız II saniyesi"
+lore = ["Bakır golemleri için ek can", "Eşya taşıma kapasitesi", "Hareket hızı", "Asla heykele dönüşmez", "Patina aşaması başına zırh", "Patina aşaması başına kaybedilen hız", "Yakındaki yıldırımdan Hız II saniyesi"]
+
 [golemancy.node_status]
 idle = "Boşta"
 working = "Çalışıyor"

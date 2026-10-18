@@ -3364,6 +3364,24 @@
     },
     {
       "skill": "golemancy",
+      "name": "golem-copper-frame",
+      "class": "GolemCopperFrame",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemCopperFrame.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "LightningStrikeEvent",
+        "tick"
+      ],
+      "expectation": "Lets you bind copper golems and strengthens them with extra health, carry capacity and speed, plus armor from their patina.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemCopperFrame.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
       "name": "golem-frost-frame",
       "class": "GolemFrostFrame",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemFrostFrame.java",

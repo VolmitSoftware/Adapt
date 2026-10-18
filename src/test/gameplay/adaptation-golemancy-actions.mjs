@@ -1,26 +1,31 @@
-async function visibleGolem(input) {
-    const state = (await input.snapshot()).golemancy.golem
-    input.context.expect(Boolean(state), 'Golemancy snow golem exists')
+async function visibleGolem(input, key, label) {
+    const state = (await input.snapshot()).golemancy[key]
+    input.context.expect(Boolean(state), `Golemancy ${label} exists`)
     await input.context.waitUntil(() => Boolean(input.actor.bot.entities[state.entityId]), {
-        label: 'golemancy snow golem visible to player', timeoutMs: 5000,
+        label: `golemancy ${label} visible to player`, timeoutMs: 5000,
     })
     return input.actor.bot.entities[state.entityId]
 }
 
-async function bind(input) {
-    const { actor, snapshot } = input
-    const golem = await visibleGolem(input)
-    actor.bot.setControlState('sneak', true)
-    try {
-        await actor.bot.waitForTicks(4)
-        await actor.bot.lookAt(golem.position.offset(0, 0.9, 0), true)
-        actor.bot.activateEntity(golem)
-        await actor.bot.waitForTicks(70)
-    } finally {
-        actor.bot.setControlState('sneak', false)
+function bindGolem(key, label, aimHeight) {
+    return async input => {
+        const { actor, snapshot } = input
+        const golem = await visibleGolem(input, key, label)
+        actor.bot.setControlState('sneak', true)
+        try {
+            await actor.bot.waitForTicks(4)
+            await actor.bot.lookAt(golem.position.offset(0, aimHeight, 0), true)
+            actor.bot.activateEntity(golem)
+            await actor.bot.waitForTicks(70)
+        } finally {
+            actor.bot.setControlState('sneak', false)
+        }
+        return (await snapshot()).golemancy[key]
     }
-    return (await snapshot()).golemancy.golem
 }
+
+const bind = bindGolem('golem', 'snow golem', 0.9)
+const bindCopper = bindGolem('copperGolem', 'copper golem', 0.5)
 
 async function placeNode(input) {
     const { context, actor, snapshot } = input
@@ -69,6 +74,22 @@ export const golemancyBehaviorCases = new Map([
             context.expect(Math.abs(active.health - 24) < 0.0001, 'The health bonus also heals the golem by 20')
             return {
                 assertions: ['unlearned binding leaves the snow golem at 4 maximum health', 'learned binding raises the snow golem to 24 maximum health and heals it to full'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
+    ['golem-copper-frame', {
+        stage: 'golemancy-copper-binding', trigger: bindCopper, prerequisites: [{ name: 'golem-animus-binding', level: 5 }],
+        prepare: ({ equip }) => equip('firework_star'),
+        description: 'binding a copper golem needs Copper Frame, which raises its maximum health, heals it by the bonus and makes it faster',
+        async verify({ context, unlearned, active }) {
+            context.expect(!unlearned.bound, 'Without Copper Frame the copper golem stays unbound')
+            context.expect(active.bound && active.boundToPlayer, 'With Copper Frame the copper golem binds to the player')
+            context.expect(Math.abs(active.maxHealth - (active.maxHealthBase + 20)) < 0.0001, 'Copper Frame level 5 adds 20 maximum health to the bound copper golem')
+            context.expect(Math.abs(active.health - active.maxHealth) < 0.0001, 'The health bonus also heals the golem to its new maximum')
+            context.expect(Math.abs(active.speed - active.speedBase * 1.2) < 0.0001, 'Copper Frame level 5 makes the unweathered copper golem 20% faster')
+            return {
+                assertions: ['unlearned binding leaves the copper golem unbound', 'learned binding adds 20 maximum health, heals the golem to full, and raises its speed by 20%'],
                 measurements: { unlearned, active },
             }
         },

@@ -4484,6 +4484,18 @@ lore6 = "Probabilidad de una bola de nieve extra"
 lore7 = "Impactos de bola de nieve para congelar un objetivo"
 lore = ["Salud extra para gólems de Escarcha", "Daño de bolas de nieve", "Daño recibido en biomas cálidos", "Inmune a la lluvia y al agua", "Segundos de lentitud por impacto", "Probabilidad de una bola de nieve extra", "Impactos de bola de nieve para congelar un objetivo"]
 
+[golemancy.copper_frame]
+name = "Armazón de Cobre"
+description = "Te permite vincular gólems de Cobre y los fortalece con salud extra, capacidad de carga y velocidad, además de armadura por su pátina."
+lore1 = "Salud extra para gólems de Cobre"
+lore2 = "Capacidad de carga en objetos"
+lore3 = "Velocidad de movimiento"
+lore4 = "Nunca se convierte en estatua"
+lore5 = "Armadura por etapa de pátina"
+lore6 = "Velocidad perdida por etapa de pátina"
+lore7 = "Segundos de Velocidad II por rayos cercanos"
+lore = ["Salud extra para gólems de Cobre", "Capacidad de carga en objetos", "Velocidad de movimiento", "Nunca se convierte en estatua", "Armadura por etapa de pátina", "Velocidad perdida por etapa de pátina", "Segundos de Velocidad II por rayos cercanos"]
+
 [golemancy.node_status]
 idle = "Inactivo"
 working = "Trabajando"

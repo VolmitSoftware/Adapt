@@ -42,6 +42,7 @@ import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnimusBinding;
+import art.arcane.adapt.content.adaptation.golemancy.GolemCopperFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemFrostFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
 import art.arcane.adapt.content.skill.golemancy.CopperCare;
@@ -121,6 +122,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerAdaptation(new GolemAnimusBinding());
     registerAdaptation(new GolemNodeWeaving());
     registerAdaptation(new GolemFrostFrame());
+    registerAdaptation(new GolemCopperFrame());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CARVED_PUMPKIN)
         .key("challenge_golemancy_built_10")
@@ -327,12 +329,16 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     scales.put(GolemBody.COPPER, config.bodyScaleCopper);
     scales.put(GolemBody.IRON, config.bodyScaleIron);
     scales.put(GolemBody.BONE, config.bodyScaleBone);
+    Map<GolemBody, Integer> carry = new EnumMap<>(GolemBody.class);
+    carry.put(GolemBody.FROST, config.bodyCarryFrost);
+    carry.put(GolemBody.COPPER, config.bodyCarryCopper);
+    carry.put(GolemBody.IRON, config.bodyCarryIron);
     Map<GolemBody, Set<GolemCoreType>> cores = new EnumMap<>(GolemBody.class);
     cores.put(GolemBody.FROST, GolemSettings.parseCores(config.allowedCoresFrost));
     cores.put(GolemBody.COPPER, GolemSettings.parseCores(config.allowedCoresCopper));
     cores.put(GolemBody.IRON, GolemSettings.parseCores(config.allowedCoresIron));
     return new GolemSettings(config.dormantInvulnerable, config.guardWhileOwnerOffline, config.serverMaxActiveGolems,
-        config.maxBoundGolemsPerChunk, config.hardCapPerPlayer, scales, cores, config.deathDropCoreChance, config.deathDropRuneChance);
+        config.maxBoundGolemsPerChunk, config.hardCapPerPlayer, scales, carry, cores, config.deathDropCoreChance, config.deathDropRuneChance);
   }
 
   static GolemBrainSettings brainSettings(Config config) {
@@ -713,6 +719,12 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double bodyScaleIron = 0.36;
     @ConfigDoc(value = "Size of a bound bone golem as a multiple of its normal size.", impact = "Lower values make bound bone golems smaller; 1.0 keeps the normal size.")
     double bodyScaleBone = 1.00;
+    @ConfigDoc(value = "Items a bound frost golem can carry at once.", impact = "Higher values let working frost golems move more items per trip.")
+    int bodyCarryFrost = 8;
+    @ConfigDoc(value = "Items a bound copper golem can carry at once before Copper Frame raises it.", impact = "Higher values let working copper golems move more items per trip.")
+    int bodyCarryCopper = 16;
+    @ConfigDoc(value = "Items a bound iron golem can carry at once.", impact = "Higher values let working iron golems move more items per trip.")
+    int bodyCarryIron = 64;
     @ConfigDoc(value = "Cores a frost golem can be bound with.", impact = "Remove a core to stop frost golems taking that role.")
     List<String> allowedCoresFrost = new ArrayList<>(List.of("BLANK", "GUARDIAN", "GATHERER", "HARVESTER"));
     @ConfigDoc(value = "Cores a copper golem can be bound with.", impact = "Remove a core to stop copper golems taking that role.")

@@ -347,6 +347,11 @@ public final class GolemancyRuntime {
     }
 
     @Override
+    public int patinaStage(Mob golem) {
+      return PaperCompat.weatheringStage(golem);
+    }
+
+    @Override
     public long nowMillis() {
       return System.currentTimeMillis();
     }

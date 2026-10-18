@@ -4484,6 +4484,18 @@ lore6 = "Chance auf einen zusätzlichen Schneeball"
 lore7 = "Schneeballtreffer, um ein Ziel einzufrieren"
 lore = ["Zusätzliche Gesundheit für Frostgolems", "Schneeballschaden", "Erlittener Schaden in warmen Biomen", "Immun gegen Regen und Wasser", "Sekunden Langsamkeit pro Treffer", "Chance auf einen zusätzlichen Schneeball", "Schneeballtreffer, um ein Ziel einzufrieren"]
 
+[golemancy.copper_frame]
+name = "Kupferrahmen"
+description = "Lässt dich Kupfergolems binden und stärkt sie mit zusätzlicher Gesundheit, Tragekapazität und Geschwindigkeit sowie Rüstung aus ihrer Patina."
+lore1 = "Zusätzliche Gesundheit für Kupfergolems"
+lore2 = "Tragekapazität in Gegenständen"
+lore3 = "Bewegungsgeschwindigkeit"
+lore4 = "Wird nie zur Statue"
+lore5 = "Rüstung pro Patinastufe"
+lore6 = "Geschwindigkeitsverlust pro Patinastufe"
+lore7 = "Sekunden Schnelligkeit II durch nahe Blitze"
+lore = ["Zusätzliche Gesundheit für Kupfergolems", "Tragekapazität in Gegenständen", "Bewegungsgeschwindigkeit", "Wird nie zur Statue", "Rüstung pro Patinastufe", "Geschwindigkeitsverlust pro Patinastufe", "Sekunden Schnelligkeit II durch nahe Blitze"]
+
 [golemancy.node_status]
 idle = "Untätig"
 working = "Arbeitet"

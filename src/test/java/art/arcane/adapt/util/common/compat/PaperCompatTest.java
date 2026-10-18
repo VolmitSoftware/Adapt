@@ -1,12 +1,14 @@
 package art.arcane.adapt.util.common.compat;
 
 import art.arcane.adapt.util.common.scheduling.J;
+import io.papermc.paper.world.WeatheringCopperState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowman;
@@ -28,6 +30,22 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class PaperCompatTest {
+  @Test
+  void weatheringStagesCountOxidationStepsOfCopperGolemsOnly() {
+    CopperGolem golem = mock(CopperGolem.class);
+
+    for (WeatheringCopperState state : WeatheringCopperState.values()) {
+      when(golem.getWeatheringState()).thenReturn(state);
+      assertThat(PaperCompat.weatheringStage(golem)).as("stage of %s", state).isEqualTo(switch (state) {
+        case UNAFFECTED -> 0;
+        case EXPOSED -> 1;
+        case WEATHERED -> 2;
+        case OXIDIZED -> 3;
+      });
+    }
+    assertThat(PaperCompat.weatheringStage(mock(IronGolem.class))).isZero();
+  }
+
   @Test
   void rangedAttackFiresARangedMobsOwnAttackAndSkipsOtherMobs() {
     Snowman golem = mock(Snowman.class);

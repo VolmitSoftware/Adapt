@@ -4484,6 +4484,18 @@ lore6 = "Probabilità di una palla di neve extra"
 lore7 = "Colpi di palla di neve per congelare un bersaglio"
 lore = ["Salute extra per i golem di Brina", "Danno delle palle di neve", "Danno subito nei biomi caldi", "Immune a pioggia e acqua", "Secondi di lentezza per colpo", "Probabilità di una palla di neve extra", "Colpi di palla di neve per congelare un bersaglio"]
 
+[golemancy.copper_frame]
+name = "Telaio di Rame"
+description = "Ti permette di legare i golem di Rame e li rafforza con salute extra, capacità di trasporto e velocità, oltre all'armatura data dalla loro patina."
+lore1 = "Salute extra per i golem di Rame"
+lore2 = "Capacità di trasporto in oggetti"
+lore3 = "Velocità di movimento"
+lore4 = "Non diventa mai una statua"
+lore5 = "Armatura per stadio di patina"
+lore6 = "Velocità persa per stadio di patina"
+lore7 = "Secondi di Velocità II da fulmini vicini"
+lore = ["Salute extra per i golem di Rame", "Capacità di trasporto in oggetti", "Velocità di movimento", "Non diventa mai una statua", "Armatura per stadio di patina", "Velocità persa per stadio di patina", "Secondi di Velocità II da fulmini vicini"]
+
 [golemancy.node_status]
 idle = "Inattivo"
 working = "Al lavoro"

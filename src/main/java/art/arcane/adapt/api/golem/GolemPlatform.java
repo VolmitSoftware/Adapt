@@ -38,5 +38,7 @@ interface GolemPlatform {
 
   AttributeInstance attribute(LivingEntity entity, GolemStat stat);
 
+  int patinaStage(Mob golem);
+
   long nowMillis();
 }

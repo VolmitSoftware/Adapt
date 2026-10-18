@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Snowman;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -277,6 +278,41 @@ class GolemStatsTest extends AdaptTestBase {
     GolemStats.recompute(handle);
 
     assertThat(maxHealth.value()).isEqualTo(24D);
+  }
+
+  @Test
+  void recomputeReadsTheCurrentPatinaStageOfCopperGolemsOnly() {
+    World world = mock(World.class);
+    lenient().when(world.getUID()).thenReturn(WORLD);
+    CopperGolem copper = GolemTestEntities.entity(CopperGolem.class);
+    lenient().when(copper.getLocation()).thenReturn(new Location(world, 0, 64, 0));
+    GolemHandle copperHandle = new GolemHandle(copper, GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, GolemBody.COPPER,
+        GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 64, 0))), platform);
+    FakeAttribute armor = platform.stat(copper, GolemStat.ARMOR, 0D);
+    platform.patina.put(copper.getUniqueId(), 3);
+    platform.patina.put(golem.getUniqueId(), 3);
+    AtomicInteger seen = new AtomicInteger(-1);
+    register(new GolemStatSource() {
+      @Override
+      public String id() {
+        return "patina";
+      }
+
+      @Override
+      public List<GolemStatDelta> deltas(GolemHandle target) {
+        if (target == handle) {
+          seen.set(target.patinaStage());
+        }
+        return List.of(GolemStatDelta.add(GolemStat.ARMOR, target.patinaStage() * 2D));
+      }
+    });
+
+    GolemStats.recompute(copperHandle);
+    GolemStats.recompute(handle);
+
+    assertThat(copperHandle.patinaStage()).isEqualTo(3);
+    assertThat(armor.value()).isEqualTo(6D);
+    assertThat(seen.get()).isZero();
   }
 
   @Test

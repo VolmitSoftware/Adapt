@@ -124,6 +124,82 @@
     },
     "maxTicks": 360
   },
+  "golem-copper-frame": {
+    "set": "taming-field",
+    "level": 5,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_core\"}}]",
+      "experience set {actor} 5 levels",
+      "execute at {actor} run summon minecraft:copper_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 25
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 60
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.enchantment_table.use",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 5,
+        "ticks": 10
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run summon minecraft:lightning_bolt ~5 ~ ~-10"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:entity.lightning_bolt.thunder",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 80
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.lightning_bolt.thunder",
+      "particle": "entity_effect"
+    },
+    "maxTicks": 360
+  },
   "golem-node-weaving": {
     "set": "taming-field",
     "level": 5,

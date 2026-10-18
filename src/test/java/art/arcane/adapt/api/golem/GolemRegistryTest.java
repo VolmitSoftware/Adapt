@@ -303,7 +303,7 @@ class GolemRegistryTest extends AdaptTestBase {
 
   @Test
   void dormantGolemsAreNotInvulnerableWhenConfiguredOff() {
-    settings.set(new GolemSettings(false, false, 1500, 8, 32, Map.of(), Map.of(), 0.5D, 0.5D));
+    settings.set(new GolemSettings(false, false, 1500, 8, 32, Map.of(), Map.of(), Map.of(), 0.5D, 0.5D));
     IronGolem golem = persistedGolem(UUID.randomUUID(), false, at(0, 64, 0));
 
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
@@ -408,7 +408,7 @@ class GolemRegistryTest extends AdaptTestBase {
 
   @Test
   void offlineGuardiansStayAwakeWhenConfigured() {
-    settings.set(new GolemSettings(true, true, 1500, 8, 32, Map.of(), GolemSettings.defaults().allowedCores(), 0.5D, 0.5D));
+    settings.set(new GolemSettings(true, true, 1500, 8, 32, Map.of(), Map.of(), GolemSettings.defaults().allowedCores(), 0.5D, 0.5D));
     onlineOwner();
     IronGolem guardian = golem(new AtomicReference<>(at(0, 64, 0)));
     IronGolem companion = golem(new AtomicReference<>(at(1, 64, 0)));
@@ -447,7 +447,7 @@ class GolemRegistryTest extends AdaptTestBase {
 
   @Test
   void deathDropsTheRolledLoadoutAndRemovesTheEntry() {
-    settings.set(new GolemSettings(true, false, 1500, 8, 32, Map.of(), GolemSettings.defaults().allowedCores(), 1D, 0D));
+    settings.set(new GolemSettings(true, false, 1500, 8, 32, Map.of(), Map.of(), GolemSettings.defaults().allowedCores(), 1D, 0D));
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
@@ -749,7 +749,7 @@ class GolemRegistryTest extends AdaptTestBase {
 
   @Test
   void unvalidatedGolemsDieWithVanillaLootOnlyAndLeaveTheEntryToGoMissing() {
-    settings.set(new GolemSettings(true, false, 1500, 8, 32, Map.of(), GolemSettings.defaults().allowedCores(), 1D, 1D));
+    settings.set(new GolemSettings(true, false, 1500, 8, 32, Map.of(), Map.of(), GolemSettings.defaults().allowedCores(), 1D, 1D));
     GolemRoster roster = new GolemRoster();
     UUID id = UUID.randomUUID();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, GolemRoster.chunkKey(0, 0), 0L));
@@ -1168,6 +1168,6 @@ class GolemRegistryTest extends AdaptTestBase {
 
   private static GolemSettings withCaps(int perPlayer, int perChunk, int server) {
     GolemSettings defaults = GolemSettings.defaults();
-    return new GolemSettings(true, false, server, perChunk, perPlayer, defaults.bodyScales(), defaults.allowedCores(), 0.5D, 0.5D);
+    return new GolemSettings(true, false, server, perChunk, perPlayer, defaults.bodyScales(), defaults.bodyCarry(), defaults.allowedCores(), 0.5D, 0.5D);
   }
 }

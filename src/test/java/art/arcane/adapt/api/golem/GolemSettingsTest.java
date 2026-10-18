@@ -30,6 +30,10 @@ class GolemSettingsTest {
         GolemCoreType.BLANK, GolemCoreType.GUARDIAN, GolemCoreType.GATHERER, GolemCoreType.LUMBER,
         GolemCoreType.BREAKER, GolemCoreType.RANCHER, GolemCoreType.ANGLER);
     assertThat(settings.allowedCores(GolemBody.BONE)).containsExactly(GolemCoreType.GUARDIAN);
+    assertThat(settings.bodyCarry(GolemBody.FROST)).isEqualTo(8);
+    assertThat(settings.bodyCarry(GolemBody.COPPER)).isEqualTo(16);
+    assertThat(settings.bodyCarry(GolemBody.IRON)).isEqualTo(64);
+    assertThat(settings.bodyCarry(GolemBody.BONE)).isZero();
   }
 
   @Test
@@ -45,7 +49,8 @@ class GolemSettingsTest {
   @Test
   void valuesAreClampedAtTheBoundary() {
     GolemSettings settings = new GolemSettings(true, true, -5, -1, -2,
-        Map.of(GolemBody.FROST, 0.001D, GolemBody.IRON, 400D), Map.of(), 1.5D, -0.25D);
+        Map.of(GolemBody.FROST, 0.001D, GolemBody.IRON, 400D), Map.of(GolemBody.FROST, -4, GolemBody.IRON, 200, GolemBody.BONE, 30),
+        Map.of(), 1.5D, -0.25D);
 
     assertThat(settings.serverMaxActiveGolems()).isZero();
     assertThat(settings.maxBoundGolemsPerChunk()).isZero();
@@ -57,12 +62,16 @@ class GolemSettingsTest {
     assertThat(settings.deathDropRuneChance()).isZero();
     assertThat(settings.allowedCores(GolemBody.FROST)).isEmpty();
     assertThat(settings.allowedCores(GolemBody.BONE)).containsExactly(GolemCoreType.GUARDIAN);
+    assertThat(settings.bodyCarry(GolemBody.FROST)).isZero();
+    assertThat(settings.bodyCarry(GolemBody.IRON)).isEqualTo(200);
+    assertThat(settings.bodyCarry(GolemBody.COPPER)).isZero();
+    assertThat(settings.bodyCarry(GolemBody.BONE)).isZero();
   }
 
   @Test
   void allowedCoreSetsAreDefensiveCopies() {
     Set<GolemCoreType> frost = EnumSet.of(GolemCoreType.BLANK);
-    GolemSettings settings = new GolemSettings(true, false, 1, 1, 1, Map.of(), Map.of(GolemBody.FROST, frost), 0D, 0D);
+    GolemSettings settings = new GolemSettings(true, false, 1, 1, 1, Map.of(), Map.of(), Map.of(GolemBody.FROST, frost), 0D, 0D);
 
     frost.add(GolemCoreType.SORTER);
 

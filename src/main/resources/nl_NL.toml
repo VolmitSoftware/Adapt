@@ -4484,6 +4484,18 @@ lore6 = "Kans op een extra sneeuwbal"
 lore7 = "Sneeuwbaltreffers om een doelwit te bevriezen"
 lore = ["Extra gezondheid voor vorstgolems", "Sneeuwbalschade", "Schade in warme biomen", "Immuun voor regen en water", "Seconden traagheid per treffer", "Kans op een extra sneeuwbal", "Sneeuwbaltreffers om een doelwit te bevriezen"]
 
+[golemancy.copper_frame]
+name = "Koperframe"
+description = "Laat je kopergolems binden en versterkt ze met extra gezondheid, draagvermogen en snelheid, plus bepantsering uit hun patina."
+lore1 = "Extra gezondheid voor kopergolems"
+lore2 = "Draagvermogen in voorwerpen"
+lore3 = "Bewegingssnelheid"
+lore4 = "Wordt nooit een standbeeld"
+lore5 = "Bepantsering per patinastadium"
+lore6 = "Snelheidsverlies per patinastadium"
+lore7 = "Seconden Snelheid II door bliksem in de buurt"
+lore = ["Extra gezondheid voor kopergolems", "Draagvermogen in voorwerpen", "Bewegingssnelheid", "Wordt nooit een standbeeld", "Bepantsering per patinastadium", "Snelheidsverlies per patinastadium", "Seconden Snelheid II door bliksem in de buurt"]
+
 [golemancy.node_status]
 idle = "Inactief"
 working = "Aan het werk"

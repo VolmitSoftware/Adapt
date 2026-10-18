@@ -133,6 +133,40 @@ class GolemBrainTest extends AdaptTestBase {
   }
 
   @Test
+  void aCopperGolemsPatinaChangeRecomputesItsStatsOnTheNextPulse() {
+    platform.join(OWNER, new GolemRoster());
+    CopperGolem golem = golem(CopperGolem.class, at(0, 64, 0));
+    FakeAttribute armor = platform.stat(golem, GolemStat.ARMOR, 0D);
+    GolemStatSource patina = new GolemStatSource() {
+      @Override
+      public String id() {
+        return "patina";
+      }
+
+      @Override
+      public List<GolemStatDelta> deltas(GolemHandle handle) {
+        return List.of(GolemStatDelta.add(GolemStat.ARMOR, handle.patinaStage() * 2D));
+      }
+    };
+    GolemStats.register(patina);
+    try {
+      GolemBrain brain = brain(golem, GolemBody.COPPER);
+      brain.start();
+      platform.runDelayed();
+      assertThat(armor.value()).isZero();
+
+      platform.patina.put(golem.getUniqueId(), 2);
+      platform.now += 250L;
+      platform.runDelayed();
+
+      assertThat(brain.handle().patinaStage()).isEqualTo(2);
+      assertThat(armor.value()).isEqualTo(4D);
+    } finally {
+      GolemStats.unregister(patina);
+    }
+  }
+
+  @Test
   void startingARunningBrainKeepsASinglePulseChain() {
     GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
 

@@ -4484,6 +4484,18 @@ lore6 = "Tikimybė mesti papildomą sniego gniūžtę"
 lore7 = "Pataikymai sniego gniūžte taikiniui užšaldyti"
 lore = ["Papildoma Šerkšno golemų sveikata", "Sniego gniūžtės žala", "Gaunama žala šiltuose biomuose", "Atsparus lietui ir vandeniui", "Sulėtinimo sekundės po pataikymo", "Tikimybė mesti papildomą sniego gniūžtę", "Pataikymai sniego gniūžte taikiniui užšaldyti"]
 
+[golemancy.copper_frame]
+name = "Vario karkasas"
+description = "Leidžia sujungti Vario golemus ir sustiprina juos papildoma sveikata, nešimo talpa ir greičiu bei šarvais iš jų patinos."
+lore1 = "Papildoma Vario golemų sveikata"
+lore2 = "Nešimo talpa daiktais"
+lore3 = "Judėjimo greitis"
+lore4 = "Niekada nevirsta statula"
+lore5 = "Šarvai už kiekvieną patinos etapą"
+lore6 = "Prarandamas greitis už kiekvieną patinos etapą"
+lore7 = "Greičio II sekundės nuo netoliese trenkusio žaibo"
+lore = ["Papildoma Vario golemų sveikata", "Nešimo talpa daiktais", "Judėjimo greitis", "Niekada nevirsta statula", "Šarvai už kiekvieną patinos etapą", "Prarandamas greitis už kiekvieną patinos etapą", "Greičio II sekundės nuo netoliese trenkusio žaibo"]
+
 [golemancy.node_status]
 idle = "Laukia"
 working = "Dirba"

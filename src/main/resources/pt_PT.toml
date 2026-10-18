@@ -4484,6 +4484,18 @@ lore6 = "Probabilidade de uma bola de neve extra"
 lore7 = "Impactos de bola de neve para congelar um alvo"
 lore = ["Vida extra para golems de Geada", "Dano das bolas de neve", "Dano sofrido em biomas quentes", "Imune à chuva e à água", "Segundos de lentidão por impacto", "Probabilidade de uma bola de neve extra", "Impactos de bola de neve para congelar um alvo"]
 
+[golemancy.copper_frame]
+name = "Estrutura de Cobre"
+description = "Permite-te vincular golems de Cobre e fortalece-os com vida extra, capacidade de carga e velocidade, além de armadura da sua pátina."
+lore1 = "Vida extra para golems de Cobre"
+lore2 = "Capacidade de carga em itens"
+lore3 = "Velocidade de movimento"
+lore4 = "Nunca se transforma em estátua"
+lore5 = "Armadura por fase de pátina"
+lore6 = "Velocidade perdida por fase de pátina"
+lore7 = "Segundos de Velocidade II por relâmpagos próximos"
+lore = ["Vida extra para golems de Cobre", "Capacidade de carga em itens", "Velocidade de movimento", "Nunca se transforma em estátua", "Armadura por fase de pátina", "Velocidade perdida por fase de pátina", "Segundos de Velocidade II por relâmpagos próximos"]
+
 [golemancy.node_status]
 idle = "Inativo"
 working = "A trabalhar"
