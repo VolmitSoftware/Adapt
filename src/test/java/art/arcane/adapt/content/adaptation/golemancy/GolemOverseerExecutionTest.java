@@ -33,6 +33,7 @@ import static org.mockito.Mockito.when;
 class GolemOverseerExecutionTest extends AdaptTestBase {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-000000000901");
 
+  private final World world = mock(World.class);
   private MockedStatic<GolemancyRuntime> runtime;
   private GolemRegistry registry;
   private GolemOverseer adaptation;
@@ -147,7 +148,7 @@ class GolemOverseerExecutionTest extends AdaptTestBase {
   }
 
   private OverseerSignal signal() {
-    return new OverseerSignal(OWNER, GolemSignal.FOLLOW, new Location(mock(World.class), 0D, 64D, 0D), 16D, null, null, 0L, null, entity -> {
+    return new OverseerSignal(OWNER, GolemSignal.FOLLOW, new Location(world, 0D, 64D, 0D), 16D, null, null, 0L, null, entity -> {
     });
   }
 

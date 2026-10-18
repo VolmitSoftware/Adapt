@@ -30,6 +30,7 @@ class CopperGolemControllerTest {
 
   private final AtomicInteger ticks = new AtomicInteger(200);
   private final World world = mock(World.class);
+  private final World targetWorld = mock(World.class);
   private final RecordingLids lids = new RecordingLids();
   private CopperGolem golem;
   private Pathfinder pathfinder;
@@ -43,7 +44,7 @@ class CopperGolemControllerTest {
     when(golem.getTicksLived()).thenAnswer(invocation -> ticks.get());
     when(golem.getGolemState()).thenReturn(CopperGolem.State.IDLE);
     lenient().when(world.getUID()).thenReturn(WORLD);
-    target = new Location(mock(World.class), 8, 64, 8);
+    target = new Location(targetWorld, 8, 64, 8);
   }
 
   @Test

@@ -31,6 +31,7 @@ class BindingRitualTest {
   private static final long STARTED_AT = 10_000L;
 
   private final World world = mock(World.class);
+  private final World otherWorld = mock(World.class);
   private final Player owner = mock(Player.class);
   private final PlayerInventory inventory = mock(PlayerInventory.class);
   private final Snowman golem = mock(Snowman.class);
@@ -136,7 +137,7 @@ class BindingRitualTest {
     when(owner.getLocation()).thenReturn(new Location(world, 0D, 64D, 4.01D));
     assertThat(ritual.withinReach(4D)).isFalse();
 
-    when(owner.getLocation()).thenReturn(new Location(mock(World.class), 0D, 64D, 1D));
+    when(owner.getLocation()).thenReturn(new Location(otherWorld, 0D, 64D, 1D));
     assertThat(ritual.withinReach(4D)).isFalse();
   }
 
