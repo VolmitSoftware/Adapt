@@ -105,6 +105,9 @@ public final class CrookInteractions implements Listener {
       gestures.clearLink(player.getUniqueId());
       GolemGuiSupport.notify(player, GolemancyMessages.MESSAGE_CHEST_LINKED,
           trusted("x", chest.x()), trusted("y", chest.y()), trusted("z", chest.z()));
+    }, () -> {
+      gestures.clearLink(player.getUniqueId());
+      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
     });
     if (!scheduled) {
       gestures.clearLink(player.getUniqueId());

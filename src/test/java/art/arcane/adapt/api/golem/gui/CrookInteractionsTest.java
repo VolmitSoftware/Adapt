@@ -52,6 +52,7 @@ class CrookInteractionsTest extends AdaptTestBase {
   private static final double LEASH_RADIUS = 48D;
 
   private final AtomicBoolean golemSchedulerAccepts = new AtomicBoolean(true);
+  private final AtomicBoolean golemTaskRetires = new AtomicBoolean(false);
   private final AtomicReference<CrookGestures<GolemHandle>> openedGestures = new AtomicReference<>();
   private MockedStatic<J> scheduling;
   private MockedStatic<GolemItems> items;
@@ -92,14 +93,15 @@ class CrookInteractionsTest extends AdaptTestBase {
     lenient().when(plugin.getProtectorRegistry()).thenReturn(protectors);
 
     scheduling = mockStatic(J.class);
-    scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(invocation -> {
+    scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenReturn(true);
+    scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), any(Runnable.class))).thenAnswer(invocation -> {
       if (invocation.getArgument(0) != golem) {
         return true;
       }
       if (!golemSchedulerAccepts.get()) {
         return false;
       }
-      invocation.<Runnable>getArgument(1).run();
+      invocation.<Runnable>getArgument(golemTaskRetires.get() ? 2 : 1).run();
       return true;
     });
     items = mockStatic(GolemItems.class);
@@ -169,6 +171,17 @@ class CrookInteractionsTest extends AdaptTestBase {
   @Test
   void anInvalidGolemEndsLinkMode() {
     when(golem.isValid()).thenReturn(false);
+    armLinkMode();
+
+    clickChest(4);
+
+    verify(handle, never()).setHomeChest(any(GolemState.Anchor.class));
+    verify(clickChest(4), never()).setUseInteractedBlock(any(Event.Result.class));
+  }
+
+  @Test
+  void aGolemTaskRetiredBeforeItRunsEndsLinkMode() {
+    golemTaskRetires.set(true);
     armLinkMode();
 
     clickChest(4);

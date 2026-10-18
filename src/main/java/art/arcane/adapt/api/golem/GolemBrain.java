@@ -157,7 +157,7 @@ public final class GolemBrain {
     if (decision.dropTarget() && golem.getTarget() != null) {
       golem.setTarget(null);
     }
-    move(decision.movement(), golem, ownerAt, home);
+    move(decision.movement(), ownerAt, home);
     controller.tick();
   }
 
@@ -184,7 +184,7 @@ public final class GolemBrain {
     controller.setTarget(target);
   }
 
-  private void move(GolemBrainMachine.Movement movement, Mob golem, Location ownerAt, Location home) {
+  private void move(GolemBrainMachine.Movement movement, Location ownerAt, Location home) {
     switch (movement) {
       case NONE -> {
       }

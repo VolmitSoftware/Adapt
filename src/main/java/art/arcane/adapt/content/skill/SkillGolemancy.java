@@ -460,7 +460,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     int brainIntervalTicks = 5;
     @ConfigDoc(value = "Blocks from its owner, in the same world, at which a following golem teleports to them instead of walking. The minimum is 8.", impact = "Lower values teleport golems sooner; higher values make them walk farther first.")
     double followTeleportDistance = 32;
-    @ConfigDoc(value = "Blocks a fighting golem may stray from its owner, home, or stay spot before it drops the fight and walks back. The minimum is 8.", impact = "Higher values let golems chase enemies farther.")
+    @ConfigDoc(value = "Blocks a fighting golem may stray from its owner, home, or stay spot before it drops the fight and walks back. It is also the farthest a linked home chest may be from the golem's home. The minimum is 8.", impact = "Higher values let golems chase enemies farther.")
     double leashRadius = 32;
     @ConfigDoc(value = "Seconds a working golem stands idle away from home before it walks back.", impact = "Lower values send idle golems home sooner; 0 sends them home at once.")
     int idleReturnSeconds = 8;
