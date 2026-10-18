@@ -643,11 +643,10 @@ public final class GolemRegistry extends TickedObject {
     if (handle.isRetired()) {
       return;
     }
-    boolean advanced = advanceForSave(handle);
+    OptionalLong next = nextSighting(handle);
+    next.ifPresent(handle.state()::setSighting);
     detach(handle);
-    if (advanced) {
-      platform.rosterChanged(handle.owner());
-    }
+    commitSighting(handle, next);
   }
 
   void detach(GolemHandle handle) {
@@ -716,12 +715,11 @@ public final class GolemRegistry extends TickedObject {
 
   private boolean sleepForShutdown(GolemHandle handle) {
     try {
-      boolean advanced = advanceForSave(handle);
+      OptionalLong next = nextSighting(handle);
       rememberPosition(handle, false);
+      next.ifPresent(handle.state()::setSighting);
       putToSleep(handle);
-      if (advanced) {
-        platform.rosterChanged(handle.owner());
-      }
+      commitSighting(handle, next);
       lifecycle.asleep(handle);
       lifecycle.detached(handle);
       return true;
@@ -1214,14 +1212,25 @@ public final class GolemRegistry extends TickedObject {
     }
   }
 
-  private boolean advanceForSave(GolemHandle handle) {
-    if (!handle.isValidated()) {
-      return false;
+  private OptionalLong nextSighting(GolemHandle handle) {
+    if (handle.isRetired() || !handle.isValidated()) {
+      return OptionalLong.empty();
+    }
+    Optional<GolemRoster.GolemEntry> entry = platform.roster(handle.owner()).flatMap(roster -> roster.golem(handle.id()));
+    if (entry.isEmpty() || entry.get().status() != GolemRoster.Status.ACTIVE) {
+      return OptionalLong.empty();
+    }
+    return OptionalLong.of(Math.max(entry.get().sighting(), handle.state().sighting()) + 1L);
+  }
+
+  private void commitSighting(GolemHandle handle, OptionalLong next) {
+    if (next.isEmpty()) {
+      return;
     }
     Optional<GolemRoster> roster = platform.roster(handle.owner());
-    OptionalLong next = roster.isEmpty() ? OptionalLong.empty() : roster.get().advanceSighting(handle.id(), handle.state().sighting());
-    next.ifPresent(handle.state()::setSighting);
-    return next.isPresent();
+    if (roster.isPresent() && roster.get().raiseSighting(handle.id(), next.getAsLong())) {
+      platform.rosterChanged(handle.owner());
+    }
   }
 
   private long sightingOf(UUID owner, UUID golem) {

@@ -93,7 +93,7 @@ class PlayerDataTest extends AdaptTestBase {
         UUID golem = UUID.randomUUID();
         UUID world = UUID.randomUUID();
         data.getGolemancy().add(new GolemRoster.Binding(golem, GolemBody.FROST, GolemCoreType.HARVESTER, world, GolemRoster.chunkKey(2, -3), 99L));
-        data.getGolemancy().advanceSighting(golem, 11L);
+        data.getGolemancy().raiseSighting(golem, 12L);
         data.getGolemancy().transition(golem, GolemRoster.Status.ACTIVE, GolemRoster.Status.PACKED);
 
         PlayerData back = PlayerData.fromJson(data.toJson(false));

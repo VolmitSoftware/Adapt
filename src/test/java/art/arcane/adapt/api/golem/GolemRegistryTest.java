@@ -33,6 +33,7 @@ import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.event.world.WorldSaveEvent;
 import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -972,7 +973,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     UUID id = UUID.randomUUID();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    roster.advanceSighting(id, 2L);
+    roster.raiseSighting(id, 3L);
     IronGolem golem = withSighting(persistedGolem(id, false, at(0, 64, 0)), 3L);
     int changesBefore = platform.changes(OWNER);
 
@@ -1005,7 +1006,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     UUID id = UUID.randomUUID();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    roster.advanceSighting(id, 2L);
+    roster.raiseSighting(id, 3L);
     IronGolem golem = withSighting(persistedGolem(id, false, at(0, 64, 0)), 3L);
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
     List<Long> savedBodySightings = new ArrayList<>();
@@ -1160,7 +1161,7 @@ class GolemRegistryTest extends AdaptTestBase {
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
     GolemRoster roster = new GolemRoster();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    roster.advanceSighting(id, 1L);
+    roster.raiseSighting(id, 2L);
 
     platform.join(OWNER, roster);
     registry.on(new PlayerJoinEvent(owner, (Component) null));
@@ -1189,7 +1190,7 @@ class GolemRegistryTest extends AdaptTestBase {
 
     GolemRoster roster = new GolemRoster();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    roster.advanceSighting(id, 0L);
+    roster.raiseSighting(id, 1L);
     platform.join(OWNER, roster);
     registry.on(new PlayerJoinEvent(owner, (Component) null));
 
@@ -1230,6 +1231,39 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(1L);
     assertThat(savedBodySightings).isNotEmpty().allSatisfy(sighting -> assertThat(sighting).isEqualTo(1L));
     assertThat(GolemState.read(unvalidated).orElseThrow().sighting()).isZero();
+  }
+
+  @Test
+  void aLateShutdownSaveOfARetiredGolemLeavesTheRosterUnchanged() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    platform.ownsEntities = false;
+    int changesBefore = platform.changes(OWNER);
+
+    assertThat(registry.flushAll(1L)).isFalse();
+    assertThat(handle.isRetired()).isTrue();
+    platform.ownsEntities = true;
+    platform.runDelayed();
+
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isZero();
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isZero();
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore);
+  }
+
+  @Test
+  void anUnloadWhoseBodyWriteFailsLeavesTheRosterUnchanged() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    PersistentDataContainer data = golem.getPersistentDataContainer();
+    doThrow(new IllegalStateException("chunk storage refused")).when(data).set(eq(GolemState.KEY), eq(PersistentDataType.STRING), any());
+    int changesBefore = platform.changes(OWNER);
+
+    assertThatThrownBy(() -> registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)))).hasMessage("chunk storage refused");
+
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isZero();
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore);
   }
 
   @Test
@@ -2251,7 +2285,7 @@ class GolemRegistryTest extends AdaptTestBase {
     UUID id = UUID.randomUUID();
     GolemSnapshot snapshot = snapshot(id, GolemBody.IRON, GolemCoreType.GUARDIAN, null);
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
-    roster.advanceSighting(id, 4L);
+    roster.raiseSighting(id, 5L);
     PackedGolem item = new PackedGolem(id, OWNER, snapshot.toJson());
     roster.stow(id, GolemRoster.Status.SHATTERED, item.state());
     IronGolem fresh = golem(new AtomicReference<>(at(3, 64, -20)));

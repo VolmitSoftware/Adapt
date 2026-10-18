@@ -13,10 +13,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 public final class GolemRoster {
   private static final String DIGEST_ALGORITHM = "SHA-256";
@@ -173,23 +171,6 @@ public final class GolemRoster {
       return entry.seenAt(world, chunkKey, nowMillis);
     });
     return changed.get();
-  }
-
-  public OptionalLong advanceSighting(UUID id, long token) {
-    if (id == null) {
-      return OptionalLong.empty();
-    }
-    AtomicReference<Long> advanced = new AtomicReference<>();
-    golemMap().computeIfPresent(id.toString(), (key, entry) -> {
-      if (entry.status() != Status.ACTIVE) {
-        return entry;
-      }
-      long next = Math.max(entry.sighting, token) + 1L;
-      advanced.set(next);
-      return entry.withSighting(next);
-    });
-    Long next = advanced.get();
-    return next == null ? OptionalLong.empty() : OptionalLong.of(next);
   }
 
   public boolean raiseSighting(UUID id, long token) {
