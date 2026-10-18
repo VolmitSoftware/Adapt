@@ -63,6 +63,12 @@ public final class CommandMessages {
   public static final TextKey HELP_TOP_RESULTS_TO_PRINT = TextKey.of("command.help.top_results_to_print", "Top results to print");
   public static final TextKey HELP_TRUE_TO_LEARN_FALSE_TO_UNLEARN = TextKey.of("command.help.true_to_learn_false_to_unlearn", "true to learn, false to unlearn");
   public static final TextKey HELP_UNLEARN_ALL_ADAPTATIONS_ACROSS_ALL_SKILL_LINES = TextKey.of("command.help.unlearn_all_adaptations_across_all_skill_lines", "Unlearn all adaptations across all skill lines");
+  public static final TextKey HELP_GOLEM_ROSTER_AND_ADMIN_TOOLS = TextKey.of("command.help.golem_roster_and_admin_tools", "Golem roster and admin tools");
+  public static final TextKey HELP_OPEN_YOUR_GOLEM_ROSTER = TextKey.of("command.help.open_your_golem_roster", "Open your golem roster");
+  public static final TextKey HELP_LIST_A_PLAYER_S_GOLEMS = TextKey.of("command.help.list_a_player_s_golems", "List a player's golems");
+  public static final TextKey HELP_RELEASE_ONE_OF_A_PLAYER_S_GOLEMS = TextKey.of("command.help.release_one_of_a_player_s_golems", "Release one of a player's golems");
+  public static final TextKey HELP_GOLEM_ID_OR_ENOUGH_OF_ITS_FIRST_CHARACTERS_TO_MATCH_ONE_GOLEM = TextKey.of("command.help.golem_id_or_enough_of_its_first_characters_to_match_one_golem", "Golem id, or enough of its first characters to match one golem");
+  public static final TextKey HELP_WAKE_A_PLAYER_S_LOADED_GOLEMS = TextKey.of("command.help.wake_a_player_s_loaded_golems", "Wake a player's loaded golems");
 
   private CommandMessages() {
   }
@@ -127,5 +133,11 @@ public final class CommandMessages {
     builder.add(HELP_TOP_RESULTS_TO_PRINT);
     builder.add(HELP_TRUE_TO_LEARN_FALSE_TO_UNLEARN);
     builder.add(HELP_UNLEARN_ALL_ADAPTATIONS_ACROSS_ALL_SKILL_LINES);
+    builder.add(HELP_GOLEM_ROSTER_AND_ADMIN_TOOLS);
+    builder.add(HELP_OPEN_YOUR_GOLEM_ROSTER);
+    builder.add(HELP_LIST_A_PLAYER_S_GOLEMS);
+    builder.add(HELP_RELEASE_ONE_OF_A_PLAYER_S_GOLEMS);
+    builder.add(HELP_GOLEM_ID_OR_ENOUGH_OF_ITS_FIRST_CHARACTERS_TO_MATCH_ONE_GOLEM);
+    builder.add(HELP_WAKE_A_PLAYER_S_LOADED_GOLEMS);
   }
 }

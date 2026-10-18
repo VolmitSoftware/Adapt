@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -753,6 +754,97 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(roster.golem(active)).isPresent();
     assertThat(platform.changes(OWNER)).isEqualTo(changesBefore + 1);
     assertThat(registry.releaseEntry(OWNER, missing)).isFalse();
+  }
+
+  @Test
+  void forceReleasingALoadedGolemReleasesItTheWayItsOwnerWould() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
+    handle.setRunes(List.of(new GolemRune(GolemRuneType.MIGHT, 2)));
+
+    CompletableFuture<Boolean> released = registry.forceRelease(OWNER, handle.id());
+
+    assertThat(released).isCompletedWithValue(true);
+    verify(world).dropItemNaturally(any(Location.class), eq(coreItem));
+    verify(world).dropItemNaturally(any(Location.class), eq(runeItem));
+    assertThat(GolemState.has(golem)).isFalse();
+    assertThat(roster.golem(handle.id())).isEmpty();
+    assertThat(registry.handle(golem)).isEmpty();
+  }
+
+  @Test
+  void forceReleasingALoadedGolemRunsOnItsOwnThread() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    platform.deferring.add(golem);
+
+    CompletableFuture<Boolean> released = registry.forceRelease(OWNER, handle.id());
+
+    assertThat(released).isNotDone();
+    assertThat(GolemState.has(golem)).isTrue();
+    platform.runDelayed();
+    assertThat(released).isCompletedWithValue(true);
+    assertThat(roster.golem(handle.id())).isEmpty();
+  }
+
+  @Test
+  void forceReleasingAGolemThatRetiresBeforeItsTurnFails() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    platform.refusing.add(golem);
+
+    assertThat(registry.forceRelease(OWNER, handle.id())).isCompletedWithValue(false);
+    assertThat(roster.golem(handle.id())).isPresent();
+  }
+
+  @Test
+  void forceReleasingAnUnloadedGolemForgetsItsEntryWhateverItsStateAndItsBodyRevertsLater() {
+    GolemRoster roster = onlineOwner();
+    UUID active = UUID.randomUUID();
+    UUID packed = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(active, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.add(new GolemRoster.Binding(packed, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.stow(packed, GolemRoster.Status.PACKED, "{\"packed\":true}");
+    int changesBefore = platform.changes(OWNER);
+
+    assertThat(registry.forceRelease(OWNER, active)).isCompletedWithValue(true);
+    assertThat(registry.forceRelease(OWNER, packed)).isCompletedWithValue(true);
+    assertThat(registry.forceRelease(OWNER, UUID.randomUUID())).isCompletedWithValue(false);
+
+    assertThat(roster.golemCount()).isZero();
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore + 2);
+    IronGolem body = persistedGolem(active, false, at(0, 64, 0));
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(body)));
+    assertThat(GolemState.has(body)).isFalse();
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+  }
+
+  @Test
+  void forceReleasingNeedsTheOwnersRoster() {
+    UUID id = UUID.randomUUID();
+
+    assertThat(registry.forceRelease(OWNER, id)).isCompletedWithValue(false);
+  }
+
+  @Test
+  void wakingAnOwnerRechecksTheirLoadedGolemsAndWakesThoseThatMay() {
+    UUID id = UUID.randomUUID();
+    IronGolem golem = persistedGolem(id, false, at(0, 64, 0));
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+    GolemRoster roster = new GolemRoster();
+    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    platform.join(OWNER, roster);
+    assertThat(registry.handle(golem).orElseThrow().isDormant()).isTrue();
+
+    assertThat(registry.wake(OWNER)).isEqualTo(1);
+
+    GolemHandle handle = registry.handle(golem).orElseThrow();
+    assertThat(handle.isDormant()).isFalse();
+    assertThat(handle.isValidated()).isTrue();
+    assertThat(registry.wake(UUID.randomUUID())).isZero();
   }
 
   @Test

@@ -154,7 +154,7 @@ public class DirectorHelpRenderTest extends AdaptTestBase {
     return null;
   }
 
-  private static KList<DirectorParameterHandler<?>> resolveHandlers(StringBuilder notes) {
+  static KList<DirectorParameterHandler<?>> resolveHandlers(StringBuilder notes) {
     try {
       KList<DirectorParameterHandler<?>> system = DirectorSystem.handlers;
       if (system != null && system.isNotEmpty()) {

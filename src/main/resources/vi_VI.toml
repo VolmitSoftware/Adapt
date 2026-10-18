@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "Bật/ tắt chế độ cắt động từ"
 top_results_to_print = "Kết quả trên để in"
 true_to_learn_false_to_unlearn = "không học"
 unlearn_all_adaptations_across_all_skill_lines = "Không học tất cả các thay đổi trên tất cả các kỹ năng dòng"
+golem_roster_and_admin_tools = "Danh sách golem và công cụ quản trị"
+open_your_golem_roster = "Mở danh sách golem của bạn"
+list_a_player_s_golems = "Liệt kê các golem của một người chơi"
+release_one_of_a_player_s_golems = "Giải phóng một golem của người chơi"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ID golem, hoặc đủ số ký tự đầu để khớp với một golem duy nhất"
+wake_a_player_s_loaded_golems = "Đánh thức các golem đã tải của một người chơi"
 
 [command.runtime]
 missing_permission = "Bạn không có quyền '{permission}'."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "Kiểm tra ngân sách thời gian: {percent} ({millisPerS
 perf_ticker_window = "Cửa sổ vé: {window}ms"
 perf_no_metrics = "Vẫn chưa thu thập được gì."
 perf_reset = "Ticker và khả năng thiết lập lại."
+golem_list_header = "{player} có {count} golem:"
+golem_list_empty = "{player} không có golem nào."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} không có golem nào có ID bắt đầu bằng {id}."
+golem_ambiguous = "Có nhiều hơn một golem của {player} có ID bắt đầu bằng {id}. Hãy nhập thêm."
+golem_released = "Đã giải phóng golem {id} khỏi danh sách của {player}."
+golem_release_failed = "Không thể giải phóng golem {id} của {player}. Hãy thử lại."
+golems_woken = "Đang đánh thức các golem đã tải của {player}: {count}."
 
 [language.menu]
 your_language = "Ngôn ngữ của bạn"

@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "המונחים: tune mode"
 top_results_to_print = "תוצאות הדפסה"
 true_to_learn_false_to_unlearn = "אמת ללמוד, שקר ל unlearn"
 unlearn_all_adaptations_across_all_skill_lines = "למדו את כל ההתאמות בכל קווי מיומנות"
+golem_roster_and_admin_tools = "רשימת גולמים וכלי ניהול"
+open_your_golem_roster = "פתח את רשימת הגולמים שלך"
+list_a_player_s_golems = "הצג את הגולמים של שחקן"
+release_one_of_a_player_s_golems = "שחרר אחד מהגולמים של שחקן"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "מזהה הגולם, או מספיק מהתווים הראשונים שלו כדי להתאים לגולם אחד"
+wake_a_player_s_loaded_golems = "הער את הגולמים הטעונים של שחקן"
 
 [command.runtime]
 missing_permission = "אין לך רשות '{permission}'."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "ניהול תקציב התזמון: {percent} ({millisPerS
 perf_ticker_window = "חלון טייקר: {window}ms"
 perf_no_metrics = "אין מדדי טייפ שנאספו עדיין."
 perf_reset = "טיקר והיכולת לטלמטארי לאפס."
+golem_list_header = "ל-{player} יש {count} גולמים:"
+golem_list_empty = "ל-{player} אין גולמים."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "ל-{player} אין גולם שהמזהה שלו מתחיל ב-{id}."
+golem_ambiguous = "ליותר מגולם אחד של {player} יש מזהה שמתחיל ב-{id}. הקלד יותר תווים."
+golem_released = "הגולם {id} שוחרר מהרשימה של {player}."
+golem_release_failed = "לא ניתן היה לשחרר את הגולם {id} של {player}. נסה שוב."
+golems_woken = "מעיר את הגולמים הטעונים של {player}: {count}."
 
 [language.menu]
 your_language = "השפה שלך"

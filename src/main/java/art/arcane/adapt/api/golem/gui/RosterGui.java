@@ -115,6 +115,21 @@ public final class RosterGui {
     }
   }
 
+  public static List<GolemRoster.GolemEntry> entries(GolemRoster roster) {
+    List<GolemRoster.GolemEntry> entries = new ArrayList<>();
+    for (GolemRoster.GolemEntry entry : roster.golems()) {
+      if (entry.body() != null) {
+        entries.add(entry);
+      }
+    }
+    entries.sort(ORDER);
+    return entries;
+  }
+
+  public static String lastSeen(GolemRoster.GolemEntry entry) {
+    return AdaptLanguage.text(GolemancyMessages.ROSTER_LAST_SEEN, lastSeenArguments(entry));
+  }
+
   private static void openCrookChannels(Player player, int page) {
     if (!GolemGuiSupport.ownsViewer(player)) {
       J.runEntity(player, () -> openCrookChannels(player, page));
@@ -190,17 +205,6 @@ public final class RosterGui {
 
   private static boolean filtersChannels(Player player) {
     return Overseer.commander().map(commander -> commander.filtersChannels(player)).orElse(false);
-  }
-
-  private static List<GolemRoster.GolemEntry> entries(GolemRoster roster) {
-    List<GolemRoster.GolemEntry> entries = new ArrayList<>();
-    for (GolemRoster.GolemEntry entry : roster.golems()) {
-      if (entry.body() != null) {
-        entries.add(entry);
-      }
-    }
-    entries.sort(ORDER);
-    return entries;
   }
 
   private static Map<UUID, GolemHandle> loaded(UUID owner) {
@@ -321,10 +325,6 @@ public final class RosterGui {
           .setName(C.WHITE + AdaptLanguage.text(GuiMessages.NEXT))
           .onLeftClick(clicked -> open(player, current + 1)));
     }
-  }
-
-  private static String lastSeen(GolemRoster.GolemEntry entry) {
-    return AdaptLanguage.text(GolemancyMessages.ROSTER_LAST_SEEN, lastSeenArguments(entry));
   }
 
   private static MessageArgument[] lastSeenArguments(GolemRoster.GolemEntry entry) {

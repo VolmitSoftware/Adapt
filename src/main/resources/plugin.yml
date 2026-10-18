@@ -70,3 +70,6 @@ permissions:
   adapt.clear:
     description: Allows clearing player progression data
     default: op
+  adapt.golemancy.admin:
+    description: Allows listing, releasing, and waking other players' golems
+    default: op

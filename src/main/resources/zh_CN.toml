@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "切换详细输出模式"
 top_results_to_print = "要输出的排名靠前结果数"
 true_to_learn_false_to_unlearn = "true 表示学习，false 表示遗忘"
 unlearn_all_adaptations_across_all_skill_lines = "遗忘所有技能下的全部适应能力"
+golem_roster_and_admin_tools = "魔像名册与管理工具"
+open_your_golem_roster = "打开你的魔像名册"
+list_a_player_s_golems = "列出玩家的魔像"
+release_one_of_a_player_s_golems = "释放玩家的一个魔像"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "魔像 ID，或足以只匹配一个魔像的开头字符"
+wake_a_player_s_loaded_golems = "唤醒玩家已加载的魔像"
 
 [command.runtime]
 missing_permission = "你缺少权限“{permission}”。"
@@ -6754,6 +6760,14 @@ perf_timing_budget = "能力检查耗时预算：{percent}（{millisPerSecond}�
 perf_ticker_window = "周期任务统计窗口：{window} 毫秒"
 perf_no_metrics = "尚未收集到游戏刻性能指标。"
 perf_reset = "已重置周期任务及能力性能统计。"
+golem_list_header = "{player} 拥有 {count} 个魔像："
+golem_list_empty = "{player} 没有魔像。"
+golem_list_entry = "{id}：{golem}，{status}。{location}"
+golem_not_found = "{player} 没有 ID 以 {id} 开头的魔像。"
+golem_ambiguous = "{player} 有不止一个魔像的 ID 以 {id} 开头。请输入更多字符。"
+golem_released = "已将魔像 {id} 从 {player} 的名册中释放。"
+golem_release_failed = "无法释放魔像 {id}（{player}）。请重试。"
+golems_woken = "正在唤醒 {player} 已加载的 {count} 个魔像。"
 
 [language.menu]
 your_language = "个人语言"

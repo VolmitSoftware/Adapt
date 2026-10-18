@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "Werkbose-modus aan/uit"
 top_results_to_print = "Topresultaten om af te drukken"
 true_to_learn_false_to_unlearn = "waar te leren, vals om niet te leren"
 unlearn_all_adaptations_across_all_skill_lines = "Alle aanpassingen loslaten in alle vaardigheidslijnen"
+golem_roster_and_admin_tools = "Golemlijst en beheertools"
+open_your_golem_roster = "Je golemlijst openen"
+list_a_player_s_golems = "De golems van een speler weergeven"
+release_one_of_a_player_s_golems = "Een van de golems van een speler vrijlaten"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golem-ID, of genoeg van de eerste tekens om één golem aan te wijzen"
+wake_a_player_s_loaded_golems = "De geladen golems van een speler wekken"
 
 [command.runtime]
 missing_permission = "Je hebt geen toestemming. '{permission}'."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "Begroting van de tijdsbestek voor het controleren van de v
 perf_ticker_window = "Tikkervenster: {window}ms"
 perf_no_metrics = "Nog geen tekengegevens verzameld."
 perf_reset = "Ticker en vermogen telemetrie reset."
+golem_list_header = "{player} heeft {count} golems:"
+golem_list_empty = "{player} heeft geen golems."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} heeft geen golem waarvan de ID begint met {id}."
+golem_ambiguous = "Meer dan één golem van {player} heeft een ID die begint met {id}. Typ er meer van."
+golem_released = "Golem {id} is vrijgelaten uit de lijst van {player}."
+golem_release_failed = "Golem {id} van {player} kon niet worden vrijgelaten. Probeer het opnieuw."
+golems_woken = "De geladen golems van {player} worden gewekt: {count}."
 
 [language.menu]
 your_language = "Jouw taal"

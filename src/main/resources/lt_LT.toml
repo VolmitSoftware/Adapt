@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "Perjungti verbozės veikseną"
 top_results_to_print = "Geriausi rezultatai spausdinimui"
 true_to_learn_false_to_unlearn = "tiesa mokytis, neteisinga mokytis"
 unlearn_all_adaptations_across_all_skill_lines = "Pašalinti visas adaptacijas visose įgūdžių eilutėse"
+golem_roster_and_admin_tools = "Golemų sąrašas ir administravimo įrankiai"
+open_your_golem_roster = "Atidaryti savo golemų sąrašą"
+list_a_player_s_golems = "Išvardyti žaidėjo golemus"
+release_one_of_a_player_s_golems = "Paleisti vieną žaidėjo golemą"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golemo ID arba tiek pirmųjų jo simbolių, kad atitiktų vieną golemą"
+wake_a_player_s_loaded_golems = "Pažadinti įkeltus žaidėjo golemus"
 
 [command.runtime]
 missing_permission = "Neturite leidimo '{permission}'."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "Galimybių patikrinti laiką biudžetas: {percent} ({milli
 perf_ticker_window = "Bilieto langas: {window}ms"
 perf_no_metrics = "Nėra erkių metrikos surinkta dar."
 perf_reset = "Bilietų ir galimybių telemetrijos atnaujinimas."
+golem_list_header = "Žaidėjo {player} golemai ({count}):"
+golem_list_empty = "{player} neturi golemų."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} neturi golemo, kurio ID prasideda {id}."
+golem_ambiguous = "Daugiau nei vieno žaidėjo {player} golemo ID prasideda {id}. Įveskite daugiau."
+golem_released = "Golemas {id} paleistas iš žaidėjo {player} sąrašo."
+golem_release_failed = "Golemo {id} (žaidėjas {player}) paleisti nepavyko. Bandykite dar kartą."
+golems_woken = "Žadinami įkelti žaidėjo {player} golemai: {count}."
 
 [language.menu]
 your_language = "Jūsų kalba"

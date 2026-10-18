@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "Cümle fiilose modu"
 top_results_to_print = "Baskı için en iyi sonuçlar"
 true_to_learn_false_to_unlearn = "Öğrenmek için doğru, öğrenmemek yanlış"
 unlearn_all_adaptations_across_all_skill_lines = "Tüm yeteneklerin tüm adaptasyonlarını öğren"
+golem_roster_and_admin_tools = "Golem listesi ve yönetici araçları"
+open_your_golem_roster = "Golem listeni aç"
+list_a_player_s_golems = "Bir oyuncunun golemlerini listele"
+release_one_of_a_player_s_golems = "Bir oyuncunun golemlerinden birini serbest bırak"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golem kimliği veya tek bir golemle eşleşecek kadar ilk karakterleri"
+wake_a_player_s_loaded_golems = "Bir oyuncunun yüklü golemlerini uyandır"
 
 [command.runtime]
 missing_permission = "İzinden yoksunsunuz '{permission}'."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "Zamanlamayı kontrol edin bütçe: {percent} ({millisPerSe
 perf_ticker_window = "Tavşanlı pencere: {window}ms"
 perf_no_metrics = "Henüz toplanan metrik yok."
 perf_reset = "Ticker ve yetenek telemetri reset."
+golem_list_header = "{player} oyuncusunun {count} golemi var:"
+golem_list_empty = "{player} oyuncusunun hiç golemi yok."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} oyuncusunun kimliği {id} ile başlayan bir golemi yok."
+golem_ambiguous = "{player} oyuncusunun birden fazla goleminin kimliği {id} ile başlıyor. Daha fazlasını yaz."
+golem_released = "Golem {id}, {player} oyuncusunun listesinden serbest bırakıldı."
+golem_release_failed = "Golem {id} ({player}) serbest bırakılamadı. Tekrar dene."
+golems_woken = "{player} oyuncusunun {count} yüklü golemi uyandırılıyor."
 
 [language.menu]
 your_language = "Diliniz"

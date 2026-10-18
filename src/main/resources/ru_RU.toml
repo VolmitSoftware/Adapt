@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "Режим переключения глаголов"
 top_results_to_print = "Лучшие результаты для печати"
 true_to_learn_false_to_unlearn = "Истинно учиться, ложно не учиться"
 unlearn_all_adaptations_across_all_skill_lines = "Отучите все адаптации по всем линиям навыков"
+golem_roster_and_admin_tools = "Список големов и инструменты администратора"
+open_your_golem_roster = "Открыть ваш список големов"
+list_a_player_s_golems = "Показать големов игрока"
+release_one_of_a_player_s_golems = "Освободить одного из големов игрока"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ID голема или столько его первых символов, чтобы совпал только один голем"
+wake_a_player_s_loaded_golems = "Разбудить загруженных големов игрока"
 
 [command.runtime]
 missing_permission = "Вам не хватает разрешения '{permission}'."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "Возможность проверки сроков бю�
 perf_ticker_window = "Окно в шкафу: {window}мс"
 perf_no_metrics = "Метрики тиков пока не собраны."
 perf_reset = "Ticker и возможность сброса телеметрии."
+golem_list_header = "Големы игрока {player} ({count}):"
+golem_list_empty = "У игрока {player} нет големов."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "У игрока {player} нет голема, ID которого начинается с {id}."
+golem_ambiguous = "У нескольких големов игрока {player} ID начинается с {id}. Введите больше символов."
+golem_released = "Голем {id} освобождён из списка игрока {player}."
+golem_release_failed = "Не удалось освободить голема {id} игрока {player}. Попробуйте ещё раз."
+golems_woken = "Пробуждение загруженных големов игрока {player}: {count}."
 
 [language.menu]
 your_language = "Ваш язык"

@@ -385,6 +385,31 @@ public final class GolemRegistry extends TickedObject {
     return true;
   }
 
+  public CompletableFuture<Boolean> forceRelease(UUID owner, UUID golem) {
+    GolemHandle loaded = loadedHandle(golem);
+    if (loaded != null && loaded.owner().equals(owner)) {
+      CompletableFuture<Boolean> released = new CompletableFuture<>();
+      platform.runEntity(loaded.entity(), () -> released.complete(release(loaded)), () -> released.complete(false));
+      return released;
+    }
+    Optional<GolemRoster> roster = platform.roster(owner);
+    if (roster.isEmpty() || !roster.get().remove(golem)) {
+      return CompletableFuture.completedFuture(false);
+    }
+    missingWatch.forget(golem);
+    platform.rosterChanged(owner);
+    return CompletableFuture.completedFuture(true);
+  }
+
+  public int wake(UUID owner) {
+    if (owner == null || !platform.isOnline(owner)) {
+      return 0;
+    }
+    int loaded = loadedOf(owner).size();
+    joinOwner(owner);
+    return loaded;
+  }
+
   public int masterworks(UUID owner) {
     return platform.roster(owner).map(GolemRoster::masterworkCount).orElse(0);
   }
@@ -1167,6 +1192,12 @@ public final class GolemRegistry extends TickedObject {
   private long sightingOf(UUID owner, UUID golem) {
     return platform.roster(owner).flatMap(roster -> roster.golem(golem)).map(GolemRoster.GolemEntry::sighting)
         .orElseThrow(() -> new IllegalStateException("Golem " + golem + " has no roster entry for " + owner + " after its claim"));
+  }
+
+  private GolemHandle loadedHandle(UUID golem) {
+    UUID entityId = golem == null ? null : entityByGolem.get(golem);
+    GolemHandle handle = entityId == null ? null : handles.get(entityId);
+    return handle == null || handle.isRetired() ? null : handle;
   }
 
   private Optional<GolemRoster> activeRoster(GolemHandle handle) {

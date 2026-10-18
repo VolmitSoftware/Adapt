@@ -416,6 +416,23 @@ class GolemRosterTest {
   }
 
   @Test
+  void golemsMatchTheStartOfTheirIdInAnyCase() {
+    GolemRoster roster = new GolemRoster();
+    UUID first = UUID.fromString("3f2a91c0-0000-0000-0000-000000000001");
+    UUID second = UUID.fromString("3f2b0000-0000-0000-0000-000000000002");
+    roster.add(binding(first, 0L, 0L));
+    roster.add(binding(second, 0L, 0L));
+
+    assertThat(roster.matching("3f2a")).extracting(GolemRoster.GolemEntry::id).containsExactly(first);
+    assertThat(roster.matching(" 3F2A91C0 ")).extracting(GolemRoster.GolemEntry::id).containsExactly(first);
+    assertThat(roster.matching(second.toString())).extracting(GolemRoster.GolemEntry::id).containsExactly(second);
+    assertThat(roster.matching("3f2")).extracting(GolemRoster.GolemEntry::id).containsExactlyInAnyOrder(first, second);
+    assertThat(roster.matching("ffff")).isEmpty();
+    assertThat(roster.matching(" ")).isEmpty();
+    assertThat(roster.matching(null)).isEmpty();
+  }
+
+  @Test
   void theMasterworkMarkSurvivesGson() {
     GolemRoster roster = new GolemRoster();
     roster.add(binding(GOLEM, 0L, 0L));

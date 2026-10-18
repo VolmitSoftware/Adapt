@@ -51,6 +51,7 @@ public class CommandAdapt {
   private CommandClear clear;
   private CommandReset reset;
   private CommandDefault defaults;
+  private CommandGolem golem;
 
   @Director(name = "version", hidden = true, description = "Show the installed plugin version", descriptionKey = "command.help.version")
   public void version(@Param(name = "sender", contextual = true) CommandSender sender) {

@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "Vaihda verboositilaa"
 top_results_to_print = "Tulostettavat huipputulokset"
 true_to_learn_false_to_unlearn = "Totta oppia, valhetta päästää irti"
 unlearn_all_adaptations_across_all_skill_lines = "Opettele kaikki mukautukset kaikilla taitolinjoilla"
+golem_roster_and_admin_tools = "Golemiluettelo ja ylläpitotyökalut"
+open_your_golem_roster = "Avaa golemiluettelosi"
+list_a_player_s_golems = "Listaa pelaajan golemit"
+release_one_of_a_player_s_golems = "Vapauta yksi pelaajan golemeista"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golemin tunnus tai niin monta sen alkumerkkiä, että vain yksi golemi täsmää"
+wake_a_player_s_loaded_golems = "Herätä pelaajan ladatut golemit"
 
 [command.runtime]
 missing_permission = "Sinulla ei ole lupaa. '{permission}'."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "Kyky tarkistaa ajoitusbudjetti: {percent} ({millisPerSecon
 perf_ticker_window = "Ticker-ikkuna: {window}Neiti"
 perf_no_metrics = "Ei rastin mittareita vielä kerätty."
 perf_reset = "Ticker ja kyky telemetria nollataan."
+golem_list_header = "Pelaajalla {player} on {count} golemia:"
+golem_list_empty = "Pelaajalla {player} ei ole golemeja."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "Pelaajalla {player} ei ole golemia, jonka tunnus alkaa {id}."
+golem_ambiguous = "Useammalla kuin yhdellä pelaajan {player} golemilla on tunnus, joka alkaa {id}. Kirjoita tunnuksesta enemmän."
+golem_released = "Golemi {id} vapautettiin pelaajan {player} luettelosta."
+golem_release_failed = "Golemia {id} pelaajalta {player} ei voitu vapauttaa. Yritä uudelleen."
+golems_woken = "Herätetään pelaajan {player} ladatut golemit: {count}."
 
 [language.menu]
 your_language = "Oma kielesi"

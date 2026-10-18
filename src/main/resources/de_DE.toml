@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "Wechseln Sie den Verbose-Modus"
 top_results_to_print = "Top-Ergebnisse zum Drucken"
 true_to_learn_false_to_unlearn = "Wahr, um zu lernen, falsch, um nicht zu lernen"
 unlearn_all_adaptations_across_all_skill_lines = "Lernen Sie alle Anpassungen über alle Fähigkeiten hinweg"
+golem_roster_and_admin_tools = "Golem-Liste und Verwaltungswerkzeuge"
+open_your_golem_roster = "Deine Golem-Liste öffnen"
+list_a_player_s_golems = "Die Golems eines Spielers auflisten"
+release_one_of_a_player_s_golems = "Einen Golem eines Spielers freilassen"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golem-ID oder so viele ihrer ersten Zeichen, dass genau ein Golem passt"
+wake_a_player_s_loaded_golems = "Die geladenen Golems eines Spielers aufwecken"
 
 [command.runtime]
 missing_permission = "Sie haben keine Genehmigung für {permission}."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "Zeitplan für die Fähigkeitsprüfung: {percent} ({millisP
 perf_ticker_window = "Tickers Fenster: {window}ms"
 perf_no_metrics = "Noch keine Zeckenwerte gesammelt."
 perf_reset = "Tickers und Fähigkeiten Telemetrie reset."
+golem_list_header = "{player} hat {count} Golems:"
+golem_list_empty = "{player} hat keine Golems."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} hat keinen Golem, dessen ID mit {id} beginnt."
+golem_ambiguous = "Mehr als ein Golem von {player} hat eine ID, die mit {id} beginnt. Gib mehr davon ein."
+golem_released = "Golem {id} wurde aus der Liste von {player} freigelassen."
+golem_release_failed = "Golem {id} von {player} konnte nicht freigelassen werden. Versuche es erneut."
+golems_woken = "Die geladenen Golems von {player} werden aufgeweckt: {count}."
 
 [language.menu]
 your_language = "Ihre Sprache"

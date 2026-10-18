@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "動詞モードを切り替える"
 top_results_to_print = "印刷するトップの結果"
 true_to_learn_false_to_unlearn = "学びます, 未学習に偽り"
 unlearn_all_adaptations_across_all_skill_lines = "すべてのスキルラインですべての適応を解明"
+golem_roster_and_admin_tools = "ゴーレム名簿と管理ツール"
+open_your_golem_roster = "自分のゴーレム名簿を開く"
+list_a_player_s_golems = "プレイヤーのゴーレムを一覧表示する"
+release_one_of_a_player_s_golems = "プレイヤーのゴーレムを1体解放する"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ゴーレムのID、または1体だけに一致するだけの先頭の文字"
+wake_a_player_s_loaded_golems = "プレイヤーの読み込まれたゴーレムを起こす"
 
 [command.runtime]
 missing_permission = "あなたは許可を欠く '{permission}'."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "能力チェックのタイミング予算: {percent} ({mi
 perf_ticker_window = "ティッカーウィンドウ: {window}ミリ秒"
 perf_no_metrics = "まだ収集されていないメトリック."
 perf_reset = "ティッカーと能力のテレメトリーリセット."
+golem_list_header = "{player}は{count}体のゴーレムを所有しています："
+golem_list_empty = "{player}はゴーレムを所有していません。"
+golem_list_entry = "{id}：{golem}、{status}。{location}"
+golem_not_found = "{player}には、IDが{id}で始まるゴーレムがいません。"
+golem_ambiguous = "{player}のゴーレムのうち、IDが{id}で始まるものが複数あります。もっと入力してください。"
+golem_released = "ゴーレム{id}を{player}の名簿から解放しました。"
+golem_release_failed = "ゴーレム{id}（{player}）を解放できませんでした。もう一度お試しください。"
+golems_woken = "{player}の読み込まれたゴーレムを起こしています：{count}体。"
 
 [language.menu]
 your_language = "あなたの言語"

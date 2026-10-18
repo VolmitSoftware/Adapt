@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "토글 동사 모드"
 top_results_to_print = "인쇄하는 최고 결과"
 true_to_learn_false_to_unlearn = "진정한 학습, unlearn에 거짓"
 unlearn_all_adaptations_across_all_skill_lines = "모든 기술 라인의 모든 적응"
+golem_roster_and_admin_tools = "골렘 명단 및 관리 도구"
+open_your_golem_roster = "내 골렘 명단 열기"
+list_a_player_s_golems = "플레이어의 골렘 목록 보기"
+release_one_of_a_player_s_golems = "플레이어의 골렘 하나 해방하기"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "골렘 ID, 또는 골렘 하나와 일치할 만큼의 앞부분 글자"
+wake_a_player_s_loaded_golems = "플레이어의 로드된 골렘 깨우기"
 
 [command.runtime]
 missing_permission = "'{permission}' 권한이 없습니다."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "능력 검사 타이밍 예산: {percent} ({millisPerSecon
 perf_ticker_window = "티커 창: {window}ms"
 perf_no_metrics = "아직 수집되지 않음."
 perf_reset = "티커 및 능력 텔레메트리를 초기화했습니다."
+golem_list_header = "{player}님은 골렘 {count}개를 보유하고 있습니다:"
+golem_list_empty = "{player}님은 골렘이 없습니다."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player}님에게는 ID가 {id}(으)로 시작하는 골렘이 없습니다."
+golem_ambiguous = "{player}님의 골렘 중 ID가 {id}(으)로 시작하는 골렘이 둘 이상입니다. 더 입력하세요."
+golem_released = "골렘 {id}을(를) {player}님의 명단에서 해방했습니다."
+golem_release_failed = "골렘 {id}의 해방에 실패했습니다. 소유자: {player}. 다시 시도하세요."
+golems_woken = "{player}님의 로드된 골렘을 깨우는 중입니다: {count}개."
 
 [language.menu]
 your_language = "내 언어"

@@ -6668,6 +6668,12 @@ toggle_verbose_mode = "Basculer le mode verbeux"
 top_results_to_print = "Nombre de premiers résultats à afficher"
 true_to_learn_false_to_unlearn = "true pour apprendre, false pour oublier"
 unlearn_all_adaptations_across_all_skill_lines = "Oublier toutes les Adaptations dans toutes les Compétences"
+golem_roster_and_admin_tools = "Registre des golems et outils d'administration"
+open_your_golem_roster = "Ouvrir votre registre des golems"
+list_a_player_s_golems = "Lister les golems d'un joueur"
+release_one_of_a_player_s_golems = "Libérer l'un des golems d'un joueur"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Identifiant du golem, ou assez de ses premiers caractères pour désigner un seul golem"
+wake_a_player_s_loaded_golems = "Réveiller les golems chargés d'un joueur"
 
 [command.runtime]
 missing_permission = "Il vous manque la permission '{permission}'."
@@ -6750,6 +6756,14 @@ perf_timing_budget = "Budget temporel des vérifications de capacités : {percen
 perf_ticker_window = "Fenêtre du ticker : {window}ms"
 perf_no_metrics = "Aucune métrique de tick collectée pour le moment."
 perf_reset = "Télémétrie du ticker et des capacités réinitialisée."
+golem_list_header = "{player} possède {count} golems :"
+golem_list_empty = "{player} ne possède aucun golem."
+golem_list_entry = "{id} : {golem}, {status}. {location}"
+golem_not_found = "{player} n'a aucun golem dont l'identifiant commence par {id}."
+golem_ambiguous = "Plusieurs golems de {player} ont un identifiant qui commence par {id}. Saisissez-en davantage."
+golem_released = "Golem {id} libéré du registre de {player}."
+golem_release_failed = "Le golem {id} de {player} n'a pas pu être libéré. Réessayez."
+golems_woken = "Réveil des golems chargés de {player} : {count}."
 
 [language.menu]
 your_language = "Votre langue"

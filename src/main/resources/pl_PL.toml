@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "Włączenie / wyłączenie trybu verbose"
 top_results_to_print = "Najlepsze wyniki do wydruku"
 true_to_learn_false_to_unlearn = "Prawda, by się uczyć, fałsz, żeby się oduczyć"
 unlearn_all_adaptations_across_all_skill_lines = "Oduczyć wszystkie dostosowania we wszystkich liniach umiejętności"
+golem_roster_and_admin_tools = "Spis golemów i narzędzia administracyjne"
+open_your_golem_roster = "Otwórz swój spis golemów"
+list_a_player_s_golems = "Wyświetl golemy gracza"
+release_one_of_a_player_s_golems = "Uwolnij jednego z golemów gracza"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ID golema albo tyle jego pierwszych znaków, by pasował tylko jeden golem"
+wake_a_player_s_loaded_golems = "Obudź załadowane golemy gracza"
 
 [command.runtime]
 missing_permission = "Brakuje ci pozwolenia. '{permission}'."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "Budżet na kontrolę zdolności: {percent} ({millisPerSeco
 perf_ticker_window = "Okno: {window}Pani"
 perf_no_metrics = "Nie zebrano jeszcze żadnych metryk ticków."
 perf_reset = "Resetowanie telemetrii i możliwości."
+golem_list_header = "Golemy gracza {player} ({count}):"
+golem_list_empty = "{player} nie ma golemów."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} nie ma golema, którego ID zaczyna się od {id}."
+golem_ambiguous = "Więcej niż jeden golem gracza {player} ma ID zaczynające się od {id}. Wpisz więcej znaków."
+golem_released = "Golem {id} został uwolniony ze spisu gracza {player}."
+golem_release_failed = "Nie udało się uwolnić golema {id} gracza {player}. Spróbuj ponownie."
+golems_woken = "Budzenie załadowanych golemów gracza {player}: {count}."
 
 [language.menu]
 your_language = "Twój język"

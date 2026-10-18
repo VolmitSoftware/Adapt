@@ -84,6 +84,14 @@ public final class CommandRuntimeMessages {
   public static final TextKey PERF_TICKER_WINDOW = TextKey.of("command.runtime.perf_ticker_window", "Ticker window: {window}ms");
   public static final TextKey PERF_NO_METRICS = TextKey.of("command.runtime.perf_no_metrics", "No tick metrics collected yet.");
   public static final TextKey PERF_RESET = TextKey.of("command.runtime.perf_reset", "Ticker and ability telemetry reset.");
+  public static final TextKey GOLEM_LIST_HEADER = TextKey.of("command.runtime.golem_list_header", "{player} has {count} golems:");
+  public static final TextKey GOLEM_LIST_EMPTY = TextKey.of("command.runtime.golem_list_empty", "{player} has no golems.");
+  public static final TextKey GOLEM_LIST_ENTRY = TextKey.of("command.runtime.golem_list_entry", "{id}: {golem}, {status}. {location}");
+  public static final TextKey GOLEM_NOT_FOUND = TextKey.of("command.runtime.golem_not_found", "{player} has no golem whose id starts with {id}.");
+  public static final TextKey GOLEM_AMBIGUOUS = TextKey.of("command.runtime.golem_ambiguous", "More than one of {player}'s golems has an id starting with {id}. Type more of it.");
+  public static final TextKey GOLEM_RELEASED = TextKey.of("command.runtime.golem_released", "Released golem {id} from {player}'s roster.");
+  public static final TextKey GOLEM_RELEASE_FAILED = TextKey.of("command.runtime.golem_release_failed", "Golem {id} of {player} could not be released. Try again.");
+  public static final TextKey GOLEMS_WOKEN = TextKey.of("command.runtime.golems_woken", "Waking {player}'s {count} loaded golems.");
 
   private CommandRuntimeMessages() {
   }
@@ -169,5 +177,13 @@ public final class CommandRuntimeMessages {
     builder.add(PERF_TICKER_WINDOW);
     builder.add(PERF_NO_METRICS);
     builder.add(PERF_RESET);
+    builder.add(GOLEM_LIST_HEADER);
+    builder.add(GOLEM_LIST_EMPTY);
+    builder.add(GOLEM_LIST_ENTRY);
+    builder.add(GOLEM_NOT_FOUND);
+    builder.add(GOLEM_AMBIGUOUS);
+    builder.add(GOLEM_RELEASED);
+    builder.add(GOLEM_RELEASE_FAILED);
+    builder.add(GOLEMS_WOKEN);
   }
 }

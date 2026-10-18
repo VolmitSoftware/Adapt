@@ -6672,6 +6672,12 @@ toggle_verbose_mode = "Cambiar el modo de verbo"
 top_results_to_print = "Principales resultados para imprimir"
 true_to_learn_false_to_unlearn = "verdadero para aprender, falso para no aprender"
 unlearn_all_adaptations_across_all_skill_lines = "Desarrollar todas las adaptaciones en todas las líneas de habilidad"
+golem_roster_and_admin_tools = "Lista de gólems y herramientas de administración"
+open_your_golem_roster = "Abrir tu lista de gólems"
+list_a_player_s_golems = "Listar los gólems de un jugador"
+release_one_of_a_player_s_golems = "Liberar uno de los gólems de un jugador"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ID del gólem, o suficientes de sus primeros caracteres para coincidir con un solo gólem"
+wake_a_player_s_loaded_golems = "Despertar los gólems cargados de un jugador"
 
 [command.runtime]
 missing_permission = "No tienes el permiso '{permission}'."
@@ -6754,6 +6760,14 @@ perf_timing_budget = "Presupuesto de verificación de la capacidad: {percent} ({
 perf_ticker_window = "Ventana de ticker: {window}ms"
 perf_no_metrics = "Aún no se han recopilado métricas de ticks."
 perf_reset = "Ticker y habilidad telemetría reset."
+golem_list_header = "{player} tiene {count} gólems:"
+golem_list_empty = "{player} no tiene gólems."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} no tiene ningún gólem cuyo ID empiece por {id}."
+golem_ambiguous = "Más de un gólem de {player} tiene un ID que empieza por {id}. Escribe más caracteres."
+golem_released = "Gólem {id} liberado de la lista de {player}."
+golem_release_failed = "No se pudo liberar el gólem {id} de {player}. Inténtalo de nuevo."
+golems_woken = "Despertando los gólems cargados de {player}: {count}."
 
 [language.menu]
 your_language = "Tu idioma"

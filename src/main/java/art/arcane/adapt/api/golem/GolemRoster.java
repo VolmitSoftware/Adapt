@@ -6,8 +6,11 @@ import org.bukkit.block.BlockFace;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -57,6 +60,20 @@ public final class GolemRoster {
 
   public int golemCount() {
     return golemMap().size();
+  }
+
+  public List<GolemEntry> matching(String idStart) {
+    if (idStart == null || idStart.isBlank()) {
+      return List.of();
+    }
+    String prefix = idStart.trim().toLowerCase(Locale.ROOT);
+    List<GolemEntry> matches = new ArrayList<>(1);
+    for (Map.Entry<String, GolemEntry> entry : golemMap().entrySet()) {
+      if (entry.getKey().startsWith(prefix)) {
+        matches.add(entry.getValue());
+      }
+    }
+    return List.copyOf(matches);
   }
 
   public boolean transition(UUID id, Status from, Status to) {
