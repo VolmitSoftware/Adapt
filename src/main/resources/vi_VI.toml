@@ -4580,6 +4580,18 @@ lore5 = "Cày xới: cày lại đất và gieo hạt vào đất canh tác tr�
 lore6 = "Cơ hội quay thêm một lượt vật phẩm rơi"
 lore = ["Số cây mỗi lần thu hoạch", "Số giây mỗi lần thu hoạch", "Thu hoạch dưa hấu, bí ngô, mía, tre và xương rồng", "Chăm sóc: dùng bột xương từ rương nhà cho cây non", "Cày xới: cày lại đất và gieo hạt vào đất canh tác trống", "Cơ hội quay thêm một lượt vật phẩm rơi"]
 
+[golemancy.lumber_core]
+name = "Lõi Tiều Phu"
+description = "Golem được liên kết bằng Lõi Tiều Phu đốn các cây tự nhiên trong khu vực của một Nút Đốn Gỗ từ trên xuống và thu gom gỗ, đồng thời trồng lại, quét lá và đốn những cây lớn hơn khi lõi mạnh lên."
+lore1 = "Khúc gỗ đốn mỗi giây"
+lore2 = "Khúc gỗ mỗi cây cho golem đồng"
+lore3 = "Khúc gỗ mỗi cây cho golem sắt"
+lore4 = "Trồng lại cây non sau khi đốn"
+lore5 = "Quét lá: phá lá rời và thu gom vật phẩm rơi ra"
+lore6 = "Đốn cây khổng lồ 2x2"
+lore7 = "Đốn nấm đỏ thẫm và nấm biến dạng rồi trồng lại nấm"
+lore = ["Khúc gỗ đốn mỗi giây", "Khúc gỗ mỗi cây cho golem đồng", "Khúc gỗ mỗi cây cho golem sắt", "Trồng lại cây non sau khi đốn", "Quét lá: phá lá rời và thu gom vật phẩm rơi ra", "Đốn cây khổng lồ 2x2", "Đốn nấm đỏ thẫm và nấm biến dạng rồi trồng lại nấm"]
+
 [golemancy.runic_augments]
 name = "Cường hóa Rune"
 description = "Cho phép bạn truyền Cổ Tự tại Bệ Animus và gắn chúng vào các golem đã liên kết để tăng tốc độ, sức chở, lửa, tầm hoạt động, kênh, sản lượng và giáp."

@@ -4580,6 +4580,18 @@ lore5 = "Bestellen: Pflügt Erde neu und bepflanzt leeres Ackerland"
 lore6 = "Chance auf einen zusätzlichen Beutewurf"
 lore = ["Pflanzen pro Erntevorgang", "Sekunden pro Erntevorgang", "Erntet Melonen, Kürbisse, Zuckerrohr, Bambus und Kakteen", "Pflege: Knochenmehl aus der Heimtruhe für junge Pflanzen", "Bestellen: Pflügt Erde neu und bepflanzt leeres Ackerland", "Chance auf einen zusätzlichen Beutewurf"]
 
+[golemancy.lumber_core]
+name = "Holzfäller-Kern"
+description = "Mit einem Holzfäller-Kern gebundene Golems fällen natürliche Bäume im Bereich eines Holzfällen-Knotens von oben nach unten und sammeln die Stämme ein, und je stärker der Kern wird, pflanzen sie nach, räumen Laub und fällen größere Bäume."
+lore1 = "Gefällte Stämme pro Sekunde"
+lore2 = "Stämme pro Baum für Kupfergolems"
+lore3 = "Stämme pro Baum für Eisengolems"
+lore4 = "Pflanzt nach dem Fällen Setzlinge nach"
+lore5 = "Laubräumen: Bricht lose Blätter ab und sammelt, was sie fallen lassen"
+lore6 = "Fällt 2x2-Riesenbäume"
+lore7 = "Fällt Karmesin- und Wirrpilze und pflanzt Pilze nach"
+lore = ["Gefällte Stämme pro Sekunde", "Stämme pro Baum für Kupfergolems", "Stämme pro Baum für Eisengolems", "Pflanzt nach dem Fällen Setzlinge nach", "Laubräumen: Bricht lose Blätter ab und sammelt, was sie fallen lassen", "Fällt 2x2-Riesenbäume", "Fällt Karmesin- und Wirrpilze und pflanzt Pilze nach"]
+
 [golemancy.runic_augments]
 name = "Runenverstärkung"
 description = "Lässt dich am Animus-Sockel Runen infundieren und in deine gebundenen Golems einsetzen: für Tempo, Tragekapazität, Feuer, Reichweite, Kanäle, Ertrag und Rüstung."

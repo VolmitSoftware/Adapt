@@ -4580,6 +4580,18 @@ lore5 = "Bewerking: ploegt aarde opnieuw en plant lege akkergrond in"
 lore6 = "Kans op een extra buitworp"
 lore = ["Gewassen per oogstactie", "Seconden per oogstactie", "Oogst meloenen, pompoenen, suikerriet, bamboe en cactussen", "Verzorging: beendermeel uit de thuiskist op jonge gewassen", "Bewerking: ploegt aarde opnieuw en plant lege akkergrond in", "Kans op een extra buitworp"]
 
+[golemancy.lumber_core]
+name = "Houthakker-kern"
+description = "Golems die met een Houthakker-kern zijn gebonden, kappen natuurlijke bomen in het gebied van een Houtkap-knooppunt van boven naar beneden en verzamelen de stammen, en herplanten, vegen bladeren en kappen grotere bomen naarmate de kern sterker wordt."
+lore1 = "Gekapte stammen per seconde"
+lore2 = "Stammen per boom voor koperen golems"
+lore3 = "Stammen per boom voor ijzeren golems"
+lore4 = "Herplant zaailingen na het kappen"
+lore5 = "Bladveger: breekt losse bladeren en verzamelt wat ze laten vallen"
+lore6 = "Kapt 2x2-reuzenbomen"
+lore7 = "Kapt karmozijnrode en verwrongen zwammen en herplant zwammen"
+lore = ["Gekapte stammen per seconde", "Stammen per boom voor koperen golems", "Stammen per boom voor ijzeren golems", "Herplant zaailingen na het kappen", "Bladveger: breekt losse bladeren en verzamelt wat ze laten vallen", "Kapt 2x2-reuzenbomen", "Kapt karmozijnrode en verwrongen zwammen en herplant zwammen"]
+
 [golemancy.runic_augments]
 name = "Runenversterkingen"
 description = "Laat je runen infuseren op de Animussokkel en ze in je gebonden golems zetten voor snelheid, draagvermogen, vuur, bereik, kanalen, opbrengst en harnas."

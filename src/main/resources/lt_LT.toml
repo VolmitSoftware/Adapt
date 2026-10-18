@@ -4580,6 +4580,18 @@ lore5 = "Dirbimas: vėl suaria žemę ir apsėja tuščią dirvą"
 lore6 = "Tikimybė papildomai sukti grobį"
 lore = ["Augalai per derliaus nuėmimo veiksmą", "Sekundės per derliaus nuėmimo veiksmą", "Nuima arbūzus, moliūgus, cukranendres, bambukus ir kaktusus", "Priežiūra: kaulų miltai iš namų skrynios jauniems augalams", "Dirbimas: vėl suaria žemę ir apsėja tuščią dirvą", "Tikimybė papildomai sukti grobį"]
 
+[golemancy.lumber_core]
+name = "Medkirčio šerdis"
+description = "Medkirčio šerdimi sujungti golemai Kirtimo mazgo zonoje iš viršaus į apačią kerta natūralius medžius ir renka rąstus, o šerdžiai stiprėjant vėl sodina, šluoja lapus ir kerta didesnius medžius."
+lore1 = "Nukertami rąstai per sekundę"
+lore2 = "Rąstų viename medyje vario golemams"
+lore3 = "Rąstų viename medyje geležies golemams"
+lore4 = "Po kirtimo vėl pasodina sodinukus"
+lore5 = "Lapų šlavimas: sulaužo atsilaisvinusius lapus ir surenka, kas iš jų iškrenta"
+lore6 = "Kerta 2x2 milžiniškus medžius"
+lore7 = "Kerta raudonuosius ir iškreiptuosius grybus ir vėl sodina grybus"
+lore = ["Nukertami rąstai per sekundę", "Rąstų viename medyje vario golemams", "Rąstų viename medyje geležies golemams", "Po kirtimo vėl pasodina sodinukus", "Lapų šlavimas: sulaužo atsilaisvinusius lapus ir surenka, kas iš jų iškrenta", "Kerta 2x2 milžiniškus medžius", "Kerta raudonuosius ir iškreiptuosius grybus ir vėl sodina grybus"]
+
 [golemancy.runic_augments]
 name = "Runų patobulinimai"
 description = "Leidžia Animus pakyloje įlieti runas ir įstatyti jas į surištus golemus dėl greičio, nešimo, ugnies, siekio, kanalų, derliaus ir šarvų."

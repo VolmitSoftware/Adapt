@@ -4580,6 +4580,18 @@ lore5 = "Labranza: vuelve a arar la tierra y siembra la tierra de cultivo vacía
 lore6 = "Probabilidad de una tirada de botín extra"
 lore = ["Cultivos por acción de cosecha", "Segundos por acción de cosecha", "Cosecha sandías, calabazas, caña de azúcar, bambú y cactus", "Cuidado: polvo de hueso del cofre del hogar en cultivos jóvenes", "Labranza: vuelve a arar la tierra y siembra la tierra de cultivo vacía", "Probabilidad de una tirada de botín extra"]
 
+[golemancy.lumber_core]
+name = "Núcleo de Leñador"
+description = "Los gólems vinculados con un Núcleo de Leñador talan de arriba abajo los árboles naturales del área de un Nodo de Tala y recogen los troncos, y replantan, barren hojas y talan árboles más grandes a medida que el núcleo se fortalece."
+lore1 = "Troncos talados por segundo"
+lore2 = "Troncos por árbol para gólems de cobre"
+lore3 = "Troncos por árbol para gólems de hierro"
+lore4 = "Replanta brotes tras la tala"
+lore5 = "Barrido de hojas: rompe las hojas sueltas y recoge lo que sueltan"
+lore6 = "Tala árboles gigantes de 2x2"
+lore7 = "Tala hongos carmesíes y distorsionados y replanta hongos"
+lore = ["Troncos talados por segundo", "Troncos por árbol para gólems de cobre", "Troncos por árbol para gólems de hierro", "Replanta brotes tras la tala", "Barrido de hojas: rompe las hojas sueltas y recoge lo que sueltan", "Tala árboles gigantes de 2x2", "Tala hongos carmesíes y distorsionados y replanta hongos"]
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Te permite infundir runas en el Pedestal de Ánima y engarzarlas en tus gólems vinculados para ganar velocidad, carga, fuego, alcance, canales, rendimiento y armadura."

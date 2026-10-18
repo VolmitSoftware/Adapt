@@ -3462,6 +3462,24 @@
     },
     {
       "skill": "golemancy",
+      "name": "golem-lumber-core",
+      "class": "GolemLumberCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemLumberCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Golems bound with a Lumber Core fell natural trees in a Lumber Node's area from the top down and collect the logs, then replant, sweep leaves and fell bigger trees as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemLumberCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
       "name": "golem-node-weaving",
       "class": "GolemNodeWeaving",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemNodeWeaving.java",

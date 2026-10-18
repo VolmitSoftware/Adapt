@@ -169,6 +169,22 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
+    ['golem-lumber-core', {
+        stage: 'golemancy-lumber-binding', trigger: bindCopper,
+        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }],
+        prepare: ({ equip }) => equip('firework_star'),
+        description: 'binding a copper golem with a Lumber Core needs Lumber Core learned and turns the golem into a working Lumber golem',
+        async verify({ context, unlearned, active }) {
+            context.expect(!unlearned.bound, 'Without Lumber Core the copper golem refuses the Lumber Core and stays unbound')
+            context.expect(active.bound && active.boundToPlayer, 'With Lumber Core the copper golem binds to the player')
+            context.expect(active.core === 'lumber', 'The bound golem carries the Lumber Core')
+            context.expect(active.mode === 'work', 'A new Lumber golem starts in Work mode, ready for Lumber Nodes')
+            return {
+                assertions: ['unlearned binding leaves the copper golem unbound', 'learned binding makes the copper golem a Lumber golem in Work mode'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
     ['golem-runic-augments', {
         stage: 'golemancy-plinth', trigger: loadPlinth, prerequisites: [{ name: 'golem-animus-binding', level: 2 }],
         prepare: ({ equip }) => equip('disc_fragment_5'),

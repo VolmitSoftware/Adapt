@@ -4580,6 +4580,18 @@ lore5 = "Uprawa: ponownie orze ziemię i obsiewa pustą ziemię uprawną"
 lore6 = "Szansa na dodatkowe losowanie łupów"
 lore = ["Uprawy na akcję zbioru", "Sekundy na akcję zbioru", "Zbiera arbuzy, dynie, trzcinę cukrową, bambus i kaktusy", "Pielęgnacja: mączka kostna ze skrzyni domowej na młode uprawy", "Uprawa: ponownie orze ziemię i obsiewa pustą ziemię uprawną", "Szansa na dodatkowe losowanie łupów"]
 
+[golemancy.lumber_core]
+name = "Rdzeń Drwala"
+description = "Golemy związane Rdzeniem Drwala ścinają od góry naturalne drzewa w obszarze Węzła Wyrębu i zbierają kłody, a w miarę jak rdzeń się wzmacnia, sadzą nowe drzewa, zamiatają liście i ścinają większe drzewa."
+lore1 = "Ścinane kłody na sekundę"
+lore2 = "Kłód na drzewo dla miedzianych golemów"
+lore3 = "Kłód na drzewo dla żelaznych golemów"
+lore4 = "Sadzi sadzonki po ścięciu"
+lore5 = "Zamiatanie liści: niszczy luźne liście i zbiera to, co z nich wypada"
+lore6 = "Ścina olbrzymie drzewa 2x2"
+lore7 = "Ścina karmazynowe i spaczone grzyby i sadzi grzyby"
+lore = ["Ścinane kłody na sekundę", "Kłód na drzewo dla miedzianych golemów", "Kłód na drzewo dla żelaznych golemów", "Sadzi sadzonki po ścięciu", "Zamiatanie liści: niszczy luźne liście i zbiera to, co z nich wypada", "Ścina olbrzymie drzewa 2x2", "Ścina karmazynowe i spaczone grzyby i sadzi grzyby"]
+
 [golemancy.runic_augments]
 name = "Runiczne ulepszenia"
 description = "Pozwala nasycać runy na Postumencie animusa i osadzać je w związanych golemach, by zyskać szybkość, udźwig, ogień, zasięg, kanały, plony i pancerz."

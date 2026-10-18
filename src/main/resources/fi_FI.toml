@@ -4580,6 +4580,18 @@ lore5 = "Muokkaus: kyntää mullan uudelleen ja kylvää tyhjän peltomaan"
 lore6 = "Mahdollisuus ylimääräiseen saalisheittoon"
 lore = ["Kasveja korjuutoimintoa kohden", "Sekuntia korjuutoimintoa kohden", "Korjaa melonit, kurpitsat, sokeriruo'on, bambun ja kaktukset", "Hoito: luujauhoa kotiarkusta nuorille kasveille", "Muokkaus: kyntää mullan uudelleen ja kylvää tyhjän peltomaan", "Mahdollisuus ylimääräiseen saalisheittoon"]
 
+[golemancy.lumber_core]
+name = "Metsuriydin"
+description = "Metsuriytimellä sidotut golemit kaatavat luonnolliset puut puunkaatosolmun alueella ylhäältä alas ja keräävät rungot, ja ne istuttavat uudelleen, lakaisevat lehtiä ja kaatavat suurempia puita sitä mukaa kuin ydin vahvistuu."
+lore1 = "Kaadettuja runkoja sekunnissa"
+lore2 = "Runkoja puuta kohden kuparigolemeille"
+lore3 = "Runkoja puuta kohden rautagolemeille"
+lore4 = "Istuttaa taimet uudelleen kaadon jälkeen"
+lore5 = "Lehtien lakaisu: rikkoo irralliset lehdet ja kerää niiden pudotukset"
+lore6 = "Kaataa 2x2-jättipuita"
+lore7 = "Kaataa karmiini- ja vääristyneet sienet ja istuttaa sieniä uudelleen"
+lore = ["Kaadettuja runkoja sekunnissa", "Runkoja puuta kohden kuparigolemeille", "Runkoja puuta kohden rautagolemeille", "Istuttaa taimet uudelleen kaadon jälkeen", "Lehtien lakaisu: rikkoo irralliset lehdet ja kerää niiden pudotukset", "Kaataa 2x2-jättipuita", "Kaataa karmiini- ja vääristyneet sienet ja istuttaa sieniä uudelleen"]
+
 [golemancy.runic_augments]
 name = "Riimuvahvistukset"
 description = "Antaa sinun infusoida riimuja Animusjalustalla ja asettaa ne sidottuihin golemeihisi nopeuden, kantokyvyn, tulen, ulottuvuuden, kanavien, saaliin ja panssarin vuoksi."

@@ -4576,6 +4576,18 @@ lore5 = "Labour : relaboure la terre et sème la terre labourée vide"
 lore6 = "Chance d'un tirage de butin supplémentaire"
 lore = ["Cultures par action de récolte", "Secondes par action de récolte", "Récolte les pastèques, citrouilles, cannes à sucre, bambous et cactus", "Entretien : poudre d'os du coffre de maison sur les jeunes cultures", "Labour : relaboure la terre et sème la terre labourée vide", "Chance d'un tirage de butin supplémentaire"]
 
+[golemancy.lumber_core]
+name = "Noyau de Bûcheron"
+description = "Les golems liés avec un Noyau de Bûcheron abattent de haut en bas les arbres naturels dans la zone d'un Nœud de Coupe et ramassent les bûches, puis replantent, balaient les feuilles et abattent de plus grands arbres à mesure que le noyau se renforce."
+lore1 = "Bûches abattues par seconde"
+lore2 = "Bûches par arbre pour les golems de cuivre"
+lore3 = "Bûches par arbre pour les golems de fer"
+lore4 = "Replante des pousses après l'abattage"
+lore5 = "Balayage des feuilles : casse les feuilles détachées et ramasse ce qu'elles lâchent"
+lore6 = "Abat les arbres géants 2x2"
+lore7 = "Abat les champignons écarlates et biscornus et replante des champignons"
+lore = ["Bûches abattues par seconde", "Bûches par arbre pour les golems de cuivre", "Bûches par arbre pour les golems de fer", "Replante des pousses après l'abattage", "Balayage des feuilles : casse les feuilles détachées et ramasse ce qu'elles lâchent", "Abat les arbres géants 2x2", "Abat les champignons écarlates et biscornus et replante des champignons"]
+
 [golemancy.runic_augments]
 name = "Augmentations runiques"
 description = "Vous permet d'infuser des runes sur le Socle d'Animus et de les sertir dans vos golems liés pour la vitesse, la charge, le feu, la portée, les canaux, le rendement et l'armure."

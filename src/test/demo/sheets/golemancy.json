@@ -463,6 +463,121 @@
     },
     "maxTicks": 400
   },
+  "golem-lumber-core": {
+    "set": "taming-field",
+    "level": 5,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      },
+      {
+        "name": "golem-node-weaving",
+        "level": 1
+      },
+      {
+        "name": "golem-copper-frame",
+        "level": 1
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"lumber\\\"}\"}}]",
+      "experience set {actor} 5 levels",
+      "execute at {actor} run setblock ~1 ~-1 ~-5 minecraft:dirt",
+      "execute at {actor} run place feature minecraft:oak ~1 ~ ~-5",
+      "execute at {actor} run setblock ~1 ~-1 ~-3 minecraft:stone",
+      "execute at {actor} run summon minecraft:copper_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 25
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 60
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.enchantment_table.use",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      },
+      {
+        "verb": "command",
+        "text": "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"lumber\\\"}\"}}]"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          1.5,
+          0.05,
+          -2.5
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 30
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.amethyst_block.place",
+        "timeout": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 0,
+        "ticks": 10
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.wood.break",
+        "timeout": 300
+      },
+      {
+        "verb": "wait",
+        "ticks": 120
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.wood.break"
+    },
+    "maxTicks": 720
+  },
   "golem-node-weaving": {
     "set": "taming-field",
     "level": 5,

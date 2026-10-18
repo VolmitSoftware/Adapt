@@ -231,6 +231,16 @@ public final class GolemancyMessages {
   public static final TextKey HARVESTER_CORE_LORE5 = TextKey.of("golemancy.harvester_core.lore5", "Tilling: Re-tills Dirt and Plants Empty Farmland");
   public static final TextKey HARVESTER_CORE_LORE6 = TextKey.of("golemancy.harvester_core.lore6", "Chance of an Extra Drop Roll");
   public static final LinesKey HARVESTER_CORE_LORE = LinesKey.of("golemancy.harvester_core.lore", "Crops per Harvest Action", "Seconds per Harvest Action", "Harvests Melons, Pumpkins, Sugar Cane, Bamboo and Cactus", "Tending: Bone Meal from the Home Chest on Young Crops", "Tilling: Re-tills Dirt and Plants Empty Farmland", "Chance of an Extra Drop Roll");
+  public static final TextKey LUMBER_CORE_NAME = TextKey.of("golemancy.lumber_core.name", "Lumber Core");
+  public static final TextKey LUMBER_CORE_DESCRIPTION = TextKey.of("golemancy.lumber_core.description", "Golems bound with a Lumber Core fell natural trees in a Lumber Node's area from the top down and collect the logs, then replant, sweep leaves and fell bigger trees as the core grows stronger.");
+  public static final TextKey LUMBER_CORE_LORE1 = TextKey.of("golemancy.lumber_core.lore1", "Logs Felled per Second");
+  public static final TextKey LUMBER_CORE_LORE2 = TextKey.of("golemancy.lumber_core.lore2", "Logs per Tree for Copper Golems");
+  public static final TextKey LUMBER_CORE_LORE3 = TextKey.of("golemancy.lumber_core.lore3", "Logs per Tree for Iron Golems");
+  public static final TextKey LUMBER_CORE_LORE4 = TextKey.of("golemancy.lumber_core.lore4", "Replants Saplings After Felling");
+  public static final TextKey LUMBER_CORE_LORE5 = TextKey.of("golemancy.lumber_core.lore5", "Leaf Sweep: Breaks Loose Leaves and Collects Their Drops");
+  public static final TextKey LUMBER_CORE_LORE6 = TextKey.of("golemancy.lumber_core.lore6", "Fells 2x2 Mega Trees");
+  public static final TextKey LUMBER_CORE_LORE7 = TextKey.of("golemancy.lumber_core.lore7", "Fells Crimson and Warped Fungi and Replants Fungus");
+  public static final LinesKey LUMBER_CORE_LORE = LinesKey.of("golemancy.lumber_core.lore", "Logs Felled per Second", "Logs per Tree for Copper Golems", "Logs per Tree for Iron Golems", "Replants Saplings After Felling", "Leaf Sweep: Breaks Loose Leaves and Collects Their Drops", "Fells 2x2 Mega Trees", "Fells Crimson and Warped Fungi and Replants Fungus");
 
   public static final TextKey NODE_STATUS_IDLE = TextKey.of("golemancy.node_status.idle", "Idle");
   public static final TextKey NODE_STATUS_WORKING = TextKey.of("golemancy.node_status.working", "Working");
@@ -527,6 +537,16 @@ public final class GolemancyMessages {
     builder.add(HARVESTER_CORE_LORE5);
     builder.add(HARVESTER_CORE_LORE6);
     builder.add(HARVESTER_CORE_LORE);
+    builder.add(LUMBER_CORE_NAME);
+    builder.add(LUMBER_CORE_DESCRIPTION);
+    builder.add(LUMBER_CORE_LORE1);
+    builder.add(LUMBER_CORE_LORE2);
+    builder.add(LUMBER_CORE_LORE3);
+    builder.add(LUMBER_CORE_LORE4);
+    builder.add(LUMBER_CORE_LORE5);
+    builder.add(LUMBER_CORE_LORE6);
+    builder.add(LUMBER_CORE_LORE7);
+    builder.add(LUMBER_CORE_LORE);
     builder.add(RUNIC_AUGMENTS_NAME);
     builder.add(RUNIC_AUGMENTS_DESCRIPTION);
     builder.add(RUNIC_AUGMENTS_LORE1);

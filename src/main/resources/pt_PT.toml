@@ -4580,6 +4580,18 @@ lore5 = "Lavoura: volta a lavrar a terra e semeia a terra cultivada vazia"
 lore6 = "Probabilidade de um sorteio de saque extra"
 lore = ["Culturas por ação de colheita", "Segundos por ação de colheita", "Colhe melancias, abóboras, cana-de-açúcar, bambu e cactos", "Cuidado: farinha de osso do baú de casa nas culturas jovens", "Lavoura: volta a lavrar a terra e semeia a terra cultivada vazia", "Probabilidade de um sorteio de saque extra"]
 
+[golemancy.lumber_core]
+name = "Núcleo de Lenhador"
+description = "Os golems vinculados com um Núcleo de Lenhador abatem de cima para baixo as árvores naturais na área de um Nó de Corte e recolhem os troncos, e replantam, varrem folhas e abatem árvores maiores à medida que o núcleo se fortalece."
+lore1 = "Troncos abatidos por segundo"
+lore2 = "Troncos por árvore para golems de cobre"
+lore3 = "Troncos por árvore para golems de ferro"
+lore4 = "Replanta rebentos depois do abate"
+lore5 = "Varrer folhas: parte as folhas soltas e recolhe o que largam"
+lore6 = "Abate árvores gigantes 2x2"
+lore7 = "Abate fungos carmesim e distorcidos e replanta fungos"
+lore = ["Troncos abatidos por segundo", "Troncos por árvore para golems de cobre", "Troncos por árvore para golems de ferro", "Replanta rebentos depois do abate", "Varrer folhas: parte as folhas soltas e recolhe o que largam", "Abate árvores gigantes 2x2", "Abate fungos carmesim e distorcidos e replanta fungos"]
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Permite-te infundir runas no Pedestal de Ânimus e encaixá-las nos teus golems vinculados para velocidade, carga, fogo, alcance, canais, rendimento e armadura."

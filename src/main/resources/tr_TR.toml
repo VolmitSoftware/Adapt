@@ -4580,6 +4580,18 @@ lore5 = "Sürme: toprağı yeniden sürer ve boş tarlaya tohum eker"
 lore6 = "Ek ganimet zarı şansı"
 lore = ["Hasat eylemi başına ekin", "Hasat eylemi başına saniye", "Karpuz, balkabağı, şeker kamışı, bambu ve kaktüs de hasat eder", "Bakım: ev sandığındaki kemik tozunu genç ekinlere kullanır", "Sürme: toprağı yeniden sürer ve boş tarlaya tohum eker", "Ek ganimet zarı şansı"]
 
+[golemancy.lumber_core]
+name = "Oduncu Çekirdeği"
+description = "Oduncu Çekirdeği ile bağlanan golemler bir Kesim Düğümü'nün alanındaki doğal ağaçları yukarıdan aşağıya keser ve kütükleri toplar, çekirdek güçlendikçe de yeniden diker, yaprakları süpürür ve daha büyük ağaçları keser."
+lore1 = "Saniyede kesilen kütük"
+lore2 = "Bakır golemler için ağaç başına kütük"
+lore3 = "Demir golemler için ağaç başına kütük"
+lore4 = "Kesimden sonra fidan diker"
+lore5 = "Yaprak süpürme: gevşek yaprakları kırar ve düşürdüklerini toplar"
+lore6 = "2x2 dev ağaçları keser"
+lore7 = "Kızıl ve çarpık mantarları keser ve mantar diker"
+lore = ["Saniyede kesilen kütük", "Bakır golemler için ağaç başına kütük", "Demir golemler için ağaç başına kütük", "Kesimden sonra fidan diker", "Yaprak süpürme: gevşek yaprakları kırar ve düşürdüklerini toplar", "2x2 dev ağaçları keser", "Kızıl ve çarpık mantarları keser ve mantar diker"]
+
 [golemancy.runic_augments]
 name = "Rün Güçlendirmeleri"
 description = "Animus Kaidesi'nde rün aşılamanızı ve bunları bağlı golemlerinize takarak hız, taşıma, ateş, menzil, kanal, verim ve zırh kazanmanızı sağlar."

@@ -4580,6 +4580,18 @@ lore5 = "Aratura: riara la terra e semina la terra coltivata vuota"
 lore6 = "Probabilità di un tiro di bottino extra"
 lore = ["Colture per azione di raccolta", "Secondi per azione di raccolta", "Raccoglie angurie, zucche, canna da zucchero, bambù e cactus", "Cura: farina d'ossa dal baule di casa sulle colture giovani", "Aratura: riara la terra e semina la terra coltivata vuota", "Probabilità di un tiro di bottino extra"]
 
+[golemancy.lumber_core]
+name = "Nucleo di Taglialegna"
+description = "I golem legati con un Nucleo di Taglialegna abbattono dall'alto in basso gli alberi naturali nell'area di un Nodo di Taglio e raccolgono i tronchi, poi ripiantano, spazzano le foglie e abbattono alberi più grandi man mano che il nucleo si rafforza."
+lore1 = "Tronchi abbattuti al secondo"
+lore2 = "Tronchi per albero per i golem di rame"
+lore3 = "Tronchi per albero per i golem di ferro"
+lore4 = "Ripianta arbusti dopo l'abbattimento"
+lore5 = "Spazzata delle foglie: rompe le foglie staccate e raccoglie ciò che lasciano cadere"
+lore6 = "Abbatte alberi giganti 2x2"
+lore7 = "Abbatte funghi cremisi e distorti e ripianta funghi"
+lore = ["Tronchi abbattuti al secondo", "Tronchi per albero per i golem di rame", "Tronchi per albero per i golem di ferro", "Ripianta arbusti dopo l'abbattimento", "Spazzata delle foglie: rompe le foglie staccate e raccoglie ciò che lasciano cadere", "Abbatte alberi giganti 2x2", "Abbatte funghi cremisi e distorti e ripianta funghi"]
+
 [golemancy.runic_augments]
 name = "Potenziamenti runici"
 description = "Ti permette di infondere rune sul Piedistallo di Animus e incastonarle nei tuoi golem legati per velocità, carico, fuoco, portata, canali, resa e armatura."
