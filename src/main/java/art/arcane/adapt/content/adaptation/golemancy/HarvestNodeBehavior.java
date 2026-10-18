@@ -7,6 +7,7 @@ import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTaskBoard;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeBehavior;
 import art.arcane.adapt.api.golem.node.NodeContext;
 import art.arcane.adapt.api.golem.node.NodeContainers;
@@ -53,8 +54,8 @@ final class HarvestNodeBehavior implements NodeBehavior {
     NodeKey key = node.key();
     HarvesterRules.Plan plan = actions.plan(level, node.record());
     Predicate<Block> owned = node::owns;
-    Map<Long, GolemTask> open = open(node.tasks());
-    spots.scanned(key, node.nowMillis());
+    Map<Long, GolemTask> open = open(node);
+    spots.scanned(key, node.record(), node.nowMillis());
     for (int index = budget.start(); index < budget.end(); index++) {
       Optional<Block> found = node.block(index);
       if (found.isEmpty()) {
@@ -92,7 +93,7 @@ final class HarvestNodeBehavior implements NodeBehavior {
   private GolemActResult harvest(GolemContext golem, GolemTask task) {
     int level = actions.level(golem);
     NodeRecord record = golem.node().orElse(null);
-    if (level < 1 || record == null) {
+    if (level < 1 || record == null || !actions.covered(record, task)) {
       return GolemActResult.FAILED;
     }
     HarvesterRules.Plan plan = actions.plan(level, record);
@@ -101,14 +102,15 @@ final class HarvestNodeBehavior implements NodeBehavior {
     if (HarvesterRules.survey(block, plan, owned) != HarvesterRules.Spot.RIPE) {
       return GolemActResult.FAILED;
     }
-    if (!golem.canBreak(block.getLocation())) {
+    if (!actions.canHarvest(golem, block, plan)) {
       return GolemActResult.BLOCKED;
     }
     if (golem.actIndex() == 0) {
       return GolemActResult.WORKING;
     }
     actions.reap(golem, block, plan);
-    int harvested = 1 + reapNearby(golem, task, plan, owned, HarvesterRules.cropsPerAction(core.config().cropsPerActionByLevel, level) - 1);
+    int limit = HarvesterRules.cropsPerAction(core.config().cropsPerActionByLevel, level) - 1;
+    int harvested = 1 + reapNearby(golem, task, record, plan, owned, limit);
     golem.workXp(core.config().workXpPerCrop * harvested);
     return GolemActResult.DONE;
   }
@@ -116,7 +118,7 @@ final class HarvestNodeBehavior implements NodeBehavior {
   private GolemActResult till(GolemContext golem, GolemTask task) {
     int level = actions.level(golem);
     NodeRecord record = golem.node().orElse(null);
-    if (level < 1 || record == null) {
+    if (level < 1 || record == null || !actions.covered(record, task)) {
       return GolemActResult.FAILED;
     }
     HarvesterRules.Plan plan = actions.plan(level, record);
@@ -137,7 +139,7 @@ final class HarvestNodeBehavior implements NodeBehavior {
     return GolemActResult.DONE;
   }
 
-  private int reapNearby(GolemContext golem, GolemTask task, HarvesterRules.Plan plan, Predicate<Block> owned, int limit) {
+  private int reapNearby(GolemContext golem, GolemTask task, NodeRecord record, HarvesterRules.Plan plan, Predicate<Block> owned, int limit) {
     NodeKey key = task.node().orElse(null);
     if (limit <= 0 || key == null) {
       return 0;
@@ -157,11 +159,11 @@ final class HarvestNodeBehavior implements NodeBehavior {
       if (!owned.test(block)) {
         continue;
       }
-      if (HarvesterRules.survey(block, plan, owned) != HarvesterRules.Spot.RIPE) {
+      if (!actions.covered(record, extra) || HarvesterRules.survey(block, plan, owned) != HarvesterRules.Spot.RIPE) {
         board.get().withdraw(extra);
         continue;
       }
-      if (!golem.canBreak(block.getLocation())) {
+      if (!actions.canHarvest(golem, block, plan)) {
         continue;
       }
       actions.reap(golem, block, plan);
@@ -184,13 +186,20 @@ final class HarvestNodeBehavior implements NodeBehavior {
     return found;
   }
 
-  private static Map<Long, GolemTask> open(List<GolemTask> tasks) {
+  private static Map<Long, GolemTask> open(NodeContext node) {
+    List<GolemTask> tasks = node.tasks();
     if (tasks.isEmpty()) {
       return Map.of();
     }
+    NodeKey key = node.key();
+    NodeRecord record = node.record();
     Map<Long, GolemTask> open = new HashMap<>(tasks.size() * 2);
     for (GolemTask task : tasks) {
       GolemTarget target = task.target();
+      if (!NodeArea.covers(key, record, target.x(), target.y(), target.z())) {
+        node.withdraw(task);
+        continue;
+      }
       open.put(NodeContainers.blockKey(target.blockX(), target.blockY(), target.blockZ()), task);
     }
     return open;

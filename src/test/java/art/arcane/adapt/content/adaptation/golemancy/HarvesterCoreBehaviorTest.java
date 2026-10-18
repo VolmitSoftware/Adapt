@@ -86,7 +86,7 @@ class HarvesterCoreBehaviorTest {
     runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
     feedback = mockStatic(HarvestFeedback.class);
     runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(nodes));
-    spots.scanned(KEY, NOW);
+    spots.scanned(KEY, record, NOW);
   }
 
   @AfterEach
@@ -243,6 +243,67 @@ class HarvesterCoreBehaviorTest {
 
     assertThat(behavior.act(denied, task("plant", 1, 63, 0))).isEqualTo(GolemActResult.BLOCKED);
     assertThat(field.type(1, 64, 0)).isEqualTo(Material.AIR);
+  }
+
+  @Test
+  void shrinkingTheWorkAreaStopsWorkOutsideIt() {
+    node();
+    farmland(3, 63, 3);
+    assertThat(seek(golem(1, seeds(Material.WHEAT_SEEDS)))).isEqualTo("plant 3,63,3");
+
+    nearby.clear();
+    record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(1, 1, 1).build();
+    node();
+    GolemContext seeded = golem(1, seeds(Material.WHEAT_SEEDS));
+    when(seeded.take(any(), eq(1))).thenReturn(1);
+
+    assertThat(seek(seeded)).isEmpty();
+    assertThat(behavior.act(seeded, task("plant", 3, 63, 3))).isEqualTo(GolemActResult.FAILED);
+    assertThat(field.type(3, 64, 3)).isEqualTo(Material.AIR);
+    assertThat(spots.of(KEY)).isEmpty();
+  }
+
+  @Test
+  void aFailedActDropsItsMark() {
+    young(2, 64, 2);
+    field.set(2, 64, 2, Material.CARROTS, CropField.ageable(7, 7));
+    farmland(1, 63, 0);
+    boneMeal(5);
+
+    assertThat(behavior.act(golem(1, List.of()), task("tend", 2, 64, 2))).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(spots.of(KEY)).containsExactly(new HarvestSpots.Mark(HarvesterRules.Spot.PLANT, 1, 63, 0));
+  }
+
+  @Test
+  void aRefusedBoneMealIsRefunded() {
+    field.set(2, 64, 2, Material.CARROTS, CropField.ageable(2, 7));
+    when(field.block(2, 64, 2).applyBoneMeal(any(BlockFace.class))).thenReturn(false);
+    boneMeal(5);
+
+    assertThat(behavior.act(golem(1, List.of()), task("tend", 2, 64, 2))).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(chest[4].getType()).isEqualTo(Material.BONE_MEAL);
+    assertThat(chest[4].getAmount()).isEqualTo(5);
+    verify(core, never()).tended(any(), anyLong());
+  }
+
+  @Test
+  void aSlotThatNoLongerHoldsBoneMealIsNeverCharged() {
+    field.set(2, 64, 2, Material.CARROTS, CropField.ageable(2, 7));
+    boneMeal(5);
+    ItemStack wheat = GolemTestItems.stack(Material.WHEAT, 3);
+    Inventory swapped = mock(Inventory.class);
+    when(swapped.getStorageContents()).thenAnswer(invocation -> chest.clone());
+    when(swapped.getItem(4)).thenReturn(wheat);
+    GolemContext golem = golem(1, List.of());
+    when(golem.container(any(Block.class))).thenReturn(Optional.of(swapped));
+
+    assertThat(behavior.act(golem, task("tend", 2, 64, 2))).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(wheat.getAmount()).isEqualTo(3);
+    verify(swapped, never()).setItem(anyInt(), any());
+    assertThat(field.age(2, 64, 2)).isEqualTo(2);
   }
 
   @Test

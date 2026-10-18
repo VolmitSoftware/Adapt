@@ -12,6 +12,7 @@ import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTaskMatch;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
@@ -85,9 +86,23 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
 
   @Override
   public GolemActResult act(GolemContext golem, GolemTask task) {
+    GolemActResult result = perform(golem, task);
+    if (result == GolemActResult.FAILED) {
+      GolemTarget target = task.target();
+      task.node().ifPresent(key -> spots.drop(key, target.blockX(), target.blockY(), target.blockZ()));
+    }
+    return result;
+  }
+
+  @Override
+  public int actIntervalTicks(GolemContext golem, GolemTask task) {
+    return actions.intervalTicks(golem);
+  }
+
+  private GolemActResult perform(GolemContext golem, GolemTask task) {
     int level = actions.level(golem);
     NodeRecord record = golem.node().orElse(null);
-    if (level < 1 || record == null) {
+    if (level < 1 || record == null || !actions.covered(record, task)) {
       return GolemActResult.FAILED;
     }
     HarvesterRules.Plan plan = actions.plan(level, record);
@@ -96,11 +111,6 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
       case HarvesterRules.TEND -> tend(golem, task, plan);
       default -> GolemActResult.FAILED;
     };
-  }
-
-  @Override
-  public int actIntervalTicks(GolemContext golem, GolemTask task) {
-    return actions.intervalTicks(golem);
   }
 
   private GolemActResult plant(GolemContext golem, GolemTask task, HarvesterRules.Plan plan) {
@@ -133,10 +143,14 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
     if (golem.actIndex() == 0) {
       return GolemActResult.WORKING;
     }
-    if (!crop.applyBoneMeal(BlockFace.UP)) {
+    ItemStack spent = spend(chest, slot);
+    if (spent == null) {
       return GolemActResult.FAILED;
     }
-    spend(chest, slot);
+    if (!crop.applyBoneMeal(BlockFace.UP)) {
+      refund(chest, slot, spent);
+      return GolemActResult.FAILED;
+    }
     core.tended(golem.handle().id(), golem.nowMillis());
     HarvestFeedback.play(core, actions.center(crop), HarvestFeedback.Kind.TEND);
     return GolemActResult.DONE;
@@ -151,7 +165,8 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
         continue;
       }
       for (HarvestSpots.Mark mark : spots.of(entry.key())) {
-        if (mark.kind() == HarvesterRules.Spot.PLANT ? plants : tending) {
+        boolean inArea = NodeArea.covers(entry.key(), entry.record(), mark.x() + 0.5D, mark.y() + 0.5D, mark.z() + 0.5D);
+        if (inArea && (mark.kind() == HarvesterRules.Spot.PLANT ? plants : tending)) {
           candidates.add(new Candidate(entry.key(), mark, distanceSquared(here, mark)));
         }
       }
@@ -235,15 +250,41 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
     return -1;
   }
 
-  private static void spend(Inventory chest, int slot) {
+  private static ItemStack spend(Inventory chest, int slot) {
     ItemStack held = chest.getItem(slot);
-    if (held == null || held.getAmount() <= 1) {
+    if (held == null || held.getType() != Material.BONE_MEAL || held.getAmount() <= 0) {
+      return null;
+    }
+    ItemStack one = held.clone();
+    one.setAmount(1);
+    if (held.getAmount() == 1) {
       chest.setItem(slot, null);
-      return;
+      return one;
     }
     ItemStack rest = held.clone();
     rest.setAmount(held.getAmount() - 1);
     chest.setItem(slot, rest);
+    return one;
+  }
+
+  private static void refund(Inventory chest, int slot, ItemStack one) {
+    ItemStack held = chest.getItem(slot);
+    if (held == null) {
+      chest.setItem(slot, one);
+      return;
+    }
+    if (held.isSimilar(one) && held.getAmount() < held.getMaxStackSize()) {
+      ItemStack restored = held.clone();
+      restored.setAmount(held.getAmount() + 1);
+      chest.setItem(slot, restored);
+      return;
+    }
+    Location at = chest.getLocation();
+    for (ItemStack left : chest.addItem(one).values()) {
+      if (at != null && at.getWorld() != null) {
+        at.getWorld().dropItemNaturally(at, left);
+      }
+    }
   }
 
   private static double distanceSquared(Location here, HarvestSpots.Mark mark) {

@@ -182,6 +182,18 @@ class HarvesterRulesTest {
   }
 
   @Test
+  void dirtBesideAStemIsLeftForTheFruit() {
+    field.set(0, 63, 0, Material.DIRT).set(1, 64, 0, Material.MELON_STEM, CropField.ageable(7, 7));
+    field.set(4, 63, 4, Material.DIRT).set(4, 64, 5, Material.ATTACHED_PUMPKIN_STEM, CropField.facing(BlockFace.NORTH));
+    field.set(8, 63, 0, Material.DIRT);
+
+    assertThat(survey(0, 63, 0, 5)).isEqualTo(HarvesterRules.Spot.NONE);
+    assertThat(survey(4, 63, 4, 5)).isEqualTo(HarvesterRules.Spot.NONE);
+    assertThat(survey(8, 63, 0, 5)).isEqualTo(HarvesterRules.Spot.TILL);
+    assertThat(HarvesterRules.survey(field.block(8, 63, 0), plan(5), block -> block.getX() == 8)).isEqualTo(HarvesterRules.Spot.NONE);
+  }
+
+  @Test
   void emptyFarmlandIsPlantedAtLevelFourUnlessAStemNeedsItForFruit() {
     field.set(0, 63, 0, Material.FARMLAND);
     field.set(1, 63, 0, Material.FARMLAND).set(1, 64, 0, Material.WHEAT, CropField.ageable(0, 7));
@@ -238,6 +250,17 @@ class HarvesterRulesTest {
     assertThat(parsed.farmlandCrop(Material.TORCHFLOWER_SEEDS)).isEqualTo(Material.TORCHFLOWER_CROP);
     assertThat(parsed.farmlandCrop(Material.CARROT)).isNull();
     assertThat(HarvestCrops.parse(config.crops).kind(Material.NETHER_WART)).isEqualTo(HarvestCrops.Kind.CROP);
+  }
+
+  @Test
+  void stemsInTheCropListAreIgnored() {
+    HarvestCrops parsed = HarvestCrops.parse(List.of("MELON_STEM", "PUMPKIN_STEM", "ATTACHED_MELON_STEM", "ATTACHED_PUMPKIN_STEM", "MELON"));
+
+    assertThat(parsed.kind(Material.MELON_STEM)).isEqualTo(HarvestCrops.Kind.NONE);
+    assertThat(parsed.kind(Material.PUMPKIN_STEM)).isEqualTo(HarvestCrops.Kind.NONE);
+    assertThat(parsed.kind(Material.ATTACHED_MELON_STEM)).isEqualTo(HarvestCrops.Kind.NONE);
+    assertThat(parsed.kind(Material.ATTACHED_PUMPKIN_STEM)).isEqualTo(HarvestCrops.Kind.NONE);
+    assertThat(parsed.kind(Material.MELON)).isEqualTo(HarvestCrops.Kind.GOURD);
   }
 
   @Test

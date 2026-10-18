@@ -3,6 +3,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
+import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeItemTags;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import org.bukkit.Location;
@@ -97,10 +98,11 @@ final class HarvestActions {
 
   boolean plant(GolemContext golem, Block farmland, HarvesterRules.Plan plan) {
     Block spot = farmland.getRelative(BlockFace.UP);
-    if (!HarvesterRules.air(spot.getType()) || !golem.canPlace(spot.getLocation())) {
+    Predicate<Block> owned = owned(golem);
+    if (!HarvesterRules.air(spot.getType()) || HarvesterRules.nearStem(spot, owned) || !golem.canPlace(spot.getLocation())) {
       return false;
     }
-    Material seed = HarvesterRules.seedToPlant(plan, golem.carriedItems(), spot, owned(golem));
+    Material seed = HarvesterRules.seedToPlant(plan, golem.carriedItems(), spot, owned);
     if (seed == null || golem.take(item -> item.getType() == seed, 1) < 1) {
       return false;
     }
@@ -109,8 +111,33 @@ final class HarvestActions {
     return true;
   }
 
+  boolean canHarvest(GolemContext golem, Block block, HarvesterRules.Plan plan) {
+    for (Block part : removed(block, plan.crops().kind(block.getType()))) {
+      if (!golem.canBreak(part.getLocation())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  boolean covered(NodeRecord record, GolemTask task) {
+    GolemTarget target = task.target();
+    return task.node().filter(key -> NodeArea.covers(key, record, target.x(), target.y(), target.z())).isPresent();
+  }
+
   Location center(Block block) {
     return block.getLocation().add(0.5D, 0.5D, 0.5D);
+  }
+
+  private static List<Block> removed(Block block, HarvestCrops.Kind kind) {
+    if (kind == HarvestCrops.Kind.COLUMN) {
+      return HarvesterRules.column(block);
+    }
+    if (kind == HarvestCrops.Kind.CROP && block.getBlockData() instanceof Bisected) {
+      Block top = block.getRelative(BlockFace.UP);
+      return top.getType() == block.getType() ? List.of(block, top) : List.of(block);
+    }
+    return List.of(block);
   }
 
   private static List<ItemStack> roll(List<Block> parts) {

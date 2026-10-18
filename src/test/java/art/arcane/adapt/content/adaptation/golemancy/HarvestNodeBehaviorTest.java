@@ -67,9 +67,10 @@ class HarvestNodeBehaviorTest {
   private final List<GolemTask> posted = new ArrayList<>();
   private final List<ItemStack> carried = new ArrayList<>();
   private final List<Double> xp = new ArrayList<>();
-  private final NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(1, 1, 1).build();
+  private final NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(2, 1, 2).build();
   private final GolemTaskBoards boards = new GolemTaskBoards(key -> Optional.of(record));
   private GolemHarvesterCore core;
+  private HarvestActions actions;
   private HarvestNodeBehavior behavior;
   private double roll = 0.99D;
   private MockedStatic<GolemancyRuntime> runtime;
@@ -81,7 +82,8 @@ class HarvestNodeBehaviorTest {
     lenient().when(core.config()).thenReturn(config);
     lenient().when(core.crops()).thenReturn(HarvestCrops.parse(config.crops));
     level(5);
-    behavior = new HarvestNodeBehavior(core, spots, new HarvestActions(core, () -> fixed(roll)));
+    actions = new HarvestActions(core, () -> fixed(roll));
+    behavior = new HarvestNodeBehavior(core, spots, actions);
     runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
     feedback = mockStatic(HarvestFeedback.class);
     runtime.when(GolemancyRuntime::boards).thenReturn(Optional.of(boards));
@@ -103,7 +105,7 @@ class HarvestNodeBehaviorTest {
     level(4);
     plot();
 
-    behavior.scan(node(), budget(0, 27, true));
+    behavior.scan(node(), budget(0, 75, true));
 
     assertThat(jobs()).containsExactly("harvest -1,64,-1", "till -1,63,1");
     assertThat(spotsOf()).containsExactly("PLANT 1,63,1", "TEND 0,64,-1");
@@ -114,7 +116,7 @@ class HarvestNodeBehaviorTest {
     level(1);
     plot();
 
-    behavior.scan(node(), budget(0, 27, true));
+    behavior.scan(node(), budget(0, 75, true));
 
     assertThat(jobs()).containsExactly("harvest -1,64,-1");
     assertThat(spotsOf()).isEmpty();
@@ -125,7 +127,7 @@ class HarvestNodeBehaviorTest {
     level(0);
     plot();
 
-    behavior.scan(node(), budget(0, 27, true));
+    behavior.scan(node(), budget(0, 75, true));
 
     assertThat(posted).isEmpty();
     assertThat(spotsOf()).isEmpty();
@@ -140,7 +142,7 @@ class HarvestNodeBehaviorTest {
     posted.add(stale);
     posted.add(open);
 
-    behavior.scan(node(), budget(0, 27, true));
+    behavior.scan(node(), budget(0, 75, true));
 
     assertThat(posted).contains(open).doesNotContain(stale);
     assertThat(jobs()).containsOnlyOnce("harvest -1,64,-1");
@@ -151,7 +153,7 @@ class HarvestNodeBehaviorTest {
     level(4);
     plot();
 
-    behavior.scan(node(), budget(0, 27, false));
+    behavior.scan(node(), budget(0, 75, false));
 
     assertThat(posted).isEmpty();
     assertThat(spotsOf()).containsExactly("PLANT 1,63,1", "TEND 0,64,-1");
@@ -340,6 +342,65 @@ class HarvestNodeBehaviorTest {
     level(4);
     assertThat(behavior.act(denied, task("till", 0, 63, 0))).isEqualTo(GolemActResult.BLOCKED);
     assertThat(field.type(0, 63, 0)).isEqualTo(Material.DIRT);
+  }
+
+  @Test
+  void tillingLeavesDirtBesideAStemAlone() {
+    field.set(0, 63, 0, Material.DIRT).set(1, 64, 0, Material.MELON_STEM, CropField.ageable(7, 7));
+
+    assertThat(behavior.act(golem(1), task("till", 0, 63, 0))).isEqualTo(GolemActResult.FAILED);
+    assertThat(field.type(0, 63, 0)).isEqualTo(Material.DIRT);
+  }
+
+  @Test
+  void plantingNeverFillsAFruitSpotBesideAStem() {
+    field.set(0, 63, 0, Material.FARMLAND).set(1, 64, 0, Material.PUMPKIN_STEM, CropField.ageable(7, 7));
+    GolemContext seeded = golem(1);
+    List<ItemStack> seeds = List.of(GolemTestItems.stack(Material.WHEAT_SEEDS, 2));
+    when(seeded.carriedItems()).thenReturn(seeds);
+    when(seeded.take(any(), eq(1))).thenReturn(1);
+
+    assertThat(actions.plant(seeded, field.block(0, 63, 0), actions.plan(5, record))).isFalse();
+
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.AIR);
+    verify(seeded, never()).take(any(), anyInt());
+  }
+
+  @Test
+  void aDeniedStalkBlockOrPitcherTopBlocksTheWholeHarvest() {
+    for (int y = 64; y <= 66; y++) {
+      field.set(-1, y, 0, Material.SUGAR_CANE);
+    }
+    field.drops(Material.SUGAR_CANE, () -> CropField.stacks(Material.SUGAR_CANE, 1));
+    field.set(0, 64, 0, Material.PITCHER_CROP, CropField.pitcher(4, Bisected.Half.BOTTOM));
+    field.set(0, 65, 0, Material.PITCHER_CROP, CropField.pitcher(4, Bisected.Half.TOP));
+    field.drops(Material.PITCHER_CROP, () -> CropField.stacks(Material.PITCHER_PLANT, 1));
+    GolemContext golem = golem(1);
+    when(golem.canBreak(any(Location.class))).thenAnswer(invocation -> {
+      Location at = invocation.getArgument(0);
+      return !(at.getBlockX() == -1 && at.getBlockY() == 66) && !(at.getBlockX() == 0 && at.getBlockY() == 65);
+    });
+
+    assertThat(behavior.act(golem, task("harvest", -1, 65, 0))).isEqualTo(GolemActResult.BLOCKED);
+    assertThat(behavior.act(golem, task("harvest", 0, 64, 0))).isEqualTo(GolemActResult.BLOCKED);
+
+    assertThat(List.of(field.type(-1, 65, 0), field.type(-1, 66, 0), field.type(0, 64, 0), field.type(0, 65, 0)))
+        .containsExactly(Material.SUGAR_CANE, Material.SUGAR_CANE, Material.PITCHER_CROP, Material.PITCHER_CROP);
+    assertThat(carried).isEmpty();
+  }
+
+  @Test
+  void jobsOutsideTheNodesCurrentAreaAreWithdrawnAndNeverWorked() {
+    plot();
+    wheat(3, 64, 3);
+    GolemTask outside = task("harvest", 3, 64, 3);
+    posted.add(outside);
+
+    behavior.scan(node(), budget(0, 75, true));
+
+    assertThat(posted).doesNotContain(outside);
+    assertThat(behavior.act(golem(1), outside)).isEqualTo(GolemActResult.FAILED);
+    assertThat(field.age(3, 64, 3)).isEqualTo(7);
   }
 
   @Test

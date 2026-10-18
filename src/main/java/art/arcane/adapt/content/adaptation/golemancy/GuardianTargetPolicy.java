@@ -281,7 +281,7 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
 
   private static NodeKey nodeAt(Watch watch, Location at) {
     for (NodeIndex.Entry node : watch.nodes()) {
-      if (GuardNodeBehavior.covers(node.key(), node.record(), at.getX(), at.getY(), at.getZ())) {
+      if (NodeArea.covers(node.key(), node.record(), at.getX(), at.getY(), at.getZ())) {
         return node.key();
       }
     }

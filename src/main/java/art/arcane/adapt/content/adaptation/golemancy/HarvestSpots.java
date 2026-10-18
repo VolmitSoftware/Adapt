@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.node.NodeKey;
+import art.arcane.adapt.api.golem.node.NodeRecord;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +14,14 @@ final class HarvestSpots {
 
   private final Map<NodeKey, NodeMarks> nodes = new ConcurrentHashMap<>();
 
-  void scanned(NodeKey key, long nowMillis) {
-    nodes.computeIfAbsent(key, ignored -> new NodeMarks()).scannedAt = nowMillis;
+  void scanned(NodeKey key, NodeRecord record, long nowMillis) {
+    NodeMarks marks = nodes.computeIfAbsent(key, ignored -> new NodeMarks());
+    Area area = new Area(record.radiusX(), record.radiusY(), record.radiusZ());
+    if (!area.equals(marks.area)) {
+      marks.spots.clear();
+      marks.area = area;
+    }
+    marks.scannedAt = nowMillis;
   }
 
   void record(NodeKey key, int x, int y, int z, HarvesterRules.Spot spot) {
@@ -33,6 +40,13 @@ final class HarvestSpots {
     }
     if (marks.spots.size() < MAX_MARKS_PER_NODE || marks.spots.containsKey(at)) {
       marks.spots.put(at, spot);
+    }
+  }
+
+  void drop(NodeKey key, int x, int y, int z) {
+    NodeMarks marks = nodes.get(key);
+    if (marks != null) {
+      marks.spots.remove(new Position(x, y, z));
     }
   }
 
@@ -67,8 +81,12 @@ final class HarvestSpots {
   private record Position(int x, int y, int z) {
   }
 
+  private record Area(int radiusX, int radiusY, int radiusZ) {
+  }
+
   private static final class NodeMarks {
     private final Map<Position, HarvesterRules.Spot> spots = new ConcurrentHashMap<>();
     private volatile long scannedAt;
+    private volatile Area area;
   }
 }

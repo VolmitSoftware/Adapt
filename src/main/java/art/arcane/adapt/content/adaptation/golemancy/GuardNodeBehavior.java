@@ -12,7 +12,6 @@ import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTaskMatch;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
-import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeBehavior;
 import art.arcane.adapt.api.golem.node.NodeContext;
 import art.arcane.adapt.api.golem.node.NodeIndex;
@@ -49,11 +48,6 @@ final class GuardNodeBehavior implements NodeBehavior {
         && record.owner().equals(owner)
         && GolemTaskMatch.channel(record.channel(), channels)
         && GolemTaskMatch.core(NodeType.GUARD, cores);
-  }
-
-  static boolean covers(NodeKey key, NodeRecord record, double x, double y, double z) {
-    int[] center = NodeArea.center(key);
-    return within(x, center[0], record.radiusX()) && within(y, center[1], record.radiusY()) && within(z, center[2], record.radiusZ());
   }
 
   @Override
@@ -128,11 +122,6 @@ final class GuardNodeBehavior implements NodeBehavior {
       return true;
     }
     return NodeRules.active(record, world.getBlockAt(key.x(), key.y(), key.z()));
-  }
-
-  private static boolean within(double coordinate, int center, int radius) {
-    int block = (int) Math.floor(coordinate);
-    return block >= center - radius && block <= center + radius;
   }
 
   private record GuardedNodes(GolemState.Anchor home, int channels, List<NodeIndex.Entry> nodes, long until) {

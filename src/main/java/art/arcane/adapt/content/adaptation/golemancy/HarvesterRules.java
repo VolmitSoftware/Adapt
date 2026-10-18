@@ -62,7 +62,8 @@ final class HarvesterRules {
   static Spot survey(Block block, Plan plan, Predicate<Block> owned) {
     Material type = block.getType();
     if (type == Material.DIRT) {
-      return plan.tilling() && air(block.getRelative(BlockFace.UP).getType()) ? Spot.TILL : Spot.NONE;
+      Block above = block.getRelative(BlockFace.UP);
+      return plan.tilling() && air(above.getType()) && !nearStem(above, owned) ? Spot.TILL : Spot.NONE;
     }
     if (type == Material.FARMLAND) {
       Block above = block.getRelative(BlockFace.UP);
@@ -163,7 +164,7 @@ final class HarvesterRules {
     return base.getType() == type && base.getRelative(BlockFace.DOWN).getType() != type;
   }
 
-  private static boolean nearStem(Block spot, Predicate<Block> owned) {
+  static boolean nearStem(Block spot, Predicate<Block> owned) {
     for (BlockFace side : SIDES) {
       Block neighbor = spot.getRelative(side);
       if (!owned.test(neighbor) || stem(neighbor.getType())) {

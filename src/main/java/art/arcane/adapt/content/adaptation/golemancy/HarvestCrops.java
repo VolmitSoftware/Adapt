@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.Adapt;
 import org.bukkit.Material;
 
 import java.util.EnumMap;
@@ -33,6 +34,8 @@ final class HarvestCrops {
       Material.TORCHFLOWER_SEEDS, Material.TORCHFLOWER_CROP,
       Material.PITCHER_POD, Material.PITCHER_CROP);
   private static final Set<Material> UNTENDABLE = Set.of(Material.NETHER_WART);
+  private static final Set<Material> STEMS = Set.of(Material.MELON_STEM, Material.PUMPKIN_STEM, Material.ATTACHED_MELON_STEM,
+      Material.ATTACHED_PUMPKIN_STEM);
 
   private final Map<Material, Kind> kinds;
 
@@ -47,6 +50,10 @@ final class HarvestCrops {
     }
     for (String name : names) {
       Material type = name == null ? null : Material.getMaterial(name.trim().toUpperCase(Locale.ROOT));
+      if (type != null && STEMS.contains(type)) {
+        Adapt.warn("Harvester Core ignores " + type.name() + " in its crops list because golems never harvest melon or pumpkin stems.");
+        continue;
+      }
       if (type != null) {
         add(kinds, type);
       }
