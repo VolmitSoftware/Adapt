@@ -217,6 +217,22 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
+    ['golem-angler-core', {
+        stage: 'golemancy-angler-binding', trigger: bindCopper,
+        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }, { name: 'golem-copper-frame', level: 1 }],
+        prepare: ({ equip }) => equip('firework_star'),
+        description: 'binding a copper golem with an Angler Core needs Angler Core learned and turns the golem into a working Angler',
+        async verify({ context, unlearned, active }) {
+            context.expect(!unlearned.bound, 'Without Angler Core the copper golem refuses the Angler Core and stays unbound')
+            context.expect(active.bound && active.boundToPlayer, 'With Angler Core the copper golem binds to the player')
+            context.expect(active.core === 'angler', 'The bound golem carries the Angler Core')
+            context.expect(active.mode === 'work', 'A new Angler starts in Work mode, ready for Fishing Nodes')
+            return {
+                assertions: ['unlearned binding leaves the copper golem unbound', 'learned binding makes the copper golem an Angler in Work mode'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
     ['golem-runic-augments', {
         stage: 'golemancy-plinth', trigger: loadPlinth, prerequisites: [{ name: 'golem-animus-binding', level: 2 }],
         prepare: ({ equip }) => equip('disc_fragment_5'),

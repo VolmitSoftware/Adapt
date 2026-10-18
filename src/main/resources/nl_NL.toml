@@ -4625,6 +4625,22 @@ fortune_off = "Fortuin I: uit"
 locked = "Ontgrendeld op Breker-kern-niveau {level}"
 exclusive = "Zijden aanraking en Fortuin I zetten elkaar uit"
 
+[golemancy.angler_core]
+name = "Visser-kern"
+description = "Golems die met een Visser-kern zijn gebonden, vissen in het open water voor een Visserij-knooppunt en dragen de vangst mee, met meer geluk, een rommelfilter, snellere vangsten in de regen en dubbele vangsten naarmate de kern sterker wordt."
+lore1 = "Seconden per vangst"
+lore2 = "Visgeluk"
+lore3 = "Schakelaar voor het rommelfilter op Visserij-knooppunten"
+lore4 = "Kortere vangsttijd in de regen"
+lore5 = "Kans op een dubbele vangst"
+lore = ["Seconden per vangst", "Visgeluk", "Schakelaar voor het rommelfilter op Visserij-knooppunten", "Kortere vangsttijd in de regen", "Kans op een dubbele vangst"]
+water_ready = "Open water gevonden"
+water_needed = "Heeft open water nodig"
+water_lore = "Vissers hebben een open wateroppervlak van 5 bij 5 voor het knooppunt nodig"
+junk_keep = "Rommel: houden"
+junk_discard = "Rommel: teruggooien"
+locked = "Ontgrendeld op Visser-kern-niveau {level}"
+
 [golemancy.runic_augments]
 name = "Runenversterkingen"
 description = "Laat je runen infuseren op de Animussokkel en ze in je gebonden golems zetten voor snelheid, draagvermogen, vuur, bereik, kanalen, opbrengst en harnas."

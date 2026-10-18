@@ -4625,6 +4625,22 @@ fortune_off = "Fortuna I: No"
 locked = "Se desbloquea con Núcleo de Rompedor nivel {level}"
 exclusive = "Toque de seda y Fortuna I se desactivan entre sí"
 
+[golemancy.angler_core]
+name = "Núcleo de Pescador"
+description = "Los gólems vinculados con un Núcleo de Pescador pescan en el agua abierta frente a un Nodo de Pesca y cargan la captura, con más suerte, un filtro de basura, capturas más rápidas bajo la lluvia y capturas dobles a medida que el núcleo se fortalece."
+lore1 = "Segundos por captura"
+lore2 = "Suerte de pesca"
+lore3 = "Interruptor del filtro de basura en los Nodos de Pesca"
+lore4 = "Menos tiempo por captura bajo la lluvia"
+lore5 = "Probabilidad de una captura doble"
+lore = ["Segundos por captura", "Suerte de pesca", "Interruptor del filtro de basura en los Nodos de Pesca", "Menos tiempo por captura bajo la lluvia", "Probabilidad de una captura doble"]
+water_ready = "Agua abierta encontrada"
+water_needed = "Necesita agua abierta"
+water_lore = "Los pescadores necesitan un área de agua abierta de 5 por 5 frente al nodo"
+junk_keep = "Basura: conservar"
+junk_discard = "Basura: devolver"
+locked = "Se desbloquea con Núcleo de Pescador nivel {level}"
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Te permite infundir runas en el Pedestal de Ánima y engarzarlas en tus gólems vinculados para ganar velocidad, carga, fuego, alcance, canales, rendimiento y armadura."

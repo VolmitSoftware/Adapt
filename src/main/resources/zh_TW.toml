@@ -4625,6 +4625,22 @@ fortune_off = "幸運 I：關"
 locked = "破壞者核心{level}級解鎖"
 exclusive = "絲綢之觸和幸運 I 會互相關閉"
 
+[golemancy.angler_core]
+name = "垂釣者核心"
+description = "以垂釣者核心縛約的魔像會在釣魚節點前方的開闊水域釣魚並帶走漁獲，核心越強，運氣越好，還能過濾垃圾、雨天釣得更快並釣上雙份漁獲。"
+lore1 = "每次漁獲的秒數"
+lore2 = "釣魚運氣"
+lore3 = "釣魚節點的垃圾過濾開關"
+lore4 = "雨天漁獲時間縮短"
+lore5 = "雙份漁獲的機率"
+lore = ["每次漁獲的秒數", "釣魚運氣", "釣魚節點的垃圾過濾開關", "雨天漁獲時間縮短", "雙份漁獲的機率"]
+water_ready = "已找到開闊水域"
+water_needed = "需要開闊水域"
+water_lore = "垂釣者需要節點前方有 5×5 的開闊水域"
+junk_keep = "垃圾：保留"
+junk_discard = "垃圾：丟回水中"
+locked = "垂釣者核心{level}級解鎖"
+
 [golemancy.runic_augments]
 name = "符文強化"
 description = "讓你在靈魂基座上灌注符文，並將其鑲入已縛約的魔像，以獲得速度、搬運量、火焰、範圍、頻道、產量和護甲。"

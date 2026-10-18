@@ -4625,6 +4625,22 @@ fortune_off = "Glück I: Aus"
 locked = "Wird mit Brecher-Kern Stufe {level} freigeschaltet"
 exclusive = "Behutsamkeit und Glück I schalten sich gegenseitig aus"
 
+[golemancy.angler_core]
+name = "Angler-Kern"
+description = "Mit einem Angler-Kern gebundene Golems angeln im offenen Wasser vor einem Fischen-Knoten und tragen den Fang davon. Je stärker der Kern wird, desto mehr Glück haben sie, filtern Plunder aus, fangen bei Regen schneller und landen doppelte Fänge."
+lore1 = "Sekunden pro Fang"
+lore2 = "Angelglück"
+lore3 = "Plunderfilter-Schalter an Fischen-Knoten"
+lore4 = "Kürzere Fangzeit bei Regen"
+lore5 = "Chance auf einen doppelten Fang"
+lore = ["Sekunden pro Fang", "Angelglück", "Plunderfilter-Schalter an Fischen-Knoten", "Kürzere Fangzeit bei Regen", "Chance auf einen doppelten Fang"]
+water_ready = "Offenes Wasser gefunden"
+water_needed = "Braucht offenes Wasser"
+water_lore = "Angler brauchen eine 5 mal 5 Blöcke große offene Wasserfläche vor dem Knoten"
+junk_keep = "Plunder: Behalten"
+junk_discard = "Plunder: Zurückwerfen"
+locked = "Wird mit Angler-Kern Stufe {level} freigeschaltet"
+
 [golemancy.runic_augments]
 name = "Runenverstärkung"
 description = "Lässt dich am Animus-Sockel Runen infundieren und in deine gebundenen Golems einsetzen: für Tempo, Tragekapazität, Feuer, Reichweite, Kanäle, Ertrag und Rüstung."

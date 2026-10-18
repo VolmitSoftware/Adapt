@@ -4625,6 +4625,22 @@ fortune_off = "Fortuna I: desligada"
 locked = "Desbloqueia-se com Núcleo de Demolidor no nível {level}"
 exclusive = "Toque de seda e Fortuna I desligam-se mutuamente"
 
+[golemancy.angler_core]
+name = "Núcleo de Pescador"
+description = "Os golems vinculados com um Núcleo de Pescador pescam na água aberta à frente de um Nó de Pesca e transportam a pescaria, com mais sorte, um filtro de lixo, capturas mais rápidas à chuva e capturas duplas à medida que o núcleo se fortalece."
+lore1 = "Segundos por captura"
+lore2 = "Sorte de pesca"
+lore3 = "Interruptor do filtro de lixo nos Nós de Pesca"
+lore4 = "Menos tempo por captura à chuva"
+lore5 = "Probabilidade de uma captura dupla"
+lore = ["Segundos por captura", "Sorte de pesca", "Interruptor do filtro de lixo nos Nós de Pesca", "Menos tempo por captura à chuva", "Probabilidade de uma captura dupla"]
+water_ready = "Água aberta encontrada"
+water_needed = "Precisa de água aberta"
+water_lore = "Os pescadores precisam de uma área de água aberta de 5 por 5 à frente do nó"
+junk_keep = "Lixo: guardar"
+junk_discard = "Lixo: devolver"
+locked = "Desbloqueia-se com Núcleo de Pescador no nível {level}"
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Permite-te infundir runas no Pedestal de Ânimus e encaixá-las nos teus golems vinculados para velocidade, carga, fogo, alcance, canais, rendimento e armadura."

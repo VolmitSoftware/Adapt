@@ -4625,6 +4625,22 @@ fortune_off = "Szczęście I: wył."
 locked = "Odblokowuje się na poziomie {level} Rdzenia Burzyciela"
 exclusive = "Jedwabny dotyk i Szczęście I wyłączają się nawzajem"
 
+[golemancy.angler_core]
+name = "Rdzeń Wędkarza"
+description = "Golemy związane Rdzeniem Wędkarza łowią w otwartej wodzie przed Węzłem Wędkowania i niosą połów, a w miarę jak rdzeń się wzmacnia, mają więcej szczęścia, odsiewają śmieci, łowią szybciej w deszczu i trafiają podwójne połowy."
+lore1 = "Sekundy na połów"
+lore2 = "Szczęście wędkarskie"
+lore3 = "Przełącznik filtra śmieci w Węzłach Wędkowania"
+lore4 = "Krótszy czas połowu w deszczu"
+lore5 = "Szansa na podwójny połów"
+lore = ["Sekundy na połów", "Szczęście wędkarskie", "Przełącznik filtra śmieci w Węzłach Wędkowania", "Krótszy czas połowu w deszczu", "Szansa na podwójny połów"]
+water_ready = "Znaleziono otwartą wodę"
+water_needed = "Wymaga otwartej wody"
+water_lore = "Wędkarze potrzebują przed węzłem otwartej wody o wymiarach 5 na 5"
+junk_keep = "Śmieci: zachowaj"
+junk_discard = "Śmieci: wyrzuć"
+locked = "Odblokowuje się na poziomie {level} Rdzenia Wędkarza"
+
 [golemancy.runic_augments]
 name = "Runiczne ulepszenia"
 description = "Pozwala nasycać runy na Postumencie animusa i osadzać je w związanych golemach, by zyskać szybkość, udźwig, ogień, zasięg, kanały, plony i pancerz."

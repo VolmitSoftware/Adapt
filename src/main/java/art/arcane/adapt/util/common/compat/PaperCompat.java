@@ -26,6 +26,7 @@ import com.destroystokyo.paper.entity.RangedEntity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.util.TriState;
+import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -75,6 +76,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -130,6 +132,7 @@ public final class PaperCompat {
   private static volatile boolean freezeLockSupported = true;
   private static volatile boolean collisionQuerySupported = true;
   private static volatile boolean liveStateSupported = true;
+  private static volatile boolean enchantWithLevelsSupported = true;
   // EntityPotionEffectEvent.getSource() is 26.2+; resolved reflectively so the 26.1.2 compile baseline builds.
   private static final MethodHandle POTION_SOURCE_HANDLE = resolvePotionSourceHandle();
   private static volatile boolean trackedPlayersSupported = true;
@@ -233,6 +236,18 @@ public final class PaperCompat {
       liveStateSupported = false;
       return block.getState();
     }
+  }
+
+  @SuppressWarnings("deprecation")
+  public static ItemStack enchantWithLevels(ItemStack item, int levels, Random random) {
+    if (enchantWithLevelsSupported) {
+      try {
+        return Bukkit.getItemFactory().enchantWithLevels(item, levels, true, random);
+      } catch (NoSuchMethodError absent) {
+        enchantWithLevelsSupported = false;
+      }
+    }
+    return Bukkit.getItemFactory().enchantItem(item, levels, true);
   }
 
   public static boolean freezeTicksLocked(Entity entity) {

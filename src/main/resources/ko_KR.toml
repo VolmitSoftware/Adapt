@@ -4625,6 +4625,22 @@ fortune_off = "행운 I: 꺼짐"
 locked = "파괴자 핵 {level}레벨에서 해제"
 exclusive = "섬세한 손길과 행운 I은 서로를 끕니다"
 
+[golemancy.angler_core]
+name = "낚시꾼 핵"
+description = "낚시꾼 핵으로 결속한 골렘은 낚시 노드 앞의 트인 물에서 낚시를 하고 잡은 것을 운반하며, 핵이 강해질수록 운이 좋아지고 쓰레기를 거르며 비가 오면 더 빨리 낚고 두 번 낚기도 합니다."
+lore1 = "낚을 때마다 걸리는 초"
+lore2 = "낚시 운"
+lore3 = "낚시 노드의 쓰레기 필터 전환"
+lore4 = "비 올 때 낚는 시간 단축"
+lore5 = "두 번 낚을 확률"
+lore = ["낚을 때마다 걸리는 초", "낚시 운", "낚시 노드의 쓰레기 필터 전환", "비 올 때 낚는 시간 단축", "두 번 낚을 확률"]
+water_ready = "트인 물 확인"
+water_needed = "트인 물 필요"
+water_lore = "낚시꾼은 노드 앞에 5×5 크기의 트인 물이 필요합니다"
+junk_keep = "쓰레기: 보관"
+junk_discard = "쓰레기: 버림"
+locked = "낚시꾼 핵 {level}레벨에서 해제"
+
 [golemancy.runic_augments]
 name = "룬 강화"
 description = "아니무스 받침대에서 룬을 주입하고 결속한 골렘에 끼워 속도, 운반량, 불, 범위, 채널, 수확량, 방어력을 높입니다."

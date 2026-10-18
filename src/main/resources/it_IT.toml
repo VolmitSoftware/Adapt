@@ -4625,6 +4625,22 @@ fortune_off = "Fortuna I: disattiva"
 locked = "Si sblocca con Nucleo di Demolitore al livello {level}"
 exclusive = "Tocco di velluto e Fortuna I si disattivano a vicenda"
 
+[golemancy.angler_core]
+name = "Nucleo di Pescatore"
+description = "I golem legati con un Nucleo di Pescatore pescano nell'acqua aperta davanti a un Nodo di Pesca e trasportano il pescato, con più fortuna, un filtro per la spazzatura, catture più rapide sotto la pioggia e catture doppie man mano che il nucleo si rafforza."
+lore1 = "Secondi per cattura"
+lore2 = "Fortuna di pesca"
+lore3 = "Interruttore del filtro spazzatura sui Nodi di Pesca"
+lore4 = "Tempo di cattura ridotto sotto la pioggia"
+lore5 = "Probabilità di una cattura doppia"
+lore = ["Secondi per cattura", "Fortuna di pesca", "Interruttore del filtro spazzatura sui Nodi di Pesca", "Tempo di cattura ridotto sotto la pioggia", "Probabilità di una cattura doppia"]
+water_ready = "Acqua aperta trovata"
+water_needed = "Serve acqua aperta"
+water_lore = "I pescatori hanno bisogno di uno specchio d'acqua aperta di 5 per 5 davanti al nodo"
+junk_keep = "Spazzatura: tieni"
+junk_discard = "Spazzatura: ributta"
+locked = "Si sblocca con Nucleo di Pescatore al livello {level}"
+
 [golemancy.runic_augments]
 name = "Potenziamenti runici"
 description = "Ti permette di infondere rune sul Piedistallo di Animus e incastonarle nei tuoi golem legati per velocità, carico, fuoco, portata, canali, resa e armatura."

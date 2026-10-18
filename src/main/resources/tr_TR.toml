@@ -4625,6 +4625,22 @@ fortune_off = "Servet I: kapalı"
 locked = "Yıkıcı Çekirdeği {level}. seviyede açılır"
 exclusive = "İpek Dokunuşu ve Servet I birbirini kapatır"
 
+[golemancy.angler_core]
+name = "Balıkçı Çekirdeği"
+description = "Balıkçı Çekirdeği ile bağlanan golemler bir Balıkçılık Düğümü'nün önündeki açık suda balık tutar ve avı taşır; çekirdek güçlendikçe şansları artar, çöpleri ayıklar, yağmurda daha hızlı avlanır ve çift av yakalar."
+lore1 = "Av başına saniye"
+lore2 = "Balıkçılık şansı"
+lore3 = "Balıkçılık Düğümlerinde çöp filtresi anahtarı"
+lore4 = "Yağmurda daha kısa av süresi"
+lore5 = "Çift av şansı"
+lore = ["Av başına saniye", "Balıkçılık şansı", "Balıkçılık Düğümlerinde çöp filtresi anahtarı", "Yağmurda daha kısa av süresi", "Çift av şansı"]
+water_ready = "Açık su bulundu"
+water_needed = "Açık su gerekli"
+water_lore = "Balıkçıların düğümün önünde 5'e 5 açık suya ihtiyacı var"
+junk_keep = "Çöp: tut"
+junk_discard = "Çöp: geri at"
+locked = "Balıkçı Çekirdeği {level}. seviyede açılır"
+
 [golemancy.runic_augments]
 name = "Rün Güçlendirmeleri"
 description = "Animus Kaidesi'nde rün aşılamanızı ve bunları bağlı golemlerinize takarak hız, taşıma, ateş, menzil, kanal, verim ve zırh kazanmanızı sağlar."

@@ -4625,6 +4625,22 @@ fortune_off = "Sėkmė I: išjungta"
 locked = "Atrakinama pasiekus Griovėjo šerdies {level} lygį"
 exclusive = "Šilkinis prisilietimas ir Sėkmė I išjungia vienas kitą"
 
+[golemancy.angler_core]
+name = "Žvejo šerdis"
+description = "Žvejo šerdimi sujungti golemai žvejoja atvirame vandenyje priešais Žvejybos mazgą ir neša laimikį, o šerdžiai stiprėjant jiems labiau sekasi, jie atsijoja šlamštą, lyjant žvejoja greičiau ir sugauna dvigubą laimikį."
+lore1 = "Sekundės vienam laimikiui"
+lore2 = "Žvejybos sėkmė"
+lore3 = "Šlamšto filtro jungiklis Žvejybos mazguose"
+lore4 = "Trumpesnis laimikio laikas lyjant"
+lore5 = "Tikimybė sugauti dvigubą laimikį"
+lore = ["Sekundės vienam laimikiui", "Žvejybos sėkmė", "Šlamšto filtro jungiklis Žvejybos mazguose", "Trumpesnis laimikio laikas lyjant", "Tikimybė sugauti dvigubą laimikį"]
+water_ready = "Rastas atviras vanduo"
+water_needed = "Reikia atviro vandens"
+water_lore = "Žvejams reikia 5 × 5 blokų atviro vandens ploto priešais mazgą"
+junk_keep = "Šlamštas: palikti"
+junk_discard = "Šlamštas: išmesti"
+locked = "Atrakinama pasiekus Žvejo šerdies {level} lygį"
+
 [golemancy.runic_augments]
 name = "Runų patobulinimai"
 description = "Leidžia Animus pakyloje įlieti runas ir įstatyti jas į surištus golemus dėl greičio, nešimo, ugnies, siekio, kanalų, derliaus ir šarvų."

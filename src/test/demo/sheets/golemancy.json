@@ -586,6 +586,121 @@
     },
     "maxTicks": 700
   },
+  "golem-angler-core": {
+    "set": "taming-field",
+    "level": 5,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      },
+      {
+        "name": "golem-node-weaving",
+        "level": 1
+      },
+      {
+        "name": "golem-copper-frame",
+        "level": 1
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"angler\\\"}\"}}]",
+      "experience set {actor} 5 levels",
+      "execute at {actor} run fill ~-1 ~-3 ~-9 ~5 ~-1 ~-3 minecraft:stone",
+      "execute at {actor} run fill ~0 ~-2 ~-8 ~4 ~-1 ~-4 minecraft:water",
+      "execute at {actor} run fill ~-1 ~ ~-9 ~5 ~2 ~-3 minecraft:air",
+      "execute at {actor} run summon minecraft:copper_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 20
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 60
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.enchantment_table.use",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      },
+      {
+        "verb": "command",
+        "text": "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"fishing\\\"}\"}}]"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.05,
+          -0.5,
+          -5.5
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 30
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.amethyst_block.place",
+        "timeout": 40
+      },
+      {
+        "verb": "look",
+        "yaw": 160,
+        "pitch": 35,
+        "ticks": 10
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:entity.fishing_bobber.splash",
+        "timeout": 800
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.fishing_bobber.splash"
+    },
+    "maxTicks": 1200
+  },
   "golem-iron-frame": {
     "set": "taming-field",
     "level": 5,

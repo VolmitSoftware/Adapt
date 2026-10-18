@@ -4625,6 +4625,22 @@ fortune_off = "Onni I: pois"
 locked = "Avautuu Murtajaytimen tasolla {level}"
 exclusive = "Silkkikosketus ja Onni I kytkevät toisensa pois"
 
+[golemancy.angler_core]
+name = "Kalastajaydin"
+description = "Kalastajaytimellä sidotut golemit kalastavat kalastussolmun edessä olevasta avovedestä ja kantavat saaliin mukanaan. Mitä vahvemmaksi ydin kasvaa, sitä enemmän niillä on onnea, ne suodattavat roinan pois, saavat saalista sateella nopeammin ja saavat tuplasaaliita."
+lore1 = "Sekuntia saalista kohden"
+lore2 = "Kalastusonni"
+lore3 = "Roinasuodattimen kytkin kalastussolmuissa"
+lore4 = "Lyhyempi saalisaika sateella"
+lore5 = "Mahdollisuus tuplasaaliiseen"
+lore = ["Sekuntia saalista kohden", "Kalastusonni", "Roinasuodattimen kytkin kalastussolmuissa", "Lyhyempi saalisaika sateella", "Mahdollisuus tuplasaaliiseen"]
+water_ready = "Avovesi löytyi"
+water_needed = "Tarvitsee avovettä"
+water_lore = "Kalastajat tarvitsevat solmun eteen 5 × 5 kuution avovesialueen"
+junk_keep = "Roina: säilytä"
+junk_discard = "Roina: heitä takaisin"
+locked = "Avautuu Kalastajaytimen tasolla {level}"
+
 [golemancy.runic_augments]
 name = "Riimuvahvistukset"
 description = "Antaa sinun infusoida riimuja Animusjalustalla ja asettaa ne sidottuihin golemeihisi nopeuden, kantokyvyn, tulen, ulottuvuuden, kanavien, saaliin ja panssarin vuoksi."

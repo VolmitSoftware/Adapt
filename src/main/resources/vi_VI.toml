@@ -4625,6 +4625,22 @@ fortune_off = "Gia Tài I: Tắt"
 locked = "Mở khóa ở Lõi Kẻ Phá Vỡ cấp {level}"
 exclusive = "Chạm Lụa và Gia Tài I tắt lẫn nhau"
 
+[golemancy.angler_core]
+name = "Lõi Ngư Phủ"
+description = "Golem được liên kết bằng Lõi Ngư Phủ câu cá ở vùng nước mở trước một Nút Câu Cá và mang theo mẻ câu, đồng thời may mắn hơn, lọc bỏ rác, câu nhanh hơn khi trời mưa và câu được mẻ đôi khi lõi mạnh lên."
+lore1 = "Số giây mỗi mẻ câu"
+lore2 = "May mắn câu cá"
+lore3 = "Công tắc bộ lọc rác trên Nút Câu Cá"
+lore4 = "Thời gian câu ngắn hơn khi trời mưa"
+lore5 = "Cơ hội câu được mẻ đôi"
+lore = ["Số giây mỗi mẻ câu", "May mắn câu cá", "Công tắc bộ lọc rác trên Nút Câu Cá", "Thời gian câu ngắn hơn khi trời mưa", "Cơ hội câu được mẻ đôi"]
+water_ready = "Đã tìm thấy nước mở"
+water_needed = "Cần nước mở"
+water_lore = "Ngư Phủ cần một vùng nước mở 5 x 5 ở phía trước nút"
+junk_keep = "Rác: Giữ lại"
+junk_discard = "Rác: Thả lại"
+locked = "Mở khóa ở Lõi Ngư Phủ cấp {level}"
+
 [golemancy.runic_augments]
 name = "Cường hóa Rune"
 description = "Cho phép bạn truyền Cổ Tự tại Bệ Animus và gắn chúng vào các golem đã liên kết để tăng tốc độ, sức chở, lửa, tầm hoạt động, kênh, sản lượng và giáp."

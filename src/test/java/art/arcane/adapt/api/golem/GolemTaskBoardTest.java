@@ -506,6 +506,24 @@ class GolemTaskBoardTest {
     assertThat(board.reserve(loose(4), RIVAL, now + 6_000L, RESERVATION)).isTrue();
   }
 
+  @Test
+  void chunkTasksListTheOpenTasksOfEveryNodeInOneChunk() {
+    NodeKey first = harvestNode(0, 64, 0, null, 3);
+    NodeKey second = harvestNode(15, 200, 15, null, 3);
+    NodeKey elsewhere = harvestNode(16, 64, 0, null, 3);
+    GolemTask kept = crop(first, 1, 64, 1);
+    GolemTask high = crop(second, 14, 200, 14);
+    GolemTask done = crop(first, 2, 64, 1);
+    board.offer(kept, 16);
+    board.offer(high, 16);
+    board.offer(done, 16);
+    board.offer(crop(elsewhere, 17, 64, 1), 16);
+    board.withdraw(done);
+
+    assertThat(board.chunkTasks(first.chunkKey())).containsExactlyInAnyOrder(kept, high);
+    assertThat(board.chunkTasks(GolemRoster.chunkKey(5, 5))).isEmpty();
+  }
+
   private NodeKey harvestNode(int x, int y, int z, DyeColor channel, int priority) {
     return node(NodeType.HARVEST, OWNER, x, y, z, channel, priority);
   }

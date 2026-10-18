@@ -4621,6 +4621,22 @@ fortune_off = "Fortune I : désactivée"
 locked = "Se débloque au niveau {level} de Noyau de Briseur"
 exclusive = "Toucher de soie et Fortune I se désactivent mutuellement"
 
+[golemancy.angler_core]
+name = "Noyau de Pêcheur"
+description = "Les golems liés avec un Noyau de Pêcheur pêchent dans l'eau libre devant un Nœud de Pêche et emportent leurs prises, avec plus de chance, un filtre à déchets, des prises plus rapides sous la pluie et des prises doubles à mesure que le noyau se renforce."
+lore1 = "Secondes par prise"
+lore2 = "Chance de pêche"
+lore3 = "Interrupteur du filtre à déchets sur les Nœuds de Pêche"
+lore4 = "Temps de prise réduit sous la pluie"
+lore5 = "Chance d'une prise double"
+lore = ["Secondes par prise", "Chance de pêche", "Interrupteur du filtre à déchets sur les Nœuds de Pêche", "Temps de prise réduit sous la pluie", "Chance d'une prise double"]
+water_ready = "Eau libre trouvée"
+water_needed = "Il faut de l'eau libre"
+water_lore = "Les pêcheurs ont besoin d'une étendue d'eau libre de 5 sur 5 devant le nœud"
+junk_keep = "Déchets : garder"
+junk_discard = "Déchets : rejeter"
+locked = "Se débloque au niveau {level} de Noyau de Pêcheur"
+
 [golemancy.runic_augments]
 name = "Augmentations runiques"
 description = "Vous permet d'infuser des runes sur le Socle d'Animus et de les sertir dans vos golems liés pour la vitesse, la charge, le feu, la portée, les canaux, le rendement et l'armure."

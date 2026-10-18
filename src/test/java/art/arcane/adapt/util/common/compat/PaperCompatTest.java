@@ -4,6 +4,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import io.papermc.paper.world.WeatheringCopperState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -15,10 +16,13 @@ import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.Zombie;
+import org.bukkit.inventory.ItemFactory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+import java.util.Random;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,6 +30,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -185,5 +190,26 @@ class PaperCompatTest {
     PaperCompat.text(display, text);
 
     verify(display).setText("\u00a76Guard");
+  }
+
+  @Test
+  void enchantingWithLevelsUsesPaperWithTreasureAndFallsBackToTheBukkitHelper() {
+    ItemFactory factory = mock(ItemFactory.class);
+    ItemStack book = mock(ItemStack.class);
+    ItemStack paperBook = mock(ItemStack.class);
+    ItemStack bukkitBook = mock(ItemStack.class);
+    Random random = new Random(7L);
+    when(factory.enchantWithLevels(book, 30, true, random)).thenReturn(paperBook).thenThrow(new NoSuchMethodError("enchantWithLevels"));
+    when(factory.enchantItem(book, 30, true)).thenReturn(bukkitBook);
+
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      bukkit.when(Bukkit::getItemFactory).thenReturn(factory);
+
+      assertThat(PaperCompat.enchantWithLevels(book, 30, random)).isSameAs(paperBook);
+      assertThat(PaperCompat.enchantWithLevels(book, 30, random)).isSameAs(bukkitBook);
+      assertThat(PaperCompat.enchantWithLevels(book, 30, random)).isSameAs(bukkitBook);
+    }
+
+    verify(factory, times(2)).enchantWithLevels(book, 30, true, random);
   }
 }

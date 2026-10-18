@@ -4625,6 +4625,22 @@ fortune_off = "时运 I：关"
 locked = "破坏者核心{level}级解锁"
 exclusive = "精准采集和时运 I 会互相关闭"
 
+[golemancy.angler_core]
+name = "垂钓者核心"
+description = "以垂钓者核心缚约的魔像会在钓鱼节点前方的开阔水域钓鱼并带走渔获，核心越强，运气越好，还能过滤垃圾、雨天钓得更快并钓上双份渔获。"
+lore1 = "每次渔获的秒数"
+lore2 = "钓鱼运气"
+lore3 = "钓鱼节点的垃圾过滤开关"
+lore4 = "雨天渔获时间缩短"
+lore5 = "双份渔获的几率"
+lore = ["每次渔获的秒数", "钓鱼运气", "钓鱼节点的垃圾过滤开关", "雨天渔获时间缩短", "双份渔获的几率"]
+water_ready = "已找到开阔水域"
+water_needed = "需要开阔水域"
+water_lore = "垂钓者需要节点前方有 5×5 的开阔水域"
+junk_keep = "垃圾：保留"
+junk_discard = "垃圾：丢回水中"
+locked = "垂钓者核心{level}级解锁"
+
 [golemancy.runic_augments]
 name = "符文强化"
 description = "让你在灵魂基座上灌注符文，并将其镶入已缚约的魔像，以获得速度、搬运量、火焰、范围、频道、产量和护甲。"

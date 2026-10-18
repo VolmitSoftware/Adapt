@@ -3381,6 +3381,24 @@
     },
     {
       "skill": "golemancy",
+      "name": "golem-angler-core",
+      "class": "GolemAnglerCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemAnglerCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Golems bound with an Angler Core fish the open water in front of a Fishing Node and carry the catch, with more luck, a junk filter, faster catches in the rain and double catches as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemAnglerCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
       "name": "golem-copper-frame",
       "class": "GolemCopperFrame",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemCopperFrame.java",

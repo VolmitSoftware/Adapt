@@ -91,6 +91,21 @@ public final class GolemTaskBoard {
     return open == null ? List.of() : List.copyOf(open.tasks.values());
   }
 
+  public List<GolemTask> chunkTasks(long chunkKey) {
+    Set<NodeKey> keys = chunks.get(chunkKey);
+    if (keys == null || keys.isEmpty()) {
+      return List.of();
+    }
+    List<GolemTask> found = new ArrayList<>();
+    for (NodeKey key : keys) {
+      NodeTasks open = tasks.get(key);
+      if (open != null) {
+        found.addAll(open.tasks.values());
+      }
+    }
+    return found;
+  }
+
   public boolean withdraw(GolemTask task) {
     task.close();
     return remove(task);
