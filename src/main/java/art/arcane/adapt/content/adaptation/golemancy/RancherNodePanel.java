@@ -60,7 +60,7 @@ final class RancherNodePanel implements NodePanel {
         C.YELLOW + AdaptLanguage.text(GolemancyMessages.RANCHER_CORE_SPECIES, trusted("species", shown)),
         List.of(C.GRAY + AdaptLanguage.text(GolemancyMessages.RANCHER_CORE_SPECIES_LORE)),
         current -> RancherRules.cycleSpecies(current, tended, true),
-        current -> RancherRules.cycleSpecies(current, tended, false));
+        current -> RancherRules.cycleSpecies(current, tended, false), null);
   }
 
   private NodePanelControl keep(NodeRecord record, int fallback) {
@@ -68,7 +68,7 @@ final class RancherNodePanel implements NodePanel {
         C.YELLOW + AdaptLanguage.text(GolemancyMessages.RANCHER_CORE_KEEP, trusted("count", RancherRules.keep(record, fallback))),
         List.of(C.GRAY + AdaptLanguage.text(GolemancyMessages.RANCHER_CORE_KEEP_LORE)),
         current -> RancherRules.adjustKeep(current, 1, fallback),
-        current -> RancherRules.adjustKeep(current, -1, fallback));
+        current -> RancherRules.adjustKeep(current, -1, fallback), null);
   }
 
   private NodePanelControl toggle(Toggle toggle, NodeRecord record, int level, int unlockLevel) {
@@ -84,7 +84,7 @@ final class RancherNodePanel implements NodePanel {
     }
     RancherRules.Action action = toggle.action();
     return new NodePanelControl("rancher-" + action.id(), icons.apply(toggle.icon()), name, lore,
-        unlocked ? current -> RancherRules.toggle(current, action) : null, null);
+        unlocked ? current -> RancherRules.toggle(current, action) : null, null, null);
   }
 
   private static int unlockLevel(RancherRules.Action action, GolemRancherCore.Config config) {

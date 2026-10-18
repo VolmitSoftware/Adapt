@@ -461,11 +461,13 @@ public final class GolemancyRuntime {
 
     @Override
     public Optional<Entity> targetEntity(GolemTarget target, World world) {
-      if (target.kind() == GolemTarget.Kind.BLOCK) {
-        return Optional.empty();
-      }
-      Entity entity = Bukkit.getEntity(target.entity());
-      return entity != null && entity.isValid() && world.equals(entity.getWorld()) && J.isOwnedByCurrentRegion(entity)
+      return target.kind() == GolemTarget.Kind.BLOCK ? Optional.empty() : ownedEntity(target.entity(), world);
+    }
+
+    @Override
+    public Optional<Entity> ownedEntity(UUID id, World world) {
+      Entity entity = Bukkit.getEntity(id);
+      return entity != null && entity.isValid() && J.isOwnedByCurrentRegion(entity) && world.equals(entity.getWorld())
           ? Optional.of(entity)
           : Optional.empty();
     }

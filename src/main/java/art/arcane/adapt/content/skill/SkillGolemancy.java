@@ -76,6 +76,7 @@ import art.arcane.adapt.content.adaptation.golemancy.GolemMending;
 import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRancherCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRunicAugments;
+import art.arcane.adapt.content.adaptation.golemancy.GolemSorterCore;
 import art.arcane.adapt.content.skill.golemancy.CopperCare;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
@@ -165,6 +166,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerAdaptation(new GolemLumberCore());
     registerAdaptation(new GolemBreakerCore());
     registerAdaptation(new GolemRancherCore());
+    registerAdaptation(new GolemSorterCore());
     registerAdaptation(new GolemAnglerCore());
     registerAdaptation(new GolemRunicAugments());
     registerAdaptation(new GolemMending());

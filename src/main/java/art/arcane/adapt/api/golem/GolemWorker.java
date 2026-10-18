@@ -28,6 +28,8 @@ import java.util.UUID;
 final class GolemWorker {
   static final double REACH = 2.5D;
   static final long BACKOFF_MILLIS = 10_000L;
+  static final long MAX_BACKOFF_MILLIS = 60_000L;
+  static final long FAILURE_MEMORY_MILLIS = 120_000L;
   static final long FULL_SIGNAL_MILLIS = 3_000L;
   static final long SEEK_INTERVAL_MILLIS = 1_000L;
   static final long REROUTE_INTERVAL_MILLIS = 3_000L;
@@ -42,6 +44,7 @@ final class GolemWorker {
   private final GolemCargo cargo;
   private final GolemStuckWatch stuck = new GolemStuckWatch();
   private final Map<TaskKey, Long> taskBackoff = new HashMap<>();
+  private final Map<TaskKey, Failure> failures = new HashMap<>();
   private final Map<GolemState.Anchor, Long> containerBackoff = new HashMap<>();
   private Player owner;
   private Location home;
@@ -49,6 +52,7 @@ final class GolemWorker {
   private Delivery delivery;
   private WorkedNode lastNode;
   private boolean arrived;
+  private boolean routeHeld;
   private int stuckReleases;
   private int pulseCapacity = -1;
   private GolemRuneEffects pulseRunes;
@@ -91,8 +95,11 @@ final class GolemWorker {
       }
     }
     int carried = cargo.count();
+    if (carried == 0) {
+      routeHeld = false;
+    }
     boolean full = carried > 0 && carried >= capacity();
-    if (!full && nowMillis >= nextSeekAt) {
+    if (!full && nowMillis >= nextSeekAt && !deliveringFirst(carried)) {
       nextSeekAt = nowMillis + SEEK_INTERVAL_MILLIS;
       if (claim(nowMillis, here, settings) || seekCores(nowMillis)) {
         return pursue(nowMillis, here, settings);
@@ -302,20 +309,18 @@ final class GolemWorker {
       case DONE -> {
         if (current.source == Source.BOARD) {
           board(key.world()).complete(task, handle.id());
+          failures.remove(task.key());
         }
         markWorked(key, nowMillis);
         if (current.source != Source.ROUTE) {
           handle.addTasks(1L);
           GolemWorkStats.completed(handle);
+        } else {
+          nextRouteAt = nowMillis;
         }
         dropJob();
       }
-      case FAILED -> {
-        if (current.source != Source.BOARD) {
-          backOff(task, nowMillis);
-        }
-        closeJob();
-      }
+      case FAILED -> failed(current, nowMillis);
       case BLOCKED -> {
         if (key != null) {
           board(key.world()).markBlocked(key, nowMillis);
@@ -477,9 +482,21 @@ final class GolemWorker {
     if (items.isEmpty()) {
       return false;
     }
-    if (routeByNode(nowMillis, items)) {
-      return true;
+    boolean routed = routeByNode(nowMillis, items) || routeByDefault(here, items);
+    routeHeld = !routed;
+    return routed;
+  }
+
+  private boolean deliveringFirst(int carried) {
+    WorkedNode worked = lastNode;
+    if (carried <= 0 || routeHeld || worked == null) {
+      return false;
     }
+    NodeBehavior behavior = NodeBehaviors.of(worked.type()).orElse(null);
+    return behavior != null && behavior.deliversBeforeClaiming();
+  }
+
+  private boolean routeByDefault(Location here, List<ItemStack> items) {
     World world = home.getWorld();
     GolemDeliveryRoute.Route route = GolemDeliveryRoute.choose(depositOptions(world, here, home, items), homeOption(world, items));
     delivery = switch (route.kind()) {
@@ -635,6 +652,36 @@ final class GolemWorker {
     taskBackoff.put(task.key(), nowMillis + Math.round(BACKOFF_MILLIS * runes().reclaimDelayMultiplier()));
   }
 
+  private void failed(Job current, long nowMillis) {
+    switch (current.source) {
+      case ROUTE -> {
+        backOff(current.task, nowMillis);
+        dropJob();
+      }
+      case CORE -> {
+        backOff(current.task, nowMillis);
+        closeJob();
+      }
+      case BOARD -> {
+        if (current.actor instanceof NodeBehavior behavior && behavior.deliversBeforeClaiming()) {
+          escalate(current.task, nowMillis);
+          dropJob();
+        } else {
+          closeJob();
+        }
+      }
+    }
+  }
+
+  private void escalate(GolemTask task, long nowMillis) {
+    TaskKey key = task.key();
+    Failure previous = failures.get(key);
+    int count = previous == null || nowMillis - previous.at() > FAILURE_MEMORY_MILLIS ? 1 : previous.count() + 1;
+    failures.put(key, new Failure(count, nowMillis));
+    long delay = Math.min(MAX_BACKOFF_MILLIS, BACKOFF_MILLIS << Math.min(count - 1, 3));
+    taskBackoff.put(key, nowMillis + Math.round(delay * runes().reclaimDelayMultiplier()));
+  }
+
   private void closeJob() {
     if (job.source == Source.BOARD) {
       board(job.task.nodeKey().world()).withdraw(job.task);
@@ -683,6 +730,9 @@ final class GolemWorker {
     if (!containerBackoff.isEmpty()) {
       containerBackoff.values().removeIf(until -> until <= nowMillis);
     }
+    if (!failures.isEmpty()) {
+      failures.values().removeIf(failure -> nowMillis - failure.at() > FAILURE_MEMORY_MILLIS);
+    }
   }
 
   private GolemTaskBoard board(UUID world) {
@@ -726,6 +776,9 @@ final class GolemWorker {
   }
 
   private record WorkedNode(NodeKey key, NodeType type) {
+  }
+
+  private record Failure(int count, long at) {
   }
 
   private static final class Job {

@@ -48,6 +48,11 @@ public final class GolemTestItems {
     lenient().when(inventory.getSize()).thenReturn(slots);
     lenient().when(inventory.getMaxStackSize()).thenReturn(MAX_STACK);
     lenient().when(inventory.firstEmpty()).thenAnswer(invocation -> firstEmpty(contents));
+    lenient().when(inventory.getItem(anyInt())).thenAnswer(invocation -> contents[invocation.<Integer>getArgument(0)]);
+    lenient().doAnswer(invocation -> {
+      contents[invocation.<Integer>getArgument(0)] = invocation.getArgument(1);
+      return null;
+    }).when(inventory).setItem(anyInt(), any());
     lenient().when(inventory.addItem(any(ItemStack[].class))).thenAnswer(invocation -> {
       Map<Integer, ItemStack> leftovers = new HashMap<>();
       Object[] added = invocation.getArguments();

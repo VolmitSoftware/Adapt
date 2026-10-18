@@ -39,7 +39,7 @@ final class FishingNodePanel implements NodePanel {
         ? C.GREEN + AdaptLanguage.text(GolemancyMessages.ANGLER_CORE_WATER_READY)
         : C.RED + AdaptLanguage.text(GolemancyMessages.ANGLER_CORE_WATER_NEEDED);
     return new NodePanelControl("angler-water", icons.apply(open ? Material.WATER_BUCKET : Material.BARRIER), name,
-        List.of(C.GRAY + AdaptLanguage.text(GolemancyMessages.ANGLER_CORE_WATER_LORE)), null, null);
+        List.of(C.GRAY + AdaptLanguage.text(GolemancyMessages.ANGLER_CORE_WATER_LORE)), null, null, null);
   }
 
   private NodePanelControl junk(NodeRecord record, int level) {
@@ -51,9 +51,9 @@ final class FishingNodePanel implements NodePanel {
     ItemStack icon = icons.apply(Material.ROTTEN_FLESH);
     if (!AnglerRules.unlocked(level, config.junkFilterLevel)) {
       return new NodePanelControl("angler-junk", icon, name,
-          List.of(C.RED + AdaptLanguage.text(GolemancyMessages.ANGLER_CORE_LOCKED, trusted("level", config.junkFilterLevel))), null, null);
+          List.of(C.RED + AdaptLanguage.text(GolemancyMessages.ANGLER_CORE_LOCKED, trusted("level", config.junkFilterLevel))), null, null, null);
     }
     return new NodePanelControl("angler-junk", icon, name, List.of(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_TOGGLE)),
-        AnglerRules::toggleJunk, null);
+        AnglerRules::toggleJunk, null, null);
   }
 }

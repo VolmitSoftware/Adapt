@@ -49,7 +49,7 @@ final class BreakerNodePanel implements NodePanel {
         ? C.GREEN + AdaptLanguage.text(GolemancyMessages.BREAKER_CORE_FILTER_READY)
         : C.RED + AdaptLanguage.text(GolemancyMessages.BREAKER_CORE_FILTER_NEEDED);
     return new NodePanelControl("breaker-filter", icons.apply(ready ? Material.IRON_PICKAXE : Material.BARRIER), name,
-        List.of(C.GRAY + AdaptLanguage.text(GolemancyMessages.BREAKER_CORE_FILTER_LORE)), null, null);
+        List.of(C.GRAY + AdaptLanguage.text(GolemancyMessages.BREAKER_CORE_FILTER_LORE)), null, null, null);
   }
 
   private NodePanelControl toggle(Toggle toggle, boolean on, int level, int unlockLevel) {
@@ -57,11 +57,11 @@ final class BreakerNodePanel implements NodePanel {
     ItemStack icon = icons.apply(toggle.icon());
     if (!BreakerRules.unlocked(level, unlockLevel)) {
       return new NodePanelControl(toggle.id(), icon, name,
-          List.of(C.RED + AdaptLanguage.text(GolemancyMessages.BREAKER_CORE_LOCKED, trusted("level", unlockLevel))), null, null);
+          List.of(C.RED + AdaptLanguage.text(GolemancyMessages.BREAKER_CORE_LOCKED, trusted("level", unlockLevel))), null, null, null);
     }
     return new NodePanelControl(toggle.id(), icon, name,
         List.of(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_TOGGLE), C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.BREAKER_CORE_EXCLUSIVE)),
-        toggle.flip(), null);
+        toggle.flip(), null, null);
   }
 
   private record Toggle(String id, Material icon, TextKey onName, TextKey offName, UnaryOperator<NodeRecord> flip) {

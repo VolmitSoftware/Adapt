@@ -19,8 +19,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
+import java.util.function.ToIntFunction;
 
 public final class GolemContext {
   private final GolemWorker worker;
@@ -71,6 +73,10 @@ public final class GolemContext {
   public Optional<Entity> targetEntity() {
     GolemTask task = scope.task();
     return task == null ? Optional.empty() : worker.platform().targetEntity(task.target(), world());
+  }
+
+  public Optional<Entity> ownedEntity(UUID entity) {
+    return worker.platform().ownedEntity(entity, world());
   }
 
   public boolean skips(GolemTask task) {
@@ -167,6 +173,10 @@ public final class GolemContext {
   }
 
   public int deliver(Inventory inventory, Predicate<ItemStack> accepts) {
+    return deliverUpTo(inventory, item -> accepts.test(item) ? item.getAmount() : 0);
+  }
+
+  public int deliverUpTo(Inventory inventory, ToIntFunction<ItemStack> amount) {
     List<ItemStack> items = worker.cargo().items();
     List<ItemStack> remaining = new ArrayList<>(items.size());
     int moved = 0;
@@ -175,19 +185,27 @@ public final class GolemContext {
     try {
       while (next < items.size()) {
         ItemStack item = items.get(next);
-        if (!accepts.test(item)) {
+        int wanted = Math.min(item.getAmount(), amount.applyAsInt(item));
+        if (wanted <= 0) {
           remaining.add(item);
           next++;
           continue;
         }
         next++;
         touched = true;
+        ItemStack offered = item.clone();
+        offered.setAmount(wanted);
+        if (wanted < item.getAmount()) {
+          ItemStack kept = item.clone();
+          kept.setAmount(item.getAmount() - wanted);
+          remaining.add(kept);
+        }
         int left = 0;
-        for (ItemStack leftover : inventory.addItem(item.clone()).values()) {
+        for (ItemStack leftover : inventory.addItem(offered).values()) {
           left += leftover.getAmount();
           remaining.add(leftover);
         }
-        moved += item.getAmount() - left;
+        moved += wanted - left;
       }
     } finally {
       if (touched) {

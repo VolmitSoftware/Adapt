@@ -18,11 +18,15 @@ public interface NodeBehavior extends GolemActor {
    * A returned task is a private job that never goes on a board. The golem walks to its target and this behavior's
    * {@link #act} runs it there. During that act {@link GolemContext#node()} is this routing node's record, whether or
    * not the task names a node, and {@link GolemContext#core()} is the core that consumes this node type. A FAILED or
-   * BLOCKED act backs the task off for 10 seconds. A FAILED act, removing this node, or switching it off by redstone
-   * while the golem walks the route ends the job and sends the items to the default route. A later job of a core with
-   * no node, and walking back home, also clear the last worked node.
+   * BLOCKED act backs the task off for 10 seconds and ends the job, and the next route asks this node again. Removing
+   * this node, or switching it off by redstone while the golem walks the route, ends the job and sends the items to the
+   * default route. A later job of a core with no node, and walking back home, also clear the last worked node.
    */
   default Optional<GolemTask> route(GolemContext golem, NodeKey node, List<ItemStack> carried) {
     return Optional.empty();
+  }
+
+  default boolean deliversBeforeClaiming() {
+    return false;
   }
 }

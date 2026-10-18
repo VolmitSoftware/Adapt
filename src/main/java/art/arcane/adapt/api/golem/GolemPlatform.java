@@ -64,6 +64,8 @@ interface GolemPlatform {
 
   Optional<Entity> targetEntity(GolemTarget target, World world);
 
+  Optional<Entity> ownedEntity(UUID entity, World world);
+
   void signalFull(Mob golem);
 
   Adaptation<?> bindingPolicy();

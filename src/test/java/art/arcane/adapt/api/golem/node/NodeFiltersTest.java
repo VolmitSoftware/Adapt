@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiPredicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -219,6 +220,18 @@ class NodeFiltersTest {
 
     assertThat(NodeFilters.accepts(record, Material.POTION, TAGS)).isTrue();
     assertThat(NodeFilters.accepts(record, Material.SPLASH_POTION, TAGS)).isFalse();
+  }
+
+  @Test
+  void storedItemsCanMatchByAGivenSimilarityWhileTagsMatchByType() {
+    NodeRecord record = record().filterItems(List.of(item(Material.POTION, "healing"))).filterTags(List.of(LOGS)).build();
+    BiPredicate<ItemStack, ItemStack> variant = (stored, candidate) -> identities.get(stored).equals(identities.get(candidate));
+
+    assertThat(NodeFilters.accepts(record, item(Material.POTION, "healing"), TAGS, variant)).isTrue();
+    assertThat(NodeFilters.accepts(record, item(Material.POTION, "swiftness"), TAGS, variant)).isFalse();
+    assertThat(NodeFilters.accepts(record, item(Material.OAK_LOG), TAGS, variant)).isTrue();
+    assertThat(NodeFilters.accepts(record.toBuilder().whitelist(false).build(), item(Material.POTION, "swiftness"), TAGS, variant)).isTrue();
+    assertThat(NodeFilters.accepts(record().build(), item(Material.STONE), TAGS, variant)).isTrue();
   }
 
   @Test
