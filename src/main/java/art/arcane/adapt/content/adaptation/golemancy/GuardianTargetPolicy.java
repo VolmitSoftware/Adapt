@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemBrain;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMode;
@@ -61,7 +62,7 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
 
   @Override
   public boolean holds(GolemHandle golem, Player owner, LivingEntity target) {
-    if (target == null || !target.isValid() || target.isDead() || !J.isOwnedByCurrentRegion(target)) {
+    if (target == null || !J.isOwnedByCurrentRegion(target) || !target.isValid() || target.isDead()) {
       return false;
     }
     Watch watch = watch(golem, owner);
@@ -69,7 +70,15 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
       return false;
     }
     Location at = target.getLocation();
-    if (!covers(watch, at) || !inRange(watch, at) || reason(watch, target) == GuardianRules.Reason.NONE) {
+    if (!covers(watch, at) || !inRange(watch, at)) {
+      return false;
+    }
+    MinionTargeting.Candidate captured = MinionTargeting.captureOwned(watch.ownerId(), target);
+    if (reason(watch, target, captured) == GuardianRules.Reason.NONE) {
+      return false;
+    }
+    LivingEntity attacker = watch.attacker();
+    if (attacker != null && !attacker.getUniqueId().equals(target.getUniqueId()) && avenge(watch) != null) {
       return false;
     }
     markEngaged(watch, at);
@@ -94,26 +103,36 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
     if (watch == null) {
       return;
     }
-    nextIntercepts.put(golem.id(), now + Math.max(0L, config.interceptIntervalMillis));
+    nextIntercepts.put(golem.id(), now + config.interceptIntervalMillis);
     UUID ownerId = owner.getUniqueId();
     for (Mob candidate : candidates(watch)) {
-      if (candidate != watch.body() && targetOf(candidate, ownerId) && reason(watch, candidate) != GuardianRules.Reason.NONE
-          && core.canEngage(owner, candidate)) {
+      if (candidate == watch.body() || !targetOf(candidate, ownerId)) {
+        continue;
+      }
+      MinionTargeting.Candidate captured = MinionTargeting.captureOwned(ownerId, candidate);
+      if (reason(watch, candidate, captured) != GuardianRules.Reason.NONE && engageable(watch, captured)) {
         candidate.setTarget(watch.body());
       }
     }
   }
 
+  @Override
+  public boolean idleBackoff() {
+    return true;
+  }
+
   boolean pending() {
-    return !nextIntercepts.isEmpty();
+    return !nextIntercepts.isEmpty() || guard.pending();
   }
 
   void sweep(long nowMillis) {
     nextIntercepts.values().removeIf(due -> nowMillis >= due);
+    guard.sweep(nowMillis);
   }
 
   void forget() {
     nextIntercepts.clear();
+    guard.forget();
   }
 
   private Watch watch(GolemHandle golem, Player owner) {
@@ -135,16 +154,17 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
     Location home = home(state.home(), world);
     Location anchor = switch (mode) {
       case FOLLOW -> ownerAnchor(online, world, here);
-      case STAY -> here;
+      case STAY -> stayAnchor(body, world, here);
       case HOME, WORK -> home == null ? here : home;
     };
-    List<NodeIndex.Entry> nodes = mode == GolemMode.WORK && home != null ? guard.nodesFor(golem, world, home) : List.of();
+    List<NodeIndex.Entry> nodes = mode == GolemMode.WORK && home != null ? guard.nodesFor(golem, world, home, now) : List.of();
     boolean retaliate = online != null && GuardianRules.unlocked(level, config.retaliateLevel);
     LivingEntity attacker = retaliate ? core.recentAttacker(online.getUniqueId(), now) : null;
     double sentry = golem.body() == GolemBody.FROST ? config.sentryRange : 0D;
+    double leash = GolemancyRuntime.brainSettings().leashRadius();
     GuardianRules.Options options = new GuardianRules.Options(online != null, retaliate, config.targetCreepers, config.ignoreNamedMobs);
-    return new Watch(body, here, golem.owner(), online, anchor, GuardianRules.perception(config.perceptionByLevel, level), sentry, nodes,
-        attacker, options, now);
+    return new Watch(body, here, golem.owner(), online, anchor, GuardianRules.perception(config.perceptionByLevel, level, leash), sentry,
+        home, leash, nodes, attacker, options, now);
   }
 
   private LivingEntity avenge(Watch watch) {
@@ -153,21 +173,28 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
       return null;
     }
     Location at = attacker.getLocation();
-    boolean eligible = covers(watch, at) && inRange(watch, at) && reason(watch, attacker) == GuardianRules.Reason.RETALIATE;
-    return eligible && engageable(watch, attacker) ? attacker : null;
+    if (!covers(watch, at) || !inRange(watch, at)) {
+      return null;
+    }
+    MinionTargeting.Candidate captured = MinionTargeting.captureOwned(watch.ownerId(), attacker);
+    return reason(watch, attacker, captured) == GuardianRules.Reason.RETALIATE && engageable(watch, captured) ? attacker : null;
   }
 
   private LivingEntity nearest(Watch watch) {
     Mob nearest = null;
     double nearestDistance = Double.MAX_VALUE;
+    UUID golemId = watch.body().getUniqueId();
     for (Mob candidate : candidates(watch)) {
-      if (candidate == watch.body()) {
+      if (candidate == watch.body() || !prospect(watch, candidate, golemId)) {
         continue;
       }
       Location at = candidate.getLocation();
       double distance = at.distanceSquared(watch.here());
-      if (distance >= nearestDistance || !covers(watch, at) || !inRange(watch, at)
-          || reason(watch, candidate) == GuardianRules.Reason.NONE || !engageable(watch, candidate)) {
+      if (distance >= nearestDistance || !covers(watch, at) || !inRange(watch, at)) {
+        continue;
+      }
+      MinionTargeting.Candidate captured = MinionTargeting.captureOwned(watch.ownerId(), candidate);
+      if (reason(watch, candidate, captured) == GuardianRules.Reason.NONE || !engageable(watch, captured)) {
         continue;
       }
       nearest = candidate;
@@ -200,8 +227,7 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
     return found;
   }
 
-  private GuardianRules.Reason reason(Watch watch, LivingEntity candidate) {
-    MinionTargeting.Candidate captured = MinionTargeting.captureOwned(watch.ownerId(), candidate);
+  private GuardianRules.Reason reason(Watch watch, LivingEntity candidate, MinionTargeting.Candidate captured) {
     LivingEntity attacker = watch.attacker();
     GuardianRules.Candidate facts = new GuardianRules.Candidate(
         captured == null || captured.protectedFriendly(),
@@ -214,8 +240,8 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
     return GuardianRules.reason(facts, watch.options());
   }
 
-  private boolean engageable(Watch watch, LivingEntity candidate) {
-    return watch.owner() == null || core.canEngage(watch.owner(), candidate);
+  private boolean engageable(Watch watch, MinionTargeting.Candidate captured) {
+    return captured != null && (watch.owner() == null || core.canEngage(watch.owner(), captured));
   }
 
   private void markEngaged(Watch watch, Location at) {
@@ -225,12 +251,22 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
     }
   }
 
+  private static boolean prospect(Watch watch, Mob candidate, UUID golemId) {
+    return candidate instanceof Enemy || targetOf(candidate, watch.ownerId()) || targetOf(candidate, golemId);
+  }
+
   private static boolean covers(Watch watch, Location at) {
     if (!Objects.equals(at.getWorld(), watch.anchor().getWorld())) {
       return false;
     }
     double perception = watch.perception();
-    return at.distanceSquared(watch.anchor()) <= perception * perception || nodeAt(watch, at) != null;
+    return at.distanceSquared(watch.anchor()) <= perception * perception || (withinLeash(watch, at) && nodeAt(watch, at) != null);
+  }
+
+  private static boolean withinLeash(Watch watch, Location at) {
+    Location home = watch.home();
+    double leash = watch.leash();
+    return home != null && Objects.equals(at.getWorld(), home.getWorld()) && at.distanceSquared(home) <= leash * leash;
   }
 
   private static boolean inRange(Watch watch, Location at) {
@@ -255,6 +291,13 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
     return current != null && current.getUniqueId().equals(target);
   }
 
+  private static Location stayAnchor(Mob body, World world, Location here) {
+    return GolemancyRuntime.brain(body)
+        .flatMap(GolemBrain::stayAnchor)
+        .filter(anchor -> world.equals(anchor.getWorld()))
+        .orElse(here);
+  }
+
   private static Location ownerAnchor(Player online, World world, Location here) {
     return online != null && J.isOwnedByCurrentRegion(online) && world.equals(online.getWorld()) ? online.getLocation() : here;
   }
@@ -267,6 +310,7 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
   }
 
   private record Watch(Mob body, Location here, UUID ownerId, Player owner, Location anchor, double perception, double sentry,
-                       List<NodeIndex.Entry> nodes, LivingEntity attacker, GuardianRules.Options options, long now) {
+                       Location home, double leash, List<NodeIndex.Entry> nodes, LivingEntity attacker, GuardianRules.Options options,
+                       long now) {
   }
 }

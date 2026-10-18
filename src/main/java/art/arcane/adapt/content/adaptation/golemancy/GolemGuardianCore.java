@@ -21,6 +21,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.golem.GolemBrain;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemRegistry;
@@ -56,6 +57,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -108,6 +110,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
   @Override
   protected void normalizeLoadedConfig(Config loadedConfig) {
     loadedConfig.sentryRange = GuardianRules.sentryRange(loadedConfig.sentryRange);
+    loadedConfig.interceptIntervalMillis = GuardianRules.interceptInterval(loadedConfig.interceptIntervalMillis);
     loadedConfig.bulwarkRadius = GuardianRules.bulwarkRadius(loadedConfig.bulwarkRadius);
     loadedConfig.bulwarkDamageReduction = GuardianRules.fraction(loadedConfig.bulwarkDamageReduction, 0D);
     loadedConfig.lastStandHealthFraction = GuardianRules.fraction(loadedConfig.lastStandHealthFraction, 0D);
@@ -116,7 +119,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
   @Override
   public void addStats(int level, Element v) {
     Config config = getConfig();
-    statLore(v, GuardianRules.perception(config.perceptionByLevel, level), 1);
+    statLore(v, GuardianRules.perception(config.perceptionByLevel, level, GolemancyRuntime.brainSettings().leashRadius()), 1);
     if (GuardianRules.unlocked(level, config.interceptLevel)) {
       unlockLore(v, GolemancyMessages.GUARDIAN_CORE_LORE2);
     }
@@ -151,11 +154,25 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
       return;
     }
     LivingEntity attacker = attacker(e.getDamager());
-    if (attacker == null || attacker.getUniqueId().equals(owner.getUniqueId())
-        || !GuardianRules.unlocked(getActiveLevel(owner), getConfig().retaliateLevel)) {
+    if (attacker == null || attacker.getUniqueId().equals(owner.getUniqueId())) {
       return;
     }
-    attacks.put(owner.getUniqueId(), new Attack(attacker, M.ms()));
+    alertGuardians(owner.getUniqueId());
+    if (GuardianRules.unlocked(getActiveLevel(owner), getConfig().retaliateLevel)) {
+      attacks.put(owner.getUniqueId(), new Attack(attacker, M.ms()));
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(EntityTargetLivingEntityEvent e) {
+    LivingEntity target = e.getTarget();
+    if (target instanceof Player owner) {
+      alertGuardians(owner.getUniqueId());
+      return;
+    }
+    if (target instanceof Mob golem) {
+      GolemancyRuntime.handle(golem).filter(GolemGuardianCore::awakeGuardian).ifPresent(GolemGuardianCore::alert);
+    }
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -171,18 +188,19 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-  public void lastStand(EntityDamageEvent e) {
+  public void guardianHurt(EntityDamageEvent e) {
     if (!(e.getEntity() instanceof Mob golem)) {
       return;
     }
-    Optional<GolemHandle> bound = GolemancyRuntime.handle(golem);
-    if (bound.isEmpty() || bound.get().isDormant() || !bound.get().state().cores().contains(GolemCoreType.GUARDIAN)) {
+    Optional<GolemHandle> bound = GolemancyRuntime.handle(golem).filter(GolemGuardianCore::awakeGuardian);
+    if (bound.isEmpty()) {
       return;
     }
     GolemHandle handle = bound.get();
+    alert(handle);
     Config config = getConfig();
     if (!GuardianRules.unlocked(ownerLevel(handle), config.lastStandLevel)
-        || !GuardianRules.lastStand(golem.getHealth() - e.getFinalDamage(), maxHealth(golem), config.lastStandHealthFraction)) {
+        || !GuardianRules.lastStand(golem.getHealth() - e.getFinalDamage(), GolemVitals.maxHealth(golem), config.lastStandHealthFraction)) {
       return;
     }
     long now = M.ms();
@@ -191,7 +209,8 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
       return;
     }
     lastStands.put(handle.id(), now + Math.max(0L, config.lastStandCooldownMillis));
-    brace(golem, config.lastStandTicks, config.lastStandAmplifier);
+    golem.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, Math.max(1, config.lastStandTicks), Math.max(0, config.lastStandAmplifier),
+        false, true, true));
   }
 
   Config config() {
@@ -203,22 +222,13 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     return owner == null ? 0 : getLevel(owner);
   }
 
-  boolean canEngage(Player owner, LivingEntity candidate) {
-    MinionTargeting.Candidate captured = MinionTargeting.captureOwned(owner.getUniqueId(), candidate);
-    return captured != null && MinionTargeting.canDamageOwned(this, owner, captured);
+  boolean canEngage(Player owner, MinionTargeting.Candidate candidate) {
+    return MinionTargeting.canDamageOwned(this, owner, candidate);
   }
 
   LivingEntity recentAttacker(UUID owner, long nowMillis) {
     Attack attack = attacks.get(owner);
     return attack != null && nowMillis - attack.at() < getConfig().retaliateWindowMillis ? attack.attacker() : null;
-  }
-
-  double maxHealth(LivingEntity golem) {
-    return GolemVitals.maxHealth(golem);
-  }
-
-  void brace(Mob golem, int ticks, int amplifier) {
-    golem.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, Math.max(1, ticks), Math.max(0, amplifier), false, true, true));
   }
 
   private boolean nearGuardian(Player owner, double radius) {
@@ -230,15 +240,35 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     World world = at.getWorld();
     double reach = radius * radius;
     for (GolemHandle handle : registry.get().loadedOf(owner.getUniqueId())) {
-      Mob golem = handle.entity();
-      if (handle.isDormant() || !J.isOwnedByCurrentRegion(golem) || !golem.isValid() || !world.equals(golem.getWorld())) {
+      if (!awakeGuardian(handle)) {
         continue;
       }
-      if (golem.getLocation().distanceSquared(at) <= reach && handle.state().cores().contains(GolemCoreType.GUARDIAN)) {
+      Mob golem = handle.entity();
+      if (J.isOwnedByCurrentRegion(golem) && golem.isValid() && world.equals(golem.getWorld()) && golem.getLocation().distanceSquared(at) <= reach) {
         return true;
       }
     }
     return false;
+  }
+
+  private static void alertGuardians(UUID owner) {
+    Optional<GolemRegistry> registry = GolemancyRuntime.registry();
+    if (registry.isEmpty()) {
+      return;
+    }
+    for (GolemHandle handle : registry.get().loadedOf(owner)) {
+      if (awakeGuardian(handle)) {
+        alert(handle);
+      }
+    }
+  }
+
+  private static void alert(GolemHandle handle) {
+    GolemancyRuntime.brain(handle.entity()).ifPresent(GolemBrain::alert);
+  }
+
+  private static boolean awakeGuardian(GolemHandle handle) {
+    return !handle.isDormant() && handle.state().cores().contains(GolemCoreType.GUARDIAN);
   }
 
   private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {
@@ -263,7 +293,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
 
   @ConfigDescription("Golems bound with a Guardian Core defend their home, you or a Guard Node's area, and shield you as the core grows stronger.")
   protected static class Config extends AdaptationConfig {
-    @ConfigDoc(value = "Blocks around a Guardian's guard point within which it attacks hostile mobs, by Guardian Core level from level 1 upward. The guard point is you while the golem follows you, the golem itself while it stays, and its home otherwise.", impact = "Higher values let Guardians defend a wider area.")
+    @ConfigDoc(value = "Blocks around a Guardian's guard point within which it attacks hostile mobs, by Guardian Core level from level 1 upward. The guard point is you while the golem follows you, the spot where it was told to stay while it stays, and its home otherwise. Each value is clamped to 1 up to the skill's leashRadius.", impact = "Higher values let Guardians defend a wider area.")
     List<Integer> perceptionByLevel = new ArrayList<>(List.of(8, 12, 16, 20, 24));
     @ConfigDoc(value = "Lets Guardians attack creepers.", impact = "Turn on to have Guardians fight creepers, which can explode next to them.")
     boolean targetCreepers = false;
@@ -271,7 +301,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     boolean ignoreNamedMobs = true;
     @ConfigDoc(value = "Guardian Core level at which Guardians pull mobs that target you onto themselves with Intercept.", impact = "Lower values unlock Intercept sooner.")
     int interceptLevel = 2;
-    @ConfigDoc(value = "Milliseconds between a Guardian's Intercept checks.", impact = "Lower values pull mobs off you more often.")
+    @ConfigDoc(value = "Milliseconds between a Guardian's Intercept checks, at least 500.", impact = "Lower values pull mobs off you more often.")
     long interceptIntervalMillis = 3_000L;
     @ConfigDoc(value = "Guardian Core level at which Guardians attack whatever hurt you with Retaliate, including players where region protection allows PvP.", impact = "Lower values unlock Retaliate sooner.")
     int retaliateLevel = 3;
@@ -293,7 +323,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     int lastStandAmplifier = 1;
     @ConfigDoc(value = "Milliseconds after Last Stand triggers before it can trigger again on the same Guardian.", impact = "Lower values let Last Stand trigger more often.")
     long lastStandCooldownMillis = 60_000L;
-    @ConfigDoc(value = "Blocks within which frost Guardians shoot, from 1 to 32. Frost Guardians hold their post and attack only mobs this close to them.", impact = "Higher values let frost Guardians shoot mobs farther away.")
+    @ConfigDoc(value = "Blocks within which frost Guardians shoot, from 1 to 10, the snow golem's throwing range. Frost Guardians attack only mobs this close to them and never chase mobs farther away.", impact = "Higher values let frost Guardians shoot mobs farther away.")
     double sentryRange = 10.0;
     @ConfigDoc(value = "Crafting recipe for the Guardian Core, unlocked at Guardian Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe guardianCoreRecipe = new ConfiguredShapedRecipe()

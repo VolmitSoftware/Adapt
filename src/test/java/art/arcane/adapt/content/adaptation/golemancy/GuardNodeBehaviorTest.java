@@ -43,6 +43,9 @@ import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -138,6 +141,7 @@ class GuardNodeBehaviorTest {
     NodeKey far = new NodeKey(WORLD, 40, 64, 0, BlockFace.UP);
     NodeKey unpowered = new NodeKey(WORLD, 0, 64, -6, BlockFace.UP);
     NodeKey deposit = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    NodeKey unloaded = new NodeKey(WORLD, 0, 64, -20, BlockFace.UP);
     Map<NodeKey, NodeRecord> nodes = new HashMap<>();
     nodes.put(near, guard(OWNER).build());
     nodes.put(offChannel, guard(OWNER).channel(DyeColor.BLUE).build());
@@ -145,15 +149,49 @@ class GuardNodeBehaviorTest {
     nodes.put(far, guard(OWNER).build());
     nodes.put(unpowered, guard(OWNER).redstone(RedstoneMode.POWERED).build());
     nodes.put(deposit, NodeRecord.builder(OWNER, NodeType.DEPOSIT, BlockFace.UP).build());
+    nodes.put(unloaded, guard(OWNER).redstone(RedstoneMode.POWERED).build());
     NodeService service = service(nodes);
     runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
     runtime.when(GolemancyRuntime::workSettings).thenReturn(GolemWorkSettings.defaults());
     Block unpoweredBlock = mock(Block.class);
     when(world.getBlockAt(0, 64, -6)).thenReturn(unpoweredBlock);
+    when(world.isChunkLoaded(0, -1)).thenReturn(true);
 
-    List<NodeIndex.Entry> guarded = behavior.nodesFor(golem(ChannelMask.NONE), world, new Location(world, 0.5D, 64D, 0.5D));
+    List<NodeIndex.Entry> guarded = behavior.nodesFor(golem(ChannelMask.NONE), world, new Location(world, 0.5D, 64D, 0.5D), 1_000L);
 
-    assertThat(guarded).extracting(NodeIndex.Entry::key).containsExactly(near);
+    assertThat(guarded).extracting(NodeIndex.Entry::key).containsExactlyInAnyOrder(near, unloaded);
+    verify(world, never()).getBlockAt(0, 64, -20);
+  }
+
+  @Test
+  void aGolemsGuardNodesAreCachedBrieflyAndRefreshedWhenItsChannelChanges() {
+    World world = mock(World.class);
+    when(world.getUID()).thenReturn(WORLD);
+    NodeKey open = new NodeKey(WORLD, 6, 64, 0, BlockFace.UP);
+    NodeKey red = new NodeKey(WORLD, 0, 64, 6, BlockFace.UP);
+    Map<NodeKey, NodeRecord> nodes = new HashMap<>();
+    nodes.put(open, guard(OWNER).build());
+    nodes.put(red, guard(OWNER).channel(DyeColor.RED).build());
+    NodeService service = service(nodes);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
+    runtime.when(GolemancyRuntime::workSettings).thenReturn(GolemWorkSettings.defaults());
+    GolemHandle golem = golem(ChannelMask.NONE);
+    Location home = new Location(world, 0.5D, 64D, 0.5D);
+
+    behavior.nodesFor(golem, world, home, 1_000L);
+    behavior.nodesFor(golem, world, home, 1_000L + GuardNodeBehavior.NODE_CACHE_MILLIS - 1L);
+    verify(service, times(1)).index();
+    assertThat(behavior.pending()).isTrue();
+
+    when(golem.state().channels()).thenReturn(ChannelMask.of(DyeColor.RED));
+    assertThat(behavior.nodesFor(golem, world, home, 1_100L)).extracting(NodeIndex.Entry::key).containsExactlyInAnyOrder(open, red);
+    verify(service, times(2)).index();
+
+    behavior.nodesFor(golem, world, home, 1_100L + GuardNodeBehavior.NODE_CACHE_MILLIS);
+    verify(service, times(3)).index();
+
+    behavior.sweep(1_100L + GuardNodeBehavior.NODE_CACHE_MILLIS * 2L);
+    assertThat(behavior.pending()).isFalse();
   }
 
   private static NodeService service(Map<NodeKey, NodeRecord> nodes) {
@@ -175,7 +213,9 @@ class GuardNodeBehaviorTest {
     GolemState state = mock(GolemState.class);
     lenient().when(state.channels()).thenReturn(channels);
     lenient().when(state.cores()).thenReturn(GUARDIAN);
+    lenient().when(state.home()).thenReturn(GolemState.Anchor.of(WORLD, 0, 64, 0));
     GolemHandle handle = mock(GolemHandle.class);
+    lenient().when(handle.id()).thenReturn(UUID.randomUUID());
     lenient().when(handle.owner()).thenReturn(OWNER);
     lenient().when(handle.state()).thenReturn(state);
     return handle;

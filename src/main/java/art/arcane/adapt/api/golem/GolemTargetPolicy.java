@@ -10,4 +10,8 @@ public interface GolemTargetPolicy {
 
   default void tick(GolemHandle golem, Player owner) {
   }
+
+  default boolean idleBackoff() {
+    return false;
+  }
 }

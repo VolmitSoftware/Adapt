@@ -7,16 +7,18 @@ import java.util.List;
 final class GuardianRules {
   static final int OFFLINE_LEVEL = 1;
   private static final double MIN_SENTRY_RANGE = 1D;
-  private static final double MAX_SENTRY_RANGE = 32D;
-  private static final double DEFAULT_SENTRY_RANGE = 10D;
+  private static final double MAX_SENTRY_RANGE = 10D;
+  private static final double MIN_PERCEPTION = 1D;
+  private static final long MIN_INTERCEPT_INTERVAL_MILLIS = 500L;
   private static final double MAX_BULWARK_RADIUS = 16D;
   private static final double DEFAULT_BULWARK_RADIUS = 4D;
 
   private GuardianRules() {
   }
 
-  static int perception(List<Integer> byLevel, int level) {
-    return Math.max(0, AnimusBindingRules.atLevel(byLevel, Math.max(OFFLINE_LEVEL, level), 0));
+  static double perception(List<Integer> byLevel, int level, double maxRadius) {
+    double configured = AnimusBindingRules.atLevel(byLevel, Math.max(OFFLINE_LEVEL, level), 0);
+    return Math.clamp(configured, MIN_PERCEPTION, Math.max(MIN_PERCEPTION, maxRadius));
   }
 
   static boolean unlocked(int level, int unlockLevel) {
@@ -57,7 +59,11 @@ final class GuardianRules {
   }
 
   static double sentryRange(double configured) {
-    return Double.isFinite(configured) ? Math.clamp(configured, MIN_SENTRY_RANGE, MAX_SENTRY_RANGE) : DEFAULT_SENTRY_RANGE;
+    return Double.isFinite(configured) ? Math.clamp(configured, MIN_SENTRY_RANGE, MAX_SENTRY_RANGE) : MAX_SENTRY_RANGE;
+  }
+
+  static long interceptInterval(long configured) {
+    return Math.max(MIN_INTERCEPT_INTERVAL_MILLIS, configured);
   }
 
   static double bulwarkRadius(double configured) {

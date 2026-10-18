@@ -26,12 +26,17 @@ import org.bukkit.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 final class GuardNodeBehavior implements NodeBehavior {
+  static final long NODE_CACHE_MILLIS = 1_500L;
+
   private final Adaptation<?> policy;
+  private final Map<UUID, GuardedNodes> guarded = new ConcurrentHashMap<>();
 
   GuardNodeBehavior(Adaptation<?> policy) {
     this.policy = Objects.requireNonNull(policy);
@@ -63,7 +68,36 @@ final class GuardNodeBehavior implements NodeBehavior {
     return GolemActResult.FAILED;
   }
 
-  List<NodeIndex.Entry> nodesFor(GolemHandle golem, World world, Location home) {
+  List<NodeIndex.Entry> nodesFor(GolemHandle golem, World world, Location home, long nowMillis) {
+    GolemState state = golem.state();
+    GolemState.Anchor anchor = state.home();
+    int channels = state.channels();
+    GuardedNodes cached = guarded.get(golem.id());
+    if (cached != null && nowMillis < cached.until() && cached.channels() == channels && Objects.equals(cached.home(), anchor)) {
+      return cached.nodes();
+    }
+    List<NodeIndex.Entry> nodes = lookup(golem, state, world, home);
+    guarded.put(golem.id(), new GuardedNodes(anchor, channels, nodes, nowMillis + NODE_CACHE_MILLIS));
+    return nodes;
+  }
+
+  void engaged(NodeKey key, long nowMillis) {
+    GolemancyRuntime.boards().ifPresent(boards -> boards.board(key.world()).markWorked(key, nowMillis));
+  }
+
+  boolean pending() {
+    return !guarded.isEmpty();
+  }
+
+  void sweep(long nowMillis) {
+    guarded.values().removeIf(nodes -> nowMillis >= nodes.until());
+  }
+
+  void forget() {
+    guarded.clear();
+  }
+
+  private static List<NodeIndex.Entry> lookup(GolemHandle golem, GolemState state, World world, Location home) {
     Optional<NodeService> service = GolemancyRuntime.nodes();
     if (service.isEmpty()) {
       return List.of();
@@ -73,25 +107,21 @@ final class GuardNodeBehavior implements NodeBehavior {
     if (near.isEmpty()) {
       return List.of();
     }
-    GolemState state = golem.state();
     int channels = state.channels();
     List<GolemCoreType> cores = state.cores();
     UUID owner = golem.owner();
-    List<NodeIndex.Entry> guarded = new ArrayList<>(near.size());
+    List<NodeIndex.Entry> found = new ArrayList<>(near.size());
     for (NodeIndex.Entry entry : near) {
       if (guards(entry.record(), owner, channels, cores) && active(world, entry.key(), entry.record())) {
-        guarded.add(entry);
+        found.add(entry);
       }
     }
-    return guarded;
-  }
-
-  void engaged(NodeKey key, long nowMillis) {
-    GolemancyRuntime.boards().ifPresent(boards -> boards.board(key.world()).markWorked(key, nowMillis));
+    return List.copyOf(found);
   }
 
   private static boolean active(World world, NodeKey key, NodeRecord record) {
-    if (record.redstone() == RedstoneMode.IGNORE || !J.isOwnedByCurrentRegion(new Location(world, key.x(), key.y(), key.z()))) {
+    if (record.redstone() == RedstoneMode.IGNORE || !world.isChunkLoaded(key.chunkX(), key.chunkZ())
+        || !J.isOwnedByCurrentRegion(new Location(world, key.x(), key.y(), key.z()))) {
       return true;
     }
     return NodeRules.active(record, world.getBlockAt(key.x(), key.y(), key.z()));
@@ -100,5 +130,8 @@ final class GuardNodeBehavior implements NodeBehavior {
   private static boolean within(double coordinate, int center, int radius) {
     int block = (int) Math.floor(coordinate);
     return block >= center - radius && block <= center + radius;
+  }
+
+  private record GuardedNodes(GolemState.Anchor home, int channels, List<NodeIndex.Entry> nodes, long until) {
   }
 }

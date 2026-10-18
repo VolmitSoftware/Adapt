@@ -2,15 +2,20 @@ package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemBrain;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.math.M;
+import io.papermc.paper.registry.RegistryAccess;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Location;
+import org.bukkit.Registry;
 import org.bukkit.World;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Entity;
@@ -23,9 +28,15 @@ import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.EntityTargetEvent;
+import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
@@ -37,8 +48,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -58,9 +69,21 @@ class GolemGuardianCoreTest extends AdaptTestBase {
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<J> scheduling;
   private MockedStatic<M> time;
+  private MockedStatic<GolemVitals> vitals;
   private GolemGuardianCore adaptation;
   private World world;
   private Player owner;
+
+  @BeforeAll
+  static void initializeEffects() {
+    RegistryAccess access = mock(RegistryAccess.class, RETURNS_DEEP_STUBS);
+    try (MockedStatic<RegistryAccess> registryAccess = mockStatic(RegistryAccess.class)) {
+      registryAccess.when(RegistryAccess::registryAccess).thenReturn(access);
+      Registry<PotionEffectType> effects = Registry.MOB_EFFECT;
+      doAnswer(call -> mock(PotionEffectType.class)).when(effects).getOrThrow(any(Key.class));
+      assertThat(PotionEffectType.RESISTANCE).isNotNull();
+    }
+  }
 
   @BeforeEach
   void construct() {
@@ -78,6 +101,8 @@ class GolemGuardianCoreTest extends AdaptTestBase {
     scheduling.when(() -> J.isOwnedByCurrentRegion(any(Entity.class))).thenReturn(true);
     time = mockStatic(M.class);
     time.when(M::ms).thenAnswer(invocation -> clock.get());
+    vitals = mockStatic(GolemVitals.class);
+    vitals.when(() -> GolemVitals.maxHealth(any())).thenReturn(100D);
     adaptation = new GolemGuardianCore();
     world = mock(World.class);
     owner = living(Player.class, at(0, 64, 0));
@@ -86,6 +111,7 @@ class GolemGuardianCoreTest extends AdaptTestBase {
 
   @AfterEach
   void close() {
+    vitals.close();
     time.close();
     scheduling.close();
     runtime.close();
@@ -132,7 +158,7 @@ class GolemGuardianCoreTest extends AdaptTestBase {
   void bulwarkPresenceNeedsItsLevelAnAwakeGuardianWithinReachAndAShieldableCause() {
     guardian(at(5, 64, 0), false, GolemCoreType.GUARDIAN);
     guardian(at(1, 64, 0), true, GolemCoreType.GUARDIAN);
-    guardian(at(0, 64, 1), false, GolemCoreType.GATHERER);
+    GolemHandle gatherer = guardian(at(0, 64, 1), false, GolemCoreType.GATHERER);
     EntityDamageEvent tooFar = damage(owner, DamageCause.ENTITY_ATTACK, 10D);
     owner(4).shieldOwner(tooFar);
 
@@ -145,25 +171,29 @@ class GolemGuardianCoreTest extends AdaptTestBase {
     verify(tooFar, never()).setDamage(anyDouble());
     verify(lowLevel, never()).setDamage(anyDouble());
     verify(voidDamage, never()).setDamage(anyDouble());
+    verify(gatherer.entity(), never()).getLocation();
   }
 
   @Test
-  void lastStandBracesAGuardianThatDropsBelowItsThresholdOncePerCooldown() {
+  void lastStandGivesAGuardianThatDropsBelowItsThresholdResistanceOncePerCooldown() {
     IronGolem golem = living(IronGolem.class, at(2, 64, 0));
     bound(golem, GolemCoreType.GUARDIAN);
     when(golem.getHealth()).thenReturn(30D);
     GolemGuardianCore learned = golemOwner(5);
-    doReturn(100D).when(learned).maxHealth(golem);
 
-    learned.lastStand(golemDamage(golem, 12D));
-    learned.lastStand(golemDamage(golem, 12D));
+    learned.guardianHurt(golemDamage(golem, 12D));
+    learned.guardianHurt(golemDamage(golem, 12D));
     clock.addAndGet(59_999L);
-    learned.lastStand(golemDamage(golem, 12D));
-    verify(learned, times(1)).brace(golem, 100, 1);
+    learned.guardianHurt(golemDamage(golem, 12D));
+    ArgumentCaptor<PotionEffect> braced = ArgumentCaptor.forClass(PotionEffect.class);
+    verify(golem, times(1)).addPotionEffect(braced.capture());
+    assertThat(braced.getValue().getType()).isSameAs(PotionEffectType.RESISTANCE);
+    assertThat(braced.getValue().getDuration()).isEqualTo(100);
+    assertThat(braced.getValue().getAmplifier()).isEqualTo(1);
 
     clock.addAndGet(1L);
-    learned.lastStand(golemDamage(golem, 12D));
-    verify(learned, times(2)).brace(golem, 100, 1);
+    learned.guardianHurt(golemDamage(golem, 12D));
+    verify(golem, times(2)).addPotionEffect(any(PotionEffect.class));
   }
 
   @Test
@@ -174,18 +204,38 @@ class GolemGuardianCoreTest extends AdaptTestBase {
     IronGolem gatherer = living(IronGolem.class, at(4, 64, 0));
     bound(gatherer, GolemCoreType.GATHERER);
     when(gatherer.getHealth()).thenReturn(30D);
-    GolemGuardianCore lowLevel = golemOwner(4);
-    doReturn(100D).when(lowLevel).maxHealth(any(LivingEntity.class));
+
+    golemOwner(4).guardianHurt(golemDamage(guardian, 12D));
     GolemGuardianCore learned = golemOwner(5);
-    doReturn(100D).when(learned).maxHealth(any(LivingEntity.class));
+    learned.guardianHurt(golemDamage(gatherer, 12D));
+    learned.guardianHurt(golemDamage(guardian, 5D));
+    learned.guardianHurt(golemDamage(guardian, 31D));
 
-    lowLevel.lastStand(golemDamage(guardian, 12D));
-    learned.lastStand(golemDamage(gatherer, 12D));
-    learned.lastStand(golemDamage(guardian, 5D));
-    learned.lastStand(golemDamage(guardian, 31D));
+    verify(guardian, never()).addPotionEffect(any(PotionEffect.class));
+    verify(gatherer, never()).addPotionEffect(any(PotionEffect.class));
+  }
 
-    verify(lowLevel, never()).brace(any(Mob.class), anyInt(), anyInt());
-    verify(learned, never()).brace(any(Mob.class), anyInt(), anyInt());
+  @Test
+  void threatsToTheOwnerOrAGuardianWakeTheOwnersGuardiansIdleScans() {
+    GolemHandle near = guardian(at(3, 64, 0), false, GolemCoreType.GUARDIAN);
+    GolemHandle sleeping = guardian(at(4, 64, 0), true, GolemCoreType.GUARDIAN);
+    GolemHandle gatherer = guardian(at(5, 64, 0), false, GolemCoreType.GATHERER);
+    GolemBrain nearBrain = brain(near);
+    GolemBrain sleepingBrain = brain(sleeping);
+    GolemBrain gathererBrain = brain(gatherer);
+    Zombie zombie = living(Zombie.class, at(8, 64, 0));
+
+    IronGolem nearBody = (IronGolem) near.entity();
+    runtime.when(() -> GolemancyRuntime.handle(nearBody)).thenReturn(Optional.of(near));
+
+    owner(1).on(hit(zombie, owner));
+    adaptation.on(new EntityTargetLivingEntityEvent(zombie, owner, EntityTargetEvent.TargetReason.CLOSEST_PLAYER));
+    adaptation.on(new EntityTargetLivingEntityEvent(zombie, nearBody, EntityTargetEvent.TargetReason.CLOSEST_ENTITY));
+    golemOwner(1).guardianHurt(golemDamage(nearBody, 1D));
+
+    verify(nearBrain, times(4)).alert();
+    verify(sleepingBrain, never()).alert();
+    verify(gathererBrain, never()).alert();
   }
 
   @Test
@@ -227,9 +277,7 @@ class GolemGuardianCoreTest extends AdaptTestBase {
     bound(golem, GolemCoreType.GUARDIAN);
     when(golem.getHealth()).thenReturn(30D);
     doReturn(5).when(learned).ownerLevel(any(GolemHandle.class));
-    doReturn(100D).when(learned).maxHealth(golem);
-    doNothing().when(learned).brace(any(Mob.class), anyInt(), anyInt());
-    learned.lastStand(golemDamage(golem, 12D));
+    learned.guardianHurt(golemDamage(golem, 12D));
     assertThat(learned.hasTickDemand()).isTrue();
 
     clock.addAndGet(5_000L);
@@ -250,8 +298,14 @@ class GolemGuardianCoreTest extends AdaptTestBase {
   private GolemGuardianCore golemOwner(int level) {
     GolemGuardianCore learned = spy(adaptation);
     doReturn(level).when(learned).ownerLevel(any(GolemHandle.class));
-    doNothing().when(learned).brace(any(Mob.class), anyInt(), anyInt());
     return learned;
+  }
+
+  private GolemBrain brain(GolemHandle handle) {
+    GolemBrain brain = mock(GolemBrain.class);
+    Mob body = handle.entity();
+    runtime.when(() -> GolemancyRuntime.brain(body)).thenReturn(Optional.of(brain));
+    return brain;
   }
 
   private GolemHandle guardian(Location location, boolean dormant, GolemCoreType core) {

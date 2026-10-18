@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 public final class GolemBrain {
   private static final double MOVE_SPEED = 1D;
   private static final long TARGET_SCAN_MILLIS = 500L;
+  private static final long MAX_IDLE_SCAN_MILLIS = 2_000L;
   private static final long STATS_REFRESH_MILLIS = 1_000L;
 
   private final GolemHandle handle;
@@ -28,6 +29,7 @@ public final class GolemBrain {
   private final GolemWorker worker;
   private final AtomicLong generation = new AtomicLong();
   private final AtomicBoolean ownerLookPending = new AtomicBoolean();
+  private final AtomicBoolean alerted = new AtomicBoolean();
   private volatile boolean running;
   private volatile OwnerSighting ownerSighting;
   private boolean attached;
@@ -38,6 +40,7 @@ public final class GolemBrain {
   private LivingEntity appliedTarget;
   private GolemBrainState workState;
   private long nextScanAt;
+  private long scanDelay = TARGET_SCAN_MILLIS;
   private long nextStatsAt;
 
   GolemBrain(GolemHandle handle, GolemController controller, Context context) {
@@ -64,6 +67,14 @@ public final class GolemBrain {
     return Optional.ofNullable(combatTarget);
   }
 
+  public Optional<Location> stayAnchor() {
+    return stayAnchor == null ? Optional.empty() : Optional.of(stayAnchor.clone());
+  }
+
+  public void alert() {
+    alerted.set(true);
+  }
+
   void start() {
     if (running) {
       return;
@@ -72,6 +83,8 @@ public final class GolemBrain {
     machine.reset();
     workState = null;
     ownerLookPending.set(false);
+    alerted.set(false);
+    scanDelay = TARGET_SCAN_MILLIS;
     lastMode = null;
     combatTarget = null;
     appliedTarget = null;
@@ -223,9 +236,14 @@ public final class GolemBrain {
     if (combatTarget != null && !policy.holds(handle, owner, combatTarget)) {
       combatTarget = null;
     }
+    if (alerted.getAndSet(false)) {
+      scanDelay = TARGET_SCAN_MILLIS;
+      nextScanAt = now;
+    }
     if (combatTarget == null && !machine.combatSuppressed() && now >= nextScanAt) {
-      nextScanAt = now + TARGET_SCAN_MILLIS;
       combatTarget = policy.select(handle, owner);
+      nextScanAt = now + scanDelay;
+      scanDelay = combatTarget == null && policy.idleBackoff() ? Math.min(scanDelay * 2L, MAX_IDLE_SCAN_MILLIS) : TARGET_SCAN_MILLIS;
     }
     return combatTarget;
   }

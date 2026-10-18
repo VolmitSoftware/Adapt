@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
@@ -63,6 +64,7 @@ class GolemGuardianCoreExecutionTest extends AdaptTestBase {
     parsers = mockStatic(ConfiguredRecipeParser.class, CALLS_REAL_METHODS);
     parsers.when(() -> ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook())).thenReturn(parser);
     runtime = mockStatic(GolemancyRuntime.class);
+    runtime.when(GolemancyRuntime::brainSettings).thenReturn(GolemBrainSettings.defaults());
     adaptation = new GolemGuardianCore();
   }
 
@@ -131,6 +133,13 @@ class GolemGuardianCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
+  void theLoreShowsTheGuardRadiusClampedToTheLeash() {
+    runtime.when(GolemancyRuntime::brainSettings).thenReturn(new GolemBrainSettings(5, 32D, 18D, 8, 10));
+
+    assertThat(lore(5)).first().isEqualTo("+ 18 Block Guard Radius");
+  }
+
+  @Test
   void aDisabledReloadTurnsTheAdaptationOff() {
     assertThat(adaptation.reloadConfigSnapshot("enabled = false\nmaxLevel = 1\n", dataFolder.toPath().resolve("disabled.toml").toFile(), false)).isTrue();
     try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
@@ -143,10 +152,11 @@ class GolemGuardianCoreExecutionTest extends AdaptTestBase {
 
   @Test
   void loadingClampsRangesAndFractions() {
-    assertThat(adaptation.reloadConfigSnapshot("sentryRange = 90.0\nbulwarkRadius = -3.0\nbulwarkDamageReduction = 1.5\nlastStandHealthFraction = -0.2\n",
-        dataFolder.toPath().resolve("clamp.toml").toFile(), false)).isTrue();
+    assertThat(adaptation.reloadConfigSnapshot("sentryRange = 90.0\nbulwarkRadius = -3.0\nbulwarkDamageReduction = 1.5\nlastStandHealthFraction = -0.2\n"
+        + "interceptIntervalMillis = 50\n", dataFolder.toPath().resolve("clamp.toml").toFile(), false)).isTrue();
 
-    assertThat(adaptation.getConfig().sentryRange).isEqualTo(32D);
+    assertThat(adaptation.getConfig().sentryRange).isEqualTo(10D);
+    assertThat(adaptation.getConfig().interceptIntervalMillis).isEqualTo(500L);
     assertThat(adaptation.getConfig().bulwarkRadius).isZero();
     assertThat(adaptation.getConfig().bulwarkDamageReduction).isEqualTo(1D);
     assertThat(adaptation.getConfig().lastStandHealthFraction).isZero();

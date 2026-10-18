@@ -14,13 +14,19 @@ class GuardianRulesTest {
 
   @Test
   void perceptionFollowsTheLevelAndTreatsLevelZeroAsLevelOne() {
-    assertThat(GuardianRules.perception(PERCEPTION, 1)).isEqualTo(8);
-    assertThat(GuardianRules.perception(PERCEPTION, 3)).isEqualTo(16);
-    assertThat(GuardianRules.perception(PERCEPTION, 5)).isEqualTo(24);
-    assertThat(GuardianRules.perception(PERCEPTION, 9)).isEqualTo(24);
-    assertThat(GuardianRules.perception(PERCEPTION, 0)).isEqualTo(8);
-    assertThat(GuardianRules.perception(List.of(-3), 1)).isZero();
-    assertThat(GuardianRules.perception(List.of(), 2)).isZero();
+    assertThat(GuardianRules.perception(PERCEPTION, 1, 32D)).isEqualTo(8D);
+    assertThat(GuardianRules.perception(PERCEPTION, 3, 32D)).isEqualTo(16D);
+    assertThat(GuardianRules.perception(PERCEPTION, 5, 32D)).isEqualTo(24D);
+    assertThat(GuardianRules.perception(PERCEPTION, 9, 32D)).isEqualTo(24D);
+    assertThat(GuardianRules.perception(PERCEPTION, 0, 32D)).isEqualTo(8D);
+  }
+
+  @Test
+  void perceptionIsClampedBetweenOneBlockAndTheLeashRadius() {
+    assertThat(GuardianRules.perception(PERCEPTION, 5, 20D)).isEqualTo(20D);
+    assertThat(GuardianRules.perception(List.of(-3), 1, 32D)).isEqualTo(1D);
+    assertThat(GuardianRules.perception(List.of(), 2, 32D)).isEqualTo(1D);
+    assertThat(GuardianRules.perception(PERCEPTION, 1, 0D)).isEqualTo(1D);
   }
 
   @Test
@@ -99,10 +105,13 @@ class GuardianRulesTest {
 
   @Test
   void loadingClampsRangesAndFractions() {
-    assertThat(GuardianRules.sentryRange(10D)).isEqualTo(10D);
+    assertThat(GuardianRules.sentryRange(6D)).isEqualTo(6D);
     assertThat(GuardianRules.sentryRange(0.2D)).isEqualTo(1D);
-    assertThat(GuardianRules.sentryRange(90D)).isEqualTo(32D);
+    assertThat(GuardianRules.sentryRange(12D)).isEqualTo(10D);
     assertThat(GuardianRules.sentryRange(Double.NaN)).isEqualTo(10D);
+    assertThat(GuardianRules.interceptInterval(3_000L)).isEqualTo(3_000L);
+    assertThat(GuardianRules.interceptInterval(100L)).isEqualTo(500L);
+    assertThat(GuardianRules.interceptInterval(-5L)).isEqualTo(500L);
     assertThat(GuardianRules.bulwarkRadius(4D)).isEqualTo(4D);
     assertThat(GuardianRules.bulwarkRadius(-2D)).isZero();
     assertThat(GuardianRules.bulwarkRadius(99D)).isEqualTo(16D);

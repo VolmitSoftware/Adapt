@@ -2,6 +2,8 @@ package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemBrain;
+import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMode;
@@ -14,6 +16,9 @@ import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.NodeStatus;
+import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.api.minion.MinionKind;
+import art.arcane.adapt.api.minion.MinionTargeting;
 import art.arcane.adapt.util.common.scheduling.J;
 import net.kyori.adventure.text.Component;
 import org.bukkit.DyeColor;
@@ -34,6 +39,7 @@ import org.bukkit.entity.Zombie;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -43,7 +49,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
@@ -51,6 +59,8 @@ import java.util.function.Predicate;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -63,6 +73,8 @@ import static org.mockito.Mockito.when;
 class GuardianTargetPolicyTest {
   private static final UUID WORLD = UUID.fromString("00000000-0000-0000-0000-0000000000f1");
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000000f2");
+  private static final UUID STRANGER = UUID.fromString("00000000-0000-0000-0000-0000000000f3");
+  private static final Set<Entity> STRANGER_MINIONS = ConcurrentHashMap.newKeySet();
 
   private final List<Entity> nearby = new ArrayList<>();
   private final Map<Entity, AtomicReference<Location>> positions = new HashMap<>();
@@ -74,6 +86,21 @@ class GuardianTargetPolicyTest {
   private GolemGuardianCore core;
   private GuardianTargetPolicy policy;
   private Player owner;
+
+  @BeforeAll
+  static void registerStrangerMinions() {
+    MinionIdentity.registerKind(new MinionKind() {
+      @Override
+      public boolean matches(Entity entity) {
+        return STRANGER_MINIONS.contains(entity);
+      }
+
+      @Override
+      public UUID ownerOf(Entity entity) {
+        return STRANGER_MINIONS.contains(entity) ? STRANGER : null;
+      }
+    });
+  }
 
   @BeforeEach
   void setUp() {
@@ -89,7 +116,7 @@ class GuardianTargetPolicyTest {
     });
     core = mock(GolemGuardianCore.class);
     lenient().when(core.config()).thenReturn(config);
-    lenient().when(core.canEngage(any(Player.class), any(LivingEntity.class))).thenReturn(true);
+    lenient().when(core.canEngage(any(Player.class), any(MinionTargeting.Candidate.class))).thenReturn(true);
     level(1);
     policy = new GuardianTargetPolicy(core, new GuardNodeBehavior(core), clock::get);
     owner = player(OWNER, at(0, 64, -3));
@@ -110,6 +137,7 @@ class GuardianTargetPolicyTest {
     living(Cow.class, at(1, 64, 0));
 
     assertThat(policy.select(golem, owner)).isSameAs(closest);
+    assertThat(policy.idleBackoff()).isTrue();
   }
 
   @Test
@@ -147,7 +175,7 @@ class GuardianTargetPolicyTest {
     when(wolf.getTarget()).thenReturn(owner);
 
     assertThat(policy.select(golem, owner)).isSameAs(wolf);
-    verify(core, never()).canEngage(owner, cow);
+    verify(core, never()).canEngage(any(Player.class), argThat(candidate -> candidate.entity() == cow));
   }
 
   @Test
@@ -166,7 +194,7 @@ class GuardianTargetPolicyTest {
   void regionProtectionKeepsMobsSafe() {
     GolemHandle golem = golem(GolemBody.IRON, GolemMode.WORK, at(0, 64, 0));
     Zombie zombie = living(Zombie.class, at(2, 64, 0));
-    when(core.canEngage(owner, zombie)).thenReturn(false);
+    when(core.canEngage(eq(owner), argThat(candidate -> candidate != null && candidate.entity() == zombie))).thenReturn(false);
 
     assertThat(policy.select(golem, owner)).isNull();
   }
@@ -228,11 +256,101 @@ class GuardianTargetPolicyTest {
     assertThat(policy.select(golem, owner)).isSameAs(attacker);
     assertThat(policy.holds(golem, owner, attacker)).isTrue();
 
-    when(core.canEngage(owner, attacker)).thenReturn(false);
+    when(core.canEngage(eq(owner), argThat(candidate -> candidate != null && candidate.entity() == attacker))).thenReturn(false);
     assertThat(policy.select(golem, owner)).isSameAs(zombie);
 
     when(core.recentAttacker(OWNER, clock.get())).thenReturn(null);
     assertThat(policy.holds(golem, owner, attacker)).isFalse();
+  }
+
+  @Test
+  void anAttackOnTheOwnerTakesOverFromTheCurrentTarget() {
+    level(3);
+    GolemHandle golem = golem(GolemBody.IRON, GolemMode.WORK, at(0, 64, 0));
+    Zombie zombie = living(Zombie.class, at(2, 64, 0));
+    assertThat(policy.holds(golem, owner, zombie)).isTrue();
+
+    Player attacker = player(UUID.randomUUID(), at(5, 64, 0));
+    when(core.recentAttacker(OWNER, clock.get())).thenReturn(attacker);
+
+    assertThat(policy.holds(golem, owner, zombie)).isFalse();
+    assertThat(policy.select(golem, owner)).isSameAs(attacker);
+    assertThat(policy.holds(golem, owner, attacker)).isTrue();
+  }
+
+  @Test
+  void stayingGuardiansGuardTheSpotWhereTheyWereToldToStay() {
+    GolemHandle golem = golem(GolemBody.IRON, GolemMode.STAY, at(6, 64, 0));
+    GolemBrain brain = mock(GolemBrain.class);
+    when(brain.stayAnchor()).thenReturn(Optional.of(at(0, 64, 0)));
+    Zombie fleeing = living(Zombie.class, at(7, 64, 0));
+    assertThat(policy.holds(golem, owner, fleeing)).isTrue();
+
+    move(fleeing, at(9, 64, 0));
+    assertThat(policy.holds(golem, owner, fleeing)).isTrue();
+
+    Mob body = golem.entity();
+    runtime.when(() -> GolemancyRuntime.brain(body)).thenReturn(Optional.of(brain));
+    assertThat(policy.holds(golem, owner, fleeing)).isFalse();
+
+    move(fleeing, at(7, 64, 0));
+    assertThat(policy.holds(golem, owner, fleeing)).isTrue();
+  }
+
+  @Test
+  void guardNodeAreasCountOnlyWithinTheLeashOfHomeSoTheGolemNeverChasesPastIt() {
+    runtime.when(GolemancyRuntime::brainSettings).thenReturn(new GolemBrainSettings(5, 32D, 16D, 8, 10));
+    Map<NodeKey, NodeRecord> nodes = new HashMap<>();
+    NodeKey node = new NodeKey(WORLD, 14, 64, 0, BlockFace.UP);
+    nodes.put(node, NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).radii(4, 4, 4).build());
+    nodes(nodes);
+    GolemHandle golem = golem(GolemBody.IRON, GolemMode.WORK, at(0, 64, 0));
+    Zombie pastLeash = living(Zombie.class, at(17, 65, 0));
+
+    assertThat(policy.select(golem, owner)).isNull();
+    assertThat(policy.holds(golem, owner, pastLeash)).isFalse();
+
+    Zombie insideLeash = living(Zombie.class, at(12, 65, 0));
+    assertThat(policy.select(golem, owner)).isSameAs(insideLeash);
+  }
+
+  @Test
+  void passiveMobsAreSkippedBeforeAnyCaptureOrNameLookup() {
+    level(2);
+    GolemHandle golem = golem(GolemBody.IRON, GolemMode.WORK, at(0, 64, 0));
+    Cow cow = living(Cow.class, at(2, 64, 0));
+
+    assertThat(policy.select(golem, owner)).isNull();
+    policy.tick(golem, owner);
+
+    verify(cow, never()).customName();
+    verify(cow, never()).isInvulnerable();
+    verify(cow, never()).getLocation();
+  }
+
+  @Test
+  void interceptAndRetaliateLeaveOtherPlayersMinionsAndTheOwnersPetsAlone() {
+    level(3);
+    GolemHandle golem = golem(GolemBody.IRON, GolemMode.WORK, at(0, 64, 0));
+    Zombie minion = living(Zombie.class, at(3, 64, 0));
+    STRANGER_MINIONS.add(minion);
+    when(minion.getTarget()).thenReturn(owner);
+    Wolf pet = living(Wolf.class, at(4, 64, 0));
+    when(pet.isTamed()).thenReturn(true);
+    when(pet.getOwner()).thenReturn(owner);
+    when(pet.getTarget()).thenReturn(owner);
+
+    policy.tick(golem, owner);
+    when(core.recentAttacker(OWNER, clock.get())).thenReturn(minion);
+    LivingEntity avengedMinion = policy.select(golem, owner);
+    when(core.recentAttacker(OWNER, clock.get())).thenReturn(pet);
+    LivingEntity avengedPet = policy.select(golem, owner);
+
+    verify(minion, never()).setTarget(any());
+    verify(pet, never()).setTarget(any());
+    assertThat(avengedMinion).isNull();
+    assertThat(avengedPet).isNull();
+    STRANGER_MINIONS.remove(minion);
   }
 
   @Test
@@ -278,7 +396,7 @@ class GuardianTargetPolicyTest {
 
     Zombie close = living(Zombie.class, at(7, 64, 0));
     assertThat(policy.select(golem, null)).isSameAs(close);
-    verify(core, never()).canEngage(any(Player.class), any(LivingEntity.class));
+    verify(core, never()).canEngage(any(Player.class), any(MinionTargeting.Candidate.class));
     verify(core, never()).recentAttacker(any(), anyLong());
   }
 
