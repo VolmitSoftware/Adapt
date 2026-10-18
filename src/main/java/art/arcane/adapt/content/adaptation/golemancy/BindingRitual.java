@@ -11,10 +11,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 final class BindingRitual {
   private static final long STALE_AFTER_MILLIS = 5_000L;
+  private static final double HOLD_TOLERANCE = 0.1D;
 
   private final BindingTarget target;
   private final int durationTicks;
   private final int heldSlot;
+  private final Location anchor;
   private final boolean wasAware;
   private final AtomicBoolean finished = new AtomicBoolean();
   private volatile FxTimeline timeline;
@@ -25,6 +27,7 @@ final class BindingRitual {
     this.target = Objects.requireNonNull(target);
     this.durationTicks = Math.max(1, durationTicks);
     this.heldSlot = target.owner().getInventory().getHeldItemSlot();
+    this.anchor = target.golem().getLocation().clone();
     this.wasAware = GolemRitualMarker.wasAware(target.golem()).orElse(target.golem().isAware());
     this.lastPulseMillis = startedAtMillis;
   }
@@ -80,6 +83,17 @@ final class BindingRitual {
     Player owner = target.owner();
     return owner.getInventory().getHeldItemSlot() == heldSlot
         && GolemItems.coreOf(owner.getInventory().getItemInMainHand()).orElse(null) == target.core();
+  }
+
+  boolean drifted(Location current) {
+    return Objects.equals(anchor.getWorld(), current.getWorld()) && anchor.distanceSquared(current) > HOLD_TOLERANCE * HOLD_TOLERANCE;
+  }
+
+  Location anchorFacing(Location current) {
+    Location held = anchor.clone();
+    held.setYaw(current.getYaw());
+    held.setPitch(current.getPitch());
+    return held;
   }
 
   boolean withinReach(double reach) {

@@ -141,6 +141,33 @@ class BindingRitualTest {
     assertThat(ritual.withinReach(4D)).isFalse();
   }
 
+  @Test
+  void theGolemIsHeldOnceItDriftsMoreThanATenthOfABlockFromWhereTheRitualStarted() {
+    BindingRitual ritual = ritual(4);
+
+    assertThat(ritual.drifted(new Location(world, 0D, 64D, 0D))).isFalse();
+    assertThat(ritual.drifted(new Location(world, 0.07D, 64D, 0.07D))).isFalse();
+    assertThat(ritual.drifted(new Location(world, 0.11D, 64D, 0D))).isTrue();
+    assertThat(ritual.drifted(new Location(world, 0D, 64.11D, 0D))).isTrue();
+    assertThat(ritual.drifted(new Location(world, 2.3D, 64D, 2.3D))).isTrue();
+    assertThat(ritual.drifted(new Location(otherWorld, 2.3D, 64D, 2.3D))).isFalse();
+  }
+
+  @Test
+  void theHoldReturnsTheGolemToItsStartingSpotFacingItsCurrentDirection() {
+    when(golem.getLocation()).thenReturn(new Location(world, 1.5D, 64D, -2.5D, 10F, 0F));
+    BindingRitual ritual = ritual(4);
+
+    Location held = ritual.anchorFacing(new Location(world, 3.2D, 64D, -1.1D, 135F, 20F));
+
+    assertThat(held.getWorld()).isSameAs(world);
+    assertThat(held.getX()).isEqualTo(1.5D);
+    assertThat(held.getY()).isEqualTo(64D);
+    assertThat(held.getZ()).isEqualTo(-2.5D);
+    assertThat(held.getYaw()).isEqualTo(135F);
+    assertThat(held.getPitch()).isEqualTo(20F);
+  }
+
   private BindingRitual ritual(int ticks) {
     return new BindingRitual(new BindingTarget(owner, golem, GolemBody.FROST, GolemCoreType.BLANK), ticks, STARTED_AT);
   }

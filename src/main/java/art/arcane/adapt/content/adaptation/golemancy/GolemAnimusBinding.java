@@ -39,6 +39,7 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -49,6 +50,7 @@ import art.arcane.volmlib.util.localization.MessageArgument;
 import art.arcane.volmlib.util.localization.TextKey;
 import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
@@ -63,6 +65,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -247,6 +250,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
       abort(ritual, true);
       return;
     }
+    holdInPlace(ritual);
     ritual.advance();
     GolemScale.stepTo(ritual.target().golem(), ritual.progress());
     if (ritual.complete()) {
@@ -254,6 +258,17 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
       return;
     }
     schedulePulse(ritual);
+  }
+
+  private void holdInPlace(BindingRitual ritual) {
+    Mob golem = ritual.target().golem();
+    PaperCompat.stopPathfinding(golem);
+    Vector velocity = golem.getVelocity();
+    golem.setVelocity(new Vector(0D, velocity.getY(), 0D));
+    Location current = golem.getLocation();
+    if (ritual.drifted(current)) {
+      J.teleport(golem, ritual.anchorFacing(current));
+    }
   }
 
   private boolean holds(BindingRitual ritual) {
