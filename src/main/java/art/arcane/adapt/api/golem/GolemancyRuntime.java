@@ -1,6 +1,8 @@
 package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.golem.reveal.RevealService;
+import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.minion.MinionKind;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -37,6 +39,8 @@ public final class GolemancyRuntime {
   private static volatile GolemBrains brains;
   private static volatile GolemSettings settings = GolemSettings.defaults();
   private static volatile GolemBrainSettings brainSettings = GolemBrainSettings.defaults();
+  private static volatile RevealService reveal;
+  private static volatile RevealSettings revealSettings = RevealSettings.defaults();
 
   private GolemancyRuntime() {
   }
@@ -55,14 +59,23 @@ public final class GolemancyRuntime {
     registry = created;
     adoptLoaded(created);
     created.joinOnlineOwners();
+    RevealService createdReveal = new RevealService(GolemancyRuntime::revealSettings);
+    createdReveal.activateRuntime();
+    reveal = createdReveal;
   }
 
   public static boolean shutdown(long timeoutMillis) {
     GolemRegistry local;
+    RevealService localReveal;
     synchronized (GolemancyRuntime.class) {
       local = registry;
       registry = null;
       brains = null;
+      localReveal = reveal;
+      reveal = null;
+    }
+    if (localReveal != null) {
+      localReveal.shutdown();
     }
     if (local == null) {
       return true;
@@ -92,6 +105,10 @@ public final class GolemancyRuntime {
     return local == null ? Optional.empty() : local.brain(entity);
   }
 
+  public static Optional<RevealService> reveal() {
+    return Optional.ofNullable(reveal);
+  }
+
   public static GolemSettings settings() {
     return settings;
   }
@@ -112,12 +129,24 @@ public final class GolemancyRuntime {
     TARGET_POLICIES.put(Objects.requireNonNull(core), Objects.requireNonNull(policy));
   }
 
+  public static RevealSettings revealSettings() {
+    return revealSettings;
+  }
+
   public static void configure(GolemSettings next) {
     GolemSettings previous = settings;
     settings = Objects.requireNonNull(next);
     GolemRegistry local = registry;
     if (local != null && next.serverMaxActiveGolems() < previous.serverMaxActiveGolems()) {
       local.enforceCap();
+    }
+  }
+
+  public static void configureReveal(RevealSettings next) {
+    revealSettings = Objects.requireNonNull(next);
+    RevealService local = reveal;
+    if (local != null) {
+      local.setInterval(next.pollMillis());
     }
   }
 

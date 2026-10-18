@@ -439,6 +439,82 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
+  void removingACarriedEntryFlushesAndKeepsTheOtherEntries() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    handle.state().setCarried(List.of("first", "second", "second", "unreadable"));
+
+    assertThat(handle.removeCarried("second")).isTrue();
+    assertThat(handle.removeCarried("absent")).isFalse();
+
+    assertThat(GolemState.read(golem).orElseThrow().carried()).containsExactly("first", "second", "unreadable");
+  }
+
+  @Test
+  void anUnloadedHandleNeverHandsOutCarriedEntries() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    handle.state().setCarried(List.of("first"));
+    handle.flush();
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)));
+
+    assertThat(handle.removeCarried("first")).isFalse();
+    assertThat(GolemState.read(golem).orElseThrow().carried()).containsExactly("first");
+  }
+
+  @Test
+  void releasingAMissingEntryRemovesItAndSavesTheRoster() {
+    GolemRoster roster = onlineOwner();
+    UUID missing = UUID.randomUUID();
+    UUID active = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(missing, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.add(new GolemRoster.Binding(active, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.transition(missing, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+    int changesBefore = platform.changes(OWNER);
+
+    assertThat(registry.releaseMissing(OWNER, active)).isFalse();
+    assertThat(registry.releaseMissing(OWNER, UUID.randomUUID())).isFalse();
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore);
+
+    assertThat(registry.releaseMissing(OWNER, missing)).isTrue();
+
+    assertThat(roster.golem(missing)).isEmpty();
+    assertThat(roster.golem(active)).isPresent();
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore + 1);
+    assertThat(registry.releaseMissing(OWNER, missing)).isFalse();
+  }
+
+  @Test
+  void releasingAMissingEntryNeedsTheOwnersRoster() {
+    GolemRoster roster = onlineOwner();
+    UUID missing = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(missing, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.transition(missing, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+    platform.quit(OWNER);
+
+    assertThat(registry.releaseMissing(OWNER, missing)).isFalse();
+    assertThat(roster.golem(missing)).isPresent();
+  }
+
+  @Test
+  void aReleasedMissingGolemThatTurnsUpRevertsWithoutDrops() {
+    GolemRoster roster = onlineOwner();
+    UUID missing = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(missing, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    roster.transition(missing, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+    registry.releaseMissing(OWNER, missing);
+    IronGolem golem = persistedGolem(missing, false, at(0, 64, 0));
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+
+    assertThat(GolemState.has(golem)).isFalse();
+    assertThat(registry.handle(golem)).isEmpty();
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+  }
+
+  @Test
   void unloadFlushesPendingStatsAndRemembersWhereTheGolemWent() {
     GolemRoster roster = onlineOwner();
     AtomicReference<Location> location = new AtomicReference<>(at(0, 64, 0));

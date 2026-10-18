@@ -84,6 +84,19 @@ public final class GolemHandle {
     flush();
   }
 
+  public boolean removeCarried(String encoded) {
+    if (retired || !entity.isValid()) {
+      return false;
+    }
+    List<String> remaining = new ArrayList<>(state.carried());
+    if (!remaining.remove(encoded)) {
+      return false;
+    }
+    state.setCarried(remaining);
+    flush();
+    return true;
+  }
+
   public void setCores(List<GolemCoreType> cores) {
     state.setCores(cores);
     flush();

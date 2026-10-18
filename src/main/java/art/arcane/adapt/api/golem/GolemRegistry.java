@@ -206,6 +206,16 @@ public final class GolemRegistry extends TickedObject {
     return true;
   }
 
+  public boolean releaseMissing(UUID owner, UUID golem) {
+    Optional<GolemRoster> roster = platform.roster(owner);
+    if (roster.isEmpty() || !roster.get().remove(golem, GolemRoster.Status.MISSING)) {
+      return false;
+    }
+    missingWatch.forget(golem);
+    platform.rosterChanged(owner);
+    return true;
+  }
+
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntitiesLoadEvent e) {
     for (Entity entity : e.getEntities()) {

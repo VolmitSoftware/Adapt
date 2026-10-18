@@ -77,6 +77,21 @@ public final class GolemRoster {
     return id != null && golemMap().remove(id.toString()) != null;
   }
 
+  public boolean remove(UUID id, Status expected) {
+    if (id == null) {
+      return false;
+    }
+    AtomicBoolean removed = new AtomicBoolean();
+    golemMap().computeIfPresent(id.toString(), (key, entry) -> {
+      if (entry.status() != expected) {
+        return entry;
+      }
+      removed.set(true);
+      return null;
+    });
+    return removed.get();
+  }
+
   public boolean addNode(NodeEntry node) {
     return nodeMap().putIfAbsent(node.key(), node) == null;
   }

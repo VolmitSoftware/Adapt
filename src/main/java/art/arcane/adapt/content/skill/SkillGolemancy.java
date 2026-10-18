@@ -28,6 +28,8 @@ import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.HostileDamagePool;
+import art.arcane.adapt.api.golem.gui.CrookInteractions;
+import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
@@ -223,14 +225,15 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     super.onConfigReload(previousConfig, newConfig);
     GolemancyRuntime.configure(golemSettings(newConfig));
     GolemancyRuntime.configureBrain(brainSettings(newConfig));
+    GolemancyRuntime.configureReveal(revealSettings(newConfig));
   }
 
   @Override
   protected List<Listener> createCompanionListeners() {
     if (!PaperCompat.hasClass("io.papermc.paper.world.WeatheringCopperState")) {
-      return List.of();
+      return List.of(new CrookInteractions());
     }
-    return List.of(new CopperCareListener());
+    return List.of(new CrookInteractions(), new CopperCareListener());
   }
 
   static GolemSettings golemSettings(Config config) {
@@ -250,6 +253,10 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   static GolemBrainSettings brainSettings(Config config) {
     return new GolemBrainSettings(config.brainIntervalTicks, config.followTeleportDistance, config.leashRadius,
         config.idleReturnSeconds, config.copperRepathTicks);
+  }
+
+  static RevealSettings revealSettings(Config config) {
+    return new RevealSettings(config.revealRange, config.labelRange, config.revealPollTicks);
   }
 
   private void applyBuild(GolemBuildAttribution.Build build) {
@@ -459,5 +466,11 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     int idleReturnSeconds = 8;
     @ConfigDoc(value = "Ticks between path refreshes for a moving copper golem, clamped to 1-20.", impact = "Lower values keep copper golems on course; above 10, their own wandering can pull them off course.")
     int copperRepathTicks = 10;
+    @ConfigDoc(value = "Blocks around you within which your golems show their status labels while you hold the Crook, a Node, a Core or a Dormant Golem.", impact = "Higher values reveal golems farther away; lower values do less work on busy servers.")
+    double revealRange = 32.0;
+    @ConfigDoc(value = "Blocks within which revealed golem labels are drawn on screen.", impact = "Higher values let you read labels from farther away.")
+    double labelRange = 8.0;
+    @ConfigDoc(value = "Ticks between checks that reveal or hide golems as you move while holding the Crook, a Node, a Core or a Dormant Golem.", impact = "Lower values react to movement faster; holding none of them costs nothing.")
+    int revealPollTicks = 10;
   }
 }
