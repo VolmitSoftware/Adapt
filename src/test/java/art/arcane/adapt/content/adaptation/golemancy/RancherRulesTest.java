@@ -40,6 +40,11 @@ class RancherRulesTest {
   }
 
   @Test
+  void hostileAnimalsSuchAsHoglinsAreNeverTended() {
+    assertThat(RancherRules.parseSpecies(List.of("HOGLIN", "COW", "cow", "ZOMBIE", "nothing"))).containsExactly(EntityType.COW);
+  }
+
+  @Test
   void speciesCyclesFromAllAnimalsThroughTheTendedListAndBack() {
     List<EntityType> tended = List.of(EntityType.COW, EntityType.SHEEP, EntityType.PIG);
 

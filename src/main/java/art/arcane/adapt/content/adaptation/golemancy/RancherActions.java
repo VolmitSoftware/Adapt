@@ -8,7 +8,6 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.minion.MinionTargeting;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.DyeColor;
-import org.bukkit.GameRules;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -129,6 +128,7 @@ final class RancherActions implements Listener {
   void feed(GolemContext golem, Animals animal, boolean husbandry) {
     animal.setBreedCause(null);
     animal.setLoveModeTicks(RancherRules.LOVE_TICKS);
+    GolemRancherCore.markFedTick(animal);
     core.markFed(animal.getUniqueId(), golem.nowMillis(), husbandry);
   }
 
@@ -315,7 +315,7 @@ final class RancherActions implements Listener {
     }
 
     static Hooks server() {
-      return new Hooks(ItemStack::new, ThreadLocalRandom::current, world -> Boolean.TRUE.equals(world.getGameRuleValue(GameRules.MOB_DROPS)));
+      return new Hooks(ItemStack::new, ThreadLocalRandom::current, PaperCompat::mobDrops);
     }
   }
 

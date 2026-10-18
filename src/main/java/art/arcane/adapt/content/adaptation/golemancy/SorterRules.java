@@ -1,10 +1,12 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.golem.node.NodeContainers;
 import art.arcane.adapt.api.golem.node.NodeFilters;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -48,7 +50,6 @@ final class SorterRules {
   private static final char GROUP_SEPARATOR = '=';
   private static final String MEMBER_SEPARATOR = ",";
   private static final String TAG_PREFIX = "#";
-  private static final String SHULKER_BOX = "SHULKER_BOX";
 
   private SorterRules() {
   }
@@ -130,7 +131,17 @@ final class SorterRules {
   }
 
   static boolean shulker(Material type) {
-    return type.name().endsWith(SHULKER_BOX);
+    return NodeContainers.isShulkerBox(type);
+  }
+
+  static List<Integer> clampAll(List<Integer> values, int minimum, int maximum) {
+    List<Integer> clamped = new ArrayList<>(values == null ? 0 : values.size());
+    if (values != null) {
+      for (Integer value : values) {
+        clamped.add(clamp(value == null ? minimum : value, minimum, maximum));
+      }
+    }
+    return clamped;
   }
 
   static boolean nests(SorterDestination destination, ItemStack item) {

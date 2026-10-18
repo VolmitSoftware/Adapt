@@ -127,7 +127,7 @@ final class SorterNetwork {
   }
 
   private Optional<Inventory> container(SorterAccess viewer, Player owner, Block block, long nowMillis) {
-    if (owner == null || !viewer.owns(block) || !permits(owner, block, nowMillis)) {
+    if (owner == null || !viewer.owns(block) || !NodeRules.isContainer(block.getType()) || !permits(owner, block, nowMillis)) {
       return Optional.empty();
     }
     return NodeContainers.inventory(block);

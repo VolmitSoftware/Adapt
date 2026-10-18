@@ -70,6 +70,8 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
   private static final int MIN_FETCH_TIMEOUT_SECONDS = 10;
   private static final int MAX_INDEXED_CONTAINERS = 16_384;
   private static final int MAX_SERVED_CONTAINERS = 1_024;
+  private static final int MAX_DESTINATION_RADIUS = 64;
+  private static final int MAX_STACKS_PER_TRIP = 64;
   private static final long TICK_MILLIS = 50L;
 
   private final SorterIndex index = new SorterIndex(() -> getConfig().maxIndexedContainers, () -> getConfig().indexRefreshSeconds * MILLIS_PER_SECOND);
@@ -125,6 +127,8 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
     loadedConfig.maxIndexedContainers = SorterRules.clamp(loadedConfig.maxIndexedContainers, 1, MAX_INDEXED_CONTAINERS);
     loadedConfig.fetchTimeoutSeconds = SorterRules.clamp(loadedConfig.fetchTimeoutSeconds, MIN_FETCH_TIMEOUT_SECONDS, MAX_SECONDS);
     loadedConfig.maxServedContainers = SorterRules.clamp(loadedConfig.maxServedContainers, 1, MAX_SERVED_CONTAINERS);
+    loadedConfig.destinationRadiusByLevel = SorterRules.clampAll(loadedConfig.destinationRadiusByLevel, 1, MAX_DESTINATION_RADIUS);
+    loadedConfig.stacksPerTripByLevel = SorterRules.clampAll(loadedConfig.stacksPerTripByLevel, 1, MAX_STACKS_PER_TRIP);
   }
 
   @Override
@@ -243,9 +247,9 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
 
   @ConfigDescription("Copper golems bound with a Sorter Core empty the container under an Input Node into nearby containers that already hold each item, and learn item groups, Filter Nodes, restocking and fetching as the core grows stronger.")
   protected static class Config extends AdaptationConfig {
-    @ConfigDoc(value = "Blocks around an Input Node within which a Sorter puts items away, by Sorter Core level from level 1 upward. Each Input Node can narrow it in its menu.", impact = "Higher values let Sorters serve containers farther from the Input Node.")
+    @ConfigDoc(value = "Blocks around an Input Node within which a Sorter puts items away, by Sorter Core level from level 1 upward. Each Input Node can narrow it in its menu. Values outside 1 to 64 load as the nearest limit.", impact = "Higher values let Sorters serve containers farther from the Input Node.")
     List<Integer> destinationRadiusByLevel = new ArrayList<>(List.of(8, 12, 16, 20, 24));
-    @ConfigDoc(value = "Item stacks a Sorter takes from a container on each trip, by Sorter Core level from level 1 upward. Its carry limit still applies.", impact = "Higher values move more stacks per trip.")
+    @ConfigDoc(value = "Item stacks a Sorter takes from a container on each trip, by Sorter Core level from level 1 upward. Its carry limit still applies. Values outside 1 to 64 load as the nearest limit.", impact = "Higher values move more stacks per trip.")
     List<Integer> stacksPerTripByLevel = new ArrayList<>(List.of(1, 1, 2, 2, 4));
     @ConfigDoc(value = "Sorter Core level at which Sorters also put items into containers that hold another item of the same group.", impact = "Lower values unlock item groups sooner.")
     int groupsLevel = 2;

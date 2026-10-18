@@ -12,6 +12,7 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeRules;
 import art.arcane.adapt.api.golem.node.RedstoneMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -482,7 +483,8 @@ final class GolemWorker {
 
   private void homeInto(Block block, long nowMillis) {
     GolemContext golem = new GolemContext(this, new GolemContext.Scope(context.platform().bindingPolicy(), null, null, handle.core(), nowMillis));
-    golem.container(block).ifPresent(inventory -> golem.deliver(inventory, item -> true));
+    Material container = block.getType();
+    golem.container(block).ifPresent(inventory -> golem.deliver(inventory, item -> !NodeContainers.nests(container, item)));
   }
 
   private boolean route(long nowMillis, Location here) {
@@ -579,7 +581,7 @@ final class GolemWorker {
     boolean accessible = policy != null && policy.canAccessChest(owner, at);
     boolean active = NodeRules.active(record, block);
     boolean room = accessible && active && !accepted.isEmpty()
-        && NodeContainers.inventory(block).map(inventory -> NodeContainers.fits(inventory, accepted)).orElse(false);
+        && NodeContainers.inventory(block).map(inventory -> NodeContainers.fits(block.getType(), inventory, accepted)).orElse(false);
     return new GolemDeliveryRoute.DepositOption(key, record.priority(), distanceSquared, active, !accepted.isEmpty(), room, accessible);
   }
 
@@ -594,8 +596,9 @@ final class GolemWorker {
       return new GolemDeliveryRoute.HomeOption(chest, false, false);
     }
     boolean accessible = policy.canAccessChest(owner, at);
-    boolean room = accessible && NodeContainers.inventory(world.getBlockAt(chest.x(), chest.y(), chest.z()))
-        .map(inventory -> NodeContainers.fits(inventory, items)).orElse(false);
+    Block block = world.getBlockAt(chest.x(), chest.y(), chest.z());
+    boolean room = accessible && NodeContainers.inventory(block)
+        .map(inventory -> NodeContainers.fits(block.getType(), inventory, items)).orElse(false);
     return new GolemDeliveryRoute.HomeOption(chest, room, accessible);
   }
 

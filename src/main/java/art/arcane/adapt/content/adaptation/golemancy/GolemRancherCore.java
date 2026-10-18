@@ -50,6 +50,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +62,8 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
   static final String CORE_RECIPE = "golemancy-rancher-core";
   static final String NODE_RECIPE = "golemancy-pasture-node";
   static final long FED_MARK_MILLIS = 40_000L;
+  static final NamespacedKey FED_TICK_KEY = new NamespacedKey("adapt", "golem_fed_tick");
+  private static final int FED_TICK_GRACE = 20;
   private static final int RECIPE_LEVEL = 1;
   private static final int COOLDOWN_DELAY_TICKS = 1;
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
@@ -147,7 +150,7 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(EntityBreedEvent e) {
     long now = M.ms();
-    if (fresh(e.getMother(), now) || fresh(e.getFather(), now)) {
+    if (golemFed(e.getMother(), now) || golemFed(e.getFather(), now)) {
       e.setExperience(0);
     }
   }
@@ -157,6 +160,12 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
     long now = M.ms();
     shortenCooldown(e.getMother(), now);
     shortenCooldown(e.getFather(), now);
+    clearFedTick(e.getMother());
+    clearFedTick(e.getFather());
+  }
+
+  static void markFedTick(LivingEntity animal) {
+    animal.getPersistentDataContainer().set(FED_TICK_KEY, PersistentDataType.INTEGER, animal.getTicksLived());
   }
 
   Config config() {
@@ -186,12 +195,30 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
     fed.values().removeIf(mark -> !mark.freshAt(nowMillis));
   }
 
+  private boolean golemFed(LivingEntity parent, long nowMillis) {
+    return fresh(parent, nowMillis) || fedThisLove(parent);
+  }
+
   private boolean fresh(LivingEntity parent, long nowMillis) {
     if (parent == null) {
       return false;
     }
     Fed mark = fed.get(parent.getUniqueId());
     return mark != null && mark.freshAt(nowMillis);
+  }
+
+  private static boolean fedThisLove(LivingEntity parent) {
+    if (parent == null) {
+      return false;
+    }
+    Integer fedTick = parent.getPersistentDataContainer().get(FED_TICK_KEY, PersistentDataType.INTEGER);
+    return fedTick != null && parent.getTicksLived() - fedTick <= RancherRules.LOVE_TICKS + FED_TICK_GRACE;
+  }
+
+  private static void clearFedTick(LivingEntity parent) {
+    if (parent != null) {
+      parent.getPersistentDataContainer().remove(FED_TICK_KEY);
+    }
   }
 
   private void shortenCooldown(LivingEntity parent, long nowMillis) {
@@ -227,7 +254,7 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
 
   @ConfigDescription("Golems bound with a Rancher Core tend the animals in a Pasture Node's area: they breed pairs up to the node's keep count, then shear sheep, milk cows and goats, and cull spare adults as the core grows stronger.")
   protected static class Config extends AdaptationConfig {
-    @ConfigDoc(value = "Animals Pasture Nodes tend, by entity type name. Each Pasture Node tends all of them or the one species chosen in its Node GUI. Names that are not animals are ignored.", impact = "Remove a name to have Ranchers leave that animal alone, or add a breedable animal to have them tend it.")
+    @ConfigDoc(value = "Animals Pasture Nodes tend, by entity type name. Each Pasture Node tends all of them or the one species chosen in its Node GUI. Names that are not animals, and hostile animals such as hoglins, are ignored.", impact = "Remove a name to have Ranchers leave that animal alone, or add a breedable animal to have them tend it.")
     List<String> species = new ArrayList<>(RancherRules.DEFAULT_SPECIES);
     @ConfigDoc(value = "Keep count of a Pasture Node whose keep count was never changed in its Node GUI. Ranchers breed a species while its adults and babies in the area, plus one for each pair in love, number fewer than this; a lone animal in love counts as a pair. They cull adults above it, counting adults only. Values load between 2 and 64.", impact = "Higher values keep bigger herds.")
     int defaultKeep = 8;

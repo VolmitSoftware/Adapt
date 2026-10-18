@@ -29,6 +29,7 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -122,6 +123,8 @@ public final class PaperCompat {
   );
   private static final Map<String, Boolean> CLASS_PRESENCE = new ConcurrentHashMap<>();
   private static final String PATHFINDER_CLASS = "com.destroystokyo.paper.entity.Pathfinder";
+  private static final String GAME_RULES_CLASS = "org.bukkit.GameRules";
+  private static final String MOB_DROPS_FIELD = "MOB_DROPS";
   private static volatile boolean pathfindingSupported = true;
   private static volatile boolean blockReplaceableSupported = true;
   private static volatile boolean teleportAsyncSupported = true;
@@ -130,6 +133,8 @@ public final class PaperCompat {
   private static volatile boolean damageCriticalSupported = true;
   private static volatile boolean rangedAttackSupported = true;
   private static volatile boolean weatheringSupported = true;
+  private static volatile boolean mobDropsResolved;
+  private static volatile GameRule<?> mobDropsRule;
   private static volatile boolean freezeLockSupported = true;
   private static volatile boolean collisionQuerySupported = true;
   private static volatile boolean liveStateSupported = true;
@@ -204,6 +209,34 @@ public final class PaperCompat {
     } catch (NoClassDefFoundError | NoSuchMethodError absent) {
       rangedAttackSupported = false;
       return false;
+    }
+  }
+
+  public static boolean mobDrops(World world) {
+    if (!mobDropsResolved) {
+      mobDropsRule = resolveMobDropsRule();
+      mobDropsResolved = true;
+    }
+    return mobDrops(world, mobDropsRule);
+  }
+
+  static boolean mobDrops(World world, GameRule<?> rule) {
+    if (rule == null) {
+      return true;
+    }
+    Object value = world.getGameRuleValue(rule);
+    return !Boolean.FALSE.equals(value);
+  }
+
+  private static GameRule<?> resolveMobDropsRule() {
+    try {
+      return (GameRule<?>) Class.forName(GAME_RULES_CLASS).getField(MOB_DROPS_FIELD).get(null);
+    } catch (ReflectiveOperationException | RuntimeException | LinkageError paperAbsent) {
+      try {
+        return (GameRule<?>) GameRule.class.getField(MOB_DROPS_FIELD).get(null);
+      } catch (ReflectiveOperationException | RuntimeException | LinkageError spigotAbsent) {
+        return null;
+      }
     }
   }
 

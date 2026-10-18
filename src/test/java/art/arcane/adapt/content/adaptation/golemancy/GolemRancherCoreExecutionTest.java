@@ -28,6 +28,8 @@ import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.PluginManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +50,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -232,6 +235,42 @@ class GolemRancherCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
+  void aParentFedWithinItsLoveModeGivesNoExperienceEvenWithoutAClockMark() {
+    Cow fed = cow();
+    when(fed.getTicksLived()).thenReturn(1_500);
+    when(fed.getPersistentDataContainer().get(GolemRancherCore.FED_TICK_KEY, PersistentDataType.INTEGER)).thenReturn(1_000);
+    EntityBreedEvent birth = breeding(fed, cow());
+
+    adaptation.on(birth);
+    adaptation.afterBreeding(birth);
+
+    verify(birth).setExperience(0);
+    verify(fed.getPersistentDataContainer()).remove(GolemRancherCore.FED_TICK_KEY);
+  }
+
+  @Test
+  void aFeedingOlderThanLoveModeLeavesTheExperienceAlone() {
+    Cow fed = cow();
+    when(fed.getTicksLived()).thenReturn(2_000);
+    when(fed.getPersistentDataContainer().get(GolemRancherCore.FED_TICK_KEY, PersistentDataType.INTEGER)).thenReturn(1_000);
+    EntityBreedEvent birth = breeding(fed, cow());
+
+    adaptation.on(birth);
+
+    verify(birth, never()).setExperience(anyInt());
+  }
+
+  @Test
+  void feedingStampsTheAnimalWithItsCurrentTick() {
+    Cow fed = cow();
+    when(fed.getTicksLived()).thenReturn(777);
+
+    GolemRancherCore.markFedTick(fed);
+
+    verify(fed.getPersistentDataContainer()).set(GolemRancherCore.FED_TICK_KEY, PersistentDataType.INTEGER, 777);
+  }
+
+  @Test
   void aStaleFeedingMarkLeavesTheExperienceAndCooldownAlone() {
     Cow fed = cow();
     adaptation.markFed(fed.getUniqueId(), M.ms() - GolemRancherCore.FED_MARK_MILLIS, true);
@@ -309,6 +348,7 @@ class GolemRancherCoreExecutionTest extends AdaptTestBase {
     Cow cow = mock(Cow.class);
     UUID id = UUID.randomUUID();
     when(cow.getUniqueId()).thenReturn(id);
+    lenient().when(cow.getPersistentDataContainer()).thenReturn(mock(PersistentDataContainer.class));
     return cow;
   }
 

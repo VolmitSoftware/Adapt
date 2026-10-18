@@ -50,16 +50,17 @@ class SorterFetchesTest {
   }
 
   @Test
-  void requestsExpireAndSweepingForgetsFinishedOnes() {
-    SorterFetches.Request done = fetches.request(ALEX, INPUT, items.item(Material.COBBLESTONE, 1), 4, 0L);
+  void requestsExpireAndSweepingKeepsReservedOnesUntilThen() {
+    SorterFetches.Request reserved = fetches.request(ALEX, INPUT, items.item(Material.COBBLESTONE, 1), 4, 0L);
     fetches.request(SAM, INPUT, items.item(Material.DIRT, 1), 4, 0L);
-    done.reserve(4);
+    reserved.reserve(4);
 
     assertThat(fetches.open(INPUT, 59_999L)).hasSize(1);
     assertThat(fetches.open(INPUT, 60_000L)).isEmpty();
 
     fetches.sweep(1L);
-    assertThat(fetches.isEmpty()).isFalse();
+    reserved.release(4);
+    assertThat(fetches.open(INPUT, 1L)).hasSize(2);
     fetches.sweep(60_000L);
     assertThat(fetches.isEmpty()).isTrue();
   }

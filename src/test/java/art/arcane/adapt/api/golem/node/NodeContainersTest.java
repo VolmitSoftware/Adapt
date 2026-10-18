@@ -10,6 +10,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
 import org.bukkit.inventory.DoubleChestInventory;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -67,6 +68,22 @@ class NodeContainersTest {
     assertThat(NodeContainers.full(inventory)).isTrue();
     assertThat(NodeContainers.fits(inventory, List.of(GolemTestItems.stack(Material.CARROT, 1), GolemTestItems.stack(Material.WHEAT, 1)))).isTrue();
     assertThat(NodeContainers.fits(inventory, List.of(GolemTestItems.stack(Material.CARROT, 1)))).isFalse();
+  }
+
+  @Test
+  void aShulkerBoxNeverTakesAnotherShulkerBox() {
+    Inventory empty = GolemTestItems.inventory(27);
+    ItemStack box = GolemTestItems.stack(Material.RED_SHULKER_BOX, 1);
+    ItemStack wheat = GolemTestItems.stack(Material.WHEAT, 1);
+
+    assertThat(NodeContainers.isShulkerBox(Material.RED_SHULKER_BOX)).isTrue();
+    assertThat(NodeContainers.isShulkerBox(Material.CHEST)).isFalse();
+    assertThat(NodeContainers.nests(Material.SHULKER_BOX, box)).isTrue();
+    assertThat(NodeContainers.nests(Material.SHULKER_BOX, wheat)).isFalse();
+    assertThat(NodeContainers.nests(Material.CHEST, box)).isFalse();
+    assertThat(NodeContainers.fits(Material.SHULKER_BOX, empty, List.of(box))).isFalse();
+    assertThat(NodeContainers.fits(Material.SHULKER_BOX, empty, List.of(box, wheat))).isTrue();
+    assertThat(NodeContainers.fits(Material.CHEST, empty, List.of(box))).isTrue();
   }
 
   private static DoubleChestInventory doubleChest(Inventory leftHalf) {

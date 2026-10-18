@@ -36,6 +36,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
@@ -251,6 +252,27 @@ class InputNodeBehaviorTest {
     assertThat(carried(Material.DIRT)).isEqualTo(5);
     assertThat(xp).containsExactly(0.6D);
     assertThat(describe(behavior.route(golem(0), KEY, List.copyOf(cargo)).orElseThrow())).isEqualTo("drop 0,64,4 -");
+  }
+
+  @Test
+  void aDropPaysXpOnlyForStacksThatActuallyWentIn() {
+    ItemStack[] nearlyFull = new ItemStack[27];
+    for (int slot = 0; slot < 26; slot++) {
+      nearlyFull[slot] = items.item(Material.COBBLESTONE, 64);
+    }
+    nearlyFull[26] = items.item(Material.COBBLESTONE, 60);
+    Inventory cobble = yard.chest(3, 64, 0, nearlyFull);
+    cargo.add(items.item(Material.COBBLESTONE, 10));
+    cargo.add(items.item(Material.COBBLESTONE, 10));
+
+    GolemTask drop = behavior.route(golem(0), KEY, List.copyOf(cargo)).orElseThrow();
+    assertThat(describe(drop)).isEqualTo("drop 3,64,0 -");
+    assertThat(behavior.act(golem(0), drop)).isEqualTo(GolemActResult.WORKING);
+    assertThat(behavior.act(golem(1), drop)).isEqualTo(GolemActResult.DONE);
+
+    assertThat(SorterItems.count(cobble, Material.COBBLESTONE)).isEqualTo(27 * 64);
+    assertThat(carried(Material.COBBLESTONE)).isEqualTo(16);
+    assertThat(xp).containsExactly(0.3D);
   }
 
   @Test
@@ -538,7 +560,9 @@ class InputNodeBehaviorTest {
     lenient().when(golem.room()).thenAnswer(invocation -> Math.max(0, capacity - carriedCount()));
     lenient().when(golem.carry(any(ItemStack.class))).thenAnswer(invocation -> carry(invocation.getArgument(0)));
     lenient().when(golem.take(any(), anyInt())).thenAnswer(invocation -> take(invocation.getArgument(0), invocation.getArgument(1)));
-    lenient().when(golem.deliverUpTo(any(Inventory.class), any())).thenAnswer(invocation -> deliver(invocation.getArgument(0), invocation.getArgument(1)));
+    lenient().when(golem.deliverUpTo(any(Inventory.class), any())).thenAnswer(invocation -> deliver(invocation.getArgument(0), invocation.getArgument(1), delivered -> {
+    }));
+    lenient().when(golem.deliverUpTo(any(Inventory.class), any(), any())).thenAnswer(invocation -> deliver(invocation.getArgument(0), invocation.getArgument(1), invocation.getArgument(2)));
     lenient().doAnswer(invocation -> {
       Block block = invocation.getArgument(0);
       interactions.add(block.getX() + "," + block.getY() + "," + block.getZ());
@@ -594,7 +618,7 @@ class InputNodeBehaviorTest {
     return amount - left;
   }
 
-  private int deliver(Inventory inventory, ToIntFunction<ItemStack> amount) {
+  private int deliver(Inventory inventory, ToIntFunction<ItemStack> amount, IntConsumer stackDelivered) {
     int moved = 0;
     for (ItemStack held : List.copyOf(cargo)) {
       int wanted = Math.min(held.getAmount(), amount.applyAsInt(held.clone()));
@@ -609,6 +633,9 @@ class InputNodeBehaviorTest {
       }
       held.setAmount(held.getAmount() - (wanted - left));
       moved += wanted - left;
+      if (wanted - left > 0) {
+        stackDelivered.accept(wanted - left);
+      }
     }
     cargo.removeIf(item -> item.getAmount() <= 0);
     return moved;

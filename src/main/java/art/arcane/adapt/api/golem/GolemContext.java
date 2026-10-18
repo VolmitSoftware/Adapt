@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
+import java.util.function.IntConsumer;
 import java.util.function.ToIntFunction;
 
 public final class GolemContext {
@@ -177,6 +178,11 @@ public final class GolemContext {
   }
 
   public int deliverUpTo(Inventory inventory, ToIntFunction<ItemStack> amount) {
+    return deliverUpTo(inventory, amount, delivered -> {
+    });
+  }
+
+  public int deliverUpTo(Inventory inventory, ToIntFunction<ItemStack> amount, IntConsumer stackDelivered) {
     List<ItemStack> items = worker.cargo().items();
     List<ItemStack> remaining = new ArrayList<>(items.size());
     int moved = 0;
@@ -205,7 +211,11 @@ public final class GolemContext {
           left += leftover.getAmount();
           remaining.add(leftover);
         }
-        moved += wanted - left;
+        int delivered = wanted - left;
+        moved += delivered;
+        if (delivered > 0) {
+          stackDelivered.accept(delivered);
+        }
       }
     } finally {
       if (touched) {

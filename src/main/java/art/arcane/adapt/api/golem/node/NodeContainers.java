@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Optional;
 
 public final class NodeContainers {
+  private static final String SHULKER_BOX = "SHULKER_BOX";
+
   private NodeContainers() {
   }
 
@@ -38,6 +40,14 @@ public final class NodeContainers {
     return inventory.firstEmpty() < 0;
   }
 
+  public static boolean isShulkerBox(Material material) {
+    return material.name().endsWith(SHULKER_BOX);
+  }
+
+  public static boolean nests(Material container, ItemStack item) {
+    return container != null && isShulkerBox(container) && isShulkerBox(item.getType());
+  }
+
   public static int room(Inventory inventory, ItemStack item) {
     int stackSize = Math.max(1, Math.min(item.getMaxStackSize(), inventory.getMaxStackSize()));
     int room = 0;
@@ -54,6 +64,15 @@ public final class NodeContainers {
   public static boolean fits(Inventory inventory, List<ItemStack> items) {
     for (ItemStack item : items) {
       if (room(inventory, item) > 0) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public static boolean fits(Material container, Inventory inventory, List<ItemStack> items) {
+    for (ItemStack item : items) {
+      if (!nests(container, item) && room(inventory, item) > 0) {
         return true;
       }
     }

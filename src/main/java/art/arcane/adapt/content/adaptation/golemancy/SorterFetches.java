@@ -55,7 +55,7 @@ final class SorterFetches {
   }
 
   void sweep(long nowMillis) {
-    requests.values().removeIf(request -> !request.open(nowMillis));
+    requests.values().removeIf(request -> request.expired(nowMillis));
   }
 
   boolean isEmpty() {
@@ -123,7 +123,11 @@ final class SorterFetches {
     }
 
     private boolean open(long nowMillis) {
-      return remaining.get() > 0 && nowMillis < expiresAt;
+      return remaining.get() > 0 && !expired(nowMillis);
+    }
+
+    private boolean expired(long nowMillis) {
+      return nowMillis >= expiresAt;
     }
   }
 }

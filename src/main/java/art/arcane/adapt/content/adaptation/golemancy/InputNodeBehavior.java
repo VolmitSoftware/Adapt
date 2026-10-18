@@ -284,12 +284,8 @@ final class InputNodeBehavior implements NodeBehavior {
     int[] stacks = new int[1];
     int moved = golem.deliverUpTo(inventory, item -> {
       boolean belongs = survey.choose(item).map(best -> best.id().equals(id)).orElse(false);
-      int amount = belongs ? caps.take(item) : 0;
-      if (amount > 0) {
-        stacks[0]++;
-      }
-      return amount;
-    });
+      return belongs ? caps.take(item) : 0;
+    }, delivered -> stacks[0]++);
     return delivered(golem, block, moved, stacks[0]);
   }
 
@@ -315,9 +311,8 @@ final class InputNodeBehavior implements NodeBehavior {
       }
       int amount = Math.min(item.getAmount(), left[0]);
       left[0] -= amount;
-      stacks[0]++;
       return amount;
-    });
+    }, delivered -> stacks[0]++);
     return moved > 0 ? delivered(golem, block, moved, stacks[0]) : GolemActResult.DONE;
   }
 

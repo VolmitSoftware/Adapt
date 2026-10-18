@@ -9,7 +9,6 @@ public final class NodeRules {
   public static final int PRIORITY_LEVEL = 3;
   public static final int REDSTONE_LEVEL = 4;
   public static final int BLACKLIST_LEVEL = 5;
-  private static final String SHULKER_BOX = "SHULKER_BOX";
   private static final String COPPER_CHEST = "COPPER_CHEST";
 
   private NodeRules() {
@@ -76,8 +75,7 @@ public final class NodeRules {
     if (material == Material.CHEST || material == Material.TRAPPED_CHEST || material == Material.BARREL) {
       return true;
     }
-    String name = material.name();
-    return name.endsWith(SHULKER_BOX) || name.endsWith(COPPER_CHEST);
+    return NodeContainers.isShulkerBox(material) || material.name().endsWith(COPPER_CHEST);
   }
 
   public static boolean active(NodeRecord record, Block anchor) {

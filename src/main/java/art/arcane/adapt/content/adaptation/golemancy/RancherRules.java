@@ -3,6 +3,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import org.bukkit.entity.Animals;
+import org.bukkit.entity.Enemy;
 import org.bukkit.entity.EntityType;
 
 import java.util.ArrayList;
@@ -282,7 +283,9 @@ final class RancherRules {
       return Optional.empty();
     }
     Class<?> entityClass = type.getEntityClass();
-    return entityClass != null && Animals.class.isAssignableFrom(entityClass) ? Optional.of(type) : Optional.empty();
+    return entityClass != null && Animals.class.isAssignableFrom(entityClass) && !Enemy.class.isAssignableFrom(entityClass)
+        ? Optional.of(type)
+        : Optional.empty();
   }
 
   private static NodeRecord withData(NodeRecord record, String key, String value) {

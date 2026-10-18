@@ -4,6 +4,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemTask;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -50,6 +51,9 @@ public final class DepositBehavior implements NodeBehavior {
     if (inventory.isEmpty()) {
       return GolemActResult.FAILED;
     }
-    return golem.deliver(inventory.get(), item -> accepts(record, item)) > 0 ? GolemActResult.DONE : GolemActResult.FAILED;
+    Material container = anchor.getType();
+    return golem.deliver(inventory.get(), item -> !NodeContainers.nests(container, item) && accepts(record, item)) > 0
+        ? GolemActResult.DONE
+        : GolemActResult.FAILED;
   }
 }

@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.AnimalTamer;
@@ -105,6 +106,14 @@ class PaperCompatTest {
 
     assertThat(PaperCompat.freezeTicksLocked(locked)).isTrue();
     assertThat(PaperCompat.freezeTicksLocked(free)).isFalse();
+  }
+
+  @Test
+  void mobDropsDefaultToTrueWhenNoRuleIsKnown() {
+    World world = mock(World.class);
+
+    assertThat(PaperCompat.mobDrops(world, (GameRule<?>) null)).isTrue();
+    assertThat(PaperCompat.mobDrops(world)).isTrue();
   }
 
   @Test
