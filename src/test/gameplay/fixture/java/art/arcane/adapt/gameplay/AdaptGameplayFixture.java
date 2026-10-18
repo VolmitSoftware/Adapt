@@ -282,6 +282,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
     private void stage(String name) {
         if (arena == null) throw new IllegalStateException("Setup required");
         for (Entity entity : arena.getEntities()) if (!(entity instanceof Player)) entity.remove();
+        if (name.equals("golemancy") || name.startsWith("golemancy-")) GolemancyFixtures.clearRosters(actor, opponent);
         TraversalFixtures.reset();
         resetArena();
         for (Player player : new Player[]{actor, opponent}) {

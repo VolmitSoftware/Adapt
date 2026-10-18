@@ -1,7 +1,9 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
@@ -12,6 +14,7 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
 import art.arcane.adapt.api.golem.plinth.PlinthSpot;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import com.google.gson.JsonObject;
 import org.bukkit.Location;
@@ -239,6 +242,19 @@ public final class GolemancyFixtures {
             return true;
         }
         return false;
+    }
+
+    public static void clearRosters(Player... players) {
+        for (Player player : players) {
+            AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(player);
+            if (adaptPlayer == null) {
+                continue;
+            }
+            GolemRoster roster = adaptPlayer.getData().getGolemancy();
+            for (GolemRoster.GolemEntry entry : roster.golems()) {
+                roster.remove(entry.id());
+            }
+        }
     }
 
     public static JsonObject snapshot(Player player) {
