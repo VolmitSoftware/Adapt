@@ -39,6 +39,7 @@ public final class GolemancyFixtures {
     private static final String RANCHER_BINDING_STAGE = "golemancy-rancher-binding";
     private static final String ANGLER_BINDING_STAGE = "golemancy-angler-binding";
     private static final String COPPER_BINDING_STAGE = "golemancy-copper-binding";
+    private static final String OVERSEER_STAGE = "golemancy-overseer";
     private static final String IRON_BINDING_STAGE = "golemancy-iron-binding";
     private static final String NODE_STAGE = "golemancy-node";
     private static final String PLINTH_STAGE = "golemancy-plinth";
@@ -121,6 +122,17 @@ public final class GolemancyFixtures {
             actor.getInventory().addItem(GolemItems.core(GolemCoreType.ANGLER));
             CopperGolem golem = world.spawn(new Location(world, 2.5, 100, 0.5), CopperGolem.class);
             golem.addScoreboardTag(COPPER_GOLEM_TAG);
+            return true;
+        }
+        if (OVERSEER_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.setLevel(0);
+            actor.getInventory().clear();
+            actor.getInventory().setItem(0, GolemItems.blankCore());
+            actor.getInventory().setItem(1, GolemItems.crook());
+            actor.getInventory().setHeldItemSlot(0);
+            Snowman golem = world.spawn(new Location(world, 2.5, 100, 0.5), Snowman.class);
+            golem.addScoreboardTag(GOLEM_TAG);
             return true;
         }
         if (COPPER_BINDING_STAGE.equals(name)) {

@@ -28,6 +28,26 @@ const bind = bindGolem('golem', 'snow golem', 0.9)
 const bindCopper = bindGolem('copperGolem', 'copper golem', 0.5)
 const bindIron = bindGolem('ironGolem', 'iron golem', 1.2)
 
+async function signalHold(input) {
+    const { actor, snapshot } = input
+    const bound = await bind(input)
+    actor.bot.setQuickBarSlot(1)
+    await actor.bot.waitForTicks(4)
+    await actor.bot.look(actor.bot.entity.yaw, Math.PI / 2, true)
+    actor.bot.setControlState('sneak', true)
+    try {
+        await actor.bot.waitForTicks(4)
+        actor.bot.swingArm('right')
+        await actor.bot.waitForTicks(4)
+    } finally {
+        actor.bot.setControlState('sneak', false)
+    }
+    await actor.bot.waitForTicks(25)
+    actor.bot.swingArm('right')
+    await actor.bot.waitForTicks(20)
+    return { bound, signaled: (await snapshot()).golemancy.golem }
+}
+
 async function placeNode(input) {
     const { context, actor, snapshot } = input
     const position = actor.bot.entity.position.clone().set(2, 100, 0)
@@ -245,6 +265,21 @@ export const golemancyBehaviorCases = new Map([
             context.expect(active.mode === 'work', 'A new Angler starts in Work mode, ready for Fishing Nodes')
             return {
                 assertions: ['unlearned binding leaves the copper golem unbound', 'learned binding makes the copper golem an Angler in Work mode'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
+    ['golem-overseer', {
+        stage: 'golemancy-overseer', trigger: signalHold, prerequisites: [{ name: 'golem-animus-binding', level: 5 }],
+        prepare: ({ equip }) => equip('firework_star'),
+        description: 'sneak-left-clicking the air with the Crook cycles the signal to Hold, and left-clicking sends it to the bound companion',
+        async verify({ context, unlearned, active }) {
+            context.expect(unlearned.bound.bound && unlearned.bound.mode === 'follow', 'Without Overseer the companion binds and follows the player')
+            context.expect(unlearned.signaled.mode === 'follow', 'Without Overseer the Crook signal leaves the companion following')
+            context.expect(active.bound.bound && active.bound.mode === 'follow', 'With Overseer the companion binds and follows the player')
+            context.expect(active.signaled.mode === 'stay', 'With Overseer the Hold signal makes the companion stay')
+            return {
+                assertions: ['unlearned Crook signals leave the companion in Follow mode', 'learned Hold signal switches the companion to Stay mode'],
                 measurements: { unlearned, active },
             }
         },

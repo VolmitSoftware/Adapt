@@ -20,6 +20,13 @@ public final class CrookGestures<T> {
     return sneaking && !entityClickEcho ? Action.ROSTER_GUI : Action.NONE;
   }
 
+  public static Action onLeftAir(boolean sneaking, boolean entityClickEcho) {
+    if (entityClickEcho) {
+      return Action.NONE;
+    }
+    return sneaking ? Action.CYCLE_SIGNAL : Action.SEND_SIGNAL;
+  }
+
   public static Action onBlock(boolean linkArmed, boolean container) {
     return linkArmed && container ? Action.LINK_CHEST : Action.NONE;
   }
@@ -62,7 +69,9 @@ public final class CrookGestures<T> {
     NONE,
     GOLEM_GUI,
     ROSTER_GUI,
-    LINK_CHEST
+    LINK_CHEST,
+    SEND_SIGNAL,
+    CYCLE_SIGNAL
   }
 
   private record Link<T>(T target, long expiresAt) {

@@ -4395,6 +4395,13 @@ follow = "Sekti"
 stay = "Likti"
 home = "Namo"
 
+[golemancy.signal]
+follow = "Sekti"
+hold = "Laikytis"
+home = "Namo"
+work = "Darbas"
+sic = "Pulk"
+
 [golemancy.channel]
 none = "Nėra"
 white = "Balta"
@@ -4478,6 +4485,10 @@ status = "Būsena: {status}"
 locate = "Kairiuoju pelės mygtuku – rasti"
 release = "Shift ir dešiniuoju pelės mygtuku – paleisti"
 release_confirm = "Visam laikui paleisti šį dingusį golemą?"
+crook_channel = "Lazdos kanalas: {channel}"
+crook_channel_lore = "Spustelėkite, kad pasirinktumėte, kuriems golemams jūsų lazda duoda ženklus"
+crook_channel_title = "Lazdos kanalas"
+crook_channel_all = "Visi golemai"
 
 [golemancy.message]
 home_set = "Namai nustatyti ties {x}, {y}, {z}"
@@ -4497,6 +4508,8 @@ rune_no_slot = "Šis golemas neturi laisvo runos lizdo"
 rune_duplicate = "Šis golemas jau turi runą: {aspect}"
 rune_blocked = "{body} golemas negali naudoti runų: {aspect}"
 channels_full = "Šis golemas gali naudoti tik {count} kanalus"
+crook_channel = "Jūsų lazda dabar duoda ženklus: {channel}"
+crook_needed = "Laikykite lazdą pagrindinėje rankoje, kad nustatytumėte jos kanalą"
 
 [golemancy.binding]
 busy = "Sujungimo ritualas jau vyksta"
@@ -4674,6 +4687,20 @@ lore1 = "Papildomi runų lizdai kiekvienam golemui"
 lore2 = "Aukščiausias naudojamas runų lygis"
 lore3 = "Animus pakyla ir tuščios runos receptas"
 lore = ["Papildomi runų lizdai kiekvienam golemui", "Aukščiausias naudojamas runų lygis", "Animus pakyla ir tuščios runos receptas"]
+
+[golemancy.overseer]
+name = "Prižiūrėtojas"
+description = "Leidžia Meistro lazda duoti ženklus tavo sujungtiems golemams: sekti, laikytis vietoje, grįžti namo ar dirbti, o stiprėjant – pulti tai, į ką žiūri, atsiliepti pagal kanalą, susirinkti pas tave ir saugoti tave rikiuotėje."
+lore1 = "Ženklo spindulys blokais"
+lore2 = "Pulk: tavo kovojantys golemai puola tai, į ką žiūri"
+lore3 = "Lazdos kanalo filtras, nustatomas golemų sąraše"
+lore4 = "Sutelkimas: Sekti pakviečia tolimus golemus pas tave"
+lore5 = "Didžiausi šarvai iš golemų rikiuotėje"
+lore = ["Ženklo spindulys blokais", "Pulk: tavo kovojantys golemai puola tai, į ką žiūri", "Lazdos kanalo filtras, nustatomas golemų sąraše", "Sutelkimas: Sekti pakviečia tolimus golemus pas tave", "Didžiausi šarvai iš golemų rikiuotėje"]
+signal = "Ženklas: {signal}"
+sent = "Išsiųsta: {signal}"
+sent_channel = "Išsiųsta: {signal} kanalui {channel}"
+no_target = "Pažiūrėkite į padarą, kurį galite pulti, ne toliau kaip {range} blokų, kad išsiųstumėte Pulk"
 
 [golemancy.node_status]
 idle = "Laukia"

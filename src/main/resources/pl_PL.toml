@@ -4395,6 +4395,13 @@ follow = "Podążaj"
 stay = "Zostań"
 home = "Do domu"
 
+[golemancy.signal]
+follow = "Podążaj"
+hold = "Trzymaj"
+home = "Do domu"
+work = "Praca"
+sic = "Bierz"
+
 [golemancy.channel]
 none = "Brak"
 white = "Biały"
@@ -4478,6 +4485,10 @@ status = "Stan: {status}"
 locate = "Lewy przycisk, aby zlokalizować"
 release = "Shift + prawy przycisk, aby uwolnić"
 release_confirm = "Uwolnić na zawsze tego zaginionego golema?"
+crook_channel = "Kanał laski: {channel}"
+crook_channel_lore = "Kliknij, aby wybrać, którym golemom twoja laska daje sygnały"
+crook_channel_title = "Kanał laski"
+crook_channel_all = "Wszystkie golemy"
 
 [golemancy.message]
 home_set = "Dom ustawiony na {x}, {y}, {z}"
@@ -4497,6 +4508,8 @@ rune_no_slot = "Ten golem nie ma wolnego miejsca na runę"
 rune_duplicate = "Ten golem ma już runę: {aspect}"
 rune_blocked = "Golem typu {body} nie może używać run: {aspect}"
 channels_full = "Ten golem może używać tylko {count} kanałów"
+crook_channel = "Twoja laska daje teraz sygnały: {channel}"
+crook_needed = "Trzymaj laskę w głównej ręce, aby ustawić jej kanał"
 
 [golemancy.binding]
 busy = "Rytuał wiązania już trwa"
@@ -4674,6 +4687,20 @@ lore1 = "Dodatkowe miejsca na runy na golema"
 lore2 = "Najwyższy dostępny poziom run"
 lore3 = "Postument animusa i przepis na Pustą runę"
 lore = ["Dodatkowe miejsca na runy na golema", "Najwyższy dostępny poziom run", "Postument animusa i przepis na Pustą runę"]
+
+[golemancy.overseer]
+name = "Nadzorca"
+description = "Pozwala dawać sygnały twoim związanym golemom Laską rzemieślnika, by podążały za tobą, trzymały pozycję, wracały do domu lub pracowały, a w miarę rozwoju atakowały to, na co patrzysz, odpowiadały według kanału, zbierały się przy tobie i chroniły cię w szyku."
+lore1 = "Promień sygnału w blokach"
+lore2 = "Bierz: twoje walczące golemy atakują to, na co patrzysz"
+lore3 = "Filtr kanału laski, ustawiany w spisie golemów"
+lore4 = "Zbiórka: Podążaj przywołuje do ciebie dalekie golemy"
+lore5 = "Maksymalny pancerz od golemów w szyku"
+lore = ["Promień sygnału w blokach", "Bierz: twoje walczące golemy atakują to, na co patrzysz", "Filtr kanału laski, ustawiany w spisie golemów", "Zbiórka: Podążaj przywołuje do ciebie dalekie golemy", "Maksymalny pancerz od golemów w szyku"]
+signal = "Sygnał: {signal}"
+sent = "Wysłano: {signal}"
+sent_channel = "Wysłano: {signal} na kanał {channel}"
+no_target = "Spójrz na stworzenie, które możesz zaatakować, w promieniu {range} bloków, aby wysłać Bierz"
 
 [golemancy.node_status]
 idle = "Bezczynny"

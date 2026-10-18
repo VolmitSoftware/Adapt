@@ -10,6 +10,7 @@ import art.arcane.adapt.util.common.misc.CustomModel;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.bukkit.Color;
+import org.bukkit.DyeColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,6 +47,7 @@ import static org.mockito.Mockito.when;
 class GolemItemsTest extends AdaptTestBase {
   private static final UUID GOLEM = UUID.fromString("00000000-0000-0000-0000-00000000a001");
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-00000000b002");
+  private static final NamespacedKey CROOK_CHANNEL_KEY = new NamespacedKey("adapt", "crook_channel");
   private static final PackedGolem PACKED = new PackedGolem(GOLEM, OWNER, "{\"body\":\"IRON\"}");
 
   private final List<List<String>> modelPaths = new ArrayList<>();
@@ -368,6 +371,34 @@ class GolemItemsTest extends AdaptTestBase {
     assertThat(GolemItems.runeOf(GolemItemStacks.tagged(Material.DISC_FRAGMENT_5, "rune", "{\"aspect\":\"might\",\"tier\":7}"))).isEmpty();
     assertThat(GolemItems.packedGolemOf(GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", "{\"golem\":\"" + GOLEM + "\"}"))).isEmpty();
     assertThat(GolemItems.nodeTypeOf(GolemItemStacks.tagged(Material.BRICK, "rune", "{\"type\":\"guard\"}"))).isEmpty();
+  }
+
+  @Test
+  void aCrookRemembersItsSignalChannelUntilCleared() {
+    ItemStack crook = GolemItemStacks.tagged(Material.IRON_HOE, "crook", null);
+
+    assertThat(GolemItems.crookChannel(crook)).isEmpty();
+    assertThat(GolemItems.setCrookChannel(crook, DyeColor.RED)).isTrue();
+    assertThat(GolemItems.crookChannel(crook)).contains(DyeColor.RED);
+    assertThat(GolemItemStacks.stored(crook, CROOK_CHANNEL_KEY)).isEqualTo("RED");
+    assertThat(GolemItems.setCrookChannel(crook, null)).isTrue();
+    assertThat(GolemItems.crookChannel(crook)).isEmpty();
+    assertThat(GolemItemStacks.stored(crook, CROOK_CHANNEL_KEY)).isNull();
+  }
+
+  @Test
+  void onlyCrooksTakeASignalChannelAndUnknownValuesReadAsNone() {
+    ItemStack core = GolemItemStacks.tagged(Material.FIREWORK_STAR, "core", "{\"role\":\"guardian\"}");
+    ItemStack crook = GolemItemStacks.tagged(Material.IRON_HOE, "crook", null);
+    crook.getItemMeta().getPersistentDataContainer().set(CROOK_CHANNEL_KEY, PersistentDataType.STRING, "PLAID");
+
+    assertThat(GolemItems.setCrookChannel(core, DyeColor.RED)).isFalse();
+    assertThat(GolemItemStacks.stored(core, CROOK_CHANNEL_KEY)).isNull();
+    assertThat(GolemItems.setCrookChannel(GolemItemStacks.plain(Material.IRON_HOE), DyeColor.RED)).isFalse();
+    assertThat(GolemItems.setCrookChannel(null, DyeColor.RED)).isFalse();
+    assertThat(GolemItems.crookChannel(core)).isEmpty();
+    assertThat(GolemItems.crookChannel(null)).isEmpty();
+    assertThat(GolemItems.crookChannel(crook)).isEmpty();
   }
 
   private CustomModel model(Material fallback, String[] path) {

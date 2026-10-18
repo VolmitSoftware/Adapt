@@ -4395,6 +4395,13 @@ follow = "Seguir"
 stay = "Quieto"
 home = "Volver a casa"
 
+[golemancy.signal]
+follow = "Seguir"
+hold = "Mantener"
+home = "Volver a casa"
+work = "Trabajar"
+sic = "Ataca"
+
 [golemancy.channel]
 none = "Ninguno"
 white = "Blanco"
@@ -4478,6 +4485,10 @@ status = "Estado: {status}"
 locate = "Clic izquierdo para localizar"
 release = "Mayús + clic derecho para liberar"
 release_confirm = "¿Liberar para siempre este gólem desaparecido?"
+crook_channel = "Canal del cayado: {channel}"
+crook_channel_lore = "Haz clic para elegir a qué gólems da señales tu cayado"
+crook_channel_title = "Canal del cayado"
+crook_channel_all = "Todos los gólems"
 
 [golemancy.message]
 home_set = "Hogar fijado en {x}, {y}, {z}"
@@ -4497,6 +4508,8 @@ rune_no_slot = "Este gólem no tiene ranuras de runa libres"
 rune_duplicate = "Este gólem ya tiene una runa de {aspect}"
 rune_blocked = "Las runas de {aspect} no funcionan en un gólem de {body}"
 channels_full = "Este gólem solo puede usar {count} canales"
+crook_channel = "Tu cayado ahora da señales a: {channel}"
+crook_needed = "Sostén tu cayado en la mano principal para elegir su canal"
 
 [golemancy.binding]
 busy = "Ya hay un ritual de vínculo en curso"
@@ -4674,6 +4687,20 @@ lore1 = "Ranuras de runa extra por gólem"
 lore2 = "Nivel de runa más alto utilizable"
 lore3 = "Pedestal de Ánima y receta de Runa vacía"
 lore = ["Ranuras de runa extra por gólem", "Nivel de runa más alto utilizable", "Pedestal de Ánima y receta de Runa vacía"]
+
+[golemancy.overseer]
+name = "Supervisor"
+description = "Te permite dar señales a tus gólems vinculados con el Cayado del Artífice para que te sigan, se mantengan, vuelvan a casa o trabajen y, a medida que crece, para que ataquen lo que miras, respondan por canal, acudan a ti y te protejan en formación."
+lore1 = "Radio de señal en bloques"
+lore2 = "Ataca: tus gólems de combate atacan lo que miras"
+lore3 = "Filtro de canal del cayado, elegido en la lista de gólems"
+lore4 = "Reunión: Seguir llama a los gólems lejanos hacia ti"
+lore5 = "Armadura máxima de los gólems en formación"
+lore = ["Radio de señal en bloques", "Ataca: tus gólems de combate atacan lo que miras", "Filtro de canal del cayado, elegido en la lista de gólems", "Reunión: Seguir llama a los gólems lejanos hacia ti", "Armadura máxima de los gólems en formación"]
+signal = "Señal: {signal}"
+sent = "Enviado: {signal}"
+sent_channel = "Enviado: {signal} al canal {channel}"
+no_target = "Mira a una criatura que puedas atacar a {range} bloques o menos para enviar Ataca"
 
 [golemancy.node_status]
 idle = "Inactivo"

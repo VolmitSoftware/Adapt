@@ -1,12 +1,15 @@
 package art.arcane.adapt.api.golem.gui;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.golem.reveal.RevealService;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
@@ -22,16 +25,21 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.inventorygui.UIWindow;
 import art.arcane.volmlib.util.localization.LanguageAudience;
 import art.arcane.volmlib.util.localization.MessageArgument;
+import art.arcane.volmlib.util.localization.TextKey;
+import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -45,6 +53,8 @@ public final class RosterGui {
       .thenComparing(entry -> entry.id().toString());
   private static final int LEFT_EDGE = -4;
   private static final int RIGHT_EDGE = 4;
+  private static final int CHANNELS_PER_ROW = 8;
+  private static final int CHANNEL_ROWS = 3;
 
   private RosterGui() {
   }
@@ -69,7 +79,8 @@ public final class RosterGui {
       }
       List<GolemRoster.GolemEntry> entries = entries(adaptPlayer.getData().getGolemancy());
       Map<UUID, GolemHandle> loaded = loaded(player.getUniqueId());
-      GuiLayout.PagePlan plan = GuiLayout.plan(entries.size(), false);
+      boolean channelFilter = filtersChannels(player);
+      GuiLayout.PagePlan plan = GuiLayout.plan(entries.size(), channelFilter);
       int current = GuiLayout.clampPage(page, plan.pageCount());
       int start = current * plan.itemsPerPage();
       int end = Math.min(entries.size(), start + plan.itemsPerPage());
@@ -91,12 +102,92 @@ public final class RosterGui {
         if (plan.hasNavigationRow()) {
           placeNavigation(window, player, plan.rows() - 1, current, plan.pageCount());
         }
+        if (channelFilter) {
+          window.setElement(0, plan.rows() - 1, crookChannelElement(player, current));
+        }
       });
       window.setTitle(AdaptLanguage.text(GolemancyMessages.ROSTER_TITLE));
       window.onClosed(closed -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), window));
       window.open();
       Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), window);
     }
+  }
+
+  private static void openCrookChannels(Player player, int page) {
+    if (!GolemGuiSupport.ownsViewer(player)) {
+      J.runEntity(player, () -> openCrookChannels(player, page));
+      return;
+    }
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player.getUniqueId())) {
+      DyeColor selected = GolemItems.crookChannel(player.getInventory().getItemInMainHand()).orElse(null);
+      UIWindow window = new UIWindow(Adapt.instance, player);
+      GuiTheme.apply(window, "golemancy-roster");
+      window.setViewportHeight(CHANNEL_ROWS);
+      window.batch(() -> {
+        DyeColor[] colors = DyeColor.values();
+        for (int index = 0; index < colors.length; index++) {
+          DyeColor color = colors[index];
+          window.setElement(GuiLayout.centeredPosition(index % CHANNELS_PER_ROW, CHANNELS_PER_ROW), index / CHANNELS_PER_ROW,
+              channelChoice(player, color, color == selected, page));
+        }
+        window.setElement(LEFT_EDGE, CHANNEL_ROWS - 1, GuiTheme.element("roster-crook-channel-back", Material.ARROW, "gui", "golemancy", "back")
+            .setName(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_BACK))
+            .setProgress(1D)
+            .onLeftClick(clicked -> open(player, page)));
+        window.setElement(RIGHT_EDGE, CHANNEL_ROWS - 1, GuiTheme.element("roster-crook-channel-all", Material.GLASS_BOTTLE, "gui", "golemancy", "channels_clear")
+            .setName((selected == null ? C.GREEN : C.YELLOW) + AdaptLanguage.text(GolemancyMessages.ROSTER_CROOK_CHANNEL_ALL))
+            .setEnchanted(selected == null)
+            .setProgress(1D)
+            .onLeftClick(clicked -> setCrookChannel(player, null, page)));
+      });
+      window.setTitle(AdaptLanguage.text(GolemancyMessages.ROSTER_CROOK_CHANNEL_TITLE));
+      window.onClosed(closed -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), window));
+      window.open();
+      Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), window);
+    }
+  }
+
+  private static Element crookChannelElement(Player player, int page) {
+    DyeColor channel = GolemItems.crookChannel(player.getInventory().getItemInMainHand()).orElse(null);
+    int mask = channel == null ? ChannelMask.NONE : ChannelMask.of(channel);
+    String name = AdaptLanguage.text(channel == null ? GolemancyMessages.ROSTER_CROOK_CHANNEL_ALL : GolemGuiActions.channelName(mask));
+    return GuiTheme.element("roster-crook-channel", GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
+        .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.ROSTER_CROOK_CHANNEL, trusted("channel", name)))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.ROSTER_CROOK_CHANNEL_LORE))
+        .setProgress(1D)
+        .onLeftClick(clicked -> openCrookChannels(player, page));
+  }
+
+  private static Element channelChoice(Player player, DyeColor color, boolean selected, int page) {
+    int mask = ChannelMask.of(color);
+    return GuiTheme.element("roster-crook-channel-" + color.name().toLowerCase(Locale.ROOT), GolemGuiActions.channelIcon(mask), "gui", "golemancy", "channel")
+        .setName((selected ? C.GREEN : C.YELLOW) + AdaptLanguage.text(GolemGuiActions.channelName(mask)))
+        .addLore(selected ? C.GREEN + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECTED) : C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CHANNEL_SELECT))
+        .setEnchanted(selected)
+        .setProgress(1D)
+        .onLeftClick(clicked -> setCrookChannel(player, color, page));
+  }
+
+  private static void setCrookChannel(Player player, DyeColor channel, int page) {
+    if (!filtersChannels(player)) {
+      open(player, page);
+      return;
+    }
+    PlayerInventory inventory = player.getInventory();
+    ItemStack held = inventory.getItemInMainHand();
+    if (!GolemItems.setCrookChannel(held, channel)) {
+      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_CROOK_NEEDED);
+      open(player, page);
+      return;
+    }
+    inventory.setItemInMainHand(held);
+    TextKey name = channel == null ? GolemancyMessages.ROSTER_CROOK_CHANNEL_ALL : GolemGuiActions.channelName(ChannelMask.of(channel));
+    GolemGuiSupport.notify(player, GolemancyMessages.MESSAGE_CROOK_CHANNEL, trusted("channel", GolemGuiSupport.localized(name)));
+    open(player, page);
+  }
+
+  private static boolean filtersChannels(Player player) {
+    return Overseer.commander().map(commander -> commander.filtersChannels(player)).orElse(false);
   }
 
   private static List<GolemRoster.GolemEntry> entries(GolemRoster roster) {

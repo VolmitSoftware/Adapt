@@ -15,24 +15,24 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
-final class GolemGuiSupport {
+public final class GolemGuiSupport {
   private GolemGuiSupport() {
+  }
+
+  public static void notify(Player player, TextKey key, MessageArgument... arguments) {
+    actionBar(player, C.AQUA, key, arguments);
+  }
+
+  public static void warn(Player player, TextKey key, MessageArgument... arguments) {
+    actionBar(player, C.RED, key, arguments);
+  }
+
+  public static Object localized(TextKey key) {
+    return new LocalizedText(key);
   }
 
   static boolean ownsViewer(Player player) {
     return J.isFoliaThreading() ? J.isOwnedByCurrentRegion(player) : J.isPrimaryThread();
-  }
-
-  static void notify(Player player, TextKey key, MessageArgument... arguments) {
-    actionBar(player, C.AQUA, key, arguments);
-  }
-
-  static void warn(Player player, TextKey key, MessageArgument... arguments) {
-    actionBar(player, C.RED, key, arguments);
-  }
-
-  static Object localized(TextKey key) {
-    return new LocalizedText(key);
   }
 
   static Object itemName(ItemStack item) {

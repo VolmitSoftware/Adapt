@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem;
 import art.arcane.adapt.Adapt;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -32,6 +33,7 @@ public final class GolemBrain {
   private final AtomicBoolean alerted = new AtomicBoolean();
   private volatile boolean running;
   private volatile OwnerSighting ownerSighting;
+  private volatile Command command;
   private boolean attached;
   private boolean failureLogged;
   private GolemMode lastMode;
@@ -75,6 +77,14 @@ public final class GolemBrain {
     alerted.set(true);
   }
 
+  public void command(Entity target, long untilMillis) {
+    command = target instanceof LivingEntity living ? new Command(living, untilMillis) : null;
+  }
+
+  static boolean commandHolds(long nowMillis, long untilMillis, boolean targetLive, boolean sameWorld) {
+    return targetLive && sameWorld && nowMillis < untilMillis;
+  }
+
   void start() {
     if (running) {
       return;
@@ -88,6 +98,7 @@ public final class GolemBrain {
     lastMode = null;
     combatTarget = null;
     appliedTarget = null;
+    command = null;
     if (!attached) {
       try {
         controller.attach();
@@ -112,6 +123,7 @@ public final class GolemBrain {
     workState = null;
     combatTarget = null;
     appliedTarget = null;
+    command = null;
     controller.setTarget(null);
     controller.stop();
   }
@@ -179,20 +191,22 @@ public final class GolemBrain {
     if (work(mode, target, now, here, owner, home, settings)) {
       return;
     }
+    Location slot = mode == GolemMode.FOLLOW ? GolemFormation.slot(handle, ownerAt) : null;
     GolemBrainMachine.Senses senses = new GolemBrainMachine.Senses(now, mode, distance(here, ownerAt), sighting != null && sighting.grounded(),
-        distance(here, home), distance(here, stayAnchor), target != null);
+        distance(here, home), distance(here, stayAnchor), distance(here, slot), target != null);
     GolemBrainMachine.Decision decision = machine.decide(senses, settings);
     if (decision.state() == GolemBrainState.RETURN_HOME) {
       worker.forgetWorkedNode();
     }
     if (decision.dropTarget()) {
       combatTarget = null;
+      command = null;
     }
     applyTarget(decision.state() == GolemBrainState.COMBAT ? target : null);
     if (decision.dropTarget() && golem.getTarget() != null) {
       golem.setTarget(null);
     }
-    move(decision.movement(), ownerAt, home);
+    move(decision.movement(), ownerAt, home, slot);
     controller.tick();
   }
 
@@ -229,10 +243,16 @@ public final class GolemBrain {
 
   private LivingEntity combat(Player owner, long now) {
     if (!handle.body().fights()) {
+      command = null;
       return null;
     }
     GolemTargetPolicy policy = context.policies().apply(handle.core());
     policy.tick(handle, owner);
+    LivingEntity commanded = commanded(now);
+    if (commanded != null) {
+      combatTarget = commanded;
+      return commanded;
+    }
     if (combatTarget != null && !policy.holds(handle, owner, combatTarget)) {
       combatTarget = null;
     }
@@ -253,6 +273,24 @@ public final class GolemBrain {
     return combatTarget;
   }
 
+  private LivingEntity commanded(long now) {
+    Command current = command;
+    if (current == null) {
+      return null;
+    }
+    LivingEntity target = current.target();
+    if (commandHolds(now, current.untilMillis(), target.isValid() && !target.isDead(), Objects.equals(target.getWorld(), handle.entity().getWorld()))) {
+      return target;
+    }
+    if (command == current) {
+      command = null;
+    }
+    if (combatTarget == target) {
+      combatTarget = null;
+    }
+    return null;
+  }
+
   private void applyTarget(LivingEntity target) {
     if (target == appliedTarget) {
       return;
@@ -261,7 +299,7 @@ public final class GolemBrain {
     controller.setTarget(target);
   }
 
-  private void move(GolemBrainMachine.Movement movement, Location ownerAt, Location home) {
+  private void move(GolemBrainMachine.Movement movement, Location ownerAt, Location home, Location slot) {
     switch (movement) {
       case NONE -> {
       }
@@ -274,6 +312,7 @@ public final class GolemBrain {
         controller.stop();
         GolemTeleport.teleport(handle, ownerAt.clone());
       }
+      case SLOT -> controller.moveTo(slot, MOVE_SPEED);
     }
   }
 
@@ -340,5 +379,8 @@ public final class GolemBrain {
   }
 
   private record OwnerSighting(Location location, boolean grounded) {
+  }
+
+  private record Command(LivingEntity target, long untilMillis) {
   }
 }

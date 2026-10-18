@@ -4395,6 +4395,13 @@ follow = "Seguir"
 stay = "Ficar"
 home = "Voltar a casa"
 
+[golemancy.signal]
+follow = "Seguir"
+hold = "Manter"
+home = "Voltar a casa"
+work = "Trabalhar"
+sic = "Ataca"
+
 [golemancy.channel]
 none = "Nenhum"
 white = "Branco"
@@ -4478,6 +4485,10 @@ status = "Estado: {status}"
 locate = "Clique esquerdo para localizar"
 release = "Shift + clique direito para libertar"
 release_confirm = "Libertar para sempre este golem desaparecido?"
+crook_channel = "Canal do cajado: {channel}"
+crook_channel_lore = "Clica para escolher a que golems o teu cajado dá sinais"
+crook_channel_title = "Canal do cajado"
+crook_channel_all = "Todos os golems"
 
 [golemancy.message]
 home_set = "Casa definida em {x}, {y}, {z}"
@@ -4497,6 +4508,8 @@ rune_no_slot = "Este golem não tem ranhuras de runa livres"
 rune_duplicate = "Este golem já tem uma runa de {aspect}"
 rune_blocked = "As runas de {aspect} não funcionam num golem de {body}"
 channels_full = "Este golem só pode usar {count} canais"
+crook_channel = "O teu cajado dá agora sinais a: {channel}"
+crook_needed = "Segura o cajado na mão principal para escolher o canal"
 
 [golemancy.binding]
 busy = "Já está a decorrer um ritual de vínculo"
@@ -4674,6 +4687,20 @@ lore1 = "Ranhuras de runa extra por golem"
 lore2 = "Nível de runa mais alto utilizável"
 lore3 = "Pedestal de Ânimus e receita de Runa vazia"
 lore = ["Ranhuras de runa extra por golem", "Nível de runa mais alto utilizável", "Pedestal de Ânimus e receita de Runa vazia"]
+
+[golemancy.overseer]
+name = "Supervisor"
+description = "Permite-te dar sinais aos teus golems vinculados com o Cajado do Artífice para te seguirem, manterem a posição, voltarem a casa ou trabalharem e, à medida que cresce, para atacarem o que olhas, responderem por canal, correrem até ti e protegerem-te em formação."
+lore1 = "Raio do sinal em blocos"
+lore2 = "Ataca: os teus golems de combate atacam o que olhas"
+lore3 = "Filtro de canal do cajado, escolhido na lista de golems"
+lore4 = "Reunião: Seguir chama até ti os golems distantes"
+lore5 = "Armadura máxima dos golems em formação"
+lore = ["Raio do sinal em blocos", "Ataca: os teus golems de combate atacam o que olhas", "Filtro de canal do cajado, escolhido na lista de golems", "Reunião: Seguir chama até ti os golems distantes", "Armadura máxima dos golems em formação"]
+signal = "Sinal: {signal}"
+sent = "Enviado: {signal}"
+sent_channel = "Enviado: {signal} para o canal {channel}"
+no_target = "Olha para uma criatura que possas atacar a {range} blocos ou menos para enviar Ataca"
 
 [golemancy.node_status]
 idle = "Inativo"

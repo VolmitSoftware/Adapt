@@ -3556,6 +3556,27 @@
     },
     {
       "skill": "golemancy",
+      "name": "golem-overseer",
+      "class": "GolemOverseer",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemOverseer.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "PlayerChangedWorldEvent",
+        "PlayerDeathEvent",
+        "PlayerJoinEvent",
+        "PlayerQuitEvent",
+        "tick"
+      ],
+      "expectation": "Lets you signal your bound golems with the Artificer's Crook to follow you, hold, go home or work, and as it grows, to attack what you look at, answer by channel, rally to you and guard you in formation.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemOverseer.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
       "name": "golem-rancher-core",
       "class": "GolemRancherCore",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemRancherCore.java",
