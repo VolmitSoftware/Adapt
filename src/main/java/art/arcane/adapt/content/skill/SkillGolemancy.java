@@ -48,6 +48,8 @@ import art.arcane.adapt.api.golem.node.NodeVisibility;
 import art.arcane.adapt.api.golem.plinth.Infusion;
 import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
 import art.arcane.adapt.api.golem.plinth.InfusionRecipes;
+import art.arcane.adapt.api.golem.plinth.LevelCharge;
+import art.arcane.adapt.api.golem.plinth.PlinthCharge;
 import art.arcane.adapt.api.golem.plinth.PlinthHost;
 import art.arcane.adapt.api.golem.plinth.PlinthSettings;
 import art.arcane.adapt.api.golem.plinth.PlinthSlotMatter;
@@ -488,7 +490,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   }
 
   static PlinthSettings plinthSettings(Config config) {
-    return new PlinthSettings(PlinthStructure.pedestals(config.pedestalBlocks, Adapt::warn), InfusionRecipes.bukkit(config.infusionRecipes));
+    return new PlinthSettings(PlinthStructure.pedestals(config.pedestalBlocks, Material::isBlock, Adapt::warn), InfusionRecipes.bukkit(config.infusionRecipes));
   }
 
   static double infusionXp(Config config, NamespacedKey result) {
@@ -740,14 +742,6 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     }
   }
 
-  private static boolean spendLevels(Player player, int levels) {
-    if (player.getLevel() < levels) {
-      return false;
-    }
-    player.giveExpLevels(-levels);
-    return true;
-  }
-
   private static boolean excludedMob(Entity entity) {
     return MinionIdentity.isMinion(entity) || ExcavationGraveDigger.isGraveMob(entity);
   }
@@ -783,8 +777,6 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   }
 
   private final class GolemancyPlinthHost implements PlinthHost {
-    private static final String COST_KEY = "infusion";
-
     @Override
     public int level(Player player, String adaptationId) {
       return adaptation(adaptationId).map(adaptation -> adaptation.getActiveLevel(player)).orElse(0);
@@ -801,11 +793,8 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     }
 
     @Override
-    public boolean payLevels(Player player, String adaptationId, int levels) {
-      if (levels <= 0) {
-        return true;
-      }
-      return adaptation(adaptationId).map(adaptation -> adaptation.payExperienceCost(player, COST_KEY, levels, () -> spendLevels(player, levels))).orElse(false);
+    public Optional<PlinthCharge> chargeLevels(Player player, String adaptationId, int levels) {
+      return adaptation(adaptationId).flatMap(adaptation -> LevelCharge.take(adaptation, player, levels));
     }
 
     @Override

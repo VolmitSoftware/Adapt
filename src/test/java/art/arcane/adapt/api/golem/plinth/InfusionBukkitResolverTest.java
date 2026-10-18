@@ -13,6 +13,7 @@ import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,7 +52,7 @@ class InfusionBukkitResolverTest extends AdaptTestBase {
   void everyDefaultResolvesAgainstTheGolemItemFactory() {
     List<String> warnings = new ArrayList<>();
 
-    InfusionRecipes recipes = InfusionRecipes.parse(InfusionRecipe.defaults(), InfusionRecipes.bukkitResolver(), warnings::add);
+    InfusionRecipes recipes = InfusionRecipes.parse(InfusionRecipe.defaults(), InfusionRecipes.bukkitResolver(any -> true), warnings::add);
 
     assertThat(warnings).isEmpty();
     assertThat(recipes.infusions()).hasSize(22);
@@ -59,27 +60,39 @@ class InfusionBukkitResolverTest extends AdaptTestBase {
 
   @Test
   void materialSpecsRefuseGolemItemsOfTheSameBase() {
-    InfusionIngredient material = InfusionRecipes.bukkitResolver().material("heart_of_the_sea");
+    InfusionIngredient material = InfusionRecipes.bukkitResolver(any -> true).material("heart_of_the_sea");
 
     assertThat(material.matches(plainHeart)).isTrue();
     assertThat(material.matches(golemHeart)).isFalse();
     assertThat(material.matches(null)).isFalse();
-    assertThat(InfusionRecipes.bukkitResolver().material("NOT_A_THING")).isNull();
-    assertThat(InfusionRecipes.bukkitResolver().material("AIR")).isNull();
+    assertThat(InfusionRecipes.bukkitResolver(any -> true).material("NOT_A_THING")).isNull();
+    assertThat(InfusionRecipes.bukkitResolver(any -> true).material("AIR")).isNull();
+  }
+
+  @Test
+  void materialsThatAreNotItemsAreRejected() {
+    InfusionRecipes.Resolver resolver = InfusionRecipes.bukkitResolver(material -> material != Material.WATER);
+    List<String> warnings = new ArrayList<>();
+
+    assertThat(resolver.material("WATER")).isNull();
+    assertThat(resolver.material("SUGAR")).isNotNull();
+    InfusionRecipes.parse(Map.of("wet", new InfusionRecipe().result("golemancy:rune/tide/1").center("golemancy:blank_rune")
+        .pedestals("WATER", "SUGAR", "SUGAR", "SUGAR").unlock(InfusionRecipe.RUNIC_AUGMENTS, 1)), resolver, warnings::add);
+    assertThat(warnings).singleElement().asString().contains("wet").contains("WATER");
   }
 
   @Test
   void exactSpecsMatchByTheGolemItemPayload() {
-    InfusionIngredient exact = InfusionRecipes.bukkitResolver().exact(NamespacedKey.fromString("golemancy:rune/tide/2"));
+    InfusionIngredient exact = InfusionRecipes.bukkitResolver(any -> true).exact(NamespacedKey.fromString("golemancy:rune/tide/2"));
 
     assertThat(exact.matches(rune)).isTrue();
     assertThat(exact.matches(plainHeart)).isFalse();
-    assertThat(InfusionRecipes.bukkitResolver().exact(NamespacedKey.fromString("golemancy:nothing"))).isNull();
+    assertThat(InfusionRecipes.bukkitResolver(any -> true).exact(NamespacedKey.fromString("golemancy:nothing"))).isNull();
   }
 
   @Test
   void onlyRunesAndTheMasterworkHeartAreInfusionResults() {
-    InfusionRecipes.Resolver resolver = InfusionRecipes.bukkitResolver();
+    InfusionRecipes.Resolver resolver = InfusionRecipes.bukkitResolver(any -> true);
 
     assertThat(resolver.result(NamespacedKey.fromString("golemancy:masterwork_heart")).get()).isSameAs(heart);
     assertThat(resolver.result(NamespacedKey.fromString("golemancy:rune/tide/2")).get()).isSameAs(rune);

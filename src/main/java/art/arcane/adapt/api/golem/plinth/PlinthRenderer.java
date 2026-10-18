@@ -15,7 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 final class PlinthRenderer {
-  static final int STEP_TICKS = 5;
+  static final int IDLE_STEP_TICKS = 20;
+  static final int RITUAL_STEP_TICKS = 5;
   static final float IDLE_DEGREES_PER_TICK = 4.5F;
   private static final double HOVER_HEIGHT = 0.85D;
   private static final float ITEM_SCALE = 0.5F;
@@ -36,22 +37,32 @@ final class PlinthRenderer {
   void spawn(World world, PlinthSpot spot, ItemStack item) {
     despawn(spot);
     ItemDisplay display = platform.spawnDisplay(itemAt(world, spot, 0F), item);
-    Rendered entry = new Rendered(display, tokens.incrementAndGet());
+    Rendered entry = new Rendered(display);
     rendered.put(spot, entry);
     apply(entry, 0);
-    scheduleStep(spot, entry);
+    scheduleStep(spot, entry, tokens.incrementAndGet());
   }
 
   void animate(PlinthSpot spot, float lift, float degreesPerTick) {
     Rendered entry = rendered.get(spot);
-    if (entry != null) {
-      entry.lift = lift;
-      entry.degreesPerTick = degreesPerTick;
+    if (entry == null) {
+      return;
+    }
+    entry.lift = lift;
+    entry.degreesPerTick = degreesPerTick;
+    if (!entry.ritual) {
+      entry.ritual = true;
+      scheduleStep(spot, entry, tokens.incrementAndGet());
     }
   }
 
   void rest(PlinthSpot spot) {
-    animate(spot, 0F, IDLE_DEGREES_PER_TICK);
+    Rendered entry = rendered.get(spot);
+    if (entry != null) {
+      entry.lift = 0F;
+      entry.degreesPerTick = IDLE_DEGREES_PER_TICK;
+      entry.ritual = false;
+    }
   }
 
   void despawn(PlinthSpot spot) {
@@ -67,18 +78,19 @@ final class PlinthRenderer {
     }
   }
 
-  private void scheduleStep(PlinthSpot spot, Rendered entry) {
-    platform.runEntity(entry.display, () -> step(spot, entry.token), STEP_TICKS);
+  private void scheduleStep(PlinthSpot spot, Rendered entry, long token) {
+    entry.token = token;
+    platform.runEntity(entry.display, () -> step(spot, entry, token), entry.stepTicks());
   }
 
-  private void step(PlinthSpot spot, long token) {
-    Rendered entry = rendered.get(spot);
-    if (entry == null || entry.token != token || !entry.display.isValid()) {
+  private void step(PlinthSpot spot, Rendered entry, long token) {
+    if (rendered.get(spot) != entry || entry.token != token || !entry.display.isValid()) {
       return;
     }
-    entry.angle = (entry.angle + (float) Math.toRadians(entry.degreesPerTick * STEP_TICKS)) % (float) (Math.PI * 2D);
-    apply(entry, STEP_TICKS);
-    scheduleStep(spot, entry);
+    int stepTicks = entry.stepTicks();
+    entry.angle = (entry.angle + (float) Math.toRadians(entry.degreesPerTick * stepTicks)) % (float) (Math.PI * 2D);
+    apply(entry, stepTicks);
+    scheduleStep(spot, entry, token);
   }
 
   private static void apply(Rendered entry, int interpolationTicks) {
@@ -106,14 +118,18 @@ final class PlinthRenderer {
 
   private static final class Rendered {
     private final ItemDisplay display;
-    private final long token;
+    private volatile long token;
     private float angle;
     private volatile float lift;
     private volatile float degreesPerTick = IDLE_DEGREES_PER_TICK;
+    private volatile boolean ritual;
 
-    private Rendered(ItemDisplay display, long token) {
+    private Rendered(ItemDisplay display) {
       this.display = Objects.requireNonNull(display);
-      this.token = token;
+    }
+
+    private int stepTicks() {
+      return ritual ? RITUAL_STEP_TICKS : IDLE_STEP_TICKS;
     }
   }
 }

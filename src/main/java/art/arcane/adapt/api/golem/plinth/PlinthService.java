@@ -99,6 +99,12 @@ public final class PlinthService extends TickedObject {
     return Optional.ofNullable(ritualsByCenter.get(center));
   }
 
+  public boolean isPlinthBlock(Block block) {
+    Set<Material> pedestals = settings.get().pedestals();
+    return PlinthStructure.isPart(block.getType(), pedestals)
+        && PlinthStructure.locate(blocks(block.getWorld()), PlinthSpot.of(block), pedestals).isPresent();
+  }
+
   public void shutdown() {
     unregister();
     for (InfusionRitual ritual : List.copyOf(ritualsByCenter.values())) {
@@ -128,7 +134,7 @@ public final class PlinthService extends TickedObject {
     World world = block.getWorld();
     if (platform.isCrook(held)) {
       if (lodestone) {
-        crookClicked(e, player, world, PlinthSpot.of(block), activeHost, current);
+        crookClicked(e, player, inventory, world, PlinthSpot.of(block), activeHost, current);
       }
       return;
     }
@@ -208,8 +214,12 @@ public final class PlinthService extends TickedObject {
     forget(index.unloadWorld(e.getWorld().getUID()));
   }
 
-  private void crookClicked(PlayerInteractEvent e, Player player, World world, PlinthSpot center, PlinthHost activeHost, PlinthSettings current) {
-    if (!PlinthStructure.valid(blocks(world), center, current.pedestals()) || activeHost.level(player, LOADING_ADAPTATION) < LOADING_LEVEL) {
+  private void crookClicked(PlayerInteractEvent e, Player player, PlayerInventory inventory, World world, PlinthSpot center, PlinthHost activeHost,
+                            PlinthSettings current) {
+    boolean offHand = e.getHand() != EquipmentSlot.HAND;
+    if ((offHand && isCompass(inventory.getItemInOffHand()))
+        || !PlinthStructure.valid(blocks(world), center, current.pedestals())
+        || activeHost.level(player, LOADING_ADAPTATION) < LOADING_LEVEL) {
       return;
     }
     e.setCancelled(true);
@@ -242,6 +252,7 @@ public final class PlinthService extends TickedObject {
     ItemStack single = platform.takeOne(player);
     PlinthSlotItem stored = PlinthSlotItem.of(UUID.randomUUID(), single);
     platform.write(world, spot, stored);
+    platform.saveData(player);
     index.put(spot, stored);
     renderer.spawn(world, spot, single);
     abortCovering(spot);
@@ -365,26 +376,37 @@ public final class PlinthService extends TickedObject {
       return;
     }
     Infusion infusion = assessment.infusion();
-    int levels = assessment.levels();
-    if (levels > 0 && !activeHost.payLevels(player, infusion.unlockAdaptation(), levels)) {
+    Optional<PlinthCharge> charge = assessment.levels() <= 0 ? Optional.of(PlinthCharge.FREE)
+        : activeHost.chargeLevels(player, infusion.unlockAdaptation(), assessment.levels());
+    if (charge.isEmpty()) {
       interrupted(world, ritual, false);
       deny(player, assessment.withVerdict(Verdict.NOT_ENOUGH_LEVELS));
       return;
     }
-    List<PlinthSpot> spots = new ArrayList<>(PlinthSlot.values().length);
+    Map<PlinthSpot, PlinthSlotItem> removed = new LinkedHashMap<>();
     for (Map.Entry<PlinthSlot, PlinthSlotItem> entry : ritual.slots().entrySet()) {
       PlinthSpot spot = center.slot(entry.getKey());
-      take(world, spot, entry.getValue());
-      spots.add(spot);
+      if (!take(world, spot, entry.getValue())) {
+        Adapt.warn("The Animus Plinth item at " + describe(spot) + " changed while its infusion completed; the infusion was cancelled and its items restored.");
+        restore(world, removed);
+        resync(world, spot);
+        refund(player, charge.get(), false);
+        interrupted(world, ritual, true);
+        return;
+      }
+      removed.put(spot, entry.getValue());
     }
     Location at = center.center(world);
-    saveThen(world, spots, at, () -> deliver(world, player, center, infusion), () -> refund(player, levels),
-        "the infusion at the Animus Plinth at " + describe(center));
+    saveThen(world, List.copyOf(removed.keySet()), at, () -> deliver(world, player, center, infusion, charge.get()), () -> {
+      restore(world, removed);
+      refund(player, charge.get(), true);
+    }, "the infusion at the Animus Plinth at " + describe(center));
   }
 
-  private void deliver(World world, Player player, PlinthSpot center, Infusion infusion) {
+  private void deliver(World world, Player player, PlinthSpot center, Infusion infusion, PlinthCharge charge) {
     Location at = new Location(world, center.x() + CENTER, center.y() + RESULT_HEIGHT, center.z() + CENTER);
     platform.popResult(at, infusion.resultItem().get());
+    charge.settle();
     platform.effect(PlinthEffect.COMPLETED, at, 1D);
     platform.tell(player, false, GolemancyMessages.PLINTH_COMPLETE);
     PlinthHost activeHost = host.get();
@@ -393,11 +415,45 @@ public final class PlinthService extends TickedObject {
     }
   }
 
-  private void refund(Player player, int levels) {
-    if (levels > 0) {
-      platform.runEntity(player, () -> player.giveExpLevels(levels), 0);
+  private void refund(Player player, PlinthCharge charge, boolean announce) {
+    if (platform.owns(player)) {
+      charge.refund();
+    } else {
+      platform.runEntity(player, charge::refund, 0);
     }
-    platform.tell(player, true, GolemancyMessages.PLINTH_FAILED);
+    if (announce) {
+      platform.tell(player, true, GolemancyMessages.PLINTH_FAILED);
+    }
+  }
+
+  private void restore(World world, Map<PlinthSpot, PlinthSlotItem> removed) {
+    Set<Material> pedestals = settings.get().pedestals();
+    for (Map.Entry<PlinthSpot, PlinthSlotItem> entry : removed.entrySet()) {
+      PlinthSpot spot = entry.getKey();
+      PlinthSlotItem item = entry.getValue();
+      Material type = platform.blockType(world, spot.x(), spot.y(), spot.z());
+      boolean attached = type == null || PlinthStructure.isPart(type, pedestals);
+      if (!attached || platform.read(world, spot) != null) {
+        platform.drop(spot.center(world), item.item());
+        continue;
+      }
+      platform.write(world, spot, item);
+      if (index.put(spot, item)) {
+        renderer.spawn(world, spot, item.item());
+      }
+    }
+  }
+
+  private void resync(World world, PlinthSpot spot) {
+    PlinthSlotItem stored = platform.read(world, spot);
+    if (stored == null || !stored.readable()) {
+      index.remove(spot);
+      renderer.despawn(spot);
+      return;
+    }
+    if (index.put(spot, stored)) {
+      renderer.spawn(world, spot, stored.item());
+    }
   }
 
   private void abort(InfusionRitual ritual, boolean announce) {
@@ -563,18 +619,22 @@ public final class PlinthService extends TickedObject {
 
   private boolean release(World world, PlinthSpot spot, PlinthSlotItem expected) {
     boolean taken = take(world, spot, expected);
+    if (!taken) {
+      index.remove(spot);
+      renderer.despawn(spot);
+    }
     abortCovering(spot);
     return taken;
   }
 
   private boolean take(World world, PlinthSpot spot, PlinthSlotItem expected) {
-    boolean taken = expected.equals(platform.read(world, spot));
-    if (taken) {
-      platform.write(world, spot, null);
+    if (!expected.equals(platform.read(world, spot))) {
+      return false;
     }
+    platform.write(world, spot, null);
     index.remove(spot);
     renderer.despawn(spot);
-    return taken;
+    return true;
   }
 
   private void saveThen(World world, List<PlinthSpot> spots, Location handOutAt, Runnable success, Runnable failure, String subject) {

@@ -26,6 +26,7 @@ final class FakePlinthPlatform implements PlinthPlatform {
   final Map<String, Material> blocks = new HashMap<>();
   final Map<UUID, World> worlds = new HashMap<>();
   final List<Runnable> scheduled = new ArrayList<>();
+  final List<Integer> entityDelays = new ArrayList<>();
   final List<Runnable> asyncTasks = new ArrayList<>();
   final List<String> events;
   final List<ItemDisplay> displays = new ArrayList<>();
@@ -38,6 +39,9 @@ final class FakePlinthPlatform implements PlinthPlatform {
   RuntimeException saveFailure;
   int chunkReads;
   long now = 1_000L;
+  private PlinthSpot swapSpot;
+  private PlinthSlotItem swapItem;
+  private int readsBeforeSwap;
 
   FakePlinthPlatform(List<String> events) {
     this.events = events;
@@ -45,6 +49,10 @@ final class FakePlinthPlatform implements PlinthPlatform {
 
   @Override
   public PlinthSlotItem read(World world, PlinthSpot spot) {
+    if (spot.equals(swapSpot) && readsBeforeSwap-- <= 0) {
+      store.put(spot, swapItem);
+      swapSpot = null;
+    }
     return store.get(spot);
   }
 
@@ -104,6 +112,7 @@ final class FakePlinthPlatform implements PlinthPlatform {
 
   @Override
   public boolean runEntity(Entity entity, Runnable task, int delayTicks) {
+    entityDelays.add(delayTicks);
     if (delayTicks <= 0) {
       task.run();
     } else {
@@ -167,6 +176,11 @@ final class FakePlinthPlatform implements PlinthPlatform {
   }
 
   @Override
+  public void saveData(Player player) {
+    events.add("save player");
+  }
+
+  @Override
   public boolean isCrook(ItemStack item) {
     return item != null && crooks.contains(item);
   }
@@ -189,6 +203,12 @@ final class FakePlinthPlatform implements PlinthPlatform {
   @Override
   public long nowMillis() {
     return now;
+  }
+
+  void swapAfterReads(PlinthSpot spot, PlinthSlotItem replacement, int reads) {
+    swapSpot = spot;
+    swapItem = replacement;
+    readsBeforeSwap = reads;
   }
 
   void tick() {

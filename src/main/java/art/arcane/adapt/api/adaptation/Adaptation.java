@@ -1082,6 +1082,10 @@ public interface Adaptation<T> extends Ticked, Component {
     return AbilityApiBridge.chargeDeferred(this, p, costKey, AbilityCostKind.ITEM, unit, amount, defaultCost);
   }
 
+  default AbilityCharge payExperienceCostDeferred(Player p, String costKey, int amount, AbilityDefaultCost defaultCost) {
+    return AbilityApiBridge.chargeDeferred(this, p, costKey, AbilityCostKind.VANILLA_EXPERIENCE, null, amount, defaultCost);
+  }
+
   default boolean settleCost(UUID activationId) {
     return AbilityApiBridge.settle(activationId);
   }

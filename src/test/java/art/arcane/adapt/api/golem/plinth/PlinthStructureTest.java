@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class PlinthStructureTest {
   private static final UUID WORLD = UUID.fromString("00000000-0000-0000-0000-0000000000c1");
-  private static final Set<Material> PEDESTALS = PlinthStructure.pedestals(PlinthStructure.DEFAULT_PEDESTALS, message -> {
+  private static final Set<Material> PEDESTALS = PlinthStructure.pedestals(PlinthStructure.DEFAULT_PEDESTALS, material -> true, message -> {
   });
 
   private final Map<String, Material> blocks = new HashMap<>();
@@ -34,12 +34,25 @@ class PlinthStructureTest {
   void unknownPedestalNamesAndTheLodestoneAreDroppedWithAWarning() {
     List<String> warnings = new ArrayList<>();
 
-    Set<Material> pedestals = PlinthStructure.pedestals(List.of("chiseled_copper", "NOT_A_BLOCK", "LODESTONE", " WAXED_CHISELED_COPPER "), warnings::add);
+    Set<Material> pedestals = PlinthStructure.pedestals(List.of("chiseled_copper", "NOT_A_BLOCK", "LODESTONE", " WAXED_CHISELED_COPPER "), material -> true, warnings::add);
 
     assertThat(pedestals).containsExactlyInAnyOrder(Material.CHISELED_COPPER, Material.WAXED_CHISELED_COPPER);
     assertThat(warnings).hasSize(2);
     assertThat(warnings.get(0)).contains("NOT_A_BLOCK");
     assertThat(warnings.get(1)).contains("LODESTONE");
+  }
+
+  @Test
+  void namesThatAreNotBlocksAreDroppedWithAWarningEach() {
+    List<String> warnings = new ArrayList<>();
+
+    Set<Material> pedestals = PlinthStructure.pedestals(List.of("CHISELED_COPPER", "DIAMOND", "STICK"),
+        material -> material == Material.CHISELED_COPPER, warnings::add);
+
+    assertThat(pedestals).containsExactly(Material.CHISELED_COPPER);
+    assertThat(warnings).hasSize(2);
+    assertThat(warnings.get(0)).contains("DIAMOND");
+    assertThat(warnings.get(1)).contains("STICK");
   }
 
   @Test
@@ -114,7 +127,7 @@ class PlinthStructureTest {
   @Test
   void aConfiguredPedestalListReplacesTheDefault() {
     build(0, 64, 0, Material.CHISELED_COPPER);
-    Set<Material> polished = PlinthStructure.pedestals(List.of("POLISHED_ANDESITE"), message -> {
+    Set<Material> polished = PlinthStructure.pedestals(List.of("POLISHED_ANDESITE"), material -> true, message -> {
     });
 
     assertThat(PlinthStructure.valid(lookup, spot(0, 64, 0), polished)).isFalse();

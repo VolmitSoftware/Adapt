@@ -168,6 +168,15 @@ final class BukkitPlinthPlatform implements PlinthPlatform {
   }
 
   @Override
+  public void saveData(Player player) {
+    if (J.isOwnedByCurrentRegion(player)) {
+      player.saveData();
+    } else {
+      J.runEntity(player, player::saveData);
+    }
+  }
+
+  @Override
   public boolean isCrook(ItemStack item) {
     return GolemItems.kindOf(item).filter(kind -> kind == GolemItemKind.CROOK).isPresent();
   }

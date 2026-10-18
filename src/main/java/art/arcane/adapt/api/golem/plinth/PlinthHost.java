@@ -5,6 +5,8 @@ import art.arcane.adapt.api.fx.FxPriority;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.Optional;
+
 public interface PlinthHost {
   int level(Player player, String adaptationId);
 
@@ -12,7 +14,7 @@ public interface PlinthHost {
 
   boolean canInfuse(Player player, String adaptationId, Location at);
 
-  boolean payLevels(Player player, String adaptationId, int levels);
+  Optional<PlinthCharge> chargeLevels(Player player, String adaptationId, int levels);
 
   FxEmitter fx(Location at, FxPriority priority);
 

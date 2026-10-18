@@ -17,6 +17,6 @@ public record PlinthSettings(Set<Material> pedestals, InfusionRecipes recipes) {
   }
 
   public static PlinthSettings defaults() {
-    return new PlinthSettings(PlinthStructure.pedestals(PlinthStructure.DEFAULT_PEDESTALS, Adapt::warn), InfusionRecipes.EMPTY);
+    return new PlinthSettings(PlinthStructure.pedestals(PlinthStructure.DEFAULT_PEDESTALS, material -> true, Adapt::warn), InfusionRecipes.EMPTY);
   }
 }

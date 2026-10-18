@@ -144,7 +144,7 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
   public void on(PlayerInteractEvent e) {
     Player player = e.getPlayer();
     Block anchor = e.getClickedBlock();
-    if (e.getAction() != Action.RIGHT_CLICK_BLOCK || anchor == null || !player.isSneaking()) {
+    if (e.getAction() != Action.RIGHT_CLICK_BLOCK || anchor == null || !player.isSneaking() || onPlinth(anchor)) {
       return;
     }
     if (e.getHand() != EquipmentSlot.HAND) {
@@ -192,9 +192,14 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
       return;
     }
     decrementItemstack(player.getInventory().getItemInMainHand(), player);
+    player.saveData();
     Location at = anchor.getLocation().add(0.5D + face.getModX() * FEEDBACK_FACE_DISTANCE,
         0.5D + face.getModY() * FEEDBACK_FACE_DISTANCE, 0.5D + face.getModZ() * FEEDBACK_FACE_DISTANCE);
     J.runEntity(player, () -> confirmPlacement(player, at, type));
+  }
+
+  private static boolean onPlinth(Block block) {
+    return GolemancyRuntime.plinths().map(plinths -> plinths.isPlinthBlock(block)).orElse(false);
   }
 
   private void confirmPlacement(Player player, Location at, NodeType type) {

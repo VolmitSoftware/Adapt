@@ -13,9 +13,11 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 public final class InfusionRecipes {
@@ -26,7 +28,6 @@ public final class InfusionRecipes {
   private static final String MASTERWORK_HEART = "masterwork_heart";
   private static final String RUNE_PREFIX = "rune/";
   private static final Set<Material> AIR = EnumSet.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR);
-  private static final Resolver BUKKIT = new BukkitResolver();
 
   private final List<Infusion> infusions;
 
@@ -39,11 +40,11 @@ public final class InfusionRecipes {
   }
 
   public static InfusionRecipes bukkit(Map<String, InfusionRecipe> specs) {
-    return parse(specs, BUKKIT, Adapt::warn);
+    return parse(specs, bukkitResolver(Material::isItem), Adapt::warn);
   }
 
-  public static Resolver bukkitResolver() {
-    return BUKKIT;
+  public static Resolver bukkitResolver(Predicate<Material> isItem) {
+    return new BukkitResolver(isItem);
   }
 
   public static InfusionRecipes parse(Map<String, InfusionRecipe> specs, Resolver resolver, Consumer<String> warn) {
@@ -146,10 +147,16 @@ public final class InfusionRecipes {
   }
 
   private static final class BukkitResolver implements Resolver {
+    private final Predicate<Material> isItem;
+
+    private BukkitResolver(Predicate<Material> isItem) {
+      this.isItem = Objects.requireNonNull(isItem);
+    }
+
     @Override
     public InfusionIngredient material(String name) {
       Material material = Material.getMaterial(name.trim().toUpperCase(Locale.ROOT));
-      if (material == null || material.isLegacy() || AIR.contains(material)) {
+      if (material == null || material.isLegacy() || AIR.contains(material) || !isItem.test(material)) {
         return null;
       }
       return item -> item != null && item.getType() == material && !GolemItems.isGolemItem(item);

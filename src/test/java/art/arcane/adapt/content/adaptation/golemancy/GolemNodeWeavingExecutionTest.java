@@ -7,6 +7,7 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodePlacementVerdict;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
+import art.arcane.adapt.api.golem.plinth.PlinthService;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ExactIngredient;
@@ -35,6 +36,7 @@ import org.bukkit.plugin.PluginManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
@@ -48,9 +50,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_SELF;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -159,6 +163,53 @@ class GolemNodeWeavingExecutionTest extends AdaptTestBase {
     verify(click.event).setCancelled(true);
     verify(service).place(click.player, click.block, BlockFace.UP, NodeType.DEPOSIT, click.adaptation);
     verify(click.held).setAmount(1);
+  }
+
+  @Test
+  void playerDataIsSavedAfterThePlacedNodeLeavesTheHand() {
+    NodeService service = mock(NodeService.class);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
+    Click click = click(true, EquipmentSlot.HAND, 2);
+    when(service.place(click.player, click.block, BlockFace.UP, NodeType.DEPOSIT, click.adaptation)).thenReturn(NodePlacementVerdict.READY);
+
+    click.fire();
+
+    InOrder order = inOrder(service, click.held, click.player);
+    order.verify(service).place(click.player, click.block, BlockFace.UP, NodeType.DEPOSIT, click.adaptation);
+    order.verify(click.held).setAmount(1);
+    order.verify(click.player).saveData();
+  }
+
+  @Test
+  void aRefusedPlacementSavesNoPlayerData() {
+    NodeService service = mock(NodeService.class);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
+    Click click = click(true, EquipmentSlot.HAND, 2);
+    when(service.place(click.player, click.block, BlockFace.UP, NodeType.DEPOSIT, click.adaptation)).thenReturn(NodePlacementVerdict.OCCUPIED);
+
+    click.fire();
+
+    verify(click.player, never()).saveData();
+  }
+
+  @Test
+  void aValidAnimusPlinthBlockTakesPrecedenceOverNodePlacement() {
+    NodeService service = mock(NodeService.class);
+    PlinthService plinths = mock(PlinthService.class);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
+    runtime.when(GolemancyRuntime::plinths).thenReturn(Optional.of(plinths));
+    Click main = click(true, EquipmentSlot.HAND, 2);
+    Click offHand = click(true, EquipmentSlot.OFF_HAND, 2);
+    when(plinths.isPlinthBlock(main.block)).thenReturn(true);
+    when(plinths.isPlinthBlock(offHand.block)).thenReturn(true);
+
+    main.fire();
+    offHand.fire();
+
+    verify(main.event, never()).setCancelled(anyBoolean());
+    verify(offHand.event, never()).setCancelled(anyBoolean());
+    verify(service, never()).place(any(), any(), any(), any(), any());
+    verify(main.held, never()).setAmount(anyInt());
   }
 
   @Test

@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 public final class PlinthStructure {
   public static final List<String> DEFAULT_PEDESTALS = List.of(
@@ -19,12 +20,12 @@ public final class PlinthStructure {
   private PlinthStructure() {
   }
 
-  public static Set<Material> pedestals(List<String> names, Consumer<String> warn) {
+  public static Set<Material> pedestals(List<String> names, Predicate<Material> isBlock, Consumer<String> warn) {
     EnumSet<Material> pedestals = EnumSet.noneOf(Material.class);
     for (String name : names == null ? List.<String>of() : names) {
       String normalized = name == null ? "" : name.trim().toUpperCase(Locale.ROOT);
       Material material = Material.getMaterial(normalized);
-      if (material == null || material.isLegacy()) {
+      if (material == null || material.isLegacy() || !isBlock.test(material)) {
         warn.accept("Ignoring Animus Plinth pedestal block \"" + name + "\": it is not a known block.");
         continue;
       }

@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Handler;
@@ -40,6 +41,7 @@ import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -93,7 +95,7 @@ class PlinthServiceTest extends AdaptTestBase {
     stock.put(PlinthSlot.EAST, item(Material.FEATHER));
     stock.put(PlinthSlot.SOUTH, item(Material.SUGAR));
     stock.put(PlinthSlot.WEST, item(Material.FEATHER));
-    settings = new PlinthSettings(PlinthStructure.pedestals(PlinthStructure.DEFAULT_PEDESTALS, message -> {
+    settings = new PlinthSettings(PlinthStructure.pedestals(PlinthStructure.DEFAULT_PEDESTALS, material -> true, message -> {
     }), InfusionRecipes.of(List.of(infusion(1, 3))));
     player = player();
     lenient().when(plugin.isEnabled()).thenReturn(true);
@@ -121,7 +123,7 @@ class PlinthServiceTest extends AdaptTestBase {
     PlinthSlotItem stored = platform.store.get(CENTER.slot(PlinthSlot.NORTH));
     assertThat(stored.item()).isSameAs(sugar);
     assertThat(service.slot(CENTER.slot(PlinthSlot.NORTH))).contains(stored);
-    assertThat(events).containsSubsequence("take", "write 8,64,6 item", "effect LOADED");
+    assertThat(events).containsSubsequence("take", "write 8,64,6 item", "save player", "effect LOADED");
     assertThat(platform.displays).hasSize(1);
   }
 
@@ -254,8 +256,9 @@ class PlinthServiceTest extends AdaptTestBase {
     tick(3);
 
     assertThat(start.isCancelled()).isTrue();
-    assertThat(events).containsSubsequence("pay golem-runic-augments 2", "write 8,64,8 empty", "save 0,0", "pop 8,65,8", "notify golemancy.plinth.complete",
-        "infused swiftness_1");
+    assertThat(events).containsSubsequence("pay golem-runic-augments 2", "write 8,64,8 empty", "save 0,0", "pop 8,65,8", "settle",
+        "notify golemancy.plinth.complete", "infused swiftness_1");
+    assertThat(events).doesNotContain("refund");
     assertThat(events.stream().filter(event -> event.startsWith("write") && event.endsWith("empty"))).hasSize(5);
     assertThat(platform.store).isEmpty();
     assertThat(resultsBuilt.get()).isEqualTo(1);
@@ -280,19 +283,65 @@ class PlinthServiceTest extends AdaptTestBase {
   }
 
   @Test
-  void aFailedSaveRefundsTheLevelsAndWithholdsTheResult() {
+  void aFailedSaveRefundsTheChargeRestoresTheItemsAndWithholdsTheResult() {
     stockPlinth();
+    Map<PlinthSpot, PlinthSlotItem> before = new HashMap<>(platform.store);
     holdCrook();
     platform.saveFailure = new IllegalStateException("disk full");
 
     click(CENTER, EquipmentSlot.HAND);
     tick(3);
 
-    assertThat(events).contains("warn golemancy.plinth.failed");
+    assertThat(events).containsSubsequence("pay golem-runic-augments 2", "save 0,0", "refund", "warn golemancy.plinth.failed");
+    assertThat(events).doesNotContain("settle");
     assertThat(events.stream().filter(event -> event.startsWith("pop"))).isEmpty();
     assertThat(resultsBuilt.get()).isZero();
-    verify(player).giveExpLevels(2);
+    assertThat(platform.store).isEqualTo(before);
+    for (PlinthSpot spot : before.keySet()) {
+      assertThat(service.slot(spot)).contains(before.get(spot));
+    }
+    assertThat(platform.displays).hasSize(10);
+    assertThat(events.stream().filter(event -> event.startsWith("drop"))).isEmpty();
     assertThat(logged).anyMatch(record -> record.getThrown() != null);
+  }
+
+  @Test
+  void aSlotRefilledDuringAFailedSaveDropsItsOldItemInstead() {
+    stockPlinth();
+    PlinthSpot north = CENTER.slot(PlinthSlot.NORTH);
+    holdCrook();
+    platform.deferAsync = true;
+    platform.saveFailure = new IllegalStateException("disk full");
+    click(CENTER, EquipmentSlot.HAND);
+    tick(3);
+    PlinthSlotItem refill = PlinthSlotItem.of(UUID.randomUUID(), item(Material.STONE));
+    platform.store.put(north, refill);
+
+    platform.drainAsync();
+
+    assertThat(platform.store.get(north)).isEqualTo(refill);
+    assertThat(platform.store).hasSize(5);
+    assertThat(events).contains("drop 8,64,6", "refund");
+  }
+
+  @Test
+  void aRemovalThatFailsAtCompletionRefundsAndRestoresInsteadOfDelivering() {
+    stockPlinth();
+    holdCrook();
+    click(CENTER, EquipmentSlot.HAND);
+    tick(2);
+    PlinthSpot east = CENTER.slot(PlinthSlot.EAST);
+    PlinthSlotItem intruder = PlinthSlotItem.of(UUID.randomUUID(), item(Material.STONE));
+    platform.swapAfterReads(east, intruder, 1);
+
+    tick(1);
+
+    assertThat(events).contains("pay golem-runic-augments 2", "refund", INTERRUPTED);
+    assertThat(events).doesNotContain("save 0,0", "settle");
+    assertThat(events.stream().filter(event -> event.startsWith("pop"))).isEmpty();
+    assertThat(platform.store).hasSize(5).containsEntry(east, intruder);
+    assertThat(service.slot(east)).contains(intruder);
+    assertThat(service.slot(CENTER)).isPresent();
   }
 
   @Test
@@ -519,6 +568,53 @@ class PlinthServiceTest extends AdaptTestBase {
   }
 
   @Test
+  void anOffHandCompassStillBindsWhileTheCrookStartsTheRitual() {
+    stockPlinth();
+    holdCrook();
+    ItemStack compass = item(Material.COMPASS);
+    when(inventory.getItemInOffHand()).thenReturn(compass);
+
+    PlayerInteractEvent main = click(CENTER, EquipmentSlot.HAND);
+    PlayerInteractEvent offHand = click(CENTER, EquipmentSlot.OFF_HAND);
+
+    assertThat(main.isCancelled()).isTrue();
+    assertThat(offHand.isCancelled()).isFalse();
+
+    ItemStack torch = item(Material.TORCH);
+    when(inventory.getItemInOffHand()).thenReturn(torch);
+    assertThat(click(CENTER, EquipmentSlot.OFF_HAND).isCancelled()).isTrue();
+  }
+
+  @Test
+  void plinthBlocksAreTheLodestoneAndPedestalsOfACompletePlinth() {
+    assertThat(service.isPlinthBlock(block(CENTER))).isTrue();
+    for (PlinthSlot slot : PlinthSlot.PEDESTALS) {
+      assertThat(service.isPlinthBlock(block(CENTER.slot(slot)))).as("%s", slot).isTrue();
+    }
+    assertThat(service.isPlinthBlock(block(new PlinthSpot(WORLD, 9, 64, 8)))).isFalse();
+
+    platform.blocks.put("8,64,6", Material.COPPER_BLOCK);
+    assertThat(service.isPlinthBlock(block(CENTER))).isFalse();
+    assertThat(service.isPlinthBlock(block(CENTER.slot(PlinthSlot.EAST)))).isFalse();
+  }
+
+  @Test
+  void idleDisplaysTurnEveryTwentyTicksAndRitualsTurnThemEveryFive() {
+    stockPlinth();
+    assertThat(platform.entityDelays).containsOnly(20);
+    ItemDisplay center = platform.displays.getFirst();
+    tick(20);
+    verify(center, atLeastOnce()).setInterpolationDuration(20);
+
+    platform.entityDelays.clear();
+    holdCrook();
+    click(CENTER, EquipmentSlot.HAND);
+    tick(1);
+
+    assertThat(platform.entityDelays).contains(5);
+  }
+
+  @Test
   void shutdownAbortsRitualsAndRemovesDisplays() {
     stockPlinth();
     holdCrook();
@@ -680,9 +776,19 @@ class PlinthServiceTest extends AdaptTestBase {
     }
 
     @Override
-    public boolean payLevels(Player player, String adaptationId, int levels) {
+    public Optional<PlinthCharge> chargeLevels(Player player, String adaptationId, int levels) {
       events.add("pay " + adaptationId + " " + levels);
-      return true;
+      return Optional.of(new PlinthCharge() {
+        @Override
+        public void settle() {
+          events.add("settle");
+        }
+
+        @Override
+        public void refund() {
+          events.add("refund");
+        }
+      });
     }
 
     @Override

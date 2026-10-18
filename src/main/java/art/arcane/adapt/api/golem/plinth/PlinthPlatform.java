@@ -46,6 +46,8 @@ interface PlinthPlatform {
 
   ItemStack takeOne(Player player);
 
+  void saveData(Player player);
+
   boolean isCrook(ItemStack item);
 
   void tell(Player player, boolean warning, TextKey key, MessageArgument... arguments);
