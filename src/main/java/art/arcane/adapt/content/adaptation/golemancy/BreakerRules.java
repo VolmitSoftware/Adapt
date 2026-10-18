@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -14,7 +15,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 final class BreakerRules {
   static final String BREAK = "break";
@@ -48,11 +51,26 @@ final class BreakerRules {
     return Double.isFinite(value) ? value : 0D;
   }
 
-  static Material tool(List<String> byLevel, int level) {
+  static List<Material> tools(List<String> byLevel, Predicate<Material> pickaxe, Consumer<String> rejected) {
+    if (byLevel == null) {
+      return List.of();
+    }
+    List<Material> tools = new ArrayList<>(byLevel.size());
+    for (int index = 0; index < byLevel.size(); index++) {
+      String name = byLevel.get(index);
+      Material type = name == null ? null : Material.matchMaterial(name.trim());
+      if (type == null || !pickaxe.test(type)) {
+        rejected.accept(String.valueOf(name));
+        type = defaultTool(index + 1);
+      }
+      tools.add(type);
+    }
+    return List.copyOf(tools);
+  }
+
+  static Material toolAt(List<Material> tools, int level) {
     int at = Math.max(1, level);
-    String name = AnimusBindingRules.atLevel(byLevel, at, null);
-    Material type = name == null ? null : Material.matchMaterial(name.trim());
-    return type != null ? type : Material.valueOf(AnimusBindingRules.atLevel(DEFAULT_TOOLS, at, DEFAULT_TOOLS.getFirst()));
+    return AnimusBindingRules.atLevel(tools, at, defaultTool(at));
   }
 
   static Set<Material> blacklist(List<String> names, Function<String, Collection<Material>> tags) {
@@ -122,6 +140,10 @@ final class BreakerRules {
 
   static double nonNegative(double value) {
     return Double.isFinite(value) ? Math.max(0D, value) : 0D;
+  }
+
+  private static Material defaultTool(int level) {
+    return Material.valueOf(AnimusBindingRules.atLevel(DEFAULT_TOOLS, level, DEFAULT_TOOLS.getFirst()));
   }
 
   private static NodeRecord toggle(NodeRecord node, String key, String other) {

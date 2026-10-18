@@ -16,9 +16,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
-import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.TileState;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.PluginManager;
@@ -35,14 +35,11 @@ import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_SELF;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
-import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 class GolemBreakerCoreExecutionTest extends AdaptTestBase {
@@ -109,7 +106,7 @@ class GolemBreakerCoreExecutionTest extends AdaptTestBase {
     GolemBreakerCore.Config config = new GolemBreakerCore.Config();
 
     assertThat(config.intervalTicksByLevel).containsExactly(40, 30, 20, 15, 10);
-    assertThat(config.maxHardnessByLevel).containsExactly(1.5D, 3.0D, 5.0D, 10.0D, 50.0D);
+    assertThat(config.maxHardnessByLevel).containsExactly(2.0D, 3.0D, 5.0D, 10.0D, 50.0D);
     assertThat(config.toolByLevel).containsExactly("STONE_PICKAXE", "IRON_PICKAXE", "IRON_PICKAXE", "DIAMOND_PICKAXE", "NETHERITE_PICKAXE");
     assertThat(config.silkTouchLevel).isEqualTo(3);
     assertThat(config.fortuneLevel).isEqualTo(5);
@@ -139,11 +136,28 @@ class GolemBreakerCoreExecutionTest extends AdaptTestBase {
     String silk = "+ Silk Touch Toggle on Breaker Nodes";
     String fortune = "+ Fortune I Toggle on Breaker Nodes";
 
-    assertThat(lore(1)).containsExactly("+ 1.5 Max Block Hardness", "* 2 Seconds per Block", "+ Stone Pickaxe Mining Tool");
-    assertThat(lore(2)).containsExactly("+ 3 Max Block Hardness", "* 1.5 Seconds per Block", "+ Iron Pickaxe Mining Tool");
-    assertThat(lore(3)).containsExactly("+ 5 Max Block Hardness", "* 1 Seconds per Block", "+ Iron Pickaxe Mining Tool", silk);
-    assertThat(lore(4)).containsExactly("+ 10 Max Block Hardness", "* 0.75 Seconds per Block", "+ Diamond Pickaxe Mining Tool", silk);
-    assertThat(lore(5)).containsExactly("+ 50 Max Block Hardness", "* 0.5 Seconds per Block", "+ Netherite Pickaxe Mining Tool", silk, fortune);
+    try (MockedStatic<Bukkit> bukkit = pickaxes()) {
+      assertThat(lore(1)).containsExactly("+ 2 Max Block Hardness", "* 2 Seconds per Block", "+ Stone Pickaxe Mining Tool");
+      assertThat(lore(2)).containsExactly("+ 3 Max Block Hardness", "* 1.5 Seconds per Block", "+ Iron Pickaxe Mining Tool");
+      assertThat(lore(3)).containsExactly("+ 5 Max Block Hardness", "* 1 Seconds per Block", "+ Iron Pickaxe Mining Tool", silk);
+      assertThat(lore(4)).containsExactly("+ 10 Max Block Hardness", "* 0.75 Seconds per Block", "+ Diamond Pickaxe Mining Tool", silk);
+      assertThat(lore(5)).containsExactly("+ 50 Max Block Hardness", "* 0.5 Seconds per Block", "+ Netherite Pickaxe Mining Tool", silk, fortune);
+    }
+  }
+
+  @Test
+  void configuredToolsThatAreNotPickaxesUseTheLevelDefaultAndReloadsParseAgain() {
+    try (MockedStatic<Bukkit> bukkit = pickaxes()) {
+      assertThat(adaptation.pickaxe(4)).isEqualTo(Material.DIAMOND_PICKAXE);
+
+      assertThat(adaptation.reloadConfigSnapshot("toolByLevel = [\"DIAMOND_SHOVEL\", \"GOLDEN_PICKAXE\", \"STICK\"]\n",
+          dataFolder.toPath().resolve("tools.toml").toFile(), false)).isTrue();
+
+      assertThat(adaptation.pickaxe(1)).isEqualTo(Material.STONE_PICKAXE);
+      assertThat(adaptation.pickaxe(2)).isEqualTo(Material.GOLDEN_PICKAXE);
+      assertThat(adaptation.pickaxe(3)).isEqualTo(Material.IRON_PICKAXE);
+      assertThat(adaptation.pickaxe(5)).isEqualTo(Material.IRON_PICKAXE);
+    }
   }
 
   @Test
@@ -166,7 +180,7 @@ class GolemBreakerCoreExecutionTest extends AdaptTestBase {
 
   @Test
   void aReloadedBlacklistIsParsedAgainWithItsBlockTags() {
-    Tag<Material> slabs = new FakeBlockTag(NamespacedKey.minecraft("slabs"), Set.of(Material.STONE_SLAB));
+    Tag<Material> slabs = new FakeTag(NamespacedKey.minecraft("slabs"), Set.of(Material.STONE_SLAB));
     try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
       bukkit.when(() -> Bukkit.getTag(Tag.REGISTRY_BLOCKS, NamespacedKey.minecraft("slabs"), Material.class)).thenReturn(slabs);
       assertThat(adaptation.blacklist()).contains(Material.BEDROCK).doesNotContain(Material.STONE);
@@ -180,15 +194,18 @@ class GolemBreakerCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void tileEntityBlocksAreRecognizedOncePerBlockType() {
-    Block chest = block(Material.CHEST, mock(TileState.class));
-    Block otherChest = block(Material.CHEST, mock(TileState.class));
-    Block stone = block(Material.STONE, mock(BlockState.class));
+  void blockEntityTypesAreRecognizedFromTheirTypeOnce() {
+    BlockData chest = blockData(mock(TileState.class));
+    BlockData stone = blockData(mock(BlockState.class));
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      bukkit.when(() -> Bukkit.createBlockData(Material.CHEST)).thenReturn(chest);
+      bukkit.when(() -> Bukkit.createBlockData(Material.STONE)).thenReturn(stone);
 
-    assertThat(adaptation.tileEntity(chest)).isTrue();
-    assertThat(adaptation.tileEntity(otherChest)).isTrue();
-    assertThat(adaptation.tileEntity(stone)).isFalse();
-    verify(otherChest, never()).getState(anyBoolean());
+      assertThat(adaptation.tileEntity(Material.CHEST)).isTrue();
+      assertThat(adaptation.tileEntity(Material.CHEST)).isTrue();
+      assertThat(adaptation.tileEntity(Material.STONE)).isFalse();
+      bukkit.verify(() -> Bukkit.createBlockData(Material.CHEST), times(1));
+    }
   }
 
   @Test
@@ -208,11 +225,18 @@ class GolemBreakerCoreExecutionTest extends AdaptTestBase {
   }
 
 
-  private static Block block(Material type, BlockState state) {
-    Block block = mock(Block.class);
-    when(block.getType()).thenReturn(type);
-    lenient().when(block.getState(false)).thenReturn(state);
-    return block;
+  private static BlockData blockData(BlockState state) {
+    BlockData data = mock(BlockData.class);
+    when(data.createBlockState()).thenReturn(state);
+    return data;
+  }
+
+  private static MockedStatic<Bukkit> pickaxes() {
+    Tag<Material> tag = new FakeTag(NamespacedKey.minecraft("pickaxes"), Set.of(Material.STONE_PICKAXE, Material.IRON_PICKAXE,
+        Material.GOLDEN_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE));
+    MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class);
+    bukkit.when(() -> Bukkit.getTag(Tag.REGISTRY_ITEMS, NamespacedKey.minecraft("pickaxes"), Material.class)).thenReturn(tag);
+    return bukkit;
   }
 
   private List<String> lore(int level) {
@@ -270,7 +294,7 @@ class GolemBreakerCoreExecutionTest extends AdaptTestBase {
     }
   }
 
-  private record FakeBlockTag(NamespacedKey key, Set<Material> values) implements Tag<Material> {
+  private record FakeTag(NamespacedKey key, Set<Material> values) implements Tag<Material> {
     @Override
     public boolean isTagged(Material item) {
       return values.contains(item);

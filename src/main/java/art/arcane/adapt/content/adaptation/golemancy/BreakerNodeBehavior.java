@@ -14,10 +14,12 @@ import art.arcane.adapt.api.golem.node.NodeItemTags;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
+import art.arcane.adapt.api.xp.XpProvenance;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -100,10 +102,10 @@ final class BreakerNodeBehavior implements NodeBehavior {
   }
 
   private void mine(GolemContext golem, Block block, ItemStack tool) {
-    List<ItemStack> drops = new ArrayList<>(golem.withBonusYield(new ArrayList<>(block.getDrops(tool))));
     BlockData broken = block.getBlockData();
+    List<ItemStack> drops = drops(golem, block, broken, tool);
     Location at = block.getLocation().add(0.5D, 0.5D, 0.5D);
-    block.setType(Material.AIR);
+    block.setType(broken instanceof Waterlogged water && water.isWaterlogged() ? Material.WATER : Material.AIR);
     for (ItemStack item : drops) {
       if (item == null || item.getAmount() <= 0) {
         continue;
@@ -113,10 +115,34 @@ final class BreakerNodeBehavior implements NodeBehavior {
     BreakerFeedback.play(core, at, broken);
   }
 
+  private List<ItemStack> drops(GolemContext golem, Block block, BlockData broken, ItemStack tool) {
+    List<ItemStack> drops = new ArrayList<>(block.getDrops(tool));
+    if (XpProvenance.isPlayerPlaced(block)) {
+      return drops;
+    }
+    Material type = block.getType();
+    Material placement = broken.getPlacementMaterial();
+    List<ItemStack> kept = new ArrayList<>(drops.size());
+    List<ItemStack> eligible = new ArrayList<>(drops.size());
+    for (ItemStack item : drops) {
+      if (item == null) {
+        continue;
+      }
+      if (item.getType() == type || item.getType() == placement) {
+        kept.add(item);
+      } else {
+        eligible.add(item);
+      }
+    }
+    if (!eligible.isEmpty()) {
+      kept.addAll(golem.withBonusYield(eligible));
+    }
+    return kept;
+  }
+
   private BreakerRules.Plan plan(int level, NodeRecord record, boolean silk, boolean fortune) {
-    GolemBreakerCore.Config config = core.config();
-    ItemStack tool = core.tool(BreakerRules.tool(config.toolByLevel, level), silk, fortune);
-    return BreakerRules.plan(config, core.blacklist(), level, record, NodeItemTags.shared(), tool);
+    ItemStack tool = core.tool(core.pickaxe(level), silk, fortune);
+    return BreakerRules.plan(core.config(), core.blacklist(), level, record, NodeItemTags.shared(), tool);
   }
 
   private boolean breakable(Block block, BreakerRules.Plan plan) {
@@ -124,8 +150,8 @@ final class BreakerNodeBehavior implements NodeBehavior {
       return false;
     }
     Material type = block.getType();
-    return BreakerRules.minable(type, core.hardness(type), plan) && !block.isLiquid() && !core.tileEntity(block)
-        && block.isPreferredTool(plan.tool()) && !anchored(block);
+    return BreakerRules.minable(type, core.hardness(type), plan) && !block.isLiquid() && !core.tileEntity(type)
+        && block.isPreferredTool(plan.tool()) && !anchored(block) && !plinth(block);
   }
 
   private int level(GolemContext golem) {
@@ -136,6 +162,10 @@ final class BreakerNodeBehavior implements NodeBehavior {
   private static boolean anchored(Block block) {
     return GolemancyRuntime.nodes().map(nodes -> nodes.index().mayAnchor(block.getWorld().getUID(), block.getX(), block.getY(), block.getZ()))
         .orElse(true);
+  }
+
+  private static boolean plinth(Block block) {
+    return GolemancyRuntime.plinths().map(plinths -> plinths.isPlinthBlock(block)).orElse(false);
   }
 
   private static boolean covered(NodeRecord record, GolemTask task) {

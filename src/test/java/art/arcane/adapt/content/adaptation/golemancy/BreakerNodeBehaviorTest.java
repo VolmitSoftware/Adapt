@@ -15,11 +15,14 @@ import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.ScanBudget;
+import art.arcane.adapt.api.golem.plinth.PlinthService;
+import art.arcane.adapt.api.xp.XpProvenance;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -73,13 +76,14 @@ class BreakerNodeBehaviorTest {
   private final Map<ItemStack, String> tools = new IdentityHashMap<>();
   private final Map<Material, Float> hardness = new EnumMap<>(Material.class);
   private final Set<Material> tileEntities = EnumSet.noneOf(Material.class);
-  private NodeRecord record = record(true, Material.COBBLESTONE, Material.STONE, Material.BEDROCK, Material.OBSIDIAN, Material.CHEST,
-      Material.IRON_ORE, Material.COAL_ORE, Material.WATER);
+  private NodeRecord record = record(true, Material.COBBLESTONE, Material.STONE, Material.DEEPSLATE, Material.BEDROCK, Material.OBSIDIAN,
+      Material.CHEST, Material.IRON_ORE, Material.COAL_ORE, Material.WATER);
   private GolemBreakerCore core;
   private BreakerNodeBehavior behavior;
   private int roomLeft = 64;
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<BreakerFeedback> feedback;
+  private MockedStatic<XpProvenance> provenance;
 
   @BeforeEach
   void setUp() {
@@ -87,7 +91,10 @@ class BreakerNodeBehaviorTest {
     lenient().when(core.config()).thenReturn(config);
     lenient().when(core.blacklist()).thenAnswer(invocation -> BreakerRules.blacklist(config.blacklist, tag -> List.of()));
     lenient().when(core.hardness(any(Material.class))).thenAnswer(invocation -> hardness.getOrDefault(invocation.<Material>getArgument(0), 1.0F));
-    lenient().when(core.tileEntity(any(Block.class))).thenAnswer(invocation -> tileEntities.contains(invocation.<Block>getArgument(0).getType()));
+    lenient().when(core.tileEntity(any(Material.class))).thenAnswer(invocation -> tileEntities.contains(invocation.<Material>getArgument(0)));
+    List<Material> pickaxes = BreakerRules.tools(BreakerRules.DEFAULT_TOOLS, type -> true, name -> {
+    });
+    lenient().when(core.pickaxe(anyInt())).thenAnswer(invocation -> BreakerRules.toolAt(pickaxes, invocation.getArgument(0)));
     lenient().when(core.tool(any(Material.class), anyBoolean(), anyBoolean())).thenAnswer(invocation -> {
       ItemStack tool = GolemTestItems.stack(invocation.getArgument(0), 1);
       String label = invocation.getArgument(0).toString() + (invocation.<Boolean>getArgument(1) ? "+silk" : "")
@@ -96,12 +103,14 @@ class BreakerNodeBehaviorTest {
       return tool;
     });
     level(2);
-    hardness.putAll(Map.of(Material.COBBLESTONE, 2.0F, Material.STONE, 1.5F, Material.BEDROCK, -1.0F, Material.OBSIDIAN, 50.0F,
-        Material.CHEST, 2.5F, Material.IRON_ORE, 3.0F, Material.COAL_ORE, 3.0F, Material.DIRT, 0.5F, Material.WATER, 100.0F));
+    hardness.putAll(Map.of(Material.COBBLESTONE, 2.0F, Material.STONE, 1.5F, Material.DEEPSLATE, 3.0F, Material.BEDROCK, -1.0F,
+        Material.OBSIDIAN, 50.0F, Material.CHEST, 2.5F, Material.IRON_ORE, 3.0F, Material.COAL_ORE, 3.0F, Material.DIRT, 0.5F,
+        Material.WATER, 100.0F));
     tileEntities.add(Material.CHEST);
     field.toolDrops(Material.STONE, tool -> CropField.stacks(tools.get(tool).contains("silk") ? Material.STONE : Material.COBBLESTONE, 1));
     field.toolDrops(Material.COAL_ORE, tool -> CropField.stacks(Material.COAL, tools.get(tool).contains("fortune") ? 2 : 1));
     field.toolDrops(Material.COBBLESTONE, tool -> CropField.stacks(Material.COBBLESTONE, 1));
+    field.toolDrops(Material.DIAMOND_BLOCK, tool -> CropField.stacks(Material.DIAMOND_BLOCK, 1));
     field.unharvestable(Material.IRON_ORE);
     load(-1, -1);
     load(-1, 0);
@@ -112,11 +121,13 @@ class BreakerNodeBehaviorTest {
     lenient().when(nodes.index()).thenReturn(index);
     runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
     feedback = mockStatic(BreakerFeedback.class);
+    provenance = mockStatic(XpProvenance.class);
     runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(nodes));
   }
 
   @AfterEach
   void close() {
+    provenance.close();
     feedback.close();
     runtime.close();
   }
@@ -132,7 +143,7 @@ class BreakerNodeBehaviorTest {
 
     behavior.scan(node(), budget(true));
 
-    assertThat(jobs()).containsExactly("break -1,64,-1", "break 1,64,1");
+    assertThat(jobs()).containsExactly("break -1,64,-1", "break 0,64,-1", "break 1,64,1");
   }
 
   @Test
@@ -141,12 +152,12 @@ class BreakerNodeBehaviorTest {
 
     level(1);
     behavior.scan(node(), budget(true));
-    assertThat(jobs()).containsExactly("break 1,64,1");
+    assertThat(jobs()).containsExactly("break -1,64,-1", "break 1,64,1");
 
     posted.clear();
     level(5);
     behavior.scan(node(), budget(true));
-    assertThat(jobs()).containsExactly("break -1,64,-1", "break -1,64,1", "break 1,64,1");
+    assertThat(jobs()).containsExactly("break -1,64,-1", "break -1,64,1", "break 0,64,-1", "break 1,64,1");
   }
 
   @Test
@@ -207,7 +218,7 @@ class BreakerNodeBehaviorTest {
     behavior.scan(node(), budget(true));
 
     assertThat(posted).contains(open).doesNotContain(stale, outside);
-    assertThat(jobs()).containsExactly("break -1,64,-1", "break 1,64,1");
+    assertThat(jobs()).containsExactly("break -1,64,-1", "break 0,64,-1", "break 1,64,1");
   }
 
   @Test
@@ -288,6 +299,68 @@ class BreakerNodeBehaviorTest {
   }
 
   @Test
+  void entropyNeverDoublesPlacedBlocksOrDropsOfTheBrokenBlockItself() {
+    level(5);
+    record = record(true, Material.DIAMOND_BLOCK, Material.COAL_ORE, Material.STONE);
+    field.set(1, 64, 1, Material.DIAMOND_BLOCK, BreakerRulesTest.placed(Material.DIAMOND_BLOCK));
+    field.set(1, 64, 0, Material.COAL_ORE, BreakerRulesTest.placed(Material.COAL_ORE));
+    field.set(0, 64, 1, Material.COAL_ORE, BreakerRulesTest.placed(Material.COAL_ORE));
+    stone(-1, 64, 1);
+    provenance.when(() -> XpProvenance.isPlayerPlaced(field.block(1, 64, 1))).thenReturn(true);
+    provenance.when(() -> XpProvenance.isPlayerPlaced(field.block(1, 64, 0))).thenReturn(true);
+    GolemContext golem = golem(1);
+    when(golem.withBonusYield(anyList())).thenAnswer(invocation -> {
+      List<ItemStack> drops = new ArrayList<>();
+      for (ItemStack item : invocation.<List<ItemStack>>getArgument(0)) {
+        drops.add(item);
+        drops.add(GolemTestItems.stack(item.getType(), item.getAmount()));
+      }
+      return drops;
+    });
+
+    assertThat(behavior.act(golem, task(1, 64, 1))).isEqualTo(GolemActResult.DONE);
+    assertThat(behavior.act(golem, task(1, 64, 0))).isEqualTo(GolemActResult.DONE);
+    assertThat(behavior.act(golem, task(0, 64, 1))).isEqualTo(GolemActResult.DONE);
+    record = BreakerRules.toggleSilk(record);
+    assertThat(behavior.act(golem, task(-1, 64, 1))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("DIAMOND_BLOCK", 1, "COAL", 3, "STONE", 1));
+  }
+
+  @Test
+  void animusPlinthBlocksAreLeftAlone() {
+    stone(1, 64, 1);
+    stone(-1, 64, 1);
+    PlinthService plinths = mock(PlinthService.class);
+    when(plinths.isPlinthBlock(any(Block.class))).thenAnswer(invocation -> invocation.getArgument(0) == field.block(1, 64, 1));
+    runtime.when(GolemancyRuntime::plinths).thenReturn(Optional.of(plinths));
+
+    behavior.scan(node(), budget(true));
+
+    assertThat(jobs()).containsExactly("break -1,64,1");
+    assertThat(behavior.act(golem(1), task(1, 64, 1))).isEqualTo(GolemActResult.FAILED);
+    assertThat(field.type(1, 64, 1)).isEqualTo(Material.STONE);
+  }
+
+  @Test
+  void aWaterloggedBlockLeavesItsWaterBehind() {
+    record = record(true, Material.STONE_SLAB);
+    Waterlogged slab = mock(Waterlogged.class);
+    when(slab.getPlacementMaterial()).thenReturn(Material.STONE_SLAB);
+    when(slab.isWaterlogged()).thenReturn(true);
+    field.set(1, 64, 1, Material.STONE_SLAB, slab);
+    stone(1, 64, 0);
+
+    assertThat(behavior.act(golem(1), task(1, 64, 1))).isEqualTo(GolemActResult.DONE);
+    assertThat(behavior.act(golem(1), task(1, 64, 0))).isEqualTo(GolemActResult.FAILED);
+    record = record(true, Material.STONE);
+    assertThat(behavior.act(golem(1), task(1, 64, 0))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(1, 64, 1)).isEqualTo(Material.WATER);
+    assertThat(field.type(1, 64, 0)).isEqualTo(Material.AIR);
+  }
+
+  @Test
   void aBlockThatNoLongerMatchesOrSitsOutsideTheAreaOrUnderTheNodeFails() {
     field.set(1, 64, 1, Material.DIRT, BreakerRulesTest.placed(Material.DIRT));
     stone(3, 64, 3);
@@ -340,6 +413,7 @@ class BreakerNodeBehaviorTest {
     field.set(-1, 64, 1, Material.OBSIDIAN, BreakerRulesTest.placed(Material.OBSIDIAN));
     field.set(1, 65, 0, Material.CHEST, BreakerRulesTest.placed(Material.CHEST));
     field.set(-1, 65, 0, Material.IRON_ORE, BreakerRulesTest.placed(Material.IRON_ORE));
+    field.set(0, 64, -1, Material.DEEPSLATE, BreakerRulesTest.placed(Material.DEEPSLATE));
   }
 
   private void stone(int x, int y, int z) {

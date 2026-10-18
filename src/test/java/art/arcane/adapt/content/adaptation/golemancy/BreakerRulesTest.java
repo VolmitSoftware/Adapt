@@ -36,6 +36,8 @@ class BreakerRulesTest {
       return tag.equals("#minecraft:ice") && (material == Material.ICE || material == Material.PACKED_ICE);
     }
   };
+  private static final Set<Material> PICKAXES = Set.of(Material.WOODEN_PICKAXE, Material.STONE_PICKAXE, Material.IRON_PICKAXE,
+      Material.GOLDEN_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE);
   private static final Function<String, Collection<Material>> BLOCK_TAGS = tag -> switch (tag) {
     case "#beds" -> List.of(Material.RED_BED, Material.WHITE_BED);
     case "#doors" -> List.of(Material.OAK_DOOR, Material.IRON_DOOR);
@@ -50,7 +52,7 @@ class BreakerRulesTest {
     assertThat(List.of(1, 2, 3, 4, 5)).extracting(level -> BreakerRules.intervalTicks(config.intervalTicksByLevel, level))
         .containsExactly(40, 30, 20, 15, 10);
     assertThat(List.of(1, 2, 3, 4, 5)).extracting(level -> BreakerRules.maxHardness(config.maxHardnessByLevel, level))
-        .containsExactly(1.5D, 3.0D, 5.0D, 10.0D, 50.0D);
+        .containsExactly(2.0D, 3.0D, 5.0D, 10.0D, 50.0D);
     assertThat(BreakerRules.intervalTicks(config.intervalTicksByLevel, 0)).isEqualTo(40);
     assertThat(BreakerRules.intervalTicks(config.intervalTicksByLevel, 9)).isEqualTo(10);
     assertThat(BreakerRules.intervalTicks(List.of(-3), 1)).isEqualTo(1);
@@ -60,13 +62,22 @@ class BreakerRulesTest {
   }
 
   @Test
-  void eachLevelMinesWithItsPickaxeAndUnknownToolsFallBackToTheDefaultForThatLevel() {
-    assertThat(List.of(1, 2, 3, 4, 5)).extracting(level -> BreakerRules.tool(config.toolByLevel, level))
+  void eachLevelMinesWithItsPickaxeAndNamesThatAreNotPickaxesFallBackToTheLevelDefault() {
+    List<String> rejected = new ArrayList<>();
+    List<Material> tools = BreakerRules.tools(config.toolByLevel, PICKAXES::contains, rejected::add);
+    List<String> custom = new ArrayList<>(List.of("golden_pickaxe", "no_such_tool", "DIAMOND_SHOVEL", "STONE"));
+    custom.add(null);
+
+    assertThat(List.of(1, 2, 3, 4, 5)).extracting(level -> BreakerRules.toolAt(tools, level))
         .containsExactly(Material.STONE_PICKAXE, Material.IRON_PICKAXE, Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE);
-    assertThat(BreakerRules.tool(List.of("golden_pickaxe"), 1)).isEqualTo(Material.GOLDEN_PICKAXE);
-    assertThat(BreakerRules.tool(List.of("STONE_PICKAXE", "no_such_tool"), 2)).isEqualTo(Material.IRON_PICKAXE);
-    assertThat(BreakerRules.tool(List.of(), 5)).isEqualTo(Material.NETHERITE_PICKAXE);
-    assertThat(BreakerRules.tool(config.toolByLevel, 0)).isEqualTo(Material.STONE_PICKAXE);
+    assertThat(rejected).isEmpty();
+    assertThat(BreakerRules.tools(custom, PICKAXES::contains, rejected::add))
+        .containsExactly(Material.GOLDEN_PICKAXE, Material.IRON_PICKAXE, Material.IRON_PICKAXE, Material.DIAMOND_PICKAXE, Material.NETHERITE_PICKAXE);
+    assertThat(rejected).containsExactly("no_such_tool", "DIAMOND_SHOVEL", "STONE", "null");
+    assertThat(BreakerRules.toolAt(List.of(), 5)).isEqualTo(Material.NETHERITE_PICKAXE);
+    assertThat(BreakerRules.toolAt(tools, 0)).isEqualTo(Material.STONE_PICKAXE);
+    assertThat(BreakerRules.toolAt(tools, 9)).isEqualTo(Material.NETHERITE_PICKAXE);
+    assertThat(BreakerRules.tools(null, PICKAXES::contains, rejected::add)).isEmpty();
   }
 
   @Test
@@ -122,9 +133,10 @@ class BreakerRulesTest {
     BreakerRules.Plan plan = BreakerRules.plan(config, BreakerRules.blacklist(config.blacklist, BLOCK_TAGS), 1, node(List.of(Material.STONE), true),
         TAGS, GolemTestItems.stack(Material.STONE_PICKAXE, 1));
 
-    assertThat(plan.maxHardness()).isEqualTo(1.5D);
+    assertThat(plan.maxHardness()).isEqualTo(2.0D);
     assertThat(BreakerRules.minable(Material.STONE, 1.5F, plan)).isTrue();
-    assertThat(BreakerRules.minable(Material.COBBLESTONE, 2.0F, plan)).isFalse();
+    assertThat(BreakerRules.minable(Material.COBBLESTONE, 2.0F, plan)).isTrue();
+    assertThat(BreakerRules.minable(Material.DEEPSLATE, 3.0F, plan)).isFalse();
     assertThat(BreakerRules.minable(Material.BEDROCK, 1.0F, plan)).isFalse();
     assertThat(BreakerRules.minable(Material.BARRIER, -1.0F, plan)).isFalse();
     assertThat(BreakerRules.minable(Material.NETHER_PORTAL, -1.0F, plan)).isFalse();
