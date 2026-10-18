@@ -301,6 +301,12 @@ dependencies {
     testImplementation('com.github.MilkBowl:VaultAPI:1.7') {
         transitive = false
     }
+    testImplementation('com.massivecraft:Factions:1.6.9.5-U0.6.21') {
+        transitive = false
+    }
+    testImplementation('com.github.TechFortress:GriefPrevention:16.18.1') {
+        transitive = false
+    }
     testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
     testImplementation('org.mockito:mockito-core:5.14.2')
     testImplementation('org.mockito:mockito-junit-jupiter:5.14.2')

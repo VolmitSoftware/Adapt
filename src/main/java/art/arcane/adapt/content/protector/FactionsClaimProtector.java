@@ -26,28 +26,60 @@ import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.perms.PermissibleAction;
+import com.massivecraft.factions.perms.PermissibleActions;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
+import java.util.Objects;
+
 public class FactionsClaimProtector implements Protector {
+  private final Territory territory;
+
+  public FactionsClaimProtector() {
+    this(new FactionsTerritory());
+  }
+
+  FactionsClaimProtector(Territory territory) {
+    this.territory = Objects.requireNonNull(territory);
+  }
 
   @Override
   public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
-    Faction f = Board.getInstance().getFactionAt(new FLocation(player.getLocation()));
-    return checkPerm(player, f, adaptation) || f.isWilderness();
+    Faction f = territory.factionAt(location);
+    return checkPerm(player, f) || f.isWilderness();
+  }
+
+  @Override
+  public boolean canBlockBreak(Player player, Location blockLocation, Adaptation<?> adaptation) {
+    return hasAccess(player, blockLocation, Permission.DESTROY);
+  }
+
+  @Override
+  public boolean canBlockPlace(Player player, Location blockLocation, Adaptation<?> adaptation) {
+    return hasAccess(player, blockLocation, Permission.BUILD);
   }
 
   @Override
   public boolean canPVP(Player player, Location victimLocation, Adaptation<?> adaptation) {
-    Faction f = Board.getInstance().getFactionAt(new FLocation(victimLocation));
-    return checkPerm(player, f, adaptation) || !f.noPvPInTerritory();
+    Faction f = territory.factionAt(victimLocation);
+    return checkPerm(player, f) || !f.noPvPInTerritory();
   }
 
-  private boolean checkPerm(Player player, Faction f, Adaptation<?> adaptation) {
-    FPlayer fp = FPlayers.getInstance().getByPlayer(player);
-    return f == null
-        || fp.getFaction() == f
-        || fp.isAdminBypassing();
+  @Override
+  public boolean canPVE(Player player, Location victimLocation, Adaptation<?> adaptation) {
+    Faction f = territory.factionAt(victimLocation);
+    return checkPerm(player, f) || f.isWilderness();
+  }
+
+  @Override
+  public boolean canInteract(Player player, Location targetLocation, Adaptation<?> adaptation) {
+    return hasAccess(player, targetLocation, Permission.ITEM);
+  }
+
+  @Override
+  public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
+    return hasAccess(player, chestLocation, Permission.CONTAINER);
   }
 
   @Override
@@ -58,5 +90,62 @@ public class FactionsClaimProtector implements Protector {
   @Override
   public boolean isEnabledByDefault() {
     return AdaptConfig.get().getProtectorSupport().isFactionsClaim();
+  }
+
+  private boolean checkPerm(Player player, Faction f) {
+    FPlayer fp = territory.player(player);
+    return f == null
+        || fp.getFaction() == f
+        || fp.isAdminBypassing();
+  }
+
+  private boolean hasAccess(Player player, Location location, Permission permission) {
+    FPlayer fp = territory.player(player);
+    if (fp.isAdminBypassing()) {
+      return true;
+    }
+    Faction f = territory.factionAt(location);
+    return f == null || f.isWilderness() || territory.hasAccess(f, fp, permission, location);
+  }
+
+  enum Permission {
+    BUILD,
+    DESTROY,
+    ITEM,
+    CONTAINER
+  }
+
+  interface Territory {
+    Faction factionAt(Location location);
+
+    FPlayer player(Player player);
+
+    boolean hasAccess(Faction faction, FPlayer player, Permission permission, Location location);
+  }
+
+  private static final class FactionsTerritory implements Territory {
+    @Override
+    public Faction factionAt(Location location) {
+      return Board.getInstance().getFactionAt(new FLocation(location));
+    }
+
+    @Override
+    public FPlayer player(Player player) {
+      return FPlayers.getInstance().getByPlayer(player);
+    }
+
+    @Override
+    public boolean hasAccess(Faction faction, FPlayer player, Permission permission, Location location) {
+      return faction.hasAccess(player, action(permission), new FLocation(location));
+    }
+
+    private static PermissibleAction action(Permission permission) {
+      return switch (permission) {
+        case BUILD -> PermissibleActions.BUILD;
+        case DESTROY -> PermissibleActions.DESTROY;
+        case ITEM -> PermissibleActions.ITEM;
+        case CONTAINER -> PermissibleActions.CONTAINER;
+      };
+    }
   }
 }

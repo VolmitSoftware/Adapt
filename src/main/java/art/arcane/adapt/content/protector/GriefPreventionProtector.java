@@ -29,6 +29,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 public class GriefPreventionProtector implements Protector {
 
@@ -41,6 +42,24 @@ public class GriefPreventionProtector implements Protector {
   @Override
   public boolean canBlockPlace(Player player, Location location, Adaptation<?> adaptation) {
     return canEditClaim(player, location);
+  }
+
+  @Override
+  public boolean canPVE(Player player, Location victimLocation, Adaptation<?> adaptation) {
+    if (!GriefPrevention.instance.config_claims_protectCreatures) {
+      return true;
+    }
+    return allowed(victimLocation, claim -> claim.allowContainers(player));
+  }
+
+  @Override
+  public boolean canInteract(Player player, Location targetLocation, Adaptation<?> adaptation) {
+    return allowed(targetLocation, claim -> claim.allowAccess(player));
+  }
+
+  @Override
+  public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
+    return allowed(chestLocation, claim -> claim.allowContainers(player));
   }
 
   @Override
@@ -77,6 +96,10 @@ public class GriefPreventionProtector implements Protector {
 
   }
 
+  private static boolean allowed(Location location, Function<Claim, String> denial) {
+    Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null);
+    return claim == null || denial.apply(claim) == null;
+  }
+
 
 }
-
