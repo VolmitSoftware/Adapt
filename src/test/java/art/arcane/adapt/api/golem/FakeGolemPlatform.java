@@ -4,8 +4,10 @@ import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -26,6 +29,9 @@ final class FakeGolemPlatform implements GolemPlatform {
   final Set<String> loadedChunks = new HashSet<>();
   final List<Delayed> delayed = new ArrayList<>();
   final Map<UUID, List<AttributeModifier>> scaleModifiers = new HashMap<>();
+  final Map<String, List<Mob>> chunkMobs = new HashMap<>();
+  final List<String> sweeps = new ArrayList<>();
+  boolean ownsEntities = true;
   long now = 1_000_000L;
 
   void join(UUID owner, GolemRoster roster) {
@@ -61,6 +67,16 @@ final class FakeGolemPlatform implements GolemPlatform {
     return online.contains(owner);
   }
 
+  void loadChunk(UUID world, long chunkKey, Mob... mobs) {
+    loadedChunks.add(world + ":" + chunkKey);
+    chunkMobs.computeIfAbsent(world + ":" + chunkKey, ignored -> new ArrayList<>()).addAll(List.of(mobs));
+  }
+
+  @Override
+  public Collection<UUID> onlineOwners() {
+    return List.copyOf(online);
+  }
+
   @Override
   public Optional<GolemRoster> roster(UUID owner) {
     return online.contains(owner) ? Optional.ofNullable(rosters.get(owner)) : Optional.empty();
@@ -73,12 +89,12 @@ final class FakeGolemPlatform implements GolemPlatform {
 
   @Override
   public boolean owns(Entity entity) {
-    return true;
+    return ownsEntities;
   }
 
   @Override
   public boolean runEntity(Entity entity, Runnable task, int delayTicks) {
-    if (delayTicks <= 0) {
+    if (delayTicks <= 0 && ownsEntities) {
       task.run();
       return true;
     }
@@ -89,6 +105,20 @@ final class FakeGolemPlatform implements GolemPlatform {
   @Override
   public boolean isChunkLoaded(UUID world, long chunkKey) {
     return loadedChunks.contains(world + ":" + chunkKey);
+  }
+
+  @Override
+  public void sweepChunk(UUID world, long chunkKey, Consumer<Mob> boundGolem) {
+    String key = world + ":" + chunkKey;
+    sweeps.add(key);
+    if (!loadedChunks.contains(key)) {
+      return;
+    }
+    for (Mob mob : chunkMobs.getOrDefault(key, List.of())) {
+      if (GolemState.has(mob)) {
+        boundGolem.accept(mob);
+      }
+    }
   }
 
   @Override

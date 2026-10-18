@@ -17,11 +17,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class GolemState {
   public static final NamespacedKey KEY = new NamespacedKey("adapt", "golem");
   public static final int MAX_CORES = 2;
+  private static final Set<UUID> UNREADABLE_WARNED = ConcurrentHashMap.newKeySet();
 
   private UUID id;
   private UUID owner;
@@ -39,7 +42,7 @@ public final class GolemState {
   private boolean masterwork;
   private boolean colossus;
   private boolean dormant;
-  private boolean boundOnce;
+  private boolean previouslyBound;
 
   private GolemState() {
   }
@@ -60,8 +63,7 @@ public final class GolemState {
       return Optional.empty();
     }
     try {
-      GolemState state = Json.fromJson(json, GolemState.class);
-      return state != null && state.isComplete() ? Optional.of(state.normalized()) : Optional.empty();
+      return Optional.of(parse(json));
     } catch (JsonParseException | IllegalArgumentException | IllegalStateException | ClassCastException malformed) {
       return Optional.empty();
     }
@@ -75,7 +77,18 @@ public final class GolemState {
     if (entity == null) {
       return Optional.empty();
     }
-    return fromJson(entity.getPersistentDataContainer().get(KEY, PersistentDataType.STRING));
+    String json = entity.getPersistentDataContainer().get(KEY, PersistentDataType.STRING);
+    if (json == null) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(parse(json));
+    } catch (JsonParseException | IllegalArgumentException | IllegalStateException | ClassCastException malformed) {
+      if (UNREADABLE_WARNED.add(entity.getUniqueId())) {
+        Adapt.warn("Unreadable adapt:golem state on entity " + entity.getUniqueId() + ": " + malformed.getMessage(), malformed);
+      }
+      return Optional.empty();
+    }
   }
 
   public static void clear(Entity entity) {
@@ -187,8 +200,8 @@ public final class GolemState {
     return dormant;
   }
 
-  public boolean boundOnce() {
-    return boundOnce;
+  public boolean previouslyBound() {
+    return previouslyBound;
   }
 
   void setCores(List<GolemCoreType> next) {
@@ -250,12 +263,16 @@ public final class GolemState {
     dormant = value;
   }
 
-  void setBoundOnce(boolean value) {
-    boundOnce = value;
+  void setPreviouslyBound(boolean value) {
+    previouslyBound = value;
   }
 
-  private boolean isComplete() {
-    return id != null && owner != null && GolemBody.fromId(body).isPresent();
+  private static GolemState parse(String json) {
+    GolemState state = Json.fromJson(json, GolemState.class);
+    if (state == null || state.id == null || state.owner == null || GolemBody.fromId(state.body).isEmpty()) {
+      throw new IllegalStateException("the state is missing its id, owner or body");
+    }
+    return state.normalized();
   }
 
   private GolemState normalized() {

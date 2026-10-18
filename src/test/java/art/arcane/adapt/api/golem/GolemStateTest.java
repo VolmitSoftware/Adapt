@@ -38,7 +38,7 @@ class GolemStateTest {
     assertThat(state.masterwork()).isFalse();
     assertThat(state.colossus()).isFalse();
     assertThat(state.dormant()).isFalse();
-    assertThat(state.boundOnce()).isFalse();
+    assertThat(state.previouslyBound()).isFalse();
   }
 
   @Test
@@ -73,7 +73,7 @@ class GolemStateTest {
     assertThat(back.masterwork()).isTrue();
     assertThat(back.colossus()).isTrue();
     assertThat(back.dormant()).isTrue();
-    assertThat(back.boundOnce()).isTrue();
+    assertThat(back.previouslyBound()).isTrue();
   }
 
   @Test
@@ -84,6 +84,8 @@ class GolemStateTest {
     assertThat(json.get("mode").getAsString()).isEqualTo("home");
     assertThat(json.getAsJsonArray("cores").get(0).getAsString()).isEqualTo("sorter");
     assertThat(json.getAsJsonArray("runes").get(0).getAsJsonObject().get("aspect").getAsString()).isEqualTo("swiftness");
+    assertThat(json.get("previouslyBound").getAsBoolean()).isTrue();
+    assertThat(json.has("boundOnce")).isFalse();
   }
 
   @Test
@@ -175,7 +177,7 @@ class GolemStateTest {
     state.setMasterwork(true);
     state.setColossus(true);
     state.setDormant(true);
-    state.setBoundOnce(true);
+    state.setPreviouslyBound(true);
     return state;
   }
 }

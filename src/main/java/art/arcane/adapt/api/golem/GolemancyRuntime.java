@@ -7,15 +7,21 @@ import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 public final class GolemancyRuntime {
   public static final MinionKind MINION_KIND = new BoundGolemKind();
@@ -35,6 +41,7 @@ public final class GolemancyRuntime {
     created.activateRuntime();
     registry = created;
     adoptLoaded(created);
+    created.joinOnlineOwners();
   }
 
   public static boolean shutdown(long timeoutMillis) {
@@ -71,7 +78,12 @@ public final class GolemancyRuntime {
   }
 
   public static void configure(GolemSettings next) {
+    GolemSettings previous = settings;
     settings = Objects.requireNonNull(next);
+    GolemRegistry local = registry;
+    if (local != null && next.serverMaxActiveGolems() < previous.serverMaxActiveGolems()) {
+      local.enforceCap();
+    }
   }
 
   private static void adoptLoaded(GolemRegistry target) {
@@ -108,6 +120,16 @@ public final class GolemancyRuntime {
     }
 
     @Override
+    public Collection<UUID> onlineOwners() {
+      Collection<? extends Player> players = Bukkit.getOnlinePlayers();
+      List<UUID> owners = new ArrayList<>(players.size());
+      for (Player player : players) {
+        owners.add(player.getUniqueId());
+      }
+      return owners;
+    }
+
+    @Override
     public Optional<GolemRoster> roster(UUID owner) {
       AdaptPlayer player = onlinePlayer(owner);
       return player == null ? Optional.empty() : Optional.of(player.getData().getGolemancy());
@@ -135,6 +157,27 @@ public final class GolemancyRuntime {
     public boolean isChunkLoaded(UUID world, long chunkKey) {
       World loaded = Bukkit.getWorld(world);
       return loaded != null && loaded.isChunkLoaded(GolemRoster.chunkX(chunkKey), GolemRoster.chunkZ(chunkKey));
+    }
+
+    @Override
+    public void sweepChunk(UUID worldId, long chunkKey, Consumer<Mob> boundGolem) {
+      World world = Bukkit.getWorld(worldId);
+      int chunkX = GolemRoster.chunkX(chunkKey);
+      int chunkZ = GolemRoster.chunkZ(chunkKey);
+      if (world == null || !world.isChunkLoaded(chunkX, chunkZ)) {
+        return;
+      }
+      Location center = new Location(world, (chunkX << 4) + 8D, world.getMinHeight(), (chunkZ << 4) + 8D);
+      J.runAt(center, () -> {
+        if (!world.isChunkLoaded(chunkX, chunkZ)) {
+          return;
+        }
+        for (Entity entity : world.getChunkAt(chunkX, chunkZ).getEntities()) {
+          if (entity instanceof Mob mob && GolemState.has(mob)) {
+            boundGolem.accept(mob);
+          }
+        }
+      });
     }
 
     @Override

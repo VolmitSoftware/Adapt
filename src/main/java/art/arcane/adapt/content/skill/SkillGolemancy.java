@@ -422,7 +422,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     int serverMaxActiveGolems = 1500;
     @ConfigDoc(value = "Most bound golems allowed in one chunk when binding.", impact = "Lower values spread golems out; binding fails in a chunk that is already full.")
     int maxBoundGolemsPerChunk = 8;
-    @ConfigDoc(value = "Most golems one player can own at once, counting bound, packed, and shattered golems.", impact = "Lower values limit every player, whatever their adaptation levels allow.")
+    @ConfigDoc(value = "Most golems one player can own at once, counting bound, packed, and shattered golems, and missing golems until they are released.", impact = "Lower values limit every player, whatever their adaptation levels allow.")
     int hardCapPerPlayer = 32;
     @ConfigDoc(value = "Size of a bound frost golem as a multiple of its normal size.", impact = "Lower values make bound frost golems smaller; 1.0 keeps the normal size.")
     double bodyScaleFrost = 0.50;

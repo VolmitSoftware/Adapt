@@ -3,12 +3,17 @@ package art.arcane.adapt.api.golem;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 interface GolemPlatform {
   boolean isOnline(UUID owner);
+
+  Collection<UUID> onlineOwners();
 
   Optional<GolemRoster> roster(UUID owner);
 
@@ -19,6 +24,8 @@ interface GolemPlatform {
   boolean runEntity(Entity entity, Runnable task, int delayTicks);
 
   boolean isChunkLoaded(UUID world, long chunkKey);
+
+  void sweepChunk(UUID world, long chunkKey, Consumer<Mob> boundGolem);
 
   AttributeInstance scaleOf(LivingEntity entity);
 

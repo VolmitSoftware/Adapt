@@ -1,5 +1,7 @@
 package art.arcane.adapt.api.golem;
 
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Mob;
 import org.bukkit.inventory.ItemStack;
 
@@ -15,7 +17,8 @@ public final class GolemHandle {
   private final GolemPlatform platform;
   private final GolemWritePolicy writePolicy = new GolemWritePolicy();
   private volatile DormancyReason dormancyReason = DormancyReason.OWNER_UNKNOWN;
-  private volatile boolean awake;
+  private volatile ChunkPosition position;
+  private volatile boolean validated;
   private volatile boolean retired;
 
   GolemHandle(Mob entity, GolemState state, GolemPlatform platform) {
@@ -23,6 +26,7 @@ public final class GolemHandle {
     this.entityId = entity.getUniqueId();
     this.state = Objects.requireNonNull(state);
     this.platform = Objects.requireNonNull(platform);
+    trackPosition(entity.getLocation());
   }
 
   public UUID id() {
@@ -63,6 +67,10 @@ public final class GolemHandle {
 
   public boolean isRetired() {
     return retired;
+  }
+
+  public boolean isValidated() {
+    return validated;
   }
 
   public void setCarried(List<ItemStack> items) {
@@ -154,6 +162,7 @@ public final class GolemHandle {
     if (retired) {
       return;
     }
+    trackPosition(entity.getLocation());
     state.write(entity);
     writePolicy.flushed();
   }
@@ -168,12 +177,20 @@ public final class GolemHandle {
     }
   }
 
-  boolean isAwake() {
-    return awake;
+  void setValidated(boolean validated) {
+    this.validated = validated;
   }
 
-  void setAwake(boolean awake) {
-    this.awake = awake;
+  ChunkPosition position() {
+    return position;
+  }
+
+  ChunkPosition trackPosition(Location location) {
+    World world = location == null ? null : location.getWorld();
+    if (world != null) {
+      position = new ChunkPosition(world.getUID(), GolemRoster.chunkKey(location.getBlockX() >> 4, location.getBlockZ() >> 4));
+    }
+    return position;
   }
 
   void setDormancyReason(DormancyReason reason) {
@@ -204,5 +221,8 @@ public final class GolemHandle {
       return;
     }
     scheduleDebouncedFlush(writePolicy.remainingMillis(now));
+  }
+
+  record ChunkPosition(UUID world, long chunkKey) {
   }
 }
