@@ -4395,6 +4395,13 @@ follow = "Segui"
 stay = "Resta"
 home = "Casa"
 
+[golemancy.signal]
+follow = "Segui"
+hold = "Fermo"
+home = "Casa"
+work = "Lavoro"
+sic = "Attacca"
+
 [golemancy.channel]
 none = "Nessuno"
 white = "Bianco"
@@ -4479,6 +4486,10 @@ locate = "Clic sinistro per localizzare"
 release = "Maiusc + clic destro per liberare"
 release_confirm = "Liberare per sempre questo golem disperso?"
 release_shattered_confirm = "Liberare per sempre questo golem infranto? Il suo Nucleo infranto si sbriciolerà."
+crook_channel = "Canale del bastone: {channel}"
+crook_channel_lore = "Fai clic per scegliere a quali golem il tuo bastone dà segnali"
+crook_channel_title = "Canale del bastone"
+crook_channel_all = "Tutti i golem"
 
 [golemancy.message]
 home_set = "Casa impostata a {x}, {y}, {z}"
@@ -4498,6 +4509,8 @@ rune_no_slot = "Questo golem non ha slot runa liberi"
 rune_duplicate = "Questo golem ha già una runa di {aspect}"
 rune_blocked = "Le rune di {aspect} non funzionano in un golem di {body}"
 channels_full = "Questo golem può usare solo {count} canali"
+crook_channel = "Il tuo bastone ora dà segnali a: {channel}"
+crook_needed = "Tieni il bastone nella mano principale per sceglierne il canale"
 
 [golemancy.binding]
 busy = "Un rituale di legame è già in corso"
@@ -4711,6 +4724,20 @@ lore1 = "Slot runa extra per golem"
 lore2 = "Grado di runa più alto utilizzabile"
 lore3 = "Piedistallo di Animus e ricetta della Runa vuota"
 lore = ["Slot runa extra per golem", "Grado di runa più alto utilizzabile", "Piedistallo di Animus e ricetta della Runa vuota"]
+
+[golemancy.overseer]
+name = "Sorvegliante"
+description = "Ti permette di dare segnali ai tuoi golem legati con il Bastone dell'artefice perché ti seguano, restino fermi, tornino a casa o lavorino e, man mano che cresce, perché attacchino ciò che guardi, rispondano per canale, accorrano da te e ti proteggano in formazione."
+lore1 = "Raggio del segnale in blocchi"
+lore2 = "Attacca: i tuoi golem combattenti attaccano ciò che guardi"
+lore3 = "Filtro del canale del bastone, scelto nell'elenco dei golem"
+lore4 = "Raduno: Segui richiama a te i golem lontani"
+lore5 = "Armatura massima dai golem in formazione"
+lore = ["Raggio del segnale in blocchi", "Attacca: i tuoi golem combattenti attaccano ciò che guardi", "Filtro del canale del bastone, scelto nell'elenco dei golem", "Raduno: Segui richiama a te i golem lontani", "Armatura massima dai golem in formazione"]
+signal = "Segnale: {signal}"
+sent = "Inviato: {signal}"
+sent_channel = "Inviato: {signal} al canale {channel}"
+no_target = "Guarda una creatura che puoi attaccare entro {range} blocchi per inviare Attacca"
 
 [golemancy.mending]
 name = "Riparazione dei Golem"

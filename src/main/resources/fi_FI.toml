@@ -4395,6 +4395,13 @@ follow = "Seuraa"
 stay = "Pysy"
 home = "Kotiin"
 
+[golemancy.signal]
+follow = "Seuraa"
+hold = "Pidä paikka"
+home = "Kotiin"
+work = "Työ"
+sic = "Hyökkää"
+
 [golemancy.channel]
 none = "Ei mitään"
 white = "Valkoinen"
@@ -4479,6 +4486,10 @@ locate = "Paikanna vasemmalla napsautuksella"
 release = "Vapauta Shift + oikealla napsautuksella"
 release_confirm = "Vapautetaanko tämä kadonnut golemi lopullisesti?"
 release_shattered_confirm = "Vapautetaanko tämä särkynyt golemi lopullisesti? Sen Särkynyt ydin murenee."
+crook_channel = "Sauvan kanava: {channel}"
+crook_channel_lore = "Napsauta valitaksesi, mille golemeille sauvasi antaa merkkejä"
+crook_channel_title = "Sauvan kanava"
+crook_channel_all = "Kaikki golemit"
 
 [golemancy.message]
 home_set = "Koti asetettu kohtaan {x}, {y}, {z}"
@@ -4498,6 +4509,8 @@ rune_no_slot = "Tällä golemilla ei ole vapaata riimupaikkaa"
 rune_duplicate = "Tällä golemilla on jo {aspect}-riimu"
 rune_blocked = "{aspect}-riimut eivät toimi {body}golemissa"
 channels_full = "Tämä golemi voi käyttää vain {count} kanavaa"
+crook_channel = "Sauvasi antaa nyt merkkejä kanavalle: {channel}"
+crook_needed = "Pidä sauvaa pääkädessäsi asettaaksesi sen kanavan"
 
 [golemancy.binding]
 busy = "Sidontariitti on jo käynnissä"
@@ -4711,6 +4724,20 @@ lore1 = "Lisäriimupaikkoja golemia kohden"
 lore2 = "Korkein käytettävä riimutaso"
 lore3 = "Animusjalusta ja tyhjän riimun resepti"
 lore = ["Lisäriimupaikkoja golemia kohden", "Korkein käytettävä riimutaso", "Animusjalusta ja tyhjän riimun resepti"]
+
+[golemancy.overseer]
+name = "Valvoja"
+description = "Antaa sinun antaa sidotuille golemeillesi merkkejä Artefaktisepän sauvalla: seuraa, pidä paikka, mene kotiin tai tee työtä. Vahvistuessaan golemit hyökkäävät katsomasi kohteen kimppuun, kuuntelevat kanavia, kiiruhtavat luoksesi ja suojaavat sinua muodostelmassa."
+lore1 = "Merkkisäde palikoina"
+lore2 = "Hyökkää: taistelevat golemisi hyökkäävät katsomasi kohteen kimppuun"
+lore3 = "Sauvan kanavasuodatin, asetetaan golemiluettelossa"
+lore4 = "Kokoontuminen: Seuraa kutsuu kaukaiset golemit luoksesi"
+lore5 = "Suurin panssari muodostelman golemeista"
+lore = ["Merkkisäde palikoina", "Hyökkää: taistelevat golemisi hyökkäävät katsomasi kohteen kimppuun", "Sauvan kanavasuodatin, asetetaan golemiluettelossa", "Kokoontuminen: Seuraa kutsuu kaukaiset golemit luoksesi", "Suurin panssari muodostelman golemeista"]
+signal = "Merkki: {signal}"
+sent = "Lähetetty: {signal}"
+sent_channel = "Lähetetty: {signal} kanavalle {channel}"
+no_target = "Katso olentoa, jota saat hyökätä, enintään {range} palikan päässä lähettääksesi Hyökkää-merkin"
 
 [golemancy.mending]
 name = "Golemien korjaus"

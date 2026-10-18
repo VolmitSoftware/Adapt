@@ -4395,6 +4395,13 @@ follow = "Takip et"
 stay = "Bekle"
 home = "Eve dön"
 
+[golemancy.signal]
+follow = "Takip et"
+hold = "Yerinde kal"
+home = "Eve dön"
+work = "Çalış"
+sic = "Saldır"
+
 [golemancy.channel]
 none = "Yok"
 white = "Beyaz"
@@ -4479,6 +4486,10 @@ locate = "Bulmak için sol tıklayın"
 release = "Serbest bırakmak için Shift + sağ tıklayın"
 release_confirm = "Bu kayıp golem kalıcı olarak serbest bırakılsın mı?"
 release_shattered_confirm = "Bu parçalanmış golem kalıcı olarak serbest bırakılsın mı? Parçalanmış Çekirdeği ufalanacak."
+crook_channel = "Asa kanalı: {channel}"
+crook_channel_lore = "Asanızın hangi golemlere işaret vereceğini seçmek için tıklayın"
+crook_channel_title = "Asa Kanalı"
+crook_channel_all = "Tüm golemler"
 
 [golemancy.message]
 home_set = "Ev {x}, {y}, {z} olarak belirlendi"
@@ -4498,6 +4509,8 @@ rune_no_slot = "Bu golemde boş rün yuvası yok"
 rune_duplicate = "Bu golemde zaten bir {aspect} rünü var"
 rune_blocked = "{aspect} rünleri {body} Golemi'nde çalışmaz"
 channels_full = "Bu golem yalnızca {count} kanal kullanabilir"
+crook_channel = "Asanız artık şuna işaret veriyor: {channel}"
+crook_needed = "Kanalını ayarlamak için asayı ana elinizde tutun"
 
 [golemancy.binding]
 busy = "Zaten bir bağlama ritüeli sürüyor"
@@ -4711,6 +4724,20 @@ lore1 = "Golem başına ek rün yuvası"
 lore2 = "Kullanılabilir en yüksek rün kademesi"
 lore3 = "Animus Kaidesi ve Boş Rün tarifi"
 lore = ["Golem başına ek rün yuvası", "Kullanılabilir en yüksek rün kademesi", "Animus Kaidesi ve Boş Rün tarifi"]
+
+[golemancy.overseer]
+name = "Gözetmen"
+description = "Zanaatkârın Asası ile bağlı golemlerine takip etme, yerinde kalma, eve dönme veya çalışma işaretleri vermeni sağlar; güçlendikçe baktığın şeye saldırmalarını, kanala göre yanıt vermelerini, yanına toplanmalarını ve seni düzende korumalarını da sağlar."
+lore1 = "Blok cinsinden işaret yarıçapı"
+lore2 = "Saldır: savaşan golemlerin baktığın şeye saldırır"
+lore3 = "Asa kanal filtresi, Golem Listesi'nden ayarlanır"
+lore4 = "Toplanma: Takip et uzaktaki golemleri yanına çağırır"
+lore5 = "Düzendeki golemlerden en yüksek zırh"
+lore = ["Blok cinsinden işaret yarıçapı", "Saldır: savaşan golemlerin baktığın şeye saldırır", "Asa kanal filtresi, Golem Listesi'nden ayarlanır", "Toplanma: Takip et uzaktaki golemleri yanına çağırır", "Düzendeki golemlerden en yüksek zırh"]
+signal = "İşaret: {signal}"
+sent = "Gönderildi: {signal}"
+sent_channel = "Gönderildi: {signal}, {channel} kanalına"
+no_target = "Saldır işareti göndermek için {range} blok içinde saldırabileceğiniz bir canlıya bakın"
 
 [golemancy.mending]
 name = "Golem Onarımı"

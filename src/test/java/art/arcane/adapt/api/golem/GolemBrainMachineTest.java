@@ -49,6 +49,21 @@ class GolemBrainMachineTest {
   }
 
   @Test
+  void aFormationSlotReplacesTheOwnerAsTheFollowGoal() {
+    assertThat(step(senses(GolemMode.FOLLOW).owner(3D, true).slot(1.6D))).isEqualTo(decision(GolemBrainState.FOLLOW, Movement.SLOT));
+    assertThat(step(senses(GolemMode.FOLLOW).owner(3D, true).slot(1.0D))).isEqualTo(decision(GolemBrainState.FOLLOW, Movement.SLOT));
+    assertThat(step(senses(GolemMode.FOLLOW).owner(3D, true).slot(0.7D))).isEqualTo(decision(GolemBrainState.FOLLOW, Movement.STOP));
+    assertThat(step(senses(GolemMode.FOLLOW).owner(3D, true).slot(1.4D))).isEqualTo(decision(GolemBrainState.FOLLOW, Movement.NONE));
+    assertThat(step(senses(GolemMode.FOLLOW).owner(6D, true).slot(1.4D))).isEqualTo(decision(GolemBrainState.FOLLOW, Movement.NONE));
+  }
+
+  @Test
+  void aDistantOwnerStillTeleportsAGolemThatHasAFormationSlot() {
+    assertThat(step(senses(GolemMode.FOLLOW).owner(40D, true).slot(38D))).isEqualTo(decision(GolemBrainState.FOLLOW, Movement.TELEPORT));
+    assertThat(step(senses(GolemMode.FOLLOW).owner(20D, false).slot(18D))).isEqualTo(decision(GolemBrainState.FOLLOW, Movement.SLOT));
+  }
+
+  @Test
   void followWithoutAReachableOwnerIdlesInPlace() {
     follow(10D);
 
@@ -256,6 +271,7 @@ class GolemBrainMachineTest {
     private boolean ownerGrounded;
     private double homeDistance = Double.NaN;
     private double anchorDistance = Double.NaN;
+    private double slotDistance = Double.NaN;
     private boolean target;
 
     private SensesBuilder(GolemMode mode) {
@@ -278,13 +294,18 @@ class GolemBrainMachineTest {
       return this;
     }
 
+    private SensesBuilder slot(double distance) {
+      slotDistance = distance;
+      return this;
+    }
+
     private SensesBuilder target() {
       target = true;
       return this;
     }
 
     private Senses build(long nowMillis) {
-      return new Senses(nowMillis, mode, ownerDistance, ownerGrounded, homeDistance, anchorDistance, target);
+      return new Senses(nowMillis, mode, ownerDistance, ownerGrounded, homeDistance, anchorDistance, slotDistance, target);
     }
   }
 }

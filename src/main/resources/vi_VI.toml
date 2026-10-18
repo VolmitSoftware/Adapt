@@ -4395,6 +4395,13 @@ follow = "Đi theo"
 stay = "Đứng yên"
 home = "Về nhà"
 
+[golemancy.signal]
+follow = "Đi theo"
+hold = "Giữ vị trí"
+home = "Về nhà"
+work = "Làm việc"
+sic = "Tấn công"
+
 [golemancy.channel]
 none = "Không có"
 white = "Trắng"
@@ -4479,6 +4486,10 @@ locate = "Nhấp chuột trái để định vị"
 release = "Shift + nhấp chuột phải để giải phóng"
 release_confirm = "Giải phóng vĩnh viễn golem mất tích này?"
 release_shattered_confirm = "Giải phóng vĩnh viễn golem vỡ nát này? Lõi Vỡ Nát của nó sẽ tan rã."
+crook_channel = "Kênh của Gậy: {channel}"
+crook_channel_lore = "Nhấp để chọn những golem mà Gậy của bạn ra hiệu"
+crook_channel_title = "Kênh của Gậy"
+crook_channel_all = "Tất cả golem"
 
 [golemancy.message]
 home_set = "Đã đặt nhà tại {x}, {y}, {z}"
@@ -4498,6 +4509,8 @@ rune_no_slot = "Golem này không còn ô Cổ Tự trống"
 rune_duplicate = "Golem này đã có Cổ Tự {aspect}"
 rune_blocked = "Cổ Tự {aspect} không hoạt động trên golem {body}"
 channels_full = "Golem này chỉ có thể dùng {count} kênh"
+crook_channel = "Gậy của bạn giờ ra hiệu cho: {channel}"
+crook_needed = "Cầm Gậy ở tay chính để đặt kênh của nó"
 
 [golemancy.binding]
 busy = "Một nghi thức liên kết đang diễn ra"
@@ -4711,6 +4724,20 @@ lore1 = "Ô Cổ Tự bổ sung cho mỗi golem"
 lore2 = "Bậc Cổ Tự cao nhất có thể dùng"
 lore3 = "Bệ Animus và công thức Cổ Tự Trống"
 lore = ["Ô Cổ Tự bổ sung cho mỗi golem", "Bậc Cổ Tự cao nhất có thể dùng", "Bệ Animus và công thức Cổ Tự Trống"]
+
+[golemancy.overseer]
+name = "Giám Sát"
+description = "Cho phép bạn dùng Gậy của Thợ Chế Tác ra hiệu cho các golem đã liên kết đi theo, giữ vị trí, về nhà hoặc làm việc, và khi mạnh lên thì tấn công thứ bạn nhìn, phản hồi theo kênh, tập hợp về phía bạn và bảo vệ bạn theo đội hình."
+lore1 = "Bán kính hiệu lệnh (khối)"
+lore2 = "Tấn Công: golem chiến đấu tấn công thứ bạn nhìn"
+lore3 = "Bộ lọc kênh của Gậy, đặt trong Danh sách golem"
+lore4 = "Tập Hợp: Đi theo gọi các golem ở xa về phía bạn"
+lore5 = "Giáp tối đa từ golem trong đội hình"
+lore = ["Bán kính hiệu lệnh (khối)", "Tấn Công: golem chiến đấu tấn công thứ bạn nhìn", "Bộ lọc kênh của Gậy, đặt trong Danh sách golem", "Tập Hợp: Đi theo gọi các golem ở xa về phía bạn", "Giáp tối đa từ golem trong đội hình"]
+signal = "Hiệu lệnh: {signal}"
+sent = "Đã gửi: {signal}"
+sent_channel = "Đã gửi: {signal} tới kênh {channel}"
+no_target = "Nhìn vào một sinh vật bạn được phép tấn công trong phạm vi {range} khối để gửi Tấn công"
 
 [golemancy.mending]
 name = "Sửa Chữa Golem"

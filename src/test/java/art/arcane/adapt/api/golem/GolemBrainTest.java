@@ -406,6 +406,146 @@ class GolemBrainTest extends AdaptTestBase {
   }
 
   @Test
+  void aCommandedTargetPreemptsThePolicyUntilItsHoldEnds() {
+    owner(at(10, 64, 0));
+    LivingEntity chosen = mock(Zombie.class);
+    LivingEntity commanded = live(Zombie.class);
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    policy.next = chosen;
+    policy.holding = true;
+    brain.start();
+    brain.command(commanded, platform.now + 20_000L);
+
+    platform.runDelayed();
+
+    assertThat(brain.combatTarget()).contains(commanded);
+    assertThat(brain.state()).isEqualTo(GolemBrainState.COMBAT);
+    assertThat(policy.selections).isZero();
+
+    platform.now += 19_999L;
+    platform.runDelayed();
+    assertThat(brain.combatTarget()).contains(commanded);
+
+    platform.now += 1L;
+    platform.runDelayed();
+    assertThat(brain.combatTarget()).contains(chosen);
+  }
+
+  @Test
+  void aCommandEndsWhenItsTargetDies() {
+    owner(at(10, 64, 0));
+    LivingEntity commanded = live(Zombie.class);
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.start();
+    brain.command(commanded, platform.now + 20_000L);
+    platform.runDelayed();
+    assertThat(brain.combatTarget()).contains(commanded);
+
+    lenient().when(commanded.isDead()).thenReturn(true);
+    platform.now += 1_000L;
+    platform.runDelayed();
+
+    assertThat(brain.combatTarget()).isEmpty();
+    assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
+  }
+
+  @Test
+  void aCommandEndsWhenTheGolemBreaksItsLeash() {
+    owner(at(0, 64, 0));
+    AtomicReference<Location> position = new AtomicReference<>(at(40, 64, 0));
+    LivingEntity commanded = live(Zombie.class);
+    GolemBrain brain = brain(golem(IronGolem.class, position), GolemBody.IRON);
+    brain.start();
+    brain.command(commanded, platform.now + 20_000L);
+
+    platform.runDelayed();
+    position.set(at(1, 64, 0));
+    platform.now += 1_000L;
+    platform.runDelayed();
+
+    assertThat(brain.combatTarget()).isEmpty();
+  }
+
+  @Test
+  void clearingACommandEndsTheSicAndDropsItsTarget() {
+    owner(at(10, 64, 0));
+    LivingEntity commanded = live(Zombie.class);
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.start();
+    brain.command(commanded, platform.now + 20_000L);
+    platform.runDelayed();
+    assertThat(brain.combatTarget()).contains(commanded);
+
+    brain.clearCommand();
+    platform.now += 1_000L;
+    platform.runDelayed();
+
+    assertThat(brain.combatTarget()).isEmpty();
+    assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
+  }
+
+  @Test
+  void bodiesThatCannotFightIgnoreCommands() {
+    owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(CopperGolem.class, at(0, 64, 0)), GolemBody.COPPER);
+    brain.start();
+    brain.command(live(Zombie.class), platform.now + 20_000L);
+
+    platform.runDelayed();
+
+    assertThat(brain.combatTarget()).isEmpty();
+    assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
+  }
+
+  @Test
+  void aCommandHoldsBeforeItsDeadlineWhileTheTargetLivesInTheGolemsWorld() {
+    assertThat(GolemBrain.commandHolds(1_999L, 2_000L, true, true)).isTrue();
+    assertThat(GolemBrain.commandHolds(2_000L, 2_000L, true, true)).isFalse();
+    assertThat(GolemBrain.commandHolds(1_000L, 2_000L, false, true)).isFalse();
+    assertThat(GolemBrain.commandHolds(1_000L, 2_000L, true, false)).isFalse();
+  }
+
+  @Test
+  void followingGolemsInAFormationWalkToTheirRingSlotInsteadOfTheOwner() {
+    owner(at(10, 64, 0));
+    GolemFormation.Formation ring = (handle, ownerAt) -> ownerAt.clone().add(2.5D, 0D, 0D);
+    GolemFormation.register(ring);
+    try {
+      GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+      brain.start();
+
+      platform.runDelayed();
+
+      assertThat(controller.calls).contains("move:13.0,64.0,0.5");
+      assertThat(controller.calls).doesNotContain("move:10.5,64.0,0.5");
+    } finally {
+      GolemFormation.unregister(ring);
+    }
+  }
+
+  @Test
+  void onlyFollowingGolemsAskTheFormationForASlot() {
+    owner(at(10, 64, 0));
+    List<GolemHandle> asked = new ArrayList<>();
+    GolemFormation.Formation ring = (handle, ownerAt) -> {
+      asked.add(handle);
+      return ownerAt.clone();
+    };
+    GolemFormation.register(ring);
+    try {
+      GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+      brain.handle().setMode(GolemMode.HOME);
+      brain.start();
+
+      platform.runDelayed();
+
+      assertThat(asked).isEmpty();
+    } finally {
+      GolemFormation.unregister(ring);
+    }
+  }
+
+  @Test
   void bodiesThatCannotFightNeverAskThePolicy() {
     owner(at(10, 64, 0));
     policy.next = mock(Zombie.class);
@@ -735,6 +875,14 @@ class GolemBrainTest extends AdaptTestBase {
     lenient().when(owner.getLocation()).thenAnswer(invocation -> location.clone());
     platform.players.put(OWNER, owner);
     return owner;
+  }
+
+  private <T extends LivingEntity> T live(Class<T> type) {
+    T entity = mock(type);
+    lenient().when(entity.isValid()).thenReturn(true);
+    lenient().when(entity.getWorld()).thenReturn(world);
+    lenient().when(entity.getUniqueId()).thenReturn(UUID.randomUUID());
+    return entity;
   }
 
   private Location at(double x, double y, double z) {

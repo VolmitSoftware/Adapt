@@ -15,6 +15,7 @@ import art.arcane.adapt.util.common.misc.CustomModel;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import org.bukkit.Color;
+import org.bukkit.DyeColor;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -38,6 +39,7 @@ public final class GolemItems {
 
   private static final NamespacedKey KIND_KEY = new NamespacedKey("adapt", "golem_item");
   private static final NamespacedKey DATA_KEY = new NamespacedKey("adapt", "golem_item_data");
+  private static final NamespacedKey CROOK_CHANNEL_KEY = new NamespacedKey("adapt", "crook_channel");
   private static final String MODEL_ROOT = "golemancy";
   private static final String FILLED_PIP = "◆";
   private static final String EMPTY_PIP = "◇";
@@ -192,6 +194,43 @@ public final class GolemItems {
         .filter(tag -> tag.kind() == GolemItemKind.DORMANT_GOLEM || tag.kind() == GolemItemKind.SHATTERED_CORE)
         .filter(tag -> tag.data().golem() != null && tag.data().owner() != null && tag.data().state() != null)
         .map(tag -> new PackedGolem(tag.data().golem(), tag.data().owner(), tag.data().state()));
+  }
+
+  public static Optional<DyeColor> crookChannel(ItemStack item) {
+    ItemMeta meta = metaOf(item);
+    if (meta == null) {
+      return Optional.empty();
+    }
+    PersistentDataContainer container = meta.getPersistentDataContainer();
+    if (kindOf(container).orElse(null) != GolemItemKind.CROOK) {
+      return Optional.empty();
+    }
+    String stored = container.get(CROOK_CHANNEL_KEY, PersistentDataType.STRING);
+    if (stored == null) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(DyeColor.valueOf(stored));
+    } catch (IllegalArgumentException unknown) {
+      return Optional.empty();
+    }
+  }
+
+  public static boolean setCrookChannel(ItemStack item, DyeColor channel) {
+    ItemMeta meta = metaOf(item);
+    if (meta == null) {
+      return false;
+    }
+    PersistentDataContainer container = meta.getPersistentDataContainer();
+    if (kindOf(container).orElse(null) != GolemItemKind.CROOK) {
+      return false;
+    }
+    if (channel == null) {
+      container.remove(CROOK_CHANNEL_KEY);
+    } else {
+      container.set(CROOK_CHANNEL_KEY, PersistentDataType.STRING, channel.name());
+    }
+    return item.setItemMeta(meta);
   }
 
   private static ItemStack build(Spec spec) {

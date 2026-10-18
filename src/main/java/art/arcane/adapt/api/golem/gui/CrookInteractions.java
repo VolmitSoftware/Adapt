@@ -5,8 +5,10 @@ import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.scheduling.J;
+import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.Container;
@@ -15,12 +17,14 @@ import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -60,14 +64,31 @@ public final class CrookInteractions implements Listener {
         }
       }
       case RIGHT_CLICK_BLOCK -> linkHomeChest(e, player, now);
+      case LEFT_CLICK_AIR -> signal(player, now);
       default -> {
       }
+    }
+  }
+
+  public void attacked(Player player) {
+    if (isCrook(player.getInventory().getItemInMainHand())) {
+      gestures.entityClicked(player.getUniqueId(), System.currentTimeMillis());
     }
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(PlayerQuitEvent e) {
     gestures.forget(e.getPlayer().getUniqueId());
+  }
+
+  private void signal(Player player, long now) {
+    CrookGestures.Action action = CrookGestures.onLeftAir(player.isSneaking(), gestures.isEntityClickEcho(player.getUniqueId(), now));
+    switch (action) {
+      case SEND_SIGNAL -> Overseer.commander().ifPresent(commander -> commander.send(player));
+      case CYCLE_SIGNAL -> Overseer.commander().ifPresent(commander -> commander.cycle(player));
+      case NONE, GOLEM_GUI, ROSTER_GUI, LINK_CHEST -> {
+      }
+    }
   }
 
   private void linkHomeChest(PlayerInteractEvent e, Player player, long now) {
@@ -119,5 +140,33 @@ public final class CrookInteractions implements Listener {
 
   private static boolean isCrook(ItemStack item) {
     return GolemItems.kindOf(item).filter(kind -> kind == GolemItemKind.CROOK).isPresent();
+  }
+
+  public static final class PaperAttacks implements Listener {
+    private final CrookInteractions interactions;
+
+    public PaperAttacks(CrookInteractions interactions) {
+      this.interactions = Objects.requireNonNull(interactions);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(PrePlayerAttackEntityEvent e) {
+      interactions.attacked(e.getPlayer());
+    }
+  }
+
+  public static final class SpigotAttacks implements Listener {
+    private final CrookInteractions interactions;
+
+    public SpigotAttacks(CrookInteractions interactions) {
+      this.interactions = Objects.requireNonNull(interactions);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void on(EntityDamageByEntityEvent e) {
+      if (e.getDamager() instanceof Player player) {
+        interactions.attacked(player);
+      }
+    }
   }
 }

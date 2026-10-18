@@ -4395,6 +4395,13 @@ follow = "Folgen"
 stay = "Bleiben"
 home = "Heimkehr"
 
+[golemancy.signal]
+follow = "Folgen"
+hold = "Halten"
+home = "Heimkehr"
+work = "Arbeiten"
+sic = "Fass"
+
 [golemancy.channel]
 none = "Keiner"
 white = "Weiß"
@@ -4479,6 +4486,10 @@ locate = "Linksklick zum Orten"
 release = "Shift-Rechtsklick zum Freilassen"
 release_confirm = "Diesen vermissten Golem endgültig freilassen?"
 release_shattered_confirm = "Diesen zersplitterten Golem endgültig freilassen? Sein Zersplitterter Kern zerfällt."
+crook_channel = "Stabkanal: {channel}"
+crook_channel_lore = "Klicken, um zu wählen, welchen Golems dein Stab Signale gibt"
+crook_channel_title = "Stabkanal"
+crook_channel_all = "Alle Golems"
 
 [golemancy.message]
 home_set = "Zuhause gesetzt auf {x}, {y}, {z}"
@@ -4498,6 +4509,8 @@ rune_no_slot = "Dieser Golem hat keinen freien Runenplatz"
 rune_duplicate = "Dieser Golem hat bereits eine {aspect}-Rune"
 rune_blocked = "{aspect}-Runen wirken nicht in einem {body}golem"
 channels_full = "Dieser Golem kann nur {count} Kanäle nutzen"
+crook_channel = "Dein Stab signalisiert jetzt: {channel}"
+crook_needed = "Halte deinen Stab in der Haupthand, um seinen Kanal festzulegen"
 
 [golemancy.binding]
 busy = "Ein Bindungsritual läuft bereits"
@@ -4711,6 +4724,20 @@ lore1 = "Zusätzliche Runenplätze pro Golem"
 lore2 = "Höchste nutzbare Runenstufe"
 lore3 = "Animus-Sockel und Rezept für Leere Runen"
 lore = ["Zusätzliche Runenplätze pro Golem", "Höchste nutzbare Runenstufe", "Animus-Sockel und Rezept für Leere Runen"]
+
+[golemancy.overseer]
+name = "Aufseher"
+description = "Lässt dich deinen gebundenen Golems mit dem Stab des Artefaktschmieds signalisieren, dir zu folgen, zu halten, heimzukehren oder zu arbeiten. Mit wachsender Stufe greifen sie an, was du ansiehst, hören auf Kanäle, eilen zu dir und schützen dich in Formation."
+lore1 = "Signalradius in Blöcken"
+lore2 = "Fass: Deine kämpfenden Golems greifen an, was du ansiehst"
+lore3 = "Stabkanal-Filter, eingestellt in der Golem-Liste"
+lore4 = "Sammeln: Folgen ruft entfernte Golems zu dir"
+lore5 = "Höchste Rüstung durch Golems in Formation"
+lore = ["Signalradius in Blöcken", "Fass: Deine kämpfenden Golems greifen an, was du ansiehst", "Stabkanal-Filter, eingestellt in der Golem-Liste", "Sammeln: Folgen ruft entfernte Golems zu dir", "Höchste Rüstung durch Golems in Formation"]
+signal = "Signal: {signal}"
+sent = "{signal} gesendet"
+sent_channel = "{signal} an den Kanal {channel} gesendet"
+no_target = "Sieh eine Kreatur, die du angreifen darfst, im Umkreis von {range} Blöcken an, um Fass zu senden"
 
 [golemancy.mending]
 name = "Golemheilung"

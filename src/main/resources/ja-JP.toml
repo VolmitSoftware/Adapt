@@ -4395,6 +4395,13 @@ follow = "追従"
 stay = "待機"
 home = "帰宅"
 
+[golemancy.signal]
+follow = "追従"
+hold = "その場待機"
+home = "帰宅"
+work = "作業"
+sic = "攻撃"
+
 [golemancy.channel]
 none = "なし"
 white = "白色"
@@ -4479,6 +4486,10 @@ locate = "左クリックで位置を表示"
 release = "シフト＋右クリックで解放"
 release_confirm = "この行方不明のゴーレムを完全に解放しますか？"
 release_shattered_confirm = "この砕けたゴーレムを完全に解放しますか？砕けたコアは崩れ去ります。"
+crook_channel = "杖のチャンネル：{channel}"
+crook_channel_lore = "クリックして杖が合図を送るゴーレムを選ぶ"
+crook_channel_title = "杖のチャンネル"
+crook_channel_all = "すべてのゴーレム"
 
 [golemancy.message]
 home_set = "拠点を{x}, {y}, {z}に設定しました"
@@ -4498,6 +4509,8 @@ rune_no_slot = "このゴーレムには空きルーンスロットがありま�
 rune_duplicate = "このゴーレムにはすでに{aspect}のルーンがあります"
 rune_blocked = "{aspect}のルーンは{body}ゴーレムでは働きません"
 channels_full = "このゴーレムが使えるチャンネルは{count}個までです"
+crook_channel = "杖の合図先：{channel}"
+crook_needed = "チャンネルを設定するには杖をメインハンドに持ってください"
 
 [golemancy.binding]
 busy = "結びつけの儀式はすでに進行中です"
@@ -4711,6 +4724,20 @@ lore1 = "ゴーレム1体あたりの追加ルーンスロット"
 lore2 = "使用できる最高ルーンティア"
 lore3 = "アニムスの台座と空のルーンのレシピ"
 lore = ["ゴーレム1体あたりの追加ルーンスロット", "使用できる最高ルーンティア", "アニムスの台座と空のルーンのレシピ"]
+
+[golemancy.overseer]
+name = "監督者"
+description = "アーティフィサーの杖で絆を結んだゴーレムに合図を送り、追従、その場待機、帰宅、作業をさせます。成長すると、見ている相手への攻撃、チャンネルごとの応答、呼び寄せ、隊列での護衛もできるようになります。"
+lore1 = "合図の半径（ブロック）"
+lore2 = "攻撃: 戦闘できるゴーレムが見ている相手を攻撃"
+lore3 = "杖のチャンネルフィルター（ゴーレム名簿で設定）"
+lore4 = "集合: 追従の合図で遠くのゴーレムを呼び寄せる"
+lore5 = "隊列のゴーレムから得る最大防具値"
+lore = ["合図の半径（ブロック）", "攻撃: 戦闘できるゴーレムが見ている相手を攻撃", "杖のチャンネルフィルター（ゴーレム名簿で設定）", "集合: 追従の合図で遠くのゴーレムを呼び寄せる", "隊列のゴーレムから得る最大防具値"]
+signal = "合図：{signal}"
+sent = "送信：{signal}"
+sent_channel = "送信：{signal}（{channel}チャンネル）"
+no_target = "攻撃の合図を送るには、{range}ブロック以内の攻撃できる生き物を見てください"
 
 [golemancy.mending]
 name = "ゴーレム修繕"

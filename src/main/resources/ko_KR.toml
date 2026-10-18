@@ -4395,6 +4395,13 @@ follow = "따라오기"
 stay = "대기"
 home = "귀환"
 
+[golemancy.signal]
+follow = "따라오기"
+hold = "제자리"
+home = "귀환"
+work = "작업"
+sic = "공격"
+
 [golemancy.channel]
 none = "없음"
 white = "하얀색"
@@ -4479,6 +4486,10 @@ locate = "좌클릭하여 위치 찾기"
 release = "Shift+우클릭하여 해방"
 release_confirm = "이 실종된 골렘을 영구히 해방할까요?"
 release_shattered_confirm = "이 부서진 골렘을 영구히 해방할까요? 부서진 핵은 바스러집니다."
+crook_channel = "지팡이 채널: {channel}"
+crook_channel_lore = "클릭하여 지팡이가 신호를 보낼 골렘을 고르세요"
+crook_channel_title = "지팡이 채널"
+crook_channel_all = "모든 골렘"
 
 [golemancy.message]
 home_set = "거점을 {x}, {y}, {z}(으)로 설정했습니다"
@@ -4498,6 +4509,8 @@ rune_no_slot = "이 골렘에는 빈 룬 슬롯이 없습니다"
 rune_duplicate = "이 골렘에는 이미 {aspect}의 룬이 있습니다"
 rune_blocked = "{aspect}의 룬은 {body} 골렘에서 작동하지 않습니다"
 channels_full = "이 골렘은 채널을 {count}개까지만 사용할 수 있습니다"
+crook_channel = "이제 지팡이가 신호를 보냅니다: {channel}"
+crook_needed = "채널을 정하려면 지팡이를 주 손에 드세요"
 
 [golemancy.binding]
 busy = "이미 결속 의식이 진행 중입니다"
@@ -4711,6 +4724,20 @@ lore1 = "골렘당 추가 룬 슬롯"
 lore2 = "사용 가능한 최고 룬 등급"
 lore3 = "아니무스 받침대와 빈 룬 제작법"
 lore = ["골렘당 추가 룬 슬롯", "사용 가능한 최고 룬 등급", "아니무스 받침대와 빈 룬 제작법"]
+
+[golemancy.overseer]
+name = "감독관"
+description = "장인의 지팡이로 결속된 골렘에게 신호를 보내 따라오기, 제자리, 귀환, 작업을 시킵니다. 성장하면 바라보는 대상을 공격하고, 채널별로 응답하고, 당신에게 모이고, 대형을 이뤄 당신을 지킵니다."
+lore1 = "신호 반경(블록)"
+lore2 = "공격: 전투 골렘이 바라보는 대상을 공격"
+lore3 = "지팡이 채널 필터, 골렘 명단에서 설정"
+lore4 = "집결: 따라오기 신호가 멀리 있는 골렘을 불러옴"
+lore5 = "대형 골렘이 주는 최대 방어력"
+lore = ["신호 반경(블록)", "공격: 전투 골렘이 바라보는 대상을 공격", "지팡이 채널 필터, 골렘 명단에서 설정", "집결: 따라오기 신호가 멀리 있는 골렘을 불러옴", "대형 골렘이 주는 최대 방어력"]
+signal = "신호: {signal}"
+sent = "보냄: {signal}"
+sent_channel = "보냄: {signal} ({channel} 채널)"
+no_target = "공격 신호를 보내려면 {range}블록 안에서 공격할 수 있는 생물을 바라보세요"
 
 [golemancy.mending]
 name = "골렘 수선"

@@ -7,6 +7,7 @@ import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
@@ -61,6 +62,8 @@ class CrookInteractionsTest extends AdaptTestBase {
   private IronGolem golem;
   private GolemHandle handle;
   private Adaptation<Object> policy;
+  private Overseer.Commander commander;
+  private PlayerInventory inventory;
   private CrookInteractions interactions;
 
   @BeforeEach
@@ -69,7 +72,7 @@ class CrookInteractionsTest extends AdaptTestBase {
     lenient().when(world.getUID()).thenReturn(WORLD);
     crook = mock(ItemStack.class);
     player = mock(Player.class);
-    PlayerInventory inventory = mock(PlayerInventory.class);
+    inventory = mock(PlayerInventory.class);
     lenient().when(inventory.getItemInMainHand()).thenReturn(crook);
     lenient().when(player.getInventory()).thenReturn(inventory);
     lenient().when(player.getUniqueId()).thenReturn(OWNER);
@@ -109,15 +112,87 @@ class CrookInteractionsTest extends AdaptTestBase {
       openedGestures.set(invocation.getArgument(2));
       return null;
     });
+    commander = mock(Overseer.Commander.class);
+    Overseer.setCommander(commander);
     interactions = new CrookInteractions();
   }
 
   @AfterEach
   void tearDown() {
+    Overseer.clearCommander(commander);
     golemGui.close();
     runtime.close();
     items.close();
     scheduling.close();
+  }
+
+  @Test
+  void leftClickingAirWithTheCrookSendsTheCurrentSignal() {
+    leftClickAir(crook, false);
+
+    verify(commander).send(player);
+    verify(commander, never()).cycle(any(Player.class));
+  }
+
+  @Test
+  void sneakLeftClickingAirWithTheCrookCyclesTheSignal() {
+    leftClickAir(crook, true);
+
+    verify(commander).cycle(player);
+    verify(commander, never()).send(any(Player.class));
+  }
+
+  @Test
+  void theAirClickThatFollowsAnAttackOnAnEntityOrNodeSendsNothing() {
+    interactions.attacked(player);
+
+    leftClickAir(crook, false);
+    leftClickAir(crook, true);
+
+    verify(commander, never()).send(any(Player.class));
+    verify(commander, never()).cycle(any(Player.class));
+  }
+
+  @Test
+  void attacksWithoutTheCrookInHandLeaveTheNextAirClickAlone() {
+    ItemStack sword = mock(ItemStack.class);
+    items.when(() -> GolemItems.kindOf(sword)).thenReturn(Optional.empty());
+    when(inventory.getItemInMainHand()).thenReturn(sword);
+    interactions.attacked(player);
+    when(inventory.getItemInMainHand()).thenReturn(crook);
+
+    leftClickAir(crook, false);
+
+    verify(commander).send(player);
+  }
+
+  @Test
+  void leftClickingAirWithAnotherItemSendsNothing() {
+    ItemStack sword = mock(ItemStack.class);
+    items.when(() -> GolemItems.kindOf(sword)).thenReturn(Optional.empty());
+
+    leftClickAir(sword, false);
+
+    verify(commander, never()).send(any(Player.class));
+  }
+
+  @Test
+  void withoutOverseerLeftClicksAreIgnored() {
+    Overseer.clearCommander(commander);
+
+    leftClickAir(crook, false);
+
+    verify(commander, never()).send(any(Player.class));
+  }
+
+  private void leftClickAir(ItemStack held, boolean sneaking) {
+    lenient().when(player.isSneaking()).thenReturn(sneaking);
+    PlayerInteractEvent event = mock(PlayerInteractEvent.class);
+    when(event.getHand()).thenReturn(EquipmentSlot.HAND);
+    when(event.getItem()).thenReturn(held);
+    lenient().when(event.getPlayer()).thenReturn(player);
+    lenient().when(event.getAction()).thenReturn(Action.LEFT_CLICK_AIR);
+    interactions.on(event);
   }
 
   @Test

@@ -4391,6 +4391,13 @@ follow = "Suivre"
 stay = "Rester"
 home = "Maison"
 
+[golemancy.signal]
+follow = "Suivre"
+hold = "Tenir"
+home = "Maison"
+work = "Travail"
+sic = "Attaque"
+
 [golemancy.channel]
 none = "Aucun"
 white = "Blanc"
@@ -4475,6 +4482,10 @@ locate = "Clic gauche pour localiser"
 release = "Maj + clic droit pour libérer"
 release_confirm = "Libérer définitivement ce golem disparu ?"
 release_shattered_confirm = "Libérer définitivement ce golem brisé ? Son Noyau brisé s'effritera."
+crook_channel = "Canal de la houlette : {channel}"
+crook_channel_lore = "Cliquez pour choisir à quels golems votre houlette fait signe"
+crook_channel_title = "Canal de la houlette"
+crook_channel_all = "Tous les golems"
 
 [golemancy.message]
 home_set = "Maison définie en {x}, {y}, {z}"
@@ -4494,6 +4505,8 @@ rune_no_slot = "Ce golem n'a aucun emplacement de rune libre"
 rune_duplicate = "Ce golem a déjà une rune de {aspect}"
 rune_blocked = "Les runes de {aspect} ne fonctionnent pas dans un golem de {body}"
 channels_full = "Ce golem ne peut utiliser que {count} canaux"
+crook_channel = "Votre houlette fait maintenant signe à : {channel}"
+crook_needed = "Tenez votre houlette en main principale pour choisir son canal"
 
 [golemancy.binding]
 busy = "Un rituel de lien est déjà en cours"
@@ -4707,6 +4720,20 @@ lore1 = "Emplacements de rune supplémentaires par golem"
 lore2 = "Rang de rune utilisable le plus élevé"
 lore3 = "Socle d'Animus et recette de Rune vierge"
 lore = ["Emplacements de rune supplémentaires par golem", "Rang de rune utilisable le plus élevé", "Socle d'Animus et recette de Rune vierge"]
+
+[golemancy.overseer]
+name = "Surveillant"
+description = "Te permet de faire signe à tes golems liés avec la Houlette de l'artificier pour qu'ils te suivent, tiennent leur position, rentrent à la maison ou travaillent, puis, à mesure qu'il progresse, qu'ils attaquent ce que tu regardes, répondent par canal, accourent vers toi et te protègent en formation."
+lore1 = "Rayon de signal en blocs"
+lore2 = "Attaque : tes golems combattants attaquent ce que tu regardes"
+lore3 = "Filtre de canal de la houlette, réglé dans le registre des golems"
+lore4 = "Ralliement : Suivre appelle à toi les golems éloignés"
+lore5 = "Armure maximale des golems en formation"
+lore = ["Rayon de signal en blocs", "Attaque : tes golems combattants attaquent ce que tu regardes", "Filtre de canal de la houlette, réglé dans le registre des golems", "Ralliement : Suivre appelle à toi les golems éloignés", "Armure maximale des golems en formation"]
+signal = "Signal : {signal}"
+sent = "Envoyé : {signal}"
+sent_channel = "Envoyé : {signal} au canal {channel}"
+no_target = "Regardez une créature que vous pouvez attaquer à {range} blocs ou moins pour envoyer Attaque"
 
 [golemancy.mending]
 name = "Réparation de Golem"

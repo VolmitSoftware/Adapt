@@ -4395,6 +4395,13 @@ follow = "Volgen"
 stay = "Blijven"
 home = "Naar huis"
 
+[golemancy.signal]
+follow = "Volgen"
+hold = "Vasthouden"
+home = "Naar huis"
+work = "Werken"
+sic = "Pak"
+
 [golemancy.channel]
 none = "Geen"
 white = "Wit"
@@ -4479,6 +4486,10 @@ locate = "Klik met links om te lokaliseren"
 release = "Shift + rechtsklik om vrij te laten"
 release_confirm = "Deze vermiste golem voorgoed vrijlaten?"
 release_shattered_confirm = "Deze verbrijzelde golem voorgoed vrijlaten? Zijn Verbrijzelde kern brokkelt af."
+crook_channel = "Stafkanaal: {channel}"
+crook_channel_lore = "Klik om te kiezen welke golems je staf seint"
+crook_channel_title = "Stafkanaal"
+crook_channel_all = "Alle golems"
 
 [golemancy.message]
 home_set = "Thuis ingesteld op {x}, {y}, {z}"
@@ -4498,6 +4509,8 @@ rune_no_slot = "Deze golem heeft geen vrij runeslot"
 rune_duplicate = "Deze golem heeft al een {aspect}-rune"
 rune_blocked = "{aspect}-runen werken niet in een {body}golem"
 channels_full = "Deze golem kan maar {count} kanalen gebruiken"
+crook_channel = "Je staf seint nu: {channel}"
+crook_needed = "Houd je staf in je hoofdhand om het kanaal in te stellen"
 
 [golemancy.binding]
 busy = "Er loopt al een bindingsritueel"
@@ -4711,6 +4724,20 @@ lore1 = "Extra runeslots per golem"
 lore2 = "Hoogste bruikbare runerang"
 lore3 = "Animussokkel en recept voor Lege rune"
 lore = ["Extra runeslots per golem", "Hoogste bruikbare runerang", "Animussokkel en recept voor Lege rune"]
+
+[golemancy.overseer]
+name = "Opzichter"
+description = "Laat je je gebonden golems met de Staf van de ambachtsmeester seinen om je te volgen, stand te houden, naar huis te gaan of te werken, en naarmate het groeit om aan te vallen waar je naar kijkt, per kanaal te reageren, naar je toe te snellen en je in formatie te beschermen."
+lore1 = "Seinstraal in blokken"
+lore2 = "Pak: je vechtende golems vallen aan waar je naar kijkt"
+lore3 = "Stafkanaalfilter, in te stellen in de golemlijst"
+lore4 = "Verzamelen: Volgen roept verre golems naar je toe"
+lore5 = "Maximaal pantser van golems in formatie"
+lore = ["Seinstraal in blokken", "Pak: je vechtende golems vallen aan waar je naar kijkt", "Stafkanaalfilter, in te stellen in de golemlijst", "Verzamelen: Volgen roept verre golems naar je toe", "Maximaal pantser van golems in formatie"]
+signal = "Sein: {signal}"
+sent = "Verzonden: {signal}"
+sent_channel = "Verzonden: {signal} naar kanaal {channel}"
+no_target = "Kijk naar een wezen dat je mag aanvallen binnen {range} blokken om Pak te seinen"
 
 [golemancy.mending]
 name = "Golemherstel"

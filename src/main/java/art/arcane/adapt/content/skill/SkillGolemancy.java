@@ -74,6 +74,7 @@ import art.arcane.adapt.content.adaptation.golemancy.GolemIronFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemLumberCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemMending;
 import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
+import art.arcane.adapt.content.adaptation.golemancy.GolemOverseer;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRancherCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRunicAugments;
 import art.arcane.adapt.content.adaptation.golemancy.GolemSorterCore;
@@ -169,6 +170,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerAdaptation(new GolemSorterCore());
     registerAdaptation(new GolemAnglerCore());
     registerAdaptation(new GolemRunicAugments());
+    registerAdaptation(new GolemOverseer());
     registerAdaptation(new GolemMending());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CARVED_PUMPKIN)
@@ -427,8 +429,11 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   protected List<Listener> createCompanionListeners() {
     NodeTagPrompt prompt = new NodeTagPrompt();
     NodeInteractions nodes = new NodeInteractions(prompt);
-    List<Listener> listeners = new ArrayList<>(List.of(new CrookInteractions(), nodes, prompt, new GuiCursor()));
-    listeners.add(PaperCompat.hasClass(PRE_ATTACK_EVENT) ? new NodeInteractions.PaperAttacks(nodes) : new NodeInteractions.SpigotAttacks(nodes));
+    CrookInteractions crook = new CrookInteractions();
+    List<Listener> listeners = new ArrayList<>(List.of(crook, nodes, prompt, new GuiCursor()));
+    boolean paperAttacks = PaperCompat.hasClass(PRE_ATTACK_EVENT);
+    listeners.add(paperAttacks ? new NodeInteractions.PaperAttacks(nodes) : new NodeInteractions.SpigotAttacks(nodes));
+    listeners.add(paperAttacks ? new CrookInteractions.PaperAttacks(crook) : new CrookInteractions.SpigotAttacks(crook));
     if (PaperCompat.hasClass(RESOURCES_RELOADED_EVENT)) {
       listeners.add(new NodeItemTags.ReloadListener());
     }

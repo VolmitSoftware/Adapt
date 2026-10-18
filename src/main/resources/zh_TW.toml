@@ -4395,6 +4395,13 @@ follow = "跟隨"
 stay = "待命"
 home = "回家"
 
+[golemancy.signal]
+follow = "跟隨"
+hold = "原地堅守"
+home = "回家"
+work = "工作"
+sic = "攻擊"
+
 [golemancy.channel]
 none = "無"
 white = "白色"
@@ -4479,6 +4486,10 @@ locate = "左鍵點擊以定位"
 release = "Shift+右鍵點擊以釋放"
 release_confirm = "永久釋放這個失蹤的魔像？"
 release_shattered_confirm = "永久釋放這個已破碎的魔像？它的破碎核心將會崩解。"
+crook_channel = "巧匠之杖頻道：{channel}"
+crook_channel_lore = "點擊選擇你的巧匠之杖向哪些魔像發出信號"
+crook_channel_title = "巧匠之杖頻道"
+crook_channel_all = "所有魔像"
 
 [golemancy.message]
 home_set = "家已設為{x}, {y}, {z}"
@@ -4498,6 +4509,8 @@ rune_no_slot = "這個魔像沒有空的符文槽"
 rune_duplicate = "這個魔像已有{aspect}符文"
 rune_blocked = "{aspect}符文在{body}魔像上不起作用"
 channels_full = "這個魔像最多只能使用 {count} 個頻道"
+crook_channel = "你的巧匠之杖現在向此發出信號：{channel}"
+crook_needed = "將巧匠之杖握在主手以設定其頻道"
 
 [golemancy.binding]
 busy = "縛約儀式已在進行中"
@@ -4711,6 +4724,20 @@ lore1 = "每個魔像的額外符文槽"
 lore2 = "可用的最高符文階級"
 lore3 = "靈魂基座與空白符文配方"
 lore = ["每個魔像的額外符文槽", "可用的最高符文階級", "靈魂基座與空白符文配方"]
+
+[golemancy.overseer]
+name = "監督者"
+description = "讓你用巧匠之杖向已縛約的魔像發出信號，令牠們跟隨、原地堅守、回家或工作；隨著等級提升，牠們還會攻擊你注視的目標、依頻道回應、集結到你身邊，並以陣型守護你。"
+lore1 = "信號半徑（方塊）"
+lore2 = "攻擊：你的戰鬥魔像攻擊你注視的目標"
+lore3 = "巧匠之杖頻道過濾，在魔像名冊中設定"
+lore4 = "集結：跟隨信號會召回遠處的魔像"
+lore5 = "陣型魔像提供的最大護甲"
+lore = ["信號半徑（方塊）", "攻擊：你的戰鬥魔像攻擊你注視的目標", "巧匠之杖頻道過濾，在魔像名冊中設定", "集結：跟隨信號會召回遠處的魔像", "陣型魔像提供的最大護甲"]
+signal = "信號：{signal}"
+sent = "已發送：{signal}"
+sent_channel = "已發送：{signal}（{channel}頻道）"
+no_target = "注視 {range} 格內一個你可以攻擊的生物以發送攻擊信號"
 
 [golemancy.mending]
 name = "魔像修復"

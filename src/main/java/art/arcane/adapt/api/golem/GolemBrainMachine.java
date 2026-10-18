@@ -7,6 +7,8 @@ final class GolemBrainMachine {
   static final double FOLLOW_STOP_DISTANCE = 2.5D;
   static final double ARRIVE_DISTANCE = 1.5D;
   static final double RESUME_DISTANCE = 2.5D;
+  static final double SLOT_ARRIVE_DISTANCE = 0.75D;
+  static final double SLOT_RESUME_DISTANCE = 1.5D;
   static final double WANDER_RADIUS = 4D;
   static final double NEAR_HOME_DISTANCE = WANDER_RADIUS + ARRIVE_DISTANCE;
   static final long WANDER_INTERVAL_MILLIS = 6_000L;
@@ -88,6 +90,11 @@ final class GolemBrainMachine {
       lastTeleportAt = now;
       return settle(now, GolemBrainState.FOLLOW, Desire.TELEPORT);
     }
+    double slot = senses.slotDistance();
+    if (!Double.isNaN(slot)) {
+      double slotThreshold = moving ? SLOT_ARRIVE_DISTANCE : SLOT_RESUME_DISTANCE;
+      return settle(now, GolemBrainState.FOLLOW, slot > slotThreshold ? Desire.SLOT : Desire.STAND);
+    }
     double threshold = moving ? FOLLOW_STOP_DISTANCE : FOLLOW_START_DISTANCE;
     return settle(now, GolemBrainState.FOLLOW, distance > threshold ? Desire.OWNER : Desire.STAND);
   }
@@ -147,6 +154,7 @@ final class GolemBrainMachine {
       case HOME -> move(Movement.HOME);
       case ANCHOR -> move(Movement.ANCHOR);
       case WANDER -> move(Movement.WANDER);
+      case SLOT -> move(Movement.SLOT);
       case TELEPORT -> {
         moving = false;
         yield Movement.TELEPORT;
@@ -181,11 +189,13 @@ final class GolemBrainMachine {
     HOME,
     ANCHOR,
     WANDER,
-    TELEPORT
+    TELEPORT,
+    SLOT
   }
 
   private enum Desire {
     OWNER,
+    SLOT,
     HOME,
     ANCHOR,
     WANDER,
@@ -195,7 +205,7 @@ final class GolemBrainMachine {
   }
 
   record Senses(long nowMillis, GolemMode mode, double ownerDistance, boolean ownerGrounded, double homeDistance,
-                double anchorDistance, boolean hasTarget) {
+                double anchorDistance, double slotDistance, boolean hasTarget) {
     Senses {
       Objects.requireNonNull(mode);
     }

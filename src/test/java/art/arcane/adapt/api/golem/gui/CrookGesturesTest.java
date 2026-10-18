@@ -24,6 +24,14 @@ class CrookGesturesTest {
   }
 
   @Test
+  void leftClickingAirSendsTheSignalSneakingCyclesItAndEntityClickEchoesDoNothing() {
+    assertThat(CrookGestures.onLeftAir(false, false)).isEqualTo(CrookGestures.Action.SEND_SIGNAL);
+    assertThat(CrookGestures.onLeftAir(true, false)).isEqualTo(CrookGestures.Action.CYCLE_SIGNAL);
+    assertThat(CrookGestures.onLeftAir(false, true)).isEqualTo(CrookGestures.Action.NONE);
+    assertThat(CrookGestures.onLeftAir(true, true)).isEqualTo(CrookGestures.Action.NONE);
+  }
+
+  @Test
   void containersLinkOnlyWhileLinkModeIsOn() {
     assertThat(CrookGestures.onBlock(true, true)).isEqualTo(CrookGestures.Action.LINK_CHEST);
     assertThat(CrookGestures.onBlock(true, false)).isEqualTo(CrookGestures.Action.NONE);
