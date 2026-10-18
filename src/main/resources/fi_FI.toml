@@ -3093,6 +3093,14 @@ description = "Sido kuparigolemi"
 title = "Rautainen vala"
 description = "Sido rautagolemi"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "Jalustan oppipoika"
+description = "Suorita 10 infuusiota animusjalustalla"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Infuusion mestari"
+description = "Suorita 100 infuusiota animusjalustalla"
+
 [agility.armor_up]
 name = "Panssarointi"
 description = "Saat enemmän panssaria mitä pidempään juokset!"
@@ -4581,6 +4589,18 @@ lore4 = "Solmun prioriteetti 1-5"
 lore5 = "Redstone-ohjaus"
 lore6 = "Estolista- ja tunnistesuodattimet"
 lore = ["Omistettavat solmut", "Työalueen säde palikoina", "Suodatinpaikat", "Solmun prioriteetti 1-5", "Redstone-ohjaus", "Estolista- ja tunnistesuodattimet"]
+
+[golemancy.plinth]
+loading = "Tämä jalusta latautuu vielä"
+occupied = "Tällä telineellä on jo esine"
+protected = "Et voi käyttää tätä jalustaa täällä"
+busy = "Infuusio on jo käynnissä"
+no_recipe = "Nämä esineet eivät muodosta infuusiota"
+locked = "Et ole vielä oppinut tätä infuusiota"
+levels = "Tämä infuusio maksaa {levels} tasoa"
+interrupted = "Infuusio keskeytyi"
+complete = "Infuusio on valmis"
+failed = "Infuusio epäonnistui ja tasosi palautettiin"
 
 [herbalism.growth_aura]
 name = "Kasvuaura"

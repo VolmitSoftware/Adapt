@@ -3093,6 +3093,14 @@ description = "구리 골렘 결속하기"
 title = "강철의 맹세"
 description = "철 골렘 결속하기"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "받침대 견습생"
+description = "아니무스 받침대에서 주입 10회 완료하기"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "주입의 대가"
+description = "아니무스 받침대에서 주입 100회 완료하기"
+
 [agility.armor_up]
 name = "방어구 강화"
 description = "오래 달릴수록 더 많은 방어력을 얻습니다!"
@@ -4581,6 +4589,18 @@ lore4 = "노드 우선순위 1-5"
 lore5 = "레드스톤 제어"
 lore6 = "차단 목록 및 태그 필터"
 lore = ["소유할 수 있는 노드 수", "작업 영역 반경(블록)", "필터 칸", "노드 우선순위 1-5", "레드스톤 제어", "차단 목록 및 태그 필터"]
+
+[golemancy.plinth]
+loading = "이 받침대는 아직 불러오는 중입니다"
+occupied = "이 거치대에는 이미 아이템이 있습니다"
+protected = "여기서는 이 받침대를 사용할 수 없습니다"
+busy = "이미 주입이 진행 중입니다"
+no_recipe = "이 아이템들로는 주입할 수 없습니다"
+locked = "아직 이 주입을 배우지 않았습니다"
+levels = "이 주입에는 {levels}레벨이 필요합니다"
+interrupted = "주입이 중단되었습니다"
+complete = "주입이 완료되었습니다"
+failed = "주입에 실패하여 레벨이 반환되었습니다"
 
 [herbalism.growth_aura]
 name = "성장의 오라"

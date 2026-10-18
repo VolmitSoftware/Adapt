@@ -5,6 +5,9 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.NodeSettings;
 import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
+import art.arcane.adapt.api.golem.plinth.PlinthHost;
+import art.arcane.adapt.api.golem.plinth.PlinthService;
+import art.arcane.adapt.api.golem.plinth.PlinthSettings;
 import art.arcane.adapt.api.golem.reveal.RevealService;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
@@ -49,6 +52,9 @@ public final class GolemancyRuntime {
   private static volatile NodeService nodes;
   private static volatile NodeSettings nodeSettings = NodeSettings.defaults();
   private static volatile NodeWeavingPolicy nodeWeaving;
+  private static volatile PlinthService plinths;
+  private static volatile PlinthSettings plinthSettings = PlinthSettings.defaults();
+  private static volatile PlinthHost plinthHost;
   private static volatile Adaptation<?> protectionPolicy;
   private static volatile GolemBindListener bindListener = (owner, handle) -> {
   };
@@ -76,8 +82,12 @@ public final class GolemancyRuntime {
     NodeService createdNodes = NodeService.create(GolemancyRuntime::nodeSettings, GolemancyRuntime::revealSettings);
     createdNodes.activateRuntime();
     nodes = createdNodes;
+    PlinthService createdPlinths = PlinthService.create(GolemancyRuntime::plinthSettings, () -> plinthHost);
+    createdPlinths.activateRuntime();
+    plinths = createdPlinths;
     if (!J.isFoliaThreading()) {
       createdNodes.indexLoadedChunks();
+      createdPlinths.indexLoadedChunks();
     }
   }
 
@@ -85,6 +95,7 @@ public final class GolemancyRuntime {
     GolemRegistry local;
     RevealService localReveal;
     NodeService localNodes;
+    PlinthService localPlinths;
     synchronized (GolemancyRuntime.class) {
       local = registry;
       registry = null;
@@ -93,6 +104,11 @@ public final class GolemancyRuntime {
       reveal = null;
       localNodes = nodes;
       nodes = null;
+      localPlinths = plinths;
+      plinths = null;
+    }
+    if (localPlinths != null) {
+      localPlinths.shutdown();
     }
     if (localNodes != null) {
       localNodes.shutdown();
@@ -150,6 +166,26 @@ public final class GolemancyRuntime {
 
   public static void setNodeWeaving(NodeWeavingPolicy policy) {
     nodeWeaving = Objects.requireNonNull(policy);
+  }
+
+  public static Optional<PlinthService> plinths() {
+    return Optional.ofNullable(plinths);
+  }
+
+  public static PlinthSettings plinthSettings() {
+    return plinthSettings;
+  }
+
+  public static void configurePlinths(PlinthSettings next) {
+    plinthSettings = Objects.requireNonNull(next);
+  }
+
+  public static Optional<PlinthHost> plinthHost() {
+    return Optional.ofNullable(plinthHost);
+  }
+
+  public static void setPlinthHost(PlinthHost host) {
+    plinthHost = Objects.requireNonNull(host);
   }
 
   public static GolemSettings settings() {

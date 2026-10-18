@@ -3093,6 +3093,14 @@ description = "Sujunk vario golemą"
 title = "Geležinė priesaika"
 description = "Sujunk geležies golemą"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "Pakylos mokinys"
+description = "Atlik 10 įliejimų ant animus pakylos"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Įliejimo meistras"
+description = "Atlik 100 įliejimų ant animus pakylos"
+
 [agility.armor_up]
 name = "Sarvai Aukstyn"
 description = "Kuo ilgiau begsite, tuo daugiau sarvu!"
@@ -4581,6 +4589,18 @@ lore4 = "Mazgo prioritetas 1-5"
 lore5 = "Redstone valdymas"
 lore6 = "Draudžiamųjų sąrašų ir žymų filtrai"
 lore = ["Mazgai, kuriuos gali turėti", "Darbo zonos spindulys blokais", "Filtro vietos", "Mazgo prioritetas 1-5", "Redstone valdymas", "Draudžiamųjų sąrašų ir žymų filtrai"]
+
+[golemancy.plinth]
+loading = "Ši pakyla dar įkeliama"
+occupied = "Ant šio stovo jau yra daiktas"
+protected = "Čia negali naudoti šios pakylos"
+busy = "Įliejimas jau vyksta"
+no_recipe = "Šie daiktai nesudaro įliejimo"
+locked = "Šio įliejimo dar neišmokai"
+levels = "Šis įliejimas kainuoja {levels} lygių"
+interrupted = "Įliejimas nutrūko"
+complete = "Įliejimas baigtas"
+failed = "Įliejimas nepavyko, tavo lygiai grąžinti"
 
 [herbalism.growth_aura]
 name = "Augimo Aura"

@@ -3093,6 +3093,14 @@ description = "Zwiąż miedzianego golema"
 title = "Żelazna przysięga"
 description = "Zwiąż żelaznego golema"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "Uczeń postumentu"
+description = "Ukończ 10 nasyceń na Postumencie Animusa"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Mistrz nasycania"
+description = "Ukończ 100 nasyceń na Postumencie Animusa"
+
 [agility.armor_up]
 name = "Pancerz-Up"
 description = "Zdobywaj wiecej pancerza im dluzej sprintujesz!"
@@ -4581,6 +4589,18 @@ lore4 = "Priorytet węzła 1-5"
 lore5 = "Sterowanie redstone"
 lore6 = "Filtry czarnej listy i tagów"
 lore = ["Węzły, które możesz posiadać", "Promień obszaru pracy w blokach", "Miejsca filtra", "Priorytet węzła 1-5", "Sterowanie redstone", "Filtry czarnej listy i tagów"]
+
+[golemancy.plinth]
+loading = "Ten postument wciąż się wczytuje"
+occupied = "Na tej podstawie leży już przedmiot"
+protected = "Nie możesz tu używać tego postumentu"
+busy = "Nasycanie już trwa"
+no_recipe = "Te przedmioty nie tworzą nasycenia"
+locked = "Nie znasz jeszcze tego nasycenia"
+levels = "To nasycenie kosztuje {levels} poziomów"
+interrupted = "Nasycanie zostało przerwane"
+complete = "Nasycanie zakończone"
+failed = "Nasycanie nie powiodło się, a twoje poziomy zostały zwrócone"
 
 [herbalism.growth_aura]
 name = "Aura Wzrostu"

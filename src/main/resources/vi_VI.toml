@@ -3093,6 +3093,14 @@ description = "Liên kết một golem Đồng"
 title = "Lời thề sắt"
 description = "Liên kết một golem Sắt"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "Học trò của bệ"
+description = "Hoàn tất 10 nghi thức truyền tại Bệ Animus"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Bậc thầy truyền"
+description = "Hoàn tất 100 nghi thức truyền tại Bệ Animus"
+
 [agility.armor_up]
 name = "Tăng Giáp"
 description = "Nhận thêm giáp khi bạn chạy nước rút càng lâu!"
@@ -4581,6 +4589,18 @@ lore4 = "Độ ưu tiên của nút 1-5"
 lore5 = "Điều khiển bằng đá đỏ"
 lore6 = "Bộ lọc danh sách đen và thẻ"
 lore = ["Số nút bạn có thể sở hữu", "Bán kính vùng làm việc (khối)", "Ô bộ lọc", "Độ ưu tiên của nút 1-5", "Điều khiển bằng đá đỏ", "Bộ lọc danh sách đen và thẻ"]
+
+[golemancy.plinth]
+loading = "Bệ này vẫn đang tải"
+occupied = "Trụ này đã có một vật phẩm"
+protected = "Bạn không thể dùng bệ này ở đây"
+busy = "Một nghi thức truyền đang diễn ra"
+no_recipe = "Những vật phẩm này không tạo thành nghi thức truyền"
+locked = "Bạn chưa học nghi thức truyền này"
+levels = "Nghi thức truyền này tốn {levels} cấp độ"
+interrupted = "Nghi thức truyền đã bị gián đoạn"
+complete = "Nghi thức truyền đã hoàn tất"
+failed = "Nghi thức truyền thất bại và cấp độ của bạn đã được hoàn lại"
 
 [herbalism.growth_aura]
 name = "Hào Quang Tăng Trưởng"

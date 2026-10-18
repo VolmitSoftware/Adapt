@@ -246,6 +246,16 @@ public final class GolemancyMessages {
   public static final TextKey NODE_GUI_TAG = TextKey.of("golemancy.node_gui.tag", "Item tag");
   public static final TextKey NODE_GUI_TAG_ADD = TextKey.of("golemancy.node_gui.tag_add", "Add Tag");
   public static final TextKey NODE_GUI_TAG_ADD_LORE = TextKey.of("golemancy.node_gui.tag_add_lore", "Click, then type an item tag such as #logs in chat");
+  public static final TextKey PLINTH_LOADING = TextKey.of("golemancy.plinth.loading", "This plinth is still loading");
+  public static final TextKey PLINTH_OCCUPIED = TextKey.of("golemancy.plinth.occupied", "This pedestal already holds an item");
+  public static final TextKey PLINTH_PROTECTED = TextKey.of("golemancy.plinth.protected", "You cannot use this plinth here");
+  public static final TextKey PLINTH_BUSY = TextKey.of("golemancy.plinth.busy", "An infusion is already running");
+  public static final TextKey PLINTH_NO_RECIPE = TextKey.of("golemancy.plinth.no_recipe", "These items do not form an infusion");
+  public static final TextKey PLINTH_LOCKED = TextKey.of("golemancy.plinth.locked", "You have not learned this infusion yet");
+  public static final TextKey PLINTH_LEVELS = TextKey.of("golemancy.plinth.levels", "This infusion costs {levels} levels");
+  public static final TextKey PLINTH_INTERRUPTED = TextKey.of("golemancy.plinth.interrupted", "The infusion was interrupted");
+  public static final TextKey PLINTH_COMPLETE = TextKey.of("golemancy.plinth.complete", "The infusion is complete");
+  public static final TextKey PLINTH_FAILED = TextKey.of("golemancy.plinth.failed", "The infusion failed and your levels were returned");
 
   private GolemancyMessages() {
   }
@@ -491,5 +501,15 @@ public final class GolemancyMessages {
     builder.add(NODE_GUI_TAG);
     builder.add(NODE_GUI_TAG_ADD);
     builder.add(NODE_GUI_TAG_ADD_LORE);
+    builder.add(PLINTH_LOADING);
+    builder.add(PLINTH_OCCUPIED);
+    builder.add(PLINTH_PROTECTED);
+    builder.add(PLINTH_BUSY);
+    builder.add(PLINTH_NO_RECIPE);
+    builder.add(PLINTH_LOCKED);
+    builder.add(PLINTH_LEVELS);
+    builder.add(PLINTH_INTERRUPTED);
+    builder.add(PLINTH_COMPLETE);
+    builder.add(PLINTH_FAILED);
   }
 }

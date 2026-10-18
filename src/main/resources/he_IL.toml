@@ -3093,6 +3093,14 @@ description = "כרוך גולם נחושת"
 title = "שבועת ברזל"
 description = "כרוך גולם ברזל"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "שוליית הכן"
+description = "השלם 10 החדרות על כן אנימוס"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "אמן ההחדרה"
+description = "השלם 100 החדרות על כן אנימוס"
+
 [agility.armor_up]
 name = "שריון-אפ"
 description = "קבל יותר שריון ככל שאתה רץ יותר זמן!"
@@ -4581,6 +4589,18 @@ lore4 = "עדיפות צומת 1-5"
 lore5 = "בקרת רדסטון"
 lore6 = "מסנני רשימה שחורה ותגיות"
 lore = ["צמתים שאפשר להחזיק", "רדיוס אזור העבודה בבלוקים", "משבצות מסנן", "עדיפות צומת 1-5", "בקרת רדסטון", "מסנני רשימה שחורה ותגיות"]
+
+[golemancy.plinth]
+loading = "הכן הזה עדיין נטען"
+occupied = "על הבסיס הזה כבר מונח פריט"
+protected = "אי אפשר להשתמש בכן הזה כאן"
+busy = "החדרה כבר מתבצעת"
+no_recipe = "הפריטים האלה אינם יוצרים החדרה"
+locked = "עוד לא למדת את ההחדרה הזו"
+levels = "ההחדרה הזו עולה {levels} רמות"
+interrupted = "ההחדרה נקטעה"
+complete = "ההחדרה הושלמה"
+failed = "ההחדרה נכשלה והרמות שלך הוחזרו"
 
 [herbalism.growth_aura]
 name = "הילת צמיחה"

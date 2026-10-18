@@ -3093,6 +3093,14 @@ description = "Vincula um golem de cobre"
 title = "Juramento de ferro"
 description = "Vincula um golem de ferro"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "Aprendiz do pedestal"
+description = "Conclui 10 infusões num Pedestal de Ânimus"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Mestre infusor"
+description = "Conclui 100 infusões num Pedestal de Ânimus"
+
 [agility.armor_up]
 name = "Armadura Crescente"
 description = "Ganha mais armadura quanto mais tempo correres!"
@@ -4581,6 +4589,18 @@ lore4 = "Prioridade do nó 1-5"
 lore5 = "Controlo por redstone"
 lore6 = "Filtros de lista negra e etiquetas"
 lore = ["Nós que podes possuir", "Raio da área de trabalho em blocos", "Espaços de filtro", "Prioridade do nó 1-5", "Controlo por redstone", "Filtros de lista negra e etiquetas"]
+
+[golemancy.plinth]
+loading = "Este pedestal ainda está a carregar"
+occupied = "Este suporte já tem um item"
+protected = "Não podes usar este pedestal aqui"
+busy = "Já está a decorrer uma infusão"
+no_recipe = "Estes itens não formam uma infusão"
+locked = "Ainda não aprendeste esta infusão"
+levels = "Esta infusão custa {levels} níveis"
+interrupted = "A infusão foi interrompida"
+complete = "A infusão está concluída"
+failed = "A infusão falhou e os teus níveis foram devolvidos"
 
 [herbalism.growth_aura]
 name = "Aura de Crescimento"

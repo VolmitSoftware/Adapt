@@ -3093,6 +3093,14 @@ description = "縛約一個銅魔像"
 title = "鋼鐵之誓"
 description = "縛約一個鐵魔像"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "基座學徒"
+description = "在靈魂基座上完成 10 次灌注"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "灌注大師"
+description = "在靈魂基座上完成 100 次灌注"
+
 [agility.armor_up]
 name = "裝甲強化"
 description = "衝刺時間越長，獲得的護甲值越多！"
@@ -4581,6 +4589,18 @@ lore4 = "節點優先級1-5"
 lore5 = "紅石控制"
 lore6 = "黑名單與標籤過濾"
 lore = ["可擁有的節點數量", "工作區域半徑（方塊）", "過濾槽位", "節點優先級1-5", "紅石控制", "黑名單與標籤過濾"]
+
+[golemancy.plinth]
+loading = "這個基座仍在載入"
+occupied = "這個底座上已經有物品了"
+protected = "你不能在這裡使用這個基座"
+busy = "灌注已在進行中"
+no_recipe = "這些物品無法組成灌注"
+locked = "你還沒學會這種灌注"
+levels = "這種灌注需要{levels}級經驗"
+interrupted = "灌注被打斷了"
+complete = "灌注完成了"
+failed = "灌注失敗，你的經驗等級已退還"
 
 [herbalism.growth_aura]
 name = "生長光環"

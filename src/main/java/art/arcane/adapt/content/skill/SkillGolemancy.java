@@ -18,14 +18,18 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
+import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
@@ -38,6 +42,13 @@ import art.arcane.adapt.api.golem.node.NodeItemTags;
 import art.arcane.adapt.api.golem.node.NodeMatter;
 import art.arcane.adapt.api.golem.node.NodeSettings;
 import art.arcane.adapt.api.golem.node.NodeVisibility;
+import art.arcane.adapt.api.golem.plinth.Infusion;
+import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
+import art.arcane.adapt.api.golem.plinth.InfusionRecipes;
+import art.arcane.adapt.api.golem.plinth.PlinthHost;
+import art.arcane.adapt.api.golem.plinth.PlinthSettings;
+import art.arcane.adapt.api.golem.plinth.PlinthSlotMatter;
+import art.arcane.adapt.api.golem.plinth.PlinthStructure;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.skill.SimpleSkill;
@@ -72,6 +83,7 @@ import lombok.NoArgsConstructor;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.Tag;
 import org.bukkit.World;
@@ -201,6 +213,20 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
         .frame(AdaptAdvancementFrame.CHALLENGE)
         .visibility(AdvancementVisibility.VANILLA)
         .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.LODESTONE)
+        .key("challenge_golemancy_infusions_10")
+        .model(CustomModel.get(Material.LODESTONE, "advancement", "golemancy", "challenge_golemancy_infusions_10"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.END_CRYSTAL)
+            .key("challenge_golemancy_infusions_100")
+            .model(CustomModel.get(Material.END_CRYSTAL, "advancement", "golemancy", "challenge_golemancy_infusions_100"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.VANILLA)
+            .build())
+        .build());
     registerMilestone("challenge_golemancy_built_10", "golemancy.built", 10, () -> getConfig().challengeBuiltReward);
     registerMilestone("challenge_golemancy_built_100", "golemancy.built", 100, () -> getConfig().challengeBuiltReward * 5);
     registerMilestone("challenge_golemancy_bound_5", "golemancy.bound", 5, () -> getConfig().challengeBoundReward);
@@ -208,8 +234,12 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerMilestone("challenge_golemancy_golem_kills_50", "golemancy.golem.kills", 50, () -> getConfig().challengeGolemKillsReward);
     registerMilestone("challenge_golemancy_golem_kills_500", "golemancy.golem.kills", 500, () -> getConfig().challengeGolemKillsReward * 2);
     registerMilestone("challenge_golemancy_golem_kills_5000", "golemancy.golem.kills", 5000, () -> getConfig().challengeGolemKillsReward * 5);
+    registerMilestone("challenge_golemancy_infusions_10", "golemancy.infusions", 10, () -> getConfig().challengeInfusionsReward);
+    registerMilestone("challenge_golemancy_infusions_100", "golemancy.infusions", 100, () -> getConfig().challengeInfusionsReward * 5);
     GolemancyRuntime.setBindListener(this::golemBound);
+    GolemancyRuntime.setPlinthHost(new GolemancyPlinthHost());
     SpatialMatter.registerSliceType(new NodeMatter());
+    SpatialMatter.registerSliceType(new PlinthSlotMatter());
   }
 
   @Override
@@ -321,6 +351,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     GolemancyRuntime.configureBrain(brainSettings(newConfig));
     GolemancyRuntime.configureReveal(revealSettings(newConfig));
     GolemancyRuntime.configureNodes(nodeSettings(newConfig));
+    GolemancyRuntime.configurePlinths(plinthSettings(newConfig));
   }
 
   @Override
@@ -391,6 +422,31 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   static NodeSettings nodeSettings(Config config) {
     return new NodeSettings(config.maxNodesPerChunk, config.nodeScanIntervalTicks, config.blocksPerNodeScan,
         config.maxOpenTasksPerNode, NodeVisibility.parse(config.nodeVisibility));
+  }
+
+  static PlinthSettings plinthSettings(Config config) {
+    return new PlinthSettings(PlinthStructure.pedestals(config.pedestalBlocks, Adapt::warn), InfusionRecipes.bukkit(config.infusionRecipes));
+  }
+
+  static double infusionXp(Config config, NamespacedKey result) {
+    String key = result.getKey();
+    if (key.equals("masterwork_heart")) {
+      return config.infuseMasterworkHeartXp;
+    }
+    String[] parts = key.split("/", -1);
+    if (parts.length != 3 || !parts[0].equals("rune") || GolemRuneType.fromId(parts[1]).isEmpty()) {
+      return 0D;
+    }
+    return switch (parts[2]) {
+      case "1" -> config.infuseRuneTier1Xp;
+      case "2" -> config.infuseRuneTier2Xp;
+      case "3" -> config.infuseRuneTier3Xp;
+      default -> 0D;
+    };
+  }
+
+  static String infusionRewardKey(NamespacedKey result) {
+    return "golemancy:craft:" + result.getKey();
   }
 
   private void applyBuild(GolemBuildAttribution.Build build) {
@@ -482,6 +538,14 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     }
     if (body != GolemBody.BONE && grantOnce(owner, "challenge_golemancy_first_bind_" + body.id())) {
       xp(owner, at, getConfig().firstBindXp, "golemancy:first_bind:" + body.id());
+    }
+  }
+
+  private void rewardInfusion(Player player, NamespacedKey result, Location at) {
+    addStat(player, "golemancy.infusions", 1);
+    double xp = infusionXp(getConfig(), result);
+    if (xp > 0D) {
+      xp(player, at, xp, infusionRewardKey(result));
     }
   }
 
@@ -586,6 +650,14 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     }
   }
 
+  private static boolean spendLevels(Player player, int levels) {
+    if (player.getLevel() < levels) {
+      return false;
+    }
+    player.giveExpLevels(-levels);
+    return true;
+  }
+
   private static boolean excludedMob(Entity entity) {
     return MinionIdentity.isMinion(entity) || ExcavationGraveDigger.isGraveMob(entity);
   }
@@ -606,6 +678,55 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   }
 
   private record WitnessCooldownKey(UUID golem, UUID player) {
+  }
+
+  private final class GolemancyPlinthHost implements PlinthHost {
+    private static final String COST_KEY = "infusion";
+
+    @Override
+    public int level(Player player, String adaptationId) {
+      return adaptation(adaptationId).map(adaptation -> adaptation.getActiveLevel(player)).orElse(0);
+    }
+
+    @Override
+    public boolean canStore(Player player, String adaptationId, Location at) {
+      return adaptation(adaptationId).map(adaptation -> adaptation.canAccessChest(player, at)).orElse(false);
+    }
+
+    @Override
+    public boolean canInfuse(Player player, String adaptationId, Location at) {
+      return adaptation(adaptationId).map(adaptation -> adaptation.canInteract(player, at) && adaptation.canBlockPlace(player, at)).orElse(false);
+    }
+
+    @Override
+    public boolean payLevels(Player player, String adaptationId, int levels) {
+      if (levels <= 0) {
+        return true;
+      }
+      return adaptation(adaptationId).map(adaptation -> adaptation.payExperienceCost(player, COST_KEY, levels, () -> spendLevels(player, levels))).orElse(false);
+    }
+
+    @Override
+    public FxEmitter fx(Location at, FxPriority priority) {
+      return SkillGolemancy.this.fx(at, priority);
+    }
+
+    @Override
+    public void infused(Player player, Infusion infusion, Location at) {
+      if (shouldReturnForWorld(at.getWorld(), SkillGolemancy.this)) {
+        return;
+      }
+      J.runEntity(player, () -> shouldReturnForPlayer(player, () -> rewardInfusion(player, infusion.result(), at)));
+    }
+
+    private Optional<Adaptation<?>> adaptation(String id) {
+      for (Adaptation<?> adaptation : getAdaptations()) {
+        if (adaptation.getName().equals(id)) {
+          return Optional.of(adaptation);
+        }
+      }
+      return Optional.empty();
+    }
   }
 
   private final class CopperCareListener implements Listener {
@@ -776,5 +897,19 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     int maxOpenTasksPerNode = 16;
     @ConfigDoc(value = "Who can see nodes while holding the Crook, a Node, a Core or a Dormant Golem: OWNER shows each player only their own nodes, ANY_GOLEMANCER also shows every node to players with Node Weaving.", impact = "Set to ANY_GOLEMANCER to let golemancers see each other's nodes.")
     String nodeVisibility = "OWNER";
+    @ConfigDoc(value = "Blocks that work as Animus Plinth pedestals, two blocks north, east, south and west of a lodestone at the same height.", impact = "Add or remove block names to change which blocks form a plinth; unknown names and the lodestone are ignored with a warning.")
+    List<String> pedestalBlocks = new ArrayList<>(PlinthStructure.DEFAULT_PEDESTALS);
+    @ConfigDoc(value = "Infusions an Animus Plinth can perform, one table per infusion with result, center, pedestals, essenceLevels, durationTicks, unlockAdaptation, unlockLevel and enabled.", impact = "Edit a table to change an infusion, set enabled to false to turn it off, or add a table to create a new one; invalid tables are skipped with a warning.")
+    Map<String, InfusionRecipe> infusionRecipes = InfusionRecipe.defaults();
+    @ConfigDoc(value = "Skill XP paid for each tier 1 rune infused at an Animus Plinth.", impact = "Higher values reward tier 1 infusions more; 0 pays nothing.")
+    double infuseRuneTier1Xp = 60;
+    @ConfigDoc(value = "Skill XP paid for each tier 2 rune infused at an Animus Plinth.", impact = "Higher values reward tier 2 infusions more; 0 pays nothing.")
+    double infuseRuneTier2Xp = 180;
+    @ConfigDoc(value = "Skill XP paid for each tier 3 rune infused at an Animus Plinth.", impact = "Higher values reward tier 3 infusions more; 0 pays nothing.")
+    double infuseRuneTier3Xp = 450;
+    @ConfigDoc(value = "Skill XP paid for each Masterwork Heart infused at an Animus Plinth.", impact = "Higher values reward Masterwork Heart infusions more; 0 pays nothing.")
+    double infuseMasterworkHeartXp = 1500;
+    @ConfigDoc(value = "Skill XP paid by the infusion challenges.", impact = "Higher values pay more; the 100 infusions challenge pays five times this value.")
+    double challengeInfusionsReward = 500;
   }
 }

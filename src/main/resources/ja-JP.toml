@@ -3093,6 +3093,14 @@ description = "銅ゴーレムを結びつける"
 title = "鉄の誓い"
 description = "鉄ゴーレムを結びつける"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "台座の見習い"
+description = "アニムスの台座で注入を10回完了する"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "注入の達人"
+description = "アニムスの台座で注入を100回完了する"
+
 [agility.armor_up]
 name = "アーマーアップ"
 description = "ダッシュし続けるほど防具が強化される！"
@@ -4581,6 +4589,18 @@ lore4 = "ノード優先度1～5"
 lore5 = "レッドストーン制御"
 lore6 = "ブラックリストとタグのフィルター"
 lore = ["所有できるノード数", "作業範囲の半径（ブロック）", "フィルター枠", "ノード優先度1～5", "レッドストーン制御", "ブラックリストとタグのフィルター"]
+
+[golemancy.plinth]
+loading = "この台座はまだ読み込み中です"
+occupied = "この置き台にはすでにアイテムがあります"
+protected = "ここではこの台座を使えません"
+busy = "注入はすでに進行中です"
+no_recipe = "これらのアイテムでは注入できません"
+locked = "この注入はまだ習得していません"
+levels = "この注入には{levels}レベルかかります"
+interrupted = "注入が中断されました"
+complete = "注入が完了しました"
+failed = "注入に失敗したため、レベルが返却されました"
 
 [herbalism.growth_aura]
 name = "成長のオーラ"

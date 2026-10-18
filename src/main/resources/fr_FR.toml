@@ -3089,6 +3089,14 @@ description = "Liez un golem de cuivre"
 title = "Serment de fer"
 description = "Liez un golem de fer"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "Apprenti du socle"
+description = "Termine 10 infusions sur un socle d'Animus"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Maître infuseur"
+description = "Termine 100 infusions sur un socle d'Animus"
+
 [agility.armor_up]
 name = "Armure Cinétique"
 description = "Gagnez davantage d'armure plus vous sprintez longtemps ! Si vous vous arrêtez, elle se dissipe lentement."
@@ -4577,6 +4585,18 @@ lore4 = "Priorité de nœud 1-5"
 lore5 = "Contrôle par redstone"
 lore6 = "Filtres liste noire et tags"
 lore = ["Nœuds que tu peux posséder", "Rayon de la zone de travail en blocs", "Emplacements de filtre", "Priorité de nœud 1-5", "Contrôle par redstone", "Filtres liste noire et tags"]
+
+[golemancy.plinth]
+loading = "Ce socle est encore en cours de chargement"
+occupied = "Ce piédestal porte déjà un objet"
+protected = "Tu ne peux pas utiliser ce socle ici"
+busy = "Une infusion est déjà en cours"
+no_recipe = "Ces objets ne forment pas une infusion"
+locked = "Tu n'as pas encore appris cette infusion"
+levels = "Cette infusion coûte {levels} niveaux"
+interrupted = "L'infusion a été interrompue"
+complete = "L'infusion est terminée"
+failed = "L'infusion a échoué et tes niveaux t'ont été rendus"
 
 [herbalism.growth_aura]
 name = "Aura de Croissance"

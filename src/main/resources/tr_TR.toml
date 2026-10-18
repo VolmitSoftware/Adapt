@@ -3093,6 +3093,14 @@ description = "Bir bakır golemi bağla"
 title = "Demir yemin"
 description = "Bir demir golemi bağla"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "Kaide çırağı"
+description = "Bir Animus Kaidesinde 10 aşılama tamamla"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Aşılama ustası"
+description = "Bir Animus Kaidesinde 100 aşılama tamamla"
+
 [agility.armor_up]
 name = "Zirhlan"
 description = "Ne kadar uzun sure kosarsan o kadar cok zirh al!"
@@ -4581,6 +4589,18 @@ lore4 = "Düğüm önceliği 1-5"
 lore5 = "Kızıltaş denetimi"
 lore6 = "Kara liste ve etiket filtreleri"
 lore = ["Sahip olabileceğin düğümler", "Blok cinsinden çalışma alanı yarıçapı", "Filtre yuvaları", "Düğüm önceliği 1-5", "Kızıltaş denetimi", "Kara liste ve etiket filtreleri"]
+
+[golemancy.plinth]
+loading = "Bu kaide hâlâ yükleniyor"
+occupied = "Bu sehpada zaten bir eşya var"
+protected = "Bu kaideyi burada kullanamazsın"
+busy = "Zaten bir aşılama sürüyor"
+no_recipe = "Bu eşyalar bir aşılama oluşturmuyor"
+locked = "Bu aşılamayı henüz öğrenmedin"
+levels = "Bu aşılama {levels} seviyeye mal olur"
+interrupted = "Aşılama kesildi"
+complete = "Aşılama tamamlandı"
+failed = "Aşılama başarısız oldu ve seviyelerin iade edildi"
 
 [herbalism.growth_aura]
 name = "Buyume Aurasi"

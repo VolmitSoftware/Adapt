@@ -3093,6 +3093,14 @@ description = "Bind een kopergolem"
 title = "IJzeren eed"
 description = "Bind een ijzergolem"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "Leerling van de sokkel"
+description = "Voltooi 10 infusies op een animussokkel"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Meester-infuseur"
+description = "Voltooi 100 infusies op een animussokkel"
+
 [agility.armor_up]
 name = "Pantser-Up"
 description = "Krijg meer pantser hoe langer je sprint!"
@@ -4581,6 +4589,18 @@ lore4 = "Knooppuntprioriteit 1-5"
 lore5 = "Redstonesturing"
 lore6 = "Zwarte-lijst- en tagfilters"
 lore = ["Knooppunten die je kunt bezitten", "Straal van het werkgebied in blokken", "Filtervakken", "Knooppuntprioriteit 1-5", "Redstonesturing", "Zwarte-lijst- en tagfilters"]
+
+[golemancy.plinth]
+loading = "Deze sokkel wordt nog geladen"
+occupied = "Op dit voetstuk ligt al een voorwerp"
+protected = "Je kunt deze sokkel hier niet gebruiken"
+busy = "Er loopt al een infusie"
+no_recipe = "Deze voorwerpen vormen geen infusie"
+locked = "Je hebt deze infusie nog niet geleerd"
+levels = "Deze infusie kost {levels} levels"
+interrupted = "De infusie is onderbroken"
+complete = "De infusie is voltooid"
+failed = "De infusie is mislukt en je levels zijn teruggegeven"
 
 [herbalism.growth_aura]
 name = "Groeiaura"

@@ -1475,6 +1475,10 @@ public final class AdvancementMessages {
   public static final TextKey CHALLENGE_GOLEMANCY_FIRST_BIND_COPPER_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_first_bind_copper.description", "Bind a copper golem");
   public static final TextKey CHALLENGE_GOLEMANCY_FIRST_BIND_IRON_TITLE = TextKey.of("advancement.challenge_golemancy_first_bind_iron.title", "Iron Oath");
   public static final TextKey CHALLENGE_GOLEMANCY_FIRST_BIND_IRON_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_first_bind_iron.description", "Bind an iron golem");
+  public static final TextKey CHALLENGE_GOLEMANCY_INFUSIONS_10_TITLE = TextKey.of("advancement.challenge_golemancy_infusions_10.title", "Plinth Apprentice");
+  public static final TextKey CHALLENGE_GOLEMANCY_INFUSIONS_10_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_infusions_10.description", "Complete 10 infusions at an Animus Plinth");
+  public static final TextKey CHALLENGE_GOLEMANCY_INFUSIONS_100_TITLE = TextKey.of("advancement.challenge_golemancy_infusions_100.title", "Master Infuser");
+  public static final TextKey CHALLENGE_GOLEMANCY_INFUSIONS_100_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_infusions_100.description", "Complete 100 infusions at an Animus Plinth");
 
   private AdvancementMessages() {
   }
@@ -2950,5 +2954,9 @@ public final class AdvancementMessages {
     builder.add(CHALLENGE_GOLEMANCY_FIRST_BIND_COPPER_DESCRIPTION);
     builder.add(CHALLENGE_GOLEMANCY_FIRST_BIND_IRON_TITLE);
     builder.add(CHALLENGE_GOLEMANCY_FIRST_BIND_IRON_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_INFUSIONS_10_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_INFUSIONS_10_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_INFUSIONS_100_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_INFUSIONS_100_DESCRIPTION);
   }
 }

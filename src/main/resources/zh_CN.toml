@@ -3093,6 +3093,14 @@ description = "缚约一个铜魔像"
 title = "钢铁之誓"
 description = "缚约一个铁魔像"
 
+[advancement.challenge_golemancy_infusions_10]
+title = "基座学徒"
+description = "在灵魂基座上完成 10 次灌注"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "灌注大师"
+description = "在灵魂基座上完成 100 次灌注"
+
 [agility.armor_up]
 name = "疾行护甲"
 description = "疾跑越久，获得的护甲越多！停止疾跑后，加成会缓慢消退。"
@@ -4581,6 +4589,18 @@ lore4 = "节点优先级1-5"
 lore5 = "红石控制"
 lore6 = "黑名单与标签过滤"
 lore = ["可拥有的节点数量", "工作区域半径（方块）", "过滤槽位", "节点优先级1-5", "红石控制", "黑名单与标签过滤"]
+
+[golemancy.plinth]
+loading = "这个基座仍在加载"
+occupied = "这个底座上已经有物品了"
+protected = "你不能在这里使用这个基座"
+busy = "灌注已在进行中"
+no_recipe = "这些物品无法组成灌注"
+locked = "你还没学会这种灌注"
+levels = "这种灌注需要{levels}级经验"
+interrupted = "灌注被打断了"
+complete = "灌注完成了"
+failed = "灌注失败，你的经验等级已退还"
 
 [herbalism.growth_aura]
 name = "生长光环"
