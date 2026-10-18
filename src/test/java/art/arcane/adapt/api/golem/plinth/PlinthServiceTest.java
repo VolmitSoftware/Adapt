@@ -3,8 +3,11 @@ package art.arcane.adapt.api.golem.plinth;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import art.arcane.volmlib.util.event.ProtectionProbe;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.logger.slf4j.ComponentLogger;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -15,6 +18,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -23,6 +27,7 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.plugin.PluginManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,8 +45,10 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -384,6 +391,30 @@ class PlinthServiceTest extends AdaptTestBase {
   }
 
   @Test
+  void protectionProbeClicksNeverLoadAPedestal() {
+    readyChunk();
+    holding(item(Material.SUGAR));
+    PlayerInteractEvent probe = ProtectionProbe.blockInteract(player, block(CENTER.slot(PlinthSlot.NORTH)), EquipmentSlot.HAND);
+
+    service.on(probe);
+
+    assertThat(probe.isCancelled()).isFalse();
+    assertThat(platform.store).isEmpty();
+  }
+
+  @Test
+  void protectionProbeBreaksNeverInterruptARitual() {
+    stockPlinth();
+    holdCrook();
+    click(CENTER, EquipmentSlot.HAND);
+    BlockBreakEvent probe = new BlockBreakEvent(block(CENTER.slot(PlinthSlot.WEST)), player);
+
+    dispatchProbe(probe, () -> service.on(probe));
+
+    assertThat(events).doesNotContain(INTERRUPTED);
+  }
+
+  @Test
   void breakingAPlinthBlockAbortsAtOnce() {
     stockPlinth();
     holdCrook();
@@ -702,6 +733,18 @@ class PlinthServiceTest extends AdaptTestBase {
 
   private void readyChunk() {
     service.on(new ChunkLoadEvent(chunk(0, 0), true));
+  }
+
+  private static void dispatchProbe(Event event, Runnable listener) {
+    PluginManager pluginManager = mock(PluginManager.class);
+    doAnswer(invocation -> {
+      listener.run();
+      return null;
+    }).when(pluginManager).callEvent(any(Event.class));
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
+      ProtectionEventProbe.dispatch(event);
+    }
   }
 
   private void tick(int ticks) {

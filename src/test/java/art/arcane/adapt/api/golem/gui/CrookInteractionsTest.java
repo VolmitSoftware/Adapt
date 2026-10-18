@@ -11,6 +11,7 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.event.ProtectionProbe;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
@@ -126,6 +127,16 @@ class CrookInteractionsTest extends AdaptTestBase {
     runtime.close();
     items.close();
     scheduling.close();
+  }
+
+  @Test
+  void protectionProbeClicksNeverOpenTheGolemGui() {
+    PlayerInteractEntityEvent probe = ProtectionProbe.entityInteract(player, golem);
+
+    interactions.on(probe);
+
+    assertThat(probe.isCancelled()).isFalse();
+    golemGui.verify(() -> GolemGui.open(any(), any(), any()), never());
   }
 
   @Test

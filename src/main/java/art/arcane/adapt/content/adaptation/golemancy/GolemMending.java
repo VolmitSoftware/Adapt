@@ -184,6 +184,9 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
       rebuild(player, golem, held);
       return;
     }
+    if (GolemItems.isGolemItem(held)) {
+      return;
+    }
     MendingRules.Remedy.of(held.getType())
         .filter(remedy -> mendable(player, target, remedy))
         .ifPresent(remedy -> mend(e, player, target, remedy));

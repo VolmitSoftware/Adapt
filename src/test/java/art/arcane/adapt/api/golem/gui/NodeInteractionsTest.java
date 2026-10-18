@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.NodeTagLookup;
 import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.event.ProtectionProbe;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -116,6 +117,17 @@ class NodeInteractionsTest extends AdaptTestBase {
     scheduling.close();
     items.close();
     runtime.close();
+  }
+
+  @Test
+  void protectionProbeClicksLeaveNodesAlone() {
+    Player owner = player(OWNER, crook, air, false);
+    PlayerInteractEntityEvent probe = ProtectionProbe.entityInteract(owner, hitbox);
+
+    interactions.on(probe);
+
+    assertThat(probe.isCancelled()).isFalse();
+    gui.verify(() -> NodeGui.open(any(Player.class), any(NodeKey.class), any(NodeTagPrompt.class)), never());
   }
 
   @Test

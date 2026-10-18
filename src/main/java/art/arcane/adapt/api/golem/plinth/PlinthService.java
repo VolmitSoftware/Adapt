@@ -4,6 +4,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.tick.TickedObject;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;
@@ -118,7 +119,7 @@ public final class PlinthService extends TickedObject {
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
     Block block = e.getClickedBlock();
-    if (e.getAction() != Action.RIGHT_CLICK_BLOCK || block == null) {
+    if (ProtectionEventProbe.isActive(e) || e.getAction() != Action.RIGHT_CLICK_BLOCK || block == null) {
       return;
     }
     PlinthSettings current = settings.get();
@@ -153,6 +154,9 @@ public final class PlinthService extends TickedObject {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(BlockBreakEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     blocksChanging(List.of(e.getBlock()));
   }
 

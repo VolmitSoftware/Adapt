@@ -11,6 +11,7 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeRules;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.Bukkit;
@@ -48,6 +49,9 @@ public final class NodeInteractions implements Listener {
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(PlayerInteractEntityEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     Optional<NodeKey> key = nodeOf(e.getRightClicked());
     if (key.isEmpty()) {
       return;

@@ -1,10 +1,13 @@
 package art.arcane.adapt.api.potion;
 
+import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.util.UUID;
 
@@ -12,11 +15,31 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class BrewingTaskTest {
+  @Test
+  void golemItemsAreNeverBrewingIngredients() {
+    Material solid = mock(Material.class);
+    when(solid.isAir()).thenReturn(false);
+    ItemStack dormantGolem = mock(ItemStack.class);
+    when(dormantGolem.getType()).thenReturn(solid);
+    ItemStack ingot = mock(ItemStack.class);
+    when(ingot.getType()).thenReturn(solid);
+
+    try (MockedStatic<GolemItems> items = mockStatic(GolemItems.class)) {
+      items.when(() -> GolemItems.isGolemItem(dormantGolem)).thenReturn(true);
+      items.when(() -> GolemItems.isGolemItem(ingot)).thenReturn(false);
+
+      assertFalse(BrewingTask.acceptsIngredient(dormantGolem));
+      assertTrue(BrewingTask.acceptsIngredient(ingot));
+    }
+    assertFalse(BrewingTask.acceptsIngredient(null));
+  }
+
   @Test
   void exactStoredFuelDoesNotConsumeAnItem() {
     assertEquals(0, BrewingTask.fuelItemsRequired(20, 20));

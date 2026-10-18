@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem.item;
 
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -66,7 +67,7 @@ public final class GolemItemGuard implements Listener {
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PlayerInteractEvent e) {
     Action action = e.getAction();
-    if (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR) {
+    if (ProtectionEventProbe.isActive(e) || (action != Action.RIGHT_CLICK_BLOCK && action != Action.RIGHT_CLICK_AIR)) {
       return;
     }
     Optional<GolemItemKind> kind = GolemItems.kindOf(e.getItem());
@@ -77,6 +78,9 @@ public final class GolemItemGuard implements Listener {
 
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(BlockPlaceEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     Optional<GolemItemKind> kind = GolemItems.kindOf(e.getItemInHand());
     if (kind.isPresent() && kind.get() != GolemItemKind.DORMANT_GOLEM) {
       e.setCancelled(true);
@@ -85,6 +89,9 @@ public final class GolemItemGuard implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void placed(BlockPlaceEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     if (GolemItems.kindOf(e.getItemInHand()).filter(kind -> kind == GolemItemKind.DORMANT_GOLEM).isPresent()) {
       e.setCancelled(true);
     }

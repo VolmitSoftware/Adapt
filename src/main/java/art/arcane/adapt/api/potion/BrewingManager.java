@@ -167,8 +167,7 @@ public class BrewingManager implements Listener {
   private boolean isCustomIngredientClick(InventoryClickEvent event, BrewerInventory inventory) {
     ItemStack cursor = event.getCursor();
     return inventory.getIngredient() == null
-        && cursor != null
-        && !cursor.getType().isAir()
+        && BrewingTask.acceptsIngredient(cursor)
         && event.getRawSlot() == 3
         && event.getClickedInventory() != null
         && event.getClickedInventory().getType() == InventoryType.BREWING

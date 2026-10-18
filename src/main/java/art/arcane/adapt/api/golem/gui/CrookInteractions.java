@@ -8,6 +8,7 @@ import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import io.papermc.paper.event.player.PrePlayerAttackEntityEvent;
 import org.bukkit.Location;
@@ -35,6 +36,9 @@ public final class CrookInteractions implements Listener {
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(PlayerInteractEntityEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     Player player = e.getPlayer();
     if (!isCrook(player.getInventory().getItemInMainHand())) {
       return;
@@ -60,7 +64,7 @@ public final class CrookInteractions implements Listener {
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(PlayerInteractEvent e) {
-    if (e.getHand() != EquipmentSlot.HAND || !isCrook(e.getItem())) {
+    if (ProtectionEventProbe.isActive(e) || e.getHand() != EquipmentSlot.HAND || !isCrook(e.getItem())) {
       return;
     }
     Player player = e.getPlayer();

@@ -3,6 +3,8 @@ package art.arcane.adapt.api.golem.item;
 import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -46,6 +48,7 @@ import org.bukkit.inventory.SmithingInventory;
 import org.bukkit.inventory.StonecutterInventory;
 import org.bukkit.inventory.view.AnvilView;
 import org.bukkit.inventory.view.EnchantmentView;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -58,6 +61,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -229,6 +233,21 @@ class GolemItemGuardTest {
     assertThat(dormant.isCancelled()).isFalse();
     assertThat(node.isCancelled()).isTrue();
     assertThat(plain.isCancelled()).isFalse();
+  }
+
+  @Test
+  void protectionProbesPassThroughTheGuardUntouched() {
+    PlayerInteractEvent interact = interact(Action.RIGHT_CLICK_BLOCK, crook(), EquipmentSlot.HAND);
+    BlockPlaceEvent node = place(GolemItemStacks.tagged(Material.BRICK, "node", null));
+    BlockPlaceEvent dormant = place(GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", null));
+
+    dispatchProbe(interact, () -> guard.on(interact));
+    dispatchProbe(node, () -> guard.on(node));
+    dispatchProbe(dormant, () -> guard.placed(dormant));
+
+    assertThat(interact.useItemInHand()).isEqualTo(Event.Result.DEFAULT);
+    assertThat(node.isCancelled()).isFalse();
+    assertThat(dormant.isCancelled()).isFalse();
   }
 
   @Test
@@ -463,6 +482,18 @@ class GolemItemGuardTest {
   private static PlayerInteractEvent interact(Action action, ItemStack item, EquipmentSlot hand) {
     Block block = action == Action.RIGHT_CLICK_AIR ? null : mock(Block.class);
     return new PlayerInteractEvent(mock(Player.class), action, item, block, BlockFace.UP, hand);
+  }
+
+  private static void dispatchProbe(Event event, Runnable listener) {
+    PluginManager pluginManager = mock(PluginManager.class);
+    doAnswer(invocation -> {
+      listener.run();
+      return null;
+    }).when(pluginManager).callEvent(any(Event.class));
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
+      ProtectionEventProbe.dispatch(event);
+    }
   }
 
   private static BlockPlaceEvent place(ItemStack item) {

@@ -240,6 +240,25 @@ class GolemMendingTest extends AdaptTestBase {
   }
 
   @Test
+  void aDormantFrostGolemIsNeverSpentAsASnowBlockRemedy() {
+    AtomicReference<Double> health = new AtomicReference<>(10D);
+    Snowman golem = living(Snowman.class, health);
+    bound(golem, GolemBody.FROST, player.getUniqueId());
+    ItemStack dormant = held(Material.SNOW_BLOCK, 1, EquipmentSlot.HAND);
+    items.when(() -> GolemItems.isGolemItem(dormant)).thenReturn(true);
+    GolemMending learned = learned(5);
+    PlayerInteractEntityEvent click = click(golem, EquipmentSlot.HAND);
+
+    learned.on(click);
+
+    assertThat(health.get()).isEqualTo(10D);
+    assertThat(click.isCancelled()).isFalse();
+    verify(dormant, never()).setAmount(anyInt());
+    verify(inventory, never()).setItem(any(EquipmentSlot.class), any());
+    assertThat(repairs).isEmpty();
+  }
+
+  @Test
   void aGolemAtFullHealthRefusesTheItem() {
     AtomicReference<Double> health = new AtomicReference<>(MAX_HEALTH);
     CopperGolem golem = living(CopperGolem.class, health);
