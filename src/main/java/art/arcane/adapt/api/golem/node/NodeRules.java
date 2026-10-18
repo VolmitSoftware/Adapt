@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem.node;
 import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 
 public final class NodeRules {
   public static final int PRIORITY_LEVEL = 3;
@@ -27,6 +28,9 @@ public final class NodeRules {
     if (!check.canBuild()) {
       return NodePlacementVerdict.PROTECTED;
     }
+    if (!check.faceAllowed()) {
+      return NodePlacementVerdict.NEEDS_SIDE_FACE;
+    }
     if (check.needsContainer() && !check.containerAnchor()) {
       return NodePlacementVerdict.NEEDS_CONTAINER;
     }
@@ -48,6 +52,17 @@ public final class NodeRules {
 
   public static boolean anchorValid(NodeType type, Material anchor) {
     return needsContainer(type) ? isContainer(anchor) : !isEmpty(anchor);
+  }
+
+  public static boolean faceAllowed(NodeType type, BlockFace face) {
+    return !needsSideFace(type) || (face != BlockFace.UP && face != BlockFace.DOWN);
+  }
+
+  public static boolean needsSideFace(NodeType type) {
+    return switch (type) {
+      case FISHING -> true;
+      case GUARD, COLLECTION, DEPOSIT, HARVEST, LUMBER, BREAKER, PASTURE, INPUT, FILTER -> false;
+    };
   }
 
   public static boolean needsContainer(NodeType type) {

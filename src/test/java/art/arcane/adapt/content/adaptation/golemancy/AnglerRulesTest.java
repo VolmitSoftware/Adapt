@@ -85,6 +85,8 @@ class AnglerRulesTest {
     assertThat(AnglerRules.fishers(tasks, null, NOW)).isEqualTo(2);
     assertThat(AnglerRules.fishers(tasks, FIRST, NOW)).isEqualTo(1);
     assertThat(AnglerRules.fishers(tasks, null, NOW + LEASE)).isZero();
+    assertThat(AnglerRules.openSeats(tasks, NOW)).isEqualTo(1);
+    assertThat(AnglerRules.openSeats(tasks, NOW + LEASE)).isEqualTo(3);
   }
 
   @Test

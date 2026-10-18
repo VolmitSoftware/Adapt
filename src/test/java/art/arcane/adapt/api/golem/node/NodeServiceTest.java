@@ -220,6 +220,20 @@ class NodeServiceTest extends AdaptTestBase {
   }
 
   @Test
+  void fishingNodesAreRefusedOnTopAndBottomFacesAndPlaceOnSides() {
+    readyChunk();
+    blocks.put("3,64,3", Material.STONE);
+    GolemRoster roster = onlineRoster(OWNER);
+    Player owner = player(OWNER);
+
+    assertThat(service.place(owner, block(3, 64, 3), BlockFace.UP, NodeType.FISHING, policy)).isEqualTo(NodePlacementVerdict.NEEDS_SIDE_FACE);
+    assertThat(service.place(owner, block(3, 64, 3), BlockFace.DOWN, NodeType.FISHING, policy)).isEqualTo(NodePlacementVerdict.NEEDS_SIDE_FACE);
+    assertThat(roster.nodeCount()).isZero();
+    assertThat(service.place(owner, block(3, 64, 3), BlockFace.NORTH, NodeType.FISHING, policy)).isEqualTo(NodePlacementVerdict.READY);
+    assertThat(roster.nodeCount()).isEqualTo(1);
+  }
+
+  @Test
   void containerNodesNeedChestAccess() {
     readyChunk();
     blocks.put("3,64,3", Material.CHEST);

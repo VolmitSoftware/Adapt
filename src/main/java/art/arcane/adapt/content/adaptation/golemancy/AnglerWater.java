@@ -12,8 +12,6 @@ final class AnglerWater {
 
   private static final int HALF_WIDTH = 2;
   private static final int FORWARD = 3;
-  private static final int UP_LIFT = 2;
-  private static final int DOWN_DROP = 3;
   private static final int LOWEST_LAYER = -1;
   private static final int HIGHEST_LAYER = 2;
   private static final int SURFACE_REACH = 8;
@@ -26,11 +24,7 @@ final class AnglerWater {
 
   static int[] center(NodeKey key) {
     BlockFace face = key.face();
-    return switch (face) {
-      case UP -> new int[]{key.x(), key.y() + UP_LIFT, key.z()};
-      case DOWN -> new int[]{key.x(), key.y() - DOWN_DROP, key.z()};
-      default -> new int[]{key.x() + face.getModX() * FORWARD, key.y(), key.z() + face.getModZ() * FORWARD};
-    };
+    return new int[]{key.x() + face.getModX() * FORWARD, key.y(), key.z() + face.getModZ() * FORWARD};
   }
 
   static int[] seat(NodeKey key, int index) {
@@ -44,7 +38,7 @@ final class AnglerWater {
 
   static Survey survey(View view, NodeKey key) {
     int[] center = center(key);
-    boolean open = open(view, center[0], center[1], center[2]);
+    boolean open = key.face().getModY() == 0 && open(view, center[0], center[1], center[2]);
     int surface = open ? surface(view, center[0], center[1], center[2]) : center[1];
     return new Survey(open, center[0], center[1], center[2], surface, false);
   }

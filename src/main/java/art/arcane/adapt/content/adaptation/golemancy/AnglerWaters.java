@@ -9,7 +9,9 @@ import java.util.function.Supplier;
 
 final class AnglerWaters {
   static final long RECHECK_MILLIS = 10_000L;
-  static final long FORGET_MILLIS = 60_000L;
+  private static final long MIN_FORGET_MILLIS = 60_000L;
+  private static final long SCANS_BEFORE_FORGET = 3L;
+  private static final long TICK_MILLIS = 50L;
 
   private final Map<NodeKey, Entry> entries = new ConcurrentHashMap<>();
 
@@ -27,8 +29,12 @@ final class AnglerWaters {
     return current == null ? Optional.empty() : Optional.of(current.survey());
   }
 
-  void sweep(long nowMillis) {
-    entries.values().removeIf(entry -> nowMillis - entry.seenAt() >= FORGET_MILLIS);
+  static long forgetMillis(int scanIntervalTicks) {
+    return Math.max(MIN_FORGET_MILLIS, SCANS_BEFORE_FORGET * scanIntervalTicks * TICK_MILLIS);
+  }
+
+  void sweep(long nowMillis, long forgetMillis) {
+    entries.values().removeIf(entry -> nowMillis - entry.seenAt() >= forgetMillis);
   }
 
   boolean pending() {

@@ -606,15 +606,14 @@
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"angler\\\"}\"}}]",
       "experience set {actor} 5 levels",
-      "execute at {actor} run fill ~-1 ~-3 ~-9 ~5 ~-1 ~-3 minecraft:stone",
-      "execute at {actor} run fill ~0 ~-2 ~-8 ~4 ~-1 ~-4 minecraft:water",
-      "execute at {actor} run fill ~-1 ~ ~-9 ~5 ~2 ~-3 minecraft:air",
-      "execute at {actor} run summon minecraft:copper_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "execute at {actor} run fill ~-1 ~ ~-7 ~5 ~ ~-1 minecraft:stone",
+      "execute at {actor} run fill ~ ~-1 ~-6 ~4 ~ ~-2 minecraft:water",
+      "execute at {actor} run summon minecraft:copper_golem ~ ~ ~2.5 {Rotation:[180.0f,0.0f]}"
     ],
     "prelude": [
       {
         "verb": "look",
-        "yaw": 180,
+        "yaw": 0,
         "pitch": 20
       }
     ],
@@ -654,9 +653,9 @@
       {
         "verb": "lookAt",
         "offset": [
-          0.05,
-          -0.5,
-          -5.5
+          0.02,
+          0.6,
+          -3.4
         ],
         "ticks": 10
       },
@@ -683,7 +682,7 @@
       {
         "verb": "look",
         "yaw": 160,
-        "pitch": 35,
+        "pitch": 25,
         "ticks": 10
       },
       {

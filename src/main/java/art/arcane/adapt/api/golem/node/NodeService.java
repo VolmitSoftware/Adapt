@@ -100,6 +100,7 @@ public final class NodeService extends TickedObject {
         chunkReady,
         !faces.has(face),
         policy.canPlace(owner, anchorLocation, anchor.getRelative(face).getLocation()),
+        NodeRules.faceAllowed(type, face),
         needsContainer,
         NodeRules.isContainer(anchor.getType()),
         needsContainer && policy.canAccessContainer(owner, anchorLocation),

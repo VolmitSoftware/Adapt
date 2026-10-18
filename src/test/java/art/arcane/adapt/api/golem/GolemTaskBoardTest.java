@@ -522,6 +522,7 @@ class GolemTaskBoardTest {
 
     assertThat(board.chunkTasks(first.chunkKey())).containsExactlyInAnyOrder(kept, high);
     assertThat(board.chunkTasks(GolemRoster.chunkKey(5, 5))).isEmpty();
+    assertThatThrownBy(() -> board.chunkTasks(first.chunkKey()).clear()).isInstanceOf(UnsupportedOperationException.class);
   }
 
   private NodeKey harvestNode(int x, int y, int z, DyeColor channel, int priority) {

@@ -8,6 +8,7 @@ import art.arcane.adapt.api.golem.node.NodePlacementVerdict;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
 import art.arcane.adapt.api.golem.plinth.PlinthService;
+import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ExactIngredient;
@@ -52,6 +53,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
@@ -223,6 +226,28 @@ class GolemNodeWeavingExecutionTest extends AdaptTestBase {
 
     verify(click.event).setCancelled(true);
     verify(click.held, never()).setAmount(1);
+  }
+
+  @Test
+  void aFishingNodeOnATopFaceIsRefusedWithASideFaceMessageAndKeepsTheItem() {
+    NodeService service = mock(NodeService.class);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
+    Click click = click(true, EquipmentSlot.HAND, 2);
+    when(service.place(click.player, click.block, BlockFace.UP, NodeType.FISHING, click.adaptation)).thenReturn(NodePlacementVerdict.NEEDS_SIDE_FACE);
+    List<Runnable> scheduled = new ArrayList<>();
+
+    try (MockedStatic<J> scheduling = mockStatic(J.class);
+         MockedStatic<GolemItems> items = mockStatic(GolemItems.class, CALLS_REAL_METHODS);
+         MockedStatic<AdaptHud> hud = mockStatic(AdaptHud.class)) {
+      scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(invocation -> scheduled.add(invocation.getArgument(1)));
+      items.when(() -> GolemItems.nodeTypeOf(click.held)).thenReturn(Optional.of(NodeType.FISHING));
+      click.adaptation.on(click.event);
+      scheduled.forEach(Runnable::run);
+
+      hud.verify(() -> AdaptHud.actionBar(eq(click.player), argThat(text -> text.endsWith("A Fishing Node goes on the side of a block"))));
+    }
+    verify(click.event).setCancelled(true);
+    verify(click.held, never()).setAmount(anyInt());
   }
 
   @Test

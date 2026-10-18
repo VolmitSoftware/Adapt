@@ -19,6 +19,7 @@ final class AnglerRules {
   private static final String ON = "true";
   private static final double TICKS_PER_SECOND = 20D;
   private static final double MIN_RAIN_MULTIPLIER = 0.05D;
+  private static final int MAX_ENCHANT_LEVELS = 30;
 
   private AnglerRules() {
   }
@@ -68,6 +69,16 @@ final class AnglerRules {
     return fishers;
   }
 
+  static int openSeats(List<GolemTask> tasks, long nowMillis) {
+    int open = 0;
+    for (GolemTask task : tasks) {
+      if (FISH.equals(task.type()) && task.nodeType().orElse(null) == NodeType.FISHING && task.holder(nowMillis).isEmpty()) {
+        open++;
+      }
+    }
+    return open;
+  }
+
   static boolean discardJunk(GolemAnglerCore.Config config, int level, NodeRecord node) {
     return unlocked(level, config.junkFilterLevel) && ON.equals(node.data().get(JUNK_KEY));
   }
@@ -97,6 +108,10 @@ final class AnglerRules {
 
   static double nonNegative(double value) {
     return Double.isFinite(value) ? Math.max(0D, value) : 0D;
+  }
+
+  static int enchantLevels(int value) {
+    return Math.clamp(value, 1, MAX_ENCHANT_LEVELS);
   }
 
   static int atLeastOne(int value) {

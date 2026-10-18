@@ -295,6 +295,7 @@ public final class GolemancyMessages {
   public static final TextKey NODE_OCCUPIED = TextKey.of("golemancy.node_message.occupied", "This face already holds a node");
   public static final TextKey NODE_PROTECTED = TextKey.of("golemancy.node_message.protected", "You can't place nodes here");
   public static final TextKey NODE_NEEDS_CONTAINER = TextKey.of("golemancy.node_message.needs_container", "A {node} Node goes on a chest, barrel or shulker box");
+  public static final TextKey NODE_NEEDS_SIDE_FACE = TextKey.of("golemancy.node_message.needs_side_face", "A {node} Node goes on the side of a block");
   public static final TextKey NODE_CONTAINER_PROTECTED = TextKey.of("golemancy.node_message.container_protected", "That container is protected");
   public static final TextKey NODE_CHUNK_FULL = TextKey.of("golemancy.node_message.chunk_full", "This chunk already holds {count} nodes");
   public static final TextKey NODE_CAP = TextKey.of("golemancy.node_message.cap", "You already own your limit of {count} nodes");
@@ -649,6 +650,7 @@ public final class GolemancyMessages {
     builder.add(NODE_OCCUPIED);
     builder.add(NODE_PROTECTED);
     builder.add(NODE_NEEDS_CONTAINER);
+    builder.add(NODE_NEEDS_SIDE_FACE);
     builder.add(NODE_CONTAINER_PROTECTED);
     builder.add(NODE_CHUNK_FULL);
     builder.add(NODE_CAP);

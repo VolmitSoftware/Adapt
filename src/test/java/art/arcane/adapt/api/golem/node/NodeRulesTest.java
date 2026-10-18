@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem.node;
 
 import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
@@ -13,7 +14,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class NodeRulesTest {
-  private static final NodePlacementCheck READY = new NodePlacementCheck(true, true, true, true, false, false, false, 3, 16, 2, 4);
+  private static final NodePlacementCheck READY = new NodePlacementCheck(true, true, true, true, true, false, false, false, 3, 16, 2, 4);
 
   @Test
   void aCleanPlacementIsReady() {
@@ -22,39 +23,53 @@ class NodeRulesTest {
 
   @Test
   void placementChecksFailInPriorityOrder() {
-    assertThat(NodeRules.placement(new NodePlacementCheck(false, false, false, false, true, false, false, 99, 16, 99, 4)))
+    assertThat(NodeRules.placement(new NodePlacementCheck(false, false, false, false, true, true, false, false, 99, 16, 99, 4)))
         .isEqualTo(NodePlacementVerdict.UNAVAILABLE);
-    assertThat(NodeRules.placement(new NodePlacementCheck(true, false, false, false, true, false, false, 99, 16, 99, 4)))
+    assertThat(NodeRules.placement(new NodePlacementCheck(true, false, false, false, true, true, false, false, 99, 16, 99, 4)))
         .isEqualTo(NodePlacementVerdict.NOT_LOADED);
-    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, false, false, true, false, false, 99, 16, 99, 4)))
+    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, false, false, true, true, false, false, 99, 16, 99, 4)))
         .isEqualTo(NodePlacementVerdict.OCCUPIED);
-    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, false, true, false, false, 99, 16, 99, 4)))
+    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, false, true, true, false, false, 99, 16, 99, 4)))
         .isEqualTo(NodePlacementVerdict.PROTECTED);
-    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, false, false, 99, 16, 99, 4)))
+    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, false, true, false, false, 99, 16, 99, 4)))
+        .isEqualTo(NodePlacementVerdict.NEEDS_SIDE_FACE);
+    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, true, false, false, 99, 16, 99, 4)))
         .isEqualTo(NodePlacementVerdict.NEEDS_CONTAINER);
-    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, true, false, 99, 16, 99, 4)))
+    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, true, true, false, 99, 16, 99, 4)))
         .isEqualTo(NodePlacementVerdict.CONTAINER_PROTECTED);
-    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, true, true, 16, 16, 99, 4)))
+    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, true, true, true, 16, 16, 99, 4)))
         .isEqualTo(NodePlacementVerdict.CHUNK_FULL);
-    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, true, true, 15, 16, 4, 4)))
+    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, true, true, true, 15, 16, 4, 4)))
         .isEqualTo(NodePlacementVerdict.NODE_CAP);
-    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, true, true, 15, 16, 3, 4)))
+    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, true, true, true, 15, 16, 3, 4)))
         .isEqualTo(NodePlacementVerdict.READY);
   }
 
   @Test
   void containerChecksOnlyApplyToContainerNodes() {
-    NodePlacementCheck plainNodeOnStone = new NodePlacementCheck(true, true, true, true, false, false, false, 0, 16, 0, 4);
+    NodePlacementCheck plainNodeOnStone = new NodePlacementCheck(true, true, true, true, true, false, false, false, 0, 16, 0, 4);
 
     assertThat(NodeRules.placement(plainNodeOnStone)).isEqualTo(NodePlacementVerdict.READY);
   }
 
   @Test
   void aZeroCapRefusesEveryPlacement() {
-    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, false, false, false, 0, 16, 0, 0)))
+    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, false, false, false, 0, 16, 0, 0)))
         .isEqualTo(NodePlacementVerdict.NODE_CAP);
-    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, false, false, false, 0, 0, 0, 4)))
+    assertThat(NodeRules.placement(new NodePlacementCheck(true, true, true, true, true, false, false, false, 0, 0, 0, 4)))
         .isEqualTo(NodePlacementVerdict.CHUNK_FULL);
+  }
+
+  @Test
+  void fishingNodesGoOnlyOnTheSideOfABlock() {
+    for (NodeType type : NodeType.values()) {
+      for (BlockFace face : List.of(BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST)) {
+        assertThat(NodeRules.faceAllowed(type, face)).as("%s on %s", type, face).isTrue();
+      }
+      boolean vertical = type != NodeType.FISHING;
+      assertThat(NodeRules.faceAllowed(type, BlockFace.UP)).as("%s on UP", type).isEqualTo(vertical);
+      assertThat(NodeRules.faceAllowed(type, BlockFace.DOWN)).as("%s on DOWN", type).isEqualTo(vertical);
+    }
   }
 
   @Test

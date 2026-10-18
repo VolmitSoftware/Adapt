@@ -59,8 +59,10 @@ final class FishingNodeBehavior implements NodeBehavior {
     GolemAnglerCore.Config config = core.config();
     int seats = AnglerRules.seats(config.maxAnglersPerChunk);
     boolean[] taken = takenSeats(node, key, seats);
-    boolean room = AnglerRules.fishers(chunkTasks(key), null, now) < AnglerRules.atLeastOne(config.maxAnglersPerChunk);
-    if (keepOneWaiting(node, now, room) || !room || !budget.hasTaskRoom()) {
+    List<GolemTask> chunk = chunkTasks(key);
+    int cap = AnglerRules.atLeastOne(config.maxAnglersPerChunk);
+    int claimed = AnglerRules.fishers(chunk, null, now) + AnglerRules.openSeats(chunk, now);
+    if (keepOneWaiting(node, now, claimed <= cap) || claimed >= cap || !budget.hasTaskRoom()) {
       return;
     }
     for (int seat = 0; seat < seats; seat++) {
@@ -83,8 +85,7 @@ final class FishingNodeBehavior implements NodeBehavior {
     GolemAnglerCore.Config config = core.config();
     AnglerWater.Survey water = waters.get(key).orElse(null);
     int seat = AnglerRules.seatOf(task, key, AnglerRules.seats(config.maxAnglersPerChunk));
-    if (water == null || !water.open() || seat < 0
-        || AnglerRules.fishers(chunkTasks(key), golem.handle().id(), golem.nowMillis()) >= AnglerRules.atLeastOne(config.maxAnglersPerChunk)) {
+    if (water == null || !water.open() || seat < 0 || (golem.actIndex() == 0 && chunkFull(golem, key, config))) {
       return GolemActResult.FAILED;
     }
     World world = golem.world();
@@ -147,6 +148,10 @@ final class FishingNodeBehavior implements NodeBehavior {
       taken[seat] = true;
     }
     return taken;
+  }
+
+  private static boolean chunkFull(GolemContext golem, NodeKey key, GolemAnglerCore.Config config) {
+    return AnglerRules.fishers(chunkTasks(key), golem.handle().id(), golem.nowMillis()) >= AnglerRules.atLeastOne(config.maxAnglersPerChunk);
   }
 
   private boolean keepOneWaiting(NodeContext node, long nowMillis, boolean room) {

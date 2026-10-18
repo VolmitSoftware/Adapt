@@ -171,6 +171,10 @@ class GolemAnglerCoreExecutionTest extends AdaptTestBase {
     assertThat(config.rainIntervalMultiplier).isEqualTo(0.05D);
     assertThat(config.maxAnglersPerChunk).isEqualTo(1);
     assertThat(config.treasureEnchantLevels).isEqualTo(1);
+
+    assertThat(adaptation.reloadConfigSnapshot("treasureEnchantLevels = 99\n", dataFolder.toPath().resolve("enchant.toml").toFile(), false)).isTrue();
+
+    assertThat(adaptation.getConfig().treasureEnchantLevels).isEqualTo(30);
   }
 
   @Test

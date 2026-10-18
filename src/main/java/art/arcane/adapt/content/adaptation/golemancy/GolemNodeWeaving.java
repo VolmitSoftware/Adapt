@@ -217,6 +217,7 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
       case NOT_LOADED -> warn(player, GolemancyMessages.NODE_LOADING);
       case OCCUPIED -> warn(player, GolemancyMessages.NODE_OCCUPIED);
       case PROTECTED -> warn(player, GolemancyMessages.NODE_PROTECTED);
+      case NEEDS_SIDE_FACE -> warn(player, GolemancyMessages.NODE_NEEDS_SIDE_FACE, trusted("node", AdaptLanguage.text(type.displayName())));
       case NEEDS_CONTAINER -> warn(player, GolemancyMessages.NODE_NEEDS_CONTAINER, trusted("node", AdaptLanguage.text(type.displayName())));
       case CONTAINER_PROTECTED -> warn(player, GolemancyMessages.NODE_CONTAINER_PROTECTED);
       case CHUNK_FULL -> warn(player, GolemancyMessages.NODE_CHUNK_FULL, trusted("count", GolemancyRuntime.nodeSettings().maxNodesPerChunk()));

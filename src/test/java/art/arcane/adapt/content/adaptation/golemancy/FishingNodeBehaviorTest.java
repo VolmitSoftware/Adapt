@@ -164,6 +164,28 @@ class FishingNodeBehaviorTest {
 
     board.releaseReservation(second, SECOND);
     behavior.scan(node(), budget());
+    assertThat(board.tasks(KEY)).isEmpty();
+
+    board.withdraw(second);
+    behavior.scan(node(), budget());
+    assertThat(seats()).containsExactly("0,64,-1");
+  }
+
+  @Test
+  void openSeatsAtOtherFishingNodesInTheChunkCountTowardTheCap() {
+    pond();
+    records.put(NEIGHBOR, NodeRecord.builder(OWNER, NodeType.FISHING, BlockFace.SOUTH).build());
+    GolemTask seated = fish(NEIGHBOR, 0);
+    GolemTask open = fish(NEIGHBOR, 1);
+    board.offer(seated, 16);
+    board.offer(open, 16);
+    board.reserve(seated, FIRST, now, LEASE);
+
+    behavior.scan(node(), budget());
+    assertThat(board.tasks(KEY)).isEmpty();
+
+    board.withdraw(open);
+    behavior.scan(node(), budget());
     assertThat(seats()).containsExactly("0,64,-1");
   }
 
@@ -238,7 +260,7 @@ class FishingNodeBehaviorTest {
   }
 
   @Test
-  void anAnglerOverTheChunkCapGivesUpItsSeat() {
+  void onlyACastingAnglerOverTheChunkCapGivesUpWhileSeatedAnglersKeepFishing() {
     survey(true, false);
     records.put(NEIGHBOR, NodeRecord.builder(OWNER, NodeType.FISHING, BlockFace.SOUTH).build());
     GolemTask first = fish(NEIGHBOR, 0);
@@ -252,6 +274,8 @@ class FishingNodeBehaviorTest {
     board.reserve(second, SECOND, now, LEASE);
 
     assertThat(behavior.act(golem(0), fish(KEY, 0))).isEqualTo(GolemActResult.FAILED);
+    assertThat(behavior.act(golem(3), fish(KEY, 0))).isEqualTo(GolemActResult.WORKING);
+    assertThat(carriedTypes()).containsExactly(Material.COD);
   }
 
   @Test

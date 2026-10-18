@@ -29,8 +29,22 @@ class AnglerWaterTest {
   void theOpenWaterVolumeSitsInFrontOfTheNodeFace() {
     assertThat(AnglerWater.center(NORTH)).containsExactly(0, 64, -3);
     assertThat(AnglerWater.center(new NodeKey(WORLD, 0, 64, 0, BlockFace.EAST))).containsExactly(3, 64, 0);
-    assertThat(AnglerWater.center(new NodeKey(WORLD, 0, 60, 0, BlockFace.UP))).containsExactly(0, 62, 0);
-    assertThat(AnglerWater.center(new NodeKey(WORLD, 0, 66, 0, BlockFace.DOWN))).containsExactly(0, 63, 0);
+  }
+
+  @Test
+  void nodesOnTopOrBottomFacesNeverHaveOpenWater() {
+    cells.clear();
+    for (int y = 61; y <= 70; y++) {
+      for (int x = -6; x <= 6; x++) {
+        for (int z = -6; z <= 6; z++) {
+          cells.put(x + "," + y + "," + z, AnglerWater.Cell.WATER);
+        }
+      }
+    }
+
+    assertThat(AnglerWater.survey(view, new NodeKey(WORLD, 0, 64, 0, BlockFace.UP)).open()).isFalse();
+    assertThat(AnglerWater.survey(view, new NodeKey(WORLD, 0, 64, 0, BlockFace.DOWN)).open()).isFalse();
+    assertThat(AnglerWater.survey(view, new NodeKey(WORLD, 0, 64, 0, BlockFace.NORTH)).open()).isTrue();
   }
 
   @Test

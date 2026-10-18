@@ -21,6 +21,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.gui.NodePanels;
 import art.arcane.adapt.api.golem.item.GolemItems;
@@ -87,7 +88,7 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
     loadedConfig.rainIntervalMultiplier = AnglerRules.rainMultiplier(loadedConfig.rainIntervalMultiplier);
     loadedConfig.doubleCatchChance = AnglerRules.fraction(loadedConfig.doubleCatchChance);
     loadedConfig.maxAnglersPerChunk = AnglerRules.atLeastOne(loadedConfig.maxAnglersPerChunk);
-    loadedConfig.treasureEnchantLevels = AnglerRules.atLeastOne(loadedConfig.treasureEnchantLevels);
+    loadedConfig.treasureEnchantLevels = AnglerRules.enchantLevels(loadedConfig.treasureEnchantLevels);
     loadedConfig.workXpPerCatch = AnglerRules.nonNegative(loadedConfig.workXpPerCatch);
   }
 
@@ -117,7 +118,7 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
 
   @Override
   public void onTick() {
-    waters.sweep(M.ms());
+    waters.sweep(M.ms(), AnglerWaters.forgetMillis(GolemancyRuntime.nodeSettings().scanIntervalTicks()));
   }
 
   Config config() {
@@ -199,7 +200,7 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
     List<String> junk = new ArrayList<>(AnglerLoot.DEFAULT_JUNK);
     @ConfigDoc(value = "Treasure catches as MATERIAL:weight, or MATERIAL:weight:min:max for a stack size from min to max. ENCHANTED_BOOK and items with durability, such as bows and fishing rods, are enchanted with treasureEnchantLevels. Entries that are not an item or have no weight above 0 are ignored with a warning.", impact = "Add, remove or reweight entries to change which treasure Anglers catch.")
     List<String> treasure = new ArrayList<>(AnglerLoot.DEFAULT_TREASURE);
-    @ConfigDoc(value = "Enchantment levels treasure enchanted books, bows, fishing rods and other durable treasure are enchanted with, as at an enchanting table, including treasure enchantments. Values below 1 count as 1.", impact = "Higher values give treasure stronger enchantments.")
+    @ConfigDoc(value = "Enchantment levels treasure enchanted books, bows, fishing rods and other durable treasure are enchanted with, as at an enchanting table, including treasure enchantments. Values load between 1 and 30.", impact = "Higher values give treasure stronger enchantments.")
     int treasureEnchantLevels = 30;
     @ConfigDoc(value = "Golemancy work XP paid for each catch, including junk the junk filter throws back. Values below 0 count as 0.", impact = "Higher values pay more XP for fishing.")
     double workXpPerCatch = 6;

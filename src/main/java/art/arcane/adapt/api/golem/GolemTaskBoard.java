@@ -103,7 +103,7 @@ public final class GolemTaskBoard {
         found.addAll(open.tasks.values());
       }
     }
-    return found;
+    return List.copyOf(found);
   }
 
   public boolean withdraw(GolemTask task) {
