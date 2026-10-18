@@ -45,6 +45,7 @@ public final class GolemState {
   private boolean previouslyBound;
   private boolean snowTrail;
   private double maxHealthMark;
+  private long sighting;
   private transient int carriedRevision;
 
   private GolemState() {
@@ -61,7 +62,7 @@ public final class GolemState {
     return state;
   }
 
-  static GolemState restored(GolemSnapshot snapshot, Anchor fallbackHome) {
+  static GolemState restored(GolemSnapshot snapshot, Anchor fallbackHome, long sighting) {
     GolemState state = new GolemState();
     state.id = snapshot.id();
     state.owner = snapshot.owner();
@@ -82,6 +83,7 @@ public final class GolemState {
     state.masterwork = snapshot.masterwork();
     state.snowTrail = snapshot.snowTrail();
     state.setMaxHealthMark(snapshot.maxHealthMark());
+    state.setSighting(sighting);
     state.previouslyBound = true;
     return state;
   }
@@ -244,6 +246,10 @@ public final class GolemState {
     return maxHealthMark;
   }
 
+  public long sighting() {
+    return sighting;
+  }
+
   void setCores(List<GolemCoreType> next) {
     if (next.isEmpty() || next.size() > MAX_CORES) {
       throw new IllegalArgumentException("A golem holds 1 to " + MAX_CORES + " cores, found " + next.size());
@@ -320,6 +326,10 @@ public final class GolemState {
     maxHealthMark = Double.isFinite(value) ? Math.max(0D, value) : 0D;
   }
 
+  void setSighting(long value) {
+    sighting = Math.max(0L, value);
+  }
+
   private static GolemState parse(String json) {
     GolemState state = Json.fromJson(json, GolemState.class);
     if (state == null || state.id == null || state.owner == null || GolemBody.fromId(state.body).isEmpty()) {
@@ -345,6 +355,7 @@ public final class GolemState {
     runes.removeIf(rune -> rune == null || rune.resolve() == null);
     channels = ChannelMask.normalize(channels);
     setHostileDamagePool(hostileDamagePool);
+    setSighting(sighting);
     return this;
   }
 

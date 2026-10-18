@@ -6,8 +6,10 @@ import art.arcane.adapt.api.golem.item.DormantGolem;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.item.PackedGolem;
 import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.util.common.io.Json;
 import art.arcane.volmlib.util.entity.StackExclusion;
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
+import com.destroystokyo.paper.event.entity.EntityRemoveFromWorldEvent;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Chunk;
@@ -873,6 +875,148 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
+  void acceptingALoadedGolemAdvancesItsSightingOnTheBodyAndInTheRosterBeforeSaving() {
+    GolemRoster roster = onlineOwner();
+    UUID id = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.advanceSighting(id, 2L);
+    IronGolem golem = withSighting(persistedGolem(id, false, at(0, 64, 0)), 3L);
+    List<Long> savedBodySightings = new ArrayList<>();
+    platform.rosterListener = changed -> savedBodySightings.add(GolemState.read(golem).orElseThrow().sighting());
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+
+    assertThat(registry.handle(golem).orElseThrow().isValidated()).isTrue();
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(4L);
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(4L);
+    assertThat(savedBodySightings).isNotEmpty().allSatisfy(sighting -> assertThat(sighting).isEqualTo(4L));
+  }
+
+  @Test
+  void aCrashTwinThatLoadsAfterItsCopyWasAcceptedRevertsWithoutDropsWhileTheAcceptedCopyStaysBound() {
+    GolemRoster roster = onlineOwner();
+    UUID id = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    IronGolem first = persistedGolem(id, false, at(0, 64, 0));
+    IronGolem twin = persistedGolem(id, false, at(40, 64, 40));
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(first)));
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(first)));
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(twin)));
+
+    assertThat(GolemState.has(twin)).isFalse();
+    assertThat(registry.handle(twin)).isEmpty();
+    verify(twin).setAware(true);
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+    assertThat(roster.golem(id).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(1L);
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(first)));
+
+    assertThat(registry.handle(first).orElseThrow().isValidated()).isTrue();
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(2L);
+  }
+
+  @Test
+  void aGolemWhoseChunkMissedItsSaveBeforeACrashLoadsStaleRevertsWithoutDropsAndGoesMissing() {
+    GolemRoster roster = onlineOwner();
+    UUID id = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    IronGolem golem = persistedGolem(id, false, at(0, 64, 0));
+    String chunkOnDisk = GolemState.read(golem).orElseThrow().toJson();
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+    GolemRoster savedRoster = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+
+    registry = new GolemRegistry(platform, settings::get, lifecycle);
+    platform.join(OWNER, savedRoster);
+    registry.on(new PlayerJoinEvent(owner, (Component) null));
+    IronGolem reloaded = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemState.fromJson(chunkOnDisk).orElseThrow().write(reloaded);
+    registry.on(new ChunkLoadEvent(chunkAt(0, 0), false));
+    platform.loadedChunks.add(WORLD + ":" + GolemRoster.chunkKey(0, 0));
+    registry.on(new EntitiesLoadEvent(chunkAt(0, 0), List.of(reloaded)));
+
+    assertThat(GolemState.has(reloaded)).isFalse();
+    assertThat(registry.handle(reloaded)).isEmpty();
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+    GolemRoster.GolemEntry entry = savedRoster.golem(id).orElseThrow();
+    assertThat(entry.status()).isEqualTo(GolemRoster.Status.ACTIVE);
+    assertThat(entry.sighting()).isEqualTo(1L);
+
+    platform.now += GolemMissingWatch.GRACE_MILLIS;
+    registry.onTick();
+
+    assertThat(savedRoster.golem(id).orElseThrow().status()).isEqualTo(GolemRoster.Status.MISSING);
+  }
+
+  @Test
+  void aGolemReloadedFromItsSavedChunkStaysBoundAndAdvancesAgain() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(1L);
+
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)));
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(1L);
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+
+    assertThat(registry.handle(golem).orElseThrow().isValidated()).isTrue();
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(2L);
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(2L);
+  }
+
+  @Test
+  void aGolemWhoseBodyIsRecreatedByACrossWorldTeleportStaysBound() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    IronGolem moved = golem(new AtomicReference<>(at(300, 70, 300)));
+    GolemState.read(golem).orElseThrow().write(moved);
+    GolemRegistry.PaperEntityListener listener = companion(GolemRegistry.PaperEntityListener.class);
+
+    listener.on(new EntityRemoveFromWorldEvent(golem, world));
+    listener.on(new EntityAddToWorldEvent(moved, world));
+    platform.runDelayed();
+
+    assertThat(registry.handle(golem)).isEmpty();
+    assertThat(registry.handle(moved).orElseThrow().isValidated()).isTrue();
+    assertThat(GolemState.has(moved)).isTrue();
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(2L);
+    assertThat(GolemState.read(moved).orElseThrow().sighting()).isEqualTo(2L);
+  }
+
+  @Test
+  void aCopyAheadOfItsRosterIsKeptAndMovesTheRosterPastIt() {
+    GolemRoster roster = onlineOwner();
+    UUID id = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    IronGolem golem = withSighting(persistedGolem(id, false, at(0, 64, 0)), 5L);
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+
+    assertThat(registry.handle(golem).orElseThrow().isValidated()).isTrue();
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(6L);
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(6L);
+  }
+
+  @Test
+  void aGolemWaitingForItsOwnerKeepsItsSightingUntilTheOwnerJoins() {
+    UUID id = UUID.randomUUID();
+    IronGolem golem = persistedGolem(id, false, at(0, 64, 0));
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isZero();
+
+    GolemRoster roster = new GolemRoster();
+    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    platform.join(OWNER, roster);
+    registry.on(new PlayerJoinEvent(owner, (Component) null));
+
+    assertThat(registry.handle(golem).orElseThrow().isValidated()).isTrue();
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(1L);
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(1L);
+  }
+
+  @Test
   void shutdownFlushesEveryLoadedGolem() {
     onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
@@ -1528,7 +1672,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     GolemSnapshot snapshot = snapshot(UUID.randomUUID(), GolemBody.IRON, GolemCoreType.GUARDIAN, null);
     PackedGolem item = shattered(roster, snapshot, 0L);
-    GolemSnapshot older = GolemSnapshot.capture(GolemState.restored(snapshot, GolemState.Anchor.of(WORLD, 0, 64, 0)),
+    GolemSnapshot older = GolemSnapshot.capture(GolemState.restored(snapshot, GolemState.Anchor.of(WORLD, 0, 64, 0), 0L),
         new GolemSnapshot.Traits(null, 3D, 0, false, true), platform.now - 1L);
     PackedGolem staleCopy = new PackedGolem(snapshot.id(), OWNER, older.toJson());
     IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
@@ -1689,7 +1833,8 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster.GolemEntry entry = roster.golem(handle.id()).orElseThrow();
     assertThat(entry.status()).isEqualTo(GolemRoster.Status.ACTIVE);
     assertThat(entry.digest()).isNull();
-    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore);
+    assertThat(entry.sighting()).isEqualTo(2L).isEqualTo(GolemState.read(golem).orElseThrow().sighting());
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore + 1);
   }
 
   @Test
@@ -1855,6 +2000,52 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(registry.handle(body)).contains(awakened);
     verify(body).setPersistent(true);
     assertThat(platform.scale(body)).singleElement().satisfies(modifier -> assertThat(modifier.getKey()).isEqualTo(GolemScale.MODIFIER_KEY));
+  }
+
+  @Test
+  void anAwakenedGolemStartsFromItsEntrysSightingAndOutdatesItsPrePackCopies() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
+    String prePackChunk = GolemState.read(golem).orElseThrow().toJson();
+    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    Location spot = at(30, 70, 30);
+    IronGolem body = golem(new AtomicReference<>(spot));
+    platform.spawns.add(body);
+
+    GolemHandle awakened = registry.awaken(owner, spot, new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), mob -> {
+    }).orElseThrow();
+
+    assertThat(awakened.isValidated()).isTrue();
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(2L);
+    assertThat(GolemState.read(body).orElseThrow().sighting()).isEqualTo(2L);
+
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(body)));
+    IronGolem prePackCopy = golem(new AtomicReference<>(at(3, 64, 3)));
+    GolemState.fromJson(prePackChunk).orElseThrow().write(prePackCopy);
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(prePackCopy)));
+
+    assertThat(GolemState.has(prePackCopy)).isFalse();
+    assertThat(roster.golem(handle.id()).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+  }
+
+  @Test
+  void aRebuiltGolemStartsFromItsEntrysSightingSoItIsNotMistakenForAStaleCopy() {
+    GolemRoster roster = onlineOwner();
+    UUID id = UUID.randomUUID();
+    GolemSnapshot snapshot = snapshot(id, GolemBody.IRON, GolemCoreType.GUARDIAN, null);
+    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    roster.advanceSighting(id, 4L);
+    PackedGolem item = new PackedGolem(id, OWNER, snapshot.toJson());
+    roster.stow(id, GolemRoster.Status.SHATTERED, item.state());
+    IronGolem fresh = golem(new AtomicReference<>(at(3, 64, -20)));
+
+    GolemHandle restored = registry.restore(owner, fresh, new GolemRegistry.Restore(item, GolemRoster.Status.SHATTERED)).orElseThrow();
+
+    assertThat(restored.isValidated()).isTrue();
+    assertThat(GolemState.has(fresh)).isTrue();
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(6L);
+    assertThat(GolemState.read(fresh).orElseThrow().sighting()).isEqualTo(6L);
   }
 
   @Test
@@ -2448,6 +2639,13 @@ class GolemRegistryTest extends AdaptTestBase {
     IronGolem golem = golem(new AtomicReference<>(location));
     GolemState state = GolemState.create(new GolemState.Seed(id, OWNER, GolemBody.IRON, GolemCoreType.BLANK, GolemState.Anchor.at(location)));
     state.setDormant(dormant);
+    state.write(golem);
+    return golem;
+  }
+
+  private static IronGolem withSighting(IronGolem golem, long sighting) {
+    GolemState state = GolemState.read(golem).orElseThrow();
+    state.setSighting(sighting);
     state.write(golem);
     return golem;
   }

@@ -234,7 +234,7 @@ public final class GolemRegistry extends TickedObject {
     }
     try {
       platform.rosterChanged(ownerId);
-      GolemState state = GolemState.restored(snapshot, GolemState.Anchor.at(golem.getLocation()));
+      GolemState state = GolemState.restored(snapshot, GolemState.Anchor.at(golem.getLocation()), sightingOf(ownerId, snapshot.id()));
       writeBound(golem, state, restoredName(owner, snapshot));
       return Optional.of(adoptBound(golem, state));
     } catch (Throwable failure) {
@@ -263,7 +263,7 @@ public final class GolemRegistry extends TickedObject {
     AtomicReference<Mob> spawned = new AtomicReference<>();
     try {
       platform.rosterChanged(ownerId);
-      GolemState state = GolemState.restored(snapshot, GolemState.Anchor.at(at));
+      GolemState state = GolemState.restored(snapshot, GolemState.Anchor.at(at), sightingOf(ownerId, snapshot.id()));
       Component name = restoredName(owner, snapshot);
       Mob golem = platform.spawn(at, snapshot.body().entityClass(), body -> {
         spawned.set(body);
@@ -719,19 +719,20 @@ public final class GolemRegistry extends TickedObject {
     }
     UUID owner = handle.owner();
     Optional<GolemRoster> roster = ownerOnline ? platform.roster(owner) : Optional.empty();
-    GolemRoster.Status status = roster.flatMap(known -> known.golem(handle.id())).map(GolemRoster.GolemEntry::status).orElse(null);
-    GolemValidation.Verdict verdict = GolemValidation.verdict(isDuplicate(handle), roster.isPresent(), status);
-    switch (verdict) {
+    Optional<GolemRoster.GolemEntry> entry = roster.flatMap(known -> known.golem(handle.id()));
+    GolemRoster.Status status = entry.map(GolemRoster.GolemEntry::status).orElse(null);
+    boolean stale = entry.isPresent() && entry.get().outdates(handle.state().sighting());
+    switch (GolemValidation.verdict(isDuplicate(handle), roster.isPresent(), status, stale)) {
       case REVERT -> {
         revert(handle);
+        if (stale) {
+          expectMissing(owner, entry.get(), platform.nowMillis());
+        }
         return;
       }
       case KEEP, RESTORE -> {
         handle.setValidated(true);
         recordSighting(handle, roster.get());
-        if (verdict == GolemValidation.Verdict.RESTORE) {
-          platform.rosterChanged(owner);
-        }
       }
       case WAIT -> {
         handle.setValidated(false);
@@ -1072,18 +1073,25 @@ public final class GolemRegistry extends TickedObject {
     long now = platform.nowMillis();
     Set<GolemHandle.ChunkPosition> swept = new HashSet<>();
     for (GolemRoster.GolemEntry entry : roster.golems()) {
-      if (entry.status() != GolemRoster.Status.ACTIVE || entry.world() == null || entityByGolem.containsKey(entry.id())) {
+      if (entityByGolem.containsKey(entry.id()) || !expectMissing(owner, entry, now)) {
         continue;
       }
-      missingWatch.expect(new GolemMissingWatch.Expected(owner, entry.id(), entry.world(), entry.chunkKey()));
-      if (!platform.isChunkLoaded(entry.world(), entry.chunkKey())) {
-        continue;
-      }
-      missingWatch.chunkLoaded(entry.world(), entry.chunkKey(), now);
       if (swept.add(new GolemHandle.ChunkPosition(entry.world(), entry.chunkKey()))) {
         platform.sweepChunk(entry.world(), entry.chunkKey(), this::adopt);
       }
     }
+  }
+
+  private boolean expectMissing(UUID owner, GolemRoster.GolemEntry entry, long now) {
+    if (entry.status() != GolemRoster.Status.ACTIVE || entry.world() == null) {
+      return false;
+    }
+    missingWatch.expect(new GolemMissingWatch.Expected(owner, entry.id(), entry.world(), entry.chunkKey()));
+    if (!platform.isChunkLoaded(entry.world(), entry.chunkKey())) {
+      return false;
+    }
+    missingWatch.chunkLoaded(entry.world(), entry.chunkKey(), now);
+    return true;
   }
 
   private void retryPendingOwners() {
@@ -1151,9 +1159,14 @@ public final class GolemRegistry extends TickedObject {
     if (position != null) {
       roster.seen(handle.id(), position.world(), position.chunkKey(), platform.nowMillis());
     }
-    if (roster.markMasterwork(handle.id(), handle.state().masterwork())) {
-      platform.rosterChanged(handle.owner());
-    }
+    roster.markMasterwork(handle.id(), handle.state().masterwork());
+    roster.advanceSighting(handle.id(), handle.state().sighting()).ifPresent(handle::setSighting);
+    platform.rosterChanged(handle.owner());
+  }
+
+  private long sightingOf(UUID owner, UUID golem) {
+    return platform.roster(owner).flatMap(roster -> roster.golem(golem)).map(GolemRoster.GolemEntry::sighting)
+        .orElseThrow(() -> new IllegalStateException("Golem " + golem + " has no roster entry for " + owner + " after its claim"));
   }
 
   private Optional<GolemRoster> activeRoster(GolemHandle handle) {

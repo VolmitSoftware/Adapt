@@ -4,14 +4,14 @@ public final class GolemValidation {
   private GolemValidation() {
   }
 
-  public static Verdict verdict(boolean duplicate, boolean ownerDataKnown, GolemRoster.Status status) {
+  public static Verdict verdict(boolean duplicate, boolean ownerDataKnown, GolemRoster.Status status, boolean stale) {
     if (duplicate) {
       return Verdict.REVERT;
     }
     if (!ownerDataKnown) {
       return Verdict.WAIT;
     }
-    if (status == null) {
+    if (status == null || stale) {
       return Verdict.REVERT;
     }
     return switch (status) {

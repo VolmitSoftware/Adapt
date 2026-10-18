@@ -10,8 +10,10 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 public final class GolemRoster {
   private static final String DIGEST_ALGORITHM = "SHA-256";
@@ -156,6 +158,24 @@ public final class GolemRoster {
     return changed.get();
   }
 
+  public OptionalLong advanceSighting(UUID id, long token) {
+    if (id == null) {
+      return OptionalLong.empty();
+    }
+    AtomicReference<Long> advanced = new AtomicReference<>();
+    golemMap().computeIfPresent(id.toString(), (key, entry) -> {
+      Status status = entry.status();
+      if (status != Status.ACTIVE && status != Status.MISSING) {
+        return entry;
+      }
+      long next = Math.max(entry.sighting, token) + 1L;
+      advanced.set(next);
+      return entry.withSighting(next);
+    });
+    Long next = advanced.get();
+    return next == null ? OptionalLong.empty() : OptionalLong.of(next);
+  }
+
   public boolean remove(UUID id) {
     return id != null && golemMap().remove(id.toString()) != null;
   }
@@ -248,6 +268,7 @@ public final class GolemRoster {
     private long lastSeen;
     private String digest;
     private boolean masterwork;
+    private long sighting;
 
     private GolemEntry() {
     }
@@ -305,6 +326,14 @@ public final class GolemRoster {
       return masterwork;
     }
 
+    public long sighting() {
+      return sighting;
+    }
+
+    public boolean outdates(long token) {
+      return token < sighting;
+    }
+
     public boolean holds(String itemState) {
       return digest != null && itemState != null && digest.equals(GolemRoster.digest(itemState));
     }
@@ -325,6 +354,12 @@ public final class GolemRoster {
     private GolemEntry withMasterwork(boolean next) {
       GolemEntry copy = copy();
       copy.masterwork = next;
+      return copy;
+    }
+
+    private GolemEntry withSighting(long next) {
+      GolemEntry copy = copy();
+      copy.sighting = next;
       return copy;
     }
 
@@ -349,6 +384,7 @@ public final class GolemRoster {
       copy.lastSeen = lastSeen;
       copy.digest = digest;
       copy.masterwork = masterwork;
+      copy.sighting = sighting;
       return copy;
     }
   }

@@ -227,6 +227,11 @@ public final class GolemHandle {
     flush();
   }
 
+  void setSighting(long sighting) {
+    state.setSighting(sighting);
+    flush();
+  }
+
   GolemStatPlan appliedStats() {
     return appliedStats;
   }

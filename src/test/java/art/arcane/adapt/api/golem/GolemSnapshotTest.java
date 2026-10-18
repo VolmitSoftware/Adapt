@@ -130,7 +130,7 @@ class GolemSnapshotTest {
     GolemSnapshot snapshot = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 9D, 1, false, true), TAKEN_AT);
     GolemState.Anchor here = GolemState.Anchor.of(WORLD, 90, 64, 90);
 
-    GolemState restored = GolemState.restored(snapshot, here);
+    GolemState restored = GolemState.restored(snapshot, here, 0L);
 
     assertThat(restored.id()).isEqualTo(GOLEM);
     assertThat(restored.owner()).isEqualTo(OWNER);
@@ -163,7 +163,7 @@ class GolemSnapshotTest {
     GolemSnapshot homeless = copy(captured, null, null, captured.essence());
     GolemState.Anchor here = GolemState.Anchor.of(WORLD, 90, 64, 90);
 
-    assertThat(GolemState.restored(homeless, here).home()).isEqualTo(here);
+    assertThat(GolemState.restored(homeless, here, 0L).home()).isEqualTo(here);
   }
 
   @Test

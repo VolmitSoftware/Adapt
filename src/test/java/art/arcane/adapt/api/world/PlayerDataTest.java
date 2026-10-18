@@ -93,6 +93,7 @@ class PlayerDataTest extends AdaptTestBase {
         UUID golem = UUID.randomUUID();
         UUID world = UUID.randomUUID();
         data.getGolemancy().add(new GolemRoster.Binding(golem, GolemBody.FROST, GolemCoreType.HARVESTER, world, GolemRoster.chunkKey(2, -3), 99L));
+        data.getGolemancy().advanceSighting(golem, 11L);
         data.getGolemancy().transition(golem, GolemRoster.Status.ACTIVE, GolemRoster.Status.PACKED);
 
         PlayerData back = PlayerData.fromJson(data.toJson(false));
@@ -103,6 +104,7 @@ class PlayerDataTest extends AdaptTestBase {
         assertThat(entry.status()).isEqualTo(GolemRoster.Status.PACKED);
         assertThat(entry.world()).isEqualTo(world);
         assertThat(entry.chunkKey()).isEqualTo(GolemRoster.chunkKey(2, -3));
+        assertThat(entry.sighting()).isEqualTo(12L);
     }
 
     @Test

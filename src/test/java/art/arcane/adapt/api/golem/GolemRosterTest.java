@@ -336,6 +336,86 @@ class GolemRosterTest {
   }
 
   @Test
+  void aNewEntryStartsWithoutASighting() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+
+    assertThat(roster.golem(GOLEM).orElseThrow().sighting()).isZero();
+  }
+
+  @Test
+  void eachAcceptedSightingAdvancesPastBothTheEntryAndTheLoadedCopy() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+
+    assertThat(roster.advanceSighting(GOLEM, 0L)).hasValue(1L);
+    assertThat(roster.advanceSighting(GOLEM, 1L)).hasValue(2L);
+    assertThat(roster.advanceSighting(GOLEM, 7L)).hasValue(8L);
+    assertThat(roster.advanceSighting(GOLEM, 3L)).hasValue(9L);
+    assertThat(roster.golem(GOLEM).orElseThrow().sighting()).isEqualTo(9L);
+  }
+
+  @Test
+  void onlyACopyOlderThanTheLastSightingIsOutdated() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.advanceSighting(GOLEM, 4L);
+    GolemRoster.GolemEntry entry = roster.golem(GOLEM).orElseThrow();
+
+    assertThat(entry.outdates(4L)).isTrue();
+    assertThat(entry.outdates(5L)).isFalse();
+    assertThat(entry.outdates(6L)).isFalse();
+  }
+
+  @Test
+  void missingEntriesAdvanceButPackedShatteredAndUnknownOnesDoNot() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.transition(GOLEM, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+    roster.add(binding(OTHER, 0L, 0L));
+    roster.stow(OTHER, GolemRoster.Status.PACKED, "{\"packed\":true}");
+    UUID shattered = UUID.randomUUID();
+    roster.add(binding(shattered, 0L, 0L));
+    roster.stow(shattered, GolemRoster.Status.SHATTERED, "{\"shattered\":true}");
+
+    assertThat(roster.advanceSighting(GOLEM, 0L)).hasValue(1L);
+    assertThat(roster.advanceSighting(OTHER, 0L)).isEmpty();
+    assertThat(roster.advanceSighting(shattered, 0L)).isEmpty();
+    assertThat(roster.advanceSighting(UUID.randomUUID(), 0L)).isEmpty();
+    assertThat(roster.advanceSighting(null, 0L)).isEmpty();
+    assertThat(roster.golem(OTHER).orElseThrow().sighting()).isZero();
+    assertThat(roster.golem(OTHER).orElseThrow().holds("{\"packed\":true}")).isTrue();
+  }
+
+  @Test
+  void statusSealAndMasterworkChangesKeepTheSighting() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.advanceSighting(GOLEM, 5L);
+
+    roster.markMasterwork(GOLEM, true);
+    roster.seen(GOLEM, NETHER, 3L, 40L);
+    roster.stow(GOLEM, GolemRoster.Status.PACKED, "{\"packed\":true}");
+    assertThat(roster.golem(GOLEM).orElseThrow().sighting()).isEqualTo(6L);
+    roster.unstow(GOLEM, GolemRoster.Status.PACKED, "{\"packed\":true}");
+    roster.transition(GOLEM, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+
+    assertThat(roster.golem(GOLEM).orElseThrow().sighting()).isEqualTo(6L);
+  }
+
+  @Test
+  void theSightingSurvivesGson() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.advanceSighting(GOLEM, 41L);
+
+    GolemRoster back = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+
+    assertThat(back.golem(GOLEM).orElseThrow().sighting()).isEqualTo(42L);
+    assertThat(back.advanceSighting(GOLEM, 42L)).hasValue(43L);
+  }
+
+  @Test
   void theMasterworkMarkSurvivesGson() {
     GolemRoster roster = new GolemRoster();
     roster.add(binding(GOLEM, 0L, 0L));
