@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem.reveal;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.fx.ViewerDisplayDirector;
 import art.arcane.adapt.api.fx.display.HiddenDisplays;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
@@ -15,6 +16,7 @@ import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeBundle;
 import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
+import art.arcane.adapt.api.golem.node.NodeOutline;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeRenderer;
 import art.arcane.adapt.api.golem.node.NodeService;
@@ -26,8 +28,11 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.IronGolem;
@@ -36,7 +41,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Transformation;
+import org.bukkit.util.Vector;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.AfterEach;
@@ -54,8 +61,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -252,6 +262,33 @@ class RevealServiceTest extends AdaptTestBase {
 
     for (Entity entity : replacement.entities()) {
       displays.verify(() -> HiddenDisplays.show(viewer, entity));
+    }
+  }
+
+  @Test
+  void anArmedViewerLookingAtTheirNodeSeesItsOutlineUntilTheyPutTheRevealItemAway() {
+    NodeKey key = new NodeKey(WORLD, 4, 64, 0, BlockFace.UP);
+    nodeBundle(key, OWNER);
+    runtime.when(GolemancyRuntime::nodeSettings).thenReturn(NodeSettings.defaults());
+    lenient().when(viewer.getWorld()).thenReturn(world);
+    Block anchor = mock(Block.class);
+    lenient().when(anchor.getWorld()).thenReturn(world);
+    lenient().when(anchor.getX()).thenReturn(4);
+    lenient().when(anchor.getY()).thenReturn(64);
+    lenient().when(anchor.getZ()).thenReturn(0);
+    when(viewer.rayTraceBlocks(NodeOutline.LOOK_DISTANCE)).thenReturn(new RayTraceResult(new Vector(4.5D, 65D, 0.5D), anchor, BlockFace.UP));
+    RevealService service = new RevealService(RevealSettings::defaults);
+
+    try (MockedStatic<ViewerDisplayDirector> director = mockStatic(ViewerDisplayDirector.class);
+         MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      bukkit.when(() -> Bukkit.createBlockData(any(Material.class))).thenReturn(mock(BlockData.class));
+      service.update(viewer);
+      director.verify(() -> ViewerDisplayDirector.showLine(eq(NodeOutline.CHANNEL), anyString(), eq(viewer), any(Location.class), any(Location.class),
+          any(BlockData.class), any(Color.class), anyDouble(), eq(RevealSettings.defaults().pollTicks() + 10)), times(12));
+
+      items.when(() -> GolemItems.kindOf(any(ItemStack.class))).thenReturn(Optional.empty());
+      service.update(viewer);
+      director.verify(() -> ViewerDisplayDirector.clearViewer(NodeOutline.CHANNEL, OWNER));
     }
   }
 

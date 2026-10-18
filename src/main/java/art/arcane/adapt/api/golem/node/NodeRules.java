@@ -64,6 +64,14 @@ public final class NodeRules {
     return name.endsWith(SHULKER_BOX) || name.endsWith(COPPER_CHEST);
   }
 
+  public static boolean active(RedstoneMode mode, boolean powered) {
+    return switch (mode) {
+      case IGNORE -> true;
+      case POWERED -> powered;
+      case UNPOWERED -> !powered;
+    };
+  }
+
   public static boolean allowsPriority(int nodeWeavingLevel) {
     return nodeWeavingLevel >= PRIORITY_LEVEL;
   }

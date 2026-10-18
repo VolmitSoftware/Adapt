@@ -12,6 +12,7 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBundle;
 import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
+import art.arcane.adapt.api.golem.node.NodeOutline;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.NodeVisibility;
 import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
@@ -78,10 +79,12 @@ public final class RevealService extends TickedObject {
   private static final int LINE_MAX_POINTS = 64;
   private static final float LABEL_LIFT = 0.2F;
   private static final int LABEL_BACKGROUND_ALPHA = 64;
+  private static final int OUTLINE_GRACE_TICKS = 10;
 
   private final Supplier<RevealSettings> settings;
   private final RevealTracker<UUID> golems = new RevealTracker<>();
   private final RevealTracker<NodeKey> nodes = new RevealTracker<>();
+  private final NodeOutline outline = new NodeOutline();
   private final Set<UUID> armed = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingUpdates = ConcurrentHashMap.newKeySet();
   private final Set<UUID> spawning = ConcurrentHashMap.newKeySet();
@@ -127,6 +130,7 @@ public final class RevealService extends TickedObject {
       armed.remove(viewerId);
       apply(viewer, golems.update(viewerId, Set.of()), Map.of());
       applyNodes(viewer, nodes.update(viewerId, Set.of()));
+      outline.forget(viewerId);
       return;
     }
     armed.add(viewerId);
@@ -135,6 +139,7 @@ public final class RevealService extends TickedObject {
     apply(viewer, delta, inRange);
     syncStayingLabels(viewer, inRange, delta);
     applyNodes(viewer, nodes.update(viewerId, nodesInRange(viewer)));
+    outlineLookedAtNode(viewer);
   }
 
   public void reset(Player viewer) {
@@ -146,6 +151,7 @@ public final class RevealService extends TickedObject {
     for (NodeKey node : nodes.reset(viewerId)) {
       hideNode(viewer, node);
     }
+    outline.forget(viewerId);
   }
 
   public void refresh(GolemHandle handle) {
@@ -221,6 +227,7 @@ public final class RevealService extends TickedObject {
 
   public void shutdown() {
     unregister();
+    outline.shutdown();
     for (Label label : labels.values()) {
       removeDisplay(label.display());
     }
@@ -399,6 +406,15 @@ public final class RevealService extends TickedObject {
       visible.add(key);
     }
     return visible;
+  }
+
+  private void outlineLookedAtNode(Player viewer) {
+    Optional<NodeService> service = GolemancyRuntime.nodes();
+    if (service.isEmpty()) {
+      outline.forget(viewer.getUniqueId());
+      return;
+    }
+    outline.update(viewer, service.get().index(), settings.get().pollTicks() + OUTLINE_GRACE_TICKS);
   }
 
   private static int nodeWeavingLevel(Player viewer) {
@@ -586,6 +602,7 @@ public final class RevealService extends TickedObject {
       }
     }
     nodes.reset(viewerId);
+    outline.forget(viewerId);
     locates.keySet().removeIf(key -> key.viewer().equals(viewerId));
   }
 

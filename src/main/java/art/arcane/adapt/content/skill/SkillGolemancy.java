@@ -31,6 +31,9 @@ import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.HostileDamagePool;
 import art.arcane.adapt.api.golem.gui.CrookInteractions;
+import art.arcane.adapt.api.golem.gui.NodeGuiCursor;
+import art.arcane.adapt.api.golem.gui.NodeInteractions;
+import art.arcane.adapt.api.golem.gui.NodeTagPrompt;
 import art.arcane.adapt.api.golem.node.NodeMatter;
 import art.arcane.adapt.api.golem.node.NodeSettings;
 import art.arcane.adapt.api.golem.node.NodeVisibility;
@@ -103,6 +106,7 @@ import java.util.function.Consumer;
 
 public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private static final long CARE_CHECK_STALE_MILLIS = 5_000L;
+  private static final String PRE_ATTACK_EVENT = "io.papermc.paper.event.player.PrePlayerAttackEntityEvent";
 
   private final GolemBuildAttribution buildAttribution = new GolemBuildAttribution();
   private final GolemXpCooldowns<BuildCooldownKey> buildCooldowns = new GolemXpCooldowns<>();
@@ -315,10 +319,14 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
 
   @Override
   protected List<Listener> createCompanionListeners() {
-    if (!PaperCompat.hasClass("io.papermc.paper.world.WeatheringCopperState")) {
-      return List.of(new CrookInteractions());
+    NodeTagPrompt prompt = new NodeTagPrompt();
+    NodeInteractions nodes = new NodeInteractions(prompt);
+    List<Listener> listeners = new ArrayList<>(List.of(new CrookInteractions(), nodes, prompt, new NodeGuiCursor()));
+    listeners.add(PaperCompat.hasClass(PRE_ATTACK_EVENT) ? new NodeInteractions.PaperAttacks(nodes) : new NodeInteractions.SpigotAttacks(nodes));
+    if (PaperCompat.hasClass("io.papermc.paper.world.WeatheringCopperState")) {
+      listeners.add(new CopperCareListener());
     }
-    return List.of(new CrookInteractions(), new CopperCareListener());
+    return List.copyOf(listeners);
   }
 
   static GolemSettings golemSettings(Config config) {

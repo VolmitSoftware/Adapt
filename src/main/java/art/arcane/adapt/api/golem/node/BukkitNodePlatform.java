@@ -10,6 +10,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 
@@ -73,6 +74,12 @@ final class BukkitNodePlatform implements NodePlatform {
   @Override
   public boolean savePlate(World world, int x, int z) {
     return loaded(world).savePlate(x, z);
+  }
+
+  @Override
+  public boolean powered(World world, int x, int y, int z) {
+    Block block = world.getBlockAt(x, y, z);
+    return block.isBlockPowered() || block.isBlockIndirectlyPowered();
   }
 
   @Override
