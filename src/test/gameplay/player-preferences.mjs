@@ -16,7 +16,7 @@ export default {
       await context.command(`/adaptqa setup ${actor.bot.username} ${other.bot.username}`, /^ADAPT_QA SETUP /, 30000)
       setup = true
       const catalog = await action(actor, 'catalog')
-      context.expect(catalog.adaptations.length === 316, 'All 316 registered adaptations are present')
+      context.expect(catalog.adaptations.length === 317, 'All 317 registered adaptations are present')
       for (const adaptation of catalog.adaptations) {
         context.expect(adaptation.controls > 0, `${adaptation.id} has personal controls`)
         const audit = await action(actor, `audit ${adaptation.id}`)

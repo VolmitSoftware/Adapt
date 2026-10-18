@@ -6,12 +6,15 @@ import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRoster;
+import art.arcane.adapt.api.golem.GolemRune;
+import art.arcane.adapt.api.golem.GolemRuneLayout;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -44,13 +47,58 @@ public final class GolemGuiActions {
     return colors.isEmpty() ? null : colors.getFirst();
   }
 
-  public static int runeSlots(GolemBody body) {
-    return switch (body) {
-      case FROST -> 1;
-      case COPPER -> 2;
-      case IRON -> 3;
-      case BONE -> 0;
+  public static int toggleChannel(int mask, DyeColor color, int slots) {
+    if (ChannelMask.contains(mask, color)) {
+      return ChannelMask.without(mask, color);
+    }
+    return Integer.bitCount(ChannelMask.normalize(mask)) >= slots ? mask : ChannelMask.with(mask, color);
+  }
+
+  public static List<TextKey> channelNames(int mask) {
+    List<DyeColor> colors = ChannelMask.colors(mask);
+    if (colors.isEmpty()) {
+      return List.of(GolemancyMessages.CHANNEL_NONE);
+    }
+    List<TextKey> names = new ArrayList<>(colors.size());
+    for (DyeColor color : colors) {
+      names.add(channelName(ChannelMask.of(color)));
+    }
+    return names;
+  }
+
+  public static RuneNote runeNote(GolemRuneLayout layout, List<GolemRune> runes, int index) {
+    GolemRune rune = runes.get(index);
+    return switch (layout.status(runes, index)) {
+      case ACTIVE -> new RuneNote(GolemancyMessages.GUI_RUNE_ACTIVE, 0, true);
+      case OVER_TIER -> unlockNote(GolemancyMessages.GUI_RUNE_OVER_TIER, layout.tierUnlockLevel(rune.tier()));
+      case LOCKED_SLOT -> unlockNote(GolemancyMessages.GUI_RUNE_SLOT_LOCKED, layout.slotUnlockLevel(index));
+      case BLOCKED -> new RuneNote(GolemancyMessages.GUI_RUNE_BLOCKED, 0, false);
+      case DUPLICATE -> new RuneNote(GolemancyMessages.GUI_RUNE_DUPLICATE, 0, false);
     };
+  }
+
+  public static TextKey refusalMessage(GolemRuneLayout.Refusal refusal) {
+    return switch (refusal) {
+      case NO_SLOT -> GolemancyMessages.MESSAGE_RUNE_NO_SLOT;
+      case DUPLICATE -> GolemancyMessages.MESSAGE_RUNE_DUPLICATE;
+      case BLOCKED -> GolemancyMessages.MESSAGE_RUNE_BLOCKED;
+    };
+  }
+
+  public static List<GolemRune> withRune(List<GolemRune> runes, GolemRune rune) {
+    List<GolemRune> next = new ArrayList<>(runes.size() + 1);
+    next.addAll(runes);
+    next.add(rune);
+    return next;
+  }
+
+  public static Optional<List<GolemRune>> withoutRune(List<GolemRune> runes, int index, GolemRune expected) {
+    if (index < 0 || index >= runes.size() || !runes.get(index).equals(expected)) {
+      return Optional.empty();
+    }
+    List<GolemRune> next = new ArrayList<>(runes);
+    next.remove(index);
+    return Optional.of(next);
   }
 
   public static boolean hasSnowTrail(GolemBody body) {
@@ -189,6 +237,13 @@ public final class GolemGuiActions {
       case SHATTERED -> GolemancyMessages.STATUS_SHATTERED;
       case MISSING -> GolemancyMessages.STATUS_MISSING;
     };
+  }
+
+  private static RuneNote unlockNote(TextKey key, int level) {
+    return level > 0 ? new RuneNote(key, level, false) : new RuneNote(GolemancyMessages.GUI_RUNE_UNPOWERED, 0, false);
+  }
+
+  public record RuneNote(TextKey key, int level, boolean active) {
   }
 
   public enum LocateAction {

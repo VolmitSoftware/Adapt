@@ -19,7 +19,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-class NodeGuiCursorTest {
+class GuiCursorTest {
   private static final UUID VIEWER = UUID.fromString("00000000-0000-0000-0000-0000000000a1");
 
   private final Inventory top = mock(Inventory.class);
@@ -27,27 +27,27 @@ class NodeGuiCursorTest {
 
   @AfterEach
   void tearDown() {
-    NodeGui.untrackCursorWindow(VIEWER, top);
+    GuiCursor.untrack(VIEWER, top);
   }
 
   @ParameterizedTest
   @EnumSource(value = InventoryAction.class, names = {"PICKUP_ALL", "PICKUP_SOME", "PICKUP_HALF", "PICKUP_ONE", "PLACE_ALL", "PLACE_SOME", "PLACE_ONE", "SWAP_WITH_CURSOR"})
   void pickingUpAndPlacingInYourOwnInventoryIsAllowed(InventoryAction action) {
-    assertThat(NodeGuiCursor.allowsBottomClick(action)).isTrue();
+    assertThat(GuiCursor.allowsBottomClick(action)).isTrue();
   }
 
   @ParameterizedTest
   @EnumSource(value = InventoryAction.class, names = {"MOVE_TO_OTHER_INVENTORY", "COLLECT_TO_CURSOR", "HOTBAR_SWAP", "DROP_ALL_SLOT", "CLONE_STACK", "NOTHING"})
   void movesThatCouldReachTheMenuStayBlocked(InventoryAction action) {
-    assertThat(NodeGuiCursor.allowsBottomClick(action)).isFalse();
+    assertThat(GuiCursor.allowsBottomClick(action)).isFalse();
   }
 
   @Test
-  void aPickupInYourInventoryWhileTheNodeMenuIsOpenGoesThrough() {
-    NodeGui.trackCursorWindow(VIEWER, top);
+  void aPickupInYourInventoryWhileAGolemancyMenuIsOpenGoesThrough() {
+    GuiCursor.track(VIEWER, top);
     InventoryClickEvent click = click(bottom, InventoryAction.PICKUP_ALL);
 
-    new NodeGuiCursor().on(click);
+    new GuiCursor().on(click);
 
     verify(click).setCancelled(false);
   }
@@ -55,12 +55,12 @@ class NodeGuiCursorTest {
   @Test
   void clicksInTheMenuItselfOrInOtherMenusStayCancelled() {
     InventoryClickEvent untracked = click(bottom, InventoryAction.PICKUP_ALL);
-    new NodeGuiCursor().on(untracked);
-    NodeGui.trackCursorWindow(VIEWER, top);
+    new GuiCursor().on(untracked);
+    GuiCursor.track(VIEWER, top);
     InventoryClickEvent inMenu = click(top, InventoryAction.PICKUP_ALL);
-    new NodeGuiCursor().on(inMenu);
+    new GuiCursor().on(inMenu);
     InventoryClickEvent shift = click(bottom, InventoryAction.MOVE_TO_OTHER_INVENTORY);
-    new NodeGuiCursor().on(shift);
+    new GuiCursor().on(shift);
 
     verify(untracked, never()).setCancelled(false);
     verify(inMenu, never()).setCancelled(false);

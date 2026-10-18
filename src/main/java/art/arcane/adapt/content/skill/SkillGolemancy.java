@@ -38,7 +38,7 @@ import art.arcane.adapt.api.golem.GolemWorkXp;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.HostileDamagePool;
 import art.arcane.adapt.api.golem.gui.CrookInteractions;
-import art.arcane.adapt.api.golem.gui.NodeGuiCursor;
+import art.arcane.adapt.api.golem.gui.GuiCursor;
 import art.arcane.adapt.api.golem.gui.NodeInteractions;
 import art.arcane.adapt.api.golem.gui.NodeTagPrompt;
 import art.arcane.adapt.api.golem.node.NodeItemTags;
@@ -66,6 +66,7 @@ import art.arcane.adapt.content.adaptation.golemancy.GolemCopperFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemFrostFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemIronFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
+import art.arcane.adapt.content.adaptation.golemancy.GolemRunicAugments;
 import art.arcane.adapt.content.skill.golemancy.CopperCare;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
@@ -149,6 +150,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerAdaptation(new GolemFrostFrame());
     registerAdaptation(new GolemCopperFrame());
     registerAdaptation(new GolemIronFrame());
+    registerAdaptation(new GolemRunicAugments());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CARVED_PUMPKIN)
         .key("challenge_golemancy_built_10")
@@ -405,7 +407,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   protected List<Listener> createCompanionListeners() {
     NodeTagPrompt prompt = new NodeTagPrompt();
     NodeInteractions nodes = new NodeInteractions(prompt);
-    List<Listener> listeners = new ArrayList<>(List.of(new CrookInteractions(), nodes, prompt, new NodeGuiCursor()));
+    List<Listener> listeners = new ArrayList<>(List.of(new CrookInteractions(), nodes, prompt, new GuiCursor()));
     listeners.add(PaperCompat.hasClass(PRE_ATTACK_EVENT) ? new NodeInteractions.PaperAttacks(nodes) : new NodeInteractions.SpigotAttacks(nodes));
     if (PaperCompat.hasClass(RESOURCES_RELOADED_EVENT)) {
       listeners.add(new NodeItemTags.ReloadListener());

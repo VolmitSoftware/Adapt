@@ -74,7 +74,8 @@ class GolemStatsTest extends AdaptTestBase {
     assertThat(GolemStats.key("iron_frame", GolemStat.ARMOR_TOUGHNESS).toString()).isEqualTo("adapt:golem_iron_frame_armor_toughness");
     assertThat(GolemStats.key("rune", GolemStat.KNOCKBACK_RESISTANCE).toString()).isEqualTo("adapt:golem_rune_knockback_resistance");
     assertThat(GolemStat.values()).extracting(GolemStat::id)
-        .containsExactly("max_health", "armor", "armor_toughness", "attack_damage", "movement_speed", "knockback_resistance");
+        .containsExactly("max_health", "armor", "armor_toughness", "attack_damage", "movement_speed", "knockback_resistance", "follow_range",
+            "water_movement_efficiency");
     assertThatThrownBy(() -> GolemStats.key("Frost Frame", GolemStat.ARMOR)).isInstanceOf(IllegalArgumentException.class);
   }
 

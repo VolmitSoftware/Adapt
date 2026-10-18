@@ -66,6 +66,7 @@ class AdaptationCatalogExecutionTest extends AdaptTestBase {
       "excavation.ExcavationEarthMover",
       "golemancy.GolemAnimusBinding",
       "golemancy.GolemNodeWeaving",
+      "golemancy.GolemRunicAugments",
       "herbalism.HerbalismCraftableCobweb",
       "herbalism.HerbalismCraftableMushroomBlocks",
       "herbalism.HerbalismMyconid",
@@ -158,7 +159,7 @@ class AdaptationCatalogExecutionTest extends AdaptTestBase {
           .map(path -> SOURCE_ROOT.relativize(path).toString().replace('/', '.').replace(".java", ""))
           .sorted()
           .toList();
-      assertThat(classes).hasSize(316);
+      assertThat(classes).hasSize(317);
       return classes;
     }
   }

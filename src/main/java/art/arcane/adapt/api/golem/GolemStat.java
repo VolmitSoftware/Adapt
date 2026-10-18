@@ -9,7 +9,9 @@ public enum GolemStat {
   ARMOR_TOUGHNESS("armor_toughness"),
   ATTACK_DAMAGE("attack_damage"),
   MOVEMENT_SPEED("movement_speed"),
-  KNOCKBACK_RESISTANCE("knockback_resistance");
+  KNOCKBACK_RESISTANCE("knockback_resistance"),
+  FOLLOW_RANGE("follow_range"),
+  WATER_MOVEMENT_EFFICIENCY("water_movement_efficiency");
 
   private final String id;
 
@@ -29,6 +31,8 @@ public enum GolemStat {
       case ATTACK_DAMAGE -> Attributes.ATTACK_DAMAGE;
       case MOVEMENT_SPEED -> Attributes.MOVEMENT_SPEED;
       case KNOCKBACK_RESISTANCE -> Attributes.KNOCKBACK_RESISTANCE;
+      case FOLLOW_RANGE -> Attributes.FOLLOW_RANGE;
+      case WATER_MOVEMENT_EFFICIENCY -> Attributes.WATER_MOVEMENT_EFFICIENCY;
     };
   }
 }

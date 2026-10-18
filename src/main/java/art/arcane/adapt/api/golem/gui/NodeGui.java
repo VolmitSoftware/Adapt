@@ -31,11 +31,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.UnaryOperator;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -47,7 +43,6 @@ public final class NodeGui {
   private static final int FILTER_ROW = 2;
   private static final int PANEL_ROW = 4;
   private static final int LEFT_EDGE = -4;
-  private static final Map<UUID, Inventory> CURSOR_WINDOWS = new ConcurrentHashMap<>();
 
   private final Player player;
   private final NodeKey key;
@@ -68,19 +63,6 @@ public final class NodeGui {
 
   static void openAfter(Player player, NodeKey key, NodeTagPrompt prompt, UnaryOperator<NodeRecord> change) {
     new NodeGui(player, key, prompt).edit(change);
-  }
-
-  static boolean isCursorWindow(UUID viewer, Inventory top) {
-    Inventory tracked = CURSOR_WINDOWS.get(viewer);
-    return tracked != null && tracked == top;
-  }
-
-  static void trackCursorWindow(UUID viewer, Inventory top) {
-    CURSOR_WINDOWS.put(viewer, Objects.requireNonNull(top));
-  }
-
-  static void untrackCursorWindow(UUID viewer, Inventory top) {
-    CURSOR_WINDOWS.remove(viewer, top);
   }
 
   static int level(Player player) {
@@ -149,7 +131,7 @@ public final class NodeGui {
       next.onClosed(closed -> {
         Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), next);
         if (cursorTop != null) {
-          untrackCursorWindow(player.getUniqueId(), cursorTop);
+          GuiCursor.untrack(player.getUniqueId(), cursorTop);
         }
       });
       window = next;
@@ -157,7 +139,7 @@ public final class NodeGui {
       Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), next);
       cursorTop = UIWindow.inventoryViewTopInventory(player.getOpenInventory());
       if (cursorTop != null) {
-        trackCursorWindow(player.getUniqueId(), cursorTop);
+        GuiCursor.track(player.getUniqueId(), cursorTop);
       }
     }
   }

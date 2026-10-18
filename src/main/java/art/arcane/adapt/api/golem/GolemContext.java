@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 
 public final class GolemContext {
@@ -87,6 +88,14 @@ public final class GolemContext {
   public boolean inWorkRadius(Location location) {
     World at = location.getWorld();
     return at != null && worker.inWorkRadius(at.getUID(), location.getX(), location.getY(), location.getZ());
+  }
+
+  public double bonusYield() {
+    return worker.runes().bonusYield(scope.core());
+  }
+
+  public List<ItemStack> withBonusYield(List<ItemStack> drops) {
+    return worker.runes().withBonusYield(scope.core(), drops, ThreadLocalRandom.current()::nextDouble);
   }
 
   public boolean owns(Location location) {

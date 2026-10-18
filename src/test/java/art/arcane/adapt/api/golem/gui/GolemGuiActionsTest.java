@@ -6,6 +6,9 @@ import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRoster;
+import art.arcane.adapt.api.golem.GolemRune;
+import art.arcane.adapt.api.golem.GolemRuneLayout;
+import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -14,6 +17,7 @@ import org.bukkit.Material;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -97,11 +101,58 @@ class GolemGuiActionsTest {
   }
 
   @Test
-  void runeSlotsFollowTheBodyTable() {
-    assertThat(GolemGuiActions.runeSlots(GolemBody.FROST)).isEqualTo(1);
-    assertThat(GolemGuiActions.runeSlots(GolemBody.COPPER)).isEqualTo(2);
-    assertThat(GolemGuiActions.runeSlots(GolemBody.IRON)).isEqualTo(3);
-    assertThat(GolemGuiActions.runeSlots(GolemBody.BONE)).isZero();
+  void anOrderGolemTogglesChannelsUpToItsChannelSlots() {
+    int red = ChannelMask.of(DyeColor.RED);
+    int redBlue = ChannelMask.of(DyeColor.RED, DyeColor.BLUE);
+
+    assertThat(GolemGuiActions.toggleChannel(red, DyeColor.BLUE, 2)).isEqualTo(redBlue);
+    assertThat(GolemGuiActions.toggleChannel(redBlue, DyeColor.LIME, 2)).isEqualTo(redBlue);
+    assertThat(GolemGuiActions.toggleChannel(redBlue, DyeColor.RED, 2)).isEqualTo(ChannelMask.of(DyeColor.BLUE));
+    assertThat(GolemGuiActions.toggleChannel(ChannelMask.of(DyeColor.RED, DyeColor.BLUE, DyeColor.LIME), DyeColor.LIME, 2)).isEqualTo(redBlue);
+    assertThat(GolemGuiActions.toggleChannel(ChannelMask.NONE, DyeColor.WHITE, 1)).isEqualTo(ChannelMask.of(DyeColor.WHITE));
+  }
+
+  @Test
+  void channelNamesListEveryChannelOrNone() {
+    assertThat(GolemGuiActions.channelNames(ChannelMask.of(DyeColor.RED, DyeColor.WHITE)))
+        .containsExactly(GolemancyMessages.CHANNEL_WHITE, GolemancyMessages.CHANNEL_RED);
+    assertThat(GolemGuiActions.channelNames(ChannelMask.NONE)).containsExactly(GolemancyMessages.CHANNEL_NONE);
+  }
+
+  @Test
+  void slottedRunesSayWhetherTheyWorkAndWhatUnlocksThem() {
+    GolemRuneLayout layout = new GolemRuneLayout(2, List.of(1, 3, 5), 1, List.of(1, 3, 0), Set.of(GolemRuneType.EMBER));
+    List<GolemRune> runes = List.of(rune(GolemRuneType.SWIFTNESS, 1), rune(GolemRuneType.MIGHT, 2), rune(GolemRuneType.TIDE, 1));
+
+    assertThat(GolemGuiActions.runeNote(layout, runes, 0)).isEqualTo(new GolemGuiActions.RuneNote(GolemancyMessages.GUI_RUNE_ACTIVE, 0, true));
+    assertThat(GolemGuiActions.runeNote(layout, runes, 1)).isEqualTo(new GolemGuiActions.RuneNote(GolemancyMessages.GUI_RUNE_OVER_TIER, 3, false));
+    assertThat(GolemGuiActions.runeNote(layout, runes, 2)).isEqualTo(new GolemGuiActions.RuneNote(GolemancyMessages.GUI_RUNE_SLOT_LOCKED, 5, false));
+    assertThat(GolemGuiActions.runeNote(layout, List.of(rune(GolemRuneType.EMBER, 1)), 0).key()).isEqualTo(GolemancyMessages.GUI_RUNE_BLOCKED);
+    assertThat(GolemGuiActions.runeNote(layout, List.of(rune(GolemRuneType.ORDER, 1), rune(GolemRuneType.ORDER, 1)), 1).key())
+        .isEqualTo(GolemancyMessages.GUI_RUNE_DUPLICATE);
+    assertThat(GolemGuiActions.runeNote(layout, List.of(rune(GolemRuneType.BULWARK, 3)), 0).key()).isEqualTo(GolemancyMessages.GUI_RUNE_UNPOWERED);
+    assertThat(GolemGuiActions.runeNote(GolemRuneLayout.NONE, List.of(rune(GolemRuneType.ORDER, 1)), 0).key())
+        .isEqualTo(GolemancyMessages.GUI_RUNE_UNPOWERED);
+  }
+
+  @Test
+  void refusedRunesTellThePlayerWhy() {
+    assertThat(GolemGuiActions.refusalMessage(GolemRuneLayout.Refusal.NO_SLOT)).isEqualTo(GolemancyMessages.MESSAGE_RUNE_NO_SLOT);
+    assertThat(GolemGuiActions.refusalMessage(GolemRuneLayout.Refusal.DUPLICATE)).isEqualTo(GolemancyMessages.MESSAGE_RUNE_DUPLICATE);
+    assertThat(GolemGuiActions.refusalMessage(GolemRuneLayout.Refusal.BLOCKED)).isEqualTo(GolemancyMessages.MESSAGE_RUNE_BLOCKED);
+  }
+
+  @Test
+  void takingARuneBackRemovesOnlyTheExpectedRuneFromItsSlot() {
+    GolemRune swiftness = rune(GolemRuneType.SWIFTNESS, 1);
+    GolemRune might = rune(GolemRuneType.MIGHT, 2);
+    GolemRune tide = rune(GolemRuneType.TIDE, 3);
+    List<GolemRune> runes = List.of(swiftness, might, tide);
+
+    assertThat(GolemGuiActions.withoutRune(runes, 1, might)).contains(List.of(swiftness, tide));
+    assertThat(GolemGuiActions.withoutRune(runes, 1, swiftness)).isEmpty();
+    assertThat(GolemGuiActions.withoutRune(runes, 3, tide)).isEmpty();
+    assertThat(GolemGuiActions.withRune(runes.subList(0, 2), tide)).containsExactly(swiftness, might, tide);
   }
 
   @Test
@@ -186,5 +237,9 @@ class GolemGuiActionsTest {
 
     assertThat(GolemGuiActions.chunkCenterX(key)).isEqualTo(-40);
     assertThat(GolemGuiActions.chunkCenterZ(key)).isEqualTo(88);
+  }
+
+  private static GolemRune rune(GolemRuneType aspect, int tier) {
+    return new GolemRune(aspect, tier);
   }
 }

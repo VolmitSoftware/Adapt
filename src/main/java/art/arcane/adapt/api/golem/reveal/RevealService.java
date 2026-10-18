@@ -5,6 +5,7 @@ import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
 import art.arcane.adapt.api.fx.display.HiddenDisplays;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemRegistry;
+import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
@@ -580,7 +581,7 @@ public final class RevealService extends TickedObject {
         name = Component.text(AdaptLanguage.text(GolemancyMessages.GUI_TITLE, trusted("body", AdaptLanguage.text(state.body().displayName()))));
       }
       return new GolemLabel.Content(name, golem.getHealth(), GolemVitals.maxHealth(golem),
-          AdaptLanguage.text(state.primaryCore().displayName()), AdaptLanguage.text(state.mode().displayName()), state.channels());
+          AdaptLanguage.text(state.primaryCore().displayName()), AdaptLanguage.text(state.mode().displayName()), GolemRunes.channels(handle));
     }
   }
 

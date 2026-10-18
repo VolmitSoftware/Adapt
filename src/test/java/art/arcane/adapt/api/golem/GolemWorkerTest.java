@@ -61,6 +61,7 @@ class GolemWorkerTest extends AdaptTestBase {
   private final List<GolemWorkSpeed.Source> speeds = new ArrayList<>();
   private final List<GolemCapacity.Source> capacities = new ArrayList<>();
   private final List<GolemCoreBehavior> cores = new ArrayList<>();
+  private final List<GolemRunes.Augments> augments = new ArrayList<>();
   private final Adaptation<?> nodePolicy = mock(Adaptation.class);
   private final Adaptation<?> bindingPolicy = mock(Adaptation.class);
   private final AtomicReference<Location> position = new AtomicReference<>();
@@ -103,6 +104,9 @@ class GolemWorkerTest extends AdaptTestBase {
     GolemWorkStats.setSink(GolemWorkStats.Sink.NONE);
     for (GolemCoreBehavior behavior : cores) {
       GolemCoreBehaviors.unregister(GolemCoreType.GATHERER, behavior);
+    }
+    for (GolemRunes.Augments registered : augments) {
+      GolemRunes.unregister(registered);
     }
   }
 
@@ -1082,6 +1086,143 @@ class GolemWorkerTest extends AdaptTestBase {
     return new GolemBrain(handle, controller, new GolemBrain.Context(platform, settings::get, core -> new IdlePolicy(), work::get, ignored -> board));
   }
 
+  @Test
+  void aTideRuneWidensTheWorkRadiusAroundHome() {
+    runes(new GolemRuneEffects(8D, 0, 1D, 0D));
+    List<String> seen = new ArrayList<>();
+    coreSeeker(golem -> {
+      seen.add("r" + golem.workRadius());
+      seen.add(golem.inWorkRadius(at(31, 64, 0)) + "," + golem.inWorkRadius(at(33, 64, 0)));
+      return Optional.empty();
+    }, (golem, task) -> GolemActResult.DONE);
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(seen).containsExactly("r32.0", "true,false");
+  }
+
+  @Test
+  void aTideRuneLetsTheGolemClaimBoardTasksFartherFromHome() {
+    collector((golem, task) -> GolemActResult.DONE);
+    collectionNode(3);
+    GolemTask far = pickup(28, 64, 0);
+    board.offer(far, 16);
+    brain.start();
+
+    platform.runDelayed();
+    assertThat(far.holder(platform.now)).isEmpty();
+    runes(new GolemRuneEffects(8D, 0, 1D, 0D));
+    pulse(1_000L);
+
+    assertThat(far.heldBy(brain.handle().id(), platform.now)).isTrue();
+  }
+
+  @Test
+  void withoutAnOrderRuneOnlyTheFirstChannelOfTheGolemCounts() {
+    deposit(NodeRecord.builder(OWNER, NodeType.DEPOSIT, BlockFace.UP).channel(DyeColor.RED).build());
+    chest(DEPOSIT.x(), DEPOSIT.y(), DEPOSIT.z(), 27);
+    homeChest(27);
+    carry(Material.WHEAT, 20);
+    brain.handle().setChannels(ChannelMask.of(DyeColor.WHITE, DyeColor.RED));
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(controller.lastMove()).isEqualTo("-5.5,64.5,0.5");
+  }
+
+  @Test
+  void anOrderRuneLetsTheGolemDeliverOnItsExtraChannels() {
+    runes(new GolemRuneEffects(0D, 1, 1D, 0D));
+    deposit(NodeRecord.builder(OWNER, NodeType.DEPOSIT, BlockFace.UP).channel(DyeColor.RED).build());
+    chest(DEPOSIT.x(), DEPOSIT.y(), DEPOSIT.z(), 27);
+    homeChest(27);
+    carry(Material.WHEAT, 20);
+    brain.handle().setChannels(ChannelMask.of(DyeColor.WHITE, DyeColor.RED));
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(controller.lastMove()).isEqualTo("0.5,64.5,6.5");
+  }
+
+  @Test
+  void anOrderRuneLetsTheGolemClaimTasksOnItsExtraChannels() {
+    collector((golem, task) -> GolemActResult.DONE);
+    platform.nodes.put(COLLECTION, NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).channel(DyeColor.RED).build());
+    GolemTask task = pickup(8, 64, 0);
+    board.offer(task, 16);
+    brain.handle().setChannels(ChannelMask.of(DyeColor.WHITE, DyeColor.RED));
+    brain.start();
+
+    platform.runDelayed();
+    assertThat(task.holder(platform.now)).isEmpty();
+    runes(new GolemRuneEffects(0D, 1, 1D, 0D));
+    pulse(1_000L);
+
+    assertThat(task.heldBy(brain.handle().id(), platform.now)).isTrue();
+  }
+
+  @Test
+  void anOrderRuneShortensTheDelayBeforeAGolemRetriesAFailedJob() {
+    runes(new GolemRuneEffects(0D, 2, 0.5D, 0D));
+    List<Long> acts = new ArrayList<>();
+    coreSeeker(golem -> Optional.of(GolemTask.builder("pickup", GolemTarget.block(WORLD, 1, 64, 0)).build()), (golem, task) -> {
+      acts.add(platform.now);
+      return GolemActResult.FAILED;
+    });
+    brain.start();
+
+    platform.runDelayed();
+    for (int i = 0; i < 4; i++) {
+      pulse(1_000L);
+    }
+    assertThat(acts).hasSize(1);
+    pulse(1_000L);
+
+    assertThat(acts).hasSize(2);
+    assertThat(acts.get(1) - acts.get(0)).isEqualTo(5_000L);
+  }
+
+  @Test
+  void entropyBonusYieldReachesOnlyHarvestingCores() {
+    runes(new GolemRuneEffects(0D, 0, 1D, 0.15D));
+    List<Double> yields = new ArrayList<>();
+    coreSeeker(golem -> {
+      yields.add(golem.bonusYield());
+      return Optional.empty();
+    }, (golem, task) -> GolemActResult.DONE);
+    GolemCoreBehavior breaker = new GolemCoreBehavior() {
+      @Override
+      public Adaptation<?> policy() {
+        return nodePolicy;
+      }
+
+      @Override
+      public Optional<GolemTask> seek(GolemContext golem) {
+        yields.add(golem.bonusYield());
+        return Optional.empty();
+      }
+
+      @Override
+      public GolemActResult act(GolemContext golem, GolemTask task) {
+        return GolemActResult.DONE;
+      }
+    };
+    GolemCoreBehaviors.register(GolemCoreType.BREAKER, breaker);
+    try {
+      brain.handle().setCores(List.of(GolemCoreType.GATHERER, GolemCoreType.BREAKER));
+      brain.start();
+
+      platform.runDelayed();
+    } finally {
+      GolemCoreBehaviors.unregister(GolemCoreType.BREAKER, breaker);
+    }
+
+    assertThat(yields).containsExactly(0D, 0.15D);
+  }
+
   private void pulse(long millis) {
     platform.now += millis;
     platform.runDelayed();
@@ -1113,6 +1254,22 @@ class GolemWorkerTest extends AdaptTestBase {
     };
     GolemCoreBehaviors.register(GolemCoreType.GATHERER, behavior);
     cores.add(behavior);
+  }
+
+  private void runes(GolemRuneEffects effects) {
+    GolemRunes.Augments fixed = new GolemRunes.Augments() {
+      @Override
+      public GolemRuneLayout layout(GolemBody body, UUID owner) {
+        return GolemRuneLayout.NONE;
+      }
+
+      @Override
+      public GolemRuneEffects effects(GolemHandle handle) {
+        return effects;
+      }
+    };
+    GolemRunes.register(fixed);
+    augments.add(fixed);
   }
 
   private void collectionNode(int priority) {

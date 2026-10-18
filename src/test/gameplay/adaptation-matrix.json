@@ -3444,6 +3444,25 @@
       "feedbackPresets": []
     },
     {
+      "skill": "golemancy",
+      "name": "golem-runic-augments",
+      "class": "GolemRunicAugments",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemRunicAugments.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageByEntityEvent",
+        "EntityDamageEvent",
+        "recipe"
+      ],
+      "expectation": "Lets you infuse runes at the Animus Plinth and slot them into your bound golems for speed, carrying, fire, reach, channels, yield and armor.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemRunicAugments.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
       "skill": "herbalism",
       "name": "herbalism-bee-shepherd",
       "class": "HerbalismBeeShepherd",

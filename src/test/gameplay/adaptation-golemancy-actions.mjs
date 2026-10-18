@@ -45,6 +45,31 @@ async function placeNode(input) {
     return (await snapshot()).golemancy.node
 }
 
+async function loadPlinth(input) {
+    const { context, actor, snapshot } = input
+    const center = actor.bot.entity.position.clone().set(2, 100, 3)
+    await context.waitUntil(() => actor.bot.blockAt(center)?.name === 'lodestone', {
+        label: 'golemancy plinth lodestone available', timeoutMs: 5000,
+    })
+    const sneakClick = async () => {
+        actor.bot.setControlState('sneak', true)
+        try {
+            await actor.bot.waitForTicks(4)
+            await actor.bot.activateBlock(actor.bot.blockAt(center))
+            await actor.bot.waitForTicks(20)
+        } finally {
+            actor.bot.setControlState('sneak', false)
+        }
+    }
+    await sneakClick()
+    const loaded = (await snapshot()).golemancy.plinth
+    actor.bot.setQuickBarSlot(1)
+    await actor.bot.waitForTicks(2)
+    await sneakClick()
+    const retrieved = (await snapshot()).golemancy.plinth
+    return { loaded, retrieved }
+}
+
 export const golemancyBehaviorCases = new Map([
     ['golem-animus-binding', {
         stage: 'golemancy-binding', trigger: bind,
@@ -109,6 +134,20 @@ export const golemancyBehaviorCases = new Map([
             context.expect(Math.abs(active.attack - (active.attackBase + 7.5)) < 0.0001, 'Iron Frame level 5 adds 7.5 attack damage')
             return {
                 assertions: ['unlearned binding leaves the iron golem unbound', 'learned binding shrinks the golem to 0.36 scale, adds 50 maximum health, 10 armor and 7.5 attack, and heals it to full'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
+    ['golem-runic-augments', {
+        stage: 'golemancy-plinth', trigger: loadPlinth, prerequisites: [{ name: 'golem-animus-binding', level: 2 }],
+        prepare: ({ equip }) => equip('disc_fragment_5'),
+        description: 'sneak-right-clicking an Animus Plinth lodestone with a Blank Rune places it on the plinth, and an empty-hand sneak-right-click takes it back',
+        async verify({ context, unlearned, active }) {
+            context.expect(!unlearned.loaded.center && unlearned.loaded.blankRunes === 1, 'Without Runic Augments the plinth takes nothing and the Blank Rune stays with the player')
+            context.expect(active.loaded.center === 'blank_rune' && active.loaded.blankRunes === 0, 'With Runic Augments the Blank Rune moves onto the lodestone')
+            context.expect(!active.retrieved.center && active.retrieved.blankRunes === 1, 'An empty-hand sneak-right-click takes the Blank Rune back')
+            return {
+                assertions: ['unlearned click leaves the plinth empty and keeps the Blank Rune', 'learned click loads the Blank Rune onto the lodestone and an empty-hand click returns it'],
                 measurements: { unlearned, active },
             }
         },

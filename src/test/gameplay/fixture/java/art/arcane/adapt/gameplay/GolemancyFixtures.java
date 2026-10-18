@@ -3,10 +3,13 @@ package art.arcane.adapt.gameplay;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
+import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
+import art.arcane.adapt.api.golem.plinth.PlinthSpot;
 import com.google.gson.JsonObject;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -30,12 +33,17 @@ public final class GolemancyFixtures {
     private static final String COPPER_BINDING_STAGE = "golemancy-copper-binding";
     private static final String IRON_BINDING_STAGE = "golemancy-iron-binding";
     private static final String NODE_STAGE = "golemancy-node";
+    private static final String PLINTH_STAGE = "golemancy-plinth";
     private static final String GOLEM_TAG = "adapt-qa-golemancy-golem";
     private static final String COPPER_GOLEM_TAG = "adapt-qa-golemancy-copper-golem";
     private static final String IRON_GOLEM_TAG = "adapt-qa-golemancy-iron-golem";
     private static final int NODE_X = 2;
     private static final int NODE_Y = 100;
     private static final int NODE_Z = 0;
+    private static final int PLINTH_X = 2;
+    private static final int PLINTH_Y = 100;
+    private static final int PLINTH_Z = 3;
+    private static final int PEDESTAL_DISTANCE = 2;
     private static final List<BlockFace> FACES = List.of(BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
 
     private GolemancyFixtures() {
@@ -77,6 +85,18 @@ public final class GolemancyFixtures {
             actor.getInventory().addItem(nodes);
             return true;
         }
+        if (PLINTH_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.getInventory().clear();
+            world.getBlockAt(PLINTH_X, PLINTH_Y, PLINTH_Z).setType(Material.LODESTONE, false);
+            world.getBlockAt(PLINTH_X + PEDESTAL_DISTANCE, PLINTH_Y, PLINTH_Z).setType(Material.CHISELED_COPPER, false);
+            world.getBlockAt(PLINTH_X - PEDESTAL_DISTANCE, PLINTH_Y, PLINTH_Z).setType(Material.CHISELED_COPPER, false);
+            world.getBlockAt(PLINTH_X, PLINTH_Y, PLINTH_Z + PEDESTAL_DISTANCE).setType(Material.CHISELED_COPPER, false);
+            world.getBlockAt(PLINTH_X, PLINTH_Y, PLINTH_Z - PEDESTAL_DISTANCE).setType(Material.CHISELED_COPPER, false);
+            actor.getInventory().setItem(0, GolemItems.blankRune());
+            actor.getInventory().setHeldItemSlot(0);
+            return true;
+        }
         return false;
     }
 
@@ -94,6 +114,7 @@ public final class GolemancyFixtures {
             }
         }
         result.add("node", node(player));
+        result.add("plinth", plinth(player));
         return result;
     }
 
@@ -129,6 +150,25 @@ public final class GolemancyFixtures {
             }
         }
         result.addProperty("nodeItems", items);
+        return result;
+    }
+
+    private static JsonObject plinth(Player player) {
+        JsonObject result = new JsonObject();
+        PlinthSpot center = new PlinthSpot(player.getWorld().getUID(), PLINTH_X, PLINTH_Y, PLINTH_Z);
+        Optional<String> stored = GolemancyRuntime.plinths()
+            .flatMap(service -> service.slot(center))
+            .filter(PlinthSlotItem::readable)
+            .flatMap(item -> GolemItems.kindOf(item.item()))
+            .map(GolemItemKind::id);
+        result.addProperty("center", stored.orElse(null));
+        int blankRunes = 0;
+        for (ItemStack item : player.getInventory().getContents()) {
+            if (item != null && GolemItems.kindOf(item).orElse(null) == GolemItemKind.BLANK_RUNE) {
+                blankRunes += item.getAmount();
+            }
+        }
+        result.addProperty("blankRunes", blankRunes);
         return result;
     }
 

@@ -51,6 +51,7 @@ final class GolemWorker {
   private boolean arrived;
   private int stuckReleases;
   private int pulseCapacity = -1;
+  private GolemRuneEffects pulseRunes;
   private long nextActAt;
   private long nextSeekAt;
   private long nextRouteAt;
@@ -68,6 +69,7 @@ final class GolemWorker {
     owner = currentOwner;
     home = currentHome;
     pulseCapacity = -1;
+    pulseRunes = null;
     if (!canWork(here, brain)) {
       abandon();
       return null;
@@ -94,7 +96,7 @@ final class GolemWorker {
         return pursue(nowMillis, here, settings);
       }
     }
-    if (carried > 0 && nowMillis >= nextRouteAt && route(nowMillis, here, settings)) {
+    if (carried > 0 && nowMillis >= nextRouteAt && route(nowMillis, here)) {
       return job != null ? pursue(nowMillis, here, settings) : deliver(nowMillis, here, settings);
     }
     if (full) {
@@ -144,12 +146,19 @@ final class GolemWorker {
     return pulseCapacity;
   }
 
+  GolemRuneEffects runes() {
+    if (pulseRunes == null) {
+      pulseRunes = GolemRunes.effects(handle);
+    }
+    return pulseRunes;
+  }
+
   Location home() {
     return home;
   }
 
   double workRadius() {
-    return context.work().get().baseWorkRadius();
+    return context.work().get().baseWorkRadius() + runes().radiusBonus();
   }
 
   boolean inWorkRadius(UUID world, double x, double y, double z) {
@@ -301,7 +310,7 @@ final class GolemWorker {
       }
       case FAILED -> {
         if (current.source != Source.BOARD) {
-          taskBackoff.put(task.key(), nowMillis + BACKOFF_MILLIS);
+          backOff(task, nowMillis);
         }
         closeJob();
       }
@@ -318,8 +327,8 @@ final class GolemWorker {
     GolemTaskBoard board = board(home.getWorld().getUID());
     GolemState state = handle.state();
     List<GolemCoreType> cores = state.cores();
-    GolemTaskBoard.Seeker seeker = new GolemTaskBoard.Seeker(handle.id(), handle.owner(), cores, handle.body(), state.channels(),
-        home.getX(), home.getY(), home.getZ(), settings.baseWorkRadius(), here.getX(), here.getY(), here.getZ());
+    GolemTaskBoard.Seeker seeker = new GolemTaskBoard.Seeker(handle.id(), handle.owner(), cores, handle.body(), runes().channels(state.channels()),
+        home.getX(), home.getY(), home.getZ(), workRadius(), here.getX(), here.getY(), here.getZ());
     Optional<GolemTask> claimed = board.claim(seeker, candidate -> skips(candidate, nowMillis), nowMillis, settings.leaseMillis());
     if (claimed.isEmpty()) {
       return false;
@@ -329,7 +338,7 @@ final class GolemWorker {
     NodeBehavior behavior = NodeBehaviors.of(nodeType).orElse(null);
     if (behavior == null) {
       board.release(task, handle.id());
-      taskBackoff.put(task.key(), nowMillis + BACKOFF_MILLIS);
+      backOff(task, nowMillis);
       return false;
     }
     GolemCoreType consumer = GolemTaskMatch.consumer(nodeType, cores).orElse(handle.core());
@@ -446,7 +455,7 @@ final class GolemWorker {
     golem.container(block).ifPresent(inventory -> golem.deliver(inventory, item -> true));
   }
 
-  private boolean route(long nowMillis, Location here, GolemWorkSettings settings) {
+  private boolean route(long nowMillis, Location here) {
     nextRouteAt = nowMillis + REROUTE_INTERVAL_MILLIS;
     List<ItemStack> items = cargo.items();
     if (items.isEmpty()) {
@@ -456,7 +465,7 @@ final class GolemWorker {
       return true;
     }
     World world = home.getWorld();
-    GolemDeliveryRoute.Route route = GolemDeliveryRoute.choose(depositOptions(world, here, home, items, settings), homeOption(world, items));
+    GolemDeliveryRoute.Route route = GolemDeliveryRoute.choose(depositOptions(world, here, home, items), homeOption(world, items));
     delivery = switch (route.kind()) {
       case DEPOSIT -> new Delivery(GolemDeliveryRoute.Kind.DEPOSIT, route.deposit(), route.deposit().anchor());
       case HOME_CHEST -> new Delivery(GolemDeliveryRoute.Kind.HOME_CHEST, null, route.chest());
@@ -490,15 +499,14 @@ final class GolemWorker {
     return true;
   }
 
-  private List<GolemDeliveryRoute.DepositOption> depositOptions(World world, Location here, Location home, List<ItemStack> items,
-                                                                GolemWorkSettings settings) {
+  private List<GolemDeliveryRoute.DepositOption> depositOptions(World world, Location here, Location home, List<ItemStack> items) {
     NodeBehavior behavior = NodeBehaviors.of(NodeType.DEPOSIT).orElse(null);
     if (behavior == null) {
       return List.of();
     }
     Adaptation<?> policy = behavior.policy();
-    int channels = handle.state().channels();
-    List<NodeIndex.Entry> near = context.platform().nodesNear(world.getUID(), home.getX(), home.getY(), home.getZ(), settings.baseWorkRadius());
+    int channels = runes().channels(handle.state().channels());
+    List<NodeIndex.Entry> near = context.platform().nodesNear(world.getUID(), home.getX(), home.getY(), home.getZ(), workRadius());
     List<GolemDeliveryRoute.DepositOption> options = new ArrayList<>(near.size());
     for (NodeIndex.Entry entry : near) {
       NodeKey key = entry.key();
@@ -600,11 +608,15 @@ final class GolemWorker {
   }
 
   private void giveUp(long nowMillis, boolean stuckRelease) {
-    taskBackoff.put(job.task.key(), nowMillis + BACKOFF_MILLIS);
+    backOff(job.task, nowMillis);
     if (stuckRelease) {
       stuckReleases++;
     }
     dropJob();
+  }
+
+  private void backOff(GolemTask task, long nowMillis) {
+    taskBackoff.put(task.key(), nowMillis + Math.round(BACKOFF_MILLIS * runes().reclaimDelayMultiplier()));
   }
 
   private void closeJob() {
