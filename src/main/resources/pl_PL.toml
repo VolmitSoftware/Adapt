@@ -4569,6 +4569,17 @@ lore4 = "Mniej obrażeń w pobliżu twoich strażników"
 lore5 = "Sekundy Odporności z Ostatniego Bastionu"
 lore = ["Promień straży w blokach", "Przechwycenie: moby, które cię ścigają, zwracają się przeciw twoim strażnikom", "Odwet: strażnicy atakują to, co cię zraniło", "Mniej obrażeń w pobliżu twoich strażników", "Sekundy Odporności z Ostatniego Bastionu"]
 
+[golemancy.harvester_core]
+name = "Rdzeń Żniwiarza"
+description = "Golemy związane Rdzeniem Żniwiarza zbierają i ponownie sadzą dojrzałe uprawy w obszarze Węzła Żniw, a w miarę jak rdzeń się wzmacnia, pielęgnują i uprawiają pole."
+lore1 = "Uprawy na akcję zbioru"
+lore2 = "Sekundy na akcję zbioru"
+lore3 = "Zbiera arbuzy, dynie, trzcinę cukrową, bambus i kaktusy"
+lore4 = "Pielęgnacja: mączka kostna ze skrzyni domowej na młode uprawy"
+lore5 = "Uprawa: ponownie orze ziemię i obsiewa pustą ziemię uprawną"
+lore6 = "Szansa na dodatkowe losowanie łupów"
+lore = ["Uprawy na akcję zbioru", "Sekundy na akcję zbioru", "Zbiera arbuzy, dynie, trzcinę cukrową, bambus i kaktusy", "Pielęgnacja: mączka kostna ze skrzyni domowej na młode uprawy", "Uprawa: ponownie orze ziemię i obsiewa pustą ziemię uprawną", "Szansa na dodatkowe losowanie łupów"]
+
 [golemancy.runic_augments]
 name = "Runiczne ulepszenia"
 description = "Pozwala nasycać runy na Postumencie animusa i osadzać je w związanych golemach, by zyskać szybkość, udźwig, ogień, zasięg, kanały, plony i pancerz."

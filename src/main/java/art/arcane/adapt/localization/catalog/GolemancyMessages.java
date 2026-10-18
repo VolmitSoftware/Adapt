@@ -222,6 +222,15 @@ public final class GolemancyMessages {
   public static final TextKey GUARDIAN_CORE_LORE4 = TextKey.of("golemancy.guardian_core.lore4", "Less Damage Near Your Guardians");
   public static final TextKey GUARDIAN_CORE_LORE5 = TextKey.of("golemancy.guardian_core.lore5", "Seconds of Last Stand Resistance");
   public static final LinesKey GUARDIAN_CORE_LORE = LinesKey.of("golemancy.guardian_core.lore", "Block Guard Radius", "Intercept: Mobs Chasing You Turn on Your Guardians", "Retaliate: Guardians Attack Whatever Hurt You", "Less Damage Near Your Guardians", "Seconds of Last Stand Resistance");
+  public static final TextKey HARVESTER_CORE_NAME = TextKey.of("golemancy.harvester_core.name", "Harvester Core");
+  public static final TextKey HARVESTER_CORE_DESCRIPTION = TextKey.of("golemancy.harvester_core.description", "Golems bound with a Harvester Core harvest and replant ripe crops in a Harvest Node's area, and tend and till the field as the core grows stronger.");
+  public static final TextKey HARVESTER_CORE_LORE1 = TextKey.of("golemancy.harvester_core.lore1", "Crops per Harvest Action");
+  public static final TextKey HARVESTER_CORE_LORE2 = TextKey.of("golemancy.harvester_core.lore2", "Seconds per Harvest Action");
+  public static final TextKey HARVESTER_CORE_LORE3 = TextKey.of("golemancy.harvester_core.lore3", "Harvests Melons, Pumpkins, Sugar Cane, Bamboo and Cactus");
+  public static final TextKey HARVESTER_CORE_LORE4 = TextKey.of("golemancy.harvester_core.lore4", "Tending: Bone Meal from the Home Chest on Young Crops");
+  public static final TextKey HARVESTER_CORE_LORE5 = TextKey.of("golemancy.harvester_core.lore5", "Tilling: Re-tills Dirt and Plants Empty Farmland");
+  public static final TextKey HARVESTER_CORE_LORE6 = TextKey.of("golemancy.harvester_core.lore6", "Chance of an Extra Drop Roll");
+  public static final LinesKey HARVESTER_CORE_LORE = LinesKey.of("golemancy.harvester_core.lore", "Crops per Harvest Action", "Seconds per Harvest Action", "Harvests Melons, Pumpkins, Sugar Cane, Bamboo and Cactus", "Tending: Bone Meal from the Home Chest on Young Crops", "Tilling: Re-tills Dirt and Plants Empty Farmland", "Chance of an Extra Drop Roll");
 
   public static final TextKey NODE_STATUS_IDLE = TextKey.of("golemancy.node_status.idle", "Idle");
   public static final TextKey NODE_STATUS_WORKING = TextKey.of("golemancy.node_status.working", "Working");
@@ -509,6 +518,15 @@ public final class GolemancyMessages {
     builder.add(GUARDIAN_CORE_LORE4);
     builder.add(GUARDIAN_CORE_LORE5);
     builder.add(GUARDIAN_CORE_LORE);
+    builder.add(HARVESTER_CORE_NAME);
+    builder.add(HARVESTER_CORE_DESCRIPTION);
+    builder.add(HARVESTER_CORE_LORE1);
+    builder.add(HARVESTER_CORE_LORE2);
+    builder.add(HARVESTER_CORE_LORE3);
+    builder.add(HARVESTER_CORE_LORE4);
+    builder.add(HARVESTER_CORE_LORE5);
+    builder.add(HARVESTER_CORE_LORE6);
+    builder.add(HARVESTER_CORE_LORE);
     builder.add(RUNIC_AUGMENTS_NAME);
     builder.add(RUNIC_AUGMENTS_DESCRIPTION);
     builder.add(RUNIC_AUGMENTS_LORE1);

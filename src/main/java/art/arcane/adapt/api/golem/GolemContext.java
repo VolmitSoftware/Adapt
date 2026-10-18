@@ -162,6 +162,10 @@ public final class GolemContext {
     return worker.cargo().add(stack, capacity());
   }
 
+  public int take(Predicate<ItemStack> matches, int amount) {
+    return worker.cargo().take(matches, amount);
+  }
+
   public int deliver(Inventory inventory, Predicate<ItemStack> accepts) {
     List<ItemStack> items = worker.cargo().items();
     List<ItemStack> remaining = new ArrayList<>(items.size());

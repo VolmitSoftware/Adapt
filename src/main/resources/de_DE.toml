@@ -4569,6 +4569,17 @@ lore4 = "Weniger Schaden in der Nähe deiner Wächter"
 lore5 = "Sekunden Resistenz durch Letztes Gefecht"
 lore = ["Wachradius in Blöcken", "Abfangen: Mobs, die dich jagen, wenden sich gegen deine Wächter", "Vergeltung: Wächter greifen an, was dich verletzt hat", "Weniger Schaden in der Nähe deiner Wächter", "Sekunden Resistenz durch Letztes Gefecht"]
 
+[golemancy.harvester_core]
+name = "Ernter-Kern"
+description = "Mit einem Ernter-Kern gebundene Golems ernten reife Pflanzen im Bereich eines Ernte-Knotens, pflanzen sie neu und pflegen und bestellen das Feld umso besser, je stärker der Kern wird."
+lore1 = "Pflanzen pro Erntevorgang"
+lore2 = "Sekunden pro Erntevorgang"
+lore3 = "Erntet Melonen, Kürbisse, Zuckerrohr, Bambus und Kakteen"
+lore4 = "Pflege: Knochenmehl aus der Heimtruhe für junge Pflanzen"
+lore5 = "Bestellen: Pflügt Erde neu und bepflanzt leeres Ackerland"
+lore6 = "Chance auf einen zusätzlichen Beutewurf"
+lore = ["Pflanzen pro Erntevorgang", "Sekunden pro Erntevorgang", "Erntet Melonen, Kürbisse, Zuckerrohr, Bambus und Kakteen", "Pflege: Knochenmehl aus der Heimtruhe für junge Pflanzen", "Bestellen: Pflügt Erde neu und bepflanzt leeres Ackerland", "Chance auf einen zusätzlichen Beutewurf"]
+
 [golemancy.runic_augments]
 name = "Runenverstärkung"
 description = "Lässt dich am Animus-Sockel Runen infundieren und in deine gebundenen Golems einsetzen: für Tempo, Tragekapazität, Feuer, Reichweite, Kanäle, Ertrag und Rüstung."

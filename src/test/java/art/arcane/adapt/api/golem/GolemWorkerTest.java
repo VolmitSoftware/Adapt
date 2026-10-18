@@ -329,6 +329,29 @@ class GolemWorkerTest extends AdaptTestBase {
   }
 
   @Test
+  void takingFromTheCargoRemovesOnlyMatchingItemsUpToTheAmount() {
+    List<Integer> taken = new ArrayList<>();
+    collector((golem, task) -> {
+      golem.carry(GolemTestItems.stack(Material.WHEAT_SEEDS, 3));
+      golem.carry(GolemTestItems.stack(Material.WHEAT, 5));
+      taken.add(golem.take(item -> item.getType() == Material.WHEAT_SEEDS, 2));
+      taken.add(golem.take(item -> item.getType() == Material.WHEAT_SEEDS, 5));
+      taken.add(golem.take(item -> item.getType() == Material.CARROT, 1));
+      taken.add(golem.carried());
+      return GolemActResult.DONE;
+    });
+    collectionNode(3);
+    board.offer(pickup(1, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(taken).containsExactly(2, 1, 0, 5);
+    assertThat(carried(Material.WHEAT_SEEDS)).isZero();
+    assertThat(carried(Material.WHEAT)).isEqualTo(5);
+  }
+
+  @Test
   void capacitySourcesRaiseTheCarryLimit() {
     capacity(GolemCapacity.Contribution.bonus(0.5D));
     collector((golem, task) -> {

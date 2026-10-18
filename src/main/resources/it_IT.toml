@@ -4569,6 +4569,17 @@ lore4 = "Danni ridotti vicino ai tuoi guardiani"
 lore5 = "Secondi di Resistenza dall'Ultima Difesa"
 lore = ["Raggio di guardia in blocchi", "Intercettazione: i mob che ti inseguono si rivolgono contro i tuoi guardiani", "Rappresaglia: i guardiani attaccano ciò che ti ha ferito", "Danni ridotti vicino ai tuoi guardiani", "Secondi di Resistenza dall'Ultima Difesa"]
 
+[golemancy.harvester_core]
+name = "Nucleo di Mietitore"
+description = "I golem legati con un Nucleo di Mietitore raccolgono e ripiantano le colture mature nell'area di un Nodo di Mietitura, e curano e arano il campo man mano che il nucleo si rafforza."
+lore1 = "Colture per azione di raccolta"
+lore2 = "Secondi per azione di raccolta"
+lore3 = "Raccoglie angurie, zucche, canna da zucchero, bambù e cactus"
+lore4 = "Cura: farina d'ossa dal baule di casa sulle colture giovani"
+lore5 = "Aratura: riara la terra e semina la terra coltivata vuota"
+lore6 = "Probabilità di un tiro di bottino extra"
+lore = ["Colture per azione di raccolta", "Secondi per azione di raccolta", "Raccoglie angurie, zucche, canna da zucchero, bambù e cactus", "Cura: farina d'ossa dal baule di casa sulle colture giovani", "Aratura: riara la terra e semina la terra coltivata vuota", "Probabilità di un tiro di bottino extra"]
+
 [golemancy.runic_augments]
 name = "Potenziamenti runici"
 description = "Ti permette di infondere rune sul Piedistallo di Animus e incastonarle nei tuoi golem legati per velocità, carico, fuoco, portata, canali, resa e armatura."

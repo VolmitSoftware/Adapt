@@ -4569,6 +4569,17 @@ lore4 = "Menos dano perto dos teus guardiões"
 lore5 = "Segundos de Resistência da Última Defesa"
 lore = ["Raio de guarda em blocos", "Interceção: os mobs que te perseguem viram-se contra os teus guardiões", "Retaliação: os guardiões atacam o que te feriu", "Menos dano perto dos teus guardiões", "Segundos de Resistência da Última Defesa"]
 
+[golemancy.harvester_core]
+name = "Núcleo de Ceifeiro"
+description = "Os golems vinculados com um Núcleo de Ceifeiro colhem e replantam as culturas maduras na área de um Nó de Colheita, e cuidam e lavram o campo à medida que o núcleo se fortalece."
+lore1 = "Culturas por ação de colheita"
+lore2 = "Segundos por ação de colheita"
+lore3 = "Colhe melancias, abóboras, cana-de-açúcar, bambu e cactos"
+lore4 = "Cuidado: farinha de osso do baú de casa nas culturas jovens"
+lore5 = "Lavoura: volta a lavrar a terra e semeia a terra cultivada vazia"
+lore6 = "Probabilidade de um sorteio de saque extra"
+lore = ["Culturas por ação de colheita", "Segundos por ação de colheita", "Colhe melancias, abóboras, cana-de-açúcar, bambu e cactos", "Cuidado: farinha de osso do baú de casa nas culturas jovens", "Lavoura: volta a lavrar a terra e semeia a terra cultivada vazia", "Probabilidade de um sorteio de saque extra"]
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Permite-te infundir runas no Pedestal de Ânimus e encaixá-las nos teus golems vinculados para velocidade, carga, fogo, alcance, canais, rendimento e armadura."

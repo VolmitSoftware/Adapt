@@ -4569,6 +4569,17 @@ lore4 = "Mažesnė žala šalia tavo sargų"
 lore5 = "Atsparumo sekundės nuo Paskutinio stovėjimo"
 lore = ["Sargybos spindulys blokais", "Perėmimas: tave persekiojantys padarai atsisuka prieš tavo sargus", "Atpildas: sargai puola tai, kas tave sužeidė", "Mažesnė žala šalia tavo sargų", "Atsparumo sekundės nuo Paskutinio stovėjimo"]
 
+[golemancy.harvester_core]
+name = "Pjovėjo šerdis"
+description = "Pjovėjo šerdimi sujungti golemai nuima ir vėl pasodina prinokusius augalus Derliaus mazgo zonoje, o šerdžiai stiprėjant prižiūri ir dirba lauką."
+lore1 = "Augalai per derliaus nuėmimo veiksmą"
+lore2 = "Sekundės per derliaus nuėmimo veiksmą"
+lore3 = "Nuima arbūzus, moliūgus, cukranendres, bambukus ir kaktusus"
+lore4 = "Priežiūra: kaulų miltai iš namų skrynios jauniems augalams"
+lore5 = "Dirbimas: vėl suaria žemę ir apsėja tuščią dirvą"
+lore6 = "Tikimybė papildomai sukti grobį"
+lore = ["Augalai per derliaus nuėmimo veiksmą", "Sekundės per derliaus nuėmimo veiksmą", "Nuima arbūzus, moliūgus, cukranendres, bambukus ir kaktusus", "Priežiūra: kaulų miltai iš namų skrynios jauniems augalams", "Dirbimas: vėl suaria žemę ir apsėja tuščią dirvą", "Tikimybė papildomai sukti grobį"]
+
 [golemancy.runic_augments]
 name = "Runų patobulinimai"
 description = "Leidžia Animus pakyloje įlieti runas ir įstatyti jas į surištus golemus dėl greičio, nešimo, ugnies, siekio, kanalų, derliaus ir šarvų."

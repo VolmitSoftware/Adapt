@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 final class GolemCargo {
   private final GolemHandle handle;
@@ -75,6 +76,41 @@ final class GolemCargo {
     ItemStack rest = stack.clone();
     rest.setAmount(amount - taking);
     return Optional.of(rest);
+  }
+
+  int take(Predicate<ItemStack> matches, int amount) {
+    refresh();
+    if (amount <= 0) {
+      return 0;
+    }
+    List<String> nextEncoded = new ArrayList<>(encoded);
+    List<ItemStack> nextDecoded = new ArrayList<>(decoded);
+    int left = amount;
+    int index = 0;
+    while (index < nextDecoded.size() && left > 0) {
+      ItemStack held = nextDecoded.get(index);
+      if (held == null || !matches.test(held.clone())) {
+        index++;
+        continue;
+      }
+      int removing = Math.min(left, held.getAmount());
+      left -= removing;
+      if (removing == held.getAmount()) {
+        nextDecoded.remove(index);
+        nextEncoded.remove(index);
+        continue;
+      }
+      ItemStack rest = held.clone();
+      rest.setAmount(held.getAmount() - removing);
+      nextDecoded.set(index, rest);
+      nextEncoded.set(index, handle.platform().encodeItem(rest));
+      index++;
+    }
+    int taken = amount - left;
+    if (taken > 0) {
+      store(nextEncoded, nextDecoded, count - taken);
+    }
+    return taken;
   }
 
   void keep(List<ItemStack> remaining) {

@@ -4569,6 +4569,17 @@ lore4 = "Minder schade in de buurt van je beschermers"
 lore5 = "Seconden Weerstand door Laatste Stand"
 lore = ["Bewakingsstraal in blokken", "Onderscheppen: mobs die jou achtervolgen keren zich tegen je beschermers", "Vergelding: beschermers vallen aan wat jou verwondde", "Minder schade in de buurt van je beschermers", "Seconden Weerstand door Laatste Stand"]
 
+[golemancy.harvester_core]
+name = "Oogster-kern"
+description = "Golems die met een Oogster-kern zijn gebonden, oogsten en herplanten rijpe gewassen in het gebied van een Oogst-knooppunt, en verzorgen en bewerken het veld naarmate de kern sterker wordt."
+lore1 = "Gewassen per oogstactie"
+lore2 = "Seconden per oogstactie"
+lore3 = "Oogst meloenen, pompoenen, suikerriet, bamboe en cactussen"
+lore4 = "Verzorging: beendermeel uit de thuiskist op jonge gewassen"
+lore5 = "Bewerking: ploegt aarde opnieuw en plant lege akkergrond in"
+lore6 = "Kans op een extra buitworp"
+lore = ["Gewassen per oogstactie", "Seconden per oogstactie", "Oogst meloenen, pompoenen, suikerriet, bamboe en cactussen", "Verzorging: beendermeel uit de thuiskist op jonge gewassen", "Bewerking: ploegt aarde opnieuw en plant lege akkergrond in", "Kans op een extra buitworp"]
+
 [golemancy.runic_augments]
 name = "Runenversterkingen"
 description = "Laat je runen infuseren op de Animussokkel en ze in je gebonden golems zetten voor snelheid, draagvermogen, vuur, bereik, kanalen, opbrengst en harnas."

@@ -4565,6 +4565,17 @@ lore4 = "Dégâts réduits près de tes gardiens"
 lore5 = "Secondes de Résistance du Dernier Rempart"
 lore = ["Rayon de garde en blocs", "Interception : les mobs qui te poursuivent se retournent contre tes gardiens", "Représailles : les gardiens attaquent ce qui t'a blessé", "Dégâts réduits près de tes gardiens", "Secondes de Résistance du Dernier Rempart"]
 
+[golemancy.harvester_core]
+name = "Noyau de Moissonneur"
+description = "Les golems liés avec un Noyau de Moissonneur récoltent et replantent les cultures mûres dans la zone d'un Nœud de Récolte, puis entretiennent et labourent le champ à mesure que le noyau se renforce."
+lore1 = "Cultures par action de récolte"
+lore2 = "Secondes par action de récolte"
+lore3 = "Récolte les pastèques, citrouilles, cannes à sucre, bambous et cactus"
+lore4 = "Entretien : poudre d'os du coffre de maison sur les jeunes cultures"
+lore5 = "Labour : relaboure la terre et sème la terre labourée vide"
+lore6 = "Chance d'un tirage de butin supplémentaire"
+lore = ["Cultures par action de récolte", "Secondes par action de récolte", "Récolte les pastèques, citrouilles, cannes à sucre, bambous et cactus", "Entretien : poudre d'os du coffre de maison sur les jeunes cultures", "Labour : relaboure la terre et sème la terre labourée vide", "Chance d'un tirage de butin supplémentaire"]
+
 [golemancy.runic_augments]
 name = "Augmentations runiques"
 description = "Vous permet d'infuser des runes sur le Socle d'Animus et de les sertir dans vos golems liés pour la vitesse, la charge, le feu, la portée, les canaux, le rendement et l'armure."

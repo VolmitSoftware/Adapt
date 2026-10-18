@@ -4569,6 +4569,17 @@ lore4 = "Giảm sát thương khi ở gần hộ vệ của bạn"
 lore5 = "Số giây Kháng Cự từ Trận Chiến Cuối"
 lore = ["Bán kính canh gác (khối)", "Chặn Đánh: mob đang đuổi theo bạn quay sang các hộ vệ của bạn", "Trả Đũa: hộ vệ tấn công thứ đã làm bạn bị thương", "Giảm sát thương khi ở gần hộ vệ của bạn", "Số giây Kháng Cự từ Trận Chiến Cuối"]
 
+[golemancy.harvester_core]
+name = "Lõi Người Thu Hoạch"
+description = "Golem được liên kết bằng Lõi Người Thu Hoạch thu hoạch và trồng lại cây chín trong khu vực của một Nút Thu Hoạch, đồng thời chăm sóc và cày xới cánh đồng khi lõi mạnh lên."
+lore1 = "Số cây mỗi lần thu hoạch"
+lore2 = "Số giây mỗi lần thu hoạch"
+lore3 = "Thu hoạch dưa hấu, bí ngô, mía, tre và xương rồng"
+lore4 = "Chăm sóc: dùng bột xương từ rương nhà cho cây non"
+lore5 = "Cày xới: cày lại đất và gieo hạt vào đất canh tác trống"
+lore6 = "Cơ hội quay thêm một lượt vật phẩm rơi"
+lore = ["Số cây mỗi lần thu hoạch", "Số giây mỗi lần thu hoạch", "Thu hoạch dưa hấu, bí ngô, mía, tre và xương rồng", "Chăm sóc: dùng bột xương từ rương nhà cho cây non", "Cày xới: cày lại đất và gieo hạt vào đất canh tác trống", "Cơ hội quay thêm một lượt vật phẩm rơi"]
+
 [golemancy.runic_augments]
 name = "Cường hóa Rune"
 description = "Cho phép bạn truyền Cổ Tự tại Bệ Animus và gắn chúng vào các golem đã liên kết để tăng tốc độ, sức chở, lửa, tầm hoạt động, kênh, sản lượng và giáp."

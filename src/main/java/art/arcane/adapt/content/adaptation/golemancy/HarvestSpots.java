@@ -1,0 +1,74 @@
+package art.arcane.adapt.content.adaptation.golemancy;
+
+import art.arcane.adapt.api.golem.node.NodeKey;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+final class HarvestSpots {
+  static final int MAX_MARKS_PER_NODE = 128;
+  static final long STALE_MILLIS = 60_000L;
+
+  private final Map<NodeKey, NodeMarks> nodes = new ConcurrentHashMap<>();
+
+  void scanned(NodeKey key, long nowMillis) {
+    nodes.computeIfAbsent(key, ignored -> new NodeMarks()).scannedAt = nowMillis;
+  }
+
+  void record(NodeKey key, int x, int y, int z, HarvesterRules.Spot spot) {
+    NodeMarks marks = nodes.get(key);
+    if (marks == null) {
+      return;
+    }
+    boolean keep = spot == HarvesterRules.Spot.TEND || spot == HarvesterRules.Spot.PLANT;
+    if (!keep && marks.spots.isEmpty()) {
+      return;
+    }
+    Position at = new Position(x, y, z);
+    if (!keep) {
+      marks.spots.remove(at);
+      return;
+    }
+    if (marks.spots.size() < MAX_MARKS_PER_NODE || marks.spots.containsKey(at)) {
+      marks.spots.put(at, spot);
+    }
+  }
+
+  List<Mark> of(NodeKey key) {
+    NodeMarks marks = nodes.get(key);
+    if (marks == null || marks.spots.isEmpty()) {
+      return List.of();
+    }
+    List<Mark> found = new ArrayList<>(marks.spots.size());
+    for (Map.Entry<Position, HarvesterRules.Spot> entry : marks.spots.entrySet()) {
+      Position at = entry.getKey();
+      found.add(new Mark(entry.getValue(), at.x(), at.y(), at.z()));
+    }
+    return found;
+  }
+
+  boolean pending() {
+    return !nodes.isEmpty();
+  }
+
+  void sweep(long nowMillis) {
+    nodes.values().removeIf(marks -> nowMillis - marks.scannedAt >= STALE_MILLIS);
+  }
+
+  void forget() {
+    nodes.clear();
+  }
+
+  record Mark(HarvesterRules.Spot kind, int x, int y, int z) {
+  }
+
+  private record Position(int x, int y, int z) {
+  }
+
+  private static final class NodeMarks {
+    private final Map<Position, HarvesterRules.Spot> spots = new ConcurrentHashMap<>();
+    private volatile long scannedAt;
+  }
+}

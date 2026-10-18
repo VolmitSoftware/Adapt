@@ -4569,6 +4569,17 @@ lore4 = "Menos daño cerca de tus guardianes"
 lore5 = "Segundos de Resistencia por Última Defensa"
 lore = ["Radio de guardia en bloques", "Interceptar: los mobs que te persiguen se vuelven contra tus guardianes", "Represalia: los guardianes atacan a lo que te hirió", "Menos daño cerca de tus guardianes", "Segundos de Resistencia por Última Defensa"]
 
+[golemancy.harvester_core]
+name = "Núcleo de Cosechador"
+description = "Los gólems vinculados con un Núcleo de Cosechador cosechan y replantan los cultivos maduros del área de un Nodo de Cosecha, y cuidan y labran el campo a medida que el núcleo se fortalece."
+lore1 = "Cultivos por acción de cosecha"
+lore2 = "Segundos por acción de cosecha"
+lore3 = "Cosecha sandías, calabazas, caña de azúcar, bambú y cactus"
+lore4 = "Cuidado: polvo de hueso del cofre del hogar en cultivos jóvenes"
+lore5 = "Labranza: vuelve a arar la tierra y siembra la tierra de cultivo vacía"
+lore6 = "Probabilidad de una tirada de botín extra"
+lore = ["Cultivos por acción de cosecha", "Segundos por acción de cosecha", "Cosecha sandías, calabazas, caña de azúcar, bambú y cactus", "Cuidado: polvo de hueso del cofre del hogar en cultivos jóvenes", "Labranza: vuelve a arar la tierra y siembra la tierra de cultivo vacía", "Probabilidad de una tirada de botín extra"]
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Te permite infundir runas en el Pedestal de Ánima y engarzarlas en tus gólems vinculados para ganar velocidad, carga, fuego, alcance, canales, rendimiento y armadura."

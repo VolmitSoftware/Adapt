@@ -3424,6 +3424,24 @@
     },
     {
       "skill": "golemancy",
+      "name": "golem-harvester-core",
+      "class": "GolemHarvesterCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemHarvesterCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Golems bound with a Harvester Core harvest and replant ripe crops in a Harvest Node's area, and tend and till the field as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemHarvesterCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
       "name": "golem-iron-frame",
       "class": "GolemIronFrame",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemIronFrame.java",

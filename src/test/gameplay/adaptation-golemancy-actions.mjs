@@ -153,6 +153,22 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
+    ['golem-harvester-core', {
+        stage: 'golemancy-harvester-binding', trigger: bind,
+        prerequisites: [{ name: 'golem-animus-binding', level: 5 }, { name: 'golem-node-weaving', level: 1 }],
+        prepare: ({ equip }) => equip('firework_star'),
+        description: 'binding a snow golem with a Harvester Core needs Harvester Core learned and turns the golem into a working Harvester',
+        async verify({ context, unlearned, active }) {
+            context.expect(!unlearned.bound, 'Without Harvester Core the snow golem refuses the Harvester Core and stays unbound')
+            context.expect(active.bound && active.boundToPlayer, 'With Harvester Core the snow golem binds to the player')
+            context.expect(active.core === 'harvester', 'The bound golem carries the Harvester Core')
+            context.expect(active.mode === 'work', 'A new Harvester starts in Work mode, ready for Harvest Nodes')
+            return {
+                assertions: ['unlearned binding leaves the snow golem unbound', 'learned binding makes the snow golem a Harvester in Work mode'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
     ['golem-runic-augments', {
         stage: 'golemancy-plinth', trigger: loadPlinth, prerequisites: [{ name: 'golem-animus-binding', level: 2 }],
         prepare: ({ equip }) => equip('disc_fragment_5'),

@@ -4569,6 +4569,17 @@ lore4 = "Muhafızlarının yakınında daha az hasar"
 lore5 = "Son Direniş'ten Direnç saniyesi"
 lore = ["Blok cinsinden nöbet yarıçapı", "Önleme: seni kovalayan moblar muhafızlarına yönelir", "Misilleme: muhafızlar seni yaralayana saldırır", "Muhafızlarının yakınında daha az hasar", "Son Direniş'ten Direnç saniyesi"]
 
+[golemancy.harvester_core]
+name = "Hasatçı Çekirdeği"
+description = "Hasatçı Çekirdeği ile bağlanan golemler bir Hasat Düğümü'nün alanındaki olgun ekinleri hasat edip yeniden eker ve çekirdek güçlendikçe tarlaya bakıp onu sürer."
+lore1 = "Hasat eylemi başına ekin"
+lore2 = "Hasat eylemi başına saniye"
+lore3 = "Karpuz, balkabağı, şeker kamışı, bambu ve kaktüs de hasat eder"
+lore4 = "Bakım: ev sandığındaki kemik tozunu genç ekinlere kullanır"
+lore5 = "Sürme: toprağı yeniden sürer ve boş tarlaya tohum eker"
+lore6 = "Ek ganimet zarı şansı"
+lore = ["Hasat eylemi başına ekin", "Hasat eylemi başına saniye", "Karpuz, balkabağı, şeker kamışı, bambu ve kaktüs de hasat eder", "Bakım: ev sandığındaki kemik tozunu genç ekinlere kullanır", "Sürme: toprağı yeniden sürer ve boş tarlaya tohum eker", "Ek ganimet zarı şansı"]
+
 [golemancy.runic_augments]
 name = "Rün Güçlendirmeleri"
 description = "Animus Kaidesi'nde rün aşılamanızı ve bunları bağlı golemlerinize takarak hız, taşıma, ateş, menzil, kanal, verim ve zırh kazanmanızı sağlar."

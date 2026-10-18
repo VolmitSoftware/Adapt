@@ -4569,6 +4569,17 @@ lore4 = "Vähemmän vahinkoa vartijoidesi lähellä"
 lore5 = "Sekuntia Vastustuskyky-tehostetta viimeisestä puolustuksesta"
 lore = ["Vartiosäde palikoina", "Sieppaus: sinua jahtaavat olennot kääntyvät vartijoidesi kimppuun", "Kosto: vartijat hyökkäävät sen kimppuun, joka satutti sinua", "Vähemmän vahinkoa vartijoidesi lähellä", "Sekuntia Vastustuskyky-tehostetta viimeisestä puolustuksesta"]
 
+[golemancy.harvester_core]
+name = "Sadonkorjaajaydin"
+description = "Sadonkorjaajaytimellä sidotut golemit korjaavat ja istuttavat uudelleen kypsät kasvit sadonkorjuusolmun alueella sekä hoitavat ja muokkaavat peltoa sitä paremmin, mitä vahvemmaksi ydin kasvaa."
+lore1 = "Kasveja korjuutoimintoa kohden"
+lore2 = "Sekuntia korjuutoimintoa kohden"
+lore3 = "Korjaa melonit, kurpitsat, sokeriruo'on, bambun ja kaktukset"
+lore4 = "Hoito: luujauhoa kotiarkusta nuorille kasveille"
+lore5 = "Muokkaus: kyntää mullan uudelleen ja kylvää tyhjän peltomaan"
+lore6 = "Mahdollisuus ylimääräiseen saalisheittoon"
+lore = ["Kasveja korjuutoimintoa kohden", "Sekuntia korjuutoimintoa kohden", "Korjaa melonit, kurpitsat, sokeriruo'on, bambun ja kaktukset", "Hoito: luujauhoa kotiarkusta nuorille kasveille", "Muokkaus: kyntää mullan uudelleen ja kylvää tyhjän peltomaan", "Mahdollisuus ylimääräiseen saalisheittoon"]
+
 [golemancy.runic_augments]
 name = "Riimuvahvistukset"
 description = "Antaa sinun infusoida riimuja Animusjalustalla ja asettaa ne sidottuihin golemeihisi nopeuden, kantokyvyn, tulen, ulottuvuuden, kanavien, saaliin ja panssarin vuoksi."
