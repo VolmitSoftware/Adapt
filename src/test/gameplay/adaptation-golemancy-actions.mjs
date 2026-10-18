@@ -113,6 +113,21 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
+    ['golem-guardian-core', {
+        stage: 'golemancy-guardian-binding', trigger: bind, prerequisites: [{ name: 'golem-animus-binding', level: 5 }],
+        prepare: ({ equip }) => equip('firework_star'),
+        description: 'binding a snow golem with a Guardian Core needs Guardian Core learned and turns the golem into a working Guardian',
+        async verify({ context, unlearned, active }) {
+            context.expect(!unlearned.bound, 'Without Guardian Core the snow golem refuses the Guardian Core and stays unbound')
+            context.expect(active.bound && active.boundToPlayer, 'With Guardian Core the snow golem binds to the player')
+            context.expect(active.core === 'guardian', 'The bound golem carries the Guardian Core')
+            context.expect(active.mode === 'work', 'A new Guardian starts in Work mode, guarding its home')
+            return {
+                assertions: ['unlearned binding leaves the snow golem unbound', 'learned binding makes the snow golem a Guardian in Work mode'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
     ['golem-node-weaving', {
         stage: 'golemancy-node', trigger: placeNode, prerequisites: [{ name: 'golem-animus-binding', level: 1 }],
         prepare: ({ equip }) => equip('brick'),

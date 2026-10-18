@@ -4536,6 +4536,16 @@ lore5 = "Ostili extra colpiti per pugno"
 lore6 = "Danno d'attacco in Forma Colosso"
 lore = ["Salute extra per i golem di Ferro", "Armatura extra per i golem di Ferro", "Danno d'attacco extra per i golem di Ferro", "Salute extra per riparazione con lingotto di ferro", "Ostili extra colpiti per pugno", "Danno d'attacco in Forma Colosso"]
 
+[golemancy.guardian_core]
+name = "Nucleo di Guardiano"
+description = "I golem legati con un Nucleo di Guardiano difendono la loro casa, te o l'area di un Nodo di Guardia, e ti proteggono sempre di più man mano che il nucleo si rafforza."
+lore1 = "Raggio di guardia in blocchi"
+lore2 = "Intercettazione: i mob che ti inseguono si rivolgono contro i tuoi guardiani"
+lore3 = "Rappresaglia: i guardiani attaccano ciò che ti ha ferito"
+lore4 = "Danni ridotti vicino ai tuoi guardiani"
+lore5 = "Secondi di Resistenza dall'Ultima Difesa"
+lore = ["Raggio di guardia in blocchi", "Intercettazione: i mob che ti inseguono si rivolgono contro i tuoi guardiani", "Rappresaglia: i guardiani attaccano ciò che ti ha ferito", "Danni ridotti vicino ai tuoi guardiani", "Secondi di Resistenza dall'Ultima Difesa"]
+
 [golemancy.node_status]
 idle = "Inattivo"
 working = "Al lavoro"

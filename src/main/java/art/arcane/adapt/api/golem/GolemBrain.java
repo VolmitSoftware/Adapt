@@ -219,6 +219,7 @@ public final class GolemBrain {
       return null;
     }
     GolemTargetPolicy policy = context.policies().apply(handle.core());
+    policy.tick(handle, owner);
     if (combatTarget != null && !policy.holds(handle, owner, combatTarget)) {
       combatTarget = null;
     }

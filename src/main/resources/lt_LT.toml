@@ -4536,6 +4536,16 @@ lore5 = "Papildomi priešai, pataikomi kiekvienu smūgiu"
 lore6 = "Atakos žala Koloso formoje"
 lore = ["Papildoma Geležies golemų sveikata", "Papildomi Geležies golemų šarvai", "Papildoma Geležies golemų atakos žala", "Papildoma sveikata už kiekvieną taisymą geležies luitu", "Papildomi priešai, pataikomi kiekvienu smūgiu", "Atakos žala Koloso formoje"]
 
+[golemancy.guardian_core]
+name = "Sargo šerdis"
+description = "Sargo šerdimi sujungti golemai gina savo namus, tave arba Sargybos mazgo zoną ir vis geriau tave saugo, kai šerdis stiprėja."
+lore1 = "Sargybos spindulys blokais"
+lore2 = "Perėmimas: tave persekiojantys padarai atsisuka prieš tavo sargus"
+lore3 = "Atpildas: sargai puola tai, kas tave sužeidė"
+lore4 = "Mažesnė žala šalia tavo sargų"
+lore5 = "Atsparumo sekundės nuo Paskutinio stovėjimo"
+lore = ["Sargybos spindulys blokais", "Perėmimas: tave persekiojantys padarai atsisuka prieš tavo sargus", "Atpildas: sargai puola tai, kas tave sužeidė", "Mažesnė žala šalia tavo sargų", "Atsparumo sekundės nuo Paskutinio stovėjimo"]
+
 [golemancy.node_status]
 idle = "Laukia"
 working = "Dirba"

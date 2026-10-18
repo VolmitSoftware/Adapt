@@ -4536,6 +4536,16 @@ lore5 = "Hostis extra atingidos por soco"
 lore6 = "Dano de ataque na Forma Colosso"
 lore = ["Vida extra para golems de Ferro", "Armadura extra para golems de Ferro", "Dano de ataque extra para golems de Ferro", "Vida extra por reparação com lingote de ferro", "Hostis extra atingidos por soco", "Dano de ataque na Forma Colosso"]
 
+[golemancy.guardian_core]
+name = "Núcleo de Guardião"
+description = "Os golems vinculados com um Núcleo de Guardião defendem a sua casa, a ti ou a área de um Nó de Guarda, e protegem-te mais à medida que o núcleo se fortalece."
+lore1 = "Raio de guarda em blocos"
+lore2 = "Interceção: os mobs que te perseguem viram-se contra os teus guardiões"
+lore3 = "Retaliação: os guardiões atacam o que te feriu"
+lore4 = "Menos dano perto dos teus guardiões"
+lore5 = "Segundos de Resistência da Última Defesa"
+lore = ["Raio de guarda em blocos", "Interceção: os mobs que te perseguem viram-se contra os teus guardiões", "Retaliação: os guardiões atacam o que te feriu", "Menos dano perto dos teus guardiões", "Segundos de Resistência da Última Defesa"]
+
 [golemancy.node_status]
 idle = "Inativo"
 working = "A trabalhar"

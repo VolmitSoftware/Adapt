@@ -62,6 +62,7 @@ import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnimusBinding;
 import art.arcane.adapt.content.adaptation.golemancy.GolemCopperFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemFrostFrame;
+import art.arcane.adapt.content.adaptation.golemancy.GolemGuardianCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemIronFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
 import art.arcane.adapt.content.skill.golemancy.CopperCare;
@@ -147,6 +148,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerAdaptation(new GolemFrostFrame());
     registerAdaptation(new GolemCopperFrame());
     registerAdaptation(new GolemIronFrame());
+    registerAdaptation(new GolemGuardianCore());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CARVED_PUMPKIN)
         .key("challenge_golemancy_built_10")
@@ -1001,7 +1003,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     String nodeVisibility = "OWNER";
     @ConfigDoc(value = "Seconds a golem keeps its claim on a node job without making progress before another golem may take it, clamped to 5-600.", impact = "Lower values let other golems take over stalled jobs sooner; higher values tolerate slow walks to far jobs.")
     int taskLeaseSeconds = 20;
-    @ConfigDoc(value = "Blocks around its home within which a working golem takes node jobs and finds Deposit Nodes, clamped to 4-128.", impact = "Higher values let golems work and deliver farther from home.")
+    @ConfigDoc(value = "Blocks around its home within which a working golem takes node jobs, finds Deposit Nodes and defends Guard Nodes, clamped to 4-128.", impact = "Higher values let golems work, deliver and guard farther from home.")
     double baseWorkRadius = 24;
     @ConfigDoc(value = "Seconds a golem walking to a job or a container may go without getting half a block closer before it gives up and skips that job or container for 10 seconds, clamped to 1-60.", impact = "Lower values give up on blocked paths sooner; higher values keep trying longer.")
     int stuckTimeoutSeconds = 4;

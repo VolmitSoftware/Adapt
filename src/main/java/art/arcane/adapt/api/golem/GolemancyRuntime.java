@@ -231,6 +231,10 @@ public final class GolemancyRuntime {
     TARGET_POLICIES.put(Objects.requireNonNull(core), Objects.requireNonNull(policy));
   }
 
+  public static void clearTargetPolicy(GolemCoreType core, GolemTargetPolicy policy) {
+    TARGET_POLICIES.remove(Objects.requireNonNull(core), Objects.requireNonNull(policy));
+  }
+
   public static RevealSettings revealSettings() {
     return revealSettings;
   }

@@ -4536,6 +4536,16 @@ lore5 = "Zusätzlich getroffene Feinde pro Schlag"
 lore6 = "Angriffsschaden in Kolossform"
 lore = ["Zusätzliche Gesundheit für Eisengolems", "Zusätzliche Rüstung für Eisengolems", "Zusätzlicher Angriffsschaden für Eisengolems", "Zusätzliche Gesundheit pro Eisenbarren-Reparatur", "Zusätzlich getroffene Feinde pro Schlag", "Angriffsschaden in Kolossform"]
 
+[golemancy.guardian_core]
+name = "Wächter-Kern"
+description = "Mit einem Wächter-Kern gebundene Golems verteidigen ihr Zuhause, dich oder den Bereich eines Wache-Knotens und schützen dich umso besser, je stärker der Kern wird."
+lore1 = "Wachradius in Blöcken"
+lore2 = "Abfangen: Mobs, die dich jagen, wenden sich gegen deine Wächter"
+lore3 = "Vergeltung: Wächter greifen an, was dich verletzt hat"
+lore4 = "Weniger Schaden in der Nähe deiner Wächter"
+lore5 = "Sekunden Resistenz durch Letztes Gefecht"
+lore = ["Wachradius in Blöcken", "Abfangen: Mobs, die dich jagen, wenden sich gegen deine Wächter", "Vergeltung: Wächter greifen an, was dich verletzt hat", "Weniger Schaden in der Nähe deiner Wächter", "Sekunden Resistenz durch Letztes Gefecht"]
+
 [golemancy.node_status]
 idle = "Untätig"
 working = "Arbeitet"

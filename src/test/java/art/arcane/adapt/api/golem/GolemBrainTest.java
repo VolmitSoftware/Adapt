@@ -413,7 +413,21 @@ class GolemBrainTest extends AdaptTestBase {
     platform.runDelayed();
 
     assertThat(policy.selections).isZero();
+    assertThat(policy.ticks).isZero();
     assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
+  }
+
+  @Test
+  void fightingBodiesTickTheirTargetPolicyOnEveryPulseWithTheOwner() {
+    Player owner = owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.start();
+
+    platform.runDelayed();
+    platform.runDelayed();
+
+    assertThat(policy.ticks).isEqualTo(2);
+    assertThat(policy.tickedOwner).isSameAs(owner);
   }
 
   @Test
@@ -530,6 +544,14 @@ class GolemBrainTest extends AdaptTestBase {
     private LivingEntity next;
     private boolean holding;
     private int selections;
+    private int ticks;
+    private Player tickedOwner;
+
+    @Override
+    public void tick(GolemHandle golem, Player owner) {
+      ticks++;
+      tickedOwner = owner;
+    }
 
     @Override
     public LivingEntity select(GolemHandle golem, Player owner) {
