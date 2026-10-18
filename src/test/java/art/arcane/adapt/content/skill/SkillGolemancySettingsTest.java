@@ -3,6 +3,7 @@ package art.arcane.adapt.content.skill;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemSettings;
+import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -50,5 +51,24 @@ class SkillGolemancySettingsTest {
     assertThat(settings.allowedCores(GolemBody.IRON)).isEmpty();
     assertThat(settings.deathDropCoreChance()).isEqualTo(0.25D);
     assertThat(settings.deathDropRuneChance()).isEqualTo(0.75D);
+  }
+
+  @Test
+  void revealConfigDefaultsProduceTheRevealDefaults() {
+    assertThat(SkillGolemancy.revealSettings(new SkillGolemancy.Config())).isEqualTo(RevealSettings.defaults());
+  }
+
+  @Test
+  void revealConfigValuesReachTheRevealSettings() {
+    SkillGolemancy.Config config = new SkillGolemancy.Config();
+    config.revealRange = 20D;
+    config.labelRange = 5D;
+    config.revealPollTicks = 4;
+
+    RevealSettings settings = SkillGolemancy.revealSettings(config);
+
+    assertThat(settings.revealRange()).isEqualTo(20D);
+    assertThat(settings.labelRange()).isEqualTo(5D);
+    assertThat(settings.pollTicks()).isEqualTo(4);
   }
 }

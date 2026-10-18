@@ -27,6 +27,8 @@ import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.HostileDamagePool;
+import art.arcane.adapt.api.golem.gui.CrookInteractions;
+import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
@@ -221,14 +223,15 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   protected void onConfigReload(Config previousConfig, Config newConfig) {
     super.onConfigReload(previousConfig, newConfig);
     GolemancyRuntime.configure(golemSettings(newConfig));
+    GolemancyRuntime.configureReveal(revealSettings(newConfig));
   }
 
   @Override
   protected List<Listener> createCompanionListeners() {
     if (!PaperCompat.hasClass("io.papermc.paper.world.WeatheringCopperState")) {
-      return List.of();
+      return List.of(new CrookInteractions());
     }
-    return List.of(new CopperCareListener());
+    return List.of(new CrookInteractions(), new CopperCareListener());
   }
 
   static GolemSettings golemSettings(Config config) {
@@ -243,6 +246,10 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     cores.put(GolemBody.IRON, GolemSettings.parseCores(config.allowedCoresIron));
     return new GolemSettings(config.dormantInvulnerable, config.guardWhileOwnerOffline, config.serverMaxActiveGolems,
         config.maxBoundGolemsPerChunk, config.hardCapPerPlayer, scales, cores, config.deathDropCoreChance, config.deathDropRuneChance);
+  }
+
+  static RevealSettings revealSettings(Config config) {
+    return new RevealSettings(config.revealRange, config.labelRange, config.revealPollTicks);
   }
 
   private void applyBuild(GolemBuildAttribution.Build build) {
@@ -442,5 +449,11 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double deathDropCoreChance = 0.5;
     @ConfigDoc(value = "Chance that each rune drops when a bound golem dies.", impact = "Higher values return more runes on death; 1.0 always drops them.")
     double deathDropRuneChance = 0.5;
+    @ConfigDoc(value = "Blocks around you within which your golems show their status labels while you hold a Golemancy item.", impact = "Higher values reveal golems farther away; lower values do less work on busy servers.")
+    double revealRange = 32.0;
+    @ConfigDoc(value = "Blocks within which revealed golem labels are drawn on screen.", impact = "Higher values let you read labels from farther away.")
+    double labelRange = 8.0;
+    @ConfigDoc(value = "Ticks between checks that reveal or hide golems as you move while holding a Golemancy item.", impact = "Lower values react to movement faster; holding no Golemancy item costs nothing.")
+    int revealPollTicks = 10;
   }
 }

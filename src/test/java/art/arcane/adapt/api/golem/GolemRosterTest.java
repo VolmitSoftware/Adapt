@@ -121,6 +121,21 @@ class GolemRosterTest {
   }
 
   @Test
+  void conditionalRemoveOnlyRemovesAnEntryInTheExpectedState() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.add(binding(OTHER, 0L, 0L));
+    roster.transition(OTHER, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+
+    assertThat(roster.remove(GOLEM, GolemRoster.Status.MISSING)).isFalse();
+    assertThat(roster.golem(GOLEM)).isPresent();
+    assertThat(roster.remove(OTHER, GolemRoster.Status.MISSING)).isTrue();
+    assertThat(roster.remove(OTHER, GolemRoster.Status.MISSING)).isFalse();
+    assertThat(roster.golem(OTHER)).isEmpty();
+    assertThat(roster.remove(null, GolemRoster.Status.MISSING)).isFalse();
+  }
+
+  @Test
   void chunkKeysPackSignedCoordinates() {
     for (int[] pair : new int[][] {{0, 0}, {1, -1}, {-30000000 / 16, 30000000 / 16}, {Integer.MIN_VALUE, Integer.MAX_VALUE}}) {
       long key = GolemRoster.chunkKey(pair[0], pair[1]);

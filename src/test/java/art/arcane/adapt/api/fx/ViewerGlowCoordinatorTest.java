@@ -140,6 +140,25 @@ class ViewerGlowCoordinatorTest {
     }
   }
 
+  @Test
+  void golemancyLocateOutranksEveryOtherLayer() throws Exception {
+    ViewerGlowCoordinator.PacketSink sink = mock(ViewerGlowCoordinator.PacketSink.class);
+    ViewerGlowCoordinator coordinator = new ViewerGlowCoordinator(sink);
+    Player viewer = player(UUID.randomUUID());
+    Entity golem = entity(UUID.randomUUID(), 13);
+    for (ViewerGlowCoordinator.Layer layer : ViewerGlowCoordinator.Layer.values()) {
+      coordinator.set(layer, golem, viewer, ChatColor.RED);
+    }
+
+    assertThat(coordinator.visibleLayer(viewer.getUniqueId(), golem.getUniqueId()))
+        .isEqualTo(ViewerGlowCoordinator.Layer.GOLEMANCY_LOCATE);
+
+    coordinator.unset(ViewerGlowCoordinator.Layer.GOLEMANCY_LOCATE, golem, viewer);
+
+    assertThat(coordinator.visibleLayer(viewer.getUniqueId(), golem.getUniqueId()))
+        .isEqualTo(ViewerGlowCoordinator.Layer.RANGED_HEARTSEEKER);
+  }
+
   private static Player player(UUID id) {
     Player player = mock(Player.class);
     when(player.getUniqueId()).thenReturn(id);
