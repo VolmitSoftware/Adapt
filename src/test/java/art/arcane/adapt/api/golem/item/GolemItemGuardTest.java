@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem.item;
 
 import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
+import art.arcane.adapt.util.common.misc.CustomModel;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
@@ -47,18 +48,24 @@ import org.bukkit.inventory.view.AnvilView;
 import org.bukkit.inventory.view.EnchantmentView;
 import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class GolemItemGuardTest {
+  private static final AtomicLong GENERATIONS = new AtomicLong(1_000_000L);
   private static final NamespacedKey VANILLA_RECIPE = NamespacedKey.minecraft("iron_ingot_from_iron_block");
   private static final NamespacedKey GOLEMANCY_RECIPE = new NamespacedKey("adapt", "golemancy-guardian-core");
   private static final NamespacedKey GOLEMANCY_CROOK_RECIPE = new NamespacedKey("adapt", "golemancy-artificers-crook");
@@ -363,14 +370,58 @@ class GolemItemGuardTest {
 
   @Test
   void hopperPickupsOfOtherMaterialsNeverReadItemMeta() {
-    ItemStack dirt = GolemItemStacks.plain(Material.DIRT);
-    InventoryPickupItemEvent pickup = hopperPickup(dirt);
+    try (MockedStatic<CustomModel> models = models(Map.of())) {
+      ItemStack dirt = GolemItemStacks.plain(Material.DIRT);
+      InventoryPickupItemEvent pickup = hopperPickup(dirt);
 
-    guard.on(pickup);
+      guard.on(pickup);
 
-    assertThat(pickup.isCancelled()).isFalse();
-    verify(dirt, never()).hasItemMeta();
-    verify(dirt, never()).getItemMeta();
+      assertThat(pickup.isCancelled()).isFalse();
+      verify(dirt, never()).hasItemMeta();
+      verify(dirt, never()).getItemMeta();
+    }
+  }
+
+  @Test
+  void hoppersStillCatchOwnerBoundItemsWhoseModelUsesAnotherMaterial() {
+    try (MockedStatic<CustomModel> models = models(Map.of("shattered_core", Material.ECHO_SHARD, "dormant_golem.iron_block", Material.LODESTONE))) {
+      InventoryPickupItemEvent core = hopperPickup(GolemItemStacks.tagged(Material.ECHO_SHARD, "shattered_core", null));
+      InventoryPickupItemEvent dormant = hopperPickup(GolemItemStacks.tagged(Material.LODESTONE, "dormant_golem", null));
+      InventoryPickupItemEvent shard = hopperPickup(GolemItemStacks.plain(Material.ECHO_SHARD));
+
+      guard.on(core);
+      guard.on(dormant);
+      guard.on(shard);
+
+      assertThat(core.isCancelled()).isTrue();
+      assertThat(dormant.isCancelled()).isTrue();
+      assertThat(shard.isCancelled()).isFalse();
+    }
+  }
+
+  @Test
+  void aModelReloadRefreshesTheOwnerBoundMaterials() {
+    try (MockedStatic<CustomModel> models = models(Map.of("shattered_core", Material.ECHO_SHARD))) {
+      assertThat(GolemItems.mayBeOwnerBound(Material.ECHO_SHARD)).isTrue();
+      long reloaded = GENERATIONS.incrementAndGet();
+      models.when(CustomModel::generation).thenReturn(reloaded);
+      models.when(() -> CustomModel.get(any(Material.class), any(String[].class)))
+          .thenAnswer(call -> new CustomModel(call.getArgument(0), 0, CustomModel.EMPTY_KEY, null));
+
+      assertThat(GolemItems.mayBeOwnerBound(Material.ECHO_SHARD)).isFalse();
+      assertThat(GolemItems.mayBeOwnerBound(Material.FIREWORK_STAR)).isTrue();
+    }
+  }
+
+  private static MockedStatic<CustomModel> models(Map<String, Material> overrides) {
+    MockedStatic<CustomModel> models = mockStatic(CustomModel.class);
+    models.when(CustomModel::generation).thenReturn(GENERATIONS.incrementAndGet());
+    models.when(() -> CustomModel.get(any(Material.class), any(String[].class))).thenAnswer(call -> {
+      String[] path = (String[]) call.getRawArguments()[1];
+      String key = String.join(".", Arrays.copyOfRange(path, 1, path.length));
+      return new CustomModel(overrides.getOrDefault(key, call.getArgument(0)), 0, CustomModel.EMPTY_KEY, null);
+    });
+    return models;
   }
 
   private static InventoryPickupItemEvent hopperPickup(ItemStack stack) {

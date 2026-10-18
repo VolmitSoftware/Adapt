@@ -31,7 +31,6 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
-import org.bukkit.event.entity.CreatureSpawnEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.inventory.ItemStack;
 
@@ -446,7 +445,7 @@ public final class GolemancyRuntime {
 
     @Override
     public <T extends Mob> T spawn(Location at, Class<T> type, Consumer<? super T> prepare) {
-      return Objects.requireNonNull(at.getWorld()).spawn(at, type, CreatureSpawnEvent.SpawnReason.CUSTOM, prepare);
+      return Objects.requireNonNull(at.getWorld()).spawn(at, type, prepare);
     }
 
     @Override

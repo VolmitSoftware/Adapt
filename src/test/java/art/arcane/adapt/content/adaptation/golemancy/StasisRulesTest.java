@@ -1,7 +1,9 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRoster;
+import org.bukkit.Material;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -83,6 +85,37 @@ class StasisRulesTest {
     assertThat(StasisRules.awakenVerdict(with(ready, Field.BLOCK, GolemRegistry.BindBlock.CHUNK_CAP))).isEqualTo(AwakenVerdict.CHUNK_CAP);
     assertThat(StasisRules.awakenVerdict(with(ready, Field.BLOCK, GolemRegistry.BindBlock.SERVER_CAP))).isEqualTo(AwakenVerdict.SERVER_CAP);
     assertThat(StasisRules.awakenVerdict(with(ready, Field.ALLOWED, false))).isEqualTo(AwakenVerdict.PROTECTED);
+    assertThat(StasisRules.awakenVerdict(with(ready, Field.WORLD, false))).isEqualTo(AwakenVerdict.PROTECTED);
+  }
+
+  @Test
+  void aSkippedWorldNamesTheWorldBeforeTheMissingLevel() {
+    AwakenCheck blacklisted = with(with(ready(), Field.WORLD, false), Field.LEVEL, 0);
+
+    assertThat(StasisRules.awakenVerdict(blacklisted)).isEqualTo(AwakenVerdict.PROTECTED);
+    assertThat(StasisRules.awakenVerdict(with(blacklisted, Field.OWNER, false))).isEqualTo(AwakenVerdict.NOT_OWNER);
+  }
+
+  @Test
+  void lavaAndFireAreNeverOpenAndWaterIsClosedOnlyToFrostGolems() {
+    for (Material burning : List.of(Material.LAVA, Material.FIRE, Material.SOUL_FIRE)) {
+      for (GolemBody body : List.of(GolemBody.FROST, GolemBody.COPPER, GolemBody.IRON)) {
+        assertThat(StasisRules.awakenVerdict(with(with(ready(), Field.REPLACED, burning), Field.BODY_TYPE, body)))
+            .as("%s for a %s golem", burning, body).isEqualTo(AwakenVerdict.NO_ROOM);
+      }
+    }
+    for (Material wet : List.of(Material.WATER, Material.BUBBLE_COLUMN, Material.SEAGRASS, Material.KELP_PLANT)) {
+      assertThat(StasisRules.awakenVerdict(with(with(ready(), Field.REPLACED, wet), Field.BODY_TYPE, GolemBody.FROST)))
+          .as("%s for a frost golem", wet).isEqualTo(AwakenVerdict.NO_ROOM);
+      assertThat(StasisRules.awakenVerdict(with(with(ready(), Field.REPLACED, wet), Field.BODY_TYPE, GolemBody.IRON))).isEqualTo(AwakenVerdict.READY);
+      assertThat(StasisRules.awakenVerdict(with(with(ready(), Field.REPLACED, wet), Field.BODY_TYPE, GolemBody.COPPER))).isEqualTo(AwakenVerdict.READY);
+    }
+    AwakenCheck waterlogged = with(with(ready(), Field.WATERLOGGED, true), Field.BODY_TYPE, GolemBody.FROST);
+    assertThat(StasisRules.awakenVerdict(waterlogged)).isEqualTo(AwakenVerdict.NO_ROOM);
+    assertThat(StasisRules.awakenVerdict(with(waterlogged, Field.BODY_TYPE, GolemBody.IRON))).isEqualTo(AwakenVerdict.READY);
+    assertThat(StasisRules.awakenVerdict(with(with(ready(), Field.REPLACED, Material.SHORT_GRASS), Field.BODY_TYPE, GolemBody.FROST)))
+        .isEqualTo(AwakenVerdict.READY);
+    assertThat(StasisRules.awakenVerdict(with(ready(), Field.REPLACED, null))).isEqualTo(AwakenVerdict.READY);
   }
 
   @Test
@@ -135,13 +168,14 @@ class StasisRulesTest {
   }
 
   private static AwakenCheck ready() {
-    return new AwakenCheck(true, true, 1, true, GolemRoster.Status.PACKED, true, true, null, true, true);
+    return new AwakenCheck(true, true, true, 1, true, GolemRoster.Status.PACKED, true, true, null, true, Material.AIR, false, GolemBody.IRON, true);
   }
 
   private static AwakenCheck with(AwakenCheck base, Field field, Object value) {
     return new AwakenCheck(
         field == Field.READABLE ? (Boolean) value : base.readable(),
         field == Field.OWNER ? (Boolean) value : base.owner(),
+        field == Field.WORLD ? (Boolean) value : base.worldEnabled(),
         field == Field.LEVEL ? (Integer) value : base.level(),
         field == Field.ROSTER ? (Boolean) value : base.rosterKnown(),
         field == Field.STATUS ? (GolemRoster.Status) value : base.status(),
@@ -149,12 +183,16 @@ class StasisRulesTest {
         field == Field.BODY ? (Boolean) value : base.bodyUnlocked(),
         field == Field.BLOCK ? (GolemRegistry.BindBlock) value : base.registryBlock(),
         field == Field.SPACE ? (Boolean) value : base.spaceClear(),
+        field == Field.REPLACED ? (Material) value : base.replaced(),
+        field == Field.WATERLOGGED ? (Boolean) value : base.waterlogged(),
+        field == Field.BODY_TYPE ? (GolemBody) value : base.body(),
         field == Field.ALLOWED ? (Boolean) value : base.allowed());
   }
 
   private enum Field {
     READABLE,
     OWNER,
+    WORLD,
     LEVEL,
     ROSTER,
     STATUS,
@@ -162,6 +200,9 @@ class StasisRulesTest {
     BODY,
     BLOCK,
     SPACE,
+    REPLACED,
+    WATERLOGGED,
+    BODY_TYPE,
     ALLOWED
   }
 }

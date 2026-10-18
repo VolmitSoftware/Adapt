@@ -14,7 +14,7 @@ import java.util.UUID;
 public record GolemSnapshot(UUID id, UUID owner, GolemBody body, List<GolemCoreType> cores, List<GolemRune> runes, int channels,
                             GolemMode mode, GolemState.Anchor home, GolemState.Anchor homeChest, String customName, Stats stats,
                             boolean masterwork, boolean snowTrail, double essence, List<String> carried, double health,
-                            double maxHealthMark, int copperStage, boolean waxed, long takenAt) {
+                            double maxHealthMark, int copperStage, boolean waxed, boolean playerCreated, long takenAt) {
   public static final int MAX_COPPER_STAGE = 3;
 
   public GolemSnapshot {
@@ -40,7 +40,7 @@ public record GolemSnapshot(UUID id, UUID owner, GolemBody body, List<GolemCoreT
     List<GolemCoreType> cores = state.cores().isEmpty() ? List.of(state.primaryCore()) : state.cores();
     return new GolemSnapshot(state.id(), state.owner(), state.body(), cores, state.runes(), state.channels(), state.mode(), state.home(),
         state.homeChest(), traits.customName(), Stats.of(state.stats()), state.masterwork(), state.snowTrail(), state.essence(),
-        state.carried(), traits.health(), state.maxHealthMark(), traits.copperStage(), traits.waxed(), takenAt);
+        state.carried(), traits.health(), state.maxHealthMark(), traits.copperStage(), traits.waxed(), traits.playerCreated(), takenAt);
   }
 
   public static Optional<GolemSnapshot> fromJson(String json) {
@@ -80,14 +80,14 @@ public record GolemSnapshot(UUID id, UUID owner, GolemBody body, List<GolemCoreT
 
   public GolemSnapshot withoutCargo() {
     return new GolemSnapshot(id, owner, body, cores, runes, channels, mode, home, homeChest, customName, stats, masterwork, snowTrail, 0D,
-        List.of(), health, maxHealthMark, copperStage, waxed, takenAt);
+        List.of(), health, maxHealthMark, copperStage, waxed, playerCreated, takenAt);
   }
 
   private static double nonNegative(double value) {
     return Double.isFinite(value) ? Math.max(0D, value) : 0D;
   }
 
-  public record Traits(String customName, double health, int copperStage, boolean waxed) {
+  public record Traits(String customName, double health, int copperStage, boolean waxed, boolean playerCreated) {
   }
 
   public record Stats(long kills, double damage, long tasks, long itemsMoved) {
@@ -121,6 +121,7 @@ public record GolemSnapshot(UUID id, UUID owner, GolemBody body, List<GolemCoreT
     private double maxHealthMark;
     private int copperStage;
     private boolean waxed;
+    private boolean playerCreated;
     private long takenAt;
 
     private Stored() {
@@ -155,6 +156,7 @@ public record GolemSnapshot(UUID id, UUID owner, GolemBody body, List<GolemCoreT
       maxHealthMark = snapshot.maxHealthMark();
       copperStage = snapshot.copperStage();
       waxed = snapshot.waxed();
+      playerCreated = snapshot.playerCreated();
       takenAt = snapshot.takenAt();
     }
 
@@ -167,7 +169,7 @@ public record GolemSnapshot(UUID id, UUID owner, GolemBody body, List<GolemCoreT
       GolemMode resolvedMode = GolemMode.fromId(mode).orElse(GolemMode.defaultFor(resolvedCores.getFirst()));
       return Optional.of(new GolemSnapshot(id, owner, resolvedBody.get(), resolvedCores, resolveRunes(), channels, resolvedMode, placed(home),
           placed(homeChest), customName, new Stats(kills, damage, tasks, itemsMoved), masterwork, snowTrail, essence, resolveCarried(), health,
-          maxHealthMark, copperStage, waxed, takenAt));
+          maxHealthMark, copperStage, waxed, playerCreated, takenAt));
     }
 
     private List<String> resolveCarried() {

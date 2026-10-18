@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static art.arcane.adapt.Adapt.instance;
 
@@ -38,6 +39,7 @@ public record CustomModel(Material material, int model,
                           NamespacedKey modelKey, String headTexture) {
   public static final NamespacedKey EMPTY_KEY = NamespacedKey.minecraft("empty");
   private static final Map<String, URL> SKIN_URLS = new ConcurrentHashMap<>();
+  private static final AtomicLong GENERATION = new AtomicLong();
   private static volatile UpdateChecker updateChecker = null;
 
   public CustomModel {
@@ -87,19 +89,27 @@ public record CustomModel(Material material, int model,
     return checker().get(fallback, path);
   }
 
+  public static long generation() {
+    return GENERATION.get();
+  }
+
   public static void clear() {
     updateChecker = null;
+    GENERATION.incrementAndGet();
   }
 
   public static boolean reloadFromDisk() {
+    GENERATION.incrementAndGet();
     return checker().reloadFromDisk(false);
   }
 
   public static boolean reloadFromDiskPassive() {
+    GENERATION.incrementAndGet();
     return passiveChecker().reloadFromDisk(true);
   }
 
   public static boolean reloadSnapshot(String raw, File sourceFile) {
+    GENERATION.incrementAndGet();
     UpdateChecker current = updateChecker;
     if (current == null) {
       synchronized (CustomModel.class) {

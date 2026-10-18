@@ -150,8 +150,7 @@ public final class GolemItemGuard implements Listener {
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(InventoryPickupItemEvent e) {
     ItemStack item = e.getItem().getItemStack();
-    Material type = item.getType();
-    if (type != Material.FIREWORK_STAR && !GolemItems.isDormantBlock(type)) {
+    if (!GolemItems.mayBeOwnerBound(item.getType())) {
       return;
     }
     if (GolemItems.kindOf(item).filter(GolemItemGuard::ownerBound).isPresent()) {

@@ -479,7 +479,7 @@ class GolemMendingTest extends AdaptTestBase {
     UUID golemId = UUID.randomUUID();
     GolemState state = GolemState.create(new GolemState.Seed(golemId, player.getUniqueId(), GolemBody.IRON, GolemCoreType.GUARDIAN,
         GolemState.Anchor.of(WORLD, 0, 64, 0)));
-    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 0D, 0, false), 1L);
+    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 0D, 0, false, true), 1L);
     GolemRoster roster = new GolemRoster();
     roster.add(new GolemRoster.Binding(golemId, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
     PackedGolem packed = new PackedGolem(golemId, player.getUniqueId(), snapshot.toJson());

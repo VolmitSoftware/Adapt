@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.golem.item.DormantGolem;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.item.PackedGolem;
 import art.arcane.adapt.api.tick.TickedObject;
@@ -18,6 +19,7 @@ import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ExperienceOrb;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -230,13 +232,17 @@ public final class GolemRegistry extends TickedObject {
     if (!claim(ownerId, snapshot, request)) {
       return Optional.empty();
     }
+    boolean restored = false;
     try {
       GolemState state = GolemState.restored(snapshot, GolemState.Anchor.at(golem.getLocation()));
       writeBound(golem, state, restoredName(owner, snapshot));
-      return Optional.of(adoptBound(golem, state));
-    } catch (RuntimeException failure) {
-      undoRestore(golem, ownerId, request);
-      throw failure;
+      GolemHandle handle = adoptBound(golem, state);
+      restored = true;
+      return Optional.of(handle);
+    } finally {
+      if (!restored) {
+        undoRestore(golem, ownerId, request);
+      }
     }
   }
 
@@ -254,6 +260,7 @@ public final class GolemRegistry extends TickedObject {
       return Optional.empty();
     }
     AtomicReference<Mob> spawned = new AtomicReference<>();
+    boolean awakened = false;
     try {
       GolemState state = GolemState.restored(snapshot, GolemState.Anchor.at(at));
       Component name = restoredName(owner, snapshot);
@@ -265,10 +272,13 @@ public final class GolemRegistry extends TickedObject {
       if (!golem.isValid()) {
         throw new IllegalStateException("The body of golem " + snapshot.id() + " was refused when it spawned at " + at);
       }
-      return Optional.of(adoptBound(golem, state));
-    } catch (RuntimeException failure) {
-      undoAwaken(spawned.get(), ownerId, request);
-      throw failure;
+      GolemHandle handle = adoptBound(golem, state);
+      awakened = true;
+      return Optional.of(handle);
+    } finally {
+      if (!awakened) {
+        undoAwaken(spawned.get(), ownerId, request);
+      }
     }
   }
 
@@ -288,29 +298,34 @@ public final class GolemRegistry extends TickedObject {
     AttributeInstance maximum = platform.attribute(golem, GolemStat.MAX_HEALTH);
     double maxHealth = maximum == null ? golem.getHealth() : maximum.getValue();
     unindex(handle);
-    GolemSnapshot snapshot;
-    String itemState;
+    GolemSnapshot snapshot = null;
+    PackedGolem packed = null;
+    ItemStack item = null;
+    boolean prepared = false;
     try {
       snapshot = snapshot(handle);
-      itemState = snapshot.toJson();
-    } catch (RuntimeException failure) {
-      adopt(golem);
-      throw failure;
+      packed = new PackedGolem(handle.id(), owner, snapshot.toJson());
+      item = GolemItems.dormantGolem(new DormantGolem(packed, GolemItems.dormantBlock(snapshot.body(), snapshot.copperStage(), snapshot.waxed()),
+          snapshot.cores(), snapshot.runes(), snapshot.health(), maxHealth));
+      prepared = roster.get().stow(handle.id(), GolemRoster.Status.PACKED, packed.state());
+    } finally {
+      if (!prepared) {
+        adopt(golem);
+      }
     }
-    if (!roster.get().stow(handle.id(), GolemRoster.Status.PACKED, itemState)) {
-      adopt(golem);
+    if (!prepared) {
       return Optional.empty();
     }
     missingWatch.forget(handle.id());
     platform.rosterChanged(owner);
     golem.remove();
-    return Optional.of(new Packing(new PackedGolem(handle.id(), owner, itemState), snapshot, maxHealth, at));
+    return Optional.of(new Packing(packed, snapshot, item, at));
   }
 
   public GolemSnapshot snapshot(GolemHandle handle) {
     Mob golem = handle.entity();
     GolemSnapshot.Traits traits = new GolemSnapshot.Traits(GolemSnapshot.serializeName(PaperCompat.customName(golem)), golem.getHealth(),
-        platform.patinaStage(golem), platform.waxed(golem));
+        platform.patinaStage(golem), platform.waxed(golem), !(golem instanceof IronGolem iron) || iron.isPlayerCreated());
     return GolemSnapshot.capture(handle.state(), traits, platform.nowMillis());
   }
 
@@ -1073,10 +1088,11 @@ public final class GolemRegistry extends TickedObject {
     }
   }
 
-  public record Packing(PackedGolem item, GolemSnapshot snapshot, double maxHealth, Location at) {
+  public record Packing(PackedGolem packed, GolemSnapshot snapshot, ItemStack item, Location at) {
     public Packing {
-      Objects.requireNonNull(item);
+      Objects.requireNonNull(packed);
       Objects.requireNonNull(snapshot);
+      Objects.requireNonNull(item);
       at = Objects.requireNonNull(at).clone();
     }
 

@@ -28,10 +28,12 @@ import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -52,6 +54,7 @@ public final class GolemItems {
       Material.COPPER_BLOCK, Material.EXPOSED_COPPER, Material.WEATHERED_COPPER, Material.OXIDIZED_COPPER);
   private static final List<Material> WAXED_COPPER_BLOCKS = List.of(
       Material.WAXED_COPPER_BLOCK, Material.WAXED_EXPOSED_COPPER, Material.WAXED_WEATHERED_COPPER, Material.WAXED_OXIDIZED_COPPER);
+  private static volatile ModelMaterials ownerBoundMaterials;
 
   private GolemItems() {
   }
@@ -168,6 +171,10 @@ public final class GolemItems {
         || material == Material.IRON_BLOCK
         || COPPER_BLOCKS.contains(material)
         || WAXED_COPPER_BLOCKS.contains(material);
+  }
+
+  public static boolean mayBeOwnerBound(Material material) {
+    return material == Material.FIREWORK_STAR || isDormantBlock(material) || ownerBoundMaterials().contains(material);
   }
 
   public static Optional<GolemItemKind> kindOf(ItemStack item) {
@@ -321,6 +328,26 @@ public final class GolemItems {
     };
   }
 
+  private static Set<Material> ownerBoundMaterials() {
+    long generation = CustomModel.generation();
+    ModelMaterials cached = ownerBoundMaterials;
+    if (cached != null && cached.generation() == generation) {
+      return cached.materials();
+    }
+    Set<Material> materials = EnumSet.of(model(GolemItemKind.SHATTERED_CORE, baseMaterial(GolemItemKind.SHATTERED_CORE)).material());
+    List<Material> blocks = new ArrayList<>(COPPER_BLOCKS.size() + WAXED_COPPER_BLOCKS.size() + 2);
+    blocks.add(Material.SNOW_BLOCK);
+    blocks.add(Material.IRON_BLOCK);
+    blocks.addAll(COPPER_BLOCKS);
+    blocks.addAll(WAXED_COPPER_BLOCKS);
+    for (Material block : blocks) {
+      materials.add(model(GolemItemKind.DORMANT_GOLEM, block).material());
+    }
+    ModelMaterials next = new ModelMaterials(generation, Set.copyOf(materials));
+    ownerBoundMaterials = next;
+    return next.materials();
+  }
+
   private static Optional<Variant> variant(NamespacedKey id) {
     if (id == null || !NAMESPACE.equals(id.getNamespace())) {
       return Optional.empty();
@@ -429,6 +456,9 @@ public final class GolemItems {
   }
 
   private record Tag(GolemItemKind kind, GolemItemData data) {
+  }
+
+  private record ModelMaterials(long generation, Set<Material> materials) {
   }
 
   private record Variant(GolemItemKind kind, GolemItemData data) {

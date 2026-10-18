@@ -26,7 +26,7 @@ class GolemSnapshotTest {
     GolemState state = populated();
     String name = GolemSnapshot.serializeName(Component.text("Rusty", NamedTextColor.GOLD));
 
-    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(name, 17.5D, 2, true), TAKEN_AT);
+    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(name, 17.5D, 2, true, false), TAKEN_AT);
 
     assertThat(snapshot.id()).isEqualTo(GOLEM);
     assertThat(snapshot.owner()).isEqualTo(OWNER);
@@ -48,13 +48,24 @@ class GolemSnapshotTest {
     assertThat(snapshot.maxHealthMark()).isEqualTo(36D);
     assertThat(snapshot.copperStage()).isEqualTo(2);
     assertThat(snapshot.waxed()).isTrue();
+    assertThat(snapshot.playerCreated()).isFalse();
     assertThat(snapshot.takenAt()).isEqualTo(TAKEN_AT);
+  }
+
+  @Test
+  void whetherAPlayerBuiltTheGolemSurvivesTheJsonRoundTrip() {
+    GolemSnapshot built = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false, true), TAKEN_AT);
+    GolemSnapshot village = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false, false), TAKEN_AT);
+
+    assertThat(GolemSnapshot.fromJson(built.toJson()).orElseThrow().playerCreated()).isTrue();
+    assertThat(GolemSnapshot.fromJson(village.toJson()).orElseThrow().playerCreated()).isFalse();
+    assertThat(built.withoutCargo().playerCreated()).isTrue();
   }
 
   @Test
   void everyFieldSurvivesTheJsonRoundTrip() {
     GolemSnapshot snapshot = GolemSnapshot.capture(populated(),
-        new GolemSnapshot.Traits(GolemSnapshot.serializeName(Component.text("Rusty")), 17.5D, 3, true), TAKEN_AT);
+        new GolemSnapshot.Traits(GolemSnapshot.serializeName(Component.text("Rusty")), 17.5D, 3, true, true), TAKEN_AT);
 
     GolemSnapshot back = GolemSnapshot.fromJson(snapshot.toJson()).orElseThrow();
 
@@ -64,7 +75,7 @@ class GolemSnapshotTest {
   @Test
   void aSnapshotWithoutAHomeChestOrNameRoundTrips() {
     GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
-    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 4D, 0, false), TAKEN_AT);
+    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 4D, 0, false, true), TAKEN_AT);
 
     GolemSnapshot back = GolemSnapshot.fromJson(snapshot.toJson()).orElseThrow();
 
@@ -79,7 +90,7 @@ class GolemSnapshotTest {
   @Test
   void theCustomNameRoundTripsAsASerializedComponent() {
     Component name = Component.text("Sir Clank", NamedTextColor.AQUA);
-    GolemSnapshot snapshot = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(GolemSnapshot.serializeName(name), 1D, 0, false), TAKEN_AT);
+    GolemSnapshot snapshot = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(GolemSnapshot.serializeName(name), 1D, 0, false, true), TAKEN_AT);
 
     assertThat(GolemSnapshot.fromJson(snapshot.toJson()).orElseThrow().name()).contains(name);
     assertThat(GolemSnapshot.serializeName(null)).isNull();
@@ -88,7 +99,7 @@ class GolemSnapshotTest {
 
   @Test
   void enumsAreStoredByStableIds() {
-    GolemSnapshot snapshot = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false), TAKEN_AT);
+    GolemSnapshot snapshot = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false, true), TAKEN_AT);
 
     JsonObject stored = new Gson().fromJson(snapshot.toJson(), JsonObject.class);
 
@@ -101,7 +112,7 @@ class GolemSnapshotTest {
 
   @Test
   void withoutCargoDropsOnlyTheCarriedItemsAndEssence() {
-    GolemSnapshot snapshot = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 9D, 1, false), TAKEN_AT);
+    GolemSnapshot snapshot = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 9D, 1, false, true), TAKEN_AT);
 
     GolemSnapshot emptied = snapshot.withoutCargo();
 
@@ -116,7 +127,7 @@ class GolemSnapshotTest {
 
   @Test
   void restoringAStateKeepsTheGolemIdLoadoutAndRecord() {
-    GolemSnapshot snapshot = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 9D, 1, false), TAKEN_AT);
+    GolemSnapshot snapshot = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 9D, 1, false, true), TAKEN_AT);
     GolemState.Anchor here = GolemState.Anchor.of(WORLD, 90, 64, 90);
 
     GolemState restored = GolemState.restored(snapshot, here);
@@ -148,7 +159,7 @@ class GolemSnapshotTest {
 
   @Test
   void aRestoredStateWithoutAHomeUsesTheGivenSpot() {
-    GolemSnapshot captured = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 9D, 1, false), TAKEN_AT);
+    GolemSnapshot captured = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 9D, 1, false, true), TAKEN_AT);
     GolemSnapshot homeless = copy(captured, null, null, captured.essence());
     GolemState.Anchor here = GolemState.Anchor.of(WORLD, 90, 64, 90);
 
@@ -157,13 +168,13 @@ class GolemSnapshotTest {
 
   @Test
   void valuesAreNormalizedWhenTheSnapshotIsBuilt() {
-    GolemSnapshot captured = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, Double.NaN, 9, false), TAKEN_AT);
+    GolemSnapshot captured = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, Double.NaN, 9, false, true), TAKEN_AT);
     GolemSnapshot snapshot = copy(captured, null, captured.home(), -4D);
 
     assertThat(snapshot.health()).isZero();
     assertThat(snapshot.copperStage()).isEqualTo(GolemSnapshot.MAX_COPPER_STAGE);
     assertThat(snapshot.essence()).isZero();
-    assertThat(GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, -2, false), TAKEN_AT).copperStage()).isZero();
+    assertThat(GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, -2, false, true), TAKEN_AT).copperStage()).isZero();
     assertThatThrownBy(() -> snapshotWithCores(List.of())).isInstanceOf(IllegalArgumentException.class);
     assertThatThrownBy(() -> snapshotWithCores(List.of(GolemCoreType.BLANK, GolemCoreType.GATHERER, GolemCoreType.SORTER)))
         .isInstanceOf(IllegalArgumentException.class);
@@ -175,7 +186,7 @@ class GolemSnapshotTest {
     assertThat(GolemSnapshot.fromJson("")).isEmpty();
     assertThat(GolemSnapshot.fromJson("{\"id\":")).isEmpty();
     assertThat(GolemSnapshot.fromJson("[]")).isEmpty();
-    JsonObject stored = new Gson().fromJson(GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false), TAKEN_AT).toJson(),
+    JsonObject stored = new Gson().fromJson(GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false, true), TAKEN_AT).toJson(),
         JsonObject.class);
     assertThat(GolemSnapshot.fromJson(without(stored, "id"))).isEmpty();
     assertThat(GolemSnapshot.fromJson(without(stored, "owner"))).isEmpty();
@@ -215,7 +226,7 @@ class GolemSnapshotTest {
     }
     state.setRunes(crowded);
 
-    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 1D, 0, false), TAKEN_AT);
+    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 1D, 0, false, true), TAKEN_AT);
 
     assertThat(snapshot.runes()).hasSize(GolemRuneLayout.MAX_SLOTS).containsExactlyElementsOf(crowded.subList(0, GolemRuneLayout.MAX_SLOTS));
     assertThat(GolemSnapshot.fromJson(snapshot.toJson()).orElseThrow().runes()).hasSize(GolemRuneLayout.MAX_SLOTS);
@@ -223,7 +234,7 @@ class GolemSnapshotTest {
 
   @Test
   void unknownCoresRunesAndModesAreSkippedOrDefaulted() {
-    JsonObject stored = new Gson().fromJson(GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false), TAKEN_AT).toJson(),
+    JsonObject stored = new Gson().fromJson(GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false, true), TAKEN_AT).toJson(),
         JsonObject.class);
     stored.getAsJsonArray("cores").add("wizard");
     JsonObject badRune = new JsonObject();
@@ -240,16 +251,16 @@ class GolemSnapshotTest {
   }
 
   private static GolemSnapshot snapshotWithCores(List<GolemCoreType> cores) {
-    GolemSnapshot base = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false), TAKEN_AT);
+    GolemSnapshot base = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false, true), TAKEN_AT);
     return new GolemSnapshot(base.id(), base.owner(), base.body(), cores, base.runes(), base.channels(), base.mode(), base.home(),
         base.homeChest(), base.customName(), base.stats(), base.masterwork(), base.snowTrail(), base.essence(), base.carried(), base.health(),
-        base.maxHealthMark(), base.copperStage(), base.waxed(), base.takenAt());
+        base.maxHealthMark(), base.copperStage(), base.waxed(), base.playerCreated(), base.takenAt());
   }
 
   private static GolemSnapshot copy(GolemSnapshot base, String customName, GolemState.Anchor home, double essence) {
     return new GolemSnapshot(base.id(), base.owner(), base.body(), base.cores(), base.runes(), base.channels(), base.mode(), home,
         base.homeChest(), customName, base.stats(), base.masterwork(), base.snowTrail(), essence, base.carried(), base.health(),
-        base.maxHealthMark(), base.copperStage(), base.waxed(), base.takenAt());
+        base.maxHealthMark(), base.copperStage(), base.waxed(), base.playerCreated(), base.takenAt());
   }
 
   private static String without(JsonObject stored, String field) {

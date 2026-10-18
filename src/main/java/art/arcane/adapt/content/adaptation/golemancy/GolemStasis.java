@@ -33,7 +33,6 @@ import art.arcane.adapt.api.golem.GolemScale;
 import art.arcane.adapt.api.golem.GolemSnapshot;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.golem.item.DormantGolem;
 import art.arcane.adapt.api.golem.item.DormantGolemPlacement;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.item.OwnerBoundDrop;
@@ -58,6 +57,7 @@ import org.bukkit.Material;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -261,12 +261,15 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
   }
 
   boolean spaceClear(BlockPlaceEvent e) {
-    BlockState replaced = e.getBlockReplacedState();
-    return replaced.getBlockData().getCollisionShape(e.getBlockPlaced().getLocation()).getBoundingBoxes().isEmpty();
+    return !e.getBlockReplacedState().getType().isSolid();
   }
 
-  boolean worldAllows(Player player, Location at) {
-    return !AdaptationGate.shouldSkipWorld(at.getWorld(), getSkill()) && canBlockPlace(player, at);
+  boolean worldEnabled(Location at) {
+    return !AdaptationGate.shouldSkipWorld(at.getWorld(), getSkill());
+  }
+
+  boolean placeAllowed(Player player, Location at) {
+    return canBlockPlace(player, at);
   }
 
   FxTimeline channelFx(PackChannel channel) {
@@ -352,12 +355,18 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
       abort(channel, true);
       return;
     }
+    hold(channel.golem());
     channel.advance();
     if (channel.complete()) {
       complete(channel);
       return;
     }
     schedulePulse(channel);
+  }
+
+  private void hold(Mob golem) {
+    golem.setTarget(null);
+    PaperCompat.stopPathfinding(golem);
   }
 
   private boolean holds(PackChannel channel) {
@@ -449,25 +458,28 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
   private void packNow(Player player, GolemHandle handle, Runnable refused) {
     GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
     Optional<GolemRegistry.Packing> packing = Optional.empty();
-    if (registry != null && !handle.isRetired()) {
-      try {
+    boolean answered = false;
+    try {
+      if (registry != null && !handle.isRetired()) {
         packing = registry.pack(handle);
-      } catch (RuntimeException failure) {
-        Adapt.warn("Stasis could not pack golem " + handle.id() + " for " + player.getName() + ".", failure);
+      }
+      answered = true;
+    } catch (RuntimeException failure) {
+      Adapt.warn("Stasis could not pack golem " + handle.id() + " for " + player.getName() + ".", failure);
+    } finally {
+      if (!answered || packing.isEmpty()) {
+        refused.run();
+        warn(player, GolemancyMessages.STASIS_PACK_FAILED);
       }
     }
     if (packing.isEmpty()) {
-      refused.run();
-      warn(player, GolemancyMessages.STASIS_PACK_FAILED);
       return;
     }
     GolemRegistry.Packing packed = packing.get();
+    GolemBody body = packed.snapshot().body();
+    handOver(player, packed.item(), packed.at(), body);
     GolemancyRuntime.reveal().ifPresent(reveal -> reveal.forget(handle));
-    GolemSnapshot snapshot = packed.snapshot();
-    packFx(packed.at(), snapshot.body());
-    ItemStack item = GolemItems.dormantGolem(new DormantGolem(packed.item(), GolemItems.dormantBlock(snapshot.body(), snapshot.copperStage(), snapshot.waxed()),
-        snapshot.cores(), snapshot.runes(), snapshot.health(), packed.maxHealth()));
-    handOver(player, item, packed.at(), snapshot.body());
+    packFx(packed.at(), body);
   }
 
   private void handOver(Player player, ItemStack item, Location at, GolemBody body) {
@@ -501,21 +513,31 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     Optional<GolemRoster.GolemEntry> entry = item == null ? Optional.empty() : roster.flatMap(known -> known.golem(item.golemId()));
     GolemRegistry.BindBlock block = registry == null || snapshot == null ? null : registry.awakenBlock(awaken.at(), snapshot).orElse(null);
     boolean bodyUnlocked = binding != null && snapshot != null && binding.bodyUnlocked(player, snapshot.body());
-    return new AwakenCheck(snapshot != null, item != null && player.getUniqueId().equals(item.owner()), awaken.level(), roster.isPresent(),
-        entry.map(GolemRoster.GolemEntry::status).orElse(null), entry.filter(known -> known.holds(item.state())).isPresent(), bodyUnlocked, block,
-        spaceClear(e), worldAllows(player, awaken.at()));
+    BlockState replaced = e.getBlockReplacedState();
+    boolean waterlogged = replaced.getBlockData() instanceof Waterlogged wet && wet.isWaterlogged();
+    return new AwakenCheck(snapshot != null, item != null && player.getUniqueId().equals(item.owner()), worldEnabled(awaken.at()), awaken.level(),
+        roster.isPresent(), entry.map(GolemRoster.GolemEntry::status).orElse(null), entry.filter(known -> known.holds(item.state())).isPresent(),
+        bodyUnlocked, block, spaceClear(e), replaced.getType(), waterlogged, snapshot == null ? null : snapshot.body(),
+        e.canBuild() && placeAllowed(player, awaken.at()));
   }
 
   private void deploy(Awaken awaken) {
     Player player = awaken.player();
     GolemSnapshot snapshot = awaken.snapshot();
-    Optional<GolemHandle> handle;
+    Optional<GolemHandle> handle = Optional.empty();
+    boolean answered = false;
     try {
       handle = awaken.registry().awaken(player, awaken.at(), new GolemRegistry.Restore(awaken.item(), GolemRoster.Status.PACKED),
           body -> prepare(body, snapshot));
+      answered = true;
     } catch (RuntimeException failure) {
       Adapt.warn("Stasis could not awaken golem " + snapshot.id() + " for " + player.getName() + "; its Dormant Golem was kept.", failure);
-      warn(player, GolemancyMessages.STASIS_AWAKEN_FAILED);
+    } finally {
+      if (!answered) {
+        warn(player, GolemancyMessages.STASIS_AWAKEN_FAILED);
+      }
+    }
+    if (!answered) {
       return;
     }
     if (handle.isEmpty()) {
@@ -566,7 +588,7 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
   private static void prepare(Mob body, GolemSnapshot snapshot) {
     PaperCompat.restoreCopper(body, snapshot.copperStage(), snapshot.waxed());
     if (body instanceof IronGolem iron) {
-      iron.setPlayerCreated(true);
+      iron.setPlayerCreated(snapshot.playerCreated());
     }
   }
 
@@ -649,7 +671,7 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
   protected static class Config extends AdaptationConfig {
     @ConfigDoc(value = "Seconds you channel to pack a golem, by Stasis level from level 1 upward. 0 packs at once. Values load between 0 and 30.", impact = "Lower values pack golems faster.")
     List<Double> channelSecondsByLevel = new ArrayList<>(List.of(2.0, 0.0, 0.0));
-    @ConfigDoc(value = "Blocks you can move away from the golem before a packing channel breaks. Values below 0 load as 0.", impact = "Higher values let you move farther while packing.")
+    @ConfigDoc(value = "Blocks you and the golem can be apart before a packing channel breaks. Values below 0 load as 0.", impact = "Higher values let you move farther while packing.")
     double channelAbortDistance = 4;
     @ConfigDoc(value = "Stasis level at which packed golems heal for the time they spend packed.", impact = "Lower values unlock packed healing sooner.")
     int packedHealLevel = 2;

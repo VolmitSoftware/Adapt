@@ -1,13 +1,18 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRoster;
+import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 final class StasisRules {
   static final double MAX_CHANNEL_SECONDS = 30D;
+  private static final Set<Material> WATER = Set.of(Material.WATER, Material.BUBBLE_COLUMN, Material.SEAGRASS, Material.TALL_SEAGRASS, Material.KELP,
+      Material.KELP_PLANT);
   private static final int TICKS_PER_SECOND = 20;
   private static final long MILLIS_PER_SECOND = 1_000L;
 
@@ -41,12 +46,22 @@ final class StasisRules {
     return level >= 1 && level >= unlockLevel;
   }
 
+  static boolean hazardous(Material replaced, boolean waterlogged, GolemBody body) {
+    if (replaced == Material.LAVA || replaced == Material.FIRE || replaced == Material.SOUL_FIRE) {
+      return true;
+    }
+    return body == GolemBody.FROST && (waterlogged || (replaced != null && WATER.contains(replaced)));
+  }
+
   static AwakenVerdict awakenVerdict(AwakenCheck check) {
     if (!check.readable()) {
       return AwakenVerdict.UNREADABLE;
     }
     if (!check.owner()) {
       return AwakenVerdict.NOT_OWNER;
+    }
+    if (!check.worldEnabled()) {
+      return AwakenVerdict.PROTECTED;
     }
     if (check.level() < 1) {
       return AwakenVerdict.LOCKED;
@@ -67,7 +82,7 @@ final class StasisRules {
     if (block == GolemRegistry.BindBlock.OWNER_DATA_UNAVAILABLE) {
       return AwakenVerdict.UNAVAILABLE;
     }
-    if (!check.spaceClear()) {
+    if (!check.spaceClear() || hazardous(check.replaced(), check.waterlogged(), check.body())) {
       return AwakenVerdict.NO_ROOM;
     }
     if (block == GolemRegistry.BindBlock.CHUNK_CAP) {

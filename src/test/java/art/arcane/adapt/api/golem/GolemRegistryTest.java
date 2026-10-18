@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.golem.item.DormantGolem;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.item.PackedGolem;
 import art.arcane.adapt.api.minion.MinionIdentity;
@@ -11,6 +12,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
@@ -50,6 +52,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.offset;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.contains;
@@ -80,6 +83,7 @@ class GolemRegistryTest extends AdaptTestBase {
   private MockedStatic<GolemItems> items;
   private ItemStack coreItem;
   private ItemStack runeItem;
+  private ItemStack dormantItem;
 
   @BeforeAll
   static void registerGolemKind() {
@@ -102,6 +106,10 @@ class GolemRegistryTest extends AdaptTestBase {
     items = mockStatic(GolemItems.class);
     items.when(() -> GolemItems.core(any(GolemCoreType.class))).thenReturn(coreItem);
     items.when(() -> GolemItems.rune(any(GolemRune.class))).thenReturn(runeItem);
+    dormantItem = mock(ItemStack.class);
+    items.when(() -> GolemItems.dormantBlock(any(GolemBody.class), anyInt(), anyBoolean())).thenCallRealMethod();
+    items.when(() -> GolemItems.isDormantBlock(any())).thenCallRealMethod();
+    items.when(() -> GolemItems.dormantGolem(any(DormantGolem.class))).thenReturn(dormantItem);
   }
 
   @AfterEach
@@ -1518,7 +1526,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemSnapshot snapshot = snapshot(UUID.randomUUID(), GolemBody.IRON, GolemCoreType.GUARDIAN, null);
     PackedGolem item = shattered(roster, snapshot, 0L);
     GolemSnapshot older = GolemSnapshot.capture(GolemState.restored(snapshot, GolemState.Anchor.of(WORLD, 0, 64, 0)),
-        new GolemSnapshot.Traits(null, 3D, 0, false), platform.now - 1L);
+        new GolemSnapshot.Traits(null, 3D, 0, false, true), platform.now - 1L);
     PackedGolem staleCopy = new PackedGolem(snapshot.id(), OWNER, older.toJson());
     IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
     int changesBefore = platform.changes(OWNER);
@@ -1570,7 +1578,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemState state = GolemState.create(new GolemState.Seed(id, OWNER, GolemBody.IRON, GolemCoreType.GATHERER, GolemState.Anchor.of(WORLD, 5, 64, 5)));
     state.setCarried(List.of("stack-a"));
     state.setEssence(40D);
-    GolemSnapshot laden = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 20D, 0, false), platform.now);
+    GolemSnapshot laden = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 20D, 0, false, true), platform.now);
     PackedGolem item = shattered(roster, laden, 0L);
     IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
 
@@ -1620,15 +1628,22 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(handle.isRetired()).isTrue();
     GolemRoster.GolemEntry entry = roster.golem(handle.id()).orElseThrow();
     assertThat(entry.status()).isEqualTo(GolemRoster.Status.PACKED);
-    assertThat(entry.holds(packing.item().state())).isTrue();
-    assertThat(packing.item().golemId()).isEqualTo(handle.id());
-    assertThat(packing.item().owner()).isEqualTo(OWNER);
-    assertThat(packing.item().state()).isEqualTo(packing.snapshot().toJson());
+    assertThat(entry.holds(packing.packed().state())).isTrue();
+    assertThat(packing.packed().golemId()).isEqualTo(handle.id());
+    assertThat(packing.packed().owner()).isEqualTo(OWNER);
+    assertThat(packing.packed().state()).isEqualTo(packing.snapshot().toJson());
     assertThat(packing.snapshot().carried()).containsExactly("stack-a", "stack-b");
     assertThat(packing.snapshot().essence()).isEqualTo(12D);
     assertThat(packing.snapshot().health()).isEqualTo(40D);
-    assertThat(packing.maxHealth()).isEqualTo(100D);
+    assertThat(packing.item()).isSameAs(dormantItem);
     assertThat(packing.at()).isEqualTo(at(3, 64, 3));
+    ArgumentCaptor<DormantGolem> dormant = ArgumentCaptor.forClass(DormantGolem.class);
+    items.verify(() -> GolemItems.dormantGolem(dormant.capture()));
+    assertThat(dormant.getValue().packed()).isEqualTo(packing.packed());
+    assertThat(dormant.getValue().block()).isEqualTo(Material.IRON_BLOCK);
+    assertThat(dormant.getValue().cores()).containsExactly(GolemCoreType.GATHERER);
+    assertThat(dormant.getValue().health()).isEqualTo(40D);
+    assertThat(dormant.getValue().maxHealth()).isEqualTo(100D);
     verify(golem, never()).customName(null);
     verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
   }
@@ -1654,6 +1669,59 @@ class GolemRegistryTest extends AdaptTestBase {
     verify(waiting, never()).remove();
     assertThat(roster.golem(missingHandle.id()).orElseThrow().status()).isEqualTo(GolemRoster.Status.MISSING);
     assertThat(roster.golem(waitingId).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+  }
+
+  @Test
+  void aFailingItemBuildLeavesTheGolemBoundAndItsEntryActive() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    int changesBefore = platform.changes(OWNER);
+    items.when(() -> GolemItems.dormantGolem(any(DormantGolem.class))).thenThrow(new IllegalStateException("model broken"));
+
+    assertThatThrownBy(() -> registry.pack(handle)).hasMessage("model broken");
+
+    verify(golem, never()).remove();
+    assertThat(registry.handle(golem)).isPresent();
+    GolemRoster.GolemEntry entry = roster.golem(handle.id()).orElseThrow();
+    assertThat(entry.status()).isEqualTo(GolemRoster.Status.ACTIVE);
+    assertThat(entry.digest()).isNull();
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore);
+  }
+
+  @Test
+  void anErrorAfterTheClaimStillRestowsTheEntry() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    IronGolem body = golem(new AtomicReference<>(at(9, 64, 9)));
+    platform.spawns.add(body);
+
+    assertThatThrownBy(() -> registry.awaken(owner, at(9, 64, 9), new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), mob -> {
+      throw new LinkageError("missing spawn method");
+    })).isInstanceOf(LinkageError.class);
+
+    verify(body).remove();
+    assertThat(registry.handle(body)).isEmpty();
+    GolemRoster.GolemEntry entry = roster.golem(handle.id()).orElseThrow();
+    assertThat(entry.status()).isEqualTo(GolemRoster.Status.PACKED);
+    assertThat(entry.holds(packing.packed().state())).isTrue();
+  }
+
+  @Test
+  void anErrorDuringARestoreStillRestowsTheEntry() {
+    GolemRoster roster = onlineOwner();
+    GolemSnapshot snapshot = snapshot(UUID.randomUUID(), GolemBody.IRON, GolemCoreType.BLANK, null);
+    PackedGolem item = shattered(roster, snapshot, 0L);
+    IronGolem fresh = golem(new AtomicReference<>(at(0, 64, 0)));
+    doThrow(new LinkageError("missing persistence method")).when(fresh).setPersistent(true);
+
+    assertThatThrownBy(() -> registry.restore(owner, fresh, new GolemRegistry.Restore(item, GolemRoster.Status.SHATTERED)))
+        .isInstanceOf(LinkageError.class);
+
+    assertThat(GolemState.has(fresh)).isFalse();
+    assertThat(roster.golem(snapshot.id()).orElseThrow().holds(item.state())).isTrue();
   }
 
   @Test
@@ -1698,7 +1766,7 @@ class GolemRegistryTest extends AdaptTestBase {
     platform.rosterListener = changed -> order.add("save " + roster.golem(handle.id()).orElseThrow().status());
     platform.spawnListener = spawned -> order.add("spawn " + spawned.getUniqueId().equals(body.getUniqueId()));
 
-    GolemHandle awakened = registry.awaken(owner, spot, new GolemRegistry.Restore(packing.item(), GolemRoster.Status.PACKED),
+    GolemHandle awakened = registry.awaken(owner, spot, new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED),
         mob -> order.add("prepare " + GolemState.has(mob))).orElseThrow();
 
     assertThat(order).startsWith("save ACTIVE", "spawn true", "prepare true");
@@ -1732,7 +1800,7 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(registry.awaken(owner, at(9, 64, 9), new GolemRegistry.Restore(stale, GolemRoster.Status.PACKED), mob -> {
     })).isEmpty();
     roster.remove(handle.id());
-    assertThat(registry.awaken(owner, at(9, 64, 9), new GolemRegistry.Restore(packing.item(), GolemRoster.Status.PACKED), mob -> {
+    assertThat(registry.awaken(owner, at(9, 64, 9), new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), mob -> {
     })).isEmpty();
 
     assertThat(platform.spawnedAt).isEmpty();
@@ -1749,14 +1817,14 @@ class GolemRegistryTest extends AdaptTestBase {
     when(body.isValid()).thenReturn(false);
     platform.spawns.add(body);
 
-    assertThatThrownBy(() -> registry.awaken(owner, at(9, 64, 9), new GolemRegistry.Restore(packing.item(), GolemRoster.Status.PACKED), mob -> {
+    assertThatThrownBy(() -> registry.awaken(owner, at(9, 64, 9), new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), mob -> {
     })).isInstanceOf(IllegalStateException.class);
 
     verify(body).remove();
     assertThat(registry.handle(body)).isEmpty();
     GolemRoster.GolemEntry entry = roster.golem(handle.id()).orElseThrow();
     assertThat(entry.status()).isEqualTo(GolemRoster.Status.PACKED);
-    assertThat(entry.holds(packing.item().state())).isTrue();
+    assertThat(entry.holds(packing.packed().state())).isTrue();
   }
 
   @Test
@@ -1768,12 +1836,12 @@ class GolemRegistryTest extends AdaptTestBase {
     IronGolem body = golem(new AtomicReference<>(at(9, 64, 9)));
     platform.spawns.add(body);
 
-    assertThatThrownBy(() -> registry.awaken(owner, at(9, 64, 9), new GolemRegistry.Restore(packing.item(), GolemRoster.Status.PACKED), mob -> {
+    assertThatThrownBy(() -> registry.awaken(owner, at(9, 64, 9), new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), mob -> {
       throw new IllegalStateException("copper refused");
     })).hasMessage("copper refused");
 
     verify(body).remove();
-    assertThat(roster.golem(handle.id()).orElseThrow().holds(packing.item().state())).isTrue();
+    assertThat(roster.golem(handle.id()).orElseThrow().holds(packing.packed().state())).isTrue();
   }
 
   @Test
@@ -1804,7 +1872,7 @@ class GolemRegistryTest extends AdaptTestBase {
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
     GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
-    GolemRegistry.Restore request = new GolemRegistry.Restore(packing.item(), GolemRoster.Status.PACKED);
+    GolemRegistry.Restore request = new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED);
     platform.ownsLocations = false;
     assertThatThrownBy(() -> registry.awaken(owner, at(9, 64, 9), request, mob -> {
     })).isInstanceOf(IllegalStateException.class);
@@ -1926,6 +1994,7 @@ class GolemRegistryTest extends AdaptTestBase {
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
     when(golem.getHealth()).thenReturn(33D);
+    when(golem.isPlayerCreated()).thenReturn(true);
     when(golem.customName()).thenReturn(Component.text("Plate"));
     platform.patina.put(golem.getUniqueId(), 2);
     platform.waxedGolems.add(golem.getUniqueId());
@@ -1937,6 +2006,7 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(snapshot.name()).contains(Component.text("Plate"));
     assertThat(snapshot.copperStage()).isEqualTo(2);
     assertThat(snapshot.waxed()).isTrue();
+    assertThat(snapshot.playerCreated()).isTrue();
     assertThat(snapshot.takenAt()).isEqualTo(platform.now);
   }
 
@@ -1985,7 +2055,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemState state = GolemState.create(new GolemState.Seed(id, OWNER, body, core, GolemState.Anchor.of(WORLD, 5, 64, 5)));
     state.setRunes(List.of(new GolemRune(GolemRuneType.BULWARK, 3)));
     state.stats().addKills(12L);
-    return GolemSnapshot.capture(state, new GolemSnapshot.Traits(name, 0D, 0, false), platform.now);
+    return GolemSnapshot.capture(state, new GolemSnapshot.Traits(name, 0D, 0, false, true), platform.now);
   }
 
   private PackedGolem shattered(GolemRoster roster, GolemSnapshot snapshot, long chunkKey) {

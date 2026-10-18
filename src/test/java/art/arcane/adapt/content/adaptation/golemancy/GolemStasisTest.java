@@ -12,7 +12,6 @@ import art.arcane.adapt.api.golem.GolemSnapshot;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
-import art.arcane.adapt.api.golem.item.DormantGolem;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.item.OwnerBoundDrop;
@@ -54,6 +53,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.offset;
 import static org.mockito.Answers.RETURNS_SELF;
 import static org.mockito.ArgumentMatchers.any;
@@ -63,6 +63,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
@@ -142,7 +143,6 @@ class GolemStasisTest extends AdaptTestBase {
     bukkit.when(Bukkit::getPluginManager).thenReturn(mock(PluginManager.class));
     items = mockStatic(GolemItems.class, CALLS_REAL_METHODS);
     dormantStack = mock(ItemStack.class);
-    items.when(() -> GolemItems.dormantGolem(any(DormantGolem.class))).thenReturn(dormantStack);
     items.when(() -> GolemItems.kindOf(crook)).thenReturn(Optional.of(GolemItemKind.CROOK));
     drops = mockStatic(OwnerBoundDrop.class);
     adaptation = new GolemStasis();
@@ -246,13 +246,32 @@ class GolemStasisTest extends AdaptTestBase {
     order.verify(inventory).addItem(dormantStack);
     order.verify(player).saveData();
     verify(learned).packFx(packable.packing.at(), GolemBody.IRON);
-    ArgumentCaptor<DormantGolem> dormant = ArgumentCaptor.forClass(DormantGolem.class);
-    items.verify(() -> GolemItems.dormantGolem(dormant.capture()));
-    assertThat(dormant.getValue().packed()).isEqualTo(packable.packing.item());
-    assertThat(dormant.getValue().block()).isEqualTo(Material.IRON_BLOCK);
-    assertThat(dormant.getValue().health()).isEqualTo(40D);
-    assertThat(dormant.getValue().maxHealth()).isEqualTo(MAX_HEALTH);
     drops.verifyNoInteractions();
+  }
+
+  @Test
+  void theDormantGolemIsHandedOverBeforeAnyPackEffectsRun() {
+    Packable packable = packable();
+    GolemStasis learned = learned(2);
+    doThrow(new IllegalStateException("effects failed")).when(learned).packFx(any(), any());
+
+    assertThatThrownBy(() -> learned.pack(player, packable.handle)).hasMessage("effects failed");
+
+    verify(inventory).addItem(dormantStack);
+    verify(player).saveData();
+  }
+
+  @Test
+  void anErrorWhilePackingStillFreesTheRecallCooldown() {
+    Packable failing = packable();
+    Packable next = packable();
+    when(registry.pack(failing.handle)).thenThrow(new LinkageError("missing method"));
+    GolemStasis learned = learned(3);
+
+    assertThatThrownBy(() -> learned.recall(player, failing.handle)).isInstanceOf(LinkageError.class);
+    learned.recall(player, next.handle);
+
+    verify(registry).pack(next.handle);
   }
 
   @Test
@@ -313,6 +332,7 @@ class GolemStasisTest extends AdaptTestBase {
     int pulses = drain();
 
     assertThat(pulses).isEqualTo(40);
+    verify(packable.golem, times(40)).setTarget(null);
     verify(registry).pack(packable.handle);
     verify(player).saveData();
   }
@@ -386,16 +406,56 @@ class GolemStasisTest extends AdaptTestBase {
   }
 
   @Test
-  void theAwakenPrepareRestoresCopperAndMarksIronGolemsPlayerBuilt() {
-    Awakening awakening = awakening(1, GolemRoster.Status.PACKED);
+  void theAwakenPrepareRestoresWhetherAPlayerBuiltTheIronGolem() {
+    Awakening built = awakening(1, GolemRoster.Status.PACKED);
+    built.adaptation.awaken(built.event);
+    ArgumentCaptor<Consumer<Mob>> prepare = consumerCaptor();
+    verify(registry).awaken(eq(player), any(Location.class), any(), prepare.capture());
+    IronGolem builtBody = mock(IronGolem.class);
+    prepare.getValue().accept(builtBody);
+
+    Awakening village = awakening(1, GolemRoster.Status.PACKED, false);
+    village.adaptation.awaken(village.event);
+    ArgumentCaptor<Consumer<Mob>> villagePrepare = consumerCaptor();
+    verify(registry, times(2)).awaken(eq(player), any(Location.class), any(), villagePrepare.capture());
+    IronGolem villageBody = mock(IronGolem.class);
+    villagePrepare.getValue().accept(villageBody);
+
+    verify(builtBody).setPlayerCreated(true);
+    verify(villageBody).setPlayerCreated(false);
+  }
+
+  @Test
+  void aPlacementTheServerWillNotBuildIsRefusedAndKept() {
+    Awakening awakening = awakening(3, GolemRoster.Status.PACKED);
+    awakening.event.setBuild(false);
 
     awakening.adaptation.awaken(awakening.event);
 
-    ArgumentCaptor<Consumer<Mob>> prepare = consumerCaptor();
-    verify(registry).awaken(eq(player), any(Location.class), any(), prepare.capture());
-    IronGolem body = mock(IronGolem.class);
-    prepare.getValue().accept(body);
-    verify(body).setPlayerCreated(true);
+    verify(registry, never()).awaken(any(), any(), any(), any());
+    verify(inventory, never()).setItem(any(EquipmentSlot.class), any());
+  }
+
+  @Test
+  void anAwakeningInADisabledWorldIsRefusedBeforeTheLevelCheck() {
+    Awakening awakening = awakening(0, GolemRoster.Status.PACKED);
+    doReturn(false).when(awakening.adaptation).worldEnabled(any(Location.class));
+
+    awakening.adaptation.awaken(awakening.event);
+
+    verify(registry, never()).awaken(any(), any(), any(), any());
+    verify(inventory, never()).setItem(any(EquipmentSlot.class), any());
+  }
+
+  @Test
+  void anErrorWhileAwakeningKeepsTheDormantGolem() {
+    Awakening awakening = awakening(1, GolemRoster.Status.PACKED);
+    when(registry.awaken(any(), any(), any(), any())).thenThrow(new LinkageError("missing spawn method"));
+
+    assertThatThrownBy(() -> awakening.adaptation.awaken(awakening.event)).isInstanceOf(LinkageError.class);
+
+    verify(inventory, never()).setItem(any(EquipmentSlot.class), any());
+    verify(player, never()).saveData();
   }
 
   @Test
@@ -521,18 +581,23 @@ class GolemStasisTest extends AdaptTestBase {
     lenient().when(handle.body()).thenReturn(GolemBody.IRON);
     GolemState state = GolemState.create(new GolemState.Seed(golemId, player.getUniqueId(), GolemBody.IRON, GolemCoreType.GUARDIAN,
         GolemState.Anchor.of(WORLD, 2, 64, 0)));
-    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 40D, 0, false), 1L);
-    GolemRegistry.Packing packing = new GolemRegistry.Packing(new PackedGolem(golemId, player.getUniqueId(), snapshot.toJson()), snapshot,
-        MAX_HEALTH, new Location(world, 2.5D, 64D, 0.5D));
+    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 40D, 0, false, true), 1L);
+    GolemRegistry.Packing packing = new GolemRegistry.Packing(new PackedGolem(golemId, playerId, snapshot.toJson()), snapshot, dormantStack,
+        new Location(world, 2.5D, 64D, 0.5D));
     lenient().when(registry.pack(handle)).thenReturn(Optional.of(packing));
     return new Packable(handle, golem, packing);
   }
 
   private Awakening awakening(int level, GolemRoster.Status status) {
+    return awakening(level, status, true);
+  }
+
+  private Awakening awakening(int level, GolemRoster.Status status, boolean playerCreated) {
     UUID golemId = UUID.randomUUID();
     GolemState state = GolemState.create(new GolemState.Seed(golemId, player.getUniqueId(), GolemBody.IRON, GolemCoreType.GUARDIAN,
         GolemState.Anchor.of(WORLD, 0, 64, 0)));
-    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 40D, 0, false), System.currentTimeMillis() - 65 * SECOND);
+    GolemSnapshot snapshot = GolemSnapshot.capture(state, new GolemSnapshot.Traits(null, 40D, 0, false, playerCreated),
+        System.currentTimeMillis() - 65 * SECOND);
     PackedGolem packed = new PackedGolem(golemId, player.getUniqueId(), snapshot.toJson());
     GolemRoster roster = new GolemRoster();
     roster.add(new GolemRoster.Binding(golemId, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
@@ -561,7 +626,8 @@ class GolemStasisTest extends AdaptTestBase {
     lenient().doReturn(Optional.of(binding)).when(learned).binding();
     lenient().doReturn(Optional.of(roster)).when(learned).roster(player);
     lenient().doReturn(true).when(learned).spaceClear(event);
-    lenient().doReturn(true).when(learned).worldAllows(any(Player.class), any(Location.class));
+    lenient().doReturn(true).when(learned).worldEnabled(any(Location.class));
+    lenient().doReturn(true).when(learned).placeAllowed(any(Player.class), any(Location.class));
     return new Awakening(learned, event, held, packed, snapshot, golem);
   }
 
