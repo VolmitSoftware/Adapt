@@ -85,6 +85,7 @@ public final class CommandRuntimeMessages {
   public static final TextKey PERF_NO_METRICS = TextKey.of("command.runtime.perf_no_metrics", "No tick metrics collected yet.");
   public static final TextKey PERF_RESET = TextKey.of("command.runtime.perf_reset", "Ticker and ability telemetry reset.");
   public static final TextKey GOLEM_LIST_HEADER = TextKey.of("command.runtime.golem_list_header", "{player} has {count} golems:");
+  public static final TextKey GOLEM_LIST_HEADER_ONE = TextKey.of("command.runtime.golem_list_header_one", "{player} has 1 golem:");
   public static final TextKey GOLEM_LIST_EMPTY = TextKey.of("command.runtime.golem_list_empty", "{player} has no golems.");
   public static final TextKey GOLEM_LIST_ENTRY = TextKey.of("command.runtime.golem_list_entry", "{id}: {golem}, {status}. {location}");
   public static final TextKey GOLEM_NOT_FOUND = TextKey.of("command.runtime.golem_not_found", "{player} has no golem whose id starts with {id}.");
@@ -179,6 +180,7 @@ public final class CommandRuntimeMessages {
     builder.add(PERF_NO_METRICS);
     builder.add(PERF_RESET);
     builder.add(GOLEM_LIST_HEADER);
+    builder.add(GOLEM_LIST_HEADER_ONE);
     builder.add(GOLEM_LIST_EMPTY);
     builder.add(GOLEM_LIST_ENTRY);
     builder.add(GOLEM_NOT_FOUND);

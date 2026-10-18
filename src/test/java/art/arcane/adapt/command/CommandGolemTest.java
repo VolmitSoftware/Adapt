@@ -175,6 +175,19 @@ class CommandGolemTest extends AdaptTestBase {
   }
 
   @Test
+  void listUsesTheSingularHeaderForOneGolem() {
+    data.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      new CommandGolem().list(target);
+    }
+
+    List<String> sent = messages(admin);
+    assertThat(sent).anySatisfy(message -> assertThat(message).contains("Steve has 1 golem:"));
+    assertThat(sent).noneSatisfy(message -> assertThat(message).contains("1 golems"));
+  }
+
+  @Test
   void listReportsAnEmptyRoster() {
     new CommandGolem().list(target);
 

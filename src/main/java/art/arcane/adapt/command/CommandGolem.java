@@ -121,9 +121,10 @@ public class CommandGolem {
       CommandTargetExecutor.send(sender, FConst.info(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_LIST_EMPTY, untrusted("player", name))));
       return;
     }
-    Feedback.FeedbackBuilder report = Feedback.builder().message(FConst.infoText(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_LIST_HEADER,
-        untrusted("player", name),
-        trusted("count", golems.size()))));
+    String header = golems.size() == 1
+        ? AdaptLanguage.text(CommandRuntimeMessages.GOLEM_LIST_HEADER_ONE, untrusted("player", name))
+        : AdaptLanguage.text(CommandRuntimeMessages.GOLEM_LIST_HEADER, untrusted("player", name), trusted("count", golems.size()));
+    Feedback.FeedbackBuilder report = Feedback.builder().message(FConst.infoText(header));
     for (GolemRoster.GolemEntry entry : golems) {
       report.message(FConst.infoText(describe(entry)));
     }
