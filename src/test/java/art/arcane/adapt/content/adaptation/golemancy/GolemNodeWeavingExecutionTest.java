@@ -51,11 +51,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_SELF;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
@@ -63,6 +65,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -166,6 +169,21 @@ class GolemNodeWeavingExecutionTest extends AdaptTestBase {
     verify(click.event).setCancelled(true);
     verify(service).place(click.player, click.block, BlockFace.UP, NodeType.DEPOSIT, click.adaptation);
     verify(click.held).setAmount(1);
+  }
+
+  @Test
+  void theFirstNodeOfEachTypePaysOnceAndLaterOnesPayNothing() {
+    NodeService service = mock(NodeService.class);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
+    Click click = click(true, EquipmentSlot.HAND, 2);
+    when(service.place(click.player, click.block, BlockFace.UP, NodeType.DEPOSIT, click.adaptation)).thenReturn(NodePlacementVerdict.READY);
+    doNothing().when(click.adaptation).xp(any(Player.class), any(Location.class), anyDouble(), anyString());
+    doReturn(true, false).when(click.adaptation).firstNode(click.player, NodeType.DEPOSIT);
+
+    click.fire();
+    click.fire();
+
+    verify(click.adaptation, times(1)).xp(eq(click.player), any(Location.class), eq(200D), eq("first_node:deposit"));
   }
 
   @Test
@@ -296,6 +314,7 @@ class GolemNodeWeavingExecutionTest extends AdaptTestBase {
     lenient().when(event.getItem()).thenReturn(held);
     GolemNodeWeaving learned = spy(adaptation);
     doReturn(level).when(learned).getActiveLevel(player);
+    lenient().doReturn(false).when(learned).firstNode(any(Player.class), any(NodeType.class));
     return new Click(event, player, block, held, learned);
   }
 

@@ -19,6 +19,7 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import art.arcane.adapt.api.xp.XpProvenance;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Bisected;
@@ -75,6 +76,7 @@ class HarvestNodeBehaviorTest {
   private double roll = 0.99D;
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<HarvestFeedback> feedback;
+  private MockedStatic<XpProvenance> provenance;
 
   @BeforeEach
   void setUp() {
@@ -86,11 +88,14 @@ class HarvestNodeBehaviorTest {
     behavior = new HarvestNodeBehavior(core, spots, actions);
     runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
     feedback = mockStatic(HarvestFeedback.class);
+    provenance = mockStatic(XpProvenance.class);
+    provenance.when(() -> XpProvenance.isPlayerPlaced(any(Block.class))).thenReturn(false);
     runtime.when(GolemancyRuntime::boards).thenReturn(Optional.of(boards));
   }
 
   @AfterEach
   void close() {
+    provenance.close();
     feedback.close();
     runtime.close();
   }
@@ -285,6 +290,19 @@ class HarvestNodeBehaviorTest {
     behavior.act(golem, task("harvest", 1, 64, 0));
 
     assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("WHEAT", 5, "WHEAT_SEEDS", 4));
+  }
+
+  @Test
+  void cropsAPlayerPlacedGetNoBountifulRollAndNoBonusYield() {
+    wheat(0, 64, 0);
+    roll = 0.05D;
+    provenance.when(() -> XpProvenance.isPlayerPlaced(any(Block.class))).thenReturn(true);
+    GolemContext golem = golem(1);
+
+    behavior.act(golem, task("harvest", 0, 64, 0));
+
+    verify(golem, never()).withBonusYield(anyList());
+    assertThat(carriedCounts()).containsEntry("WHEAT", 1);
   }
 
   @Test

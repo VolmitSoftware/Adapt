@@ -40,6 +40,7 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.content.skill.SkillGolemancy;
+import art.arcane.adapt.content.skill.golemancy.CopperCare;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
@@ -254,6 +255,7 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
   void applyRebornBoon(Mob golem, GolemSnapshot snapshot) {
     Config config = getConfig();
     PaperCompat.restoreCopper(golem, snapshot.copperStage(), snapshot.waxed());
+    CopperCare.restored(golem, snapshot.copperStage());
     int ticks = config.rebornResistanceSeconds * TICKS_PER_SECOND;
     if (ticks > 0) {
       golem.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, ticks, config.rebornResistanceAmplifier, false, true, true));

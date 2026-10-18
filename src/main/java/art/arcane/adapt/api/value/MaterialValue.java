@@ -20,7 +20,6 @@ package art.arcane.adapt.api.value;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
-import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.io.IO;
@@ -29,6 +28,7 @@ import com.google.gson.JsonParseException;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.bukkit.Bukkit;
+import org.bukkit.Keyed;
 import org.bukkit.Material;
 import org.bukkit.inventory.CookingRecipe;
 import org.bukkit.inventory.ItemStack;
@@ -53,6 +53,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 public class MaterialValue {
   private static final String RUNTIME_CACHE_SIGNATURE = UUID.randomUUID().toString();
+  private static final String ADAPT_NAMESPACE = "adapt";
   private static volatile MaterialValue valueCache = null;
 
   private Map<Material, Double> value = new ConcurrentHashMap<>();
@@ -246,6 +247,10 @@ public class MaterialValue {
     return cache.value.get(m);
   }
 
+  static boolean isAdaptRecipe(Recipe recipe) {
+    return recipe instanceof Keyed keyed && keyed.getKey() != null && ADAPT_NAMESPACE.equals(keyed.getKey().getNamespace());
+  }
+
   private static List<MaterialRecipe> getRecipes(Material mat) {
     List<MaterialRecipe> r = new ArrayList<>();
     try {
@@ -256,8 +261,8 @@ public class MaterialValue {
         Adapt.verbose("Failed to set durability of " + mat.name());
       }
       Bukkit.getRecipesFor(is).forEach(i -> {
-        if (i instanceof AdaptRecipe) {
-          Adapt.verbose("Skipping Adapt Recipe to prevent duplicates, " + mat.name() + " -> " + ((AdaptRecipe) i).getKey() + "");
+        if (isAdaptRecipe(i)) {
+          Adapt.verbose("Skipping Adapt Recipe to prevent duplicates, " + mat.name() + " -> " + ((Keyed) i).getKey() + "");
           return;
         }
         MaterialRecipe rx = toMaterial(i);

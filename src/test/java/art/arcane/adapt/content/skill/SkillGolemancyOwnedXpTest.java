@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.skill;
 
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
 import art.arcane.adapt.content.skill.golemancy.GolemXpRules;
 import org.junit.jupiter.api.Test;
@@ -25,7 +26,13 @@ class SkillGolemancyOwnedXpTest {
     assertThat(DEFAULTS.assistBodyMultiplierFrost).isEqualTo(2.0D);
     assertThat(DEFAULTS.assistBodyMultiplierCopper).isEqualTo(1.0D);
     assertThat(DEFAULTS.assistBodyMultiplierIron).isEqualTo(1.0D);
-    assertThat(DEFAULTS.assistBodyMultiplierBone).isEqualTo(0.35D);
+    assertThat(DEFAULTS.bindXpCooldownMillis).isEqualTo(20000L);
+    assertThat(DEFAULTS.craftCrookXp).isEqualTo(60D);
+    assertThat(DEFAULTS.craftBlankCoreXp).isEqualTo(40D);
+    assertThat(DEFAULTS.craftRoleCoreXp).isEqualTo(90D);
+    assertThat(DEFAULTS.craftBlankNodeXp).isEqualTo(5D);
+    assertThat(DEFAULTS.craftNodeXp).isEqualTo(15D);
+    assertThat(DEFAULTS.craftBlankRuneXp).isEqualTo(10D);
     assertThat(DEFAULTS.assistCooldownMillis).isEqualTo(1500L);
     assertThat(DEFAULTS.raidXpMultiplier).isEqualTo(1.5D);
     assertThat(DEFAULTS.ownerProximityRadius).isEqualTo(48D);
@@ -41,7 +48,7 @@ class SkillGolemancyOwnedXpTest {
       "FROST, 100, 2.0",
       "COPPER, 220, 1.0",
       "IRON, 450, 1.0",
-      "BONE, 0, 0.35"
+      "BONE, 0, 0"
   })
   void bodiesMapToTheirBindXpAndAssistMultiplier(GolemBody body, double bindXp, double assistMultiplier) {
     assertThat(SkillGolemancy.bindXp(DEFAULTS, body)).isEqualTo(bindXp);
@@ -57,7 +64,6 @@ class SkillGolemancyOwnedXpTest {
     config.assistBodyMultiplierFrost = 0.1D;
     config.assistBodyMultiplierCopper = 0.2D;
     config.assistBodyMultiplierIron = 0.3D;
-    config.assistBodyMultiplierBone = 0.4D;
 
     assertThat(SkillGolemancy.bindXp(config, GolemBody.FROST)).isEqualTo(11D);
     assertThat(SkillGolemancy.bindXp(config, GolemBody.COPPER)).isEqualTo(22D);
@@ -65,7 +71,29 @@ class SkillGolemancyOwnedXpTest {
     assertThat(SkillGolemancy.assistBodyMultiplier(config, GolemBody.FROST)).isEqualTo(0.1D);
     assertThat(SkillGolemancy.assistBodyMultiplier(config, GolemBody.COPPER)).isEqualTo(0.2D);
     assertThat(SkillGolemancy.assistBodyMultiplier(config, GolemBody.IRON)).isEqualTo(0.3D);
-    assertThat(SkillGolemancy.assistBodyMultiplier(config, GolemBody.BONE)).isEqualTo(0.4D);
+    assertThat(SkillGolemancy.assistBodyMultiplier(config, GolemBody.BONE)).isZero();
+  }
+
+  @Test
+  void craftXpFollowsTheItemKindAndPaysNothingForInfusedOrBoundItems() {
+    SkillGolemancy.Config config = new SkillGolemancy.Config();
+    config.craftCrookXp = 1D;
+    config.craftBlankCoreXp = 2D;
+    config.craftRoleCoreXp = 3D;
+    config.craftBlankNodeXp = 4D;
+    config.craftNodeXp = 5D;
+    config.craftBlankRuneXp = 6D;
+
+    assertThat(SkillGolemancy.craftXp(config, GolemItemKind.CROOK)).isEqualTo(1D);
+    assertThat(SkillGolemancy.craftXp(config, GolemItemKind.BLANK_CORE)).isEqualTo(2D);
+    assertThat(SkillGolemancy.craftXp(config, GolemItemKind.CORE)).isEqualTo(3D);
+    assertThat(SkillGolemancy.craftXp(config, GolemItemKind.BLANK_NODE)).isEqualTo(4D);
+    assertThat(SkillGolemancy.craftXp(config, GolemItemKind.NODE)).isEqualTo(5D);
+    assertThat(SkillGolemancy.craftXp(config, GolemItemKind.BLANK_RUNE)).isEqualTo(6D);
+    assertThat(SkillGolemancy.craftXp(config, GolemItemKind.RUNE)).isZero();
+    assertThat(SkillGolemancy.craftXp(config, GolemItemKind.DORMANT_GOLEM)).isZero();
+    assertThat(SkillGolemancy.craftXp(config, GolemItemKind.SHATTERED_CORE)).isZero();
+    assertThat(SkillGolemancy.craftXp(config, GolemItemKind.MASTERWORK_HEART)).isZero();
   }
 
   @ParameterizedTest
@@ -73,7 +101,7 @@ class SkillGolemancyOwnedXpTest {
       "FROST, 10, 20, false, 60",
       "COPPER, 10, 20, false, 30",
       "IRON, 10, 20, false, 30",
-      "BONE, 10, 20, false, 10.5",
+      "BONE, 10, 20, false, 0",
       "IRON, 30, 12, false, 36",
       "FROST, 30, 4, false, 24",
       "IRON, 10, 20, true, 9",

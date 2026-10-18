@@ -52,7 +52,7 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
   private final LumberFellings fellings = new LumberFellings();
   private final LumberRejections rejections = new LumberRejections();
   private final LumberNodeBehavior lumber = new LumberNodeBehavior(this, fellings, rejections,
-      new LumberActions(this, XpProvenance::hasPermanentPlayerModification));
+      new LumberActions(this, XpProvenance::isPlayerPlaced));
 
   public GolemLumberCore() {
     super("golem-lumber-core");

@@ -87,6 +87,36 @@ class RecipeTitheTest {
   }
 
   @Test
+  void anObserverHearsEveryCraftOfATrackedRecipeIncludingShiftCrafts() {
+    List<Integer> heard = new ArrayList<>();
+    tithe.observe((who, recipe, crafts) -> heard.add(crafts));
+    level.set(30);
+    fill(4, Material.REDSTONE, Material.AMETHYST_SHARD);
+
+    int crafts = craftAll(true);
+
+    assertThat(crafts).isEqualTo(4);
+    assertThat(heard.stream().mapToInt(Integer::intValue).sum()).isEqualTo(4);
+  }
+
+  @Test
+  void anObserverHearsCraftsOfRecipesWithoutATitheButNotCreativeOnes() {
+    List<Integer> heard = new ArrayList<>();
+    tithe.observe((who, recipe, crafts) -> heard.add(crafts));
+    tithe.set(TITHED, 0);
+    level.set(0);
+    fill(5, Material.REDSTONE, Material.AMETHYST_SHARD);
+
+    assertThat(craftAll(false)).isEqualTo(1);
+    assertThat(heard).containsExactly(1);
+
+    gameMode = GameMode.CREATIVE;
+    fill(5, Material.REDSTONE, Material.AMETHYST_SHARD);
+    craftAll(false);
+    assertThat(heard).containsExactly(1);
+  }
+
+  @Test
   void affordableCraftsDividesLevelsByTheTithe() {
     assertThat(RecipeTithe.affordableCrafts(7, 3)).isEqualTo(2);
     assertThat(RecipeTithe.affordableCrafts(6, 3)).isEqualTo(2);

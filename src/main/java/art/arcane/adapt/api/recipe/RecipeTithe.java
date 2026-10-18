@@ -22,12 +22,15 @@ import org.bukkit.inventory.Recipe;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class RecipeTithe implements Listener {
   private final Map<NamespacedKey, Integer> levelsByRecipe = new ConcurrentHashMap<>();
+  private final Set<NamespacedKey> tracked = ConcurrentHashMap.newKeySet();
   private final Map<UUID, OpenCharge> openCharges = new ConcurrentHashMap<>();
+  private volatile CraftObserver observer;
 
   public static int affordableCrafts(int playerLevel, int levelsPerCraft) {
     if (levelsPerCraft <= 0) {
@@ -38,6 +41,7 @@ public final class RecipeTithe implements Listener {
 
   public void set(NamespacedKey recipeKey, int levels) {
     Objects.requireNonNull(recipeKey);
+    tracked.add(recipeKey);
     if (levels <= 0) {
       levelsByRecipe.remove(recipeKey);
       return;
@@ -45,11 +49,19 @@ public final class RecipeTithe implements Listener {
     levelsByRecipe.put(recipeKey, levels);
   }
 
+  public void observe(CraftObserver next) {
+    observer = next;
+  }
+
   public int levels(Recipe recipe) {
     if (!(recipe instanceof Keyed keyed)) {
       return 0;
     }
     return levelsByRecipe.getOrDefault(keyed.getKey(), 0);
+  }
+
+  public boolean tracks(Recipe recipe) {
+    return recipe instanceof Keyed keyed && tracked.contains(keyed.getKey());
   }
 
   @EventHandler(priority = EventPriority.HIGHEST)
@@ -96,11 +108,11 @@ public final class RecipeTithe implements Listener {
       return;
     }
 
-    int levels = levels(e.getRecipe());
-    if (levels <= 0 || isExempt(p)) {
+    Recipe recipe = e.getRecipe();
+    if (!tracks(recipe) || isExempt(p)) {
       return;
     }
-    openCharges.put(p.getUniqueId(), OpenCharge.open(e.getInventory().getMatrix(), levels, p.getTicksLived()));
+    openCharges.put(p.getUniqueId(), OpenCharge.open(recipe, e.getInventory().getMatrix(), levels(recipe), p.getTicksLived()));
   }
 
   @EventHandler(priority = EventPriority.LOWEST)
@@ -151,9 +163,15 @@ public final class RecipeTithe implements Listener {
       return;
     }
 
+    int before = charge.chargedCrafts;
     int due = charge.charge(started);
     if (due > 0) {
       p.setLevel(Math.max(0, p.getLevel() - due));
+    }
+    int crafted = charge.chargedCrafts - before;
+    CraftObserver watching = observer;
+    if (crafted > 0 && watching != null) {
+      watching.crafted(p, charge.recipe, crafted);
     }
   }
 
@@ -165,21 +183,27 @@ public final class RecipeTithe implements Listener {
     return stack == null || stack.getType() == Material.AIR || stack.getAmount() <= 0;
   }
 
+  public interface CraftObserver {
+    void crafted(Player player, Recipe recipe, int crafts);
+  }
+
   private static final class OpenCharge {
+    private final Recipe recipe;
     private final Material[] types;
     private final int[] amounts;
     private final int levelsPerCraft;
     private final int tick;
     private int chargedCrafts;
 
-    private OpenCharge(Material[] types, int[] amounts, int levelsPerCraft, int tick) {
+    private OpenCharge(Recipe recipe, Material[] types, int[] amounts, int levelsPerCraft, int tick) {
+      this.recipe = recipe;
       this.types = types;
       this.amounts = amounts;
       this.levelsPerCraft = levelsPerCraft;
       this.tick = tick;
     }
 
-    private static OpenCharge open(ItemStack[] matrix, int levelsPerCraft, int tick) {
+    private static OpenCharge open(Recipe recipe, ItemStack[] matrix, int levelsPerCraft, int tick) {
       Material[] types = new Material[matrix.length];
       int[] amounts = new int[matrix.length];
       for (int slot = 0; slot < matrix.length; slot++) {
@@ -189,7 +213,7 @@ public final class RecipeTithe implements Listener {
           amounts[slot] = stack.getAmount();
         }
       }
-      return new OpenCharge(types, amounts, levelsPerCraft, tick);
+      return new OpenCharge(recipe, types, amounts, levelsPerCraft, tick);
     }
 
     private int craftsStarted(ItemStack[] matrix) {

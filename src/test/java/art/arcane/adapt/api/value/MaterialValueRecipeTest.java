@@ -5,6 +5,7 @@ import art.arcane.adapt.AdaptTestBase;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.junit.jupiter.api.AfterEach;
@@ -64,6 +65,18 @@ class MaterialValueRecipeTest extends AdaptTestBase {
         if (config != null) {
             config.close();
         }
+    }
+
+    @Test
+    void adaptRecipesAreSkippedByTheirNamespaceNotTheirClass() {
+        ShapedRecipe adapt = mock(ShapedRecipe.class);
+        when(adapt.getKey()).thenReturn(new NamespacedKey("adapt", "golemancy-blank-core"));
+        ShapedRecipe vanilla = mock(ShapedRecipe.class);
+        when(vanilla.getKey()).thenReturn(NamespacedKey.minecraft("iron_block"));
+
+        assertThat(MaterialValue.isAdaptRecipe(adapt)).isTrue();
+        assertThat(MaterialValue.isAdaptRecipe(vanilla)).isFalse();
+        assertThat(MaterialValue.isAdaptRecipe(mock(Recipe.class))).isFalse();
     }
 
     @Test

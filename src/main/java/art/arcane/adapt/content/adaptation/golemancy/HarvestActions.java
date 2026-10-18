@@ -6,6 +6,7 @@ import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeItemTags;
 import art.arcane.adapt.api.golem.node.NodeRecord;
+import art.arcane.adapt.api.xp.XpProvenance;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -58,16 +59,27 @@ final class HarvestActions {
     return block -> golem.owns(block.getLocation());
   }
 
+  private static boolean natural(List<Block> parts) {
+    for (Block part : parts) {
+      if (XpProvenance.isPlayerPlaced(part)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   void reap(GolemContext golem, Block block, HarvesterRules.Plan plan) {
     Material type = block.getType();
     BlockData data = block.getBlockData();
     HarvestCrops.Kind kind = plan.crops().kind(type);
     List<Block> parts = kind == HarvestCrops.Kind.COLUMN ? HarvesterRules.column(block) : List.of(block);
     List<ItemStack> drops = roll(parts);
-    if (plan.bountiful() && random.get().nextDouble() < core.config().bountifulChance) {
-      drops.addAll(roll(parts));
+    if (natural(parts)) {
+      if (plan.bountiful() && random.get().nextDouble() < core.config().bountifulChance) {
+        drops.addAll(roll(parts));
+      }
+      drops = new ArrayList<>(golem.withBonusYield(drops));
     }
-    drops = new ArrayList<>(golem.withBonusYield(drops));
     switch (kind) {
       case CROP -> replant(block, type, data, drops);
       case TORCHFLOWER -> block.setType(takeSeed(drops, Material.TORCHFLOWER_SEEDS) ? Material.TORCHFLOWER_CROP : Material.AIR);

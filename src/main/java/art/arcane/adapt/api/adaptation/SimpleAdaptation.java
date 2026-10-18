@@ -592,6 +592,11 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     adaptPlayer.getData().addStat(stat, amount);
   }
 
+  protected double statOf(Player p, String stat) {
+    AdaptPlayer adaptPlayer = readyPlayer(p);
+    return adaptPlayer == null ? 0D : adaptPlayer.getData().getStat(stat);
+  }
+
   private AdaptPlayer readyPlayer(Player player) {
     if (player == null) {
       return null;

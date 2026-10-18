@@ -48,7 +48,7 @@ final class BoneFrameRules {
 
   static double share(List<Double> shareByLevel, int level) {
     double share = AnimusBindingRules.atLevel(shareByLevel, level, 0D);
-    return Double.isFinite(share) ? Math.max(0D, share) : 0D;
+    return Double.isFinite(share) ? Math.min(1D, Math.max(0D, share)) : 0D;
   }
 
   static Set<GolemRuneType> aspects(List<String> ids, Consumer<String> warn) {

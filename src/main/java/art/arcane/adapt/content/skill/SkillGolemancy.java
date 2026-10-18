@@ -44,6 +44,8 @@ import art.arcane.adapt.api.golem.gui.CrookInteractions;
 import art.arcane.adapt.api.golem.gui.GuiCursor;
 import art.arcane.adapt.api.golem.gui.NodeInteractions;
 import art.arcane.adapt.api.golem.gui.NodeTagPrompt;
+import art.arcane.adapt.api.golem.item.GolemItemKind;
+import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeItemTags;
 import art.arcane.adapt.api.golem.node.NodeMatter;
 import art.arcane.adapt.api.golem.node.NodeSettings;
@@ -127,6 +129,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
@@ -151,6 +154,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private final RollingXpCap workCap = new RollingXpCap();
   private final GolemXpCooldowns<UUID> assistCooldowns = new GolemXpCooldowns<>();
   private final GolemXpCooldowns<UUID> tankCooldowns = new GolemXpCooldowns<>();
+  private final GolemXpCooldowns<BindCooldownKey> bindCooldowns = new GolemXpCooldowns<>();
   private final ConcurrentHashMap<UUID, Long> careChecks = new ConcurrentHashMap<>();
 
   public SkillGolemancy() {
@@ -308,6 +312,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     GolemWorkXp.setSink(this::golemWorked);
     GolemRepairXp.setSink(this::payRepair);
     GolemWorkStats.setSink(new WorkStats());
+    GolemItems.recipeTithe().observe(this::rewardCraft);
     SpatialMatter.registerSliceType(new NodeMatter());
     SpatialMatter.registerSliceType(new PlinthSlotMatter());
   }
@@ -322,6 +327,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     workCap.sweep(nowMillis);
     assistCooldowns.sweep(nowMillis, getConfig().assistCooldownMillis);
     tankCooldowns.sweep(nowMillis, getConfig().tankCooldownMillis);
+    bindCooldowns.sweep(nowMillis, getConfig().bindXpCooldownMillis);
     careChecks.values().removeIf(scheduledAt -> nowMillis - scheduledAt > CARE_CHECK_STALE_MILLIS);
   }
 
@@ -365,6 +371,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double damage = e.getFinalDamage();
     if (HostileDamagePool.isPoolBody(victim.getType())
         && HostileDamagePool.isHostileDamager(damager)
+        && !excludedMob(GolemXpRules.attacker(damager))
         && !shouldReturnForWorld(victim.getWorld(), this)) {
       HostileDamagePool.add(victim, damage, maxHealthOf(victim));
       GolemancyRuntime.handle(victim).ifPresent(handle -> rewardTank(handle, victim, damager, damage));
@@ -517,7 +524,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
       case FROST -> config.assistBodyMultiplierFrost;
       case COPPER -> config.assistBodyMultiplierCopper;
       case IRON -> config.assistBodyMultiplierIron;
-      case BONE -> config.assistBodyMultiplierBone;
+      case BONE -> 0D;
     };
   }
 
@@ -554,6 +561,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private void applyBuild(GolemBuildAttribution.Build build) {
     Entity golem = build.spawn().golem();
     GolemBuildAttribution.stamp(golem, build.builder(), System.currentTimeMillis());
+    CopperCare.recordStageFloor(golem, PaperCompat.weatheringStage(golem));
     Player builder = Bukkit.getPlayer(build.builder());
     if (builder == null) {
       return;
@@ -667,11 +675,37 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private void rewardBind(Player owner, GolemBody body, boolean firstBindOfGolem, Location at) {
     if (firstBindOfGolem) {
       addStat(owner, "golemancy.bound", 1);
-      xp(owner, at, bindXp(getConfig(), body), "golemancy:bind");
+      if (bindCooldowns.tryClaim(new BindCooldownKey(owner.getUniqueId(), body), M.ms(), getConfig().bindXpCooldownMillis)) {
+        xp(owner, at, bindXp(getConfig(), body), "golemancy:bind");
+      }
     }
     if (body != GolemBody.BONE && grantOnce(owner, "challenge_golemancy_first_bind_" + body.id())) {
       xp(owner, at, getConfig().firstBindXp, "golemancy:first_bind:" + body.id());
     }
+  }
+
+  private void rewardCraft(Player player, Recipe recipe, int crafts) {
+    GolemItemKind kind = GolemItems.kindOf(recipe.getResult()).orElse(null);
+    if (kind == null) {
+      return;
+    }
+    double xp = craftXp(getConfig(), kind) * crafts;
+    if (xp <= 0D) {
+      return;
+    }
+    shouldReturnForPlayer(player, () -> xp(player, player.getLocation(), xp, "golemancy:craft:" + kind.id()));
+  }
+
+  static double craftXp(Config config, GolemItemKind kind) {
+    return switch (kind) {
+      case CROOK -> config.craftCrookXp;
+      case BLANK_CORE -> config.craftBlankCoreXp;
+      case CORE -> config.craftRoleCoreXp;
+      case BLANK_NODE -> config.craftBlankNodeXp;
+      case NODE -> config.craftNodeXp;
+      case BLANK_RUNE -> config.craftBlankRuneXp;
+      case RUNE, DORMANT_GOLEM, SHATTERED_CORE, MASTERWORK_HEART -> 0D;
+    };
   }
 
   private void rewardInfusion(Player player, NamespacedKey result, Location at) {
@@ -816,6 +850,9 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private record BuildCooldownKey(UUID player, SpawnReason reason) {
   }
 
+  private record BindCooldownKey(UUID player, GolemBody body) {
+  }
+
   private final class WorkStats implements GolemWorkStats.Sink {
     @Override
     public void completed(GolemHandle handle) {
@@ -893,7 +930,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     }
 
     private void settleScrape(Player player, CopperGolem golem, WeatheringCopperState before) {
-      if (!CopperCare.scraped(before, golem.getWeatheringState())) {
+      if (!CopperCare.claimScrape(golem, before, golem.getWeatheringState())) {
         return;
       }
       Location at = golem.getLocation();
@@ -945,6 +982,18 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double copperScrapeXp = 60;
     @ConfigDoc(value = "Skill XP paid the first time you wax a copper golem with honeycomb.", impact = "Higher values reward waxing more; each golem pays once.")
     double copperWaxXp = 30;
+    @ConfigDoc(value = "Skill XP paid for each Artificer's Crook crafted.", impact = "Higher values pay more for crafting the Crook.")
+    double craftCrookXp = 60;
+    @ConfigDoc(value = "Skill XP paid for each Blank Animus Core crafted.", impact = "Higher values pay more for crafting blank cores.")
+    double craftBlankCoreXp = 40;
+    @ConfigDoc(value = "Skill XP paid for each role core crafted.", impact = "Higher values pay more for crafting role cores.")
+    double craftRoleCoreXp = 90;
+    @ConfigDoc(value = "Skill XP paid for each Blank Node crafted, counted per craft, not per node in the result.", impact = "Higher values pay more for crafting blank nodes.")
+    double craftBlankNodeXp = 5;
+    @ConfigDoc(value = "Skill XP paid for each typed node crafted.", impact = "Higher values pay more for crafting nodes.")
+    double craftNodeXp = 15;
+    @ConfigDoc(value = "Skill XP paid for each Blank Rune crafted, counted per craft, not per rune in the result.", impact = "Higher values pay more for crafting blank runes.")
+    double craftBlankRuneXp = 10;
     @ConfigDoc(value = "Multiplier applied to Golemancy XP from mobs that came from a spawner or trial spawner.", impact = "Lower values make spawner farms pay less; 1.0 pays the same as natural mobs.")
     double spawnerMobXpMultiplier = 0.3;
     @ConfigDoc(value = "Skill XP paid by the golem building challenges.", impact = "Higher values pay more; the 100 builds challenge pays five times this value.")
@@ -955,6 +1004,8 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double bindCopperXp = 220;
     @ConfigDoc(value = "Skill XP paid the first time an iron golem is bound.", impact = "Higher values reward binding iron golems more; a golem that was bound before pays nothing.")
     double bindIronXp = 450;
+    @ConfigDoc(value = "Milliseconds before one player earns bind XP again for the same golem type. Bindings during the cooldown still count toward golemancy.bound.", impact = "Higher values stop build, bind and release loops from paying bind XP quickly.")
+    long bindXpCooldownMillis = 20000;
     @ConfigDoc(value = "Skill XP paid with each first-bind challenge, the first time you bind a frost, copper or iron golem.", impact = "Higher values make each first bind worth more; each challenge pays once per player.")
     double firstBindXp = 600;
     @ConfigDoc(value = "Skill XP per point of damage your bound golems deal to hostile mobs, before the body multiplier. Damage beyond the victim's remaining health does not count.", impact = "Higher values pay more for golem combat.")
@@ -965,8 +1016,6 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double assistBodyMultiplierCopper = 1.0;
     @ConfigDoc(value = "Body multiplier for damage XP from bound iron golems.", impact = "Higher values pay more for iron golem damage.")
     double assistBodyMultiplierIron = 1.0;
-    @ConfigDoc(value = "Body multiplier for damage XP from bound bone golems.", impact = "Higher values pay more for bone golem damage.")
-    double assistBodyMultiplierBone = 0.35;
     @ConfigDoc(value = "Milliseconds before one player earns damage XP from their bound golems again.", impact = "Higher values limit damage XP from many golems or fast hits; damage still counts toward golemancy.golem.damage.")
     long assistCooldownMillis = 1500;
     @ConfigDoc(value = "Multiplier on kill XP when a bound golem kills a raider that belongs to an active raid.", impact = "Higher values reward defending villages from raids more; 1.0 pays the same as other kills.")

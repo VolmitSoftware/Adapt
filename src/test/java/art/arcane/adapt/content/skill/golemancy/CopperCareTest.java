@@ -53,6 +53,41 @@ class CopperCareTest {
   }
 
   @Test
+  void scrapingPaysOnlyForStagesTheGolemOxidizedOnItsOwn() {
+    CopperGolem golem = StoredEntityData.entity(CopperGolem.class);
+    CopperCare.recordStageFloor(golem, WeatheringCopperState.OXIDIZED.ordinal());
+
+    assertThat(CopperCare.claimScrape(golem, WeatheringCopperState.OXIDIZED, WeatheringCopperState.WEATHERED)).isFalse();
+    assertThat(CopperCare.claimScrape(golem, WeatheringCopperState.OXIDIZED, WeatheringCopperState.WEATHERED)).isTrue();
+    assertThat(CopperCare.claimScrape(golem, WeatheringCopperState.WEATHERED, WeatheringCopperState.EXPOSED)).isFalse();
+    assertThat(CopperCare.claimScrape(golem, WeatheringCopperState.EXPOSED, WeatheringCopperState.UNAFFECTED)).isFalse();
+
+    assertThat(CopperCare.claimScrape(golem, WeatheringCopperState.EXPOSED, WeatheringCopperState.UNAFFECTED)).isTrue();
+    assertThat(CopperCare.claimScrape(golem, WeatheringCopperState.WEATHERED, WeatheringCopperState.EXPOSED)).isTrue();
+    assertThat(CopperCare.claimScrape(golem, WeatheringCopperState.EXPOSED, WeatheringCopperState.UNAFFECTED)).isTrue();
+    assertThat(CopperCare.claimScrape(golem, WeatheringCopperState.UNAFFECTED, WeatheringCopperState.UNAFFECTED)).isFalse();
+  }
+
+  @Test
+  void aGolemWithoutAFloorPaysFromItsFirstScrape() {
+    CopperGolem golem = StoredEntityData.entity(CopperGolem.class);
+
+    assertThat(CopperCare.claimScrape(golem, WeatheringCopperState.EXPOSED, WeatheringCopperState.UNAFFECTED)).isTrue();
+    assertThat(CopperCare.claimScrape(golem, WeatheringCopperState.EXPOSED, WeatheringCopperState.UNAFFECTED)).isTrue();
+  }
+
+  @Test
+  void aRestoredGolemHasItsStageFloorAndItsWaxAlreadyPaid() {
+    CopperGolem golem = StoredEntityData.entity(CopperGolem.class);
+
+    CopperCare.restored(golem, WeatheringCopperState.EXPOSED.ordinal());
+
+    assertThat(golem.getPersistentDataContainer().get(CopperCare.STAGE_FLOOR_KEY, PersistentDataType.INTEGER)).isEqualTo(1);
+    assertThat(CopperCare.claimWaxPayment(golem)).isFalse();
+    assertThat(CopperCare.claimScrape(golem, WeatheringCopperState.EXPOSED, WeatheringCopperState.UNAFFECTED)).isFalse();
+  }
+
+  @Test
   void waxPaymentIsClaimedOncePerGolem() {
     CopperGolem golem = StoredEntityData.entity(CopperGolem.class);
 

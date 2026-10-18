@@ -56,6 +56,8 @@ class BoneFrameRulesTest {
     assertThat(BoneFrameRules.share(shares, 1)).isEqualTo(0.35D);
     assertThat(BoneFrameRules.share(shares, 2)).isEqualTo(0.35D);
     assertThat(BoneFrameRules.share(shares, 3)).isEqualTo(1.0D);
+    assertThat(BoneFrameRules.share(List.of(1.5D, -0.2D), 1)).isEqualTo(1.0D);
+    assertThat(BoneFrameRules.share(List.of(1.5D, -0.2D), 2)).isZero();
     assertThat(BoneFrameRules.share(List.of(Double.NaN), 1)).isZero();
     assertThat(BoneFrameRules.share(List.of(-0.5D), 1)).isZero();
   }

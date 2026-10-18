@@ -195,7 +195,21 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
     player.saveData();
     Location at = anchor.getLocation().add(0.5D + face.getModX() * FEEDBACK_FACE_DISTANCE,
         0.5D + face.getModY() * FEEDBACK_FACE_DISTANCE, 0.5D + face.getModZ() * FEEDBACK_FACE_DISTANCE);
+    rewardFirstNode(player, type, at);
     J.runEntity(player, () -> confirmPlacement(player, at, type));
+  }
+
+  void rewardFirstNode(Player player, NodeType type, Location at) {
+    if (firstNode(player, type)) {
+      xp(player, at, getConfig().firstNodeXp, "first_node:" + type.id());
+    }
+  }
+
+  boolean firstNode(Player player, NodeType type) {
+    String stat = "golemancy.nodes." + type.id();
+    boolean first = statOf(player, stat) <= 0D;
+    addStat(player, stat, 1D);
+    return first;
   }
 
   private static boolean onPlinth(Block block) {
@@ -241,6 +255,8 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
     List<Integer> maxAreaRadiusByLevel = new ArrayList<>(List.of(2, 3, 4, 6, 8));
     @ConfigDoc(value = "Filter entries a node can hold, by Node Weaving level from level 1 upward. Each value is capped at 18.", impact = "Higher values let a node filter more items and tags.")
     List<Integer> filterSlotsByLevel = new ArrayList<>(List.of(3, 6, 6, 9, 18));
+    @ConfigDoc(value = "Golemancy XP paid the first time you place each type of node.", impact = "Higher values reward trying each node type more; each type pays once per player.")
+    double firstNodeXp = 200;
     @ConfigDoc(value = "Crafting recipe for the Blank Node, unlocked at Node Weaving level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")
     ConfiguredShapedRecipe blankNodeRecipe = new ConfiguredShapedRecipe()
         .rows("CRC", "RAR", "CRC")

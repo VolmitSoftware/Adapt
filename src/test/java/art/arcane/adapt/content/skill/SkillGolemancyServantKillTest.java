@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.skill;
 
 import art.arcane.adapt.api.golem.GolemVitals;
+import art.arcane.adapt.api.golem.HostileDamagePool;
 import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.runtime.AdaptationGate;
@@ -13,6 +14,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
@@ -149,6 +151,22 @@ class SkillGolemancyServantKillTest {
   }
 
   @Test
+  void hitsFromPlayerControlledHostilesNeverRefillTheRepairPool() {
+    IronGolem golem = entity(IronGolem.class, Map.of());
+    lenient().when(golem.getType()).thenReturn(EntityType.IRON_GOLEM);
+    lenient().when(golem.getWorld()).thenReturn(world);
+    lenient().when(golem.getHealth()).thenReturn(20D);
+    EntityDamageByEntityEvent servantHit = hit(golem, servant());
+    EntityDamageByEntityEvent zombieHit = hit(golem, zombie());
+
+    skill.on(servantHit);
+    verify(golem.getPersistentDataContainer(), never()).set(eq(HostileDamagePool.POOL_KEY), eq(PersistentDataType.DOUBLE), anyDouble());
+
+    skill.on(zombieHit);
+    verify(golem.getPersistentDataContainer()).set(eq(HostileDamagePool.POOL_KEY), eq(PersistentDataType.DOUBLE), eq(5D));
+  }
+
+  @Test
   void aKillByAnythingButAServantNeverAsksForTheShare() {
     ServantFrame.register(frame);
 
@@ -172,6 +190,14 @@ class SkillGolemancyServantKillTest {
 
   private static Skeleton servant() {
     return entity(Skeleton.class, Map.of(SERVANT_KEY, OWNER.toString()));
+  }
+
+  private static EntityDamageByEntityEvent hit(LivingEntity victim, Entity damager) {
+    EntityDamageByEntityEvent event = mock(EntityDamageByEntityEvent.class);
+    when(event.getEntity()).thenReturn(victim);
+    when(event.getDamager()).thenReturn(damager);
+    when(event.getFinalDamage()).thenReturn(5D);
+    return event;
   }
 
   private static EntityDeathEvent death(LivingEntity victim, Entity killer) {

@@ -43,6 +43,7 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.content.skill.golemancy.CopperCare;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -596,6 +597,7 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
 
   private static void prepare(Mob body, GolemSnapshot snapshot) {
     PaperCompat.restoreCopper(body, snapshot.copperStage(), snapshot.waxed());
+    CopperCare.restored(body, snapshot.copperStage());
     if (body instanceof IronGolem iron) {
       iron.setPlayerCreated(snapshot.playerCreated());
     }
