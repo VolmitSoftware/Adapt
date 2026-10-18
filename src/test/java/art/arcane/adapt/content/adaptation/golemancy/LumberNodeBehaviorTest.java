@@ -215,6 +215,50 @@ class LumberNodeBehaviorTest {
   }
 
   @Test
+  void wideAndUnownedTreesAreRememberedToo() {
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    field.set(1, 63, 0, Material.GRASS_BLOCK).set(1, 64, 0, Material.OAK_LOG);
+
+    behavior.scan(node(NOW), budget(true));
+    assertThat(posted).isEmpty();
+    assertThat(rejections.rejected(KEY, 0, 64, 0, NOW + 1_000L)).isTrue();
+
+    rejections.forget();
+    field.set(1, 64, 0, Material.AIR);
+    behavior.scan(node(NOW, block -> block.getX() >= 0), budget(true));
+    assertThat(posted).isEmpty();
+    assertThat(rejections.rejected(KEY, 0, 64, 0, NOW + 1_000L)).isTrue();
+  }
+
+  @Test
+  void aFellingNoGolemCanFinishIsDroppedByTheScan() {
+    level(1);
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 30, false);
+    GolemTask task = fell(0, 64, 0);
+    behavior.act(golem(0), task);
+    posted.add(task);
+    config.ironTreeCapByLevel = new ArrayList<>(List.of(20));
+
+    behavior.scan(node(NOW), budget(true));
+
+    assertThat(fellings.pending()).isFalse();
+    assertThat(posted).isEmpty();
+  }
+
+  @Test
+  void aFellingWhoseLevelIsLostIsDroppedByTheScan() {
+    level(4);
+    tree(Material.SPRUCE_LOG, Material.SPRUCE_LEAVES, 0, 0, 3, true);
+    behavior.act(golem(0), fell(0, 64, 0));
+    level(3);
+
+    behavior.scan(node(NOW), budget(true));
+
+    assertThat(fellings.pending()).isFalse();
+    assertThat(posted).isEmpty();
+  }
+
+  @Test
   void aFellingStaysResumableWhileItsNodeKeepsChecking() {
     level(1);
     tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
@@ -658,13 +702,17 @@ class LumberNodeBehaviorTest {
   }
 
   private NodeContext node(long nowMillis) {
+    return node(nowMillis, block -> true);
+  }
+
+  private NodeContext node(long nowMillis, Predicate<Block> owns) {
     NodeContext node = mock(NodeContext.class);
     lenient().when(node.owner()).thenReturn(OWNER);
     lenient().when(node.key()).thenReturn(KEY);
     lenient().when(node.record()).thenReturn(record);
     lenient().when(node.world()).thenReturn(field.world);
     lenient().when(node.nowMillis()).thenReturn(nowMillis);
-    lenient().when(node.owns(any(Block.class))).thenReturn(true);
+    lenient().when(node.owns(any(Block.class))).thenAnswer(invocation -> owns.test(invocation.getArgument(0)));
     lenient().when(node.block(anyInt())).thenAnswer(invocation -> {
       int[] at = NodeArea.position(KEY, record, invocation.getArgument(0));
       return Optional.of(field.block(at[0], at[1], at[2]));

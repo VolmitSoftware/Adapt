@@ -139,7 +139,7 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
 
   @ConfigDescription("Golems bound with a Lumber Core fell natural trees in a Lumber Node's area from the top down and collect the logs, then replant, sweep leaves and fell bigger trees as the core grows stronger.")
   protected static class Config extends AdaptationConfig {
-    @ConfigDoc(value = "Logs a Lumber golem fells per second once it reaches a tree, by Lumber Core level from level 1 upward. Copper Overdrive and Swiftness runes raise it. Values load between 0.05 and 64.", impact = "Higher values fell trees faster.")
+    @ConfigDoc(value = "Logs a Lumber golem fells per second once it reaches a tree, by Lumber Core level from level 1 upward. Static Overdrive and Swiftness runes raise it. Values load between 0.05 and 64.", impact = "Higher values fell trees faster.")
     List<Double> logsPerSecondByLevel = new ArrayList<>(List.of(1.0, 1.5, 2.0, 3.0, 4.0));
     @ConfigDoc(value = "Most logs a tree can have for a copper golem, or any body other than iron, to fell it, by Lumber Core level from level 1 upward. Values below 1 count as 1.", impact = "Higher values let copper golems fell bigger trees.")
     List<Integer> copperTreeCapByLevel = new ArrayList<>(List.of(24, 32, 48, 64, 96));

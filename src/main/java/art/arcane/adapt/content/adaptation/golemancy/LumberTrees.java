@@ -215,6 +215,9 @@ final class LumberTrees {
     if (!square) {
       return Verdict.TOO_WIDE;
     }
+    if (!nether && !rises(view, bases, species)) {
+      return Verdict.PLACED;
+    }
     int placed = 0;
     for (Part base : bases) {
       if (view.placed(base.x(), base.y(), base.z())) {
@@ -223,6 +226,15 @@ final class LumberTrees {
     }
     boolean planted = placed == 0 || (!nether && placed == bases.size());
     return planted ? Verdict.NATURAL : Verdict.PLACED;
+  }
+
+  private static boolean rises(TreeView view, List<Part> bases, Material species) {
+    for (Part base : bases) {
+      if (view.type(base.x(), base.y() + 1, base.z()) != species) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private static boolean natural(TreeView view, int x, int y, int z, Material type) {

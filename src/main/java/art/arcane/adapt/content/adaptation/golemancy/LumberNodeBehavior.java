@@ -31,7 +31,7 @@ final class LumberNodeBehavior implements NodeBehavior {
   static final long SETTLE_MILLIS = 2_000L;
 
   private static final Set<LumberTrees.Verdict> REMEMBERED = EnumSet.of(LumberTrees.Verdict.TOO_BIG, LumberTrees.Verdict.NO_LEAVES,
-      LumberTrees.Verdict.BUILT, LumberTrees.Verdict.PLACED);
+      LumberTrees.Verdict.BUILT, LumberTrees.Verdict.PLACED, LumberTrees.Verdict.TOO_WIDE, LumberTrees.Verdict.UNOWNED);
 
   private final GolemLumberCore core;
   private final LumberFellings fellings;
@@ -76,9 +76,7 @@ final class LumberNodeBehavior implements NodeBehavior {
       GolemTask existing = open.isEmpty() ? null : open.get(NodeContainers.blockKey(x, y, z));
       Optional<LumberFellings.Felling> felling = fellings.get(world, x, y, z);
       if (felling.isPresent()) {
-        if (existing == null && budget.hasTaskRoom()) {
-          post(node, block, level, felling.get().tree().logs());
-        }
+        keepOrDrop(node, block, plan, felling.get(), existing, budget);
         continue;
       }
       if (!LumberTrees.candidate(view, x, y, z, plan.nether())) {
@@ -92,7 +90,7 @@ final class LumberNodeBehavior implements NodeBehavior {
       }
       LumberTrees.Survey survey = LumberTrees.survey(view, x, y, z, plan.reach(plan.largestCap()));
       if (survey.verdict() == LumberTrees.Verdict.NATURAL && at(survey.tree().base(), x, y, z)) {
-        post(node, block, level, survey.tree().logs());
+        post(node, block, LumberRules.bodies(core.config(), level, survey.tree().logs()));
       } else if (REMEMBERED.contains(survey.verdict())) {
         rejections.reject(key, x, y, z, now);
       }
@@ -187,8 +185,21 @@ final class LumberNodeBehavior implements NodeBehavior {
     return GolemActResult.DONE;
   }
 
-  private void post(NodeContext node, Block block, int level, int logs) {
-    Set<GolemBody> bodies = LumberRules.bodies(core.config(), level, logs);
+  private void keepOrDrop(NodeContext node, Block block, LumberRules.Plan plan, LumberFellings.Felling felling, GolemTask existing, ScanBudget budget) {
+    Set<GolemBody> bodies = LumberRules.bodies(core.config(), plan.level(), felling.tree().logs());
+    if (bodies.isEmpty() || !reachable(felling.tree(), plan, plan.largestCap())) {
+      fellings.finish(node.key().world(), felling);
+      if (existing != null) {
+        node.withdraw(existing);
+      }
+      return;
+    }
+    if (existing == null && budget.hasTaskRoom()) {
+      post(node, block, bodies);
+    }
+  }
+
+  private static void post(NodeContext node, Block block, Set<GolemBody> bodies) {
     if (!bodies.isEmpty()) {
       node.post(node.task(FELL, GolemTarget.block(block)).bodies(bodies).build());
     }

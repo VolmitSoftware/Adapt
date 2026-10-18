@@ -178,6 +178,17 @@ class LumberTreesTest {
   }
 
   @Test
+  void logsPlacedToCompleteA2x2AroundAPlantedTrunkAreNoMegaTree() {
+    TreeGrid planted = ground(Material.PODZOL).column(0, 0, 64, 71, Material.SPRUCE_LOG).stamp(0, 64, 0)
+        .canopy(0, 66, 69, 0, 2, Material.SPRUCE_LEAVES).canopy(0, 70, 72, 0, 1, Material.SPRUCE_LEAVES);
+    planted.set(1, 64, 0, Material.SPRUCE_LOG).set(0, 64, 1, Material.SPRUCE_LOG).set(1, 64, 1, Material.SPRUCE_LOG)
+        .stamp(1, 64, 0).stamp(0, 64, 1).stamp(1, 64, 1);
+
+    assertThat(LumberTrees.survey(planted, 0, 64, 0, MEGA).verdict()).isEqualTo(LumberTrees.Verdict.PLACED);
+    assertThat(LumberTrees.survey(planted, 0, 64, 0, SMALL).verdict()).isEqualTo(LumberTrees.Verdict.TOO_WIDE);
+  }
+
+  @Test
   void placedStemsAroundAFungusAreRefusedButAThickNaturalStemIsNot() {
     TreeGrid placed = crimson().set(-1, 64, 0, Material.CRIMSON_STEM).stamp(-1, 64, 0);
     TreeGrid thick = crimson().column(-1, 0, 64, 65, Material.CRIMSON_STEM);
