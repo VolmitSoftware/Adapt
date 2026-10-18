@@ -248,6 +248,17 @@ class ChoreographyTest(unittest.TestCase):
             with self.subTest(entry=identifier):
                 self.assertTrue(entries[identifier].pov_capture)
 
+    def test_golemancy_core_clips_hold_the_crook_after_placing_their_node(self) -> None:
+        entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, 'golemancy').entries
+        crook: str = '"adapt:golem_item":"crook"'
+        placed: str = 'minecraft:block.amethyst_block.place'
+        for identifier in ('golem-harvester-core', 'golem-breaker-core', 'golem-angler-core', 'golem-lumber-core', 'golem-rancher-core',
+                           'golem-sorter-core'):
+            with self.subTest(entry=identifier):
+                beats: list[dict] = entries[identifier].beats
+                placement: int = next(index for index, beat in enumerate(beats) if beat.get('verb') == 'waitFor' and beat.get('sound') == placed)
+                self.assertTrue(any(beat.get('verb') == 'command' and crook in str(beat.get('text', '')) for beat in beats[placement + 1:]))
+
     def test_every_sheet_names_a_known_world(self) -> None:
         for sheet in sorted((ROOT / 'src' / 'test' / 'demo' / 'sheets').glob('*.json')):
             self.assertEqual(choreography.world_problems(choreography.load_skill(ROOT, sheet.stem).world), [], sheet.name)

@@ -432,6 +432,10 @@
         "timeout": 40
       },
       {
+        "verb": "command",
+        "text": "item replace entity {actor} weapon.mainhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
+      },
+      {
         "verb": "look",
         "yaw": 180,
         "pitch": 30,
@@ -682,6 +686,10 @@
         "timeout": 40
       },
       {
+        "verb": "command",
+        "text": "item replace entity {actor} weapon.mainhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
+      },
+      {
         "verb": "look",
         "yaw": 160,
         "pitch": 25,
@@ -877,6 +885,10 @@
         "timeout": 40
       },
       {
+        "verb": "command",
+        "text": "item replace entity {actor} weapon.mainhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
+      },
+      {
         "verb": "look",
         "yaw": 180,
         "pitch": 0,
@@ -1048,6 +1060,10 @@
         "verb": "waitFor",
         "sound": "minecraft:block.amethyst_block.place",
         "timeout": 40
+      },
+      {
+        "verb": "command",
+        "text": "item replace entity {actor} weapon.mainhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
       },
       {
         "verb": "look",
@@ -1416,6 +1432,10 @@
         "verb": "waitFor",
         "sound": "minecraft:block.amethyst_block.place",
         "timeout": 40
+      },
+      {
+        "verb": "command",
+        "text": "item replace entity {actor} weapon.mainhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
       },
       {
         "verb": "look",
