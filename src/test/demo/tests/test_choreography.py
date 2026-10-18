@@ -259,6 +259,11 @@ class ChoreographyTest(unittest.TestCase):
                 placement: int = next(index for index, beat in enumerate(beats) if beat.get('verb') == 'waitFor' and beat.get('sound') == placed)
                 self.assertTrue(any(beat.get('verb') == 'command' and crook in str(beat.get('text', '')) for beat in beats[placement + 1:]))
 
+    def test_the_bone_frame_clip_captures_its_owner_only_servant_reveal_live(self) -> None:
+        entry: choreography.Entry = choreography.load_skill(ROOT, 'golemancy').entries['golem-bone-frame']
+        self.assertIn('"adapt:golem_item":"crook"', ' '.join(entry.pre))
+        self.assertTrue(entry.pov_capture)
+
     def test_every_sheet_names_a_known_world(self) -> None:
         for sheet in sorted((ROOT / 'src' / 'test' / 'demo' / 'sheets').glob('*.json')):
             self.assertEqual(choreography.world_problems(choreography.load_skill(ROOT, sheet.stem).world), [], sheet.name)

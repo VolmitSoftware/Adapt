@@ -5,7 +5,10 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemRoster;
+import art.arcane.adapt.api.golem.GolemRune;
+import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.xp.XP;
+import org.bukkit.DyeColor;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -105,6 +108,41 @@ class PlayerDataTest extends AdaptTestBase {
         assertThat(entry.world()).isEqualTo(world);
         assertThat(entry.chunkKey()).isEqualTo(GolemRoster.chunkKey(2, -3));
         assertThat(entry.sighting()).isEqualTo(12L);
+    }
+
+    @Test
+    @DisplayName("every golem roster field survives a json round trip together")
+    void everyGolemRosterFieldSurvivesJsonRoundTripTogether() {
+        PlayerData data = new PlayerData();
+        GolemRoster roster = data.getGolemancy();
+        UUID packed = UUID.randomUUID();
+        UUID active = UUID.randomUUID();
+        UUID world = UUID.randomUUID();
+        roster.add(new GolemRoster.Binding(packed, GolemBody.IRON, GolemCoreType.GUARDIAN, world, GolemRoster.chunkKey(4, -7), 31L));
+        roster.add(new GolemRoster.Binding(active, GolemBody.COPPER, GolemCoreType.SORTER, world, GolemRoster.chunkKey(-1, 2), 44L));
+        roster.markMasterwork(packed, true);
+        roster.raiseSighting(packed, 9L);
+        roster.stow(packed, GolemRoster.Status.PACKED, "{\"dormant\":1}");
+        roster.raiseSighting(active, 3L);
+        roster.setServantChannel(DyeColor.LIME);
+        roster.addLattice(new GolemRune(GolemRuneType.MIGHT, 2));
+        roster.addLattice(new GolemRune(GolemRuneType.EMBER, 3));
+
+        GolemRoster back = PlayerData.fromJson(data.toJson(false)).getGolemancy();
+
+        GolemRoster.GolemEntry stowed = back.golem(packed).orElseThrow();
+        assertThat(stowed.status()).isEqualTo(GolemRoster.Status.PACKED);
+        assertThat(stowed.masterwork()).isTrue();
+        assertThat(stowed.sighting()).isEqualTo(9L);
+        assertThat(stowed.holds("{\"dormant\":1}")).isTrue();
+        assertThat(stowed.lastSeen()).isEqualTo(31L);
+        GolemRoster.GolemEntry bound = back.golem(active).orElseThrow();
+        assertThat(bound.status()).isEqualTo(GolemRoster.Status.ACTIVE);
+        assertThat(bound.masterwork()).isFalse();
+        assertThat(bound.sighting()).isEqualTo(3L);
+        assertThat(bound.core()).isEqualTo(GolemCoreType.SORTER);
+        assertThat(back.servantChannel()).contains(DyeColor.LIME);
+        assertThat(back.lattice()).containsExactly(new GolemRune(GolemRuneType.MIGHT, 2), new GolemRune(GolemRuneType.EMBER, 3));
     }
 
     @Test
