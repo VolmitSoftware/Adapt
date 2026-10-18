@@ -48,7 +48,6 @@ public final class NodeGui {
   private final NodeKey key;
   private final NodeTagPrompt prompt;
   private UIWindow window;
-  private Inventory cursorTop;
 
   private NodeGui(Player player, NodeKey key, NodeTagPrompt prompt) {
     this.player = player;
@@ -128,19 +127,21 @@ public final class NodeGui {
         placePanel(next, record, level);
       });
       next.setTitle(AdaptLanguage.text(GolemancyMessages.NODE_NAME, trusted("node", AdaptLanguage.text(record.type().displayName()))));
-      next.onClosed(closed -> {
-        Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), next);
-        if (cursorTop != null) {
-          GuiCursor.untrack(player.getUniqueId(), cursorTop);
-        }
-      });
       window = next;
       next.open();
       Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), next);
-      cursorTop = UIWindow.inventoryViewTopInventory(player.getOpenInventory());
-      if (cursorTop != null) {
-        GuiCursor.track(player.getUniqueId(), cursorTop);
+      Inventory top = UIWindow.inventoryViewTopInventory(player.getOpenInventory());
+      next.onClosed(closed -> closed(next, top));
+      if (top != null) {
+        GuiCursor.track(player.getUniqueId(), top);
       }
+    }
+  }
+
+  private void closed(UIWindow closed, Inventory top) {
+    Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), closed);
+    if (top != null) {
+      GuiCursor.untrack(player.getUniqueId(), top);
     }
   }
 

@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -236,6 +237,23 @@ class GolemGuardianCoreTest extends AdaptTestBase {
     verify(nearBrain, times(4)).alert();
     verify(sleepingBrain, never()).alert();
     verify(gathererBrain, never()).alert();
+  }
+
+  @Test
+  void theAttackerIsRememberedBeforeTheGuardiansAreWoken() {
+    GolemBrain brain = brain(guardian(at(3, 64, 0), false, GolemCoreType.GUARDIAN));
+    GolemGuardianCore learned = owner(3);
+    Zombie zombie = living(Zombie.class, at(2, 64, 0));
+    AtomicReference<LivingEntity> rememberedAtAlert = new AtomicReference<>();
+    doAnswer(call -> {
+      rememberedAtAlert.set(learned.recentAttacker(OWNER, clock.get()));
+      return null;
+    }).when(brain).alert();
+
+    learned.on(hit(zombie, owner));
+
+    verify(brain).alert();
+    assertThat(rememberedAtAlert.get()).isSameAs(zombie);
   }
 
   @Test

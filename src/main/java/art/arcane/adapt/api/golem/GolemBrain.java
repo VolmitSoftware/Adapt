@@ -242,8 +242,13 @@ public final class GolemBrain {
     }
     if (combatTarget == null && !machine.combatSuppressed() && now >= nextScanAt) {
       combatTarget = policy.select(handle, owner);
-      nextScanAt = now + scanDelay;
-      scanDelay = combatTarget == null && policy.idleBackoff() ? Math.min(scanDelay * 2L, MAX_IDLE_SCAN_MILLIS) : TARGET_SCAN_MILLIS;
+      if (combatTarget == null && policy.idleBackoff()) {
+        nextScanAt = now + scanDelay;
+        scanDelay = Math.min(scanDelay * 2L, MAX_IDLE_SCAN_MILLIS);
+      } else {
+        scanDelay = TARGET_SCAN_MILLIS;
+        nextScanAt = now + TARGET_SCAN_MILLIS;
+      }
     }
     return combatTarget;
   }

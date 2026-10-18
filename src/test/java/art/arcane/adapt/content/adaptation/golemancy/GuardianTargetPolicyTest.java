@@ -7,6 +7,8 @@ import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMode;
+import art.arcane.adapt.api.golem.GolemRuneEffects;
+import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemTaskBoards;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
@@ -42,6 +44,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
@@ -62,6 +65,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -312,6 +316,45 @@ class GuardianTargetPolicyTest {
 
     Zombie insideLeash = living(Zombie.class, at(12, 65, 0));
     assertThat(policy.select(golem, owner)).isSameAs(insideLeash);
+  }
+
+  @Test
+  void guardNodeQueriesAreClippedToTheLeashOfHome() {
+    runtime.when(GolemancyRuntime::brainSettings).thenReturn(new GolemBrainSettings(5, 32D, 16D, 8, 10));
+    Map<NodeKey, NodeRecord> nodes = new HashMap<>();
+    nodes.put(new NodeKey(WORLD, 14, 64, 0, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).radii(4, 4, 4).build());
+    nodes.put(new NodeKey(WORLD, 0, 64, 20, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).radii(2, 2, 2).build());
+    nodes(nodes);
+    GolemHandle golem = golem(GolemBody.IRON, GolemMode.WORK, at(0, 64, 0));
+    Zombie insideLeash = living(Zombie.class, at(12, 65, 0));
+
+    assertThat(policy.select(golem, owner)).isSameAs(insideLeash);
+
+    ArgumentCaptor<BoundingBox> queries = ArgumentCaptor.forClass(BoundingBox.class);
+    verify(world, atLeastOnce()).getNearbyEntities(queries.capture(), any());
+    BoundingBox leash = BoundingBox.of(at(0, 64, 0), 16D, 16D, 16D);
+    assertThat(queries.getAllValues()).hasSize(2).allSatisfy(query -> assertThat(leash.contains(query)).isTrue());
+  }
+
+  @Test
+  void tideRunesWidenTheGuardRadiusUpToTheLeash() {
+    GolemHandle golem = golem(GolemBody.IRON, GolemMode.WORK, at(0, 64, 0));
+    Zombie zombie = living(Zombie.class, at(11, 64, 0));
+    assertThat(policy.select(golem, owner)).isNull();
+
+    GolemRunes.Augments tide = mock(GolemRunes.Augments.class);
+    when(tide.effects(golem)).thenReturn(new GolemRuneEffects(4D, 0, 1D, 0D));
+    GolemRunes.register(tide);
+    try {
+      assertThat(policy.select(golem, owner)).isSameAs(zombie);
+      assertThat(policy.holds(golem, owner, zombie)).isTrue();
+
+      runtime.when(GolemancyRuntime::brainSettings).thenReturn(new GolemBrainSettings(5, 32D, 10D, 8, 10));
+      assertThat(policy.select(golem, owner)).isNull();
+      assertThat(policy.holds(golem, owner, zombie)).isFalse();
+    } finally {
+      GolemRunes.unregister(tide);
+    }
   }
 
   @Test

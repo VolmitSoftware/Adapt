@@ -16,9 +16,10 @@ final class GuardianRules {
   private GuardianRules() {
   }
 
-  static double perception(List<Integer> byLevel, int level, double maxRadius) {
+  static double perception(List<Integer> byLevel, int level, double radiusBonus, double maxRadius) {
     double configured = AnimusBindingRules.atLevel(byLevel, Math.max(OFFLINE_LEVEL, level), 0);
-    return Math.clamp(configured, MIN_PERCEPTION, Math.max(MIN_PERCEPTION, maxRadius));
+    double bonus = Double.isFinite(radiusBonus) ? radiusBonus : 0D;
+    return Math.clamp(configured + bonus, MIN_PERCEPTION, Math.max(MIN_PERCEPTION, maxRadius));
   }
 
   static boolean unlocked(int level, int unlockLevel) {

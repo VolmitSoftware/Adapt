@@ -119,7 +119,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
   @Override
   public void addStats(int level, Element v) {
     Config config = getConfig();
-    statLore(v, GuardianRules.perception(config.perceptionByLevel, level, GolemancyRuntime.brainSettings().leashRadius()), 1);
+    statLore(v, GuardianRules.perception(config.perceptionByLevel, level, 0D, GolemancyRuntime.brainSettings().leashRadius()), 1);
     if (GuardianRules.unlocked(level, config.interceptLevel)) {
       unlockLore(v, GolemancyMessages.GUARDIAN_CORE_LORE2);
     }
@@ -157,10 +157,10 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     if (attacker == null || attacker.getUniqueId().equals(owner.getUniqueId())) {
       return;
     }
-    alertGuardians(owner.getUniqueId());
     if (GuardianRules.unlocked(getActiveLevel(owner), getConfig().retaliateLevel)) {
       attacks.put(owner.getUniqueId(), new Attack(attacker, M.ms()));
     }
+    alertGuardians(owner.getUniqueId());
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

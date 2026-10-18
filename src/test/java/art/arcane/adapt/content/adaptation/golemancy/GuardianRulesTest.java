@@ -14,19 +14,26 @@ class GuardianRulesTest {
 
   @Test
   void perceptionFollowsTheLevelAndTreatsLevelZeroAsLevelOne() {
-    assertThat(GuardianRules.perception(PERCEPTION, 1, 32D)).isEqualTo(8D);
-    assertThat(GuardianRules.perception(PERCEPTION, 3, 32D)).isEqualTo(16D);
-    assertThat(GuardianRules.perception(PERCEPTION, 5, 32D)).isEqualTo(24D);
-    assertThat(GuardianRules.perception(PERCEPTION, 9, 32D)).isEqualTo(24D);
-    assertThat(GuardianRules.perception(PERCEPTION, 0, 32D)).isEqualTo(8D);
+    assertThat(GuardianRules.perception(PERCEPTION, 1, 0D, 32D)).isEqualTo(8D);
+    assertThat(GuardianRules.perception(PERCEPTION, 3, 0D, 32D)).isEqualTo(16D);
+    assertThat(GuardianRules.perception(PERCEPTION, 5, 0D, 32D)).isEqualTo(24D);
+    assertThat(GuardianRules.perception(PERCEPTION, 9, 0D, 32D)).isEqualTo(24D);
+    assertThat(GuardianRules.perception(PERCEPTION, 0, 0D, 32D)).isEqualTo(8D);
   }
 
   @Test
   void perceptionIsClampedBetweenOneBlockAndTheLeashRadius() {
-    assertThat(GuardianRules.perception(PERCEPTION, 5, 20D)).isEqualTo(20D);
-    assertThat(GuardianRules.perception(List.of(-3), 1, 32D)).isEqualTo(1D);
-    assertThat(GuardianRules.perception(List.of(), 2, 32D)).isEqualTo(1D);
-    assertThat(GuardianRules.perception(PERCEPTION, 1, 0D)).isEqualTo(1D);
+    assertThat(GuardianRules.perception(PERCEPTION, 5, 0D, 20D)).isEqualTo(20D);
+    assertThat(GuardianRules.perception(List.of(-3), 1, 0D, 32D)).isEqualTo(1D);
+    assertThat(GuardianRules.perception(List.of(), 2, 0D, 32D)).isEqualTo(1D);
+    assertThat(GuardianRules.perception(PERCEPTION, 1, 0D, 0D)).isEqualTo(1D);
+  }
+
+  @Test
+  void aTideRadiusBonusWidensPerceptionUpToTheLeashRadius() {
+    assertThat(GuardianRules.perception(PERCEPTION, 1, 4D, 32D)).isEqualTo(12D);
+    assertThat(GuardianRules.perception(PERCEPTION, 5, 12D, 32D)).isEqualTo(32D);
+    assertThat(GuardianRules.perception(PERCEPTION, 1, Double.NaN, 32D)).isEqualTo(8D);
   }
 
   @Test

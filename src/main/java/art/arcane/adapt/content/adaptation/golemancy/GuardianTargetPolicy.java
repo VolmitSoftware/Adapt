@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.GolemBrain;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMode;
+import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemTargetPolicy;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
@@ -22,6 +23,7 @@ import org.bukkit.entity.Enemy;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.util.BoundingBox;
 
 import java.util.HashSet;
 import java.util.List;
@@ -163,8 +165,8 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
     double sentry = golem.body() == GolemBody.FROST ? config.sentryRange : 0D;
     double leash = GolemancyRuntime.brainSettings().leashRadius();
     GuardianRules.Options options = new GuardianRules.Options(online != null, retaliate, config.targetCreepers, config.ignoreNamedMobs);
-    return new Watch(body, here, golem.owner(), online, anchor, GuardianRules.perception(config.perceptionByLevel, level, leash), sentry,
-        home, leash, nodes, attacker, options, now);
+    double perception = GuardianRules.perception(config.perceptionByLevel, level, GolemRunes.effects(golem).radiusBonus(), leash);
+    return new Watch(body, here, golem.owner(), online, anchor, perception, sentry, home, leash, nodes, attacker, options, now);
   }
 
   private LivingEntity avenge(Watch watch) {
@@ -213,12 +215,15 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
       seen.add(mob.getUniqueId());
     }
     World world = watch.anchor().getWorld();
+    BoundingBox leash = BoundingBox.of(watch.home(), watch.leash(), watch.leash(), watch.leash());
     for (NodeIndex.Entry node : watch.nodes()) {
-      NodeRecord record = node.record();
-      int[] center = NodeArea.center(node.key());
-      Location middle = new Location(world, center[0] + BLOCK_HALF, center[1] + BLOCK_HALF, center[2] + BLOCK_HALF);
-      for (Mob mob : PaperCompat.nearbyEntitiesByType(Mob.class, middle, record.radiusX() + BLOCK_HALF, record.radiusY() + BLOCK_HALF,
-          record.radiusZ() + BLOCK_HALF)) {
+      BoundingBox query = nodeBox(node);
+      if (!query.overlaps(leash)) {
+        continue;
+      }
+      query.intersection(leash);
+      Location middle = query.getCenter().toLocation(world);
+      for (Mob mob : PaperCompat.nearbyEntitiesByType(Mob.class, middle, query.getWidthX() / 2D, query.getHeight() / 2D, query.getWidthZ() / 2D)) {
         if (seen.add(mob.getUniqueId())) {
           found.add(mob);
         }
@@ -281,6 +286,13 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
       }
     }
     return null;
+  }
+
+  private static BoundingBox nodeBox(NodeIndex.Entry node) {
+    NodeRecord record = node.record();
+    int[] center = NodeArea.center(node.key());
+    return new BoundingBox(center[0] - record.radiusX(), center[1] - record.radiusY(), center[2] - record.radiusZ(),
+        center[0] + record.radiusX() + 1D, center[1] + record.radiusY() + 1D, center[2] + record.radiusZ() + 1D);
   }
 
   private static boolean targetOf(LivingEntity candidate, UUID target) {

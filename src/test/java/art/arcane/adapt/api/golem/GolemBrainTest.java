@@ -437,6 +437,22 @@ class GolemBrainTest extends AdaptTestBase {
   }
 
   @Test
+  void aScanThatFindsATargetAfterBackingOffScansAgainHalfASecondLater() {
+    policy.backoff = true;
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    long start = platform.now;
+    brain.start();
+    pulseFor(6_000L);
+
+    policy.next = mock(Zombie.class);
+    pulseFor(1_750L);
+    policy.next = null;
+    pulseFor(1_000L);
+
+    assertThat(policy.selectedAt).extracting(at -> at - start).containsExactly(0L, 500L, 1_500L, 3_500L, 5_500L, 7_500L, 8_000L, 8_500L);
+  }
+
+  @Test
   void policiesWithoutBackoffKeepScanningEveryHalfSecond() {
     GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
     long start = platform.now;
