@@ -21,6 +21,7 @@ public final class FxEmitter {
   private static final double[] DOME_48 = buildDome(48);
   private static final int HELIX_REVOLUTIONS = 2;
   private static final double TWO_PI = Math.PI * 2.0D;
+  private static final float DEFAULT_DUST_SIZE = 1.0F;
 
   private final World world;
   private final double x;
@@ -464,10 +465,21 @@ public final class FxEmitter {
   }
 
   private static Object particleData(Particle particle, Object data, Color fallbackColor) {
-    if (data != null || particle == null || !Color.class.equals(particle.getDataType())) {
+    if (data != null || particle == null) {
       return data;
     }
-    return fallbackColor == null ? Color.WHITE : fallbackColor;
+    Class<?> type = particle.getDataType();
+    Color color = fallbackColor == null ? Color.WHITE : fallbackColor;
+    if (Color.class.equals(type)) {
+      return color;
+    }
+    if (Particle.DustOptions.class.equals(type)) {
+      return new Particle.DustOptions(color, DEFAULT_DUST_SIZE);
+    }
+    if (Particle.DustTransition.class.equals(type)) {
+      return new Particle.DustTransition(color, color, DEFAULT_DUST_SIZE);
+    }
+    return null;
   }
 
   private FxDispatch.Emission emission(FxDispatch.Command command) {
