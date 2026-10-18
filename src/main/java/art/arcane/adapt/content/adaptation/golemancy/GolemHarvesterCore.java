@@ -173,7 +173,7 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
 
   @ConfigDescription("Golems bound with a Harvester Core harvest and replant ripe crops in a Harvest Node's area, and tend and till the field as the core grows stronger.")
   protected static class Config extends AdaptationConfig {
-    @ConfigDoc(value = "Ticks a Harvester spends on each harvest, tilling, planting or tending action after it reaches the spot, by Harvester Core level from level 1 upward. Copper Overdrive and Swiftness runes shorten it. Values below 1 count as 1.", impact = "Lower values make Harvesters work faster.")
+    @ConfigDoc(value = "Ticks a Harvester spends on each harvest, tilling, planting or tending action after it reaches the spot, by Harvester Core level from level 1 upward. Static Overdrive and Swiftness runes shorten it. Values below 1 count as 1.", impact = "Lower values make Harvesters work faster.")
     List<Integer> actionIntervalTicksByLevel = new ArrayList<>(List.of(40, 30, 24, 18, 12));
     @ConfigDoc(value = "Crops a Harvester harvests in one action, by Harvester Core level from level 1 upward: the crop it walked to, plus other ripe crops of the same Harvest Node within 3 blocks that no other golem is walking to. Values below 1 count as 1.", impact = "Higher values let Harvesters clear a field faster.")
     List<Integer> cropsPerActionByLevel = new ArrayList<>(List.of(1, 1, 2, 3, 4));
