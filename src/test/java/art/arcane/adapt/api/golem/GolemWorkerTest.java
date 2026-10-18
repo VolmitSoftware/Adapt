@@ -818,6 +818,44 @@ class GolemWorkerTest extends AdaptTestBase {
   }
 
   @Test
+  void aLoadedGolemWhoseDeliverFirstClaimFailsStillRoutesThroughThatNode() {
+    chest(0, 64, -5, 27);
+    List<Integer> asked = new ArrayList<>();
+    AtomicReference<GolemTask> stop = new AtomicReference<>();
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      if (task.target().blockX() == 2) {
+        return GolemActResult.FAILED;
+      }
+      golem.carry(GolemTestItems.stack(Material.WHEAT, 10));
+      return GolemActResult.DONE;
+    });
+    behavior.deliversFirst = true;
+    behavior.route = (golem, carried) -> {
+      asked.add(carried.size());
+      return Optional.ofNullable(stop.get());
+    };
+    collectionNode(3);
+    board.offer(pickup(1, 64, 0), 16);
+    GolemTask second = pickup(2, 64, 0);
+    board.offer(second, 16);
+    brain.start();
+
+    platform.runDelayed();
+    pulse(1_000L);
+    assertThat(asked).hasSize(1);
+    pulse(1_000L);
+    assertThat(second.isClosed()).isFalse();
+    assertThat(carried(Material.WHEAT)).isEqualTo(10);
+
+    stop.set(stash(-5));
+    pulse(3_000L);
+
+    assertThat(asked).hasSize(2);
+    assertThat(brain.state()).isEqualTo(GolemBrainState.DELIVER);
+    assertThat(controller.lastMove()).isEqualTo("0.5,64.5,-4.5");
+  }
+
+  @Test
   void otherNodesStillWithdrawAFailedBoardJobWithoutBackingOff() {
     ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.FAILED);
     collectionNode(3);

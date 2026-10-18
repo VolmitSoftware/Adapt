@@ -96,7 +96,7 @@ final class SorterSurvey {
       }
       List<ItemStack> counted = new ArrayList<>();
       for (ItemStack entry : destination.filter().filterItems()) {
-        if (counted.stream().anyMatch(previous -> matcher.same(previous, entry))) {
+        if (SorterRules.nests(destination, entry) || counted.stream().anyMatch(previous -> matcher.same(previous, entry))) {
           continue;
         }
         counted.add(entry);

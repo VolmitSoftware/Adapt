@@ -46,6 +46,15 @@ final class SorterPlans {
     return total;
   }
 
+  void forgetPlayer(UUID player) {
+    for (Map.Entry<UUID, Plan> entry : plans.entrySet()) {
+      Plan plan = entry.getValue();
+      if (plan instanceof Fetch fetch && fetch.request().player().equals(player) && plans.remove(entry.getKey(), plan)) {
+        drop(plan);
+      }
+    }
+  }
+
   void forget(UUID golem) {
     drop(plans.remove(golem));
   }

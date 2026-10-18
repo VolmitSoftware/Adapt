@@ -375,7 +375,7 @@ final class InputNodeBehavior implements NodeBehavior {
 
   private boolean reachableLater(GolemContext golem, UUID playerId) {
     Player online = players.apply(playerId);
-    return online != null && online.isOnline() && golem.ownedEntity(playerId).isEmpty() && golem.world().equals(online.getWorld());
+    return online != null && online.isOnline() && golem.ownedEntity(playerId).isEmpty();
   }
 
   private Optional<GolemTask> planned(GolemContext golem, NodeKey node, SorterSurvey survey, SorterPlans.Plan plan, List<ItemStack> carried) {
@@ -394,9 +394,6 @@ final class InputNodeBehavior implements NodeBehavior {
     }
     Entity owned = golem.ownedEntity(playerId).orElse(null);
     if (owned == null) {
-      if (!golem.world().equals(online.getWorld())) {
-        return Optional.empty();
-      }
       Location here = golem.golem().getLocation();
       GolemTarget waiting = new GolemTarget(GolemTarget.Kind.ENTITY, golem.world().getUID(), here.getX(), here.getY(), here.getZ(), playerId);
       return unskipped(golem, GolemTask.builder(node, NodeType.INPUT, SorterRules.HAND, waiting).item(item).build());

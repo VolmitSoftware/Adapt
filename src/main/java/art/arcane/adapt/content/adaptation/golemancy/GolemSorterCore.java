@@ -48,6 +48,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -176,6 +178,16 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
     }
   }
 
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    forgetFetches(e.getPlayer().getUniqueId());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerChangedWorldEvent e) {
+    forgetFetches(e.getPlayer().getUniqueId());
+  }
+
   Config config() {
     return getConfig();
   }
@@ -194,6 +206,11 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
       parsedGroups = current;
     }
     return current.groups();
+  }
+
+  private void forgetFetches(UUID player) {
+    fetches.cancel(player);
+    plans.forgetPlayer(player);
   }
 
   private void invalidateStorage(Inventory inventory) {

@@ -13,7 +13,6 @@ import art.arcane.adapt.api.golem.node.NodeTagLookup;
 import art.arcane.adapt.api.golem.node.ScanBudget;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -409,7 +408,7 @@ class InputNodeBehaviorTest {
   }
 
   @Test
-  void aPlayerInAnotherRegionKeepsTheFetchWaitingUntilTheyLeaveTheWorldOrLogOff() {
+  void aPlayerInAnotherRegionKeepsTheFetchWaitingUntilTheirPlanIsDropped() {
     level = 5;
     Player player = player();
     SorterFetches.Request request = fetches.request(player.getUniqueId(), KEY, items.item(Material.COBBLESTONE, 1), 10, NOW);
@@ -421,16 +420,15 @@ class InputNodeBehaviorTest {
     assertThat(wait.type()).isEqualTo(SorterRules.HAND);
     assertThat(wait.target().entity()).isEqualTo(player.getUniqueId());
     assertThat(wait.target().x()).isEqualTo(0.5D);
-    verify(player, never()).getLocation();
     target = null;
     assertThat(behavior.act(golem(1), wait)).isEqualTo(GolemActResult.WORKING);
     assertThat(plans.get(GOLEM, NOW)).isPresent();
 
-    World nether = mock(World.class);
-    lenient().when(player.getWorld()).thenReturn(nether);
+    plans.forgetPlayer(player.getUniqueId());
     assertThat(behavior.act(golem(1), wait)).isEqualTo(GolemActResult.DONE);
-    assertThat(plans.get(GOLEM, NOW)).isEmpty();
     assertThat(request.remaining()).isEqualTo(10);
+    verify(player, never()).getLocation();
+    verify(player, never()).getWorld();
   }
 
   @Test

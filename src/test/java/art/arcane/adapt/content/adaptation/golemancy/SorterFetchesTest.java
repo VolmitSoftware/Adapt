@@ -101,6 +101,23 @@ class SorterFetchesTest {
   }
 
   @Test
+  void aPlayerWhoLeavesLosesTheirRequestAndTheirFetchPlans() {
+    SorterPlans plans = new SorterPlans();
+    UUID other = UUID.fromString("00000000-0000-0000-0000-000000002706");
+    SorterFetches.Request alex = fetches.request(ALEX, INPUT, items.item(Material.COBBLESTONE, 1), 10, 0L);
+    SorterFetches.Request sam = fetches.request(SAM, INPUT, items.item(Material.DIRT, 1), 10, 0L);
+    plans.fetch(GOLEM, alex, items.item(Material.COBBLESTONE, 1), alex.reserve(10), 0L);
+    plans.fetch(other, sam, items.item(Material.DIRT, 1), sam.reserve(4), 0L);
+
+    plans.forgetPlayer(ALEX);
+    fetches.cancel(ALEX);
+
+    assertThat(plans.get(GOLEM, 1L)).isEmpty();
+    assertThat(plans.get(other, 1L)).isPresent();
+    assertThat(fetches.open(INPUT, 1L)).extracting(SorterFetches.Request::player).containsExactly(SAM);
+  }
+
+  @Test
   void restockPlansCountAsInboundForTheirTargetAndItem() {
     SorterPlans plans = new SorterPlans();
     ContainerId workshop = new ContainerId(SorterYard.WORLD, 1, 64, 1);

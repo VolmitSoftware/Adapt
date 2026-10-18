@@ -50,6 +50,10 @@ final class SorterFetches {
     return Optional.empty();
   }
 
+  void cancel(UUID player) {
+    requests.remove(player);
+  }
+
   void sweep(long nowMillis) {
     requests.values().removeIf(request -> !request.open(nowMillis));
   }

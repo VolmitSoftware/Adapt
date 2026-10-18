@@ -665,7 +665,6 @@ final class GolemWorker {
       case BOARD -> {
         if (current.actor instanceof NodeBehavior behavior && behavior.deliversBeforeClaiming()) {
           escalate(current.task, nowMillis);
-          lastNode = null;
           dropJob();
         } else {
           closeJob();

@@ -134,6 +134,15 @@ class SorterSurveyTest {
   }
 
   @Test
+  void aShulkerBoxFilterNodeNeverAsksToBeRestockedWithShulkerBoxes() {
+    destination(1, SorterDestination.Kind.FILTER, restocking(4, filterRecord(3, true, items.item(Material.SHULKER_BOX, 1),
+        items.item(Material.TORCH, 1))), true);
+    plain(5, items.item(Material.SHULKER_BOX, 3), items.item(Material.TORCH, 10));
+
+    assertThat(survey(SorterRules.Match.PRECISE, 4).restockNeeds()).extracting(need -> need.item().getType()).containsExactly(Material.TORCH);
+  }
+
+  @Test
   void aRestockingFilterTakesOnlyItsItemsUpToItsTarget() {
     NodeRecord restock = restocking(32, filterRecord(3, true, items.item(Material.TORCH, 1)).toBuilder().filterTags(List.of(LOGS)).build());
     SorterDestination workshop = filter(3, restock, items.item(Material.TORCH, 20));
