@@ -60,6 +60,16 @@ class PaperCompatTest {
   }
 
   @Test
+  void freezeTicksLockedReportsAnotherPluginsFreezeLock() {
+    Zombie locked = mock(Zombie.class);
+    Zombie free = mock(Zombie.class);
+    when(locked.isFreezeTickingLocked()).thenReturn(true);
+
+    assertThat(PaperCompat.freezeTicksLocked(locked)).isTrue();
+    assertThat(PaperCompat.freezeTicksLocked(free)).isFalse();
+  }
+
+  @Test
   void hasChangedBlockIsFalseForFractionalMoveWithinSameBlock() {
     Location from = new Location(null, 10.2D, 64.0D, -3.9D);
     Location to = new Location(null, 10.8D, 64.9D, -3.1D);

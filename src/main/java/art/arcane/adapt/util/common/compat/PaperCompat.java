@@ -122,6 +122,7 @@ public final class PaperCompat {
   private static volatile boolean damageCriticalSupported = true;
   private static volatile boolean rangedAttackSupported = true;
   private static volatile boolean weatheringSupported = true;
+  private static volatile boolean freezeLockSupported = true;
   // EntityPotionEffectEvent.getSource() is 26.2+; resolved reflectively so the 26.1.2 compile baseline builds.
   private static final MethodHandle POTION_SOURCE_HANDLE = resolvePotionSourceHandle();
   private static volatile boolean trackedPlayersSupported = true;
@@ -211,6 +212,18 @@ public final class PaperCompat {
     } catch (NoClassDefFoundError | NoSuchMethodError absent) {
       weatheringSupported = false;
       return 0;
+    }
+  }
+
+  public static boolean freezeTicksLocked(Entity entity) {
+    if (!freezeLockSupported) {
+      return false;
+    }
+    try {
+      return entity.isFreezeTickingLocked();
+    } catch (NoSuchMethodError absent) {
+      freezeLockSupported = false;
+      return false;
     }
   }
 

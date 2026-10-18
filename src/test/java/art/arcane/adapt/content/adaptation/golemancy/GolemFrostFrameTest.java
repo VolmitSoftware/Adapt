@@ -277,6 +277,20 @@ class GolemFrostFrameTest extends AdaptTestBase {
   }
 
   @Test
+  void frostbiteLeavesATargetWhoseFreezingAnotherPluginLockedAlone() {
+    assertThat(adaptation.reloadConfigSnapshot("chillLevel = 9\n", dataFolder.toPath().resolve("frostbite.toml").toFile(), false)).isTrue();
+    Zombie locked = frozenCandidate(0);
+    when(locked.isFreezeTickingLocked()).thenReturn(true);
+
+    for (int hit = 0; hit < 4; hit++) {
+      adaptation.onSnowballLanded(hit(tagged(5, null), locked, 0D));
+    }
+
+    verify(locked, never()).setFreezeTicks(anyInt());
+    verify(locked, never()).lockFreezeTicks(anyBoolean());
+  }
+
+  @Test
   void extraSnowballsClearTheDamageImmunityOfTheirTargetOrAHostileOnly() {
     UUID targetId = UUID.randomUUID();
     Cow target = living(Cow.class);

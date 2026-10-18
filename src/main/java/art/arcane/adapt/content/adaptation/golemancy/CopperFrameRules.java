@@ -7,7 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 final class CopperFrameRules {
-  static final double OVERDRIVE_WORK_INTERVAL_MULTIPLIER = 0.5D;
+  static final double DEFAULT_OVERDRIVE_RADIUS = 16D;
+  static final double MAX_OVERDRIVE_RADIUS = 64D;
   private static final int MAX_PATINA_STAGE = 3;
   private static final long MILLIS_PER_SECOND = 1_000L;
 
@@ -81,8 +82,15 @@ final class CopperFrameRules {
     return new Overdrive(now + Math.max(1, seconds) * MILLIS_PER_SECOND, now + Math.max(0, cooldownSeconds) * MILLIS_PER_SECOND);
   }
 
-  static double workIntervalMultiplier(Overdrive current, long now) {
-    return current != null && now < current.activeUntil() ? OVERDRIVE_WORK_INTERVAL_MULTIPLIER : 1D;
+  static double workIntervalMultiplier(Overdrive current, long now, double multiplier) {
+    if (current == null || now >= current.activeUntil() || !Double.isFinite(multiplier) || multiplier <= 0D) {
+      return 1D;
+    }
+    return multiplier;
+  }
+
+  static double overdriveRadius(double radius) {
+    return Double.isFinite(radius) ? Math.max(0D, Math.min(MAX_OVERDRIVE_RADIUS, radius)) : DEFAULT_OVERDRIVE_RADIUS;
   }
 
   static boolean expired(Overdrive current, long now) {

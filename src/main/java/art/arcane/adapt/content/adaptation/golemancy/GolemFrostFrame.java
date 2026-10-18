@@ -212,7 +212,7 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
     long now = M.ms();
     FrostFrameRules.FrostbiteState state = frostbites.compute(victim.getUniqueId(), (id, current) -> FrostFrameRules.frostbite(current, now,
         config.frostbiteHits, config.frostbiteWindowMillis, config.frostbitePerTargetCooldownMillis));
-    if (state.triggered()) {
+    if (state.triggered() && !PaperCompat.freezeTicksLocked(victim)) {
       victim.setFreezeTicks(FrostFrameRules.frostbiteFreezeTicks(victim.getFreezeTicks(), victim.getMaxFreezeTicks(), config.frostbiteFreezeTicks));
     }
   }

@@ -53,6 +53,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> {
   static final String STAT_SOURCE = "copper_frame";
@@ -94,6 +95,11 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
   }
 
   @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    loadedConfig.overdriveRadius = CopperFrameRules.overdriveRadius(loadedConfig.overdriveRadius);
+  }
+
+  @Override
   public void addStats(int level, Element v) {
     Config config = getConfig();
     statLore(v, Math.max(0, AnimusBindingRules.atLevel(config.healthBonusByLevel, level, 0)), 1);
@@ -128,9 +134,6 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
   public void on(LightningStrikeEvent e) {
     Location strike = e.getLightning().getLocation();
     double radius = getConfig().overdriveRadius;
-    if (!Double.isFinite(radius) || radius < 0D) {
-      return;
-    }
     long now = M.ms();
     for (CopperGolem golem : PaperCompat.nearbyEntitiesByType(CopperGolem.class, strike, radius)) {
       if (CopperFrameRules.withinRadius(golem.getLocation().distanceSquared(strike), radius)) {
@@ -174,13 +177,13 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
     if (!CopperFrameRules.unlocked(ownerLevel(handle), config.overdriveLevel)) {
       return;
     }
-    CopperFrameRules.Overdrive current = overdrives.get(handle.id());
-    CopperFrameRules.Overdrive next = CopperFrameRules.overdrive(current, now, config.overdriveSeconds, config.overdriveCooldownSeconds);
-    if (next == null) {
-      return;
-    }
-    boolean claimed = current == null ? overdrives.putIfAbsent(handle.id(), next) == null : overdrives.replace(handle.id(), current, next);
-    if (claimed) {
+    AtomicBoolean claimed = new AtomicBoolean();
+    overdrives.compute(handle.id(), (id, current) -> {
+      CopperFrameRules.Overdrive next = CopperFrameRules.overdrive(current, now, config.overdriveSeconds, config.overdriveCooldownSeconds);
+      claimed.set(next != null);
+      return next == null ? current : next;
+    });
+    if (claimed.get()) {
       boost(golem, overdriveSeconds(config) * TICKS_PER_SECOND);
     }
   }
@@ -239,7 +242,7 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
       if (handle.body() != GolemBody.COPPER || overdrives.isEmpty()) {
         return 1D;
       }
-      return CopperFrameRules.workIntervalMultiplier(overdrives.get(handle.id()), M.ms());
+      return CopperFrameRules.workIntervalMultiplier(overdrives.get(handle.id()), M.ms(), getConfig().overdriveWorkIntervalMultiplier);
     }
   }
 
@@ -261,12 +264,14 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
     int patinaPenaltyRemovedLevel = 5;
     @ConfigDoc(value = "Copper Frame level at which nearby lightning triggers Static Overdrive.", impact = "Lower values unlock Static Overdrive sooner.")
     int overdriveLevel = 4;
-    @ConfigDoc(value = "Blocks from a lightning strike within which your bound copper golems gain Static Overdrive.", impact = "Higher values let lightning farther away overdrive your golems.")
+    @ConfigDoc(value = "Blocks from a lightning strike within which your bound copper golems gain Static Overdrive, from 0 to 64.", impact = "Higher values let lightning farther away overdrive your golems.")
     double overdriveRadius = 16;
-    @ConfigDoc(value = "Seconds of Speed II and halved work interval that Static Overdrive gives.", impact = "Higher values keep golems overdriven longer.")
+    @ConfigDoc(value = "Seconds of Speed II and faster work that Static Overdrive gives.", impact = "Higher values keep golems overdriven longer.")
     int overdriveSeconds = 60;
     @ConfigDoc(value = "Seconds after a Static Overdrive starts before the same golem can be overdriven again.", impact = "Lower values let lightning overdrive a golem more often.")
     int overdriveCooldownSeconds = 300;
+    @ConfigDoc(value = "Multiplier on a bound copper golem's work interval while Static Overdrive lasts. 0.5 makes it work twice as fast.", impact = "Lower values make overdriven golems work faster; 1 leaves the work interval unchanged.")
+    double overdriveWorkIntervalMultiplier = 0.5;
 
     public Config() {
       requires = new ArrayList<>(List.of("golem-animus-binding:1"));

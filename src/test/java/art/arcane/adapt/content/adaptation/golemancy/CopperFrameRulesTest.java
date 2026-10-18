@@ -101,9 +101,12 @@ class CopperFrameRulesTest {
   void overdriveHalvesTheWorkIntervalOnlyWhileActive() {
     CopperFrameRules.Overdrive overdrive = new CopperFrameRules.Overdrive(60_000L, 300_000L);
 
-    assertThat(CopperFrameRules.workIntervalMultiplier(null, 0L)).isEqualTo(1D);
-    assertThat(CopperFrameRules.workIntervalMultiplier(overdrive, 59_999L)).isEqualTo(0.5D);
-    assertThat(CopperFrameRules.workIntervalMultiplier(overdrive, 60_000L)).isEqualTo(1D);
+    assertThat(CopperFrameRules.workIntervalMultiplier(null, 0L, 0.5D)).isEqualTo(1D);
+    assertThat(CopperFrameRules.workIntervalMultiplier(overdrive, 59_999L, 0.5D)).isEqualTo(0.5D);
+    assertThat(CopperFrameRules.workIntervalMultiplier(overdrive, 59_999L, 0.25D)).isEqualTo(0.25D);
+    assertThat(CopperFrameRules.workIntervalMultiplier(overdrive, 59_999L, Double.NaN)).isEqualTo(1D);
+    assertThat(CopperFrameRules.workIntervalMultiplier(overdrive, 59_999L, 0D)).isEqualTo(1D);
+    assertThat(CopperFrameRules.workIntervalMultiplier(overdrive, 60_000L, 0.5D)).isEqualTo(1D);
     assertThat(CopperFrameRules.expired(overdrive, 299_999L)).isFalse();
     assertThat(CopperFrameRules.expired(overdrive, 300_000L)).isTrue();
     assertThat(CopperFrameRules.expired(new CopperFrameRules.Overdrive(90_000L, 30_000L), 60_000L)).isFalse();
@@ -115,6 +118,16 @@ class CopperFrameRulesTest {
     assertThat(CopperFrameRules.withinRadius(256.01D, 16D)).isFalse();
     assertThat(CopperFrameRules.withinRadius(0D, -1D)).isTrue();
     assertThat(CopperFrameRules.withinRadius(1D, Double.NaN)).isFalse();
+  }
+
+  @Test
+  void theOverdriveRadiusIsClampedBetweenZeroAndSixtyFour() {
+    assertThat(CopperFrameRules.overdriveRadius(16D)).isEqualTo(16D);
+    assertThat(CopperFrameRules.overdriveRadius(64D)).isEqualTo(64D);
+    assertThat(CopperFrameRules.overdriveRadius(500D)).isEqualTo(64D);
+    assertThat(CopperFrameRules.overdriveRadius(-3D)).isZero();
+    assertThat(CopperFrameRules.overdriveRadius(Double.NaN)).isEqualTo(16D);
+    assertThat(CopperFrameRules.overdriveRadius(Double.POSITIVE_INFINITY)).isEqualTo(16D);
   }
 
   @Test

@@ -84,8 +84,38 @@ class GolemCopperFrameTest extends AdaptTestBase {
     assertThat(config.overdriveRadius).isEqualTo(16D);
     assertThat(config.overdriveSeconds).isEqualTo(60);
     assertThat(config.overdriveCooldownSeconds).isEqualTo(300);
+    assertThat(config.overdriveWorkIntervalMultiplier).isEqualTo(0.5D);
     assertThat(config.requires).containsExactly("golem-animus-binding:1");
     assertThat(config.maxLevel).isEqualTo(5);
+  }
+
+  @Test
+  void loadingClampsTheOverdriveRadiusToSixtyFourBlocks() {
+    assertThat(adaptation.reloadConfigSnapshot("overdriveRadius = 500.0\n", dataFolder.toPath().resolve("far.toml").toFile(), false)).isTrue();
+    assertThat(adaptation.getConfig().overdriveRadius).isEqualTo(64D);
+
+    assertThat(adaptation.reloadConfigSnapshot("overdriveRadius = -3.0\n", dataFolder.toPath().resolve("negative.toml").toFile(), false)).isTrue();
+    assertThat(adaptation.getConfig().overdriveRadius).isZero();
+
+    assertThat(adaptation.reloadConfigSnapshot("overdriveRadius = 24.0\n", dataFolder.toPath().resolve("near.toml").toFile(), false)).isTrue();
+    assertThat(adaptation.getConfig().overdriveRadius).isEqualTo(24D);
+  }
+
+  @Test
+  void overdriveUsesTheConfiguredWorkIntervalMultiplier() {
+    Location strike = new Location(world, 0.5D, 64D, 0.5D);
+    CopperGolem golem = copperGolem(new Location(world, 2.5D, 64D, 0.5D));
+    GolemHandle handle = bound(golem, false);
+    assertThat(adaptation.reloadConfigSnapshot("overdriveWorkIntervalMultiplier = 0.25\n", dataFolder.toPath().resolve("multiplier.toml").toFile(), false))
+        .isTrue();
+    adaptation.onRuntimeActivated();
+    try {
+      learned(4).on(lightning(strike));
+
+      assertThat(workSpeedSource().intervalMultiplier(handle)).isEqualTo(0.25D);
+    } finally {
+      unregisterSources();
+    }
   }
 
   @Test
