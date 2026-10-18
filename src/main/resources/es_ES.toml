@@ -4592,6 +4592,32 @@ lore6 = "Tala árboles gigantes de 2x2"
 lore7 = "Tala hongos carmesíes y distorsionados y replanta hongos"
 lore = ["Troncos talados por segundo", "Troncos por árbol para gólems de cobre", "Troncos por árbol para gólems de hierro", "Replanta brotes tras la tala", "Barrido de hojas: rompe las hojas sueltas y recoge lo que sueltan", "Tala árboles gigantes de 2x2", "Tala hongos carmesíes y distorsionados y replanta hongos"]
 
+[golemancy.rancher_core]
+name = "Núcleo de Ganadero"
+description = "Los gólems vinculados con un Núcleo de Ganadero cuidan a los animales del área de un nodo de Pasto: crían parejas hasta la cifra a mantener del nodo y, a medida que el núcleo se fortalece, esquilan ovejas, ordeñan vacas y cabras y sacrifican a los adultos sobrantes."
+lore1 = "Cría parejas hasta la cifra a mantener del nodo de Pasto"
+lore2 = "Esquila ovejas"
+lore3 = "Ordeña vacas, cabras y champiñacas con cubos o cuencos del cofre del hogar"
+lore4 = "Sacrifica a los adultos por encima de la cifra a mantener (solo gólems de hierro)"
+lore5 = "Menor tiempo de espera de cría"
+lore6 = "Tirada de botín adicional por sacrificio"
+lore = ["Cría parejas hasta la cifra a mantener del nodo de Pasto", "Esquila ovejas", "Ordeña vacas, cabras y champiñacas con cubos o cuencos del cofre del hogar", "Sacrifica a los adultos por encima de la cifra a mantener (solo gólems de hierro)", "Menor tiempo de espera de cría", "Tirada de botín adicional por sacrificio"]
+species = "Especie: {species}"
+species_all = "Todos los animales"
+species_lore = "Clic izquierdo para la siguiente especie, clic derecho para la anterior"
+keep = "Mantener {count} adultos por especie"
+keep_lore = "Clic izquierdo para subir, clic derecho para bajar"
+breed_on = "Cría: Sí"
+breed_off = "Cría: No"
+shear_on = "Esquileo: Sí"
+shear_off = "Esquileo: No"
+milk_on = "Ordeño: Sí"
+milk_off = "Ordeño: No"
+cull_on = "Sacrificio: Sí"
+cull_off = "Sacrificio: No"
+locked = "Se desbloquea con Núcleo de Ganadero nivel {level}"
+iron_only = "Solo los gólems de hierro sacrifican"
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Te permite infundir runas en el Pedestal de Ánima y engarzarlas en tus gólems vinculados para ganar velocidad, carga, fuego, alcance, canales, rendimiento y armadura."

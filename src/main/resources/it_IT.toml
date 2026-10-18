@@ -4592,6 +4592,32 @@ lore6 = "Abbatte alberi giganti 2x2"
 lore7 = "Abbatte funghi cremisi e distorti e ripianta funghi"
 lore = ["Tronchi abbattuti al secondo", "Tronchi per albero per i golem di rame", "Tronchi per albero per i golem di ferro", "Ripianta arbusti dopo l'abbattimento", "Spazzata delle foglie: rompe le foglie staccate e raccoglie ciò che lasciano cadere", "Abbatte alberi giganti 2x2", "Abbatte funghi cremisi e distorti e ripianta funghi"]
 
+[golemancy.rancher_core]
+name = "Nucleo di Allevatore"
+description = "I golem legati a un Nucleo di Allevatore si prendono cura degli animali nell'area di un nodo Pascolo: fanno riprodurre coppie fino alla quota da mantenere del nodo e, man mano che il nucleo si rafforza, tosano le pecore, mungono mucche e capre e abbattono gli adulti in eccesso."
+lore1 = "Fa riprodurre coppie fino alla quota da mantenere del nodo Pascolo"
+lore2 = "Tosa le pecore"
+lore3 = "Munge mucche, capre e muucche con secchi o ciotole dal baule di casa"
+lore4 = "Abbatte gli adulti oltre la quota da mantenere (solo golem di ferro)"
+lore5 = "Attesa di riproduzione più breve"
+lore6 = "Tiro di bottino extra per abbattimento"
+lore = ["Fa riprodurre coppie fino alla quota da mantenere del nodo Pascolo", "Tosa le pecore", "Munge mucche, capre e muucche con secchi o ciotole dal baule di casa", "Abbatte gli adulti oltre la quota da mantenere (solo golem di ferro)", "Attesa di riproduzione più breve", "Tiro di bottino extra per abbattimento"]
+species = "Specie: {species}"
+species_all = "Tutti gli animali"
+species_lore = "Clic sinistro per la specie successiva, clic destro per la precedente"
+keep = "Mantieni {count} adulti per specie"
+keep_lore = "Clic sinistro per aumentare, clic destro per diminuire"
+breed_on = "Riproduzione: attiva"
+breed_off = "Riproduzione: disattiva"
+shear_on = "Tosatura: attiva"
+shear_off = "Tosatura: disattiva"
+milk_on = "Mungitura: attiva"
+milk_off = "Mungitura: disattiva"
+cull_on = "Abbattimento: attivo"
+cull_off = "Abbattimento: disattivo"
+locked = "Si sblocca con Nucleo di Allevatore al livello {level}"
+iron_only = "Solo i golem di ferro abbattono"
+
 [golemancy.runic_augments]
 name = "Potenziamenti runici"
 description = "Ti permette di infondere rune sul Piedistallo di Animus e incastonarle nei tuoi golem legati per velocità, carico, fuoco, portata, canali, resa e armatura."

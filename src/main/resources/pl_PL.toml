@@ -4592,6 +4592,32 @@ lore6 = "Ścina olbrzymie drzewa 2x2"
 lore7 = "Ścina karmazynowe i spaczone grzyby i sadzi grzyby"
 lore = ["Ścinane kłody na sekundę", "Kłód na drzewo dla miedzianych golemów", "Kłód na drzewo dla żelaznych golemów", "Sadzi sadzonki po ścięciu", "Zamiatanie liści: niszczy luźne liście i zbiera to, co z nich wypada", "Ścina olbrzymie drzewa 2x2", "Ścina karmazynowe i spaczone grzyby i sadzi grzyby"]
 
+[golemancy.rancher_core]
+name = "Rdzeń Hodowcy"
+description = "Golemy związane Rdzeniem Hodowcy opiekują się zwierzętami w obszarze węzła Pastwiska: rozmnażają pary aż do liczby utrzymywanej przez węzeł, a wraz z rozwojem rdzenia strzygą owce, doją krowy i kozy oraz ubijają nadmiarowe dorosłe zwierzęta."
+lore1 = "Rozmnaża pary aż do liczby utrzymywanej przez węzeł Pastwiska"
+lore2 = "Strzyże owce"
+lore3 = "Doi krowy, kozy i muuchomory wiadrami lub miskami ze skrzyni domowej"
+lore4 = "Ubija dorosłe zwierzęta ponad utrzymywaną liczbę (tylko żelazne golemy)"
+lore5 = "Krótszy czas oczekiwania na rozmnażanie"
+lore6 = "Dodatkowe losowanie łupu za ubicie"
+lore = ["Rozmnaża pary aż do liczby utrzymywanej przez węzeł Pastwiska", "Strzyże owce", "Doi krowy, kozy i muuchomory wiadrami lub miskami ze skrzyni domowej", "Ubija dorosłe zwierzęta ponad utrzymywaną liczbę (tylko żelazne golemy)", "Krótszy czas oczekiwania na rozmnażanie", "Dodatkowe losowanie łupu za ubicie"]
+species = "Gatunek: {species}"
+species_all = "Wszystkie zwierzęta"
+species_lore = "Lewy przycisk – następny gatunek, prawy – poprzedni"
+keep = "Utrzymuj {count} dorosłych na gatunek"
+keep_lore = "Lewy przycisk zwiększa, prawy zmniejsza"
+breed_on = "Rozmnażanie: wł."
+breed_off = "Rozmnażanie: wył."
+shear_on = "Strzyżenie: wł."
+shear_off = "Strzyżenie: wył."
+milk_on = "Dojenie: wł."
+milk_off = "Dojenie: wył."
+cull_on = "Ubój: wł."
+cull_off = "Ubój: wył."
+locked = "Odblokowuje się na poziomie {level} Rdzenia Hodowcy"
+iron_only = "Ubijają tylko żelazne golemy"
+
 [golemancy.runic_augments]
 name = "Runiczne ulepszenia"
 description = "Pozwala nasycać runy na Postumencie animusa i osadzać je w związanych golemach, by zyskać szybkość, udźwig, ogień, zasięg, kanały, plony i pancerz."

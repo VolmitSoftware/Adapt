@@ -4592,6 +4592,32 @@ lore6 = "Kerta 2x2 milžiniškus medžius"
 lore7 = "Kerta raudonuosius ir iškreiptuosius grybus ir vėl sodina grybus"
 lore = ["Nukertami rąstai per sekundę", "Rąstų viename medyje vario golemams", "Rąstų viename medyje geležies golemams", "Po kirtimo vėl pasodina sodinukus", "Lapų šlavimas: sulaužo atsilaisvinusius lapus ir surenka, kas iš jų iškrenta", "Kerta 2x2 milžiniškus medžius", "Kerta raudonuosius ir iškreiptuosius grybus ir vėl sodina grybus"]
 
+[golemancy.rancher_core]
+name = "Gyvulininko šerdis"
+description = "Gyvulininko šerdimi susieti golemai prižiūri gyvūnus Ganyklos mazgo zonoje: jie veisia poras iki mazgo laikomo skaičiaus, o šerdžiai stiprėjant kerpa avis, melžia karves ir ožkas bei skerdžia perteklinius suaugusius gyvūnus."
+lore1 = "Veisia poras iki Ganyklos mazgo laikomo skaičiaus"
+lore2 = "Kerpa avis"
+lore3 = "Melžia karves, ožkas ir grybines karves kibirais ar dubenimis iš namų skrynios"
+lore4 = "Skerdžia suaugusius gyvūnus virš laikomo skaičiaus (tik geležies golemai)"
+lore5 = "Trumpesnis veisimo laukimas"
+lore6 = "Papildomas grobio metimas už kiekvieną skerdimą"
+lore = ["Veisia poras iki Ganyklos mazgo laikomo skaičiaus", "Kerpa avis", "Melžia karves, ožkas ir grybines karves kibirais ar dubenimis iš namų skrynios", "Skerdžia suaugusius gyvūnus virš laikomo skaičiaus (tik geležies golemai)", "Trumpesnis veisimo laukimas", "Papildomas grobio metimas už kiekvieną skerdimą"]
+species = "Rūšis: {species}"
+species_all = "Visi gyvūnai"
+species_lore = "Kairysis spustelėjimas – kita rūšis, dešinysis – ankstesnė"
+keep = "Laikyti {count} suaugusius kiekvienos rūšies"
+keep_lore = "Kairysis spustelėjimas didina, dešinysis mažina"
+breed_on = "Veisimas: įjungtas"
+breed_off = "Veisimas: išjungtas"
+shear_on = "Kirpimas: įjungtas"
+shear_off = "Kirpimas: išjungtas"
+milk_on = "Melžimas: įjungtas"
+milk_off = "Melžimas: išjungtas"
+cull_on = "Skerdimas: įjungtas"
+cull_off = "Skerdimas: išjungtas"
+locked = "Atrakinama pasiekus Gyvulininko šerdies {level} lygį"
+iron_only = "Skerdžia tik geležies golemai"
+
 [golemancy.runic_augments]
 name = "Runų patobulinimai"
 description = "Leidžia Animus pakyloje įlieti runas ir įstatyti jas į surištus golemus dėl greičio, nešimo, ugnies, siekio, kanalų, derliaus ir šarvų."

@@ -18,6 +18,10 @@ public final class NodePanels {
     PANELS.put(Objects.requireNonNull(type), Objects.requireNonNull(panel));
   }
 
+  public static void unregister(NodeType type, NodePanel panel) {
+    PANELS.remove(Objects.requireNonNull(type), Objects.requireNonNull(panel));
+  }
+
   public static Optional<NodePanel> of(NodeType type) {
     return Optional.ofNullable(PANELS.get(type));
   }

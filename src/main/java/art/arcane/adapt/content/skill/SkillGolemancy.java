@@ -69,6 +69,7 @@ import art.arcane.adapt.content.adaptation.golemancy.GolemHarvesterCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemIronFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemLumberCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
+import art.arcane.adapt.content.adaptation.golemancy.GolemRancherCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRunicAugments;
 import art.arcane.adapt.content.skill.golemancy.CopperCare;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
@@ -156,6 +157,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerAdaptation(new GolemGuardianCore());
     registerAdaptation(new GolemHarvesterCore());
     registerAdaptation(new GolemLumberCore());
+    registerAdaptation(new GolemRancherCore());
     registerAdaptation(new GolemRunicAugments());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CARVED_PUMPKIN)

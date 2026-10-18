@@ -4592,6 +4592,32 @@ lore6 = "Kapt 2x2-reuzenbomen"
 lore7 = "Kapt karmozijnrode en verwrongen zwammen en herplant zwammen"
 lore = ["Gekapte stammen per seconde", "Stammen per boom voor koperen golems", "Stammen per boom voor ijzeren golems", "Herplant zaailingen na het kappen", "Bladveger: breekt losse bladeren en verzamelt wat ze laten vallen", "Kapt 2x2-reuzenbomen", "Kapt karmozijnrode en verwrongen zwammen en herplant zwammen"]
 
+[golemancy.rancher_core]
+name = "Veehoeder-kern"
+description = "Golems die met een Veehoeder-kern gebonden zijn, verzorgen de dieren in het gebied van een Weide-knooppunt: ze fokken paren tot het houdaantal van het knooppunt en scheren, naarmate de kern sterker wordt, schapen, melken koeien en geiten en ruimen overtollige volwassen dieren."
+lore1 = "Fokt paren tot het houdaantal van het Weide-knooppunt"
+lore2 = "Scheert schapen"
+lore3 = "Melkt koeien, geiten en mooshrooms met emmers of kommen uit de thuiskist"
+lore4 = "Ruimt volwassen dieren boven het houdaantal (alleen ijzeren golems)"
+lore5 = "Kortere fokwachttijd"
+lore6 = "Extra buitworp per geruimd dier"
+lore = ["Fokt paren tot het houdaantal van het Weide-knooppunt", "Scheert schapen", "Melkt koeien, geiten en mooshrooms met emmers of kommen uit de thuiskist", "Ruimt volwassen dieren boven het houdaantal (alleen ijzeren golems)", "Kortere fokwachttijd", "Extra buitworp per geruimd dier"]
+species = "Soort: {species}"
+species_all = "Alle dieren"
+species_lore = "Linksklik voor de volgende soort, rechtsklik voor de vorige"
+keep = "Houd {count} volwassen dieren per soort"
+keep_lore = "Linksklik om te verhogen, rechtsklik om te verlagen"
+breed_on = "Fokken: aan"
+breed_off = "Fokken: uit"
+shear_on = "Scheren: aan"
+shear_off = "Scheren: uit"
+milk_on = "Melken: aan"
+milk_off = "Melken: uit"
+cull_on = "Ruimen: aan"
+cull_off = "Ruimen: uit"
+locked = "Ontgrendeld op Veehoeder-kern-niveau {level}"
+iron_only = "Alleen ijzeren golems ruimen"
+
 [golemancy.runic_augments]
 name = "Runenversterkingen"
 description = "Laat je runen infuseren op de Animussokkel en ze in je gebonden golems zetten voor snelheid, draagvermogen, vuur, bereik, kanalen, opbrengst en harnas."

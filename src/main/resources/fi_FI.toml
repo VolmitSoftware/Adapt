@@ -4592,6 +4592,32 @@ lore6 = "Kaataa 2x2-jättipuita"
 lore7 = "Kaataa karmiini- ja vääristyneet sienet ja istuttaa sieniä uudelleen"
 lore = ["Kaadettuja runkoja sekunnissa", "Runkoja puuta kohden kuparigolemeille", "Runkoja puuta kohden rautagolemeille", "Istuttaa taimet uudelleen kaadon jälkeen", "Lehtien lakaisu: rikkoo irralliset lehdet ja kerää niiden pudotukset", "Kaataa 2x2-jättipuita", "Kaataa karmiini- ja vääristyneet sienet ja istuttaa sieniä uudelleen"]
 
+[golemancy.rancher_core]
+name = "Karjanhoitajaydin"
+description = "Karjanhoitajaytimellä sidotut golemit hoitavat Laidun-solmun alueen eläimiä: ne kasvattavat pareja solmun pitomäärään asti, ja ytimen vahvistuessa ne keritsevät lampaita, lypsävät lehmiä ja vuohia ja teurastavat ylimääräiset aikuiset."
+lore1 = "Kasvattaa pareja Laidun-solmun pitomäärään asti"
+lore2 = "Keritsee lampaita"
+lore3 = "Lypsää lehmiä, vuohia ja sienilehmiä kotiarkun ämpäreillä tai kulhoilla"
+lore4 = "Teurastaa pitomäärän ylittävät aikuiset (vain rautagolemit)"
+lore5 = "Lyhyempi lisääntymisen odotusaika"
+lore6 = "Ylimääräinen saalisheitto teurastusta kohden"
+lore = ["Kasvattaa pareja Laidun-solmun pitomäärään asti", "Keritsee lampaita", "Lypsää lehmiä, vuohia ja sienilehmiä kotiarkun ämpäreillä tai kulhoilla", "Teurastaa pitomäärän ylittävät aikuiset (vain rautagolemit)", "Lyhyempi lisääntymisen odotusaika", "Ylimääräinen saalisheitto teurastusta kohden"]
+species = "Laji: {species}"
+species_all = "Kaikki eläimet"
+species_lore = "Vasen napsautus seuraavaan lajiin, oikea edelliseen"
+keep = "Pidä {count} aikuista lajia kohden"
+keep_lore = "Vasen napsautus nostaa, oikea laskee"
+breed_on = "Kasvatus: päällä"
+breed_off = "Kasvatus: pois"
+shear_on = "Keritseminen: päällä"
+shear_off = "Keritseminen: pois"
+milk_on = "Lypsäminen: päällä"
+milk_off = "Lypsäminen: pois"
+cull_on = "Teurastus: päällä"
+cull_off = "Teurastus: pois"
+locked = "Avautuu Karjanhoitajaytimen tasolla {level}"
+iron_only = "Vain rautagolemit teurastavat"
+
 [golemancy.runic_augments]
 name = "Riimuvahvistukset"
 description = "Antaa sinun infusoida riimuja Animusjalustalla ja asettaa ne sidottuihin golemeihisi nopeuden, kantokyvyn, tulen, ulottuvuuden, kanavien, saaliin ja panssarin vuoksi."

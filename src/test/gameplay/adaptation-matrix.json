@@ -3502,6 +3502,25 @@
     },
     {
       "skill": "golemancy",
+      "name": "golem-rancher-core",
+      "class": "GolemRancherCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemRancherCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityBreedEvent",
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Golems bound with a Rancher Core tend the animals in a Pasture Node's area: they breed pairs up to the node's keep count, then shear sheep, milk cows and goats, and cull spare adults as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemRancherCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
       "name": "golem-runic-augments",
       "class": "GolemRunicAugments",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemRunicAugments.java",

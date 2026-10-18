@@ -3,10 +3,12 @@ package art.arcane.adapt.content.skill;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemState;
+import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Zombie;
+import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.persistence.PersistentDataContainer;
@@ -47,6 +49,46 @@ class GolemKillCreditSkillTest {
     stealth.on(death(player, player));
 
     verify(player).isSneaking();
+  }
+
+  @Test
+  void hunterPaysNothingForAnAnimalARancherCulledAfterTheOwnersHit() {
+    Player owner = mock(Player.class);
+    SkillHunter hunter = mock(SkillHunter.class, CALLS_REAL_METHODS);
+
+    hunter.on(culled(owner, boundIronGolem()));
+
+    verify(hunter, never()).getConfig();
+  }
+
+  @Test
+  void tamingPaysNothingForARancherCullOrARancherBreeding() {
+    SkillTaming taming = mock(SkillTaming.class, CALLS_REAL_METHODS);
+    EntityBreedEvent breeding = mock(EntityBreedEvent.class);
+    when(breeding.getBreeder()).thenReturn(null);
+
+    taming.on(culled(null, boundIronGolem()));
+    taming.on(breeding);
+
+    verify(taming, never()).getConfig();
+  }
+
+  private static IronGolem boundIronGolem() {
+    IronGolem golem = withData(mock(IronGolem.class));
+    GolemState.create(new GolemState.Seed(UUID.randomUUID(), UUID.randomUUID(), GolemBody.IRON, GolemCoreType.RANCHER,
+        GolemState.Anchor.of(UUID.randomUUID(), 0, 64, 0))).write(golem);
+    return golem;
+  }
+
+  private static EntityDeathEvent culled(Player killer, Entity golem) {
+    EntityDamageByEntityEvent lastDamage = mock(EntityDamageByEntityEvent.class);
+    when(lastDamage.getDamager()).thenReturn(golem);
+    Cow victim = withData(mock(Cow.class));
+    when(victim.getKiller()).thenReturn(killer);
+    when(victim.getLastDamageCause()).thenReturn(lastDamage);
+    EntityDeathEvent event = mock(EntityDeathEvent.class);
+    when(event.getEntity()).thenReturn(victim);
+    return event;
   }
 
   private static EntityDeathEvent death(Player killer, Entity lastDamager) {

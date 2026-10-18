@@ -4592,6 +4592,32 @@ lore6 = "Đốn cây khổng lồ 2x2"
 lore7 = "Đốn nấm đỏ thẫm và nấm biến dạng rồi trồng lại nấm"
 lore = ["Khúc gỗ đốn mỗi giây", "Khúc gỗ mỗi cây cho golem đồng", "Khúc gỗ mỗi cây cho golem sắt", "Trồng lại cây non sau khi đốn", "Quét lá: phá lá rời và thu gom vật phẩm rơi ra", "Đốn cây khổng lồ 2x2", "Đốn nấm đỏ thẫm và nấm biến dạng rồi trồng lại nấm"]
 
+[golemancy.rancher_core]
+name = "Lõi Người Chăn Nuôi"
+description = "Golem gắn kết với Lõi Người Chăn Nuôi chăm sóc các con vật trong vùng của nút Đồng Cỏ: chúng cho từng cặp sinh sản đến số lượng giữ lại của nút, và khi lõi mạnh hơn, chúng xén lông cừu, vắt sữa bò và dê, và loại bớt những con trưởng thành dư thừa."
+lore1 = "Cho từng cặp sinh sản đến số lượng giữ lại của nút Đồng Cỏ"
+lore2 = "Xén lông cừu"
+lore3 = "Vắt sữa bò, dê và bò nấm bằng xô hoặc bát từ rương nhà"
+lore4 = "Loại bớt con trưởng thành vượt số lượng giữ lại (chỉ golem sắt)"
+lore5 = "Thời gian chờ sinh sản ngắn hơn"
+lore6 = "Thêm lượt rơi đồ mỗi lần loại bớt"
+lore = ["Cho từng cặp sinh sản đến số lượng giữ lại của nút Đồng Cỏ", "Xén lông cừu", "Vắt sữa bò, dê và bò nấm bằng xô hoặc bát từ rương nhà", "Loại bớt con trưởng thành vượt số lượng giữ lại (chỉ golem sắt)", "Thời gian chờ sinh sản ngắn hơn", "Thêm lượt rơi đồ mỗi lần loại bớt"]
+species = "Loài: {species}"
+species_all = "Tất cả con vật"
+species_lore = "Nhấp trái để chọn loài tiếp theo, nhấp phải để chọn loài trước"
+keep = "Giữ {count} con trưởng thành mỗi loài"
+keep_lore = "Nhấp trái để tăng, nhấp phải để giảm"
+breed_on = "Sinh sản: Bật"
+breed_off = "Sinh sản: Tắt"
+shear_on = "Xén lông: Bật"
+shear_off = "Xén lông: Tắt"
+milk_on = "Vắt sữa: Bật"
+milk_off = "Vắt sữa: Tắt"
+cull_on = "Loại bớt: Bật"
+cull_off = "Loại bớt: Tắt"
+locked = "Mở khóa ở Lõi Người Chăn Nuôi cấp {level}"
+iron_only = "Chỉ golem sắt mới loại bớt"
+
 [golemancy.runic_augments]
 name = "Cường hóa Rune"
 description = "Cho phép bạn truyền Cổ Tự tại Bệ Animus và gắn chúng vào các golem đã liên kết để tăng tốc độ, sức chở, lửa, tầm hoạt động, kênh, sản lượng và giáp."

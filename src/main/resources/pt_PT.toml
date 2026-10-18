@@ -4592,6 +4592,32 @@ lore6 = "Abate árvores gigantes 2x2"
 lore7 = "Abate fungos carmesim e distorcidos e replanta fungos"
 lore = ["Troncos abatidos por segundo", "Troncos por árvore para golems de cobre", "Troncos por árvore para golems de ferro", "Replanta rebentos depois do abate", "Varrer folhas: parte as folhas soltas e recolhe o que largam", "Abate árvores gigantes 2x2", "Abate fungos carmesim e distorcidos e replanta fungos"]
 
+[golemancy.rancher_core]
+name = "Núcleo de Criador"
+description = "Os golems ligados a um Núcleo de Criador cuidam dos animais na área de um nó de Pasto: reproduzem pares até à quantidade a manter do nó e, à medida que o núcleo se fortalece, tosquiam ovelhas, ordenham vacas e cabras e abatem os adultos a mais."
+lore1 = "Reproduz pares até à quantidade a manter do nó de Pasto"
+lore2 = "Tosquia ovelhas"
+lore3 = "Ordenha vacas, cabras e vacogumelos com baldes ou tigelas do baú de casa"
+lore4 = "Abate adultos acima da quantidade a manter (só golems de ferro)"
+lore5 = "Tempo de espera de reprodução mais curto"
+lore6 = "Lançamento de saque extra por abate"
+lore = ["Reproduz pares até à quantidade a manter do nó de Pasto", "Tosquia ovelhas", "Ordenha vacas, cabras e vacogumelos com baldes ou tigelas do baú de casa", "Abate adultos acima da quantidade a manter (só golems de ferro)", "Tempo de espera de reprodução mais curto", "Lançamento de saque extra por abate"]
+species = "Espécie: {species}"
+species_all = "Todos os animais"
+species_lore = "Clique esquerdo para a espécie seguinte, clique direito para a anterior"
+keep = "Manter {count} adultos por espécie"
+keep_lore = "Clique esquerdo para aumentar, clique direito para diminuir"
+breed_on = "Reprodução: ligada"
+breed_off = "Reprodução: desligada"
+shear_on = "Tosquia: ligada"
+shear_off = "Tosquia: desligada"
+milk_on = "Ordenha: ligada"
+milk_off = "Ordenha: desligada"
+cull_on = "Abate: ligado"
+cull_off = "Abate: desligado"
+locked = "Desbloqueia-se com Núcleo de Criador no nível {level}"
+iron_only = "Só os golems de ferro abatem"
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Permite-te infundir runas no Pedestal de Ânimus e encaixá-las nos teus golems vinculados para velocidade, carga, fogo, alcance, canais, rendimento e armadura."

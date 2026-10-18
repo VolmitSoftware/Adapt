@@ -4592,6 +4592,32 @@ lore6 = "Fällt 2x2-Riesenbäume"
 lore7 = "Fällt Karmesin- und Wirrpilze und pflanzt Pilze nach"
 lore = ["Gefällte Stämme pro Sekunde", "Stämme pro Baum für Kupfergolems", "Stämme pro Baum für Eisengolems", "Pflanzt nach dem Fällen Setzlinge nach", "Laubräumen: Bricht lose Blätter ab und sammelt, was sie fallen lassen", "Fällt 2x2-Riesenbäume", "Fällt Karmesin- und Wirrpilze und pflanzt Pilze nach"]
 
+[golemancy.rancher_core]
+name = "Viehhüter-Kern"
+description = "Mit einem Viehhüter-Kern gebundene Golems versorgen die Tiere im Bereich eines Weide-Knotens: Sie züchten Paare bis zur Haltezahl des Knotens, und je stärker der Kern wird, scheren sie Schafe, melken Kühe und Ziegen und schlachten überzählige ausgewachsene Tiere."
+lore1 = "Züchtet Paare bis zur Haltezahl des Weide-Knotens"
+lore2 = "Schert Schafe"
+lore3 = "Melkt Kühe, Ziegen und Mooshrooms mit Eimern oder Schüsseln aus der Heimtruhe"
+lore4 = "Schlachtet ausgewachsene Tiere über der Haltezahl (nur Eisengolems)"
+lore5 = "Kürzere Zuchtabklingzeit"
+lore6 = "Zusätzlicher Beutewurf pro Schlachtung"
+lore = ["Züchtet Paare bis zur Haltezahl des Weide-Knotens", "Schert Schafe", "Melkt Kühe, Ziegen und Mooshrooms mit Eimern oder Schüsseln aus der Heimtruhe", "Schlachtet ausgewachsene Tiere über der Haltezahl (nur Eisengolems)", "Kürzere Zuchtabklingzeit", "Zusätzlicher Beutewurf pro Schlachtung"]
+species = "Tierart: {species}"
+species_all = "Alle Tiere"
+species_lore = "Linksklick für die nächste Tierart, Rechtsklick für die vorherige"
+keep = "{count} ausgewachsene Tiere pro Art halten"
+keep_lore = "Linksklick zum Erhöhen, Rechtsklick zum Senken"
+breed_on = "Züchten: An"
+breed_off = "Züchten: Aus"
+shear_on = "Scheren: An"
+shear_off = "Scheren: Aus"
+milk_on = "Melken: An"
+milk_off = "Melken: Aus"
+cull_on = "Schlachten: An"
+cull_off = "Schlachten: Aus"
+locked = "Wird mit Viehhüter-Kern Stufe {level} freigeschaltet"
+iron_only = "Nur Eisengolems schlachten"
+
 [golemancy.runic_augments]
 name = "Runenverstärkung"
 description = "Lässt dich am Animus-Sockel Runen infundieren und in deine gebundenen Golems einsetzen: für Tempo, Tragekapazität, Feuer, Reichweite, Kanäle, Ertrag und Rüstung."
