@@ -4448,6 +4448,8 @@ chest_out_of_reach = "Vật chứa đó phải nằm trong phạm vi {radius} kh
 released = "Đã giải phóng golem"
 release_failed = "Hiện không thể giải phóng golem này"
 gone = "Golem đó không còn ở đây"
+colossus_no_room = "Ở đây không đủ chỗ để golem này lớn lên"
+colossus_busy = "Golem này vẫn đang thay đổi kích thước"
 
 [golemancy.binding]
 busy = "Một nghi thức liên kết đang diễn ra"

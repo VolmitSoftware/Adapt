@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem.gui;
 
 import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRoster;
@@ -12,6 +13,7 @@ import org.bukkit.DyeColor;
 import org.bukkit.Material;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public final class GolemGuiActions {
@@ -69,6 +71,14 @@ public final class GolemGuiActions {
 
   public static TextKey colossusName(boolean colossus) {
     return colossus ? GolemancyMessages.GUI_COLOSSUS_ON : GolemancyMessages.GUI_COLOSSUS_OFF;
+  }
+
+  public static Optional<TextKey> colossusRefusal(GolemColossus.Toggle toggle) {
+    return switch (toggle) {
+      case NO_ROOM -> Optional.of(GolemancyMessages.MESSAGE_COLOSSUS_NO_ROOM);
+      case BUSY -> Optional.of(GolemancyMessages.MESSAGE_COLOSSUS_BUSY);
+      case UNAVAILABLE, GROW, SHRINK -> Optional.empty();
+    };
   }
 
   public static boolean releasableFromRoster(GolemRoster.Status status) {

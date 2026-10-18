@@ -132,6 +132,8 @@ public final class GolemancyMessages {
   public static final TextKey MESSAGE_RELEASED = TextKey.of("golemancy.message.released", "Golem released");
   public static final TextKey MESSAGE_RELEASE_FAILED = TextKey.of("golemancy.message.release_failed", "This golem can't be released right now");
   public static final TextKey MESSAGE_GONE = TextKey.of("golemancy.message.gone", "That golem is no longer here");
+  public static final TextKey MESSAGE_COLOSSUS_NO_ROOM = TextKey.of("golemancy.message.colossus_no_room", "There is not enough room here for this golem to grow");
+  public static final TextKey MESSAGE_COLOSSUS_BUSY = TextKey.of("golemancy.message.colossus_busy", "This golem is still changing size");
   public static final TextKey BINDING_BUSY = TextKey.of("golemancy.binding.busy", "A binding ritual is already underway");
   public static final TextKey BINDING_ALREADY_BOUND = TextKey.of("golemancy.binding.already_bound", "That golem is already bound");
   public static final TextKey BINDING_VILLAGE = TextKey.of("golemancy.binding.village", "Only golems that players built can be bound");
@@ -376,6 +378,8 @@ public final class GolemancyMessages {
     builder.add(MESSAGE_RELEASED);
     builder.add(MESSAGE_RELEASE_FAILED);
     builder.add(MESSAGE_GONE);
+    builder.add(MESSAGE_COLOSSUS_NO_ROOM);
+    builder.add(MESSAGE_COLOSSUS_BUSY);
     builder.add(BINDING_BUSY);
     builder.add(BINDING_ALREADY_BOUND);
     builder.add(BINDING_VILLAGE);

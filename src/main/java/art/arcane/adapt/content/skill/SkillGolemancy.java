@@ -338,6 +338,11 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     return List.copyOf(listeners);
   }
 
+  public static Material heldType(Player player, EquipmentSlot hand) {
+    ItemStack held = player.getInventory().getItem(hand);
+    return held == null ? Material.AIR : held.getType();
+  }
+
   static GolemSettings golemSettings(Config config) {
     Map<GolemBody, Double> scales = new EnumMap<>(GolemBody.class);
     scales.put(GolemBody.FROST, config.bodyScaleFrost);
@@ -587,11 +592,6 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
 
   private static Location combatLocation(Entity golem, Entity victim) {
     return J.isOwnedByCurrentRegion(golem) ? golem.getLocation() : victim.getLocation();
-  }
-
-  private static Material heldType(Player player, EquipmentSlot hand) {
-    ItemStack held = player.getInventory().getItem(hand);
-    return held == null ? Material.AIR : held.getType();
   }
 
   private static double maxHealthOf(LivingEntity entity) {

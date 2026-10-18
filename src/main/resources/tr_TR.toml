@@ -4448,6 +4448,8 @@ chest_out_of_reach = "Bu depo golemin evine en fazla {radius} blok uzaklıkta ol
 released = "Golem serbest bırakıldı"
 release_failed = "Bu golem şu anda serbest bırakılamaz"
 gone = "Bu golem artık burada değil"
+colossus_no_room = "Bu golemin büyümesi için burada yeterli yer yok"
+colossus_busy = "Bu golem hâlâ boyut değiştiriyor"
 
 [golemancy.binding]
 busy = "Zaten bir bağlama ritüeli sürüyor"

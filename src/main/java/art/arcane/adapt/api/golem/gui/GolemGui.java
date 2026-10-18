@@ -226,7 +226,9 @@ public final class GolemGui {
   }
 
   private void toggleColossus() {
-    mutate(() -> GolemColossus.form().ifPresent(form -> form.toggle(handle)));
+    mutate(() -> GolemColossus.form()
+        .flatMap(form -> GolemGuiActions.colossusRefusal(form.toggle(handle)))
+        .ifPresent(refusal -> GolemGuiSupport.warn(player, refusal)));
   }
 
   private void setHome() {

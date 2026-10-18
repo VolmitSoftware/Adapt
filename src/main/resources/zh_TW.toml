@@ -4448,6 +4448,8 @@ chest_out_of_reach = "該容器必須位於魔像的家{radius}格範圍內"
 released = "魔像已釋放"
 release_failed = "現在無法釋放這個魔像"
 gone = "那個魔像已不在這裡"
+colossus_no_room = "這裡沒有足夠的空間讓這個魔像變大"
+colossus_busy = "這個魔像仍在改變大小"
 
 [golemancy.binding]
 busy = "縛約儀式已在進行中"

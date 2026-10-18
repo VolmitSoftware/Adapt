@@ -4,6 +4,7 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemStat;
 import art.arcane.adapt.api.golem.GolemStatDelta;
@@ -11,8 +12,11 @@ import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.api.minion.MinionKind;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.math.M;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -22,6 +26,7 @@ import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
@@ -33,6 +38,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -41,7 +47,9 @@ import org.mockito.MockedStatic;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -67,6 +75,22 @@ import static org.mockito.Mockito.when;
 
 class GolemIronFrameTest extends AdaptTestBase {
   private static final UUID WORLD = UUID.fromString("00000000-0000-0000-0000-0000000000a9");
+  private static final Set<Entity> MARKED_MINIONS = ConcurrentHashMap.newKeySet();
+
+  @BeforeAll
+  static void registerMarkedMinions() {
+    MinionIdentity.registerKind(new MinionKind() {
+      @Override
+      public boolean matches(Entity entity) {
+        return MARKED_MINIONS.contains(entity);
+      }
+
+      @Override
+      public UUID ownerOf(Entity entity) {
+        return null;
+      }
+    });
+  }
 
   private GolemIronFrame adaptation;
   private MockedStatic<GolemancyRuntime> runtime;
@@ -83,6 +107,8 @@ class GolemIronFrameTest extends AdaptTestBase {
     runtime.when(GolemancyRuntime::settings).thenReturn(GolemSettings.defaults());
     scheduling = mockStatic(J.class);
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), anyInt())).thenReturn(true);
+    scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), anyInt(), any(Runnable.class))).thenReturn(true);
+    scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenReturn(true);
     adaptation = new GolemIronFrame();
     world = mock(World.class);
     lenient().when(world.getUID()).thenReturn(WORLD);
@@ -141,6 +167,15 @@ class GolemIronFrameTest extends AdaptTestBase {
   }
 
   @Test
+  void loadingClampsTheColossusScale() {
+    assertThat(adaptation.reloadConfigSnapshot("colossusScale = 4.0\n", dataFolder.toPath().resolve("huge.toml").toFile(), false)).isTrue();
+    assertThat(adaptation.getConfig().colossusScale).isEqualTo(1.5D);
+
+    assertThat(adaptation.reloadConfigSnapshot("colossusScale = 0.1\n", dataFolder.toPath().resolve("tiny.toml").toFile(), false)).isTrue();
+    assertThat(adaptation.getConfig().colossusScale).isEqualTo(0.36D);
+  }
+
+  @Test
   void everyLevelShowsItsStatsRepairsAndUnlocks() {
     assertThat(lore(1)).containsExactly("+ 10 Bonus Health for Iron Golems", "+ 2 Bonus Armor for Iron Golems",
         "+ 1.5 Bonus Attack Damage for Iron Golems", "+ 5 Extra Health per Iron Ingot Repair");
@@ -161,14 +196,11 @@ class GolemIronFrameTest extends AdaptTestBase {
 
     assertThat(GolemIronFrame.STAT_SOURCE).isEqualTo("iron_frame");
     assertThat(GolemIronFrame.COLOSSUS_SOURCE).isEqualTo("colossus");
-    assertThat(GolemIronFrame.frameStats(config, GolemBody.IRON, 2)).containsExactly(GolemStatDelta.add(GolemStat.MAX_HEALTH, 20D),
+    assertThat(GolemIronFrame.frameStats(config, 2)).containsExactly(GolemStatDelta.add(GolemStat.MAX_HEALTH, 20D),
         GolemStatDelta.add(GolemStat.ARMOR, 4D), GolemStatDelta.add(GolemStat.ATTACK_DAMAGE, 3D));
-    assertThat(GolemIronFrame.frameStats(config, GolemBody.IRON, 0)).isEmpty();
-    assertThat(GolemIronFrame.frameStats(config, GolemBody.COPPER, 5)).isEmpty();
-    assertThat(GolemIronFrame.colossusStats(config, GolemBody.IRON, true, 5)).containsExactly(GolemStatDelta.multiplyBase(GolemStat.ATTACK_DAMAGE, 0.20D));
-    assertThat(GolemIronFrame.colossusStats(config, GolemBody.IRON, false, 5)).isEmpty();
-    assertThat(GolemIronFrame.colossusStats(config, GolemBody.IRON, true, 4)).isEmpty();
-    assertThat(GolemIronFrame.colossusStats(config, GolemBody.FROST, true, 5)).isEmpty();
+    assertThat(GolemIronFrame.frameStats(config, 0)).isEmpty();
+    assertThat(GolemIronFrame.colossusStats(config, 5)).containsExactly(GolemStatDelta.multiplyTotal(GolemStat.ATTACK_DAMAGE, 0.20D));
+    assertThat(GolemIronFrame.colossusStats(config, 4)).isEmpty();
   }
 
   @Test
@@ -261,6 +293,22 @@ class GolemIronFrameTest extends AdaptTestBase {
   }
 
   @Test
+  void sweepingFistsNeverPunchesAHostileAdaptMinion() {
+    IronGolem golem = ironGolem(at(0, 64, 0));
+    bound(golem, false);
+    Zombie victim = living(Zombie.class, at(1, 64, 0));
+    Skeleton servant = living(Skeleton.class, at(1.5D, 64, 0));
+    MARKED_MINIONS.add(servant);
+    Zombie near = living(Zombie.class, at(1, 64, 1.5D));
+
+    learned(3).on(hit(golem, victim, 12D));
+
+    assertThat(MinionIdentity.isMinion(servant)).isTrue();
+    verify(servant, never()).damage(anyDouble(), any(Entity.class));
+    verify(near).damage(6D, golem);
+  }
+
+  @Test
   void sweepingFistsNeedsTheUnlockLevelAnAwakeBoundGolemAndPermission() {
     IronGolem golem = ironGolem(at(0, 64, 0));
     bound(golem, false);
@@ -288,7 +336,7 @@ class GolemIronFrameTest extends AdaptTestBase {
   }
 
   @Test
-  void theColossusToggleShowsForLevelFiveIronGolemsAndWhileTheFormLasts() {
+  void theColossusToggleShowsOnlyForIronGolemsOfALevelFiveOwner() {
     GolemIronFrame learned = learned(5);
     GolemIronFrame lowLevel = learned(4);
     GolemHandle iron = handle(ironGolem(at(0, 64, 0)), new AtomicBoolean(false));
@@ -298,7 +346,7 @@ class GolemIronFrameTest extends AdaptTestBase {
 
     assertThat(learned.colossusAvailable(iron)).isTrue();
     assertThat(lowLevel.colossusAvailable(iron)).isFalse();
-    assertThat(lowLevel.colossusAvailable(grown)).isTrue();
+    assertThat(lowLevel.colossusAvailable(grown)).isFalse();
     assertThat(learned.colossusAvailable(copper)).isFalse();
   }
 
@@ -311,19 +359,21 @@ class GolemIronFrameTest extends AdaptTestBase {
     List<Double> fractions = new ArrayList<>();
     doAnswer(invocation -> fractions.add(invocation.getArgument(3))).when(learned).resize(eq(golem), anyDouble(), anyDouble(), anyDouble());
 
-    learned.toggleColossus(handle);
+    assertThat(learned.toggleColossus(handle)).isEqualTo(GolemColossus.Toggle.GROW);
 
     assertThat(colossus).isTrue();
     verify(learned).resize(golem, 0.36D, 1D, 0D);
     verify(learned).refreshStats(handle);
     assertThat(learned.hasTickDemand()).isTrue();
-    runSteps(golem, 20);
+    runSteps(golem, 0, 19);
+    assertThat(learned.toggleColossus(handle)).isEqualTo(GolemColossus.Toggle.BUSY);
+    runSteps(golem, 19, 20);
     assertThat(fractions).hasSize(21);
     assertThat(fractions.getLast()).isEqualTo(1D);
     assertThat(fractions.get(10)).isCloseTo(0.5D, offset(1e-9));
     assertThat(learned.hasTickDemand()).isFalse();
 
-    learned.toggleColossus(handle);
+    assertThat(learned.toggleColossus(handle)).isEqualTo(GolemColossus.Toggle.SHRINK);
 
     assertThat(colossus).isFalse();
     verify(learned).resize(golem, 1D, 0.36D, 0D);
@@ -338,26 +388,120 @@ class GolemIronFrameTest extends AdaptTestBase {
     GolemIronFrame learned = learned(5);
     GolemIronFrame lowLevel = learned(4);
 
-    lowLevel.toggleColossus(handle);
+    assertThat(lowLevel.toggleColossus(handle)).isEqualTo(GolemColossus.Toggle.UNAVAILABLE);
     assertThat(colossus).isFalse();
     verify(lowLevel, never()).resize(any(Mob.class), anyDouble(), anyDouble(), anyDouble());
 
-    learned.toggleColossus(handle);
-    learned.toggleColossus(handle);
+    assertThat(learned.toggleColossus(handle)).isEqualTo(GolemColossus.Toggle.GROW);
+    assertThat(learned.toggleColossus(handle)).isEqualTo(GolemColossus.Toggle.BUSY);
     assertThat(colossus).isTrue();
     verify(learned, never()).resize(golem, 1D, 0.36D, 0D);
 
     when(handle.isRetired()).thenReturn(true);
-    runSteps(golem, 1);
+    runSteps(golem, 0, 1);
 
     verify(learned, times(1)).resize(eq(golem), anyDouble(), anyDouble(), anyDouble());
     assertThat(learned.hasTickDemand()).isFalse();
   }
 
-  private void runSteps(Mob golem, int steps) {
-    for (int step = 0; step < steps; step++) {
+  @Test
+  void colossusRefusesToGrowWithoutRoomAndLeavesTheGolemAlone() {
+    IronGolem golem = ironGolem(at(0, 64, 0));
+    AtomicBoolean colossus = new AtomicBoolean(false);
+    GolemHandle handle = handle(golem, colossus);
+    GolemIronFrame learned = learned(5);
+    doReturn(false).when(learned).hasRoom(golem, 1D);
+
+    assertThat(learned.toggleColossus(handle)).isEqualTo(GolemColossus.Toggle.NO_ROOM);
+
+    assertThat(colossus).isFalse();
+    verify(handle, never()).setColossus(any(Boolean.class));
+    verify(learned, never()).resize(any(Mob.class), anyDouble(), anyDouble(), anyDouble());
+    assertThat(learned.hasTickDemand()).isFalse();
+  }
+
+  @Test
+  void colossusShrinksOnItsOwnWhenTheOwnerDropsBelowTheUnlockLevel() {
+    IronGolem golem = ironGolem(at(0, 64, 0));
+    AtomicBoolean colossus = new AtomicBoolean(true);
+    GolemHandle handle = handle(golem, colossus);
+
+    learned(5).settleColossus(handle);
+    assertThat(colossus).isTrue();
+
+    GolemIronFrame unlearned = learned(4);
+    unlearned.settleColossus(handle);
+    unlearned.settleColossus(handle);
+
+    assertThat(colossus).isFalse();
+    verify(unlearned, times(1)).resize(golem, 1D, 0.36D, 0D);
+    verify(unlearned).refreshStats(handle);
+  }
+
+  @Test
+  void aResizeThatLeaksPastItsDeadlineSnapsToItsEnd() {
+    IronGolem golem = ironGolem(at(0, 64, 0));
+    GolemHandle handle = handle(golem, new AtomicBoolean(false));
+    GolemIronFrame learned = learned(5);
+    try (MockedStatic<M> clock = mockStatic(M.class)) {
+      clock.when(M::ms).thenReturn(1_000L);
+      learned.toggleColossus(handle);
+      clock.when(M::ms).thenReturn(IronFrameRules.leakDeadline(1_000L, 20) - 1L);
+      learned.onTick();
+      assertThat(learned.toggleColossus(handle)).isEqualTo(GolemColossus.Toggle.BUSY);
+
+      clock.when(M::ms).thenReturn(IronFrameRules.leakDeadline(1_000L, 20));
+      learned.onTick();
+    }
+
+    ArgumentCaptor<Runnable> snap = ArgumentCaptor.forClass(Runnable.class);
+    scheduling.verify(() -> J.runEntity(eq(golem), snap.capture()));
+    snap.getValue().run();
+    verify(learned).resize(golem, 0.36D, 1D, 1D);
+    assertThat(learned.hasTickDemand()).isFalse();
+    runSteps(golem, 0, 1);
+    verify(learned, times(2)).resize(eq(golem), anyDouble(), anyDouble(), anyDouble());
+  }
+
+  @Test
+  void unregisteringSnapsResizesAndSettlesAwakeColossusGolems() {
+    IronGolem resizing = ironGolem(at(0, 64, 0));
+    GolemHandle resizingHandle = handle(resizing, new AtomicBoolean(false));
+    IronGolem grown = ironGolem(at(0, 64, 9));
+    GolemHandle grownHandle = handle(grown, new AtomicBoolean(true));
+    IronGolem sleeping = ironGolem(at(0, 64, 18));
+    GolemHandle sleepingHandle = handle(sleeping, new AtomicBoolean(true));
+    when(sleepingHandle.isDormant()).thenReturn(true);
+    IronGolem small = ironGolem(at(0, 64, 27));
+    GolemHandle smallHandle = handle(small, new AtomicBoolean(false));
+    GolemRegistry registry = mock(GolemRegistry.class);
+    when(registry.loaded()).thenReturn(List.of(resizingHandle, grownHandle, sleepingHandle, smallHandle));
+    runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+    GolemIronFrame learned = learned(5);
+    learned.onRuntimeActivated();
+    learned.toggleColossus(resizingHandle);
+
+    learned.unregister();
+
+    assertThat(GolemColossus.form()).isEmpty();
+    ArgumentCaptor<Runnable> resizingTask = ArgumentCaptor.forClass(Runnable.class);
+    scheduling.verify(() -> J.runEntity(eq(resizing), resizingTask.capture()));
+    ArgumentCaptor<Runnable> grownTask = ArgumentCaptor.forClass(Runnable.class);
+    scheduling.verify(() -> J.runEntity(eq(grown), grownTask.capture()));
+    scheduling.verify(() -> J.runEntity(eq(sleeping), any(Runnable.class)), never());
+    scheduling.verify(() -> J.runEntity(eq(small), any(Runnable.class)), never());
+    resizingTask.getValue().run();
+    grownTask.getValue().run();
+    verify(learned).resize(resizing, 0.36D, 1D, 1D);
+    verify(learned).settleOrphan(resizingHandle);
+    verify(learned).settleOrphan(grownHandle);
+    verify(learned, never()).resize(eq(grown), anyDouble(), anyDouble(), anyDouble());
+  }
+
+  private void runSteps(Mob golem, int alreadyRun, int steps) {
+    for (int step = alreadyRun; step < steps; step++) {
       ArgumentCaptor<Runnable> next = ArgumentCaptor.forClass(Runnable.class);
-      scheduling.verify(() -> J.runEntity(eq(golem), next.capture(), eq(1)), times(step + 1));
+      scheduling.verify(() -> J.runEntity(eq(golem), next.capture(), eq(1), any(Runnable.class)), times(step + 1));
       next.getValue().run();
     }
   }
@@ -369,6 +513,8 @@ class GolemIronFrameTest extends AdaptTestBase {
     lenient().doReturn(true).when(learned).canPVE(any(Player.class), any(Location.class));
     lenient().doNothing().when(learned).resize(any(Mob.class), anyDouble(), anyDouble(), anyDouble());
     lenient().doNothing().when(learned).refreshStats(any(GolemHandle.class));
+    lenient().doReturn(true).when(learned).hasRoom(any(Mob.class), anyDouble());
+    lenient().doNothing().when(learned).settleOrphan(any(GolemHandle.class));
     return learned;
   }
 
@@ -418,8 +564,7 @@ class GolemIronFrameTest extends AdaptTestBase {
     lenient().when(held.getType()).thenReturn(material);
     ItemStack empty = mock(ItemStack.class);
     lenient().when(empty.getType()).thenReturn(Material.AIR);
-    lenient().when(inventory.getItemInMainHand()).thenReturn(hand == EquipmentSlot.HAND ? held : empty);
-    lenient().when(inventory.getItemInOffHand()).thenReturn(hand == EquipmentSlot.OFF_HAND ? held : empty);
+    lenient().when(inventory.getItem(any(EquipmentSlot.class))).thenAnswer(invocation -> invocation.getArgument(0) == hand ? held : empty);
     lenient().when(player.getInventory()).thenReturn(inventory);
     return player;
   }

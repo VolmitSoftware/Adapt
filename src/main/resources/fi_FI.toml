@@ -4448,6 +4448,8 @@ chest_out_of_reach = "Säiliön on oltava enintään {radius} kuution päässä 
 released = "Golemi vapautettu"
 release_failed = "Tätä golemia ei voi vapauttaa juuri nyt"
 gone = "Tämä golemi ei ole enää täällä"
+colossus_no_room = "Täällä ei ole tarpeeksi tilaa tämän golemin kasvaa"
+colossus_busy = "Tämä golemi muuttaa vielä kokoaan"
 
 [golemancy.binding]
 busy = "Sidontariitti on jo käynnissä"

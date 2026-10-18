@@ -1,19 +1,29 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemStat;
 import art.arcane.adapt.api.golem.GolemStatDelta;
+import org.bukkit.util.BoundingBox;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 
 final class IronFrameRules {
   static final double DEFAULT_SWEEP_RADIUS = 2D;
   static final double MAX_SWEEP_RADIUS = 8D;
+  static final double DEFAULT_COLOSSUS_SCALE = 1D;
+  static final double MIN_COLOSSUS_SCALE = 0.36D;
+  static final double MAX_COLOSSUS_SCALE = 1.5D;
+  static final double CLEARANCE_INSET = 0.01D;
+  private static final double IRON_GOLEM_WIDTH = 1.4D;
+  private static final double IRON_GOLEM_HEIGHT = 2.7D;
   private static final long MILLIS_PER_TICK = 50L;
-  private static final long RESIZE_GRACE_MILLIS = 1_000L;
+  private static final long LEAK_TICK_FACTOR = 4L;
+  private static final long LEAK_GRACE_MILLIS = 5_000L;
 
   private IronFrameRules() {
   }
@@ -38,11 +48,11 @@ final class IronFrameRules {
     return List.copyOf(deltas);
   }
 
-  static List<GolemStatDelta> colossusDeltas(boolean colossus, int level, int colossusLevel, double attackBonus) {
-    if (!colossus || !unlocked(level, colossusLevel) || !Double.isFinite(attackBonus) || attackBonus == 0D) {
+  static List<GolemStatDelta> colossusDeltas(int level, int colossusLevel, double attackBonus) {
+    if (!unlocked(level, colossusLevel) || !Double.isFinite(attackBonus) || attackBonus == 0D) {
       return List.of();
     }
-    return List.of(GolemStatDelta.multiplyBase(GolemStat.ATTACK_DAMAGE, attackBonus));
+    return List.of(GolemStatDelta.multiplyTotal(GolemStat.ATTACK_DAMAGE, attackBonus));
   }
 
   static double ingotHealBonus(List<Integer> bonusByLevel, int level) {
@@ -88,42 +98,48 @@ final class IronFrameRules {
     return List.copyOf(victims);
   }
 
-  static ColossusToggle colossusToggle(GolemBody body, int level, int colossusLevel, boolean colossus, boolean resizing) {
-    if (body != GolemBody.IRON || (!colossus && !unlocked(level, colossusLevel))) {
-      return ColossusToggle.UNAVAILABLE;
+  static GolemColossus.Toggle colossusToggle(GolemBody body, int level, int colossusLevel, boolean colossus, boolean busy, BooleanSupplier room) {
+    if (body != GolemBody.IRON || !unlocked(level, colossusLevel)) {
+      return GolemColossus.Toggle.UNAVAILABLE;
     }
-    if (resizing) {
-      return ColossusToggle.BUSY;
+    if (busy) {
+      return GolemColossus.Toggle.BUSY;
     }
-    return colossus ? ColossusToggle.SHRINK : ColossusToggle.GROW;
+    if (colossus) {
+      return GolemColossus.Toggle.SHRINK;
+    }
+    return room.getAsBoolean() ? GolemColossus.Toggle.GROW : GolemColossus.Toggle.NO_ROOM;
+  }
+
+  static boolean outgrown(boolean colossus, int level, int colossusLevel) {
+    return colossus && !unlocked(level, colossusLevel);
+  }
+
+  static double colossusScale(double scale) {
+    return Double.isFinite(scale) ? Math.max(MIN_COLOSSUS_SCALE, Math.min(MAX_COLOSSUS_SCALE, scale)) : DEFAULT_COLOSSUS_SCALE;
+  }
+
+  static BoundingBox colossusBox(double x, double y, double z, double scale) {
+    double halfWidth = IRON_GOLEM_WIDTH * scale / 2D - CLEARANCE_INSET;
+    return new BoundingBox(x - halfWidth, y + CLEARANCE_INSET, z - halfWidth, x + halfWidth, y + IRON_GOLEM_HEIGHT * scale, z + halfWidth);
   }
 
   static int growTicks(int ticks) {
     return Math.max(1, ticks);
   }
 
-  static Resize resize(long token, long now, int growTicks) {
-    return new Resize(token, now + growTicks(growTicks) * MILLIS_PER_TICK + RESIZE_GRACE_MILLIS);
+  static long leakDeadline(long now, int growTicks) {
+    return now + growTicks(growTicks) * MILLIS_PER_TICK * LEAK_TICK_FACTOR + LEAK_GRACE_MILLIS;
   }
 
-  static boolean resizing(Resize resize, long now) {
-    return resize != null && now < resize.until();
+  static boolean leaked(long deadline, long now) {
+    return now >= deadline;
   }
 
   static boolean unlocked(int level, int unlockLevel) {
     return level >= Math.max(1, unlockLevel);
   }
 
-  enum ColossusToggle {
-    UNAVAILABLE,
-    BUSY,
-    GROW,
-    SHRINK
-  }
-
   record SweepCandidate<T>(T target, boolean excluded, boolean hostile, double distanceSquared) {
-  }
-
-  record Resize(long token, long until) {
   }
 }

@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 class GolemBrainTest extends AdaptTestBase {
@@ -98,6 +99,30 @@ class GolemBrainTest extends AdaptTestBase {
       assertThat(armor.value()).isEqualTo(4D);
     } finally {
       GolemStats.unregister(frame);
+    }
+  }
+
+  @Test
+  void pulsesSettleColossusGolemsAtTheStatsCadence() {
+    platform.join(OWNER, new GolemRoster());
+    GolemColossus.Form form = mock(GolemColossus.Form.class);
+    GolemColossus.register(form);
+    try {
+      GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+      GolemHandle handle = brain.handle();
+      handle.setColossus(true);
+      brain.start();
+
+      platform.runDelayed();
+      platform.now += 500L;
+      platform.runDelayed();
+      verify(form, times(1)).settle(handle);
+
+      platform.now += 500L;
+      platform.runDelayed();
+      verify(form, times(2)).settle(handle);
+    } finally {
+      GolemColossus.unregister(form);
     }
   }
 

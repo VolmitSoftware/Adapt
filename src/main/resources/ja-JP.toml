@@ -4448,6 +4448,8 @@ chest_out_of_reach = "そのコンテナはゴーレムの拠点から{radius}�
 released = "ゴーレムを解放しました"
 release_failed = "このゴーレムは今は解放できません"
 gone = "そのゴーレムはもうここにいません"
+colossus_no_room = "ここにはこのゴーレムが大きくなる場所がありません"
+colossus_busy = "このゴーレムはまだ大きさを変えています"
 
 [golemancy.binding]
 busy = "結びつけの儀式はすでに進行中です"

@@ -4448,6 +4448,8 @@ chest_out_of_reach = "그 보관함은 골렘의 거점에서 {radius}블록 이
 released = "골렘을 해방했습니다"
 release_failed = "지금은 이 골렘을 해방할 수 없습니다"
 gone = "그 골렘은 더 이상 여기에 없습니다"
+colossus_no_room = "여기에는 이 골렘이 커질 공간이 부족합니다"
+colossus_busy = "이 골렘은 아직 크기가 바뀌는 중입니다"
 
 [golemancy.binding]
 busy = "이미 결속 의식이 진행 중입니다"

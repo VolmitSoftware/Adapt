@@ -30,6 +30,7 @@ import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.minion.MinionTargeting;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.content.skill.SkillGolemancy;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -39,6 +40,7 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Enemy;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
@@ -50,11 +52,9 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.inventory.EquipmentSlot;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.PlayerInventory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -73,7 +73,7 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
   private final GolemStatSource colossusStats = new ColossusStats();
   private final GolemColossus.Form colossusForm = new ColossusForm();
   private final Map<UUID, PendingRepair> repairs = new ConcurrentHashMap<>();
-  private final Map<UUID, IronFrameRules.Resize> resizes = new ConcurrentHashMap<>();
+  private final Map<UUID, Resize> resizes = new ConcurrentHashMap<>();
   private final Set<UUID> sweeping = ConcurrentHashMap.newKeySet();
   private final AtomicLong resizeTokens = new AtomicLong();
 
@@ -89,9 +89,9 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
   public void unregister() {
     GolemStats.unregister(frameStats);
     GolemStats.unregister(colossusStats);
-    GolemColossus.unregister(colossusForm);
+    boolean formOwned = GolemColossus.unregister(colossusForm);
     repairs.clear();
-    resizes.clear();
+    releaseResizes(formOwned);
     super.unregister();
   }
 
@@ -105,6 +105,7 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
   @Override
   protected void normalizeLoadedConfig(Config loadedConfig) {
     loadedConfig.sweepRadius = IronFrameRules.sweepRadius(loadedConfig.sweepRadius);
+    loadedConfig.colossusScale = IronFrameRules.colossusScale(loadedConfig.colossusScale);
   }
 
   @Override
@@ -132,12 +133,17 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
   public void onTick() {
     long now = M.ms();
     repairs.values().removeIf(repair -> now >= repair.until());
-    resizes.values().removeIf(resize -> !IronFrameRules.resizing(resize, now));
+    for (Map.Entry<UUID, Resize> entry : resizes.entrySet()) {
+      Resize resize = entry.getValue();
+      if (IronFrameRules.leaked(resize.leakDeadline(), now) && resizes.remove(entry.getKey(), resize)) {
+        J.runEntity(resize.handle().entity(), () -> snap(resize));
+      }
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEntityEvent e) {
-    if (!(e.getRightClicked() instanceof IronGolem golem) || heldType(e.getPlayer(), e.getHand()) != Material.IRON_INGOT) {
+    if (!(e.getRightClicked() instanceof IronGolem golem) || SkillGolemancy.heldType(e.getPlayer(), e.getHand()) != Material.IRON_INGOT) {
       return;
     }
     Optional<GolemHandle> bound = GolemancyRuntime.handle(golem);
@@ -217,23 +223,38 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
   }
 
   boolean colossusAvailable(GolemHandle handle) {
-    if (handle.body() != GolemBody.IRON) {
-      return false;
-    }
-    return handle.state().colossus() || IronFrameRules.unlocked(ownerLevel(handle), getConfig().colossusLevel);
+    return handle.body() == GolemBody.IRON && IronFrameRules.unlocked(ownerLevel(handle), getConfig().colossusLevel);
   }
 
-  void toggleColossus(GolemHandle handle) {
+  GolemColossus.Toggle toggleColossus(GolemHandle handle) {
     Config config = getConfig();
-    long now = M.ms();
-    IronFrameRules.ColossusToggle toggle = IronFrameRules.colossusToggle(handle.body(), ownerLevel(handle), config.colossusLevel,
-        handle.state().colossus(), IronFrameRules.resizing(resizes.get(handle.id()), now));
+    GolemColossus.Toggle toggle = IronFrameRules.colossusToggle(handle.body(), ownerLevel(handle), config.colossusLevel,
+        handle.state().colossus(), busy(handle), () -> hasRoom(handle.entity(), config.colossusScale));
     switch (toggle) {
-      case GROW -> transform(handle, true, config, now);
-      case SHRINK -> transform(handle, false, config, now);
-      case UNAVAILABLE, BUSY -> {
+      case GROW -> transform(handle, true, config);
+      case SHRINK -> transform(handle, false, config);
+      case UNAVAILABLE, BUSY, NO_ROOM -> {
       }
     }
+    return toggle;
+  }
+
+  void settleColossus(GolemHandle handle) {
+    Config config = getConfig();
+    if (busy(handle) || !IronFrameRules.outgrown(handle.state().colossus(), ownerLevel(handle), config.colossusLevel)) {
+      return;
+    }
+    transform(handle, false, config);
+  }
+
+  boolean hasRoom(Mob golem, double scale) {
+    Location at = golem.getLocation();
+    World world = at.getWorld();
+    return world != null && !PaperCompat.hasCollisionsIn(world, IronFrameRules.colossusBox(at.getX(), at.getY(), at.getZ(), scale));
+  }
+
+  void settleOrphan(GolemHandle handle) {
+    GolemColossus.settle(handle);
   }
 
   void resize(Mob golem, double from, double to, double fraction) {
@@ -244,14 +265,12 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
     GolemStats.recompute(handle);
   }
 
-  static List<GolemStatDelta> frameStats(Config config, GolemBody body, int level) {
-    return body == GolemBody.IRON
-        ? IronFrameRules.frameDeltas(config.healthBonusByLevel, config.armorBonusByLevel, config.attackBonusByLevel, level)
-        : List.of();
+  static List<GolemStatDelta> frameStats(Config config, int level) {
+    return IronFrameRules.frameDeltas(config.healthBonusByLevel, config.armorBonusByLevel, config.attackBonusByLevel, level);
   }
 
-  static List<GolemStatDelta> colossusStats(Config config, GolemBody body, boolean colossus, int level) {
-    return body == GolemBody.IRON ? IronFrameRules.colossusDeltas(colossus, level, config.colossusLevel, config.colossusAttackBonus) : List.of();
+  static List<GolemStatDelta> colossusStats(Config config, int level) {
+    return IronFrameRules.colossusDeltas(level, config.colossusLevel, config.colossusAttackBonus);
   }
 
   private List<LivingEntity> sweepVictims(IronGolem golem, LivingEntity victim, Player owner, int cap, double radius) {
@@ -265,56 +284,90 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
     return IronFrameRules.sweepVictims(candidates, radius, cap, candidate -> canSweep(owner, candidate));
   }
 
-  private void transform(GolemHandle handle, boolean colossus, Config config, long now) {
-    Mob golem = handle.entity();
+  private boolean busy(GolemHandle handle) {
+    Resize resize = resizes.get(handle.id());
+    return resize != null && !resize.handle().isRetired();
+  }
+
+  private void transform(GolemHandle handle, boolean colossus, Config config) {
     double bound = GolemScale.target(GolemBody.IRON);
     double from = colossus ? bound : config.colossusScale;
     double to = colossus ? config.colossusScale : bound;
     int ticks = IronFrameRules.growTicks(config.colossusGrowTicks);
-    IronFrameRules.Resize resize = IronFrameRules.resize(resizeTokens.incrementAndGet(), now, ticks);
+    Resize resize = new Resize(resizeTokens.incrementAndGet(), handle, from, to, ticks, IronFrameRules.leakDeadline(M.ms(), ticks));
     resizes.put(handle.id(), resize);
     handle.setColossus(colossus);
-    resize(golem, from, to, 0D);
+    resize(handle.entity(), from, to, 0D);
     refreshStats(handle);
-    scheduleStep(handle, new Step(resize, from, to, 1, ticks));
+    scheduleStep(resize, 1);
   }
 
-  private void scheduleStep(GolemHandle handle, Step step) {
-    if (!J.runEntity(handle.entity(), () -> step(handle, step), 1)) {
-      resizes.remove(handle.id(), step.resize());
+  private void scheduleStep(Resize resize, int index) {
+    UUID id = resize.handle().id();
+    if (!J.runEntity(resize.handle().entity(), () -> step(resize, index), 1, () -> resizes.remove(id, resize))) {
+      resizes.remove(id, resize);
     }
   }
 
-  private void step(GolemHandle handle, Step step) {
-    if (resizes.get(handle.id()) != step.resize()) {
+  private void step(Resize resize, int index) {
+    GolemHandle handle = resize.handle();
+    if (resizes.get(handle.id()) != resize) {
       return;
     }
     Mob golem = handle.entity();
     if (handle.isRetired() || !golem.isValid()) {
-      resizes.remove(handle.id(), step.resize());
+      resizes.remove(handle.id(), resize);
       return;
     }
-    resize(golem, step.from(), step.to(), (double) step.index() / step.ticks());
-    if (step.index() >= step.ticks()) {
-      resizes.remove(handle.id(), step.resize());
+    resize(golem, resize.from(), resize.to(), (double) index / resize.ticks());
+    if (index >= resize.ticks()) {
+      resizes.remove(handle.id(), resize);
       return;
     }
-    scheduleStep(handle, step.next());
+    scheduleStep(resize, index + 1);
   }
 
-  private static Material heldType(Player player, EquipmentSlot hand) {
-    PlayerInventory inventory = player.getInventory();
-    ItemStack held = hand == EquipmentSlot.OFF_HAND ? inventory.getItemInOffHand() : inventory.getItemInMainHand();
-    return held == null ? Material.AIR : held.getType();
+  private void snap(Resize resize) {
+    GolemHandle handle = resize.handle();
+    Mob golem = handle.entity();
+    if (!handle.isRetired() && golem.isValid()) {
+      resize(golem, resize.from(), resize.to(), 1D);
+    }
+  }
+
+  private void releaseResizes(boolean formOwned) {
+    Map<UUID, Resize> pending = new HashMap<>(resizes);
+    resizes.clear();
+    Map<UUID, GolemHandle> affected = new HashMap<>();
+    for (Resize resize : pending.values()) {
+      affected.put(resize.handle().id(), resize.handle());
+    }
+    if (formOwned) {
+      GolemancyRuntime.registry().ifPresent(registry -> {
+        for (GolemHandle handle : registry.loaded()) {
+          if (!handle.isDormant() && handle.state().colossus()) {
+            affected.putIfAbsent(handle.id(), handle);
+          }
+        }
+      });
+    }
+    for (GolemHandle handle : affected.values()) {
+      Resize resize = pending.get(handle.id());
+      J.runEntity(handle.entity(), () -> release(handle, resize));
+    }
+  }
+
+  private void release(GolemHandle handle, Resize resize) {
+    if (resize != null) {
+      snap(resize);
+    }
+    settleOrphan(handle);
   }
 
   private record PendingRepair(double bonus, long until) {
   }
 
-  private record Step(IronFrameRules.Resize resize, double from, double to, int index, int ticks) {
-    private Step next() {
-      return new Step(resize, from, to, index + 1, ticks);
-    }
+  private record Resize(long token, GolemHandle handle, double from, double to, int ticks, long leakDeadline) {
   }
 
   private final class FrameStats implements GolemStatSource {
@@ -325,7 +378,7 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
 
     @Override
     public List<GolemStatDelta> deltas(GolemHandle handle) {
-      return handle.body() == GolemBody.IRON ? frameStats(getConfig(), GolemBody.IRON, ownerLevel(handle)) : List.of();
+      return handle.body() == GolemBody.IRON ? frameStats(getConfig(), ownerLevel(handle)) : List.of();
     }
   }
 
@@ -340,7 +393,7 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
       if (handle.body() != GolemBody.IRON || !handle.state().colossus()) {
         return List.of();
       }
-      return colossusStats(getConfig(), GolemBody.IRON, true, ownerLevel(handle));
+      return colossusStats(getConfig(), ownerLevel(handle));
     }
   }
 
@@ -351,8 +404,13 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
     }
 
     @Override
-    public void toggle(GolemHandle handle) {
-      toggleColossus(handle);
+    public GolemColossus.Toggle toggle(GolemHandle handle) {
+      return toggleColossus(handle);
+    }
+
+    @Override
+    public void settle(GolemHandle handle) {
+      settleColossus(handle);
     }
   }
 
@@ -374,11 +432,11 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
     double sweepDamageFraction = 0.5;
     @ConfigDoc(value = "Blocks around the punched mob within which Sweeping Fists finds extra hostile mobs, from 0 to 8.", impact = "Higher values let Sweeping Fists reach mobs farther from the punched one.")
     double sweepRadius = 2.0;
-    @ConfigDoc(value = "Iron Frame level at which the Golem menu offers Colossus Form for your bound iron golems.", impact = "Lower values unlock Colossus Form sooner.")
+    @ConfigDoc(value = "Iron Frame level at which the Golem menu offers Colossus Form for your bound iron golems. Golems in Colossus Form shrink back when you drop below it.", impact = "Lower values unlock Colossus Form sooner.")
     int colossusLevel = 5;
-    @ConfigDoc(value = "Scale a bound iron golem grows to in Colossus Form. 1.0 is the vanilla iron golem size.", impact = "Higher values make golems in Colossus Form larger.")
+    @ConfigDoc(value = "Scale a bound iron golem grows to in Colossus Form, from 0.36 to 1.5. 1.0 is the vanilla iron golem size.", impact = "Higher values make golems in Colossus Form larger and need more room to grow.")
     double colossusScale = 1.0;
-    @ConfigDoc(value = "Fraction added to a bound iron golem's attack damage while it is in Colossus Form. 0.2 is 20% more.", impact = "Higher values make golems in Colossus Form hit harder.")
+    @ConfigDoc(value = "Fraction added to a bound iron golem's total attack damage, frame bonus included, while it is in Colossus Form. 0.2 is 20% more.", impact = "Higher values make golems in Colossus Form hit harder.")
     double colossusAttackBonus = 0.20;
     @ConfigDoc(value = "Ticks a bound iron golem takes to grow into Colossus Form or shrink back.", impact = "Lower values make the change faster.")
     int colossusGrowTicks = 20;

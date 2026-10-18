@@ -233,6 +233,22 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
+  void aColossusGolemAdoptedWithNoRegisteredFormReturnsToItsBoundSize() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = activeGolem(roster, at(0, 64, 0));
+    GolemState grown = GolemState.read(golem).orElseThrow();
+    grown.setColossus(true);
+    grown.write(golem);
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+
+    GolemHandle handle = registry.handle(golem).orElseThrow();
+    assertThat(handle.state().colossus()).isFalse();
+    assertThat(GolemState.read(golem).orElseThrow().colossus()).isFalse();
+    assertThat(platform.scale(golem)).singleElement().satisfies(modifier -> assertThat(modifier.getAmount()).isCloseTo(-0.64D, offset(1e-9)));
+  }
+
+  @Test
   void bindingAppliesTheStatSourcesAndReleaseRemovesTheirModifiers() {
     onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));

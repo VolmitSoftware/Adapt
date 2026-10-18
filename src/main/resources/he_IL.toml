@@ -4448,6 +4448,8 @@ chest_out_of_reach = "המכל חייב להיות במרחק של עד {radius}
 released = "הגולם שוחרר"
 release_failed = "אי אפשר לשחרר את הגולם הזה כרגע"
 gone = "הגולם הזה כבר לא כאן"
+colossus_no_room = "אין כאן מספיק מקום כדי שהגולם הזה יגדל"
+colossus_busy = "הגולם הזה עדיין משנה את גודלו"
 
 [golemancy.binding]
 busy = "טקס כריכה כבר מתבצע"

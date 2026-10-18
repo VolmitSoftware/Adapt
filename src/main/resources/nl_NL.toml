@@ -4448,6 +4448,8 @@ chest_out_of_reach = "Dat opslagblok moet binnen {radius} blokken van het thuis 
 released = "Golem vrijgelaten"
 release_failed = "Deze golem kan nu niet worden vrijgelaten"
 gone = "Die golem is hier niet meer"
+colossus_no_room = "Er is hier niet genoeg ruimte om deze golem te laten groeien"
+colossus_busy = "Deze golem verandert nog van grootte"
 
 [golemancy.binding]
 busy = "Er loopt al een bindingsritueel"

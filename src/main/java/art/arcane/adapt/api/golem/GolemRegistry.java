@@ -103,6 +103,16 @@ public final class GolemRegistry extends TickedObject {
     return List.copyOf(loaded);
   }
 
+  public Collection<GolemHandle> loaded() {
+    List<GolemHandle> loaded = new ArrayList<>(handles.size());
+    for (GolemHandle handle : handles.values()) {
+      if (!handle.isRetired()) {
+        loaded.add(handle);
+      }
+    }
+    return List.copyOf(loaded);
+  }
+
   public boolean isBound(Entity entity) {
     return GolemState.has(entity);
   }
@@ -497,6 +507,7 @@ public final class GolemRegistry extends TickedObject {
       case NONE -> {
       }
     }
+    GolemColossus.settle(handle);
     if (reason == DormancyReason.NONE) {
       GolemStats.recompute(handle);
       lifecycle.awake(handle);

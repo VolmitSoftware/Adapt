@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem.gui;
 
 import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRoster;
@@ -56,6 +57,15 @@ class GolemGuiActionsTest {
     assertThat(GolemGuiActions.colossusIcon(false)).isEqualTo(Material.IRON_INGOT);
     assertThat(GolemGuiActions.colossusName(true)).isEqualTo(GolemancyMessages.GUI_COLOSSUS_ON);
     assertThat(GolemGuiActions.colossusName(false)).isEqualTo(GolemancyMessages.GUI_COLOSSUS_OFF);
+  }
+
+  @Test
+  void refusedAndBusyColossusTogglesTellThePlayerWhy() {
+    assertThat(GolemGuiActions.colossusRefusal(GolemColossus.Toggle.NO_ROOM)).contains(GolemancyMessages.MESSAGE_COLOSSUS_NO_ROOM);
+    assertThat(GolemGuiActions.colossusRefusal(GolemColossus.Toggle.BUSY)).contains(GolemancyMessages.MESSAGE_COLOSSUS_BUSY);
+    assertThat(GolemGuiActions.colossusRefusal(GolemColossus.Toggle.GROW)).isEmpty();
+    assertThat(GolemGuiActions.colossusRefusal(GolemColossus.Toggle.SHRINK)).isEmpty();
+    assertThat(GolemGuiActions.colossusRefusal(GolemColossus.Toggle.UNAVAILABLE)).isEmpty();
   }
 
   @Test

@@ -126,6 +126,7 @@ public final class PaperCompat {
   private static volatile boolean rangedAttackSupported = true;
   private static volatile boolean weatheringSupported = true;
   private static volatile boolean freezeLockSupported = true;
+  private static volatile boolean collisionQuerySupported = true;
   // EntityPotionEffectEvent.getSource() is 26.2+; resolved reflectively so the 26.1.2 compile baseline builds.
   private static final MethodHandle POTION_SOURCE_HANDLE = resolvePotionSourceHandle();
   private static volatile boolean trackedPlayersSupported = true;
@@ -229,6 +230,26 @@ public final class PaperCompat {
       freezeLockSupported = false;
       return false;
     }
+  }
+
+  public static boolean hasCollisionsIn(World world, BoundingBox box) {
+    if (collisionQuerySupported) {
+      try {
+        return world.hasCollisionsIn(box);
+      } catch (NoSuchMethodError absent) {
+        collisionQuerySupported = false;
+      }
+    }
+    for (int x = (int) Math.floor(box.getMinX()); x <= (int) Math.floor(box.getMaxX()); x++) {
+      for (int y = (int) Math.floor(box.getMinY()); y <= (int) Math.floor(box.getMaxY()); y++) {
+        for (int z = (int) Math.floor(box.getMinZ()); z <= (int) Math.floor(box.getMaxZ()); z++) {
+          if (world.getBlockAt(x, y, z).getCollisionShape().overlaps(box.clone().shift(-x, -y, -z))) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   public static List<LivingEntity> nearbyLivingEntities(Location center, double radius) {

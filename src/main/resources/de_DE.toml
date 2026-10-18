@@ -4448,6 +4448,8 @@ chest_out_of_reach = "Dieser Behälter muss höchstens {radius} Blöcke vom Zuha
 released = "Golem freigelassen"
 release_failed = "Dieser Golem kann gerade nicht freigelassen werden"
 gone = "Dieser Golem ist nicht mehr hier"
+colossus_no_room = "Hier ist nicht genug Platz, damit dieser Golem wachsen kann"
+colossus_busy = "Dieser Golem ändert noch seine Größe"
 
 [golemancy.binding]
 busy = "Ein Bindungsritual läuft bereits"

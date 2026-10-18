@@ -15,6 +15,7 @@ import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.Zombie;
+import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
@@ -67,6 +68,16 @@ class PaperCompatTest {
 
     assertThat(PaperCompat.freezeTicksLocked(locked)).isTrue();
     assertThat(PaperCompat.freezeTicksLocked(free)).isFalse();
+  }
+
+  @Test
+  void collisionChecksAskTheWorld() {
+    World world = mock(World.class);
+    BoundingBox blocked = new BoundingBox(0, 64, 0, 1, 66, 1);
+    when(world.hasCollisionsIn(blocked)).thenReturn(true);
+
+    assertThat(PaperCompat.hasCollisionsIn(world, blocked)).isTrue();
+    assertThat(PaperCompat.hasCollisionsIn(world, new BoundingBox(5, 64, 5, 6, 66, 6))).isFalse();
   }
 
   @Test

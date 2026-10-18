@@ -4448,6 +4448,8 @@ chest_out_of_reach = "Esse contentor tem de estar a {radius} blocos ou menos da 
 released = "Golem libertado"
 release_failed = "Este golem não pode ser libertado agora"
 gone = "Esse golem já não está aqui"
+colossus_no_room = "Não há espaço suficiente aqui para este golem crescer"
+colossus_busy = "Este golem ainda está a mudar de tamanho"
 
 [golemancy.binding]
 busy = "Já está a decorrer um ritual de vínculo"

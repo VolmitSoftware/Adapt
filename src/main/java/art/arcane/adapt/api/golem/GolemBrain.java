@@ -170,6 +170,7 @@ public final class GolemBrain {
       return;
     }
     nextStatsAt = now + STATS_REFRESH_MILLIS;
+    GolemColossus.settle(handle);
     GolemStats.recompute(handle);
   }
 

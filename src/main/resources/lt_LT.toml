@@ -4448,6 +4448,8 @@ chest_out_of_reach = "Ši talpykla turi būti ne toliau kaip {radius} blokų nuo
 released = "Golemas paleistas"
 release_failed = "Šio golemo dabar paleisti negalima"
 gone = "Šio golemo čia nebėra"
+colossus_no_room = "Čia nepakanka vietos, kad šis golemas išaugtų"
+colossus_busy = "Šis golemas vis dar keičia dydį"
 
 [golemancy.binding]
 busy = "Sujungimo ritualas jau vyksta"

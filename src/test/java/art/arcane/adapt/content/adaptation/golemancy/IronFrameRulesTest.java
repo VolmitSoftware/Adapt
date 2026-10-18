@@ -1,16 +1,22 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemStat;
 import art.arcane.adapt.api.golem.GolemStatDelta;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BooleanSupplier;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.offset;
 
 class IronFrameRulesTest {
   private static final List<Integer> HEALTH = List.of(10, 20, 30, 40, 50);
@@ -33,12 +39,14 @@ class IronFrameRulesTest {
   }
 
   @Test
-  void colossusAddsItsAttackMultiplierOnlyWhileInTheFormAtTheUnlockLevel() {
-    assertThat(IronFrameRules.colossusDeltas(true, 5, 5, 0.20D)).containsExactly(GolemStatDelta.multiplyBase(GolemStat.ATTACK_DAMAGE, 0.20D));
-    assertThat(IronFrameRules.colossusDeltas(false, 5, 5, 0.20D)).isEmpty();
-    assertThat(IronFrameRules.colossusDeltas(true, 4, 5, 0.20D)).isEmpty();
-    assertThat(IronFrameRules.colossusDeltas(true, 5, 5, 0D)).isEmpty();
-    assertThat(IronFrameRules.colossusDeltas(true, 5, 5, Double.NaN)).isEmpty();
+  void colossusMultipliesTheTotalAttackAtTheUnlockLevel() {
+    GolemStatDelta bonus = GolemStatDelta.multiplyTotal(GolemStat.ATTACK_DAMAGE, 0.20D);
+
+    assertThat(bonus.operation()).isEqualTo(AttributeModifier.Operation.MULTIPLY_SCALAR_1);
+    assertThat(IronFrameRules.colossusDeltas(5, 5, 0.20D)).containsExactly(bonus);
+    assertThat(IronFrameRules.colossusDeltas(4, 5, 0.20D)).isEmpty();
+    assertThat(IronFrameRules.colossusDeltas(5, 5, 0D)).isEmpty();
+    assertThat(IronFrameRules.colossusDeltas(5, 5, Double.NaN)).isEmpty();
   }
 
   @Test
@@ -99,30 +107,65 @@ class IronFrameRulesTest {
   }
 
   @Test
-  void colossusTogglesGrowAtTheUnlockLevelAndAlwaysAllowShrinkingBack() {
-    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 5, 5, false, false)).isEqualTo(IronFrameRules.ColossusToggle.GROW);
-    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 5, 5, true, false)).isEqualTo(IronFrameRules.ColossusToggle.SHRINK);
-    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 4, 5, false, false)).isEqualTo(IronFrameRules.ColossusToggle.UNAVAILABLE);
-    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 2, 5, true, false)).isEqualTo(IronFrameRules.ColossusToggle.SHRINK);
-    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 5, 5, false, true)).isEqualTo(IronFrameRules.ColossusToggle.BUSY);
-    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 5, 5, true, true)).isEqualTo(IronFrameRules.ColossusToggle.BUSY);
-    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 0, 0, false, false)).isEqualTo(IronFrameRules.ColossusToggle.UNAVAILABLE);
+  void colossusTogglesNeedTheUnlockLevelAndRoomToGrow() {
+    AtomicInteger roomChecks = new AtomicInteger();
+    BooleanSupplier room = () -> {
+      roomChecks.incrementAndGet();
+      return true;
+    };
+
+    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 5, 5, false, false, room)).isEqualTo(GolemColossus.Toggle.GROW);
+    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 5, 5, false, false, () -> false)).isEqualTo(GolemColossus.Toggle.NO_ROOM);
+    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 5, 5, true, false, room)).isEqualTo(GolemColossus.Toggle.SHRINK);
+    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 5, 5, false, true, room)).isEqualTo(GolemColossus.Toggle.BUSY);
+    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 5, 5, true, true, room)).isEqualTo(GolemColossus.Toggle.BUSY);
+    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 4, 5, false, false, room)).isEqualTo(GolemColossus.Toggle.UNAVAILABLE);
+    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 4, 5, true, false, room)).isEqualTo(GolemColossus.Toggle.UNAVAILABLE);
+    assertThat(IronFrameRules.colossusToggle(GolemBody.IRON, 0, 0, false, false, room)).isEqualTo(GolemColossus.Toggle.UNAVAILABLE);
     for (GolemBody body : List.of(GolemBody.FROST, GolemBody.COPPER, GolemBody.BONE)) {
-      assertThat(IronFrameRules.colossusToggle(body, 5, 5, false, false)).as("toggle for %s", body).isEqualTo(IronFrameRules.ColossusToggle.UNAVAILABLE);
-      assertThat(IronFrameRules.colossusToggle(body, 5, 5, true, false)).as("toggle for %s in form", body).isEqualTo(IronFrameRules.ColossusToggle.UNAVAILABLE);
+      assertThat(IronFrameRules.colossusToggle(body, 5, 5, false, false, room)).as("toggle for %s", body).isEqualTo(GolemColossus.Toggle.UNAVAILABLE);
     }
+    assertThat(roomChecks).hasValue(1);
   }
 
   @Test
-  void resizesLastTheirGrowTicksAndCountAsBusyUntilThen() {
+  void aGolemInColossusFormOutgrowsItWhenTheOwnerDropsBelowTheUnlockLevel() {
+    assertThat(IronFrameRules.outgrown(true, 4, 5)).isTrue();
+    assertThat(IronFrameRules.outgrown(true, 0, 5)).isTrue();
+    assertThat(IronFrameRules.outgrown(true, 5, 5)).isFalse();
+    assertThat(IronFrameRules.outgrown(false, 0, 5)).isFalse();
+  }
+
+  @Test
+  void theColossusScaleLoadsWithinASaneRange() {
+    assertThat(IronFrameRules.colossusScale(1D)).isEqualTo(1D);
+    assertThat(IronFrameRules.colossusScale(5D)).isEqualTo(1.5D);
+    assertThat(IronFrameRules.colossusScale(0.1D)).isEqualTo(0.36D);
+    assertThat(IronFrameRules.colossusScale(Double.NaN)).isEqualTo(1D);
+  }
+
+  @Test
+  void theClearanceBoxIsAnIronGolemAtTheColossusScaleStandingOnTheGolemsFeet() {
+    BoundingBox full = IronFrameRules.colossusBox(10.5D, 64D, -3.5D, 1D);
+    BoundingBox half = IronFrameRules.colossusBox(0D, 0D, 0D, 0.5D);
+
+    assertThat(full.getWidthX()).isCloseTo(1.4D - 2D * IronFrameRules.CLEARANCE_INSET, offset(1e-9));
+    assertThat(full.getWidthZ()).isCloseTo(1.4D - 2D * IronFrameRules.CLEARANCE_INSET, offset(1e-9));
+    assertThat(full.getMinY()).isCloseTo(64D + IronFrameRules.CLEARANCE_INSET, offset(1e-9));
+    assertThat(full.getMaxY()).isCloseTo(64D + 2.7D, offset(1e-9));
+    assertThat(full.getCenterX()).isCloseTo(10.5D, offset(1e-9));
+    assertThat(full.getCenterZ()).isCloseTo(-3.5D, offset(1e-9));
+    assertThat(half.getMaxY()).isCloseTo(1.35D, offset(1e-9));
+  }
+
+  @Test
+  void aResizeLeaksOnlyLongAfterItsChainShouldHaveEnded() {
     assertThat(IronFrameRules.growTicks(20)).isEqualTo(20);
     assertThat(IronFrameRules.growTicks(0)).isEqualTo(1);
-    IronFrameRules.Resize resize = IronFrameRules.resize(7L, 1_000L, 20);
+    long deadline = IronFrameRules.leakDeadline(1_000L, 20);
 
-    assertThat(resize.token()).isEqualTo(7L);
-    assertThat(IronFrameRules.resizing(null, 1_000L)).isFalse();
-    assertThat(IronFrameRules.resizing(resize, 1_000L)).isTrue();
-    assertThat(IronFrameRules.resizing(resize, 2_999L)).isTrue();
-    assertThat(IronFrameRules.resizing(resize, 3_000L)).isFalse();
+    assertThat(deadline).isEqualTo(1_000L + 20 * 50L * 4L + 5_000L);
+    assertThat(IronFrameRules.leaked(deadline, deadline - 1L)).isFalse();
+    assertThat(IronFrameRules.leaked(deadline, deadline)).isTrue();
   }
 }

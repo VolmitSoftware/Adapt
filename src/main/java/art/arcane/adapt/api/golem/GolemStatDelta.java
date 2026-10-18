@@ -17,4 +17,8 @@ public record GolemStatDelta(GolemStat stat, AttributeModifier.Operation operati
   public static GolemStatDelta multiplyBase(GolemStat stat, double fraction) {
     return new GolemStatDelta(stat, AttributeModifier.Operation.ADD_SCALAR, fraction);
   }
+
+  public static GolemStatDelta multiplyTotal(GolemStat stat, double fraction) {
+    return new GolemStatDelta(stat, AttributeModifier.Operation.MULTIPLY_SCALAR_1, fraction);
+  }
 }
