@@ -10,7 +10,7 @@ public record GolemBrainSettings(
   public static final int MAX_BRAIN_INTERVAL_TICKS = 20;
   public static final double MIN_FOLLOW_TELEPORT_DISTANCE = 8D;
   public static final double MIN_LEASH_RADIUS = 8D;
-  public static final int MIN_COPPER_REPATH_TICKS = 1;
+  public static final int MIN_COPPER_REPATH_TICKS = 2;
   public static final int MAX_COPPER_REPATH_TICKS = 20;
 
   private static final double DEFAULT_FOLLOW_TELEPORT_DISTANCE = 32D;

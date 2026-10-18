@@ -47,6 +47,9 @@ public final class GolemState {
   private double maxHealthMark;
   private long sighting;
   private transient int carriedRevision;
+  private transient GolemBody bodyValue;
+  private transient List<GolemCoreType> coresValue;
+  private transient GolemMode modeValue;
 
   private GolemState() {
   }
@@ -147,15 +150,25 @@ public final class GolemState {
   }
 
   public GolemBody body() {
-    return GolemBody.fromId(body).orElseThrow();
+    GolemBody value = bodyValue;
+    if (value == null) {
+      value = GolemBody.fromId(body).orElseThrow();
+      bodyValue = value;
+    }
+    return value;
   }
 
   public List<GolemCoreType> cores() {
-    List<GolemCoreType> resolved = new ArrayList<>(cores.size());
-    for (String core : cores) {
-      GolemCoreType.fromId(core).ifPresent(resolved::add);
+    List<GolemCoreType> value = coresValue;
+    if (value == null) {
+      List<GolemCoreType> resolved = new ArrayList<>(cores.size());
+      for (String core : cores) {
+        GolemCoreType.fromId(core).ifPresent(resolved::add);
+      }
+      value = Collections.unmodifiableList(resolved);
+      coresValue = value;
     }
-    return Collections.unmodifiableList(resolved);
+    return value;
   }
 
   public GolemCoreType primaryCore() {
@@ -179,7 +192,12 @@ public final class GolemState {
   }
 
   public GolemMode mode() {
-    return GolemMode.fromId(mode).orElse(GolemMode.defaultFor(primaryCore()));
+    GolemMode value = modeValue;
+    if (value == null) {
+      value = GolemMode.fromId(mode).orElse(GolemMode.defaultFor(primaryCore()));
+      modeValue = value;
+    }
+    return value;
   }
 
   public Anchor home() {
@@ -259,6 +277,8 @@ public final class GolemState {
       ids.add(core.id());
     }
     cores = ids;
+    coresValue = null;
+    modeValue = null;
   }
 
   void setRunes(List<GolemRune> next) {
@@ -275,6 +295,7 @@ public final class GolemState {
 
   void setMode(GolemMode next) {
     mode = next.id();
+    modeValue = next;
   }
 
   void setHome(Anchor next) {
@@ -353,6 +374,9 @@ public final class GolemState {
     }
     cores.removeIf(core -> GolemCoreType.fromId(core).isEmpty());
     runes.removeIf(rune -> rune == null || rune.resolve() == null);
+    bodyValue = null;
+    coresValue = null;
+    modeValue = null;
     channels = ChannelMask.normalize(channels);
     setHostileDamagePool(hostileDamagePool);
     setSighting(sighting);

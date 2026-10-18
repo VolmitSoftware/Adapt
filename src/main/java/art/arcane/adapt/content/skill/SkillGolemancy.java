@@ -1074,7 +1074,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double leashRadius = 32;
     @ConfigDoc(value = "Seconds a working golem stands idle away from home before it walks back.", impact = "Lower values send idle golems home sooner; 0 sends them home at once.")
     int idleReturnSeconds = 8;
-    @ConfigDoc(value = "Ticks between path refreshes for a moving copper golem, clamped to 1-20.", impact = "Lower values keep copper golems on course; above 10, their own wandering can pull them off course.")
+    @ConfigDoc(value = "Ticks between path refreshes for a moving copper golem, clamped to 2-20.", impact = "Lower values keep copper golems on course; above 10, their own wandering can pull them off course.")
     int copperRepathTicks = 10;
     @ConfigDoc(value = "Blocks around you within which your golems show their status labels and channel glow, your skeletal servants glow with Bone Frame, and your nodes appear while you hold the Crook, a Node, a Core or a Dormant Golem.", impact = "Higher values reveal golems and nodes farther away; lower values do less work on busy servers.")
     double revealRange = 32.0;

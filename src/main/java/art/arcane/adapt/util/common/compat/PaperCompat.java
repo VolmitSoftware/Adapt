@@ -627,6 +627,18 @@ public final class PaperCompat {
     }
   }
 
+  public static boolean hasPath(Mob mob) {
+    if (!supportsPathfinding()) {
+      return false;
+    }
+    try {
+      return PathfinderBridge.hasPath(mob);
+    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
+      pathfindingSupported = false;
+      return false;
+    }
+  }
+
   public static void stopPathfinding(Mob mob) {
     if (!supportsPathfinding()) {
       return;
@@ -1025,6 +1037,11 @@ public final class PaperCompat {
       if (pathfinder != null) {
         pathfinder.stopPathfinding();
       }
+    }
+
+    private static boolean hasPath(Mob mob) {
+      Pathfinder pathfinder = mob.getPathfinder();
+      return pathfinder != null && pathfinder.hasPath();
     }
   }
 }

@@ -42,6 +42,25 @@ class GolemStateTest {
   }
 
   @Test
+  void parsedBodyCoresAndModeAreReusedUntilTheyChange() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.IRON, GolemCoreType.GUARDIAN, GolemState.Anchor.of(WORLD, 0, 64, 0)));
+
+    assertThat(state.body()).isSameAs(GolemBody.IRON);
+    assertThat(state.cores()).isSameAs(state.cores()).containsExactly(GolemCoreType.GUARDIAN);
+    assertThat(state.mode()).isSameAs(state.mode());
+
+    state.setCores(List.of(GolemCoreType.GUARDIAN, GolemCoreType.GATHERER));
+    state.setMode(GolemMode.STAY);
+
+    assertThat(state.cores()).containsExactly(GolemCoreType.GUARDIAN, GolemCoreType.GATHERER);
+    assertThat(state.mode()).isSameAs(GolemMode.STAY);
+    GolemState back = GolemState.fromJson(state.toJson()).orElseThrow();
+    assertThat(back.body()).isSameAs(GolemBody.IRON);
+    assertThat(back.cores()).containsExactly(GolemCoreType.GUARDIAN, GolemCoreType.GATHERER);
+    assertThat(back.mode()).isSameAs(GolemMode.STAY);
+  }
+
+  @Test
   void essenceCountsInWholeExperiencePoints() {
     GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.IRON, GolemCoreType.GATHERER, GolemState.Anchor.of(WORLD, 0, 64, 0)));
 

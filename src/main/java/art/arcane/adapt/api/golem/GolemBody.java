@@ -17,6 +17,8 @@ public enum GolemBody {
   IRON("iron", IronGolem.class),
   BONE("bone", Skeleton.class);
 
+  private static final GolemBody[] VALUES = values();
+
   private final String id;
   private final Class<? extends Mob> entityClass;
 
@@ -26,7 +28,7 @@ public enum GolemBody {
   }
 
   public static Optional<GolemBody> fromId(String id) {
-    for (GolemBody body : values()) {
+    for (GolemBody body : VALUES) {
       if (body.id.equals(id)) {
         return Optional.of(body);
       }

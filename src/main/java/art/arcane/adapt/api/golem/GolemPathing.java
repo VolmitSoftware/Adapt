@@ -15,12 +15,14 @@ final class GolemPathing {
   private Location destination;
   private double speed;
   private boolean retarget;
+  private final boolean reissueWhilePathing;
   private boolean issued;
   private int issuedAt;
 
-  GolemPathing(Mob mob, IntSupplier intervalTicks) {
+  GolemPathing(Mob mob, IntSupplier intervalTicks, boolean reissueWhilePathing) {
     this.mob = Objects.requireNonNull(mob);
     this.intervalTicks = Objects.requireNonNull(intervalTicks);
+    this.reissueWhilePathing = reissueWhilePathing;
   }
 
   boolean hasDestination() {
@@ -67,6 +69,9 @@ final class GolemPathing {
     if (retarget) {
       retarget = false;
       PaperCompat.stopPathfinding(mob);
+    } else if (issued && !reissueWhilePathing && PaperCompat.hasPath(mob)) {
+      issuedAt = now;
+      return;
     }
     issued = true;
     issuedAt = now;

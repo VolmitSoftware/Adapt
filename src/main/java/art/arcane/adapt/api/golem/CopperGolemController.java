@@ -17,7 +17,7 @@ final class CopperGolemController implements GolemController {
 
   CopperGolemController(CopperGolem golem, IntSupplier repathTicks, GolemLids lids) {
     this.golem = Objects.requireNonNull(golem);
-    this.pathing = new GolemPathing(golem, repathTicks);
+    this.pathing = new GolemPathing(golem, repathTicks, true);
     this.lids = Objects.requireNonNull(lids);
   }
 
@@ -32,6 +32,10 @@ final class CopperGolemController implements GolemController {
 
   @Override
   public void stop() {
+    endInteraction();
+    if (golem.getGolemState() != CopperGolem.State.IDLE) {
+      golem.setGolemState(CopperGolem.State.IDLE);
+    }
     pathing.stop();
   }
 

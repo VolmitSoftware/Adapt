@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -32,7 +33,7 @@ public final class GolemTaskBoard {
   private final Map<NodeKey, Activity> activity = new ConcurrentHashMap<>();
   private final Map<TaskKey, GolemTask> reservations = new ConcurrentHashMap<>();
   private final AtomicLong nextPurgeAt = new AtomicLong();
-  private volatile int reach;
+  private final AtomicInteger reach = new AtomicInteger();
 
   public GolemTaskBoard(UUID world, Function<NodeKey, Optional<NodeRecord>> nodes) {
     this.world = Objects.requireNonNull(world);
@@ -122,7 +123,7 @@ public final class GolemTaskBoard {
 
   public List<GolemTask> candidates(Seeker seeker, Predicate<GolemTask> skip, long nowMillis) {
     double radiusSquared = seeker.radius() * seeker.radius();
-    int chunkRadius = (int) Math.ceil((seeker.radius() + reach + 1D) / 16D);
+    int chunkRadius = (int) Math.ceil((seeker.radius() + reach.get() + 1D) / 16D);
     int centerX = (int) Math.floor(seeker.homeX()) >> 4;
     int centerZ = (int) Math.floor(seeker.homeZ()) >> 4;
     List<Candidate> found = new ArrayList<>();
@@ -299,10 +300,7 @@ public final class GolemTaskBoard {
   }
 
   private void widenReach(NodeRecord record) {
-    int widest = Math.max(record.radiusX(), record.radiusZ()) + 1;
-    if (widest > reach) {
-      reach = widest;
-    }
+    reach.accumulateAndGet(Math.max(record.radiusX(), record.radiusZ()) + 1, Math::max);
   }
 
   public enum Offer {

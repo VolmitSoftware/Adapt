@@ -40,7 +40,7 @@ final class GoalGolemController implements GolemController {
     this.golem = Objects.requireNonNull(golem);
     this.body = Objects.requireNonNull(body);
     this.goals = Objects.requireNonNull(goals);
-    this.pathing = new GolemPathing(golem, () -> PATH_INTERVAL_TICKS);
+    this.pathing = new GolemPathing(golem, () -> PATH_INTERVAL_TICKS, false);
     this.workGoal = new GolemWorkGoal(golem, pathing);
     this.targetGoal = new GolemTargetGoal(golem);
   }

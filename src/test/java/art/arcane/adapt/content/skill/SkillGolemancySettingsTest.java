@@ -78,7 +78,7 @@ class SkillGolemancySettingsTest {
     assertThat(settings.followTeleportDistance()).isEqualTo(48D);
     assertThat(settings.leashRadius()).isEqualTo(GolemBrainSettings.MIN_LEASH_RADIUS);
     assertThat(settings.idleReturnSeconds()).isEqualTo(3);
-    assertThat(settings.copperRepathTicks()).isEqualTo(1);
+    assertThat(settings.copperRepathTicks()).isEqualTo(2);
     assertThat(SkillGolemancy.brainSettings(withInterval(config, 1)).brainIntervalTicks()).isEqualTo(2);
   }
 

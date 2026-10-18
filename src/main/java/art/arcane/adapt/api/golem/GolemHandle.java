@@ -258,8 +258,14 @@ public final class GolemHandle {
 
   ChunkPosition trackPosition(Location location) {
     World world = location == null ? null : location.getWorld();
-    if (world != null) {
-      position = new ChunkPosition(world.getUID(), GolemRoster.chunkKey(location.getBlockX() >> 4, location.getBlockZ() >> 4));
+    if (world == null) {
+      return position;
+    }
+    UUID worldId = world.getUID();
+    long chunkKey = GolemRoster.chunkKey(location.getBlockX() >> 4, location.getBlockZ() >> 4);
+    ChunkPosition current = position;
+    if (current == null || current.chunkKey() != chunkKey || !current.world().equals(worldId)) {
+      position = new ChunkPosition(worldId, chunkKey);
     }
     return position;
   }

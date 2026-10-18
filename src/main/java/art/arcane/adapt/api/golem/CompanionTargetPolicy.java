@@ -51,6 +51,11 @@ final class CompanionTargetPolicy implements GolemTargetPolicy {
         && threatens(targetOf(mob), owner.getUniqueId(), body.getUniqueId());
   }
 
+  @Override
+  public boolean idleBackoff() {
+    return true;
+  }
+
   static double range(double radiusBonus, double leashRadius) {
     return Math.min(RANGE + radiusBonus, leashRadius);
   }

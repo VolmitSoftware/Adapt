@@ -37,7 +37,7 @@ class GolemPathingTest {
   @Test
   void newTargetStopsTheOldPathBeforeMoving() {
     Mob mob = mob(IronGolem.class);
-    GolemPathing pathing = new GolemPathing(mob, () -> 10);
+    GolemPathing pathing = new GolemPathing(mob, () -> 10, true);
     Location target = at(10, 64, 0);
 
     pathing.moveTo(target, 1.2D);
@@ -51,7 +51,7 @@ class GolemPathingTest {
   @Test
   void sameTargetIsReissuedEveryIntervalWithoutStopping() {
     Mob mob = mob(IronGolem.class);
-    GolemPathing pathing = new GolemPathing(mob, () -> 10);
+    GolemPathing pathing = new GolemPathing(mob, () -> 10, true);
     pathing.moveTo(at(10, 64, 0), 1D);
     pathing.tick();
     clearInvocations(pathfinder);
@@ -67,10 +67,49 @@ class GolemPathingTest {
   }
 
   @Test
+  void goalDrivenBodiesKeepWalkingTheirCurrentPathInsteadOfReissuingIt() {
+    Mob mob = mob(IronGolem.class);
+    when(pathfinder.hasPath()).thenReturn(true);
+    GolemPathing pathing = new GolemPathing(mob, () -> 10, false);
+    pathing.moveTo(at(10, 64, 0), 1D);
+    pathing.tick();
+    clearInvocations(pathfinder);
+
+    ticks.addAndGet(10);
+    pathing.tick();
+    ticks.addAndGet(10);
+    pathing.tick();
+
+    verify(pathfinder, never()).moveTo(any(Location.class), anyDouble());
+    verify(pathfinder, never()).stopPathfinding();
+  }
+
+  @Test
+  void goalDrivenBodiesReissueOnceTheirPathEndsOrTheTargetMoves() {
+    Mob mob = mob(IronGolem.class);
+    when(pathfinder.hasPath()).thenReturn(false);
+    GolemPathing pathing = new GolemPathing(mob, () -> 10, false);
+    pathing.moveTo(at(10, 64, 0), 1D);
+    pathing.tick();
+    clearInvocations(pathfinder);
+
+    ticks.addAndGet(10);
+    pathing.tick();
+    verify(pathfinder).moveTo(at(10, 64, 0), 1D);
+
+    when(pathfinder.hasPath()).thenReturn(true);
+    ticks.addAndGet(10);
+    pathing.moveTo(at(20, 64, 0), 1D);
+    pathing.tick();
+    verify(pathfinder).stopPathfinding();
+    verify(pathfinder).moveTo(at(20, 64, 0), 1D);
+  }
+
+  @Test
   void failedPathIsRetriedOnTheNextInterval() {
     Mob mob = mob(CopperGolem.class);
     when(pathfinder.moveTo(any(Location.class), anyDouble())).thenReturn(false);
-    GolemPathing pathing = new GolemPathing(mob, () -> 10);
+    GolemPathing pathing = new GolemPathing(mob, () -> 10, true);
     pathing.moveTo(at(10, 64, 0), 1D);
 
     pathing.tick();
@@ -83,7 +122,7 @@ class GolemPathingTest {
   @Test
   void smallTargetDriftKeepsTheCurrentPath() {
     Mob mob = mob(IronGolem.class);
-    GolemPathing pathing = new GolemPathing(mob, () -> 10);
+    GolemPathing pathing = new GolemPathing(mob, () -> 10, true);
     pathing.moveTo(at(10, 64, 0), 1D);
     pathing.tick();
     clearInvocations(pathfinder);
@@ -99,7 +138,7 @@ class GolemPathingTest {
   @Test
   void movedTargetIsRetargetedNoMoreThanOncePerInterval() {
     Mob mob = mob(IronGolem.class);
-    GolemPathing pathing = new GolemPathing(mob, () -> 10);
+    GolemPathing pathing = new GolemPathing(mob, () -> 10, true);
     pathing.moveTo(at(10, 64, 0), 1D);
     pathing.tick();
     clearInvocations(pathfinder);
@@ -119,7 +158,7 @@ class GolemPathingTest {
   @Test
   void stopClearsTheTargetAndThePath() {
     Mob mob = mob(IronGolem.class);
-    GolemPathing pathing = new GolemPathing(mob, () -> 10);
+    GolemPathing pathing = new GolemPathing(mob, () -> 10, true);
     pathing.moveTo(at(10, 64, 0), 1D);
     pathing.tick();
     clearInvocations(pathfinder);
@@ -135,7 +174,7 @@ class GolemPathingTest {
   @Test
   void restartReissuesImmediatelyWithinTheInterval() {
     Mob mob = mob(CopperGolem.class);
-    GolemPathing pathing = new GolemPathing(mob, () -> 10);
+    GolemPathing pathing = new GolemPathing(mob, () -> 10, true);
     pathing.moveTo(at(10, 64, 0), 1D);
     pathing.tick();
     clearInvocations(pathfinder);
@@ -153,7 +192,7 @@ class GolemPathingTest {
   void intervalFollowsTheSupplierOnEveryTick() {
     Mob mob = mob(CopperGolem.class);
     AtomicInteger interval = new AtomicInteger(10);
-    GolemPathing pathing = new GolemPathing(mob, interval::get);
+    GolemPathing pathing = new GolemPathing(mob, interval::get, true);
     pathing.moveTo(at(10, 64, 0), 1D);
     pathing.tick();
     clearInvocations(pathfinder);

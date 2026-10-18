@@ -16,6 +16,8 @@ public enum GolemCoreType {
   SORTER("sorter"),
   ANGLER("angler");
 
+  private static final GolemCoreType[] VALUES = values();
+
   private final String id;
 
   GolemCoreType(String id) {
@@ -23,7 +25,7 @@ public enum GolemCoreType {
   }
 
   public static Optional<GolemCoreType> fromId(String id) {
-    for (GolemCoreType type : values()) {
+    for (GolemCoreType type : VALUES) {
       if (type.id.equals(id)) {
         return Optional.of(type);
       }
