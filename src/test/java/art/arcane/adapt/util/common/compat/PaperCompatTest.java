@@ -29,6 +29,17 @@ import static org.mockito.Mockito.when;
 
 class PaperCompatTest {
   @Test
+  void freezeLocksAreAppliedThroughThePaperApi() {
+    Zombie target = mock(Zombie.class);
+
+    assertThat(PaperCompat.lockFreezeTicks(target, true)).isTrue();
+    assertThat(PaperCompat.lockFreezeTicks(target, false)).isTrue();
+
+    verify(target).lockFreezeTicks(true);
+    verify(target).lockFreezeTicks(false);
+  }
+
+  @Test
   void rangedAttackFiresARangedMobsOwnAttackAndSkipsOtherMobs() {
     Snowman golem = mock(Snowman.class);
     IronGolem iron = mock(IronGolem.class);

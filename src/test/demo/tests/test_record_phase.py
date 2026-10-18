@@ -115,6 +115,23 @@ class RecordPhaseTest(unittest.TestCase):
         claim = sent.index('adapt claim-adaptation agility:agility-wall-jump 5 force=true player=AQAClient262')
         self.assertLess(clear, claim)
 
+    def test_prerequisites_are_claimed_after_the_clear_and_before_the_entry(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            entry = choreography.Entry(id='golem-frost-frame', set='taming-field', level=5, pre=['say ready'], beats=[{'verb': 'wait', 'ticks': 2}],
+                                       expect_sound='minecraft:block.ladder.step', expect_particle=None, max_ticks=100, camera=None,
+                                       prerequisites=(choreography.Prerequisite(skill='golemancy', name='golem-animus-binding', level=5),))
+            record_phase.record(studio, {'golem-frost-frame': entry}, ['golem-frost-frame'], Path(tmp) / 'manifest.json', 'golemancy')
+        sent = [call.args[0] for call in studio.rcon.command.call_args_list]
+        clear = sent.index('adapt clear adaptations player=AQAClient262')
+        prerequisite = sent.index('adapt claim-adaptation golemancy:golem-animus-binding 5 force=true player=AQAClient262')
+        claim = sent.index('adapt claim-adaptation golemancy:golem-frost-frame 5 force=true player=AQAClient262')
+        self.assertLess(clear, prerequisite)
+        self.assertLess(prerequisite, claim)
+        self.assertLess(claim, sent.index('say ready'))
+
     def test_keys_are_released_after_beats_before_stop(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             replays = Path(tmp) / 'flashback' / 'replays'

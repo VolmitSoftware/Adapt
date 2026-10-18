@@ -74,7 +74,7 @@ export const golemancyBehaviorCases = new Map([
         },
     }],
     ['golem-node-weaving', {
-        stage: 'golemancy-node', trigger: placeNode,
+        stage: 'golemancy-node', trigger: placeNode, prerequisites: [{ name: 'golem-animus-binding', level: 1 }],
         prepare: ({ equip }) => equip('brick'),
         description: 'sneak-right-clicking the top of a chest with a Deposit Node anchors the node there and uses up one node item',
         sound: 'minecraft:block.amethyst_block.place', soundVolume: 0.6, soundPitch: 1.4, particle: 'end_rod',

@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -19,6 +20,12 @@ def beat_problems(tmp: str, beat: dict) -> list[str]:
     root = Path(tmp)
     write_skill(root, {'x-one': {'set': 'arena', 'expect': {'sound': 'a'}, 'beats': [beat]}})
     return choreography.validate(choreography.load_skill(root, 'x').entries, {'x-one'})
+
+
+def write_matrix(root: Path, skills: dict) -> None:
+    folder = root / 'src' / 'test' / 'gameplay'
+    folder.mkdir(parents=True)
+    (folder / 'adaptation-matrix.json').write_text(json.dumps({'adaptations': [{'name': name, 'skill': skill} for name, skill in skills.items()]}))
 
 
 def write_skill(root: Path, body: dict) -> None:
@@ -172,6 +179,63 @@ class ChoreographyTest(unittest.TestCase):
         self.assertEqual(problems, [])
         self.assertEqual(set(sheet.entries), matrix_ids('nether'))
         self.assertEqual(sheet.world, choreography.NETHER)
+
+    def test_prerequisites_are_loaded_with_their_skills(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_matrix(root, {'x-one': 'x', 'y-base': 'y'})
+            write_skill(root, {'x-one': {'set': 'arena', 'expect': {'sound': 'a'}, 'beats': [{'verb': 'wait', 'ticks': 1}],
+                                         'prerequisites': [{'name': 'y-base', 'level': 2}]}})
+            entries = choreography.load_skill(root, 'x').entries
+            self.assertEqual(entries['x-one'].prerequisites, (choreography.Prerequisite(skill='y', name='y-base', level=2),))
+            self.assertEqual(choreography.validate(entries, {'x-one'}), [])
+
+    def test_prerequisites_default_to_empty(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_skill(root, {'x-one': {'set': 'arena', 'expect': {'sound': 'a'}, 'beats': [{'verb': 'wait', 'ticks': 1}]}})
+            self.assertEqual(choreography.load_skill(root, 'x').entries['x-one'].prerequisites, ())
+
+    def test_unknown_self_or_unleveled_prerequisites_are_reported(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write_matrix(root, {'x-one': 'x'})
+            write_skill(root, {'x-one': {'set': 'arena', 'expect': {'sound': 'a'}, 'beats': [{'verb': 'wait', 'ticks': 1}],
+                                         'prerequisites': [{'name': 'z-gone', 'level': 1}, {'name': 'x-one', 'level': 1}, {'name': 'x-one', 'level': 0}]}})
+            problems = choreography.validate(choreography.load_skill(root, 'x').entries, {'x-one'})
+            self.assertIn('x-one: prerequisite z-gone is not a catalog adaptation', problems)
+            self.assertIn('x-one: prerequisite x-one is the entry itself', problems)
+            self.assertIn('x-one: prerequisite x-one level must be at least 1', problems)
+
+    def test_malformed_prerequisites_are_rejected(self) -> None:
+        for prerequisites in ({'name': 'y-base', 'level': 1}, [{'name': 'y-base'}], [{'name': 'y-base', 'level': '1'}], [{'name': 'y-base', 'level': True}], ['y-base']):
+            with self.subTest(prerequisites=prerequisites), tempfile.TemporaryDirectory() as tmp:
+                root = Path(tmp)
+                write_matrix(root, {'x-one': 'x', 'y-base': 'y'})
+                write_skill(root, {'x-one': {'set': 'arena', 'expect': {'sound': 'a'}, 'beats': [{'verb': 'wait', 'ticks': 1}],
+                                             'prerequisites': prerequisites}})
+                with self.assertRaises(ValueError):
+                    choreography.load_skill(root, 'x')
+
+    def test_every_sheet_claims_the_adaptations_its_source_requires(self) -> None:
+        matrix = json.loads((ROOT / 'src' / 'test' / 'gameplay' / 'adaptation-matrix.json').read_text())['adaptations']
+        for skill in sorted({entry['skill'] for entry in matrix}):
+            entries = choreography.load_skill(ROOT, skill).entries
+            for adaptation in (entry for entry in matrix if entry['skill'] == skill):
+                source = (ROOT / adaptation['source']).read_text()
+                declared = re.search(r'\brequires\s*=\s*new ArrayList<>\(List\.of\(([^)]*)\)\)', source)
+                entry = entries.get(adaptation['name'])
+                if declared is None or entry is None or entry.skip:
+                    continue
+                for name, level in re.findall(r'"([^":]+):(\d+)"', declared.group(1)):
+                    with self.subTest(adaptation=adaptation['name'], requires=name):
+                        self.assertTrue(any(prerequisite.name == name and prerequisite.level >= int(level) for prerequisite in entry.prerequisites))
+
+    def test_golemancy_entries_claim_animus_binding_first(self) -> None:
+        entries = choreography.load_skill(ROOT, 'golemancy').entries
+        for identifier in ('golem-frost-frame', 'golem-node-weaving'):
+            self.assertEqual([prerequisite.name for prerequisite in entries[identifier].prerequisites], ['golem-animus-binding'])
+            self.assertFalse(any('claim-adaptation' in command for command in entries[identifier].pre))
 
     def test_every_sheet_names_a_known_world(self) -> None:
         for sheet in sorted((ROOT / 'src' / 'test' / 'demo' / 'sheets').glob('*.json')):

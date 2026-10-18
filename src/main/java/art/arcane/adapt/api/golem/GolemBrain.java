@@ -134,11 +134,12 @@ public final class GolemBrain {
   }
 
   private void think() {
+    long now = context.platform().nowMillis();
+    refreshStats(now);
     GolemBrainSettings settings = context.settings().get();
     Mob golem = handle.entity();
     Location here = golem.getLocation();
     handle.trackPosition(here);
-    long now = context.platform().nowMillis();
     GolemMode mode = handle.state().mode();
     if (mode != lastMode) {
       lastMode = mode;
@@ -161,7 +162,6 @@ public final class GolemBrain {
     }
     move(decision.movement(), ownerAt, home);
     controller.tick();
-    refreshStats(now);
   }
 
   private void refreshStats(long now) {

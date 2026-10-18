@@ -47,6 +47,8 @@ async function javaFiles(directory) {
   return files.flat()
 }
 
+const caseGroups = [['basic', behaviorCases], ['passive', passiveBehaviorCases], ['combat', combatBehaviorCases], ['brewing', brewingBehaviorCases], ['blocks', blockBehaviorCases], ['items', itemBehaviorCases], ['movement', movementBehaviorCases], ['ranged', rangedBehaviorCases], ['architect', architectBehaviorCases], ['taming', tamingBehaviorCases], ['chronos', chronosBehaviorCases], ['nether', netherBehaviorCases], ['defense', defenseBehaviorCases], ['harvest', harvestBehaviorCases], ['tragoul', tragoulBehaviorCases], ['knowledge', knowledgeBehaviorCases], ['rift', riftBehaviorCases], ['crafting', craftingBehaviorCases], ['earth', earthBehaviorCases], ['projectile', projectileBehaviorCases], ['guard', guardBehaviorCases], ['discovery', discoveryBehaviorCases], ['kinetics', kineticsBehaviorCases], ['utility', utilityBehaviorCases], ['nature', natureBehaviorCases], ['integration', integrationBehaviorCases], ['traversal', traversalBehaviorCases], ['golemancy', golemancyBehaviorCases]]
+
 function constants(source, expression) {
   return [...new Set([...source.matchAll(expression)].map(match => match[1]))].sort()
 }
@@ -54,7 +56,7 @@ function constants(source, expression) {
 test('activation cases name actual catalog adaptations and never override another case group', () => {
   const known = new Set(matrix.adaptations.map(entry => entry.name))
   const owners = new Map()
-  for (const [group, cases] of [['basic', behaviorCases], ['passive', passiveBehaviorCases], ['combat', combatBehaviorCases], ['brewing', brewingBehaviorCases], ['blocks', blockBehaviorCases], ['items', itemBehaviorCases], ['movement', movementBehaviorCases], ['ranged', rangedBehaviorCases], ['architect', architectBehaviorCases], ['taming', tamingBehaviorCases], ['chronos', chronosBehaviorCases], ['nether', netherBehaviorCases], ['defense', defenseBehaviorCases], ['harvest', harvestBehaviorCases], ['tragoul', tragoulBehaviorCases], ['knowledge', knowledgeBehaviorCases], ['rift', riftBehaviorCases], ['crafting', craftingBehaviorCases], ['earth', earthBehaviorCases], ['projectile', projectileBehaviorCases], ['guard', guardBehaviorCases], ['discovery', discoveryBehaviorCases], ['kinetics', kineticsBehaviorCases], ['utility', utilityBehaviorCases], ['nature', natureBehaviorCases], ['integration', integrationBehaviorCases], ['traversal', traversalBehaviorCases], ['golemancy', golemancyBehaviorCases]]) {
+  for (const [group, cases] of caseGroups) {
     assert.ok(cases instanceof Map, `${group} cases must be keyed by adaptation ID`)
     assert.ok(cases.size > 0, `${group} cases must not be empty`)
     for (const [name, entry] of cases) {
@@ -75,6 +77,20 @@ test('activation cases name actual catalog adaptations and never override anothe
     }
   }
   assert.deepEqual([...owners.keys()].sort(), [...known].sort(), 'Every catalog adaptation must have a real activation case')
+})
+
+test('activation cases learn every adaptation their source requires before the trigger', async () => {
+  const cases = new Map(caseGroups.flatMap(([, group]) => [...group]))
+  for (const entry of matrix.adaptations) {
+    const code = await readFile(new URL(entry.source, root), 'utf8')
+    const declared = code.match(/\brequires\s*=\s*new ArrayList<>\(List\.of\(([^)]*)\)\)/)?.[1]
+    if (!declared) continue
+    const testCase = cases.get(entry.name)
+    for (const [, name, level] of declared.matchAll(/"([^":]+):(\d+)"/g)) {
+      assert.ok((testCase?.prerequisites ?? []).some(prerequisite => prerequisite.name === name && prerequisite.level >= Number(level)),
+        `${entry.name} activation case must learn ${name} at level ${level} or higher`)
+    }
+  }
 })
 
 test('brewing cases cover every brewing adaptation and require real potion output', () => {

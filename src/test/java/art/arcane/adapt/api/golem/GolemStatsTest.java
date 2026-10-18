@@ -118,15 +118,52 @@ class GolemStatsTest extends AdaptTestBase {
   }
 
   @Test
-  void raisingMaximumHealthHealsByTheGainAndLoweringItClamps() {
-    assertThat(GolemStats.healthAfter(10D, 24D, 28D)).isCloseTo(14D, offset(1e-9));
-    assertThat(GolemStats.healthAfter(4D, 4D, 24D)).isCloseTo(24D, offset(1e-9));
-    assertThat(GolemStats.healthAfter(23D, 24D, 28D)).isCloseTo(27D, offset(1e-9));
-    assertThat(GolemStats.healthAfter(20D, 24D, 8D)).isCloseTo(8D, offset(1e-9));
-    assertThat(GolemStats.healthAfter(3D, 24D, 8D)).isCloseTo(3D, offset(1e-9));
-    assertThat(GolemStats.healthAfter(10D, 24D, 24D)).isCloseTo(10D, offset(1e-9));
-    assertThat(GolemStats.healthAfter(0D, 4D, 24D)).isZero();
-    assertThat(GolemStats.healthAfter(10D, Double.NaN, 24D)).isCloseTo(10D, offset(1e-9));
+  void raisingMaximumHealthHealsByTheGainAboveTheHighestMaximumAndLoweringItClamps() {
+    assertThat(GolemStats.healthAfter(10D, 24D, 28D, 24D)).isCloseTo(14D, offset(1e-9));
+    assertThat(GolemStats.healthAfter(4D, 4D, 24D, 0D)).isCloseTo(24D, offset(1e-9));
+    assertThat(GolemStats.healthAfter(23D, 24D, 28D, 0D)).isCloseTo(27D, offset(1e-9));
+    assertThat(GolemStats.healthAfter(4D, 4D, 24D, 24D)).isCloseTo(4D, offset(1e-9));
+    assertThat(GolemStats.healthAfter(4D, 4D, 30D, 24D)).isCloseTo(10D, offset(1e-9));
+    assertThat(GolemStats.healthAfter(20D, 24D, 8D, 24D)).isCloseTo(8D, offset(1e-9));
+    assertThat(GolemStats.healthAfter(3D, 24D, 8D, 24D)).isCloseTo(3D, offset(1e-9));
+    assertThat(GolemStats.healthAfter(10D, 24D, 24D, 24D)).isCloseTo(10D, offset(1e-9));
+    assertThat(GolemStats.healthAfter(0D, 4D, 24D, 0D)).isZero();
+    assertThat(GolemStats.healthAfter(10D, Double.NaN, 24D, 0D)).isCloseTo(10D, offset(1e-9));
+  }
+
+  @Test
+  void relearningALevelDoesNotHealAgainButANewHighestMaximumHealsTheDifference() {
+    FakeAttribute maxHealth = platform.stat(golem, GolemStat.MAX_HEALTH, 4D);
+    AtomicReference<Double> bonus = new AtomicReference<>(20D);
+    register(new GolemStatSource() {
+      @Override
+      public String id() {
+        return "frost_frame";
+      }
+
+      @Override
+      public List<GolemStatDelta> deltas(GolemHandle golemHandle) {
+        return List.of(GolemStatDelta.add(GolemStat.MAX_HEALTH, bonus.get()));
+      }
+    });
+    GolemStats.recompute(handle);
+    assertThat(health.get()).isEqualTo(24D);
+    assertThat(GolemState.read(golem).orElseThrow().maxHealthMark()).isEqualTo(24D);
+    health.set(10D);
+
+    bonus.set(0D);
+    GolemStats.recompute(handle);
+    assertThat(health.get()).isEqualTo(4D);
+
+    bonus.set(20D);
+    GolemStats.recompute(handle);
+    assertThat(maxHealth.value()).isEqualTo(24D);
+    assertThat(health.get()).isEqualTo(4D);
+
+    bonus.set(26D);
+    GolemStats.recompute(handle);
+    assertThat(health.get()).isEqualTo(10D);
+    assertThat(handle.state().maxHealthMark()).isEqualTo(30D);
   }
 
   @Test

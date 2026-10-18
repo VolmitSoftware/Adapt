@@ -24,6 +24,13 @@ WORLDS: tuple[str, ...] = (OVERWORLD, NETHER)
 
 
 @dataclass(frozen=True)
+class Prerequisite:
+    skill: str
+    name: str
+    level: int
+
+
+@dataclass(frozen=True)
 class Entry:
     id: str
     set: str
@@ -40,6 +47,7 @@ class Entry:
     opponent: bool = False
     pov_capture: bool = False
     plugins: tuple[str, ...] = ()
+    prerequisites: tuple[Prerequisite, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -53,12 +61,31 @@ def adaptation_ids(root: Path, skill: str) -> set[str]:
     return {entry['name'] for entry in data['adaptations'] if entry['skill'] == skill}
 
 
+def adaptation_skills(root: Path) -> dict[str, str]:
+    data: dict = json.loads((root / 'src' / 'test' / 'gameplay' / 'adaptation-matrix.json').read_text())
+    return {entry['name']: entry['skill'] for entry in data['adaptations']}
+
+
+def prerequisite_bodies(identifier: str, body: dict) -> list[dict]:
+    raw: object = body.get('prerequisites', [])
+    if not isinstance(raw, list) or not all(isinstance(item, dict) and isinstance(item.get('name'), str) and integer(item.get('level'))
+                                            for item in raw):
+        raise ValueError(identifier + ': prerequisites must be a list of {"name": <adaptation id>, "level": <integer>} objects')
+    return raw
+
+
 def load_skill(root: Path, skill: str) -> Sheet:
     path: Path = root / 'src' / 'test' / 'demo' / 'sheets' / (skill + '.json')
     raw: dict = json.loads(path.read_text())
     world: object = raw.pop(WORLD_FIELD, OVERWORLD)
     entries: dict[str, Entry] = {}
+    skills: dict[str, str] | None = None
     for identifier, body in raw.items():
+        required: list[dict] = prerequisite_bodies(identifier, body)
+        if required and skills is None:
+            skills = adaptation_skills(root)
+        prerequisites: tuple[Prerequisite, ...] = tuple(Prerequisite(skill=(skills or {}).get(item['name'], ''), name=item['name'], level=item['level'])
+                                                        for item in required)
         expect: dict = body.get('expect', {})
         plugins: object = body.get('plugins', [])
         if not isinstance(plugins, list) or not all(isinstance(plugin, str) for plugin in plugins):
@@ -79,6 +106,7 @@ def load_skill(root: Path, skill: str) -> Sheet:
             opponent=body.get('opponent') is True,
             pov_capture=body.get('povCapture') is True,
             plugins=tuple(plugins),
+            prerequisites=prerequisites,
         )
     return Sheet(world=world if isinstance(world, str) else json.dumps(world), entries=entries)
 
@@ -93,6 +121,7 @@ def validate(entries: dict[str, Entry], matrix_ids: set[str]) -> list[str]:
         for plugin in entry.plugins:
             if plugin != 'Gloss':
                 problems.append(identifier + ': unsupported plugin ' + plugin)
+        problems.extend(identifier + ': ' + problem for problem in prerequisite_problems(entry))
         if entry.skip:
             if entry.beats:
                 problems.append(identifier + ': skip cannot be combined with beats')
@@ -109,6 +138,18 @@ def validate(entries: dict[str, Entry], matrix_ids: set[str]) -> list[str]:
             problems.extend(identifier + ': prelude ' + str(index) + ' ' + problem for problem in beat_problems(beat, entry.opponent))
         for index, beat in enumerate(entry.beats):
             problems.extend(identifier + ': beat ' + str(index) + ' ' + problem for problem in beat_problems(beat, entry.opponent))
+    return problems
+
+
+def prerequisite_problems(entry: Entry) -> list[str]:
+    problems: list[str] = []
+    for prerequisite in entry.prerequisites:
+        if not prerequisite.skill:
+            problems.append('prerequisite ' + prerequisite.name + ' is not a catalog adaptation')
+        if prerequisite.name == entry.id:
+            problems.append('prerequisite ' + prerequisite.name + ' is the entry itself')
+        if prerequisite.level < 1:
+            problems.append('prerequisite ' + prerequisite.name + ' level must be at least 1')
     return problems
 
 

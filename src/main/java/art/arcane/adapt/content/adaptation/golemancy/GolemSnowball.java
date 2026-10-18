@@ -11,15 +11,19 @@ import java.util.UUID;
 final class GolemSnowball {
   static final NamespacedKey KEY = new NamespacedKey("adapt", "golem_snowball");
   static final NamespacedKey TARGET_KEY = new NamespacedKey("adapt", "golem_snowball_target");
+  static final NamespacedKey EXTRA_KEY = new NamespacedKey("adapt", "golem_snowball_extra");
 
   private GolemSnowball() {
   }
 
-  static void tag(Projectile snowball, int level, UUID target) {
+  static void tag(Projectile snowball, int level, UUID target, boolean extra) {
     PersistentDataContainer data = snowball.getPersistentDataContainer();
     data.set(KEY, PersistentDataType.INTEGER, level);
     if (target != null) {
       data.set(TARGET_KEY, PersistentDataType.STRING, target.toString());
+    }
+    if (extra) {
+      data.set(EXTRA_KEY, PersistentDataType.BYTE, (byte) 1);
     }
   }
 
@@ -29,7 +33,7 @@ final class GolemSnowball {
     if (level == null || level < 1) {
       return Optional.empty();
     }
-    return Optional.of(new Tag(level, target(data.get(TARGET_KEY, PersistentDataType.STRING))));
+    return Optional.of(new Tag(level, target(data.get(TARGET_KEY, PersistentDataType.STRING)), data.get(EXTRA_KEY, PersistentDataType.BYTE) != null));
   }
 
   private static UUID target(String stored) {
@@ -43,6 +47,6 @@ final class GolemSnowball {
     }
   }
 
-  record Tag(int level, UUID target) {
+  record Tag(int level, UUID target, boolean extra) {
   }
 }

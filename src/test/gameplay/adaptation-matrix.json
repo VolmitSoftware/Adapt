@@ -3371,8 +3371,13 @@
         "kind": "always"
       },
       "triggers": [
+        "EntitiesLoadEvent",
+        "EntitiesUnloadEvent",
         "EntityDamageByEntityEvent",
         "EntityDamageEvent",
+        "PlayerJoinEvent",
+        "PlayerQuitEvent",
+        "ProjectileHitEvent",
         "ProjectileLaunchEvent",
         "tick"
       ],

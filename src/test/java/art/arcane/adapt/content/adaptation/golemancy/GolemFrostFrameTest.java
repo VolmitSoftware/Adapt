@@ -5,21 +5,30 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemStat;
 import art.arcane.adapt.api.golem.GolemStatDelta;
+import art.arcane.adapt.api.golem.GolemStatSource;
+import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.inventorygui.Element;
+import net.kyori.adventure.text.Component;
+import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.AfterEach;
@@ -182,7 +191,7 @@ class GolemFrostFrameTest extends AdaptTestBase {
     learned(2).on(launch(snowball));
     learned(0).on(launch(unlearnedSnowball));
 
-    assertThat(GolemSnowball.read(snowball)).contains(new GolemSnowball.Tag(2, targetId));
+    assertThat(GolemSnowball.read(snowball)).contains(new GolemSnowball.Tag(2, targetId, false));
     assertThat(GolemSnowball.read(unlearnedSnowball)).isEmpty();
   }
 
@@ -206,7 +215,8 @@ class GolemFrostFrameTest extends AdaptTestBase {
 
     try (MockedStatic<J> scheduling = mockStatic(J.class)) {
       scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), anyInt())).thenReturn(true);
-      learned.on(launch(snowball(golem)));
+      Snowball regular = snowball(golem);
+      learned.on(launch(regular));
       learned.on(launch(snowball(golem)));
       ArgumentCaptor<Runnable> shot = ArgumentCaptor.forClass(Runnable.class);
       scheduling.verify(() -> J.runEntity(eq(golem), shot.capture(), eq(5)), times(2));
@@ -214,7 +224,11 @@ class GolemFrostFrameTest extends AdaptTestBase {
       shot.getAllValues().getFirst().run();
 
       verify(golem).rangedAttack(target, 1F);
-      assertThat(GolemSnowball.read(extra)).hasValueSatisfying(tag -> assertThat(tag.level()).isEqualTo(4));
+      assertThat(GolemSnowball.read(extra)).hasValueSatisfying(tag -> {
+        assertThat(tag.level()).isEqualTo(4);
+        assertThat(tag.extra()).isTrue();
+      });
+      assertThat(GolemSnowball.read(regular)).hasValueSatisfying(tag -> assertThat(tag.extra()).isFalse());
       scheduling.verify(() -> J.runEntity(eq(golem), any(Runnable.class), eq(5)), times(2));
     }
   }
@@ -243,23 +257,111 @@ class GolemFrostFrameTest extends AdaptTestBase {
   }
 
   @Test
-  void theFourthLandedHitWithinTheWindowFreezesTheTargetOnce() {
+  void theFourthLandedHitWithinTheWindowLocksTheTargetFullyFrozenForTheConfiguredTicks() {
     assertThat(adaptation.reloadConfigSnapshot("chillLevel = 9\n", dataFolder.toPath().resolve("frostbite.toml").toFile(), false)).isTrue();
-    Zombie hostile = living(Zombie.class);
-    Zombie other = living(Zombie.class);
+    Zombie hostile = frozenCandidate();
+    Zombie other = frozenCandidate();
 
-    for (int hit = 0; hit < 3; hit++) {
+    try (MockedStatic<J> scheduling = mockStatic(J.class)) {
+      scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), anyInt(), any(Runnable.class))).thenReturn(true);
+      for (int hit = 0; hit < 3; hit++) {
+        adaptation.onSnowballLanded(hit(tagged(5, null), hostile, 0D));
+      }
+      adaptation.onSnowballLanded(hit(tagged(4, null), other, 0D));
+      verify(hostile, never()).lockFreezeTicks(anyBoolean());
+
       adaptation.onSnowballLanded(hit(tagged(5, null), hostile, 0D));
+      adaptation.onSnowballLanded(hit(tagged(5, null), hostile, 0D));
+
+      verify(hostile, times(1)).lockFreezeTicks(true);
+      verify(hostile, times(1)).setFreezeTicks(140);
+      scheduling.verify(() -> J.runEntity(eq(hostile), any(Runnable.class), eq(140), any(Runnable.class)));
+      verify(other, never()).lockFreezeTicks(anyBoolean());
+      assertThat(adaptation.hasTickDemand()).isTrue();
     }
-    adaptation.onSnowballLanded(hit(tagged(4, null), other, 0D));
-    verify(hostile, never()).setFreezeTicks(anyInt());
+  }
 
-    adaptation.onSnowballLanded(hit(tagged(5, null), hostile, 0D));
-    adaptation.onSnowballLanded(hit(tagged(5, null), hostile, 0D));
+  @Test
+  void extraSnowballsClearTheDamageImmunityOfTheirTargetOrAHostileOnly() {
+    UUID targetId = UUID.randomUUID();
+    Cow target = living(Cow.class);
+    when(target.getUniqueId()).thenReturn(targetId);
+    Zombie hostile = living(Zombie.class);
+    Cow bystander = living(Cow.class);
+    Zombie regularVictim = living(Zombie.class);
 
-    verify(hostile, times(1)).setFreezeTicks(140);
-    verify(other, never()).setFreezeTicks(anyInt());
-    assertThat(adaptation.hasTickDemand()).isTrue();
+    adaptation.on(projectileHit(extra(targetId), target));
+    adaptation.on(projectileHit(extra(targetId), hostile));
+    adaptation.on(projectileHit(extra(targetId), bystander));
+    adaptation.on(projectileHit(tagged(5, targetId), regularVictim));
+    adaptation.on(projectileHit(snowball(mock(Snowman.class)), hostile));
+
+    verify(target).setNoDamageTicks(0);
+    verify(hostile, times(1)).setNoDamageTicks(0);
+    verify(bystander, never()).setNoDamageTicks(anyInt());
+    verify(regularVictim, never()).setNoDamageTicks(anyInt());
+  }
+
+  @Test
+  void frozenTargetsLeftLockedByAnEarlierRunThawWhenTheyLoadOrJoin() {
+    Zombie stale = frozenCandidate();
+    stale.getPersistentDataContainer().set(FrostbiteFreezer.KEY, PersistentDataType.BYTE, (byte) 1);
+    Zombie untouched = frozenCandidate();
+    Player player = mock(Player.class);
+    PersistentDataContainer playerData = mapBacked();
+    playerData.set(FrostbiteFreezer.KEY, PersistentDataType.BYTE, (byte) 1);
+    when(player.getPersistentDataContainer()).thenReturn(playerData);
+    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
+
+    adaptation.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(stale, untouched)));
+    adaptation.on(new PlayerJoinEvent(player, (Component) null));
+
+    verify(stale).lockFreezeTicks(false);
+    assertThat(stale.getPersistentDataContainer().get(FrostbiteFreezer.KEY, PersistentDataType.BYTE)).isNull();
+    verify(untouched, never()).lockFreezeTicks(anyBoolean());
+    verify(player).lockFreezeTicks(false);
+    assertThat(playerData.get(FrostbiteFreezer.KEY, PersistentDataType.BYTE)).isNull();
+  }
+
+  @Test
+  void theStatSourceSkipsTheOwnerLookupForOtherBodies() {
+    GolemHandle iron = mock(GolemHandle.class);
+    when(iron.body()).thenReturn(GolemBody.IRON);
+    when(plugin.getAdaptServer()).thenThrow(new AssertionError("owner level looked up for an iron golem"));
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class);
+         MockedStatic<J> scheduling = mockStatic(J.class)) {
+      bukkit.when(Bukkit::getWorlds).thenReturn(List.of());
+      scheduling.when(J::isFoliaThreading).thenReturn(false);
+      adaptation.onRuntimeActivated();
+      GolemStatSource source = GolemStats.sources().stream()
+          .filter(candidate -> candidate.id().equals(GolemFrostFrame.STAT_SOURCE)).findFirst().orElseThrow();
+      try {
+        assertThat(source.deltas(iron)).isEmpty();
+      } finally {
+        GolemStats.unregister(source);
+      }
+    }
+  }
+
+  private Zombie frozenCandidate() {
+    Zombie zombie = living(Zombie.class);
+    PersistentDataContainer data = mapBacked();
+    lenient().when(zombie.getPersistentDataContainer()).thenReturn(data);
+    lenient().when(zombie.getMaxFreezeTicks()).thenReturn(140);
+    return zombie;
+  }
+
+  private Snowball extra(UUID target) {
+    Snowball snowball = snowball(mock(Snowman.class));
+    GolemSnowball.tag(snowball, 4, target, true);
+    return snowball;
+  }
+
+  private static ProjectileHitEvent projectileHit(Snowball snowball, Entity victim) {
+    ProjectileHitEvent event = mock(ProjectileHitEvent.class);
+    lenient().when(event.getEntity()).thenReturn(snowball);
+    lenient().when(event.getHitEntity()).thenReturn(victim);
+    return event;
   }
 
   private GolemFrostFrame learned(int level) {
@@ -285,7 +387,7 @@ class GolemFrostFrameTest extends AdaptTestBase {
 
   private Snowball tagged(int level, UUID target) {
     Snowball snowball = snowball(mock(Snowman.class));
-    GolemSnowball.tag(snowball, level, target);
+    GolemSnowball.tag(snowball, level, target, false);
     return snowball;
   }
 
@@ -312,16 +414,25 @@ class GolemFrostFrameTest extends AdaptTestBase {
   }
 
   private static Snowball snowball(Snowman shooter) {
-    Map<NamespacedKey, Object> values = new HashMap<>();
-    PersistentDataContainer data = mock(PersistentDataContainer.class);
-    lenient().when(data.get(any(NamespacedKey.class), any(PersistentDataType.class)))
-        .thenAnswer(invocation -> values.get(invocation.<NamespacedKey>getArgument(0)));
-    lenient().doAnswer(invocation -> values.put(invocation.getArgument(0), invocation.getArgument(2)))
-        .when(data).set(any(NamespacedKey.class), any(PersistentDataType.class), any());
+    PersistentDataContainer data = mapBacked();
     Snowball snowball = mock(Snowball.class);
     lenient().when(snowball.getPersistentDataContainer()).thenReturn(data);
     lenient().when(snowball.getShooter()).thenReturn(shooter);
     return snowball;
+  }
+
+  private static PersistentDataContainer mapBacked() {
+    Map<NamespacedKey, Object> values = new HashMap<>();
+    PersistentDataContainer data = mock(PersistentDataContainer.class);
+    lenient().when(data.get(any(NamespacedKey.class), any(PersistentDataType.class)))
+        .thenAnswer(invocation -> values.get(invocation.<NamespacedKey>getArgument(0)));
+    lenient().when(data.has(any(NamespacedKey.class), any(PersistentDataType.class)))
+        .thenAnswer(invocation -> values.containsKey(invocation.<NamespacedKey>getArgument(0)));
+    lenient().doAnswer(invocation -> values.put(invocation.getArgument(0), invocation.getArgument(2)))
+        .when(data).set(any(NamespacedKey.class), any(PersistentDataType.class), any());
+    lenient().doAnswer(invocation -> values.remove(invocation.<NamespacedKey>getArgument(0)))
+        .when(data).remove(any(NamespacedKey.class));
+    return data;
   }
 
   private List<String> lore(int level) {

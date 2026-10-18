@@ -102,6 +102,37 @@ class GolemBrainTest extends AdaptTestBase {
   }
 
   @Test
+  void statsRefreshEvenWhenTheRestOfThePulseFails() {
+    platform.join(OWNER, new GolemRoster());
+    IronGolem golem = golem(IronGolem.class, at(0, 64, 0));
+    FakeAttribute armor = platform.stat(golem, GolemStat.ARMOR, 0D);
+    GolemStatSource frame = new GolemStatSource() {
+      @Override
+      public String id() {
+        return "iron_frame";
+      }
+
+      @Override
+      public List<GolemStatDelta> deltas(GolemHandle handle) {
+        return List.of(GolemStatDelta.add(GolemStat.ARMOR, 2D));
+      }
+    };
+    controller.failTick = true;
+    GolemStats.register(frame);
+    try {
+      GolemBrain brain = brain(golem, GolemBody.IRON);
+      brain.start();
+
+      platform.runDelayed();
+
+      assertThat(controller.calls).contains("tick");
+      assertThat(armor.value()).isEqualTo(2D);
+    } finally {
+      GolemStats.unregister(frame);
+    }
+  }
+
+  @Test
   void startingARunningBrainKeepsASinglePulseChain() {
     GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
 
@@ -369,6 +400,7 @@ class GolemBrainTest extends AdaptTestBase {
     private final List<String> calls = new ArrayList<>();
     private boolean failAttach;
     private boolean failRelease;
+    private boolean failTick;
 
     @Override
     public void attach() {
@@ -396,6 +428,9 @@ class GolemBrainTest extends AdaptTestBase {
     @Override
     public void tick() {
       calls.add("tick");
+      if (failTick) {
+        throw new IllegalStateException("tick refused");
+      }
     }
 
     @Override

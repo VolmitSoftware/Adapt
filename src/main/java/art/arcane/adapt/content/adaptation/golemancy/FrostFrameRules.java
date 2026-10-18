@@ -22,6 +22,10 @@ final class FrostFrameRules {
     return hostile || victim.equals(target);
   }
 
+  static boolean resetsImmunity(boolean extra, UUID target, UUID victim, boolean hostile) {
+    return extra && affects(target, victim, hostile);
+  }
+
   static double weatherDamage(DamageCause cause, double damage, int level, List<Double> warmMultiplierByLevel) {
     if (level < 1) {
       return damage;

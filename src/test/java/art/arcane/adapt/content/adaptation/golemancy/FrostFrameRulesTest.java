@@ -46,6 +46,15 @@ class FrostFrameRulesTest {
   }
 
   @Test
+  void onlyExtraSnowballsResetTheDamageImmunityOfTheirTargetOrAHostile() {
+    assertThat(FrostFrameRules.resetsImmunity(true, TARGET, TARGET, false)).isTrue();
+    assertThat(FrostFrameRules.resetsImmunity(true, TARGET, OTHER, true)).isTrue();
+    assertThat(FrostFrameRules.resetsImmunity(true, TARGET, OTHER, false)).isFalse();
+    assertThat(FrostFrameRules.resetsImmunity(false, TARGET, TARGET, false)).isFalse();
+    assertThat(FrostFrameRules.resetsImmunity(false, TARGET, OTHER, true)).isFalse();
+  }
+
+  @Test
   void rainAndWaterNeverHurtAndWarmBiomeDamageShrinksByLevel() {
     assertThat(FrostFrameRules.weatherDamage(DamageCause.DROWNING, 1D, 0, WARM)).isEqualTo(1D);
     assertThat(FrostFrameRules.weatherDamage(DamageCause.DROWNING, 1D, 1, WARM)).isZero();

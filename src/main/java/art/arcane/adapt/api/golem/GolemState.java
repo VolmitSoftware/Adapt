@@ -44,6 +44,7 @@ public final class GolemState {
   private boolean dormant;
   private boolean previouslyBound;
   private boolean snowTrail;
+  private double maxHealthMark;
 
   private GolemState() {
   }
@@ -209,6 +210,10 @@ public final class GolemState {
     return snowTrail;
   }
 
+  public double maxHealthMark() {
+    return maxHealthMark;
+  }
+
   void setCores(List<GolemCoreType> next) {
     if (next.isEmpty() || next.size() > MAX_CORES) {
       throw new IllegalArgumentException("A golem holds 1 to " + MAX_CORES + " cores, found " + next.size());
@@ -274,6 +279,10 @@ public final class GolemState {
 
   void setSnowTrail(boolean value) {
     snowTrail = value;
+  }
+
+  void setMaxHealthMark(double value) {
+    maxHealthMark = Double.isFinite(value) ? Math.max(0D, value) : 0D;
   }
 
   private static GolemState parse(String json) {

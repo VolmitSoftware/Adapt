@@ -4,7 +4,6 @@ import art.arcane.adapt.Adapt;
 import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.inventory.EquipmentSlotGroup;
 
@@ -16,7 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public final class GolemStats {
@@ -51,11 +49,11 @@ public final class GolemStats {
         && !key.equals(GolemScale.MODIFIER_KEY) && !key.equals(GolemScale.RITUAL_KEY);
   }
 
-  public static double healthAfter(double health, double previousMaximum, double nextMaximum) {
+  public static double healthAfter(double health, double previousMaximum, double nextMaximum, double highestMaximum) {
     if (health <= 0D || !Double.isFinite(previousMaximum) || !Double.isFinite(nextMaximum)) {
       return health;
     }
-    double gained = nextMaximum - previousMaximum;
+    double gained = nextMaximum - Math.max(previousMaximum, highestMaximum);
     double healed = gained > 0D ? health + gained : health;
     return Math.max(0D, Math.min(healed, nextMaximum));
   }
@@ -93,25 +91,34 @@ public final class GolemStats {
   private static void apply(GolemHandle handle, GolemStatPlan plan) {
     Mob golem = handle.entity();
     GolemPlatform platform = handle.platform();
-    apply(golem, stat -> platform.attribute(golem, stat), plan);
-    handle.setAppliedStats(plan);
-  }
-
-  private static void apply(LivingEntity golem, Function<GolemStat, AttributeInstance> attributes, GolemStatPlan plan) {
-    AttributeInstance maximum = attributes.apply(GolemStat.MAX_HEALTH);
+    AttributeInstance maximum = platform.attribute(golem, GolemStat.MAX_HEALTH);
     double previousMaximum = maximum == null ? Double.NaN : maximum.getValue();
     for (GolemStat stat : GolemStat.values()) {
-      AttributeInstance instance = attributes.apply(stat);
+      AttributeInstance instance = platform.attribute(golem, stat);
       if (instance != null) {
         sync(instance, plan.modifiers(stat));
       }
     }
-    if (maximum != null && !golem.isDead()) {
+    handle.setAppliedStats(plan);
+    if (maximum != null) {
+      settleHealth(handle, previousMaximum, maximum.getValue());
+    }
+  }
+
+  private static void settleHealth(GolemHandle handle, double previousMaximum, double nextMaximum) {
+    Mob golem = handle.entity();
+    GolemState state = handle.state();
+    double highest = state.maxHealthMark();
+    if (!golem.isDead()) {
       double health = golem.getHealth();
-      double settled = healthAfter(health, previousMaximum, maximum.getValue());
+      double settled = healthAfter(health, previousMaximum, nextMaximum, highest);
       if (settled != health) {
         golem.setHealth(settled);
       }
+    }
+    if (Double.isFinite(nextMaximum) && nextMaximum > highest) {
+      state.setMaxHealthMark(nextMaximum);
+      handle.flush();
     }
   }
 

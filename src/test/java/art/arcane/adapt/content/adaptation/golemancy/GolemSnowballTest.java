@@ -23,25 +23,37 @@ class GolemSnowballTest {
   void taggedSnowballsCarryTheLevelAndTheTargetUnderTheGolemSnowballKey() {
     Snowball snowball = snowball();
 
-    GolemSnowball.tag(snowball, 4, TARGET);
+    GolemSnowball.tag(snowball, 4, TARGET, false);
 
     assertThat(GolemSnowball.KEY.toString()).isEqualTo("adapt:golem_snowball");
     assertThat(snowball.getPersistentDataContainer().get(GolemSnowball.KEY, PersistentDataType.INTEGER)).isEqualTo(4);
-    assertThat(GolemSnowball.read(snowball)).contains(new GolemSnowball.Tag(4, TARGET));
+    assertThat(GolemSnowball.read(snowball)).contains(new GolemSnowball.Tag(4, TARGET, false));
+    assertThat(snowball.getPersistentDataContainer().get(GolemSnowball.EXTRA_KEY, PersistentDataType.BYTE)).isNull();
   }
 
   @Test
   void snowballsWithoutATargetOrTagReadAsExpected() {
     Snowball untargeted = snowball();
-    GolemSnowball.tag(untargeted, 2, null);
+    GolemSnowball.tag(untargeted, 2, null, false);
     Snowball vanilla = snowball();
     Snowball corrupt = snowball();
     corrupt.getPersistentDataContainer().set(GolemSnowball.KEY, PersistentDataType.INTEGER, 3);
     corrupt.getPersistentDataContainer().set(GolemSnowball.TARGET_KEY, PersistentDataType.STRING, "not-a-uuid");
 
-    assertThat(GolemSnowball.read(untargeted)).contains(new GolemSnowball.Tag(2, null));
+    assertThat(GolemSnowball.read(untargeted)).contains(new GolemSnowball.Tag(2, null, false));
     assertThat(GolemSnowball.read(vanilla)).isEmpty();
-    assertThat(GolemSnowball.read(corrupt)).contains(new GolemSnowball.Tag(3, null));
+    assertThat(GolemSnowball.read(corrupt)).contains(new GolemSnowball.Tag(3, null, false));
+  }
+
+  @Test
+  void extraSnowballsCarryTheExtraFlag() {
+    Snowball extra = snowball();
+
+    GolemSnowball.tag(extra, 4, TARGET, true);
+
+    assertThat(GolemSnowball.EXTRA_KEY.toString()).isEqualTo("adapt:golem_snowball_extra");
+    assertThat(extra.getPersistentDataContainer().get(GolemSnowball.EXTRA_KEY, PersistentDataType.BYTE)).isEqualTo((byte) 1);
+    assertThat(GolemSnowball.read(extra)).contains(new GolemSnowball.Tag(4, TARGET, true));
   }
 
   private static Snowball snowball() {

@@ -161,6 +161,8 @@ def prepare_take(studio: RecordStudio, entry: choreography.Entry, skill: str) ->
         rcon.command('adaptqa demo park ' + studio.opponent)
     rcon.command('adaptqa demo sparring')
     rcon.command('adapt clear adaptations player=' + actor)
+    for prerequisite in entry.prerequisites:
+        rcon.command('adapt claim-adaptation ' + prerequisite.skill + ':' + prerequisite.name + ' ' + str(prerequisite.level) + ' force=true player=' + actor)
     rcon.command('adapt claim-adaptation ' + skill + ':' + entry.id + ' ' + str(entry.level) + ' force=true player=' + actor)
     for command in entry.pre:
         rcon.command(beats.fill_names(command, actor, studio.opponent))

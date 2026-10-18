@@ -89,6 +89,17 @@ class GolemStateTest {
   }
 
   @Test
+  void theMaximumHealthMarkStartsAtZeroAndSurvivesTheJsonRoundTrip() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
+
+    assertThat(state.maxHealthMark()).isZero();
+
+    state.setMaxHealthMark(24D);
+
+    assertThat(GolemState.fromJson(state.toJson()).orElseThrow().maxHealthMark()).isEqualTo(24D);
+  }
+
+  @Test
   void enumsAreStoredByStableIds() {
     JsonObject json = new Gson().fromJson(populated().toJson(), JsonObject.class);
 

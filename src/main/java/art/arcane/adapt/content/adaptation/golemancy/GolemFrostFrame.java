@@ -38,8 +38,11 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.entity.Enemy;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
@@ -48,7 +51,12 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.world.EntitiesLoadEvent;
+import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -70,6 +78,7 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
   private final GolemStatSource frameStats = new FrameStats();
   private final Map<UUID, FrostFrameRules.FrostbiteState> frostbites = new ConcurrentHashMap<>();
   private final Set<UUID> throwingExtra = ConcurrentHashMap.newKeySet();
+  private final FrostbiteFreezer freezer = new FrostbiteFreezer();
 
   public GolemFrostFrame() {
     super("golem-frost-frame");
@@ -83,12 +92,21 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
   public void unregister() {
     GolemStats.unregister(frameStats);
     frostbites.clear();
+    freezer.thawAll();
     super.unregister();
   }
 
   @Override
   protected void onRuntimeActivated() {
     GolemStats.register(frameStats);
+    if (J.isFoliaThreading()) {
+      return;
+    }
+    for (World world : Bukkit.getWorlds()) {
+      for (LivingEntity entity : world.getLivingEntities()) {
+        freezer.recover(entity);
+      }
+    }
   }
 
   @Override
@@ -132,12 +150,23 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
       return;
     }
     LivingEntity target = golem.getTarget();
-    GolemSnowball.tag(snowball, level, target == null ? null : target.getUniqueId());
+    boolean extra = throwingExtra.contains(golem.getUniqueId());
+    GolemSnowball.tag(snowball, level, target == null ? null : target.getUniqueId(), extra);
     Config config = getConfig();
-    if (target != null && !throwingExtra.contains(golem.getUniqueId())
+    if (target != null && !extra
         && FrostFrameRules.extraShot(level, config.fireRateBonusLevel, config.extraSnowballChance, ThreadLocalRandom.current().nextDouble())) {
       J.runEntity(golem, () -> throwExtra(golem, target), EXTRA_SHOT_DELAY_TICKS);
     }
+  }
+
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  public void on(ProjectileHitEvent e) {
+    if (!(e.getEntity() instanceof Snowball snowball) || !(e.getHitEntity() instanceof LivingEntity victim)) {
+      return;
+    }
+    GolemSnowball.read(snowball)
+        .filter(tag -> FrostFrameRules.resetsImmunity(tag.extra(), tag.target(), victim.getUniqueId(), victim instanceof Enemy))
+        .ifPresent(tag -> victim.setNoDamageTicks(0));
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -167,6 +196,32 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onSnowballLanded(EntityDamageByEntityEvent e) {
     snowballHit(e).ifPresent(this::applyFrost);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntitiesLoadEvent e) {
+    for (Entity entity : e.getEntities()) {
+      if (entity instanceof LivingEntity) {
+        freezer.recover(entity);
+      }
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(EntitiesUnloadEvent e) {
+    for (Entity entity : e.getEntities()) {
+      freezer.thaw(entity);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerJoinEvent e) {
+    freezer.recover(e.getPlayer());
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    freezer.thaw(e.getPlayer());
   }
 
   int ownerLevel(GolemHandle handle) {
@@ -201,7 +256,7 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
     FrostFrameRules.FrostbiteState state = frostbites.compute(victim.getUniqueId(), (id, current) -> FrostFrameRules.frostbite(current, now,
         config.frostbiteHits, config.frostbiteWindowMillis, config.frostbitePerTargetCooldownMillis));
     if (state.triggered()) {
-      victim.setFreezeTicks(Math.max(victim.getFreezeTicks(), config.frostbiteFreezeTicks));
+      freezer.freeze(victim, config.frostbiteFreezeTicks);
     }
   }
 
@@ -229,13 +284,13 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
 
     @Override
     public List<GolemStatDelta> deltas(GolemHandle handle) {
-      return frameStats(getConfig(), handle.body(), ownerLevel(handle));
+      return handle.body() == GolemBody.FROST ? frameStats(getConfig(), GolemBody.FROST, ownerLevel(handle)) : List.of();
     }
   }
 
   @ConfigDescription("Strengthens your bound frost golems with extra health, damaging snowballs and protection from rain and heat.")
   protected static class Config extends AdaptationConfig {
-    @ConfigDoc(value = "Extra maximum health for your bound frost golems, by Frost Frame level from level 1 upward.", impact = "Higher values make frost golems tougher; a raise also heals them by the difference.")
+    @ConfigDoc(value = "Extra maximum health for your bound frost golems, by Frost Frame level from level 1 upward.", impact = "Higher values make frost golems tougher; a golem heals by any gain above the highest maximum health it has had.")
     List<Integer> healthBonusByLevel = new ArrayList<>(List.of(4, 8, 12, 16, 20));
     @ConfigDoc(value = "Damage a bound frost golem's snowball deals to the golem's target or a hostile mob, by Frost Frame level from level 1 upward.", impact = "Higher values make snowballs hit harder; snowballs never deal less than vanilla, such as 3 against blazes.")
     List<Integer> snowballDamageByLevel = new ArrayList<>(List.of(1, 2, 2, 3, 4));
@@ -255,7 +310,7 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
     int frostbiteHits = 4;
     @ConfigDoc(value = "Milliseconds within which the frostbiteHits snowball hits must land.", impact = "Higher values make Frostbite easier to trigger.")
     long frostbiteWindowMillis = 5000;
-    @ConfigDoc(value = "Freeze ticks Frostbite gives the target.", impact = "Higher values keep targets frozen longer; 140 is fully frozen.")
+    @ConfigDoc(value = "Ticks a Frostbite target stays fully frozen.", impact = "Higher values keep targets frozen longer.")
     int frostbiteFreezeTicks = 140;
     @ConfigDoc(value = "Milliseconds before Frostbite can freeze the same target again.", impact = "Lower values let Frostbite freeze a target more often.")
     long frostbitePerTargetCooldownMillis = 10000;

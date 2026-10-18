@@ -52,9 +52,13 @@
   "golem-frost-frame": {
     "set": "taming-field",
     "level": 5,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      }
+    ],
     "pre": [
-      "adapt claim-adaptation golemancy:golem-animus-binding 5 force=true player={actor}",
-      "adapt claim-adaptation golemancy:golem-frost-frame 5 force=true player={actor}",
       "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_core\"}}]",
       "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
     ],
@@ -123,6 +127,12 @@
   "golem-node-weaving": {
     "set": "taming-field",
     "level": 5,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 1
+      }
+    ],
     "pre": [
       "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"deposit\\\"}\"}}] 2",
       "execute at {actor} run setblock ~ ~ ~-2 minecraft:chest"

@@ -62,7 +62,7 @@ Before the first take of a run the studio sends `tps` over RCON every 2 s until 
 
 Per take:
 
-1. `adaptqa demo set <set>`, `demo actor`, `demo actor <opponent> opponent` for an entry with `"opponent": true` (`demo park <opponent>` for any other entry while the opponent client runs), `demo sparring`, clear adaptations, claim the adaptation at `level`.
+1. `adaptqa demo set <set>`, `demo actor`, `demo actor <opponent> opponent` for an entry with `"opponent": true` (`demo park <opponent>` for any other entry while the opponent client runs), `demo sparring`, clear adaptations, claim each of the entry's `prerequisites`, claim the adaptation at `level`.
 2. `pre` commands.
 3. `adaptqa demo sync <actor>` (and `demo sync <opponent>` for an opponent entry), so the client shows the inventory the server holds after `pre`.
 4. 60-tick settle (`PRE_SETTLE_TICKS`).
@@ -207,6 +207,7 @@ The position offset does not turn with the actor, while the view does. A followi
 | `world` | Top level of the sheet, beside the entries, not inside one: `iris:adapt_demo` (the default) or `minecraft:the_nether`. Every entry of the sheet plays on that world. Any other value fails validation. See World and plate. |
 | `set` | Set name. Required. |
 | `level` | Adaptation level to claim. |
+| `prerequisites` | Adaptations the claim requires, each `{"name": "<adaptation id>", "level": <level>}`, claimed in order before the entry's own claim. `claim-adaptation` refuses an adaptation until its required adaptations are learned. The skill comes from `adaptation-matrix.json`, so a prerequisite may belong to another skill. Validation reports a name outside the matrix, the entry's own id, and a level below 1. |
 | `pre` | RCON commands run after the claim, before the settle. `{actor}` is replaced by the actor name and `{opponent}` by the opponent name. |
 | `opponent` | `true` when the take needs the opponent client. See Opponent. |
 | `plugins` | Additional server plugins required by this entry. Currently supports `["Gloss"]` for Insight. Missing packed jars stop preparation. |
