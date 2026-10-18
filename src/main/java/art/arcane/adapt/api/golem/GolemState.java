@@ -45,6 +45,7 @@ public final class GolemState {
   private boolean previouslyBound;
   private boolean snowTrail;
   private double maxHealthMark;
+  private transient int carriedRevision;
 
   private GolemState() {
   }
@@ -251,6 +252,11 @@ public final class GolemState {
 
   void setCarried(List<String> encoded) {
     carried = new ArrayList<>(encoded);
+    carriedRevision++;
+  }
+
+  int carriedRevision() {
+    return carriedRevision;
   }
 
   void setEssence(double value) {

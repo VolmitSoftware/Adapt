@@ -32,6 +32,9 @@ import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.api.golem.GolemWorkSettings;
+import art.arcane.adapt.api.golem.GolemWorkStats;
+import art.arcane.adapt.api.golem.GolemWorkXp;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.HostileDamagePool;
 import art.arcane.adapt.api.golem.gui.CrookInteractions;
@@ -128,6 +131,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private final GolemXpCooldowns<BuildCooldownKey> buildCooldowns = new GolemXpCooldowns<>();
   private final GolemXpCooldowns<WitnessCooldownKey> witnessCooldowns = new GolemXpCooldowns<>();
   private final RollingXpCap witnessCap = new RollingXpCap();
+  private final RollingXpCap workCap = new RollingXpCap();
   private final GolemXpCooldowns<UUID> assistCooldowns = new GolemXpCooldowns<>();
   private final GolemXpCooldowns<UUID> tankCooldowns = new GolemXpCooldowns<>();
   private final ConcurrentHashMap<UUID, Long> careChecks = new ConcurrentHashMap<>();
@@ -214,6 +218,34 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
         .visibility(AdvancementVisibility.VANILLA)
         .build());
     registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.IRON_SHOVEL)
+        .key("challenge_golemancy_tasks_1000")
+        .model(CustomModel.get(Material.IRON_SHOVEL, "advancement", "golemancy", "challenge_golemancy_tasks_1000"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.DIAMOND_SHOVEL)
+            .key("challenge_golemancy_tasks_25000")
+            .model(CustomModel.get(Material.DIAMOND_SHOVEL, "advancement", "golemancy", "challenge_golemancy_tasks_25000"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.VANILLA)
+            .build())
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
+        .icon(Material.CHEST)
+        .key("challenge_golemancy_items_moved_10000")
+        .model(CustomModel.get(Material.CHEST, "advancement", "golemancy", "challenge_golemancy_items_moved_10000"))
+        .frame(AdaptAdvancementFrame.CHALLENGE)
+        .visibility(AdvancementVisibility.VANILLA)
+        .child(AdaptAdvancement.builder()
+            .icon(Material.ENDER_CHEST)
+            .key("challenge_golemancy_items_moved_250000")
+            .model(CustomModel.get(Material.ENDER_CHEST, "advancement", "golemancy", "challenge_golemancy_items_moved_250000"))
+            .frame(AdaptAdvancementFrame.CHALLENGE)
+            .visibility(AdvancementVisibility.VANILLA)
+            .build())
+        .build());
+    registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.LODESTONE)
         .key("challenge_golemancy_infusions_10")
         .model(CustomModel.get(Material.LODESTONE, "advancement", "golemancy", "challenge_golemancy_infusions_10"))
@@ -234,10 +266,16 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerMilestone("challenge_golemancy_golem_kills_50", "golemancy.golem.kills", 50, () -> getConfig().challengeGolemKillsReward);
     registerMilestone("challenge_golemancy_golem_kills_500", "golemancy.golem.kills", 500, () -> getConfig().challengeGolemKillsReward * 2);
     registerMilestone("challenge_golemancy_golem_kills_5000", "golemancy.golem.kills", 5000, () -> getConfig().challengeGolemKillsReward * 5);
+    registerMilestone("challenge_golemancy_tasks_1000", "golemancy.tasks", 1000, () -> getConfig().challengeTasksReward);
+    registerMilestone("challenge_golemancy_tasks_25000", "golemancy.tasks", 25000, () -> getConfig().challengeTasksReward * 5);
+    registerMilestone("challenge_golemancy_items_moved_10000", "golemancy.items.moved", 10000, () -> getConfig().challengeItemsMovedReward);
+    registerMilestone("challenge_golemancy_items_moved_250000", "golemancy.items.moved", 250000, () -> getConfig().challengeItemsMovedReward * 5);
     registerMilestone("challenge_golemancy_infusions_10", "golemancy.infusions", 10, () -> getConfig().challengeInfusionsReward);
     registerMilestone("challenge_golemancy_infusions_100", "golemancy.infusions", 100, () -> getConfig().challengeInfusionsReward * 5);
     GolemancyRuntime.setBindListener(this::golemBound);
     GolemancyRuntime.setPlinthHost(new GolemancyPlinthHost());
+    GolemWorkXp.setSink(this::golemWorked);
+    GolemWorkStats.setSink(new WorkStats());
     SpatialMatter.registerSliceType(new NodeMatter());
     SpatialMatter.registerSliceType(new PlinthSlotMatter());
   }
@@ -249,6 +287,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     buildCooldowns.sweep(nowMillis, getConfig().buildXpCooldownMillis);
     witnessCooldowns.sweep(nowMillis, getConfig().witnessCooldownMillis);
     witnessCap.sweep(nowMillis);
+    workCap.sweep(nowMillis);
     assistCooldowns.sweep(nowMillis, getConfig().assistCooldownMillis);
     tankCooldowns.sweep(nowMillis, getConfig().tankCooldownMillis);
     careChecks.values().removeIf(scheduledAt -> nowMillis - scheduledAt > CARE_CHECK_STALE_MILLIS);
@@ -352,6 +391,12 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     GolemancyRuntime.configureReveal(revealSettings(newConfig));
     GolemancyRuntime.configureNodes(nodeSettings(newConfig));
     GolemancyRuntime.configurePlinths(plinthSettings(newConfig));
+    GolemancyRuntime.configureWork(workSettings(newConfig));
+  }
+
+  @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    clampWorkXp(loadedConfig);
   }
 
   @Override
@@ -399,6 +444,24 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
 
   static RevealSettings revealSettings(Config config) {
     return new RevealSettings(config.revealRange, config.labelRange, config.revealPollTicks);
+  }
+
+  static GolemWorkSettings workSettings(Config config) {
+    return new GolemWorkSettings(config.taskLeaseSeconds, config.baseWorkRadius, config.stuckTimeoutSeconds, config.stuckReleasesBeforePause,
+        config.stuckPauseSeconds);
+  }
+
+  static void clampWorkXp(Config config) {
+    config.workXpHourlyCap = Double.isFinite(config.workXpHourlyCap) ? Math.max(0D, config.workXpHourlyCap) : 0D;
+    config.workXpOwnerRadius = Double.isFinite(config.workXpOwnerRadius) ? Math.max(0D, config.workXpOwnerRadius) : 0D;
+  }
+
+  static double grantWorkXp(RollingXpCap cap, UUID owner, double xp, double distanceSquared, Config config, long nowMillis) {
+    double radius = config.workXpOwnerRadius;
+    if (!(distanceSquared <= radius * radius)) {
+      return 0D;
+    }
+    return cap.claim(owner, xp, config.workXpHourlyCap, nowMillis);
   }
 
   static double bindXp(Config config, GolemBody body) {
@@ -529,6 +592,33 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     boolean firstBindOfGolem = !handle.state().previouslyBound();
     Location at = golem.getLocation();
     J.runEntity(owner, () -> shouldReturnForPlayer(owner, () -> rewardBind(owner, body, firstBindOfGolem, at)));
+  }
+
+  private void golemWorked(GolemHandle handle, GolemCoreType core, double xp) {
+    Mob golem = handle.entity();
+    if (shouldReturnForWorld(golem.getWorld(), this)) {
+      return;
+    }
+    Location at = golem.getLocation();
+    String rewardKey = GolemWorkXp.rewardKey(core);
+    rewardOwner(handle.owner(), owner -> payWork(owner, at, xp, rewardKey));
+  }
+
+  private void payWork(Player owner, Location at, double xp, String rewardKey) {
+    Location ownerAt = owner.getLocation();
+    World world = ownerAt.getWorld();
+    double distanceSquared = world != null && world.equals(at.getWorld()) ? ownerAt.distanceSquared(at) : Double.POSITIVE_INFINITY;
+    double granted = grantWorkXp(workCap, owner.getUniqueId(), xp, distanceSquared, getConfig(), M.ms());
+    if (granted > 0D) {
+      xp(owner, at, granted, rewardKey);
+    }
+  }
+
+  private void workerStat(GolemHandle handle, Consumer<Player> record) {
+    if (shouldReturnForWorld(handle.entity().getWorld(), this)) {
+      return;
+    }
+    rewardOwner(handle.owner(), record);
   }
 
   private void rewardBind(Player owner, GolemBody body, boolean firstBindOfGolem, Location at) {
@@ -675,6 +765,18 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   }
 
   private record BuildCooldownKey(UUID player, SpawnReason reason) {
+  }
+
+  private final class WorkStats implements GolemWorkStats.Sink {
+    @Override
+    public void completed(GolemHandle handle) {
+      workerStat(handle, owner -> addStat(owner, "golemancy.tasks", 1));
+    }
+
+    @Override
+    public void moved(GolemHandle handle, long items) {
+      workerStat(handle, owner -> addStat(owner, "golemancy.items.moved", items));
+    }
   }
 
   private record WitnessCooldownKey(UUID golem, UUID player) {
@@ -897,6 +999,24 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     int maxOpenTasksPerNode = 16;
     @ConfigDoc(value = "Who can see nodes while holding the Crook, a Node, a Core or a Dormant Golem: OWNER shows each player only their own nodes, ANY_GOLEMANCER also shows every node to players with Node Weaving.", impact = "Set to ANY_GOLEMANCER to let golemancers see each other's nodes.")
     String nodeVisibility = "OWNER";
+    @ConfigDoc(value = "Seconds a golem keeps its claim on a node job without making progress before another golem may take it, clamped to 5-600.", impact = "Lower values let other golems take over stalled jobs sooner; higher values tolerate slow walks to far jobs.")
+    int taskLeaseSeconds = 20;
+    @ConfigDoc(value = "Blocks around its home within which a working golem takes node jobs and finds Deposit Nodes, clamped to 4-128.", impact = "Higher values let golems work and deliver farther from home.")
+    double baseWorkRadius = 24;
+    @ConfigDoc(value = "Seconds a golem walking to a job or a container may go without getting half a block closer before it gives up and skips that job or container for 10 seconds, clamped to 1-60.", impact = "Lower values give up on blocked paths sooner; higher values keep trying longer.")
+    int stuckTimeoutSeconds = 4;
+    @ConfigDoc(value = "Jobs or containers in a row a golem may give up because it got stuck before it rests for stuckPauseSeconds, clamped to 1-100.", impact = "Lower values rest trapped golems sooner; higher values keep them trying longer.")
+    int stuckReleasesBeforePause = 3;
+    @ConfigDoc(value = "Seconds a trapped golem rests without looking for jobs or containers after giving up stuckReleasesBeforePause in a row, clamped to 0-600.", impact = "Higher values save server time on trapped golems; 0 never rests them.")
+    int stuckPauseSeconds = 15;
+    @ConfigDoc(value = "Most work XP one player can earn from their golems' finished jobs in any rolling 60 minutes. Values below 0 count as 0.", impact = "Higher values allow more passive XP from golem labor per hour; 0 pays no work XP.")
+    double workXpHourlyCap = 1200;
+    @ConfigDoc(value = "Blocks from a working golem within which its owner earns work XP for its finished jobs. Owners farther away or in another world earn none. Values below 0 count as 0.", impact = "Higher values let owners earn work XP while farther from their golems.")
+    double workXpOwnerRadius = 96;
+    @ConfigDoc(value = "Skill XP paid by the golem job challenges.", impact = "Higher values pay more; the 25,000 jobs challenge pays five times this value.")
+    double challengeTasksReward = 500;
+    @ConfigDoc(value = "Skill XP paid by the golem item hauling challenges.", impact = "Higher values pay more; the 250,000 items challenge pays five times this value.")
+    double challengeItemsMovedReward = 500;
     @ConfigDoc(value = "Blocks that work as Animus Plinth pedestals, two blocks north, east, south and west of a lodestone at the same height.", impact = "Add or remove block names to change which blocks form a plinth; unknown names and the lodestone are ignored with a warning.")
     List<String> pedestalBlocks = new ArrayList<>(PlinthStructure.DEFAULT_PEDESTALS);
     @ConfigDoc(value = "Infusions an Animus Plinth can perform, one table per infusion with result, center, pedestals, essenceLevels, durationTicks, unlockAdaptation, unlockLevel and enabled.", impact = "Edit a table to change an infusion, set enabled to false to turn it off, or add a table to create a new one; invalid tables are skipped with a warning.")

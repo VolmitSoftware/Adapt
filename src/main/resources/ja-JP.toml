@@ -3093,6 +3093,22 @@ description = "銅ゴーレムを結びつける"
 title = "鉄の誓い"
 description = "鉄ゴーレムを結びつける"
 
+[advancement.challenge_golemancy_tasks_1000]
+title = "働き者の手"
+description = "ゴーレムが仕事を1,000件終える"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "疲れ知らずの工房"
+description = "ゴーレムが仕事を25,000件終える"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "堅実な運び手"
+description = "ゴーレムがアイテムを10,000個届ける"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "果てなき隊商"
+description = "ゴーレムがアイテムを250,000個届ける"
+
 [advancement.challenge_golemancy_infusions_10]
 title = "台座の見習い"
 description = "アニムスの台座で注入を10回完了する"

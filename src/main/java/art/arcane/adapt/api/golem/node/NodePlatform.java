@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Map;
@@ -39,4 +40,8 @@ interface NodePlatform {
   World world(UUID id);
 
   ItemStack icon(NodeType type);
+
+  Player player(UUID owner);
+
+  long nowMillis();
 }

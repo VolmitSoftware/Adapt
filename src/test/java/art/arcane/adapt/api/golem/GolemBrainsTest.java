@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem;
 import art.arcane.adapt.AdaptTestBase;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +32,8 @@ class GolemBrainsTest extends AdaptTestBase {
     platform = new FakeGolemPlatform();
     world = mock(World.class);
     lenient().when(world.getUID()).thenReturn(UUID.randomUUID());
-    GolemBrain.Context context = new GolemBrain.Context(platform, GolemBrainSettings::defaults, core -> null);
+    GolemBrain.Context context = new GolemBrain.Context(platform, GolemBrainSettings::defaults, core -> null, GolemWorkSettings::defaults,
+        world -> new GolemTaskBoard(world, key -> Optional.empty()));
     brains = new GolemBrains(context, handle -> steerable ? Optional.of(new LoggingController(handle)) : Optional.empty());
   }
 
@@ -139,6 +141,12 @@ class GolemBrainsTest extends AdaptTestBase {
     public void setTarget(LivingEntity target) {
       calls.add("target:" + handle.id());
     }
+
+    @Override
+    public void interact(Block container, int ticks) {
+      calls.add("interact:" + handle.id());
+    }
+
 
     @Override
     public void tick() {

@@ -25,6 +25,8 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.node.DepositBehavior;
+import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.golem.node.NodePlacementVerdict;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeRules;
@@ -68,6 +70,8 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
   private static final int RECIPE_LEVEL = 1;
   private static final double FEEDBACK_FACE_DISTANCE = 0.6D;
 
+  private final DepositBehavior deposits = new DepositBehavior(this);
+
   public GolemNodeWeaving() {
     super("golem-node-weaving");
     registerConfiguration(Config.class);
@@ -77,6 +81,17 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
     registerGolemRecipe(parser, BLANK_NODE_RECIPE, getConfig().blankNodeRecipe);
     registerGolemRecipe(parser, DEPOSIT_NODE_RECIPE, getConfig().depositNodeRecipe);
+  }
+
+  @Override
+  public void unregister() {
+    NodeBehaviors.unregister(NodeType.DEPOSIT, deposits);
+    super.unregister();
+  }
+
+  @Override
+  protected void onRuntimeActivated() {
+    NodeBehaviors.register(NodeType.DEPOSIT, deposits);
   }
 
   @Override

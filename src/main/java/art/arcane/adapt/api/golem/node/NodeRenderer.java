@@ -81,6 +81,19 @@ public final class NodeRenderer {
     PaperCompat.text(bundle.label(), label(record, statuses.getOrDefault(key, NodeStatus.IDLE)));
   }
 
+  public void status(NodeKey key, NodeRecord record, NodeStatus status) {
+    NodeBundle bundle = bundles.get(key);
+    if (bundle == null || statuses.get(key) == status) {
+      return;
+    }
+    statuses.put(key, status);
+    PaperCompat.text(bundle.label(), label(record, status));
+  }
+
+  public Optional<NodeStatus> status(NodeKey key) {
+    return Optional.ofNullable(statuses.get(key));
+  }
+
   public Optional<NodeBundle> bundle(NodeKey key) {
     return Optional.ofNullable(bundles.get(key));
   }

@@ -5,5 +5,10 @@ public enum GolemBrainState {
   FOLLOW,
   STAY,
   HOME,
-  COMBAT
+  COMBAT,
+  SEEK,
+  MOVE,
+  ACT,
+  DELIVER,
+  RETURN_HOME
 }

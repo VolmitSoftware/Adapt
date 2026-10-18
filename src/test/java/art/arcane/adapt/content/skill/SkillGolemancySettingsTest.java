@@ -4,6 +4,7 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemBrainSettings;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemSettings;
+import art.arcane.adapt.api.golem.GolemWorkSettings;
 import art.arcane.adapt.api.golem.node.NodeSettings;
 import art.arcane.adapt.api.golem.node.NodeVisibility;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
@@ -115,6 +116,47 @@ class SkillGolemancySettingsTest {
     config.nodeVisibility = "any_golemancer";
 
     assertThat(SkillGolemancy.nodeSettings(config)).isEqualTo(new NodeSettings(4, 20, 128, 8, NodeVisibility.ANY_GOLEMANCER));
+  }
+
+  @Test
+  void workConfigDefaultsProduceTheWorkDefaults() {
+    SkillGolemancy.Config config = new SkillGolemancy.Config();
+
+    assertThat(SkillGolemancy.workSettings(config)).isEqualTo(GolemWorkSettings.defaults());
+    assertThat(config.workXpHourlyCap).isEqualTo(1200D);
+    assertThat(config.workXpOwnerRadius).isEqualTo(96D);
+    assertThat(config.challengeTasksReward).isEqualTo(500D);
+    assertThat(config.challengeItemsMovedReward).isEqualTo(500D);
+  }
+
+  @Test
+  void negativeOrBrokenWorkXpValuesAreClampedAtLoad() {
+    SkillGolemancy.Config config = new SkillGolemancy.Config();
+    config.workXpHourlyCap = -10D;
+    config.workXpOwnerRadius = Double.NaN;
+
+    SkillGolemancy.clampWorkXp(config);
+
+    assertThat(config.workXpHourlyCap).isZero();
+    assertThat(config.workXpOwnerRadius).isZero();
+
+    config.workXpHourlyCap = 300D;
+    config.workXpOwnerRadius = 40D;
+    SkillGolemancy.clampWorkXp(config);
+    assertThat(config.workXpHourlyCap).isEqualTo(300D);
+    assertThat(config.workXpOwnerRadius).isEqualTo(40D);
+  }
+
+  @Test
+  void workConfigValuesReachTheWorkSettings() {
+    SkillGolemancy.Config config = new SkillGolemancy.Config();
+    config.taskLeaseSeconds = 30;
+    config.baseWorkRadius = 16D;
+    config.stuckTimeoutSeconds = 6;
+    config.stuckReleasesBeforePause = 5;
+    config.stuckPauseSeconds = 40;
+
+    assertThat(SkillGolemancy.workSettings(config)).isEqualTo(new GolemWorkSettings(30, 16D, 6, 5, 40));
   }
 
   private static SkillGolemancy.Config withInterval(SkillGolemancy.Config config, int ticks) {

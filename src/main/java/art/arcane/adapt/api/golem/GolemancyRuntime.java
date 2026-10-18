@@ -2,9 +2,11 @@ package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.NodeSettings;
 import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
+import art.arcane.adapt.api.golem.node.NodeWork;
 import art.arcane.adapt.api.golem.plinth.PlinthHost;
 import art.arcane.adapt.api.golem.plinth.PlinthService;
 import art.arcane.adapt.api.golem.plinth.PlinthSettings;
@@ -14,8 +16,10 @@ import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.minion.MinionKind;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.nms.NMS;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.reflect.registries.Particles;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -26,6 +30,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -47,6 +52,8 @@ public final class GolemancyRuntime {
   private static volatile GolemBrains brains;
   private static volatile GolemSettings settings = GolemSettings.defaults();
   private static volatile GolemBrainSettings brainSettings = GolemBrainSettings.defaults();
+  private static volatile GolemWorkSettings workSettings = GolemWorkSettings.defaults();
+  private static volatile GolemTaskBoards boards;
   private static volatile RevealService reveal;
   private static volatile RevealSettings revealSettings = RevealSettings.defaults();
   private static volatile NodeService nodes;
@@ -68,8 +75,10 @@ public final class GolemancyRuntime {
       return;
     }
     GolemPlatform platform = new BukkitGolemPlatform();
-    GolemBrains createdBrains = new GolemBrains(new GolemBrain.Context(platform, GolemancyRuntime::brainSettings, GolemancyRuntime::targetPolicy),
-        GolemancyRuntime::controllerFor);
+    GolemTaskBoards createdBoards = new GolemTaskBoards(key -> nodes().flatMap(service -> service.node(key)));
+    GolemBrains createdBrains = new GolemBrains(new GolemBrain.Context(platform, GolemancyRuntime::brainSettings, GolemancyRuntime::targetPolicy,
+        GolemancyRuntime::workSettings, createdBoards::board), GolemancyRuntime::controllerFor);
+    boards = createdBoards;
     GolemRegistry created = new GolemRegistry(platform, GolemancyRuntime::settings, createdBrains);
     created.activateRuntime();
     brains = createdBrains;
@@ -80,6 +89,7 @@ public final class GolemancyRuntime {
     createdReveal.activateRuntime();
     reveal = createdReveal;
     NodeService createdNodes = NodeService.create(GolemancyRuntime::nodeSettings, GolemancyRuntime::revealSettings);
+    createdNodes.setScanHook(NodeWork.create(createdBoards, createdNodes));
     createdNodes.activateRuntime();
     nodes = createdNodes;
     PlinthService createdPlinths = PlinthService.create(GolemancyRuntime::plinthSettings, () -> plinthHost);
@@ -106,6 +116,7 @@ public final class GolemancyRuntime {
       nodes = null;
       localPlinths = plinths;
       plinths = null;
+      boards = null;
     }
     if (localPlinths != null) {
       localPlinths.shutdown();
@@ -150,6 +161,18 @@ public final class GolemancyRuntime {
 
   public static Optional<NodeService> nodes() {
     return Optional.ofNullable(nodes);
+  }
+
+  public static Optional<GolemTaskBoards> boards() {
+    return Optional.ofNullable(boards);
+  }
+
+  public static GolemWorkSettings workSettings() {
+    return workSettings;
+  }
+
+  public static void configureWork(GolemWorkSettings next) {
+    workSettings = Objects.requireNonNull(next);
   }
 
   public static NodeSettings nodeSettings() {
@@ -252,7 +275,7 @@ public final class GolemancyRuntime {
     Mob golem = handle.entity();
     return switch (handle.body()) {
       case COPPER -> golem instanceof CopperGolem copper
-          ? Optional.of(new CopperGolemController(copper, () -> brainSettings.copperRepathTicks()))
+          ? Optional.of(new CopperGolemController(copper, () -> brainSettings.copperRepathTicks(), BukkitGolemLids.INSTANCE))
           : Optional.empty();
       case FROST, IRON -> PaperCompat.hasClass(MOB_GOALS_CLASS)
           ? Optional.of(new GoalGolemController(golem, handle.body(), Bukkit.getMobGoals()))
@@ -289,6 +312,8 @@ public final class GolemancyRuntime {
   }
 
   private static final class BukkitGolemPlatform implements GolemPlatform {
+    private static final double FULL_SIGNAL_LIFT = 0.4D;
+
     @Override
     public boolean isOnline(UUID owner) {
       return Bukkit.getPlayer(owner) != null;
@@ -332,6 +357,11 @@ public final class GolemancyRuntime {
     @Override
     public boolean owns(Entity entity) {
       return J.isOwnedByCurrentRegion(entity);
+    }
+
+    @Override
+    public boolean owns(Location location) {
+      return J.isOwnedByCurrentRegion(location);
     }
 
     @Override
@@ -390,6 +420,49 @@ public final class GolemancyRuntime {
     @Override
     public long nowMillis() {
       return System.currentTimeMillis();
+    }
+
+    @Override
+    public List<NodeIndex.Entry> nodesNear(UUID world, double x, double y, double z, double range) {
+      NodeService local = nodes;
+      return local == null ? List.of() : local.index().near(world, x, y, z, range);
+    }
+
+    @Override
+    public Location targetLocation(GolemTarget target, World world) {
+      return targetEntity(target, world).map(Entity::getLocation).orElseGet(() -> target.location(world));
+    }
+
+    @Override
+    public Optional<Entity> targetEntity(GolemTarget target, World world) {
+      if (target.kind() == GolemTarget.Kind.BLOCK) {
+        return Optional.empty();
+      }
+      Entity entity = Bukkit.getEntity(target.entity());
+      return entity != null && entity.isValid() && world.equals(entity.getWorld()) && J.isOwnedByCurrentRegion(entity)
+          ? Optional.of(entity)
+          : Optional.empty();
+    }
+
+    @Override
+    public void signalFull(Mob golem) {
+      Location above = golem.getLocation().add(0D, golem.getHeight() + FULL_SIGNAL_LIFT, 0D);
+      golem.getWorld().spawnParticle(Particles.ANGRY_VILLAGER, above, 1, 0D, 0D, 0D, 0D);
+    }
+
+    @Override
+    public Adaptation<?> bindingPolicy() {
+      return protectionPolicy;
+    }
+
+    @Override
+    public String encodeItem(ItemStack item) {
+      return GolemState.encodeItem(item);
+    }
+
+    @Override
+    public ItemStack decodeItem(String encoded) {
+      return NMS.deserializeStack(encoded);
     }
 
     private static AdaptPlayer onlinePlayer(UUID owner) {

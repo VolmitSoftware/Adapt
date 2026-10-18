@@ -1,11 +1,18 @@
 package art.arcane.adapt.api.golem;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.golem.node.NodeIndex;
+import art.arcane.adapt.api.golem.node.NodeKey;
+import art.arcane.adapt.api.golem.node.NodeRecord;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,7 +42,13 @@ final class FakeGolemPlatform implements GolemPlatform {
   final List<String> sweeps = new ArrayList<>();
   final Map<String, FakeAttribute> stats = new HashMap<>();
   final Map<UUID, Integer> patina = new HashMap<>();
+  final Map<NodeKey, NodeRecord> nodes = new HashMap<>();
+  final Map<String, ItemStack> encoded = new HashMap<>();
+  final Map<UUID, Entity> entities = new HashMap<>();
   boolean ownsEntities = true;
+  boolean ownsLocations = true;
+  int fullSignals;
+  Adaptation<?> bindingPolicy;
   long now = 1_000_000L;
 
   void join(UUID owner, GolemRoster roster) {
@@ -189,6 +202,59 @@ final class FakeGolemPlatform implements GolemPlatform {
   @Override
   public long nowMillis() {
     return now;
+  }
+
+  @Override
+  public boolean owns(Location location) {
+    return ownsLocations;
+  }
+
+  @Override
+  public List<NodeIndex.Entry> nodesNear(UUID world, double x, double y, double z, double range) {
+    List<NodeIndex.Entry> near = new ArrayList<>();
+    for (Map.Entry<NodeKey, NodeRecord> node : nodes.entrySet()) {
+      NodeKey key = node.getKey();
+      if (key.world().equals(world) && key.distanceSquared(x, y, z) <= range * range) {
+        near.add(new NodeIndex.Entry(key, node.getValue()));
+      }
+    }
+    return near;
+  }
+
+  @Override
+  public Location targetLocation(GolemTarget target, World world) {
+    return target.location(world);
+  }
+
+  @Override
+  public Optional<Entity> targetEntity(GolemTarget target, World world) {
+    return target.kind() == GolemTarget.Kind.BLOCK ? Optional.empty() : Optional.ofNullable(entities.get(target.entity()));
+  }
+
+  @Override
+  public void signalFull(Mob golem) {
+    fullSignals++;
+  }
+
+  @Override
+  public Adaptation<?> bindingPolicy() {
+    return bindingPolicy;
+  }
+
+  @Override
+  public String encodeItem(ItemStack item) {
+    String key = "item-" + encoded.size();
+    encoded.put(key, item.clone());
+    return key;
+  }
+
+  @Override
+  public ItemStack decodeItem(String key) {
+    ItemStack item = encoded.get(key);
+    if (item == null) {
+      throw new IllegalArgumentException("Unknown encoded item " + key);
+    }
+    return item.clone();
   }
 
   record Delayed(Runnable task, int delayTicks, Runnable retired) {

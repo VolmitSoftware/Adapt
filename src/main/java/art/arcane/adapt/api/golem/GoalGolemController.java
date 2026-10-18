@@ -4,6 +4,7 @@ import com.destroystokyo.paper.entity.ai.Goal;
 import com.destroystokyo.paper.entity.ai.MobGoals;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
+import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 
@@ -81,6 +82,10 @@ final class GoalGolemController implements GolemController {
   @Override
   public void setTarget(LivingEntity target) {
     targetGoal.assign(target);
+  }
+
+  @Override
+  public void interact(Block container, int ticks) {
   }
 
   @Override

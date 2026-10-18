@@ -205,6 +205,11 @@ public final class GolemHandle {
     return platform;
   }
 
+  void setCarriedEncoded(List<String> encoded) {
+    state.setCarried(encoded);
+    flush();
+  }
+
   GolemStatPlan appliedStats() {
     return appliedStats;
   }

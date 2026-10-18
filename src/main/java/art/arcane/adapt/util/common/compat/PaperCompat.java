@@ -34,6 +34,7 @@ import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AbstractSkeleton;
@@ -127,6 +128,7 @@ public final class PaperCompat {
   private static volatile boolean weatheringSupported = true;
   private static volatile boolean freezeLockSupported = true;
   private static volatile boolean collisionQuerySupported = true;
+  private static volatile boolean liveStateSupported = true;
   // EntityPotionEffectEvent.getSource() is 26.2+; resolved reflectively so the 26.1.2 compile baseline builds.
   private static final MethodHandle POTION_SOURCE_HANDLE = resolvePotionSourceHandle();
   private static volatile boolean trackedPlayersSupported = true;
@@ -217,6 +219,18 @@ public final class PaperCompat {
     } catch (NoClassDefFoundError | NoSuchMethodError absent) {
       weatheringSupported = false;
       return 0;
+    }
+  }
+
+  public static BlockState liveState(Block block) {
+    if (!liveStateSupported) {
+      return block.getState();
+    }
+    try {
+      return block.getState(false);
+    } catch (NoSuchMethodError absent) {
+      liveStateSupported = false;
+      return block.getState();
     }
   }
 

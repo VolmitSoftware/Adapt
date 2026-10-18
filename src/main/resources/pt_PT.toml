@@ -3093,6 +3093,22 @@ description = "Vincula um golem de cobre"
 title = "Juramento de ferro"
 description = "Vincula um golem de ferro"
 
+[advancement.challenge_golemancy_tasks_1000]
+title = "Mãos ocupadas"
+description = "Os teus golems concluem 1.000 tarefas"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "Oficina incansável"
+description = "Os teus golems concluem 25.000 tarefas"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "Carregadores constantes"
+description = "Os teus golems entregam 10.000 itens"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "Caravana sem fim"
+description = "Os teus golems entregam 250.000 itens"
+
 [advancement.challenge_golemancy_infusions_10]
 title = "Aprendiz do pedestal"
 description = "Conclui 10 infusões num Pedestal de Ânimus"

@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -114,6 +115,16 @@ final class BukkitNodePlatform implements NodePlatform {
   @Override
   public ItemStack icon(NodeType type) {
     return new ItemStack(NodeIcons.icon(type));
+  }
+
+  @Override
+  public Player player(UUID owner) {
+    return Bukkit.getPlayer(owner);
+  }
+
+  @Override
+  public long nowMillis() {
+    return System.currentTimeMillis();
   }
 
   private static WorldData loaded(World world) {

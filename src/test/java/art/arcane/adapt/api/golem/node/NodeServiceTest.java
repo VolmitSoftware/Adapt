@@ -27,6 +27,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -60,6 +61,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -582,6 +584,25 @@ class NodeServiceTest extends AdaptTestBase {
   }
 
   @Test
+  void statusChangesRedrawTheLabelOnceAndSurviveAnEdit() {
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    NodeBundle bundle = service.renderer().bundle(key).orElseThrow();
+
+    service.status(key, NodeStatus.WORKING);
+    service.status(key, NodeStatus.WORKING);
+
+    verify(bundle.label(), times(1)).text(any(Component.class));
+    assertThat(service.renderer().status(key)).contains(NodeStatus.WORKING);
+
+    service.update(OWNER, key, record -> record.toBuilder().priority(5).build());
+
+    assertThat(service.renderer().status(key)).contains(NodeStatus.WORKING);
+    service.status(new NodeKey(WORLD, 3, 64, 3, BlockFace.EAST), NodeStatus.FULL);
+    assertThat(service.renderer().status(new NodeKey(WORLD, 3, 64, 3, BlockFace.EAST))).isEmpty();
+  }
+
+  @Test
   void strangersAndVanishedNodesCannotBeEdited() {
     placedGuard();
     NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
@@ -663,6 +684,55 @@ class NodeServiceTest extends AdaptTestBase {
 
     assertThat(passes).hasSize(1);
     assertThat(platform.powerReads).isZero();
+  }
+
+  @Test
+  void aNodeSwitchedOffByRedstoneTellsTheHookOnEachPass() {
+    List<NodeKey> inactive = new ArrayList<>();
+    List<NodeScanPass> passes = new ArrayList<>();
+    service.setScanHook(new NodeScanHook() {
+      @Override
+      public void scan(NodeScanPass pass) {
+        passes.add(pass);
+      }
+
+      @Override
+      public void inactive(NodeKey key) {
+        inactive.add(key);
+      }
+    });
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    service.update(OWNER, key, record -> record.toBuilder().redstone(RedstoneMode.POWERED).build());
+
+    platform.runScheduled();
+    platform.runScheduled();
+    assertThat(passes).isEmpty();
+    assertThat(inactive).containsExactly(key, key);
+
+    platform.powered.add("3,64,3");
+    platform.runScheduled();
+    assertThat(passes).hasSize(1);
+    assertThat(inactive).hasSize(2);
+  }
+
+  @Test
+  void unloadingAWorldTellsTheHook() {
+    List<UUID> unloaded = new ArrayList<>();
+    service.setScanHook(new NodeScanHook() {
+      @Override
+      public void scan(NodeScanPass pass) {
+      }
+
+      @Override
+      public void worldUnloaded(UUID world) {
+        unloaded.add(world);
+      }
+    });
+
+    service.on(new WorldUnloadEvent(world));
+
+    assertThat(unloaded).containsExactly(WORLD);
   }
 
   private Player placedGuard() {

@@ -150,25 +150,25 @@ class GolemBrainMachineTest {
 
   @Test
   void workWandersNearHomeOnAFixedInterval() {
-    assertThat(step(senses(GolemMode.WORK).home(1D))).isEqualTo(decision(GolemBrainState.IDLE, Movement.WANDER));
+    assertThat(step(senses(GolemMode.WORK).home(1D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.WANDER));
     now += GolemBrainMachine.WANDER_INTERVAL_MILLIS - 1L;
-    assertThat(step(senses(GolemMode.WORK).home(3D))).isEqualTo(decision(GolemBrainState.IDLE, Movement.NONE));
+    assertThat(step(senses(GolemMode.WORK).home(3D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.NONE));
     now += 1L;
-    assertThat(step(senses(GolemMode.WORK).home(3D))).isEqualTo(decision(GolemBrainState.IDLE, Movement.WANDER));
+    assertThat(step(senses(GolemMode.WORK).home(3D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.WANDER));
   }
 
   @Test
   void workWaitsIdleReturnSecondsAwayFromHomeBeforeWalkingBack() {
     step(senses(GolemMode.WORK).home(10D).target());
 
-    assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.IDLE, Movement.NONE));
+    assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.NONE));
     now += SETTINGS.idleReturnMillis() - 1L;
-    assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.IDLE, Movement.NONE));
+    assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.NONE));
     now += 1L;
-    assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.HOME, Movement.HOME));
-    assertThat(step(senses(GolemMode.WORK).home(4D))).isEqualTo(decision(GolemBrainState.HOME, Movement.HOME));
-    assertThat(step(senses(GolemMode.WORK).home(1.4D))).isEqualTo(decision(GolemBrainState.IDLE, Movement.STOP));
-    assertThat(step(senses(GolemMode.WORK).home(1.4D))).isEqualTo(decision(GolemBrainState.IDLE, Movement.WANDER));
+    assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.RETURN_HOME, Movement.HOME));
+    assertThat(step(senses(GolemMode.WORK).home(4D))).isEqualTo(decision(GolemBrainState.RETURN_HOME, Movement.HOME));
+    assertThat(step(senses(GolemMode.WORK).home(1.4D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.STOP));
+    assertThat(step(senses(GolemMode.WORK).home(1.4D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.WANDER));
   }
 
   @Test
@@ -178,19 +178,31 @@ class GolemBrainMachineTest {
     step(senses(GolemMode.WORK).home(10D).target());
     now += 1_000L;
 
-    assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.IDLE, Movement.NONE));
+    assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.NONE));
+  }
+
+  @Test
+  void theIdleTimerStartsWhenTheLastJobEnds() {
+    step(senses(GolemMode.WORK).home(10D));
+    now += SETTINGS.idleReturnMillis() * 2L;
+    machine.working(now);
+
+    now += SETTINGS.idleReturnMillis() - 1L;
+    assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.SEEK, Movement.NONE));
+    now += 1L;
+    assertThat(step(senses(GolemMode.WORK).home(10D))).isEqualTo(decision(GolemBrainState.RETURN_HOME, Movement.HOME));
   }
 
   @Test
   void workReturnsImmediatelyFromBeyondTheLeash() {
-    assertThat(step(senses(GolemMode.WORK).home(33D))).isEqualTo(decision(GolemBrainState.HOME, Movement.HOME));
+    assertThat(step(senses(GolemMode.WORK).home(33D))).isEqualTo(decision(GolemBrainState.RETURN_HOME, Movement.HOME));
   }
 
   @Test
   void idleReturnSecondsComeFromSettings() {
     GolemBrainSettings instant = new GolemBrainSettings(5, 32D, 32D, 0, 10);
 
-    assertThat(machine.decide(senses(GolemMode.WORK).home(10D).build(now), instant)).isEqualTo(decision(GolemBrainState.HOME, Movement.HOME));
+    assertThat(machine.decide(senses(GolemMode.WORK).home(10D).build(now), instant)).isEqualTo(decision(GolemBrainState.RETURN_HOME, Movement.HOME));
   }
 
   @Test

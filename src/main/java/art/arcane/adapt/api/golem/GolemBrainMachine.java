@@ -48,6 +48,13 @@ final class GolemBrainMachine {
     return leashBroken;
   }
 
+  void working(long nowMillis) {
+    primed = true;
+    state = GolemBrainState.SEEK;
+    idleSince = nowMillis;
+    moving = false;
+  }
+
   void reset() {
     state = GolemBrainState.IDLE;
     primed = false;
@@ -107,23 +114,23 @@ final class GolemBrainMachine {
     if (Double.isNaN(distance)) {
       return settle(now, GolemBrainState.IDLE, Desire.STAND);
     }
-    if (state == GolemBrainState.HOME) {
+    if (state == GolemBrainState.RETURN_HOME) {
       return distance > ARRIVE_DISTANCE
-          ? settle(now, GolemBrainState.HOME, Desire.HOME)
-          : settle(now, GolemBrainState.IDLE, Desire.STAND);
+          ? settle(now, GolemBrainState.RETURN_HOME, Desire.HOME)
+          : settle(now, GolemBrainState.SEEK, Desire.STAND);
     }
     if (distance > NEAR_HOME_DISTANCE) {
-      boolean idleTooLong = state == GolemBrainState.IDLE && now - idleSince >= settings.idleReturnMillis();
+      boolean idleTooLong = idle(state) && now - idleSince >= settings.idleReturnMillis();
       return distance > settings.leashRadius() || idleTooLong
-          ? settle(now, GolemBrainState.HOME, Desire.HOME)
-          : settle(now, GolemBrainState.IDLE, Desire.STAND);
+          ? settle(now, GolemBrainState.RETURN_HOME, Desire.HOME)
+          : settle(now, GolemBrainState.SEEK, Desire.STAND);
     }
     if (!wandered || now - lastWanderAt >= WANDER_INTERVAL_MILLIS) {
       wandered = true;
       lastWanderAt = now;
-      return settle(now, GolemBrainState.IDLE, Desire.WANDER);
+      return settle(now, GolemBrainState.SEEK, Desire.WANDER);
     }
-    return settle(now, GolemBrainState.IDLE, Desire.KEEP);
+    return settle(now, GolemBrainState.SEEK, Desire.KEEP);
   }
 
   private boolean teleportReady(long now) {
@@ -131,7 +138,7 @@ final class GolemBrainMachine {
   }
 
   private Decision settle(long now, GolemBrainState next, Desire desire) {
-    if (next != state && next == GolemBrainState.IDLE) {
+    if (next != state && idle(next)) {
       idleSince = now;
     }
     state = next;
@@ -148,6 +155,10 @@ final class GolemBrainMachine {
       case KEEP -> Movement.NONE;
     };
     return new Decision(state, movement, leashBroken);
+  }
+
+  private static boolean idle(GolemBrainState candidate) {
+    return candidate == GolemBrainState.IDLE || candidate == GolemBrainState.SEEK;
   }
 
   private Movement move(Movement movement) {

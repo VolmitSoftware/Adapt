@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ final class FakeNodePlatform implements NodePlatform {
   final List<Runnable> asyncTasks = new ArrayList<>();
   final List<String> events = new ArrayList<>();
   final Set<String> powered = new HashSet<>();
+  final Map<UUID, Player> players = new HashMap<>();
   boolean ownsEverything = true;
   boolean deferAsync;
   boolean refuseRunAt;
@@ -35,6 +37,7 @@ final class FakeNodePlatform implements NodePlatform {
   RuntimeException saveFailure;
   int chunkReads;
   int powerReads;
+  long now = 1_000_000L;
 
   @Override
   public Optional<GolemRoster> roster(UUID owner) {
@@ -144,6 +147,16 @@ final class FakeNodePlatform implements NodePlatform {
   @Override
   public ItemStack icon(NodeType type) {
     return mock(ItemStack.class);
+  }
+
+  @Override
+  public Player player(UUID owner) {
+    return players.get(owner);
+  }
+
+  @Override
+  public long nowMillis() {
+    return now;
   }
 
   void put(UUID world, int x, int y, int z, NodeFaces faces) {

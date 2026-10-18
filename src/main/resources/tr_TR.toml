@@ -3093,6 +3093,22 @@ description = "Bir bakır golemi bağla"
 title = "Demir yemin"
 description = "Bir demir golemi bağla"
 
+[advancement.challenge_golemancy_tasks_1000]
+title = "Meşgul eller"
+description = "Golemlerin 1.000 iş bitirsin"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "Yorulmaz atölye"
+description = "Golemlerin 25.000 iş bitirsin"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "Sebatkâr hamallar"
+description = "Golemlerin 10.000 eşya teslim etsin"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "Sonsuz kervan"
+description = "Golemlerin 250.000 eşya teslim etsin"
+
 [advancement.challenge_golemancy_infusions_10]
 title = "Kaide çırağı"
 description = "Bir Animus Kaidesinde 10 aşılama tamamla"
