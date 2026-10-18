@@ -2306,6 +2306,36 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
+  void aPackedMasterworkKeepsItsDesignationInItsDormantGolemAndAwakensAsAMasterwork() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
+    ItemStack heart = mock(ItemStack.class);
+    items.when(GolemItems::masterworkHeart).thenReturn(heart);
+    registry.designate(handle, 1);
+
+    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+
+    assertThat(packing.snapshot().masterwork()).isTrue();
+    assertThat(GolemSnapshot.fromJson(packing.packed().state()).orElseThrow().masterwork()).isTrue();
+    items.verify(GolemItems::masterworkHeart, never());
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+    assertThat(roster.golem(handle.id()).orElseThrow().masterwork()).isTrue();
+    assertThat(roster.masterworkCount()).isEqualTo(1);
+
+    Location spot = at(30, 70, 30);
+    IronGolem body = golem(new AtomicReference<>(spot));
+    platform.spawns.add(body);
+    GolemHandle awakened = registry.awaken(owner, spot, new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), mob -> {
+    }).orElseThrow();
+
+    assertThat(awakened.state().masterwork()).isTrue();
+    assertThat(roster.golem(handle.id()).orElseThrow().masterwork()).isTrue();
+    assertThat(roster.masterworkCount()).isEqualTo(1);
+    items.verify(GolemItems::masterworkHeart, never());
+  }
+
+  @Test
   void aSightingCorrectsTheRosterMarkFromTheGolemsOwnState() {
     GolemRoster roster = onlineOwner();
     UUID stale = UUID.randomUUID();
