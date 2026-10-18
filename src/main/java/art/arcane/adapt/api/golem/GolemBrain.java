@@ -169,6 +169,9 @@ public final class GolemBrain {
     GolemBrainMachine.Senses senses = new GolemBrainMachine.Senses(now, mode, distance(here, ownerAt), sighting != null && sighting.grounded(),
         distance(here, home), distance(here, stayAnchor), target != null);
     GolemBrainMachine.Decision decision = machine.decide(senses, settings);
+    if (decision.state() == GolemBrainState.RETURN_HOME) {
+      worker.forgetWorkedNode();
+    }
     if (decision.dropTarget()) {
       combatTarget = null;
     }

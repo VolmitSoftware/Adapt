@@ -44,6 +44,7 @@ final class GolemWorker {
   private final Map<TaskKey, Long> taskBackoff = new HashMap<>();
   private final Map<GolemState.Anchor, Long> containerBackoff = new HashMap<>();
   private Player owner;
+  private Location home;
   private Job job;
   private Delivery delivery;
   private WorkedNode lastNode;
@@ -63,10 +64,11 @@ final class GolemWorker {
     this.cargo = new GolemCargo(handle);
   }
 
-  GolemBrainState pulse(long nowMillis, Location here, Player currentOwner, Location home, GolemBrainSettings brain) {
+  GolemBrainState pulse(long nowMillis, Location here, Player currentOwner, Location currentHome, GolemBrainSettings brain) {
     owner = currentOwner;
+    home = currentHome;
     pulseCapacity = -1;
-    if (!canWork(here, home, brain)) {
+    if (!canWork(here, brain)) {
       abandon();
       return null;
     }
@@ -88,11 +90,11 @@ final class GolemWorker {
     boolean full = carried > 0 && carried >= capacity();
     if (!full && nowMillis >= nextSeekAt) {
       nextSeekAt = nowMillis + SEEK_INTERVAL_MILLIS;
-      if (claim(nowMillis, here, home, settings) || seekCores(nowMillis)) {
+      if (claim(nowMillis, here, settings) || seekCores(nowMillis)) {
         return pursue(nowMillis, here, settings);
       }
     }
-    if (carried > 0 && nowMillis >= nextRouteAt && route(nowMillis, here, home, settings)) {
+    if (carried > 0 && nowMillis >= nextRouteAt && route(nowMillis, here, settings)) {
       return job != null ? pursue(nowMillis, here, settings) : deliver(nowMillis, here, settings);
     }
     if (full) {
@@ -102,13 +104,17 @@ final class GolemWorker {
   }
 
   void abandon() {
-    if (job != null && job.source == Source.BOARD) {
-      board(job.task.nodeKey().world()).release(job.task, handle.id());
+    if (job != null) {
+      releaseClaim(job);
     }
     job = null;
     delivery = null;
     arrived = false;
     stuck.reset();
+  }
+
+  void forgetWorkedNode() {
+    lastNode = null;
   }
 
   GolemHandle handle() {
@@ -138,6 +144,27 @@ final class GolemWorker {
     return pulseCapacity;
   }
 
+  Location home() {
+    return home;
+  }
+
+  double workRadius() {
+    return context.work().get().baseWorkRadius();
+  }
+
+  boolean inWorkRadius(UUID world, double x, double y, double z) {
+    Location center = home;
+    World centerWorld = center == null ? null : center.getWorld();
+    if (centerWorld == null || !centerWorld.getUID().equals(world)) {
+      return false;
+    }
+    double radius = workRadius();
+    double dx = x - center.getX();
+    double dy = y - center.getY();
+    double dz = z - center.getZ();
+    return dx * dx + dy * dy + dz * dz <= radius * radius;
+  }
+
   long arrivedAt(long nowMillis) {
     return job == null ? nowMillis : job.arrivedAt;
   }
@@ -146,16 +173,23 @@ final class GolemWorker {
     return job == null ? 0 : job.actIndex;
   }
 
-  boolean skips(GolemTask task) {
-    return taskBackoff.containsKey(task.key());
+  boolean skips(GolemTask task, long nowMillis) {
+    return taskBackoff.containsKey(task.key()) || board(task.target().world()).reservedByOther(task, handle.id(), nowMillis);
   }
 
   boolean renew(GolemTask leased, long nowMillis) {
-    NodeKey key = leased.nodeKey();
-    return key != null && board(key.world()).renew(leased, handle.id(), nowMillis, context.work().get().leaseMillis());
+    Job current = job;
+    if (current == null || current.task != leased) {
+      return false;
+    }
+    return switch (current.source) {
+      case BOARD -> board(leased.nodeKey().world()).renew(leased, handle.id(), nowMillis, context.work().get().leaseMillis());
+      case CORE -> keepReservation(leased, nowMillis);
+      case ROUTE -> false;
+    };
   }
 
-  private boolean canWork(Location here, Location home, GolemBrainSettings brain) {
+  private boolean canWork(Location here, GolemBrainSettings brain) {
     if (owner == null || home == null || here.getWorld() == null || !GolemWorkGate.canWork(handle)
         || !GolemancyRuntime.settings().allows(handle.body(), handle.core())) {
       return false;
@@ -167,11 +201,12 @@ final class GolemWorker {
     Job current = job;
     GolemTask task = current.task;
     World world = here.getWorld();
-    if (current.source == Source.BOARD && !task.heldBy(handle.id(), nowMillis)) {
+    if ((current.source == Source.BOARD && !task.heldBy(handle.id(), nowMillis))
+        || (current.source == Source.CORE && !keepReservation(task, nowMillis))) {
       dropJob();
       return null;
     }
-    NodeKey key = task.nodeKey();
+    NodeKey key = current.node == null ? null : current.node.key();
     NodeRecord record = null;
     if (key != null) {
       if (!world.getUID().equals(key.world())) {
@@ -205,8 +240,12 @@ final class GolemWorker {
       return current.moving();
     }
     if (!arrived) {
-      arrive(nowMillis);
-      current.arrivedAt = nowMillis;
+      arrive();
+      if (!current.reached) {
+        current.reached = true;
+        current.arrivedAt = nowMillis;
+        nextActAt = nowMillis;
+      }
     }
     if (nowMillis < nextActAt) {
       keepLease(current, nowMillis, settings);
@@ -220,23 +259,19 @@ final class GolemWorker {
       closeJob();
       return current.acting();
     }
-    act(current, record, nowMillis, settings);
+    act(current, key, record, nowMillis, settings);
     int carried = cargo.count();
     if (job == current && current.source != Source.ROUTE && carried > 0 && carried >= capacity()) {
-      if (current.source == Source.BOARD) {
-        board(key.world()).release(task, handle.id());
-      }
       dropJob();
     }
     return current.acting();
   }
 
-  private void act(Job current, NodeRecord record, long nowMillis, GolemWorkSettings settings) {
+  private void act(Job current, NodeKey key, NodeRecord record, long nowMillis, GolemWorkSettings settings) {
     GolemTask task = current.task;
-    NodeKey key = task.nodeKey();
     GolemContext golem = new GolemContext(this, new GolemContext.Scope(current.actor.policy(), task, record, current.core, nowMillis));
-    if (current.source == Source.BOARD) {
-      lastNode = new WorkedNode(key, task.nodeType().orElseThrow());
+    if (current.source != Source.ROUTE) {
+      lastNode = current.node;
     }
     GolemActResult result;
     try {
@@ -265,7 +300,7 @@ final class GolemWorker {
         dropJob();
       }
       case FAILED -> {
-        if (current.source == Source.ROUTE) {
+        if (current.source != Source.BOARD) {
           taskBackoff.put(task.key(), nowMillis + BACKOFF_MILLIS);
         }
         closeJob();
@@ -279,13 +314,13 @@ final class GolemWorker {
     }
   }
 
-  private boolean claim(long nowMillis, Location here, Location home, GolemWorkSettings settings) {
+  private boolean claim(long nowMillis, Location here, GolemWorkSettings settings) {
     GolemTaskBoard board = board(home.getWorld().getUID());
     GolemState state = handle.state();
     List<GolemCoreType> cores = state.cores();
     GolemTaskBoard.Seeker seeker = new GolemTaskBoard.Seeker(handle.id(), handle.owner(), cores, handle.body(), state.channels(),
         home.getX(), home.getY(), home.getZ(), settings.baseWorkRadius(), here.getX(), here.getY(), here.getZ());
-    Optional<GolemTask> claimed = board.claim(seeker, this::skips, nowMillis, settings.leaseMillis());
+    Optional<GolemTask> claimed = board.claim(seeker, candidate -> skips(candidate, nowMillis), nowMillis, settings.leaseMillis());
     if (claimed.isEmpty()) {
       return false;
     }
@@ -297,7 +332,8 @@ final class GolemWorker {
       taskBackoff.put(task.key(), nowMillis + BACKOFF_MILLIS);
       return false;
     }
-    start(new Job(task, behavior, Source.BOARD, GolemTaskMatch.consumer(nodeType, cores).orElse(handle.core())));
+    GolemCoreType consumer = GolemTaskMatch.consumer(nodeType, cores).orElse(handle.core());
+    start(new Job(task, behavior, Source.BOARD, consumer, new WorkedNode(task.nodeKey(), nodeType)));
     return true;
   }
 
@@ -315,12 +351,22 @@ final class GolemWorker {
         logFailure(null, failure);
         continue;
       }
-      if (found.isPresent() && !skips(found.get())) {
-        start(new Job(found.get(), behavior, Source.CORE, core));
+      if (found.isPresent() && reserveCoreJob(found.get(), nowMillis)) {
+        start(new Job(found.get(), behavior, Source.CORE, core, workedNode(found.get())));
         return true;
       }
     }
     return false;
+  }
+
+  private boolean reserveCoreJob(GolemTask task, long nowMillis) {
+    GolemTarget target = task.target();
+    return !skips(task, nowMillis) && inWorkRadius(target.world(), target.x(), target.y(), target.z())
+        && board(target.world()).reserve(task, handle.id(), nowMillis, GolemTaskBoard.RESERVATION_MILLIS);
+  }
+
+  private boolean keepReservation(GolemTask task, long nowMillis) {
+    return board(task.target().world()).keepReservation(task, handle.id(), nowMillis, GolemTaskBoard.RESERVATION_MILLIS);
   }
 
   private GolemBrainState deliver(long nowMillis, Location here, GolemWorkSettings settings) {
@@ -347,7 +393,7 @@ final class GolemWorker {
     }
     Block block = world.getBlockAt(chest.x(), chest.y(), chest.z());
     if (!arrived) {
-      arrive(nowMillis);
+      arrive();
       long interval = intervalMillis(GolemActor.DEFAULT_ACT_INTERVAL_TICKS);
       if (context.platform().owns(block.getLocation())) {
         controller.interact(block, (int) Math.max(1L, interval / TICK_MILLIS));
@@ -400,7 +446,7 @@ final class GolemWorker {
     golem.container(block).ifPresent(inventory -> golem.deliver(inventory, item -> true));
   }
 
-  private boolean route(long nowMillis, Location here, Location home, GolemWorkSettings settings) {
+  private boolean route(long nowMillis, Location here, GolemWorkSettings settings) {
     nextRouteAt = nowMillis + REROUTE_INTERVAL_MILLIS;
     List<ItemStack> items = cargo.items();
     if (items.isEmpty()) {
@@ -437,10 +483,10 @@ final class GolemWorker {
       logFailure(null, failure);
       return false;
     }
-    if (routed.isEmpty() || skips(routed.get())) {
+    if (routed.isEmpty() || skips(routed.get(), nowMillis)) {
       return false;
     }
-    start(new Job(routed.get(), behavior, Source.ROUTE, core));
+    start(new Job(routed.get(), behavior, Source.ROUTE, core, worked));
     return true;
   }
 
@@ -520,12 +566,11 @@ final class GolemWorker {
     stuck.reset();
   }
 
-  private void arrive(long nowMillis) {
+  private void arrive() {
     arrived = true;
     stuck.reset();
     stuckReleases = 0;
     controller.stop();
-    nextActAt = nowMillis;
   }
 
   private void keepLease(Job current, long nowMillis, GolemWorkSettings settings) {
@@ -555,11 +600,7 @@ final class GolemWorker {
   }
 
   private void giveUp(long nowMillis, boolean stuckRelease) {
-    GolemTask task = job.task;
-    if (job.source == Source.BOARD) {
-      board(task.nodeKey().world()).release(task, handle.id());
-    }
-    taskBackoff.put(task.key(), nowMillis + BACKOFF_MILLIS);
+    taskBackoff.put(job.task.key(), nowMillis + BACKOFF_MILLIS);
     if (stuckRelease) {
       stuckReleases++;
     }
@@ -570,14 +611,25 @@ final class GolemWorker {
     if (job.source == Source.BOARD) {
       board(job.task.nodeKey().world()).withdraw(job.task);
     }
+    lastNode = null;
     dropJob();
   }
 
   private void dropJob() {
+    releaseClaim(job);
     job = null;
     arrived = false;
     stuck.reset();
     controller.stop();
+  }
+
+  private void releaseClaim(Job current) {
+    switch (current.source) {
+      case BOARD -> board(current.task.nodeKey().world()).release(current.task, handle.id());
+      case CORE -> board(current.task.target().world()).releaseReservation(current.task, handle.id());
+      case ROUTE -> {
+      }
+    }
   }
 
   private void pauseIfTrapped(long nowMillis, GolemWorkSettings settings) {
@@ -607,6 +659,11 @@ final class GolemWorker {
 
   private GolemTaskBoard board(UUID world) {
     return context.boards().apply(world);
+  }
+
+  private static WorkedNode workedNode(GolemTask task) {
+    NodeKey key = task.nodeKey();
+    return key == null ? null : new WorkedNode(key, task.nodeType().orElseThrow());
   }
 
   private long intervalMillis(int ticks) {
@@ -640,14 +697,17 @@ final class GolemWorker {
     private final GolemActor actor;
     private final Source source;
     private final GolemCoreType core;
+    private final WorkedNode node;
+    private boolean reached;
     private long arrivedAt;
     private int actIndex;
 
-    private Job(GolemTask task, GolemActor actor, Source source, GolemCoreType core) {
+    private Job(GolemTask task, GolemActor actor, Source source, GolemCoreType core, WorkedNode node) {
       this.task = task;
       this.actor = actor;
       this.source = source;
       this.core = core;
+      this.node = node;
     }
 
     private GolemBrainState moving() {

@@ -40,6 +40,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.lenient;
@@ -813,6 +814,263 @@ class GolemWorkerTest extends AdaptTestBase {
     assertThat(calls[0]).isEqualTo(1);
   }
 
+  @Test
+  void aCoreWhoseSeekKeepsReturningAFailedTargetBacksItOffForTenSeconds() {
+    List<Long> acts = new ArrayList<>();
+    coreSeeker(golem -> Optional.of(GolemTask.builder("pickup", GolemTarget.block(WORLD, 1, 64, 0)).build()), (golem, task) -> {
+      acts.add(platform.now);
+      return GolemActResult.FAILED;
+    });
+    brain.start();
+
+    platform.runDelayed();
+    for (int i = 0; i < 9; i++) {
+      pulse(1_000L);
+    }
+    assertThat(acts).hasSize(1);
+    pulse(1_000L);
+
+    assertThat(acts).hasSize(2);
+    assertThat(acts.get(1) - acts.get(0)).isEqualTo(10_000L);
+  }
+
+  @Test
+  void deliveringKeepsUntriedItemsWhenTheFilterThrows() {
+    Inventory stash = chest(0, 64, -2, 27);
+    brain.handle().setCarriedEncoded(List.of(platform.encodeItem(GolemTestItems.stack(Material.WHEAT, 10)),
+        platform.encodeItem(GolemTestItems.stack(Material.CARROT, 10)), platform.encodeItem(GolemTestItems.stack(Material.POTATO, 10))));
+    collector((golem, task) -> {
+      Inventory inventory = golem.container(world.getBlockAt(0, 64, -2)).orElseThrow();
+      assertThatThrownBy(() -> golem.deliver(inventory, item -> {
+        if (item.getType() == Material.CARROT) {
+          throw new IllegalStateException("filter refused");
+        }
+        return true;
+      })).isInstanceOf(IllegalStateException.class);
+      return GolemActResult.DONE;
+    });
+    collectionNode(3);
+    board.offer(pickup(1, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(GolemTestItems.count(stash, Material.WHEAT)).isEqualTo(10);
+    assertThat(carried(Material.WHEAT)).isZero();
+    assertThat(carried(Material.CARROT)).isEqualTo(10);
+    assertThat(carried(Material.POTATO)).isEqualTo(10);
+  }
+
+  @Test
+  void aNodelessRouteJobActsWithTheRoutingNodesRecord() {
+    chest(0, 64, -5, 27);
+    List<Optional<NodeRecord>> routedNodes = new ArrayList<>();
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      if (task.type().equals("pickup")) {
+        golem.carry(GolemTestItems.stack(Material.WHEAT, 10));
+        return GolemActResult.DONE;
+      }
+      routedNodes.add(golem.node());
+      return GolemActResult.DONE;
+    });
+    behavior.route = (golem, carried) -> Optional.of(GolemTask.builder("stash", GolemTarget.block(WORLD, 0, 64, -5)).build());
+    collectionNode(3);
+    board.offer(pickup(1, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    pulse(1_000L);
+    position.set(at(0, 64, -4));
+    pulse(250L);
+
+    assertThat(routedNodes).singleElement().satisfies(node -> assertThat(node).containsSame(platform.nodes.get(COLLECTION)));
+  }
+
+  @Test
+  void coreJobPickupsRouteByTheDefaultRouteNotByAnEarlierBoardNode() {
+    homeChest(27);
+    List<String> routed = new ArrayList<>();
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      golem.carry(GolemTestItems.stack(Material.WHEAT, 5));
+      return GolemActResult.DONE;
+    });
+    behavior.route = (golem, carried) -> {
+      routed.add("node");
+      return Optional.empty();
+    };
+    int[] seeks = new int[1];
+    coreSeeker(golem -> seeks[0]++ == 0 ? Optional.of(GolemTask.builder("gather", GolemTarget.block(WORLD, 1, 64, 1)).build()) : Optional.empty(),
+        (golem, task) -> {
+          golem.carry(GolemTestItems.stack(Material.CARROT, 5));
+          return GolemActResult.DONE;
+        });
+    collectionNode(3);
+    board.offer(pickup(1, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    pulse(1_000L);
+    assertThat(carried(Material.CARROT)).isEqualTo(5);
+    pulse(1_000L);
+
+    assertThat(routed).isEmpty();
+    assertThat(controller.lastMove()).isEqualTo("-5.5,64.5,0.5");
+  }
+
+  @Test
+  void aJobThatClosesForgetsItsNodeForRouting() {
+    homeChest(27);
+    List<String> routed = new ArrayList<>();
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      if (golem.actIndex() == 0) {
+        golem.carry(GolemTestItems.stack(Material.WHEAT, 5));
+        return GolemActResult.WORKING;
+      }
+      return GolemActResult.FAILED;
+    });
+    behavior.route = (golem, carried) -> {
+      routed.add("node");
+      return Optional.empty();
+    };
+    collectionNode(3);
+    GolemTask task = pickup(1, 64, 0);
+    board.offer(task, 16);
+    brain.start();
+
+    platform.runDelayed();
+    pulse(1_000L);
+    assertThat(task.isClosed()).isTrue();
+    pulse(1_000L);
+
+    assertThat(routed).isEmpty();
+    assertThat(controller.lastMove()).isEqualTo("-5.5,64.5,0.5");
+  }
+
+  @Test
+  void walkingBackHomeForgetsTheLastWorkedNode() {
+    List<Long> routed = new ArrayList<>();
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      golem.carry(GolemTestItems.stack(Material.WHEAT, 5));
+      return GolemActResult.DONE;
+    });
+    behavior.route = (golem, carried) -> {
+      routed.add(platform.now);
+      return Optional.empty();
+    };
+    collectionNode(3);
+    position.set(at(12, 64, 0));
+    board.offer(pickup(13, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    for (int i = 0; i < 40; i++) {
+      pulse(250L);
+    }
+    assertThat(brain.state()).isEqualTo(GolemBrainState.RETURN_HOME);
+    assertThat(routed).isNotEmpty();
+    int beforeReturn = routed.size();
+    for (int i = 0; i < 24; i++) {
+      pulse(250L);
+    }
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.RETURN_HOME);
+    assertThat(routed).hasSize(beforeReturn);
+  }
+
+  @Test
+  void aCoreJobIsReservedBeforeWalkingAndReleasedWhenItEnds() {
+    List<String> acts = new ArrayList<>();
+    coreSeeker(golem -> Optional.of(gather(8)), (golem, task) -> {
+      acts.add(task.type());
+      return GolemActResult.DONE;
+    });
+    UUID rival = UUID.randomUUID();
+    brain.start();
+
+    platform.runDelayed();
+    assertThat(brain.state()).isEqualTo(GolemBrainState.MOVE);
+    assertThat(board.reservedByOther(gather(8), rival, platform.now)).isTrue();
+    for (int step = 1; step <= 10; step++) {
+      position.set(new Location(world, 0.5D + step * 0.5D, 64D, 0.5D));
+      pulse(1_000L);
+    }
+    assertThat(brain.state()).isEqualTo(GolemBrainState.MOVE);
+    assertThat(board.reservedByOther(gather(8), rival, platform.now)).isTrue();
+    position.set(at(7, 64, 0));
+    pulse(250L);
+
+    assertThat(acts).containsExactly("gather");
+    assertThat(board.reservedByOther(gather(8), rival, platform.now)).isFalse();
+    assertThat(board.reserve(gather(8), rival, platform.now, GolemTaskBoard.RESERVATION_MILLIS)).isTrue();
+  }
+
+  @Test
+  void aCoreTargetReservedByAnotherGolemIsSkipped() {
+    List<Boolean> skipped = new ArrayList<>();
+    List<String> acts = new ArrayList<>();
+    assertThat(board.reserve(gather(1), UUID.randomUUID(), platform.now, GolemTaskBoard.RESERVATION_MILLIS)).isTrue();
+    coreSeeker(golem -> {
+      GolemTask candidate = gather(1);
+      skipped.add(golem.skips(candidate));
+      return Optional.of(candidate);
+    }, (golem, task) -> {
+      acts.add(task.type());
+      return GolemActResult.DONE;
+    });
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(skipped).containsExactly(true);
+    assertThat(acts).isEmpty();
+    assertThat(brain.state()).isEqualTo(GolemBrainState.SEEK);
+  }
+
+  @Test
+  void coreTargetsBeyondTheWorkRadiusOfHomeAreIgnored() {
+    List<String> seen = new ArrayList<>();
+    coreSeeker(golem -> {
+      Location home = golem.home();
+      seen.add(home.getBlockX() + "," + home.getBlockY() + "," + home.getBlockZ() + " r" + golem.workRadius());
+      seen.add(golem.inWorkRadius(at(23, 64, 0)) + "," + golem.inWorkRadius(at(25, 64, 0)));
+      return Optional.of(gather(25));
+    }, (golem, task) -> GolemActResult.DONE);
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(seen).containsExactly("0,64,0 r24.0", "true,false");
+    assertThat(brain.state()).isEqualTo(GolemBrainState.SEEK);
+  }
+
+  @Test
+  void walkingOffAndBackKeepsTheActPaceAndTheFirstArrivalTime() {
+    List<Long> actedAt = new ArrayList<>();
+    List<Long> arrivals = new ArrayList<>();
+    collector((golem, task) -> {
+      actedAt.add(platform.now);
+      arrivals.add(golem.arrivedAtMillis());
+      return GolemActResult.WORKING;
+    });
+    collectionNode(3);
+    board.offer(pickup(1, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    long arrival = platform.now;
+    position.set(at(5, 64, 0));
+    pulse(250L);
+    position.set(at(0, 64, 0));
+    pulse(250L);
+    assertThat(actedAt).containsExactly(arrival);
+    pulse(250L);
+    assertThat(actedAt).containsExactly(arrival);
+    pulse(250L);
+
+    assertThat(actedAt).containsExactly(arrival, arrival + 1_000L);
+    assertThat(arrivals).containsOnly(arrival);
+  }
+
   private GolemBrain gatherer() {
     IronGolem golem = GolemTestEntities.entity(IronGolem.class);
     lenient().when(golem.getLocation()).thenAnswer(invocation -> position.get().clone());
@@ -866,6 +1124,10 @@ class GolemWorkerTest extends AdaptTestBase {
     DepositBehavior behavior = new DepositBehavior(nodePolicy);
     NodeBehaviors.register(NodeType.DEPOSIT, behavior);
     registered.add(behavior);
+  }
+
+  private static GolemTask gather(int x) {
+    return GolemTask.builder("gather", GolemTarget.block(WORLD, x, 64, 0)).build();
   }
 
   private static GolemTask pickup(int x, int y, int z) {

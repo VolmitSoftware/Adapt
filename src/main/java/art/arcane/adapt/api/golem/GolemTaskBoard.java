@@ -19,6 +19,7 @@ import java.util.function.Predicate;
 
 public final class GolemTaskBoard {
   public static final long ACTIVITY_MILLIS = 10_000L;
+  public static final long RESERVATION_MILLIS = 5_000L;
 
   private static final long PURGE_INTERVAL_MILLIS = 5_000L;
   private static final Comparator<Candidate> ORDER = Comparator.comparingInt(Candidate::priority).reversed()
@@ -29,6 +30,7 @@ public final class GolemTaskBoard {
   private final Map<NodeKey, NodeTasks> tasks = new ConcurrentHashMap<>();
   private final Map<Long, Set<NodeKey>> chunks = new ConcurrentHashMap<>();
   private final Map<NodeKey, Activity> activity = new ConcurrentHashMap<>();
+  private final Map<TaskKey, GolemTask> reservations = new ConcurrentHashMap<>();
   private final AtomicLong nextPurgeAt = new AtomicLong();
   private volatile int reach;
 
@@ -145,6 +147,45 @@ public final class GolemTaskBoard {
     return true;
   }
 
+  public boolean reserve(GolemTask task, UUID golem, long nowMillis, long leaseMillis) {
+    purgeIfDue(nowMillis);
+    boolean[] won = new boolean[1];
+    reservations.compute(task.key(), (key, held) -> {
+      GolemTask holder = held == null || held.isClosed() ? task : held;
+      won[0] = holder.tryClaim(golem, nowMillis, leaseMillis);
+      return holder;
+    });
+    return won[0];
+  }
+
+  public boolean keepReservation(GolemTask task, UUID golem, long nowMillis, long leaseMillis) {
+    GolemTask held = reservations.get(task.key());
+    if (held == null || !held.heldBy(golem, nowMillis)) {
+      return false;
+    }
+    return held.leaseRemaining(nowMillis) >= leaseMillis / 2L || held.renew(golem, nowMillis, leaseMillis);
+  }
+
+  public boolean releaseReservation(GolemTask task, UUID golem) {
+    boolean[] released = new boolean[1];
+    reservations.computeIfPresent(task.key(), (key, held) -> {
+      if (!held.release(golem)) {
+        return held;
+      }
+      released[0] = true;
+      return null;
+    });
+    return released[0];
+  }
+
+  public boolean reservedByOther(GolemTask task, UUID golem, long nowMillis) {
+    if (reservations.isEmpty()) {
+      return false;
+    }
+    GolemTask held = reservations.get(task.key());
+    return held != null && held.heldByAnyone(nowMillis) && !held.holderIs(golem);
+  }
+
   public void markWorked(NodeKey node, long nowMillis) {
     activity.computeIfAbsent(node, ignored -> new Activity()).workedAt = nowMillis;
   }
@@ -195,6 +236,9 @@ public final class GolemTaskBoard {
       });
     }
     activity.entrySet().removeIf(entry -> nodes.apply(entry.getKey()).isEmpty());
+    for (TaskKey key : reservations.keySet()) {
+      reservations.computeIfPresent(key, (ignored, held) -> held.heldByAnyone(nowMillis) ? held : null);
+    }
   }
 
   public void purgeIfDue(long nowMillis) {

@@ -73,7 +73,20 @@ public final class GolemContext {
   }
 
   public boolean skips(GolemTask task) {
-    return worker.skips(task);
+    return worker.skips(task, scope.nowMillis());
+  }
+
+  public Location home() {
+    return worker.home().clone();
+  }
+
+  public double workRadius() {
+    return worker.workRadius();
+  }
+
+  public boolean inWorkRadius(Location location) {
+    World at = location.getWorld();
+    return at != null && worker.inWorkRadius(at.getUID(), location.getX(), location.getY(), location.getZ());
   }
 
   public boolean owns(Location location) {
@@ -148,11 +161,13 @@ public final class GolemContext {
     boolean touched = false;
     try {
       while (next < items.size()) {
-        ItemStack item = items.get(next++);
+        ItemStack item = items.get(next);
         if (!accepts.test(item)) {
           remaining.add(item);
+          next++;
           continue;
         }
+        next++;
         touched = true;
         int left = 0;
         for (ItemStack leftover : inventory.addItem(item.clone()).values()) {

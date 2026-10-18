@@ -37,6 +37,7 @@ class GolemTaskBoardTest {
   private static final UUID GOLEM = UUID.fromString("00000000-0000-0000-0000-0000000000b1");
   private static final UUID RIVAL = UUID.fromString("00000000-0000-0000-0000-0000000000b2");
   private static final long LEASE = 20_000L;
+  private static final long RESERVATION = GolemTaskBoard.RESERVATION_MILLIS;
 
   private final Map<NodeKey, NodeRecord> nodes = new HashMap<>();
   private GolemTaskBoard board;
@@ -401,6 +402,110 @@ class GolemTaskBoardTest {
     assertThat(board.claim(seeker(GOLEM), ignored -> false, now, LEASE)).containsSame(replacement);
   }
 
+  @Test
+  void theItemPayloadIdentityIgnoresTheStackAmount() {
+    NodeKey node = harvestNode(0, 64, 0, null, 3);
+    AtomicInteger hashes = new AtomicInteger();
+
+    assertThat(board.offer(sort(node, new PayloadStack(Material.WHEAT, 5, hashes)), 16)).isEqualTo(GolemTaskBoard.Offer.ADDED);
+    assertThat(board.offer(sort(node, new PayloadStack(Material.WHEAT, 9, hashes)), 16)).isEqualTo(GolemTaskBoard.Offer.EXISTS);
+    assertThat(board.offer(sort(node, new PayloadStack(Material.CARROT, 5, hashes)), 16)).isEqualTo(GolemTaskBoard.Offer.ADDED);
+    assertThat(board.openCount(node)).isEqualTo(2);
+  }
+
+  @Test
+  void aTaskKeyHashesItsItemAtMostOnce() {
+    NodeKey node = harvestNode(0, 64, 0, null, 3);
+    AtomicInteger hashes = new AtomicInteger();
+    GolemTask task = sort(node, new PayloadStack(Material.WHEAT, 5, hashes));
+
+    for (int i = 0; i < 5; i++) {
+      board.offer(task, 16);
+    }
+    board.withdraw(task);
+
+    assertThat(hashes.get()).isLessThanOrEqualTo(1);
+  }
+
+  @Test
+  void aReservationKeepsOtherGolemsOffItsKeyUntilItIsReleased() {
+    GolemTask mine = loose(4);
+    GolemTask theirs = loose(4);
+
+    assertThat(board.reserve(mine, GOLEM, now, RESERVATION)).isTrue();
+    assertThat(board.reserve(mine, GOLEM, now, RESERVATION)).isTrue();
+    assertThat(board.reserve(theirs, RIVAL, now + 1_000L, RESERVATION)).isFalse();
+    assertThat(board.reservedByOther(theirs, RIVAL, now + 1_000L)).isTrue();
+    assertThat(board.reservedByOther(mine, GOLEM, now + 1_000L)).isFalse();
+    assertThat(board.reservedByOther(loose(5), RIVAL, now + 1_000L)).isFalse();
+    assertThat(board.releaseReservation(theirs, RIVAL)).isFalse();
+    assertThat(board.releaseReservation(mine, GOLEM)).isTrue();
+
+    assertThat(board.reservedByOther(theirs, RIVAL, now + 1_000L)).isFalse();
+    assertThat(board.reserve(theirs, RIVAL, now + 1_000L, RESERVATION)).isTrue();
+  }
+
+  @Test
+  void keepingAReservationRenewsItAndALapsedOneGoesToTheNextGolem() {
+    GolemTask mine = loose(4);
+    GolemTask theirs = loose(4);
+    board.reserve(mine, GOLEM, now, RESERVATION);
+
+    assertThat(board.keepReservation(mine, GOLEM, now + 3_000L, RESERVATION)).isTrue();
+    assertThat(board.keepReservation(mine, GOLEM, now + 7_000L, RESERVATION)).isTrue();
+    assertThat(board.reserve(theirs, RIVAL, now + 11_000L, RESERVATION)).isFalse();
+    assertThat(board.keepReservation(theirs, RIVAL, now + 11_000L, RESERVATION)).isFalse();
+
+    long lapsed = now + 12_000L;
+    assertThat(board.reservedByOther(theirs, RIVAL, lapsed)).isFalse();
+    assertThat(board.reserve(theirs, RIVAL, lapsed, RESERVATION)).isTrue();
+    assertThat(board.keepReservation(mine, GOLEM, lapsed, RESERVATION)).isFalse();
+    assertThat(board.releaseReservation(mine, GOLEM)).isFalse();
+    assertThat(board.reservedByOther(mine, GOLEM, lapsed)).isTrue();
+  }
+
+  @Test
+  void concurrentReservationsOfOneKeyHaveExactlyOneWinner() throws Exception {
+    int contenders = 16;
+    ExecutorService pool = Executors.newFixedThreadPool(contenders);
+    CountDownLatch start = new CountDownLatch(1);
+    AtomicInteger winners = new AtomicInteger();
+    List<Future<?>> futures = new ArrayList<>(contenders);
+    try {
+      for (int i = 0; i < contenders; i++) {
+        UUID golem = new UUID(9L, i);
+        GolemTask task = loose(4);
+        futures.add(pool.submit(() -> {
+          start.await();
+          if (board.reserve(task, golem, now, RESERVATION)) {
+            winners.incrementAndGet();
+          }
+          return null;
+        }));
+      }
+      start.countDown();
+      for (Future<?> future : futures) {
+        future.get(10, TimeUnit.SECONDS);
+      }
+    } finally {
+      pool.shutdownNow();
+    }
+
+    assertThat(winners).hasValue(1);
+  }
+
+  @Test
+  void purgingKeepsLiveReservations() {
+    board.reserve(loose(4), GOLEM, now, RESERVATION);
+    board.reserve(loose(5), GOLEM, now + 4_000L, RESERVATION);
+
+    board.purge(now + 6_000L);
+
+    assertThat(board.reservedByOther(loose(5), RIVAL, now + 6_000L)).isTrue();
+    assertThat(board.reservedByOther(loose(4), RIVAL, now + 6_000L)).isFalse();
+    assertThat(board.reserve(loose(4), RIVAL, now + 6_000L, RESERVATION)).isTrue();
+  }
+
   private NodeKey harvestNode(int x, int y, int z, DyeColor channel, int priority) {
     return node(NodeType.HARVEST, OWNER, x, y, z, channel, priority);
   }
@@ -413,6 +518,10 @@ class GolemTaskBoardTest {
 
   private static GolemTask crop(NodeKey node, int x, int y, int z) {
     return GolemTask.builder(node, NodeType.HARVEST, "harvest", GolemTarget.block(WORLD, x, y, z)).build();
+  }
+
+  private static GolemTask loose(int x) {
+    return GolemTask.builder("gather", GolemTarget.block(WORLD, x, 64, 0)).build();
   }
 
   private static GolemTask sort(NodeKey node, ItemStack item) {
@@ -450,5 +559,53 @@ class GolemTaskBoardTest {
       xs.add(task.target().blockX());
     }
     return xs;
+  }
+
+  private static final class PayloadStack extends ItemStack {
+    private final Material material;
+    private final AtomicInteger hashes;
+    private int count;
+
+    private PayloadStack(Material material, int count, AtomicInteger hashes) {
+      this.material = material;
+      this.count = count;
+      this.hashes = hashes;
+    }
+
+    @Override
+    public Material getType() {
+      return material;
+    }
+
+    @Override
+    public int getAmount() {
+      return count;
+    }
+
+    @Override
+    public void setAmount(int amount) {
+      count = amount;
+    }
+
+    @Override
+    public ItemStack clone() {
+      return new PayloadStack(material, count, hashes);
+    }
+
+    @Override
+    public boolean isSimilar(ItemStack other) {
+      return other instanceof PayloadStack stack && stack.material == material;
+    }
+
+    @Override
+    public boolean equals(Object other) {
+      return other instanceof PayloadStack stack && stack.count == count && isSimilar(stack);
+    }
+
+    @Override
+    public int hashCode() {
+      hashes.incrementAndGet();
+      return 31 * material.hashCode() + count;
+    }
   }
 }
