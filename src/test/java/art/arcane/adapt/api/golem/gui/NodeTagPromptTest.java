@@ -3,11 +3,14 @@ package art.arcane.adapt.api.golem.gui;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.golem.node.NodeItemTags;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeTagLookup;
 import art.arcane.adapt.util.common.scheduling.J;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -165,6 +168,24 @@ class NodeTagPromptTest extends AdaptTestBase {
 
     verify(chat).setCancelled(true);
     assertThat(applied.get()).isNotNull();
+  }
+
+  @Test
+  void unknownTagsTypedInChatAreNeverCached() {
+    NodeItemTags.shared().clear();
+    NamespacedKey unknown = NamespacedKey.minecraft("not_a_tag");
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      NodeTagPrompt shared = new NodeTagPrompt(NodeItemTags.shared());
+      shared.begin(player, KEY);
+
+      shared.on(chat("#not_a_tag"));
+      shared.on(chat("#not_a_tag"));
+
+      bukkit.verify(() -> Bukkit.getTag(eq("items"), eq(unknown), eq(Material.class)), times(2));
+      assertThat(applied.get()).isNull();
+    } finally {
+      NodeItemTags.shared().clear();
+    }
   }
 
   private AsyncPlayerChatEvent chat(String message) {

@@ -40,12 +40,13 @@ class NodeItemTagsTest {
   }
 
   @Test
-  void knownAndMissingTagsAreEachLookedUpOnce() {
+  void matchingLooksUpKnownAndMissingTagsOnce() {
     NodeItemTags tags = NodeItemTags.shared();
 
     assertThat(tags.tagged("#minecraft:logs", Material.OAK_LOG)).isTrue();
     assertThat(tags.tagged("#minecraft:logs", Material.STONE)).isFalse();
-    assertThat(tags.exists("#minecraft:missing")).isFalse();
+    assertThat(tags.exists("#minecraft:logs")).isTrue();
+    assertThat(tags.tagged("#minecraft:missing", Material.STONE)).isFalse();
     assertThat(tags.tagged("#minecraft:missing", Material.STONE)).isFalse();
 
     bukkit.verify(() -> Bukkit.getTag(eq(ITEMS), eq(LOGS), eq(Material.class)), times(1));
@@ -53,14 +54,27 @@ class NodeItemTagsTest {
   }
 
   @Test
-  void aResourceReloadClearsTheCache() {
+  void validatingNeverCachesAMissingTag() {
     NodeItemTags tags = NodeItemTags.shared();
-    tags.exists("#minecraft:missing");
 
-    new NodeItemTags.ReloadListener().on(mock(ServerResourcesReloadedEvent.class));
-    tags.exists("#minecraft:missing");
+    assertThat(tags.exists("#minecraft:missing")).isFalse();
+    assertThat(tags.exists("#minecraft:missing")).isFalse();
+    assertThat(tags.exists("#minecraft:logs")).isTrue();
+    assertThat(tags.tagged("#minecraft:logs", Material.OAK_LOG)).isTrue();
 
     bukkit.verify(() -> Bukkit.getTag(eq(ITEMS), eq(MISSING), eq(Material.class)), times(2));
+    bukkit.verify(() -> Bukkit.getTag(eq(ITEMS), eq(LOGS), eq(Material.class)), times(1));
+  }
+
+  @Test
+  void aResourceReloadClearsTheCache() {
+    NodeItemTags tags = NodeItemTags.shared();
+    tags.exists("#minecraft:logs");
+
+    new NodeItemTags.ReloadListener().on(mock(ServerResourcesReloadedEvent.class));
+    tags.exists("#minecraft:logs");
+
+    bukkit.verify(() -> Bukkit.getTag(eq(ITEMS), eq(LOGS), eq(Material.class)), times(2));
   }
 
   private record FakeItemTag(NamespacedKey key, Set<Material> values) implements Tag<Material> {

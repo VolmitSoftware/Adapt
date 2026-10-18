@@ -26,7 +26,13 @@ public final class NodeItemTags implements NodeTagLookup {
 
   @Override
   public boolean exists(String tag) {
-    return resolve(tag).isPresent();
+    Optional<Tag<Material>> cached = tags.get(tag);
+    if (cached != null) {
+      return cached.isPresent();
+    }
+    Optional<Tag<Material>> resolved = lookup(tag);
+    resolved.ifPresent(found -> tags.putIfAbsent(tag, resolved));
+    return resolved.isPresent();
   }
 
   @Override
