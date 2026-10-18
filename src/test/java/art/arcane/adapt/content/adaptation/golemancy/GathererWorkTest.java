@@ -729,7 +729,7 @@ class GathererWorkTest {
   private void tide(double bonus) {
     GolemRunes.Augments fixed = new GolemRunes.Augments() {
       @Override
-      public GolemRuneLayout layout(GolemBody body, UUID owner) {
+      public GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
         return GolemRuneLayout.NONE;
       }
 

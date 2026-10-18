@@ -3534,6 +3534,23 @@
     },
     {
       "skill": "golemancy",
+      "name": "golem-masterwork",
+      "class": "GolemMasterwork",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemMasterwork.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "tick"
+      ],
+      "expectation": "Infuse a Masterwork Heart at the Animus Plinth and slot it into a golem for an extra rune slot, more health, a second core and stronger runes.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemMasterwork.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
       "name": "golem-mending",
       "class": "GolemMending",
       "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemMending.java",

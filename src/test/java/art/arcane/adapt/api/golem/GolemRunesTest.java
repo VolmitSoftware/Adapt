@@ -37,7 +37,7 @@ class GolemRunesTest extends AdaptTestBase {
 
     assertThat(GolemRunes.augments()).isEmpty();
     assertThat(GolemRunes.effects(handle)).isEqualTo(GolemRuneEffects.NONE);
-    assertThat(GolemRunes.layout(GolemBody.IRON, OWNER)).isEqualTo(GolemRuneLayout.NONE);
+    assertThat(GolemRunes.layout(GolemBody.IRON, OWNER, false)).isEqualTo(GolemRuneLayout.NONE);
     assertThat(GolemRunes.channels(handle)).isEqualTo(ChannelMask.of(DyeColor.WHITE));
   }
 
@@ -48,7 +48,7 @@ class GolemRunesTest extends AdaptTestBase {
     GolemHandle handle = handle(ChannelMask.of(DyeColor.WHITE, DyeColor.LIME, DyeColor.RED));
 
     assertThat(GolemRunes.effects(handle).radiusBonus()).isEqualTo(4D);
-    assertThat(GolemRunes.layout(GolemBody.IRON, OWNER)).isSameAs(iron);
+    assertThat(GolemRunes.layout(GolemBody.IRON, OWNER, false)).isSameAs(iron);
     assertThat(GolemRunes.channels(handle)).isEqualTo(ChannelMask.of(DyeColor.WHITE, DyeColor.LIME));
   }
 
@@ -107,7 +107,7 @@ class GolemRunesTest extends AdaptTestBase {
     }
 
     @Override
-    public GolemRuneLayout layout(GolemBody body, UUID owner) {
+    public GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
       return layout;
     }
 

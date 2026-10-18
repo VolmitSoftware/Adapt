@@ -18,6 +18,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -1673,6 +1674,252 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(snapshot.copperStage()).isEqualTo(2);
     assertThat(snapshot.waxed()).isTrue();
     assertThat(snapshot.takenAt()).isEqualTo(platform.now);
+  }
+
+  @Test
+  void designatingAMasterworkSavesTheRosterMarkBeforeTheGolemChanges() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
+    List<String> order = new ArrayList<>();
+    platform.rosterListener = changed -> order.add("save roster=" + roster.golem(handle.id()).orElseThrow().masterwork() + " golem=" + handle.state().masterwork());
+    int savesBefore = platform.changes(OWNER);
+
+    assertThat(registry.designate(handle, 1)).isEqualTo(GolemRegistry.Designation.DESIGNATED);
+
+    assertThat(order).containsExactly("save roster=true golem=false");
+    assertThat(platform.changes(OWNER)).isEqualTo(savesBefore + 1);
+    assertThat(handle.state().masterwork()).isTrue();
+    assertThat(GolemState.read(golem).orElseThrow().masterwork()).isTrue();
+    assertThat(roster.golem(handle.id()).orElseThrow().masterwork()).isTrue();
+    assertThat(registry.masterworks(OWNER)).isEqualTo(1);
+  }
+
+  @Test
+  void theMasterworkCapCountsUnloadedPackedAndShatteredMasterworks() {
+    GolemRoster roster = onlineOwner();
+    UUID packed = UUID.randomUUID();
+    UUID unloaded = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(packed, GolemBody.COPPER, GolemCoreType.BLANK, WORLD, GolemRoster.chunkKey(40, 40), 0L));
+    roster.add(new GolemRoster.Binding(unloaded, GolemBody.FROST, GolemCoreType.BLANK, WORLD, GolemRoster.chunkKey(-40, 40), 0L));
+    roster.markMasterwork(packed, true);
+    roster.stow(packed, GolemRoster.Status.PACKED, "packed");
+    GolemHandle handle = registry.bind(owner, golem(new AtomicReference<>(at(0, 64, 0))), GolemBody.IRON, GolemCoreType.GUARDIAN);
+
+    assertThat(registry.designate(handle, 1)).isEqualTo(GolemRegistry.Designation.CAP);
+    assertThat(handle.state().masterwork()).isFalse();
+    assertThat(roster.golem(handle.id()).orElseThrow().masterwork()).isFalse();
+
+    roster.markMasterwork(unloaded, true);
+    assertThat(registry.designate(handle, 2)).isEqualTo(GolemRegistry.Designation.CAP);
+    assertThat(registry.masterworks(OWNER)).isEqualTo(2);
+    assertThat(registry.designate(handle, 3)).isEqualTo(GolemRegistry.Designation.DESIGNATED);
+    assertThat(registry.masterworks(OWNER)).isEqualTo(3);
+  }
+
+  @Test
+  void designationIsRefusedForBoneBodiesTwiceWithoutTheLevelOrWithoutTheRoster() {
+    GolemRoster roster = onlineOwner();
+    GolemHandle handle = registry.bind(owner, golem(new AtomicReference<>(at(0, 64, 0))), GolemBody.IRON, GolemCoreType.GUARDIAN);
+    Skeleton skeleton = GolemTestEntities.entity(Skeleton.class);
+    GolemHandle bone = new GolemHandle(skeleton, GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, GolemBody.BONE, GolemCoreType.GUARDIAN,
+        GolemState.Anchor.of(WORLD, 0, 64, 0))), platform);
+
+    assertThat(registry.designate(bone, 1)).isEqualTo(GolemRegistry.Designation.BODY);
+    assertThat(registry.designate(handle, 0)).isEqualTo(GolemRegistry.Designation.LOCKED);
+    platform.rosters.remove(OWNER);
+    assertThat(registry.designate(handle, 1)).isEqualTo(GolemRegistry.Designation.UNAVAILABLE);
+    platform.rosters.put(OWNER, roster);
+    assertThat(registry.designate(handle, 1)).isEqualTo(GolemRegistry.Designation.DESIGNATED);
+    assertThat(registry.designate(handle, 2)).isEqualTo(GolemRegistry.Designation.ALREADY);
+    assertThat(roster.masterworkCount()).isEqualTo(1);
+  }
+
+  @Test
+  void removingTheDesignationClearsTheGolemBeforeReturningTheHeartTheSecondCoreAndTheExtraRunes() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
+    registry.designate(handle, 1);
+    ItemStack heart = mock(ItemStack.class);
+    ItemStack lumber = mock(ItemStack.class);
+    ItemStack bulwark = mock(ItemStack.class);
+    ItemStack tide = mock(ItemStack.class);
+    GolemRune might = new GolemRune(GolemRuneType.MIGHT, 2);
+    GolemRune swiftness = new GolemRune(GolemRuneType.SWIFTNESS, 1);
+    items.when(GolemItems::masterworkHeart).thenReturn(heart);
+    items.when(() -> GolemItems.core(GolemCoreType.LUMBER)).thenReturn(lumber);
+    items.when(() -> GolemItems.rune(new GolemRune(GolemRuneType.BULWARK, 3))).thenReturn(bulwark);
+    items.when(() -> GolemItems.rune(new GolemRune(GolemRuneType.TIDE, 1))).thenReturn(tide);
+    handle.setCores(List.of(GolemCoreType.GUARDIAN, GolemCoreType.LUMBER));
+    handle.setRunes(List.of(might, swiftness, new GolemRune(GolemRuneType.BULWARK, 3), new GolemRune(GolemRuneType.TIDE, 1)));
+    List<String> order = new ArrayList<>();
+    platform.rosterListener = changed -> order.add("save roster=" + roster.golem(handle.id()).orElseThrow().masterwork() + " golem=" + handle.state().masterwork());
+
+    Optional<List<ItemStack>> returned = registry.undesignate(handle, 2);
+
+    assertThat(order).containsExactly("save roster=false golem=true");
+    assertThat(returned).contains(List.of(heart, lumber, bulwark, tide));
+    GolemState stored = GolemState.read(golem).orElseThrow();
+    assertThat(stored.masterwork()).isFalse();
+    assertThat(stored.cores()).containsExactly(GolemCoreType.GUARDIAN);
+    assertThat(stored.runes()).containsExactly(might, swiftness);
+    assertThat(roster.golem(handle.id()).orElseThrow().masterwork()).isFalse();
+    assertThat(registry.undesignate(handle, 2)).isEmpty();
+  }
+
+  @Test
+  void aCompanionThatLosesItsSecondCoreLeavesWorkMode() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    items.when(GolemItems::masterworkHeart).thenReturn(mock(ItemStack.class));
+    FakeMastery mastery = new FakeMastery();
+    mastery.perks = new GolemMastery.Perks(1, true, false, 0D);
+    GolemMastery.register(mastery);
+    try {
+      registry.designate(handle, 1);
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).isEmpty();
+      handle.setMode(GolemMode.WORK);
+
+      assertThat(registry.removeCore(handle, GolemCoreType.LUMBER)).isTrue();
+      assertThat(handle.state().mode()).isEqualTo(GolemMode.FOLLOW);
+
+      registry.addCore(handle, GolemCoreType.LUMBER);
+      handle.setMode(GolemMode.WORK);
+      registry.undesignate(handle, 0);
+      assertThat(handle.state().mode()).isEqualTo(GolemMode.FOLLOW);
+      assertThat(handle.state().cores()).containsExactly(GolemCoreType.BLANK);
+    } finally {
+      GolemMastery.unregister(mastery);
+    }
+  }
+
+  @Test
+  void aSecondCoreNeedsTheDualCorePerkAndAnAllowedUnlockedRoleCore() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
+    FakeMastery mastery = new FakeMastery();
+    GolemMastery.register(mastery);
+    try {
+      mastery.perks = new GolemMastery.Perks(1, true, false, 0D);
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).contains(GolemMastery.CoreRefusal.NO_SLOT);
+      registry.designate(handle, 1);
+      mastery.perks = GolemMastery.Perks.NONE;
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).contains(GolemMastery.CoreRefusal.NO_SLOT);
+      mastery.perks = new GolemMastery.Perks(1, true, false, 0D);
+      assertThat(registry.addCore(handle, GolemCoreType.SORTER)).contains(GolemMastery.CoreRefusal.NOT_ALLOWED);
+      mastery.unlockedCores.remove(GolemCoreType.LUMBER);
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).contains(GolemMastery.CoreRefusal.LOCKED);
+      mastery.unlockedCores.add(GolemCoreType.LUMBER);
+
+      assertThat(registry.addCore(handle, GolemCoreType.LUMBER)).isEmpty();
+      assertThat(GolemState.read(golem).orElseThrow().cores()).containsExactly(GolemCoreType.GUARDIAN, GolemCoreType.LUMBER);
+      assertThat(registry.addCore(handle, GolemCoreType.BREAKER)).contains(GolemMastery.CoreRefusal.NO_SLOT);
+      assertThat(registry.removeCore(handle, GolemCoreType.BREAKER)).isFalse();
+      assertThat(registry.removeCore(handle, GolemCoreType.GUARDIAN)).isFalse();
+      assertThat(registry.removeCore(handle, GolemCoreType.LUMBER)).isTrue();
+      assertThat(GolemState.read(golem).orElseThrow().cores()).containsExactly(GolemCoreType.GUARDIAN);
+      assertThat(registry.removeCore(handle, GolemCoreType.LUMBER)).isFalse();
+    } finally {
+      GolemMastery.unregister(mastery);
+    }
+  }
+
+  @Test
+  void releasingAMasterworkDropsItsHeartWithItsLoadout() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
+    ItemStack heart = mock(ItemStack.class);
+    items.when(GolemItems::masterworkHeart).thenReturn(heart);
+    registry.designate(handle, 1);
+
+    assertThat(registry.release(handle)).isTrue();
+
+    verify(world).dropItemNaturally(any(Location.class), eq(heart));
+    verify(world).dropItemNaturally(any(Location.class), eq(coreItem));
+  }
+
+  @Test
+  void aDyingMasterworkDropsItsHeartAtTheHeartChance() {
+    settings.set(new GolemSettings(true, false, 1500, 8, 32, Map.of(), Map.of(), GolemSettings.defaults().allowedCores(), 0D, 0D));
+    GolemRoster roster = onlineOwner();
+    ItemStack heart = mock(ItemStack.class);
+    items.when(GolemItems::masterworkHeart).thenReturn(heart);
+    FakeMastery mastery = new FakeMastery();
+    GolemMastery.register(mastery);
+    try {
+      IronGolem lucky = golem(new AtomicReference<>(at(0, 64, 0)));
+      GolemHandle first = registry.bind(owner, lucky, GolemBody.IRON, GolemCoreType.GUARDIAN);
+      registry.designate(first, 2);
+      List<ItemStack> kept = new ArrayList<>();
+      registry.on(death(lucky, kept, 0));
+
+      mastery.heartDropChance = 0D;
+      IronGolem unlucky = golem(new AtomicReference<>(at(2, 64, 0)));
+      GolemHandle second = registry.bind(owner, unlucky, GolemBody.IRON, GolemCoreType.GUARDIAN);
+      registry.designate(second, 2);
+      List<ItemStack> lost = new ArrayList<>();
+      registry.on(death(unlucky, lost, 0));
+
+      assertThat(kept).containsExactly(heart);
+      assertThat(lost).isEmpty();
+      assertThat(roster.masterworkCount()).isZero();
+    } finally {
+      GolemMastery.unregister(mastery);
+    }
+  }
+
+  @Test
+  void aShatteredMasterworkKeepsItsDesignationInsteadOfDroppingItsHeart() {
+    settings.set(new GolemSettings(true, false, 1500, 8, 32, Map.of(), Map.of(), GolemSettings.defaults().allowedCores(), 1D, 1D));
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
+    ItemStack heart = mock(ItemStack.class);
+    items.when(GolemItems::masterworkHeart).thenReturn(heart);
+    AtomicReference<PackedGolem> packed = new AtomicReference<>();
+    items.when(() -> GolemItems.shatteredCore(any(PackedGolem.class))).thenAnswer(invocation -> {
+      packed.set(invocation.getArgument(0));
+      return mock(ItemStack.class);
+    });
+    registry.designate(handle, 1);
+    RecordingMender mender = new RecordingMender();
+    mender.shatters = true;
+    GolemMend.register(mender);
+    try {
+      List<ItemStack> drops = new ArrayList<>();
+      registry.on(death(golem, drops, 0));
+
+      assertThat(drops).doesNotContain(heart);
+      assertThat(GolemSnapshot.fromJson(packed.get().state()).orElseThrow().masterwork()).isTrue();
+      assertThat(roster.golem(handle.id()).orElseThrow().masterwork()).isTrue();
+      assertThat(roster.masterworkCount()).isEqualTo(1);
+    } finally {
+      GolemMend.unregister(mender);
+    }
+  }
+
+  @Test
+  void aSightingCorrectsTheRosterMarkFromTheGolemsOwnState() {
+    GolemRoster roster = onlineOwner();
+    UUID stale = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(stale, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.markMasterwork(stale, true);
+    IronGolem plain = persistedGolem(stale, false, at(0, 64, 0));
+    UUID missed = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(missed, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    IronGolem masterwork = persistedGolem(missed, false, at(2, 64, 0));
+    GolemState designated = GolemState.read(masterwork).orElseThrow();
+    designated.setMasterwork(true);
+    designated.write(masterwork);
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(plain, masterwork)));
+
+    assertThat(roster.golem(stale).orElseThrow().masterwork()).isFalse();
+    assertThat(roster.golem(missed).orElseThrow().masterwork()).isTrue();
   }
 
   private <T extends Listener> T companion(Class<T> type) {

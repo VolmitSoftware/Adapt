@@ -38,6 +38,22 @@ public enum GolemMode {
     return core == GolemCoreType.BLANK ? COMPANION_MODES : ALL_MODES;
   }
 
+  public static List<GolemMode> selectableFor(List<GolemCoreType> cores) {
+    for (GolemCoreType core : cores) {
+      if (core != GolemCoreType.BLANK) {
+        return ALL_MODES;
+      }
+    }
+    return COMPANION_MODES;
+  }
+
+  public static GolemMode keptOrDefault(List<GolemCoreType> cores, GolemMode current) {
+    if (selectableFor(cores).contains(current)) {
+      return current;
+    }
+    return defaultFor(cores.isEmpty() ? GolemCoreType.BLANK : cores.getFirst());
+  }
+
   public String id() {
     return id;
   }

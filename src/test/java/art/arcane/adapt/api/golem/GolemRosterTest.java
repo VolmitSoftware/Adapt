@@ -263,6 +263,70 @@ class GolemRosterTest {
     assertThat(back.golem(GOLEM).orElseThrow().holds("sealed")).isTrue();
   }
 
+  @Test
+  void onlyActiveEntriesChangeTheirMasterworkMark() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.add(binding(OTHER, 0L, 0L));
+    roster.transition(OTHER, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+
+    assertThat(roster.golem(GOLEM).orElseThrow().masterwork()).isFalse();
+    assertThat(roster.markMasterwork(GOLEM, true)).isTrue();
+    assertThat(roster.markMasterwork(GOLEM, true)).isFalse();
+    assertThat(roster.markMasterwork(OTHER, true)).isFalse();
+    assertThat(roster.markMasterwork(UUID.randomUUID(), true)).isFalse();
+    assertThat(roster.markMasterwork(null, true)).isFalse();
+
+    assertThat(roster.golem(GOLEM).orElseThrow().masterwork()).isTrue();
+    assertThat(roster.golem(OTHER).orElseThrow().masterwork()).isFalse();
+    assertThat(roster.markMasterwork(GOLEM, false)).isTrue();
+    assertThat(roster.golem(GOLEM).orElseThrow().masterwork()).isFalse();
+  }
+
+  @Test
+  void theMasterworkCountIncludesUnloadedPackedAndShatteredGolems() {
+    GolemRoster roster = new GolemRoster();
+    UUID packed = UUID.randomUUID();
+    UUID shattered = UUID.randomUUID();
+    UUID plain = UUID.randomUUID();
+    for (UUID id : new UUID[] {GOLEM, OTHER, packed, shattered, plain}) {
+      roster.add(binding(id, 0L, 0L));
+    }
+    roster.markMasterwork(GOLEM, true);
+    roster.markMasterwork(OTHER, true);
+    roster.markMasterwork(packed, true);
+    roster.markMasterwork(shattered, true);
+
+    roster.transition(OTHER, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+    roster.stow(packed, GolemRoster.Status.PACKED, "packed");
+    roster.stow(shattered, GolemRoster.Status.SHATTERED, "shattered");
+    roster.seen(GOLEM, NETHER, GolemRoster.chunkKey(2, 2), 50L);
+
+    assertThat(roster.masterworkCount()).isEqualTo(4);
+    assertThat(roster.golem(OTHER).orElseThrow().masterwork()).isTrue();
+    assertThat(roster.golem(packed).orElseThrow().masterwork()).isTrue();
+    assertThat(roster.golem(shattered).orElseThrow().masterwork()).isTrue();
+    assertThat(roster.golem(GOLEM).orElseThrow().masterwork()).isTrue();
+
+    roster.unstow(shattered, GolemRoster.Status.SHATTERED, "shattered");
+    roster.remove(packed);
+
+    assertThat(roster.golem(shattered).orElseThrow().masterwork()).isTrue();
+    assertThat(roster.masterworkCount()).isEqualTo(3);
+  }
+
+  @Test
+  void theMasterworkMarkSurvivesGson() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.markMasterwork(GOLEM, true);
+
+    GolemRoster back = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+
+    assertThat(back.golem(GOLEM).orElseThrow().masterwork()).isTrue();
+    assertThat(back.masterworkCount()).isEqualTo(1);
+  }
+
   private static GolemRoster.Binding binding(UUID id, long chunkKey, long seenAt) {
     return new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, chunkKey, seenAt);
   }

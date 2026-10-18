@@ -4,7 +4,9 @@ import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemMode;
+import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneLayout;
@@ -26,8 +28,8 @@ public final class GolemGuiActions {
   private GolemGuiActions() {
   }
 
-  public static GolemMode cycleMode(GolemCoreType core, GolemMode current, boolean forward) {
-    List<GolemMode> modes = GolemMode.selectableFor(core);
+  public static GolemMode cycleMode(List<GolemCoreType> cores, GolemMode current, boolean forward) {
+    List<GolemMode> modes = GolemMode.selectableFor(cores);
     int position = modes.indexOf(current);
     if (position < 0) {
       return modes.getFirst();
@@ -126,6 +128,36 @@ public final class GolemGuiActions {
       case NO_ROOM -> Optional.of(GolemancyMessages.MESSAGE_COLOSSUS_NO_ROOM);
       case BUSY -> Optional.of(GolemancyMessages.MESSAGE_COLOSSUS_BUSY);
       case UNAVAILABLE, GROW, SHRINK -> Optional.empty();
+    };
+  }
+
+  public static boolean showsMasterwork(GolemBody body, boolean masterwork, int maxMasterworks) {
+    return body != GolemBody.BONE && (masterwork || maxMasterworks > 0);
+  }
+
+  public static boolean showsSecondCore(List<GolemCoreType> cores, boolean dualCore) {
+    return cores.size() > 1 || dualCore;
+  }
+
+  public static TextKey designationMessage(GolemRegistry.Designation designation) {
+    return switch (designation) {
+      case DESIGNATED -> GolemancyMessages.MASTERWORK_DESIGNATED;
+      case LOCKED -> GolemancyMessages.MASTERWORK_LOCKED;
+      case CAP -> GolemancyMessages.MASTERWORK_CAP;
+      case BODY -> GolemancyMessages.MASTERWORK_BODY;
+      case ALREADY -> GolemancyMessages.MASTERWORK_ALREADY;
+      case UNAVAILABLE -> GolemancyMessages.BINDING_UNAVAILABLE;
+    };
+  }
+
+  public static TextKey coreRefusalMessage(GolemMastery.CoreRefusal refusal) {
+    return switch (refusal) {
+      case UNAVAILABLE -> GolemancyMessages.BINDING_UNAVAILABLE;
+      case NO_SLOT -> GolemancyMessages.MASTERWORK_CORE_NO_SLOT;
+      case BLANK -> GolemancyMessages.MASTERWORK_CORE_BLANK;
+      case DUPLICATE -> GolemancyMessages.MASTERWORK_CORE_DUPLICATE;
+      case NOT_ALLOWED -> GolemancyMessages.BINDING_CORE_NOT_ALLOWED;
+      case LOCKED -> GolemancyMessages.BINDING_CORE_LOCKED;
     };
   }
 

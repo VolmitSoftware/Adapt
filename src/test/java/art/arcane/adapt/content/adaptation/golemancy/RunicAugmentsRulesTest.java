@@ -30,10 +30,10 @@ class RunicAugmentsRulesTest {
 
   @Test
   void eachBodyKeepsItsBaseSlotsAndGainsExtraSlotsByLevel() {
-    GolemRuneLayout frost = RunicAugmentsRules.layout(1, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(GolemRuneType.EMBER), 0);
-    GolemRuneLayout copper = RunicAugmentsRules.layout(2, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(), 3);
-    GolemRuneLayout ironTwo = RunicAugmentsRules.layout(3, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(), 2);
-    GolemRuneLayout ironFive = RunicAugmentsRules.layout(3, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(), 5);
+    GolemRuneLayout frost = RunicAugmentsRules.layout(1, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(GolemRuneType.EMBER), 0, 0);
+    GolemRuneLayout copper = RunicAugmentsRules.layout(2, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(), 3, 0);
+    GolemRuneLayout ironTwo = RunicAugmentsRules.layout(3, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(), 2, 0);
+    GolemRuneLayout ironFive = RunicAugmentsRules.layout(3, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(), 5, 0);
 
     assertThat(frost.unlockedSlots()).isZero();
     assertThat(frost.slotUnlockLevels()).containsExactly(1, 3, 5);
@@ -52,8 +52,8 @@ class RunicAugmentsRulesTest {
 
   @Test
   void slotsNeverOutgrowOneMenuRowAndBodiesWithoutSlotsGetNone() {
-    GolemRuneLayout crowded = RunicAugmentsRules.layout(8, List.of(0, 5), MAX_TIERS, 2, Set.of(), 2);
-    GolemRuneLayout empty = RunicAugmentsRules.layout(0, List.of(0, 0, 0, 0, 0), MAX_TIERS, 5, Set.of(), 5);
+    GolemRuneLayout crowded = RunicAugmentsRules.layout(8, List.of(0, 5), MAX_TIERS, 2, Set.of(), 2, 0);
+    GolemRuneLayout empty = RunicAugmentsRules.layout(0, List.of(0, 0, 0, 0, 0), MAX_TIERS, 5, Set.of(), 5, 0);
 
     assertThat(crowded.maxSlots()).isEqualTo(GolemRuneLayout.MAX_SLOTS);
     assertThat(crowded.unlockedSlots()).isEqualTo(GolemRuneLayout.MAX_SLOTS);
@@ -63,9 +63,27 @@ class RunicAugmentsRulesTest {
 
   @Test
   void aTierNoLevelReachesUnlocksAtNoLevel() {
-    GolemRuneLayout capped = RunicAugmentsRules.layout(1, EXTRA_SLOTS, List.of(1, 1, 2, 2, 2), 5, Set.of(), 5);
+    GolemRuneLayout capped = RunicAugmentsRules.layout(1, EXTRA_SLOTS, List.of(1, 1, 2, 2, 2), 5, Set.of(), 5, 0);
 
     assertThat(capped.tierUnlockLevels()).containsExactly(1, 3, 0);
+  }
+
+  @Test
+  void aMasterworkGainsItsSlotsOnTopOfTheBodysBaseSlots() {
+    GolemRuneLayout plain = RunicAugmentsRules.layout(3, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(), 3, 0);
+    GolemRuneLayout masterwork = RunicAugmentsRules.layout(3, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(), 3, 1);
+    GolemRuneLayout unlearned = RunicAugmentsRules.layout(3, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(), 0, 1);
+    GolemRuneLayout crowded = RunicAugmentsRules.layout(8, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(), 5, 4);
+
+    assertThat(plain.unlockedSlots()).isEqualTo(4);
+    assertThat(plain.slotUnlockLevels()).containsExactly(1, 1, 1, 3, 5);
+    assertThat(masterwork.unlockedSlots()).isEqualTo(5);
+    assertThat(masterwork.slotUnlockLevels()).containsExactly(1, 1, 1, 1, 3, 5);
+    assertThat(masterwork.maxTier()).isEqualTo(plain.maxTier());
+    assertThat(unlearned.unlockedSlots()).isZero();
+    assertThat(crowded.maxSlots()).isEqualTo(GolemRuneLayout.MAX_SLOTS);
+    assertThat(crowded.unlockedSlots()).isEqualTo(GolemRuneLayout.MAX_SLOTS);
+    assertThat(RunicAugmentsRules.layout(1, EXTRA_SLOTS, MAX_TIERS, 5, Set.of(), 1, -3).unlockedSlots()).isEqualTo(1);
   }
 
   @Test

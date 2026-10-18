@@ -48,6 +48,15 @@ class GolemDeathDropsTest {
     assertThat(roll.runes()).isEmpty();
   }
 
+  @Test
+  void onlyAMasterworkRollsItsHeartAgainstTheHeartChance() {
+    assertThat(GolemDeathDrops.heart(true, 1D, () -> 0.999999D)).isTrue();
+    assertThat(GolemDeathDrops.heart(true, 0.5D, () -> 0.49D)).isTrue();
+    assertThat(GolemDeathDrops.heart(true, 0.5D, () -> 0.5D)).isFalse();
+    assertThat(GolemDeathDrops.heart(true, 0D, () -> 0D)).isFalse();
+    assertThat(GolemDeathDrops.heart(false, 1D, () -> 0D)).isFalse();
+  }
+
   private static DoubleSupplier sequence(double... values) {
     Iterator<Double> iterator = Arrays.stream(values).boxed().iterator();
     return iterator::next;

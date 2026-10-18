@@ -24,6 +24,7 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.golem.GolemBrain;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
@@ -268,7 +269,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
   }
 
   private static boolean awakeGuardian(GolemHandle handle) {
-    return !handle.isDormant() && handle.state().cores().contains(GolemCoreType.GUARDIAN);
+    return !handle.isDormant() && GolemMastery.cores(handle).contains(GolemCoreType.GUARDIAN);
   }
 
   private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {

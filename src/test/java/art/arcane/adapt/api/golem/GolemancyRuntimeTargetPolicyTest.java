@@ -5,6 +5,8 @@ import org.bukkit.entity.Player;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 class GolemancyRuntimeTargetPolicyTest {
@@ -20,11 +22,11 @@ class GolemancyRuntimeTargetPolicyTest {
   @Test
   void clearingARolePolicyRestoresTheCompanionPolicy() {
     GolemancyRuntime.setTargetPolicy(GolemCoreType.GUARDIAN, first);
-    assertThat(GolemancyRuntime.targetPolicy(GolemCoreType.GUARDIAN)).isSameAs(first);
+    assertThat(GolemancyRuntime.targetPolicy(List.of(GolemCoreType.GUARDIAN))).isSameAs(first);
 
     GolemancyRuntime.clearTargetPolicy(GolemCoreType.GUARDIAN, first);
 
-    assertThat(GolemancyRuntime.targetPolicy(GolemCoreType.GUARDIAN)).isInstanceOf(CompanionTargetPolicy.class);
+    assertThat(GolemancyRuntime.targetPolicy(List.of(GolemCoreType.GUARDIAN))).isInstanceOf(CompanionTargetPolicy.class);
   }
 
   @Test
@@ -33,8 +35,18 @@ class GolemancyRuntimeTargetPolicyTest {
 
     GolemancyRuntime.clearTargetPolicy(GolemCoreType.GUARDIAN, first);
 
-    assertThat(GolemancyRuntime.targetPolicy(GolemCoreType.GUARDIAN)).isSameAs(second);
-    assertThat(GolemancyRuntime.targetPolicy(GolemCoreType.GATHERER)).isInstanceOf(CompanionTargetPolicy.class);
+    assertThat(GolemancyRuntime.targetPolicy(List.of(GolemCoreType.GUARDIAN))).isSameAs(second);
+    assertThat(GolemancyRuntime.targetPolicy(List.of(GolemCoreType.GATHERER))).isInstanceOf(CompanionTargetPolicy.class);
+  }
+
+  @Test
+  void aDualCoreGolemFightsWithTheFirstCoreThatHasACombatPolicy() {
+    GolemancyRuntime.setTargetPolicy(GolemCoreType.GUARDIAN, first);
+
+    assertThat(GolemancyRuntime.targetPolicy(List.of(GolemCoreType.HARVESTER, GolemCoreType.GUARDIAN))).isSameAs(first);
+    assertThat(GolemancyRuntime.targetPolicy(List.of(GolemCoreType.GUARDIAN, GolemCoreType.LUMBER))).isSameAs(first);
+    assertThat(GolemancyRuntime.targetPolicy(List.of(GolemCoreType.HARVESTER, GolemCoreType.GATHERER))).isInstanceOf(CompanionTargetPolicy.class);
+    assertThat(GolemancyRuntime.targetPolicy(List.of())).isInstanceOf(CompanionTargetPolicy.class);
   }
 
   private static final class NamedPolicy implements GolemTargetPolicy {

@@ -86,4 +86,36 @@ class GolemRuneEffectsTest {
     assertThat(GolemRuneEffects.NONE.withBonusYield(GolemCoreType.HARVESTER, List.of(wheat), () -> 0D)).containsExactly(wheat);
     verify(wheat, never()).clone();
   }
+
+  @Test
+  void aTieredUpRuneUsesTheNextTierAndATierThreeRuneGainsTheBoost() {
+    assertThat(GolemRuneEffects.effectiveTier(1, true, 0.25D)).isEqualTo(new GolemRuneEffects.Tier(2, 1D));
+    assertThat(GolemRuneEffects.effectiveTier(2, true, 0.25D)).isEqualTo(new GolemRuneEffects.Tier(3, 1D));
+    assertThat(GolemRuneEffects.effectiveTier(3, true, 0.25D)).isEqualTo(new GolemRuneEffects.Tier(3, 1.25D));
+  }
+
+  @Test
+  void withoutTierUpEveryRuneKeepsItsSlottedTierAndAMissingRuneStaysAtZero() {
+    for (int tier = GolemRuneType.MIN_TIER; tier <= GolemRuneType.MAX_TIER; tier++) {
+      assertThat(GolemRuneEffects.effectiveTier(tier, false, 0.25D)).isEqualTo(new GolemRuneEffects.Tier(tier, 1D));
+    }
+    assertThat(GolemRuneEffects.effectiveTier(0, true, 0.25D)).isEqualTo(new GolemRuneEffects.Tier(0, 1D));
+  }
+
+  @Test
+  void aNegativeOrBrokenBoostNeverWeakensATierThreeRune() {
+    assertThat(GolemRuneEffects.effectiveTier(3, true, -0.5D)).isEqualTo(new GolemRuneEffects.Tier(3, 1D));
+    assertThat(GolemRuneEffects.effectiveTier(3, true, Double.NaN)).isEqualTo(new GolemRuneEffects.Tier(3, 1D));
+  }
+
+  @Test
+  void anEffectiveTierScalesNumbersAndRoundsWholeValues() {
+    GolemRuneEffects.Tier boosted = new GolemRuneEffects.Tier(3, 1.25D);
+
+    assertThat(boosted.scale(6D)).isEqualTo(7.5D);
+    assertThat(boosted.scale(3)).isEqualTo(4);
+    assertThat(boosted.scale(2)).isEqualTo(3);
+    assertThat(new GolemRuneEffects.Tier(2, 1D).scale(4)).isEqualTo(4);
+    assertThat(new GolemRuneEffects.Tier(2, 1D).scale(0.2D)).isEqualTo(0.2D);
+  }
 }

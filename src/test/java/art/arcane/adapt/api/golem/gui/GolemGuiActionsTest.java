@@ -4,7 +4,9 @@ import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemMode;
+import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneLayout;
@@ -26,21 +28,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 class GolemGuiActionsTest {
   @Test
   void roleGolemModesCycleForwardAndBackwardThroughEveryModeAndWrap() {
-    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.WORK, true)).isEqualTo(GolemMode.FOLLOW);
-    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.FOLLOW, true)).isEqualTo(GolemMode.STAY);
-    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.STAY, true)).isEqualTo(GolemMode.HOME);
-    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.HOME, true)).isEqualTo(GolemMode.WORK);
-    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.WORK, false)).isEqualTo(GolemMode.HOME);
-    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.STAY, false)).isEqualTo(GolemMode.FOLLOW);
+    assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.GUARDIAN), GolemMode.WORK, true)).isEqualTo(GolemMode.FOLLOW);
+    assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.GUARDIAN), GolemMode.FOLLOW, true)).isEqualTo(GolemMode.STAY);
+    assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.GUARDIAN), GolemMode.STAY, true)).isEqualTo(GolemMode.HOME);
+    assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.GUARDIAN), GolemMode.HOME, true)).isEqualTo(GolemMode.WORK);
+    assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.GUARDIAN), GolemMode.WORK, false)).isEqualTo(GolemMode.HOME);
+    assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.GUARDIAN), GolemMode.STAY, false)).isEqualTo(GolemMode.FOLLOW);
   }
 
   @Test
   void companionGolemsCycleOnlyFollowStayAndHome() {
     assertThat(GolemMode.selectableFor(GolemCoreType.BLANK)).containsExactly(GolemMode.FOLLOW, GolemMode.STAY, GolemMode.HOME);
-    assertThat(GolemGuiActions.cycleMode(GolemCoreType.BLANK, GolemMode.FOLLOW, true)).isEqualTo(GolemMode.STAY);
-    assertThat(GolemGuiActions.cycleMode(GolemCoreType.BLANK, GolemMode.HOME, true)).isEqualTo(GolemMode.FOLLOW);
-    assertThat(GolemGuiActions.cycleMode(GolemCoreType.BLANK, GolemMode.FOLLOW, false)).isEqualTo(GolemMode.HOME);
-    assertThat(GolemGuiActions.cycleMode(GolemCoreType.BLANK, GolemMode.WORK, true)).isEqualTo(GolemMode.FOLLOW);
+    assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.BLANK), GolemMode.FOLLOW, true)).isEqualTo(GolemMode.STAY);
+    assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.BLANK), GolemMode.HOME, true)).isEqualTo(GolemMode.FOLLOW);
+    assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.BLANK), GolemMode.FOLLOW, false)).isEqualTo(GolemMode.HOME);
+    assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.BLANK), GolemMode.WORK, true)).isEqualTo(GolemMode.FOLLOW);
   }
 
   @Test
@@ -251,6 +253,47 @@ class GolemGuiActionsTest {
 
     assertThat(GolemGuiActions.chunkCenterX(key)).isEqualTo(-40);
     assertThat(GolemGuiActions.chunkCenterZ(key)).isEqualTo(88);
+  }
+
+  @Test
+  void aCompanionWithASecondRoleCoreCanWork() {
+    assertThat(GolemMode.selectableFor(List.of(GolemCoreType.BLANK, GolemCoreType.HARVESTER))).containsExactly(GolemMode.values());
+    assertThat(GolemMode.selectableFor(List.of(GolemCoreType.BLANK))).containsExactly(GolemMode.FOLLOW, GolemMode.STAY, GolemMode.HOME);
+    assertThat(GolemMode.selectableFor(List.of())).containsExactly(GolemMode.FOLLOW, GolemMode.STAY, GolemMode.HOME);
+    assertThat(GolemGuiActions.cycleMode(List.of(GolemCoreType.BLANK, GolemCoreType.HARVESTER), GolemMode.HOME, true)).isEqualTo(GolemMode.WORK);
+  }
+
+  @Test
+  void theMasterworkSlotShowsForEveryBodyButBoneOnceTheOwnerCanDesignate() {
+    assertThat(GolemGuiActions.showsMasterwork(GolemBody.IRON, false, 1)).isTrue();
+    assertThat(GolemGuiActions.showsMasterwork(GolemBody.FROST, true, 0)).isTrue();
+    assertThat(GolemGuiActions.showsMasterwork(GolemBody.COPPER, false, 0)).isFalse();
+    assertThat(GolemGuiActions.showsMasterwork(GolemBody.BONE, false, 2)).isFalse();
+  }
+
+  @Test
+  void theSecondCoreSlotShowsWithTheDualCorePerkOrWhileASecondCoreIsSlotted() {
+    assertThat(GolemGuiActions.showsSecondCore(List.of(GolemCoreType.GUARDIAN), true)).isTrue();
+    assertThat(GolemGuiActions.showsSecondCore(List.of(GolemCoreType.GUARDIAN), false)).isFalse();
+    assertThat(GolemGuiActions.showsSecondCore(List.of(GolemCoreType.GUARDIAN, GolemCoreType.LUMBER), false)).isTrue();
+  }
+
+  @Test
+  void everyDesignationAndCoreRefusalHasAMessage() {
+    Set<TextKey> designations = new HashSet<>();
+    for (GolemRegistry.Designation designation : GolemRegistry.Designation.values()) {
+      designations.add(GolemGuiActions.designationMessage(designation));
+    }
+    Set<TextKey> refusals = new HashSet<>();
+    for (GolemMastery.CoreRefusal refusal : GolemMastery.CoreRefusal.values()) {
+      refusals.add(GolemGuiActions.coreRefusalMessage(refusal));
+    }
+
+    assertThat(designations).hasSize(GolemRegistry.Designation.values().length);
+    assertThat(refusals).hasSize(GolemMastery.CoreRefusal.values().length);
+    assertThat(GolemGuiActions.designationMessage(GolemRegistry.Designation.CAP)).isEqualTo(GolemancyMessages.MASTERWORK_CAP);
+    assertThat(GolemGuiActions.coreRefusalMessage(GolemMastery.CoreRefusal.NOT_ALLOWED)).isEqualTo(GolemancyMessages.BINDING_CORE_NOT_ALLOWED);
+    assertThat(GolemGuiActions.coreRefusalMessage(GolemMastery.CoreRefusal.LOCKED)).isEqualTo(GolemancyMessages.BINDING_CORE_LOCKED);
   }
 
   private static GolemRune rune(GolemRuneType aspect, int tier) {

@@ -25,6 +25,7 @@ import art.arcane.adapt.api.golem.GolemCapacity;
 import art.arcane.adapt.api.golem.GolemCoreBehaviors;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
@@ -163,7 +164,7 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
 
     @Override
     public GolemCapacity.Contribution carry(GolemHandle handle) {
-      List<GolemCoreType> cores = handle.state().cores();
+      List<GolemCoreType> cores = GolemMastery.cores(handle);
       if (!cores.contains(GolemCoreType.GATHERER)) {
         return GolemCapacity.Contribution.NONE;
       }

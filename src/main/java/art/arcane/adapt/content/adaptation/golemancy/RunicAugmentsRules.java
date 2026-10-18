@@ -32,8 +32,9 @@ final class RunicAugmentsRules {
   }
 
   static GolemRuneLayout layout(int baseSlots, List<Integer> extraSlotsByLevel, List<Integer> maxTierByLevel, int maxLevel,
-                                Set<GolemRuneType> blocked, int level) {
-    int base = Math.clamp(baseSlots, 0, GolemRuneLayout.MAX_SLOTS);
+                                Set<GolemRuneType> blocked, int level, int masterworkSlots) {
+    int base = Math.min(GolemRuneLayout.MAX_SLOTS, Math.clamp(baseSlots, 0, GolemRuneLayout.MAX_SLOTS)
+        + Math.clamp(masterworkSlots, 0, GolemRuneLayout.MAX_SLOTS));
     int mostExtra = 0;
     for (int candidate = 1; candidate <= maxLevel; candidate++) {
       mostExtra = Math.max(mostExtra, extraSlots(extraSlotsByLevel, candidate));
