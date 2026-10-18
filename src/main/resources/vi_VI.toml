@@ -4659,6 +4659,7 @@ fetch_amount = "Yêu cầu {amount} mỗi lần"
 fetch_empty = "Các vật chứa của Nút Đầu Vào này không có gì"
 fetch_requested = "Người Phân Loại sẽ mang {amount} {item} đến"
 fetch_delivered = "Người Phân Loại đã mang {amount} {item} đến"
+empty_filter = "Nút Bộ Lọc trống không nhận gì, trừ khi nó là nơi tràn"
 
 [golemancy.runic_augments]
 name = "Cường hóa Rune"

@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem.gui;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeEdits;
 import art.arcane.adapt.api.golem.node.NodeFilters;
@@ -188,7 +189,8 @@ public final class NodeGui {
             record.whitelist() ? "whitelist" : "blacklist")
         .setName(C.YELLOW + AdaptLanguage.text(record.whitelist() ? GolemancyMessages.NODE_GUI_WHITELIST : GolemancyMessages.NODE_GUI_BLACKLIST))
         .addLore(C.GRAY + AdaptLanguage.text(record.whitelist() ? GolemancyMessages.NODE_GUI_WHITELIST_LORE : GolemancyMessages.NODE_GUI_BLACKLIST_LORE))
-        .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_EMPTY_FILTER))
+        .addLore(C.DARK_GRAY + AdaptLanguage.text(record.type() == NodeType.FILTER ? GolemancyMessages.SORTER_CORE_EMPTY_FILTER
+            : GolemancyMessages.NODE_GUI_EMPTY_FILTER))
         .setProgress(1D);
     if (unlocked) {
       mode.addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_TOGGLE))

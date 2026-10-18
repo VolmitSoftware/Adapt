@@ -303,6 +303,7 @@ public final class GolemancyMessages {
   public static final TextKey SORTER_CORE_FETCH_EMPTY = TextKey.of("golemancy.sorter_core.fetch_empty", "Nothing is stored in the containers this Input Node serves");
   public static final TextKey SORTER_CORE_FETCH_REQUESTED = TextKey.of("golemancy.sorter_core.fetch_requested", "A Sorter will bring {amount} {item}");
   public static final TextKey SORTER_CORE_FETCH_DELIVERED = TextKey.of("golemancy.sorter_core.fetch_delivered", "A Sorter brought {amount} {item}");
+  public static final TextKey SORTER_CORE_EMPTY_FILTER = TextKey.of("golemancy.sorter_core.empty_filter", "An empty Filter Node takes nothing unless it is an overflow");
 
   public static final TextKey NODE_STATUS_IDLE = TextKey.of("golemancy.node_status.idle", "Idle");
   public static final TextKey NODE_STATUS_WORKING = TextKey.of("golemancy.node_status.working", "Working");
@@ -671,6 +672,7 @@ public final class GolemancyMessages {
     builder.add(SORTER_CORE_FETCH_EMPTY);
     builder.add(SORTER_CORE_FETCH_REQUESTED);
     builder.add(SORTER_CORE_FETCH_DELIVERED);
+    builder.add(SORTER_CORE_EMPTY_FILTER);
     builder.add(RUNIC_AUGMENTS_NAME);
     builder.add(RUNIC_AUGMENTS_DESCRIPTION);
     builder.add(RUNIC_AUGMENTS_LORE1);

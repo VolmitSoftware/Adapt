@@ -33,7 +33,7 @@ final class BukkitSorterSpace implements SorterSpace {
     List<Block> found = new ArrayList<>();
     for (int chunkX = (x - radius) >> 4; chunkX <= (x + radius) >> 4; chunkX++) {
       for (int chunkZ = (z - radius) >> 4; chunkZ <= (z + radius) >> 4; chunkZ++) {
-        if (!world.isChunkLoaded(chunkX, chunkZ) || !owned(world, chunkX, y, chunkZ)) {
+        if (!owned(world, chunkX, y, chunkZ) || !world.isChunkLoaded(chunkX, chunkZ)) {
           continue;
         }
         for (BlockState state : tiles(world.getChunkAt(chunkX, chunkZ), inside)) {

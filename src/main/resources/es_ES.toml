@@ -4659,6 +4659,7 @@ fetch_amount = "Pedir {amount} cada vez"
 fetch_empty = "No hay nada guardado en los contenedores de este Nodo de Entrada"
 fetch_requested = "Un Clasificador te traerá {amount} {item}"
 fetch_delivered = "Un Clasificador te ha traído {amount} {item}"
+empty_filter = "Un Nodo de Filtro vacío no recibe nada salvo que sea un desbordamiento"
 
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"

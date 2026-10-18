@@ -8,6 +8,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.mockito.quality.Strictness;
@@ -21,6 +22,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -34,12 +36,14 @@ final class SorterYard {
   final List<NodeIndex.Entry> nodes = new ArrayList<>();
   final Set<Block> denied = new HashSet<>();
   final Set<Block> foreign = new HashSet<>();
+  final Player owner = mock(Player.class, withSettings().strictness(Strictness.LENIENT));
   private final Map<String, Block> blocks = new HashMap<>();
   private final Map<Block, Inventory> inventories = new HashMap<>();
   private final List<Block> containers = new ArrayList<>();
 
   SorterYard() {
     lenient().when(world.getUID()).thenReturn(WORLD);
+    lenient().when(owner.getUniqueId()).thenReturn(UUID.fromString("00000000-0000-0000-0000-0000000026d2"));
     lenient().when(world.getBlockAt(anyInt(), anyInt(), anyInt()))
         .thenAnswer(invocation -> block(invocation.getArgument(0), invocation.getArgument(1), invocation.getArgument(2)));
   }
@@ -113,10 +117,22 @@ final class SorterYard {
       }
 
       @Override
-      public Optional<Inventory> container(Block block) {
-        return denied.contains(block) || foreign.contains(block) ? Optional.empty() : Optional.ofNullable(inventories.get(block));
+      public Player owner() {
+        return owner;
       }
     };
+  }
+
+  boolean permits(Location at) {
+    return !denied.contains(block(at.getBlockX(), at.getBlockY(), at.getBlockZ()));
+  }
+
+  Optional<Inventory> container(Block block) {
+    return denied.contains(block) || foreign.contains(block) ? Optional.empty() : Optional.ofNullable(inventories.get(block));
+  }
+
+  void permitThrough(GolemSorterCore core) {
+    lenient().when(core.canAccessChest(any(Player.class), any(Location.class))).thenAnswer(invocation -> permits(invocation.getArgument(1)));
   }
 
   private Inventory place(Block block, Inventory inventory) {

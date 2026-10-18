@@ -4655,6 +4655,7 @@ fetch_amount = "Demander {amount} à la fois"
 fetch_empty = "Rien n'est stocké dans les conteneurs de ce Nœud d'Entrée"
 fetch_requested = "Un Trieur va t'apporter {amount} {item}"
 fetch_delivered = "Un Trieur t'a apporté {amount} {item}"
+empty_filter = "Un Nœud de Filtre vide ne prend rien, sauf s'il est un trop-plein"
 
 [golemancy.runic_augments]
 name = "Augmentations runiques"

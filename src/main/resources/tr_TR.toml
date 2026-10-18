@@ -4659,6 +4659,7 @@ fetch_amount = "Her seferinde {amount} iste"
 fetch_empty = "Bu Girdi Düğümü'nün kaplarında hiçbir şey yok"
 fetch_requested = "Bir Ayıklayıcı {amount} {item} getirecek"
 fetch_delivered = "Bir Ayıklayıcı {amount} {item} getirdi"
+empty_filter = "Boş bir Filtre Düğümü taşma değilse hiçbir şey almaz"
 
 [golemancy.runic_augments]
 name = "Rün Güçlendirmeleri"

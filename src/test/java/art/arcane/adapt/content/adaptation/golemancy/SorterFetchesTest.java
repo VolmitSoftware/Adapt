@@ -67,18 +67,49 @@ class SorterFetchesTest {
   @Test
   void plansBelongToOneGolemAndExpire() {
     SorterPlans plans = new SorterPlans();
-    plans.fetch(GOLEM, ALEX, items.item(Material.COBBLESTONE, 1), 10, 0L);
+    SorterFetches.Request request = fetches.request(ALEX, INPUT, items.item(Material.COBBLESTONE, 1), 10, 0L);
+    plans.fetch(GOLEM, request, items.item(Material.COBBLESTONE, 1), request.reserve(10), 0L);
 
     assertThat(plans.get(GOLEM, 1L)).hasValueSatisfying(plan -> assertThat(plan).isInstanceOf(SorterPlans.Fetch.class));
-    plans.restock(GOLEM, new ContainerId(SorterYard.WORLD, 1, 64, 1), items.item(Material.TORCH, 1), 5L);
+    plans.restock(GOLEM, new ContainerId(SorterYard.WORLD, 1, 64, 1), items.item(Material.TORCH, 1), 6, 5L);
+    assertThat(request.remaining()).isEqualTo(10);
     assertThat(plans.get(GOLEM, 6L)).hasValueSatisfying(plan -> assertThat(plan).isInstanceOf(SorterPlans.Restock.class));
     assertThat(plans.get(GOLEM, 5L + SorterPlans.PLAN_MILLIS)).isEmpty();
-
-    plans.fetch(GOLEM, ALEX, items.item(Material.COBBLESTONE, 1), 10, 0L);
-    plans.forget(GOLEM);
-    assertThat(plans.get(GOLEM, 1L)).isEmpty();
-    plans.fetch(GOLEM, ALEX, items.item(Material.COBBLESTONE, 1), 10, 0L);
-    plans.sweep(SorterPlans.PLAN_MILLIS);
+    plans.sweep(SorterPlans.PLAN_MILLIS * 2L);
     assertThat(plans.isEmpty()).isTrue();
+  }
+
+  @Test
+  void aFetchPlanGivesItsItemsBackToTheRequestUnlessTheyWereDelivered() {
+    SorterPlans plans = new SorterPlans();
+    SorterFetches.Request request = fetches.request(ALEX, INPUT, items.item(Material.COBBLESTONE, 1), 30, 0L);
+
+    plans.fetch(GOLEM, request, items.item(Material.COBBLESTONE, 1), request.reserve(20), 0L);
+    plans.forget(GOLEM);
+    assertThat(request.remaining()).isEqualTo(30);
+
+    plans.fetch(GOLEM, request, items.item(Material.COBBLESTONE, 1), request.reserve(20), 0L);
+    plans.finish(GOLEM, 15);
+    assertThat(request.remaining()).isEqualTo(15);
+
+    plans.fetch(GOLEM, request, items.item(Material.COBBLESTONE, 1), request.reserve(15), 0L);
+    assertThat(plans.get(GOLEM, SorterPlans.PLAN_MILLIS)).isEmpty();
+    assertThat(request.remaining()).isEqualTo(15);
+    plans.fetch(GOLEM, request, items.item(Material.COBBLESTONE, 1), request.reserve(15), 0L);
+    plans.sweep(SorterPlans.PLAN_MILLIS);
+    assertThat(request.remaining()).isEqualTo(15);
+  }
+
+  @Test
+  void restockPlansCountAsInboundForTheirTargetAndItem() {
+    SorterPlans plans = new SorterPlans();
+    ContainerId workshop = new ContainerId(SorterYard.WORLD, 1, 64, 1);
+    plans.restock(GOLEM, workshop, items.item(Material.TORCH, 1), 12, 0L);
+    plans.restock(UUID.fromString("00000000-0000-0000-0000-000000002704"), workshop, items.item(Material.BREAD, 1), 5, 0L);
+    plans.restock(UUID.fromString("00000000-0000-0000-0000-000000002705"), new ContainerId(SorterYard.WORLD, 9, 64, 9),
+        items.item(Material.TORCH, 1), 7, 0L);
+
+    assertThat(plans.inbound(workshop, item -> item.getType() == Material.TORCH, 1L)).isEqualTo(12);
+    assertThat(plans.inbound(workshop, item -> item.getType() == Material.TORCH, SorterPlans.PLAN_MILLIS)).isZero();
   }
 }

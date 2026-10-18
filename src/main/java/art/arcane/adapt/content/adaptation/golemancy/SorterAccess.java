@@ -3,14 +3,12 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.node.NodeContext;
 import org.bukkit.block.Block;
-import org.bukkit.inventory.Inventory;
-
-import java.util.Optional;
+import org.bukkit.entity.Player;
 
 interface SorterAccess {
   boolean owns(Block block);
 
-  Optional<Inventory> container(Block block);
+  Player owner();
 
   static SorterAccess of(NodeContext node) {
     return new SorterAccess() {
@@ -20,8 +18,8 @@ interface SorterAccess {
       }
 
       @Override
-      public Optional<Inventory> container(Block block) {
-        return node.container(block);
+      public Player owner() {
+        return node.onlineOwner().orElse(null);
       }
     };
   }
@@ -34,8 +32,8 @@ interface SorterAccess {
       }
 
       @Override
-      public Optional<Inventory> container(Block block) {
-        return golem.container(block);
+      public Player owner() {
+        return golem.owner();
       }
     };
   }

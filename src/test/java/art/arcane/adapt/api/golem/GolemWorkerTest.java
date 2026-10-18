@@ -745,6 +745,93 @@ class GolemWorkerTest extends AdaptTestBase {
   }
 
   @Test
+  void aFailedRouteStopKeepsTheRoutingNodeSoTheNextRouteTriesAnotherStop() {
+    chest(0, 64, -5, 27);
+    Inventory second = chest(0, 64, 5, 27);
+    Inventory homeInventory = homeChest(27);
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      if (task.type().equals("pickup")) {
+        golem.carry(GolemTestItems.stack(Material.WHEAT, 10));
+        return GolemActResult.DONE;
+      }
+      if (task.target().blockZ() < 0) {
+        return GolemActResult.FAILED;
+      }
+      golem.container(world.getBlockAt(0, 64, 5)).ifPresent(inventory -> golem.deliver(inventory, item -> true));
+      return GolemActResult.DONE;
+    });
+    behavior.route = (golem, carried) -> {
+      GolemTask first = stash(-5);
+      return Optional.of(golem.skips(first) ? stash(5) : first);
+    };
+    collectionNode(3);
+    board.offer(pickup(1, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    pulse(1_000L);
+    position.set(at(0, 64, -4));
+    pulse(250L);
+    pulse(3_000L);
+
+    assertThat(controller.lastMove()).isEqualTo("0.5,64.5,5.5");
+    position.set(at(0, 64, 4));
+    pulse(250L);
+    assertThat(GolemTestItems.count(second, Material.WHEAT)).isEqualTo(10);
+    assertThat(GolemTestItems.count(homeInventory, Material.WHEAT)).isZero();
+  }
+
+  @Test
+  void aNodeThatDeliversFirstReleasesAFailedJobAndBacksOffLongerEachTimeUntilAJobIsDone() {
+    List<Long> acts = new ArrayList<>();
+    List<GolemActResult> results = new ArrayList<>(List.of(GolemActResult.FAILED, GolemActResult.FAILED, GolemActResult.FAILED,
+        GolemActResult.FAILED, GolemActResult.FAILED, GolemActResult.DONE, GolemActResult.FAILED, GolemActResult.FAILED));
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      acts.add(platform.now);
+      return results.removeFirst();
+    });
+    behavior.deliversFirst = true;
+    collectionNode(3);
+    GolemTask pickup = pickup(1, 64, 0);
+    board.offer(pickup, 16);
+    brain.start();
+
+    platform.runDelayed();
+    assertThat(pickup.isClosed()).isFalse();
+    assertThat(pickup.holder(platform.now)).isEmpty();
+    for (int i = 0; i < 191; i++) {
+      pulse(1_000L);
+    }
+    assertThat(acts).hasSize(6);
+    board.offer(pickup(1, 64, 0), 16);
+    for (int i = 0; i < 12; i++) {
+      pulse(1_000L);
+    }
+
+    List<Long> gaps = new ArrayList<>();
+    for (int i = 1; i < acts.size(); i++) {
+      gaps.add(acts.get(i) - acts.get(i - 1));
+    }
+    assertThat(gaps.subList(0, 5)).containsExactly(10_000L, 20_000L, 40_000L, 60_000L, 60_000L);
+    assertThat(acts).hasSize(8);
+    assertThat(acts.get(7) - acts.get(6)).isEqualTo(10_000L);
+  }
+
+  @Test
+  void otherNodesStillWithdrawAFailedBoardJobWithoutBackingOff() {
+    ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.FAILED);
+    collectionNode(3);
+    GolemTask pickup = pickup(1, 64, 0);
+    board.offer(pickup, 16);
+    brain.start();
+
+    platform.runDelayed();
+
+    assertThat(pickup.isClosed()).isTrue();
+    assertThat(behavior.deliversFirst).isFalse();
+  }
+
+  @Test
   void anEmptyRouteFallsBackToTheDefaultRoute() {
     homeChest(27);
     ScriptedBehavior behavior = collector((golem, task) -> {
@@ -1497,6 +1584,10 @@ class GolemWorkerTest extends AdaptTestBase {
     DepositBehavior behavior = new DepositBehavior(nodePolicy);
     NodeBehaviors.register(NodeType.DEPOSIT, behavior);
     registered.add(behavior);
+  }
+
+  private static GolemTask stash(int z) {
+    return GolemTask.builder(COLLECTION, NodeType.COLLECTION, "stash", GolemTarget.block(WORLD, 0, 64, z)).build();
   }
 
   private static GolemTask gather(int x) {

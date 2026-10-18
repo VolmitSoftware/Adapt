@@ -4659,6 +4659,7 @@ fetch_amount = "每次請求{amount}個"
 fetch_empty = "這個輸入節點的容器裡沒有任何物品"
 fetch_requested = "分揀者會送來{amount}個{item}"
 fetch_delivered = "分揀者送來了{amount}個{item}"
+empty_filter = "空的過濾節點不接收任何物品，除非它是溢出容器"
 
 [golemancy.runic_augments]
 name = "符文強化"

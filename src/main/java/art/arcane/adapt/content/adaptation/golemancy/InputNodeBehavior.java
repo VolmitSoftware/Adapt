@@ -15,6 +15,7 @@ import art.arcane.adapt.api.golem.node.ScanBudget;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -71,10 +72,11 @@ final class InputNodeBehavior implements NodeBehavior {
       }
     }
     for (GolemTask task : wanted) {
-      if (!budget.hasTaskRoom()) {
-        return;
+      if (budget.hasTaskRoom()) {
+        node.post(task);
+      } else if (!SorterRules.SORT.equals(task.type()) && !listed(node.tasks(), task) && evictSort(node, survey.orElseThrow())) {
+        node.post(task);
       }
-      node.post(task);
     }
   }
 
@@ -120,16 +122,6 @@ final class InputNodeBehavior implements NodeBehavior {
 
   private List<GolemTask> wanted(NodeContext node, SorterSurvey survey, int level) {
     List<GolemTask> wanted = new ArrayList<>();
-    GolemTarget input = GolemTarget.block(survey.input().block());
-    for (SorterStock.Entry entry : survey.input().stock().entries()) {
-      if (survey.choose(entry.prototype()).isPresent()) {
-        wanted.add(node.task(SorterRules.SORT, input).item(entry.prototype()).build());
-      }
-    }
-    for (SorterSurvey.RestockNeed need : survey.restockNeeds()) {
-      survey.restockSource(need).ifPresent(source -> wanted.add(node.task(SorterRules.RESTOCK, GolemTarget.block(source.block()))
-          .item(need.item()).build()));
-    }
     if (SorterRules.unlocked(level, core.config().fetchLevel)) {
       for (SorterFetches.Request request : fetches.open(node.key(), node.nowMillis())) {
         ItemStack item = request.item();
@@ -137,7 +129,41 @@ final class InputNodeBehavior implements NodeBehavior {
             .item(item).build()));
       }
     }
+    for (SorterSurvey.RestockNeed need : survey.restockNeeds()) {
+      if (deficit(need, survey, node.nowMillis()) > 0) {
+        survey.restockSource(need).ifPresent(source -> wanted.add(node.task(SorterRules.RESTOCK, GolemTarget.block(source.block()))
+            .item(need.item()).build()));
+      }
+    }
+    GolemTarget input = GolemTarget.block(survey.input().block());
+    for (SorterStock.Entry entry : survey.input().stock().entries()) {
+      if (survey.choose(entry.prototype()).isPresent()) {
+        wanted.add(node.task(SorterRules.SORT, input).item(entry.prototype()).build());
+      }
+    }
     return wanted;
+  }
+
+  private int deficit(SorterSurvey.RestockNeed need, SorterSurvey survey, long nowMillis) {
+    ItemStack item = need.item();
+    return need.deficit() - plans.inbound(need.target().id(), planned -> survey.matcher().same(item, planned), nowMillis);
+  }
+
+  private boolean evictSort(NodeContext node, SorterSurvey survey) {
+    GolemTask cheapest = null;
+    int cheapestCount = Integer.MAX_VALUE;
+    for (GolemTask open : node.tasks()) {
+      ItemStack item = open.item().orElse(null);
+      if (!SorterRules.SORT.equals(open.type()) || item == null || open.holder(node.nowMillis()).isPresent()) {
+        continue;
+      }
+      int count = survey.input().stock().count(held -> held.isSimilar(item));
+      if (count < cheapestCount) {
+        cheapest = open;
+        cheapestCount = count;
+      }
+    }
+    return cheapest != null && node.withdraw(cheapest);
   }
 
   private GolemActResult take(GolemContext golem, GolemTask task, NodeKey key, NodeRecord record, int level) {
@@ -148,7 +174,7 @@ final class InputNodeBehavior implements NodeBehavior {
     }
     int allowed = SorterRules.stacksPerTrip(core.config().stacksPerTripByLevel, level) - golem.carriedItems().size();
     if (allowed <= 0) {
-      return GolemActResult.DONE;
+      return GolemActResult.FAILED;
     }
     if (golem.actIndex() == 0) {
       golem.interact(block, LID_TICKS);
@@ -166,11 +192,11 @@ final class InputNodeBehavior implements NodeBehavior {
       default -> fetchFrom(golem, task, key, inventory, allowed);
     };
     index.invalidate(id);
-    if (moved.items() > 0) {
-      SorterFeedback.play(core, center(block), SorterFeedback.Kind.TAKE);
-      return GolemActResult.DONE;
+    if (moved.items() <= 0) {
+      return GolemActResult.FAILED;
     }
-    return golem.carried() > 0 ? GolemActResult.DONE : GolemActResult.FAILED;
+    SorterFeedback.play(core, center(block), SorterFeedback.Kind.TAKE);
+    return GolemActResult.DONE;
   }
 
   private Withdrawal sortFrom(GolemContext golem, GolemTask task, Inventory inventory, SorterSurvey survey, int allowed) {
@@ -195,12 +221,13 @@ final class InputNodeBehavior implements NodeBehavior {
         break;
       }
     }
-    if (need == null) {
+    int deficit = need == null ? 0 : deficit(need, survey, golem.nowMillis());
+    if (deficit <= 0) {
       return Withdrawal.NONE;
     }
-    Withdrawal moved = withdraw(golem, inventory, item -> matcher.same(wanted, item), allowed, need.deficit());
+    Withdrawal moved = withdraw(golem, inventory, item -> matcher.same(wanted, item), allowed, deficit);
     if (moved.items() > 0) {
-      plans.restock(golem.handle().id(), need.target().id(), wanted, golem.nowMillis());
+      plans.restock(golem.handle().id(), need.target().id(), wanted, moved.items(), golem.nowMillis());
     }
     return moved;
   }
@@ -218,7 +245,7 @@ final class InputNodeBehavior implements NodeBehavior {
     Withdrawal moved = withdraw(golem, inventory, item -> item.isSimilar(wanted), allowed, reserved);
     request.release(reserved - moved.items());
     if (moved.items() > 0) {
-      plans.fetch(golem.handle().id(), request.player(), wanted, moved.items(), golem.nowMillis());
+      plans.fetch(golem.handle().id(), request, wanted, moved.items(), golem.nowMillis());
     }
     return moved;
   }
@@ -271,7 +298,8 @@ final class InputNodeBehavior implements NodeBehavior {
     SorterPlans.Plan plan = plans.get(golemId, golem.nowMillis()).orElse(null);
     plans.forget(golemId);
     SorterDestination destination = survey.destination(id).orElse(null);
-    if (!(plan instanceof SorterPlans.Restock restock) || !restock.target().equals(id) || destination == null) {
+    if (!(plan instanceof SorterPlans.Restock restock) || !restock.target().equals(id) || destination == null
+        || SorterRules.nests(destination, restock.item())) {
       return GolemActResult.DONE;
     }
     ItemStack wanted = restock.item();
@@ -298,7 +326,8 @@ final class InputNodeBehavior implements NodeBehavior {
       return GolemActResult.FAILED;
     }
     plans.forget(golem.handle().id());
-    int moved = golem.deliverUpTo(inventory, ItemStack::getAmount);
+    SorterDestination input = survey.input();
+    int moved = golem.deliverUpTo(inventory, item -> SorterRules.nests(input, item) ? 0 : item.getAmount());
     if (moved <= 0) {
       return GolemActResult.FAILED;
     }
@@ -318,17 +347,22 @@ final class InputNodeBehavior implements NodeBehavior {
   private GolemActResult hand(GolemContext golem) {
     UUID golemId = golem.handle().id();
     SorterPlans.Plan plan = plans.get(golemId, golem.nowMillis()).orElse(null);
-    plans.forget(golemId);
     if (!(plan instanceof SorterPlans.Fetch fetch)) {
       return GolemActResult.DONE;
     }
+    UUID playerId = fetch.request().player();
     Player player = golem.targetEntity().filter(Player.class::isInstance).map(Player.class::cast)
-        .filter(found -> found.getUniqueId().equals(fetch.player())).orElse(null);
+        .filter(found -> found.getUniqueId().equals(playerId)).orElse(null);
     if (player == null) {
+      if (reachableLater(golem, playerId)) {
+        return GolemActResult.WORKING;
+      }
+      plans.forget(golemId);
       return GolemActResult.DONE;
     }
     ItemStack item = fetch.item();
     int taken = golem.take(held -> held.isSimilar(item), fetch.amount());
+    plans.finish(golemId, taken);
     if (taken <= 0) {
       return GolemActResult.DONE;
     }
@@ -339,6 +373,11 @@ final class InputNodeBehavior implements NodeBehavior {
     return GolemActResult.DONE;
   }
 
+  private boolean reachableLater(GolemContext golem, UUID playerId) {
+    Player online = players.apply(playerId);
+    return online != null && online.isOnline() && golem.ownedEntity(playerId).isEmpty() && golem.world().equals(online.getWorld());
+  }
+
   private Optional<GolemTask> planned(GolemContext golem, NodeKey node, SorterSurvey survey, SorterPlans.Plan plan, List<ItemStack> carried) {
     return switch (plan) {
       case SorterPlans.Fetch fetch -> handTask(golem, node, fetch, carried);
@@ -347,23 +386,32 @@ final class InputNodeBehavior implements NodeBehavior {
   }
 
   private Optional<GolemTask> handTask(GolemContext golem, NodeKey node, SorterPlans.Fetch fetch, List<ItemStack> carried) {
-    Player player = players.apply(fetch.player());
+    UUID playerId = fetch.request().player();
+    Player online = players.apply(playerId);
     ItemStack item = fetch.item();
-    if (player == null || !player.isOnline() || !golem.world().equals(player.getWorld()) || !holds(carried, item::isSimilar)) {
+    if (online == null || !online.isOnline() || !holds(carried, item::isSimilar)) {
       return Optional.empty();
     }
-    Location at = player.getLocation();
-    if (!golem.owns(at) || !golem.inWorkRadius(at)) {
+    Entity owned = golem.ownedEntity(playerId).orElse(null);
+    if (owned == null) {
+      if (!golem.world().equals(online.getWorld())) {
+        return Optional.empty();
+      }
+      Location here = golem.golem().getLocation();
+      GolemTarget waiting = new GolemTarget(GolemTarget.Kind.ENTITY, golem.world().getUID(), here.getX(), here.getY(), here.getZ(), playerId);
+      return unskipped(golem, GolemTask.builder(node, NodeType.INPUT, SorterRules.HAND, waiting).item(item).build());
+    }
+    if (!golem.inWorkRadius(owned.getLocation())) {
       return Optional.empty();
     }
-    return unskipped(golem, GolemTask.builder(node, NodeType.INPUT, SorterRules.HAND, GolemTarget.entity(player)).item(item).build());
+    return unskipped(golem, GolemTask.builder(node, NodeType.INPUT, SorterRules.HAND, GolemTarget.entity(owned)).item(item).build());
   }
 
   private Optional<GolemTask> stockTask(GolemContext golem, NodeKey node, SorterSurvey survey, SorterPlans.Restock restock, List<ItemStack> carried) {
     ItemStack item = restock.item();
     SorterDestination destination = survey.destination(restock.target()).orElse(null);
-    if (destination == null || !holds(carried, held -> survey.matcher().same(item, held)) || survey.cap(destination, item) <= 0
-        || destination.stock().room(item) <= 0) {
+    if (destination == null || SorterRules.nests(destination, item) || !holds(carried, held -> survey.matcher().same(item, held))
+        || survey.cap(destination, item) <= 0 || destination.stock().room(item) <= 0) {
       return Optional.empty();
     }
     return unskipped(golem, GolemTask.builder(node, NodeType.INPUT, SorterRules.STOCK, GolemTarget.block(destination.block())).item(item).build());
@@ -387,7 +435,7 @@ final class InputNodeBehavior implements NodeBehavior {
 
   private Optional<GolemTask> giveBack(GolemContext golem, NodeKey node, SorterSurvey survey, List<ItemStack> carried) {
     SorterDestination input = survey.input();
-    if (!holds(carried, item -> input.stock().room(item) > 0)) {
+    if (!holds(carried, item -> !SorterRules.nests(input, item) && input.stock().room(item) > 0)) {
       return Optional.empty();
     }
     return unskipped(golem, GolemTask.builder(node, NodeType.INPUT, SorterRules.RETURN, GolemTarget.block(input.block())).build());
@@ -431,10 +479,17 @@ final class InputNodeBehavior implements NodeBehavior {
         break;
       }
       int taking = Math.min(held.getAmount(), Math.min(room, maxItems - items));
+      ItemStack original = held.clone();
       ItemStack moving = held.clone();
       moving.setAmount(taking);
       inventory.setItem(slot, remainder(held, taking));
-      int left = golem.carry(moving).map(ItemStack::getAmount).orElse(0);
+      int left;
+      try {
+        left = golem.carry(moving).map(ItemStack::getAmount).orElse(0);
+      } catch (RuntimeException failure) {
+        inventory.setItem(slot, original);
+        throw failure;
+      }
       if (left > 0) {
         inventory.setItem(slot, remainder(held, taking - left));
       }

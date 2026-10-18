@@ -257,7 +257,12 @@ final class FakeGolemPlatform implements GolemPlatform {
 
   @Override
   public Optional<Entity> targetEntity(GolemTarget target, World world) {
-    return target.kind() == GolemTarget.Kind.BLOCK ? Optional.empty() : Optional.ofNullable(entities.get(target.entity()));
+    return target.kind() == GolemTarget.Kind.BLOCK ? Optional.empty() : ownedEntity(target.entity(), world);
+  }
+
+  @Override
+  public Optional<Entity> ownedEntity(UUID entity, World world) {
+    return Optional.ofNullable(entities.get(entity));
   }
 
   @Override

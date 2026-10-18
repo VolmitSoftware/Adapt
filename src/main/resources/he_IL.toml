@@ -4659,6 +4659,7 @@ fetch_amount = "בקש {amount} בכל פעם"
 fetch_empty = "אין דבר מאוחסן במכלים של צומת קלט זה"
 fetch_requested = "ממיין יביא {amount} {item}"
 fetch_delivered = "ממיין הביא {amount} {item}"
+empty_filter = "צומת מסנן ריק אינו מקבל דבר אלא אם הוא גלישה"
 
 [golemancy.runic_augments]
 name = "שיפורים רוניים"

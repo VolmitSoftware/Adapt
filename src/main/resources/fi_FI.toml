@@ -4659,6 +4659,7 @@ fetch_amount = "Pyydä {amount} kerrallaan"
 fetch_empty = "Tämän syötesolmun säiliöissä ei ole mitään"
 fetch_requested = "Lajittelija tuo {amount} {item}"
 fetch_delivered = "Lajittelija toi {amount} {item}"
+empty_filter = "Tyhjä suodatinsolmu ei ota mitään, ellei se ole ylivuoto"
 
 [golemancy.runic_augments]
 name = "Riimuvahvistukset"

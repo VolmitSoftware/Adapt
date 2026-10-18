@@ -4659,6 +4659,7 @@ fetch_amount = "{amount} auf einmal anfordern"
 fetch_empty = "In den Behältern dieses Eingabe-Knotens ist nichts gelagert"
 fetch_requested = "Ein Sortierer bringt {amount} {item}"
 fetch_delivered = "Ein Sortierer hat {amount} {item} gebracht"
+empty_filter = "Ein leerer Filter-Knoten nimmt nichts an, außer er ist ein Überlauf"
 
 [golemancy.runic_augments]
 name = "Runenverstärkung"

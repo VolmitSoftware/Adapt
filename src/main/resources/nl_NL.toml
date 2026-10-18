@@ -4659,6 +4659,7 @@ fetch_amount = "{amount} per keer aanvragen"
 fetch_empty = "De containers van dit Invoer-knooppunt zijn leeg"
 fetch_requested = "Een Sorteerder brengt {amount} {item}"
 fetch_delivered = "Een Sorteerder heeft {amount} {item} gebracht"
+empty_filter = "Een leeg Filter-knooppunt neemt niets aan, tenzij het een overloop is"
 
 [golemancy.runic_augments]
 name = "Runenversterkingen"

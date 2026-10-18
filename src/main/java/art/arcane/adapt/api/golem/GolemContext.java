@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
@@ -72,6 +73,10 @@ public final class GolemContext {
   public Optional<Entity> targetEntity() {
     GolemTask task = scope.task();
     return task == null ? Optional.empty() : worker.platform().targetEntity(task.target(), world());
+  }
+
+  public Optional<Entity> ownedEntity(UUID entity) {
+    return worker.platform().ownedEntity(entity, world());
   }
 
   public boolean skips(GolemTask task) {

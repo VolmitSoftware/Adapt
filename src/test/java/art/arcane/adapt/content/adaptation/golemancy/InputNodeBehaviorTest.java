@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.node.NodeTagLookup;
 import art.arcane.adapt.api.golem.node.ScanBudget;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
@@ -30,14 +31,17 @@ import org.mockito.quality.Strictness;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.function.ToIntFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -46,11 +50,12 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
 class InputNodeBehaviorTest {
-  private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000026f1");
+  private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000026d2");
   private static final UUID GOLEM = UUID.fromString("00000000-0000-0000-0000-0000000026f2");
   private static final NodeKey KEY = new NodeKey(SorterYard.WORLD, 0, 64, 0, BlockFace.UP);
   private static final long NOW = 50_000L;
@@ -77,12 +82,14 @@ class InputNodeBehaviorTest {
   private final List<Double> xp = new ArrayList<>();
   private final List<String> interactions = new ArrayList<>();
   private final Map<UUID, Player> players = new HashMap<>();
+  private final Set<UUID> away = new HashSet<>();
   private NodeRecord record = NodeRecord.builder(OWNER, NodeType.INPUT, BlockFace.UP).build();
   private GolemSorterCore core;
   private InputNodeBehavior behavior;
   private Inventory input;
   private int capacity = 256;
   private int level = 1;
+  private long now = NOW;
   private Entity target;
   private MockedStatic<SorterFeedback> feedback;
 
@@ -92,7 +99,8 @@ class InputNodeBehaviorTest {
     lenient().when(core.config()).thenReturn(config);
     lenient().when(core.groups()).thenReturn(Map.of());
     lenient().when(core.ownerLevel(OWNER)).thenAnswer(invocation -> level);
-    SorterNetwork network = new SorterNetwork(core, yard.space(), index, NO_TAGS, items::variant);
+    yard.permitThrough(core);
+    SorterNetwork network = new SorterNetwork(core, yard.space(), index, NO_TAGS, items::variant, () -> 2_000L);
     behavior = new InputNodeBehavior(core, network, plans, fetches, index, players::get);
     input = yard.chest(0, 64, 0);
     feedback = mockStatic(SorterFeedback.class);
@@ -129,6 +137,10 @@ class InputNodeBehaviorTest {
 
     cobble.setItem(0, null);
     input.setItem(1, null);
+    behavior.scan(node(), budget(true));
+    assertThat(jobs()).containsExactly("sort 0,64,0 COBBLESTONE");
+
+    now += 2_000L;
     behavior.scan(node(), budget(true));
 
     assertThat(posted).isEmpty();
@@ -200,12 +212,14 @@ class InputNodeBehaviorTest {
     cargo.add(items.item(Material.DIRT, 4));
     GolemTask sort = task(SorterRules.SORT, 0, 64, 0, items.item(Material.COBBLESTONE, 1));
 
-    assertThat(behavior.act(golem(0), sort)).isEqualTo(GolemActResult.DONE);
+    assertThat(behavior.act(golem(0), sort)).isEqualTo(GolemActResult.FAILED);
     assertThat(interactions).isEmpty();
     assertThat(SorterItems.count(input, Material.COBBLESTONE)).isEqualTo(30);
 
-    cargo.clear();
+    level = 3;
     input.setItem(0, null);
+    assertThat(behavior.act(golem(1), sort)).isEqualTo(GolemActResult.FAILED);
+    cargo.clear();
     assertThat(behavior.act(golem(1), sort)).isEqualTo(GolemActResult.FAILED);
   }
 
@@ -314,13 +328,16 @@ class InputNodeBehaviorTest {
     level = 5;
     yard.chest(3, 64, 0, items.item(Material.COBBLESTONE, 64));
     Player player = player();
-    plans.fetch(GOLEM, player.getUniqueId(), items.item(Material.COBBLESTONE, 1), 10, NOW);
+    SorterFetches.Request request = fetches.request(player.getUniqueId(), KEY, items.item(Material.COBBLESTONE, 1), 10, NOW);
+    plans.fetch(GOLEM, request, items.item(Material.COBBLESTONE, 1), request.reserve(10), NOW);
     cargo.add(items.item(Material.COBBLESTONE, 10));
     target = null;
+    players.remove(player.getUniqueId());
 
     assertThat(behavior.act(golem(1), handTask(player))).isEqualTo(GolemActResult.DONE);
     assertThat(carried(Material.COBBLESTONE)).isEqualTo(10);
     assertThat(plans.get(GOLEM, NOW)).isEmpty();
+    assertThat(request.remaining()).isEqualTo(10);
     assertThat(describe(behavior.route(golem(0), KEY, List.copyOf(cargo)).orElseThrow())).isEqualTo("drop 3,64,0 -");
   }
 
@@ -340,6 +357,93 @@ class InputNodeBehaviorTest {
     cargo.add(items.item(Material.COBBLESTONE, 3));
     cargo.removeIf(item -> item.getType() == Material.DIRT);
     assertThat(describe(behavior.route(golem, KEY, List.copyOf(cargo)).orElseThrow())).isEqualTo("return 0,64,0 -");
+  }
+
+  @Test
+  void fetchAndRestockJobsGoOutFirstAndPushOutTheCheapestSortJobWhenTheBoardIsFull() {
+    level = 5;
+    fill(input, items.item(Material.COBBLESTONE, 40), items.item(Material.DIRT, 3));
+    yard.chest(3, 64, 0, items.item(Material.COBBLESTONE, 1), items.item(Material.DIRT, 1), items.item(Material.SAND, 64));
+    behavior.scan(node(), budget(true));
+    assertThat(jobs()).containsExactly("sort 0,64,0 COBBLESTONE", "sort 0,64,0 DIRT");
+
+    Player player = player();
+    fetches.request(player.getUniqueId(), KEY, items.item(Material.SAND, 1), 16, NOW);
+    behavior.scan(node(), budget(false));
+
+    assertThat(jobs()).containsExactly("fetch 3,64,0 SAND", "sort 0,64,0 COBBLESTONE");
+    posted.clear();
+    behavior.scan(node(), budget(true));
+    assertThat(posted).extracting(GolemTask::type).containsExactly(SorterRules.FETCH, SorterRules.SORT, SorterRules.SORT);
+  }
+
+  @Test
+  void aRestockAlreadyOnItsWayCountsAgainstTheDeficit() {
+    level = 4;
+    yard.chest(2, 64, 2, items.item(Material.TORCH, 4));
+    yard.node(2, 64, 2, NodeRecord.builder(OWNER, NodeType.FILTER, BlockFace.UP).filterItems(List.of(items.item(Material.TORCH, 1)))
+        .data(Map.of(SorterRules.RESTOCK_TARGET, "16")).build());
+    yard.chest(6, 64, 0, items.item(Material.TORCH, 64));
+    plans.restock(UUID.randomUUID(), new ContainerId(SorterYard.WORLD, 2, 64, 2), items.item(Material.TORCH, 1), 12, NOW);
+
+    behavior.scan(node(), budget(true));
+    assertThat(posted).isEmpty();
+
+    plans.clear();
+    plans.restock(UUID.randomUUID(), new ContainerId(SorterYard.WORLD, 2, 64, 2), items.item(Material.TORCH, 1), 8, NOW);
+    behavior.scan(node(), budget(true));
+    GolemTask restock = posted.getFirst();
+    assertThat(behavior.act(golem(1), restock)).isEqualTo(GolemActResult.DONE);
+    assertThat(carried(Material.TORCH)).isEqualTo(4);
+  }
+
+  @Test
+  void aShulkerBoxInputNeverTakesAShulkerBoxBack() {
+    yard.block(0, 64, 0);
+    lenient().when(yard.block(0, 64, 0).getType()).thenReturn(Material.SHULKER_BOX);
+    cargo.add(items.item(Material.SHULKER_BOX, 1));
+
+    assertThat(behavior.route(golem(0), KEY, List.copyOf(cargo))).isEmpty();
+    assertThat(behavior.act(golem(1), task(SorterRules.RETURN, 0, 64, 0, null))).isEqualTo(GolemActResult.FAILED);
+    assertThat(SorterItems.count(input, Material.SHULKER_BOX)).isZero();
+  }
+
+  @Test
+  void aPlayerInAnotherRegionKeepsTheFetchWaitingUntilTheyLeaveTheWorldOrLogOff() {
+    level = 5;
+    Player player = player();
+    SorterFetches.Request request = fetches.request(player.getUniqueId(), KEY, items.item(Material.COBBLESTONE, 1), 10, NOW);
+    plans.fetch(GOLEM, request, items.item(Material.COBBLESTONE, 1), request.reserve(10), NOW);
+    cargo.add(items.item(Material.COBBLESTONE, 10));
+    away.add(player.getUniqueId());
+
+    GolemTask wait = behavior.route(golem(0), KEY, List.copyOf(cargo)).orElseThrow();
+    assertThat(wait.type()).isEqualTo(SorterRules.HAND);
+    assertThat(wait.target().entity()).isEqualTo(player.getUniqueId());
+    assertThat(wait.target().x()).isEqualTo(0.5D);
+    verify(player, never()).getLocation();
+    target = null;
+    assertThat(behavior.act(golem(1), wait)).isEqualTo(GolemActResult.WORKING);
+    assertThat(plans.get(GOLEM, NOW)).isPresent();
+
+    World nether = mock(World.class);
+    lenient().when(player.getWorld()).thenReturn(nether);
+    assertThat(behavior.act(golem(1), wait)).isEqualTo(GolemActResult.DONE);
+    assertThat(plans.get(GOLEM, NOW)).isEmpty();
+    assertThat(request.remaining()).isEqualTo(10);
+  }
+
+  @Test
+  void aCarryThatThrowsPutsTheItemsBackInTheirSlot() {
+    fill(input, items.item(Material.COBBLESTONE, 20));
+    yard.chest(3, 64, 0, items.item(Material.COBBLESTONE, 1));
+    GolemContext golem = golem(1);
+    lenient().when(golem.carry(any(ItemStack.class))).thenThrow(new IllegalStateException("cargo refused"));
+
+    assertThatThrownBy(() -> behavior.act(golem, task(SorterRules.SORT, 0, 64, 0, items.item(Material.COBBLESTONE, 1))))
+        .isInstanceOf(IllegalStateException.class);
+
+    assertThat(SorterItems.count(input, Material.COBBLESTONE)).isEqualTo(20);
   }
 
   private void fill(Inventory inventory, ItemStack... contents) {
@@ -384,10 +488,10 @@ class InputNodeBehaviorTest {
     lenient().when(node.key()).thenReturn(KEY);
     lenient().when(node.record()).thenAnswer(invocation -> record);
     lenient().when(node.world()).thenReturn(yard.world);
-    lenient().when(node.nowMillis()).thenReturn(NOW);
+    lenient().when(node.nowMillis()).thenAnswer(invocation -> now);
     lenient().when(node.anchor()).thenReturn(yard.block(0, 64, 0));
     lenient().when(node.owns(any(Block.class))).thenAnswer(invocation -> yard.access().owns(invocation.getArgument(0)));
-    lenient().when(node.container(any(Block.class))).thenAnswer(invocation -> yard.access().container(invocation.getArgument(0)));
+    lenient().when(node.onlineOwner()).thenReturn(Optional.of(yard.owner));
     lenient().when(node.tasks()).thenAnswer(invocation -> List.copyOf(posted));
     lenient().when(node.task(anyString(), any(GolemTarget.class)))
         .thenAnswer(invocation -> GolemTask.builder(KEY, NodeType.INPUT, invocation.getArgument(0), invocation.getArgument(1)));
@@ -410,8 +514,7 @@ class InputNodeBehaviorTest {
 
   private GolemContext golem(int actIndex) {
     GolemContext golem = mock(GolemContext.class, withSettings().strictness(Strictness.LENIENT));
-    Player owner = mock(Player.class);
-    lenient().when(owner.getUniqueId()).thenReturn(OWNER);
+    Player owner = yard.owner;
     GolemHandle handle = mock(GolemHandle.class, withSettings().strictness(Strictness.LENIENT));
     lenient().when(handle.id()).thenReturn(GOLEM);
     Mob body = mock(Mob.class);
@@ -421,13 +524,15 @@ class InputNodeBehaviorTest {
     lenient().when(golem.owner()).thenReturn(owner);
     lenient().when(golem.node()).thenAnswer(invocation -> Optional.of(record));
     lenient().when(golem.world()).thenReturn(yard.world);
-    lenient().when(golem.nowMillis()).thenReturn(NOW);
+    lenient().when(golem.nowMillis()).thenAnswer(invocation -> now);
     lenient().when(golem.actIndex()).thenReturn(actIndex);
     lenient().when(golem.owns(any(Location.class))).thenReturn(true);
     lenient().when(golem.canAccessChest(any(Location.class))).thenReturn(true);
     lenient().when(golem.inWorkRadius(any(Location.class))).thenReturn(true);
     lenient().when(golem.skips(any(GolemTask.class))).thenReturn(false);
-    lenient().when(golem.container(any(Block.class))).thenAnswer(invocation -> yard.access().container(invocation.getArgument(0)));
+    lenient().when(golem.container(any(Block.class))).thenAnswer(invocation -> yard.container(invocation.getArgument(0)));
+    lenient().when(golem.ownedEntity(any(UUID.class))).thenAnswer(invocation -> Optional.ofNullable(away.contains(invocation.<UUID>getArgument(0))
+        ? null : players.get(invocation.<UUID>getArgument(0))));
     lenient().when(golem.targetEntity()).thenAnswer(invocation -> Optional.ofNullable(target));
     lenient().when(golem.carriedItems()).thenAnswer(invocation -> copies());
     lenient().when(golem.carried()).thenAnswer(invocation -> carriedCount());

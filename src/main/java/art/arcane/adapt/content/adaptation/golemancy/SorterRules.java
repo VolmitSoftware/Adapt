@@ -3,6 +3,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.api.golem.node.NodeFilters;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -130,6 +131,10 @@ final class SorterRules {
 
   static boolean shulker(Material type) {
     return type.name().endsWith(SHULKER_BOX);
+  }
+
+  static boolean nests(SorterDestination destination, ItemStack item) {
+    return destination.shulkerBox() && shulker(item.getType());
   }
 
   static boolean precise(Material type) {

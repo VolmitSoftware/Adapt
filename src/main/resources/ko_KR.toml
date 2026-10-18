@@ -4659,6 +4659,7 @@ fetch_amount = "한 번에 {amount}개 요청"
 fetch_empty = "이 입력 노드의 보관함에는 아무것도 없습니다"
 fetch_requested = "분류가가 {item} {amount}개를 가져옵니다"
 fetch_delivered = "분류가가 {item} {amount}개를 가져왔습니다"
+empty_filter = "빈 필터 노드는 넘침 보관함이 아니면 아무것도 받지 않습니다"
 
 [golemancy.runic_augments]
 name = "룬 강화"

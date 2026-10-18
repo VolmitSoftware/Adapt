@@ -165,7 +165,7 @@ final class SorterSurvey {
   }
 
   private boolean fits(SorterDestination destination, ItemStack item) {
-    return destination.stock().room(item) > 0 && cap(destination, item) > 0;
+    return !SorterRules.nests(destination, item) && destination.stock().room(item) > 0 && cap(destination, item) > 0;
   }
 
   private boolean wants(SorterDestination destination, ItemStack item) {

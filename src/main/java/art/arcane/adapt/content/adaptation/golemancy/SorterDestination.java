@@ -5,7 +5,7 @@ import org.bukkit.block.Block;
 
 import java.util.Objects;
 
-record SorterDestination(ContainerId id, Block block, SorterStock stock, Kind kind, NodeRecord filter, double distanceSquared) {
+record SorterDestination(ContainerId id, Block block, SorterStock stock, Kind kind, NodeRecord filter, double distanceSquared, boolean shulkerBox) {
   SorterDestination {
     Objects.requireNonNull(id);
     Objects.requireNonNull(block);

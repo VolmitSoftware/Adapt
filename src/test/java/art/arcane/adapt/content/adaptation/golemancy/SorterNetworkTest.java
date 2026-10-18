@@ -6,6 +6,7 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeTagLookup;
 import art.arcane.adapt.api.golem.node.RedstoneMode;
 import org.bukkit.DyeColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
 import org.bukkit.inventory.Inventory;
@@ -28,6 +29,7 @@ class SorterNetworkTest {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000026e1");
   private static final UUID STRANGER = UUID.fromString("00000000-0000-0000-0000-0000000026e2");
   private static final NodeKey INPUT = new NodeKey(SorterYard.WORLD, 0, 64, 0, BlockFace.UP);
+  private static final long SCAN_MILLIS = 2_000L;
   private static final NodeTagLookup NO_TAGS = new NodeTagLookup() {
     @Override
     public boolean exists(String tag) {
@@ -44,14 +46,16 @@ class SorterNetworkTest {
   private final GolemSorterCore.Config config = new GolemSorterCore.Config();
   private final SorterIndex index = new SorterIndex(() -> 64, () -> 30_000L);
   private SorterNetwork network;
+  private GolemSorterCore core;
   private NodeRecord input = NodeRecord.builder(OWNER, NodeType.INPUT, BlockFace.UP).build();
 
   @BeforeEach
   void setUp() {
-    GolemSorterCore core = mock(GolemSorterCore.class);
+    core = mock(GolemSorterCore.class);
     lenient().when(core.config()).thenReturn(config);
     lenient().when(core.groups()).thenReturn(Map.of(Material.OAK_LOG, "logs", Material.BIRCH_LOG, "logs"));
-    network = new SorterNetwork(core, yard.space(), index, NO_TAGS, yard.items::variant);
+    yard.permitThrough(core);
+    network = new SorterNetwork(core, yard.space(), index, NO_TAGS, yard.items::variant, () -> SCAN_MILLIS);
     yard.chest(0, 64, 0, yard.items.item(Material.COBBLESTONE, 5));
   }
 
@@ -131,16 +135,50 @@ class SorterNetworkTest {
   }
 
   @Test
-  void containerContentsComeFromTheIndexFromItsLevel() {
+  void containerReadsAreSharedForOneScanBelowTheIndexLevelAndLastLongerFromIt() {
     Inventory storage = yard.chest(3, 64, 0, yard.items.item(Material.COBBLESTONE, 1));
+    Inventory hub = yard.inventory(0, 64, 0);
 
-    survey(4);
-    survey(4);
+    survey(4, 1_000L);
+    survey(4, 1_000L + SCAN_MILLIS - 1L);
+    verify(storage, times(1)).getStorageContents();
+    verify(hub, times(2)).getStorageContents();
+    survey(4, 1_000L + SCAN_MILLIS);
     verify(storage, times(2)).getStorageContents();
 
-    survey(5);
-    survey(5);
+    survey(5, 1_000L + SCAN_MILLIS + 20_000L);
+    verify(storage, times(2)).getStorageContents();
+    survey(5, 1_000L + SCAN_MILLIS + 30_000L);
     verify(storage, times(3)).getStorageContents();
+  }
+
+  @Test
+  void anInputServesItsNearestContainersUpToTheLimitAndRemembersWhereTheyAre() {
+    config.maxServedContainers = 2;
+    yard.chest(5, 64, 0, yard.items.item(Material.COBBLESTONE, 1));
+    yard.chest(2, 64, 0, yard.items.item(Material.COBBLESTONE, 1));
+    yard.chest(0, 64, 3, yard.items.item(Material.COBBLESTONE, 1));
+
+    SorterSurvey survey = survey(1).orElseThrow();
+    assertThat(served(survey, 2, 64, 0)).isPresent();
+    assertThat(served(survey, 0, 64, 3)).isPresent();
+    assertThat(served(survey, 5, 64, 0)).isEmpty();
+
+    config.maxServedContainers = 8;
+    yard.chest(1, 64, 1, yard.items.item(Material.COBBLESTONE, 1));
+    assertThat(served(survey(1, 1_000L + SorterNetwork.SERVED_MILLIS - 1L).orElseThrow(), 1, 64, 1)).isEmpty();
+    assertThat(served(survey(1, 1_000L + SorterNetwork.SERVED_MILLIS).orElseThrow(), 1, 64, 1)).isPresent();
+  }
+
+  @Test
+  void containerAccessIsAskedOncePerContainerForAFewSeconds() {
+    yard.chest(3, 64, 0, yard.items.item(Material.COBBLESTONE, 1));
+
+    survey(1, 1_000L);
+    survey(1, 1_000L + SorterNetwork.ACCESS_MILLIS - 1L);
+    verify(core, times(1)).canAccessChest(yard.owner, new Location(yard.world, 3, 64, 0));
+    survey(1, 1_000L + SorterNetwork.ACCESS_MILLIS);
+    verify(core, times(2)).canAccessChest(yard.owner, new Location(yard.world, 3, 64, 0));
   }
 
   @Test
@@ -168,7 +206,11 @@ class SorterNetworkTest {
   }
 
   private Optional<SorterSurvey> survey(int level) {
-    return network.survey(yard.access(), yard.world, INPUT, input, level, 1_000L);
+    return survey(level, 1_000L);
+  }
+
+  private Optional<SorterSurvey> survey(int level, long now) {
+    return network.survey(yard.access(), yard.world, INPUT, input, level, now);
   }
 
   private static NodeRecord.Builder filter(UUID owner) {

@@ -4659,6 +4659,7 @@ fetch_amount = "Заказывать по {amount}"
 fetch_empty = "В контейнерах этого Узла ввода ничего нет"
 fetch_requested = "Сортировщик принесёт {amount} {item}"
 fetch_delivered = "Сортировщик принёс {amount} {item}"
+empty_filter = "Пустой Узел фильтра ничего не принимает, если он не переполнение"
 
 [golemancy.runic_augments]
 name = "Рунические улучшения"

@@ -3,7 +3,6 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
-import art.arcane.adapt.api.golem.node.NodeContainers;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -24,12 +23,10 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -80,8 +77,8 @@ final class SorterFetchGui {
       }
 
       @Override
-      public Optional<Inventory> container(Block block) {
-        return core.canAccessChest(player, block.getLocation()) ? NodeContainers.inventory(block) : Optional.empty();
+      public Player owner() {
+        return player;
       }
     };
   }

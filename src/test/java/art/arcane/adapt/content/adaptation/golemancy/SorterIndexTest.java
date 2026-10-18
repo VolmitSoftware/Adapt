@@ -35,9 +35,9 @@ class SorterIndexTest {
 
     index.put(id, stock);
 
-    assertThat(index.fresh(id, 1_000L + REFRESH - 1L)).containsSame(stock);
-    assertThat(index.fresh(id, 1_000L + REFRESH)).isEmpty();
-    assertThat(index.fresh(new ContainerId(WORLD_ID, 2, 64, 1), 1_000L)).isEmpty();
+    assertThat(index.fresh(id, 1_000L + REFRESH - 1L, REFRESH)).containsSame(stock);
+    assertThat(index.fresh(id, 1_000L + REFRESH, REFRESH)).isEmpty();
+    assertThat(index.fresh(new ContainerId(WORLD_ID, 2, 64, 1), 1_000L, REFRESH)).isEmpty();
   }
 
   @Test
@@ -48,11 +48,11 @@ class SorterIndexTest {
     index.put(left, stock(0L));
 
     index.invalidate(items.inventory(9, new Location(world, 1, 64, 1)));
-    assertThat(index.fresh(single, 0L)).isEmpty();
-    assertThat(index.fresh(left, 0L)).isPresent();
+    assertThat(index.fresh(single, 0L, REFRESH)).isEmpty();
+    assertThat(index.fresh(left, 0L, REFRESH)).isPresent();
 
     index.invalidate(doubleChest(new Location(world, 4, 64, 1), new Location(world, 4.5, 64, 1.5)));
-    assertThat(index.fresh(left, 0L)).isEmpty();
+    assertThat(index.fresh(left, 0L, REFRESH)).isEmpty();
     assertThat(index.isEmpty()).isTrue();
 
     index.invalidate(items.inventory(9));
@@ -65,9 +65,9 @@ class SorterIndexTest {
     index.put(new ContainerId(WORLD_ID, 2, 64, 1), stock(5L));
     index.put(new ContainerId(WORLD_ID, 3, 64, 1), stock(20L));
 
-    assertThat(index.fresh(new ContainerId(WORLD_ID, 2, 64, 1), 20L)).isEmpty();
-    assertThat(index.fresh(new ContainerId(WORLD_ID, 1, 64, 1), 20L)).isPresent();
-    assertThat(index.fresh(new ContainerId(WORLD_ID, 3, 64, 1), 20L)).isPresent();
+    assertThat(index.fresh(new ContainerId(WORLD_ID, 2, 64, 1), 20L, REFRESH)).isEmpty();
+    assertThat(index.fresh(new ContainerId(WORLD_ID, 1, 64, 1), 20L, REFRESH)).isPresent();
+    assertThat(index.fresh(new ContainerId(WORLD_ID, 3, 64, 1), 20L, REFRESH)).isPresent();
   }
 
   @Test

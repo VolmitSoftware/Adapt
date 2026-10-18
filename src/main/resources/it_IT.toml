@@ -4659,6 +4659,7 @@ fetch_amount = "Richiedi {amount} alla volta"
 fetch_empty = "Nei contenitori di questo Nodo di Ingresso non c'è nulla"
 fetch_requested = "Uno Smistatore ti porterà {amount} {item}"
 fetch_delivered = "Uno Smistatore ti ha portato {amount} {item}"
+empty_filter = "Un Nodo di Filtro vuoto non prende nulla, a meno che non sia un troppopieno"
 
 [golemancy.runic_augments]
 name = "Potenziamenti runici"

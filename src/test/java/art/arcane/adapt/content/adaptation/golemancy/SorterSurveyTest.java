@@ -122,6 +122,18 @@ class SorterSurveyTest {
   }
 
   @Test
+  void aShulkerBoxNeverGoesIntoAShulkerBox() {
+    SorterDestination box = destination(1, SorterDestination.Kind.OVERFLOW, filterRecord(3, true), true);
+    SorterDestination chest = destination(4, SorterDestination.Kind.OVERFLOW, filterRecord(3, true), false);
+    SorterSurvey survey = survey(SorterRules.Match.PRECISE, 4);
+
+    assertThat(survey.choose(items.item(Material.SHULKER_BOX, 1))).containsSame(chest);
+    assertThat(survey.choose(items.item(Material.STONE, 1))).containsSame(box);
+    destinations.remove(chest);
+    assertThat(survey(SorterRules.Match.PRECISE, 4).choose(items.item(Material.RED_SHULKER_BOX, 1))).isEmpty();
+  }
+
+  @Test
   void aRestockingFilterTakesOnlyItsItemsUpToItsTarget() {
     NodeRecord restock = restocking(32, filterRecord(3, true, items.item(Material.TORCH, 1)).toBuilder().filterTags(List.of(LOGS)).build());
     SorterDestination workshop = filter(3, restock, items.item(Material.TORCH, 20));
@@ -199,7 +211,7 @@ class SorterSurveyTest {
       full[i] = items.item(type, 64);
     }
     destinations.add(new SorterDestination(new ContainerId(WORLD, x, 70, 0), mock(Block.class), SorterStock.read(items.inventory(3, full), 0L),
-        SorterDestination.Kind.PLAIN, null, 0.5D));
+        SorterDestination.Kind.PLAIN, null, 0.5D, false));
   }
 
   private SorterDestination filter(int x, NodeRecord record, ItemStack... contents) {
@@ -207,8 +219,12 @@ class SorterSurveyTest {
   }
 
   private SorterDestination destination(int x, SorterDestination.Kind kind, NodeRecord record, ItemStack... contents) {
+    return destination(x, kind, record, false, contents);
+  }
+
+  private SorterDestination destination(int x, SorterDestination.Kind kind, NodeRecord record, boolean shulkerBox, ItemStack... contents) {
     SorterDestination destination = new SorterDestination(new ContainerId(WORLD, x, 64, 0), mock(Block.class),
-        SorterStock.read(items.inventory(27, contents), 0L), kind, record, (double) x * x);
+        SorterStock.read(items.inventory(27, contents), 0L), kind, record, (double) x * x, shulkerBox);
     if (kind != SorterDestination.Kind.INPUT) {
       destinations.add(destination);
     }

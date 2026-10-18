@@ -4659,6 +4659,7 @@ fetch_amount = "一度に{amount}個を依頼"
 fetch_empty = "この搬入ノードの容器には何も入っていません"
 fetch_requested = "仕分け係が{item}を{amount}個届けます"
 fetch_delivered = "仕分け係が{item}を{amount}個届けました"
+empty_filter = "空のフィルターノードは、あふれ先でない限り何も受け取りません"
 
 [golemancy.runic_augments]
 name = "ルーン強化"

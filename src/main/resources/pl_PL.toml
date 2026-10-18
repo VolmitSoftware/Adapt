@@ -4659,6 +4659,7 @@ fetch_amount = "Proś o {amount} naraz"
 fetch_empty = "W pojemnikach tego Węzła Wejścia nic nie ma"
 fetch_requested = "Sortownik przyniesie {amount} {item}"
 fetch_delivered = "Sortownik przyniósł {amount} {item}"
+empty_filter = "Pusty Węzeł Filtra nic nie przyjmuje, chyba że jest przepełnieniem"
 
 [golemancy.runic_augments]
 name = "Runiczne ulepszenia"

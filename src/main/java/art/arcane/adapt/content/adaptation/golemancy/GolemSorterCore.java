@@ -21,6 +21,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
+import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.gui.NodePanels;
 import art.arcane.adapt.api.golem.item.GolemItems;
@@ -46,6 +47,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.event.inventory.InventoryType;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -64,11 +67,14 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
   private static final int MAX_SECONDS = 3_600;
   private static final int MIN_FETCH_TIMEOUT_SECONDS = 10;
   private static final int MAX_INDEXED_CONTAINERS = 16_384;
+  private static final int MAX_SERVED_CONTAINERS = 1_024;
+  private static final long TICK_MILLIS = 50L;
 
   private final SorterIndex index = new SorterIndex(() -> getConfig().maxIndexedContainers, () -> getConfig().indexRefreshSeconds * MILLIS_PER_SECOND);
   private final SorterPlans plans = new SorterPlans();
   private final SorterFetches fetches = new SorterFetches(() -> getConfig().fetchTimeoutSeconds * MILLIS_PER_SECOND);
-  private final SorterNetwork network = new SorterNetwork(this, BukkitSorterSpace.INSTANCE, index, NodeItemTags.shared(), SorterVariants::of);
+  private final SorterNetwork network = new SorterNetwork(this, BukkitSorterSpace.INSTANCE, index, NodeItemTags.shared(), SorterVariants::of,
+      () -> GolemancyRuntime.nodeSettings().scanIntervalTicks() * TICK_MILLIS);
   private final InputNodeBehavior input = new InputNodeBehavior(this, network, plans, fetches, index, Bukkit::getPlayer);
   private final FilterNodeBehavior filter = new FilterNodeBehavior(this);
   private final SorterFetchGui fetchGui = new SorterFetchGui(this, network, fetches);
@@ -96,6 +102,7 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
     NodePanels.unregister(NodeType.INPUT, inputPanel);
     NodePanels.unregister(NodeType.FILTER, filterPanel);
     index.clear();
+    network.clear();
     plans.clear();
     fetches.clear();
     super.unregister();
@@ -115,6 +122,7 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
     loadedConfig.indexRefreshSeconds = SorterRules.clamp(loadedConfig.indexRefreshSeconds, 1, MAX_SECONDS);
     loadedConfig.maxIndexedContainers = SorterRules.clamp(loadedConfig.maxIndexedContainers, 1, MAX_INDEXED_CONTAINERS);
     loadedConfig.fetchTimeoutSeconds = SorterRules.clamp(loadedConfig.fetchTimeoutSeconds, MIN_FETCH_TIMEOUT_SECONDS, MAX_SECONDS);
+    loadedConfig.maxServedContainers = SorterRules.clamp(loadedConfig.maxServedContainers, 1, MAX_SERVED_CONTAINERS);
   }
 
   @Override
@@ -133,13 +141,14 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
 
   @Override
   public boolean hasTickDemand() {
-    return !index.isEmpty() || !plans.isEmpty() || !fetches.isEmpty();
+    return !index.isEmpty() || !network.isEmpty() || !plans.isEmpty() || !fetches.isEmpty();
   }
 
   @Override
   public void onTick() {
     long now = M.ms();
     index.sweep(now);
+    network.sweep(now);
     plans.sweep(now);
     fetches.sweep(now);
   }
@@ -149,8 +158,8 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
     if (index.isEmpty()) {
       return;
     }
-    index.invalidate(e.getSource());
-    index.invalidate(e.getDestination());
+    invalidateStorage(e.getSource());
+    invalidateStorage(e.getDestination());
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -185,6 +194,13 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
       parsedGroups = current;
     }
     return current.groups();
+  }
+
+  private void invalidateStorage(Inventory inventory) {
+    InventoryType type = inventory.getType();
+    if (type == InventoryType.CHEST || type == InventoryType.BARREL || type == InventoryType.SHULKER_BOX) {
+      index.invalidate(inventory);
+    }
   }
 
   private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec, int level) {
@@ -230,12 +246,14 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
     int indexLevel = 5;
     @ConfigDoc(value = "Sorter Core level at which players can fetch items from the Input Node menu.", impact = "Lower values unlock fetching sooner.")
     int fetchLevel = 5;
-    @ConfigDoc(value = "Seconds an indexed container's contents are trusted before a Sorter reads the container again, from 1 to 3600. Players, hoppers and golems moving items in a container refresh it at once.", impact = "Lower values read containers more often.")
+    @ConfigDoc(value = "Seconds an indexed container's contents are trusted before a Sorter reads the container again, from 1 to 3600. A player clicking in or closing the container, a hopper moving items in or out of it, or a Sorter working it refreshes it at once.", impact = "Lower values read containers more often.")
     int indexRefreshSeconds = 30;
     @ConfigDoc(value = "Most containers the server keeps in the Sorter index at once, from 1 to 16384. The oldest entry is dropped when it is full.", impact = "Higher values index more containers but use more memory.")
     int maxIndexedContainers = 1024;
     @ConfigDoc(value = "Seconds a fetch request waits for a Sorter before it is dropped, from 10 to 3600.", impact = "Higher values keep fetch requests open longer.")
     int fetchTimeoutSeconds = 120;
+    @ConfigDoc(value = "Most containers one Input Node serves, nearest first, from 1 to 1024. Containers beyond the limit are left alone.", impact = "Higher values let one Input Node serve bigger storage rooms but read more containers.")
+    int maxServedContainers = 128;
     @ConfigDoc(value = "Golemancy work XP paid for each item stack a Sorter puts away or brings to you. Values below 0 count as 0.", impact = "Higher values pay more XP for sorting.")
     double workXpPerStack = 0.3;
     @ConfigDoc(value = "Crafting recipe for the Sorter Core, unlocked at Sorter Core level 1.", impact = "Edit the rows, keys, result, amount or tithe to change the recipe; changes apply after a restart.")

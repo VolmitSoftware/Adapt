@@ -115,6 +115,7 @@ class GolemSorterCoreExecutionTest extends AdaptTestBase {
     assertThat(config.indexRefreshSeconds).isEqualTo(30);
     assertThat(config.maxIndexedContainers).isEqualTo(1024);
     assertThat(config.fetchTimeoutSeconds).isEqualTo(120);
+    assertThat(config.maxServedContainers).isEqualTo(128);
     assertThat(config.workXpPerStack).isEqualTo(0.3D);
   }
 
@@ -160,7 +161,7 @@ class GolemSorterCoreExecutionTest extends AdaptTestBase {
 
   @Test
   void loadingClampsTheWorkXpIndexAndFetchSettings() {
-    assertThat(adaptation.reloadConfigSnapshot("workXpPerStack = -2.0\nindexRefreshSeconds = 0\nmaxIndexedContainers = -5\nfetchTimeoutSeconds = 1\n",
+    assertThat(adaptation.reloadConfigSnapshot("workXpPerStack = -2.0\nindexRefreshSeconds = 0\nmaxIndexedContainers = -5\nfetchTimeoutSeconds = 1\nmaxServedContainers = 5000\n",
         dataFolder.toPath().resolve("clamp.toml").toFile(), false)).isTrue();
 
     GolemSorterCore.Config config = adaptation.getConfig();
@@ -168,6 +169,7 @@ class GolemSorterCoreExecutionTest extends AdaptTestBase {
     assertThat(config.indexRefreshSeconds).isEqualTo(1);
     assertThat(config.maxIndexedContainers).isEqualTo(1);
     assertThat(config.fetchTimeoutSeconds).isEqualTo(10);
+    assertThat(config.maxServedContainers).isEqualTo(1024);
   }
 
   @Test

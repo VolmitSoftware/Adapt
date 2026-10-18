@@ -4659,6 +4659,7 @@ fetch_amount = "Prašyti po {amount}"
 fetch_empty = "Šio Įvesties mazgo talpyklose nieko nėra"
 fetch_requested = "Rūšiuotojas atneš {amount} {item}"
 fetch_delivered = "Rūšiuotojas atnešė {amount} {item}"
+empty_filter = "Tuščias Filtro mazgas nieko nepriima, nebent jis yra perpildymas"
 
 [golemancy.runic_augments]
 name = "Runų patobulinimai"
