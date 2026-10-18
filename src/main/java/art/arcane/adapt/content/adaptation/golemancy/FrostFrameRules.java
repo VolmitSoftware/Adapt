@@ -65,6 +65,11 @@ final class FrostFrameRules {
     return new FrostbiteState(List.copyOf(recent), cooldownUntil, false);
   }
 
+  static int frostbiteFreezeTicks(int current, int fullyFrozenTicks, int durationTicks) {
+    long frozen = fullyFrozenTicks + 2L * Math.max(1, durationTicks);
+    return (int) Math.max(current, Math.min(Integer.MAX_VALUE, frozen));
+  }
+
   static boolean expired(FrostbiteState state, long now, long windowMillis) {
     if (now < state.cooldownUntil()) {
       return false;

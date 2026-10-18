@@ -38,11 +38,8 @@ import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.entity.Enemy;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
@@ -53,10 +50,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.world.EntitiesLoadEvent;
-import org.bukkit.event.world.EntitiesUnloadEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -78,7 +71,6 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
   private final GolemStatSource frameStats = new FrameStats();
   private final Map<UUID, FrostFrameRules.FrostbiteState> frostbites = new ConcurrentHashMap<>();
   private final Set<UUID> throwingExtra = ConcurrentHashMap.newKeySet();
-  private final FrostbiteFreezer freezer = new FrostbiteFreezer();
 
   public GolemFrostFrame() {
     super("golem-frost-frame");
@@ -92,21 +84,12 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
   public void unregister() {
     GolemStats.unregister(frameStats);
     frostbites.clear();
-    freezer.thawAll();
     super.unregister();
   }
 
   @Override
   protected void onRuntimeActivated() {
     GolemStats.register(frameStats);
-    if (J.isFoliaThreading()) {
-      return;
-    }
-    for (World world : Bukkit.getWorlds()) {
-      for (LivingEntity entity : world.getLivingEntities()) {
-        freezer.recover(entity);
-      }
-    }
   }
 
   @Override
@@ -198,32 +181,6 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
     snowballHit(e).ifPresent(this::applyFrost);
   }
 
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(EntitiesLoadEvent e) {
-    for (Entity entity : e.getEntities()) {
-      if (entity instanceof LivingEntity) {
-        freezer.recover(entity);
-      }
-    }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(EntitiesUnloadEvent e) {
-    for (Entity entity : e.getEntities()) {
-      freezer.thaw(entity);
-    }
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerJoinEvent e) {
-    freezer.recover(e.getPlayer());
-  }
-
-  @EventHandler(priority = EventPriority.MONITOR)
-  public void on(PlayerQuitEvent e) {
-    freezer.thaw(e.getPlayer());
-  }
-
   int ownerLevel(GolemHandle handle) {
     AdaptPlayer owner = getServer().getOnlineAdaptPlayer(handle.owner());
     return owner == null ? 0 : getLevel(owner);
@@ -256,7 +213,7 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
     FrostFrameRules.FrostbiteState state = frostbites.compute(victim.getUniqueId(), (id, current) -> FrostFrameRules.frostbite(current, now,
         config.frostbiteHits, config.frostbiteWindowMillis, config.frostbitePerTargetCooldownMillis));
     if (state.triggered()) {
-      freezer.freeze(victim, config.frostbiteFreezeTicks);
+      victim.setFreezeTicks(FrostFrameRules.frostbiteFreezeTicks(victim.getFreezeTicks(), victim.getMaxFreezeTicks(), config.frostbiteFreezeTicks));
     }
   }
 
@@ -310,8 +267,8 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
     int frostbiteHits = 4;
     @ConfigDoc(value = "Milliseconds within which the frostbiteHits snowball hits must land.", impact = "Higher values make Frostbite easier to trigger.")
     long frostbiteWindowMillis = 5000;
-    @ConfigDoc(value = "Ticks a Frostbite target stays fully frozen.", impact = "Higher values keep targets frozen longer.")
-    int frostbiteFreezeTicks = 140;
+    @ConfigDoc(value = "Ticks a Frostbite target stays fully frozen before it starts to thaw.", impact = "Higher values keep targets frozen longer.")
+    int frostbiteFreezeTicks = 100;
     @ConfigDoc(value = "Milliseconds before Frostbite can freeze the same target again.", impact = "Lower values let Frostbite freeze a target more often.")
     long frostbitePerTargetCooldownMillis = 10000;
 

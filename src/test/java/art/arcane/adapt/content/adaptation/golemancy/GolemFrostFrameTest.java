@@ -10,15 +10,11 @@ import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.inventorygui.Element;
-import net.kyori.adventure.text.Component;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Zombie;
@@ -27,8 +23,6 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.world.EntitiesLoadEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.AfterEach;
@@ -96,7 +90,7 @@ class GolemFrostFrameTest extends AdaptTestBase {
     assertThat(config.frostbiteLevel).isEqualTo(5);
     assertThat(config.frostbiteHits).isEqualTo(4);
     assertThat(config.frostbiteWindowMillis).isEqualTo(5000L);
-    assertThat(config.frostbiteFreezeTicks).isEqualTo(140);
+    assertThat(config.frostbiteFreezeTicks).isEqualTo(100);
     assertThat(config.frostbitePerTargetCooldownMillis).isEqualTo(10000L);
     assertThat(config.requires).containsExactly("golem-animus-binding:1");
     assertThat(config.maxLevel).isEqualTo(5);
@@ -257,28 +251,29 @@ class GolemFrostFrameTest extends AdaptTestBase {
   }
 
   @Test
-  void theFourthLandedHitWithinTheWindowLocksTheTargetFullyFrozenForTheConfiguredTicks() {
+  void theFourthLandedHitWithinTheWindowKeepsTheTargetFullyFrozenForTheConfiguredTicks() {
     assertThat(adaptation.reloadConfigSnapshot("chillLevel = 9\n", dataFolder.toPath().resolve("frostbite.toml").toFile(), false)).isTrue();
-    Zombie hostile = frozenCandidate();
-    Zombie other = frozenCandidate();
+    Zombie hostile = frozenCandidate(0);
+    Zombie other = frozenCandidate(0);
+    Zombie lockedElsewhere = frozenCandidate(900);
 
-    try (MockedStatic<J> scheduling = mockStatic(J.class)) {
-      scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), anyInt(), any(Runnable.class))).thenReturn(true);
-      for (int hit = 0; hit < 3; hit++) {
-        adaptation.onSnowballLanded(hit(tagged(5, null), hostile, 0D));
-      }
-      adaptation.onSnowballLanded(hit(tagged(4, null), other, 0D));
-      verify(hostile, never()).lockFreezeTicks(anyBoolean());
-
+    for (int hit = 0; hit < 3; hit++) {
       adaptation.onSnowballLanded(hit(tagged(5, null), hostile, 0D));
-      adaptation.onSnowballLanded(hit(tagged(5, null), hostile, 0D));
-
-      verify(hostile, times(1)).lockFreezeTicks(true);
-      verify(hostile, times(1)).setFreezeTicks(140);
-      scheduling.verify(() -> J.runEntity(eq(hostile), any(Runnable.class), eq(140), any(Runnable.class)));
-      verify(other, never()).lockFreezeTicks(anyBoolean());
-      assertThat(adaptation.hasTickDemand()).isTrue();
+      adaptation.onSnowballLanded(hit(tagged(5, null), lockedElsewhere, 0D));
     }
+    adaptation.onSnowballLanded(hit(tagged(4, null), other, 0D));
+    verify(hostile, never()).setFreezeTicks(anyInt());
+
+    adaptation.onSnowballLanded(hit(tagged(5, null), hostile, 0D));
+    adaptation.onSnowballLanded(hit(tagged(5, null), hostile, 0D));
+    adaptation.onSnowballLanded(hit(tagged(5, null), lockedElsewhere, 0D));
+
+    verify(hostile, times(1)).setFreezeTicks(340);
+    verify(lockedElsewhere, times(1)).setFreezeTicks(900);
+    verify(other, never()).setFreezeTicks(anyInt());
+    verify(hostile, never()).lockFreezeTicks(anyBoolean());
+    verify(lockedElsewhere, never()).lockFreezeTicks(anyBoolean());
+    assertThat(adaptation.hasTickDemand()).isTrue();
   }
 
   @Test
@@ -303,50 +298,23 @@ class GolemFrostFrameTest extends AdaptTestBase {
   }
 
   @Test
-  void frozenTargetsLeftLockedByAnEarlierRunThawWhenTheyLoadOrJoin() {
-    Zombie stale = frozenCandidate();
-    stale.getPersistentDataContainer().set(FrostbiteFreezer.KEY, PersistentDataType.BYTE, (byte) 1);
-    Zombie untouched = frozenCandidate();
-    Player player = mock(Player.class);
-    PersistentDataContainer playerData = mapBacked();
-    playerData.set(FrostbiteFreezer.KEY, PersistentDataType.BYTE, (byte) 1);
-    when(player.getPersistentDataContainer()).thenReturn(playerData);
-    when(player.getUniqueId()).thenReturn(UUID.randomUUID());
-
-    adaptation.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(stale, untouched)));
-    adaptation.on(new PlayerJoinEvent(player, (Component) null));
-
-    verify(stale).lockFreezeTicks(false);
-    assertThat(stale.getPersistentDataContainer().get(FrostbiteFreezer.KEY, PersistentDataType.BYTE)).isNull();
-    verify(untouched, never()).lockFreezeTicks(anyBoolean());
-    verify(player).lockFreezeTicks(false);
-    assertThat(playerData.get(FrostbiteFreezer.KEY, PersistentDataType.BYTE)).isNull();
-  }
-
-  @Test
   void theStatSourceSkipsTheOwnerLookupForOtherBodies() {
     GolemHandle iron = mock(GolemHandle.class);
     when(iron.body()).thenReturn(GolemBody.IRON);
     when(plugin.getAdaptServer()).thenThrow(new AssertionError("owner level looked up for an iron golem"));
-    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class);
-         MockedStatic<J> scheduling = mockStatic(J.class)) {
-      bukkit.when(Bukkit::getWorlds).thenReturn(List.of());
-      scheduling.when(J::isFoliaThreading).thenReturn(false);
-      adaptation.onRuntimeActivated();
-      GolemStatSource source = GolemStats.sources().stream()
-          .filter(candidate -> candidate.id().equals(GolemFrostFrame.STAT_SOURCE)).findFirst().orElseThrow();
-      try {
-        assertThat(source.deltas(iron)).isEmpty();
-      } finally {
-        GolemStats.unregister(source);
-      }
+    adaptation.onRuntimeActivated();
+    GolemStatSource source = GolemStats.sources().stream()
+        .filter(candidate -> candidate.id().equals(GolemFrostFrame.STAT_SOURCE)).findFirst().orElseThrow();
+    try {
+      assertThat(source.deltas(iron)).isEmpty();
+    } finally {
+      GolemStats.unregister(source);
     }
   }
 
-  private Zombie frozenCandidate() {
+  private Zombie frozenCandidate(int freezeTicks) {
     Zombie zombie = living(Zombie.class);
-    PersistentDataContainer data = mapBacked();
-    lenient().when(zombie.getPersistentDataContainer()).thenReturn(data);
+    lenient().when(zombie.getFreezeTicks()).thenReturn(freezeTicks);
     lenient().when(zombie.getMaxFreezeTicks()).thenReturn(140);
     return zombie;
   }

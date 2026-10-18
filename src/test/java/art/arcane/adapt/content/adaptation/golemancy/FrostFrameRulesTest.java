@@ -135,4 +135,13 @@ class FrostFrameRulesTest {
     assertThat(first.triggered()).isTrue();
     assertThat(second.triggered()).isTrue();
   }
+
+  @Test
+  void frostbiteKeepsTheTargetFullyFrozenForTheDurationWithoutLoweringALongerFreeze() {
+    assertThat(FrostFrameRules.frostbiteFreezeTicks(0, 140, 100)).isEqualTo(340);
+    assertThat(FrostFrameRules.frostbiteFreezeTicks(60, 140, 1)).isEqualTo(142);
+    assertThat(FrostFrameRules.frostbiteFreezeTicks(500, 140, 100)).isEqualTo(500);
+    assertThat(FrostFrameRules.frostbiteFreezeTicks(0, 140, 0)).isEqualTo(142);
+    assertThat(FrostFrameRules.frostbiteFreezeTicks(0, 140, Integer.MAX_VALUE)).isEqualTo(Integer.MAX_VALUE);
+  }
 }
