@@ -237,6 +237,17 @@ class ChoreographyTest(unittest.TestCase):
             self.assertEqual([prerequisite.name for prerequisite in entries[identifier].prerequisites], ['golem-animus-binding'])
             self.assertFalse(any('claim-adaptation' in command for command in entries[identifier].pre))
 
+    def test_golemancy_node_clips_capture_the_pov_live(self) -> None:
+        entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, 'golemancy').entries
+        marker: str = '"adapt:golem_item":"node"'
+        node_clips: set[str] = {identifier for identifier, entry in entries.items()
+                                if any(marker in text for text in entry.pre + [str(beat.get('text', '')) for beat in entry.beats])}
+        self.assertEqual(node_clips, {'golem-node-weaving', 'golem-harvester-core', 'golem-breaker-core', 'golem-angler-core',
+                                      'golem-lumber-core', 'golem-rancher-core', 'golem-sorter-core'})
+        for identifier in sorted(node_clips):
+            with self.subTest(entry=identifier):
+                self.assertTrue(entries[identifier].pov_capture)
+
     def test_every_sheet_names_a_known_world(self) -> None:
         for sheet in sorted((ROOT / 'src' / 'test' / 'demo' / 'sheets').glob('*.json')):
             self.assertEqual(choreography.world_problems(choreography.load_skill(ROOT, sheet.stem).world), [], sheet.name)

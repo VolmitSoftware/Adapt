@@ -450,6 +450,7 @@
     "expect": {
       "sound": "minecraft:block.crop.break"
     },
+    "povCapture": true,
     "maxTicks": 600
   },
   "golem-breaker-core": {
@@ -584,6 +585,7 @@
     "expect": {
       "sound": "minecraft:block.stone.break"
     },
+    "povCapture": true,
     "maxTicks": 700
   },
   "golem-angler-core": {
@@ -698,6 +700,7 @@
     "expect": {
       "sound": "minecraft:entity.fishing_bobber.splash"
     },
+    "povCapture": true,
     "maxTicks": 1200
   },
   "golem-iron-frame": {
@@ -892,6 +895,7 @@
     "expect": {
       "sound": "minecraft:block.wood.break"
     },
+    "povCapture": true,
     "maxTicks": 720
   },
   "golem-node-weaving": {
@@ -948,6 +952,7 @@
       "sound": "minecraft:block.amethyst_block.place",
       "particle": "end_rod"
     },
+    "povCapture": true,
     "maxTicks": 160
   },
   "golem-rancher-core": {
@@ -1063,6 +1068,7 @@
     "expect": {
       "sound": "minecraft:entity.sheep.shear"
     },
+    "povCapture": true,
     "maxTicks": 720
   },
   "golem-runic-augments": {
@@ -1430,6 +1436,7 @@
     "expect": {
       "sound": "minecraft:entity.copper_golem.item_drop"
     },
+    "povCapture": true,
     "maxTicks": 720
   },
   "golem-stasis": {
