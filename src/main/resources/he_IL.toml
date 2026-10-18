@@ -6767,6 +6767,7 @@ golem_not_found = "ל-{player} אין גולם שהמזהה שלו מתחיל ב
 golem_ambiguous = "ליותר מגולם אחד של {player} יש מזהה שמתחיל ב-{id}. הקלד יותר תווים."
 golem_released = "הגולם {id} שוחרר מהרשימה של {player}."
 golem_release_failed = "לא ניתן היה לשחרר את הגולם {id} של {player}. נסה שוב."
+golem_release_active_unloaded = "הגולם {id} של {player} פעיל בצ'אנק שאינו טעון. טען את הצ'אנק שלו כדי לשחרר אותו, או שחרר אותו כשהוא מסומן כנעדר."
 golems_woken = "מעיר את הגולמים הטעונים של {player}: {count}."
 
 [language.menu]

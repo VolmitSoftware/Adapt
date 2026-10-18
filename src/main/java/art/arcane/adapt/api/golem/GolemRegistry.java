@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -385,20 +386,19 @@ public final class GolemRegistry extends TickedObject {
     return true;
   }
 
-  public CompletableFuture<Boolean> forceRelease(UUID owner, UUID golem) {
+  public CompletableFuture<AdminRelease> releaseFor(UUID owner, UUID golem) {
     GolemHandle loaded = loadedHandle(golem);
     if (loaded != null && loaded.owner().equals(owner)) {
-      CompletableFuture<Boolean> released = new CompletableFuture<>();
-      platform.runEntity(loaded.entity(), () -> released.complete(release(loaded)), () -> released.complete(false));
+      CompletableFuture<AdminRelease> released = new CompletableFuture<>();
+      platform.runEntity(loaded.entity(), () -> released.complete(release(loaded) ? AdminRelease.RELEASED : AdminRelease.REFUSED),
+          () -> released.complete(AdminRelease.REFUSED));
       return released;
     }
-    Optional<GolemRoster> roster = platform.roster(owner);
-    if (roster.isEmpty() || !roster.get().remove(golem)) {
-      return CompletableFuture.completedFuture(false);
+    GolemRoster.Status status = platform.roster(owner).flatMap(roster -> roster.golem(golem)).map(GolemRoster.GolemEntry::status).orElse(null);
+    if (status == GolemRoster.Status.ACTIVE) {
+      return CompletableFuture.completedFuture(AdminRelease.ACTIVE_UNLOADED);
     }
-    missingWatch.forget(golem);
-    platform.rosterChanged(owner);
-    return CompletableFuture.completedFuture(true);
+    return CompletableFuture.completedFuture(releaseEntry(owner, golem) ? AdminRelease.RELEASED : AdminRelease.REFUSED);
   }
 
   public int wake(UUID owner) {
@@ -521,7 +521,7 @@ public final class GolemRegistry extends TickedObject {
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntitiesUnloadEvent e) {
     for (Entity entity : e.getEntities()) {
-      handle(entity).ifPresent(this::detach);
+      handle(entity).ifPresent(this::unload);
     }
   }
 
@@ -639,6 +639,17 @@ public final class GolemRegistry extends TickedObject {
     }
   }
 
+  void unload(GolemHandle handle) {
+    if (handle.isRetired()) {
+      return;
+    }
+    boolean advanced = advanceForSave(handle);
+    detach(handle);
+    if (advanced) {
+      platform.rosterChanged(handle.owner());
+    }
+  }
+
   void detach(GolemHandle handle) {
     if (handle.isRetired()) {
       return;
@@ -705,8 +716,12 @@ public final class GolemRegistry extends TickedObject {
 
   private boolean sleepForShutdown(GolemHandle handle) {
     try {
+      boolean advanced = advanceForSave(handle);
       rememberPosition(handle, false);
       putToSleep(handle);
+      if (advanced) {
+        platform.rosterChanged(handle.owner());
+      }
       lifecycle.asleep(handle);
       lifecycle.detached(handle);
       return true;
@@ -747,7 +762,8 @@ public final class GolemRegistry extends TickedObject {
     Optional<GolemRoster.GolemEntry> entry = roster.flatMap(known -> known.golem(handle.id()));
     GolemRoster.Status status = entry.map(GolemRoster.GolemEntry::status).orElse(null);
     boolean stale = entry.isPresent() && entry.get().outdates(handle.state().sighting());
-    switch (GolemValidation.verdict(isDuplicate(handle), roster.isPresent(), status, stale)) {
+    GolemValidation.Verdict verdict = GolemValidation.verdict(isDuplicate(handle), roster.isPresent(), status, stale);
+    switch (verdict) {
       case REVERT -> {
         revert(handle);
         if (stale) {
@@ -757,7 +773,7 @@ public final class GolemRegistry extends TickedObject {
       }
       case KEEP, RESTORE -> {
         handle.setValidated(true);
-        recordSighting(handle, roster.get());
+        recordSighting(handle, roster.get(), verdict == GolemValidation.Verdict.RESTORE);
       }
       case WAIT -> {
         handle.setValidated(false);
@@ -841,6 +857,7 @@ public final class GolemRegistry extends TickedObject {
   }
 
   private boolean isDuplicate(GolemHandle handle) {
+    GolemHandle outdated;
     synchronized (lock) {
       UUID primary = entityByGolem.get(handle.id());
       if (primary == null || primary.equals(handle.entityId())) {
@@ -852,8 +869,14 @@ public final class GolemRegistry extends TickedObject {
         entityByGolem.put(handle.id(), handle.entityId());
         return false;
       }
-      return true;
+      if (handle.state().sighting() <= other.state().sighting()) {
+        return true;
+      }
+      entityByGolem.put(handle.id(), handle.entityId());
+      outdated = other;
     }
+    runOwned(outdated, () -> revert(outdated));
+    return false;
   }
 
   private boolean index(GolemHandle handle) {
@@ -1179,14 +1202,26 @@ public final class GolemRegistry extends TickedObject {
     }
   }
 
-  private void recordSighting(GolemHandle handle, GolemRoster roster) {
+  private void recordSighting(GolemHandle handle, GolemRoster roster, boolean restored) {
     GolemHandle.ChunkPosition position = handle.trackPosition(handle.entity().getLocation());
     if (position != null) {
       roster.seen(handle.id(), position.world(), position.chunkKey(), platform.nowMillis());
     }
-    roster.markMasterwork(handle.id(), handle.state().masterwork());
-    roster.advanceSighting(handle.id(), handle.state().sighting()).ifPresent(handle::setSighting);
-    platform.rosterChanged(handle.owner());
+    boolean masterworkChanged = roster.markMasterwork(handle.id(), handle.state().masterwork());
+    boolean sightingRaised = roster.raiseSighting(handle.id(), handle.state().sighting());
+    if (restored || masterworkChanged || sightingRaised) {
+      platform.rosterChanged(handle.owner());
+    }
+  }
+
+  private boolean advanceForSave(GolemHandle handle) {
+    if (!handle.isValidated()) {
+      return false;
+    }
+    Optional<GolemRoster> roster = platform.roster(handle.owner());
+    OptionalLong next = roster.isEmpty() ? OptionalLong.empty() : roster.get().advanceSighting(handle.id(), handle.state().sighting());
+    next.ifPresent(handle.state()::setSighting);
+    return next.isPresent();
   }
 
   private long sightingOf(UUID owner, UUID golem) {
@@ -1281,6 +1316,12 @@ public final class GolemRegistry extends TickedObject {
     public Location at() {
       return at.clone();
     }
+  }
+
+  public enum AdminRelease {
+    RELEASED,
+    ACTIVE_UNLOADED,
+    REFUSED
   }
 
   public enum Designation {

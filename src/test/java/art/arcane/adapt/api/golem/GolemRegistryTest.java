@@ -757,15 +757,15 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
-  void forceReleasingALoadedGolemReleasesItTheWayItsOwnerWould() {
+  void adminReleaseOfALoadedGolemReleasesItTheWayItsOwnerWould() {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GUARDIAN);
     handle.setRunes(List.of(new GolemRune(GolemRuneType.MIGHT, 2)));
 
-    CompletableFuture<Boolean> released = registry.forceRelease(OWNER, handle.id());
+    CompletableFuture<GolemRegistry.AdminRelease> released = registry.releaseFor(OWNER, handle.id());
 
-    assertThat(released).isCompletedWithValue(true);
+    assertThat(released).isCompletedWithValue(GolemRegistry.AdminRelease.RELEASED);
     verify(world).dropItemNaturally(any(Location.class), eq(coreItem));
     verify(world).dropItemNaturally(any(Location.class), eq(runeItem));
     assertThat(GolemState.has(golem)).isFalse();
@@ -774,59 +774,60 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
-  void forceReleasingALoadedGolemRunsOnItsOwnThread() {
+  void adminReleaseOfALoadedGolemRunsOnItsOwnThread() {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
     platform.deferring.add(golem);
 
-    CompletableFuture<Boolean> released = registry.forceRelease(OWNER, handle.id());
+    CompletableFuture<GolemRegistry.AdminRelease> released = registry.releaseFor(OWNER, handle.id());
 
     assertThat(released).isNotDone();
     assertThat(GolemState.has(golem)).isTrue();
     platform.runDelayed();
-    assertThat(released).isCompletedWithValue(true);
+    assertThat(released).isCompletedWithValue(GolemRegistry.AdminRelease.RELEASED);
     assertThat(roster.golem(handle.id())).isEmpty();
   }
 
   @Test
-  void forceReleasingAGolemThatRetiresBeforeItsTurnFails() {
+  void adminReleaseOfAGolemThatRetiresBeforeItsTurnIsRefused() {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
     platform.refusing.add(golem);
 
-    assertThat(registry.forceRelease(OWNER, handle.id())).isCompletedWithValue(false);
+    assertThat(registry.releaseFor(OWNER, handle.id())).isCompletedWithValue(GolemRegistry.AdminRelease.REFUSED);
     assertThat(roster.golem(handle.id())).isPresent();
   }
 
   @Test
-  void forceReleasingAnUnloadedGolemForgetsItsEntryWhateverItsStateAndItsBodyRevertsLater() {
+  void adminReleaseOfAnUnloadedGolemForgetsMissingPackedAndShatteredEntriesButRefusesActiveOnes() {
     GolemRoster roster = onlineOwner();
     UUID active = UUID.randomUUID();
+    UUID missing = UUID.randomUUID();
     UUID packed = UUID.randomUUID();
-    roster.add(new GolemRoster.Binding(active, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    roster.add(new GolemRoster.Binding(packed, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    UUID shattered = UUID.randomUUID();
+    for (UUID id : List.of(active, missing, packed, shattered)) {
+      roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    }
+    roster.transition(missing, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
     roster.stow(packed, GolemRoster.Status.PACKED, "{\"packed\":true}");
+    roster.stow(shattered, GolemRoster.Status.SHATTERED, "{\"shattered\":true}");
     int changesBefore = platform.changes(OWNER);
 
-    assertThat(registry.forceRelease(OWNER, active)).isCompletedWithValue(true);
-    assertThat(registry.forceRelease(OWNER, packed)).isCompletedWithValue(true);
-    assertThat(registry.forceRelease(OWNER, UUID.randomUUID())).isCompletedWithValue(false);
+    assertThat(registry.releaseFor(OWNER, active)).isCompletedWithValue(GolemRegistry.AdminRelease.ACTIVE_UNLOADED);
+    assertThat(registry.releaseFor(OWNER, missing)).isCompletedWithValue(GolemRegistry.AdminRelease.RELEASED);
+    assertThat(registry.releaseFor(OWNER, packed)).isCompletedWithValue(GolemRegistry.AdminRelease.RELEASED);
+    assertThat(registry.releaseFor(OWNER, shattered)).isCompletedWithValue(GolemRegistry.AdminRelease.RELEASED);
+    assertThat(registry.releaseFor(OWNER, UUID.randomUUID())).isCompletedWithValue(GolemRegistry.AdminRelease.REFUSED);
 
-    assertThat(roster.golemCount()).isZero();
-    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore + 2);
-    IronGolem body = persistedGolem(active, false, at(0, 64, 0));
-    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(body)));
-    assertThat(GolemState.has(body)).isFalse();
-    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+    assertThat(roster.golems()).extracting(GolemRoster.GolemEntry::id).containsExactly(active);
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore + 3);
   }
 
   @Test
-  void forceReleasingNeedsTheOwnersRoster() {
-    UUID id = UUID.randomUUID();
-
-    assertThat(registry.forceRelease(OWNER, id)).isCompletedWithValue(false);
+  void adminReleaseNeedsTheOwnersRoster() {
+    assertThat(registry.releaseFor(OWNER, UUID.randomUUID())).isCompletedWithValue(GolemRegistry.AdminRelease.REFUSED);
   }
 
   @Test
@@ -967,25 +968,75 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
-  void acceptingALoadedGolemAdvancesItsSightingOnTheBodyAndInTheRosterBeforeSaving() {
+  void acceptingALoadedGolemLeavesItsSightingAloneAndSavesNothing() {
     GolemRoster roster = onlineOwner();
     UUID id = UUID.randomUUID();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
     roster.advanceSighting(id, 2L);
     IronGolem golem = withSighting(persistedGolem(id, false, at(0, 64, 0)), 3L);
-    List<Long> savedBodySightings = new ArrayList<>();
-    platform.rosterListener = changed -> savedBodySightings.add(GolemState.read(golem).orElseThrow().sighting());
+    int changesBefore = platform.changes(OWNER);
 
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
 
     assertThat(registry.handle(golem).orElseThrow().isValidated()).isTrue();
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(3L);
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(3L);
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore);
+  }
+
+  @Test
+  void aCopyAheadOfItsRosterIsKeptAndRaisesTheRosterToMatch() {
+    GolemRoster roster = onlineOwner();
+    UUID id = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    IronGolem golem = withSighting(persistedGolem(id, false, at(0, 64, 0)), 5L);
+    int changesBefore = platform.changes(OWNER);
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+
+    assertThat(registry.handle(golem).orElseThrow().isValidated()).isTrue();
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(5L);
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(5L);
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore + 1);
+  }
+
+  @Test
+  void unloadingAValidatedGolemAdvancesItsSightingOnTheBodyAndInTheRosterBeforeSaving() {
+    GolemRoster roster = onlineOwner();
+    UUID id = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.advanceSighting(id, 2L);
+    IronGolem golem = withSighting(persistedGolem(id, false, at(0, 64, 0)), 3L);
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+    List<Long> savedBodySightings = new ArrayList<>();
+    platform.rosterListener = changed -> savedBodySightings.add(GolemState.read(golem).orElseThrow().sighting());
+
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)));
+
     assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(4L);
     assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(4L);
     assertThat(savedBodySightings).isNotEmpty().allSatisfy(sighting -> assertThat(sighting).isEqualTo(4L));
   }
 
   @Test
-  void aCrashTwinThatLoadsAfterItsCopyWasAcceptedRevertsWithoutDropsWhileTheAcceptedCopyStaysBound() {
+  void unloadingAnUnvalidatedOrInactiveGolemLeavesItsSightingAlone() {
+    IronGolem offline = persistedGolem(UUID.randomUUID(), false, at(0, 64, 0));
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(offline)));
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(offline)));
+    assertThat(GolemState.read(offline).orElseThrow().sighting()).isZero();
+
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    roster.transition(handle.id(), GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)));
+
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isZero();
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isZero();
+  }
+
+  @Test
+  void aCrashTwinThatLoadsAfterItsCopyUnloadedRevertsWithoutDropsWhileTheUnloadedCopyStaysBound() {
     GolemRoster roster = onlineOwner();
     UUID id = UUID.randomUUID();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
@@ -1006,18 +1057,20 @@ class GolemRegistryTest extends AdaptTestBase {
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(first)));
 
     assertThat(registry.handle(first).orElseThrow().isValidated()).isTrue();
-    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(2L);
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(1L);
   }
 
   @Test
-  void aGolemWhoseChunkMissedItsSaveBeforeACrashLoadsStaleRevertsWithoutDropsAndGoesMissing() {
+  void aGolemWhoseUnloadWriteIsLostInACrashLoadsStaleRevertsWithoutDropsAndGoesMissing() {
     GolemRoster roster = onlineOwner();
     UUID id = UUID.randomUUID();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
     IronGolem golem = persistedGolem(id, false, at(0, 64, 0));
     String chunkOnDisk = GolemState.read(golem).orElseThrow().toJson();
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)));
     GolemRoster savedRoster = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+    assertThat(savedRoster.golem(id).orElseThrow().sighting()).isEqualTo(1L);
 
     registry = new GolemRegistry(platform, settings::get, lifecycle);
     platform.join(OWNER, savedRoster);
@@ -1031,9 +1084,7 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(GolemState.has(reloaded)).isFalse();
     assertThat(registry.handle(reloaded)).isEmpty();
     verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
-    GolemRoster.GolemEntry entry = savedRoster.golem(id).orElseThrow();
-    assertThat(entry.status()).isEqualTo(GolemRoster.Status.ACTIVE);
-    assertThat(entry.sighting()).isEqualTo(1L);
+    assertThat(savedRoster.golem(id).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
 
     platform.now += GolemMissingWatch.GRACE_MILLIS;
     registry.onTick();
@@ -1042,26 +1093,51 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
-  void aGolemReloadedFromItsSavedChunkStaysBoundAndAdvancesAgain() {
+  void aGolemLoadedWhenTheServerCrashesLosesNothing() {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
-    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(1L);
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)));
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+    String chunkOnDisk = GolemState.read(golem).orElseThrow().toJson();
+    handle.addTasks(1);
+    GolemRoster savedRoster = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
+
+    registry = new GolemRegistry(platform, settings::get, lifecycle);
+    platform.join(OWNER, savedRoster);
+    IronGolem reloaded = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemState.fromJson(chunkOnDisk).orElseThrow().write(reloaded);
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(reloaded)));
+
+    assertThat(registry.handle(reloaded).orElseThrow().isValidated()).isTrue();
+    assertThat(GolemState.has(reloaded)).isTrue();
+    assertThat(savedRoster.golem(handle.id()).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+    assertThat(savedRoster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(1L);
+  }
+
+  @Test
+  void aGolemReloadedFromItsSavedChunkStaysBoundWithTheSightingItUnloadedWith() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isZero();
 
     registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)));
     assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(1L);
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
 
     assertThat(registry.handle(golem).orElseThrow().isValidated()).isTrue();
-    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(2L);
-    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(2L);
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(1L);
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(1L);
   }
 
   @Test
-  void aGolemWhoseBodyIsRecreatedByACrossWorldTeleportStaysBound() {
+  void aGolemArrivingFromACrossWorldTeleportKeepsItsSighting() {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)));
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
     IronGolem moved = golem(new AtomicReference<>(at(300, 70, 300)));
     GolemState.read(golem).orElseThrow().write(moved);
     GolemRegistry.PaperEntityListener listener = companion(GolemRegistry.PaperEntityListener.class);
@@ -1072,40 +1148,88 @@ class GolemRegistryTest extends AdaptTestBase {
 
     assertThat(registry.handle(golem)).isEmpty();
     assertThat(registry.handle(moved).orElseThrow().isValidated()).isTrue();
-    assertThat(GolemState.has(moved)).isTrue();
-    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(2L);
-    assertThat(GolemState.read(moved).orElseThrow().sighting()).isEqualTo(2L);
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(1L);
+    assertThat(GolemState.read(moved).orElseThrow().sighting()).isEqualTo(1L);
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(1L);
   }
 
   @Test
-  void aCopyAheadOfItsRosterIsKeptAndMovesTheRosterPastIt() {
-    GolemRoster roster = onlineOwner();
+  void joiningAndWakingLeaveEverySightingAlone() {
     UUID id = UUID.randomUUID();
+    IronGolem golem = withSighting(persistedGolem(id, false, at(0, 64, 0)), 2L);
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+    GolemRoster roster = new GolemRoster();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    IronGolem golem = withSighting(persistedGolem(id, false, at(0, 64, 0)), 5L);
+    roster.advanceSighting(id, 1L);
 
-    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
-
+    platform.join(OWNER, roster);
+    registry.on(new PlayerJoinEvent(owner, (Component) null));
     assertThat(registry.handle(golem).orElseThrow().isValidated()).isTrue();
-    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(6L);
-    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(6L);
+    registry.wake(OWNER);
+    registry.on(new PlayerJoinEvent(owner, (Component) null));
+
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(2L);
+    assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(2L);
   }
 
   @Test
-  void aGolemWaitingForItsOwnerKeepsItsSightingUntilTheOwnerJoins() {
+  void aNewerCopyLoadedBesideAStaleOneKeepsTheGolemWhileItsOwnerIsOffline() {
     UUID id = UUID.randomUUID();
-    IronGolem golem = persistedGolem(id, false, at(0, 64, 0));
-    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
-    assertThat(GolemState.read(golem).orElseThrow().sighting()).isZero();
+    IronGolem stale = persistedGolem(id, false, at(0, 64, 0));
+    IronGolem newer = withSighting(persistedGolem(id, false, at(40, 64, 40)), 1L);
+
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(stale)));
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(newer)));
+
+    assertThat(GolemState.has(stale)).isFalse();
+    assertThat(registry.handle(stale)).isEmpty();
+    assertThat(GolemState.has(newer)).isTrue();
+    assertThat(registry.handle(newer)).isPresent();
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
 
     GolemRoster roster = new GolemRoster();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    roster.advanceSighting(id, 0L);
     platform.join(OWNER, roster);
     registry.on(new PlayerJoinEvent(owner, (Component) null));
 
-    assertThat(registry.handle(golem).orElseThrow().isValidated()).isTrue();
-    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(1L);
+    assertThat(registry.handle(newer).orElseThrow().isValidated()).isTrue();
+    assertThat(registry.loadedOf(OWNER)).extracting(GolemHandle::entity).containsExactly(newer);
+  }
+
+  @Test
+  void anOutdatedCopyOnAnotherThreadRevertsOnItsOwnThread() {
+    UUID id = UUID.randomUUID();
+    IronGolem stale = persistedGolem(id, false, at(0, 64, 0));
+    IronGolem newer = withSighting(persistedGolem(id, false, at(40, 64, 40)), 1L);
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(stale)));
+    platform.ownsEntities = false;
+
+    registry.adopt(newer);
+
+    assertThat(GolemState.has(stale)).isTrue();
+    platform.ownsEntities = true;
+    platform.runDelayed();
+    assertThat(GolemState.has(stale)).isFalse();
+    assertThat(GolemState.has(newer)).isTrue();
+  }
+
+  @Test
+  void shutdownAdvancesTheSightingOfValidatedGolemsBeforeThePlayerDataSave() {
+    IronGolem unvalidated = persistedGolem(UUID.randomUUID(), false, at(20, 64, 20));
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(unvalidated)));
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    List<Long> savedBodySightings = new ArrayList<>();
+    platform.rosterListener = changed -> savedBodySightings.add(GolemState.read(golem).orElseThrow().sighting());
+
+    assertThat(registry.flushAll(1_000L)).isTrue();
+
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(1L);
     assertThat(GolemState.read(golem).orElseThrow().sighting()).isEqualTo(1L);
+    assertThat(savedBodySightings).isNotEmpty().allSatisfy(sighting -> assertThat(sighting).isEqualTo(1L));
+    assertThat(GolemState.read(unvalidated).orElseThrow().sighting()).isZero();
   }
 
   @Test
@@ -1925,8 +2049,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster.GolemEntry entry = roster.golem(handle.id()).orElseThrow();
     assertThat(entry.status()).isEqualTo(GolemRoster.Status.ACTIVE);
     assertThat(entry.digest()).isNull();
-    assertThat(entry.sighting()).isEqualTo(2L).isEqualTo(GolemState.read(golem).orElseThrow().sighting());
-    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore + 1);
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore);
   }
 
   @Test
@@ -2109,10 +2232,11 @@ class GolemRegistryTest extends AdaptTestBase {
     }).orElseThrow();
 
     assertThat(awakened.isValidated()).isTrue();
-    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(2L);
-    assertThat(GolemState.read(body).orElseThrow().sighting()).isEqualTo(2L);
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isZero();
+    assertThat(GolemState.read(body).orElseThrow().sighting()).isZero();
 
     registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(body)));
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(1L);
     IronGolem prePackCopy = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemState.fromJson(prePackChunk).orElseThrow().write(prePackCopy);
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(prePackCopy)));
@@ -2136,8 +2260,8 @@ class GolemRegistryTest extends AdaptTestBase {
 
     assertThat(restored.isValidated()).isTrue();
     assertThat(GolemState.has(fresh)).isTrue();
-    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(6L);
-    assertThat(GolemState.read(fresh).orElseThrow().sighting()).isEqualTo(6L);
+    assertThat(roster.golem(id).orElseThrow().sighting()).isEqualTo(5L);
+    assertThat(GolemState.read(fresh).orElseThrow().sighting()).isEqualTo(5L);
   }
 
   @Test

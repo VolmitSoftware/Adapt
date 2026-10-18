@@ -24,6 +24,7 @@ import art.arcane.volmlib.util.director.runtime.DirectorRuntimeParameter;
 import io.papermc.paper.registry.RegistryAccess;
 import net.kyori.adventure.key.Key;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Registry;
 import org.bukkit.Sound;
 import org.bukkit.World;
@@ -62,6 +63,7 @@ class CommandGolemTest extends AdaptTestBase {
   private CommandSender admin;
   private Player target;
   private PlayerData data;
+  private AdaptServer server;
   private GolemRegistry registry;
   private MockedStatic<J> scheduling;
   private MockedStatic<GolemancyRuntime> runtime;
@@ -84,8 +86,9 @@ class CommandGolemTest extends AdaptTestBase {
     target = mock(Player.class);
     when(target.getUniqueId()).thenReturn(OWNER);
     when(target.getName()).thenReturn("Steve");
+    when(target.getPlayer()).thenReturn(target);
     data = new PlayerData();
-    AdaptServer server = mock(AdaptServer.class);
+    server = mock(AdaptServer.class);
     AdaptPlayer adaptPlayer = mock(AdaptPlayer.class);
     when(plugin.getAdaptServer()).thenReturn(server);
     when(server.getOnlineAdaptPlayer(OWNER)).thenReturn(adaptPlayer);
@@ -147,7 +150,7 @@ class CommandGolemTest extends AdaptTestBase {
     command.wake(target);
 
     assertThat(messages(player)).hasSize(3).allSatisfy(message -> assertThat(message).contains(CommandGolem.ADMIN_PERMISSION));
-    verify(registry, never()).forceRelease(any(), any());
+    verify(registry, never()).releaseFor(any(), any());
     verify(registry, never()).wake(any());
   }
 
@@ -182,22 +185,68 @@ class CommandGolemTest extends AdaptTestBase {
   void releaseResolvesTheStartOfTheIdAndReleasesThroughTheRegistry() {
     data.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
     data.getGolemancy().add(new GolemRoster.Binding(SECOND, GolemBody.FROST, GolemCoreType.BLANK, WORLD, 0L, 0L));
-    when(registry.forceRelease(OWNER, FIRST)).thenReturn(CompletableFuture.completedFuture(true));
+    when(registry.releaseFor(OWNER, FIRST)).thenReturn(CompletableFuture.completedFuture(GolemRegistry.AdminRelease.RELEASED));
 
     new CommandGolem().release("3F2A", target);
 
-    verify(registry).forceRelease(OWNER, FIRST);
+    verify(registry).releaseFor(OWNER, FIRST);
     assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("Released").contains("3f2a91c0").contains("Steve"));
   }
 
   @Test
   void aReleaseTheRegistryRefusesIsReported() {
     data.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
-    when(registry.forceRelease(OWNER, FIRST)).thenReturn(CompletableFuture.completedFuture(false));
+    when(registry.releaseFor(OWNER, FIRST)).thenReturn(CompletableFuture.completedFuture(GolemRegistry.AdminRelease.REFUSED));
 
     new CommandGolem().release(FIRST.toString(), target);
 
     assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("could not be released").contains("3f2a91c0"));
+  }
+
+  @Test
+  void anActiveGolemInAnUnloadedChunkIsReportedInsteadOfReleased() {
+    data.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    when(registry.releaseFor(OWNER, FIRST)).thenReturn(CompletableFuture.completedFuture(GolemRegistry.AdminRelease.ACTIVE_UNLOADED));
+
+    new CommandGolem().release("3f2a", target);
+
+    assertThat(messages(admin)).singleElement().satisfies(message -> assertThat(message).contains("3f2a91c0").contains("unloaded chunk"));
+  }
+
+  @Test
+  void listReadsAnOfflinePlayersRosterWithoutLoadingThem() {
+    UUID offlineId = UUID.fromString("00000000-0000-0000-0000-0000000000b2");
+    OfflinePlayer offline = mock(OfflinePlayer.class);
+    when(offline.getUniqueId()).thenReturn(offlineId);
+    when(offline.getName()).thenReturn("Alex");
+    PlayerData stored = new PlayerData();
+    stored.getGolemancy().add(new GolemRoster.Binding(FIRST, GolemBody.IRON, GolemCoreType.GUARDIAN, WORLD, 0L, 0L));
+    when(server.peekData(offlineId)).thenReturn(stored);
+    scheduling.when(() -> J.a(any(Runnable.class))).thenAnswer(invocation -> {
+      invocation.<Runnable>getArgument(0).run();
+      return null;
+    });
+
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      new CommandGolem().list(offline);
+    }
+
+    scheduling.verify(() -> J.a(any(Runnable.class)));
+    List<String> sent = messages(admin);
+    assertThat(sent).anySatisfy(message -> assertThat(message).contains("Alex").contains("1"));
+    assertThat(sent).anySatisfy(message -> assertThat(message).contains("3f2a91c0").contains("Guardian"));
+  }
+
+  @Test
+  void rosterRefusesWhileGolemancyIsNotRunning() {
+    runtime.when(GolemancyRuntime::registry).thenReturn(Optional.empty());
+    BukkitDirectorContext.touch(target);
+    try (MockedStatic<RosterGui> gui = mockStatic(RosterGui.class)) {
+      new CommandGolem().roster();
+
+      gui.verify(() -> RosterGui.open(any(Player.class)), never());
+    }
+    assertThat(messages(target)).singleElement().satisfies(message -> assertThat(message).contains("golemancy").contains("disabled"));
   }
 
   @Test
@@ -213,7 +262,7 @@ class CommandGolemTest extends AdaptTestBase {
     assertThat(sent).hasSize(2);
     assertThat(sent.getFirst()).contains("ffff").contains("Steve");
     assertThat(sent.getLast()).contains("3f2").contains("More than one");
-    verify(registry, never()).forceRelease(any(), any());
+    verify(registry, never()).releaseFor(any(), any());
   }
 
   @Test
@@ -248,7 +297,7 @@ class CommandGolemTest extends AdaptTestBase {
 
     assertThat(messages(admin)).hasSize(3);
     verify(registry, never()).wake(any());
-    verify(registry, never()).forceRelease(any(), any());
+    verify(registry, never()).releaseFor(any(), any());
   }
 
   private static DirectorRuntimeNode child(DirectorRuntimeNode parent, String name) {

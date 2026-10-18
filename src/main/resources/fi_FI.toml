@@ -6767,6 +6767,7 @@ golem_not_found = "Pelaajalla {player} ei ole golemia, jonka tunnus alkaa {id}."
 golem_ambiguous = "Useammalla kuin yhdellä pelaajan {player} golemilla on tunnus, joka alkaa {id}. Kirjoita tunnuksesta enemmän."
 golem_released = "Golemi {id} vapautettiin pelaajan {player} luettelosta."
 golem_release_failed = "Golemia {id} pelaajalta {player} ei voitu vapauttaa. Yritä uudelleen."
+golem_release_active_unloaded = "Golemi {id} pelaajalta {player} on aktiivinen lataamattomassa lohkossa. Lataa sen lohko vapauttaaksesi sen, tai vapauta se, kun se näkyy kadonneena."
 golems_woken = "Herätetään pelaajan {player} ladatut golemit: {count}."
 
 [language.menu]

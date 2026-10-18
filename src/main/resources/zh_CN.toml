@@ -6767,6 +6767,7 @@ golem_not_found = "{player} 没有 ID 以 {id} 开头的魔像。"
 golem_ambiguous = "{player} 有不止一个魔像的 ID 以 {id} 开头。请输入更多字符。"
 golem_released = "已将魔像 {id} 从 {player} 的名册中释放。"
 golem_release_failed = "无法释放魔像 {id}（{player}）。请重试。"
+golem_release_active_unloaded = "魔像 {id}（{player}）正在未加载的区块中活动。请加载其区块后再释放，或在它显示为失踪后释放。"
 golems_woken = "正在唤醒 {player} 已加载的 {count} 个魔像。"
 
 [language.menu]

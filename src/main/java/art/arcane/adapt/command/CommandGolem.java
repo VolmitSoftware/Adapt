@@ -13,11 +13,14 @@ import art.arcane.adapt.localization.catalog.CommandRuntimeMessages;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.command.FConst;
 import art.arcane.adapt.util.command.Feedback;
+import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.util.director.specialhandlers.NullableOfflinePlayerHandler;
 import art.arcane.adapt.util.director.specialhandlers.NullablePlayerHandler;
 import art.arcane.volmlib.util.director.DirectorOrigin;
 import art.arcane.volmlib.util.director.annotations.Director;
 import art.arcane.volmlib.util.director.annotations.Param;
 import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -36,20 +39,28 @@ public class CommandGolem {
 
   @Director(origin = DirectorOrigin.PLAYER, description = "Open your golem roster", descriptionKey = "command.help.open_your_golem_roster")
   public void roster() {
+    if (runningRegistry(BukkitDirectorContext.sender()) == null) {
+      return;
+    }
     RosterGui.open(BukkitDirectorContext.player());
   }
 
   @Director(description = "List a player's golems", descriptionKey = "command.help.list_a_player_s_golems")
   public void list(
-      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullablePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
-      Player player
+      @Param(description = "Target player, defaults to you", defaultValue = "---", customHandler = NullableOfflinePlayerHandler.class, descriptionKey = "command.help.target_player_defaults_to_you")
+      OfflinePlayer player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
-    Player target = resolveAdminTarget(player, sender);
+    OfflinePlayer target = anyAdminTarget(player, sender);
     if (target == null) {
       return;
     }
-    CommandTargetExecutor.run(target, () -> listTarget(target, sender), sender);
+    Player online = target.getPlayer();
+    if (online != null) {
+      CommandTargetExecutor.run(online, () -> listOnline(online, sender), sender);
+      return;
+    }
+    J.a(() -> listOffline(target, sender));
   }
 
   @Director(description = "Release one of a player's golems", descriptionKey = "command.help.release_one_of_a_player_s_golems")
@@ -60,7 +71,7 @@ public class CommandGolem {
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
-    Player target = resolveAdminTarget(player, sender);
+    Player target = onlineAdminTarget(player, sender);
     if (target == null) {
       return;
     }
@@ -77,7 +88,7 @@ public class CommandGolem {
       Player player
   ) {
     CommandSender sender = BukkitDirectorContext.sender();
-    Player target = resolveAdminTarget(player, sender);
+    Player target = onlineAdminTarget(player, sender);
     if (target == null) {
       return;
     }
@@ -88,19 +99,30 @@ public class CommandGolem {
     CommandTargetExecutor.run(target, () -> wakeTarget(registry, target, sender), sender);
   }
 
-  private void listTarget(Player target, CommandSender sender) {
+  private void listOnline(Player target, CommandSender sender) {
     GolemRoster roster = readyRoster(target, sender);
-    if (roster == null) {
+    if (roster != null) {
+      report(roster, target.getName(), sender);
+    }
+  }
+
+  private void listOffline(OfflinePlayer target, CommandSender sender) {
+    AdaptServer server = Adapt.instance == null ? null : Adapt.instance.getAdaptServer();
+    if (server == null) {
+      CommandTargetExecutor.send(sender, FConst.error(AdaptLanguage.text(CommandRuntimeMessages.ADAPT_SERVER_NOT_READY)));
       return;
     }
+    report(server.peekData(target.getUniqueId()).getGolemancy(), nameOf(target), sender);
+  }
+
+  private void report(GolemRoster roster, String name, CommandSender sender) {
     List<GolemRoster.GolemEntry> golems = RosterGui.entries(roster);
     if (golems.isEmpty()) {
-      CommandTargetExecutor.send(sender, FConst.info(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_LIST_EMPTY,
-          untrusted("player", target.getName()))));
+      CommandTargetExecutor.send(sender, FConst.info(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_LIST_EMPTY, untrusted("player", name))));
       return;
     }
     Feedback.FeedbackBuilder report = Feedback.builder().message(FConst.infoText(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_LIST_HEADER,
-        untrusted("player", target.getName()),
+        untrusted("player", name),
         trusted("count", golems.size()))));
     for (GolemRoster.GolemEntry entry : golems) {
       report.message(FConst.infoText(describe(entry)));
@@ -124,9 +146,12 @@ public class CommandGolem {
     UUID golem = matches.getFirst().id();
     String shortId = shortId(golem);
     String name = target.getName();
-    registry.forceRelease(target.getUniqueId(), golem).thenAccept(released -> CommandTargetExecutor.send(sender, released
-        ? FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RELEASED, trusted("id", shortId), untrusted("player", name)))
-        : FConst.error(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RELEASE_FAILED, trusted("id", shortId), untrusted("player", name)))));
+    registry.releaseFor(target.getUniqueId(), golem).thenAccept(release -> CommandTargetExecutor.send(sender, switch (release) {
+      case RELEASED -> FConst.success(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RELEASED, trusted("id", shortId), untrusted("player", name)));
+      case ACTIVE_UNLOADED -> FConst.error(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RELEASE_ACTIVE_UNLOADED, trusted("id", shortId),
+          untrusted("player", name)));
+      case REFUSED -> FConst.error(AdaptLanguage.text(CommandRuntimeMessages.GOLEM_RELEASE_FAILED, trusted("id", shortId), untrusted("player", name)));
+    }));
   }
 
   private void wakeTarget(GolemRegistry registry, Player target, CommandSender sender) {
@@ -154,14 +179,34 @@ public class CommandGolem {
     return id.toString().substring(0, SHORT_ID_LENGTH);
   }
 
-  private static Player resolveAdminTarget(Player player, CommandSender sender) {
-    if (!sender.hasPermission(ADMIN_PERMISSION)) {
-      FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", ADMIN_PERMISSION))).send(sender);
+  private static String nameOf(OfflinePlayer player) {
+    String name = player.getName();
+    return name == null ? player.getUniqueId().toString() : name;
+  }
+
+  private static Player onlineAdminTarget(Player player, CommandSender sender) {
+    if (!admin(sender)) {
       return null;
     }
-    if (player != null) {
-      return player;
+    return player != null ? player : senderTarget(sender);
+  }
+
+  private static OfflinePlayer anyAdminTarget(OfflinePlayer player, CommandSender sender) {
+    if (!admin(sender)) {
+      return null;
     }
+    return player != null ? player : senderTarget(sender);
+  }
+
+  private static boolean admin(CommandSender sender) {
+    if (sender.hasPermission(ADMIN_PERMISSION)) {
+      return true;
+    }
+    FConst.error(AdaptLanguage.text(CommandRuntimeMessages.MISSING_PERMISSION, trusted("permission", ADMIN_PERMISSION))).send(sender);
+    return false;
+  }
+
+  private static Player senderTarget(CommandSender sender) {
     if (sender instanceof Player senderPlayer) {
       return senderPlayer;
     }

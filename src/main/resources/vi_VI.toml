@@ -6767,6 +6767,7 @@ golem_not_found = "{player} không có golem nào có ID bắt đầu bằng {id
 golem_ambiguous = "Có nhiều hơn một golem của {player} có ID bắt đầu bằng {id}. Hãy nhập thêm."
 golem_released = "Đã giải phóng golem {id} khỏi danh sách của {player}."
 golem_release_failed = "Không thể giải phóng golem {id} của {player}. Hãy thử lại."
+golem_release_active_unloaded = "Golem {id} của {player} đang hoạt động trong một chunk chưa tải. Hãy tải chunk của nó để giải phóng, hoặc giải phóng khi nó được đánh dấu là mất tích."
 golems_woken = "Đang đánh thức các golem đã tải của {player}: {count}."
 
 [language.menu]

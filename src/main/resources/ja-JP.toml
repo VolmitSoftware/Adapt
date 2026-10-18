@@ -6767,6 +6767,7 @@ golem_not_found = "{player}には、IDが{id}で始まるゴーレムがいま�
 golem_ambiguous = "{player}のゴーレムのうち、IDが{id}で始まるものが複数あります。もっと入力してください。"
 golem_released = "ゴーレム{id}を{player}の名簿から解放しました。"
 golem_release_failed = "ゴーレム{id}（{player}）を解放できませんでした。もう一度お試しください。"
+golem_release_active_unloaded = "ゴーレム{id}（{player}）は読み込まれていないチャンクで稼働中です。チャンクを読み込んでから解放するか、行方不明になってから解放してください。"
 golems_woken = "{player}の読み込まれたゴーレムを起こしています：{count}体。"
 
 [language.menu]

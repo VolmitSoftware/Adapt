@@ -6767,6 +6767,7 @@ golem_not_found = "{player} não tem nenhum golem cujo ID comece por {id}."
 golem_ambiguous = "Mais do que um golem de {player} tem um ID que começa por {id}. Escreve mais caracteres."
 golem_released = "Golem {id} libertado da lista de {player}."
 golem_release_failed = "Não foi possível libertar o golem {id} de {player}. Tenta novamente."
+golem_release_active_unloaded = "O golem {id} de {player} está ativo num chunk não carregado. Carrega o chunk dele para o libertar, ou liberta-o quando aparecer como desaparecido."
 golems_woken = "A acordar os golems carregados de {player}: {count}."
 
 [language.menu]

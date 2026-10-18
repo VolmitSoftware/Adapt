@@ -6767,6 +6767,7 @@ golem_not_found = "{player} nie ma golema, którego ID zaczyna się od {id}."
 golem_ambiguous = "Więcej niż jeden golem gracza {player} ma ID zaczynające się od {id}. Wpisz więcej znaków."
 golem_released = "Golem {id} został uwolniony ze spisu gracza {player}."
 golem_release_failed = "Nie udało się uwolnić golema {id} gracza {player}. Spróbuj ponownie."
+golem_release_active_unloaded = "Golem {id} gracza {player} jest aktywny w niezaładowanym chunku. Załaduj jego chunk, aby go uwolnić, albo uwolnij go, gdy zostanie oznaczony jako zaginiony."
 golems_woken = "Budzenie załadowanych golemów gracza {player}: {count}."
 
 [language.menu]

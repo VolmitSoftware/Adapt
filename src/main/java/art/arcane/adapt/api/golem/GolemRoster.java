@@ -181,8 +181,7 @@ public final class GolemRoster {
     }
     AtomicReference<Long> advanced = new AtomicReference<>();
     golemMap().computeIfPresent(id.toString(), (key, entry) -> {
-      Status status = entry.status();
-      if (status != Status.ACTIVE && status != Status.MISSING) {
+      if (entry.status() != Status.ACTIVE) {
         return entry;
       }
       long next = Math.max(entry.sighting, token) + 1L;
@@ -191,6 +190,22 @@ public final class GolemRoster {
     });
     Long next = advanced.get();
     return next == null ? OptionalLong.empty() : OptionalLong.of(next);
+  }
+
+  public boolean raiseSighting(UUID id, long token) {
+    if (id == null) {
+      return false;
+    }
+    AtomicBoolean raised = new AtomicBoolean();
+    golemMap().computeIfPresent(id.toString(), (key, entry) -> {
+      Status status = entry.status();
+      if ((status != Status.ACTIVE && status != Status.MISSING) || token <= entry.sighting) {
+        return entry;
+      }
+      raised.set(true);
+      return entry.withSighting(token);
+    });
+    return raised.get();
   }
 
   public boolean remove(UUID id) {

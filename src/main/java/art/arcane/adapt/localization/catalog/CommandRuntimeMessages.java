@@ -91,6 +91,7 @@ public final class CommandRuntimeMessages {
   public static final TextKey GOLEM_AMBIGUOUS = TextKey.of("command.runtime.golem_ambiguous", "More than one of {player}'s golems has an id starting with {id}. Type more of it.");
   public static final TextKey GOLEM_RELEASED = TextKey.of("command.runtime.golem_released", "Released golem {id} from {player}'s roster.");
   public static final TextKey GOLEM_RELEASE_FAILED = TextKey.of("command.runtime.golem_release_failed", "Golem {id} of {player} could not be released. Try again.");
+  public static final TextKey GOLEM_RELEASE_ACTIVE_UNLOADED = TextKey.of("command.runtime.golem_release_active_unloaded", "Golem {id} of {player} is active in an unloaded chunk. Load its chunk to release it, or release it once it shows as missing.");
   public static final TextKey GOLEMS_WOKEN = TextKey.of("command.runtime.golems_woken", "Waking {player}'s {count} loaded golems.");
 
   private CommandRuntimeMessages() {
@@ -184,6 +185,7 @@ public final class CommandRuntimeMessages {
     builder.add(GOLEM_AMBIGUOUS);
     builder.add(GOLEM_RELEASED);
     builder.add(GOLEM_RELEASE_FAILED);
+    builder.add(GOLEM_RELEASE_ACTIVE_UNLOADED);
     builder.add(GOLEMS_WOKEN);
   }
 }

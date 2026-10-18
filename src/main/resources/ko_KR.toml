@@ -6767,6 +6767,7 @@ golem_not_found = "{player}님에게는 ID가 {id}(으)로 시작하는 골렘�
 golem_ambiguous = "{player}님의 골렘 중 ID가 {id}(으)로 시작하는 골렘이 둘 이상입니다. 더 입력하세요."
 golem_released = "골렘 {id}을(를) {player}님의 명단에서 해방했습니다."
 golem_release_failed = "골렘 {id}의 해방에 실패했습니다. 소유자: {player}. 다시 시도하세요."
+golem_release_active_unloaded = "골렘 {id}(소유자 {player})은(는) 로드되지 않은 청크에서 활동 중입니다. 청크를 로드한 뒤 해방하거나, 실종 상태가 된 뒤 해방하세요."
 golems_woken = "{player}님의 로드된 골렘을 깨우는 중입니다: {count}개."
 
 [language.menu]

@@ -6767,6 +6767,7 @@ golem_not_found = "{player} oyuncusunun kimliği {id} ile başlayan bir golemi y
 golem_ambiguous = "{player} oyuncusunun birden fazla goleminin kimliği {id} ile başlıyor. Daha fazlasını yaz."
 golem_released = "Golem {id}, {player} oyuncusunun listesinden serbest bırakıldı."
 golem_release_failed = "Golem {id} ({player}) serbest bırakılamadı. Tekrar dene."
+golem_release_active_unloaded = "Golem {id} ({player}) yüklenmemiş bir chunk içinde etkin. Serbest bırakmak için chunk'ını yükle veya kayıp olarak görününce serbest bırak."
 golems_woken = "{player} oyuncusunun {count} yüklü golemi uyandırılıyor."
 
 [language.menu]

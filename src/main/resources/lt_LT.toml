@@ -6767,6 +6767,7 @@ golem_not_found = "{player} neturi golemo, kurio ID prasideda {id}."
 golem_ambiguous = "Daugiau nei vieno žaidėjo {player} golemo ID prasideda {id}. Įveskite daugiau."
 golem_released = "Golemas {id} paleistas iš žaidėjo {player} sąrašo."
 golem_release_failed = "Golemo {id} (žaidėjas {player}) paleisti nepavyko. Bandykite dar kartą."
+golem_release_active_unloaded = "Golemas {id} (žaidėjas {player}) yra aktyvus neįkeltame gabale. Įkelkite jo gabalą, kad jį paleistumėte, arba paleiskite jį, kai jis bus pažymėtas dingusiu."
 golems_woken = "Žadinami įkelti žaidėjo {player} golemai: {count}."
 
 [language.menu]

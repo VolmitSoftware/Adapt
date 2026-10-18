@@ -368,7 +368,7 @@ class GolemRosterTest {
   }
 
   @Test
-  void missingEntriesAdvanceButPackedShatteredAndUnknownOnesDoNot() {
+  void onlyActiveEntriesAdvance() {
     GolemRoster roster = new GolemRoster();
     roster.add(binding(GOLEM, 0L, 0L));
     roster.transition(GOLEM, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
@@ -378,13 +378,38 @@ class GolemRosterTest {
     roster.add(binding(shattered, 0L, 0L));
     roster.stow(shattered, GolemRoster.Status.SHATTERED, "{\"shattered\":true}");
 
-    assertThat(roster.advanceSighting(GOLEM, 0L)).hasValue(1L);
+    assertThat(roster.advanceSighting(GOLEM, 0L)).isEmpty();
     assertThat(roster.advanceSighting(OTHER, 0L)).isEmpty();
     assertThat(roster.advanceSighting(shattered, 0L)).isEmpty();
     assertThat(roster.advanceSighting(UUID.randomUUID(), 0L)).isEmpty();
     assertThat(roster.advanceSighting(null, 0L)).isEmpty();
+    assertThat(roster.golem(GOLEM).orElseThrow().sighting()).isZero();
     assertThat(roster.golem(OTHER).orElseThrow().sighting()).isZero();
     assertThat(roster.golem(OTHER).orElseThrow().holds("{\"packed\":true}")).isTrue();
+  }
+
+  @Test
+  void aCopyAheadRaisesActiveAndMissingEntriesButNothingElse() {
+    GolemRoster roster = new GolemRoster();
+    roster.add(binding(GOLEM, 0L, 0L));
+    roster.advanceSighting(GOLEM, 3L);
+    roster.add(binding(OTHER, 0L, 0L));
+    roster.transition(OTHER, GolemRoster.Status.ACTIVE, GolemRoster.Status.MISSING);
+    UUID packed = UUID.randomUUID();
+    roster.add(binding(packed, 0L, 0L));
+    roster.stow(packed, GolemRoster.Status.PACKED, "{\"packed\":true}");
+
+    assertThat(roster.raiseSighting(GOLEM, 4L)).isFalse();
+    assertThat(roster.raiseSighting(GOLEM, 3L)).isFalse();
+    assertThat(roster.raiseSighting(GOLEM, 9L)).isTrue();
+    assertThat(roster.raiseSighting(OTHER, 2L)).isTrue();
+    assertThat(roster.raiseSighting(packed, 2L)).isFalse();
+    assertThat(roster.raiseSighting(UUID.randomUUID(), 2L)).isFalse();
+    assertThat(roster.raiseSighting(null, 2L)).isFalse();
+
+    assertThat(roster.golem(GOLEM).orElseThrow().sighting()).isEqualTo(9L);
+    assertThat(roster.golem(OTHER).orElseThrow().sighting()).isEqualTo(2L);
+    assertThat(roster.golem(packed).orElseThrow().sighting()).isZero();
   }
 
   @Test
