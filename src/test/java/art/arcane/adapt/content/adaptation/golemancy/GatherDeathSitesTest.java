@@ -47,19 +47,22 @@ class GatherDeathSitesTest {
     sites.record(WORLD, 50D, 64D, 0D, 5_000L, FIVE_MINUTES);
     sites.record(WORLD, 90D, 64D, 0D, 5_000L, 0L);
 
-    assertThat(sites.size()).isEqualTo(1);
+    assertThat(sites.size(WORLD)).isEqualTo(1);
     assertThat(sites.protects(WORLD, 50D, 64D, 0D, 8D, 5_000L)).isTrue();
   }
 
   @Test
-  void theRegistryKeepsOnlyTheNewestSitesWhenFull() {
-    for (int i = 0; i < GatherDeathSites.MAX_SITES + 10; i++) {
+  void eachWorldKeepsOnlyItsNewestSitesWhenFullWithoutTouchingOtherWorlds() {
+    sites.record(NETHER, 0D, 64D, 0D, 1_000L, FIVE_MINUTES);
+    for (int i = 0; i < GatherDeathSites.MAX_SITES_PER_WORLD + 10; i++) {
       sites.record(WORLD, i * 100D, 64D, 0D, 1_000L + i, FIVE_MINUTES);
     }
 
-    assertThat(sites.size()).isEqualTo(GatherDeathSites.MAX_SITES);
+    assertThat(sites.size(WORLD)).isEqualTo(GatherDeathSites.MAX_SITES_PER_WORLD);
     assertThat(sites.protects(WORLD, 0D, 64D, 0D, 8D, 2_000L)).isFalse();
-    assertThat(sites.protects(WORLD, (GatherDeathSites.MAX_SITES + 9) * 100D, 64D, 0D, 8D, 2_000L)).isTrue();
+    assertThat(sites.protects(WORLD, (GatherDeathSites.MAX_SITES_PER_WORLD + 9) * 100D, 64D, 0D, 8D, 2_000L)).isTrue();
+    assertThat(sites.size(NETHER)).isEqualTo(1);
+    assertThat(sites.protects(NETHER, 0D, 64D, 0D, 8D, 2_000L)).isTrue();
   }
 
   @Test
@@ -81,7 +84,7 @@ class GatherDeathSitesTest {
     pool.shutdown();
     assertThat(pool.awaitTermination(10, TimeUnit.SECONDS)).isTrue();
 
-    assertThat(sites.size()).isEqualTo(64);
+    assertThat(sites.size(WORLD)).isEqualTo(64);
   }
 
   @Test

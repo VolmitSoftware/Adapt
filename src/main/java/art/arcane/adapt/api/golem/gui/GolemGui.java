@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
@@ -412,28 +413,20 @@ public final class GolemGui {
         return;
       }
       int points = handle.state().essencePoints();
-      if (points <= 0) {
-        GolemGuiSupport.warn(player, GolemancyMessages.GATHERER_CORE_ESSENCE_EMPTY);
-        snapshot();
-        return;
-      }
-      handle.setEssence(handle.state().essence() - points);
-      if (!J.runEntity(player, () -> player.giveExp(points), () -> J.runEntity(golem, () -> restoreEssence(points)))) {
-        restoreEssence(points);
+      EssenceWithdrawal withdrawal = takeEssence(handle, player);
+      if (withdrawal == EssenceWithdrawal.REFUSED) {
         GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
         return;
       }
-      GolemGuiSupport.notify(player, GolemancyMessages.GATHERER_CORE_ESSENCE_TAKEN, trusted("value", points));
+      if (withdrawal == EssenceWithdrawal.EMPTY) {
+        GolemGuiSupport.warn(player, GolemancyMessages.GATHERER_CORE_ESSENCE_EMPTY);
+      } else {
+        GolemGuiSupport.notify(player, GolemancyMessages.GATHERER_CORE_ESSENCE_TAKEN, trusted("value", points));
+      }
       snapshot();
     });
     if (!scheduled) {
       GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
-    }
-  }
-
-  private void restoreEssence(int points) {
-    if (!handle.isRetired()) {
-      handle.setEssence(handle.state().essence() + points);
     }
   }
 
@@ -531,6 +524,30 @@ public final class GolemGui {
     }
   }
 
+  static EssenceWithdrawal takeEssence(GolemHandle handle, Player player) {
+    int points = handle.state().essencePoints();
+    if (points <= 0) {
+      return EssenceWithdrawal.EMPTY;
+    }
+    handle.setEssence(handle.state().essence() - points);
+    AtomicBoolean settled = new AtomicBoolean();
+    Runnable restore = () -> {
+      if (settled.compareAndSet(false, true) && !handle.isRetired()) {
+        handle.setEssence(handle.state().essence() + points);
+      }
+    };
+    Runnable give = () -> {
+      if (settled.compareAndSet(false, true)) {
+        player.giveExp(points);
+      }
+    };
+    if (J.runEntity(player, give, () -> J.runEntity(handle.entity(), restore))) {
+      return EssenceWithdrawal.TAKEN;
+    }
+    restore.run();
+    return EssenceWithdrawal.REFUSED;
+  }
+
   private static String channelList(int mask) {
     List<TextKey> names = GolemGuiActions.channelNames(mask);
     List<String> texts = new ArrayList<>(names.size());
@@ -552,6 +569,12 @@ public final class GolemGui {
   }
 
   private record Carried(String encoded, ItemStack item) {
+  }
+
+  enum EssenceWithdrawal {
+    EMPTY,
+    TAKEN,
+    REFUSED
   }
 
   private enum Page {

@@ -57,6 +57,7 @@ final class GolemWorker {
   private long nextRouteAt;
   private long nextSignalAt;
   private boolean failureLogged;
+  private boolean tickFailureLogged;
 
   GolemWorker(GolemHandle handle, GolemController controller, GolemBrain.Context context) {
     this.handle = Objects.requireNonNull(handle);
@@ -378,7 +379,7 @@ final class GolemWorker {
       try {
         behavior.tick(new GolemContext(this, new GolemContext.Scope(behavior.policy(), null, null, core, nowMillis)));
       } catch (RuntimeException failure) {
-        logFailure(null, failure);
+        logTickFailure(core, failure);
       }
     }
   }
@@ -705,6 +706,14 @@ final class GolemWorker {
     failureLogged = true;
     String what = failed == null ? "find work" : "work " + failed;
     Adapt.warn("Bound golem " + handle.id() + " failed to " + what + "; the golem keeps working.", failure);
+  }
+
+  private void logTickFailure(GolemCoreType core, RuntimeException failure) {
+    if (tickFailureLogged) {
+      return;
+    }
+    tickFailureLogged = true;
+    Adapt.warn("Bound golem " + handle.id() + " failed to run its " + core.id() + " core tick; the golem keeps working.", failure);
   }
 
   private enum Source {

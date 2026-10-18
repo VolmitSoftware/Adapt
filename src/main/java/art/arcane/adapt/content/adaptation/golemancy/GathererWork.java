@@ -27,7 +27,6 @@ import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.Item;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
@@ -74,9 +73,6 @@ final class GathererWork implements GolemCoreBehavior {
   @Override
   public Optional<GolemTask> seek(GolemContext golem) {
     World world = golem.world();
-    if (!ownerIn(golem, world)) {
-      return Optional.empty();
-    }
     GolemHandle handle = golem.handle();
     int level = core.ownerLevel(handle.owner());
     GatherArea area = area(golem, level);
@@ -88,7 +84,7 @@ final class GathererWork implements GolemCoreBehavior {
       for (Item item : PaperCompat.nearbyEntitiesByType(Item.class, center, area.radius(), area.radius(), area.radius())) {
         Location at = item.getLocation();
         if (area.contains(at) && golem.inWorkRadius(at) && collectable(item.getItemStack()) && eligible(item, handle.owner(), now)) {
-          found.add(new Candidate(GolemTask.builder(PICKUP, GolemTarget.entity(item)).build(), at.distanceSquared(here)));
+          found.add(new Candidate(pickupTask(item), at.distanceSquared(here)));
         }
       }
     }
@@ -96,7 +92,7 @@ final class GathererWork implements GolemCoreBehavior {
       for (ExperienceOrb orb : orbs(world, area)) {
         Location at = orb.getLocation();
         if (area.contains(at) && golem.inWorkRadius(at) && absorbable(orb, now)) {
-          found.add(new Candidate(GolemTask.builder(ABSORB, GolemTarget.entity(orb)).build(), at.distanceSquared(here)));
+          found.add(new Candidate(absorbTask(orb), at.distanceSquared(here)));
         }
       }
     }
@@ -130,38 +126,40 @@ final class GathererWork implements GolemCoreBehavior {
     double magnet = GathererRules.unlocked(level, config.magnetLevel) ? config.magnetRadius : 0D;
     double instant = GathererRules.unlocked(level, config.instantPickupLevel) ? config.instantPickupRadius : 0D;
     double reach = Math.max(magnet, instant);
-    World world = golem.world();
-    boolean absorbing = GathererRules.essenceRoom(handle.state().essencePoints(), essenceCap(level)) > 0;
-    if (reach <= 0D || (golem.room() <= 0 && !absorbing) || !ownerIn(golem, world)) {
+    boolean absorbing = instant > 0D && GathererRules.essenceRoom(handle.state().essencePoints(), essenceCap(level)) > 0;
+    if (reach <= 0D || (golem.room() <= 0 && !absorbing)) {
       return;
     }
     GatherArea area = area(golem, level);
     Location here = golem.golem().getLocation();
     long now = golem.nowMillis();
-    int picked = 0;
+    boolean pulling = magnet > 0D && area.contains(here) && golem.canInteract(here);
+    int attempts = 0;
     int pulled = 0;
     for (Item item : PaperCompat.nearbyEntitiesByType(Item.class, here, reach, reach, reach)) {
       Location at = item.getLocation();
       double distance = at.distanceSquared(here);
-      if (distance > reach * reach || !area.contains(at) || !golem.inWorkRadius(at) || !collectable(item.getItemStack())
+      ItemStack stack = item.getItemStack();
+      if (distance > reach * reach || !collectable(stack) || !area.collects(at, stack.getType()) || !golem.inWorkRadius(at)
           || !eligible(item, handle.owner(), now)) {
         continue;
       }
       boolean room = golem.room() > 0;
-      if (room && distance <= instant * instant && picked < PICKUPS_PER_TICK) {
-        if (pickUp(golem, item, area) == GolemActResult.DONE) {
-          picked++;
+      if (room && distance <= instant * instant && attempts < PICKUPS_PER_TICK) {
+        if (!golem.skips(pickupTask(item))) {
+          attempts++;
+          pickUp(golem, item, area);
         }
         continue;
       }
-      if (room && distance <= magnet * magnet && pulled < PULLS_PER_TICK && golem.canInteract(at)) {
+      if (room && pulling && distance <= magnet * magnet && pulled < PULLS_PER_TICK && golem.canInteract(at)) {
         pull(item, at, here);
         pulled++;
       }
     }
-    if (instant > 0D && absorbing) {
+    if (absorbing) {
       for (ExperienceOrb orb : PaperCompat.nearbyEntitiesByType(ExperienceOrb.class, here, instant, instant, instant)) {
-        if (orb.getLocation().distanceSquared(here) <= instant * instant) {
+        if (orb.getLocation().distanceSquared(here) <= instant * instant && !golem.skips(absorbTask(orb))) {
           absorb(golem, orb, area, level);
         }
       }
@@ -171,7 +169,8 @@ final class GathererWork implements GolemCoreBehavior {
   GolemActResult pickUp(GolemContext golem, Item item, GatherArea area) {
     ItemStack stack = item.getItemStack();
     Location at = item.getLocation();
-    if (!collectable(stack) || !area.contains(at) || !golem.inWorkRadius(at) || !eligible(item, golem.handle().owner(), golem.nowMillis())) {
+    if (!collectable(stack) || !area.collects(at, stack.getType()) || !golem.inWorkRadius(at)
+        || !eligible(item, golem.handle().owner(), golem.nowMillis())) {
       return GolemActResult.FAILED;
     }
     int amount = stack.getAmount();
@@ -179,8 +178,8 @@ final class GathererWork implements GolemCoreBehavior {
     if (taking <= 0) {
       return GolemActResult.FAILED;
     }
-    Player owner = golem.owner();
-    if (owner == null || !golem.canInteract(at) || !ProtectionEventProbe.attemptItemPickup(owner, item, amount - taking)) {
+    Location block = new Location(at.getWorld(), at.getBlockX(), at.getBlockY(), at.getBlockZ());
+    if (!golem.canInteract(block) || !golem.canBreak(block) || !ProtectionEventProbe.attemptEntityItemPickup(golem.golem(), item, amount - taking)) {
       return GolemActResult.BLOCKED;
     }
     ItemStack current = item.getItemStack();
@@ -205,7 +204,8 @@ final class GathererWork implements GolemCoreBehavior {
   }
 
   boolean eligible(Item item, UUID owner, long nowMillis) {
-    if (!item.isValid() || item.isDead() || GathererRules.waiting(item.getPickupDelay()) || !PaperCompat.canPlayerPickup(item)) {
+    if (!item.isValid() || item.isDead() || GathererRules.waiting(item.getPickupDelay()) || !PaperCompat.canPlayerPickup(item)
+        || !PaperCompat.canMobPickup(item)) {
       return false;
     }
     for (String marker : FOREIGN_MARKERS) {
@@ -286,30 +286,30 @@ final class GathererWork implements GolemCoreBehavior {
 
   private GatherArea lookup(GolemContext golem, GolemHandle handle, int level, int channels) {
     Location home = golem.home();
-    World world = home.getWorld();
-    List<GatherArea.Box> boxes = collectionNodes(handle.owner(), world, home, golem.workRadius(), channels);
-    if (!boxes.isEmpty()) {
-      return GatherArea.nodes(world.getUID(), boxes);
-    }
-    double radius = GathererRules.pickupRadius(core.config().pickupRadiusByLevel, level) + GolemRunes.effects(handle).radiusBonus();
-    return GatherArea.home(home, radius);
+    return collectionNodes(handle.owner(), home, golem.workRadius(), channels).orElseGet(() ->
+        GatherArea.home(home, GathererRules.pickupRadius(core.config().pickupRadiusByLevel, level) + GolemRunes.effects(handle).radiusBonus()));
   }
 
-  private static List<GatherArea.Box> collectionNodes(UUID owner, World world, Location home, double radius, int channels) {
+  private static Optional<GatherArea> collectionNodes(UUID owner, Location home, double radius, int channels) {
     Optional<NodeService> service = GolemancyRuntime.nodes();
     if (service.isEmpty()) {
-      return List.of();
+      return Optional.empty();
     }
+    World world = home.getWorld();
     List<NodeIndex.Entry> near = service.get().index().near(world.getUID(), home.getX(), home.getY(), home.getZ(), radius);
     List<GatherArea.Box> boxes = new ArrayList<>(near.size());
+    boolean matched = false;
     for (NodeIndex.Entry entry : near) {
       NodeRecord record = entry.record();
-      if (record.type() == NodeType.COLLECTION && record.owner().equals(owner) && GolemTaskMatch.channel(record.channel(), channels)
-          && active(world, entry.key(), record)) {
+      if (record.type() != NodeType.COLLECTION || !record.owner().equals(owner) || !GolemTaskMatch.channel(record.channel(), channels)) {
+        continue;
+      }
+      matched = true;
+      if (active(world, entry.key(), record)) {
         boxes.add(GatherArea.Box.of(entry.key(), record));
       }
     }
-    return boxes;
+    return matched ? Optional.of(GatherArea.nodes(world.getUID(), boxes)) : Optional.empty();
   }
 
   private static boolean active(World world, NodeKey key, NodeRecord record) {
@@ -335,10 +335,12 @@ final class GathererWork implements GolemCoreBehavior {
     return List.copyOf(found.values());
   }
 
-  private static boolean ownerIn(GolemContext golem, World world) {
-    Player owner = golem.owner();
-    World ownerWorld = owner == null ? null : owner.getWorld();
-    return ownerWorld != null && world != null && ownerWorld.getUID().equals(world.getUID());
+  private static GolemTask pickupTask(Item item) {
+    return GolemTask.builder(PICKUP, GolemTarget.entity(item)).build();
+  }
+
+  private static GolemTask absorbTask(ExperienceOrb orb) {
+    return GolemTask.builder(ABSORB, GolemTarget.entity(orb)).build();
   }
 
   private static void pull(Item item, Location at, Location here) {

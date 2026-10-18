@@ -19,17 +19,20 @@ import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
+import art.arcane.adapt.api.golem.node.RedstoneMode;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
@@ -92,7 +95,10 @@ class GathererWorkTest {
   private final AtomicReference<Double> essence = new AtomicReference<>(0D);
   private final AtomicReference<Entity> target = new AtomicReference<>();
   private final AtomicBoolean probe = new AtomicBoolean(true);
-  private final AtomicBoolean interact = new AtomicBoolean(true);
+  private final AtomicReference<Predicate<Location>> interact = new AtomicReference<>(location -> true);
+  private final AtomicBoolean breakable = new AtomicBoolean(true);
+  private final List<Entity> probedEntities = new ArrayList<>();
+  private final List<Item> probedItems = new ArrayList<>();
   private final AtomicReference<Double> workRadius = new AtomicReference<>(24D);
   private final AtomicReference<GolemState.Anchor> home = new AtomicReference<>(GolemState.Anchor.of(WORLD, 0, 64, 0));
   private final GolemGathererCore.Config config = new GolemGathererCore.Config();
@@ -125,7 +131,9 @@ class GathererWorkTest {
     runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
     runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
     probes = mockStatic(ProtectionEventProbe.class);
-    probes.when(() -> ProtectionEventProbe.attemptItemPickup(any(Player.class), any(Item.class), anyInt())).thenAnswer(invocation -> {
+    probes.when(() -> ProtectionEventProbe.attemptEntityItemPickup(any(LivingEntity.class), any(Item.class), anyInt())).thenAnswer(invocation -> {
+      probedEntities.add(invocation.getArgument(0));
+      probedItems.add(invocation.getArgument(1));
       probedRemaining.add(invocation.getArgument(2));
       return probe.get();
     });
@@ -242,11 +250,36 @@ class GathererWorkTest {
   }
 
   @Test
-  void noWorkIsSoughtWhileTheOwnerIsInAnotherWorld() {
-    item(Material.WHEAT, 1, at(2.5D, 64D, 0.5D));
+  void gatheringGoesOnWhileTheOwnerIsInAnotherWorld() {
+    Item item = item(Material.WHEAT, 1, at(2.5D, 64D, 0.5D));
     when(owner.getWorld()).thenReturn(nether);
+    target.set(item);
 
-    assertThat(work.seek(golem)).isEmpty();
+    assertThat(work.seek(golem)).isPresent();
+    assertThat(work.act(golem, pickup(item))).isEqualTo(GolemActResult.DONE);
+  }
+
+  @Test
+  void itemsMobsMayNotPickUpAreSkipped() {
+    Item locked = item(Material.WHEAT, 1, at(1.5D, 64D, 0.5D));
+    when(locked.canMobPickup()).thenReturn(false);
+    Item open = item(Material.WHEAT, 1, at(2.5D, 64D, 0.5D));
+
+    assertThat(work.seek(golem)).hasValueSatisfying(task -> assertThat(task.target().entity()).isEqualTo(open.getUniqueId()));
+    target.set(locked);
+    assertThat(work.act(golem, pickup(locked))).isEqualTo(GolemActResult.FAILED);
+  }
+
+  @Test
+  void itemsAnotherPlayerOwnsAreNeverTakenButThrownItemsWaitOnlyThirtySeconds() {
+    Item owned = item(Material.WHEAT, 1, at(1.5D, 64D, 0.5D));
+    when(owned.getOwner()).thenReturn(STRANGER);
+    when(owned.getTicksLived()).thenReturn(72_000);
+    Item thrown = item(Material.WHEAT, 1, at(2.5D, 64D, 0.5D));
+    when(thrown.getThrower()).thenReturn(STRANGER);
+    when(thrown.getTicksLived()).thenReturn(600);
+
+    assertThat(work.seek(golem)).hasValueSatisfying(task -> assertThat(task.target().entity()).isEqualTo(thrown.getUniqueId()));
   }
 
   @Test
@@ -344,6 +377,9 @@ class GathererWorkTest {
     assertThat(carried.get()).isEqualTo(16);
     assertThat(removed).contains(item);
     assertThat(probedRemaining).containsExactly(0);
+    assertThat(probedEntities).containsExactly(body);
+    probes.verify(() -> ProtectionEventProbe.attemptItemPickup(any(), any(), anyInt()), never());
+    probes.verify(() -> ProtectionEventProbe.attemptBlockDropPickup(any(), any(), anyInt(), any()), never());
     assertThat(workXp).containsExactly(0.5D);
   }
 
@@ -376,10 +412,14 @@ class GathererWorkTest {
 
   @Test
   void theGathererCoresProtectionPolicyCanBlockAPickupBeforeAnyPickupEventFires() {
-    interact.set(false);
+    interact.set(location -> false);
     Item item = item(Material.WHEAT, 16, at(2.5D, 64D, 0.5D));
     target.set(item);
 
+    assertThat(work.act(golem, pickup(item))).isEqualTo(GolemActResult.BLOCKED);
+
+    interact.set(location -> true);
+    breakable.set(false);
     assertThat(work.act(golem, pickup(item))).isEqualTo(GolemActResult.BLOCKED);
 
     assertThat(probedRemaining).isEmpty();
@@ -391,7 +431,7 @@ class GathererWorkTest {
   void anItemChangedByAPickupListenerIsLeftAlone() {
     Item item = item(Material.WHEAT, 16, at(2.5D, 64D, 0.5D));
     target.set(item);
-    probes.when(() -> ProtectionEventProbe.attemptItemPickup(any(Player.class), any(Item.class), anyInt())).thenAnswer(invocation -> {
+    probes.when(() -> ProtectionEventProbe.attemptEntityItemPickup(any(LivingEntity.class), any(Item.class), anyInt())).thenAnswer(invocation -> {
       item.getItemStack().setAmount(3);
       return true;
     });
@@ -461,12 +501,12 @@ class GathererWorkTest {
 
     level.set(2);
     clock.addAndGet(GathererWork.AREA_CACHE_MILLIS);
-    interact.set(false);
+    interact.set(location -> false);
     assertThat(work.act(golem, absorbTask(orb))).isEqualTo(GolemActResult.BLOCKED);
 
     essence.set(500D);
     assertThat(work.act(golem, absorbTask(orb))).isEqualTo(GolemActResult.FAILED);
-    interact.set(true);
+    interact.set(location -> true);
     assertThat(work.act(golem, absorbTask(orb))).isEqualTo(GolemActResult.FAILED);
     assertThat(removed).doesNotContain(orb);
 
@@ -503,12 +543,12 @@ class GathererWorkTest {
   void theMagnetLeavesItemsAloneWhereTheOwnerMayNotInteractOrWhenTheGolemIsFull() {
     level.set(4);
     item(Material.WHEAT, 1, at(2.5D, 64D, 0.5D));
-    interact.set(false);
+    interact.set(location -> false);
 
     work.tick(golem);
     assertThat(velocities).isEmpty();
 
-    interact.set(true);
+    interact.set(location -> true);
     carried.set(64);
     work.tick(golem);
     assertThat(velocities).isEmpty();
@@ -553,6 +593,88 @@ class GathererWorkTest {
     work.tick(golem);
 
     verify(world, never()).getNearbyEntities(any(BoundingBox.class), any());
+  }
+
+  @Test
+  void theMagnetPullsOnlyWhileTheGolemStandsInItsAreaWhereTheOwnerMayInteract() {
+    level.set(4);
+    Item item = item(Material.WHEAT, 1, at(9.5D, 64D, 0.5D));
+    positions.get(body).set(at(11.0D, 64D, 0.5D));
+
+    work.tick(golem);
+    assertThat(velocities).isEmpty();
+
+    positions.get(body).set(at(8.0D, 64D, 0.5D));
+    Location standing = at(8.0D, 64D, 0.5D);
+    interact.set(location -> location.distanceSquared(standing) > 1.0E-6D);
+    work.tick(golem);
+    assertThat(velocities).isEmpty();
+
+    interact.set(location -> true);
+    work.tick(golem);
+    assertThat(velocities).containsOnlyKeys(item);
+  }
+
+  @Test
+  void magnetAndInstantPickupFollowTheCollectionNodeFilter() {
+    level.set(5);
+    collectionNode(new NodeKey(WORLD, 0, 63, 0, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(3, 1, 3)
+        .filterItems(List.of(GolemTestItems.stack(Material.CARROT, 1))).build());
+    Item closeWheat = item(Material.WHEAT, 1, at(1.0D, 64D, 0.5D));
+    Item closeCarrot = item(Material.CARROT, 1, at(0.5D, 64D, 1.5D));
+    Item farWheat = item(Material.WHEAT, 1, at(2.9D, 64D, 0.5D));
+    Item farCarrot = item(Material.CARROT, 1, at(0.5D, 64D, 2.9D));
+
+    work.tick(golem);
+
+    assertThat(removed).contains(closeCarrot).doesNotContain(closeWheat, farWheat);
+    assertThat(carried.get()).isEqualTo(1);
+    assertThat(velocities).containsOnlyKeys(farCarrot);
+  }
+
+  @Test
+  void instantPickupCountsEveryAttemptAndPassesOverItemsTheGolemSkips() {
+    level.set(5);
+    probe.set(false);
+    Item reserved = item(Material.WHEAT, 1, at(0.5D, 64D, 0.6D));
+    skipped.add(reserved.getUniqueId());
+    for (int i = 0; i < GathererWork.PICKUPS_PER_TICK + 2; i++) {
+      item(Material.WHEAT, 1, at(0.5D + i * 0.1D, 64D, 1.5D));
+    }
+
+    work.tick(golem);
+
+    assertThat(probedItems).hasSize(GathererWork.PICKUPS_PER_TICK).doesNotContain(reserved);
+    assertThat(carried.get()).isZero();
+  }
+
+  @Test
+  void levelFourWithAFullLoadLooksForNothingEvenWithEssenceRoom() {
+    level.set(4);
+    item(Material.WHEAT, 1, at(1.5D, 64D, 0.5D));
+    orb(5, 1, at(0.5D, 64D, 1.0D));
+    carried.set(64);
+
+    work.tick(golem);
+
+    verify(world, never()).getNearbyEntities(any(BoundingBox.class), any());
+  }
+
+  @Test
+  void aSwitchedOffCollectionNodePausesGatheringInsteadOfFallingBackToHome() {
+    Block anchor = mock(Block.class);
+    when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
+    when(world.getBlockAt(anyInt(), anyInt(), anyInt())).thenReturn(anchor);
+    collectionNode(new NodeKey(WORLD, 10, 64, 0, BlockFace.UP),
+        NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).redstone(RedstoneMode.POWERED).build());
+    Item item = item(Material.WHEAT, 1, at(1.0D, 64D, 0.5D));
+
+    assertThat(work.seek(golem)).isEmpty();
+
+    level.set(5);
+    work.tick(golem);
+    assertThat(removed).doesNotContain(item);
+    assertThat(carried.get()).isZero();
   }
 
   @Test
@@ -624,6 +746,7 @@ class GathererWorkTest {
       return null;
     }).when(item).setPickupDelay(anyInt());
     when(item.canPlayerPickup()).thenReturn(true);
+    when(item.canMobPickup()).thenReturn(true);
     when(item.isValid()).thenAnswer(invocation -> !removed.contains(item));
     entityLifecycle(item);
     return item;
@@ -709,7 +832,8 @@ class GathererWorkTest {
       rest.setAmount(stack.getAmount() - taking);
       return Optional.of(rest);
     });
-    when(context.canInteract(any(Location.class))).thenAnswer(invocation -> interact.get());
+    when(context.canInteract(any(Location.class))).thenAnswer(invocation -> interact.get().test(invocation.getArgument(0)));
+    when(context.canBreak(any(Location.class))).thenAnswer(invocation -> breakable.get());
     doAnswer(invocation -> {
       workXp.add(invocation.getArgument(0));
       return null;

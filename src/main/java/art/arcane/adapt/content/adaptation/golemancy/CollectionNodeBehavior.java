@@ -7,8 +7,6 @@ import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.node.NodeBehavior;
 import art.arcane.adapt.api.golem.node.NodeContext;
-import art.arcane.adapt.api.golem.node.NodeFilters;
-import art.arcane.adapt.api.golem.node.NodeItemTags;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
@@ -54,7 +52,9 @@ final class CollectionNodeBehavior implements NodeBehavior {
     Map<UUID, Item> collectable = new LinkedHashMap<>();
     for (Item item : PaperCompat.nearbyEntitiesByType(Item.class, center, box.halfX(), box.halfY(), box.halfZ())) {
       Location at = item.getLocation();
-      if (box.contains(at.getX(), at.getY(), at.getZ()) && accepts(record, item.getItemStack()) && work.eligible(item, owner, now)) {
+      ItemStack stack = item.getItemStack();
+      if (box.contains(at.getX(), at.getY(), at.getZ()) && GathererWork.collectable(stack) && box.accepts(stack.getType())
+          && work.eligible(item, owner, now)) {
         collectable.put(item.getUniqueId(), item);
       }
     }
@@ -76,14 +76,9 @@ final class CollectionNodeBehavior implements NodeBehavior {
     NodeRecord record = golem.node().orElse(null);
     NodeKey key = task.node().orElse(null);
     Entity target = golem.targetEntity().orElse(null);
-    if (record == null || key == null || !GathererWork.PICKUP.equals(task.type()) || !(target instanceof Item item)
-        || !accepts(record, item.getItemStack())) {
+    if (record == null || key == null || !GathererWork.PICKUP.equals(task.type()) || !(target instanceof Item item)) {
       return GolemActResult.FAILED;
     }
     return work.pickUp(golem, item, GatherArea.nodes(key.world(), List.of(GatherArea.Box.of(key, record))));
-  }
-
-  private static boolean accepts(NodeRecord record, ItemStack stack) {
-    return GathererWork.collectable(stack) && NodeFilters.accepts(record, stack.getType(), NodeItemTags.shared());
   }
 }

@@ -36,10 +36,10 @@ final class GathererRules {
   }
 
   static boolean foreign(UUID thrower, UUID itemOwner, UUID golemOwner, int ticksLived, int foreignTicks) {
-    if (ticksLived >= foreignTicks) {
-      return false;
+    if (itemOwner != null && !itemOwner.equals(golemOwner)) {
+      return true;
     }
-    return (thrower != null && !thrower.equals(golemOwner)) || (itemOwner != null && !itemOwner.equals(golemOwner));
+    return ticksLived < foreignTicks && thrower != null && !thrower.equals(golemOwner);
   }
 
   static int essenceRoom(int essencePoints, int cap) {

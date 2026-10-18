@@ -48,6 +48,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.offset;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
@@ -55,6 +56,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -529,7 +531,22 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
-  void releasingAGolemReturnsItsStoredEssenceAsAnExperienceOrb() {
+  void releasingAGolemGivesItsStoredEssenceToTheOnlineOwner() {
+    onlineOwner();
+    platform.players.put(OWNER, owner);
+    when(owner.isOnline()).thenReturn(true);
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
+    handle.setEssence(60.7D);
+
+    assertThat(registry.release(handle)).isTrue();
+
+    verify(owner).giveExp(60);
+    verify(world, never()).spawn(any(Location.class), eq(ExperienceOrb.class), ArgumentMatchers.<Consumer<ExperienceOrb>>any());
+  }
+
+  @Test
+  void releasingAGolemWhileItsOwnerIsAwayDropsTheEssenceAsAnExperienceOrb() {
     onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
@@ -542,6 +559,23 @@ class GolemRegistryTest extends AdaptTestBase {
     ExperienceOrb orb = mock(ExperienceOrb.class);
     spawn.getValue().accept(orb);
     verify(orb).setExperience(60);
+    verify(owner, never()).giveExp(anyInt());
+  }
+
+  @Test
+  void aRefusedGiftThatAlsoRetiresDropsTheReleasedEssenceOnlyOnce() {
+    onlineOwner();
+    platform.players.put(OWNER, owner);
+    when(owner.isOnline()).thenReturn(true);
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
+    handle.setEssence(60D);
+    platform.refuseRetiring = true;
+
+    assertThat(registry.release(handle)).isTrue();
+
+    verify(world, times(1)).spawn(any(Location.class), eq(ExperienceOrb.class), ArgumentMatchers.<Consumer<ExperienceOrb>>any());
+    verify(owner, never()).giveExp(anyInt());
   }
 
   @Test

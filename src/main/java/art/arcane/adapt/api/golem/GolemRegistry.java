@@ -50,6 +50,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -216,7 +217,7 @@ public final class GolemRegistry extends TickedObject {
       world.dropItemNaturally(at, drop);
     }
     if (essence > 0) {
-      world.spawn(at, ExperienceOrb.class, orb -> orb.setExperience(essence));
+      returnEssence(golem, world, at, essence, platform.player(handle.owner()));
     }
     return true;
   }
@@ -651,6 +652,23 @@ public final class GolemRegistry extends TickedObject {
       drops.add(GolemItems.rune(rune));
     }
     forgetRosterEntry(handle);
+  }
+
+  private void returnEssence(Mob golem, World world, Location at, int points, Player owner) {
+    AtomicBoolean settled = new AtomicBoolean();
+    Runnable drop = () -> {
+      if (settled.compareAndSet(false, true)) {
+        world.spawn(at, ExperienceOrb.class, orb -> orb.setExperience(points));
+      }
+    };
+    Runnable give = () -> {
+      if (settled.compareAndSet(false, true)) {
+        owner.giveExp(points);
+      }
+    };
+    if (owner == null || !owner.isOnline() || !platform.runEntity(owner, give, () -> platform.runEntity(golem, drop, 0))) {
+      drop.run();
+    }
   }
 
   private void forgetRosterEntry(GolemHandle handle) {

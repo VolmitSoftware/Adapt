@@ -21,6 +21,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.BoundingBox;
@@ -85,7 +86,7 @@ class CollectionNodeBehaviorTest {
     scheduling.when(() -> J.isOwnedByCurrentRegion(any(Location.class))).thenReturn(true);
     scheduling.when(() -> J.isOwnedByCurrentRegion(any(Location.class), anyDouble(), anyDouble())).thenReturn(true);
     probes = mockStatic(ProtectionEventProbe.class);
-    probes.when(() -> ProtectionEventProbe.attemptItemPickup(any(Player.class), any(Item.class), anyInt())).thenReturn(true);
+    probes.when(() -> ProtectionEventProbe.attemptEntityItemPickup(any(LivingEntity.class), any(Item.class), anyInt())).thenReturn(true);
     world = mock(World.class, withSettings().strictness(Strictness.LENIENT));
     when(world.getUID()).thenReturn(WORLD);
     when(world.getNearbyEntities(any(BoundingBox.class), any())).thenAnswer(invocation -> {
@@ -269,6 +270,7 @@ class CollectionNodeBehaviorTest {
     when(context.targetEntity()).thenAnswer(invocation -> Optional.<Entity>of(item).filter(entity -> !removed.contains(entity)));
     when(context.inWorkRadius(any(Location.class))).thenReturn(true);
     when(context.canInteract(any(Location.class))).thenReturn(true);
+    when(context.canBreak(any(Location.class))).thenReturn(true);
     when(context.room()).thenAnswer(invocation -> 64 - carried.get());
     when(context.carry(any(ItemStack.class))).thenAnswer(invocation -> {
       carried.addAndGet(invocation.<ItemStack>getArgument(0).getAmount());
@@ -294,6 +296,7 @@ class CollectionNodeBehaviorTest {
       return null;
     }).when(item).setPickupDelay(anyInt());
     when(item.canPlayerPickup()).thenReturn(true);
+    when(item.canMobPickup()).thenReturn(true);
     when(item.isValid()).thenAnswer(invocation -> !removed.contains(item));
     doAnswer(invocation -> {
       removed.add(item);

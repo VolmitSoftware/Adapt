@@ -47,14 +47,16 @@ class GathererRulesTest {
   }
 
   @Test
-  void itemsThrownOrOwnedByAnotherPlayerWaitThirtySeconds() {
+  void itemsThrownByAnotherPlayerWaitThirtySecondsAndItemsAnotherPlayerOwnsAreNeverTaken() {
     assertThat(GathererRules.foreign(STRANGER, null, OWNER, 599, THIRTY_SECONDS)).isTrue();
-    assertThat(GathererRules.foreign(null, STRANGER, OWNER, 10, THIRTY_SECONDS)).isTrue();
     assertThat(GathererRules.foreign(STRANGER, null, OWNER, 600, THIRTY_SECONDS)).isFalse();
-    assertThat(GathererRules.foreign(null, STRANGER, OWNER, 601, THIRTY_SECONDS)).isFalse();
-    assertThat(GathererRules.foreign(OWNER, OWNER, OWNER, 0, THIRTY_SECONDS)).isFalse();
-    assertThat(GathererRules.foreign(null, null, OWNER, 0, THIRTY_SECONDS)).isFalse();
     assertThat(GathererRules.foreign(STRANGER, null, OWNER, 0, 0)).isFalse();
+    assertThat(GathererRules.foreign(null, STRANGER, OWNER, 10, THIRTY_SECONDS)).isTrue();
+    assertThat(GathererRules.foreign(null, STRANGER, OWNER, 72_000, THIRTY_SECONDS)).isTrue();
+    assertThat(GathererRules.foreign(null, STRANGER, OWNER, 0, 0)).isTrue();
+    assertThat(GathererRules.foreign(OWNER, OWNER, OWNER, 0, THIRTY_SECONDS)).isFalse();
+    assertThat(GathererRules.foreign(STRANGER, OWNER, OWNER, 600, THIRTY_SECONDS)).isFalse();
+    assertThat(GathererRules.foreign(null, null, OWNER, 0, THIRTY_SECONDS)).isFalse();
   }
 
   @Test

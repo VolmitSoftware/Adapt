@@ -504,6 +504,14 @@ public final class PaperCompat {
     orb.setExperience(experience);
   }
 
+  public static boolean canMobPickup(Item item) {
+    try {
+      return item.canMobPickup();
+    } catch (NoSuchMethodError absent) {
+      return true;
+    }
+  }
+
   public static void setCanMobPickup(Item item, boolean canPickup) {
     try {
       item.setCanMobPickup(canPickup);

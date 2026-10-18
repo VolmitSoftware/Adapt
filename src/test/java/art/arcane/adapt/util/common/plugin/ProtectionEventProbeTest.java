@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -287,6 +288,82 @@ class ProtectionEventProbeTest {
   }
 
   @Test
+  void entityItemPickupDispatchesOnlyTheEntityPickupEventWithTheMobAsPicker() {
+    IronGolem golem = mock(IronGolem.class);
+    Item item = mock(Item.class);
+    PluginManager pluginManager = mock(PluginManager.class);
+    List<Event> dispatched = new ArrayList<>();
+    List<Integer> visibleAmounts = new ArrayList<>();
+    AtomicReference<ItemStack> itemStack = stubEligibleMobPickup(golem, item, 8);
+    doAnswer(invocation -> {
+      Event event = invocation.getArgument(0);
+      assertThat(ProtectionEventProbe.isActive(event)).isTrue();
+      dispatched.add(event);
+      visibleAmounts.add(item.getItemStack().getAmount());
+      return null;
+    }).when(pluginManager).callEvent(any(Event.class));
+
+    boolean allowed;
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class); MockedStatic<J> scheduling = mockStatic(J.class)) {
+      bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
+      scheduling.when(() -> J.isOwnedByCurrentRegion(item)).thenReturn(true);
+      allowed = ProtectionEventProbe.attemptEntityItemPickup(golem, item, 7);
+    }
+
+    assertThat(allowed).isTrue();
+    assertThat(dispatched).hasSize(1);
+    assertThat(dispatched.getFirst()).isInstanceOfSatisfying(EntityPickupItemEvent.class, event -> {
+      assertThat(event.getEntity()).isSameAs(golem);
+      assertThat(event.getRemaining()).isEqualTo(7);
+    });
+    assertThat(visibleAmounts).containsExactly(1);
+    assertThat(itemStack.get().getAmount()).isEqualTo(8);
+  }
+
+  @Test
+  void entityItemPickupHonorsACancelledEventAndRestoresTheStack() {
+    IronGolem golem = mock(IronGolem.class);
+    Item item = mock(Item.class);
+    PluginManager pluginManager = mock(PluginManager.class);
+    AtomicReference<ItemStack> itemStack = stubEligibleMobPickup(golem, item, 8);
+    doAnswer(invocation -> {
+      ((Cancellable) invocation.getArgument(0)).setCancelled(true);
+      return null;
+    }).when(pluginManager).callEvent(any(Event.class));
+
+    boolean allowed;
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class); MockedStatic<J> scheduling = mockStatic(J.class)) {
+      bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
+      scheduling.when(() -> J.isOwnedByCurrentRegion(item)).thenReturn(true);
+      allowed = ProtectionEventProbe.attemptEntityItemPickup(golem, item, 0);
+    }
+
+    assertThat(allowed).isFalse();
+    assertThat(itemStack.get().getAmount()).isEqualTo(8);
+  }
+
+  @Test
+  void entityItemPickupNeedsTheItemInTheCurrentRegionAndSomethingToTake() {
+    IronGolem golem = mock(IronGolem.class);
+    Item item = mock(Item.class);
+    PluginManager pluginManager = mock(PluginManager.class);
+    stubEligibleMobPickup(golem, item, 8);
+
+    boolean foreign;
+    boolean nothing;
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class); MockedStatic<J> scheduling = mockStatic(J.class)) {
+      bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
+      foreign = ProtectionEventProbe.attemptEntityItemPickup(golem, item, 0);
+      scheduling.when(() -> J.isOwnedByCurrentRegion(item)).thenReturn(true);
+      nothing = ProtectionEventProbe.attemptEntityItemPickup(golem, item, 8);
+    }
+
+    assertThat(foreign).isFalse();
+    assertThat(nothing).isFalse();
+    verify(pluginManager, never()).callEvent(any(Event.class));
+  }
+
+  @Test
   void pendingBlockDropUsesPickupEventsBeforeTheEntityIsSpawned() {
     Player player = mock(Player.class);
     Item item = mock(Item.class);
@@ -392,6 +469,21 @@ class ProtectionEventProbeTest {
     AtomicReference<ItemStack> stack = new AtomicReference<>(stubStack(Material.STONE, amount));
     when(player.isOnline()).thenReturn(true);
     when(player.getWorld()).thenReturn(world);
+    when(item.isValid()).thenReturn(true);
+    when(item.getWorld()).thenReturn(world);
+    when(item.getItemStack()).thenAnswer(invocation -> stack.get());
+    doAnswer(invocation -> {
+      ItemStack replacement = invocation.getArgument(0);
+      stack.set(replacement.clone());
+      return null;
+    }).when(item).setItemStack(any(ItemStack.class));
+    return stack;
+  }
+
+  private AtomicReference<ItemStack> stubEligibleMobPickup(IronGolem golem, Item item, int amount) {
+    World world = mock(World.class);
+    AtomicReference<ItemStack> stack = new AtomicReference<>(stubStack(Material.STONE, amount));
+    when(golem.getWorld()).thenReturn(world);
     when(item.isValid()).thenReturn(true);
     when(item.getWorld()).thenReturn(world);
     when(item.getItemStack()).thenAnswer(invocation -> stack.get());

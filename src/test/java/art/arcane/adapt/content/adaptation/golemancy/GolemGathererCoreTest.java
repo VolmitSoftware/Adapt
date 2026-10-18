@@ -117,6 +117,7 @@ class GolemGathererCoreTest extends AdaptTestBase {
     when(item.getItemStack()).thenReturn(stack);
     when(item.isValid()).thenReturn(true);
     when(item.canPlayerPickup()).thenReturn(true);
+    when(item.canMobPickup()).thenReturn(true);
     return item;
   }
 

@@ -190,7 +190,7 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
     int carryBonusLevel = 5;
     @ConfigDoc(value = "Fraction added to a Gatherer's carry capacity from carryBonusLevel. 0.5 is 50% more.", impact = "Higher values let Gatherers carry more items per trip.")
     double carryBonusFraction = 0.5;
-    @ConfigDoc(value = "Seconds after an item drops during which Gatherers leave it alone when another player threw it or owns it, from 0 to 600.", impact = "Higher values give other players longer to pick up their own items.")
+    @ConfigDoc(value = "Seconds after an item drops during which Gatherers leave it alone when another player threw it, from 0 to 600. Items another player owns are never picked up.", impact = "Higher values give other players longer to pick up the items they threw.")
     int foreignItemSeconds = 30;
     @ConfigDoc(value = "Blocks around the spot where a player died within which Gatherers pick up nothing, from 0 to 64.", impact = "Higher values keep Gatherers farther from death drops.")
     double deathSiteRadius = 8.0;
