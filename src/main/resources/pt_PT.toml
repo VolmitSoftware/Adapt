@@ -4411,6 +4411,32 @@ released = "Golem libertado"
 release_failed = "Este golem não pode ser libertado agora"
 gone = "Esse golem já não está aqui"
 
+[golemancy.binding]
+busy = "Já está a decorrer um ritual de vínculo"
+already_bound = "Esse golem já está vinculado"
+village = "Só podem ser vinculados golems construídos por jogadores"
+builder = "Só o jogador que construiu este golem o pode vincular por agora"
+body_locked = "Ainda não podes vincular golems de {body}"
+core_not_allowed = "Um golem de {body} não aceita um núcleo de {core}"
+core_locked = "Ainda não aprendeste a vincular núcleos de {core}"
+protected = "Não podes vincular golems aqui"
+unavailable = "A tua lista de golems ainda não está pronta"
+golem_cap = "Já possuis o teu limite de {count} golems"
+chunk_cap = "Esta zona já tem {count} golems vinculados"
+levels = "Vincular este golem custa {levels} níveis"
+interrupted = "O vínculo foi interrompido"
+bound = "O teu golem de {body} está agora vinculado a ti"
+
+[golemancy.animus_binding]
+name = "Vínculo de Ânimus"
+description = "Agacha-te e clica com o botão direito num golem enquanto seguras um Núcleo de Ânimus para o vincular a ti como companheiro."
+lore1 = "Golems que podes possuir"
+lore2 = "Segundos por ritual de vínculo"
+lore3 = "Níveis para vincular um golem de Geada"
+lore4 = "Níveis para vincular um golem de Cobre"
+lore5 = "Níveis para vincular um golem de Ferro"
+lore = ["Golems que podes possuir", "Segundos por ritual de vínculo", "Níveis para vincular um golem de Geada", "Níveis para vincular um golem de Cobre", "Níveis para vincular um golem de Ferro"]
+
 [herbalism.growth_aura]
 name = "Aura de Crescimento"
 description = "Faz crescer a natureza a tua volta numa aura"

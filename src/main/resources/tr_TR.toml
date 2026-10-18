@@ -4411,6 +4411,32 @@ released = "Golem serbest bırakıldı"
 release_failed = "Bu golem şu anda serbest bırakılamaz"
 gone = "Bu golem artık burada değil"
 
+[golemancy.binding]
+busy = "Zaten bir bağlama ritüeli sürüyor"
+already_bound = "Bu golem zaten bağlı"
+village = "Yalnızca oyuncuların yaptığı golemler bağlanabilir"
+builder = "Bu golemi şu anda yalnızca onu yapan oyuncu bağlayabilir"
+body_locked = "Henüz {body} golemlerini bağlayamazsın"
+core_not_allowed = "{body} Golemi {core} çekirdeğini kabul etmez"
+core_locked = "{core} çekirdeklerini bağlamayı henüz öğrenmedin"
+protected = "Burada golem bağlayamazsın"
+unavailable = "Golem listen henüz hazır değil"
+golem_cap = "Zaten sınırın olan {count} golemin var"
+chunk_cap = "Bu bölgede zaten {count} bağlı golem var"
+levels = "Bu golemi bağlamak {levels} seviyeye mal olur"
+interrupted = "Bağlama kesildi"
+bound = "{body} Golemin artık sana bağlı"
+
+[golemancy.animus_binding]
+name = "Animus Bağı"
+description = "Elinde bir Animus Çekirdeği tutarken eğilip bir golemi sağ tıklayarak onu yoldaşın olarak kendine bağla."
+lore1 = "Sahip olabileceğin golemler"
+lore2 = "Bağlama ritüeli başına saniye"
+lore3 = "Ayaz golemi bağlamak için seviye"
+lore4 = "Bakır golemi bağlamak için seviye"
+lore5 = "Demir golemi bağlamak için seviye"
+lore = ["Sahip olabileceğin golemler", "Bağlama ritüeli başına saniye", "Ayaz golemi bağlamak için seviye", "Bakır golemi bağlamak için seviye", "Demir golemi bağlamak için seviye"]
+
 [herbalism.growth_aura]
 name = "Buyume Aurasi"
 description = "Cevrenizdeki dogayi bir aura icinde buyutun"

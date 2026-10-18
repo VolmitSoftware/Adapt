@@ -20,6 +20,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
@@ -147,6 +148,45 @@ class ConfiguredRecipeParserTest {
         ConfiguredShapedRecipe.class);
     assertThat(parser.builder(recipeKey, disabled)).isEmpty();
     assertThat(book.required(recipeKey)).isEmpty();
+    assertThat(book.satisfiedBy(recipeKey, List.of())).isFalse();
+  }
+
+  @Test
+  void builderRecordsRecipesWithoutExactIngredientsAsKnown() {
+    NamespacedKey recipeKey = new NamespacedKey("adapt", "golemancy-crook");
+    material("REDSTONE");
+    ItemStack crook = exactResult(new NamespacedKey("golemancy", "crook"), "IRON_HOE");
+    ItemStack crookCopy = countedItem();
+    when(crook.clone()).thenReturn(crookCopy);
+    ConfiguredShapedRecipe spec = new ConfiguredShapedRecipe()
+        .rows("R")
+        .key('R', "REDSTONE")
+        .result("golemancy:crook", 1);
+
+    assertThat(parser.builder(recipeKey, spec)).isPresent();
+    assertThat(book.satisfiedBy(recipeKey, List.of())).isTrue();
+  }
+
+  @Test
+  void builderForgetsInvalidSpecsSoTheirRecipesFailClosed() {
+    NamespacedKey recipeKey = new NamespacedKey("adapt", "golemancy-crook");
+    material("REDSTONE");
+    ItemStack crook = exactResult(new NamespacedKey("golemancy", "crook"), "IRON_HOE");
+    ItemStack crookCopy = countedItem();
+    when(crook.clone()).thenReturn(crookCopy);
+    parser.builder(recipeKey, new ConfiguredShapedRecipe().rows("R").key('R', "REDSTONE").result("golemancy:crook", 1));
+
+    assertThat(parser.builder(recipeKey, new ConfiguredShapedRecipe().rows("R").key('R', "NOT_A_MATERIAL").result("golemancy:crook", 1))).isEmpty();
+    assertThat(book.satisfiedBy(recipeKey, List.of())).isFalse();
+  }
+
+  @Test
+  void builderRejectsRecipeKeysOutsideTheAdaptNamespace() {
+    ConfiguredShapedRecipe spec = new ConfiguredShapedRecipe().rows("R").key('R', "REDSTONE").result("REDSTONE", 1);
+
+    assertThatThrownBy(() -> parser.builder(new NamespacedKey("example", "golemancy-crook"), spec))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("example:golemancy-crook");
   }
 
   @Test

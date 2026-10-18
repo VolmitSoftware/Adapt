@@ -4411,6 +4411,32 @@ released = "Golemas paleistas"
 release_failed = "Šio golemo dabar paleisti negalima"
 gone = "Šio golemo čia nebėra"
 
+[golemancy.binding]
+busy = "Sujungimo ritualas jau vyksta"
+already_bound = "Šis golemas jau sujungtas"
+village = "Sujungti galima tik žaidėjų pastatytus golemus"
+builder = "Šiuo metu šį golemą gali sujungti tik jį pastatęs žaidėjas"
+body_locked = "Dar negali sujungti {body} golemų"
+core_not_allowed = "{body} golemas negali priimti šerdies: {core}"
+core_locked = "Dar neišmokai sujungti šerdžių: {core}"
+protected = "Čia negali sujungti golemų"
+unavailable = "Tavo golemų sąrašas dar neparuoštas"
+golem_cap = "Jau turi didžiausią leistiną skaičių – {count} golemų"
+chunk_cap = "Šioje vietovėje jau yra {count} sujungtų golemų"
+levels = "Sujungti šį golemą kainuoja {levels} lygių"
+interrupted = "Sujungimas nutrūko"
+bound = "Tavo {body} golemas dabar sujungtas su tavimi"
+
+[golemancy.animus_binding]
+name = "Animus sujungimas"
+description = "Sėlindamas dešiniuoju pelės mygtuku spustelėk golemą, laikydamas animus šerdį, kad sujungtum jį su savimi kaip palydovą."
+lore1 = "Golemai, kuriuos gali turėti"
+lore2 = "Sekundės vienam sujungimo ritualui"
+lore3 = "Lygiai Šerkšno golemui sujungti"
+lore4 = "Lygiai Vario golemui sujungti"
+lore5 = "Lygiai Geležies golemui sujungti"
+lore = ["Golemai, kuriuos gali turėti", "Sekundės vienam sujungimo ritualui", "Lygiai Šerkšno golemui sujungti", "Lygiai Vario golemui sujungti", "Lygiai Geležies golemui sujungti"]
+
 [herbalism.growth_aura]
 name = "Augimo Aura"
 description = "Auginkite gamta aplink save auroje"

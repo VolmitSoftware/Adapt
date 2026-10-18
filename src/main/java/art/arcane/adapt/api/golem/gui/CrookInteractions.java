@@ -1,12 +1,10 @@
 package art.arcane.adapt.api.golem.gui;
 
-import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.protection.Protector;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
@@ -116,12 +114,7 @@ public final class CrookInteractions implements Listener {
   }
 
   private static boolean canAccessChest(Player player, Location location) {
-    for (Protector protector : Adapt.instance.getProtectorRegistry().getDefaultProtectors()) {
-      if (!protector.canAccessChest(player, location, null)) {
-        return false;
-      }
-    }
-    return true;
+    return GolemancyRuntime.protectionPolicy().map(policy -> policy.canAccessChest(player, location)).orElse(false);
   }
 
   private static boolean isCrook(ItemStack item) {

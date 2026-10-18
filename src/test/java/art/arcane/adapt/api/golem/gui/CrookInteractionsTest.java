@@ -7,8 +7,7 @@ import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
-import art.arcane.adapt.api.protection.Protector;
-import art.arcane.adapt.api.protection.ProtectorRegistry;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -29,7 +28,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -38,7 +36,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -63,7 +60,7 @@ class CrookInteractionsTest extends AdaptTestBase {
   private ItemStack crook;
   private IronGolem golem;
   private GolemHandle handle;
-  private Protector protector;
+  private Adaptation<Object> policy;
   private CrookInteractions interactions;
 
   @BeforeEach
@@ -86,11 +83,8 @@ class CrookInteractionsTest extends AdaptTestBase {
     lenient().when(handle.owner()).thenReturn(OWNER);
     lenient().when(handle.entity()).thenReturn(golem);
     lenient().when(handle.state()).thenReturn(state);
-    protector = mock(Protector.class);
-    lenient().when(protector.canAccessChest(eq(player), any(Location.class), isNull())).thenReturn(true);
-    ProtectorRegistry protectors = mock(ProtectorRegistry.class);
-    lenient().when(protectors.getDefaultProtectors()).thenReturn(List.of(protector));
-    lenient().when(plugin.getProtectorRegistry()).thenReturn(protectors);
+    policy = policyAdaptation();
+    lenient().when(policy.canAccessChest(eq(player), any(Location.class))).thenReturn(true);
 
     scheduling = mockStatic(J.class);
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenReturn(true);
@@ -109,6 +103,7 @@ class CrookInteractionsTest extends AdaptTestBase {
     runtime = mockStatic(GolemancyRuntime.class);
     runtime.when(() -> GolemancyRuntime.handle(golem)).thenReturn(Optional.of(handle));
     runtime.when(GolemancyRuntime::brainSettings).thenReturn(new GolemBrainSettings(5, 32D, LEASH_RADIUS, 8, 10));
+    runtime.when(GolemancyRuntime::protectionPolicy).thenReturn(Optional.of(policy));
     golemGui = mockStatic(GolemGui.class);
     golemGui.when(() -> GolemGui.open(eq(player), eq(handle), any())).thenAnswer(invocation -> {
       openedGestures.set(invocation.getArgument(2));
@@ -148,7 +143,7 @@ class CrookInteractionsTest extends AdaptTestBase {
 
   @Test
   void aProtectedChestKeepsLinkModeArmed() {
-    when(protector.canAccessChest(eq(player), any(Location.class), isNull())).thenReturn(false);
+    when(policy.canAccessChest(eq(player), any(Location.class))).thenReturn(false);
     armLinkMode();
 
     clickChest(4);
@@ -210,6 +205,21 @@ class CrookInteractionsTest extends AdaptTestBase {
     CrookGestures<GolemHandle> gestures = openedGestures.get();
     assertThat(gestures).isNotNull();
     gestures.armLink(OWNER, handle, System.currentTimeMillis());
+  }
+
+  @Test
+  void withoutAProtectionPolicyNoContainerLinks() {
+    runtime.when(GolemancyRuntime::protectionPolicy).thenReturn(Optional.empty());
+    armLinkMode();
+
+    clickChest(4);
+
+    verify(handle, never()).setHomeChest(any(GolemState.Anchor.class));
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Adaptation<Object> policyAdaptation() {
+    return mock(Adaptation.class);
   }
 
   private PlayerInteractEvent clickChest(int x) {

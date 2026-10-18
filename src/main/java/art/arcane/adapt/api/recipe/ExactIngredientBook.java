@@ -13,12 +13,11 @@ public final class ExactIngredientBook {
   private final Map<NamespacedKey, List<ExactIngredient>> required = new ConcurrentHashMap<>();
 
   public void set(NamespacedKey recipeKey, List<ExactIngredient> ingredients) {
-    Objects.requireNonNull(recipeKey);
-    if (ingredients.isEmpty()) {
-      required.remove(recipeKey);
-      return;
-    }
-    required.put(recipeKey, List.copyOf(ingredients));
+    required.put(Objects.requireNonNull(recipeKey), List.copyOf(ingredients));
+  }
+
+  public void forget(NamespacedKey recipeKey) {
+    required.remove(Objects.requireNonNull(recipeKey));
   }
 
   public List<ExactIngredient> required(NamespacedKey recipeKey) {
@@ -26,7 +25,8 @@ public final class ExactIngredientBook {
   }
 
   public boolean satisfiedBy(NamespacedKey recipeKey, List<ItemStack> items) {
-    return new Matching(required(recipeKey), items).complete();
+    List<ExactIngredient> ingredients = recipeKey == null ? null : required.get(recipeKey);
+    return ingredients != null && new Matching(ingredients, items).complete();
   }
 
   private static final class Matching {

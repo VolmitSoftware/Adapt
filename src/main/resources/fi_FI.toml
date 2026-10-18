@@ -4411,6 +4411,32 @@ released = "Golemi vapautettu"
 release_failed = "Tätä golemia ei voi vapauttaa juuri nyt"
 gone = "Tämä golemi ei ole enää täällä"
 
+[golemancy.binding]
+busy = "Sidontariitti on jo käynnissä"
+already_bound = "Tämä golemi on jo sidottu"
+village = "Vain pelaajien rakentamia golemeja voi sitoa"
+builder = "Vain tämän golemin rakentaja voi sitoa sen juuri nyt"
+body_locked = "Et voi vielä sitoa {body}golemeja"
+core_not_allowed = "{body}golemi ei voi ottaa ydintä: {core}"
+core_locked = "Et ole vielä oppinut sitomaan ytimiä: {core}"
+protected = "Et voi sitoa golemeja täällä"
+unavailable = "Golemiluettelosi ei ole vielä valmis"
+golem_cap = "Omistat jo enimmäismäärän, {count} golemia"
+chunk_cap = "Tällä alueella on jo {count} sidottua golemia"
+levels = "Tämän golemin sitominen maksaa {levels} tasoa"
+interrupted = "Sidonta keskeytyi"
+bound = "{body}golemisi on nyt sidottu sinuun"
+
+[golemancy.animus_binding]
+name = "Animussidonta"
+description = "Hiivi ja napsauta golemia oikealla animusydin kädessäsi sitoaksesi sen seuralaiseksesi."
+lore1 = "Golemit, jotka voit omistaa"
+lore2 = "Sekuntia sidontariittiin"
+lore3 = "Tasoja huurregolemin sitomiseen"
+lore4 = "Tasoja kuparigolemin sitomiseen"
+lore5 = "Tasoja rautagolemin sitomiseen"
+lore = ["Golemit, jotka voit omistaa", "Sekuntia sidontariittiin", "Tasoja huurregolemin sitomiseen", "Tasoja kuparigolemin sitomiseen", "Tasoja rautagolemin sitomiseen"]
+
 [herbalism.growth_aura]
 name = "Kasvuaura"
 description = "Kasvata luontoa ympärilläsi auralla"

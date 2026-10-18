@@ -199,7 +199,7 @@ public final class GolemGui {
   }
 
   private void cycleMode(boolean forward) {
-    mutate(() -> handle.setMode(GolemGuiActions.cycleMode(handle.state().mode(), forward)));
+    mutate(() -> handle.setMode(GolemGuiActions.cycleMode(handle.core(), handle.state().mode(), forward)));
   }
 
   private void cycleChannel(boolean forward) {

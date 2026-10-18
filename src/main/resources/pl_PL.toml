@@ -4411,6 +4411,32 @@ released = "Golem uwolniony"
 release_failed = "Tego golema nie można teraz uwolnić"
 gone = "Tego golema już tu nie ma"
 
+[golemancy.binding]
+busy = "Rytuał wiązania już trwa"
+already_bound = "Ten golem jest już związany"
+village = "Można związać tylko golemy zbudowane przez graczy"
+builder = "Tylko gracz, który zbudował tego golema, może go teraz związać"
+body_locked = "Nie możesz jeszcze wiązać golemów typu {body}"
+core_not_allowed = "Golem typu {body} nie przyjmie rdzenia: {core}"
+core_locked = "Nie nauczyłeś się jeszcze wiązać rdzeni: {core}"
+protected = "Nie możesz tu wiązać golemów"
+unavailable = "Twoja lista golemów nie jest jeszcze gotowa"
+golem_cap = "Masz już swój limit {count} golemów"
+chunk_cap = "Na tym obszarze jest już {count} związanych golemów"
+levels = "Związanie tego golema kosztuje {levels} poziomów"
+interrupted = "Wiązanie zostało przerwane"
+bound = "Twój {body} golem jest teraz z tobą związany"
+
+[golemancy.animus_binding]
+name = "Wiązanie animusa"
+description = "Skradając się, kliknij prawym przyciskiem golema, trzymając rdzeń animusa, aby związać go ze sobą jako towarzysza."
+lore1 = "Golemy, które możesz posiadać"
+lore2 = "Sekundy na rytuał wiązania"
+lore3 = "Poziomy do związania szronowego golema"
+lore4 = "Poziomy do związania miedzianego golema"
+lore5 = "Poziomy do związania żelaznego golema"
+lore = ["Golemy, które możesz posiadać", "Sekundy na rytuał wiązania", "Poziomy do związania szronowego golema", "Poziomy do związania miedzianego golema", "Poziomy do związania żelaznego golema"]
+
 [herbalism.growth_aura]
 name = "Aura Wzrostu"
 description = "Rozwijaj nature wokol siebie w aurze"

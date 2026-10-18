@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.volmlib.util.localization.TextKey;
 
+import java.util.List;
 import java.util.Optional;
 
 public enum GolemMode {
@@ -10,6 +11,9 @@ public enum GolemMode {
   FOLLOW("follow"),
   STAY("stay"),
   HOME("home");
+
+  private static final List<GolemMode> COMPANION_MODES = List.of(FOLLOW, STAY, HOME);
+  private static final List<GolemMode> ALL_MODES = List.of(values());
 
   private final String id;
 
@@ -28,6 +32,10 @@ public enum GolemMode {
 
   public static GolemMode defaultFor(GolemCoreType core) {
     return core == GolemCoreType.BLANK ? FOLLOW : WORK;
+  }
+
+  public static List<GolemMode> selectableFor(GolemCoreType core) {
+    return core == GolemCoreType.BLANK ? COMPANION_MODES : ALL_MODES;
   }
 
   public String id() {

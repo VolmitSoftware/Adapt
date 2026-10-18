@@ -1,5 +1,6 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
 
@@ -125,6 +126,28 @@ public final class GolemancyMessages {
   public static final TextKey MESSAGE_RELEASED = TextKey.of("golemancy.message.released", "Golem released");
   public static final TextKey MESSAGE_RELEASE_FAILED = TextKey.of("golemancy.message.release_failed", "This golem can't be released right now");
   public static final TextKey MESSAGE_GONE = TextKey.of("golemancy.message.gone", "That golem is no longer here");
+  public static final TextKey BINDING_BUSY = TextKey.of("golemancy.binding.busy", "A binding ritual is already underway");
+  public static final TextKey BINDING_ALREADY_BOUND = TextKey.of("golemancy.binding.already_bound", "That golem is already bound");
+  public static final TextKey BINDING_VILLAGE = TextKey.of("golemancy.binding.village", "Only golems that players built can be bound");
+  public static final TextKey BINDING_BUILDER = TextKey.of("golemancy.binding.builder", "Only the player who built this golem can bind it right now");
+  public static final TextKey BINDING_BODY_LOCKED = TextKey.of("golemancy.binding.body_locked", "You can't bind {body} golems yet");
+  public static final TextKey BINDING_CORE_NOT_ALLOWED = TextKey.of("golemancy.binding.core_not_allowed", "A {body} golem can't take a {core} core");
+  public static final TextKey BINDING_CORE_LOCKED = TextKey.of("golemancy.binding.core_locked", "You haven't learned to bind {core} cores yet");
+  public static final TextKey BINDING_PROTECTED = TextKey.of("golemancy.binding.protected", "You can't bind golems here");
+  public static final TextKey BINDING_UNAVAILABLE = TextKey.of("golemancy.binding.unavailable", "Your golem roster isn't ready yet");
+  public static final TextKey BINDING_GOLEM_CAP = TextKey.of("golemancy.binding.golem_cap", "You already own your limit of {count} golems");
+  public static final TextKey BINDING_CHUNK_CAP = TextKey.of("golemancy.binding.chunk_cap", "This area already holds {count} bound golems");
+  public static final TextKey BINDING_LEVELS = TextKey.of("golemancy.binding.levels", "Binding this golem costs {levels} levels");
+  public static final TextKey BINDING_INTERRUPTED = TextKey.of("golemancy.binding.interrupted", "The binding was interrupted");
+  public static final TextKey BINDING_BOUND = TextKey.of("golemancy.binding.bound", "Your {body} golem is now bound to you");
+  public static final TextKey ANIMUS_BINDING_NAME = TextKey.of("golemancy.animus_binding.name", "Animus Binding");
+  public static final TextKey ANIMUS_BINDING_DESCRIPTION = TextKey.of("golemancy.animus_binding.description", "Sneak-right-click a golem while holding an Animus Core to bind it to you as a companion.");
+  public static final TextKey ANIMUS_BINDING_LORE1 = TextKey.of("golemancy.animus_binding.lore1", "Golems You Can Own");
+  public static final TextKey ANIMUS_BINDING_LORE2 = TextKey.of("golemancy.animus_binding.lore2", "Seconds per Binding Ritual");
+  public static final TextKey ANIMUS_BINDING_LORE3 = TextKey.of("golemancy.animus_binding.lore3", "Levels to Bind a Frost Golem");
+  public static final TextKey ANIMUS_BINDING_LORE4 = TextKey.of("golemancy.animus_binding.lore4", "Levels to Bind a Copper Golem");
+  public static final TextKey ANIMUS_BINDING_LORE5 = TextKey.of("golemancy.animus_binding.lore5", "Levels to Bind an Iron Golem");
+  public static final LinesKey ANIMUS_BINDING_LORE = LinesKey.of("golemancy.animus_binding.lore", "Golems You Can Own", "Seconds per Binding Ritual", "Levels to Bind a Frost Golem", "Levels to Bind a Copper Golem", "Levels to Bind an Iron Golem");
 
   private GolemancyMessages() {
   }
@@ -251,5 +274,27 @@ public final class GolemancyMessages {
     builder.add(MESSAGE_RELEASED);
     builder.add(MESSAGE_RELEASE_FAILED);
     builder.add(MESSAGE_GONE);
+    builder.add(BINDING_BUSY);
+    builder.add(BINDING_ALREADY_BOUND);
+    builder.add(BINDING_VILLAGE);
+    builder.add(BINDING_BUILDER);
+    builder.add(BINDING_BODY_LOCKED);
+    builder.add(BINDING_CORE_NOT_ALLOWED);
+    builder.add(BINDING_CORE_LOCKED);
+    builder.add(BINDING_PROTECTED);
+    builder.add(BINDING_UNAVAILABLE);
+    builder.add(BINDING_GOLEM_CAP);
+    builder.add(BINDING_CHUNK_CAP);
+    builder.add(BINDING_LEVELS);
+    builder.add(BINDING_INTERRUPTED);
+    builder.add(BINDING_BOUND);
+    builder.add(ANIMUS_BINDING_NAME);
+    builder.add(ANIMUS_BINDING_DESCRIPTION);
+    builder.add(ANIMUS_BINDING_LORE1);
+    builder.add(ANIMUS_BINDING_LORE2);
+    builder.add(ANIMUS_BINDING_LORE3);
+    builder.add(ANIMUS_BINDING_LORE4);
+    builder.add(ANIMUS_BINDING_LORE5);
+    builder.add(ANIMUS_BINDING_LORE);
   }
 }

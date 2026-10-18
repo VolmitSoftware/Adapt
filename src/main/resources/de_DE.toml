@@ -4411,6 +4411,32 @@ released = "Golem freigelassen"
 release_failed = "Dieser Golem kann gerade nicht freigelassen werden"
 gone = "Dieser Golem ist nicht mehr hier"
 
+[golemancy.binding]
+busy = "Ein Bindungsritual läuft bereits"
+already_bound = "Dieser Golem ist bereits gebunden"
+village = "Nur von Spielern gebaute Golems können gebunden werden"
+builder = "Nur der Erbauer dieses Golems kann ihn gerade binden"
+body_locked = "Du kannst noch keine {body}golems binden"
+core_not_allowed = "Ein {body}golem kann keinen {core}-Kern aufnehmen"
+core_locked = "Du hast noch nicht gelernt, {core}-Kerne zu binden"
+protected = "Hier kannst du keine Golems binden"
+unavailable = "Deine Golem-Liste ist noch nicht bereit"
+golem_cap = "Du besitzt bereits dein Maximum von {count} Golems"
+chunk_cap = "In diesem Bereich sind bereits {count} gebundene Golems"
+levels = "Diesen Golem zu binden kostet {levels} Stufen"
+interrupted = "Die Bindung wurde unterbrochen"
+bound = "Dein {body}golem ist jetzt an dich gebunden"
+
+[golemancy.animus_binding]
+name = "Animus-Bindung"
+description = "Schleiche und rechtsklicke einen Golem mit einem Animus-Kern in der Hand, um ihn als Begleiter an dich zu binden."
+lore1 = "Golems, die du besitzen kannst"
+lore2 = "Sekunden pro Bindungsritual"
+lore3 = "Stufen für einen Frostgolem"
+lore4 = "Stufen für einen Kupfergolem"
+lore5 = "Stufen für einen Eisengolem"
+lore = ["Golems, die du besitzen kannst", "Sekunden pro Bindungsritual", "Stufen für einen Frostgolem", "Stufen für einen Kupfergolem", "Stufen für einen Eisengolem"]
+
 [herbalism.growth_aura]
 name = "Wachstumsaura"
 description = "Lasse die Natur um dich herum in einer Aura wachsen"

@@ -138,16 +138,6 @@ public final class GolemItemGuard implements Listener {
     }
   }
 
-  private static void clearResultForGolemInputs(PrepareInventoryResultEvent e, int inputSlots) {
-    Inventory inventory = e.getInventory();
-    for (int slot = 0; slot < inputSlots; slot++) {
-      if (GolemItems.isGolemItem(inventory.getItem(slot))) {
-        e.setResult(null);
-        return;
-      }
-    }
-  }
-
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(PrepareItemEnchantEvent e) {
     if (GolemItems.isGolemItem(e.getItem())) {
@@ -159,6 +149,16 @@ public final class GolemItemGuard implements Listener {
   public void on(EnchantItemEvent e) {
     if (GolemItems.isGolemItem(e.getItem())) {
       e.setCancelled(true);
+    }
+  }
+
+  private static void clearResultForGolemInputs(PrepareInventoryResultEvent e, int inputSlots) {
+    Inventory inventory = e.getInventory();
+    for (int slot = 0; slot < inputSlots; slot++) {
+      if (GolemItems.isGolemItem(inventory.getItem(slot))) {
+        e.setResult(null);
+        return;
+      }
     }
   }
 

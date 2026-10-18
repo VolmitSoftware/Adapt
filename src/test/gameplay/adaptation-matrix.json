@@ -3332,6 +3332,37 @@
       "feedbackPresets": []
     },
     {
+      "skill": "golemancy",
+      "name": "golem-animus-binding",
+      "class": "GolemAnimusBinding",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemAnimusBinding.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageEvent",
+        "PlayerInteractEntityEvent",
+        "PlayerQuitEvent",
+        "recipe"
+      ],
+      "expectation": "Sneak-right-click a golem while holding an Animus Core to bind it to you as a companion.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemAnimusBinding.java",
+      "sounds": [
+        "BLOCK_AMETHYST_BLOCK_RESONATE",
+        "BLOCK_BEACON_POWER_SELECT",
+        "BLOCK_ENCHANTMENT_TABLE_USE",
+        "BLOCK_FIRE_EXTINGUISH"
+      ],
+      "particles": [
+        "ASH",
+        "END_ROD",
+        "SMOKE",
+        "SNOWFLAKE",
+        "WAX_ON"
+      ],
+      "feedbackPresets": []
+    },
+    {
       "skill": "herbalism",
       "name": "herbalism-bee-shepherd",
       "class": "HerbalismBeeShepherd",

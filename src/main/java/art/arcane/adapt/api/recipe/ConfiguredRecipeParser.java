@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public final class ConfiguredRecipeParser {
+  private static final String RECIPE_NAMESPACE = "adapt";
   private static final int MAX_GRID_SIZE = 3;
   private static final int MAX_AMOUNT = 64;
 
@@ -37,8 +38,11 @@ public final class ConfiguredRecipeParser {
 
   public Optional<AdaptRecipe.Shaped.ShapedBuilder> builder(NamespacedKey recipeKey, ConfiguredShapedRecipe spec) {
     Objects.requireNonNull(recipeKey);
+    if (!RECIPE_NAMESPACE.equals(recipeKey.getNamespace())) {
+      throw new IllegalArgumentException("Configured recipe " + recipeKey + " must use the " + RECIPE_NAMESPACE + " namespace that Adapt registers recipes under");
+    }
     if (!spec.isEnabled()) {
-      book.set(recipeKey, List.of());
+      book.forget(recipeKey);
       return Optional.empty();
     }
 
@@ -46,8 +50,12 @@ public final class ConfiguredRecipeParser {
     for (String problem : result.problems()) {
       Adapt.warn("Skipping configured recipe " + recipeKey + ": " + problem);
     }
+    if (result.builder() == null) {
+      book.forget(recipeKey);
+      return Optional.empty();
+    }
     book.set(recipeKey, result.exactIngredients());
-    return Optional.ofNullable(result.builder()).map(builder -> builder.key(recipeKey.getKey()));
+    return Optional.of(result.builder().key(recipeKey.getKey()));
   }
 
   public Result parse(ConfiguredShapedRecipe spec) {

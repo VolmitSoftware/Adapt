@@ -461,7 +461,8 @@ public final class AdaptGameplayFixture extends JavaPlugin {
                         && !UtilityFixtures.stage(name, arena, actor, opponent)
                         && !NatureFixtures.stage(name, arena, actor, opponent)
                         && !IntegrationFixtures.stage(name, arena, actor, opponent)
-                        && !TraversalFixtures.stage(name, arena, actor, opponent)) {
+                        && !TraversalFixtures.stage(name, arena, actor, opponent)
+                        && !GolemancyFixtures.stage(name, arena, actor, opponent)) {
                     throw new IllegalArgumentException("Unknown skill stage " + name);
                 }
             }
@@ -575,6 +576,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
         result.add("guard", GuardFixtures.snapshot(player));
         result.add("projectile", ProjectileFixtures.snapshot(player));
         result.add("earth", EarthFixtures.snapshot(player));
+        result.add("golemancy", GolemancyFixtures.snapshot(player));
         result.addProperty("saturation", player.getSaturation());
         result.addProperty("allowFlight", player.getAllowFlight());
         result.addProperty("flying", player.isFlying());

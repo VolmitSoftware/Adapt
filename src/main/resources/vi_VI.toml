@@ -4411,6 +4411,32 @@ released = "Đã giải phóng golem"
 release_failed = "Hiện không thể giải phóng golem này"
 gone = "Golem đó không còn ở đây"
 
+[golemancy.binding]
+busy = "Một nghi thức liên kết đang diễn ra"
+already_bound = "Golem đó đã được liên kết"
+village = "Chỉ có thể liên kết golem do người chơi xây dựng"
+builder = "Hiện chỉ người chơi đã xây golem này mới có thể liên kết nó"
+body_locked = "Bạn chưa thể liên kết golem {body}"
+core_not_allowed = "Golem {body} không nhận lõi {core}"
+core_locked = "Bạn chưa học cách liên kết lõi {core}"
+protected = "Bạn không thể liên kết golem ở đây"
+unavailable = "Danh sách golem của bạn chưa sẵn sàng"
+golem_cap = "Bạn đã sở hữu tối đa {count} golem"
+chunk_cap = "Khu vực này đã có {count} golem được liên kết"
+levels = "Liên kết golem này tốn {levels} cấp độ"
+interrupted = "Việc liên kết đã bị gián đoạn"
+bound = "Golem {body} của bạn giờ đã được liên kết với bạn"
+
+[golemancy.animus_binding]
+name = "Liên Kết Animus"
+description = "Lén lút và nhấp chuột phải vào một golem khi cầm Lõi Animus để liên kết nó với bạn làm bạn đồng hành."
+lore1 = "Số golem bạn có thể sở hữu"
+lore2 = "Số giây mỗi nghi thức liên kết"
+lore3 = "Cấp độ để liên kết golem Băng Giá"
+lore4 = "Cấp độ để liên kết golem Đồng"
+lore5 = "Cấp độ để liên kết golem Sắt"
+lore = ["Số golem bạn có thể sở hữu", "Số giây mỗi nghi thức liên kết", "Cấp độ để liên kết golem Băng Giá", "Cấp độ để liên kết golem Đồng", "Cấp độ để liên kết golem Sắt"]
+
 [herbalism.growth_aura]
 name = "Hào Quang Tăng Trưởng"
 description = "Phát triển thiên nhiên xung quanh bạn trong một hào quang"

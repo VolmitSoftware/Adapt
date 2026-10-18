@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -20,15 +21,21 @@ import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -83,16 +90,27 @@ class GolemGuardListenerTest extends AdaptTestBase {
   }
 
   @Test
-  void boundGolemHitsOtherPlayersOnlyWhileItsOwnerIsOnlineAndAllowed() {
+  void boundGolemHitsOtherPlayersOnlyWhileItsOwnerIsOnlineAndThePolicyAllows() {
     Player rival = player(RIVAL);
     EntityDamageByEntityEvent offline = damage(bound(IronGolem.class, OWNER, GolemBody.IRON), rival);
     listener.on(offline);
     verify(offline).setCancelled(true);
 
-    online.put(OWNER, player(OWNER));
-    EntityDamageByEntityEvent allowed = damage(bound(IronGolem.class, OWNER, GolemBody.IRON), rival);
-    listener.on(allowed);
-    verify(allowed, never()).setCancelled(anyBoolean());
+    Player owner = player(OWNER);
+    online.put(OWNER, owner);
+    Adaptation<Object> policy = policyAdaptation();
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS)) {
+      runtime.when(GolemancyRuntime::protectionPolicy).thenReturn(Optional.of(policy));
+      when(policy.canPVP(eq(owner), any(Location.class))).thenReturn(true, false);
+
+      EntityDamageByEntityEvent allowed = damage(bound(IronGolem.class, OWNER, GolemBody.IRON), rival);
+      listener.on(allowed);
+      verify(allowed, never()).setCancelled(anyBoolean());
+
+      EntityDamageByEntityEvent denied = damage(bound(IronGolem.class, OWNER, GolemBody.IRON), rival);
+      listener.on(denied);
+      verify(denied).setCancelled(true);
+    }
   }
 
   @Test
@@ -156,6 +174,11 @@ class GolemGuardListenerTest extends AdaptTestBase {
     Player player = living(Player.class);
     lenient().when(player.getUniqueId()).thenReturn(id);
     return player;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static Adaptation<Object> policyAdaptation() {
+    return mock(Adaptation.class);
   }
 
   private <T extends LivingEntity> T living(Class<T> type) {

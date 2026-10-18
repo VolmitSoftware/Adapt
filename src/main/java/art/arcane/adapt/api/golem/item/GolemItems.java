@@ -7,6 +7,7 @@ import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import art.arcane.adapt.api.recipe.ExactItemResolver;
+import art.arcane.adapt.api.recipe.RecipeTithe;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
@@ -42,6 +43,7 @@ public final class GolemItems {
   private static final String EMPTY_PIP = "◇";
   private static final Gson GSON = new Gson();
   private static final ExactIngredientBook RECIPE_BOOK = new ExactIngredientBook();
+  private static final RecipeTithe RECIPE_TITHE = new RecipeTithe();
   private static final ExactItemResolver RESOLVER = new Resolver();
   private static final List<Material> COPPER_BLOCKS = List.of(
       Material.COPPER_BLOCK, Material.EXPOSED_COPPER, Material.WEATHERED_COPPER, Material.OXIDIZED_COPPER);
@@ -136,6 +138,10 @@ public final class GolemItems {
 
   public static ExactIngredientBook recipeBook() {
     return RECIPE_BOOK;
+  }
+
+  public static RecipeTithe recipeTithe() {
+    return RECIPE_TITHE;
   }
 
   public static Material copperBlock(int oxidationStage, boolean waxed) {

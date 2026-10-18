@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem.gui;
 
 import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemState;
@@ -15,15 +16,18 @@ import java.util.UUID;
 
 public final class GolemGuiActions {
   public static final int CARRIED_SLOTS = 18;
-  private static final List<GolemMode> MODES = List.of(GolemMode.values());
   private static final List<DyeColor> COLORS = List.of(DyeColor.values());
 
   private GolemGuiActions() {
   }
 
-  public static GolemMode cycleMode(GolemMode current, boolean forward) {
-    int size = MODES.size();
-    return MODES.get(Math.floorMod(current.ordinal() + (forward ? 1 : -1), size));
+  public static GolemMode cycleMode(GolemCoreType core, GolemMode current, boolean forward) {
+    List<GolemMode> modes = GolemMode.selectableFor(core);
+    int position = modes.indexOf(current);
+    if (position < 0) {
+      return modes.getFirst();
+    }
+    return modes.get(Math.floorMod(position + (forward ? 1 : -1), modes.size()));
   }
 
   public static int cycleChannel(int mask, boolean forward) {

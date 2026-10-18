@@ -161,6 +161,21 @@ class GolemBuildAttributionTest {
     assertThat(golem.getPersistentDataContainer().get(GolemBuildAttribution.BUILDER_KEY, PersistentDataType.STRING))
         .isEqualTo(builder + ";1760000000000");
     assertThat(GolemBuildAttribution.builderOf(golem)).contains(builder);
+    assertThat(GolemBuildAttribution.builtAt(golem)).hasValue(1_760_000_000_000L);
+  }
+
+  @Test
+  void builtAtIgnoresMissingOrCorruptTimes() {
+    IronGolem unstamped = StoredEntityData.entity(IronGolem.class);
+    IronGolem badTime = StoredEntityData.entity(IronGolem.class);
+    IronGolem noTime = StoredEntityData.entity(IronGolem.class);
+    badTime.getPersistentDataContainer().set(GolemBuildAttribution.BUILDER_KEY, PersistentDataType.STRING, UUID.randomUUID() + ";soon");
+    noTime.getPersistentDataContainer().set(GolemBuildAttribution.BUILDER_KEY, PersistentDataType.STRING, UUID.randomUUID().toString());
+
+    assertThat(GolemBuildAttribution.builtAt(unstamped)).isEmpty();
+    assertThat(GolemBuildAttribution.builtAt(badTime)).isEmpty();
+    assertThat(GolemBuildAttribution.builtAt(noTime)).isEmpty();
+    assertThat(GolemBuildAttribution.builtAt(null)).isEmpty();
   }
 
   @Test

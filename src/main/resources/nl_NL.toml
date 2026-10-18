@@ -4411,6 +4411,32 @@ released = "Golem vrijgelaten"
 release_failed = "Deze golem kan nu niet worden vrijgelaten"
 gone = "Die golem is hier niet meer"
 
+[golemancy.binding]
+busy = "Er loopt al een bindingsritueel"
+already_bound = "Die golem is al gebonden"
+village = "Alleen golems die spelers hebben gebouwd kunnen worden gebonden"
+builder = "Alleen de speler die deze golem heeft gebouwd kan hem nu binden"
+body_locked = "Je kunt nog geen {body}golems binden"
+core_not_allowed = "Een {body}golem kan geen {core}-kern aannemen"
+core_locked = "Je hebt nog niet geleerd {core}-kernen te binden"
+protected = "Je kunt hier geen golems binden"
+unavailable = "Je golemlijst is nog niet klaar"
+golem_cap = "Je bezit al je maximum van {count} golems"
+chunk_cap = "In dit gebied staan al {count} gebonden golems"
+levels = "Deze golem binden kost {levels} levels"
+interrupted = "De binding is onderbroken"
+bound = "Je {body}golem is nu aan je gebonden"
+
+[golemancy.animus_binding]
+name = "Animusbinding"
+description = "Sluip en klik met rechts op een golem terwijl je een animuskern vasthoudt om hem als metgezel aan je te binden."
+lore1 = "Golems die je kunt bezitten"
+lore2 = "Seconden per bindingsritueel"
+lore3 = "Levels om een vorstgolem te binden"
+lore4 = "Levels om een kopergolem te binden"
+lore5 = "Levels om een ijzergolem te binden"
+lore = ["Golems die je kunt bezitten", "Seconden per bindingsritueel", "Levels om een vorstgolem te binden", "Levels om een kopergolem te binden", "Levels om een ijzergolem te binden"]
+
 [herbalism.growth_aura]
 name = "Groeiaura"
 description = "Laat de natuur om je heen groeien in een aura"

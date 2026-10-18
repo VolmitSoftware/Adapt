@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem.gui;
 
 import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemState;
@@ -18,13 +19,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class GolemGuiActionsTest {
   @Test
-  void modeCyclesForwardAndBackwardThroughEveryModeAndWraps() {
-    assertThat(GolemGuiActions.cycleMode(GolemMode.WORK, true)).isEqualTo(GolemMode.FOLLOW);
-    assertThat(GolemGuiActions.cycleMode(GolemMode.FOLLOW, true)).isEqualTo(GolemMode.STAY);
-    assertThat(GolemGuiActions.cycleMode(GolemMode.STAY, true)).isEqualTo(GolemMode.HOME);
-    assertThat(GolemGuiActions.cycleMode(GolemMode.HOME, true)).isEqualTo(GolemMode.WORK);
-    assertThat(GolemGuiActions.cycleMode(GolemMode.WORK, false)).isEqualTo(GolemMode.HOME);
-    assertThat(GolemGuiActions.cycleMode(GolemMode.STAY, false)).isEqualTo(GolemMode.FOLLOW);
+  void roleGolemModesCycleForwardAndBackwardThroughEveryModeAndWrap() {
+    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.WORK, true)).isEqualTo(GolemMode.FOLLOW);
+    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.FOLLOW, true)).isEqualTo(GolemMode.STAY);
+    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.STAY, true)).isEqualTo(GolemMode.HOME);
+    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.HOME, true)).isEqualTo(GolemMode.WORK);
+    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.WORK, false)).isEqualTo(GolemMode.HOME);
+    assertThat(GolemGuiActions.cycleMode(GolemCoreType.GUARDIAN, GolemMode.STAY, false)).isEqualTo(GolemMode.FOLLOW);
+  }
+
+  @Test
+  void companionGolemsCycleOnlyFollowStayAndHome() {
+    assertThat(GolemMode.selectableFor(GolemCoreType.BLANK)).containsExactly(GolemMode.FOLLOW, GolemMode.STAY, GolemMode.HOME);
+    assertThat(GolemGuiActions.cycleMode(GolemCoreType.BLANK, GolemMode.FOLLOW, true)).isEqualTo(GolemMode.STAY);
+    assertThat(GolemGuiActions.cycleMode(GolemCoreType.BLANK, GolemMode.HOME, true)).isEqualTo(GolemMode.FOLLOW);
+    assertThat(GolemGuiActions.cycleMode(GolemCoreType.BLANK, GolemMode.FOLLOW, false)).isEqualTo(GolemMode.HOME);
+    assertThat(GolemGuiActions.cycleMode(GolemCoreType.BLANK, GolemMode.WORK, true)).isEqualTo(GolemMode.FOLLOW);
   }
 
   @Test

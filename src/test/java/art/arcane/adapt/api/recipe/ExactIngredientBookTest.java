@@ -21,13 +21,23 @@ class ExactIngredientBookTest {
   private final ExactIngredientBook book = new ExactIngredientBook();
 
   @Test
-  void requiredIngredientsAreRecordedPerRecipeAndClearedByAnEmptyList() {
+  void requiredIngredientsAreRecordedPerRecipeAndForgottenOnRequest() {
     book.set(RECIPE, List.of(coreSpec, nodeSpec));
     assertThat(book.required(RECIPE)).containsExactly(coreSpec, nodeSpec);
 
-    book.set(RECIPE, List.of());
+    book.forget(RECIPE);
     assertThat(book.required(RECIPE)).isEmpty();
     assertThat(book.required(null)).isEmpty();
+  }
+
+  @Test
+  void unknownRecipesAreNeverSatisfied() {
+    assertThat(book.satisfiedBy(RECIPE, List.of())).isFalse();
+    assertThat(book.satisfiedBy(null, List.of())).isFalse();
+
+    book.set(RECIPE, List.of());
+    book.forget(RECIPE);
+    assertThat(book.satisfiedBy(RECIPE, List.of())).isFalse();
   }
 
   @Test
@@ -52,6 +62,8 @@ class ExactIngredientBookTest {
 
   @Test
   void recipesWithoutRequirementsAcceptOnlyAGridWithoutCustomItems() {
+    book.set(RECIPE, List.of());
+
     assertThat(book.satisfiedBy(RECIPE, List.of())).isTrue();
     assertThat(book.satisfiedBy(RECIPE, List.of(core))).isFalse();
   }

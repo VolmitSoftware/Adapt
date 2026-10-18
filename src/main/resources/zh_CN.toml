@@ -4411,6 +4411,32 @@ released = "魔像已释放"
 release_failed = "现在无法释放这个魔像"
 gone = "那个魔像已不在这里"
 
+[golemancy.binding]
+busy = "缚约仪式已在进行中"
+already_bound = "那个魔像已经被缚约"
+village = "只能缚约玩家建造的魔像"
+builder = "目前只有建造这个魔像的玩家可以缚约它"
+body_locked = "你还不能缚约{body}魔像"
+core_not_allowed = "{body}魔像无法接受{core}核心"
+core_locked = "你还没学会缚约{core}核心"
+protected = "你不能在这里缚约魔像"
+unavailable = "你的魔像名册尚未准备好"
+golem_cap = "你已拥有上限数量的{count}个魔像"
+chunk_cap = "该区域已有{count}个被缚约的魔像"
+levels = "缚约这个魔像需要{levels}级经验"
+interrupted = "缚约被打断了"
+bound = "你的{body}魔像现已与你缚约"
+
+[golemancy.animus_binding]
+name = "灵魂缚约"
+description = "手持灵魂核心潜行并右键点击魔像，即可将其缚约为你的伙伴。"
+lore1 = "可拥有的魔像数量"
+lore2 = "每次缚约仪式的秒数"
+lore3 = "缚约霜魔像所需等级"
+lore4 = "缚约铜魔像所需等级"
+lore5 = "缚约铁魔像所需等级"
+lore = ["可拥有的魔像数量", "每次缚约仪式的秒数", "缚约霜魔像所需等级", "缚约铜魔像所需等级", "缚约铁魔像所需等级"]
+
 [herbalism.growth_aura]
 name = "生长光环"
 description = "以光环促进周围植物生长。"

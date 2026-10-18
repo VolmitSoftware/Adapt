@@ -4407,6 +4407,32 @@ released = "Golem libéré"
 release_failed = "Ce golem ne peut pas être libéré pour le moment"
 gone = "Ce golem n'est plus ici"
 
+[golemancy.binding]
+busy = "Un rituel de lien est déjà en cours"
+already_bound = "Ce golem est déjà lié"
+village = "Seuls les golems construits par des joueurs peuvent être liés"
+builder = "Seul le joueur qui a construit ce golem peut le lier pour l'instant"
+body_locked = "Tu ne peux pas encore lier de golems de {body}"
+core_not_allowed = "Un golem de {body} n'accepte pas de noyau de {core}"
+core_locked = "Tu n'as pas encore appris à lier les noyaux de {core}"
+protected = "Tu ne peux pas lier de golems ici"
+unavailable = "Ta liste de golems n'est pas encore prête"
+golem_cap = "Tu possèdes déjà ta limite de {count} golems"
+chunk_cap = "Cette zone abrite déjà {count} golems liés"
+levels = "Lier ce golem coûte {levels} niveaux"
+interrupted = "Le lien a été interrompu"
+bound = "Ton golem de {body} t'est désormais lié"
+
+[golemancy.animus_binding]
+name = "Lien d'Animus"
+description = "Accroupis-toi et fais un clic droit sur un golem en tenant un Noyau d'Animus pour te le lier comme compagnon."
+lore1 = "Golems que tu peux posséder"
+lore2 = "Secondes par rituel de lien"
+lore3 = "Niveaux pour lier un golem de Givre"
+lore4 = "Niveaux pour lier un golem de Cuivre"
+lore5 = "Niveaux pour lier un golem de Fer"
+lore = ["Golems que tu peux posséder", "Secondes par rituel de lien", "Niveaux pour lier un golem de Givre", "Niveaux pour lier un golem de Cuivre", "Niveaux pour lier un golem de Fer"]
+
 [herbalism.growth_aura]
 name = "Aura de Croissance"
 description = "Fait pousser la végétation autour de vous dans une aura."

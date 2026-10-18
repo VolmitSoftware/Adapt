@@ -25,6 +25,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -53,10 +54,7 @@ public final class GolemBuildAttribution {
   }
 
   public static Optional<UUID> builderOf(Entity entity) {
-    if (entity == null) {
-      return Optional.empty();
-    }
-    String stamp = entity.getPersistentDataContainer().get(BUILDER_KEY, PersistentDataType.STRING);
+    String stamp = stampOf(entity);
     int separator = stamp == null ? -1 : stamp.indexOf(';');
     if (separator < 0) {
       return Optional.empty();
@@ -65,6 +63,19 @@ public final class GolemBuildAttribution {
       return Optional.of(UUID.fromString(stamp.substring(0, separator)));
     } catch (IllegalArgumentException ignored) {
       return Optional.empty();
+    }
+  }
+
+  public static OptionalLong builtAt(Entity entity) {
+    String stamp = stampOf(entity);
+    int separator = stamp == null ? -1 : stamp.indexOf(';');
+    if (separator < 0) {
+      return OptionalLong.empty();
+    }
+    try {
+      return OptionalLong.of(Long.parseLong(stamp.substring(separator + 1)));
+    } catch (NumberFormatException ignored) {
+      return OptionalLong.empty();
     }
   }
 
@@ -126,6 +137,10 @@ public final class GolemBuildAttribution {
       }
     }
     return nearest;
+  }
+
+  private static String stampOf(Entity entity) {
+    return entity == null ? null : entity.getPersistentDataContainer().get(BUILDER_KEY, PersistentDataType.STRING);
   }
 
   private static double matchDistanceSquared(HeadPlacement placement, GolemSpawn spawn, double radius, long windowMillis) {

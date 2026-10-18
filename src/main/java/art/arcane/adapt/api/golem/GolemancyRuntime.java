@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.golem.reveal.RevealService;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
@@ -41,6 +42,9 @@ public final class GolemancyRuntime {
   private static volatile GolemBrainSettings brainSettings = GolemBrainSettings.defaults();
   private static volatile RevealService reveal;
   private static volatile RevealSettings revealSettings = RevealSettings.defaults();
+  private static volatile Adaptation<?> protectionPolicy;
+  private static volatile GolemBindListener bindListener = (owner, handle) -> {
+  };
 
   private GolemancyRuntime() {
   }
@@ -131,6 +135,22 @@ public final class GolemancyRuntime {
 
   public static RevealSettings revealSettings() {
     return revealSettings;
+  }
+
+  public static Optional<Adaptation<?>> protectionPolicy() {
+    return Optional.ofNullable(protectionPolicy);
+  }
+
+  public static void setProtectionPolicy(Adaptation<?> policy) {
+    protectionPolicy = Objects.requireNonNull(policy);
+  }
+
+  public static GolemBindListener bindListener() {
+    return bindListener;
+  }
+
+  public static void setBindListener(GolemBindListener listener) {
+    bindListener = Objects.requireNonNull(listener);
   }
 
   public static void configure(GolemSettings next) {

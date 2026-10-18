@@ -389,6 +389,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     registerListener(new XpProvenanceListener());
     registerListener(new XpNoveltyListener());
     registerListener(new GolemItemGuard(GolemItems.recipeBook()));
+    registerListener(GolemItems.recipeTithe());
     registerListener(Version.get());
     setupMetrics();
     startupPrint(); // Splash screen

@@ -115,6 +115,7 @@ class GolemItemGuardTest {
 
   @Test
   void golemancyRecipesWithoutGolemIngredientsRefuseGolemItemsInMaterialSlots() {
+    book.set(GOLEMANCY_CROOK_RECIPE, List.of());
     CraftingInventory plainHoe = craftingGrid(GOLEMANCY_CROOK_RECIPE, GolemItemStacks.plain(Material.IRON_HOE));
     CraftingInventory crookAsHoe = craftingGrid(GOLEMANCY_CROOK_RECIPE, crook());
 
@@ -123,6 +124,16 @@ class GolemItemGuardTest {
 
     verify(plainHoe, never()).setResult(any());
     verify(crookAsHoe).setResult(null);
+  }
+
+  @Test
+  void golemancyRecipesWithoutAnIngredientBookEntryNeverCraft() {
+    CraftingInventory plainGrid = craftingGrid(GOLEMANCY_CROOK_RECIPE, GolemItemStacks.plain(Material.IRON_HOE));
+
+    guard.on(new PrepareItemCraftEvent(plainGrid, view(plainGrid), false));
+
+    assertThat(guard.blocksRecipe(GOLEMANCY_CROOK_RECIPE, List.of())).isTrue();
+    verify(plainGrid).setResult(null);
   }
 
   @Test

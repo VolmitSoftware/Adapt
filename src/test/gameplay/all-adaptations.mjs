@@ -35,12 +35,13 @@ import { synchronizePlayerPassengers } from './player-passengers.mjs'
 import { utilityBehaviorCases } from './adaptation-utility-actions.mjs'
 import { natureBehaviorCases } from './adaptation-nature-actions.mjs'
 import { integrationBehaviorCases } from './adaptation-integration-actions.mjs'
+import { golemancyBehaviorCases } from './adaptation-golemancy-actions.mjs'
 import { fixtureJson } from './fixture-json.mjs'
 import { decodeSoundPacket, observeParticlePackets, isFeedbackReady } from './feedback.mjs'
 import { errorsSince, logPosition } from './runtime-log.mjs'
 import { captureEvidenceManifest, writeEvidenceManifest } from './evidence-manifest.mjs'
 
-const entries = [...basicBehaviorCases, ...passiveBehaviorCases, ...combatBehaviorCases, ...blockBehaviorCases, ...itemBehaviorCases, ...brewingBehaviorCases, ...movementBehaviorCases, ...rangedBehaviorCases, ...architectBehaviorCases, ...tamingBehaviorCases, ...chronosBehaviorCases, ...netherBehaviorCases, ...defenseBehaviorCases, ...harvestBehaviorCases, ...tragoulBehaviorCases, ...knowledgeBehaviorCases, ...riftBehaviorCases, ...craftingBehaviorCases, ...earthBehaviorCases, ...projectileBehaviorCases, ...guardBehaviorCases, ...discoveryBehaviorCases, ...kineticsBehaviorCases, ...utilityBehaviorCases, ...natureBehaviorCases, ...integrationBehaviorCases, ...traversalBehaviorCases]
+const entries = [...basicBehaviorCases, ...passiveBehaviorCases, ...combatBehaviorCases, ...blockBehaviorCases, ...itemBehaviorCases, ...brewingBehaviorCases, ...movementBehaviorCases, ...rangedBehaviorCases, ...architectBehaviorCases, ...tamingBehaviorCases, ...chronosBehaviorCases, ...netherBehaviorCases, ...defenseBehaviorCases, ...harvestBehaviorCases, ...tragoulBehaviorCases, ...knowledgeBehaviorCases, ...riftBehaviorCases, ...craftingBehaviorCases, ...earthBehaviorCases, ...projectileBehaviorCases, ...guardBehaviorCases, ...discoveryBehaviorCases, ...kineticsBehaviorCases, ...utilityBehaviorCases, ...natureBehaviorCases, ...integrationBehaviorCases, ...traversalBehaviorCases, ...golemancyBehaviorCases]
 const behaviorCases = new Map(entries)
 if (behaviorCases.size !== entries.length) throw new Error('Duplicate adaptation behavior handlers')
 

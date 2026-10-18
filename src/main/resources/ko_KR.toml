@@ -4411,6 +4411,32 @@ released = "골렘을 해방했습니다"
 release_failed = "지금은 이 골렘을 해방할 수 없습니다"
 gone = "그 골렘은 더 이상 여기에 없습니다"
 
+[golemancy.binding]
+busy = "이미 결속 의식이 진행 중입니다"
+already_bound = "그 골렘은 이미 결속되어 있습니다"
+village = "플레이어가 만든 골렘만 결속할 수 있습니다"
+builder = "지금은 이 골렘을 만든 플레이어만 결속할 수 있습니다"
+body_locked = "아직 {body} 골렘을 결속할 수 없습니다"
+core_not_allowed = "{body} 골렘은 {core} 핵을 받을 수 없습니다"
+core_locked = "아직 {core} 핵을 결속하는 법을 배우지 않았습니다"
+protected = "여기서는 골렘을 결속할 수 없습니다"
+unavailable = "골렘 명부가 아직 준비되지 않았습니다"
+golem_cap = "이미 최대치인 골렘 {count}마리를 소유하고 있습니다"
+chunk_cap = "이 지역에는 이미 결속된 골렘이 {count}마리 있습니다"
+levels = "이 골렘을 결속하려면 {levels}레벨이 필요합니다"
+interrupted = "결속이 중단되었습니다"
+bound = "{body} 골렘이 이제 당신에게 결속되었습니다"
+
+[golemancy.animus_binding]
+name = "아니무스 결속"
+description = "아니무스 핵을 들고 웅크린 채 골렘을 우클릭하면 동료로 결속합니다."
+lore1 = "소유할 수 있는 골렘 수"
+lore2 = "결속 의식 시간(초)"
+lore3 = "서리 골렘 결속에 필요한 레벨"
+lore4 = "구리 골렘 결속에 필요한 레벨"
+lore5 = "철 골렘 결속에 필요한 레벨"
+lore = ["소유할 수 있는 골렘 수", "결속 의식 시간(초)", "서리 골렘 결속에 필요한 레벨", "구리 골렘 결속에 필요한 레벨", "철 골렘 결속에 필요한 레벨"]
+
 [herbalism.growth_aura]
 name = "성장의 오라"
 description = "주변의 자연을 오라로 성장시킵니다"

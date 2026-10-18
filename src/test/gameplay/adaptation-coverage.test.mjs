@@ -32,6 +32,7 @@ import { utilityBehaviorCases } from './adaptation-utility-actions.mjs'
 import { natureBehaviorCases } from './adaptation-nature-actions.mjs'
 import { integrationBehaviorCases } from './adaptation-integration-actions.mjs'
 import { craftingBehaviorCases } from './adaptation-crafting-actions.mjs'
+import { golemancyBehaviorCases } from './adaptation-golemancy-actions.mjs'
 import { decodeSoundPacket } from './feedback.mjs'
 
 const root = new URL('../../../', import.meta.url)
@@ -53,7 +54,7 @@ function constants(source, expression) {
 test('activation cases name actual catalog adaptations and never override another case group', () => {
   const known = new Set(matrix.adaptations.map(entry => entry.name))
   const owners = new Map()
-  for (const [group, cases] of [['basic', behaviorCases], ['passive', passiveBehaviorCases], ['combat', combatBehaviorCases], ['brewing', brewingBehaviorCases], ['blocks', blockBehaviorCases], ['items', itemBehaviorCases], ['movement', movementBehaviorCases], ['ranged', rangedBehaviorCases], ['architect', architectBehaviorCases], ['taming', tamingBehaviorCases], ['chronos', chronosBehaviorCases], ['nether', netherBehaviorCases], ['defense', defenseBehaviorCases], ['harvest', harvestBehaviorCases], ['tragoul', tragoulBehaviorCases], ['knowledge', knowledgeBehaviorCases], ['rift', riftBehaviorCases], ['crafting', craftingBehaviorCases], ['earth', earthBehaviorCases], ['projectile', projectileBehaviorCases], ['guard', guardBehaviorCases], ['discovery', discoveryBehaviorCases], ['kinetics', kineticsBehaviorCases], ['utility', utilityBehaviorCases], ['nature', natureBehaviorCases], ['integration', integrationBehaviorCases], ['traversal', traversalBehaviorCases]]) {
+  for (const [group, cases] of [['basic', behaviorCases], ['passive', passiveBehaviorCases], ['combat', combatBehaviorCases], ['brewing', brewingBehaviorCases], ['blocks', blockBehaviorCases], ['items', itemBehaviorCases], ['movement', movementBehaviorCases], ['ranged', rangedBehaviorCases], ['architect', architectBehaviorCases], ['taming', tamingBehaviorCases], ['chronos', chronosBehaviorCases], ['nether', netherBehaviorCases], ['defense', defenseBehaviorCases], ['harvest', harvestBehaviorCases], ['tragoul', tragoulBehaviorCases], ['knowledge', knowledgeBehaviorCases], ['rift', riftBehaviorCases], ['crafting', craftingBehaviorCases], ['earth', earthBehaviorCases], ['projectile', projectileBehaviorCases], ['guard', guardBehaviorCases], ['discovery', discoveryBehaviorCases], ['kinetics', kineticsBehaviorCases], ['utility', utilityBehaviorCases], ['nature', natureBehaviorCases], ['integration', integrationBehaviorCases], ['traversal', traversalBehaviorCases], ['golemancy', golemancyBehaviorCases]]) {
     assert.ok(cases instanceof Map, `${group} cases must be keyed by adaptation ID`)
     assert.ok(cases.size > 0, `${group} cases must not be empty`)
     for (const [name, entry] of cases) {
