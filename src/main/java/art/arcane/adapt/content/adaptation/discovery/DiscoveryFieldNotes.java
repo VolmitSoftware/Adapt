@@ -28,6 +28,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -87,7 +88,7 @@ public class DiscoveryFieldNotes extends SimpleAdaptation<DiscoveryFieldNotes.Co
   public void on(EntityDeathEvent e) {
     LivingEntity victim = e.getEntity();
     Player killer = victim.getKiller();
-    if (killer == null || victim instanceof Player) {
+    if (killer == null || victim instanceof Player || GolemKillCredit.isGolemKill(victim)) {
       return;
     }
 

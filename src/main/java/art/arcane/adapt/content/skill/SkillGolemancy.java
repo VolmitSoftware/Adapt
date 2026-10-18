@@ -336,7 +336,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
 
   static double bindXp(Config config, GolemBody body) {
     return switch (body) {
-      case FROST -> config.bindSnowXp;
+      case FROST -> config.bindFrostXp;
       case COPPER -> config.bindCopperXp;
       case IRON -> config.bindIronXp;
       case BONE -> 0D;
@@ -646,8 +646,8 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double spawnerMobXpMultiplier = 0.3;
     @ConfigDoc(value = "Skill XP paid by the golem building challenges.", impact = "Higher values pay more; the 100 builds challenge pays five times this value.")
     double challengeBuiltReward = 500;
-    @ConfigDoc(value = "Skill XP paid the first time a snow golem is bound.", impact = "Higher values reward binding snow golems more; a golem that was bound before pays nothing.")
-    double bindSnowXp = 100;
+    @ConfigDoc(value = "Skill XP paid the first time a frost golem is bound.", impact = "Higher values reward binding frost golems more; a golem that was bound before pays nothing.")
+    double bindFrostXp = 100;
     @ConfigDoc(value = "Skill XP paid the first time a copper golem is bound.", impact = "Higher values reward binding copper golems more; a golem that was bound before pays nothing.")
     double bindCopperXp = 220;
     @ConfigDoc(value = "Skill XP paid the first time an iron golem is bound.", impact = "Higher values reward binding iron golems more; a golem that was bound before pays nothing.")

@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.format.Form;
@@ -108,7 +109,7 @@ public class EnchantingArcaneSiphon extends SimpleAdaptation<EnchantingArcaneSip
   public void on(EntityDeathEvent e) {
     LivingEntity victim = e.getEntity();
     Player killer = victim.getKiller();
-    if (killer == null) {
+    if (killer == null || GolemKillCredit.isGolemKill(victim)) {
       return;
     }
 

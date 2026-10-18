@@ -17,7 +17,7 @@ class SkillGolemancyOwnedXpTest {
 
   @Test
   void ownedGolemXpDefaultsMatchTheEconomy() {
-    assertThat(DEFAULTS.bindSnowXp).isEqualTo(100D);
+    assertThat(DEFAULTS.bindFrostXp).isEqualTo(100D);
     assertThat(DEFAULTS.bindCopperXp).isEqualTo(220D);
     assertThat(DEFAULTS.bindIronXp).isEqualTo(450D);
     assertThat(DEFAULTS.firstBindXp).isEqualTo(600D);
@@ -51,7 +51,7 @@ class SkillGolemancyOwnedXpTest {
   @Test
   void bodyMappingsFollowTheConfig() {
     SkillGolemancy.Config config = new SkillGolemancy.Config();
-    config.bindSnowXp = 11D;
+    config.bindFrostXp = 11D;
     config.bindCopperXp = 22D;
     config.bindIronXp = 33D;
     config.assistBodyMultiplierFrost = 0.1D;

@@ -32,6 +32,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.content.item.ItemListings;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
@@ -121,7 +122,7 @@ public class HunterDropToInventory extends SimpleAdaptation<HunterDropToInventor
   @EventHandler(priority = EventPriority.HIGHEST)
   public void on(EntityDeathEvent e) {
     LivingEntity k = e.getEntity();
-    if (k.getKiller() == null || k.getKiller().getType() != EntityType.PLAYER) {
+    if (k.getKiller() == null || k.getKiller().getType() != EntityType.PLAYER || GolemKillCredit.isGolemKill(k)) {
       return;
     }
     Player p = k.getKiller();

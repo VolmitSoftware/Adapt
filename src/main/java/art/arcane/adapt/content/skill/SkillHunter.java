@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
 import art.arcane.adapt.api.version.IAttribute;
@@ -201,7 +202,7 @@ public class SkillHunter extends SimpleSkill<SkillHunter.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDeathEvent e) {
-    if (e.getEntity().getKiller() == null) {
+    if (e.getEntity().getKiller() == null || GolemKillCredit.isGolemKill(e.getEntity())) {
       return;
     }
     Player p = e.getEntity().getKiller();

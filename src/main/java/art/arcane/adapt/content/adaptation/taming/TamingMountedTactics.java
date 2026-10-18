@@ -30,6 +30,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.math.VelocitySpeed;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -373,6 +374,7 @@ public class TamingMountedTactics extends SimpleAdaptation<TamingMountedTactics.
   public void on(EntityDeathEvent e) {
     if (e.getEntity().getKiller() instanceof Player p
         && p.getVehicle() != null
+        && !GolemKillCredit.isGolemKill(e.getEntity())
         && hasActiveAdaptation(p)) {
       addStat(p, "taming.mounted-tactics.mounted-kills", 1);
     }

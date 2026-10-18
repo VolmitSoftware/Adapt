@@ -25,6 +25,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -127,7 +128,7 @@ public class HunterBigGameHunter extends SimpleAdaptation<HunterBigGameHunter.Co
   @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
     Player killer = e.getEntity().getKiller();
-    if (killer == null || !isBigGame(e.getEntity().getType()) || !hasActiveAdaptation(killer) || !canDamageTarget(killer, e.getEntity())) {
+    if (killer == null || !isBigGame(e.getEntity().getType()) || GolemKillCredit.isGolemKill(e.getEntity()) || !hasActiveAdaptation(killer) || !canDamageTarget(killer, e.getEntity())) {
       return;
     }
 
