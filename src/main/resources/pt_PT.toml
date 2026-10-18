@@ -4577,6 +4577,28 @@ lore5 = "Hostis extra atingidos por soco"
 lore6 = "Dano de ataque na Forma Colosso"
 lore = ["Vida extra para golems de Ferro", "Armadura extra para golems de Ferro", "Dano de ataque extra para golems de Ferro", "Vida extra por reparação com lingote de ferro", "Hostis extra atingidos por soco", "Dano de ataque na Forma Colosso"]
 
+[golemancy.bone_frame]
+name = "Estrutura de Osso"
+description = "Traz os teus servos esqueléticos de Tragoul para a Golemância: obedecem aos sinais do teu cajado, brilham no teu canal de servos com etiquetas de estado que só tu vês, usam uma Treliça de Osso de runas e dão XP de Golemância pelas suas mortes."
+lore1 = "Os servos obedecem aos sinais do cajado e mostram o seu estado"
+lore2 = "Ranhuras de runa da Treliça de Osso"
+lore3 = "XP de Golemância pelas mortes dos teus servos"
+lore = ["Os servos obedecem aos sinais do cajado e mostram o seu estado", "Ranhuras de runa da Treliça de Osso", "XP de Golemância pelas mortes dos teus servos"]
+lattice = "Treliça de Osso"
+lattice_lore = "Clica para escolher as runas e o canal dos teus servos"
+slot_empty = "Ranhura da treliça vazia"
+slot_empty_lore = "Pega numa runa ({aspects}) e clica aqui"
+slot_locked = "Ranhura da treliça bloqueada"
+slot_unlock_level = "Desbloqueada por Estrutura de Osso nível {level}"
+slot_inert = "Inerte: esta ranhura precisa de Estrutura de Osso nível {level}"
+rune_tier = "Funciona no nível {tier} nos teus servos"
+channel = "Canal dos servos: {channel}"
+channel_set = "Os teus servos usam agora o canal {channel}"
+refused_aspect = "As runas de {aspect} não cabem numa Treliça de Osso"
+duplicate = "A tua Treliça de Osso já tem uma runa de {aspect}"
+no_slot = "A tua Treliça de Osso não tem ranhuras livres"
+time_left = "faltam {seconds} s"
+
 [golemancy.guardian_core]
 name = "Núcleo de Guardião"
 description = "Os golems vinculados com um Núcleo de Guardião defendem a sua casa, a ti ou a área de um Nó de Guarda, e protegem-te mais à medida que o núcleo se fortalece."

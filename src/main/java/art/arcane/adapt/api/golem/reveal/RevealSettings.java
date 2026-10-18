@@ -26,8 +26,12 @@ public record RevealSettings(double revealRange, double labelRange, int pollTick
     return pollTicks * MILLIS_PER_TICK;
   }
 
+  public static float viewRange(double blocks) {
+    return (float) (blocks / DISPLAY_VIEW_BLOCKS);
+  }
+
   public float labelViewRange() {
-    return (float) (labelRange / DISPLAY_VIEW_BLOCKS);
+    return viewRange(labelRange);
   }
 
   private static double clamp(double value, double fallback, double maximum) {

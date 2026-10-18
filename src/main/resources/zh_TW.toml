@@ -4577,6 +4577,28 @@ lore5 = "每拳額外擊中的敵對生物數"
 lore6 = "巨像形態下的攻擊傷害"
 lore = ["鐵魔像額外生命值", "鐵魔像額外護甲", "鐵魔像額外攻擊傷害", "每次鐵錠修復額外恢復的生命值", "每拳額外擊中的敵對生物數", "巨像形態下的攻擊傷害"]
 
+[golemancy.bone_frame]
+name = "骨之骨架"
+description = "讓你的特拉古爾骸骨僕從加入魔像術：它們聽從巧匠之杖的信號，以僕從頻道的顏色發光並顯示僅你可見的狀態標籤，佩戴鑲有符文的骨之格柵，並為擊殺提供魔像術經驗。"
+lore1 = "僕從聽從巧匠之杖的信號並顯示狀態標籤"
+lore2 = "骨之格柵符文槽"
+lore3 = "僕從擊殺帶來的魔像術經驗"
+lore = ["僕從聽從巧匠之杖的信號並顯示狀態標籤", "骨之格柵符文槽", "僕從擊殺帶來的魔像術經驗"]
+lattice = "骨之格柵"
+lattice_lore = "點擊設定僕從的符文與頻道"
+slot_empty = "空格柵槽"
+slot_empty_lore = "拿起一枚符文（{aspects}）並點擊此處"
+slot_locked = "已鎖定的格柵槽"
+slot_unlock_level = "骨之骨架等級 {level} 解鎖"
+slot_inert = "無效：此槽需要骨之骨架等級 {level}"
+rune_tier = "以階級 {tier} 作用於你的僕從"
+channel = "僕從頻道：{channel}"
+channel_set = "你的僕從現在使用{channel}頻道"
+refused_aspect = "{aspect}符文不適合骨之格柵"
+duplicate = "你的骨之格柵已有{aspect}符文"
+no_slot = "你的骨之格柵沒有空槽"
+time_left = "剩餘{seconds}秒"
+
 [golemancy.guardian_core]
 name = "守護者核心"
 description = "以守護者核心縛約的魔像會守衛其住所、你或守衛節點的區域，核心越強，對你的保護越周全。"
@@ -6469,7 +6491,7 @@ lore2 = "每秒恢復最大健康"
 lore = ["在所有可歸因於健康的損害中", "每秒恢復最大健康"]
 
 [tragoul.skeletal_servant]
-name = "骨骼服務員"
+name = "骸骨僕從"
 description = "隨著你的頭,你會發現一個人在你的手中被擊敗. 你的頭上召喚你的老僕人回收了你的骨頭. 在召喚時消耗骨頭,更高水平."
 lore1 = "偷偷摸摸的+右腳 手持骨頭召喚一個僕人"
 lore2 = "服務生"

@@ -181,6 +181,14 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     return active.isEmpty() ? GolemRuneEffects.NONE : runeEffects(getConfig(), active);
   }
 
+  public int maxTier(int level) {
+    return maxTier(getConfig(), level);
+  }
+
+  public Lattice lattice(Map<GolemRuneType, Integer> active) {
+    return lattice(getConfig(), active);
+  }
+
   void ignite(LivingEntity victim, int ticks) {
     victim.setFireTicks(Math.max(victim.getFireTicks(), ticks));
   }
@@ -199,6 +207,19 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     addDelta(deltas, GolemStat.ARMOR_TOUGHNESS, false, active.value(config.bulwarkToughnessByTier, GolemRuneType.BULWARK));
     addDelta(deltas, GolemStat.KNOCKBACK_RESISTANCE, false, active.value(config.bulwarkKnockbackResistanceByTier, GolemRuneType.BULWARK));
     return deltas;
+  }
+
+  static int maxTier(Config config, int level) {
+    return RunicAugmentsRules.maxTier(config.maxTierByLevel, level);
+  }
+
+  static Lattice lattice(Config config, Map<GolemRuneType, Integer> slotted) {
+    if (slotted.isEmpty()) {
+      return Lattice.NONE;
+    }
+    ActiveRunes active = new ActiveRunes(slotted, false, 0D);
+    return new Lattice(runeStats(config, active), active.count(config.emberIgniteSecondsByTier, GolemRuneType.EMBER) * TICKS_PER_SECOND,
+        active.flag(config.emberFireImmuneByTier, GolemRuneType.EMBER));
   }
 
   static GolemCapacity.Contribution runeCarry(Config config, ActiveRunes active) {
@@ -266,6 +287,14 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
       case IRON -> config.ironSlots;
       case BONE -> 0;
     };
+  }
+
+  public record Lattice(List<GolemStatDelta> stats, int igniteTicks, boolean fireImmune) {
+    public static final Lattice NONE = new Lattice(List.of(), 0, false);
+
+    public Lattice {
+      stats = List.copyOf(stats);
+    }
   }
 
   private enum Ward {

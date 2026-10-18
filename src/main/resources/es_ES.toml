@@ -4577,6 +4577,28 @@ lore5 = "Hostiles extra golpeados por puñetazo"
 lore6 = "Daño de ataque en Forma Coloso"
 lore = ["Salud extra para gólems de Hierro", "Armadura extra para gólems de Hierro", "Daño de ataque extra para gólems de Hierro", "Salud extra por reparación con lingote de hierro", "Hostiles extra golpeados por puñetazo", "Daño de ataque en Forma Coloso"]
 
+[golemancy.bone_frame]
+name = "Armazón de Hueso"
+description = "Lleva a tus sirvientes esqueléticos de Tragoul a la Golemancia: responden a las señales de tu cayado, brillan en tu canal de sirvientes con etiquetas de estado que solo ves tú, llevan un Enrejado de Hueso con runas y dan XP de Golemancia por sus muertes."
+lore1 = "Los sirvientes responden a las señales del cayado y muestran su estado"
+lore2 = "Ranuras de runa del Enrejado de Hueso"
+lore3 = "XP de Golemancia por las muertes de tus sirvientes"
+lore = ["Los sirvientes responden a las señales del cayado y muestran su estado", "Ranuras de runa del Enrejado de Hueso", "XP de Golemancia por las muertes de tus sirvientes"]
+lattice = "Enrejado de Hueso"
+lattice_lore = "Haz clic para elegir las runas y el canal de tus sirvientes"
+slot_empty = "Ranura del enrejado vacía"
+slot_empty_lore = "Coge una runa ({aspects}) y haz clic aquí"
+slot_locked = "Ranura del enrejado bloqueada"
+slot_unlock_level = "Se desbloquea con Armazón de Hueso nivel {level}"
+slot_inert = "Inerte: esta ranura necesita Armazón de Hueso nivel {level}"
+rune_tier = "Funciona con nivel {tier} en tus sirvientes"
+channel = "Canal de sirvientes: {channel}"
+channel_set = "Tus sirvientes ahora usan el canal {channel}"
+refused_aspect = "Las runas de {aspect} no caben en un Enrejado de Hueso"
+duplicate = "Tu Enrejado de Hueso ya tiene una runa de {aspect}"
+no_slot = "Tu Enrejado de Hueso no tiene ranuras libres"
+time_left = "quedan {seconds} s"
+
 [golemancy.guardian_core]
 name = "Núcleo de Guardián"
 description = "Los gólems vinculados con un Núcleo de Guardián defienden su hogar, a ti o el área de un Nodo de Guardia, y te protegen más a medida que el núcleo se fortalece."

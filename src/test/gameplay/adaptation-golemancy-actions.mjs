@@ -143,6 +143,24 @@ async function infuseHeart(input) {
     return (await snapshot()).golemancy.plinth
 }
 
+async function revealServant(input) {
+    const { actor, snapshot } = input
+    actor.bot.setControlState('sneak', true)
+    try {
+        await actor.bot.waitForTicks(3)
+        await actor.bot.look(0, 0, true)
+        actor.bot.activateItem()
+        await actor.bot.waitForTicks(16)
+        actor.bot.deactivateItem()
+    } finally {
+        actor.bot.setControlState('sneak', false)
+    }
+    const summoned = (await snapshot()).golemancy.servants
+    actor.bot.setQuickBarSlot(1)
+    await actor.bot.waitForTicks(30)
+    return { summoned, revealed: (await snapshot()).golemancy.servants }
+}
+
 export const golemancyBehaviorCases = new Map([
     ['golem-animus-binding', {
         stage: 'golemancy-binding', trigger: bind,
@@ -409,6 +427,20 @@ export const golemancyBehaviorCases = new Map([
             context.expect(active.health >= 6 - 0.0001 && active.health <= 7 + 0.0001, 'Golem Mending level 5 heals 2 health doubled by the level bonus')
             return {
                 assertions: ['unlearned snow block click leaves the bound golem at 2 health', 'learned snow block click heals the bound golem by 4 health'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
+    ['golem-bone-frame', {
+        stage: 'golemancy-bone-frame', trigger: revealServant,
+        prerequisites: [{ name: 'golem-animus-binding', level: 1 }, { name: 'tragoul-skeletal-servant', level: 5 }],
+        prepare: ({ equip }) => equip('bone'),
+        description: 'summoning a skeletal servant with bones and then holding the Crook puts an owner-only status label over the servant',
+        async verify({ context, unlearned, active }) {
+            context.expect(unlearned.summoned.count >= 1 && unlearned.revealed.labeled === 0, 'Without Bone Frame the summoned servant carries no status label')
+            context.expect(active.summoned.count >= 1 && active.revealed.labeled >= 1, 'With Bone Frame holding the Crook labels the summoned servant')
+            return {
+                assertions: ['unlearned Crook reveal leaves the summoned servant unlabeled', 'learned Crook reveal puts a status label on the summoned servant'],
                 measurements: { unlearned, active },
             }
         },

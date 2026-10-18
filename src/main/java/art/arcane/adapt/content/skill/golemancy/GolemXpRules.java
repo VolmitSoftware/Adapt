@@ -20,12 +20,15 @@ package art.arcane.adapt.content.skill.golemancy;
 
 import org.bukkit.Raid;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Golem;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Raider;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
+
+import java.util.Locale;
 
 public final class GolemXpRules {
   private GolemXpRules() {
@@ -60,6 +63,14 @@ public final class GolemXpRules {
     double raidFactor = raidMob ? raidMultiplier : 1D;
     double spawnerFactor = spawnerMob ? spawnerMultiplier : 1D;
     return finiteOrZero(killValue * raidFactor * spawnerFactor, killValue, raidFactor, spawnerFactor);
+  }
+
+  public static double servantShareXp(double share, double ownedKillXp) {
+    return finiteOrZero(share * ownedKillXp, share, ownedKillXp);
+  }
+
+  public static String servantRewardKey(EntityType victim) {
+    return "golemancy:servant:" + victim.name().toLowerCase(Locale.ROOT);
   }
 
   public static double tankXp(double takenDamage, double tankMultiplier, boolean spawnerMob, double spawnerMultiplier) {

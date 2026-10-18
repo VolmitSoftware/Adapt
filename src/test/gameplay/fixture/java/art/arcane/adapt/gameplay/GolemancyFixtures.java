@@ -12,6 +12,7 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
 import art.arcane.adapt.api.golem.plinth.PlinthSpot;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import com.google.gson.JsonObject;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -24,7 +25,9 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Snowman;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -48,6 +51,8 @@ public final class GolemancyFixtures {
     private static final String MENDING_STAGE = "golemancy-mending";
     private static final String STASIS_STAGE = "golemancy-stasis";
     private static final String MASTERWORK_STAGE = "golemancy-masterwork";
+    private static final String BONE_FRAME_STAGE = "golemancy-bone-frame";
+    private static final int BONE_FRAME_BONES = 16;
     private static final String GOLEM_TAG = "adapt-qa-golemancy-golem";
     private static final String COPPER_GOLEM_TAG = "adapt-qa-golemancy-copper-golem";
     private static final String IRON_GOLEM_TAG = "adapt-qa-golemancy-iron-golem";
@@ -195,6 +200,14 @@ public final class GolemancyFixtures {
             GolemancyRuntime.registry().orElseThrow().bind(actor, golem, GolemBody.FROST, GolemCoreType.BLANK);
             return true;
         }
+        if (BONE_FRAME_STAGE.equals(name)) {
+            opponent.teleport(new Location(world, 0.5, 100, 8.5));
+            actor.getInventory().clear();
+            actor.getInventory().setItem(0, new ItemStack(Material.BONE, BONE_FRAME_BONES));
+            actor.getInventory().setItem(1, GolemItems.crook());
+            actor.getInventory().setHeldItemSlot(0);
+            return true;
+        }
         if (NODE_STAGE.equals(name)) {
             opponent.teleport(new Location(world, 0.5, 100, 8.5));
             clearNodes(world, actor);
@@ -244,6 +257,28 @@ public final class GolemancyFixtures {
         result.add("node", node(player));
         result.add("plinth", plinth(player));
         result.addProperty("dormantGolems", dormantGolems(player));
+        result.add("servants", servants(player));
+        return result;
+    }
+
+    private static JsonObject servants(Player player) {
+        int servants = 0;
+        int labeled = 0;
+        for (Skeleton skeleton : player.getWorld().getEntitiesByClass(Skeleton.class)) {
+            if (!player.getUniqueId().equals(TragoulSkeletalServant.getServantOwnerId(skeleton))) {
+                continue;
+            }
+            servants++;
+            for (Entity passenger : skeleton.getPassengers()) {
+                if (passenger instanceof TextDisplay) {
+                    labeled++;
+                    break;
+                }
+            }
+        }
+        JsonObject result = new JsonObject();
+        result.addProperty("count", servants);
+        result.addProperty("labeled", labeled);
         return result;
     }
 

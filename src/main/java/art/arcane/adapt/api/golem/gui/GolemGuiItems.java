@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-final class GolemGuiItems {
+public final class GolemGuiItems {
   private GolemGuiItems() {
   }
 
@@ -39,7 +39,7 @@ final class GolemGuiItems {
     }
   }
 
-  static void toPlayer(Player player, ItemStack item, Location fallback) {
+  public static void toPlayer(Player player, ItemStack item, Location fallback) {
     AtomicBoolean claimed = new AtomicBoolean();
     Runnable dropOnce = () -> once(claimed, () -> drop(item, fallback));
     if (!J.runEntity(player, () -> once(claimed, () -> give(player, item)), dropOnce)) {

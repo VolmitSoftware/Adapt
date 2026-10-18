@@ -44,8 +44,10 @@ public final class GolemLabel {
     label.append(Component.newline());
     label.append(Component.text(content.core(), NamedTextColor.AQUA));
     label.append(Component.text(SEPARATOR, NamedTextColor.DARK_GRAY));
-    label.append(Component.text(content.mode(), NamedTextColor.YELLOW));
-    label.append(Component.text(SEPARATOR, NamedTextColor.DARK_GRAY));
+    if (!content.mode().isEmpty()) {
+      label.append(Component.text(content.mode(), NamedTextColor.YELLOW));
+      label.append(Component.text(SEPARATOR, NamedTextColor.DARK_GRAY));
+    }
     appendChannels(label, content.channels());
     return label.build();
   }

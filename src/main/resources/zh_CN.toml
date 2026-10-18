@@ -4577,6 +4577,28 @@ lore5 = "每拳额外击中的敌对生物数"
 lore6 = "巨像形态下的攻击伤害"
 lore = ["铁魔像额外生命值", "铁魔像额外护甲", "铁魔像额外攻击伤害", "每次铁锭修复额外恢复的生命值", "每拳额外击中的敌对生物数", "巨像形态下的攻击伤害"]
 
+[golemancy.bone_frame]
+name = "骨之骨架"
+description = "让你的特拉古尔骸骨仆从加入魔像术：它们听从巧匠之杖的信号，以仆从频道的颜色发光并显示仅你可见的状态标签，佩戴镶有符文的骨之格栅，并为击杀提供魔像术经验。"
+lore1 = "仆从听从巧匠之杖的信号并显示状态标签"
+lore2 = "骨之格栅符文槽"
+lore3 = "仆从击杀带来的魔像术经验"
+lore = ["仆从听从巧匠之杖的信号并显示状态标签", "骨之格栅符文槽", "仆从击杀带来的魔像术经验"]
+lattice = "骨之格栅"
+lattice_lore = "点击设置仆从的符文与频道"
+slot_empty = "空格栅槽"
+slot_empty_lore = "拿起一枚符文（{aspects}）并点击此处"
+slot_locked = "已锁定的格栅槽"
+slot_unlock_level = "骨之骨架等级 {level} 解锁"
+slot_inert = "无效：此槽需要骨之骨架等级 {level}"
+rune_tier = "以阶级 {tier} 作用于你的仆从"
+channel = "仆从频道：{channel}"
+channel_set = "你的仆从现在使用{channel}频道"
+refused_aspect = "{aspect}符文不适合骨之格栅"
+duplicate = "你的骨之格栅已有{aspect}符文"
+no_slot = "你的骨之格栅没有空槽"
+time_left = "剩余{seconds}秒"
+
 [golemancy.guardian_core]
 name = "守护者核心"
 description = "以守护者核心缚约的魔像会守卫其住所、你或守卫节点的区域，核心越强，对你的保护越周全。"

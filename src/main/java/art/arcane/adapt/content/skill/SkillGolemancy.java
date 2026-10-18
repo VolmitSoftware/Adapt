@@ -33,11 +33,13 @@ import art.arcane.adapt.api.golem.GolemRepairXp;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemWorkSettings;
 import art.arcane.adapt.api.golem.GolemWorkStats;
 import art.arcane.adapt.api.golem.GolemWorkXp;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.HostileDamagePool;
+import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.golem.gui.CrookInteractions;
 import art.arcane.adapt.api.golem.gui.GuiCursor;
 import art.arcane.adapt.api.golem.gui.NodeInteractions;
@@ -59,11 +61,10 @@ import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
-import art.arcane.adapt.api.version.IAttribute;
-import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnglerCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnimusBinding;
+import art.arcane.adapt.content.adaptation.golemancy.GolemBoneFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemBreakerCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemCopperFrame;
 import art.arcane.adapt.content.adaptation.golemancy.GolemFrostFrame;
@@ -80,6 +81,7 @@ import art.arcane.adapt.content.adaptation.golemancy.GolemRancherCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemRunicAugments;
 import art.arcane.adapt.content.adaptation.golemancy.GolemSorterCore;
 import art.arcane.adapt.content.adaptation.golemancy.GolemStasis;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.content.skill.golemancy.CopperCare;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
@@ -93,7 +95,6 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDoc;
-import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.spatial.matter.SpatialMatter;
 import art.arcane.volmlib.util.math.M;
@@ -163,6 +164,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     registerAdaptation(new GolemFrostFrame());
     registerAdaptation(new GolemCopperFrame());
     registerAdaptation(new GolemIronFrame());
+    registerAdaptation(new GolemBoneFrame());
     registerAdaptation(new GolemGuardianCore());
     registerAdaptation(new GolemGathererCore());
     registerAdaptation(new GolemHarvesterCore());
@@ -398,7 +400,11 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     Entity damager = lastDamage.getDamager();
     Optional<GolemHandle> owned = GolemancyRuntime.handle(GolemXpRules.golemSource(damager));
     Golem witnessed = owned.isPresent() ? null : GolemXpRules.witnessGolem(damager);
-    if ((owned.isEmpty() && witnessed == null) || excludedMob(victim) || shouldReturnForWorld(victim.getWorld(), this)) {
+    if (owned.isEmpty() && witnessed == null) {
+      rewardServantKill(victim, GolemXpRules.attacker(damager));
+      return;
+    }
+    if (excludedMob(victim) || shouldReturnForWorld(victim.getWorld(), this)) {
       return;
     }
     if (owned.isPresent()) {
@@ -710,6 +716,24 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     rewardOwner(handle.owner(), owner -> payKill(owner, at, xp, rewardKey));
   }
 
+  private void rewardServantKill(LivingEntity victim, Entity attacker) {
+    UUID ownerId = TragoulSkeletalServant.MINION_KIND.matches(attacker) ? TragoulSkeletalServant.MINION_KIND.ownerOf(attacker) : null;
+    double share = ownerId == null ? 0D : ServantFrame.frame().map(frame -> frame.share(ownerId)).orElse(0D);
+    if (share <= 0D || excludedMob(victim) || shouldReturnForWorld(victim.getWorld(), this)) {
+      return;
+    }
+    Config config = getConfig();
+    double killValue = GolemXpRules.killValue(config.golemKillXpBase, maxHealthOf(victim), config.golemKillMaxHealthMultiplier);
+    double xp = GolemXpRules.servantShareXp(share, GolemXpRules.ownedKillXp(killValue, GolemXpRules.inActiveRaid(victim), config.raidXpMultiplier,
+        SpawnerMobTag.isTagged(victim), config.spawnerMobXpMultiplier));
+    if (xp <= 0D) {
+      return;
+    }
+    String rewardKey = GolemXpRules.servantRewardKey(victim.getType());
+    Location at = victim.getLocation();
+    rewardOwner(ownerId, owner -> xp(owner, at, xp * distanceFactor(owner, at), rewardKey));
+  }
+
   private void payKill(Player owner, Location at, double xp, String rewardKey) {
     addStat(owner, "golemancy.golem.kills", 1);
     xp(owner, at, xp * distanceFactor(owner, at), rewardKey);
@@ -786,11 +810,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   }
 
   private static double maxHealthOf(LivingEntity entity) {
-    if (Attributes.MAX_HEALTH == null) {
-      return 20D;
-    }
-    IAttribute attribute = Version.get().getAttribute(entity, Attributes.MAX_HEALTH);
-    return attribute == null ? 20D : attribute.getValue();
+    return GolemVitals.maxHealth(entity);
   }
 
   private record BuildCooldownKey(UUID player, SpawnReason reason) {
@@ -1007,7 +1027,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     int idleReturnSeconds = 8;
     @ConfigDoc(value = "Ticks between path refreshes for a moving copper golem, clamped to 1-20.", impact = "Lower values keep copper golems on course; above 10, their own wandering can pull them off course.")
     int copperRepathTicks = 10;
-    @ConfigDoc(value = "Blocks around you within which your golems show their status labels and your nodes appear while you hold the Crook, a Node, a Core or a Dormant Golem.", impact = "Higher values reveal golems and nodes farther away; lower values do less work on busy servers.")
+    @ConfigDoc(value = "Blocks around you within which your golems show their status labels and channel glow, your skeletal servants glow with Bone Frame, and your nodes appear while you hold the Crook, a Node, a Core or a Dormant Golem.", impact = "Higher values reveal golems and nodes farther away; lower values do less work on busy servers.")
     double revealRange = 32.0;
     @ConfigDoc(value = "Blocks within which revealed golem and node labels are drawn on screen.", impact = "Higher values let you read labels from farther away.")
     double labelRange = 8.0;
