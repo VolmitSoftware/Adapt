@@ -69,6 +69,7 @@ class LumberNodeBehaviorTest {
   private final GolemLumberCore.Config config = new GolemLumberCore.Config();
   private final CropField field = new CropField();
   private final LumberFellings fellings = new LumberFellings();
+  private final LumberRejections rejections = new LumberRejections();
   private final Set<String> stamped = new HashSet<>();
   private final List<GolemTask> posted = new ArrayList<>();
   private final List<ItemStack> carried = new ArrayList<>();
@@ -87,7 +88,7 @@ class LumberNodeBehaviorTest {
     core = mock(GolemLumberCore.class);
     lenient().when(core.config()).thenReturn(config);
     level(5);
-    behavior = new LumberNodeBehavior(core, fellings, new LumberActions(core, block -> stamped.contains(position(block))));
+    behavior = new LumberNodeBehavior(core, fellings, rejections, new LumberActions(core, block -> stamped.contains(position(block))));
     feedback = mockStatic(LumberFeedback.class);
     for (Material log : List.of(Material.OAK_LOG, Material.SPRUCE_LOG, Material.DARK_OAK_LOG, Material.CRIMSON_STEM,
         Material.NETHER_WART_BLOCK, Material.SHROOMLIGHT)) {
@@ -200,6 +201,44 @@ class LumberNodeBehaviorTest {
   }
 
   @Test
+  void rejectedTreesAreLookedAtAgainAfterAMinute() {
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    field.set(1, 65, 0, Material.OAK_PLANKS);
+    behavior.scan(node(NOW), budget(true));
+    field.set(1, 65, 0, Material.AIR);
+
+    behavior.scan(node(NOW + 1_000L), budget(true));
+    assertThat(posted).isEmpty();
+
+    behavior.scan(node(NOW + LumberRejections.REJECT_MILLIS), budget(true));
+    assertThat(jobs()).containsExactly("fell 0,64,0");
+  }
+
+  @Test
+  void aFellingStaysResumableWhileItsNodeKeepsChecking() {
+    level(1);
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    GolemTask task = fell(0, 64, 0);
+    behavior.act(golem(0, NOW), task);
+    behavior.act(golem(1, NOW), task);
+    for (int x = -1; x <= 1; x++) {
+      for (int z = -1; z <= 1; z++) {
+        field.set(x, 68, z, Material.AIR);
+        field.set(x, 69, z, Material.AIR);
+      }
+    }
+
+    behavior.scan(node(NOW + 50_000L), budget(false));
+    behavior.scan(node(NOW + 100_000L), budget(false));
+    fellings.sweep(NOW + 150_000L);
+
+    assertThat(fellings.get(CropField.WORLD, 0, 64, 0)).isPresent();
+    assertThat(behavior.act(golem(0, NOW + 150_000L), task)).isEqualTo(GolemActResult.WORKING);
+    assertThat(behavior.act(golem(1, NOW + 151_000L), task)).isEqualTo(GolemActResult.WORKING);
+    assertThat(logs(0, 0)).containsExactly(64, 65, 66);
+  }
+
+  @Test
   void aBatchWithAnyProtectedLogIsBlockedWhole() {
     tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
     GolemTask task = fell(0, 64, 0);
@@ -250,6 +289,7 @@ class LumberNodeBehaviorTest {
     assertThat(behavior.act(golem(0), fell(0, 64, 0))).isEqualTo(GolemActResult.WORKING);
     body = GolemBody.COPPER;
     assertThat(behavior.act(golem(1), fell(0, 64, 0))).isEqualTo(GolemActResult.FAILED);
+    assertThat(fellings.pending()).isFalse();
   }
 
   @Test
@@ -375,6 +415,74 @@ class LumberNodeBehaviorTest {
     assertThat(behavior.act(golem(0), fell(1, 64, 1))).isEqualTo(GolemActResult.FAILED);
 
     assertThat(fellings.pending()).isFalse();
+  }
+
+  @Test
+  void leafSweepTakesAtMostOneSliceAnActAndStopsWhenCargoIsFull() {
+    level(3);
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    for (int y = 66; y <= 69; y++) {
+      int radius = y == 69 ? 1 : 3;
+      for (int x = -radius; x <= radius; x++) {
+        for (int z = -radius; z <= radius; z++) {
+          if (field.type(x, y, z) == Material.AIR || field.type(x, y, z) == Material.OAK_LEAVES) {
+            field.set(x, y, z, Material.OAK_LEAVES, leaves(false, 7));
+          }
+        }
+      }
+    }
+    GolemTask task = fell(0, 64, 0);
+    for (int act = 0; act <= 4; act++) {
+      behavior.act(golem(act, NOW + act * 1_000L), task);
+    }
+    int before = leafCount();
+    room = 1_000;
+
+    assertThat(behavior.act(golem(5, NOW + 5_000L), task)).isEqualTo(GolemActResult.WORKING);
+    assertThat(leafCount()).isEqualTo(before - LumberActions.SWEEP_SLICE);
+
+    room = 3;
+    assertThat(behavior.act(golem(6, NOW + 6_000L), task)).isEqualTo(GolemActResult.WORKING);
+    assertThat(leafCount()).isEqualTo(before - LumberActions.SWEEP_SLICE - 2);
+
+    room = 0;
+    assertThat(behavior.act(golem(7, NOW + 7_000L), task)).isEqualTo(GolemActResult.WORKING);
+    assertThat(leafCount()).isEqualTo(before - LumberActions.SWEEP_SLICE - 2);
+
+    room = 1_000;
+    GolemActResult result = GolemActResult.WORKING;
+    for (int act = 8; act < 20 && result == GolemActResult.WORKING; act++) {
+      result = behavior.act(golem(act, NOW + act * 1_000L), task);
+    }
+    assertThat(result).isEqualTo(GolemActResult.DONE);
+    assertThat(leafCount()).isZero();
+  }
+
+  @Test
+  void mangrovesStandingOnTheirRootsAreNotReplanted() {
+    level(2);
+    tree(Material.MANGROVE_LOG, Material.MANGROVE_LEAVES, 0, 0, 5, false);
+    field.set(0, 63, 0, Material.MANGROVE_ROOTS).set(0, 62, 0, Material.MUD);
+    field.drops(Material.MANGROVE_LOG, () -> CropField.stacks(Material.MANGROVE_LOG, 1));
+    carried.add(GolemTestItems.stack(Material.MANGROVE_PROPAGULE, 1));
+
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.AIR);
+    assertThat(carriedCounts()).containsEntry("MANGROVE_PROPAGULE", 1);
+  }
+
+  @Test
+  void azaleaTreesAreReplantedWithAzaleas() {
+    level(2);
+    tree(Material.OAK_LOG, Material.AZALEA_LEAVES, 0, 0, 5, false);
+    carried.add(GolemTestItems.stack(Material.OAK_SAPLING, 1));
+    carried.add(GolemTestItems.stack(Material.AZALEA, 1));
+
+    assertThat(fellAll()).isEqualTo(GolemActResult.DONE);
+
+    assertThat(field.type(0, 64, 0)).isEqualTo(Material.AZALEA);
+    assertThat(carriedCounts()).containsEntry("OAK_SAPLING", 1).doesNotContainKey("AZALEA");
   }
 
   @Test
@@ -531,13 +639,31 @@ class LumberNodeBehaviorTest {
     lenient().when(core.ownerLevel(OWNER)).thenReturn(level);
   }
 
+  private int leafCount() {
+    int count = 0;
+    for (int y = 60; y <= 72; y++) {
+      for (int x = -4; x <= 4; x++) {
+        for (int z = -4; z <= 4; z++) {
+          if (field.type(x, y, z) == Material.OAK_LEAVES) {
+            count++;
+          }
+        }
+      }
+    }
+    return count;
+  }
+
   private NodeContext node() {
+    return node(NOW);
+  }
+
+  private NodeContext node(long nowMillis) {
     NodeContext node = mock(NodeContext.class);
     lenient().when(node.owner()).thenReturn(OWNER);
     lenient().when(node.key()).thenReturn(KEY);
     lenient().when(node.record()).thenReturn(record);
     lenient().when(node.world()).thenReturn(field.world);
-    lenient().when(node.nowMillis()).thenReturn(NOW);
+    lenient().when(node.nowMillis()).thenReturn(nowMillis);
     lenient().when(node.owns(any(Block.class))).thenReturn(true);
     lenient().when(node.block(anyInt())).thenAnswer(invocation -> {
       int[] at = NodeArea.position(KEY, record, invocation.getArgument(0));

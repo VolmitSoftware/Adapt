@@ -50,7 +50,9 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
 
   private final LumberFellings fellings = new LumberFellings();
-  private final LumberNodeBehavior lumber = new LumberNodeBehavior(this, fellings, new LumberActions(this, XpProvenance::hasPermanentPlayerModification));
+  private final LumberRejections rejections = new LumberRejections();
+  private final LumberNodeBehavior lumber = new LumberNodeBehavior(this, fellings, rejections,
+      new LumberActions(this, XpProvenance::hasPermanentPlayerModification));
 
   public GolemLumberCore() {
     super("golem-lumber-core");
@@ -67,6 +69,7 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
   public void unregister() {
     NodeBehaviors.unregister(NodeType.LUMBER, lumber);
     fellings.forget();
+    rejections.forget();
     super.unregister();
   }
 
@@ -102,7 +105,7 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
 
   @Override
   public boolean hasTickDemand() {
-    return fellings.pending();
+    return fellings.pending() || rejections.pending();
   }
 
   @Override
@@ -114,10 +117,6 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
     return getConfig();
   }
 
-  LumberFellings fellings() {
-    return fellings;
-  }
-
   int ownerLevel(UUID owner) {
     AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
     return player == null ? 0 : getLevel(player);
@@ -125,6 +124,7 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
 
   void sweep(long nowMillis) {
     fellings.sweep(nowMillis);
+    rejections.sweep(nowMillis);
   }
 
   private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {
@@ -149,7 +149,7 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
     int replantLevel = 2;
     @ConfigDoc(value = "Lumber Core level at which Lumber golems break the leaves a felled tree leaves behind once they start to decay, and collect their saplings, sticks and apples.", impact = "Lower values unlock Leaf Sweep sooner.")
     int leafSweepLevel = 3;
-    @ConfigDoc(value = "Lumber Core level at which Lumber golems fell trees with a 2x2 trunk, such as dark oaks and giant spruce and jungle trees.", impact = "Lower values unlock mega trees sooner.")
+    @ConfigDoc(value = "Lumber Core level at which Lumber golems fell spruce, jungle, dark oak and pale oak trees with a full 2x2 trunk.", impact = "Lower values unlock mega trees sooner.")
     int megaTreeLevel = 4;
     @ConfigDoc(value = "Lumber Core level at which Lumber golems fell huge crimson and warped fungi with their wart blocks and shroomlights, and replant fungus on nylium.", impact = "Lower values unlock nether fungi sooner.")
     int netherLevel = 5;

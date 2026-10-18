@@ -15,6 +15,8 @@ import java.util.Set;
 final class LumberTrees {
   static final int CROWN_REACH = 2;
   static final int CAP_REACH = 3;
+  static final int MAX_FUNGUS_BASES = 9;
+  static final int PAIRED_BASES = 4;
   static final int MAX_CAP_BLOCKS = 512;
   static final int SWEEP_DEPTH = 6;
   static final int MAX_SWEEP_LEAVES = 1024;
@@ -58,19 +60,21 @@ final class LumberTrees {
       return Survey.of(Verdict.NOT_A_TREE);
     }
     boolean nether = TreeBlocks.stem(species);
-    if (bases.size() > 1 && !compact(bases, nether ? 2 : 1)) {
-      return Survey.of(Verdict.TOO_WIDE);
+    Verdict spread = spread(view, bases, species, nether);
+    if (spread != Verdict.NATURAL) {
+      return Survey.of(spread);
     }
     if (!crowned(view, logs, nether)) {
       return Survey.of(Verdict.NO_LEAVES);
     }
     List<Part> parts = new ArrayList<>(logs);
-    if (nether) {
-      parts.addAll(cap(view, logs));
+    if (nether && cap(view, logs, parts) != Verdict.NATURAL) {
+      return Survey.of(Verdict.UNOWNED);
     }
     parts.sort(TOP_DOWN);
     bases.sort(Comparator.comparingInt(Part::x).thenComparingInt(Part::z));
-    return new Survey(Verdict.NATURAL, new Tree(species, bases.getFirst(), List.copyOf(bases), List.copyOf(parts), logs.size()));
+    return new Survey(Verdict.NATURAL, new Tree(species, bases.getFirst(), List.copyOf(bases), List.copyOf(parts), logs.size(),
+        sapling(view, logs, species)));
   }
 
   static Verdict intact(TreeView view, Part log) {
@@ -149,7 +153,7 @@ final class LumberTrees {
     if (TreeBlocks.soil(below)) {
       return true;
     }
-    return species == Material.MANGROVE_LOG && below == Material.MANGROVE_ROOTS && !view.placed(x, y - 1, z);
+    return species == Material.MANGROVE_LOG && below == Material.MANGROVE_ROOTS;
   }
 
   private static Verdict grow(TreeView view, Part start, Reach reach, List<Part> logs, List<Part> bases) {
@@ -168,7 +172,7 @@ final class LumberTrees {
       if (base) {
         bases.add(log);
       }
-      if (bases.size() > 1 && !reach.mega()) {
+      if (bases.size() > 1 && !widens(reach, species, bases.size())) {
         return Verdict.TOO_WIDE;
       }
       if (logs.size() > reach.cap()) {
@@ -194,6 +198,31 @@ final class LumberTrees {
       }
     }
     return Verdict.NATURAL;
+  }
+
+  private static boolean widens(Reach reach, Material species, int bases) {
+    if (!reach.mega()) {
+      return false;
+    }
+    return TreeBlocks.stem(species) ? bases <= MAX_FUNGUS_BASES : TreeBlocks.mega(species) && bases <= PAIRED_BASES;
+  }
+
+  private static Verdict spread(TreeView view, List<Part> bases, Material species, boolean nether) {
+    if (bases.size() == 1) {
+      return Verdict.NATURAL;
+    }
+    boolean square = nether ? compact(bases, 2) : bases.size() == PAIRED_BASES && compact(bases, 1);
+    if (!square) {
+      return Verdict.TOO_WIDE;
+    }
+    int placed = 0;
+    for (Part base : bases) {
+      if (view.placed(base.x(), base.y(), base.z())) {
+        placed++;
+      }
+    }
+    boolean planted = placed == 0 || (!nether && placed == bases.size());
+    return planted ? Verdict.NATURAL : Verdict.PLACED;
   }
 
   private static boolean natural(TreeView view, int x, int y, int z, Material type) {
@@ -229,10 +258,7 @@ final class LumberTrees {
   }
 
   private static boolean crowned(TreeView view, List<Part> logs, boolean nether) {
-    int top = Integer.MIN_VALUE;
-    for (Part log : logs) {
-      top = Math.max(top, log.y());
-    }
+    int top = top(logs);
     for (Part log : logs) {
       if (log.y() == top && crownNear(view, log, nether)) {
         return true;
@@ -262,7 +288,7 @@ final class LumberTrees {
     return false;
   }
 
-  private static List<Part> cap(TreeView view, List<Part> stems) {
+  private static Verdict cap(TreeView view, List<Part> stems, List<Part> parts) {
     Set<Long> columnKeys = new HashSet<>(stems.size());
     List<int[]> columns = new ArrayList<>(4);
     Set<Long> seen = new HashSet<>(stems.size() * 4);
@@ -273,29 +299,81 @@ final class LumberTrees {
         columns.add(new int[]{stem.x(), stem.z()});
       }
     }
-    List<Part> cap = new ArrayList<>(64);
-    while (!pending.isEmpty() && cap.size() < MAX_CAP_BLOCKS) {
+    int taken = 0;
+    while (!pending.isEmpty() && taken < MAX_CAP_BLOCKS) {
       Part at = pending.poll();
       for (int[] face : FACES) {
         int nx = at.x() + face[0];
         int ny = at.y() + face[1];
         int nz = at.z() + face[2];
-        if (!seen.add(key(nx, ny, nz)) || !view.owned(nx, ny, nz) || !nearColumn(columns, nx, nz)) {
+        if (!nearColumn(columns, nx, nz) || !seen.add(key(nx, ny, nz))) {
           continue;
+        }
+        if (!view.owned(nx, ny, nz)) {
+          return Verdict.UNOWNED;
         }
         Material type = view.type(nx, ny, nz);
         if (!TreeBlocks.cap(type) || view.placed(nx, ny, nz)) {
           continue;
         }
         Part block = new Part(nx, ny, nz, type);
-        cap.add(block);
+        parts.add(block);
         pending.add(block);
-        if (cap.size() >= MAX_CAP_BLOCKS) {
+        taken++;
+        if (taken >= MAX_CAP_BLOCKS) {
           break;
         }
       }
     }
-    return cap;
+    return Verdict.NATURAL;
+  }
+
+  private static Material sapling(TreeView view, List<Part> logs, Material species) {
+    Material sapling = TreeBlocks.sapling(species);
+    if (species != Material.OAK_LOG) {
+      return sapling;
+    }
+    int top = top(logs);
+    int oak = 0;
+    int azalea = 0;
+    int flowering = 0;
+    for (Part log : logs) {
+      if (log.y() != top) {
+        continue;
+      }
+      for (int dx = -CROWN_REACH; dx <= CROWN_REACH; dx++) {
+        for (int dy = -CROWN_REACH; dy <= CROWN_REACH; dy++) {
+          for (int dz = -CROWN_REACH; dz <= CROWN_REACH; dz++) {
+            int x = log.x() + dx;
+            int y = log.y() + dy;
+            int z = log.z() + dz;
+            if (!view.owned(x, y, z) || view.persistent(x, y, z)) {
+              continue;
+            }
+            Material type = view.type(x, y, z);
+            if (type == Material.OAK_LEAVES) {
+              oak++;
+            } else if (type == Material.AZALEA_LEAVES) {
+              azalea++;
+            } else if (type == Material.FLOWERING_AZALEA_LEAVES) {
+              flowering++;
+            }
+          }
+        }
+      }
+    }
+    if (azalea + flowering <= oak) {
+      return sapling;
+    }
+    return flowering >= azalea ? Material.FLOWERING_AZALEA : Material.AZALEA;
+  }
+
+  private static int top(List<Part> logs) {
+    int top = Integer.MIN_VALUE;
+    for (Part log : logs) {
+      top = Math.max(top, log.y());
+    }
+    return top;
   }
 
   private static boolean nearColumn(List<int[]> columns, int x, int z) {
@@ -347,7 +425,7 @@ final class LumberTrees {
   record Part(int x, int y, int z, Material type) {
   }
 
-  record Tree(Material species, Part base, List<Part> bases, List<Part> parts, int logs) {
+  record Tree(Material species, Part base, List<Part> bases, List<Part> parts, int logs, Material sapling) {
     boolean nether() {
       return TreeBlocks.stem(species);
     }

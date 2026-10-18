@@ -1,21 +1,38 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.golem.GolemActResult;
+import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemTarget;
+import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.node.NodeArea;
+import art.arcane.adapt.api.golem.node.NodeBehavior;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
+import art.arcane.adapt.api.golem.node.NodeContext;
+import art.arcane.adapt.api.golem.node.NodeKey;
+import art.arcane.adapt.api.golem.node.NodeRecord;
+import art.arcane.adapt.api.golem.node.ScanBudget;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import art.arcane.adapt.api.recipe.ExactItemResolver;
 import art.arcane.adapt.api.recipe.RecipeItemCatalog;
+import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.plugin.PluginManager;
@@ -28,11 +45,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_SELF;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
@@ -42,7 +62,9 @@ import static org.mockito.Mockito.when;
 class GolemLumberCoreExecutionTest extends AdaptTestBase {
   private static final NamespacedKey CORE_KEY = new NamespacedKey("adapt", "golemancy-lumber-core");
   private static final NamespacedKey NODE_KEY = new NamespacedKey("adapt", "golemancy-lumber-node");
-  private static final UUID WORLD = UUID.fromString("00000000-0000-0000-0000-0000000023e1");
+  private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000023e2");
+  private static final NodeKey KEY = new NodeKey(CropField.WORLD, 0, 63, 0, BlockFace.UP);
+  private static final long NOW = 40_000L;
 
   private final Map<String, Material> materials = new HashMap<>();
   private final Map<NamespacedKey, ItemStack> results = new HashMap<>();
@@ -162,34 +184,130 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void fellingsAreSweptOnTickUntilNoneAreLeft() {
-    LumberTrees.Tree tree = LumberTrees.survey(LumberTreesTest.oak(), 0, 64, 0, new LumberTrees.Reach(false, false, 64)).tree();
-    assertThat(adaptation.hasTickDemand()).isFalse();
+  void aTreeStartedAtTheLumberNodeKeepsTheTickBusyUntilItGoesStale() {
+    GolemLumberCore core = levelFive();
+    core.onRuntimeActivated();
+    try (MockedStatic<XpProvenance> provenance = mockStatic(XpProvenance.class)) {
+      NodeBehavior lumber = NodeBehaviors.of(NodeType.LUMBER).orElseThrow();
+      assertThat(core.hasTickDemand()).isFalse();
 
-    adaptation.fellings().start(WORLD, tree, 1_000L);
+      assertThat(lumber.act(golem(oakField()), fellTask())).isEqualTo(GolemActResult.WORKING);
 
-    assertThat(adaptation.hasTickDemand()).isTrue();
-    adaptation.sweep(60_999L);
-    assertThat(adaptation.hasTickDemand()).isTrue();
-    adaptation.sweep(61_000L);
-    assertThat(adaptation.hasTickDemand()).isFalse();
+      assertThat(core.hasTickDemand()).isTrue();
+      core.sweep(NOW + LumberFellings.STALE_MILLIS - 1L);
+      assertThat(core.hasTickDemand()).isTrue();
+      core.sweep(NOW + LumberFellings.STALE_MILLIS);
+      assertThat(core.hasTickDemand()).isFalse();
+    } finally {
+      core.unregister();
+    }
+  }
+
+  @Test
+  void aTreeTheLumberNodeTurnsDownKeepsTheTickBusyUntilItIsLookedAtAgain() {
+    GolemLumberCore core = levelFive();
+    core.onRuntimeActivated();
+    try (MockedStatic<XpProvenance> provenance = mockStatic(XpProvenance.class)) {
+      CropField field = oakField();
+      field.set(1, 65, 0, Material.OAK_PLANKS);
+      NodeBehaviors.of(NodeType.LUMBER).orElseThrow().scan(node(field), budget());
+
+      assertThat(core.hasTickDemand()).isTrue();
+      core.sweep(NOW + LumberRejections.REJECT_MILLIS);
+      assertThat(core.hasTickDemand()).isFalse();
+    } finally {
+      core.unregister();
+    }
   }
 
   @Test
   void activatingTheRuntimeInstallsTheLumberNodeUntilUnregistered() {
+    GolemLumberCore core = levelFive();
     assertThat(NodeBehaviors.of(NodeType.LUMBER)).isEmpty();
-    LumberTrees.Tree tree = LumberTrees.survey(LumberTreesTest.oak(), 0, 64, 0, new LumberTrees.Reach(false, false, 64)).tree();
 
-    adaptation.onRuntimeActivated();
-    adaptation.fellings().start(WORLD, tree, 1_000L);
+    core.onRuntimeActivated();
+    NodeBehavior lumber = NodeBehaviors.of(NodeType.LUMBER).orElseThrow();
+    try (MockedStatic<XpProvenance> provenance = mockStatic(XpProvenance.class)) {
+      lumber.act(golem(oakField()), fellTask());
+    }
 
-    assertThat(NodeBehaviors.of(NodeType.LUMBER)).hasValueSatisfying(behavior -> assertThat(behavior.policy()).isSameAs(adaptation));
+    assertThat(lumber.policy()).isSameAs(core);
     assertThat(GolemCoreType.LUMBER.id()).isEqualTo("lumber");
+    assertThat(core.hasTickDemand()).isTrue();
 
-    adaptation.unregister();
+    core.unregister();
 
     assertThat(NodeBehaviors.of(NodeType.LUMBER)).isEmpty();
-    assertThat(adaptation.hasTickDemand()).isFalse();
+    assertThat(core.hasTickDemand()).isFalse();
+  }
+
+  private static GolemLumberCore levelFive() {
+    return new GolemLumberCore() {
+      @Override
+      int ownerLevel(UUID owner) {
+        return OWNER.equals(owner) ? 5 : 0;
+      }
+    };
+  }
+
+  private static CropField oakField() {
+    CropField field = new CropField();
+    field.set(0, 63, 0, Material.GRASS_BLOCK);
+    for (int y = 64; y <= 68; y++) {
+      field.set(0, y, 0, Material.OAK_LOG);
+    }
+    for (int x = -1; x <= 1; x++) {
+      for (int z = -1; z <= 1; z++) {
+        if (field.type(x, 69, z) == Material.AIR) {
+          field.set(x, 69, z, Material.OAK_LEAVES);
+        }
+      }
+    }
+    return field;
+  }
+
+  private static NodeContext node(CropField field) {
+    NodeRecord record = NodeRecord.builder(OWNER, NodeType.LUMBER, BlockFace.UP).radii(2, 2, 2).build();
+    NodeContext node = mock(NodeContext.class);
+    when(node.owner()).thenReturn(OWNER);
+    when(node.key()).thenReturn(KEY);
+    when(node.record()).thenReturn(record);
+    when(node.world()).thenReturn(field.world);
+    when(node.nowMillis()).thenReturn(NOW);
+    when(node.owns(any(Block.class))).thenReturn(true);
+    when(node.block(anyInt())).thenAnswer(invocation -> {
+      int[] at = NodeArea.position(KEY, record, invocation.getArgument(0));
+      return Optional.of(field.block(at[0], at[1], at[2]));
+    });
+    return node;
+  }
+
+  private static ScanBudget budget() {
+    ScanBudget budget = mock(ScanBudget.class);
+    when(budget.start()).thenReturn(0);
+    when(budget.end()).thenReturn(125);
+    when(budget.hasTaskRoom()).thenReturn(true);
+    return budget;
+  }
+
+  private static GolemTask fellTask() {
+    return GolemTask.builder(KEY, NodeType.LUMBER, LumberNodeBehavior.FELL, GolemTarget.block(CropField.WORLD, 0, 64, 0)).build();
+  }
+
+  private static GolemContext golem(CropField field) {
+    GolemContext golem = mock(GolemContext.class);
+    Player owner = mock(Player.class);
+    when(owner.getUniqueId()).thenReturn(OWNER);
+    GolemHandle handle = mock(GolemHandle.class);
+    when(handle.body()).thenReturn(GolemBody.IRON);
+    when(golem.owner()).thenReturn(owner);
+    when(golem.handle()).thenReturn(handle);
+    when(golem.node()).thenReturn(Optional.of(NodeRecord.builder(OWNER, NodeType.LUMBER, BlockFace.UP).radii(2, 2, 2).build()));
+    when(golem.world()).thenReturn(field.world);
+    when(golem.owns(any(Location.class))).thenReturn(true);
+    when(golem.nowMillis()).thenReturn(NOW);
+    when(golem.actIndex()).thenReturn(0);
+    return golem;
   }
 
   private List<String> lore(int level) {

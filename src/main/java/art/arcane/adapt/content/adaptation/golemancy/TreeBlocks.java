@@ -21,6 +21,7 @@ final class TreeBlocks {
       Map.entry(Material.WARPED_STEM, Material.WARPED_FUNGUS));
   private static final Set<Material> STEMS = EnumSet.of(Material.CRIMSON_STEM, Material.WARPED_STEM);
   private static final Set<Material> PAIRED = EnumSet.of(Material.DARK_OAK_LOG, Material.PALE_OAK_LOG);
+  private static final Set<Material> MEGA = EnumSet.of(Material.SPRUCE_LOG, Material.JUNGLE_LOG, Material.DARK_OAK_LOG, Material.PALE_OAK_LOG);
   private static final Set<Material> LEAVES = EnumSet.of(Material.OAK_LEAVES, Material.SPRUCE_LEAVES, Material.BIRCH_LEAVES,
       Material.JUNGLE_LEAVES, Material.ACACIA_LEAVES, Material.DARK_OAK_LEAVES, Material.MANGROVE_LEAVES, Material.CHERRY_LEAVES,
       Material.AZALEA_LEAVES, Material.FLOWERING_AZALEA_LEAVES, Material.PALE_OAK_LEAVES);
@@ -74,6 +75,10 @@ final class TreeBlocks {
     return !PAIRED.contains(species);
   }
 
+  static boolean mega(Material species) {
+    return MEGA.contains(species);
+  }
+
   private static Set<Material> natural() {
     Set<Material> natural = EnumSet.of(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR, Material.WATER, Material.SNOW, Material.SNOW_BLOCK,
         Material.POWDER_SNOW, Material.STONE, Material.GRANITE, Material.DIORITE, Material.ANDESITE, Material.DEEPSLATE, Material.TUFF,
@@ -84,6 +89,7 @@ final class TreeBlocks {
         Material.HANGING_ROOTS, Material.VINE, Material.COCOA, Material.BEE_NEST, Material.RESIN_CLUMP, Material.SWEET_BERRY_BUSH,
         Material.SUGAR_CANE, Material.SEAGRASS, Material.TALL_SEAGRASS, Material.LILY_PAD, Material.AZALEA, Material.FLOWERING_AZALEA,
         Material.BROWN_MUSHROOM, Material.RED_MUSHROOM, Material.BROWN_MUSHROOM_BLOCK, Material.RED_MUSHROOM_BLOCK, Material.MUSHROOM_STEM,
+        Material.BAMBOO, Material.BAMBOO_SAPLING, Material.MELON, Material.PUMPKIN, Material.MOSSY_COBBLESTONE,
         Material.DANDELION, Material.POPPY, Material.BLUE_ORCHID, Material.ALLIUM, Material.AZURE_BLUET, Material.RED_TULIP,
         Material.ORANGE_TULIP, Material.WHITE_TULIP, Material.PINK_TULIP, Material.OXEYE_DAISY, Material.CORNFLOWER,
         Material.LILY_OF_THE_VALLEY, Material.SUNFLOWER, Material.LILAC, Material.ROSE_BUSH, Material.PEONY, Material.PINK_PETALS,

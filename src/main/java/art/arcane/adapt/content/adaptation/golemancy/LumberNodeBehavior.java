@@ -16,6 +16,7 @@ import art.arcane.adapt.api.golem.node.ScanBudget;
 import org.bukkit.block.Block;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +30,18 @@ final class LumberNodeBehavior implements NodeBehavior {
   static final int ACT_INTERVAL_TICKS = 20;
   static final long SETTLE_MILLIS = 2_000L;
 
+  private static final Set<LumberTrees.Verdict> REMEMBERED = EnumSet.of(LumberTrees.Verdict.TOO_BIG, LumberTrees.Verdict.NO_LEAVES,
+      LumberTrees.Verdict.BUILT, LumberTrees.Verdict.PLACED);
+
   private final GolemLumberCore core;
   private final LumberFellings fellings;
+  private final LumberRejections rejections;
   private final LumberActions actions;
 
-  LumberNodeBehavior(GolemLumberCore core, LumberFellings fellings, LumberActions actions) {
+  LumberNodeBehavior(GolemLumberCore core, LumberFellings fellings, LumberRejections rejections, LumberActions actions) {
     this.core = Objects.requireNonNull(core);
     this.fellings = Objects.requireNonNull(fellings);
+    this.rejections = Objects.requireNonNull(rejections);
     this.actions = Objects.requireNonNull(actions);
   }
 
@@ -51,9 +57,13 @@ final class LumberNodeBehavior implements NodeBehavior {
       return;
     }
     LumberRules.Plan plan = actions.plan(level);
+    NodeKey key = node.key();
+    NodeRecord record = node.record();
+    UUID world = key.world();
+    long now = node.nowMillis();
+    fellings.keep(world, base -> NodeArea.covers(key, record, base.x(), base.y(), base.z()), now);
     Map<Long, GolemTask> open = open(node);
     TreeView view = actions.view(node.world(), node::owns);
-    UUID world = node.key().world();
     for (int index = budget.start(); index < budget.end(); index++) {
       Optional<Block> found = node.block(index);
       if (found.isEmpty()) {
@@ -77,12 +87,14 @@ final class LumberNodeBehavior implements NodeBehavior {
         }
         continue;
       }
-      if (existing != null || !budget.hasTaskRoom()) {
+      if (existing != null || !budget.hasTaskRoom() || rejections.rejected(key, x, y, z, now)) {
         continue;
       }
       LumberTrees.Survey survey = LumberTrees.survey(view, x, y, z, plan.reach(plan.largestCap()));
       if (survey.verdict() == LumberTrees.Verdict.NATURAL && at(survey.tree().base(), x, y, z)) {
         post(node, block, level, survey.tree().logs());
+      } else if (REMEMBERED.contains(survey.verdict())) {
+        rejections.reject(key, x, y, z, now);
       }
     }
   }
@@ -110,6 +122,7 @@ final class LumberNodeBehavior implements NodeBehavior {
       }
       felling = fellings.start(world, survey.tree(), golem.nowMillis());
     } else if (!reachable(felling.tree(), plan, cap)) {
+      fellings.finish(world, felling);
       return GolemActResult.FAILED;
     }
     felling.touch(golem.nowMillis());
@@ -159,7 +172,10 @@ final class LumberNodeBehavior implements NodeBehavior {
     if (golem.nowMillis() < felling.settleUntil()) {
       return GolemActResult.WORKING;
     }
-    actions.sweep(golem, view, felling.tree(), felling.leaves());
+    felling.sweptTo(actions.sweep(golem, view, felling.tree(), felling.leaves(), felling.swept()));
+    if (!felling.sweptAll()) {
+      return GolemActResult.WORKING;
+    }
     return complete(golem, view, felling, plan, world);
   }
 

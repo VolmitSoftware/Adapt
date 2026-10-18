@@ -18,6 +18,7 @@ import java.util.function.Predicate;
 
 final class LumberActions {
   private static final int PAIRED_SAPLINGS = 4;
+  static final int SWEEP_SLICE = 64;
 
   private final GolemLumberCore core;
   private final Predicate<Block> placed;
@@ -54,22 +55,38 @@ final class LumberActions {
     LumberFeedback.play(core, center(golem, parts.getFirst()), tree.nether() ? LumberFeedback.Kind.FELL_STEM : LumberFeedback.Kind.FELL);
   }
 
-  void sweep(GolemContext golem, TreeView view, LumberTrees.Tree tree, List<LumberTrees.Part> leaves) {
-    List<LumberTrees.Part> loose = new ArrayList<>(leaves.size());
-    for (LumberTrees.Part leaf : leaves) {
-      if (LumberTrees.sweepable(view, leaf) && golem.canBreak(location(golem, leaf))) {
-        loose.add(leaf);
+  int sweep(GolemContext golem, TreeView view, LumberTrees.Tree tree, List<LumberTrees.Part> leaves, int from) {
+    int room = golem.room();
+    int end = Math.min(leaves.size(), from + SWEEP_SLICE);
+    int index = from;
+    World world = golem.world();
+    List<ItemStack> drops = new ArrayList<>(8);
+    LumberTrees.Part first = null;
+    while (index < end && room > 0) {
+      LumberTrees.Part leaf = leaves.get(index);
+      index++;
+      if (!LumberTrees.sweepable(view, leaf) || !golem.canBreak(location(golem, leaf))) {
+        continue;
+      }
+      Block block = world.getBlockAt(leaf.x(), leaf.y(), leaf.z());
+      for (ItemStack item : block.getDrops()) {
+        drops.add(item);
+        room -= item == null ? 0 : Math.max(0, item.getAmount());
+      }
+      block.setType(Material.AIR);
+      if (first == null) {
+        first = leaf;
       }
     }
-    if (loose.isEmpty()) {
-      return;
+    if (first != null) {
+      stow(golem, tree, golem.withBonusYield(drops));
+      LumberFeedback.play(core, center(golem, first), LumberFeedback.Kind.SWEEP);
     }
-    stow(golem, tree, golem.withBonusYield(remove(golem.world(), loose)));
-    LumberFeedback.play(core, center(golem, loose.getFirst()), LumberFeedback.Kind.SWEEP);
+    return index;
   }
 
   void replant(GolemContext golem, TreeView view, LumberTrees.Tree tree) {
-    Material sapling = TreeBlocks.sapling(tree.species());
+    Material sapling = tree.sapling();
     if (sapling == null) {
       return;
     }

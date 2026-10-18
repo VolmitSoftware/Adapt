@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 final class LumberFellings {
   static final long STALE_MILLIS = 60_000L;
@@ -27,6 +28,14 @@ final class LumberFellings {
     fellings.remove(new Key(world, base.x(), base.y(), base.z()), felling);
   }
 
+  void keep(UUID world, Predicate<LumberTrees.Part> base, long nowMillis) {
+    for (Map.Entry<Key, Felling> entry : fellings.entrySet()) {
+      if (entry.getKey().world().equals(world) && base.test(entry.getValue().tree().base())) {
+        entry.getValue().touch(nowMillis);
+      }
+    }
+  }
+
   void sweep(long nowMillis) {
     fellings.values().removeIf(felling -> nowMillis - felling.touchedAt() >= STALE_MILLIS);
   }
@@ -45,6 +54,7 @@ final class LumberFellings {
     private volatile long touchedAt;
     private volatile long settleUntil;
     private volatile List<LumberTrees.Part> leaves;
+    private volatile int swept;
 
     private Felling(LumberTrees.Tree tree, long nowMillis) {
       this.tree = tree;
@@ -83,6 +93,18 @@ final class LumberFellings {
     List<LumberTrees.Part> leaves() {
       List<LumberTrees.Part> current = leaves;
       return current == null ? List.of() : current;
+    }
+
+    int swept() {
+      return swept;
+    }
+
+    void sweptTo(int next) {
+      swept = Math.max(swept, Math.min(next, leaves().size()));
+    }
+
+    boolean sweptAll() {
+      return swept >= leaves().size();
     }
 
     void touch(long nowMillis) {
