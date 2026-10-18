@@ -88,6 +88,7 @@ class NodeContainersTest {
     lenient().when(block.getY()).thenReturn(y);
     lenient().when(block.getZ()).thenReturn(z);
     lenient().when(block.getState()).thenReturn(state);
+    lenient().when(block.getState(false)).thenReturn(state);
     lenient().when(block.getLocation()).thenReturn(new Location(world, x, y, z));
     return block;
   }

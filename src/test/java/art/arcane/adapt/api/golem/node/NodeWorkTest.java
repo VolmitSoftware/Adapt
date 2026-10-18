@@ -3,12 +3,14 @@ package art.arcane.adapt.api.golem.node;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.golem.ChannelMask;
+import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTaskBoard;
+import art.arcane.adapt.api.golem.GolemTaskBoards;
 import art.arcane.adapt.api.golem.GolemTestItems;
 import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.Location;
@@ -52,6 +54,7 @@ class NodeWorkTest extends AdaptTestBase {
   private final List<NodeBehavior> registered = new ArrayList<>();
   private final Adaptation<?> policy = mock(Adaptation.class);
   private World world;
+  private GolemTaskBoards boards;
   private GolemTaskBoard board;
   private NodeWork work;
 
@@ -61,8 +64,9 @@ class NodeWorkTest extends AdaptTestBase {
     lenient().when(world.getUID()).thenReturn(WORLD);
     lenient().when(world.getBlockAt(anyInt(), anyInt(), anyInt()))
         .thenAnswer(invocation -> block(invocation.getArgument(0), invocation.getArgument(1), invocation.getArgument(2)));
-    board = new GolemTaskBoard(WORLD, key -> Optional.ofNullable(records.get(key)));
-    work = new NodeWork(platform, ignored -> board, statuses::put);
+    boards = new GolemTaskBoards(key -> Optional.ofNullable(records.get(key)));
+    board = boards.board(WORLD);
+    work = new NodeWork(platform, boards, statuses::put);
     Player owner = mock(Player.class);
     lenient().when(owner.getUniqueId()).thenReturn(OWNER);
     platform.players.put(OWNER, owner);
@@ -205,7 +209,7 @@ class NodeWorkTest extends AdaptTestBase {
     work.scan(new NodeScanPass(world, KEY, record, new NodeScanCursor.Window(0, 64), 16));
 
     assertThat(reads).allSatisfy(read -> assertThat(read).containsSame(fromLeft));
-    verify(left, times(1)).getState();
+    verify(left, times(1)).getState(false);
     verify(policy, times(1)).canAccessChest(any(Player.class), any(Location.class));
   }
 
@@ -254,6 +258,50 @@ class NodeWorkTest extends AdaptTestBase {
     assertThat(board.openCount(KEY)).isZero();
   }
 
+  @Test
+  void anInactiveNodeWithdrawsItsOpenTasksAndShowsIdle() {
+    NodeRecord record = harvest();
+    GolemTask open = crop(1);
+    GolemTask leased = crop(2);
+    board.offer(open, 16);
+    board.offer(leased, 16);
+    board.claim(new GolemTaskBoard.Seeker(GOLEM, OWNER, List.of(GolemCoreType.HARVESTER), GolemBody.IRON, ChannelMask.NONE,
+        0.5D, 64D, 0.5D, 24D, 2.5D, 64D, 1.5D), ignored -> false, platform.now, 20_000L);
+    statuses.put(KEY, NodeStatus.WORKING);
+
+    work.inactive(KEY);
+
+    assertThat(open.isClosed()).isTrue();
+    assertThat(leased.isClosed()).isTrue();
+    assertThat(board.openCount(KEY)).isZero();
+    assertThat(statuses).containsEntry(KEY, NodeStatus.IDLE);
+  }
+
+  @Test
+  void unloadingAWorldDropsItsBoard() {
+    board.offer(crop(1), 16);
+
+    work.worldUnloaded(WORLD);
+
+    assertThat(boards.board(WORLD)).isNotSameAs(board);
+    assertThat(boards.board(WORLD).openCount(KEY)).isZero();
+  }
+
+  @Test
+  void areaBlocksOutsideTheRegionAreNotHandedOut() {
+    NodeRecord record = harvest();
+    List<Optional<Block>> blocks = new ArrayList<>();
+    behavior(NodeType.HARVEST, (node, budget) -> blocks.add(node.block(budget.start())));
+    NodeScanPass pass = new NodeScanPass(world, KEY, record, new NodeScanCursor.Window(0, 64), 16);
+
+    work.scan(pass);
+    platform.ownsEverything = false;
+    work.scan(pass);
+
+    assertThat(blocks.get(0)).isPresent();
+    assertThat(blocks.get(1)).isEmpty();
+  }
+
   private NodeRecord harvest() {
     NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).build();
     records.put(KEY, record);
@@ -277,8 +325,8 @@ class NodeWorkTest extends AdaptTestBase {
       }
 
       @Override
-      public Result act(GolemContext golem, GolemTask task) {
-        return Result.DONE;
+      public GolemActResult act(GolemContext golem, GolemTask task) {
+        return GolemActResult.DONE;
       }
     };
     NodeBehaviors.register(type, behavior);
@@ -290,6 +338,7 @@ class NodeWorkTest extends AdaptTestBase {
     lenient().when(chest.getInventory()).thenReturn(inventory);
     Block block = block(x, y, z);
     lenient().when(block.getState()).thenReturn(chest);
+    lenient().when(block.getState(false)).thenReturn(chest);
     lenient().when(block.getType()).thenReturn(Material.CHEST);
     return block;
   }

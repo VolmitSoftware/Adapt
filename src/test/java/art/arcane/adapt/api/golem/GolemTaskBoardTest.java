@@ -4,7 +4,9 @@ import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeStatus;
 import org.bukkit.DyeColor;
+import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
+import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +26,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 
 class GolemTaskBoardTest {
   private static final UUID WORLD = UUID.fromString("00000000-0000-0000-0000-0000000000a1");
@@ -363,6 +367,40 @@ class GolemTaskBoardTest {
     assertThat(board.status(node, now)).isEqualTo(NodeStatus.WORKING);
   }
 
+  @Test
+  void theItemPayloadIsPartOfTheTaskIdentity() {
+    NodeKey node = harvestNode(0, 64, 0, null, 3);
+    ItemStack wheat = selfCloning(Material.WHEAT);
+    ItemStack carrot = selfCloning(Material.CARROT);
+
+    assertThat(board.offer(sort(node, wheat), 16)).isEqualTo(GolemTaskBoard.Offer.ADDED);
+    assertThat(board.offer(sort(node, carrot), 16)).isEqualTo(GolemTaskBoard.Offer.ADDED);
+    assertThat(board.offer(sort(node, wheat), 16)).isEqualTo(GolemTaskBoard.Offer.EXISTS);
+    assertThat(board.openCount(node)).isEqualTo(2);
+  }
+
+  @Test
+  void tasksWithoutANodeNeverGoOnABoard() {
+    GolemTask loose = GolemTask.builder("pickup", GolemTarget.block(WORLD, 1, 64, 1)).build();
+
+    assertThat(loose.node()).isEmpty();
+    assertThatThrownBy(() -> board.offer(loose, 16)).isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void aNodeRemovedAndPlacedAgainIsFoundAgain() {
+    NodeKey node = harvestNode(0, 64, 0, null, 3);
+    board.offer(crop(node, 1, 64, 1), 16);
+    NodeRecord record = nodes.remove(node);
+    board.purge(now);
+    nodes.put(node, record);
+
+    GolemTask replacement = crop(node, 2, 64, 1);
+    board.offer(replacement, 16);
+
+    assertThat(board.claim(seeker(GOLEM), ignored -> false, now, LEASE)).containsSame(replacement);
+  }
+
   private NodeKey harvestNode(int x, int y, int z, DyeColor channel, int priority) {
     return node(NodeType.HARVEST, OWNER, x, y, z, channel, priority);
   }
@@ -375,6 +413,17 @@ class GolemTaskBoardTest {
 
   private static GolemTask crop(NodeKey node, int x, int y, int z) {
     return GolemTask.builder(node, NodeType.HARVEST, "harvest", GolemTarget.block(WORLD, x, y, z)).build();
+  }
+
+  private static GolemTask sort(NodeKey node, ItemStack item) {
+    return GolemTask.builder(node, NodeType.HARVEST, "sort", GolemTarget.block(WORLD, 1, 64, 1)).item(item).build();
+  }
+
+  private static ItemStack selfCloning(Material type) {
+    ItemStack item = mock(ItemStack.class);
+    lenient().when(item.getType()).thenReturn(type);
+    lenient().when(item.clone()).thenReturn(item);
+    return item;
   }
 
   private static GolemTaskBoard.Seeker seeker(UUID golem) {

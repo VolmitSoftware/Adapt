@@ -27,6 +27,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.WorldUnloadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -683,6 +684,55 @@ class NodeServiceTest extends AdaptTestBase {
 
     assertThat(passes).hasSize(1);
     assertThat(platform.powerReads).isZero();
+  }
+
+  @Test
+  void aNodeSwitchedOffByRedstoneTellsTheHookOnEachPass() {
+    List<NodeKey> inactive = new ArrayList<>();
+    List<NodeScanPass> passes = new ArrayList<>();
+    service.setScanHook(new NodeScanHook() {
+      @Override
+      public void scan(NodeScanPass pass) {
+        passes.add(pass);
+      }
+
+      @Override
+      public void inactive(NodeKey key) {
+        inactive.add(key);
+      }
+    });
+    placedGuard();
+    NodeKey key = new NodeKey(WORLD, 3, 64, 3, BlockFace.UP);
+    service.update(OWNER, key, record -> record.toBuilder().redstone(RedstoneMode.POWERED).build());
+
+    platform.runScheduled();
+    platform.runScheduled();
+    assertThat(passes).isEmpty();
+    assertThat(inactive).containsExactly(key, key);
+
+    platform.powered.add("3,64,3");
+    platform.runScheduled();
+    assertThat(passes).hasSize(1);
+    assertThat(inactive).hasSize(2);
+  }
+
+  @Test
+  void unloadingAWorldTellsTheHook() {
+    List<UUID> unloaded = new ArrayList<>();
+    service.setScanHook(new NodeScanHook() {
+      @Override
+      public void scan(NodeScanPass pass) {
+      }
+
+      @Override
+      public void worldUnloaded(UUID world) {
+        unloaded.add(world);
+      }
+    });
+
+    service.on(new WorldUnloadEvent(world));
+
+    assertThat(unloaded).containsExactly(WORLD);
   }
 
   private Player placedGuard() {

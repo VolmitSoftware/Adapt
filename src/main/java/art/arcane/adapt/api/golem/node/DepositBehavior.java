@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem.node;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemTask;
 import org.bukkit.block.Block;
@@ -21,13 +22,6 @@ public final class DepositBehavior implements NodeBehavior {
     return NodeFilters.accepts(record, item.getType(), NodeItemTags.shared());
   }
 
-  public static boolean active(NodeRecord record, Block anchor) {
-    if (record.redstone() == RedstoneMode.IGNORE) {
-      return true;
-    }
-    return NodeRules.active(record.redstone(), anchor.isBlockPowered() || anchor.isBlockIndirectlyPowered());
-  }
-
   @Override
   public Adaptation<?> policy() {
     return policy;
@@ -39,23 +33,23 @@ public final class DepositBehavior implements NodeBehavior {
   }
 
   @Override
-  public Result act(GolemContext golem, GolemTask task) {
+  public GolemActResult act(GolemContext golem, GolemTask task) {
     NodeRecord record = golem.node().orElse(null);
-    if (record == null) {
-      return Result.FAILED;
+    NodeKey key = task.node().orElse(null);
+    if (record == null || key == null) {
+      return GolemActResult.FAILED;
     }
-    NodeKey key = task.node();
     Block anchor = golem.world().getBlockAt(key.x(), key.y(), key.z());
-    if (!active(record, anchor)) {
-      return Result.FAILED;
+    if (!NodeRules.active(record, anchor)) {
+      return GolemActResult.FAILED;
     }
     if (!golem.canAccessChest(anchor.getLocation())) {
-      return Result.BLOCKED;
+      return GolemActResult.BLOCKED;
     }
     Optional<Inventory> inventory = golem.container(anchor);
     if (inventory.isEmpty()) {
-      return Result.FAILED;
+      return GolemActResult.FAILED;
     }
-    return golem.deliver(inventory.get(), item -> accepts(record, item)) > 0 ? Result.DONE : Result.FAILED;
+    return golem.deliver(inventory.get(), item -> accepts(record, item)) > 0 ? GolemActResult.DONE : GolemActResult.FAILED;
   }
 }

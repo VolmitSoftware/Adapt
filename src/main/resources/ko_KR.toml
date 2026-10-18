@@ -3093,6 +3093,22 @@ description = "구리 골렘 결속하기"
 title = "강철의 맹세"
 description = "철 골렘 결속하기"
 
+[advancement.challenge_golemancy_tasks_1000]
+title = "부지런한 손"
+description = "골렘이 작업 1,000개 완료하기"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "지칠 줄 모르는 공방"
+description = "골렘이 작업 25,000개 완료하기"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "꾸준한 운반꾼"
+description = "골렘이 아이템 10,000개 배달하기"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "끝없는 대상"
+description = "골렘이 아이템 250,000개 배달하기"
+
 [agility.armor_up]
 name = "방어구 강화"
 description = "오래 달릴수록 더 많은 방어력을 얻습니다!"

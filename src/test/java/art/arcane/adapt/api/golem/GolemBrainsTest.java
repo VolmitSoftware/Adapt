@@ -147,10 +147,6 @@ class GolemBrainsTest extends AdaptTestBase {
       calls.add("interact:" + handle.id());
     }
 
-    @Override
-    public boolean interacting(Block block) {
-      return false;
-    }
 
     @Override
     public void tick() {

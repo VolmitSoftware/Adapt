@@ -11,12 +11,14 @@ import java.util.function.IntSupplier;
 final class CopperGolemController implements GolemController {
   private final CopperGolem golem;
   private final GolemPathing pathing;
+  private final GolemLids lids;
   private Block interaction;
   private int interactionEndsAt;
 
-  CopperGolemController(CopperGolem golem, IntSupplier repathTicks) {
+  CopperGolemController(CopperGolem golem, IntSupplier repathTicks, GolemLids lids) {
     this.golem = Objects.requireNonNull(golem);
     this.pathing = new GolemPathing(golem, repathTicks);
+    this.lids = Objects.requireNonNull(lids);
   }
 
   @Override
@@ -40,20 +42,17 @@ final class CopperGolemController implements GolemController {
 
   @Override
   public void interact(Block container, int ticks) {
+    endInteraction();
     interaction = Objects.requireNonNull(container);
     interactionEndsAt = golem.getTicksLived() + Math.max(1, ticks);
     golem.setGolemState(CopperGolem.State.DROPPING_ITEM);
-  }
-
-  @Override
-  public boolean interacting(Block block) {
-    return interaction != null && golem.getTicksLived() < interactionEndsAt && sameBlock(interaction, block);
+    lids.open(container);
   }
 
   @Override
   public void tick() {
     if (interaction != null && golem.getTicksLived() >= interactionEndsAt) {
-      interaction = null;
+      endInteraction();
     }
     if (interaction == null && golem.getGolemState() != CopperGolem.State.IDLE) {
       golem.setGolemState(CopperGolem.State.IDLE);
@@ -64,12 +63,16 @@ final class CopperGolemController implements GolemController {
 
   @Override
   public void release() {
-    interaction = null;
+    endInteraction();
     pathing.stop();
   }
 
-  private static boolean sameBlock(Block first, Block second) {
-    return first.getX() == second.getX() && first.getY() == second.getY() && first.getZ() == second.getZ()
-        && Objects.equals(first.getWorld(), second.getWorld());
+  private void endInteraction() {
+    if (interaction == null) {
+      return;
+    }
+    Block container = interaction;
+    interaction = null;
+    lids.close(container);
   }
 }

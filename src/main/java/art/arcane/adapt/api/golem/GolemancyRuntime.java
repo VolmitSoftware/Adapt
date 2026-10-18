@@ -239,7 +239,7 @@ public final class GolemancyRuntime {
     Mob golem = handle.entity();
     return switch (handle.body()) {
       case COPPER -> golem instanceof CopperGolem copper
-          ? Optional.of(new CopperGolemController(copper, () -> brainSettings.copperRepathTicks()))
+          ? Optional.of(new CopperGolemController(copper, () -> brainSettings.copperRepathTicks(), BukkitGolemLids.INSTANCE))
           : Optional.empty();
       case FROST, IRON -> PaperCompat.hasClass(MOB_GOALS_CLASS)
           ? Optional.of(new GoalGolemController(golem, handle.body(), Bukkit.getMobGoals()))
@@ -394,13 +394,18 @@ public final class GolemancyRuntime {
 
     @Override
     public Location targetLocation(GolemTarget target, World world) {
+      return targetEntity(target, world).map(Entity::getLocation).orElseGet(() -> target.location(world));
+    }
+
+    @Override
+    public Optional<Entity> targetEntity(GolemTarget target, World world) {
       if (target.kind() == GolemTarget.Kind.BLOCK) {
-        return target.location(world);
+        return Optional.empty();
       }
       Entity entity = Bukkit.getEntity(target.entity());
       return entity != null && entity.isValid() && world.equals(entity.getWorld()) && J.isOwnedByCurrentRegion(entity)
-          ? entity.getLocation()
-          : target.location(world);
+          ? Optional.of(entity)
+          : Optional.empty();
     }
 
     @Override

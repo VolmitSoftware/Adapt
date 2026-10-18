@@ -44,6 +44,7 @@ final class FakeGolemPlatform implements GolemPlatform {
   final Map<UUID, Integer> patina = new HashMap<>();
   final Map<NodeKey, NodeRecord> nodes = new HashMap<>();
   final Map<String, ItemStack> encoded = new HashMap<>();
+  final Map<UUID, Entity> entities = new HashMap<>();
   boolean ownsEntities = true;
   boolean ownsLocations = true;
   int fullSignals;
@@ -223,6 +224,11 @@ final class FakeGolemPlatform implements GolemPlatform {
   @Override
   public Location targetLocation(GolemTarget target, World world) {
     return target.location(world);
+  }
+
+  @Override
+  public Optional<Entity> targetEntity(GolemTarget target, World world) {
+    return target.kind() == GolemTarget.Kind.BLOCK ? Optional.empty() : Optional.ofNullable(entities.get(target.entity()));
   }
 
   @Override

@@ -125,6 +125,26 @@ class SkillGolemancySettingsTest {
     assertThat(SkillGolemancy.workSettings(config)).isEqualTo(GolemWorkSettings.defaults());
     assertThat(config.workXpHourlyCap).isEqualTo(1200D);
     assertThat(config.workXpOwnerRadius).isEqualTo(96D);
+    assertThat(config.challengeTasksReward).isEqualTo(500D);
+    assertThat(config.challengeItemsMovedReward).isEqualTo(500D);
+  }
+
+  @Test
+  void negativeOrBrokenWorkXpValuesAreClampedAtLoad() {
+    SkillGolemancy.Config config = new SkillGolemancy.Config();
+    config.workXpHourlyCap = -10D;
+    config.workXpOwnerRadius = Double.NaN;
+
+    SkillGolemancy.clampWorkXp(config);
+
+    assertThat(config.workXpHourlyCap).isZero();
+    assertThat(config.workXpOwnerRadius).isZero();
+
+    config.workXpHourlyCap = 300D;
+    config.workXpOwnerRadius = 40D;
+    SkillGolemancy.clampWorkXp(config);
+    assertThat(config.workXpHourlyCap).isEqualTo(300D);
+    assertThat(config.workXpOwnerRadius).isEqualTo(40D);
   }
 
   @Test
@@ -133,8 +153,10 @@ class SkillGolemancySettingsTest {
     config.taskLeaseSeconds = 30;
     config.baseWorkRadius = 16D;
     config.stuckTimeoutSeconds = 6;
+    config.stuckReleasesBeforePause = 5;
+    config.stuckPauseSeconds = 40;
 
-    assertThat(SkillGolemancy.workSettings(config)).isEqualTo(new GolemWorkSettings(30, 16D, 6));
+    assertThat(SkillGolemancy.workSettings(config)).isEqualTo(new GolemWorkSettings(30, 16D, 6, 5, 40));
   }
 
   private static SkillGolemancy.Config withInterval(SkillGolemancy.Config config, int ticks) {

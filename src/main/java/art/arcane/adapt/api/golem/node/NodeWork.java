@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem.node;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTaskBoard;
 import art.arcane.adapt.api.golem.GolemTaskBoards;
 import art.arcane.adapt.api.golem.NodeType;
@@ -10,23 +11,22 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public final class NodeWork implements NodeScanHook {
   private static final Set<NodeType> FAILURES_LOGGED = ConcurrentHashMap.newKeySet();
 
   private final NodePlatform platform;
-  private final Function<UUID, GolemTaskBoard> boards;
+  private final GolemTaskBoards boards;
   private final BiConsumer<NodeKey, NodeStatus> status;
 
-  NodeWork(NodePlatform platform, Function<UUID, GolemTaskBoard> boards, BiConsumer<NodeKey, NodeStatus> status) {
+  NodeWork(NodePlatform platform, GolemTaskBoards boards, BiConsumer<NodeKey, NodeStatus> status) {
     this.platform = Objects.requireNonNull(platform);
     this.boards = Objects.requireNonNull(boards);
     this.status = Objects.requireNonNull(status);
   }
 
   public static NodeWork create(GolemTaskBoards boards, NodeService nodes) {
-    return new NodeWork(new BukkitNodePlatform(), boards::board, nodes::status);
+    return new NodeWork(new BukkitNodePlatform(), boards, nodes::status);
   }
 
   @Override
@@ -37,7 +37,7 @@ public final class NodeWork implements NodeScanHook {
       return;
     }
     NodeKey key = pass.key();
-    GolemTaskBoard board = boards.apply(key.world());
+    GolemTaskBoard board = boards.board(key.world());
     long now = platform.nowMillis();
     board.purgeIfDue(now);
     NodeScanCursor.Window window = pass.window();
@@ -51,5 +51,19 @@ public final class NodeWork implements NodeScanHook {
       }
     }
     status.accept(key, context.status().orElseGet(() -> board.status(key, now)));
+  }
+
+  @Override
+  public void inactive(NodeKey key) {
+    GolemTaskBoard board = boards.board(key.world());
+    for (GolemTask task : board.tasks(key)) {
+      board.withdraw(task);
+    }
+    status.accept(key, NodeStatus.IDLE);
+  }
+
+  @Override
+  public void worldUnloaded(UUID world) {
+    boards.forget(world);
   }
 }

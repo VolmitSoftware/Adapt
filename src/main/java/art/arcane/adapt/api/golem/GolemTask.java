@@ -17,6 +17,7 @@ public final class GolemTask {
   private final GolemTarget target;
   private final ItemStack item;
   private final Set<GolemBody> bodies;
+  private final TaskKey key;
   private final AtomicReference<Lease> lease = new AtomicReference<>();
   private volatile boolean closed;
 
@@ -27,18 +28,23 @@ public final class GolemTask {
     this.target = builder.target;
     this.item = builder.item == null ? null : builder.item.clone();
     this.bodies = Set.copyOf(builder.bodies);
+    this.key = TaskKey.of(type, target, item);
   }
 
   public static Builder builder(NodeKey node, NodeType nodeType, String type, GolemTarget target) {
-    return new Builder(node, nodeType, type, target);
+    return new Builder(Objects.requireNonNull(node), Objects.requireNonNull(nodeType), type, target);
   }
 
-  public NodeKey node() {
-    return node;
+  public static Builder builder(String type, GolemTarget target) {
+    return new Builder(null, null, type, target);
   }
 
-  public NodeType nodeType() {
-    return nodeType;
+  public Optional<NodeKey> node() {
+    return Optional.ofNullable(node);
+  }
+
+  public Optional<NodeType> nodeType() {
+    return Optional.ofNullable(nodeType);
   }
 
   public String type() {
@@ -77,7 +83,21 @@ public final class GolemTask {
 
   @Override
   public String toString() {
-    return "GolemTask{" + type + " " + nodeType.id() + " " + target.kind() + " " + target.blockX() + "," + target.blockY() + "," + target.blockZ() + "}";
+    String source = nodeType == null ? "core" : nodeType.id();
+    return "GolemTask{" + type + " " + source + " " + target.kind() + " " + target.blockX() + "," + target.blockY() + "," + target.blockZ() + "}";
+  }
+
+  NodeKey nodeKey() {
+    return node;
+  }
+
+  TaskKey key() {
+    return key;
+  }
+
+  long leaseRemaining(long nowMillis) {
+    Lease current = lease.get();
+    return current == null ? 0L : Math.max(0L, current.expiresAt() - nowMillis);
   }
 
   boolean openFor(UUID golem, long nowMillis) {
@@ -146,8 +166,8 @@ public final class GolemTask {
     private Set<GolemBody> bodies = EnumSet.allOf(GolemBody.class);
 
     private Builder(NodeKey node, NodeType nodeType, String type, GolemTarget target) {
-      this.node = Objects.requireNonNull(node);
-      this.nodeType = Objects.requireNonNull(nodeType);
+      this.node = node;
+      this.nodeType = nodeType;
       this.type = Objects.requireNonNull(type);
       this.target = Objects.requireNonNull(target);
       if (type.isBlank()) {

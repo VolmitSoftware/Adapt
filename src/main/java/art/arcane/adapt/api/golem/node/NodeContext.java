@@ -4,6 +4,7 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTaskBoard;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -65,9 +66,13 @@ public final class NodeContext {
     return pass.world().getBlockAt(key.x(), key.y(), key.z());
   }
 
-  public Block block(int areaIndex) {
+  public Optional<Block> block(int areaIndex) {
     int[] position = NodeArea.position(pass.key(), pass.record(), areaIndex);
-    return pass.world().getBlockAt(position[0], position[1], position[2]);
+    World world = pass.world();
+    if (!platform.owns(new Location(world, position[0], position[1], position[2]))) {
+      return Optional.empty();
+    }
+    return Optional.of(world.getBlockAt(position[0], position[1], position[2]));
   }
 
   public boolean owns(Block block) {
@@ -94,8 +99,8 @@ public final class NodeContext {
   }
 
   public boolean post(GolemTask task) {
-    if (!task.node().equals(pass.key())) {
-      throw new IllegalArgumentException("Node " + pass.key() + " cannot post a task for node " + task.node());
+    if (!task.node().filter(pass.key()::equals).isPresent()) {
+      throw new IllegalArgumentException("Node " + pass.key() + " cannot post a task for " + task);
     }
     GolemTaskBoard.Offer offer = board.offer(task, pass.maxOpenTasks());
     if (offer == GolemTaskBoard.Offer.ADDED) {
@@ -109,7 +114,7 @@ public final class NodeContext {
   }
 
   public boolean withdraw(GolemTask task) {
-    return task.node().equals(pass.key()) && board.withdraw(task);
+    return task.node().filter(pass.key()::equals).isPresent() && board.withdraw(task);
   }
 
   public void status(NodeStatus next) {

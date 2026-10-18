@@ -54,6 +54,8 @@ interface GolemPlatform {
 
   Location targetLocation(GolemTarget target, World world);
 
+  Optional<Entity> targetEntity(GolemTarget target, World world);
+
   void signalFull(Mob golem);
 
   Adaptation<?> bindingPolicy();

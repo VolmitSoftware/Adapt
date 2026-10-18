@@ -3093,6 +3093,22 @@ description = "Liên kết một golem Đồng"
 title = "Lời thề sắt"
 description = "Liên kết một golem Sắt"
 
+[advancement.challenge_golemancy_tasks_1000]
+title = "Đôi tay bận rộn"
+description = "Golem của bạn hoàn thành 1.000 công việc"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "Xưởng không biết mỏi"
+description = "Golem của bạn hoàn thành 25.000 công việc"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "Phu khuân vác bền bỉ"
+description = "Golem của bạn giao 10.000 vật phẩm"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "Đoàn lữ hành bất tận"
+description = "Golem của bạn giao 250.000 vật phẩm"
+
 [agility.armor_up]
 name = "Tăng Giáp"
 description = "Nhận thêm giáp khi bạn chạy nước rút càng lâu!"

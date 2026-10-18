@@ -21,4 +21,8 @@ public final class GolemTaskBoards {
   public GolemTaskBoard board(UUID world) {
     return boards.computeIfAbsent(Objects.requireNonNull(world), id -> new GolemTaskBoard(id, nodes));
   }
+
+  public void forget(UUID world) {
+    boards.remove(world);
+  }
 }

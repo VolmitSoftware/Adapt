@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem.node;
 
 import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 
 public final class NodeRules {
   public static final int PRIORITY_LEVEL = 3;
@@ -62,6 +63,13 @@ public final class NodeRules {
     }
     String name = material.name();
     return name.endsWith(SHULKER_BOX) || name.endsWith(COPPER_CHEST);
+  }
+
+  public static boolean active(NodeRecord record, Block anchor) {
+    if (record.redstone() == RedstoneMode.IGNORE) {
+      return true;
+    }
+    return active(record.redstone(), anchor.isBlockPowered() || anchor.isBlockIndirectlyPowered());
   }
 
   public static boolean active(RedstoneMode mode, boolean powered) {

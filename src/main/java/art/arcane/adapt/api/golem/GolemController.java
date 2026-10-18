@@ -15,8 +15,6 @@ public interface GolemController {
 
   void interact(Block container, int ticks);
 
-  boolean interacting(Block block);
-
   void tick();
 
   void release();

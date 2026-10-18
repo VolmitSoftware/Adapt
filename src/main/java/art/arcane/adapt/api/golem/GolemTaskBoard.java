@@ -46,11 +46,14 @@ public final class GolemTaskBoard {
   }
 
   public Offer offer(GolemTask task, int maxOpenTasks) {
-    NodeKey key = task.node();
+    NodeKey key = task.nodeKey();
+    if (key == null) {
+      throw new IllegalArgumentException("Only node tasks go on a task board, got " + task);
+    }
     if (!world.equals(key.world())) {
       throw new IllegalArgumentException("Task " + task + " belongs to world " + key.world() + ", not " + world);
     }
-    TaskKey taskKey = TaskKey.of(task);
+    TaskKey taskKey = task.key();
     while (true) {
       NodeTasks open = tasks.computeIfAbsent(key, ignored -> new NodeTasks());
       synchronized (open) {
@@ -66,7 +69,11 @@ public final class GolemTaskBoard {
         }
         open.tasks.put(taskKey, task);
       }
-      chunks.computeIfAbsent(key.chunkKey(), ignored -> ConcurrentHashMap.newKeySet()).add(key);
+      chunks.compute(key.chunkKey(), (chunk, keys) -> {
+        Set<NodeKey> indexed = keys == null ? ConcurrentHashMap.newKeySet() : keys;
+        indexed.add(key);
+        return indexed;
+      });
       nodes.apply(key).ifPresent(this::widenReach);
       return Offer.ADDED;
     }
@@ -182,10 +189,10 @@ public final class GolemTaskBoard {
         open.tasks.clear();
         tasks.remove(key, open);
       }
-      Set<NodeKey> keys = chunks.get(key.chunkKey());
-      if (keys != null) {
+      chunks.computeIfPresent(key.chunkKey(), (chunk, keys) -> {
         keys.remove(key);
-      }
+        return keys.isEmpty() ? null : keys;
+      });
     }
     activity.entrySet().removeIf(entry -> nodes.apply(entry.getKey()).isEmpty());
   }
@@ -198,12 +205,13 @@ public final class GolemTaskBoard {
   }
 
   private boolean remove(GolemTask task) {
-    NodeTasks open = tasks.get(task.node());
+    NodeKey key = task.nodeKey();
+    NodeTasks open = key == null ? null : tasks.get(key);
     if (open == null) {
       return false;
     }
     synchronized (open) {
-      return open.tasks.remove(TaskKey.of(task), task);
+      return open.tasks.remove(task.key(), task);
     }
   }
 
@@ -255,19 +263,6 @@ public final class GolemTaskBoard {
   }
 
   private record Candidate(GolemTask task, int priority, double distanceSquared) {
-  }
-
-  private record TaskKey(String type, GolemTarget.Kind kind, long block, UUID entity) {
-    private static TaskKey of(GolemTask task) {
-      GolemTarget target = task.target();
-      return target.kind() == GolemTarget.Kind.BLOCK
-          ? new TaskKey(task.type(), target.kind(), blockKey(target.blockX(), target.blockY(), target.blockZ()), null)
-          : new TaskKey(task.type(), target.kind(), 0L, target.entity());
-    }
-
-    private static long blockKey(int x, int y, int z) {
-      return ((long) x & 0x3FFFFFFL) << 38 | ((long) z & 0x3FFFFFFL) << 12 | ((long) y & 0xFFFL);
-    }
   }
 
   private static final class NodeTasks {

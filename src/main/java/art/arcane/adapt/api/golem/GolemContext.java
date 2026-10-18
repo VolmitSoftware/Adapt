@@ -6,6 +6,7 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -22,19 +23,12 @@ import java.util.function.Predicate;
 
 public final class GolemContext {
   private final GolemWorker worker;
-  private final Adaptation<?> policy;
-  private final GolemTask task;
-  private final NodeRecord record;
-  private final long nowMillis;
+  private final Scope scope;
   private Map<Long, Boolean> chestAccess;
-  private int capacity = -1;
 
-  GolemContext(GolemWorker worker, Adaptation<?> policy, GolemTask task, NodeRecord record, long nowMillis) {
+  GolemContext(GolemWorker worker, Scope scope) {
     this.worker = Objects.requireNonNull(worker);
-    this.policy = policy;
-    this.task = task;
-    this.record = record;
-    this.nowMillis = nowMillis;
+    this.scope = Objects.requireNonNull(scope);
   }
 
   public GolemHandle handle() {
@@ -54,19 +48,32 @@ public final class GolemContext {
   }
 
   public long nowMillis() {
-    return nowMillis;
+    return scope.nowMillis();
   }
 
   public Optional<NodeRecord> node() {
-    return Optional.ofNullable(record);
+    return Optional.ofNullable(scope.record());
   }
 
   public GolemCoreType core() {
-    GolemHandle handle = worker.handle();
-    if (task == null) {
-      return handle.core();
-    }
-    return GolemTaskMatch.consumer(task.nodeType(), handle.state().cores()).orElse(handle.core());
+    return scope.core();
+  }
+
+  public long arrivedAtMillis() {
+    return worker.arrivedAt(scope.nowMillis());
+  }
+
+  public int actIndex() {
+    return worker.actIndex();
+  }
+
+  public Optional<Entity> targetEntity() {
+    GolemTask task = scope.task();
+    return task == null ? Optional.empty() : worker.platform().targetEntity(task.target(), world());
+  }
+
+  public boolean skips(GolemTask task) {
+    return worker.skips(task);
   }
 
   public boolean owns(Location location) {
@@ -74,21 +81,25 @@ public final class GolemContext {
   }
 
   public boolean canBreak(Location block) {
+    Adaptation<?> policy = scope.policy();
     Player owner = owner();
     return policy != null && owner != null && owns(block) && policy.canBlockBreak(owner, block);
   }
 
   public boolean canPlace(Location block) {
+    Adaptation<?> policy = scope.policy();
     Player owner = owner();
     return policy != null && owner != null && owns(block) && policy.canBlockPlace(owner, block);
   }
 
   public boolean canInteract(Location target) {
+    Adaptation<?> policy = scope.policy();
     Player owner = owner();
     return policy != null && owner != null && owns(target) && policy.canInteract(owner, target);
   }
 
   public boolean canAccessChest(Location container) {
+    Adaptation<?> policy = scope.policy();
     Player owner = owner();
     if (policy == null || owner == null || !owns(container)) {
       return false;
@@ -102,7 +113,7 @@ public final class GolemContext {
 
   public boolean canDamage(LivingEntity victim) {
     Player owner = owner();
-    return owner != null && owns(victim.getLocation()) && GolemProtection.canDamage(policy, owner, victim);
+    return owner != null && owns(victim.getLocation()) && GolemProtection.canDamage(scope.policy(), owner, victim);
   }
 
   public Optional<Inventory> container(Block block) {
@@ -114,10 +125,7 @@ public final class GolemContext {
   }
 
   public int capacity() {
-    if (capacity < 0) {
-      capacity = GolemCapacity.carry(worker.handle());
-    }
-    return capacity;
+    return worker.capacity();
   }
 
   public int room() {
@@ -133,36 +141,57 @@ public final class GolemContext {
   }
 
   public int deliver(Inventory inventory, Predicate<ItemStack> accepts) {
-    List<ItemStack> remaining = new ArrayList<>();
+    List<ItemStack> items = worker.cargo().items();
+    List<ItemStack> remaining = new ArrayList<>(items.size());
     int moved = 0;
-    for (ItemStack item : worker.cargo().items()) {
-      if (!accepts.test(item)) {
-        remaining.add(item);
-        continue;
+    int next = 0;
+    boolean touched = false;
+    try {
+      while (next < items.size()) {
+        ItemStack item = items.get(next++);
+        if (!accepts.test(item)) {
+          remaining.add(item);
+          continue;
+        }
+        touched = true;
+        int left = 0;
+        for (ItemStack leftover : inventory.addItem(item.clone()).values()) {
+          left += leftover.getAmount();
+          remaining.add(leftover);
+        }
+        moved += item.getAmount() - left;
       }
-      int left = 0;
-      for (ItemStack leftover : inventory.addItem(item.clone()).values()) {
-        left += leftover.getAmount();
-        remaining.add(leftover);
+    } finally {
+      if (touched) {
+        remaining.addAll(items.subList(next, items.size()));
+        worker.cargo().keep(remaining);
       }
-      moved += item.getAmount() - left;
     }
     if (moved > 0) {
-      worker.cargo().keep(remaining);
       worker.handle().addItemsMoved(moved);
+      GolemWorkStats.moved(worker.handle(), moved);
     }
     return moved;
   }
 
   public void interact(Block container, int ticks) {
-    worker.controller().interact(container, ticks);
+    if (owns(container.getLocation())) {
+      worker.controller().interact(container, ticks);
+    }
   }
 
   public void workXp(double xp) {
-    GolemWorkXp.pay(worker.handle(), core(), xp);
+    GolemWorkXp.pay(worker.handle(), scope.core(), xp);
   }
 
   public boolean progress() {
-    return task != null && worker.renew(task, nowMillis);
+    GolemTask task = scope.task();
+    return task != null && worker.renew(task, scope.nowMillis());
+  }
+
+  record Scope(Adaptation<?> policy, GolemTask task, NodeRecord record, GolemCoreType core, long nowMillis) {
+    Scope {
+      Objects.requireNonNull(core);
+    }
   }
 }

@@ -89,11 +89,6 @@ final class GoalGolemController implements GolemController {
   }
 
   @Override
-  public boolean interacting(Block block) {
-    return false;
-  }
-
-  @Override
   public void tick() {
   }
 

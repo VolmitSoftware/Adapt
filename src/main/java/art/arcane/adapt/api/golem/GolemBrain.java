@@ -3,7 +3,6 @@ package art.arcane.adapt.api.golem;
 import art.arcane.adapt.Adapt;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
@@ -120,10 +119,6 @@ public final class GolemBrain {
         Adapt.warn("Failed to restore the vanilla behavior of golem " + handle.id() + ".", failure);
       }
     }
-  }
-
-  boolean interacting(Block block) {
-    return controller.interacting(block);
   }
 
   private void schedule(long token, int delayTicks) {

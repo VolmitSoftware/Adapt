@@ -3093,6 +3093,22 @@ description = "缚约一个铜魔像"
 title = "钢铁之誓"
 description = "缚约一个铁魔像"
 
+[advancement.challenge_golemancy_tasks_1000]
+title = "勤勉之手"
+description = "你的魔像完成 1,000 项工作"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "不倦工坊"
+description = "你的魔像完成 25,000 项工作"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "稳健搬运工"
+description = "你的魔像送达 10,000 个物品"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "无尽商队"
+description = "你的魔像送达 250,000 个物品"
+
 [agility.armor_up]
 name = "疾行护甲"
 description = "疾跑越久，获得的护甲越多！停止疾跑后，加成会缓慢消退。"

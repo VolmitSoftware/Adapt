@@ -3093,6 +3093,22 @@ description = "Свяжите медного голема"
 title = "Железная клятва"
 description = "Свяжите железного голема"
 
+[advancement.challenge_golemancy_tasks_1000]
+title = "Занятые руки"
+description = "Ваши големы выполняют 1000 заданий"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "Неутомимая мастерская"
+description = "Ваши големы выполняют 25 000 заданий"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "Надёжные носильщики"
+description = "Ваши големы доставляют 10 000 предметов"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "Бесконечный караван"
+description = "Ваши големы доставляют 250 000 предметов"
+
 [agility.armor_up]
 name = "Укрепление брони"
 description = "Чем дольше бежите, тем больше брони!"

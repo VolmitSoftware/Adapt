@@ -45,17 +45,17 @@ class DepositBehaviorTest {
     NodeRecord whilePowered = deposit().redstone(RedstoneMode.POWERED).build();
     NodeRecord whileUnpowered = deposit().redstone(RedstoneMode.UNPOWERED).build();
 
-    assertThat(DepositBehavior.active(whilePowered, unpowered)).isFalse();
-    assertThat(DepositBehavior.active(whilePowered, powered)).isTrue();
-    assertThat(DepositBehavior.active(whileUnpowered, powered)).isFalse();
-    assertThat(DepositBehavior.active(whileUnpowered, unpowered)).isTrue();
+    assertThat(NodeRules.active(whilePowered, unpowered)).isFalse();
+    assertThat(NodeRules.active(whilePowered, powered)).isTrue();
+    assertThat(NodeRules.active(whileUnpowered, powered)).isFalse();
+    assertThat(NodeRules.active(whileUnpowered, unpowered)).isTrue();
   }
 
   @Test
   void anIgnoringDepositNeverReadsPower() {
     Block anchor = anchor(false);
 
-    assertThat(DepositBehavior.active(deposit().build(), anchor)).isTrue();
+    assertThat(NodeRules.active(deposit().build(), anchor)).isTrue();
 
     verify(anchor, never()).isBlockPowered();
     verify(anchor, never()).isBlockIndirectlyPowered();

@@ -199,7 +199,12 @@ public final class NodeService extends TickedObject {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(WorldUnloadEvent e) {
-    forget(index.unloadWorld(e.getWorld().getUID()));
+    UUID world = e.getWorld().getUID();
+    forget(index.unloadWorld(world));
+    NodeScanHook hook = scanHook;
+    if (hook != null) {
+      hook.worldUnloaded(world);
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR)
@@ -293,6 +298,8 @@ public final class NodeService extends TickedObject {
     if (hook != null && active(world, key, record)) {
       NodeScanCursor.Window window = state.cursor.next(current.blocksPerScan(), NodeArea.volume(record));
       hook.scan(new NodeScanPass(world, key, record, window, current.maxOpenTasksPerNode()));
+    } else if (hook != null) {
+      hook.inactive(key);
     }
     scheduleScan(world, key, token, current.scanIntervalTicks());
   }

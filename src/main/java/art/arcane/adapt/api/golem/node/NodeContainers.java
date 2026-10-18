@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.golem.node;
 
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -16,7 +17,7 @@ public final class NodeContainers {
   }
 
   public static Optional<Inventory> inventory(Block block) {
-    return block.getState() instanceof Container container ? Optional.of(container.getInventory()) : Optional.empty();
+    return PaperCompat.liveState(block) instanceof Container container ? Optional.of(container.getInventory()) : Optional.empty();
   }
 
   public static long key(Block block, Inventory inventory) {

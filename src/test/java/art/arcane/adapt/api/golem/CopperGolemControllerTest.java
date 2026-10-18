@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,6 +30,7 @@ class CopperGolemControllerTest {
 
   private final AtomicInteger ticks = new AtomicInteger(200);
   private final World world = mock(World.class);
+  private final RecordingLids lids = new RecordingLids();
   private CopperGolem golem;
   private Pathfinder pathfinder;
   private Location target;
@@ -45,7 +48,7 @@ class CopperGolemControllerTest {
 
   @Test
   void moveTargetIsReissuedEveryRepathInterval() {
-    CopperGolemController controller = new CopperGolemController(golem, () -> 10);
+    CopperGolemController controller = new CopperGolemController(golem, () -> 10, lids);
     controller.moveTo(target, 1D);
     controller.tick();
     clearInvocations(pathfinder);
@@ -61,7 +64,7 @@ class CopperGolemControllerTest {
 
   @Test
   void vanillaTransportActionIsResetAndOurPathRestored() {
-    CopperGolemController controller = new CopperGolemController(golem, () -> 10);
+    CopperGolemController controller = new CopperGolemController(golem, () -> 10, lids);
     controller.moveTo(target, 1D);
     controller.tick();
     clearInvocations(pathfinder);
@@ -78,7 +81,7 @@ class CopperGolemControllerTest {
 
   @Test
   void idleGolemStateIsLeftAlone() {
-    CopperGolemController controller = new CopperGolemController(golem, () -> 10);
+    CopperGolemController controller = new CopperGolemController(golem, () -> 10, lids);
 
     controller.tick();
 
@@ -86,8 +89,8 @@ class CopperGolemControllerTest {
   }
 
   @Test
-  void aContainerInteractionTheBrainStartedIsNotReset() {
-    CopperGolemController controller = new CopperGolemController(golem, () -> 10);
+  void aContainerInteractionTheBrainStartedIsNotResetAndOpensTheLidForItsWindow() {
+    CopperGolemController controller = new CopperGolemController(golem, () -> 10, lids);
     Block chest = block(3, 64, 3);
     controller.interact(chest, 20);
     when(golem.getGolemState()).thenReturn(CopperGolem.State.DROPPING_ITEM);
@@ -95,18 +98,17 @@ class CopperGolemControllerTest {
     ticks.addAndGet(10);
     controller.tick();
     verify(golem, never()).setGolemState(CopperGolem.State.IDLE);
-    assertThat(controller.interacting(block(3, 64, 3))).isTrue();
-    assertThat(controller.interacting(block(4, 64, 3))).isFalse();
+    assertThat(lids.calls).containsExactly("open 3,64,3");
 
     ticks.addAndGet(10);
     controller.tick();
     verify(golem).setGolemState(CopperGolem.State.IDLE);
-    assertThat(controller.interacting(chest)).isFalse();
+    assertThat(lids.calls).containsExactly("open 3,64,3", "close 3,64,3");
   }
 
   @Test
   void theBrainsInteractionPlaysTheDropAnimation() {
-    CopperGolemController controller = new CopperGolemController(golem, () -> 10);
+    CopperGolemController controller = new CopperGolemController(golem, () -> 10, lids);
 
     controller.interact(block(3, 64, 3), 20);
 
@@ -114,8 +116,19 @@ class CopperGolemControllerTest {
   }
 
   @Test
+  void aNewInteractionOrAReleaseClosesTheOpenLid() {
+    CopperGolemController controller = new CopperGolemController(golem, () -> 10, lids);
+
+    controller.interact(block(3, 64, 3), 20);
+    controller.interact(block(5, 64, 3), 20);
+    controller.release();
+
+    assertThat(lids.calls).containsExactly("open 3,64,3", "close 3,64,3", "open 5,64,3", "close 5,64,3");
+  }
+
+  @Test
   void stopAndReleaseClearTheMoveTarget() {
-    CopperGolemController controller = new CopperGolemController(golem, () -> 10);
+    CopperGolemController controller = new CopperGolemController(golem, () -> 10, lids);
     controller.moveTo(target, 1D);
     controller.tick();
     clearInvocations(pathfinder);
@@ -135,5 +148,19 @@ class CopperGolemControllerTest {
     lenient().when(block.getZ()).thenReturn(z);
     lenient().when(block.getWorld()).thenReturn(world);
     return block;
+  }
+
+  private static final class RecordingLids implements GolemLids {
+    private final List<String> calls = new ArrayList<>();
+
+    @Override
+    public void open(Block container) {
+      calls.add("open " + container.getX() + "," + container.getY() + "," + container.getZ());
+    }
+
+    @Override
+    public void close(Block container) {
+      calls.add("close " + container.getX() + "," + container.getY() + "," + container.getZ());
+    }
   }
 }
