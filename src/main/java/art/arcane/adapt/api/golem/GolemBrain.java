@@ -81,6 +81,14 @@ public final class GolemBrain {
     command = target instanceof LivingEntity living ? new Command(living, untilMillis) : null;
   }
 
+  public void clearCommand() {
+    Command current = command;
+    command = null;
+    if (current != null && combatTarget == current.target()) {
+      combatTarget = null;
+    }
+  }
+
   static boolean commandHolds(long nowMillis, long untilMillis, boolean targetLive, boolean sameWorld) {
     return targetLive && sameWorld && nowMillis < untilMillis;
   }

@@ -467,6 +467,24 @@ class GolemBrainTest extends AdaptTestBase {
   }
 
   @Test
+  void clearingACommandEndsTheSicAndDropsItsTarget() {
+    owner(at(10, 64, 0));
+    LivingEntity commanded = live(Zombie.class);
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.start();
+    brain.command(commanded, platform.now + 20_000L);
+    platform.runDelayed();
+    assertThat(brain.combatTarget()).contains(commanded);
+
+    brain.clearCommand();
+    platform.now += 1_000L;
+    platform.runDelayed();
+
+    assertThat(brain.combatTarget()).isEmpty();
+    assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
+  }
+
+  @Test
   void bodiesThatCannotFightIgnoreCommands() {
     owner(at(10, 64, 0));
     GolemBrain brain = brain(golem(CopperGolem.class, at(0, 64, 0)), GolemBody.COPPER);

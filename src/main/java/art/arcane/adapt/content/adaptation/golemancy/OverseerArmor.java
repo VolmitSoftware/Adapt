@@ -21,15 +21,18 @@ final class OverseerArmor {
     if (armor == null) {
       return;
     }
-    AdaptAttributeKey key = AdaptAttributeKey.of(source.getName(), SLOT);
-    KList<IAttribute.Modifier> applied = armor.getModifier(key.uuid(), key.key());
-    double current = applied == null || applied.isEmpty() ? Double.NaN : applied.getFirst().getAmount();
-    switch (OverseerRules.armorChange(current, desired)) {
+    switch (change(armor, AdaptAttributeKey.of(source.getName(), SLOT), desired)) {
       case KEEP -> {
       }
       case APPLY -> AdaptAttributeService.get().apply(player, source.getName(), SLOT, Attributes.ARMOR, desired, AttributeModifier.Operation.ADD_NUMBER);
       case REMOVE -> remove(source, player);
     }
+  }
+
+  static OverseerRules.ArmorChange change(IAttribute armor, AdaptAttributeKey key, double desired) {
+    KList<IAttribute.Modifier> applied = armor.getModifier(key.uuid(), key.key());
+    double current = applied == null || applied.isEmpty() ? Double.NaN : applied.getFirst().getAmount();
+    return OverseerRules.armorChange(current, desired);
   }
 
   static void remove(Adaptation<?> source, Player player) {

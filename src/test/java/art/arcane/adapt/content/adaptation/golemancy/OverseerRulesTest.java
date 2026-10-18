@@ -109,6 +109,16 @@ class OverseerRulesTest {
   }
 
   @Test
+  void frostGolemsTakeASicTargetOnlyWithinTheirSentryRange() {
+    assertThat(OverseerRules.reaches(GolemBody.FROST, 100D, 10D)).isTrue();
+    assertThat(OverseerRules.reaches(GolemBody.FROST, 100.1D, 10D)).isFalse();
+    assertThat(OverseerRules.reaches(GolemBody.IRON, 400D, 10D)).isTrue();
+    assertThat(OverseerRules.reaches(GolemBody.FROST, Double.NaN, 10D)).isFalse();
+    assertThat(OverseerRules.answer(new OverseerRules.Hearing(GolemSignal.SIC, GolemBody.FROST, GolemCoreType.GUARDIAN, List.of(GolemCoreType.GUARDIAN),
+        true, true, true, false, false))).isEqualTo(OverseerRules.Answer.SKIP);
+  }
+
+  @Test
   void aRallyClaimsTheOwnersCooldownOnceAndCoversEveryGolemOfThatFollowSignal() {
     GolemXpCooldowns<UUID> cooldowns = new GolemXpCooldowns<>();
     OverseerRally first = new OverseerRally(cooldowns, OWNER, 1_000L, 60_000L);
@@ -195,11 +205,11 @@ class OverseerRulesTest {
   }
 
   private static OverseerRules.Answer answer(GolemSignal signal, GolemCoreType core, boolean heard, boolean sameWorld, boolean inRange, boolean rallies) {
-    return OverseerRules.answer(new OverseerRules.Hearing(signal, GolemBody.IRON, core, List.of(core), heard, sameWorld, inRange, rallies));
+    return OverseerRules.answer(new OverseerRules.Hearing(signal, GolemBody.IRON, core, List.of(core), heard, sameWorld, inRange, true, rallies));
   }
 
   private static OverseerRules.Answer hear(GolemSignal signal, GolemBody body, GolemCoreType core, boolean heard, boolean inRange) {
-    return OverseerRules.answer(new OverseerRules.Hearing(signal, body, core, List.of(core), heard, true, inRange, false));
+    return OverseerRules.answer(new OverseerRules.Hearing(signal, body, core, List.of(core), heard, true, inRange, true, false));
   }
 
   private static void assertOffset(OverseerRules.Offset offset, double x, double z) {

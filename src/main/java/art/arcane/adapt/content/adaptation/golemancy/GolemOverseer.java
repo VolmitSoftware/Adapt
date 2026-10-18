@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationConfig;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.golem.ChannelMask;
@@ -33,6 +34,7 @@ import art.arcane.adapt.api.golem.overseer.GolemSignal;
 import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.golem.overseer.OverseerSignal;
 import art.arcane.adapt.api.minion.MinionTargeting;
+import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -88,7 +90,7 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
   private final GolemXpCooldowns<UUID> signalCooldowns = new GolemXpCooldowns<>();
   private final GolemXpCooldowns<UUID> rallyCooldowns = new GolemXpCooldowns<>();
   private final OverseerFormation formation = new OverseerFormation(() -> getConfig().formationRingRadius);
-  private final OverseerGolems golems = new OverseerGolems();
+  private final OverseerGolems golems = new OverseerGolems(this::sentryRange);
   private final OverseerGlow glow = new OverseerGlow();
   private final Overseer.Commander commander = new Commander();
 
@@ -229,7 +231,7 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
       return;
     }
     DyeColor channel = OverseerRules.crookChannel(level, config.channelFilterLevel, GolemItems.crookChannel(player.getInventory().getItemInMainHand()));
-    OverseerSignal.Rally rally = signal == GolemSignal.FOLLOW && OverseerRules.unlocked(level, config.rallyLevel)
+    OverseerSignal.Rally rally = signal == GolemSignal.FOLLOW && OverseerRules.unlocked(level, config.rallyLevel) && player.isOnGround()
         ? new OverseerRally(rallyCooldowns, owner, now, config.rallyCooldownSeconds * MILLIS_PER_SECOND)
         : null;
     Overseer.dispatch(new OverseerSignal(owner, signal, player.getLocation(), OverseerRules.radius(config.radiusByLevel, level), channel, target,
@@ -276,6 +278,18 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
     }
     formation.update(player.getUniqueId(), members);
     OverseerArmor.settle(this, player, OverseerRules.formationArmor(near, config.formationArmorPerGolem, config.formationArmorMax));
+  }
+
+  double sentryRange() {
+    Skill<?> skill = getSkill();
+    if (skill != null) {
+      for (Adaptation<?> sibling : skill.getAdaptations()) {
+        if (sibling instanceof GolemGuardianCore guardian) {
+          return guardian.config().sentryRange;
+        }
+      }
+    }
+    return GuardianRules.sentryRange(Double.NaN);
   }
 
   private LivingEntity sicTarget(Player owner, double range) {

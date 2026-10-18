@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.GolemTeleport;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.overseer.GolemSignal;
 import art.arcane.adapt.api.golem.overseer.OverseerSignal;
+import art.arcane.adapt.api.golem.reveal.RevealService;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.DyeColor;
 import org.bukkit.Location;
@@ -54,7 +55,8 @@ class OverseerGolemsTest extends AdaptTestBase {
   private final List<Entity> pulsed = new ArrayList<>();
   private final List<Entity> scheduled = new ArrayList<>();
   private final Map<Mob, GolemBrain> brains = new HashMap<>();
-  private final OverseerGolems golems = new OverseerGolems();
+  private final RevealService reveal = mock(RevealService.class);
+  private final OverseerGolems golems = new OverseerGolems(() -> 10D);
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<J> scheduling;
   private MockedStatic<GolemTeleport> teleports;
@@ -65,6 +67,7 @@ class OverseerGolemsTest extends AdaptTestBase {
     lenient().when(registry.loadedOf(OWNER)).thenReturn(loaded);
     runtime = mockStatic(GolemancyRuntime.class);
     runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+    runtime.when(GolemancyRuntime::reveal).thenReturn(Optional.of(reveal));
     runtime.when(() -> GolemancyRuntime.brain(any(Entity.class))).thenAnswer(call -> Optional.ofNullable(brains.get(call.<Entity>getArgument(0))));
     scheduling = mockStatic(J.class);
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(call -> {
@@ -91,6 +94,38 @@ class OverseerGolemsTest extends AdaptTestBase {
 
     verify(near).setMode(GolemMode.FOLLOW);
     assertThat(pulsed).containsExactly(near.entity());
+  }
+
+  @Test
+  void aMovementSignalEndsAnActiveSicAndRefreshesTheOwnersLabel() {
+    GolemHandle guardian = golem(GolemCoreType.GUARDIAN, at(6D), ChannelMask.NONE);
+
+    golems.receive(signal(GolemSignal.HOLD, null, null));
+
+    verify(brains.get(guardian.entity())).clearCommand();
+    verify(reveal).refresh(guardian);
+  }
+
+  @Test
+  void frostGolemsIgnoreASicTargetBeyondTheirSentryRange() {
+    LivingEntity near = mock(Zombie.class);
+    lenient().when(near.getWorld()).thenReturn(world);
+    lenient().when(near.getLocation()).thenAnswer(call -> new Location(world, 14D, 64D, 0D));
+    LivingEntity far = mock(Zombie.class);
+    lenient().when(far.getWorld()).thenReturn(world);
+    lenient().when(far.getLocation()).thenAnswer(call -> new Location(world, 16D, 64D, 0D));
+    GolemHandle frost = golem(GolemCoreType.GUARDIAN, at(5D), ChannelMask.NONE);
+    lenient().when(frost.body()).thenReturn(GolemBody.FROST);
+
+    golems.receive(signal(GolemSignal.SIC, far, null));
+
+    verify(brains.get(frost.entity()), never()).command(any(Entity.class), anyLong());
+    assertThat(pulsed).isEmpty();
+
+    golems.receive(signal(GolemSignal.SIC, near, null));
+
+    verify(brains.get(frost.entity())).command(near, 25_000L);
+    assertThat(pulsed).containsExactly(frost.entity());
   }
 
   @Test

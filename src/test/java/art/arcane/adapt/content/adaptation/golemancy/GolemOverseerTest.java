@@ -86,6 +86,7 @@ class GolemOverseerTest extends AdaptTestBase {
     lenient().when(player.getInventory()).thenReturn(inventory);
     lenient().when(player.getWorld()).thenReturn(world);
     lenient().when(player.isOnline()).thenReturn(true);
+    lenient().when(player.isOnGround()).thenReturn(true);
     lenient().when(player.getLocation()).thenAnswer(call -> new Location(world, 0D, 64D, 0D));
     lenient().when(player.getEyeLocation()).thenAnswer(call -> new Location(world, 0D, 65.6D, 0D));
     scheduling = mockStatic(J.class);
@@ -187,6 +188,24 @@ class GolemOverseerTest extends AdaptTestBase {
     adaptation.send(player);
 
     assertThat(heard).extracting(signal -> signal.rally() != null).containsExactly(false, true, false);
+  }
+
+  @Test
+  void anAirborneFollowCarriesNoRallyAndLeavesTheCooldownForTheNextGroundedOne() {
+    level(4);
+    when(player.isOnGround()).thenReturn(false);
+    adaptation.send(player);
+    now.addAndGet(1_000L);
+    when(player.isOnGround()).thenReturn(true);
+    adaptation.send(player);
+
+    assertThat(heard).extracting(signal -> signal.rally() != null).containsExactly(false, true);
+    assertThat(heard.get(1).claimRally()).isTrue();
+  }
+
+  @Test
+  void withoutGuardianCoreFrostGolemsUseTheDefaultSentryRange() {
+    assertThat(adaptation.sentryRange()).isEqualTo(10D);
   }
 
   @Test

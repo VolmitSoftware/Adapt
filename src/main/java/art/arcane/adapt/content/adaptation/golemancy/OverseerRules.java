@@ -69,7 +69,7 @@ final class OverseerRules {
     }
     Optional<GolemMode> mode = hearing.signal().mode();
     if (mode.isEmpty()) {
-      return hearing.inRange() && combatCapable(hearing.body(), hearing.cores()) ? Answer.COMMAND : Answer.SKIP;
+      return hearing.inRange() && hearing.reachable() && combatCapable(hearing.body(), hearing.cores()) ? Answer.COMMAND : Answer.SKIP;
     }
     if (!GolemMode.selectableFor(hearing.core()).contains(mode.get())) {
       return Answer.SKIP;
@@ -78,6 +78,10 @@ final class OverseerRules {
       return Answer.MODE;
     }
     return hearing.signal() == GolemSignal.FOLLOW && hearing.rallies() ? Answer.RALLY : Answer.SKIP;
+  }
+
+  static boolean reaches(GolemBody body, double targetDistanceSquared, double sentryRange) {
+    return body != GolemBody.FROST || targetDistanceSquared <= sentryRange * sentryRange;
   }
 
   static Offset slot(int index, int count, double radius) {
@@ -145,7 +149,7 @@ final class OverseerRules {
   }
 
   record Hearing(GolemSignal signal, GolemBody body, GolemCoreType core, List<GolemCoreType> cores, boolean heard, boolean sameWorld,
-                 boolean inRange, boolean rallies) {
+                 boolean inRange, boolean reachable, boolean rallies) {
   }
 
   record Offset(double x, double z) {
