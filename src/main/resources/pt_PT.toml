@@ -4421,6 +4421,9 @@ items_moved = "Itens movidos: {value}"
 release = "Libertar"
 release_lore = "Devolve-o a golem comum e larga o seu núcleo, as runas e os itens que transporta"
 release_confirm = "Libertar este golem?"
+snow_trail_on = "Rasto de neve: ligado"
+snow_trail_off = "Rasto de neve: desligado"
+snow_trail_lore = "Clica para alternar a neve que este golem deixa para trás"
 
 [golemancy.roster]
 title = "Lista de golems"
@@ -4468,6 +4471,18 @@ lore3 = "Níveis para vincular um golem de Geada"
 lore4 = "Níveis para vincular um golem de Cobre"
 lore5 = "Níveis para vincular um golem de Ferro"
 lore = ["Golems que podes possuir", "Segundos por ritual de vínculo", "Níveis para vincular um golem de Geada", "Níveis para vincular um golem de Cobre", "Níveis para vincular um golem de Ferro"]
+
+[golemancy.frost_frame]
+name = "Estrutura de Geada"
+description = "Fortalece os teus golems de Geada vinculados com vida extra, bolas de neve que causam dano e proteção contra a chuva e o calor."
+lore1 = "Vida extra para golems de Geada"
+lore2 = "Dano das bolas de neve"
+lore3 = "Dano sofrido em biomas quentes"
+lore4 = "Imune à chuva e à água"
+lore5 = "Segundos de lentidão por impacto"
+lore6 = "Probabilidade de uma bola de neve extra"
+lore7 = "Impactos de bola de neve para congelar um alvo"
+lore = ["Vida extra para golems de Geada", "Dano das bolas de neve", "Dano sofrido em biomas quentes", "Imune à chuva e à água", "Segundos de lentidão por impacto", "Probabilidade de uma bola de neve extra", "Impactos de bola de neve para congelar um alvo"]
 
 [herbalism.growth_aura]
 name = "Aura de Crescimento"

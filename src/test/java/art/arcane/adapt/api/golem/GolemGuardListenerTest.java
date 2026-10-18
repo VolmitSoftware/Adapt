@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Zombie;
+import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
@@ -45,7 +46,8 @@ class GolemGuardListenerTest extends AdaptTestBase {
   private static final UUID RIVAL = UUID.fromString("00000000-0000-0000-0000-0000000000a6");
 
   private final Map<UUID, Player> online = new HashMap<>();
-  private final GolemGuardListener listener = new GolemGuardListener(online::get);
+  private final Map<UUID, GolemHandle> handles = new HashMap<>();
+  private final GolemGuardListener listener = new GolemGuardListener(online::get, entity -> Optional.ofNullable(handles.get(entity.getUniqueId())));
   private World world;
 
   @BeforeAll
@@ -154,6 +156,29 @@ class GolemGuardListenerTest extends AdaptTestBase {
   }
 
   @Test
+  void boundFrostGolemsLeaveSnowOnlyWhenTheirTrailIsOn() {
+    Snowman unloaded = bound(Snowman.class, OWNER, GolemBody.FROST);
+    Snowman trailOff = bound(Snowman.class, OWNER, GolemBody.FROST);
+    Snowman trailOn = bound(Snowman.class, OWNER, GolemBody.FROST);
+    track(trailOff, false);
+    track(trailOn, true);
+    EntityBlockFormEvent fromUnloaded = blockForm(unloaded);
+    EntityBlockFormEvent fromTrailOff = blockForm(trailOff);
+    EntityBlockFormEvent fromTrailOn = blockForm(trailOn);
+    EntityBlockFormEvent fromWild = blockForm(living(Snowman.class));
+
+    listener.on(fromUnloaded);
+    listener.on(fromTrailOff);
+    listener.on(fromTrailOn);
+    listener.on(fromWild);
+
+    verify(fromUnloaded).setCancelled(true);
+    verify(fromTrailOff).setCancelled(true);
+    verify(fromTrailOn, never()).setCancelled(anyBoolean());
+    verify(fromWild, never()).setCancelled(anyBoolean());
+  }
+
+  @Test
   void everyCopperGolemStatueVariantCounts() {
     for (Material material : Material.values()) {
       boolean statue = material.name().contains("COPPER_GOLEM_STATUE");
@@ -168,6 +193,12 @@ class GolemGuardListenerTest extends AdaptTestBase {
     GolemState.create(new GolemState.Seed(UUID.randomUUID(), owner, body, GolemCoreType.BLANK, GolemState.Anchor.of(world.getUID(), 0, 64, 0)))
         .write(golem);
     return golem;
+  }
+
+  private void track(Snowman golem, boolean snowTrail) {
+    GolemState state = GolemState.read(golem).orElseThrow();
+    state.setSnowTrail(snowTrail);
+    handles.put(golem.getUniqueId(), new GolemHandle(golem, state, new FakeGolemPlatform()));
   }
 
   private Player player(UUID id) {
@@ -199,6 +230,12 @@ class GolemGuardListenerTest extends AdaptTestBase {
     EntityTargetLivingEntityEvent event = mock(EntityTargetLivingEntityEvent.class);
     when(event.getEntity()).thenReturn(golem);
     when(event.getTarget()).thenReturn(target);
+    return event;
+  }
+
+  private static EntityBlockFormEvent blockForm(Entity entity) {
+    EntityBlockFormEvent event = mock(EntityBlockFormEvent.class);
+    lenient().when(event.getEntity()).thenReturn(entity);
     return event;
   }
 

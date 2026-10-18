@@ -13,6 +13,7 @@ import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
@@ -241,6 +242,12 @@ public final class GolemancyRuntime {
     }
 
     @Override
+    public boolean ownerReady(UUID owner) {
+      AdaptPlayer player = onlinePlayer(owner);
+      return player != null && player.isRuntimeReady();
+    }
+
+    @Override
     public void rosterChanged(UUID owner) {
       AdaptPlayer player = onlinePlayer(owner);
       if (player != null) {
@@ -293,6 +300,12 @@ public final class GolemancyRuntime {
     @Override
     public AttributeInstance scaleOf(LivingEntity entity) {
       return GolemScale.scaleOf(entity);
+    }
+
+    @Override
+    public AttributeInstance attribute(LivingEntity entity, GolemStat stat) {
+      Attribute attribute = stat.attribute();
+      return attribute == null ? null : entity.getAttribute(attribute);
     }
 
     @Override

@@ -301,7 +301,7 @@ public final class GolemRegistry extends TickedObject {
   @Override
   protected List<Listener> createCompanionListeners() {
     List<Listener> listeners = new ArrayList<>(3);
-    listeners.add(new GolemGuardListener(platform::player));
+    listeners.add(new GolemGuardListener(platform::player, this::handle));
     if (PaperCompat.hasClass("com.destroystokyo.paper.event.entity.EntityAddToWorldEvent")) {
       listeners.add(new PaperEntityListener(this));
     }
@@ -494,6 +494,7 @@ public final class GolemRegistry extends TickedObject {
       }
     }
     if (reason == DormancyReason.NONE) {
+      GolemStats.recompute(handle);
       lifecycle.awake(handle);
     } else {
       lifecycle.asleep(handle);
@@ -600,6 +601,7 @@ public final class GolemRegistry extends TickedObject {
     if (scale != null) {
       GolemScale.clearModifier(scale);
     }
+    GolemStats.clear(handle);
     PaperCompat.customName(golem, null);
     StackExclusion.include(golem);
     golem.setAware(true);

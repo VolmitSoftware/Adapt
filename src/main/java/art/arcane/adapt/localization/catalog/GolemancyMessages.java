@@ -109,6 +109,9 @@ public final class GolemancyMessages {
   public static final TextKey GUI_RELEASE = TextKey.of("golemancy.gui.release", "Release");
   public static final TextKey GUI_RELEASE_LORE = TextKey.of("golemancy.gui.release_lore", "Returns it to a vanilla golem and drops its core, runes and carried items");
   public static final TextKey GUI_RELEASE_CONFIRM = TextKey.of("golemancy.gui.release_confirm", "Release this golem?");
+  public static final TextKey GUI_SNOW_TRAIL_ON = TextKey.of("golemancy.gui.snow_trail_on", "Snow Trail: On");
+  public static final TextKey GUI_SNOW_TRAIL_OFF = TextKey.of("golemancy.gui.snow_trail_off", "Snow Trail: Off");
+  public static final TextKey GUI_SNOW_TRAIL_LORE = TextKey.of("golemancy.gui.snow_trail_lore", "Click to toggle the snow this golem leaves behind");
   public static final TextKey ROSTER_TITLE = TextKey.of("golemancy.roster.title", "Golem Roster");
   public static final TextKey ROSTER_EMPTY = TextKey.of("golemancy.roster.empty", "You have no golems");
   public static final TextKey ROSTER_ENTRY = TextKey.of("golemancy.roster.entry", "{body} Golem ({core})");
@@ -148,6 +151,16 @@ public final class GolemancyMessages {
   public static final TextKey ANIMUS_BINDING_LORE4 = TextKey.of("golemancy.animus_binding.lore4", "Levels to Bind a Copper Golem");
   public static final TextKey ANIMUS_BINDING_LORE5 = TextKey.of("golemancy.animus_binding.lore5", "Levels to Bind an Iron Golem");
   public static final LinesKey ANIMUS_BINDING_LORE = LinesKey.of("golemancy.animus_binding.lore", "Golems You Can Own", "Seconds per Binding Ritual", "Levels to Bind a Frost Golem", "Levels to Bind a Copper Golem", "Levels to Bind an Iron Golem");
+  public static final TextKey FROST_FRAME_NAME = TextKey.of("golemancy.frost_frame.name", "Frost Frame");
+  public static final TextKey FROST_FRAME_DESCRIPTION = TextKey.of("golemancy.frost_frame.description", "Strengthens your bound frost golems with extra health, damaging snowballs and protection from rain and heat.");
+  public static final TextKey FROST_FRAME_LORE1 = TextKey.of("golemancy.frost_frame.lore1", "Bonus Health for Frost Golems");
+  public static final TextKey FROST_FRAME_LORE2 = TextKey.of("golemancy.frost_frame.lore2", "Snowball Damage");
+  public static final TextKey FROST_FRAME_LORE3 = TextKey.of("golemancy.frost_frame.lore3", "Warm Biome Damage Taken");
+  public static final TextKey FROST_FRAME_LORE4 = TextKey.of("golemancy.frost_frame.lore4", "Immune to Rain and Water");
+  public static final TextKey FROST_FRAME_LORE5 = TextKey.of("golemancy.frost_frame.lore5", "Seconds of Slowness on Hit");
+  public static final TextKey FROST_FRAME_LORE6 = TextKey.of("golemancy.frost_frame.lore6", "Chance of an Extra Snowball");
+  public static final TextKey FROST_FRAME_LORE7 = TextKey.of("golemancy.frost_frame.lore7", "Snowball Hits to Freeze a Target");
+  public static final LinesKey FROST_FRAME_LORE = LinesKey.of("golemancy.frost_frame.lore", "Bonus Health for Frost Golems", "Snowball Damage", "Warm Biome Damage Taken", "Immune to Rain and Water", "Seconds of Slowness on Hit", "Chance of an Extra Snowball", "Snowball Hits to Freeze a Target");
 
   private GolemancyMessages() {
   }
@@ -257,6 +270,9 @@ public final class GolemancyMessages {
     builder.add(GUI_RELEASE);
     builder.add(GUI_RELEASE_LORE);
     builder.add(GUI_RELEASE_CONFIRM);
+    builder.add(GUI_SNOW_TRAIL_ON);
+    builder.add(GUI_SNOW_TRAIL_OFF);
+    builder.add(GUI_SNOW_TRAIL_LORE);
     builder.add(ROSTER_TITLE);
     builder.add(ROSTER_EMPTY);
     builder.add(ROSTER_ENTRY);
@@ -296,5 +312,15 @@ public final class GolemancyMessages {
     builder.add(ANIMUS_BINDING_LORE4);
     builder.add(ANIMUS_BINDING_LORE5);
     builder.add(ANIMUS_BINDING_LORE);
+    builder.add(FROST_FRAME_NAME);
+    builder.add(FROST_FRAME_DESCRIPTION);
+    builder.add(FROST_FRAME_LORE1);
+    builder.add(FROST_FRAME_LORE2);
+    builder.add(FROST_FRAME_LORE3);
+    builder.add(FROST_FRAME_LORE4);
+    builder.add(FROST_FRAME_LORE5);
+    builder.add(FROST_FRAME_LORE6);
+    builder.add(FROST_FRAME_LORE7);
+    builder.add(FROST_FRAME_LORE);
   }
 }

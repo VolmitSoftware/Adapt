@@ -51,6 +51,18 @@ public final class GolemGuiActions {
     };
   }
 
+  public static boolean hasSnowTrail(GolemBody body) {
+    return body == GolemBody.FROST;
+  }
+
+  public static Material snowTrailIcon(boolean snowTrail) {
+    return snowTrail ? Material.SNOW_BLOCK : Material.SNOWBALL;
+  }
+
+  public static TextKey snowTrailName(boolean snowTrail) {
+    return snowTrail ? GolemancyMessages.GUI_SNOW_TRAIL_ON : GolemancyMessages.GUI_SNOW_TRAIL_OFF;
+  }
+
   public static boolean releasableFromRoster(GolemRoster.Status status) {
     return status == GolemRoster.Status.MISSING;
   }

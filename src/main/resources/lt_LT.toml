@@ -4421,6 +4421,9 @@ items_moved = "Perkelta daiktų: {value}"
 release = "Paleisti"
 release_lore = "Grąžina jį į paprastą golemą ir išmeta jo šerdį, runas ir nešamus daiktus"
 release_confirm = "Paleisti šį golemą?"
+snow_trail_on = "Sniego pėdsakas: įjungtas"
+snow_trail_off = "Sniego pėdsakas: išjungtas"
+snow_trail_lore = "Spustelėkite, kad įjungtumėte ar išjungtumėte šio golemo paliekamą sniegą"
 
 [golemancy.roster]
 title = "Golemų sąrašas"
@@ -4468,6 +4471,18 @@ lore3 = "Lygiai Šerkšno golemui sujungti"
 lore4 = "Lygiai Vario golemui sujungti"
 lore5 = "Lygiai Geležies golemui sujungti"
 lore = ["Golemai, kuriuos gali turėti", "Sekundės vienam sujungimo ritualui", "Lygiai Šerkšno golemui sujungti", "Lygiai Vario golemui sujungti", "Lygiai Geležies golemui sujungti"]
+
+[golemancy.frost_frame]
+name = "Šerkšno karkasas"
+description = "Sustiprina tavo sujungtus Šerkšno golemus papildoma sveikata, žeidžiančiomis sniego gniūžtėmis ir apsauga nuo lietaus bei karščio."
+lore1 = "Papildoma Šerkšno golemų sveikata"
+lore2 = "Sniego gniūžtės žala"
+lore3 = "Gaunama žala šiltuose biomuose"
+lore4 = "Atsparus lietui ir vandeniui"
+lore5 = "Sulėtinimo sekundės po pataikymo"
+lore6 = "Tikimybė mesti papildomą sniego gniūžtę"
+lore7 = "Pataikymai sniego gniūžte taikiniui užšaldyti"
+lore = ["Papildoma Šerkšno golemų sveikata", "Sniego gniūžtės žala", "Gaunama žala šiltuose biomuose", "Atsparus lietui ir vandeniui", "Sulėtinimo sekundės po pataikymo", "Tikimybė mesti papildomą sniego gniūžtę", "Pataikymai sniego gniūžte taikiniui užšaldyti"]
 
 [herbalism.growth_aura]
 name = "Augimo Aura"

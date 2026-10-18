@@ -20,6 +20,8 @@ interface GolemPlatform {
 
   Optional<GolemRoster> roster(UUID owner);
 
+  boolean ownerReady(UUID owner);
+
   void rosterChanged(UUID owner);
 
   boolean owns(Entity entity);
@@ -33,6 +35,8 @@ interface GolemPlatform {
   void sweepChunk(UUID world, long chunkKey, Consumer<Mob> boundGolem);
 
   AttributeInstance scaleOf(LivingEntity entity);
+
+  AttributeInstance attribute(LivingEntity entity, GolemStat stat);
 
   long nowMillis();
 }

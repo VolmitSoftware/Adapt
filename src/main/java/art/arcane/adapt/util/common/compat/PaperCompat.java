@@ -20,6 +20,7 @@ package art.arcane.adapt.util.common.compat;
 
 import art.arcane.adapt.util.common.scheduling.J;
 import com.destroystokyo.paper.entity.Pathfinder;
+import com.destroystokyo.paper.entity.RangedEntity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.util.TriState;
@@ -118,6 +119,7 @@ public final class PaperCompat {
   private static volatile boolean teleportAsyncCauseSupported = true;
   private static volatile boolean transientModifierSupported = true;
   private static volatile boolean damageCriticalSupported = true;
+  private static volatile boolean rangedAttackSupported = true;
   // EntityPotionEffectEvent.getSource() is 26.2+; resolved reflectively so the 26.1.2 compile baseline builds.
   private static final MethodHandle POTION_SOURCE_HANDLE = resolvePotionSourceHandle();
   private static volatile boolean trackedPlayersSupported = true;
@@ -172,6 +174,22 @@ public final class PaperCompat {
 
     // Persistent fallback; Adapt namespaces are swept on join/death/quit.
     instance.addModifier(modifier);
+  }
+
+  public static boolean rangedAttack(Mob shooter, LivingEntity target) {
+    if (!rangedAttackSupported) {
+      return false;
+    }
+    try {
+      if (shooter instanceof RangedEntity ranged) {
+        ranged.rangedAttack(target, 1F);
+        return true;
+      }
+      return false;
+    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
+      rangedAttackSupported = false;
+      return false;
+    }
   }
 
   public static List<LivingEntity> nearbyLivingEntities(Location center, double radius) {

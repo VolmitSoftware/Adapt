@@ -6,6 +6,7 @@ import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemMode;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -35,6 +36,18 @@ class GolemGuiActionsTest {
     assertThat(GolemGuiActions.cycleMode(GolemCoreType.BLANK, GolemMode.HOME, true)).isEqualTo(GolemMode.FOLLOW);
     assertThat(GolemGuiActions.cycleMode(GolemCoreType.BLANK, GolemMode.FOLLOW, false)).isEqualTo(GolemMode.HOME);
     assertThat(GolemGuiActions.cycleMode(GolemCoreType.BLANK, GolemMode.WORK, true)).isEqualTo(GolemMode.FOLLOW);
+  }
+
+  @Test
+  void onlyFrostGolemsOfferTheSnowTrailToggle() {
+    assertThat(GolemGuiActions.hasSnowTrail(GolemBody.FROST)).isTrue();
+    assertThat(GolemGuiActions.hasSnowTrail(GolemBody.COPPER)).isFalse();
+    assertThat(GolemGuiActions.hasSnowTrail(GolemBody.IRON)).isFalse();
+    assertThat(GolemGuiActions.hasSnowTrail(GolemBody.BONE)).isFalse();
+    assertThat(GolemGuiActions.snowTrailIcon(true)).isEqualTo(Material.SNOW_BLOCK);
+    assertThat(GolemGuiActions.snowTrailIcon(false)).isEqualTo(Material.SNOWBALL);
+    assertThat(GolemGuiActions.snowTrailName(true)).isEqualTo(GolemancyMessages.GUI_SNOW_TRAIL_ON);
+    assertThat(GolemGuiActions.snowTrailName(false)).isEqualTo(GolemancyMessages.GUI_SNOW_TRAIL_OFF);
   }
 
   @Test

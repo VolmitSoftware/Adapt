@@ -20,6 +20,7 @@ public final class GolemHandle {
   private volatile ChunkPosition position;
   private volatile boolean validated;
   private volatile boolean retired;
+  private volatile GolemStatPlan appliedStats;
 
   GolemHandle(Mob entity, GolemState state, GolemPlatform platform) {
     this.entity = Objects.requireNonNull(entity);
@@ -142,6 +143,11 @@ public final class GolemHandle {
     flush();
   }
 
+  public void setSnowTrail(boolean snowTrail) {
+    state.setSnowTrail(snowTrail);
+    flush();
+  }
+
   public void addKills(long kills) {
     state.stats().addKills(kills);
     markDebounced();
@@ -188,6 +194,18 @@ public final class GolemHandle {
     if (writePolicy.isDirty()) {
       flush();
     }
+  }
+
+  GolemPlatform platform() {
+    return platform;
+  }
+
+  GolemStatPlan appliedStats() {
+    return appliedStats;
+  }
+
+  void setAppliedStats(GolemStatPlan plan) {
+    appliedStats = plan;
   }
 
   void setValidated(boolean validated) {

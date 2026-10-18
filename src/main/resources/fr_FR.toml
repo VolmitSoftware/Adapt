@@ -4417,6 +4417,9 @@ items_moved = "Objets déplacés : {value}"
 release = "Libérer"
 release_lore = "Le rend à l'état de golem ordinaire et lâche son noyau, ses runes et les objets transportés"
 release_confirm = "Libérer ce golem ?"
+snow_trail_on = "Traînée de neige : activée"
+snow_trail_off = "Traînée de neige : désactivée"
+snow_trail_lore = "Cliquez pour activer ou désactiver la neige que laisse ce golem"
 
 [golemancy.roster]
 title = "Registre des golems"
@@ -4464,6 +4467,18 @@ lore3 = "Niveaux pour lier un golem de Givre"
 lore4 = "Niveaux pour lier un golem de Cuivre"
 lore5 = "Niveaux pour lier un golem de Fer"
 lore = ["Golems que tu peux posséder", "Secondes par rituel de lien", "Niveaux pour lier un golem de Givre", "Niveaux pour lier un golem de Cuivre", "Niveaux pour lier un golem de Fer"]
+
+[golemancy.frost_frame]
+name = "Armature de Givre"
+description = "Renforce tes golems de Givre liés avec de la santé supplémentaire, des boules de neige qui blessent et une protection contre la pluie et la chaleur."
+lore1 = "Santé supplémentaire des golems de Givre"
+lore2 = "Dégâts des boules de neige"
+lore3 = "Dégâts subis dans les biomes chauds"
+lore4 = "Insensible à la pluie et à l'eau"
+lore5 = "Secondes de lenteur par impact"
+lore6 = "Chance d'une boule de neige supplémentaire"
+lore7 = "Impacts de boule de neige pour geler une cible"
+lore = ["Santé supplémentaire des golems de Givre", "Dégâts des boules de neige", "Dégâts subis dans les biomes chauds", "Insensible à la pluie et à l'eau", "Secondes de lenteur par impact", "Chance d'une boule de neige supplémentaire", "Impacts de boule de neige pour geler une cible"]
 
 [herbalism.growth_aura]
 name = "Aura de Croissance"

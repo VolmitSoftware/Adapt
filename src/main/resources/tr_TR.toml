@@ -4421,6 +4421,9 @@ items_moved = "Taşınan eşya: {value}"
 release = "Serbest bırak"
 release_lore = "Onu sıradan bir golem yapar ve çekirdeğini, rünlerini ve taşıdığı eşyaları düşürür"
 release_confirm = "Bu golem serbest bırakılsın mı?"
+snow_trail_on = "Kar izi: açık"
+snow_trail_off = "Kar izi: kapalı"
+snow_trail_lore = "Bu golemin arkasında bıraktığı karı açıp kapatmak için tıklayın"
 
 [golemancy.roster]
 title = "Golem Listesi"
@@ -4468,6 +4471,18 @@ lore3 = "Ayaz golemi bağlamak için seviye"
 lore4 = "Bakır golemi bağlamak için seviye"
 lore5 = "Demir golemi bağlamak için seviye"
 lore = ["Sahip olabileceğin golemler", "Bağlama ritüeli başına saniye", "Ayaz golemi bağlamak için seviye", "Bakır golemi bağlamak için seviye", "Demir golemi bağlamak için seviye"]
+
+[golemancy.frost_frame]
+name = "Ayaz Çatısı"
+description = "Bağlı ayaz golemlerini ek can, hasar veren kar toplarıyla ve yağmura ve sıcağa karşı korumayla güçlendirir."
+lore1 = "Ayaz golemleri için ek can"
+lore2 = "Kar topu hasarı"
+lore3 = "Sıcak biyomlarda alınan hasar"
+lore4 = "Yağmura ve suya karşı bağışık"
+lore5 = "İsabet başına yavaşlık saniyesi"
+lore6 = "Ek kar topu şansı"
+lore7 = "Hedefi dondurmak için kar topu isabeti"
+lore = ["Ayaz golemleri için ek can", "Kar topu hasarı", "Sıcak biyomlarda alınan hasar", "Yağmura ve suya karşı bağışık", "İsabet başına yavaşlık saniyesi", "Ek kar topu şansı", "Hedefi dondurmak için kar topu isabeti"]
 
 [herbalism.growth_aura]
 name = "Buyume Aurasi"

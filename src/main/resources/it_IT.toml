@@ -4421,6 +4421,9 @@ items_moved = "Oggetti spostati: {value}"
 release = "Libera"
 release_lore = "Lo riporta a golem normale e lascia cadere nucleo, rune e oggetti trasportati"
 release_confirm = "Liberare questo golem?"
+snow_trail_on = "Scia di neve: attiva"
+snow_trail_off = "Scia di neve: disattiva"
+snow_trail_lore = "Clicca per attivare o disattivare la neve che lascia questo golem"
 
 [golemancy.roster]
 title = "Elenco dei golem"
@@ -4468,6 +4471,18 @@ lore3 = "Livelli per legare un golem di Brina"
 lore4 = "Livelli per legare un golem di Rame"
 lore5 = "Livelli per legare un golem di Ferro"
 lore = ["Golem che puoi possedere", "Secondi per rituale di legame", "Livelli per legare un golem di Brina", "Livelli per legare un golem di Rame", "Livelli per legare un golem di Ferro"]
+
+[golemancy.frost_frame]
+name = "Telaio di Brina"
+description = "Rafforza i tuoi golem di Brina legati con salute extra, palle di neve che feriscono e protezione da pioggia e calore."
+lore1 = "Salute extra per i golem di Brina"
+lore2 = "Danno delle palle di neve"
+lore3 = "Danno subito nei biomi caldi"
+lore4 = "Immune a pioggia e acqua"
+lore5 = "Secondi di lentezza per colpo"
+lore6 = "Probabilità di una palla di neve extra"
+lore7 = "Colpi di palla di neve per congelare un bersaglio"
+lore = ["Salute extra per i golem di Brina", "Danno delle palle di neve", "Danno subito nei biomi caldi", "Immune a pioggia e acqua", "Secondi di lentezza per colpo", "Probabilità di una palla di neve extra", "Colpi di palla di neve per congelare un bersaglio"]
 
 [herbalism.growth_aura]
 name = "Aura di Crescita"

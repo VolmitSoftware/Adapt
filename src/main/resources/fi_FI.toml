@@ -4421,6 +4421,9 @@ items_moved = "Siirrettyjä esineitä: {value}"
 release = "Vapauta"
 release_lore = "Palauttaa sen tavalliseksi golemiksi ja pudottaa sen ytimen, riimut ja kannetut esineet"
 release_confirm = "Vapautetaanko tämä golemi?"
+snow_trail_on = "Lumijälki: päällä"
+snow_trail_off = "Lumijälki: pois"
+snow_trail_lore = "Napsauta vaihtaaksesi lumen, jonka tämä golemi jättää jälkeensä"
 
 [golemancy.roster]
 title = "Golemiluettelo"
@@ -4468,6 +4471,18 @@ lore3 = "Tasoja huurregolemin sitomiseen"
 lore4 = "Tasoja kuparigolemin sitomiseen"
 lore5 = "Tasoja rautagolemin sitomiseen"
 lore = ["Golemit, jotka voit omistaa", "Sekuntia sidontariittiin", "Tasoja huurregolemin sitomiseen", "Tasoja kuparigolemin sitomiseen", "Tasoja rautagolemin sitomiseen"]
+
+[golemancy.frost_frame]
+name = "Huurrerunko"
+description = "Vahvistaa sidottuja huurregolemeitasi lisäterveydellä, vahingoittavilla lumipalloilla ja suojalla sateelta ja kuumuudelta."
+lore1 = "Lisäterveys huurregolemeille"
+lore2 = "Lumipallon vahinko"
+lore3 = "Vahinko lämpimissä biomeissa"
+lore4 = "Immuuni sateelle ja vedelle"
+lore5 = "Sekuntia hitautta osumasta"
+lore6 = "Mahdollisuus ylimääräiseen lumipalloon"
+lore7 = "Lumipallo-osumat kohteen jäädyttämiseen"
+lore = ["Lisäterveys huurregolemeille", "Lumipallon vahinko", "Vahinko lämpimissä biomeissa", "Immuuni sateelle ja vedelle", "Sekuntia hitautta osumasta", "Mahdollisuus ylimääräiseen lumipalloon", "Lumipallo-osumat kohteen jäädyttämiseen"]
 
 [herbalism.growth_aura]
 name = "Kasvuaura"

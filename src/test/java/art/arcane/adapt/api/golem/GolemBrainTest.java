@@ -64,6 +64,44 @@ class GolemBrainTest extends AdaptTestBase {
   }
 
   @Test
+  void pulsesRecomputeStatsAtMostOncePerSecondSoOwnerLevelChangesApply() {
+    platform.join(OWNER, new GolemRoster());
+    IronGolem golem = golem(IronGolem.class, at(0, 64, 0));
+    FakeAttribute armor = platform.stat(golem, GolemStat.ARMOR, 0D);
+    AtomicReference<Double> bonus = new AtomicReference<>(2D);
+    GolemStatSource frame = new GolemStatSource() {
+      @Override
+      public String id() {
+        return "iron_frame";
+      }
+
+      @Override
+      public List<GolemStatDelta> deltas(GolemHandle handle) {
+        return List.of(GolemStatDelta.add(GolemStat.ARMOR, bonus.get()));
+      }
+    };
+    GolemStats.register(frame);
+    try {
+      GolemBrain brain = brain(golem, GolemBody.IRON);
+      brain.start();
+
+      platform.runDelayed();
+      assertThat(armor.value()).isEqualTo(2D);
+
+      bonus.set(4D);
+      platform.now += 500L;
+      platform.runDelayed();
+      assertThat(armor.value()).isEqualTo(2D);
+
+      platform.now += 500L;
+      platform.runDelayed();
+      assertThat(armor.value()).isEqualTo(4D);
+    } finally {
+      GolemStats.unregister(frame);
+    }
+  }
+
+  @Test
   void startingARunningBrainKeepsASinglePulseChain() {
     GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
 

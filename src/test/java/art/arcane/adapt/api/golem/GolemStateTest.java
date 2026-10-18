@@ -77,6 +77,18 @@ class GolemStateTest {
   }
 
   @Test
+  void snowTrailDefaultsOffAndSurvivesTheJsonRoundTrip() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
+
+    assertThat(state.snowTrail()).isFalse();
+    assertThat(GolemState.fromJson("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"frost\"}").orElseThrow().snowTrail()).isFalse();
+
+    state.setSnowTrail(true);
+
+    assertThat(GolemState.fromJson(state.toJson()).orElseThrow().snowTrail()).isTrue();
+  }
+
+  @Test
   void enumsAreStoredByStableIds() {
     JsonObject json = new Gson().fromJson(populated().toJson(), JsonObject.class);
 

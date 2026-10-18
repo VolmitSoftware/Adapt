@@ -191,6 +191,13 @@ public final class GolemGui {
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_TASKS, trusted("value", view.tasks())))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_ITEMS_MOVED, trusted("value", view.itemsMoved())))
         .setProgress(1D));
+    if (GolemGuiActions.hasSnowTrail(view.body())) {
+      target.setElement(0, FOOTER_ROW, GuiTheme.element("golem-snow-trail", GolemGuiActions.snowTrailIcon(view.snowTrail()), "gui", "golemancy", "snow_trail")
+          .setName(C.AQUA + AdaptLanguage.text(GolemGuiActions.snowTrailName(view.snowTrail())))
+          .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_SNOW_TRAIL_LORE))
+          .setProgress(1D)
+          .onLeftClick(clicked -> toggleSnowTrail()));
+    }
     target.setElement(RIGHT_EDGE, FOOTER_ROW, GuiTheme.element("golem-release", Material.SHEARS, "gui", "golemancy", "release")
         .setName(C.RED + AdaptLanguage.text(GolemancyMessages.GUI_RELEASE))
         .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RELEASE_LORE))
@@ -204,6 +211,10 @@ public final class GolemGui {
 
   private void cycleChannel(boolean forward) {
     mutate(() -> handle.setChannels(GolemGuiActions.cycleChannel(handle.state().channels(), forward)));
+  }
+
+  private void toggleSnowTrail() {
+    mutate(() -> handle.setSnowTrail(!handle.state().snowTrail()));
   }
 
   private void setHome() {
@@ -302,14 +313,14 @@ public final class GolemGui {
 
   private record View(GolemBody body, double health, double maxHealth, boolean dormant, List<GolemCoreType> cores,
                       List<GolemRune> runes, GolemMode mode, int channels, GolemState.Anchor home, GolemState.Anchor homeChest,
-                      List<Carried> carried, int carriedTotal, long kills, double damage, long tasks, long itemsMoved) {
+                      List<Carried> carried, int carriedTotal, long kills, double damage, long tasks, long itemsMoved, boolean snowTrail) {
     private static View of(GolemHandle handle) {
       GolemState state = handle.state();
       Mob golem = handle.entity();
       GolemState.Stats stats = state.stats();
       return new View(state.body(), golem.getHealth(), GolemVitals.maxHealth(golem), handle.isDormant(), state.cores(),
           state.runes(), state.mode(), state.channels(), state.home(), state.homeChest(), carried(handle), state.carried().size(),
-          stats.kills(), stats.damage(), stats.tasks(), stats.itemsMoved());
+          stats.kills(), stats.damage(), stats.tasks(), stats.itemsMoved(), state.snowTrail());
     }
 
     private static List<Carried> carried(GolemHandle handle) {

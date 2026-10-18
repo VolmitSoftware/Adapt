@@ -40,4 +40,20 @@ export const golemancyBehaviorCases = new Map([
             }
         },
     }],
+    ['golem-frost-frame', {
+        stage: 'golemancy-binding', trigger: bind, prerequisites: [{ name: 'golem-animus-binding', level: 5 }],
+        prepare: ({ equip }) => equip('firework_star'),
+        description: 'binding a snow golem with Frost Frame learned raises its maximum health and heals it by the bonus',
+        async verify({ context, unlearned, active }) {
+            context.expect(unlearned.bound && unlearned.boundToPlayer, 'The snow golem binds while Frost Frame is unlearned')
+            context.expect(Math.abs(unlearned.maxHealth - 4) < 0.0001, 'Without Frost Frame the bound snow golem keeps its 4 maximum health')
+            context.expect(active.bound && active.boundToPlayer, 'The snow golem binds while Frost Frame is learned')
+            context.expect(Math.abs(active.maxHealth - 24) < 0.0001, 'Frost Frame level 5 adds 20 maximum health to the bound snow golem')
+            context.expect(Math.abs(active.health - 24) < 0.0001, 'The health bonus also heals the golem by 20')
+            return {
+                assertions: ['unlearned binding leaves the snow golem at 4 maximum health', 'learned binding raises the snow golem to 24 maximum health and heals it to full'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
 ])

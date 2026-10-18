@@ -4421,6 +4421,9 @@ items_moved = "Vật phẩm đã chuyển: {value}"
 release = "Giải phóng"
 release_lore = "Biến nó trở lại golem thường và thả lõi, Cổ Tự cùng vật phẩm đang mang"
 release_confirm = "Giải phóng golem này?"
+snow_trail_on = "Vệt tuyết: Bật"
+snow_trail_off = "Vệt tuyết: Tắt"
+snow_trail_lore = "Nhấp để bật hoặc tắt tuyết mà golem này để lại"
 
 [golemancy.roster]
 title = "Danh sách golem"
@@ -4468,6 +4471,18 @@ lore3 = "Cấp độ để liên kết golem Băng Giá"
 lore4 = "Cấp độ để liên kết golem Đồng"
 lore5 = "Cấp độ để liên kết golem Sắt"
 lore = ["Số golem bạn có thể sở hữu", "Số giây mỗi nghi thức liên kết", "Cấp độ để liên kết golem Băng Giá", "Cấp độ để liên kết golem Đồng", "Cấp độ để liên kết golem Sắt"]
+
+[golemancy.frost_frame]
+name = "Khung Băng Giá"
+description = "Củng cố các golem Băng Giá đã liên kết của bạn với máu bổ sung, cầu tuyết gây sát thương và khả năng chống mưa và nóng."
+lore1 = "Máu bổ sung cho golem Băng Giá"
+lore2 = "Sát thương cầu tuyết"
+lore3 = "Sát thương nhận ở quần xã ấm"
+lore4 = "Miễn nhiễm mưa và nước"
+lore5 = "Số giây làm chậm khi trúng"
+lore6 = "Cơ hội ném thêm cầu tuyết"
+lore7 = "Số lần trúng cầu tuyết để đóng băng mục tiêu"
+lore = ["Máu bổ sung cho golem Băng Giá", "Sát thương cầu tuyết", "Sát thương nhận ở quần xã ấm", "Miễn nhiễm mưa và nước", "Số giây làm chậm khi trúng", "Cơ hội ném thêm cầu tuyết", "Số lần trúng cầu tuyết để đóng băng mục tiêu"]
 
 [herbalism.growth_aura]
 name = "Hào Quang Tăng Trưởng"

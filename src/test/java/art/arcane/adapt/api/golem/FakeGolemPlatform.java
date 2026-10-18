@@ -33,6 +33,7 @@ final class FakeGolemPlatform implements GolemPlatform {
   final Map<UUID, List<AttributeModifier>> scaleModifiers = new HashMap<>();
   final Map<String, List<Mob>> chunkMobs = new HashMap<>();
   final List<String> sweeps = new ArrayList<>();
+  final Map<String, FakeAttribute> stats = new HashMap<>();
   boolean ownsEntities = true;
   long now = 1_000_000L;
 
@@ -46,6 +47,14 @@ final class FakeGolemPlatform implements GolemPlatform {
   void quit(UUID owner) {
     online.remove(owner);
     rosters.remove(owner);
+  }
+
+  FakeAttribute stat(Entity entity, GolemStat stat, double base) {
+    return stats.computeIfAbsent(entity.getUniqueId() + ":" + stat.id(), ignored -> new FakeAttribute(base));
+  }
+
+  FakeAttribute stat(Entity entity, GolemStat stat) {
+    return stats.get(entity.getUniqueId() + ":" + stat.id());
   }
 
   List<AttributeModifier> scale(Entity entity) {
@@ -99,6 +108,11 @@ final class FakeGolemPlatform implements GolemPlatform {
   @Override
   public Optional<GolemRoster> roster(UUID owner) {
     return online.contains(owner) ? Optional.ofNullable(rosters.get(owner)) : Optional.empty();
+  }
+
+  @Override
+  public boolean ownerReady(UUID owner) {
+    return online.contains(owner) && rosters.containsKey(owner);
   }
 
   @Override
@@ -158,6 +172,12 @@ final class FakeGolemPlatform implements GolemPlatform {
     doAnswer(invocation -> modifiers.add(invocation.getArgument(0))).when(instance).addModifier(any(AttributeModifier.class));
     doAnswer(invocation -> modifiers.remove(invocation.<AttributeModifier>getArgument(0))).when(instance).removeModifier(any(AttributeModifier.class));
     return instance;
+  }
+
+  @Override
+  public AttributeInstance attribute(LivingEntity entity, GolemStat stat) {
+    FakeAttribute attribute = stat(entity, stat);
+    return attribute == null ? null : attribute.instance;
   }
 
   @Override

@@ -6,14 +6,17 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
+import org.bukkit.entity.Snowman;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -21,9 +24,11 @@ final class GolemGuardListener implements Listener {
   private static final String COPPER_STATUE_SUFFIX = "COPPER_GOLEM_STATUE";
 
   private final Function<UUID, Player> players;
+  private final Function<Entity, Optional<GolemHandle>> handles;
 
-  GolemGuardListener(Function<UUID, Player> players) {
+  GolemGuardListener(Function<UUID, Player> players, Function<Entity, Optional<GolemHandle>> handles) {
     this.players = Objects.requireNonNull(players);
+    this.handles = Objects.requireNonNull(handles);
   }
 
   @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -53,6 +58,17 @@ final class GolemGuardListener implements Listener {
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(EntityChangeBlockEvent e) {
     if (isCopperStatue(e.getTo()) && GolemBody.of(e.getEntity()).orElse(null) == GolemBody.COPPER && GolemState.has(e.getEntity())) {
+      e.setCancelled(true);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  public void on(EntityBlockFormEvent e) {
+    Entity golem = e.getEntity();
+    if (!(golem instanceof Snowman) || !GolemState.has(golem)) {
+      return;
+    }
+    if (!handles.apply(golem).map(handle -> handle.state().snowTrail()).orElse(false)) {
       e.setCancelled(true);
     }
   }

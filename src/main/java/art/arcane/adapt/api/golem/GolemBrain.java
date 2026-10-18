@@ -18,6 +18,7 @@ import java.util.function.Supplier;
 public final class GolemBrain {
   private static final double MOVE_SPEED = 1D;
   private static final long TARGET_SCAN_MILLIS = 500L;
+  private static final long STATS_REFRESH_MILLIS = 1_000L;
 
   private final GolemHandle handle;
   private final GolemController controller;
@@ -34,6 +35,7 @@ public final class GolemBrain {
   private LivingEntity combatTarget;
   private LivingEntity appliedTarget;
   private long nextScanAt;
+  private long nextStatsAt;
 
   GolemBrain(GolemHandle handle, GolemController controller, Context context) {
     this.handle = Objects.requireNonNull(handle);
@@ -159,6 +161,15 @@ public final class GolemBrain {
     }
     move(decision.movement(), ownerAt, home);
     controller.tick();
+    refreshStats(now);
+  }
+
+  private void refreshStats(long now) {
+    if (now < nextStatsAt) {
+      return;
+    }
+    nextStatsAt = now + STATS_REFRESH_MILLIS;
+    GolemStats.recompute(handle);
   }
 
   private LivingEntity combat(Player owner, long now) {

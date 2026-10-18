@@ -9,6 +9,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.Entity;
@@ -201,6 +202,74 @@ class GolemRegistryTest extends AdaptTestBase {
     verify(golem).customName(isNull());
     assertThat(platform.scale(golem)).isEmpty();
     assertThat(handle.isRetired()).isTrue();
+  }
+
+  @Test
+  void bindingAppliesTheStatSourcesAndReleaseRemovesTheirModifiers() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    FakeAttribute armor = platform.stat(golem, GolemStat.ARMOR, 0D);
+    AttributeModifier foreign = new AttributeModifier(new NamespacedKey("other", "plating"), 1D, AttributeModifier.Operation.ADD_NUMBER);
+    armor.modifiers.add(foreign);
+    GolemStatSource frame = statSource("iron_frame", new AtomicReference<>(4D));
+    GolemStats.register(frame);
+    try {
+      GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+
+      assertThat(armor.value()).isEqualTo(5D);
+
+      assertThat(registry.release(handle)).isTrue();
+
+      assertThat(armor.modifiers).containsExactly(foreign);
+      assertThat(platform.scale(golem)).isEmpty();
+    } finally {
+      GolemStats.unregister(frame);
+    }
+  }
+
+  @Test
+  void statsAreRecomputedWhenAGolemWakesButNotWhileItSleeps() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    FakeAttribute armor = platform.stat(golem, GolemStat.ARMOR, 0D);
+    AtomicReference<Double> level = new AtomicReference<>(2D);
+    GolemStatSource frame = statSource("iron_frame", level);
+    GolemStats.register(frame);
+    try {
+      registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+      registry.on(new PlayerQuitEvent(owner, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
+      platform.quit(OWNER);
+      level.set(6D);
+
+      assertThat(armor.value()).isEqualTo(2D);
+
+      platform.join(OWNER, roster);
+      registry.on(new PlayerJoinEvent(owner, (Component) null));
+
+      assertThat(armor.value()).isEqualTo(6D);
+    } finally {
+      GolemStats.unregister(frame);
+    }
+  }
+
+  @Test
+  void anAdoptedGolemKeepsItsPersistedStatsAndPicksUpChanges() {
+    GolemRoster roster = onlineOwner();
+    UUID id = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    IronGolem golem = persistedGolem(id, true, at(0, 64, 0));
+    FakeAttribute armor = platform.stat(golem, GolemStat.ARMOR, 0D);
+    AttributeModifier persisted = new AttributeModifier(GolemStats.key("iron_frame", GolemStat.ARMOR), 2D, AttributeModifier.Operation.ADD_NUMBER);
+    armor.modifiers.add(persisted);
+    GolemStatSource frame = statSource("iron_frame", new AtomicReference<>(2D));
+    GolemStats.register(frame);
+    try {
+      registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
+
+      assertThat(armor.modifiers).containsExactly(persisted);
+    } finally {
+      GolemStats.unregister(frame);
+    }
   }
 
   @Test
@@ -432,11 +501,13 @@ class GolemRegistryTest extends AdaptTestBase {
     handle.setCores(List.of(GolemCoreType.GUARDIAN, GolemCoreType.LUMBER));
     handle.setMode(GolemMode.STAY);
     handle.setChannels(ChannelMask.NONE | 0x0004);
+    handle.setSnowTrail(true);
 
     GolemState stored = GolemState.read(golem).orElseThrow();
     assertThat(stored.cores()).containsExactly(GolemCoreType.GUARDIAN, GolemCoreType.LUMBER);
     assertThat(stored.mode()).isEqualTo(GolemMode.STAY);
     assertThat(stored.channels()).isEqualTo(0x0004);
+    assertThat(stored.snowTrail()).isTrue();
     assertThat(platform.delayed).isEmpty();
   }
 
@@ -1027,6 +1098,20 @@ class GolemRegistryTest extends AdaptTestBase {
       }
     }
     throw new AssertionError("no companion " + type.getSimpleName());
+  }
+
+  private static GolemStatSource statSource(String id, AtomicReference<Double> armor) {
+    return new GolemStatSource() {
+      @Override
+      public String id() {
+        return id;
+      }
+
+      @Override
+      public List<GolemStatDelta> deltas(GolemHandle handle) {
+        return List.of(GolemStatDelta.add(GolemStat.ARMOR, armor.get()));
+      }
+    };
   }
 
   private GolemRoster onlineOwner() {

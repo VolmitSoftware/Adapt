@@ -4421,6 +4421,9 @@ items_moved = "Verplaatste voorwerpen: {value}"
 release = "Vrijlaten"
 release_lore = "Maakt er weer een gewone golem van en laat de kern, runen en gedragen voorwerpen vallen"
 release_confirm = "Deze golem vrijlaten?"
+snow_trail_on = "Sneeuwspoor: aan"
+snow_trail_off = "Sneeuwspoor: uit"
+snow_trail_lore = "Klik om de sneeuw die deze golem achterlaat aan of uit te zetten"
 
 [golemancy.roster]
 title = "Golemlijst"
@@ -4468,6 +4471,18 @@ lore3 = "Levels om een vorstgolem te binden"
 lore4 = "Levels om een kopergolem te binden"
 lore5 = "Levels om een ijzergolem te binden"
 lore = ["Golems die je kunt bezitten", "Seconden per bindingsritueel", "Levels om een vorstgolem te binden", "Levels om een kopergolem te binden", "Levels om een ijzergolem te binden"]
+
+[golemancy.frost_frame]
+name = "Vorstframe"
+description = "Versterkt je gebonden vorstgolems met extra gezondheid, sneeuwballen die schade doen en bescherming tegen regen en hitte."
+lore1 = "Extra gezondheid voor vorstgolems"
+lore2 = "Sneeuwbalschade"
+lore3 = "Schade in warme biomen"
+lore4 = "Immuun voor regen en water"
+lore5 = "Seconden traagheid per treffer"
+lore6 = "Kans op een extra sneeuwbal"
+lore7 = "Sneeuwbaltreffers om een doelwit te bevriezen"
+lore = ["Extra gezondheid voor vorstgolems", "Sneeuwbalschade", "Schade in warme biomen", "Immuun voor regen en water", "Seconden traagheid per treffer", "Kans op een extra sneeuwbal", "Sneeuwbaltreffers om een doelwit te bevriezen"]
 
 [herbalism.growth_aura]
 name = "Groeiaura"

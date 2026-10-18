@@ -7,9 +7,12 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.TextDisplay;
+import org.bukkit.entity.Zombie;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
@@ -25,6 +28,19 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class PaperCompatTest {
+  @Test
+  void rangedAttackFiresARangedMobsOwnAttackAndSkipsOtherMobs() {
+    Snowman golem = mock(Snowman.class);
+    IronGolem iron = mock(IronGolem.class);
+    Zombie target = mock(Zombie.class);
+
+    assertThat(PaperCompat.rangedAttack(golem, target)).isTrue();
+    assertThat(PaperCompat.rangedAttack(iron, target)).isFalse();
+
+    verify(golem).rangedAttack(target, 1F);
+    verifyNoInteractions(iron);
+  }
+
   @Test
   void hasChangedBlockIsFalseForFractionalMoveWithinSameBlock() {
     Location from = new Location(null, 10.2D, 64.0D, -3.9D);

@@ -51,6 +51,9 @@ public final class GolemancyFixtures {
         result.addProperty("aware", golem.isAware());
         AttributeInstance scale = golem.getAttribute(Attribute.SCALE);
         result.addProperty("scale", scale == null ? 1D : scale.getValue());
+        AttributeInstance maxHealth = golem.getAttribute(Attribute.MAX_HEALTH);
+        result.addProperty("maxHealth", maxHealth == null ? 0D : maxHealth.getValue());
+        result.addProperty("health", golem.getHealth());
         return result;
     }
 }

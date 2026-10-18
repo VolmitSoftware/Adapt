@@ -3363,6 +3363,26 @@
       "feedbackPresets": []
     },
     {
+      "skill": "golemancy",
+      "name": "golem-frost-frame",
+      "class": "GolemFrostFrame",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemFrostFrame.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageByEntityEvent",
+        "EntityDamageEvent",
+        "ProjectileLaunchEvent",
+        "tick"
+      ],
+      "expectation": "Strengthens your bound frost golems with extra health, damaging snowballs and protection from rain and heat.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemFrostFrame.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
       "skill": "herbalism",
       "name": "herbalism-bee-shepherd",
       "class": "HerbalismBeeShepherd",

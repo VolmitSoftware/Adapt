@@ -39,6 +39,7 @@ import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationGraveDigger;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnimusBinding;
+import art.arcane.adapt.content.adaptation.golemancy.GolemFrostFrame;
 import art.arcane.adapt.content.skill.golemancy.CopperCare;
 import art.arcane.adapt.content.skill.golemancy.GolemBuildAttribution;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
@@ -113,6 +114,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     setInterval(3620);
     setIcon(Material.CARVED_PUMPKIN);
     registerAdaptation(new GolemAnimusBinding());
+    registerAdaptation(new GolemFrostFrame());
     registerAdvancement(AdaptAdvancement.builder()
         .icon(Material.CARVED_PUMPKIN)
         .key("challenge_golemancy_built_10")

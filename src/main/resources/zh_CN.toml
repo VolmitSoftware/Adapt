@@ -4421,6 +4421,9 @@ items_moved = "搬运物品：{value}"
 release = "释放"
 release_lore = "使其变回普通魔像，并掉落其核心、符文和携带的物品"
 release_confirm = "释放这个魔像？"
+snow_trail_on = "雪迹：开"
+snow_trail_off = "雪迹：关"
+snow_trail_lore = "点击切换这个魔像留下的积雪"
 
 [golemancy.roster]
 title = "魔像名册"
@@ -4468,6 +4471,18 @@ lore3 = "缚约霜魔像所需等级"
 lore4 = "缚约铜魔像所需等级"
 lore5 = "缚约铁魔像所需等级"
 lore = ["可拥有的魔像数量", "每次缚约仪式的秒数", "缚约霜魔像所需等级", "缚约铜魔像所需等级", "缚约铁魔像所需等级"]
+
+[golemancy.frost_frame]
+name = "霜之骨架"
+description = "为你缚约的霜魔像提供额外生命值、带伤害的雪球以及对雨水和炎热的防护。"
+lore1 = "霜魔像额外生命值"
+lore2 = "雪球伤害"
+lore3 = "温暖生物群系中受到的伤害"
+lore4 = "免疫雨水和水"
+lore5 = "命中时缓慢的秒数"
+lore6 = "额外投掷雪球的几率"
+lore7 = "冻结目标所需的雪球命中数"
+lore = ["霜魔像额外生命值", "雪球伤害", "温暖生物群系中受到的伤害", "免疫雨水和水", "命中时缓慢的秒数", "额外投掷雪球的几率", "冻结目标所需的雪球命中数"]
 
 [herbalism.growth_aura]
 name = "生长光环"

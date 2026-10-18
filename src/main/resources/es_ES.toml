@@ -4421,6 +4421,9 @@ items_moved = "Objetos movidos: {value}"
 release = "Liberar"
 release_lore = "Lo devuelve a gólem normal y suelta su núcleo, sus runas y los objetos que lleva"
 release_confirm = "¿Liberar este gólem?"
+snow_trail_on = "Rastro de nieve: Sí"
+snow_trail_off = "Rastro de nieve: No"
+snow_trail_lore = "Haz clic para alternar la nieve que deja este gólem"
 
 [golemancy.roster]
 title = "Lista de gólems"
@@ -4468,6 +4471,18 @@ lore3 = "Niveles para vincular un gólem de Escarcha"
 lore4 = "Niveles para vincular un gólem de Cobre"
 lore5 = "Niveles para vincular un gólem de Hierro"
 lore = ["Gólems que puedes tener", "Segundos por ritual de vínculo", "Niveles para vincular un gólem de Escarcha", "Niveles para vincular un gólem de Cobre", "Niveles para vincular un gólem de Hierro"]
+
+[golemancy.frost_frame]
+name = "Armazón de Escarcha"
+description = "Fortalece a tus gólems de Escarcha vinculados con salud extra, bolas de nieve que hacen daño y protección contra la lluvia y el calor."
+lore1 = "Salud extra para gólems de Escarcha"
+lore2 = "Daño de bolas de nieve"
+lore3 = "Daño recibido en biomas cálidos"
+lore4 = "Inmune a la lluvia y al agua"
+lore5 = "Segundos de lentitud por impacto"
+lore6 = "Probabilidad de una bola de nieve extra"
+lore7 = "Impactos de bola de nieve para congelar un objetivo"
+lore = ["Salud extra para gólems de Escarcha", "Daño de bolas de nieve", "Daño recibido en biomas cálidos", "Inmune a la lluvia y al agua", "Segundos de lentitud por impacto", "Probabilidad de una bola de nieve extra", "Impactos de bola de nieve para congelar un objetivo"]
 
 [herbalism.growth_aura]
 name = "Aura de Crecimiento"

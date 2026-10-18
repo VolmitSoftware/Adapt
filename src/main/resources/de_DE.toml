@@ -4421,6 +4421,9 @@ items_moved = "Bewegte Gegenstände: {value}"
 release = "Freilassen"
 release_lore = "Macht ihn wieder zu einem gewöhnlichen Golem und lässt Kern, Runen und getragene Gegenstände fallen"
 release_confirm = "Diesen Golem freilassen?"
+snow_trail_on = "Schneespur: An"
+snow_trail_off = "Schneespur: Aus"
+snow_trail_lore = "Klicken, um den Schnee umzuschalten, den dieser Golem hinterlässt"
 
 [golemancy.roster]
 title = "Golem-Liste"
@@ -4468,6 +4471,18 @@ lore3 = "Stufen für einen Frostgolem"
 lore4 = "Stufen für einen Kupfergolem"
 lore5 = "Stufen für einen Eisengolem"
 lore = ["Golems, die du besitzen kannst", "Sekunden pro Bindungsritual", "Stufen für einen Frostgolem", "Stufen für einen Kupfergolem", "Stufen für einen Eisengolem"]
+
+[golemancy.frost_frame]
+name = "Frostrahmen"
+description = "Stärkt deine gebundenen Frostgolems mit zusätzlicher Gesundheit, schadenden Schneebällen und Schutz vor Regen und Hitze."
+lore1 = "Zusätzliche Gesundheit für Frostgolems"
+lore2 = "Schneeballschaden"
+lore3 = "Erlittener Schaden in warmen Biomen"
+lore4 = "Immun gegen Regen und Wasser"
+lore5 = "Sekunden Langsamkeit pro Treffer"
+lore6 = "Chance auf einen zusätzlichen Schneeball"
+lore7 = "Schneeballtreffer, um ein Ziel einzufrieren"
+lore = ["Zusätzliche Gesundheit für Frostgolems", "Schneeballschaden", "Erlittener Schaden in warmen Biomen", "Immun gegen Regen und Wasser", "Sekunden Langsamkeit pro Treffer", "Chance auf einen zusätzlichen Schneeball", "Schneeballtreffer, um ein Ziel einzufrieren"]
 
 [herbalism.growth_aura]
 name = "Wachstumsaura"
