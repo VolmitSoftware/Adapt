@@ -16,13 +16,14 @@ import org.mockito.MockedStatic;
 
 import java.util.HashMap;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -53,55 +54,134 @@ class GolemGuiItemsTest {
   }
 
   @Test
-  void aSlotTaskRunsOnTheGolemsScheduler() {
+  void aSlotTaskRunsOnceOnTheGolemsScheduler() {
     Runnable slot = mock(Runnable.class);
 
-    assertThat(GolemGuiItems.toGolem(golem, player, rune, slot)).isTrue();
+    GolemGuiItems.toGolem(golem, player, rune, slot);
+    ArgumentCaptor<Runnable> primary = ArgumentCaptor.forClass(Runnable.class);
+    ArgumentCaptor<Runnable> retired = ArgumentCaptor.forClass(Runnable.class);
+    scheduling.verify(() -> J.runEntity(eq(golem), primary.capture(), retired.capture()));
+    primary.getValue().run();
+    retired.getValue().run();
 
-    scheduling.verify(() -> J.runEntity(eq(golem), eq(slot), any(Runnable.class)));
+    verify(slot, times(1)).run();
+    verify(inventory, never()).addItem(any(ItemStack.class));
+    scheduling.verify(() -> J.runEntity(eq(player), any(Runnable.class), any(Runnable.class)), never());
   }
 
   @Test
-  void aRetiredGolemReturnsTheRuneToThePlayer() {
+  void aGolemThatRetiresLaterReturnsTheRuneToThePlayerOnce() {
+    Runnable slot = mock(Runnable.class);
+
+    GolemGuiItems.toGolem(golem, player, rune, slot);
+    ArgumentCaptor<Runnable> primary = ArgumentCaptor.forClass(Runnable.class);
+    ArgumentCaptor<Runnable> retired = ArgumentCaptor.forClass(Runnable.class);
+    scheduling.verify(() -> J.runEntity(eq(golem), primary.capture(), retired.capture()));
+    retired.getValue().run();
+    primary.getValue().run();
+    retired.getValue().run();
+    runPlayerGives();
+
+    verify(slot, never()).run();
+    verify(inventory, times(1)).addItem(rune);
+    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+  }
+
+  @Test
+  void anAlreadyRetiredGolemReturnsTheRuneOnceWhenSchedulingAlsoFails() {
+    scheduling.when(() -> J.runEntity(eq(golem), any(Runnable.class), any(Runnable.class))).thenAnswer(invocation -> {
+      invocation.<Runnable>getArgument(2).run();
+      return false;
+    });
+
     GolemGuiItems.toGolem(golem, player, rune, mock(Runnable.class));
-    ArgumentCaptor<Runnable> retired = ArgumentCaptor.forClass(Runnable.class);
-    scheduling.verify(() -> J.runEntity(eq(golem), any(Runnable.class), retired.capture()));
+    runPlayerGives();
 
-    retired.getValue().run();
-    ArgumentCaptor<Runnable> give = ArgumentCaptor.forClass(Runnable.class);
-    scheduling.verify(() -> J.runEntity(eq(player), give.capture(), any(Runnable.class)));
-    give.getValue().run();
-
-    verify(inventory).addItem(rune);
-    verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
+    verify(inventory, times(1)).addItem(rune);
   }
 
   @Test
-  void aRetiredPlayerGetsTheRuneDroppedAtTheGolemThroughARegionTask() {
+  void aGolemRefusedWithoutRetiringReturnsTheRuneInlineOnce() {
+    scheduling.when(() -> J.runEntity(eq(golem), any(Runnable.class), any(Runnable.class))).thenReturn(false);
+    Runnable slot = mock(Runnable.class);
+
+    GolemGuiItems.toGolem(golem, player, rune, slot);
+
+    verify(slot, never()).run();
+    verify(inventory, times(1)).addItem(rune);
+    scheduling.verify(() -> J.runEntity(eq(player), any(Runnable.class), any(Runnable.class)), never());
+  }
+
+  @Test
+  void aPlayerThatRetiresLaterGetsOneDropAtTheGolemThroughARegionTask() {
     GolemGuiItems.toPlayer(player, rune, golemSpot);
+    ArgumentCaptor<Runnable> primary = ArgumentCaptor.forClass(Runnable.class);
     ArgumentCaptor<Runnable> retired = ArgumentCaptor.forClass(Runnable.class);
-    scheduling.verify(() -> J.runEntity(eq(player), any(Runnable.class), retired.capture()));
+    scheduling.verify(() -> J.runEntity(eq(player), primary.capture(), retired.capture()));
 
     retired.getValue().run();
-    ArgumentCaptor<Runnable> drop = ArgumentCaptor.forClass(Runnable.class);
-    scheduling.verify(() -> J.runAt(eq(golemSpot), drop.capture()));
+    primary.getValue().run();
+    retired.getValue().run();
     verify(world, never()).dropItemNaturally(any(Location.class), any(ItemStack.class));
-    drop.getValue().run();
+    runRegionDrops();
 
-    verify(world).dropItemNaturally(golemSpot, rune);
+    verify(world, times(1)).dropItemNaturally(golemSpot, rune);
     verify(inventory, never()).addItem(any(ItemStack.class));
   }
 
   @Test
-  void aPlayerThatCannotBeScheduledGetsTheRuneDroppedAtTheFallback() {
+  void anAlreadyRetiredPlayerGetsExactlyOneDropWhenSchedulingAlsoFails() {
+    scheduling.when(() -> J.runEntity(eq(player), any(Runnable.class), any(Runnable.class))).thenAnswer(invocation -> {
+      invocation.<Runnable>getArgument(2).run();
+      return false;
+    });
+
+    GolemGuiItems.toPlayer(player, rune, golemSpot);
+    runRegionDrops();
+
+    scheduling.verify(() -> J.runAt(eq(golemSpot), any(Runnable.class)), times(1));
+    verify(world, times(1)).dropItemNaturally(golemSpot, rune);
+    verify(inventory, never()).addItem(any(ItemStack.class));
+  }
+
+  @Test
+  void aPlayerRefusedWithoutRetiringGetsOneDropAtTheFallback() {
     scheduling.when(() -> J.runEntity(eq(player), any(Runnable.class), any(Runnable.class))).thenReturn(false);
 
     GolemGuiItems.toPlayer(player, rune, golemSpot);
-    ArgumentCaptor<Runnable> drop = ArgumentCaptor.forClass(Runnable.class);
-    scheduling.verify(() -> J.runAt(eq(golemSpot), drop.capture()));
-    drop.getValue().run();
+    runRegionDrops();
 
-    verify(world).dropItemNaturally(golemSpot, rune);
+    scheduling.verify(() -> J.runAt(eq(golemSpot), any(Runnable.class)), times(1));
+    verify(world, times(1)).dropItemNaturally(golemSpot, rune);
+  }
+
+  @Test
+  void aTakeRunsOnceOnTheGolemsSchedulerWithoutWarning() {
+    Runnable take = mock(Runnable.class);
+
+    GolemGuiItems.fromGolem(golem, player, take);
+    ArgumentCaptor<Runnable> primary = ArgumentCaptor.forClass(Runnable.class);
+    ArgumentCaptor<Runnable> retired = ArgumentCaptor.forClass(Runnable.class);
+    scheduling.verify(() -> J.runEntity(eq(golem), primary.capture(), retired.capture()));
+    primary.getValue().run();
+    retired.getValue().run();
+
+    verify(take, times(1)).run();
+    scheduling.verify(() -> J.runEntity(eq(player), any(Runnable.class)), never());
+  }
+
+  @Test
+  void anAlreadyRetiredGolemTakesNothingAndWarnsOnce() {
+    scheduling.when(() -> J.runEntity(eq(golem), any(Runnable.class), any(Runnable.class))).thenAnswer(invocation -> {
+      invocation.<Runnable>getArgument(2).run();
+      return false;
+    });
+    Runnable take = mock(Runnable.class);
+
+    GolemGuiItems.fromGolem(golem, player, take);
+
+    verify(take, never()).run();
+    scheduling.verify(() -> J.runEntity(eq(player), any(Runnable.class)), times(1));
   }
 
   @Test
@@ -114,5 +194,21 @@ class GolemGuiItemsTest {
     GolemGuiItems.give(player, rune);
 
     verify(world).dropItemNaturally(playerSpot, leftover);
+  }
+
+  private void runPlayerGives() {
+    ArgumentCaptor<Runnable> gives = ArgumentCaptor.forClass(Runnable.class);
+    scheduling.verify(() -> J.runEntity(eq(player), gives.capture(), any(Runnable.class)), atLeast(0));
+    for (Runnable give : gives.getAllValues()) {
+      give.run();
+    }
+  }
+
+  private void runRegionDrops() {
+    ArgumentCaptor<Runnable> drops = ArgumentCaptor.forClass(Runnable.class);
+    scheduling.verify(() -> J.runAt(any(Location.class), drops.capture()), atLeast(0));
+    for (Runnable drop : drops.getAllValues()) {
+      drop.run();
+    }
   }
 }

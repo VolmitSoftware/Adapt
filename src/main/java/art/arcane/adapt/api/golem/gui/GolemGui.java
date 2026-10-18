@@ -341,10 +341,7 @@ public final class GolemGui {
     taken.setAmount(1);
     cursor.setAmount(cursor.getAmount() - 1);
     player.setItemOnCursor(cursor.getAmount() > 0 ? cursor : null);
-    if (!GolemGuiItems.toGolem(handle.entity(), player, taken, () -> slot(rune, taken))) {
-      GolemGuiItems.give(player, taken);
-      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
-    }
+    GolemGuiItems.toGolem(handle.entity(), player, taken, () -> slot(rune, taken));
   }
 
   private void slot(GolemRune rune, ItemStack taken) {
@@ -372,7 +369,7 @@ public final class GolemGui {
 
   private void takeRune(int index, GolemRune rune) {
     Mob golem = handle.entity();
-    boolean scheduled = J.runEntity(golem, () -> {
+    GolemGuiItems.fromGolem(golem, player, () -> {
       if (handle.isRetired() || !golem.isValid()) {
         GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
         return;
@@ -389,9 +386,6 @@ public final class GolemGui {
       GolemGuiSupport.notify(player, GolemancyMessages.MESSAGE_RUNE_REMOVED, trusted("aspect", GolemGuiSupport.localized(rune.aspect().displayName())));
       snapshot();
     });
-    if (!scheduled) {
-      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
-    }
   }
 
   private void handBack(ItemStack item) {
@@ -425,8 +419,7 @@ public final class GolemGui {
   }
 
   private void take(Carried entry) {
-    Mob golem = handle.entity();
-    boolean scheduled = J.runEntity(golem, () -> {
+    GolemGuiItems.fromGolem(handle.entity(), player, () -> {
       if (!handle.removeCarried(entry.encoded())) {
         snapshot();
         return;
@@ -434,9 +427,6 @@ public final class GolemGui {
       handBack(entry.item().clone());
       snapshot();
     });
-    if (!scheduled) {
-      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
-    }
   }
 
   private void confirmRelease() {

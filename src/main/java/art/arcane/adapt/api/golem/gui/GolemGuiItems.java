@@ -10,21 +10,40 @@ import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 final class GolemGuiItems {
   private GolemGuiItems() {
   }
 
-  static boolean toGolem(Mob golem, Player player, ItemStack held, Runnable task) {
+  static void toGolem(Mob golem, Player player, ItemStack held, Runnable task) {
+    AtomicBoolean claimed = new AtomicBoolean();
     Location fallback = player.getLocation();
-    return J.runEntity(golem, task, () -> {
+    boolean scheduled = J.runEntity(golem, () -> once(claimed, task), () -> once(claimed, () -> {
       toPlayer(player, held, fallback);
       GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
-    });
+    }));
+    if (!scheduled) {
+      once(claimed, () -> {
+        give(player, held);
+        GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+      });
+    }
+  }
+
+  static void fromGolem(Mob golem, Player player, Runnable task) {
+    AtomicBoolean claimed = new AtomicBoolean();
+    Runnable gone = () -> once(claimed, () -> GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE));
+    if (!J.runEntity(golem, () -> once(claimed, task), gone)) {
+      gone.run();
+    }
   }
 
   static void toPlayer(Player player, ItemStack item, Location fallback) {
-    if (!J.runEntity(player, () -> give(player, item), () -> drop(item, fallback))) {
-      drop(item, fallback);
+    AtomicBoolean claimed = new AtomicBoolean();
+    Runnable dropOnce = () -> once(claimed, () -> drop(item, fallback));
+    if (!J.runEntity(player, () -> once(claimed, () -> give(player, item)), dropOnce)) {
+      dropOnce.run();
     }
   }
 
@@ -39,6 +58,12 @@ final class GolemGuiItems {
     World world = at.getWorld();
     if (world == null || !J.runAt(at, () -> world.dropItemNaturally(at, item))) {
       Adapt.warn("The Golem menu could not drop " + item.getAmount() + " " + item.getType() + " at " + at + "; the item was lost.");
+    }
+  }
+
+  private static void once(AtomicBoolean claimed, Runnable handOff) {
+    if (claimed.compareAndSet(false, true)) {
+      handOff.run();
     }
   }
 }
