@@ -4606,6 +4606,25 @@ lore6 = "Abate árvores gigantes 2x2"
 lore7 = "Abate fungos carmesim e distorcidos e replanta fungos"
 lore = ["Troncos abatidos por segundo", "Troncos por árvore para golems de cobre", "Troncos por árvore para golems de ferro", "Replanta rebentos depois do abate", "Varrer folhas: parte as folhas soltas e recolhe o que largam", "Abate árvores gigantes 2x2", "Abate fungos carmesim e distorcidos e replanta fungos"]
 
+[golemancy.breaker_core]
+name = "Núcleo de Demolidor"
+description = "Os golems vinculados com um Núcleo de Demolidor partem os blocos que o filtro de um Nó de Escavação indica dentro da sua área e transportam o que largam, e mineram blocos mais duros com melhores picaretas à medida que o núcleo se fortalece."
+lore1 = "Dureza máxima de bloco"
+lore2 = "Segundos por bloco"
+lore3 = "Ferramenta de mineração"
+lore4 = "Interruptor de Toque de seda nos Nós de Escavação"
+lore5 = "Interruptor de Fortuna I nos Nós de Escavação"
+lore = ["Dureza máxima de bloco", "Segundos por bloco", "Ferramenta de mineração", "Interruptor de Toque de seda nos Nós de Escavação", "Interruptor de Fortuna I nos Nós de Escavação"]
+filter_ready = "Parte os blocos do filtro"
+filter_needed = "Adiciona blocos à lista branca"
+filter_lore = "Os demolidores só partem os blocos que uma lista branca indica"
+silk_on = "Toque de seda: ligado"
+silk_off = "Toque de seda: desligado"
+fortune_on = "Fortuna I: ligada"
+fortune_off = "Fortuna I: desligada"
+locked = "Desbloqueia-se com Núcleo de Demolidor no nível {level}"
+exclusive = "Toque de seda e Fortuna I desligam-se mutuamente"
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Permite-te infundir runas no Pedestal de Ânimus e encaixá-las nos teus golems vinculados para velocidade, carga, fogo, alcance, canais, rendimento e armadura."

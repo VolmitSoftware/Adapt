@@ -4606,6 +4606,25 @@ lore6 = "Kaataa 2x2-jättipuita"
 lore7 = "Kaataa karmiini- ja vääristyneet sienet ja istuttaa sieniä uudelleen"
 lore = ["Kaadettuja runkoja sekunnissa", "Runkoja puuta kohden kuparigolemeille", "Runkoja puuta kohden rautagolemeille", "Istuttaa taimet uudelleen kaadon jälkeen", "Lehtien lakaisu: rikkoo irralliset lehdet ja kerää niiden pudotukset", "Kaataa 2x2-jättipuita", "Kaataa karmiini- ja vääristyneet sienet ja istuttaa sieniä uudelleen"]
 
+[golemancy.breaker_core]
+name = "Murtajaydin"
+description = "Murtajaytimellä sidotut golemit rikkovat louhintasolmun alueelta ne kuutiot, jotka sen suodatin luettelee, ja kantavat pudotukset mukanaan. Mitä vahvemmaksi ydin kasvaa, sitä kovempia kuutioita ne louhivat paremmilla hakuilla."
+lore1 = "Kuution enimmäiskovuus"
+lore2 = "Sekuntia kuutiota kohden"
+lore3 = "Louhintatyökalu"
+lore4 = "Silkkikosketuksen kytkin louhintasolmuissa"
+lore5 = "Onni I -kytkin louhintasolmuissa"
+lore = ["Kuution enimmäiskovuus", "Sekuntia kuutiota kohden", "Louhintatyökalu", "Silkkikosketuksen kytkin louhintasolmuissa", "Onni I -kytkin louhintasolmuissa"]
+filter_ready = "Rikkoo suodattimen kuutiot"
+filter_needed = "Lisää kuutioita sallittujen listaan"
+filter_lore = "Murtajat rikkovat vain kuutioita, jotka sallittujen lista luettelee"
+silk_on = "Silkkikosketus: päällä"
+silk_off = "Silkkikosketus: pois"
+fortune_on = "Onni I: päällä"
+fortune_off = "Onni I: pois"
+locked = "Avautuu Murtajaytimen tasolla {level}"
+exclusive = "Silkkikosketus ja Onni I kytkevät toisensa pois"
+
 [golemancy.runic_augments]
 name = "Riimuvahvistukset"
 description = "Antaa sinun infusoida riimuja Animusjalustalla ja asettaa ne sidottuihin golemeihisi nopeuden, kantokyvyn, tulen, ulottuvuuden, kanavien, saaliin ja panssarin vuoksi."

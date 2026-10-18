@@ -17,12 +17,15 @@ import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -40,6 +43,8 @@ final class CropField {
   private final Map<String, Cell> cells = new HashMap<>();
   private final Map<String, Block> blocks = new HashMap<>();
   private final Map<Material, Supplier<List<ItemStack>>> drops = new EnumMap<>(Material.class);
+  private final Map<Material, Function<ItemStack, List<ItemStack>>> toolDrops = new EnumMap<>(Material.class);
+  private final Set<Material> unharvestable = EnumSet.noneOf(Material.class);
 
   CropField() {
     lenient().when(world.getUID()).thenReturn(WORLD);
@@ -96,6 +101,16 @@ final class CropField {
 
   CropField drops(Material type, Supplier<List<ItemStack>> rolled) {
     drops.put(type, rolled);
+    return this;
+  }
+
+  CropField toolDrops(Material type, Function<ItemStack, List<ItemStack>> rolled) {
+    toolDrops.put(type, rolled);
+    return this;
+  }
+
+  CropField unharvestable(Material type) {
+    unharvestable.add(type);
     return this;
   }
 
@@ -166,6 +181,12 @@ final class CropField {
       Supplier<List<ItemStack>> rolled = drops.get(type(x, y, z));
       return rolled == null ? List.of() : rolled.get();
     });
+    lenient().when(block.getDrops(any(ItemStack.class))).thenAnswer(invocation -> {
+      Function<ItemStack, List<ItemStack>> rolled = toolDrops.get(type(x, y, z));
+      return rolled == null ? List.of() : rolled.apply(invocation.getArgument(0));
+    });
+    lenient().when(block.isPreferredTool(any(ItemStack.class))).thenAnswer(invocation -> !unharvestable.contains(type(x, y, z)));
+    lenient().when(block.isLiquid()).thenAnswer(invocation -> type(x, y, z) == Material.WATER || type(x, y, z) == Material.LAVA);
     lenient().when(block.applyBoneMeal(any(BlockFace.class))).thenAnswer(invocation -> {
       if (!(data(x, y, z) instanceof Ageable crop) || crop.getAge() >= crop.getMaximumAge()) {
         return false;

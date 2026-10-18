@@ -4606,6 +4606,25 @@ lore6 = "Kerta 2x2 milžiniškus medžius"
 lore7 = "Kerta raudonuosius ir iškreiptuosius grybus ir vėl sodina grybus"
 lore = ["Nukertami rąstai per sekundę", "Rąstų viename medyje vario golemams", "Rąstų viename medyje geležies golemams", "Po kirtimo vėl pasodina sodinukus", "Lapų šlavimas: sulaužo atsilaisvinusius lapus ir surenka, kas iš jų iškrenta", "Kerta 2x2 milžiniškus medžius", "Kerta raudonuosius ir iškreiptuosius grybus ir vėl sodina grybus"]
 
+[golemancy.breaker_core]
+name = "Griovėjo šerdis"
+description = "Griovėjo šerdimi sujungti golemai Kasimo mazgo zonoje ardo blokus, kuriuos nurodo jo filtras, ir neša tai, kas iškrinta, o šerdžiai stiprėjant geresniais kirtikliais kasa kietesnius blokus."
+lore1 = "Didžiausias bloko kietumas"
+lore2 = "Sekundės vienam blokui"
+lore3 = "Kasimo įrankis"
+lore4 = "Šilkinio prisilietimo jungiklis Kasimo mazguose"
+lore5 = "Sėkmės I jungiklis Kasimo mazguose"
+lore = ["Didžiausias bloko kietumas", "Sekundės vienam blokui", "Kasimo įrankis", "Šilkinio prisilietimo jungiklis Kasimo mazguose", "Sėkmės I jungiklis Kasimo mazguose"]
+filter_ready = "Ardo filtre nurodytus blokus"
+filter_needed = "Pridėkite blokų į leidžiamųjų sąrašą"
+filter_lore = "Griovėjai ardo tik blokus, kuriuos nurodo leidžiamųjų sąrašas"
+silk_on = "Šilkinis prisilietimas: įjungtas"
+silk_off = "Šilkinis prisilietimas: išjungtas"
+fortune_on = "Sėkmė I: įjungta"
+fortune_off = "Sėkmė I: išjungta"
+locked = "Atrakinama pasiekus Griovėjo šerdies {level} lygį"
+exclusive = "Šilkinis prisilietimas ir Sėkmė I išjungia vienas kitą"
+
 [golemancy.runic_augments]
 name = "Runų patobulinimai"
 description = "Leidžia Animus pakyloje įlieti runas ir įstatyti jas į surištus golemus dėl greičio, nešimo, ugnies, siekio, kanalų, derliaus ir šarvų."

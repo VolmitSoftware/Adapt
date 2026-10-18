@@ -4606,6 +4606,25 @@ lore6 = "Tala árboles gigantes de 2x2"
 lore7 = "Tala hongos carmesíes y distorsionados y replanta hongos"
 lore = ["Troncos talados por segundo", "Troncos por árbol para gólems de cobre", "Troncos por árbol para gólems de hierro", "Replanta brotes tras la tala", "Barrido de hojas: rompe las hojas sueltas y recoge lo que sueltan", "Tala árboles gigantes de 2x2", "Tala hongos carmesíes y distorsionados y replanta hongos"]
 
+[golemancy.breaker_core]
+name = "Núcleo de Rompedor"
+description = "Los gólems vinculados con un Núcleo de Rompedor rompen los bloques que indica el filtro de un Nodo de Minería dentro de su área y cargan lo que sueltan, y minan bloques más duros con mejores picos a medida que el núcleo se fortalece."
+lore1 = "Dureza máxima de bloque"
+lore2 = "Segundos por bloque"
+lore3 = "Herramienta de minería"
+lore4 = "Interruptor de Toque de seda en los Nodos de Minería"
+lore5 = "Interruptor de Fortuna I en los Nodos de Minería"
+lore = ["Dureza máxima de bloque", "Segundos por bloque", "Herramienta de minería", "Interruptor de Toque de seda en los Nodos de Minería", "Interruptor de Fortuna I en los Nodos de Minería"]
+filter_ready = "Rompe los bloques del filtro"
+filter_needed = "Añade bloques a la lista blanca"
+filter_lore = "Los rompedores solo rompen los bloques que indica una lista blanca"
+silk_on = "Toque de seda: Sí"
+silk_off = "Toque de seda: No"
+fortune_on = "Fortuna I: Sí"
+fortune_off = "Fortuna I: No"
+locked = "Se desbloquea con Núcleo de Rompedor nivel {level}"
+exclusive = "Toque de seda y Fortuna I se desactivan entre sí"
+
 [golemancy.runic_augments]
 name = "Aumentos rúnicos"
 description = "Te permite infundir runas en el Pedestal de Ánima y engarzarlas en tus gólems vinculados para ganar velocidad, carga, fuego, alcance, canales, rendimiento y armadura."

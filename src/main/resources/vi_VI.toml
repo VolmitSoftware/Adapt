@@ -4606,6 +4606,25 @@ lore6 = "Đốn cây khổng lồ 2x2"
 lore7 = "Đốn nấm đỏ thẫm và nấm biến dạng rồi trồng lại nấm"
 lore = ["Khúc gỗ đốn mỗi giây", "Khúc gỗ mỗi cây cho golem đồng", "Khúc gỗ mỗi cây cho golem sắt", "Trồng lại cây non sau khi đốn", "Quét lá: phá lá rời và thu gom vật phẩm rơi ra", "Đốn cây khổng lồ 2x2", "Đốn nấm đỏ thẫm và nấm biến dạng rồi trồng lại nấm"]
 
+[golemancy.breaker_core]
+name = "Lõi Kẻ Phá Vỡ"
+description = "Golem được liên kết bằng Lõi Kẻ Phá Vỡ phá các khối mà bộ lọc của một Nút Khai Thác liệt kê trong khu vực của nút và mang theo vật phẩm rơi ra, đồng thời đào các khối cứng hơn bằng cuốc chim tốt hơn khi lõi mạnh lên."
+lore1 = "Độ cứng khối tối đa"
+lore2 = "Số giây mỗi khối"
+lore3 = "Công cụ khai thác"
+lore4 = "Công tắc Chạm Lụa trên Nút Khai Thác"
+lore5 = "Công tắc Gia Tài I trên Nút Khai Thác"
+lore = ["Độ cứng khối tối đa", "Số giây mỗi khối", "Công cụ khai thác", "Công tắc Chạm Lụa trên Nút Khai Thác", "Công tắc Gia Tài I trên Nút Khai Thác"]
+filter_ready = "Phá các khối trong bộ lọc"
+filter_needed = "Thêm khối vào danh sách trắng"
+filter_lore = "Kẻ Phá Vỡ chỉ phá các khối mà danh sách trắng liệt kê"
+silk_on = "Chạm Lụa: Bật"
+silk_off = "Chạm Lụa: Tắt"
+fortune_on = "Gia Tài I: Bật"
+fortune_off = "Gia Tài I: Tắt"
+locked = "Mở khóa ở Lõi Kẻ Phá Vỡ cấp {level}"
+exclusive = "Chạm Lụa và Gia Tài I tắt lẫn nhau"
+
 [golemancy.runic_augments]
 name = "Cường hóa Rune"
 description = "Cho phép bạn truyền Cổ Tự tại Bệ Animus và gắn chúng vào các golem đã liên kết để tăng tốc độ, sức chở, lửa, tầm hoạt động, kênh, sản lượng và giáp."

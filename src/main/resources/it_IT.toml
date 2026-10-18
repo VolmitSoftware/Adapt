@@ -4606,6 +4606,25 @@ lore6 = "Abbatte alberi giganti 2x2"
 lore7 = "Abbatte funghi cremisi e distorti e ripianta funghi"
 lore = ["Tronchi abbattuti al secondo", "Tronchi per albero per i golem di rame", "Tronchi per albero per i golem di ferro", "Ripianta arbusti dopo l'abbattimento", "Spazzata delle foglie: rompe le foglie staccate e raccoglie ciò che lasciano cadere", "Abbatte alberi giganti 2x2", "Abbatte funghi cremisi e distorti e ripianta funghi"]
 
+[golemancy.breaker_core]
+name = "Nucleo di Demolitore"
+description = "I golem legati con un Nucleo di Demolitore rompono i blocchi elencati dal filtro di un Nodo di Scavo nella sua area e trasportano ciò che rilasciano, e scavano blocchi più duri con picconi migliori man mano che il nucleo si rafforza."
+lore1 = "Durezza massima dei blocchi"
+lore2 = "Secondi per blocco"
+lore3 = "Attrezzo da scavo"
+lore4 = "Interruttore Tocco di velluto sui Nodi di Scavo"
+lore5 = "Interruttore Fortuna I sui Nodi di Scavo"
+lore = ["Durezza massima dei blocchi", "Secondi per blocco", "Attrezzo da scavo", "Interruttore Tocco di velluto sui Nodi di Scavo", "Interruttore Fortuna I sui Nodi di Scavo"]
+filter_ready = "Rompe i blocchi del filtro"
+filter_needed = "Aggiungi blocchi alla lista bianca"
+filter_lore = "I demolitori rompono solo i blocchi elencati da una lista bianca"
+silk_on = "Tocco di velluto: attivo"
+silk_off = "Tocco di velluto: disattivo"
+fortune_on = "Fortuna I: attiva"
+fortune_off = "Fortuna I: disattiva"
+locked = "Si sblocca con Nucleo di Demolitore al livello {level}"
+exclusive = "Tocco di velluto e Fortuna I si disattivano a vicenda"
+
 [golemancy.runic_augments]
 name = "Potenziamenti runici"
 description = "Ti permette di infondere rune sul Piedistallo di Animus e incastonarle nei tuoi golem legati per velocità, carico, fuoco, portata, canali, resa e armatura."

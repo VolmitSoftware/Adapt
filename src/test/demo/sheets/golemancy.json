@@ -452,6 +452,140 @@
     },
     "maxTicks": 600
   },
+  "golem-breaker-core": {
+    "set": "taming-field",
+    "level": 5,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      },
+      {
+        "name": "golem-node-weaving",
+        "level": 1
+      },
+      {
+        "name": "golem-iron-frame",
+        "level": 1
+      }
+    ],
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"breaker\\\"}\"}}]",
+      "experience set {actor} 5 levels",
+      "execute at {actor} run fill ~-1 ~-1 ~-6 ~1 ~-1 ~-5 minecraft:cobblestone",
+      "execute at {actor} run setblock ~1 ~-1 ~-4 minecraft:stone",
+      "execute at {actor} run summon minecraft:iron_golem ~ ~ ~-2.5 {PlayerCreated:1b,Rotation:[0.0f,0.0f]}"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 20
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 60
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.enchantment_table.use",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      },
+      {
+        "verb": "command",
+        "text": "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"breaker\\\"}\"}}]"
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          1.5,
+          0.05,
+          -3.5
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 30
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.amethyst_block.place",
+        "timeout": 40
+      },
+      {
+        "verb": "command",
+        "text": "item replace entity {actor} weapon.offhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
+      },
+      {
+        "verb": "command",
+        "text": "item replace entity {actor} weapon.mainhand with minecraft:cobblestone"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 30,
+        "ticks": 10
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.stone.break",
+        "timeout": 240
+      },
+      {
+        "verb": "wait",
+        "ticks": 80
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.stone.break"
+    },
+    "maxTicks": 700
+  },
   "golem-iron-frame": {
     "set": "taming-field",
     "level": 5,

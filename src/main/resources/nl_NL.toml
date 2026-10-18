@@ -4606,6 +4606,25 @@ lore6 = "Kapt 2x2-reuzenbomen"
 lore7 = "Kapt karmozijnrode en verwrongen zwammen en herplant zwammen"
 lore = ["Gekapte stammen per seconde", "Stammen per boom voor koperen golems", "Stammen per boom voor ijzeren golems", "Herplant zaailingen na het kappen", "Bladveger: breekt losse bladeren en verzamelt wat ze laten vallen", "Kapt 2x2-reuzenbomen", "Kapt karmozijnrode en verwrongen zwammen en herplant zwammen"]
 
+[golemancy.breaker_core]
+name = "Breker-kern"
+description = "Golems die met een Breker-kern zijn gebonden, breken de blokken die het filter van een Mijnbouw-knooppunt opsomt in zijn gebied en dragen mee wat eruit valt, en delven hardere blokken met betere houwelen naarmate de kern sterker wordt."
+lore1 = "Maximale blokhardheid"
+lore2 = "Seconden per blok"
+lore3 = "Mijngereedschap"
+lore4 = "Schakelaar voor Zijden aanraking op Mijnbouw-knooppunten"
+lore5 = "Schakelaar voor Fortuin I op Mijnbouw-knooppunten"
+lore = ["Maximale blokhardheid", "Seconden per blok", "Mijngereedschap", "Schakelaar voor Zijden aanraking op Mijnbouw-knooppunten", "Schakelaar voor Fortuin I op Mijnbouw-knooppunten"]
+filter_ready = "Breekt de blokken in het filter"
+filter_needed = "Voeg blokken toe aan de witte lijst"
+filter_lore = "Brekers breken alleen blokken die een witte lijst opsomt"
+silk_on = "Zijden aanraking: aan"
+silk_off = "Zijden aanraking: uit"
+fortune_on = "Fortuin I: aan"
+fortune_off = "Fortuin I: uit"
+locked = "Ontgrendeld op Breker-kern-niveau {level}"
+exclusive = "Zijden aanraking en Fortuin I zetten elkaar uit"
+
 [golemancy.runic_augments]
 name = "Runenversterkingen"
 description = "Laat je runen infuseren op de Animussokkel en ze in je gebonden golems zetten voor snelheid, draagvermogen, vuur, bereik, kanalen, opbrengst en harnas."
