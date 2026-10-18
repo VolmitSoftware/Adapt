@@ -7,6 +7,10 @@ async function visibleGolem(input, key, label) {
     return input.actor.bot.entities[state.entityId]
 }
 
+function sneakInteract(bot, entity) {
+    bot._client.write('use_entity', { target: entity.id, hand: 0, location: { x: 0, y: 0, z: 0 }, sneaking: true })
+}
+
 function bindGolem(key, label, aimHeight) {
     return async input => {
         const { actor, snapshot } = input
@@ -15,7 +19,7 @@ function bindGolem(key, label, aimHeight) {
         try {
             await actor.bot.waitForTicks(4)
             await actor.bot.lookAt(golem.position.offset(0, aimHeight, 0), true)
-            actor.bot.activateEntity(golem)
+            sneakInteract(actor.bot, golem)
             await actor.bot.waitForTicks(70)
         } finally {
             actor.bot.setControlState('sneak', false)
@@ -107,7 +111,7 @@ async function packGolem(input) {
     try {
         await actor.bot.waitForTicks(4)
         await actor.bot.lookAt(golem.position.offset(0, 0.5, 0), true)
-        actor.bot.activateEntity(golem)
+        sneakInteract(actor.bot, golem)
         await actor.bot.waitForTicks(10)
     } finally {
         actor.bot.setControlState('sneak', false)
@@ -389,7 +393,7 @@ export const golemancyBehaviorCases = new Map([
         stage: 'golemancy-node', trigger: placeNode, prerequisites: [{ name: 'golem-animus-binding', level: 1 }],
         prepare: ({ equip }) => equip('brick'),
         description: 'sneak-right-clicking the top of a chest with a Deposit Node anchors the node there and uses up one node item',
-        sound: 'minecraft:block.amethyst_block.place', soundVolume: 0.6, soundPitch: 1.4, particle: 'end_rod',
+        sound: 'minecraft:block.amethyst_block.place', soundVolume: 0.6, soundPitch: 1.4, particle: 'end_rod', particleCount: 8, particleOffset: 0.2,
         async verify({ context, unlearned, active }) {
             context.expect(unlearned.nodes === 0, 'Unlearned sneak-right-click anchors no node')
             context.expect(unlearned.nodeItems === 2, 'Unlearned player keeps both Deposit Nodes')
