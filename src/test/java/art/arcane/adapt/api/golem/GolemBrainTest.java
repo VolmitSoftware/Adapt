@@ -127,6 +127,22 @@ class GolemBrainTest extends AdaptTestBase {
   }
 
   @Test
+  void pulsesNeverRevertAGrownGolemWhenNoFormIsRegistered() {
+    platform.join(OWNER, new GolemRoster());
+    IronGolem golem = golem(IronGolem.class, at(0, 64, 0));
+    GolemBrain brain = brain(golem, GolemBody.IRON);
+    brain.handle().setColossus(true);
+    brain.start();
+
+    platform.runDelayed();
+    platform.now += 1_000L;
+    platform.runDelayed();
+
+    assertThat(brain.handle().state().colossus()).isTrue();
+    assertThat(platform.scale(golem)).isEmpty();
+  }
+
+  @Test
   void statsRefreshEvenWhenTheRestOfThePulseFails() {
     platform.join(OWNER, new GolemRoster());
     IronGolem golem = golem(IronGolem.class, at(0, 64, 0));

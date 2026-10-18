@@ -507,7 +507,7 @@ public final class GolemRegistry extends TickedObject {
       case NONE -> {
       }
     }
-    GolemColossus.settle(handle);
+    GolemColossus.reconcile(handle);
     if (reason == DormancyReason.NONE) {
       GolemStats.recompute(handle);
       lifecycle.awake(handle);

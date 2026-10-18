@@ -54,7 +54,6 @@ import org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -89,9 +88,9 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
   public void unregister() {
     GolemStats.unregister(frameStats);
     GolemStats.unregister(colossusStats);
-    boolean formOwned = GolemColossus.unregister(colossusForm);
+    GolemColossus.unregister(colossusForm);
     repairs.clear();
-    releaseResizes(formOwned);
+    snapResizes();
     super.unregister();
   }
 
@@ -253,10 +252,6 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
     return world != null && !PaperCompat.hasCollisionsIn(world, IronFrameRules.colossusBox(at.getX(), at.getY(), at.getZ(), scale));
   }
 
-  void settleOrphan(GolemHandle handle) {
-    GolemColossus.settle(handle);
-  }
-
   void resize(Mob golem, double from, double to, double fraction) {
     GolemScale.stepTo(golem, from, to, fraction);
   }
@@ -335,33 +330,12 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
     }
   }
 
-  private void releaseResizes(boolean formOwned) {
-    Map<UUID, Resize> pending = new HashMap<>(resizes);
+  private void snapResizes() {
+    List<Resize> pending = List.copyOf(resizes.values());
     resizes.clear();
-    Map<UUID, GolemHandle> affected = new HashMap<>();
-    for (Resize resize : pending.values()) {
-      affected.put(resize.handle().id(), resize.handle());
+    for (Resize resize : pending) {
+      J.runEntity(resize.handle().entity(), () -> snap(resize));
     }
-    if (formOwned) {
-      GolemancyRuntime.registry().ifPresent(registry -> {
-        for (GolemHandle handle : registry.loaded()) {
-          if (!handle.isDormant() && handle.state().colossus()) {
-            affected.putIfAbsent(handle.id(), handle);
-          }
-        }
-      });
-    }
-    for (GolemHandle handle : affected.values()) {
-      Resize resize = pending.get(handle.id());
-      J.runEntity(handle.entity(), () -> release(handle, resize));
-    }
-  }
-
-  private void release(GolemHandle handle, Resize resize) {
-    if (resize != null) {
-      snap(resize);
-    }
-    settleOrphan(handle);
   }
 
   private record PendingRepair(double bonus, long until) {

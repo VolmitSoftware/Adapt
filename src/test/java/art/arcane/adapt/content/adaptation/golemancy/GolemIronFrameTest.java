@@ -4,7 +4,6 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemColossus;
 import art.arcane.adapt.api.golem.GolemHandle;
-import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemStat;
 import art.arcane.adapt.api.golem.GolemStatDelta;
@@ -464,38 +463,25 @@ class GolemIronFrameTest extends AdaptTestBase {
   }
 
   @Test
-  void unregisteringSnapsResizesAndSettlesAwakeColossusGolems() {
-    IronGolem resizing = ironGolem(at(0, 64, 0));
-    GolemHandle resizingHandle = handle(resizing, new AtomicBoolean(false));
-    IronGolem grown = ironGolem(at(0, 64, 9));
-    GolemHandle grownHandle = handle(grown, new AtomicBoolean(true));
-    IronGolem sleeping = ironGolem(at(0, 64, 18));
-    GolemHandle sleepingHandle = handle(sleeping, new AtomicBoolean(true));
-    when(sleepingHandle.isDormant()).thenReturn(true);
-    IronGolem small = ironGolem(at(0, 64, 27));
-    GolemHandle smallHandle = handle(small, new AtomicBoolean(false));
-    GolemRegistry registry = mock(GolemRegistry.class);
-    when(registry.loaded()).thenReturn(List.of(resizingHandle, grownHandle, sleepingHandle, smallHandle));
-    runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+  void unregisteringSnapsResizesWithoutRevertingTheFormEvenWhenTasksRunInline() {
+    scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(invocation -> {
+      invocation.<Runnable>getArgument(1).run();
+      return true;
+    });
+    IronGolem golem = ironGolem(at(0, 64, 0));
+    AtomicBoolean colossus = new AtomicBoolean(false);
+    GolemHandle handle = handle(golem, colossus);
     GolemIronFrame learned = learned(5);
     learned.onRuntimeActivated();
-    learned.toggleColossus(resizingHandle);
+    learned.toggleColossus(handle);
 
     learned.unregister();
 
     assertThat(GolemColossus.form()).isEmpty();
-    ArgumentCaptor<Runnable> resizingTask = ArgumentCaptor.forClass(Runnable.class);
-    scheduling.verify(() -> J.runEntity(eq(resizing), resizingTask.capture()));
-    ArgumentCaptor<Runnable> grownTask = ArgumentCaptor.forClass(Runnable.class);
-    scheduling.verify(() -> J.runEntity(eq(grown), grownTask.capture()));
-    scheduling.verify(() -> J.runEntity(eq(sleeping), any(Runnable.class)), never());
-    scheduling.verify(() -> J.runEntity(eq(small), any(Runnable.class)), never());
-    resizingTask.getValue().run();
-    grownTask.getValue().run();
-    verify(learned).resize(resizing, 0.36D, 1D, 1D);
-    verify(learned).settleOrphan(resizingHandle);
-    verify(learned).settleOrphan(grownHandle);
-    verify(learned, never()).resize(eq(grown), anyDouble(), anyDouble(), anyDouble());
+    verify(learned).resize(golem, 0.36D, 1D, 1D);
+    verify(handle, never()).setColossus(false);
+    assertThat(colossus).isTrue();
+    assertThat(learned.hasTickDemand()).isFalse();
   }
 
   private void runSteps(Mob golem, int alreadyRun, int steps) {
@@ -514,7 +500,6 @@ class GolemIronFrameTest extends AdaptTestBase {
     lenient().doNothing().when(learned).resize(any(Mob.class), anyDouble(), anyDouble(), anyDouble());
     lenient().doNothing().when(learned).refreshStats(any(GolemHandle.class));
     lenient().doReturn(true).when(learned).hasRoom(any(Mob.class), anyDouble());
-    lenient().doNothing().when(learned).settleOrphan(any(GolemHandle.class));
     return learned;
   }
 
