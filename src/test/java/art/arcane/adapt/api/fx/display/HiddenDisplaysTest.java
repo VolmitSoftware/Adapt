@@ -88,6 +88,20 @@ class HiddenDisplaysTest extends AdaptTestBase {
   }
 
   @Test
+  void faceOffsetOnTheTopFaceMovesEastAndNorth() {
+    Transformation transformation = HiddenDisplays.faceTransformation(BlockFace.UP, 0.5F, new Vector3f(0.2F, 0.1F, 0.05F));
+
+    assertVector(transformation.getTranslation(), new Vector3f(0.2F, 0.56F, -0.1F));
+  }
+
+  @Test
+  void faceOffsetOnTheBottomFaceMovesEastAndSouth() {
+    Transformation transformation = HiddenDisplays.faceTransformation(BlockFace.DOWN, 0.5F, new Vector3f(0.2F, 0.1F, 0.05F));
+
+    assertVector(transformation.getTranslation(), new Vector3f(0.2F, -0.56F, 0.1F));
+  }
+
+  @Test
   void nonCartesianFacesAreRejected() {
     assertThatThrownBy(() -> HiddenDisplays.faceRotation(BlockFace.NORTH_EAST))
         .isInstanceOf(IllegalArgumentException.class);
@@ -132,6 +146,7 @@ class HiddenDisplaysTest extends AdaptTestBase {
     order.verify(world).addEntity(display);
     verify(display).setItemStack(icon);
     verify(display).setItemDisplayTransform(ItemDisplay.ItemDisplayTransform.FIXED);
+    verify(display).setBrightness(new Display.Brightness(15, 15));
     verify(display).setTransformation(HiddenDisplays.faceTransformation(BlockFace.EAST, 0.5F, new Vector3f()));
   }
 

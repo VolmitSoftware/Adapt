@@ -3363,6 +3363,28 @@
       "feedbackPresets": []
     },
     {
+      "skill": "golemancy",
+      "name": "golem-node-weaving",
+      "class": "GolemNodeWeaving",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemNodeWeaving.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "PlayerInteractEvent",
+        "recipe"
+      ],
+      "expectation": "Sneak-right-click a block face while holding a node to anchor it there and direct your golems' work.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemNodeWeaving.java",
+      "sounds": [
+        "BLOCK_AMETHYST_BLOCK_PLACE"
+      ],
+      "particles": [
+        "END_ROD"
+      ],
+      "feedbackPresets": []
+    },
+    {
       "skill": "herbalism",
       "name": "herbalism-bee-shepherd",
       "class": "HerbalismBeeShepherd",

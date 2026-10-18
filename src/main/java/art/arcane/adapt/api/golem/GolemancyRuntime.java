@@ -2,6 +2,9 @@ package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.golem.node.NodeService;
+import art.arcane.adapt.api.golem.node.NodeSettings;
+import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
 import art.arcane.adapt.api.golem.reveal.RevealService;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
@@ -42,6 +45,9 @@ public final class GolemancyRuntime {
   private static volatile GolemBrainSettings brainSettings = GolemBrainSettings.defaults();
   private static volatile RevealService reveal;
   private static volatile RevealSettings revealSettings = RevealSettings.defaults();
+  private static volatile NodeService nodes;
+  private static volatile NodeSettings nodeSettings = NodeSettings.defaults();
+  private static volatile NodeWeavingPolicy nodeWeaving;
   private static volatile Adaptation<?> protectionPolicy;
   private static volatile GolemBindListener bindListener = (owner, handle) -> {
   };
@@ -66,17 +72,29 @@ public final class GolemancyRuntime {
     RevealService createdReveal = new RevealService(GolemancyRuntime::revealSettings);
     createdReveal.activateRuntime();
     reveal = createdReveal;
+    NodeService createdNodes = NodeService.create(GolemancyRuntime::nodeSettings, GolemancyRuntime::revealSettings);
+    createdNodes.activateRuntime();
+    nodes = createdNodes;
+    if (!J.isFoliaThreading()) {
+      createdNodes.indexLoadedChunks();
+    }
   }
 
   public static boolean shutdown(long timeoutMillis) {
     GolemRegistry local;
     RevealService localReveal;
+    NodeService localNodes;
     synchronized (GolemancyRuntime.class) {
       local = registry;
       registry = null;
       brains = null;
       localReveal = reveal;
       reveal = null;
+      localNodes = nodes;
+      nodes = null;
+    }
+    if (localNodes != null) {
+      localNodes.shutdown();
     }
     if (localReveal != null) {
       localReveal.shutdown();
@@ -111,6 +129,26 @@ public final class GolemancyRuntime {
 
   public static Optional<RevealService> reveal() {
     return Optional.ofNullable(reveal);
+  }
+
+  public static Optional<NodeService> nodes() {
+    return Optional.ofNullable(nodes);
+  }
+
+  public static NodeSettings nodeSettings() {
+    return nodeSettings;
+  }
+
+  public static void configureNodes(NodeSettings next) {
+    nodeSettings = Objects.requireNonNull(next);
+  }
+
+  public static Optional<NodeWeavingPolicy> nodeWeaving() {
+    return Optional.ofNullable(nodeWeaving);
+  }
+
+  public static void setNodeWeaving(NodeWeavingPolicy policy) {
+    nodeWeaving = Objects.requireNonNull(policy);
   }
 
   public static GolemSettings settings() {

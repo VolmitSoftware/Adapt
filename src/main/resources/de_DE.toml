@@ -4437,6 +4437,38 @@ lore4 = "Stufen für einen Kupfergolem"
 lore5 = "Stufen für einen Eisengolem"
 lore = ["Golems, die du besitzen kannst", "Sekunden pro Bindungsritual", "Stufen für einen Frostgolem", "Stufen für einen Kupfergolem", "Stufen für einen Eisengolem"]
 
+[golemancy.node_status]
+idle = "Untätig"
+working = "Arbeitet"
+blocked = "Durch Schutz blockiert"
+full = "Behälter voll"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filter: {count}"
+
+[golemancy.node_message]
+placed = "{node}-Knoten platziert"
+occupied = "Diese Seite trägt bereits einen Knoten"
+protected = "Hier kannst du keine Knoten platzieren"
+needs_container = "Ein {node}-Knoten gehört an eine Truhe, ein Fass oder eine Shulkerkiste"
+container_protected = "Dieser Behälter ist geschützt"
+chunk_full = "Dieser Chunk enthält bereits {count} Knoten"
+cap = "Du besitzt bereits dein Maximum von {count} Knoten"
+loading = "Die Knoten hier werden noch geladen"
+unavailable = "Deine Golem-Liste ist noch nicht bereit"
+
+[golemancy.node_weaving]
+name = "Knotenweberei"
+description = "Schleiche und rechtsklicke mit einem Knoten in der Hand auf eine Blockseite, um ihn dort zu verankern und die Arbeit deiner Golems zu lenken."
+lore1 = "Knoten, die du besitzen kannst"
+lore2 = "Radius des Arbeitsbereichs in Blöcken"
+lore3 = "Filterplätze"
+lore4 = "Knotenpriorität 1-5"
+lore5 = "Redstone-Steuerung"
+lore6 = "Sperrlisten- und Tag-Filter"
+lore = ["Knoten, die du besitzen kannst", "Radius des Arbeitsbereichs in Blöcken", "Filterplätze", "Knotenpriorität 1-5", "Redstone-Steuerung", "Sperrlisten- und Tag-Filter"]
+
 [herbalism.growth_aura]
 name = "Wachstumsaura"
 description = "Lasse die Natur um dich herum in einer Aura wachsen"

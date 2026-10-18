@@ -1,6 +1,7 @@
 package art.arcane.adapt.api.golem.reveal;
 
 import art.arcane.adapt.api.golem.item.GolemItemKind;
+import art.arcane.adapt.api.golem.node.NodeVisibility;
 import org.junit.jupiter.api.Test;
 
 import java.util.EnumSet;
@@ -45,6 +46,21 @@ class RevealRulesTest {
     assertThat(RevealRules.inRevealRange(34D * 34D, 32D, true)).isTrue();
     assertThat(RevealRules.inRevealRange(34.01D * 34.01D, 32D, true)).isFalse();
     assertThat(RevealRules.LEAVE_MARGIN).isEqualTo(2D);
+  }
+
+  @Test
+  void ownersSeeTheirNodesWhileArmedAndNobodySeesThemUnarmed() {
+    assertThat(RevealRules.nodeVisible(true, true, NodeVisibility.OWNER, 0)).isTrue();
+    assertThat(RevealRules.nodeVisible(false, true, NodeVisibility.OWNER, 5)).isFalse();
+    assertThat(RevealRules.nodeVisible(false, true, NodeVisibility.ANY_GOLEMANCER, 5)).isFalse();
+  }
+
+  @Test
+  void otherPlayersSeeNodesOnlyWhenAnyGolemancerIsOnAndTheyKnowNodeWeaving() {
+    assertThat(RevealRules.nodeVisible(true, false, NodeVisibility.OWNER, 5)).isFalse();
+    assertThat(RevealRules.nodeVisible(true, false, NodeVisibility.ANY_GOLEMANCER, 0)).isFalse();
+    assertThat(RevealRules.nodeVisible(true, false, NodeVisibility.ANY_GOLEMANCER, 1)).isTrue();
+    assertThat(RevealRules.nodeVisible(true, true, NodeVisibility.ANY_GOLEMANCER, 0)).isTrue();
   }
 
   @Test

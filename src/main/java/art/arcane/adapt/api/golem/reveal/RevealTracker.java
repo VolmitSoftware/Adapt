@@ -9,22 +9,22 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-public final class RevealTracker {
-  private final Map<UUID, Set<UUID>> shown = new HashMap<>();
+public final class RevealTracker<T> {
+  private final Map<UUID, Set<T>> shown = new HashMap<>();
 
-  public synchronized Delta update(UUID viewer, Set<UUID> desired) {
-    Set<UUID> current = shown.get(viewer);
+  public synchronized Delta<T> update(UUID viewer, Set<T> desired) {
+    Set<T> current = shown.get(viewer);
     if (current == null) {
       if (desired.isEmpty()) {
-        return Delta.NONE;
+        return Delta.none();
       }
       current = new HashSet<>();
       shown.put(viewer, current);
     }
-    List<UUID> leaving = List.of();
-    Iterator<UUID> iterator = current.iterator();
+    List<T> leaving = List.of();
+    Iterator<T> iterator = current.iterator();
     while (iterator.hasNext()) {
-      UUID target = iterator.next();
+      T target = iterator.next();
       if (!desired.contains(target)) {
         if (leaving.isEmpty()) {
           leaving = new ArrayList<>();
@@ -33,8 +33,8 @@ public final class RevealTracker {
         iterator.remove();
       }
     }
-    List<UUID> entering = List.of();
-    for (UUID target : desired) {
+    List<T> entering = List.of();
+    for (T target : desired) {
       if (current.add(target)) {
         if (entering.isEmpty()) {
           entering = new ArrayList<>();
@@ -46,21 +46,21 @@ public final class RevealTracker {
       shown.remove(viewer);
     }
     if (entering.isEmpty() && leaving.isEmpty()) {
-      return Delta.NONE;
+      return Delta.none();
     }
-    return new Delta(entering, leaving);
+    return new Delta<>(entering, leaving);
   }
 
-  public synchronized List<UUID> reset(UUID viewer) {
-    Set<UUID> removed = shown.remove(viewer);
+  public synchronized List<T> reset(UUID viewer) {
+    Set<T> removed = shown.remove(viewer);
     return removed == null ? List.of() : List.copyOf(removed);
   }
 
-  public synchronized List<UUID> drop(UUID target) {
+  public synchronized List<UUID> drop(T target) {
     List<UUID> viewers = new ArrayList<>();
-    Iterator<Map.Entry<UUID, Set<UUID>>> iterator = shown.entrySet().iterator();
+    Iterator<Map.Entry<UUID, Set<T>>> iterator = shown.entrySet().iterator();
     while (iterator.hasNext()) {
-      Map.Entry<UUID, Set<UUID>> entry = iterator.next();
+      Map.Entry<UUID, Set<T>> entry = iterator.next();
       if (entry.getValue().remove(target)) {
         viewers.add(entry.getKey());
         if (entry.getValue().isEmpty()) {
@@ -71,13 +71,18 @@ public final class RevealTracker {
     return viewers;
   }
 
-  public synchronized boolean isShown(UUID viewer, UUID target) {
-    Set<UUID> current = shown.get(viewer);
+  public synchronized boolean isShown(UUID viewer, T target) {
+    Set<T> current = shown.get(viewer);
     return current != null && current.contains(target);
   }
 
-  public record Delta(List<UUID> entering, List<UUID> leaving) {
-    public static final Delta NONE = new Delta(List.of(), List.of());
+  public record Delta<T>(List<T> entering, List<T> leaving) {
+    private static final Delta<?> NONE = new Delta<>(List.of(), List.of());
+
+    @SuppressWarnings("unchecked")
+    public static <T> Delta<T> none() {
+      return (Delta<T>) NONE;
+    }
 
     public boolean isEmpty() {
       return entering.isEmpty() && leaving.isEmpty();

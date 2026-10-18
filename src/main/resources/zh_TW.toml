@@ -4437,6 +4437,38 @@ lore4 = "縛約銅魔像所需等級"
 lore5 = "縛約鐵魔像所需等級"
 lore = ["可擁有的魔像數量", "每次縛約儀式的秒數", "縛約霜魔像所需等級", "縛約銅魔像所需等級", "縛約鐵魔像所需等級"]
 
+[golemancy.node_status]
+idle = "閒置"
+working = "工作中"
+blocked = "被保護阻擋"
+full = "容器已滿"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "過濾: {count}"
+
+[golemancy.node_message]
+placed = "已放置{node}節點"
+occupied = "這個面已經有節點了"
+protected = "你不能在這裡放置節點"
+needs_container = "{node}節點需要放在箱子、木桶或界伏盒上"
+container_protected = "該容器受保護"
+chunk_full = "該區塊已有{count}個節點"
+cap = "你已擁有上限數量的{count}個節點"
+loading = "這裡的節點仍在載入"
+unavailable = "你的魔像名冊尚未準備好"
+
+[golemancy.node_weaving]
+name = "節點編織"
+description = "手持節點潛行並右鍵點擊方塊表面，即可將其固定在那裡並指引你的魔像工作。"
+lore1 = "可擁有的節點數量"
+lore2 = "工作區域半徑（方塊）"
+lore3 = "過濾槽位"
+lore4 = "節點優先級1-5"
+lore5 = "紅石控制"
+lore6 = "黑名單與標籤過濾"
+lore = ["可擁有的節點數量", "工作區域半徑（方塊）", "過濾槽位", "節點優先級1-5", "紅石控制", "黑名單與標籤過濾"]
+
 [herbalism.growth_aura]
 name = "生長光環"
 description = "在你周圍的光環中加速自然生長"

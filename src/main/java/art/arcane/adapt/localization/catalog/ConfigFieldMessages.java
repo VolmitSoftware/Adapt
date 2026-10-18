@@ -155,6 +155,7 @@ import art.arcane.adapt.content.adaptation.excavation.ExcavationSpelunker;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationTreasureHunter;
 import art.arcane.adapt.content.adaptation.excavation.ExcavationTunneler;
 import art.arcane.adapt.content.adaptation.golemancy.GolemAnimusBinding;
+import art.arcane.adapt.content.adaptation.golemancy.GolemNodeWeaving;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismBeeShepherd;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismCompostCascade;
 import art.arcane.adapt.content.adaptation.herbalism.HerbalismCraftableCobweb;
@@ -526,6 +527,7 @@ public final class ConfigFieldMessages {
     addConfiguration(fields, "adaptations.excavation-treasure-hunter", "adaptation:excavation-treasure-hunter", ExcavationTreasureHunter.class);
     addConfiguration(fields, "adaptations.excavation-tunneler", "adaptation:excavation-tunneler", ExcavationTunneler.class);
     addConfiguration(fields, "adaptations.golem-animus-binding", "adaptation:golem-animus-binding", GolemAnimusBinding.class);
+    addConfiguration(fields, "adaptations.golem-node-weaving", "adaptation:golem-node-weaving", GolemNodeWeaving.class);
     addConfiguration(fields, "adaptations.herbalism-bee-shepherd", "adaptation:herbalism-bee-shepherd", HerbalismBeeShepherd.class);
     addConfiguration(fields, "adaptations.herbalism-compost-cascade", "adaptation:herbalism-compost-cascade", HerbalismCompostCascade.class);
     addConfiguration(fields, "adaptations.herbalism-cobweb", "adaptation:herbalism-cobweb", HerbalismCraftableCobweb.class);

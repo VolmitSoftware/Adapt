@@ -4437,6 +4437,38 @@ lore4 = "Bakır golemi bağlamak için seviye"
 lore5 = "Demir golemi bağlamak için seviye"
 lore = ["Sahip olabileceğin golemler", "Bağlama ritüeli başına saniye", "Ayaz golemi bağlamak için seviye", "Bakır golemi bağlamak için seviye", "Demir golemi bağlamak için seviye"]
 
+[golemancy.node_status]
+idle = "Boşta"
+working = "Çalışıyor"
+blocked = "Koruma tarafından engellendi"
+full = "Depo dolu"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filtre: {count}"
+
+[golemancy.node_message]
+placed = "{node} Düğümü yerleştirildi"
+occupied = "Bu yüzeyde zaten bir düğüm var"
+protected = "Buraya düğüm yerleştiremezsin"
+needs_container = "{node} Düğümü bir sandığa, varile veya shulker kutusuna yerleştirilir"
+container_protected = "Bu depo korunuyor"
+chunk_full = "Bu chunk'ta zaten {count} düğüm var"
+cap = "Zaten sınırın olan {count} düğümün var"
+loading = "Buradaki düğümler hâlâ yükleniyor"
+unavailable = "Golem listen henüz hazır değil"
+
+[golemancy.node_weaving]
+name = "Düğüm Örme"
+description = "Elinde bir düğümle eğil ve bir blok yüzeyine sağ tıkla; düğüm oraya tutunur ve golemlerinin işini yönlendirir."
+lore1 = "Sahip olabileceğin düğümler"
+lore2 = "Blok cinsinden çalışma alanı yarıçapı"
+lore3 = "Filtre yuvaları"
+lore4 = "Düğüm önceliği 1-5"
+lore5 = "Kızıltaş denetimi"
+lore6 = "Kara liste ve etiket filtreleri"
+lore = ["Sahip olabileceğin düğümler", "Blok cinsinden çalışma alanı yarıçapı", "Filtre yuvaları", "Düğüm önceliği 1-5", "Kızıltaş denetimi", "Kara liste ve etiket filtreleri"]
+
 [herbalism.growth_aura]
 name = "Buyume Aurasi"
 description = "Cevrenizdeki dogayi bir aura icinde buyutun"

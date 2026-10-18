@@ -4437,6 +4437,38 @@ lore4 = "구리 골렘 결속에 필요한 레벨"
 lore5 = "철 골렘 결속에 필요한 레벨"
 lore = ["소유할 수 있는 골렘 수", "결속 의식 시간(초)", "서리 골렘 결속에 필요한 레벨", "구리 골렘 결속에 필요한 레벨", "철 골렘 결속에 필요한 레벨"]
 
+[golemancy.node_status]
+idle = "대기 중"
+working = "작업 중"
+blocked = "보호로 차단됨"
+full = "보관함 가득 참"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "필터: {count}"
+
+[golemancy.node_message]
+placed = "{node} 노드를 설치했습니다"
+occupied = "이 면에는 이미 노드가 있습니다"
+protected = "여기에는 노드를 설치할 수 없습니다"
+needs_container = "{node} 노드는 상자, 통, 셜커 상자에 설치합니다"
+container_protected = "그 보관함은 보호되어 있습니다"
+chunk_full = "이 청크에는 이미 노드가 {count}개 있습니다"
+cap = "이미 최대치인 노드 {count}개를 소유하고 있습니다"
+loading = "이곳의 노드를 아직 불러오는 중입니다"
+unavailable = "골렘 명부가 아직 준비되지 않았습니다"
+
+[golemancy.node_weaving]
+name = "노드 엮기"
+description = "노드를 들고 웅크린 채 블록 면을 우클릭하면 그곳에 고정되어 골렘의 작업을 지시합니다."
+lore1 = "소유할 수 있는 노드 수"
+lore2 = "작업 영역 반경(블록)"
+lore3 = "필터 칸"
+lore4 = "노드 우선순위 1-5"
+lore5 = "레드스톤 제어"
+lore6 = "차단 목록 및 태그 필터"
+lore = ["소유할 수 있는 노드 수", "작업 영역 반경(블록)", "필터 칸", "노드 우선순위 1-5", "레드스톤 제어", "차단 목록 및 태그 필터"]
+
 [herbalism.growth_aura]
 name = "성장의 오라"
 description = "주변의 자연을 오라로 성장시킵니다"

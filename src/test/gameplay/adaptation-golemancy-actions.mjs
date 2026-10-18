@@ -22,6 +22,23 @@ async function bind(input) {
     return (await snapshot()).golemancy.golem
 }
 
+async function placeNode(input) {
+    const { context, actor, snapshot } = input
+    const position = actor.bot.entity.position.clone().set(2, 100, 0)
+    await context.waitUntil(() => actor.bot.blockAt(position)?.name === 'chest', {
+        label: 'golemancy node chest available', timeoutMs: 5000,
+    })
+    actor.bot.setControlState('sneak', true)
+    try {
+        await actor.bot.waitForTicks(4)
+        await actor.bot.activateBlock(actor.bot.blockAt(position))
+        await actor.bot.waitForTicks(10)
+    } finally {
+        actor.bot.setControlState('sneak', false)
+    }
+    return (await snapshot()).golemancy.node
+}
+
 export const golemancyBehaviorCases = new Map([
     ['golem-animus-binding', {
         stage: 'golemancy-binding', trigger: bind,
@@ -36,6 +53,23 @@ export const golemancyBehaviorCases = new Map([
             context.expect(active.aware, 'Bound snow golem is awake after the ritual')
             return {
                 assertions: ['unlearned snow golem stays unbound at normal size', 'learned ritual binds the golem to the player, shrinks it to 0.5 scale, and wakes it'],
+                measurements: { unlearned, active },
+            }
+        },
+    }],
+    ['golem-node-weaving', {
+        stage: 'golemancy-node', trigger: placeNode,
+        prepare: ({ equip }) => equip('brick'),
+        description: 'sneak-right-clicking the top of a chest with a Deposit Node anchors the node there and uses up one node item',
+        sound: 'minecraft:block.amethyst_block.place', soundVolume: 0.6, soundPitch: 1.4, particle: 'end_rod',
+        async verify({ context, unlearned, active }) {
+            context.expect(unlearned.nodes === 0, 'Unlearned sneak-right-click anchors no node')
+            context.expect(unlearned.nodeItems === 2, 'Unlearned player keeps both Deposit Nodes')
+            context.expect(active.nodes === 1 && active.type === 'deposit' && active.face === 'UP', 'Learned sneak-right-click anchors a Deposit Node to the top of the chest')
+            context.expect(active.ownedByPlayer, 'The anchored node belongs to the player')
+            context.expect(active.nodeItems === 1, 'Placing the node uses up one Deposit Node')
+            return {
+                assertions: ['unlearned click anchors nothing and keeps both nodes', 'learned click anchors one player-owned Deposit Node on the chest top and uses one item'],
                 measurements: { unlearned, active },
             }
         },

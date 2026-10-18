@@ -11,13 +11,26 @@ import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.golem.node.NodeBundle;
+import art.arcane.adapt.api.golem.node.NodeIndex;
+import art.arcane.adapt.api.golem.node.NodeKey;
+import art.arcane.adapt.api.golem.node.NodeRecord;
+import art.arcane.adapt.api.golem.node.NodeRenderer;
+import art.arcane.adapt.api.golem.node.NodeService;
+import art.arcane.adapt.api.golem.node.NodeSettings;
+import art.arcane.adapt.api.golem.node.NodeVisibility;
+import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
 import art.arcane.adapt.util.common.scheduling.J;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.IronGolem;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
@@ -32,6 +45,7 @@ import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,6 +60,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -163,6 +178,91 @@ class RevealServiceTest extends AdaptTestBase {
     distance.set(32D);
     service.update(viewer);
     assertThat(spawned).hasSize(2);
+  }
+
+  @Test
+  void ownersSeeTheirNodeBundlesAndOtherGolemancersOnlyWhenVisibilityAllowsIt() {
+    NodeKey key = new NodeKey(WORLD, 4, 64, 0, BlockFace.UP);
+    NodeBundle bundle = nodeBundle(key, OWNER);
+    Player stranger = viewer(UUID.fromString("00000000-0000-0000-0000-0000000000b2"));
+    runtime.when(GolemancyRuntime::nodeSettings).thenReturn(NodeSettings.defaults());
+    NodeWeavingPolicy policy = mock(NodeWeavingPolicy.class);
+    when(policy.level(stranger)).thenReturn(1);
+    runtime.when(GolemancyRuntime::nodeWeaving).thenReturn(Optional.of(policy));
+    RevealService service = new RevealService(RevealSettings::defaults);
+
+    service.update(viewer);
+    service.update(stranger);
+
+    for (Entity entity : bundle.entities()) {
+      displays.verify(() -> HiddenDisplays.show(viewer, entity));
+      displays.verify(() -> HiddenDisplays.show(stranger, entity), never());
+    }
+
+    runtime.when(GolemancyRuntime::nodeSettings).thenReturn(new NodeSettings(16, 40, 64, 16, NodeVisibility.ANY_GOLEMANCER));
+    service.update(stranger);
+
+    for (Entity entity : bundle.entities()) {
+      displays.verify(() -> HiddenDisplays.show(stranger, entity));
+    }
+  }
+
+  @Test
+  void puttingTheRevealItemAwayHidesNodesAndAGoneNodeIsForgotten() {
+    NodeKey key = new NodeKey(WORLD, 4, 64, 0, BlockFace.UP);
+    NodeBundle bundle = nodeBundle(key, OWNER);
+    runtime.when(GolemancyRuntime::nodeSettings).thenReturn(NodeSettings.defaults());
+    RevealService service = new RevealService(RevealSettings::defaults);
+    service.update(viewer);
+
+    items.when(() -> GolemItems.kindOf(any(ItemStack.class))).thenReturn(Optional.empty());
+    service.update(viewer);
+
+    for (Entity entity : bundle.entities()) {
+      displays.verify(() -> HiddenDisplays.hide(viewer, entity));
+    }
+
+    items.when(() -> GolemItems.kindOf(any(ItemStack.class))).thenReturn(Optional.of(GolemItemKind.NODE));
+    service.update(viewer);
+    service.nodeGone(key);
+    service.update(viewer);
+
+    for (Entity entity : bundle.entities()) {
+      displays.verify(() -> HiddenDisplays.show(viewer, entity), times(3));
+    }
+  }
+
+  private NodeBundle nodeBundle(NodeKey key, UUID owner) {
+    NodeIndex index = new NodeIndex();
+    long generation = index.beginLoad(WORLD, key.chunkKey());
+    index.completeLoad(WORLD, key.chunkKey(), generation, Map.of(key, NodeRecord.builder(owner, NodeType.GUARD, BlockFace.UP).build()));
+    ItemDisplay icon = mock(ItemDisplay.class);
+    Interaction hitbox = mock(Interaction.class);
+    TextDisplay label = mock(TextDisplay.class);
+    for (Entity entity : List.of(icon, hitbox, label)) {
+      lenient().when(entity.isValid()).thenReturn(true);
+    }
+    NodeBundle bundle = new NodeBundle(icon, hitbox, label);
+    NodeRenderer renderer = mock(NodeRenderer.class);
+    lenient().when(renderer.bundle(key)).thenReturn(Optional.of(bundle));
+    NodeService nodes = mock(NodeService.class);
+    lenient().when(nodes.index()).thenReturn(index);
+    lenient().when(nodes.renderer()).thenReturn(renderer);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(nodes));
+    lenient().when(registry.loadedOf(any(UUID.class))).thenReturn(List.of());
+    return bundle;
+  }
+
+  private Player viewer(UUID id) {
+    Player player = mock(Player.class);
+    PlayerInventory inventory = mock(PlayerInventory.class);
+    lenient().when(inventory.getItemInMainHand()).thenReturn(mock(ItemStack.class));
+    lenient().when(inventory.getItemInOffHand()).thenReturn(mock(ItemStack.class));
+    lenient().when(player.getUniqueId()).thenReturn(id);
+    lenient().when(player.isOnline()).thenReturn(true);
+    lenient().when(player.getInventory()).thenReturn(inventory);
+    lenient().when(player.getLocation()).thenAnswer(invocation -> new Location(world, 0D, 64D, 0D));
+    return player;
   }
 
   private boolean runIfAccepted(Runnable task) {

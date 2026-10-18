@@ -4437,6 +4437,38 @@ lore4 = "Cấp độ để liên kết golem Đồng"
 lore5 = "Cấp độ để liên kết golem Sắt"
 lore = ["Số golem bạn có thể sở hữu", "Số giây mỗi nghi thức liên kết", "Cấp độ để liên kết golem Băng Giá", "Cấp độ để liên kết golem Đồng", "Cấp độ để liên kết golem Sắt"]
 
+[golemancy.node_status]
+idle = "Đang rảnh"
+working = "Đang làm việc"
+blocked = "Bị bảo vệ chặn"
+full = "Vật chứa đã đầy"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Bộ lọc: {count}"
+
+[golemancy.node_message]
+placed = "Đã đặt Nút {node}"
+occupied = "Mặt này đã có một nút"
+protected = "Bạn không thể đặt nút ở đây"
+needs_container = "Nút {node} phải đặt lên rương, thùng hoặc hộp shulker"
+container_protected = "Vật chứa đó được bảo vệ"
+chunk_full = "Chunk này đã có {count} nút"
+cap = "Bạn đã sở hữu tối đa {count} nút"
+loading = "Các nút ở đây vẫn đang tải"
+unavailable = "Danh sách golem của bạn chưa sẵn sàng"
+
+[golemancy.node_weaving]
+name = "Dệt Nút"
+description = "Ngồi xuống và nhấp chuột phải vào mặt khối khi cầm một nút để gắn nó ở đó và điều hướng công việc của golem."
+lore1 = "Số nút bạn có thể sở hữu"
+lore2 = "Bán kính vùng làm việc (khối)"
+lore3 = "Ô bộ lọc"
+lore4 = "Độ ưu tiên của nút 1-5"
+lore5 = "Điều khiển bằng đá đỏ"
+lore6 = "Bộ lọc danh sách đen và thẻ"
+lore = ["Số nút bạn có thể sở hữu", "Bán kính vùng làm việc (khối)", "Ô bộ lọc", "Độ ưu tiên của nút 1-5", "Điều khiển bằng đá đỏ", "Bộ lọc danh sách đen và thẻ"]
+
 [herbalism.growth_aura]
 name = "Hào Quang Tăng Trưởng"
 description = "Phát triển thiên nhiên xung quanh bạn trong một hào quang"

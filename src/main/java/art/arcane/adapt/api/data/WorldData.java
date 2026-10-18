@@ -32,6 +32,7 @@ import art.arcane.spatial.matter.SpatialMatter;
 import art.arcane.volmlib.util.bukkit.WorldIdentity;
 import art.arcane.volmlib.util.collection.KMap;
 import art.arcane.volmlib.util.format.Form;
+import art.arcane.volmlib.util.function.Consumer4;
 import art.arcane.volmlib.util.io.CountingDataInputStream;
 import art.arcane.volmlib.util.mantle.io.IOWorkerCodecSupport;
 import art.arcane.volmlib.util.mantle.runtime.IOWorker;
@@ -326,15 +327,36 @@ public class WorldData extends TickedObject {
   }
 
   public <T> T get(Block block, Class<T> type) {
-    return mantle.get(block.getX(), block.getY() - minHeight, block.getZ(), type);
+    return get(block.getX(), block.getY(), block.getZ(), type);
+  }
+
+  public <T> T get(int x, int y, int z, Class<T> type) {
+    return mantle.get(x, y - minHeight, z, type);
   }
 
   public <T> void set(Block block, T value) {
-    mantle.set(block.getX(), block.getY() - minHeight, block.getZ(), value);
+    set(block.getX(), block.getY(), block.getZ(), value);
+  }
+
+  public <T> void set(int x, int y, int z, T value) {
+    mantle.set(x, y - minHeight, z, value);
   }
 
   public <T> void remove(Block block, Class<T> type) {
-    mantle.remove(block.getX(), block.getY() - minHeight, block.getZ(), type);
+    remove(block.getX(), block.getY(), block.getZ(), type);
+  }
+
+  public <T> void remove(int x, int y, int z, Class<T> type) {
+    mantle.remove(x, y - minHeight, z, type);
+  }
+
+  public <T> void iterateChunk(int chunkX, int chunkZ, Class<T> type, Consumer4<Integer, Integer, Integer, T> visitor) {
+    if (!mantle.hasTectonicPlate(chunkX >> 5, chunkZ >> 5)) {
+      return;
+    }
+    int baseX = chunkX << 4;
+    int baseZ = chunkZ << 4;
+    mantle.iterateChunk(chunkX, chunkZ, type, (x, y, z, value) -> visitor.accept(baseX + x, y + minHeight, baseZ + z, value));
   }
 
   public double reportEarnings(Block block) {

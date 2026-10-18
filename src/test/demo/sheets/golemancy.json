@@ -48,5 +48,55 @@
       "particle": "end_rod"
     },
     "maxTicks": 220
+  },
+  "golem-node-weaving": {
+    "set": "taming-field",
+    "level": 5,
+    "pre": [
+      "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"deposit\\\"}\"}}] 2",
+      "execute at {actor} run setblock ~ ~ ~-2 minecraft:chest"
+    ],
+    "prelude": [
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 55
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 15
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 30
+      },
+      {
+        "verb": "wait",
+        "ticks": 5
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "sound": "minecraft:block.amethyst_block.place",
+        "timeout": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:block.amethyst_block.place",
+      "particle": "end_rod"
+    },
+    "maxTicks": 160
   }
 }
