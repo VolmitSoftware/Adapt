@@ -282,7 +282,7 @@ public final class GolemancyMessages {
   public static final TextKey RANCHER_CORE_SPECIES = TextKey.of("golemancy.rancher_core.species", "Species: {species}");
   public static final TextKey RANCHER_CORE_SPECIES_ALL = TextKey.of("golemancy.rancher_core.species_all", "All Animals");
   public static final TextKey RANCHER_CORE_SPECIES_LORE = TextKey.of("golemancy.rancher_core.species_lore", "Left-click for the next species, right-click for the previous");
-  public static final TextKey RANCHER_CORE_KEEP = TextKey.of("golemancy.rancher_core.keep", "Keep {count} Adults per Species");
+  public static final TextKey RANCHER_CORE_KEEP = TextKey.of("golemancy.rancher_core.keep", "Keep Count: {count} per Species");
   public static final TextKey RANCHER_CORE_KEEP_LORE = TextKey.of("golemancy.rancher_core.keep_lore", "Left-click to raise, right-click to lower");
   public static final TextKey RANCHER_CORE_BREED_ON = TextKey.of("golemancy.rancher_core.breed_on", "Breeding: On");
   public static final TextKey RANCHER_CORE_BREED_OFF = TextKey.of("golemancy.rancher_core.breed_off", "Breeding: Off");

@@ -52,7 +52,7 @@ class RancherNodePanelTest {
         .containsExactly("rancher-species", "rancher-keep", "rancher-breed", "rancher-shear", "rancher-milk", "rancher-cull");
     assertThat(plain(controls.get(0).name())).isEqualTo("Species: All Animals");
     assertThat(controls.get(0).icon().getType()).isEqualTo(Material.LEAD);
-    assertThat(plain(controls.get(1).name())).isEqualTo("Keep 8 Adults per Species");
+    assertThat(plain(controls.get(1).name())).isEqualTo("Keep Count: 8 per Species");
     assertThat(plain(controls.get(2).name())).isEqualTo("Breeding: On");
     assertThat(plain(controls.get(3).name())).isEqualTo("Shearing: On");
     assertThat(plain(controls.get(4).name())).isEqualTo("Milking: On");
