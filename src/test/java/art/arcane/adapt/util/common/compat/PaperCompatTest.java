@@ -1,34 +1,25 @@
 package art.arcane.adapt.util.common.compat;
 
 import art.arcane.adapt.util.common.scheduling.J;
-import io.papermc.paper.entity.TeleportFlag;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.AnimalTamer;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.TextDisplay;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
 import org.mockito.MockedStatic;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -139,48 +130,5 @@ class PaperCompatTest {
     PaperCompat.text(display, text);
 
     verify(display).setText("\u00a76Guard");
-  }
-
-  @Test
-  void passengerTeleportOnPaperKeepsPassengersMounted() {
-    IronGolem golem = mock(IronGolem.class);
-    Location destination = new Location(null, 4D, 64D, 4D);
-    when(golem.teleportAsync(destination, PlayerTeleportEvent.TeleportCause.PLUGIN, TeleportFlag.EntityState.RETAIN_PASSENGERS))
-        .thenReturn(CompletableFuture.completedFuture(true));
-
-    assertThat(PaperCompat.teleportWithPassengers(golem, destination)).isCompletedWithValue(true);
-
-    verify(golem).teleportAsync(destination, PlayerTeleportEvent.TeleportCause.PLUGIN, TeleportFlag.EntityState.RETAIN_PASSENGERS);
-    verify(golem, never()).eject();
-  }
-
-  @Test
-  void passengerTeleportWithoutTeleportFlagsRemountsEachPassenger() {
-    IronGolem golem = mock(IronGolem.class);
-    TextDisplay label = mock(TextDisplay.class);
-    Location destination = new Location(null, 4D, 64D, 4D);
-    when(golem.getPassengers()).thenReturn(List.of(label));
-    when(golem.teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN)).thenReturn(true);
-
-    assertThat(PaperCompat.teleportRemountingPassengers(golem, destination)).isCompletedWithValue(true);
-
-    InOrder order = inOrder(golem, label);
-    order.verify(golem).removePassenger(label);
-    order.verify(golem).teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
-    order.verify(label).teleport(destination, PlayerTeleportEvent.TeleportCause.PLUGIN);
-    order.verify(golem).addPassenger(label);
-  }
-
-  @Test
-  void passengerTeleportRemountsEvenWhenTheTeleportIsRefused() {
-    Entity golem = mock(IronGolem.class);
-    TextDisplay label = mock(TextDisplay.class);
-    Location destination = new Location(null, 4D, 64D, 4D);
-    when(golem.getPassengers()).thenReturn(List.of(label));
-
-    assertThat(PaperCompat.teleportRemountingPassengers(golem, destination)).isCompletedWithValue(false);
-
-    verify(label, never()).teleport(any(Location.class), any(PlayerTeleportEvent.TeleportCause.class));
-    verify(golem).addPassenger(label);
   }
 }

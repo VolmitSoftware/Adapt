@@ -1,7 +1,6 @@
 package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.Adapt;
-import art.arcane.adapt.util.common.compat.PaperCompat;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.LivingEntity;
@@ -196,7 +195,7 @@ public final class GolemBrain {
       case WANDER -> controller.moveTo(wanderPoint(home), MOVE_SPEED);
       case TELEPORT -> {
         controller.stop();
-        PaperCompat.teleportWithPassengers(golem, ownerAt.clone());
+        GolemTeleport.teleport(handle, ownerAt.clone());
       }
     }
   }
