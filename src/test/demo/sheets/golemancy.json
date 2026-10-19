@@ -4036,7 +4036,7 @@
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~0 ~ ~-2.5"
+          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~0 ~ ~-2.8"
         },
         {
           "verb": "slot",
