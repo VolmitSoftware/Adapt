@@ -565,6 +565,137 @@ def opponent_problems(tmp: str, body: dict) -> list[str]:
     return choreography.validate(choreography.load_skill(root, 'x').entries, {'x-one'})
 
 
+SHOWCASE_BEATS: list[dict] = [{'verb': 'wait', 'ticks': 1}]
+
+
+def showcase_clip(identifier: str = 'x-ritual', **values: object) -> dict:
+    clip: dict = {'id': identifier, 'title': 'Ritual', 'heading': 'Animus Plinth', 'set': 'arena', 'expect': {'sound': 'a'}, 'beats': SHOWCASE_BEATS}
+    clip.update(values)
+    return clip
+
+
+class ShowcaseSheetTest(unittest.TestCase):
+    def sheet(self, tmp: str, body: dict) -> choreography.Sheet:
+        root: Path = Path(tmp)
+        write_matrix(root, {'x-one': 'x', 'y-other': 'y'})
+        write_skill(root, body)
+        return choreography.load_skill(root, 'x')
+
+    def adaptation(self) -> dict:
+        return {'set': 'arena', 'expect': {'sound': 'a'}, 'beats': SHOWCASE_BEATS}
+
+    def test_showcase_clips_are_loaded_after_the_adaptations_in_sheet_order(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            sheet: choreography.Sheet = self.sheet(tmp, {'x-one': self.adaptation(), 'showcase': [showcase_clip('x-b'), showcase_clip('x-a', title='Second')]})
+        self.assertEqual(list(sheet.entries), ['x-one', 'x-b', 'x-a'])
+        self.assertIsNone(sheet.entries['x-one'].showcase)
+        self.assertEqual(sheet.entries['x-a'].showcase, choreography.Showcase(title='Second', heading='Animus Plinth'))
+        self.assertEqual([entry.id for entry in choreography.showcase_entries(sheet.entries)], ['x-b', 'x-a'])
+        self.assertEqual(sheet.entries['x-a'].set, 'arena')
+        self.assertEqual(sheet.entries['x-a'].beats, SHOWCASE_BEATS)
+
+    def test_showcase_ids_are_accepted(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            sheet: choreography.Sheet = self.sheet(tmp, {'x-one': self.adaptation(), 'showcase': [showcase_clip()]})
+        self.assertEqual(choreography.validate(sheet.entries, {'x-one'}, frozenset({'x-one', 'y-other'})), [])
+
+    def test_matrix_coverage_still_applies_to_adaptations(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            sheet: choreography.Sheet = self.sheet(tmp, {'showcase': [showcase_clip()]})
+        self.assertEqual(choreography.validate(sheet.entries, {'x-one'}, frozenset({'x-one', 'y-other'})), ['missing choreography for x-one'])
+
+    def test_a_showcase_id_that_is_a_catalog_id_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            sheet: choreography.Sheet = self.sheet(tmp, {'x-one': self.adaptation(), 'showcase': [showcase_clip('y-other')]})
+        self.assertEqual(choreography.validate(sheet.entries, {'x-one'}, frozenset({'x-one', 'y-other'})), ['y-other: showcase id is also an adaptation id'])
+
+    def test_a_showcase_id_that_repeats_a_sheet_id_cannot_load(self) -> None:
+        for body in ({'x-one': {'skip': 'Nothing visible.'}, 'showcase': [showcase_clip('x-one')]}, {'showcase': [showcase_clip('x-a'), showcase_clip('x-a')]}):
+            with self.subTest(body=sorted(body)), tempfile.TemporaryDirectory() as tmp:
+                with self.assertRaisesRegex(ValueError, 'showcase id repeats another id'):
+                    self.sheet(tmp, body)
+
+    def test_malformed_showcase_lists_are_rejected(self) -> None:
+        for showcase in ({'id': 'x-a'}, ['x-a'], [{'title': 'No id'}], [{'id': 7}]):
+            with self.subTest(showcase=showcase), tempfile.TemporaryDirectory() as tmp:
+                with self.assertRaisesRegex(ValueError, 'showcase must be a list'):
+                    self.sheet(tmp, {'x-one': self.adaptation(), 'showcase': showcase})
+
+    def test_title_and_heading_are_required_and_the_heading_is_exact_text(self) -> None:
+        cases: dict[str, tuple[dict, str]] = {
+            'missing title': ({'title': ' '}, 'x-ritual: showcase title is required'),
+            'missing heading': ({'heading': ''}, 'x-ritual: showcase heading is required'),
+            'hashes': ({'heading': '## Animus Plinth'}, 'x-ritual: showcase heading must be the exact heading text without the leading hashes'),
+            'padding': ({'heading': 'Animus Plinth '}, 'x-ritual: showcase heading must be the exact heading text without the leading hashes'),
+            'adaptation heading': ({'heading': 'Frost Frame (`golem-frost-frame`)'}, 'x-ritual: showcase heading must not be an adaptation heading'),
+        }
+        for label, (values, problem) in cases.items():
+            with self.subTest(label), tempfile.TemporaryDirectory() as tmp:
+                sheet: choreography.Sheet = self.sheet(tmp, {'x-one': self.adaptation(), 'showcase': [showcase_clip(**values)]})
+                self.assertEqual(choreography.validate(sheet.entries, {'x-one'}, frozenset({'x-one'})), [problem])
+
+    def test_showcase_clips_get_the_usual_entry_validation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            sheet: choreography.Sheet = self.sheet(tmp, {'x-one': self.adaptation(), 'showcase': [showcase_clip(beats=[{'verb': 'dance'}])]})
+        self.assertEqual(choreography.validate(sheet.entries, {'x-one'}, frozenset({'x-one'})), ['x-ritual: beat 0 has unknown verb dance'])
+
+    def test_showcase_prerequisites_resolve_their_skills(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            sheet: choreography.Sheet = self.sheet(tmp, {'x-one': self.adaptation(),
+                                                          'showcase': [showcase_clip(prerequisites=[{'name': 'y-other', 'level': 3}])]})
+        self.assertEqual(sheet.entries['x-ritual'].prerequisites, (choreography.Prerequisite(skill='y', name='y-other', level=3),))
+
+    def test_showcase_ids_are_file_stems(self) -> None:
+        for identifier in ('', 'X-ritual', 'x/ritual', '../x', 'x--ritual', '-x', 'x ritual'):
+            with self.subTest(identifier), tempfile.TemporaryDirectory() as tmp:
+                sheet: choreography.Sheet = self.sheet(tmp, {'x-one': self.adaptation(), 'showcase': [showcase_clip(identifier)]})
+                self.assertIn(identifier + ': showcase id must be lowercase letters, digits and single hyphens',
+                              choreography.validate(sheet.entries, {'x-one'}, frozenset({'x-one'})))
+
+    def test_every_sheet_validates_against_the_whole_catalog(self) -> None:
+        for sheet in sorted((ROOT / 'src' / 'test' / 'demo' / 'sheets').glob('*.json')):
+            with self.subTest(sheet.stem):
+                entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, sheet.stem).entries
+                self.assertEqual(choreography.validate(entries, matrix_ids(sheet.stem), choreography.catalog_ids(ROOT)), [])
+
+
+class StillSheetTest(unittest.TestCase):
+    def entries(self, tmp: str, stills: object) -> dict[str, choreography.Entry]:
+        write_skill(Path(tmp), {'x-one': {'set': 'arena', 'expect': {'sound': 'a'}, 'beats': SHOWCASE_BEATS, 'stills': stills}})
+        return choreography.load_skill(Path(tmp), 'x').entries
+
+    def test_stills_are_loaded_in_order(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            entries: dict[str, choreography.Entry] = self.entries(tmp, [{'angle': 'observer', 'at': 3.5, 'name': 'plinth-ritual'},
+                                                                         {'angle': 'pov', 'at': 2, 'name': 'crook'}])
+        self.assertEqual(entries['x-one'].stills, (choreography.Still(angle='observer', at=3.5, name='plinth-ritual'),
+                                                   choreography.Still(angle='pov', at=2.0, name='crook')))
+        self.assertEqual(choreography.validate(entries, {'x-one'}), [])
+
+    def test_stills_default_to_none(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            write_skill(Path(tmp), {'x-one': {'skip': 'Nothing visible.'}})
+            self.assertEqual(choreography.load_skill(Path(tmp), 'x').entries['x-one'].stills, ())
+
+    def test_malformed_stills_are_rejected(self) -> None:
+        bad: list[object] = [{'angle': 'pov', 'at': 1, 'name': 'a'}, ['a'], [{'angle': 'pov', 'name': 'a'}], [{'angle': 'pov', 'at': '1', 'name': 'a'}],
+                             [{'angle': 'pov', 'at': True, 'name': 'a'}], [{'angle': 1, 'at': 1, 'name': 'a'}], [{'angle': 'pov', 'at': 1}]]
+        for stills in bad:
+            with self.subTest(stills=stills), tempfile.TemporaryDirectory() as tmp:
+                with self.assertRaisesRegex(ValueError, 'x-one: stills must be a list'):
+                    self.entries(tmp, stills)
+
+    def test_angle_time_and_name_are_validated(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            entries: dict[str, choreography.Entry] = self.entries(tmp, [{'angle': 'overhead', 'at': 1, 'name': 'a'}, {'angle': 'pov', 'at': -0.5, 'name': 'b'},
+                                                                         {'angle': 'pov', 'at': 1, 'name': 'Bad Name'}, {'angle': 'pov', 'at': 1, 'name': 'a'}])
+        self.assertEqual(choreography.validate(entries, {'x-one'}), [
+            'x-one: still a angle must be pov or observer, not overhead',
+            'x-one: still b at must be 0 or more seconds',
+            'x-one: still name Bad Name must be lowercase letters, digits and single hyphens',
+            'x-one: still name a is used twice'])
+
+
 class OpponentSheetTest(unittest.TestCase):
     def test_opponent_flag_defaults_to_false(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

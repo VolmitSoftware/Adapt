@@ -17,12 +17,24 @@ Run everything from the Adapt project root.
 | `--no-audio` | Export without sound. |
 | `--output <dir>` | Output folder. Default `build/demo/<skill>`. |
 | `--ffmpeg` / `--ffprobe` | Tool paths. Default `~/.local/bin/<tool>` when present, otherwise the tool on `PATH`. |
-| `python3 src/test/demo/docs_sync.py --skill agility` | Embed clips under each adaptation's heading in the skill's page. The page is the `../docs/adapt/*-skill-*.md` file whose ``### <name> (`<id>`)`` headings name the most of the skill's ids in `src/test/gameplay/adaptation-matrix.json`, so the file name does not have to match the skill id (`pickaxe` resolves to `25-skill-pickaxes.md`). A skill without matrix ids, no page with one of its headings, or two pages with the same count exits 2. The embedded ids come from the clip files on disk, and only ids with both clips present are embedded. A second run changes nothing. `--docs <dir>` points at another docs checkout. |
+| `python3 src/test/demo/docs_sync.py --skill agility` | Embed clips under each adaptation's heading in the skill's page. The page is the `../docs/adapt/*-skill-*.md` file whose ``### <name> (`<id>`)`` headings name the most of the skill's ids in `src/test/gameplay/adaptation-matrix.json`, so the file name does not have to match the skill id (`pickaxe` resolves to `25-skill-pickaxes.md`). A skill without matrix ids, no page with one of its headings, or two pages with the same count exits 2. The embedded ids come from the clip files on disk, and only ids with both clips present are embedded. Each `<video>` carries `aria-label="First-person demonstration of <Name>"` (pov) or `"Third-person demonstration of <Name>"` (observer), with `<Name>` the heading text before the id and HTML-escaped, as the published pages write it. A label already on a video with the same `src` is kept as written. Showcase clips (see Showcase clips) are embedded under their target heading with the showcase title, and declared stills are copied (see Stills). A second run changes nothing. `--docs <dir>` points at another docs checkout. `--output <dir>` names the run folder that holds the stills to copy (default `build/demo/<skill>`). |
 | `python3 -m unittest discover -s src/test/demo/tests -p 'test_*.py' -v` | Unit tests. |
 
 `demo.py` exits 0 when every selected id is recorded or exported and cleanup succeeded, 1 when a take failed or cleanup reported errors, and 2 when the sheet is invalid, an id is unknown, or another run holds the lane or the output folder. A run that reaches the end prints `gallery:` (this skill's gallery), `index:` (the gallery index), `logs:` (this run's server and client logs), and `failed:` as its last lines.
 
 Recording needs a packed Iris jar in `../Iris/build/libs`, the Iris `overworld` pack at `../../IrisDimensions/overworld` (or the folder named by `ADAPT_DEMO_IRIS_PACK`), Prism Launcher, and the Multiplexor workspace at `../../[Minecraft Server]`.
+
+## Environment
+
+Every path the studio resolves from its checkout's siblings can be pointed elsewhere, which a git worktree needs because its parent folders hold no `Iris`, `IrisDimensions`, or `[Minecraft Server]`. The defaults stay the sibling paths.
+
+| Variable | Meaning |
+|---|---|
+| `ADAPT_DEMO_IRIS_LIBS` | Folder that holds the packed Iris jar (`Iris*-packed.jar`, newest wins). Default `../Iris/build/libs`. |
+| `ADAPT_DEMO_IRIS_PACK` | Folder of the Iris `overworld` pack. Default `../../IrisDimensions/overworld`. |
+| `ADAPT_DEMO_MULTIPLEXOR` | Multiplexor workspace that holds `start.sh`. Default `../../[Minecraft Server]`. Used by every Multiplexor command of the studio and of `src/test/client/run.py`. |
+| `ADAPT_DEMO_GRADLE_ARGS` | Extra arguments appended to every Gradle command the studio runs (`./gradlew build prepareGameplay`), split like a shell command line, for example `-PlocalIrisDirectory=/work/iris -PlocalVolmLibDirectory=/work/volmlib`. Empty by default. |
+| `ADAPT_DEMO_SKIN_PROFILE` | Signed Mojang session-profile JSON for the actor's skin. See Pipeline. |
 
 Insight's sheet requires Gloss. Build its packed jar in `../Gloss` before recording. The studio snapshots the newest nonempty `Gloss-*-packed.jar` into the run's `jars/Gloss.jar` and installs it before the isolated server boots. Only selected, non-skipped entries request additional plugins; replay-only export uses the accepted recording without a server.
 
@@ -35,6 +47,7 @@ Insight's sheet requires Gloss. Build its packed jar in `../Gloss` before record
 - `build/demo/<skill>/gallery.html`: review page with both clips, facts per take, a copyable list of failed ids, and a Skipped list. A visual-only take shows `visual-only: <text>` in place of the evidence facts.
 - `build/demo/index.html`: one link per `build/demo/<folder>/gallery.html`, in name order, with the take counts by status from that folder's `manifest.json` and the time the gallery was written. `demo.py` rewrites it at the end of every run, so it lists the galleries of every skill shot so far, including those of other lanes.
 - `build/demo/<skill>/logs/<stamp>-server-install.log`, `<stamp>-server.log`, `<stamp>-client.log`, and `<stamp>-opponent.log`: the first-boot server log, the server log of the run, the client log of the run, and the opponent client's log when the run launched one (see Opponent). `<stamp>` is the run's suffix, the part after `adapt-demo-` in the server name (for example `1790799315-bce7b6`), so every run keeps its own logs and none is overwritten.
+- `build/demo/<skill>/stills/<id>-<name>.png`: the stills an exported entry declares (see Stills). The gallery shows them under the entry's clips.
 - `../docs/adapt-assets/demos/<skill>/<id>-pov.webm` and `<id>-observer.webm`: the published clips. An export failure removes both clips of that id. An id later changed to `skip` keeps its old clips, and `docs_sync.py` keeps embedding them, until they are deleted by hand.
 - The console prints `[LOCATE] <x> <z> <biome>` with the search time, or with the cache file when the site comes from `build/demo/site-cache.json`, and the gallery header names the plate origin and biome.
 - Before the first take the console prints `[SKIN] loaded <seconds> s after the client connected`, or `[SKIN] default ...` when the clips of the run will show a default skin (see Pipeline).
@@ -62,7 +75,7 @@ Before the first take of a run the studio sends `tps` over RCON every 2 s until 
 
 Per take:
 
-1. `adaptqa demo set <set>`, `demo actor`, `demo actor <opponent> opponent` for an entry with `"opponent": true` (`demo park <opponent>` for any other entry while the opponent client runs), `demo sparring`, clear adaptations, claim each of the entry's `prerequisites`, claim the adaptation at `level`.
+1. `adaptqa demo set <set>`, `demo actor`, `demo actor <opponent> opponent` for an entry with `"opponent": true` (`demo park <opponent>` for any other entry while the opponent client runs), `demo sparring`, clear adaptations, claim each of the entry's `prerequisites`, claim the adaptation at `level` (a showcase clip claims no adaptation of its own).
 2. `pre` commands.
 3. `adaptqa demo sync <actor>` (and `demo sync <opponent>` for an opponent entry), so the client shows the inventory the server holds after `pre`.
 4. 60-tick settle (`PRE_SETTLE_TICKS`).
@@ -200,7 +213,7 @@ The position offset does not turn with the actor, while the view does. A followi
 
 ## Sheets
 
-`src/test/demo/sheets/<skill>.json` maps every adaptation id of the skill in `src/test/gameplay/adaptation-matrix.json` to an entry. The sheet must cover the matrix exactly.
+`src/test/demo/sheets/<skill>.json` maps every adaptation id of the skill in `src/test/gameplay/adaptation-matrix.json` to an entry. The sheet must cover the matrix exactly. Clips that are not adaptations go in the top-level `showcase` list (see Showcase clips).
 
 | Field | Meaning |
 |---|---|
@@ -218,6 +231,8 @@ The position offset does not turn with the actor, while the view does. A followi
 | `maxTicks` | Recording budget for the beats, counted from the recording start. Default 400. |
 | `camera` | Observer camera override `{"x", "y", "z", "yaw", "pitch"}` in plate coordinates at eye height. With `"follow": true` the values are an offset from the actor, as for a following set (see Following cameras). |
 | `skip` | Reason text. See Skips. |
+| `stills` | Frames to extract from the exported clips. See Stills. |
+| `showcase` | Top level of the sheet, beside the entries: clips that are not adaptations. See Showcase clips. |
 
 ### Beats
 
@@ -334,3 +349,63 @@ An adaptation with a sound or a particle uses `sound` or `particle`, even when i
 Use a skip entry with only a reason when no visible proof can be recorded. Passive effects can instead use a controlled comparison: Marathoner records two matched sprints with the real hunger HUD, and Polymath records equal sword hits with measured skill XP. Their fixture prepares matched starting state before each pass and labels the measured sidebar as `Demo comparison`.
 
 A skip entry needs no `set`, `beats`, or `expect`, and cannot carry beats. The manifest records it with status `skipped` and the reason as its detail. It has no replay, is never exported or embedded in the docs, and appears under Skipped in the gallery.
+
+## Showcase clips
+
+A sheet can carry clips that are not adaptations, such as a crafting station or a structure that a skill page explains in a section of its own. They sit in the top-level `showcase` list, beside the adaptation entries and `world`:
+
+```json
+{
+  "golem-frost-frame": {"set": "taming-field", "level": 5, "...": "the adaptation entries as usual"},
+  "showcase": [
+    {"id": "golemancy-plinth-ritual", "title": "Animus Plinth ritual", "heading": "Animus Plinth",
+     "set": "taming-field", "prerequisites": [{"name": "golem-animus-binding", "level": 5}],
+     "pre": [], "beats": [{"verb": "wait", "ticks": 40}], "expect": {"visual": "Four pedestals ring the lodestone."},
+     "stills": [{"angle": "observer", "at": 3.5, "name": "plinth-ritual"}]}
+  ]
+}
+```
+
+| Field | Meaning |
+|---|---|
+| `id` | The clip id and the file stem of `<id>-pov.webm` and `<id>-observer.webm`. Required. Lowercase letters, digits, and single hyphens. It must not be an adaptation id of any skill in `adaptation-matrix.json`, and must not repeat another id of the sheet. |
+| `title` | Names the clip in the `aria-label` of both videos. Required. |
+| `heading` | The exact text of a `##` or `###` heading of the skill's page, without the hashes, for example `Animus Plinth`. Required. It cannot be an adaptation heading (one that ends in ``(`<id>`)``). |
+| everything else | The fields of an adaptation entry (`set`, `pre`, `prelude`, `beats`, `expect`, `maxTicks`, `camera`, `opponent`, `povCapture`, `plugins`, `prerequisites`, `stills`, `skip`), with the same validation. `level` is unused: a showcase clip claims its `prerequisites` and no adaptation of its own. |
+
+- The validator accepts showcase ids. The matrix rules (every matrix id covered, no unknown adaptation) apply to the adaptation entries only.
+- `demo.py --only <showcase id>` records and exports it like any entry. Without `--only` the run covers the adaptations and the showcase clips. Clips and thumbnails use the same names and folders as adaptation clips, under the batch skill.
+- `docs_sync.py` embeds the clip pair directly under the target heading. Several clips for one heading follow the order of the `showcase` list. A heading that does not exist, or that appears more than once, exits 2. A clip whose files are missing is left out. A second run changes nothing, and labels already on the videos are kept, so to refresh a label after a title or name changes, delete that block and run again.
+
+## Stills
+
+An entry, adaptation or showcase, can list frames to extract from its exported clips:
+
+```json
+"stills": [{"angle": "observer", "at": 3.5, "name": "plinth-ritual"}]
+```
+
+- `angle` is `pov` or `observer`, `at` the time in seconds into that angle's exported WebM (0 or more), and `name` lowercase letters, digits, and single hyphens, unique within the entry.
+- After the export of a take, ffmpeg writes each still at full resolution to `build/demo/<skill>/stills/<id>-<name>.png`. A time past the end of the clip fails the export of that take, like any other export error. `--export-only` uses the stills the sheet declares now.
+- The gallery shows each extracted still under the clips of its take.
+- `docs_sync.py` copies the stills to `../docs/adapt-assets/demos/<skill>/` when they are new or changed. It never embeds them in a page.
+
+## Golemancy media
+
+Crafting-recipe images, infusion images, and structure diagrams for the Golemancy page are rendered from the real default configuration and the Minecraft client jar, not drawn by hand. No clip is recorded and no client starts.
+
+```
+./gradlew exportGolemancyMedia
+python3 src/test/demo/media_render.py --recipes build/demo/golemancy-media/recipes.json --client-jar "<client jar>" --out build/demo/golemancy-media
+```
+
+- `exportGolemancyMedia` runs the JUnit test `GolemancyMediaExportTest`, tagged `media-export`, which `./gradlew test` skips. It writes `build/demo/golemancy-media/recipes.json` from the default `ConfiguredShapedRecipe` fields of the Golemancy adaptation configs, `InfusionRecipe.defaults()`, and the default `requires` of the 19 adaptations. Each custom `golemancy:` item is built through `GolemItems`, so its name, base material, and firework-star tint are the ones the plugin uses. `GolemancyMediaCatalogTest` runs in the normal test task and checks that every recipe field of the adaptation configs is exported and that the adaptation ids match `adaptation-matrix.json`.
+- `recipes.json` holds `items` (custom items: `name`, `base`, `tint`, `tier`), `recipes` (`id`, `result`, `yield`, `tithe`, `pattern`, `key`), `infusions` (`id`, `center`, `pedestals`, `result`, `essenceLevels`, `durationTicks`), and `adaptations` (`id`, `name`, `requires` as `{id, level}`).
+- `--client-jar` defaults to `~/Library/Application Support/PrismLauncher/libraries/com/mojang/minecraft/26.2/minecraft-26.2-client.jar`. `--recipes` defaults to `build/demo/golemancy-media/recipes.json`. A missing file, a malformed `recipes.json`, or an item without a texture exits 2 and names the problem.
+- Output: `recipes/<recipe id>.png` (the vanilla crafting table: a 3x3 grid, the arrow, the result slot with its yield, and a caption with the result name and the level tithe when it is not 0), `infusions/<infusion id>.png` (the center item on a lodestone, the four pedestal items on chiseled copper at N, E, S, and W, an arrow to the result, and a caption with the essence levels and duration in seconds; the pedestal items are drawn in their listed order, though the plinth accepts them in any order), and `diagrams/` with `animus-plinth-top.png`, `animus-plinth-view.png`, `golem-builds.png`, `node-on-chest.png`, and `prerequisite-tree.png`.
+- Everything is drawn at a 4x nearest-neighbor pixel scale on the vanilla GUI panel (cropped from `textures/gui/container/crafting_table.png`), except `node-on-chest.png`, whose chest is drawn at 8x so the node decal stays legible. Block icons in slots and diagrams are rendered straight from the texels at that scale rather than scaled up from a 16x16 icon. The same input gives byte-identical PNGs.
+- Item icons: the texture in `textures/item` when there is one; otherwise a GUI-style isometric cube from `textures/block` (top 100%, left 80%, right 60%); chests from the entity textures (`entity/chest/normal.png` and `copper.png`: lid, base, latch, and front, top, and side regions on a 14x14x14 box, with the front on the left face as in the inventory icon); the shield from its entity face; tags (`#logs`, `#saplings`) as `oak_log` and `oak_sapling`. `media_textures.py` keeps the override tables (`SPRITES`, `CUBES`, `CHESTS`, `TAG_MEMBERS`) for models that are not plain cubes. Custom items render from their base material, firework-star cores tint the overlay layer with the configured color, and every custom item gets a faint purple glint.
+- `animus-plinth-view.png` is an axis-aligned three-quarter view (north up, east right), not a 45-degree isometric one, so the pedestals sit on the screen axes with the empty ground block between each pedestal and the lodestone visible, as in `animus-plinth-top.png`; `golem-builds.png` is a front elevation so the iron golem's arm row runs left to right.
+- The vanilla builds in `golem-builds.png` come from the 26.2 server's block patterns: a snow golem is two snow blocks with a pumpkin on top, an iron golem a row of three iron blocks with one below the middle and the pumpkin above the middle, and a copper golem a copper block with a pumpkin on top.
+- Tests: `tests/test_media_render.py` builds a small fake jar, so they do not read the real client jar.
+

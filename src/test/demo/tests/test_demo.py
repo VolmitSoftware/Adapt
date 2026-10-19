@@ -1,3 +1,4 @@
+import dataclasses
 import io
 import sys
 import tempfile
@@ -26,7 +27,7 @@ class DemoMainTest(unittest.TestCase):
             self.addCleanup(patcher.stop)
 
     def run_main(self, tmp: str, stop_errors: list[str], record: mock.MagicMock | None = None, extra: list[str] | None = None,
-                 output: str = '') -> tuple[int, mock.MagicMock]:
+                 output: str = '', export: mock.MagicMock | None = None) -> tuple[int, mock.MagicMock]:
         session = mock.MagicMock()
         session.stop.return_value = stop_errors
         session.log_path.side_effect = lambda kind: Path(tmp) / 'logs' / ('1790793548-55cdd6-' + kind + '.log')
@@ -35,7 +36,7 @@ class DemoMainTest(unittest.TestCase):
         with mock.patch.object(sys, 'argv', argv), mock.patch.object(demo, 'Studio', return_value=session) as construct, \
                 mock.patch.object(lanes, 'LOCKS', Path(tmp) / 'locks'), mock.patch.object(demo, 'INDEX', Path(tmp) / 'index.html'), \
                 mock.patch.object(demo.record_phase, 'record', new=record or mock.MagicMock(return_value=takes)), \
-                mock.patch.object(demo.export_phase, 'export', return_value=takes), \
+                mock.patch.object(demo.export_phase, 'export', new=export or mock.MagicMock(return_value=takes)), \
                 mock.patch.object(demo.gallery, 'write', side_effect=lambda path, *rest: path.write_text('gallery')):
             code: int = demo.main()
         session.construct = construct
@@ -163,6 +164,69 @@ class DemoMainTest(unittest.TestCase):
             with mock.patch.object(lanes, 'LOCKS', Path(tmp) / 'locks'), lanes.claim(lanes.lane_lock(2), 'Lane 2'), \
                     lanes.claim(Path(tmp).resolve() / 'run.lock', 'Output folder'):
                 pass
+
+
+    def showcase_sheet(self, identifier: str = 'agility-showcase-dash') -> tuple[choreography.Sheet, dict[str, choreography.Entry]]:
+        entries: dict[str, choreography.Entry] = {'agility-wind-up': sheet_entry('agility-wind-up'),
+                                                  identifier: dataclasses.replace(sheet_entry(identifier), showcase=choreography.Showcase(title='Dash', heading='Overview'))}
+        return choreography.Sheet(world=choreography.OVERWORLD, entries=entries), entries
+
+    def test_only_selects_a_showcase_id(self) -> None:
+        sheet, entries = self.showcase_sheet()
+        takes: dict[str, manifest.Take] = {'agility-showcase-dash': exported('agility-showcase-dash')}
+        record: mock.MagicMock = mock.MagicMock(return_value=takes)
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(demo.choreography, 'load_skill', return_value=sheet), \
+                    mock.patch.object(demo.choreography, 'adaptation_ids', return_value={'agility-wind-up'}):
+                code, _ = self.run_main(tmp, [], record=record, extra=['--only', 'agility-showcase-dash'], export=mock.MagicMock(return_value=takes))
+        self.assertEqual(code, 0)
+        self.assertEqual(record.call_args.args[2], ['agility-showcase-dash'])
+        self.assertIs(record.call_args.args[1], entries)
+
+    def test_a_run_without_only_records_adaptations_and_showcase_clips(self) -> None:
+        sheet, _ = self.showcase_sheet()
+        takes: dict[str, manifest.Take] = {identifier: exported(identifier) for identifier in ('agility-showcase-dash', 'agility-wind-up')}
+        record: mock.MagicMock = mock.MagicMock(return_value=takes)
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(demo.choreography, 'load_skill', return_value=sheet), \
+                    mock.patch.object(demo.choreography, 'adaptation_ids', return_value={'agility-wind-up'}):
+                code, _ = self.run_main(tmp, [], record=record, extra=['--only', ''], export=mock.MagicMock(return_value=takes))
+        self.assertEqual(code, 0)
+        self.assertEqual(record.call_args.args[2], ['agility-showcase-dash', 'agility-wind-up'])
+
+    def test_unknown_id_is_still_rejected_beside_showcase_ids(self) -> None:
+        sheet, _ = self.showcase_sheet()
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(demo.choreography, 'load_skill', return_value=sheet), \
+                    mock.patch.object(demo.choreography, 'adaptation_ids', return_value={'agility-wind-up'}):
+                code, session = self.run_main(tmp, [], extra=['--only', 'agility-showcase-dash,agility-nope'])
+        self.assertEqual(code, 2)
+        session.construct.assert_not_called()
+        self.assertIn('unknown adaptation ids: agility-nope', self.stdout.getvalue())
+
+    def test_a_showcase_id_taken_by_a_catalog_adaptation_stops_the_run(self) -> None:
+        sheet, _ = self.showcase_sheet('pickaxe-chisel')
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(demo.choreography, 'load_skill', return_value=sheet), \
+                    mock.patch.object(demo.choreography, 'adaptation_ids', return_value={'agility-wind-up'}):
+                code, session = self.run_main(tmp, [], extra=['--only', 'pickaxe-chisel'])
+        self.assertEqual(code, 2)
+        session.construct.assert_not_called()
+        self.assertIn('pickaxe-chisel: showcase id is also an adaptation id', self.stdout.getvalue())
+
+    def test_export_takes_the_stills_the_sheet_declares_now(self) -> None:
+        sheet, entries = self.showcase_sheet()
+        entries['agility-wind-up'] = dataclasses.replace(entries['agility-wind-up'], stills=(choreography.Still(angle='pov', at=1.5, name='lunge'),))
+        stale: manifest.Take = exported('agility-wind-up')
+        export: mock.MagicMock = mock.MagicMock(return_value={stale.id: stale})
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest.save(Path(tmp) / 'manifest.json', {stale.id: stale, 'gone': exported('gone')})
+            with mock.patch.object(demo.choreography, 'load_skill', return_value=sheet), \
+                    mock.patch.object(demo.choreography, 'adaptation_ids', return_value={'agility-wind-up'}):
+                self.run_main(tmp, [], extra=['--export-only'], export=export)
+        exported_takes: dict[str, manifest.Take] = export.call_args.args[1]
+        self.assertEqual(exported_takes['agility-wind-up'].stills, [{'angle': 'pov', 'at': 1.5, 'name': 'lunge'}])
+        self.assertEqual(exported_takes['gone'].stills, [])
 
 
 def sheet_entry(identifier: str, opponent: bool = False, skip: str = '') -> choreography.Entry:

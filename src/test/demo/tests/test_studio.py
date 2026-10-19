@@ -374,6 +374,87 @@ class IrisJarTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'No packed Iris jar'):
                 studio.iris_jar(libs)
 
+    def test_environment_folder_replaces_the_sibling_default(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            libs = Path(tmp) / 'libs'
+            self.write_jars(libs, ['Iris v4.3.4 [CraftBukkit] 26.1.2-26.3-packed.jar'])
+            with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_IRIS_LIBS': str(libs)}):
+                self.assertEqual(studio.iris_jar().parent, libs)
+
+    def test_explicit_folder_wins_over_the_environment(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            libs = Path(tmp) / 'libs'
+            self.write_jars(libs, ['Iris v4.3.4 [CraftBukkit] 26.1.2-26.3-packed.jar'])
+            with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_IRIS_LIBS': str(Path(tmp) / 'elsewhere')}):
+                self.assertEqual(studio.iris_jar(libs).parent, libs)
+
+    def test_unset_environment_keeps_the_sibling_default(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_IRIS_LIBS': ''}):
+            with mock.patch.object(studio, 'IRIS_LIBS', Path(tmp) / 'sibling'):
+                with self.assertRaisesRegex(RuntimeError, 'No packed Iris jar under ' + str(Path(tmp) / 'sibling') + '; set ADAPT_DEMO_IRIS_LIBS'):
+                    studio.iris_jar()
+
+
+class MultiplexorTest(unittest.TestCase):
+    def test_default_is_the_sibling_workspace_of_the_checkout_parents(self) -> None:
+        with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_MULTIPLEXOR': ''}):
+            self.assertEqual(studio.clientqa.multiplexor(), studio.ROOT.parent.parent / '[Minecraft Server]')
+
+    def test_environment_replaces_the_default(self) -> None:
+        with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_MULTIPLEXOR': '/srv/[Minecraft Server]'}):
+            self.assertEqual(studio.clientqa.multiplexor(), Path('/srv/[Minecraft Server]'))
+
+    def test_environment_home_shorthand_is_expanded(self) -> None:
+        with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_MULTIPLEXOR': '~/Mux'}):
+            self.assertEqual(studio.clientqa.multiplexor(), Path.home() / 'Mux')
+
+    def test_commands_run_from_the_environment_workspace(self) -> None:
+        done = subprocess.CompletedProcess([], 0, stdout='ok\n', stderr='')
+        with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_MULTIPLEXOR': '/srv/[Minecraft Server]'}), \
+                mock.patch.object(studio.clientqa.subprocess, 'run', return_value=done) as run:
+            self.assertEqual(studio.clientqa.mux('server', 'list'), 'ok')
+        self.assertEqual(run.call_args.args[0], ['/srv/[Minecraft Server]/start.sh', '--consumer', 'plugin', 'server', 'list'])
+        self.assertEqual(run.call_args.kwargs['cwd'], Path('/srv/[Minecraft Server]'))
+
+
+class ClientBuildTest(unittest.TestCase):
+    def build(self, environment: dict[str, str]) -> mock.MagicMock:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(studio.os.environ, environment), \
+                mock.patch.object(studio.clientqa.subprocess, 'run') as run:
+            studio.clientqa.gradle_build(Path(tmp))
+        return run
+
+    def test_client_qa_build_appends_the_extra_gradle_arguments(self) -> None:
+        run: mock.MagicMock = self.build({'ADAPT_DEMO_GRADLE_ARGS': '-PlocalIrisDirectory=/work/iris -Pflag'})
+
+        self.assertEqual(run.call_args.args[0], ['./gradlew', 'build', 'prepareGameplay', '-PlocalIrisDirectory=/work/iris', '-Pflag'])
+        self.assertEqual(run.call_args.kwargs['cwd'], studio.ROOT)
+        self.assertNotIn('GIT_CONFIG_COUNT', run.call_args.kwargs['env'])
+
+    def test_client_qa_build_is_unchanged_without_arguments(self) -> None:
+        self.assertEqual(self.build({'ADAPT_DEMO_GRADLE_ARGS': ''}).call_args.args[0], ['./gradlew', 'build', 'prepareGameplay'])
+
+
+class GradleArgumentsTest(unittest.TestCase):
+    def build(self, command: list[str], environment: dict[str, str]) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(studio.os.environ, environment), \
+                mock.patch.object(studio.subprocess, 'run') as run:
+            demo = studio.Studio(Path(tmp) / 'out', skip_build=True)
+            demo.output.mkdir()
+            demo.build(command, 'build.log')
+        return run.call_args.args[0]
+
+    def test_extra_arguments_follow_every_gradle_command(self) -> None:
+        pins = '-PlocalIrisDirectory=/work/iris -PlocalVolmLibDirectory="/work/volm lib"'
+        self.assertEqual(self.build(['./gradlew', 'build', 'prepareGameplay'], {'ADAPT_DEMO_GRADLE_ARGS': pins}),
+                         ['./gradlew', 'build', 'prepareGameplay', '-PlocalIrisDirectory=/work/iris', '-PlocalVolmLibDirectory=/work/volm lib'])
+
+    def test_other_commands_are_left_alone(self) -> None:
+        self.assertEqual(self.build(['bash', 'build.sh'], {'ADAPT_DEMO_GRADLE_ARGS': '-Pnope=1'}), ['bash', 'build.sh'])
+
+    def test_unset_arguments_leave_the_gradle_command_unchanged(self) -> None:
+        self.assertEqual(self.build(['./gradlew', 'build', 'prepareGameplay'], {'ADAPT_DEMO_GRADLE_ARGS': ''}), ['./gradlew', 'build', 'prepareGameplay'])
+
 
 ADAPT_TOML: str = ('# Shows aggregated skill XP gains on the action bar.\nactionbarNotifyXp = true\nactionbarXpDurationMillis = 1500\n'
                    'actionbarNotifyLevel = true\n# Mentions actionbarNotifyMasterLevel in a comment.\nactionbarNotifyMasterLevel=true\n'

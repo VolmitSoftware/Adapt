@@ -8,6 +8,7 @@ if [[ "$mode" == "--help" ]]; then
     echo 'smoke checks implemented adaptation cases and reports incomplete coverage explicitly.'
     echo 'skills verifies natural XP earnings, payout, reconnect, and full server restart retention for all skills.'
     echo 'All modes build, create an isolated Paper instance, retain reports, and delete the instance.'
+    echo 'ADAPT_DEMO_MULTIPLEXOR names the Multiplexor workspace when no workspace argument is given.'
     echo 'ADAPT_QA_MC_VERSION selects the server version (default: 26.1.2); the gameplay harness must support its protocol.'
     echo 'Full mode also loads local Iris and Gloss builds; override with ADAPT_QA_IRIS_JAR and ADAPT_QA_GLOSS_JAR.'
     echo 'Full mode runs the native 26.2 client suite and requires matching-artifact Rubber Soul physics and feedback proof.'
@@ -17,7 +18,7 @@ fi
 case "$mode" in full|smoke|skills) ;; *) echo "Unknown mode: $mode" >&2; exit 2 ;; esac
 
 project_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-multiplexor_root="${2:-$(dirname "$(dirname "$project_root")")/[Minecraft Server]}"
+multiplexor_root="${2:-${ADAPT_DEMO_MULTIPLEXOR:-$(dirname "$(dirname "$project_root")")/[Minecraft Server]}}"
 if [[ ! -x "$multiplexor_root/start.sh" ]]; then
     echo "Multiplexor entrypoint missing: $multiplexor_root/start.sh" >&2
     exit 2

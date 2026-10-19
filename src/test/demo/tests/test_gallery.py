@@ -193,6 +193,24 @@ class GalleryTest(unittest.TestCase):
         self.assertIn('maxTicks 400 exceeded', html)
         self.assertIn('<code class="ids">agility-vault</code>', html)
 
+    def test_extracted_stills_are_shown_beside_the_clips(self) -> None:
+        stills: list[dict] = [{'angle': 'observer', 'at': 3.5, 'name': 'plinth-ritual'}, {'angle': 'pov', 'at': 1.0, 'name': 'not-extracted'}]
+        take: manifest.Take = dataclasses.replace(exported_take(), stills=stills)
+        with tempfile.TemporaryDirectory() as tmp:
+            path: Path = Path(tmp) / 'gallery.html'
+            (Path(tmp) / 'stills').mkdir()
+            (Path(tmp) / 'stills' / 'agility-wall-jump-plinth-ritual.png').write_bytes(b'png')
+            gallery.write(path, {take.id: take}, Path('/docs'), Path('/thumbs'))
+            html: str = path.read_text()
+            image: str = (Path(tmp).absolute() / 'stills' / 'agility-wall-jump-plinth-ritual.png').as_uri()
+        self.assertIn('<img src="' + image + '" alt="plinth-ritual" width="480">', html)
+        self.assertIn('<figcaption>plinth-ritual · observer 3.5 s</figcaption>', html)
+        self.assertNotIn('not-extracted', html)
+        self.assertLess(html.index('agility-wall-jump-observer.webm'), html.index(image))
+
+    def test_a_take_without_stills_shows_no_figures(self) -> None:
+        self.assertNotIn('<figure>', render({'agility-wall-jump': exported_take()}))
+
     def test_text_is_escaped(self) -> None:
         html = render({'agility-vault': failed_take('agility-vault', 'expected <sound> & particle')})
         self.assertIn('expected &lt;sound&gt; &amp; particle', html)

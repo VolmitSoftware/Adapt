@@ -1,5 +1,6 @@
 import dataclasses
 import io
+import json
 import sys
 import tempfile
 import unittest
@@ -131,6 +132,43 @@ class RecordPhaseTest(unittest.TestCase):
         self.assertLess(clear, prerequisite)
         self.assertLess(prerequisite, claim)
         self.assertLess(claim, sent.index('say ready'))
+
+    def test_showcase_clip_claims_its_prerequisites_but_no_adaptation_of_its_own(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            entry = choreography.Entry(id='golemancy-plinth-ritual', set='taming-field', level=0, pre=['say ready'], beats=[{'verb': 'wait', 'ticks': 2}],
+                                       expect_sound='minecraft:block.ladder.step', expect_particle=None, max_ticks=100, camera=None,
+                                       prerequisites=(choreography.Prerequisite(skill='golemancy', name='golem-animus-binding', level=5),),
+                                       showcase=choreography.Showcase(title='Plinth ritual', heading='Animus Plinth'))
+            takes = record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'golemancy')
+        sent = [call.args[0] for call in studio.rcon.command.call_args_list]
+        claims = [text for text in sent if text.startswith('adapt claim-adaptation')]
+        self.assertEqual(claims, ['adapt claim-adaptation golemancy:golem-animus-binding 5 force=true player=AQAClient262'])
+        self.assertEqual(takes[entry.id].status, 'recorded')
+
+    def test_declared_stills_are_kept_on_the_take_and_in_the_manifest(self) -> None:
+        stills = (choreography.Still(angle='observer', at=3.5, name='plinth-ritual'), choreography.Still(angle='pov', at=1.0, name='crook'))
+        entry = dataclasses.replace(self.entry(), stills=stills)
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            manifest_path = Path(tmp) / 'manifest.json'
+            takes = record_phase.record(FakeStudio(replays), {entry.id: entry}, [entry.id], manifest_path, 'agility')
+            reloaded = manifest.load(manifest_path)
+        expected = [{'angle': 'observer', 'at': 3.5, 'name': 'plinth-ritual'}, {'angle': 'pov', 'at': 1.0, 'name': 'crook'}]
+        self.assertEqual(takes[entry.id].stills, expected)
+        self.assertEqual(reloaded[entry.id].stills, expected)
+
+    def test_manifest_written_before_stills_existed_still_loads(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'manifest.json'
+            take = dataclasses.asdict(manifest.Take(id='agility-wall-jump', skill='agility', set='wall', level=5, replay='', start_tick=0, stop_tick=1,
+                                                    evidence_ok=True, evidence_detail='', takes=1, camera={}, actor_uuid='', status='recorded'))
+            del take['stills']
+            path.write_text('{"agility-wall-jump": ' + json.dumps(take) + '}')
+            self.assertEqual(manifest.load(path)['agility-wall-jump'].stills, [])
 
     def test_keys_are_released_after_beats_before_stop(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
