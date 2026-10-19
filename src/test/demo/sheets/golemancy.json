@@ -3,31 +3,40 @@
     "set": "taming-field",
     "level": 5,
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_core\"}}]",
-      "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "adaptqa demo give {actor} 0 blank_core 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -2.0
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 80
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -35,19 +44,72 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 60
+        "ticks": 53
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 14
+      },
+      {
+        "verb": "wait",
+        "ticks": 70
       }
     ],
     "expect": {
       "sound": "minecraft:block.enchantment_table.use",
       "particle": "end_rod"
     },
-    "maxTicks": 220
+    "povCapture": true,
+    "maxTicks": 420,
+    "camera": {
+      "x": 4.6,
+      "y": 1.9,
+      "z": -0.3,
+      "yaw": 85.8,
+      "pitch": 17.5
+    },
+    "stills": [
+      {
+        "angle": "observer",
+        "at": 7.0,
+        "name": "bound-snow-golem"
+      }
+    ]
   },
   "golem-frost-frame": {
     "set": "taming-field",
@@ -59,31 +121,40 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_core\"}}]",
-      "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "adaptqa demo give {actor} 0 blank_core 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -2.0
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 60
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -91,38 +162,73 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 50
+        "ticks": 53
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
       },
       {
         "verb": "look",
         "yaw": 180,
         "pitch": 5,
-        "ticks": 10
+        "ticks": 8
       },
       {
         "verb": "command",
-        "text": "execute at {actor} run summon minecraft:husk ~ ~ ~-9 {Rotation:[0.0f,0.0f],drop_chances:{head:0.0f}}"
+        "text": "execute at {actor} run summon minecraft:husk ~0 ~ ~-9 {Rotation:[0.0f,0.0f],drop_chances:{head:0.0f},active_effects:[{id:\"minecraft:slowness\",amplifier:2,duration:2400,show_particles:0b}]}"
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:entity.snow_golem.shoot",
-        "timeout": 100
+        "timeout": 60,
+        "sound": "minecraft:entity.snow_golem.shoot"
       },
       {
         "verb": "wait",
-        "ticks": 60
+        "ticks": 150
       }
     ],
     "expect": {
       "sound": "minecraft:entity.snow_golem.shoot",
       "particle": "entity_effect"
     },
-    "maxTicks": 360
+    "povCapture": true,
+    "maxTicks": 520,
+    "camera": {
+      "x": 5.0,
+      "y": 2.2,
+      "z": -4.5,
+      "yaw": 96.3,
+      "pitch": 16.0
+    }
   },
   "golem-copper-frame": {
     "set": "taming-field",
@@ -134,32 +240,41 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_core\"}}]",
+      "execute at {actor} run gamerule show_advancement_messages false",
       "experience set {actor} 5 levels",
-      "execute at {actor} run summon minecraft:copper_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "adaptqa demo give {actor} 0 blank_core 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "execute at {actor} run summon minecraft:copper_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.6,
+          -2.0
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 60
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -167,38 +282,75 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 50
+        "ticks": 53
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 25
       },
       {
         "verb": "look",
-        "yaw": 180,
-        "pitch": 5,
+        "yaw": 150,
+        "pitch": 8,
         "ticks": 10
       },
       {
         "verb": "command",
-        "text": "execute at {actor} run summon minecraft:lightning_bolt ~5 ~ ~-10"
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:entity.lightning_bolt.thunder",
-        "timeout": 40
+        "text": "execute at {actor} run summon minecraft:lightning_bolt ~4 ~ ~-4"
       },
       {
         "verb": "wait",
-        "ticks": 80
+        "ticks": 120
       }
     ],
     "expect": {
       "sound": "minecraft:entity.lightning_bolt.thunder",
       "particle": "entity_effect"
     },
-    "maxTicks": 360
+    "povCapture": true,
+    "maxTicks": 460,
+    "camera": {
+      "x": -2.8,
+      "y": 1.9,
+      "z": -0.8,
+      "yaw": -112.6,
+      "pitch": 9.8
+    },
+    "stills": [
+      {
+        "angle": "observer",
+        "at": 7.0,
+        "name": "bound-copper-golem"
+      }
+    ]
   },
   "golem-gatherer-core": {
     "set": "taming-field",
@@ -210,35 +362,44 @@
       },
       {
         "name": "golem-node-weaving",
-        "level": 1
+        "level": 5
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"gatherer\\\"}\"}}]",
-      "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "adaptqa demo give {actor} 0 core/gatherer 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -2.0
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 60
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -246,27 +407,66 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 50
+        "ticks": 53
       },
       {
         "verb": "command",
-        "text": "execute at {actor} run summon minecraft:item ~1 ~ ~-4 {Item:{id:\"minecraft:wheat\",count:16},PickupDelay:0}"
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
       {
         "verb": "wait",
-        "ticks": 100
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run summon minecraft:item ~2 ~ ~-4 {Item:{id:\"minecraft:wheat\",count:16},PickupDelay:0}"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run summon minecraft:experience_orb ~2 ~ ~-4 {Value:40s}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 160
       }
     ],
     "expect": {
       "sound": "minecraft:block.enchantment_table.use",
       "particle": "end_rod"
     },
-    "maxTicks": 360
+    "povCapture": true,
+    "maxTicks": 520,
+    "camera": {
+      "x": 5.0,
+      "y": 2.2,
+      "z": -2.0,
+      "yaw": 110.6,
+      "pitch": 18.1
+    }
   },
   "golem-guardian-core": {
     "set": "taming-field",
@@ -278,31 +478,40 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"guardian\\\"}\"}}]",
-      "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "adaptqa demo give {actor} 0 core/guardian 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -2.0
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 60
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -310,37 +519,72 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 50
+        "ticks": 53
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
       },
       {
         "verb": "look",
         "yaw": 180,
         "pitch": 5,
-        "ticks": 10
+        "ticks": 8
       },
       {
         "verb": "command",
-        "text": "execute at {actor} run summon minecraft:husk ~ ~ ~-8 {Rotation:[0.0f,0.0f],drop_chances:{head:0.0f}}"
+        "text": "execute at {actor} run summon minecraft:husk ~0 ~ ~-8 {Rotation:[0.0f,0.0f],attributes:[{id:\"minecraft:max_health\",base:80}],Health:80f,drop_chances:{head:0.0f},active_effects:[{id:\"minecraft:slowness\",amplifier:2,duration:2400,show_particles:0b}]}"
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:entity.snow_golem.shoot",
-        "timeout": 100
+        "timeout": 60,
+        "sound": "minecraft:entity.snow_golem.shoot"
       },
       {
         "verb": "wait",
-        "ticks": 60
+        "ticks": 140
       }
     ],
     "expect": {
       "sound": "minecraft:entity.snow_golem.shoot"
     },
-    "maxTicks": 360
+    "povCapture": true,
+    "maxTicks": 520,
+    "camera": {
+      "x": 5.0,
+      "y": 2.2,
+      "z": -4.0,
+      "yaw": 96.3,
+      "pitch": 16.0
+    }
   },
   "golem-harvester-core": {
     "set": "taming-field",
@@ -352,38 +596,48 @@
       },
       {
         "name": "golem-node-weaving",
-        "level": 1
+        "level": 5
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"harvester\\\"}\"}}]",
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "adaptqa demo give {actor} 0 core/harvester 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "adaptqa demo give {actor} 2 node/harvest 3",
+      "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
       "execute at {actor} run fill ~-2 ~-1 ~-7 ~2 ~-1 ~-5 minecraft:farmland",
       "execute at {actor} run fill ~-2 ~ ~-7 ~2 ~ ~-5 minecraft:wheat[age=7]",
-      "execute at {actor} run setblock ~1 ~-1 ~-4 minecraft:stone",
-      "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "execute at {actor} run setblock ~1 ~-1 ~-4 minecraft:stone"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -2.0
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 60
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -391,71 +645,96 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 50
+        "ticks": 53
       },
       {
         "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"harvest\\\"}\"}}]"
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
       {
-        "verb": "lookAt",
-        "offset": [
-          1.5,
-          0.05,
-          -3.5
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
         ],
         "ticks": 10
       },
       {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 2
+      },
+      {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 30
+        "ticks": 26
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 3
+      },
+      {
+        "verb": "look",
+        "yaw": -166.0,
+        "pitch": 16.5,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
       },
       {
         "verb": "click",
         "key": "use"
       },
       {
-        "verb": "waitFor",
-        "sound": "minecraft:block.amethyst_block.place",
-        "timeout": 40
+        "verb": "wait",
+        "ticks": 12
       },
       {
-        "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
       },
       {
         "verb": "look",
         "yaw": 180,
-        "pitch": 30,
+        "pitch": 25,
         "ticks": 10
       },
       {
-        "verb": "waitFor",
-        "sound": "minecraft:block.crop.break",
-        "timeout": 200
-      },
-      {
         "verb": "wait",
-        "ticks": 80
+        "ticks": 260
       }
     ],
     "expect": {
       "sound": "minecraft:block.crop.break"
     },
     "povCapture": true,
-    "maxTicks": 600
+    "maxTicks": 900,
+    "camera": {
+      "x": 5.5,
+      "y": 2.6,
+      "z": -3.0,
+      "yaw": 111.8,
+      "pitch": 20.4
+    }
   },
   "golem-breaker-core": {
     "set": "taming-field",
@@ -467,7 +746,7 @@
       },
       {
         "name": "golem-node-weaving",
-        "level": 1
+        "level": 5
       },
       {
         "name": "golem-iron-frame",
@@ -475,71 +754,167 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"breaker\\\"}\"}}]",
+      "execute at {actor} run gamerule show_advancement_messages false",
       "experience set {actor} 5 levels",
-      "execute at {actor} run fill ~-1 ~-1 ~-6 ~1 ~-1 ~-5 minecraft:cobblestone",
-      "execute at {actor} run setblock ~1 ~-1 ~-4 minecraft:stone",
-      "execute at {actor} run summon minecraft:iron_golem ~ ~ ~-2.5 {PlayerCreated:1b,Rotation:[0.0f,0.0f]}"
+      "adaptqa demo give {actor} 0 core/breaker 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "adaptqa demo give {actor} 2 node/breaker 3",
+      "execute at {actor} run summon minecraft:iron_golem ~-2 ~0 ~-2.5 {Rotation:[0.0f,0.0f],PlayerCreated:1b,NoAI:1b}",
+      "execute at {actor} run fill ~-1 ~-1 ~-3 ~1 ~-1 ~-2 minecraft:cobblestone",
+      "execute at {actor} run setblock ~ ~ ~-4 minecraft:stone",
+      "item replace entity {actor} hotbar.3 with minecraft:cobblestone 1"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 20
-      }
-    ],
-    "beats": [
-      {
-        "verb": "wait",
-        "ticks": 15
-      },
-      {
-        "verb": "press",
-        "hold": [
-          "sneak"
-        ],
-        "ticks": 60
-      },
-      {
-        "verb": "wait",
-        "ticks": 5
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
-      },
-      {
-        "verb": "wait",
-        "ticks": 50
-      },
-      {
-        "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"breaker\\\"}\"}}]"
+        "verb": "slot",
+        "index": 2
       },
       {
         "verb": "lookAt",
         "offset": [
-          1.5,
-          0.05,
-          -3.5
-        ],
-        "ticks": 10
+          0.5,
+          0.5,
+          -3.0
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "slot",
+        "index": 2
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 30
+        "ticks": 26
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 3
+      },
+      {
+        "verb": "look",
+        "yaw": -180.0,
+        "pitch": 12.4,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -3.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 75
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 18
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 40
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 41
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -1.5,
+          1.2,
+          -2.0
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 70
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -547,50 +922,63 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.amethyst_block.place",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 53
       },
       {
         "verb": "command",
-        "text": "item replace entity {actor} weapon.offhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:iron_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
       {
-        "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:cobblestone"
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 1
       },
       {
         "verb": "wait",
         "ticks": 10
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "wait",
-        "ticks": 5
       },
       {
         "verb": "look",
         "yaw": 180,
-        "pitch": 30,
+        "pitch": 25,
         "ticks": 10
       },
       {
-        "verb": "waitFor",
-        "sound": "minecraft:block.stone.break",
-        "timeout": 240
-      },
-      {
         "verb": "wait",
-        "ticks": 80
+        "ticks": 260
       }
     ],
     "expect": {
       "sound": "minecraft:block.stone.break"
     },
     "povCapture": true,
-    "maxTicks": 700
+    "maxTicks": 1100,
+    "camera": {
+      "x": 5.5,
+      "y": 2.6,
+      "z": -2.5,
+      "yaw": 116.6,
+      "pitch": 17.8
+    }
   },
   "golem-angler-core": {
     "set": "taming-field",
@@ -602,7 +990,7 @@
       },
       {
         "name": "golem-node-weaving",
-        "level": 1
+        "level": 5
       },
       {
         "name": "golem-copper-frame",
@@ -610,34 +998,43 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"angler\\\"}\"}}]",
+      "execute at {actor} run gamerule show_advancement_messages false",
       "experience set {actor} 5 levels",
-      "execute at {actor} run fill ~-1 ~ ~-7 ~5 ~ ~-1 minecraft:stone",
-      "execute at {actor} run fill ~ ~-1 ~-6 ~4 ~ ~-2 minecraft:water",
-      "execute at {actor} run summon minecraft:copper_golem ~ ~ ~2.5 {Rotation:[180.0f,0.0f]}"
+      "adaptqa demo give {actor} 0 core/angler 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "adaptqa demo give {actor} 2 node/fishing 3",
+      "execute at {actor} run summon minecraft:copper_golem ~0 ~0 ~2.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
+      "execute at {actor} run fill ~ ~-2 ~-5 ~4 ~-1 ~-1 minecraft:water"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 0,
-        "pitch": 20
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.6,
+          3.0
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 60
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -645,71 +1042,101 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 50
+        "ticks": 53
       },
       {
         "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"fishing\\\"}\"}}]"
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
       {
-        "verb": "lookAt",
-        "offset": [
-          0.02,
-          1.12,
-          -3.4
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
         ],
         "ticks": 10
       },
       {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 2
+      },
+      {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 30
+        "ticks": 26
       },
       {
         "verb": "wait",
-        "ticks": 5
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:block.amethyst_block.place",
-        "timeout": 40
-      },
-      {
-        "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
+        "ticks": 3
       },
       {
         "verb": "look",
-        "yaw": 160,
-        "pitch": 25,
+        "yaw": 171.1,
+        "pitch": 30.2,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "look",
+        "yaw": 165,
+        "pitch": 20,
         "ticks": 10
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:entity.fishing_bobber.splash",
-        "timeout": 800
+        "timeout": 500,
+        "sound": "minecraft:entity.fishing_bobber.splash"
       },
       {
         "verb": "wait",
-        "ticks": 60
+        "ticks": 120
       }
     ],
     "expect": {
       "sound": "minecraft:entity.fishing_bobber.splash"
     },
     "povCapture": true,
-    "maxTicks": 1200
+    "maxTicks": 1500,
+    "camera": {
+      "x": 7.5,
+      "y": 2.6,
+      "z": -1.0,
+      "yaw": 110.0,
+      "pitch": 24.0
+    }
   },
   "golem-iron-frame": {
     "set": "taming-field",
@@ -721,32 +1148,41 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_core\"}}]",
+      "execute at {actor} run gamerule show_advancement_messages false",
       "experience set {actor} 5 levels",
-      "execute at {actor} run summon minecraft:iron_golem ~ ~ ~-3 {PlayerCreated:1b,Rotation:[0.0f,0.0f]}"
+      "adaptqa demo give {actor} 0 blank_core 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "execute at {actor} run summon minecraft:iron_golem ~0 ~0 ~-3 {Rotation:[0.0f,0.0f],PlayerCreated:1b,NoAI:1b}"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 20
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.2,
+          -2.5
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 60
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -754,41 +1190,83 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 50
+        "ticks": 53
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:iron_golem,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
       },
       {
         "verb": "look",
         "yaw": 180,
         "pitch": 5,
-        "ticks": 10
+        "ticks": 8
       },
       {
         "verb": "command",
-        "text": "execute at {actor} run summon minecraft:husk ~ ~ ~-7 {Rotation:[0.0f,0.0f],drop_chances:{head:0.0f}}"
+        "text": "execute at {actor} run summon minecraft:husk ~0 ~ ~-8 {Rotation:[0.0f,0.0f],drop_chances:{head:0.0f},active_effects:[{id:\"minecraft:slowness\",amplifier:2,duration:2400,show_particles:0b}]}"
       },
       {
         "verb": "command",
-        "text": "execute at {actor} run summon minecraft:husk ~1 ~ ~-7.5 {Rotation:[0.0f,0.0f],drop_chances:{head:0.0f}}"
+        "text": "execute at {actor} run summon minecraft:husk ~1 ~ ~-8.5 {Rotation:[0.0f,0.0f],drop_chances:{head:0.0f},active_effects:[{id:\"minecraft:slowness\",amplifier:2,duration:2400,show_particles:0b}]}"
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:entity.iron_golem.attack",
-        "timeout": 120
+        "timeout": 80,
+        "sound": "minecraft:entity.iron_golem.attack"
       },
       {
         "verb": "wait",
-        "ticks": 60
+        "ticks": 90
       }
     ],
     "expect": {
       "sound": "minecraft:entity.iron_golem.attack"
     },
-    "maxTicks": 400
+    "povCapture": true,
+    "maxTicks": 520,
+    "camera": {
+      "x": 5.0,
+      "y": 2.4,
+      "z": -4.5,
+      "yaw": 102.5,
+      "pitch": 16.9
+    },
+    "stills": [
+      {
+        "angle": "observer",
+        "at": 7.0,
+        "name": "bound-iron-golem"
+      }
+    ]
   },
   "golem-bone-frame": {
     "set": "taming-field",
@@ -801,13 +1279,23 @@
       {
         "name": "tragoul-skeletal-servant",
         "level": 5
+      },
+      {
+        "name": "golem-runic-augments",
+        "level": 5
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:bone 16",
-      "item replace entity {actor} hotbar.1 with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "item replace entity {actor} hotbar.0 with minecraft:bone 16",
+      "adaptqa demo give {actor} 1 crook 1",
+      "adaptqa demo give {actor} 3 rune/swiftness/1 1"
     ],
     "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
       {
         "verb": "look",
         "yaw": 180,
@@ -836,28 +1324,121 @@
       },
       {
         "verb": "wait",
-        "ticks": 30
+        "ticks": 36
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=minecraft:skeleton,limit=1,sort=nearest] ~0.5 ~ ~-3"
       },
       {
         "verb": "slot",
         "index": 1
       },
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 20,
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -2.5
+        ],
         "ticks": 10
       },
       {
         "verb": "wait",
-        "ticks": 100
+        "ticks": 60
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": -25,
+        "ticks": 8
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 40
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 14
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 14
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 3
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 57
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 4
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 3
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
       }
     ],
     "expect": {
-      "visual": "A skeletal servant rises from the bones; once the actor switches to the Crook, the servant glows and carries an owner-only status label with its name, health bar, seconds left and channel swatch."
+      "visual": "A skeletal servant rises from the bones and, with the Crook held, glows with an owner-only status label; the Bone Lattice menu opens from the roster."
     },
     "povCapture": true,
-    "maxTicks": 300
+    "maxTicks": 800,
+    "camera": {
+      "x": 3.5,
+      "y": 1.6,
+      "z": 0.0,
+      "yaw": 129.8,
+      "pitch": 11.6
+    }
   },
   "golem-lumber-core": {
     "set": "taming-field",
@@ -869,7 +1450,7 @@
       },
       {
         "name": "golem-node-weaving",
-        "level": 1
+        "level": 5
       },
       {
         "name": "golem-copper-frame",
@@ -877,35 +1458,45 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"lumber\\\"}\"}}]",
+      "execute at {actor} run gamerule show_advancement_messages false",
       "experience set {actor} 5 levels",
+      "adaptqa demo give {actor} 0 core/lumber 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "adaptqa demo give {actor} 2 node/lumber 3",
+      "execute at {actor} run summon minecraft:copper_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
       "execute at {actor} run setblock ~1 ~-1 ~-5 minecraft:dirt",
       "execute at {actor} run place feature minecraft:oak ~1 ~ ~-5",
-      "execute at {actor} run setblock ~1 ~-1 ~-3 minecraft:stone",
-      "execute at {actor} run summon minecraft:copper_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "execute at {actor} run setblock ~1 ~-1 ~-3 minecraft:stone"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.6,
+          -2.0
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 60
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -913,49 +1504,72 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 50
+        "ticks": 53
       },
       {
         "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"lumber\\\"}\"}}]"
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
       {
-        "verb": "lookAt",
-        "offset": [
-          1.5,
-          0.05,
-          -2.5
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
         ],
         "ticks": 10
       },
       {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 2
+      },
+      {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 30
+        "ticks": 26
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 3
+      },
+      {
+        "verb": "look",
+        "yaw": -161.6,
+        "pitch": 21.1,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
       },
       {
         "verb": "click",
         "key": "use"
       },
       {
-        "verb": "waitFor",
-        "sound": "minecraft:block.amethyst_block.place",
-        "timeout": 40
+        "verb": "wait",
+        "ticks": 12
       },
       {
-        "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
       },
       {
         "verb": "look",
@@ -964,20 +1578,22 @@
         "ticks": 10
       },
       {
-        "verb": "waitFor",
-        "sound": "minecraft:block.wood.break",
-        "timeout": 300
-      },
-      {
         "verb": "wait",
-        "ticks": 120
+        "ticks": 420
       }
     ],
     "expect": {
       "sound": "minecraft:block.wood.break"
     },
     "povCapture": true,
-    "maxTicks": 720
+    "maxTicks": 1000,
+    "camera": {
+      "x": 6.5,
+      "y": 3.2,
+      "z": -1.5,
+      "yaw": 121.0,
+      "pitch": 6.8
+    }
   },
   "golem-node-weaving": {
     "set": "taming-field",
@@ -989,10 +1605,16 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"deposit\\\"}\"}}] 2",
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "adaptqa demo give {actor} 0 node/deposit 2",
+      "adaptqa demo give {actor} 1 crook 1",
       "execute at {actor} run setblock ~ ~ ~-2 minecraft:chest"
     ],
     "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
       {
         "verb": "lookAt",
         "offset": [
@@ -1032,15 +1654,55 @@
       },
       {
         "verb": "wait",
-        "ticks": 4
+        "ticks": 30
       },
       {
-        "verb": "slot",
-        "index": 0
+        "verb": "click",
+        "key": "use"
       },
       {
         "verb": "wait",
-        "ticks": 60
+        "ticks": 15
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 2
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 12
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 40
       }
     ],
     "expect": {
@@ -1048,7 +1710,21 @@
       "particle": "end_rod"
     },
     "povCapture": true,
-    "maxTicks": 240
+    "maxTicks": 400,
+    "camera": {
+      "x": 3.4,
+      "y": 1.7,
+      "z": 0.4,
+      "yaw": 115.8,
+      "pitch": 20.4
+    },
+    "stills": [
+      {
+        "angle": "pov",
+        "at": 2.6,
+        "name": "node-reveal"
+      }
+    ]
   },
   "golem-rancher-core": {
     "set": "taming-field",
@@ -1060,7 +1736,7 @@
       },
       {
         "name": "golem-node-weaving",
-        "level": 1
+        "level": 5
       },
       {
         "name": "golem-copper-frame",
@@ -1068,72 +1744,163 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"rancher\\\"}\"}}]",
+      "execute at {actor} run gamerule show_advancement_messages false",
       "experience set {actor} 5 levels",
-      "execute at {actor} run setblock ~1 ~-1 ~-4 minecraft:stone",
-      "execute at {actor} run summon minecraft:sheep ~0.5 ~ ~-4.5 {NoAI:1b,Color:14b}",
-      "execute at {actor} run summon minecraft:sheep ~2.5 ~ ~-4.5 {NoAI:1b,Color:0b}",
-      "execute at {actor} run summon minecraft:copper_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "adaptqa demo give {actor} 0 core/rancher 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "adaptqa demo give {actor} 2 node/pasture 3",
+      "execute at {actor} run summon minecraft:copper_golem ~-2.5 ~0 ~-0.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
+      "execute at {actor} run setblock ~ ~ ~-4 minecraft:stone",
+      "execute at {actor} run summon minecraft:sheep ~-1.2 ~ ~-2.5 {NoAI:1b,Color:14b}",
+      "execute at {actor} run summon minecraft:sheep ~2.2 ~ ~-2.5 {NoAI:1b,Color:0b}"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
-      }
-    ],
-    "beats": [
-      {
-        "verb": "wait",
-        "ticks": 15
-      },
-      {
-        "verb": "press",
-        "hold": [
-          "sneak"
-        ],
-        "ticks": 60
-      },
-      {
-        "verb": "wait",
-        "ticks": 5
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
-      },
-      {
-        "verb": "wait",
-        "ticks": 50
-      },
-      {
-        "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"pasture\\\"}\"}}]"
+        "verb": "slot",
+        "index": 2
       },
       {
         "verb": "lookAt",
         "offset": [
-          1.5,
-          0.05,
-          -3.5
-        ],
-        "ticks": 10
+          0.5,
+          0.5,
+          -3.0
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "slot",
+        "index": 2
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 30
+        "ticks": 26
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 3
+      },
+      {
+        "verb": "look",
+        "yaw": -180.0,
+        "pitch": 12.4,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -3.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 37
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 38
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 41
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 42
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -2.0,
+          0.6,
+          0.0
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 70
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -1141,34 +1908,68 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.amethyst_block.place",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 53
       },
       {
         "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
       },
       {
         "verb": "look",
         "yaw": 180,
-        "pitch": 0,
+        "pitch": 20,
         "ticks": 10
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:entity.sheep.shear",
-        "timeout": 300
+        "timeout": 200,
+        "sound": "minecraft:entity.sheep.shear"
       },
       {
         "verb": "wait",
-        "ticks": 80
+        "ticks": 100
       }
     ],
     "expect": {
       "sound": "minecraft:entity.sheep.shear"
     },
     "povCapture": true,
-    "maxTicks": 720
+    "maxTicks": 1100,
+    "camera": {
+      "x": 5.5,
+      "y": 2.4,
+      "z": -1.0,
+      "yaw": 111.8,
+      "pitch": 16.5
+    }
   },
   "golem-runic-augments": {
     "set": "taming-field",
@@ -1176,39 +1977,50 @@
     "prerequisites": [
       {
         "name": "golem-animus-binding",
-        "level": 2
+        "level": 5
+      },
+      {
+        "name": "golem-iron-frame",
+        "level": 1
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:disc_fragment_5[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_rune\"}}]",
-      "execute at {actor} run setblock ~ ~ ~-4 minecraft:lodestone",
-      "execute at {actor} run setblock ~2 ~ ~-4 minecraft:chiseled_copper",
-      "execute at {actor} run setblock ~-2 ~ ~-4 minecraft:chiseled_copper",
-      "execute at {actor} run setblock ~ ~ ~-2 minecraft:chiseled_copper",
-      "execute at {actor} run setblock ~ ~ ~-6 minecraft:chiseled_copper"
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "experience set {actor} 5 levels",
+      "adaptqa demo give {actor} 0 blank_core 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "adaptqa demo give {actor} 3 rune/ember/1 1",
+      "execute at {actor} run summon minecraft:iron_golem ~0 ~0 ~-3 {Rotation:[0.0f,0.0f],PlayerCreated:1b,NoAI:1b}"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 45
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          1.2,
+          -2.5
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 30
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -1216,19 +2028,118 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.amethyst_block.place",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 40
+        "ticks": 53
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.45,
+          -2.5
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 13
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 75
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 13
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:iron_golem,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 8,
+        "ticks": 8
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run summon minecraft:husk ~0 ~ ~-7 {Rotation:[0.0f,0.0f],drop_chances:{head:0.0f},active_effects:[{id:\"minecraft:slowness\",amplifier:1,duration:2400,show_particles:0b}]}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 110
       }
     ],
     "expect": {
-      "sound": "minecraft:block.amethyst_block.place",
-      "particle": "end_rod"
+      "sound": "minecraft:entity.iron_golem.attack"
     },
-    "maxTicks": 160
+    "povCapture": true,
+    "maxTicks": 900,
+    "camera": {
+      "x": 4.0,
+      "y": 1.8,
+      "z": -2.0,
+      "yaw": 119.7,
+      "pitch": 16.6
+    },
+    "stills": [
+      {
+        "angle": "pov",
+        "at": 9.0,
+        "name": "rune-slots"
+      }
+    ]
   },
   "golem-overseer": {
     "set": "taming-field",
@@ -1240,32 +2151,40 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_core\"}}]",
-      "item replace entity {actor} hotbar.1 with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]",
-      "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "adaptqa demo give {actor} 0 blank_core 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -2.0
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 80
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -1273,12 +2192,31 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 60
+        "ticks": 53
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
       },
       {
         "verb": "slot",
@@ -1286,16 +2224,20 @@
       },
       {
         "verb": "look",
-        "yaw": 180,
-        "pitch": -60,
+        "yaw": 0,
+        "pitch": -4,
         "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 10
+        "ticks": 8
       },
       {
         "verb": "wait",
@@ -1307,25 +2249,28 @@
       },
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 10
       },
       {
         "verb": "click",
         "key": "attack"
       },
       {
-        "verb": "waitFor",
-        "sound": "minecraft:block.note_block.chime",
-        "timeout": 20
+        "verb": "wait",
+        "ticks": 24
       },
       {
         "verb": "look",
         "yaw": 180,
-        "pitch": 20,
+        "pitch": 12,
         "ticks": 10
       },
       {
-        "verb": "press",
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "keys",
         "hold": [
           "back"
         ],
@@ -1333,13 +2278,125 @@
       },
       {
         "verb": "wait",
-        "ticks": 50
+        "ticks": 30
+      },
+      {
+        "verb": "look",
+        "yaw": 0,
+        "pitch": -4,
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "click",
+        "key": "attack"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 12,
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 70
       }
     ],
     "expect": {
       "sound": "minecraft:block.note_block.chime"
     },
-    "maxTicks": 360
+    "povCapture": true,
+    "maxTicks": 800,
+    "camera": {
+      "x": 4.0,
+      "y": 1.8,
+      "z": 3.5,
+      "yaw": 145.0,
+      "pitch": 12.0
+    }
   },
   "golem-mending": {
     "set": "taming-field",
@@ -1351,32 +2408,41 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_core\"}}]",
-      "item replace entity {actor} hotbar.1 with minecraft:snow_block 4",
-      "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "adaptqa demo give {actor} 0 blank_core 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "item replace entity {actor} hotbar.3 with minecraft:snow_block 4",
+      "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}"
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -2.0
+        ]
       }
     ],
     "beats": [
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 12
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 60
+        "ticks": 70
       },
       {
         "verb": "wait",
-        "ticks": 5
+        "ticks": 4
       },
       {
         "verb": "click",
@@ -1384,16 +2450,16 @@
       },
       {
         "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
       },
       {
         "verb": "wait",
-        "ticks": 60
+        "ticks": 53
       },
       {
-        "verb": "command",
-        "text": "execute at {actor} run damage @e[type=minecraft:snow_golem,limit=1,sort=nearest] 3 minecraft:generic"
+        "verb": "wait",
+        "ticks": 20
       },
       {
         "verb": "slot",
@@ -1401,27 +2467,63 @@
       },
       {
         "verb": "wait",
-        "ticks": 15
+        "ticks": 10
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run damage @e[type=minecraft:snow_golem,limit=1,sort=nearest] 3 minecraft:generic"
+      },
+      {
+        "verb": "wait",
+        "ticks": 24
+      },
+      {
+        "verb": "slot",
+        "index": 3
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.45,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
       },
       {
         "verb": "click",
         "key": "use"
       },
       {
-        "verb": "waitFor",
-        "sound": "minecraft:block.amethyst_block.chime",
-        "timeout": 40
+        "verb": "wait",
+        "ticks": 24
+      },
+      {
+        "verb": "slot",
+        "index": 1
       },
       {
         "verb": "wait",
-        "ticks": 40
+        "ticks": 50
       }
     ],
     "expect": {
       "sound": "minecraft:block.amethyst_block.chime",
       "particle": "heart"
     },
-    "maxTicks": 360
+    "povCapture": true,
+    "maxTicks": 700,
+    "camera": {
+      "x": 3.2,
+      "y": 1.4,
+      "z": -0.2,
+      "yaw": 123.7,
+      "pitch": 15.5
+    }
   },
   "golem-sorter-core": {
     "set": "taming-field",
@@ -1433,7 +2535,7 @@
       },
       {
         "name": "golem-node-weaving",
-        "level": 1
+        "level": 5
       },
       {
         "name": "golem-copper-frame",
@@ -1441,316 +2543,18 @@
       }
     ],
     "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"core\",\"adapt:golem_item_data\":\"{\\\"role\\\":\\\"sorter\\\"}\"}}]",
+      "execute at {actor} run gamerule show_advancement_messages false",
       "experience set {actor} 5 levels",
-      "execute at {actor} run setblock ~1 ~ ~-4 minecraft:chest{Items:[{Slot:0b,id:\"minecraft:cobblestone\",count:16}]}",
-      "execute at {actor} run setblock ~-1 ~ ~-4 minecraft:chest{Items:[{Slot:0b,id:\"minecraft:cobblestone\",count:1}]}",
-      "execute at {actor} run summon minecraft:copper_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
+      "adaptqa demo give {actor} 0 core/sorter 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "adaptqa demo give {actor} 2 node/input 2",
+      "adaptqa demo give {actor} 3 node/filter 2",
+      "execute at {actor} run summon minecraft:copper_golem ~-2.5 ~0 ~-0.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
+      "item replace entity {actor} hotbar.4 with minecraft:cobblestone 1",
+      "execute at {actor} run setblock ~1 ~ ~-4 minecraft:chest{Items:[{Slot:0b,id:\"minecraft:cobblestone\",count:16},{Slot:1b,id:\"minecraft:cobblestone\",count:16},{Slot:2b,id:\"minecraft:cobblestone\",count:16}]}",
+      "execute at {actor} run setblock ~-1 ~ ~-4 minecraft:chest{Items:[{Slot:0b,id:\"minecraft:cobblestone\",count:1}]}"
     ],
     "prelude": [
-      {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
-      }
-    ],
-    "beats": [
-      {
-        "verb": "wait",
-        "ticks": 15
-      },
-      {
-        "verb": "press",
-        "hold": [
-          "sneak"
-        ],
-        "ticks": 60
-      },
-      {
-        "verb": "wait",
-        "ticks": 5
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
-      },
-      {
-        "verb": "wait",
-        "ticks": 50
-      },
-      {
-        "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:brick[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"node\",\"adapt:golem_item_data\":\"{\\\"type\\\":\\\"input\\\"}\"}}]"
-      },
-      {
-        "verb": "lookAt",
-        "offset": [
-          1.5,
-          0.9,
-          -3.5
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "press",
-        "hold": [
-          "sneak"
-        ],
-        "ticks": 30
-      },
-      {
-        "verb": "wait",
-        "ticks": 5
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:block.amethyst_block.place",
-        "timeout": 40
-      },
-      {
-        "verb": "command",
-        "text": "item replace entity {actor} weapon.mainhand with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]"
-      },
-      {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 0,
-        "ticks": 10
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:entity.copper_golem.item_drop",
-        "timeout": 300
-      },
-      {
-        "verb": "wait",
-        "ticks": 120
-      }
-    ],
-    "expect": {
-      "sound": "minecraft:entity.copper_golem.item_drop"
-    },
-    "povCapture": true,
-    "maxTicks": 720
-  },
-  "golem-stasis": {
-    "set": "taming-field",
-    "level": 3,
-    "prerequisites": [
-      {
-        "name": "golem-animus-binding",
-        "level": 5
-      }
-    ],
-    "pre": [
-      "item replace entity {actor} weapon.mainhand with minecraft:firework_star[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"blank_core\"}}]",
-      "item replace entity {actor} hotbar.1 with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]",
-      "execute at {actor} run summon minecraft:snow_golem ~ ~ ~-2.5 {Rotation:[0.0f,0.0f]}"
-    ],
-    "prelude": [
-      {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25
-      }
-    ],
-    "beats": [
-      {
-        "verb": "wait",
-        "ticks": 15
-      },
-      {
-        "verb": "press",
-        "hold": [
-          "sneak"
-        ],
-        "ticks": 60
-      },
-      {
-        "verb": "wait",
-        "ticks": 5
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:block.enchantment_table.use",
-        "timeout": 40
-      },
-      {
-        "verb": "wait",
-        "ticks": 60
-      },
-      {
-        "verb": "slot",
-        "index": 1
-      },
-      {
-        "verb": "wait",
-        "ticks": 10
-      },
-      {
-        "verb": "press",
-        "hold": [
-          "sneak"
-        ],
-        "ticks": 20
-      },
-      {
-        "verb": "wait",
-        "ticks": 5
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:block.respawn_anchor.deplete",
-        "timeout": 40
-      },
-      {
-        "verb": "wait",
-        "ticks": 30
-      },
-      {
-        "verb": "slot",
-        "index": 0
-      },
-      {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 55,
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 5
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:block.respawn_anchor.charge",
-        "timeout": 40
-      },
-      {
-        "verb": "wait",
-        "ticks": 50
-      }
-    ],
-    "expect": {
-      "sound": "minecraft:block.respawn_anchor.charge",
-      "particle": "end_rod"
-    },
-    "maxTicks": 400
-  },
-  "golem-masterwork": {
-    "set": "taming-field",
-    "level": 1,
-    "prerequisites": [
-      {
-        "name": "golem-animus-binding",
-        "level": 5
-      },
-      {
-        "name": "golem-runic-augments",
-        "level": 3
-      }
-    ],
-    "pre": [
-      "item replace entity {actor} hotbar.0 with minecraft:heart_of_the_sea",
-      "item replace entity {actor} hotbar.1 with minecraft:diamond_block",
-      "item replace entity {actor} hotbar.2 with minecraft:iron_block",
-      "item replace entity {actor} hotbar.3 with minecraft:copper_block",
-      "item replace entity {actor} hotbar.4 with minecraft:snow_block",
-      "item replace entity {actor} hotbar.5 with minecraft:iron_hoe[minecraft:custom_data={PublicBukkitValues:{\"adapt:golem_item\":\"crook\"}}]",
-      "experience add {actor} 20 levels",
-      "execute at {actor} run setblock ~ ~ ~-4 minecraft:lodestone",
-      "execute at {actor} run setblock ~2 ~ ~-4 minecraft:chiseled_copper",
-      "execute at {actor} run setblock ~-2 ~ ~-4 minecraft:chiseled_copper",
-      "execute at {actor} run setblock ~ ~ ~-2 minecraft:chiseled_copper",
-      "execute at {actor} run setblock ~ ~ ~-6 minecraft:chiseled_copper"
-    ],
-    "prelude": [
-      {
-        "verb": "lookAt",
-        "offset": [
-          0.5,
-          0.5,
-          -3.5
-        ]
-      }
-    ],
-    "beats": [
-      {
-        "verb": "wait",
-        "ticks": 10
-      },
-      {
-        "verb": "press",
-        "hold": [
-          "sneak"
-        ],
-        "ticks": 12
-      },
-      {
-        "verb": "wait",
-        "ticks": 4
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "wait",
-        "ticks": 12
-      },
-      {
-        "verb": "slot",
-        "index": 1
-      },
-      {
-        "verb": "lookAt",
-        "offset": [
-          0.5,
-          0.5,
-          -5.5
-        ],
-        "ticks": 8
-      },
-      {
-        "verb": "press",
-        "hold": [
-          "sneak"
-        ],
-        "ticks": 12
-      },
-      {
-        "verb": "wait",
-        "ticks": 4
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "wait",
-        "ticks": 12
-      },
       {
         "verb": "slot",
         "index": 2
@@ -1758,22 +2562,37 @@
       {
         "verb": "lookAt",
         "offset": [
-          2.5,
+          1.5,
           0.5,
-          -3.5
-        ],
-        "ticks": 8
+          -3.0
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "slot",
+        "index": 2
       },
       {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 12
+        "ticks": 26
       },
       {
         "verb": "wait",
-        "ticks": 4
+        "ticks": 3
+      },
+      {
+        "verb": "look",
+        "yaw": -164.1,
+        "pitch": 11.9,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
       },
       {
         "verb": "click",
@@ -1788,24 +2607,25 @@
         "index": 3
       },
       {
-        "verb": "lookAt",
-        "offset": [
-          0.5,
-          0.5,
-          -1.5
-        ],
-        "ticks": 8
-      },
-      {
         "verb": "press",
         "hold": [
           "sneak"
         ],
-        "ticks": 12
+        "ticks": 26
       },
       {
         "verb": "wait",
-        "ticks": 4
+        "ticks": 3
+      },
+      {
+        "verb": "look",
+        "yaw": 164.1,
+        "pitch": 11.9,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
       },
       {
         "verb": "click",
@@ -1817,15 +2637,325 @@
       },
       {
         "verb": "slot",
-        "index": 4
+        "index": 1
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "forward"
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
       },
       {
         "verb": "lookAt",
         "offset": [
-          -1.5,
+          -0.5,
           0.5,
-          -3.5
+          -3.0
         ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 76
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 18
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 39
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 39
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 41
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          -2.0,
+          0.6,
+          0.0
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 70
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 53
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 25,
+        "ticks": 10
+      },
+      {
+        "verb": "waitFor",
+        "timeout": 240,
+        "sound": "minecraft:entity.copper_golem.item_drop"
+      },
+      {
+        "verb": "wait",
+        "ticks": 120
+      }
+    ],
+    "expect": {
+      "sound": "minecraft:entity.copper_golem.item_drop"
+    },
+    "povCapture": true,
+    "maxTicks": 1200,
+    "camera": {
+      "x": 3.5,
+      "y": 2.2,
+      "z": -0.5,
+      "yaw": 135.0,
+      "pitch": 20.7
+    }
+  },
+  "golem-stasis": {
+    "set": "taming-field",
+    "level": 3,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      }
+    ],
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "adaptqa demo give {actor} 0 blank_core 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -2.0
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 70
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 53
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.45,
+          -2.0
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 43
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 43
+      },
+      {
+        "verb": "wait",
+        "ticks": 30
+      },
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": 40,
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 50
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "look",
+        "yaw": 180,
+        "pitch": -25,
         "ticks": 8
       },
       {
@@ -1833,7 +2963,7 @@
         "hold": [
           "sneak"
         ],
-        "ticks": 12
+        "ticks": 40
       },
       {
         "verb": "wait",
@@ -1845,38 +2975,18 @@
       },
       {
         "verb": "wait",
-        "ticks": 12
+        "ticks": 16
       },
       {
-        "verb": "slot",
-        "index": 5
+        "verb": "window",
+        "action": "hover",
+        "slot": 0
       },
       {
-        "verb": "lookAt",
-        "offset": [
-          0.5,
-          0.5,
-          -3.5
-        ],
-        "ticks": 8
-      },
-      {
-        "verb": "wait",
-        "ticks": 4
-      },
-      {
-        "verb": "click",
-        "key": "use"
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:block.beacon.activate",
-        "timeout": 40
-      },
-      {
-        "verb": "waitFor",
-        "sound": "minecraft:block.amethyst_block.resonate",
-        "timeout": 340
+        "verb": "window",
+        "action": "click",
+        "slot": 0,
+        "button": 1
       },
       {
         "verb": "wait",
@@ -1884,9 +2994,2453 @@
       }
     ],
     "expect": {
-      "sound": "minecraft:block.amethyst_block.resonate",
       "particle": "end_rod"
     },
-    "maxTicks": 620
-  }
+    "povCapture": true,
+    "maxTicks": 900,
+    "camera": {
+      "x": 3.2,
+      "y": 1.4,
+      "z": -0.2,
+      "yaw": 123.7,
+      "pitch": 15.5
+    }
+  },
+  "golem-masterwork": {
+    "set": "taming-field",
+    "level": 3,
+    "prerequisites": [
+      {
+        "name": "golem-animus-binding",
+        "level": 5
+      },
+      {
+        "name": "golem-runic-augments",
+        "level": 3
+      },
+      {
+        "name": "golem-guardian-core",
+        "level": 1
+      }
+    ],
+    "pre": [
+      "execute at {actor} run gamerule show_advancement_messages false",
+      "adaptqa demo give {actor} 0 blank_core 1",
+      "adaptqa demo give {actor} 1 crook 1",
+      "adaptqa demo give {actor} 3 masterwork_heart 1",
+      "adaptqa demo give {actor} 4 core/guardian 1",
+      "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}"
+    ],
+    "prelude": [
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -2.0
+        ]
+      }
+    ],
+    "beats": [
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 70
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "waitFor",
+        "timeout": 60,
+        "sound": "minecraft:block.enchantment_table.use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 53
+      },
+      {
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "slot",
+        "index": 1
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.45,
+          -2.0
+        ],
+        "ticks": 8
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 14
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 38
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 75
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 38
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 2
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 76
+      },
+      {
+        "verb": "window",
+        "action": "click",
+        "slot": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 1
+      },
+      {
+        "verb": "window",
+        "action": "hover",
+        "slot": 2
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
+      },
+      {
+        "verb": "window",
+        "action": "close"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.45,
+          -2.0
+        ],
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 80
+      }
+    ],
+    "expect": {
+      "visual": "The golem's Golem GUI shows the Masterwork slot holding the Heart and a second core; its label gains the gold stars and a gold aura rings it."
+    },
+    "povCapture": true,
+    "maxTicks": 800,
+    "camera": {
+      "x": 3.2,
+      "y": 1.4,
+      "z": -0.2,
+      "yaw": 123.7,
+      "pitch": 15.5
+    },
+    "stills": [
+      {
+        "angle": "pov",
+        "at": 5.5,
+        "name": "masterwork-slot"
+      }
+    ]
+  },
+  "showcase": [
+    {
+      "id": "golemancy-crafting",
+      "title": "Crafting Golemancy items",
+      "heading": "Items and crafting",
+      "set": "taming-field",
+      "prerequisites": [
+        {
+          "name": "golem-animus-binding",
+          "level": 5
+        },
+        {
+          "name": "golem-guardian-core",
+          "level": 1
+        }
+      ],
+      "pre": [
+        "execute at {actor} run gamerule show_advancement_messages false",
+        "experience set {actor} 5 levels",
+        "execute at {actor} run setblock ~ ~ ~-2 minecraft:crafting_table",
+        "item replace entity {actor} hotbar.0 with minecraft:amethyst_shard 1",
+        "item replace entity {actor} hotbar.1 with minecraft:redstone 2",
+        "item replace entity {actor} hotbar.2 with minecraft:iron_hoe 1",
+        "item replace entity {actor} hotbar.3 with minecraft:copper_ingot 1",
+        "item replace entity {actor} hotbar.4 with minecraft:amethyst_shard 4",
+        "item replace entity {actor} hotbar.5 with minecraft:redstone 4",
+        "item replace entity {actor} hotbar.6 with minecraft:ender_pearl 1",
+        "item replace entity {actor} hotbar.7 with minecraft:iron_sword 1",
+        "item replace entity {actor} hotbar.8 with minecraft:iron_ingot 2",
+        "item replace entity {actor} inventory.0 with minecraft:shield 1"
+      ],
+      "prelude": [
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.35,
+            -1.05
+          ]
+        }
+      ],
+      "beats": [
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 14
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 37
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 2,
+          "button": 0
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 38
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 4,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 6,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 39
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 5,
+          "button": 0
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 40
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 8,
+          "button": 0
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 0
+        },
+        {
+          "verb": "window",
+          "action": "shift",
+          "slot": 0
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 41
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 1,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 3,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 7,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 9,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 42
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 2,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 4,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 6,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 8,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 43
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 5,
+          "button": 0
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 0
+        },
+        {
+          "verb": "window",
+          "action": "shift",
+          "slot": 0
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 44
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 2
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 45
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 4,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 6,
+          "button": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 43
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 5
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 10
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 0
+        },
+        {
+          "verb": "window",
+          "action": "shift",
+          "slot": 0
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "wait",
+          "ticks": 30
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        }
+      ],
+      "expect": {
+        "visual": "The Artificer's Crook, a Blank Animus Core and a Guardian Core come out of the crafting table with their tooltips shown."
+      },
+      "povCapture": true,
+      "maxTicks": 1500,
+      "camera": {
+        "x": 3.0,
+        "y": 1.8,
+        "z": 0.8,
+        "yaw": 132.6,
+        "pitch": 19.5
+      },
+      "stills": [
+        {
+          "angle": "pov",
+          "at": 8.8,
+          "name": "crook-grid"
+        },
+        {
+          "angle": "pov",
+          "at": 20.0,
+          "name": "blank-core-grid"
+        },
+        {
+          "angle": "pov",
+          "at": 27.6,
+          "name": "guardian-core-grid"
+        }
+      ]
+    },
+    {
+      "id": "golemancy-bodies",
+      "title": "Bound golem bodies",
+      "heading": "Bound golems",
+      "set": "taming-field",
+      "prerequisites": [
+        {
+          "name": "golem-animus-binding",
+          "level": 5
+        },
+        {
+          "name": "golem-copper-frame",
+          "level": 1
+        },
+        {
+          "name": "golem-iron-frame",
+          "level": 5
+        }
+      ],
+      "pre": [
+        "execute at {actor} run gamerule show_advancement_messages false",
+        "experience set {actor} 5 levels",
+        "adaptqa demo give {actor} 0 blank_core 3",
+        "adaptqa demo give {actor} 1 crook 1",
+        "execute at {actor} run summon minecraft:snow_golem ~-1.5 ~0 ~-2.1 {Rotation:[0.0f,0.0f],NoAI:1b}",
+        "execute at {actor} run summon minecraft:copper_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
+        "execute at {actor} run summon minecraft:iron_golem ~1.5 ~0 ~-2.1 {Rotation:[0.0f,0.0f],PlayerCreated:1b,NoAI:1b}",
+        "execute at {actor} run summon minecraft:iron_golem ~4 ~ ~-2.3 {Rotation:[0.0f,0.0f],NoAI:1b}"
+      ],
+      "prelude": [
+        {
+          "verb": "slot",
+          "index": 0
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            -1.0,
+            0.9,
+            -1.6
+          ],
+          "ticks": 10
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 70
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "waitFor",
+          "timeout": 60,
+          "sound": "minecraft:block.enchantment_table.use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 53
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "slot",
+          "index": 0
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.8,
+            -2.0
+          ],
+          "ticks": 10
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 70
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "waitFor",
+          "timeout": 60,
+          "sound": "minecraft:block.enchantment_table.use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 53
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "slot",
+          "index": 0
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            2.0,
+            1.3,
+            -1.6
+          ],
+          "ticks": 10
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 70
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "waitFor",
+          "timeout": 60,
+          "sound": "minecraft:block.enchantment_table.use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 53
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.9,
+            -2.0
+          ],
+          "ticks": 8
+        }
+      ],
+      "beats": [
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "look",
+          "yaw": 158,
+          "pitch": 14,
+          "ticks": 50
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "look",
+          "yaw": 205,
+          "pitch": 14,
+          "ticks": 80
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "look",
+          "yaw": 180,
+          "pitch": 10,
+          "ticks": 20
+        },
+        {
+          "verb": "slot",
+          "index": 1
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            2.0,
+            0.45,
+            -1.6
+          ],
+          "ticks": 14
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 14
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 40
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 40
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "look",
+          "yaw": 180,
+          "pitch": -5,
+          "ticks": 24
+        },
+        {
+          "verb": "wait",
+          "ticks": 70
+        }
+      ],
+      "expect": {
+        "visual": "Bound snow, copper and iron golems stand one block tall beside a full-size village iron golem; the bound iron golem then grows to full size in Colossus Form."
+      },
+      "povCapture": true,
+      "maxTicks": 800,
+      "camera": {
+        "x": -4.5,
+        "y": 1.7,
+        "z": -5.2,
+        "yaw": -62.2,
+        "pitch": 8.0
+      },
+      "stills": [
+        {
+          "angle": "observer",
+          "at": 9.0,
+          "name": "bodies"
+        }
+      ]
+    },
+    {
+      "id": "golemancy-modes",
+      "title": "Golem modes",
+      "heading": "Bound golems",
+      "set": "taming-field",
+      "prerequisites": [
+        {
+          "name": "golem-animus-binding",
+          "level": 5
+        }
+      ],
+      "pre": [
+        "execute at {actor} run gamerule show_advancement_messages false",
+        "adaptqa demo give {actor} 0 blank_core 1",
+        "adaptqa demo give {actor} 1 crook 1",
+        "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}"
+      ],
+      "prelude": [
+        {
+          "verb": "slot",
+          "index": 0
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.9,
+            -2.0
+          ]
+        }
+      ],
+      "beats": [
+        {
+          "verb": "wait",
+          "ticks": 12
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 70
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "waitFor",
+          "timeout": 60,
+          "sound": "minecraft:block.enchantment_table.use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 53
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "keys",
+          "hold": [
+            "back"
+          ],
+          "ticks": 10
+        },
+        {
+          "verb": "wait",
+          "ticks": 8
+        },
+        {
+          "verb": "slot",
+          "index": 1
+        },
+        {
+          "verb": "look",
+          "yaw": -90,
+          "pitch": 4,
+          "ticks": 8
+        },
+        {
+          "verb": "keys",
+          "hold": [
+            "forward"
+          ],
+          "ticks": 20
+        },
+        {
+          "verb": "wait",
+          "ticks": 12
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~0 ~ ~-2.5"
+        },
+        {
+          "verb": "slot",
+          "index": 1
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:1b}"
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "look",
+          "yaw": 180,
+          "pitch": 26,
+          "ticks": 6
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 14
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 4
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 4
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 8
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "keys",
+          "hold": [
+            "back"
+          ],
+          "ticks": 22
+        },
+        {
+          "verb": "wait",
+          "ticks": 26
+        },
+        {
+          "verb": "keys",
+          "hold": [
+            "forward"
+          ],
+          "ticks": 22
+        },
+        {
+          "verb": "wait",
+          "ticks": 8
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:1b}"
+        },
+        {
+          "verb": "slot",
+          "index": 1
+        },
+        {
+          "verb": "look",
+          "yaw": 180,
+          "pitch": 26,
+          "ticks": 6
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 14
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 4
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 4
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 8
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
+        },
+        {
+          "verb": "look",
+          "yaw": 90,
+          "pitch": 6,
+          "ticks": 10
+        },
+        {
+          "verb": "wait",
+          "ticks": 110
+        }
+      ],
+      "expect": {
+        "visual": "A companion golem follows, stays where it stands, then walks back home as its mode is switched in the Golem GUI."
+      },
+      "povCapture": true,
+      "maxTicks": 1100,
+      "camera": {
+        "x": 2.5,
+        "y": 3.0,
+        "z": 4.5,
+        "yaw": 174.8,
+        "pitch": 25.2
+      }
+    },
+    {
+      "id": "golemancy-asleep",
+      "title": "Awake and asleep",
+      "heading": "Awake and asleep",
+      "skip": "The studio records the owner's own client, so the owner disconnecting ends the recording and no second client exists to film the dormant golems."
+    },
+    {
+      "id": "golemancy-golem-gui",
+      "title": "Golem GUI tour",
+      "heading": "Golem GUI",
+      "set": "taming-field",
+      "prerequisites": [
+        {
+          "name": "golem-animus-binding",
+          "level": 5
+        },
+        {
+          "name": "golem-node-weaving",
+          "level": 5
+        },
+        {
+          "name": "golem-copper-frame",
+          "level": 1
+        },
+        {
+          "name": "golem-gatherer-core",
+          "level": 5
+        },
+        {
+          "name": "golem-runic-augments",
+          "level": 3
+        },
+        {
+          "name": "golem-stasis",
+          "level": 1
+        }
+      ],
+      "pre": [
+        "execute at {actor} run gamerule show_advancement_messages false",
+        "experience set {actor} 5 levels",
+        "adaptqa demo give {actor} 0 core/gatherer 1",
+        "adaptqa demo give {actor} 1 crook 1",
+        "adaptqa demo give {actor} 3 rune/swiftness/1 1",
+        "adaptqa demo give {actor} 4 rune/tide/1 1",
+        "execute at {actor} run summon minecraft:copper_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
+        "execute at {actor} run summon minecraft:item ~1.5 ~ ~-3.5 {Item:{id:\"minecraft:wheat\",count:16},PickupDelay:0}",
+        "execute at {actor} run summon minecraft:item ~-1.5 ~ ~-3.5 {Item:{id:\"minecraft:cobblestone\",count:12},PickupDelay:0}"
+      ],
+      "prelude": [
+        {
+          "verb": "slot",
+          "index": 0
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.6,
+            -2.0
+          ]
+        }
+      ],
+      "beats": [
+        {
+          "verb": "wait",
+          "ticks": 12
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 70
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "waitFor",
+          "timeout": 60,
+          "sound": "minecraft:block.enchantment_table.use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 53
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "keys",
+          "hold": [
+            "back"
+          ],
+          "ticks": 10
+        },
+        {
+          "verb": "wait",
+          "ticks": 8
+        },
+        {
+          "verb": "slot",
+          "index": 1
+        },
+        {
+          "verb": "wait",
+          "ticks": 110
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run tp @e[type=minecraft:copper_golem,limit=1,sort=nearest] ~0 ~ ~-2.2"
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:1b}"
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "slot",
+          "index": 1
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.45,
+            -2.0
+          ],
+          "ticks": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 14
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 75
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 12
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 76
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 13
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 1
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 4
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 5
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 7
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 12
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 13
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 18
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 19
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 36
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 43
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 44
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        }
+      ],
+      "expect": {
+        "visual": "The Golem GUI rows: body and core, mode, channel, home and home chest, two slotted runes, the items the golem carries, statistics, Pack and Release."
+      },
+      "povCapture": true,
+      "maxTicks": 1200,
+      "camera": {
+        "x": 3.2,
+        "y": 1.4,
+        "z": -0.2,
+        "yaw": 123.7,
+        "pitch": 15.5
+      },
+      "stills": [
+        {
+          "angle": "pov",
+          "at": 20.0,
+          "name": "golem-gui"
+        }
+      ]
+    },
+    {
+      "id": "golemancy-roster",
+      "title": "Golem roster",
+      "heading": "Golem roster",
+      "set": "taming-field",
+      "prerequisites": [
+        {
+          "name": "golem-animus-binding",
+          "level": 5
+        },
+        {
+          "name": "golem-copper-frame",
+          "level": 1
+        },
+        {
+          "name": "golem-iron-frame",
+          "level": 5
+        },
+        {
+          "name": "golem-stasis",
+          "level": 3
+        }
+      ],
+      "pre": [
+        "execute at {actor} run gamerule show_advancement_messages false",
+        "experience set {actor} 5 levels",
+        "adaptqa demo give {actor} 0 blank_core 2",
+        "adaptqa demo give {actor} 1 crook 1",
+        "execute at {actor} run summon minecraft:snow_golem ~-1.5 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
+        "execute at {actor} run summon minecraft:copper_golem ~1.5 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}"
+      ],
+      "prelude": [
+        {
+          "verb": "slot",
+          "index": 0
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            -1.0,
+            0.9,
+            -2.5
+          ]
+        }
+      ],
+      "beats": [
+        {
+          "verb": "wait",
+          "ticks": 12
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 70
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "waitFor",
+          "timeout": 60,
+          "sound": "minecraft:block.enchantment_table.use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 53
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            2.0,
+            0.6,
+            -2.5
+          ],
+          "ticks": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "wait",
+          "ticks": 12
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 70
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "waitFor",
+          "timeout": 60,
+          "sound": "minecraft:block.enchantment_table.use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 53
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
+        },
+        {
+          "verb": "slot",
+          "index": 1
+        },
+        {
+          "verb": "look",
+          "yaw": 180,
+          "pitch": -35,
+          "ticks": 10
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 30
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 16
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 0
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 1
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 0
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "look",
+          "yaw": 180,
+          "pitch": 8,
+          "ticks": 10
+        },
+        {
+          "verb": "wait",
+          "ticks": 110
+        }
+      ],
+      "expect": {
+        "visual": "The roster lists both golems; Locate makes the chosen golem glow with a trail of particles pointing to it."
+      },
+      "povCapture": true,
+      "maxTicks": 1000,
+      "camera": {
+        "x": 3.5,
+        "y": 2.2,
+        "z": 0.5,
+        "yaw": 135.0,
+        "pitch": 20.7
+      }
+    },
+    {
+      "id": "golemancy-plinth-ritual",
+      "title": "Animus Plinth ritual",
+      "heading": "Animus Plinth",
+      "set": "taming-field",
+      "prerequisites": [
+        {
+          "name": "golem-animus-binding",
+          "level": 5
+        },
+        {
+          "name": "golem-runic-augments",
+          "level": 1
+        }
+      ],
+      "pre": [
+        "execute at {actor} run gamerule show_advancement_messages false",
+        "experience set {actor} 5 levels",
+        "adaptqa demo give {actor} 0 blank_rune 1",
+        "item replace entity {actor} hotbar.1 with minecraft:sugar 2",
+        "item replace entity {actor} hotbar.2 with minecraft:sugar 2",
+        "item replace entity {actor} hotbar.3 with minecraft:feather 2",
+        "item replace entity {actor} hotbar.4 with minecraft:feather 2",
+        "adaptqa demo give {actor} 5 crook 1",
+        "execute at {actor} run setblock ~ ~ ~-4 minecraft:lodestone",
+        "execute at {actor} run setblock ~2 ~ ~-4 minecraft:chiseled_copper",
+        "execute at {actor} run setblock ~-2 ~ ~-4 minecraft:chiseled_copper",
+        "execute at {actor} run setblock ~ ~ ~-2 minecraft:chiseled_copper",
+        "execute at {actor} run setblock ~ ~ ~-6 minecraft:chiseled_copper",
+        "execute at {actor} run tp {actor} ~1 ~ ~-3 180 20"
+      ],
+      "prelude": [
+        {
+          "verb": "slot",
+          "index": 0
+        }
+      ],
+      "beats": [
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "slot",
+          "index": 0
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 22
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "look",
+          "yaw": 135.0,
+          "pitch": 10.8,
+          "ticks": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 3
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 8
+        },
+        {
+          "verb": "slot",
+          "index": 1
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 22
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "look",
+          "yaw": -135.0,
+          "pitch": 10.8,
+          "ticks": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 3
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 8
+        },
+        {
+          "verb": "slot",
+          "index": 2
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 22
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "look",
+          "yaw": 108.4,
+          "pitch": 4.9,
+          "ticks": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 3
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 8
+        },
+        {
+          "verb": "slot",
+          "index": 3
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 22
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "look",
+          "yaw": 45.0,
+          "pitch": 10.8,
+          "ticks": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 3
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 8
+        },
+        {
+          "verb": "slot",
+          "index": 4
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 22
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "look",
+          "yaw": 161.6,
+          "pitch": 4.9,
+          "ticks": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 3
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 8
+        },
+        {
+          "verb": "slot",
+          "index": 5
+        },
+        {
+          "verb": "look",
+          "yaw": 135.0,
+          "pitch": 23.7,
+          "ticks": 10
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 260
+        },
+        {
+          "verb": "wait",
+          "ticks": 30
+        }
+      ],
+      "expect": {
+        "visual": "Four pedestals ring the lodestone; their items lift and dust streams to the spinning center, and a Swiftness rune pops out."
+      },
+      "stills": [
+        {
+          "angle": "observer",
+          "at": 3.0,
+          "name": "plinth-structure"
+        },
+        {
+          "angle": "observer",
+          "at": 16.0,
+          "name": "plinth-ritual"
+        }
+      ],
+      "povCapture": true,
+      "maxTicks": 1000,
+      "camera": {
+        "x": 6.0,
+        "y": 3.0,
+        "z": -0.5,
+        "yaw": 118.6,
+        "pitch": 17.7
+      }
+    },
+    {
+      "id": "golemancy-node-config",
+      "title": "Node clicks",
+      "heading": "Node Weaving (`golem-node-weaving`)",
+      "set": "taming-field",
+      "prerequisites": [
+        {
+          "name": "golem-animus-binding",
+          "level": 5
+        },
+        {
+          "name": "golem-node-weaving",
+          "level": 5
+        }
+      ],
+      "pre": [
+        "execute at {actor} run gamerule show_advancement_messages false",
+        "adaptqa demo give {actor} 0 node/deposit 1",
+        "adaptqa demo give {actor} 1 crook 1",
+        "item replace entity {actor} hotbar.2 with minecraft:blue_dye 1",
+        "item replace entity {actor} hotbar.3 with minecraft:cobblestone 1",
+        "execute at {actor} run setblock ~ ~ ~-2 minecraft:chest"
+      ],
+      "prelude": [
+        {
+          "verb": "slot",
+          "index": 0
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.5,
+            -1.0
+          ]
+        }
+      ],
+      "beats": [
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 24
+        },
+        {
+          "verb": "wait",
+          "ticks": 3
+        },
+        {
+          "verb": "look",
+          "yaw": -180.0,
+          "pitch": 27.2,
+          "ticks": 6
+        },
+        {
+          "verb": "wait",
+          "ticks": 3
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 14
+        },
+        {
+          "verb": "slot",
+          "index": 1
+        },
+        {
+          "verb": "wait",
+          "ticks": 30
+        },
+        {
+          "verb": "look",
+          "yaw": 180,
+          "pitch": 30,
+          "ticks": 6
+        },
+        {
+          "verb": "click",
+          "key": "attack"
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "click",
+          "key": "attack"
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "click",
+          "key": "attack"
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "slot",
+          "index": 1
+        },
+        {
+          "verb": "click",
+          "key": "swapHands"
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "slot",
+          "index": 2
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.5,
+            -1.0
+          ],
+          "ticks": 6
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "slot",
+          "index": 3
+        },
+        {
+          "verb": "wait",
+          "ticks": 2
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        },
+        {
+          "verb": "wait",
+          "ticks": 20
+        }
+      ],
+      "expect": {
+        "sound": "minecraft:block.amethyst_block.place",
+        "particle": "end_rod"
+      },
+      "povCapture": true,
+      "maxTicks": 900,
+      "camera": {
+        "x": 3.4,
+        "y": 1.7,
+        "z": 0.4,
+        "yaw": 115.8,
+        "pitch": 20.4
+      },
+      "stills": [
+        {
+          "angle": "pov",
+          "at": 3.0,
+          "name": "node-reveal"
+        }
+      ]
+    },
+    {
+      "id": "golemancy-preferences",
+      "title": "Player preferences",
+      "heading": "Player preferences",
+      "set": "taming-field",
+      "prerequisites": [
+        {
+          "name": "golem-animus-binding",
+          "level": 5
+        },
+        {
+          "name": "golem-node-weaving",
+          "level": 5
+        },
+        {
+          "name": "golem-guardian-core",
+          "level": 5
+        },
+        {
+          "name": "golem-gatherer-core",
+          "level": 5
+        }
+      ],
+      "pre": [
+        "execute at {actor} run gamerule show_advancement_messages false",
+        "adaptqa demo give {actor} 0 node/deposit 2",
+        "adaptqa demo give {actor} 1 core/gatherer 1",
+        "adaptqa demo give {actor} 5 crook 1",
+        "execute at {actor} run setblock ~ ~ ~-2 minecraft:chest",
+        "execute at {actor} run summon minecraft:snow_golem ~-2.2 ~0 ~-2.4 {Rotation:[0.0f,0.0f],NoAI:1b}",
+        "adaptqa demo preference {actor} golem-node-weaving node-reveal ANY_ITEM",
+        "adaptqa demo preference {actor} golem-guardian-core intercept ON",
+        "adaptqa demo preference {actor} golem-gatherer-core absorb-orbs ON"
+      ],
+      "prelude": [
+        {
+          "verb": "slot",
+          "index": 0
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.5,
+            -1.0
+          ]
+        }
+      ],
+      "beats": [
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 24
+        },
+        {
+          "verb": "wait",
+          "ticks": 3
+        },
+        {
+          "verb": "look",
+          "yaw": -180.0,
+          "pitch": 27.2,
+          "ticks": 6
+        },
+        {
+          "verb": "wait",
+          "ticks": 3
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 40
+        },
+        {
+          "verb": "slot",
+          "index": 1
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            -1.7,
+            0.9,
+            -2.4
+          ],
+          "ticks": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 4
+        },
+        {
+          "verb": "press",
+          "hold": [
+            "sneak"
+          ],
+          "ticks": 40
+        },
+        {
+          "verb": "wait",
+          "ticks": 3
+        },
+        {
+          "verb": "click",
+          "key": "use"
+        },
+        {
+          "verb": "wait",
+          "ticks": 60
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
+        },
+        {
+          "verb": "slot",
+          "index": 0
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.5,
+            -1.0
+          ],
+          "ticks": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 30
+        },
+        {
+          "verb": "command",
+          "text": "adapt gui target=adaptation:golem-node-weaving player={actor} force=true"
+        },
+        {
+          "verb": "wait",
+          "ticks": 24
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 21
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 21
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 21
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 14
+        },
+        {
+          "verb": "slot",
+          "index": 0
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.5,
+            -1.0
+          ],
+          "ticks": 8
+        },
+        {
+          "verb": "wait",
+          "ticks": 40
+        },
+        {
+          "verb": "slot",
+          "index": 5
+        },
+        {
+          "verb": "wait",
+          "ticks": 30
+        },
+        {
+          "verb": "command",
+          "text": "adapt gui target=adaptation:golem-guardian-core player={actor} force=true"
+        },
+        {
+          "verb": "wait",
+          "ticks": 24
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 21
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 21
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 21
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 14
+        },
+        {
+          "verb": "command",
+          "text": "adapt gui target=adaptation:golem-gatherer-core player={actor} force=true"
+        },
+        {
+          "verb": "wait",
+          "ticks": 24
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 23
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 23
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 23
+        },
+        {
+          "verb": "wait",
+          "ticks": 10
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
+          "verb": "window",
+          "action": "close"
+        },
+        {
+          "verb": "wait",
+          "ticks": 14
+        },
+        {
+          "verb": "slot",
+          "index": 5
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            -1.8,
+            0.4,
+            -2.6
+          ],
+          "ticks": 10
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~-2.2 ~ ~-2.4"
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run summon minecraft:experience_orb ~-2.0 ~ ~-3.2 {Value:60s}"
+        },
+        {
+          "verb": "wait",
+          "ticks": 200
+        }
+      ],
+      "expect": {
+        "visual": "Node reveal set to Crook only hides the node while holding it; Intercept and Absorb XP orbs are switched Off and the golem leaves the experience orb on the ground."
+      },
+      "povCapture": true,
+      "maxTicks": 1700,
+      "camera": {
+        "x": 4.0,
+        "y": 2.2,
+        "z": -1.0,
+        "yaw": 108.4,
+        "pitch": 19.7
+      }
+    }
+  ]
 }
