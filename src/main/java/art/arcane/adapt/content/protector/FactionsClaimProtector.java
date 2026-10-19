@@ -29,6 +29,7 @@ import com.massivecraft.factions.Faction;
 import com.massivecraft.factions.perms.PermissibleAction;
 import com.massivecraft.factions.perms.PermissibleActions;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public class FactionsClaimProtector implements Protector {
@@ -56,8 +57,11 @@ public class FactionsClaimProtector implements Protector {
   }
 
   @Override
-  public boolean canPVE(Player player, Location victimLocation, Adaptation<?> adaptation) {
-    Faction f = factionAt(victimLocation);
+  public boolean canPVE(Player player, Entity victim, Adaptation<?> adaptation) {
+    if (!ClaimCreatures.protectedCreature(victim, entity -> false)) {
+      return true;
+    }
+    Faction f = factionAt(victim.getLocation());
     return checkPerm(player, f) || f.isWilderness();
   }
 

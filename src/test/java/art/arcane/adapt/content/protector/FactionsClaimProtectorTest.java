@@ -9,7 +9,12 @@ import com.massivecraft.factions.FactionsPlugin;
 import com.massivecraft.factions.perms.PermissibleActions;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Cow;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Squid;
+import org.bukkit.entity.Zombie;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -81,8 +86,20 @@ class FactionsClaimProtectorTest {
     assertThat(protector.canBlockBreak(player, territory, null)).isFalse();
     assertThat(protector.canBlockPlace(player, territory, null)).isTrue();
     assertThat(protector.canAccessChest(player, territory, null)).isFalse();
-    assertThat(protector.canPVE(player, territory, null)).isFalse();
     assertThat(protector.checkRegion(player, territory, null)).isFalse();
+  }
+
+  @Test
+  void monstersInForeignTerritoryCanBeHitButCreaturesCannot() {
+    assertThat(protector.canPVE(player, entity(Zombie.class, territory), null)).isTrue();
+    assertThat(protector.canPVE(player, entity(ArmorStand.class, territory), null)).isTrue();
+    assertThat(protector.canPVE(player, entity(Cow.class, territory), null)).isFalse();
+    assertThat(protector.canPVE(player, entity(Squid.class, territory), null)).isFalse();
+  }
+
+  @Test
+  void locationOnlyDamageChecksAreNotLimitedByTerritory() {
+    assertThat(protector.canPVE(player, territory, null)).isTrue();
   }
 
   @Test
@@ -98,7 +115,7 @@ class FactionsClaimProtectorTest {
     assertThat(protector.canBlockPlace(player, wilderness, null)).isTrue();
     assertThat(protector.canAccessChest(player, wilderness, null)).isTrue();
     assertThat(protector.canInteract(player, wilderness, null)).isTrue();
-    assertThat(protector.canPVE(player, wilderness, null)).isTrue();
+    assertThat(protector.canPVE(player, entity(Cow.class, wilderness), null)).isTrue();
     assertThat(protector.checkRegion(player, wilderness, null)).isTrue();
   }
 
@@ -110,7 +127,7 @@ class FactionsClaimProtectorTest {
 
     when(fplayer.isAdminBypassing()).thenReturn(false);
     when(fplayer.getFaction()).thenReturn(foreign);
-    assertThat(protector.canPVE(player, territory, null)).isTrue();
+    assertThat(protector.canPVE(player, entity(Cow.class, territory), null)).isTrue();
     assertThat(protector.checkRegion(player, territory, null)).isTrue();
   }
 
@@ -119,5 +136,11 @@ class FactionsClaimProtectorTest {
     lenient().when(player.getLocation()).thenReturn(wilderness);
 
     assertThat(protector.checkRegion(player, territory, null)).isFalse();
+  }
+
+  private static <T extends Entity> T entity(Class<T> type, Location at) {
+    T entity = mock(type);
+    lenient().when(entity.getLocation()).thenReturn(at);
+    return entity;
   }
 }

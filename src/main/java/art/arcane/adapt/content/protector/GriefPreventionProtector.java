@@ -27,17 +27,8 @@ import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
-import org.bukkit.entity.Creature;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Hoglin;
-import org.bukkit.entity.Mob;
-import org.bukkit.entity.Monster;
-import org.bukkit.entity.Panda;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.PolarBear;
-import org.bukkit.entity.Rabbit;
-import org.bukkit.entity.Shulker;
-import org.bukkit.entity.WaterMob;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Objects;
@@ -58,15 +49,15 @@ public class GriefPreventionProtector implements Protector {
 
   @Override
   public boolean canPVE(Player player, Entity victim, Adaptation<?> adaptation) {
-    if (!GriefPrevention.instance.config_claims_protectCreatures || !protectedCreature(victim)) {
+    if (!GriefPrevention.instance.config_claims_protectCreatures || !ClaimCreatures.protectedCreature(victim, GriefPreventionProtector::lured)) {
       return true;
     }
-    return allowed(victim.getLocation(), claim -> claim.allowContainers(player));
+    return allowed(victim.getLocation(), false, claim -> claim.allowContainers(player));
   }
 
   @Override
   public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
-    return allowed(chestLocation, claim -> claim.allowContainers(player));
+    return allowed(chestLocation, true, claim -> claim.allowContainers(player));
   }
 
   @Override
@@ -103,29 +94,9 @@ public class GriefPreventionProtector implements Protector {
 
   }
 
-  private static boolean allowed(Location location, Function<Claim, String> denial) {
-    Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null);
+  private static boolean allowed(Location location, boolean ignoreHeight, Function<Claim, String> denial) {
+    Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, ignoreHeight, null);
     return claim == null || denial.apply(claim) == null;
-  }
-
-  private static boolean protectedCreature(Entity entity) {
-    return (entity instanceof Creature || entity instanceof WaterMob) && !monster(entity);
-  }
-
-  private static boolean monster(Entity entity) {
-    if (entity instanceof Monster || entity instanceof Shulker) {
-      return true;
-    }
-    if (entity instanceof Rabbit rabbit) {
-      return rabbit.getRabbitType() == Rabbit.Type.THE_KILLER_BUNNY;
-    }
-    if (entity instanceof Panda panda) {
-      return panda.getMainGene() == Panda.Gene.AGGRESSIVE;
-    }
-    if ((entity instanceof Hoglin || entity instanceof PolarBear) && entity instanceof Mob mob) {
-      return !lured(entity) && mob.getTarget() != null;
-    }
-    return false;
   }
 
   private static boolean lured(Entity entity) {

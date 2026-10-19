@@ -32,6 +32,7 @@ class GriefPreventionProtectorTest {
   private final World world = mock(World.class);
   private final Location claimed = new Location(world, 10, 64, 10);
   private final Location wild = new Location(world, 500, 64, 500);
+  private final Location belowFloor = new Location(world, 10, -40, 10);
   private GriefPrevention previous;
   private GriefPrevention plugin;
   private Claim claim;
@@ -46,7 +47,11 @@ class GriefPreventionProtectorTest {
     plugin.config_claims_protectCreatures = true;
     lenient().when(plugin.namespace()).thenReturn("griefprevention");
     lenient().when(store.getClaimAt(eq(claimed), eq(true), any())).thenReturn(claim);
+    lenient().when(store.getClaimAt(eq(claimed), eq(false), any())).thenReturn(claim);
     lenient().when(store.getClaimAt(eq(wild), eq(true), any())).thenReturn(null);
+    lenient().when(store.getClaimAt(eq(wild), eq(false), any())).thenReturn(null);
+    lenient().when(store.getClaimAt(eq(belowFloor), eq(true), any())).thenReturn(claim);
+    lenient().when(store.getClaimAt(eq(belowFloor), eq(false), any())).thenReturn(null);
     lenient().when(claim.allowContainers(player)).thenReturn("no container trust");
     lenient().when(claim.allowAccess(player)).thenReturn("no access trust");
     GriefPrevention.instance = plugin;
@@ -85,6 +90,11 @@ class GriefPreventionProtectorTest {
 
     assertThat(protector.canPVE(player, cow, null)).isTrue();
     assertThat(protector.canPVE(player, squid, null)).isTrue();
+  }
+
+  @Test
+  void aCreatureBelowTheClaimFloorIsOutsideTheClaimAsGriefPreventionJudgesIt() {
+    assertThat(protector.canPVE(player, entity(Cow.class, belowFloor), null)).isTrue();
   }
 
   @Test
