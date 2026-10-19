@@ -14,6 +14,7 @@ from studio import BridgeTimeout
 
 PRE_SETTLE_TICKS: int = 60
 SETTLE_TICKS: int = 20
+CLEAR_SETTLE_SECONDS: float = 1.5
 REPLAY_TIMEOUT: float = 60.0
 STOP_STATE_TIMEOUT: float = 30.0
 BRIDGE_RETRY_SECONDS: float = 1.0
@@ -154,6 +155,8 @@ def prepare_take(studio: RecordStudio, entry: choreography.Entry, skill: str) ->
     if entry.opponent and studio.opponent_bridge is None:
         raise RuntimeError(entry.id + ' needs the opponent client, but it is not running')
     set_info: dict = parse_set_reply(rcon.command('adaptqa demo set ' + entry.set))
+    if int(set_info.get('cleared', 0)) > 0:
+        time.sleep(CLEAR_SETTLE_SECONDS)
     rcon.command('adaptqa demo actor ' + actor)
     if entry.opponent:
         rcon.command('adaptqa demo actor ' + studio.opponent + ' opponent')

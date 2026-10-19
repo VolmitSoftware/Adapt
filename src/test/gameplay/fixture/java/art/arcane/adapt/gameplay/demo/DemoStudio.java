@@ -1,5 +1,6 @@
 package art.arcane.adapt.gameplay.demo;
 
+import art.arcane.adapt.gameplay.GolemancyFixtures;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -123,18 +124,21 @@ public final class DemoStudio {
     public String set(String name) {
         requirePlate();
         DemoSet next = DemoSets.get(name);
+        int cleared = GolemancyFixtures.clearDemoState(world, originX, originY, originZ - PLATE_NORTH / 2, PLATE_NORTH + CLEAR_HEIGHT);
         reset();
         resetGameRules();
         current = next;
         current.build(world, originX, originY, originZ);
-        return "ADAPT_QA DEMO SET " + name + " " + json(current);
+        return "ADAPT_QA DEMO SET " + name + " " + json(current, cleared);
     }
 
     public String actor(String playerName, boolean opponent) {
         requireSet();
         Player player = onlinePlayer(playerName);
         player.setGameMode(GameMode.SURVIVAL);
+        player.closeInventory();
         player.getInventory().clear();
+        player.getInventory().setHeldItemSlot(0);
         for (PotionEffect effect : player.getActivePotionEffects()) {
             player.removePotionEffect(effect.getType());
         }
@@ -321,9 +325,9 @@ public final class DemoStudio {
         return new Location(world, originX + pose.x(), originY + pose.y(), originZ + pose.z(), pose.yaw(), pose.pitch());
     }
 
-    private String json(DemoSet set) {
+    private String json(DemoSet set, int cleared) {
         String camera = set.followCamera() ? followJson(set.camera()) : json(absolute(set.camera()));
-        return "{\"actor\":" + json(absolute(set.actorStart())) + ",\"camera\":" + camera + "}";
+        return "{\"actor\":" + json(absolute(set.actorStart())) + ",\"camera\":" + camera + ",\"cleared\":" + cleared + "}";
     }
 
     private static String followJson(DemoSet.Pose pose) {

@@ -4,12 +4,19 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemRoster;
+import art.arcane.adapt.api.golem.GolemTask;
+import art.arcane.adapt.api.golem.GolemTaskBoard;
+import art.arcane.adapt.api.golem.GolemTaskBoards;
+import art.arcane.adapt.api.golem.GolemRune;
+import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
@@ -18,8 +25,10 @@ import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
@@ -258,6 +267,82 @@ public final class GolemancyFixtures {
                 roster.remove(entry.id());
             }
         }
+    }
+
+    public static int clearDemoState(World world, int originX, int originY, int originZ, int plateRadius) {
+        Player[] players = Bukkit.getOnlinePlayers().stream().filter(player -> player.getName().startsWith("AQA")).toArray(Player[]::new);
+        clearRosters(players);
+        Optional<NodeService> service = GolemancyRuntime.nodes();
+        if (service.isEmpty()) {
+            return 0;
+        }
+        int cleared = 0;
+        for (NodeIndex.Entry entry : service.get().index().near(world.getUID(), originX, originY, originZ, plateRadius)) {
+            Player owner = Bukkit.getPlayer(entry.record().owner());
+            if (owner != null && service.get().remove(owner, entry.key())) {
+                cleared++;
+            }
+        }
+        return cleared;
+    }
+
+    public static String probe(Player owner) {
+        StringBuilder out = new StringBuilder("ADAPT_QA DEMO PROBE");
+        World world = owner.getWorld();
+        Location at = owner.getLocation();
+        long now = System.currentTimeMillis();
+        Optional<GolemTaskBoards> boards = GolemancyRuntime.boards();
+        GolemancyRuntime.nodes().ifPresent(service -> {
+            for (NodeIndex.Entry entry : service.index().near(world.getUID(), at.getX(), at.getY(), at.getZ(), 80)) {
+                NodeKey key = entry.key();
+                out.append(" | node ").append(entry.record().type().id()).append('@').append(key.x()).append(',').append(key.y()).append(',').append(key.z())
+                    .append(' ').append(key.face());
+                boards.ifPresent(all -> {
+                    GolemTaskBoard board = all.board(world.getUID());
+                    out.append(" status=").append(board.status(key, now));
+                    List<GolemTask> tasks = board.tasks(key);
+                    out.append(" tasks=").append(tasks.size());
+                    for (int index = 0; index < Math.min(3, tasks.size()); index++) {
+                        GolemTask task = tasks.get(index);
+                        out.append(" {").append(task.type()).append(' ').append(task.target()).append(" holder=").append(task.holder(now).isPresent()).append('}');
+                    }
+                });
+            }
+        });
+        GolemancyRuntime.registry().ifPresent(registry -> {
+            for (GolemHandle handle : registry.loadedOf(owner.getUniqueId())) {
+                Location where = handle.entity().getLocation();
+                out.append(" | golem ").append(handle.body()).append(' ').append(handle.state().mode()).append(" cores=").append(handle.state().cores())
+                    .append(String.format(" at=%.1f,%.1f,%.1f", where.getX(), where.getY(), where.getZ())).append(" dormant=").append(handle.isDormant());
+            }
+        });
+        return out.toString();
+    }
+
+    public static void warmItems() {
+        GolemItems.crook();
+        GolemItems.blankCore();
+        GolemItems.core(GolemCoreType.GATHERER);
+        GolemItems.blankNode();
+        GolemItems.node(NodeType.DEPOSIT);
+        GolemItems.blankRune();
+        GolemItems.rune(new GolemRune(GolemRuneType.SWIFTNESS, 1));
+        GolemItems.masterworkHeart();
+        GolemItems.mayBeOwnerBound(Material.SNOW_BLOCK);
+    }
+
+    public static String give(Player player, int hotbarSlot, String itemId, int count) {
+        if (hotbarSlot < 0 || hotbarSlot > 8) {
+            throw new IllegalArgumentException("Hotbar slot must be 0 to 8, found " + hotbarSlot);
+        }
+        ItemStack item = "masterwork_heart".equals(itemId) ? GolemItems.masterworkHeart() : GolemItems.resolve(new NamespacedKey(GolemItems.NAMESPACE, itemId));
+        if (item == null) {
+            throw new IllegalArgumentException("Unknown Golemancy item " + itemId);
+        }
+        item.setAmount(count);
+        player.getInventory().setItem(hotbarSlot, item);
+        player.updateInventory();
+        return "ADAPT_QA DEMO GIVE " + hotbarSlot + " " + itemId + " " + count;
     }
 
     public static JsonObject snapshot(Player player) {

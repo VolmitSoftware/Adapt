@@ -29,6 +29,7 @@ class FakeStudio:
         self.record_start = 100
         self.recording = False
         self.evicted = False
+        self.cleared = 0
         self.stops = 0
         self.replays = replays
         self.gates: list[int] = []
@@ -40,7 +41,8 @@ class FakeStudio:
 
     def reply(self, text: str) -> str:
         if text.startswith('adaptqa demo set'):
-            return 'ADAPT_QA DEMO SET wall {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":-90.0,"pitch":0.0},"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0}}'
+            return ('ADAPT_QA DEMO SET wall {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":-90.0,"pitch":0.0},'
+                    '"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0},"cleared":' + str(self.cleared) + '}')
         return 'ADAPT_QA DEMO OK'
 
     def state(self) -> dict:
@@ -322,6 +324,33 @@ class RecordPhaseTest(unittest.TestCase):
             with mock.patch.object(record_phase, 'wait_ticks_factory', side_effect=waiter):
                 record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
         return log
+
+    def cleared_take(self, cleared: int) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            studio.cleared = cleared
+            log: list[str] = []
+
+            def sent(text: str) -> str:
+                log.append('rcon:' + text)
+                return studio.reply(text)
+
+            studio.rcon.command.side_effect = sent
+            with mock.patch.object(record_phase.time, 'sleep', side_effect=lambda seconds: log.append('sleep:' + str(seconds))):
+                record_phase.record(studio, {self.entry().id: self.entry()}, [self.entry().id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
+        return log
+
+    def test_cleared_golem_state_settles_before_the_actor_is_reset(self) -> None:
+        log = self.cleared_take(2)
+        sleep: str = 'sleep:' + str(record_phase.CLEAR_SETTLE_SECONDS)
+        self.assertIn(sleep, log)
+        self.assertLess(log.index('rcon:adaptqa demo set wall'), log.index(sleep))
+        self.assertLess(log.index(sleep), log.index('rcon:adaptqa demo actor AQAClient262'))
+
+    def test_a_set_that_cleared_nothing_does_not_wait(self) -> None:
+        self.assertNotIn('sleep:' + str(record_phase.CLEAR_SETTLE_SECONDS), self.cleared_take(0))
 
     def test_pre_commands_settle_sixty_ticks_before_record_start(self) -> None:
         log = self.ordered_take(self.entry())
