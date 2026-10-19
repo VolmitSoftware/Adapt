@@ -1,6 +1,7 @@
 package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
@@ -22,6 +23,8 @@ import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.plinth.PlinthService;
 import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
+import art.arcane.adapt.api.preference.PlayerPreferences;
+import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.gameplay.demo.DemoScope;
@@ -52,6 +55,7 @@ import java.util.List;
 import java.util.Optional;
 
 public final class GolemancyFixtures {
+    private static final String GOLEMANCY_SKILL = "golemancy";
     private static final String BINDING_STAGE = "golemancy-binding";
     private static final String GATHERER_BINDING_STAGE = "golemancy-gatherer-binding";
     private static final String GUARDIAN_BINDING_STAGE = "golemancy-guardian-binding";
@@ -271,6 +275,20 @@ public final class GolemancyFixtures {
                 continue;
             }
             DemoScope.clearRoster(adaptPlayer.getData().getGolemancy());
+            resetPreferences(adaptPlayer);
+        }
+    }
+
+    private static void resetPreferences(AdaptPlayer learner) {
+        for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills()) {
+            if (!skill.getName().equals(GOLEMANCY_SKILL)) {
+                continue;
+            }
+            for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                if (learner.getData().getPreferences().reset(adaptation.getName())) {
+                    PlayerPreferences.reconcile(adaptation, learner);
+                }
+            }
         }
     }
 
