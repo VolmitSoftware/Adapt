@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Callable, Protocol
 
 import choreography
+import clip_check
 import editor_state
 import encode
 import manifest
@@ -144,7 +145,8 @@ def extract_still(output: Path, take: manifest.Take, still: dict, clip: Path, ff
         raise RuntimeError('Still ' + still['name'] + ' at ' + format(float(still['at']), 'g') + ' s is past the end of ' + clip.name)
 
 
-def export_take(studio: ExportStudio, take: manifest.Take, docs_root: Path, ffmpeg: Path, ffprobe: Path, audio: bool) -> None:
+def export_take(studio: ExportStudio, take: manifest.Take, docs_root: Path, ffmpeg: Path, ffprobe: Path, audio: bool) -> dict[str, int]:
+    crfs: dict[str, int] = {}
     for angle in ANGLES:
         live: bool = angle == 'pov' and take.pov_capture
         intermediate: Path = live_source(studio, take) if live else studio.output / 'intermediate' / (take.id + '-' + angle + '.mp4')
@@ -152,13 +154,17 @@ def export_take(studio: ExportStudio, take: manifest.Take, docs_root: Path, ffmp
             export_one(studio, take, angle, intermediate, audio)
         final: Path = final_clip(docs_root, take, angle)
         final.parent.mkdir(parents=True, exist_ok=True)
-        encode.run(encode.normalize_command(ffmpeg, intermediate, final, encode.has_audio(ffprobe, intermediate), LIVE_TRIM_SECONDS if live else 0.0))
+        crfs[angle] = encode.encode_within(ffmpeg, intermediate, final, encode.has_audio(ffprobe, intermediate), LIVE_TRIM_SECONDS if live else 0.0)
+        corrupt: list[tuple[float, float]] = clip_check.corrupt_frames(ffmpeg, final)
+        if corrupt:
+            raise RuntimeError(clip_check.message(final.name, corrupt))
         thumb: Path = studio.output / 'thumbs' / (take.id + '-' + angle + '.png')
         thumb.parent.mkdir(parents=True, exist_ok=True)
         encode.run(encode.thumbnail_command(ffmpeg, final, thumb, max(0.5, manifest.clip_seconds(take) / 2)))
         for still in take.stills:
             if still['angle'] == angle:
                 extract_still(studio.output, take, still, final, ffmpeg)
+    return crfs
 
 
 def export(studio: ExportStudio, takes: dict[str, manifest.Take], ids: list[str], docs_root: Path, ffmpeg: Path, ffprobe: Path,
@@ -168,7 +174,7 @@ def export(studio: ExportStudio, takes: dict[str, manifest.Take], ids: list[str]
         if take is None or take.status == 'skipped' or not take.evidence_ok or not take.replay or not Path(take.replay).is_file():
             continue
         try:
-            export_take(studio, take, docs_root, ffmpeg, ffprobe, audio)
+            crfs: dict[str, int] = export_take(studio, take, docs_root, ffmpeg, ffprobe, audio)
         except (RuntimeError, OSError, zipfile.BadZipFile) as failure:
             for angle in ANGLES:
                 final_clip(docs_root, take, angle).unlink(missing_ok=True)
@@ -179,7 +185,7 @@ def export(studio: ExportStudio, takes: dict[str, manifest.Take], ids: list[str]
             print('[EXPORT-FAIL] ' + identifier + ' ' + str(failure), flush=True)
             close_replay(studio.bridge)
             continue
-        takes[identifier] = dataclasses.replace(take, status='exported', export_error='')
+        takes[identifier] = dataclasses.replace(take, status='exported', export_error='', crf=crfs)
         manifest.save(manifest_path, takes)
         print('[EXPORT] ' + identifier, flush=True)
     return takes

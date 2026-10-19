@@ -208,6 +208,17 @@ class GalleryTest(unittest.TestCase):
         self.assertNotIn('not-extracted', html)
         self.assertLess(html.index('agility-wall-jump-observer.webm'), html.index(image))
 
+    def test_the_nearest_golem_distance_and_the_crf_are_shown_when_known(self) -> None:
+        take: manifest.Take = dataclasses.replace(exported_take(), min_golem_distance=2.5, crf={'pov': 30, 'observer': 27})
+        page: str = render({take.id: take})
+        self.assertIn('nearest golem 2.50 blocks', page)
+        self.assertIn('crf pov 30, observer 27', page)
+
+    def test_a_take_without_golems_names_neither(self) -> None:
+        page: str = render({'agility-wall-jump': exported_take()})
+        self.assertNotIn('nearest golem', page)
+        self.assertNotIn('crf ', page)
+
     def test_a_take_without_stills_shows_no_figures(self) -> None:
         self.assertNotIn('<figure>', render({'agility-wall-jump': exported_take()}))
 

@@ -47,6 +47,10 @@ def section(identifier: str, take: manifest.Take, docs_root: Path, thumbs: Path,
     if take.stop_tick > take.start_tick >= 0:
         facts.append(format(manifest.clip_seconds(take), '.1f') + ' s')
     facts.extend(evidence_facts(take))
+    if take.min_golem_distance is not None:
+        facts.append('nearest golem ' + format(take.min_golem_distance, '.2f') + ' blocks')
+    if take.crf:
+        facts.append('crf ' + ', '.join(angle + ' ' + str(value) for angle, value in take.crf.items()))
     if take.export_error:
         facts.append('export error: ' + take.export_error)
     body: str = videos(identifier, take, docs_root, thumbs) + stills(take, output) if take.status == 'exported' else ''

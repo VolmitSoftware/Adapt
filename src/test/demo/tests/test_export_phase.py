@@ -364,6 +364,62 @@ class ExportPhaseTest(unittest.TestCase):
             self.assertFalse((demos / 'agility-wall-jump-observer.webm').exists())
             self.assertTrue((demos / 'agility-vault-pov.webm').is_file())
 
+    def export_once(self, root: Path, encoded: object, corrupt: object | None = None) -> dict[str, manifest.Take]:
+        studio = SimpleNamespace(bridge=FakeBridge([]), game=root / 'game', output=root / 'out')
+        take = recorded_take(self.replay(root))
+        scan: object = corrupt if corrupt is not None else (lambda ffmpeg, clip: [])
+        with (mock.patch.object(export_phase.encode, 'run', side_effect=encoded), mock.patch.object(export_phase.encode, 'has_audio', return_value=False),
+              mock.patch.object(export_phase.clip_check, 'corrupt_frames', side_effect=scan)):
+            return export_phase.export(studio, {take.id: take}, [take.id], root / 'docs', Path('/ffmpeg'), Path('/ffprobe'), root / 'out' / 'manifest.json', audio=False)
+
+    def test_an_oversized_clip_is_re_encoded_and_the_crf_is_recorded_per_angle(self) -> None:
+        def encoded(command: list[str]) -> None:
+            if command[-1].endswith('.webm'):
+                crf: int = int(command[command.index('-crf') + 1])
+                Path(command[-1]).write_bytes(b'x' * (200 if '-pov' in command[-1] and crf < 33 else 50))
+
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(export_phase.encode, 'MAX_CLIP_BYTES', 100):
+            result: dict[str, manifest.Take] = self.export_once(Path(tmp), encoded)
+            self.assertEqual(manifest.load(Path(tmp) / 'out' / 'manifest.json')['agility-wall-jump'].crf, {'pov': 33, 'observer': 27})
+        self.assertEqual(result['agility-wall-jump'].status, 'exported')
+        self.assertEqual(result['agility-wall-jump'].crf, {'pov': 33, 'observer': 27})
+
+    def test_a_clip_that_never_fits_fails_the_export(self) -> None:
+        def encoded(command: list[str]) -> None:
+            if command[-1].endswith('.webm'):
+                Path(command[-1]).write_bytes(b'x' * 200)
+
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(export_phase.encode, 'MAX_CLIP_BYTES', 100):
+            result: dict[str, manifest.Take] = self.export_once(Path(tmp), encoded)
+            self.assertFalse(list((Path(tmp) / 'docs' / 'adapt-assets' / 'demos' / 'agility').glob('*.webm')))
+        self.assertEqual(result['agility-wall-jump'].status, 'failed')
+        self.assertIn('did not fit', result['agility-wall-jump'].export_error)
+
+    def test_a_clip_with_saturated_green_frames_fails_the_export_and_keeps_the_live_capture(self) -> None:
+        def encoded(command: list[str]) -> None:
+            if command[-1].endswith('.webm'):
+                Path(command[-1]).write_bytes(b'webm')
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            live: Path = root / 'out' / 'intermediate' / 'agility-wall-jump-pov-live.mp4'
+            live.parent.mkdir(parents=True)
+            live.write_bytes(b'live capture')
+            result: dict[str, manifest.Take] = self.export_once(root, encoded, lambda ffmpeg, clip: [(16.75, 0.27)] if clip.name.endswith('-pov.webm') else [])
+            self.assertFalse(list((root / 'docs' / 'adapt-assets' / 'demos' / 'agility').glob('*.webm')))
+            self.assertEqual(live.read_bytes(), b'live capture')
+        self.assertEqual(result['agility-wall-jump'].status, 'failed')
+        self.assertIn('agility-wall-jump-pov.webm has 1 frames with saturated green over 3% of the frame, the first at 16.75 s (27.0%)', result['agility-wall-jump'].export_error)
+
+    def test_clean_clips_pass_the_frame_scan(self) -> None:
+        def encoded(command: list[str]) -> None:
+            if command[-1].endswith('.webm'):
+                Path(command[-1]).write_bytes(b'webm')
+
+        with tempfile.TemporaryDirectory() as tmp:
+            result: dict[str, manifest.Take] = self.export_once(Path(tmp), encoded, lambda ffmpeg, clip: [])
+        self.assertEqual(result['agility-wall-jump'].status, 'exported')
+
     def test_skipped_takes_are_never_exported(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
