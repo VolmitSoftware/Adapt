@@ -1,5 +1,6 @@
 package art.arcane.adapt.clientqa;
 
+import art.arcane.adapt.clientqa.mixin.WindowAccessor;
 import com.mojang.blaze3d.GpuFormat;
 import com.mojang.blaze3d.buffers.GpuBuffer;
 import com.mojang.blaze3d.buffers.GpuBufferSlice;
@@ -129,6 +130,7 @@ public final class LiveCapture {
         }
         long handle = window.handle();
         if (contentSize(handle).equals(width + "x" + height)) {
+            syncFramebuffer(window, handle, width, height);
             return;
         }
         int[] left = new int[1];
@@ -145,6 +147,18 @@ public final class LiveCapture {
             throw new IllegalStateException("The main display holds only a " + fitted + " game window, not " + width + "x" + height);
         }
         LOGGER.info("Game window moved to the main display at {}x{}", width, height);
+        syncFramebuffer(window, handle, width, height);
+    }
+
+    private static void syncFramebuffer(Window window, long handle, int width, int height) {
+        if (!Boolean.parseBoolean(System.getProperty("adapt.qa.hidden", "true"))) {
+            return;
+        }
+        if (window.getWidth() == width && window.getHeight() == height) {
+            return;
+        }
+        LOGGER.info("Hidden render target of {}x{} set to {}x{}", window.getWidth(), window.getHeight(), width, height);
+        ((WindowAccessor) (Object) window).framebufferResized(handle, width, height);
     }
 
     public void stop(Minecraft client) {
