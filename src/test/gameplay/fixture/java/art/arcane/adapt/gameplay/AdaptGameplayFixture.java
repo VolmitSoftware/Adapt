@@ -196,6 +196,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
     private String demo(String[] args) {
         return switch (args[1]) {
             case "world" -> demoStudio.world(demoArgument(args, 2));
+            case "warm" -> GolemancyFixtures.warm();
             case "locate" -> demoStudio.locate(Integer.parseInt(demoArgument(args, 2)), Integer.parseInt(demoArgument(args, 3)));
             case "plate" -> demoStudio.plate(Integer.parseInt(demoArgument(args, 2)), Integer.parseInt(demoArgument(args, 3)));
             case "set" -> demoStudio.set(demoArgument(args, 2));

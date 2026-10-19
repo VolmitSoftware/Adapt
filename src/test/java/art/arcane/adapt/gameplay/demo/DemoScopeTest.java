@@ -3,9 +3,12 @@ package art.arcane.adapt.gameplay.demo;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
+import art.arcane.adapt.api.preference.PlayerPreferenceData;
 import org.bukkit.DyeColor;
 import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,5 +61,18 @@ class DemoScopeTest {
 
         assertThat(roster.lattice()).isEmpty();
         assertThat(roster.servantChannel()).isEmpty();
+    }
+
+    @Test
+    void resettingStoredPreferencesTouchesOnlyTheNamedAdaptationsThatHoldValues() {
+        PlayerPreferenceData data = new PlayerPreferenceData();
+        data.set("golem-gatherer-core", "absorb-orbs", "OFF");
+        data.set("agility-wall-jump", "sound", "OFF");
+
+        List<String> reset = DemoScope.resetStored(data, List.of("golem-gatherer-core", "golem-guardian-core"));
+
+        assertThat(reset).containsExactly("golem-gatherer-core");
+        assertThat(data.get("golem-gatherer-core", "absorb-orbs")).isNull();
+        assertThat(data.get("agility-wall-jump", "sound")).isEqualTo("OFF");
     }
 }

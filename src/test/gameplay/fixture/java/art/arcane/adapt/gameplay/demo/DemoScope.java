@@ -2,8 +2,11 @@ package art.arcane.adapt.gameplay.demo;
 
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemRune;
+import art.arcane.adapt.api.preference.PlayerPreferenceData;
 import org.bukkit.util.BoundingBox;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public final class DemoScope {
@@ -36,5 +39,15 @@ public final class DemoScope {
             roster.removeLattice(index, lattice.get(index));
         }
         roster.setServantChannel(null);
+    }
+
+    public static List<String> resetStored(PlayerPreferenceData data, Collection<String> adaptationNames) {
+        List<String> reset = new ArrayList<>(adaptationNames.size());
+        for (String name : adaptationNames) {
+            if (data.reset(name)) {
+                reset.add(name);
+            }
+        }
+        return reset;
     }
 }

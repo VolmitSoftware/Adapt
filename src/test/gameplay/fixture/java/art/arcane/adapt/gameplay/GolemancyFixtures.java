@@ -28,6 +28,7 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.gameplay.demo.DemoScope;
+import art.arcane.adapt.gameplay.demo.ProbeFormat;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -51,11 +52,14 @@ import org.bukkit.util.BoundingBox;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public final class GolemancyFixtures {
     private static final String GOLEMANCY_SKILL = "golemancy";
+    private static final String WARM_REPLY = "ADAPT_QA DEMO WARM golemancy";
     private static final String BINDING_STAGE = "golemancy-binding";
     private static final String GATHERER_BINDING_STAGE = "golemancy-gatherer-binding";
     private static final String GUARDIAN_BINDING_STAGE = "golemancy-guardian-binding";
@@ -280,22 +284,23 @@ public final class GolemancyFixtures {
     }
 
     private static void resetPreferences(AdaptPlayer learner) {
+        Map<String, Adaptation<?>> adaptations = golemancyAdaptations();
+        for (String name : DemoScope.resetStored(learner.getData().getPreferences(), adaptations.keySet())) {
+            PlayerPreferences.reconcile(adaptations.get(name), learner);
+        }
+    }
+
+    private static Map<String, Adaptation<?>> golemancyAdaptations() {
+        Map<String, Adaptation<?>> adaptations = new LinkedHashMap<>();
         for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills()) {
             if (!skill.getName().equals(GOLEMANCY_SKILL)) {
                 continue;
             }
             for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                if (learner.getData().getPreferences().reset(adaptation.getName())) {
-                    PlayerPreferences.reconcile(adaptation, learner);
-                }
+                adaptations.put(adaptation.getName(), adaptation);
             }
         }
-    }
-
-    public record Cleared(int golems, int nodes) {
-        public int total() {
-            return golems + nodes;
-        }
+        return adaptations;
     }
 
     public static Cleared clearDemoState(World world, BoundingBox plate) {
@@ -383,7 +388,7 @@ public final class GolemancyFixtures {
         Location at = owner.getLocation();
         long now = System.currentTimeMillis();
         List<GolemHandle> golems = GolemancyRuntime.registry().map(registry -> List.copyOf(registry.loadedOf(owner.getUniqueId()))).orElse(List.of());
-        StringBuilder out = new StringBuilder("ADAPT_QA DEMO PROBE refunds=").append(nodeItems(demoOwners())).append(" golems=").append(golems.size());
+        StringBuilder out = new StringBuilder(ProbeFormat.header(nodeItems(demoOwners()), golems.size()));
         GolemancyRuntime.nodes().ifPresent(service -> describeNodes(out, service, world, at, now));
         for (GolemHandle handle : golems) {
             describeGolem(out, handle);
@@ -397,18 +402,11 @@ public final class GolemancyFixtures {
         if (learner == null) {
             return;
         }
-        out.append(" | levels");
-        for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills()) {
-            if (!skill.getName().equals(GOLEMANCY_SKILL)) {
-                continue;
-            }
-            for (Adaptation<?> adaptation : skill.getAdaptations()) {
-                int level = adaptation.getLevel(learner);
-                if (level > 0) {
-                    out.append(' ').append(adaptation.getName()).append('=').append(level);
-                }
-            }
+        Map<String, Integer> levels = new LinkedHashMap<>();
+        for (Adaptation<?> adaptation : golemancyAdaptations().values()) {
+            levels.put(adaptation.getName(), adaptation.getLevel(learner));
         }
+        out.append(ProbeFormat.levels(levels));
     }
 
     private static void describeNodes(StringBuilder out, NodeService service, World world, Location at, long now) {
@@ -434,13 +432,13 @@ public final class GolemancyFixtures {
 
     private static void describeGolem(StringBuilder out, GolemHandle handle) {
         Location where = handle.entity().getLocation();
-        out.append(" | golem ").append(handle.body()).append(' ').append(handle.state().mode()).append(" cores=").append(handle.state().cores())
-            .append(String.format(" at=%.1f,%.1f,%.1f", where.getX(), where.getY(), where.getZ())).append(" dormant=").append(handle.isDormant());
+        out.append(ProbeFormat.golem(String.valueOf(handle.body()), String.valueOf(handle.state().mode()), String.valueOf(handle.state().cores()),
+            where.getX(), where.getY(), where.getZ(), handle.isDormant()));
     }
 
-    private static void warmItems() {
+    public static String warm() {
         if (itemsWarmed) {
-            return;
+            return WARM_REPLY;
         }
         itemsWarmed = true;
         GolemItems.crook();
@@ -452,10 +450,10 @@ public final class GolemancyFixtures {
         GolemItems.rune(new GolemRune(GolemRuneType.SWIFTNESS, 1));
         GolemItems.masterworkHeart();
         GolemItems.mayBeOwnerBound(Material.SNOW_BLOCK);
+        return WARM_REPLY;
     }
 
     public static String give(Player player, int hotbarSlot, String itemId, int count) {
-        warmItems();
         if (hotbarSlot < 0 || hotbarSlot > 8) {
             throw new IllegalArgumentException("Hotbar slot must be 0 to 8, found " + hotbarSlot);
         }
@@ -618,5 +616,11 @@ public final class GolemancyFixtures {
         result.addProperty("attack", attack == null ? 0D : attack.getValue());
         result.addProperty("attackBase", attack == null ? 0D : attack.getBaseValue());
         return result;
+    }
+
+    public record Cleared(int golems, int nodes) {
+        public int total() {
+            return golems + nodes;
+        }
     }
 }
