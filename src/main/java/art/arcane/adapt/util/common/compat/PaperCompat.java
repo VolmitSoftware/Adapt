@@ -1049,21 +1049,18 @@ public final class PaperCompat {
   }
 
   private static final class SpigotNames {
+    private static volatile boolean berriesResolved;
     private static volatile Method berries;
+    private static volatile boolean customNameResolved;
     private static volatile Method customName;
 
     private SpigotNames() {
     }
 
     private static boolean berries(CaveVinesPlant vines) {
-      Method read = berries;
+      Method read = berriesReader();
       if (read == null) {
-        try {
-          read = CaveVinesPlant.class.getMethod("isBerries");
-          berries = read;
-        } catch (NoSuchMethodException missing) {
-          return false;
-        }
+        return false;
       }
       try {
         return Boolean.TRUE.equals(read.invoke(vines));
@@ -1073,19 +1070,38 @@ public final class PaperCompat {
     }
 
     private static boolean customName(Nameable nameable) {
-      Method read = customName;
+      Method read = customNameReader();
       if (read == null) {
-        try {
-          read = Nameable.class.getMethod("getCustomName");
-          customName = read;
-        } catch (NoSuchMethodException missing) {
-          return false;
-        }
+        return false;
       }
       try {
         return read.invoke(nameable) != null;
       } catch (ReflectiveOperationException | RuntimeException failure) {
         return false;
+      }
+    }
+
+    private static Method berriesReader() {
+      if (!berriesResolved) {
+        berries = method(CaveVinesPlant.class, "isBerries");
+        berriesResolved = true;
+      }
+      return berries;
+    }
+
+    private static Method customNameReader() {
+      if (!customNameResolved) {
+        customName = method(Nameable.class, "getCustomName");
+        customNameResolved = true;
+      }
+      return customName;
+    }
+
+    private static Method method(Class<?> type, String name) {
+      try {
+        return type.getMethod(name);
+      } catch (NoSuchMethodException missing) {
+        return null;
       }
     }
   }

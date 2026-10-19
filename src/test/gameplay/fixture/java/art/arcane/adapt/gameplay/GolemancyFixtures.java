@@ -1,6 +1,7 @@
 package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.Adapt;
+import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemRoster;
@@ -13,7 +14,6 @@ import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
-import art.arcane.adapt.api.golem.plinth.PlinthSpot;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import com.google.gson.JsonObject;
@@ -26,6 +26,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.IronGolem;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
@@ -353,14 +354,14 @@ public final class GolemancyFixtures {
 
     private static JsonObject plinth(Player player) {
         JsonObject result = new JsonObject();
-        PlinthSpot center = new PlinthSpot(player.getWorld().getUID(), PLINTH_X, PLINTH_Y, PLINTH_Z);
-        Optional<String> stored = GolemancyRuntime.plinths()
-            .flatMap(service -> service.slot(center))
+        World world = player.getWorld();
+        Optional<String> stored = WorldData.loaded(world)
+            .map(data -> data.get(PLINTH_X, PLINTH_Y, PLINTH_Z, PlinthSlotItem.class))
             .filter(PlinthSlotItem::readable)
             .flatMap(item -> GolemItems.kindOf(item.item()))
             .map(GolemItemKind::id);
         result.addProperty("center", stored.orElse(null));
-        result.addProperty("ritual", GolemancyRuntime.plinths().flatMap(service -> service.ritual(center)).isPresent());
+        result.addProperty("ritual", centerLifted(world));
         int blankRunes = 0;
         for (ItemStack item : player.getInventory().getContents()) {
             if (item != null && GolemItems.kindOf(item).orElse(null) == GolemItemKind.BLANK_RUNE) {
@@ -369,6 +370,16 @@ public final class GolemancyFixtures {
         }
         result.addProperty("blankRunes", blankRunes);
         return result;
+    }
+
+    private static boolean centerLifted(World world) {
+        Location above = new Location(world, PLINTH_X + 0.5D, PLINTH_Y + 1.35D, PLINTH_Z + 0.5D);
+        for (Entity entity : world.getNearbyEntities(above, 0.3D, 0.3D, 0.3D)) {
+            if (entity instanceof ItemDisplay display && display.getTransformation().getTranslation().y() > 0F) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static JsonObject state(Mob golem, Player player) {
