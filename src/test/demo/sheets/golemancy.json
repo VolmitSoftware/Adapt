@@ -2373,6 +2373,15 @@
       },
       {
         "verb": "window",
+        "action": "hover",
+        "slot": 1
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
+      {
+        "verb": "window",
         "action": "click",
         "slot": 5
       },
@@ -3753,12 +3762,12 @@
       "stills": [
         {
           "angle": "pov",
-          "at": 8.6,
+          "at": 8.03,
           "name": "crook-grid"
         },
         {
           "angle": "pov",
-          "at": 18.567,
+          "at": 18.4,
           "name": "blank-core-grid"
         },
         {
