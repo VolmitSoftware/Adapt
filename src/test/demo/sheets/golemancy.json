@@ -994,9 +994,12 @@
     ],
     "prelude": [
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 55
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -1.0
+        ]
       }
     ],
     "beats": [
@@ -1020,13 +1023,24 @@
         "key": "use"
       },
       {
-        "verb": "waitFor",
-        "sound": "minecraft:block.amethyst_block.place",
-        "timeout": 40
+        "verb": "wait",
+        "ticks": 20
+      },
+      {
+        "verb": "slot",
+        "index": 1
       },
       {
         "verb": "wait",
-        "ticks": 40
+        "ticks": 4
+      },
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "wait",
+        "ticks": 60
       }
     ],
     "expect": {
@@ -1034,7 +1048,7 @@
       "particle": "end_rod"
     },
     "povCapture": true,
-    "maxTicks": 160
+    "maxTicks": 240
   },
   "golem-rancher-core": {
     "set": "taming-field",
