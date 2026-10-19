@@ -35,7 +35,7 @@ interface NodePlatform {
 
   boolean savePlate(World world, int x, int z);
 
-  boolean powered(World world, int x, int y, int z);
+  NodePower powered(World world, int x, int y, int z);
 
   boolean chunkLoaded(World world, int chunkX, int chunkZ);
 

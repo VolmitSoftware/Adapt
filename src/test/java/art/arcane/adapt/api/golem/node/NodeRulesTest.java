@@ -126,11 +126,14 @@ class NodeRulesTest {
 
   @Test
   void redstoneModesGateTheNodeOnItsAnchorsPower() {
-    assertThat(NodeRules.active(RedstoneMode.IGNORE, false)).isTrue();
-    assertThat(NodeRules.active(RedstoneMode.IGNORE, true)).isTrue();
-    assertThat(NodeRules.active(RedstoneMode.POWERED, true)).isTrue();
-    assertThat(NodeRules.active(RedstoneMode.POWERED, false)).isFalse();
-    assertThat(NodeRules.active(RedstoneMode.UNPOWERED, false)).isTrue();
-    assertThat(NodeRules.active(RedstoneMode.UNPOWERED, true)).isFalse();
+    assertThat(NodeRules.active(RedstoneMode.IGNORE, NodePower.OFF)).isTrue();
+    assertThat(NodeRules.active(RedstoneMode.IGNORE, NodePower.ON)).isTrue();
+    assertThat(NodeRules.active(RedstoneMode.IGNORE, NodePower.UNKNOWN)).isTrue();
+    assertThat(NodeRules.active(RedstoneMode.POWERED, NodePower.ON)).isTrue();
+    assertThat(NodeRules.active(RedstoneMode.POWERED, NodePower.OFF)).isFalse();
+    assertThat(NodeRules.active(RedstoneMode.POWERED, NodePower.UNKNOWN)).isFalse();
+    assertThat(NodeRules.active(RedstoneMode.UNPOWERED, NodePower.OFF)).isTrue();
+    assertThat(NodeRules.active(RedstoneMode.UNPOWERED, NodePower.ON)).isFalse();
+    assertThat(NodeRules.active(RedstoneMode.UNPOWERED, NodePower.UNKNOWN)).isFalse();
   }
 }

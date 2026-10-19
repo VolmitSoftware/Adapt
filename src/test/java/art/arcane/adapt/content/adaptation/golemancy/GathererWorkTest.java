@@ -680,6 +680,7 @@ class GathererWorkTest {
   @Test
   void aSwitchedOffCollectionNodePausesGatheringInsteadOfFallingBackToHome() {
     Block anchor = mock(Block.class);
+    when(anchor.getWorld()).thenReturn(world);
     when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
     when(world.getBlockAt(anyInt(), anyInt(), anyInt())).thenReturn(anchor);
     collectionNode(new NodeKey(WORLD, 10, 64, 0, BlockFace.UP),

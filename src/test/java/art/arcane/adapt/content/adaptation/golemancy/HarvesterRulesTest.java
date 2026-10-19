@@ -17,6 +17,9 @@ import java.util.UUID;
 import java.util.function.Predicate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class HarvesterRulesTest {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000022b1");
@@ -219,6 +222,22 @@ class HarvesterRulesTest {
     assertThat(HarvesterRules.seedToPlant(HarvesterRules.plan(config, crops, 4, filtered(false, Material.WHEAT_SEEDS), NodeItemTags.shared()),
         carried, field.block(5, 64, 5), OWNED)).isEqualTo(Material.CARROT);
     assertThat(HarvesterRules.seedToPlant(plan(4), List.of(GolemTestItems.stack(Material.MELON_SEEDS, 4)), field.block(5, 64, 5), OWNED)).isNull();
+  }
+
+  @Test
+  void neighboursInUnloadedChunksAreNeverReadAndCountAgainstTheSpot() {
+    field.set(15, 64, 0, Material.MELON).set(16, 64, 0, Material.ATTACHED_MELON_STEM, CropField.facing(BlockFace.WEST));
+    field.set(15, 63, 4, Material.DIRT);
+    field.set(15, 64, 8, Material.AIR).set(16, 64, 8, Material.CARROTS, CropField.ageable(2, 7));
+    when(field.world.isChunkLoaded(1, 0)).thenReturn(false);
+    List<ItemStack> carried = List.of(GolemTestItems.stack(Material.WHEAT_SEEDS, 3), GolemTestItems.stack(Material.CARROT, 2));
+
+    assertThat(survey(15, 64, 0, 5)).isEqualTo(HarvesterRules.Spot.NONE);
+    assertThat(survey(15, 63, 4, 5)).isEqualTo(HarvesterRules.Spot.NONE);
+    assertThat(HarvesterRules.seedToPlant(plan(4), carried, field.block(15, 64, 8), OWNED)).isEqualTo(Material.WHEAT_SEEDS);
+    verify(field.block(16, 64, 0), never()).getType();
+    verify(field.block(16, 64, 4), never()).getType();
+    verify(field.block(16, 64, 8), never()).getType();
   }
 
   @Test

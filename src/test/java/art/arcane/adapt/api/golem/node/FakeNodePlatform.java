@@ -135,9 +135,9 @@ final class FakeNodePlatform implements NodePlatform {
   }
 
   @Override
-  public boolean powered(World world, int x, int y, int z) {
+  public NodePower powered(World world, int x, int y, int z) {
     powerReads++;
-    return powered.contains(x + "," + y + "," + z);
+    return powered.contains(x + "," + y + "," + z) ? NodePower.ON : NodePower.OFF;
   }
 
   @Override

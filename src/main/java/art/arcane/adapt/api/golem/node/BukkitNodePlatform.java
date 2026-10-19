@@ -10,7 +10,6 @@ import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -78,9 +77,8 @@ final class BukkitNodePlatform implements NodePlatform {
   }
 
   @Override
-  public boolean powered(World world, int x, int y, int z) {
-    Block block = world.getBlockAt(x, y, z);
-    return block.isBlockPowered() || (neighborsLoaded(world, x, z) && block.isBlockIndirectlyPowered());
+  public NodePower powered(World world, int x, int y, int z) {
+    return NodeRules.power(world.getBlockAt(x, y, z));
   }
 
   @Override
@@ -140,16 +138,5 @@ final class BukkitNodePlatform implements NodePlatform {
     Adapt plugin = Adapt.instance;
     AdaptServer server = plugin == null ? null : plugin.getAdaptServer();
     return server == null ? null : server.getOnlineAdaptPlayer(owner);
-  }
-
-  private static boolean neighborsLoaded(World world, int x, int z) {
-    int chunkX = x >> 4;
-    int chunkZ = z >> 4;
-    int localX = x & 15;
-    int localZ = z & 15;
-    return (localX != 0 || world.isChunkLoaded(chunkX - 1, chunkZ))
-        && (localX != 15 || world.isChunkLoaded(chunkX + 1, chunkZ))
-        && (localZ != 0 || world.isChunkLoaded(chunkX, chunkZ - 1))
-        && (localZ != 15 || world.isChunkLoaded(chunkX, chunkZ + 1));
   }
 }

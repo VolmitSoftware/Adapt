@@ -143,8 +143,11 @@ class GuardNodeBehaviorTest {
     runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
     runtime.when(GolemancyRuntime::workSettings).thenReturn(GolemWorkSettings.defaults());
     Block unpoweredBlock = mock(Block.class);
+    when(unpoweredBlock.getWorld()).thenReturn(world);
+    when(unpoweredBlock.getZ()).thenReturn(-6);
     when(world.getBlockAt(0, 64, -6)).thenReturn(unpoweredBlock);
     when(world.isChunkLoaded(0, -1)).thenReturn(true);
+    when(world.isChunkLoaded(-1, -1)).thenReturn(true);
 
     List<NodeIndex.Entry> guarded = behavior.nodesFor(golem(ChannelMask.NONE), world, new Location(world, 0.5D, 64D, 0.5D), 1_000L);
 

@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem.node;
 
 import art.arcane.adapt.api.golem.NodeType;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
@@ -10,6 +11,7 @@ public final class NodeRules {
   public static final int REDSTONE_LEVEL = 4;
   public static final int BLACKLIST_LEVEL = 5;
   private static final String COPPER_CHEST = "COPPER_CHEST";
+  private static final int POWER_MARGIN = 2;
 
   private NodeRules() {
   }
@@ -79,18 +81,22 @@ public final class NodeRules {
   }
 
   public static boolean active(NodeRecord record, Block anchor) {
-    if (record.redstone() == RedstoneMode.IGNORE) {
-      return true;
-    }
-    return active(record.redstone(), anchor.isBlockPowered() || anchor.isBlockIndirectlyPowered());
+    return record.redstone() == RedstoneMode.IGNORE || active(record.redstone(), power(anchor));
   }
 
-  public static boolean active(RedstoneMode mode, boolean powered) {
+  public static boolean active(RedstoneMode mode, NodePower power) {
     return switch (mode) {
       case IGNORE -> true;
-      case POWERED -> powered;
-      case UNPOWERED -> !powered;
+      case POWERED -> power == NodePower.ON;
+      case UNPOWERED -> power == NodePower.OFF;
     };
+  }
+
+  public static NodePower power(Block anchor) {
+    if (!powerReadable(anchor.getWorld(), anchor.getX(), anchor.getZ())) {
+      return NodePower.UNKNOWN;
+    }
+    return anchor.isBlockPowered() || anchor.isBlockIndirectlyPowered() ? NodePower.ON : NodePower.OFF;
   }
 
   public static boolean allowsPriority(int nodeWeavingLevel) {
@@ -103,6 +109,17 @@ public final class NodeRules {
 
   public static boolean allowsBlacklistAndTags(int nodeWeavingLevel) {
     return nodeWeavingLevel >= BLACKLIST_LEVEL;
+  }
+
+  private static boolean powerReadable(World world, int x, int z) {
+    for (int chunkX = (x - POWER_MARGIN) >> 4; chunkX <= (x + POWER_MARGIN) >> 4; chunkX++) {
+      for (int chunkZ = (z - POWER_MARGIN) >> 4; chunkZ <= (z + POWER_MARGIN) >> 4; chunkZ++) {
+        if (!world.isChunkLoaded(chunkX, chunkZ)) {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   private static boolean isEmpty(Material material) {

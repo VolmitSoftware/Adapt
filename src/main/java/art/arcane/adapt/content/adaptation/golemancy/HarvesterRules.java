@@ -140,7 +140,7 @@ final class HarvesterRules {
     Material stem = type == Material.MELON ? Material.ATTACHED_MELON_STEM : Material.ATTACHED_PUMPKIN_STEM;
     for (BlockFace side : SIDES) {
       Block neighbor = fruit.getRelative(side);
-      if (owned.test(neighbor) && neighbor.getType() == stem && neighbor.getBlockData() instanceof Directional facing
+      if (readable(neighbor, owned) && neighbor.getType() == stem && neighbor.getBlockData() instanceof Directional facing
           && facing.getFacing() == side.getOppositeFace()) {
         return true;
       }
@@ -156,7 +156,7 @@ final class HarvesterRules {
   static boolean nearStem(Block spot, Predicate<Block> owned) {
     for (BlockFace side : SIDES) {
       Block neighbor = spot.getRelative(side);
-      if (!owned.test(neighbor) || stem(neighbor.getType())) {
+      if (!readable(neighbor, owned) || stem(neighbor.getType())) {
         return true;
       }
     }
@@ -166,11 +166,15 @@ final class HarvesterRules {
   private static boolean besideCrop(Block spot, Material crop, Predicate<Block> owned) {
     for (BlockFace side : SIDES) {
       Block neighbor = spot.getRelative(side);
-      if (owned.test(neighbor) && neighbor.getType() == crop) {
+      if (readable(neighbor, owned) && neighbor.getType() == crop) {
         return true;
       }
     }
     return false;
+  }
+
+  private static boolean readable(Block block, Predicate<Block> owned) {
+    return block.getWorld().isChunkLoaded(block.getX() >> 4, block.getZ() >> 4) && owned.test(block);
   }
 
   private static boolean stem(Material type) {
