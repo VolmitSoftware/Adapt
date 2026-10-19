@@ -10,6 +10,7 @@ import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.gameplay.demo.DemoScope;
 import art.arcane.adapt.gameplay.demo.DemoSkin;
 import art.arcane.adapt.gameplay.demo.DemoStudio;
 import art.arcane.adapt.gameplay.demo.sets.StructureDiscoverySets;
@@ -196,6 +197,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
     private String demo(String[] args) {
         return switch (args[1]) {
             case "world" -> demoStudio.world(demoArgument(args, 2));
+            case "warm" -> GolemancyFixtures.warm();
             case "locate" -> demoStudio.locate(Integer.parseInt(demoArgument(args, 2)), Integer.parseInt(demoArgument(args, 3)));
             case "plate" -> demoStudio.plate(Integer.parseInt(demoArgument(args, 2)), Integer.parseInt(demoArgument(args, 3)));
             case "set" -> demoStudio.set(demoArgument(args, 2));
@@ -208,6 +210,11 @@ public final class AdaptGameplayFixture extends JavaPlugin {
                     demoArgument(args, 4), demoArgument(args, 5));
             case "passive" -> PassiveComparisonFixtures.control(ordinaryPlayer(demoArgument(args, 2)), demoArgument(args, 3),
                     demoArgument(args, 4));
+            case "give" -> GolemancyFixtures.give(ordinaryPlayer(demoArgument(args, 2)), Integer.parseInt(demoArgument(args, 3)), demoArgument(args, 4),
+                    Integer.parseInt(demoArgument(args, 5)));
+            case "bind" -> GolemancyFixtures.bind(ordinaryPlayer(demoArgument(args, 2)), demoArgument(args, 3), demoArgument(args, 4));
+            case "probe" -> loggedProbe(ordinaryPlayer(demoArgument(args, 2)));
+            case "near" -> GolemancyFixtures.near(ordinaryPlayer(demoArgument(args, 2)));
             case "reset" -> demoStudio.reset();
             default -> throw new IllegalArgumentException("Unknown demo command " + args[1]);
         };
@@ -273,15 +280,22 @@ public final class AdaptGameplayFixture extends JavaPlugin {
         stage("agility");
     }
 
+    private String loggedProbe(Player owner) {
+        String report = GolemancyFixtures.probe(owner);
+        getLogger().info(report);
+        return report;
+    }
+
     private Player ordinaryPlayer(String name) {
         Player player = Objects.requireNonNull(Bukkit.getPlayerExact(name), "Player is not online");
-        if (player.isOp() || !name.startsWith("AQA")) throw new IllegalArgumentException("Fixture actor must be an ordinary AQA player");
+        if (player.isOp() || !DemoScope.ownsDemoState(name)) throw new IllegalArgumentException("Fixture actor must be an ordinary studio player");
         return player;
     }
 
     private void stage(String name) {
         if (arena == null) throw new IllegalStateException("Setup required");
         for (Entity entity : arena.getEntities()) if (!(entity instanceof Player)) entity.remove();
+        if (name.equals("golemancy") || name.startsWith("golemancy-")) GolemancyFixtures.clearRosters(actor, opponent);
         TraversalFixtures.reset();
         resetArena();
         for (Player player : new Player[]{actor, opponent}) {
@@ -436,6 +450,10 @@ public final class AdaptGameplayFixture extends JavaPlugin {
                 arena.getBlockAt(0, 107, 0).setType(Material.STONE, false);
                 actor.teleport(new Location(arena, 0.5, 108, 0.5, -90, 0));
             }
+            case "golemancy" -> {
+                give(actor, Material.SNOW_BLOCK, 2);
+                give(actor, Material.CARVED_PUMPKIN, 1);
+            }
             default -> {
                 if (!BrewingFixtures.stage(name, arena, actor) && !MovementFixtures.stage(name, arena, actor)
                         && !RangedFixtures.stage(name, arena, actor, opponent) && !ArchitectFixtures.stage(name, arena, actor)
@@ -457,7 +475,8 @@ public final class AdaptGameplayFixture extends JavaPlugin {
                         && !UtilityFixtures.stage(name, arena, actor, opponent)
                         && !NatureFixtures.stage(name, arena, actor, opponent)
                         && !IntegrationFixtures.stage(name, arena, actor, opponent)
-                        && !TraversalFixtures.stage(name, arena, actor, opponent)) {
+                        && !TraversalFixtures.stage(name, arena, actor, opponent)
+                        && !GolemancyFixtures.stage(name, arena, actor, opponent)) {
                     throw new IllegalArgumentException("Unknown skill stage " + name);
                 }
             }
@@ -571,6 +590,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
         result.add("guard", GuardFixtures.snapshot(player));
         result.add("projectile", ProjectileFixtures.snapshot(player));
         result.add("earth", EarthFixtures.snapshot(player));
+        result.add("golemancy", GolemancyFixtures.snapshot(player));
         result.addProperty("saturation", player.getSaturation());
         result.addProperty("allowFlight", player.getAllowFlight());
         result.addProperty("flying", player.isFlying());

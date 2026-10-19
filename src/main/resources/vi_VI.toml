@@ -3053,6 +3053,70 @@ description = "Biến chuyển động thành sức mạnh."
 title = "Hóa Đơn Của Newton"
 description = "Hạ một sinh vật bằng chiếc đe do bạn thả rơi từ độ cao ít nhất 8 khối."
 
+[advancement.challenge_golemancy_built_10]
+title = "Đất sét và tia lửa"
+description = "Chế tạo 10 golem"
+
+[advancement.challenge_golemancy_built_100]
+title = "Xưởng đúc người khổng lồ"
+description = "Chế tạo 100 golem"
+
+[advancement.challenge_golemancy_bound_5]
+title = "Đoàn tùy tùng nhỏ"
+description = "Liên kết 5 golem"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Quân đoàn Animus"
+description = "Liên kết 25 golem"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Lính canh đá"
+description = "Golem đã liên kết của bạn tiêu diệt 50 sinh vật thù địch"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Thành lũy sống"
+description = "Golem đã liên kết của bạn tiêu diệt 500 sinh vật thù địch"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Đạo quân bất khuất"
+description = "Golem đã liên kết của bạn tiêu diệt 5.000 sinh vật thù địch"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Kẻ hầu của mùa đông"
+description = "Liên kết một golem Băng Giá"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Mối gắn kết gỉ đồng"
+description = "Liên kết một golem Đồng"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Lời thề sắt"
+description = "Liên kết một golem Sắt"
+
+[advancement.challenge_golemancy_tasks_1000]
+title = "Đôi tay bận rộn"
+description = "Golem của bạn hoàn thành 1.000 công việc"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "Xưởng không biết mỏi"
+description = "Golem của bạn hoàn thành 25.000 công việc"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "Phu khuân vác bền bỉ"
+description = "Golem của bạn giao 10.000 vật phẩm"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "Đoàn lữ hành bất tận"
+description = "Golem của bạn giao 250.000 vật phẩm"
+
+[advancement.challenge_golemancy_infusions_10]
+title = "Học trò của bệ"
+description = "Hoàn tất 10 nghi thức truyền tại Bệ Animus"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Bậc thầy truyền"
+description = "Hoàn tất 100 nghi thức truyền tại Bệ Animus"
+
 [agility.armor_up]
 name = "Tăng Giáp"
 description = "Nhận thêm giáp khi bạn chạy nước rút càng lâu!"
@@ -4240,6 +4304,631 @@ lore1 = "Cơ Hội Rơi Thêm"
 lore2 = "x cấp Đào Nhanh khi đào lúc ướt"
 lore = ["Cơ Hội Rơi Thêm", "x cấp Đào Nhanh khi đào lúc ướt"]
 
+[golemancy.item.crook]
+name = "Gậy của Thợ Chế Tác"
+lore = "Chỉ huy các golem đã liên kết và các nút nơi chúng làm việc"
+
+[golemancy.item.blank_core]
+name = "Lõi Animus Trống"
+lore = "Liên kết golem làm bạn đồng hành hoặc chế thành lõi vai trò"
+
+[golemancy.item.core]
+name = "Lõi {role}"
+lore = "Liên kết golem với vai trò {role}"
+
+[golemancy.item.blank_node]
+name = "Nút Trống"
+lore = "Chế thành nút thuộc bất kỳ loại nào"
+
+[golemancy.item.node]
+name = "Nút {node}"
+lore = "Gắn vào mặt khối để điều hướng công việc của golem"
+
+[golemancy.item.blank_rune]
+name = "Cổ Tự Trống"
+lore = "Truyền thành cổ tự tại Bệ Animus"
+
+[golemancy.item.rune]
+name = "Cổ Tự {aspect}"
+tier = "Bậc {tier}"
+lore = "Gắn vào golem để cường hóa nó"
+
+[golemancy.item.dormant_golem]
+name = "Golem Ngủ Đông"
+core = "Lõi: {core}"
+runes = "Cổ tự: {runes}"
+health = "Máu: {health}/{maximum}"
+lore = "Đặt xuống để đánh thức golem này"
+
+[golemancy.item.shattered_core]
+name = "Lõi Vỡ Nát"
+lore = "Tái tạo golem đã ngã cùng các nâng cấp của nó"
+
+[golemancy.item.masterwork_heart]
+name = "Trái Tim Kiệt Tác"
+lore = "Chỉ định một golem kiệt tác"
+
+[golemancy.role]
+blank = "Bạn Đồng Hành"
+guardian = "Hộ Vệ"
+gatherer = "Người Thu Gom"
+harvester = "Người Thu Hoạch"
+lumber = "Tiều Phu"
+breaker = "Kẻ Phá Vỡ"
+rancher = "Người Chăn Nuôi"
+sorter = "Người Phân Loại"
+angler = "Ngư Phủ"
+
+[golemancy.node]
+guard = "Canh Gác"
+collection = "Thu Gom"
+deposit = "Gửi Đồ"
+harvest = "Thu Hoạch"
+lumber = "Đốn Gỗ"
+breaker = "Khai Thác"
+pasture = "Đồng Cỏ"
+input = "Đầu Vào"
+filter = "Bộ Lọc"
+fishing = "Câu Cá"
+
+[golemancy.aspect]
+swiftness = "Thần Tốc"
+might = "Sức Mạnh"
+ember = "Than Hồng"
+tide = "Thủy Triều"
+order = "Trật Tự"
+entropy = "Hỗn Mang"
+bulwark = "Thành Lũy"
+
+[golemancy.body]
+frost = "Băng Giá"
+copper = "Đồng"
+iron = "Sắt"
+bone = "Xương"
+
+[golemancy.golem]
+name = "Golem {body} của {owner}"
+
+[golemancy.mode]
+work = "Làm việc"
+follow = "Đi theo"
+stay = "Đứng yên"
+home = "Về nhà"
+
+[golemancy.signal]
+follow = "Đi theo"
+hold = "Giữ vị trí"
+home = "Về nhà"
+work = "Làm việc"
+sic = "Tấn công"
+
+[golemancy.channel]
+none = "Không có"
+white = "Trắng"
+orange = "Cam"
+magenta = "Hồng sẫm"
+light_blue = "Xanh dương nhạt"
+yellow = "Vàng"
+lime = "Xanh lá mạ"
+pink = "Hồng"
+gray = "Xám"
+light_gray = "Xám nhạt"
+cyan = "Lục lam"
+purple = "Tím"
+blue = "Xanh dương"
+brown = "Nâu"
+green = "Xanh lá"
+red = "Đỏ"
+black = "Đen"
+
+[golemancy.status]
+active = "Đang hoạt động"
+packed = "Đã đóng gói"
+shattered = "Đã vỡ nát"
+missing = "Mất tích"
+
+[golemancy.gui]
+title = "Golem {body}"
+health = "Máu: {health}/{maximum}"
+dormant = "Đang ngủ"
+mode = "Chế độ: {mode}"
+channel = "Kênh: {channel}"
+cycle = "Nhấp chuột trái: tiếp, nhấp chuột phải: trước"
+set_home = "Đặt nhà tại đây"
+home = "Nhà: {x}, {y}, {z}"
+link_chest = "Liên kết rương nhà"
+home_chest = "Rương nhà: {x}, {y}, {z}"
+no_home_chest = "Chưa liên kết rương nhà"
+link_hint = "Nhấp rồi dùng Gậy nhấp chuột phải vào một vật chứa"
+rune_locked = "Ô Cổ Tự bị khóa"
+rune_unlock_level = "Mở khóa ở Cường hóa Rune cấp {level}"
+rune_empty = "Ô Cổ Tự trống"
+rune_empty_lore = "Cầm một Cổ Tự rồi nhấp vào đây để gắn nó"
+rune_remove = "Nhấp để lấy lại Cổ Tự này"
+rune_active = "Đang hoạt động"
+rune_over_tier = "Vô hiệu: bậc {tier} cần Cường hóa Rune cấp {level}"
+rune_slot_locked = "Vô hiệu: ô này cần Cường hóa Rune cấp {level}"
+rune_blocked = "Vô hiệu: Cổ Tự {aspect} không hoạt động trên golem {body}"
+rune_duplicate = "Vô hiệu: golem này đã có Cổ Tự {aspect}"
+rune_unpowered = "Vô hiệu: Cường hóa Rune của bạn chưa đủ cho Cổ Tự này"
+channels = "Kênh: {channels}"
+channels_lore = "Nhấp để chọn tối đa {count} kênh"
+channels_title = "Chọn kênh"
+channel_selected = "Đã chọn"
+channel_select = "Nhấp để chọn"
+channels_clear = "Xóa kênh"
+back = "Quay lại"
+take = "Nhấp để lấy"
+more_carried = "+{count} nữa"
+stats = "Thống kê"
+kills = "Hạ gục: {value}"
+damage = "Sát thương gây ra: {value}"
+tasks = "Nhiệm vụ đã hoàn thành: {value}"
+items_moved = "Vật phẩm đã chuyển: {value}"
+release = "Giải phóng"
+release_lore = "Biến nó trở lại golem thường và thả lõi, Cổ Tự, vật phẩm đang mang cùng lõi thứ hai và Trái Tim Kiệt Tác nếu có"
+release_confirm = "Giải phóng golem này?"
+snow_trail_on = "Vệt tuyết: Bật"
+snow_trail_off = "Vệt tuyết: Tắt"
+snow_trail_lore = "Nhấp để bật hoặc tắt tuyết mà golem này để lại"
+colossus_on = "Dạng Khổng Lồ: Bật"
+colossus_off = "Dạng Khổng Lồ: Tắt"
+colossus_lore = "Nhấp để bật hoặc tắt kích thước đầy đủ khi chiến đấu; golem đã lớn sẽ không làm việc"
+pack = "Đóng gói"
+pack_lore = "Nén golem này thành một khối Golem Ngủ Đông mà bạn có thể đặt xuống để đánh thức nó"
+
+[golemancy.roster]
+title = "Danh sách golem"
+empty = "Bạn không có golem nào"
+entry = "Golem {body} ({core})"
+location = "{world}: {x}, {y}, {z}"
+last_seen = "Nhìn thấy lần cuối ở {world} gần {x}, {z}"
+status = "Trạng thái: {status}"
+locate = "Nhấp chuột trái để định vị"
+release = "Shift + nhấp chuột phải để giải phóng"
+release_confirm = "Giải phóng vĩnh viễn golem mất tích này?"
+release_shattered_confirm = "Giải phóng vĩnh viễn golem vỡ nát này? Lõi Vỡ Nát của nó sẽ tan rã."
+release_packed_confirm = "Giải phóng vĩnh viễn golem đã đóng gói này? Golem Ngủ Đông của nó sẽ tan rã."
+recall = "Nhấp chuột phải để gọi nó về túi đồ"
+crook_channel = "Kênh của Gậy: {channel}"
+crook_channel_lore = "Nhấp để chọn những golem mà Gậy của bạn ra hiệu"
+crook_channel_title = "Kênh của Gậy"
+crook_channel_all = "Tất cả golem"
+
+[golemancy.message]
+home_set = "Đã đặt nhà tại {x}, {y}, {z}"
+link_armed = "Dùng Gậy nhấp chuột phải vào một vật chứa để liên kết"
+chest_linked = "Đã liên kết rương nhà tại {x}, {y}, {z}"
+chest_denied = "Vật chứa đó được bảo vệ"
+chest_out_of_reach = "Vật chứa đó phải nằm trong phạm vi {radius} khối quanh nhà của golem"
+released = "Đã giải phóng golem"
+release_failed = "Hiện không thể giải phóng golem này"
+gone = "Golem đó không còn ở đây"
+colossus_no_room = "Ở đây không đủ chỗ để golem này lớn lên"
+colossus_busy = "Golem này vẫn đang thay đổi kích thước"
+rune_slotted = "Đã gắn Cổ Tự {aspect}"
+rune_removed = "Đã lấy lại Cổ Tự {aspect}"
+rune_needed = "Hãy cầm một Cổ Tự trước"
+rune_no_slot = "Golem này không còn ô Cổ Tự trống"
+rune_duplicate = "Golem này đã có Cổ Tự {aspect}"
+rune_blocked = "Cổ Tự {aspect} không hoạt động trên golem {body}"
+channels_full = "Golem này chỉ có thể dùng {count} kênh"
+crook_channel = "Gậy của bạn giờ ra hiệu cho: {channel}"
+crook_needed = "Cầm Gậy ở tay chính để đặt kênh của nó"
+
+[golemancy.binding]
+busy = "Một nghi thức liên kết đang diễn ra"
+already_bound = "Golem đó đã được liên kết"
+village = "Chỉ có thể liên kết golem do người chơi xây dựng"
+builder = "Hiện chỉ người chơi đã xây golem này mới có thể liên kết nó"
+body_locked = "Bạn chưa thể liên kết golem {body}"
+core_not_allowed = "Golem {body} không nhận lõi {core}"
+core_locked = "Bạn chưa học cách liên kết lõi {core}"
+protected = "Bạn không thể liên kết golem ở đây"
+unavailable = "Danh sách golem của bạn chưa sẵn sàng"
+golem_cap = "Bạn đã sở hữu tối đa {count} golem"
+chunk_cap = "Khu vực này đã có {count} golem được liên kết"
+levels = "Liên kết golem này tốn {levels} cấp độ"
+interrupted = "Việc liên kết đã bị gián đoạn"
+bound = "Golem {body} của bạn giờ đã được liên kết với bạn"
+
+[golemancy.animus_binding]
+name = "Liên Kết Animus"
+description = "Lén lút và nhấp chuột phải vào một golem khi cầm Lõi Animus để liên kết nó với bạn làm bạn đồng hành."
+lore1 = "Số golem bạn có thể sở hữu"
+lore2 = "Số giây mỗi nghi thức liên kết"
+lore3 = "Cấp độ để liên kết golem Băng Giá"
+lore4 = "Cấp độ để liên kết golem Đồng"
+lore5 = "Cấp độ để liên kết golem Sắt"
+lore = ["Số golem bạn có thể sở hữu", "Số giây mỗi nghi thức liên kết", "Cấp độ để liên kết golem Băng Giá", "Cấp độ để liên kết golem Đồng", "Cấp độ để liên kết golem Sắt"]
+
+[golemancy.frost_frame]
+name = "Khung Băng Giá"
+description = "Củng cố các golem Băng Giá đã liên kết của bạn với máu bổ sung, cầu tuyết gây sát thương và khả năng chống mưa và nóng."
+lore1 = "Máu bổ sung cho golem Băng Giá"
+lore2 = "Sát thương cầu tuyết"
+lore3 = "Sát thương nhận ở quần xã ấm"
+lore4 = "Miễn nhiễm mưa và nước"
+lore5 = "Số giây làm chậm khi trúng"
+lore6 = "Cơ hội ném thêm cầu tuyết"
+lore7 = "Số lần trúng cầu tuyết để đóng băng mục tiêu"
+lore = ["Máu bổ sung cho golem Băng Giá", "Sát thương cầu tuyết", "Sát thương nhận ở quần xã ấm", "Miễn nhiễm mưa và nước", "Số giây làm chậm khi trúng", "Cơ hội ném thêm cầu tuyết", "Số lần trúng cầu tuyết để đóng băng mục tiêu"]
+
+[golemancy.copper_frame]
+name = "Khung Đồng"
+description = "Cho phép bạn liên kết golem Đồng và củng cố chúng với máu bổ sung, sức chứa và tốc độ, cùng giáp từ lớp gỉ đồng của chúng."
+lore1 = "Máu bổ sung cho golem Đồng"
+lore2 = "Sức chứa vật phẩm"
+lore3 = "Tốc độ di chuyển"
+lore4 = "Không bao giờ hóa thành tượng"
+lore5 = "Giáp mỗi giai đoạn gỉ đồng"
+lore6 = "Tốc độ mất đi mỗi giai đoạn gỉ đồng"
+lore7 = "Số giây Tốc Độ II từ sét gần đó"
+lore = ["Máu bổ sung cho golem Đồng", "Sức chứa vật phẩm", "Tốc độ di chuyển", "Không bao giờ hóa thành tượng", "Giáp mỗi giai đoạn gỉ đồng", "Tốc độ mất đi mỗi giai đoạn gỉ đồng", "Số giây Tốc Độ II từ sét gần đó"]
+
+[golemancy.iron_frame]
+name = "Khung Sắt"
+description = "Cho phép bạn liên kết golem Sắt và củng cố chúng với máu, giáp và sát thương bổ sung, sửa chữa bằng thỏi mạnh hơn, cú đấm quét và Dạng Khổng Lồ với kích thước đầy đủ."
+lore1 = "Máu bổ sung cho golem Sắt"
+lore2 = "Giáp bổ sung cho golem Sắt"
+lore3 = "Sát thương tấn công bổ sung cho golem Sắt"
+lore4 = "Máu hồi thêm mỗi lần sửa bằng thỏi sắt"
+lore5 = "Số kẻ thù bị đánh thêm mỗi cú đấm"
+lore6 = "Sát thương tấn công ở Dạng Khổng Lồ"
+lore = ["Máu bổ sung cho golem Sắt", "Giáp bổ sung cho golem Sắt", "Sát thương tấn công bổ sung cho golem Sắt", "Máu hồi thêm mỗi lần sửa bằng thỏi sắt", "Số kẻ thù bị đánh thêm mỗi cú đấm", "Sát thương tấn công ở Dạng Khổng Lồ"]
+
+[golemancy.bone_frame]
+name = "Khung Xương"
+description = "Đưa các tôi tớ xương Tragoul của bạn vào Thuật Golem: chúng nghe theo hiệu lệnh của Gậy, phát sáng theo kênh tôi tớ của bạn kèm nhãn trạng thái chỉ bạn thấy, mang một Lưới Xương gắn Cổ Tự và đem lại XP Thuật Golem khi hạ gục kẻ địch."
+lore1 = "Tôi tớ nghe hiệu lệnh của Gậy và hiện nhãn trạng thái"
+lore2 = "Ô Cổ Tự của Lưới Xương"
+lore3 = "XP Thuật Golem từ các lần tôi tớ hạ gục"
+lore = ["Tôi tớ nghe hiệu lệnh của Gậy và hiện nhãn trạng thái", "Ô Cổ Tự của Lưới Xương", "XP Thuật Golem từ các lần tôi tớ hạ gục"]
+lattice = "Lưới Xương"
+lattice_lore = "Nhấp để đặt Cổ Tự và kênh cho tôi tớ của bạn"
+slot_empty = "Ô lưới trống"
+slot_empty_lore = "Cầm một Cổ Tự ({aspects}) rồi nhấp vào đây"
+slot_locked = "Ô lưới bị khóa"
+slot_unlock_level = "Mở khóa ở Khung Xương cấp {level}"
+slot_inert = "Vô hiệu: ô này cần Khung Xương cấp {level}"
+rune_tier = "Có tác dụng ở bậc {tier} trên tôi tớ của bạn"
+channel = "Kênh tôi tớ: {channel}"
+channel_set = "Tôi tớ của bạn giờ dùng kênh {channel}"
+refused_aspect = "Cổ Tự {aspect} không vừa với Lưới Xương"
+duplicate = "Lưới Xương của bạn đã có Cổ Tự {aspect}"
+no_slot = "Lưới Xương của bạn không còn ô trống"
+time_left = "còn {seconds} giây"
+
+[golemancy.guardian_core]
+name = "Lõi Hộ Vệ"
+description = "Golem được liên kết bằng Lõi Hộ Vệ bảo vệ nhà của chúng, bạn hoặc khu vực của một Nút Canh Gác, và che chở bạn tốt hơn khi lõi mạnh lên."
+lore1 = "Bán kính canh gác (khối)"
+lore2 = "Chặn Đánh: mob đang đuổi theo bạn quay sang các hộ vệ của bạn"
+lore3 = "Trả Đũa: hộ vệ tấn công thứ đã làm bạn bị thương"
+lore4 = "Giảm sát thương khi ở gần hộ vệ của bạn"
+lore5 = "Số giây Kháng Cự từ Trận Chiến Cuối"
+lore = ["Bán kính canh gác (khối)", "Chặn Đánh: mob đang đuổi theo bạn quay sang các hộ vệ của bạn", "Trả Đũa: hộ vệ tấn công thứ đã làm bạn bị thương", "Giảm sát thương khi ở gần hộ vệ của bạn", "Số giây Kháng Cự từ Trận Chiến Cuối"]
+
+[golemancy.gatherer_core]
+name = "Lõi Người Thu Gom"
+description = "Golem được liên kết bằng Lõi Người Thu Gom nhặt các vật phẩm rơi quanh nhà của chúng hoặc quanh một Nút Thu Gom rồi mang đi giao, và tích trữ các quả cầu kinh nghiệm thành tinh chất khi lõi mạnh lên."
+lore1 = "Bán kính nhặt đồ (khối)"
+lore2 = "Điểm kinh nghiệm tinh chất tích trữ"
+lore3 = "Khối nam châm vật phẩm"
+lore4 = "Khối nhặt đồ tức thì"
+lore5 = "Sức chứa mang vác"
+lore = ["Bán kính nhặt đồ (khối)", "Điểm kinh nghiệm tinh chất tích trữ", "Khối nam châm vật phẩm", "Khối nhặt đồ tức thì", "Sức chứa mang vác"]
+essence = "Tinh chất: {value} điểm kinh nghiệm"
+essence_lore = "Nhấp để lấy kinh nghiệm đã tích trữ"
+essence_taken = "Bạn đã lấy {value} điểm kinh nghiệm tinh chất"
+essence_empty = "Golem này không có tinh chất tích trữ"
+
+[golemancy.harvester_core]
+name = "Lõi Người Thu Hoạch"
+description = "Golem được liên kết bằng Lõi Người Thu Hoạch thu hoạch và trồng lại cây chín trong khu vực của một Nút Thu Hoạch, đồng thời chăm sóc và cày xới cánh đồng khi lõi mạnh lên."
+lore1 = "Số cây mỗi lần thu hoạch"
+lore2 = "Số giây mỗi lần thu hoạch"
+lore3 = "Thu hoạch dưa hấu, bí ngô, mía, tre và xương rồng"
+lore4 = "Chăm sóc: dùng bột xương từ rương nhà cho cây non"
+lore5 = "Cày xới: cày lại đất và gieo hạt vào đất canh tác trống"
+lore6 = "Cơ hội quay thêm một lượt vật phẩm rơi"
+lore = ["Số cây mỗi lần thu hoạch", "Số giây mỗi lần thu hoạch", "Thu hoạch dưa hấu, bí ngô, mía, tre và xương rồng", "Chăm sóc: dùng bột xương từ rương nhà cho cây non", "Cày xới: cày lại đất và gieo hạt vào đất canh tác trống", "Cơ hội quay thêm một lượt vật phẩm rơi"]
+
+[golemancy.lumber_core]
+name = "Lõi Tiều Phu"
+description = "Golem được liên kết bằng Lõi Tiều Phu đốn các cây tự nhiên trong khu vực của một Nút Đốn Gỗ từ trên xuống và thu gom gỗ, đồng thời trồng lại, quét lá và đốn những cây lớn hơn khi lõi mạnh lên."
+lore1 = "Khúc gỗ đốn mỗi giây"
+lore2 = "Khúc gỗ mỗi cây cho golem đồng"
+lore3 = "Khúc gỗ mỗi cây cho golem sắt"
+lore4 = "Trồng lại cây non sau khi đốn"
+lore5 = "Quét lá: phá lá rời và thu gom vật phẩm rơi ra"
+lore6 = "Đốn cây khổng lồ 2x2"
+lore7 = "Đốn nấm đỏ thẫm và nấm biến dạng rồi trồng lại nấm"
+lore = ["Khúc gỗ đốn mỗi giây", "Khúc gỗ mỗi cây cho golem đồng", "Khúc gỗ mỗi cây cho golem sắt", "Trồng lại cây non sau khi đốn", "Quét lá: phá lá rời và thu gom vật phẩm rơi ra", "Đốn cây khổng lồ 2x2", "Đốn nấm đỏ thẫm và nấm biến dạng rồi trồng lại nấm"]
+
+[golemancy.breaker_core]
+name = "Lõi Kẻ Phá Vỡ"
+description = "Golem được liên kết bằng Lõi Kẻ Phá Vỡ phá các khối mà bộ lọc của một Nút Khai Thác liệt kê trong khu vực của nút và mang theo vật phẩm rơi ra, đồng thời đào các khối cứng hơn bằng cuốc chim tốt hơn khi lõi mạnh lên."
+lore1 = "Độ cứng khối tối đa"
+lore2 = "Số giây mỗi khối"
+lore3 = "Công cụ khai thác"
+lore4 = "Công tắc Chạm Lụa trên Nút Khai Thác"
+lore5 = "Công tắc Gia Tài I trên Nút Khai Thác"
+lore = ["Độ cứng khối tối đa", "Số giây mỗi khối", "Công cụ khai thác", "Công tắc Chạm Lụa trên Nút Khai Thác", "Công tắc Gia Tài I trên Nút Khai Thác"]
+filter_ready = "Phá các khối trong bộ lọc"
+filter_needed = "Thêm khối vào danh sách trắng"
+filter_lore = "Kẻ Phá Vỡ chỉ phá các khối mà danh sách trắng liệt kê"
+silk_on = "Chạm Lụa: Bật"
+silk_off = "Chạm Lụa: Tắt"
+fortune_on = "Gia Tài I: Bật"
+fortune_off = "Gia Tài I: Tắt"
+locked = "Mở khóa ở Lõi Kẻ Phá Vỡ cấp {level}"
+exclusive = "Chạm Lụa và Gia Tài I tắt lẫn nhau"
+
+[golemancy.rancher_core]
+name = "Lõi Người Chăn Nuôi"
+description = "Golem gắn kết với Lõi Người Chăn Nuôi chăm sóc các con vật trong vùng của nút Đồng Cỏ: chúng cho từng cặp sinh sản đến số lượng giữ lại của nút, và khi lõi mạnh hơn, chúng xén lông cừu, vắt sữa bò và dê, và loại bớt những con trưởng thành dư thừa."
+lore1 = "Cho từng cặp sinh sản đến số lượng giữ lại của nút Đồng Cỏ"
+lore2 = "Xén lông cừu"
+lore3 = "Vắt sữa bò, dê và bò nấm bằng xô hoặc bát từ rương nhà"
+lore4 = "Loại bớt con trưởng thành vượt số lượng giữ lại (chỉ golem sắt)"
+lore5 = "Thời gian chờ sinh sản ngắn hơn"
+lore6 = "Thêm lượt rơi đồ mỗi lần loại bớt"
+lore = ["Cho từng cặp sinh sản đến số lượng giữ lại của nút Đồng Cỏ", "Xén lông cừu", "Vắt sữa bò, dê và bò nấm bằng xô hoặc bát từ rương nhà", "Loại bớt con trưởng thành vượt số lượng giữ lại (chỉ golem sắt)", "Thời gian chờ sinh sản ngắn hơn", "Thêm lượt rơi đồ mỗi lần loại bớt"]
+species = "Loài: {species}"
+species_all = "Tất cả con vật"
+species_lore = "Nhấp trái để chọn loài tiếp theo, nhấp phải để chọn loài trước"
+keep = "Số lượng giữ lại: {count} mỗi loài"
+keep_lore = "Nhấp trái để tăng, nhấp phải để giảm"
+breed_on = "Sinh sản: Bật"
+breed_off = "Sinh sản: Tắt"
+shear_on = "Xén lông: Bật"
+shear_off = "Xén lông: Tắt"
+milk_on = "Vắt sữa: Bật"
+milk_off = "Vắt sữa: Tắt"
+cull_on = "Loại bớt: Bật"
+cull_off = "Loại bớt: Tắt"
+locked = "Mở khóa ở Lõi Người Chăn Nuôi cấp {level}"
+iron_only = "Chỉ golem sắt mới loại bớt"
+
+[golemancy.sorter_core]
+name = "Lõi Người Phân Loại"
+description = "Golem đồng được liên kết bằng Lõi Người Phân Loại dọn sạch vật chứa bên dưới một Nút Đầu Vào sang các vật chứa gần đó đã có sẵn từng vật phẩm, và học cách dùng nhóm vật phẩm, Nút Bộ Lọc, bổ sung hàng và mang đồ đến khi lõi mạnh lên."
+lore1 = "Bán kính đích (khối)"
+lore2 = "Chồng mỗi chuyến"
+lore3 = "Phân loại theo nhóm vật phẩm"
+lore4 = "Nút Bộ Lọc và một nơi tràn"
+lore5 = "Phân biệt phù phép và thuốc"
+lore6 = "Chuyển hộp shulker"
+lore7 = "Lượng bổ sung trên Nút Bộ Lọc"
+lore8 = "Chỉ mục nội dung vật chứa"
+lore9 = "Yêu cầu mang đồ từ menu Nút Đầu Vào"
+lore = ["Bán kính đích (khối)", "Chồng mỗi chuyến", "Phân loại theo nhóm vật phẩm", "Nút Bộ Lọc và một nơi tràn", "Phân biệt phù phép và thuốc", "Chuyển hộp shulker", "Lượng bổ sung trên Nút Bộ Lọc", "Chỉ mục nội dung vật chứa", "Yêu cầu mang đồ từ menu Nút Đầu Vào"]
+match_exact = "So khớp: cùng vật phẩm"
+match_groups = "So khớp: nhóm vật phẩm"
+match_precise = "So khớp: phù phép và thuốc"
+match_lore = "Cách Người Phân Loại chọn vật chứa đã có sẵn một vật phẩm"
+radius = "Bán kính đích: {radius}"
+radius_lore = "Tối đa {radius} khối ở cấp Lõi Người Phân Loại của bạn"
+fetch = "Mang đồ đến"
+fetch_lore = "Chọn vật phẩm để Người Phân Loại mang đến cho bạn"
+locked = "Mở khóa ở Lõi Người Phân Loại cấp {level}"
+overflow_on = "Nơi tràn: bật"
+overflow_off = "Nơi tràn: tắt"
+overflow_lore = "Nơi tràn nhận các vật phẩm mà không vật chứa nào khác nhận"
+restock = "Bổ sung: {amount} mỗi vật phẩm trong bộ lọc"
+restock_off = "Bổ sung: tắt"
+restock_lore = "Người Phân Loại giữ ở đây số lượng này cho mỗi vật phẩm trong danh sách"
+fetch_available = "Có sẵn: {count}"
+fetch_request = "Nhấn để yêu cầu {amount}"
+fetch_amount = "Yêu cầu {amount} mỗi lần"
+fetch_empty = "Các vật chứa của Nút Đầu Vào này không có gì"
+fetch_requested = "Người Phân Loại sẽ mang {amount} {item} đến"
+fetch_delivered = "Người Phân Loại đã mang {amount} {item} đến"
+empty_filter = "Nút Bộ Lọc trống không nhận gì, trừ khi nó là nơi tràn"
+
+[golemancy.angler_core]
+name = "Lõi Ngư Phủ"
+description = "Golem được liên kết bằng Lõi Ngư Phủ câu cá ở vùng nước mở trước một Nút Câu Cá và mang theo mẻ câu, đồng thời may mắn hơn, lọc bỏ rác, câu nhanh hơn khi trời mưa và câu được mẻ đôi khi lõi mạnh lên."
+lore1 = "Số giây mỗi mẻ câu"
+lore2 = "May mắn câu cá"
+lore3 = "Công tắc bộ lọc rác trên Nút Câu Cá"
+lore4 = "Thời gian câu ngắn hơn khi trời mưa"
+lore5 = "Cơ hội câu được mẻ đôi"
+lore = ["Số giây mỗi mẻ câu", "May mắn câu cá", "Công tắc bộ lọc rác trên Nút Câu Cá", "Thời gian câu ngắn hơn khi trời mưa", "Cơ hội câu được mẻ đôi"]
+water_ready = "Đã tìm thấy nước mở"
+water_needed = "Cần nước mở"
+water_lore = "Ngư Phủ cần một vùng nước mở 5 x 5 ở phía trước nút"
+junk_keep = "Rác: Giữ lại"
+junk_discard = "Rác: Thả lại"
+locked = "Mở khóa ở Lõi Ngư Phủ cấp {level}"
+
+[golemancy.runic_augments]
+name = "Cường hóa Rune"
+description = "Cho phép bạn truyền Cổ Tự tại Bệ Animus và gắn chúng vào các golem đã liên kết để tăng tốc độ, sức chở, lửa, tầm hoạt động, kênh, sản lượng và giáp."
+lore1 = "Ô Cổ Tự bổ sung cho mỗi golem"
+lore2 = "Bậc Cổ Tự cao nhất có thể dùng"
+lore3 = "Bệ Animus và công thức Cổ Tự Trống"
+lore = ["Ô Cổ Tự bổ sung cho mỗi golem", "Bậc Cổ Tự cao nhất có thể dùng", "Bệ Animus và công thức Cổ Tự Trống"]
+
+[golemancy.overseer]
+name = "Giám Sát"
+description = "Cho phép bạn dùng Gậy của Thợ Chế Tác ra hiệu cho các golem đã liên kết đi theo, giữ vị trí, về nhà hoặc làm việc, và khi mạnh lên thì tấn công thứ bạn nhìn, phản hồi theo kênh, tập hợp về phía bạn và bảo vệ bạn theo đội hình."
+lore1 = "Bán kính hiệu lệnh (khối)"
+lore2 = "Tấn Công: golem chiến đấu tấn công thứ bạn nhìn"
+lore3 = "Bộ lọc kênh của Gậy, đặt trong Danh sách golem"
+lore4 = "Tập Hợp: Đi theo gọi các golem ở xa về phía bạn"
+lore5 = "Giáp tối đa từ golem trong đội hình"
+lore = ["Bán kính hiệu lệnh (khối)", "Tấn Công: golem chiến đấu tấn công thứ bạn nhìn", "Bộ lọc kênh của Gậy, đặt trong Danh sách golem", "Tập Hợp: Đi theo gọi các golem ở xa về phía bạn", "Giáp tối đa từ golem trong đội hình"]
+signal = "Hiệu lệnh: {signal}"
+sent = "Đã gửi: {signal}"
+sent_channel = "Đã gửi: {signal} tới kênh {channel}"
+no_target = "Nhìn vào một sinh vật bạn được phép tấn công trong phạm vi {range} khối để gửi Tấn công"
+
+[golemancy.mending]
+name = "Sửa Chữa Golem"
+description = "Chữa lành golem của bạn bằng thỏi đồng, khối tuyết và bột xương, để chúng tự hồi phục khi ở gần bạn và ở nhà, và tái tạo golem đã ngã từ Lõi Vỡ Nát của chúng."
+lore1 = "Hồi máu thêm từ việc sửa chữa"
+lore2 = "Thỏi đồng, khối tuyết và bột xương chữa lành golem của bạn"
+lore3 = "Máu hồi phục khi ở gần bạn"
+lore4 = "Máu hồi phục khi nghỉ ở nhà"
+lore5 = "Số giây giữa các lần hồi phục"
+lore6 = "Lõi Vỡ Nát: tái tạo golem đã ngã"
+lore7 = "Số giây Kháng Cự cho golem tái sinh"
+lore8 = "Golem tái sinh giữ nguyên trạng thái đồng"
+lore = ["Hồi máu thêm từ việc sửa chữa", "Thỏi đồng, khối tuyết và bột xương chữa lành golem của bạn", "Máu hồi phục khi ở gần bạn", "Máu hồi phục khi nghỉ ở nhà", "Số giây giữa các lần hồi phục", "Lõi Vỡ Nát: tái tạo golem đã ngã", "Số giây Kháng Cự cho golem tái sinh", "Golem tái sinh giữ nguyên trạng thái đồng"]
+full_health = "Golem này đã đầy máu"
+shattered = "Golem {body} của bạn đã vỡ nát và để lại Lõi Vỡ Nát"
+reborn = "Golem {body} của bạn đã tái sinh"
+void = "Lõi Vỡ Nát này tan rã: nó không còn chứa golem của mình nữa"
+not_owner = "Lõi Vỡ Nát này thuộc về người chơi khác"
+locked = "Tái tạo golem cần Sửa Chữa Golem cấp {level}"
+wrong_body = "Lõi Vỡ Nát này cần một golem {body} vừa được tạo"
+unreadable = "Lõi Vỡ Nát này đã hư hỏng và không thể tái tạo golem"
+
+[golemancy.stasis]
+name = "Ngưng Đọng"
+description = "Dùng Gậy đóng gói các golem đã liên kết của bạn thành khối Golem Ngủ Đông và đặt khối xuống để đánh thức chúng ở bất cứ đâu, giữ nguyên lõi, rune, hàng mang theo và máu."
+lore1 = "Giây để đóng gói một golem"
+lore2 = "Đóng gói tức thì"
+lore3 = "Đặt Golem Ngủ Đông để đánh thức nó"
+lore4 = "Máu hồi phục khi đang đóng gói"
+lore5 = "Giây giữa các lần hồi máu khi đóng gói"
+lore6 = "Danh sách bỏ túi: gọi golem về từ danh sách"
+lore7 = "Giây giữa các lần gọi về"
+lore = ["Giây để đóng gói một golem", "Đóng gói tức thì", "Đặt Golem Ngủ Đông để đánh thức nó", "Máu hồi phục khi đang đóng gói", "Giây giữa các lần hồi máu khi đóng gói", "Danh sách bỏ túi: gọi golem về từ danh sách", "Giây giữa các lần gọi về"]
+packed = "Golem {body} của bạn đã được đóng gói thành Golem Ngủ Đông"
+dropped = "Túi đồ của bạn đã đầy nên Golem Ngủ Đông rơi xuống dưới chân bạn"
+interrupted = "Việc đóng gói đã bị gián đoạn"
+busy = "Bạn đang đóng gói một golem rồi"
+pack_failed = "Hiện không thể đóng gói golem này"
+awakened = "Golem {body} của bạn thức dậy"
+void = "Golem Ngủ Đông này tan rã: nó không còn chứa golem của mình nữa"
+not_owner = "Golem Ngủ Đông này thuộc về người chơi khác"
+locked = "Cần Ngưng Đọng để đánh thức Golem Ngủ Đông"
+unreadable = "Golem Ngủ Đông này đã hư hỏng và không thể thức dậy"
+body_locked = "Bạn chưa thể đánh thức golem {body}"
+no_room = "Golem Ngủ Đông cần một khối trống để thức dậy"
+server_cap = "Máy chủ đã có số golem thức tối đa cho phép"
+protected = "Bạn không thể đánh thức golem ở đây"
+awaken_failed = "Golem không thể thức dậy nên bạn vẫn giữ Golem Ngủ Đông"
+recall_cooldown = "Bạn có thể gọi golem khác về sau {seconds} giây"
+recall_unavailable = "Chỉ có thể gọi về các golem đã tải trong thế giới của bạn"
+
+[golemancy.masterwork]
+name = "Kiệt Tác"
+description = "Truyền một Trái Tim Kiệt Tác tại Bệ Animus và gắn nó vào một golem để có thêm một ô Cổ Tự, thêm máu, lõi thứ hai và Cổ Tự mạnh hơn."
+lore1 = "Golem Kiệt Tác"
+lore2 = "Ô Cổ Tự bổ sung trên một Kiệt Tác"
+lore3 = "Máu tối đa của một Kiệt Tác"
+lore4 = "Ô lõi thứ hai trên một Kiệt Tác"
+lore5 = "Cổ Tự của Kiệt Tác hoạt động cao hơn một bậc"
+lore6 = "Thưởng cho Cổ Tự bậc 3 của Kiệt Tác"
+lore = ["Golem Kiệt Tác", "Ô Cổ Tự bổ sung trên một Kiệt Tác", "Máu tối đa của một Kiệt Tác", "Ô lõi thứ hai trên một Kiệt Tác", "Cổ Tự của Kiệt Tác hoạt động cao hơn một bậc", "Thưởng cho Cổ Tự bậc 3 của Kiệt Tác"]
+slot = "Trái Tim Kiệt Tác"
+slot_lore = "Nhấp để lấy lại Trái Tim cùng lõi thứ hai và các Cổ Tự bổ sung"
+slot_empty = "Ô Kiệt Tác"
+slot_empty_lore = "Cầm một Trái Tim Kiệt Tác rồi nhấp vào đây ({count}/{maximum} kiệt tác)"
+core_empty = "Ô lõi thứ hai"
+core_empty_lore = "Cầm một lõi vai trò rồi nhấp vào đây để gắn nó"
+core_remove = "Nhấp để lấy lại lõi này"
+heart_needed = "Hãy cầm một Trái Tim Kiệt Tác trước"
+designated = "Golem này giờ là một kiệt tác"
+removed = "Đã lấy lại Trái Tim Kiệt Tác"
+already = "Golem này đã là một kiệt tác"
+cap = "Bạn đã có {count} golem kiệt tác"
+locked = "Bạn cần Kiệt Tác để chỉ định một golem kiệt tác"
+body = "Golem {body} không thể trở thành kiệt tác"
+core_needed = "Hãy cầm một lõi vai trò trước"
+core_slotted = "Đã gắn lõi {core}"
+core_removed = "Đã lấy lại lõi {core}"
+core_no_slot = "Golem này không còn ô lõi trống"
+core_blank = "Lõi thứ hai phải là lõi vai trò"
+core_duplicate = "Golem này đã có lõi {core}"
+
+[golemancy.node_status]
+idle = "Đang rảnh"
+working = "Đang làm việc"
+blocked = "Bị bảo vệ chặn"
+full = "Vật chứa đã đầy"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Bộ lọc: {count}"
+
+[golemancy.node_message]
+placed = "Đã đặt Nút {node}"
+occupied = "Mặt này đã có một nút"
+protected = "Bạn không thể đặt nút ở đây"
+needs_container = "Nút {node} phải đặt lên rương, thùng hoặc hộp shulker"
+needs_side_face = "Nút {node} phải đặt lên mặt bên của một khối"
+container_protected = "Vật chứa đó được bảo vệ"
+chunk_full = "Chunk này đã có {count} nút"
+cap = "Bạn đã sở hữu tối đa {count} nút"
+loading = "Các nút ở đây vẫn đang tải"
+unavailable = "Danh sách golem của bạn chưa sẵn sàng"
+filter_added = "Đã thêm {item} vào bộ lọc"
+filter_removed = "Đã xóa {item} khỏi bộ lọc"
+filter_full = "Bộ lọc này chứa tối đa {count} mục"
+priority_locked = "Độ ưu tiên của nút mở khóa ở Dệt Nút cấp {level}"
+removed = "Đã gỡ Nút {node}"
+remove_failed = "Hiện không thể gỡ nút này"
+not_owner = "Nút này thuộc về người chơi khác"
+gone = "Nút này không còn ở đây"
+tag_prompt = "Nhập một thẻ vật phẩm như #logs vào khung chat"
+tag_invalid = "{tag} không phải là thẻ vật phẩm"
+tag_cancelled = "Đã hủy nhập thẻ"
+tag_timed_out = "Đã hết thời gian nhập thẻ"
+
+[golemancy.node_gui]
+position = "Khối: {x}, {y}, {z}"
+area = "Bán kính {axis}: {radius}"
+area_lore = "Nhấp chuột trái: mở rộng, nhấp chuột phải: thu hẹp"
+area_cap = "Bán kính lớn nhất: {radius}"
+priority = "Độ ưu tiên: {priority}"
+redstone = "Đá đỏ: {mode}"
+redstone_ignore = "Bỏ qua"
+redstone_powered = "Chỉ hoạt động khi có tín hiệu đá đỏ"
+redstone_unpowered = "Chỉ hoạt động khi không có tín hiệu đá đỏ"
+locked = "Mở khóa ở Dệt Nút cấp {level}"
+whitelist = "Danh sách trắng"
+whitelist_lore = "Golem chỉ dùng vật phẩm khớp"
+blacklist = "Danh sách đen"
+blacklist_lore = "Golem dùng mọi thứ trừ vật phẩm khớp"
+empty_filter = "Bộ lọc trống khớp với mọi vật phẩm"
+toggle = "Nhấp để chuyển"
+filter_empty = "Ô bộ lọc trống"
+filter_set = "Nhấp bằng một vật phẩm để đặt"
+filter_clear = "Nhấp chuột phải để xóa"
+filter_locked = "Ô bộ lọc bị khóa"
+filter_locked_lore = "Thêm cấp Dệt Nút sẽ mở khóa ô này"
+tag = "Thẻ vật phẩm"
+tag_add = "Thêm thẻ"
+tag_add_lore = "Nhấp, rồi nhập một thẻ vật phẩm như #logs vào khung chat"
+
+[golemancy.node_weaving]
+name = "Dệt Nút"
+description = "Ngồi xuống và nhấp chuột phải vào mặt khối khi cầm một nút để gắn nó ở đó và điều hướng công việc của golem."
+lore1 = "Số nút bạn có thể sở hữu"
+lore2 = "Bán kính vùng làm việc (khối)"
+lore3 = "Ô bộ lọc"
+lore4 = "Độ ưu tiên của nút 1-5"
+lore5 = "Điều khiển bằng đá đỏ"
+lore6 = "Bộ lọc danh sách đen và thẻ"
+lore = ["Số nút bạn có thể sở hữu", "Bán kính vùng làm việc (khối)", "Ô bộ lọc", "Độ ưu tiên của nút 1-5", "Điều khiển bằng đá đỏ", "Bộ lọc danh sách đen và thẻ"]
+
+[golemancy.plinth]
+loading = "Bệ này vẫn đang tải"
+occupied = "Trụ này đã có một vật phẩm"
+protected = "Bạn không thể dùng bệ này ở đây"
+busy = "Một nghi thức truyền đang diễn ra"
+no_recipe = "Những vật phẩm này không tạo thành nghi thức truyền"
+locked = "Bạn chưa học nghi thức truyền này"
+levels = "Nghi thức truyền này tốn {levels} cấp độ"
+interrupted = "Nghi thức truyền đã bị gián đoạn"
+complete = "Nghi thức truyền đã hoàn tất"
+failed = "Nghi thức truyền thất bại và cấp độ của bạn đã được hoàn lại"
+
 [herbalism.growth_aura]
 name = "Hào Quang Tăng Trưởng"
 description = "Phát triển thiên nhiên xung quanh bạn trong một hào quang"
@@ -4523,6 +5212,10 @@ vault_unavailable_fallback = "Không thể dùng hệ thống kinh tế Vault �
 vault_insufficient_funds = "Người chơi không có đủ tiền trong hệ thống kinh tế Vault."
 vault_transaction_failed = "Giao dịch Vault thất bại; tiến độ không thay đổi."
 power_drain = "Tiêu hao sức mạnh: {power}"
+requirement_level = "{adaptation} cấp {level}"
+requires = "Yêu cầu: {requirement}"
+requirements_missing = "Hãy học {requirements} trước khi học {adaptation}."
+required_by_dependents = "Hãy hủy học {dependents} trước; chúng cần {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5362,6 +6055,11 @@ name = "Kinetics"
 icon = "⚒"
 description = "Hành động là sức mạnh. Đánh đập bằng dao, sạc bằng giáo, và xoay động lực chính nó: nhảy, phóng, bơm, và những chiếc đũa rơi được nhắm mục tiêu tốt tất cả đều nuôi dưỡng khả năng làm chủ của bạn."
 
+[skill.golemancy]
+name = "Thuật Golem"
+icon = "⚙"
+description = "Lên cấp bằng cách chế tạo, sửa chữa và chăm sóc golem, rồi thổi hồn để chúng chiến đấu và làm việc bên cạnh bạn."
+
 [snippets.gui]
 level = "Cấp Độ"
 level_value = "Trình độ {level}"
@@ -5951,7 +6649,7 @@ assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it = "G�
 boost_global_experience_gain = "Lợi ích kinh nghiệm toàn cầu."
 boost_target_player_experience_gain = "Người chơi đích tăng kinh nghiệm."
 bypass_adapt_use_permission_checks_when_opening = "Bỏ qua adapt.use quyền hạn kiểm tra khi mở"
-bypass_costs_and_restrictions = "Bỏ qua chi phí và hạn chế"
+bypass_costs_and_permanence_prerequisites_still_apply = "Bỏ qua chi phí và tính vĩnh viễn; điều kiện tiên quyết vẫn áp dụng"
 bypass_power_knowledge_and_permanence_checks = "Quyền lực, kiến thức và kiểm tra lâu dài"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "Xóa tất cả dữ liệu phát hiện (Biom, đám đông, thực phẩm, mặt hàng, công thức nấu ăn vv.)"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "Xoá sạch mọi dữ liệu người chơi (XP, kiến thức, sự thích nghi, thống kê, khám phá, tiến bộ, trí tuệ)"
@@ -5996,6 +6694,12 @@ toggle_verbose_mode = "Bật/ tắt chế độ cắt động từ"
 top_results_to_print = "Kết quả trên để in"
 true_to_learn_false_to_unlearn = "không học"
 unlearn_all_adaptations_across_all_skill_lines = "Không học tất cả các thay đổi trên tất cả các kỹ năng dòng"
+golem_roster_and_admin_tools = "Danh sách golem và công cụ quản trị"
+open_your_golem_roster = "Mở danh sách golem của bạn"
+list_a_player_s_golems = "Liệt kê các golem của một người chơi"
+release_one_of_a_player_s_golems = "Giải phóng một golem của người chơi"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ID golem, hoặc đủ số ký tự đầu để khớp với một golem duy nhất"
+wake_a_player_s_loaded_golems = "Đánh thức các golem đã tải của một người chơi"
 
 [command.runtime]
 missing_permission = "Bạn không có quyền '{permission}'."
@@ -6038,6 +6742,8 @@ vault_insufficient_funds = "Người chơi không có đủ tiền trong hệ th
 vault_transaction_failed = "Giao dịch Vault thất bại; tiến độ không thay đổi."
 set_adaptation_level = "Đặt {player} {adaptation} cấp {level}."
 permanent_adaptation_lower = "{adaptation} là vĩnh viễn và không thể bị hạ nếu thiếu force=true."
+requirements_missing = "{player} cần {requirements} trước khi học {adaptation}."
+required_by_dependents = "{adaptation} là yêu cầu của {dependents} cho {player}; dùng force=true để gỡ bỏ cả chúng."
 adapt_server_not_ready = "Server Adapt chưa sẵn sàng."
 target_dispatch_failed = "Không thể lên lịch thao tác cho người chơi mục tiêu. Hãy thử lại."
 cleared_all = "Xóa mọi dữ liệu cho {player}."
@@ -6076,6 +6782,16 @@ perf_timing_budget = "Kiểm tra ngân sách thời gian: {percent} ({millisPerS
 perf_ticker_window = "Cửa sổ vé: {window}ms"
 perf_no_metrics = "Vẫn chưa thu thập được gì."
 perf_reset = "Ticker và khả năng thiết lập lại."
+golem_list_header = "{player} có {count} golem:"
+golem_list_header_one = "{player} có 1 golem:"
+golem_list_empty = "{player} không có golem nào."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} không có golem nào có ID bắt đầu bằng {id}."
+golem_ambiguous = "Có nhiều hơn một golem của {player} có ID bắt đầu bằng {id}. Hãy nhập thêm."
+golem_released = "Đã giải phóng golem {id} khỏi danh sách của {player}."
+golem_release_failed = "Không thể giải phóng golem {id} của {player}. Hãy thử lại."
+golem_release_active_unloaded = "Golem {id} của {player} đang hoạt động trong một chunk chưa tải. Hãy tải chunk của nó để giải phóng, hoặc giải phóng khi nó được đánh dấu là mất tích."
+golems_woken = "Đang đánh thức các golem đã tải của {player}: {count}."
 
 [language.menu]
 your_language = "Ngôn ngữ của bạn"
@@ -6709,6 +7425,29 @@ purple = "Purple"
 always = "Always"
 sneak = "Sneak to activate"
 suppress = "Sneak to suppress"
+
+[golemancy.preferences]
+absorb_orbs = "Hấp thụ quả cầu kinh nghiệm"
+action_bar_only = "Chỉ thanh hành động"
+any_item = "Bất kỳ vật phẩm Thuật Golem nào"
+aura = "Hào quang"
+chime_and_particles = "Tiếng chuông và hạt"
+crook_only = "Chỉ Gậy"
+hidden = "Ẩn"
+intercept = "Chặn Đánh"
+leaf_sweep = "Quét lá"
+magnet = "Nam châm"
+node_reveal = "Hiện nút"
+obey_overseer = "Tôi tớ nghe lệnh Giám Sát"
+retaliate_players = "Trả Đũa người chơi"
+shown = "Hiện"
+signal_feedback = "Phản hồi hiệu lệnh"
+static_overdrive = "Quá Tải Tĩnh Điện"
+status_labels = "Nhãn trạng thái golem"
+sweeping_fists = "Cú Đấm Quét"
+tending = "Chăm sóc"
+tilling = "Cày xới"
+work_area_outline = "Viền khu vực làm việc"
 
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"

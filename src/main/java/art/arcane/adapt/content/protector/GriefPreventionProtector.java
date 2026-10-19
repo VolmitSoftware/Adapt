@@ -26,9 +26,13 @@ import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 public class GriefPreventionProtector implements Protector {
 
@@ -41,6 +45,19 @@ public class GriefPreventionProtector implements Protector {
   @Override
   public boolean canBlockPlace(Player player, Location location, Adaptation<?> adaptation) {
     return canEditClaim(player, location);
+  }
+
+  @Override
+  public boolean canPVE(Player player, Entity victim, Adaptation<?> adaptation) {
+    if (!GriefPrevention.instance.config_claims_protectCreatures || !ClaimCreatures.protectedCreature(victim, GriefPreventionProtector::lured)) {
+      return true;
+    }
+    return allowed(victim.getLocation(), false, claim -> claim.allowContainers(player));
+  }
+
+  @Override
+  public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
+    return allowed(chestLocation, true, claim -> claim.allowContainers(player));
   }
 
   @Override
@@ -77,6 +94,14 @@ public class GriefPreventionProtector implements Protector {
 
   }
 
+  private static boolean allowed(Location location, boolean ignoreHeight, Function<Claim, String> denial) {
+    Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, ignoreHeight, null);
+    return claim == null || denial.apply(claim) == null;
+  }
+
+  private static boolean lured(Entity entity) {
+    return entity.getPersistentDataContainer().has(new NamespacedKey(GriefPrevention.instance, "lured_by_player"), PersistentDataType.BYTE);
+  }
+
 
 }
-

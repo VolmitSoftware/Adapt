@@ -40,6 +40,8 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.api.minion.MinionKind;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -88,6 +90,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
           new PlayerPreference.Choice<>(Gesture.RELEASE, StealthMessages.STEALTHSHADOWDECOY_PREFERENCE_GESTURE_RELEASE, Material.LEATHER_BOOTS, 1),
           new PlayerPreference.Choice<>(Gesture.DOUBLE, StealthMessages.STEALTHSHADOWDECOY_PREFERENCE_GESTURE_DOUBLE, Material.RABBIT_FOOT, 1),
           new PlayerPreference.Choice<>(Gesture.ARMED_RELEASE, StealthMessages.STEALTHSHADOWDECOY_PREFERENCE_GESTURE_ARMED_RELEASE, Material.SHIELD, 1))));
+  private static final MinionKind MINION_KIND = new DecoyMinionKind();
 
   private final Map<UUID, Long> lastGesturePress = playerState();
   private final Map<UUID, Boolean> armedRelease = playerState();
@@ -101,6 +104,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
 
   public StealthShadowDecoy() {
     super("stealth-shadow-decoy");
+    MinionIdentity.registerKind(MINION_KIND);
     registerConfiguration(Config.class);
     setIcon(Material.PLAYER_HEAD);
     setInterval(5);
@@ -734,6 +738,25 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
     }
   }
 
+  private static final class DecoyMinionKind implements MinionKind {
+    @Override
+    public boolean matches(Entity entity) {
+      return isDecoy(entity);
+    }
+
+    @Override
+    public UUID ownerOf(Entity entity) {
+      String raw = entity.getPersistentDataContainer().get(DECOY_OWNER_KEY, PersistentDataType.STRING);
+      if (raw == null) {
+        return null;
+      }
+      try {
+        return UUID.fromString(raw);
+      } catch (IllegalArgumentException ignored) {
+        return null;
+      }
+    }
+  }
 
   public enum Gesture { RELEASE, DOUBLE, ARMED_RELEASE }
 }

@@ -44,6 +44,8 @@ public final class CommandRuntimeMessages {
   public static final TextKey VAULT_TRANSACTION_FAILED = TextKey.of("command.runtime.vault_transaction_failed", "The Vault economy transaction failed; no progression was changed.");
   public static final TextKey SET_ADAPTATION_LEVEL = TextKey.of("command.runtime.set_adaptation_level", "Set {player} {adaptation} to level {level}.");
   public static final TextKey PERMANENT_ADAPTATION_LOWER = TextKey.of("command.runtime.permanent_adaptation_lower", "{adaptation} is permanent and cannot be lowered without force=true.");
+  public static final TextKey REQUIREMENTS_MISSING = TextKey.of("command.runtime.requirements_missing", "{player} needs {requirements} before learning {adaptation}.");
+  public static final TextKey REQUIRED_BY_DEPENDENTS = TextKey.of("command.runtime.required_by_dependents", "{adaptation} is required by {dependents} for {player}; use force=true to remove them as well.");
   public static final TextKey ADAPT_SERVER_NOT_READY = TextKey.of("command.runtime.adapt_server_not_ready", "Adapt server is not ready yet. Try again in a few seconds.");
   public static final TextKey TARGET_DISPATCH_FAILED = TextKey.of("command.runtime.target_dispatch_failed", "Could not schedule the target player operation. Try again.");
   public static final TextKey CLEARED_ALL = TextKey.of("command.runtime.cleared_all", "Cleared all data for {player}.");
@@ -82,6 +84,16 @@ public final class CommandRuntimeMessages {
   public static final TextKey PERF_TICKER_WINDOW = TextKey.of("command.runtime.perf_ticker_window", "Ticker window: {window}ms");
   public static final TextKey PERF_NO_METRICS = TextKey.of("command.runtime.perf_no_metrics", "No tick metrics collected yet.");
   public static final TextKey PERF_RESET = TextKey.of("command.runtime.perf_reset", "Ticker and ability telemetry reset.");
+  public static final TextKey GOLEM_LIST_HEADER = TextKey.of("command.runtime.golem_list_header", "{player} has {count} golems:");
+  public static final TextKey GOLEM_LIST_HEADER_ONE = TextKey.of("command.runtime.golem_list_header_one", "{player} has 1 golem:");
+  public static final TextKey GOLEM_LIST_EMPTY = TextKey.of("command.runtime.golem_list_empty", "{player} has no golems.");
+  public static final TextKey GOLEM_LIST_ENTRY = TextKey.of("command.runtime.golem_list_entry", "{id}: {golem}, {status}. {location}");
+  public static final TextKey GOLEM_NOT_FOUND = TextKey.of("command.runtime.golem_not_found", "{player} has no golem whose id starts with {id}.");
+  public static final TextKey GOLEM_AMBIGUOUS = TextKey.of("command.runtime.golem_ambiguous", "More than one of {player}'s golems has an id starting with {id}. Type more of it.");
+  public static final TextKey GOLEM_RELEASED = TextKey.of("command.runtime.golem_released", "Released golem {id} from {player}'s roster.");
+  public static final TextKey GOLEM_RELEASE_FAILED = TextKey.of("command.runtime.golem_release_failed", "Golem {id} of {player} could not be released. Try again.");
+  public static final TextKey GOLEM_RELEASE_ACTIVE_UNLOADED = TextKey.of("command.runtime.golem_release_active_unloaded", "Golem {id} of {player} is active in an unloaded chunk. Load its chunk to release it, or release it once it shows as missing.");
+  public static final TextKey GOLEMS_WOKEN = TextKey.of("command.runtime.golems_woken", "Waking {player}'s {count} loaded golems.");
 
   private CommandRuntimeMessages() {
   }
@@ -127,6 +139,8 @@ public final class CommandRuntimeMessages {
     builder.add(VAULT_TRANSACTION_FAILED);
     builder.add(SET_ADAPTATION_LEVEL);
     builder.add(PERMANENT_ADAPTATION_LOWER);
+    builder.add(REQUIREMENTS_MISSING);
+    builder.add(REQUIRED_BY_DEPENDENTS);
     builder.add(ADAPT_SERVER_NOT_READY);
     builder.add(TARGET_DISPATCH_FAILED);
     builder.add(CLEARED_ALL);
@@ -165,5 +179,15 @@ public final class CommandRuntimeMessages {
     builder.add(PERF_TICKER_WINDOW);
     builder.add(PERF_NO_METRICS);
     builder.add(PERF_RESET);
+    builder.add(GOLEM_LIST_HEADER);
+    builder.add(GOLEM_LIST_HEADER_ONE);
+    builder.add(GOLEM_LIST_EMPTY);
+    builder.add(GOLEM_LIST_ENTRY);
+    builder.add(GOLEM_NOT_FOUND);
+    builder.add(GOLEM_AMBIGUOUS);
+    builder.add(GOLEM_RELEASED);
+    builder.add(GOLEM_RELEASE_FAILED);
+    builder.add(GOLEM_RELEASE_ACTIVE_UNLOADED);
+    builder.add(GOLEMS_WOKEN);
   }
 }

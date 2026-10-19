@@ -93,6 +93,10 @@ public interface Adaptation<T> extends Ticked, Component {
    */
   int getMaxLevel();
 
+  default List<AdaptationRequirement> getRequirements() {
+    return List.of();
+  }
+
   /**
    * Grants adaptation-attributed xp to a player.
    */
@@ -476,6 +480,9 @@ public interface Adaptation<T> extends Ticked, Component {
    */
   void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
+  default void onLevelChanged(Player player, int level) {
+  }
+
   /**
    * Returns the active protector set after applying this adaptation's override
    * config.
@@ -510,6 +517,10 @@ public interface Adaptation<T> extends Ticked, Component {
    */
   default boolean canPVE(Player player, Location victimLocation) {
     return evaluateWorldPolicy(protector -> protector.canPVE(player, victimLocation, this));
+  }
+
+  default boolean canPVE(Player player, Entity victim) {
+    return evaluateWorldPolicy(protector -> protector.canPVE(player, victim, this));
   }
 
   /**
@@ -1019,15 +1030,15 @@ public interface Adaptation<T> extends Ticked, Component {
   /**
    * Unlearns levels from this adaptation.
    */
-  default void unlearn(Player player, int lvl, boolean force) {
-    AdaptationGuiSupport.unlearn(this, player, lvl, force);
+  default AdaptationLearningTransaction.Result unlearn(Player player, int lvl, boolean force) {
+    return AdaptationGuiSupport.unlearn(this, player, lvl, force);
   }
 
   /**
    * Learns levels into this adaptation.
    */
-  default void learn(Player player, int lvl, boolean force) {
-    AdaptationGuiSupport.learn(this, player, lvl, force);
+  default AdaptationLearningTransaction.Result learn(Player player, int lvl, boolean force) {
+    return AdaptationGuiSupport.learn(this, player, lvl, force);
   }
 
   /**
@@ -1076,6 +1087,10 @@ public interface Adaptation<T> extends Ticked, Component {
   default AbilityCharge payItemCostDeferred(Player p, String costKey, ItemStack unit, int amount,
                                             AbilityDefaultCost defaultCost) {
     return AbilityApiBridge.chargeDeferred(this, p, costKey, AbilityCostKind.ITEM, unit, amount, defaultCost);
+  }
+
+  default AbilityCharge payExperienceCostDeferred(Player p, String costKey, int amount, AbilityDefaultCost defaultCost) {
+    return AbilityApiBridge.chargeDeferred(this, p, costKey, AbilityCostKind.VANILLA_EXPERIENCE, null, amount, defaultCost);
   }
 
   default boolean settleCost(UUID activationId) {

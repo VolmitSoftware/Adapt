@@ -1,5 +1,6 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.gameplay.demo.DemoScope;
 import com.google.gson.JsonObject;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -121,7 +122,7 @@ public final class TamingFixtures implements Listener {
     public void onPetDamage(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Tameable pet)
                 || !(pet.getOwner() instanceof Player owner)
-                || !owner.getName().startsWith("AQA")
+                || !DemoScope.ownsDemoState(owner.getName())
                 || !owner.getWorld().getName().startsWith("adapt_gameplay_")) {
             return;
         }

@@ -4,6 +4,8 @@ import zipfile
 from pathlib import Path
 from typing import Callable, Protocol
 
+import choreography
+import clip_check
 import editor_state
 import encode
 import manifest
@@ -17,7 +19,7 @@ OPEN_RETRY_SECONDS: float = 30.0
 EXPORT_TIMEOUT: float = 1800.0
 CLOSE_TIMEOUT: float = 60.0
 DISCONNECT_RETRY_SECONDS: float = 10.0
-ANGLES: tuple[str, ...] = ('pov', 'observer')
+ANGLES: tuple[str, ...] = choreography.ANGLES
 LIVE_TRIM_SECONDS: float = manifest.START_TICK / manifest.TICKS_PER_SECOND
 
 
@@ -134,7 +136,17 @@ def live_source(studio: ExportStudio, take: manifest.Take) -> Path:
     return live
 
 
-def export_take(studio: ExportStudio, take: manifest.Take, docs_root: Path, ffmpeg: Path, ffprobe: Path, audio: bool) -> None:
+def extract_still(output: Path, take: manifest.Take, still: dict, clip: Path, ffmpeg: Path) -> None:
+    target: Path = manifest.still_path(output, take.id, still['name'])
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.unlink(missing_ok=True)
+    encode.run(encode.still_command(ffmpeg, clip, target, float(still['at'])))
+    if not target.is_file() or target.stat().st_size == 0:
+        raise RuntimeError('Still ' + still['name'] + ' at ' + format(float(still['at']), 'g') + ' s is past the end of ' + clip.name)
+
+
+def export_take(studio: ExportStudio, take: manifest.Take, docs_root: Path, ffmpeg: Path, ffprobe: Path, audio: bool) -> dict[str, int]:
+    crfs: dict[str, int] = {}
     for angle in ANGLES:
         live: bool = angle == 'pov' and take.pov_capture
         intermediate: Path = live_source(studio, take) if live else studio.output / 'intermediate' / (take.id + '-' + angle + '.mp4')
@@ -142,10 +154,17 @@ def export_take(studio: ExportStudio, take: manifest.Take, docs_root: Path, ffmp
             export_one(studio, take, angle, intermediate, audio)
         final: Path = final_clip(docs_root, take, angle)
         final.parent.mkdir(parents=True, exist_ok=True)
-        encode.run(encode.normalize_command(ffmpeg, intermediate, final, encode.has_audio(ffprobe, intermediate), LIVE_TRIM_SECONDS if live else 0.0))
+        crfs[angle] = encode.encode_within(ffmpeg, intermediate, final, encode.has_audio(ffprobe, intermediate), LIVE_TRIM_SECONDS if live else 0.0)
+        corrupt: list[tuple[float, float]] = clip_check.corrupt_frames(ffmpeg, final)
+        if corrupt:
+            raise RuntimeError(clip_check.message(final.name, corrupt))
         thumb: Path = studio.output / 'thumbs' / (take.id + '-' + angle + '.png')
         thumb.parent.mkdir(parents=True, exist_ok=True)
         encode.run(encode.thumbnail_command(ffmpeg, final, thumb, max(0.5, manifest.clip_seconds(take) / 2)))
+        for still in take.stills:
+            if still['angle'] == angle:
+                extract_still(studio.output, take, still, final, ffmpeg)
+    return crfs
 
 
 def export(studio: ExportStudio, takes: dict[str, manifest.Take], ids: list[str], docs_root: Path, ffmpeg: Path, ffprobe: Path,
@@ -155,16 +174,18 @@ def export(studio: ExportStudio, takes: dict[str, manifest.Take], ids: list[str]
         if take is None or take.status == 'skipped' or not take.evidence_ok or not take.replay or not Path(take.replay).is_file():
             continue
         try:
-            export_take(studio, take, docs_root, ffmpeg, ffprobe, audio)
+            crfs: dict[str, int] = export_take(studio, take, docs_root, ffmpeg, ffprobe, audio)
         except (RuntimeError, OSError, zipfile.BadZipFile) as failure:
             for angle in ANGLES:
                 final_clip(docs_root, take, angle).unlink(missing_ok=True)
+            for still in take.stills:
+                manifest.still_path(studio.output, take.id, still['name']).unlink(missing_ok=True)
             takes[identifier] = dataclasses.replace(take, status='failed', export_error=str(failure))
             manifest.save(manifest_path, takes)
             print('[EXPORT-FAIL] ' + identifier + ' ' + str(failure), flush=True)
             close_replay(studio.bridge)
             continue
-        takes[identifier] = dataclasses.replace(take, status='exported', export_error='')
+        takes[identifier] = dataclasses.replace(take, status='exported', export_error='', crf=crfs)
         manifest.save(manifest_path, takes)
         print('[EXPORT] ' + identifier, flush=True)
     return takes

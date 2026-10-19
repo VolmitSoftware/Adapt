@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
@@ -28,6 +29,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
+import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.skill.SkillOwnerPulse;
 import art.arcane.adapt.api.skill.SimpleSkill;
 import art.arcane.adapt.api.skill.SkillConfig;
@@ -47,7 +49,6 @@ import art.arcane.adapt.content.adaptation.stealth.StealthSnatch;
 import art.arcane.adapt.content.adaptation.stealth.StealthSpeed;
 import art.arcane.adapt.content.adaptation.stealth.StealthTrapSense;
 import art.arcane.adapt.content.adaptation.stealth.StealthUmbralRecovery;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -190,11 +191,11 @@ public class SkillStealth extends SimpleSkill<SkillStealth.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDeathEvent e) {
-    if (e.getEntity().getKiller() == null) {
+    if (e.getEntity().getKiller() == null || GolemKillCredit.isGolemKill(e.getEntity())) {
       return;
     }
 
-    if (TragoulSkeletalServant.isServant(e.getEntity()) || ExcavationGraveDigger.isGraveMob(e.getEntity())) {
+    if (MinionIdentity.isMinion(e.getEntity()) || ExcavationGraveDigger.isGraveMob(e.getEntity())) {
       return;
     }
 

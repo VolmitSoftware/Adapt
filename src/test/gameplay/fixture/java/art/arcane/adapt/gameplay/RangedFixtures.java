@@ -1,5 +1,6 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.gameplay.demo.DemoScope;
 import com.google.gson.JsonObject;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -116,7 +117,7 @@ public final class RangedFixtures implements Listener {
     public void beforeProjectileLaunch(ProjectileLaunchEvent event) {
         Projectile projectile = event.getEntity();
         if (projectile.getShooter() instanceof Player player
-                && player.getName().startsWith("AQA")
+                && DemoScope.ownsDemoState(player.getName())
                 && player.getWorld().getName().startsWith("adapt_gameplay_")) {
             INITIAL_SPEEDS.put(projectile.getUniqueId(), projectile.getVelocity().length());
         }
@@ -127,7 +128,7 @@ public final class RangedFixtures implements Listener {
         Projectile projectile = event.getEntity();
         Double initialSpeed = INITIAL_SPEEDS.remove(projectile.getUniqueId());
         if (event.isCancelled() || !(projectile.getShooter() instanceof Player player)
-                || !player.getName().startsWith("AQA")
+                || !DemoScope.ownsDemoState(player.getName())
                 || !player.getWorld().getName().startsWith("adapt_gameplay_")) {
             return;
         }

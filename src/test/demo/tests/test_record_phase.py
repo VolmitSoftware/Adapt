@@ -1,5 +1,6 @@
 import dataclasses
 import io
+import json
 import sys
 import tempfile
 import unittest
@@ -14,6 +15,15 @@ import manifest
 import record_phase
 
 
+CLAIM_OK: str = '\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70Set Magic_Psycho agility-wall-jump to level 5.'
+CLAIM_ERROR: str = '\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a7f\u00a7f\u00a70\u00a70\u00a70\u00a70'
+
+
+def probe_reply(refunds: int, golems: int) -> str:
+    golem: str = ' | golem COPPER WORK cores=[GATHERER] at=-1279.4,56.0,5116.9 dormant=false' * golems
+    return 'ADAPT_QA DEMO PROBE refunds=' + str(refunds) + ' golems=' + str(golems) + golem + ' | levels golem-animus-binding=5 golem-copper-frame=1'
+
+
 class FakeStudio:
     def __init__(self, replays: Path) -> None:
         self.rcon = mock.MagicMock()
@@ -21,13 +31,16 @@ class FakeStudio:
         self.bridge = mock.MagicMock()
         self.game = replays.parent.parent
         self.origin = (0.0, 64.0, 0.0)
-        self.actor = 'AQAClient262'
+        self.actor = 'Magic_Psycho'
         self.opponent = 'AQAOpponent'
         self.opponent_bridge: mock.MagicMock | None = None
         self.tick = 100
         self.record_start = 100
         self.recording = False
         self.evicted = False
+        self.cleared = 0
+        self.refunds = 0
+        self.nearest = 'none'
         self.stops = 0
         self.replays = replays
         self.gates: list[int] = []
@@ -38,8 +51,13 @@ class FakeStudio:
         self.gates.append(self.rcon.command.call_count + self.bridge.command.call_count)
 
     def reply(self, text: str) -> str:
+        if text.startswith('adapt claim-adaptation'):
+            return CLAIM_OK
+        if text.startswith('adaptqa demo near'):
+            return 'ADAPT_QA DEMO NEAR nearest=' + self.nearest
         if text.startswith('adaptqa demo set'):
-            return 'ADAPT_QA DEMO SET wall {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":-90.0,"pitch":0.0},"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0}}'
+            return ('ADAPT_QA DEMO SET wall {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":-90.0,"pitch":0.0},'
+                    '"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0},"cleared":' + str(self.cleared) + ',"refunds":' + str(self.refunds) + '}')
         return 'ADAPT_QA DEMO OK'
 
     def state(self) -> dict:
@@ -111,9 +129,97 @@ class RecordPhaseTest(unittest.TestCase):
             studio = FakeStudio(replays)
             record_phase.record(studio, {'agility-wall-jump': self.entry()}, ['agility-wall-jump'], Path(tmp) / 'manifest.json', 'agility')
         sent = [call.args[0] for call in studio.rcon.command.call_args_list]
-        clear = sent.index('adapt clear adaptations player=AQAClient262')
-        claim = sent.index('adapt claim-adaptation agility:agility-wall-jump 5 force=true player=AQAClient262')
+        clear = sent.index('adapt clear adaptations player=Magic_Psycho')
+        claim = sent.index('adapt claim-adaptation agility:agility-wall-jump 5 force=true player=Magic_Psycho')
         self.assertLess(clear, claim)
+
+    def test_prerequisites_are_claimed_after_the_clear_and_before_the_entry(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            entry = choreography.Entry(id='golem-frost-frame', set='taming-field', level=5, pre=['say ready'], beats=[{'verb': 'wait', 'ticks': 2}],
+                                       expect_sound='minecraft:block.ladder.step', expect_particle=None, max_ticks=100, camera=None,
+                                       prerequisites=(choreography.Prerequisite(skill='golemancy', name='golem-animus-binding', level=5),))
+            record_phase.record(studio, {'golem-frost-frame': entry}, ['golem-frost-frame'], Path(tmp) / 'manifest.json', 'golemancy')
+        sent = [call.args[0] for call in studio.rcon.command.call_args_list]
+        clear = sent.index('adapt clear adaptations player=Magic_Psycho')
+        prerequisite = sent.index('adapt claim-adaptation golemancy:golem-animus-binding 5 force=true player=Magic_Psycho')
+        claim = sent.index('adapt claim-adaptation golemancy:golem-frost-frame 5 force=true player=Magic_Psycho')
+        self.assertLess(clear, prerequisite)
+        self.assertLess(prerequisite, claim)
+        self.assertLess(claim, sent.index('say ready'))
+
+    def prepare_with_replies(self, answer: str | None, name: str = 'golem-runic-augments') -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            reply = studio.reply
+            studio.rcon.command.side_effect = lambda text: answer if answer is not None and name in text and text.startswith('adapt claim-adaptation') else reply(text)
+            entry = choreography.Entry(id='golem-bone-frame', set='taming-field', level=3, pre=[], beats=[{'verb': 'wait', 'ticks': 2}],
+                                       expect_sound=None, expect_particle=None, max_ticks=100, camera=None,
+                                       prerequisites=(choreography.Prerequisite(skill='golemancy', name=name, level=5),))
+            record_phase.prepare_take(studio, entry, 'golemancy')
+
+    def test_an_accepted_claim_prepares_the_take(self) -> None:
+        self.prepare_with_replies(None)
+
+    def test_a_claim_that_is_already_at_its_level_counts_as_accepted(self) -> None:
+        self.prepare_with_replies('\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70No change: golem-runic-augments is already at level 5.')
+
+    def test_a_refused_prerequisite_claim_fails_the_take_preparation(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, r'claim of golem-runic-augments at level 5 was refused: \[Adapt\] Magic_Psycho needs Animus Binding Lv 2'):
+            self.prepare_with_replies(CLAIM_ERROR + 'Magic_Psycho needs Animus Binding Lv 2 before learning golem-runic-augments.')
+
+    def test_any_other_refusal_fails_the_take_preparation_with_the_server_reply(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, r'was refused: \[Adapt\] The golemancy skill line is unavailable for Magic_Psycho\.'):
+            self.prepare_with_replies(CLAIM_ERROR + 'The golemancy skill line is unavailable for Magic_Psycho.')
+
+    def test_a_refusal_in_another_language_still_fails_the_take_preparation(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, r'was refused: \[Adapt\] Magic_Psycho braucht Animus Binding Stufe 2'):
+            self.prepare_with_replies(CLAIM_ERROR + 'Magic_Psycho braucht Animus Binding Stufe 2, bevor golem-runic-augments gelernt wird.')
+
+    def test_a_reply_without_any_color_fails_the_take_preparation(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, 'was refused: ADAPT_QA DEMO OK'):
+            self.prepare_with_replies('ADAPT_QA DEMO OK')
+
+    def test_showcase_clip_claims_its_prerequisites_but_no_adaptation_of_its_own(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            entry = choreography.Entry(id='golemancy-plinth-ritual', set='taming-field', level=0, pre=['say ready'], beats=[{'verb': 'wait', 'ticks': 2}],
+                                       expect_sound='minecraft:block.ladder.step', expect_particle=None, max_ticks=100, camera=None,
+                                       prerequisites=(choreography.Prerequisite(skill='golemancy', name='golem-animus-binding', level=5),),
+                                       showcase=choreography.Showcase(title='Plinth ritual', heading='Animus Plinth'))
+            takes = record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'golemancy')
+        sent = [call.args[0] for call in studio.rcon.command.call_args_list]
+        claims = [text for text in sent if text.startswith('adapt claim-adaptation')]
+        self.assertEqual(claims, ['adapt claim-adaptation golemancy:golem-animus-binding 5 force=true player=Magic_Psycho'])
+        self.assertEqual(takes[entry.id].status, 'recorded')
+
+    def test_declared_stills_are_kept_on_the_take_and_in_the_manifest(self) -> None:
+        stills = (choreography.Still(angle='observer', at=3.5, name='plinth-ritual'), choreography.Still(angle='pov', at=1.0, name='crook'))
+        entry = dataclasses.replace(self.entry(), stills=stills)
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            manifest_path = Path(tmp) / 'manifest.json'
+            takes = record_phase.record(FakeStudio(replays), {entry.id: entry}, [entry.id], manifest_path, 'agility')
+            reloaded = manifest.load(manifest_path)
+        expected = [{'angle': 'observer', 'at': 3.5, 'name': 'plinth-ritual'}, {'angle': 'pov', 'at': 1.0, 'name': 'crook'}]
+        self.assertEqual(takes[entry.id].stills, expected)
+        self.assertEqual(reloaded[entry.id].stills, expected)
+
+    def test_manifest_written_before_stills_existed_still_loads(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'manifest.json'
+            take = dataclasses.asdict(manifest.Take(id='agility-wall-jump', skill='agility', set='wall', level=5, replay='', start_tick=0, stop_tick=1,
+                                                    evidence_ok=True, evidence_detail='', takes=1, camera={}, actor_uuid='', status='recorded'))
+            del take['stills']
+            path.write_text('{"agility-wall-jump": ' + json.dumps(take) + '}')
+            self.assertEqual(manifest.load(path)['agility-wall-jump'].stills, [])
 
     def test_keys_are_released_after_beats_before_stop(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -255,7 +361,7 @@ class RecordPhaseTest(unittest.TestCase):
                 log.append(operation + (':' + str(values['action']) if operation == 'record' else ''))
                 return original(operation, **values)
 
-            def waiter(bridge: object, record_start: int | None = None, max_ticks: int = 0) -> object:
+            def waiter(bridge: object, record_start: int | None = None, max_ticks: int = 0, on_tick: object = None) -> object:
                 return lambda count: log.append('wait:' + str(count))
 
             def sent(text: str) -> str:
@@ -268,6 +374,120 @@ class RecordPhaseTest(unittest.TestCase):
                 record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
         return log
 
+    def cleared_take(self, cleared: int, refunds: int, probes: list[str], clock: list[float] | None = None) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            studio.cleared = cleared
+            studio.refunds = refunds
+            log: list[str] = []
+            pending: list[str] = list(probes)
+
+            def sent(text: str) -> str:
+                log.append('rcon:' + text)
+                if text.startswith('adaptqa demo probe'):
+                    return pending.pop(0) if len(pending) > 1 else pending[0]
+                return studio.reply(text)
+
+            studio.rcon.command.side_effect = sent
+            ticks: list[float] = clock if clock is not None else [0.0]
+
+            def monotonic() -> float:
+                ticks[0] += 1.0
+                return ticks[0]
+
+            with mock.patch.object(record_phase.time, 'monotonic', side_effect=monotonic):
+                record_phase.record(studio, {self.entry().id: self.entry()}, [self.entry().id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
+        return log
+
+    def test_cleared_golem_state_is_polled_until_the_refunds_arrive_before_the_actor_is_reset(self) -> None:
+        log = self.cleared_take(3, 2, [probe_reply(0, 0), probe_reply(1, 0), probe_reply(2, 0)])
+        probes: list[int] = [index for index, line in enumerate(log) if line.startswith('rcon:adaptqa demo probe')]
+        self.assertEqual(len(probes), 3)
+        self.assertLess(log.index('rcon:adaptqa demo set wall'), probes[0])
+        self.assertLess(probes[-1], log.index('rcon:adaptqa demo actor Magic_Psycho'))
+
+    def test_cleared_golem_state_waits_for_loaded_golems_to_leave_the_registry(self) -> None:
+        log = self.cleared_take(1, 0, [probe_reply(0, 1), probe_reply(0, 0)])
+        self.assertEqual(sum(line.startswith('rcon:adaptqa demo probe') for line in log), 2)
+
+    def test_the_probe_reply_shape_matches_the_fixture_format(self) -> None:
+        reply: str = 'ADAPT_QA DEMO PROBE refunds=2 golems=1 | golem COPPER WORK cores=[GATHERER] at=-1279.4,56.0,5116.9 dormant=false | levels golem-animus-binding=5'
+        counts = record_phase.PROBE_COUNTS.search(reply)
+        self.assertEqual((int(counts.group(1)), int(counts.group(2))), (2, 1))
+        self.assertEqual(probe_reply(2, 1)[:len('ADAPT_QA DEMO PROBE refunds=2 golems=1 | golem COPPER WORK')], reply[:len('ADAPT_QA DEMO PROBE refunds=2 golems=1 | golem COPPER WORK')])
+
+    def test_a_set_that_cleared_nothing_does_not_probe(self) -> None:
+        log = self.cleared_take(0, 0, [probe_reply(0, 0)])
+        self.assertFalse(any(line.startswith('rcon:adaptqa demo probe') for line in log))
+
+    def test_the_settle_poll_gives_up_after_its_timeout_and_the_take_goes_on(self) -> None:
+        log = self.cleared_take(2, 2, [probe_reply(0, 0)])
+        probes: int = sum(line.startswith('rcon:adaptqa demo probe') for line in log)
+        self.assertGreaterEqual(probes, int(record_phase.CLEAR_TIMEOUT_SECONDS))
+        self.assertIn('rcon:adaptqa demo actor Magic_Psycho', log)
+
+    def closest_golem(self, nearest: str, **entry_values: object) -> tuple[manifest.Take, str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            studio.nearest = nearest
+            entry = dataclasses.replace(self.entry(), beats=[{'verb': 'wait', 'ticks': 60}], **entry_values)
+            takes = record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
+        return takes[entry.id], sys.stdout.getvalue()
+
+    def test_the_closest_golem_distance_is_kept_on_the_take_and_printed(self) -> None:
+        take, console = self.closest_golem('3.40')
+        self.assertEqual(take.status, 'recorded')
+        self.assertEqual(take.min_golem_distance, 3.4)
+        self.assertIsNotNone(take.min_golem_time)
+        self.assertRegex(console, r'min_golem_distance=3\.40 at \d+(\.\d+)?s')
+
+    def test_a_take_without_golems_has_no_distance(self) -> None:
+        take, console = self.closest_golem('none')
+        self.assertEqual(take.status, 'recorded')
+        self.assertIsNone(take.min_golem_distance)
+        self.assertNotIn('min_golem_distance', console)
+
+    def test_a_golem_closer_than_two_and_a_half_blocks_fails_the_take(self) -> None:
+        take, console = self.closest_golem('1.40')
+        self.assertEqual(take.status, 'failed')
+        self.assertFalse(take.evidence_ok)
+        self.assertIn('golem 1.40 blocks from the camera', take.evidence_detail)
+        self.assertEqual(take.min_golem_distance, 1.4)
+
+    def test_a_failed_proximity_take_prints_the_sampled_series(self) -> None:
+        _, console = self.closest_golem('1.40')
+        self.assertRegex(console, r'\[PROXIMITY\] agility-wall-jump 0\.\d+s:1\.40 0\.\d+s:1\.40 ')
+
+    def test_a_declared_window_excuses_a_close_golem(self) -> None:
+        window = choreography.AllowClose(start=0.0, end=100.0, reason='bind-ritual')
+        take, console = self.closest_golem('2.10', allow_close=(window,))
+        self.assertEqual(take.status, 'recorded')
+        self.assertEqual(take.min_golem_distance, 2.1)
+
+    def test_a_window_does_not_excuse_a_golem_inside_the_floor_of_its_reason(self) -> None:
+        window = choreography.AllowClose(start=0.0, end=100.0, reason='bind-ritual')
+        take, _ = self.closest_golem('1.40', allow_close=(window,))
+        self.assertEqual(take.status, 'failed')
+
+    def test_the_first_half_second_of_the_clip_is_sampled(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            studio.nearest = '1.40'
+            entry = dataclasses.replace(self.entry(), beats=[{'verb': 'wait', 'ticks': 1}])
+            takes = record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
+        self.assertEqual(takes[entry.id].status, 'failed')
+        self.assertLess(takes[entry.id].min_golem_time, 0.5)
+
+    def test_a_golem_at_exactly_two_and_a_half_blocks_passes(self) -> None:
+        take, _ = self.closest_golem('2.50')
+        self.assertEqual(take.status, 'recorded')
+
     def test_pre_commands_settle_sixty_ticks_before_record_start(self) -> None:
         log = self.ordered_take(self.entry())
         start: int = log.index('record:start')
@@ -277,16 +497,16 @@ class RecordPhaseTest(unittest.TestCase):
     def test_inventory_sync_follows_the_pre_commands_and_precedes_the_settle(self) -> None:
         entry = dataclasses.replace(self.entry(), pre=['give {actor} minecraft:iron_axe', 'gamerule random_tick_speed 0'])
         log = self.ordered_take(entry)
-        sync: int = log.index('rcon:adaptqa demo sync AQAClient262')
-        self.assertEqual(log.count('rcon:adaptqa demo sync AQAClient262'), 1)
-        self.assertLess(log.index('rcon:give AQAClient262 minecraft:iron_axe'), sync)
+        sync: int = log.index('rcon:adaptqa demo sync Magic_Psycho')
+        self.assertEqual(log.count('rcon:adaptqa demo sync Magic_Psycho'), 1)
+        self.assertLess(log.index('rcon:give Magic_Psycho minecraft:iron_axe'), sync)
         self.assertLess(log.index('rcon:gamerule random_tick_speed 0'), sync)
         self.assertLess(sync, log.index('wait:60'))
 
     def test_inventory_sync_follows_the_claim_when_there_are_no_pre_commands(self) -> None:
         log = self.ordered_take(self.entry())
-        sync: int = log.index('rcon:adaptqa demo sync AQAClient262')
-        self.assertLess(log.index('rcon:adapt claim-adaptation agility:agility-wall-jump 5 force=true player=AQAClient262'), sync)
+        sync: int = log.index('rcon:adaptqa demo sync Magic_Psycho')
+        self.assertLess(log.index('rcon:adapt claim-adaptation agility:agility-wall-jump 5 force=true player=Magic_Psycho'), sync)
         self.assertLess(sync, log.index('wait:60'))
 
     def test_prelude_beats_run_after_settle_and_before_record_start(self) -> None:
@@ -427,7 +647,7 @@ class RecordPhaseTest(unittest.TestCase):
             original = studio.reply
 
             def rejecting(text: str) -> str:
-                if text == 'effect give AQAClient262 minecraft:nope':
+                if text == 'effect give Magic_Psycho minecraft:nope':
                     raise AssertionError(text + ': Unknown or incomplete command, see below for error')
                 return original(text)
 
@@ -558,7 +778,7 @@ class RecordPhaseTest(unittest.TestCase):
             studio: FakeStudio = FakeStudio(replays)
             reply: str = ('ADAPT_QA DEMO SET runway {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":180.0,"pitch":0.0},'
                           '"camera":{"x":3.0,"y":1.2,"z":4.5,"yaw":-33.7,"pitch":12.5,"follow":true}}')
-            studio.rcon.command.side_effect = lambda text: reply if text.startswith('adaptqa demo set') else 'ADAPT_QA DEMO OK'
+            studio.rcon.command.side_effect = lambda text: reply if text.startswith('adaptqa demo set') else studio.reply(text)
             takes: dict[str, manifest.Take] = record_phase.record(studio, {'agility-wall-jump': self.entry()}, ['agility-wall-jump'],
                                                                   Path(tmp) / 'manifest.json', 'agility')
         self.assertEqual(takes['agility-wall-jump'].camera, {'x': 3.0, 'y': 1.2, 'z': 4.5, 'yaw': -33.7, 'pitch': 12.5, 'follow': True})
@@ -647,15 +867,15 @@ class OpponentTakeTest(unittest.TestCase):
 
             studio.bridge.command.side_effect = logged
             takes = record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
-        return takes[entry.id], [call.args[0] for call in studio.rcon.command.call_args_list], log
+        return takes[entry.id], [call.args[0] for call in studio.rcon.command.call_args_list if not call.args[0].startswith('adaptqa demo near')], log
 
     def test_opponent_entry_places_equips_and_syncs_the_opponent(self) -> None:
         take, sent, _ = self.shoot(self.entry(True), opponent_running=True)
         self.assertEqual(take.status, 'recorded')
-        self.assertEqual(sent, ['adaptqa demo set arena', 'adaptqa demo actor AQAClient262', 'adaptqa demo actor AQAOpponent opponent',
-                                'adaptqa demo sparring', 'adapt clear adaptations player=AQAClient262',
-                                'adapt claim-adaptation agility:agility-kip-up 4 force=true player=AQAClient262', 'give AQAOpponent minecraft:stick 1',
-                                'adaptqa demo sync AQAClient262', 'adaptqa demo sync AQAOpponent'])
+        self.assertEqual(sent, ['adaptqa demo set arena', 'adaptqa demo actor Magic_Psycho', 'adaptqa demo actor AQAOpponent opponent',
+                                'adaptqa demo sparring', 'adapt clear adaptations player=Magic_Psycho',
+                                'adapt claim-adaptation agility:agility-kip-up 4 force=true player=Magic_Psycho', 'give AQAOpponent minecraft:stick 1',
+                                'adaptqa demo sync Magic_Psycho', 'adaptqa demo sync AQAOpponent'])
 
     def test_opponent_beats_reach_the_opponent_and_both_clients_release_before_stop(self) -> None:
         _, _, log = self.shoot(self.entry(True), opponent_running=True)
@@ -671,7 +891,7 @@ class OpponentTakeTest(unittest.TestCase):
     def test_entry_without_opponent_parks_the_running_opponent(self) -> None:
         take, sent, log = self.shoot(self.entry(False), opponent_running=True)
         self.assertEqual(take.status, 'recorded')
-        self.assertEqual(sent[:4], ['adaptqa demo set arena', 'adaptqa demo actor AQAClient262', 'adaptqa demo park AQAOpponent', 'adaptqa demo sparring'])
+        self.assertEqual(sent[:4], ['adaptqa demo set arena', 'adaptqa demo actor Magic_Psycho', 'adaptqa demo park AQAOpponent', 'adaptqa demo sparring'])
         self.assertNotIn('adaptqa demo sync AQAOpponent', sent)
         self.assertEqual([entry for entry in log if entry.startswith('opponent:')], ['opponent:release'])
 

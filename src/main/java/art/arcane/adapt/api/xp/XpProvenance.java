@@ -23,6 +23,7 @@ import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.data.unit.PlacementStamp;
 import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import art.arcane.volmlib.util.math.M;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
@@ -57,6 +58,24 @@ public final class XpProvenance {
     return stamp != null && withinTtl(stamp.getPlacedAt(), config.getPlacedBlockTtlMillis());
   }
 
+  public static boolean wasPlaced(Block block) {
+    if (block == null) {
+      return false;
+    }
+    return hasPlacement(WorldData.of(block.getWorld()).get(block, PlacementStamp.class));
+  }
+
+  public static boolean forgetPlacement(Block block) {
+    WorldData data = WorldData.of(block.getWorld());
+    PlacementStamp grown = grown(data.get(block, PlacementStamp.class));
+    if (grown == null) {
+      return false;
+    }
+    AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
+    data.set(block, grown);
+    return true;
+  }
+
   public static boolean hasPermanentPlayerModification(Block block) {
     if (block == null) {
       return false;
@@ -82,6 +101,13 @@ public final class XpProvenance {
       return;
     }
     destinationData.set(destination, stamp);
+  }
+
+  public static boolean resetsOnGrowth(Material type) {
+    String name = type.name();
+    return name.endsWith("_LOG") || name.endsWith("_WOOD") || name.endsWith("_STEM") || name.endsWith("_HYPHAE")
+        || name.endsWith("_LEAVES") || name.endsWith("_SAPLING") || name.endsWith("_PROPAGULE") || name.endsWith("_WART_BLOCK")
+        || type == Material.SHROOMLIGHT;
   }
 
   public static void clearPlacementRecord(Block block) {
@@ -122,7 +148,7 @@ public final class XpProvenance {
     }
   }
 
-  public static void recordPlayerPlacedBreak(Block block) {
+  public static void recordBreak(Block block) {
     AdaptConfig.XpIntegrity config = AdaptConfig.get().getXpIntegrity();
     if (!config.isProvenanceEnabled()) {
       return;
@@ -131,8 +157,11 @@ public final class XpProvenance {
     AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
     WorldData data = WorldData.of(block.getWorld());
     PlacementStamp stamp = data.get(block, PlacementStamp.class);
-    int bonemealedAt = stamp == null ? 0 : stamp.getBonemealedAt();
-    data.set(block, new PlacementStamp(0, nowSeconds(), bonemealedAt));
+    if (!hasPlacement(stamp)) {
+      return;
+    }
+    int brokenAt = withinTtl(stamp.getPlacedAt(), config.getPlacedBlockTtlMillis()) ? nowSeconds() : stamp.getBrokenAt();
+    data.set(block, new PlacementStamp(0, brokenAt, stamp.getBonemealedAt()));
   }
 
   public static boolean isReplaceDenied(Block block) {
@@ -181,6 +210,17 @@ public final class XpProvenance {
 
   public static double harvestXpMultiplier(Block block) {
     return isBonemealed(block) ? AdaptConfig.get().getXpIntegrity().getBonemealHarvestMultiplier() : 1.0;
+  }
+
+  private static boolean hasPlacement(PlacementStamp stamp) {
+    return stamp != null && stamp.getPlacedAt() != 0;
+  }
+
+  private static PlacementStamp grown(PlacementStamp stamp) {
+    if (stamp == null || stamp.getPlacedAt() == 0) {
+      return null;
+    }
+    return new PlacementStamp(0, stamp.getBrokenAt(), stamp.getBonemealedAt());
   }
 
   private static boolean withinTtl(int stampSeconds, long ttlMillis) {

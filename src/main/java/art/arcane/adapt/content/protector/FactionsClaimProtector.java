@@ -26,28 +26,48 @@ import com.massivecraft.factions.FLocation;
 import com.massivecraft.factions.FPlayer;
 import com.massivecraft.factions.FPlayers;
 import com.massivecraft.factions.Faction;
+import com.massivecraft.factions.perms.PermissibleAction;
+import com.massivecraft.factions.perms.PermissibleActions;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public class FactionsClaimProtector implements Protector {
 
   @Override
   public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
-    Faction f = Board.getInstance().getFactionAt(new FLocation(player.getLocation()));
-    return checkPerm(player, f, adaptation) || f.isWilderness();
+    Faction f = factionAt(location);
+    return checkPerm(player, f) || f.isWilderness();
+  }
+
+  @Override
+  public boolean canBlockBreak(Player player, Location blockLocation, Adaptation<?> adaptation) {
+    return hasAccess(player, blockLocation, PermissibleActions.DESTROY);
+  }
+
+  @Override
+  public boolean canBlockPlace(Player player, Location blockLocation, Adaptation<?> adaptation) {
+    return hasAccess(player, blockLocation, PermissibleActions.BUILD);
   }
 
   @Override
   public boolean canPVP(Player player, Location victimLocation, Adaptation<?> adaptation) {
-    Faction f = Board.getInstance().getFactionAt(new FLocation(victimLocation));
-    return checkPerm(player, f, adaptation) || !f.noPvPInTerritory();
+    Faction f = factionAt(victimLocation);
+    return checkPerm(player, f) || !f.noPvPInTerritory();
   }
 
-  private boolean checkPerm(Player player, Faction f, Adaptation<?> adaptation) {
-    FPlayer fp = FPlayers.getInstance().getByPlayer(player);
-    return f == null
-        || fp.getFaction() == f
-        || fp.isAdminBypassing();
+  @Override
+  public boolean canPVE(Player player, Entity victim, Adaptation<?> adaptation) {
+    if (!ClaimCreatures.protectedCreature(victim, entity -> false)) {
+      return true;
+    }
+    Faction f = factionAt(victim.getLocation());
+    return checkPerm(player, f) || f.isWilderness();
+  }
+
+  @Override
+  public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
+    return hasAccess(player, chestLocation, PermissibleActions.CONTAINER);
   }
 
   @Override
@@ -58,5 +78,26 @@ public class FactionsClaimProtector implements Protector {
   @Override
   public boolean isEnabledByDefault() {
     return AdaptConfig.get().getProtectorSupport().isFactionsClaim();
+  }
+
+  private boolean checkPerm(Player player, Faction f) {
+    FPlayer fp = FPlayers.getInstance().getByPlayer(player);
+    return f == null
+        || fp.getFaction() == f
+        || fp.isAdminBypassing();
+  }
+
+  private boolean hasAccess(Player player, Location location, PermissibleAction action) {
+    FPlayer fp = FPlayers.getInstance().getByPlayer(player);
+    if (fp.isAdminBypassing()) {
+      return true;
+    }
+    FLocation at = new FLocation(location);
+    Faction f = Board.getInstance().getFactionAt(at);
+    return f == null || f.isWilderness() || f.hasAccess(fp, action, at);
+  }
+
+  private static Faction factionAt(Location location) {
+    return Board.getInstance().getFactionAt(new FLocation(location));
   }
 }

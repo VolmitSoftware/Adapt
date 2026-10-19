@@ -2,6 +2,7 @@ package art.arcane.adapt.content.adaptation.crafting;
 
 import art.arcane.adapt.api.EventHandlerInvoker;
 import art.arcane.adapt.api.adaptation.ReceiveCancelledEvents;
+import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.util.config.TomlCodec;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,6 +17,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.Damageable;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
+import org.mockito.MockedStatic;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -28,6 +30,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.Offset.offset;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -241,6 +244,27 @@ class CraftingScalingTest {
       assertThat(offerings).hasSize(1);
       assertThat(offerings.getFirst().getType()).isSameAs(ingot);
       assertThat(offerings.getFirst().getAmount()).isEqualTo(4);
+    }
+  }
+
+  @Test
+  void deconstructionNeverSalvagesGolemItems() {
+    Material block = mock(Material.class);
+    when(block.isAir()).thenReturn(false);
+    when(block.name()).thenReturn("IRON_BLOCK");
+    ItemStack dormantGolem = mock(ItemStack.class);
+    when(dormantGolem.getType()).thenReturn(block);
+    when(dormantGolem.getAmount()).thenReturn(1);
+    ItemStack ironBlock = mock(ItemStack.class);
+    when(ironBlock.getType()).thenReturn(block);
+    when(ironBlock.getAmount()).thenReturn(1);
+
+    try (MockedStatic<GolemItems> items = mockStatic(GolemItems.class)) {
+      items.when(() -> GolemItems.isGolemItem(dormantGolem)).thenReturn(true);
+      items.when(() -> GolemItems.isGolemItem(ironBlock)).thenReturn(false);
+
+      assertThat(CraftingDeconstruction.salvageable(dormantGolem)).isFalse();
+      assertThat(CraftingDeconstruction.salvageable(ironBlock)).isTrue();
     }
   }
 

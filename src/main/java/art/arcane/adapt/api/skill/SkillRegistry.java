@@ -22,6 +22,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationOwnerPulse;
+import art.arcane.adapt.api.adaptation.AdaptationRequirements;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.adaptation.VelocityBurstRuntime;
 import art.arcane.adapt.api.advancement.AdvancementManager;
@@ -47,6 +48,7 @@ import art.arcane.adapt.content.skill.SkillCrafting;
 import art.arcane.adapt.content.skill.SkillDiscovery;
 import art.arcane.adapt.content.skill.SkillEnchanting;
 import art.arcane.adapt.content.skill.SkillExcavation;
+import art.arcane.adapt.content.skill.SkillGolemancy;
 import art.arcane.adapt.content.skill.SkillHerbalism;
 import art.arcane.adapt.content.skill.SkillHunter;
 import art.arcane.adapt.content.skill.SkillKinetics;
@@ -146,9 +148,11 @@ public class SkillRegistry extends TickedObject {
     registerSkill(SkillBrewing.class);
     registerSkill(SkillNether.class);
     registerSkill(SkillKinetics.class);
+    registerSkill(SkillGolemancy.class);
     bootstrapLoading = false;
     rebuildStatTrackerIndex();
     publishPlaceholderCatalog(catalogRevision.get());
+    AdaptationRequirements.warnUnresolved(getSkills());
   }
 
   public synchronized void startRuntime() {
@@ -924,6 +928,7 @@ public class SkillRegistry extends TickedObject {
     if (!bootstrapLoading) {
       rebuildStatTrackerIndex();
       publishPlaceholderCatalog(revision);
+      AdaptationRequirements.warnUnresolved(getSkills());
       if (reconcilePlayers) {
         synchronizeAdvancementRuntime(revision);
         synchronizeRecipeBookRuntime();

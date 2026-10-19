@@ -22,6 +22,7 @@ export const skillMatrix = Object.freeze([
   { skill: 'taming', source: 'SkillTaming', action: 'feed and breed two cows' },
   { skill: 'kinetics', source: 'SkillKinetics', action: 'walk off a ledge and break the fall on hay' },
   { skill: 'seaborne', source: 'SkillSeaborne', action: 'break a block while submerged' },
+  { skill: 'golemancy', source: 'SkillGolemancy', action: 'build a snow golem' },
 ].map(Object.freeze))
 
 export function assertSkillCoverage(registered, enabled = registered) {

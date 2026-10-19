@@ -64,6 +64,7 @@ class ProjectileModifierCompatibilityTest extends AdaptTestBase {
   private final Map<PersistentDataContainer, Map<NamespacedKey, Object>> containers = new IdentityHashMap<>();
   private final Map<NamespacedKey, Object> stored = new HashMap<>();
   private Player player;
+  private World world;
   private EnderPearl pearl;
   private RiftPearlRebound rebound;
   private List<Consumer<ProjectileLaunchEvent>> modifiers;
@@ -99,13 +100,14 @@ class ProjectileModifierCompatibilityTest extends AdaptTestBase {
     when(plugin.getName()).thenReturn("Adapt");
     when(plugin.namespace()).thenReturn("adapt");
     player = mock(Player.class);
+    world = mock(World.class);
     pearl = mock(EnderPearl.class);
     PersistentDataContainer data = dataContainer(stored);
     when(player.getUniqueId()).thenReturn(UUID.randomUUID());
     when(pearl.getShooter()).thenReturn(player);
     when(pearl.getPersistentDataContainer()).thenReturn(data);
     when(pearl.getVelocity()).thenReturn(new Vector(1D, 0D, 0D));
-    when(pearl.getLocation()).thenReturn(new Location(mock(World.class), 0D, 64D, 0D));
+    when(pearl.getLocation()).thenReturn(new Location(world, 0D, 64D, 0D));
 
 
     RangedFetchShot fetch = spy(new RangedFetchShot());
@@ -169,7 +171,6 @@ class ProjectileModifierCompatibilityTest extends AdaptTestBase {
     PersistentDataContainer replacementContainer = dataContainer(replacementData);
     when(replacement.getPersistentDataContainer()).thenReturn(replacementContainer);
     when(replacement.getShooter()).thenReturn(player);
-    World world = launchLocation.getWorld();
     when(pearl.getWorld()).thenReturn(world);
     when(world.spawn(any(Location.class), eq(EnderPearl.class))).thenReturn(replacement);
     List<Runnable> playerTasks = new ArrayList<>();

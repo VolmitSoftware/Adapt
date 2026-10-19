@@ -2,6 +2,7 @@ package art.arcane.adapt.api.potion;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.util.common.misc.SoundPlayer;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -206,9 +207,13 @@ public final class BrewingTask implements Runnable {
     block.setFuelLevel(remainingFuel(storedFuel, fuelCost));
   }
 
+  static boolean acceptsIngredient(ItemStack ingredient) {
+    return ingredient != null && !ingredient.getType().isAir() && !GolemItems.isGolemItem(ingredient);
+  }
+
   private static boolean hasRecipeInputs(BrewingRecipe recipe, BrewerInventory inventory) {
     ItemStack ingredient = inventory.getIngredient();
-    if (ingredient == null || recipe.getIngredient() != ingredient.getType()) {
+    if (!acceptsIngredient(ingredient) || recipe.getIngredient() != ingredient.getType()) {
       return false;
     }
 

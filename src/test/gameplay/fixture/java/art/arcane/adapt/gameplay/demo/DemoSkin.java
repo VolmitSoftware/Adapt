@@ -40,7 +40,7 @@ public final class DemoSkin implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPreLogin(AsyncPlayerPreLoginEvent event) {
         String name = event.getName();
-        if (!name.equalsIgnoreCase("AQAClient262") && !name.equalsIgnoreCase("AQAOpponent")) {
+        if (!name.equalsIgnoreCase(DemoScope.STUDIO_ACTOR) && !name.equalsIgnoreCase("AQAOpponent")) {
             return;
         }
         PlayerProfile profile = event.getPlayerProfile();

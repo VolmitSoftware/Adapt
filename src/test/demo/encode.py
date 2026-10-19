@@ -5,12 +5,14 @@ WIDTH: int = 1920
 HEIGHT: int = 1080
 FPS: int = 30
 CRF: int = 27
+CRF_STEPS: tuple[int, ...] = (27, 30, 33, 36, 39)
+MAX_CLIP_BYTES: int = 25_000_000
 
 
-def normalize_command(ffmpeg: Path, source: Path, target: Path, has_audio: bool, start: float = 0.0) -> list[str]:
+def normalize_command(ffmpeg: Path, source: Path, target: Path, has_audio: bool, start: float = 0.0, crf: int = CRF) -> list[str]:
     command: list[str] = [str(ffmpeg), '-y'] + (['-ss', format(start, 'g')] if start > 0 else [])
     command += ['-i', str(source), '-vf', 'scale=' + str(WIDTH) + ':' + str(HEIGHT) + ':flags=lanczos', '-r', str(FPS),
-                '-c:v', 'libvpx-vp9', '-crf', str(CRF), '-b:v', '0', '-row-mt', '1', '-deadline', 'good', '-cpu-used', '2', '-pix_fmt', 'yuv420p']
+                '-c:v', 'libvpx-vp9', '-crf', str(crf), '-b:v', '0', '-row-mt', '1', '-deadline', 'good', '-cpu-used', '2', '-pix_fmt', 'yuv420p']
     command += ['-c:a', 'libopus', '-b:a', '96k'] if has_audio else ['-an']
     command.append(str(target))
     return command
@@ -18,6 +20,10 @@ def normalize_command(ffmpeg: Path, source: Path, target: Path, has_audio: bool,
 
 def thumbnail_command(ffmpeg: Path, source: Path, target: Path, seconds: float) -> list[str]:
     return [str(ffmpeg), '-y', '-ss', str(seconds), '-i', str(source), '-frames:v', '1', '-vf', 'scale=640:-1', str(target)]
+
+
+def still_command(ffmpeg: Path, source: Path, target: Path, seconds: float) -> list[str]:
+    return [str(ffmpeg), '-y', '-ss', repr(seconds), '-i', str(source), '-frames:v', '1', str(target)]
 
 
 def has_audio(ffprobe: Path, source: Path) -> bool:
@@ -31,3 +37,11 @@ def run(command: list[str]) -> None:
     result: subprocess.CompletedProcess = subprocess.run(command, capture_output=True, text=True, check=False)
     if result.returncode != 0:
         raise RuntimeError('ffmpeg failed: ' + ' '.join(command) + '\n' + result.stderr[-2000:])
+
+
+def encode_within(ffmpeg: Path, source: Path, target: Path, has_audio: bool, start: float = 0.0) -> int:
+    for crf in CRF_STEPS:
+        run(normalize_command(ffmpeg, source, target, has_audio, start, crf))
+        if not target.is_file() or target.stat().st_size <= MAX_CLIP_BYTES:
+            return crf
+    raise RuntimeError(target.name + ' did not fit ' + str(MAX_CLIP_BYTES) + ' bytes even at crf ' + str(CRF_STEPS[-1]))

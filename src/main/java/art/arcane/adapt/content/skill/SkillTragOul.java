@@ -23,6 +23,8 @@ import art.arcane.adapt.localization.catalog.SkillMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationRequirements;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
@@ -59,6 +61,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
   private final Cooldowns cooldowns = cooldowns();
@@ -185,9 +191,16 @@ public class SkillTragOul extends SimpleSkill<SkillTragOul.Config> {
           }
           tragoul.setLastXP(xp);
 
-          for (PlayerAdaptation adapt : tragoul.getAdaptations().values()) {
+          List<AdaptationRequirements.Lowering> drained = new ArrayList<>();
+          for (Map.Entry<String, PlayerAdaptation> entry : tragoul.getAdaptations().entrySet()) {
+            PlayerAdaptation adapt = entry.getValue();
+            Adaptation<?> adaptation = AdaptationRequirements.find(entry.getKey());
+            if (adaptation != null && !adapt.isRegionGranted() && adapt.getLevel() > 0) {
+              drained.add(new AdaptationRequirements.Lowering(adaptation, adapt.getLevel()));
+            }
             adapt.setLevel(Math.max(adapt.getLevel() - 1, 0));
           }
+          AdaptationRequirements.forfeitLevels(drained, a.getData(), p.getName());
 
           recalcTotalExp(p);
           a.getData().pruneAdaptationsForPowerBudget();

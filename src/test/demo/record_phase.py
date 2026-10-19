@@ -1,5 +1,6 @@
 import dataclasses
 import json
+import re
 import shutil
 import time
 from pathlib import Path
@@ -10,10 +11,16 @@ import choreography
 import encode
 import evidence
 import manifest
+import proximity
 from studio import BridgeTimeout
 
 PRE_SETTLE_TICKS: int = 60
 SETTLE_TICKS: int = 20
+CLEAR_POLL_SECONDS: float = 0.2
+CLEAR_TIMEOUT_SECONDS: float = 5.0
+PROBE_COUNTS: re.Pattern[str] = re.compile(r'refunds=(\d+) golems=(\d+)')
+CLAIM_ACCEPTED: str = '\u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70'
+COLOR_CODES: re.Pattern[str] = re.compile('\u00a7x(?:\u00a7[0-9a-f]){6}|\u00a7.')
 REPLAY_TIMEOUT: float = 60.0
 STOP_STATE_TIMEOUT: float = 30.0
 BRIDGE_RETRY_SECONDS: float = 1.0
@@ -37,11 +44,14 @@ class RecordStudio(Protocol):
         ...
 
 
-def wait_ticks_factory(bridge: beats.BridgeClient, record_start: int | None = None, max_ticks: int = 0) -> Callable[[int], None]:
+def wait_ticks_factory(bridge: beats.BridgeClient, record_start: int | None = None, max_ticks: int = 0,
+                       on_tick: Callable[[int], None] | None = None) -> Callable[[int], None]:
     def wait_ticks(count: int) -> None:
         target: int = int(bridge.state()['ticks']) + count
         while True:
             current: int = int(bridge.state()['ticks'])
+            if on_tick is not None:
+                on_tick(current)
             if record_start is not None and current > record_start + max_ticks:
                 raise beats.BeatTimeout('maxTicks ' + str(max_ticks) + ' exceeded')
             if current >= target:
@@ -148,12 +158,32 @@ def placed_camera(camera: dict, origin: tuple[float, float, float]) -> dict:
             'yaw': float(camera['yaw']), 'pitch': float(camera['pitch'])}
 
 
+def await_cleared(rcon: beats.RconClient, actor: str, refunds: int) -> None:
+    deadline: float = time.monotonic() + CLEAR_TIMEOUT_SECONDS
+    while True:
+        counts: re.Match[str] | None = PROBE_COUNTS.search(rcon.command('adaptqa demo probe ' + actor))
+        if counts is not None and int(counts.group(1)) >= refunds and int(counts.group(2)) == 0:
+            return
+        if time.monotonic() >= deadline:
+            print('[CLEAR] warning: the cleared golem state had not settled after ' + format(CLEAR_TIMEOUT_SECONDS, 'g') + ' s; taking anyway', flush=True)
+            return
+        time.sleep(CLEAR_POLL_SECONDS)
+
+
+def claim(rcon: beats.RconClient, actor: str, skill: str, name: str, level: int) -> None:
+    reply: str = rcon.command('adapt claim-adaptation ' + skill + ':' + name + ' ' + str(level) + ' force=true player=' + actor)
+    if CLAIM_ACCEPTED not in reply:
+        raise RuntimeError('The claim of ' + name + ' at level ' + str(level) + ' was refused: ' + COLOR_CODES.sub('', reply).strip())
+
+
 def prepare_take(studio: RecordStudio, entry: choreography.Entry, skill: str) -> dict:
     rcon: beats.RconClient = studio.rcon
     actor: str = studio.actor
     if entry.opponent and studio.opponent_bridge is None:
         raise RuntimeError(entry.id + ' needs the opponent client, but it is not running')
     set_info: dict = parse_set_reply(rcon.command('adaptqa demo set ' + entry.set))
+    if int(set_info.get('cleared', 0)) > 0:
+        await_cleared(rcon, studio.actor, int(set_info.get('refunds', 0)))
     rcon.command('adaptqa demo actor ' + actor)
     if entry.opponent:
         rcon.command('adaptqa demo actor ' + studio.opponent + ' opponent')
@@ -161,7 +191,10 @@ def prepare_take(studio: RecordStudio, entry: choreography.Entry, skill: str) ->
         rcon.command('adaptqa demo park ' + studio.opponent)
     rcon.command('adaptqa demo sparring')
     rcon.command('adapt clear adaptations player=' + actor)
-    rcon.command('adapt claim-adaptation ' + skill + ':' + entry.id + ' ' + str(entry.level) + ' force=true player=' + actor)
+    for prerequisite in entry.prerequisites:
+        claim(rcon, actor, prerequisite.skill, prerequisite.name, prerequisite.level)
+    if entry.showcase is None:
+        claim(rcon, actor, skill, entry.id, entry.level)
     for command in entry.pre:
         rcon.command(beats.fill_names(command, actor, studio.opponent))
     rcon.command('adaptqa demo sync ' + actor)
@@ -174,6 +207,10 @@ def release_keys(studio: RecordStudio) -> None:
     studio.bridge.command('release')
     if studio.opponent_bridge is not None:
         studio.opponent_bridge.command('release')
+
+
+def still_records(entry: choreography.Entry) -> list[dict]:
+    return [dataclasses.asdict(still) for still in entry.stills]
 
 
 def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attempt: int, output: Path, ffmpeg: Path | None) -> manifest.Take:
@@ -196,8 +233,9 @@ def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attem
         except RuntimeError:
             stop_recording(bridge)
             raise
-    wait_ticks(SETTLE_TICKS)
-    bounded: beats.BeatContext = dataclasses.replace(context, wait_ticks=wait_ticks_factory(bridge, start_tick, entry.max_ticks))
+    watch: proximity.Proximity = proximity.Proximity(studio.rcon, studio.actor, start_tick, entry.allow_close)
+    wait_ticks_factory(bridge, on_tick=watch.sample)(SETTLE_TICKS)
+    bounded: beats.BeatContext = dataclasses.replace(context, wait_ticks=wait_ticks_factory(bridge, start_tick, entry.max_ticks, watch.sample))
     timeout: str | None = None
     try:
         beats.run_beats(entry, bounded)
@@ -205,7 +243,7 @@ def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attem
         timeout = str(failure)
     finally:
         release_keys(studio)
-    wait_ticks(SETTLE_TICKS)
+    wait_ticks_factory(bridge, on_tick=watch.sample)(SETTLE_TICKS)
     stopped: dict = stop_recording(bridge)
     if entry.pov_capture:
         print(capture_pacing(entry.id, stop_capture(bridge)), flush=True)
@@ -213,18 +251,22 @@ def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attem
     result: evidence.EvidenceResult = evidence.check(stopped.get('events', []), start_tick, stop_tick, entry.expect_sound, entry.expect_particle,
                                                      entry.expect_visual)
     replay: Path = keep_replay(wait_replay(studio.game, known, REPLAY_TIMEOUT), output / 'replays', entry.id)
-    ok: bool = timeout is None and result.ok
+    close: tuple[float, float] | None = watch.violation()
+    if close is not None:
+        print('[PROXIMITY] ' + entry.id + ' ' + watch.series(), flush=True)
+    ok: bool = timeout is None and result.ok and close is None
+    detail: str = timeout if timeout is not None else (proximity.message(close, watch.closest()) if close is not None else result.detail)
     camera: dict = placed_camera(entry.camera, studio.origin) if entry.camera is not None else set_info['camera']
     return manifest.Take(id=entry.id, skill=skill, set=entry.set, level=entry.level, replay=str(replay), start_tick=start_tick, stop_tick=stop_tick,
-                         evidence_ok=ok, evidence_detail=result.detail if timeout is None else timeout, takes=attempt, camera=camera,
+                         evidence_ok=ok, evidence_detail=detail, takes=attempt, camera=camera,
                          actor_uuid=str(stopped.get('uuid', '')), status='recorded' if ok else 'failed', visual=entry.expect_visual or '',
-                         pov_capture=entry.pov_capture)
+                         pov_capture=entry.pov_capture, stills=still_records(entry), min_golem_distance=watch.minimum(), min_golem_time=watch.minimum_at())
 
 
 def unrecorded_take(entry: choreography.Entry, skill: str, attempt: int, status: str, detail: str) -> manifest.Take:
     return manifest.Take(id=entry.id, skill=skill, set=entry.set, level=entry.level, replay='', start_tick=-1, stop_tick=-1, evidence_ok=False,
                          evidence_detail=detail, takes=attempt, camera={}, actor_uuid='', status=status, visual=entry.expect_visual or '',
-                         pov_capture=entry.pov_capture)
+                         pov_capture=entry.pov_capture, stills=still_records(entry))
 
 
 def bridge_answers(bridge: beats.BridgeClient) -> bool:
@@ -268,6 +310,12 @@ def shoot(studio: RecordStudio, entry: choreography.Entry, skill: str, retakes: 
         attempt += 1
 
 
+def distance_note(take: manifest.Take) -> str:
+    if take.min_golem_distance is None:
+        return ''
+    return ' min_golem_distance=' + format(take.min_golem_distance, '.2f') + (' at ' + format(take.min_golem_time, 'g') + 's' if take.min_golem_time is not None else '')
+
+
 def record(studio: RecordStudio, entries: dict[str, choreography.Entry], ids: list[str], manifest_path: Path, skill: str, retakes: int = 3,
            ffmpeg: Path | None = None) -> dict[str, manifest.Take]:
     if retakes < 1:
@@ -280,5 +328,5 @@ def record(studio: RecordStudio, entries: dict[str, choreography.Entry], ids: li
         take: manifest.Take = unrecorded_take(entry, skill, 0, 'skipped', entry.skip) if entry.skip else shoot(studio, entry, skill, retakes, manifest_path.parent, ffmpeg)
         takes[identifier] = take
         manifest.save(manifest_path, takes)
-        print(LABELS[take.status] + identifier + ' ' + take.evidence_detail + ' (takes=' + str(take.takes) + ')', flush=True)
+        print(LABELS[take.status] + identifier + ' ' + take.evidence_detail + distance_note(take) + ' (takes=' + str(take.takes) + ')', flush=True)
     return takes

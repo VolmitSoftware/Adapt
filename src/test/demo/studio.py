@@ -1,6 +1,7 @@
 import contextlib
 import fcntl
 import functools
+import hashlib
 import json
 import os
 import re
@@ -30,12 +31,16 @@ SEED: int = 78264193
 LOCATE_GRIDS: dict[str, tuple[int, int]] = {choreography.OVERWORLD: (6144, 256), choreography.NETHER: (1536, 64)}
 LOCATE_TIMEOUT: float = 600.0
 SITE_CACHE: str = 'site-cache.json'
+MODELS_FILE: str = 'models.toml'
+MODELS_CACHE_PREFIX: str = 'models-cache-'
+WARM_SKILLS: tuple[str, ...] = ('golemancy',)
+TABLE_HEADER: re.Pattern[str] = re.compile(r'^\[([^\]\n]+)\]', re.MULTILINE)
 TPS_MINIMUM: float = 19.0
 TPS_TIMEOUT: float = 180.0
 TPS_LINE: re.Pattern[str] = re.compile(r'TPS from last ([^:]*):(.*)')
 TPS_VALUE: re.Pattern[str] = re.compile(r'\d+(?:[.,]\d+)?')
 COLOR_CODES: re.Pattern[str] = re.compile(r'\u00a7[0-9a-fk-orx]|\x1b\[[0-9;]*m', re.IGNORECASE)
-ACTOR: str = 'AQAClient262'
+ACTOR: str = clientqa.PLAYER
 CLIENT_NAME: str = 'AdaptDemoStudio'
 CLIENT_TITLE: str = 'Adapt Demo Studio'
 OPPONENT: str = 'AQAOpponent'
@@ -70,6 +75,7 @@ PRISM_LOG: Path = clientqa.PRISM / 'logs' / 'PrismLauncher-0.log'
 LAUNCH_WATCH: float = 15.0
 RESCAN_WAIT: float = 30.0
 IRIS_LIBS: Path = ROOT.parent / 'Iris' / 'build' / 'libs'
+IRIS_LIBS_ENV: str = 'ADAPT_DEMO_IRIS_LIBS'
 IRIS_DENIALS: tuple[str, ...] = ('denied', 'locked', 'cannot', 'restart', 'could not find', 'already exists', 'exception raised')
 
 
@@ -130,10 +136,11 @@ def bridge_failure(failure: urllib.error.HTTPError, label: str) -> RuntimeError:
     return RuntimeError(label + ' rejected with HTTP ' + str(failure.code) + ': ' + body)
 
 
-def iris_jar(libs: Path = IRIS_LIBS) -> Path:
-    candidates: list[Path] = list(libs.glob('Iris*-packed.jar'))
+def iris_jar(libs: Path | None = None) -> Path:
+    folder: Path = libs if libs is not None else Path(os.environ.get(IRIS_LIBS_ENV) or IRIS_LIBS)
+    candidates: list[Path] = list(folder.glob('Iris*-packed.jar'))
     if not candidates:
-        raise RuntimeError('No packed Iris jar under ' + str(libs))
+        raise RuntimeError('No packed Iris jar under ' + str(folder) + '; set ' + IRIS_LIBS_ENV + ' to its folder')
     return max(candidates, key=lambda path: path.stat().st_mtime)
 
 
@@ -148,6 +155,53 @@ def install_pack(source: Path, packs: Path) -> Path:
     target: Path = packs / IRIS_PACK
     shutil.copytree(source, target, ignore=shutil.ignore_patterns('.git', '.iris'), dirs_exist_ok=True)
     return target
+
+
+def models_cache(jar: Path) -> Path | None:
+    if not jar.is_file():
+        return None
+    with jar.open('rb') as handle:
+        digest: str = hashlib.file_digest(handle, 'sha256').hexdigest()
+    return LOCKS / (MODELS_CACHE_PREFIX + digest[:12] + '.toml')
+
+
+def restore_models(adapt: Path, cache: Path) -> bool:
+    if not cache.is_file():
+        return False
+    adapt.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(cache, adapt / MODELS_FILE)
+    return True
+
+
+def model_tables(text: str) -> set[str]:
+    return set(TABLE_HEADER.findall(text))
+
+
+def keep_models(adapt: Path, cache: Path, restored: bool) -> bool:
+    source: Path = adapt / MODELS_FILE
+    if not source.is_file() or source.stat().st_size == 0:
+        return False
+    if not restored and cache.is_file() and not model_tables(cache.read_text(encoding='utf-8')) <= model_tables(source.read_text(encoding='utf-8')):
+        return False
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    partial: Path = cache.with_name(cache.name + '.' + str(os.getpid()) + '.part')
+    try:
+        shutil.copy2(source, partial)
+        os.replace(partial, cache)
+    finally:
+        partial.unlink(missing_ok=True)
+    prune_models(cache)
+    return True
+
+
+def prune_models(kept: Path) -> None:
+    for stale in kept.parent.glob(MODELS_CACHE_PREFIX + '*.toml'):
+        if stale != kept:
+            stale.unlink(missing_ok=True)
+
+
+def warm_command(skill: str) -> str | None:
+    return 'adaptqa demo warm' if skill in WARM_SKILLS else None
 
 
 def switch_off(config: Path, keys: tuple[str, ...]) -> None:
@@ -578,6 +632,7 @@ class Studio:
         self.launched_client: bool = False
         self.launched_opponent: bool = False
         self.required_plugins: tuple[str, ...] = ()
+        self.models_restored: bool = False
 
     def start(self, skill: str, opponent: bool = False, world: str = choreography.OVERWORLD, plugins: tuple[str, ...] = ()) -> None:
         if any(plugin != 'Gloss' for plugin in plugins):
@@ -587,6 +642,7 @@ class Studio:
         mods: list[Path] = self.prepare_jars()
         self.start_server(skill)
         self.prepare_world(world)
+        self.warm_items(skill)
         self.launch_client(mods)
         if opponent:
             self.launch_opponent(mods)
@@ -617,6 +673,8 @@ class Studio:
         return mods
 
     def build(self, command: list[str], log_name: str) -> None:
+        if command[0] == './gradlew':
+            command = command + clientqa.gradle_arguments()
         with (self.output / log_name).open('w') as log:
             subprocess.run(command, cwd=ROOT, env=build_environment(), stdout=log, stderr=subprocess.STDOUT, check=True)
 
@@ -651,6 +709,8 @@ class Studio:
             install_log.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(str(latest), str(install_log))
         adapt: Path = self.server / 'plugins' / 'Adapt'
+        cache: Path | None = models_cache(self.jars / ADAPT_JAR)
+        self.models_restored = cache is not None and restore_models(adapt, cache)
         switch_off(adapt / 'adapt.toml', NOTIFY_KEYS)
         if skill != DISCOVERY_SKILL and 'Gloss' not in self.required_plugins:
             switch_off(adapt / 'skills' / (DISCOVERY_SKILL + '.toml'), (SKILL_SWITCH,))
@@ -664,6 +724,11 @@ class Studio:
             print('[RESTART] ' + str(failure) + '; starting again in ' + format(START_RETRY_SECONDS, 'g') + ' s', flush=True)
             time.sleep(START_RETRY_SECONDS)
             mux('runtime', 'start', self.server_name, '--no-console')
+
+    def warm_items(self, skill: str) -> None:
+        command: str | None = warm_command(skill)
+        if command is not None:
+            self.rcon.command(command)
 
     def prepare_world(self, world: str) -> None:
         if world == choreography.OVERWORLD:
@@ -838,9 +903,23 @@ class Studio:
             if self.server is not None and (self.server / 'logs' / 'latest.log').is_file():
                 self.log_path('server').parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(self.server / 'logs' / 'latest.log', self.log_path('server'))
+        except Exception as failure:
+            return ['Server cleanup: ' + repr(failure)] + self.remember_models()
+        errors: list[str] = self.remember_models()
+        try:
             mux('instance', 'delete', self.server_name)
         except Exception as failure:
-            return ['Server cleanup: ' + repr(failure)]
+            errors.append('Server cleanup: ' + repr(failure))
+        return errors
+
+    def remember_models(self) -> list[str]:
+        cache: Path | None = models_cache(self.jars / ADAPT_JAR)
+        if self.server is None or cache is None:
+            return []
+        try:
+            keep_models(self.server / 'plugins' / 'Adapt', cache, self.models_restored)
+        except OSError as failure:
+            return ['Models cache: ' + repr(failure)]
         return []
 
     def release_ports(self) -> list[str]:

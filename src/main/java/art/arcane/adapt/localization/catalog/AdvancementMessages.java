@@ -1455,6 +1455,38 @@ public final class AdvancementMessages {
   public static final TextKey SKILL_KINETICS_DESCRIPTION = TextKey.of("advancement.skill_kinetics.description", "Turn motion into power.");
   public static final TextKey CHALLENGE_KINETICS_ANVIL_DROP_TITLE = TextKey.of("advancement.challenge_kinetics_anvil_drop.title", "Newton's Receipt");
   public static final TextKey CHALLENGE_KINETICS_ANVIL_DROP_DESCRIPTION = TextKey.of("advancement.challenge_kinetics_anvil_drop.description", "Kill a mob with your own falling anvil dropped from 8 or more blocks.");
+  public static final TextKey CHALLENGE_GOLEMANCY_BUILT_10_TITLE = TextKey.of("advancement.challenge_golemancy_built_10.title", "Clay and Spark");
+  public static final TextKey CHALLENGE_GOLEMANCY_BUILT_10_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_built_10.description", "Build 10 golems");
+  public static final TextKey CHALLENGE_GOLEMANCY_BUILT_100_TITLE = TextKey.of("advancement.challenge_golemancy_built_100.title", "Foundry of Giants");
+  public static final TextKey CHALLENGE_GOLEMANCY_BUILT_100_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_built_100.description", "Build 100 golems");
+  public static final TextKey CHALLENGE_GOLEMANCY_BOUND_5_TITLE = TextKey.of("advancement.challenge_golemancy_bound_5.title", "Small Retinue");
+  public static final TextKey CHALLENGE_GOLEMANCY_BOUND_5_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_bound_5.description", "Bind 5 golems");
+  public static final TextKey CHALLENGE_GOLEMANCY_BOUND_25_TITLE = TextKey.of("advancement.challenge_golemancy_bound_25.title", "Animus Legion");
+  public static final TextKey CHALLENGE_GOLEMANCY_BOUND_25_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_bound_25.description", "Bind 25 golems");
+  public static final TextKey CHALLENGE_GOLEMANCY_GOLEM_KILLS_50_TITLE = TextKey.of("advancement.challenge_golemancy_golem_kills_50.title", "Stone Sentinels");
+  public static final TextKey CHALLENGE_GOLEMANCY_GOLEM_KILLS_50_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_golem_kills_50.description", "Your bound golems slay 50 hostile mobs");
+  public static final TextKey CHALLENGE_GOLEMANCY_GOLEM_KILLS_500_TITLE = TextKey.of("advancement.challenge_golemancy_golem_kills_500.title", "Living Rampart");
+  public static final TextKey CHALLENGE_GOLEMANCY_GOLEM_KILLS_500_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_golem_kills_500.description", "Your bound golems slay 500 hostile mobs");
+  public static final TextKey CHALLENGE_GOLEMANCY_GOLEM_KILLS_5000_TITLE = TextKey.of("advancement.challenge_golemancy_golem_kills_5000.title", "Unbreakable Host");
+  public static final TextKey CHALLENGE_GOLEMANCY_GOLEM_KILLS_5000_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_golem_kills_5000.description", "Your bound golems slay 5,000 hostile mobs");
+  public static final TextKey CHALLENGE_GOLEMANCY_FIRST_BIND_FROST_TITLE = TextKey.of("advancement.challenge_golemancy_first_bind_frost.title", "Winter's Servant");
+  public static final TextKey CHALLENGE_GOLEMANCY_FIRST_BIND_FROST_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_first_bind_frost.description", "Bind a frost golem");
+  public static final TextKey CHALLENGE_GOLEMANCY_FIRST_BIND_COPPER_TITLE = TextKey.of("advancement.challenge_golemancy_first_bind_copper.title", "Verdigris Bond");
+  public static final TextKey CHALLENGE_GOLEMANCY_FIRST_BIND_COPPER_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_first_bind_copper.description", "Bind a copper golem");
+  public static final TextKey CHALLENGE_GOLEMANCY_FIRST_BIND_IRON_TITLE = TextKey.of("advancement.challenge_golemancy_first_bind_iron.title", "Iron Oath");
+  public static final TextKey CHALLENGE_GOLEMANCY_FIRST_BIND_IRON_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_first_bind_iron.description", "Bind an iron golem");
+  public static final TextKey CHALLENGE_GOLEMANCY_TASKS_1000_TITLE = TextKey.of("advancement.challenge_golemancy_tasks_1000.title", "Busy Hands");
+  public static final TextKey CHALLENGE_GOLEMANCY_TASKS_1000_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_tasks_1000.description", "Your golems finish 1,000 jobs");
+  public static final TextKey CHALLENGE_GOLEMANCY_TASKS_25000_TITLE = TextKey.of("advancement.challenge_golemancy_tasks_25000.title", "Tireless Workshop");
+  public static final TextKey CHALLENGE_GOLEMANCY_TASKS_25000_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_tasks_25000.description", "Your golems finish 25,000 jobs");
+  public static final TextKey CHALLENGE_GOLEMANCY_ITEMS_MOVED_10000_TITLE = TextKey.of("advancement.challenge_golemancy_items_moved_10000.title", "Steady Haulers");
+  public static final TextKey CHALLENGE_GOLEMANCY_ITEMS_MOVED_10000_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_items_moved_10000.description", "Your golems deliver 10,000 items");
+  public static final TextKey CHALLENGE_GOLEMANCY_ITEMS_MOVED_250000_TITLE = TextKey.of("advancement.challenge_golemancy_items_moved_250000.title", "Endless Caravan");
+  public static final TextKey CHALLENGE_GOLEMANCY_ITEMS_MOVED_250000_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_items_moved_250000.description", "Your golems deliver 250,000 items");
+  public static final TextKey CHALLENGE_GOLEMANCY_INFUSIONS_10_TITLE = TextKey.of("advancement.challenge_golemancy_infusions_10.title", "Plinth Apprentice");
+  public static final TextKey CHALLENGE_GOLEMANCY_INFUSIONS_10_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_infusions_10.description", "Complete 10 infusions at an Animus Plinth");
+  public static final TextKey CHALLENGE_GOLEMANCY_INFUSIONS_100_TITLE = TextKey.of("advancement.challenge_golemancy_infusions_100.title", "Master Infuser");
+  public static final TextKey CHALLENGE_GOLEMANCY_INFUSIONS_100_DESCRIPTION = TextKey.of("advancement.challenge_golemancy_infusions_100.description", "Complete 100 infusions at an Animus Plinth");
 
   private AdvancementMessages() {
   }
@@ -2910,5 +2942,37 @@ public final class AdvancementMessages {
     builder.add(SKILL_KINETICS_DESCRIPTION);
     builder.add(CHALLENGE_KINETICS_ANVIL_DROP_TITLE);
     builder.add(CHALLENGE_KINETICS_ANVIL_DROP_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_BUILT_10_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_BUILT_10_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_BUILT_100_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_BUILT_100_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_BOUND_5_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_BOUND_5_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_BOUND_25_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_BOUND_25_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_GOLEM_KILLS_50_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_GOLEM_KILLS_50_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_GOLEM_KILLS_500_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_GOLEM_KILLS_500_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_GOLEM_KILLS_5000_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_GOLEM_KILLS_5000_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_FIRST_BIND_FROST_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_FIRST_BIND_FROST_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_FIRST_BIND_COPPER_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_FIRST_BIND_COPPER_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_FIRST_BIND_IRON_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_FIRST_BIND_IRON_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_TASKS_1000_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_TASKS_1000_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_TASKS_25000_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_TASKS_25000_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_ITEMS_MOVED_10000_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_ITEMS_MOVED_10000_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_ITEMS_MOVED_250000_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_ITEMS_MOVED_250000_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_INFUSIONS_10_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_INFUSIONS_10_DESCRIPTION);
+    builder.add(CHALLENGE_GOLEMANCY_INFUSIONS_100_TITLE);
+    builder.add(CHALLENGE_GOLEMANCY_INFUSIONS_100_DESCRIPTION);
   }
 }

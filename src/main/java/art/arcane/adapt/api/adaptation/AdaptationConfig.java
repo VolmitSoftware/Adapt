@@ -3,6 +3,8 @@ package art.arcane.adapt.api.adaptation;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.api.preference.PreferencePolicy;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class AdaptationConfig {
@@ -24,4 +26,6 @@ public class AdaptationConfig {
   public int maxLevel = 5;
   @ConfigDoc(value = "Knowledge cost required to purchase level 1.", impact = "Higher values make unlocking the first level more expensive.")
   public int initialCost = 2;
+  @ConfigDoc(value = "Adaptations the player must already have learned, each written as adaptationId:level.", impact = "Learning or leveling this adaptation is refused until every listed adaptation is learned at that level, and those adaptations cannot be unlearned below it while this one is learned.")
+  public List<String> requires = new ArrayList<>();
 }

@@ -302,6 +302,12 @@ dependencies {
     testImplementation('com.github.MilkBowl:VaultAPI:1.7') {
         transitive = false
     }
+    testImplementation('com.massivecraft:Factions:1.6.9.5-U0.6.21') {
+        transitive = false
+    }
+    testImplementation('com.github.TechFortress:GriefPrevention:16.18.1') {
+        transitive = false
+    }
     testImplementation('org.junit.jupiter:junit-jupiter:5.11.4')
     testImplementation('org.mockito:mockito-core:5.14.2')
     testImplementation('org.mockito:mockito-junit-jupiter:5.14.2')
@@ -315,9 +321,29 @@ dependencies {
 }
 
 tasks.named('test', Test) {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags('media-export')
+    }
     jvmArgs('-Dnet.bytebuddy.experimental=true')
     maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
+    testLogging {
+        events('failed')
+        showStandardStreams = false
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.register('exportGolemancyMedia', Test) {
+    group = 'documentation'
+    description = 'Writes build/demo/golemancy-media/recipes.json from the default Golemancy recipe, infusion and adaptation configuration.'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags('media-export')
+    }
+    jvmArgs('-Dnet.bytebuddy.experimental=true')
+    systemProperty('adapt.media.output', layout.buildDirectory.dir('demo/golemancy-media').get().asFile.path)
+    outputs.upToDateWhen { false }
     testLogging {
         events('failed')
         showStandardStreams = false
@@ -418,6 +444,10 @@ sourceSets {
         resources.srcDir('src/test/gameplay/fixture/resources')
         compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
     }
+}
+
+dependencies {
+    testImplementation(sourceSets.gameplayFixture.output)
 }
 
 tasks.register('gameplayFixtureJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {

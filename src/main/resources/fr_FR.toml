@@ -3049,6 +3049,70 @@ description = "Transformez le mouvement en puissance."
 title = "La Facture de Newton"
 description = "Tuer une créature avec votre propre enclume lâchée d'au moins 8 blocs de haut."
 
+[advancement.challenge_golemancy_built_10]
+title = "Argile et étincelle"
+description = "Construisez 10 golems"
+
+[advancement.challenge_golemancy_built_100]
+title = "Fonderie de géants"
+description = "Construisez 100 golems"
+
+[advancement.challenge_golemancy_bound_5]
+title = "Petite escorte"
+description = "Liez 5 golems"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Légion d'Animus"
+description = "Liez 25 golems"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Sentinelles de pierre"
+description = "Vos golems liés tuent 50 créatures hostiles"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Rempart vivant"
+description = "Vos golems liés tuent 500 créatures hostiles"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Armée inébranlable"
+description = "Vos golems liés tuent 5 000 créatures hostiles"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Serviteur de l'hiver"
+description = "Liez un golem de givre"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Lien de vert-de-gris"
+description = "Liez un golem de cuivre"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Serment de fer"
+description = "Liez un golem de fer"
+
+[advancement.challenge_golemancy_tasks_1000]
+title = "Mains affairées"
+description = "Vos golems accomplissent 1 000 tâches"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "Atelier infatigable"
+description = "Vos golems accomplissent 25 000 tâches"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "Porteurs assidus"
+description = "Vos golems livrent 10 000 objets"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "Caravane sans fin"
+description = "Vos golems livrent 250 000 objets"
+
+[advancement.challenge_golemancy_infusions_10]
+title = "Apprenti du socle"
+description = "Termine 10 infusions sur un socle d'Animus"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Maître infuseur"
+description = "Termine 100 infusions sur un socle d'Animus"
+
 [agility.armor_up]
 name = "Armure Cinétique"
 description = "Gagnez davantage d'armure plus vous sprintez longtemps ! Si vous vous arrêtez, elle se dissipe lentement."
@@ -4236,6 +4300,631 @@ lore1 = "Chance de butin bonus"
 lore2 = "x niveaux de Célérité en creusant mouillé"
 lore = ["Chance de butin bonus", "x niveaux de Célérité en creusant mouillé"]
 
+[golemancy.item.crook]
+name = "Houlette de l'artificier"
+lore = "Commande les golems liés et les nœuds où ils travaillent"
+
+[golemancy.item.blank_core]
+name = "Noyau d'Animus vierge"
+lore = "Lie un golem comme compagnon ou se transforme en noyau de rôle"
+
+[golemancy.item.core]
+name = "Noyau de {role}"
+lore = "Lie un golem au rôle de {role}"
+
+[golemancy.item.blank_node]
+name = "Nœud vierge"
+lore = "Se fabrique en nœud de n'importe quel type"
+
+[golemancy.item.node]
+name = "Nœud de {node}"
+lore = "S'ancre sur la face d'un bloc pour diriger le travail des golems"
+
+[golemancy.item.blank_rune]
+name = "Rune vierge"
+lore = "S'infuse en rune sur un socle d'Animus"
+
+[golemancy.item.rune]
+name = "Rune de {aspect}"
+tier = "Rang {tier}"
+lore = "S'enchâsse dans un golem pour le renforcer"
+
+[golemancy.item.dormant_golem]
+name = "Golem dormant"
+core = "Noyau : {core}"
+runes = "Runes : {runes}"
+health = "Santé : {health}/{maximum}"
+lore = "Placez-le pour réveiller ce golem"
+
+[golemancy.item.shattered_core]
+name = "Noyau brisé"
+lore = "Reconstruit un golem tombé avec ses améliorations"
+
+[golemancy.item.masterwork_heart]
+name = "Cœur de chef-d'œuvre"
+lore = "Désigne un golem chef-d'œuvre"
+
+[golemancy.role]
+blank = "Compagnon"
+guardian = "Gardien"
+gatherer = "Cueilleur"
+harvester = "Moissonneur"
+lumber = "Bûcheron"
+breaker = "Briseur"
+rancher = "Éleveur"
+sorter = "Trieur"
+angler = "Pêcheur"
+
+[golemancy.node]
+guard = "Garde"
+collection = "Collecte"
+deposit = "Dépôt"
+harvest = "Récolte"
+lumber = "Coupe"
+breaker = "Minage"
+pasture = "Pâturage"
+input = "Entrée"
+filter = "Filtre"
+fishing = "Pêche"
+
+[golemancy.aspect]
+swiftness = "Célérité"
+might = "Puissance"
+ember = "Braise"
+tide = "Marée"
+order = "Ordre"
+entropy = "Entropie"
+bulwark = "Rempart"
+
+[golemancy.body]
+frost = "Givre"
+copper = "Cuivre"
+iron = "Fer"
+bone = "Os"
+
+[golemancy.golem]
+name = "Golem de {body} de {owner}"
+
+[golemancy.mode]
+work = "Travail"
+follow = "Suivre"
+stay = "Rester"
+home = "Maison"
+
+[golemancy.signal]
+follow = "Suivre"
+hold = "Tenir"
+home = "Maison"
+work = "Travail"
+sic = "Attaque"
+
+[golemancy.channel]
+none = "Aucun"
+white = "Blanc"
+orange = "Orange"
+magenta = "Magenta"
+light_blue = "Bleu clair"
+yellow = "Jaune"
+lime = "Vert clair"
+pink = "Rose"
+gray = "Gris"
+light_gray = "Gris clair"
+cyan = "Cyan"
+purple = "Violet"
+blue = "Bleu"
+brown = "Marron"
+green = "Vert"
+red = "Rouge"
+black = "Noir"
+
+[golemancy.status]
+active = "Actif"
+packed = "Emballé"
+shattered = "Brisé"
+missing = "Disparu"
+
+[golemancy.gui]
+title = "Golem de {body}"
+health = "Santé : {health}/{maximum}"
+dormant = "Dormant"
+mode = "Mode : {mode}"
+channel = "Canal : {channel}"
+cycle = "Clic gauche : suivant, clic droit : précédent"
+set_home = "Définir la maison ici"
+home = "Maison : {x}, {y}, {z}"
+link_chest = "Lier le coffre de la maison"
+home_chest = "Coffre de la maison : {x}, {y}, {z}"
+no_home_chest = "Aucun coffre de maison lié"
+link_hint = "Cliquez, puis faites un clic droit sur un conteneur avec la houlette"
+rune_locked = "Emplacement de rune verrouillé"
+rune_unlock_level = "Débloqué au niveau {level} d'Augmentations runiques"
+rune_empty = "Emplacement de rune vide"
+rune_empty_lore = "Prenez une rune et cliquez ici pour la sertir"
+rune_remove = "Cliquez pour reprendre cette rune"
+rune_active = "Active"
+rune_over_tier = "Inerte : le rang {tier} exige Augmentations runiques niveau {level}"
+rune_slot_locked = "Inerte : cet emplacement exige Augmentations runiques niveau {level}"
+rune_blocked = "Inerte : les runes de {aspect} ne fonctionnent pas dans un golem de {body}"
+rune_duplicate = "Inerte : ce golem a déjà une rune de {aspect}"
+rune_unpowered = "Inerte : vos Augmentations runiques ne suffisent pas pour cette rune"
+channels = "Canaux : {channels}"
+channels_lore = "Cliquez pour choisir jusqu'à {count} canaux"
+channels_title = "Choisir les canaux"
+channel_selected = "Sélectionné"
+channel_select = "Cliquez pour sélectionner"
+channels_clear = "Effacer les canaux"
+back = "Retour"
+take = "Cliquez pour prendre"
+more_carried = "+{count} de plus"
+stats = "Statistiques"
+kills = "Éliminations : {value}"
+damage = "Dégâts infligés : {value}"
+tasks = "Tâches accomplies : {value}"
+items_moved = "Objets déplacés : {value}"
+release = "Libérer"
+release_lore = "Le rend à l'état de golem ordinaire et lâche son noyau, ses runes, les objets transportés et, s'il en a, son second noyau et son Cœur de chef-d'œuvre"
+release_confirm = "Libérer ce golem ?"
+snow_trail_on = "Traînée de neige : activée"
+snow_trail_off = "Traînée de neige : désactivée"
+snow_trail_lore = "Cliquez pour activer ou désactiver la neige que laisse ce golem"
+colossus_on = "Forme Colosse : activée"
+colossus_off = "Forme Colosse : désactivée"
+colossus_lore = "Cliquez pour passer en taille réelle pour le combat ; un golem agrandi ne travaille pas"
+pack = "Emballer"
+pack_lore = "Compresse ce golem en un bloc de Golem dormant que tu peux poser pour le réveiller"
+
+[golemancy.roster]
+title = "Registre des golems"
+empty = "Vous n'avez aucun golem"
+entry = "Golem de {body} ({core})"
+location = "{world} : {x}, {y}, {z}"
+last_seen = "Vu pour la dernière fois dans {world} près de {x}, {z}"
+status = "État : {status}"
+locate = "Clic gauche pour localiser"
+release = "Maj + clic droit pour libérer"
+release_confirm = "Libérer définitivement ce golem disparu ?"
+release_shattered_confirm = "Libérer définitivement ce golem brisé ? Son Noyau brisé s'effritera."
+release_packed_confirm = "Libérer définitivement ce golem emballé ? Son Golem dormant s'effritera."
+recall = "Clic droit pour le rappeler dans ton inventaire"
+crook_channel = "Canal de la houlette : {channel}"
+crook_channel_lore = "Cliquez pour choisir à quels golems votre houlette fait signe"
+crook_channel_title = "Canal de la houlette"
+crook_channel_all = "Tous les golems"
+
+[golemancy.message]
+home_set = "Maison définie en {x}, {y}, {z}"
+link_armed = "Faites un clic droit sur un conteneur avec la houlette pour le lier"
+chest_linked = "Coffre de la maison lié en {x}, {y}, {z}"
+chest_denied = "Ce conteneur est protégé"
+chest_out_of_reach = "Ce conteneur doit se trouver à {radius} blocs au plus de la maison du golem"
+released = "Golem libéré"
+release_failed = "Ce golem ne peut pas être libéré pour le moment"
+gone = "Ce golem n'est plus ici"
+colossus_no_room = "Il n'y a pas assez de place ici pour que ce golem grandisse"
+colossus_busy = "Ce golem est encore en train de changer de taille"
+rune_slotted = "Rune de {aspect} sertie"
+rune_removed = "Rune de {aspect} reprise"
+rune_needed = "Prenez d'abord une rune"
+rune_no_slot = "Ce golem n'a aucun emplacement de rune libre"
+rune_duplicate = "Ce golem a déjà une rune de {aspect}"
+rune_blocked = "Les runes de {aspect} ne fonctionnent pas dans un golem de {body}"
+channels_full = "Ce golem ne peut utiliser que {count} canaux"
+crook_channel = "Votre houlette fait maintenant signe à : {channel}"
+crook_needed = "Tenez votre houlette en main principale pour choisir son canal"
+
+[golemancy.binding]
+busy = "Un rituel de lien est déjà en cours"
+already_bound = "Ce golem est déjà lié"
+village = "Seuls les golems construits par des joueurs peuvent être liés"
+builder = "Seul le joueur qui a construit ce golem peut le lier pour l'instant"
+body_locked = "Tu ne peux pas encore lier de golems de {body}"
+core_not_allowed = "Un golem de {body} n'accepte pas de noyau de {core}"
+core_locked = "Tu n'as pas encore appris à lier les noyaux de {core}"
+protected = "Tu ne peux pas lier de golems ici"
+unavailable = "Ta liste de golems n'est pas encore prête"
+golem_cap = "Tu possèdes déjà ta limite de {count} golems"
+chunk_cap = "Cette zone abrite déjà {count} golems liés"
+levels = "Lier ce golem coûte {levels} niveaux"
+interrupted = "Le lien a été interrompu"
+bound = "Ton golem de {body} t'est désormais lié"
+
+[golemancy.animus_binding]
+name = "Lien d'Animus"
+description = "Accroupis-toi et fais un clic droit sur un golem en tenant un Noyau d'Animus pour te le lier comme compagnon."
+lore1 = "Golems que tu peux posséder"
+lore2 = "Secondes par rituel de lien"
+lore3 = "Niveaux pour lier un golem de Givre"
+lore4 = "Niveaux pour lier un golem de Cuivre"
+lore5 = "Niveaux pour lier un golem de Fer"
+lore = ["Golems que tu peux posséder", "Secondes par rituel de lien", "Niveaux pour lier un golem de Givre", "Niveaux pour lier un golem de Cuivre", "Niveaux pour lier un golem de Fer"]
+
+[golemancy.frost_frame]
+name = "Armature de Givre"
+description = "Renforce tes golems de Givre liés avec de la santé supplémentaire, des boules de neige qui blessent et une protection contre la pluie et la chaleur."
+lore1 = "Santé supplémentaire des golems de Givre"
+lore2 = "Dégâts des boules de neige"
+lore3 = "Dégâts subis dans les biomes chauds"
+lore4 = "Insensible à la pluie et à l'eau"
+lore5 = "Secondes de lenteur par impact"
+lore6 = "Chance d'une boule de neige supplémentaire"
+lore7 = "Impacts de boule de neige pour geler une cible"
+lore = ["Santé supplémentaire des golems de Givre", "Dégâts des boules de neige", "Dégâts subis dans les biomes chauds", "Insensible à la pluie et à l'eau", "Secondes de lenteur par impact", "Chance d'une boule de neige supplémentaire", "Impacts de boule de neige pour geler une cible"]
+
+[golemancy.copper_frame]
+name = "Armature de Cuivre"
+description = "Te permet de lier des golems de Cuivre et les renforce avec de la santé supplémentaire, de la capacité de transport et de la vitesse, ainsi qu'une armure issue de leur patine."
+lore1 = "Santé supplémentaire des golems de Cuivre"
+lore2 = "Capacité de transport en objets"
+lore3 = "Vitesse de déplacement"
+lore4 = "Ne se change jamais en statue"
+lore5 = "Armure par stade de patine"
+lore6 = "Vitesse perdue par stade de patine"
+lore7 = "Secondes de Vitesse II grâce à la foudre proche"
+lore = ["Santé supplémentaire des golems de Cuivre", "Capacité de transport en objets", "Vitesse de déplacement", "Ne se change jamais en statue", "Armure par stade de patine", "Vitesse perdue par stade de patine", "Secondes de Vitesse II grâce à la foudre proche"]
+
+[golemancy.iron_frame]
+name = "Armature de Fer"
+description = "Te permet de lier des golems de Fer et les renforce avec de la santé, de l'armure et de l'attaque supplémentaires, des réparations au lingot plus efficaces, des coups balayants et une Forme Colosse en taille réelle."
+lore1 = "Santé supplémentaire des golems de Fer"
+lore2 = "Armure supplémentaire des golems de Fer"
+lore3 = "Dégâts d'attaque supplémentaires des golems de Fer"
+lore4 = "Santé supplémentaire par réparation au lingot de fer"
+lore5 = "Hostiles supplémentaires touchés par coup"
+lore6 = "Dégâts d'attaque en Forme Colosse"
+lore = ["Santé supplémentaire des golems de Fer", "Armure supplémentaire des golems de Fer", "Dégâts d'attaque supplémentaires des golems de Fer", "Santé supplémentaire par réparation au lingot de fer", "Hostiles supplémentaires touchés par coup", "Dégâts d'attaque en Forme Colosse"]
+
+[golemancy.bone_frame]
+name = "Armature d'Os"
+description = "Fait entrer vos serviteurs squelettiques de Tragoul dans la Golémancie : ils obéissent aux signaux de votre houlette, brillent dans votre canal de serviteurs avec des étiquettes d'état visibles de vous seul, portent un Treillis d'Os de runes et rapportent de l'XP de Golémancie pour leurs victimes."
+lore1 = "Les serviteurs obéissent aux signaux de la houlette et affichent leur état"
+lore2 = "Emplacements de rune du Treillis d'Os"
+lore3 = "XP de Golémancie pour les victimes de vos serviteurs"
+lore = ["Les serviteurs obéissent aux signaux de la houlette et affichent leur état", "Emplacements de rune du Treillis d'Os", "XP de Golémancie pour les victimes de vos serviteurs"]
+lattice = "Treillis d'Os"
+lattice_lore = "Cliquez pour choisir les runes et le canal de vos serviteurs"
+slot_empty = "Emplacement de treillis vide"
+slot_empty_lore = "Prenez une rune ({aspects}) et cliquez ici"
+slot_locked = "Emplacement de treillis verrouillé"
+slot_unlock_level = "Débloqué au niveau {level} d'Armature d'Os"
+slot_inert = "Inerte : cet emplacement exige Armature d'Os niveau {level}"
+rune_tier = "Agit au rang {tier} sur vos serviteurs"
+channel = "Canal des serviteurs : {channel}"
+channel_set = "Vos serviteurs utilisent maintenant le canal {channel}"
+refused_aspect = "Les runes de {aspect} ne vont pas dans un Treillis d'Os"
+duplicate = "Votre Treillis d'Os a déjà une rune de {aspect}"
+no_slot = "Votre Treillis d'Os n'a aucun emplacement libre"
+time_left = "encore {seconds} s"
+
+[golemancy.guardian_core]
+name = "Noyau de Gardien"
+description = "Les golems liés avec un Noyau de Gardien défendent leur foyer, toi ou la zone d'un Nœud de Garde, et te protègent davantage à mesure que le noyau se renforce."
+lore1 = "Rayon de garde en blocs"
+lore2 = "Interception : les mobs qui te poursuivent se retournent contre tes gardiens"
+lore3 = "Représailles : les gardiens attaquent ce qui t'a blessé"
+lore4 = "Dégâts réduits près de tes gardiens"
+lore5 = "Secondes de Résistance du Dernier Rempart"
+lore = ["Rayon de garde en blocs", "Interception : les mobs qui te poursuivent se retournent contre tes gardiens", "Représailles : les gardiens attaquent ce qui t'a blessé", "Dégâts réduits près de tes gardiens", "Secondes de Résistance du Dernier Rempart"]
+
+[golemancy.gatherer_core]
+name = "Noyau de Cueilleur"
+description = "Les golems liés avec un Noyau de Cueilleur ramassent les objets tombés autour de leur foyer ou d'un Nœud de Collecte et les livrent, et stockent les orbes d'expérience sous forme d'essence à mesure que le noyau se renforce."
+lore1 = "Rayon de ramassage en blocs"
+lore2 = "Points d'expérience de réserve d'essence"
+lore3 = "Blocs d'aimant à objets"
+lore4 = "Blocs de ramassage instantané"
+lore5 = "Capacité de transport"
+lore = ["Rayon de ramassage en blocs", "Points d'expérience de réserve d'essence", "Blocs d'aimant à objets", "Blocs de ramassage instantané", "Capacité de transport"]
+essence = "Essence : {value} points d'expérience"
+essence_lore = "Cliquez pour prendre l'expérience stockée"
+essence_taken = "Vous avez pris {value} points d'expérience d'essence"
+essence_empty = "Ce golem n'a aucune essence stockée"
+
+[golemancy.harvester_core]
+name = "Noyau de Moissonneur"
+description = "Les golems liés avec un Noyau de Moissonneur récoltent et replantent les cultures mûres dans la zone d'un Nœud de Récolte, puis entretiennent et labourent le champ à mesure que le noyau se renforce."
+lore1 = "Cultures par action de récolte"
+lore2 = "Secondes par action de récolte"
+lore3 = "Récolte les pastèques, citrouilles, cannes à sucre, bambous et cactus"
+lore4 = "Entretien : poudre d'os du coffre de maison sur les jeunes cultures"
+lore5 = "Labour : relaboure la terre et sème la terre labourée vide"
+lore6 = "Chance d'un tirage de butin supplémentaire"
+lore = ["Cultures par action de récolte", "Secondes par action de récolte", "Récolte les pastèques, citrouilles, cannes à sucre, bambous et cactus", "Entretien : poudre d'os du coffre de maison sur les jeunes cultures", "Labour : relaboure la terre et sème la terre labourée vide", "Chance d'un tirage de butin supplémentaire"]
+
+[golemancy.lumber_core]
+name = "Noyau de Bûcheron"
+description = "Les golems liés avec un Noyau de Bûcheron abattent de haut en bas les arbres naturels dans la zone d'un Nœud de Coupe et ramassent les bûches, puis replantent, balaient les feuilles et abattent de plus grands arbres à mesure que le noyau se renforce."
+lore1 = "Bûches abattues par seconde"
+lore2 = "Bûches par arbre pour les golems de cuivre"
+lore3 = "Bûches par arbre pour les golems de fer"
+lore4 = "Replante des pousses après l'abattage"
+lore5 = "Balayage des feuilles : casse les feuilles détachées et ramasse ce qu'elles lâchent"
+lore6 = "Abat les arbres géants 2x2"
+lore7 = "Abat les champignons écarlates et biscornus et replante des champignons"
+lore = ["Bûches abattues par seconde", "Bûches par arbre pour les golems de cuivre", "Bûches par arbre pour les golems de fer", "Replante des pousses après l'abattage", "Balayage des feuilles : casse les feuilles détachées et ramasse ce qu'elles lâchent", "Abat les arbres géants 2x2", "Abat les champignons écarlates et biscornus et replante des champignons"]
+
+[golemancy.breaker_core]
+name = "Noyau de Briseur"
+description = "Les golems liés avec un Noyau de Briseur cassent les blocs que liste le filtre d'un Nœud de Minage dans sa zone et emportent ce qu'ils lâchent, puis minent des blocs plus durs avec de meilleures pioches à mesure que le noyau se renforce."
+lore1 = "Dureté maximale des blocs"
+lore2 = "Secondes par bloc"
+lore3 = "Outil de minage"
+lore4 = "Interrupteur Toucher de soie sur les Nœuds de Minage"
+lore5 = "Interrupteur Fortune I sur les Nœuds de Minage"
+lore = ["Dureté maximale des blocs", "Secondes par bloc", "Outil de minage", "Interrupteur Toucher de soie sur les Nœuds de Minage", "Interrupteur Fortune I sur les Nœuds de Minage"]
+filter_ready = "Casse les blocs du filtre"
+filter_needed = "Ajoutez des blocs à la liste blanche"
+filter_lore = "Les briseurs ne cassent que les blocs listés par une liste blanche"
+silk_on = "Toucher de soie : activé"
+silk_off = "Toucher de soie : désactivé"
+fortune_on = "Fortune I : activée"
+fortune_off = "Fortune I : désactivée"
+locked = "Se débloque au niveau {level} de Noyau de Briseur"
+exclusive = "Toucher de soie et Fortune I se désactivent mutuellement"
+
+[golemancy.rancher_core]
+name = "Noyau d'Éleveur"
+description = "Les golems liés à un Noyau d'Éleveur s'occupent des animaux dans la zone d'un nœud Pâturage : ils font se reproduire des couples jusqu'au nombre à garder du nœud puis, à mesure que le noyau se renforce, tondent les moutons, traient les vaches et les chèvres et abattent les adultes en trop."
+lore1 = "Fait se reproduire des couples jusqu'au nombre à garder du nœud Pâturage"
+lore2 = "Tond les moutons"
+lore3 = "Trait les vaches, les chèvres et les meuhshrooms avec des seaux ou des bols du coffre de maison"
+lore4 = "Abat les adultes au-delà du nombre à garder (golems de fer uniquement)"
+lore5 = "Délai de reproduction plus court"
+lore6 = "Jet de butin supplémentaire par abattage"
+lore = ["Fait se reproduire des couples jusqu'au nombre à garder du nœud Pâturage", "Tond les moutons", "Trait les vaches, les chèvres et les meuhshrooms avec des seaux ou des bols du coffre de maison", "Abat les adultes au-delà du nombre à garder (golems de fer uniquement)", "Délai de reproduction plus court", "Jet de butin supplémentaire par abattage"]
+species = "Espèce : {species}"
+species_all = "Tous les animaux"
+species_lore = "Clic gauche pour l'espèce suivante, clic droit pour la précédente"
+keep = "Nombre à garder : {count} par espèce"
+keep_lore = "Clic gauche pour augmenter, clic droit pour diminuer"
+breed_on = "Reproduction : activée"
+breed_off = "Reproduction : désactivée"
+shear_on = "Tonte : activée"
+shear_off = "Tonte : désactivée"
+milk_on = "Traite : activée"
+milk_off = "Traite : désactivée"
+cull_on = "Abattage : activé"
+cull_off = "Abattage : désactivé"
+locked = "Se débloque au niveau {level} de Noyau d'Éleveur"
+iron_only = "Seuls les golems de fer abattent"
+
+[golemancy.sorter_core]
+name = "Noyau de Trieur"
+description = "Les golems de cuivre liés avec un Noyau de Trieur vident le conteneur sous un Nœud d'Entrée dans les conteneurs voisins qui contiennent déjà chaque objet, et apprennent les groupes d'objets, les Nœuds de Filtre, le réapprovisionnement et la livraison à mesure que le noyau se renforce."
+lore1 = "Rayon de destination en blocs"
+lore2 = "Piles par trajet"
+lore3 = "Trie par groupes d'objets"
+lore4 = "Nœuds de Filtre et un trop-plein"
+lore5 = "Distingue les enchantements et les potions"
+lore6 = "Déplace les boîtes de Shulker"
+lore7 = "Quantités de réapprovisionnement sur les Nœuds de Filtre"
+lore8 = "Index du contenu des conteneurs"
+lore9 = "Livraison depuis le menu du Nœud d'Entrée"
+lore = ["Rayon de destination en blocs", "Piles par trajet", "Trie par groupes d'objets", "Nœuds de Filtre et un trop-plein", "Distingue les enchantements et les potions", "Déplace les boîtes de Shulker", "Quantités de réapprovisionnement sur les Nœuds de Filtre", "Index du contenu des conteneurs", "Livraison depuis le menu du Nœud d'Entrée"]
+match_exact = "Correspondance : même objet"
+match_groups = "Correspondance : groupes d'objets"
+match_precise = "Correspondance : enchantements et potions"
+match_lore = "Comment un Trieur décide quel conteneur contient déjà un objet"
+radius = "Rayon de destination : {radius}"
+radius_lore = "Jusqu'à {radius} blocs à ton niveau de Noyau de Trieur"
+fetch = "Faire livrer des objets"
+fetch_lore = "Choisis les objets qu'un Trieur t'apporte"
+locked = "Se débloque au niveau {level} de Noyau de Trieur"
+overflow_on = "Trop-plein : activé"
+overflow_off = "Trop-plein : désactivé"
+overflow_lore = "Un trop-plein prend les objets dont aucun autre conteneur ne veut"
+restock = "Réapprovisionner : {amount} de chaque objet du filtre"
+restock_off = "Réapprovisionner : désactivé"
+restock_lore = "Les Trieurs gardent ici autant de chaque objet listé"
+fetch_available = "Disponible : {count}"
+fetch_request = "Clique pour demander {amount}"
+fetch_amount = "Demander {amount} à la fois"
+fetch_empty = "Rien n'est stocké dans les conteneurs de ce Nœud d'Entrée"
+fetch_requested = "Un Trieur va t'apporter {amount} {item}"
+fetch_delivered = "Un Trieur t'a apporté {amount} {item}"
+empty_filter = "Un Nœud de Filtre vide ne prend rien, sauf s'il est un trop-plein"
+
+[golemancy.angler_core]
+name = "Noyau de Pêcheur"
+description = "Les golems liés avec un Noyau de Pêcheur pêchent dans l'eau libre devant un Nœud de Pêche et emportent leurs prises, avec plus de chance, un filtre à déchets, des prises plus rapides sous la pluie et des prises doubles à mesure que le noyau se renforce."
+lore1 = "Secondes par prise"
+lore2 = "Chance de pêche"
+lore3 = "Interrupteur du filtre à déchets sur les Nœuds de Pêche"
+lore4 = "Temps de prise réduit sous la pluie"
+lore5 = "Chance d'une prise double"
+lore = ["Secondes par prise", "Chance de pêche", "Interrupteur du filtre à déchets sur les Nœuds de Pêche", "Temps de prise réduit sous la pluie", "Chance d'une prise double"]
+water_ready = "Eau libre trouvée"
+water_needed = "Il faut de l'eau libre"
+water_lore = "Les pêcheurs ont besoin d'une étendue d'eau libre de 5 sur 5 devant le nœud"
+junk_keep = "Déchets : garder"
+junk_discard = "Déchets : rejeter"
+locked = "Se débloque au niveau {level} de Noyau de Pêcheur"
+
+[golemancy.runic_augments]
+name = "Augmentations runiques"
+description = "Vous permet d'infuser des runes sur le Socle d'Animus et de les sertir dans vos golems liés pour la vitesse, la charge, le feu, la portée, les canaux, le rendement et l'armure."
+lore1 = "Emplacements de rune supplémentaires par golem"
+lore2 = "Rang de rune utilisable le plus élevé"
+lore3 = "Socle d'Animus et recette de Rune vierge"
+lore = ["Emplacements de rune supplémentaires par golem", "Rang de rune utilisable le plus élevé", "Socle d'Animus et recette de Rune vierge"]
+
+[golemancy.overseer]
+name = "Surveillant"
+description = "Te permet de faire signe à tes golems liés avec la Houlette de l'artificier pour qu'ils te suivent, tiennent leur position, rentrent à la maison ou travaillent, puis, à mesure qu'il progresse, qu'ils attaquent ce que tu regardes, répondent par canal, accourent vers toi et te protègent en formation."
+lore1 = "Rayon de signal en blocs"
+lore2 = "Attaque : tes golems combattants attaquent ce que tu regardes"
+lore3 = "Filtre de canal de la houlette, réglé dans le registre des golems"
+lore4 = "Ralliement : Suivre appelle à toi les golems éloignés"
+lore5 = "Armure maximale des golems en formation"
+lore = ["Rayon de signal en blocs", "Attaque : tes golems combattants attaquent ce que tu regardes", "Filtre de canal de la houlette, réglé dans le registre des golems", "Ralliement : Suivre appelle à toi les golems éloignés", "Armure maximale des golems en formation"]
+signal = "Signal : {signal}"
+sent = "Envoyé : {signal}"
+sent_channel = "Envoyé : {signal} au canal {channel}"
+no_target = "Regardez une créature que vous pouvez attaquer à {range} blocs ou moins pour envoyer Attaque"
+
+[golemancy.mending]
+name = "Réparation de Golem"
+description = "Soigne tes golems avec des lingots de cuivre, des blocs de neige et de la poudre d'os, laisse-les se rétablir près de toi et chez eux, et reconstruis les golems tombés à partir de leur Noyau brisé."
+lore1 = "Soins bonus des réparations"
+lore2 = "Les lingots de cuivre, les blocs de neige et la poudre d'os soignent tes golems"
+lore3 = "Santé régénérée près de toi"
+lore4 = "Santé régénérée au repos chez soi"
+lore5 = "Secondes entre les régénérations"
+lore6 = "Noyau brisé : reconstruis les golems tombés"
+lore7 = "Secondes de Résistance pour les golems renés"
+lore8 = "Les golems renés gardent leur état de cuivre"
+lore = ["Soins bonus des réparations", "Les lingots de cuivre, les blocs de neige et la poudre d'os soignent tes golems", "Santé régénérée près de toi", "Santé régénérée au repos chez soi", "Secondes entre les régénérations", "Noyau brisé : reconstruis les golems tombés", "Secondes de Résistance pour les golems renés", "Les golems renés gardent leur état de cuivre"]
+full_health = "Ce golem a déjà toute sa santé"
+shattered = "Ton golem de {body} s'est brisé et a laissé son Noyau brisé"
+reborn = "Ton golem de {body} renaît"
+void = "Ce Noyau brisé s'effrite : il ne contient plus son golem"
+not_owner = "Ce Noyau brisé appartient à un autre joueur"
+locked = "Reconstruire un golem nécessite Réparation de Golem niveau {level}"
+wrong_body = "Ce Noyau brisé a besoin d'un golem de {body} fraîchement construit"
+unreadable = "Ce Noyau brisé est endommagé et ne peut pas reconstruire de golem"
+
+[golemancy.stasis]
+name = "Stase"
+description = "Emballe tes golems liés dans des blocs de Golem dormant avec la Houlette et pose le bloc pour les réveiller n'importe où, avec leurs noyaux, runes, chargement et santé intacts."
+lore1 = "Secondes pour emballer un golem"
+lore2 = "Emballage instantané"
+lore3 = "Pose un Golem dormant pour le réveiller"
+lore4 = "Santé récupérée une fois emballé"
+lore5 = "Secondes entre les soins une fois emballé"
+lore6 = "Registre de poche : rappelle tes golems depuis le registre"
+lore7 = "Secondes entre les rappels"
+lore = ["Secondes pour emballer un golem", "Emballage instantané", "Pose un Golem dormant pour le réveiller", "Santé récupérée une fois emballé", "Secondes entre les soins une fois emballé", "Registre de poche : rappelle tes golems depuis le registre", "Secondes entre les rappels"]
+packed = "Ton golem de {body} est emballé dans un Golem dormant"
+dropped = "Ton inventaire est plein, ton Golem dormant est donc tombé à tes pieds"
+interrupted = "L'emballage a été interrompu"
+busy = "Tu emballes déjà un golem"
+pack_failed = "Ce golem ne peut pas être emballé pour le moment"
+awakened = "Ton golem de {body} se réveille"
+void = "Ce Golem dormant s'effrite : il ne contient plus son golem"
+not_owner = "Ce Golem dormant appartient à un autre joueur"
+locked = "Réveiller un Golem dormant nécessite Stase"
+unreadable = "Ce Golem dormant est endommagé et ne peut pas se réveiller"
+body_locked = "Tu ne peux pas encore réveiller de golems de {body}"
+no_room = "Un Golem dormant a besoin d'un bloc libre pour se réveiller"
+server_cap = "Le serveur a déjà autant de golems éveillés qu'il en autorise"
+protected = "Tu ne peux pas réveiller de golems ici"
+awaken_failed = "Le golem n'a pas pu se réveiller, tu as donc gardé ton Golem dormant"
+recall_cooldown = "Tu pourras rappeler un autre golem dans {seconds} secondes"
+recall_unavailable = "Seuls les golems chargés dans ton monde peuvent être rappelés"
+
+[golemancy.masterwork]
+name = "Chef-d'œuvre"
+description = "Infusez un Cœur de chef-d'œuvre sur le Socle d'Animus et sertissez-le dans un golem pour un emplacement de rune supplémentaire, plus de santé, un second noyau et des runes plus puissantes."
+lore1 = "Golems chefs-d'œuvre"
+lore2 = "Emplacements de rune supplémentaires sur un chef-d'œuvre"
+lore3 = "Santé maximale d'un chef-d'œuvre"
+lore4 = "Emplacement de second noyau sur un chef-d'œuvre"
+lore5 = "Les runes d'un chef-d'œuvre agissent un rang plus haut"
+lore6 = "Bonus aux runes de rang 3 d'un chef-d'œuvre"
+lore = ["Golems chefs-d'œuvre", "Emplacements de rune supplémentaires sur un chef-d'œuvre", "Santé maximale d'un chef-d'œuvre", "Emplacement de second noyau sur un chef-d'œuvre", "Les runes d'un chef-d'œuvre agissent un rang plus haut", "Bonus aux runes de rang 3 d'un chef-d'œuvre"]
+slot = "Cœur de chef-d'œuvre"
+slot_lore = "Cliquez pour reprendre le Cœur avec le second noyau et les runes supplémentaires"
+slot_empty = "Emplacement de chef-d'œuvre"
+slot_empty_lore = "Prenez un Cœur de chef-d'œuvre et cliquez ici ({count}/{maximum} chefs-d'œuvre)"
+core_empty = "Emplacement de second noyau"
+core_empty_lore = "Prenez un noyau de rôle et cliquez ici pour le sertir"
+core_remove = "Cliquez pour reprendre ce noyau"
+heart_needed = "Prenez d'abord un Cœur de chef-d'œuvre"
+designated = "Ce golem est maintenant un chef-d'œuvre"
+removed = "Cœur de chef-d'œuvre repris"
+already = "Ce golem est déjà un chef-d'œuvre"
+cap = "Vous avez déjà {count} golems chefs-d'œuvre"
+locked = "Il vous faut Chef-d'œuvre pour désigner un golem chef-d'œuvre"
+body = "Un golem de {body} ne peut pas devenir un chef-d'œuvre"
+core_needed = "Prenez d'abord un noyau de rôle"
+core_slotted = "Noyau de {core} serti"
+core_removed = "Noyau de {core} repris"
+core_no_slot = "Ce golem n'a aucun emplacement de noyau libre"
+core_blank = "Le second noyau doit être un noyau de rôle"
+core_duplicate = "Ce golem possède déjà un noyau de {core}"
+
+[golemancy.node_status]
+idle = "Inactif"
+working = "Au travail"
+blocked = "Bloqué par une protection"
+full = "Conteneur plein"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filtre : {count}"
+
+[golemancy.node_message]
+placed = "Nœud de {node} placé"
+occupied = "Cette face porte déjà un nœud"
+protected = "Tu ne peux pas placer de nœuds ici"
+needs_container = "Un nœud de {node} se place sur un coffre, un tonneau ou une boîte de Shulker"
+needs_side_face = "Un nœud de {node} se place sur le côté d'un bloc"
+container_protected = "Ce conteneur est protégé"
+chunk_full = "Ce chunk contient déjà {count} nœuds"
+cap = "Tu possèdes déjà ta limite de {count} nœuds"
+loading = "Les nœuds d'ici sont encore en chargement"
+unavailable = "Ta liste de golems n'est pas encore prête"
+filter_added = "{item} ajouté au filtre"
+filter_removed = "{item} retiré du filtre"
+filter_full = "Ce filtre contient au plus {count} entrées"
+priority_locked = "La priorité des nœuds se débloque au niveau {level} de Tissage de nœuds"
+removed = "Nœud de {node} retiré"
+remove_failed = "Ce nœud ne peut pas être retiré pour l'instant"
+not_owner = "Ce nœud appartient à un autre joueur"
+gone = "Ce nœud n'est plus ici"
+tag_prompt = "Tape un tag d'objet comme #logs dans le chat"
+tag_invalid = "{tag} n'est pas un tag d'objet"
+tag_cancelled = "Saisie du tag annulée"
+tag_timed_out = "Saisie du tag expirée"
+
+[golemancy.node_gui]
+position = "Bloc : {x}, {y}, {z}"
+area = "Rayon {axis} : {radius}"
+area_lore = "Clic gauche : agrandir, clic droit : réduire"
+area_cap = "Rayon maximal : {radius}"
+priority = "Priorité : {priority}"
+redstone = "Redstone : {mode}"
+redstone_ignore = "Ignorée"
+redstone_powered = "Fonctionne uniquement avec un signal de redstone"
+redstone_unpowered = "Fonctionne uniquement sans signal de redstone"
+locked = "Se débloque au niveau {level} de Tissage de nœuds"
+whitelist = "Liste blanche"
+whitelist_lore = "Les golems n'utilisent que les objets correspondants"
+blacklist = "Liste noire"
+blacklist_lore = "Les golems utilisent tout sauf les objets correspondants"
+empty_filter = "Un filtre vide accepte tous les objets"
+toggle = "Cliquez pour basculer"
+filter_empty = "Emplacement de filtre vide"
+filter_set = "Cliquez avec un objet pour le définir"
+filter_clear = "Clic droit pour vider"
+filter_locked = "Emplacement de filtre verrouillé"
+filter_locked_lore = "D'autres niveaux de Tissage de nœuds débloquent cet emplacement"
+tag = "Tag d'objet"
+tag_add = "Ajouter un tag"
+tag_add_lore = "Cliquez, puis tapez un tag d'objet comme #logs dans le chat"
+
+[golemancy.node_weaving]
+name = "Tissage de nœuds"
+description = "Accroupis-toi et fais un clic droit sur la face d'un bloc avec un nœud en main pour l'y ancrer et diriger le travail de tes golems."
+lore1 = "Nœuds que tu peux posséder"
+lore2 = "Rayon de la zone de travail en blocs"
+lore3 = "Emplacements de filtre"
+lore4 = "Priorité de nœud 1-5"
+lore5 = "Contrôle par redstone"
+lore6 = "Filtres liste noire et tags"
+lore = ["Nœuds que tu peux posséder", "Rayon de la zone de travail en blocs", "Emplacements de filtre", "Priorité de nœud 1-5", "Contrôle par redstone", "Filtres liste noire et tags"]
+
+[golemancy.plinth]
+loading = "Ce socle est encore en cours de chargement"
+occupied = "Ce piédestal porte déjà un objet"
+protected = "Tu ne peux pas utiliser ce socle ici"
+busy = "Une infusion est déjà en cours"
+no_recipe = "Ces objets ne forment pas une infusion"
+locked = "Tu n'as pas encore appris cette infusion"
+levels = "Cette infusion coûte {levels} niveaux"
+interrupted = "L'infusion a été interrompue"
+complete = "L'infusion est terminée"
+failed = "L'infusion a échoué et tes niveaux t'ont été rendus"
+
 [herbalism.growth_aura]
 name = "Aura de Croissance"
 description = "Fait pousser la végétation autour de vous dans une aura."
@@ -4519,6 +5208,10 @@ vault_unavailable_fallback = "Économie Vault indisponible — l'apprentissage p
 vault_insufficient_funds = "Vous n'avez pas assez de monnaie Vault pour apprendre cette Adaptation."
 vault_transaction_failed = "La transaction économique Vault a échoué ; votre progression n'a pas été modifiée."
 power_drain = "Coût en Puissance : {power}"
+requirement_level = "{adaptation} niv. {level}"
+requires = "Nécessite : {requirement}"
+requirements_missing = "Apprenez {requirements} avant d'apprendre {adaptation}."
+required_by_dependents = "Oubliez d'abord {dependents} ; ils nécessitent {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}EXP {nextLevel})"
@@ -5358,6 +6051,11 @@ name = "Cinétique"
 icon = "⚒"
 description = "Le mouvement est synonyme de puissance. Écrasez vos ennemis à la masse, chargez à la lance et pliez l'élan lui-même : rebonds, propulsions, lévitation et chutes d'enclumes bien visées nourrissent votre maîtrise."
 
+[skill.golemancy]
+name = "Golémancie"
+icon = "⚙"
+description = "Progressez en construisant, réparant et entretenant des golems, puis animez-les pour qu'ils combattent et travaillent à vos côtés."
+
 [snippets.gui]
 level = "Niveau"
 level_value = "Niveau {level}"
@@ -5947,7 +6645,7 @@ assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it = "At
 boost_global_experience_gain = "Augmenter le gain d'expérience global."
 boost_target_player_experience_gain = "Augmenter le gain d'expérience du joueur cible."
 bypass_adapt_use_permission_checks_when_opening = "Contourner la vérification de permission adapt.use à l'ouverture"
-bypass_costs_and_restrictions = "Contourner les coûts et les restrictions"
+bypass_costs_and_permanence_prerequisites_still_apply = "Ignorer les coûts et la permanence ; les prérequis s'appliquent toujours"
 bypass_power_knowledge_and_permanence_checks = "Contourner les vérifications de Puissance, de Connaissance et de permanence"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "Effacer toutes les données d'Exploration (biomes, créatures, nourritures, objets, recettes, etc.)"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "Effacer toutes les données du joueur (EXP, Connaissance, Adaptations, statistiques, découvertes, progrès, sagesse)"
@@ -5992,6 +6690,12 @@ toggle_verbose_mode = "Basculer le mode verbeux"
 top_results_to_print = "Nombre de premiers résultats à afficher"
 true_to_learn_false_to_unlearn = "true pour apprendre, false pour oublier"
 unlearn_all_adaptations_across_all_skill_lines = "Oublier toutes les Adaptations dans toutes les Compétences"
+golem_roster_and_admin_tools = "Registre des golems et outils d'administration"
+open_your_golem_roster = "Ouvrir votre registre des golems"
+list_a_player_s_golems = "Lister les golems d'un joueur"
+release_one_of_a_player_s_golems = "Libérer l'un des golems d'un joueur"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Identifiant du golem, ou assez de ses premiers caractères pour désigner un seul golem"
+wake_a_player_s_loaded_golems = "Réveiller les golems chargés d'un joueur"
 
 [command.runtime]
 missing_permission = "Il vous manque la permission '{permission}'."
@@ -6034,6 +6738,8 @@ vault_insufficient_funds = "Le joueur n'a pas assez de monnaie Vault."
 vault_transaction_failed = "La transaction économique Vault a échoué ; aucune progression n'a été modifiée."
 set_adaptation_level = "{adaptation} définie au niveau {level} pour {player}."
 permanent_adaptation_lower = "{adaptation} est permanente et ne peut pas être abaissée sans force=true."
+requirements_missing = "{player} a besoin de {requirements} avant d'apprendre {adaptation}."
+required_by_dependents = "{adaptation} est requise par {dependents} pour {player} ; utilisez force=true pour les retirer aussi."
 adapt_server_not_ready = "Le serveur Adapt n'est pas encore prêt. Réessayez dans quelques secondes."
 target_dispatch_failed = "Impossible de planifier l'opération sur le joueur cible. Réessayez."
 cleared_all = "Toutes les données ont été effacées pour {player}."
@@ -6072,6 +6778,16 @@ perf_timing_budget = "Budget temporel des vérifications de capacités : {percen
 perf_ticker_window = "Fenêtre du ticker : {window}ms"
 perf_no_metrics = "Aucune métrique de tick collectée pour le moment."
 perf_reset = "Télémétrie du ticker et des capacités réinitialisée."
+golem_list_header = "{player} possède {count} golems :"
+golem_list_header_one = "{player} possède 1 golem :"
+golem_list_empty = "{player} ne possède aucun golem."
+golem_list_entry = "{id} : {golem}, {status}. {location}"
+golem_not_found = "{player} n'a aucun golem dont l'identifiant commence par {id}."
+golem_ambiguous = "Plusieurs golems de {player} ont un identifiant qui commence par {id}. Saisissez-en davantage."
+golem_released = "Golem {id} libéré du registre de {player}."
+golem_release_failed = "Le golem {id} de {player} n'a pas pu être libéré. Réessayez."
+golem_release_active_unloaded = "Le golem {id} de {player} est actif dans un chunk non chargé. Chargez son chunk pour le libérer, ou libérez-le une fois qu'il apparaît comme disparu."
+golems_woken = "Réveil des golems chargés de {player} : {count}."
 
 [language.menu]
 your_language = "Votre langue"
@@ -6705,6 +7421,29 @@ purple = "Violet"
 always = "Toujours"
 sneak = "S'accroupir pour activer"
 suppress = "S'accroupir pour désactiver"
+
+[golemancy.preferences]
+absorb_orbs = "Absorber les orbes d'expérience"
+action_bar_only = "Barre d'action uniquement"
+any_item = "Tout objet de Golémancie"
+aura = "Aura"
+chime_and_particles = "Carillon et particules"
+crook_only = "Houlette uniquement"
+hidden = "Masquées"
+intercept = "Interception"
+leaf_sweep = "Balayage des feuilles"
+magnet = "Aimant"
+node_reveal = "Affichage des nœuds"
+obey_overseer = "Les serviteurs obéissent au Surveillant"
+retaliate_players = "Représailles contre les joueurs"
+shown = "Affichées"
+signal_feedback = "Retour des signaux"
+static_overdrive = "Surcharge statique"
+status_labels = "Étiquettes d'état des golems"
+sweeping_fists = "Coups balayants"
+tending = "Entretien"
+tilling = "Labour"
+work_area_outline = "Contour de la zone de travail"
 
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Attraction des abeilles"

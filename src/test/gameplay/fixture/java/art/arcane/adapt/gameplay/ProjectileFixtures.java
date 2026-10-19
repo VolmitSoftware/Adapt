@@ -1,5 +1,6 @@
 package art.arcane.adapt.gameplay;
 
+import art.arcane.adapt.gameplay.demo.DemoScope;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
@@ -162,7 +163,7 @@ public final class ProjectileFixtures implements Listener {
     public void onImpact(ProjectileHitEvent event) {
         Projectile projectile = event.getEntity();
         if (!(projectile.getShooter() instanceof Player player)
-                || !player.getName().startsWith("AQA")
+                || !DemoScope.ownsDemoState(player.getName())
                 || !player.getWorld().getName().startsWith("adapt_gameplay_")) {
             return;
         }

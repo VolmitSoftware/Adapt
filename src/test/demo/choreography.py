@@ -1,6 +1,10 @@
+import functools
 import json
+import math
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Callable
 
 VERBS: frozenset[str] = frozenset({'look', 'lookAt', 'keys', 'press', 'tap', 'click', 'wait', 'waitFor', 'command', 'hit', 'slot', 'window',
                                    'anvilName'})
@@ -21,6 +25,38 @@ WORLD_FIELD: str = 'world'
 OVERWORLD: str = 'iris:adapt_demo'
 NETHER: str = 'minecraft:the_nether'
 WORLDS: tuple[str, ...] = (OVERWORLD, NETHER)
+SHOWCASE_FIELD: str = 'showcase'
+ANGLES: tuple[str, ...] = ('pov', 'observer')
+STILL_NAME: re.Pattern[str] = re.compile(r'[a-z0-9]+(?:-[a-z0-9]+)*')
+ALLOW_REASONS: tuple[str, ...] = ('bind-ritual', 'frozen-gui')
+ADAPTATION_HEADING_END: re.Pattern[str] = re.compile(r'\(`([^`]+)`\)$')
+
+
+@dataclass(frozen=True)
+class Prerequisite:
+    skill: str
+    name: str
+    level: int
+
+
+@dataclass(frozen=True)
+class Showcase:
+    title: str
+    heading: str
+
+
+@dataclass(frozen=True)
+class Still:
+    angle: str
+    at: float
+    name: str
+
+
+@dataclass(frozen=True)
+class AllowClose:
+    start: float
+    end: float
+    reason: str
 
 
 @dataclass(frozen=True)
@@ -40,6 +76,10 @@ class Entry:
     opponent: bool = False
     pov_capture: bool = False
     plugins: tuple[str, ...] = ()
+    prerequisites: tuple[Prerequisite, ...] = ()
+    showcase: Showcase | None = None
+    stills: tuple[Still, ...] = ()
+    allow_close: tuple[AllowClose, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -53,46 +93,115 @@ def adaptation_ids(root: Path, skill: str) -> set[str]:
     return {entry['name'] for entry in data['adaptations'] if entry['skill'] == skill}
 
 
+def adaptation_skills(root: Path) -> dict[str, str]:
+    data: dict = json.loads((root / 'src' / 'test' / 'gameplay' / 'adaptation-matrix.json').read_text())
+    return {entry['name']: entry['skill'] for entry in data['adaptations']}
+
+
+def prerequisite_bodies(identifier: str, body: dict) -> list[dict]:
+    raw: object = body.get('prerequisites', [])
+    if not isinstance(raw, list) or not all(isinstance(item, dict) and isinstance(item.get('name'), str) and integer(item.get('level'))
+                                            for item in raw):
+        raise ValueError(identifier + ': prerequisites must be a list of {"name": <adaptation id>, "level": <integer>} objects')
+    return raw
+
+
+def catalog_ids(root: Path) -> frozenset[str]:
+    return frozenset(adaptation_skills(root))
+
+
+def still_bodies(identifier: str, body: dict) -> list[dict]:
+    raw: object = body.get('stills', [])
+    if not isinstance(raw, list) or not all(isinstance(item, dict) and isinstance(item.get('angle'), str) and isinstance(item.get('name'), str)
+                                            and isinstance(item.get('at'), (int, float)) and not isinstance(item.get('at'), bool) for item in raw):
+        raise ValueError(identifier + ': stills must be a list of {"angle": <angle>, "at": <seconds>, "name": <name>} objects')
+    return raw
+
+
+def allow_close_bodies(identifier: str, body: dict) -> list[dict]:
+    raw: object = body.get('allowClose', [])
+    if not isinstance(raw, list) or not all(isinstance(item, dict) and number(item.get('from')) and number(item.get('to')) and isinstance(item.get('reason'), str)
+                                            for item in raw):
+        raise ValueError(identifier + ': allowClose must be a list of {"from": <seconds>, "to": <seconds>, "reason": <reason>} objects')
+    return raw
+
+
+def number(value: object) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def showcase_bodies(raw: object) -> list[dict]:
+    if not isinstance(raw, list) or not all(isinstance(item, dict) and isinstance(item.get('id'), str) for item in raw):
+        raise ValueError(SHOWCASE_FIELD + ' must be a list of objects that each have an "id" text')
+    return raw
+
+
+def build_entry(identifier: str, body: dict, skills: Callable[[], dict[str, str]], showcase: Showcase | None = None) -> Entry:
+    required: list[dict] = prerequisite_bodies(identifier, body)
+    prerequisites: tuple[Prerequisite, ...] = tuple(Prerequisite(skill=skills().get(item['name'], ''), name=item['name'], level=item['level'])
+                                                    for item in required)
+    expect: dict = body.get('expect', {})
+    plugins: object = body.get('plugins', [])
+    if not isinstance(plugins, list) or not all(isinstance(plugin, str) for plugin in plugins):
+        raise ValueError(identifier + ': plugins must be a list of names')
+    return Entry(
+        id=identifier,
+        set=body.get('set', ''),
+        level=int(body.get('level', 0)),
+        pre=list(body.get('pre', [])),
+        beats=list(body.get('beats', [])),
+        expect_sound=expect.get('sound'),
+        expect_particle=expect.get('particle'),
+        expect_visual=expect.get('visual'),
+        max_ticks=int(body.get('maxTicks', 400)),
+        camera=body.get('camera'),
+        prelude=list(body.get('prelude', [])),
+        skip=str(body.get('skip', '')),
+        opponent=body.get('opponent') is True,
+        pov_capture=body.get('povCapture') is True,
+        plugins=tuple(plugins),
+        prerequisites=prerequisites,
+        showcase=showcase,
+        stills=tuple(Still(angle=item['angle'], at=float(item['at']), name=item['name']) for item in still_bodies(identifier, body)),
+        allow_close=tuple(AllowClose(start=float(item['from']), end=float(item['to']), reason=item['reason']) for item in allow_close_bodies(identifier, body)),
+    )
+
+
 def load_skill(root: Path, skill: str) -> Sheet:
     path: Path = root / 'src' / 'test' / 'demo' / 'sheets' / (skill + '.json')
     raw: dict = json.loads(path.read_text())
     world: object = raw.pop(WORLD_FIELD, OVERWORLD)
-    entries: dict[str, Entry] = {}
-    for identifier, body in raw.items():
-        expect: dict = body.get('expect', {})
-        plugins: object = body.get('plugins', [])
-        if not isinstance(plugins, list) or not all(isinstance(plugin, str) for plugin in plugins):
-            raise ValueError(identifier + ': plugins must be a list of names')
-        entries[identifier] = Entry(
-            id=identifier,
-            set=body.get('set', ''),
-            level=int(body.get('level', 0)),
-            pre=list(body.get('pre', [])),
-            beats=list(body.get('beats', [])),
-            expect_sound=expect.get('sound'),
-            expect_particle=expect.get('particle'),
-            expect_visual=expect.get('visual'),
-            max_ticks=int(body.get('maxTicks', 400)),
-            camera=body.get('camera'),
-            prelude=list(body.get('prelude', [])),
-            skip=str(body.get('skip', '')),
-            opponent=body.get('opponent') is True,
-            pov_capture=body.get('povCapture') is True,
-            plugins=tuple(plugins),
-        )
+    showcase: list[dict] = showcase_bodies(raw.pop(SHOWCASE_FIELD, []))
+    skills: Callable[[], dict[str, str]] = functools.cache(functools.partial(adaptation_skills, root))
+    entries: dict[str, Entry] = {identifier: build_entry(identifier, body, skills) for identifier, body in raw.items()}
+    for item in showcase:
+        identifier: str = item['id']
+        if identifier in entries:
+            raise ValueError(identifier + ': showcase id repeats another id of the sheet')
+        body: dict = {key: value for key, value in item.items() if key not in ('id', 'title', 'heading')}
+        entries[identifier] = build_entry(identifier, body, skills, Showcase(title=str(item.get('title', '')), heading=str(item.get('heading', ''))))
     return Sheet(world=world if isinstance(world, str) else json.dumps(world), entries=entries)
 
 
-def validate(entries: dict[str, Entry], matrix_ids: set[str]) -> list[str]:
+def showcase_entries(entries: dict[str, Entry]) -> list[Entry]:
+    return [entry for entry in entries.values() if entry.showcase is not None]
+
+
+def validate(entries: dict[str, Entry], matrix_ids: set[str], catalog: frozenset[str] = frozenset()) -> list[str]:
     problems: list[str] = []
-    for missing in sorted(matrix_ids - set(entries)):
+    adaptations: set[str] = {identifier for identifier, entry in entries.items() if entry.showcase is None}
+    for missing in sorted(matrix_ids - adaptations):
         problems.append('missing choreography for ' + missing)
-    for extra in sorted(set(entries) - matrix_ids):
+    for extra in sorted(adaptations - matrix_ids):
         problems.append('choreography for unknown adaptation ' + extra)
     for identifier, entry in entries.items():
+        problems.extend(identifier + ': ' + problem for problem in showcase_problems(entry, matrix_ids | catalog, matrix_ids))
+        problems.extend(identifier + ': ' + problem for problem in still_problems(entry))
+        problems.extend(identifier + ': ' + problem for problem in allow_close_problems(entry))
         for plugin in entry.plugins:
             if plugin != 'Gloss':
                 problems.append(identifier + ': unsupported plugin ' + plugin)
+        problems.extend(identifier + ': ' + problem for problem in prerequisite_problems(entry))
         if entry.skip:
             if entry.beats:
                 problems.append(identifier + ': skip cannot be combined with beats')
@@ -109,6 +218,64 @@ def validate(entries: dict[str, Entry], matrix_ids: set[str]) -> list[str]:
             problems.extend(identifier + ': prelude ' + str(index) + ' ' + problem for problem in beat_problems(beat, entry.opponent))
         for index, beat in enumerate(entry.beats):
             problems.extend(identifier + ': beat ' + str(index) + ' ' + problem for problem in beat_problems(beat, entry.opponent))
+    return problems
+
+
+def showcase_problems(entry: Entry, taken: frozenset[str] | set[str], adaptations: frozenset[str] | set[str] = frozenset()) -> list[str]:
+    showcase: Showcase | None = entry.showcase
+    if showcase is None:
+        return []
+    problems: list[str] = []
+    if entry.id in taken:
+        problems.append('showcase id is also an adaptation id')
+    if not STILL_NAME.fullmatch(entry.id):
+        problems.append('showcase id must be lowercase letters, digits and single hyphens')
+    if not showcase.title.strip():
+        problems.append('showcase title is required')
+    if not showcase.heading:
+        problems.append('showcase heading is required')
+    elif showcase.heading != showcase.heading.strip() or showcase.heading.startswith('#') or '\n' in showcase.heading:
+        problems.append('showcase heading must be the exact heading text without the leading hashes')
+    elif (named := ADAPTATION_HEADING_END.search(showcase.heading)) is not None and named.group(1) not in adaptations:
+        problems.append('showcase heading must not be an adaptation heading')
+    return problems
+
+
+def still_problems(entry: Entry) -> list[str]:
+    problems: list[str] = []
+    seen: set[str] = set()
+    for still in entry.stills:
+        if still.angle not in ANGLES:
+            problems.append('still ' + still.name + ' angle must be ' + ' or '.join(ANGLES) + ', not ' + still.angle)
+        if not math.isfinite(still.at) or still.at < 0:
+            problems.append('still ' + still.name + ' at must be 0 or more seconds')
+        if not STILL_NAME.fullmatch(still.name):
+            problems.append('still name ' + still.name + ' must be lowercase letters, digits and single hyphens')
+        if still.name in seen:
+            problems.append('still name ' + still.name + ' is used twice')
+        seen.add(still.name)
+    return problems
+
+
+def allow_close_problems(entry: Entry) -> list[str]:
+    problems: list[str] = []
+    for window in entry.allow_close:
+        if window.reason not in ALLOW_REASONS:
+            problems.append('allowClose reason ' + window.reason + ' must be ' + ' or '.join(ALLOW_REASONS))
+        if not (math.isfinite(window.start) and math.isfinite(window.end)) or window.start < 0 or window.end <= window.start:
+            problems.append('allowClose window ' + format(window.start, 'g') + ' to ' + format(window.end, 'g') + ' must run forward from 0 or more seconds')
+    return problems
+
+
+def prerequisite_problems(entry: Entry) -> list[str]:
+    problems: list[str] = []
+    for prerequisite in entry.prerequisites:
+        if not prerequisite.skill:
+            problems.append('prerequisite ' + prerequisite.name + ' is not a catalog adaptation')
+        if prerequisite.name == entry.id:
+            problems.append('prerequisite ' + prerequisite.name + ' is the entry itself')
+        if prerequisite.level < 1:
+            problems.append('prerequisite ' + prerequisite.name + ' level must be at least 1')
     return problems
 
 

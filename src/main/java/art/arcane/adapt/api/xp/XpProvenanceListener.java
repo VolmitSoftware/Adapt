@@ -20,6 +20,7 @@ package art.arcane.adapt.api.xp;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.BlockState;
@@ -30,10 +31,12 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -57,13 +60,7 @@ public class XpProvenanceListener implements Listener {
     if (ProtectionEventProbe.isActive(e)) {
       return;
     }
-    if (!AdaptConfig.get().getXpIntegrity().isProvenanceEnabled()) {
-      return;
-    }
-
-    if (XpProvenance.isPlayerPlaced(e.getBlock())) {
-      XpProvenance.recordPlayerPlacedBreak(e.getBlock());
-    }
+    XpProvenance.recordBreak(e.getBlock());
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -76,6 +73,23 @@ public class XpProvenanceListener implements Listener {
     int limit = Math.min(blocks.size(), FERTILIZE_BLOCK_CAP);
     for (int i = 0; i < limit; i++) {
       XpProvenance.recordBonemeal(blocks.get(i).getBlock());
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(StructureGrowEvent e) {
+    Location sapling = e.getLocation();
+    for (BlockState grown : e.getBlocks()) {
+      if (XpProvenance.resetsOnGrowth(grown.getType()) || atSapling(grown, sapling)) {
+        XpProvenance.forgetPlacement(grown.getBlock());
+      }
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(BlockGrowEvent e) {
+    if (e.getBlock().getType() != e.getNewState().getType()) {
+      XpProvenance.forgetPlacement(e.getBlock());
     }
   }
 
@@ -121,5 +135,9 @@ public class XpProvenanceListener implements Listener {
     } else {
       XpProvenance.clearPlacementRecord(e.getBlock());
     }
+  }
+
+  private static boolean atSapling(BlockState grown, Location sapling) {
+    return grown.getX() == sapling.getBlockX() && grown.getY() == sapling.getBlockY() && grown.getZ() == sapling.getBlockZ();
   }
 }

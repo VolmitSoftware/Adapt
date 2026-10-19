@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static art.arcane.adapt.Adapt.instance;
 
@@ -38,6 +39,7 @@ public record CustomModel(Material material, int model,
                           NamespacedKey modelKey, String headTexture) {
   public static final NamespacedKey EMPTY_KEY = NamespacedKey.minecraft("empty");
   private static final Map<String, URL> SKIN_URLS = new ConcurrentHashMap<>();
+  private static final AtomicLong GENERATION = new AtomicLong();
   private static volatile UpdateChecker updateChecker = null;
 
   public CustomModel {
@@ -87,19 +89,40 @@ public record CustomModel(Material material, int model,
     return checker().get(fallback, path);
   }
 
+  public static long generation() {
+    return GENERATION.get();
+  }
+
   public static void clear() {
     updateChecker = null;
+    GENERATION.incrementAndGet();
   }
 
   public static boolean reloadFromDisk() {
-    return checker().reloadFromDisk(false);
+    try {
+      return checker().reloadFromDisk(false);
+    } finally {
+      GENERATION.incrementAndGet();
+    }
   }
 
   public static boolean reloadFromDiskPassive() {
-    return passiveChecker().reloadFromDisk(true);
+    try {
+      return passiveChecker().reloadFromDisk(true);
+    } finally {
+      GENERATION.incrementAndGet();
+    }
   }
 
   public static boolean reloadSnapshot(String raw, File sourceFile) {
+    try {
+      return applySnapshot(raw, sourceFile);
+    } finally {
+      GENERATION.incrementAndGet();
+    }
+  }
+
+  private static boolean applySnapshot(String raw, File sourceFile) {
     UpdateChecker current = updateChecker;
     if (current == null) {
       synchronized (CustomModel.class) {

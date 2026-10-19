@@ -3053,6 +3053,70 @@ description = "Zet beweging in kracht."
 title = "Ontvangst van Newton"
 description = "Dood een menigte met je eigen vallende aambeeld. 8 of meer blokken."
 
+[advancement.challenge_golemancy_built_10]
+title = "Klei en vonk"
+description = "Bouw 10 golems"
+
+[advancement.challenge_golemancy_built_100]
+title = "Gieterij der reuzen"
+description = "Bouw 100 golems"
+
+[advancement.challenge_golemancy_bound_5]
+title = "Klein gevolg"
+description = "Bind 5 golems"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Animuslegioen"
+description = "Bind 25 golems"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Stenen schildwachten"
+description = "Je gebonden golems doden 50 vijandige wezens"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Levend bolwerk"
+description = "Je gebonden golems doden 500 vijandige wezens"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Onbreekbare schare"
+description = "Je gebonden golems doden 5.000 vijandige wezens"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Dienaar van de winter"
+description = "Bind een vorstgolem"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Kopergroene band"
+description = "Bind een kopergolem"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "IJzeren eed"
+description = "Bind een ijzergolem"
+
+[advancement.challenge_golemancy_tasks_1000]
+title = "Bezige handen"
+description = "Je golems voltooien 1.000 klussen"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "Onvermoeibare werkplaats"
+description = "Je golems voltooien 25.000 klussen"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "Gestage dragers"
+description = "Je golems leveren 10.000 voorwerpen af"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "Eindeloze karavaan"
+description = "Je golems leveren 250.000 voorwerpen af"
+
+[advancement.challenge_golemancy_infusions_10]
+title = "Leerling van de sokkel"
+description = "Voltooi 10 infusies op een animussokkel"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Meester-infuseur"
+description = "Voltooi 100 infusies op een animussokkel"
+
 [agility.armor_up]
 name = "Pantser-Up"
 description = "Krijg meer pantser hoe langer je sprint!"
@@ -4240,6 +4304,631 @@ lore1 = "Bonus kans op drop"
 lore2 = "x niveaus van haast tijdens het graven nat"
 lore = ["Bonus kans op drop", "x niveaus van haast tijdens het graven nat"]
 
+[golemancy.item.crook]
+name = "Staf van de ambachtsmeester"
+lore = "Beveelt gebonden golems en de knooppunten waar ze werken"
+
+[golemancy.item.blank_core]
+name = "Lege animuskern"
+lore = "Bindt een golem als metgezel of wordt verwerkt tot een rolkern"
+
+[golemancy.item.core]
+name = "{role}-kern"
+lore = "Bindt een golem aan de rol {role}"
+
+[golemancy.item.blank_node]
+name = "Leeg knooppunt"
+lore = "Wordt verwerkt tot een knooppunt van elk type"
+
+[golemancy.item.node]
+name = "{node}-knooppunt"
+lore = "Hecht zich aan een blokzijde om golemwerk te sturen"
+
+[golemancy.item.blank_rune]
+name = "Lege rune"
+lore = "Wordt op een animussokkel tot een rune doordrenkt"
+
+[golemancy.item.rune]
+name = "{aspect}-rune"
+tier = "Rang {tier}"
+lore = "Wordt in een golem gezet om hem te versterken"
+
+[golemancy.item.dormant_golem]
+name = "Sluimerende golem"
+core = "Kern: {core}"
+runes = "Runen: {runes}"
+health = "Gezondheid: {health}/{maximum}"
+lore = "Plaats om deze golem te wekken"
+
+[golemancy.item.shattered_core]
+name = "Verbrijzelde kern"
+lore = "Herbouwt een gevallen golem met zijn verbeteringen"
+
+[golemancy.item.masterwork_heart]
+name = "Meesterwerkhart"
+lore = "Wijst een meesterwerkgolem aan"
+
+[golemancy.role]
+blank = "Metgezel"
+guardian = "Beschermer"
+gatherer = "Verzamelaar"
+harvester = "Oogster"
+lumber = "Houthakker"
+breaker = "Breker"
+rancher = "Veehoeder"
+sorter = "Sorteerder"
+angler = "Visser"
+
+[golemancy.node]
+guard = "Bewaking"
+collection = "Verzameling"
+deposit = "Opslag"
+harvest = "Oogst"
+lumber = "Houtkap"
+breaker = "Mijnbouw"
+pasture = "Weide"
+input = "Invoer"
+filter = "Filter"
+fishing = "Visserij"
+
+[golemancy.aspect]
+swiftness = "Snelheid"
+might = "Kracht"
+ember = "Sintel"
+tide = "Getij"
+order = "Orde"
+entropy = "Entropie"
+bulwark = "Bolwerk"
+
+[golemancy.body]
+frost = "Vorst"
+copper = "Koper"
+iron = "IJzer"
+bone = "Bot"
+
+[golemancy.golem]
+name = "{body}golem van {owner}"
+
+[golemancy.mode]
+work = "Werken"
+follow = "Volgen"
+stay = "Blijven"
+home = "Naar huis"
+
+[golemancy.signal]
+follow = "Volgen"
+hold = "Vasthouden"
+home = "Naar huis"
+work = "Werken"
+sic = "Pak"
+
+[golemancy.channel]
+none = "Geen"
+white = "Wit"
+orange = "Oranje"
+magenta = "Magenta"
+light_blue = "Lichtblauw"
+yellow = "Geel"
+lime = "Lichtgroen"
+pink = "Roze"
+gray = "Grijs"
+light_gray = "Lichtgrijs"
+cyan = "Cyaan"
+purple = "Paars"
+blue = "Blauw"
+brown = "Bruin"
+green = "Groen"
+red = "Rood"
+black = "Zwart"
+
+[golemancy.status]
+active = "Actief"
+packed = "Ingepakt"
+shattered = "Verbrijzeld"
+missing = "Vermist"
+
+[golemancy.gui]
+title = "{body}golem"
+health = "Gezondheid: {health}/{maximum}"
+dormant = "Sluimerend"
+mode = "Modus: {mode}"
+channel = "Kanaal: {channel}"
+cycle = "Klik met links voor volgende, met rechts voor vorige"
+set_home = "Thuis hier instellen"
+home = "Thuis: {x}, {y}, {z}"
+link_chest = "Thuiskist koppelen"
+home_chest = "Thuiskist: {x}, {y}, {z}"
+no_home_chest = "Geen thuiskist gekoppeld"
+link_hint = "Klik en klik daarna met de staf met rechts op een opslagblok"
+rune_locked = "Vergrendeld runeslot"
+rune_unlock_level = "Ontgrendeld bij Runenversterkingen niveau {level}"
+rune_empty = "Leeg runeslot"
+rune_empty_lore = "Pak een rune op en klik hier om hem te plaatsen"
+rune_remove = "Klik om deze rune terug te nemen"
+rune_active = "Actief"
+rune_over_tier = "Inert: rang {tier} vereist Runenversterkingen niveau {level}"
+rune_slot_locked = "Inert: dit slot vereist Runenversterkingen niveau {level}"
+rune_blocked = "Inert: {aspect}-runen werken niet in een {body}golem"
+rune_duplicate = "Inert: deze golem heeft al een {aspect}-rune"
+rune_unpowered = "Inert: je Runenversterkingen zijn niet genoeg voor deze rune"
+channels = "Kanalen: {channels}"
+channels_lore = "Klik om tot {count} kanalen te kiezen"
+channels_title = "Kanalen kiezen"
+channel_selected = "Geselecteerd"
+channel_select = "Klik om te selecteren"
+channels_clear = "Kanalen wissen"
+back = "Terug"
+take = "Klik om te pakken"
+more_carried = "+{count} meer"
+stats = "Statistieken"
+kills = "Gedood: {value}"
+damage = "Toegebrachte schade: {value}"
+tasks = "Voltooide taken: {value}"
+items_moved = "Verplaatste voorwerpen: {value}"
+release = "Vrijlaten"
+release_lore = "Maakt er weer een gewone golem van en laat de kern, runen, gedragen voorwerpen en een eventuele tweede kern of Meesterwerkhart vallen"
+release_confirm = "Deze golem vrijlaten?"
+snow_trail_on = "Sneeuwspoor: aan"
+snow_trail_off = "Sneeuwspoor: uit"
+snow_trail_lore = "Klik om de sneeuw die deze golem achterlaat aan of uit te zetten"
+colossus_on = "Kolossusvorm: aan"
+colossus_off = "Kolossusvorm: uit"
+colossus_lore = "Klik om volle grootte voor gevechten aan of uit te zetten; een gegroeide golem werkt niet"
+pack = "Inpakken"
+pack_lore = "Perst deze golem samen tot een Sluimerende golem-blok dat je kunt plaatsen om hem te wekken"
+
+[golemancy.roster]
+title = "Golemlijst"
+empty = "Je hebt geen golems"
+entry = "{body}golem ({core})"
+location = "{world}: {x}, {y}, {z}"
+last_seen = "Laatst gezien in {world} bij {x}, {z}"
+status = "Staat: {status}"
+locate = "Klik met links om te lokaliseren"
+release = "Shift + rechtsklik om vrij te laten"
+release_confirm = "Deze vermiste golem voorgoed vrijlaten?"
+release_shattered_confirm = "Deze verbrijzelde golem voorgoed vrijlaten? Zijn Verbrijzelde kern brokkelt af."
+release_packed_confirm = "Deze ingepakte golem voorgoed vrijlaten? Zijn Sluimerende golem brokkelt af."
+recall = "Klik met rechts om hem naar je inventaris terug te roepen"
+crook_channel = "Stafkanaal: {channel}"
+crook_channel_lore = "Klik om te kiezen welke golems je staf seint"
+crook_channel_title = "Stafkanaal"
+crook_channel_all = "Alle golems"
+
+[golemancy.message]
+home_set = "Thuis ingesteld op {x}, {y}, {z}"
+link_armed = "Klik met de staf met rechts op een opslagblok om het te koppelen"
+chest_linked = "Thuiskist gekoppeld op {x}, {y}, {z}"
+chest_denied = "Dat opslagblok is beschermd"
+chest_out_of_reach = "Dat opslagblok moet binnen {radius} blokken van het thuis van de golem staan"
+released = "Golem vrijgelaten"
+release_failed = "Deze golem kan nu niet worden vrijgelaten"
+gone = "Die golem is hier niet meer"
+colossus_no_room = "Er is hier niet genoeg ruimte om deze golem te laten groeien"
+colossus_busy = "Deze golem verandert nog van grootte"
+rune_slotted = "{aspect}-rune geplaatst"
+rune_removed = "{aspect}-rune teruggenomen"
+rune_needed = "Pak eerst een rune op"
+rune_no_slot = "Deze golem heeft geen vrij runeslot"
+rune_duplicate = "Deze golem heeft al een {aspect}-rune"
+rune_blocked = "{aspect}-runen werken niet in een {body}golem"
+channels_full = "Deze golem kan maar {count} kanalen gebruiken"
+crook_channel = "Je staf seint nu: {channel}"
+crook_needed = "Houd je staf in je hoofdhand om het kanaal in te stellen"
+
+[golemancy.binding]
+busy = "Er loopt al een bindingsritueel"
+already_bound = "Die golem is al gebonden"
+village = "Alleen golems die spelers hebben gebouwd kunnen worden gebonden"
+builder = "Alleen de speler die deze golem heeft gebouwd kan hem nu binden"
+body_locked = "Je kunt nog geen {body}golems binden"
+core_not_allowed = "Een {body}golem kan geen {core}-kern aannemen"
+core_locked = "Je hebt nog niet geleerd {core}-kernen te binden"
+protected = "Je kunt hier geen golems binden"
+unavailable = "Je golemlijst is nog niet klaar"
+golem_cap = "Je bezit al je maximum van {count} golems"
+chunk_cap = "In dit gebied staan al {count} gebonden golems"
+levels = "Deze golem binden kost {levels} levels"
+interrupted = "De binding is onderbroken"
+bound = "Je {body}golem is nu aan je gebonden"
+
+[golemancy.animus_binding]
+name = "Animusbinding"
+description = "Sluip en klik met rechts op een golem terwijl je een animuskern vasthoudt om hem als metgezel aan je te binden."
+lore1 = "Golems die je kunt bezitten"
+lore2 = "Seconden per bindingsritueel"
+lore3 = "Levels om een vorstgolem te binden"
+lore4 = "Levels om een kopergolem te binden"
+lore5 = "Levels om een ijzergolem te binden"
+lore = ["Golems die je kunt bezitten", "Seconden per bindingsritueel", "Levels om een vorstgolem te binden", "Levels om een kopergolem te binden", "Levels om een ijzergolem te binden"]
+
+[golemancy.frost_frame]
+name = "Vorstframe"
+description = "Versterkt je gebonden vorstgolems met extra gezondheid, sneeuwballen die schade doen en bescherming tegen regen en hitte."
+lore1 = "Extra gezondheid voor vorstgolems"
+lore2 = "Sneeuwbalschade"
+lore3 = "Schade in warme biomen"
+lore4 = "Immuun voor regen en water"
+lore5 = "Seconden traagheid per treffer"
+lore6 = "Kans op een extra sneeuwbal"
+lore7 = "Sneeuwbaltreffers om een doelwit te bevriezen"
+lore = ["Extra gezondheid voor vorstgolems", "Sneeuwbalschade", "Schade in warme biomen", "Immuun voor regen en water", "Seconden traagheid per treffer", "Kans op een extra sneeuwbal", "Sneeuwbaltreffers om een doelwit te bevriezen"]
+
+[golemancy.copper_frame]
+name = "Koperframe"
+description = "Laat je kopergolems binden en versterkt ze met extra gezondheid, draagvermogen en snelheid, plus bepantsering uit hun patina."
+lore1 = "Extra gezondheid voor kopergolems"
+lore2 = "Draagvermogen in voorwerpen"
+lore3 = "Bewegingssnelheid"
+lore4 = "Wordt nooit een standbeeld"
+lore5 = "Bepantsering per patinastadium"
+lore6 = "Snelheidsverlies per patinastadium"
+lore7 = "Seconden Snelheid II door bliksem in de buurt"
+lore = ["Extra gezondheid voor kopergolems", "Draagvermogen in voorwerpen", "Bewegingssnelheid", "Wordt nooit een standbeeld", "Bepantsering per patinastadium", "Snelheidsverlies per patinastadium", "Seconden Snelheid II door bliksem in de buurt"]
+
+[golemancy.iron_frame]
+name = "IJzerframe"
+description = "Laat je ijzergolems binden en versterkt ze met extra gezondheid, bepantsering en aanvalskracht, sterkere reparaties met staven, vegende vuistslagen en een Kolossusvorm op volle grootte."
+lore1 = "Extra gezondheid voor ijzergolems"
+lore2 = "Extra bepantsering voor ijzergolems"
+lore3 = "Extra aanvalsschade voor ijzergolems"
+lore4 = "Extra gezondheid per reparatie met een ijzerstaaf"
+lore5 = "Extra vijandige wezens geraakt per vuistslag"
+lore6 = "Aanvalsschade in Kolossusvorm"
+lore = ["Extra gezondheid voor ijzergolems", "Extra bepantsering voor ijzergolems", "Extra aanvalsschade voor ijzergolems", "Extra gezondheid per reparatie met een ijzerstaaf", "Extra vijandige wezens geraakt per vuistslag", "Aanvalsschade in Kolossusvorm"]
+
+[golemancy.bone_frame]
+name = "Botframe"
+description = "Brengt je Tragoul-skeletdienaren in de golemantie: ze volgen de signalen van je staf, gloeien in je dienaarkanaal met statuslabels die alleen jij ziet, dragen een Botrooster van runen en leveren golemantie-XP op voor hun kills."
+lore1 = "Dienaren volgen stafsignalen en tonen statuslabels"
+lore2 = "Runeslots in het Botrooster"
+lore3 = "Golemantie-XP voor kills van je dienaren"
+lore = ["Dienaren volgen stafsignalen en tonen statuslabels", "Runeslots in het Botrooster", "Golemantie-XP voor kills van je dienaren"]
+lattice = "Botrooster"
+lattice_lore = "Klik om de runen en het kanaal van je dienaren in te stellen"
+slot_empty = "Leeg roosterslot"
+slot_empty_lore = "Pak een rune ({aspects}) op en klik hier"
+slot_locked = "Vergrendeld roosterslot"
+slot_unlock_level = "Ontgrendeld bij Botframe niveau {level}"
+slot_inert = "Inert: dit slot vereist Botframe niveau {level}"
+rune_tier = "Werkt op rang {tier} bij je dienaren"
+channel = "Dienaarkanaal: {channel}"
+channel_set = "Je dienaren gebruiken nu het kanaal {channel}"
+refused_aspect = "{aspect}-runen passen niet in een Botrooster"
+duplicate = "Je Botrooster heeft al een {aspect}-rune"
+no_slot = "Je Botrooster heeft geen vrij slot"
+time_left = "nog {seconds} s"
+
+[golemancy.guardian_core]
+name = "Beschermer-kern"
+description = "Golems die met een Beschermer-kern zijn gebonden, verdedigen hun thuis, jou of het gebied van een Bewaking-knooppunt en beschermen je beter naarmate de kern sterker wordt."
+lore1 = "Bewakingsstraal in blokken"
+lore2 = "Onderscheppen: mobs die jou achtervolgen keren zich tegen je beschermers"
+lore3 = "Vergelding: beschermers vallen aan wat jou verwondde"
+lore4 = "Minder schade in de buurt van je beschermers"
+lore5 = "Seconden Weerstand door Laatste Stand"
+lore = ["Bewakingsstraal in blokken", "Onderscheppen: mobs die jou achtervolgen keren zich tegen je beschermers", "Vergelding: beschermers vallen aan wat jou verwondde", "Minder schade in de buurt van je beschermers", "Seconden Weerstand door Laatste Stand"]
+
+[golemancy.gatherer_core]
+name = "Verzamelaar-kern"
+description = "Golems die met een Verzamelaar-kern zijn gebonden, rapen gevallen voorwerpen op rond hun thuis of een Verzameling-knooppunt en leveren ze af, en slaan ervaringsbollen op als essentie naarmate de kern sterker wordt."
+lore1 = "Opraapstraal in blokken"
+lore2 = "Ervaringspunten essentieopslag"
+lore3 = "Blokken voorwerpmagneet"
+lore4 = "Blokken direct oprapen"
+lore5 = "Draagvermogen"
+lore = ["Opraapstraal in blokken", "Ervaringspunten essentieopslag", "Blokken voorwerpmagneet", "Blokken direct oprapen", "Draagvermogen"]
+essence = "Essentie: {value} ervaringspunten"
+essence_lore = "Klik om de opgeslagen ervaring te pakken"
+essence_taken = "Je hebt {value} ervaringspunten essentie gepakt"
+essence_empty = "Deze golem heeft geen essentie opgeslagen"
+
+[golemancy.harvester_core]
+name = "Oogster-kern"
+description = "Golems die met een Oogster-kern zijn gebonden, oogsten en herplanten rijpe gewassen in het gebied van een Oogst-knooppunt, en verzorgen en bewerken het veld naarmate de kern sterker wordt."
+lore1 = "Gewassen per oogstactie"
+lore2 = "Seconden per oogstactie"
+lore3 = "Oogst meloenen, pompoenen, suikerriet, bamboe en cactussen"
+lore4 = "Verzorging: beendermeel uit de thuiskist op jonge gewassen"
+lore5 = "Bewerking: ploegt aarde opnieuw en plant lege akkergrond in"
+lore6 = "Kans op een extra buitworp"
+lore = ["Gewassen per oogstactie", "Seconden per oogstactie", "Oogst meloenen, pompoenen, suikerriet, bamboe en cactussen", "Verzorging: beendermeel uit de thuiskist op jonge gewassen", "Bewerking: ploegt aarde opnieuw en plant lege akkergrond in", "Kans op een extra buitworp"]
+
+[golemancy.lumber_core]
+name = "Houthakker-kern"
+description = "Golems die met een Houthakker-kern zijn gebonden, kappen natuurlijke bomen in het gebied van een Houtkap-knooppunt van boven naar beneden en verzamelen de stammen, en herplanten, vegen bladeren en kappen grotere bomen naarmate de kern sterker wordt."
+lore1 = "Gekapte stammen per seconde"
+lore2 = "Stammen per boom voor koperen golems"
+lore3 = "Stammen per boom voor ijzeren golems"
+lore4 = "Herplant zaailingen na het kappen"
+lore5 = "Bladveger: breekt losse bladeren en verzamelt wat ze laten vallen"
+lore6 = "Kapt 2x2-reuzenbomen"
+lore7 = "Kapt karmozijnrode en verwrongen zwammen en herplant zwammen"
+lore = ["Gekapte stammen per seconde", "Stammen per boom voor koperen golems", "Stammen per boom voor ijzeren golems", "Herplant zaailingen na het kappen", "Bladveger: breekt losse bladeren en verzamelt wat ze laten vallen", "Kapt 2x2-reuzenbomen", "Kapt karmozijnrode en verwrongen zwammen en herplant zwammen"]
+
+[golemancy.breaker_core]
+name = "Breker-kern"
+description = "Golems die met een Breker-kern zijn gebonden, breken de blokken die het filter van een Mijnbouw-knooppunt opsomt in zijn gebied en dragen mee wat eruit valt, en delven hardere blokken met betere houwelen naarmate de kern sterker wordt."
+lore1 = "Maximale blokhardheid"
+lore2 = "Seconden per blok"
+lore3 = "Mijngereedschap"
+lore4 = "Schakelaar voor Zijden aanraking op Mijnbouw-knooppunten"
+lore5 = "Schakelaar voor Fortuin I op Mijnbouw-knooppunten"
+lore = ["Maximale blokhardheid", "Seconden per blok", "Mijngereedschap", "Schakelaar voor Zijden aanraking op Mijnbouw-knooppunten", "Schakelaar voor Fortuin I op Mijnbouw-knooppunten"]
+filter_ready = "Breekt de blokken in het filter"
+filter_needed = "Voeg blokken toe aan de witte lijst"
+filter_lore = "Brekers breken alleen blokken die een witte lijst opsomt"
+silk_on = "Zijden aanraking: aan"
+silk_off = "Zijden aanraking: uit"
+fortune_on = "Fortuin I: aan"
+fortune_off = "Fortuin I: uit"
+locked = "Ontgrendeld op Breker-kern-niveau {level}"
+exclusive = "Zijden aanraking en Fortuin I zetten elkaar uit"
+
+[golemancy.rancher_core]
+name = "Veehoeder-kern"
+description = "Golems die met een Veehoeder-kern gebonden zijn, verzorgen de dieren in het gebied van een Weide-knooppunt: ze fokken paren tot het houdaantal van het knooppunt en scheren, naarmate de kern sterker wordt, schapen, melken koeien en geiten en ruimen overtollige volwassen dieren."
+lore1 = "Fokt paren tot het houdaantal van het Weide-knooppunt"
+lore2 = "Scheert schapen"
+lore3 = "Melkt koeien, geiten en mooshrooms met emmers of kommen uit de thuiskist"
+lore4 = "Ruimt volwassen dieren boven het houdaantal (alleen ijzeren golems)"
+lore5 = "Kortere fokwachttijd"
+lore6 = "Extra buitworp per geruimd dier"
+lore = ["Fokt paren tot het houdaantal van het Weide-knooppunt", "Scheert schapen", "Melkt koeien, geiten en mooshrooms met emmers of kommen uit de thuiskist", "Ruimt volwassen dieren boven het houdaantal (alleen ijzeren golems)", "Kortere fokwachttijd", "Extra buitworp per geruimd dier"]
+species = "Soort: {species}"
+species_all = "Alle dieren"
+species_lore = "Linksklik voor de volgende soort, rechtsklik voor de vorige"
+keep = "Houdaantal: {count} per soort"
+keep_lore = "Linksklik om te verhogen, rechtsklik om te verlagen"
+breed_on = "Fokken: aan"
+breed_off = "Fokken: uit"
+shear_on = "Scheren: aan"
+shear_off = "Scheren: uit"
+milk_on = "Melken: aan"
+milk_off = "Melken: uit"
+cull_on = "Ruimen: aan"
+cull_off = "Ruimen: uit"
+locked = "Ontgrendeld op Veehoeder-kern-niveau {level}"
+iron_only = "Alleen ijzeren golems ruimen"
+
+[golemancy.sorter_core]
+name = "Sorteerder-kern"
+description = "Kopergolems die met een Sorteerder-kern zijn gebonden, legen de container onder een Invoer-knooppunt in nabije containers die elk voorwerp al bevatten, en leren voorwerpgroepen, Filter-knooppunten, aanvullen en ophalen naarmate de kern sterker wordt."
+lore1 = "Bestemmingsstraal in blokken"
+lore2 = "Stapels per rit"
+lore3 = "Sorteert op voorwerpgroepen"
+lore4 = "Filter-knooppunten en een overloop"
+lore5 = "Onderscheidt betoveringen en drankjes"
+lore6 = "Verplaatst shulkerdozen"
+lore7 = "Aanvulhoeveelheden op Filter-knooppunten"
+lore8 = "Index van containerinhoud"
+lore9 = "Ophalen via het menu van het Invoer-knooppunt"
+lore = ["Bestemmingsstraal in blokken", "Stapels per rit", "Sorteert op voorwerpgroepen", "Filter-knooppunten en een overloop", "Onderscheidt betoveringen en drankjes", "Verplaatst shulkerdozen", "Aanvulhoeveelheden op Filter-knooppunten", "Index van containerinhoud", "Ophalen via het menu van het Invoer-knooppunt"]
+match_exact = "Vergelijken: zelfde voorwerp"
+match_groups = "Vergelijken: voorwerpgroepen"
+match_precise = "Vergelijken: betoveringen en drankjes"
+match_lore = "Hoe een Sorteerder bepaalt welke container een voorwerp al bevat"
+radius = "Bestemmingsstraal: {radius}"
+radius_lore = "Tot {radius} blokken op jouw Sorteerder-kern-niveau"
+fetch = "Voorwerpen ophalen"
+fetch_lore = "Kies voorwerpen die een Sorteerder je brengt"
+locked = "Ontgrendeld op Sorteerder-kern-niveau {level}"
+overflow_on = "Overloop: aan"
+overflow_off = "Overloop: uit"
+overflow_lore = "Een overloop neemt voorwerpen die geen andere container wil"
+restock = "Aanvullen: {amount} van elk filtervoorwerp"
+restock_off = "Aanvullen: uit"
+restock_lore = "Sorteerders houden hier zoveel van elk vermeld voorwerp op voorraad"
+fetch_available = "Beschikbaar: {count}"
+fetch_request = "Klik om {amount} aan te vragen"
+fetch_amount = "{amount} per keer aanvragen"
+fetch_empty = "De containers van dit Invoer-knooppunt zijn leeg"
+fetch_requested = "Een Sorteerder brengt {amount} {item}"
+fetch_delivered = "Een Sorteerder heeft {amount} {item} gebracht"
+empty_filter = "Een leeg Filter-knooppunt neemt niets aan, tenzij het een overloop is"
+
+[golemancy.angler_core]
+name = "Visser-kern"
+description = "Golems die met een Visser-kern zijn gebonden, vissen in het open water voor een Visserij-knooppunt en dragen de vangst mee, met meer geluk, een rommelfilter, snellere vangsten in de regen en dubbele vangsten naarmate de kern sterker wordt."
+lore1 = "Seconden per vangst"
+lore2 = "Visgeluk"
+lore3 = "Schakelaar voor het rommelfilter op Visserij-knooppunten"
+lore4 = "Kortere vangsttijd in de regen"
+lore5 = "Kans op een dubbele vangst"
+lore = ["Seconden per vangst", "Visgeluk", "Schakelaar voor het rommelfilter op Visserij-knooppunten", "Kortere vangsttijd in de regen", "Kans op een dubbele vangst"]
+water_ready = "Open water gevonden"
+water_needed = "Heeft open water nodig"
+water_lore = "Vissers hebben een open wateroppervlak van 5 bij 5 voor het knooppunt nodig"
+junk_keep = "Rommel: houden"
+junk_discard = "Rommel: teruggooien"
+locked = "Ontgrendeld op Visser-kern-niveau {level}"
+
+[golemancy.runic_augments]
+name = "Runenversterkingen"
+description = "Laat je runen infuseren op de Animussokkel en ze in je gebonden golems zetten voor snelheid, draagvermogen, vuur, bereik, kanalen, opbrengst en harnas."
+lore1 = "Extra runeslots per golem"
+lore2 = "Hoogste bruikbare runerang"
+lore3 = "Animussokkel en recept voor Lege rune"
+lore = ["Extra runeslots per golem", "Hoogste bruikbare runerang", "Animussokkel en recept voor Lege rune"]
+
+[golemancy.overseer]
+name = "Opzichter"
+description = "Laat je je gebonden golems met de Staf van de ambachtsmeester seinen om je te volgen, stand te houden, naar huis te gaan of te werken, en naarmate het groeit om aan te vallen waar je naar kijkt, per kanaal te reageren, naar je toe te snellen en je in formatie te beschermen."
+lore1 = "Seinstraal in blokken"
+lore2 = "Pak: je vechtende golems vallen aan waar je naar kijkt"
+lore3 = "Stafkanaalfilter, in te stellen in de golemlijst"
+lore4 = "Verzamelen: Volgen roept verre golems naar je toe"
+lore5 = "Maximaal pantser van golems in formatie"
+lore = ["Seinstraal in blokken", "Pak: je vechtende golems vallen aan waar je naar kijkt", "Stafkanaalfilter, in te stellen in de golemlijst", "Verzamelen: Volgen roept verre golems naar je toe", "Maximaal pantser van golems in formatie"]
+signal = "Sein: {signal}"
+sent = "Verzonden: {signal}"
+sent_channel = "Verzonden: {signal} naar kanaal {channel}"
+no_target = "Kijk naar een wezen dat je mag aanvallen binnen {range} blokken om Pak te seinen"
+
+[golemancy.mending]
+name = "Golemherstel"
+description = "Genees je golems met koperstaven, sneeuwblokken en beendermeel, laat ze herstellen in je buurt en thuis, en herbouw gevallen golems uit hun Verbrijzelde kern."
+lore1 = "Extra genezing door reparaties"
+lore2 = "Koperstaven, sneeuwblokken en beendermeel genezen je golems"
+lore3 = "Gezondheid die herstelt in je buurt"
+lore4 = "Gezondheid die thuis in rust herstelt"
+lore5 = "Seconden tussen herstel"
+lore6 = "Verbrijzelde kern: herbouw gevallen golems"
+lore7 = "Seconden Weerstand voor herboren golems"
+lore8 = "Herboren golems behouden hun koperstaat"
+lore = ["Extra genezing door reparaties", "Koperstaven, sneeuwblokken en beendermeel genezen je golems", "Gezondheid die herstelt in je buurt", "Gezondheid die thuis in rust herstelt", "Seconden tussen herstel", "Verbrijzelde kern: herbouw gevallen golems", "Seconden Weerstand voor herboren golems", "Herboren golems behouden hun koperstaat"]
+full_health = "Deze golem heeft al volle gezondheid"
+shattered = "Je {body}golem is verbrijzeld en liet zijn Verbrijzelde kern achter"
+reborn = "Je {body}golem is herboren"
+void = "Deze Verbrijzelde kern brokkelt af: hij bevat zijn golem niet meer"
+not_owner = "Deze Verbrijzelde kern is van een andere speler"
+locked = "Een golem herbouwen vereist Golemherstel niveau {level}"
+wrong_body = "Deze Verbrijzelde kern heeft een pas gebouwde {body}golem nodig"
+unreadable = "Deze Verbrijzelde kern is beschadigd en kan geen golem herbouwen"
+
+[golemancy.stasis]
+name = "Stasis"
+description = "Pak je gebonden golems met de Staf in tot Sluimerende golem-blokken en plaats het blok om ze overal te wekken, met hun kernen, runen, lading en gezondheid intact."
+lore1 = "Seconden om een golem in te pakken"
+lore2 = "Direct inpakken"
+lore3 = "Plaats een Sluimerende golem om hem te wekken"
+lore4 = "Gezondheid hersteld terwijl ingepakt"
+lore5 = "Seconden tussen herstel terwijl ingepakt"
+lore6 = "Zakgolemlijst: roep golems terug vanuit de lijst"
+lore7 = "Seconden tussen terugroepacties"
+lore = ["Seconden om een golem in te pakken", "Direct inpakken", "Plaats een Sluimerende golem om hem te wekken", "Gezondheid hersteld terwijl ingepakt", "Seconden tussen herstel terwijl ingepakt", "Zakgolemlijst: roep golems terug vanuit de lijst", "Seconden tussen terugroepacties"]
+packed = "Je {body}golem is ingepakt tot een Sluimerende golem"
+dropped = "Je inventaris is vol, dus je Sluimerende golem viel aan je voeten"
+interrupted = "Het inpakken is onderbroken"
+busy = "Je bent al een golem aan het inpakken"
+pack_failed = "Deze golem kan nu niet worden ingepakt"
+awakened = "Je {body}golem ontwaakt"
+void = "Deze Sluimerende golem brokkelt af: hij bevat zijn golem niet meer"
+not_owner = "Deze Sluimerende golem is van een andere speler"
+locked = "Een Sluimerende golem wekken vereist Stasis"
+unreadable = "Deze Sluimerende golem is beschadigd en kan niet ontwaken"
+body_locked = "Je kunt nog geen {body}golems wekken"
+no_room = "Een Sluimerende golem heeft een vrij blok nodig om in te ontwaken"
+server_cap = "De server heeft al zoveel wakkere golems als hij toestaat"
+protected = "Je kunt hier geen golems wekken"
+awaken_failed = "De golem kon niet ontwaken, dus je houdt je Sluimerende golem"
+recall_cooldown = "Je kunt over {seconds} seconden een volgende golem terugroepen"
+recall_unavailable = "Alleen golems die in jouw wereld geladen zijn, kun je terugroepen"
+
+[golemancy.masterwork]
+name = "Meesterwerk"
+description = "Infuseer een Meesterwerkhart op de Animussokkel en zet het in een golem voor een extra runeslot, meer gezondheid, een tweede kern en sterkere runen."
+lore1 = "Meesterwerkgolems"
+lore2 = "Extra runeslots op een meesterwerk"
+lore3 = "Maximale gezondheid van een meesterwerk"
+lore4 = "Tweede kernslot op een meesterwerk"
+lore5 = "Runen van een meesterwerk werken één rang hoger"
+lore6 = "Bonus op rang 3-runen van een meesterwerk"
+lore = ["Meesterwerkgolems", "Extra runeslots op een meesterwerk", "Maximale gezondheid van een meesterwerk", "Tweede kernslot op een meesterwerk", "Runen van een meesterwerk werken één rang hoger", "Bonus op rang 3-runen van een meesterwerk"]
+slot = "Meesterwerkhart"
+slot_lore = "Klik om het hart terug te nemen met de tweede kern en de extra runen"
+slot_empty = "Meesterwerkslot"
+slot_empty_lore = "Pak een Meesterwerkhart op en klik hier ({count}/{maximum} meesterwerken)"
+core_empty = "Tweede kernslot"
+core_empty_lore = "Pak een rolkern op en klik hier om hem te plaatsen"
+core_remove = "Klik om deze kern terug te nemen"
+heart_needed = "Pak eerst een Meesterwerkhart op"
+designated = "Deze golem is nu een meesterwerk"
+removed = "Meesterwerkhart teruggenomen"
+already = "Deze golem is al een meesterwerk"
+cap = "Je hebt al {count} meesterwerkgolems"
+locked = "Je hebt Meesterwerk nodig om een meesterwerkgolem aan te wijzen"
+body = "Een {body}golem kan geen meesterwerk worden"
+core_needed = "Pak eerst een rolkern op"
+core_slotted = "{core}-kern geplaatst"
+core_removed = "{core}-kern teruggenomen"
+core_no_slot = "Deze golem heeft geen vrij kernslot"
+core_blank = "De tweede kern moet een rolkern zijn"
+core_duplicate = "Deze golem heeft al een {core}-kern"
+
+[golemancy.node_status]
+idle = "Inactief"
+working = "Aan het werk"
+blocked = "Geblokkeerd door bescherming"
+full = "Opslagblok vol"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filter: {count}"
+
+[golemancy.node_message]
+placed = "{node}-knooppunt geplaatst"
+occupied = "Deze zijde heeft al een knooppunt"
+protected = "Je kunt hier geen knooppunten plaatsen"
+needs_container = "Een {node}-knooppunt hoort op een kist, ton of shulkerdoos"
+needs_side_face = "Een {node}-knooppunt hoort op de zijkant van een blok"
+container_protected = "Dat opslagblok is beschermd"
+chunk_full = "Deze chunk bevat al {count} knooppunten"
+cap = "Je bezit al je maximum van {count} knooppunten"
+loading = "De knooppunten hier worden nog geladen"
+unavailable = "Je golemlijst is nog niet klaar"
+filter_added = "{item} aan het filter toegevoegd"
+filter_removed = "{item} uit het filter verwijderd"
+filter_full = "Dit filter bevat maximaal {count} vermeldingen"
+priority_locked = "Knooppuntprioriteit wordt ontgrendeld op Knooppuntweven-niveau {level}"
+removed = "{node}-knooppunt verwijderd"
+remove_failed = "Dit knooppunt kan nu niet worden verwijderd"
+not_owner = "Dit knooppunt is van een andere speler"
+gone = "Dit knooppunt is hier niet meer"
+tag_prompt = "Typ een voorwerptag zoals #logs in de chat"
+tag_invalid = "{tag} is geen voorwerptag"
+tag_cancelled = "Tag invoeren geannuleerd"
+tag_timed_out = "Tijd voor tag invoeren verlopen"
+
+[golemancy.node_gui]
+position = "Blok: {x}, {y}, {z}"
+area = "{axis}-straal: {radius}"
+area_lore = "Klik met links om te vergroten, met rechts om te verkleinen"
+area_cap = "Grootste straal: {radius}"
+priority = "Prioriteit: {priority}"
+redstone = "Redstone: {mode}"
+redstone_ignore = "Genegeerd"
+redstone_powered = "Werkt alleen met redstonesignaal"
+redstone_unpowered = "Werkt alleen zonder redstonesignaal"
+locked = "Ontgrendeld op Knooppuntweven-niveau {level}"
+whitelist = "Witte lijst"
+whitelist_lore = "Golems gebruiken alleen overeenkomende voorwerpen"
+blacklist = "Zwarte lijst"
+blacklist_lore = "Golems gebruiken alles behalve overeenkomende voorwerpen"
+empty_filter = "Een leeg filter laat elk voorwerp door"
+toggle = "Klik om te wisselen"
+filter_empty = "Leeg filtervak"
+filter_set = "Klik met een voorwerp om in te stellen"
+filter_clear = "Klik met rechts om te wissen"
+filter_locked = "Vergrendeld filtervak"
+filter_locked_lore = "Meer niveaus van Knooppuntweven ontgrendelen dit vak"
+tag = "Voorwerptag"
+tag_add = "Tag toevoegen"
+tag_add_lore = "Klik en typ dan een voorwerptag zoals #logs in de chat"
+
+[golemancy.node_weaving]
+name = "Knooppuntweven"
+description = "Sluip en klik met rechts op een blokzijde met een knooppunt in je hand om het daar te verankeren en het werk van je golems te sturen."
+lore1 = "Knooppunten die je kunt bezitten"
+lore2 = "Straal van het werkgebied in blokken"
+lore3 = "Filtervakken"
+lore4 = "Knooppuntprioriteit 1-5"
+lore5 = "Redstonesturing"
+lore6 = "Zwarte-lijst- en tagfilters"
+lore = ["Knooppunten die je kunt bezitten", "Straal van het werkgebied in blokken", "Filtervakken", "Knooppuntprioriteit 1-5", "Redstonesturing", "Zwarte-lijst- en tagfilters"]
+
+[golemancy.plinth]
+loading = "Deze sokkel wordt nog geladen"
+occupied = "Op dit voetstuk ligt al een voorwerp"
+protected = "Je kunt deze sokkel hier niet gebruiken"
+busy = "Er loopt al een infusie"
+no_recipe = "Deze voorwerpen vormen geen infusie"
+locked = "Je hebt deze infusie nog niet geleerd"
+levels = "Deze infusie kost {levels} levels"
+interrupted = "De infusie is onderbroken"
+complete = "De infusie is voltooid"
+failed = "De infusie is mislukt en je levels zijn teruggegeven"
+
 [herbalism.growth_aura]
 name = "Groeiaura"
 description = "Laat de natuur om je heen groeien in een aura"
@@ -4523,6 +5212,10 @@ vault_unavailable_fallback = "De Vault-economie is niet beschikbaar — leren me
 vault_insufficient_funds = "De speler heeft onvoldoende geld in de Vault-economie."
 vault_transaction_failed = "De Vault-transactie is mislukt; de voortgang is niet gewijzigd."
 power_drain = "Krachtverbruik: {power}"
+requirement_level = "{adaptation} niv. {level}"
+requires = "Vereist: {requirement}"
+requirements_missing = "Leer {requirements} voordat je {adaptation} leert."
+required_by_dependents = "Leer eerst {dependents} af; die vereisen {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5362,6 +6055,11 @@ name = "Kinetica"
 icon = "⚒"
 description = "Beweging is macht. Smash met maces, lading met speren, en bocht momentum zelf: stuiters, lanceringen, levitatie, en goed uitgeruste vallende aambeelden voeden allemaal uw meesterschap."
 
+[skill.golemancy]
+name = "Golemantie"
+icon = "⚙"
+description = "Stijg in level door golems te bouwen, te repareren en te verzorgen, en breng ze daarna tot leven om aan je zijde te vechten en te werken."
+
 [snippets.gui]
 level = "Niveau"
 level_value = "Niveau {level}"
@@ -5793,7 +6491,7 @@ lore2 = "max gezondheid hersteld per seconde"
 lore = ["van alle als gezondheid teruggegeven schade", "max gezondheid hersteld per seconde"]
 
 [tragoul.skeletal_servant]
-name = "Sceletal Servant"
+name = "Skeletdienaar"
 description = "Sneak en rechts-klik met botten te verhogen tijdelijke skelet bedienden, een levende bediende per niveau! Bedienden paaien met trapsgewijze willekeurige uitrusting, erven je andere Tragoul-voordelen en jagen op je merk: wat je ook toeslaat of wat je het laatst treft. Oproep aan de kap recycleert uw oudste bediende. Consulaat botten op oproep, minder bij hogere niveaus."
 lore1 = "Sneak + Rechtsklik met botten in de hand om een bediende op te roepen"
 lore2 = "Levenslang dienend"
@@ -5951,7 +6649,7 @@ assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it = "Ee
 boost_global_experience_gain = "Verhoog de wereldwijde ervaring."
 boost_target_player_experience_gain = "Boost Doelspeler Ervaringswinst."
 bypass_adapt_use_permission_checks_when_opening = "Bypass adapt.use toestemmingscontrole bij openen"
-bypass_costs_and_restrictions = "Omgangskosten en beperkingen"
+bypass_costs_and_permanence_prerequisites_still_apply = "Kosten en permanentie omzeilen; vereisten blijven gelden"
 bypass_power_knowledge_and_permanence_checks = "Bypass kracht, kennis en duurzaamheid controles"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "Verwijder alle ontdekkingsgegevens . (Biom, massa's, voedingsmiddelen, artikelen, recepten enz.)"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "Alle spelergegevens wissen (XP, kennis, aanpassingen, statistieken, ontdekkingen, vooruitgangen, wijsheid)"
@@ -5996,6 +6694,12 @@ toggle_verbose_mode = "Werkbose-modus aan/uit"
 top_results_to_print = "Topresultaten om af te drukken"
 true_to_learn_false_to_unlearn = "waar te leren, vals om niet te leren"
 unlearn_all_adaptations_across_all_skill_lines = "Alle aanpassingen loslaten in alle vaardigheidslijnen"
+golem_roster_and_admin_tools = "Golemlijst en beheertools"
+open_your_golem_roster = "Je golemlijst openen"
+list_a_player_s_golems = "De golems van een speler weergeven"
+release_one_of_a_player_s_golems = "Een van de golems van een speler vrijlaten"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golem-ID, of genoeg van de eerste tekens om één golem aan te wijzen"
+wake_a_player_s_loaded_golems = "De geladen golems van een speler wekken"
 
 [command.runtime]
 missing_permission = "Je hebt geen toestemming. '{permission}'."
@@ -6038,6 +6742,8 @@ vault_insufficient_funds = "De speler heeft onvoldoende geld in de Vault-economi
 vault_transaction_failed = "De Vault-transactie is mislukt; de voortgang is niet gewijzigd."
 set_adaptation_level = "Instellen {player} {adaptation} naar niveau {level}."
 permanent_adaptation_lower = "{adaptation} is permanent en kan niet worden verlaagd zonder force=true."
+requirements_missing = "{player} heeft {requirements} nodig voordat {adaptation} geleerd kan worden."
+required_by_dependents = "{adaptation} is vereist door {dependents} voor {player}; gebruik force=true om die ook te verwijderen."
 adapt_server_not_ready = "De Adapt-server is nog niet klaar. Probeer het over een paar seconden opnieuw."
 target_dispatch_failed = "De bewerking voor de doelspeler kon niet worden gepland. Probeer het opnieuw."
 cleared_all = "Alle gegevens gewist voor {player}."
@@ -6076,6 +6782,16 @@ perf_timing_budget = "Begroting van de tijdsbestek voor het controleren van de v
 perf_ticker_window = "Tikkervenster: {window}ms"
 perf_no_metrics = "Nog geen tekengegevens verzameld."
 perf_reset = "Ticker en vermogen telemetrie reset."
+golem_list_header = "{player} heeft {count} golems:"
+golem_list_header_one = "{player} heeft 1 golem:"
+golem_list_empty = "{player} heeft geen golems."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} heeft geen golem waarvan de ID begint met {id}."
+golem_ambiguous = "Meer dan één golem van {player} heeft een ID die begint met {id}. Typ er meer van."
+golem_released = "Golem {id} is vrijgelaten uit de lijst van {player}."
+golem_release_failed = "Golem {id} van {player} kon niet worden vrijgelaten. Probeer het opnieuw."
+golem_release_active_unloaded = "Golem {id} van {player} is actief in een niet-geladen chunk. Laad zijn chunk om hem vrij te laten, of laat hem vrij zodra hij als vermist staat."
+golems_woken = "De geladen golems van {player} worden gewekt: {count}."
 
 [language.menu]
 your_language = "Jouw taal"
@@ -6709,6 +7425,29 @@ purple = "Purple"
 always = "Always"
 sneak = "Sneak to activate"
 suppress = "Sneak to suppress"
+
+[golemancy.preferences]
+absorb_orbs = "Ervaringsbollen opnemen"
+action_bar_only = "Alleen actiebalk"
+any_item = "Elk Golemantie-voorwerp"
+aura = "Aura"
+chime_and_particles = "Klokgelui en deeltjes"
+crook_only = "Alleen de staf"
+hidden = "Verborgen"
+intercept = "Onderscheppen"
+leaf_sweep = "Bladveger"
+magnet = "Magneet"
+node_reveal = "Knooppunten tonen"
+obey_overseer = "Dienaren gehoorzamen de Opzichter"
+retaliate_players = "Vergelding tegen spelers"
+shown = "Zichtbaar"
+signal_feedback = "Signaalterugkoppeling"
+static_overdrive = "Statische overbelasting"
+status_labels = "Statuslabels van golems"
+sweeping_fists = "Vegende vuistslagen"
+tending = "Verzorging"
+tilling = "Bewerking"
+work_area_outline = "Omtrek van het werkgebied"
 
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"

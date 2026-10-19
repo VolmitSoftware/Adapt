@@ -2,6 +2,7 @@ package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.content.item.BoundEnderPearl;
 import art.arcane.adapt.content.item.BoundEyeOfEnder;
+import art.arcane.adapt.gameplay.demo.DemoScope;
 import com.google.gson.JsonObject;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
@@ -189,7 +190,7 @@ public final class RiftFixtures implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onTeleport(PlayerTeleportEvent event) {
         Player player = event.getPlayer();
-        if (!player.getName().startsWith("AQA") || !player.getWorld().getName().startsWith("adapt_gameplay_")) {
+        if (!DemoScope.ownsDemoState(player.getName()) || !player.getWorld().getName().startsWith("adapt_gameplay_")) {
             return;
         }
         JsonObject result = new JsonObject();

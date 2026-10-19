@@ -30,6 +30,7 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.DoubleChest;
 import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Item;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.Event;
@@ -146,6 +147,31 @@ public final class ProtectionEventProbe {
   @SuppressWarnings("deprecation")
   public static boolean attemptItemPickup(Player player, Item item, int remaining) {
     return attemptItemPickup(player, item, remaining, null, true);
+  }
+
+  public static boolean attemptEntityItemPickup(LivingEntity entity, Item item, int remaining) {
+    if (!J.isOwnedByCurrentRegion(item) || !item.isValid() || item.isDead() || entity.getWorld() != item.getWorld()) {
+      return false;
+    }
+    ItemStack stack = item.getItemStack();
+    if (stack == null || stack.getType() == Material.AIR || stack.getAmount() <= 0) {
+      return false;
+    }
+    int normalizedRemaining = Math.min(stack.getAmount(), Math.max(0, remaining));
+    if (normalizedRemaining >= stack.getAmount()) {
+      return false;
+    }
+    ItemStack original = stack.clone();
+    ItemStack visible = original.clone();
+    visible.setAmount(original.getAmount() - normalizedRemaining);
+    item.setItemStack(visible);
+    try {
+      EntityPickupItemEvent event = new EntityPickupItemEvent(entity, item, normalizedRemaining);
+      dispatch(event);
+      return !event.isCancelled();
+    } finally {
+      restorePickupStack(item, visible, original, true);
+    }
   }
 
   @SuppressWarnings("deprecation")

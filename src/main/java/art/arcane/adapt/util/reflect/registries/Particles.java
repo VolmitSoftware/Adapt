@@ -9,6 +9,7 @@ public class Particles {
   public static final Particle TOTEM = RegistryUtil.find(Particle.class, "totem", "totem_of_undying");
   public static final Particle BLOCK_CRACK = RegistryUtil.find(Particle.class, "block_crack", "block");
   public static final Particle VILLAGER_HAPPY = RegistryUtil.find(Particle.class, "villager_happy", "happy_villager");
+  public static final Particle ANGRY_VILLAGER = RegistryUtil.find(Particle.class, "villager_angry", "angry_villager");
   public static final Particle ITEM_CRACK = RegistryUtil.find(Particle.class, "item_crack", "item");
   public static final Particle SMOKE = RegistryUtil.find(Particle.class, "smoke_normal", "smoke");
   public static final Particle FIREWORK = RegistryUtil.find(Particle.class, "fireworks_spark", "firework");

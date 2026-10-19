@@ -8,6 +8,7 @@ import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.volmlib.integration.VaultEconomy;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class AdaptationLearningTransaction {
@@ -37,6 +38,9 @@ public final class AdaptationLearningTransaction {
     int normalizedTarget = Math.max(0, Math.min(targetLevel, adaptation.getMaxLevel()));
     if (normalizedTarget <= paidLevel) {
       return Result.NO_CHANGE;
+    }
+    if (!AdaptationRequirements.missing(adaptation, adaptPlayer.getData()).isEmpty()) {
+      return Result.REQUIREMENTS_MISSING;
     }
     int knowledgeCost = adaptation.getCostFor(normalizedTarget, paidLevel);
     int powerCost = adaptation.getPowerCostFor(normalizedTarget, paidLevel);
@@ -130,6 +134,9 @@ public final class AdaptationLearningTransaction {
     if (adaptation.isPermanent() && !bypassCosts) {
       return Result.PERMANENT;
     }
+    if (!bypassCosts && !AdaptationRequirements.dependents(adaptation, adaptPlayer.getData(), normalizedTarget).isEmpty()) {
+      return Result.REQUIRED_BY_DEPENDENTS;
+    }
 
     int paidLevel = isRegionGranted(skillLine, adaptation.getName()) ? 0 : currentLevel;
     int refundFloor = Math.min(normalizedTarget, paidLevel);
@@ -141,6 +148,13 @@ public final class AdaptationLearningTransaction {
       refundOrQueue(player, skillLine, vaultRefund, adaptation.getName());
     }
     clearRefundReceipts(skillLine, adaptation.getName(), normalizedTarget, currentLevel);
+    if (bypassCosts) {
+      AdaptationRequirements.forfeitLevels(
+          List.of(new AdaptationRequirements.Lowering(adaptation, paidLevel)),
+          adaptPlayer.getData(),
+          player.getName()
+      );
+    }
     return Result.UNLEARNED;
   }
 
@@ -176,6 +190,17 @@ public final class AdaptationLearningTransaction {
   static boolean isConfigured() {
     AdaptConfig.LearningEconomy config = AdaptConfig.get().getLearningEconomy();
     return config != null && config.isEnabled() && positiveFinite(config.getMoneyPerKnowledge()) > 0D;
+  }
+
+  static void clearRefundReceipts(
+      PlayerSkillLine skillLine,
+      String adaptationName,
+      int targetLevel,
+      int currentLevel
+  ) {
+    for (int level = targetLevel + 1; level <= currentLevel; level++) {
+      skillLine.getStorage().remove(receiptKey(adaptationName, level));
+    }
   }
 
   private static boolean isRegionGranted(PlayerSkillLine skillLine, String adaptationName) {
@@ -221,17 +246,6 @@ public final class AdaptationLearningTransaction {
       refund += positiveFinite(storedDouble(skillLine, receiptKey(adaptationName, level)));
     }
     return refund;
-  }
-
-  private static void clearRefundReceipts(
-      PlayerSkillLine skillLine,
-      String adaptationName,
-      int targetLevel,
-      int currentLevel
-  ) {
-    for (int level = targetLevel + 1; level <= currentLevel; level++) {
-      skillLine.getStorage().remove(receiptKey(adaptationName, level));
-    }
   }
 
   private static void refundOrQueue(Player player, PlayerSkillLine skillLine, double amount, String adaptationName) {
@@ -348,6 +362,8 @@ public final class AdaptationLearningTransaction {
     INSUFFICIENT_FUNDS,
     ECONOMY_UNAVAILABLE,
     ECONOMY_FAILED,
-    PERMANENT
+    PERMANENT,
+    REQUIREMENTS_MISSING,
+    REQUIRED_BY_DEPENDENTS
   }
 }

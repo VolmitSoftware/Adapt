@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.discovery;
 
+import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.skill.Skill;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
@@ -10,12 +11,14 @@ import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 
 import java.lang.reflect.Method;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -30,6 +33,21 @@ class DiscoveryRelicAppraiserTest {
     assertThat(DiscoveryRelicAppraiser.isAppraisableBlock(Material.MUSIC_DISC_13)).isFalse();
     assertThat(DiscoveryRelicAppraiser.isAppraisableBlock(Material.WAYFINDER_ARMOR_TRIM_SMITHING_TEMPLATE)).isFalse();
     assertThat(DiscoveryRelicAppraiser.isAppraisableBlock(Material.ANGLER_POTTERY_SHERD)).isFalse();
+  }
+
+  @Test
+  void potterySherdsAreAppraisableUnlessTheyAreGolemancyItems() {
+    ItemStack sherd = mock(ItemStack.class);
+    ItemStack rune = mock(ItemStack.class);
+    when(sherd.getType()).thenReturn(Material.GUSTER_POTTERY_SHERD);
+    when(rune.getType()).thenReturn(Material.GUSTER_POTTERY_SHERD);
+
+    try (MockedStatic<GolemItems> items = mockStatic(GolemItems.class)) {
+      items.when(() -> GolemItems.isGolemItem(rune)).thenReturn(true);
+
+      assertThat(DiscoveryRelicAppraiser.isAppraisable(sherd)).isTrue();
+      assertThat(DiscoveryRelicAppraiser.isAppraisable(rune)).isFalse();
+    }
   }
 
   @Test

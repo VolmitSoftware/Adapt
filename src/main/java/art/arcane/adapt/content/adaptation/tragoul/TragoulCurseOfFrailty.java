@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.TragoulMessages;
 
@@ -232,7 +233,7 @@ public class TragoulCurseOfFrailty extends SimpleAdaptation<TragoulCurseOfFrailt
     if (target instanceof ArmorStand stand && stand.isMarker()) {
       return true;
     }
-    if (target.isInvulnerable() || target.hasMetadata("NPC") || TragoulSkeletalServant.isServant(target)) {
+    if (target.isInvulnerable() || target.hasMetadata("NPC") || MinionIdentity.isMinion(target)) {
       return true;
     }
     if (!(target instanceof Tameable tameable) || !tameable.isTamed()) {

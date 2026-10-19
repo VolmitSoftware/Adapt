@@ -18,24 +18,35 @@
 
 package art.arcane.adapt.util.common.compat;
 
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.format.Form;
 import com.destroystokyo.paper.entity.Pathfinder;
+import com.destroystokyo.paper.entity.RangedEntity;
+import io.papermc.paper.world.WeatheringCopperState;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.util.TriState;
+import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Nameable;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockState;
+import org.bukkit.block.data.type.CaveVinesPlant;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AbstractSkeleton;
 import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
@@ -44,6 +55,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Pose;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.TextDisplay;
 import org.bukkit.entity.Trident;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityEvent;
@@ -63,10 +75,13 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -111,15 +126,28 @@ public final class PaperCompat {
   );
   private static final Map<String, Boolean> CLASS_PRESENCE = new ConcurrentHashMap<>();
   private static final String PATHFINDER_CLASS = "com.destroystokyo.paper.entity.Pathfinder";
+  private static final String GAME_RULES_CLASS = "org.bukkit.GameRules";
+  private static final String MOB_DROPS_FIELD = "MOB_DROPS";
   private static volatile boolean pathfindingSupported = true;
   private static volatile boolean blockReplaceableSupported = true;
   private static volatile boolean teleportAsyncSupported = true;
   private static volatile boolean teleportAsyncCauseSupported = true;
   private static volatile boolean transientModifierSupported = true;
   private static volatile boolean damageCriticalSupported = true;
+  private static volatile boolean rangedAttackSupported = true;
+  private static volatile boolean weatheringSupported = true;
+  private static volatile boolean mobDropsResolved;
+  private static volatile GameRule<?> mobDropsRule;
+  private static volatile boolean freezeLockSupported = true;
+  private static volatile boolean berriesSupported = true;
+  private static volatile boolean customNameSupported = true;
+  private static volatile boolean collisionQuerySupported = true;
+  private static volatile boolean liveStateSupported = true;
+  private static volatile boolean enchantWithLevelsSupported = true;
   // EntityPotionEffectEvent.getSource() is 26.2+; resolved reflectively so the 26.1.2 compile baseline builds.
   private static final MethodHandle POTION_SOURCE_HANDLE = resolvePotionSourceHandle();
   private static volatile boolean trackedPlayersSupported = true;
+  private static volatile boolean itemNameSupported = true;
 
   private PaperCompat() {
   }
@@ -171,6 +199,185 @@ public final class PaperCompat {
 
     // Persistent fallback; Adapt namespaces are swept on join/death/quit.
     instance.addModifier(modifier);
+  }
+
+  public static boolean rangedAttack(Mob shooter, LivingEntity target) {
+    if (!rangedAttackSupported) {
+      return false;
+    }
+    try {
+      if (shooter instanceof RangedEntity ranged) {
+        ranged.rangedAttack(target, 1F);
+        return true;
+      }
+      return false;
+    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
+      rangedAttackSupported = false;
+      return false;
+    }
+  }
+
+  public static boolean mobDrops(World world) {
+    if (!mobDropsResolved) {
+      mobDropsRule = resolveMobDropsRule();
+      mobDropsResolved = true;
+    }
+    return mobDrops(world, mobDropsRule);
+  }
+
+  static boolean mobDrops(World world, GameRule<?> rule) {
+    if (rule == null) {
+      return true;
+    }
+    Object value = world.getGameRuleValue(rule);
+    return !Boolean.FALSE.equals(value);
+  }
+
+  private static GameRule<?> resolveMobDropsRule() {
+    try {
+      return (GameRule<?>) Class.forName(GAME_RULES_CLASS).getField(MOB_DROPS_FIELD).get(null);
+    } catch (ReflectiveOperationException | RuntimeException | LinkageError paperAbsent) {
+      try {
+        return (GameRule<?>) GameRule.class.getField(MOB_DROPS_FIELD).get(null);
+      } catch (ReflectiveOperationException | RuntimeException | LinkageError spigotAbsent) {
+        return null;
+      }
+    }
+  }
+
+  public static int weatheringStage(Entity entity) {
+    if (!(entity instanceof CopperGolem golem)) {
+      return 0;
+    }
+    if (!weatheringSupported) {
+      return SpigotWeathering.stage(golem);
+    }
+    try {
+      return switch (golem.getWeatheringState()) {
+        case UNAFFECTED -> 0;
+        case EXPOSED -> 1;
+        case WEATHERED -> 2;
+        case OXIDIZED -> 3;
+      };
+    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
+      weatheringSupported = false;
+      return SpigotWeathering.stage(golem);
+    }
+  }
+
+  public static boolean copperWaxed(Entity entity) {
+    if (!weatheringSupported) {
+      return false;
+    }
+    try {
+      return entity instanceof CopperGolem golem && golem.getOxidizing() instanceof CopperGolem.Oxidizing.Waxed;
+    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
+      weatheringSupported = false;
+      return false;
+    }
+  }
+
+  public static void restoreCopper(Entity entity, int stage, boolean waxed) {
+    if (!(entity instanceof CopperGolem golem)) {
+      return;
+    }
+    int bounded = Math.max(0, Math.min(3, stage));
+    if (!weatheringSupported) {
+      SpigotWeathering.restore(golem, bounded);
+      return;
+    }
+    try {
+      golem.setWeatheringState(switch (bounded) {
+        case 0 -> WeatheringCopperState.UNAFFECTED;
+        case 1 -> WeatheringCopperState.EXPOSED;
+        case 2 -> WeatheringCopperState.WEATHERED;
+        default -> WeatheringCopperState.OXIDIZED;
+      });
+      if (waxed) {
+        golem.setOxidizing(CopperGolem.Oxidizing.waxed());
+      }
+    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
+      weatheringSupported = false;
+      SpigotWeathering.restore(golem, bounded);
+    }
+  }
+
+  public static BlockState liveState(Block block) {
+    if (!liveStateSupported) {
+      return block.getState();
+    }
+    try {
+      return block.getState(false);
+    } catch (NoSuchMethodError absent) {
+      liveStateSupported = false;
+      return block.getState();
+    }
+  }
+
+  @SuppressWarnings("deprecation")
+  public static ItemStack enchantWithLevels(ItemStack item, int levels, Random random) {
+    if (enchantWithLevelsSupported) {
+      try {
+        return Bukkit.getItemFactory().enchantWithLevels(item, levels, true, random);
+      } catch (NoSuchMethodError absent) {
+        enchantWithLevelsSupported = false;
+      }
+    }
+    return Bukkit.getItemFactory().enchantItem(item, levels, true);
+  }
+
+  public static boolean hasBerries(CaveVinesPlant vines) {
+    if (berriesSupported) {
+      try {
+        return vines.hasBerries();
+      } catch (NoSuchMethodError absent) {
+        berriesSupported = false;
+      }
+    }
+    return SpigotNames.berries(vines);
+  }
+
+  public static boolean hasCustomName(Nameable nameable) {
+    if (customNameSupported) {
+      try {
+        return nameable.customName() != null;
+      } catch (NoSuchMethodError absent) {
+        customNameSupported = false;
+      }
+    }
+    return SpigotNames.customName(nameable);
+  }
+
+  public static boolean freezeTicksLocked(Entity entity) {
+    if (!freezeLockSupported) {
+      return false;
+    }
+    try {
+      return entity.isFreezeTickingLocked();
+    } catch (NoSuchMethodError absent) {
+      freezeLockSupported = false;
+      return false;
+    }
+  }
+
+  public static boolean hasCollisionsIn(World world, BoundingBox box) {
+    if (collisionQuerySupported) {
+      try {
+        return world.hasCollisionsIn(box);
+      } catch (NoSuchMethodError absent) {
+        collisionQuerySupported = false;
+      }
+    }
+    for (int x = (int) Math.floor(box.getMinX()); x <= (int) Math.floor(box.getMaxX()); x++) {
+      for (int y = (int) Math.floor(box.getMinY()); y <= (int) Math.floor(box.getMaxY()); y++) {
+        for (int z = (int) Math.floor(box.getMinZ()); z <= (int) Math.floor(box.getMaxZ()); z++) {
+          if (world.getBlockAt(x, y, z).getCollisionShape().overlaps(box.clone().shift(-x, -y, -z))) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   public static List<LivingEntity> nearbyLivingEntities(Location center, double radius) {
@@ -394,6 +601,30 @@ public final class PaperCompat {
     }
   }
 
+  public static int experienceOrbCount(ExperienceOrb orb) {
+    try {
+      return orb.getCount();
+    } catch (NoSuchMethodError absent) {
+      return 1;
+    }
+  }
+
+  public static void setExperienceOrbTotal(ExperienceOrb orb, int experience) {
+    try {
+      orb.setCount(1);
+    } catch (NoSuchMethodError ignored) {
+    }
+    orb.setExperience(experience);
+  }
+
+  public static boolean canMobPickup(Item item) {
+    try {
+      return item.canMobPickup();
+    } catch (NoSuchMethodError absent) {
+      return true;
+    }
+  }
+
   public static void setCanMobPickup(Item item, boolean canPickup) {
     try {
       item.setCanMobPickup(canPickup);
@@ -421,6 +652,18 @@ public final class PaperCompat {
     try {
       return PathfinderBridge.moveTo(mob, target, speed);
     } catch (NoSuchMethodError | NoClassDefFoundError absent) {
+      pathfindingSupported = false;
+      return false;
+    }
+  }
+
+  public static boolean hasPath(Mob mob) {
+    if (!supportsPathfinding()) {
+      return false;
+    }
+    try {
+      return PathfinderBridge.hasPath(mob);
+    } catch (NoClassDefFoundError | NoSuchMethodError absent) {
       pathfindingSupported = false;
       return false;
     }
@@ -550,6 +793,25 @@ public final class PaperCompat {
       entity.customName(name);
     } catch (NoSuchMethodError absent) {
       entity.setCustomName(name == null ? null : LegacyComponentSerializer.legacySection().serialize(name));
+    }
+  }
+
+  public static String itemName(ItemStack item) {
+    if (itemNameSupported) {
+      try {
+        return C.stripColor(LegacyComponentSerializer.legacySection().serialize(item.effectiveName()));
+      } catch (NoSuchMethodError absent) {
+        itemNameSupported = false;
+      }
+    }
+    return Form.capitalizeWords(item.getType().name().toLowerCase(Locale.ROOT).replace('_', ' '));
+  }
+
+  public static void text(TextDisplay display, Component text) {
+    try {
+      display.text(text);
+    } catch (NoSuchMethodError absent) {
+      display.setText(text == null ? null : LegacyComponentSerializer.legacySection().serialize(text));
     }
   }
 
@@ -786,6 +1048,129 @@ public final class PaperCompat {
     return world.spawn(location, type, hydrator::accept);
   }
 
+  private static final class SpigotNames {
+    private static volatile boolean berriesResolved;
+    private static volatile Method berries;
+    private static volatile boolean customNameResolved;
+    private static volatile Method customName;
+
+    private SpigotNames() {
+    }
+
+    private static boolean berries(CaveVinesPlant vines) {
+      Method read = berriesReader();
+      if (read == null) {
+        return false;
+      }
+      try {
+        return Boolean.TRUE.equals(read.invoke(vines));
+      } catch (ReflectiveOperationException | RuntimeException failure) {
+        return false;
+      }
+    }
+
+    private static boolean customName(Nameable nameable) {
+      Method read = customNameReader();
+      if (read == null) {
+        return false;
+      }
+      try {
+        return read.invoke(nameable) != null;
+      } catch (ReflectiveOperationException | RuntimeException failure) {
+        return false;
+      }
+    }
+
+    private static Method berriesReader() {
+      if (!berriesResolved) {
+        berries = method(CaveVinesPlant.class, "isBerries");
+        berriesResolved = true;
+      }
+      return berries;
+    }
+
+    private static Method customNameReader() {
+      if (!customNameResolved) {
+        customName = method(Nameable.class, "getCustomName");
+        customNameResolved = true;
+      }
+      return customName;
+    }
+
+    private static Method method(Class<?> type, String name) {
+      try {
+        return type.getMethod(name);
+      } catch (NoSuchMethodException missing) {
+        return null;
+      }
+    }
+  }
+
+  private static final class SpigotWeathering {
+    private static final String[] STAGE_NAMES = {"UNAFFECTED", "EXPOSED", "WEATHERED", "OXIDIZED"};
+    private static volatile boolean resolved;
+    private static volatile Method getter;
+    private static volatile Method setter;
+
+    private SpigotWeathering() {
+    }
+
+    private static int stage(CopperGolem golem) {
+      Method read = getter(golem);
+      if (read == null) {
+        return 0;
+      }
+      try {
+        Object state = read.invoke(golem);
+        return state instanceof Enum<?> value ? Math.max(0, indexOf(value.name())) : 0;
+      } catch (ReflectiveOperationException | RuntimeException failure) {
+        return 0;
+      }
+    }
+
+    private static void restore(CopperGolem golem, int stage) {
+      Method read = getter(golem);
+      Method write = setter;
+      if (read == null || write == null) {
+        return;
+      }
+      try {
+        Class<?> states = read.getReturnType();
+        for (Object constant : states.getEnumConstants()) {
+          if (constant instanceof Enum<?> value && value.name().equals(STAGE_NAMES[stage])) {
+            write.invoke(golem, constant);
+            return;
+          }
+        }
+      } catch (ReflectiveOperationException | RuntimeException ignored) {
+      }
+    }
+
+    private static Method getter(CopperGolem golem) {
+      if (!resolved) {
+        try {
+          Method read = golem.getClass().getMethod("getWeatherState");
+          getter = read;
+          setter = golem.getClass().getMethod("setWeatherState", read.getReturnType());
+        } catch (ReflectiveOperationException | RuntimeException absent) {
+          getter = null;
+          setter = null;
+        }
+        resolved = true;
+      }
+      return getter;
+    }
+
+    private static int indexOf(String name) {
+      for (int index = 0; index < STAGE_NAMES.length; index++) {
+        if (STAGE_NAMES[index].equals(name)) {
+          return index;
+        }
+      }
+      return 0;
+    }
+  }
+
   /**
    * Keeps every Pathfinder reference out of PaperCompat's own constant pool so
    * the class still verifies on Spigot, where the type does not exist. Only the
@@ -805,6 +1190,11 @@ public final class PaperCompat {
       if (pathfinder != null) {
         pathfinder.stopPathfinding();
       }
+    }
+
+    private static boolean hasPath(Mob mob) {
+      Pathfinder pathfinder = mob.getPathfinder();
+      return pathfinder != null && pathfinder.hasPath();
     }
   }
 }

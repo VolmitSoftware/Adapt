@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.minion.MinionIdentity;
 import org.bukkit.entity.EntityType;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -31,6 +32,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.format.C;
@@ -114,7 +116,7 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
     Player killer = e.getEntity().getKiller();
-    if (killer == null) {
+    if (killer == null || GolemKillCredit.isGolemKill(e.getEntity())) {
       return;
     }
     requestDetonation(killer, e.getEntity(), false);
@@ -249,7 +251,7 @@ public class TragoulCorpseExplosion extends SimpleAdaptation<TragoulCorpseExplos
     if (target instanceof ArmorStand stand && stand.isMarker()) {
       return new ProtectionSnapshot(true, null);
     }
-    if (target.isInvulnerable() || target.hasMetadata("NPC") || TragoulSkeletalServant.isServant(target)) {
+    if (target.isInvulnerable() || target.hasMetadata("NPC") || MinionIdentity.isMinion(target)) {
       return new ProtectionSnapshot(true, null);
     }
     if (target instanceof Tameable tameable && tameable.isTamed()) {

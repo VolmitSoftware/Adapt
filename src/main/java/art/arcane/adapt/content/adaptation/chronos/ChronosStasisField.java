@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.chronos;
 
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -34,7 +35,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -515,7 +515,7 @@ public class ChronosStasisField extends SimpleAdaptation<ChronosStasisField.Conf
       return true;
     }
     if (target.isInvulnerable() || target.hasMetadata("NPC")
-        || TragoulSkeletalServant.isServant(target)) {
+        || MinionIdentity.isMinion(target)) {
       return true;
     }
     if (target instanceof Tameable tameable && tameable.isTamed()) {

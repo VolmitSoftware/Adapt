@@ -1,24 +1,147 @@
 package art.arcane.adapt.util.common.compat;
 
 import art.arcane.adapt.util.common.scheduling.J;
+import io.papermc.paper.world.WeatheringCopperState;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.type.CaveVinesPlant;
 import org.bukkit.entity.AnimalTamer;
+import org.bukkit.entity.CopperGolem;
+import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.TextDisplay;
+import org.bukkit.entity.Zombie;
+import org.bukkit.inventory.ItemFactory;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+import java.util.Random;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class PaperCompatTest {
+  @Test
+  void weatheringStagesCountOxidationStepsOfCopperGolemsOnly() {
+    CopperGolem golem = mock(CopperGolem.class);
+
+    for (WeatheringCopperState state : WeatheringCopperState.values()) {
+      when(golem.getWeatheringState()).thenReturn(state);
+      assertThat(PaperCompat.weatheringStage(golem)).as("stage of %s", state).isEqualTo(switch (state) {
+        case UNAFFECTED -> 0;
+        case EXPOSED -> 1;
+        case WEATHERED -> 2;
+        case OXIDIZED -> 3;
+      });
+    }
+    assertThat(PaperCompat.weatheringStage(mock(IronGolem.class))).isZero();
+  }
+
+  @Test
+  void copperWaxReadsTheOxidizingStateOfCopperGolemsOnly() {
+    CopperGolem waxed = mock(CopperGolem.class);
+    when(waxed.getOxidizing()).thenReturn(CopperGolem.Oxidizing.waxed());
+    CopperGolem oxidizing = mock(CopperGolem.class);
+    when(oxidizing.getOxidizing()).thenReturn(CopperGolem.Oxidizing.atTime(40L));
+
+    assertThat(PaperCompat.copperWaxed(waxed)).isTrue();
+    assertThat(PaperCompat.copperWaxed(oxidizing)).isFalse();
+    assertThat(PaperCompat.copperWaxed(mock(IronGolem.class))).isFalse();
+  }
+
+  @Test
+  void restoringCopperSetsTheStageAndOnlyWaxesWhenAsked() {
+    CopperGolem waxed = mock(CopperGolem.class);
+    CopperGolem bare = mock(CopperGolem.class);
+    CopperGolem clamped = mock(CopperGolem.class);
+    IronGolem iron = mock(IronGolem.class);
+
+    PaperCompat.restoreCopper(waxed, 2, true);
+    PaperCompat.restoreCopper(bare, 1, false);
+    PaperCompat.restoreCopper(clamped, 9, false);
+    PaperCompat.restoreCopper(iron, 3, true);
+
+    verify(waxed).setWeatheringState(WeatheringCopperState.WEATHERED);
+    verify(waxed).setOxidizing(CopperGolem.Oxidizing.waxed());
+    verify(bare).setWeatheringState(WeatheringCopperState.EXPOSED);
+    verify(bare, times(0)).setOxidizing(any());
+    verify(clamped).setWeatheringState(WeatheringCopperState.OXIDIZED);
+    verifyNoInteractions(iron);
+  }
+
+  @Test
+  void rangedAttackFiresARangedMobsOwnAttackAndSkipsOtherMobs() {
+    Snowman golem = mock(Snowman.class);
+    IronGolem iron = mock(IronGolem.class);
+    Zombie target = mock(Zombie.class);
+
+    assertThat(PaperCompat.rangedAttack(golem, target)).isTrue();
+    assertThat(PaperCompat.rangedAttack(iron, target)).isFalse();
+
+    verify(golem).rangedAttack(target, 1F);
+    verifyNoInteractions(iron);
+  }
+
+  @Test
+  void freezeTicksLockedReportsAnotherPluginsFreezeLock() {
+    Zombie locked = mock(Zombie.class);
+    Zombie free = mock(Zombie.class);
+    when(locked.isFreezeTickingLocked()).thenReturn(true);
+
+    assertThat(PaperCompat.freezeTicksLocked(locked)).isTrue();
+    assertThat(PaperCompat.freezeTicksLocked(free)).isFalse();
+  }
+
+  @Test
+  void berriesAndCustomNamesReadThroughThePaperApi() {
+    CaveVinesPlant ripe = mock(CaveVinesPlant.class);
+    CaveVinesPlant bare = mock(CaveVinesPlant.class);
+    when(ripe.hasBerries()).thenReturn(true);
+    Zombie named = mock(Zombie.class);
+    Zombie nameless = mock(Zombie.class);
+    when(named.customName()).thenReturn(Component.text("Bob"));
+
+    assertThat(PaperCompat.hasBerries(ripe)).isTrue();
+    assertThat(PaperCompat.hasBerries(bare)).isFalse();
+    assertThat(PaperCompat.hasCustomName(named)).isTrue();
+    assertThat(PaperCompat.hasCustomName(nameless)).isFalse();
+  }
+
+  @Test
+  void mobDropsDefaultToTrueWhenNoRuleIsKnown() {
+    World world = mock(World.class);
+
+    assertThat(PaperCompat.mobDrops(world, (GameRule<?>) null)).isTrue();
+    assertThat(PaperCompat.mobDrops(world)).isTrue();
+  }
+
+  @Test
+  void collisionChecksAskTheWorld() {
+    World world = mock(World.class);
+    BoundingBox blocked = new BoundingBox(0, 64, 0, 1, 66, 1);
+    when(world.hasCollisionsIn(blocked)).thenReturn(true);
+
+    assertThat(PaperCompat.hasCollisionsIn(world, blocked)).isTrue();
+    assertThat(PaperCompat.hasCollisionsIn(world, new BoundingBox(5, 64, 5, 6, 66, 6))).isFalse();
+  }
+
   @Test
   void hasChangedBlockIsFalseForFractionalMoveWithinSameBlock() {
     Location from = new Location(null, 10.2D, 64.0D, -3.9D);
@@ -103,5 +226,47 @@ class PaperCompatTest {
     }
 
     verifyNoInteractions(world);
+  }
+
+  @Test
+  void textSetsTheComponentOnPaperTextDisplays() {
+    TextDisplay display = mock(TextDisplay.class);
+    Component text = Component.text("Guard", NamedTextColor.GOLD);
+
+    PaperCompat.text(display, text);
+
+    verify(display).text(text);
+  }
+
+  @Test
+  void textFallsBackToLegacyTextWhereComponentsAreMissing() {
+    TextDisplay display = mock(TextDisplay.class);
+    Component text = Component.text("Guard", NamedTextColor.GOLD);
+    doThrow(new NoSuchMethodError("text")).when(display).text(any(Component.class));
+
+    PaperCompat.text(display, text);
+
+    verify(display).setText("\u00a76Guard");
+  }
+
+  @Test
+  void enchantingWithLevelsUsesPaperWithTreasureAndFallsBackToTheBukkitHelper() {
+    ItemFactory factory = mock(ItemFactory.class);
+    ItemStack book = mock(ItemStack.class);
+    ItemStack paperBook = mock(ItemStack.class);
+    ItemStack bukkitBook = mock(ItemStack.class);
+    Random random = new Random(7L);
+    when(factory.enchantWithLevels(book, 30, true, random)).thenReturn(paperBook).thenThrow(new NoSuchMethodError("enchantWithLevels"));
+    when(factory.enchantItem(book, 30, true)).thenReturn(bukkitBook);
+
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      bukkit.when(Bukkit::getItemFactory).thenReturn(factory);
+
+      assertThat(PaperCompat.enchantWithLevels(book, 30, random)).isSameAs(paperBook);
+      assertThat(PaperCompat.enchantWithLevels(book, 30, random)).isSameAs(bukkitBook);
+      assertThat(PaperCompat.enchantWithLevels(book, 30, random)).isSameAs(bukkitBook);
+    }
+
+    verify(factory, times(2)).enchantWithLevels(book, 30, true, random);
   }
 }

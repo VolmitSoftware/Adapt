@@ -3053,6 +3053,70 @@ description = "Güç içine hareket et."
 title = "Newton'un Receipt"
 description = "Kendi başına düşen bir çeteyi öldür 8 veya daha fazla blok."
 
+[advancement.challenge_golemancy_built_10]
+title = "Kil ve kıvılcım"
+description = "10 golem inşa et"
+
+[advancement.challenge_golemancy_built_100]
+title = "Devlerin dökümhanesi"
+description = "100 golem inşa et"
+
+[advancement.challenge_golemancy_bound_5]
+title = "Küçük maiyet"
+description = "5 golem bağla"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Animus lejyonu"
+description = "25 golem bağla"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Taş nöbetçiler"
+description = "Bağlı golemlerin 50 düşman yaratık öldürsün"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Yaşayan sur"
+description = "Bağlı golemlerin 500 düşman yaratık öldürsün"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Kırılmaz ordu"
+description = "Bağlı golemlerin 5.000 düşman yaratık öldürsün"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Kışın hizmetkârı"
+description = "Bir ayaz golemi bağla"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Bakır pası bağı"
+description = "Bir bakır golemi bağla"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Demir yemin"
+description = "Bir demir golemi bağla"
+
+[advancement.challenge_golemancy_tasks_1000]
+title = "Meşgul eller"
+description = "Golemlerin 1.000 iş bitirsin"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "Yorulmaz atölye"
+description = "Golemlerin 25.000 iş bitirsin"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "Sebatkâr hamallar"
+description = "Golemlerin 10.000 eşya teslim etsin"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "Sonsuz kervan"
+description = "Golemlerin 250.000 eşya teslim etsin"
+
+[advancement.challenge_golemancy_infusions_10]
+title = "Kaide çırağı"
+description = "Bir Animus Kaidesinde 10 aşılama tamamla"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Aşılama ustası"
+description = "Bir Animus Kaidesinde 100 aşılama tamamla"
+
 [agility.armor_up]
 name = "Zirhlan"
 description = "Ne kadar uzun sure kosarsan o kadar cok zirh al!"
@@ -4240,6 +4304,631 @@ lore1 = "Bonus İndirme Şansı"
 lore2 = "x Çürük kazırken acele seviyeleri"
 lore = ["Bonus İndirme Şansı", "x Çürük kazırken acele seviyeleri"]
 
+[golemancy.item.crook]
+name = "Zanaatkârın Asası"
+lore = "Bağlı golemleri ve çalıştıkları düğümleri yönetir"
+
+[golemancy.item.blank_core]
+name = "Boş Animus Çekirdeği"
+lore = "Bir golemi yoldaş olarak bağlar ya da bir rol çekirdeğine dönüştürülür"
+
+[golemancy.item.core]
+name = "{role} Çekirdeği"
+lore = "Bir golemi {role} rolüne bağlar"
+
+[golemancy.item.blank_node]
+name = "Boş Düğüm"
+lore = "Her türden bir düğüme dönüştürülür"
+
+[golemancy.item.node]
+name = "{node} Düğümü"
+lore = "Golem işini yönlendirmek için bir blok yüzeyine tutunur"
+
+[golemancy.item.blank_rune]
+name = "Boş Rün"
+lore = "Bir Animus Kaidesinde bir rüne aşılanır"
+
+[golemancy.item.rune]
+name = "{aspect} Rünü"
+tier = "Kademe {tier}"
+lore = "Güçlendirmek için bir goleme takılır"
+
+[golemancy.item.dormant_golem]
+name = "Uykudaki Golem"
+core = "Çekirdek: {core}"
+runes = "Rünler: {runes}"
+health = "Can: {health}/{maximum}"
+lore = "Bu golemi uyandırmak için yerleştir"
+
+[golemancy.item.shattered_core]
+name = "Parçalanmış Çekirdek"
+lore = "Düşmüş bir golemi yükseltmeleriyle yeniden inşa eder"
+
+[golemancy.item.masterwork_heart]
+name = "Başyapıt Kalbi"
+lore = "Bir başyapıt golemi belirler"
+
+[golemancy.role]
+blank = "Yoldaş"
+guardian = "Muhafız"
+gatherer = "Toplayıcı"
+harvester = "Hasatçı"
+lumber = "Oduncu"
+breaker = "Yıkıcı"
+rancher = "Çoban"
+sorter = "Ayıklayıcı"
+angler = "Balıkçı"
+
+[golemancy.node]
+guard = "Nöbet"
+collection = "Toplama"
+deposit = "Depolama"
+harvest = "Hasat"
+lumber = "Kesim"
+breaker = "Kazı"
+pasture = "Mera"
+input = "Girdi"
+filter = "Filtre"
+fishing = "Balıkçılık"
+
+[golemancy.aspect]
+swiftness = "Çeviklik"
+might = "Kudret"
+ember = "Kor"
+tide = "Gelgit"
+order = "Düzen"
+entropy = "Entropi"
+bulwark = "Siper"
+
+[golemancy.body]
+frost = "Ayaz"
+copper = "Bakır"
+iron = "Demir"
+bone = "Kemik"
+
+[golemancy.golem]
+name = "{body} Golemi ({owner})"
+
+[golemancy.mode]
+work = "Çalış"
+follow = "Takip et"
+stay = "Bekle"
+home = "Eve dön"
+
+[golemancy.signal]
+follow = "Takip et"
+hold = "Yerinde kal"
+home = "Eve dön"
+work = "Çalış"
+sic = "Saldır"
+
+[golemancy.channel]
+none = "Yok"
+white = "Beyaz"
+orange = "Turuncu"
+magenta = "Eflatun"
+light_blue = "Açık Mavi"
+yellow = "Sarı"
+lime = "Açık Yeşil"
+pink = "Pembe"
+gray = "Gri"
+light_gray = "Açık Gri"
+cyan = "Camgöbeği"
+purple = "Mor"
+blue = "Mavi"
+brown = "Kahverengi"
+green = "Yeşil"
+red = "Kırmızı"
+black = "Siyah"
+
+[golemancy.status]
+active = "Etkin"
+packed = "Paketlenmiş"
+shattered = "Parçalanmış"
+missing = "Kayıp"
+
+[golemancy.gui]
+title = "{body} Golemi"
+health = "Can: {health}/{maximum}"
+dormant = "Uykuda"
+mode = "Mod: {mode}"
+channel = "Kanal: {channel}"
+cycle = "Sol tık: sonraki, sağ tık: önceki"
+set_home = "Evi burada belirle"
+home = "Ev: {x}, {y}, {z}"
+link_chest = "Ev sandığını bağla"
+home_chest = "Ev sandığı: {x}, {y}, {z}"
+no_home_chest = "Bağlı ev sandığı yok"
+link_hint = "Tıklayın, ardından asayla bir depoya sağ tıklayın"
+rune_locked = "Kilitli rün yuvası"
+rune_unlock_level = "Rün Güçlendirmeleri {level}. seviyede açılır"
+rune_empty = "Boş rün yuvası"
+rune_empty_lore = "Bir rün alın ve takmak için buraya tıklayın"
+rune_remove = "Bu rünü geri almak için tıklayın"
+rune_active = "Etkin"
+rune_over_tier = "Etkisiz: {tier}. kademe için Rün Güçlendirmeleri {level}. seviye gerekir"
+rune_slot_locked = "Etkisiz: bu yuva için Rün Güçlendirmeleri {level}. seviye gerekir"
+rune_blocked = "Etkisiz: {aspect} rünleri {body} Golemi'nde çalışmaz"
+rune_duplicate = "Etkisiz: bu golemde zaten bir {aspect} rünü var"
+rune_unpowered = "Etkisiz: Rün Güçlendirmeleriniz bu rün için yetmez"
+channels = "Kanallar: {channels}"
+channels_lore = "En fazla {count} kanal seçmek için tıklayın"
+channels_title = "Kanal Seç"
+channel_selected = "Seçili"
+channel_select = "Seçmek için tıklayın"
+channels_clear = "Kanalları temizle"
+back = "Geri"
+take = "Almak için tıklayın"
+more_carried = "+{count} daha"
+stats = "İstatistikler"
+kills = "Öldürme: {value}"
+damage = "Verilen hasar: {value}"
+tasks = "Tamamlanan görev: {value}"
+items_moved = "Taşınan eşya: {value}"
+release = "Serbest bırak"
+release_lore = "Onu sıradan bir golem yapar ve çekirdeğini, rünlerini, taşıdığı eşyaları ve varsa ikinci çekirdeğini ve Başyapıt Kalbi'ni düşürür"
+release_confirm = "Bu golem serbest bırakılsın mı?"
+snow_trail_on = "Kar izi: açık"
+snow_trail_off = "Kar izi: kapalı"
+snow_trail_lore = "Bu golemin arkasında bıraktığı karı açıp kapatmak için tıklayın"
+colossus_on = "Dev Formu: açık"
+colossus_off = "Dev Formu: kapalı"
+colossus_lore = "Savaş için tam boyutu açıp kapatmak için tıklayın; büyümüş bir golem çalışmaz"
+pack = "Paketle"
+pack_lore = "Bu golemi, yerleştirerek uyandırabileceğin bir Uykudaki Golem bloğuna sıkıştırır"
+
+[golemancy.roster]
+title = "Golem Listesi"
+empty = "Hiç golemin yok"
+entry = "{body} Golemi ({core})"
+location = "{world}: {x}, {y}, {z}"
+last_seen = "En son {world} içinde {x}, {z} yakınında görüldü"
+status = "Durum: {status}"
+locate = "Bulmak için sol tıklayın"
+release = "Serbest bırakmak için Shift + sağ tıklayın"
+release_confirm = "Bu kayıp golem kalıcı olarak serbest bırakılsın mı?"
+release_shattered_confirm = "Bu parçalanmış golem kalıcı olarak serbest bırakılsın mı? Parçalanmış Çekirdeği ufalanacak."
+release_packed_confirm = "Bu paketlenmiş golem kalıcı olarak serbest bırakılsın mı? Uykudaki Golemi ufalanacak."
+recall = "Envanterine geri çağırmak için sağ tıklayın"
+crook_channel = "Asa kanalı: {channel}"
+crook_channel_lore = "Asanızın hangi golemlere işaret vereceğini seçmek için tıklayın"
+crook_channel_title = "Asa Kanalı"
+crook_channel_all = "Tüm golemler"
+
+[golemancy.message]
+home_set = "Ev {x}, {y}, {z} olarak belirlendi"
+link_armed = "Bağlamak için asayla bir depoya sağ tıklayın"
+chest_linked = "Ev sandığı {x}, {y}, {z} konumuna bağlandı"
+chest_denied = "Bu depo korunuyor"
+chest_out_of_reach = "Bu depo golemin evine en fazla {radius} blok uzaklıkta olmalı"
+released = "Golem serbest bırakıldı"
+release_failed = "Bu golem şu anda serbest bırakılamaz"
+gone = "Bu golem artık burada değil"
+colossus_no_room = "Bu golemin büyümesi için burada yeterli yer yok"
+colossus_busy = "Bu golem hâlâ boyut değiştiriyor"
+rune_slotted = "{aspect} rünü takıldı"
+rune_removed = "{aspect} rünü geri alındı"
+rune_needed = "Önce bir rün alın"
+rune_no_slot = "Bu golemde boş rün yuvası yok"
+rune_duplicate = "Bu golemde zaten bir {aspect} rünü var"
+rune_blocked = "{aspect} rünleri {body} Golemi'nde çalışmaz"
+channels_full = "Bu golem yalnızca {count} kanal kullanabilir"
+crook_channel = "Asanız artık şuna işaret veriyor: {channel}"
+crook_needed = "Kanalını ayarlamak için asayı ana elinizde tutun"
+
+[golemancy.binding]
+busy = "Zaten bir bağlama ritüeli sürüyor"
+already_bound = "Bu golem zaten bağlı"
+village = "Yalnızca oyuncuların yaptığı golemler bağlanabilir"
+builder = "Bu golemi şu anda yalnızca onu yapan oyuncu bağlayabilir"
+body_locked = "Henüz {body} golemlerini bağlayamazsın"
+core_not_allowed = "{body} Golemi {core} çekirdeğini kabul etmez"
+core_locked = "{core} çekirdeklerini bağlamayı henüz öğrenmedin"
+protected = "Burada golem bağlayamazsın"
+unavailable = "Golem listen henüz hazır değil"
+golem_cap = "Zaten sınırın olan {count} golemin var"
+chunk_cap = "Bu bölgede zaten {count} bağlı golem var"
+levels = "Bu golemi bağlamak {levels} seviyeye mal olur"
+interrupted = "Bağlama kesildi"
+bound = "{body} Golemin artık sana bağlı"
+
+[golemancy.animus_binding]
+name = "Animus Bağı"
+description = "Elinde bir Animus Çekirdeği tutarken eğilip bir golemi sağ tıklayarak onu yoldaşın olarak kendine bağla."
+lore1 = "Sahip olabileceğin golemler"
+lore2 = "Bağlama ritüeli başına saniye"
+lore3 = "Ayaz golemi bağlamak için seviye"
+lore4 = "Bakır golemi bağlamak için seviye"
+lore5 = "Demir golemi bağlamak için seviye"
+lore = ["Sahip olabileceğin golemler", "Bağlama ritüeli başına saniye", "Ayaz golemi bağlamak için seviye", "Bakır golemi bağlamak için seviye", "Demir golemi bağlamak için seviye"]
+
+[golemancy.frost_frame]
+name = "Ayaz Çatısı"
+description = "Bağlı ayaz golemlerini ek can, hasar veren kar toplarıyla ve yağmura ve sıcağa karşı korumayla güçlendirir."
+lore1 = "Ayaz golemleri için ek can"
+lore2 = "Kar topu hasarı"
+lore3 = "Sıcak biyomlarda alınan hasar"
+lore4 = "Yağmura ve suya karşı bağışık"
+lore5 = "İsabet başına yavaşlık saniyesi"
+lore6 = "Ek kar topu şansı"
+lore7 = "Hedefi dondurmak için kar topu isabeti"
+lore = ["Ayaz golemleri için ek can", "Kar topu hasarı", "Sıcak biyomlarda alınan hasar", "Yağmura ve suya karşı bağışık", "İsabet başına yavaşlık saniyesi", "Ek kar topu şansı", "Hedefi dondurmak için kar topu isabeti"]
+
+[golemancy.copper_frame]
+name = "Bakır Çatısı"
+description = "Bakır golemleri bağlamanı sağlar ve onları ek can, taşıma kapasitesi ve hızla, ayrıca patinalarından gelen zırhla güçlendirir."
+lore1 = "Bakır golemleri için ek can"
+lore2 = "Eşya taşıma kapasitesi"
+lore3 = "Hareket hızı"
+lore4 = "Asla heykele dönüşmez"
+lore5 = "Patina aşaması başına zırh"
+lore6 = "Patina aşaması başına kaybedilen hız"
+lore7 = "Yakındaki yıldırımdan Hız II saniyesi"
+lore = ["Bakır golemleri için ek can", "Eşya taşıma kapasitesi", "Hareket hızı", "Asla heykele dönüşmez", "Patina aşaması başına zırh", "Patina aşaması başına kaybedilen hız", "Yakındaki yıldırımdan Hız II saniyesi"]
+
+[golemancy.iron_frame]
+name = "Demir Çatısı"
+description = "Demir golemleri bağlamanı sağlar ve onları ek can, zırh ve saldırıyla, daha güçlü külçe onarımlarıyla, süpüren yumruklarla ve tam boyutlu Dev Formuyla güçlendirir."
+lore1 = "Demir golemleri için ek can"
+lore2 = "Demir golemleri için ek zırh"
+lore3 = "Demir golemleri için ek saldırı hasarı"
+lore4 = "Demir külçesi onarımı başına ek can"
+lore5 = "Yumruk başına vurulan ek düşman"
+lore6 = "Dev Formunda saldırı hasarı"
+lore = ["Demir golemleri için ek can", "Demir golemleri için ek zırh", "Demir golemleri için ek saldırı hasarı", "Demir külçesi onarımı başına ek can", "Yumruk başına vurulan ek düşman", "Dev Formunda saldırı hasarı"]
+
+[golemancy.bone_frame]
+name = "Kemik Çatısı"
+description = "Tragoul iskelet hizmetkârlarını Golemcilik'e katar: asanın işaretlerine uyarlar, yalnızca senin görebildiğin durum etiketleriyle hizmetkâr kanalının renginde parlarlar, rünlerden bir Kemik Kafes takarlar ve öldürdükleri için Golemcilik XP'si kazandırırlar."
+lore1 = "Hizmetkârlar asa işaretlerine uyar ve durum etiketlerini gösterir"
+lore2 = "Kemik Kafes rün yuvaları"
+lore3 = "Hizmetkârlarının öldürmelerinden Golemcilik XP'si"
+lore = ["Hizmetkârlar asa işaretlerine uyar ve durum etiketlerini gösterir", "Kemik Kafes rün yuvaları", "Hizmetkârlarının öldürmelerinden Golemcilik XP'si"]
+lattice = "Kemik Kafes"
+lattice_lore = "Hizmetkârlarının rünlerini ve kanalını ayarlamak için tıklayın"
+slot_empty = "Boş kafes yuvası"
+slot_empty_lore = "Bir rün ({aspects}) alın ve buraya tıklayın"
+slot_locked = "Kilitli kafes yuvası"
+slot_unlock_level = "Kemik Çatısı {level}. seviyede açılır"
+slot_inert = "Etkisiz: bu yuva için Kemik Çatısı {level}. seviye gerekir"
+rune_tier = "Hizmetkârlarında {tier}. kademede çalışır"
+channel = "Hizmetkâr kanalı: {channel}"
+channel_set = "Hizmetkârların artık {channel} kanalını kullanıyor"
+refused_aspect = "{aspect} rünleri bir Kemik Kafes'e uymaz"
+duplicate = "Kemik Kafes'inde zaten bir {aspect} rünü var"
+no_slot = "Kemik Kafes'inde boş yuva yok"
+time_left = "{seconds} sn kaldı"
+
+[golemancy.guardian_core]
+name = "Muhafız Çekirdeği"
+description = "Muhafız Çekirdeği ile bağlanan golemler evlerini, seni ya da bir Nöbet Düğümü'nün alanını savunur ve çekirdek güçlendikçe seni daha iyi korur."
+lore1 = "Blok cinsinden nöbet yarıçapı"
+lore2 = "Önleme: seni kovalayan moblar muhafızlarına yönelir"
+lore3 = "Misilleme: muhafızlar seni yaralayana saldırır"
+lore4 = "Muhafızlarının yakınında daha az hasar"
+lore5 = "Son Direniş'ten Direnç saniyesi"
+lore = ["Blok cinsinden nöbet yarıçapı", "Önleme: seni kovalayan moblar muhafızlarına yönelir", "Misilleme: muhafızlar seni yaralayana saldırır", "Muhafızlarının yakınında daha az hasar", "Son Direniş'ten Direnç saniyesi"]
+
+[golemancy.gatherer_core]
+name = "Toplayıcı Çekirdeği"
+description = "Toplayıcı Çekirdeği ile bağlanan golemler evlerinin ya da bir Toplama Düğümü'nün çevresine düşen eşyaları toplayıp teslim eder ve çekirdek güçlendikçe deneyim kürelerini öz olarak biriktirir."
+lore1 = "Blok cinsinden toplama yarıçapı"
+lore2 = "Deneyim puanı öz deposu"
+lore3 = "Blok eşya mıknatısı"
+lore4 = "Blok anında toplama"
+lore5 = "Taşıma kapasitesi"
+lore = ["Blok cinsinden toplama yarıçapı", "Deneyim puanı öz deposu", "Blok eşya mıknatısı", "Blok anında toplama", "Taşıma kapasitesi"]
+essence = "Öz: {value} deneyim puanı"
+essence_lore = "Biriken deneyimi almak için tıklayın"
+essence_taken = "{value} deneyim puanı öz aldın"
+essence_empty = "Bu golemin biriktirdiği öz yok"
+
+[golemancy.harvester_core]
+name = "Hasatçı Çekirdeği"
+description = "Hasatçı Çekirdeği ile bağlanan golemler bir Hasat Düğümü'nün alanındaki olgun ekinleri hasat edip yeniden eker ve çekirdek güçlendikçe tarlaya bakıp onu sürer."
+lore1 = "Hasat eylemi başına ekin"
+lore2 = "Hasat eylemi başına saniye"
+lore3 = "Karpuz, balkabağı, şeker kamışı, bambu ve kaktüs de hasat eder"
+lore4 = "Bakım: ev sandığındaki kemik tozunu genç ekinlere kullanır"
+lore5 = "Sürme: toprağı yeniden sürer ve boş tarlaya tohum eker"
+lore6 = "Ek ganimet zarı şansı"
+lore = ["Hasat eylemi başına ekin", "Hasat eylemi başına saniye", "Karpuz, balkabağı, şeker kamışı, bambu ve kaktüs de hasat eder", "Bakım: ev sandığındaki kemik tozunu genç ekinlere kullanır", "Sürme: toprağı yeniden sürer ve boş tarlaya tohum eker", "Ek ganimet zarı şansı"]
+
+[golemancy.lumber_core]
+name = "Oduncu Çekirdeği"
+description = "Oduncu Çekirdeği ile bağlanan golemler bir Kesim Düğümü'nün alanındaki doğal ağaçları yukarıdan aşağıya keser ve kütükleri toplar, çekirdek güçlendikçe de yeniden diker, yaprakları süpürür ve daha büyük ağaçları keser."
+lore1 = "Saniyede kesilen kütük"
+lore2 = "Bakır golemler için ağaç başına kütük"
+lore3 = "Demir golemler için ağaç başına kütük"
+lore4 = "Kesimden sonra fidan diker"
+lore5 = "Yaprak süpürme: gevşek yaprakları kırar ve düşürdüklerini toplar"
+lore6 = "2x2 dev ağaçları keser"
+lore7 = "Kızıl ve çarpık mantarları keser ve mantar diker"
+lore = ["Saniyede kesilen kütük", "Bakır golemler için ağaç başına kütük", "Demir golemler için ağaç başına kütük", "Kesimden sonra fidan diker", "Yaprak süpürme: gevşek yaprakları kırar ve düşürdüklerini toplar", "2x2 dev ağaçları keser", "Kızıl ve çarpık mantarları keser ve mantar diker"]
+
+[golemancy.breaker_core]
+name = "Yıkıcı Çekirdeği"
+description = "Yıkıcı Çekirdeği ile bağlanan golemler bir Kazı Düğümü'nün alanında filtresinin listelediği blokları kırar ve düşenleri taşır; çekirdek güçlendikçe daha iyi kazmalarla daha sert blokları kazar."
+lore1 = "En yüksek blok sertliği"
+lore2 = "Blok başına saniye"
+lore3 = "Kazı aleti"
+lore4 = "Kazı Düğümlerinde İpek Dokunuşu anahtarı"
+lore5 = "Kazı Düğümlerinde Servet I anahtarı"
+lore = ["En yüksek blok sertliği", "Blok başına saniye", "Kazı aleti", "Kazı Düğümlerinde İpek Dokunuşu anahtarı", "Kazı Düğümlerinde Servet I anahtarı"]
+filter_ready = "Filtredeki blokları kırar"
+filter_needed = "Beyaz listeye blok ekleyin"
+filter_lore = "Yıkıcılar yalnızca beyaz listenin listelediği blokları kırar"
+silk_on = "İpek Dokunuşu: açık"
+silk_off = "İpek Dokunuşu: kapalı"
+fortune_on = "Servet I: açık"
+fortune_off = "Servet I: kapalı"
+locked = "Yıkıcı Çekirdeği {level}. seviyede açılır"
+exclusive = "İpek Dokunuşu ve Servet I birbirini kapatır"
+
+[golemancy.rancher_core]
+name = "Çoban Çekirdeği"
+description = "Çoban Çekirdeği ile bağlanan golemler bir Mera düğümünün alanındaki hayvanlara bakar: düğümün tutma sayısına kadar çiftleri çiftleştirir, çekirdek güçlendikçe koyunları kırkar, inekleri ve keçileri sağar ve fazla yetişkinleri ayıklar."
+lore1 = "Mera düğümünün tutma sayısına kadar çiftleri çiftleştirir"
+lore2 = "Koyunları kırkar"
+lore3 = "Ev sandığındaki kova veya kâselerle inekleri, keçileri ve mantar inekleri sağar"
+lore4 = "Tutma sayısının üstündeki yetişkinleri ayıklar (yalnızca demir golemler)"
+lore5 = "Daha kısa çiftleşme bekleme süresi"
+lore6 = "Ayıklama başına ek ganimet zarı"
+lore = ["Mera düğümünün tutma sayısına kadar çiftleri çiftleştirir", "Koyunları kırkar", "Ev sandığındaki kova veya kâselerle inekleri, keçileri ve mantar inekleri sağar", "Tutma sayısının üstündeki yetişkinleri ayıklar (yalnızca demir golemler)", "Daha kısa çiftleşme bekleme süresi", "Ayıklama başına ek ganimet zarı"]
+species = "Tür: {species}"
+species_all = "Tüm hayvanlar"
+species_lore = "Sonraki tür için sol tık, önceki için sağ tık"
+keep = "Tutma sayısı: tür başına {count}"
+keep_lore = "Artırmak için sol tık, azaltmak için sağ tık"
+breed_on = "Çiftleştirme: açık"
+breed_off = "Çiftleştirme: kapalı"
+shear_on = "Kırkma: açık"
+shear_off = "Kırkma: kapalı"
+milk_on = "Sağma: açık"
+milk_off = "Sağma: kapalı"
+cull_on = "Ayıklama: açık"
+cull_off = "Ayıklama: kapalı"
+locked = "Çoban Çekirdeği {level}. seviyede açılır"
+iron_only = "Yalnızca demir golemler ayıklar"
+
+[golemancy.sorter_core]
+name = "Ayıklayıcı Çekirdeği"
+description = "Ayıklayıcı Çekirdeği ile bağlanan bakır golemler bir Girdi Düğümü'nün altındaki kabı, her eşyayı zaten içeren yakındaki kaplara boşaltır; çekirdek güçlendikçe eşya gruplarını, Filtre Düğümlerini, yeniden doldurmayı ve getirmeyi öğrenir."
+lore1 = "Blok cinsinden hedef yarıçapı"
+lore2 = "Sefer başına yığın"
+lore3 = "Eşya gruplarına göre ayıklar"
+lore4 = "Filtre Düğümleri ve bir taşma"
+lore5 = "Büyüleri ve iksirleri ayırt eder"
+lore6 = "Shulker kutularını taşır"
+lore7 = "Filtre Düğümlerinde yeniden doldurma miktarları"
+lore8 = "Kap içeriklerinin dizini"
+lore9 = "Girdi Düğümü menüsünden getirme"
+lore = ["Blok cinsinden hedef yarıçapı", "Sefer başına yığın", "Eşya gruplarına göre ayıklar", "Filtre Düğümleri ve bir taşma", "Büyüleri ve iksirleri ayırt eder", "Shulker kutularını taşır", "Filtre Düğümlerinde yeniden doldurma miktarları", "Kap içeriklerinin dizini", "Girdi Düğümü menüsünden getirme"]
+match_exact = "Eşleştirme: aynı eşya"
+match_groups = "Eşleştirme: eşya grupları"
+match_precise = "Eşleştirme: büyüler ve iksirler"
+match_lore = "Bir Ayıklayıcının bir eşyayı zaten içeren kabı nasıl seçtiği"
+radius = "Hedef yarıçapı: {radius}"
+radius_lore = "Ayıklayıcı Çekirdeği seviyende en fazla {radius} blok"
+fetch = "Eşya getir"
+fetch_lore = "Bir Ayıklayıcının sana getireceği eşyaları seç"
+locked = "Ayıklayıcı Çekirdeği {level}. seviyede açılır"
+overflow_on = "Taşma: açık"
+overflow_off = "Taşma: kapalı"
+overflow_lore = "Taşma, başka hiçbir kabın istemediği eşyaları alır"
+restock = "Yeniden doldurma: her filtre eşyasından {amount}"
+restock_off = "Yeniden doldurma: kapalı"
+restock_lore = "Ayıklayıcılar listedeki her eşyadan burada bu kadar tutar"
+fetch_available = "Mevcut: {count}"
+fetch_request = "{amount} istemek için tıkla"
+fetch_amount = "Her seferinde {amount} iste"
+fetch_empty = "Bu Girdi Düğümü'nün kaplarında hiçbir şey yok"
+fetch_requested = "Bir Ayıklayıcı {amount} {item} getirecek"
+fetch_delivered = "Bir Ayıklayıcı {amount} {item} getirdi"
+empty_filter = "Boş bir Filtre Düğümü taşma değilse hiçbir şey almaz"
+
+[golemancy.angler_core]
+name = "Balıkçı Çekirdeği"
+description = "Balıkçı Çekirdeği ile bağlanan golemler bir Balıkçılık Düğümü'nün önündeki açık suda balık tutar ve avı taşır; çekirdek güçlendikçe şansları artar, çöpleri ayıklar, yağmurda daha hızlı avlanır ve çift av yakalar."
+lore1 = "Av başına saniye"
+lore2 = "Balıkçılık şansı"
+lore3 = "Balıkçılık Düğümlerinde çöp filtresi anahtarı"
+lore4 = "Yağmurda daha kısa av süresi"
+lore5 = "Çift av şansı"
+lore = ["Av başına saniye", "Balıkçılık şansı", "Balıkçılık Düğümlerinde çöp filtresi anahtarı", "Yağmurda daha kısa av süresi", "Çift av şansı"]
+water_ready = "Açık su bulundu"
+water_needed = "Açık su gerekli"
+water_lore = "Balıkçıların düğümün önünde 5'e 5 açık suya ihtiyacı var"
+junk_keep = "Çöp: tut"
+junk_discard = "Çöp: geri at"
+locked = "Balıkçı Çekirdeği {level}. seviyede açılır"
+
+[golemancy.runic_augments]
+name = "Rün Güçlendirmeleri"
+description = "Animus Kaidesi'nde rün aşılamanızı ve bunları bağlı golemlerinize takarak hız, taşıma, ateş, menzil, kanal, verim ve zırh kazanmanızı sağlar."
+lore1 = "Golem başına ek rün yuvası"
+lore2 = "Kullanılabilir en yüksek rün kademesi"
+lore3 = "Animus Kaidesi ve Boş Rün tarifi"
+lore = ["Golem başına ek rün yuvası", "Kullanılabilir en yüksek rün kademesi", "Animus Kaidesi ve Boş Rün tarifi"]
+
+[golemancy.overseer]
+name = "Gözetmen"
+description = "Zanaatkârın Asası ile bağlı golemlerine takip etme, yerinde kalma, eve dönme veya çalışma işaretleri vermeni sağlar; güçlendikçe baktığın şeye saldırmalarını, kanala göre yanıt vermelerini, yanına toplanmalarını ve seni düzende korumalarını da sağlar."
+lore1 = "Blok cinsinden işaret yarıçapı"
+lore2 = "Saldır: savaşan golemlerin baktığın şeye saldırır"
+lore3 = "Asa kanal filtresi, Golem Listesi'nden ayarlanır"
+lore4 = "Toplanma: Takip et uzaktaki golemleri yanına çağırır"
+lore5 = "Düzendeki golemlerden en yüksek zırh"
+lore = ["Blok cinsinden işaret yarıçapı", "Saldır: savaşan golemlerin baktığın şeye saldırır", "Asa kanal filtresi, Golem Listesi'nden ayarlanır", "Toplanma: Takip et uzaktaki golemleri yanına çağırır", "Düzendeki golemlerden en yüksek zırh"]
+signal = "İşaret: {signal}"
+sent = "Gönderildi: {signal}"
+sent_channel = "Gönderildi: {signal}, {channel} kanalına"
+no_target = "Saldır işareti göndermek için {range} blok içinde saldırabileceğiniz bir canlıya bakın"
+
+[golemancy.mending]
+name = "Golem Onarımı"
+description = "Golemlerini bakır külçeleri, kar blokları ve kemik tozuyla iyileştir, yakınında ve evde toparlanmalarını sağla ve düşen golemleri Parçalanmış Çekirdeklerinden yeniden inşa et."
+lore1 = "Onarımlardan ek iyileşme"
+lore2 = "Bakır külçeleri, kar blokları ve kemik tozu golemlerini iyileştirir"
+lore3 = "Yakınındayken yenilenen can"
+lore4 = "Evde boştayken yenilenen can"
+lore5 = "Yenilenmeler arası saniye"
+lore6 = "Parçalanmış Çekirdek: düşen golemleri yeniden inşa et"
+lore7 = "Yeniden doğan golemler için Direnç saniyesi"
+lore8 = "Yeniden doğan golemler bakır durumlarını korur"
+lore = ["Onarımlardan ek iyileşme", "Bakır külçeleri, kar blokları ve kemik tozu golemlerini iyileştirir", "Yakınındayken yenilenen can", "Evde boştayken yenilenen can", "Yenilenmeler arası saniye", "Parçalanmış Çekirdek: düşen golemleri yeniden inşa et", "Yeniden doğan golemler için Direnç saniyesi", "Yeniden doğan golemler bakır durumlarını korur"]
+full_health = "Bu golemin canı zaten dolu"
+shattered = "{body} Golemin parçalandı ve Parçalanmış Çekirdeğini geride bıraktı"
+reborn = "{body} Golemin yeniden doğdu"
+void = "Bu Parçalanmış Çekirdek ufalanıyor: artık golemini taşımıyor"
+not_owner = "Bu Parçalanmış Çekirdek başka bir oyuncuya ait"
+locked = "Bir golemi yeniden inşa etmek için Golem Onarımı {level}. seviye gerekir"
+wrong_body = "Bu Parçalanmış Çekirdeğin yeni inşa edilmiş bir {body} Golemine ihtiyacı var"
+unreadable = "Bu Parçalanmış Çekirdek hasarlı ve golemi yeniden inşa edemez"
+
+[golemancy.stasis]
+name = "Staz"
+description = "Bağlı golemlerini Asa ile Uykudaki Golem bloklarına paketle ve bloğu yerleştirerek onları her yerde uyandır; çekirdekleri, rünleri, yükleri ve canları korunur."
+lore1 = "Bir golemi paketleme saniyesi"
+lore2 = "Anında paketleme"
+lore3 = "Uyandırmak için bir Uykudaki Golem yerleştir"
+lore4 = "Paketliyken iyileşen can"
+lore5 = "Paketliyken iyileşmeler arası saniye"
+lore6 = "Cep Listesi: golemleri listeden geri çağır"
+lore7 = "Geri çağırmalar arası saniye"
+lore = ["Bir golemi paketleme saniyesi", "Anında paketleme", "Uyandırmak için bir Uykudaki Golem yerleştir", "Paketliyken iyileşen can", "Paketliyken iyileşmeler arası saniye", "Cep Listesi: golemleri listeden geri çağır", "Geri çağırmalar arası saniye"]
+packed = "{body} Golemin bir Uykudaki Golem olarak paketlendi"
+dropped = "Envanterin dolu olduğu için Uykudaki Golemin ayaklarının dibine düştü"
+interrupted = "Paketleme yarıda kesildi"
+busy = "Zaten bir golemi paketliyorsun"
+pack_failed = "Bu golem şu anda paketlenemez"
+awakened = "{body} Golemin uyanıyor"
+void = "Bu Uykudaki Golem ufalanıyor: artık golemini taşımıyor"
+not_owner = "Bu Uykudaki Golem başka bir oyuncuya ait"
+locked = "Bir Uykudaki Golemi uyandırmak için Staz gerekir"
+unreadable = "Bu Uykudaki Golem hasarlı ve uyanamıyor"
+body_locked = "Henüz {body} golemlerini uyandıramazsın"
+no_room = "Bir Uykudaki Golemin uyanması için boş bir blok gerekir"
+server_cap = "Sunucuda izin verilen sayıda golem zaten uyanık"
+protected = "Burada golem uyandıramazsın"
+awaken_failed = "Golem uyanamadı, bu yüzden Uykudaki Golemin sende kaldı"
+recall_cooldown = "{seconds} saniye sonra başka bir golemi geri çağırabilirsin"
+recall_unavailable = "Yalnızca dünyanda yüklü golemler geri çağrılabilir"
+
+[golemancy.masterwork]
+name = "Başyapıt"
+description = "Animus Kaidesi'nde bir Başyapıt Kalbi aşılayın ve bir goleme takarak ek bir rün yuvası, daha fazla can, ikinci bir çekirdek ve daha güçlü rünler kazanın."
+lore1 = "Başyapıt golemleri"
+lore2 = "Başyapıtta ek rün yuvası"
+lore3 = "Başyapıtın azami canı"
+lore4 = "Başyapıtta ikinci çekirdek yuvası"
+lore5 = "Başyapıtın rünleri bir kademe yüksek çalışır"
+lore6 = "Başyapıtın 3. kademe rünlerine bonus"
+lore = ["Başyapıt golemleri", "Başyapıtta ek rün yuvası", "Başyapıtın azami canı", "Başyapıtta ikinci çekirdek yuvası", "Başyapıtın rünleri bir kademe yüksek çalışır", "Başyapıtın 3. kademe rünlerine bonus"]
+slot = "Başyapıt Kalbi"
+slot_lore = "Kalbi ikinci çekirdek ve ek rünlerle geri almak için tıklayın"
+slot_empty = "Başyapıt yuvası"
+slot_empty_lore = "Bir Başyapıt Kalbi alın ve buraya tıklayın ({count}/{maximum} başyapıt)"
+core_empty = "İkinci çekirdek yuvası"
+core_empty_lore = "Bir rol çekirdeği alın ve takmak için buraya tıklayın"
+core_remove = "Bu çekirdeği geri almak için tıklayın"
+heart_needed = "Önce bir Başyapıt Kalbi alın"
+designated = "Bu golem artık bir başyapıt"
+removed = "Başyapıt Kalbi geri alındı"
+already = "Bu golem zaten bir başyapıt"
+cap = "Zaten {count} başyapıt golemin var"
+locked = "Başyapıt golemi belirlemek için Başyapıt gerekir"
+body = "{body} Golemi başyapıt olamaz"
+core_needed = "Önce bir rol çekirdeği alın"
+core_slotted = "{core} çekirdeği takıldı"
+core_removed = "{core} çekirdeği geri alındı"
+core_no_slot = "Bu golemin boş çekirdek yuvası yok"
+core_blank = "İkinci çekirdek bir rol çekirdeği olmalı"
+core_duplicate = "Bu golemde zaten bir {core} çekirdeği var"
+
+[golemancy.node_status]
+idle = "Boşta"
+working = "Çalışıyor"
+blocked = "Koruma tarafından engellendi"
+full = "Depo dolu"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filtre: {count}"
+
+[golemancy.node_message]
+placed = "{node} Düğümü yerleştirildi"
+occupied = "Bu yüzeyde zaten bir düğüm var"
+protected = "Buraya düğüm yerleştiremezsin"
+needs_container = "{node} Düğümü bir sandığa, varile veya shulker kutusuna yerleştirilir"
+needs_side_face = "{node} Düğümü bir bloğun yan yüzüne yerleştirilir"
+container_protected = "Bu depo korunuyor"
+chunk_full = "Bu chunk'ta zaten {count} düğüm var"
+cap = "Zaten sınırın olan {count} düğümün var"
+loading = "Buradaki düğümler hâlâ yükleniyor"
+unavailable = "Golem listen henüz hazır değil"
+filter_added = "{item} filtreye eklendi"
+filter_removed = "{item} filtreden çıkarıldı"
+filter_full = "Bu filtre en fazla {count} girdi alır"
+priority_locked = "Düğüm önceliği Düğüm Örme {level}. seviyede açılır"
+removed = "{node} Düğümü kaldırıldı"
+remove_failed = "Bu düğüm şu anda kaldırılamıyor"
+not_owner = "Bu düğüm başka bir oyuncuya ait"
+gone = "Bu düğüm artık burada değil"
+tag_prompt = "Sohbete #logs gibi bir eşya etiketi yaz"
+tag_invalid = "{tag} bir eşya etiketi değil"
+tag_cancelled = "Etiket girişi iptal edildi"
+tag_timed_out = "Etiket girişinin süresi doldu"
+
+[golemancy.node_gui]
+position = "Blok: {x}, {y}, {z}"
+area = "{axis} yarıçapı: {radius}"
+area_lore = "Sol tık: büyüt, sağ tık: küçült"
+area_cap = "En büyük yarıçap: {radius}"
+priority = "Öncelik: {priority}"
+redstone = "Kızıltaş: {mode}"
+redstone_ignore = "Yok sayılır"
+redstone_powered = "Yalnızca kızıltaş sinyaliyle çalışır"
+redstone_unpowered = "Yalnızca kızıltaş sinyali yokken çalışır"
+locked = "Düğüm Örme {level}. seviyede açılır"
+whitelist = "Beyaz liste"
+whitelist_lore = "Golemler yalnızca eşleşen eşyaları kullanır"
+blacklist = "Kara liste"
+blacklist_lore = "Golemler eşleşen eşyalar dışında her şeyi kullanır"
+empty_filter = "Boş bir filtre her eşyayla eşleşir"
+toggle = "Değiştirmek için tıklayın"
+filter_empty = "Boş filtre yuvası"
+filter_set = "Ayarlamak için bir eşyayla tıklayın"
+filter_clear = "Temizlemek için sağ tıklayın"
+filter_locked = "Kilitli filtre yuvası"
+filter_locked_lore = "Daha fazla Düğüm Örme seviyesi bu yuvayı açar"
+tag = "Eşya etiketi"
+tag_add = "Etiket ekle"
+tag_add_lore = "Tıklayın, ardından sohbete #logs gibi bir eşya etiketi yazın"
+
+[golemancy.node_weaving]
+name = "Düğüm Örme"
+description = "Elinde bir düğümle eğil ve bir blok yüzeyine sağ tıkla; düğüm oraya tutunur ve golemlerinin işini yönlendirir."
+lore1 = "Sahip olabileceğin düğümler"
+lore2 = "Blok cinsinden çalışma alanı yarıçapı"
+lore3 = "Filtre yuvaları"
+lore4 = "Düğüm önceliği 1-5"
+lore5 = "Kızıltaş denetimi"
+lore6 = "Kara liste ve etiket filtreleri"
+lore = ["Sahip olabileceğin düğümler", "Blok cinsinden çalışma alanı yarıçapı", "Filtre yuvaları", "Düğüm önceliği 1-5", "Kızıltaş denetimi", "Kara liste ve etiket filtreleri"]
+
+[golemancy.plinth]
+loading = "Bu kaide hâlâ yükleniyor"
+occupied = "Bu sehpada zaten bir eşya var"
+protected = "Bu kaideyi burada kullanamazsın"
+busy = "Zaten bir aşılama sürüyor"
+no_recipe = "Bu eşyalar bir aşılama oluşturmuyor"
+locked = "Bu aşılamayı henüz öğrenmedin"
+levels = "Bu aşılama {levels} seviyeye mal olur"
+interrupted = "Aşılama kesildi"
+complete = "Aşılama tamamlandı"
+failed = "Aşılama başarısız oldu ve seviyelerin iade edildi"
+
 [herbalism.growth_aura]
 name = "Buyume Aurasi"
 description = "Cevrenizdeki dogayi bir aura icinde buyutun"
@@ -4523,6 +5212,10 @@ vault_unavailable_fallback = "Vault ekonomisi kullanılamıyor — yalnızca bil
 vault_insufficient_funds = "Oyuncunun Vault bakiyesi yetersiz."
 vault_transaction_failed = "Vault işlemi başarısız oldu; ilerleme değiştirilmedi."
 power_drain = "Güç tüketimi: {power}"
+requirement_level = "{adaptation} Sv {level}"
+requires = "Gerekli: {requirement}"
+requirements_missing = "Önce {requirements} öğren, sonra {adaptation} öğrenebilirsin."
+required_by_dependents = "Önce {dependents} öğrenimini geri al; bunlar {adaptation} gerektirir."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5362,6 +6055,11 @@ name = "Kinetics"
 icon = "⚒"
 description = "Hareket güçtür. Makullarla, mızraklar ile şarj edin ve momentumun kendisini bükmek: Adımlar, fırlatmalar, Yararlanma ve iyi niyetli düşenler tüm ustanızı besledi."
 
+[skill.golemancy]
+name = "Golemcilik"
+icon = "⚙"
+description = "Golem inşa ederek, onararak ve onlara bakarak seviye atla, ardından onlara can vererek yanında savaşmalarını ve çalışmalarını sağla."
+
 [snippets.gui]
 level = "Seviye"
 level_value = "Seviye Düzey Seviyesi {level}"
@@ -5793,7 +6491,7 @@ lore2 = "En düşük sağlık ikinci başına restore edildi"
 lore = ["Tüm atfedilen hasar sağlık olarak geri döndü", "En düşük sağlık ikinci başına restore edildi"]
 
 [tragoul.skeletal_servant]
-name = "Skeletal"
+name = "İskelet Hizmetkâr"
 description = "Sneak ve kemikleri geçici iskelet hizmetkarlarını yükseltmek için sağ tıkır, bir üst düzeye kadar hizmet eden! Servants, seviye ölçekli rastgele dişli ile spawn, diğer Tragoul perksinizi devralın ve işaretini avlayın: greviniz ne olursa olsun veya her neyse seni sonlandırdınız. Kapakta summoning en eski hizmetkarını geri döndürür. Çağrıda kemikler, daha yüksek seviyelerde daha az."
 lore1 = "Sneak + Sağ tarafta bir hizmetkar çağırmak için kemikleri ile tıklayın"
 lore2 = "Servant Lifetime"
@@ -5951,7 +6649,7 @@ assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it = "As
 boost_global_experience_gain = "Global Deneyimi artırmak."
 boost_target_player_experience_gain = "Hedef oyuncu deneyimi kazanır."
 bypass_adapt_use_permission_checks_when_opening = "Bypass adapt.use Açılış sırasında izin kontrolleri"
-bypass_costs_and_restrictions = "Bypass maliyetleri ve kısıtlamaları"
+bypass_costs_and_permanence_prerequisites_still_apply = "Maliyetleri ve kalıcılığı atla; ön koşullar yine de geçerlidir"
 bypass_power_knowledge_and_permanence_checks = "Bypass gücü, bilgi ve permanence kontrolleri"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "Tüm keşif verilerini temizle (biomlar, kalabalıklar, gıdalar, ürünler, tarifler vb.)"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "Tüm oyuncu verilerini temizleyin (XP, Bilgi, adaptasyonlar, istatistikler, keşifler, ilerlemeler, bilgelik)"
@@ -5996,6 +6694,12 @@ toggle_verbose_mode = "Cümle fiilose modu"
 top_results_to_print = "Baskı için en iyi sonuçlar"
 true_to_learn_false_to_unlearn = "Öğrenmek için doğru, öğrenmemek yanlış"
 unlearn_all_adaptations_across_all_skill_lines = "Tüm yeteneklerin tüm adaptasyonlarını öğren"
+golem_roster_and_admin_tools = "Golem listesi ve yönetici araçları"
+open_your_golem_roster = "Golem listeni aç"
+list_a_player_s_golems = "Bir oyuncunun golemlerini listele"
+release_one_of_a_player_s_golems = "Bir oyuncunun golemlerinden birini serbest bırak"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golem kimliği veya tek bir golemle eşleşecek kadar ilk karakterleri"
+wake_a_player_s_loaded_golems = "Bir oyuncunun yüklü golemlerini uyandır"
 
 [command.runtime]
 missing_permission = "İzinden yoksunsunuz '{permission}'."
@@ -6038,6 +6742,8 @@ vault_insufficient_funds = "Oyuncunun Vault bakiyesi yetersiz."
 vault_transaction_failed = "Vault işlemi başarısız oldu; ilerleme değiştirilmedi."
 set_adaptation_level = "Set Set {player} {adaptation} Seviye seviyesine {level}."
 permanent_adaptation_lower = "{adaptation} Kalıcı ve daha düşük olamaz force=true."
+requirements_missing = "{player} için önce {requirements} gerekli, sonra {adaptation} öğrenilebilir."
+required_by_dependents = "{adaptation}, {dependents} için gerekli ({player}); bunları da kaldırmak için force=true kullan."
 adapt_server_not_ready = "Adapt server henüz hazır değil. Birkaç saniye içinde tekrar deneyin."
 target_dispatch_failed = "Hedef oyuncu işlemi zamanlanamadı. Tekrar deneyin."
 cleared_all = "Tüm verileri temizlemek için {player}."
@@ -6076,6 +6782,16 @@ perf_timing_budget = "Zamanlamayı kontrol edin bütçe: {percent} ({millisPerSe
 perf_ticker_window = "Tavşanlı pencere: {window}ms"
 perf_no_metrics = "Henüz toplanan metrik yok."
 perf_reset = "Ticker ve yetenek telemetri reset."
+golem_list_header = "{player} oyuncusunun {count} golemi var:"
+golem_list_header_one = "{player} oyuncusunun 1 golemi var:"
+golem_list_empty = "{player} oyuncusunun hiç golemi yok."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} oyuncusunun kimliği {id} ile başlayan bir golemi yok."
+golem_ambiguous = "{player} oyuncusunun birden fazla goleminin kimliği {id} ile başlıyor. Daha fazlasını yaz."
+golem_released = "Golem {id}, {player} oyuncusunun listesinden serbest bırakıldı."
+golem_release_failed = "Golem {id} ({player}) serbest bırakılamadı. Tekrar dene."
+golem_release_active_unloaded = "Golem {id} ({player}) yüklenmemiş bir chunk içinde etkin. Serbest bırakmak için chunk'ını yükle veya kayıp olarak görününce serbest bırak."
+golems_woken = "{player} oyuncusunun {count} yüklü golemi uyandırılıyor."
 
 [language.menu]
 your_language = "Diliniz"
@@ -6709,6 +7425,29 @@ purple = "Purple"
 always = "Always"
 sneak = "Sneak to activate"
 suppress = "Sneak to suppress"
+
+[golemancy.preferences]
+absorb_orbs = "Deneyim küreleri emme"
+action_bar_only = "Yalnızca eylem çubuğu"
+any_item = "Herhangi bir Golemcilik eşyası"
+aura = "Aura"
+chime_and_particles = "Çan sesi ve parçacıklar"
+crook_only = "Yalnızca asa"
+hidden = "Gizlenir"
+intercept = "Önleme"
+leaf_sweep = "Yaprak süpürme"
+magnet = "Mıknatıs"
+node_reveal = "Düğüm gösterimi"
+obey_overseer = "Hizmetkârlar Gözetmen'e uyar"
+retaliate_players = "Oyunculara misilleme"
+shown = "Gösterilir"
+signal_feedback = "İşaret geri bildirimi"
+static_overdrive = "Statik Aşırı Yük"
+status_labels = "Golem durum etiketleri"
+sweeping_fists = "Süpüren Yumruklar"
+tending = "Bakım"
+tilling = "Sürme"
+work_area_outline = "Çalışma alanı çerçevesi"
 
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"

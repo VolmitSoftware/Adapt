@@ -183,6 +183,22 @@ class PlayerPreferencesTest extends AdaptTestBase {
     assertThat(data.getPreferences().reset("rift-blink")).isFalse();
   }
 
+  @Test
+  void storedPreferenceDataResolvesLikePlayerDataAndAMissingSetUsesTheDefault() {
+    PlayerPreferenceData preferences = reactiveData().getPreferences();
+
+    assertThat(PlayerPreferences.resolve(adaptation, preferences, 2, MODE)).isEqualTo(Mode.REACTIVE);
+    assertThat(PlayerPreferences.resolve(adaptation, preferences, 1, MODE)).isEqualTo(Mode.MANUAL);
+    assertThat(PlayerPreferences.resolve(adaptation, (PlayerPreferenceData) null, 2, MODE)).isEqualTo(Mode.MANUAL);
+  }
+
+  @Test
+  void aLockedPolicyWinsOverStoredPreferenceData() {
+    config.playerPreferences.get("activation").playerEditable = false;
+
+    assertThat(PlayerPreferences.resolve(adaptation, reactiveData().getPreferences(), 2, MODE)).isEqualTo(Mode.MANUAL);
+  }
+
   private Mode resolve(PlayerData data, int level) {
     return PlayerPreferences.resolve(adaptation, data, level, MODE);
   }

@@ -3332,6 +3332,416 @@
       "feedbackPresets": []
     },
     {
+      "skill": "golemancy",
+      "name": "golem-animus-binding",
+      "class": "GolemAnimusBinding",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemAnimusBinding.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageEvent",
+        "PlayerInteractEntityEvent",
+        "PlayerQuitEvent",
+        "recipe"
+      ],
+      "expectation": "Sneak-right-click a golem while holding an Animus Core to bind it to you as a companion.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemAnimusBinding.java",
+      "sounds": [
+        "BLOCK_AMETHYST_BLOCK_RESONATE",
+        "BLOCK_BEACON_POWER_SELECT",
+        "BLOCK_ENCHANTMENT_TABLE_USE",
+        "BLOCK_FIRE_EXTINGUISH"
+      ],
+      "particles": [
+        "ASH",
+        "END_ROD",
+        "SMOKE",
+        "SNOWFLAKE",
+        "WAX_ON"
+      ],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-bone-frame",
+      "class": "GolemBoneFrame",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemBoneFrame.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "tick"
+      ],
+      "expectation": "Brings your Tragoul skeletal servants into Golemancy: they answer your Crook signals, glow in your servant channel with owner-only status labels, wear a Bone Lattice of runes, and pay Golemancy XP for their kills.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemBoneFrame.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-breaker-core",
+      "class": "GolemBreakerCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemBreakerCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "recipe"
+      ],
+      "expectation": "Golems bound with a Breaker Core break the blocks a Breaker Node's filter lists inside its area and carry the drops, mining harder blocks with better pickaxes as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemBreakerCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-angler-core",
+      "class": "GolemAnglerCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemAnglerCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Golems bound with an Angler Core fish the open water in front of a Fishing Node and carry the catch, with more luck, a junk filter, faster catches in the rain and double catches as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemAnglerCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-copper-frame",
+      "class": "GolemCopperFrame",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemCopperFrame.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "LightningStrikeEvent",
+        "PlayerQuitEvent",
+        "tick"
+      ],
+      "expectation": "Lets you bind copper golems and strengthens them with extra health, carry capacity and speed, plus armor from their patina.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemCopperFrame.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-frost-frame",
+      "class": "GolemFrostFrame",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemFrostFrame.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageByEntityEvent",
+        "EntityDamageEvent",
+        "PlayerQuitEvent",
+        "ProjectileHitEvent",
+        "ProjectileLaunchEvent",
+        "tick"
+      ],
+      "expectation": "Strengthens your bound frost golems with extra health, damaging snowballs and protection from rain and heat.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemFrostFrame.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-gatherer-core",
+      "class": "GolemGathererCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemGathererCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "PlayerDeathEvent",
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Golems bound with a Gatherer Core pick up dropped items around their home or a Collection Node and deliver them, and store experience orbs as essence as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemGathererCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-guardian-core",
+      "class": "GolemGuardianCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemGuardianCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageByEntityEvent",
+        "EntityDamageEvent",
+        "EntityTargetLivingEntityEvent",
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Golems bound with a Guardian Core defend their home, you or a Guard Node's area, and shield you as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemGuardianCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-harvester-core",
+      "class": "GolemHarvesterCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemHarvesterCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Golems bound with a Harvester Core harvest and replant ripe crops in a Harvest Node's area, and tend and till the field as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemHarvesterCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-iron-frame",
+      "class": "GolemIronFrame",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemIronFrame.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageByEntityEvent",
+        "EntityRegainHealthEvent",
+        "PlayerInteractEntityEvent",
+        "tick"
+      ],
+      "expectation": "Lets you bind iron golems and strengthens them with extra health, armor and attack, stronger ingot repairs, sweeping punches and a full-size Colossus Form.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemIronFrame.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-lumber-core",
+      "class": "GolemLumberCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemLumberCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Golems bound with a Lumber Core fell natural trees in a Lumber Node's area from the top down and collect the logs, then replant, sweep leaves and fell bigger trees as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemLumberCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-masterwork",
+      "class": "GolemMasterwork",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemMasterwork.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "tick"
+      ],
+      "expectation": "Infuse a Masterwork Heart at the Animus Plinth and slot it into a golem for an extra rune slot, more health, a second core and stronger runes.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemMasterwork.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-mending",
+      "class": "GolemMending",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemMending.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityRegainHealthEvent",
+        "PlayerInteractEntityEvent",
+        "tick"
+      ],
+      "expectation": "Heal your golems with copper ingots, snow blocks and bone meal, let them mend near you and at home, and rebuild fallen golems from their Shattered Core.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemMending.java",
+      "sounds": [
+        "BLOCK_AMETHYST_BLOCK_CHIME",
+        "BLOCK_AMETHYST_BLOCK_RESONATE",
+        "BLOCK_BEACON_POWER_SELECT",
+        "BLOCK_COPPER_PLACE",
+        "BLOCK_FIRE_EXTINGUISH",
+        "BLOCK_GLASS_BREAK",
+        "BLOCK_SNOW_PLACE",
+        "ITEM_BONE_MEAL_USE"
+      ],
+      "particles": [
+        "ASH",
+        "END_ROD",
+        "HEART",
+        "SMOKE",
+        "SNOWFLAKE",
+        "TOTEM",
+        "VILLAGER_HAPPY",
+        "WAX_ON"
+      ],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-node-weaving",
+      "class": "GolemNodeWeaving",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemNodeWeaving.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "PlayerInteractEvent",
+        "recipe"
+      ],
+      "expectation": "Sneak-right-click a block face while holding a node to anchor it there and direct your golems' work.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemNodeWeaving.java",
+      "sounds": [
+        "BLOCK_AMETHYST_BLOCK_PLACE"
+      ],
+      "particles": [
+        "END_ROD"
+      ],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-overseer",
+      "class": "GolemOverseer",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemOverseer.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "PlayerChangedWorldEvent",
+        "PlayerDeathEvent",
+        "PlayerJoinEvent",
+        "PlayerQuitEvent",
+        "tick"
+      ],
+      "expectation": "Lets you signal your bound golems with the Artificer's Crook to follow you, hold, go home or work, and as it grows, to attack what you look at, answer by channel, rally to you and guard you in formation.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemOverseer.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-rancher-core",
+      "class": "GolemRancherCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemRancherCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityBreedEvent",
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Golems bound with a Rancher Core tend the animals in a Pasture Node's area: they breed pairs up to the node's keep count, then shear sheep, milk cows and goats, and cull spare adults as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemRancherCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-runic-augments",
+      "class": "GolemRunicAugments",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemRunicAugments.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageByEntityEvent",
+        "EntityDamageEvent",
+        "PlayerQuitEvent",
+        "recipe"
+      ],
+      "expectation": "Lets you infuse runes at the Animus Plinth and slot them into your bound golems for speed, carrying, fire, reach, channels, yield and armor.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemRunicAugments.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-sorter-core",
+      "class": "GolemSorterCore",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemSorterCore.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "InventoryClickEvent",
+        "InventoryCloseEvent",
+        "InventoryMoveItemEvent",
+        "PlayerChangedWorldEvent",
+        "PlayerQuitEvent",
+        "recipe",
+        "tick"
+      ],
+      "expectation": "Copper golems bound with a Sorter Core empty the container under an Input Node into nearby containers that already hold each item, and learn item groups, Filter Nodes, restocking and fetching as the core grows stronger.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemSorterCore.java",
+      "sounds": [],
+      "particles": [],
+      "feedbackPresets": []
+    },
+    {
+      "skill": "golemancy",
+      "name": "golem-stasis",
+      "class": "GolemStasis",
+      "source": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemStasis.java",
+      "availability": {
+        "kind": "always"
+      },
+      "triggers": [
+        "EntityDamageEvent",
+        "PlayerQuitEvent"
+      ],
+      "expectation": "Pack your bound golems into Dormant Golem blocks with the Crook and place the block to wake them anywhere, with their cores, runes, cargo and health intact.",
+      "expectationSource": "src/main/java/art/arcane/adapt/content/adaptation/golemancy/GolemStasis.java",
+      "sounds": [
+        "BLOCK_AMETHYST_BLOCK_RESONATE",
+        "BLOCK_BEACON_ACTIVATE",
+        "BLOCK_FIRE_EXTINGUISH",
+        "BLOCK_RESPAWN_ANCHOR_CHARGE",
+        "BLOCK_RESPAWN_ANCHOR_DEPLETE"
+      ],
+      "particles": [
+        "ASH",
+        "END_ROD",
+        "REVERSE_PORTAL",
+        "SMOKE",
+        "SNOWFLAKE",
+        "WAX_ON"
+      ],
+      "feedbackPresets": []
+    },
+    {
       "skill": "herbalism",
       "name": "herbalism-bee-shepherd",
       "class": "HerbalismBeeShepherd",

@@ -24,6 +24,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.api.version.IAttribute;
 import art.arcane.adapt.api.version.Version;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -74,7 +75,7 @@ public class SwordsCrescentGuard extends SimpleAdaptation<SwordsCrescentGuard.Co
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDeathEvent e) {
     Player p = e.getEntity().getKiller();
-    if (p == null) {
+    if (p == null || GolemKillCredit.isGolemKill(e.getEntity())) {
       return;
     }
     J.runEntity(p, () -> applyGuardForKill(p));

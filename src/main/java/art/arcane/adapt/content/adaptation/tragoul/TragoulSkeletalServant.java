@@ -19,6 +19,8 @@
 package art.arcane.adapt.content.adaptation.tragoul;
 
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.world.PlayerSkillLine;
 import java.util.List;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -31,7 +33,14 @@ import art.arcane.adapt.api.adaptation.AdaptationDamageTargets;
 import art.arcane.adapt.api.adaptation.Cooldowns;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
+import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.minion.MinionBurden;
+import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.api.minion.MinionKind;
+import art.arcane.adapt.api.minion.MinionTargeting;
+import art.arcane.adapt.api.minion.ServantOrder;
+import art.arcane.adapt.api.minion.ServantPack;
 import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
@@ -42,6 +51,7 @@ import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
+import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Attributes;
 import art.arcane.volmlib.util.entity.StackExclusion;
 import art.arcane.volmlib.util.format.Form;
@@ -56,8 +66,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.AnimalTamer;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -65,7 +73,6 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Skeleton;
-import org.bukkit.entity.Tameable;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -86,6 +93,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -93,9 +101,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 
-public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServant.Config> {
+public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServant.Config> implements ServantPack {
   private static final int HARD_MAX_SERVANTS_PER_OWNER = 16;
+  private static final String GOLEMANCY_SKILL = "golemancy";
   private static final int MAX_IMMEDIATE_RETARGETS = 4;
   private static final int MAX_LOCAL_TARGET_CANDIDATES = 8;
   private static final int MIN_RETARGET_INTERVAL_TICKS = 10;
@@ -109,6 +119,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   private static final NamespacedKey PLAGUE_OWNER_KEY = NamespacedKey.fromString("adapt:tragoul_plague_owner");
   private static final NamespacedKey PLAGUE_GENERATION_KEY = NamespacedKey.fromString("adapt:tragoul_plague_generation");
   private static final NamespacedKey PLAGUE_STAMP_KEY = NamespacedKey.fromString("adapt:tragoul_plague_stamp");
+  public static final MinionKind MINION_KIND = new ServantMinionKind();
 
   private static final Material[][] HELMETS = {
       {Material.LEATHER_HELMET, Material.CHAINMAIL_HELMET},
@@ -142,6 +153,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   private final Map<UUID, UUID> servantOwners = new ConcurrentHashMap<>();
   private final Map<Skeleton, UUID> servantOwnersByEntity = new ConcurrentHashMap<>();
   private final Map<Skeleton, UUID> servantIdsByEntity = new ConcurrentHashMap<>();
+  private final Map<UUID, ServantRecord> records = new ConcurrentHashMap<>();
   private final Map<UUID, TargetRequest> latestTargetRequests = new ConcurrentHashMap<>();
   private final Set<UUID> activeTargetRequests = ConcurrentHashMap.newKeySet();
   private final Map<UUID, Long> pendingLocalRetargets = new ConcurrentHashMap<>();
@@ -157,6 +169,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   public TragoulSkeletalServant() {
     super("tragoul-skeletal-servant");
+    MinionIdentity.registerKind(MINION_KIND);
     registerConfiguration(Config.class);
     setIcon(Material.SKELETON_SKULL);
     setInterval(25000);
@@ -227,6 +240,63 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
   }
 
+  @Override
+  public List<Skeleton> servants(UUID owner) {
+    CopyOnWriteArrayList<Skeleton> pack = servants.get(owner);
+    return pack == null ? List.of() : List.copyOf(pack);
+  }
+
+  @Override
+  public long expiresAt(Skeleton servant) {
+    ServantRecord record = records.get(servant.getUniqueId());
+    return record == null ? 0L : record.expiresAt();
+  }
+
+  @Override
+  public ServantOrder order(Skeleton servant) {
+    ServantRecord record = records.get(servant.getUniqueId());
+    return record == null ? ServantOrder.FREE : record.order();
+  }
+
+  @Override
+  public boolean order(Skeleton servant, ServantOrder order) {
+    ServantRecord record = records.get(servant.getUniqueId());
+    if (record == null) {
+      return false;
+    }
+    record.order(Objects.requireNonNull(order));
+    return true;
+  }
+
+  static int golemancyCapBonus(int golemancyLevel, int everyLevels, int maxBonus) {
+    if (golemancyLevel <= 0 || everyLevels <= 0 || maxBonus <= 0) {
+      return 0;
+    }
+    return Math.min(maxBonus, golemancyLevel / everyLevels);
+  }
+
+  static int servantCap(int levelCap, int golemancyBonus) {
+    return Math.min(HARD_MAX_SERVANTS_PER_OWNER, levelCap + Math.max(0, golemancyBonus));
+  }
+
+  static int golemancyLevel(Skill<?> golemancy, PlayerSkillLine line) {
+    if (golemancy == null || !golemancy.isEnabled() || line == null) {
+      return 0;
+    }
+    return line.getLevel();
+  }
+
+  static double golemancyDurationMultiplier(int golemancyLevel, double perLevel, double maxBonus) {
+    if (golemancyLevel <= 0 || !Double.isFinite(perLevel) || !Double.isFinite(maxBonus) || perLevel <= 0D || maxBonus <= 0D) {
+      return 1D;
+    }
+    return 1D + Math.min(maxBonus, golemancyLevel * perLevel);
+  }
+
+  static boolean isAlliedTarget(Skeleton servant, LivingEntity target, boolean trackedServant) {
+    return trackedServant || MinionIdentity.sameOwner(servant, target);
+  }
+
   static boolean allowsSummonInteraction(PlayerInteractEvent event) {
     if (event.useItemInHand() == Event.Result.DENY) {
       return false;
@@ -269,7 +339,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       }
 
       CopyOnWriteArrayList<Skeleton> list = servants.computeIfAbsent(id, k -> new CopyOnWriteArrayList<>());
-      int cap = getServantCap(level);
+      int golemancyLevel = golemancyLevel(p);
+      int cap = getServantCap(level, golemancyLevel);
       if (list.size() >= cap && (!getConfig().replaceOldestAtCap || !preferenceEnabled(p, TragoulPreferences.REPLACE))) {
         sfx(p.getLocation(), Sound.BLOCK_CONDUIT_DEACTIVATE, 0.8F, 1.2F);
         return;
@@ -308,7 +379,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       }
 
       cooldowns.mark(id);
-      int durationTicks = getDurationTicks(level);
+      int durationTicks = getDurationTicks(level, golemancyLevel);
       ThreadLocalRandom random = ThreadLocalRandom.current();
       Skeleton servant = p.getWorld().spawn(p.getLocation(), Skeleton.class, s -> {
         StackExclusion.exclude(s);
@@ -321,16 +392,19 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       applyServantAttributes(servant, level);
       list.add(servant);
       UUID servantId = servant.getUniqueId();
+      long expiresAt = now + (durationTicks * 50L);
+      records.put(servantId, new ServantRecord(expiresAt));
       servantOwners.put(servantId, id);
       servantOwnersByEntity.put(servant, id);
       servantIdsByEntity.put(servant, servantId);
       burden.configure(getConfig().healthCostEnabled ? getConfig().healthCostPerMinion : 0, getConfig().minimumOwnerMaxHealth);
       burden.register(p, servant);
+      ServantFrame.frame().ifPresent(frame -> frame.summoned(p, servant));
       LivingEntity priorityTarget = resolvePriorityTargetOwned(id, p, now);
       if (priorityTarget != null) {
         servant.setTarget(priorityTarget);
       }
-      scheduleServantPulse(servant, id, now + (durationTicks * 50L));
+      scheduleServantPulse(servant, id, expiresAt);
       J.runEntity(servant, () -> removeServantOwned(id, servant, true), durationTicks);
 
       playSummonRitual(servant.getLocation());
@@ -355,24 +429,38 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       return;
     }
 
+    ServantOrder order = order(skeleton);
+    long now = System.currentTimeMillis();
+    switch (ServantPulse.gate(order, e.getReason(), target, now)) {
+      case COMMANDED -> {
+        return;
+      }
+      case REFUSED -> {
+        e.setCancelled(true);
+        return;
+      }
+      case USUAL -> {
+      }
+    }
+
     TragoulPreferences.Stance stance = stances.getOrDefault(ownerId, TragoulPreferences.Stance.ASSIST);
     if (stance == TragoulPreferences.Stance.PASSIVE
         || (stance == TragoulPreferences.Stance.DEFEND && !isPriorityTarget(ownerId, target))) {
       e.setCancelled(true);
-      skeleton.setTarget(null);
+      releaseTarget(skeleton, order, now);
       return;
     }
     if (target instanceof Player player) {
       if (!isPriorityTarget(ownerId, player)) {
         e.setCancelled(true);
         if (skeleton.getTarget() instanceof Player) {
-          skeleton.setTarget(null);
+          releaseTarget(skeleton, order, now);
         }
       }
       return;
     }
 
-    if (target instanceof Skeleton other && servantOwnersByEntity.containsKey(other)) {
+    if (isAlliedTarget(skeleton, target, target instanceof Skeleton other && servantOwnersByEntity.containsKey(other))) {
       e.setCancelled(true);
     }
   }
@@ -389,7 +477,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
 
     UUID ownerId = servant.ownerId();
-    if (victim.getUniqueId().equals(ownerId) || !isPriorityTarget(ownerId, victim)) {
+    if (victim.getUniqueId().equals(ownerId) || (!isPriorityTarget(ownerId, victim) && !isCommandedTarget(servant.servant(), victim))) {
       e.setCancelled(true);
     }
   }
@@ -585,7 +673,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
     LivingEntity target = request.target();
     if (!J.runEntity(target, () -> {
-      TargetSnapshot snapshot = captureTargetOwned(ownerId, target);
+      TargetSnapshot snapshot = captureTargetOwned(owner, target);
       if (!J.runEntity(owner, () -> completeTargetRequestOwned(ownerId, owner, request, snapshot))) {
         latestTargetRequests.remove(ownerId, request);
         activeTargetRequests.remove(ownerId);
@@ -682,7 +770,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     long now = System.currentTimeMillis();
     UUID servantId = servant.getUniqueId();
     if (!J.runEntity(attacker, () -> {
-      TargetSnapshot snapshot = captureTargetOwned(ownerId, attacker);
+      TargetSnapshot snapshot = captureTargetOwned(owner, attacker);
       if (snapshot != null) {
         J.runEntity(owner, () -> prepareDefensePerksOwned(owner, servant, servantId, snapshot, now));
       }
@@ -780,6 +868,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private void handleServantDealtDamage(EntityDamageByEntityEvent event, ServantDamager servant, LivingEntity victim) {
+    ServantFrame.frame().ifPresent(frame -> frame.struck(servant.servant(), victim));
     Player owner = Bukkit.getPlayer(servant.ownerId());
     if (owner == null) {
       return;
@@ -787,7 +876,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
     double finalDamage = event.getFinalDamage();
     J.runEntity(victim, () -> {
-      TargetSnapshot snapshot = captureTargetOwned(servant.ownerId(), victim);
+      TargetSnapshot snapshot = captureTargetOwned(owner, victim);
       if (snapshot != null) {
         J.runEntity(owner, () -> prepareOffensePerksOwned(owner, servant.servant(), snapshot, finalDamage));
       }
@@ -877,11 +966,84 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         return;
       }
 
-      retargetOwned(servant, servantId, ownerId);
+      pulseOwned(servant, servantId, ownerId);
       scheduleServantPulse(servant, ownerId, expiresAt);
     }, getRetargetIntervalTicks())) {
       UUID servantId = servant.getUniqueId();
       forgetServant(ownerId, servant, servantId);
+    }
+  }
+
+  private void pulseOwned(Skeleton servant, UUID servantId, UUID ownerId) {
+    ServantRecord record = records.get(servantId);
+    ServantOrder order = record == null ? ServantOrder.FREE : record.order();
+    if (order.isFree()) {
+      retargetOwned(servant, servantId, ownerId);
+      return;
+    }
+    LivingEntity commanded = order.target();
+    boolean holds = order.commandHolds(System.currentTimeMillis(), commanded != null && reachable(servant, commanded));
+    if (order.commanded() && !holds) {
+      order = record.release(order);
+      if (servant.getTarget() == commanded) {
+        servant.setTarget(null);
+      }
+    }
+    Location here = servant.getLocation();
+    Location ownerAt = order.mode() == ServantOrder.Mode.FOLLOW ? sightOwner(record, ownerId) : null;
+    Location anchor = order.anchor();
+    LivingEntity current = servant.getTarget();
+    ServantPulse.Senses senses = new ServantPulse.Senses(holds, distanceSquared(here, ownerAt), distanceSquared(here, anchor),
+        current != null && current.isValid() && !current.isDead(), GolemancyRuntime.brainSettings().leashRadius());
+    switch (ServantPulse.step(order, senses)) {
+      case HUNT -> retargetOwned(servant, servantId, ownerId);
+      case ATTACK -> {
+        if (servant.getTarget() != commanded) {
+          servant.setTarget(commanded);
+        }
+      }
+      case FOLLOW -> {
+        servant.setTarget(null);
+        PaperCompat.pathfindTo(servant, ownerAt, ServantPulse.PATH_SPEED);
+      }
+      case RETURN -> PaperCompat.pathfindTo(servant, anchor, ServantPulse.PATH_SPEED);
+      case STAND -> {
+      }
+    }
+  }
+
+  private Location sightOwner(ServantRecord record, UUID ownerId) {
+    Player owner = Bukkit.getPlayer(ownerId);
+    if (owner == null) {
+      return null;
+    }
+    if (J.isOwnedByCurrentRegion(owner)) {
+      return owner.getLocation();
+    }
+    if (record.lookOut() && !J.runEntity(owner, () -> record.sighted(owner.getLocation()))) {
+      record.lookFailed();
+    }
+    return record.sighting();
+  }
+
+  private static boolean reachable(Skeleton servant, LivingEntity target) {
+    return target.isValid() && !target.isDead() && servant.getWorld().equals(target.getWorld());
+  }
+
+  private static double distanceSquared(Location from, Location to) {
+    if (to == null || from.getWorld() == null || !from.getWorld().equals(to.getWorld())) {
+      return Double.NaN;
+    }
+    return from.distanceSquared(to);
+  }
+
+  private boolean isCommandedTarget(Skeleton servant, LivingEntity victim) {
+    return ServantPulse.commanded(order(servant), victim, System.currentTimeMillis());
+  }
+
+  private static void releaseTarget(Skeleton servant, ServantOrder order, long now) {
+    if (!ServantPulse.commanded(order, servant.getTarget(), now)) {
+      servant.setTarget(null);
     }
   }
 
@@ -942,10 +1104,9 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
     Monster selected = candidate;
     if (!J.runEntity(selected, () -> {
-      TargetSnapshot snapshot = captureTargetOwned(ownerId, selected);
       Player owner = Bukkit.getPlayer(ownerId);
-      if (snapshot == null || owner == null
-          || !J.runEntity(owner, () -> completeLocalRetargetOwnerOwned(owner, servant, servantId, token, snapshot))) {
+      TargetSnapshot snapshot = owner == null ? null : captureTargetOwned(owner, selected);
+      if (snapshot == null || !J.runEntity(owner, () -> completeLocalRetargetOwnerOwned(owner, servant, servantId, token, snapshot))) {
         pendingLocalRetargets.remove(servantId, token);
       }
     })) {
@@ -973,7 +1134,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
       if (!Long.valueOf(token).equals(pendingLocalRetargets.get(servantId))) {
         return;
       }
-      if (!ownerId.equals(servantOwners.get(servantId)) || !servant.isValid() || servant.isDead()) {
+      if (!ownerId.equals(servantOwners.get(servantId)) || !servant.isValid() || servant.isDead()
+          || !ServantPulse.takesPriority(order(servant))) {
         return;
       }
 
@@ -999,6 +1161,9 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   }
 
   private boolean assignPriorityTargetOwned(Skeleton servant, Threat threat, boolean showFx) {
+    if (!ServantPulse.takesPriority(order(servant))) {
+      return false;
+    }
     if (threats.get(threat.ownerId()) != threat || System.currentTimeMillis() - threat.stamp() >= getThreatWindowMillis()) {
       return false;
     }
@@ -1024,8 +1189,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
     LivingEntity target = threat.target();
     if (!J.runEntity(target, () -> {
-      TargetSnapshot snapshot = captureTargetOwned(threat.ownerId(), target);
       Player owner = threat.owner();
+      TargetSnapshot snapshot = captureTargetOwned(owner, target);
       if (!J.runEntity(owner, () -> completeThreatRefreshOwnerOwned(threat, snapshot))) {
         threat.finishRefresh(System.currentTimeMillis());
         threats.remove(threat.ownerId(), threat);
@@ -1053,44 +1218,31 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
   }
 
-  private TargetSnapshot captureTargetOwned(UUID ownerId, LivingEntity target) {
-    if (!target.isValid() || target.isDead()) {
+  private TargetSnapshot captureTargetOwned(Player owner, LivingEntity target) {
+    MinionTargeting.Judged judged = MinionTargeting.captureJudgedOwned(this, owner, target);
+    if (judged == null) {
       return null;
-    }
-
-    UUID targetId = target.getUniqueId();
-    boolean protectedFriendly = ownerId.equals(targetId)
-        || (target instanceof ArmorStand stand && stand.isMarker())
-        || target.isInvulnerable()
-        || target.hasMetadata("NPC")
-        || isServant(target);
-    if (!protectedFriendly && target instanceof Tameable tameable && tameable.isTamed()) {
-      AnimalTamer tamer = tameable.getOwner();
-      protectedFriendly = tamer != null && ownerId.equals(tamer.getUniqueId());
     }
 
     boolean afflicted = target.hasPotionEffect(PotionEffectType.POISON)
         || target.hasPotionEffect(PotionEffectType.WITHER);
-    Location location = target.getLocation();
-    return new TargetSnapshot(target, targetId, location.getWorld().getUID(), location,
-        target instanceof Player, target instanceof Mob, protectedFriendly, afflicted,
+    return new TargetSnapshot(judged, target instanceof Mob, afflicted,
         !AdaptationDamageTargets.allows(target, true));
   }
 
   private boolean canDamageSnapshotOwned(Player owner, TargetSnapshot target) {
     if (preference(owner, TragoulPreferences.STANCE) == TragoulPreferences.Stance.PASSIVE
-        || (preference(owner, TragoulPreferences.STANCE) == TragoulPreferences.Stance.DEFEND && !isDefenseTarget(owner.getUniqueId(), target.entity()))
-        || target.protectedFriendly() || owner.getUniqueId().equals(target.entityId())) {
+        || (preference(owner, TragoulPreferences.STANCE) == TragoulPreferences.Stance.DEFEND && !isDefenseTarget(owner.getUniqueId(), target.entity()))) {
       return false;
     }
-    return target.player() ? canPVP(owner, target.location()) : canPVE(owner, target.location());
+    return MinionTargeting.canDamageJudgedOwned(this, owner, target.judged());
   }
 
   private void removeServantOwned(UUID ownerId, Skeleton servant, boolean showFx) {
     UUID servantId = servant.getUniqueId();
     forgetServant(ownerId, servant, servantId);
     if (servant.isValid() && !servant.isDead()) {
-      AdaptAttributeService.get().removeAll(servant, getName());
+      AdaptAttributeService.get().clearAllAdapt(servant);
       if (showFx) {
         fx(servant.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
             .particle(Particle.SOUL, 4, 0, 0.4D, 0, 0.3D, 0.03D)
@@ -1107,6 +1259,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     servantIdsByEntity.remove(servant, servantId);
     servantThornsCooldowns.remove(servantId);
     pendingLocalRetargets.remove(servantId);
+    records.remove(servantId);
     CopyOnWriteArrayList<Skeleton> list = servants.get(ownerId);
     if (list != null) {
       list.remove(servant);
@@ -1346,6 +1499,23 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     return Math.min(HARD_MAX_SERVANTS_PER_OWNER, configured);
   }
 
+  private int getServantCap(int level, int golemancyLevel) {
+    Config config = getConfig();
+    return servantCap(getServantCap(level), golemancyCapBonus(golemancyLevel, config.golemancyCapBonusEveryLevels, config.golemancyCapBonusMax));
+  }
+
+  private int getDurationTicks(int level, int golemancyLevel) {
+    Config config = getConfig();
+    return (int) Math.round(getDurationTicks(level)
+        * golemancyDurationMultiplier(golemancyLevel, config.golemancyDurationBonusPerLevel, config.golemancyDurationBonusMax));
+  }
+
+  private int golemancyLevel(Player player) {
+    AdaptPlayer adaptPlayer = getPlayer(player);
+    PlayerSkillLine line = adaptPlayer == null ? null : adaptPlayer.getData().getSkillLineNullable(GOLEMANCY_SKILL);
+    return golemancyLevel(getServer().getSkillRegistry().getSkill(GOLEMANCY_SKILL), line);
+  }
+
   private int getBoneCost(int level) {
     return Math.max(1, (int) Math.round(getConfig().boneCostBase - (getLevelPercent(level) * getConfig().boneCostReduction)));
   }
@@ -1441,9 +1611,19 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   private record TargetRequest(LivingEntity target, long requestedAt) {
   }
 
-  private record TargetSnapshot(LivingEntity entity, UUID entityId, UUID worldId, Location location,
-                                boolean player, boolean mob, boolean protectedFriendly, boolean afflicted,
+  private record TargetSnapshot(MinionTargeting.Judged judged, boolean mob, boolean afflicted,
                                 boolean passiveOrNeutral) {
+    private LivingEntity entity() {
+      return judged.candidate().entity();
+    }
+
+    private UUID entityId() {
+      return judged.candidate().entityId();
+    }
+
+    private UUID worldId() {
+      return judged.candidate().worldId();
+    }
   }
 
   private record ServantDamager(Skeleton servant, UUID ownerId) {
@@ -1461,6 +1641,63 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
                           TragoulCurseOfFrailty frailty,
                           TragoulCorpseExplosion nova,
                           TragoulPlagueBearer plague) {
+  }
+
+  private static final class ServantRecord {
+    private final long expiresAt;
+    private final AtomicReference<ServantOrder> order = new AtomicReference<>(ServantOrder.FREE);
+    private final AtomicBoolean lookPending = new AtomicBoolean();
+    private volatile Location sighting;
+
+    private ServantRecord(long expiresAt) {
+      this.expiresAt = expiresAt;
+    }
+
+    private long expiresAt() {
+      return expiresAt;
+    }
+
+    private ServantOrder order() {
+      return order.get();
+    }
+
+    private void order(ServantOrder next) {
+      order.set(next);
+    }
+
+    private ServantOrder release(ServantOrder expected) {
+      ServantOrder released = expected.released();
+      return order.compareAndSet(expected, released) ? released : order.get();
+    }
+
+    private boolean lookOut() {
+      return lookPending.compareAndSet(false, true);
+    }
+
+    private void lookFailed() {
+      lookPending.set(false);
+    }
+
+    private void sighted(Location at) {
+      sighting = at;
+      lookPending.set(false);
+    }
+
+    private Location sighting() {
+      return sighting;
+    }
+  }
+
+  private static final class ServantMinionKind implements MinionKind {
+    @Override
+    public boolean matches(Entity entity) {
+      return isServant(entity);
+    }
+
+    @Override
+    public UUID ownerOf(Entity entity) {
+      return getServantOwnerId(entity);
+    }
   }
 
   @ConfigDescription("Sneak right-click with bones to raise a pack of temporary skeletal servants that gear up with your level, inherit your Tragoul perks, and hunt whatever you strike or whoever strikes you.")
@@ -1507,6 +1744,14 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     double healthCostPerMinion = 2.0;
     @art.arcane.adapt.util.config.ConfigDoc(value = "Lowest max health the servant upkeep can reduce the owner to.", impact = "Higher values guarantee the owner keeps more health while servants are active.")
     double minimumOwnerMaxHealth = 4.0;
+    @ConfigDoc(value = "Golemancy skill levels needed for each extra living servant on top of the level cap.", impact = "Lower values give Golemancers extra servants sooner; 0 turns the bonus off.")
+    int golemancyCapBonusEveryLevels = 20;
+    @ConfigDoc(value = "Most extra living servants that Golemancy skill levels can add, still within the hard ceiling of 16 per owner.", impact = "Higher values let high-level Golemancers field larger packs.")
+    int golemancyCapBonusMax = 2;
+    @ConfigDoc(value = "Fraction added to servant lifetime per Golemancy skill level. 0.01 is 1% longer per level.", impact = "Higher values keep a Golemancer's servants alive longer.")
+    double golemancyDurationBonusPerLevel = 0.01;
+    @ConfigDoc(value = "Most extra servant lifetime that Golemancy skill levels can add, as a fraction. 0.5 is 50% longer.", impact = "Higher values raise the lifetime ceiling for high-level Golemancers.")
+    double golemancyDurationBonusMax = 0.5;
 
     public Config() {
       baseCost = 5;

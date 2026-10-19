@@ -96,6 +96,9 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
   private String localizationKey;
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
+  private volatile List<AdaptationRequirement> requirements = List.of();
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
   private long cachedDemandRevision = Long.MIN_VALUE;
   @Getter(AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
@@ -277,6 +280,9 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     applyIntField(currentConfig, "initialCost", this::setInitialCost);
     applyIntField(currentConfig, "maxLevel", this::setMaxLevel);
     applyLongField(currentConfig, "setInterval", this::setInterval);
+    requirements = currentConfig instanceof AdaptationConfig shared
+        ? AdaptationRequirement.parseAll(getName(), shared.requires)
+        : List.of();
   }
 
   protected void onConfigReload(T previousConfig, T newConfig) {
@@ -386,6 +392,11 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     brewingRecipes.add(r);
   }
 
+  public int ownerLevel(UUID owner) {
+    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
+    return player == null ? 0 : getLevel(player);
+  }
+
   @Override
   public String getDisplayName() {
     try {
@@ -432,6 +443,16 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
       return shared.enabled;
     }
     return true;
+  }
+
+  @Override
+  public List<AdaptationRequirement> getRequirements() {
+    if (getConfigurationClass() == null) {
+      return List.of();
+    }
+
+    getConfig();
+    return requirements;
   }
 
   @Override
@@ -576,6 +597,11 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     adaptPlayer.getData().addStat(stat, amount);
   }
 
+  protected double statOf(Player p, String stat) {
+    AdaptPlayer adaptPlayer = readyPlayer(p);
+    return adaptPlayer == null ? 0D : adaptPlayer.getData().getStat(stat);
+  }
+
   private AdaptPlayer readyPlayer(Player player) {
     if (player == null) {
       return null;
@@ -611,6 +637,10 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         trusted("separator", labelColor + " "),
         trusted("label", AdaptLanguage.text(loreKey))
     ));
+  }
+
+  protected static void unlockLore(Element v, TextKey key) {
+    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   private static String formatStatValue(Object value) {

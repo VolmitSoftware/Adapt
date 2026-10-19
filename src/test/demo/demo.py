@@ -1,5 +1,6 @@
 import argparse
 import contextlib
+import dataclasses
 import shutil
 import sys
 from pathlib import Path
@@ -66,11 +67,16 @@ def main() -> int:
         return batch(args, output)
 
 
+def current_stills(takes: dict[str, manifest.Take], entries: dict[str, choreography.Entry]) -> dict[str, manifest.Take]:
+    return {identifier: dataclasses.replace(take, stills=record_phase.still_records(entries[identifier])) if identifier in entries else take
+            for identifier, take in takes.items()}
+
+
 def batch(args: argparse.Namespace, output: Path) -> int:
     manifest_path: Path = output / 'manifest.json'
     sheet: choreography.Sheet = choreography.load_skill(ROOT, args.skill)
     entries: dict[str, choreography.Entry] = sheet.entries
-    problems: list[str] = choreography.world_problems(sheet.world) + choreography.validate(entries, choreography.adaptation_ids(ROOT, args.skill))
+    problems: list[str] = choreography.world_problems(sheet.world) + choreography.validate(entries, choreography.adaptation_ids(ROOT, args.skill), choreography.catalog_ids(ROOT))
     if problems:
         print('\n'.join(problems))
         return 2
@@ -95,6 +101,7 @@ def batch(args: argparse.Namespace, output: Path) -> int:
         if not args.export_only:
             takes = record_phase.record(studio, entries, ids, manifest_path, args.skill, ffmpeg=Path(args.ffmpeg).resolve())
         if not args.record_only:
+            takes = current_stills(takes, entries)
             takes = export_phase.export(studio, takes, ids, DOCS, Path(args.ffmpeg), Path(args.ffprobe), manifest_path, audio=not args.no_audio)
     finally:
         cleanup: list[str] = studio.stop()

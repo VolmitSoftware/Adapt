@@ -3053,6 +3053,70 @@ description = "將運動變成動力."
 title = "牛頓的收據"
 description = "殺死一個暴徒 用你自己掉下來的陰道掉下來 8 或更多塊."
 
+[advancement.challenge_golemancy_built_10]
+title = "泥土與火花"
+description = "建造 10 個魔像"
+
+[advancement.challenge_golemancy_built_100]
+title = "巨人鑄造廠"
+description = "建造 100 個魔像"
+
+[advancement.challenge_golemancy_bound_5]
+title = "小小隨從"
+description = "縛約 5 個魔像"
+
+[advancement.challenge_golemancy_bound_25]
+title = "靈魂軍團"
+description = "縛約 25 個魔像"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "石之哨兵"
+description = "你縛約的魔像擊殺 50 個敵對生物"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "活體城牆"
+description = "你縛約的魔像擊殺 500 個敵對生物"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "不破之軍"
+description = "你縛約的魔像擊殺 5,000 個敵對生物"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "寒冬之僕"
+description = "縛約一個霜魔像"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "銅綠之契"
+description = "縛約一個銅魔像"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "鋼鐵之誓"
+description = "縛約一個鐵魔像"
+
+[advancement.challenge_golemancy_tasks_1000]
+title = "勤勉之手"
+description = "你的魔像完成 1,000 項工作"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "不倦工坊"
+description = "你的魔像完成 25,000 項工作"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "穩健搬運工"
+description = "你的魔像送達 10,000 個物品"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "無盡商隊"
+description = "你的魔像送達 250,000 個物品"
+
+[advancement.challenge_golemancy_infusions_10]
+title = "基座學徒"
+description = "在靈魂基座上完成 10 次灌注"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "灌注大師"
+description = "在靈魂基座上完成 100 次灌注"
+
 [agility.armor_up]
 name = "裝甲強化"
 description = "衝刺時間越長，獲得的護甲值越多！"
@@ -4240,6 +4304,631 @@ lore1 = "折扣機會"
 lore2 = "x 挖掘溼潤時匆忙的級別"
 lore = ["折扣機會", "x 挖掘溼潤時匆忙的級別"]
 
+[golemancy.item.crook]
+name = "巧匠之杖"
+lore = "指揮已綁定的魔像及其工作的節點"
+
+[golemancy.item.blank_core]
+name = "空白靈魂核心"
+lore = "將魔像綁定為夥伴，或合成為職能核心"
+
+[golemancy.item.core]
+name = "{role}核心"
+lore = "將魔像綁定為{role}職能"
+
+[golemancy.item.blank_node]
+name = "空白節點"
+lore = "可合成為任意類型的節點"
+
+[golemancy.item.node]
+name = "{node}節點"
+lore = "固定在方塊表面以指引魔像工作"
+
+[golemancy.item.blank_rune]
+name = "空白符文"
+lore = "在靈魂基座上灌注成符文"
+
+[golemancy.item.rune]
+name = "{aspect}符文"
+tier = "階級 {tier}"
+lore = "鑲嵌到魔像上以強化它"
+
+[golemancy.item.dormant_golem]
+name = "休眠魔像"
+core = "核心：{core}"
+runes = "符文：{runes}"
+health = "生命值：{health}/{maximum}"
+lore = "放置以喚醒這個魔像"
+
+[golemancy.item.shattered_core]
+name = "破碎核心"
+lore = "連同升級一起重建倒下的魔像"
+
+[golemancy.item.masterwork_heart]
+name = "傑作之心"
+lore = "指定一個傑作魔像"
+
+[golemancy.role]
+blank = "夥伴"
+guardian = "守護者"
+gatherer = "採集者"
+harvester = "收割者"
+lumber = "伐木者"
+breaker = "破壞者"
+rancher = "牧場主"
+sorter = "分揀者"
+angler = "垂釣者"
+
+[golemancy.node]
+guard = "守衛"
+collection = "收集"
+deposit = "存放"
+harvest = "收割"
+lumber = "伐木"
+breaker = "採掘"
+pasture = "牧場"
+input = "輸入"
+filter = "過濾"
+fishing = "釣魚"
+
+[golemancy.aspect]
+swiftness = "迅捷"
+might = "力量"
+ember = "餘燼"
+tide = "潮汐"
+order = "秩序"
+entropy = "熵"
+bulwark = "壁壘"
+
+[golemancy.body]
+frost = "霜"
+copper = "銅"
+iron = "鐵"
+bone = "骨"
+
+[golemancy.golem]
+name = "{owner}的{body}魔像"
+
+[golemancy.mode]
+work = "工作"
+follow = "跟隨"
+stay = "待命"
+home = "回家"
+
+[golemancy.signal]
+follow = "跟隨"
+hold = "原地堅守"
+home = "回家"
+work = "工作"
+sic = "攻擊"
+
+[golemancy.channel]
+none = "無"
+white = "白色"
+orange = "橙色"
+magenta = "洋紅色"
+light_blue = "淺藍色"
+yellow = "黃色"
+lime = "淺綠色"
+pink = "粉紅色"
+gray = "灰色"
+light_gray = "淺灰色"
+cyan = "青色"
+purple = "紫色"
+blue = "藍色"
+brown = "棕色"
+green = "綠色"
+red = "紅色"
+black = "黑色"
+
+[golemancy.status]
+active = "活動"
+packed = "已打包"
+shattered = "已破碎"
+missing = "失蹤"
+
+[golemancy.gui]
+title = "{body}魔像"
+health = "生命值：{health}/{maximum}"
+dormant = "休眠中"
+mode = "模式：{mode}"
+channel = "頻道：{channel}"
+cycle = "左鍵：下一個，右鍵：上一個"
+set_home = "將此處設為家"
+home = "家：{x}, {y}, {z}"
+link_chest = "綁定家用箱子"
+home_chest = "家用箱子：{x}, {y}, {z}"
+no_home_chest = "未綁定家用箱子"
+link_hint = "點擊後用巧匠之杖右鍵點擊一個容器"
+rune_locked = "已鎖定的符文槽"
+rune_unlock_level = "符文強化等級 {level} 解鎖"
+rune_empty = "空符文槽"
+rune_empty_lore = "拿起一枚符文並點擊此處將其鑲入"
+rune_remove = "點擊取回這枚符文"
+rune_active = "生效中"
+rune_over_tier = "無效：階級 {tier} 需要符文強化等級 {level}"
+rune_slot_locked = "無效：此槽需要符文強化等級 {level}"
+rune_blocked = "無效：{aspect}符文在{body}魔像上不起作用"
+rune_duplicate = "無效：這個魔像已有{aspect}符文"
+rune_unpowered = "無效：你的符文強化不足以驅動這枚符文"
+channels = "頻道：{channels}"
+channels_lore = "點擊選擇最多 {count} 個頻道"
+channels_title = "選擇頻道"
+channel_selected = "已選擇"
+channel_select = "點擊選擇"
+channels_clear = "清除頻道"
+back = "返回"
+take = "點擊取出"
+more_carried = "還有{count}個"
+stats = "統計"
+kills = "擊殺：{value}"
+damage = "造成傷害：{value}"
+tasks = "完成任務：{value}"
+items_moved = "搬運物品：{value}"
+release = "釋放"
+release_lore = "使其變回普通魔像，並掉落其核心、符文、攜帶的物品，以及可能有的第二個核心和傑作之心"
+release_confirm = "釋放這個魔像？"
+snow_trail_on = "雪跡：開"
+snow_trail_off = "雪跡：關"
+snow_trail_lore = "點擊切換這個魔像留下的積雪"
+colossus_on = "巨像形態：開"
+colossus_off = "巨像形態：關"
+colossus_lore = "點擊切換戰鬥用的原尺寸；變大的魔像不會工作"
+pack = "打包"
+pack_lore = "將這個魔像壓縮成休眠魔像方塊，放下即可喚醒它"
+
+[golemancy.roster]
+title = "魔像名冊"
+empty = "你沒有魔像"
+entry = "{body}魔像（{core}）"
+location = "{world}：{x}, {y}, {z}"
+last_seen = "最後出現在{world}的{x}, {z}附近"
+status = "狀態：{status}"
+locate = "左鍵點擊以定位"
+release = "Shift+右鍵點擊以釋放"
+release_confirm = "永久釋放這個失蹤的魔像？"
+release_shattered_confirm = "永久釋放這個已破碎的魔像？它的破碎核心將會崩解。"
+release_packed_confirm = "永久釋放這個已打包的魔像？它的休眠魔像將會崩解。"
+recall = "右鍵點擊以將其召回到物品欄"
+crook_channel = "巧匠之杖頻道：{channel}"
+crook_channel_lore = "點擊選擇你的巧匠之杖向哪些魔像發出信號"
+crook_channel_title = "巧匠之杖頻道"
+crook_channel_all = "所有魔像"
+
+[golemancy.message]
+home_set = "家已設為{x}, {y}, {z}"
+link_armed = "用巧匠之杖右鍵點擊一個容器來綁定它"
+chest_linked = "已綁定位於{x}, {y}, {z}的家用箱子"
+chest_denied = "該容器受保護"
+chest_out_of_reach = "該容器必須位於魔像的家{radius}格範圍內"
+released = "魔像已釋放"
+release_failed = "現在無法釋放這個魔像"
+gone = "那個魔像已不在這裡"
+colossus_no_room = "這裡沒有足夠的空間讓這個魔像變大"
+colossus_busy = "這個魔像仍在改變大小"
+rune_slotted = "已鑲入{aspect}符文"
+rune_removed = "已取回{aspect}符文"
+rune_needed = "請先拿起一枚符文"
+rune_no_slot = "這個魔像沒有空的符文槽"
+rune_duplicate = "這個魔像已有{aspect}符文"
+rune_blocked = "{aspect}符文在{body}魔像上不起作用"
+channels_full = "這個魔像最多只能使用 {count} 個頻道"
+crook_channel = "你的巧匠之杖現在向此發出信號：{channel}"
+crook_needed = "將巧匠之杖握在主手以設定其頻道"
+
+[golemancy.binding]
+busy = "縛約儀式已在進行中"
+already_bound = "那個魔像已經被縛約"
+village = "只能縛約玩家建造的魔像"
+builder = "目前只有建造這個魔像的玩家可以縛約它"
+body_locked = "你還不能縛約{body}魔像"
+core_not_allowed = "{body}魔像無法接受{core}核心"
+core_locked = "你還沒學會縛約{core}核心"
+protected = "你不能在這裡縛約魔像"
+unavailable = "你的魔像名冊尚未準備好"
+golem_cap = "你已擁有上限數量的{count}個魔像"
+chunk_cap = "該區域已有{count}個被縛約的魔像"
+levels = "縛約這個魔像需要{levels}級經驗"
+interrupted = "縛約被打斷了"
+bound = "你的{body}魔像現已與你縛約"
+
+[golemancy.animus_binding]
+name = "靈魂縛約"
+description = "手持靈魂核心潛行並右鍵點擊魔像，即可將其縛約為你的夥伴。"
+lore1 = "可擁有的魔像數量"
+lore2 = "每次縛約儀式的秒數"
+lore3 = "縛約霜魔像所需等級"
+lore4 = "縛約銅魔像所需等級"
+lore5 = "縛約鐵魔像所需等級"
+lore = ["可擁有的魔像數量", "每次縛約儀式的秒數", "縛約霜魔像所需等級", "縛約銅魔像所需等級", "縛約鐵魔像所需等級"]
+
+[golemancy.frost_frame]
+name = "霜之骨架"
+description = "為你縛約的霜魔像提供額外生命值、帶傷害的雪球以及對雨水和炎熱的防護。"
+lore1 = "霜魔像額外生命值"
+lore2 = "雪球傷害"
+lore3 = "溫暖生態域中受到的傷害"
+lore4 = "免疫雨水和水"
+lore5 = "命中時緩速的秒數"
+lore6 = "額外投擲雪球的機率"
+lore7 = "冰凍目標所需的雪球命中數"
+lore = ["霜魔像額外生命值", "雪球傷害", "溫暖生態域中受到的傷害", "免疫雨水和水", "命中時緩速的秒數", "額外投擲雪球的機率", "冰凍目標所需的雪球命中數"]
+
+[golemancy.copper_frame]
+name = "銅之骨架"
+description = "讓你可以縛約銅魔像，並為其提供額外生命值、攜帶容量和速度，以及來自銅鏽的護甲。"
+lore1 = "銅魔像額外生命值"
+lore2 = "可攜帶物品數"
+lore3 = "移動速度"
+lore4 = "永不化為雕像"
+lore5 = "每個銅鏽階段的護甲"
+lore6 = "每個銅鏽階段損失的速度"
+lore7 = "附近閃電給予速度 II 的秒數"
+lore = ["銅魔像額外生命值", "可攜帶物品數", "移動速度", "永不化為雕像", "每個銅鏽階段的護甲", "每個銅鏽階段損失的速度", "附近閃電給予速度 II 的秒數"]
+
+[golemancy.iron_frame]
+name = "鐵之骨架"
+description = "讓你可以縛約鐵魔像，並為其提供額外生命值、護甲和攻擊力、更強的鐵錠修復、橫掃重拳以及恢復原尺寸的巨像形態。"
+lore1 = "鐵魔像額外生命值"
+lore2 = "鐵魔像額外護甲"
+lore3 = "鐵魔像額外攻擊傷害"
+lore4 = "每次鐵錠修復額外恢復的生命值"
+lore5 = "每拳額外擊中的敵對生物數"
+lore6 = "巨像形態下的攻擊傷害"
+lore = ["鐵魔像額外生命值", "鐵魔像額外護甲", "鐵魔像額外攻擊傷害", "每次鐵錠修復額外恢復的生命值", "每拳額外擊中的敵對生物數", "巨像形態下的攻擊傷害"]
+
+[golemancy.bone_frame]
+name = "骨之骨架"
+description = "讓你的特拉古爾骸骨僕從加入魔像術：它們聽從巧匠之杖的信號，以僕從頻道的顏色發光並顯示僅你可見的狀態標籤，佩戴鑲有符文的骨之格柵，並為擊殺提供魔像術經驗。"
+lore1 = "僕從聽從巧匠之杖的信號並顯示狀態標籤"
+lore2 = "骨之格柵符文槽"
+lore3 = "僕從擊殺帶來的魔像術經驗"
+lore = ["僕從聽從巧匠之杖的信號並顯示狀態標籤", "骨之格柵符文槽", "僕從擊殺帶來的魔像術經驗"]
+lattice = "骨之格柵"
+lattice_lore = "點擊設定僕從的符文與頻道"
+slot_empty = "空格柵槽"
+slot_empty_lore = "拿起一枚符文（{aspects}）並點擊此處"
+slot_locked = "已鎖定的格柵槽"
+slot_unlock_level = "骨之骨架等級 {level} 解鎖"
+slot_inert = "無效：此槽需要骨之骨架等級 {level}"
+rune_tier = "以階級 {tier} 作用於你的僕從"
+channel = "僕從頻道：{channel}"
+channel_set = "你的僕從現在使用{channel}頻道"
+refused_aspect = "{aspect}符文不適合骨之格柵"
+duplicate = "你的骨之格柵已有{aspect}符文"
+no_slot = "你的骨之格柵沒有空槽"
+time_left = "剩餘{seconds}秒"
+
+[golemancy.guardian_core]
+name = "守護者核心"
+description = "以守護者核心縛約的魔像會守衛其住所、你或守衛節點的區域，核心越強，對你的保護越周全。"
+lore1 = "守衛半徑（方塊）"
+lore2 = "攔截：追擊你的生物會轉向你的守護者"
+lore3 = "報復：守護者會攻擊傷害過你的目標"
+lore4 = "在守護者附近受到的傷害降低"
+lore5 = "背水一戰給予抗性的秒數"
+lore = ["守衛半徑（方塊）", "攔截：追擊你的生物會轉向你的守護者", "報復：守護者會攻擊傷害過你的目標", "在守護者附近受到的傷害降低", "背水一戰給予抗性的秒數"]
+
+[golemancy.gatherer_core]
+name = "採集者核心"
+description = "以採集者核心縛約的魔像會拾取其住所或收集節點周圍掉落的物品並送達，核心變強後還會將經驗球儲存為精華。"
+lore1 = "拾取半徑（方塊）"
+lore2 = "精華儲量（經驗值）"
+lore3 = "物品磁吸範圍（方塊）"
+lore4 = "即時拾取範圍（方塊）"
+lore5 = "攜帶容量"
+lore = ["拾取半徑（方塊）", "精華儲量（經驗值）", "物品磁吸範圍（方塊）", "即時拾取範圍（方塊）", "攜帶容量"]
+essence = "精華：{value} 點經驗"
+essence_lore = "點擊取出儲存的經驗"
+essence_taken = "你取出了 {value} 點精華經驗"
+essence_empty = "這個魔像沒有儲存精華"
+
+[golemancy.harvester_core]
+name = "收割者核心"
+description = "以收割者核心縛約的魔像會收割收割節點區域內成熟的作物並重新種植，核心越強，越能照料和耕作田地。"
+lore1 = "每次收割動作的作物數"
+lore2 = "每次收割動作的秒數"
+lore3 = "收割西瓜、南瓜、甘蔗、竹子和仙人掌"
+lore4 = "照料：用家用箱子裡的骨粉催熟幼苗"
+lore5 = "耕作：重新耕地並在空耕地上播種"
+lore6 = "額外擲一次掉落的機率"
+lore = ["每次收割動作的作物數", "每次收割動作的秒數", "收割西瓜、南瓜、甘蔗、竹子和仙人掌", "照料：用家用箱子裡的骨粉催熟幼苗", "耕作：重新耕地並在空耕地上播種", "額外擲一次掉落的機率"]
+
+[golemancy.lumber_core]
+name = "伐木者核心"
+description = "以伐木者核心縛約的魔像會由上而下砍伐伐木節點區域內的天然樹木並收集原木，核心越強，越能補種樹苗、清掃樹葉並砍伐更大的樹。"
+lore1 = "每秒砍伐的原木數"
+lore2 = "銅魔像可砍伐的每棵樹原木數"
+lore3 = "鐵魔像可砍伐的每棵樹原木數"
+lore4 = "砍伐後補種樹苗"
+lore5 = "清掃樹葉：破壞鬆動的樹葉並收集掉落物"
+lore6 = "砍伐2x2巨樹"
+lore7 = "砍伐緋紅蕈與扭曲蕈並補種蕈類"
+lore = ["每秒砍伐的原木數", "銅魔像可砍伐的每棵樹原木數", "鐵魔像可砍伐的每棵樹原木數", "砍伐後補種樹苗", "清掃樹葉：破壞鬆動的樹葉並收集掉落物", "砍伐2x2巨樹", "砍伐緋紅蕈與扭曲蕈並補種蕈類"]
+
+[golemancy.breaker_core]
+name = "破壞者核心"
+description = "以破壞者核心縛約的魔像會破壞採掘節點區域內過濾器所列的方塊並帶走掉落物，核心越強，越能用更好的鎬挖掘更硬的方塊。"
+lore1 = "最大方塊硬度"
+lore2 = "每個方塊的秒數"
+lore3 = "採掘工具"
+lore4 = "採掘節點的絲綢之觸開關"
+lore5 = "採掘節點的幸運 I 開關"
+lore = ["最大方塊硬度", "每個方塊的秒數", "採掘工具", "採掘節點的絲綢之觸開關", "採掘節點的幸運 I 開關"]
+filter_ready = "破壞過濾器中的方塊"
+filter_needed = "向白名單新增方塊"
+filter_lore = "破壞者只破壞白名單所列的方塊"
+silk_on = "絲綢之觸：開"
+silk_off = "絲綢之觸：關"
+fortune_on = "幸運 I：開"
+fortune_off = "幸運 I：關"
+locked = "破壞者核心{level}級解鎖"
+exclusive = "絲綢之觸和幸運 I 會互相關閉"
+
+[golemancy.rancher_core]
+name = "牧場主核心"
+description = "綁定牧場主核心的魔像會照料牧場節點區域內的動物：牠們讓成對的動物繁殖，直到達到節點的保留數量；隨著核心變強，牠們還會剪羊毛、替牛和山羊擠奶，並淘汰多餘的成年動物。"
+lore1 = "讓成對的動物繁殖，直到達到牧場節點的保留數量"
+lore2 = "剪羊毛"
+lore3 = "用家用箱子裡的桶或碗替牛、山羊和哞菇擠奶"
+lore4 = "淘汰超過保留數量的成年動物（僅限鐵魔像）"
+lore5 = "繁殖冷卻時間縮短"
+lore6 = "每次淘汰額外掉落判定"
+lore = ["讓成對的動物繁殖，直到達到牧場節點的保留數量", "剪羊毛", "用家用箱子裡的桶或碗替牛、山羊和哞菇擠奶", "淘汰超過保留數量的成年動物（僅限鐵魔像）", "繁殖冷卻時間縮短", "每次淘汰額外掉落判定"]
+species = "物種：{species}"
+species_all = "所有動物"
+species_lore = "左鍵切換到下一個物種，右鍵切換到上一個"
+keep = "保留數量：每個物種{count}隻"
+keep_lore = "左鍵增加，右鍵減少"
+breed_on = "繁殖：開"
+breed_off = "繁殖：關"
+shear_on = "剪毛：開"
+shear_off = "剪毛：關"
+milk_on = "擠奶：開"
+milk_off = "擠奶：關"
+cull_on = "淘汰：開"
+cull_off = "淘汰：關"
+locked = "牧場主核心{level}級解鎖"
+iron_only = "只有鐵魔像會淘汰"
+
+[golemancy.sorter_core]
+name = "分揀者核心"
+description = "以分揀者核心縛約的銅魔像會把輸入節點下方容器裡的物品清空到附近已經存放該物品的容器中，核心越強，還會學會物品分組、過濾節點、補貨和取物。"
+lore1 = "目標半徑（方塊）"
+lore2 = "每趟堆疊數"
+lore3 = "按物品分組分揀"
+lore4 = "過濾節點與溢出容器"
+lore5 = "區分附魔與藥水"
+lore6 = "搬運界伏盒"
+lore7 = "過濾節點的補貨數量"
+lore8 = "容器內容索引"
+lore9 = "在輸入節點選單中取物"
+lore = ["目標半徑（方塊）", "每趟堆疊數", "按物品分組分揀", "過濾節點與溢出容器", "區分附魔與藥水", "搬運界伏盒", "過濾節點的補貨數量", "容器內容索引", "在輸入節點選單中取物"]
+match_exact = "匹配：相同物品"
+match_groups = "匹配：物品分組"
+match_precise = "匹配：附魔與藥水"
+match_lore = "分揀者判斷哪個容器已存放某物品的方式"
+radius = "目標半徑：{radius}"
+radius_lore = "依你的分揀者核心等級最多{radius}格"
+fetch = "取物"
+fetch_lore = "選擇讓分揀者為你送來的物品"
+locked = "分揀者核心{level}級解鎖"
+overflow_on = "溢出：開"
+overflow_off = "溢出：關"
+overflow_lore = "溢出容器接收其他容器都不要的物品"
+restock = "補貨：每種過濾物品{amount}個"
+restock_off = "補貨：關"
+restock_lore = "分揀者會在這裡維持清單中每種物品的這個數量"
+fetch_available = "可用：{count}"
+fetch_request = "點擊請求{amount}個"
+fetch_amount = "每次請求{amount}個"
+fetch_empty = "這個輸入節點的容器裡沒有任何物品"
+fetch_requested = "分揀者會送來{amount}個{item}"
+fetch_delivered = "分揀者送來了{amount}個{item}"
+empty_filter = "空的過濾節點不接收任何物品，除非它是溢出容器"
+
+[golemancy.angler_core]
+name = "垂釣者核心"
+description = "以垂釣者核心縛約的魔像會在釣魚節點前方的開闊水域釣魚並帶走漁獲，核心越強，運氣越好，還能過濾垃圾、雨天釣得更快並釣上雙份漁獲。"
+lore1 = "每次漁獲的秒數"
+lore2 = "釣魚運氣"
+lore3 = "釣魚節點的垃圾過濾開關"
+lore4 = "雨天漁獲時間縮短"
+lore5 = "雙份漁獲的機率"
+lore = ["每次漁獲的秒數", "釣魚運氣", "釣魚節點的垃圾過濾開關", "雨天漁獲時間縮短", "雙份漁獲的機率"]
+water_ready = "已找到開闊水域"
+water_needed = "需要開闊水域"
+water_lore = "垂釣者需要節點前方有 5×5 的開闊水域"
+junk_keep = "垃圾：保留"
+junk_discard = "垃圾：丟回水中"
+locked = "垂釣者核心{level}級解鎖"
+
+[golemancy.runic_augments]
+name = "符文強化"
+description = "讓你在靈魂基座上灌注符文，並將其鑲入已縛約的魔像，以獲得速度、搬運量、火焰、範圍、頻道、產量和護甲。"
+lore1 = "每個魔像的額外符文槽"
+lore2 = "可用的最高符文階級"
+lore3 = "靈魂基座與空白符文配方"
+lore = ["每個魔像的額外符文槽", "可用的最高符文階級", "靈魂基座與空白符文配方"]
+
+[golemancy.overseer]
+name = "監督者"
+description = "讓你用巧匠之杖向已縛約的魔像發出信號，令牠們跟隨、原地堅守、回家或工作；隨著等級提升，牠們還會攻擊你注視的目標、依頻道回應、集結到你身邊，並以陣型守護你。"
+lore1 = "信號半徑（方塊）"
+lore2 = "攻擊：你的戰鬥魔像攻擊你注視的目標"
+lore3 = "巧匠之杖頻道過濾，在魔像名冊中設定"
+lore4 = "集結：跟隨信號會召回遠處的魔像"
+lore5 = "陣型魔像提供的最大護甲"
+lore = ["信號半徑（方塊）", "攻擊：你的戰鬥魔像攻擊你注視的目標", "巧匠之杖頻道過濾，在魔像名冊中設定", "集結：跟隨信號會召回遠處的魔像", "陣型魔像提供的最大護甲"]
+signal = "信號：{signal}"
+sent = "已發送：{signal}"
+sent_channel = "已發送：{signal}（{channel}頻道）"
+no_target = "注視 {range} 格內一個你可以攻擊的生物以發送攻擊信號"
+
+[golemancy.mending]
+name = "魔像修復"
+description = "用銅錠、雪塊和骨粉治療你的魔像，讓它們在你身邊和家中自行恢復，並用破碎核心重建倒下的魔像。"
+lore1 = "修復帶來的額外治療"
+lore2 = "銅錠、雪塊和骨粉可以治療你的魔像"
+lore3 = "在你身邊時恢復的生命值"
+lore4 = "在家中閒置時恢復的生命值"
+lore5 = "每次恢復間隔秒數"
+lore6 = "破碎核心：重建倒下的魔像"
+lore7 = "重生魔像的抗性提升秒數"
+lore8 = "重生魔像保留其銅的狀態"
+lore = ["修復帶來的額外治療", "銅錠、雪塊和骨粉可以治療你的魔像", "在你身邊時恢復的生命值", "在家中閒置時恢復的生命值", "每次恢復間隔秒數", "破碎核心：重建倒下的魔像", "重生魔像的抗性提升秒數", "重生魔像保留其銅的狀態"]
+full_health = "這個魔像的生命值已滿"
+shattered = "你的{body}魔像碎裂了，留下了它的破碎核心"
+reborn = "你的{body}魔像重生了"
+void = "這個破碎核心崩解了：它已不再容納它的魔像"
+not_owner = "這個破碎核心屬於另一名玩家"
+locked = "重建魔像需要魔像修復{level}級"
+wrong_body = "這個破碎核心需要一個剛建造的{body}魔像"
+unreadable = "這個破碎核心已損壞，無法重建魔像"
+
+[golemancy.stasis]
+name = "停滯"
+description = "用巧匠之杖將你縛約的魔像打包成休眠魔像方塊，放下方塊即可在任何地方喚醒它們，核心、符文、攜帶物品和生命值都會保留。"
+lore1 = "打包魔像所需秒數"
+lore2 = "瞬間打包"
+lore3 = "放下休眠魔像以喚醒它"
+lore4 = "打包期間恢復的生命值"
+lore5 = "打包期間的恢復間隔秒數"
+lore6 = "口袋名冊：從名冊召回魔像"
+lore7 = "召回間隔秒數"
+lore = ["打包魔像所需秒數", "瞬間打包", "放下休眠魔像以喚醒它", "打包期間恢復的生命值", "打包期間的恢復間隔秒數", "口袋名冊：從名冊召回魔像", "召回間隔秒數"]
+packed = "你的{body}魔像已打包為休眠魔像"
+dropped = "你的物品欄已滿，休眠魔像掉落在你腳邊"
+interrupted = "打包被打斷了"
+busy = "你已經在打包一個魔像了"
+pack_failed = "現在無法打包這個魔像"
+awakened = "你的{body}魔像甦醒了"
+void = "這個休眠魔像崩解了：它已不再容納它的魔像"
+not_owner = "這個休眠魔像屬於另一名玩家"
+locked = "喚醒休眠魔像需要停滯"
+unreadable = "這個休眠魔像已損壞，無法甦醒"
+body_locked = "你還不能喚醒{body}魔像"
+no_room = "休眠魔像需要一個空方塊才能甦醒"
+server_cap = "伺服器上甦醒的魔像已達到允許的上限"
+protected = "你不能在這裡喚醒魔像"
+awaken_failed = "魔像無法甦醒，你的休眠魔像已保留"
+recall_cooldown = "{seconds}秒後你可以召回下一個魔像"
+recall_unavailable = "只能召回在你所在世界中已載入的魔像"
+
+[golemancy.masterwork]
+name = "傑作"
+description = "在靈魂基座上灌注傑作之心並將其鑲入魔像，以獲得額外的符文槽、更多生命值、第二個核心和更強的符文。"
+lore1 = "傑作魔像數量"
+lore2 = "傑作的額外符文槽"
+lore3 = "傑作的最大生命值"
+lore4 = "傑作的第二核心槽"
+lore5 = "傑作的符文提升一個階級生效"
+lore6 = "傑作階級 3 符文的加成"
+lore = ["傑作魔像數量", "傑作的額外符文槽", "傑作的最大生命值", "傑作的第二核心槽", "傑作的符文提升一個階級生效", "傑作階級 3 符文的加成"]
+slot = "傑作之心"
+slot_lore = "點擊取回傑作之心以及第二個核心和額外符文"
+slot_empty = "傑作槽"
+slot_empty_lore = "拿起一顆傑作之心並點擊此處（傑作 {count}/{maximum}）"
+core_empty = "第二核心槽"
+core_empty_lore = "拿起一個職能核心並點擊此處將其鑲入"
+core_remove = "點擊取回這個核心"
+heart_needed = "請先拿起一顆傑作之心"
+designated = "這個魔像現在是傑作了"
+removed = "已取回傑作之心"
+already = "這個魔像已經是傑作"
+cap = "你已經有{count}個傑作魔像"
+locked = "你需要傑作才能指定傑作魔像"
+body = "{body}魔像無法成為傑作"
+core_needed = "請先拿起一個職能核心"
+core_slotted = "已鑲入{core}核心"
+core_removed = "已取回{core}核心"
+core_no_slot = "這個魔像沒有空的核心槽"
+core_blank = "第二個核心必須是職能核心"
+core_duplicate = "這個魔像已經有{core}核心"
+
+[golemancy.node_status]
+idle = "閒置"
+working = "工作中"
+blocked = "被保護阻擋"
+full = "容器已滿"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "過濾: {count}"
+
+[golemancy.node_message]
+placed = "已放置{node}節點"
+occupied = "這個面已經有節點了"
+protected = "你不能在這裡放置節點"
+needs_container = "{node}節點需要放在箱子、木桶或界伏盒上"
+needs_side_face = "{node}節點需要放在方塊的側面"
+container_protected = "該容器受保護"
+chunk_full = "該區塊已有{count}個節點"
+cap = "你已擁有上限數量的{count}個節點"
+loading = "這裡的節點仍在載入"
+unavailable = "你的魔像名冊尚未準備好"
+filter_added = "已將{item}加入過濾"
+filter_removed = "已將{item}移出過濾"
+filter_full = "此過濾最多容納{count}個條目"
+priority_locked = "節點優先級在節點編織{level}級解鎖"
+removed = "已移除{node}節點"
+remove_failed = "暫時無法移除此節點"
+not_owner = "此節點屬於其他玩家"
+gone = "此節點已不在這裡"
+tag_prompt = "請在聊天欄輸入物品標籤，例如#logs"
+tag_invalid = "{tag}不是物品標籤"
+tag_cancelled = "已取消輸入標籤"
+tag_timed_out = "輸入標籤已逾時"
+
+[golemancy.node_gui]
+position = "方塊：{x}, {y}, {z}"
+area = "{axis}半徑：{radius}"
+area_lore = "左鍵擴大，右鍵縮小"
+area_cap = "最大半徑：{radius}"
+priority = "優先級：{priority}"
+redstone = "紅石：{mode}"
+redstone_ignore = "忽略"
+redstone_powered = "僅在有紅石訊號時運作"
+redstone_unpowered = "僅在無紅石訊號時運作"
+locked = "節點編織{level}級解鎖"
+whitelist = "白名單"
+whitelist_lore = "魔像只使用符合的物品"
+blacklist = "黑名單"
+blacklist_lore = "魔像使用符合物品以外的一切"
+empty_filter = "空過濾符合所有物品"
+toggle = "點擊切換"
+filter_empty = "空過濾槽位"
+filter_set = "手持物品點擊以設定"
+filter_clear = "右鍵清除"
+filter_locked = "已鎖定的過濾槽位"
+filter_locked_lore = "提升節點編織等級可解鎖此槽位"
+tag = "物品標籤"
+tag_add = "新增標籤"
+tag_add_lore = "點擊後在聊天欄輸入物品標籤，例如#logs"
+
+[golemancy.node_weaving]
+name = "節點編織"
+description = "手持節點潛行並右鍵點擊方塊表面，即可將其固定在那裡並指引你的魔像工作。"
+lore1 = "可擁有的節點數量"
+lore2 = "工作區域半徑（方塊）"
+lore3 = "過濾槽位"
+lore4 = "節點優先級1-5"
+lore5 = "紅石控制"
+lore6 = "黑名單與標籤過濾"
+lore = ["可擁有的節點數量", "工作區域半徑（方塊）", "過濾槽位", "節點優先級1-5", "紅石控制", "黑名單與標籤過濾"]
+
+[golemancy.plinth]
+loading = "這個基座仍在載入"
+occupied = "這個底座上已經有物品了"
+protected = "你不能在這裡使用這個基座"
+busy = "灌注已在進行中"
+no_recipe = "這些物品無法組成灌注"
+locked = "你還沒學會這種灌注"
+levels = "這種灌注需要{levels}級經驗"
+interrupted = "灌注被打斷了"
+complete = "灌注完成了"
+failed = "灌注失敗，你的經驗等級已退還"
+
 [herbalism.growth_aura]
 name = "生長光環"
 description = "在你周圍的光環中加速自然生長"
@@ -4523,6 +5212,10 @@ vault_unavailable_fallback = "Vault 經濟功能無法使用 — 仍可僅使用
 vault_insufficient_funds = "玩家的 Vault 經濟餘額不足。"
 vault_transaction_failed = "Vault 交易失敗；進度未變更。"
 power_drain = "力量消耗：{power}"
+requirement_level = "{adaptation} {level} 級"
+requires = "需要：{requirement}"
+requirements_missing = "請先學習 {requirements}，再學習 {adaptation}。"
+required_by_dependents = "請先取消學習 {dependents}；它們需要 {adaptation}。"
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5362,6 +6055,11 @@ name = "動詞"
 icon = "⚒"
 description = "運動就是力量. 用梅子砸,用長矛充電, 彎曲動力本身: 彈跳、發射、懸浮和發音良好的墜落 都餵你掌握的."
 
+[skill.golemancy]
+name = "魔像術"
+icon = "⚙"
+description = "透過建造、修理和照料魔像來升級，然後賦予它們生命，讓它們在你身邊戰鬥和勞作。"
+
 [snippets.gui]
 level = "等級"
 level_value = "職等 {level}"
@@ -5793,7 +6491,7 @@ lore2 = "每秒恢復最大健康"
 lore = ["在所有可歸因於健康的損害中", "每秒恢復最大健康"]
 
 [tragoul.skeletal_servant]
-name = "骨骼服務員"
+name = "骸骨僕從"
 description = "隨著你的頭,你會發現一個人在你的手中被擊敗. 你的頭上召喚你的老僕人回收了你的骨頭. 在召喚時消耗骨頭,更高水平."
 lore1 = "偷偷摸摸的+右腳 手持骨頭召喚一個僕人"
 lore2 = "服務生"
@@ -5951,7 +6649,7 @@ assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it = "�
 boost_global_experience_gain = "全球經驗增長."
 boost_target_player_experience_gain = "增強目標玩家的經驗."
 bypass_adapt_use_permission_checks_when_opening = "繞行 adapt.use 開啟時許可權檢查"
-bypass_costs_and_restrictions = "副證費用和限制"
+bypass_costs_and_permanence_prerequisites_still_apply = "略過消耗與永久學習檢查；前置要求仍然有效"
 bypass_power_knowledge_and_permanence_checks = "副動力、知識和永久性檢查"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "清除所有發現資料(生物、暴徒、食品、物品、食譜等.)"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "清除所有玩家資料 (XP, 知識、適應、統計、發現、進步、智慧)"
@@ -5996,6 +6694,12 @@ toggle_verbose_mode = "切換動詞模式"
 top_results_to_print = "要列印的頂級結果"
 true_to_learn_false_to_unlearn = "誠實的學習,虛假的學習"
 unlearn_all_adaptations_across_all_skill_lines = "解開所有技能線上的適應"
+golem_roster_and_admin_tools = "魔像名冊與管理工具"
+open_your_golem_roster = "開啟你的魔像名冊"
+list_a_player_s_golems = "列出玩家的魔像"
+release_one_of_a_player_s_golems = "釋放玩家的一個魔像"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "魔像 ID，或足以只符合一個魔像的開頭字元"
+wake_a_player_s_loaded_golems = "喚醒玩家已載入的魔像"
 
 [command.runtime]
 missing_permission = "你沒有權限 '{permission}'。"
@@ -6038,6 +6742,8 @@ vault_insufficient_funds = "玩家的 Vault 經濟餘額不足。"
 vault_transaction_failed = "Vault 交易失敗；進度未變更。"
 set_adaptation_level = "設定 {player} {adaptation} 到級別 {level}."
 permanent_adaptation_lower = "{adaptation} 具有永久性質,如果沒有 force=true."
+requirements_missing = "{player} 需要先學習 {requirements}，才能學習 {adaptation}。"
+required_by_dependents = "{adaptation} 是 {dependents} 的前置要求（玩家 {player}）；使用 force=true 可一併移除。"
 adapt_server_not_ready = "Adapt 伺服器尚未準備好. 再試幾秒鐘."
 target_dispatch_failed = "無法為目標玩家排程操作。請重試。"
 cleared_all = "清除所有資料 {player}."
@@ -6076,6 +6782,16 @@ perf_timing_budget = "能力檢查時間安排預算: {percent} ({millisPerSecon
 perf_ticker_window = "計票視窗: {window}分鐘"
 perf_no_metrics = "尚未收集到勾選指標."
 perf_reset = "計票器和能力遙測重置."
+golem_list_header = "{player} 擁有 {count} 個魔像："
+golem_list_header_one = "{player} 擁有 1 個魔像："
+golem_list_empty = "{player} 沒有魔像。"
+golem_list_entry = "{id}：{golem}，{status}。{location}"
+golem_not_found = "{player} 沒有 ID 以 {id} 開頭的魔像。"
+golem_ambiguous = "{player} 有不只一個魔像的 ID 以 {id} 開頭。請輸入更多字元。"
+golem_released = "已將魔像 {id} 從 {player} 的名冊中釋放。"
+golem_release_failed = "無法釋放魔像 {id}（{player}）。請再試一次。"
+golem_release_active_unloaded = "魔像 {id}（{player}）正在未載入的區塊中活動。請載入其區塊後再釋放，或在它顯示為失蹤後釋放。"
+golems_woken = "正在喚醒 {player} 已載入的 {count} 個魔像。"
 
 [language.menu]
 your_language = "您的語言"
@@ -6709,6 +7425,29 @@ purple = "Purple"
 always = "Always"
 sneak = "潛行時啟用"
 suppress = "潛行時停用"
+
+[golemancy.preferences]
+absorb_orbs = "吸收經驗球"
+action_bar_only = "僅動作列"
+any_item = "任意魔像術物品"
+aura = "光環"
+chime_and_particles = "鈴聲和粒子"
+crook_only = "僅巧匠之杖"
+hidden = "隱藏"
+intercept = "攔截"
+leaf_sweep = "清掃樹葉"
+magnet = "磁吸"
+node_reveal = "節點顯示"
+obey_overseer = "僕從服從監督者"
+retaliate_players = "報復玩家"
+shown = "顯示"
+signal_feedback = "信號回饋"
+static_overdrive = "靜電超載"
+status_labels = "魔像狀態標籤"
+sweeping_fists = "橫掃重拳"
+tending = "照料"
+tilling = "耕作"
+work_area_outline = "工作區域輪廓"
 
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"

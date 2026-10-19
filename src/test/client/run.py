@@ -5,6 +5,7 @@ import os
 import re
 from pathlib import Path
 import secrets
+import shlex
 import signal
 import shutil
 import socket
@@ -18,7 +19,9 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[3]
 PRISM = Path.home() / 'Library/Application Support/PrismLauncher'
 LAUNCHER = Path('/Applications/Prism Launcher.app/Contents/MacOS/prismlauncher')
-MULTIPLEXOR = ROOT.parent.parent / '[Minecraft Server]'
+MULTIPLEXOR_ENV = 'ADAPT_DEMO_MULTIPLEXOR'
+GRADLE_ARGS_ENV = 'ADAPT_DEMO_GRADLE_ARGS'
+PLAYER = 'Magic_Psycho'
 
 
 class Rcon:
@@ -104,9 +107,25 @@ def free_port():
         return listener.getsockname()[1]
 
 
+def multiplexor() -> Path:
+    return Path(os.environ.get(MULTIPLEXOR_ENV) or ROOT.parent.parent / '[Minecraft Server]').expanduser()
+
+
+def gradle_arguments() -> list[str]:
+    return shlex.split(os.environ.get(GRADLE_ARGS_ENV, ''))
+
+
+def gradle_build(output: Path) -> None:
+    environment = dict(os.environ)
+    environment.pop('GIT_CONFIG_COUNT', None)
+    with (output / 'build.log').open('w') as log:
+        subprocess.run(['./gradlew', 'build', 'prepareGameplay', *gradle_arguments()], cwd=ROOT, env=environment, stdout=log, stderr=subprocess.STDOUT, check=True)
+
+
 def mux(*arguments: str, timeout: int = 180) -> str:
-    result: subprocess.CompletedProcess = subprocess.run([str(MULTIPLEXOR / 'start.sh'), '--consumer', 'plugin', *arguments],
-                                                         cwd=MULTIPLEXOR, capture_output=True, text=True, timeout=timeout)
+    workspace: Path = multiplexor()
+    result: subprocess.CompletedProcess = subprocess.run([str(workspace / 'start.sh'), '--consumer', 'plugin', *arguments],
+                                                         cwd=workspace, capture_output=True, text=True, timeout=timeout)
     if result.returncode != 0:
         raise RuntimeError('Multiplexor ' + ' '.join(arguments) + ' failed with exit ' + str(result.returncode) + ': '
                            + (result.stdout + result.stderr).strip()[-2000:])
@@ -374,10 +393,7 @@ def main():
     rcon = None
     try:
         if not args.skip_build:
-            environment = dict(os.environ)
-            environment.pop('GIT_CONFIG_COUNT', None)
-            with (output / 'build.log').open('w') as log:
-                subprocess.run(['./gradlew', 'build', 'prepareGameplay'], cwd=ROOT, env=environment, stdout=log, stderr=subprocess.STDOUT, check=True)
+            gradle_build(output)
         mods = ensure_mods(ROOT)
         with (output / 'client-build.log').open('w') as log:
             subprocess.run(['bash', str(ROOT / 'src/test/client/build.sh')], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
@@ -398,7 +414,7 @@ def main():
         report['artifactSha256'] = hashlib.sha256((server / 'plugins/Adapt.jar').read_bytes()).hexdigest()
         launch_log = (output / 'launcher.log').open('w')
         try:
-            subprocess.Popen([str(LAUNCHER), '--launch', client_name, '--offline', 'AQAClient262', '--server',
+            subprocess.Popen([str(LAUNCHER), '--launch', client_name, '--offline', PLAYER, '--server',
                               '127.0.0.1:' + properties['server-port']], stdout=launch_log, stderr=subprocess.STDOUT)
         finally:
             launch_log.close()
@@ -424,7 +440,7 @@ def main():
             report['failureState'] = None
         if rcon:
             try:
-                report['failureServerState'] = {key: rcon.command('data get entity AQAClient262 ' + key)
+                report['failureServerState'] = {key: rcon.command('data get entity ' + PLAYER + ' ' + key)
                                                 for key in ['OnGround', 'Pos', 'Motion']}
             except Exception as observation_failure:
                 report['failureServerState'] = {'error': str(observation_failure)}

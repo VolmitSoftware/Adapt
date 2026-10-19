@@ -2,7 +2,8 @@ import json
 from pathlib import Path
 import time
 
-PLAYER = 'AQAClient262'
+from run import PLAYER
+
 BOUNCE = 'minecraft:bounciness'
 
 

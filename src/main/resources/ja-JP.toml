@@ -3053,6 +3053,70 @@ description = "動きを力へ変える。"
 title = "ニュートンのレシート"
 description = "自分が8ブロック以上の高さから落とした金床でモブを倒す。"
 
+[advancement.challenge_golemancy_built_10]
+title = "粘土と火花"
+description = "ゴーレムを10体作る"
+
+[advancement.challenge_golemancy_built_100]
+title = "巨人の鋳造所"
+description = "ゴーレムを100体作る"
+
+[advancement.challenge_golemancy_bound_5]
+title = "小さな従者団"
+description = "ゴーレムを5体結びつける"
+
+[advancement.challenge_golemancy_bound_25]
+title = "アニムスの軍団"
+description = "ゴーレムを25体結びつける"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "石の哨兵"
+description = "結びつけたゴーレムが敵対モブを50体倒す"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "生ける城壁"
+description = "結びつけたゴーレムが敵対モブを500体倒す"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "不壊の軍勢"
+description = "結びつけたゴーレムが敵対モブを5,000体倒す"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "冬の従者"
+description = "霜ゴーレムを結びつける"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "緑青の絆"
+description = "銅ゴーレムを結びつける"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "鉄の誓い"
+description = "鉄ゴーレムを結びつける"
+
+[advancement.challenge_golemancy_tasks_1000]
+title = "働き者の手"
+description = "ゴーレムが仕事を1,000件終える"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "疲れ知らずの工房"
+description = "ゴーレムが仕事を25,000件終える"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "堅実な運び手"
+description = "ゴーレムがアイテムを10,000個届ける"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "果てなき隊商"
+description = "ゴーレムがアイテムを250,000個届ける"
+
+[advancement.challenge_golemancy_infusions_10]
+title = "台座の見習い"
+description = "アニムスの台座で注入を10回完了する"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "注入の達人"
+description = "アニムスの台座で注入を100回完了する"
+
 [agility.armor_up]
 name = "アーマーアップ"
 description = "ダッシュし続けるほど防具が強化される！"
@@ -4240,6 +4304,631 @@ lore1 = "追加ドロップ確率"
 lore2 = "濡れた状態で掘る際の採掘速度上昇レベル"
 lore = ["追加ドロップ確率", "濡れた状態で掘る際の採掘速度上昇レベル"]
 
+[golemancy.item.crook]
+name = "アーティフィサーの杖"
+lore = "結びつけたゴーレムと、その作業場となるノードを指揮する"
+
+[golemancy.item.blank_core]
+name = "空のアニムスコア"
+lore = "ゴーレムを仲間として結びつけるか、役割コアの素材になる"
+
+[golemancy.item.core]
+name = "{role}のコア"
+lore = "ゴーレムを{role}の役割に結びつける"
+
+[golemancy.item.blank_node]
+name = "空のノード"
+lore = "あらゆる種類のノードの素材になる"
+
+[golemancy.item.node]
+name = "{node}ノード"
+lore = "ブロックの面に固定し、ゴーレムの作業を指示する"
+
+[golemancy.item.blank_rune]
+name = "空のルーン"
+lore = "アニムスの台座でルーンに注入される"
+
+[golemancy.item.rune]
+name = "{aspect}のルーン"
+tier = "ティア{tier}"
+lore = "ゴーレムにはめ込んで強化する"
+
+[golemancy.item.dormant_golem]
+name = "休眠ゴーレム"
+core = "コア：{core}"
+runes = "ルーン：{runes}"
+health = "体力：{health}/{maximum}"
+lore = "設置するとこのゴーレムが目覚める"
+
+[golemancy.item.shattered_core]
+name = "砕けたコア"
+lore = "倒れたゴーレムを強化ごと再構築する"
+
+[golemancy.item.masterwork_heart]
+name = "傑作の心臓"
+lore = "傑作ゴーレムを指定する"
+
+[golemancy.role]
+blank = "仲間"
+guardian = "守護者"
+gatherer = "採集者"
+harvester = "収穫者"
+lumber = "木こり"
+breaker = "破壊者"
+rancher = "牧場主"
+sorter = "仕分け係"
+angler = "釣り人"
+
+[golemancy.node]
+guard = "警備"
+collection = "回収"
+deposit = "預け入れ"
+harvest = "収穫"
+lumber = "伐採"
+breaker = "採掘"
+pasture = "牧草地"
+input = "搬入"
+filter = "フィルター"
+fishing = "釣り"
+
+[golemancy.aspect]
+swiftness = "迅速"
+might = "剛力"
+ember = "残り火"
+tide = "潮流"
+order = "秩序"
+entropy = "エントロピー"
+bulwark = "防壁"
+
+[golemancy.body]
+frost = "霜"
+copper = "銅"
+iron = "鉄"
+bone = "骨"
+
+[golemancy.golem]
+name = "{owner}の{body}ゴーレム"
+
+[golemancy.mode]
+work = "作業"
+follow = "追従"
+stay = "待機"
+home = "帰宅"
+
+[golemancy.signal]
+follow = "追従"
+hold = "その場待機"
+home = "帰宅"
+work = "作業"
+sic = "攻撃"
+
+[golemancy.channel]
+none = "なし"
+white = "白色"
+orange = "橙色"
+magenta = "赤紫色"
+light_blue = "空色"
+yellow = "黄色"
+lime = "黄緑色"
+pink = "桃色"
+gray = "灰色"
+light_gray = "薄灰色"
+cyan = "青緑色"
+purple = "紫色"
+blue = "青色"
+brown = "茶色"
+green = "緑色"
+red = "赤色"
+black = "黒色"
+
+[golemancy.status]
+active = "稼働中"
+packed = "梱包済み"
+shattered = "粉砕"
+missing = "行方不明"
+
+[golemancy.gui]
+title = "{body}ゴーレム"
+health = "体力：{health}/{maximum}"
+dormant = "休眠中"
+mode = "モード：{mode}"
+channel = "チャンネル：{channel}"
+cycle = "左クリックで次へ、右クリックで前へ"
+set_home = "ここを拠点に設定"
+home = "拠点：{x}, {y}, {z}"
+link_chest = "拠点チェストを連携"
+home_chest = "拠点チェスト：{x}, {y}, {z}"
+no_home_chest = "拠点チェストは未連携"
+link_hint = "クリックしてから、杖でコンテナを右クリック"
+rune_locked = "ロックされたルーンスロット"
+rune_unlock_level = "ルーン強化レベル{level}で解放"
+rune_empty = "空のルーンスロット"
+rune_empty_lore = "ルーンを持ってここをクリックするとはめ込みます"
+rune_remove = "クリックでこのルーンを取り戻す"
+rune_active = "有効"
+rune_over_tier = "無効：ティア{tier}にはルーン強化レベル{level}が必要です"
+rune_slot_locked = "無効：このスロットにはルーン強化レベル{level}が必要です"
+rune_blocked = "無効：{aspect}のルーンは{body}ゴーレムでは働きません"
+rune_duplicate = "無効：このゴーレムにはすでに{aspect}のルーンがあります"
+rune_unpowered = "無効：今のルーン強化ではこのルーンを扱えません"
+channels = "チャンネル：{channels}"
+channels_lore = "クリックで最大{count}個のチャンネルを選択"
+channels_title = "チャンネルを選択"
+channel_selected = "選択中"
+channel_select = "クリックで選択"
+channels_clear = "チャンネルをクリア"
+back = "戻る"
+take = "クリックで取り出す"
+more_carried = "他{count}件"
+stats = "統計"
+kills = "撃破数：{value}"
+damage = "与えたダメージ：{value}"
+tasks = "完了したタスク：{value}"
+items_moved = "運んだアイテム：{value}"
+release = "解放"
+release_lore = "普通のゴーレムに戻し、コア、ルーン、運んでいるアイテムに加え、あれば2つ目のコアと傑作の心臓も落とす"
+release_confirm = "このゴーレムを解放しますか？"
+snow_trail_on = "雪の跡：オン"
+snow_trail_off = "雪の跡：オフ"
+snow_trail_lore = "クリックでこのゴーレムが残す雪を切り替え"
+colossus_on = "巨像形態：オン"
+colossus_off = "巨像形態：オフ"
+colossus_lore = "クリックで戦闘用の元の大きさを切り替え。大きくなったゴーレムは作業しません"
+pack = "梱包"
+pack_lore = "このゴーレムを休眠ゴーレムのブロックに圧縮します。置くと目覚めます"
+
+[golemancy.roster]
+title = "ゴーレム名簿"
+empty = "ゴーレムを所有していません"
+entry = "{body}ゴーレム（{core}）"
+location = "{world}：{x}, {y}, {z}"
+last_seen = "最後に見た場所：{world}の{x}, {z}付近"
+status = "状態：{status}"
+locate = "左クリックで位置を表示"
+release = "シフト＋右クリックで解放"
+release_confirm = "この行方不明のゴーレムを完全に解放しますか？"
+release_shattered_confirm = "この砕けたゴーレムを完全に解放しますか？砕けたコアは崩れ去ります。"
+release_packed_confirm = "この梱包済みゴーレムを完全に解放しますか？休眠ゴーレムは崩れ去ります。"
+recall = "右クリックでインベントリに呼び戻す"
+crook_channel = "杖のチャンネル：{channel}"
+crook_channel_lore = "クリックして杖が合図を送るゴーレムを選ぶ"
+crook_channel_title = "杖のチャンネル"
+crook_channel_all = "すべてのゴーレム"
+
+[golemancy.message]
+home_set = "拠点を{x}, {y}, {z}に設定しました"
+link_armed = "杖でコンテナを右クリックして連携してください"
+chest_linked = "拠点チェストを{x}, {y}, {z}に連携しました"
+chest_denied = "そのコンテナは保護されています"
+chest_out_of_reach = "そのコンテナはゴーレムの拠点から{radius}ブロック以内にある必要があります"
+released = "ゴーレムを解放しました"
+release_failed = "このゴーレムは今は解放できません"
+gone = "そのゴーレムはもうここにいません"
+colossus_no_room = "ここにはこのゴーレムが大きくなる場所がありません"
+colossus_busy = "このゴーレムはまだ大きさを変えています"
+rune_slotted = "{aspect}のルーンをはめ込みました"
+rune_removed = "{aspect}のルーンを取り戻しました"
+rune_needed = "先にルーンを持ってください"
+rune_no_slot = "このゴーレムには空きルーンスロットがありません"
+rune_duplicate = "このゴーレムにはすでに{aspect}のルーンがあります"
+rune_blocked = "{aspect}のルーンは{body}ゴーレムでは働きません"
+channels_full = "このゴーレムが使えるチャンネルは{count}個までです"
+crook_channel = "杖の合図先：{channel}"
+crook_needed = "チャンネルを設定するには杖をメインハンドに持ってください"
+
+[golemancy.binding]
+busy = "結びつけの儀式はすでに進行中です"
+already_bound = "そのゴーレムはすでに結びつけられています"
+village = "結びつけられるのはプレイヤーが作ったゴーレムだけです"
+builder = "今このゴーレムを結びつけられるのは作ったプレイヤーだけです"
+body_locked = "{body}ゴーレムはまだ結びつけられません"
+core_not_allowed = "{body}ゴーレムは{core}のコアを受け付けません"
+core_locked = "{core}のコアの結びつけはまだ習得していません"
+protected = "ここではゴーレムを結びつけられません"
+unavailable = "ゴーレム名簿の準備がまだできていません"
+golem_cap = "所有できる上限の{count}体のゴーレムをすでに持っています"
+chunk_cap = "この区域にはすでに{count}体の結びつけられたゴーレムがいます"
+levels = "このゴーレムを結びつけるには{levels}レベルかかります"
+interrupted = "結びつけが中断されました"
+bound = "{body}ゴーレムがあなたに結びつけられました"
+
+[golemancy.animus_binding]
+name = "アニムスの絆"
+description = "アニムスコアを手に持ち、スニークしながらゴーレムを右クリックすると、仲間として自分に結びつけます。"
+lore1 = "所有できるゴーレム数"
+lore2 = "結びつけの儀式の秒数"
+lore3 = "霜ゴーレムを結びつけるレベル"
+lore4 = "銅ゴーレムを結びつけるレベル"
+lore5 = "鉄ゴーレムを結びつけるレベル"
+lore = ["所有できるゴーレム数", "結びつけの儀式の秒数", "霜ゴーレムを結びつけるレベル", "銅ゴーレムを結びつけるレベル", "鉄ゴーレムを結びつけるレベル"]
+
+[golemancy.frost_frame]
+name = "霜のフレーム"
+description = "結びつけた霜ゴーレムに追加の体力、ダメージを与える雪玉、雨と暑さからの保護を与えます。"
+lore1 = "霜ゴーレムの追加体力"
+lore2 = "雪玉のダメージ"
+lore3 = "暖かいバイオームで受けるダメージ"
+lore4 = "雨と水に耐性"
+lore5 = "命中時の鈍化の秒数"
+lore6 = "追加の雪玉を投げる確率"
+lore7 = "対象を凍らせる雪玉の命中数"
+lore = ["霜ゴーレムの追加体力", "雪玉のダメージ", "暖かいバイオームで受けるダメージ", "雨と水に耐性", "命中時の鈍化の秒数", "追加の雪玉を投げる確率", "対象を凍らせる雪玉の命中数"]
+
+[golemancy.copper_frame]
+name = "銅のフレーム"
+description = "銅ゴーレムを結びつけられるようにし、追加の体力、運搬量、速度と、緑青による防具を与えます。"
+lore1 = "銅ゴーレムの追加体力"
+lore2 = "運べるアイテム数"
+lore3 = "移動速度"
+lore4 = "像にならない"
+lore5 = "緑青の段階ごとの防具"
+lore6 = "緑青の段階ごとに失う速度"
+lore7 = "近くの落雷で得る移動速度上昇 II の秒数"
+lore = ["銅ゴーレムの追加体力", "運べるアイテム数", "移動速度", "像にならない", "緑青の段階ごとの防具", "緑青の段階ごとに失う速度", "近くの落雷で得る移動速度上昇 II の秒数"]
+
+[golemancy.iron_frame]
+name = "鉄のフレーム"
+description = "鉄ゴーレムを結びつけられるようにし、追加の体力、防具、攻撃力、より強いインゴット修理、なぎ払いの拳、元の大きさに戻る巨像形態を与えます。"
+lore1 = "鉄ゴーレムの追加体力"
+lore2 = "鉄ゴーレムの追加防具"
+lore3 = "鉄ゴーレムの追加攻撃力"
+lore4 = "鉄インゴット修理ごとの追加回復量"
+lore5 = "一撃ごとに追加で殴る敵対モブの数"
+lore6 = "巨像形態での攻撃力"
+lore = ["鉄ゴーレムの追加体力", "鉄ゴーレムの追加防具", "鉄ゴーレムの追加攻撃力", "鉄インゴット修理ごとの追加回復量", "一撃ごとに追加で殴る敵対モブの数", "巨像形態での攻撃力"]
+
+[golemancy.bone_frame]
+name = "骨のフレーム"
+description = "トラゴールの骸骨の従者をゴーレム術に組み込みます。従者は杖の合図に従い、あなたにだけ見える状態表示とともに従者チャンネルの色で光り、ルーンの骨の格子を身につけ、倒した敵の分だけゴーレム術のXPをもたらします。"
+lore1 = "従者が杖の合図に従い、状態表示を出す"
+lore2 = "骨の格子のルーンスロット"
+lore3 = "従者の撃破によるゴーレム術XP"
+lore = ["従者が杖の合図に従い、状態表示を出す", "骨の格子のルーンスロット", "従者の撃破によるゴーレム術XP"]
+lattice = "骨の格子"
+lattice_lore = "クリックで従者のルーンとチャンネルを設定"
+slot_empty = "空の格子スロット"
+slot_empty_lore = "ルーン（{aspects}）を持ってここをクリック"
+slot_locked = "ロックされた格子スロット"
+slot_unlock_level = "骨のフレームレベル{level}で解放"
+slot_inert = "無効：このスロットには骨のフレームレベル{level}が必要です"
+rune_tier = "従者にティア{tier}で働きます"
+channel = "従者のチャンネル：{channel}"
+channel_set = "従者のチャンネルを{channel}にしました"
+refused_aspect = "{aspect}のルーンは骨の格子に合いません"
+duplicate = "骨の格子にはすでに{aspect}のルーンがあります"
+no_slot = "骨の格子に空きスロットがありません"
+time_left = "残り{seconds}秒"
+
+[golemancy.guardian_core]
+name = "守護者のコア"
+description = "守護者のコアで結びつけたゴーレムは、拠点、あなた、または警備ノードの範囲を守り、コアが強くなるほどあなたを守ります。"
+lore1 = "警備範囲の半径（ブロック）"
+lore2 = "迎撃: あなたを狙うモブを守護者に引きつける"
+lore3 = "報復: あなたを傷つけた相手を守護者が攻撃する"
+lore4 = "守護者の近くで受けるダメージの軽減"
+lore5 = "最後の砦による耐性の秒数"
+lore = ["警備範囲の半径（ブロック）", "迎撃: あなたを狙うモブを守護者に引きつける", "報復: あなたを傷つけた相手を守護者が攻撃する", "守護者の近くで受けるダメージの軽減", "最後の砦による耐性の秒数"]
+
+[golemancy.gatherer_core]
+name = "採集者のコア"
+description = "採集者のコアで結びつけたゴーレムは、拠点や回収ノードの周りに落ちたアイテムを拾って届け、コアが強くなると経験値オーブをエッセンスとして蓄えます。"
+lore1 = "拾得範囲の半径（ブロック）"
+lore2 = "エッセンスの貯蔵量（経験値）"
+lore3 = "アイテム磁石の範囲（ブロック）"
+lore4 = "即時拾得の範囲（ブロック）"
+lore5 = "運搬量"
+lore = ["拾得範囲の半径（ブロック）", "エッセンスの貯蔵量（経験値）", "アイテム磁石の範囲（ブロック）", "即時拾得の範囲（ブロック）", "運搬量"]
+essence = "エッセンス：経験値 {value}"
+essence_lore = "クリックで蓄えた経験値を受け取る"
+essence_taken = "エッセンスから経験値 {value} を受け取りました"
+essence_empty = "このゴーレムはエッセンスを蓄えていません"
+
+[golemancy.harvester_core]
+name = "収穫者のコア"
+description = "収穫者のコアで結びつけたゴーレムは、収穫ノードの範囲で実った作物を収穫して植え直し、コアが強くなるほど畑の手入れと耕作もこなします。"
+lore1 = "1回の収穫で採る作物の数"
+lore2 = "1回の収穫にかかる秒数"
+lore3 = "スイカ、カボチャ、サトウキビ、竹、サボテンも収穫"
+lore4 = "手入れ：拠点チェストの骨粉を若い作物に使う"
+lore5 = "耕作：土を耕し直し、空いた耕地に種をまく"
+lore6 = "ドロップを追加で抽選する確率"
+lore = ["1回の収穫で採る作物の数", "1回の収穫にかかる秒数", "スイカ、カボチャ、サトウキビ、竹、サボテンも収穫", "手入れ：拠点チェストの骨粉を若い作物に使う", "耕作：土を耕し直し、空いた耕地に種をまく", "ドロップを追加で抽選する確率"]
+
+[golemancy.lumber_core]
+name = "木こりのコア"
+description = "木こりのコアで結びつけたゴーレムは、伐採ノードの範囲にある自然の木を上から順に切り倒して原木を集め、コアが強くなるほど植え直し、葉の掃除、大きな木の伐採もこなします。"
+lore1 = "1秒あたりに切る原木の数"
+lore2 = "銅ゴーレムが切れる木1本あたりの原木数"
+lore3 = "鉄ゴーレムが切れる木1本あたりの原木数"
+lore4 = "伐採後に苗木を植え直す"
+lore5 = "葉の掃除：枯れかけた葉を壊してドロップを集める"
+lore6 = "2x2の巨木を伐採"
+lore7 = "真紅と歪んだキノコを伐採し、キノコを植え直す"
+lore = ["1秒あたりに切る原木の数", "銅ゴーレムが切れる木1本あたりの原木数", "鉄ゴーレムが切れる木1本あたりの原木数", "伐採後に苗木を植え直す", "葉の掃除：枯れかけた葉を壊してドロップを集める", "2x2の巨木を伐採", "真紅と歪んだキノコを伐採し、キノコを植え直す"]
+
+[golemancy.breaker_core]
+name = "破壊者のコア"
+description = "破壊者のコアで結びつけたゴーレムは、採掘ノードの範囲でフィルターに載っているブロックを壊してドロップを運び、コアが強くなるほど良いツルハシでより硬いブロックを掘ります。"
+lore1 = "壊せるブロックの最大硬度"
+lore2 = "1ブロックあたりの秒数"
+lore3 = "採掘ツール"
+lore4 = "採掘ノードのシルクタッチ切り替え"
+lore5 = "採掘ノードの幸運I切り替え"
+lore = ["壊せるブロックの最大硬度", "1ブロックあたりの秒数", "採掘ツール", "採掘ノードのシルクタッチ切り替え", "採掘ノードの幸運I切り替え"]
+filter_ready = "フィルターのブロックを壊します"
+filter_needed = "ホワイトリストにブロックを追加してください"
+filter_lore = "破壊者はホワイトリストに載っているブロックだけを壊します"
+silk_on = "シルクタッチ：オン"
+silk_off = "シルクタッチ：オフ"
+fortune_on = "幸運I：オン"
+fortune_off = "幸運I：オフ"
+locked = "破壊者のコアレベル{level}で解放"
+exclusive = "シルクタッチと幸運Iは互いをオフにします"
+
+[golemancy.rancher_core]
+name = "牧場主のコア"
+description = "牧場主のコアで結ばれたゴーレムは牧草地ノードの範囲にいる動物の世話をする：ノードの維持数までつがいを繁殖させ、コアが強くなるにつれて羊の毛を刈り、牛とヤギの乳を搾り、余分な大人を間引く。"
+lore1 = "牧草地ノードの維持数までつがいを繁殖させる"
+lore2 = "羊の毛を刈る"
+lore3 = "拠点チェストのバケツやボウルで牛・ヤギ・ムーシュルームの乳を搾る"
+lore4 = "維持数を超えた大人を間引く（鉄ゴーレムのみ）"
+lore5 = "繁殖クールダウン短縮"
+lore6 = "間引き1回あたりの追加ドロップ抽選"
+lore = ["牧草地ノードの維持数までつがいを繁殖させる", "羊の毛を刈る", "拠点チェストのバケツやボウルで牛・ヤギ・ムーシュルームの乳を搾る", "維持数を超えた大人を間引く（鉄ゴーレムのみ）", "繁殖クールダウン短縮", "間引き1回あたりの追加ドロップ抽選"]
+species = "種類：{species}"
+species_all = "すべての動物"
+species_lore = "左クリックで次の種類、右クリックで前の種類"
+keep = "維持数：1種類あたり{count}匹"
+keep_lore = "左クリックで増やし、右クリックで減らす"
+breed_on = "繁殖：オン"
+breed_off = "繁殖：オフ"
+shear_on = "毛刈り：オン"
+shear_off = "毛刈り：オフ"
+milk_on = "搾乳：オン"
+milk_off = "搾乳：オフ"
+cull_on = "間引き：オン"
+cull_off = "間引き：オフ"
+locked = "牧場主のコアレベル{level}で解放"
+iron_only = "間引きは鉄ゴーレムのみ"
+
+[golemancy.sorter_core]
+name = "仕分け係のコア"
+description = "仕分け係のコアで結びつけた銅のゴーレムは、搬入ノードの下の容器を空にして、各アイテムをすでに入れている近くの容器へ移し、コアが強くなるとアイテムグループ、フィルターノード、補充、取り寄せを覚えます。"
+lore1 = "搬出先の半径（ブロック）"
+lore2 = "1往復あたりのスタック数"
+lore3 = "アイテムグループで仕分け"
+lore4 = "フィルターノードとあふれ先"
+lore5 = "エンチャントとポーションを区別"
+lore6 = "シュルカーボックスを運ぶ"
+lore7 = "フィルターノードの補充量"
+lore8 = "容器の中身の索引"
+lore9 = "搬入ノードのメニューから取り寄せ"
+lore = ["搬出先の半径（ブロック）", "1往復あたりのスタック数", "アイテムグループで仕分け", "フィルターノードとあふれ先", "エンチャントとポーションを区別", "シュルカーボックスを運ぶ", "フィルターノードの補充量", "容器の中身の索引", "搬入ノードのメニューから取り寄せ"]
+match_exact = "照合：同じアイテム"
+match_groups = "照合：アイテムグループ"
+match_precise = "照合：エンチャントとポーション"
+match_lore = "仕分け係がアイテムをすでに入れている容器を判断する方法"
+radius = "搬出先の半径：{radius}"
+radius_lore = "仕分け係のコアのレベルで最大{radius}ブロック"
+fetch = "アイテムを取り寄せる"
+fetch_lore = "仕分け係に持ってきてもらうアイテムを選ぶ"
+locked = "仕分け係のコアレベル{level}で解放"
+overflow_on = "あふれ先：オン"
+overflow_off = "あふれ先：オフ"
+overflow_lore = "あふれ先は他の容器が受け取らないアイテムを受け取ります"
+restock = "補充：フィルターの各アイテムを{amount}個"
+restock_off = "補充：オフ"
+restock_lore = "仕分け係はここに一覧の各アイテムをこの数だけ保ちます"
+fetch_available = "在庫：{count}"
+fetch_request = "クリックで{amount}個を依頼"
+fetch_amount = "一度に{amount}個を依頼"
+fetch_empty = "この搬入ノードの容器には何も入っていません"
+fetch_requested = "仕分け係が{item}を{amount}個届けます"
+fetch_delivered = "仕分け係が{item}を{amount}個届けました"
+empty_filter = "空のフィルターノードは、あふれ先でない限り何も受け取りません"
+
+[golemancy.angler_core]
+name = "釣り人のコア"
+description = "釣り人のコアで結びつけたゴーレムは、釣りノードの前の開けた水域で釣りをして釣果を運び、コアが強くなるほど運が上がり、ガラクタを捨て、雨の日は早く釣れ、2つ同時に釣れるようになります。"
+lore1 = "1回の釣果にかかる秒数"
+lore2 = "釣りの運"
+lore3 = "釣りノードのガラクタフィルター切り替え"
+lore4 = "雨の日は釣果までの時間が短縮"
+lore5 = "2つ同時に釣れる確率"
+lore = ["1回の釣果にかかる秒数", "釣りの運", "釣りノードのガラクタフィルター切り替え", "雨の日は釣果までの時間が短縮", "2つ同時に釣れる確率"]
+water_ready = "開けた水域を確認"
+water_needed = "開けた水域が必要"
+water_lore = "釣り人にはノードの前に5×5の開けた水域が必要です"
+junk_keep = "ガラクタ：残す"
+junk_discard = "ガラクタ：捨てる"
+locked = "釣り人のコアレベル{level}で解放"
+
+[golemancy.runic_augments]
+name = "ルーン強化"
+description = "アニムスの台座でルーンを注入し、絆を結んだゴーレムにはめ込んで、速度、運搬量、炎、範囲、チャンネル、収穫量、防具を強化します。"
+lore1 = "ゴーレム1体あたりの追加ルーンスロット"
+lore2 = "使用できる最高ルーンティア"
+lore3 = "アニムスの台座と空のルーンのレシピ"
+lore = ["ゴーレム1体あたりの追加ルーンスロット", "使用できる最高ルーンティア", "アニムスの台座と空のルーンのレシピ"]
+
+[golemancy.overseer]
+name = "監督者"
+description = "アーティフィサーの杖で絆を結んだゴーレムに合図を送り、追従、その場待機、帰宅、作業をさせます。成長すると、見ている相手への攻撃、チャンネルごとの応答、呼び寄せ、隊列での護衛もできるようになります。"
+lore1 = "合図の半径（ブロック）"
+lore2 = "攻撃: 戦闘できるゴーレムが見ている相手を攻撃"
+lore3 = "杖のチャンネルフィルター（ゴーレム名簿で設定）"
+lore4 = "集合: 追従の合図で遠くのゴーレムを呼び寄せる"
+lore5 = "隊列のゴーレムから得る最大防具値"
+lore = ["合図の半径（ブロック）", "攻撃: 戦闘できるゴーレムが見ている相手を攻撃", "杖のチャンネルフィルター（ゴーレム名簿で設定）", "集合: 追従の合図で遠くのゴーレムを呼び寄せる", "隊列のゴーレムから得る最大防具値"]
+signal = "合図：{signal}"
+sent = "送信：{signal}"
+sent_channel = "送信：{signal}（{channel}チャンネル）"
+no_target = "攻撃の合図を送るには、{range}ブロック以内の攻撃できる生き物を見てください"
+
+[golemancy.mending]
+name = "ゴーレム修繕"
+description = "銅インゴット、雪ブロック、骨粉でゴーレムを回復し、あなたの近くや家で自然に癒えるようにし、倒れたゴーレムを砕けたコアから再構築します。"
+lore1 = "修理による追加回復"
+lore2 = "銅インゴット、雪ブロック、骨粉でゴーレムを回復"
+lore3 = "あなたの近くでの再生体力"
+lore4 = "家で待機中の再生体力"
+lore5 = "再生の間隔（秒）"
+lore6 = "砕けたコア：倒れたゴーレムを再構築"
+lore7 = "再誕したゴーレムの耐性効果（秒）"
+lore8 = "再誕したゴーレムは銅の状態を保つ"
+lore = ["修理による追加回復", "銅インゴット、雪ブロック、骨粉でゴーレムを回復", "あなたの近くでの再生体力", "家で待機中の再生体力", "再生の間隔（秒）", "砕けたコア：倒れたゴーレムを再構築", "再誕したゴーレムの耐性効果（秒）", "再誕したゴーレムは銅の状態を保つ"]
+full_health = "このゴーレムはすでに体力が満タンです"
+shattered = "{body}ゴーレムが砕け、砕けたコアを残しました"
+reborn = "{body}ゴーレムが再誕しました"
+void = "この砕けたコアは崩れ去りました：もうゴーレムを宿していません"
+not_owner = "この砕けたコアは他のプレイヤーのものです"
+locked = "ゴーレムの再構築にはゴーレム修繕レベル{level}が必要です"
+wrong_body = "この砕けたコアには作ったばかりの{body}ゴーレムが必要です"
+unreadable = "この砕けたコアは損傷していて、ゴーレムを再構築できません"
+
+[golemancy.stasis]
+name = "ステイシス"
+description = "杖で結びつけたゴーレムを休眠ゴーレムのブロックに梱包し、そのブロックを置けばどこでも目覚めさせられます。コア、ルーン、積み荷、体力はそのまま残ります。"
+lore1 = "ゴーレムの梱包にかかる秒数"
+lore2 = "即時梱包"
+lore3 = "休眠ゴーレムを置いて目覚めさせる"
+lore4 = "梱包中に回復する体力"
+lore5 = "梱包中の回復間隔の秒数"
+lore6 = "ポケット名簿：名簿からゴーレムを呼び戻す"
+lore7 = "呼び戻しの間隔の秒数"
+lore = ["ゴーレムの梱包にかかる秒数", "即時梱包", "休眠ゴーレムを置いて目覚めさせる", "梱包中に回復する体力", "梱包中の回復間隔の秒数", "ポケット名簿：名簿からゴーレムを呼び戻す", "呼び戻しの間隔の秒数"]
+packed = "{body}ゴーレムを休眠ゴーレムに梱包しました"
+dropped = "インベントリがいっぱいのため、休眠ゴーレムは足元に落ちました"
+interrupted = "梱包が中断されました"
+busy = "すでにゴーレムを梱包中です"
+pack_failed = "このゴーレムは今は梱包できません"
+awakened = "{body}ゴーレムが目覚めました"
+void = "この休眠ゴーレムは崩れ去りました：もうゴーレムを宿していません"
+not_owner = "この休眠ゴーレムは別のプレイヤーのものです"
+locked = "休眠ゴーレムを目覚めさせるにはステイシスが必要です"
+unreadable = "この休眠ゴーレムは損傷していて目覚められません"
+body_locked = "{body}ゴーレムはまだ目覚めさせられません"
+no_room = "休眠ゴーレムが目覚めるには空いているブロックが必要です"
+server_cap = "サーバーではすでに上限数のゴーレムが起きています"
+protected = "ここではゴーレムを目覚めさせられません"
+awaken_failed = "ゴーレムが目覚められなかったため、休眠ゴーレムはそのまま残りました"
+recall_cooldown = "次のゴーレムを呼び戻せるまであと{seconds}秒です"
+recall_unavailable = "呼び戻せるのは自分のワールドで読み込まれているゴーレムだけです"
+
+[golemancy.masterwork]
+name = "傑作"
+description = "アニムスの台座で傑作の心臓を注入してゴーレムにはめ込むと、ルーンスロットが1つ増え、体力が上がり、2つ目のコアを持てて、ルーンが強くなります。"
+lore1 = "傑作ゴーレムの数"
+lore2 = "傑作の追加ルーンスロット"
+lore3 = "傑作の最大体力"
+lore4 = "傑作の2つ目のコアスロット"
+lore5 = "傑作のルーンが1ティア上の効果を持つ"
+lore6 = "傑作のティア3ルーンへのボーナス"
+lore = ["傑作ゴーレムの数", "傑作の追加ルーンスロット", "傑作の最大体力", "傑作の2つ目のコアスロット", "傑作のルーンが1ティア上の効果を持つ", "傑作のティア3ルーンへのボーナス"]
+slot = "傑作の心臓"
+slot_lore = "クリックで心臓を2つ目のコアと追加ルーンごと取り戻す"
+slot_empty = "傑作スロット"
+slot_empty_lore = "傑作の心臓を持ってここをクリック（傑作 {count}/{maximum}）"
+core_empty = "2つ目のコアスロット"
+core_empty_lore = "役割コアを持ってここをクリックするとはめ込みます"
+core_remove = "クリックでこのコアを取り戻す"
+heart_needed = "先に傑作の心臓を持ってください"
+designated = "このゴーレムは傑作になりました"
+removed = "傑作の心臓を取り戻しました"
+already = "このゴーレムはすでに傑作です"
+cap = "傑作ゴーレムはすでに{count}体います"
+locked = "傑作ゴーレムを指定するには傑作が必要です"
+body = "{body}ゴーレムは傑作になれません"
+core_needed = "先に役割コアを持ってください"
+core_slotted = "{core}のコアをはめ込みました"
+core_removed = "{core}のコアを取り戻しました"
+core_no_slot = "このゴーレムには空いているコアスロットがありません"
+core_blank = "2つ目のコアは役割コアでなければなりません"
+core_duplicate = "このゴーレムはすでに{core}のコアを持っています"
+
+[golemancy.node_status]
+idle = "待機中"
+working = "作業中"
+blocked = "保護により停止"
+full = "コンテナが満杯"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "フィルター: {count}"
+
+[golemancy.node_message]
+placed = "{node}ノードを設置しました"
+occupied = "この面にはすでにノードがあります"
+protected = "ここにはノードを設置できません"
+needs_container = "{node}ノードはチェスト、樽、シュルカーボックスに設置します"
+needs_side_face = "{node}ノードはブロックの側面に設置します"
+container_protected = "そのコンテナは保護されています"
+chunk_full = "このチャンクにはすでに{count}個のノードがあります"
+cap = "所有できる上限の{count}個のノードをすでに持っています"
+loading = "ここのノードはまだ読み込み中です"
+unavailable = "ゴーレム名簿の準備がまだできていません"
+filter_added = "{item}をフィルターに追加しました"
+filter_removed = "{item}をフィルターから外しました"
+filter_full = "このフィルターに登録できるのは最大{count}件です"
+priority_locked = "ノード優先度はノード織りレベル{level}で解放されます"
+removed = "{node}ノードを撤去しました"
+remove_failed = "このノードは今は撤去できません"
+not_owner = "このノードは別のプレイヤーのものです"
+gone = "このノードはもうここにありません"
+tag_prompt = "#logsのようなアイテムタグをチャットに入力してください"
+tag_invalid = "{tag}はアイテムタグではありません"
+tag_cancelled = "タグの入力をキャンセルしました"
+tag_timed_out = "タグの入力が時間切れになりました"
+
+[golemancy.node_gui]
+position = "ブロック：{x}, {y}, {z}"
+area = "{axis}半径：{radius}"
+area_lore = "左クリックで広げ、右クリックで狭めます"
+area_cap = "最大半径：{radius}"
+priority = "優先度：{priority}"
+redstone = "レッドストーン：{mode}"
+redstone_ignore = "無視"
+redstone_powered = "レッドストーン信号があるときだけ動作"
+redstone_unpowered = "レッドストーン信号がないときだけ動作"
+locked = "ノード織りレベル{level}で解放"
+whitelist = "ホワイトリスト"
+whitelist_lore = "ゴーレムは一致するアイテムだけを使います"
+blacklist = "ブラックリスト"
+blacklist_lore = "ゴーレムは一致するアイテム以外をすべて使います"
+empty_filter = "空のフィルターはすべてのアイテムに一致します"
+toggle = "クリックで切り替え"
+filter_empty = "空のフィルター枠"
+filter_set = "アイテムを持ってクリックで設定"
+filter_clear = "右クリックでクリア"
+filter_locked = "ロックされたフィルター枠"
+filter_locked_lore = "ノード織りのレベルを上げるとこの枠が解放されます"
+tag = "アイテムタグ"
+tag_add = "タグを追加"
+tag_add_lore = "クリックしてから、#logsのようなアイテムタグをチャットに入力"
+
+[golemancy.node_weaving]
+name = "ノード織り"
+description = "ノードを手に持ち、スニークしながらブロックの面を右クリックすると、そこに固定してゴーレムの作業を指示します。"
+lore1 = "所有できるノード数"
+lore2 = "作業範囲の半径（ブロック）"
+lore3 = "フィルター枠"
+lore4 = "ノード優先度1～5"
+lore5 = "レッドストーン制御"
+lore6 = "ブラックリストとタグのフィルター"
+lore = ["所有できるノード数", "作業範囲の半径（ブロック）", "フィルター枠", "ノード優先度1～5", "レッドストーン制御", "ブラックリストとタグのフィルター"]
+
+[golemancy.plinth]
+loading = "この台座はまだ読み込み中です"
+occupied = "この置き台にはすでにアイテムがあります"
+protected = "ここではこの台座を使えません"
+busy = "注入はすでに進行中です"
+no_recipe = "これらのアイテムでは注入できません"
+locked = "この注入はまだ習得していません"
+levels = "この注入には{levels}レベルかかります"
+interrupted = "注入が中断されました"
+complete = "注入が完了しました"
+failed = "注入に失敗したため、レベルが返却されました"
+
 [herbalism.growth_aura]
 name = "成長のオーラ"
 description = "周囲の自然をオーラで成長させる"
@@ -4523,6 +5212,10 @@ vault_unavailable_fallback = "Vaultの経済機能を利用できません — �
 vault_insufficient_funds = "プレイヤーのVault経済残高が不足しています。"
 vault_transaction_failed = "Vaultの取引に失敗しました。進行状況は変更されていません。"
 power_drain = "パワー消費 {power}"
+requirement_level = "{adaptation} Lv {level}"
+requires = "必要: {requirement}"
+requirements_missing = "{requirements} を習得してから {adaptation} を習得してください。"
+required_by_dependents = "先に {dependents} の習得を解除してください。これらは {adaptation} を必要とします。"
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5362,6 +6055,11 @@ name = "キネティックス"
 icon = "⚒"
 description = "動きは力です. macesでスマッシュ, スピアーズと充電します。, そして、それ自体の曲がり: バウンス, 起動, levitation, よくエイド落下アンビルズすべてのあなたのマスターをフィード."
 
+[skill.golemancy]
+name = "ゴーレム術"
+icon = "⚙"
+description = "ゴーレムを作り、修理し、世話をしてレベルを上げ、やがて命を吹き込んで共に戦い、働かせましょう。"
+
 [snippets.gui]
 level = "レベル"
 level_value = "レベル {level}"
@@ -5951,7 +6649,7 @@ assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it = "�
 boost_global_experience_gain = "ブーストグローバルエクスペリエンスゲイン."
 boost_target_player_experience_gain = "Boostターゲットプレーヤー体験ゲイン."
 bypass_adapt_use_permission_checks_when_opening = "バイパス adapt.use 開封時の許可チェック"
-bypass_costs_and_restrictions = "コストと制限を回避"
+bypass_costs_and_permanence_prerequisites_still_apply = "コストと永続性を無視します。前提条件は引き続き適用されます"
 bypass_power_knowledge_and_permanence_checks = "パワー、知識、忍耐力チェックをバイパス"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "すべての発見データをクリア(バイオマス、モブ、食品、アイテム、レシピなど.)"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "すべてのプレーヤーデータをクリアする (XP, 知識、適応、統計学、発見、進歩、知恵)"
@@ -5996,6 +6694,12 @@ toggle_verbose_mode = "動詞モードを切り替える"
 top_results_to_print = "印刷するトップの結果"
 true_to_learn_false_to_unlearn = "学びます, 未学習に偽り"
 unlearn_all_adaptations_across_all_skill_lines = "すべてのスキルラインですべての適応を解明"
+golem_roster_and_admin_tools = "ゴーレム名簿と管理ツール"
+open_your_golem_roster = "自分のゴーレム名簿を開く"
+list_a_player_s_golems = "プレイヤーのゴーレムを一覧表示する"
+release_one_of_a_player_s_golems = "プレイヤーのゴーレムを1体解放する"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ゴーレムのID、または1体だけに一致するだけの先頭の文字"
+wake_a_player_s_loaded_golems = "プレイヤーの読み込まれたゴーレムを起こす"
 
 [command.runtime]
 missing_permission = "あなたは許可を欠く '{permission}'."
@@ -6038,6 +6742,8 @@ vault_insufficient_funds = "プレイヤーのVault経済残高が不足して�
 vault_transaction_failed = "Vaultの取引に失敗しました。進行状況は変更されていません。"
 set_adaptation_level = "セット {player} {adaptation} レベルまで {level}."
 permanent_adaptation_lower = "{adaptation} 永続的であり、不要で下がることはできません。 force=true."
+requirements_missing = "{player} には {requirements} が必要です。その後で {adaptation} を習得できます。"
+required_by_dependents = "{adaptation} は {dependents} に必要です（対象: {player}）。それらも削除するには force=true を使用してください。"
 adapt_server_not_ready = "Adapt サーバーはまだ準備が整っていない. 数秒でもう一度お試しください."
 target_dispatch_failed = "対象プレイヤーの操作をスケジュールできませんでした。もう一度お試しください。"
 cleared_all = "すべてのデータを消去 {player}."
@@ -6076,6 +6782,16 @@ perf_timing_budget = "能力チェックのタイミング予算: {percent} ({mi
 perf_ticker_window = "ティッカーウィンドウ: {window}ミリ秒"
 perf_no_metrics = "まだ収集されていないメトリック."
 perf_reset = "ティッカーと能力のテレメトリーリセット."
+golem_list_header = "{player}は{count}体のゴーレムを所有しています："
+golem_list_header_one = "{player}は1体のゴーレムを所有しています："
+golem_list_empty = "{player}はゴーレムを所有していません。"
+golem_list_entry = "{id}：{golem}、{status}。{location}"
+golem_not_found = "{player}には、IDが{id}で始まるゴーレムがいません。"
+golem_ambiguous = "{player}のゴーレムのうち、IDが{id}で始まるものが複数あります。もっと入力してください。"
+golem_released = "ゴーレム{id}を{player}の名簿から解放しました。"
+golem_release_failed = "ゴーレム{id}（{player}）を解放できませんでした。もう一度お試しください。"
+golem_release_active_unloaded = "ゴーレム{id}（{player}）は読み込まれていないチャンクで稼働中です。チャンクを読み込んでから解放するか、行方不明になってから解放してください。"
+golems_woken = "{player}の読み込まれたゴーレムを起こしています：{count}体。"
 
 [language.menu]
 your_language = "あなたの言語"
@@ -6709,6 +7425,29 @@ purple = "Purple"
 always = "Always"
 sneak = "スニークで発動"
 suppress = "スニーク中は無効"
+
+[golemancy.preferences]
+absorb_orbs = "経験値オーブを吸収"
+action_bar_only = "アクションバーのみ"
+any_item = "任意のゴーレム術アイテム"
+aura = "オーラ"
+chime_and_particles = "チャイムとパーティクル"
+crook_only = "杖のみ"
+hidden = "非表示"
+intercept = "迎撃"
+leaf_sweep = "葉の掃除"
+magnet = "磁石"
+node_reveal = "ノードの表示"
+obey_overseer = "従者が監督者に従う"
+retaliate_players = "プレイヤーへの報復"
+shown = "表示"
+signal_feedback = "合図のフィードバック"
+static_overdrive = "静電オーバードライブ"
+status_labels = "ゴーレムの状態表示"
+sweeping_fists = "なぎ払いの拳"
+tending = "手入れ"
+tilling = "耕作"
+work_area_outline = "作業範囲の輪郭"
 
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"

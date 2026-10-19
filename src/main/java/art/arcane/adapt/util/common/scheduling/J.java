@@ -175,6 +175,11 @@ public class J {
     return RUNTIME.runEntity(entity, runnable, delayTicks);
   }
 
+  public static boolean runEntity(Entity entity, Runnable runnable, int delayTicks, Runnable retired) {
+    return Adapt.instance != null
+        && FoliaScheduler.runEntity(Adapt.instance, entity, runnable, delayTicks, retired);
+  }
+
   public static boolean teleport(Entity entity, Location location) {
     return teleport(entity, location, null);
   }

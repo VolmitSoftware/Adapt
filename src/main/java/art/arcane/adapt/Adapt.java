@@ -30,6 +30,9 @@ import art.arcane.adapt.api.ComponentEventRegistrar;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.BonusBlockBreaks;
 import art.arcane.adapt.api.adaptation.PlayerStateRegistry;
+import art.arcane.adapt.api.golem.item.GolemItemGuard;
+import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.notification.AdaptHud;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
@@ -385,6 +388,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     registerListener(new SimpleAdaptation.PlayerDamageListener());
     registerListener(new XpProvenanceListener());
     registerListener(new XpNoveltyListener());
+    registerListener(new GolemItemGuard(GolemItems.recipeBook()));
+    registerListener(GolemItems.recipeTithe());
     registerListener(Version.get());
     setupMetrics();
     startupPrint(); // Splash screen
@@ -492,6 +497,7 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     MinionBurden burden = MinionBurden.get();
     MinionBurden.startRuntime();
     burden.reconcileOnline();
+    GolemancyRuntime.startRuntime();
 
     AdaptAttributeService attributeService = AdaptAttributeService.get();
     AdaptAttributeService.startRuntime();
@@ -545,6 +551,11 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
     }
     runShutdownPhase("attribute change gate", AdaptAttributeService::beginShutdown);
     runShutdownPhase("minion registration gate", MinionBurden::beginShutdown);
+    runShutdownPhase("golemancy runtime", () -> {
+      if (!GolemancyRuntime.shutdown(SHUTDOWN_CLEANUP_TIMEOUT_MS)) {
+        warn("Bound golem saving was incomplete at shutdown.");
+      }
+    });
     for (Runnable task : List.copyOf(postShutdown)) {
       runShutdownPhase("post-shutdown task", task::run);
     }

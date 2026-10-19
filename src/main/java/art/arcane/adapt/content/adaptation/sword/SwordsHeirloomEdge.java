@@ -27,6 +27,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.SwordMessages;
 import art.arcane.adapt.util.common.format.C;
@@ -146,7 +147,7 @@ public class SwordsHeirloomEdge extends SimpleAdaptation<SwordsHeirloomEdge.Conf
   @EventHandler(priority = EventPriority.MONITOR)
   public void on(EntityDeathEvent e) {
     Player p = e.getEntity().getKiller();
-    if (p == null) {
+    if (p == null || GolemKillCredit.isGolemKill(e.getEntity())) {
       return;
     }
 

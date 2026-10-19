@@ -17,6 +17,7 @@
     "ScreenMixin",
     "StonecutterScreenAccessor",
     "WindowMixin",
+    "WindowAccessor",
     "GlfwInitMixin",
     "FlashbackWindowMixin",
     "FlashbackShowWindowMixin",

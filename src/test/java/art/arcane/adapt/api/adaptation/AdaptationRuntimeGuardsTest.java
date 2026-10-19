@@ -1,10 +1,15 @@
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.content.adaptation.stealth.StealthShadowDecoy;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.ArmorStand;
@@ -13,8 +18,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Zombie;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -31,7 +38,26 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-class AdaptationRuntimeGuardsTest {
+class AdaptationRuntimeGuardsTest extends AdaptTestBase {
+  @BeforeEach
+  void registerMinionKinds() {
+    MinionIdentity.registerKind(TragoulSkeletalServant.MINION_KIND);
+    new StealthShadowDecoy();
+  }
+
+  @Test
+  void mobDamageIsJudgedByTheEntityPveRuleNotTheLocationOne() {
+    Adaptation<?> adaptation = mock(Adaptation.class);
+    Player attacker = mock(Player.class);
+    Zombie zombie = mock(Zombie.class);
+    when(zombie.getPersistentDataContainer()).thenReturn(mock(PersistentDataContainer.class));
+    when(adaptation.canPVE(any(Player.class), any(Location.class))).thenReturn(false);
+    when(adaptation.canPVE(attacker, zombie)).thenReturn(true, false);
+
+    assertThat(AdaptationRuntimeGuards.canDamageTarget(adaptation, attacker, zombie)).isTrue();
+    assertThat(AdaptationRuntimeGuards.canDamageTarget(adaptation, attacker, zombie)).isFalse();
+  }
+
   @Test
   void unavailablePlayersCannotOpenAdaptationMenus() {
     Adaptation<?> adaptation = mock(Adaptation.class);

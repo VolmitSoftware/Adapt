@@ -8,9 +8,13 @@ import art.arcane.adapt.api.xp.XP;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
 import org.mockito.MockedStatic;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -83,6 +87,33 @@ class PlayerSkillLineTest extends AdaptTestBase {
 
         assertThat(line.getAdaptationLevel("testadapt")).isEqualTo(0);
         verify(service).removeAll(player, "testadapt");
+    }
+
+    @Test
+    @DisplayName("an adaptation hears each level change of a live player, but not a repeat or an unbound line")
+    void levelChangesReachTheAdaptation() {
+        Adaptation<?> adaptation = mock(Adaptation.class);
+        when(adaptation.getName()).thenReturn("testadapt");
+        when(adaptation.getMaxLevel()).thenReturn(10);
+        AdaptPlayer owner = mock(AdaptPlayer.class);
+        Player player = mock(Player.class);
+        when(owner.getPlayer()).thenReturn(player);
+        PlayerSkillLine unbound = new PlayerSkillLine();
+        unbound.setAdaptation(adaptation, 2);
+        PlayerSkillLine line = new PlayerSkillLine();
+        line.bindRuntimeOwner(owner);
+
+        try (MockedStatic<AdaptAttributeService> attributes = mockStatic(AdaptAttributeService.class)) {
+            attributes.when(AdaptAttributeService::get).thenReturn(mock(AdaptAttributeService.class));
+            line.setAdaptation(adaptation, 3);
+            line.setAdaptation(adaptation, 3);
+            line.setAdaptation(adaptation, 0);
+        }
+
+        InOrder order = inOrder(adaptation);
+        order.verify(adaptation).onLevelChanged(player, 3);
+        order.verify(adaptation).onLevelChanged(player, 0);
+        verify(adaptation, times(2)).onLevelChanged(any(Player.class), anyInt());
     }
 
     @Test

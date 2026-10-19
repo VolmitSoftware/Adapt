@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.localization.SkillPresentation;
 import art.arcane.adapt.localization.catalog.SkillMessages;
 
@@ -43,7 +44,6 @@ import art.arcane.adapt.content.adaptation.taming.TamingPackLeaderAura;
 import art.arcane.adapt.content.adaptation.taming.TamingSharedPain;
 import art.arcane.adapt.content.adaptation.taming.TamingStableHand;
 import art.arcane.adapt.content.adaptation.taming.TamingWildEmpathy;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -215,7 +215,7 @@ public class SkillTaming extends SimpleSkill<SkillTaming.Config> {
       return;
     }
 
-    if (TragoulSkeletalServant.isServant(e.getEntity()) || ExcavationGraveDigger.isGraveMob(e.getEntity())) {
+    if (MinionIdentity.isMinion(e.getEntity()) || ExcavationGraveDigger.isGraveMob(e.getEntity())) {
       return;
     }
 

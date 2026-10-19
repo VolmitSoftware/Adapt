@@ -3053,6 +3053,70 @@ description = "Verwandeln Sie die Bewegung in Energie."
 title = "Newtons Gutschein"
 description = "Töten Sie eine Menge mit Ihrem eigenen fallenden Anvil fallen aus 8 oder mehr Blöcken."
 
+[advancement.challenge_golemancy_built_10]
+title = "Lehm und Funke"
+description = "Baue 10 Golems"
+
+[advancement.challenge_golemancy_built_100]
+title = "Gießerei der Riesen"
+description = "Baue 100 Golems"
+
+[advancement.challenge_golemancy_bound_5]
+title = "Kleines Gefolge"
+description = "Binde 5 Golems"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Animus-Legion"
+description = "Binde 25 Golems"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Steinerne Wächter"
+description = "Deine gebundenen Golems töten 50 feindliche Mobs"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Lebender Wall"
+description = "Deine gebundenen Golems töten 500 feindliche Mobs"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Unzerbrechliches Heer"
+description = "Deine gebundenen Golems töten 5.000 feindliche Mobs"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Diener des Winters"
+description = "Binde einen Frostgolem"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Grünspanbund"
+description = "Binde einen Kupfergolem"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Eiserner Eid"
+description = "Binde einen Eisengolem"
+
+[advancement.challenge_golemancy_tasks_1000]
+title = "Fleißige Hände"
+description = "Deine Golems erledigen 1.000 Aufträge"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "Unermüdliche Werkstatt"
+description = "Deine Golems erledigen 25.000 Aufträge"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "Beständige Träger"
+description = "Deine Golems liefern 10.000 Gegenstände ab"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "Endlose Karawane"
+description = "Deine Golems liefern 250.000 Gegenstände ab"
+
+[advancement.challenge_golemancy_infusions_10]
+title = "Sockel-Lehrling"
+description = "Schließe 10 Infusionen an einem Animus-Sockel ab"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Meister der Infusion"
+description = "Schließe 100 Infusionen an einem Animus-Sockel ab"
+
 [agility.armor_up]
 name = "Aufrüstung"
 description = "Erhalte mehr Rüstung, je länger du sprintest!"
@@ -4240,6 +4304,631 @@ lore1 = "Bonus-Trop-Chance"
 lore2 = "x Eile beim graben nass"
 lore = ["Bonus-Trop-Chance", "x Eile beim graben nass"]
 
+[golemancy.item.crook]
+name = "Stab des Artefaktschmieds"
+lore = "Befehligt gebundene Golems und die Knoten, an denen sie arbeiten"
+
+[golemancy.item.blank_core]
+name = "Leerer Animus-Kern"
+lore = "Bindet einen Golem als Begleiter oder wird zu einem Rollenkern verarbeitet"
+
+[golemancy.item.core]
+name = "{role}-Kern"
+lore = "Bindet einen Golem an die Rolle {role}"
+
+[golemancy.item.blank_node]
+name = "Leerer Knoten"
+lore = "Wird zu einem Knoten beliebigen Typs verarbeitet"
+
+[golemancy.item.node]
+name = "{node}-Knoten"
+lore = "Haftet an einer Blockseite und lenkt die Arbeit von Golems"
+
+[golemancy.item.blank_rune]
+name = "Leere Rune"
+lore = "Wird an einem Animus-Sockel zu einer Rune infundiert"
+
+[golemancy.item.rune]
+name = "{aspect}-Rune"
+tier = "Stufe {tier}"
+lore = "Wird in einen Golem eingesetzt, um ihn zu stärken"
+
+[golemancy.item.dormant_golem]
+name = "Ruhender Golem"
+core = "Kern: {core}"
+runes = "Runen: {runes}"
+health = "Gesundheit: {health}/{maximum}"
+lore = "Platzieren, um diesen Golem zu erwecken"
+
+[golemancy.item.shattered_core]
+name = "Zersplitterter Kern"
+lore = "Baut einen gefallenen Golem mit seinen Verbesserungen wieder auf"
+
+[golemancy.item.masterwork_heart]
+name = "Meisterwerk-Herz"
+lore = "Kennzeichnet einen Meisterwerk-Golem"
+
+[golemancy.role]
+blank = "Begleiter"
+guardian = "Wächter"
+gatherer = "Sammler"
+harvester = "Ernter"
+lumber = "Holzfäller"
+breaker = "Brecher"
+rancher = "Viehhüter"
+sorter = "Sortierer"
+angler = "Angler"
+
+[golemancy.node]
+guard = "Wache"
+collection = "Sammlung"
+deposit = "Ablage"
+harvest = "Ernte"
+lumber = "Holzfällen"
+breaker = "Abbau"
+pasture = "Weide"
+input = "Eingabe"
+filter = "Filter"
+fishing = "Fischen"
+
+[golemancy.aspect]
+swiftness = "Schnelligkeit"
+might = "Macht"
+ember = "Glut"
+tide = "Gezeiten"
+order = "Ordnung"
+entropy = "Entropie"
+bulwark = "Bollwerk"
+
+[golemancy.body]
+frost = "Frost"
+copper = "Kupfer"
+iron = "Eisen"
+bone = "Knochen"
+
+[golemancy.golem]
+name = "{body}golem von {owner}"
+
+[golemancy.mode]
+work = "Arbeiten"
+follow = "Folgen"
+stay = "Bleiben"
+home = "Heimkehr"
+
+[golemancy.signal]
+follow = "Folgen"
+hold = "Halten"
+home = "Heimkehr"
+work = "Arbeiten"
+sic = "Fass"
+
+[golemancy.channel]
+none = "Keiner"
+white = "Weiß"
+orange = "Orange"
+magenta = "Magenta"
+light_blue = "Hellblau"
+yellow = "Gelb"
+lime = "Hellgrün"
+pink = "Rosa"
+gray = "Grau"
+light_gray = "Hellgrau"
+cyan = "Türkis"
+purple = "Violett"
+blue = "Blau"
+brown = "Braun"
+green = "Grün"
+red = "Rot"
+black = "Schwarz"
+
+[golemancy.status]
+active = "Aktiv"
+packed = "Verpackt"
+shattered = "Zerschmettert"
+missing = "Vermisst"
+
+[golemancy.gui]
+title = "{body}golem"
+health = "Gesundheit: {health}/{maximum}"
+dormant = "Ruhend"
+mode = "Modus: {mode}"
+channel = "Kanal: {channel}"
+cycle = "Linksklick: weiter, Rechtsklick: zurück"
+set_home = "Zuhause hier festlegen"
+home = "Zuhause: {x}, {y}, {z}"
+link_chest = "Heimtruhe verknüpfen"
+home_chest = "Heimtruhe: {x}, {y}, {z}"
+no_home_chest = "Keine Heimtruhe verknüpft"
+link_hint = "Klicke und rechtsklicke dann mit dem Stab auf einen Behälter"
+rune_locked = "Gesperrter Runenplatz"
+rune_unlock_level = "Freigeschaltet ab Runenverstärkung Stufe {level}"
+rune_empty = "Leerer Runenplatz"
+rune_empty_lore = "Nimm eine Rune auf und klicke hier, um sie einzusetzen"
+rune_remove = "Klicken, um diese Rune zurückzunehmen"
+rune_active = "Aktiv"
+rune_over_tier = "Wirkungslos: Stufe {tier} braucht Runenverstärkung Stufe {level}"
+rune_slot_locked = "Wirkungslos: Dieser Platz braucht Runenverstärkung Stufe {level}"
+rune_blocked = "Wirkungslos: {aspect}-Runen wirken nicht in einem {body}golem"
+rune_duplicate = "Wirkungslos: Dieser Golem hat bereits eine {aspect}-Rune"
+rune_unpowered = "Wirkungslos: Deine Runenverstärkung reicht für diese Rune nicht aus"
+channels = "Kanäle: {channels}"
+channels_lore = "Klicken, um bis zu {count} Kanäle zu wählen"
+channels_title = "Kanäle wählen"
+channel_selected = "Ausgewählt"
+channel_select = "Klicken zum Auswählen"
+channels_clear = "Kanäle leeren"
+back = "Zurück"
+take = "Klicken zum Nehmen"
+more_carried = "+{count} weitere"
+stats = "Statistik"
+kills = "Tötungen: {value}"
+damage = "Verursachter Schaden: {value}"
+tasks = "Erledigte Aufgaben: {value}"
+items_moved = "Bewegte Gegenstände: {value}"
+release = "Freilassen"
+release_lore = "Macht ihn wieder zu einem gewöhnlichen Golem und lässt Kern, Runen, getragene Gegenstände und einen etwaigen zweiten Kern oder ein Meisterwerk-Herz fallen"
+release_confirm = "Diesen Golem freilassen?"
+snow_trail_on = "Schneespur: An"
+snow_trail_off = "Schneespur: Aus"
+snow_trail_lore = "Klicken, um den Schnee umzuschalten, den dieser Golem hinterlässt"
+colossus_on = "Kolossform: An"
+colossus_off = "Kolossform: Aus"
+colossus_lore = "Klicken, um für den Kampf volle Größe umzuschalten; ein gewachsener Golem arbeitet nicht"
+pack = "Verpacken"
+pack_lore = "Verdichtet diesen Golem zu einem Ruhender-Golem-Block, den du platzieren kannst, um ihn zu erwecken"
+
+[golemancy.roster]
+title = "Golem-Liste"
+empty = "Du hast keine Golems"
+entry = "{body}golem ({core})"
+location = "{world}: {x}, {y}, {z}"
+last_seen = "Zuletzt gesehen in {world} nahe {x}, {z}"
+status = "Zustand: {status}"
+locate = "Linksklick zum Orten"
+release = "Shift-Rechtsklick zum Freilassen"
+release_confirm = "Diesen vermissten Golem endgültig freilassen?"
+release_shattered_confirm = "Diesen zersplitterten Golem endgültig freilassen? Sein Zersplitterter Kern zerfällt."
+release_packed_confirm = "Diesen verpackten Golem endgültig freilassen? Sein Ruhender Golem zerfällt."
+recall = "Rechtsklick, um ihn in dein Inventar zurückzurufen"
+crook_channel = "Stabkanal: {channel}"
+crook_channel_lore = "Klicken, um zu wählen, welchen Golems dein Stab Signale gibt"
+crook_channel_title = "Stabkanal"
+crook_channel_all = "Alle Golems"
+
+[golemancy.message]
+home_set = "Zuhause gesetzt auf {x}, {y}, {z}"
+link_armed = "Rechtsklicke mit dem Stab auf einen Behälter, um ihn zu verknüpfen"
+chest_linked = "Heimtruhe verknüpft bei {x}, {y}, {z}"
+chest_denied = "Dieser Behälter ist geschützt"
+chest_out_of_reach = "Dieser Behälter muss höchstens {radius} Blöcke vom Zuhause des Golems entfernt sein"
+released = "Golem freigelassen"
+release_failed = "Dieser Golem kann gerade nicht freigelassen werden"
+gone = "Dieser Golem ist nicht mehr hier"
+colossus_no_room = "Hier ist nicht genug Platz, damit dieser Golem wachsen kann"
+colossus_busy = "Dieser Golem ändert noch seine Größe"
+rune_slotted = "{aspect}-Rune eingesetzt"
+rune_removed = "{aspect}-Rune zurückgenommen"
+rune_needed = "Nimm zuerst eine Rune auf"
+rune_no_slot = "Dieser Golem hat keinen freien Runenplatz"
+rune_duplicate = "Dieser Golem hat bereits eine {aspect}-Rune"
+rune_blocked = "{aspect}-Runen wirken nicht in einem {body}golem"
+channels_full = "Dieser Golem kann nur {count} Kanäle nutzen"
+crook_channel = "Dein Stab signalisiert jetzt: {channel}"
+crook_needed = "Halte deinen Stab in der Haupthand, um seinen Kanal festzulegen"
+
+[golemancy.binding]
+busy = "Ein Bindungsritual läuft bereits"
+already_bound = "Dieser Golem ist bereits gebunden"
+village = "Nur von Spielern gebaute Golems können gebunden werden"
+builder = "Nur der Erbauer dieses Golems kann ihn gerade binden"
+body_locked = "Du kannst noch keine {body}golems binden"
+core_not_allowed = "Ein {body}golem kann keinen {core}-Kern aufnehmen"
+core_locked = "Du hast noch nicht gelernt, {core}-Kerne zu binden"
+protected = "Hier kannst du keine Golems binden"
+unavailable = "Deine Golem-Liste ist noch nicht bereit"
+golem_cap = "Du besitzt bereits dein Maximum von {count} Golems"
+chunk_cap = "In diesem Bereich sind bereits {count} gebundene Golems"
+levels = "Diesen Golem zu binden kostet {levels} Stufen"
+interrupted = "Die Bindung wurde unterbrochen"
+bound = "Dein {body}golem ist jetzt an dich gebunden"
+
+[golemancy.animus_binding]
+name = "Animus-Bindung"
+description = "Schleiche und rechtsklicke einen Golem mit einem Animus-Kern in der Hand, um ihn als Begleiter an dich zu binden."
+lore1 = "Golems, die du besitzen kannst"
+lore2 = "Sekunden pro Bindungsritual"
+lore3 = "Stufen für einen Frostgolem"
+lore4 = "Stufen für einen Kupfergolem"
+lore5 = "Stufen für einen Eisengolem"
+lore = ["Golems, die du besitzen kannst", "Sekunden pro Bindungsritual", "Stufen für einen Frostgolem", "Stufen für einen Kupfergolem", "Stufen für einen Eisengolem"]
+
+[golemancy.frost_frame]
+name = "Frostrahmen"
+description = "Stärkt deine gebundenen Frostgolems mit zusätzlicher Gesundheit, schadenden Schneebällen und Schutz vor Regen und Hitze."
+lore1 = "Zusätzliche Gesundheit für Frostgolems"
+lore2 = "Schneeballschaden"
+lore3 = "Erlittener Schaden in warmen Biomen"
+lore4 = "Immun gegen Regen und Wasser"
+lore5 = "Sekunden Langsamkeit pro Treffer"
+lore6 = "Chance auf einen zusätzlichen Schneeball"
+lore7 = "Schneeballtreffer, um ein Ziel einzufrieren"
+lore = ["Zusätzliche Gesundheit für Frostgolems", "Schneeballschaden", "Erlittener Schaden in warmen Biomen", "Immun gegen Regen und Wasser", "Sekunden Langsamkeit pro Treffer", "Chance auf einen zusätzlichen Schneeball", "Schneeballtreffer, um ein Ziel einzufrieren"]
+
+[golemancy.copper_frame]
+name = "Kupferrahmen"
+description = "Lässt dich Kupfergolems binden und stärkt sie mit zusätzlicher Gesundheit, Tragekapazität und Geschwindigkeit sowie Rüstung aus ihrer Patina."
+lore1 = "Zusätzliche Gesundheit für Kupfergolems"
+lore2 = "Tragekapazität in Gegenständen"
+lore3 = "Bewegungsgeschwindigkeit"
+lore4 = "Wird nie zur Statue"
+lore5 = "Rüstung pro Patinastufe"
+lore6 = "Geschwindigkeitsverlust pro Patinastufe"
+lore7 = "Sekunden Schnelligkeit II durch nahe Blitze"
+lore = ["Zusätzliche Gesundheit für Kupfergolems", "Tragekapazität in Gegenständen", "Bewegungsgeschwindigkeit", "Wird nie zur Statue", "Rüstung pro Patinastufe", "Geschwindigkeitsverlust pro Patinastufe", "Sekunden Schnelligkeit II durch nahe Blitze"]
+
+[golemancy.iron_frame]
+name = "Eisenrahmen"
+description = "Lässt dich Eisengolems binden und stärkt sie mit zusätzlicher Gesundheit, Rüstung und Angriff, stärkeren Barrenreparaturen, Rundumschlägen und einer Kolossform in voller Größe."
+lore1 = "Zusätzliche Gesundheit für Eisengolems"
+lore2 = "Zusätzliche Rüstung für Eisengolems"
+lore3 = "Zusätzlicher Angriffsschaden für Eisengolems"
+lore4 = "Zusätzliche Gesundheit pro Eisenbarren-Reparatur"
+lore5 = "Zusätzlich getroffene Feinde pro Schlag"
+lore6 = "Angriffsschaden in Kolossform"
+lore = ["Zusätzliche Gesundheit für Eisengolems", "Zusätzliche Rüstung für Eisengolems", "Zusätzlicher Angriffsschaden für Eisengolems", "Zusätzliche Gesundheit pro Eisenbarren-Reparatur", "Zusätzlich getroffene Feinde pro Schlag", "Angriffsschaden in Kolossform"]
+
+[golemancy.bone_frame]
+name = "Knochenrahmen"
+description = "Holt deine Tragoul-Skelettdiener in die Golemantie: Sie folgen den Signalen deines Stabs, leuchten in deinem Dienerkanal mit Statusanzeigen nur für dich, tragen ein Knochengitter aus Runen und bringen Golemantie-XP für ihre Tötungen."
+lore1 = "Diener folgen Stabsignalen und zeigen Statusanzeigen"
+lore2 = "Runenplätze im Knochengitter"
+lore3 = "Golemantie-XP aus Tötungen deiner Diener"
+lore = ["Diener folgen Stabsignalen und zeigen Statusanzeigen", "Runenplätze im Knochengitter", "Golemantie-XP aus Tötungen deiner Diener"]
+lattice = "Knochengitter"
+lattice_lore = "Klicken, um Runen und Kanal deiner Diener festzulegen"
+slot_empty = "Leerer Gitterplatz"
+slot_empty_lore = "Nimm eine Rune ({aspects}) auf und klicke hier"
+slot_locked = "Gesperrter Gitterplatz"
+slot_unlock_level = "Freigeschaltet ab Knochenrahmen Stufe {level}"
+slot_inert = "Wirkungslos: Dieser Platz braucht Knochenrahmen Stufe {level}"
+rune_tier = "Wirkt mit Stufe {tier} auf deine Diener"
+channel = "Dienerkanal: {channel}"
+channel_set = "Deine Diener nutzen jetzt den Kanal {channel}"
+refused_aspect = "{aspect}-Runen passen nicht in ein Knochengitter"
+duplicate = "Dein Knochengitter hat bereits eine {aspect}-Rune"
+no_slot = "Dein Knochengitter hat keinen freien Platz"
+time_left = "noch {seconds} s"
+
+[golemancy.guardian_core]
+name = "Wächter-Kern"
+description = "Mit einem Wächter-Kern gebundene Golems verteidigen ihr Zuhause, dich oder den Bereich eines Wache-Knotens und schützen dich umso besser, je stärker der Kern wird."
+lore1 = "Wachradius in Blöcken"
+lore2 = "Abfangen: Mobs, die dich jagen, wenden sich gegen deine Wächter"
+lore3 = "Vergeltung: Wächter greifen an, was dich verletzt hat"
+lore4 = "Weniger Schaden in der Nähe deiner Wächter"
+lore5 = "Sekunden Resistenz durch Letztes Gefecht"
+lore = ["Wachradius in Blöcken", "Abfangen: Mobs, die dich jagen, wenden sich gegen deine Wächter", "Vergeltung: Wächter greifen an, was dich verletzt hat", "Weniger Schaden in der Nähe deiner Wächter", "Sekunden Resistenz durch Letztes Gefecht"]
+
+[golemancy.gatherer_core]
+name = "Sammler-Kern"
+description = "Mit einem Sammler-Kern gebundene Golems sammeln fallengelassene Gegenstände rund um ihr Zuhause oder einen Sammlung-Knoten ein, liefern sie ab und speichern Erfahrungskugeln als Essenz, je stärker der Kern wird."
+lore1 = "Aufsammelradius in Blöcken"
+lore2 = "Erfahrungspunkte Essenzspeicher"
+lore3 = "Blöcke Gegenstandsmagnet"
+lore4 = "Blöcke sofortiges Aufsammeln"
+lore5 = "Tragekapazität"
+lore = ["Aufsammelradius in Blöcken", "Erfahrungspunkte Essenzspeicher", "Blöcke Gegenstandsmagnet", "Blöcke sofortiges Aufsammeln", "Tragekapazität"]
+essence = "Essenz: {value} Erfahrungspunkte"
+essence_lore = "Klicken, um die gespeicherte Erfahrung zu nehmen"
+essence_taken = "Du hast {value} Erfahrungspunkte Essenz genommen"
+essence_empty = "Dieser Golem hat keine Essenz gespeichert"
+
+[golemancy.harvester_core]
+name = "Ernter-Kern"
+description = "Mit einem Ernter-Kern gebundene Golems ernten reife Pflanzen im Bereich eines Ernte-Knotens, pflanzen sie neu und pflegen und bestellen das Feld umso besser, je stärker der Kern wird."
+lore1 = "Pflanzen pro Erntevorgang"
+lore2 = "Sekunden pro Erntevorgang"
+lore3 = "Erntet Melonen, Kürbisse, Zuckerrohr, Bambus und Kakteen"
+lore4 = "Pflege: Knochenmehl aus der Heimtruhe für junge Pflanzen"
+lore5 = "Bestellen: Pflügt Erde neu und bepflanzt leeres Ackerland"
+lore6 = "Chance auf einen zusätzlichen Beutewurf"
+lore = ["Pflanzen pro Erntevorgang", "Sekunden pro Erntevorgang", "Erntet Melonen, Kürbisse, Zuckerrohr, Bambus und Kakteen", "Pflege: Knochenmehl aus der Heimtruhe für junge Pflanzen", "Bestellen: Pflügt Erde neu und bepflanzt leeres Ackerland", "Chance auf einen zusätzlichen Beutewurf"]
+
+[golemancy.lumber_core]
+name = "Holzfäller-Kern"
+description = "Mit einem Holzfäller-Kern gebundene Golems fällen natürliche Bäume im Bereich eines Holzfällen-Knotens von oben nach unten und sammeln die Stämme ein, und je stärker der Kern wird, pflanzen sie nach, räumen Laub und fällen größere Bäume."
+lore1 = "Gefällte Stämme pro Sekunde"
+lore2 = "Stämme pro Baum für Kupfergolems"
+lore3 = "Stämme pro Baum für Eisengolems"
+lore4 = "Pflanzt nach dem Fällen Setzlinge nach"
+lore5 = "Laubräumen: Bricht lose Blätter ab und sammelt, was sie fallen lassen"
+lore6 = "Fällt 2x2-Riesenbäume"
+lore7 = "Fällt Karmesin- und Wirrpilze und pflanzt Pilze nach"
+lore = ["Gefällte Stämme pro Sekunde", "Stämme pro Baum für Kupfergolems", "Stämme pro Baum für Eisengolems", "Pflanzt nach dem Fällen Setzlinge nach", "Laubräumen: Bricht lose Blätter ab und sammelt, was sie fallen lassen", "Fällt 2x2-Riesenbäume", "Fällt Karmesin- und Wirrpilze und pflanzt Pilze nach"]
+
+[golemancy.breaker_core]
+name = "Brecher-Kern"
+description = "Mit einem Brecher-Kern gebundene Golems bauen die Blöcke ab, die der Filter eines Abbau-Knotens in dessen Bereich aufführt, und tragen die Beute davon. Je stärker der Kern wird, desto härtere Blöcke bauen sie mit besseren Spitzhacken ab."
+lore1 = "Maximale Blockhärte"
+lore2 = "Sekunden pro Block"
+lore3 = "Abbauwerkzeug"
+lore4 = "Behutsamkeit-Schalter an Abbau-Knoten"
+lore5 = "Glück-I-Schalter an Abbau-Knoten"
+lore = ["Maximale Blockhärte", "Sekunden pro Block", "Abbauwerkzeug", "Behutsamkeit-Schalter an Abbau-Knoten", "Glück-I-Schalter an Abbau-Knoten"]
+filter_ready = "Baut die Blöcke im Filter ab"
+filter_needed = "Füge der Positivliste Blöcke hinzu"
+filter_lore = "Brecher bauen nur Blöcke ab, die eine Positivliste aufführt"
+silk_on = "Behutsamkeit: An"
+silk_off = "Behutsamkeit: Aus"
+fortune_on = "Glück I: An"
+fortune_off = "Glück I: Aus"
+locked = "Wird mit Brecher-Kern Stufe {level} freigeschaltet"
+exclusive = "Behutsamkeit und Glück I schalten sich gegenseitig aus"
+
+[golemancy.rancher_core]
+name = "Viehhüter-Kern"
+description = "Mit einem Viehhüter-Kern gebundene Golems versorgen die Tiere im Bereich eines Weide-Knotens: Sie züchten Paare bis zur Haltezahl des Knotens, und je stärker der Kern wird, scheren sie Schafe, melken Kühe und Ziegen und schlachten überzählige ausgewachsene Tiere."
+lore1 = "Züchtet Paare bis zur Haltezahl des Weide-Knotens"
+lore2 = "Schert Schafe"
+lore3 = "Melkt Kühe, Ziegen und Mooshrooms mit Eimern oder Schüsseln aus der Heimtruhe"
+lore4 = "Schlachtet ausgewachsene Tiere über der Haltezahl (nur Eisengolems)"
+lore5 = "Kürzere Zuchtabklingzeit"
+lore6 = "Zusätzlicher Beutewurf pro Schlachtung"
+lore = ["Züchtet Paare bis zur Haltezahl des Weide-Knotens", "Schert Schafe", "Melkt Kühe, Ziegen und Mooshrooms mit Eimern oder Schüsseln aus der Heimtruhe", "Schlachtet ausgewachsene Tiere über der Haltezahl (nur Eisengolems)", "Kürzere Zuchtabklingzeit", "Zusätzlicher Beutewurf pro Schlachtung"]
+species = "Tierart: {species}"
+species_all = "Alle Tiere"
+species_lore = "Linksklick für die nächste Tierart, Rechtsklick für die vorherige"
+keep = "Haltezahl: {count} pro Art"
+keep_lore = "Linksklick zum Erhöhen, Rechtsklick zum Senken"
+breed_on = "Züchten: An"
+breed_off = "Züchten: Aus"
+shear_on = "Scheren: An"
+shear_off = "Scheren: Aus"
+milk_on = "Melken: An"
+milk_off = "Melken: Aus"
+cull_on = "Schlachten: An"
+cull_off = "Schlachten: Aus"
+locked = "Wird mit Viehhüter-Kern Stufe {level} freigeschaltet"
+iron_only = "Nur Eisengolems schlachten"
+
+[golemancy.sorter_core]
+name = "Sortierer-Kern"
+description = "Mit einem Sortierer-Kern gebundene Kupfergolems leeren den Behälter unter einem Eingabe-Knoten in nahe Behälter, die jeden Gegenstand schon enthalten. Je stärker der Kern wird, desto mehr lernen sie Gegenstandsgruppen, Filter-Knoten, Nachfüllen und Holen."
+lore1 = "Zielradius in Blöcken"
+lore2 = "Stapel pro Gang"
+lore3 = "Sortiert nach Gegenstandsgruppen"
+lore4 = "Filter-Knoten und ein Überlauf"
+lore5 = "Unterscheidet Verzauberungen und Tränke"
+lore6 = "Bewegt Shulkerkisten"
+lore7 = "Nachfüllmengen an Filter-Knoten"
+lore8 = "Verzeichnis der Behälterinhalte"
+lore9 = "Holen über das Menü des Eingabe-Knotens"
+lore = ["Zielradius in Blöcken", "Stapel pro Gang", "Sortiert nach Gegenstandsgruppen", "Filter-Knoten und ein Überlauf", "Unterscheidet Verzauberungen und Tränke", "Bewegt Shulkerkisten", "Nachfüllmengen an Filter-Knoten", "Verzeichnis der Behälterinhalte", "Holen über das Menü des Eingabe-Knotens"]
+match_exact = "Abgleich: Gleicher Gegenstand"
+match_groups = "Abgleich: Gegenstandsgruppen"
+match_precise = "Abgleich: Verzauberungen und Tränke"
+match_lore = "Wie ein Sortierer erkennt, welcher Behälter einen Gegenstand schon enthält"
+radius = "Zielradius: {radius}"
+radius_lore = "Bis zu {radius} Blöcke auf deiner Sortierer-Kern-Stufe"
+fetch = "Gegenstände holen"
+fetch_lore = "Wähle Gegenstände, die dir ein Sortierer bringt"
+locked = "Wird mit Sortierer-Kern Stufe {level} freigeschaltet"
+overflow_on = "Überlauf: An"
+overflow_off = "Überlauf: Aus"
+overflow_lore = "Ein Überlauf nimmt Gegenstände, die kein anderer Behälter will"
+restock = "Nachfüllen: {amount} von jedem Filtergegenstand"
+restock_off = "Nachfüllen: Aus"
+restock_lore = "Sortierer halten hier so viele von jedem aufgeführten Gegenstand vorrätig"
+fetch_available = "Verfügbar: {count}"
+fetch_request = "Klicke, um {amount} anzufordern"
+fetch_amount = "{amount} auf einmal anfordern"
+fetch_empty = "In den Behältern dieses Eingabe-Knotens ist nichts gelagert"
+fetch_requested = "Ein Sortierer bringt {amount} {item}"
+fetch_delivered = "Ein Sortierer hat {amount} {item} gebracht"
+empty_filter = "Ein leerer Filter-Knoten nimmt nichts an, außer er ist ein Überlauf"
+
+[golemancy.angler_core]
+name = "Angler-Kern"
+description = "Mit einem Angler-Kern gebundene Golems angeln im offenen Wasser vor einem Fischen-Knoten und tragen den Fang davon. Je stärker der Kern wird, desto mehr Glück haben sie, filtern Plunder aus, fangen bei Regen schneller und landen doppelte Fänge."
+lore1 = "Sekunden pro Fang"
+lore2 = "Angelglück"
+lore3 = "Plunderfilter-Schalter an Fischen-Knoten"
+lore4 = "Kürzere Fangzeit bei Regen"
+lore5 = "Chance auf einen doppelten Fang"
+lore = ["Sekunden pro Fang", "Angelglück", "Plunderfilter-Schalter an Fischen-Knoten", "Kürzere Fangzeit bei Regen", "Chance auf einen doppelten Fang"]
+water_ready = "Offenes Wasser gefunden"
+water_needed = "Braucht offenes Wasser"
+water_lore = "Angler brauchen eine 5 mal 5 Blöcke große offene Wasserfläche vor dem Knoten"
+junk_keep = "Plunder: Behalten"
+junk_discard = "Plunder: Zurückwerfen"
+locked = "Wird mit Angler-Kern Stufe {level} freigeschaltet"
+
+[golemancy.runic_augments]
+name = "Runenverstärkung"
+description = "Lässt dich am Animus-Sockel Runen infundieren und in deine gebundenen Golems einsetzen: für Tempo, Tragekapazität, Feuer, Reichweite, Kanäle, Ertrag und Rüstung."
+lore1 = "Zusätzliche Runenplätze pro Golem"
+lore2 = "Höchste nutzbare Runenstufe"
+lore3 = "Animus-Sockel und Rezept für Leere Runen"
+lore = ["Zusätzliche Runenplätze pro Golem", "Höchste nutzbare Runenstufe", "Animus-Sockel und Rezept für Leere Runen"]
+
+[golemancy.overseer]
+name = "Aufseher"
+description = "Lässt dich deinen gebundenen Golems mit dem Stab des Artefaktschmieds signalisieren, dir zu folgen, zu halten, heimzukehren oder zu arbeiten. Mit wachsender Stufe greifen sie an, was du ansiehst, hören auf Kanäle, eilen zu dir und schützen dich in Formation."
+lore1 = "Signalradius in Blöcken"
+lore2 = "Fass: Deine kämpfenden Golems greifen an, was du ansiehst"
+lore3 = "Stabkanal-Filter, eingestellt in der Golem-Liste"
+lore4 = "Sammeln: Folgen ruft entfernte Golems zu dir"
+lore5 = "Höchste Rüstung durch Golems in Formation"
+lore = ["Signalradius in Blöcken", "Fass: Deine kämpfenden Golems greifen an, was du ansiehst", "Stabkanal-Filter, eingestellt in der Golem-Liste", "Sammeln: Folgen ruft entfernte Golems zu dir", "Höchste Rüstung durch Golems in Formation"]
+signal = "Signal: {signal}"
+sent = "{signal} gesendet"
+sent_channel = "{signal} an den Kanal {channel} gesendet"
+no_target = "Sieh eine Kreatur, die du angreifen darfst, im Umkreis von {range} Blöcken an, um Fass zu senden"
+
+[golemancy.mending]
+name = "Golemheilung"
+description = "Heile deine Golems mit Kupferbarren, Schneeblöcken und Knochenmehl, lass sie in deiner Nähe und zu Hause genesen und baue gefallene Golems aus ihrem Zersplitterten Kern wieder auf."
+lore1 = "Bonusheilung durch Reparaturen"
+lore2 = "Kupferbarren, Schneeblöcke und Knochenmehl heilen deine Golems"
+lore3 = "Regenerierte Gesundheit in deiner Nähe"
+lore4 = "Regenerierte Gesundheit im Leerlauf zu Hause"
+lore5 = "Sekunden zwischen Regenerationen"
+lore6 = "Zersplitterter Kern: Gefallene Golems wieder aufbauen"
+lore7 = "Sekunden Resistenz für wiedergeborene Golems"
+lore8 = "Wiedergeborene Golems behalten ihren Kupferzustand"
+lore = ["Bonusheilung durch Reparaturen", "Kupferbarren, Schneeblöcke und Knochenmehl heilen deine Golems", "Regenerierte Gesundheit in deiner Nähe", "Regenerierte Gesundheit im Leerlauf zu Hause", "Sekunden zwischen Regenerationen", "Zersplitterter Kern: Gefallene Golems wieder aufbauen", "Sekunden Resistenz für wiedergeborene Golems", "Wiedergeborene Golems behalten ihren Kupferzustand"]
+full_health = "Dieser Golem hat bereits volle Gesundheit"
+shattered = "Dein {body}golem ist zersplittert und hat seinen Zersplitterten Kern zurückgelassen"
+reborn = "Dein {body}golem ist wiedergeboren"
+void = "Dieser Zersplitterte Kern zerfällt: Er enthält seinen Golem nicht mehr"
+not_owner = "Dieser Zersplitterte Kern gehört einem anderen Spieler"
+locked = "Einen Golem wieder aufzubauen erfordert Golemheilung Stufe {level}"
+wrong_body = "Dieser Zersplitterte Kern braucht einen frisch gebauten {body}golem"
+unreadable = "Dieser Zersplitterte Kern ist beschädigt und kann keinen Golem wieder aufbauen"
+
+[golemancy.stasis]
+name = "Stase"
+description = "Verpacke deine gebundenen Golems mit dem Stab in Ruhender-Golem-Blöcke und platziere den Block, um sie überall wieder zu erwecken, mit unversehrten Kernen, Runen, Ladungen und Gesundheit."
+lore1 = "Sekunden zum Verpacken eines Golems"
+lore2 = "Sofortiges Verpacken"
+lore3 = "Platziere einen Ruhenden Golem, um ihn zu erwecken"
+lore4 = "Heilung im verpackten Zustand"
+lore5 = "Sekunden zwischen Heilungen im verpackten Zustand"
+lore6 = "Taschenliste: Golems aus der Golem-Liste zurückrufen"
+lore7 = "Sekunden zwischen Rückrufen"
+lore = ["Sekunden zum Verpacken eines Golems", "Sofortiges Verpacken", "Platziere einen Ruhenden Golem, um ihn zu erwecken", "Heilung im verpackten Zustand", "Sekunden zwischen Heilungen im verpackten Zustand", "Taschenliste: Golems aus der Golem-Liste zurückrufen", "Sekunden zwischen Rückrufen"]
+packed = "Dein {body}golem ist in einen Ruhenden Golem verpackt"
+dropped = "Dein Inventar ist voll, darum ist dein Ruhender Golem vor deine Füße gefallen"
+interrupted = "Das Verpacken wurde unterbrochen"
+busy = "Du verpackst bereits einen Golem"
+pack_failed = "Dieser Golem kann gerade nicht verpackt werden"
+awakened = "Dein {body}golem erwacht"
+void = "Dieser Ruhende Golem zerfällt: Er enthält seinen Golem nicht mehr"
+not_owner = "Dieser Ruhende Golem gehört einem anderen Spieler"
+locked = "Einen Ruhenden Golem zu erwecken erfordert Stase"
+unreadable = "Dieser Ruhende Golem ist beschädigt und kann nicht erwachen"
+body_locked = "Du kannst noch keine {body}golems erwecken"
+no_room = "Ein Ruhender Golem braucht einen freien Block zum Erwachen"
+server_cap = "Auf dem Server sind bereits so viele Golems wach, wie erlaubt sind"
+protected = "Hier kannst du keine Golems erwecken"
+awaken_failed = "Der Golem konnte nicht erwachen, darum hast du deinen Ruhenden Golem behalten"
+recall_cooldown = "Du kannst in {seconds} Sekunden den nächsten Golem zurückrufen"
+recall_unavailable = "Nur Golems, die in deiner Welt geladen sind, können zurückgerufen werden"
+
+[golemancy.masterwork]
+name = "Meisterwerk"
+description = "Infundiere am Animus-Sockel ein Meisterwerk-Herz und setze es in einen Golem ein: für einen zusätzlichen Runenplatz, mehr Gesundheit, einen zweiten Kern und stärkere Runen."
+lore1 = "Meisterwerk-Golems"
+lore2 = "Zusätzliche Runenplätze eines Meisterwerks"
+lore3 = "Maximale Gesundheit eines Meisterwerks"
+lore4 = "Zweiter Kernplatz eines Meisterwerks"
+lore5 = "Runen eines Meisterwerks wirken eine Stufe höher"
+lore6 = "Bonus auf Stufe-3-Runen eines Meisterwerks"
+lore = ["Meisterwerk-Golems", "Zusätzliche Runenplätze eines Meisterwerks", "Maximale Gesundheit eines Meisterwerks", "Zweiter Kernplatz eines Meisterwerks", "Runen eines Meisterwerks wirken eine Stufe höher", "Bonus auf Stufe-3-Runen eines Meisterwerks"]
+slot = "Meisterwerk-Herz"
+slot_lore = "Klicken, um das Herz mit dem zweiten Kern und den zusätzlichen Runen zurückzunehmen"
+slot_empty = "Meisterwerk-Platz"
+slot_empty_lore = "Nimm ein Meisterwerk-Herz auf und klicke hier ({count}/{maximum} Meisterwerke)"
+core_empty = "Zweiter Kernplatz"
+core_empty_lore = "Nimm einen Rollenkern auf und klicke hier, um ihn einzusetzen"
+core_remove = "Klicken, um diesen Kern zurückzunehmen"
+heart_needed = "Nimm zuerst ein Meisterwerk-Herz auf"
+designated = "Dieser Golem ist jetzt ein Meisterwerk"
+removed = "Meisterwerk-Herz zurückgenommen"
+already = "Dieser Golem ist bereits ein Meisterwerk"
+cap = "Du hast bereits {count} Meisterwerk-Golems"
+locked = "Du brauchst Meisterwerk, um einen Meisterwerk-Golem zu bestimmen"
+body = "Ein {body}golem kann kein Meisterwerk werden"
+core_needed = "Nimm zuerst einen Rollenkern auf"
+core_slotted = "{core}-Kern eingesetzt"
+core_removed = "{core}-Kern zurückgenommen"
+core_no_slot = "Dieser Golem hat keinen freien Kernplatz"
+core_blank = "Der zweite Kern muss ein Rollenkern sein"
+core_duplicate = "Dieser Golem hat bereits einen {core}-Kern"
+
+[golemancy.node_status]
+idle = "Untätig"
+working = "Arbeitet"
+blocked = "Durch Schutz blockiert"
+full = "Behälter voll"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filter: {count}"
+
+[golemancy.node_message]
+placed = "{node}-Knoten platziert"
+occupied = "Diese Seite trägt bereits einen Knoten"
+protected = "Hier kannst du keine Knoten platzieren"
+needs_container = "Ein {node}-Knoten gehört an eine Truhe, ein Fass oder eine Shulkerkiste"
+needs_side_face = "Ein {node}-Knoten gehört an die Seite eines Blocks"
+container_protected = "Dieser Behälter ist geschützt"
+chunk_full = "Dieser Chunk enthält bereits {count} Knoten"
+cap = "Du besitzt bereits dein Maximum von {count} Knoten"
+loading = "Die Knoten hier werden noch geladen"
+unavailable = "Deine Golem-Liste ist noch nicht bereit"
+filter_added = "{item} zum Filter hinzugefügt"
+filter_removed = "{item} aus dem Filter entfernt"
+filter_full = "Dieser Filter fasst höchstens {count} Einträge"
+priority_locked = "Knotenpriorität wird mit Knotenweberei Stufe {level} freigeschaltet"
+removed = "{node}-Knoten entfernt"
+remove_failed = "Dieser Knoten kann gerade nicht entfernt werden"
+not_owner = "Dieser Knoten gehört einem anderen Spieler"
+gone = "Dieser Knoten ist nicht mehr hier"
+tag_prompt = "Gib einen Gegenstands-Tag wie #logs im Chat ein"
+tag_invalid = "{tag} ist kein Gegenstands-Tag"
+tag_cancelled = "Tag-Eingabe abgebrochen"
+tag_timed_out = "Tag-Eingabe abgelaufen"
+
+[golemancy.node_gui]
+position = "Block: {x}, {y}, {z}"
+area = "{axis}-Radius: {radius}"
+area_lore = "Linksklick: vergrößern, Rechtsklick: verkleinern"
+area_cap = "Größter Radius: {radius}"
+priority = "Priorität: {priority}"
+redstone = "Redstone: {mode}"
+redstone_ignore = "Ignoriert"
+redstone_powered = "Arbeitet nur mit Redstone-Signal"
+redstone_unpowered = "Arbeitet nur ohne Redstone-Signal"
+locked = "Wird mit Knotenweberei Stufe {level} freigeschaltet"
+whitelist = "Positivliste"
+whitelist_lore = "Golems nutzen nur passende Gegenstände"
+blacklist = "Sperrliste"
+blacklist_lore = "Golems nutzen alles außer passenden Gegenständen"
+empty_filter = "Ein leerer Filter passt auf jeden Gegenstand"
+toggle = "Klicken zum Umschalten"
+filter_empty = "Leerer Filterplatz"
+filter_set = "Mit einem Gegenstand anklicken zum Festlegen"
+filter_clear = "Rechtsklick zum Leeren"
+filter_locked = "Gesperrter Filterplatz"
+filter_locked_lore = "Weitere Stufen der Knotenweberei schalten diesen Platz frei"
+tag = "Gegenstands-Tag"
+tag_add = "Tag hinzufügen"
+tag_add_lore = "Klicke und gib dann einen Gegenstands-Tag wie #logs im Chat ein"
+
+[golemancy.node_weaving]
+name = "Knotenweberei"
+description = "Schleiche und rechtsklicke mit einem Knoten in der Hand auf eine Blockseite, um ihn dort zu verankern und die Arbeit deiner Golems zu lenken."
+lore1 = "Knoten, die du besitzen kannst"
+lore2 = "Radius des Arbeitsbereichs in Blöcken"
+lore3 = "Filterplätze"
+lore4 = "Knotenpriorität 1-5"
+lore5 = "Redstone-Steuerung"
+lore6 = "Sperrlisten- und Tag-Filter"
+lore = ["Knoten, die du besitzen kannst", "Radius des Arbeitsbereichs in Blöcken", "Filterplätze", "Knotenpriorität 1-5", "Redstone-Steuerung", "Sperrlisten- und Tag-Filter"]
+
+[golemancy.plinth]
+loading = "Dieser Sockel lädt noch"
+occupied = "Auf diesem Podest liegt bereits ein Gegenstand"
+protected = "Du kannst diesen Sockel hier nicht benutzen"
+busy = "Eine Infusion läuft bereits"
+no_recipe = "Diese Gegenstände ergeben keine Infusion"
+locked = "Du hast diese Infusion noch nicht gelernt"
+levels = "Diese Infusion kostet {levels} Stufen"
+interrupted = "Die Infusion wurde unterbrochen"
+complete = "Die Infusion ist abgeschlossen"
+failed = "Die Infusion ist fehlgeschlagen, deine Stufen wurden zurückgegeben"
+
 [herbalism.growth_aura]
 name = "Wachstumsaura"
 description = "Lasse die Natur um dich herum in einer Aura wachsen"
@@ -4523,6 +5212,10 @@ vault_unavailable_fallback = "Die Vault-Wirtschaft ist nicht verfügbar — Lern
 vault_insufficient_funds = "Der Spieler hat nicht genügend Guthaben beim Vault-Wirtschaftsanbieter."
 vault_transaction_failed = "Die Vault-Transaktion ist fehlgeschlagen; der Fortschritt wurde nicht geändert."
 power_drain = "{power} Stromentnahme"
+requirement_level = "{adaptation} Stufe {level}"
+requires = "Benötigt: {requirement}"
+requirements_missing = "Lerne zuerst {requirements}, bevor du {adaptation} lernst."
+required_by_dependents = "Verlerne zuerst {dependents}; sie benötigen {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5362,6 +6055,11 @@ name = "Kinetik"
 icon = "⚒"
 description = "Bewegung ist Kraft. Schlagen Sie mit Mazen, laden Sie mit Speeren und biegen Sie den Momentum selbst: Sprünge, Start, Levitation und gut zielte fallende Anvilen versorgen Ihre Meisterschaft."
 
+[skill.golemancy]
+name = "Golemantie"
+icon = "⚙"
+description = "Steige auf, indem du Golems baust, reparierst und pflegst, und erwecke sie dann zum Leben, damit sie an deiner Seite kämpfen und arbeiten."
+
 [snippets.gui]
 level = "Stufe"
 level_value = "Niveau {level}"
@@ -5793,7 +6491,7 @@ lore2 = "max. Gesundheit wiederhergestellt pro Sekunde"
 lore = ["von allen zugeschriebenen Schäden, die als gesundheitlich zurückgegeben wurden", "max. Gesundheit wiederhergestellt pro Sekunde"]
 
 [tragoul.skeletal_servant]
-name = "Skelettservice"
+name = "Skelettdiener"
 description = "Schleichen Sie sich und klicken Sie mit der rechten Knie, um temporäre Skelettsjüter zu erziehen, einen lebenden Diener pro Stufe! Diener züchten mit gleichmäßigen zufälligen Geräten, erben Ihre anderen Tragoul-Verteilungen und jagen Ihr Zeichen: Was auch immer Sie schlagen, oder was auch immer Sie zuletzt getroffen haben."
 lore1 = "Schleichen + Rechte-Klick mit Knochen in der Hand , um einen Diener zu rufen"
 lore2 = "Die Lebensdauer des Dieners"
@@ -5951,7 +6649,7 @@ assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it = "Ei
 boost_global_experience_gain = "die globale Erfahrung zu steigern."
 boost_target_player_experience_gain = "Erhöhung des Spieler-Erlebnisses."
 bypass_adapt_use_permission_checks_when_opening = "Bei der Öffnung der adapt.use-Erlaubnisprüfung umgehen"
-bypass_costs_and_restrictions = "Umgehungskosten und Beschränkungen"
+bypass_costs_and_permanence_prerequisites_still_apply = "Kosten und Dauerhaftigkeit umgehen; Voraussetzungen gelten weiterhin"
 bypass_power_knowledge_and_permanence_checks = "Umgehungsleistung, Kenntnisse und Dauersicherheitskontrollen"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "Alle Entdeckungsdaten (Biome, Massen, Lebensmittel, Gegenstände, Rezepte usw.) löschen."
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "Alle Spielerdaten (XP, Wissen, Anpassungen, Statistiken, Entdeckungen, Fortschritte, Weisheit) löschen"
@@ -5996,6 +6694,12 @@ toggle_verbose_mode = "Wechseln Sie den Verbose-Modus"
 top_results_to_print = "Top-Ergebnisse zum Drucken"
 true_to_learn_false_to_unlearn = "Wahr, um zu lernen, falsch, um nicht zu lernen"
 unlearn_all_adaptations_across_all_skill_lines = "Lernen Sie alle Anpassungen über alle Fähigkeiten hinweg"
+golem_roster_and_admin_tools = "Golem-Liste und Verwaltungswerkzeuge"
+open_your_golem_roster = "Deine Golem-Liste öffnen"
+list_a_player_s_golems = "Die Golems eines Spielers auflisten"
+release_one_of_a_player_s_golems = "Einen Golem eines Spielers freilassen"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golem-ID oder so viele ihrer ersten Zeichen, dass genau ein Golem passt"
+wake_a_player_s_loaded_golems = "Die geladenen Golems eines Spielers aufwecken"
 
 [command.runtime]
 missing_permission = "Sie haben keine Genehmigung für {permission}."
@@ -6038,6 +6742,8 @@ vault_insufficient_funds = "Der Spieler hat nicht genügend Guthaben beim Vault-
 vault_transaction_failed = "Die Vault-Transaktion ist fehlgeschlagen; der Fortschritt wurde nicht geändert."
 set_adaptation_level = "{player} {adaptation} auf das Niveau {level} einstellen."
 permanent_adaptation_lower = "{adaptation} ist dauerhaft und kann ohne force=true nicht abgeschoben werden."
+requirements_missing = "{player} benötigt {requirements}, bevor {adaptation} gelernt werden kann."
+required_by_dependents = "{adaptation} wird von {dependents} für {player} benötigt; verwende force=true, um diese ebenfalls zu entfernen."
 adapt_server_not_ready = "Der Adapt-Server ist noch nicht fertig."
 target_dispatch_failed = "Der Vorgang für den Zielspieler konnte nicht geplant werden. Versuche es erneut."
 cleared_all = "Alle Daten für {player} wurden gelöscht."
@@ -6076,6 +6782,16 @@ perf_timing_budget = "Zeitplan für die Fähigkeitsprüfung: {percent} ({millisP
 perf_ticker_window = "Tickers Fenster: {window}ms"
 perf_no_metrics = "Noch keine Zeckenwerte gesammelt."
 perf_reset = "Tickers und Fähigkeiten Telemetrie reset."
+golem_list_header = "{player} hat {count} Golems:"
+golem_list_header_one = "{player} hat 1 Golem:"
+golem_list_empty = "{player} hat keine Golems."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} hat keinen Golem, dessen ID mit {id} beginnt."
+golem_ambiguous = "Mehr als ein Golem von {player} hat eine ID, die mit {id} beginnt. Gib mehr davon ein."
+golem_released = "Golem {id} wurde aus der Liste von {player} freigelassen."
+golem_release_failed = "Golem {id} von {player} konnte nicht freigelassen werden. Versuche es erneut."
+golem_release_active_unloaded = "Golem {id} von {player} ist aktiv, aber nicht geladen. Lade seinen Chunk, um ihn freizulassen, oder lass ihn frei, sobald er als vermisst gilt."
+golems_woken = "Die geladenen Golems von {player} werden aufgeweckt: {count}."
 
 [language.menu]
 your_language = "Ihre Sprache"
@@ -6709,6 +7425,29 @@ purple = "Purple"
 always = "Always"
 sneak = "Sneak to activate"
 suppress = "Sneak to suppress"
+
+[golemancy.preferences]
+absorb_orbs = "Erfahrungskugeln aufnehmen"
+action_bar_only = "Nur Aktionsleiste"
+any_item = "Jeder Golemantie-Gegenstand"
+aura = "Aura"
+chime_and_particles = "Glockenton und Partikel"
+crook_only = "Nur der Stab"
+hidden = "Ausgeblendet"
+intercept = "Abfangen"
+leaf_sweep = "Laubräumen"
+magnet = "Magnet"
+node_reveal = "Knotenanzeige"
+obey_overseer = "Diener gehorchen dem Aufseher"
+retaliate_players = "Vergeltung gegen Spieler"
+shown = "Angezeigt"
+signal_feedback = "Signalrückmeldung"
+static_overdrive = "Statische Überladung"
+status_labels = "Golem-Statusanzeigen"
+sweeping_fists = "Rundumschläge"
+tending = "Pflege"
+tilling = "Bestellen"
+work_area_outline = "Umriss des Arbeitsbereichs"
 
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"

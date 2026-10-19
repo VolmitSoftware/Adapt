@@ -23,14 +23,17 @@ FFMPEG: Path = Path('/tools/ffmpeg')
 class CaptureStudio:
     def __init__(self, replays: Path) -> None:
         self.rcon: mock.MagicMock = mock.MagicMock()
-        self.rcon.command.return_value = ('ADAPT_QA DEMO SET arena {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":180.0,"pitch":0.0},'
-                                          '"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0}}')
+        set_reply: str = ('ADAPT_QA DEMO SET arena {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":180.0,"pitch":0.0},'
+                          '"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0}}')
+        claim_reply: str = '\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70Set Magic_Psycho rift-enderchest to level 3.'
+        replies: dict[str, str] = {'adapt claim-adaptation': claim_reply, 'adaptqa demo near': 'ADAPT_QA DEMO NEAR nearest=none'}
+        self.rcon.command.side_effect = lambda text: next((reply for prefix, reply in replies.items() if text.startswith(prefix)), set_reply)
         self.bridge: mock.MagicMock = mock.MagicMock()
         self.bridge.state.side_effect = self.state
         self.bridge.command.side_effect = self.command
         self.game: Path = replays.parent.parent
         self.origin: tuple[float, float, float] = (0.0, 64.0, 0.0)
-        self.actor: str = 'AQAClient262'
+        self.actor: str = 'Magic_Psycho'
         self.opponent: str = 'AQAOpponent'
         self.opponent_bridge: mock.MagicMock | None = None
         self.replays: Path = replays

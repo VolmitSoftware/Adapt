@@ -22,7 +22,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.bukkit.Material;
 import org.bukkit.Tag;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.RecipeChoice;
 
 @AllArgsConstructor
@@ -39,10 +38,5 @@ public class MaterialChar {
   public MaterialChar(char character, Material... material) {
     this.character = character;
     this.choice = new RecipeChoice.MaterialChoice(material);
-  }
-
-  public MaterialChar(char character, ItemStack... itemStack) {
-    this.character = character;
-    this.choice = new RecipeChoice.ExactChoice(itemStack);
   }
 }

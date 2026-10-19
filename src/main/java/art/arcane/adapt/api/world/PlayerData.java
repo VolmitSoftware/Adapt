@@ -25,6 +25,9 @@ import art.arcane.adapt.localization.catalog.RuntimeMessages;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
+import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.adaptation.AdaptationRequirements;
+import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.notification.ActionBarNotification;
 import art.arcane.adapt.api.notification.Notification;
 import art.arcane.adapt.api.notification.SoundNotification;
@@ -53,6 +56,7 @@ import org.bukkit.World;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -127,6 +131,7 @@ public class PlayerData {
   private String inspiredSkill = "";
   private long inspiredAssignedAt = 0;
   private PlayerPreferenceData preferences = new PlayerPreferenceData();
+  private GolemRoster golemancy = new GolemRoster();
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private transient volatile int regionPowerBonus;
@@ -158,6 +163,9 @@ public class PlayerData {
       return null;
     }
     data.normalizeInspiredAssignment();
+    if (data.golemancy == null) {
+      data.golemancy = new GolemRoster();
+    }
     data.removeRetiredAxesContent();
     data.removeRetiredDowsingContent();
     data.removeRetiredRiftStepContent();
@@ -282,25 +290,25 @@ public class PlayerData {
       if (playSounds) {
         notifications.add(SoundNotification.builder()
             .sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE)
-            .volume(1f)
+            .volume(0.5f)
             .pitch(0.54f)
             .group("lvl")
             .build());
         notifications.add(SoundNotification.builder()
             .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-            .volume(1f)
+            .volume(0.5f)
             .pitch(0.44f)
             .group("lvl")
             .build());
         notifications.add(SoundNotification.builder()
             .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-            .volume(1f)
+            .volume(0.5f)
             .pitch(0.74f)
             .group("lvl")
             .build());
         notifications.add(SoundNotification.builder()
             .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-            .volume(1f)
+            .volume(0.5f)
             .pitch(1.34f)
             .group("lvl")
             .build());
@@ -770,43 +778,67 @@ public class PlayerData {
       return;
     }
 
+    AdaptationRequirements.forfeitLevels(trimToPowerBudget(), this, ownerName());
+  }
+
+  private List<AdaptationRequirements.Lowering> trimToPowerBudget() {
     int usedPower = getUsedPower();
     int maxPower = getMaxPower();
+    Map<String, AdaptationRequirements.Lowering> lowered = new LinkedHashMap<>();
 
     while (usedPower > maxPower) {
-      String worstSkill = null;
-      String worstAdaptation = null;
-      int worstLevel = Integer.MAX_VALUE;
-
-      for (java.util.Map.Entry<java.lang.String, art.arcane.adapt.api.world.PlayerSkillLine> skillEntry : skillLines.entrySet()) {
-        for (java.util.Map.Entry<java.lang.String, art.arcane.adapt.api.world.PlayerAdaptation> adaptEntry : skillEntry.getValue().getAdaptations().entrySet()) {
-          if (adaptEntry.getValue().isRegionGranted()) {
-            continue;
-          }
-
-          int level = adaptEntry.getValue().getLevel();
-          if (level > 0 && level < worstLevel) {
-            worstLevel = level;
-            worstSkill = skillEntry.getKey();
-            worstAdaptation = adaptEntry.getKey();
-          }
-        }
-      }
-
-      if (worstSkill == null) {
+      TrimCandidate candidate = nextTrimCandidate();
+      if (candidate == null) {
         break;
       }
 
-      PlayerAdaptation adapt = skillLines.get(worstSkill).getAdaptations().get(worstAdaptation);
-      if (adapt.getLevel() <= 1) {
-        skillLines.get(worstSkill).getAdaptations().remove(worstAdaptation);
-        usedPower -= 1;
-      } else {
-        adapt.setLevel(adapt.getLevel() - 1);
-        usedPower -= 1;
+      PlayerAdaptation stored = candidate.stored();
+      if (candidate.adaptation() != null) {
+        lowered.putIfAbsent(
+            candidate.skill() + ":" + candidate.adaptationId(),
+            new AdaptationRequirements.Lowering(candidate.adaptation(), stored.getLevel())
+        );
       }
+      if (stored.getLevel() <= 1) {
+        skillLines.get(candidate.skill()).getAdaptations().remove(candidate.adaptationId());
+      } else {
+        stored.setLevel(stored.getLevel() - 1);
+      }
+      usedPower -= 1;
     }
     refreshLearnedIndex();
+    return List.copyOf(lowered.values());
+  }
+
+  private TrimCandidate nextTrimCandidate() {
+    TrimCandidate lowest = null;
+    TrimCandidate lowestFree = null;
+    for (Map.Entry<String, PlayerSkillLine> skillEntry : skillLines.entrySet()) {
+      for (Map.Entry<String, PlayerAdaptation> adaptEntry : skillEntry.getValue().getAdaptations().entrySet()) {
+        PlayerAdaptation stored = adaptEntry.getValue();
+        if (stored.isRegionGranted() || stored.getLevel() <= 0) {
+          continue;
+        }
+
+        Adaptation<?> adaptation = AdaptationRequirements.find(adaptEntry.getKey());
+        TrimCandidate candidate = new TrimCandidate(skillEntry.getKey(), adaptEntry.getKey(), stored, adaptation);
+        if (lowest == null || stored.getLevel() < lowest.stored().getLevel()) {
+          lowest = candidate;
+        }
+        boolean needed = adaptation != null
+            && !AdaptationRequirements.dependents(adaptation, this, stored.getLevel() - 1).isEmpty();
+        if (!needed && (lowestFree == null || stored.getLevel() < lowestFree.stored().getLevel())) {
+          lowestFree = candidate;
+        }
+      }
+    }
+    return lowestFree == null ? lowest : lowestFree;
+  }
+
+  private String ownerName() {
+    AdaptPlayer owner = runtimeOwner;
+    Player player = owner == null ? null : owner.getPlayer();
+    return player == null ? "an offline player" : player.getName();
   }
 
   private void refreshLearnedIndex() {
@@ -866,6 +898,9 @@ public class PlayerData {
       }
       return Json.toJson(this, !raw);
     }
+  }
+
+  private record TrimCandidate(String skill, String adaptationId, PlayerAdaptation stored, Adaptation<?> adaptation) {
   }
 
   private record MasterLevelCache(long xpBits, Curves curve, int maximumLevel, double level) {

@@ -3053,6 +3053,70 @@ description = "Muuta liike voimaksi."
 title = "Newtonin kuitti"
 description = "Tappaa mobi oman putoava alasin putosi 8 tai enemmän lohkoja."
 
+[advancement.challenge_golemancy_built_10]
+title = "Savea ja kipinä"
+description = "Rakenna 10 golemia"
+
+[advancement.challenge_golemancy_built_100]
+title = "Jättiläisten valimo"
+description = "Rakenna 100 golemia"
+
+[advancement.challenge_golemancy_bound_5]
+title = "Pieni seurue"
+description = "Sido 5 golemia"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Animuslegioona"
+description = "Sido 25 golemia"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Kivivartijat"
+description = "Sidotut golemisi surmaavat 50 vihamielistä olentoa"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Elävä muuri"
+description = "Sidotut golemisi surmaavat 500 vihamielistä olentoa"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Murtumaton joukko"
+description = "Sidotut golemisi surmaavat 5 000 vihamielistä olentoa"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Talven palvelija"
+description = "Sido huurregolemi"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Vaskiviheriän side"
+description = "Sido kuparigolemi"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Rautainen vala"
+description = "Sido rautagolemi"
+
+[advancement.challenge_golemancy_tasks_1000]
+title = "Ahkerat kädet"
+description = "Golemisi suorittavat 1 000 työtä"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "Väsymätön paja"
+description = "Golemisi suorittavat 25 000 työtä"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "Vakaat kantajat"
+description = "Golemisi toimittavat 10 000 esinettä"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "Loputon karavaani"
+description = "Golemisi toimittavat 250 000 esinettä"
+
+[advancement.challenge_golemancy_infusions_10]
+title = "Jalustan oppipoika"
+description = "Suorita 10 infuusiota animusjalustalla"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Infuusion mestari"
+description = "Suorita 100 infuusiota animusjalustalla"
+
 [agility.armor_up]
 name = "Panssarointi"
 description = "Saat enemmän panssaria mitä pidempään juokset!"
@@ -4240,6 +4304,631 @@ lore1 = "Bonus- mahdollisuus pudotetaan"
 lore2 = "x Kiirettä kaivaessa märkää"
 lore = ["Bonus- mahdollisuus pudotetaan", "x Kiirettä kaivaessa märkää"]
 
+[golemancy.item.crook]
+name = "Artefaktisepän sauva"
+lore = "Komentaa sidottuja golemeja ja solmuja, joilla ne työskentelevät"
+
+[golemancy.item.blank_core]
+name = "Tyhjä animusydin"
+lore = "Sitoo golemin seuralaiseksi tai valmistetaan rooliytimeksi"
+
+[golemancy.item.core]
+name = "Ydin: {role}"
+lore = "Sitoo golemin rooliin {role}"
+
+[golemancy.item.blank_node]
+name = "Tyhjä solmu"
+lore = "Valmistetaan minkä tahansa tyyppiseksi solmuksi"
+
+[golemancy.item.node]
+name = "Solmu: {node}"
+lore = "Kiinnittyy palikan pintaan ja ohjaa golemien työtä"
+
+[golemancy.item.blank_rune]
+name = "Tyhjä riimu"
+lore = "Infusoidaan riimuksi animusjalustalla"
+
+[golemancy.item.rune]
+name = "Riimu: {aspect}"
+tier = "Taso {tier}"
+lore = "Asetetaan golemiin sen vahvistamiseksi"
+
+[golemancy.item.dormant_golem]
+name = "Uinuva golem"
+core = "Ydin: {core}"
+runes = "Riimut: {runes}"
+health = "Terveys: {health}/{maximum}"
+lore = "Aseta herättääksesi tämän golemin"
+
+[golemancy.item.shattered_core]
+name = "Särkynyt ydin"
+lore = "Rakentaa kaatuneen golemin uudelleen sen parannuksineen"
+
+[golemancy.item.masterwork_heart]
+name = "Mestariteoksen sydän"
+lore = "Merkitsee mestariteosgolemin"
+
+[golemancy.role]
+blank = "Seuralainen"
+guardian = "Vartija"
+gatherer = "Keräilijä"
+harvester = "Sadonkorjaaja"
+lumber = "Metsuri"
+breaker = "Murtaja"
+rancher = "Karjanhoitaja"
+sorter = "Lajittelija"
+angler = "Kalastaja"
+
+[golemancy.node]
+guard = "Vartio"
+collection = "Keräys"
+deposit = "Talletus"
+harvest = "Sadonkorjuu"
+lumber = "Puunkaato"
+breaker = "Louhinta"
+pasture = "Laidun"
+input = "Syöte"
+filter = "Suodatin"
+fishing = "Kalastus"
+
+[golemancy.aspect]
+swiftness = "Nopeus"
+might = "Mahti"
+ember = "Hiillos"
+tide = "Vuorovesi"
+order = "Järjestys"
+entropy = "Entropia"
+bulwark = "Suojavalli"
+
+[golemancy.body]
+frost = "Huurre"
+copper = "Kupari"
+iron = "Rauta"
+bone = "Luu"
+
+[golemancy.golem]
+name = "{body}golemi ({owner})"
+
+[golemancy.mode]
+work = "Työ"
+follow = "Seuraa"
+stay = "Pysy"
+home = "Kotiin"
+
+[golemancy.signal]
+follow = "Seuraa"
+hold = "Pidä paikka"
+home = "Kotiin"
+work = "Työ"
+sic = "Hyökkää"
+
+[golemancy.channel]
+none = "Ei mitään"
+white = "Valkoinen"
+orange = "Oranssi"
+magenta = "Magenta"
+light_blue = "Vaaleansininen"
+yellow = "Keltainen"
+lime = "Limetinvihreä"
+pink = "Vaaleanpunainen"
+gray = "Harmaa"
+light_gray = "Vaaleanharmaa"
+cyan = "Syaani"
+purple = "Violetti"
+blue = "Sininen"
+brown = "Ruskea"
+green = "Vihreä"
+red = "Punainen"
+black = "Musta"
+
+[golemancy.status]
+active = "Aktiivinen"
+packed = "Pakattu"
+shattered = "Murskattu"
+missing = "Kadonnut"
+
+[golemancy.gui]
+title = "{body}golemi"
+health = "Terveys: {health}/{maximum}"
+dormant = "Uinuva"
+mode = "Tila: {mode}"
+channel = "Kanava: {channel}"
+cycle = "Vasen napsautus: seuraava, oikea napsautus: edellinen"
+set_home = "Aseta koti tähän"
+home = "Koti: {x}, {y}, {z}"
+link_chest = "Yhdistä kotiarkku"
+home_chest = "Kotiarkku: {x}, {y}, {z}"
+no_home_chest = "Kotiarkkua ei ole yhdistetty"
+link_hint = "Napsauta ja napsauta sitten säiliötä hiiren oikealla sauvalla"
+rune_locked = "Lukittu riimupaikka"
+rune_unlock_level = "Avautuu Riimuvahvistusten tasolla {level}"
+rune_empty = "Tyhjä riimupaikka"
+rune_empty_lore = "Poimi riimu ja aseta se napsauttamalla tästä"
+rune_remove = "Ota tämä riimu takaisin napsauttamalla"
+rune_active = "Aktiivinen"
+rune_over_tier = "Toimeton: taso {tier} vaatii Riimuvahvistusten tason {level}"
+rune_slot_locked = "Toimeton: tämä paikka vaatii Riimuvahvistusten tason {level}"
+rune_blocked = "Toimeton: {aspect}-riimut eivät toimi {body}golemissa"
+rune_duplicate = "Toimeton: tällä golemilla on jo {aspect}-riimu"
+rune_unpowered = "Toimeton: Riimuvahvistuksesi eivät riitä tälle riimulle"
+channels = "Kanavat: {channels}"
+channels_lore = "Valitse enintään {count} kanavaa napsauttamalla"
+channels_title = "Valitse kanavat"
+channel_selected = "Valittu"
+channel_select = "Valitse napsauttamalla"
+channels_clear = "Tyhjennä kanavat"
+back = "Takaisin"
+take = "Ota napsauttamalla"
+more_carried = "+{count} lisää"
+stats = "Tilastot"
+kills = "Tappoja: {value}"
+damage = "Aiheutettu vahinko: {value}"
+tasks = "Suoritettuja tehtäviä: {value}"
+items_moved = "Siirrettyjä esineitä: {value}"
+release = "Vapauta"
+release_lore = "Palauttaa sen tavalliseksi golemiksi ja pudottaa sen ytimen, riimut, kannetut esineet sekä mahdollisen toisen ytimen ja Mestariteoksen sydämen"
+release_confirm = "Vapautetaanko tämä golemi?"
+snow_trail_on = "Lumijälki: päällä"
+snow_trail_off = "Lumijälki: pois"
+snow_trail_lore = "Napsauta vaihtaaksesi lumen, jonka tämä golemi jättää jälkeensä"
+colossus_on = "Kolossimuoto: päällä"
+colossus_off = "Kolossimuoto: pois"
+colossus_lore = "Napsauta vaihtaaksesi täyden koon taistelua varten; kasvanut golemi ei tee töitä"
+pack = "Pakkaa"
+pack_lore = "Tiivistää tämän golemin Uinuva golem -kuutioksi, jonka voit asettaa herättääksesi sen"
+
+[golemancy.roster]
+title = "Golemiluettelo"
+empty = "Sinulla ei ole golemeja"
+entry = "{body}golemi ({core})"
+location = "{world}: {x}, {y}, {z}"
+last_seen = "Nähty viimeksi maailmassa {world} lähellä {x}, {z}"
+status = "Tila: {status}"
+locate = "Paikanna vasemmalla napsautuksella"
+release = "Vapauta Shift + oikealla napsautuksella"
+release_confirm = "Vapautetaanko tämä kadonnut golemi lopullisesti?"
+release_shattered_confirm = "Vapautetaanko tämä särkynyt golemi lopullisesti? Sen Särkynyt ydin murenee."
+release_packed_confirm = "Vapautetaanko tämä pakattu golemi lopullisesti? Sen Uinuva golem murenee."
+recall = "Kutsu se takaisin tavaraluetteloosi oikealla napsautuksella"
+crook_channel = "Sauvan kanava: {channel}"
+crook_channel_lore = "Napsauta valitaksesi, mille golemeille sauvasi antaa merkkejä"
+crook_channel_title = "Sauvan kanava"
+crook_channel_all = "Kaikki golemit"
+
+[golemancy.message]
+home_set = "Koti asetettu kohtaan {x}, {y}, {z}"
+link_armed = "Napsauta säiliötä hiiren oikealla sauvalla yhdistääksesi sen"
+chest_linked = "Kotiarkku yhdistetty kohtaan {x}, {y}, {z}"
+chest_denied = "Tämä säiliö on suojattu"
+chest_out_of_reach = "Säiliön on oltava enintään {radius} kuution päässä golemin kodista"
+released = "Golemi vapautettu"
+release_failed = "Tätä golemia ei voi vapauttaa juuri nyt"
+gone = "Tämä golemi ei ole enää täällä"
+colossus_no_room = "Täällä ei ole tarpeeksi tilaa tämän golemin kasvaa"
+colossus_busy = "Tämä golemi muuttaa vielä kokoaan"
+rune_slotted = "{aspect}-riimu asetettu"
+rune_removed = "{aspect}-riimu otettu takaisin"
+rune_needed = "Poimi ensin riimu"
+rune_no_slot = "Tällä golemilla ei ole vapaata riimupaikkaa"
+rune_duplicate = "Tällä golemilla on jo {aspect}-riimu"
+rune_blocked = "{aspect}-riimut eivät toimi {body}golemissa"
+channels_full = "Tämä golemi voi käyttää vain {count} kanavaa"
+crook_channel = "Sauvasi antaa nyt merkkejä kanavalle: {channel}"
+crook_needed = "Pidä sauvaa pääkädessäsi asettaaksesi sen kanavan"
+
+[golemancy.binding]
+busy = "Sidontariitti on jo käynnissä"
+already_bound = "Tämä golemi on jo sidottu"
+village = "Vain pelaajien rakentamia golemeja voi sitoa"
+builder = "Vain tämän golemin rakentaja voi sitoa sen juuri nyt"
+body_locked = "Et voi vielä sitoa {body}golemeja"
+core_not_allowed = "{body}golemi ei voi ottaa ydintä: {core}"
+core_locked = "Et ole vielä oppinut sitomaan ytimiä: {core}"
+protected = "Et voi sitoa golemeja täällä"
+unavailable = "Golemiluettelosi ei ole vielä valmis"
+golem_cap = "Omistat jo enimmäismäärän, {count} golemia"
+chunk_cap = "Tällä alueella on jo {count} sidottua golemia"
+levels = "Tämän golemin sitominen maksaa {levels} tasoa"
+interrupted = "Sidonta keskeytyi"
+bound = "{body}golemisi on nyt sidottu sinuun"
+
+[golemancy.animus_binding]
+name = "Animussidonta"
+description = "Hiivi ja napsauta golemia oikealla animusydin kädessäsi sitoaksesi sen seuralaiseksesi."
+lore1 = "Golemit, jotka voit omistaa"
+lore2 = "Sekuntia sidontariittiin"
+lore3 = "Tasoja huurregolemin sitomiseen"
+lore4 = "Tasoja kuparigolemin sitomiseen"
+lore5 = "Tasoja rautagolemin sitomiseen"
+lore = ["Golemit, jotka voit omistaa", "Sekuntia sidontariittiin", "Tasoja huurregolemin sitomiseen", "Tasoja kuparigolemin sitomiseen", "Tasoja rautagolemin sitomiseen"]
+
+[golemancy.frost_frame]
+name = "Huurrerunko"
+description = "Vahvistaa sidottuja huurregolemeitasi lisäterveydellä, vahingoittavilla lumipalloilla ja suojalla sateelta ja kuumuudelta."
+lore1 = "Lisäterveys huurregolemeille"
+lore2 = "Lumipallon vahinko"
+lore3 = "Vahinko lämpimissä biomeissa"
+lore4 = "Immuuni sateelle ja vedelle"
+lore5 = "Sekuntia hitautta osumasta"
+lore6 = "Mahdollisuus ylimääräiseen lumipalloon"
+lore7 = "Lumipallo-osumat kohteen jäädyttämiseen"
+lore = ["Lisäterveys huurregolemeille", "Lumipallon vahinko", "Vahinko lämpimissä biomeissa", "Immuuni sateelle ja vedelle", "Sekuntia hitautta osumasta", "Mahdollisuus ylimääräiseen lumipalloon", "Lumipallo-osumat kohteen jäädyttämiseen"]
+
+[golemancy.copper_frame]
+name = "Kuparirunko"
+description = "Antaa sinun sitoa kuparigolemeita ja vahvistaa niitä lisäterveydellä, kantokyvyllä ja nopeudella sekä patinasta saatavalla panssarilla."
+lore1 = "Lisäterveys kuparigolemeille"
+lore2 = "Kantokyky esineinä"
+lore3 = "Liikkumisnopeus"
+lore4 = "Ei koskaan muutu patsaaksi"
+lore5 = "Panssaria patinavaihetta kohden"
+lore6 = "Nopeuden menetys patinavaihetta kohden"
+lore7 = "Sekuntia Nopeus II -tehostetta läheisestä salamasta"
+lore = ["Lisäterveys kuparigolemeille", "Kantokyky esineinä", "Liikkumisnopeus", "Ei koskaan muutu patsaaksi", "Panssaria patinavaihetta kohden", "Nopeuden menetys patinavaihetta kohden", "Sekuntia Nopeus II -tehostetta läheisestä salamasta"]
+
+[golemancy.iron_frame]
+name = "Rautarunko"
+description = "Antaa sinun sitoa rautagolemeita ja vahvistaa niitä lisäterveydellä, panssarilla ja hyökkäyksellä, tehokkaammilla harkkokorjauksilla, pyyhkäisyiskuilla ja täysikokoisella Kolossimuodolla."
+lore1 = "Lisäterveys rautagolemeille"
+lore2 = "Lisäpanssari rautagolemeille"
+lore3 = "Lisähyökkäysvahinko rautagolemeille"
+lore4 = "Lisäterveys rautaharkkokorjausta kohden"
+lore5 = "Ylimääräiset viholliset, joihin isku osuu"
+lore6 = "Hyökkäysvahinko Kolossimuodossa"
+lore = ["Lisäterveys rautagolemeille", "Lisäpanssari rautagolemeille", "Lisähyökkäysvahinko rautagolemeille", "Lisäterveys rautaharkkokorjausta kohden", "Ylimääräiset viholliset, joihin isku osuu", "Hyökkäysvahinko Kolossimuodossa"]
+
+[golemancy.bone_frame]
+name = "Luurunko"
+description = "Tuo Tragoulin luustopalvelijasi golemantiaan: ne totelevat sauvasi merkkejä, hehkuvat palvelijakanavasi värissä vain sinulle näkyvien tilamerkintöjen kanssa, kantavat riimuista tehtyä Luuristikkoa ja antavat tapoistaan Golemantia-XP:tä."
+lore1 = "Palvelijat totelevat sauvan merkkejä ja näyttävät tilamerkinnät"
+lore2 = "Luuristikon riimupaikat"
+lore3 = "Golemantia-XP:tä palvelijoiden tapoista"
+lore = ["Palvelijat totelevat sauvan merkkejä ja näyttävät tilamerkinnät", "Luuristikon riimupaikat", "Golemantia-XP:tä palvelijoiden tapoista"]
+lattice = "Luuristikko"
+lattice_lore = "Valitse palvelijoidesi riimut ja kanava napsauttamalla"
+slot_empty = "Tyhjä ristikkopaikka"
+slot_empty_lore = "Poimi riimu ({aspects}) ja napsauta tästä"
+slot_locked = "Lukittu ristikkopaikka"
+slot_unlock_level = "Avautuu Luurungon tasolla {level}"
+slot_inert = "Toimeton: tämä paikka vaatii Luurungon tason {level}"
+rune_tier = "Toimii palvelijoillasi tasolla {tier}"
+channel = "Palvelijakanava: {channel}"
+channel_set = "Palvelijasi käyttävät nyt kanavaa {channel}"
+refused_aspect = "{aspect}-riimut eivät sovi Luuristikkoon"
+duplicate = "Luuristikossasi on jo {aspect}-riimu"
+no_slot = "Luuristikossasi ei ole vapaata paikkaa"
+time_left = "{seconds} s jäljellä"
+
+[golemancy.guardian_core]
+name = "Vartijaydin"
+description = "Vartijaytimellä sidotut golemit puolustavat kotiaan, sinua tai vartiosolmun aluetta ja suojaavat sinua sitä paremmin, mitä vahvemmaksi ydin kasvaa."
+lore1 = "Vartiosäde palikoina"
+lore2 = "Sieppaus: sinua jahtaavat olennot kääntyvät vartijoidesi kimppuun"
+lore3 = "Kosto: vartijat hyökkäävät sen kimppuun, joka satutti sinua"
+lore4 = "Vähemmän vahinkoa vartijoidesi lähellä"
+lore5 = "Sekuntia Vastustuskyky-tehostetta viimeisestä puolustuksesta"
+lore = ["Vartiosäde palikoina", "Sieppaus: sinua jahtaavat olennot kääntyvät vartijoidesi kimppuun", "Kosto: vartijat hyökkäävät sen kimppuun, joka satutti sinua", "Vähemmän vahinkoa vartijoidesi lähellä", "Sekuntia Vastustuskyky-tehostetta viimeisestä puolustuksesta"]
+
+[golemancy.gatherer_core]
+name = "Keräilijäydin"
+description = "Keräilijäytimellä sidotut golemit poimivat pudonneet esineet kotinsa tai keräyssolmun ympäriltä ja toimittavat ne perille, ja ytimen vahvistuessa ne varastoivat kokemuspalloja esanssiksi."
+lore1 = "Poimintasäde palikoina"
+lore2 = "Kokemuspistettä esanssivarastoa"
+lore3 = "Palikan esinemagneetti"
+lore4 = "Palikan välitön poiminta"
+lore5 = "Kantokyky"
+lore = ["Poimintasäde palikoina", "Kokemuspistettä esanssivarastoa", "Palikan esinemagneetti", "Palikan välitön poiminta", "Kantokyky"]
+essence = "Esanssi: {value} kokemuspistettä"
+essence_lore = "Ota varastoitu kokemus napsauttamalla"
+essence_taken = "Otit {value} kokemuspistettä esanssia"
+essence_empty = "Tällä golemilla ei ole varastoitua esanssia"
+
+[golemancy.harvester_core]
+name = "Sadonkorjaajaydin"
+description = "Sadonkorjaajaytimellä sidotut golemit korjaavat ja istuttavat uudelleen kypsät kasvit sadonkorjuusolmun alueella sekä hoitavat ja muokkaavat peltoa sitä paremmin, mitä vahvemmaksi ydin kasvaa."
+lore1 = "Kasveja korjuutoimintoa kohden"
+lore2 = "Sekuntia korjuutoimintoa kohden"
+lore3 = "Korjaa melonit, kurpitsat, sokeriruo'on, bambun ja kaktukset"
+lore4 = "Hoito: luujauhoa kotiarkusta nuorille kasveille"
+lore5 = "Muokkaus: kyntää mullan uudelleen ja kylvää tyhjän peltomaan"
+lore6 = "Mahdollisuus ylimääräiseen saalisheittoon"
+lore = ["Kasveja korjuutoimintoa kohden", "Sekuntia korjuutoimintoa kohden", "Korjaa melonit, kurpitsat, sokeriruo'on, bambun ja kaktukset", "Hoito: luujauhoa kotiarkusta nuorille kasveille", "Muokkaus: kyntää mullan uudelleen ja kylvää tyhjän peltomaan", "Mahdollisuus ylimääräiseen saalisheittoon"]
+
+[golemancy.lumber_core]
+name = "Metsuriydin"
+description = "Metsuriytimellä sidotut golemit kaatavat luonnolliset puut puunkaatosolmun alueella ylhäältä alas ja keräävät rungot, ja ne istuttavat uudelleen, lakaisevat lehtiä ja kaatavat suurempia puita sitä mukaa kuin ydin vahvistuu."
+lore1 = "Kaadettuja runkoja sekunnissa"
+lore2 = "Runkoja puuta kohden kuparigolemeille"
+lore3 = "Runkoja puuta kohden rautagolemeille"
+lore4 = "Istuttaa taimet uudelleen kaadon jälkeen"
+lore5 = "Lehtien lakaisu: rikkoo irralliset lehdet ja kerää niiden pudotukset"
+lore6 = "Kaataa 2x2-jättipuita"
+lore7 = "Kaataa karmiini- ja vääristyneet sienet ja istuttaa sieniä uudelleen"
+lore = ["Kaadettuja runkoja sekunnissa", "Runkoja puuta kohden kuparigolemeille", "Runkoja puuta kohden rautagolemeille", "Istuttaa taimet uudelleen kaadon jälkeen", "Lehtien lakaisu: rikkoo irralliset lehdet ja kerää niiden pudotukset", "Kaataa 2x2-jättipuita", "Kaataa karmiini- ja vääristyneet sienet ja istuttaa sieniä uudelleen"]
+
+[golemancy.breaker_core]
+name = "Murtajaydin"
+description = "Murtajaytimellä sidotut golemit rikkovat louhintasolmun alueelta ne kuutiot, jotka sen suodatin luettelee, ja kantavat pudotukset mukanaan. Mitä vahvemmaksi ydin kasvaa, sitä kovempia kuutioita ne louhivat paremmilla hakuilla."
+lore1 = "Kuution enimmäiskovuus"
+lore2 = "Sekuntia kuutiota kohden"
+lore3 = "Louhintatyökalu"
+lore4 = "Silkkikosketuksen kytkin louhintasolmuissa"
+lore5 = "Onni I -kytkin louhintasolmuissa"
+lore = ["Kuution enimmäiskovuus", "Sekuntia kuutiota kohden", "Louhintatyökalu", "Silkkikosketuksen kytkin louhintasolmuissa", "Onni I -kytkin louhintasolmuissa"]
+filter_ready = "Rikkoo suodattimen kuutiot"
+filter_needed = "Lisää kuutioita sallittujen listaan"
+filter_lore = "Murtajat rikkovat vain kuutioita, jotka sallittujen lista luettelee"
+silk_on = "Silkkikosketus: päällä"
+silk_off = "Silkkikosketus: pois"
+fortune_on = "Onni I: päällä"
+fortune_off = "Onni I: pois"
+locked = "Avautuu Murtajaytimen tasolla {level}"
+exclusive = "Silkkikosketus ja Onni I kytkevät toisensa pois"
+
+[golemancy.rancher_core]
+name = "Karjanhoitajaydin"
+description = "Karjanhoitajaytimellä sidotut golemit hoitavat Laidun-solmun alueen eläimiä: ne kasvattavat pareja solmun pitomäärään asti, ja ytimen vahvistuessa ne keritsevät lampaita, lypsävät lehmiä ja vuohia ja teurastavat ylimääräiset aikuiset."
+lore1 = "Kasvattaa pareja Laidun-solmun pitomäärään asti"
+lore2 = "Keritsee lampaita"
+lore3 = "Lypsää lehmiä, vuohia ja sienilehmiä kotiarkun ämpäreillä tai kulhoilla"
+lore4 = "Teurastaa pitomäärän ylittävät aikuiset (vain rautagolemit)"
+lore5 = "Lyhyempi lisääntymisen odotusaika"
+lore6 = "Ylimääräinen saalisheitto teurastusta kohden"
+lore = ["Kasvattaa pareja Laidun-solmun pitomäärään asti", "Keritsee lampaita", "Lypsää lehmiä, vuohia ja sienilehmiä kotiarkun ämpäreillä tai kulhoilla", "Teurastaa pitomäärän ylittävät aikuiset (vain rautagolemit)", "Lyhyempi lisääntymisen odotusaika", "Ylimääräinen saalisheitto teurastusta kohden"]
+species = "Laji: {species}"
+species_all = "Kaikki eläimet"
+species_lore = "Vasen napsautus seuraavaan lajiin, oikea edelliseen"
+keep = "Pitomäärä: {count} lajia kohden"
+keep_lore = "Vasen napsautus nostaa, oikea laskee"
+breed_on = "Kasvatus: päällä"
+breed_off = "Kasvatus: pois"
+shear_on = "Keritseminen: päällä"
+shear_off = "Keritseminen: pois"
+milk_on = "Lypsäminen: päällä"
+milk_off = "Lypsäminen: pois"
+cull_on = "Teurastus: päällä"
+cull_off = "Teurastus: pois"
+locked = "Avautuu Karjanhoitajaytimen tasolla {level}"
+iron_only = "Vain rautagolemit teurastavat"
+
+[golemancy.sorter_core]
+name = "Lajittelijaydin"
+description = "Lajittelijaytimellä sidotut kuparigolemit tyhjentävät syötesolmun alla olevan säiliön lähellä oleviin säiliöihin, joissa kutakin esinettä jo on, ja oppivat esineryhmät, suodatinsolmut, täydentämisen ja noutamisen ytimen vahvistuessa."
+lore1 = "Kohdesäde palikoina"
+lore2 = "Pinoa kierrosta kohden"
+lore3 = "Lajittelee esineryhmien mukaan"
+lore4 = "Suodatinsolmut ja ylivuoto"
+lore5 = "Erottaa lumoukset ja juomat"
+lore6 = "Siirtää shulker-laatikoita"
+lore7 = "Täydennysmäärät suodatinsolmuihin"
+lore8 = "Säiliöiden sisällön hakemisto"
+lore9 = "Nouto syötesolmun valikosta"
+lore = ["Kohdesäde palikoina", "Pinoa kierrosta kohden", "Lajittelee esineryhmien mukaan", "Suodatinsolmut ja ylivuoto", "Erottaa lumoukset ja juomat", "Siirtää shulker-laatikoita", "Täydennysmäärät suodatinsolmuihin", "Säiliöiden sisällön hakemisto", "Nouto syötesolmun valikosta"]
+match_exact = "Vertailu: sama esine"
+match_groups = "Vertailu: esineryhmät"
+match_precise = "Vertailu: lumoukset ja juomat"
+match_lore = "Miten lajittelija päättää, missä säiliössä esinettä jo on"
+radius = "Kohdesäde: {radius}"
+radius_lore = "Enintään {radius} palikkaa Lajittelijaytimesi tasolla"
+fetch = "Nouda esineitä"
+fetch_lore = "Valitse esineet, jotka lajittelija tuo sinulle"
+locked = "Avautuu Lajittelijaytimen tasolla {level}"
+overflow_on = "Ylivuoto: päällä"
+overflow_off = "Ylivuoto: pois"
+overflow_lore = "Ylivuoto ottaa esineet, joita mikään muu säiliö ei halua"
+restock = "Täydennys: {amount} kutakin suodattimen esinettä"
+restock_off = "Täydennys: pois"
+restock_lore = "Lajittelijat pitävät täällä näin monta kutakin luettelon esinettä"
+fetch_available = "Saatavilla: {count}"
+fetch_request = "Napsauta pyytääksesi {amount}"
+fetch_amount = "Pyydä {amount} kerrallaan"
+fetch_empty = "Tämän syötesolmun säiliöissä ei ole mitään"
+fetch_requested = "Lajittelija tuo {amount} {item}"
+fetch_delivered = "Lajittelija toi {amount} {item}"
+empty_filter = "Tyhjä suodatinsolmu ei ota mitään, ellei se ole ylivuoto"
+
+[golemancy.angler_core]
+name = "Kalastajaydin"
+description = "Kalastajaytimellä sidotut golemit kalastavat kalastussolmun edessä olevasta avovedestä ja kantavat saaliin mukanaan. Mitä vahvemmaksi ydin kasvaa, sitä enemmän niillä on onnea, ne suodattavat roinan pois, saavat saalista sateella nopeammin ja saavat tuplasaaliita."
+lore1 = "Sekuntia saalista kohden"
+lore2 = "Kalastusonni"
+lore3 = "Roinasuodattimen kytkin kalastussolmuissa"
+lore4 = "Lyhyempi saalisaika sateella"
+lore5 = "Mahdollisuus tuplasaaliiseen"
+lore = ["Sekuntia saalista kohden", "Kalastusonni", "Roinasuodattimen kytkin kalastussolmuissa", "Lyhyempi saalisaika sateella", "Mahdollisuus tuplasaaliiseen"]
+water_ready = "Avovesi löytyi"
+water_needed = "Tarvitsee avovettä"
+water_lore = "Kalastajat tarvitsevat solmun eteen 5 × 5 kuution avovesialueen"
+junk_keep = "Roina: säilytä"
+junk_discard = "Roina: heitä takaisin"
+locked = "Avautuu Kalastajaytimen tasolla {level}"
+
+[golemancy.runic_augments]
+name = "Riimuvahvistukset"
+description = "Antaa sinun infusoida riimuja Animusjalustalla ja asettaa ne sidottuihin golemeihisi nopeuden, kantokyvyn, tulen, ulottuvuuden, kanavien, saaliin ja panssarin vuoksi."
+lore1 = "Lisäriimupaikkoja golemia kohden"
+lore2 = "Korkein käytettävä riimutaso"
+lore3 = "Animusjalusta ja tyhjän riimun resepti"
+lore = ["Lisäriimupaikkoja golemia kohden", "Korkein käytettävä riimutaso", "Animusjalusta ja tyhjän riimun resepti"]
+
+[golemancy.overseer]
+name = "Valvoja"
+description = "Antaa sinun antaa sidotuille golemeillesi merkkejä Artefaktisepän sauvalla: seuraa, pidä paikka, mene kotiin tai tee työtä. Vahvistuessaan golemit hyökkäävät katsomasi kohteen kimppuun, kuuntelevat kanavia, kiiruhtavat luoksesi ja suojaavat sinua muodostelmassa."
+lore1 = "Merkkisäde palikoina"
+lore2 = "Hyökkää: taistelevat golemisi hyökkäävät katsomasi kohteen kimppuun"
+lore3 = "Sauvan kanavasuodatin, asetetaan golemiluettelossa"
+lore4 = "Kokoontuminen: Seuraa kutsuu kaukaiset golemit luoksesi"
+lore5 = "Suurin panssari muodostelman golemeista"
+lore = ["Merkkisäde palikoina", "Hyökkää: taistelevat golemisi hyökkäävät katsomasi kohteen kimppuun", "Sauvan kanavasuodatin, asetetaan golemiluettelossa", "Kokoontuminen: Seuraa kutsuu kaukaiset golemit luoksesi", "Suurin panssari muodostelman golemeista"]
+signal = "Merkki: {signal}"
+sent = "Lähetetty: {signal}"
+sent_channel = "Lähetetty: {signal} kanavalle {channel}"
+no_target = "Katso olentoa, jota saat hyökätä, enintään {range} palikan päässä lähettääksesi Hyökkää-merkin"
+
+[golemancy.mending]
+name = "Golemien korjaus"
+description = "Paranna golemeitasi kupariharkoilla, lumikuutioilla ja luujauholla, anna niiden toipua lähelläsi ja kotona, ja rakenna kaatuneet golemit uudelleen niiden Särkyneestä ytimestä."
+lore1 = "Lisäparannus korjauksista"
+lore2 = "Kupariharkot, lumikuutiot ja luujauho parantavat golemeitasi"
+lore3 = "Palautuva terveys lähelläsi"
+lore4 = "Palautuva terveys kotona joutilaana"
+lore5 = "Sekuntia palautumisten välillä"
+lore6 = "Särkynyt ydin: rakenna kaatuneet golemit uudelleen"
+lore7 = "Sekuntia Vastustuskykyä uudelleensyntyneille golemeille"
+lore8 = "Uudelleensyntyneet golemit säilyttävät kuparitilansa"
+lore = ["Lisäparannus korjauksista", "Kupariharkot, lumikuutiot ja luujauho parantavat golemeitasi", "Palautuva terveys lähelläsi", "Palautuva terveys kotona joutilaana", "Sekuntia palautumisten välillä", "Särkynyt ydin: rakenna kaatuneet golemit uudelleen", "Sekuntia Vastustuskykyä uudelleensyntyneille golemeille", "Uudelleensyntyneet golemit säilyttävät kuparitilansa"]
+full_health = "Tällä golemilla on jo täysi terveys"
+shattered = "{body}golemisi särkyi ja jätti jälkeensä Särkyneen ytimen"
+reborn = "{body}golemisi syntyi uudelleen"
+void = "Tämä Särkynyt ydin murenee: se ei enää sisällä golemiaan"
+not_owner = "Tämä Särkynyt ydin kuuluu toiselle pelaajalle"
+locked = "Golemin uudelleenrakentaminen vaatii Golemien korjauksen tason {level}"
+wrong_body = "Tämä Särkynyt ydin tarvitsee juuri rakennetun {body}golemin"
+unreadable = "Tämä Särkynyt ydin on vahingoittunut eikä voi rakentaa golemia uudelleen"
+
+[golemancy.stasis]
+name = "Staasi"
+description = "Pakkaa sidotut golemisi sauvalla Uinuva golem -kuutioiksi ja aseta kuutio herättääksesi ne missä tahansa, ytimet, riimut, lasti ja terveys tallessa."
+lore1 = "Sekuntia golemin pakkaamiseen"
+lore2 = "Välitön pakkaus"
+lore3 = "Aseta Uinuva golem herättääksesi sen"
+lore4 = "Pakattuna palautuva terveys"
+lore5 = "Sekuntia pakattujen parannusten välillä"
+lore6 = "Taskuluettelo: kutsu golemit takaisin luettelosta"
+lore7 = "Sekuntia takaisinkutsujen välillä"
+lore = ["Sekuntia golemin pakkaamiseen", "Välitön pakkaus", "Aseta Uinuva golem herättääksesi sen", "Pakattuna palautuva terveys", "Sekuntia pakattujen parannusten välillä", "Taskuluettelo: kutsu golemit takaisin luettelosta", "Sekuntia takaisinkutsujen välillä"]
+packed = "{body}golemisi on pakattu Uinuvaksi golemiksi"
+dropped = "Tavaraluettelosi on täynnä, joten Uinuva golemisi putosi jalkojesi juureen"
+interrupted = "Pakkaus keskeytyi"
+busy = "Pakkaat jo golemia"
+pack_failed = "Tätä golemia ei voi pakata juuri nyt"
+awakened = "{body}golemisi herää"
+void = "Tämä Uinuva golem murenee: se ei enää sisällä golemiaan"
+not_owner = "Tämä Uinuva golem kuuluu toiselle pelaajalle"
+locked = "Uinuvan golemin herättäminen vaatii Staasin"
+unreadable = "Tämä Uinuva golem on vaurioitunut eikä voi herätä"
+body_locked = "Et voi vielä herättää {body}golemeja"
+no_room = "Uinuva golem tarvitsee vapaan kuution herätäkseen"
+server_cap = "Palvelimella on jo niin monta hereillä olevaa golemia kuin se sallii"
+protected = "Et voi herättää golemeja täällä"
+awaken_failed = "Golemi ei voinut herätä, joten Uinuva golemisi säilyi"
+recall_cooldown = "Voit kutsua seuraavan golemin takaisin {seconds} sekunnin kuluttua"
+recall_unavailable = "Vain maailmaasi ladatut golemit voi kutsua takaisin"
+
+[golemancy.masterwork]
+name = "Mestariteos"
+description = "Infusoi Mestariteoksen sydän Animusjalustalla ja aseta se golemiin saadaksesi ylimääräisen riimupaikan, lisää terveyttä, toisen ytimen ja vahvemmat riimut."
+lore1 = "Mestariteosgolemit"
+lore2 = "Mestariteoksen lisäriimupaikat"
+lore3 = "Mestariteoksen enimmäisterveys"
+lore4 = "Mestariteoksen toinen ydinpaikka"
+lore5 = "Mestariteoksen riimut toimivat tasoa korkeammalla"
+lore6 = "Bonus mestariteoksen tason 3 riimuihin"
+lore = ["Mestariteosgolemit", "Mestariteoksen lisäriimupaikat", "Mestariteoksen enimmäisterveys", "Mestariteoksen toinen ydinpaikka", "Mestariteoksen riimut toimivat tasoa korkeammalla", "Bonus mestariteoksen tason 3 riimuihin"]
+slot = "Mestariteoksen sydän"
+slot_lore = "Ota sydän takaisin toisen ytimen ja lisäriimujen kanssa napsauttamalla"
+slot_empty = "Mestariteospaikka"
+slot_empty_lore = "Poimi Mestariteoksen sydän ja napsauta tästä ({count}/{maximum} mestariteosta)"
+core_empty = "Toinen ydinpaikka"
+core_empty_lore = "Poimi roolin ydin ja aseta se napsauttamalla tästä"
+core_remove = "Ota tämä ydin takaisin napsauttamalla"
+heart_needed = "Poimi ensin Mestariteoksen sydän"
+designated = "Tämä golemi on nyt mestariteos"
+removed = "Mestariteoksen sydän otettu takaisin"
+already = "Tämä golemi on jo mestariteos"
+cap = "Sinulla on jo {count} mestariteosgolemia"
+locked = "Tarvitset Mestariteoksen nimetäksesi mestariteosgolemin"
+body = "{body}golemista ei voi tulla mestariteosta"
+core_needed = "Poimi ensin roolin ydin"
+core_slotted = "Ydin asetettu: {core}"
+core_removed = "Ydin otettu takaisin: {core}"
+core_no_slot = "Tällä golemilla ei ole vapaata ydinpaikkaa"
+core_blank = "Toisen ytimen on oltava roolin ydin"
+core_duplicate = "Tällä golemilla on jo ydin: {core}"
+
+[golemancy.node_status]
+idle = "Joutilas"
+working = "Työssä"
+blocked = "Suojauksen estämä"
+full = "Säiliö täynnä"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Suodatin: {count}"
+
+[golemancy.node_message]
+placed = "Solmu asetettu: {node}"
+occupied = "Tällä pinnalla on jo solmu"
+protected = "Et voi asettaa solmuja tähän"
+needs_container = "Solmu {node} asetetaan arkkuun, tynnyriin tai shulker-laatikkoon"
+needs_side_face = "Solmu {node} asetetaan kuution kylkeen"
+container_protected = "Tämä säiliö on suojattu"
+chunk_full = "Tässä lohkossa on jo {count} solmua"
+cap = "Omistat jo enimmäismäärän, {count} solmua"
+loading = "Täällä olevia solmuja ladataan vielä"
+unavailable = "Golemiluettelosi ei ole vielä valmis"
+filter_added = "{item} lisätty suodattimeen"
+filter_removed = "{item} poistettu suodattimesta"
+filter_full = "Tähän suodattimeen mahtuu enintään {count} merkintää"
+priority_locked = "Solmun prioriteetti avautuu Solmujen punonnan tasolla {level}"
+removed = "Solmu poistettu: {node}"
+remove_failed = "Tätä solmua ei voi poistaa juuri nyt"
+not_owner = "Tämä solmu kuuluu toiselle pelaajalle"
+gone = "Tämä solmu ei ole enää täällä"
+tag_prompt = "Kirjoita chattiin esinetunniste, esimerkiksi #logs"
+tag_invalid = "{tag} ei ole esinetunniste"
+tag_cancelled = "Tunnisteen syöttö peruttu"
+tag_timed_out = "Tunnisteen syötön aika loppui"
+
+[golemancy.node_gui]
+position = "Kuutio: {x}, {y}, {z}"
+area = "{axis}-säde: {radius}"
+area_lore = "Vasen napsautus: kasvata, oikea napsautus: pienennä"
+area_cap = "Suurin säde: {radius}"
+priority = "Prioriteetti: {priority}"
+redstone = "Redstone: {mode}"
+redstone_ignore = "Ei käytössä"
+redstone_powered = "Toimii vain redstone-signaalilla"
+redstone_unpowered = "Toimii vain ilman redstone-signaalia"
+locked = "Avautuu Solmujen punonnan tasolla {level}"
+whitelist = "Sallittujen lista"
+whitelist_lore = "Golemit käyttävät vain vastaavia esineitä"
+blacklist = "Estolista"
+blacklist_lore = "Golemit käyttävät kaikkea paitsi vastaavia esineitä"
+empty_filter = "Tyhjä suodatin hyväksyy kaikki esineet"
+toggle = "Vaihda napsauttamalla"
+filter_empty = "Tyhjä suodatinpaikka"
+filter_set = "Aseta napsauttamalla esineellä"
+filter_clear = "Tyhjennä oikealla napsautuksella"
+filter_locked = "Lukittu suodatinpaikka"
+filter_locked_lore = "Lisää Solmujen punonnan tasoja avaa tämän paikan"
+tag = "Esinetunniste"
+tag_add = "Lisää tunniste"
+tag_add_lore = "Napsauta ja kirjoita sitten chattiin esinetunniste, esimerkiksi #logs"
+
+[golemancy.node_weaving]
+name = "Solmujen punonta"
+description = "Kyykisty ja napsauta palikan pintaa oikealla painikkeella solmu kädessä kiinnittääksesi sen siihen ja ohjataksesi golemiesi työtä."
+lore1 = "Omistettavat solmut"
+lore2 = "Työalueen säde palikoina"
+lore3 = "Suodatinpaikat"
+lore4 = "Solmun prioriteetti 1-5"
+lore5 = "Redstone-ohjaus"
+lore6 = "Estolista- ja tunnistesuodattimet"
+lore = ["Omistettavat solmut", "Työalueen säde palikoina", "Suodatinpaikat", "Solmun prioriteetti 1-5", "Redstone-ohjaus", "Estolista- ja tunnistesuodattimet"]
+
+[golemancy.plinth]
+loading = "Tämä jalusta latautuu vielä"
+occupied = "Tällä telineellä on jo esine"
+protected = "Et voi käyttää tätä jalustaa täällä"
+busy = "Infuusio on jo käynnissä"
+no_recipe = "Nämä esineet eivät muodosta infuusiota"
+locked = "Et ole vielä oppinut tätä infuusiota"
+levels = "Tämä infuusio maksaa {levels} tasoa"
+interrupted = "Infuusio keskeytyi"
+complete = "Infuusio on valmis"
+failed = "Infuusio epäonnistui ja tasosi palautettiin"
+
 [herbalism.growth_aura]
 name = "Kasvuaura"
 description = "Kasvata luontoa ympärilläsi auralla"
@@ -4523,6 +5212,10 @@ vault_unavailable_fallback = "Vault-talous ei ole käytettävissä — oppiminen
 vault_insufficient_funds = "Pelaajalla ei ole tarpeeksi Vault-talouden valuuttaa."
 vault_transaction_failed = "Vault-tapahtuma epäonnistui; edistymistä ei muutettu."
 power_drain = "Voiman kulutus: {power}"
+requirement_level = "{adaptation} taso {level}"
+requires = "Vaatii: {requirement}"
+requirements_missing = "Opi {requirements} ennen kuin opit {adaptation}."
+required_by_dependents = "Poista ensin {dependents}; ne vaativat {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5362,6 +6055,11 @@ name = "Kinetiikka"
 icon = "⚒"
 description = "Liike on valta. Smash kanssa maces, lataa keihäät, ja taivuta vauhtia itse: pomppii, käynnistää, levitation, ja hyvin suunnattu putoavat alasimet kaikki ruokkia mestari."
 
+[skill.golemancy]
+name = "Golemantia"
+icon = "⚙"
+description = "Nouse tasoja rakentamalla, korjaamalla ja hoitamalla golemeja, ja herätä ne sitten henkiin taistelemaan ja työskentelemään rinnallasi."
+
 [snippets.gui]
 level = "Taso"
 level_value = "Taso {level}"
@@ -5951,7 +6649,7 @@ assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it = "M�
 boost_global_experience_gain = "Globaalin kokemuksen edistäminen."
 boost_target_player_experience_gain = "Tehosta kohde pelaaja Kokemus voitto."
 bypass_adapt_use_permission_checks_when_opening = "Ohitus adapt.use lupatarkastukset avattaessa"
-bypass_costs_and_restrictions = "Ohituskustannukset ja rajoitukset"
+bypass_costs_and_permanence_prerequisites_still_apply = "Ohita kustannukset ja pysyvyys; edellytykset ovat yhä voimassa"
 bypass_power_knowledge_and_permanence_checks = "Ohita valta, tieto ja pysyvyystarkastukset"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "Poista kaikki löydökset (biomes, väkijoukko, elintarvikkeet, tuotteet, reseptit jne.)"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "Tyhjennä kaikki soittimen tiedot (XP, tieto, mukautukset, tilastot, löydöt, edistysaskeleet, viisaus)"
@@ -5996,6 +6694,12 @@ toggle_verbose_mode = "Vaihda verboositilaa"
 top_results_to_print = "Tulostettavat huipputulokset"
 true_to_learn_false_to_unlearn = "Totta oppia, valhetta päästää irti"
 unlearn_all_adaptations_across_all_skill_lines = "Opettele kaikki mukautukset kaikilla taitolinjoilla"
+golem_roster_and_admin_tools = "Golemiluettelo ja ylläpitotyökalut"
+open_your_golem_roster = "Avaa golemiluettelosi"
+list_a_player_s_golems = "Listaa pelaajan golemit"
+release_one_of_a_player_s_golems = "Vapauta yksi pelaajan golemeista"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "Golemin tunnus tai niin monta sen alkumerkkiä, että vain yksi golemi täsmää"
+wake_a_player_s_loaded_golems = "Herätä pelaajan ladatut golemit"
 
 [command.runtime]
 missing_permission = "Sinulla ei ole lupaa. '{permission}'."
@@ -6038,6 +6742,8 @@ vault_insufficient_funds = "Pelaajalla ei ole tarpeeksi Vault-talouden valuuttaa
 vault_transaction_failed = "Vault-tapahtuma epäonnistui; edistymistä ei muutettu."
 set_adaptation_level = "Aseta {player} {adaptation} Tasolle {level}."
 permanent_adaptation_lower = "{adaptation} on pysyvä eikä sitä voida laskea ilman force=true."
+requirements_missing = "{player} tarvitsee {requirements} ennen kuin voi oppia {adaptation}."
+required_by_dependents = "{adaptation} vaaditaan sopeutumille {dependents} pelaajalla {player}; käytä force=true poistaaksesi myös ne."
 adapt_server_not_ready = "Adapt palvelin ei ole vielä valmis. Yritä uudelleen muutamassa sekunnissa."
 target_dispatch_failed = "Kohdepelaajan toimintoa ei voitu ajoittaa. Yritä uudelleen."
 cleared_all = "Tyhjensi kaikki tiedot {player}."
@@ -6076,6 +6782,16 @@ perf_timing_budget = "Kyky tarkistaa ajoitusbudjetti: {percent} ({millisPerSecon
 perf_ticker_window = "Ticker-ikkuna: {window}Neiti"
 perf_no_metrics = "Ei rastin mittareita vielä kerätty."
 perf_reset = "Ticker ja kyky telemetria nollataan."
+golem_list_header = "Pelaajalla {player} on {count} golemia:"
+golem_list_header_one = "Pelaajalla {player} on 1 golem:"
+golem_list_empty = "Pelaajalla {player} ei ole golemeja."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "Pelaajalla {player} ei ole golemia, jonka tunnus alkaa {id}."
+golem_ambiguous = "Useammalla kuin yhdellä pelaajan {player} golemilla on tunnus, joka alkaa {id}. Kirjoita tunnuksesta enemmän."
+golem_released = "Golemi {id} vapautettiin pelaajan {player} luettelosta."
+golem_release_failed = "Golemia {id} pelaajalta {player} ei voitu vapauttaa. Yritä uudelleen."
+golem_release_active_unloaded = "Golemi {id} pelaajalta {player} on aktiivinen lataamattomassa lohkossa. Lataa sen lohko vapauttaaksesi sen, tai vapauta se, kun se näkyy kadonneena."
+golems_woken = "Herätetään pelaajan {player} ladatut golemit: {count}."
 
 [language.menu]
 your_language = "Oma kielesi"
@@ -6709,6 +7425,29 @@ purple = "Purple"
 always = "Always"
 sneak = "Sneak to activate"
 suppress = "Sneak to suppress"
+
+[golemancy.preferences]
+absorb_orbs = "Imeytä kokemuspallot"
+action_bar_only = "Vain toimintopalkki"
+any_item = "Mikä tahansa Golemantian esine"
+aura = "Aura"
+chime_and_particles = "Kilahdus ja hiukkaset"
+crook_only = "Vain sauva"
+hidden = "Piilotettu"
+intercept = "Sieppaus"
+leaf_sweep = "Lehtien lakaisu"
+magnet = "Magneetti"
+node_reveal = "Solmujen näyttäminen"
+obey_overseer = "Palvelijat tottelevat Valvojaa"
+retaliate_players = "Kosto pelaajia vastaan"
+shown = "Näkyvissä"
+signal_feedback = "Merkkien palaute"
+static_overdrive = "Staattinen ylikierros"
+status_labels = "Golemien tilamerkinnät"
+sweeping_fists = "Pyyhkäisyiskut"
+tending = "Hoito"
+tilling = "Muokkaus"
+work_area_outline = "Työalueen ääriviiva"
 
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"

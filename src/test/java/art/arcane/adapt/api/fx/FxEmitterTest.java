@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 
 import java.util.List;
@@ -26,6 +27,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -203,6 +205,52 @@ class FxEmitterTest extends AdaptTestBase {
 
       verify(player, times(2)).spawnParticle(Particle.FLASH, 0.0D, 64.0D, 0.0D, 1, 0.0D, 0.0D, 0.0D, 0.0D, emitterColor);
       verify(player).spawnParticle(Particle.DUST, 0.0D, 64.0D, 0.0D, 1, 0.0D, 0.0D, 0.0D, 0.0D, dust);
+    } finally {
+      FxViewers.reset();
+      FxBudget.resetTick();
+    }
+  }
+
+  @Test
+  void dustParticlesWithoutDataUseEmitterColorAtUnitSize() {
+    AdaptServer server = mock(AdaptServer.class);
+    AdaptPlayer adaptPlayer = mock(AdaptPlayer.class);
+    Player player = mock(Player.class);
+    World world = mock(World.class);
+    when(plugin.getAdaptServer()).thenReturn(server);
+    when(server.getOnlineAdaptPlayerSnapshot()).thenReturn(List.of(adaptPlayer));
+    when(adaptPlayer.getData()).thenReturn(new PlayerData());
+    when(adaptPlayer.getPlayer()).thenReturn(player);
+    when(adaptPlayer.getFxPosition()).thenReturn(new AdaptPlayer.FxPosition(world, 0.0D, 64.0D, 0.0D));
+
+    FxViewers.reset();
+    FxViewers.bumpTick();
+    FxBudget.resetTick();
+    Color emitterColor = Color.fromRGB(40, 200, 90);
+    AtomicReference<Runnable> ownerTask = new AtomicReference<>();
+
+    try (MockedStatic<J> scheduling = mockStatic(J.class)) {
+      scheduling.when(() -> J.runEntity(same(player), any(Runnable.class))).thenAnswer(invocation -> {
+        ownerTask.set(invocation.getArgument(1));
+        return true;
+      });
+
+      FxEmitter emitter = FxEmitter.create(world, 0.0D, 64.0D, 0.0D, FxPriority.GAMEPLAY, 24.0D, true, false, emitterColor);
+      emitter.line(Particle.DUST, 0.0D, 66.0D, 0.0D, 1);
+      ownerTask.get().run();
+      emitter.particle(Particle.DUST_COLOR_TRANSITION, 1, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
+      ownerTask.get().run();
+
+      ArgumentCaptor<Particle.DustOptions> dust = ArgumentCaptor.forClass(Particle.DustOptions.class);
+      verify(player).spawnParticle(same(Particle.DUST), eq(0.0D), eq(65.0D), eq(0.0D), eq(1), eq(0.0D), eq(0.0D), eq(0.0D), eq(0.0D), dust.capture());
+      assertThat(dust.getValue().getColor()).isEqualTo(emitterColor);
+      assertThat(dust.getValue().getSize()).isEqualTo(1.0F);
+
+      ArgumentCaptor<Particle.DustTransition> transition = ArgumentCaptor.forClass(Particle.DustTransition.class);
+      verify(player).spawnParticle(same(Particle.DUST_COLOR_TRANSITION), eq(0.0D), eq(64.0D), eq(0.0D), eq(1), eq(0.0D), eq(0.0D), eq(0.0D), eq(0.0D), transition.capture());
+      assertThat(transition.getValue().getColor()).isEqualTo(emitterColor);
+      assertThat(transition.getValue().getToColor()).isEqualTo(emitterColor);
+      assertThat(transition.getValue().getSize()).isEqualTo(1.0F);
     } finally {
       FxViewers.reset();
       FxBudget.resetTick();

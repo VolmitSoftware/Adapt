@@ -3053,6 +3053,70 @@ description = "Zamień ruch w moc."
 title = "Odbiór Newtona"
 description = "Zabij mafię swoim własnym kowadłem. 8 lub więcej bloków."
 
+[advancement.challenge_golemancy_built_10]
+title = "Glina i iskra"
+description = "Zbuduj 10 golemów"
+
+[advancement.challenge_golemancy_built_100]
+title = "Odlewnia olbrzymów"
+description = "Zbuduj 100 golemów"
+
+[advancement.challenge_golemancy_bound_5]
+title = "Mała świta"
+description = "Zwiąż 5 golemów"
+
+[advancement.challenge_golemancy_bound_25]
+title = "Legion animusa"
+description = "Zwiąż 25 golemów"
+
+[advancement.challenge_golemancy_golem_kills_50]
+title = "Kamienni wartownicy"
+description = "Twoje związane golemy zabijają 50 wrogich mobów"
+
+[advancement.challenge_golemancy_golem_kills_500]
+title = "Żywy bastion"
+description = "Twoje związane golemy zabijają 500 wrogich mobów"
+
+[advancement.challenge_golemancy_golem_kills_5000]
+title = "Niezłomny zastęp"
+description = "Twoje związane golemy zabijają 5 000 wrogich mobów"
+
+[advancement.challenge_golemancy_first_bind_frost]
+title = "Sługa zimy"
+description = "Zwiąż szronowego golema"
+
+[advancement.challenge_golemancy_first_bind_copper]
+title = "Więź patyny"
+description = "Zwiąż miedzianego golema"
+
+[advancement.challenge_golemancy_first_bind_iron]
+title = "Żelazna przysięga"
+description = "Zwiąż żelaznego golema"
+
+[advancement.challenge_golemancy_tasks_1000]
+title = "Pracowite ręce"
+description = "Twoje golemy kończą 1000 zadań"
+
+[advancement.challenge_golemancy_tasks_25000]
+title = "Niestrudzony warsztat"
+description = "Twoje golemy kończą 25 000 zadań"
+
+[advancement.challenge_golemancy_items_moved_10000]
+title = "Wytrwali tragarze"
+description = "Twoje golemy dostarczają 10 000 przedmiotów"
+
+[advancement.challenge_golemancy_items_moved_250000]
+title = "Niekończąca się karawana"
+description = "Twoje golemy dostarczają 250 000 przedmiotów"
+
+[advancement.challenge_golemancy_infusions_10]
+title = "Uczeń postumentu"
+description = "Ukończ 10 nasyceń na Postumencie Animusa"
+
+[advancement.challenge_golemancy_infusions_100]
+title = "Mistrz nasycania"
+description = "Ukończ 100 nasyceń na Postumencie Animusa"
+
 [agility.armor_up]
 name = "Pancerz-Up"
 description = "Zdobywaj wiecej pancerza im dluzej sprintujesz!"
@@ -4240,6 +4304,631 @@ lore1 = "Szansa na spadek bonusu"
 lore2 = "x Poziomy pośpiechu podczas kopania na mokro"
 lore = ["Szansa na spadek bonusu", "x Poziomy pośpiechu podczas kopania na mokro"]
 
+[golemancy.item.crook]
+name = "Laska rzemieślnika"
+lore = "Dowodzi związanymi golemami i węzłami, przy których pracują"
+
+[golemancy.item.blank_core]
+name = "Pusty rdzeń animusa"
+lore = "Wiąże golema jako towarzysza lub służy do wytworzenia rdzenia roli"
+
+[golemancy.item.core]
+name = "Rdzeń: {role}"
+lore = "Wiąże golema z rolą {role}"
+
+[golemancy.item.blank_node]
+name = "Pusty węzeł"
+lore = "Służy do wytworzenia węzła dowolnego typu"
+
+[golemancy.item.node]
+name = "Węzeł: {node}"
+lore = "Mocuje się do ściany bloku, aby kierować pracą golemów"
+
+[golemancy.item.blank_rune]
+name = "Pusta runa"
+lore = "Nasyca się w runę na Postumencie Animusa"
+
+[golemancy.item.rune]
+name = "Runa: {aspect}"
+tier = "Poziom {tier}"
+lore = "Osadzana w golemie, aby go wzmocnić"
+
+[golemancy.item.dormant_golem]
+name = "Uśpiony golem"
+core = "Rdzeń: {core}"
+runes = "Runy: {runes}"
+health = "Zdrowie: {health}/{maximum}"
+lore = "Postaw, aby obudzić tego golema"
+
+[golemancy.item.shattered_core]
+name = "Roztrzaskany rdzeń"
+lore = "Odbudowuje poległego golema wraz z jego ulepszeniami"
+
+[golemancy.item.masterwork_heart]
+name = "Serce arcydzieła"
+lore = "Wyznacza golema-arcydzieło"
+
+[golemancy.role]
+blank = "Towarzysz"
+guardian = "Strażnik"
+gatherer = "Zbieracz"
+harvester = "Żniwiarz"
+lumber = "Drwal"
+breaker = "Burzyciel"
+rancher = "Hodowca"
+sorter = "Sortownik"
+angler = "Wędkarz"
+
+[golemancy.node]
+guard = "Straż"
+collection = "Zbiórka"
+deposit = "Składowanie"
+harvest = "Żniwa"
+lumber = "Wyrąb"
+breaker = "Wydobycie"
+pasture = "Pastwisko"
+input = "Wejście"
+filter = "Filtr"
+fishing = "Wędkowanie"
+
+[golemancy.aspect]
+swiftness = "Chyżość"
+might = "Moc"
+ember = "Żar"
+tide = "Przypływ"
+order = "Ład"
+entropy = "Entropia"
+bulwark = "Bastion"
+
+[golemancy.body]
+frost = "Szronowy"
+copper = "Miedziany"
+iron = "Żelazny"
+bone = "Kościany"
+
+[golemancy.golem]
+name = "{body} golem gracza {owner}"
+
+[golemancy.mode]
+work = "Praca"
+follow = "Podążaj"
+stay = "Zostań"
+home = "Do domu"
+
+[golemancy.signal]
+follow = "Podążaj"
+hold = "Trzymaj"
+home = "Do domu"
+work = "Praca"
+sic = "Bierz"
+
+[golemancy.channel]
+none = "Brak"
+white = "Biały"
+orange = "Pomarańczowy"
+magenta = "Karmazynowy"
+light_blue = "Jasnoniebieski"
+yellow = "Żółty"
+lime = "Jasnozielony"
+pink = "Różowy"
+gray = "Szary"
+light_gray = "Jasnoszary"
+cyan = "Błękitny"
+purple = "Fioletowy"
+blue = "Niebieski"
+brown = "Brązowy"
+green = "Zielony"
+red = "Czerwony"
+black = "Czarny"
+
+[golemancy.status]
+active = "Aktywny"
+packed = "Spakowany"
+shattered = "Roztrzaskany"
+missing = "Zaginiony"
+
+[golemancy.gui]
+title = "{body} golem"
+health = "Zdrowie: {health}/{maximum}"
+dormant = "Uśpiony"
+mode = "Tryb: {mode}"
+channel = "Kanał: {channel}"
+cycle = "Lewy przycisk: następny, prawy przycisk: poprzedni"
+set_home = "Ustaw dom tutaj"
+home = "Dom: {x}, {y}, {z}"
+link_chest = "Połącz skrzynię domową"
+home_chest = "Skrzynia domowa: {x}, {y}, {z}"
+no_home_chest = "Brak połączonej skrzyni domowej"
+link_hint = "Kliknij, a potem kliknij laską prawym przyciskiem pojemnik"
+rune_locked = "Zablokowane miejsce na runę"
+rune_unlock_level = "Odblokowywane przez Runiczne ulepszenia na poziomie {level}"
+rune_empty = "Puste miejsce na runę"
+rune_empty_lore = "Podnieś runę i kliknij tutaj, aby ją osadzić"
+rune_remove = "Kliknij, aby odebrać tę runę"
+rune_active = "Aktywna"
+rune_over_tier = "Bezczynna: poziom {tier} wymaga Runicznych ulepszeń na poziomie {level}"
+rune_slot_locked = "Bezczynna: to miejsce wymaga Runicznych ulepszeń na poziomie {level}"
+rune_blocked = "Bezczynna: golem typu {body} nie może używać run: {aspect}"
+rune_duplicate = "Bezczynna: ten golem ma już runę: {aspect}"
+rune_unpowered = "Bezczynna: twoje Runiczne ulepszenia nie wystarczą dla tej runy"
+channels = "Kanały: {channels}"
+channels_lore = "Kliknij, aby wybrać do {count} kanałów"
+channels_title = "Wybierz kanały"
+channel_selected = "Wybrany"
+channel_select = "Kliknij, aby wybrać"
+channels_clear = "Wyczyść kanały"
+back = "Wstecz"
+take = "Kliknij, aby zabrać"
+more_carried = "+{count} więcej"
+stats = "Statystyki"
+kills = "Zabójstwa: {value}"
+damage = "Zadane obrażenia: {value}"
+tasks = "Ukończone zadania: {value}"
+items_moved = "Przeniesione przedmioty: {value}"
+release = "Uwolnij"
+release_lore = "Przywraca zwykłego golema i upuszcza jego rdzeń, runy, noszone przedmioty oraz drugi rdzeń i Serce arcydzieła, jeśli je ma"
+release_confirm = "Uwolnić tego golema?"
+snow_trail_on = "Ślad śniegu: wł."
+snow_trail_off = "Ślad śniegu: wył."
+snow_trail_lore = "Kliknij, aby przełączyć śnieg zostawiany przez tego golema"
+colossus_on = "Forma Kolosa: wł."
+colossus_off = "Forma Kolosa: wył."
+colossus_lore = "Kliknij, aby przełączyć pełny rozmiar do walki; powiększony golem nie pracuje"
+pack = "Spakuj"
+pack_lore = "Kompresuje tego golema do bloku Uśpionego golema, który możesz postawić, aby go obudzić"
+
+[golemancy.roster]
+title = "Spis golemów"
+empty = "Nie masz golemów"
+entry = "{body} golem ({core})"
+location = "{world}: {x}, {y}, {z}"
+last_seen = "Ostatnio widziany w {world} w pobliżu {x}, {z}"
+status = "Stan: {status}"
+locate = "Lewy przycisk, aby zlokalizować"
+release = "Shift + prawy przycisk, aby uwolnić"
+release_confirm = "Uwolnić na zawsze tego zaginionego golema?"
+release_shattered_confirm = "Uwolnić na zawsze tego roztrzaskanego golema? Jego Roztrzaskany rdzeń się rozsypie."
+release_packed_confirm = "Uwolnić na zawsze tego spakowanego golema? Jego Uśpiony golem się rozsypie."
+recall = "Prawy przycisk, aby przywołać go do ekwipunku"
+crook_channel = "Kanał laski: {channel}"
+crook_channel_lore = "Kliknij, aby wybrać, którym golemom twoja laska daje sygnały"
+crook_channel_title = "Kanał laski"
+crook_channel_all = "Wszystkie golemy"
+
+[golemancy.message]
+home_set = "Dom ustawiony na {x}, {y}, {z}"
+link_armed = "Kliknij laską prawym przyciskiem pojemnik, aby go połączyć"
+chest_linked = "Skrzynia domowa połączona na {x}, {y}, {z}"
+chest_denied = "Ten pojemnik jest chroniony"
+chest_out_of_reach = "Ten pojemnik musi być w promieniu {radius} bloków od domu golema"
+released = "Golem uwolniony"
+release_failed = "Tego golema nie można teraz uwolnić"
+gone = "Tego golema już tu nie ma"
+colossus_no_room = "Brakuje tu miejsca, aby ten golem urósł"
+colossus_busy = "Ten golem wciąż zmienia rozmiar"
+rune_slotted = "Osadzono runę: {aspect}"
+rune_removed = "Odebrano runę: {aspect}"
+rune_needed = "Najpierw podnieś runę"
+rune_no_slot = "Ten golem nie ma wolnego miejsca na runę"
+rune_duplicate = "Ten golem ma już runę: {aspect}"
+rune_blocked = "Golem typu {body} nie może używać run: {aspect}"
+channels_full = "Ten golem może używać tylko {count} kanałów"
+crook_channel = "Twoja laska daje teraz sygnały: {channel}"
+crook_needed = "Trzymaj laskę w głównej ręce, aby ustawić jej kanał"
+
+[golemancy.binding]
+busy = "Rytuał wiązania już trwa"
+already_bound = "Ten golem jest już związany"
+village = "Można związać tylko golemy zbudowane przez graczy"
+builder = "Tylko gracz, który zbudował tego golema, może go teraz związać"
+body_locked = "Nie możesz jeszcze wiązać golemów typu {body}"
+core_not_allowed = "Golem typu {body} nie przyjmie rdzenia: {core}"
+core_locked = "Nie nauczyłeś się jeszcze wiązać rdzeni: {core}"
+protected = "Nie możesz tu wiązać golemów"
+unavailable = "Twoja lista golemów nie jest jeszcze gotowa"
+golem_cap = "Masz już swój limit {count} golemów"
+chunk_cap = "Na tym obszarze jest już {count} związanych golemów"
+levels = "Związanie tego golema kosztuje {levels} poziomów"
+interrupted = "Wiązanie zostało przerwane"
+bound = "Twój {body} golem jest teraz z tobą związany"
+
+[golemancy.animus_binding]
+name = "Wiązanie animusa"
+description = "Skradając się, kliknij prawym przyciskiem golema, trzymając rdzeń animusa, aby związać go ze sobą jako towarzysza."
+lore1 = "Golemy, które możesz posiadać"
+lore2 = "Sekundy na rytuał wiązania"
+lore3 = "Poziomy do związania szronowego golema"
+lore4 = "Poziomy do związania miedzianego golema"
+lore5 = "Poziomy do związania żelaznego golema"
+lore = ["Golemy, które możesz posiadać", "Sekundy na rytuał wiązania", "Poziomy do związania szronowego golema", "Poziomy do związania miedzianego golema", "Poziomy do związania żelaznego golema"]
+
+[golemancy.frost_frame]
+name = "Szronowy szkielet"
+description = "Wzmacnia twoje związane szronowe golemy dodatkowym zdrowiem, raniącymi śnieżkami i ochroną przed deszczem i upałem."
+lore1 = "Dodatkowe zdrowie szronowych golemów"
+lore2 = "Obrażenia śnieżek"
+lore3 = "Obrażenia otrzymywane w ciepłych biomach"
+lore4 = "Odporność na deszcz i wodę"
+lore5 = "Sekundy spowolnienia po trafieniu"
+lore6 = "Szansa na dodatkową śnieżkę"
+lore7 = "Trafienia śnieżką potrzebne do zamrożenia celu"
+lore = ["Dodatkowe zdrowie szronowych golemów", "Obrażenia śnieżek", "Obrażenia otrzymywane w ciepłych biomach", "Odporność na deszcz i wodę", "Sekundy spowolnienia po trafieniu", "Szansa na dodatkową śnieżkę", "Trafienia śnieżką potrzebne do zamrożenia celu"]
+
+[golemancy.copper_frame]
+name = "Miedziany szkielet"
+description = "Pozwala wiązać miedziane golemy i wzmacnia je dodatkowym zdrowiem, udźwigiem i szybkością oraz pancerzem z ich patyny."
+lore1 = "Dodatkowe zdrowie miedzianych golemów"
+lore2 = "Udźwig w przedmiotach"
+lore3 = "Szybkość ruchu"
+lore4 = "Nigdy nie zmienia się w posąg"
+lore5 = "Pancerz za każdy etap patyny"
+lore6 = "Utracona szybkość za każdy etap patyny"
+lore7 = "Sekundy Szybkości II od pobliskiego pioruna"
+lore = ["Dodatkowe zdrowie miedzianych golemów", "Udźwig w przedmiotach", "Szybkość ruchu", "Nigdy nie zmienia się w posąg", "Pancerz za każdy etap patyny", "Utracona szybkość za każdy etap patyny", "Sekundy Szybkości II od pobliskiego pioruna"]
+
+[golemancy.iron_frame]
+name = "Żelazny szkielet"
+description = "Pozwala wiązać żelazne golemy i wzmacnia je dodatkowym zdrowiem, pancerzem i atakiem, silniejszymi naprawami sztabkami, zamaszystymi ciosami oraz Formą Kolosa w pełnym rozmiarze."
+lore1 = "Dodatkowe zdrowie żelaznych golemów"
+lore2 = "Dodatkowy pancerz żelaznych golemów"
+lore3 = "Dodatkowe obrażenia od ataku żelaznych golemów"
+lore4 = "Dodatkowe zdrowie za naprawę sztabką żelaza"
+lore5 = "Dodatkowi wrogowie trafieni każdym ciosem"
+lore6 = "Obrażenia od ataku w Formie Kolosa"
+lore = ["Dodatkowe zdrowie żelaznych golemów", "Dodatkowy pancerz żelaznych golemów", "Dodatkowe obrażenia od ataku żelaznych golemów", "Dodatkowe zdrowie za naprawę sztabką żelaza", "Dodatkowi wrogowie trafieni każdym ciosem", "Obrażenia od ataku w Formie Kolosa"]
+
+[golemancy.bone_frame]
+name = "Kościany szkielet"
+description = "Wprowadza twoje szkieletowe sługi Tragoula do golemancji: słuchają sygnałów twojej laski, świecą w kolorze kanału sług z etykietami stanu widocznymi tylko dla ciebie, noszą Kościaną kratę run i dają XP golemancji za swoje zabójstwa."
+lore1 = "Sługi słuchają sygnałów laski i pokazują etykiety stanu"
+lore2 = "Miejsca na runy w Kościanej kracie"
+lore3 = "XP golemancji za zabójstwa twoich sług"
+lore = ["Sługi słuchają sygnałów laski i pokazują etykiety stanu", "Miejsca na runy w Kościanej kracie", "XP golemancji za zabójstwa twoich sług"]
+lattice = "Kościana krata"
+lattice_lore = "Kliknij, aby ustawić runy i kanał swoich sług"
+slot_empty = "Puste miejsce w kracie"
+slot_empty_lore = "Podnieś runę ({aspects}) i kliknij tutaj"
+slot_locked = "Zablokowane miejsce w kracie"
+slot_unlock_level = "Odblokowywane przez Kościany szkielet na poziomie {level}"
+slot_inert = "Bezczynna: to miejsce wymaga Kościanego szkieletu na poziomie {level}"
+rune_tier = "Działa na twoje sługi na poziomie {tier}"
+channel = "Kanał sług: {channel}"
+channel_set = "Twoje sługi używają teraz kanału {channel}"
+refused_aspect = "Runy {aspect} nie pasują do Kościanej kraty"
+duplicate = "Twoja Kościana krata ma już runę: {aspect}"
+no_slot = "Twoja Kościana krata nie ma wolnego miejsca"
+time_left = "zostało {seconds} s"
+
+[golemancy.guardian_core]
+name = "Rdzeń Strażnika"
+description = "Golemy związane Rdzeniem Strażnika bronią swojego domu, ciebie lub obszaru Węzła Straży i chronią cię tym lepiej, im silniejszy staje się rdzeń."
+lore1 = "Promień straży w blokach"
+lore2 = "Przechwycenie: moby, które cię ścigają, zwracają się przeciw twoim strażnikom"
+lore3 = "Odwet: strażnicy atakują to, co cię zraniło"
+lore4 = "Mniej obrażeń w pobliżu twoich strażników"
+lore5 = "Sekundy Odporności z Ostatniego Bastionu"
+lore = ["Promień straży w blokach", "Przechwycenie: moby, które cię ścigają, zwracają się przeciw twoim strażnikom", "Odwet: strażnicy atakują to, co cię zraniło", "Mniej obrażeń w pobliżu twoich strażników", "Sekundy Odporności z Ostatniego Bastionu"]
+
+[golemancy.gatherer_core]
+name = "Rdzeń Zbieracza"
+description = "Golemy związane Rdzeniem Zbieracza podnoszą upuszczone przedmioty wokół swojego domu lub Węzła Zbiórki i je dostarczają, a gdy rdzeń staje się silniejszy, gromadzą kule doświadczenia jako esencję."
+lore1 = "Promień podnoszenia w blokach"
+lore2 = "Punktów doświadczenia magazynu esencji"
+lore3 = "Bloków magnesu przedmiotów"
+lore4 = "Bloków natychmiastowego podnoszenia"
+lore5 = "Udźwig"
+lore = ["Promień podnoszenia w blokach", "Punktów doświadczenia magazynu esencji", "Bloków magnesu przedmiotów", "Bloków natychmiastowego podnoszenia", "Udźwig"]
+essence = "Esencja: {value} punktów doświadczenia"
+essence_lore = "Kliknij, aby zabrać zgromadzone doświadczenie"
+essence_taken = "Zabrano {value} punktów doświadczenia esencji"
+essence_empty = "Ten golem nie ma zgromadzonej esencji"
+
+[golemancy.harvester_core]
+name = "Rdzeń Żniwiarza"
+description = "Golemy związane Rdzeniem Żniwiarza zbierają i ponownie sadzą dojrzałe uprawy w obszarze Węzła Żniw, a w miarę jak rdzeń się wzmacnia, pielęgnują i uprawiają pole."
+lore1 = "Uprawy na akcję zbioru"
+lore2 = "Sekundy na akcję zbioru"
+lore3 = "Zbiera arbuzy, dynie, trzcinę cukrową, bambus i kaktusy"
+lore4 = "Pielęgnacja: mączka kostna ze skrzyni domowej na młode uprawy"
+lore5 = "Uprawa: ponownie orze ziemię i obsiewa pustą ziemię uprawną"
+lore6 = "Szansa na dodatkowe losowanie łupów"
+lore = ["Uprawy na akcję zbioru", "Sekundy na akcję zbioru", "Zbiera arbuzy, dynie, trzcinę cukrową, bambus i kaktusy", "Pielęgnacja: mączka kostna ze skrzyni domowej na młode uprawy", "Uprawa: ponownie orze ziemię i obsiewa pustą ziemię uprawną", "Szansa na dodatkowe losowanie łupów"]
+
+[golemancy.lumber_core]
+name = "Rdzeń Drwala"
+description = "Golemy związane Rdzeniem Drwala ścinają od góry naturalne drzewa w obszarze Węzła Wyrębu i zbierają kłody, a w miarę jak rdzeń się wzmacnia, sadzą nowe drzewa, zamiatają liście i ścinają większe drzewa."
+lore1 = "Ścinane kłody na sekundę"
+lore2 = "Kłód na drzewo dla miedzianych golemów"
+lore3 = "Kłód na drzewo dla żelaznych golemów"
+lore4 = "Sadzi sadzonki po ścięciu"
+lore5 = "Zamiatanie liści: niszczy luźne liście i zbiera to, co z nich wypada"
+lore6 = "Ścina olbrzymie drzewa 2x2"
+lore7 = "Ścina karmazynowe i spaczone grzyby i sadzi grzyby"
+lore = ["Ścinane kłody na sekundę", "Kłód na drzewo dla miedzianych golemów", "Kłód na drzewo dla żelaznych golemów", "Sadzi sadzonki po ścięciu", "Zamiatanie liści: niszczy luźne liście i zbiera to, co z nich wypada", "Ścina olbrzymie drzewa 2x2", "Ścina karmazynowe i spaczone grzyby i sadzi grzyby"]
+
+[golemancy.breaker_core]
+name = "Rdzeń Burzyciela"
+description = "Golemy związane Rdzeniem Burzyciela niszczą w obszarze Węzła Wydobycia bloki wymienione w jego filtrze i niosą to, co z nich wypadnie, a w miarę jak rdzeń się wzmacnia, kopią twardsze bloki lepszymi kilofami."
+lore1 = "Maksymalna twardość bloku"
+lore2 = "Sekundy na blok"
+lore3 = "Narzędzie wydobywcze"
+lore4 = "Przełącznik Jedwabnego dotyku w Węzłach Wydobycia"
+lore5 = "Przełącznik Szczęścia I w Węzłach Wydobycia"
+lore = ["Maksymalna twardość bloku", "Sekundy na blok", "Narzędzie wydobywcze", "Przełącznik Jedwabnego dotyku w Węzłach Wydobycia", "Przełącznik Szczęścia I w Węzłach Wydobycia"]
+filter_ready = "Niszczy bloki z filtra"
+filter_needed = "Dodaj bloki do białej listy"
+filter_lore = "Burzyciele niszczą tylko bloki wymienione na białej liście"
+silk_on = "Jedwabny dotyk: wł."
+silk_off = "Jedwabny dotyk: wył."
+fortune_on = "Szczęście I: wł."
+fortune_off = "Szczęście I: wył."
+locked = "Odblokowuje się na poziomie {level} Rdzenia Burzyciela"
+exclusive = "Jedwabny dotyk i Szczęście I wyłączają się nawzajem"
+
+[golemancy.rancher_core]
+name = "Rdzeń Hodowcy"
+description = "Golemy związane Rdzeniem Hodowcy opiekują się zwierzętami w obszarze węzła Pastwiska: rozmnażają pary aż do liczby utrzymywanej przez węzeł, a wraz z rozwojem rdzenia strzygą owce, doją krowy i kozy oraz ubijają nadmiarowe dorosłe zwierzęta."
+lore1 = "Rozmnaża pary aż do liczby utrzymywanej przez węzeł Pastwiska"
+lore2 = "Strzyże owce"
+lore3 = "Doi krowy, kozy i muuchomory wiadrami lub miskami ze skrzyni domowej"
+lore4 = "Ubija dorosłe zwierzęta ponad utrzymywaną liczbę (tylko żelazne golemy)"
+lore5 = "Krótszy czas oczekiwania na rozmnażanie"
+lore6 = "Dodatkowe losowanie łupu za ubicie"
+lore = ["Rozmnaża pary aż do liczby utrzymywanej przez węzeł Pastwiska", "Strzyże owce", "Doi krowy, kozy i muuchomory wiadrami lub miskami ze skrzyni domowej", "Ubija dorosłe zwierzęta ponad utrzymywaną liczbę (tylko żelazne golemy)", "Krótszy czas oczekiwania na rozmnażanie", "Dodatkowe losowanie łupu za ubicie"]
+species = "Gatunek: {species}"
+species_all = "Wszystkie zwierzęta"
+species_lore = "Lewy przycisk – następny gatunek, prawy – poprzedni"
+keep = "Utrzymywana liczba: {count} na gatunek"
+keep_lore = "Lewy przycisk zwiększa, prawy zmniejsza"
+breed_on = "Rozmnażanie: wł."
+breed_off = "Rozmnażanie: wył."
+shear_on = "Strzyżenie: wł."
+shear_off = "Strzyżenie: wył."
+milk_on = "Dojenie: wł."
+milk_off = "Dojenie: wył."
+cull_on = "Ubój: wł."
+cull_off = "Ubój: wył."
+locked = "Odblokowuje się na poziomie {level} Rdzenia Hodowcy"
+iron_only = "Ubijają tylko żelazne golemy"
+
+[golemancy.sorter_core]
+name = "Rdzeń Sortownika"
+description = "Miedziane golemy związane Rdzeniem Sortownika opróżniają pojemnik pod Węzłem Wejścia do pobliskich pojemników, które już zawierają dany przedmiot, a w miarę jak rdzeń się wzmacnia, uczą się grup przedmiotów, Węzłów Filtra, uzupełniania i przynoszenia."
+lore1 = "Promień celu w blokach"
+lore2 = "Stosów na kurs"
+lore3 = "Sortuje według grup przedmiotów"
+lore4 = "Węzły Filtra i przepełnienie"
+lore5 = "Rozróżnia zaklęcia i mikstury"
+lore6 = "Przenosi shulkery"
+lore7 = "Ilości uzupełniania w Węzłach Filtra"
+lore8 = "Indeks zawartości pojemników"
+lore9 = "Przynoszenie z menu Węzła Wejścia"
+lore = ["Promień celu w blokach", "Stosów na kurs", "Sortuje według grup przedmiotów", "Węzły Filtra i przepełnienie", "Rozróżnia zaklęcia i mikstury", "Przenosi shulkery", "Ilości uzupełniania w Węzłach Filtra", "Indeks zawartości pojemników", "Przynoszenie z menu Węzła Wejścia"]
+match_exact = "Dopasowanie: ten sam przedmiot"
+match_groups = "Dopasowanie: grupy przedmiotów"
+match_precise = "Dopasowanie: zaklęcia i mikstury"
+match_lore = "Jak Sortownik decyduje, który pojemnik już zawiera przedmiot"
+radius = "Promień celu: {radius}"
+radius_lore = "Do {radius} bloków na twoim poziomie Rdzenia Sortownika"
+fetch = "Przynieś przedmioty"
+fetch_lore = "Wybierz przedmioty, które przyniesie ci Sortownik"
+locked = "Odblokowuje się na poziomie {level} Rdzenia Sortownika"
+overflow_on = "Przepełnienie: wł."
+overflow_off = "Przepełnienie: wył."
+overflow_lore = "Przepełnienie przyjmuje przedmioty, których nie chce żaden inny pojemnik"
+restock = "Uzupełnianie: {amount} każdego przedmiotu z filtra"
+restock_off = "Uzupełnianie: wył."
+restock_lore = "Sortowniki utrzymują tu tyle każdego przedmiotu z listy"
+fetch_available = "Dostępne: {count}"
+fetch_request = "Kliknij, aby poprosić o {amount}"
+fetch_amount = "Proś o {amount} naraz"
+fetch_empty = "W pojemnikach tego Węzła Wejścia nic nie ma"
+fetch_requested = "Sortownik przyniesie {amount} {item}"
+fetch_delivered = "Sortownik przyniósł {amount} {item}"
+empty_filter = "Pusty Węzeł Filtra nic nie przyjmuje, chyba że jest przepełnieniem"
+
+[golemancy.angler_core]
+name = "Rdzeń Wędkarza"
+description = "Golemy związane Rdzeniem Wędkarza łowią w otwartej wodzie przed Węzłem Wędkowania i niosą połów, a w miarę jak rdzeń się wzmacnia, mają więcej szczęścia, odsiewają śmieci, łowią szybciej w deszczu i trafiają podwójne połowy."
+lore1 = "Sekundy na połów"
+lore2 = "Szczęście wędkarskie"
+lore3 = "Przełącznik filtra śmieci w Węzłach Wędkowania"
+lore4 = "Krótszy czas połowu w deszczu"
+lore5 = "Szansa na podwójny połów"
+lore = ["Sekundy na połów", "Szczęście wędkarskie", "Przełącznik filtra śmieci w Węzłach Wędkowania", "Krótszy czas połowu w deszczu", "Szansa na podwójny połów"]
+water_ready = "Znaleziono otwartą wodę"
+water_needed = "Wymaga otwartej wody"
+water_lore = "Wędkarze potrzebują przed węzłem otwartej wody o wymiarach 5 na 5"
+junk_keep = "Śmieci: zachowaj"
+junk_discard = "Śmieci: wyrzuć"
+locked = "Odblokowuje się na poziomie {level} Rdzenia Wędkarza"
+
+[golemancy.runic_augments]
+name = "Runiczne ulepszenia"
+description = "Pozwala nasycać runy na Postumencie animusa i osadzać je w związanych golemach, by zyskać szybkość, udźwig, ogień, zasięg, kanały, plony i pancerz."
+lore1 = "Dodatkowe miejsca na runy na golema"
+lore2 = "Najwyższy dostępny poziom run"
+lore3 = "Postument animusa i przepis na Pustą runę"
+lore = ["Dodatkowe miejsca na runy na golema", "Najwyższy dostępny poziom run", "Postument animusa i przepis na Pustą runę"]
+
+[golemancy.overseer]
+name = "Nadzorca"
+description = "Pozwala dawać sygnały twoim związanym golemom Laską rzemieślnika, by podążały za tobą, trzymały pozycję, wracały do domu lub pracowały, a w miarę rozwoju atakowały to, na co patrzysz, odpowiadały według kanału, zbierały się przy tobie i chroniły cię w szyku."
+lore1 = "Promień sygnału w blokach"
+lore2 = "Bierz: twoje walczące golemy atakują to, na co patrzysz"
+lore3 = "Filtr kanału laski, ustawiany w spisie golemów"
+lore4 = "Zbiórka: Podążaj przywołuje do ciebie dalekie golemy"
+lore5 = "Maksymalny pancerz od golemów w szyku"
+lore = ["Promień sygnału w blokach", "Bierz: twoje walczące golemy atakują to, na co patrzysz", "Filtr kanału laski, ustawiany w spisie golemów", "Zbiórka: Podążaj przywołuje do ciebie dalekie golemy", "Maksymalny pancerz od golemów w szyku"]
+signal = "Sygnał: {signal}"
+sent = "Wysłano: {signal}"
+sent_channel = "Wysłano: {signal} na kanał {channel}"
+no_target = "Spójrz na stworzenie, które możesz zaatakować, w promieniu {range} bloków, aby wysłać Bierz"
+
+[golemancy.mending]
+name = "Naprawa golemów"
+description = "Lecz swoje golemy sztabkami miedzi, blokami śniegu i mączką kostną, pozwól im regenerować się przy tobie i w domu, a poległe golemy odbudowuj z ich Roztrzaskanego rdzenia."
+lore1 = "Dodatkowe leczenie z napraw"
+lore2 = "Sztabki miedzi, bloki śniegu i mączka kostna leczą twoje golemy"
+lore3 = "Zdrowie regenerowane przy tobie"
+lore4 = "Zdrowie regenerowane podczas odpoczynku w domu"
+lore5 = "Sekundy między regeneracjami"
+lore6 = "Roztrzaskany rdzeń: odbudowa poległych golemów"
+lore7 = "Sekundy Odporności dla odrodzonych golemów"
+lore8 = "Odrodzone golemy zachowują stan miedzi"
+lore = ["Dodatkowe leczenie z napraw", "Sztabki miedzi, bloki śniegu i mączka kostna leczą twoje golemy", "Zdrowie regenerowane przy tobie", "Zdrowie regenerowane podczas odpoczynku w domu", "Sekundy między regeneracjami", "Roztrzaskany rdzeń: odbudowa poległych golemów", "Sekundy Odporności dla odrodzonych golemów", "Odrodzone golemy zachowują stan miedzi"]
+full_health = "Ten golem ma już pełne zdrowie"
+shattered = "Twój {body} golem roztrzaskał się i zostawił swój Roztrzaskany rdzeń"
+reborn = "Twój {body} golem odrodził się"
+void = "Ten Roztrzaskany rdzeń rozsypuje się: nie zawiera już swojego golema"
+not_owner = "Ten Roztrzaskany rdzeń należy do innego gracza"
+locked = "Odbudowa golema wymaga Naprawy golemów na poziomie {level}"
+wrong_body = "Ten Roztrzaskany rdzeń potrzebuje świeżo zbudowanego golema typu {body}"
+unreadable = "Ten Roztrzaskany rdzeń jest uszkodzony i nie może odbudować golema"
+
+[golemancy.stasis]
+name = "Staza"
+description = "Pakuj związane golemy Laską do bloków Uśpionego golema i stawiaj blok, by obudzić je w dowolnym miejscu, z nietkniętymi rdzeniami, runami, ładunkiem i zdrowiem."
+lore1 = "Sekundy na spakowanie golema"
+lore2 = "Natychmiastowe pakowanie"
+lore3 = "Postaw Uśpionego golema, aby go obudzić"
+lore4 = "Zdrowie odzyskiwane po spakowaniu"
+lore5 = "Sekundy między leczeniami po spakowaniu"
+lore6 = "Kieszonkowy spis: przywołuj golemy ze spisu"
+lore7 = "Sekundy między przywołaniami"
+lore = ["Sekundy na spakowanie golema", "Natychmiastowe pakowanie", "Postaw Uśpionego golema, aby go obudzić", "Zdrowie odzyskiwane po spakowaniu", "Sekundy między leczeniami po spakowaniu", "Kieszonkowy spis: przywołuj golemy ze spisu", "Sekundy między przywołaniami"]
+packed = "Twój {body} golem został spakowany do Uśpionego golema"
+dropped = "Twój ekwipunek jest pełny, więc Uśpiony golem upadł ci pod nogi"
+interrupted = "Pakowanie zostało przerwane"
+busy = "Już pakujesz golema"
+pack_failed = "Tego golema nie można teraz spakować"
+awakened = "Twój {body} golem się budzi"
+void = "Ten Uśpiony golem rozsypuje się: nie zawiera już swojego golema"
+not_owner = "Ten Uśpiony golem należy do innego gracza"
+locked = "Obudzenie Uśpionego golema wymaga Stazy"
+unreadable = "Ten Uśpiony golem jest uszkodzony i nie może się obudzić"
+body_locked = "Nie możesz jeszcze budzić golemów typu {body}"
+no_room = "Uśpiony golem potrzebuje wolnego bloku, aby się obudzić"
+server_cap = "Na serwerze czuwa już tyle golemów, ile jest dozwolone"
+protected = "Tutaj nie możesz budzić golemów"
+awaken_failed = "Golem nie mógł się obudzić, więc zachowujesz Uśpionego golema"
+recall_cooldown = "Kolejnego golema przywołasz za {seconds} s"
+recall_unavailable = "Przywołać można tylko golemy załadowane w twoim świecie"
+
+[golemancy.masterwork]
+name = "Arcydzieło"
+description = "Nasyć Serce arcydzieła na Postumencie animusa i osadź je w golemie, by zyskać dodatkowe miejsce na runę, więcej zdrowia, drugi rdzeń i silniejsze runy."
+lore1 = "Golemy-arcydzieła"
+lore2 = "Dodatkowe miejsca na runy w arcydziele"
+lore3 = "Maksymalne zdrowie arcydzieła"
+lore4 = "Miejsce na drugi rdzeń w arcydziele"
+lore5 = "Runy arcydzieła działają o poziom wyżej"
+lore6 = "Premia do run 3. poziomu w arcydziele"
+lore = ["Golemy-arcydzieła", "Dodatkowe miejsca na runy w arcydziele", "Maksymalne zdrowie arcydzieła", "Miejsce na drugi rdzeń w arcydziele", "Runy arcydzieła działają o poziom wyżej", "Premia do run 3. poziomu w arcydziele"]
+slot = "Serce arcydzieła"
+slot_lore = "Kliknij, aby odebrać serce wraz z drugim rdzeniem i dodatkowymi runami"
+slot_empty = "Miejsce arcydzieła"
+slot_empty_lore = "Podnieś Serce arcydzieła i kliknij tutaj ({count}/{maximum} arcydzieł)"
+core_empty = "Miejsce na drugi rdzeń"
+core_empty_lore = "Podnieś rdzeń roli i kliknij tutaj, aby go osadzić"
+core_remove = "Kliknij, aby odebrać ten rdzeń"
+heart_needed = "Najpierw podnieś Serce arcydzieła"
+designated = "Ten golem jest teraz arcydziełem"
+removed = "Odebrano Serce arcydzieła"
+already = "Ten golem jest już arcydziełem"
+cap = "Masz już golemy-arcydzieła: {count}"
+locked = "Potrzebujesz Arcydzieła, aby wyznaczyć golema-arcydzieło"
+body = "Golem typu {body} nie może zostać arcydziełem"
+core_needed = "Najpierw podnieś rdzeń roli"
+core_slotted = "Osadzono rdzeń: {core}"
+core_removed = "Odebrano rdzeń: {core}"
+core_no_slot = "Ten golem nie ma wolnego miejsca na rdzeń"
+core_blank = "Drugi rdzeń musi być rdzeniem roli"
+core_duplicate = "Ten golem ma już rdzeń: {core}"
+
+[golemancy.node_status]
+idle = "Bezczynny"
+working = "Pracuje"
+blocked = "Zablokowany przez ochronę"
+full = "Pojemnik pełny"
+
+[golemancy.node_label]
+priority = "P{priority}"
+filters = "Filtr: {count}"
+
+[golemancy.node_message]
+placed = "Postawiono węzeł: {node}"
+occupied = "Na tej ścianie jest już węzeł"
+protected = "Nie możesz tu stawiać węzłów"
+needs_container = "Węzeł {node} stawia się na skrzyni, beczce lub shulkerze"
+needs_side_face = "Węzeł {node} stawia się na boku bloku"
+container_protected = "Ten pojemnik jest chroniony"
+chunk_full = "W tym chunku jest już {count} węzłów"
+cap = "Masz już swój limit {count} węzłów"
+loading = "Węzły w tym miejscu wciąż się wczytują"
+unavailable = "Twoja lista golemów nie jest jeszcze gotowa"
+filter_added = "Dodano do filtra: {item}"
+filter_removed = "Usunięto z filtra: {item}"
+filter_full = "Ten filtr mieści najwyżej {count} pozycji"
+priority_locked = "Priorytet węzłów odblokowuje się na poziomie {level} Tkania węzłów"
+removed = "Usunięto węzeł: {node}"
+remove_failed = "Tego węzła nie można teraz usunąć"
+not_owner = "Ten węzeł należy do innego gracza"
+gone = "Tego węzła już tu nie ma"
+tag_prompt = "Wpisz na czacie tag przedmiotu, np. #logs"
+tag_invalid = "{tag} nie jest tagiem przedmiotu"
+tag_cancelled = "Anulowano wpisywanie tagu"
+tag_timed_out = "Czas na wpisanie tagu minął"
+
+[golemancy.node_gui]
+position = "Blok: {x}, {y}, {z}"
+area = "Promień {axis}: {radius}"
+area_lore = "Lewy przycisk: powiększ, prawy przycisk: zmniejsz"
+area_cap = "Największy promień: {radius}"
+priority = "Priorytet: {priority}"
+redstone = "Redstone: {mode}"
+redstone_ignore = "Ignorowany"
+redstone_powered = "Działa tylko z sygnałem redstone"
+redstone_unpowered = "Działa tylko bez sygnału redstone"
+locked = "Odblokowuje się na poziomie {level} Tkania węzłów"
+whitelist = "Biała lista"
+whitelist_lore = "Golemy używają tylko pasujących przedmiotów"
+blacklist = "Czarna lista"
+blacklist_lore = "Golemy używają wszystkiego oprócz pasujących przedmiotów"
+empty_filter = "Pusty filtr pasuje do każdego przedmiotu"
+toggle = "Kliknij, aby przełączyć"
+filter_empty = "Puste miejsce filtra"
+filter_set = "Kliknij przedmiotem, aby ustawić"
+filter_clear = "Prawy przycisk, aby wyczyścić"
+filter_locked = "Zablokowane miejsce filtra"
+filter_locked_lore = "Kolejne poziomy Tkania węzłów odblokowują to miejsce"
+tag = "Tag przedmiotu"
+tag_add = "Dodaj tag"
+tag_add_lore = "Kliknij, a potem wpisz na czacie tag przedmiotu, np. #logs"
+
+[golemancy.node_weaving]
+name = "Tkanie węzłów"
+description = "Kucnij i kliknij prawym przyciskiem ścianę bloku, trzymając węzeł, aby go tam zakotwiczyć i kierować pracą swoich golemów."
+lore1 = "Węzły, które możesz posiadać"
+lore2 = "Promień obszaru pracy w blokach"
+lore3 = "Miejsca filtra"
+lore4 = "Priorytet węzła 1-5"
+lore5 = "Sterowanie redstone"
+lore6 = "Filtry czarnej listy i tagów"
+lore = ["Węzły, które możesz posiadać", "Promień obszaru pracy w blokach", "Miejsca filtra", "Priorytet węzła 1-5", "Sterowanie redstone", "Filtry czarnej listy i tagów"]
+
+[golemancy.plinth]
+loading = "Ten postument wciąż się wczytuje"
+occupied = "Na tej podstawie leży już przedmiot"
+protected = "Nie możesz tu używać tego postumentu"
+busy = "Nasycanie już trwa"
+no_recipe = "Te przedmioty nie tworzą nasycenia"
+locked = "Nie znasz jeszcze tego nasycenia"
+levels = "To nasycenie kosztuje {levels} poziomów"
+interrupted = "Nasycanie zostało przerwane"
+complete = "Nasycanie zakończone"
+failed = "Nasycanie nie powiodło się, a twoje poziomy zostały zwrócone"
+
 [herbalism.growth_aura]
 name = "Aura Wzrostu"
 description = "Rozwijaj nature wokol siebie w aurze"
@@ -4523,6 +5212,10 @@ vault_unavailable_fallback = "Ekonomia Vault jest niedostępna — nauka wyłąc
 vault_insufficient_funds = "Gracz nie ma wystarczających środków w ekonomii Vault."
 vault_transaction_failed = "Transakcja Vault nie powiodła się; postęp nie został zmieniony."
 power_drain = "Zużycie mocy: {power}"
+requirement_level = "{adaptation} poz. {level}"
+requires = "Wymaga: {requirement}"
+requirements_missing = "Naucz się {requirements}, zanim nauczysz się {adaptation}."
+required_by_dependents = "Najpierw oducz się {dependents}; wymagają {adaptation}."
 
 [gui.skill]
 title = "{skill} {progress} ({xp}XP {nextLevel})"
@@ -5362,6 +6055,11 @@ name = "Kinetyka"
 icon = "⚒"
 description = "Wniosek to władza. Smash z makaronem, ładować włócznie i zginać pęd sam: odbicia, wyrzutnie, lewitacja, i dobrze ukierunkowane spadające kowadła wszystkie karmić swoje mistrzostwo."
 
+[skill.golemancy]
+name = "Golemancja"
+icon = "⚙"
+description = "Zdobywaj poziomy, budując, naprawiając i pielęgnując golemy, a potem ożyw je, by walczyły i pracowały u twojego boku."
+
 [snippets.gui]
 level = "Poziom"
 level_value = "Poziom {level}"
@@ -5951,7 +6649,7 @@ assign_or_unassign_an_adaptation_for_a_player_as_if_learning_unlearning_it = "Pr
 boost_global_experience_gain = "Zwiększ globalny zysk z doświadczenia."
 boost_target_player_experience_gain = "Zwiększ docelowy gracz Zysk z doświadczenia."
 bypass_adapt_use_permission_checks_when_opening = "Bypass adapt.use sprawdzanie zezwoleń przy otwieraniu"
-bypass_costs_and_restrictions = "Koszty obejścia i ograniczenia"
+bypass_costs_and_permanence_prerequisites_still_apply = "Pomiń koszty i trwałość; wymagania wstępne nadal obowiązują"
 bypass_power_knowledge_and_permanence_checks = "Kontrola mocy, wiedzy i trwałości obejścia"
 clear_all_discovery_data_biomes_mobs_foods_items_recipes_etc = "Wyczyszcz wszystkie dane odkrycia . (biomy, tłumy, żywność, przedmioty, przepisy itp.)"
 clear_all_player_data_xp_knowledge_adaptations_stats_discoveries_advancements_wisdom = "Wyczyść wszystkie dane gracza (XP, wiedza, adaptacje, statystyki, odkrycia, postęp, mądrość)"
@@ -5996,6 +6694,12 @@ toggle_verbose_mode = "Włączenie / wyłączenie trybu verbose"
 top_results_to_print = "Najlepsze wyniki do wydruku"
 true_to_learn_false_to_unlearn = "Prawda, by się uczyć, fałsz, żeby się oduczyć"
 unlearn_all_adaptations_across_all_skill_lines = "Oduczyć wszystkie dostosowania we wszystkich liniach umiejętności"
+golem_roster_and_admin_tools = "Spis golemów i narzędzia administracyjne"
+open_your_golem_roster = "Otwórz swój spis golemów"
+list_a_player_s_golems = "Wyświetl golemy gracza"
+release_one_of_a_player_s_golems = "Uwolnij jednego z golemów gracza"
+golem_id_or_enough_of_its_first_characters_to_match_one_golem = "ID golema albo tyle jego pierwszych znaków, by pasował tylko jeden golem"
+wake_a_player_s_loaded_golems = "Obudź załadowane golemy gracza"
 
 [command.runtime]
 missing_permission = "Brakuje ci pozwolenia. '{permission}'."
@@ -6038,6 +6742,8 @@ vault_insufficient_funds = "Gracz nie ma wystarczających środków w ekonomii V
 vault_transaction_failed = "Transakcja Vault nie powiodła się; postęp nie został zmieniony."
 set_adaptation_level = "Ustaw {player} {adaptation} do poziomu {level}."
 permanent_adaptation_lower = "{adaptation} jest trwałe i nie może być obniżona bez force=true."
+requirements_missing = "{player} potrzebuje {requirements}, zanim nauczy się {adaptation}."
+required_by_dependents = "{adaptation} jest wymagana przez {dependents} dla {player}; użyj force=true, aby usunąć również je."
 adapt_server_not_ready = "Serwer Adapt nie jest jeszcze gotowy."
 target_dispatch_failed = "Nie udało się zaplanować operacji dla wskazanego gracza. Spróbuj ponownie."
 cleared_all = "Wyczyścił wszystkie dane dla {player}."
@@ -6076,6 +6782,16 @@ perf_timing_budget = "Budżet na kontrolę zdolności: {percent} ({millisPerSeco
 perf_ticker_window = "Okno: {window}Pani"
 perf_no_metrics = "Nie zebrano jeszcze żadnych metryk ticków."
 perf_reset = "Resetowanie telemetrii i możliwości."
+golem_list_header = "Golemy gracza {player} ({count}):"
+golem_list_header_one = "Golem gracza {player} (1):"
+golem_list_empty = "{player} nie ma golemów."
+golem_list_entry = "{id}: {golem}, {status}. {location}"
+golem_not_found = "{player} nie ma golema, którego ID zaczyna się od {id}."
+golem_ambiguous = "Więcej niż jeden golem gracza {player} ma ID zaczynające się od {id}. Wpisz więcej znaków."
+golem_released = "Golem {id} został uwolniony ze spisu gracza {player}."
+golem_release_failed = "Nie udało się uwolnić golema {id} gracza {player}. Spróbuj ponownie."
+golem_release_active_unloaded = "Golem {id} gracza {player} jest aktywny w niezaładowanym chunku. Załaduj jego chunk, aby go uwolnić, albo uwolnij go, gdy zostanie oznaczony jako zaginiony."
+golems_woken = "Budzenie załadowanych golemów gracza {player}: {count}."
 
 [language.menu]
 your_language = "Twój język"
@@ -6709,6 +7425,29 @@ purple = "Purple"
 always = "Always"
 sneak = "Sneak to activate"
 suppress = "Sneak to suppress"
+
+[golemancy.preferences]
+absorb_orbs = "Pochłanianie kul doświadczenia"
+action_bar_only = "Tylko pasek akcji"
+any_item = "Dowolny przedmiot Golemancji"
+aura = "Aura"
+chime_and_particles = "Dzwonek i cząsteczki"
+crook_only = "Tylko laska"
+hidden = "Ukryte"
+intercept = "Przechwycenie"
+leaf_sweep = "Zamiatanie liści"
+magnet = "Magnes"
+node_reveal = "Pokazywanie węzłów"
+obey_overseer = "Sługi słuchają Nadzorcy"
+retaliate_players = "Odwet na graczach"
+shown = "Widoczne"
+signal_feedback = "Informacja zwrotna sygnałów"
+static_overdrive = "Przeciążenie statyczne"
+status_labels = "Etykiety stanu golemów"
+sweeping_fists = "Zamaszyste ciosy"
+tending = "Pielęgnacja"
+tilling = "Uprawa"
+work_area_outline = "Obrys obszaru pracy"
 
 [herbalism.preferences.herbalismbeeshepherd]
 bee-attraction = "Bee attraction"

@@ -273,12 +273,14 @@ public final class ViewerGlowCoordinator {
   }
 
   public enum Layer {
+    GOLEMANCY(50),
     STEALTH_SIGHT(100),
     TRAGOUL_DEATH_SENSE(200),
     RANGED_TRAJECTORY_SIGHT(300),
     STEALTH_THREAT(400),
     TAMING_ALPHAS_COMMAND(600),
-    RANGED_HEARTSEEKER(700);
+    RANGED_HEARTSEEKER(700),
+    GOLEMANCY_LOCATE(800);
 
     private final int priority;
 

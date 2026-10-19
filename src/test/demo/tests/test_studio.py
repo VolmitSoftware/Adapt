@@ -2,6 +2,7 @@ import contextlib
 import io
 import json
 import os
+import shutil
 import signal
 import struct
 import subprocess
@@ -374,6 +375,87 @@ class IrisJarTest(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, 'No packed Iris jar'):
                 studio.iris_jar(libs)
 
+    def test_environment_folder_replaces_the_sibling_default(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            libs = Path(tmp) / 'libs'
+            self.write_jars(libs, ['Iris v4.3.4 [CraftBukkit] 26.1.2-26.3-packed.jar'])
+            with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_IRIS_LIBS': str(libs)}):
+                self.assertEqual(studio.iris_jar().parent, libs)
+
+    def test_explicit_folder_wins_over_the_environment(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            libs = Path(tmp) / 'libs'
+            self.write_jars(libs, ['Iris v4.3.4 [CraftBukkit] 26.1.2-26.3-packed.jar'])
+            with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_IRIS_LIBS': str(Path(tmp) / 'elsewhere')}):
+                self.assertEqual(studio.iris_jar(libs).parent, libs)
+
+    def test_unset_environment_keeps_the_sibling_default(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_IRIS_LIBS': ''}):
+            with mock.patch.object(studio, 'IRIS_LIBS', Path(tmp) / 'sibling'):
+                with self.assertRaisesRegex(RuntimeError, 'No packed Iris jar under ' + str(Path(tmp) / 'sibling') + '; set ADAPT_DEMO_IRIS_LIBS'):
+                    studio.iris_jar()
+
+
+class MultiplexorTest(unittest.TestCase):
+    def test_default_is_the_sibling_workspace_of_the_checkout_parents(self) -> None:
+        with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_MULTIPLEXOR': ''}):
+            self.assertEqual(studio.clientqa.multiplexor(), studio.ROOT.parent.parent / '[Minecraft Server]')
+
+    def test_environment_replaces_the_default(self) -> None:
+        with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_MULTIPLEXOR': '/srv/[Minecraft Server]'}):
+            self.assertEqual(studio.clientqa.multiplexor(), Path('/srv/[Minecraft Server]'))
+
+    def test_environment_home_shorthand_is_expanded(self) -> None:
+        with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_MULTIPLEXOR': '~/Mux'}):
+            self.assertEqual(studio.clientqa.multiplexor(), Path.home() / 'Mux')
+
+    def test_commands_run_from_the_environment_workspace(self) -> None:
+        done = subprocess.CompletedProcess([], 0, stdout='ok\n', stderr='')
+        with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_MULTIPLEXOR': '/srv/[Minecraft Server]'}), \
+                mock.patch.object(studio.clientqa.subprocess, 'run', return_value=done) as run:
+            self.assertEqual(studio.clientqa.mux('server', 'list'), 'ok')
+        self.assertEqual(run.call_args.args[0], ['/srv/[Minecraft Server]/start.sh', '--consumer', 'plugin', 'server', 'list'])
+        self.assertEqual(run.call_args.kwargs['cwd'], Path('/srv/[Minecraft Server]'))
+
+
+class ClientBuildTest(unittest.TestCase):
+    def build(self, environment: dict[str, str]) -> mock.MagicMock:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(studio.os.environ, environment), \
+                mock.patch.object(studio.clientqa.subprocess, 'run') as run:
+            studio.clientqa.gradle_build(Path(tmp))
+        return run
+
+    def test_client_qa_build_appends_the_extra_gradle_arguments(self) -> None:
+        run: mock.MagicMock = self.build({'ADAPT_DEMO_GRADLE_ARGS': '-PlocalIrisDirectory=/work/iris -Pflag'})
+
+        self.assertEqual(run.call_args.args[0], ['./gradlew', 'build', 'prepareGameplay', '-PlocalIrisDirectory=/work/iris', '-Pflag'])
+        self.assertEqual(run.call_args.kwargs['cwd'], studio.ROOT)
+        self.assertNotIn('GIT_CONFIG_COUNT', run.call_args.kwargs['env'])
+
+    def test_client_qa_build_is_unchanged_without_arguments(self) -> None:
+        self.assertEqual(self.build({'ADAPT_DEMO_GRADLE_ARGS': ''}).call_args.args[0], ['./gradlew', 'build', 'prepareGameplay'])
+
+
+class GradleArgumentsTest(unittest.TestCase):
+    def build(self, command: list[str], environment: dict[str, str]) -> list[str]:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(studio.os.environ, environment), \
+                mock.patch.object(studio.subprocess, 'run') as run:
+            demo = studio.Studio(Path(tmp) / 'out', skip_build=True)
+            demo.output.mkdir()
+            demo.build(command, 'build.log')
+        return run.call_args.args[0]
+
+    def test_extra_arguments_follow_every_gradle_command(self) -> None:
+        pins = '-PlocalIrisDirectory=/work/iris -PlocalVolmLibDirectory="/work/volm lib"'
+        self.assertEqual(self.build(['./gradlew', 'build', 'prepareGameplay'], {'ADAPT_DEMO_GRADLE_ARGS': pins}),
+                         ['./gradlew', 'build', 'prepareGameplay', '-PlocalIrisDirectory=/work/iris', '-PlocalVolmLibDirectory=/work/volm lib'])
+
+    def test_other_commands_are_left_alone(self) -> None:
+        self.assertEqual(self.build(['bash', 'build.sh'], {'ADAPT_DEMO_GRADLE_ARGS': '-Pnope=1'}), ['bash', 'build.sh'])
+
+    def test_unset_arguments_leave_the_gradle_command_unchanged(self) -> None:
+        self.assertEqual(self.build(['./gradlew', 'build', 'prepareGameplay'], {'ADAPT_DEMO_GRADLE_ARGS': ''}), ['./gradlew', 'build', 'prepareGameplay'])
+
 
 ADAPT_TOML: str = ('# Shows aggregated skill XP gains on the action bar.\nactionbarNotifyXp = true\nactionbarXpDurationMillis = 1500\n'
                    'actionbarNotifyLevel = true\n# Mentions actionbarNotifyMasterLevel in a comment.\nactionbarNotifyMasterLevel=true\n'
@@ -436,6 +518,251 @@ RUNNING_STATUS: str = ('[OK] Runtime running: adapt-demo-1\nstate:        runnin
 STOPPED_STATUS: str = ('[WARN] Runtime stopped: adapt-demo-1\nstate:        stopped\nmode:         stopped\ntmux session: none\n'
                        'server port:  25590\nconsole pid:  none\nserver pid:   none\nlog:          /mux/state/runtime/adapt-demo-1.log')
 START_FAILURE: str = 'Multiplexor runtime start adapt-demo-1 --no-console failed with exit 1: '
+
+
+class ModelsCacheTest(unittest.TestCase):
+    def test_the_cache_name_follows_the_adapt_jar_content(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(studio, 'LOCKS', Path(tmp) / 'locks'):
+            root: Path = Path(tmp)
+            first: Path = root / 'first.jar'
+            second: Path = root / 'second.jar'
+            same: Path = root / 'same.jar'
+            first.write_bytes(b'adapt build one')
+            second.write_bytes(b'adapt build two')
+            same.write_bytes(b'adapt build one')
+            names: list[Path | None] = [studio.models_cache(first), studio.models_cache(second), studio.models_cache(same)]
+            missing: Path | None = studio.models_cache(root / 'missing.jar')
+        self.assertEqual(names[0], names[2])
+        self.assertNotEqual(names[0], names[1])
+        self.assertRegex(names[0].name, r'^models-cache-[0-9a-f]{12}\.toml$')
+        self.assertIsNone(missing)
+
+    def test_restore_copies_the_cached_models_into_the_adapt_folder(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            cache.parent.mkdir()
+            cache.write_text('[gui.golemancy.mode]\n')
+            restored: bool = studio.restore_models(root / 'adapt', cache)
+            text: str = (root / 'adapt' / studio.MODELS_FILE).read_text()
+        self.assertTrue(restored)
+        self.assertEqual(text, '[gui.golemancy.mode]\n')
+
+    def test_restore_without_a_cache_leaves_the_adapt_folder_alone(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            restored: bool = studio.restore_models(root / 'adapt', root / 'missing.toml')
+            created: bool = (root / 'adapt').exists()
+        self.assertFalse(restored)
+        self.assertFalse(created)
+
+    def test_keep_replaces_the_cache_when_this_run_restored_it(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            cache.parent.mkdir()
+            cache.write_text('[gui.golemancy.mode]\n[gui.golemancy.pack]\n')
+            kept: bool = studio.keep_models(root / 'adapt', cache, True)
+            text: str = cache.read_text()
+            leftovers: list[str] = sorted(path.name for path in cache.parent.iterdir())
+        self.assertTrue(kept)
+        self.assertEqual(text, '[gui.golemancy.pack]\n')
+        self.assertEqual(leftovers, ['models-cache-abc.toml'])
+
+    def test_keep_writes_a_first_cache_without_a_restore(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            kept: bool = studio.keep_models(root / 'adapt', cache, False)
+            text: str = cache.read_text()
+        self.assertTrue(kept)
+        self.assertEqual(text, '[gui.golemancy.pack]\n')
+
+    def test_a_kept_cache_deletes_the_caches_of_other_jars(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            cache.parent.mkdir()
+            (cache.parent / 'models-cache-old1.toml').write_text('[gui.golemancy.mode]\n')
+            (cache.parent / 'models-cache-old2.toml').write_text('[gui.golemancy.mode]\n')
+            (cache.parent / 'site-cache.json').write_text('{}')
+            studio.keep_models(root / 'adapt', cache, False)
+            remaining: list[str] = sorted(path.name for path in cache.parent.iterdir())
+        self.assertEqual(remaining, ['models-cache-abc.toml', 'site-cache.json'])
+
+    def test_a_refused_keep_leaves_the_caches_of_other_jars_alone(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            cache.parent.mkdir()
+            cache.write_text('[gui.golemancy.mode]\n[gui.golemancy.pack]\n')
+            (cache.parent / 'models-cache-old1.toml').write_text('[gui.golemancy.mode]\n')
+            studio.keep_models(root / 'adapt', cache, False)
+            remaining: list[str] = sorted(path.name for path in cache.parent.iterdir())
+        self.assertEqual(remaining, ['models-cache-abc.toml', 'models-cache-old1.toml'])
+
+    def test_a_run_that_did_not_restore_never_shrinks_the_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            cache.parent.mkdir()
+            cache.write_text('[gui.golemancy.mode]\n[gui.golemancy.pack]\n')
+            kept: bool = studio.keep_models(root / 'adapt', cache, False)
+            text: str = cache.read_text()
+        self.assertFalse(kept)
+        self.assertEqual(text, '[gui.golemancy.mode]\n[gui.golemancy.pack]\n')
+
+    def test_a_run_that_did_not_restore_may_grow_the_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.mode]\n[gui.golemancy.pack]\n[gui.golemancy.release]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            cache.parent.mkdir()
+            cache.write_text('[gui.golemancy.mode]\n[gui.golemancy.pack]\n')
+            kept: bool = studio.keep_models(root / 'adapt', cache, False)
+        self.assertTrue(kept)
+
+    def test_keep_ignores_a_missing_or_empty_models_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            missing: bool = studio.keep_models(root / 'adapt', cache, True)
+            (root / 'adapt' / studio.MODELS_FILE).write_text('')
+            empty: bool = studio.keep_models(root / 'adapt', cache, True)
+            written: bool = cache.exists()
+        self.assertFalse(missing)
+        self.assertFalse(empty)
+        self.assertFalse(written)
+
+    def test_a_failing_cache_write_leaves_no_partial_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            with mock.patch.object(studio.os, 'replace', side_effect=OSError('busy')):
+                with self.assertRaises(OSError):
+                    studio.keep_models(root / 'adapt', cache, True)
+            leftovers: list[str] = sorted(path.name for path in cache.parent.iterdir())
+        self.assertEqual(leftovers, [])
+
+    def test_two_runs_write_through_different_partial_names(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            seen: list[str] = []
+            real: object = studio.shutil.copy2
+
+            def recording(source: Path, target: Path) -> object:
+                seen.append(Path(target).name)
+                return real(source, target)
+
+            with mock.patch.object(studio.shutil, 'copy2', side_effect=recording), mock.patch.object(studio.os, 'getpid', return_value=111):
+                studio.keep_models(root / 'adapt', cache, True)
+            with mock.patch.object(studio.shutil, 'copy2', side_effect=recording), mock.patch.object(studio.os, 'getpid', return_value=222):
+                studio.keep_models(root / 'adapt', cache, True)
+        self.assertNotEqual(seen[0], seen[1])
+
+
+class ModelsCacheRunTest(unittest.TestCase):
+    def setUp(self) -> None:
+        for name in ('sys.stdout', 'sys.stderr'):
+            patcher = mock.patch(name, new_callable=io.StringIO)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def server(self, root: Path, jar_bytes: bytes) -> studio.Studio:
+        demo = studio.Studio(root / 'out', skip_build=True)
+        demo.output.mkdir(parents=True)
+        demo.jars.mkdir()
+        (demo.jars / studio.ADAPT_JAR).write_bytes(jar_bytes)
+        demo.server = root / 'server'
+        adapt: Path = demo.server / 'plugins' / 'Adapt'
+        (adapt / 'skills').mkdir(parents=True)
+        (adapt / 'adapt.toml').write_text(ADAPT_TOML)
+        (adapt / 'skills' / 'discovery.toml').write_text(DISCOVERY_TOML)
+        return demo
+
+    def restart(self, demo: studio.Studio) -> str | None:
+        seen: list[str | None] = []
+
+        def mux(*arguments: str, timeout: int = 180) -> str:
+            if arguments[:2] == ('runtime', 'start'):
+                models: Path = demo.server / 'plugins' / 'Adapt' / studio.MODELS_FILE
+                seen.append(models.read_text() if models.is_file() else None)
+            return ''
+
+        with mock.patch.object(studio.clientqa, 'mux', side_effect=mux), mock.patch.object(studio.clientqa, 'wait_server'):
+            demo.restart_server('agility')
+        return seen[0]
+
+    def test_a_different_jar_starts_from_a_fresh_models_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(studio, 'LOCKS', Path(tmp) / 'locks'):
+            root: Path = Path(tmp)
+            (root / 'locks').mkdir()
+            old: studio.Studio = self.server(root / 'old', b'build one')
+            cache: Path = studio.models_cache(old.jars / studio.ADAPT_JAR)
+            cache.write_text('[gui.golemancy.mode]\n')
+            fresh: studio.Studio = self.server(root / 'new', b'build two')
+            seen: str | None = self.restart(fresh)
+            old_seen: str | None = self.restart(old)
+        self.assertIsNone(seen)
+        self.assertEqual(old_seen, '[gui.golemancy.mode]\n')
+        self.assertFalse(fresh.models_restored)
+        self.assertTrue(old.models_restored)
+
+    def test_a_cache_failure_never_keeps_the_instance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(studio, 'LOCKS', Path(tmp) / 'locks'):
+            root: Path = Path(tmp)
+            (root / 'locks').mkdir()
+            demo: studio.Studio = self.server(root, b'build one')
+            (demo.server / 'plugins' / 'Adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.mode]\n')
+            demo.created_server = True
+            events: list[str] = []
+
+            def mux(*arguments: str, timeout: int = 180) -> str:
+                events.append(' '.join(arguments[:2]))
+                return ''
+
+            with mock.patch.object(studio.clientqa, 'mux', side_effect=mux), mock.patch.object(studio, 'keep_models', side_effect=OSError('disk')):
+                errors: list[str] = demo.remove_server()
+        self.assertEqual(events, ['runtime stop', 'instance delete'])
+        self.assertEqual(len(errors), 1)
+        self.assertIn('Models cache', errors[0])
+
+    def test_the_models_are_kept_before_the_instance_directory_is_deleted(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(studio, 'LOCKS', Path(tmp) / 'locks'):
+            root: Path = Path(tmp)
+            demo: studio.Studio = self.server(root, b'build one')
+            (demo.server / 'plugins' / 'Adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.mode]\n')
+            demo.created_server = True
+            server: Path = demo.server
+
+            def mux(*arguments: str, timeout: int = 180) -> str:
+                if arguments[:2] == ('instance', 'delete'):
+                    shutil.rmtree(server)
+                return ''
+
+            with mock.patch.object(studio.clientqa, 'mux', side_effect=mux):
+                errors: list[str] = demo.remove_server()
+            kept: str = studio.models_cache(demo.jars / studio.ADAPT_JAR).read_text()
+        self.assertEqual(errors, [])
+        self.assertEqual(kept, '[gui.golemancy.mode]\n')
+        self.assertFalse(server.exists())
 
 
 class RuntimeStateTest(unittest.TestCase):
@@ -719,7 +1046,7 @@ class StudioWarmUpTest(unittest.TestCase):
         demo.bridge.state.side_effect = lambda: {'ticks': ticks.pop(0)}
         with mock.patch.object(studio.time, 'sleep'), mock.patch('sys.stdout', new_callable=io.StringIO):
             demo.warm_up()
-        self.assertEqual([call.args[0] for call in demo.rcon.command.call_args_list], ['adaptqa demo set arena', 'adaptqa demo actor AQAClient262'])
+        self.assertEqual([call.args[0] for call in demo.rcon.command.call_args_list], ['adaptqa demo set arena', 'adaptqa demo actor Magic_Psycho'])
         self.assertEqual(ticks, [])
 
 
@@ -732,7 +1059,66 @@ class StudioWarmUpTest(unittest.TestCase):
         with mock.patch.object(studio.time, 'sleep'), mock.patch.object(studio, 'WARM_UP_TICKS', 0), mock.patch('sys.stdout', new_callable=io.StringIO):
             demo.warm_up()
         self.assertEqual([call.args[0] for call in demo.rcon.command.call_args_list],
-                         ['adaptqa demo set arena', 'adaptqa demo actor AQAClient262', 'adaptqa demo actor AQAOpponent opponent'])
+                         ['adaptqa demo set arena', 'adaptqa demo actor Magic_Psycho', 'adaptqa demo actor AQAOpponent opponent'])
+
+
+class StudioIdentityTest(unittest.TestCase):
+    ROOT: Path = Path(__file__).resolve().parents[4]
+
+    def test_the_filmed_client_is_magic_psycho(self) -> None:
+        self.assertEqual(studio.ACTOR, 'Magic_Psycho')
+
+    def test_the_real_client_qa_shares_the_studio_actor(self) -> None:
+        self.assertEqual(studio.clientqa.PLAYER, studio.ACTOR)
+
+    def test_the_fixture_scope_names_the_same_actor(self) -> None:
+        scope: str = (self.ROOT / 'src' / 'test' / 'gameplay' / 'fixture' / 'java' / 'art' / 'arcane' / 'adapt' / 'gameplay' / 'demo' / 'DemoScope.java').read_text()
+        self.assertIn('STUDIO_ACTOR = "' + studio.ACTOR + '"', scope)
+
+    def test_the_opponent_keeps_the_qa_prefix(self) -> None:
+        self.assertEqual(studio.OPPONENT, 'AQAOpponent')
+
+    def test_the_retired_actor_name_appears_nowhere_in_the_test_sources(self) -> None:
+        retired: str = 'AQA' + 'Client262'
+        for folder in ('client', 'demo', 'gameplay'):
+            for path in (self.ROOT / 'src' / 'test' / folder).rglob('*'):
+                if path.is_file() and path.suffix in {'.py', '.java', '.md', '.mjs', '.js'} and '__pycache__' not in path.parts:
+                    self.assertNotIn(retired, path.read_text(), str(path))
+
+
+class StudioWarmTest(unittest.TestCase):
+    def studio_with_rcon(self) -> studio.Studio:
+        output = tempfile.TemporaryDirectory()
+        self.addCleanup(output.cleanup)
+        demo = studio.Studio(Path(output.name), skip_build=True)
+        demo.rcon = mock.MagicMock()
+        return demo
+
+    def test_the_command_exists_only_for_golemancy(self) -> None:
+        self.assertEqual(studio.warm_command('golemancy'), 'adaptqa demo warm')
+        self.assertIsNone(studio.warm_command('agility'))
+
+    def test_a_golemancy_run_warms_the_items_over_rcon(self) -> None:
+        demo = self.studio_with_rcon()
+        demo.warm_items('golemancy')
+        demo.rcon.command.assert_called_once_with('adaptqa demo warm')
+
+    def test_another_skill_sends_nothing(self) -> None:
+        demo = self.studio_with_rcon()
+        demo.warm_items('agility')
+        demo.rcon.command.assert_not_called()
+
+    def test_start_warms_after_the_world_and_before_the_client_connects(self) -> None:
+        output = tempfile.TemporaryDirectory()
+        self.addCleanup(output.cleanup)
+        demo = studio.Studio(Path(output.name), skip_build=True)
+        steps: mock.MagicMock = mock.MagicMock()
+        for name in ('prepare_jars', 'start_server', 'prepare_world', 'warm_items', 'launch_client', 'launch_opponent', 'warm_up', 'await_skin'):
+            setattr(demo, name, getattr(steps, name))
+        demo.start('golemancy')
+        names: list[str] = [call[0] for call in steps.mock_calls]
+        self.assertLess(names.index('prepare_world'), names.index('warm_items'))
+        self.assertLess(names.index('warm_items'), names.index('launch_client'))
 
 
 class StudioStartTest(unittest.TestCase):
@@ -744,7 +1130,7 @@ class StudioStartTest(unittest.TestCase):
         demo = studio.Studio(Path(output.name), skip_build=True)
         steps: mock.MagicMock = mock.MagicMock()
         steps.prepare_jars.return_value = self.MODS
-        for name in ('prepare_jars', 'start_server', 'prepare_world', 'launch_client', 'launch_opponent', 'warm_up', 'await_skin'):
+        for name in ('prepare_jars', 'start_server', 'prepare_world', 'warm_items', 'launch_client', 'launch_opponent', 'warm_up', 'await_skin'):
             setattr(demo, name, getattr(steps, name))
         if world is None:
             demo.start('agility', opponent=opponent)
@@ -754,16 +1140,16 @@ class StudioStartTest(unittest.TestCase):
 
     def test_opponent_client_launches_only_when_asked(self) -> None:
         self.assertEqual(self.start(False), [mock.call.prepare_jars(), mock.call.start_server('agility'), mock.call.prepare_world(OVERWORLD),
-                                             mock.call.launch_client(self.MODS), mock.call.warm_up(), mock.call.await_skin()])
+                                             mock.call.warm_items('agility'), mock.call.launch_client(self.MODS), mock.call.warm_up(), mock.call.await_skin()])
 
     def test_opponent_client_joins_after_the_actor_and_before_the_warm_up(self) -> None:
         self.assertEqual(self.start(True), [mock.call.prepare_jars(), mock.call.start_server('agility'), mock.call.prepare_world(OVERWORLD),
-                                            mock.call.launch_client(self.MODS), mock.call.launch_opponent(self.MODS), mock.call.warm_up(),
+                                            mock.call.warm_items('agility'), mock.call.launch_client(self.MODS), mock.call.launch_opponent(self.MODS), mock.call.warm_up(),
                                             mock.call.await_skin()])
 
     def test_world_of_the_sheet_is_plated_and_the_opponent_joins_it_the_same_way(self) -> None:
         self.assertEqual(self.start(True, NETHER), [mock.call.prepare_jars(), mock.call.start_server('agility'), mock.call.prepare_world(NETHER),
-                                                    mock.call.launch_client(self.MODS), mock.call.launch_opponent(self.MODS), mock.call.warm_up(),
+                                                    mock.call.warm_items('agility'), mock.call.launch_client(self.MODS), mock.call.launch_opponent(self.MODS), mock.call.warm_up(),
                                                     mock.call.await_skin()])
 
 

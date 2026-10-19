@@ -26,6 +26,7 @@ import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.world.AdaptDebugMode;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
+import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GuiMessages;
@@ -62,6 +63,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
+import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 final class AdaptationGuiSupport {
   private static final Map<String, Long> PERMANENT_LEARN_CONFIRMATIONS = new ConcurrentHashMap<>();
@@ -251,6 +253,7 @@ final class AdaptationGuiSupport {
     int mylevel = paidLevel(line, adaptation.getName());
 
     long k = line.getKnowledge();
+    List<String> requirementLore = requirementLore(adaptation, adaptPlayer.getData());
 
     boolean debugLearning = AdaptDebugMode.isActive(player);
 
@@ -309,7 +312,7 @@ final class AdaptationGuiSupport {
               int delayTicks = AdaptConfig.get().getLearnUnlearnButtonDelayTicks();
               int currentLevel = paidLevel(skillLine, adaptation.getName());
               if (ownsLevel(currentLevel, lvl)) {
-                adaptation.unlearn(player, lvl, false);
+                AdaptationLearningTransaction.Result unlearnResult = adaptation.unlearn(player, lvl, false);
                 int updatedLevel = skillLine.getAdaptationLevel(adaptation.getName());
                 if (updatedLevel < currentLevel) {
                   spw.play(player.getLocation(), Sound.BLOCK_NETHER_GOLD_ORE_PLACE, 0.7f, 1.355f);
@@ -326,6 +329,7 @@ final class AdaptationGuiSupport {
                 }
 
                 spw.play(player.getLocation(), Sound.ENTITY_BLAZE_DEATH, 0.5f, 1.355f);
+                notifyDependents(adaptation, player, currentPlayer, lvl - 1, unlearnResult);
                 if (delayTicks != 0) {
                   AdaptHud.guiTitle(player, " ", C.RED + "" + C.BOLD + AdaptLanguage.text(
                       SnippetsMessages.ADAPT_MENU_MAY_NOT_UNLEARN_TITLE,
@@ -339,7 +343,13 @@ final class AdaptationGuiSupport {
               boolean debugLearningClick = AdaptDebugMode.isActive(player);
               long currentKnowledge = skillLine.getKnowledge();
               if (debugLearningClick || (currentKnowledge >= c && currentPlayer.getData().hasPowerAvailable(pc))) {
-                if (adaptation.isPermanent() && !debugLearningClick && !consumePermanentLearnConfirmation(player, adaptation, lvl)) {
+                LearnGate gate = learnGate(adaptation, player, currentPlayer, lvl, debugLearningClick);
+                if (gate == LearnGate.REQUIREMENTS_MISSING) {
+                  spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
+                  notifyLearningFailure(adaptation, player, currentPlayer, AdaptationLearningTransaction.Result.REQUIREMENTS_MISSING);
+                  return;
+                }
+                if (gate == LearnGate.CONFIRM_PERMANENT) {
                   spw.play(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 0.7f, 0.85f);
                   AdaptHud.guiTitle(player, " ", C.GOLD + "" + C.BOLD + AdaptLanguage.text(GuiMessages.PERMANENT_LEARN_CONFIRM));
                   J.runEntity(player, () -> openAdaptationPage(adaptation, player, currentPage), 1);
@@ -367,12 +377,15 @@ final class AdaptationGuiSupport {
                   closeAndReopenAfterLevelChange(adaptation, player, currentPage, delayTicks);
                 } else {
                   spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
-                  notifyEconomyFailure(player, result);
+                  notifyLearningFailure(adaptation, player, currentPlayer, result);
                 }
               } else {
                 spw.play(player.getLocation(), Sound.BLOCK_BAMBOO_HIT, 0.7f, 1.855f);
               }
             });
+        for (String requirementLine : requirementLore) {
+          de.addLore(requirementLine);
+        }
         de.addLore(" ");
         adaptation.addStats(lvl, de);
         reveal.add(new GuiEffects.Placement(pos, row, de));
@@ -474,13 +487,29 @@ final class AdaptationGuiSupport {
     return false;
   }
 
-  static void unlearn(Adaptation<?> adaptation, Player player, int lvl, boolean force) {
-    boolean debugLearning = AdaptDebugMode.isActive(player);
-    AdaptationLearningTransaction.unlearn(adaptation, player, lvl - 1, force || debugLearning);
+  static LearnGate learnGate(
+      Adaptation<?> adaptation,
+      Player player,
+      AdaptPlayer adaptPlayer,
+      int level,
+      boolean debugLearning
+  ) {
+    if (!AdaptationRequirements.missing(adaptation, adaptPlayer.getData()).isEmpty()) {
+      return LearnGate.REQUIREMENTS_MISSING;
+    }
+    if (adaptation.isPermanent() && !debugLearning && !consumePermanentLearnConfirmation(player, adaptation, level)) {
+      return LearnGate.CONFIRM_PERMANENT;
+    }
+    return LearnGate.READY;
   }
 
-  static void learn(Adaptation<?> adaptation, Player player, int lvl, boolean force) {
-    AdaptationLearningTransaction.learn(adaptation, player, lvl, force);
+  static AdaptationLearningTransaction.Result unlearn(Adaptation<?> adaptation, Player player, int lvl, boolean force) {
+    boolean debugLearning = AdaptDebugMode.isActive(player);
+    return AdaptationLearningTransaction.unlearn(adaptation, player, lvl - 1, force || debugLearning);
+  }
+
+  static AdaptationLearningTransaction.Result learn(Adaptation<?> adaptation, Player player, int lvl, boolean force) {
+    return AdaptationLearningTransaction.learn(adaptation, player, lvl, force);
   }
 
   static boolean isAdaptationRecipe(Adaptation<?> adaptation, Recipe recipe) {
@@ -644,7 +673,58 @@ final class AdaptationGuiSupport {
     );
   }
 
-  private static void notifyEconomyFailure(Player player, AdaptationLearningTransaction.Result result) {
+  private static List<String> requirementLore(Adaptation<?> adaptation, PlayerData data) {
+    List<AdaptationRequirement> requirements = adaptation.getRequirements();
+    if (requirements.isEmpty()) {
+      return List.of();
+    }
+
+    List<AdaptationRequirement> missing = AdaptationRequirements.missing(adaptation, data);
+    List<String> lines = new ArrayList<>(requirements.size());
+    for (AdaptationRequirement requirement : requirements) {
+      lines.add((missing.contains(requirement) ? C.RED : C.GREEN) + AdaptLanguage.text(
+          GuiMessages.REQUIRES,
+          untrusted("requirement", AdaptationRequirements.describe(requirement))
+      ));
+    }
+    return lines;
+  }
+
+  private static void notifyDependents(
+      Adaptation<?> adaptation,
+      Player player,
+      AdaptPlayer adaptPlayer,
+      int targetLevel,
+      AdaptationLearningTransaction.Result result
+  ) {
+    if (result != AdaptationLearningTransaction.Result.REQUIRED_BY_DEPENDENTS) {
+      return;
+    }
+    Adapt.messagePlayer(player, AdaptLanguage.text(
+        GuiMessages.REQUIRED_BY_DEPENDENTS,
+        trusted("dependents", AdaptationRequirements.names(
+            AdaptationRequirements.dependents(adaptation, adaptPlayer.getData(), targetLevel)
+        )),
+        trusted("adaptation", AdaptationRequirements.plainName(adaptation))
+    ));
+  }
+
+  private static void notifyLearningFailure(
+      Adaptation<?> adaptation,
+      Player player,
+      AdaptPlayer adaptPlayer,
+      AdaptationLearningTransaction.Result result
+  ) {
+    if (result == AdaptationLearningTransaction.Result.REQUIREMENTS_MISSING) {
+      Adapt.messagePlayer(player, AdaptLanguage.text(
+          GuiMessages.REQUIREMENTS_MISSING,
+          trusted("requirements", AdaptationRequirements.describe(
+              AdaptationRequirements.missing(adaptation, adaptPlayer.getData())
+          )),
+          trusted("adaptation", AdaptationRequirements.plainName(adaptation))
+      ));
+      return;
+    }
     if (result == AdaptationLearningTransaction.Result.INSUFFICIENT_FUNDS) {
       Adapt.messagePlayer(player, AdaptLanguage.text(GuiMessages.VAULT_INSUFFICIENT_FUNDS));
       return;
@@ -714,5 +794,11 @@ final class AdaptationGuiSupport {
 
   private static String permanentConfirmKey(Player player, Adaptation<?> adaptation, int level) {
     return permanentConfirmPrefix(player, adaptation) + level;
+  }
+
+  enum LearnGate {
+    READY,
+    REQUIREMENTS_MISSING,
+    CONFIRM_PERMANENT
   }
 }

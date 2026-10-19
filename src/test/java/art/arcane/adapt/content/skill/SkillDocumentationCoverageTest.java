@@ -53,7 +53,7 @@ class SkillDocumentationCoverageTest {
       }
     }
 
-    assertThat(sourceCatalog).hasSize(311);
+    assertThat(sourceCatalog).hasSize(330);
     assertThat(documentedIds.keySet()).containsExactlyInAnyOrderElementsOf(sourceCatalog.keySet());
     assertThat(documentedIds.values()).allMatch(count -> count == 1);
   }
@@ -81,8 +81,8 @@ class SkillDocumentationCoverageTest {
       documentedAdaptationFields += documentedFields.size();
     }
 
-    assertThat(documentedSkillFields).isEqualTo(319);
-    assertThat(documentedAdaptationFields).isEqualTo(2101);
+    assertThat(documentedSkillFields).isEqualTo(408);
+    assertThat(documentedAdaptationFields).isEqualTo(2347);
   }
 
   private static int assertSkillConfigTable(
@@ -121,7 +121,7 @@ class SkillDocumentationCoverageTest {
         assertThat(previous).as("duplicate skill id %s", id).isNull();
       }
     }
-    assertThat(catalog).hasSize(23);
+    assertThat(catalog).hasSize(24);
     return catalog;
   }
 
@@ -184,7 +184,7 @@ class SkillDocumentationCoverageTest {
         assertThat(previous).as("duplicate documented adaptation id %s", id).isNull();
       }
     }
-    assertThat(sections).hasSize(311);
+    assertThat(sections).hasSize(330);
     return sections;
   }
 
@@ -225,10 +225,10 @@ class SkillDocumentationCoverageTest {
   private static List<Path> skillDocs() throws IOException {
     try (Stream<Path> files = Files.list(DOCS_ROOT)) {
       List<Path> docs = files
-          .filter(path -> path.getFileName().toString().matches("(?:1[1-9]|2[0-9]|3[0-3])-skill-.+\\.md"))
+          .filter(path -> path.getFileName().toString().matches("(?:1[1-9]|2[0-9]|3[0-4])-skill-.+\\.md"))
           .sorted(Comparator.comparing(path -> path.getFileName().toString()))
           .toList();
-      assertThat(docs).hasSize(23);
+      assertThat(docs).hasSize(24);
       return docs;
     }
   }

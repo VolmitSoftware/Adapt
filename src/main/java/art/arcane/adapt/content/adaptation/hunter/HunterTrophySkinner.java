@@ -24,6 +24,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.GolemKillCredit;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -76,7 +77,7 @@ public class HunterTrophySkinner extends SimpleAdaptation<HunterTrophySkinner.Co
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(EntityDeathEvent e) {
     Player killer = e.getEntity().getKiller();
-    if (killer == null || !hasActiveAdaptation(killer) || e.getEntity() instanceof Player || !canDamageTarget(killer, e.getEntity())) {
+    if (killer == null || GolemKillCredit.isGolemKill(e.getEntity()) || !hasActiveAdaptation(killer) || e.getEntity() instanceof Player || !canDamageTarget(killer, e.getEntity())) {
       return;
     }
 

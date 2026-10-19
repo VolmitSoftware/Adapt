@@ -18,6 +18,7 @@
 
 package art.arcane.adapt.content.adaptation.taming;
 
+import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.preference.CommonPreferences;
@@ -31,7 +32,6 @@ import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.attribute.AdaptAttributeService;
 import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.api.fx.ViewerGlowCoordinator;
-import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -391,7 +391,7 @@ public class TamingAlphasCommand extends SimpleAdaptation<TamingAlphasCommand.Co
   }
 
   private boolean isProtectedFocusTarget(LivingEntity target, UUID ownerId) {
-    if (target.isInvulnerable() || target.hasMetadata("NPC") || TragoulSkeletalServant.isServant(target)) {
+    if (target.isInvulnerable() || target.hasMetadata("NPC") || MinionIdentity.isMinion(target)) {
       return true;
     }
     if (target instanceof Tameable tameable && tameable.isTamed()) {

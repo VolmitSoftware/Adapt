@@ -74,6 +74,9 @@ public final class SkillMessages {
   public static final TextKey KINETICS_NAME = TextKey.of("skill.kinetics.name", "Kinetics");
   public static final TextKey KINETICS_ICON = TextKey.of("skill.kinetics.icon", "⚒");
   public static final TextKey KINETICS_DESCRIPTION = TextKey.of("skill.kinetics.description", "Motion is power. Smash with maces, charge with spears, and bend momentum itself: bounces, launches, levitation, and well-aimed falling anvils all feed your mastery.");
+  public static final TextKey GOLEMANCY_NAME = TextKey.of("skill.golemancy.name", "Golemancy");
+  public static final TextKey GOLEMANCY_ICON = TextKey.of("skill.golemancy.icon", "⚙");
+  public static final TextKey GOLEMANCY_DESCRIPTION = TextKey.of("skill.golemancy.description", "Level up by building, repairing, and caring for golems, then animate them to fight and work at your side.");
 
   private SkillMessages() {
   }
@@ -148,5 +151,8 @@ public final class SkillMessages {
     builder.add(KINETICS_NAME);
     builder.add(KINETICS_ICON);
     builder.add(KINETICS_DESCRIPTION);
+    builder.add(GOLEMANCY_NAME);
+    builder.add(GOLEMANCY_ICON);
+    builder.add(GOLEMANCY_DESCRIPTION);
   }
 }

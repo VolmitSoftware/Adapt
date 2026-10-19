@@ -32,6 +32,7 @@ import art.arcane.adapt.api.advancement.AdaptAdvancement;
 import art.arcane.adapt.api.advancement.AdaptAdvancementFrame;
 import art.arcane.adapt.api.advancement.AdvancementVisibility;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -181,7 +182,7 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
     }
 
     ItemStack hand = p.getInventory().getItemInMainHand();
-    if (!isAppraisable(hand.getType())) {
+    if (!isAppraisable(hand)) {
       return;
     }
 
@@ -244,13 +245,14 @@ public class DiscoveryRelicAppraiser extends SimpleAdaptation<DiscoveryRelicAppr
         .start();
   }
 
-  static boolean isAppraisable(Material type) {
-    String n = type.name();
-    return n.startsWith("MUSIC_DISC_")
+  static boolean isAppraisable(ItemStack item) {
+    String n = item.getType().name();
+    return (n.startsWith("MUSIC_DISC_")
         || n.endsWith("_POTTERY_SHERD")
         || n.endsWith("_ARMOR_TRIM_SMITHING_TEMPLATE")
         || n.endsWith("_HEAD")
-        || n.endsWith("_SKULL");
+        || n.endsWith("_SKULL"))
+        && !GolemItems.isGolemItem(item);
   }
 
   static boolean isAppraisableBlock(Material type) {

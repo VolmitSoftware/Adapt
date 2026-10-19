@@ -32,6 +32,7 @@ import art.arcane.adapt.api.fx.FxPriority;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -98,8 +99,7 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
   }
 
   public List<ItemStack> getDeconstructionOfferings(ItemStack forStuff) {
-    if (forStuff == null || forStuff.getType().isAir() || forStuff.getAmount() <= 0
-        || !hasEligibleRepairState(forStuff)) {
+    if (!salvageable(forStuff)) {
       return List.of();
     }
 
@@ -114,6 +114,11 @@ public class CraftingDeconstruction extends SimpleAdaptation<CraftingDeconstruct
       }
     }
     return best;
+  }
+
+  static boolean salvageable(ItemStack source) {
+    return source != null && !source.getType().isAir() && source.getAmount() > 0
+        && !GolemItems.isGolemItem(source) && hasEligibleRepairState(source);
   }
 
   static boolean hasEligibleRepairState(ItemStack source) {
