@@ -376,9 +376,9 @@ public class AdaptConfig {
     private String host = "localhost";
     @ConfigDoc(value = "TCP port the SQL server listens on.", impact = "Must match the server; 3306 is the MySQL default.")
     private int port = 3306;
-    @ConfigDoc(value = "Schema the ADAPT_DATA table lives in.", impact = "The schema must already exist; Adapt creates the table but never the database.")
+    @ConfigDoc(value = "Schema for player profiles, ownership fences, and advancement tables.", impact = "The schema must already exist; Adapt creates tables but never the database.")
     private String database = "adapt";
-    @ConfigDoc(value = "SQL account Adapt authenticates with.", impact = "The account needs SELECT, INSERT, UPDATE, DELETE and CREATE TABLE on the configured database.")
+    @ConfigDoc(value = "SQL account Adapt authenticates with.", impact = "The account needs SELECT, INSERT, UPDATE, DELETE, CREATE TABLE, and REFERENCES on the configured database.")
     private String username = "user";
     @ConfigDoc(value = "Password for the SQL account.", impact = "Sent in plain text unless the SQL server enforces TLS.")
     private String password = "password";

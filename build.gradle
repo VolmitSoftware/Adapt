@@ -96,6 +96,7 @@ def strippedAdvancementLibrary = tasks.register('strippedAdvancementLibrary', Ja
     exclude('com/fren_gor/ultimateAdvancementAPI/nms/v*/**')
     exclude('com/fren_gor/ultimateAdvancementAPI/nms/util/ReflectionUtil.class')
     exclude('com/fren_gor/ultimateAdvancementAPI/util/Versions.class')
+    exclude('com/fren_gor/ultimateAdvancementAPI/database/impl/MySQL.class')
 }
 
 // ADD YOURSELF AS A NEW LINE IF YOU WANT YOUR OWN BUILD TASK GENERATED
@@ -305,6 +306,7 @@ dependencies {
     testImplementation('org.mockito:mockito-core:5.14.2')
     testImplementation('org.mockito:mockito-junit-jupiter:5.14.2')
     testImplementation('org.assertj:assertj-core:3.26.3')
+    testImplementation('com.h2database:h2:2.3.232')
     testImplementation(irisCoordinate) {
         changing = true
         transitive = false
