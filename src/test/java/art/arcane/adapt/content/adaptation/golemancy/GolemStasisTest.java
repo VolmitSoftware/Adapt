@@ -16,6 +16,8 @@ import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.item.OwnerBoundDrop;
 import art.arcane.adapt.api.golem.item.PackedGolem;
+import art.arcane.adapt.api.notification.AdaptHud;
+import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
@@ -286,6 +288,28 @@ class GolemStasisTest extends AdaptTestBase {
 
     drops.verify(() -> OwnerBoundDrop.drop(player.getLocation(), dormantStack, player.getUniqueId()));
     verify(player).saveData();
+  }
+
+  @Test
+  void aPackTellsThePlayerTheGolemIsPackedOrThatTheDormantGolemDropped() {
+    Packable roomy = packable();
+    Packable crowded = packable();
+    Map<Integer, ItemStack> leftover = new HashMap<>();
+    leftover.put(0, dormantStack);
+    scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(invocation -> {
+      invocation.<Runnable>getArgument(1).run();
+      return true;
+    });
+    List<String> shown = new ArrayList<>();
+    try (MockedStatic<AdaptHud> hud = mockStatic(AdaptHud.class)) {
+      hud.when(() -> AdaptHud.actionBar(eq(player), anyString())).thenAnswer(invocation -> shown.add(C.stripColor(invocation.getArgument(1))));
+
+      learned(3).pack(player, roomy.handle);
+      when(inventory.addItem(any(ItemStack[].class))).thenReturn(new HashMap<>(leftover));
+      learned(3).pack(player, crowded.handle);
+    }
+
+    assertThat(shown).containsExactly("Your Iron golem is packed into a Dormant Golem", "Your inventory is full, so your Dormant Golem dropped at your feet");
   }
 
   @Test

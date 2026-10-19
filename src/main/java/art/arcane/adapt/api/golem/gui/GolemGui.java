@@ -275,10 +275,8 @@ public final class GolemGui {
           element.addLore(line);
         }
       }
-      GolemGuiActions.RuneNote note = GolemGuiActions.runeNote(layout, runes, index);
-      return element.addLore((note.active() ? C.GREEN : C.RED) + AdaptLanguage.text(note.key(),
-              trusted("tier", rune.tier()), trusted("level", note.level()),
-              trusted("aspect", AdaptLanguage.text(rune.aspect().displayName())), trusted("body", AdaptLanguage.text(view.body().displayName()))))
+      GolemGuiActions.RuneNote note = GolemGuiActions.runeNote(layout, runes, index, view.body());
+      return element.addLore((note.active() ? C.GREEN : C.RED) + note.notice().text())
           .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_RUNE_REMOVE))
           .onLeftClick(clicked -> takeRune(index, rune));
     }
@@ -425,8 +423,7 @@ public final class GolemGui {
     GolemRegistry.Designation designation = registry.designate(handle, GolemMastery.maxMasterworks(handle.owner()));
     if (designation != GolemRegistry.Designation.DESIGNATED) {
       handBack(taken);
-      GolemGuiSupport.warn(player, GolemGuiActions.designationMessage(designation),
-          trusted("count", registry.masterworks(handle.owner())), trusted("body", GolemGuiSupport.localized(handle.body().displayName())));
+      GolemGuiSupport.warn(player, GolemGuiActions.designationNotice(designation, registry.masterworks(handle.owner()), handle.body()));
       snapshot();
       return;
     }
@@ -482,8 +479,7 @@ public final class GolemGui {
     Optional<GolemMastery.CoreRefusal> refusal = registry.addCore(handle, core);
     if (refusal.isPresent()) {
       handBack(taken);
-      GolemGuiSupport.warn(player, GolemGuiActions.coreRefusalMessage(refusal.get()),
-          trusted("core", GolemGuiSupport.localized(core.displayName())), trusted("body", GolemGuiSupport.localized(handle.body().displayName())));
+      GolemGuiSupport.warn(player, GolemGuiActions.coreRefusalNotice(refusal.get(), core, handle.body()));
       snapshot();
       return;
     }
@@ -531,8 +527,7 @@ public final class GolemGui {
     Optional<GolemRuneLayout.Refusal> refusal = GolemRunes.layout(handle.body(), handle.owner(), handle.state().masterwork()).refuse(runes, rune.aspect());
     if (refusal.isPresent()) {
       handBack(taken);
-      GolemGuiSupport.warn(player, GolemGuiActions.refusalMessage(refusal.get()),
-          trusted("aspect", GolemGuiSupport.localized(rune.aspect().displayName())), trusted("body", GolemGuiSupport.localized(handle.body().displayName())));
+      GolemGuiSupport.warn(player, GolemGuiActions.refusalNotice(refusal.get(), rune.aspect(), handle.body()));
       snapshot();
       return;
     }

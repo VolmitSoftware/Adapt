@@ -501,7 +501,11 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
       }
       boolean dropped = give(player, item);
       player.saveData();
-      notify(player, dropped ? GolemancyMessages.STASIS_DROPPED : GolemancyMessages.STASIS_PACKED, trusted("body", AdaptLanguage.text(body.displayName())));
+      if (dropped) {
+        notify(player, GolemancyMessages.STASIS_DROPPED);
+        return;
+      }
+      notify(player, GolemancyMessages.STASIS_PACKED, trusted("body", AdaptLanguage.text(body.displayName())));
     };
     Runnable drop = () -> {
       if (settled.compareAndSet(false, true)) {

@@ -27,6 +27,10 @@ public final class GolemGuiSupport {
     actionBar(player, C.RED, key, arguments);
   }
 
+  public static void warn(Player player, GolemGuiActions.Notice notice) {
+    warn(player, notice.key(), notice.arguments().toArray(MessageArgument[]::new));
+  }
+
   public static Object localized(TextKey key) {
     return new LocalizedText(key);
   }

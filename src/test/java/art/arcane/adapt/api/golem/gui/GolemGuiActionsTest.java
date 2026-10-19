@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.GolemRuneLayout;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.volmlib.util.localization.MessageArgument;
 import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class GolemGuiActionsTest {
@@ -125,22 +127,33 @@ class GolemGuiActionsTest {
     GolemRuneLayout layout = new GolemRuneLayout(2, List.of(1, 3, 5), 1, List.of(1, 3, 0), Set.of(GolemRuneType.EMBER));
     List<GolemRune> runes = List.of(rune(GolemRuneType.SWIFTNESS, 1), rune(GolemRuneType.MIGHT, 2), rune(GolemRuneType.TIDE, 1));
 
-    assertThat(GolemGuiActions.runeNote(layout, runes, 0)).isEqualTo(new GolemGuiActions.RuneNote(GolemancyMessages.GUI_RUNE_ACTIVE, 0, true));
-    assertThat(GolemGuiActions.runeNote(layout, runes, 1)).isEqualTo(new GolemGuiActions.RuneNote(GolemancyMessages.GUI_RUNE_OVER_TIER, 3, false));
-    assertThat(GolemGuiActions.runeNote(layout, runes, 2)).isEqualTo(new GolemGuiActions.RuneNote(GolemancyMessages.GUI_RUNE_SLOT_LOCKED, 5, false));
-    assertThat(GolemGuiActions.runeNote(layout, List.of(rune(GolemRuneType.EMBER, 1)), 0).key()).isEqualTo(GolemancyMessages.GUI_RUNE_BLOCKED);
-    assertThat(GolemGuiActions.runeNote(layout, List.of(rune(GolemRuneType.ORDER, 1), rune(GolemRuneType.ORDER, 1)), 1).key())
-        .isEqualTo(GolemancyMessages.GUI_RUNE_DUPLICATE);
-    assertThat(GolemGuiActions.runeNote(layout, List.of(rune(GolemRuneType.BULWARK, 3)), 0).key()).isEqualTo(GolemancyMessages.GUI_RUNE_UNPOWERED);
-    assertThat(GolemGuiActions.runeNote(GolemRuneLayout.NONE, List.of(rune(GolemRuneType.ORDER, 1)), 0).key())
-        .isEqualTo(GolemancyMessages.GUI_RUNE_UNPOWERED);
+    assertThat(GolemGuiActions.runeNote(layout, runes, 0, GolemBody.IRON)).isEqualTo(runeNote(true, GolemancyMessages.GUI_RUNE_ACTIVE));
+    assertThat(GolemGuiActions.runeNote(layout, runes, 1, GolemBody.IRON))
+        .isEqualTo(runeNote(false, GolemancyMessages.GUI_RUNE_OVER_TIER, trusted("tier", 2), trusted("level", 3)));
+    assertThat(GolemGuiActions.runeNote(layout, runes, 2, GolemBody.IRON))
+        .isEqualTo(runeNote(false, GolemancyMessages.GUI_RUNE_SLOT_LOCKED, trusted("level", 5)));
+    assertThat(GolemGuiActions.runeNote(layout, List.of(rune(GolemRuneType.EMBER, 1)), 0, GolemBody.FROST)).isEqualTo(runeNote(false,
+        GolemancyMessages.GUI_RUNE_BLOCKED, trusted("aspect", GolemGuiSupport.localized(GolemancyMessages.ASPECT_EMBER)),
+        trusted("body", GolemGuiSupport.localized(GolemancyMessages.BODY_FROST))));
+    assertThat(GolemGuiActions.runeNote(layout, List.of(rune(GolemRuneType.ORDER, 1), rune(GolemRuneType.ORDER, 1)), 1, GolemBody.IRON))
+        .isEqualTo(runeNote(false, GolemancyMessages.GUI_RUNE_DUPLICATE, trusted("aspect", GolemGuiSupport.localized(GolemancyMessages.ASPECT_ORDER))));
+    assertThat(GolemGuiActions.runeNote(layout, List.of(rune(GolemRuneType.BULWARK, 3)), 0, GolemBody.IRON))
+        .isEqualTo(runeNote(false, GolemancyMessages.GUI_RUNE_UNPOWERED));
+    assertThat(GolemGuiActions.runeNote(GolemRuneLayout.NONE, List.of(rune(GolemRuneType.ORDER, 1)), 0, GolemBody.IRON))
+        .isEqualTo(runeNote(false, GolemancyMessages.GUI_RUNE_UNPOWERED));
   }
 
   @Test
   void refusedRunesTellThePlayerWhy() {
-    assertThat(GolemGuiActions.refusalMessage(GolemRuneLayout.Refusal.NO_SLOT)).isEqualTo(GolemancyMessages.MESSAGE_RUNE_NO_SLOT);
-    assertThat(GolemGuiActions.refusalMessage(GolemRuneLayout.Refusal.DUPLICATE)).isEqualTo(GolemancyMessages.MESSAGE_RUNE_DUPLICATE);
-    assertThat(GolemGuiActions.refusalMessage(GolemRuneLayout.Refusal.BLOCKED)).isEqualTo(GolemancyMessages.MESSAGE_RUNE_BLOCKED);
+    TextKey aspect = GolemancyMessages.ASPECT_MIGHT;
+    TextKey body = GolemancyMessages.BODY_BONE;
+    assertThat(GolemGuiActions.refusalNotice(GolemRuneLayout.Refusal.NO_SLOT, GolemRuneType.MIGHT, GolemBody.BONE))
+        .isEqualTo(notice(GolemancyMessages.MESSAGE_RUNE_NO_SLOT));
+    assertThat(GolemGuiActions.refusalNotice(GolemRuneLayout.Refusal.DUPLICATE, GolemRuneType.MIGHT, GolemBody.BONE))
+        .isEqualTo(notice(GolemancyMessages.MESSAGE_RUNE_DUPLICATE, trusted("aspect", GolemGuiSupport.localized(aspect))));
+    assertThat(GolemGuiActions.refusalNotice(GolemRuneLayout.Refusal.BLOCKED, GolemRuneType.MIGHT, GolemBody.BONE))
+        .isEqualTo(notice(GolemancyMessages.MESSAGE_RUNE_BLOCKED, trusted("aspect", GolemGuiSupport.localized(aspect)),
+            trusted("body", GolemGuiSupport.localized(body))));
   }
 
   @Test
@@ -288,21 +301,39 @@ class GolemGuiActionsTest {
   }
 
   @Test
-  void everyDesignationAndCoreRefusalHasAMessage() {
+  void everyDesignationAndCoreRefusalHasAMessageWithItsArguments() {
     Set<TextKey> designations = new HashSet<>();
     for (GolemRegistry.Designation designation : GolemRegistry.Designation.values()) {
-      designations.add(GolemGuiActions.designationMessage(designation));
+      designations.add(GolemGuiActions.designationNotice(designation, 2, GolemBody.IRON).key());
     }
     Set<TextKey> refusals = new HashSet<>();
     for (GolemMastery.CoreRefusal refusal : GolemMastery.CoreRefusal.values()) {
-      refusals.add(GolemGuiActions.coreRefusalMessage(refusal));
+      refusals.add(GolemGuiActions.coreRefusalNotice(refusal, GolemCoreType.GUARDIAN, GolemBody.IRON).key());
     }
 
     assertThat(designations).hasSize(GolemRegistry.Designation.values().length);
     assertThat(refusals).hasSize(GolemMastery.CoreRefusal.values().length);
-    assertThat(GolemGuiActions.designationMessage(GolemRegistry.Designation.CAP)).isEqualTo(GolemancyMessages.MASTERWORK_CAP);
-    assertThat(GolemGuiActions.coreRefusalMessage(GolemMastery.CoreRefusal.NOT_ALLOWED)).isEqualTo(GolemancyMessages.BINDING_CORE_NOT_ALLOWED);
-    assertThat(GolemGuiActions.coreRefusalMessage(GolemMastery.CoreRefusal.LOCKED)).isEqualTo(GolemancyMessages.BINDING_CORE_LOCKED);
+    assertThat(GolemGuiActions.designationNotice(GolemRegistry.Designation.CAP, 2, GolemBody.IRON))
+        .isEqualTo(notice(GolemancyMessages.MASTERWORK_CAP, trusted("count", 2)));
+    assertThat(GolemGuiActions.designationNotice(GolemRegistry.Designation.BODY, 2, GolemBody.IRON))
+        .isEqualTo(notice(GolemancyMessages.MASTERWORK_BODY, trusted("body", GolemGuiSupport.localized(GolemancyMessages.BODY_IRON))));
+    assertThat(GolemGuiActions.designationNotice(GolemRegistry.Designation.LOCKED, 2, GolemBody.IRON))
+        .isEqualTo(notice(GolemancyMessages.MASTERWORK_LOCKED));
+    assertThat(GolemGuiActions.coreRefusalNotice(GolemMastery.CoreRefusal.NOT_ALLOWED, GolemCoreType.GUARDIAN, GolemBody.IRON))
+        .isEqualTo(notice(GolemancyMessages.BINDING_CORE_NOT_ALLOWED, trusted("body", GolemGuiSupport.localized(GolemancyMessages.BODY_IRON)),
+            trusted("core", GolemGuiSupport.localized(GolemancyMessages.ROLE_GUARDIAN))));
+    assertThat(GolemGuiActions.coreRefusalNotice(GolemMastery.CoreRefusal.LOCKED, GolemCoreType.GUARDIAN, GolemBody.IRON))
+        .isEqualTo(notice(GolemancyMessages.BINDING_CORE_LOCKED, trusted("core", GolemGuiSupport.localized(GolemancyMessages.ROLE_GUARDIAN))));
+    assertThat(GolemGuiActions.coreRefusalNotice(GolemMastery.CoreRefusal.NO_SLOT, GolemCoreType.GUARDIAN, GolemBody.IRON))
+        .isEqualTo(notice(GolemancyMessages.MASTERWORK_CORE_NO_SLOT));
+  }
+
+  private static GolemGuiActions.Notice notice(TextKey key, MessageArgument... arguments) {
+    return new GolemGuiActions.Notice(key, List.of(arguments));
+  }
+
+  private static GolemGuiActions.RuneNote runeNote(boolean active, TextKey key, MessageArgument... arguments) {
+    return new GolemGuiActions.RuneNote(notice(key, arguments), active);
   }
 
   private static GolemRune rune(GolemRuneType aspect, int tier) {

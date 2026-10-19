@@ -10,8 +10,11 @@ import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneLayout;
+import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemState;
+import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.volmlib.util.localization.MessageArgument;
 import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
@@ -20,6 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
 public final class GolemGuiActions {
   public static final int CARRIED_SLOTS = 18;
@@ -68,22 +73,22 @@ public final class GolemGuiActions {
     return names;
   }
 
-  public static RuneNote runeNote(GolemRuneLayout layout, List<GolemRune> runes, int index) {
+  public static RuneNote runeNote(GolemRuneLayout layout, List<GolemRune> runes, int index, GolemBody body) {
     GolemRune rune = runes.get(index);
     return switch (layout.status(runes, index)) {
-      case ACTIVE -> new RuneNote(GolemancyMessages.GUI_RUNE_ACTIVE, 0, true);
-      case OVER_TIER -> unlockNote(GolemancyMessages.GUI_RUNE_OVER_TIER, layout.tierUnlockLevel(rune.tier()));
+      case ACTIVE -> new RuneNote(notice(GolemancyMessages.GUI_RUNE_ACTIVE), true);
+      case OVER_TIER -> unlockNote(GolemancyMessages.GUI_RUNE_OVER_TIER, layout.tierUnlockLevel(rune.tier()), trusted("tier", rune.tier()));
       case LOCKED_SLOT -> unlockNote(GolemancyMessages.GUI_RUNE_SLOT_LOCKED, layout.slotUnlockLevel(index));
-      case BLOCKED -> new RuneNote(GolemancyMessages.GUI_RUNE_BLOCKED, 0, false);
-      case DUPLICATE -> new RuneNote(GolemancyMessages.GUI_RUNE_DUPLICATE, 0, false);
+      case BLOCKED -> new RuneNote(notice(GolemancyMessages.GUI_RUNE_BLOCKED, aspectArgument(rune.aspect()), bodyArgument(body)), false);
+      case DUPLICATE -> new RuneNote(notice(GolemancyMessages.GUI_RUNE_DUPLICATE, aspectArgument(rune.aspect())), false);
     };
   }
 
-  public static TextKey refusalMessage(GolemRuneLayout.Refusal refusal) {
+  public static Notice refusalNotice(GolemRuneLayout.Refusal refusal, GolemRuneType aspect, GolemBody body) {
     return switch (refusal) {
-      case NO_SLOT -> GolemancyMessages.MESSAGE_RUNE_NO_SLOT;
-      case DUPLICATE -> GolemancyMessages.MESSAGE_RUNE_DUPLICATE;
-      case BLOCKED -> GolemancyMessages.MESSAGE_RUNE_BLOCKED;
+      case NO_SLOT -> notice(GolemancyMessages.MESSAGE_RUNE_NO_SLOT);
+      case DUPLICATE -> notice(GolemancyMessages.MESSAGE_RUNE_DUPLICATE, aspectArgument(aspect));
+      case BLOCKED -> notice(GolemancyMessages.MESSAGE_RUNE_BLOCKED, aspectArgument(aspect), bodyArgument(body));
     };
   }
 
@@ -139,25 +144,25 @@ public final class GolemGuiActions {
     return cores.size() > 1 || dualCore;
   }
 
-  public static TextKey designationMessage(GolemRegistry.Designation designation) {
+  public static Notice designationNotice(GolemRegistry.Designation designation, int masterworks, GolemBody body) {
     return switch (designation) {
-      case DESIGNATED -> GolemancyMessages.MASTERWORK_DESIGNATED;
-      case LOCKED -> GolemancyMessages.MASTERWORK_LOCKED;
-      case CAP -> GolemancyMessages.MASTERWORK_CAP;
-      case BODY -> GolemancyMessages.MASTERWORK_BODY;
-      case ALREADY -> GolemancyMessages.MASTERWORK_ALREADY;
-      case UNAVAILABLE -> GolemancyMessages.BINDING_UNAVAILABLE;
+      case DESIGNATED -> notice(GolemancyMessages.MASTERWORK_DESIGNATED);
+      case LOCKED -> notice(GolemancyMessages.MASTERWORK_LOCKED);
+      case CAP -> notice(GolemancyMessages.MASTERWORK_CAP, trusted("count", masterworks));
+      case BODY -> notice(GolemancyMessages.MASTERWORK_BODY, bodyArgument(body));
+      case ALREADY -> notice(GolemancyMessages.MASTERWORK_ALREADY);
+      case UNAVAILABLE -> notice(GolemancyMessages.BINDING_UNAVAILABLE);
     };
   }
 
-  public static TextKey coreRefusalMessage(GolemMastery.CoreRefusal refusal) {
+  public static Notice coreRefusalNotice(GolemMastery.CoreRefusal refusal, GolemCoreType core, GolemBody body) {
     return switch (refusal) {
-      case UNAVAILABLE -> GolemancyMessages.BINDING_UNAVAILABLE;
-      case NO_SLOT -> GolemancyMessages.MASTERWORK_CORE_NO_SLOT;
-      case BLANK -> GolemancyMessages.MASTERWORK_CORE_BLANK;
-      case DUPLICATE -> GolemancyMessages.MASTERWORK_CORE_DUPLICATE;
-      case NOT_ALLOWED -> GolemancyMessages.BINDING_CORE_NOT_ALLOWED;
-      case LOCKED -> GolemancyMessages.BINDING_CORE_LOCKED;
+      case UNAVAILABLE -> notice(GolemancyMessages.BINDING_UNAVAILABLE);
+      case NO_SLOT -> notice(GolemancyMessages.MASTERWORK_CORE_NO_SLOT);
+      case BLANK -> notice(GolemancyMessages.MASTERWORK_CORE_BLANK);
+      case DUPLICATE -> notice(GolemancyMessages.MASTERWORK_CORE_DUPLICATE, coreArgument(core));
+      case NOT_ALLOWED -> notice(GolemancyMessages.BINDING_CORE_NOT_ALLOWED, bodyArgument(body), coreArgument(core));
+      case LOCKED -> notice(GolemancyMessages.BINDING_CORE_LOCKED, coreArgument(core));
     };
   }
 
@@ -287,11 +292,42 @@ public final class GolemGuiActions {
     };
   }
 
-  private static RuneNote unlockNote(TextKey key, int level) {
-    return level > 0 ? new RuneNote(key, level, false) : new RuneNote(GolemancyMessages.GUI_RUNE_UNPOWERED, 0, false);
+  private static RuneNote unlockNote(TextKey key, int level, MessageArgument... leading) {
+    if (level <= 0) {
+      return new RuneNote(notice(GolemancyMessages.GUI_RUNE_UNPOWERED), false);
+    }
+    List<MessageArgument> arguments = new ArrayList<>(List.of(leading));
+    arguments.add(trusted("level", level));
+    return new RuneNote(new Notice(key, arguments), false);
   }
 
-  public record RuneNote(TextKey key, int level, boolean active) {
+  private static Notice notice(TextKey key, MessageArgument... arguments) {
+    return new Notice(key, List.of(arguments));
+  }
+
+  private static MessageArgument aspectArgument(GolemRuneType aspect) {
+    return trusted("aspect", GolemGuiSupport.localized(aspect.displayName()));
+  }
+
+  private static MessageArgument bodyArgument(GolemBody body) {
+    return trusted("body", GolemGuiSupport.localized(body.displayName()));
+  }
+
+  private static MessageArgument coreArgument(GolemCoreType core) {
+    return trusted("core", GolemGuiSupport.localized(core.displayName()));
+  }
+
+  public record Notice(TextKey key, List<MessageArgument> arguments) {
+    public Notice {
+      arguments = List.copyOf(arguments);
+    }
+
+    public String text() {
+      return AdaptLanguage.text(key, arguments.toArray(MessageArgument[]::new));
+    }
+  }
+
+  public record RuneNote(Notice notice, boolean active) {
   }
 
   public enum LocateAction {
