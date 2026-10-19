@@ -81,6 +81,7 @@ class InputNodeBehaviorTest {
   private final List<ItemStack> cargo = new ArrayList<>();
   private final List<Double> xp = new ArrayList<>();
   private final List<String> interactions = new ArrayList<>();
+  private final List<Integer> countedMoves = new ArrayList<>();
   private final Map<UUID, Player> players = new HashMap<>();
   private final Set<UUID> away = new HashSet<>();
   private NodeRecord record = NodeRecord.builder(OWNER, NodeType.INPUT, BlockFace.UP).build();
@@ -419,6 +420,18 @@ class InputNodeBehaviorTest {
   }
 
   @Test
+  void itemsPutBackIntoTheInputNeverCountAsMovedItems() {
+    cargo.add(items.item(Material.COBBLESTONE, 12));
+
+    assertThat(behavior.act(golem(1), task(SorterRules.RETURN, 0, 64, 0, null))).isEqualTo(GolemActResult.DONE);
+
+    assertThat(SorterItems.count(input, Material.COBBLESTONE)).isEqualTo(12);
+    assertThat(carried(Material.COBBLESTONE)).isZero();
+    assertThat(countedMoves).isEmpty();
+    assertThat(xp).isEmpty();
+  }
+
+  @Test
   void aShulkerBoxInputNeverTakesAShulkerBoxBack() {
     yard.block(0, 64, 0);
     lenient().when(yard.block(0, 64, 0).getType()).thenReturn(Material.SHULKER_BOX);
@@ -566,9 +579,11 @@ class InputNodeBehaviorTest {
     lenient().when(golem.room()).thenAnswer(invocation -> Math.max(0, capacity - carriedCount()));
     lenient().when(golem.carry(any(ItemStack.class))).thenAnswer(invocation -> carry(invocation.getArgument(0)));
     lenient().when(golem.take(any(), anyInt())).thenAnswer(invocation -> take(invocation.getArgument(0), invocation.getArgument(1)));
-    lenient().when(golem.deliverUpTo(any(Inventory.class), any())).thenAnswer(invocation -> deliver(invocation.getArgument(0), invocation.getArgument(1), delivered -> {
+    lenient().when(golem.deliverUpTo(any(Inventory.class), any())).thenAnswer(invocation -> counted(deliver(invocation.getArgument(0), invocation.getArgument(1), delivered -> {
+    })));
+    lenient().when(golem.deliverUpTo(any(Inventory.class), any(), any())).thenAnswer(invocation -> counted(deliver(invocation.getArgument(0), invocation.getArgument(1), invocation.getArgument(2))));
+    lenient().when(golem.putBack(any(Inventory.class), any())).thenAnswer(invocation -> deliver(invocation.getArgument(0), invocation.getArgument(1), delivered -> {
     }));
-    lenient().when(golem.deliverUpTo(any(Inventory.class), any(), any())).thenAnswer(invocation -> deliver(invocation.getArgument(0), invocation.getArgument(1), invocation.getArgument(2)));
     lenient().doAnswer(invocation -> {
       Block block = invocation.getArgument(0);
       interactions.add(block.getX() + "," + block.getY() + "," + block.getZ());
@@ -622,6 +637,13 @@ class InputNodeBehaviorTest {
     }
     cargo.removeIf(item -> item.getAmount() <= 0);
     return amount - left;
+  }
+
+  private int counted(int moved) {
+    if (moved > 0) {
+      countedMoves.add(moved);
+    }
+    return moved;
   }
 
   private int deliver(Inventory inventory, ToIntFunction<ItemStack> amount, IntConsumer stackDelivered) {

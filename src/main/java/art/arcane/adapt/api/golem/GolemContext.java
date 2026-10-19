@@ -185,6 +185,35 @@ public final class GolemContext {
   }
 
   public int deliverUpTo(Inventory inventory, ToIntFunction<ItemStack> amount, IntConsumer stackDelivered) {
+    int moved = transfer(inventory, amount, stackDelivered);
+    if (moved > 0) {
+      worker.handle().addItemsMoved(moved);
+      GolemWorkStats.moved(worker.handle(), moved);
+    }
+    return moved;
+  }
+
+  public int putBack(Inventory inventory, ToIntFunction<ItemStack> amount) {
+    return transfer(inventory, amount, delivered -> {
+    });
+  }
+
+  public void interact(Block container, int ticks) {
+    if (owns(container.getLocation())) {
+      worker.controller().interact(container, ticks);
+    }
+  }
+
+  public void workXp(double xp) {
+    GolemWorkXp.pay(worker.handle(), scope.core(), xp);
+  }
+
+  public boolean progress() {
+    GolemTask task = scope.task();
+    return task != null && worker.renew(task, scope.nowMillis());
+  }
+
+  private int transfer(Inventory inventory, ToIntFunction<ItemStack> amount, IntConsumer stackDelivered) {
     List<ItemStack> items = worker.cargo().items();
     List<ItemStack> remaining = new ArrayList<>(items.size());
     int moved = 0;
@@ -225,26 +254,7 @@ public final class GolemContext {
         worker.cargo().keep(remaining);
       }
     }
-    if (moved > 0) {
-      worker.handle().addItemsMoved(moved);
-      GolemWorkStats.moved(worker.handle(), moved);
-    }
     return moved;
-  }
-
-  public void interact(Block container, int ticks) {
-    if (owns(container.getLocation())) {
-      worker.controller().interact(container, ticks);
-    }
-  }
-
-  public void workXp(double xp) {
-    GolemWorkXp.pay(worker.handle(), scope.core(), xp);
-  }
-
-  public boolean progress() {
-    GolemTask task = scope.task();
-    return task != null && worker.renew(task, scope.nowMillis());
   }
 
   record Scope(Adaptation<?> policy, GolemTask task, NodeRecord record, GolemCoreType core, long nowMillis) {

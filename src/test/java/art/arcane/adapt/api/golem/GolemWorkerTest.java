@@ -953,6 +953,35 @@ class GolemWorkerTest extends AdaptTestBase {
   }
 
   @Test
+  void itemsPutBackFromARouteJobReachNeitherTheStatSinkNorTheGolemsMovedCount() {
+    List<String> stats = new ArrayList<>();
+    GolemWorkStats.setSink(new RecordingStats(stats));
+    Inventory input = chest(0, 64, -5, 27);
+    ScriptedBehavior behavior = collector((golem, task) -> {
+      if (task.type().equals("pickup")) {
+        golem.carry(GolemTestItems.stack(Material.WHEAT, 10));
+        return GolemActResult.DONE;
+      }
+      golem.putBack(golem.container(world.getBlockAt(0, 64, -5)).orElseThrow(), ItemStack::getAmount);
+      return GolemActResult.DONE;
+    });
+    behavior.route = (golem, carried) -> Optional.of(GolemTask.builder("return", GolemTarget.block(WORLD, 0, 64, -5)).build());
+    collectionNode(3);
+    board.offer(pickup(1, 64, 0), 16);
+    brain.start();
+
+    platform.runDelayed();
+    pulse(1_000L);
+    position.set(at(0, 64, -4));
+    pulse(250L);
+
+    assertThat(GolemTestItems.count(input, Material.WHEAT)).isEqualTo(10);
+    assertThat(stats).containsExactly("completed");
+    assertThat(brain.handle().state().stats().itemsMoved()).isZero();
+    assertThat(brain.handle().state().stats().tasks()).isEqualTo(1L);
+  }
+
+  @Test
   void aTrappedGolemRestsAfterRepeatedStuckReleases() {
     collector((golem, task) -> GolemActResult.DONE);
     collectionNode(3);

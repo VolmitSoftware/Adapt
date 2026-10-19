@@ -322,7 +322,7 @@ final class InputNodeBehavior implements NodeBehavior {
     }
     plans.forget(golem.handle().id());
     SorterDestination input = survey.input();
-    int moved = golem.deliverUpTo(inventory, item -> SorterRules.nests(input, item) ? 0 : item.getAmount());
+    int moved = golem.putBack(inventory, item -> SorterRules.nests(input, item) ? 0 : item.getAmount());
     if (moved <= 0) {
       return GolemActResult.FAILED;
     }
