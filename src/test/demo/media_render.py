@@ -57,17 +57,19 @@ def render_recipe(recipe: Recipe, catalog: Catalog, icons: textures.Icons, gui: 
     height: int = content.height + 2 * PAD + STRIP
     image: Image.Image = gui.panel(width, height)
     image.paste(content, (PAD, PAD))
+    scaled: Image.Image = image.resize((width * textures.SCALE, height * textures.SCALE), Image.NEAREST)
     columns: int = max(len(row) for row in recipe.pattern)
     shift_x: int = (GRID - columns) // 2
     shift_y: int = (GRID - len(recipe.pattern)) // 2
     for row, line in enumerate(recipe.pattern):
         for column, symbol in enumerate(line):
             if symbol != ' ':
-                image.alpha_composite(icons.icon(recipe.key[symbol]), (PAD + SLOT_ORIGIN + SLOT * (column + shift_x), PAD + SLOT_ORIGIN + SLOT * (row + shift_y)))
+                x: int = PAD + SLOT_ORIGIN + SLOT * (column + shift_x)
+                y: int = PAD + SLOT_ORIGIN + SLOT * (row + shift_y)
+                scaled.alpha_composite(icons.large(recipe.key[symbol], textures.SCALE), (x * textures.SCALE, y * textures.SCALE))
     result_x: int = PAD + RESULT_OFFSET[0]
     result_y: int = PAD + RESULT_OFFSET[1]
-    image.alpha_composite(icons.icon(recipe.result), (result_x, result_y))
-    scaled: Image.Image = image.resize((width * textures.SCALE, height * textures.SCALE), Image.NEAREST)
+    scaled.alpha_composite(icons.large(recipe.result, textures.SCALE), (result_x * textures.SCALE, result_y * textures.SCALE))
     if recipe.yield_count > 1:
         textures.text(scaled, ((result_x + textures.ICON) * textures.SCALE, (result_y + textures.ICON) * textures.SCALE), str(recipe.yield_count), COUNT_SIZE,
                       textures.WHITE, 'rb', True)
@@ -90,27 +92,26 @@ def render_infusion(infusion: Infusion, catalog: Catalog, icons: textures.Icons,
     width: int = PAD + PLUS_WIDTH + GAP + arrow.width + GAP + slot.width + PAD
     height: int = PAD + PLUS_HEIGHT + PAD + STRIP
     image: Image.Image = gui.panel(width, height)
-    lodestone: Image.Image = icons.icon(LODESTONE)
-    pedestal: Image.Image = icons.icon(PEDESTAL)
-    cells: list[tuple[int, int, str, Image.Image]] = [
-        (1, 0, infusion.pedestals[0], pedestal),
-        (0, 1, infusion.pedestals[3], pedestal),
-        (1, 1, infusion.center, lodestone),
-        (2, 1, infusion.pedestals[1], pedestal),
-        (1, 2, infusion.pedestals[2], pedestal),
-    ]
-    for column, row, item, block in cells:
-        x: int = PAD + column * CELL_WIDTH
-        y: int = PAD + row * CELL_HEIGHT
-        image.alpha_composite(block, (x, y + EXTRA))
-        image.alpha_composite(icons.icon(item), (x, y))
     middle: int = PAD + CELL_HEIGHT + (textures.ICON + EXTRA) // 2
     arrow_x: int = PAD + PLUS_WIDTH + GAP
     slot_x: int = arrow_x + arrow.width + GAP
     image.paste(arrow, (arrow_x, middle - arrow.height // 2))
     image.paste(slot, (slot_x, middle - slot.height // 2))
-    image.alpha_composite(icons.icon(infusion.result), (slot_x + (slot.width - textures.ICON) // 2, middle - textures.ICON // 2))
     scaled: Image.Image = image.resize((width * textures.SCALE, height * textures.SCALE), Image.NEAREST)
+    cells: list[tuple[int, int, str, str]] = [
+        (1, 0, infusion.pedestals[0], PEDESTAL),
+        (0, 1, infusion.pedestals[3], PEDESTAL),
+        (1, 1, infusion.center, LODESTONE),
+        (2, 1, infusion.pedestals[1], PEDESTAL),
+        (1, 2, infusion.pedestals[2], PEDESTAL),
+    ]
+    for column, row, item, block in cells:
+        x: int = (PAD + column * CELL_WIDTH) * textures.SCALE
+        y: int = (PAD + row * CELL_HEIGHT) * textures.SCALE
+        scaled.alpha_composite(icons.hires(block, textures.SCALE), (x, y + EXTRA * textures.SCALE))
+        scaled.alpha_composite(icons.large(item, textures.SCALE), (x, y))
+    result: Image.Image = icons.large(infusion.result, textures.SCALE)
+    scaled.alpha_composite(result, ((slot_x + (slot.width - textures.ICON) // 2) * textures.SCALE, (middle - textures.ICON // 2) * textures.SCALE))
     lines: list[tuple[str, int, tuple[int, int, int, int]]] = [
         (result_label(catalog, infusion.result), NAME_SIZE, textures.INK),
         ('Essence: ' + plural(infusion.essence_levels, 'level') + '   Duration: ' + seconds(infusion.duration_ticks), DETAIL_SIZE, GREEN)]

@@ -75,6 +75,23 @@ def crafting_table() -> Image.Image:
     return image
 
 
+CHEST_REGIONS: dict[str, tuple[tuple[int, int, int, int], Color]] = {
+    'top': ((28, 0, 42, 14), (230, 230, 10)),
+    'lid_front': ((42, 14, 56, 19), (200, 30, 30)),
+    'base_front': ((42, 33, 56, 43), (30, 30, 200)),
+    'lid_side': ((28, 14, 42, 19), (30, 200, 200)),
+    'base_side': ((28, 33, 42, 43), (200, 30, 200)),
+    'lock': ((1, 1, 3, 5), (90, 90, 90)),
+}
+
+
+def chest_texture() -> Image.Image:
+    image: Image.Image = solid((255, 255, 255), (64, 64))
+    for box, color in CHEST_REGIONS.values():
+        image.paste(solid(color, (box[2] - box[0], box[3] - box[1])), (box[0], box[1]))
+    return image
+
+
 def overlay() -> Image.Image:
     image: Image.Image = Image.new('RGBA', (16, 16), (0, 0, 0, 0))
     image.paste(solid((255, 255, 255), (8, 16)), (0, 0))
@@ -88,7 +105,8 @@ def write_jar(path: Path) -> None:
         for name, color in BLOCK_COLORS.items():
             archive.writestr(textures.TEXTURES + 'block/' + name + '.png', png(solid(color)))
         archive.writestr(textures.TEXTURES + 'item/firework_star_overlay.png', png(overlay()))
-        archive.writestr(textures.TEXTURES + 'entity/chest/normal.png', png(solid((150, 100, 50), (64, 64))))
+        archive.writestr(textures.TEXTURES + 'entity/chest/normal.png', png(chest_texture()))
+        archive.writestr(textures.TEXTURES + 'entity/chest/copper.png', png(chest_texture()))
         archive.writestr(textures.TEXTURES + 'gui/container/crafting_table.png', png(crafting_table()))
 
 
@@ -225,6 +243,78 @@ class IconsTest(MediaCase):
         self.assertEqual(icon.size, (16, 16))
         self.assertGreater(sum(1 for pixel in icon.getdata() if pixel[3] > 0), 100)
 
+    def chest_pixel(self, image: Image.Image, res: int, face: str, across: float, down: float) -> tuple[int, int, int]:
+        camera: textures.IsoCamera = textures.ISO
+        size: float = textures.CHEST_SIZE[0]
+        low: float = (1.0 - size) / 2.0
+        high: float = low + size
+        a: float = camera.half_width * res
+        b: float = camera.half_depth * res
+        s: float = camera.height * res
+        height: float = size * (1.0 - down)
+        if face == 'top':
+            x, z, y = low + across * size, low + down * size, size
+        elif face == 'front':
+            x, z, y = low + across * size, high, height
+        else:
+            x, z, y = high, high - across * size, height
+        position: tuple[int, int] = (round(image.width / 2 + (x - z) * a), round(image.height / 2 + (x + z) * b - y * s))
+        return image.getpixel(position)[:3]
+
+    def test_chest_faces_use_the_entity_texture_regions(self) -> None:
+        res: int = 8
+        image: Image.Image = self.icons.hires('chest', res)
+
+        def shaded(color: Color, factor: float) -> Color:
+            return tuple(round(channel * factor) for channel in color)
+
+        self.assertEqual(image.size, (16 * res, 16 * res))
+        self.assertEqual(self.chest_pixel(image, res, 'top', 0.5, 0.5), shaded(CHEST_REGIONS['top'][1], 1.0))
+        lid_front: Color = shaded(CHEST_REGIONS['lid_front'][1], 0.8)
+        base_front: Color = shaded(CHEST_REGIONS['base_front'][1], 0.8)
+        self.assertEqual(self.chest_pixel(image, res, 'front', 0.2, 1.5 / 14), lid_front)
+        self.assertEqual(self.chest_pixel(image, res, 'front', 0.8, 1.5 / 14), lid_front)
+        self.assertEqual(self.chest_pixel(image, res, 'front', 0.2, 11.5 / 14), base_front)
+        self.assertEqual(self.chest_pixel(image, res, 'front', 6.5 / 14, 4.5 / 14), shaded(CHEST_REGIONS['lock'][1], 0.8))
+        self.assertEqual(self.chest_pixel(image, res, 'side', 0.5, 1.5 / 14), shaded(CHEST_REGIONS['lid_side'][1], 0.6))
+        self.assertEqual(self.chest_pixel(image, res, 'side', 0.5, 11.5 / 14), shaded(CHEST_REGIONS['base_side'][1], 0.6))
+
+    def test_the_latch_sits_on_the_front_face_only(self) -> None:
+        image: Image.Image = self.icons.hires('copper_chest', 8)
+        lock: Color = tuple(round(channel * 0.8) for channel in CHEST_REGIONS['lock'][1])
+        lock_side: Color = tuple(round(channel * 0.6) for channel in CHEST_REGIONS['lock'][1])
+        colors: set[Color] = {image.getpixel((x, y))[:3] for x in range(image.width) for y in range(image.height)}
+
+        self.assertIn(lock, colors)
+        self.assertNotIn(lock_side, colors)
+        self.assertNotIn((255, 255, 255), colors)
+
+    def test_chest_slot_icons_are_the_supersampled_chest(self) -> None:
+        for name in ('CHEST', 'COPPER_CHEST'):
+            icon: Image.Image = self.icons.icon(name)
+            self.assertEqual(icon.size, (16, 16), name)
+            self.assertEqual(icon.tobytes(), textures.downsample(self.icons.hires(name, textures.SUPERSAMPLE)).tobytes(), name)
+            self.assertEqual(icon.getpixel((0, 0))[3], 0, name)
+
+    def test_large_icons_scale_sprites_and_render_blocks_at_full_resolution(self) -> None:
+        sprite: Image.Image = self.icons.large('IRON_HOE', 4)
+        block: Image.Image = self.icons.large('CHISELED_COPPER', 4)
+
+        self.assertEqual(sprite.size, (64, 64))
+        self.assertEqual(sprite.getpixel((10, 10)), (170, 170, 170, 255))
+        self.assertEqual(block.size, (64, 64))
+        self.assertEqual(block.getpixel((32, 12)), BLOCK_COLORS['chiseled_copper'] + (255,))
+        self.assertEqual(self.icons.large('golemancy:crook', 4).size, (64, 64))
+
+    def test_front_cameras_show_the_front_and_top_faces_only(self) -> None:
+        camera: textures.FrontCamera = textures.FrontCamera(depth=6, height=16)
+        image: Image.Image = camera.box(solid((200, 0, 0)), solid((0, 200, 0)), solid((0, 0, 200)))
+
+        self.assertEqual(image.size, (16, 22))
+        self.assertEqual(image.getpixel((8, 2)), (200, 0, 0, 255))
+        self.assertEqual(image.getpixel((8, 12)), (0, 160, 0, 255))
+        self.assertNotIn((0, 0, 120, 255), set(image.getdata()))
+
     def test_tags_use_a_representative_member(self) -> None:
         self.assertEqual(self.icons.icon('#logs').tobytes(), self.icons.icon('OAK_LOG').tobytes())
         self.assertEqual(self.icons.icon('#minecraft:logs').tobytes(), self.icons.icon('OAK_LOG').tobytes())
@@ -351,8 +441,10 @@ class InfusionRenderTest(MediaCase):
         lodestone: tuple[int, int, int] = (round(120 * 1.0), round(120 * 1.0), round(130 * 1.0))
         copper: tuple[int, int, int] = (200, 110, 80)
         self.assertIn(lodestone, colors(1, 1))
+        plain: tuple[int, int, int] = BLOCK_COLORS['copper_block']
         for column, row in ((1, 0), (2, 1), (1, 2), (0, 1)):
             self.assertIn(copper, colors(column, row))
+            self.assertNotIn(plain, colors(column, row))
         self.assertNotIn(copper, colors(1, 1))
 
     def test_result_label_names_the_rune_tier(self) -> None:
@@ -384,6 +476,75 @@ class DiagramTest(MediaCase):
             window: Image.Image = image.crop((position[0] - 20, position[1] - 24, position[0] + 20, position[1] + 24))
             self.assertTrue(any(pixel[:3] == textures.INK[:3] for pixel in window.getdata()), position)
 
+    def test_plinth_view_keeps_the_pedestals_two_blocks_out_on_the_axes(self) -> None:
+        scene: media_diagrams.Scene = media_diagrams.plinth_scene(self.icons, self.gui)
+
+        blocks: set[tuple[int, int]] = {(item.i, item.j) for item in scene.placed if item.k == 0}
+        ground: set[tuple[int, int]] = {(item.i, item.j) for item in scene.placed if item.k == -1}
+        self.assertEqual(ground, {(i, j) for i in range(5) for j in range(5)})
+        self.assertEqual(blocks, {(2, 2), (2, 0), (4, 2), (2, 4), (0, 2)})
+        self.assertEqual(len(scene.placed), 30)
+        for pedestal in blocks - {(2, 2)}:
+            self.assertEqual(sorted((abs(pedestal[0] - 2), abs(pedestal[1] - 2))), [0, 2], pedestal)
+        for gap in ((2, 1), (3, 2), (2, 3), (1, 2)):
+            self.assertNotIn(gap, blocks)
+
+    def test_plinth_view_shows_ground_between_each_pedestal_and_the_lodestone(self) -> None:
+        scene: media_diagrams.Scene = media_diagrams.plinth_scene(self.icons, self.gui)
+        image, origin = scene.render(1)
+        blended: Color = tuple(round((BLOCK_COLORS['dirt'][channel] * media_diagrams.GROUND_ALPHA + PANEL[channel] * (255 - media_diagrams.GROUND_ALPHA)) / 255)
+                               for channel in range(3))
+
+        def pixel(x: float, z: float) -> Color:
+            at: tuple[float, float] = scene.project(origin, x, 0, z)
+            return image.getpixel((round(at[0]), round(at[1])))[:3]
+
+        for gap in ((2.5, 1.2), (2.5, 3.2), (1.5, 2.5), (3.5, 2.5)):
+            for channel in range(3):
+                self.assertAlmostEqual(pixel(*gap)[channel], blended[channel], delta=2, msg=gap)
+        self.assertNotEqual(pixel(2.5, 2.5), blended)
+        self.assertNotEqual(pixel(2.5, 0.5), blended)
+
+    def test_plinth_view_has_compass_markers_and_short_labels(self) -> None:
+        image: Image.Image = media_diagrams.plinth_iso(self.icons, self.gui)
+
+        self.assertEqual(image.mode, 'RGBA')
+        self.assertEqual((image.width % 4, image.height % 4), (0, 0))
+        ink: int = sum(1 for pixel in image.getdata() if pixel[:3] == textures.INK[:3])
+        self.assertGreater(ink, 800)
+
+    def test_iron_golem_t_runs_left_to_right_with_the_pumpkin_over_the_middle(self) -> None:
+        camera: textures.FrontCamera = media_diagrams.GOLEM_CAMERA
+        cells: list[media_diagrams.Cell] = [(0, 0, 0, 'IRON_BLOCK'), (-1, 0, 1, 'IRON_BLOCK'), (0, 0, 1, 'IRON_BLOCK'), (1, 0, 1, 'IRON_BLOCK'),
+                                            (0, 0, 2, 'CARVED_PUMPKIN')]
+        scene: media_diagrams.Scene = media_diagrams.golem_scene(self.icons, cells)
+
+        anchors: list[tuple[float, float]] = [camera.anchor(item.i, item.j, item.k) for item in scene.placed]
+        arms: list[tuple[float, float]] = anchors[1:4]
+        self.assertEqual(len({anchor[1] for anchor in arms}), 1)
+        self.assertEqual([arm[0] for arm in arms], [-16.0, 0.0, 16.0])
+        self.assertEqual(anchors[0][0], anchors[2][0])
+        self.assertEqual(anchors[4][0], anchors[2][0])
+        self.assertLess(anchors[4][1], arms[0][1])
+        self.assertGreater(anchors[0][1], arms[0][1])
+
+    def test_golem_builds_image_has_one_labelled_column_per_golem(self) -> None:
+        image: Image.Image = media_diagrams.golem_builds(self.icons, self.gui)
+
+        self.assertEqual((image.width % 4, image.height % 4), (0, 0))
+        self.assertGreater(image.width, image.height)
+
+    def test_node_decal_lies_flat_on_the_chest_front_face(self) -> None:
+        image: Image.Image = media_diagrams.node_on_chest(self.icons, self.gui)
+        brick: tuple[int, int, int] = ITEM_COLORS['brick']
+        points: list[tuple[int, int]] = [(x, y) for x in range(image.width) for y in range(image.height) if image.getpixel((x, y))[:3] == brick]
+
+        self.assertGreater(len(points), 300)
+        left: list[int] = [y for x, y in points if x < min(point[0] for point in points) + 6]
+        right: list[int] = [y for x, y in points if x > max(point[0] for point in points) - 6]
+        self.assertLess(sum(left) / len(left), sum(right) / len(right))
+        self.assertEqual(media_diagrams.CHEST_SCALE % textures.SCALE, 0)
+
     def test_decal_maps_a_sprite_onto_a_parallelogram(self) -> None:
         canvas: Image.Image = Image.new('RGBA', (40, 40), (0, 0, 0, 0))
         sprite: Image.Image = Image.new('RGBA', (2, 2))
@@ -414,14 +575,14 @@ class DiagramTest(MediaCase):
         self.assertEqual(media_diagrams.external_note(adaptations[1], known), '')
 
     def test_scene_orders_blocks_back_to_front(self) -> None:
-        front: Image.Image = solid((255, 0, 0))
-        back: Image.Image = solid((0, 0, 255))
-        scene: media_diagrams.Scene = media_diagrams.Scene()
+        front: Image.Image = solid((255, 0, 0), (64, 64))
+        back: Image.Image = solid((0, 0, 255), (64, 64))
+        scene: media_diagrams.Scene = media_diagrams.Scene(textures.ISO, 4)
         scene.block(1, 1, 0, front, False)
         scene.block(0, 0, 0, back, False)
 
         image, origin = scene.render(2)
-        center: tuple[float, float] = media_diagrams.project(origin, 4, 1.5, 0.5, 1.5)
+        center: tuple[float, float] = scene.project(origin, 1.5, 0.5, 1.5)
 
         self.assertEqual(image.getpixel((round(center[0]), round(center[1]))), (255, 0, 0, 255))
 

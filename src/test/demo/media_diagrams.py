@@ -11,9 +11,6 @@ Color = tuple[int, int, int, int]
 Cell = tuple[int, int, int, str]
 
 SCALE: int = textures.SCALE
-CELL_X: int = 7
-CELL_Y: int = 4
-CELL_Z: int = 8
 TILE: int = textures.ICON
 INK: Color = textures.INK
 LINE: Color = (64, 64, 64, 255)
@@ -23,6 +20,7 @@ GRID_LINE: Color = (0, 0, 0, 36)
 OUTLINE: Color = (0, 0, 0, 80)
 OUTLINE_WIDTH: int = 2
 GROUND_ALPHA: int = 96
+PLATE: int = 5
 LABEL_SIZE: int = 28
 TITLE_SIZE: int = 30
 NOTE_SIZE: int = 20
@@ -48,15 +46,14 @@ LANE_SPACING: int = 14
 DASH: int = 12
 GAP: int = 9
 LINE_WIDTH: int = 3
-CHEST_FACE_X: tuple[float, float] = (0.18, 0.82)
-CHEST_FACE_Y: tuple[float, float] = (0.14, 0.8)
-CHEST_EXTENT: tuple[float, float, float] = textures.CHEST_SIZE
+CHEST_FACE: tuple[float, float] = (textures.CHEST_SIZE[0], textures.CHEST_SIZE[1])
+DECAL_ACROSS: tuple[float, float] = (0.1, 0.9)
+DECAL_UP: tuple[float, float] = (0.04, 0.84)
 WORK_RADIUS: int = 1
-CHEST_ZOOM: int = 3
-
-
-def screen(x: float, y: float, z: float) -> Point:
-    return (x - z) * CELL_X, (x + z) * CELL_Y - y * CELL_Z
+CHEST_SCALE: int = 8
+PLINTH_CAMERA: textures.FrontCamera = textures.FrontCamera(depth=10, height=6)
+GOLEM_CAMERA: textures.FrontCamera = textures.FrontCamera(depth=6, height=16)
+COMPASS_GAP: int = 40
 
 
 @dataclass(frozen=True)
@@ -80,44 +77,43 @@ def halo(icon: Image.Image) -> Image.Image:
 
 
 class Scene:
-    def __init__(self) -> None:
+    def __init__(self, camera: textures.IsoCamera | textures.FrontCamera, scale: int = SCALE) -> None:
+        self.camera: textures.IsoCamera | textures.FrontCamera = camera
+        self.scale: int = scale
         self.placed: list[Placed] = []
 
     def block(self, i: int, j: int, k: int, icon: Image.Image, outlined: bool = True) -> None:
         self.placed.append(Placed(i, j, k, icon, outlined))
 
     def bounds(self) -> tuple[float, float, float, float]:
-        half: float = textures.ICON / 2
         xs: list[float] = []
         ys: list[float] = []
         for item in self.placed:
-            x, y = screen(item.i + 0.5, item.k + 0.5, item.j + 0.5)
-            xs.extend((x - half, x + half))
-            ys.extend((y - half, y + half))
+            x, y = self.camera.anchor(item.i, item.j, item.k)
+            xs.extend((x, x + self.camera.extent_x))
+            ys.extend((y, y + self.camera.extent_y))
         return min(xs), min(ys), max(xs), max(ys)
 
-    def draw(self, canvas: Image.Image, origin: Point, scale: int) -> None:
-        half: float = textures.ICON / 2
-        for item in sorted(self.placed, key=lambda placed: (placed.i + placed.j + placed.k, placed.k, placed.i)):
-            x, y = screen(item.i + 0.5, item.k + 0.5, item.j + 0.5)
-            icon: Image.Image = item.icon.resize((textures.ICON * scale, textures.ICON * scale), Image.NEAREST)
+    def draw(self, canvas: Image.Image, origin: Point) -> None:
+        for item in sorted(self.placed, key=lambda placed: self.camera.order(placed.i, placed.j, placed.k)):
+            x, y = self.camera.anchor(item.i, item.j, item.k)
+            icon: Image.Image = item.icon
             offset: int = 0
             if item.outlined:
                 icon = halo(icon)
                 offset = OUTLINE_WIDTH
-            canvas.alpha_composite(icon, (round((x - half + origin[0]) * scale) - offset, round((y - half + origin[1]) * scale) - offset))
+            canvas.alpha_composite(icon, (round((x + origin[0]) * self.scale) - offset, round((y + origin[1]) * self.scale) - offset))
 
-    def render(self, margin: int, scale: int = SCALE) -> tuple[Image.Image, Point]:
+    def render(self, margin: int) -> tuple[Image.Image, Point]:
         min_x, min_y, max_x, max_y = self.bounds()
         origin: Point = (margin - min_x, margin - min_y)
-        image: Image.Image = Image.new('RGBA', (math.ceil(max_x - min_x + 2 * margin) * scale, math.ceil(max_y - min_y + 2 * margin) * scale), (0, 0, 0, 0))
-        self.draw(image, origin, scale)
+        image: Image.Image = Image.new('RGBA', (math.ceil(max_x - min_x + 2 * margin) * self.scale, math.ceil(max_y - min_y + 2 * margin) * self.scale), (0, 0, 0, 0))
+        self.draw(image, origin)
         return image, origin
 
-
-def project(origin: Point, scale: int, x: float, y: float, z: float) -> Point:
-    sx, sy = screen(x, y, z)
-    return (sx + origin[0]) * scale, (sy + origin[1]) * scale
+    def project(self, origin: Point, x: float, y: float, z: float) -> Point:
+        sx, sy = self.camera.world(x, y, z)
+        return (sx + origin[0]) * self.scale, (sy + origin[1]) * self.scale
 
 
 def dashed(draw: ImageDraw.ImageDraw, start: Point, end: Point, fill: Color) -> None:
@@ -186,35 +182,57 @@ def plinth_top(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
     return scaled
 
 
-def plinth_scene(icons: textures.Icons) -> Scene:
-    scene: Scene = Scene()
-    ground: Image.Image = textures.top_face(icons.jar.frame('block/dirt'))
-    ground.putalpha(ground.getchannel('A').point(lambda level: GROUND_ALPHA if level else 0))
-    for i in range(5):
-        for j in range(5):
-            scene.block(i, j, -1, ground, False)
-    scene.block(2, 2, 0, icons.icon('lodestone'))
-    for i, j in ((2, 0), (4, 2), (2, 4), (0, 2)):
-        scene.block(i, j, 0, icons.icon('chiseled_copper'))
+def faint(texture: Image.Image, background: tuple[int, int, int, int]) -> Image.Image:
+    layer: Image.Image = texture.copy()
+    layer.putalpha(GROUND_ALPHA)
+    base: Image.Image = Image.new('RGBA', texture.size, background)
+    base.alpha_composite(layer)
+    return base
+
+
+def plinth_scene(icons: textures.Icons, gui: textures.Gui) -> Scene:
+    scene: Scene = Scene(PLINTH_CAMERA)
+    ground: Image.Image = faint(icons.jar.frame('block/dirt'), gui.background)
+    tile: Image.Image = PLINTH_CAMERA.box(ground, ground, ground, res=SCALE)
+    for i in range(PLATE):
+        for j in range(PLATE):
+            scene.block(i, j, -1, tile)
+    middle: int = PLATE // 2
+    scene.block(middle, middle, 0, icons.hires('lodestone', SCALE, PLINTH_CAMERA))
+    for i, j in ((middle, 0), (PLATE - 1, middle), (middle, PLATE - 1), (0, middle)):
+        scene.block(i, j, 0, icons.hires('chiseled_copper', SCALE, PLINTH_CAMERA))
     return scene
 
 
 def plinth_iso(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
-    scene: Image.Image
+    scene: Scene = plinth_scene(icons, gui)
+    layer: Image.Image
     origin: Point
-    scene, origin = plinth_scene(icons).render(4)
-    lodestone_label: str = 'Lodestone'
+    layer, origin = scene.render(1)
     pedestal_label: str = 'Pedestal (any chiseled copper)'
-    row: int = LABEL_SIZE + LABEL_PAD
-    width: int = multiple(max(scene.width, width_of(pedestal_label, LABEL_SIZE) + LABEL_GAP * 4) + 2 * LABEL_PAD)
-    height: int = multiple(scene.height + 2 * row)
+    left: int = 2 * COMPASS_GAP
+    top: int = 2 * COMPASS_GAP + COMPASS_SIZE // 2
+    bottom: int = COMPASS_GAP + COMPASS_SIZE + LABEL_SIZE
+    label_left: int = left + layer.width // 2 + 2 * COMPASS_GAP
+    width: int = multiple(max(layer.width + 2 * left, label_left + width_of(pedestal_label, LABEL_SIZE) + LABEL_PAD))
+    height: int = multiple(layer.height + top + bottom)
     canvas: Image.Image = finish(gui, width, height)
-    shift: tuple[int, int] = ((width - scene.width) // 2, row)
-    canvas.alpha_composite(scene, shift)
-    lodestone: Point = project((origin[0] + shift[0] / SCALE, origin[1] + shift[1] / SCALE), SCALE, 2.5, 1.0, 2.5)
-    pedestal: Point = project((origin[0] + shift[0] / SCALE, origin[1] + shift[1] / SCALE), SCALE, 4.5, 1.0, 2.5)
-    leader(canvas, lodestone, (LABEL_PAD, row // 2 + 4), lodestone_label, 'l', 'r')
-    leader(canvas, pedestal, (width - LABEL_PAD, height - row // 2 - 4), pedestal_label, 'r', 'l')
+    shift: tuple[int, int] = (left, top)
+    canvas.alpha_composite(layer, shift)
+    moved: Point = (origin[0] + shift[0] / SCALE, origin[1] + shift[1] / SCALE)
+
+    def at(x: float, y: float, z: float) -> Point:
+        return scene.project(moved, x, y, z)
+
+    middle: float = PLATE / 2
+    center: Point = at(middle, 0, middle)
+    textures.text(canvas, (round(center[0]), round(at(middle, 1, 0)[1]) - COMPASS_GAP), 'N', COMPASS_SIZE, INK, 'mm')
+    textures.text(canvas, (round(at(PLATE, 0, middle)[0]) + COMPASS_GAP, round(center[1])), 'E', COMPASS_SIZE, INK, 'mm')
+    south: tuple[int, int] = (round(center[0]), round(at(middle, -1, PLATE)[1]) + COMPASS_GAP)
+    textures.text(canvas, south, 'S', COMPASS_SIZE, INK, 'mm')
+    textures.text(canvas, (round(at(0, 0, middle)[0]) - COMPASS_GAP, round(center[1])), 'W', COMPASS_SIZE, INK, 'mm')
+    leader(canvas, at(middle, 1, middle), (at(PLATE // 2, 0, 0)[0] - LABEL_GAP, at(0, 0, 1)[1]), 'Lodestone', 'r', 'r', NOTE_SIZE + 4)
+    leader(canvas, at(middle, 0.5, PLATE), (south[0] + 2 * COMPASS_GAP, south[1]), pedestal_label, 'l', 'l')
     return canvas
 
 
@@ -225,12 +243,7 @@ def golem_builds(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
          [(0, 0, 0, 'iron_block'), (-1, 0, 1, 'iron_block'), (0, 0, 1, 'iron_block'), (1, 0, 1, 'iron_block'), (0, 0, 2, 'carved_pumpkin')]),
         ('Copper golem', '1 copper block + carved pumpkin', [(0, 0, 0, 'copper_block'), (0, 0, 1, 'carved_pumpkin')]),
     ]
-    scenes: list[Image.Image] = []
-    for _, _, cells in builds:
-        scene: Scene = Scene()
-        for i, j, k, item in cells:
-            scene.block(i, j, k, icons.icon(item))
-        scenes.append(scene.render(4)[0])
+    scenes: list[Image.Image] = [golem_scene(icons, cells).render(1)[0] for _, _, cells in builds]
     widths: list[int] = [max(scene.width, width_of(title, TITLE_SIZE), width_of(note, NOTE_SIZE)) + 2 * LABEL_PAD
                          for scene, (title, note, _) in zip(scenes, builds)]
     top: int = max(scene.height for scene in scenes)
@@ -246,6 +259,13 @@ def golem_builds(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
         textures.text(canvas, (middle, LABEL_PAD + top + 2 * LABEL_GAP + TITLE_SIZE), note, NOTE_SIZE, INK, 'ma')
         x += column
     return canvas
+
+
+def golem_scene(icons: textures.Icons, cells: list[Cell]) -> Scene:
+    scene: Scene = Scene(GOLEM_CAMERA)
+    for i, j, k, item in cells:
+        scene.block(i, j, k, icons.hires(item, SCALE, GOLEM_CAMERA))
+    return scene
 
 
 def decal(canvas: Image.Image, sprite: Image.Image, corners: tuple[Point, Point, Point]) -> None:
@@ -270,21 +290,21 @@ def decal(canvas: Image.Image, sprite: Image.Image, corners: tuple[Point, Point,
 
 
 def node_on_chest(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
-    scale: int = SCALE * CHEST_ZOOM
-    scene: Scene = Scene()
-    scene.block(0, 0, 0, icons.icon('chest'))
-    low: float = -WORK_RADIUS
-    high: float = WORK_RADIUS + 1.0
-    corners: list[Point] = [screen(x, y, z) for x in (low, high) for y in (low, high) for z in (low, high)]
-    box_left: float = min(corner[0] for corner in corners)
-    box_right: float = max(corner[0] for corner in corners)
-    box_top: float = min(corner[1] for corner in corners)
-    box_bottom: float = max(corner[1] for corner in corners)
+    camera: textures.IsoCamera = textures.ISO
+    scale: int = CHEST_SCALE
+    scene: Scene = Scene(camera, scale)
+    scene.block(0, 0, 0, icons.hires('chest', scale, camera))
+    low: float = 0.5 - WORK_RADIUS
+    high: float = 0.5 + WORK_RADIUS
+    corners: list[Point] = [camera.world(x, y, z) for x in (low, high) for y in (low, high) for z in (low, high)]
+    box_left: float = min(corner[0] for corner in corners) * scale
+    box_right: float = max(corner[0] for corner in corners) * scale
+    box_top: float = min(corner[1] for corner in corners) * scale
+    box_bottom: float = max(corner[1] for corner in corners) * scale
     side: int = width_of('Work area', LABEL_SIZE) + 3 * LABEL_PAD
-    pad: int = LABEL_PAD
-    width: int = multiple((box_right - box_left) * scale + 2 * side)
-    height: int = multiple((box_bottom - box_top) * scale + 2 * pad)
-    origin: Point = ((side - box_left * scale) / scale, (pad - box_top * scale) / scale)
+    width: int = multiple(box_right - box_left + 2 * side)
+    height: int = multiple(box_bottom - box_top + 2 * LABEL_PAD)
+    origin: Point = ((side - box_left) / scale, (LABEL_PAD - box_top) / scale)
     canvas: Image.Image = finish(gui, width, height)
     layer: Image.Image = Image.new('RGBA', canvas.size, (0, 0, 0, 0))
     draw: ImageDraw.ImageDraw = ImageDraw.Draw(layer)
@@ -292,21 +312,20 @@ def node_on_chest(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
         for b in (low, high):
             for start, end in (((low, a, b), (high, a, b)), ((a, low, b), (a, high, b)), ((a, b, low), (a, b, high))):
                 hidden: bool = (low, low, low) in (start, end)
-                dashed(draw, project(origin, scale, *start), project(origin, scale, *end), WORK_AREA_BACK if hidden else WORK_AREA)
+                dashed(draw, scene.project(origin, *start), scene.project(origin, *end), WORK_AREA_BACK if hidden else WORK_AREA)
     canvas.alpha_composite(layer)
-    scene.draw(canvas, origin, scale)
-    face_z: float = 0.5 + CHEST_EXTENT[2] / 2
-    face_x: float = 0.5 + CHEST_EXTENT[0] / 2
-    x0, x1 = CHEST_FACE_X
-    y0, y1 = CHEST_FACE_Y
-    height_of: float = CHEST_EXTENT[1]
-    top_left: Point = project(origin, scale, x0, y1 * height_of, face_z)
-    top_right: Point = project(origin, scale, x1, y1 * height_of, face_z)
-    bottom_left: Point = project(origin, scale, x0, y0 * height_of, face_z)
-    decal(canvas, icons.icon('brick'), (top_left, top_right, bottom_left))
-    node: Point = project(origin, scale, (x0 + x1) / 2, (y0 + y1) / 2 * height_of, face_z)
-    chest: Point = project(origin, scale, face_x, 0.35 * height_of, 0.5)
-    area: Point = project(origin, scale, high, high, low)
+    scene.draw(canvas, origin)
+    size_x, size_y, size_z = textures.CHEST_SIZE
+    face_z: float = 0.5 + size_z / 2
+    face_left: float = 0.5 - size_x / 2
+    u0, u1 = DECAL_ACROSS
+    v0, v1 = DECAL_UP
+    decal(canvas, icons.icon('brick'), (scene.project(origin, face_left + u0 * size_x, v1 * size_y, face_z),
+                                       scene.project(origin, face_left + u1 * size_x, v1 * size_y, face_z),
+                                       scene.project(origin, face_left + u0 * size_x, v0 * size_y, face_z)))
+    node: Point = scene.project(origin, face_left + u0 * size_x, (v0 + v1) / 2 * size_y, face_z)
+    chest: Point = scene.project(origin, 0.5 + size_x / 2, 0.3 * size_y, 0.5)
+    area: Point = scene.project(origin, high, high, low)
     leader(canvas, node, (side - LABEL_PAD, node[1] + 90), 'Node', 'r', 'r')
     leader(canvas, chest, (width - side + LABEL_PAD, chest[1] + 90), 'Chest', 'l', 'l')
     leader(canvas, area, (width - side + LABEL_PAD, area[1] - 30), 'Work area', 'l', 'l')
