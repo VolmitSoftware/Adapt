@@ -319,9 +319,29 @@ dependencies {
 }
 
 tasks.named('test', Test) {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags('media-export')
+    }
     jvmArgs('-Dnet.bytebuddy.experimental=true')
     maxParallelForks = Math.max(1, Runtime.runtime.availableProcessors().intdiv(2))
+    testLogging {
+        events('failed')
+        showStandardStreams = false
+        exceptionFormat = 'full'
+    }
+}
+
+tasks.register('exportGolemancyMedia', Test) {
+    group = 'documentation'
+    description = 'Writes build/demo/golemancy-media/recipes.json from the default Golemancy recipe, infusion and adaptation configuration.'
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useJUnitPlatform {
+        includeTags('media-export')
+    }
+    jvmArgs('-Dnet.bytebuddy.experimental=true')
+    systemProperty('adapt.media.output', layout.buildDirectory.dir('demo/golemancy-media').get().asFile.path)
+    outputs.upToDateWhen { false }
     testLogging {
         events('failed')
         showStandardStreams = false
