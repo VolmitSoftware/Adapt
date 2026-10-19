@@ -885,10 +885,14 @@ class Studio:
             if self.server is not None and (self.server / 'logs' / 'latest.log').is_file():
                 self.log_path('server').parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(self.server / 'logs' / 'latest.log', self.log_path('server'))
+        except Exception as failure:
+            return ['Server cleanup: ' + repr(failure)] + self.remember_models()
+        errors: list[str] = self.remember_models()
+        try:
             mux('instance', 'delete', self.server_name)
         except Exception as failure:
-            return ['Server cleanup: ' + repr(failure)]
-        return self.remember_models()
+            errors.append('Server cleanup: ' + repr(failure))
+        return errors
 
     def remember_models(self) -> list[str]:
         cache: Path | None = models_cache(self.jars / ADAPT_JAR)

@@ -2,6 +2,7 @@ import contextlib
 import io
 import json
 import os
+import shutil
 import signal
 import struct
 import subprocess
@@ -715,6 +716,26 @@ class ModelsCacheRunTest(unittest.TestCase):
         self.assertEqual(events, ['runtime stop', 'instance delete'])
         self.assertEqual(len(errors), 1)
         self.assertIn('Models cache', errors[0])
+
+    def test_the_models_are_kept_before_the_instance_directory_is_deleted(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(studio, 'LOCKS', Path(tmp) / 'locks'):
+            root: Path = Path(tmp)
+            demo: studio.Studio = self.server(root, b'build one')
+            (demo.server / 'plugins' / 'Adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.mode]\n')
+            demo.created_server = True
+            server: Path = demo.server
+
+            def mux(*arguments: str, timeout: int = 180) -> str:
+                if arguments[:2] == ('instance', 'delete'):
+                    shutil.rmtree(server)
+                return ''
+
+            with mock.patch.object(studio.clientqa, 'mux', side_effect=mux):
+                errors: list[str] = demo.remove_server()
+            kept: str = studio.models_cache(demo.jars / studio.ADAPT_JAR).read_text()
+        self.assertEqual(errors, [])
+        self.assertEqual(kept, '[gui.golemancy.mode]\n')
+        self.assertFalse(server.exists())
 
 
 class RuntimeStateTest(unittest.TestCase):
