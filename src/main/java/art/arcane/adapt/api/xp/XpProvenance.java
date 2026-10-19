@@ -84,6 +84,26 @@ public final class XpProvenance {
     destinationData.set(destination, stamp);
   }
 
+  public static void recordGrowth(Block block) {
+    if (block == null) {
+      return;
+    }
+    WorldData data = WorldData.of(block.getWorld());
+    PlacementStamp grown = grown(data.get(block, PlacementStamp.class));
+    if (grown == null) {
+      return;
+    }
+    AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
+    data.set(block, grown);
+  }
+
+  public static PlacementStamp grown(PlacementStamp stamp) {
+    if (stamp == null || stamp.getPlacedAt() == 0) {
+      return null;
+    }
+    return new PlacementStamp(0, stamp.getBrokenAt(), stamp.getBonemealedAt());
+  }
+
   public static void clearPlacementRecord(Block block) {
     if (block == null) {
       return;

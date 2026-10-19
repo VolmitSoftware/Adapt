@@ -144,7 +144,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
   @Override
   public void onTick() {
     long now = M.ms();
-    long window = getConfig().retaliateWindowMillis;
+    long window = retaliateWindow();
     attacks.values().removeIf(attack -> now - attack.at() >= window);
     lastStands.values().removeIf(readyAt -> now >= readyAt);
     targets.sweep(now);
@@ -230,7 +230,11 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
 
   LivingEntity recentAttacker(UUID owner, long nowMillis) {
     Attack attack = attacks.get(owner);
-    return attack != null && nowMillis - attack.at() < getConfig().retaliateWindowMillis ? attack.attacker() : null;
+    return attack != null && nowMillis - attack.at() < retaliateWindow() ? attack.attacker() : null;
+  }
+
+  private long retaliateWindow() {
+    return Math.max(0L, getConfig().retaliateWindowMillis);
   }
 
   private boolean nearGuardian(Player owner, double radius) {

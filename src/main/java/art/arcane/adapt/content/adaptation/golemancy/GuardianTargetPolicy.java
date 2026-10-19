@@ -239,7 +239,7 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
         candidate instanceof Player,
         candidate instanceof Enemy,
         candidate instanceof Creeper,
-        candidate.customName() != null,
+        PaperCompat.hasCustomName(candidate),
         targetOf(candidate, watch.ownerId()) || targetOf(candidate, watch.body().getUniqueId()),
         attacker != null && attacker.getUniqueId().equals(candidate.getUniqueId()));
     return GuardianRules.reason(facts, watch.options());

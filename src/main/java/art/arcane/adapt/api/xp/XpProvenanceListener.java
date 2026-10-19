@@ -34,6 +34,7 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
@@ -76,6 +77,13 @@ public class XpProvenanceListener implements Listener {
     int limit = Math.min(blocks.size(), FERTILIZE_BLOCK_CAP);
     for (int i = 0; i < limit; i++) {
       XpProvenance.recordBonemeal(blocks.get(i).getBlock());
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(StructureGrowEvent e) {
+    for (BlockState grown : e.getBlocks()) {
+      XpProvenance.recordGrowth(grown.getBlock());
     }
   }
 

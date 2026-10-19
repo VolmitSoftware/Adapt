@@ -32,12 +32,14 @@ import org.bukkit.FluidCollisionMode;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Nameable;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.block.data.type.CaveVinesPlant;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.AbstractArrow;
 import org.bukkit.entity.AbstractSkeleton;
@@ -137,6 +139,8 @@ public final class PaperCompat {
   private static volatile boolean mobDropsResolved;
   private static volatile GameRule<?> mobDropsRule;
   private static volatile boolean freezeLockSupported = true;
+  private static volatile boolean berriesSupported = true;
+  private static volatile boolean customNameSupported = true;
   private static volatile boolean collisionQuerySupported = true;
   private static volatile boolean liveStateSupported = true;
   private static volatile boolean enchantWithLevelsSupported = true;
@@ -320,6 +324,28 @@ public final class PaperCompat {
       }
     }
     return Bukkit.getItemFactory().enchantItem(item, levels, true);
+  }
+
+  public static boolean hasBerries(CaveVinesPlant vines) {
+    if (berriesSupported) {
+      try {
+        return vines.hasBerries();
+      } catch (NoSuchMethodError absent) {
+        berriesSupported = false;
+      }
+    }
+    return SpigotNames.berries(vines);
+  }
+
+  public static boolean hasCustomName(Nameable nameable) {
+    if (customNameSupported) {
+      try {
+        return nameable.customName() != null;
+      } catch (NoSuchMethodError absent) {
+        customNameSupported = false;
+      }
+    }
+    return SpigotNames.customName(nameable);
   }
 
   public static boolean freezeTicksLocked(Entity entity) {
@@ -1020,6 +1046,48 @@ public final class PaperCompat {
     }
 
     return world.spawn(location, type, hydrator::accept);
+  }
+
+  private static final class SpigotNames {
+    private static volatile Method berries;
+    private static volatile Method customName;
+
+    private SpigotNames() {
+    }
+
+    private static boolean berries(CaveVinesPlant vines) {
+      Method read = berries;
+      if (read == null) {
+        try {
+          read = CaveVinesPlant.class.getMethod("isBerries");
+          berries = read;
+        } catch (NoSuchMethodException missing) {
+          return false;
+        }
+      }
+      try {
+        return Boolean.TRUE.equals(read.invoke(vines));
+      } catch (ReflectiveOperationException | RuntimeException failure) {
+        return false;
+      }
+    }
+
+    private static boolean customName(Nameable nameable) {
+      Method read = customName;
+      if (read == null) {
+        try {
+          read = Nameable.class.getMethod("getCustomName");
+          customName = read;
+        } catch (NoSuchMethodException missing) {
+          return false;
+        }
+      }
+      try {
+        return read.invoke(nameable) != null;
+      } catch (ReflectiveOperationException | RuntimeException failure) {
+        return false;
+      }
+    }
   }
 
   private static final class SpigotWeathering {

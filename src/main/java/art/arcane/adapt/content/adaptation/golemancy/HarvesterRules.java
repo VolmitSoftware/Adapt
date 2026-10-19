@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.api.golem.node.NodeFilters;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeTagLookup;
@@ -76,7 +77,7 @@ final class HarvesterRules {
     return switch (kind) {
       case CROP, BERRY_BUSH -> growth(block.getBlockData(), plan.tending() && plan.crops().tendable(type));
       case TORCHFLOWER -> torchflower(block, type, plan);
-      case CAVE_VINES -> block.getBlockData() instanceof CaveVinesPlant vines && vines.hasBerries() ? Spot.RIPE : Spot.NONE;
+      case CAVE_VINES -> block.getBlockData() instanceof CaveVinesPlant vines && PaperCompat.hasBerries(vines) ? Spot.RIPE : Spot.NONE;
       case GOURD -> plan.extended() && attached(block, type, owned) ? Spot.RIPE : Spot.NONE;
       case COLUMN -> plan.extended() && aboveBase(block, type) ? Spot.RIPE : Spot.NONE;
       case NONE -> Spot.NONE;

@@ -11,6 +11,8 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 final class WorldTreeView implements TreeView {
+  private static final int MAX_LEAF_DISTANCE = 7;
+
   private final World world;
   private final Predicate<Block> owns;
   private final Predicate<Block> placed;
@@ -53,6 +55,6 @@ final class WorldTreeView implements TreeView {
 
   @Override
   public boolean decaying(int x, int y, int z) {
-    return world.getBlockAt(x, y, z).getBlockData() instanceof Leaves leaves && leaves.getDistance() >= leaves.getMaximumDistance();
+    return world.getBlockAt(x, y, z).getBlockData() instanceof Leaves leaves && leaves.getDistance() >= MAX_LEAF_DISTANCE;
   }
 }

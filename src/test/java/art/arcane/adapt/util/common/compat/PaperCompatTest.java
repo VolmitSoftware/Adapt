@@ -9,6 +9,7 @@ import org.bukkit.Location;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.type.CaveVinesPlant;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.IronGolem;
@@ -106,6 +107,21 @@ class PaperCompatTest {
 
     assertThat(PaperCompat.freezeTicksLocked(locked)).isTrue();
     assertThat(PaperCompat.freezeTicksLocked(free)).isFalse();
+  }
+
+  @Test
+  void berriesAndCustomNamesReadThroughThePaperApi() {
+    CaveVinesPlant ripe = mock(CaveVinesPlant.class);
+    CaveVinesPlant bare = mock(CaveVinesPlant.class);
+    when(ripe.hasBerries()).thenReturn(true);
+    Zombie named = mock(Zombie.class);
+    Zombie nameless = mock(Zombie.class);
+    when(named.customName()).thenReturn(Component.text("Bob"));
+
+    assertThat(PaperCompat.hasBerries(ripe)).isTrue();
+    assertThat(PaperCompat.hasBerries(bare)).isFalse();
+    assertThat(PaperCompat.hasCustomName(named)).isTrue();
+    assertThat(PaperCompat.hasCustomName(nameless)).isFalse();
   }
 
   @Test

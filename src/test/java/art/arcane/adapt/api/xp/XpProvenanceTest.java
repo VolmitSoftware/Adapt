@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -24,6 +25,23 @@ class XpProvenanceTest {
   void dragonEggMovementProvenanceRunsAfterCommittedMovement() throws Exception {
     assertCommittedMovementHandler(BlockFromToEvent.class);
     assertCommittedMovementHandler(EntityChangeBlockEvent.class);
+  }
+
+  @Test
+  void treeGrowthProvenanceRunsAfterTheGrowthIsCommitted() throws Exception {
+    assertCommittedMovementHandler(StructureGrowEvent.class);
+  }
+
+  @Test
+  void grownBlocksForgetTheirPlacementButKeepBreakAndBonemealMarks() {
+    assertThat(XpProvenance.grown(null)).isNull();
+    assertThat(XpProvenance.grown(new PlacementStamp(0, 5, 7))).isNull();
+
+    PlacementStamp grown = XpProvenance.grown(new PlacementStamp(9, 5, 7));
+
+    assertThat(grown.getPlacedAt()).isZero();
+    assertThat(grown.getBrokenAt()).isEqualTo(5);
+    assertThat(grown.getBonemealedAt()).isEqualTo(7);
   }
 
   private static void assertCommittedMovementHandler(Class<?> eventType) throws Exception {

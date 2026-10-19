@@ -257,6 +257,19 @@ class GolemGuardianCoreTest extends AdaptTestBase {
   }
 
   @Test
+  void aNegativeRetaliationWindowRemembersNoAttacker() {
+    GolemGuardianCore learned = owner(3);
+    GolemGuardianCore.Config config = new GolemGuardianCore.Config();
+    config.retaliateWindowMillis = -1L;
+    doReturn(config).when(learned).getConfig();
+    Zombie zombie = living(Zombie.class, at(2, 64, 0));
+
+    learned.on(hit(zombie, owner));
+
+    assertThat(learned.recentAttacker(OWNER, clock.get())).isNull();
+  }
+
+  @Test
   void whateverHurtsTheOwnerIsRememberedForTheRetaliationWindow() {
     GolemGuardianCore learned = owner(3);
     Zombie zombie = living(Zombie.class, at(2, 64, 0));
