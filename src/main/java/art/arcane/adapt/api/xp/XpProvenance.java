@@ -65,10 +65,6 @@ public final class XpProvenance {
     return hasPlacement(WorldData.of(block.getWorld()).get(block, PlacementStamp.class));
   }
 
-  public static boolean hasPlacement(PlacementStamp stamp) {
-    return stamp != null && stamp.getPlacedAt() != 0;
-  }
-
   public static boolean forgetPlacement(Block block) {
     WorldData data = WorldData.of(block.getWorld());
     PlacementStamp grown = grown(data.get(block, PlacementStamp.class));
@@ -112,13 +108,6 @@ public final class XpProvenance {
     return name.endsWith("_LOG") || name.endsWith("_WOOD") || name.endsWith("_STEM") || name.endsWith("_HYPHAE")
         || name.endsWith("_LEAVES") || name.endsWith("_SAPLING") || name.endsWith("_PROPAGULE") || name.endsWith("_WART_BLOCK")
         || type == Material.SHROOMLIGHT;
-  }
-
-  public static PlacementStamp grown(PlacementStamp stamp) {
-    if (stamp == null || stamp.getPlacedAt() == 0) {
-      return null;
-    }
-    return new PlacementStamp(0, stamp.getBrokenAt(), stamp.getBonemealedAt());
   }
 
   public static void clearPlacementRecord(Block block) {
@@ -221,6 +210,17 @@ public final class XpProvenance {
 
   public static double harvestXpMultiplier(Block block) {
     return isBonemealed(block) ? AdaptConfig.get().getXpIntegrity().getBonemealHarvestMultiplier() : 1.0;
+  }
+
+  private static boolean hasPlacement(PlacementStamp stamp) {
+    return stamp != null && stamp.getPlacedAt() != 0;
+  }
+
+  private static PlacementStamp grown(PlacementStamp stamp) {
+    if (stamp == null || stamp.getPlacedAt() == 0) {
+      return null;
+    }
+    return new PlacementStamp(0, stamp.getBrokenAt(), stamp.getBonemealedAt());
   }
 
   private static boolean withinTtl(int stampSeconds, long ttlMillis) {

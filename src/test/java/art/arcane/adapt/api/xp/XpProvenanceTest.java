@@ -107,9 +107,17 @@ class XpProvenanceTest extends AdaptTestBase {
 
   @Test
   void aPlacementRecordLastsWhateverItsAgeAndIgnoresBreakMarks() {
-    assertThat(XpProvenance.hasPlacement(null)).isFalse();
-    assertThat(XpProvenance.hasPlacement(new PlacementStamp(0, 5, 7))).isFalse();
-    assertThat(XpProvenance.hasPlacement(new PlacementStamp(1, 0, 0))).isTrue();
+    Block unrecorded = block(Material.STONE, 1, 64, 0);
+    Block broken = block(Material.STONE, 2, 64, 0);
+    Block ancient = block(Material.STONE, 3, 64, 0);
+    try (PlacementStore placements = new PlacementStore()) {
+      placements.put(broken, new PlacementStamp(0, 5, 7));
+      placements.put(ancient, new PlacementStamp(1, 0, 0));
+
+      assertThat(XpProvenance.wasPlaced(unrecorded)).isFalse();
+      assertThat(XpProvenance.wasPlaced(broken)).isFalse();
+      assertThat(XpProvenance.wasPlaced(ancient)).isTrue();
+    }
   }
 
   @Test
@@ -154,15 +162,25 @@ class XpProvenanceTest extends AdaptTestBase {
   }
 
   @Test
-  void grownBlocksForgetTheirPlacementButKeepBreakAndBonemealMarks() {
-    assertThat(XpProvenance.grown(null)).isNull();
-    assertThat(XpProvenance.grown(new PlacementStamp(0, 5, 7))).isNull();
+  void forgettingAPlacementKeepsTheBreakAndBonemealMarks() {
+    Block unrecorded = block(Material.STONE, 1, 64, 0);
+    Block broken = block(Material.STONE, 2, 64, 0);
+    Block placed = block(Material.STONE, 3, 64, 0);
+    PlacementStamp brokenStamp = new PlacementStamp(0, 5, 7);
+    try (PlacementStore placements = new PlacementStore()) {
+      placements.put(broken, brokenStamp);
+      placements.put(placed, new PlacementStamp(9, 5, 7));
 
-    PlacementStamp grown = XpProvenance.grown(new PlacementStamp(9, 5, 7));
+      assertThat(XpProvenance.forgetPlacement(unrecorded)).isFalse();
+      assertThat(XpProvenance.forgetPlacement(broken)).isFalse();
+      assertThat(XpProvenance.forgetPlacement(placed)).isTrue();
 
-    assertThat(grown.getPlacedAt()).isZero();
-    assertThat(grown.getBrokenAt()).isEqualTo(5);
-    assertThat(grown.getBonemealedAt()).isEqualTo(7);
+      assertThat(placements.get(unrecorded)).isNull();
+      assertThat(placements.get(broken)).isSameAs(brokenStamp);
+      assertThat(placements.get(placed).getPlacedAt()).isZero();
+      assertThat(placements.get(placed).getBrokenAt()).isEqualTo(5);
+      assertThat(placements.get(placed).getBonemealedAt()).isEqualTo(7);
+    }
   }
 
   private static Block block(Material type, int x, int y, int z) {
