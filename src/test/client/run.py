@@ -18,7 +18,7 @@ import zipfile
 ROOT = Path(__file__).resolve().parents[3]
 PRISM = Path.home() / 'Library/Application Support/PrismLauncher'
 LAUNCHER = Path('/Applications/Prism Launcher.app/Contents/MacOS/prismlauncher')
-MULTIPLEXOR = ROOT.parent.parent / '[Minecraft Server]'
+MULTIPLEXOR_ENV = 'ADAPT_DEMO_MULTIPLEXOR'
 
 
 class Rcon:
@@ -104,9 +104,14 @@ def free_port():
         return listener.getsockname()[1]
 
 
+def multiplexor() -> Path:
+    return Path(os.environ.get(MULTIPLEXOR_ENV) or ROOT.parent.parent / '[Minecraft Server]')
+
+
 def mux(*arguments: str, timeout: int = 180) -> str:
-    result: subprocess.CompletedProcess = subprocess.run([str(MULTIPLEXOR / 'start.sh'), '--consumer', 'plugin', *arguments],
-                                                         cwd=MULTIPLEXOR, capture_output=True, text=True, timeout=timeout)
+    workspace: Path = multiplexor()
+    result: subprocess.CompletedProcess = subprocess.run([str(workspace / 'start.sh'), '--consumer', 'plugin', *arguments],
+                                                         cwd=workspace, capture_output=True, text=True, timeout=timeout)
     if result.returncode != 0:
         raise RuntimeError('Multiplexor ' + ' '.join(arguments) + ' failed with exit ' + str(result.returncode) + ': '
                            + (result.stdout + result.stderr).strip()[-2000:])

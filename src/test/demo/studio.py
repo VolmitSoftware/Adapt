@@ -5,6 +5,7 @@ import json
 import os
 import re
 import secrets
+import shlex
 import shutil
 import subprocess
 import sys
@@ -70,6 +71,8 @@ PRISM_LOG: Path = clientqa.PRISM / 'logs' / 'PrismLauncher-0.log'
 LAUNCH_WATCH: float = 15.0
 RESCAN_WAIT: float = 30.0
 IRIS_LIBS: Path = ROOT.parent / 'Iris' / 'build' / 'libs'
+IRIS_LIBS_ENV: str = 'ADAPT_DEMO_IRIS_LIBS'
+GRADLE_ARGS_ENV: str = 'ADAPT_DEMO_GRADLE_ARGS'
 IRIS_DENIALS: tuple[str, ...] = ('denied', 'locked', 'cannot', 'restart', 'could not find', 'already exists', 'exception raised')
 
 
@@ -130,10 +133,11 @@ def bridge_failure(failure: urllib.error.HTTPError, label: str) -> RuntimeError:
     return RuntimeError(label + ' rejected with HTTP ' + str(failure.code) + ': ' + body)
 
 
-def iris_jar(libs: Path = IRIS_LIBS) -> Path:
-    candidates: list[Path] = list(libs.glob('Iris*-packed.jar'))
+def iris_jar(libs: Path | None = None) -> Path:
+    folder: Path = libs if libs is not None else Path(os.environ.get(IRIS_LIBS_ENV) or IRIS_LIBS)
+    candidates: list[Path] = list(folder.glob('Iris*-packed.jar'))
     if not candidates:
-        raise RuntimeError('No packed Iris jar under ' + str(libs))
+        raise RuntimeError('No packed Iris jar under ' + str(folder) + '; set ' + IRIS_LIBS_ENV + ' to its folder')
     return max(candidates, key=lambda path: path.stat().st_mtime)
 
 
@@ -346,6 +350,10 @@ def reload_prism_instance(instance: Path, log: Path = PRISM_LOG) -> None:
             offset = log.stat().st_size if log.is_file() else 0
             staging.rename(instance)
     await_instance_reload(log, offset, instance, removed=False)
+
+
+def gradle_arguments() -> list[str]:
+    return shlex.split(os.environ.get(GRADLE_ARGS_ENV, ''))
 
 
 def build_environment() -> dict[str, str]:
@@ -617,6 +625,8 @@ class Studio:
         return mods
 
     def build(self, command: list[str], log_name: str) -> None:
+        if command[0] == './gradlew':
+            command = command + gradle_arguments()
         with (self.output / log_name).open('w') as log:
             subprocess.run(command, cwd=ROOT, env=build_environment(), stdout=log, stderr=subprocess.STDOUT, check=True)
 
