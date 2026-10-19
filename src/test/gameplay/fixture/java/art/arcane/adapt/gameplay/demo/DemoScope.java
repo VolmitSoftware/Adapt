@@ -1,6 +1,10 @@
 package art.arcane.adapt.gameplay.demo;
 
+import art.arcane.adapt.api.golem.GolemRoster;
+import art.arcane.adapt.api.golem.GolemRune;
 import org.bukkit.util.BoundingBox;
+
+import java.util.List;
 
 public final class DemoScope {
     private static final String OWNER_PREFIX = "AQA";
@@ -21,5 +25,16 @@ public final class DemoScope {
         double halfY = box.getHeight() / 2D;
         double halfZ = box.getWidthZ() / 2D;
         return Math.sqrt(halfX * halfX + halfY * halfY + halfZ * halfZ);
+    }
+
+    public static void clearRoster(GolemRoster roster) {
+        for (GolemRoster.GolemEntry entry : roster.golems()) {
+            roster.remove(entry.id());
+        }
+        List<GolemRune> lattice = roster.lattice();
+        for (int index = lattice.size() - 1; index >= 0; index--) {
+            roster.removeLattice(index, lattice.get(index));
+        }
+        roster.setServantChannel(null);
     }
 }

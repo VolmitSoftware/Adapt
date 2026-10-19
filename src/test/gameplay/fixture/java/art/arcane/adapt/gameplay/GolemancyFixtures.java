@@ -6,7 +6,6 @@ import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemRegistry;
-import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTaskBoard;
 import art.arcane.adapt.api.golem.GolemTaskBoards;
@@ -271,10 +270,7 @@ public final class GolemancyFixtures {
             if (adaptPlayer == null) {
                 continue;
             }
-            GolemRoster roster = adaptPlayer.getData().getGolemancy();
-            for (GolemRoster.GolemEntry entry : roster.golems()) {
-                roster.remove(entry.id());
-            }
+            DemoScope.clearRoster(adaptPlayer.getData().getGolemancy());
         }
     }
 

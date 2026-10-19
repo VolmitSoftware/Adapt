@@ -1,5 +1,9 @@
 package art.arcane.adapt.gameplay.demo;
 
+import art.arcane.adapt.api.golem.GolemRoster;
+import art.arcane.adapt.api.golem.GolemRune;
+import art.arcane.adapt.api.golem.GolemRuneType;
+import org.bukkit.DyeColor;
 import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.Test;
 
@@ -41,5 +45,18 @@ class DemoScopeTest {
         double cornerY = PLATE.getMaxY() - PLATE.getCenterY();
         double cornerZ = PLATE.getMaxZ() - PLATE.getCenterZ();
         assertThat(radius).isEqualTo(Math.sqrt(cornerX * cornerX + cornerY * cornerY + cornerZ * cornerZ));
+    }
+
+    @Test
+    void clearingARosterDropsItsLatticeRunesAndServantChannel() {
+        GolemRoster roster = new GolemRoster();
+        roster.addLattice(new GolemRune(GolemRuneType.SWIFTNESS, 1));
+        roster.addLattice(new GolemRune(GolemRuneType.MIGHT, 2));
+        roster.setServantChannel(DyeColor.BLUE);
+
+        DemoScope.clearRoster(roster);
+
+        assertThat(roster.lattice()).isEmpty();
+        assertThat(roster.servantChannel()).isEmpty();
     }
 }
