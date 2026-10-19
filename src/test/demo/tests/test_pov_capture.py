@@ -23,8 +23,10 @@ FFMPEG: Path = Path('/tools/ffmpeg')
 class CaptureStudio:
     def __init__(self, replays: Path) -> None:
         self.rcon: mock.MagicMock = mock.MagicMock()
-        self.rcon.command.return_value = ('ADAPT_QA DEMO SET arena {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":180.0,"pitch":0.0},'
-                                          '"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0}}')
+        set_reply: str = ('ADAPT_QA DEMO SET arena {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":180.0,"pitch":0.0},'
+                          '"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0}}')
+        claim_reply: str = '\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70Set AQAClient262 rift-enderchest to level 3.'
+        self.rcon.command.side_effect = lambda text: claim_reply if text.startswith('adapt claim-adaptation') else set_reply
         self.bridge: mock.MagicMock = mock.MagicMock()
         self.bridge.state.side_effect = self.state
         self.bridge.command.side_effect = self.command

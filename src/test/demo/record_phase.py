@@ -18,7 +18,8 @@ SETTLE_TICKS: int = 20
 CLEAR_POLL_SECONDS: float = 0.2
 CLEAR_TIMEOUT_SECONDS: float = 5.0
 PROBE_COUNTS: re.Pattern[str] = re.compile(r'refunds=(\d+) golems=(\d+)')
-CLAIM_REFUSED: str = 'before learning'
+CLAIM_ACCEPTED: str = '\u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70'
+COLOR_CODES: re.Pattern[str] = re.compile('\u00a7x(?:\u00a7[0-9a-f]){6}|\u00a7.')
 REPLAY_TIMEOUT: float = 60.0
 STOP_STATE_TIMEOUT: float = 30.0
 BRIDGE_RETRY_SECONDS: float = 1.0
@@ -167,8 +168,8 @@ def await_cleared(rcon: beats.RconClient, actor: str, refunds: int) -> None:
 
 def claim(rcon: beats.RconClient, actor: str, skill: str, name: str, level: int) -> None:
     reply: str = rcon.command('adapt claim-adaptation ' + skill + ':' + name + ' ' + str(level) + ' force=true player=' + actor)
-    if CLAIM_REFUSED in reply:
-        raise RuntimeError('The claim of ' + name + ' at level ' + str(level) + ' was refused: ' + re.sub('\u00a7.', '', reply).strip())
+    if CLAIM_ACCEPTED not in reply:
+        raise RuntimeError('The claim of ' + name + ' at level ' + str(level) + ' was refused: ' + COLOR_CODES.sub('', reply).strip())
 
 
 def prepare_take(studio: RecordStudio, entry: choreography.Entry, skill: str) -> dict:

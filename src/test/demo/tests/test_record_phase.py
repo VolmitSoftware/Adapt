@@ -15,6 +15,15 @@ import manifest
 import record_phase
 
 
+CLAIM_OK: str = '\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70Set AQAClient262 agility-wall-jump to level 5.'
+CLAIM_ERROR: str = '\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a7f\u00a7f\u00a70\u00a70\u00a70\u00a70'
+
+
+def probe_reply(refunds: int, golems: int) -> str:
+    golem: str = ' | golem COPPER WORK cores=[GATHERER] at=-1279.4,56.0,5116.9 dormant=false' * golems
+    return 'ADAPT_QA DEMO PROBE refunds=' + str(refunds) + ' golems=' + str(golems) + golem + ' | levels golem-animus-binding=5 golem-copper-frame=1'
+
+
 class FakeStudio:
     def __init__(self, replays: Path) -> None:
         self.rcon = mock.MagicMock()
@@ -41,6 +50,8 @@ class FakeStudio:
         self.gates.append(self.rcon.command.call_count + self.bridge.command.call_count)
 
     def reply(self, text: str) -> str:
+        if text.startswith('adapt claim-adaptation'):
+            return CLAIM_OK
         if text.startswith('adaptqa demo set'):
             return ('ADAPT_QA DEMO SET wall {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":-90.0,"pitch":0.0},'
                     '"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0},"cleared":' + str(self.cleared) + ',"refunds":' + str(self.refunds) + '}')
@@ -136,19 +147,39 @@ class RecordPhaseTest(unittest.TestCase):
         self.assertLess(prerequisite, claim)
         self.assertLess(claim, sent.index('say ready'))
 
-    def test_a_refused_prerequisite_claim_fails_the_take_preparation(self) -> None:
+    def prepare_with_replies(self, answer: str | None, name: str = 'golem-runic-augments') -> None:
         with tempfile.TemporaryDirectory() as tmp:
             replays = Path(tmp) / 'flashback' / 'replays'
             replays.mkdir(parents=True)
             studio = FakeStudio(replays)
-            refusal: str = '\u00a77[Adapt] AQAClient262 needs Animus Binding Lv 2 before learning golem-runic-augments.'
             reply = studio.reply
-            studio.rcon.command.side_effect = lambda text: refusal if 'golem-runic-augments' in text else reply(text)
+            studio.rcon.command.side_effect = lambda text: answer if answer is not None and name in text and text.startswith('adapt claim-adaptation') else reply(text)
             entry = choreography.Entry(id='golem-bone-frame', set='taming-field', level=3, pre=[], beats=[{'verb': 'wait', 'ticks': 2}],
                                        expect_sound=None, expect_particle=None, max_ticks=100, camera=None,
-                                       prerequisites=(choreography.Prerequisite(skill='golemancy', name='golem-runic-augments', level=5),))
-            with self.assertRaisesRegex(RuntimeError, r'claim of golem-runic-augments at level 5 was refused: \[Adapt\] AQAClient262 needs Animus Binding Lv 2'):
-                record_phase.prepare_take(studio, entry, 'golemancy')
+                                       prerequisites=(choreography.Prerequisite(skill='golemancy', name=name, level=5),))
+            record_phase.prepare_take(studio, entry, 'golemancy')
+
+    def test_an_accepted_claim_prepares_the_take(self) -> None:
+        self.prepare_with_replies(None)
+
+    def test_a_claim_that_is_already_at_its_level_counts_as_accepted(self) -> None:
+        self.prepare_with_replies('\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70No change: golem-runic-augments is already at level 5.')
+
+    def test_a_refused_prerequisite_claim_fails_the_take_preparation(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, r'claim of golem-runic-augments at level 5 was refused: \[Adapt\] AQAClient262 needs Animus Binding Lv 2'):
+            self.prepare_with_replies(CLAIM_ERROR + 'AQAClient262 needs Animus Binding Lv 2 before learning golem-runic-augments.')
+
+    def test_any_other_refusal_fails_the_take_preparation_with_the_server_reply(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, r'was refused: \[Adapt\] The golemancy skill line is unavailable for AQAClient262\.'):
+            self.prepare_with_replies(CLAIM_ERROR + 'The golemancy skill line is unavailable for AQAClient262.')
+
+    def test_a_refusal_in_another_language_still_fails_the_take_preparation(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, r'was refused: \[Adapt\] AQAClient262 braucht Animus Binding Stufe 2'):
+            self.prepare_with_replies(CLAIM_ERROR + 'AQAClient262 braucht Animus Binding Stufe 2, bevor golem-runic-augments gelernt wird.')
+
+    def test_a_reply_without_any_color_fails_the_take_preparation(self) -> None:
+        with self.assertRaisesRegex(RuntimeError, 'was refused: ADAPT_QA DEMO OK'):
+            self.prepare_with_replies('ADAPT_QA DEMO OK')
 
     def test_showcase_clip_claims_its_prerequisites_but_no_adaptation_of_its_own(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -368,22 +399,28 @@ class RecordPhaseTest(unittest.TestCase):
         return log
 
     def test_cleared_golem_state_is_polled_until_the_refunds_arrive_before_the_actor_is_reset(self) -> None:
-        log = self.cleared_take(3, 2, ['ADAPT_QA DEMO PROBE refunds=0 golems=0', 'ADAPT_QA DEMO PROBE refunds=1 golems=0', 'ADAPT_QA DEMO PROBE refunds=2 golems=0'])
+        log = self.cleared_take(3, 2, [probe_reply(0, 0), probe_reply(1, 0), probe_reply(2, 0)])
         probes: list[int] = [index for index, line in enumerate(log) if line.startswith('rcon:adaptqa demo probe')]
         self.assertEqual(len(probes), 3)
         self.assertLess(log.index('rcon:adaptqa demo set wall'), probes[0])
         self.assertLess(probes[-1], log.index('rcon:adaptqa demo actor AQAClient262'))
 
     def test_cleared_golem_state_waits_for_loaded_golems_to_leave_the_registry(self) -> None:
-        log = self.cleared_take(1, 0, ['ADAPT_QA DEMO PROBE refunds=0 golems=1', 'ADAPT_QA DEMO PROBE refunds=0 golems=0'])
+        log = self.cleared_take(1, 0, [probe_reply(0, 1), probe_reply(0, 0)])
         self.assertEqual(sum(line.startswith('rcon:adaptqa demo probe') for line in log), 2)
 
+    def test_the_probe_reply_shape_matches_the_fixture_format(self) -> None:
+        reply: str = 'ADAPT_QA DEMO PROBE refunds=2 golems=1 | golem COPPER WORK cores=[GATHERER] at=-1279.4,56.0,5116.9 dormant=false | levels golem-animus-binding=5'
+        counts = record_phase.PROBE_COUNTS.search(reply)
+        self.assertEqual((int(counts.group(1)), int(counts.group(2))), (2, 1))
+        self.assertEqual(probe_reply(2, 1)[:len('ADAPT_QA DEMO PROBE refunds=2 golems=1 | golem COPPER WORK')], reply[:len('ADAPT_QA DEMO PROBE refunds=2 golems=1 | golem COPPER WORK')])
+
     def test_a_set_that_cleared_nothing_does_not_probe(self) -> None:
-        log = self.cleared_take(0, 0, ['ADAPT_QA DEMO PROBE refunds=0 golems=0'])
+        log = self.cleared_take(0, 0, [probe_reply(0, 0)])
         self.assertFalse(any(line.startswith('rcon:adaptqa demo probe') for line in log))
 
     def test_the_settle_poll_gives_up_after_its_timeout_and_the_take_goes_on(self) -> None:
-        log = self.cleared_take(2, 2, ['ADAPT_QA DEMO PROBE refunds=0 golems=0'])
+        log = self.cleared_take(2, 2, [probe_reply(0, 0)])
         probes: int = sum(line.startswith('rcon:adaptqa demo probe') for line in log)
         self.assertGreaterEqual(probes, int(record_phase.CLEAR_TIMEOUT_SECONDS))
         self.assertIn('rcon:adaptqa demo actor AQAClient262', log)
@@ -678,7 +715,7 @@ class RecordPhaseTest(unittest.TestCase):
             studio: FakeStudio = FakeStudio(replays)
             reply: str = ('ADAPT_QA DEMO SET runway {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":180.0,"pitch":0.0},'
                           '"camera":{"x":3.0,"y":1.2,"z":4.5,"yaw":-33.7,"pitch":12.5,"follow":true}}')
-            studio.rcon.command.side_effect = lambda text: reply if text.startswith('adaptqa demo set') else 'ADAPT_QA DEMO OK'
+            studio.rcon.command.side_effect = lambda text: reply if text.startswith('adaptqa demo set') else studio.reply(text)
             takes: dict[str, manifest.Take] = record_phase.record(studio, {'agility-wall-jump': self.entry()}, ['agility-wall-jump'],
                                                                   Path(tmp) / 'manifest.json', 'agility')
         self.assertEqual(takes['agility-wall-jump'].camera, {'x': 3.0, 'y': 1.2, 'z': 4.5, 'yaw': -33.7, 'pitch': 12.5, 'follow': True})
