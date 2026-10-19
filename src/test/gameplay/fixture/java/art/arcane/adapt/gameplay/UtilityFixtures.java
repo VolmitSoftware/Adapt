@@ -2,6 +2,7 @@ package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.content.item.ChalkWandItem;
+import art.arcane.adapt.gameplay.demo.DemoScope;
 import com.destroystokyo.paper.event.entity.EndermanAttackPlayerEvent;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -177,7 +178,7 @@ public final class UtilityFixtures implements Listener {
     }
 
     private static boolean eligible(Player player) {
-        return player.getName().startsWith("AQA") && player.getWorld().getName().startsWith("adapt_gameplay_");
+        return DemoScope.ownsDemoState(player.getName()) && player.getWorld().getName().startsWith("adapt_gameplay_");
     }
 
     private static JsonObject event(String type, boolean cancelled) {

@@ -16,11 +16,21 @@ class DemoScopeTest {
     private static final BoundingBox PLATE = new BoundingBox(-15, 40, -60, 16, 73, 11);
 
     @Test
-    void qaPlayersOwnDemoStateAndOthersDoNot() {
-        assertThat(DemoScope.ownsDemoState("AQAClient262")).isTrue();
+    void theStudioActorAndTheQaPrefixOwnDemoState() {
+        assertThat(DemoScope.ownsDemoState("Magic_Psycho")).isTrue();
+        assertThat(DemoScope.ownsDemoState(DemoScope.STUDIO_ACTOR)).isTrue();
         assertThat(DemoScope.ownsDemoState("AQAOpponent")).isTrue();
+        assertThat(DemoScope.ownsDemoState("AQABot7")).isTrue();
+    }
+
+    @Test
+    void everyOtherPlayerIsLeftAlone() {
         assertThat(DemoScope.ownsDemoState("Steve")).isFalse();
+        assertThat(DemoScope.ownsDemoState("magic_psycho")).isFalse();
+        assertThat(DemoScope.ownsDemoState("Magic_Psycho2")).isFalse();
+        assertThat(DemoScope.ownsDemoState("Not_Magic_Psycho")).isFalse();
         assertThat(DemoScope.ownsDemoState("aqaClient")).isFalse();
+        assertThat(DemoScope.ownsDemoState("")).isFalse();
         assertThat(DemoScope.ownsDemoState(null)).isFalse();
     }
 

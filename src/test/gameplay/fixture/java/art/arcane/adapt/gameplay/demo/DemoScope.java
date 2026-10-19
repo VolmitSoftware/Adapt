@@ -10,13 +10,15 @@ import java.util.Collection;
 import java.util.List;
 
 public final class DemoScope {
+    public static final String STUDIO_ACTOR = "Magic_Psycho";
+
     private static final String OWNER_PREFIX = "AQA";
 
     private DemoScope() {
     }
 
     public static boolean ownsDemoState(String playerName) {
-        return playerName != null && playerName.startsWith(OWNER_PREFIX);
+        return playerName != null && (STUDIO_ACTOR.equals(playerName) || playerName.startsWith(OWNER_PREFIX));
     }
 
     public static boolean contains(BoundingBox box, int blockX, int blockY, int blockZ) {

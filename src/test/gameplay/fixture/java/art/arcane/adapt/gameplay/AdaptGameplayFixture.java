@@ -10,6 +10,7 @@ import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.gameplay.demo.DemoScope;
 import art.arcane.adapt.gameplay.demo.DemoSkin;
 import art.arcane.adapt.gameplay.demo.DemoStudio;
 import art.arcane.adapt.gameplay.demo.sets.StructureDiscoverySets;
@@ -286,7 +287,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
 
     private Player ordinaryPlayer(String name) {
         Player player = Objects.requireNonNull(Bukkit.getPlayerExact(name), "Player is not online");
-        if (player.isOp() || !name.startsWith("AQA")) throw new IllegalArgumentException("Fixture actor must be an ordinary AQA player");
+        if (player.isOp() || !DemoScope.ownsDemoState(name)) throw new IllegalArgumentException("Fixture actor must be an ordinary studio player");
         return player;
     }
 

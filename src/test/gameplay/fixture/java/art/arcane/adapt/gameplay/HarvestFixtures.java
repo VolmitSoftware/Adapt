@@ -2,6 +2,7 @@ package art.arcane.adapt.gameplay;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.gameplay.demo.DemoScope;
 import com.google.gson.JsonObject;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
@@ -205,7 +206,7 @@ public final class HarvestFixtures implements Listener {
 
     private void observeFall(EntityDamageEvent event, String phase) {
         if (event.getCause() != EntityDamageEvent.DamageCause.FALL || !(event.getEntity() instanceof Player player)
-                || !player.getName().startsWith("AQA")) return;
+                || !DemoScope.ownsDemoState(player.getName())) return;
         JsonObject state = new JsonObject();
         Location at = player.getLocation();
         state.addProperty("x", at.getX());

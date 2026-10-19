@@ -8,6 +8,7 @@ import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.rift.RiftBlink;
 import art.arcane.adapt.content.event.AdaptAdaptationTeleportEvent;
+import art.arcane.adapt.gameplay.demo.DemoScope;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import org.bukkit.Location;
@@ -130,7 +131,7 @@ public final class BlinkPreferencesFixtures implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void observeTeleport(PlayerTeleportEvent event) {
-        if (event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN && event.getPlayer().getName().startsWith("AQA")) {
+        if (event.getCause() == PlayerTeleportEvent.TeleportCause.PLUGIN && DemoScope.ownsDemoState(event.getPlayer().getName())) {
             teleports.merge(event.getPlayer().getUniqueId(), 1, Integer::sum);
             JsonObject destination = new JsonObject();
             destination.addProperty("x", event.getTo().getX());
@@ -145,7 +146,7 @@ public final class BlinkPreferencesFixtures implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void observeAttack(EntityDamageByEntityEvent event) {
-        if (!(event.getEntity() instanceof Player player) || !player.getName().startsWith("AQA")) return;
+        if (!(event.getEntity() instanceof Player player) || !DemoScope.ownsDemoState(player.getName())) return;
         JsonObject hit = new JsonObject();
         hit.addProperty("cancelled", event.isCancelled());
         hit.addProperty("cause", event.getCause().name());
