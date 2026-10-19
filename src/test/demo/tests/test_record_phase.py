@@ -457,6 +457,10 @@ class RecordPhaseTest(unittest.TestCase):
         self.assertIn('golem 1.40 blocks from the camera', take.evidence_detail)
         self.assertEqual(take.min_golem_distance, 1.4)
 
+    def test_a_failed_proximity_take_prints_the_sampled_series(self) -> None:
+        _, console = self.closest_golem('1.40')
+        self.assertRegex(console, r'\[PROXIMITY\] agility-wall-jump 0\.65s:1\.40 1\.15s:1\.40 ')
+
     def test_a_declared_window_excuses_a_close_golem(self) -> None:
         window = choreography.AllowClose(start=0.0, end=100.0, reason='bind-ritual')
         take, console = self.closest_golem('2.10', allow_close=(window,))

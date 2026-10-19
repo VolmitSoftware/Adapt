@@ -252,8 +252,10 @@ def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attem
                                                      entry.expect_visual)
     replay: Path = keep_replay(wait_replay(studio.game, known, REPLAY_TIMEOUT), output / 'replays', entry.id)
     close: tuple[float, float] | None = watch.violation()
+    if close is not None:
+        print('[PROXIMITY] ' + entry.id + ' ' + watch.series(), flush=True)
     ok: bool = timeout is None and result.ok and close is None
-    detail: str = timeout if timeout is not None else (proximity.message(close) if close is not None else result.detail)
+    detail: str = timeout if timeout is not None else (proximity.message(close, watch.closest()) if close is not None else result.detail)
     camera: dict = placed_camera(entry.camera, studio.origin) if entry.camera is not None else set_info['camera']
     return manifest.Take(id=entry.id, skill=skill, set=entry.set, level=entry.level, replay=str(replay), start_tick=start_tick, stop_tick=stop_tick,
                          evidence_ok=ok, evidence_detail=detail, takes=attempt, camera=camera,

@@ -95,7 +95,18 @@ class ViolationTest(unittest.TestCase):
         self.assertEqual(samples.violation(), (1.0, 2.0))
 
     def test_the_message_names_the_limit(self) -> None:
-        self.assertEqual(proximity.message((12.5, 1.4)), 'golem 1.40 blocks from the camera at 12.5 s, closer than 2.5')
+        self.assertEqual(proximity.message((12.5, 1.4), (12.5, 1.4)), 'golem 1.40 blocks from the camera at 12.5 s, closer than 2.5')
+
+    def test_the_message_names_the_closest_sample_when_it_is_later_and_closer(self) -> None:
+        self.assertEqual(proximity.message((8.3, 2.48), (13.2, 0.78)),
+                         'golem 2.48 blocks from the camera at 8.3 s, closer than 2.5 (closest 0.78 blocks at 13.2 s)')
+
+    def test_the_closest_sample_carries_its_time(self) -> None:
+        samples: proximity.Proximity = watch([near('5.00'), near('0.80'), near('3.00')])
+        for tick in (110, 120, 130):
+            samples.sample(tick)
+        self.assertEqual(samples.closest(), (0.5, 0.8))
+        self.assertIsNone(watch([]).closest())
 
 
 PROBE_FORMAT: Path = ROOT / 'src' / 'test' / 'gameplay' / 'fixture' / 'java' / 'art' / 'arcane' / 'adapt' / 'gameplay' / 'demo' / 'ProbeFormat.java'
@@ -139,6 +150,14 @@ class ProbeFormatContractTest(unittest.TestCase):
 
     def test_the_decimal_format_is_two_places(self) -> None:
         self.assertEqual(java_constant('DISTANCE'), '%.2f')
+
+
+class SeriesTest(unittest.TestCase):
+    def test_the_series_lists_each_sample_as_seconds_and_blocks(self) -> None:
+        samples: proximity.Proximity = watch([near('5.00'), near('2.25'), near('none')])
+        for tick in (110, 120, 130):
+            samples.sample(tick)
+        self.assertEqual(samples.series(), '0s:5.00 0.5s:2.25')
 
 
 class ManifestFieldTest(unittest.TestCase):

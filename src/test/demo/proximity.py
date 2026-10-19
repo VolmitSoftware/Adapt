@@ -21,8 +21,11 @@ def clip_seconds(tick: int, start_tick: int) -> float:
     return (tick - start_tick - manifest.START_TICK) / manifest.TICKS_PER_SECOND
 
 
-def message(violation: tuple[float, float]) -> str:
-    return 'golem ' + format(violation[1], '.2f') + ' blocks from the camera at ' + format(violation[0], 'g') + ' s, closer than ' + format(LIMIT_BLOCKS, 'g')
+def message(violation: tuple[float, float], closest: tuple[float, float] | None = None) -> str:
+    text: str = 'golem ' + format(violation[1], '.2f') + ' blocks from the camera at ' + format(violation[0], 'g') + ' s, closer than ' + format(LIMIT_BLOCKS, 'g')
+    if closest is not None and closest != violation and closest[1] < violation[1]:
+        text += ' (closest ' + format(closest[1], '.2f') + ' blocks at ' + format(closest[0], 'g') + ' s)'
+    return text
 
 
 @dataclasses.dataclass
@@ -45,6 +48,12 @@ class Proximity:
 
     def minimum(self) -> float | None:
         return min((blocks for _, blocks in self.samples), default=None)
+
+    def series(self) -> str:
+        return ' '.join(format(seconds, 'g') + 's:' + format(blocks, '.2f') for seconds, blocks in self.samples)
+
+    def closest(self) -> tuple[float, float] | None:
+        return min(self.samples, key=lambda sample: sample[1], default=None)
 
     def violation(self) -> tuple[float, float] | None:
         for seconds, blocks in self.samples:
