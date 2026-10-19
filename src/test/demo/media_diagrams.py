@@ -9,6 +9,8 @@ from media_catalog import Adaptation, Catalog
 Point = tuple[float, float]
 Color = tuple[int, int, int, int]
 Cell = tuple[int, int, int, str]
+Block = tuple[int, int, int]
+Edge = tuple[Block, Block]
 
 SCALE: int = textures.SCALE
 TILE: int = textures.ICON
@@ -49,7 +51,9 @@ LINE_WIDTH: int = 3
 CHEST_FACE: tuple[float, float] = (textures.CHEST_SIZE[0], textures.CHEST_SIZE[1])
 DECAL_ACROSS: tuple[float, float] = (0.1, 0.9)
 DECAL_UP: tuple[float, float] = (0.04, 0.84)
-WORK_RADIUS: int = 1
+WORK_RADIUS: int = 2
+NODE_FACE: Block = (0, 0, 1)
+SKILL_NAMES: dict[str, str] = {'tragoul': 'TragOul'}
 CHEST_SCALE: int = 8
 PLINTH_CAMERA: textures.FrontCamera = textures.FrontCamera(depth=10, height=6)
 GOLEM_CAMERA: textures.FrontCamera = textures.FrontCamera(depth=6, height=16)
@@ -214,7 +218,10 @@ def plinth_view(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
     top: int = 2 * COMPASS_GAP + COMPASS_SIZE // 2
     bottom: int = COMPASS_GAP + COMPASS_SIZE + LABEL_SIZE
     label_left: int = left + layer.width // 2 + 2 * COMPASS_GAP
-    width: int = multiple(max(layer.width + 2 * left, label_left + width_of(pedestal_label, LABEL_SIZE) + LABEL_PAD))
+    lodestone_label: str = 'Lodestone'
+    lodestone_size: int = NOTE_SIZE + 4
+    width: int = multiple(max(layer.width + 2 * left, label_left + width_of(pedestal_label, LABEL_SIZE) + LABEL_PAD,
+                              label_left + width_of(lodestone_label, lodestone_size) + LABEL_PAD))
     height: int = multiple(layer.height + top + bottom)
     canvas: Image.Image = finish(gui, width, height)
     shift: tuple[int, int] = (left, top)
@@ -226,12 +233,13 @@ def plinth_view(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
 
     middle: float = PLATE / 2
     center: Point = at(middle, 0, middle)
-    textures.text(canvas, (round(center[0]), round(at(middle, 1, 0)[1]) - COMPASS_GAP), 'N', COMPASS_SIZE, INK, 'mm')
+    north: tuple[int, int] = (round(center[0]), round(at(middle, 1, 0)[1]) - COMPASS_GAP)
+    textures.text(canvas, north, 'N', COMPASS_SIZE, INK, 'mm')
     textures.text(canvas, (round(at(PLATE, 0, middle)[0]) + COMPASS_GAP, round(center[1])), 'E', COMPASS_SIZE, INK, 'mm')
     south: tuple[int, int] = (round(center[0]), round(at(middle, -1, PLATE)[1]) + COMPASS_GAP)
     textures.text(canvas, south, 'S', COMPASS_SIZE, INK, 'mm')
     textures.text(canvas, (round(at(0, 0, middle)[0]) - COMPASS_GAP, round(center[1])), 'W', COMPASS_SIZE, INK, 'mm')
-    leader(canvas, at(middle, 1, middle), (at(PLATE // 2, 0, 0)[0] - LABEL_GAP, at(0, 0, 1)[1]), 'Lodestone', 'r', 'r', NOTE_SIZE + 4)
+    leader(canvas, at(middle + 0.4, 1, middle), (north[0] + 2 * COMPASS_GAP, north[1]), lodestone_label, 'l', 'l', lodestone_size)
     leader(canvas, at(middle, 0.5, PLATE), (south[0] + 2 * COMPASS_GAP, south[1]), pedestal_label, 'l', 'l')
     return canvas
 
@@ -289,14 +297,42 @@ def decal(canvas: Image.Image, sprite: Image.Image, corners: tuple[Point, Point,
                     canvas.alpha_composite(Image.new('RGBA', (1, 1), pixel), (x, y))
 
 
+def work_bounds(block: Block, face: Block, radius: int) -> tuple[Block, Block]:
+    center: Block = (block[0] + face[0], block[1] + face[1], block[2] + face[2])
+    return (center[0] - radius, center[1] - radius, center[2] - radius), (center[0] + radius + 1, center[1] + radius + 1, center[2] + radius + 1)
+
+
+def work_edges(low: Block, high: Block) -> tuple[list[Edge], list[Edge]]:
+    behind: list[Edge] = []
+    front: list[Edge] = []
+    for axis in range(3):
+        for a in (low, high):
+            for b in (low, high):
+                others: list[int] = [index for index in range(3) if index != axis]
+                start: list[int] = [0, 0, 0]
+                end: list[int] = [0, 0, 0]
+                start[axis], end[axis] = low[axis], high[axis]
+                for index, corner in zip(others, (a, b)):
+                    start[index] = end[index] = corner[index]
+                edge: Edge = (tuple(start), tuple(end))
+                (front if high in edge else behind).append(edge)
+    return behind, front
+
+
+def draw_edges(layer: Image.Image, edges: list[Edge], low: Block, scene: Scene, origin: Point) -> None:
+    draw: ImageDraw.ImageDraw = ImageDraw.Draw(layer)
+    for start, end in edges:
+        dashed(draw, scene.project(origin, *start), scene.project(origin, *end), WORK_AREA_BACK if low in (start, end) else WORK_AREA)
+
+
 def node_on_chest(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
     camera: textures.IsoCamera = textures.ISO
     scale: int = CHEST_SCALE
     scene: Scene = Scene(camera, scale)
     scene.block(0, 0, 0, icons.hires('chest', scale, camera))
-    low: float = 0.5 - WORK_RADIUS
-    high: float = 0.5 + WORK_RADIUS
-    corners: list[Point] = [camera.world(x, y, z) for x in (low, high) for y in (low, high) for z in (low, high)]
+    low, high = work_bounds((0, 0, 0), NODE_FACE, WORK_RADIUS)
+    behind, front = work_edges(low, high)
+    corners: list[Point] = [camera.world(x, y, z) for x in (low[0], high[0]) for y in (low[1], high[1]) for z in (low[2], high[2])]
     box_left: float = min(corner[0] for corner in corners) * scale
     box_right: float = max(corner[0] for corner in corners) * scale
     box_top: float = min(corner[1] for corner in corners) * scale
@@ -307,12 +343,7 @@ def node_on_chest(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
     origin: Point = ((side - box_left) / scale, (LABEL_PAD - box_top) / scale)
     canvas: Image.Image = finish(gui, width, height)
     layer: Image.Image = Image.new('RGBA', canvas.size, (0, 0, 0, 0))
-    draw: ImageDraw.ImageDraw = ImageDraw.Draw(layer)
-    for a in (low, high):
-        for b in (low, high):
-            for start, end in (((low, a, b), (high, a, b)), ((a, low, b), (a, high, b)), ((a, b, low), (a, b, high))):
-                hidden: bool = (low, low, low) in (start, end)
-                dashed(draw, scene.project(origin, *start), scene.project(origin, *end), WORK_AREA_BACK if hidden else WORK_AREA)
+    draw_edges(layer, behind, low, scene, origin)
     canvas.alpha_composite(layer)
     scene.draw(canvas, origin)
     size_x, size_y, size_z = textures.CHEST_SIZE
@@ -323,9 +354,12 @@ def node_on_chest(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
     decal(canvas, icons.icon('brick'), (scene.project(origin, face_left + u0 * size_x, v1 * size_y, face_z),
                                        scene.project(origin, face_left + u1 * size_x, v1 * size_y, face_z),
                                        scene.project(origin, face_left + u0 * size_x, v0 * size_y, face_z)))
+    front_layer: Image.Image = Image.new('RGBA', canvas.size, (0, 0, 0, 0))
+    draw_edges(front_layer, front, low, scene, origin)
+    canvas.alpha_composite(front_layer)
     node: Point = scene.project(origin, face_left + u0 * size_x, (v0 + v1) / 2 * size_y, face_z)
     chest: Point = scene.project(origin, 0.5 + size_x / 2, 0.3 * size_y, 0.5)
-    area: Point = scene.project(origin, high, high, low)
+    area: Point = scene.project(origin, high[0], high[1], low[2])
     leader(canvas, node, (side - LABEL_PAD, node[1] + 90), 'Node', 'r', 'r')
     leader(canvas, chest, (width - side + LABEL_PAD, chest[1] + 90), 'Chest', 'l', 'l')
     leader(canvas, area, (width - side + LABEL_PAD, area[1] - 30), 'Work area', 'l', 'l')
@@ -352,7 +386,7 @@ def external_note(adaptation: Adaptation, known: set[str]) -> str:
     for requirement in adaptation.requires:
         if requirement.id not in known:
             skill, _, rest = requirement.id.partition('-')
-            notes.append('+ ' + rest.replace('-', ' ').title() + ' ' + str(requirement.level) + ' (' + skill.title() + ')')
+            notes.append('+ ' + rest.replace('-', ' ').title() + ' ' + str(requirement.level) + ' (' + SKILL_NAMES.get(skill, skill.title()) + ')')
     return ', '.join(notes)
 
 

@@ -2,6 +2,7 @@ import copy
 import dataclasses
 import io
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -573,6 +574,90 @@ class DiagramTest(MediaCase):
         self.assertLess(sum(left) / len(left), sum(right) / len(right))
         self.assertEqual(media_diagrams.CHEST_SCALE % textures.SCALE, 0)
 
+    def test_work_area_is_block_aligned_around_the_block_in_front_of_the_node_face(self) -> None:
+        low, high = media_diagrams.work_bounds((0, 0, 0), media_diagrams.NODE_FACE, media_diagrams.WORK_RADIUS)
+        center: tuple[float, float, float] = tuple((low[axis] + high[axis]) / 2 for axis in range(3))
+        in_front: tuple[int, int, int] = tuple(media_diagrams.NODE_FACE)
+
+        self.assertEqual(center, tuple(in_front[axis] + 0.5 for axis in range(3)))
+        self.assertEqual([high[axis] - low[axis] for axis in range(3)], [2 * media_diagrams.WORK_RADIUS + 1] * 3)
+        self.assertTrue(all(isinstance(value, int) for value in low + high))
+        self.assertGreater(center[2], 0.5 + textures.CHEST_SIZE[2] / 2)
+        chest: tuple[float, float] = textures.ISO.world(0.5, 0.5, 0.5)
+        area: tuple[float, float] = textures.ISO.world(*center)
+        self.assertLess(area[0], chest[0])
+        self.assertGreater(area[1], chest[1])
+
+    def test_work_area_covers_the_same_blocks_as_the_node_area(self) -> None:
+        low, high = media_diagrams.work_bounds((10, 64, -3), (1, 0, 0), 2)
+
+        self.assertEqual((low, high), ((9, 62, -5), (14, 67, 0)))
+
+    def test_work_radius_is_the_default_radius_of_a_new_node(self) -> None:
+        source: str = (ROOT / 'src' / 'main' / 'java' / 'art' / 'arcane' / 'adapt' / 'api' / 'golem' / 'node' / 'NodeRecord.java').read_text()
+        found = re.search(r'DEFAULT_RADIUS\s*=\s*(\d+)', source)
+
+        self.assertIsNotNone(found)
+        self.assertEqual(media_diagrams.WORK_RADIUS, int(found.group(1)))
+
+    def test_work_area_edges_near_the_viewer_are_drawn_after_the_chest(self) -> None:
+        log: list[tuple[str, tuple[float, float] | None, tuple[float, float] | None]] = []
+        real_dashed = media_diagrams.dashed
+        real_draw = media_diagrams.Scene.draw
+
+        def dashed(draw, start, end, fill) -> None:
+            log.append(('edge', start, end))
+            real_dashed(draw, start, end, fill)
+
+        def draw(scene, canvas, origin) -> None:
+            log.append(('chest', None, None))
+            real_draw(scene, canvas, origin)
+
+        with mock.patch.object(media_diagrams, 'dashed', dashed), mock.patch.object(media_diagrams.Scene, 'draw', draw):
+            media_diagrams.node_on_chest(self.icons, self.gui)
+
+        self.assertEqual([entry[0] for entry in log], ['edge'] * 9 + ['chest'] + ['edge'] * 3)
+        front: list[tuple[str, tuple[float, float] | None, tuple[float, float] | None]] = log[10:]
+        shared: set[tuple[float, float]] = set.intersection(*({edge[1], edge[2]} for edge in front))
+        self.assertEqual(len(shared), 1)
+
+    def test_only_the_three_edges_meeting_at_the_corner_nearest_the_viewer_are_in_front(self) -> None:
+        low, high = media_diagrams.work_bounds((0, 0, 0), media_diagrams.NODE_FACE, media_diagrams.WORK_RADIUS)
+
+        behind, front = media_diagrams.work_edges(low, high)
+
+        self.assertEqual((len(behind), len(front)), (9, 3))
+        self.assertTrue(all(high in edge for edge in front))
+        self.assertTrue(all(high not in edge for edge in behind))
+        self.assertEqual(len({edge for edge in behind + front}), 12)
+        for start, end in behind + front:
+            self.assertEqual(sum(1 for axis in range(3) if start[axis] != end[axis]), 1)
+
+    def test_plinth_view_lodestone_label_stays_off_the_ground(self) -> None:
+        spoken: list[tuple[tuple[int, int], str, int, str]] = []
+        real_text = textures.text
+
+        def text(canvas, position, value, size, fill=textures.INK, anchor='la', shadow=False) -> None:
+            spoken.append((position, value, size, anchor))
+            real_text(canvas, position, value, size, fill, anchor, shadow)
+
+        with mock.patch.object(media_diagrams.textures, 'text', text):
+            image: Image.Image = media_diagrams.plinth_view(self.icons, self.gui)
+
+        blended: Color = tuple(round((BLOCK_COLORS['dirt'][channel] * media_diagrams.GROUND_ALPHA + PANEL[channel] * (255 - media_diagrams.GROUND_ALPHA)) / 255)
+                               for channel in range(3))
+        ground: list[tuple[int, int]] = [(x, y) for x in range(image.width) for y in range(image.height)
+                                         if all(abs(image.getpixel((x, y))[channel] - blended[channel]) <= 2 for channel in range(3))]
+        plate: tuple[int, int, int, int] = (min(x for x, _ in ground), min(y for _, y in ground), max(x for x, _ in ground), max(y for _, y in ground))
+        label = next(entry for entry in spoken if entry[1] == 'Lodestone')
+        (x, y), _, size, anchor = label
+        span: int = media_diagrams.width_of('Lodestone', size)
+        left: float = x if anchor[0] == 'l' else x - span if anchor[0] == 'r' else x - span / 2
+        box: tuple[float, float, float, float] = (left, y - size / 2, left + span, y + size / 2)
+
+        clear: bool = box[2] < plate[0] or box[0] > plate[2] or box[3] < plate[1] or box[1] > plate[3]
+        self.assertTrue(clear, (box, plate))
+
     def test_decal_maps_a_sprite_onto_a_parallelogram(self) -> None:
         canvas: Image.Image = Image.new('RGBA', (40, 40), (0, 0, 0, 0))
         sprite: Image.Image = Image.new('RGBA', (2, 2))
@@ -599,7 +684,7 @@ class DiagramTest(MediaCase):
         adaptations: tuple[media_catalog.Adaptation, ...] = catalog().adaptations
         known: set[str] = {adaptation.id for adaptation in adaptations}
 
-        self.assertEqual(media_diagrams.external_note(adaptations[3], known), '+ Skeletal Servant 1 (Tragoul)')
+        self.assertEqual(media_diagrams.external_note(adaptations[3], known), '+ Skeletal Servant 1 (TragOul)')
         self.assertEqual(media_diagrams.external_note(adaptations[1], known), '')
 
     def test_scene_orders_blocks_back_to_front(self) -> None:
