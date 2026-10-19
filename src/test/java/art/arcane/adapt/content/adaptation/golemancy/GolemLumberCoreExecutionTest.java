@@ -204,6 +204,23 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
+  void aPlacedLogColumnBesideNaturalLeavesIsRefusedLongAfterThePlacementTtl() {
+    GolemLumberCore core = levelFive();
+    core.onRuntimeActivated();
+    try (MockedStatic<XpProvenance> provenance = mockStatic(XpProvenance.class)) {
+      CropField field = oakField();
+      provenance.when(() -> XpProvenance.isPlayerPlaced(any(Block.class))).thenReturn(false);
+      provenance.when(() -> XpProvenance.wasPlaced(any(Block.class)))
+          .thenAnswer(invocation -> invocation.<Block>getArgument(0).getType() == Material.OAK_LOG);
+      NodeBehavior lumber = NodeBehaviors.of(NodeType.LUMBER).orElseThrow();
+
+      assertThat(lumber.act(golem(field), fellTask())).isEqualTo(GolemActResult.FAILED);
+    } finally {
+      core.unregister();
+    }
+  }
+
+  @Test
   void aTreeTheLumberNodeTurnsDownKeepsTheTickBusyUntilItIsLookedAtAgain() {
     GolemLumberCore core = levelFive();
     core.onRuntimeActivated();

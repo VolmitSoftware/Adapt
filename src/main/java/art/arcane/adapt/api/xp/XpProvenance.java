@@ -23,6 +23,7 @@ import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.data.unit.PlacementStamp;
 import art.arcane.adapt.api.telemetry.AdaptRuntimeTelemetry;
 import art.arcane.volmlib.util.math.M;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
@@ -55,6 +56,17 @@ public final class XpProvenance {
     AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
     PlacementStamp stamp = WorldData.of(block.getWorld()).get(block, PlacementStamp.class);
     return stamp != null && withinTtl(stamp.getPlacedAt(), config.getPlacedBlockTtlMillis());
+  }
+
+  public static boolean wasPlaced(Block block) {
+    if (block == null) {
+      return false;
+    }
+    return hasPlacement(WorldData.of(block.getWorld()).get(block, PlacementStamp.class));
+  }
+
+  public static boolean hasPlacement(PlacementStamp stamp) {
+    return stamp != null && stamp.getPlacedAt() != 0;
   }
 
   public static boolean hasPermanentPlayerModification(Block block) {
@@ -95,6 +107,12 @@ public final class XpProvenance {
     }
     AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
     data.set(block, grown);
+  }
+
+  public static boolean resetsOnGrowth(Material type) {
+    String name = type.name();
+    return name.endsWith("_LOG") || name.endsWith("_WOOD") || name.endsWith("_STEM") || name.endsWith("_HYPHAE")
+        || name.endsWith("_LEAVES") || name.endsWith("_SAPLING") || name.endsWith("_PROPAGULE");
   }
 
   public static PlacementStamp grown(PlacementStamp stamp) {

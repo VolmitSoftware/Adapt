@@ -52,9 +52,12 @@ final class HarvestActions {
     return block -> golem.owns(block.getLocation());
   }
 
-  private static boolean natural(List<Block> parts) {
+  private static boolean natural(HarvestCrops.Kind kind, List<Block> parts) {
+    if (kind != HarvestCrops.Kind.COLUMN && kind != HarvestCrops.Kind.GOURD) {
+      return true;
+    }
     for (Block part : parts) {
-      if (XpProvenance.isPlayerPlaced(part)) {
+      if (XpProvenance.wasPlaced(part)) {
         return false;
       }
     }
@@ -67,7 +70,7 @@ final class HarvestActions {
     HarvestCrops.Kind kind = plan.crops().kind(type);
     List<Block> parts = kind == HarvestCrops.Kind.COLUMN ? HarvesterRules.column(block) : List.of(block);
     List<ItemStack> drops = roll(parts);
-    if (natural(parts)) {
+    if (natural(kind, parts)) {
       if (plan.bountiful() && random.get().nextDouble() < core.config().bountifulChance) {
         drops.addAll(roll(parts));
       }

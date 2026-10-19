@@ -20,6 +20,7 @@ package art.arcane.adapt.api.xp;
 
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.BlockState;
@@ -82,8 +83,11 @@ public class XpProvenanceListener implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(StructureGrowEvent e) {
+    Location sapling = e.getLocation();
     for (BlockState grown : e.getBlocks()) {
-      XpProvenance.recordGrowth(grown.getBlock());
+      if (XpProvenance.resetsOnGrowth(grown.getType()) || atSapling(grown, sapling)) {
+        XpProvenance.recordGrowth(grown.getBlock());
+      }
     }
   }
 
@@ -129,5 +133,9 @@ public class XpProvenanceListener implements Listener {
     } else {
       XpProvenance.clearPlacementRecord(e.getBlock());
     }
+  }
+
+  private static boolean atSapling(BlockState grown, Location sapling) {
+    return grown.getX() == sapling.getBlockX() && grown.getY() == sapling.getBlockY() && grown.getZ() == sapling.getBlockZ();
   }
 }

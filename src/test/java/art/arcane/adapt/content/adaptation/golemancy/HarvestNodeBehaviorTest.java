@@ -89,7 +89,7 @@ class HarvestNodeBehaviorTest {
     runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
     feedback = mockStatic(HarvestFeedback.class);
     provenance = mockStatic(XpProvenance.class);
-    provenance.when(() -> XpProvenance.isPlayerPlaced(any(Block.class))).thenReturn(false);
+    provenance.when(() -> XpProvenance.wasPlaced(any(Block.class))).thenReturn(false);
     runtime.when(GolemancyRuntime::boards).thenReturn(Optional.of(boards));
   }
 
@@ -293,16 +293,37 @@ class HarvestNodeBehaviorTest {
   }
 
   @Test
-  void cropsAPlayerPlacedGetNoBountifulRollAndNoBonusYield() {
+  void handPlantedCropsKeepTheirBountifulRollAndBonusYield() {
     wheat(0, 64, 0);
     roll = 0.05D;
     provenance.when(() -> XpProvenance.isPlayerPlaced(any(Block.class))).thenReturn(true);
+    provenance.when(() -> XpProvenance.wasPlaced(any(Block.class))).thenReturn(true);
     GolemContext golem = golem(1);
 
     behavior.act(golem, task("harvest", 0, 64, 0));
 
+    verify(golem).withBonusYield(anyList());
+    assertThat(carriedCounts()).containsEntry("WHEAT", 2);
+  }
+
+  @Test
+  void placedGourdsAndColumnPartsGetNoBountifulRollOrBonusYieldEvenAfterThePlacementTtl() {
+    field.set(0, 64, 0, Material.MELON).set(1, 64, 0, Material.ATTACHED_MELON_STEM, CropField.facing(BlockFace.WEST));
+    field.drops(Material.MELON, () -> CropField.stacks(Material.MELON_SLICE, 5));
+    for (int y = 64; y <= 66; y++) {
+      field.set(-1, y, 0, Material.SUGAR_CANE);
+    }
+    field.drops(Material.SUGAR_CANE, () -> CropField.stacks(Material.SUGAR_CANE, 1));
+    roll = 0.05D;
+    provenance.when(() -> XpProvenance.isPlayerPlaced(any(Block.class))).thenReturn(false);
+    provenance.when(() -> XpProvenance.wasPlaced(any(Block.class))).thenReturn(true);
+    GolemContext golem = golem(1);
+
+    behavior.act(golem, task("harvest", 0, 64, 0));
+    behavior.act(golem, task("harvest", -1, 65, 0));
+
     verify(golem, never()).withBonusYield(anyList());
-    assertThat(carriedCounts()).containsEntry("WHEAT", 1);
+    assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("MELON_SLICE", 5, "SUGAR_CANE", 2));
   }
 
   @Test
