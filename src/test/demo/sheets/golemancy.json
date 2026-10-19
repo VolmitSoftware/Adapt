@@ -3134,7 +3134,7 @@
     "stills": [
       {
         "angle": "pov",
-        "at": 10.5,
+        "at": 15.0,
         "name": "masterwork-slot"
       }
     ]
@@ -4168,7 +4168,7 @@
       "stills": [
         {
           "angle": "pov",
-          "at": 17.0,
+          "at": 12.5,
           "name": "golem-gui"
         }
       ]
