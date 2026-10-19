@@ -5,6 +5,7 @@ import art.arcane.adapt.api.data.WorldData;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTaskBoard;
@@ -24,6 +25,7 @@ import art.arcane.adapt.api.golem.plinth.PlinthService;
 import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
+import art.arcane.adapt.gameplay.demo.DemoScope;
 import com.google.gson.JsonObject;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -43,7 +45,10 @@ import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.Vector;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -82,7 +87,11 @@ public final class GolemancyFixtures {
     private static final int MASTERWORK_LEVELS = 20;
     private static final List<Material> MASTERWORK_ITEMS = List.of(Material.HEART_OF_THE_SEA, Material.DIAMOND_BLOCK, Material.IRON_BLOCK,
         Material.COPPER_BLOCK, Material.SNOW_BLOCK);
+    private static final double PROBE_RADIUS = 80D;
+    private static final int PROBE_TASKS = 3;
     private static final List<BlockFace> FACES = List.of(BlockFace.UP, BlockFace.DOWN, BlockFace.NORTH, BlockFace.SOUTH, BlockFace.EAST, BlockFace.WEST);
+
+    private static boolean itemsWarmed;
 
     private GolemancyFixtures() {
     }
@@ -269,57 +278,137 @@ public final class GolemancyFixtures {
         }
     }
 
-    public static int clearDemoState(World world, int originX, int originY, int originZ, int plateRadius) {
-        Player[] players = Bukkit.getOnlinePlayers().stream().filter(player -> player.getName().startsWith("AQA")).toArray(Player[]::new);
-        clearRosters(players);
+    public record Cleared(int golems, int nodes) {
+        public int total() {
+            return golems + nodes;
+        }
+    }
+
+    public static Cleared clearDemoState(World world, BoundingBox plate) {
+        List<Player> owners = demoOwners();
+        stripNodeItems(owners);
+        int golems = clearGolems(owners);
         Optional<NodeService> service = GolemancyRuntime.nodes();
         if (service.isEmpty()) {
-            return 0;
+            return new Cleared(golems, 0);
         }
-        int cleared = 0;
-        for (NodeIndex.Entry entry : service.get().index().near(world.getUID(), originX, originY, originZ, plateRadius)) {
+        Vector center = plate.getCenter();
+        int nodes = 0;
+        for (NodeIndex.Entry entry : service.get().index().near(world.getUID(), center.getX(), center.getY(), center.getZ(), DemoScope.searchRadius(plate))) {
+            NodeKey key = entry.key();
             Player owner = Bukkit.getPlayer(entry.record().owner());
-            if (owner != null && service.get().remove(owner, entry.key())) {
-                cleared++;
+            if (owner != null && DemoScope.ownsDemoState(owner.getName()) && DemoScope.contains(plate, key.x(), key.y(), key.z())
+                && service.get().remove(owner, key)) {
+                nodes++;
             }
         }
-        return cleared;
+        return new Cleared(golems, nodes);
+    }
+
+    private static List<Player> demoOwners() {
+        List<Player> owners = new ArrayList<>();
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            if (DemoScope.ownsDemoState(player.getName())) {
+                owners.add(player);
+            }
+        }
+        return owners;
+    }
+
+    private static int clearGolems(List<Player> owners) {
+        int golems = 0;
+        for (Player owner : owners) {
+            AdaptPlayer adaptPlayer = Adapt.instance.getAdaptServer().getPlayer(owner);
+            if (adaptPlayer != null) {
+                golems += adaptPlayer.getData().getGolemancy().golems().size();
+            }
+        }
+        clearRosters(owners.toArray(new Player[0]));
+        return golems;
+    }
+
+    private static void stripNodeItems(List<Player> owners) {
+        for (Player owner : owners) {
+            ItemStack[] contents = owner.getInventory().getContents();
+            for (int slot = 0; slot < contents.length; slot++) {
+                if (contents[slot] != null && GolemItems.nodeTypeOf(contents[slot]).isPresent()) {
+                    owner.getInventory().setItem(slot, null);
+                }
+            }
+        }
+    }
+
+    private static int nodeItems(List<Player> owners) {
+        int items = 0;
+        for (Player owner : owners) {
+            for (ItemStack item : owner.getInventory().getContents()) {
+                if (item != null && GolemItems.nodeTypeOf(item).isPresent()) {
+                    items += item.getAmount();
+                }
+            }
+        }
+        return items;
+    }
+
+    public static String bind(Player owner, String tag, String coreId) {
+        GolemRegistry registry = GolemancyRuntime.registry().orElseThrow(() -> new IllegalStateException("Golemancy is not running"));
+        GolemCoreType core = GolemCoreType.fromId(coreId).orElseThrow(() -> new IllegalArgumentException("Unknown golem core " + coreId));
+        for (Entity entity : owner.getWorld().getEntities()) {
+            if (entity instanceof Mob golem && golem.getScoreboardTags().contains(tag)) {
+                GolemBody body = GolemBody.of(golem).orElseThrow(() -> new IllegalArgumentException("Tagged entity " + tag + " is not a golem"));
+                GolemHandle handle = registry.bind(owner, golem, body, core);
+                GolemancyRuntime.bindListener().bound(owner, handle);
+                return "ADAPT_QA DEMO BIND " + tag + " " + coreId;
+            }
+        }
+        throw new IllegalArgumentException("No golem tagged " + tag);
     }
 
     public static String probe(Player owner) {
-        StringBuilder out = new StringBuilder("ADAPT_QA DEMO PROBE");
         World world = owner.getWorld();
         Location at = owner.getLocation();
         long now = System.currentTimeMillis();
-        Optional<GolemTaskBoards> boards = GolemancyRuntime.boards();
-        GolemancyRuntime.nodes().ifPresent(service -> {
-            for (NodeIndex.Entry entry : service.index().near(world.getUID(), at.getX(), at.getY(), at.getZ(), 80)) {
-                NodeKey key = entry.key();
-                out.append(" | node ").append(entry.record().type().id()).append('@').append(key.x()).append(',').append(key.y()).append(',').append(key.z())
-                    .append(' ').append(key.face());
-                boards.ifPresent(all -> {
-                    GolemTaskBoard board = all.board(world.getUID());
-                    out.append(" status=").append(board.status(key, now));
-                    List<GolemTask> tasks = board.tasks(key);
-                    out.append(" tasks=").append(tasks.size());
-                    for (int index = 0; index < Math.min(3, tasks.size()); index++) {
-                        GolemTask task = tasks.get(index);
-                        out.append(" {").append(task.type()).append(' ').append(task.target()).append(" holder=").append(task.holder(now).isPresent()).append('}');
-                    }
-                });
-            }
-        });
-        GolemancyRuntime.registry().ifPresent(registry -> {
-            for (GolemHandle handle : registry.loadedOf(owner.getUniqueId())) {
-                Location where = handle.entity().getLocation();
-                out.append(" | golem ").append(handle.body()).append(' ').append(handle.state().mode()).append(" cores=").append(handle.state().cores())
-                    .append(String.format(" at=%.1f,%.1f,%.1f", where.getX(), where.getY(), where.getZ())).append(" dormant=").append(handle.isDormant());
-            }
-        });
+        List<GolemHandle> golems = GolemancyRuntime.registry().map(registry -> List.copyOf(registry.loadedOf(owner.getUniqueId()))).orElse(List.of());
+        StringBuilder out = new StringBuilder("ADAPT_QA DEMO PROBE refunds=").append(nodeItems(demoOwners())).append(" golems=").append(golems.size());
+        GolemancyRuntime.nodes().ifPresent(service -> describeNodes(out, service, world, at, now));
+        for (GolemHandle handle : golems) {
+            describeGolem(out, handle);
+        }
         return out.toString();
     }
 
-    public static void warmItems() {
+    private static void describeNodes(StringBuilder out, NodeService service, World world, Location at, long now) {
+        Optional<GolemTaskBoards> boards = GolemancyRuntime.boards();
+        for (NodeIndex.Entry entry : service.index().near(world.getUID(), at.getX(), at.getY(), at.getZ(), PROBE_RADIUS)) {
+            NodeKey key = entry.key();
+            out.append(" | node ").append(entry.record().type().id()).append('@').append(key.x()).append(',').append(key.y()).append(',').append(key.z())
+                .append(' ').append(key.face());
+            if (boards.isPresent()) {
+                describeBoard(out, boards.get().board(world.getUID()), key, now);
+            }
+        }
+    }
+
+    private static void describeBoard(StringBuilder out, GolemTaskBoard board, NodeKey key, long now) {
+        List<GolemTask> tasks = board.tasks(key);
+        out.append(" status=").append(board.status(key, now)).append(" tasks=").append(tasks.size());
+        for (int index = 0; index < Math.min(PROBE_TASKS, tasks.size()); index++) {
+            GolemTask task = tasks.get(index);
+            out.append(" {").append(task.type()).append(' ').append(task.target()).append(" holder=").append(task.holder(now).isPresent()).append('}');
+        }
+    }
+
+    private static void describeGolem(StringBuilder out, GolemHandle handle) {
+        Location where = handle.entity().getLocation();
+        out.append(" | golem ").append(handle.body()).append(' ').append(handle.state().mode()).append(" cores=").append(handle.state().cores())
+            .append(String.format(" at=%.1f,%.1f,%.1f", where.getX(), where.getY(), where.getZ())).append(" dormant=").append(handle.isDormant());
+    }
+
+    private static void warmItems() {
+        if (itemsWarmed) {
+            return;
+        }
+        itemsWarmed = true;
         GolemItems.crook();
         GolemItems.blankCore();
         GolemItems.core(GolemCoreType.GATHERER);
@@ -332,6 +421,7 @@ public final class GolemancyFixtures {
     }
 
     public static String give(Player player, int hotbarSlot, String itemId, int count) {
+        warmItems();
         if (hotbarSlot < 0 || hotbarSlot > 8) {
             throw new IllegalArgumentException("Hotbar slot must be 0 to 8, found " + hotbarSlot);
         }

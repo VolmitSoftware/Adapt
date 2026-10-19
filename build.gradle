@@ -444,6 +444,10 @@ sourceSets {
     }
 }
 
+dependencies {
+    testImplementation(sourceSets.gameplayFixture.output)
+}
+
 tasks.register('gameplayFixtureJar', com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar) {
     group = 'verification'
     description = 'Builds the isolated Paper gameplay observer and arena fixture.'

@@ -124,7 +124,7 @@ public final class DemoStudio {
     public String set(String name) {
         requirePlate();
         DemoSet next = DemoSets.get(name);
-        int cleared = GolemancyFixtures.clearDemoState(world, originX, originY, originZ - PLATE_NORTH / 2, PLATE_NORTH + CLEAR_HEIGHT);
+        GolemancyFixtures.Cleared cleared = GolemancyFixtures.clearDemoState(world, plateBox());
         reset();
         resetGameRules();
         current = next;
@@ -325,9 +325,10 @@ public final class DemoStudio {
         return new Location(world, originX + pose.x(), originY + pose.y(), originZ + pose.z(), pose.yaw(), pose.pitch());
     }
 
-    private String json(DemoSet set, int cleared) {
+    private String json(DemoSet set, GolemancyFixtures.Cleared cleared) {
         String camera = set.followCamera() ? followJson(set.camera()) : json(absolute(set.camera()));
-        return "{\"actor\":" + json(absolute(set.actorStart())) + ",\"camera\":" + camera + ",\"cleared\":" + cleared + "}";
+        return "{\"actor\":" + json(absolute(set.actorStart())) + ",\"camera\":" + camera + ",\"cleared\":" + cleared.total()
+                + ",\"refunds\":" + cleared.nodes() + "}";
     }
 
     private static String followJson(DemoSet.Pose pose) {

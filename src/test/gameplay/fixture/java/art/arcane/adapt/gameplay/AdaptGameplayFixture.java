@@ -195,10 +195,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
 
     private String demo(String[] args) {
         return switch (args[1]) {
-            case "world" -> {
-                GolemancyFixtures.warmItems();
-                yield demoStudio.world(demoArgument(args, 2));
-            }
+            case "world" -> demoStudio.world(demoArgument(args, 2));
             case "locate" -> demoStudio.locate(Integer.parseInt(demoArgument(args, 2)), Integer.parseInt(demoArgument(args, 3)));
             case "plate" -> demoStudio.plate(Integer.parseInt(demoArgument(args, 2)), Integer.parseInt(demoArgument(args, 3)));
             case "set" -> demoStudio.set(demoArgument(args, 2));
@@ -213,6 +210,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
                     demoArgument(args, 4));
             case "give" -> GolemancyFixtures.give(ordinaryPlayer(demoArgument(args, 2)), Integer.parseInt(demoArgument(args, 3)), demoArgument(args, 4),
                     Integer.parseInt(demoArgument(args, 5)));
+            case "bind" -> GolemancyFixtures.bind(ordinaryPlayer(demoArgument(args, 2)), demoArgument(args, 3), demoArgument(args, 4));
             case "probe" -> GolemancyFixtures.probe(ordinaryPlayer(demoArgument(args, 2)));
             case "reset" -> demoStudio.reset();
             default -> throw new IllegalArgumentException("Unknown demo command " + args[1]);
