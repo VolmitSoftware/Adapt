@@ -1206,6 +1206,24 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
+  void anOutdatedCopyIsUnvalidatedAtOnceWhileItsRevertWaitsForItsThread() {
+    GolemRoster roster = onlineOwner();
+    UUID id = UUID.randomUUID();
+    roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
+    IronGolem stale = persistedGolem(id, false, at(0, 64, 0));
+    IronGolem newer = withSighting(persistedGolem(id, false, at(40, 64, 40)), 1L);
+    registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(stale)));
+    GolemHandle outdated = registry.handle(stale).orElseThrow();
+    assertThat(outdated.isValidated()).isTrue();
+    platform.ownsEntities = false;
+
+    registry.adopt(newer);
+
+    assertThat(GolemState.has(stale)).isTrue();
+    assertThat(outdated.isValidated()).isFalse();
+  }
+
+  @Test
   void shutdownAdvancesTheSightingOfValidatedGolemsBeforeThePlayerDataSave() {
     IronGolem unvalidated = persistedGolem(UUID.randomUUID(), false, at(20, 64, 20));
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(unvalidated)));
@@ -1239,6 +1257,34 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isZero();
     assertThat(GolemState.read(golem).orElseThrow().sighting()).isZero();
     assertThat(platform.changes(OWNER)).isEqualTo(changesBefore);
+  }
+
+  @Test
+  void aShutdownSaveThatNeverReachesTheBodyLeavesTheRosterUnchanged() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    doAnswer(invocation -> {
+      handle.retire();
+      return null;
+    }).when(golem).setAware(false);
+    int changesBefore = platform.changes(OWNER);
+
+    registry.flushAll(1_000L);
+
+    assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isZero();
+    assertThat(platform.changes(OWNER)).isEqualTo(changesBefore);
+  }
+
+  @Test
+  void aShutdownSaveOfAGolemWhoseSchedulerRetiredItCompletesWithoutWaitingOutTheTimeout() {
+    onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    platform.ownsEntities = false;
+    platform.refuseRetiring = true;
+
+    assertThat(registry.flushAll(5_000L)).isTrue();
   }
 
   @Test
@@ -2200,6 +2246,19 @@ class GolemRegistryTest extends AdaptTestBase {
   }
 
   @Test
+  void aBodyRemovalFailureAfterThePackedEntrySavesRollsThePackBack() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    doThrow(new IllegalStateException("removal refused")).when(golem).remove();
+
+    assertThatThrownBy(() -> registry.pack(handle)).hasMessage("removal refused");
+
+    assertThat(registry.handle(golem)).isPresent();
+    assertThat(roster.golem(handle.id()).orElseThrow().status()).isEqualTo(GolemRoster.Status.ACTIVE);
+  }
+
+  @Test
   void aSnapshotFailureLeavesTheGolemBoundAndActive() {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(0, 64, 0)));
@@ -2455,6 +2514,24 @@ class GolemRegistryTest extends AdaptTestBase {
     assertThat(entry.status()).isEqualTo(GolemRoster.Status.SHATTERED);
     assertThat(entry.holds(item.state())).isTrue();
     assertThat(platform.changes(OWNER)).isEqualTo(changesBefore + 2);
+  }
+
+  @Test
+  void anAwakeningRollbackRemovesTheBodyEvenWhenUnindexingItFails() {
+    GolemRoster roster = onlineOwner();
+    IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
+    GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
+    GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
+    IronGolem body = golem(new AtomicReference<>(at(9, 64, 9)));
+    platform.spawns.add(body);
+    lifecycle.awakeFailure = new IllegalStateException("brain refused");
+    lifecycle.detachFailure = new IllegalStateException("detach refused");
+
+    assertThatThrownBy(() -> registry.awaken(owner, at(9, 64, 9), new GolemRegistry.Restore(packing.packed(), GolemRoster.Status.PACKED), mob -> {
+    })).hasMessage("brain refused");
+
+    verify(body).remove();
+    assertThat(roster.golem(handle.id()).orElseThrow().holds(packing.packed().state())).isTrue();
   }
 
   @Test

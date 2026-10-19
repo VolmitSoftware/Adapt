@@ -7,6 +7,7 @@ final class RecordingGolemLifecycle implements GolemLifecycle {
   final List<Event> events = new ArrayList<>();
   final List<Boolean> boundOnDetach = new ArrayList<>();
   RuntimeException awakeFailure;
+  RuntimeException detachFailure;
 
   @Override
   public void awake(GolemHandle handle) {
@@ -25,6 +26,9 @@ final class RecordingGolemLifecycle implements GolemLifecycle {
   public void detached(GolemHandle handle) {
     events.add(new Event(Kind.DETACHED, handle));
     boundOnDetach.add(GolemState.has(handle.entity()));
+    if (detachFailure != null) {
+      throw detachFailure;
+    }
   }
 
   List<Kind> kinds() {
