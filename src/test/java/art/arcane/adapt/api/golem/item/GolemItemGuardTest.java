@@ -53,6 +53,7 @@ import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -71,6 +72,7 @@ import static org.mockito.Mockito.when;
 class GolemItemGuardTest {
   private static final AtomicLong GENERATIONS = new AtomicLong(1_000_000L);
   private static final NamespacedKey VANILLA_RECIPE = NamespacedKey.minecraft("iron_ingot_from_iron_block");
+  private static final NamespacedKey DECORATED_POT_RECIPE = NamespacedKey.minecraft("decorated_pot");
   private static final NamespacedKey GOLEMANCY_RECIPE = new NamespacedKey("adapt", "golemancy-guardian-core");
   private static final NamespacedKey GOLEMANCY_CROOK_RECIPE = new NamespacedKey("adapt", "golemancy-artificers-crook");
   private static final ExactIngredient BLANK_CORE = spec(GolemItemKind.BLANK_CORE, Material.FIREWORK_STAR);
@@ -182,6 +184,36 @@ class GolemItemGuardTest {
     assertThat(golemancy.isCancelled()).isFalse();
     assertThat(plainStar.isCancelled()).isTrue();
     assertThat(plain.isCancelled()).isFalse();
+  }
+
+  @Test
+  void sherdAndBrickGolemItemsNeverCraftADecoratedPot() {
+    book.set(GOLEMANCY_RECIPE, List.of(BLANK_CORE));
+    for (ItemStack golemItem : potIngredients()) {
+      CraftingInventory table = craftingGrid(DECORATED_POT_RECIPE, GolemItemStacks.plain(Material.BRICK), golemItem,
+          GolemItemStacks.plain(Material.BRICK), GolemItemStacks.plain(Material.BRICK));
+      CrafterCraftEvent crafter = crafterCraft(DECORATED_POT_RECIPE, golemItem);
+
+      guard.on(new PrepareItemCraftEvent(table, view(table), false));
+      guard.on(crafter);
+
+      verify(table).setResult(null);
+      assertThat(crafter.isCancelled()).describedAs("%s in a crafter", golemItem.getType()).isTrue();
+    }
+  }
+
+  @Test
+  void plainSherdsStillCraftADecoratedPot() {
+    for (Material sherd : List.of(Material.SCRAPE_POTTERY_SHERD, Material.GUSTER_POTTERY_SHERD, Material.SHELTER_POTTERY_SHERD)) {
+      CraftingInventory table = craftingGrid(DECORATED_POT_RECIPE, GolemItemStacks.plain(Material.BRICK), GolemItemStacks.plain(sherd));
+      CrafterCraftEvent crafter = crafterCraft(DECORATED_POT_RECIPE, GolemItemStacks.plain(sherd));
+
+      guard.on(new PrepareItemCraftEvent(table, view(table), false));
+      guard.on(crafter);
+
+      verify(table, never()).setResult(any());
+      assertThat(crafter.isCancelled()).isFalse();
+    }
   }
 
   @Test
@@ -463,6 +495,24 @@ class GolemItemGuardTest {
 
   private static ExactIngredient spec(GolemItemKind kind, Material base) {
     return new ExactIngredient(base, item -> GolemItems.kindOf(item).filter(found -> found == kind).isPresent());
+  }
+
+  private static List<ItemStack> potIngredients() {
+    List<ItemStack> items = new ArrayList<>();
+    items.add(GolemItemStacks.tagged(Material.SCRAPE_POTTERY_SHERD, "blank_rune", null));
+    items.add(GolemItemStacks.tagged(Material.BRICK, "node", "{\"type\":\"deposit\"}"));
+    Map<Material, String> aspects = Map.of(
+        Material.GUSTER_POTTERY_SHERD, "swiftness",
+        Material.ARMS_UP_POTTERY_SHERD, "might",
+        Material.BURN_POTTERY_SHERD, "ember",
+        Material.ANGLER_POTTERY_SHERD, "tide",
+        Material.SHEAF_POTTERY_SHERD, "order",
+        Material.DANGER_POTTERY_SHERD, "entropy",
+        Material.SHELTER_POTTERY_SHERD, "bulwark");
+    for (Map.Entry<Material, String> aspect : aspects.entrySet()) {
+      items.add(GolemItemStacks.tagged(aspect.getKey(), "rune", "{\"aspect\":\"" + aspect.getValue() + "\",\"tier\":2}"));
+    }
+    return items;
   }
 
   private static ItemStack crook() {

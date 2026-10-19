@@ -45,6 +45,7 @@ public final class GolemItems {
   private static final NamespacedKey DATA_KEY = new NamespacedKey("adapt", "golem_item_data");
   private static final NamespacedKey CROOK_CHANNEL_KEY = new NamespacedKey("adapt", "crook_channel");
   private static final String MODEL_ROOT = "golemancy";
+  private static final String BLANK_RUNE_MODEL = "blank";
   private static final String FILLED_PIP = "◆";
   private static final String EMPTY_PIP = "◇";
   private static final Gson GSON = new Gson();
@@ -99,7 +100,7 @@ public final class GolemItems {
 
   public static ItemStack rune(GolemRune rune) {
     String aspectName = AdaptLanguage.text(Objects.requireNonNull(rune).aspect().displayName());
-    return build(new Spec(GolemItemKind.RUNE, baseMaterial(GolemItemKind.RUNE), GolemItemData.rune(rune),
+    return build(new Spec(GolemItemKind.RUNE, runeBase(rune.aspect()), GolemItemData.rune(rune),
         AdaptLanguage.text(GolemancyMessages.RUNE_NAME, trusted("aspect", aspectName)),
         List.of(AdaptLanguage.text(GolemancyMessages.RUNE_TIER, trusted("tier", pips(rune.tier()))),
             AdaptLanguage.text(GolemancyMessages.RUNE_LORE))));
@@ -252,7 +253,7 @@ public final class GolemItems {
   }
 
   private static ItemStack build(Spec spec) {
-    ItemStack item = model(spec.kind(), spec.base()).toItemStack();
+    ItemStack item = model(spec.kind(), spec.base(), spec.data()).toItemStack();
     ItemMeta meta = Objects.requireNonNull(item.getItemMeta());
     List<String> lore = new ArrayList<>(spec.lore().size());
     for (String line : spec.lore()) {
@@ -318,11 +319,13 @@ public final class GolemItems {
     };
   }
 
-  private static CustomModel model(GolemItemKind kind, Material base) {
-    if (kind == GolemItemKind.DORMANT_GOLEM) {
-      return CustomModel.get(base, MODEL_ROOT, kind.id(), base.name().toLowerCase(Locale.ROOT));
-    }
-    return CustomModel.get(base, MODEL_ROOT, kind.id());
+  private static CustomModel model(GolemItemKind kind, Material base, GolemItemData data) {
+    return switch (kind) {
+      case DORMANT_GOLEM -> CustomModel.get(base, MODEL_ROOT, kind.id(), base.name().toLowerCase(Locale.ROOT));
+      case BLANK_RUNE -> CustomModel.get(base, MODEL_ROOT, GolemItemKind.RUNE.id(), BLANK_RUNE_MODEL);
+      case RUNE -> CustomModel.get(base, MODEL_ROOT, kind.id(), data.aspect().id());
+      default -> CustomModel.get(base, MODEL_ROOT, kind.id());
+    };
   }
 
   private static Material baseMaterial(GolemItemKind kind) {
@@ -331,9 +334,22 @@ public final class GolemItems {
       case BLANK_CORE, CORE, SHATTERED_CORE -> Material.FIREWORK_STAR;
       case BLANK_NODE -> Material.CLAY_BALL;
       case NODE -> Material.BRICK;
-      case BLANK_RUNE, RUNE -> Material.DISC_FRAGMENT_5;
+      case BLANK_RUNE -> Material.SCRAPE_POTTERY_SHERD;
       case MASTERWORK_HEART -> Material.HEART_OF_THE_SEA;
+      case RUNE -> throw new IllegalArgumentException("Runes use the pottery sherd of their aspect");
       case DORMANT_GOLEM -> throw new IllegalArgumentException("Dormant golems use the block of the packed golem");
+    };
+  }
+
+  private static Material runeBase(GolemRuneType aspect) {
+    return switch (Objects.requireNonNull(aspect)) {
+      case SWIFTNESS -> Material.GUSTER_POTTERY_SHERD;
+      case MIGHT -> Material.ARMS_UP_POTTERY_SHERD;
+      case EMBER -> Material.BURN_POTTERY_SHERD;
+      case TIDE -> Material.ANGLER_POTTERY_SHERD;
+      case ORDER -> Material.SHEAF_POTTERY_SHERD;
+      case ENTROPY -> Material.DANGER_POTTERY_SHERD;
+      case BULWARK -> Material.SHELTER_POTTERY_SHERD;
     };
   }
 
@@ -343,14 +359,14 @@ public final class GolemItems {
     if (cached != null && cached.generation() == generation) {
       return cached.materials();
     }
-    Set<Material> materials = EnumSet.of(model(GolemItemKind.SHATTERED_CORE, baseMaterial(GolemItemKind.SHATTERED_CORE)).material());
+    Set<Material> materials = EnumSet.of(model(GolemItemKind.SHATTERED_CORE, baseMaterial(GolemItemKind.SHATTERED_CORE), GolemItemData.EMPTY).material());
     List<Material> blocks = new ArrayList<>(COPPER_BLOCKS.size() + WAXED_COPPER_BLOCKS.size() + 2);
     blocks.add(Material.SNOW_BLOCK);
     blocks.add(Material.IRON_BLOCK);
     blocks.addAll(COPPER_BLOCKS);
     blocks.addAll(WAXED_COPPER_BLOCKS);
     for (Material block : blocks) {
-      materials.add(model(GolemItemKind.DORMANT_GOLEM, block).material());
+      materials.add(model(GolemItemKind.DORMANT_GOLEM, block, GolemItemData.EMPTY).material());
     }
     ModelMaterials next = new ModelMaterials(generation, Set.copyOf(materials));
     ownerBoundMaterials = next;
@@ -405,7 +421,8 @@ public final class GolemItems {
   }
 
   private static ExactIngredient ingredientFor(Variant variant) {
-    Material base = model(variant.kind(), baseMaterial(variant.kind())).material();
+    Material fallback = variant.kind() == GolemItemKind.RUNE ? runeBase(variant.data().aspect()) : baseMaterial(variant.kind());
+    Material base = model(variant.kind(), fallback, variant.data()).material();
     return new ExactIngredient(base, item -> isVariant(item, variant));
   }
 

@@ -35,7 +35,7 @@ class InfusionBukkitResolverTest extends AdaptTestBase {
     lenient().when(plainHeart.getType()).thenReturn(Material.HEART_OF_THE_SEA);
     items = mockStatic(GolemItems.class);
     items.when(() -> GolemItems.ingredient(argThat(id -> id != null && (id.getKey().startsWith("rune/") || id.getKey().equals("blank_rune")))))
-        .thenReturn(new ExactIngredient(Material.DISC_FRAGMENT_5, item -> item == rune));
+        .thenReturn(new ExactIngredient(Material.GUSTER_POTTERY_SHERD, item -> item == rune));
     items.when(() -> GolemItems.ingredient(argThat(id -> id != null && id.getKey().equals("crook"))))
         .thenReturn(new ExactIngredient(Material.IRON_HOE, item -> false));
     items.when(() -> GolemItems.isGolemItem(any())).thenAnswer(call -> call.getArgument(0) == golemHeart || call.getArgument(0) == rune);

@@ -377,7 +377,7 @@ export const golemancyBehaviorCases = new Map([
     }],
     ['golem-runic-augments', {
         stage: 'golemancy-plinth', trigger: loadPlinth, prerequisites: [{ name: 'golem-animus-binding', level: 2 }],
-        prepare: ({ equip }) => equip('disc_fragment_5'),
+        prepare: ({ equip }) => equip('scrape_pottery_sherd'),
         description: 'sneak-right-clicking an Animus Plinth lodestone with a Blank Rune places it on the plinth, and an empty-hand sneak-right-click takes it back',
         async verify({ context, unlearned, active }) {
             context.expect(!unlearned.loaded.center && unlearned.loaded.blankRunes === 1, 'Without Runic Augments the plinth takes nothing and the Blank Rune stays with the player')

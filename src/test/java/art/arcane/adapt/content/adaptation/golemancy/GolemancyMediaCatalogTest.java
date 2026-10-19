@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.item.GolemItemLooks;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
 import com.google.gson.Gson;
@@ -17,6 +18,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,9 +101,32 @@ class GolemancyMediaCatalogTest extends AdaptTestBase {
     assertThat(items.getAsJsonObject("golemancy:core/guardian").get("name").getAsString()).isEqualTo("Guardian Core");
     assertThat(items.getAsJsonObject("golemancy:blank_node").get("base").getAsString()).isEqualTo("CLAY_BALL");
     assertThat(items.getAsJsonObject("golemancy:node/guard").get("base").getAsString()).isEqualTo("BRICK");
-    assertThat(items.getAsJsonObject("golemancy:blank_rune").get("base").getAsString()).isEqualTo("DISC_FRAGMENT_5");
+    assertThat(items.getAsJsonObject("golemancy:blank_rune").get("base").getAsString()).isEqualTo("SCRAPE_POTTERY_SHERD");
     assertThat(items.getAsJsonObject("golemancy:masterwork_heart").get("base").getAsString()).isEqualTo("HEART_OF_THE_SEA");
     assertThat(items.getAsJsonObject("golemancy:node/guard").get("tint").isJsonNull()).isTrue();
+  }
+
+  @Test
+  void everyRuneAspectResolvesToItsOwnPotterySherdAtEveryTier() {
+    JsonObject items = catalog.getAsJsonObject("items");
+    Map<String, String> bases = Map.of(
+        "swiftness", "GUSTER_POTTERY_SHERD",
+        "might", "ARMS_UP_POTTERY_SHERD",
+        "ember", "BURN_POTTERY_SHERD",
+        "tide", "ANGLER_POTTERY_SHERD",
+        "order", "SHEAF_POTTERY_SHERD",
+        "entropy", "DANGER_POTTERY_SHERD",
+        "bulwark", "SHELTER_POTTERY_SHERD");
+
+    assertThat(bases).hasSameSizeAs(GolemRuneType.values());
+    for (Map.Entry<String, String> aspect : bases.entrySet()) {
+      for (int tier = GolemRuneType.MIN_TIER; tier <= GolemRuneType.MAX_TIER; tier++) {
+        String id = "golemancy:rune/" + aspect.getKey() + "/" + tier;
+
+        assertThat(items.has(id)).describedAs(id).isTrue();
+        assertThat(items.getAsJsonObject(id).get("base").getAsString()).describedAs(id).isEqualTo(aspect.getValue());
+      }
+    }
   }
 
   @Test

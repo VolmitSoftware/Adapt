@@ -23,8 +23,9 @@ Color = tuple[int, int, int]
 
 ITEM_COLORS: dict[str, Color] = {
     'iron_hoe': (170, 170, 170), 'amethyst_shard': (200, 100, 255), 'redstone': (255, 0, 0), 'copper_ingot': (220, 120, 60),
-    'ender_pearl': (0, 120, 100), 'firework_star': (90, 90, 90), 'disc_fragment_5': (60, 60, 140), 'sugar': (240, 240, 240),
-    'feather': (230, 230, 230), 'rabbit_foot': (160, 110, 70), 'phantom_membrane': (200, 200, 150), 'brick': (170, 60, 50)}
+    'ender_pearl': (0, 120, 100), 'firework_star': (90, 90, 90), 'sugar': (240, 240, 240),
+    'feather': (230, 230, 230), 'rabbit_foot': (160, 110, 70), 'phantom_membrane': (200, 200, 150), 'brick': (170, 60, 50),
+    'scrape_pottery_sherd': (60, 60, 140), 'guster_pottery_sherd': (150, 90, 40), 'arms_up_pottery_sherd': (40, 140, 90)}
 BLOCK_COLORS: dict[str, Color] = {
     'dirt': (134, 96, 67), 'lodestone_top': (120, 120, 130), 'lodestone_side': (100, 100, 110), 'chiseled_copper': (200, 110, 80),
     'iron_block': (216, 216, 216), 'snow': (250, 250, 250), 'carved_pumpkin': (210, 120, 20), 'pumpkin_top': (200, 140, 30),
@@ -35,8 +36,9 @@ CATALOG: dict = {
     'items': {
         'golemancy:crook': {'name': "Artificer's Crook", 'base': 'IRON_HOE', 'tint': None, 'tier': None},
         'golemancy:blank_core': {'name': 'Blank Animus Core', 'base': 'FIREWORK_STAR', 'tint': '#FF0000', 'tier': None},
-        'golemancy:blank_rune': {'name': 'Blank Rune', 'base': 'DISC_FRAGMENT_5', 'tint': None, 'tier': None},
-        'golemancy:rune/swiftness/1': {'name': 'Swiftness Rune', 'base': 'DISC_FRAGMENT_5', 'tint': None, 'tier': 1},
+        'golemancy:blank_rune': {'name': 'Blank Rune', 'base': 'SCRAPE_POTTERY_SHERD', 'tint': None, 'tier': None},
+        'golemancy:rune/swiftness/1': {'name': 'Swiftness Rune', 'base': 'GUSTER_POTTERY_SHERD', 'tint': None, 'tier': 1},
+        'golemancy:rune/might/2': {'name': 'Might Rune', 'base': 'ARMS_UP_POTTERY_SHERD', 'tint': None, 'tier': 2},
     },
     'recipes': [
         {'id': 'golemancy-crook', 'result': 'golemancy:crook', 'yield': 1, 'tithe': 0, 'pattern': [' A ', 'RHR', ' C '],
@@ -344,6 +346,15 @@ class IconsTest(MediaCase):
             after: tuple[int, int, int, int] = custom.getpixel((pixel, pixel))
             self.assertLess(max(abs(before[channel] - after[channel]) for channel in range(3)), 60)
 
+    def test_rune_icons_come_from_the_pottery_sherd_of_their_aspect(self) -> None:
+        sherds: dict[str, str] = {'golemancy:blank_rune': 'scrape_pottery_sherd', 'golemancy:rune/swiftness/1': 'guster_pottery_sherd',
+                                  'golemancy:rune/might/2': 'arms_up_pottery_sherd'}
+
+        for item, sherd in sherds.items():
+            self.assertEqual(self.icons.icon(item).tobytes(), textures.glint(solid(ITEM_COLORS[sherd])).tobytes(), item)
+            self.assertEqual(self.icons.large(item, 4).size, (64, 64))
+        self.assertEqual(len({self.icons.icon(item).tobytes() for item in sherds}), len(sherds))
+
     def test_glint_leaves_clear_pixels_alone(self) -> None:
         clear: Image.Image = Image.new('RGBA', (4, 4), (10, 20, 30, 0))
 
@@ -475,6 +486,13 @@ class InfusionRenderTest(MediaCase):
         self.assertEqual(image.getpixel(center(2, 1))[:3], ITEM_COLORS['redstone'])
         self.assertEqual(image.getpixel(center(1, 2))[:3], ITEM_COLORS['feather'])
         self.assertEqual(image.getpixel(center(0, 1))[:3], ITEM_COLORS['copper_ingot'])
+
+    def test_the_center_rune_is_drawn_from_its_pottery_sherd(self) -> None:
+        parsed: media_catalog.Catalog = catalog()
+        image: Image.Image = media_render.render_infusion(parsed.infusions[0], parsed, self.icons, self.gui)
+        middle: tuple[int, int] = ((media_render.PAD + media_render.CELL_WIDTH + 8) * 4, (media_render.PAD + media_render.CELL_HEIGHT + 8) * 4)
+
+        self.assertEqual(image.getpixel(middle)[:3], textures.glint(solid(ITEM_COLORS['scrape_pottery_sherd'])).getpixel((8, 8))[:3])
 
     def test_result_label_names_the_rune_tier(self) -> None:
         self.assertEqual(media_render.result_label(catalog(), 'golemancy:rune/swiftness/1'), 'Swiftness Rune I')

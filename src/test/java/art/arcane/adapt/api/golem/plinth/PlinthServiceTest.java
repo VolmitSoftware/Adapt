@@ -100,7 +100,7 @@ class PlinthServiceTest extends AdaptTestBase {
     lenient().when(world.isChunkLoaded(anyInt(), anyInt())).thenReturn(true);
     platform.worlds.put(WORLD, world);
     build(CENTER);
-    stock.put(PlinthSlot.CENTER, item(Material.DISC_FRAGMENT_5));
+    stock.put(PlinthSlot.CENTER, item(Material.SCRAPE_POTTERY_SHERD));
     stock.put(PlinthSlot.NORTH, item(Material.SUGAR));
     stock.put(PlinthSlot.EAST, item(Material.FEATHER));
     stock.put(PlinthSlot.SOUTH, item(Material.SUGAR));
@@ -139,7 +139,7 @@ class PlinthServiceTest extends AdaptTestBase {
   @Test
   void theLodestoneTakesTheCenterItem() {
     readyChunk();
-    ItemStack rune = item(Material.DISC_FRAGMENT_5);
+    ItemStack rune = item(Material.SCRAPE_POTTERY_SHERD);
     holding(rune);
 
     click(CENTER, EquipmentSlot.HAND);
@@ -712,7 +712,7 @@ class PlinthServiceTest extends AdaptTestBase {
   }
 
   private InfusionRecipes swiftness(int unlockLevel, String unlockAdaptation) {
-    return recipes(Map.of("swiftness_1", new InfusionRecipe().result("golemancy:rune/swiftness/1").center("DISC_FRAGMENT_5")
+    return recipes(Map.of("swiftness_1", new InfusionRecipe().result("golemancy:rune/swiftness/1").center("SCRAPE_POTTERY_SHERD")
         .pedestals("SUGAR", "SUGAR", "FEATHER", "FEATHER").essence(2).duration(DURATION).unlock(unlockAdaptation, unlockLevel)));
   }
 

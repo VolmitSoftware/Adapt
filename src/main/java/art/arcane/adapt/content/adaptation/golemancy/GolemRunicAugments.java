@@ -82,7 +82,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     super("golem-runic-augments");
     registerConfiguration(Config.class);
     setLocalizationKey("golemancy.runic_augments");
-    setIcon(Material.DISC_FRAGMENT_5);
+    setIcon(Material.GUSTER_POTTERY_SHERD);
     GolemancySupport.registerRecipe(this, ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook()), BLANK_RUNE_RECIPE,
         getConfig().blankRuneRecipe, RECIPE_LEVEL);
   }

@@ -109,7 +109,7 @@ class InfusionRecipesTest {
 
     assertThat(match).map(Infusion::id).contains("swiftness_1");
     assertThat(recipes.match(blankRune, List.of(plain(Material.FEATHER), plain(Material.SUGAR), plain(Material.SUGAR), plain(Material.SUGAR)))).isEmpty();
-    assertThat(recipes.match(plain(Material.DISC_FRAGMENT_5), List.of(plain(Material.FEATHER), plain(Material.SUGAR), plain(Material.FEATHER), plain(Material.SUGAR))))
+    assertThat(recipes.match(plain(Material.SCRAPE_POTTERY_SHERD), List.of(plain(Material.FEATHER), plain(Material.SUGAR), plain(Material.FEATHER), plain(Material.SUGAR))))
         .isEmpty();
     assertThat(recipes.match(blankRune, Arrays.asList(plain(Material.FEATHER), null, plain(Material.FEATHER), plain(Material.SUGAR)))).isEmpty();
     assertThat(recipes.match(null, List.of(plain(Material.FEATHER), plain(Material.SUGAR), plain(Material.FEATHER), plain(Material.SUGAR)))).isEmpty();
@@ -269,7 +269,7 @@ class InfusionRecipesTest {
     ItemStack exactItem(String id) {
       return exactById.computeIfAbsent(id, key -> {
         ItemStack item = mock(ItemStack.class);
-        lenient().when(item.getType()).thenReturn(Material.DISC_FRAGMENT_5);
+        lenient().when(item.getType()).thenReturn(Material.SCRAPE_POTTERY_SHERD);
         exactItems.put(item, key);
         return item;
       });

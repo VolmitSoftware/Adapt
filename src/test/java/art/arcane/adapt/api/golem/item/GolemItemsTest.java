@@ -6,6 +6,9 @@ import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.golem.plinth.Infusion;
+import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
+import art.arcane.adapt.api.golem.plinth.InfusionRecipes;
 import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.util.common.misc.CustomModel;
 import art.arcane.adapt.util.reflect.registries.ItemFlags;
@@ -29,10 +32,12 @@ import org.mockito.MockedConstruction;
 import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -52,6 +57,15 @@ class GolemItemsTest extends AdaptTestBase {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-00000000b002");
   private static final NamespacedKey CROOK_CHANNEL_KEY = new NamespacedKey("adapt", "crook_channel");
   private static final PackedGolem PACKED = new PackedGolem(GOLEM, OWNER, "{\"body\":\"IRON\"}");
+  private static final Material BLANK_RUNE_BASE = Material.SCRAPE_POTTERY_SHERD;
+  private static final Map<GolemRuneType, Material> RUNE_BASES = new EnumMap<>(Map.of(
+      GolemRuneType.SWIFTNESS, Material.GUSTER_POTTERY_SHERD,
+      GolemRuneType.MIGHT, Material.ARMS_UP_POTTERY_SHERD,
+      GolemRuneType.EMBER, Material.BURN_POTTERY_SHERD,
+      GolemRuneType.TIDE, Material.ANGLER_POTTERY_SHERD,
+      GolemRuneType.ORDER, Material.SHEAF_POTTERY_SHERD,
+      GolemRuneType.ENTROPY, Material.DANGER_POTTERY_SHERD,
+      GolemRuneType.BULWARK, Material.SHELTER_POTTERY_SHERD));
 
   private final List<List<String>> modelPaths = new ArrayList<>();
   private final Map<List<String>, Material> materialOverrides = new HashMap<>();
@@ -134,7 +148,7 @@ class GolemItemsTest extends AdaptTestBase {
   void runesRoundTripTheirAspectAndTier() {
     ItemStack blank = GolemItems.blankRune();
 
-    assertThat(blank.getType()).isEqualTo(Material.DISC_FRAGMENT_5);
+    assertThat(blank.getType()).isEqualTo(BLANK_RUNE_BASE);
     assertThat(GolemItems.kindOf(blank)).contains(GolemItemKind.BLANK_RUNE);
     assertThat(GolemItems.runeOf(blank)).isEmpty();
     for (GolemRuneType aspect : GolemRuneType.values()) {
@@ -142,11 +156,34 @@ class GolemItemsTest extends AdaptTestBase {
         GolemRune expected = new GolemRune(aspect, tier);
         ItemStack rune = GolemItems.rune(expected);
 
-        assertThat(rune.getType()).isEqualTo(Material.DISC_FRAGMENT_5);
+        assertThat(rune.getType()).describedAs("%s tier %d base", aspect, tier).isEqualTo(RUNE_BASES.get(aspect));
         assertThat(GolemItems.kindOf(rune)).contains(GolemItemKind.RUNE);
         assertThat(GolemItems.runeOf(rune)).contains(expected);
       }
     }
+  }
+
+  @Test
+  void everyRuneAspectAndTheBlankRuneBuildOnTheirOwnPotterySherd() {
+    Set<Material> bases = new HashSet<>(RUNE_BASES.values());
+    bases.add(BLANK_RUNE_BASE);
+
+    assertThat(RUNE_BASES).containsOnlyKeys(GolemRuneType.values());
+    assertThat(bases).hasSize(GolemRuneType.values().length + 1).allSatisfy(base -> assertThat(base.name()).endsWith("_POTTERY_SHERD"));
+    assertThat(bases).doesNotContain(Material.DISC_FRAGMENT_5, Material.BRICK, Material.CLAY_BALL);
+  }
+
+  @Test
+  void runeOfRecognisesEveryAspectOnItsSherd() {
+    for (GolemRuneType aspect : GolemRuneType.values()) {
+      for (int tier = GolemRuneType.MIN_TIER; tier <= GolemRuneType.MAX_TIER; tier++) {
+        ItemStack tagged = GolemItemStacks.tagged(RUNE_BASES.get(aspect), "rune", "{\"aspect\":\"" + aspect.id() + "\",\"tier\":" + tier + "}");
+
+        assertThat(GolemItems.runeOf(tagged)).describedAs("%s tier %d on %s", aspect, tier, tagged.getType()).contains(new GolemRune(aspect, tier));
+      }
+    }
+    assertThat(GolemItems.runeOf(GolemItemStacks.plain(Material.GUSTER_POTTERY_SHERD))).isEmpty();
+    assertThat(GolemItems.runeOf(GolemItemStacks.tagged(BLANK_RUNE_BASE, "blank_rune", null))).isEmpty();
   }
 
   @Test
@@ -234,7 +271,12 @@ class GolemItemsTest extends AdaptTestBase {
 
     List<List<String>> expected = new ArrayList<>();
     for (GolemItemKind kind : GolemItemKind.values()) {
-      expected.add(kind == GolemItemKind.DORMANT_GOLEM ? List.of("golemancy", kind.id(), "snow_block") : List.of("golemancy", kind.id()));
+      expected.add(switch (kind) {
+        case DORMANT_GOLEM -> List.of("golemancy", kind.id(), "snow_block");
+        case BLANK_RUNE -> List.of("golemancy", "rune", "blank");
+        case RUNE -> List.of("golemancy", "rune", "order");
+        default -> List.of("golemancy", kind.id());
+      });
     }
     assertThat(modelPaths).containsExactlyElementsOf(expected);
     for (ItemStack item : items) {
@@ -248,6 +290,25 @@ class GolemItemsTest extends AdaptTestBase {
       assertThat(item.getItemMeta().getItemFlags())
           .describedAs("%s tooltip flags", item.getType())
           .contains(ItemFlags.HIDE_ADDITIONAL_TOOLTIP);
+    }
+  }
+
+  @Test
+  void everyRuneOnItsSherdHidesTheVanillaAdditionalTooltip() {
+    List<ItemStack> runes = new ArrayList<>();
+    runes.add(GolemItems.blankRune());
+    for (GolemRuneType aspect : GolemRuneType.values()) {
+      for (int tier = GolemRuneType.MIN_TIER; tier <= GolemRuneType.MAX_TIER; tier++) {
+        runes.add(GolemItems.rune(new GolemRune(aspect, tier)));
+      }
+    }
+
+    for (ItemStack rune : runes) {
+      ItemMeta meta = rune.getItemMeta();
+
+      assertThat(rune.getType()).isNotEqualTo(Material.DISC_FRAGMENT_5);
+      assertThat(meta.getItemFlags()).describedAs("%s tooltip flags", rune.getType()).contains(ItemFlags.HIDE_ADDITIONAL_TOOLTIP);
+      verify(meta, never()).setHideTooltip(true);
     }
   }
 
@@ -334,9 +395,66 @@ class GolemItemsTest extends AdaptTestBase {
     assertIngredient("golemancy:core/guardian", Material.FIREWORK_STAR, GolemItems.core(GolemCoreType.GUARDIAN), GolemItems.core(GolemCoreType.SORTER));
     assertIngredient("golemancy:blank_node", Material.CLAY_BALL, GolemItems.blankNode(), GolemItems.node(NodeType.GUARD));
     assertIngredient("golemancy:node/deposit", Material.BRICK, GolemItems.node(NodeType.DEPOSIT), GolemItems.node(NodeType.INPUT));
-    assertIngredient("golemancy:blank_rune", Material.DISC_FRAGMENT_5, GolemItems.blankRune(), GolemItems.rune(new GolemRune(GolemRuneType.TIDE, 1)));
-    assertIngredient("golemancy:rune/tide/2", Material.DISC_FRAGMENT_5,
+    assertIngredient("golemancy:blank_rune", BLANK_RUNE_BASE, GolemItems.blankRune(), GolemItems.rune(new GolemRune(GolemRuneType.TIDE, 1)));
+    assertIngredient("golemancy:rune/tide/2", Material.ANGLER_POTTERY_SHERD,
         GolemItems.rune(new GolemRune(GolemRuneType.TIDE, 2)), GolemItems.rune(new GolemRune(GolemRuneType.TIDE, 3)));
+  }
+
+  @Test
+  void runeIngredientsUseTheSherdOfTheirAspectAtEveryTier() {
+    for (GolemRuneType aspect : GolemRuneType.values()) {
+      GolemRuneType other = GolemRuneType.values()[(aspect.ordinal() + 1) % GolemRuneType.values().length];
+      for (int tier = GolemRuneType.MIN_TIER; tier <= GolemRuneType.MAX_TIER; tier++) {
+        ExactIngredient ingredient = ingredient("golemancy:rune/" + aspect.id() + "/" + tier);
+
+        assertThat(ingredient.base()).describedAs("%s tier %d base", aspect, tier).isEqualTo(RUNE_BASES.get(aspect));
+        assertThat(ingredient.matches().test(GolemItems.rune(new GolemRune(aspect, tier)))).isTrue();
+        assertThat(ingredient.matches().test(GolemItems.rune(new GolemRune(other, tier)))).describedAs("%s rejects %s", aspect, other).isFalse();
+        assertThat(ingredient.matches().test(GolemItems.blankRune())).isFalse();
+        assertThat(ingredient.matches().test(GolemItemStacks.plain(RUNE_BASES.get(aspect)))).isFalse();
+      }
+    }
+  }
+
+  @Test
+  void defaultInfusionsChainEachAspectOnItsOwnSherd() {
+    List<String> warnings = new ArrayList<>();
+    Map<String, InfusionRecipe> defaults = InfusionRecipe.defaults();
+    InfusionRecipes recipes = InfusionRecipes.parse(defaults, InfusionRecipes.bukkitResolver(material -> true), warnings::add);
+
+    assertThat(warnings).isEmpty();
+    for (GolemRuneType aspect : GolemRuneType.values()) {
+      GolemRuneType other = GolemRuneType.values()[(aspect.ordinal() + 1) % GolemRuneType.values().length];
+      for (int tier = GolemRuneType.MIN_TIER; tier <= GolemRuneType.MAX_TIER; tier++) {
+        String id = aspect.id() + "_" + tier;
+        ItemStack center = tier == GolemRuneType.MIN_TIER ? GolemItems.blankRune() : GolemItems.rune(new GolemRune(aspect, tier - 1));
+        ItemStack wrongCenter = tier == GolemRuneType.MIN_TIER ? GolemItems.rune(new GolemRune(aspect, tier)) : GolemItems.rune(new GolemRune(other, tier - 1));
+        List<ItemStack> pedestals = new ArrayList<>();
+        for (String pedestal : defaults.get(id).getPedestals()) {
+          pedestals.add(GolemItemStacks.plain(Material.valueOf(pedestal)));
+        }
+
+        Optional<Infusion> match = recipes.match(center, pedestals);
+
+        assertThat(match).describedAs("%s with its centre rune", id).map(Infusion::id).contains(id);
+        assertThat(match.orElseThrow().resultItem().get().getType()).describedAs("%s result base", id).isEqualTo(RUNE_BASES.get(aspect));
+        assertThat(recipes.match(wrongCenter, pedestals)).describedAs("%s with %s", id, wrongCenter.getType()).isEmpty();
+        assertThat(recipes.match(GolemItemStacks.plain(center.getType()), pedestals)).describedAs("%s with a plain sherd", id).isEmpty();
+      }
+    }
+  }
+
+  @Test
+  void runeModelOverridesApplyToOneAspectOnly() {
+    materialOverrides.put(List.of("golemancy", "rune", "ember"), Material.STICK);
+    materialOverrides.put(List.of("golemancy", "rune", "blank"), Material.BONE);
+
+    assertThat(ingredient("golemancy:rune/ember/2").base()).isEqualTo(Material.STICK);
+    assertThat(GolemItems.rune(new GolemRune(GolemRuneType.EMBER, 3)).getType()).isEqualTo(Material.STICK);
+    assertThat(ingredient("golemancy:rune/tide/2").base()).isEqualTo(Material.ANGLER_POTTERY_SHERD);
+    assertThat(GolemItems.rune(new GolemRune(GolemRuneType.TIDE, 1)).getType()).isEqualTo(Material.ANGLER_POTTERY_SHERD);
+    assertThat(ingredient("golemancy:blank_rune").base()).isEqualTo(Material.BONE);
+    assertThat(GolemItems.blankRune().getType()).isEqualTo(Material.BONE);
   }
 
   @Test
@@ -391,7 +509,7 @@ class GolemItemsTest extends AdaptTestBase {
     assertThat(GolemItems.coreOf(malformedCore)).isEmpty();
     assertThat(GolemItems.coreOf(GolemItemStacks.tagged(Material.FIREWORK_STAR, "core", null))).isEmpty();
     assertThat(GolemItems.coreOf(GolemItemStacks.tagged(Material.FIREWORK_STAR, "core", "{\"role\":\"blank\"}"))).isEmpty();
-    assertThat(GolemItems.runeOf(GolemItemStacks.tagged(Material.DISC_FRAGMENT_5, "rune", "{\"aspect\":\"might\",\"tier\":7}"))).isEmpty();
+    assertThat(GolemItems.runeOf(GolemItemStacks.tagged(Material.ARMS_UP_POTTERY_SHERD, "rune", "{\"aspect\":\"might\",\"tier\":7}"))).isEmpty();
     assertThat(GolemItems.packedGolemOf(GolemItemStacks.tagged(Material.IRON_BLOCK, "dormant_golem", "{\"golem\":\"" + GOLEM + "\"}"))).isEmpty();
     assertThat(GolemItems.nodeTypeOf(GolemItemStacks.tagged(Material.BRICK, "rune", "{\"type\":\"guard\"}"))).isEmpty();
   }
