@@ -587,7 +587,9 @@
       "execute at {actor} run summon minecraft:snow_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
       "execute at {actor} run fill ~-2 ~-1 ~-7 ~2 ~-1 ~-5 minecraft:farmland",
       "execute at {actor} run fill ~-2 ~ ~-7 ~2 ~ ~-5 minecraft:wheat[age=7]",
-      "execute at {actor} run setblock ~1 ~-1 ~-4 minecraft:stone"
+      "execute at {actor} run setblock ~1 ~-1 ~-4 minecraft:stone",
+      "adaptqa demo give {actor} 4 node/deposit 2",
+      "execute at {actor} run setblock ~-3 ~ ~-2 minecraft:chest"
     ],
     "prelude": [
       {
@@ -605,8 +607,54 @@
     ],
     "beats": [
       {
+        "verb": "slot",
+        "index": 4
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 26
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "look",
+        "yaw": 128.7,
+        "pitch": 13.5,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
         "verb": "wait",
         "ticks": 12
+      },
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.9,
+          -2.0
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
       },
       {
         "verb": "press",
@@ -631,10 +679,6 @@
       {
         "verb": "wait",
         "ticks": 53
-      },
-      {
-        "verb": "command",
-        "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
       {
         "verb": "wait",
@@ -678,31 +722,45 @@
         "index": 1
       },
       {
-        "verb": "wait",
-        "ticks": 20
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 30
       },
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25,
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.4,
+          -5.5
+        ],
         "ticks": 10
       },
       {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
         "verb": "wait",
-        "ticks": 260
+        "ticks": 300
       }
     ],
     "expect": {
       "sound": "minecraft:block.crop.break"
     },
     "povCapture": true,
-    "maxTicks": 900,
+    "maxTicks": 1100,
     "camera": {
       "x": 5.5,
-      "y": 2.6,
-      "z": -3.0,
-      "yaw": 111.8,
-      "pitch": 20.4
+      "y": 2.4,
+      "z": 1.5,
+      "yaw": 131.5,
+      "pitch": 13.4
     }
   },
   "golem-breaker-core": {
@@ -730,7 +788,9 @@
       "adaptqa demo give {actor} 2 node/breaker 3",
       "execute at {actor} run fill ~-1 ~-1 ~-3 ~1 ~-1 ~-2 minecraft:cobblestone",
       "execute at {actor} run setblock ~ ~ ~-4 minecraft:stone",
-      "item replace entity {actor} hotbar.3 with minecraft:cobblestone 1"
+      "item replace entity {actor} hotbar.3 with minecraft:cobblestone 1",
+      "adaptqa demo give {actor} 4 node/deposit 2",
+      "execute at {actor} run setblock ~-3 ~ ~-2 minecraft:chest"
     ],
     "prelude": [
       {
@@ -747,6 +807,39 @@
       }
     ],
     "beats": [
+      {
+        "verb": "slot",
+        "index": 4
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 26
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "look",
+        "yaw": 128.7,
+        "pitch": 13.5,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
       {
         "verb": "slot",
         "index": 2
@@ -914,10 +1007,6 @@
         "ticks": 53
       },
       {
-        "verb": "command",
-        "text": "execute at {actor} run data merge entity @e[type=minecraft:iron_golem,limit=1,sort=nearest] {NoAI:0b}"
-      },
-      {
         "verb": "wait",
         "ticks": 20
       },
@@ -926,8 +1015,15 @@
         "index": 1
       },
       {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 30
+      },
+      {
         "verb": "wait",
-        "ticks": 10
+        "ticks": 8
       },
       {
         "verb": "lookAt",
@@ -939,15 +1035,19 @@
         "ticks": 10
       },
       {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:iron_golem,limit=1,sort=nearest] {NoAI:0b}"
+      },
+      {
         "verb": "wait",
-        "ticks": 260
+        "ticks": 300
       }
     ],
     "expect": {
       "sound": "minecraft:block.stone.break"
     },
     "povCapture": true,
-    "maxTicks": 1100,
+    "maxTicks": 1300,
     "camera": {
       "x": 5.0,
       "y": 2.2,
@@ -1219,7 +1319,7 @@
       },
       {
         "verb": "wait",
-        "ticks": 90
+        "ticks": 24
       }
     ],
     "expect": {
@@ -1444,7 +1544,9 @@
       "execute at {actor} run summon minecraft:copper_golem ~0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
       "execute at {actor} run setblock ~1 ~-1 ~-5 minecraft:dirt",
       "execute at {actor} run place feature minecraft:oak ~1 ~ ~-5",
-      "execute at {actor} run setblock ~1 ~-1 ~-3 minecraft:stone"
+      "execute at {actor} run setblock ~1 ~-1 ~-3 minecraft:stone",
+      "adaptqa demo give {actor} 4 node/deposit 2",
+      "execute at {actor} run setblock ~-3 ~ ~-2 minecraft:chest"
     ],
     "prelude": [
       {
@@ -1462,8 +1564,54 @@
     ],
     "beats": [
       {
+        "verb": "slot",
+        "index": 4
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 26
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "look",
+        "yaw": 128.7,
+        "pitch": 13.5,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
         "verb": "wait",
         "ticks": 12
+      },
+      {
+        "verb": "slot",
+        "index": 0
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.6,
+          -2.0
+        ],
+        "ticks": 10
+      },
+      {
+        "verb": "wait",
+        "ticks": 4
       },
       {
         "verb": "press",
@@ -1488,10 +1636,6 @@
       {
         "verb": "wait",
         "ticks": 53
-      },
-      {
-        "verb": "command",
-        "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
       {
         "verb": "wait",
@@ -1535,14 +1679,28 @@
         "index": 1
       },
       {
-        "verb": "wait",
-        "ticks": 20
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 30
       },
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 0,
+        "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          1.5,
+          2.0,
+          -4.5
+        ],
         "ticks": 10
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
       {
         "verb": "wait",
@@ -1553,13 +1711,13 @@
       "sound": "minecraft:block.wood.break"
     },
     "povCapture": true,
-    "maxTicks": 1000,
+    "maxTicks": 1300,
     "camera": {
-      "x": 6.5,
-      "y": 3.2,
-      "z": -1.5,
-      "yaw": 121.0,
-      "pitch": 6.8
+      "x": 6.0,
+      "y": 3.0,
+      "z": -0.5,
+      "yaw": 118.3,
+      "pitch": 10.7
     }
   },
   "golem-node-weaving": {
@@ -1719,7 +1877,9 @@
       "execute at {actor} run summon minecraft:copper_golem ~-2.5 ~0 ~-0.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
       "execute at {actor} run setblock ~ ~ ~-4 minecraft:stone",
       "execute at {actor} run summon minecraft:sheep ~-1.2 ~ ~-2.5 {NoAI:1b,Color:14b}",
-      "execute at {actor} run summon minecraft:sheep ~2.2 ~ ~-2.5 {NoAI:1b,Color:0b}"
+      "execute at {actor} run summon minecraft:sheep ~2.2 ~ ~-2.5 {NoAI:1b,Color:0b}",
+      "adaptqa demo give {actor} 4 node/deposit 2",
+      "execute at {actor} run setblock ~-3 ~ ~-2 minecraft:chest"
     ],
     "prelude": [
       {
@@ -1736,6 +1896,39 @@
       }
     ],
     "beats": [
+      {
+        "verb": "slot",
+        "index": 4
+      },
+      {
+        "verb": "press",
+        "hold": [
+          "sneak"
+        ],
+        "ticks": 26
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "look",
+        "yaw": 128.7,
+        "pitch": 13.5,
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 3
+      },
+      {
+        "verb": "click",
+        "key": "use"
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
+      },
       {
         "verb": "slot",
         "index": 2
@@ -1883,10 +2076,6 @@
         "ticks": 53
       },
       {
-        "verb": "command",
-        "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
-      },
-      {
         "verb": "wait",
         "ticks": 20
       },
@@ -1895,36 +2084,50 @@
         "index": 1
       },
       {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 30
+      },
+      {
         "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.6,
+          -2.5
+        ],
         "ticks": 10
       },
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 20,
-        "ticks": 10
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
       {
         "verb": "waitFor",
-        "timeout": 200,
+        "timeout": 240,
         "sound": "minecraft:entity.sheep.shear"
       },
       {
         "verb": "wait",
-        "ticks": 100
+        "ticks": 90
       }
     ],
     "expect": {
       "sound": "minecraft:entity.sheep.shear"
     },
     "povCapture": true,
-    "maxTicks": 1100,
+    "maxTicks": 1300,
     "camera": {
       "x": 5.5,
       "y": 2.4,
-      "z": -1.0,
-      "yaw": 111.8,
-      "pitch": 16.5
+      "z": -0.5,
+      "yaw": 110.0,
+      "pitch": 17.1
     }
   },
   "golem-runic-augments": {
@@ -2111,8 +2314,8 @@
     "pre": [
       "execute at {actor} run gamerule show_advancement_messages false",
       "adaptqa demo give {actor} 1 crook 1",
-      "execute at {actor} run summon minecraft:snow_golem ~-1.5 ~0 ~-8.0 {Rotation:[0.0f,0.0f],Tags:[\"oa\"],NoAI:1b}",
-      "execute at {actor} run summon minecraft:copper_golem ~1.0 ~0 ~-9.0 {Rotation:[0.0f,0.0f],Tags:[\"ob\"],NoAI:1b}",
+      "execute at {actor} run summon minecraft:snow_golem ~-2.1 ~0 ~-1.7 {Rotation:[0.0f,0.0f],Tags:[\"oa\"],NoAI:1b}",
+      "execute at {actor} run summon minecraft:copper_golem ~-1.5 ~0 ~-4.1 {Rotation:[0.0f,0.0f],Tags:[\"ob\"],NoAI:1b}",
       "adaptqa demo bind {actor} oa blank",
       "adaptqa demo bind {actor} ob blank"
     ],
@@ -2122,9 +2325,12 @@
         "index": 1
       },
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 6
+        "verb": "lookAt",
+        "offset": [
+          -1.2,
+          0.5,
+          -2.4
+        ]
       }
     ],
     "beats": [
@@ -2142,34 +2348,14 @@
       },
       {
         "verb": "wait",
-        "ticks": 6
+        "ticks": 10
       },
       {
         "verb": "lookAt",
         "offset": [
-          0.25,
-          0.9,
-          -8.0
-        ],
-        "ticks": 8
-      },
-      {
-        "verb": "keys",
-        "hold": [
-          "forward"
-        ],
-        "ticks": 26
-      },
-      {
-        "verb": "wait",
-        "ticks": 4
-      },
-      {
-        "verb": "lookAt",
-        "offset": [
-          -1.0,
+          -1.6,
           0.5,
-          -7.5
+          -1.2
         ],
         "ticks": 8
       },
@@ -2221,49 +2407,29 @@
         "ticks": 8
       },
       {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~-2.0 ~ ~-8.0"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=minecraft:copper_golem,limit=1,sort=nearest] ~-1.0 ~ ~-9.0"
+      },
+      {
+        "verb": "wait",
+        "ticks": 6
+      },
+      {
         "verb": "lookAt",
         "offset": [
-          0.25,
+          -1.0,
           0.9,
-          -8.0
+          -8.5
         ],
         "ticks": 8
       },
       {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 28
-      },
-      {
-        "verb": "wait",
-        "ticks": 6
-      },
-      {
-        "verb": "lookAt",
-        "offset": [
-          0.25,
-          0.9,
-          -8.0
-        ],
-        "ticks": 6
-      },
-      {
         "verb": "wait",
         "ticks": 4
-      },
-      {
-        "verb": "command",
-        "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~-1.5 ~ ~-8"
-      },
-      {
-        "verb": "command",
-        "text": "execute at {actor} run tp @e[type=minecraft:copper_golem,limit=1,sort=nearest] ~1.0 ~ ~-9"
-      },
-      {
-        "verb": "wait",
-        "ticks": 10
       },
       {
         "verb": "command",
@@ -2372,7 +2538,7 @@
       {
         "verb": "lookAt",
         "offset": [
-          0.25,
+          -1.0,
           0.9,
           -1.0
         ],
@@ -2392,7 +2558,7 @@
       {
         "verb": "lookAt",
         "offset": [
-          0.25,
+          -1.0,
           0.9,
           -1.0
         ],
@@ -2459,11 +2625,11 @@
     "povCapture": true,
     "maxTicks": 1700,
     "camera": {
-      "x": 6.0,
-      "y": 2.4,
-      "z": -1.5,
+      "x": 4.0,
+      "y": 2.2,
+      "z": -4.5,
       "yaw": 90.0,
-      "pitch": 18.1
+      "pitch": 18.8
     }
   },
   "golem-mending": {
@@ -2830,10 +2996,6 @@
         "ticks": 53
       },
       {
-        "verb": "command",
-        "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
-      },
-      {
         "verb": "wait",
         "ticks": 20
       },
@@ -2842,14 +3004,28 @@
         "index": 1
       },
       {
+        "verb": "keys",
+        "hold": [
+          "back"
+        ],
+        "ticks": 30
+      },
+      {
         "verb": "wait",
+        "ticks": 8
+      },
+      {
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.6,
+          -3.5
+        ],
         "ticks": 10
       },
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25,
-        "ticks": 10
+        "verb": "command",
+        "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
       },
       {
         "verb": "waitFor",
@@ -2858,14 +3034,14 @@
       },
       {
         "verb": "wait",
-        "ticks": 120
+        "ticks": 100
       }
     ],
     "expect": {
       "sound": "minecraft:entity.copper_golem.item_drop"
     },
     "povCapture": true,
-    "maxTicks": 1200,
+    "maxTicks": 1300,
     "camera": {
       "x": 3.5,
       "y": 2.2,
@@ -3593,7 +3769,7 @@
         },
         {
           "angle": "pov",
-          "at": 17.82,
+          "at": 18.567,
           "name": "blank-core-grid"
         },
         {
@@ -3936,24 +4112,17 @@
         {
           "verb": "keys",
           "hold": [
-            "back"
-          ],
-          "ticks": 22
-        },
-        {
-          "verb": "wait",
-          "ticks": 26
-        },
-        {
-          "verb": "keys",
-          "hold": [
             "forward"
           ],
           "ticks": 22
         },
         {
           "verb": "wait",
-          "ticks": 8
+          "ticks": 36
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~0 ~ ~-2.6"
         },
         {
           "verb": "command",
@@ -4008,27 +4177,30 @@
           "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
         },
         {
-          "verb": "look",
-          "yaw": 90,
-          "pitch": 6,
-          "ticks": 10
+          "verb": "lookAt",
+          "offset": [
+            2.5,
+            0.8,
+            -2.0
+          ],
+          "ticks": 12
         },
         {
           "verb": "wait",
-          "ticks": 110
+          "ticks": 120
         }
       ],
       "expect": {
-        "visual": "A companion golem follows, stays where it stands, then walks back home as its mode is switched in the Golem GUI."
+        "visual": "A companion golem follows, stays where it stands while the owner walks on, then walks back home as its mode is switched in the Golem GUI."
       },
       "povCapture": true,
-      "maxTicks": 1100,
+      "maxTicks": 1200,
       "camera": {
-        "x": 2.5,
-        "y": 3.0,
-        "z": 4.5,
-        "yaw": 174.8,
-        "pitch": 25.2
+        "x": 5.0,
+        "y": 2.0,
+        "z": 3.2,
+        "yaw": -180.0,
+        "pitch": 17.7
       }
     },
     {
