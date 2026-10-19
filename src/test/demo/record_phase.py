@@ -18,6 +18,7 @@ SETTLE_TICKS: int = 20
 CLEAR_POLL_SECONDS: float = 0.2
 CLEAR_TIMEOUT_SECONDS: float = 5.0
 PROBE_COUNTS: re.Pattern[str] = re.compile(r'refunds=(\d+) golems=(\d+)')
+CLAIM_REFUSED: str = 'before learning'
 REPLAY_TIMEOUT: float = 60.0
 STOP_STATE_TIMEOUT: float = 30.0
 BRIDGE_RETRY_SECONDS: float = 1.0
@@ -164,6 +165,12 @@ def await_cleared(rcon: beats.RconClient, actor: str, refunds: int) -> None:
         time.sleep(CLEAR_POLL_SECONDS)
 
 
+def claim(rcon: beats.RconClient, actor: str, skill: str, name: str, level: int) -> None:
+    reply: str = rcon.command('adapt claim-adaptation ' + skill + ':' + name + ' ' + str(level) + ' force=true player=' + actor)
+    if CLAIM_REFUSED in reply:
+        raise RuntimeError('The claim of ' + name + ' at level ' + str(level) + ' was refused: ' + re.sub('\u00a7.', '', reply).strip())
+
+
 def prepare_take(studio: RecordStudio, entry: choreography.Entry, skill: str) -> dict:
     rcon: beats.RconClient = studio.rcon
     actor: str = studio.actor
@@ -180,9 +187,9 @@ def prepare_take(studio: RecordStudio, entry: choreography.Entry, skill: str) ->
     rcon.command('adaptqa demo sparring')
     rcon.command('adapt clear adaptations player=' + actor)
     for prerequisite in entry.prerequisites:
-        rcon.command('adapt claim-adaptation ' + prerequisite.skill + ':' + prerequisite.name + ' ' + str(prerequisite.level) + ' force=true player=' + actor)
+        claim(rcon, actor, prerequisite.skill, prerequisite.name, prerequisite.level)
     if entry.showcase is None:
-        rcon.command('adapt claim-adaptation ' + skill + ':' + entry.id + ' ' + str(entry.level) + ' force=true player=' + actor)
+        claim(rcon, actor, skill, entry.id, entry.level)
     for command in entry.pre:
         rcon.command(beats.fill_names(command, actor, studio.opponent))
     rcon.command('adaptqa demo sync ' + actor)

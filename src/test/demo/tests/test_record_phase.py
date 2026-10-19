@@ -136,6 +136,20 @@ class RecordPhaseTest(unittest.TestCase):
         self.assertLess(prerequisite, claim)
         self.assertLess(claim, sent.index('say ready'))
 
+    def test_a_refused_prerequisite_claim_fails_the_take_preparation(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            refusal: str = '\u00a77[Adapt] AQAClient262 needs Animus Binding Lv 2 before learning golem-runic-augments.'
+            reply = studio.reply
+            studio.rcon.command.side_effect = lambda text: refusal if 'golem-runic-augments' in text else reply(text)
+            entry = choreography.Entry(id='golem-bone-frame', set='taming-field', level=3, pre=[], beats=[{'verb': 'wait', 'ticks': 2}],
+                                       expect_sound=None, expect_particle=None, max_ticks=100, camera=None,
+                                       prerequisites=(choreography.Prerequisite(skill='golemancy', name='golem-runic-augments', level=5),))
+            with self.assertRaisesRegex(RuntimeError, r'claim of golem-runic-augments at level 5 was refused: \[Adapt\] AQAClient262 needs Animus Binding Lv 2'):
+                record_phase.prepare_take(studio, entry, 'golemancy')
+
     def test_showcase_clip_claims_its_prerequisites_but_no_adaptation_of_its_own(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             replays = Path(tmp) / 'flashback' / 'replays'
