@@ -41,6 +41,15 @@ public final class MinionTargeting {
         candidate instanceof Player, isProtectedFriendly(ownerId, candidate));
   }
 
+  public static Judged captureJudgedOwned(Adaptation<?> policy, Player owner, LivingEntity candidate) {
+    Candidate captured = captureOwned(owner.getUniqueId(), candidate);
+    if (captured == null) {
+      return null;
+    }
+    boolean pveAllowed = !captured.player() && !captured.protectedFriendly() && policy.canPVE(owner, candidate);
+    return new Judged(captured, pveAllowed);
+  }
+
   public static boolean canDamageOwned(Adaptation<?> policy, Player owner, Candidate candidate) {
     if (candidate.protectedFriendly() || owner.getUniqueId().equals(candidate.entityId())) {
       return false;
@@ -48,6 +57,14 @@ public final class MinionTargeting {
     return candidate.player()
         ? policy.canPVP(owner, candidate.location())
         : policy.canPVE(owner, candidate.entity());
+  }
+
+  public static boolean canDamageJudgedOwned(Adaptation<?> policy, Player owner, Judged judged) {
+    Candidate candidate = judged.candidate();
+    if (candidate.protectedFriendly() || owner.getUniqueId().equals(candidate.entityId())) {
+      return false;
+    }
+    return candidate.player() ? policy.canPVP(owner, candidate.location()) : judged.pveAllowed();
   }
 
   private static boolean isProtectedFriendly(UUID ownerId, LivingEntity candidate) {
@@ -69,5 +86,8 @@ public final class MinionTargeting {
 
   public record Candidate(LivingEntity entity, UUID entityId, UUID worldId, Location location,
                           boolean player, boolean protectedFriendly) {
+  }
+
+  public record Judged(Candidate candidate, boolean pveAllowed) {
   }
 }

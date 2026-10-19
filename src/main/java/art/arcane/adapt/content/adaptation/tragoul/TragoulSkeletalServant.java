@@ -673,7 +673,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
     LivingEntity target = request.target();
     if (!J.runEntity(target, () -> {
-      TargetSnapshot snapshot = captureTargetOwned(ownerId, target);
+      TargetSnapshot snapshot = captureTargetOwned(owner, target);
       if (!J.runEntity(owner, () -> completeTargetRequestOwned(ownerId, owner, request, snapshot))) {
         latestTargetRequests.remove(ownerId, request);
         activeTargetRequests.remove(ownerId);
@@ -770,7 +770,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     long now = System.currentTimeMillis();
     UUID servantId = servant.getUniqueId();
     if (!J.runEntity(attacker, () -> {
-      TargetSnapshot snapshot = captureTargetOwned(ownerId, attacker);
+      TargetSnapshot snapshot = captureTargetOwned(owner, attacker);
       if (snapshot != null) {
         J.runEntity(owner, () -> prepareDefensePerksOwned(owner, servant, servantId, snapshot, now));
       }
@@ -876,7 +876,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
     double finalDamage = event.getFinalDamage();
     J.runEntity(victim, () -> {
-      TargetSnapshot snapshot = captureTargetOwned(servant.ownerId(), victim);
+      TargetSnapshot snapshot = captureTargetOwned(owner, victim);
       if (snapshot != null) {
         J.runEntity(owner, () -> prepareOffensePerksOwned(owner, servant.servant(), snapshot, finalDamage));
       }
@@ -1104,10 +1104,9 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
     Monster selected = candidate;
     if (!J.runEntity(selected, () -> {
-      TargetSnapshot snapshot = captureTargetOwned(ownerId, selected);
       Player owner = Bukkit.getPlayer(ownerId);
-      if (snapshot == null || owner == null
-          || !J.runEntity(owner, () -> completeLocalRetargetOwnerOwned(owner, servant, servantId, token, snapshot))) {
+      TargetSnapshot snapshot = owner == null ? null : captureTargetOwned(owner, selected);
+      if (snapshot == null || !J.runEntity(owner, () -> completeLocalRetargetOwnerOwned(owner, servant, servantId, token, snapshot))) {
         pendingLocalRetargets.remove(servantId, token);
       }
     })) {
@@ -1190,8 +1189,8 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
     LivingEntity target = threat.target();
     if (!J.runEntity(target, () -> {
-      TargetSnapshot snapshot = captureTargetOwned(threat.ownerId(), target);
       Player owner = threat.owner();
+      TargetSnapshot snapshot = captureTargetOwned(owner, target);
       if (!J.runEntity(owner, () -> completeThreatRefreshOwnerOwned(threat, snapshot))) {
         threat.finishRefresh(System.currentTimeMillis());
         threats.remove(threat.ownerId(), threat);
@@ -1219,15 +1218,15 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
     }
   }
 
-  private TargetSnapshot captureTargetOwned(UUID ownerId, LivingEntity target) {
-    MinionTargeting.Candidate candidate = MinionTargeting.captureOwned(ownerId, target);
-    if (candidate == null) {
+  private TargetSnapshot captureTargetOwned(Player owner, LivingEntity target) {
+    MinionTargeting.Judged judged = MinionTargeting.captureJudgedOwned(this, owner, target);
+    if (judged == null) {
       return null;
     }
 
     boolean afflicted = target.hasPotionEffect(PotionEffectType.POISON)
         || target.hasPotionEffect(PotionEffectType.WITHER);
-    return new TargetSnapshot(candidate, target instanceof Mob, afflicted,
+    return new TargetSnapshot(judged, target instanceof Mob, afflicted,
         !AdaptationDamageTargets.allows(target, true));
   }
 
@@ -1236,7 +1235,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         || (preference(owner, TragoulPreferences.STANCE) == TragoulPreferences.Stance.DEFEND && !isDefenseTarget(owner.getUniqueId(), target.entity()))) {
       return false;
     }
-    return MinionTargeting.canDamageOwned(this, owner, target.candidate());
+    return MinionTargeting.canDamageJudgedOwned(this, owner, target.judged());
   }
 
   private void removeServantOwned(UUID ownerId, Skeleton servant, boolean showFx) {
@@ -1612,18 +1611,18 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   private record TargetRequest(LivingEntity target, long requestedAt) {
   }
 
-  private record TargetSnapshot(MinionTargeting.Candidate candidate, boolean mob, boolean afflicted,
+  private record TargetSnapshot(MinionTargeting.Judged judged, boolean mob, boolean afflicted,
                                 boolean passiveOrNeutral) {
     private LivingEntity entity() {
-      return candidate.entity();
+      return judged.candidate().entity();
     }
 
     private UUID entityId() {
-      return candidate.entityId();
+      return judged.candidate().entityId();
     }
 
     private UUID worldId() {
-      return candidate.worldId();
+      return judged.candidate().worldId();
     }
   }
 

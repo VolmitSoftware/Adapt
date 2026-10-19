@@ -24,9 +24,11 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class MinionTargetingTest extends AdaptTestBase {
@@ -153,6 +155,67 @@ class MinionTargetingTest extends AdaptTestBase {
     when(policy.canPVE(owner, mob.entity())).thenReturn(true);
     assertThat(MinionTargeting.canDamageOwned(policy, owner, player)).isFalse();
     assertThat(MinionTargeting.canDamageOwned(policy, owner, mob)).isTrue();
+  }
+
+  @Test
+  void aJudgedCaptureDecidesTheMobVerdictWhileCapturingAndTheJudgeReadsNoLiveEntity() {
+    Adaptation<?> policy = mock(Adaptation.class);
+    Player owner = owner();
+    Zombie zombie = candidate(Zombie.class);
+    when(policy.canPVE(owner, zombie)).thenReturn(true);
+
+    MinionTargeting.Judged judged = MinionTargeting.captureJudgedOwned(policy, owner, zombie);
+    clearInvocations(zombie, policy);
+    when(policy.canPVE(owner, zombie)).thenReturn(false);
+
+    assertThat(judged.pveAllowed()).isTrue();
+    assertThat(MinionTargeting.canDamageJudgedOwned(policy, owner, judged)).isTrue();
+    verifyNoInteractions(zombie);
+    verify(policy, never()).canPVE(any(Player.class), any(Entity.class));
+    verify(policy, never()).canPVE(any(Player.class), any(Location.class));
+  }
+
+  @Test
+  void aJudgedCaptureThatDeniesTheMobKeepsDenyingIt() {
+    Adaptation<?> policy = mock(Adaptation.class);
+    Player owner = owner();
+    Zombie zombie = candidate(Zombie.class);
+
+    MinionTargeting.Judged judged = MinionTargeting.captureJudgedOwned(policy, owner, zombie);
+    when(policy.canPVE(owner, zombie)).thenReturn(true);
+
+    assertThat(MinionTargeting.canDamageJudgedOwned(policy, owner, judged)).isFalse();
+  }
+
+  @Test
+  void aJudgedPlayerUsesThePvpPolicyAtItsCapturedLocation() {
+    Adaptation<?> policy = mock(Adaptation.class);
+    Player owner = owner();
+    Player stranger = candidate(Player.class);
+
+    MinionTargeting.Judged judged = MinionTargeting.captureJudgedOwned(policy, owner, stranger);
+    clearInvocations(stranger);
+    when(policy.canPVP(owner, judged.candidate().location())).thenReturn(true);
+
+    assertThat(MinionTargeting.canDamageJudgedOwned(policy, owner, judged)).isTrue();
+    verifyNoInteractions(stranger);
+    verify(policy, never()).canPVE(any(Player.class), any(Entity.class));
+  }
+
+  @Test
+  void friendlyJudgedCapturesNeverAskTheProtectorsAndInvalidOnesAreNotCaptured() {
+    Adaptation<?> policy = permissivePolicy();
+    Player owner = owner();
+    Wolf pet = tamed(ownerId);
+    Zombie invalid = candidate(Zombie.class);
+    when(invalid.isValid()).thenReturn(false);
+
+    MinionTargeting.Judged judged = MinionTargeting.captureJudgedOwned(policy, owner, pet);
+
+    assertThat(MinionTargeting.canDamageJudgedOwned(policy, owner, judged)).isFalse();
+    assertThat(MinionTargeting.captureJudgedOwned(policy, owner, invalid)).isNull();
+    verify(policy, never()).canPVE(any(Player.class), any(Entity.class));
+    verify(policy, never()).canPVP(any(Player.class), any(Location.class));
   }
 
   private boolean protectedFriendly(LivingEntity candidate) {
