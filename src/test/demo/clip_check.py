@@ -1,7 +1,7 @@
 import subprocess
 from pathlib import Path
 
-SCAN_FPS: int = 4
+SCAN_FPS: int = 8
 SCAN_WIDTH: int = 192
 SCAN_HEIGHT: int = 108
 GREEN_LIMIT: float = 0.03

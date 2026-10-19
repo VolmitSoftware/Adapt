@@ -27,6 +27,7 @@ class Take:
     pov_capture: bool = False
     stills: list[dict] = field(default_factory=list)
     min_golem_distance: float | None = None
+    min_golem_time: float | None = None
     crf: dict = field(default_factory=dict)
 
 

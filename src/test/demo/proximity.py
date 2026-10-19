@@ -6,7 +6,8 @@ import choreography
 import manifest
 
 LIMIT_BLOCKS: float = 2.5
-SAMPLE_TICKS: int = 10
+SAMPLE_TICKS: int = 5
+ALLOW_FLOORS: dict[str, float] = {'bind-ritual': 2.0, 'frozen-gui': 2.4}
 NEAREST: re.Pattern[str] = re.compile(r'nearest=(none|\d+(?:\.\d+)?)')
 
 
@@ -55,8 +56,15 @@ class Proximity:
     def closest(self) -> tuple[float, float] | None:
         return min(self.samples, key=lambda sample: sample[1], default=None)
 
+    def minimum_at(self) -> float | None:
+        closest: tuple[float, float] | None = self.closest()
+        return None if closest is None else closest[0]
+
+    def excused(self, seconds: float, blocks: float) -> bool:
+        return any(window.start <= seconds <= window.end and blocks >= ALLOW_FLOORS[window.reason] for window in self.allow)
+
     def violation(self) -> tuple[float, float] | None:
         for seconds, blocks in self.samples:
-            if round(blocks, 2) < LIMIT_BLOCKS and not any(window.start <= seconds <= window.end for window in self.allow):
+            if round(blocks, 2) < LIMIT_BLOCKS and not self.excused(seconds, round(blocks, 2)):
                 return seconds, blocks
         return None

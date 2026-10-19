@@ -442,7 +442,8 @@ class RecordPhaseTest(unittest.TestCase):
         take, console = self.closest_golem('3.40')
         self.assertEqual(take.status, 'recorded')
         self.assertEqual(take.min_golem_distance, 3.4)
-        self.assertIn('min_golem_distance=3.40', console)
+        self.assertIsNotNone(take.min_golem_time)
+        self.assertRegex(console, r'min_golem_distance=3\.40 at \d+(\.\d+)?s')
 
     def test_a_take_without_golems_has_no_distance(self) -> None:
         take, console = self.closest_golem('none')
@@ -459,13 +460,29 @@ class RecordPhaseTest(unittest.TestCase):
 
     def test_a_failed_proximity_take_prints_the_sampled_series(self) -> None:
         _, console = self.closest_golem('1.40')
-        self.assertRegex(console, r'\[PROXIMITY\] agility-wall-jump 0\.65s:1\.40 1\.15s:1\.40 ')
+        self.assertRegex(console, r'\[PROXIMITY\] agility-wall-jump 0\.\d+s:1\.40 0\.\d+s:1\.40 ')
 
     def test_a_declared_window_excuses_a_close_golem(self) -> None:
         window = choreography.AllowClose(start=0.0, end=100.0, reason='bind-ritual')
         take, console = self.closest_golem('2.10', allow_close=(window,))
         self.assertEqual(take.status, 'recorded')
         self.assertEqual(take.min_golem_distance, 2.1)
+
+    def test_a_window_does_not_excuse_a_golem_inside_the_floor_of_its_reason(self) -> None:
+        window = choreography.AllowClose(start=0.0, end=100.0, reason='bind-ritual')
+        take, _ = self.closest_golem('1.40', allow_close=(window,))
+        self.assertEqual(take.status, 'failed')
+
+    def test_the_first_half_second_of_the_clip_is_sampled(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            studio.nearest = '1.40'
+            entry = dataclasses.replace(self.entry(), beats=[{'verb': 'wait', 'ticks': 1}])
+            takes = record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
+        self.assertEqual(takes[entry.id].status, 'failed')
+        self.assertLess(takes[entry.id].min_golem_time, 0.5)
 
     def test_a_golem_at_exactly_two_and_a_half_blocks_passes(self) -> None:
         take, _ = self.closest_golem('2.50')

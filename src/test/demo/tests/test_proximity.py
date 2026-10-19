@@ -39,11 +39,11 @@ class NearestReplyTest(unittest.TestCase):
 
 
 class SamplingTest(unittest.TestCase):
-    def test_a_sample_is_taken_every_ten_ticks_and_dated_in_clip_seconds(self) -> None:
+    def test_a_sample_is_taken_every_five_ticks_and_dated_in_clip_seconds(self) -> None:
         samples: proximity.Proximity = watch([near('5.00'), near('4.00'), near('3.00')])
-        for tick in range(110, 131):
+        for tick in range(110, 121):
             samples.sample(tick)
-        self.assertEqual(samples.samples, [(0.0, 5.0), (0.5, 4.0), (1.0, 3.0)])
+        self.assertEqual(samples.samples, [(0.0, 5.0), (0.25, 4.0), (0.5, 3.0)])
         self.assertEqual(samples.rcon.command.call_count, 3)
         self.assertEqual(samples.rcon.command.call_args_list[0].args[0], 'adaptqa demo near Magic_Psycho')
 
@@ -86,6 +86,23 @@ class ViolationTest(unittest.TestCase):
             samples.sample(tick)
         self.assertIsNone(samples.violation())
         self.assertEqual(samples.minimum(), 2.0)
+
+    def test_a_bind_ritual_window_excuses_nothing_closer_than_two_blocks(self) -> None:
+        window: choreography.AllowClose = choreography.AllowClose(start=0.0, end=100.0, reason='bind-ritual')
+        samples: proximity.Proximity = watch([near('2.00'), near('1.99')], (window,))
+        samples.sample(110)
+        samples.sample(120)
+        self.assertEqual(samples.violation(), (0.5, 1.99))
+
+    def test_a_frozen_gui_window_excuses_nothing_closer_than_two_point_four_blocks(self) -> None:
+        window: choreography.AllowClose = choreography.AllowClose(start=0.0, end=100.0, reason='frozen-gui')
+        samples: proximity.Proximity = watch([near('2.40'), near('2.39')], (window,))
+        samples.sample(110)
+        samples.sample(120)
+        self.assertEqual(samples.violation(), (0.5, 2.39))
+
+    def test_every_allowed_reason_has_a_floor(self) -> None:
+        self.assertEqual(set(proximity.ALLOW_FLOORS), set(choreography.ALLOW_REASONS))
 
     def test_a_sample_after_the_window_still_fails(self) -> None:
         window: choreography.AllowClose = choreography.AllowClose(start=0.0, end=0.5, reason='bind-ritual')
@@ -152,6 +169,25 @@ class ProbeFormatContractTest(unittest.TestCase):
         self.assertEqual(java_constant('DISTANCE'), '%.2f')
 
 
+class MinimumTimeTest(unittest.TestCase):
+    def test_the_minimum_carries_its_clip_second(self) -> None:
+        samples: proximity.Proximity = watch([near('5.00'), near('2.60'), near('4.00')])
+        for tick in (110, 115, 120):
+            samples.sample(tick)
+        self.assertEqual(samples.minimum_at(), 0.25)
+
+    def test_no_golem_means_no_time(self) -> None:
+        samples: proximity.Proximity = watch([near('none')])
+        samples.sample(110)
+        self.assertIsNone(samples.minimum_at())
+
+    def test_the_earliest_sample_wins_a_tie(self) -> None:
+        samples: proximity.Proximity = watch([near('2.50'), near('2.50')])
+        samples.sample(110)
+        samples.sample(115)
+        self.assertEqual(samples.minimum_at(), 0.0)
+
+
 class SeriesTest(unittest.TestCase):
     def test_the_series_lists_each_sample_as_seconds_and_blocks(self) -> None:
         samples: proximity.Proximity = watch([near('5.00'), near('2.25'), near('none')])
@@ -168,6 +204,8 @@ class ManifestFieldTest(unittest.TestCase):
         self.assertEqual(take.crf, {})
         measured: manifest.Take = manifest.Take(**{**take.__dict__, 'min_golem_distance': 2.5, 'crf': {'pov': 30}})
         self.assertEqual(measured.min_golem_distance, 2.5)
+        self.assertIsNone(take.min_golem_time)
+        self.assertEqual(manifest.Take(**{**take.__dict__, 'min_golem_time': 12.5}).min_golem_time, 12.5)
 
 
 if __name__ == '__main__':

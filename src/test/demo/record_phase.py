@@ -233,8 +233,8 @@ def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attem
         except RuntimeError:
             stop_recording(bridge)
             raise
-    wait_ticks(SETTLE_TICKS)
     watch: proximity.Proximity = proximity.Proximity(studio.rcon, studio.actor, start_tick, entry.allow_close)
+    wait_ticks_factory(bridge, on_tick=watch.sample)(SETTLE_TICKS)
     bounded: beats.BeatContext = dataclasses.replace(context, wait_ticks=wait_ticks_factory(bridge, start_tick, entry.max_ticks, watch.sample))
     timeout: str | None = None
     try:
@@ -260,7 +260,7 @@ def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attem
     return manifest.Take(id=entry.id, skill=skill, set=entry.set, level=entry.level, replay=str(replay), start_tick=start_tick, stop_tick=stop_tick,
                          evidence_ok=ok, evidence_detail=detail, takes=attempt, camera=camera,
                          actor_uuid=str(stopped.get('uuid', '')), status='recorded' if ok else 'failed', visual=entry.expect_visual or '',
-                         pov_capture=entry.pov_capture, stills=still_records(entry), min_golem_distance=watch.minimum())
+                         pov_capture=entry.pov_capture, stills=still_records(entry), min_golem_distance=watch.minimum(), min_golem_time=watch.minimum_at())
 
 
 def unrecorded_take(entry: choreography.Entry, skill: str, attempt: int, status: str, detail: str) -> manifest.Take:
@@ -311,7 +311,9 @@ def shoot(studio: RecordStudio, entry: choreography.Entry, skill: str, retakes: 
 
 
 def distance_note(take: manifest.Take) -> str:
-    return '' if take.min_golem_distance is None else ' min_golem_distance=' + format(take.min_golem_distance, '.2f')
+    if take.min_golem_distance is None:
+        return ''
+    return ' min_golem_distance=' + format(take.min_golem_distance, '.2f') + (' at ' + format(take.min_golem_time, 'g') + 's' if take.min_golem_time is not None else '')
 
 
 def record(studio: RecordStudio, entries: dict[str, choreography.Entry], ids: list[str], manifest_path: Path, skill: str, retakes: int = 3,

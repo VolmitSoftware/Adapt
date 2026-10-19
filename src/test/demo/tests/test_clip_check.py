@@ -36,7 +36,7 @@ class FindingsTest(unittest.TestCase):
     def test_frames_over_the_limit_are_reported_with_their_time(self) -> None:
         raw: bytes = frame(0) + frame(0) + frame(int(PIXELS * 0.05)) + frame(0) + frame(PIXELS // 2)
         found: list[tuple[float, float]] = clip_check.findings(raw)
-        self.assertEqual([seconds for seconds, _ in found], [0.5, 1.0])
+        self.assertEqual([seconds for seconds, _ in found], [0.25, 0.5])
         self.assertAlmostEqual(found[0][1], 0.05, places=3)
 
     def test_exactly_three_percent_passes(self) -> None:
@@ -50,11 +50,11 @@ class FindingsTest(unittest.TestCase):
 
 
 class ScanCommandTest(unittest.TestCase):
-    def test_the_clip_is_decoded_at_four_frames_per_second_into_small_rgb(self) -> None:
+    def test_the_clip_is_decoded_at_eight_frames_per_second_into_small_rgb(self) -> None:
         command: list[str] = clip_check.scan_command(Path('/f'), Path('/clip.webm'))
         joined: str = ' '.join(command)
         self.assertIn('-i /clip.webm', joined)
-        self.assertIn('fps=4', joined)
+        self.assertIn('fps=8', joined)
         self.assertIn('scale=192:108', joined)
         self.assertIn('-pix_fmt rgb24', joined)
         self.assertEqual(command[-1], '-')
@@ -73,7 +73,7 @@ class CorruptFramesTest(unittest.TestCase):
             done: mock.MagicMock = mock.MagicMock(returncode=0, stdout=frame(0) + frame(PIXELS // 4), stderr=b'')
             with mock.patch.object(clip_check.subprocess, 'run', return_value=done):
                 found: list[tuple[float, float]] = clip_check.corrupt_frames(Path('/f'), clip)
-        self.assertEqual([seconds for seconds, _ in found], [0.25])
+        self.assertEqual([seconds for seconds, _ in found], [0.125])
 
     def test_a_failed_decode_is_an_error(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
