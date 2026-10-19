@@ -92,7 +92,7 @@ final class AnimusBindingRules {
     if (!check.coreUnlocked()) {
       return BindingVerdict.CORE_LOCKED;
     }
-    if (!check.canInteract()) {
+    if (!check.regionAllows()) {
       return BindingVerdict.PROTECTED;
     }
     if (block == GolemRegistry.BindBlock.OWNER_DATA_UNAVAILABLE) {

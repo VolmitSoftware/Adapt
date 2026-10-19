@@ -186,7 +186,7 @@ class MendingRulesTest {
     private boolean allowVillageGolems;
     private boolean builderExclusive;
     private boolean bodyUnlocked = true;
-    private boolean canInteract = true;
+    private boolean regionAllows = true;
 
     private Check unreadable() {
       readable = false;
@@ -240,13 +240,13 @@ class MendingRulesTest {
     }
 
     private Check protectedArea() {
-      canInteract = false;
+      regionAllows = false;
       return this;
     }
 
     private RebuildCheck build() {
       return new RebuildCheck(readable, ownsItem, rosterKnown, status, sealed, level, 4, block, playerCreated, allowVillageGolems, builderExclusive,
-          bodyUnlocked, canInteract);
+          bodyUnlocked, regionAllows);
     }
   }
 }

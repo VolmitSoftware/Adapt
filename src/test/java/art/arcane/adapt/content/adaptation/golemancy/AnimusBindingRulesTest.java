@@ -120,7 +120,7 @@ class AnimusBindingRulesTest {
     assertThat(verdict(check -> check.registryBlock = GolemRegistry.BindBlock.BODY_MISMATCH)).isEqualTo(BindingVerdict.BODY_LOCKED);
     assertThat(verdict(check -> check.registryBlock = GolemRegistry.BindBlock.CORE_NOT_ALLOWED)).isEqualTo(BindingVerdict.CORE_NOT_ALLOWED);
     assertThat(verdict(check -> check.coreUnlocked = false)).isEqualTo(BindingVerdict.CORE_LOCKED);
-    assertThat(verdict(check -> check.canInteract = false)).isEqualTo(BindingVerdict.PROTECTED);
+    assertThat(verdict(check -> check.regionAllows = false)).isEqualTo(BindingVerdict.PROTECTED);
     assertThat(verdict(check -> check.registryBlock = GolemRegistry.BindBlock.OWNER_DATA_UNAVAILABLE)).isEqualTo(BindingVerdict.UNAVAILABLE);
     assertThat(verdict(check -> check.ownedGolems = 3)).isEqualTo(BindingVerdict.GOLEM_CAP);
     assertThat(verdict(check -> check.registryBlock = GolemRegistry.BindBlock.PLAYER_CAP)).isEqualTo(BindingVerdict.GOLEM_CAP);
@@ -160,7 +160,7 @@ class AnimusBindingRulesTest {
       check.coreUnlocked = false;
     })).isEqualTo(BindingVerdict.BODY_LOCKED);
     assertThat(verdict(check -> {
-      check.canInteract = false;
+      check.regionAllows = false;
       check.ownedGolems = 9;
     })).isEqualTo(BindingVerdict.PROTECTED);
     assertThat(verdict(check -> {
@@ -187,7 +187,7 @@ class AnimusBindingRulesTest {
     private boolean builderExclusive;
     private boolean bodyUnlocked = true;
     private boolean coreUnlocked = true;
-    private boolean canInteract = true;
+    private boolean regionAllows = true;
     private int ownedGolems = 1;
     private int golemCap = 3;
     private int playerLevel = 5;
@@ -195,7 +195,7 @@ class AnimusBindingRulesTest {
 
     private BindingCheck build() {
       return new BindingCheck(registryBlock, playerCreated, allowVillageGolems, builderExclusive, bodyUnlocked, coreUnlocked,
-          canInteract, ownedGolems, golemCap, playerLevel, tithe);
+          regionAllows, ownedGolems, golemCap, playerLevel, tithe);
     }
   }
 }

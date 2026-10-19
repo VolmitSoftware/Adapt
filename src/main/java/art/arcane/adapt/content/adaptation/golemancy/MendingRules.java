@@ -91,7 +91,7 @@ final class MendingRules {
     if (block == GolemRegistry.BindBlock.CORE_NOT_ALLOWED) {
       return RebuildVerdict.CORE_NOT_ALLOWED;
     }
-    if (!check.canInteract()) {
+    if (!check.regionAllows()) {
       return RebuildVerdict.PROTECTED;
     }
     if (block == GolemRegistry.BindBlock.OWNER_DATA_UNAVAILABLE) {
