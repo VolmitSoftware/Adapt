@@ -109,7 +109,7 @@ class GolemColossusTest extends AdaptTestBase {
   void unregisteringWaitsBeforeReconcilingSoAReplacementFormKeepsTheGolemGrown() {
     GolemColossus.Form replacement = mock(GolemColossus.Form.class);
     platform.join(OWNER, new GolemRoster());
-    handle.setDormancyReason(DormancyReason.NONE);
+    handle.setDormant(false);
     handle.setColossus(true);
     GolemColossus.register(form);
     try (MockedStatic<GolemancyRuntime> runtime = runtimeWith(handle)) {
@@ -130,7 +130,7 @@ class GolemColossusTest extends AdaptTestBase {
 
   @Test
   void anOrphanedGolemRevertsOnlyAfterTheDelayEvenWhenZeroDelayTasksRunInline() {
-    handle.setDormancyReason(DormancyReason.NONE);
+    handle.setDormant(false);
     handle.setColossus(true);
     IronGolem sleeping = GolemTestEntities.entity(IronGolem.class);
     GolemHandle dormant = new GolemHandle(sleeping, GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, GolemBody.IRON,

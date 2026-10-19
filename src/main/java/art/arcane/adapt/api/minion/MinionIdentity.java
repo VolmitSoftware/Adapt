@@ -43,6 +43,19 @@ public final class MinionIdentity {
     kinds = next;
   }
 
+  public static synchronized void unregisterKind(MinionKind kind) {
+    MinionKind[] current = kinds;
+    for (int index = 0; index < current.length; index++) {
+      if (current[index].equals(kind)) {
+        MinionKind[] next = new MinionKind[current.length - 1];
+        System.arraycopy(current, 0, next, 0, index);
+        System.arraycopy(current, index + 1, next, index, current.length - index - 1);
+        kinds = next;
+        return;
+      }
+    }
+  }
+
   public static boolean isMinion(Entity entity) {
     return kindOf(entity) != null;
   }

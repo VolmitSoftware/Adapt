@@ -62,7 +62,7 @@ final class SorterFetchGui {
     NodeRecord record = GolemancyRuntime.nodes().flatMap(service -> service.node(key))
         .filter(found -> found.type() == NodeType.INPUT && found.owner().equals(player.getUniqueId())).orElse(null);
     if (record == null) {
-      J.runEntity(player, () -> GolemGuiSupport.warn(player, GolemancyMessages.NODE_GONE));
+      GolemGuiSupport.warn(player, GolemancyMessages.NODE_GONE);
       return;
     }
     int level = core.ownerLevel(player.getUniqueId());

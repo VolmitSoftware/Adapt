@@ -28,7 +28,6 @@ import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
@@ -100,7 +99,7 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
     statLore(v, FrostFrameRules.atLevel(config.healthBonusByLevel, level), 1);
     statLore(v, FrostFrameRules.atLevel(config.snowballDamageByLevel, level), 2);
     statLore(v, C.YELLOW, "* ", Form.pc(FrostFrameRules.warmMultiplier(config.warmBiomeDamageMultiplierByLevel, level), 0), 3);
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(GolemancyMessages.FROST_FRAME_LORE4));
+    unlockLore(v, GolemancyMessages.FROST_FRAME_LORE4);
     if (GolemancyRules.unlocked(level, config.chillLevel)) {
       statLore(v, Math.max(1, config.chillTicks) / TICKS_PER_SECOND, 5);
     }

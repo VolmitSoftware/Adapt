@@ -35,9 +35,7 @@ import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.ServantPack;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Attributes;
@@ -104,7 +102,7 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   @Override
   public void addStats(int level, Element v) {
     Config config = getConfig();
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(GolemancyMessages.BONE_FRAME_LORE1));
+    unlockLore(v, GolemancyMessages.BONE_FRAME_LORE1);
     int slots = BoneFrameRules.latticeSlots(config.latticeSlotsByLevel, level);
     if (slots > 0) {
       statLore(v, slots, 2);

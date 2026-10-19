@@ -15,6 +15,9 @@ import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import art.arcane.adapt.api.recipe.ExactItemResolver;
 import art.arcane.adapt.api.recipe.RecipeItemCatalog;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -59,6 +62,7 @@ import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doCallRealMethod;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
@@ -202,12 +206,24 @@ class GolemNodeWeavingExecutionTest extends AdaptTestBase {
     Click click = click(true, EquipmentSlot.HAND, 2);
     when(service.place(click.player, click.block, BlockFace.UP, NodeType.DEPOSIT, click.adaptation)).thenReturn(NodePlacementVerdict.READY);
     doNothing().when(click.adaptation).xp(any(Player.class), any(Location.class), anyDouble(), anyString());
-    doReturn(true, false).when(click.adaptation).firstNode(click.player, NodeType.DEPOSIT);
+    doCallRealMethod().when(click.adaptation).firstNode(any(Player.class), any(NodeType.class));
+    PlayerData data = new PlayerData();
+    AdaptServer server = mock(AdaptServer.class);
+    AdaptPlayer online = mock(AdaptPlayer.class);
+    when(plugin.getAdaptServer()).thenReturn(server);
+    when(server.getOnlineAdaptPlayer(click.player.getUniqueId())).thenReturn(online);
+    when(online.isRuntimeReady()).thenReturn(true);
+    when(online.getPlayer()).thenReturn(click.player);
+    when(online.getData()).thenReturn(data);
 
     click.fire();
     click.fire();
+    click.adaptation.rewardFirstNode(click.player, NodeType.GUARD, new Location(null, 0D, 64D, 0D));
 
     verify(click.adaptation, times(1)).xp(eq(click.player), any(Location.class), eq(200D), eq("first_node:deposit"));
+    verify(click.adaptation, times(1)).xp(eq(click.player), any(Location.class), eq(200D), eq("first_node:guard"));
+    assertThat(data.getStat("golemancy.nodes.deposit")).isEqualTo(2D);
+    assertThat(data.getStat("golemancy.nodes.guard")).isEqualTo(1D);
   }
 
   @Test

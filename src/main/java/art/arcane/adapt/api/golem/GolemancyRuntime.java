@@ -109,6 +109,7 @@ public final class GolemancyRuntime {
     NodeService localNodes;
     PlinthService localPlinths;
     synchronized (GolemancyRuntime.class) {
+      MinionIdentity.unregisterKind(MINION_KIND);
       local = registry;
       registry = null;
       brains = null;
@@ -302,20 +303,6 @@ public final class GolemancyRuntime {
           target.adopt(mob);
         }
       }
-    }
-  }
-
-  private static final class BoundGolemKind implements MinionKind {
-    @Override
-    public boolean matches(Entity entity) {
-      return GolemState.has(entity);
-    }
-
-    @Override
-    public UUID ownerOf(Entity entity) {
-      GolemRegistry local = registry;
-      Optional<UUID> owner = local == null ? GolemState.read(entity).map(GolemState::owner) : local.ownerOf(entity);
-      return owner.orElse(null);
     }
   }
 

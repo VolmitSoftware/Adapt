@@ -41,9 +41,7 @@ import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.golemancy.GolemXpRules;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -114,7 +112,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
       statLore(v, extra, 1);
     }
     statLore(v, RunicAugmentsRules.maxTier(config.maxTierByLevel, level), 2);
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(GolemancyMessages.RUNIC_AUGMENTS_LORE3));
+    unlockLore(v, GolemancyMessages.RUNIC_AUGMENTS_LORE3);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

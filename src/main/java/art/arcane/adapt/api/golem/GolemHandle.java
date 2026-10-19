@@ -16,7 +16,7 @@ public final class GolemHandle {
   private final GolemState state;
   private final GolemPlatform platform;
   private final GolemWritePolicy writePolicy = new GolemWritePolicy();
-  private volatile DormancyReason dormancyReason = DormancyReason.OWNER_UNKNOWN;
+  private volatile boolean dormant = true;
   private volatile ChunkPosition position;
   private volatile boolean validated;
   private volatile boolean retired;
@@ -61,7 +61,7 @@ public final class GolemHandle {
   }
 
   public boolean isDormant() {
-    return dormancyReason != DormancyReason.NONE;
+    return dormant;
   }
 
   public boolean isRetired() {
@@ -264,8 +264,8 @@ public final class GolemHandle {
     return position;
   }
 
-  void setDormancyReason(DormancyReason reason) {
-    dormancyReason = Objects.requireNonNull(reason);
+  void setDormant(boolean next) {
+    dormant = next;
   }
 
   void retire() {

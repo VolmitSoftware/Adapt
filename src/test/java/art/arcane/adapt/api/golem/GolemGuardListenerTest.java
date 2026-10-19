@@ -2,8 +2,6 @@ package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Adaptation;
-import art.arcane.adapt.api.minion.MinionIdentity;
-import art.arcane.adapt.api.minion.MinionKind;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -20,7 +18,7 @@ import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -45,32 +43,22 @@ import static org.mockito.Mockito.when;
 class GolemGuardListenerTest extends AdaptTestBase {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000000a5");
   private static final UUID RIVAL = UUID.fromString("00000000-0000-0000-0000-0000000000a6");
-  private static final MinionKind BOUND_GOLEMS = new MinionKind() {
-    @Override
-    public boolean matches(Entity entity) {
-      return GolemState.has(entity);
-    }
-
-    @Override
-    public UUID ownerOf(Entity entity) {
-      return GolemState.read(entity).map(GolemState::owner).orElse(null);
-    }
-  };
 
   private final Map<UUID, Player> online = new HashMap<>();
   private final Map<UUID, GolemHandle> handles = new HashMap<>();
   private final GolemGuardListener listener = new GolemGuardListener(online::get, entity -> Optional.ofNullable(handles.get(entity.getUniqueId())));
   private World world;
 
-  @BeforeAll
-  static void registerGolemKind() {
-    MinionIdentity.registerKind(BOUND_GOLEMS);
-  }
-
   @BeforeEach
   void setUp() {
+    BoundGolems.register();
     world = mock(World.class);
     lenient().when(world.getUID()).thenReturn(UUID.randomUUID());
+  }
+
+  @AfterEach
+  void tearDown() {
+    BoundGolems.unregister();
   }
 
   @Test

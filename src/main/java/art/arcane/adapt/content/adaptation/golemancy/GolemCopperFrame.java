@@ -29,7 +29,6 @@ import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemWorkSpeed;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
@@ -110,7 +109,7 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
     if (Double.isFinite(speed) && speed > 0D) {
       statLore(v, Form.pc(speed, 0), 3);
     }
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(GolemancyMessages.COPPER_FRAME_LORE4));
+    unlockLore(v, GolemancyMessages.COPPER_FRAME_LORE4);
     statLore(v, CopperFrameRules.patinaArmor(1, level, config.patinaArmorPerStage, config.patinaArmorDoubleLevel), 5);
     double penalty = -CopperFrameRules.patinaSpeed(1, level, config.patinaSpeedPenaltyPerStage, config.patinaPenaltyRemovedLevel);
     if (penalty > 0D) {

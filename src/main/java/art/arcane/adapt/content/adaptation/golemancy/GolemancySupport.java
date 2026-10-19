@@ -105,14 +105,6 @@ final class GolemancySupport {
     return NodeRules.active(record, world.getBlockAt(key.x(), key.y(), key.z()));
   }
 
-  static boolean active(GolemContext golem, World world, NodeKey key, NodeRecord record) {
-    if (record.redstone() == RedstoneMode.IGNORE || !world.isChunkLoaded(key.chunkX(), key.chunkZ())) {
-      return true;
-    }
-    Location anchor = new Location(world, key.x(), key.y(), key.z());
-    return !golem.owns(anchor) || NodeRules.active(record, world.getBlockAt(key.x(), key.y(), key.z()));
-  }
-
   static boolean covered(NodeRecord record, GolemTask task) {
     GolemTarget target = task.target();
     return task.node().filter(key -> NodeArea.covers(key, record, target.x(), target.y(), target.z())).isPresent();
@@ -135,5 +127,13 @@ final class GolemancySupport {
       open.put(NodeContainers.blockKey(target.blockX(), target.blockY(), target.blockZ()), task);
     }
     return open;
+  }
+
+  private static boolean active(GolemContext golem, World world, NodeKey key, NodeRecord record) {
+    if (record.redstone() == RedstoneMode.IGNORE || !world.isChunkLoaded(key.chunkX(), key.chunkZ())) {
+      return true;
+    }
+    Location anchor = new Location(world, key.x(), key.y(), key.z());
+    return !golem.owns(anchor) || NodeRules.active(record, world.getBlockAt(key.x(), key.y(), key.z()));
   }
 }

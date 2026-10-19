@@ -789,7 +789,7 @@ public final class GolemRegistry extends TickedObject {
     if (handle.isRetired()) {
       return;
     }
-    handle.setDormancyReason(reason);
+    handle.setDormant(reason != DormancyReason.NONE);
     synchronized (lock) {
       if (reason != DormancyReason.NONE) {
         awake.remove(handle.entityId());

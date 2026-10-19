@@ -28,7 +28,6 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
@@ -98,7 +97,7 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
       statLore(v, luck, 2);
     }
     if (GolemancyRules.unlocked(level, config.junkFilterLevel)) {
-      v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(GolemancyMessages.ANGLER_CORE_LORE3));
+      unlockLore(v, GolemancyMessages.ANGLER_CORE_LORE3);
     }
     if (GolemancyRules.unlocked(level, config.rainLevel)) {
       statLore(v, Form.pc(1D - config.rainIntervalMultiplier, 0), 4);

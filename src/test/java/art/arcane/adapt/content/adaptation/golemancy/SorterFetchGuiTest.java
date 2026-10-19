@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.gui.GolemGuiSupport;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -64,6 +66,24 @@ class SorterFetchGuiTest {
     gui.open(player, new NodeKey(WORLD, 3, 64, 3, BlockFace.UP));
 
     support.verify(() -> GolemGuiSupport.warn(player, GolemancyMessages.NODE_GONE));
+  }
+
+  @Test
+  void aNodeGoneWhenTheRegionTaskRunsWarnsWithoutAnotherSchedulerHop() {
+    World world = mock(World.class);
+    bukkit.when(() -> Bukkit.getWorld(WORLD)).thenReturn(world);
+    scheduling.when(() -> J.runAt(any(Location.class), any(Runnable.class))).thenAnswer(invocation -> {
+      invocation.<Runnable>getArgument(1).run();
+      return true;
+    });
+
+    try (MockedStatic<GolemancyRuntime> runtime = mockStatic(GolemancyRuntime.class)) {
+      runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.empty());
+      gui.open(player, new NodeKey(WORLD, 3, 64, 3, BlockFace.UP));
+    }
+
+    support.verify(() -> GolemGuiSupport.warn(player, GolemancyMessages.NODE_GONE));
+    scheduling.verify(() -> J.runEntity(any(), any(Runnable.class)), never());
   }
 
   @Test
