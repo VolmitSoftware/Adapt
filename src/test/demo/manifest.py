@@ -26,6 +26,8 @@ class Take:
     visual: str = ''
     pov_capture: bool = False
     stills: list[dict] = field(default_factory=list)
+    min_golem_distance: float | None = None
+    crf: dict = field(default_factory=dict)
 
 
 def clip_seconds(take: Take) -> float:

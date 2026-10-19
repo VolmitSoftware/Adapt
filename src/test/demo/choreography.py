@@ -28,6 +28,7 @@ WORLDS: tuple[str, ...] = (OVERWORLD, NETHER)
 SHOWCASE_FIELD: str = 'showcase'
 ANGLES: tuple[str, ...] = ('pov', 'observer')
 STILL_NAME: re.Pattern[str] = re.compile(r'[a-z0-9]+(?:-[a-z0-9]+)*')
+ALLOW_REASONS: tuple[str, ...] = ('bind-ritual', 'frozen-gui')
 ADAPTATION_HEADING_END: re.Pattern[str] = re.compile(r'\(`([^`]+)`\)$')
 
 
@@ -52,6 +53,13 @@ class Still:
 
 
 @dataclass(frozen=True)
+class AllowClose:
+    start: float
+    end: float
+    reason: str
+
+
+@dataclass(frozen=True)
 class Entry:
     id: str
     set: str
@@ -71,6 +79,7 @@ class Entry:
     prerequisites: tuple[Prerequisite, ...] = ()
     showcase: Showcase | None = None
     stills: tuple[Still, ...] = ()
+    allow_close: tuple[AllowClose, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -109,6 +118,18 @@ def still_bodies(identifier: str, body: dict) -> list[dict]:
     return raw
 
 
+def allow_close_bodies(identifier: str, body: dict) -> list[dict]:
+    raw: object = body.get('allowClose', [])
+    if not isinstance(raw, list) or not all(isinstance(item, dict) and number(item.get('from')) and number(item.get('to')) and isinstance(item.get('reason'), str)
+                                            for item in raw):
+        raise ValueError(identifier + ': allowClose must be a list of {"from": <seconds>, "to": <seconds>, "reason": <reason>} objects')
+    return raw
+
+
+def number(value: object) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
 def showcase_bodies(raw: object) -> list[dict]:
     if not isinstance(raw, list) or not all(isinstance(item, dict) and isinstance(item.get('id'), str) for item in raw):
         raise ValueError(SHOWCASE_FIELD + ' must be a list of objects that each have an "id" text')
@@ -142,6 +163,7 @@ def build_entry(identifier: str, body: dict, skills: Callable[[], dict[str, str]
         prerequisites=prerequisites,
         showcase=showcase,
         stills=tuple(Still(angle=item['angle'], at=float(item['at']), name=item['name']) for item in still_bodies(identifier, body)),
+        allow_close=tuple(AllowClose(start=float(item['from']), end=float(item['to']), reason=item['reason']) for item in allow_close_bodies(identifier, body)),
     )
 
 
@@ -175,6 +197,7 @@ def validate(entries: dict[str, Entry], matrix_ids: set[str], catalog: frozenset
     for identifier, entry in entries.items():
         problems.extend(identifier + ': ' + problem for problem in showcase_problems(entry, matrix_ids | catalog, matrix_ids))
         problems.extend(identifier + ': ' + problem for problem in still_problems(entry))
+        problems.extend(identifier + ': ' + problem for problem in allow_close_problems(entry))
         for plugin in entry.plugins:
             if plugin != 'Gloss':
                 problems.append(identifier + ': unsupported plugin ' + plugin)
@@ -231,6 +254,16 @@ def still_problems(entry: Entry) -> list[str]:
         if still.name in seen:
             problems.append('still name ' + still.name + ' is used twice')
         seen.add(still.name)
+    return problems
+
+
+def allow_close_problems(entry: Entry) -> list[str]:
+    problems: list[str] = []
+    for window in entry.allow_close:
+        if window.reason not in ALLOW_REASONS:
+            problems.append('allowClose reason ' + window.reason + ' must be ' + ' or '.join(ALLOW_REASONS))
+        if not (math.isfinite(window.start) and math.isfinite(window.end)) or window.start < 0 or window.end <= window.start:
+            problems.append('allowClose window ' + format(window.start, 'g') + ' to ' + format(window.end, 'g') + ' must run forward from 0 or more seconds')
     return problems
 
 

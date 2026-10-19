@@ -11,6 +11,7 @@ import choreography
 import encode
 import evidence
 import manifest
+import proximity
 from studio import BridgeTimeout
 
 PRE_SETTLE_TICKS: int = 60
@@ -43,11 +44,14 @@ class RecordStudio(Protocol):
         ...
 
 
-def wait_ticks_factory(bridge: beats.BridgeClient, record_start: int | None = None, max_ticks: int = 0) -> Callable[[int], None]:
+def wait_ticks_factory(bridge: beats.BridgeClient, record_start: int | None = None, max_ticks: int = 0,
+                       on_tick: Callable[[int], None] | None = None) -> Callable[[int], None]:
     def wait_ticks(count: int) -> None:
         target: int = int(bridge.state()['ticks']) + count
         while True:
             current: int = int(bridge.state()['ticks'])
+            if on_tick is not None:
+                on_tick(current)
             if record_start is not None and current > record_start + max_ticks:
                 raise beats.BeatTimeout('maxTicks ' + str(max_ticks) + ' exceeded')
             if current >= target:
@@ -230,7 +234,8 @@ def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attem
             stop_recording(bridge)
             raise
     wait_ticks(SETTLE_TICKS)
-    bounded: beats.BeatContext = dataclasses.replace(context, wait_ticks=wait_ticks_factory(bridge, start_tick, entry.max_ticks))
+    watch: proximity.Proximity = proximity.Proximity(studio.rcon, studio.actor, start_tick, entry.allow_close)
+    bounded: beats.BeatContext = dataclasses.replace(context, wait_ticks=wait_ticks_factory(bridge, start_tick, entry.max_ticks, watch.sample))
     timeout: str | None = None
     try:
         beats.run_beats(entry, bounded)
@@ -238,7 +243,7 @@ def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attem
         timeout = str(failure)
     finally:
         release_keys(studio)
-    wait_ticks(SETTLE_TICKS)
+    wait_ticks_factory(bridge, on_tick=watch.sample)(SETTLE_TICKS)
     stopped: dict = stop_recording(bridge)
     if entry.pov_capture:
         print(capture_pacing(entry.id, stop_capture(bridge)), flush=True)
@@ -246,12 +251,14 @@ def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attem
     result: evidence.EvidenceResult = evidence.check(stopped.get('events', []), start_tick, stop_tick, entry.expect_sound, entry.expect_particle,
                                                      entry.expect_visual)
     replay: Path = keep_replay(wait_replay(studio.game, known, REPLAY_TIMEOUT), output / 'replays', entry.id)
-    ok: bool = timeout is None and result.ok
+    close: tuple[float, float] | None = watch.violation()
+    ok: bool = timeout is None and result.ok and close is None
+    detail: str = timeout if timeout is not None else (proximity.message(close) if close is not None else result.detail)
     camera: dict = placed_camera(entry.camera, studio.origin) if entry.camera is not None else set_info['camera']
     return manifest.Take(id=entry.id, skill=skill, set=entry.set, level=entry.level, replay=str(replay), start_tick=start_tick, stop_tick=stop_tick,
-                         evidence_ok=ok, evidence_detail=result.detail if timeout is None else timeout, takes=attempt, camera=camera,
+                         evidence_ok=ok, evidence_detail=detail, takes=attempt, camera=camera,
                          actor_uuid=str(stopped.get('uuid', '')), status='recorded' if ok else 'failed', visual=entry.expect_visual or '',
-                         pov_capture=entry.pov_capture, stills=still_records(entry))
+                         pov_capture=entry.pov_capture, stills=still_records(entry), min_golem_distance=watch.minimum())
 
 
 def unrecorded_take(entry: choreography.Entry, skill: str, attempt: int, status: str, detail: str) -> manifest.Take:
@@ -301,6 +308,10 @@ def shoot(studio: RecordStudio, entry: choreography.Entry, skill: str, retakes: 
         attempt += 1
 
 
+def distance_note(take: manifest.Take) -> str:
+    return '' if take.min_golem_distance is None else ' min_golem_distance=' + format(take.min_golem_distance, '.2f')
+
+
 def record(studio: RecordStudio, entries: dict[str, choreography.Entry], ids: list[str], manifest_path: Path, skill: str, retakes: int = 3,
            ffmpeg: Path | None = None) -> dict[str, manifest.Take]:
     if retakes < 1:
@@ -313,5 +324,5 @@ def record(studio: RecordStudio, entries: dict[str, choreography.Entry], ids: li
         take: manifest.Take = unrecorded_take(entry, skill, 0, 'skipped', entry.skip) if entry.skip else shoot(studio, entry, skill, retakes, manifest_path.parent, ffmpeg)
         takes[identifier] = take
         manifest.save(manifest_path, takes)
-        print(LABELS[take.status] + identifier + ' ' + take.evidence_detail + ' (takes=' + str(take.takes) + ')', flush=True)
+        print(LABELS[take.status] + identifier + ' ' + take.evidence_detail + distance_note(take) + ' (takes=' + str(take.takes) + ')', flush=True)
     return takes

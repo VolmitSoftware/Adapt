@@ -40,6 +40,7 @@ class FakeStudio:
         self.evicted = False
         self.cleared = 0
         self.refunds = 0
+        self.nearest = 'none'
         self.stops = 0
         self.replays = replays
         self.gates: list[int] = []
@@ -52,6 +53,8 @@ class FakeStudio:
     def reply(self, text: str) -> str:
         if text.startswith('adapt claim-adaptation'):
             return CLAIM_OK
+        if text.startswith('adaptqa demo near'):
+            return 'ADAPT_QA DEMO NEAR nearest=' + self.nearest
         if text.startswith('adaptqa demo set'):
             return ('ADAPT_QA DEMO SET wall {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":-90.0,"pitch":0.0},'
                     '"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0},"cleared":' + str(self.cleared) + ',"refunds":' + str(self.refunds) + '}')
@@ -358,7 +361,7 @@ class RecordPhaseTest(unittest.TestCase):
                 log.append(operation + (':' + str(values['action']) if operation == 'record' else ''))
                 return original(operation, **values)
 
-            def waiter(bridge: object, record_start: int | None = None, max_ticks: int = 0) -> object:
+            def waiter(bridge: object, record_start: int | None = None, max_ticks: int = 0, on_tick: object = None) -> object:
                 return lambda count: log.append('wait:' + str(count))
 
             def sent(text: str) -> str:
@@ -424,6 +427,45 @@ class RecordPhaseTest(unittest.TestCase):
         probes: int = sum(line.startswith('rcon:adaptqa demo probe') for line in log)
         self.assertGreaterEqual(probes, int(record_phase.CLEAR_TIMEOUT_SECONDS))
         self.assertIn('rcon:adaptqa demo actor Magic_Psycho', log)
+
+    def closest_golem(self, nearest: str, **entry_values: object) -> tuple[manifest.Take, str]:
+        with tempfile.TemporaryDirectory() as tmp:
+            replays = Path(tmp) / 'flashback' / 'replays'
+            replays.mkdir(parents=True)
+            studio = FakeStudio(replays)
+            studio.nearest = nearest
+            entry = dataclasses.replace(self.entry(), beats=[{'verb': 'wait', 'ticks': 60}], **entry_values)
+            takes = record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
+        return takes[entry.id], sys.stdout.getvalue()
+
+    def test_the_closest_golem_distance_is_kept_on_the_take_and_printed(self) -> None:
+        take, console = self.closest_golem('3.40')
+        self.assertEqual(take.status, 'recorded')
+        self.assertEqual(take.min_golem_distance, 3.4)
+        self.assertIn('min_golem_distance=3.40', console)
+
+    def test_a_take_without_golems_has_no_distance(self) -> None:
+        take, console = self.closest_golem('none')
+        self.assertEqual(take.status, 'recorded')
+        self.assertIsNone(take.min_golem_distance)
+        self.assertNotIn('min_golem_distance', console)
+
+    def test_a_golem_closer_than_two_and_a_half_blocks_fails_the_take(self) -> None:
+        take, console = self.closest_golem('1.40')
+        self.assertEqual(take.status, 'failed')
+        self.assertFalse(take.evidence_ok)
+        self.assertIn('golem 1.40 blocks from the camera', take.evidence_detail)
+        self.assertEqual(take.min_golem_distance, 1.4)
+
+    def test_a_declared_window_excuses_a_close_golem(self) -> None:
+        window = choreography.AllowClose(start=0.0, end=100.0, reason='bind-ritual')
+        take, console = self.closest_golem('2.10', allow_close=(window,))
+        self.assertEqual(take.status, 'recorded')
+        self.assertEqual(take.min_golem_distance, 2.1)
+
+    def test_a_golem_at_exactly_two_and_a_half_blocks_passes(self) -> None:
+        take, _ = self.closest_golem('2.50')
+        self.assertEqual(take.status, 'recorded')
 
     def test_pre_commands_settle_sixty_ticks_before_record_start(self) -> None:
         log = self.ordered_take(self.entry())
@@ -804,7 +846,7 @@ class OpponentTakeTest(unittest.TestCase):
 
             studio.bridge.command.side_effect = logged
             takes = record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
-        return takes[entry.id], [call.args[0] for call in studio.rcon.command.call_args_list], log
+        return takes[entry.id], [call.args[0] for call in studio.rcon.command.call_args_list if not call.args[0].startswith('adaptqa demo near')], log
 
     def test_opponent_entry_places_equips_and_syncs_the_opponent(self) -> None:
         take, sent, _ = self.shoot(self.entry(True), opponent_running=True)

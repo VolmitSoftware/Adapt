@@ -734,6 +734,42 @@ class StillSheetTest(unittest.TestCase):
             'x-one: still name a is used twice'])
 
 
+class AllowCloseSheetTest(unittest.TestCase):
+    def entries(self, tmp: str, windows: object) -> dict[str, choreography.Entry]:
+        write_skill(Path(tmp), {'x-one': {'set': 'arena', 'expect': {'sound': 'a'}, 'beats': SHOWCASE_BEATS, 'allowClose': windows}})
+        return choreography.load_skill(Path(tmp), 'x').entries
+
+    def test_windows_are_loaded_in_order(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            entries: dict[str, choreography.Entry] = self.entries(tmp, [{'from': 1, 'to': 4.5, 'reason': 'bind-ritual'},
+                                                                         {'from': 8, 'to': 12, 'reason': 'frozen-gui'}])
+        self.assertEqual(entries['x-one'].allow_close, (choreography.AllowClose(start=1.0, end=4.5, reason='bind-ritual'),
+                                                        choreography.AllowClose(start=8.0, end=12.0, reason='frozen-gui')))
+        self.assertEqual(choreography.validate(entries, {'x-one'}), [])
+
+    def test_windows_default_to_none(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            write_skill(Path(tmp), {'x-one': {'skip': 'Nothing visible.'}})
+            self.assertEqual(choreography.load_skill(Path(tmp), 'x').entries['x-one'].allow_close, ())
+
+    def test_malformed_windows_are_rejected(self) -> None:
+        bad: list[object] = [['a'], [{'from': 1, 'to': 2}], [{'from': '1', 'to': 2, 'reason': 'bind-ritual'}], [{'from': True, 'to': 2, 'reason': 'bind-ritual'}],
+                             [{'from': 1, 'to': 2, 'reason': 3}], 'always']
+        for windows in bad:
+            with self.subTest(windows=windows), tempfile.TemporaryDirectory() as tmp:
+                with self.assertRaisesRegex(ValueError, 'x-one: allowClose must be a list'):
+                    self.entries(tmp, windows)
+
+    def test_a_window_needs_one_of_the_allowed_reasons_and_a_forward_range(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            entries: dict[str, choreography.Entry] = self.entries(tmp, [{'from': 1, 'to': 2, 'reason': 'the golem looks nicer close'},
+                                                                         {'from': 5, 'to': 5, 'reason': 'bind-ritual'}, {'from': -1, 'to': 2, 'reason': 'frozen-gui'}])
+        self.assertEqual(choreography.validate(entries, {'x-one'}), [
+            'x-one: allowClose reason the golem looks nicer close must be bind-ritual or frozen-gui',
+            'x-one: allowClose window 5 to 5 must run forward from 0 or more seconds',
+            'x-one: allowClose window -1 to 2 must run forward from 0 or more seconds'])
+
+
 class OpponentSheetTest(unittest.TestCase):
     def test_opponent_flag_defaults_to_false(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

@@ -26,7 +26,8 @@ class CaptureStudio:
         set_reply: str = ('ADAPT_QA DEMO SET arena {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":180.0,"pitch":0.0},'
                           '"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0}}')
         claim_reply: str = '\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70Set Magic_Psycho rift-enderchest to level 3.'
-        self.rcon.command.side_effect = lambda text: claim_reply if text.startswith('adapt claim-adaptation') else set_reply
+        replies: dict[str, str] = {'adapt claim-adaptation': claim_reply, 'adaptqa demo near': 'ADAPT_QA DEMO NEAR nearest=none'}
+        self.rcon.command.side_effect = lambda text: next((reply for prefix, reply in replies.items() if text.startswith(prefix)), set_reply)
         self.bridge: mock.MagicMock = mock.MagicMock()
         self.bridge.state.side_effect = self.state
         self.bridge.command.side_effect = self.command
