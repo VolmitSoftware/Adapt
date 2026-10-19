@@ -187,6 +187,16 @@ public final class GolemHandle {
     return state.hostileDamagePool();
   }
 
+  public int ownerLevel(String adaptation) {
+    return state.ownerLevel(adaptation);
+  }
+
+  public void recordOwnerLevel(String adaptation, int level) {
+    if (state.setOwnerLevel(adaptation, level)) {
+      markDebounced();
+    }
+  }
+
   public void setHostileDamagePool(double pool) {
     state.setHostileDamagePool(pool);
     markDebounced();

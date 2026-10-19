@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 final class GathererRules {
+  static final double MAX_PICKUP_RADIUS = 64D;
   static final double MAX_MAGNET_RADIUS = 16D;
   static final double MAX_INSTANT_PICKUP_RADIUS = 4D;
   static final double MAX_DEATH_SITE_RADIUS = 64D;
@@ -20,7 +21,7 @@ final class GathererRules {
   }
 
   static double pickupRadius(List<Integer> byLevel, int level) {
-    return Math.max(0, byLevel(byLevel, Math.max(1, level)));
+    return Math.min(MAX_PICKUP_RADIUS, Math.max(0, byLevel(byLevel, Math.max(1, level))));
   }
 
   static int essenceCap(List<Integer> byLevel, int level) {

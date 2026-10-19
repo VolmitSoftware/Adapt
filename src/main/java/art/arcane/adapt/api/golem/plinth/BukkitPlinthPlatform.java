@@ -74,7 +74,8 @@ final class BukkitPlinthPlatform implements PlinthPlatform {
 
   @Override
   public boolean savePlate(World world, int x, int z) {
-    return WorldData.loaded(world).map(data -> data.savePlate(x, z)).orElse(false);
+    WorldData data = WorldData.loaded(world).orElseThrow(() -> new IllegalStateException("World " + world.getName() + " is no longer loaded"));
+    return data.savePlate(x, z);
   }
 
   @Override

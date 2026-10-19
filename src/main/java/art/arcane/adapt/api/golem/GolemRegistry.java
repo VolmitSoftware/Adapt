@@ -37,6 +37,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -108,7 +109,7 @@ public final class GolemRegistry extends TickedObject {
         loaded.add(handle);
       }
     }
-    return List.copyOf(loaded);
+    return Collections.unmodifiableList(loaded);
   }
 
   public Collection<GolemHandle> loaded() {

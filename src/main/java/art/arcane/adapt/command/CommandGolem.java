@@ -22,6 +22,7 @@ import art.arcane.volmlib.util.director.annotations.Param;
 import art.arcane.volmlib.util.director.compat.BukkitDirectorContext;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import art.arcane.volmlib.util.localization.LanguageAudience;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -60,7 +61,8 @@ public class CommandGolem {
       CommandTargetExecutor.run(online, () -> listOnline(online, sender), sender);
       return;
     }
-    J.a(() -> listOffline(target, sender));
+    UUID audience = sender instanceof Player viewer ? viewer.getUniqueId() : null;
+    J.a(() -> LanguageAudience.run(audience, () -> listOffline(target, sender)));
   }
 
   @Director(description = "Release one of a player's golems", descriptionKey = "command.help.release_one_of_a_player_s_golems")

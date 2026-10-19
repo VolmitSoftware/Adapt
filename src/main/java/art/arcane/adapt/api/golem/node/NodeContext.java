@@ -69,7 +69,8 @@ public final class NodeContext {
   public Optional<Block> block(int areaIndex) {
     int[] position = NodeArea.position(pass.key(), pass.record(), areaIndex);
     World world = pass.world();
-    if (!platform.owns(new Location(world, position[0], position[1], position[2]))) {
+    if (!platform.chunkLoaded(world, position[0] >> 4, position[2] >> 4)
+        || !platform.owns(new Location(world, position[0], position[1], position[2]))) {
       return Optional.empty();
     }
     return Optional.of(world.getBlockAt(position[0], position[1], position[2]));

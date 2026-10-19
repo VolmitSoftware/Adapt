@@ -8,6 +8,7 @@ import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.gui.GolemGuiActions;
 import art.arcane.adapt.api.golem.gui.GolemGuiSupport;
+import art.arcane.adapt.api.golem.gui.GuiCursor;
 import art.arcane.adapt.api.golem.gui.RosterGui;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -26,6 +27,7 @@ import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -58,7 +60,7 @@ final class BoneLatticeGui {
     }
     AdaptPlayer adaptPlayer = frame.adaptPlayer(player).orElse(null);
     int level = frame.level(player.getUniqueId());
-    if (adaptPlayer == null || level < 1) {
+    if (adaptPlayer == null || (level < 1 && adaptPlayer.getData().getGolemancy().lattice().isEmpty())) {
       RosterGui.open(player, rosterPage);
       return;
     }
@@ -71,9 +73,18 @@ final class BoneLatticeGui {
       window.setViewportHeight(ROWS);
       window.batch(() -> place(window, view));
       window.setTitle(AdaptLanguage.text(GolemancyMessages.BONE_FRAME_LATTICE));
-      window.onClosed(closed -> Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), window));
       window.open();
       Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), window);
+      Inventory top = UIWindow.inventoryViewTopInventory(player.getOpenInventory());
+      window.onClosed(closed -> {
+        Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), window);
+        if (top != null) {
+          GuiCursor.untrack(player.getUniqueId(), top);
+        }
+      });
+      if (top != null) {
+        GuiCursor.track(player.getUniqueId(), top);
+      }
     }
   }
 

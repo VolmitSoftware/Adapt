@@ -471,6 +471,7 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
   private GolemRunicAugments learned(int level) {
     GolemRunicAugments learned = spy(adaptation);
     lenient().doReturn(level).when(learned).level(any(UUID.class));
+    lenient().doReturn(level).when(learned).ownerLevel(any(GolemHandle.class));
     lenient().doNothing().when(learned).weaken(any(LivingEntity.class), anyInt(), anyInt());
     return learned;
   }

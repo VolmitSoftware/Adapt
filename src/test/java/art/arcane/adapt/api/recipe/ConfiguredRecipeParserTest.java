@@ -333,6 +333,31 @@ class ConfiguredRecipeParserTest {
   }
 
   @Test
+  void minecraftPrefixedNamesResolveAsMaterials() {
+    Material stone = material("STONE");
+    ConfiguredShapedRecipe spec = new ConfiguredShapedRecipe().rows("S").key('S', "minecraft:stone").result("minecraft:stone", 2);
+
+    ConfiguredRecipeParser.Result result = parser.parse(spec);
+
+    assertThat(result.problems()).isEmpty();
+    AdaptRecipe.Shaped shaped = result.builder().key("test").build();
+    assertThat(materialChoices(shaped, 'S')).containsExactly(stone);
+    assertThat(shaped.getResult().getType()).isSameAs(stone);
+    assertThat(shaped.getResult().getAmount()).isEqualTo(2);
+  }
+
+  @Test
+  void rejectsAmountsAboveTheResultsStackSize() {
+    Material pearl = material("ENDER_PEARL");
+    when(pearl.getMaxStackSize()).thenReturn(16);
+
+    assertThat(parser.parse(new ConfiguredShapedRecipe().rows("P").key('P', "ENDER_PEARL").result("ENDER_PEARL", 17)).problems())
+        .containsExactly("amount 17 is more than the result stacks to, 16");
+    assertThat(parser.parse(new ConfiguredShapedRecipe().rows("P").key('P', "ENDER_PEARL").result("ENDER_PEARL", 16)).problems())
+        .isEmpty();
+  }
+
+  @Test
   void rejectsNegativeTithes() {
     material("STONE");
     ConfiguredShapedRecipe spec = new ConfiguredShapedRecipe()

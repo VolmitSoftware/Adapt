@@ -18,12 +18,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 public final class AdaptationRequirements {
   private static final String SEPARATOR = ", ";
+  private static final Set<String> WARNED_UNRESOLVED = ConcurrentHashMap.newKeySet();
 
   private AdaptationRequirements() {
   }
@@ -87,7 +89,7 @@ public final class AdaptationRequirements {
     for (Skill<?> skill : skills) {
       for (Adaptation<?> adaptation : skill.getAdaptations()) {
         for (AdaptationRequirement requirement : adaptation.getRequirements()) {
-          if (!known.contains(requirement.adaptationId())) {
+          if (!known.contains(requirement.adaptationId()) && WARNED_UNRESOLVED.add(adaptation.getName() + "->" + requirement.adaptationId())) {
             Adapt.warn("Adaptation " + adaptation.getName() + " requires unknown adaptation "
                 + requirement.adaptationId() + "; players cannot learn it until that adaptation is registered.");
           }

@@ -16,6 +16,7 @@ import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.minion.ServantPack;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
@@ -150,11 +151,20 @@ class GolemBoneFrameTest extends AdaptTestBase {
   }
 
   @Test
-  void theServantMenuOpensFromLevelOneWhileLatticeSlotsWaitForLevelTwo() {
+  void theServantMenuOpensFromLevelOneOrAWornLatticeWhileLatticeSlotsWaitForLevelTwo() {
     GolemBoneFrame learned = spy(adaptation);
+    AdaptServer server = mock(AdaptServer.class);
+    AdaptPlayer player = mock(AdaptPlayer.class);
+    PlayerData data = new PlayerData();
+    when(plugin.getAdaptServer()).thenReturn(server);
+    when(player.getData()).thenReturn(data);
 
     doReturn(0).when(learned).level(OWNER);
     assertThat(learned.servantMenuUnlocked(OWNER)).isFalse();
+    when(server.getOnlineAdaptPlayer(OWNER)).thenReturn(player);
+    assertThat(learned.servantMenuUnlocked(OWNER)).isFalse();
+    data.getGolemancy().addLattice(new GolemRune(GolemRuneType.SWIFTNESS, 1));
+    assertThat(learned.servantMenuUnlocked(OWNER)).isTrue();
     doReturn(1).when(learned).level(OWNER);
     assertThat(learned.servantMenuUnlocked(OWNER)).isTrue();
     assertThat(learned.latticeSlots(1)).isZero();

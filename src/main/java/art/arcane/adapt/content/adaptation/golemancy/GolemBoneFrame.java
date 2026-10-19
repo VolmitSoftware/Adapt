@@ -69,7 +69,6 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   private final Map<UUID, Ember> embers = new ConcurrentHashMap<>();
   private final OverseerServants servants = new OverseerServants(this::level, this::channels, this::pack);
   private final ServantFrame.Frame frame = new Frame();
-  private volatile ServantPack servantPack;
   private volatile GolemRunicAugments augments;
   private volatile AspectCache aspects;
 
@@ -86,7 +85,6 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     Overseer.unregister(servants);
     ServantFrame.unregister(frame);
     embers.clear();
-    servantPack = null;
     augments = null;
     super.unregister();
   }
@@ -139,7 +137,11 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   }
 
   boolean servantMenuUnlocked(UUID owner) {
-    return level(owner) >= 1;
+    if (level(owner) >= 1) {
+      return true;
+    }
+    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
+    return player != null && !player.getData().getGolemancy().lattice().isEmpty();
   }
 
   int latticeSlots(int level) {
@@ -174,15 +176,7 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   }
 
   Optional<ServantPack> pack() {
-    ServantPack cached = servantPack;
-    if (cached != null) {
-      return Optional.of(cached);
-    }
-    if (AdaptationRequirements.find(SERVANT_ADAPTATION) instanceof ServantPack found) {
-      servantPack = found;
-      return Optional.of(found);
-    }
-    return Optional.empty();
+    return AdaptationRequirements.find(SERVANT_ADAPTATION) instanceof ServantPack found ? Optional.of(found) : Optional.empty();
   }
 
   Optional<GolemRunicAugments> runicAugments() {

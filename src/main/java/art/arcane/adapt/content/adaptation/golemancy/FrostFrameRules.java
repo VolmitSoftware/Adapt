@@ -1,12 +1,17 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import org.bukkit.Location;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 final class FrostFrameRules {
+  private static final double SNOWBALL_ARC = 0.2D;
+  private static final double SNOWBALL_SPEED = 1.6D;
+
   private FrostFrameRules() {
   }
 
@@ -39,6 +44,18 @@ final class FrostFrameRules {
 
   static boolean unlocked(int level, int unlockLevel) {
     return level >= Math.max(1, unlockLevel);
+  }
+
+  static Vector snowballVelocity(Location from, Location to) {
+    double dx = to.getX() - from.getX();
+    double dy = to.getY() - from.getY();
+    double dz = to.getZ() - from.getZ();
+    double horizontal = Math.sqrt(dx * dx + dz * dz);
+    Vector direction = new Vector(dx, dy + horizontal * SNOWBALL_ARC, dz);
+    if (direction.lengthSquared() < 1.0E-6D) {
+      return new Vector(0D, SNOWBALL_SPEED, 0D);
+    }
+    return direction.normalize().multiply(SNOWBALL_SPEED);
   }
 
   static boolean extraShot(int level, int bonusLevel, double chance, double roll) {

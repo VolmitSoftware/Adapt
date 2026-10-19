@@ -144,7 +144,12 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
 
   int ownerLevel(GolemHandle handle) {
     AdaptPlayer owner = getServer().getOnlineAdaptPlayer(handle.owner());
-    return owner == null ? 0 : getLevel(owner);
+    if (owner == null) {
+      return handle.ownerLevel(getName());
+    }
+    int level = getLevel(owner);
+    handle.recordOwnerLevel(getName(), level);
+    return level;
   }
 
   void boost(CopperGolem golem, int ticks) {

@@ -3,6 +3,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.golem.GolemStat;
 import art.arcane.adapt.api.golem.GolemStatDelta;
 import art.arcane.adapt.api.golem.GolemStatSource;
@@ -309,6 +310,18 @@ class GolemFrostFrameTest extends AdaptTestBase {
     verify(hostile, times(1)).setNoDamageTicks(0);
     verify(bystander, never()).setNoDamageTicks(anyInt());
     verify(regularVictim, never()).setNoDamageTicks(anyInt());
+  }
+
+  @Test
+  void anOfflineOwnersFrameLevelComesFromTheGolemsRecord() {
+    AdaptServer server = mock(AdaptServer.class);
+    when(plugin.getAdaptServer()).thenReturn(server);
+    GolemHandle handle = mock(GolemHandle.class);
+    when(handle.owner()).thenReturn(UUID.randomUUID());
+    when(handle.ownerLevel(adaptation.getName())).thenReturn(3);
+
+    assertThat(adaptation.ownerLevel(handle)).isEqualTo(3);
+    verify(handle, never()).recordOwnerLevel(anyString(), anyInt());
   }
 
   @Test

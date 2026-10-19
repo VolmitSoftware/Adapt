@@ -5,6 +5,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 
 import java.util.EnumSet;
@@ -30,7 +31,7 @@ public final class GuiCursor implements Listener {
     return BOTTOM_ACTIONS.contains(action);
   }
 
-  @EventHandler(priority = EventPriority.HIGHEST)
+  @EventHandler(priority = EventPriority.HIGH)
   public void on(InventoryClickEvent e) {
     Inventory top = e.getView().getTopInventory();
     Inventory clicked = e.getClickedInventory();
@@ -42,16 +43,21 @@ public final class GuiCursor implements Listener {
     }
   }
 
+  @EventHandler(priority = EventPriority.MONITOR)
+  public void on(PlayerQuitEvent e) {
+    WINDOWS.remove(e.getPlayer().getUniqueId());
+  }
+
   static boolean isTracked(UUID viewer, Inventory top) {
     Inventory tracked = WINDOWS.get(viewer);
     return tracked != null && tracked == top;
   }
 
-  static void track(UUID viewer, Inventory top) {
+  public static void track(UUID viewer, Inventory top) {
     WINDOWS.put(viewer, Objects.requireNonNull(top));
   }
 
-  static void untrack(UUID viewer, Inventory top) {
+  public static void untrack(UUID viewer, Inventory top) {
     WINDOWS.remove(viewer, top);
   }
 }

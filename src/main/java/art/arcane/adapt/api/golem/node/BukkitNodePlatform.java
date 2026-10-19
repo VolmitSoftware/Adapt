@@ -80,7 +80,12 @@ final class BukkitNodePlatform implements NodePlatform {
   @Override
   public boolean powered(World world, int x, int y, int z) {
     Block block = world.getBlockAt(x, y, z);
-    return block.isBlockPowered() || block.isBlockIndirectlyPowered();
+    return block.isBlockPowered() || (neighborsLoaded(world, x, z) && block.isBlockIndirectlyPowered());
+  }
+
+  @Override
+  public boolean chunkLoaded(World world, int chunkX, int chunkZ) {
+    return world.isChunkLoaded(chunkX, chunkZ);
   }
 
   @Override
@@ -135,5 +140,16 @@ final class BukkitNodePlatform implements NodePlatform {
     Adapt plugin = Adapt.instance;
     AdaptServer server = plugin == null ? null : plugin.getAdaptServer();
     return server == null ? null : server.getOnlineAdaptPlayer(owner);
+  }
+
+  private static boolean neighborsLoaded(World world, int x, int z) {
+    int chunkX = x >> 4;
+    int chunkZ = z >> 4;
+    int localX = x & 15;
+    int localZ = z & 15;
+    return (localX != 0 || world.isChunkLoaded(chunkX - 1, chunkZ))
+        && (localX != 15 || world.isChunkLoaded(chunkX + 1, chunkZ))
+        && (localZ != 0 || world.isChunkLoaded(chunkX, chunkZ - 1))
+        && (localZ != 15 || world.isChunkLoaded(chunkX, chunkZ + 1));
   }
 }

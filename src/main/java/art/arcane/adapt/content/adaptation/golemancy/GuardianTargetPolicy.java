@@ -76,7 +76,7 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
       return false;
     }
     MinionTargeting.Candidate captured = MinionTargeting.captureOwned(watch.ownerId(), target);
-    if (reason(watch, target, captured) == GuardianRules.Reason.NONE) {
+    if (reason(watch, target, captured) == GuardianRules.Reason.NONE || !engageable(watch, captured)) {
       return false;
     }
     LivingEntity attacker = watch.attacker();
@@ -108,7 +108,7 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
     nextIntercepts.put(golem.id(), now + config.interceptIntervalMillis);
     UUID ownerId = owner.getUniqueId();
     for (Mob candidate : candidates(watch)) {
-      if (candidate == watch.body() || !targetOf(candidate, ownerId)) {
+      if (candidate == watch.body() || !targetOf(candidate, ownerId) || !covers(watch, candidate.getLocation())) {
         continue;
       }
       MinionTargeting.Candidate captured = MinionTargeting.captureOwned(ownerId, candidate);

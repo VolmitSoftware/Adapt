@@ -162,6 +162,16 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     return player == null ? 0 : getLevel(player);
   }
 
+  int ownerLevel(GolemHandle handle) {
+    AdaptPlayer player = getServer().getOnlineAdaptPlayer(handle.owner());
+    if (player == null) {
+      return handle.ownerLevel(getName());
+    }
+    int level = getLevel(player);
+    handle.recordOwnerLevel(getName(), level);
+    return level;
+  }
+
   GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
     return layout(body, level(owner), GolemMastery.perks(owner, masterwork).extraRuneSlots());
   }
@@ -172,7 +182,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
       return ActiveRunes.NONE;
     }
     GolemMastery.Perks perks = GolemMastery.perks(handle);
-    Map<GolemRuneType, Integer> active = layout(handle.body(), level(handle.owner()), perks.extraRuneSlots()).active(runes);
+    Map<GolemRuneType, Integer> active = layout(handle.body(), ownerLevel(handle), perks.extraRuneSlots()).active(runes);
     return active.isEmpty() ? ActiveRunes.NONE : new ActiveRunes(active, perks.tierUp(), perks.tierThreeBoost());
   }
 

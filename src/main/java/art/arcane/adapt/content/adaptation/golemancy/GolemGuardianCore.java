@@ -73,6 +73,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
   static final String CORE_RECIPE = "golemancy-guardian-core";
   static final String NODE_RECIPE = "golemancy-guard-node";
   private static final int RECIPE_LEVEL = 1;
+  private static final int MAX_LAST_STAND_AMPLIFIER = 3;
   private static final int TICKS_PER_SECOND = 20;
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
 
@@ -210,8 +211,8 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
       return;
     }
     lastStands.put(handle.id(), now + Math.max(0L, config.lastStandCooldownMillis));
-    golem.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, Math.max(1, config.lastStandTicks), Math.max(0, config.lastStandAmplifier),
-        false, true, true));
+    golem.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, Math.max(1, config.lastStandTicks),
+        Math.min(MAX_LAST_STAND_AMPLIFIER, Math.max(0, config.lastStandAmplifier)), false, true, true));
   }
 
   Config config() {
@@ -320,7 +321,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     double lastStandHealthFraction = 0.2;
     @ConfigDoc(value = "Ticks of Resistance that Last Stand gives.", impact = "Higher values make Last Stand last longer.")
     int lastStandTicks = 100;
-    @ConfigDoc(value = "Resistance amplifier Last Stand gives. 0 is Resistance I and 1 is Resistance II.", impact = "Higher values make Last Stand block more damage.")
+    @ConfigDoc(value = "Resistance amplifier Last Stand gives. 0 is Resistance I and 1 is Resistance II. Values above 3 count as 3.", impact = "Higher values make Last Stand block more damage.")
     int lastStandAmplifier = 1;
     @ConfigDoc(value = "Milliseconds after Last Stand triggers before it can trigger again on the same Guardian.", impact = "Lower values let Last Stand trigger more often.")
     long lastStandCooldownMillis = 60_000L;

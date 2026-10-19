@@ -75,6 +75,7 @@ class OverseerGolemsTest extends AdaptTestBase {
       call.<Runnable>getArgument(1).run();
       return true;
     });
+    scheduling.when(() -> J.isOwnedByCurrentRegion(any(Entity.class))).thenReturn(true);
     teleports = mockStatic(GolemTeleport.class);
     teleports.when(() -> GolemTeleport.teleport(any(GolemHandle.class), any(Location.class))).thenReturn(CompletableFuture.completedFuture(true));
   }

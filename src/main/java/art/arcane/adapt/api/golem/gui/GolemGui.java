@@ -83,18 +83,25 @@ public final class GolemGui {
   }
 
   private void refresh() {
-    if (!J.runEntity(handle.entity(), this::snapshot)) {
-      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
-    }
+    J.runEntity(handle.entity(), this::snapshot, this::gone);
   }
 
   private void snapshot() {
     if (handle.isRetired() || !handle.entity().isValid()) {
-      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+      gone();
       return;
     }
     View view = View.of(handle);
     J.runEntity(player, () -> render(view));
+  }
+
+  private void gone() {
+    GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+    J.runEntity(player, () -> {
+      if (window != null && window.isVisible()) {
+        window.close();
+      }
+    });
   }
 
   private void render(View view) {
@@ -550,9 +557,9 @@ public final class GolemGui {
         return;
       }
       handle.setRunes(remaining.get());
+      handBack(GolemItems.rune(rune));
       GolemStats.recompute(handle);
       GolemancyRuntime.reveal().ifPresent(reveal -> reveal.refresh(handle));
-      handBack(GolemItems.rune(rune));
       GolemGuiSupport.notify(player, GolemancyMessages.MESSAGE_RUNE_REMOVED, trusted("aspect", GolemGuiSupport.localized(rune.aspect().displayName())));
       snapshot();
     });
@@ -635,7 +642,7 @@ public final class GolemGui {
   }
 
   private void release() {
-    boolean scheduled = J.runEntity(handle.entity(), () -> {
+    J.runEntity(handle.entity(), () -> {
       GolemRegistry registry = GolemancyRuntime.registry().orElse(null);
       if (registry == null || handle.isRetired() || !registry.release(handle)) {
         GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_RELEASE_FAILED);
@@ -643,25 +650,19 @@ public final class GolemGui {
       }
       GolemancyRuntime.reveal().ifPresent(reveal -> reveal.forget(handle));
       GolemGuiSupport.notify(player, GolemancyMessages.MESSAGE_RELEASED);
-    });
-    if (!scheduled) {
-      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
-    }
+    }, this::gone);
   }
 
   private void mutate(Runnable change) {
-    boolean scheduled = J.runEntity(handle.entity(), () -> {
+    J.runEntity(handle.entity(), () -> {
       if (handle.isRetired() || !handle.entity().isValid()) {
-        GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
+        gone();
         return;
       }
       change.run();
       GolemancyRuntime.reveal().ifPresent(reveal -> reveal.refresh(handle));
       snapshot();
-    });
-    if (!scheduled) {
-      GolemGuiSupport.warn(player, GolemancyMessages.MESSAGE_GONE);
-    }
+    }, this::gone);
   }
 
   static EssenceWithdrawal takeEssence(GolemHandle handle, Player player) {

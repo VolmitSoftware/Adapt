@@ -140,6 +140,22 @@ class GolemStateTest {
   }
 
   @Test
+  void ownerLevelsDefaultToZeroAndSurviveTheJsonRoundTrip() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
+
+    assertThat(state.ownerLevel("frost-frame")).isZero();
+    assertThat(GolemState.fromJson("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"frost\"}").orElseThrow().ownerLevel("frost-frame")).isZero();
+
+    assertThat(state.setOwnerLevel("frost-frame", 3)).isTrue();
+    assertThat(state.setOwnerLevel("frost-frame", 3)).isFalse();
+    assertThat(state.setOwnerLevel("frost-frame", 4)).isTrue();
+    GolemState back = GolemState.fromJson(state.toJson()).orElseThrow();
+
+    assertThat(back.ownerLevel("frost-frame")).isEqualTo(4);
+    assertThat(back.ownerLevel("runic-augments")).isZero();
+  }
+
+  @Test
   void aRestoredStateStartsFromTheSightingItIsGiven() {
     GolemState original = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.IRON, GolemCoreType.GUARDIAN, GolemState.Anchor.of(WORLD, 0, 70, 0)));
     original.setSighting(3L);

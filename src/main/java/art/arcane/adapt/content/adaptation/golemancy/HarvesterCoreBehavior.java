@@ -147,7 +147,14 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
     if (spent == null) {
       return GolemActResult.FAILED;
     }
-    if (!crop.applyBoneMeal(BlockFace.UP)) {
+    boolean grown;
+    try {
+      grown = crop.applyBoneMeal(BlockFace.UP);
+    } catch (RuntimeException failure) {
+      refund(chest, slot, spent);
+      throw failure;
+    }
+    if (!grown) {
       refund(chest, slot, spent);
       return GolemActResult.FAILED;
     }

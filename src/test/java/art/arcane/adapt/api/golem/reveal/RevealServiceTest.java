@@ -167,6 +167,20 @@ class RevealServiceTest extends AdaptTestBase {
   }
 
   @Test
+  void aGolemThatRefusesItsLabelIsNotRetriedEveryPoll() {
+    RevealService service = new RevealService(RevealSettings::defaults);
+    GolemHandle golem = golem(new AtomicReference<>(5D));
+    when(golem.entity().addPassenger(any(Entity.class))).thenReturn(false);
+    when(registry.loadedOf(OWNER)).thenReturn(List.of(golem));
+
+    service.update(viewer);
+    service.update(viewer);
+
+    assertThat(spawned).hasSize(1);
+    verify(spawned.getFirst()).remove();
+  }
+
+  @Test
   void golemsLeaveTwoBlocksPastTheRevealRangeAndReenterOnlyInsideIt() {
     RevealService service = new RevealService(RevealSettings::defaults);
     AtomicReference<Double> distance = new AtomicReference<>(31D);

@@ -73,6 +73,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -241,13 +242,13 @@ public final class PaperCompat {
   }
 
   public static int weatheringStage(Entity entity) {
-    if (!weatheringSupported) {
+    if (!(entity instanceof CopperGolem golem)) {
       return 0;
     }
+    if (!weatheringSupported) {
+      return SpigotWeathering.stage(golem);
+    }
     try {
-      if (!(entity instanceof CopperGolem golem)) {
-        return 0;
-      }
       return switch (golem.getWeatheringState()) {
         case UNAFFECTED -> 0;
         case EXPOSED -> 1;
@@ -256,7 +257,7 @@ public final class PaperCompat {
       };
     } catch (NoClassDefFoundError | NoSuchMethodError absent) {
       weatheringSupported = false;
-      return 0;
+      return SpigotWeathering.stage(golem);
     }
   }
 
@@ -273,14 +274,16 @@ public final class PaperCompat {
   }
 
   public static void restoreCopper(Entity entity, int stage, boolean waxed) {
+    if (!(entity instanceof CopperGolem golem)) {
+      return;
+    }
+    int bounded = Math.max(0, Math.min(3, stage));
     if (!weatheringSupported) {
+      SpigotWeathering.restore(golem, bounded);
       return;
     }
     try {
-      if (!(entity instanceof CopperGolem golem)) {
-        return;
-      }
-      golem.setWeatheringState(switch (Math.max(0, Math.min(3, stage))) {
+      golem.setWeatheringState(switch (bounded) {
         case 0 -> WeatheringCopperState.UNAFFECTED;
         case 1 -> WeatheringCopperState.EXPOSED;
         case 2 -> WeatheringCopperState.WEATHERED;
@@ -291,6 +294,7 @@ public final class PaperCompat {
       }
     } catch (NoClassDefFoundError | NoSuchMethodError absent) {
       weatheringSupported = false;
+      SpigotWeathering.restore(golem, bounded);
     }
   }
 
@@ -1016,6 +1020,71 @@ public final class PaperCompat {
     }
 
     return world.spawn(location, type, hydrator::accept);
+  }
+
+  private static final class SpigotWeathering {
+    private static final String[] STAGE_NAMES = {"UNAFFECTED", "EXPOSED", "WEATHERED", "OXIDIZED"};
+    private static volatile boolean resolved;
+    private static volatile Method getter;
+    private static volatile Method setter;
+
+    private SpigotWeathering() {
+    }
+
+    private static int stage(CopperGolem golem) {
+      Method read = getter(golem);
+      if (read == null) {
+        return 0;
+      }
+      try {
+        Object state = read.invoke(golem);
+        return state instanceof Enum<?> value ? Math.max(0, indexOf(value.name())) : 0;
+      } catch (ReflectiveOperationException | RuntimeException failure) {
+        return 0;
+      }
+    }
+
+    private static void restore(CopperGolem golem, int stage) {
+      Method read = getter(golem);
+      Method write = setter;
+      if (read == null || write == null) {
+        return;
+      }
+      try {
+        Class<?> states = read.getReturnType();
+        for (Object constant : states.getEnumConstants()) {
+          if (constant instanceof Enum<?> value && value.name().equals(STAGE_NAMES[stage])) {
+            write.invoke(golem, constant);
+            return;
+          }
+        }
+      } catch (ReflectiveOperationException | RuntimeException ignored) {
+      }
+    }
+
+    private static Method getter(CopperGolem golem) {
+      if (!resolved) {
+        try {
+          Method read = golem.getClass().getMethod("getWeatherState");
+          getter = read;
+          setter = golem.getClass().getMethod("setWeatherState", read.getReturnType());
+        } catch (ReflectiveOperationException | RuntimeException absent) {
+          getter = null;
+          setter = null;
+        }
+        resolved = true;
+      }
+      return getter;
+    }
+
+    private static int indexOf(String name) {
+      for (int index = 0; index < STAGE_NAMES.length; index++) {
+        if (STAGE_NAMES[index].equals(name)) {
+          return index;
+        }
+      }
+      return 0;
+    }
   }
 
   /**

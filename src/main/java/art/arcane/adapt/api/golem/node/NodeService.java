@@ -261,7 +261,11 @@ public final class NodeService extends TickedObject {
       return;
     }
     for (Map.Entry<NodeKey, NodeRecord> entry : valid.entrySet()) {
-      track(world, entry.getKey(), entry.getValue());
+      try {
+        track(world, entry.getKey(), entry.getValue());
+      } catch (RuntimeException failure) {
+        Adapt.warn("Golemancy node " + entry.getKey() + " loaded but could not be shown or scheduled; it appears when its chunk reloads.", failure);
+      }
     }
   }
 

@@ -175,7 +175,7 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
 
   @ConfigDescription("Golems bound with a Gatherer Core pick up dropped items around their home or a Collection Node and deliver them, and store experience orbs as essence as the core grows stronger.")
   protected static class Config extends AdaptationConfig {
-    @ConfigDoc(value = "Blocks around a Gatherer's home within which it picks up dropped items when none of your Collection Nodes serve it, by Gatherer Core level from level 1 upward. A Tide rune adds its bonus.", impact = "Higher values let Gatherers collect items farther from home.")
+    @ConfigDoc(value = "Blocks around a Gatherer's home within which it picks up dropped items when none of your Collection Nodes serve it, by Gatherer Core level from level 1 upward. A Tide rune adds its bonus. Values above 64 count as 64.", impact = "Higher values let Gatherers collect items farther from home.")
     List<Integer> pickupRadiusByLevel = new ArrayList<>(List.of(4, 6, 8, 10, 12));
     @ConfigDoc(value = "Experience points a Gatherer can store as essence, by Gatherer Core level from level 1 upward. 0 means it absorbs no experience orbs.", impact = "Higher values let Gatherers store more experience for you to withdraw.")
     List<Integer> essenceCapByLevel = new ArrayList<>(List.of(0, 500, 1500, 1500, 1500));

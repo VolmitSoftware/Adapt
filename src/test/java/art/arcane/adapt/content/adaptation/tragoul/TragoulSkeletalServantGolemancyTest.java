@@ -1,11 +1,15 @@
 package art.arcane.adapt.content.adaptation.tragoul;
 
+import art.arcane.adapt.api.skill.Skill;
+import art.arcane.adapt.api.world.PlayerSkillLine;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.offset;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class TragoulSkeletalServantGolemancyTest {
   @Test
@@ -36,6 +40,20 @@ class TragoulSkeletalServantGolemancyTest {
     assertThat(TragoulSkeletalServant.golemancyCapBonus(60, 0, 2)).isZero();
     assertThat(TragoulSkeletalServant.golemancyCapBonus(60, 20, 0)).isZero();
     assertThat(TragoulSkeletalServant.golemancyCapBonus(-5, 20, 2)).isZero();
+  }
+
+  @Test
+  void theGolemancyLevelCountsOnlyWhileTheSkillIsRegisteredAndEnabled() {
+    Skill<?> golemancy = mock(Skill.class);
+    PlayerSkillLine line = mock(PlayerSkillLine.class);
+    when(line.getLevel()).thenReturn(37);
+
+    assertThat(TragoulSkeletalServant.golemancyLevel(null, line)).isZero();
+    when(golemancy.isEnabled()).thenReturn(false);
+    assertThat(TragoulSkeletalServant.golemancyLevel(golemancy, line)).isZero();
+    when(golemancy.isEnabled()).thenReturn(true);
+    assertThat(TragoulSkeletalServant.golemancyLevel(golemancy, null)).isZero();
+    assertThat(TragoulSkeletalServant.golemancyLevel(golemancy, line)).isEqualTo(37);
   }
 
   @Test

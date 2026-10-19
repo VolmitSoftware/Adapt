@@ -14,7 +14,9 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -46,6 +48,7 @@ public final class GolemState {
   private boolean snowTrail;
   private double maxHealthMark;
   private long sighting;
+  private Map<String, Integer> ownerLevels = new HashMap<>();
   private transient int carriedRevision;
   private transient GolemBody bodyValue;
   private transient List<GolemCoreType> coresValue;
@@ -268,6 +271,11 @@ public final class GolemState {
     return sighting;
   }
 
+  public int ownerLevel(String adaptation) {
+    Integer level = ownerLevels == null ? null : ownerLevels.get(adaptation);
+    return level == null ? 0 : level;
+  }
+
   void setCores(List<GolemCoreType> next) {
     if (next.isEmpty() || next.size() > MAX_CORES) {
       throw new IllegalArgumentException("A golem holds 1 to " + MAX_CORES + " cores, found " + next.size());
@@ -321,6 +329,14 @@ public final class GolemState {
 
   void setHostileDamagePool(double value) {
     hostileDamagePool = Double.isFinite(value) ? Math.max(0D, value) : 0D;
+  }
+
+  boolean setOwnerLevel(String adaptation, int level) {
+    if (ownerLevels == null) {
+      ownerLevels = new HashMap<>();
+    }
+    Integer previous = ownerLevels.put(adaptation, level);
+    return previous == null || previous != level;
   }
 
   void setMasterwork(boolean value) {

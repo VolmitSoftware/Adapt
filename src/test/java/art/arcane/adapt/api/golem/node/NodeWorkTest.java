@@ -302,6 +302,22 @@ class NodeWorkTest extends AdaptTestBase {
     assertThat(blocks.get(1)).isEmpty();
   }
 
+  @Test
+  void areaBlocksInUnloadedChunksAreNotHandedOut() {
+    NodeRecord record = harvest();
+    List<Optional<Block>> blocks = new ArrayList<>();
+    behavior(NodeType.HARVEST, (node, budget) -> blocks.add(node.block(budget.start())));
+    NodeScanPass pass = new NodeScanPass(world, KEY, record, new NodeScanCursor.Window(0, 64), 16);
+    int[] first = NodeArea.position(KEY, record, 0);
+
+    work.scan(pass);
+    platform.unloadedChunks.add((first[0] >> 4) + "," + (first[2] >> 4));
+    work.scan(pass);
+
+    assertThat(blocks.get(0)).isPresent();
+    assertThat(blocks.get(1)).isEmpty();
+  }
+
   private NodeRecord harvest() {
     NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).build();
     records.put(KEY, record);

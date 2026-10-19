@@ -28,6 +28,7 @@ import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.reflect.registries.Particles;
 import art.arcane.volmlib.util.localization.LanguageAudience;
+import art.arcane.volmlib.util.math.M;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -86,6 +87,7 @@ public final class RevealService extends TickedObject {
   private static final int LINE_MAX_POINTS = 64;
   private static final float LABEL_LIFT = 0.2F;
   private static final int LABEL_BACKGROUND_ALPHA = 64;
+  private static final long LABEL_RETRY_MILLIS = 5_000L;
   private static final String CORE_SEPARATOR = " + ";
 
   private final Supplier<RevealSettings> settings;
@@ -100,6 +102,7 @@ public final class RevealService extends TickedObject {
   private final Set<UUID> spawning = ConcurrentHashMap.newKeySet();
   private final Set<UUID> pendingRefresh = ConcurrentHashMap.newKeySet();
   private final Map<UUID, Label> labels = new ConcurrentHashMap<>();
+  private final Map<UUID, Long> labelRetries = new ConcurrentHashMap<>();
   private final Map<LocateKey, Long> locates = new ConcurrentHashMap<>();
 
   public RevealService(Supplier<RevealSettings> settings) {
@@ -252,6 +255,7 @@ public final class RevealService extends TickedObject {
       removeDisplay(label.display());
     }
     labels.clear();
+    labelRetries.clear();
     glowIds.clear();
     armed.clear();
     pendingUpdates.clear();
@@ -512,6 +516,10 @@ public final class RevealService extends TickedObject {
       HiddenDisplays.show(viewer, label.display());
       return;
     }
+    Long retryAt = labelRetries.get(golem);
+    if (retryAt != null && retryAt > M.ms()) {
+      return;
+    }
     if (spawning.add(golem) && !J.runEntity(handle.entity(), () -> spawnLabel(viewer, handle))) {
       spawning.remove(golem);
     }
@@ -535,11 +543,13 @@ public final class RevealService extends TickedObject {
         Color.fromARGB(LABEL_BACKGROUND_ALPHA, 0, 0, 0), viewRange);
     Transformation base = display.getTransformation();
     display.setTransformation(new Transformation(new Vector3f(0F, LABEL_LIFT, 0F), base.getLeftRotation(), base.getScale(), base.getRightRotation()));
+    UUID carrierId = carrier.getUniqueId();
     if (!carrier.addPassenger(display)) {
       display.remove();
+      labelRetries.put(carrierId, M.ms() + LABEL_RETRY_MILLIS);
       return;
     }
-    UUID carrierId = carrier.getUniqueId();
+    labelRetries.remove(carrierId);
     Label previous = labels.put(carrierId, new Label(display, owner, content));
     if (previous != null) {
       removeDisplay(previous.display());
@@ -555,6 +565,7 @@ public final class RevealService extends TickedObject {
   }
 
   private void hideLabel(Player viewer, UUID golem) {
+    labelRetries.remove(golem);
     Label label = labels.remove(golem);
     if (label == null) {
       return;
@@ -564,6 +575,7 @@ public final class RevealService extends TickedObject {
   }
 
   private void retireLabel(UUID golem) {
+    labelRetries.remove(golem);
     Label label = labels.remove(golem);
     if (label == null) {
       return;

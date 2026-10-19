@@ -91,7 +91,7 @@ final class LumberNodeBehavior implements NodeBehavior {
       LumberTrees.Survey survey = LumberTrees.survey(view, x, y, z, plan.reach(plan.largestCap()));
       if (survey.verdict() == LumberTrees.Verdict.NATURAL && at(survey.tree().base(), x, y, z)) {
         post(node, block, LumberRules.bodies(core.config(), level, survey.tree().logs()));
-      } else if (REMEMBERED.contains(survey.verdict())) {
+      } else if (REMEMBERED.contains(survey.verdict()) || survey.verdict() == LumberTrees.Verdict.NATURAL) {
         rejections.reject(key, x, y, z, now);
       }
     }

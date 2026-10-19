@@ -1,6 +1,8 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import org.bukkit.Location;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
+import org.bukkit.util.Vector;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -26,6 +28,18 @@ class FrostFrameRulesTest {
     assertThat(FrostFrameRules.atLevel(SNOWBALL, 3)).isEqualTo(2D);
     assertThat(FrostFrameRules.atLevel(List.of(-3), 1)).isZero();
     assertThat(FrostFrameRules.atLevel(Arrays.asList(1, null), 2)).isZero();
+  }
+
+  @Test
+  void theExtraSnowballFliesAtTheTargetWithALiftAtSnowballSpeed() {
+    Vector velocity = FrostFrameRules.snowballVelocity(new Location(null, 0D, 64D, 0D), new Location(null, 10D, 64D, 0D));
+
+    assertThat(velocity.length()).isCloseTo(1.6D, offset(1e-9));
+    assertThat(velocity.getX()).isGreaterThan(0D);
+    assertThat(velocity.getY()).isCloseTo(velocity.getX() * 0.2D, offset(1e-9));
+    assertThat(velocity.getZ()).isZero();
+    assertThat(FrostFrameRules.snowballVelocity(new Location(null, 1D, 1D, 1D), new Location(null, 1D, 1D, 1D)))
+        .isEqualTo(new Vector(0D, 1.6D, 0D));
   }
 
   @Test

@@ -142,7 +142,7 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
     }
   }
 
-  @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(ProjectileHitEvent e) {
     if (!(e.getEntity() instanceof Snowball snowball) || !(e.getHitEntity() instanceof LivingEntity victim)) {
       return;
@@ -183,7 +183,12 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
 
   int ownerLevel(GolemHandle handle) {
     AdaptPlayer owner = getServer().getOnlineAdaptPlayer(handle.owner());
-    return owner == null ? 0 : getLevel(owner);
+    if (owner == null) {
+      return handle.ownerLevel(getName());
+    }
+    int level = getLevel(owner);
+    handle.recordOwnerLevel(getName(), level);
+    return level;
   }
 
   static List<GolemStatDelta> frameStats(Config config, GolemBody body, int level) {
@@ -224,7 +229,9 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
     }
     throwingExtra.add(golem.getUniqueId());
     try {
-      PaperCompat.rangedAttack(golem, target);
+      if (!PaperCompat.rangedAttack(golem, target)) {
+        golem.launchProjectile(Snowball.class, FrostFrameRules.snowballVelocity(golem.getEyeLocation(), target.getEyeLocation()));
+      }
     } finally {
       throwingExtra.remove(golem.getUniqueId());
     }

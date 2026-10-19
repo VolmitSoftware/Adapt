@@ -29,6 +29,7 @@ final class FakeNodePlatform implements NodePlatform {
   final List<Runnable> asyncTasks = new ArrayList<>();
   final List<String> events = new ArrayList<>();
   final Set<String> powered = new HashSet<>();
+  final Set<String> unloadedChunks = new HashSet<>();
   final Map<UUID, Player> players = new HashMap<>();
   boolean ownsEverything = true;
   boolean deferAsync;
@@ -137,6 +138,11 @@ final class FakeNodePlatform implements NodePlatform {
   public boolean powered(World world, int x, int y, int z) {
     powerReads++;
     return powered.contains(x + "," + y + "," + z);
+  }
+
+  @Override
+  public boolean chunkLoaded(World world, int chunkX, int chunkZ) {
+    return !unloadedChunks.contains(chunkX + "," + chunkZ);
   }
 
   @Override

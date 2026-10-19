@@ -19,6 +19,7 @@ import java.util.Set;
 
 public final class ConfiguredRecipeParser {
   private static final String RECIPE_NAMESPACE = "adapt";
+  private static final String MINECRAFT_PREFIX = "minecraft:";
   private static final int MAX_GRID_SIZE = 3;
   private static final int MAX_AMOUNT = 64;
 
@@ -67,6 +68,9 @@ public final class ConfiguredRecipeParser {
     validateSymbols(rows, keys, problems);
     ResultItem result = resolveResult(spec.getResult(), problems);
     validateAmount(spec.getAmount(), problems);
+    if (result != null && result.maxStack() > 0 && spec.getAmount() > result.maxStack()) {
+      problems.add("amount " + spec.getAmount() + " is more than the result stacks to, " + result.maxStack());
+    }
     validateTithe(spec.getTithe(), problems);
     if (!problems.isEmpty()) {
       return new Result(null, List.of(), List.copyOf(problems));
@@ -143,12 +147,12 @@ public final class ConfiguredRecipeParser {
       Tag<Material> tag = resolveTag(subject, ingredient, problems);
       return tag == null ? null : new Ingredient(new MaterialChar(symbol, tag), null);
     }
-    if (ingredient.indexOf(':') >= 0) {
+    if (ingredient.indexOf(':') >= 0 && !ingredient.startsWith(MINECRAFT_PREFIX)) {
       ExactIngredient exact = resolveExactIngredient(subject, ingredient, problems);
       return exact == null ? null : new Ingredient(new MaterialChar(symbol, exact.base()), exact);
     }
 
-    Material material = resolveMaterial(subject, ingredient, problems);
+    Material material = resolveMaterial(subject, withoutMinecraftPrefix(ingredient), problems);
     return material == null ? null : new Ingredient(new MaterialChar(symbol, material), null);
   }
 
@@ -170,12 +174,12 @@ public final class ConfiguredRecipeParser {
       problems.add("result \"" + raw + "\" must be a material or a namespaced item, not a tag");
       return null;
     }
-    if (raw.indexOf(':') >= 0) {
+    if (raw.indexOf(':') >= 0 && !raw.startsWith(MINECRAFT_PREFIX)) {
       ItemStack item = resolveExactResult(raw, problems);
       return item == null ? null : new ExactResult(item);
     }
 
-    Material material = resolveMaterial("result", raw, problems);
+    Material material = resolveMaterial("result", withoutMinecraftPrefix(raw), problems);
     return material == null ? null : new MaterialResult(material);
   }
 
@@ -245,6 +249,10 @@ public final class ConfiguredRecipeParser {
     return exact;
   }
 
+  private static String withoutMinecraftPrefix(String raw) {
+    return raw.startsWith(MINECRAFT_PREFIX) ? raw.substring(MINECRAFT_PREFIX.length()) : raw;
+  }
+
   private Material resolveMaterial(String subject, String raw, List<String> problems) {
     Material material = catalog.itemMaterial(raw.toUpperCase(Locale.ROOT));
     if (material == null) {
@@ -301,12 +309,19 @@ public final class ConfiguredRecipeParser {
 
   private sealed interface ResultItem permits MaterialResult, ExactResult {
     ItemStack create(int amount);
+
+    int maxStack();
   }
 
   private record MaterialResult(Material material) implements ResultItem {
     @Override
     public ItemStack create(int amount) {
       return new ItemStack(material, amount);
+    }
+
+    @Override
+    public int maxStack() {
+      return material.getMaxStackSize();
     }
   }
 
@@ -316,6 +331,11 @@ public final class ConfiguredRecipeParser {
       ItemStack copy = item.clone();
       copy.setAmount(amount);
       return copy;
+    }
+
+    @Override
+    public int maxStack() {
+      return item.getMaxStackSize();
     }
   }
 

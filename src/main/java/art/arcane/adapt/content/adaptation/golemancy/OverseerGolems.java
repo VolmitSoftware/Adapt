@@ -85,6 +85,9 @@ final class OverseerGolems implements OverseerReceiver {
     if (target == null || handle.body() != GolemBody.FROST) {
       return true;
     }
+    if (!J.isOwnedByCurrentRegion(target)) {
+      return false;
+    }
     Location targetAt = target.getLocation();
     double distanceSquared = Objects.equals(targetAt.getWorld(), at.getWorld()) ? targetAt.distanceSquared(at) : Double.NaN;
     return OverseerRules.reaches(handle.body(), distanceSquared, sentryRange.getAsDouble());

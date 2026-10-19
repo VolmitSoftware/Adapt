@@ -1,8 +1,11 @@
 package art.arcane.adapt.api.golem.gui;
 
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.PlayerInventory;
@@ -18,6 +21,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class GuiCursorTest {
   private static final UUID VIEWER = UUID.fromString("00000000-0000-0000-0000-0000000000a1");
@@ -65,6 +69,28 @@ class GuiCursorTest {
     verify(untracked, never()).setCancelled(false);
     verify(inMenu, never()).setCancelled(false);
     verify(shift, never()).setCancelled(false);
+  }
+
+  @Test
+  void aViewerWhoQuitsIsNoLongerTracked() {
+    GuiCursor.track(VIEWER, top);
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(VIEWER);
+    PlayerQuitEvent quit = mock(PlayerQuitEvent.class);
+    when(quit.getPlayer()).thenReturn(player);
+
+    new GuiCursor().on(quit);
+    InventoryClickEvent click = click(bottom, InventoryAction.PICKUP_ALL);
+    new GuiCursor().on(click);
+
+    verify(click, never()).setCancelled(false);
+  }
+
+  @Test
+  void theCursorRunsAfterTheWindowsOwnClickHandling() throws NoSuchMethodException {
+    EventHandler handler = GuiCursor.class.getMethod("on", InventoryClickEvent.class).getAnnotation(EventHandler.class);
+
+    assertThat(handler.priority()).isEqualTo(EventPriority.HIGH);
   }
 
   private InventoryClickEvent click(Inventory clicked, InventoryAction action) {

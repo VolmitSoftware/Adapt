@@ -19,6 +19,7 @@
 package art.arcane.adapt.content.adaptation.tragoul;
 
 import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.PlayerSkillLine;
 import java.util.List;
 import art.arcane.adapt.api.preference.PlayerPreference;
@@ -276,6 +277,13 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   static int servantCap(int levelCap, int golemancyBonus) {
     return Math.min(HARD_MAX_SERVANTS_PER_OWNER, levelCap + Math.max(0, golemancyBonus));
+  }
+
+  static int golemancyLevel(Skill<?> golemancy, PlayerSkillLine line) {
+    if (golemancy == null || !golemancy.isEnabled() || line == null) {
+      return 0;
+    }
+    return line.getLevel();
   }
 
   static double golemancyDurationMultiplier(int golemancyLevel, double perLevel, double maxBonus) {
@@ -1506,7 +1514,7 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   private int golemancyLevel(Player player) {
     AdaptPlayer adaptPlayer = getPlayer(player);
     PlayerSkillLine line = adaptPlayer == null ? null : adaptPlayer.getData().getSkillLineNullable(GOLEMANCY_SKILL);
-    return line == null ? 0 : line.getLevel();
+    return golemancyLevel(getServer().getSkillRegistry().getSkill(GOLEMANCY_SKILL), line);
   }
 
   private int getBoneCost(int level) {

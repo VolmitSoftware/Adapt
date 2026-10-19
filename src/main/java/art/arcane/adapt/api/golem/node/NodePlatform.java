@@ -37,6 +37,8 @@ interface NodePlatform {
 
   boolean powered(World world, int x, int y, int z);
 
+  boolean chunkLoaded(World world, int chunkX, int chunkZ);
+
   World world(UUID id);
 
   ItemStack icon(NodeType type);

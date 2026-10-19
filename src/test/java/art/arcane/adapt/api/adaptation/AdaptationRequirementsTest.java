@@ -191,6 +191,19 @@ class AdaptationRequirementsTest {
   }
 
   @Test
+  void theSameUnknownRequirementIsWarnedAboutOnlyOnce() {
+    String ghost = "ghost-" + UUID.randomUUID();
+    fixture.requires(fixture.cross, new AdaptationRequirement(ghost, 1));
+
+    AdaptationRequirements.warnUnresolved(List.of(fixture.alpha, fixture.beta));
+    AdaptationRequirements.warnUnresolved(List.of(fixture.alpha, fixture.beta));
+
+    assertThat(handler.messages(Level.WARNING))
+        .hasSize(1)
+        .allMatch(message -> message.contains(ghost));
+  }
+
+  @Test
   void unlearningIsBlockedWhileALearnedDependentNeedsTheLevel() {
     fixture.requires(fixture.dependent, new AdaptationRequirement("alpha-base", 2));
     fixture.setLevel(fixture.base, 3);
