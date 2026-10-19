@@ -2783,7 +2783,7 @@
       "adaptqa demo give {actor} 1 crook 1",
       "adaptqa demo give {actor} 2 node/input 2",
       "adaptqa demo give {actor} 3 node/filter 2",
-      "execute at {actor} run summon minecraft:copper_golem ~-2.6 ~0 ~-0.4 {Rotation:[0.0f,0.0f],NoAI:1b}",
+      "execute at {actor} run summon minecraft:copper_golem ~-2.9 ~0 ~-0.4 {Rotation:[0.0f,0.0f],NoAI:1b}",
       "item replace entity {actor} hotbar.4 with minecraft:cobblestone 1",
       "execute at {actor} run setblock ~1 ~ ~-4 minecraft:chest{Items:[{Slot:0b,id:\"minecraft:cobblestone\",count:16},{Slot:1b,id:\"minecraft:cobblestone\",count:16},{Slot:2b,id:\"minecraft:cobblestone\",count:16}]}",
       "execute at {actor} run setblock ~-1 ~ ~-4 minecraft:chest{Items:[{Slot:0b,id:\"minecraft:cobblestone\",count:1}]}"
@@ -2961,7 +2961,7 @@
       {
         "verb": "lookAt",
         "offset": [
-          -2.1,
+          -2.4,
           0.6,
           0.1
         ],
@@ -4108,6 +4108,12 @@
         {
           "verb": "wait",
           "ticks": 6
+        },
+        {
+          "verb": "look",
+          "yaw": -90,
+          "pitch": 4,
+          "ticks": 8
         },
         {
           "verb": "keys",
