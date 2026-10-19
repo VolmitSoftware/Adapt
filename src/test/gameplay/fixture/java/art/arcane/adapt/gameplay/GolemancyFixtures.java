@@ -388,7 +388,27 @@ public final class GolemancyFixtures {
         for (GolemHandle handle : golems) {
             describeGolem(out, handle);
         }
+        describeLevels(out, owner);
         return out.toString();
+    }
+
+    private static void describeLevels(StringBuilder out, Player owner) {
+        AdaptPlayer learner = Adapt.instance.getAdaptServer().getPlayer(owner);
+        if (learner == null) {
+            return;
+        }
+        out.append(" | levels");
+        for (Skill<?> skill : Adapt.instance.getAdaptServer().getSkillRegistry().getAllSkills()) {
+            if (!skill.getName().equals(GOLEMANCY_SKILL)) {
+                continue;
+            }
+            for (Adaptation<?> adaptation : skill.getAdaptations()) {
+                int level = adaptation.getLevel(learner);
+                if (level > 0) {
+                    out.append(' ').append(adaptation.getName()).append('=').append(level);
+                }
+            }
+        }
     }
 
     private static void describeNodes(StringBuilder out, NodeService service, World world, Location at, long now) {
