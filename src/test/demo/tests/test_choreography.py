@@ -264,7 +264,7 @@ class ChoreographyTest(unittest.TestCase):
         node_clips: set[str] = {identifier for identifier, entry in entries.items() if any(re.search(r'demo give \{actor\} \d node/', text) for text in entry.pre)}
         self.assertEqual(node_clips, {'golem-node-weaving', 'golem-harvester-core', 'golem-breaker-core', 'golem-angler-core',
                                       'golem-lumber-core', 'golem-rancher-core', 'golem-sorter-core', 'golemancy-node-config',
-                                      'golemancy-preferences'})
+                                      'golem-gatherer-core'})
         for identifier in sorted(node_clips):
             with self.subTest(entry=identifier):
                 self.assertTrue(entries[identifier].pov_capture)
