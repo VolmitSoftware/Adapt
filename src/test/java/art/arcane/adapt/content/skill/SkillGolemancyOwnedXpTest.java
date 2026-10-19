@@ -95,6 +95,14 @@ class SkillGolemancyOwnedXpTest {
     assertThat(SkillGolemancy.craftXp(config, GolemItemKind.SHATTERED_CORE)).isZero();
     assertThat(SkillGolemancy.craftXp(config, GolemItemKind.MASTERWORK_HEART)).isZero();
   }
+  @Test
+  void blankNodesPayPerNodeMadeWhileOtherItemsPayPerCraft() {
+    assertThat(SkillGolemancy.craftUnits(GolemItemKind.BLANK_NODE, 3, 4)).isEqualTo(12);
+    assertThat(SkillGolemancy.craftUnits(GolemItemKind.BLANK_NODE, 2, 0)).isEqualTo(2);
+    assertThat(SkillGolemancy.craftUnits(GolemItemKind.BLANK_RUNE, 3, 2)).isEqualTo(3);
+    assertThat(SkillGolemancy.craftUnits(GolemItemKind.CORE, 5, 1)).isEqualTo(5);
+  }
+
 
   @ParameterizedTest
   @CsvSource({

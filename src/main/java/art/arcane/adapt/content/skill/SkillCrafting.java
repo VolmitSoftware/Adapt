@@ -240,7 +240,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     return true;
   }
 
-  private int calculateRecipeAmount(CraftItemEvent e) {
+  static int calculateRecipeAmount(CraftItemEvent e) {
     int recipeAmount = e.getInventory().getResult().getAmount();
     switch (e.getClick()) {
       case NUMBER_KEY -> {
@@ -282,7 +282,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     return (int) Math.min(maxCraftable, (long) affordable * resultAmount);
   }
 
-  private int fits(ItemStack stack, Inventory inv) {
+  private static int fits(ItemStack stack, Inventory inv) {
     ItemStack[] contents = inv.getContents();
     int maxStackSize = stack.getMaxStackSize();
     int result = 0;
@@ -298,7 +298,7 @@ public class SkillCrafting extends SimpleSkill<SkillCrafting.Config> {
     return result;
   }
 
-  private int getMaxCraftAmount(CraftingInventory inv) {
+  private static int getMaxCraftAmount(CraftingInventory inv) {
     if (inv.getResult() == null) {
       return 0;
     }

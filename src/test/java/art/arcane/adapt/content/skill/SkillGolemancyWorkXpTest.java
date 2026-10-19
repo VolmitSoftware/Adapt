@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.skill;
 
+import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemWorkXp;
 import art.arcane.adapt.content.skill.golemancy.RollingXpCap;
@@ -29,6 +30,22 @@ class SkillGolemancyWorkXpTest {
     assertThat(paid).isEqualTo(1_200D);
     assertThat(SkillGolemancy.grantWorkXp(cap, OWNER, 6D, 25D, config, now)).isZero();
     assertThat(SkillGolemancy.grantWorkXp(cap, OTHER, 6D, 25D, config, now)).isEqualTo(6D);
+  }
+
+  @Test
+  void aBuildBindReleaseLoopStopsAtTheSharedHourlyBuildAndBindCap() {
+    SkillGolemancy.Config defaults = new SkillGolemancy.Config();
+    long now = 0L;
+    double paid = 0D;
+    for (int cycle = 0; cycle < 360; cycle++) {
+      paid += SkillGolemancy.grantBindXp(cap, OWNER, defaults.buildIronXp, defaults, now);
+      paid += SkillGolemancy.grantBindXp(cap, OWNER, SkillGolemancy.bindXp(defaults, GolemBody.IRON), defaults, now);
+      now += defaults.bindXpCooldownMillis;
+    }
+
+    assertThat(defaults.bindXpHourlyCap).isEqualTo(600D);
+    assertThat(paid).isCloseTo(1_200D, offset(1e-9));
+    assertThat(SkillGolemancy.grantBindXp(cap, OTHER, defaults.buildSnowXp, defaults, now)).isEqualTo(40D);
   }
 
   @Test

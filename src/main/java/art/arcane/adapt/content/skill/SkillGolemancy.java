@@ -153,6 +153,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private final GolemXpCooldowns<WitnessCooldownKey> witnessCooldowns = new GolemXpCooldowns<>();
   private final RollingXpCap witnessCap = new RollingXpCap();
   private final RollingXpCap workCap = new RollingXpCap();
+  private final RollingXpCap bindCap = new RollingXpCap();
   private final GolemXpCooldowns<UUID> assistCooldowns = new GolemXpCooldowns<>();
   private final GolemXpCooldowns<UUID> tankCooldowns = new GolemXpCooldowns<>();
   private final GolemXpCooldowns<BindCooldownKey> bindCooldowns = new GolemXpCooldowns<>();
@@ -326,6 +327,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     witnessCooldowns.sweep(nowMillis, getConfig().witnessCooldownMillis);
     witnessCap.sweep(nowMillis);
     workCap.sweep(nowMillis);
+    bindCap.sweep(nowMillis);
     assistCooldowns.sweep(nowMillis, getConfig().assistCooldownMillis);
     tankCooldowns.sweep(nowMillis, getConfig().tankCooldownMillis);
     bindCooldowns.sweep(nowMillis, getConfig().bindXpCooldownMillis);
@@ -352,6 +354,9 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     if (SpawnerMobTag.isSpawnerReason(reason) && isEnabled()) {
       SpawnerMobTag.mark(golem);
       return;
+    }
+    if (reason == SpawnReason.BUILD_COPPERGOLEM) {
+      CopperCare.recordStageFloor(golem, PaperCompat.weatheringStage(golem));
     }
     if (GolemBuildAttribution.bodyKey(reason) == null || shouldReturnForWorld(golem.getWorld(), this)) {
       return;
@@ -443,7 +448,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
 
   @Override
   protected void normalizeLoadedConfig(Config loadedConfig) {
-    clampWorkXp(loadedConfig);
+    clampXpCaps(loadedConfig);
   }
 
   @Override
@@ -501,9 +506,10 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
         config.stuckPauseSeconds);
   }
 
-  static void clampWorkXp(Config config) {
+  static void clampXpCaps(Config config) {
     config.workXpHourlyCap = Double.isFinite(config.workXpHourlyCap) ? Math.max(0D, config.workXpHourlyCap) : 0D;
     config.workXpOwnerRadius = Double.isFinite(config.workXpOwnerRadius) ? Math.max(0D, config.workXpOwnerRadius) : 0D;
+    config.bindXpHourlyCap = Double.isFinite(config.bindXpHourlyCap) ? Math.max(0D, config.bindXpHourlyCap) : 0D;
   }
 
   static double grantWorkXp(RollingXpCap cap, UUID owner, double xp, double distanceSquared, Config config, long nowMillis) {
@@ -512,6 +518,10 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
       return 0D;
     }
     return cap.claim(owner, xp, config.workXpHourlyCap, nowMillis);
+  }
+
+  static double grantBindXp(RollingXpCap cap, UUID player, double xp, Config config, long nowMillis) {
+    return cap.claim(player, xp, config.bindXpHourlyCap, nowMillis);
   }
 
   static double bindXp(Config config, GolemBody body) {
@@ -565,7 +575,6 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private void applyBuild(GolemBuildAttribution.Build build) {
     Entity golem = build.spawn().golem();
     GolemBuildAttribution.stamp(golem, build.builder(), System.currentTimeMillis());
-    CopperCare.recordStageFloor(golem, PaperCompat.weatheringStage(golem));
     Player builder = Bukkit.getPlayer(build.builder());
     if (builder == null) {
       return;
@@ -578,10 +587,15 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private void rewardBuild(Player builder, SpawnReason reason, Location at) {
     addStat(builder, "golemancy.built", 1);
     double xp = buildXp(reason);
-    if (xp <= 0D || !buildCooldowns.tryClaim(new BuildCooldownKey(builder.getUniqueId(), reason), M.ms(), getConfig().buildXpCooldownMillis)) {
+    long nowMillis = M.ms();
+    if (xp <= 0D || !buildCooldowns.tryClaim(new BuildCooldownKey(builder.getUniqueId(), reason), nowMillis, getConfig().buildXpCooldownMillis)) {
       return;
     }
-    xp(builder, at, xp, "golemancy:build:" + GolemBuildAttribution.bodyKey(reason));
+    double granted = grantBindXp(bindCap, builder.getUniqueId(), xp, getConfig(), nowMillis);
+    if (granted <= 0D) {
+      return;
+    }
+    xp(builder, at, granted, "golemancy:build:" + GolemBuildAttribution.bodyKey(reason));
     fx(at, FxPriority.AMBIENT)
         .column(Particles.END_ROD, 5, 1.2D)
         .particle(Particles.VILLAGER_HAPPY, 4, 0D, 0.8D, 0D, 0.3D, 0D)
@@ -679,8 +693,12 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private void rewardBind(Player owner, GolemBody body, boolean firstBindOfGolem, Location at) {
     if (firstBindOfGolem) {
       addStat(owner, "golemancy.bound", 1);
-      if (bindCooldowns.tryClaim(new BindCooldownKey(owner.getUniqueId(), body), M.ms(), getConfig().bindXpCooldownMillis)) {
-        xp(owner, at, bindXp(getConfig(), body), "golemancy:bind");
+      long nowMillis = M.ms();
+      if (bindCooldowns.tryClaim(new BindCooldownKey(owner.getUniqueId(), body), nowMillis, getConfig().bindXpCooldownMillis)) {
+        double granted = grantBindXp(bindCap, owner.getUniqueId(), bindXp(getConfig(), body), getConfig(), nowMillis);
+        if (granted > 0D) {
+          xp(owner, at, granted, "golemancy:bind");
+        }
       }
     }
     if (body != GolemBody.BONE && grantOnce(owner, "challenge_golemancy_first_bind_" + body.id())) {
@@ -693,11 +711,15 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     if (kind == null) {
       return;
     }
-    double xp = craftXp(getConfig(), kind) * crafts;
+    double xp = craftXp(getConfig(), kind) * craftUnits(kind, crafts, recipe.getResult().getAmount());
     if (xp <= 0D) {
       return;
     }
     shouldReturnForPlayer(player, () -> xp(player, player.getLocation(), xp, "golemancy:craft:" + kind.id()));
+  }
+
+  static int craftUnits(GolemItemKind kind, int crafts, int resultAmount) {
+    return kind == GolemItemKind.BLANK_NODE ? crafts * Math.max(1, resultAmount) : crafts;
   }
 
   static double craftXp(Config config, GolemItemKind kind) {
@@ -995,7 +1017,7 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double craftBlankCoreXp = 40;
     @ConfigDoc(value = "Skill XP paid for each role core crafted.", impact = "Higher values pay more for crafting role cores.")
     double craftRoleCoreXp = 90;
-    @ConfigDoc(value = "Skill XP paid for each Blank Node crafted, counted per craft, not per node in the result.", impact = "Higher values pay more for crafting blank nodes.")
+    @ConfigDoc(value = "Skill XP paid for each Blank Node crafted, counted per node in the result.", impact = "Higher values pay more for crafting blank nodes.")
     double craftBlankNodeXp = 5;
     @ConfigDoc(value = "Skill XP paid for each typed node crafted.", impact = "Higher values pay more for crafting nodes.")
     double craftNodeXp = 15;
@@ -1013,6 +1035,8 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
     double bindIronXp = 450;
     @ConfigDoc(value = "Milliseconds before one player earns bind XP again for the same golem type. Bindings during the cooldown still count toward golemancy.bound.", impact = "Higher values stop build, bind and release loops from paying bind XP quickly.")
     long bindXpCooldownMillis = 20000;
+    @ConfigDoc(value = "Most build and bind XP one player can earn together in any rolling 60 minutes. First-bind challenges are not counted. Values below 0 count as 0.", impact = "Higher values let build, bind and release loops pay more per hour; 0 pays no build or bind XP.")
+    double bindXpHourlyCap = 600;
     @ConfigDoc(value = "Skill XP paid with each first-bind challenge, the first time you bind a frost, copper or iron golem.", impact = "Higher values make each first bind worth more; each challenge pays once per player.")
     double firstBindXp = 600;
     @ConfigDoc(value = "Skill XP per point of damage your bound golems deal to hostile mobs, before the body multiplier. Damage beyond the victim's remaining health does not count.", impact = "Higher values pay more for golem combat.")

@@ -135,16 +135,21 @@ class SkillGolemancySettingsTest {
     config.workXpHourlyCap = -10D;
     config.workXpOwnerRadius = Double.NaN;
 
-    SkillGolemancy.clampWorkXp(config);
+    config.bindXpHourlyCap = Double.NEGATIVE_INFINITY;
+
+    SkillGolemancy.clampXpCaps(config);
 
     assertThat(config.workXpHourlyCap).isZero();
     assertThat(config.workXpOwnerRadius).isZero();
+    assertThat(config.bindXpHourlyCap).isZero();
 
     config.workXpHourlyCap = 300D;
     config.workXpOwnerRadius = 40D;
-    SkillGolemancy.clampWorkXp(config);
+    config.bindXpHourlyCap = 250D;
+    SkillGolemancy.clampXpCaps(config);
     assertThat(config.workXpHourlyCap).isEqualTo(300D);
     assertThat(config.workXpOwnerRadius).isEqualTo(40D);
+    assertThat(config.bindXpHourlyCap).isEqualTo(250D);
   }
 
   @Test
