@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
+import art.arcane.adapt.api.golem.plinth.PlinthService;
 import art.arcane.adapt.api.golem.plinth.PlinthSlotItem;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
@@ -235,6 +236,7 @@ public final class GolemancyFixtures {
             actor.getInventory().clear();
             actor.setLevel(MASTERWORK_LEVELS);
             buildPlinth(world);
+            GolemancyRuntime.plinths().ifPresent(PlinthService::indexLoadedChunks);
             for (int slot = 0; slot < MASTERWORK_ITEMS.size(); slot++) {
                 actor.getInventory().setItem(slot, new ItemStack(MASTERWORK_ITEMS.get(slot)));
             }
