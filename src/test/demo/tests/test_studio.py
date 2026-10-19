@@ -498,30 +498,6 @@ class StudioRestartTest(unittest.TestCase):
                                   'runtime start muted discovery-off', 'wait'])
         self.assertIn('Deferred recipe registration completed', install_log)
 
-    def test_restart_restores_the_cached_models_before_starting_again(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root: Path = Path(tmp)
-            demo = studio.Studio(root / 'out', skip_build=True)
-            demo.output.mkdir()
-            demo.server = root / 'server'
-            adapt: Path = demo.server / 'plugins' / 'Adapt'
-            (adapt / 'skills').mkdir(parents=True)
-            (adapt / 'adapt.toml').write_text(ADAPT_TOML)
-            (adapt / 'skills' / 'discovery.toml').write_text(DISCOVERY_TOML)
-            (root / 'locks').mkdir()
-            (root / 'locks' / studio.MODELS_CACHE).write_text('[gui.golemancy.mode]\n')
-            seen: list[str] = []
-
-            def mux(*arguments: str, timeout: int = 180) -> str:
-                if arguments[:2] == ('runtime', 'start'):
-                    seen.append((adapt / studio.MODELS_FILE).read_text())
-                return ''
-
-            with mock.patch.object(studio.clientqa, 'mux', side_effect=mux), mock.patch.object(studio, 'LOCKS', root / 'locks'), \
-                    mock.patch.object(studio.clientqa, 'wait_server'):
-                demo.restart_server('agility')
-        self.assertEqual(seen, ['[gui.golemancy.mode]\n'])
-
     def test_restart_turns_the_discovery_skill_off_for_another_batch_skill(self) -> None:
         _, _, discovery = self.restart('pickaxe')
         self.assertEqual(discovery, DISCOVERY_TOML.replace('this feature.\nenabled = true', 'this feature.\nenabled = false'))
@@ -544,10 +520,26 @@ START_FAILURE: str = 'Multiplexor runtime start adapt-demo-1 --no-console failed
 
 
 class ModelsCacheTest(unittest.TestCase):
+    def test_the_cache_name_follows_the_adapt_jar_content(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(studio, 'LOCKS', Path(tmp) / 'locks'):
+            root: Path = Path(tmp)
+            first: Path = root / 'first.jar'
+            second: Path = root / 'second.jar'
+            same: Path = root / 'same.jar'
+            first.write_bytes(b'adapt build one')
+            second.write_bytes(b'adapt build two')
+            same.write_bytes(b'adapt build one')
+            names: list[Path | None] = [studio.models_cache(first), studio.models_cache(second), studio.models_cache(same)]
+            missing: Path | None = studio.models_cache(root / 'missing.jar')
+        self.assertEqual(names[0], names[2])
+        self.assertNotEqual(names[0], names[1])
+        self.assertRegex(names[0].name, r'^models-cache-[0-9a-f]{12}\.toml$')
+        self.assertIsNone(missing)
+
     def test_restore_copies_the_cached_models_into_the_adapt_folder(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root: Path = Path(tmp)
-            cache: Path = root / 'cache' / studio.MODELS_CACHE
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
             cache.parent.mkdir()
             cache.write_text('[gui.golemancy.mode]\n')
             restored: bool = studio.restore_models(root / 'adapt', cache)
@@ -563,31 +555,166 @@ class ModelsCacheTest(unittest.TestCase):
         self.assertFalse(restored)
         self.assertFalse(created)
 
-    def test_keep_replaces_the_cache_with_the_servers_models(self) -> None:
+    def test_keep_replaces_the_cache_when_this_run_restored_it(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root: Path = Path(tmp)
             (root / 'adapt').mkdir()
             (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
-            cache: Path = root / 'cache' / studio.MODELS_CACHE
-            kept: bool = studio.keep_models(root / 'adapt', cache)
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            cache.parent.mkdir()
+            cache.write_text('[gui.golemancy.mode]\n[gui.golemancy.pack]\n')
+            kept: bool = studio.keep_models(root / 'adapt', cache, True)
             text: str = cache.read_text()
             leftovers: list[str] = sorted(path.name for path in cache.parent.iterdir())
         self.assertTrue(kept)
         self.assertEqual(text, '[gui.golemancy.pack]\n')
-        self.assertEqual(leftovers, [studio.MODELS_CACHE])
+        self.assertEqual(leftovers, ['models-cache-abc.toml'])
+
+    def test_keep_writes_a_first_cache_without_a_restore(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            kept: bool = studio.keep_models(root / 'adapt', cache, False)
+            text: str = cache.read_text()
+        self.assertTrue(kept)
+        self.assertEqual(text, '[gui.golemancy.pack]\n')
+
+    def test_a_run_that_did_not_restore_never_shrinks_the_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            cache.parent.mkdir()
+            cache.write_text('[gui.golemancy.mode]\n[gui.golemancy.pack]\n')
+            kept: bool = studio.keep_models(root / 'adapt', cache, False)
+            text: str = cache.read_text()
+        self.assertFalse(kept)
+        self.assertEqual(text, '[gui.golemancy.mode]\n[gui.golemancy.pack]\n')
+
+    def test_a_run_that_did_not_restore_may_grow_the_cache(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.mode]\n[gui.golemancy.pack]\n[gui.golemancy.release]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            cache.parent.mkdir()
+            cache.write_text('[gui.golemancy.mode]\n[gui.golemancy.pack]\n')
+            kept: bool = studio.keep_models(root / 'adapt', cache, False)
+        self.assertTrue(kept)
 
     def test_keep_ignores_a_missing_or_empty_models_file(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root: Path = Path(tmp)
             (root / 'adapt').mkdir()
-            cache: Path = root / 'cache' / studio.MODELS_CACHE
-            missing: bool = studio.keep_models(root / 'adapt', cache)
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            missing: bool = studio.keep_models(root / 'adapt', cache, True)
             (root / 'adapt' / studio.MODELS_FILE).write_text('')
-            empty: bool = studio.keep_models(root / 'adapt', cache)
+            empty: bool = studio.keep_models(root / 'adapt', cache, True)
             written: bool = cache.exists()
         self.assertFalse(missing)
         self.assertFalse(empty)
         self.assertFalse(written)
+
+    def test_a_failing_cache_write_leaves_no_partial_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            with mock.patch.object(studio.os, 'replace', side_effect=OSError('busy')):
+                with self.assertRaises(OSError):
+                    studio.keep_models(root / 'adapt', cache, True)
+            leftovers: list[str] = sorted(path.name for path in cache.parent.iterdir())
+        self.assertEqual(leftovers, [])
+
+    def test_two_runs_write_through_different_partial_names(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            seen: list[str] = []
+            real: object = studio.shutil.copy2
+
+            def recording(source: Path, target: Path) -> object:
+                seen.append(Path(target).name)
+                return real(source, target)
+
+            with mock.patch.object(studio.shutil, 'copy2', side_effect=recording), mock.patch.object(studio.os, 'getpid', return_value=111):
+                studio.keep_models(root / 'adapt', cache, True)
+            with mock.patch.object(studio.shutil, 'copy2', side_effect=recording), mock.patch.object(studio.os, 'getpid', return_value=222):
+                studio.keep_models(root / 'adapt', cache, True)
+        self.assertNotEqual(seen[0], seen[1])
+
+
+class ModelsCacheRunTest(unittest.TestCase):
+    def setUp(self) -> None:
+        for name in ('sys.stdout', 'sys.stderr'):
+            patcher = mock.patch(name, new_callable=io.StringIO)
+            patcher.start()
+            self.addCleanup(patcher.stop)
+
+    def server(self, root: Path, jar_bytes: bytes) -> studio.Studio:
+        demo = studio.Studio(root / 'out', skip_build=True)
+        demo.output.mkdir(parents=True)
+        demo.jars.mkdir()
+        (demo.jars / studio.ADAPT_JAR).write_bytes(jar_bytes)
+        demo.server = root / 'server'
+        adapt: Path = demo.server / 'plugins' / 'Adapt'
+        (adapt / 'skills').mkdir(parents=True)
+        (adapt / 'adapt.toml').write_text(ADAPT_TOML)
+        (adapt / 'skills' / 'discovery.toml').write_text(DISCOVERY_TOML)
+        return demo
+
+    def restart(self, demo: studio.Studio) -> str | None:
+        seen: list[str | None] = []
+
+        def mux(*arguments: str, timeout: int = 180) -> str:
+            if arguments[:2] == ('runtime', 'start'):
+                models: Path = demo.server / 'plugins' / 'Adapt' / studio.MODELS_FILE
+                seen.append(models.read_text() if models.is_file() else None)
+            return ''
+
+        with mock.patch.object(studio.clientqa, 'mux', side_effect=mux), mock.patch.object(studio.clientqa, 'wait_server'):
+            demo.restart_server('agility')
+        return seen[0]
+
+    def test_a_different_jar_starts_from_a_fresh_models_file(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(studio, 'LOCKS', Path(tmp) / 'locks'):
+            root: Path = Path(tmp)
+            (root / 'locks').mkdir()
+            old: studio.Studio = self.server(root / 'old', b'build one')
+            cache: Path = studio.models_cache(old.jars / studio.ADAPT_JAR)
+            cache.write_text('[gui.golemancy.mode]\n')
+            fresh: studio.Studio = self.server(root / 'new', b'build two')
+            seen: str | None = self.restart(fresh)
+            old_seen: str | None = self.restart(old)
+        self.assertIsNone(seen)
+        self.assertEqual(old_seen, '[gui.golemancy.mode]\n')
+        self.assertFalse(fresh.models_restored)
+        self.assertTrue(old.models_restored)
+
+    def test_a_cache_failure_never_keeps_the_instance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.object(studio, 'LOCKS', Path(tmp) / 'locks'):
+            root: Path = Path(tmp)
+            (root / 'locks').mkdir()
+            demo: studio.Studio = self.server(root, b'build one')
+            (demo.server / 'plugins' / 'Adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.mode]\n')
+            demo.created_server = True
+            events: list[str] = []
+
+            def mux(*arguments: str, timeout: int = 180) -> str:
+                events.append(' '.join(arguments[:2]))
+                return ''
+
+            with mock.patch.object(studio.clientqa, 'mux', side_effect=mux), mock.patch.object(studio, 'keep_models', side_effect=OSError('disk')):
+                errors: list[str] = demo.remove_server()
+        self.assertEqual(events, ['runtime stop', 'instance delete'])
+        self.assertEqual(len(errors), 1)
+        self.assertIn('Models cache', errors[0])
 
 
 class RuntimeStateTest(unittest.TestCase):

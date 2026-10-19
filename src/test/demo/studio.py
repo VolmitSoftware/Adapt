@@ -1,6 +1,7 @@
 import contextlib
 import fcntl
 import functools
+import hashlib
 import json
 import os
 import re
@@ -31,7 +32,8 @@ LOCATE_GRIDS: dict[str, tuple[int, int]] = {choreography.OVERWORLD: (6144, 256),
 LOCATE_TIMEOUT: float = 600.0
 SITE_CACHE: str = 'site-cache.json'
 MODELS_FILE: str = 'models.toml'
-MODELS_CACHE: str = 'models-cache.toml'
+MODELS_CACHE_PREFIX: str = 'models-cache-'
+TABLE_HEADER: re.Pattern[str] = re.compile(r'^\[([^\]\n]+)\]', re.MULTILINE)
 TPS_MINIMUM: float = 19.0
 TPS_TIMEOUT: float = 180.0
 TPS_LINE: re.Pattern[str] = re.compile(r'TPS from last ([^:]*):(.*)')
@@ -154,6 +156,14 @@ def install_pack(source: Path, packs: Path) -> Path:
     return target
 
 
+def models_cache(jar: Path) -> Path | None:
+    if not jar.is_file():
+        return None
+    with jar.open('rb') as handle:
+        digest: str = hashlib.file_digest(handle, 'sha256').hexdigest()
+    return LOCKS / (MODELS_CACHE_PREFIX + digest[:12] + '.toml')
+
+
 def restore_models(adapt: Path, cache: Path) -> bool:
     if not cache.is_file():
         return False
@@ -162,14 +172,23 @@ def restore_models(adapt: Path, cache: Path) -> bool:
     return True
 
 
-def keep_models(adapt: Path, cache: Path) -> bool:
+def model_tables(text: str) -> set[str]:
+    return set(TABLE_HEADER.findall(text))
+
+
+def keep_models(adapt: Path, cache: Path, restored: bool) -> bool:
     source: Path = adapt / MODELS_FILE
     if not source.is_file() or source.stat().st_size == 0:
         return False
+    if not restored and cache.is_file() and not model_tables(cache.read_text(encoding='utf-8')) <= model_tables(source.read_text(encoding='utf-8')):
+        return False
     cache.parent.mkdir(parents=True, exist_ok=True)
-    partial: Path = cache.with_suffix('.part')
-    shutil.copy2(source, partial)
-    os.replace(partial, cache)
+    partial: Path = cache.with_name(cache.name + '.' + str(os.getpid()) + '.part')
+    try:
+        shutil.copy2(source, partial)
+        os.replace(partial, cache)
+    finally:
+        partial.unlink(missing_ok=True)
     return True
 
 
@@ -601,6 +620,7 @@ class Studio:
         self.launched_client: bool = False
         self.launched_opponent: bool = False
         self.required_plugins: tuple[str, ...] = ()
+        self.models_restored: bool = False
 
     def start(self, skill: str, opponent: bool = False, world: str = choreography.OVERWORLD, plugins: tuple[str, ...] = ()) -> None:
         if any(plugin != 'Gloss' for plugin in plugins):
@@ -676,7 +696,8 @@ class Studio:
             install_log.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(str(latest), str(install_log))
         adapt: Path = self.server / 'plugins' / 'Adapt'
-        restore_models(adapt, LOCKS / MODELS_CACHE)
+        cache: Path | None = models_cache(self.jars / ADAPT_JAR)
+        self.models_restored = cache is not None and restore_models(adapt, cache)
         switch_off(adapt / 'adapt.toml', NOTIFY_KEYS)
         if skill != DISCOVERY_SKILL and 'Gloss' not in self.required_plugins:
             switch_off(adapt / 'skills' / (DISCOVERY_SKILL + '.toml'), (SKILL_SWITCH,))
@@ -864,11 +885,19 @@ class Studio:
             if self.server is not None and (self.server / 'logs' / 'latest.log').is_file():
                 self.log_path('server').parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(self.server / 'logs' / 'latest.log', self.log_path('server'))
-            if self.server is not None:
-                keep_models(self.server / 'plugins' / 'Adapt', LOCKS / MODELS_CACHE)
             mux('instance', 'delete', self.server_name)
         except Exception as failure:
             return ['Server cleanup: ' + repr(failure)]
+        return self.remember_models()
+
+    def remember_models(self) -> list[str]:
+        cache: Path | None = models_cache(self.jars / ADAPT_JAR)
+        if self.server is None or cache is None:
+            return []
+        try:
+            keep_models(self.server / 'plugins' / 'Adapt', cache, self.models_restored)
+        except OSError as failure:
+            return ['Models cache: ' + repr(failure)]
         return []
 
     def release_ports(self) -> list[str]:
