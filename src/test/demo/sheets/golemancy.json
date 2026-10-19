@@ -312,8 +312,8 @@
     },
     "stills": [
       {
-        "angle": "observer",
-        "at": 7.0,
+        "angle": "pov",
+        "at": 5.0,
         "name": "bound-copper-golem"
       }
     ]
@@ -1874,7 +1874,7 @@
       "adaptqa demo give {actor} 0 core/rancher 1",
       "adaptqa demo give {actor} 1 crook 1",
       "adaptqa demo give {actor} 2 node/pasture 3",
-      "execute at {actor} run summon minecraft:copper_golem ~-2.5 ~0 ~-0.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
+      "execute at {actor} run summon minecraft:copper_golem ~-2.6 ~0 ~-0.4 {Rotation:[0.0f,0.0f],NoAI:1b}",
       "execute at {actor} run setblock ~ ~ ~-4 minecraft:stone",
       "execute at {actor} run summon minecraft:sheep ~-1.2 ~ ~-2.5 {NoAI:1b,Color:14b}",
       "execute at {actor} run summon minecraft:sheep ~2.2 ~ ~-2.5 {NoAI:1b,Color:0b}",
@@ -2041,9 +2041,9 @@
       {
         "verb": "lookAt",
         "offset": [
-          -2.0,
+          -2.1,
           0.6,
-          0.0
+          0.1
         ],
         "ticks": 10
       },
@@ -2783,7 +2783,7 @@
       "adaptqa demo give {actor} 1 crook 1",
       "adaptqa demo give {actor} 2 node/input 2",
       "adaptqa demo give {actor} 3 node/filter 2",
-      "execute at {actor} run summon minecraft:copper_golem ~-2.5 ~0 ~-0.5 {Rotation:[0.0f,0.0f],NoAI:1b}",
+      "execute at {actor} run summon minecraft:copper_golem ~-2.6 ~0 ~-0.4 {Rotation:[0.0f,0.0f],NoAI:1b}",
       "item replace entity {actor} hotbar.4 with minecraft:cobblestone 1",
       "execute at {actor} run setblock ~1 ~ ~-4 minecraft:chest{Items:[{Slot:0b,id:\"minecraft:cobblestone\",count:16},{Slot:1b,id:\"minecraft:cobblestone\",count:16},{Slot:2b,id:\"minecraft:cobblestone\",count:16}]}",
       "execute at {actor} run setblock ~-1 ~ ~-4 minecraft:chest{Items:[{Slot:0b,id:\"minecraft:cobblestone\",count:1}]}"
@@ -2961,9 +2961,9 @@
       {
         "verb": "lookAt",
         "offset": [
-          -2.0,
+          -2.1,
           0.6,
-          0.0
+          0.1
         ],
         "ticks": 10
       },
@@ -4047,7 +4047,7 @@
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~0 ~ ~-2.5"
+          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~0 ~ ~-2.8"
         },
         {
           "verb": "slot",
@@ -4122,7 +4122,7 @@
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~0 ~ ~-2.6"
+          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~0 ~ ~-2.8"
         },
         {
           "verb": "command",
