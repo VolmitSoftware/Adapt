@@ -484,6 +484,34 @@ class ShowcaseSyncTest(unittest.TestCase):
         again, repeated = self.sync(text, [node], ids=['golem-frost-frame'], now='2026-10-01T00:00:00.000Z')
         self.assertEqual((repeated, again), (0, text))
 
+    def test_a_shared_showcase_clip_is_embedded_when_the_adaptation_clip_is_missing(self) -> None:
+        node: choreography.Entry = clip('golemancy-node-config', 'Node clicks', 'Frost Frame (`golem-frost-frame`)')
+        text, changed = self.sync(SHOWCASE_PAGE, [node], ids=['golem-frost-frame'], available={'golemancy-node-config'})
+        self.assertEqual(changed, 1)
+        self.assertIn('### Frost Frame (`golem-frost-frame`)\n\n' + docs_sync.block('golemancy', node.id, 'Node clicks').rstrip('\n') + '\n\nSnow.', text)
+        self.assertNotIn('golem-frost-frame-pov.webm', text)
+        again, repeated = self.sync(text, [node], ids=['golem-frost-frame'], available={'golemancy-node-config'}, now='2026-10-01T00:00:00.000Z')
+        self.assertEqual((repeated, again), (0, text))
+
+    def test_the_adaptation_block_survives_when_only_the_shared_clip_is_available(self) -> None:
+        node: choreography.Entry = clip('golemancy-node-config', 'Node clicks', 'Frost Frame (`golem-frost-frame`)')
+        both, _ = self.sync(SHOWCASE_PAGE, [node], ids=['golem-frost-frame'])
+        text, changed = self.sync(both, [node], ids=['golem-frost-frame'], available={'golemancy-node-config'}, now='2026-10-01T00:00:00.000Z')
+        self.assertEqual((changed, text), (0, both))
+
+    def test_a_shared_showcase_clip_keeps_an_existing_adaptation_block_when_the_adaptation_is_not_listed(self) -> None:
+        node: choreography.Entry = clip('golemancy-node-config', 'Node clicks', 'Frost Frame (`golem-frost-frame`)')
+        both, _ = self.sync(SHOWCASE_PAGE, [node], ids=['golem-frost-frame'])
+        text, changed = self.sync(both, [node], ids=[], now='2026-10-01T00:00:00.000Z')
+        self.assertEqual((changed, text), (0, both))
+
+    def test_a_padded_adaptation_heading_still_receives_its_shared_showcase_clip(self) -> None:
+        node: choreography.Entry = clip('golemancy-node-config', 'Node clicks', 'Frost Frame (`golem-frost-frame`)')
+        page: str = SHOWCASE_PAGE.replace('### Frost Frame (`golem-frost-frame`)', '### Frost Frame (`golem-frost-frame`)   ')
+        text, changed = self.sync(page, [node], ids=['golem-frost-frame'])
+        self.assertEqual(changed, 1)
+        self.assertIn(docs_sync.block('golemancy', node.id, 'Node clicks').rstrip('\n') + '\n\nSnow.', text)
+
     def test_adaptation_clips_alone_leave_the_shared_showcase_blocks_in_place(self) -> None:
         node: choreography.Entry = clip('golemancy-node-config', 'Node clicks', 'Frost Frame (`golem-frost-frame`)')
         text, _ = self.sync(SHOWCASE_PAGE, [node], ids=['golem-frost-frame'])

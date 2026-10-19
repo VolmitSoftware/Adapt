@@ -108,34 +108,48 @@ def showcase_groups(showcase: tuple[choreography.Entry, ...] | list[choreography
     return groups
 
 
+def kept_block(text: str, start: int, identifier: str | None) -> str:
+    existing: re.Match[str] | None = EXISTING_BLOCK.match(text, start)
+    if identifier is None or existing is None or '/' + identifier + '-pov.webm' not in existing.group(0):
+        return ''
+    return existing.group(0)
+
+
+def showcase_blocks(skill: str, clips: list[choreography.Entry], labels: dict[str, str]) -> str:
+    return ''.join('\n\n' + block(skill, entry.id, entry.showcase.title, labels).rstrip('\n') for entry in clips)
+
+
 def sync_page(page: Path, skill: str, ids: list[str], available: Callable[[str], bool], now: str,
               showcase: tuple[choreography.Entry, ...] | list[choreography.Entry] = ()) -> int:
     text: str = page.read_text(encoding='utf-8')
     changed: int = 0
     groups: dict[str, list[choreography.Entry]] = showcase_groups(showcase)
-    shared: set[str] = {target for target in groups if adaptation_heading_id(target) in ids}
+    handled: set[str] = set()
     for identifier in ids:
         match: re.Match[str] | None = heading(identifier).search(text)
         if match is None:
             raise HeadingNotFound(identifier + ' has no heading in ' + str(page))
-        if not available(identifier):
+        target: str = match.group(0).rstrip().removeprefix('### ')
+        handled.add(target)
+        extra: list[choreography.Entry] = [entry for entry in groups.get(target, []) if available(entry.id)]
+        own: bool = available(identifier)
+        if not own and not extra:
             continue
         name: str = match.group('name')
-        target: str = match.group(0).removeprefix('### ')
-        extra: list[choreography.Entry] = [entry for entry in groups.get(target, []) if available(entry.id)] if target in shared else []
+        kept: str = '' if own else kept_block(text, match.end(), identifier)
         replaced: str | None = replace_blocks(text, match.end(), (EXISTING_BLOCKS if extra else EXISTING_BLOCK).match(text, match.end()),
-                                              lambda labels: '\n\n' + block(skill, identifier, name, labels).rstrip('\n')
-                                              + ''.join('\n\n' + block(skill, entry.id, entry.showcase.title, labels).rstrip('\n') for entry in extra))
+                                              lambda labels: (('\n\n' + block(skill, identifier, name, labels).rstrip('\n')) if own else kept)
+                                              + showcase_blocks(skill, extra, labels))
         if replaced is not None:
             text = replaced
             changed += 1
     for target, group in groups.items():
         clips: list[choreography.Entry] = [entry for entry in group if available(entry.id)]
-        if not clips or target in shared:
+        if not clips or target in handled:
             continue
         match = showcase_heading(text, target, page)
-        replaced = replace_blocks(text, match.end(), EXISTING_BLOCKS.match(text, match.end()),
-                                  lambda labels: ''.join('\n\n' + block(skill, entry.id, entry.showcase.title, labels).rstrip('\n') for entry in clips))
+        kept = kept_block(text, match.end(), adaptation_heading_id(target))
+        replaced = replace_blocks(text, match.end(), EXISTING_BLOCKS.match(text, match.end()), lambda labels: kept + showcase_blocks(skill, clips, labels))
         if replaced is not None:
             text = replaced
             changed += 1
