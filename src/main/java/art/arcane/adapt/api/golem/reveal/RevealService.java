@@ -683,7 +683,7 @@ public final class RevealService extends TickedObject {
       return;
     }
     Map<UUID, Skeleton> glowing = servantsInRange(viewer, frame.servants(viewerId), settings.get().revealRange(), servantGlows);
-    Map<UUID, Skeleton> labeled = servantsInRange(viewer, glowing.values(), frame.labelRange(), servantLabels);
+    Map<UUID, Skeleton> labeled = hidesLabels(viewer) ? Map.of() : servantsInRange(viewer, glowing.values(), frame.labelRange(), servantLabels);
     int channels = frame.channels(viewerId);
     for (UUID servant : servantGlows.update(viewerId, glowing.keySet()).leaving()) {
       unglow(viewer, servant);

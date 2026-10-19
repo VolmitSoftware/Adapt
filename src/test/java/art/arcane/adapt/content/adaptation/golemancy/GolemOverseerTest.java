@@ -167,6 +167,18 @@ class GolemOverseerTest extends AdaptTestBase {
   }
 
   @Test
+  void actionBarOnlyFeedbackCyclesTheSignalWithoutTheClick() {
+    level(3);
+    signalFeedback(GolemancyPreferences.SignalFeedback.ACTION_BAR_ONLY);
+
+    adaptation.cycle(player);
+    adaptation.send(player);
+
+    assertThat(heard).singleElement().satisfies(signal -> assertThat(signal.signal()).isEqualTo(GolemSignal.HOLD));
+    feedback.verify(() -> OverseerFeedback.cycled(any(), any()), never());
+  }
+
+  @Test
   void chimeAndParticlesFeedbackPulsesEachGolemTheSignalReaches() {
     level(3);
     Entity golem = mock(Entity.class);

@@ -57,6 +57,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -160,6 +161,26 @@ class RevealServiceServantsTest extends AdaptTestBase {
 
     String plain = PlainTextComponentSerializer.plainText().serialize(texts.getFirst());
     assertThat(plain.lines().toList()).containsExactly("Skeletal Servant", "|||||||||| 12/24", "42s left · " + GolemLabel.SWATCH);
+  }
+
+  @Test
+  void anOwnerWhoHidesStatusLabelsLosesTheServantLabelButKeepsTheGlow() {
+    Skeleton servant = servant(new AtomicReference<>(5D));
+    GolemLabelPolicy labels = mock(GolemLabelPolicy.class);
+    runtime.when(GolemancyRuntime::labelPolicy).thenReturn(Optional.of(labels));
+    RevealService service = new RevealService(RevealSettings::defaults);
+    service.update(viewer);
+    TextDisplay label = spawned.getFirst();
+
+    when(labels.hidesLabels(viewer)).thenReturn(true);
+    service.update(viewer);
+    service.update(viewer);
+
+    displays.verify(() -> HiddenDisplays.hide(viewer, label));
+    verify(label).remove();
+    assertThat(spawned).hasSize(1);
+    verify(glow, times(3)).set(ViewerGlowCoordinator.Layer.GOLEMANCY, servant, viewer, ChatColor.RED);
+    verify(glow, never()).unset(eq(ViewerGlowCoordinator.Layer.GOLEMANCY), any(UUID.class), anyInt(), eq(viewer));
   }
 
   @Test

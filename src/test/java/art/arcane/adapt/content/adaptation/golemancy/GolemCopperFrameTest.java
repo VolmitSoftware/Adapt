@@ -11,14 +11,20 @@ import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemWorkSpeed;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreferenceData;
+import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
+import art.arcane.adapt.api.world.PlayerData;
+import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LightningStrike;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.AfterEach;
@@ -278,6 +284,31 @@ class GolemCopperFrameTest extends AdaptTestBase {
   }
 
   @Test
+  void anOwnerWhoSwitchedStaticOverdriveOffAndQuitKeepsItOffWhileOffline() {
+    UUID owner = UUID.randomUUID();
+    AdaptServer server = mock(AdaptServer.class);
+    when(plugin.getAdaptServer()).thenReturn(server);
+    AdaptPlayer online = learnedOwner(owner, server, 4);
+    online.getData().getPreferences().set(adaptation.getName(), "static-overdrive", "OFF");
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(owner);
+    PlayerQuitEvent quit = mock(PlayerQuitEvent.class);
+    when(quit.getPlayer()).thenReturn(player);
+    CopperGolem golem = copperGolem(new Location(world, 2.5D, 64D, 0.5D));
+    GolemHandle handle = bound(golem, false);
+    when(handle.owner()).thenReturn(owner);
+    when(handle.ownerLevel(adaptation.getName())).thenReturn(4);
+    GolemCopperFrame learned = spy(adaptation);
+    doNothing().when(learned).boost(any(CopperGolem.class), anyInt());
+
+    learned.on(quit);
+    when(server.getOnlineAdaptPlayer(owner)).thenReturn(null);
+    learned.on(lightning(new Location(world, 0.5D, 64D, 0.5D)));
+
+    verify(learned, never()).boost(any(CopperGolem.class), anyInt());
+  }
+
+  @Test
   void theStaticOverdriveControlAppearsOnceItsLevelUnlocksAndDefaultsOn() {
     assertThat(adaptation.getPlayerPreferences()).containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.STATIC_OVERDRIVE);
     GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.STATIC_OVERDRIVE, 4);
@@ -288,6 +319,24 @@ class GolemCopperFrameTest extends AdaptTestBase {
 
     GolemancyPreferenceAssertions.serverDefault(adaptation, GolemancyPreferences.STATIC_OVERDRIVE, "OFF");
     assertThat(adaptation.allowsOverdrive(owner)).isFalse();
+  }
+
+  private AdaptPlayer learnedOwner(UUID owner, AdaptServer server, int level) {
+    AdaptPlayer online = mock(AdaptPlayer.class);
+    PlayerData data = mock(PlayerData.class);
+    PlayerSkillLine line = mock(PlayerSkillLine.class);
+    Skill<?> skill = mock(Skill.class);
+    PlayerPreferenceData preferences = new PlayerPreferenceData();
+    when(server.getOnlineAdaptPlayer(owner)).thenReturn(online);
+    when(online.isRuntimeReady()).thenReturn(true);
+    when(online.getData()).thenReturn(data);
+    when(data.getPreferences()).thenReturn(preferences);
+    when(skill.isEnabled()).thenReturn(true);
+    when(skill.getName()).thenReturn("golemancy");
+    when(data.getSkillLineNullable("golemancy")).thenReturn(line);
+    when(line.getAdaptationLevel(adaptation.getName())).thenReturn(level);
+    adaptation.setSkill(skill);
+    return online;
   }
 
   private GolemCopperFrame learned(int level) {

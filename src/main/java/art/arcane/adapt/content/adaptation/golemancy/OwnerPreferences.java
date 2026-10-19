@@ -24,7 +24,11 @@ final class OwnerPreferences {
     return resolve(owner, preference) == CommonPreferences.Toggle.ON;
   }
 
-  <E extends Enum<E>> E resolve(UUID owner, PlayerPreference<E> preference) {
+  void remember(UUID owner, AdaptPlayer player) {
+    known.put(owner, new Known(player.getData().getPreferences(), adaptation.getLevel(player)));
+  }
+
+  private <E extends Enum<E>> E resolve(UUID owner, PlayerPreference<E> preference) {
     Known current = current(owner);
     return current == null
         ? PlayerPreferences.resolve(adaptation, (PlayerPreferenceData) null, 0, preference)

@@ -167,6 +167,7 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
     Player player = e.getPlayer();
     AdaptPlayer owner = getServer().getOnlineAdaptPlayer(player.getUniqueId());
     if (owner != null) {
+      owners.remember(player.getUniqueId(), owner);
       GolemancySupport.recordOwnerLevel(getName(), player.getUniqueId(), getLevel(owner));
     }
   }

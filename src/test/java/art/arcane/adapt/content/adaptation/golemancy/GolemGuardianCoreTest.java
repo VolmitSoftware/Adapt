@@ -155,7 +155,7 @@ class GolemGuardianCoreTest extends AdaptTestBase {
   }
 
   @Test
-  void interceptAndPlayerRetaliationFollowTheOwnersChoicesAndDefaultOn() {
+  void interceptAndPlayerRetaliationDefaultOnAndFollowTheServerDefault() {
     when(plugin.getAdaptServer()).thenReturn(mock(AdaptServer.class));
 
     assertThat(adaptation.intercepts(OWNER)).isTrue();

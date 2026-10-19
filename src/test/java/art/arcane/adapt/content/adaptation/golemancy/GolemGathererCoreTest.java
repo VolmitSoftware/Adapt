@@ -78,7 +78,7 @@ class GolemGathererCoreTest extends AdaptTestBase {
   }
 
   @Test
-  void magnetAndOrbAbsorbingFollowTheOwnersChoicesAndDefaultOn() {
+  void magnetAndOrbAbsorbingDefaultOnAndFollowTheServerDefault() {
     when(plugin.getAdaptServer()).thenReturn(mock(AdaptServer.class));
 
     assertThat(adaptation.magnets(OWNER)).isTrue();

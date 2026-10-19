@@ -100,7 +100,7 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void leafSweepFollowsTheOwnersChoiceAndDefaultsOn() {
+  void leafSweepDefaultsOnAndFollowsTheServerDefault() {
     when(plugin.getAdaptServer()).thenReturn(mock(AdaptServer.class));
 
     assertThat(adaptation.sweepsLeaves(OWNER)).isTrue();

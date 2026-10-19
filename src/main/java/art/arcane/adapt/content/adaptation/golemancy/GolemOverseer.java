@@ -214,7 +214,9 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
     }
     int sicLevel = getConfig().sicLevel;
     GolemSignal next = signals.compute(player.getUniqueId(), (owner, current) -> OverseerRules.next(current, level, sicLevel));
-    OverseerFeedback.cycled(this, player);
+    if (chimes(player)) {
+      OverseerFeedback.cycled(this, player);
+    }
     GolemGuiSupport.notify(player, GolemancyMessages.OVERSEER_SIGNAL, trusted("signal", GolemGuiSupport.localized(next.displayName())));
   }
 
@@ -242,7 +244,7 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
     OverseerSignal.Rally rally = signal == GolemSignal.FOLLOW && GolemancyRules.unlocked(level, config.rallyLevel) && player.isOnGround()
         ? new OverseerRally(rallyCooldowns, owner, now, config.rallyCooldownSeconds * MILLIS_PER_SECOND)
         : null;
-    boolean chime = preference(player, GolemancyPreferences.SIGNAL_FEEDBACK) == GolemancyPreferences.SignalFeedback.CHIME_AND_PARTICLES;
+    boolean chime = chimes(player);
     Overseer.dispatch(new OverseerSignal(owner, signal, player.getLocation(), OverseerRules.radius(config.radiusByLevel, level), channel, target,
         now + config.sicHoldSeconds * MILLIS_PER_SECOND, rally, chime ? this::pulse : NO_PULSE));
     if (chime) {
@@ -308,6 +310,10 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
     RayTraceResult hit = owner.getWorld().rayTrace(eye, eye.getDirection(), range, FluidCollisionMode.NEVER, true, SIC_RAY_SIZE,
         entity -> sightable(owner, entity));
     return hit != null && hit.getHitEntity() instanceof LivingEntity target && canSic(owner, target) ? target : null;
+  }
+
+  private boolean chimes(Player player) {
+    return preference(player, GolemancyPreferences.SIGNAL_FEEDBACK) == GolemancyPreferences.SignalFeedback.CHIME_AND_PARTICLES;
   }
 
   private void pulse(Entity golem) {

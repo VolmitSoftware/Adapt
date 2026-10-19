@@ -80,7 +80,7 @@ class GolemHarvesterCoreExecutionTest extends AdaptTestBase {
   }
 
   @Test
-  void tendingAndTillingFollowTheOwnersChoicesAndDefaultOn() {
+  void tendingAndTillingDefaultOnAndFollowTheServerDefault() {
     UUID owner = UUID.randomUUID();
     when(plugin.getAdaptServer()).thenReturn(mock(AdaptServer.class));
 

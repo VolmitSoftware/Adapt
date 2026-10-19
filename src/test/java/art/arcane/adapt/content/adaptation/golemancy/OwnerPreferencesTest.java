@@ -57,6 +57,16 @@ class OwnerPreferencesTest extends AdaptTestBase {
   }
 
   @Test
+  void aChoiceRememberedAtQuitHoldsWhileTheOwnerIsOfflineWithoutAnEarlierRead() {
+    AdaptPlayer player = online(magnetOff(), 4);
+
+    owners.remember(OWNER, player);
+    when(server.getOnlineAdaptPlayer(OWNER)).thenReturn(null);
+
+    assertThat(owners.enabled(OWNER, GolemancyPreferences.MAGNET)).isFalse();
+  }
+
+  @Test
   void anOfflineOwnerWithNoKnownChoiceUsesTheServerDefault() {
     assertThat(owners.enabled(OWNER, GolemancyPreferences.MAGNET)).isTrue();
 
@@ -96,11 +106,12 @@ class OwnerPreferencesTest extends AdaptTestBase {
     verify(server, never()).peekData(any(UUID.class));
   }
 
-  private void online(PlayerData data, int level) {
+  private AdaptPlayer online(PlayerData data, int level) {
     AdaptPlayer player = mock(AdaptPlayer.class);
     when(player.getData()).thenReturn(data);
     when(server.getOnlineAdaptPlayer(OWNER)).thenReturn(player);
     when(adaptation.getLevel(player)).thenReturn(level);
+    return player;
   }
 
   private static PlayerData magnetOff() {
