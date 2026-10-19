@@ -59,10 +59,6 @@ public final class GolemTask {
     return item == null ? Optional.empty() : Optional.of(item.clone());
   }
 
-  public Set<GolemBody> bodies() {
-    return bodies;
-  }
-
   public boolean allows(GolemBody body) {
     return bodies.contains(body);
   }

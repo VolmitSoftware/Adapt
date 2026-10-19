@@ -76,7 +76,6 @@ class GolemWorkSpeedTest extends AdaptTestBase {
 
     GolemWorkSpeed.unregister(first);
 
-    assertThat(GolemWorkSpeed.sources()).contains(second).doesNotContain(first);
     assertThat(GolemWorkSpeed.intervalMultiplier(handle)).isEqualTo(0.25D);
   }
 

@@ -9,7 +9,6 @@ import art.arcane.adapt.api.golem.GolemStat;
 import art.arcane.adapt.api.golem.GolemStatDelta;
 import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemState;
-import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.minion.MinionKind;
@@ -94,6 +93,7 @@ class GolemIronFrameTest extends AdaptTestBase {
   private GolemIronFrame adaptation;
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<J> scheduling;
+  private GolemRegistrations<GolemStatSource> statSources;
   private World world;
   private Player owner;
   private final List<Entity> nearby = new ArrayList<>();
@@ -108,6 +108,7 @@ class GolemIronFrameTest extends AdaptTestBase {
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), anyInt())).thenReturn(true);
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), anyInt(), any(Runnable.class))).thenReturn(true);
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenReturn(true);
+    statSources = GolemRegistrations.stats();
     adaptation = new GolemIronFrame();
     world = mock(World.class);
     lenient().when(world.getUID()).thenReturn(WORLD);
@@ -121,6 +122,7 @@ class GolemIronFrameTest extends AdaptTestBase {
 
   @AfterEach
   void close() {
+    statSources.close();
     scheduling.close();
     runtime.close();
   }
@@ -154,7 +156,7 @@ class GolemIronFrameTest extends AdaptTestBase {
       assertThat(adaptation.getCostFor(level)).as("cost at level %s", level).isPositive();
     }
     assertThat(adaptation.isRuntimeRegistered()).isFalse();
-    assertThat(GolemStats.sources()).extracting(GolemStatSource::id).doesNotContain(GolemIronFrame.STAT_SOURCE, GolemIronFrame.COLOSSUS_SOURCE);
+    assertThat(statSources.registered()).isEmpty();
     assertThat(GolemColossus.form()).isEmpty();
   }
 
@@ -566,8 +568,8 @@ class GolemIronFrameTest extends AdaptTestBase {
     return event;
   }
 
-  private static GolemStatSource statSource(String id) {
-    return GolemStats.sources().stream().filter(candidate -> candidate.id().equals(id)).findFirst().orElseThrow();
+  private GolemStatSource statSource(String id) {
+    return statSources.registered().stream().filter(candidate -> candidate.id().equals(id)).findFirst().orElseThrow();
   }
 
   private List<String> lore(int level) {

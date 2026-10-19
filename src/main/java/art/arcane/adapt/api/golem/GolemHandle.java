@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.entity.Mob;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,10 +64,6 @@ public final class GolemHandle {
     return dormancyReason != DormancyReason.NONE;
   }
 
-  public DormancyReason dormancyReason() {
-    return dormancyReason;
-  }
-
   public boolean isRetired() {
     return retired;
   }
@@ -79,17 +74,6 @@ public final class GolemHandle {
 
   public int patinaStage() {
     return patinaStage;
-  }
-
-  public void setCarried(List<ItemStack> items) {
-    List<String> encoded = new ArrayList<>(items.size());
-    for (ItemStack item : items) {
-      if (item != null && !item.getType().isAir()) {
-        encoded.add(GolemState.encodeItem(item));
-      }
-    }
-    state.setCarried(encoded);
-    flush();
   }
 
   public boolean removeCarried(String encoded) {

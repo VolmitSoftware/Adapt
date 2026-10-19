@@ -67,10 +67,6 @@ public final class GolemBrain {
     return working == null ? machine.state() : working;
   }
 
-  public Optional<LivingEntity> combatTarget() {
-    return Optional.ofNullable(combatTarget);
-  }
-
   public Optional<Location> stayAnchor() {
     return stayAnchor == null ? Optional.empty() : Optional.of(stayAnchor.clone());
   }

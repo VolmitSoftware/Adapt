@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
+import art.arcane.adapt.api.golem.gui.GolemGuiSupport;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.localization.catalog.GuiMessages;
@@ -52,16 +53,20 @@ final class SorterFetchGui {
 
   private void open(Player player, NodeKey key, int page, int amount) {
     World world = Bukkit.getWorld(key.world());
-    if (world != null) {
-      J.runAt(key.center(world), () -> list(player, key, world, page, amount));
+    if (world == null || !J.runAt(key.center(world), () -> list(player, key, world, page, amount))) {
+      GolemGuiSupport.warn(player, GolemancyMessages.NODE_GONE);
     }
   }
 
   private void list(Player player, NodeKey key, World world, int page, int amount) {
     NodeRecord record = GolemancyRuntime.nodes().flatMap(service -> service.node(key))
         .filter(found -> found.type() == NodeType.INPUT && found.owner().equals(player.getUniqueId())).orElse(null);
+    if (record == null) {
+      J.runEntity(player, () -> GolemGuiSupport.warn(player, GolemancyMessages.NODE_GONE));
+      return;
+    }
     int level = core.ownerLevel(player.getUniqueId());
-    if (record == null || !SorterRules.unlocked(level, core.config().fetchLevel)) {
+    if (!SorterRules.unlocked(level, core.config().fetchLevel)) {
       return;
     }
     List<SorterSurvey.Available> listing = network.survey(access(player), world, key, record, level, M.ms())

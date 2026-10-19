@@ -94,17 +94,6 @@ public final class GolemState {
     return state;
   }
 
-  public static Optional<GolemState> fromJson(String json) {
-    if (json == null || json.isBlank()) {
-      return Optional.empty();
-    }
-    try {
-      return Optional.of(parse(json));
-    } catch (JsonParseException | IllegalArgumentException | IllegalStateException | ClassCastException malformed) {
-      return Optional.empty();
-    }
-  }
-
   public static boolean has(Entity entity) {
     return entity != null && entity.getPersistentDataContainer().has(KEY, PersistentDataType.STRING);
   }

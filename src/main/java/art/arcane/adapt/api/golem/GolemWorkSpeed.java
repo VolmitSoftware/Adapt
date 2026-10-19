@@ -27,10 +27,6 @@ public final class GolemWorkSpeed {
     SOURCES.remove(source.id(), source);
   }
 
-  public static Collection<Source> sources() {
-    return List.copyOf(SOURCES.values());
-  }
-
   public static double intervalMultiplier(GolemHandle handle) {
     if (SOURCES.isEmpty()) {
       return 1D;

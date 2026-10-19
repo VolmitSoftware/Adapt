@@ -27,10 +27,6 @@ public final class GolemCapacity {
     SOURCES.remove(source.id(), source);
   }
 
-  public static Collection<Source> sources() {
-    return List.copyOf(SOURCES.values());
-  }
-
   public static int carry(GolemHandle handle) {
     List<Contribution> contributions = new ArrayList<>(SOURCES.size());
     for (Source source : SOURCES.values()) {

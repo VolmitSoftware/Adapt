@@ -35,7 +35,6 @@ class GolemRunesTest extends AdaptTestBase {
   void withoutRunicAugmentsEveryGolemHasNoRuneEffectsAndNoSlots() {
     GolemHandle handle = handle(ChannelMask.of(DyeColor.WHITE, DyeColor.RED));
 
-    assertThat(GolemRunes.augments()).isEmpty();
     assertThat(GolemRunes.effects(handle)).isEqualTo(GolemRuneEffects.NONE);
     assertThat(GolemRunes.layout(GolemBody.IRON, OWNER, false)).isEqualTo(GolemRuneLayout.NONE);
     assertThat(GolemRunes.channels(handle)).isEqualTo(ChannelMask.of(DyeColor.WHITE));
@@ -54,13 +53,14 @@ class GolemRunesTest extends AdaptTestBase {
 
   @Test
   void onlyTheRegisteredAugmentsCanUnregisterThemselves() {
-    FixedAugments first = new FixedAugments(GolemRuneEffects.NONE, GolemRuneLayout.NONE);
+    GolemRuneLayout iron = new GolemRuneLayout(3, List.of(1, 1, 1, 3, 5), 1, List.of(1, 3, 5), Set.of());
+    FixedAugments first = new FixedAugments(GolemRuneEffects.NONE, iron);
     register(first);
 
     assertThat(GolemRunes.unregister(new FixedAugments(GolemRuneEffects.NONE, GolemRuneLayout.NONE))).isFalse();
-    assertThat(GolemRunes.augments()).containsSame(first);
+    assertThat(GolemRunes.layout(GolemBody.IRON, OWNER, false)).isSameAs(iron);
     assertThat(GolemRunes.unregister(first)).isTrue();
-    assertThat(GolemRunes.augments()).isEmpty();
+    assertThat(GolemRunes.layout(GolemBody.IRON, OWNER, false)).isEqualTo(GolemRuneLayout.NONE);
   }
 
   @Test

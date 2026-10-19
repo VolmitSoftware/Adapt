@@ -88,6 +88,7 @@ class GolemMendingTest extends AdaptTestBase {
   private MockedStatic<GolemVitals> vitals;
   private MockedStatic<Bukkit> bukkit;
   private MockedStatic<GolemItems> items;
+  private GolemRegistrations<GolemMend.Mender> menders;
   private World world;
   private Player player;
   private PlayerInventory inventory;
@@ -110,6 +111,7 @@ class GolemMendingTest extends AdaptTestBase {
     bukkit = mockStatic(Bukkit.class);
     bukkit.when(Bukkit::getPluginManager).thenReturn(mock(PluginManager.class));
     items = mockStatic(GolemItems.class, CALLS_REAL_METHODS);
+    menders = GolemRegistrations.menders();
     adaptation = new GolemMending();
     world = mock(World.class);
     lenient().when(world.getUID()).thenReturn(WORLD);
@@ -126,6 +128,7 @@ class GolemMendingTest extends AdaptTestBase {
   @AfterEach
   void close() {
     GolemRepairXp.setSink(GolemRepairXp.Sink.NONE);
+    menders.close();
     items.close();
     bukkit.close();
     vitals.close();
@@ -165,16 +168,15 @@ class GolemMendingTest extends AdaptTestBase {
       assertThat(adaptation.getCostFor(level)).as("cost at level %s", level).isPositive();
     }
     assertThat(adaptation.isRuntimeRegistered()).isFalse();
-    assertThat(GolemMend.mender()).isEmpty();
+    assertThat(menders.registered()).isEmpty();
 
     adaptation.onRuntimeActivated();
     try {
-      assertThat(GolemMend.mender()).isPresent();
-      assertThat(GolemMend.mender().orElseThrow().regenIntervalMillis()).isEqualTo(5_000L);
+      assertThat(menders.registered()).singleElement().satisfies(mender -> assertThat(mender.regenIntervalMillis()).isEqualTo(5_000L));
     } finally {
       adaptation.unregister();
     }
-    assertThat(GolemMend.mender()).isEmpty();
+    assertThat(menders.unregistered()).isEqualTo(menders.registered());
   }
 
   @Test
@@ -362,7 +364,7 @@ class GolemMendingTest extends AdaptTestBase {
     doReturn(4).when(learned).ownerLevel(handle);
     learned.onRuntimeActivated();
     try {
-      GolemMend.Mender mender = GolemMend.mender().orElseThrow();
+      GolemMend.Mender mender = menders.registered().getFirst();
       assertThat(mender.shatters(handle)).isTrue();
       doReturn(3).when(learned).ownerLevel(handle);
       assertThat(mender.shatters(handle)).isFalse();

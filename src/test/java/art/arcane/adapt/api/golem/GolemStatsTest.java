@@ -335,14 +335,16 @@ class GolemStatsTest extends AdaptTestBase {
 
   @Test
   void registeringReplacesASourceWithTheSameIdAndUnregisteringNeedsTheSameSource() {
+    FakeAttribute maxHealth = platform.stat(golem, GolemStat.MAX_HEALTH, 4D);
     GolemStatSource first = source("frost_frame", GolemStatDelta.add(GolemStat.MAX_HEALTH, 4D));
     GolemStatSource second = source("frost_frame", GolemStatDelta.add(GolemStat.MAX_HEALTH, 8D));
     register(first);
     register(second);
 
     GolemStats.unregister(first);
+    GolemStats.recompute(handle);
 
-    assertThat(GolemStats.sources()).containsExactly(second);
+    assertThat(maxHealth.value()).isEqualTo(12D);
     assertThatThrownBy(() -> GolemStats.register(source("Bad Id"))).isInstanceOf(IllegalArgumentException.class);
   }
 

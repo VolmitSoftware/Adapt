@@ -3,7 +3,6 @@ package art.arcane.adapt.api.golem;
 import art.arcane.adapt.Adapt;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -22,10 +21,6 @@ public final class GolemRunes {
 
   public static boolean unregister(Augments augments) {
     return AUGMENTS.compareAndSet(augments, null);
-  }
-
-  public static Optional<Augments> augments() {
-    return Optional.ofNullable(AUGMENTS.get());
   }
 
   public static GolemRuneEffects effects(GolemHandle handle) {

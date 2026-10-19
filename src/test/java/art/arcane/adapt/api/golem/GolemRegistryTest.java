@@ -5,7 +5,6 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.item.DormantGolem;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.item.PackedGolem;
-import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.volmlib.util.entity.StackExclusion;
 import com.destroystokyo.paper.event.entity.EntityAddToWorldEvent;
@@ -36,7 +35,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -91,11 +89,6 @@ class GolemRegistryTest extends AdaptTestBase {
   private ItemStack coreItem;
   private ItemStack runeItem;
   private ItemStack dormantItem;
-
-  @BeforeAll
-  static void registerGolemKind() {
-    MinionIdentity.registerKind(GolemancyRuntime.MINION_KIND);
-  }
 
   @BeforeEach
   void setUp() {
@@ -160,10 +153,7 @@ class GolemRegistryTest extends AdaptTestBase {
 
     assertThat(registry.handle(golem)).contains(handle);
     assertThat(registry.loadedOf(OWNER)).containsExactly(handle);
-    assertThat(registry.isBound(golem)).isTrue();
     assertThat(registry.ownerOf(golem)).contains(OWNER);
-    assertThat(MinionIdentity.isMinion(golem)).isTrue();
-    assertThat(MinionIdentity.ownerOf(golem)).isEqualTo(OWNER);
     assertThat(handle.isDormant()).isFalse();
     assertThat(registry.activeCount()).isEqualTo(1);
   }
@@ -363,7 +353,7 @@ class GolemRegistryTest extends AdaptTestBase {
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
 
     GolemHandle handle = registry.handle(golem).orElseThrow();
-    assertThat(handle.dormancyReason()).isEqualTo(DormancyReason.OWNER_OFFLINE);
+    assertThat(handle.isDormant()).isTrue();
     verify(golem).setAware(false);
     verify(golem).setTarget(null);
     verify(golem).setInvulnerable(true);
@@ -442,7 +432,7 @@ class GolemRegistryTest extends AdaptTestBase {
 
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
 
-    assertThat(registry.handle(golem).orElseThrow().dormancyReason()).isEqualTo(DormancyReason.OWNER_UNKNOWN);
+    assertThat(registry.handle(golem).orElseThrow().isDormant()).isTrue();
     assertThat(registry.hasTickDemand()).isTrue();
 
     GolemRoster roster = new GolemRoster();
@@ -462,7 +452,7 @@ class GolemRegistryTest extends AdaptTestBase {
     registry.on(new PlayerQuitEvent(owner, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
     platform.quit(OWNER);
 
-    assertThat(handle.dormancyReason()).isEqualTo(DormancyReason.OWNER_OFFLINE);
+    assertThat(handle.isDormant()).isTrue();
     verify(golem).setAware(false);
     assertThat(GolemState.read(golem).orElseThrow().dormant()).isTrue();
     assertThat(registry.activeCount()).isZero();
@@ -488,7 +478,7 @@ class GolemRegistryTest extends AdaptTestBase {
     registry.on(new PlayerQuitEvent(owner, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
 
     assertThat(guard.isDormant()).isFalse();
-    assertThat(follower.dormancyReason()).isEqualTo(DormancyReason.OWNER_OFFLINE);
+    assertThat(follower.isDormant()).isTrue();
   }
 
   @Test
@@ -505,7 +495,7 @@ class GolemRegistryTest extends AdaptTestBase {
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(first, second)));
 
     assertThat(registry.handle(first).orElseThrow().isDormant()).isFalse();
-    assertThat(registry.handle(second).orElseThrow().dormancyReason()).isEqualTo(DormancyReason.SERVER_CAP);
+    assertThat(registry.handle(second).orElseThrow().isDormant()).isTrue();
     assertThat(registry.activeCount()).isEqualTo(1);
 
     registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(first)));
@@ -1067,7 +1057,7 @@ class GolemRegistryTest extends AdaptTestBase {
     UUID id = UUID.randomUUID();
     roster.add(new GolemRoster.Binding(id, GolemBody.IRON, GolemCoreType.BLANK, WORLD, 0L, 0L));
     IronGolem golem = persistedGolem(id, false, at(0, 64, 0));
-    String chunkOnDisk = GolemState.read(golem).orElseThrow().toJson();
+    GolemState chunkOnDisk = GolemState.read(golem).orElseThrow();
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
     registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)));
     GolemRoster savedRoster = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
@@ -1077,7 +1067,7 @@ class GolemRegistryTest extends AdaptTestBase {
     platform.join(OWNER, savedRoster);
     registry.on(new PlayerJoinEvent(owner, (Component) null));
     IronGolem reloaded = golem(new AtomicReference<>(at(0, 64, 0)));
-    GolemState.fromJson(chunkOnDisk).orElseThrow().write(reloaded);
+    chunkOnDisk.write(reloaded);
     registry.on(new ChunkLoadEvent(chunkAt(0, 0), false));
     platform.loadedChunks.add(WORLD + ":" + GolemRoster.chunkKey(0, 0));
     registry.on(new EntitiesLoadEvent(chunkAt(0, 0), List.of(reloaded)));
@@ -1100,14 +1090,14 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.BLANK);
     registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(golem)));
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(golem)));
-    String chunkOnDisk = GolemState.read(golem).orElseThrow().toJson();
+    GolemState chunkOnDisk = GolemState.read(golem).orElseThrow();
     handle.addTasks(1);
     GolemRoster savedRoster = Json.fromJson(Json.toJson(roster, false), GolemRoster.class);
 
     registry = new GolemRegistry(platform, settings::get, lifecycle);
     platform.join(OWNER, savedRoster);
     IronGolem reloaded = golem(new AtomicReference<>(at(0, 64, 0)));
-    GolemState.fromJson(chunkOnDisk).orElseThrow().write(reloaded);
+    chunkOnDisk.write(reloaded);
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(reloaded)));
 
     assertThat(registry.handle(reloaded).orElseThrow().isValidated()).isTrue();
@@ -1411,7 +1401,7 @@ class GolemRegistryTest extends AdaptTestBase {
     registry.onTick();
 
     assertThat(registry.handle(second).orElseThrow().isDormant()).isFalse();
-    assertThat(registry.handle(third).orElseThrow().dormancyReason()).isEqualTo(DormancyReason.SERVER_CAP);
+    assertThat(registry.handle(third).orElseThrow().isDormant()).isTrue();
   }
 
   @Test
@@ -1426,10 +1416,10 @@ class GolemRegistryTest extends AdaptTestBase {
 
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(newcomer)));
 
-    assertThat(registry.handle(newcomer).orElseThrow().dormancyReason()).isEqualTo(DormancyReason.SERVER_CAP);
+    assertThat(registry.handle(newcomer).orElseThrow().isDormant()).isTrue();
     registry.onTick();
     assertThat(registry.handle(queued).orElseThrow().isDormant()).isFalse();
-    assertThat(registry.handle(newcomer).orElseThrow().dormancyReason()).isEqualTo(DormancyReason.SERVER_CAP);
+    assertThat(registry.handle(newcomer).orElseThrow().isDormant()).isTrue();
   }
 
   @Test
@@ -1446,8 +1436,8 @@ class GolemRegistryTest extends AdaptTestBase {
 
     assertThat(registry.activeCount()).isEqualTo(1);
     assertThat(registry.handle(oldest).orElseThrow().isDormant()).isFalse();
-    assertThat(registry.handle(middle).orElseThrow().dormancyReason()).isEqualTo(DormancyReason.SERVER_CAP);
-    assertThat(registry.handle(newest).orElseThrow().dormancyReason()).isEqualTo(DormancyReason.SERVER_CAP);
+    assertThat(registry.handle(middle).orElseThrow().isDormant()).isTrue();
+    assertThat(registry.handle(newest).orElseThrow().isDormant()).isTrue();
     verify(newest).setAware(false);
 
     settings.set(GolemSettings.defaults());
@@ -1492,7 +1482,7 @@ class GolemRegistryTest extends AdaptTestBase {
 
     platform.quit(OWNER);
     platform.runDelayed();
-    assertThat(handle.dormancyReason()).isEqualTo(DormancyReason.OWNER_OFFLINE);
+    assertThat(handle.isDormant()).isTrue();
   }
 
   @Test
@@ -2278,7 +2268,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
-    String prePackChunk = GolemState.read(golem).orElseThrow().toJson();
+    GolemState prePackChunk = GolemState.read(golem).orElseThrow();
     GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
     Location spot = at(30, 70, 30);
     IronGolem body = golem(new AtomicReference<>(spot));
@@ -2294,7 +2284,7 @@ class GolemRegistryTest extends AdaptTestBase {
     registry.on(new EntitiesUnloadEvent(mock(Chunk.class), List.of(body)));
     assertThat(roster.golem(handle.id()).orElseThrow().sighting()).isEqualTo(2L);
     IronGolem prePackCopy = golem(new AtomicReference<>(at(3, 64, 3)));
-    GolemState.fromJson(prePackChunk).orElseThrow().write(prePackCopy);
+    prePackChunk.write(prePackCopy);
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(prePackCopy)));
 
     assertThat(GolemState.has(prePackCopy)).isFalse();
@@ -2306,7 +2296,7 @@ class GolemRegistryTest extends AdaptTestBase {
     GolemRoster roster = onlineOwner();
     IronGolem golem = golem(new AtomicReference<>(at(3, 64, 3)));
     GolemHandle handle = registry.bind(owner, golem, GolemBody.IRON, GolemCoreType.GATHERER);
-    String prePackChunk = GolemState.read(golem).orElseThrow().toJson();
+    GolemState prePackChunk = GolemState.read(golem).orElseThrow();
     GolemRegistry.Packing packing = registry.pack(handle).orElseThrow();
     Location spot = at(30, 70, 30);
     IronGolem body = golem(new AtomicReference<>(spot));
@@ -2320,7 +2310,7 @@ class GolemRegistryTest extends AdaptTestBase {
     platform.join(OWNER, roster);
     registry.on(new PlayerJoinEvent(owner, (Component) null));
     IronGolem prePackCopy = golem(new AtomicReference<>(at(3, 64, 3)));
-    GolemState.fromJson(prePackChunk).orElseThrow().write(prePackCopy);
+    prePackChunk.write(prePackCopy);
 
     registry.on(new EntitiesLoadEvent(mock(Chunk.class), List.of(prePackCopy)));
 

@@ -47,6 +47,7 @@ class GolemGathererCoreExecutionTest extends AdaptTestBase {
   private final Map<NamespacedKey, ItemStack> results = new HashMap<>();
   private final ExactIngredientBook book = new ExactIngredientBook();
   private MockedStatic<ConfiguredRecipeParser> parsers;
+  private GolemRegistrations<GolemCapacity.Source> carrySources;
   private GolemGathererCore adaptation;
 
   @BeforeEach
@@ -60,12 +61,14 @@ class GolemGathererCoreExecutionTest extends AdaptTestBase {
     ConfiguredRecipeParser parser = new ConfiguredRecipeParser(new FakeCatalog(), new FakeResolver(), book);
     parsers = mockStatic(ConfiguredRecipeParser.class, CALLS_REAL_METHODS);
     parsers.when(() -> ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook())).thenReturn(parser);
+    carrySources = GolemRegistrations.carry();
     adaptation = new GolemGathererCore();
   }
 
   @AfterEach
   void close() {
     adaptation.unregister();
+    carrySources.close();
     parsers.close();
   }
 
@@ -177,13 +180,13 @@ class GolemGathererCoreExecutionTest extends AdaptTestBase {
 
     assertThat(GolemCoreBehaviors.of(GolemCoreType.GATHERER)).hasValueSatisfying(behavior -> assertThat(behavior.policy()).isSameAs(adaptation));
     assertThat(NodeBehaviors.of(NodeType.COLLECTION)).hasValueSatisfying(behavior -> assertThat(behavior.policy()).isSameAs(adaptation));
-    assertThat(GolemCapacity.sources()).extracting(GolemCapacity.Source::id).contains(GolemGathererCore.CARRY_SOURCE);
+    assertThat(carrySources.registered()).extracting(GolemCapacity.Source::id).contains(GolemGathererCore.CARRY_SOURCE);
 
     adaptation.unregister();
 
     assertThat(GolemCoreBehaviors.of(GolemCoreType.GATHERER)).isEmpty();
     assertThat(NodeBehaviors.of(NodeType.COLLECTION)).isEmpty();
-    assertThat(GolemCapacity.sources()).extracting(GolemCapacity.Source::id).doesNotContain(GolemGathererCore.CARRY_SOURCE);
+    assertThat(carrySources.unregistered()).isEqualTo(carrySources.registered());
   }
 
   private List<String> lore(int level) {

@@ -44,10 +44,6 @@ public final class ChannelMask {
     return normalize(mask & ~bit(color));
   }
 
-  public static boolean overlaps(int first, int second) {
-    return normalize(first & second) != NONE;
-  }
-
   public static List<DyeColor> colors(int mask) {
     DyeColor[] all = DyeColor.values();
     List<DyeColor> colors = new ArrayList<>(Integer.bitCount(normalize(mask)));

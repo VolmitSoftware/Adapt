@@ -576,12 +576,10 @@ class GolemWorkerTest extends AdaptTestBase {
   }
 
   @Test
-  void coresCanDelayTheirFirstActByArrivalTimeAndActIndex() {
+  void coresActOnArrivalAndCountTheirActsInTheActIndex() {
     List<String> acts = new ArrayList<>();
-    long[] arrived = new long[1];
     collector((golem, task) -> {
-      acts.add(golem.actIndex() + "@" + (golem.nowMillis() - golem.arrivedAtMillis()));
-      arrived[0] = golem.arrivedAtMillis();
+      acts.add(golem.actIndex() + "@" + golem.nowMillis());
       return golem.actIndex() == 0 ? GolemActResult.WORKING : GolemActResult.DONE;
     });
     collectionNode(3);
@@ -594,8 +592,7 @@ class GolemWorkerTest extends AdaptTestBase {
       pulse(250L);
     }
 
-    assertThat(acts).containsExactly("0@0", "1@1000");
-    assertThat(arrived[0]).isEqualTo(arrival);
+    assertThat(acts).containsExactly("0@" + arrival, "1@" + (arrival + 1_000L));
     assertThat(brain.handle().state().stats().tasks()).isEqualTo(1L);
   }
 
@@ -1327,12 +1324,10 @@ class GolemWorkerTest extends AdaptTestBase {
   }
 
   @Test
-  void walkingOffAndBackKeepsTheActPaceAndTheFirstArrivalTime() {
+  void walkingOffAndBackKeepsTheActPace() {
     List<Long> actedAt = new ArrayList<>();
-    List<Long> arrivals = new ArrayList<>();
     collector((golem, task) -> {
       actedAt.add(platform.now);
-      arrivals.add(golem.arrivedAtMillis());
       return GolemActResult.WORKING;
     });
     collectionNode(3);
@@ -1351,7 +1346,6 @@ class GolemWorkerTest extends AdaptTestBase {
     pulse(250L);
 
     assertThat(actedAt).containsExactly(arrival, arrival + 1_000L);
-    assertThat(arrivals).containsOnly(arrival);
   }
 
   @Test

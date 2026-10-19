@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.minion;
 
+import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.content.adaptation.stealth.StealthShadowDecoy;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
@@ -15,7 +16,7 @@ import org.bukkit.entity.Wolf;
 import org.bukkit.entity.Zombie;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -27,7 +28,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-class MinionTargetingTest {
+class MinionTargetingTest extends AdaptTestBase {
   private static final NamespacedKey SERVANT_KEY = NamespacedKey.fromString("adapt:tragoul_servant_owner");
   private static final NamespacedKey DECOY_KEY = NamespacedKey.fromString("adapt:shadow_decoy_owner");
 
@@ -35,10 +36,10 @@ class MinionTargetingTest {
   private final UUID worldId = UUID.randomUUID();
   private final World world = world(worldId);
 
-  @BeforeAll
-  static void registerMinionKinds() {
+  @BeforeEach
+  void registerMinionKinds() {
     MinionIdentity.registerKind(TragoulSkeletalServant.MINION_KIND);
-    MinionIdentity.registerKind(StealthShadowDecoy.MINION_KIND);
+    new StealthShadowDecoy();
   }
 
   @Test

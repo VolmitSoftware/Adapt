@@ -83,7 +83,6 @@ class GolemCapacityTest extends AdaptTestBase {
 
     GolemCapacity.unregister(first);
 
-    assertThat(GolemCapacity.sources()).contains(second).doesNotContain(first);
     assertThat(GolemCapacity.carry(handle(Snowman.class, GolemBody.FROST))).isEqualTo(16);
   }
 

@@ -90,7 +90,7 @@ public class StealthShadowDecoy extends SimpleAdaptation<StealthShadowDecoy.Conf
           new PlayerPreference.Choice<>(Gesture.RELEASE, StealthMessages.STEALTHSHADOWDECOY_PREFERENCE_GESTURE_RELEASE, Material.LEATHER_BOOTS, 1),
           new PlayerPreference.Choice<>(Gesture.DOUBLE, StealthMessages.STEALTHSHADOWDECOY_PREFERENCE_GESTURE_DOUBLE, Material.RABBIT_FOOT, 1),
           new PlayerPreference.Choice<>(Gesture.ARMED_RELEASE, StealthMessages.STEALTHSHADOWDECOY_PREFERENCE_GESTURE_ARMED_RELEASE, Material.SHIELD, 1))));
-  public static final MinionKind MINION_KIND = new DecoyMinionKind();
+  private static final MinionKind MINION_KIND = new DecoyMinionKind();
 
   private final Map<UUID, Long> lastGesturePress = playerState();
   private final Map<UUID, Boolean> armedRelease = playerState();

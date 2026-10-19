@@ -11,7 +11,6 @@ import art.arcane.adapt.api.golem.GolemStat;
 import art.arcane.adapt.api.golem.GolemStatDelta;
 import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemState;
-import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
 import art.arcane.adapt.api.skill.Skill;
@@ -57,6 +56,7 @@ class GolemMasterworkTest extends AdaptTestBase {
   private GolemMasterwork adaptation;
   private MockedStatic<GolemancyRuntime> runtime;
   private MockedStatic<J> scheduling;
+  private GolemRegistrations<GolemStatSource> statSources;
 
   @BeforeEach
   void construct() {
@@ -68,12 +68,14 @@ class GolemMasterworkTest extends AdaptTestBase {
       invocation.<Runnable>getArgument(1).run();
       return true;
     });
+    statSources = GolemRegistrations.stats();
     adaptation = new GolemMasterwork();
   }
 
   @AfterEach
   void close() {
     adaptation.unregister();
+    statSources.close();
     scheduling.close();
     runtime.close();
   }
@@ -104,16 +106,17 @@ class GolemMasterworkTest extends AdaptTestBase {
     }
     assertThat(adaptation.getInterval()).isEqualTo(2_000L);
     assertThat(adaptation.isRuntimeRegistered()).isFalse();
-    assertThat(GolemMastery.source()).isEmpty();
-    assertThat(GolemStats.sources()).extracting(GolemStatSource::id).doesNotContain(GolemMasterwork.SOURCE);
+    learnedOwner(1);
+    assertThat(GolemMastery.maxMasterworks(OWNER)).isZero();
+    assertThat(statSources.registered()).isEmpty();
 
     adaptation.onRuntimeActivated();
-    assertThat(GolemMastery.source()).isPresent();
-    assertThat(GolemStats.sources()).extracting(GolemStatSource::id).contains(GolemMasterwork.SOURCE);
+    assertThat(GolemMastery.maxMasterworks(OWNER)).isEqualTo(1);
+    assertThat(statSources.registered()).extracting(GolemStatSource::id).contains(GolemMasterwork.SOURCE);
 
     adaptation.unregister();
-    assertThat(GolemMastery.source()).isEmpty();
-    assertThat(GolemStats.sources()).extracting(GolemStatSource::id).doesNotContain(GolemMasterwork.SOURCE);
+    assertThat(GolemMastery.maxMasterworks(OWNER)).isZero();
+    assertThat(statSources.unregistered()).isEqualTo(statSources.registered());
   }
 
   @Test
@@ -173,13 +176,12 @@ class GolemMasterworkTest extends AdaptTestBase {
   void theMasterworkSourceReadsTheOwnersLearnedLevel() {
     learnedOwner(2);
     adaptation.onRuntimeActivated();
-    GolemMastery.Source source = GolemMastery.source().orElseThrow();
 
-    assertThat(source.perks(OWNER)).isEqualTo(new GolemMastery.Perks(1, true, false, 0D));
-    assertThat(source.maxMasterworks(OWNER)).isEqualTo(1);
-    assertThat(source.heartDropChance()).isEqualTo(1D);
-    assertThat(source.perks(UUID.randomUUID())).isEqualTo(GolemMastery.Perks.NONE);
-    assertThat(source.maxMasterworks(UUID.randomUUID())).isZero();
+    assertThat(GolemMastery.perks(OWNER, true)).isEqualTo(new GolemMastery.Perks(1, true, false, 0D));
+    assertThat(GolemMastery.maxMasterworks(OWNER)).isEqualTo(1);
+    assertThat(GolemMastery.heartDropChance()).isEqualTo(1D);
+    assertThat(GolemMastery.perks(UUID.randomUUID(), true)).isEqualTo(GolemMastery.Perks.NONE);
+    assertThat(GolemMastery.maxMasterworks(UUID.randomUUID())).isZero();
   }
 
   @Test
@@ -196,7 +198,7 @@ class GolemMasterworkTest extends AdaptTestBase {
 
     learnedOwner(1);
     adaptation.onRuntimeActivated();
-    GolemStatSource source = GolemStats.sources().stream().filter(candidate -> candidate.id().equals(GolemMasterwork.SOURCE)).findFirst().orElseThrow();
+    GolemStatSource source = statSources.registered().stream().filter(candidate -> candidate.id().equals(GolemMasterwork.SOURCE)).findFirst().orElseThrow();
     assertThat(source.deltas(handle(true, false))).containsExactly(GolemStatDelta.multiplyTotal(GolemStat.MAX_HEALTH, 0.25D));
     assertThat(source.deltas(handle(false, false))).isEmpty();
   }

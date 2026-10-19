@@ -61,6 +61,7 @@ import static org.mockito.Mockito.when;
 class GolemFrostFrameTest extends AdaptTestBase {
   private GolemFrostFrame adaptation;
   private MockedStatic<GolemancyRuntime> runtime;
+  private GolemRegistrations<GolemStatSource> statSources;
   private World world;
 
   @BeforeEach
@@ -68,12 +69,14 @@ class GolemFrostFrameTest extends AdaptTestBase {
     when(plugin.namespace()).thenReturn("adapt");
     runtime = mockStatic(GolemancyRuntime.class);
     runtime.when(() -> GolemancyRuntime.handle(any())).thenReturn(Optional.empty());
+    statSources = GolemRegistrations.stats();
     adaptation = new GolemFrostFrame();
     world = mock(World.class);
   }
 
   @AfterEach
   void close() {
+    statSources.close();
     runtime.close();
   }
 
@@ -330,7 +333,7 @@ class GolemFrostFrameTest extends AdaptTestBase {
     when(iron.body()).thenReturn(GolemBody.IRON);
     when(plugin.getAdaptServer()).thenThrow(new AssertionError("owner level looked up for an iron golem"));
     adaptation.onRuntimeActivated();
-    GolemStatSource source = GolemStats.sources().stream()
+    GolemStatSource source = statSources.registered().stream()
         .filter(candidate -> candidate.id().equals(GolemFrostFrame.STAT_SOURCE)).findFirst().orElseThrow();
     try {
       assertThat(source.deltas(iron)).isEmpty();

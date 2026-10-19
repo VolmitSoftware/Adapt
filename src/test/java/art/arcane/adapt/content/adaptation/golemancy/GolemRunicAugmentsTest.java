@@ -14,7 +14,6 @@ import art.arcane.adapt.api.golem.GolemStat;
 import art.arcane.adapt.api.golem.GolemStatDelta;
 import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemState;
-import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemWorkSpeed;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItems;
@@ -79,6 +78,10 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
   private final ExactIngredientBook book = new ExactIngredientBook();
   private MockedStatic<ConfiguredRecipeParser> parsers;
   private MockedStatic<GolemancyRuntime> runtime;
+  private GolemRegistrations<GolemStatSource> statSources;
+  private GolemRegistrations<GolemCapacity.Source> carrySources;
+  private GolemRegistrations<GolemWorkSpeed.Source> workSpeedSources;
+  private GolemRegistrations<GolemRunes.Augments> augmentSources;
   private GolemRunicAugments adaptation;
 
   @BeforeEach
@@ -95,11 +98,19 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     parsers.when(() -> ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook())).thenReturn(parser);
     runtime = mockStatic(GolemancyRuntime.class);
     runtime.when(() -> GolemancyRuntime.handle(any())).thenReturn(Optional.empty());
+    statSources = GolemRegistrations.stats();
+    carrySources = GolemRegistrations.carry();
+    workSpeedSources = GolemRegistrations.workSpeed();
+    augmentSources = GolemRegistrations.augments();
     adaptation = new GolemRunicAugments();
   }
 
   @AfterEach
   void close() {
+    augmentSources.close();
+    workSpeedSources.close();
+    carrySources.close();
+    statSources.close();
     runtime.close();
     parsers.close();
   }
@@ -145,8 +156,8 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
       assertThat(adaptation.getCostFor(level)).as("cost at level %s", level).isPositive();
     }
     assertThat(adaptation.isRuntimeRegistered()).isFalse();
-    assertThat(GolemStats.sources()).extracting(GolemStatSource::id).doesNotContain(GolemRunicAugments.SOURCE);
-    assertThat(GolemRunes.augments()).isEmpty();
+    assertThat(statSources.registered()).isEmpty();
+    assertThat(augmentSources.registered()).isEmpty();
   }
 
   @Test
@@ -200,18 +211,18 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
   void runeSourcesAndAugmentsRegisterOnlyWhileTheAdaptationRuns() {
     adaptation.onRuntimeActivated();
     try {
-      assertThat(GolemStats.sources()).extracting(GolemStatSource::id).contains(GolemRunicAugments.SOURCE);
-      assertThat(GolemCapacity.sources()).extracting(GolemCapacity.Source::id).contains(GolemRunicAugments.SOURCE);
-      assertThat(GolemWorkSpeed.sources()).extracting(GolemWorkSpeed.Source::id).contains(GolemRunicAugments.SOURCE);
-      assertThat(GolemRunes.augments()).isPresent();
+      assertThat(statSources.registered()).extracting(GolemStatSource::id).contains(GolemRunicAugments.SOURCE);
+      assertThat(carrySources.registered()).extracting(GolemCapacity.Source::id).contains(GolemRunicAugments.SOURCE);
+      assertThat(workSpeedSources.registered()).extracting(GolemWorkSpeed.Source::id).contains(GolemRunicAugments.SOURCE);
+      assertThat(augmentSources.registered()).hasSize(1);
     } finally {
       adaptation.unregister();
     }
 
-    assertThat(GolemStats.sources()).extracting(GolemStatSource::id).doesNotContain(GolemRunicAugments.SOURCE);
-    assertThat(GolemCapacity.sources()).extracting(GolemCapacity.Source::id).doesNotContain(GolemRunicAugments.SOURCE);
-    assertThat(GolemWorkSpeed.sources()).extracting(GolemWorkSpeed.Source::id).doesNotContain(GolemRunicAugments.SOURCE);
-    assertThat(GolemRunes.augments()).isEmpty();
+    assertThat(statSources.unregistered()).isEqualTo(statSources.registered());
+    assertThat(carrySources.unregistered()).isEqualTo(carrySources.registered());
+    assertThat(workSpeedSources.unregistered()).isEqualTo(workSpeedSources.registered());
+    assertThat(augmentSources.unregistered()).isEqualTo(augmentSources.registered());
   }
 
   @Test
@@ -520,12 +531,12 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     return event;
   }
 
-  private static GolemStatSource statSource() {
-    return GolemStats.sources().stream().filter(source -> source.id().equals(GolemRunicAugments.SOURCE)).findFirst().orElseThrow();
+  private GolemStatSource statSource() {
+    return statSources.registered().stream().filter(source -> source.id().equals(GolemRunicAugments.SOURCE)).findFirst().orElseThrow();
   }
 
-  private static GolemCapacity.Source capacitySource() {
-    return GolemCapacity.sources().stream().filter(source -> source.id().equals(GolemRunicAugments.SOURCE)).findFirst().orElseThrow();
+  private GolemCapacity.Source capacitySource() {
+    return carrySources.registered().stream().filter(source -> source.id().equals(GolemRunicAugments.SOURCE)).findFirst().orElseThrow();
   }
 
   private List<String> lore(int level) {

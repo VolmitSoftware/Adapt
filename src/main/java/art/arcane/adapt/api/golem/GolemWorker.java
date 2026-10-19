@@ -193,10 +193,6 @@ final class GolemWorker {
     return dx * dx + dy * dy + dz * dz <= radius * radius;
   }
 
-  long arrivedAt(long nowMillis) {
-    return job == null ? nowMillis : job.arrivedAt;
-  }
-
   int actIndex() {
     return job == null ? 0 : job.actIndex;
   }
@@ -271,7 +267,6 @@ final class GolemWorker {
       arrive();
       if (!current.reached) {
         current.reached = true;
-        current.arrivedAt = nowMillis;
         nextActAt = nowMillis;
       }
     }
@@ -800,7 +795,6 @@ final class GolemWorker {
     private final GolemCoreType core;
     private final WorkedNode node;
     private boolean reached;
-    private long arrivedAt;
     private int actIndex;
 
     private Job(GolemTask task, GolemActor actor, Source source, GolemCoreType core, WorkedNode node) {

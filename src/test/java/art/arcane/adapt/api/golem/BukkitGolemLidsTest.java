@@ -3,12 +3,14 @@ package art.arcane.adapt.api.golem;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Chest;
+import org.bukkit.block.Hopper;
 import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 class BukkitGolemLidsTest {
   @Test
@@ -26,7 +28,14 @@ class BukkitGolemLidsTest {
 
   @Test
   void containersWithoutALidAreLeftAlone() {
-    BukkitGolemLids.apply(block(mock(BlockState.class)), true);
+    Hopper hopper = mock(Hopper.class);
+    Block block = block(hopper);
+
+    BukkitGolemLids.apply(block, true);
+    BukkitGolemLids.apply(block, false);
+
+    verifyNoInteractions(hopper);
+    verify(block, never()).getState();
   }
 
   private static Block block(BlockState state) {

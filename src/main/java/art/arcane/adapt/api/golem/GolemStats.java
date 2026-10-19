@@ -8,7 +8,6 @@ import org.bukkit.entity.Mob;
 import org.bukkit.inventory.EquipmentSlotGroup;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +33,6 @@ public final class GolemStats {
 
   public static void unregister(GolemStatSource source) {
     SOURCES.remove(source.id(), source);
-  }
-
-  public static Collection<GolemStatSource> sources() {
-    return List.copyOf(SOURCES.values());
   }
 
   public static NamespacedKey key(String source, GolemStat stat) {

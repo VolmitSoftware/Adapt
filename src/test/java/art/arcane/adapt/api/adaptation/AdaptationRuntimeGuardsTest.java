@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.adaptation;
 
+import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.skill.Skill;
@@ -18,7 +19,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -35,11 +36,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-class AdaptationRuntimeGuardsTest {
-  @BeforeAll
-  static void registerMinionKinds() {
+class AdaptationRuntimeGuardsTest extends AdaptTestBase {
+  @BeforeEach
+  void registerMinionKinds() {
     MinionIdentity.registerKind(TragoulSkeletalServant.MINION_KIND);
-    MinionIdentity.registerKind(StealthShadowDecoy.MINION_KIND);
+    new StealthShadowDecoy();
   }
 
   @Test

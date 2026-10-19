@@ -48,6 +48,9 @@ import static org.mockito.Mockito.when;
 class GolemCopperFrameTest extends AdaptTestBase {
   private GolemCopperFrame adaptation;
   private MockedStatic<GolemancyRuntime> runtime;
+  private GolemRegistrations<GolemStatSource> statSources;
+  private GolemRegistrations<GolemCapacity.Source> carrySources;
+  private GolemRegistrations<GolemWorkSpeed.Source> workSpeedSources;
   private World world;
   private final List<Entity> nearby = new ArrayList<>();
 
@@ -56,6 +59,9 @@ class GolemCopperFrameTest extends AdaptTestBase {
     when(plugin.namespace()).thenReturn("adapt");
     runtime = mockStatic(GolemancyRuntime.class);
     runtime.when(() -> GolemancyRuntime.handle(any())).thenReturn(Optional.empty());
+    statSources = GolemRegistrations.stats();
+    carrySources = GolemRegistrations.carry();
+    workSpeedSources = GolemRegistrations.workSpeed();
     adaptation = new GolemCopperFrame();
     world = mock(World.class);
     lenient().when(world.getNearbyEntities(any(BoundingBox.class), any())).thenAnswer(invocation -> {
@@ -66,6 +72,9 @@ class GolemCopperFrameTest extends AdaptTestBase {
 
   @AfterEach
   void close() {
+    workSpeedSources.close();
+    carrySources.close();
+    statSources.close();
     runtime.close();
   }
 
@@ -130,7 +139,7 @@ class GolemCopperFrameTest extends AdaptTestBase {
       previous = adaptation.getLevelPercent(level);
     }
     assertThat(adaptation.isRuntimeRegistered()).isFalse();
-    assertThat(GolemStats.sources()).extracting(GolemStatSource::id).doesNotContain(GolemCopperFrame.STAT_SOURCE, GolemCopperFrame.PATINA_SOURCE);
+    assertThat(statSources.registered()).isEmpty();
   }
 
   @Test
@@ -268,19 +277,19 @@ class GolemCopperFrameTest extends AdaptTestBase {
     return event;
   }
 
-  private static GolemStatSource statSource(String id) {
-    return GolemStats.sources().stream().filter(candidate -> candidate.id().equals(id)).findFirst().orElseThrow();
+  private GolemStatSource statSource(String id) {
+    return statSources.registered().stream().filter(candidate -> candidate.id().equals(id)).findFirst().orElseThrow();
   }
 
-  private static GolemCapacity.Source carrySource() {
-    return GolemCapacity.sources().stream().filter(candidate -> candidate.id().equals(GolemCopperFrame.STAT_SOURCE)).findFirst().orElseThrow();
+  private GolemCapacity.Source carrySource() {
+    return carrySources.registered().stream().filter(candidate -> candidate.id().equals(GolemCopperFrame.STAT_SOURCE)).findFirst().orElseThrow();
   }
 
-  private static GolemWorkSpeed.Source workSpeedSource() {
-    return GolemWorkSpeed.sources().stream().filter(candidate -> candidate.id().equals(GolemCopperFrame.STAT_SOURCE)).findFirst().orElseThrow();
+  private GolemWorkSpeed.Source workSpeedSource() {
+    return workSpeedSources.registered().stream().filter(candidate -> candidate.id().equals(GolemCopperFrame.STAT_SOURCE)).findFirst().orElseThrow();
   }
 
-  private static void unregisterSources() {
+  private void unregisterSources() {
     GolemStats.unregister(statSource(GolemCopperFrame.STAT_SOURCE));
     GolemStats.unregister(statSource(GolemCopperFrame.PATINA_SOURCE));
     GolemCapacity.unregister(carrySource());

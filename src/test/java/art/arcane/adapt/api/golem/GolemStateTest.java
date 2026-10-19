@@ -7,6 +7,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +55,7 @@ class GolemStateTest {
 
     assertThat(state.cores()).containsExactly(GolemCoreType.GUARDIAN, GolemCoreType.GATHERER);
     assertThat(state.mode()).isSameAs(GolemMode.STAY);
-    GolemState back = GolemState.fromJson(state.toJson()).orElseThrow();
+    GolemState back = reloaded(state);
     assertThat(back.body()).isSameAs(GolemBody.IRON);
     assertThat(back.cores()).containsExactly(GolemCoreType.GUARDIAN, GolemCoreType.GATHERER);
     assertThat(back.mode()).isSameAs(GolemMode.STAY);
@@ -77,7 +78,7 @@ class GolemStateTest {
     assertThat(state.essencePoints()).isEqualTo(Integer.MAX_VALUE);
     JsonObject stored = new Gson().fromJson(state.toJson(), JsonObject.class);
     stored.addProperty("essence", -5.5D);
-    assertThat(GolemState.fromJson(stored.toString()).orElseThrow().essencePoints()).isZero();
+    assertThat(readPayload(stored.toString()).orElseThrow().essencePoints()).isZero();
   }
 
   @Test
@@ -91,7 +92,7 @@ class GolemStateTest {
   void everyFieldSurvivesTheJsonRoundTrip() {
     GolemState state = populated();
 
-    GolemState back = GolemState.fromJson(state.toJson()).orElseThrow();
+    GolemState back = reloaded(state);
 
     assertThat(back.id()).isEqualTo(GOLEM);
     assertThat(back.owner()).isEqualTo(OWNER);
@@ -120,11 +121,11 @@ class GolemStateTest {
     GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
 
     assertThat(state.snowTrail()).isFalse();
-    assertThat(GolemState.fromJson("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"frost\"}").orElseThrow().snowTrail()).isFalse();
+    assertThat(readPayload("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"frost\"}").orElseThrow().snowTrail()).isFalse();
 
     state.setSnowTrail(true);
 
-    assertThat(GolemState.fromJson(state.toJson()).orElseThrow().snowTrail()).isTrue();
+    assertThat(reloaded(state).snowTrail()).isTrue();
   }
 
   @Test
@@ -132,11 +133,11 @@ class GolemStateTest {
     GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
 
     assertThat(state.sighting()).isZero();
-    assertThat(GolemState.fromJson("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"frost\"}").orElseThrow().sighting()).isZero();
+    assertThat(readPayload("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"frost\"}").orElseThrow().sighting()).isZero();
 
     state.setSighting(17L);
 
-    assertThat(GolemState.fromJson(state.toJson()).orElseThrow().sighting()).isEqualTo(17L);
+    assertThat(reloaded(state).sighting()).isEqualTo(17L);
   }
 
   @Test
@@ -144,12 +145,12 @@ class GolemStateTest {
     GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
 
     assertThat(state.ownerLevel("frost-frame")).isZero();
-    assertThat(GolemState.fromJson("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"frost\"}").orElseThrow().ownerLevel("frost-frame")).isZero();
+    assertThat(readPayload("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"frost\"}").orElseThrow().ownerLevel("frost-frame")).isZero();
 
     assertThat(state.setOwnerLevel("frost-frame", 3)).isTrue();
     assertThat(state.setOwnerLevel("frost-frame", 3)).isFalse();
     assertThat(state.setOwnerLevel("frost-frame", 4)).isTrue();
-    GolemState back = GolemState.fromJson(state.toJson()).orElseThrow();
+    GolemState back = reloaded(state);
 
     assertThat(back.ownerLevel("frost-frame")).isEqualTo(4);
     assertThat(back.ownerLevel("runic-augments")).isZero();
@@ -174,7 +175,7 @@ class GolemStateTest {
 
     state.setMaxHealthMark(24D);
 
-    assertThat(GolemState.fromJson(state.toJson()).orElseThrow().maxHealthMark()).isEqualTo(24D);
+    assertThat(reloaded(state).maxHealthMark()).isEqualTo(24D);
   }
 
   @Test
@@ -191,12 +192,12 @@ class GolemStateTest {
 
   @Test
   void malformedOrIncompleteJsonReadsAsEmpty() {
-    assertThat(GolemState.fromJson(null)).isEmpty();
-    assertThat(GolemState.fromJson("")).isEmpty();
-    assertThat(GolemState.fromJson("{not json")).isEmpty();
-    assertThat(GolemState.fromJson("{\"owner\":\"" + OWNER + "\",\"body\":\"iron\"}")).isEmpty();
-    assertThat(GolemState.fromJson("{\"id\":\"" + GOLEM + "\",\"body\":\"iron\"}")).isEmpty();
-    assertThat(GolemState.fromJson("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"gold\"}")).isEmpty();
+    assertThat(GolemState.read(null)).isEmpty();
+    assertThat(readPayload("")).isEmpty();
+    assertThat(readPayload("{not json")).isEmpty();
+    assertThat(readPayload("{\"owner\":\"" + OWNER + "\",\"body\":\"iron\"}")).isEmpty();
+    assertThat(readPayload("{\"id\":\"" + GOLEM + "\",\"body\":\"iron\"}")).isEmpty();
+    assertThat(readPayload("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"gold\"}")).isEmpty();
   }
 
   @Test
@@ -204,7 +205,7 @@ class GolemStateTest {
     String json = "{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"iron\",\"cores\":[\"guardian\",\"wizard\"],"
         + "\"runes\":[{\"aspect\":\"might\",\"tier\":1},{\"aspect\":\"chaos\",\"tier\":1},{\"aspect\":\"tide\",\"tier\":9}]}";
 
-    GolemState state = GolemState.fromJson(json).orElseThrow();
+    GolemState state = readPayload(json).orElseThrow();
 
     assertThat(state.cores()).containsExactly(GolemCoreType.GUARDIAN);
     assertThat(state.runes()).containsExactly(new GolemRune(GolemRuneType.MIGHT, 1));
@@ -259,6 +260,18 @@ class GolemStateTest {
 
     assertThat(GolemState.has(golem)).isTrue();
     assertThat(GolemState.read(golem)).isEmpty();
+  }
+
+  private static GolemState reloaded(GolemState state) {
+    IronGolem golem = GolemTestEntities.entity(IronGolem.class);
+    state.write(golem);
+    return GolemState.read(golem).orElseThrow();
+  }
+
+  private static Optional<GolemState> readPayload(String json) {
+    IronGolem golem = GolemTestEntities.entity(IronGolem.class);
+    golem.getPersistentDataContainer().set(GolemState.KEY, PersistentDataType.STRING, json);
+    return GolemState.read(golem);
   }
 
   private static GolemState populated() {

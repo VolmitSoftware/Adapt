@@ -391,7 +391,7 @@ class GolemBrainTest extends AdaptTestBase {
     platform.runDelayed();
 
     assertThat(brain.state()).isEqualTo(GolemBrainState.COMBAT);
-    assertThat(brain.combatTarget()).contains(zombie);
+    assertThat(controller.target).isSameAs(zombie);
     assertThat(controller.calls).containsSubsequence("target:zombie", "stop");
 
     controller.calls.clear();
@@ -401,7 +401,7 @@ class GolemBrainTest extends AdaptTestBase {
     platform.runDelayed();
 
     assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
-    assertThat(brain.combatTarget()).isEmpty();
+    assertThat(controller.target).isNull();
     assertThat(controller.calls).containsSubsequence("target:null", "move:10.5,64.0,0.5");
   }
 
@@ -418,17 +418,17 @@ class GolemBrainTest extends AdaptTestBase {
 
     platform.runDelayed();
 
-    assertThat(brain.combatTarget()).contains(commanded);
+    assertThat(controller.target).isSameAs(commanded);
     assertThat(brain.state()).isEqualTo(GolemBrainState.COMBAT);
     assertThat(policy.selections).isZero();
 
     platform.now += 19_999L;
     platform.runDelayed();
-    assertThat(brain.combatTarget()).contains(commanded);
+    assertThat(controller.target).isSameAs(commanded);
 
     platform.now += 1L;
     platform.runDelayed();
-    assertThat(brain.combatTarget()).contains(chosen);
+    assertThat(controller.target).isSameAs(chosen);
   }
 
   @Test
@@ -439,13 +439,13 @@ class GolemBrainTest extends AdaptTestBase {
     brain.start();
     brain.command(commanded, platform.now + 20_000L);
     platform.runDelayed();
-    assertThat(brain.combatTarget()).contains(commanded);
+    assertThat(controller.target).isSameAs(commanded);
 
     lenient().when(commanded.isDead()).thenReturn(true);
     platform.now += 1_000L;
     platform.runDelayed();
 
-    assertThat(brain.combatTarget()).isEmpty();
+    assertThat(controller.target).isNull();
     assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
   }
 
@@ -463,7 +463,7 @@ class GolemBrainTest extends AdaptTestBase {
     platform.now += 1_000L;
     platform.runDelayed();
 
-    assertThat(brain.combatTarget()).isEmpty();
+    assertThat(controller.target).isNull();
   }
 
   @Test
@@ -474,13 +474,13 @@ class GolemBrainTest extends AdaptTestBase {
     brain.start();
     brain.command(commanded, platform.now + 20_000L);
     platform.runDelayed();
-    assertThat(brain.combatTarget()).contains(commanded);
+    assertThat(controller.target).isSameAs(commanded);
 
     brain.clearCommand();
     platform.now += 1_000L;
     platform.runDelayed();
 
-    assertThat(brain.combatTarget()).isEmpty();
+    assertThat(controller.target).isNull();
     assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
   }
 
@@ -493,7 +493,7 @@ class GolemBrainTest extends AdaptTestBase {
 
     platform.runDelayed();
 
-    assertThat(brain.combatTarget()).isEmpty();
+    assertThat(controller.target).isNull();
     assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
   }
 
@@ -891,6 +891,7 @@ class GolemBrainTest extends AdaptTestBase {
 
   private static final class RecordingController implements GolemController {
     private final List<String> calls = new ArrayList<>();
+    private LivingEntity target;
     private boolean failAttach;
     private boolean failRelease;
     private boolean failTick;
@@ -915,6 +916,7 @@ class GolemBrainTest extends AdaptTestBase {
 
     @Override
     public void setTarget(LivingEntity target) {
+      this.target = target;
       calls.add(target == null ? "target:null" : "target:zombie");
     }
 

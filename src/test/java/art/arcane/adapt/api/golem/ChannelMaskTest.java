@@ -44,15 +44,6 @@ class ChannelMaskTest {
   }
 
   @Test
-  void overlapRequiresASharedColor() {
-    int redBlue = ChannelMask.of(DyeColor.RED, DyeColor.BLUE);
-
-    assertThat(ChannelMask.overlaps(redBlue, ChannelMask.of(DyeColor.BLUE))).isTrue();
-    assertThat(ChannelMask.overlaps(redBlue, ChannelMask.of(DyeColor.GREEN))).isFalse();
-    assertThat(ChannelMask.overlaps(redBlue, ChannelMask.NONE)).isFalse();
-  }
-
-  @Test
   void normalizeDropsBitsAboveSixteen() {
     assertThat(ChannelMask.normalize(0x1_0003)).isEqualTo(0x0003);
     assertThat(ChannelMask.normalize(-1)).isEqualTo(ChannelMask.ALL);

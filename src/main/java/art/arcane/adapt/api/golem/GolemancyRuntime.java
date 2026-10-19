@@ -45,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public final class GolemancyRuntime {
-  public static final MinionKind MINION_KIND = new BoundGolemKind();
+  private static final MinionKind MINION_KIND = new BoundGolemKind();
 
   private static final String MOB_GOALS_CLASS = "com.destroystokyo.paper.entity.ai.MobGoals";
   private static final GolemTargetPolicy COMPANION = new CompanionTargetPolicy();
@@ -203,10 +203,6 @@ public final class GolemancyRuntime {
 
   public static void configurePlinths(PlinthSettings next) {
     plinthSettings = Objects.requireNonNull(next);
-  }
-
-  public static Optional<PlinthHost> plinthHost() {
-    return Optional.ofNullable(plinthHost);
   }
 
   public static void setPlinthHost(PlinthHost host) {

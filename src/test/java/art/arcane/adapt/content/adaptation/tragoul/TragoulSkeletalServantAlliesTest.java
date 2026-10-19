@@ -3,9 +3,10 @@ package art.arcane.adapt.content.adaptation.tragoul;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemState;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.api.minion.MinionKind;
 import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Skeleton;
@@ -27,11 +28,22 @@ class TragoulSkeletalServantAlliesTest {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000000f1");
   private static final UUID RIVAL = UUID.fromString("00000000-0000-0000-0000-0000000000f2");
   private static final NamespacedKey SERVANT_KEY = NamespacedKey.fromString("adapt:tragoul_servant_owner");
+  private static final MinionKind BOUND_GOLEMS = new MinionKind() {
+    @Override
+    public boolean matches(Entity entity) {
+      return GolemState.has(entity);
+    }
+
+    @Override
+    public UUID ownerOf(Entity entity) {
+      return GolemState.read(entity).map(GolemState::owner).orElse(null);
+    }
+  };
 
   @BeforeAll
   static void registerKinds() {
     MinionIdentity.registerKind(TragoulSkeletalServant.MINION_KIND);
-    MinionIdentity.registerKind(GolemancyRuntime.MINION_KIND);
+    MinionIdentity.registerKind(BOUND_GOLEMS);
   }
 
   @Test

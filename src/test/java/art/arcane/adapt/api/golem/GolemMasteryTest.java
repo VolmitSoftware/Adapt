@@ -47,7 +47,8 @@ class GolemMasteryTest {
     assertThat(GolemMastery.perks(handle)).isEqualTo(GolemMastery.Perks.NONE);
     assertThat(mastery.asked).containsExactly(OWNER);
     assertThat(GolemMastery.unregister(mastery)).isTrue();
-    assertThat(GolemMastery.source()).isEmpty();
+    handle.setMasterwork(true);
+    assertThat(GolemMastery.perks(handle)).isEqualTo(GolemMastery.Perks.NONE);
   }
 
   @Test

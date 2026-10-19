@@ -4,7 +4,6 @@ import art.arcane.adapt.Adapt;
 import org.bukkit.Location;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -22,10 +21,6 @@ public final class GolemMend {
 
   public static boolean unregister(Mender mender) {
     return MENDER.compareAndSet(mender, null);
-  }
-
-  public static Optional<Mender> mender() {
-    return Optional.ofNullable(MENDER.get());
   }
 
   static long regenIntervalMillis() {

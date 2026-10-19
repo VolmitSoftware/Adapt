@@ -122,10 +122,6 @@ public final class GolemRegistry extends TickedObject {
     return List.copyOf(loaded);
   }
 
-  public boolean isBound(Entity entity) {
-    return GolemState.has(entity);
-  }
-
   public Optional<UUID> ownerOf(Entity entity) {
     Optional<GolemHandle> handle = handle(entity);
     if (handle.isPresent()) {

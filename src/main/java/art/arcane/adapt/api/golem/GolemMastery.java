@@ -21,10 +21,6 @@ public final class GolemMastery {
     return SOURCE.compareAndSet(source, null);
   }
 
-  public static Optional<Source> source() {
-    return Optional.ofNullable(SOURCE.get());
-  }
-
   public static Perks perks(GolemHandle handle) {
     return perks(handle.owner(), handle.state().masterwork());
   }

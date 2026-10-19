@@ -116,7 +116,7 @@ class LumberNodeBehaviorTest {
     behavior.scan(node(), budget(true));
 
     assertThat(jobs()).containsExactly("fell -3,64,-3", "fell 0,64,0");
-    assertThat(posted).allMatch(task -> task.bodies().equals(EnumSet.allOf(GolemBody.class)));
+    assertThat(posted).allMatch(task -> EnumSet.allOf(GolemBody.class).stream().allMatch(task::allows));
   }
 
   @Test
@@ -150,7 +150,7 @@ class LumberNodeBehaviorTest {
     tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 30, false);
 
     behavior.scan(node(), budget(true));
-    assertThat(posted).singleElement().satisfies(task -> assertThat(task.bodies()).containsExactly(GolemBody.IRON));
+    assertThat(posted).singleElement().satisfies(task -> assertThat(EnumSet.allOf(GolemBody.class)).filteredOn(task::allows).containsExactly(GolemBody.IRON));
 
     posted.clear();
     config.ironTreeCapByLevel = new ArrayList<>(List.of(20));

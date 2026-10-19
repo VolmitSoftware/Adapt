@@ -63,10 +63,6 @@ public final class GolemContext {
     return scope.core();
   }
 
-  public long arrivedAtMillis() {
-    return worker.arrivedAt(scope.nowMillis());
-  }
-
   public int actIndex() {
     return worker.actIndex();
   }

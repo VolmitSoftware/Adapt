@@ -6,6 +6,7 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
+import org.bukkit.entity.IronGolem;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -154,7 +155,9 @@ class GolemSnapshotTest {
     assertThat(restored.dormant()).isFalse();
     assertThat(restored.colossus()).isFalse();
     assertThat(restored.hostileDamagePool()).isZero();
-    assertThat(GolemState.fromJson(restored.toJson()).orElseThrow().id()).isEqualTo(GOLEM);
+    IronGolem body = GolemTestEntities.entity(IronGolem.class);
+    restored.write(body);
+    assertThat(GolemState.read(body).orElseThrow().id()).isEqualTo(GOLEM);
   }
 
   @Test

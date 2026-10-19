@@ -1,5 +1,6 @@
 package art.arcane.adapt.api.minion;
 
+import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.content.adaptation.stealth.StealthShadowDecoy;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import org.bukkit.NamespacedKey;
@@ -20,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class MinionIdentityTest {
+class MinionIdentityTest extends AdaptTestBase {
   private static final NamespacedKey SERVANT_KEY = NamespacedKey.fromString("adapt:tragoul_servant_owner");
   private static final NamespacedKey DECOY_KEY = NamespacedKey.fromString("adapt:shadow_decoy_owner");
 
@@ -103,7 +104,7 @@ class MinionIdentityTest {
   @Test
   void servantAndDecoyKindsResolveOwnersFromTheirOwnerKeys() {
     MinionIdentity.registerKind(TragoulSkeletalServant.MINION_KIND);
-    MinionIdentity.registerKind(StealthShadowDecoy.MINION_KIND);
+    new StealthShadowDecoy();
     UUID ownerId = UUID.randomUUID();
     Skeleton servant = tagged(Skeleton.class, SERVANT_KEY, ownerId.toString());
     ArmorStand decoy = tagged(ArmorStand.class, DECOY_KEY, ownerId.toString());
