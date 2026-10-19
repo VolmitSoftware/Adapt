@@ -30,6 +30,7 @@ class FakeStudio:
         self.recording = False
         self.evicted = False
         self.cleared = 0
+        self.refunds = 0
         self.stops = 0
         self.replays = replays
         self.gates: list[int] = []
@@ -42,7 +43,7 @@ class FakeStudio:
     def reply(self, text: str) -> str:
         if text.startswith('adaptqa demo set'):
             return ('ADAPT_QA DEMO SET wall {"actor":{"x":0.5,"y":64.0,"z":0.5,"yaw":-90.0,"pitch":0.0},'
-                    '"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0},"cleared":' + str(self.cleared) + '}')
+                    '"camera":{"x":-2.5,"y":66.6,"z":-6.5,"yaw":-30.0,"pitch":14.0},"cleared":' + str(self.cleared) + ',"refunds":' + str(self.refunds) + '}')
         return 'ADAPT_QA DEMO OK'
 
     def state(self) -> dict:
@@ -325,32 +326,53 @@ class RecordPhaseTest(unittest.TestCase):
                 record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
         return log
 
-    def cleared_take(self, cleared: int) -> list[str]:
+    def cleared_take(self, cleared: int, refunds: int, probes: list[str], clock: list[float] | None = None) -> list[str]:
         with tempfile.TemporaryDirectory() as tmp:
             replays = Path(tmp) / 'flashback' / 'replays'
             replays.mkdir(parents=True)
             studio = FakeStudio(replays)
             studio.cleared = cleared
+            studio.refunds = refunds
             log: list[str] = []
+            pending: list[str] = list(probes)
 
             def sent(text: str) -> str:
                 log.append('rcon:' + text)
+                if text.startswith('adaptqa demo probe'):
+                    return pending.pop(0) if len(pending) > 1 else pending[0]
                 return studio.reply(text)
 
             studio.rcon.command.side_effect = sent
-            with mock.patch.object(record_phase.time, 'sleep', side_effect=lambda seconds: log.append('sleep:' + str(seconds))):
+            ticks: list[float] = clock if clock is not None else [0.0]
+
+            def monotonic() -> float:
+                ticks[0] += 1.0
+                return ticks[0]
+
+            with mock.patch.object(record_phase.time, 'monotonic', side_effect=monotonic):
                 record_phase.record(studio, {self.entry().id: self.entry()}, [self.entry().id], Path(tmp) / 'manifest.json', 'agility', retakes=1)
         return log
 
-    def test_cleared_golem_state_settles_before_the_actor_is_reset(self) -> None:
-        log = self.cleared_take(2)
-        sleep: str = 'sleep:' + str(record_phase.CLEAR_SETTLE_SECONDS)
-        self.assertIn(sleep, log)
-        self.assertLess(log.index('rcon:adaptqa demo set wall'), log.index(sleep))
-        self.assertLess(log.index(sleep), log.index('rcon:adaptqa demo actor AQAClient262'))
+    def test_cleared_golem_state_is_polled_until_the_refunds_arrive_before_the_actor_is_reset(self) -> None:
+        log = self.cleared_take(3, 2, ['ADAPT_QA DEMO PROBE refunds=0 golems=0', 'ADAPT_QA DEMO PROBE refunds=1 golems=0', 'ADAPT_QA DEMO PROBE refunds=2 golems=0'])
+        probes: list[int] = [index for index, line in enumerate(log) if line.startswith('rcon:adaptqa demo probe')]
+        self.assertEqual(len(probes), 3)
+        self.assertLess(log.index('rcon:adaptqa demo set wall'), probes[0])
+        self.assertLess(probes[-1], log.index('rcon:adaptqa demo actor AQAClient262'))
 
-    def test_a_set_that_cleared_nothing_does_not_wait(self) -> None:
-        self.assertNotIn('sleep:' + str(record_phase.CLEAR_SETTLE_SECONDS), self.cleared_take(0))
+    def test_cleared_golem_state_waits_for_loaded_golems_to_leave_the_registry(self) -> None:
+        log = self.cleared_take(1, 0, ['ADAPT_QA DEMO PROBE refunds=0 golems=1', 'ADAPT_QA DEMO PROBE refunds=0 golems=0'])
+        self.assertEqual(sum(line.startswith('rcon:adaptqa demo probe') for line in log), 2)
+
+    def test_a_set_that_cleared_nothing_does_not_probe(self) -> None:
+        log = self.cleared_take(0, 0, ['ADAPT_QA DEMO PROBE refunds=0 golems=0'])
+        self.assertFalse(any(line.startswith('rcon:adaptqa demo probe') for line in log))
+
+    def test_the_settle_poll_gives_up_after_its_timeout_and_the_take_goes_on(self) -> None:
+        log = self.cleared_take(2, 2, ['ADAPT_QA DEMO PROBE refunds=0 golems=0'])
+        probes: int = sum(line.startswith('rcon:adaptqa demo probe') for line in log)
+        self.assertGreaterEqual(probes, int(record_phase.CLEAR_TIMEOUT_SECONDS))
+        self.assertIn('rcon:adaptqa demo actor AQAClient262', log)
 
     def test_pre_commands_settle_sixty_ticks_before_record_start(self) -> None:
         log = self.ordered_take(self.entry())

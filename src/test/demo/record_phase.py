@@ -1,5 +1,6 @@
 import dataclasses
 import json
+import re
 import shutil
 import time
 from pathlib import Path
@@ -14,7 +15,9 @@ from studio import BridgeTimeout
 
 PRE_SETTLE_TICKS: int = 60
 SETTLE_TICKS: int = 20
-CLEAR_SETTLE_SECONDS: float = 1.5
+CLEAR_POLL_SECONDS: float = 0.2
+CLEAR_TIMEOUT_SECONDS: float = 5.0
+PROBE_COUNTS: re.Pattern[str] = re.compile(r'refunds=(\d+) golems=(\d+)')
 REPLAY_TIMEOUT: float = 60.0
 STOP_STATE_TIMEOUT: float = 30.0
 BRIDGE_RETRY_SECONDS: float = 1.0
@@ -149,6 +152,18 @@ def placed_camera(camera: dict, origin: tuple[float, float, float]) -> dict:
             'yaw': float(camera['yaw']), 'pitch': float(camera['pitch'])}
 
 
+def await_cleared(rcon: beats.RconClient, actor: str, refunds: int) -> None:
+    deadline: float = time.monotonic() + CLEAR_TIMEOUT_SECONDS
+    while True:
+        counts: re.Match[str] | None = PROBE_COUNTS.search(rcon.command('adaptqa demo probe ' + actor))
+        if counts is not None and int(counts.group(1)) >= refunds and int(counts.group(2)) == 0:
+            return
+        if time.monotonic() >= deadline:
+            print('[CLEAR] warning: the cleared golem state had not settled after ' + format(CLEAR_TIMEOUT_SECONDS, 'g') + ' s; taking anyway', flush=True)
+            return
+        time.sleep(CLEAR_POLL_SECONDS)
+
+
 def prepare_take(studio: RecordStudio, entry: choreography.Entry, skill: str) -> dict:
     rcon: beats.RconClient = studio.rcon
     actor: str = studio.actor
@@ -156,7 +171,7 @@ def prepare_take(studio: RecordStudio, entry: choreography.Entry, skill: str) ->
         raise RuntimeError(entry.id + ' needs the opponent client, but it is not running')
     set_info: dict = parse_set_reply(rcon.command('adaptqa demo set ' + entry.set))
     if int(set_info.get('cleared', 0)) > 0:
-        time.sleep(CLEAR_SETTLE_SECONDS)
+        await_cleared(rcon, studio.actor, int(set_info.get('refunds', 0)))
     rcon.command('adaptqa demo actor ' + actor)
     if entry.opponent:
         rcon.command('adaptqa demo actor ' + studio.opponent + ' opponent')
