@@ -33,15 +33,12 @@ import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Color;
 import org.bukkit.Material;
@@ -80,6 +77,40 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
   }
 
   @Override
+  public void addStats(int level, Element v) {
+    Config config = getConfig();
+    statLore(v, maxMasterworks(config, level), 1);
+    statLore(v, config.extraRuneSlots, 2);
+    statLore(v, Form.pc(config.healthBonusFraction, 0), 3);
+    if (GolemancyRules.unlocked(level, config.dualCoreLevel)) {
+      unlockLore(v, GolemancyMessages.MASTERWORK_LORE4);
+    }
+    if (GolemancyRules.unlocked(level, config.tierUpLevel)) {
+      unlockLore(v, GolemancyMessages.MASTERWORK_LORE5);
+      statLore(v, Form.pc(config.tierThreeBoost, 0), 6);
+    }
+  }
+
+  @Override
+  public void onTick() {
+    Optional<GolemRegistry> registry = GolemancyRuntime.registry();
+    if (registry.isEmpty()) {
+      return;
+    }
+    for (AdaptPlayer learner : learnedCandidates(M.ms())) {
+      UUID owner = learner.getPlayer().getUniqueId();
+      if (ownerLevel(owner) < 1) {
+        continue;
+      }
+      for (GolemHandle handle : registry.get().loadedOf(owner)) {
+        if (handle.state().masterwork() && !handle.isDormant()) {
+          J.runEntity(handle.entity(), () -> aura(handle));
+        }
+      }
+    }
+  }
+
+  @Override
   protected void onRuntimeActivated() {
     GolemStats.register(healthStats);
     GolemMastery.register(mastery);
@@ -87,11 +118,11 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
 
   @Override
   protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.healthBonusFraction = nonNegative(loadedConfig.healthBonusFraction);
+    loadedConfig.healthBonusFraction = GolemancyRules.nonNegative(loadedConfig.healthBonusFraction);
     loadedConfig.extraRuneSlots = Math.clamp(loadedConfig.extraRuneSlots, 0, GolemRuneLayout.MAX_SLOTS);
     loadedConfig.dualCoreLevel = Math.max(1, loadedConfig.dualCoreLevel);
     loadedConfig.tierUpLevel = Math.max(1, loadedConfig.tierUpLevel);
-    loadedConfig.tierThreeBoost = Math.min(MAX_TIER_THREE_BOOST, nonNegative(loadedConfig.tierThreeBoost));
+    loadedConfig.tierThreeBoost = Math.min(MAX_TIER_THREE_BOOST, GolemancyRules.nonNegative(loadedConfig.tierThreeBoost));
     loadedConfig.heartDeathDropChance = Double.isFinite(loadedConfig.heartDeathDropChance)
         ? Math.clamp(loadedConfig.heartDeathDropChance, 0D, 1D)
         : 0D;
@@ -105,47 +136,8 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
   }
 
   @Override
-  public void addStats(int level, Element v) {
-    Config config = getConfig();
-    statLore(v, maxMasterworks(config, level), 1);
-    statLore(v, config.extraRuneSlots, 2);
-    statLore(v, Form.pc(config.healthBonusFraction, 0), 3);
-    if (unlocked(level, config.dualCoreLevel)) {
-      unlockLore(v, GolemancyMessages.MASTERWORK_LORE4);
-    }
-    if (unlocked(level, config.tierUpLevel)) {
-      unlockLore(v, GolemancyMessages.MASTERWORK_LORE5);
-      statLore(v, Form.pc(config.tierThreeBoost, 0), 6);
-    }
-  }
-
-  @Override
   protected boolean usesLearnerBoundTicking() {
     return true;
-  }
-
-  @Override
-  public void onTick() {
-    Optional<GolemRegistry> registry = GolemancyRuntime.registry();
-    if (registry.isEmpty()) {
-      return;
-    }
-    for (AdaptPlayer learner : learnedCandidates(M.ms())) {
-      UUID owner = learner.getPlayer().getUniqueId();
-      if (level(owner) < 1) {
-        continue;
-      }
-      for (GolemHandle handle : registry.get().loadedOf(owner)) {
-        if (handle.state().masterwork() && !handle.isDormant()) {
-          J.runEntity(handle.entity(), () -> aura(handle));
-        }
-      }
-    }
-  }
-
-  int level(UUID owner) {
-    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
-    return player == null ? 0 : getLevel(player);
   }
 
   boolean coreUnlocked(UUID owner, GolemCoreType core) {
@@ -169,8 +161,8 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
     if (level < 1) {
       return GolemMastery.Perks.NONE;
     }
-    boolean tierUp = unlocked(level, config.tierUpLevel);
-    return new GolemMastery.Perks(config.extraRuneSlots, unlocked(level, config.dualCoreLevel), tierUp, tierUp ? config.tierThreeBoost : 0D);
+    boolean tierUp = GolemancyRules.unlocked(level, config.tierUpLevel);
+    return new GolemMastery.Perks(config.extraRuneSlots, GolemancyRules.unlocked(level, config.dualCoreLevel), tierUp, tierUp ? config.tierThreeBoost : 0D);
   }
 
   static int maxMasterworks(Config config, int level) {
@@ -184,20 +176,8 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
     return List.of(GolemStatDelta.multiplyTotal(GolemStat.MAX_HEALTH, config.healthBonusFraction));
   }
 
-  private static boolean unlocked(int level, int unlockLevel) {
-    return level >= 1 && level >= unlockLevel;
-  }
-
   private static long auraIntervalMillis(Config config) {
     return Math.max(1, config.auraIntervalTicks) * MILLIS_PER_TICK;
-  }
-
-  private static double nonNegative(double value) {
-    return Double.isFinite(value) ? Math.max(0D, value) : 0D;
-  }
-
-  private static void unlockLore(Element v, TextKey key) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   private final class HealthStats implements GolemStatSource {
@@ -211,19 +191,19 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
       if (!handle.state().masterwork()) {
         return List.of();
       }
-      return healthStats(getConfig(), true, handle.body(), level(handle.owner()));
+      return healthStats(getConfig(), true, handle.body(), ownerLevel(handle.owner()));
     }
   }
 
   private final class Mastery implements GolemMastery.Source {
     @Override
     public GolemMastery.Perks perks(UUID owner) {
-      return GolemMasterwork.perks(getConfig(), level(owner));
+      return GolemMasterwork.perks(getConfig(), ownerLevel(owner));
     }
 
     @Override
     public int maxMasterworks(UUID owner) {
-      return GolemMasterwork.maxMasterworks(getConfig(), level(owner));
+      return GolemMasterwork.maxMasterworks(getConfig(), ownerLevel(owner));
     }
 
     @Override

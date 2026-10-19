@@ -233,7 +233,7 @@ class GolemMasterworkTest extends AdaptTestBase {
     verify(learned, times(1)).auraFx(any(Mob.class));
     verify(learned).auraFx(shining.entity());
 
-    doReturn(0).when(learned).level(OWNER);
+    doReturn(0).when(learned).ownerLevel(OWNER);
     learned.onTick();
     verify(learned, times(1)).auraFx(any(Mob.class));
   }
@@ -277,7 +277,7 @@ class GolemMasterworkTest extends AdaptTestBase {
 
   private GolemMasterwork learned(int level) {
     GolemMasterwork learned = spy(adaptation);
-    lenient().doReturn(level).when(learned).level(any(UUID.class));
+    lenient().doReturn(level).when(learned).ownerLevel(any(UUID.class));
     return learned;
   }
 

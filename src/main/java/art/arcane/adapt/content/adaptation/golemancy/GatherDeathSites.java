@@ -46,11 +46,6 @@ final class GatherDeathSites {
     return worlds.isEmpty();
   }
 
-  int size(UUID world) {
-    List<Site> sites = worlds.get(world);
-    return sites == null ? 0 : sites.size();
-  }
-
   void clear() {
     worlds.clear();
   }

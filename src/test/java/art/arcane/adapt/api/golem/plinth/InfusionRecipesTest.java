@@ -84,8 +84,13 @@ class InfusionRecipesTest {
     InfusionRecipes recipes = InfusionRecipes.parse(InfusionRecipe.defaults(), resolver, warnings::add);
 
     assertThat(warnings).isEmpty();
-    assertThat(recipes.infusions()).hasSize(22);
-    Infusion swiftness = recipes.infusions().getFirst();
+    for (Map.Entry<String, InfusionRecipe> entry : InfusionRecipe.defaults().entrySet()) {
+      InfusionRecipe spec = entry.getValue();
+      List<ItemStack> pedestals = spec.getPedestals().stream().map(name -> plain(Material.getMaterial(name))).toList();
+      assertThat(recipes.match(specItem(spec.getCenter()), pedestals)).as(entry.getKey()).map(Infusion::id).contains(entry.getKey());
+    }
+    Infusion swiftness = recipes.match(resolver.exactItem("golemancy:blank_rune"),
+        List.of(plain(Material.SUGAR), plain(Material.SUGAR), plain(Material.FEATHER), plain(Material.FEATHER))).orElseThrow();
     assertThat(swiftness.id()).isEqualTo("swiftness_1");
     assertThat(swiftness.result()).isEqualTo(NamespacedKey.fromString("golemancy:rune/swiftness/1"));
     assertThat(swiftness.resultItem().get()).isSameAs(resolver.result("golemancy:rune/swiftness/1"));
@@ -156,7 +161,7 @@ class InfusionRecipesTest {
 
     InfusionRecipes recipes = InfusionRecipes.parse(specs, resolver, warnings::add);
 
-    assertThat(recipes.infusions()).extracting(Infusion::id).containsExactly("valid");
+    assertThat(recipes.match(resolver.exactItem("golemancy:blank_rune"), stones())).map(Infusion::id).contains("valid");
     assertThat(warnings).hasSize(8);
     List<String> skipped = List.of("no_result", "not_infusable", "plain_result", "bad_center", "unknown_center", "three_pedestals", "bad_pedestal", "no_unlock");
     for (int index = 0; index < skipped.size(); index++) {
@@ -166,17 +171,18 @@ class InfusionRecipesTest {
 
   @Test
   void numbersAreClampedIntoRange() {
-    Map<String, InfusionRecipe> specs = new LinkedHashMap<>();
-    specs.put("low", recipe("golemancy:rune/order/1").essence(-3).duration(5).unlock(InfusionRecipe.RUNIC_AUGMENTS, 0));
-    specs.put("high", recipe("golemancy:rune/order/2").duration(1_000_000));
+    Map<String, InfusionRecipe> low = Map.of("low", recipe("golemancy:rune/order/1").essence(-3).duration(5).unlock(InfusionRecipe.RUNIC_AUGMENTS, 0));
+    Map<String, InfusionRecipe> high = Map.of("high", recipe("golemancy:rune/order/2").duration(1_000_000));
+    ItemStack blankRune = resolver.exactItem("golemancy:blank_rune");
 
-    List<Infusion> infusions = InfusionRecipes.parse(specs, resolver, warnings::add).infusions();
+    Infusion clampedLow = InfusionRecipes.parse(low, resolver, warnings::add).match(blankRune, stones()).orElseThrow();
+    Infusion clampedHigh = InfusionRecipes.parse(high, resolver, warnings::add).match(blankRune, stones()).orElseThrow();
 
     assertThat(warnings).isEmpty();
-    assertThat(infusions.get(0).essenceLevels()).isZero();
-    assertThat(infusions.get(0).durationTicks()).isEqualTo(InfusionRecipes.MIN_DURATION_TICKS);
-    assertThat(infusions.get(0).unlockLevel()).isEqualTo(1);
-    assertThat(infusions.get(1).durationTicks()).isEqualTo(InfusionRecipes.MAX_DURATION_TICKS);
+    assertThat(clampedLow.essenceLevels()).isZero();
+    assertThat(clampedLow.durationTicks()).isEqualTo(InfusionRecipes.MIN_DURATION_TICKS);
+    assertThat(clampedLow.unlockLevel()).isEqualTo(1);
+    assertThat(clampedHigh.durationTicks()).isEqualTo(InfusionRecipes.MAX_DURATION_TICKS);
   }
 
   @Test
@@ -184,8 +190,8 @@ class InfusionRecipesTest {
     Map<String, InfusionRecipe> specs = new LinkedHashMap<>();
     specs.put("off", recipe("golemancy:rune/order/1").enabled(false));
 
-    assertThat(InfusionRecipes.parse(specs, resolver, warnings::add).infusions()).isEmpty();
-    assertThat(InfusionRecipes.parse(null, resolver, warnings::add).infusions()).isEmpty();
+    assertThat(InfusionRecipes.parse(specs, resolver, warnings::add).match(resolver.exactItem("golemancy:blank_rune"), stones())).isEmpty();
+    assertThat(InfusionRecipes.parse(null, resolver, warnings::add)).isSameAs(InfusionRecipes.EMPTY);
     assertThat(warnings).isEmpty();
     assertThat(InfusionRecipes.EMPTY.match(plain(Material.STONE), List.of())).isEmpty();
   }
@@ -198,8 +204,8 @@ class InfusionRecipesTest {
     InfusionRecipes recipes = InfusionRecipes.parse(specs, resolver, warnings::add);
 
     assertThat(warnings).isEmpty();
-    assertThat(recipes.infusions()).hasSize(1);
-    assertThat(recipes.infusions().getFirst().result()).isEqualTo(NamespacedKey.fromString("golemancy:rune/order/1"));
+    assertThat(recipes.match(resolver.exactItem("golemancy:blank_rune"), stones())).map(Infusion::result)
+        .contains(NamespacedKey.fromString("golemancy:rune/order/1"));
   }
 
   private static InfusionRecipe recipe(String result) {
@@ -214,6 +220,14 @@ class InfusionRecipesTest {
 
   private ItemStack plain(Material material) {
     return resolver.plain(material);
+  }
+
+  private ItemStack specItem(String spec) {
+    return spec.indexOf(':') >= 0 ? resolver.exactItem(spec) : plain(Material.getMaterial(spec));
+  }
+
+  private List<ItemStack> stones() {
+    return List.of(plain(Material.STONE), plain(Material.STONE), plain(Material.STONE), plain(Material.STONE));
   }
 
   private static final class FakeResolver implements InfusionRecipes.Resolver {

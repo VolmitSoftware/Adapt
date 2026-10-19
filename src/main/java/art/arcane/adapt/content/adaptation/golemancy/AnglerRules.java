@@ -24,10 +24,6 @@ final class AnglerRules {
   private AnglerRules() {
   }
 
-  static boolean unlocked(int level, int required) {
-    return level >= 1 && level >= required;
-  }
-
   static int catchSeconds(List<Integer> byLevel, int level) {
     return Math.max(1, AnimusBindingRules.atLevel(byLevel, Math.max(1, level), 1));
   }
@@ -80,7 +76,7 @@ final class AnglerRules {
   }
 
   static boolean discardJunk(GolemAnglerCore.Config config, int level, NodeRecord node) {
-    return unlocked(level, config.junkFilterLevel) && ON.equals(node.data().get(JUNK_KEY));
+    return GolemancyRules.unlocked(level, config.junkFilterLevel) && ON.equals(node.data().get(JUNK_KEY));
   }
 
   static NodeRecord toggleJunk(NodeRecord node) {
@@ -100,14 +96,6 @@ final class AnglerRules {
 
   static double rainMultiplier(double value) {
     return Double.isFinite(value) ? Math.clamp(value, MIN_RAIN_MULTIPLIER, 1D) : 1D;
-  }
-
-  static double fraction(double value) {
-    return Double.isFinite(value) ? Math.clamp(value, 0D, 1D) : 0D;
-  }
-
-  static double nonNegative(double value) {
-    return Double.isFinite(value) ? Math.max(0D, value) : 0D;
   }
 
   static int enchantLevels(int value) {

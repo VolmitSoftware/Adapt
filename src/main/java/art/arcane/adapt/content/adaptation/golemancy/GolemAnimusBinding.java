@@ -52,7 +52,6 @@ import lombok.NoArgsConstructor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.entity.IronGolem;
@@ -97,8 +96,8 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     setIcon(Material.FIREWORK_STAR);
     GolemancyRuntime.setProtectionPolicy(this);
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
-    registerGolemRecipe(parser, CROOK_RECIPE, getConfig().crookRecipe);
-    registerGolemRecipe(parser, BLANK_CORE_RECIPE, getConfig().blankCoreRecipe);
+    GolemancySupport.registerRecipe(this, parser, CROOK_RECIPE, getConfig().crookRecipe, RECIPE_LEVEL);
+    GolemancySupport.registerRecipe(this, parser, BLANK_CORE_RECIPE, getConfig().blankCoreRecipe, RECIPE_LEVEL);
   }
 
   @Override
@@ -197,12 +196,6 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
       case IRON -> AnimusBindingRules.tithe(config.titheIronByLevel, level);
       case BONE -> 0;
     };
-  }
-
-  private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {
-    NamespacedKey key = new NamespacedKey(Adapt.instance, name);
-    parser.builder(key, spec).ifPresent(builder -> registerRecipe(builder.requiredLevel(RECIPE_LEVEL).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
   }
 
   private void begin(BindingTarget target, int level) {

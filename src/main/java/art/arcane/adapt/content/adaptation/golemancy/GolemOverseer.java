@@ -37,15 +37,12 @@ import art.arcane.adapt.api.minion.MinionTargeting;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.DyeColor;
 import org.bukkit.FluidCollisionMode;
@@ -133,25 +130,25 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
     loadedConfig.sicHoldSeconds = OverseerRules.holdSeconds(loadedConfig.sicHoldSeconds);
     loadedConfig.rallyCooldownSeconds = Math.max(0, loadedConfig.rallyCooldownSeconds);
     loadedConfig.formationRingRadius = OverseerRules.ringRadius(loadedConfig.formationRingRadius);
-    loadedConfig.formationArmorPerGolem = OverseerRules.nonNegative(loadedConfig.formationArmorPerGolem);
+    loadedConfig.formationArmorPerGolem = GolemancyRules.nonNegative(loadedConfig.formationArmorPerGolem);
     loadedConfig.formationArmorMax = OverseerRules.armorMax(loadedConfig.formationArmorMax);
-    loadedConfig.formationArmorRange = OverseerRules.nonNegative(loadedConfig.formationArmorRange);
+    loadedConfig.formationArmorRange = GolemancyRules.nonNegative(loadedConfig.formationArmorRange);
   }
 
   @Override
   public void addStats(int level, Element v) {
     Config config = getConfig();
     statLore(v, (int) OverseerRules.radius(config.radiusByLevel, level), 1);
-    if (OverseerRules.unlocked(level, config.sicLevel)) {
+    if (GolemancyRules.unlocked(level, config.sicLevel)) {
       unlockLore(v, GolemancyMessages.OVERSEER_LORE2);
     }
-    if (OverseerRules.unlocked(level, config.channelFilterLevel)) {
+    if (GolemancyRules.unlocked(level, config.channelFilterLevel)) {
       unlockLore(v, GolemancyMessages.OVERSEER_LORE3);
     }
-    if (OverseerRules.unlocked(level, config.rallyLevel)) {
+    if (GolemancyRules.unlocked(level, config.rallyLevel)) {
       unlockLore(v, GolemancyMessages.OVERSEER_LORE4);
     }
-    if (OverseerRules.unlocked(level, config.formationLevel)) {
+    if (GolemancyRules.unlocked(level, config.formationLevel)) {
       statLore(v, Form.f(config.formationArmorMax, 0), 5);
     }
   }
@@ -231,7 +228,7 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
       return;
     }
     DyeColor channel = OverseerRules.crookChannel(level, config.channelFilterLevel, GolemItems.crookChannel(player.getInventory().getItemInMainHand()));
-    OverseerSignal.Rally rally = signal == GolemSignal.FOLLOW && OverseerRules.unlocked(level, config.rallyLevel) && player.isOnGround()
+    OverseerSignal.Rally rally = signal == GolemSignal.FOLLOW && GolemancyRules.unlocked(level, config.rallyLevel) && player.isOnGround()
         ? new OverseerRally(rallyCooldowns, owner, now, config.rallyCooldownSeconds * MILLIS_PER_SECOND)
         : null;
     Overseer.dispatch(new OverseerSignal(owner, signal, player.getLocation(), OverseerRules.radius(config.radiusByLevel, level), channel, target,
@@ -244,7 +241,7 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
   }
 
   boolean filtersChannels(Player player) {
-    return OverseerRules.unlocked(getActiveLevel(player), getConfig().channelFilterLevel);
+    return GolemancyRules.unlocked(getActiveLevel(player), getConfig().channelFilterLevel);
   }
 
   boolean canSic(Player owner, LivingEntity target) {
@@ -255,7 +252,7 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
   void reconcile(Player player) {
     Config config = getConfig();
     Optional<GolemRegistry> registry = GolemancyRuntime.registry();
-    if (registry.isEmpty() || !player.isOnline() || player.isDead() || !OverseerRules.unlocked(getActiveLevel(player), config.formationLevel)) {
+    if (registry.isEmpty() || !player.isOnline() || player.isDead() || !GolemancyRules.unlocked(getActiveLevel(player), config.formationLevel)) {
       formation.forget(player.getUniqueId());
       OverseerArmor.settle(this, player, 0D);
       return;
@@ -327,10 +324,6 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
     }
     MinionTargeting.Candidate candidate = MinionTargeting.captureOwned(owner.getUniqueId(), living);
     return candidate != null && !candidate.protectedFriendly();
-  }
-
-  private static void unlockLore(Element v, TextKey key) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   private final class Commander implements Overseer.Commander {

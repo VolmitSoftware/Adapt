@@ -187,9 +187,9 @@ class BreakerRulesTest {
 
   @Test
   void negativeValuesClampToZero() {
-    assertThat(BreakerRules.nonNegative(-2D)).isZero();
-    assertThat(BreakerRules.nonNegative(Double.NaN)).isZero();
-    assertThat(BreakerRules.nonNegative(0.4D)).isEqualTo(0.4D);
+    assertThat(GolemancyRules.nonNegative(-2D)).isZero();
+    assertThat(GolemancyRules.nonNegative(Double.NaN)).isZero();
+    assertThat(GolemancyRules.nonNegative(0.4D)).isEqualTo(0.4D);
   }
 
   private Block block(int x, int y, int z) {

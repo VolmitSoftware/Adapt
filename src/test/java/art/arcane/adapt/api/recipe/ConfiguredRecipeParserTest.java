@@ -126,7 +126,8 @@ class ConfiguredRecipeParserTest {
   void builderRecordsExactIngredientsUnderTheRecipeKeyAndClearsThemWhenDisabled() throws IOException {
     NamespacedKey recipeKey = new NamespacedKey("adapt", "golemancy-guardian-core");
     Material star = material("FIREWORK_STAR");
-    ExactIngredient blankCore = exactIngredient(new NamespacedKey("golemancy", "blank_core"), star);
+    ItemStack blank = mock(ItemStack.class);
+    exactIngredients.put(new NamespacedKey("golemancy", "blank_core"), new ExactIngredient(star, item -> item == blank));
     ItemStack guardianCore = exactResult(new NamespacedKey("golemancy", "core/guardian"), "FIREWORK_STAR");
     ItemStack guardianCopy = countedItem();
     when(guardianCore.clone()).thenReturn(guardianCopy);
@@ -141,13 +142,13 @@ class ConfiguredRecipeParserTest {
 
     assertThat(builder).isPresent();
     assertThat(builder.get().build().getKey()).isEqualTo("golemancy-guardian-core");
-    assertThat(book.required(recipeKey)).containsExactly(blankCore);
+    assertThat(book.satisfiedBy(recipeKey, List.of(blank))).isTrue();
 
     ConfiguredShapedRecipe disabled = TomlCodec.fromToml(
         "rows = [\"B\"]\nresult = \"golemancy:core/guardian\"\nenabled = false\n\n[keys]\nB = \"golemancy:blank_core\"\n",
         ConfiguredShapedRecipe.class);
     assertThat(parser.builder(recipeKey, disabled)).isEmpty();
-    assertThat(book.required(recipeKey)).isEmpty();
+    assertThat(book.satisfiedBy(recipeKey, List.of(blank))).isFalse();
     assertThat(book.satisfiedBy(recipeKey, List.of())).isFalse();
   }
 

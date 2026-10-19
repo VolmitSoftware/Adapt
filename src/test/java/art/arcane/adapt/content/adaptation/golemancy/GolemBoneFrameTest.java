@@ -142,11 +142,11 @@ class GolemBoneFrameTest extends AdaptTestBase {
   void theServantShareNeedsBoneFrame() {
     GolemBoneFrame learned = spy(adaptation);
 
-    doReturn(0).when(learned).level(OWNER);
+    doReturn(0).when(learned).ownerLevel(OWNER);
     assertThat(learned.share(OWNER)).isZero();
-    doReturn(2).when(learned).level(OWNER);
+    doReturn(2).when(learned).ownerLevel(OWNER);
     assertThat(learned.share(OWNER)).isEqualTo(0.35D);
-    doReturn(3).when(learned).level(OWNER);
+    doReturn(3).when(learned).ownerLevel(OWNER);
     assertThat(learned.share(OWNER)).isEqualTo(1.0D);
   }
 
@@ -159,13 +159,13 @@ class GolemBoneFrameTest extends AdaptTestBase {
     when(plugin.getAdaptServer()).thenReturn(server);
     when(player.getData()).thenReturn(data);
 
-    doReturn(0).when(learned).level(OWNER);
+    doReturn(0).when(learned).ownerLevel(OWNER);
     assertThat(learned.servantMenuUnlocked(OWNER)).isFalse();
     when(server.getOnlineAdaptPlayer(OWNER)).thenReturn(player);
     assertThat(learned.servantMenuUnlocked(OWNER)).isFalse();
     data.getGolemancy().addLattice(new GolemRune(GolemRuneType.SWIFTNESS, 1));
     assertThat(learned.servantMenuUnlocked(OWNER)).isTrue();
-    doReturn(1).when(learned).level(OWNER);
+    doReturn(1).when(learned).ownerLevel(OWNER);
     assertThat(learned.servantMenuUnlocked(OWNER)).isTrue();
     assertThat(learned.latticeSlots(1)).isZero();
     assertThat(learned.slotUnlockLevel(0)).isEqualTo(2);
@@ -178,7 +178,7 @@ class GolemBoneFrameTest extends AdaptTestBase {
     GolemBoneFrame learned = spy(adaptation);
     Skeleton servant = mock(Skeleton.class);
     GolemSettings settings = boneScale(0.8D);
-    doReturn(1).when(learned).level(OWNER);
+    doReturn(1).when(learned).ownerLevel(OWNER);
     doNothing().when(learned).resize(any(Skeleton.class), anyDouble());
     runtime.when(GolemancyRuntime::settings).thenReturn(settings);
 
@@ -192,11 +192,11 @@ class GolemBoneFrameTest extends AdaptTestBase {
     GolemBoneFrame learned = spy(adaptation);
     Skeleton servant = mock(Skeleton.class);
     GolemSettings settings = boneScale(0.8D);
-    doReturn(1).when(learned).level(OWNER);
+    doReturn(1).when(learned).ownerLevel(OWNER);
     doNothing().when(learned).resize(any(Skeleton.class), anyDouble());
 
     learned.summoned(owner(), servant);
-    doReturn(0).when(learned).level(OWNER);
+    doReturn(0).when(learned).ownerLevel(OWNER);
     runtime.when(GolemancyRuntime::settings).thenReturn(settings);
     learned.summoned(owner(), servant);
 
@@ -211,7 +211,7 @@ class GolemBoneFrameTest extends AdaptTestBase {
     LivingEntity victim = mock(Zombie.class);
     roster.addLattice(new GolemRune(GolemRuneType.MIGHT, 3));
     roster.addLattice(new GolemRune(GolemRuneType.EMBER, 2));
-    doReturn(2).when(learned).level(OWNER);
+    doReturn(2).when(learned).ownerLevel(OWNER);
     doReturn(Optional.of(roster)).when(learned).roster(OWNER);
     doReturn(Optional.of(augments)).when(learned).runicAugments();
     doReturn(Optional.of(pack(servant))).when(learned).pack();
@@ -238,10 +238,10 @@ class GolemBoneFrameTest extends AdaptTestBase {
     doReturn(Optional.of(pack(servant))).when(learned).pack();
     doNothing().when(learned).strengthen(any(Skeleton.class), any(GolemStatDelta.class));
 
-    doReturn(1).when(learned).level(OWNER);
+    doReturn(1).when(learned).ownerLevel(OWNER);
     learned.summoned(owner(), servant);
-    doReturn(2).when(learned).level(OWNER);
-    when(augments.level(OWNER)).thenReturn(0);
+    doReturn(2).when(learned).ownerLevel(OWNER);
+    when(augments.ownerLevel(OWNER)).thenReturn(0);
     learned.summoned(owner(), servant);
 
     verify(learned, never()).strengthen(any(Skeleton.class), any(GolemStatDelta.class));
@@ -273,7 +273,7 @@ class GolemBoneFrameTest extends AdaptTestBase {
   private static GolemRunicAugments augments(int level) {
     GolemRunicAugments.Config config = new GolemRunicAugments.Config();
     GolemRunicAugments augments = mock(GolemRunicAugments.class);
-    lenient().when(augments.level(OWNER)).thenReturn(level);
+    lenient().when(augments.ownerLevel(OWNER)).thenReturn(level);
     lenient().when(augments.maxTier(anyInt())).thenAnswer(call -> GolemRunicAugments.maxTier(config, call.getArgument(0)));
     lenient().when(augments.lattice(any())).thenAnswer(call -> GolemRunicAugments.lattice(config, call.getArgument(0)));
     return augments;

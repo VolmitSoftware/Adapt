@@ -112,33 +112,12 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
   }
 
   @Override
-  protected void onRuntimeActivated() {
-    GolemMend.Mender next = new Mender();
-    mender = next;
-    GolemMend.register(next);
-  }
-
-  @Override
-  protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.copperIngotHeal = nonNegative(loadedConfig.copperIngotHeal);
-    loadedConfig.snowBlockHeal = nonNegative(loadedConfig.snowBlockHeal);
-    loadedConfig.boneMealHeal = nonNegative(loadedConfig.boneMealHeal);
-    loadedConfig.ownerRegenAmount = nonNegative(loadedConfig.ownerRegenAmount);
-    loadedConfig.ownerRegenRadius = nonNegative(loadedConfig.ownerRegenRadius);
-    loadedConfig.homeRegenAmount = nonNegative(loadedConfig.homeRegenAmount);
-    loadedConfig.homeRegenRadius = nonNegative(loadedConfig.homeRegenRadius);
-    loadedConfig.regenIntervalSeconds = Math.max(1, loadedConfig.regenIntervalSeconds);
-    loadedConfig.rebornResistanceSeconds = Math.max(0, loadedConfig.rebornResistanceSeconds);
-    loadedConfig.rebornResistanceAmplifier = Math.max(0, Math.min(MendingRules.MAX_AMPLIFIER, loadedConfig.rebornResistanceAmplifier));
-  }
-
-  @Override
   public void addStats(int level, Element v) {
     Config config = getConfig();
     statLore(v, Form.pc(MendingRules.healBonus(config.healBonusByLevel, level), 0), 1);
     unlockLore(v, GolemancyMessages.MENDING_LORE2);
-    boolean ownerRegen = MendingRules.unlocked(level, config.ownerRegenLevel);
-    boolean homeRegen = MendingRules.unlocked(level, config.homeRegenLevel);
+    boolean ownerRegen = GolemancyRules.unlocked(level, config.ownerRegenLevel);
+    boolean homeRegen = GolemancyRules.unlocked(level, config.homeRegenLevel);
     if (ownerRegen) {
       statLore(v, config.ownerRegenAmount, 3);
     }
@@ -148,10 +127,10 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
     if (ownerRegen || homeRegen) {
       statLore(v, C.YELLOW, "* ", config.regenIntervalSeconds, 5);
     }
-    if (MendingRules.unlocked(level, config.shatterLevel)) {
+    if (GolemancyRules.unlocked(level, config.shatterLevel)) {
       unlockLore(v, GolemancyMessages.MENDING_LORE6);
     }
-    if (MendingRules.unlocked(level, config.rebornLevel)) {
+    if (GolemancyRules.unlocked(level, config.rebornLevel)) {
       statLore(v, config.rebornResistanceSeconds, 7);
       unlockLore(v, GolemancyMessages.MENDING_LORE8);
     }
@@ -225,9 +204,29 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
     }
   }
 
+  @Override
+  protected void onRuntimeActivated() {
+    GolemMend.Mender next = new Mender();
+    mender = next;
+    GolemMend.register(next);
+  }
+
+  @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    loadedConfig.copperIngotHeal = GolemancyRules.nonNegative(loadedConfig.copperIngotHeal);
+    loadedConfig.snowBlockHeal = GolemancyRules.nonNegative(loadedConfig.snowBlockHeal);
+    loadedConfig.boneMealHeal = GolemancyRules.nonNegative(loadedConfig.boneMealHeal);
+    loadedConfig.ownerRegenAmount = GolemancyRules.nonNegative(loadedConfig.ownerRegenAmount);
+    loadedConfig.ownerRegenRadius = GolemancyRules.nonNegative(loadedConfig.ownerRegenRadius);
+    loadedConfig.homeRegenAmount = GolemancyRules.nonNegative(loadedConfig.homeRegenAmount);
+    loadedConfig.homeRegenRadius = GolemancyRules.nonNegative(loadedConfig.homeRegenRadius);
+    loadedConfig.regenIntervalSeconds = Math.max(1, loadedConfig.regenIntervalSeconds);
+    loadedConfig.rebornResistanceSeconds = Math.max(0, loadedConfig.rebornResistanceSeconds);
+    loadedConfig.rebornResistanceAmplifier = Math.max(0, Math.min(MendingRules.MAX_AMPLIFIER, loadedConfig.rebornResistanceAmplifier));
+  }
+
   int ownerLevel(GolemHandle handle) {
-    AdaptPlayer owner = getServer().getOnlineAdaptPlayer(handle.owner());
-    return owner == null ? 0 : getLevel(owner);
+    return ownerLevel(handle.owner());
   }
 
   boolean ownerOnline(GolemHandle handle) {
@@ -376,7 +375,7 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
       crumble(player, inventory.getItemInMainHand());
       return;
     }
-    if (MendingRules.unlocked(rebuild.level(), getConfig().rebornLevel)) {
+    if (GolemancyRules.unlocked(rebuild.level(), getConfig().rebornLevel)) {
       applyRebornBoon(golem, snapshot);
     }
     handle.get().restoreFullHealth();
@@ -443,14 +442,6 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
       case SNOW_BLOCK -> Sound.BLOCK_SNOW_PLACE;
       case BONE_MEAL -> Sound.ITEM_BONE_MEAL_USE;
     };
-  }
-
-  private static double nonNegative(double value) {
-    return Double.isFinite(value) ? Math.max(0D, value) : 0D;
-  }
-
-  private static void unlockLore(Element v, TextKey key) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   private static void notify(Player player, TextKey key, MessageArgument... arguments) {

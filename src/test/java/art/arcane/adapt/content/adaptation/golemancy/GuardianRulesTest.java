@@ -38,10 +38,10 @@ class GuardianRulesTest {
 
   @Test
   void perksUnlockAtTheirLevel() {
-    assertThat(GuardianRules.unlocked(1, 2)).isFalse();
-    assertThat(GuardianRules.unlocked(2, 2)).isTrue();
-    assertThat(GuardianRules.unlocked(5, 4)).isTrue();
-    assertThat(GuardianRules.unlocked(0, 0)).isFalse();
+    assertThat(GolemancyRules.unlocked(1, 2)).isFalse();
+    assertThat(GolemancyRules.unlocked(2, 2)).isTrue();
+    assertThat(GolemancyRules.unlocked(5, 4)).isTrue();
+    assertThat(GolemancyRules.unlocked(0, 0)).isFalse();
   }
 
   @Test

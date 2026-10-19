@@ -52,19 +52,15 @@ final class CopperFrameRules {
     if (level < 1) {
       return 0D;
     }
-    int multiplier = unlocked(level, doubleLevel) ? 2 : 1;
+    int multiplier = GolemancyRules.unlocked(level, doubleLevel) ? 2 : 1;
     return (double) clampStage(stage) * Math.max(0, armorPerStage) * multiplier;
   }
 
   static double patinaSpeed(int stage, int level, double penaltyPerStage, int removedLevel) {
-    if (level < 1 || unlocked(level, removedLevel) || !Double.isFinite(penaltyPerStage) || penaltyPerStage <= 0D) {
+    if (level < 1 || GolemancyRules.unlocked(level, removedLevel) || !Double.isFinite(penaltyPerStage) || penaltyPerStage <= 0D) {
       return 0D;
     }
     return -Math.min(1D, clampStage(stage) * penaltyPerStage);
-  }
-
-  static boolean unlocked(int level, int unlockLevel) {
-    return level >= Math.max(1, unlockLevel);
   }
 
   static boolean withinRadius(double distanceSquared, double radius) {

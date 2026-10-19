@@ -3,7 +3,6 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
-import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeItemTags;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.xp.XpProvenance;
@@ -15,7 +14,6 @@ import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.type.CaveVinesPlant;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -37,17 +35,12 @@ final class HarvestActions {
     this.random = Objects.requireNonNull(random);
   }
 
-  int level(GolemContext golem) {
-    Player owner = golem.owner();
-    return owner == null ? 0 : core.ownerLevel(owner.getUniqueId());
-  }
-
   HarvesterRules.Plan plan(int level, NodeRecord node) {
     return HarvesterRules.plan(core.config(), core.crops(), level, node, NodeItemTags.shared());
   }
 
   int intervalTicks(GolemContext golem) {
-    return HarvesterRules.actionIntervalTicks(core.config().actionIntervalTicksByLevel, level(golem));
+    return HarvesterRules.actionIntervalTicks(core.config().actionIntervalTicksByLevel, GolemancySupport.ownerLevel(core, golem));
   }
 
   Block target(GolemContext golem, GolemTask task) {
@@ -130,11 +123,6 @@ final class HarvestActions {
       }
     }
     return true;
-  }
-
-  boolean covered(NodeRecord record, GolemTask task) {
-    GolemTarget target = task.target();
-    return task.node().filter(key -> NodeArea.covers(key, record, target.x(), target.y(), target.z())).isPresent();
   }
 
   Location center(Block block) {

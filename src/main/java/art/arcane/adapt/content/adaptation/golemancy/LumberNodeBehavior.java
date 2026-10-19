@@ -17,7 +17,6 @@ import org.bukkit.block.Block;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -62,7 +61,7 @@ final class LumberNodeBehavior implements NodeBehavior {
     UUID world = key.world();
     long now = node.nowMillis();
     fellings.keep(world, base -> NodeArea.covers(key, record, base.x(), base.y(), base.z()), now);
-    Map<Long, GolemTask> open = open(node);
+    Map<Long, GolemTask> open = GolemancySupport.open(node);
     TreeView view = actions.view(node.world(), node::owns);
     for (int index = budget.start(); index < budget.end(); index++) {
       Optional<Block> found = node.block(index);
@@ -102,9 +101,9 @@ final class LumberNodeBehavior implements NodeBehavior {
     if (!FELL.equals(task.type())) {
       return GolemActResult.FAILED;
     }
-    int level = actions.level(golem);
+    int level = GolemancySupport.ownerLevel(core, golem);
     NodeRecord record = golem.node().orElse(null);
-    if (level < 1 || record == null || !covered(record, task)) {
+    if (level < 1 || record == null || !GolemancySupport.covered(record, task)) {
       return GolemActResult.FAILED;
     }
     LumberRules.Plan plan = actions.plan(level);
@@ -238,32 +237,8 @@ final class LumberNodeBehavior implements NodeBehavior {
     return tree.logs() <= cap && (!tree.nether() || plan.nether()) && (!tree.mega() || plan.mega());
   }
 
-  private static boolean covered(NodeRecord record, GolemTask task) {
-    GolemTarget target = task.target();
-    return task.node().filter(key -> NodeArea.covers(key, record, target.x(), target.y(), target.z())).isPresent();
-  }
-
   private static boolean at(LumberTrees.Part part, int x, int y, int z) {
     return part.x() == x && part.y() == y && part.z() == z;
-  }
-
-  private static Map<Long, GolemTask> open(NodeContext node) {
-    List<GolemTask> tasks = node.tasks();
-    if (tasks.isEmpty()) {
-      return Map.of();
-    }
-    NodeKey key = node.key();
-    NodeRecord record = node.record();
-    Map<Long, GolemTask> open = new HashMap<>(tasks.size() * 2);
-    for (GolemTask task : tasks) {
-      GolemTarget target = task.target();
-      if (!NodeArea.covers(key, record, target.x(), target.y(), target.z())) {
-        node.withdraw(task);
-        continue;
-      }
-      open.put(NodeContainers.blockKey(target.blockX(), target.blockY(), target.blockZ()), task);
-    }
-    return open;
   }
 
   private record Batch(List<LumberTrees.Part> parts, int next, int logs) {

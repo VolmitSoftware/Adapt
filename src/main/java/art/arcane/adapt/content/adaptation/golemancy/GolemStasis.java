@@ -115,28 +115,6 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
   }
 
   @Override
-  protected void onRuntimeActivated() {
-    GolemPacking.Packer next = new Packer();
-    packer = next;
-    GolemPacking.register(next);
-  }
-
-  @Override
-  protected List<Listener> createCompanionListeners() {
-    return List.of(new DormantGolemPlacement(this::awaken));
-  }
-
-  @Override
-  protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.channelSecondsByLevel = StasisRules.clampChannelSeconds(loadedConfig.channelSecondsByLevel);
-    loadedConfig.channelAbortDistance = nonNegative(loadedConfig.channelAbortDistance);
-    loadedConfig.packedHealAmount = nonNegative(loadedConfig.packedHealAmount);
-    loadedConfig.packedHealIntervalSeconds = Math.max(1, loadedConfig.packedHealIntervalSeconds);
-    loadedConfig.recallCooldownSeconds = Math.max(0, loadedConfig.recallCooldownSeconds);
-    loadedConfig.awakenRiseTicks = Math.max(0, loadedConfig.awakenRiseTicks);
-  }
-
-  @Override
   public void addStats(int level, Element v) {
     Config config = getConfig();
     int channelTicks = StasisRules.channelTicks(config.channelSecondsByLevel, level);
@@ -146,11 +124,11 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
       unlockLore(v, GolemancyMessages.STASIS_LORE2);
     }
     unlockLore(v, GolemancyMessages.STASIS_LORE3);
-    if (StasisRules.unlocked(level, config.packedHealLevel)) {
+    if (GolemancyRules.unlocked(level, config.packedHealLevel)) {
       statLore(v, config.packedHealAmount, 4);
       statLore(v, C.YELLOW, "* ", config.packedHealIntervalSeconds, 5);
     }
-    if (StasisRules.unlocked(level, config.recallLevel)) {
+    if (GolemancyRules.unlocked(level, config.recallLevel)) {
       unlockLore(v, GolemancyMessages.STASIS_LORE6);
       statLore(v, C.YELLOW, "* ", config.recallCooldownSeconds, 7);
     }
@@ -172,12 +150,34 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     }
   }
 
+  @Override
+  protected void onRuntimeActivated() {
+    GolemPacking.Packer next = new Packer();
+    packer = next;
+    GolemPacking.register(next);
+  }
+
+  @Override
+  protected List<Listener> createCompanionListeners() {
+    return List.of(new DormantGolemPlacement(this::awaken));
+  }
+
+  @Override
+  protected void normalizeLoadedConfig(Config loadedConfig) {
+    loadedConfig.channelSecondsByLevel = StasisRules.clampChannelSeconds(loadedConfig.channelSecondsByLevel);
+    loadedConfig.channelAbortDistance = GolemancyRules.nonNegative(loadedConfig.channelAbortDistance);
+    loadedConfig.packedHealAmount = GolemancyRules.nonNegative(loadedConfig.packedHealAmount);
+    loadedConfig.packedHealIntervalSeconds = Math.max(1, loadedConfig.packedHealIntervalSeconds);
+    loadedConfig.recallCooldownSeconds = Math.max(0, loadedConfig.recallCooldownSeconds);
+    loadedConfig.awakenRiseTicks = Math.max(0, loadedConfig.awakenRiseTicks);
+  }
+
   boolean packs(Player player) {
     return getActiveLevel(player) >= 1;
   }
 
   boolean recalls(Player player) {
-    return StasisRules.unlocked(getActiveLevel(player), getConfig().recallLevel);
+    return GolemancyRules.unlocked(getActiveLevel(player), getConfig().recallLevel);
   }
 
   void pack(Player player, GolemHandle handle) {
@@ -201,7 +201,7 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
   void recall(Player player, GolemHandle handle) {
     Config config = getConfig();
     UUID owner = player.getUniqueId();
-    if (!StasisRules.unlocked(getActiveLevel(player), config.recallLevel) || !owner.equals(handle.owner())) {
+    if (!GolemancyRules.unlocked(getActiveLevel(player), config.recallLevel) || !owner.equals(handle.owner())) {
       return;
     }
     if (handle.isRetired() || !player.getWorld().equals(handle.entity().getWorld())) {
@@ -565,7 +565,7 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
 
   private double awakenHealth(GolemSnapshot snapshot, double maximum, int level) {
     Config config = getConfig();
-    double amount = StasisRules.unlocked(level, config.packedHealLevel) ? config.packedHealAmount : 0D;
+    double amount = GolemancyRules.unlocked(level, config.packedHealLevel) ? config.packedHealAmount : 0D;
     return StasisRules.packedHealth(snapshot.health(), maximum, snapshot.takenAt(), System.currentTimeMillis(), config.packedHealIntervalSeconds, amount);
   }
 
@@ -635,14 +635,6 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
       case COPPER -> Particle.WAX_ON;
       case IRON, BONE -> Particle.ASH;
     };
-  }
-
-  private static double nonNegative(double value) {
-    return Double.isFinite(value) ? Math.max(0D, value) : 0D;
-  }
-
-  private static void unlockLore(Element v, TextKey key) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   private static void notify(Player player, TextKey key, MessageArgument... arguments) {

@@ -22,10 +22,6 @@ final class GuardianRules {
     return Math.clamp(configured + bonus, MIN_PERCEPTION, Math.max(MIN_PERCEPTION, maxRadius));
   }
 
-  static boolean unlocked(int level, int unlockLevel) {
-    return level >= Math.max(1, unlockLevel);
-  }
-
   static Reason reason(Candidate candidate, Options options) {
     if (candidate.protectedFriendly()) {
       return Reason.NONE;

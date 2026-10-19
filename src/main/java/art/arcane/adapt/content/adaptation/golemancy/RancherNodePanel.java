@@ -72,7 +72,7 @@ final class RancherNodePanel implements NodePanel {
   }
 
   private NodePanelControl toggle(Toggle toggle, NodeRecord record, int level, int unlockLevel) {
-    boolean unlocked = RancherRules.unlocked(level, unlockLevel);
+    boolean unlocked = GolemancyRules.unlocked(level, unlockLevel);
     boolean on = unlocked && RancherRules.enabled(record, toggle.action());
     String name = on ? C.GREEN + AdaptLanguage.text(toggle.onName()) : C.YELLOW + AdaptLanguage.text(toggle.offName());
     List<String> lore = new ArrayList<>(2);

@@ -90,10 +90,6 @@ public final class NodeRenderer {
     PaperCompat.text(bundle.label(), label(record, status));
   }
 
-  public Optional<NodeStatus> status(NodeKey key) {
-    return Optional.ofNullable(statuses.get(key));
-  }
-
   public Optional<NodeBundle> bundle(NodeKey key) {
     return Optional.ofNullable(bundles.get(key));
   }

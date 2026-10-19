@@ -4,21 +4,13 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemCoreBehavior;
-import art.arcane.adapt.api.golem.GolemHandle;
-import art.arcane.adapt.api.golem.GolemRunes;
-import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
-import art.arcane.adapt.api.golem.GolemTaskMatch;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
-import art.arcane.adapt.api.golem.node.NodeRules;
-import art.arcane.adapt.api.golem.node.NodeService;
-import art.arcane.adapt.api.golem.node.RedstoneMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -32,7 +24,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 
 final class HarvesterCoreBehavior implements GolemCoreBehavior {
   private final GolemHarvesterCore core;
@@ -52,11 +43,11 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
 
   @Override
   public Optional<GolemTask> seek(GolemContext golem) {
-    int level = actions.level(golem);
+    int level = GolemancySupport.ownerLevel(core, golem);
     GolemHarvesterCore.Config config = core.config();
     List<ItemStack> carried = golem.carriedItems();
-    boolean planting = HarvesterRules.unlocked(level, config.tillingLevel) && carriesSeed(carried);
-    boolean tending = HarvesterRules.unlocked(level, config.tendingLevel) && core.tendReady(golem.handle().id(), golem.nowMillis());
+    boolean planting = GolemancyRules.unlocked(level, config.tillingLevel) && carriesSeed(carried);
+    boolean tending = GolemancyRules.unlocked(level, config.tendingLevel) && core.tendReady(golem.handle().id(), golem.nowMillis());
     if (!planting && !tending) {
       return Optional.empty();
     }
@@ -69,7 +60,7 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
       boolean tend = mark.kind() == HarvesterRules.Spot.TEND;
       if (tend && !chestChecked) {
         chestChecked = true;
-        boneMeal = boneMealSlot(homeChest(golem).orElse(null)) >= 0;
+        boneMeal = boneMealSlot(GolemancySupport.homeChest(golem).orElse(null)) >= 0;
       }
       if ((tend && !boneMeal) || !golem.inWorkRadius(new Location(world, mark.x() + 0.5D, mark.y() + 0.5D, mark.z() + 0.5D))) {
         continue;
@@ -100,9 +91,9 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
   }
 
   private GolemActResult perform(GolemContext golem, GolemTask task) {
-    int level = actions.level(golem);
+    int level = GolemancySupport.ownerLevel(core, golem);
     NodeRecord record = golem.node().orElse(null);
-    if (level < 1 || record == null || !actions.covered(record, task)) {
+    if (level < 1 || record == null || !GolemancySupport.covered(record, task)) {
       return GolemActResult.FAILED;
     }
     HarvesterRules.Plan plan = actions.plan(level, record);
@@ -135,7 +126,7 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
     if (!golem.canInteract(crop.getLocation())) {
       return GolemActResult.BLOCKED;
     }
-    Inventory chest = homeChest(golem).orElse(null);
+    Inventory chest = GolemancySupport.homeChest(golem).orElse(null);
     int slot = boneMealSlot(chest);
     if (slot < 0) {
       return GolemActResult.FAILED;
@@ -166,7 +157,7 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
   private List<Candidate> candidates(GolemContext golem, World world, int level, boolean planting, boolean tending, List<ItemStack> carried) {
     Location here = golem.golem().getLocation();
     List<Candidate> candidates = new ArrayList<>();
-    for (NodeIndex.Entry entry : harvestNodes(golem, world)) {
+    for (NodeIndex.Entry entry : GolemancySupport.ownedNodes(golem, world, NodeType.HARVEST)) {
       boolean plants = planting && plantable(actions.plan(level, entry.record()), carried);
       if (!plants && !tending) {
         continue;
@@ -200,47 +191,6 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
       }
     }
     return false;
-  }
-
-  private static List<NodeIndex.Entry> harvestNodes(GolemContext golem, World world) {
-    Optional<NodeService> service = GolemancyRuntime.nodes();
-    if (service.isEmpty()) {
-      return List.of();
-    }
-    Location home = golem.home();
-    List<NodeIndex.Entry> near = service.get().index().near(world.getUID(), home.getX(), home.getY(), home.getZ(), golem.workRadius());
-    if (near.isEmpty()) {
-      return List.of();
-    }
-    GolemHandle handle = golem.handle();
-    UUID owner = handle.owner();
-    int channels = GolemRunes.channels(handle);
-    List<NodeIndex.Entry> found = new ArrayList<>(near.size());
-    for (NodeIndex.Entry entry : near) {
-      NodeRecord record = entry.record();
-      if (record.type() == NodeType.HARVEST && record.owner().equals(owner) && GolemTaskMatch.channel(record.channel(), channels)
-          && active(golem, world, entry.key(), record)) {
-        found.add(entry);
-      }
-    }
-    return found;
-  }
-
-  private static boolean active(GolemContext golem, World world, NodeKey key, NodeRecord record) {
-    if (record.redstone() == RedstoneMode.IGNORE || !world.isChunkLoaded(key.chunkX(), key.chunkZ())) {
-      return true;
-    }
-    Location anchor = new Location(world, key.x(), key.y(), key.z());
-    return !golem.owns(anchor) || NodeRules.active(record, world.getBlockAt(key.x(), key.y(), key.z()));
-  }
-
-  private static Optional<Inventory> homeChest(GolemContext golem) {
-    GolemState.Anchor chest = golem.handle().state().homeChest();
-    World world = golem.world();
-    if (chest == null || !chest.world().equals(world.getUID()) || !world.isChunkLoaded(chest.x() >> 4, chest.z() >> 4)) {
-      return Optional.empty();
-    }
-    return golem.container(world.getBlockAt(chest.x(), chest.y(), chest.z()));
   }
 
   private static int boneMealSlot(Inventory chest) {

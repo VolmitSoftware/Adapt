@@ -35,10 +35,6 @@ public final class InfusionRecipes {
     this.infusions = List.copyOf(infusions);
   }
 
-  public static InfusionRecipes of(List<Infusion> infusions) {
-    return new InfusionRecipes(infusions);
-  }
-
   public static InfusionRecipes bukkit(Map<String, InfusionRecipe> specs) {
     return parse(specs, bukkitResolver(Material::isItem), Adapt::warn);
   }
@@ -66,10 +62,6 @@ public final class InfusionRecipes {
       parsed.add(infusion);
     }
     return new InfusionRecipes(parsed);
-  }
-
-  public List<Infusion> infusions() {
-    return infusions;
   }
 
   public Optional<Infusion> match(ItemStack center, List<ItemStack> pedestals) {

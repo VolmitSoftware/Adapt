@@ -34,20 +34,15 @@ import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.minion.MinionTargeting;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -89,8 +84,8 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     setIcon(Material.SHIELD);
     setInterval(SWEEP_INTERVAL_MILLIS);
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
-    registerGolemRecipe(parser, CORE_RECIPE, getConfig().guardianCoreRecipe);
-    registerGolemRecipe(parser, NODE_RECIPE, getConfig().guardNodeRecipe);
+    GolemancySupport.registerRecipe(this, parser, CORE_RECIPE, getConfig().guardianCoreRecipe, RECIPE_LEVEL);
+    GolemancySupport.registerRecipe(this, parser, NODE_RECIPE, getConfig().guardNodeRecipe, RECIPE_LEVEL);
   }
 
   @Override
@@ -122,16 +117,16 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
   public void addStats(int level, Element v) {
     Config config = getConfig();
     statLore(v, GuardianRules.perception(config.perceptionByLevel, level, 0D, GolemancyRuntime.brainSettings().leashRadius()), 1);
-    if (GuardianRules.unlocked(level, config.interceptLevel)) {
+    if (GolemancyRules.unlocked(level, config.interceptLevel)) {
       unlockLore(v, GolemancyMessages.GUARDIAN_CORE_LORE2);
     }
-    if (GuardianRules.unlocked(level, config.retaliateLevel)) {
+    if (GolemancyRules.unlocked(level, config.retaliateLevel)) {
       unlockLore(v, GolemancyMessages.GUARDIAN_CORE_LORE3);
     }
-    if (GuardianRules.unlocked(level, config.bulwarkLevel)) {
+    if (GolemancyRules.unlocked(level, config.bulwarkLevel)) {
       statLore(v, Form.pc(config.bulwarkDamageReduction, 0), 4);
     }
-    if (GuardianRules.unlocked(level, config.lastStandLevel)) {
+    if (GolemancyRules.unlocked(level, config.lastStandLevel)) {
       statLore(v, Math.max(1, config.lastStandTicks) / TICKS_PER_SECOND, 5);
     }
   }
@@ -159,7 +154,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     if (attacker == null || attacker.getUniqueId().equals(owner.getUniqueId())) {
       return;
     }
-    if (GuardianRules.unlocked(getActiveLevel(owner), getConfig().retaliateLevel)) {
+    if (GolemancyRules.unlocked(getActiveLevel(owner), getConfig().retaliateLevel)) {
       attacks.put(owner.getUniqueId(), new Attack(attacker, M.ms()));
     }
     alertGuardians(owner.getUniqueId());
@@ -183,7 +178,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
       return;
     }
     Config config = getConfig();
-    if (!GuardianRules.unlocked(getActiveLevel(owner), config.bulwarkLevel) || !nearGuardian(owner, config.bulwarkRadius)) {
+    if (!GolemancyRules.unlocked(getActiveLevel(owner), config.bulwarkLevel) || !nearGuardian(owner, config.bulwarkRadius)) {
       return;
     }
     e.setDamage(GuardianRules.bulwarkDamage(e.getDamage(), config.bulwarkDamageReduction));
@@ -201,7 +196,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     GolemHandle handle = bound.get();
     alert(handle);
     Config config = getConfig();
-    if (!GuardianRules.unlocked(ownerLevel(handle), config.lastStandLevel)
+    if (!GolemancyRules.unlocked(ownerLevel(handle), config.lastStandLevel)
         || !GuardianRules.lastStand(golem.getHealth() - e.getFinalDamage(), GolemVitals.maxHealth(golem), config.lastStandHealthFraction)) {
       return;
     }
@@ -220,8 +215,7 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
   }
 
   int ownerLevel(GolemHandle handle) {
-    AdaptPlayer owner = getServer().getOnlineAdaptPlayer(handle.owner());
-    return owner == null ? 0 : getLevel(owner);
+    return ownerLevel(handle.owner());
   }
 
   boolean canEngage(Player owner, MinionTargeting.Candidate candidate) {
@@ -277,21 +271,11 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     return !handle.isDormant() && GolemMastery.cores(handle).contains(GolemCoreType.GUARDIAN);
   }
 
-  private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {
-    NamespacedKey key = new NamespacedKey(Adapt.instance, name);
-    parser.builder(key, spec).ifPresent(builder -> registerRecipe(builder.requiredLevel(RECIPE_LEVEL).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
-  }
-
   private static LivingEntity attacker(Entity damager) {
     if (damager instanceof Projectile projectile) {
       return projectile.getShooter() instanceof LivingEntity shooter ? shooter : null;
     }
     return damager instanceof LivingEntity living ? living : null;
-  }
-
-  private static void unlockLore(Element v, TextKey key) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   private record Attack(LivingEntity attacker, long at) {

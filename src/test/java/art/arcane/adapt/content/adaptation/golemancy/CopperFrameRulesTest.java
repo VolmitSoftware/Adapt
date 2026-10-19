@@ -132,9 +132,9 @@ class CopperFrameRulesTest {
 
   @Test
   void levelUnlocksNeverOpenBelowLevelOne() {
-    assertThat(CopperFrameRules.unlocked(4, 4)).isTrue();
-    assertThat(CopperFrameRules.unlocked(3, 4)).isFalse();
-    assertThat(CopperFrameRules.unlocked(0, 0)).isFalse();
+    assertThat(GolemancyRules.unlocked(4, 4)).isTrue();
+    assertThat(GolemancyRules.unlocked(3, 4)).isFalse();
+    assertThat(GolemancyRules.unlocked(0, 0)).isFalse();
   }
 
   private static List<GolemStatDelta> deltas(int stage, int level) {

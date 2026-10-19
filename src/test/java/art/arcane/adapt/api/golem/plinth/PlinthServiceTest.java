@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -61,6 +62,8 @@ class PlinthServiceTest extends AdaptTestBase {
   private static final UUID PLAYER = UUID.fromString("00000000-0000-0000-0000-0000000000a1");
   private static final PlinthSpot CENTER = new PlinthSpot(WORLD, 8, 64, 8);
   private static final String INTERRUPTED = "warn golemancy.plinth.interrupted";
+  private static final String ANY = "ANY";
+  private static final int DURATION = InfusionRecipes.MIN_DURATION_TICKS;
 
   private final List<String> events = new ArrayList<>();
   private final FakePlinthPlatform platform = new FakePlinthPlatform(events);
@@ -103,7 +106,7 @@ class PlinthServiceTest extends AdaptTestBase {
     stock.put(PlinthSlot.SOUTH, item(Material.SUGAR));
     stock.put(PlinthSlot.WEST, item(Material.FEATHER));
     settings = new PlinthSettings(PlinthStructure.pedestals(PlinthStructure.DEFAULT_PEDESTALS, material -> true, message -> {
-    }), InfusionRecipes.of(List.of(infusion(1, 3))));
+    }), swiftness(1, InfusionRecipe.RUNIC_AUGMENTS));
     player = player();
     lenient().when(plugin.isEnabled()).thenReturn(true);
     componentLogger = mockStatic(ComponentLogger.class);
@@ -129,7 +132,6 @@ class PlinthServiceTest extends AdaptTestBase {
     assertThat(click.isCancelled()).isTrue();
     PlinthSlotItem stored = platform.store.get(CENTER.slot(PlinthSlot.NORTH));
     assertThat(stored.item()).isSameAs(sugar);
-    assertThat(service.slot(CENTER.slot(PlinthSlot.NORTH))).contains(stored);
     assertThat(events).containsSubsequence("take", "write 8,64,6 item", "save player", "effect LOADED");
     assertThat(platform.displays).hasSize(1);
   }
@@ -158,7 +160,6 @@ class PlinthServiceTest extends AdaptTestBase {
 
     assertThat(click.isCancelled()).isTrue();
     assertThat(platform.store).doesNotContainKey(CENTER.slot(PlinthSlot.EAST));
-    assertThat(service.slot(CENTER.slot(PlinthSlot.EAST))).isEmpty();
     assertThat(events).containsSubsequence("write 10,64,8 empty", "save 0,0", "give");
     verify(display).remove();
   }
@@ -260,7 +261,7 @@ class PlinthServiceTest extends AdaptTestBase {
     holdCrook();
 
     PlayerInteractEvent start = click(CENTER, EquipmentSlot.HAND);
-    tick(3);
+    tick(DURATION);
 
     assertThat(start.isCancelled()).isTrue();
     assertThat(events).containsSubsequence("pay golem-runic-augments 2", "write 8,64,8 empty", "save 0,0", "pop 8,65,8", "settle",
@@ -281,7 +282,7 @@ class PlinthServiceTest extends AdaptTestBase {
     platform.deferAsync = true;
 
     click(CENTER, EquipmentSlot.HAND);
-    tick(3);
+    tick(DURATION);
 
     assertThat(platform.store).isEmpty();
     assertThat(events).doesNotContain("save 0,0");
@@ -297,19 +298,24 @@ class PlinthServiceTest extends AdaptTestBase {
     platform.saveFailure = new IllegalStateException("disk full");
 
     click(CENTER, EquipmentSlot.HAND);
-    tick(3);
+    tick(DURATION);
 
     assertThat(events).containsSubsequence("pay golem-runic-augments 2", "save 0,0", "refund", "warn golemancy.plinth.failed");
     assertThat(events).doesNotContain("settle");
     assertThat(events.stream().filter(event -> event.startsWith("pop"))).isEmpty();
     assertThat(resultsBuilt.get()).isZero();
     assertThat(platform.store).isEqualTo(before);
-    for (PlinthSpot spot : before.keySet()) {
-      assertThat(service.slot(spot)).contains(before.get(spot));
-    }
     assertThat(platform.displays).hasSize(10);
     assertThat(events.stream().filter(event -> event.startsWith("drop"))).isEmpty();
     assertThat(logged).anyMatch(record -> record.getThrown() != null);
+
+    platform.saveFailure = null;
+    events.clear();
+    click(CENTER, EquipmentSlot.HAND);
+    tick(DURATION);
+
+    assertThat(events).contains("pop 8,65,8", "settle");
+    assertThat(platform.store).isEmpty();
   }
 
   @Test
@@ -320,7 +326,7 @@ class PlinthServiceTest extends AdaptTestBase {
     platform.deferAsync = true;
     platform.saveFailure = new IllegalStateException("disk full");
     click(CENTER, EquipmentSlot.HAND);
-    tick(3);
+    tick(DURATION);
     PlinthSlotItem refill = PlinthSlotItem.of(UUID.randomUUID(), item(Material.STONE));
     platform.store.put(north, refill);
 
@@ -336,7 +342,7 @@ class PlinthServiceTest extends AdaptTestBase {
     stockPlinth();
     holdCrook();
     click(CENTER, EquipmentSlot.HAND);
-    tick(2);
+    tick(DURATION - 1);
     PlinthSpot east = CENTER.slot(PlinthSlot.EAST);
     PlinthSlotItem intruder = PlinthSlotItem.of(UUID.randomUUID(), item(Material.STONE));
     platform.swapAfterReads(east, intruder, 1);
@@ -347,8 +353,15 @@ class PlinthServiceTest extends AdaptTestBase {
     assertThat(events).doesNotContain("save 0,0", "settle");
     assertThat(events.stream().filter(event -> event.startsWith("pop"))).isEmpty();
     assertThat(platform.store).hasSize(5).containsEntry(east, intruder);
-    assertThat(service.slot(east)).contains(intruder);
-    assertThat(service.slot(CENTER)).isPresent();
+
+    events.clear();
+    service.on(new BlockBreakEvent(block(east), mock(Player.class)));
+    service.on(new BlockBreakEvent(block(CENTER), mock(Player.class)));
+    platform.blocks.put("10,64,8", Material.AIR);
+    platform.blocks.put("8,64,8", Material.AIR);
+    tick(1);
+
+    assertThat(events).contains("drop 10,64,8", "drop 8,64,8");
   }
 
   @Test
@@ -359,7 +372,7 @@ class PlinthServiceTest extends AdaptTestBase {
     when(player.getLevel()).thenReturn(0);
 
     click(CENTER, EquipmentSlot.HAND);
-    tick(3);
+    tick(DURATION);
 
     assertThat(events.stream().filter(event -> event.startsWith("pay"))).isEmpty();
     assertThat(events).contains("pop 8,65,8");
@@ -465,9 +478,8 @@ class PlinthServiceTest extends AdaptTestBase {
     click(CENTER, EquipmentSlot.HAND);
     assertThat(events).containsExactly("warn golemancy.plinth.no_recipe");
 
-    settings = new PlinthSettings(settings.pedestals(), InfusionRecipes.of(List.of(new Infusion("anything", NamespacedKey.fromString("golemancy:rune/order/3"),
-        this::buildResult, item -> item != null, List.<InfusionIngredient>of(item -> item != null, item -> item != null, item -> item != null, item -> item != null),
-        10, 3, InfusionRecipe.RUNIC_AUGMENTS, 5))));
+    settings = new PlinthSettings(settings.pedestals(), recipes(Map.of("anything", new InfusionRecipe().result("golemancy:rune/order/3")
+        .center(ANY).pedestals(ANY, ANY, ANY, ANY).essence(10).duration(DURATION).unlock(InfusionRecipe.RUNIC_AUGMENTS, 5))));
     host.levels.put(InfusionRecipe.RUNIC_AUGMENTS, 3);
     events.clear();
     click(CENTER, EquipmentSlot.HAND);
@@ -502,7 +514,7 @@ class PlinthServiceTest extends AdaptTestBase {
 
   @Test
   void aLockedMasterworkHeartStaysLockedWhenTheAdaptationIsMissing() {
-    settings = new PlinthSettings(settings.pedestals(), InfusionRecipes.of(List.of(infusion(1, 3, InfusionRecipe.MASTERWORK))));
+    settings = new PlinthSettings(settings.pedestals(), swiftness(1, InfusionRecipe.MASTERWORK));
     stockPlinth();
     holdCrook();
 
@@ -513,15 +525,8 @@ class PlinthServiceTest extends AdaptTestBase {
 
   @Test
   void aMasterworkHeartInfusesEndToEndOnceMasterworkIsLearned() {
-    InfusionIngredient diamond = item -> item != null && item.getType() == Material.DIAMOND_BLOCK;
-    InfusionIngredient iron = item -> item != null && item.getType() == Material.IRON_BLOCK;
-    InfusionIngredient copper = item -> item != null && item.getType() == Material.COPPER_BLOCK;
-    InfusionIngredient snow = item -> item != null && item.getType() == Material.SNOW_BLOCK;
     InfusionRecipe heart = InfusionRecipe.defaults().get("masterwork_heart");
-    Infusion masterwork = new Infusion("masterwork_heart", NamespacedKey.fromString(heart.getResult()), this::buildResult,
-        item -> item != null && item.getType() == Material.HEART_OF_THE_SEA, List.of(diamond, iron, copper, snow), heart.getEssenceLevels(),
-        heart.getDurationTicks(), heart.getUnlockAdaptation(), heart.getUnlockLevel());
-    settings = new PlinthSettings(settings.pedestals(), InfusionRecipes.of(List.of(masterwork)));
+    settings = new PlinthSettings(settings.pedestals(), recipes(Map.of("masterwork_heart", heart)));
     stock.put(PlinthSlot.CENTER, item(Material.HEART_OF_THE_SEA));
     stock.put(PlinthSlot.NORTH, item(Material.DIAMOND_BLOCK));
     stock.put(PlinthSlot.EAST, item(Material.IRON_BLOCK));
@@ -600,7 +605,6 @@ class PlinthServiceTest extends AdaptTestBase {
     assertThat(platform.displays).hasSize(5);
     assertThat(platform.store).doesNotContainKey(stray).hasSize(5);
     assertThat(events).containsSubsequence("write 1,70,1 empty", "save 0,0", "drop 1,70,1");
-    assertThat(service.slot(CENTER)).isPresent();
   }
 
   @Test
@@ -707,15 +711,15 @@ class PlinthServiceTest extends AdaptTestBase {
     verify(player, never()).giveExpLevels(anyInt());
   }
 
-  private Infusion infusion(int unlockLevel, int duration) {
-    return infusion(unlockLevel, duration, InfusionRecipe.RUNIC_AUGMENTS);
+  private InfusionRecipes swiftness(int unlockLevel, String unlockAdaptation) {
+    return recipes(Map.of("swiftness_1", new InfusionRecipe().result("golemancy:rune/swiftness/1").center("DISC_FRAGMENT_5")
+        .pedestals("SUGAR", "SUGAR", "FEATHER", "FEATHER").essence(2).duration(DURATION).unlock(unlockAdaptation, unlockLevel)));
   }
 
-  private Infusion infusion(int unlockLevel, int duration, String unlockAdaptation) {
-    InfusionIngredient sugar = item -> item != null && item.getType() == Material.SUGAR;
-    InfusionIngredient feather = item -> item != null && item.getType() == Material.FEATHER;
-    return new Infusion("swiftness_1", NamespacedKey.fromString("golemancy:rune/swiftness/1"), this::buildResult,
-        item -> item != null && item.getType() == Material.DISC_FRAGMENT_5, List.of(sugar, sugar, feather, feather), 2, duration, unlockAdaptation, unlockLevel);
+  private InfusionRecipes recipes(Map<String, InfusionRecipe> specs) {
+    return InfusionRecipes.parse(specs, new StockResolver(), message -> {
+      throw new AssertionError(message);
+    });
   }
 
   private ItemStack buildResult() {
@@ -824,6 +828,27 @@ class PlinthServiceTest extends AdaptTestBase {
     ItemStack item = mock(ItemStack.class);
     lenient().when(item.getType()).thenReturn(material);
     return item;
+  }
+
+  private final class StockResolver implements InfusionRecipes.Resolver {
+    @Override
+    public InfusionIngredient material(String name) {
+      if (name.equals(ANY)) {
+        return item -> item != null;
+      }
+      Material material = Material.getMaterial(name);
+      return item -> item != null && item.getType() == material;
+    }
+
+    @Override
+    public InfusionIngredient exact(NamespacedKey id) {
+      return null;
+    }
+
+    @Override
+    public Supplier<ItemStack> result(NamespacedKey id) {
+      return PlinthServiceTest.this::buildResult;
+    }
   }
 
   private static final class FakeHost implements PlinthHost {

@@ -114,7 +114,7 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
     if (penalty > 0D) {
       statLore(v, C.RED, "- ", Form.pc(penalty, 0), 6);
     }
-    if (CopperFrameRules.unlocked(level, config.overdriveLevel)) {
+    if (GolemancyRules.unlocked(level, config.overdriveLevel)) {
       statLore(v, overdriveSeconds(config), 7);
     }
   }
@@ -179,7 +179,7 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
     }
     GolemHandle handle = bound.get();
     Config config = getConfig();
-    if (!CopperFrameRules.unlocked(ownerLevel(handle), config.overdriveLevel)) {
+    if (!GolemancyRules.unlocked(ownerLevel(handle), config.overdriveLevel)) {
       return;
     }
     AtomicBoolean claimed = new AtomicBoolean();

@@ -217,7 +217,7 @@ public final class RevealService extends TickedObject {
   public void locate(Player owner, GolemHandle handle) {
     Mob golem = handle.entity();
     LocateKey key = new LocateKey(owner.getUniqueId(), handle.entityId(), golem.getEntityId());
-    boolean fresh = locates.put(key, System.currentTimeMillis() + LOCATE_MILLIS) == null;
+    boolean fresh = locates.put(key, M.ms() + LOCATE_MILLIS) == null;
     ViewerGlowCoordinator glow = Adapt.instance.getViewerGlowCoordinator();
     if (glow != null && glow.isAvailable()) {
       glow.set(ViewerGlowCoordinator.Layer.GOLEMANCY_LOCATE, golem, owner, LOCATE_COLOR);
@@ -733,7 +733,7 @@ public final class RevealService extends TickedObject {
 
   private GolemLabel.Content servantContent(Skeleton servant, ServantView view, UUID owner) {
     try (LanguageAudience.Scope audience = LanguageAudience.open(owner)) {
-      long seconds = RevealRules.secondsLeft(view.frame().expiresAt(servant), System.currentTimeMillis());
+      long seconds = RevealRules.secondsLeft(view.frame().expiresAt(servant), M.ms());
       return new GolemLabel.Content(Component.text(AdaptLanguage.text(TragoulMessages.SKELETAL_SERVANT_NAME)), servant.getHealth(),
           GolemVitals.maxHealth(servant), AdaptLanguage.text(GolemancyMessages.BONE_FRAME_TIME_LEFT, trusted("seconds", seconds)), "", view.channels(), false);
     }
@@ -818,7 +818,7 @@ public final class RevealService extends TickedObject {
       return;
     }
     Mob golem = handle.entity();
-    if (!owner.isOnline() || System.currentTimeMillis() >= until || handle.isRetired() || !golem.isValid()) {
+    if (!owner.isOnline() || M.ms() >= until || handle.isRetired() || !golem.isValid()) {
       endLocate(owner, key);
       return;
     }

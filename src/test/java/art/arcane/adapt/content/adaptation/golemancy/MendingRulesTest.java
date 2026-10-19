@@ -102,9 +102,9 @@ class MendingRulesTest {
 
   @Test
   void unlocksNeedAtLeastLevelOne() {
-    assertThat(MendingRules.unlocked(5, 5)).isTrue();
-    assertThat(MendingRules.unlocked(4, 5)).isFalse();
-    assertThat(MendingRules.unlocked(0, 0)).isFalse();
+    assertThat(GolemancyRules.unlocked(5, 5)).isTrue();
+    assertThat(GolemancyRules.unlocked(4, 5)).isFalse();
+    assertThat(GolemancyRules.unlocked(0, 0)).isFalse();
   }
 
   @Test

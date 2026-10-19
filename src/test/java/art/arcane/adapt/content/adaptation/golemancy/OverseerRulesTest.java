@@ -207,8 +207,8 @@ class OverseerRulesTest {
     assertThat(OverseerRules.ringRadius(20D)).isEqualTo(8D);
     assertThat(OverseerRules.armorMax(-1D)).isZero();
     assertThat(OverseerRules.armorMax(50D)).isEqualTo(30D);
-    assertThat(OverseerRules.nonNegative(-2D)).isZero();
-    assertThat(OverseerRules.nonNegative(Double.POSITIVE_INFINITY)).isZero();
+    assertThat(GolemancyRules.nonNegative(-2D)).isZero();
+    assertThat(GolemancyRules.nonNegative(Double.POSITIVE_INFINITY)).isZero();
     assertThat(OverseerRules.holdSeconds(0)).isEqualTo(1);
   }
 

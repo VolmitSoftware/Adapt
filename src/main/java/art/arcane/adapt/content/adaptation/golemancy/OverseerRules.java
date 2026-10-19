@@ -30,30 +30,26 @@ final class OverseerRules {
   private OverseerRules() {
   }
 
-  static boolean unlocked(int level, int unlockLevel) {
-    return level >= Math.max(1, unlockLevel);
-  }
-
   static double radius(List<Integer> radiusByLevel, int level) {
     Integer radius = AnimusBindingRules.atLevel(radiusByLevel, level, null);
     return radius == null ? 0D : Math.clamp(radius, MIN_RADIUS, MAX_RADIUS);
   }
 
   static GolemSignal current(GolemSignal stored, int level, int sicLevel) {
-    if (stored == null || (stored == GolemSignal.SIC && !unlocked(level, sicLevel))) {
+    if (stored == null || (stored == GolemSignal.SIC && !GolemancyRules.unlocked(level, sicLevel))) {
       return GolemSignal.FOLLOW;
     }
     return stored;
   }
 
   static GolemSignal next(GolemSignal stored, int level, int sicLevel) {
-    List<GolemSignal> cycle = unlocked(level, sicLevel) ? FULL_CYCLE : MOVEMENT_CYCLE;
+    List<GolemSignal> cycle = GolemancyRules.unlocked(level, sicLevel) ? FULL_CYCLE : MOVEMENT_CYCLE;
     int index = cycle.indexOf(current(stored, level, sicLevel));
     return cycle.get((index + 1) % cycle.size());
   }
 
   static DyeColor crookChannel(int level, int filterLevel, Optional<DyeColor> stored) {
-    return unlocked(level, filterLevel) ? stored.orElse(null) : null;
+    return GolemancyRules.unlocked(level, filterLevel) ? stored.orElse(null) : null;
   }
 
   static boolean combatCapable(GolemBody body, List<GolemCoreType> cores) {
@@ -124,11 +120,7 @@ final class OverseerRules {
   }
 
   static double armorMax(double value) {
-    return Math.min(nonNegative(value), MAX_ARMOR);
-  }
-
-  static double nonNegative(double value) {
-    return Double.isFinite(value) ? Math.max(0D, value) : 0D;
+    return Math.min(GolemancyRules.nonNegative(value), MAX_ARMOR);
   }
 
   static int holdSeconds(int value) {

@@ -28,7 +28,6 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
@@ -39,12 +38,10 @@ import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
@@ -65,8 +62,8 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
     setIcon(Material.FISHING_ROD);
     setInterval(SWEEP_INTERVAL_MILLIS);
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
-    registerGolemRecipe(parser, CORE_RECIPE, getConfig().anglerCoreRecipe);
-    registerGolemRecipe(parser, NODE_RECIPE, getConfig().fishingNodeRecipe);
+    GolemancySupport.registerRecipe(this, parser, CORE_RECIPE, getConfig().anglerCoreRecipe, RECIPE_LEVEL);
+    GolemancySupport.registerRecipe(this, parser, NODE_RECIPE, getConfig().fishingNodeRecipe, RECIPE_LEVEL);
   }
 
   @Override
@@ -86,10 +83,10 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
   @Override
   protected void normalizeLoadedConfig(Config loadedConfig) {
     loadedConfig.rainIntervalMultiplier = AnglerRules.rainMultiplier(loadedConfig.rainIntervalMultiplier);
-    loadedConfig.doubleCatchChance = AnglerRules.fraction(loadedConfig.doubleCatchChance);
+    loadedConfig.doubleCatchChance = GolemancyRules.fraction(loadedConfig.doubleCatchChance);
     loadedConfig.maxAnglersPerChunk = AnglerRules.atLeastOne(loadedConfig.maxAnglersPerChunk);
     loadedConfig.treasureEnchantLevels = AnglerRules.enchantLevels(loadedConfig.treasureEnchantLevels);
-    loadedConfig.workXpPerCatch = AnglerRules.nonNegative(loadedConfig.workXpPerCatch);
+    loadedConfig.workXpPerCatch = GolemancyRules.nonNegative(loadedConfig.workXpPerCatch);
   }
 
   @Override
@@ -100,13 +97,13 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
     if (luck > 0) {
       statLore(v, luck, 2);
     }
-    if (AnglerRules.unlocked(level, config.junkFilterLevel)) {
+    if (GolemancyRules.unlocked(level, config.junkFilterLevel)) {
       v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(GolemancyMessages.ANGLER_CORE_LORE3));
     }
-    if (AnglerRules.unlocked(level, config.rainLevel)) {
+    if (GolemancyRules.unlocked(level, config.rainLevel)) {
       statLore(v, Form.pc(1D - config.rainIntervalMultiplier, 0), 4);
     }
-    if (AnglerRules.unlocked(level, config.doubleCatchLevel)) {
+    if (GolemancyRules.unlocked(level, config.doubleCatchLevel)) {
       statLore(v, Form.pc(config.doubleCatchChance, 0), 5);
     }
   }
@@ -123,11 +120,6 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
 
   Config config() {
     return getConfig();
-  }
-
-  int ownerLevel(UUID owner) {
-    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
-    return player == null ? 0 : getLevel(player);
   }
 
   AnglerLoot.Tables loot() {
@@ -148,12 +140,6 @@ public class GolemAnglerCore extends SimpleAdaptation<GolemAnglerCore.Config> {
       return item;
     }
     return PaperCompat.enchantWithLevels(item, getConfig().treasureEnchantLevels, ThreadLocalRandom.current());
-  }
-
-  private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {
-    NamespacedKey key = new NamespacedKey(Adapt.instance, name);
-    parser.builder(key, spec).ifPresent(builder -> registerRecipe(builder.requiredLevel(RECIPE_LEVEL).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
   }
 
   private static AnglerLoot.Table table(List<String> entries, String field) {

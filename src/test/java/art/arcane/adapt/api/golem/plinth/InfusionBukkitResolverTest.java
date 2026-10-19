@@ -55,7 +55,8 @@ class InfusionBukkitResolverTest extends AdaptTestBase {
     InfusionRecipes recipes = InfusionRecipes.parse(InfusionRecipe.defaults(), InfusionRecipes.bukkitResolver(any -> true), warnings::add);
 
     assertThat(warnings).isEmpty();
-    assertThat(recipes.infusions()).hasSize(22);
+    assertThat(recipes.match(plainHeart, List.of(plain(Material.DIAMOND_BLOCK), plain(Material.IRON_BLOCK), plain(Material.COPPER_BLOCK),
+        plain(Material.SNOW_BLOCK)))).map(Infusion::id).contains("masterwork_heart");
   }
 
   @Test
@@ -99,5 +100,11 @@ class InfusionBukkitResolverTest extends AdaptTestBase {
     assertThat(resolver.result(NamespacedKey.fromString("golemancy:crook"))).isNull();
     assertThat(resolver.result(NamespacedKey.fromString("golemancy:blank_rune"))).isNull();
     assertThat(resolver.result(NamespacedKey.fromString("minecraft:diamond"))).isNull();
+  }
+
+  private static ItemStack plain(Material material) {
+    ItemStack item = mock(ItemStack.class);
+    lenient().when(item.getType()).thenReturn(material);
+    return item;
   }
 }

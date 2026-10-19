@@ -69,7 +69,7 @@ final class SorterNetwork {
     excluded.add(inputId);
     Map<ContainerId, NodeRecord> filters = new HashMap<>();
     classifyNodes(viewer, world, input, record, level, radius, excluded, filters);
-    long maxAge = SorterRules.unlocked(level, config.indexLevel) ? config.indexRefreshSeconds * 1_000L : Math.max(1L, scanMillis.getAsLong());
+    long maxAge = GolemancyRules.unlocked(level, config.indexLevel) ? config.indexRefreshSeconds * 1_000L : Math.max(1L, scanMillis.getAsLong());
     int limit = Math.max(1, config.maxServedContainers);
     List<SorterDestination> destinations = new ArrayList<>();
     for (Block block : candidates(world, input, radius, nowMillis)) {
@@ -146,7 +146,7 @@ final class SorterNetwork {
 
   private void classifyNodes(SorterAccess viewer, World world, NodeKey input, NodeRecord record, int level, int radius,
                              Set<ContainerId> excluded, Map<ContainerId, NodeRecord> filters) {
-    boolean filtering = SorterRules.unlocked(level, core.config().filterLevel);
+    boolean filtering = GolemancyRules.unlocked(level, core.config().filterLevel);
     List<NodeIndex.Entry> nearby = space.nodes(input.world(), input.x() + CENTER, input.y() + CENTER, input.z() + CENTER, radius + NODE_SLACK);
     for (NodeIndex.Entry entry : nearby) {
       NodeRecord node = entry.record();

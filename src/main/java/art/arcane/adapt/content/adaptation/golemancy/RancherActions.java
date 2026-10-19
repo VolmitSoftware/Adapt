@@ -1,7 +1,6 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.GolemContext;
-import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
@@ -18,7 +17,6 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Goat;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MushroomCow;
-import org.bukkit.entity.Player;
 import org.bukkit.entity.Sheep;
 import org.bukkit.entity.Tameable;
 import org.bukkit.event.EventHandler;
@@ -63,11 +61,6 @@ final class RancherActions implements Listener {
   RancherActions(GolemRancherCore core, Hooks hooks) {
     this.core = Objects.requireNonNull(core);
     this.hooks = Objects.requireNonNull(hooks);
-  }
-
-  int level(GolemContext golem) {
-    Player owner = golem.owner();
-    return owner == null ? 0 : core.ownerLevel(owner.getUniqueId());
   }
 
   int intervalTicks() {
@@ -182,7 +175,7 @@ final class RancherActions implements Listener {
   }
 
   private boolean take(GolemContext golem, Predicate<ItemStack> matches) {
-    return golem.take(matches, 1) > 0 || spend(homeChest(golem).orElse(null), matches);
+    return golem.take(matches, 1) > 0 || spend(GolemancySupport.homeChest(golem).orElse(null), matches);
   }
 
   private static boolean tends(Animals animal, NodeKey key, NodeRecord record, List<EntityType> tended) {
@@ -229,15 +222,6 @@ final class RancherActions implements Listener {
 
   private static boolean present(ItemStack item) {
     return item != null && item.getType() != Material.AIR && item.getAmount() > 0;
-  }
-
-  private static Optional<Inventory> homeChest(GolemContext golem) {
-    GolemState.Anchor chest = golem.handle().state().homeChest();
-    World world = golem.world();
-    if (chest == null || !chest.world().equals(world.getUID()) || !world.isChunkLoaded(chest.x() >> 4, chest.z() >> 4)) {
-      return Optional.empty();
-    }
-    return golem.container(world.getBlockAt(chest.x(), chest.y(), chest.z()));
   }
 
   private static boolean spend(Inventory chest, Predicate<ItemStack> matches) {
@@ -381,7 +365,7 @@ final class RancherActions implements Listener {
         return held;
       }
       List<ItemStack> found = new ArrayList<>(golem.carriedItems());
-      homeChest(golem).ifPresent(chest -> {
+      GolemancySupport.homeChest(golem).ifPresent(chest -> {
         for (ItemStack item : chest.getStorageContents()) {
           if (present(item)) {
             found.add(item);

@@ -99,8 +99,8 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
     assertThat(recipes).allMatch(recipe -> recipe.getRequiredLevel() == 1);
     assertThat(((AdaptRecipe.Shaped) recipes.get(0)).getShapes()).containsExactly(" X ", "YBY", " Z ");
     assertThat(((AdaptRecipe.Shaped) recipes.get(1)).getShapes()).containsExactly(" X ", " B ", "   ");
-    assertThat(book.required(CORE_KEY)).hasSize(1);
-    assertThat(book.required(NODE_KEY)).hasSize(1);
+    assertThat(book.satisfiedBy(CORE_KEY, List.of(mock(ItemStack.class)))).isTrue();
+    assertThat(book.satisfiedBy(NODE_KEY, List.of(mock(ItemStack.class)))).isTrue();
     assertThat(GolemItems.recipeTithe().levels(keyed(CORE_KEY))).isEqualTo(2);
     assertThat(GolemItems.recipeTithe().levels(keyed(NODE_KEY))).isZero();
   }
@@ -244,7 +244,7 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
   private static GolemLumberCore levelFive() {
     return new GolemLumberCore() {
       @Override
-      int ownerLevel(UUID owner) {
+      public int ownerLevel(UUID owner) {
         return OWNER.equals(owner) ? 5 : 0;
       }
     };

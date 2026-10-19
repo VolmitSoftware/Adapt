@@ -48,7 +48,6 @@ import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -84,7 +83,8 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     registerConfiguration(Config.class);
     setLocalizationKey("golemancy.runic_augments");
     setIcon(Material.DISC_FRAGMENT_5);
-    registerBlankRuneRecipe(ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook()), getConfig().blankRuneRecipe);
+    GolemancySupport.registerRecipe(this, ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook()), BLANK_RUNE_RECIPE,
+        getConfig().blankRuneRecipe, RECIPE_LEVEL);
   }
 
   @Override
@@ -157,11 +157,6 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     }
   }
 
-  int level(UUID owner) {
-    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
-    return player == null ? 0 : getLevel(player);
-  }
-
   int ownerLevel(GolemHandle handle) {
     AdaptPlayer player = getServer().getOnlineAdaptPlayer(handle.owner());
     if (player == null) {
@@ -173,7 +168,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
   }
 
   GolemRuneLayout layout(GolemBody body, UUID owner, boolean masterwork) {
-    return layout(body, level(owner), GolemMastery.perks(owner, masterwork).extraRuneSlots());
+    return layout(body, ownerLevel(owner), GolemMastery.perks(owner, masterwork).extraRuneSlots());
   }
 
   ActiveRunes runes(GolemHandle handle) {
@@ -258,12 +253,6 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
       layouts = cache;
     }
     return cache.layout(body, level, masterworkSlots);
-  }
-
-  private void registerBlankRuneRecipe(ConfiguredRecipeParser parser, ConfiguredShapedRecipe spec) {
-    NamespacedKey key = new NamespacedKey(Adapt.instance, BLANK_RUNE_RECIPE);
-    parser.builder(key, spec).ifPresent(builder -> registerRecipe(builder.requiredLevel(RECIPE_LEVEL).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
   }
 
   private static void addDelta(List<GolemStatDelta> deltas, GolemStat stat, boolean multiply, double amount) {

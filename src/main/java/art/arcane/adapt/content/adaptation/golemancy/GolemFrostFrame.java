@@ -99,13 +99,13 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
     statLore(v, FrostFrameRules.atLevel(config.snowballDamageByLevel, level), 2);
     statLore(v, C.YELLOW, "* ", Form.pc(FrostFrameRules.warmMultiplier(config.warmBiomeDamageMultiplierByLevel, level), 0), 3);
     v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(GolemancyMessages.FROST_FRAME_LORE4));
-    if (FrostFrameRules.unlocked(level, config.chillLevel)) {
+    if (GolemancyRules.unlocked(level, config.chillLevel)) {
       statLore(v, Math.max(1, config.chillTicks) / TICKS_PER_SECOND, 5);
     }
-    if (FrostFrameRules.unlocked(level, config.fireRateBonusLevel)) {
+    if (GolemancyRules.unlocked(level, config.fireRateBonusLevel)) {
       statLore(v, Form.pc(config.extraSnowballChance, 0), 6);
     }
-    if (FrostFrameRules.unlocked(level, config.frostbiteLevel)) {
+    if (GolemancyRules.unlocked(level, config.frostbiteLevel)) {
       statLore(v, Math.max(1, config.frostbiteHits), 7);
     }
   }
@@ -208,10 +208,10 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
   private void applyFrost(SnowballHit hit) {
     Config config = getConfig();
     LivingEntity victim = hit.victim();
-    if (FrostFrameRules.unlocked(hit.level(), config.chillLevel)) {
+    if (GolemancyRules.unlocked(hit.level(), config.chillLevel)) {
       victim.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, Math.max(1, config.chillTicks), 0, false, true, true));
     }
-    if (!FrostFrameRules.unlocked(hit.level(), config.frostbiteLevel)) {
+    if (!GolemancyRules.unlocked(hit.level(), config.frostbiteLevel)) {
       return;
     }
     long now = M.ms();

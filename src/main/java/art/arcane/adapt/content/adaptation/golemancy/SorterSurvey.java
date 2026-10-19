@@ -51,10 +51,10 @@ final class SorterSurvey {
   }
 
   Optional<SorterDestination> choose(ItemStack item) {
-    if (SorterRules.shulker(item.getType()) && !SorterRules.unlocked(level, config.shulkerBoxLevel)) {
+    if (SorterRules.shulker(item.getType()) && !GolemancyRules.unlocked(level, config.shulkerBoxLevel)) {
       return Optional.empty();
     }
-    boolean filters = SorterRules.unlocked(level, config.filterLevel);
+    boolean filters = GolemancyRules.unlocked(level, config.filterLevel);
     if (filters) {
       Optional<SorterDestination> filtered = best(destination -> destination.kind() == SorterDestination.Kind.FILTER
           && destination.filter().filterCount() > 0 && receives(destination, item) && fits(destination, item), BY_PRIORITY);
@@ -85,7 +85,7 @@ final class SorterSurvey {
   }
 
   List<RestockNeed> restockNeeds() {
-    if (!SorterRules.unlocked(level, config.restockLevel)) {
+    if (!GolemancyRules.unlocked(level, config.restockLevel)) {
       return List.of();
     }
     List<RestockNeed> needs = new ArrayList<>();
@@ -173,7 +173,7 @@ final class SorterSurvey {
   }
 
   private int restockTarget(SorterDestination destination) {
-    if (destination.kind() != SorterDestination.Kind.FILTER || !SorterRules.unlocked(level, config.restockLevel)
+    if (destination.kind() != SorterDestination.Kind.FILTER || !GolemancyRules.unlocked(level, config.restockLevel)
         || !destination.filter().whitelist()) {
       return 0;
     }

@@ -42,10 +42,6 @@ final class StasisRules {
     return Math.min(maximum, healed);
   }
 
-  static boolean unlocked(int level, int unlockLevel) {
-    return level >= 1 && level >= unlockLevel;
-  }
-
   static boolean hazardous(Material replaced, boolean waterlogged, GolemBody body) {
     if (replaced == Material.LAVA || replaced == Material.FIRE || replaced == Material.SOUL_FIRE) {
       return true;

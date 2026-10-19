@@ -55,7 +55,7 @@ final class BreakerNodePanel implements NodePanel {
   private NodePanelControl toggle(Toggle toggle, boolean on, int level, int unlockLevel) {
     String name = on ? C.GREEN + AdaptLanguage.text(toggle.onName()) : C.YELLOW + AdaptLanguage.text(toggle.offName());
     ItemStack icon = icons.apply(toggle.icon());
-    if (!BreakerRules.unlocked(level, unlockLevel)) {
+    if (!GolemancyRules.unlocked(level, unlockLevel)) {
       return new NodePanelControl(toggle.id(), icon, name,
           List.of(C.RED + AdaptLanguage.text(GolemancyMessages.BREAKER_CORE_LOCKED, trusted("level", unlockLevel))), null, null, null);
     }

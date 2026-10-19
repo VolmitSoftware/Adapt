@@ -103,10 +103,10 @@ class AnglerRulesTest {
 
   @Test
   void loadedValuesAreClamped() {
-    assertThat(AnglerRules.fraction(1.5D)).isEqualTo(1D);
-    assertThat(AnglerRules.fraction(-0.2D)).isZero();
-    assertThat(AnglerRules.fraction(Double.NaN)).isZero();
-    assertThat(AnglerRules.nonNegative(-6D)).isZero();
+    assertThat(GolemancyRules.fraction(1.5D)).isEqualTo(1D);
+    assertThat(GolemancyRules.fraction(-0.2D)).isZero();
+    assertThat(GolemancyRules.fraction(Double.NaN)).isZero();
+    assertThat(GolemancyRules.nonNegative(-6D)).isZero();
     assertThat(AnglerRules.atLeastOne(0)).isEqualTo(1);
     assertThat(AnglerRules.atLeastOne(7)).isEqualTo(7);
   }

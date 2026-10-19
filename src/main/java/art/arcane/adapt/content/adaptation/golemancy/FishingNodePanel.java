@@ -49,7 +49,7 @@ final class FishingNodePanel implements NodePanel {
         ? C.GREEN + AdaptLanguage.text(GolemancyMessages.ANGLER_CORE_JUNK_DISCARD)
         : C.YELLOW + AdaptLanguage.text(GolemancyMessages.ANGLER_CORE_JUNK_KEEP);
     ItemStack icon = icons.apply(Material.ROTTEN_FLESH);
-    if (!AnglerRules.unlocked(level, config.junkFilterLevel)) {
+    if (!GolemancyRules.unlocked(level, config.junkFilterLevel)) {
       return new NodePanelControl("angler-junk", icon, name,
           List.of(C.RED + AdaptLanguage.text(GolemancyMessages.ANGLER_CORE_LOCKED, trusted("level", config.junkFilterLevel))), null, null, null);
     }

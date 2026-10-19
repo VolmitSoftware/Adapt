@@ -47,7 +47,6 @@ import art.arcane.volmlib.util.localization.MessageArgument;
 import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -79,8 +78,8 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
     setIcon(Material.CLAY_BALL);
     GolemancyRuntime.setNodeWeaving(this);
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
-    registerGolemRecipe(parser, BLANK_NODE_RECIPE, getConfig().blankNodeRecipe);
-    registerGolemRecipe(parser, DEPOSIT_NODE_RECIPE, getConfig().depositNodeRecipe);
+    GolemancySupport.registerRecipe(this, parser, BLANK_NODE_RECIPE, getConfig().blankNodeRecipe, RECIPE_LEVEL);
+    GolemancySupport.registerRecipe(this, parser, DEPOSIT_NODE_RECIPE, getConfig().depositNodeRecipe, RECIPE_LEVEL);
   }
 
   @Override
@@ -174,12 +173,6 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
     return Math.max(0, Math.min(NodeRecord.MAX_FILTER_ENTRIES, AnimusBindingRules.atLevel(config.filterSlotsByLevel, level, 0)));
   }
 
-  private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {
-    NamespacedKey key = new NamespacedKey(Adapt.instance, name);
-    parser.builder(key, spec).ifPresent(builder -> registerRecipe(builder.requiredLevel(RECIPE_LEVEL).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
-  }
-
   private void place(Player player, Block anchor, BlockFace face, NodeType type) {
     Optional<NodeService> service = GolemancyRuntime.nodes();
     if (service.isEmpty()) {
@@ -237,10 +230,6 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
       case CHUNK_FULL -> warn(player, GolemancyMessages.NODE_CHUNK_FULL, trusted("count", GolemancyRuntime.nodeSettings().maxNodesPerChunk()));
       case NODE_CAP -> warn(player, GolemancyMessages.NODE_CAP, trusted("count", nodeCap(getActiveLevel(player))));
     }
-  }
-
-  private static void unlockLore(Element v, TextKey key) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   private static void warn(Player player, TextKey key, MessageArgument... arguments) {

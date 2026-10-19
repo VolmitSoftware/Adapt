@@ -15,7 +15,6 @@ import art.arcane.adapt.api.golem.node.ScanBudget;
 import org.bukkit.HeightMap;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -76,7 +75,7 @@ final class FishingNodeBehavior implements NodeBehavior {
 
   @Override
   public GolemActResult act(GolemContext golem, GolemTask task) {
-    int level = level(golem);
+    int level = GolemancySupport.ownerLevel(core, golem);
     NodeRecord record = golem.node().orElse(null);
     NodeKey key = task.node().orElse(null);
     if (level < 1 || record == null || key == null || !AnglerRules.FISH.equals(task.type())) {
@@ -109,14 +108,14 @@ final class FishingNodeBehavior implements NodeBehavior {
   @Override
   public int actIntervalTicks(GolemContext golem, GolemTask task) {
     GolemAnglerCore.Config config = core.config();
-    int level = level(golem);
-    boolean rain = AnglerRules.unlocked(level, config.rainLevel)
+    int level = GolemancySupport.ownerLevel(core, golem);
+    boolean rain = GolemancyRules.unlocked(level, config.rainLevel)
         && task.node().flatMap(waters::get).map(AnglerWater.Survey::raining).orElse(false);
     return AnglerRules.intervalTicks(AnglerRules.catchSeconds(config.catchIntervalSecondsByLevel, level), rain ? config.rainIntervalMultiplier : 1D);
   }
 
   private int reel(GolemContext golem, GolemAnglerCore.Config config, int level, boolean discardJunk) {
-    int catches = AnglerRules.unlocked(level, config.doubleCatchLevel) && random.getAsDouble() < config.doubleCatchChance ? 2 : 1;
+    int catches = GolemancyRules.unlocked(level, config.doubleCatchLevel) && random.getAsDouble() < config.doubleCatchChance ? 2 : 1;
     AnglerLoot.Tables tables = core.loot();
     AnglerLoot.Weights weights = AnglerRules.weights(config);
     int luck = AnglerRules.luck(config.luckByLevel, level);
@@ -184,11 +183,6 @@ final class FishingNodeBehavior implements NodeBehavior {
     int[] at = AnglerWater.bobber(key, water, seat);
     Location bobber = new Location(golem.world(), at[0] + CENTER, at[1] + SURFACE, at[2] + CENTER);
     return golem.owns(bobber) ? bobber : new Location(golem.world(), target.blockX() + CENTER, target.blockY() + SURFACE, target.blockZ() + CENTER);
-  }
-
-  private int level(GolemContext golem) {
-    Player owner = golem.owner();
-    return owner == null ? 0 : core.ownerLevel(owner.getUniqueId());
   }
 
   private static List<GolemTask> chunkTasks(NodeKey key) {

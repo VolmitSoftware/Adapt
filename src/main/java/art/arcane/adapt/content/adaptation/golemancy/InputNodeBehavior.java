@@ -82,7 +82,7 @@ final class InputNodeBehavior implements NodeBehavior {
 
   @Override
   public GolemActResult act(GolemContext golem, GolemTask task) {
-    int level = level(golem);
+    int level = GolemancySupport.ownerLevel(core, golem);
     NodeRecord record = golem.node().orElse(null);
     NodeKey key = task.node().orElse(null);
     if (level < 1 || record == null || key == null) {
@@ -98,7 +98,7 @@ final class InputNodeBehavior implements NodeBehavior {
 
   @Override
   public Optional<GolemTask> route(GolemContext golem, NodeKey node, List<ItemStack> carried) {
-    int level = level(golem);
+    int level = GolemancySupport.ownerLevel(core, golem);
     NodeRecord record = golem.node().orElse(null);
     if (level < 1 || record == null || carried.isEmpty()) {
       return Optional.empty();
@@ -122,7 +122,7 @@ final class InputNodeBehavior implements NodeBehavior {
 
   private List<GolemTask> wanted(NodeContext node, SorterSurvey survey, int level) {
     List<GolemTask> wanted = new ArrayList<>();
-    if (SorterRules.unlocked(level, core.config().fetchLevel)) {
+    if (GolemancyRules.unlocked(level, core.config().fetchLevel)) {
       for (SorterFetches.Request request : fetches.open(node.key(), node.nowMillis())) {
         ItemStack item = request.item();
         survey.fetchSource(item).ifPresent(source -> wanted.add(node.task(SorterRules.FETCH, GolemTarget.block(source.block()))
@@ -431,11 +431,6 @@ final class InputNodeBehavior implements NodeBehavior {
       return Optional.empty();
     }
     return unskipped(golem, GolemTask.builder(node, NodeType.INPUT, SorterRules.RETURN, GolemTarget.block(input.block())).build());
-  }
-
-  private int level(GolemContext golem) {
-    Player owner = golem.owner();
-    return owner == null ? 0 : core.ownerLevel(owner.getUniqueId());
   }
 
   private static boolean reachable(GolemContext golem, SorterDestination destination) {

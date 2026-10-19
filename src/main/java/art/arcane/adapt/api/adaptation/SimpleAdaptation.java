@@ -392,6 +392,11 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
     brewingRecipes.add(r);
   }
 
+  public int ownerLevel(UUID owner) {
+    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
+    return player == null ? 0 : getLevel(player);
+  }
+
   @Override
   public String getDisplayName() {
     try {
@@ -632,6 +637,10 @@ public abstract class SimpleAdaptation<T> extends TickedObject implements Adapta
         trusted("separator", labelColor + " "),
         trusted("label", AdaptLanguage.text(loreKey))
     ));
+  }
+
+  protected static void unlockLore(Element v, TextKey key) {
+    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   private static String formatStatValue(Object value) {

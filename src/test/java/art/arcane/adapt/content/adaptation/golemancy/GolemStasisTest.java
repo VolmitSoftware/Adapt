@@ -24,6 +24,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.damage.DamageSource;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.Mob;
@@ -657,8 +658,8 @@ class GolemStasisTest extends AdaptTestBase {
     }
   }
 
-  private static org.bukkit.damage.DamageSource mockDamageSource() {
-    return mock(org.bukkit.damage.DamageSource.class);
+  private static DamageSource mockDamageSource() {
+    return mock(DamageSource.class);
   }
 
   private List<String> lore(int level) {

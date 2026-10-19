@@ -43,7 +43,7 @@ final class InputNodePanel implements NodePanel {
     String name = C.YELLOW + AdaptLanguage.text(matchName(SorterRules.match(record, config, level)));
     String lore = C.GRAY + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_MATCH_LORE);
     ItemStack icon = icons.apply(Material.COMPARATOR);
-    if (!SorterRules.unlocked(level, config.groupsLevel)) {
+    if (!GolemancyRules.unlocked(level, config.groupsLevel)) {
       return new NodePanelControl("sorter-match", icon, name, List.of(lore, locked(config.groupsLevel)), null, null, null);
     }
     return new NodePanelControl("sorter-match", icon, name, List.of(lore, C.GRAY + AdaptLanguage.text(GolemancyMessages.GUI_CYCLE)),
@@ -62,7 +62,7 @@ final class InputNodePanel implements NodePanel {
   private NodePanelControl fetch(NodePanelContext context, GolemSorterCore.Config config, int level) {
     String name = C.GREEN + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_FETCH);
     ItemStack icon = icons.apply(Material.BUNDLE);
-    if (!SorterRules.unlocked(level, config.fetchLevel)) {
+    if (!GolemancyRules.unlocked(level, config.fetchLevel)) {
       return new NodePanelControl("sorter-fetch", icon, name, List.of(locked(config.fetchLevel)), null, null, null);
     }
     NodeKey key = context.key();

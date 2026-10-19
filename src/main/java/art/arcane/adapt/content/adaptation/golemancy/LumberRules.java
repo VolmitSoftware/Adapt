@@ -16,13 +16,9 @@ final class LumberRules {
   }
 
   static Plan plan(GolemLumberCore.Config config, int level) {
-    return new Plan(level, logsPerSecond(config.logsPerSecondByLevel, level), unlocked(level, config.replantLevel),
-        unlocked(level, config.leafSweepLevel), unlocked(level, config.megaTreeLevel), unlocked(level, config.netherLevel),
+    return new Plan(level, logsPerSecond(config.logsPerSecondByLevel, level), GolemancyRules.unlocked(level, config.replantLevel),
+        GolemancyRules.unlocked(level, config.leafSweepLevel), GolemancyRules.unlocked(level, config.megaTreeLevel), GolemancyRules.unlocked(level, config.netherLevel),
         Math.max(treeCap(config.copperTreeCapByLevel, level), treeCap(config.ironTreeCapByLevel, level)));
-  }
-
-  static boolean unlocked(int level, int required) {
-    return level >= 1 && level >= required;
   }
 
   static double logsPerSecond(List<Double> byLevel, int level) {
@@ -53,10 +49,6 @@ final class LumberRules {
       }
     }
     return bodies;
-  }
-
-  static double nonNegative(double value) {
-    return Double.isFinite(value) ? Math.max(0D, value) : 0D;
   }
 
   record Plan(int level, double logsPerSecond, boolean replant, boolean sweep, boolean mega, boolean nether, int largestCap) {

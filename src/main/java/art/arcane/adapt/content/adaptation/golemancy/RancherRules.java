@@ -37,16 +37,12 @@ final class RancherRules {
   private RancherRules() {
   }
 
-  static boolean unlocked(int level, int required) {
-    return level >= 1 && level >= required;
-  }
-
   static boolean allows(Action action, int level, GolemBody body, Levels levels) {
     return switch (action) {
-      case BREED -> unlocked(level, 1);
-      case SHEAR -> unlocked(level, levels.shear());
-      case MILK -> unlocked(level, levels.milk());
-      case CULL -> body == GolemBody.IRON && unlocked(level, levels.cull());
+      case BREED -> GolemancyRules.unlocked(level, 1);
+      case SHEAR -> GolemancyRules.unlocked(level, levels.shear());
+      case MILK -> GolemancyRules.unlocked(level, levels.milk());
+      case CULL -> body == GolemBody.IRON && GolemancyRules.unlocked(level, levels.cull());
     };
   }
 
@@ -200,10 +196,6 @@ final class RancherRules {
 
   static double fraction(double value) {
     return Double.isFinite(value) ? Math.clamp(value, 0D, 1D) : 1D;
-  }
-
-  static double nonNegative(double value) {
-    return Double.isFinite(value) ? Math.max(0D, value) : 0D;
   }
 
   private static void addMatching(List<Ranked> choices, Action action, List<Beast> group, Census census, int keep) {

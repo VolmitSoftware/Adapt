@@ -87,7 +87,13 @@ class NodeWorkTest extends AdaptTestBase {
     board.offer(crop(1), 16);
     board.offer(crop(2), 16);
     List<ScanBudget> budgets = new ArrayList<>();
-    behavior(NodeType.HARVEST, (node, budget) -> budgets.add(budget));
+    List<Boolean> posted = new ArrayList<>();
+    behavior(NodeType.HARVEST, (node, budget) -> {
+      budgets.add(budget);
+      for (int x = 3; x <= 20; x++) {
+        posted.add(node.post(node.task("harvest", GolemTarget.block(WORLD, x, 64, 1)).build()));
+      }
+    });
 
     work.scan(new NodeScanPass(world, KEY, record, new NodeScanCursor.Window(64, 64), 16));
 
@@ -95,8 +101,9 @@ class NodeWorkTest extends AdaptTestBase {
       assertThat(budget.start()).isEqualTo(64);
       assertThat(budget.end()).isEqualTo(128);
       assertThat(budget.count()).isEqualTo(64);
-      assertThat(budget.taskRoom()).isEqualTo(14);
     });
+    assertThat(posted).filteredOn(Boolean::booleanValue).hasSize(14);
+    assertThat(board.openCount(KEY)).isEqualTo(16);
   }
 
   @Test
@@ -122,16 +129,18 @@ class NodeWorkTest extends AdaptTestBase {
   void repostingAnOpenTargetKeepsItsTaskAndUsesNoRoom() {
     NodeRecord record = harvest();
     board.offer(crop(1), 16);
-    List<Integer> rooms = new ArrayList<>();
+    List<Boolean> fresh = new ArrayList<>();
     behavior(NodeType.HARVEST, (node, budget) -> {
       assertThat(node.post(node.task("harvest", GolemTarget.block(WORLD, 1, 64, 1)).build())).isTrue();
-      rooms.add(budget.taskRoom());
       assertThat(node.tasks()).hasSize(1);
+      for (int x = 2; x <= 5; x++) {
+        fresh.add(node.post(node.task("harvest", GolemTarget.block(WORLD, x, 64, 1)).build()));
+      }
     });
 
     work.scan(new NodeScanPass(world, KEY, record, new NodeScanCursor.Window(0, 64), 4));
 
-    assertThat(rooms).containsExactly(3);
+    assertThat(fresh).containsExactly(true, true, true, false);
   }
 
   @Test

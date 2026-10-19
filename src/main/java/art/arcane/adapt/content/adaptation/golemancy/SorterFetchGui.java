@@ -66,7 +66,7 @@ final class SorterFetchGui {
       return;
     }
     int level = core.ownerLevel(player.getUniqueId());
-    if (!SorterRules.unlocked(level, core.config().fetchLevel)) {
+    if (!GolemancyRules.unlocked(level, core.config().fetchLevel)) {
       return;
     }
     List<SorterSurvey.Available> listing = network.survey(access(player), world, key, record, level, M.ms())

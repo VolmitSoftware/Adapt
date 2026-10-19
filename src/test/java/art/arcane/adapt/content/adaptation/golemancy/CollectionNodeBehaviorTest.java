@@ -247,7 +247,6 @@ class CollectionNodeBehaviorTest {
     room.set(taskRoom);
     ScanBudget budget = mock(ScanBudget.class, withSettings().strictness(Strictness.LENIENT));
     when(budget.hasTaskRoom()).thenAnswer(invocation -> room.get() > 0);
-    when(budget.taskRoom()).thenAnswer(invocation -> room.get());
     return budget;
   }
 

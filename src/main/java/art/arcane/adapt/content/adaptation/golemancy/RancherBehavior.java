@@ -4,21 +4,14 @@ import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.golem.GolemActResult;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemCoreBehavior;
-import art.arcane.adapt.api.golem.GolemHandle;
-import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemTarget;
 import art.arcane.adapt.api.golem.GolemTask;
-import art.arcane.adapt.api.golem.GolemTaskMatch;
-import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeBehavior;
 import art.arcane.adapt.api.golem.node.NodeContext;
 import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
-import art.arcane.adapt.api.golem.node.NodeRules;
-import art.arcane.adapt.api.golem.node.NodeService;
-import art.arcane.adapt.api.golem.node.RedstoneMode;
 import art.arcane.adapt.api.golem.node.ScanBudget;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -57,13 +50,13 @@ final class RancherBehavior implements NodeBehavior, GolemCoreBehavior {
 
   @Override
   public Optional<GolemTask> seek(GolemContext golem) {
-    int level = actions.level(golem);
+    int level = GolemancySupport.ownerLevel(core, golem);
     if (level < 1) {
       return Optional.empty();
     }
     World world = golem.world();
     Location here = golem.golem().getLocation();
-    List<NodeIndex.Entry> nodes = pastureNodes(golem, world);
+    List<NodeIndex.Entry> nodes = GolemancySupport.ownedNodes(golem, world, NodeType.PASTURE);
     nodes.sort(Comparator.<NodeIndex.Entry>comparingInt(entry -> entry.record().priority()).reversed()
         .thenComparingDouble(entry -> entry.key().distanceSquared(here.getX(), here.getY(), here.getZ())));
     RancherRules.Levels levels = actions.levels();
@@ -86,7 +79,7 @@ final class RancherBehavior implements NodeBehavior, GolemCoreBehavior {
     RancherRules.Action action = RancherRules.Action.of(task.type()).orElse(null);
     NodeKey key = task.node().orElse(null);
     NodeRecord record = golem.node().orElse(null);
-    int level = actions.level(golem);
+    int level = GolemancySupport.ownerLevel(core, golem);
     if (action == null || key == null || record == null || level < 1
         || !RancherRules.actions(record, level, golem.handle().body(), actions.levels()).contains(action)) {
       return GolemActResult.FAILED;
@@ -157,7 +150,7 @@ final class RancherBehavior implements NodeBehavior, GolemCoreBehavior {
       return GolemActResult.FAILED;
     }
     GolemRancherCore.Config config = core.config();
-    actions.feed(golem, animal, RancherRules.unlocked(level, config.husbandryLevel));
+    actions.feed(golem, animal, GolemancyRules.unlocked(level, config.husbandryLevel));
     RancherFeedback.play(core, animal.getLocation(), RancherFeedback.Kind.BREED);
     golem.workXp(config.workXpPerPair / 2D);
     return GolemActResult.DONE;
@@ -188,7 +181,7 @@ final class RancherBehavior implements NodeBehavior, GolemCoreBehavior {
 
   private GolemActResult cull(GolemContext golem, Animals animal, int level) {
     GolemRancherCore.Config config = core.config();
-    int extraRolls = RancherRules.unlocked(level, config.husbandryLevel) ? config.husbandryExtraLootRolls : 0;
+    int extraRolls = GolemancyRules.unlocked(level, config.husbandryLevel) ? config.husbandryExtraLootRolls : 0;
     return switch (actions.cull(golem, animal, extraRolls)) {
       case KILLED -> {
         RancherFeedback.play(core, animal.getLocation(), RancherFeedback.Kind.CULL);
@@ -231,34 +224,5 @@ final class RancherBehavior implements NodeBehavior, GolemCoreBehavior {
       }
     }
     return RancherRules.census(kin);
-  }
-
-  private static List<NodeIndex.Entry> pastureNodes(GolemContext golem, World world) {
-    Optional<NodeService> service = GolemancyRuntime.nodes();
-    if (service.isEmpty()) {
-      return new ArrayList<>();
-    }
-    Location home = golem.home();
-    List<NodeIndex.Entry> near = service.get().index().near(world.getUID(), home.getX(), home.getY(), home.getZ(), golem.workRadius());
-    GolemHandle handle = golem.handle();
-    UUID owner = handle.owner();
-    int channels = GolemRunes.channels(handle);
-    List<NodeIndex.Entry> found = new ArrayList<>(near.size());
-    for (NodeIndex.Entry entry : near) {
-      NodeRecord record = entry.record();
-      if (record.type() == NodeType.PASTURE && record.owner().equals(owner) && GolemTaskMatch.channel(record.channel(), channels)
-          && active(golem, world, entry.key(), record)) {
-        found.add(entry);
-      }
-    }
-    return found;
-  }
-
-  private static boolean active(GolemContext golem, World world, NodeKey key, NodeRecord record) {
-    if (record.redstone() == RedstoneMode.IGNORE || !world.isChunkLoaded(key.chunkX(), key.chunkZ())) {
-      return true;
-    }
-    Location anchor = new Location(world, key.x(), key.y(), key.z());
-    return !golem.owns(anchor) || NodeRules.active(record, world.getBlockAt(key.x(), key.y(), key.z()));
   }
 }

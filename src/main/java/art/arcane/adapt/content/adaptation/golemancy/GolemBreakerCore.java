@@ -27,15 +27,12 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.localization.TextKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -50,7 +47,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> {
@@ -74,8 +70,8 @@ public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> 
     setLocalizationKey("golemancy.breaker_core");
     setIcon(Material.IRON_PICKAXE);
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
-    registerGolemRecipe(parser, CORE_RECIPE, getConfig().breakerCoreRecipe);
-    registerGolemRecipe(parser, NODE_RECIPE, getConfig().breakerNodeRecipe);
+    GolemancySupport.registerRecipe(this, parser, CORE_RECIPE, getConfig().breakerCoreRecipe, RECIPE_LEVEL);
+    GolemancySupport.registerRecipe(this, parser, NODE_RECIPE, getConfig().breakerNodeRecipe, RECIPE_LEVEL);
   }
 
   @Override
@@ -93,7 +89,7 @@ public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> 
 
   @Override
   protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.workXpPerBlock = BreakerRules.nonNegative(loadedConfig.workXpPerBlock);
+    loadedConfig.workXpPerBlock = GolemancyRules.nonNegative(loadedConfig.workXpPerBlock);
   }
 
   @Override
@@ -102,10 +98,10 @@ public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> 
     statLore(v, BreakerRules.maxHardness(config.maxHardnessByLevel, level), 1);
     statLore(v, C.YELLOW, "* ", BreakerRules.intervalTicks(config.intervalTicksByLevel, level) / TICKS_PER_SECOND, 2);
     statLore(v, Form.capitalizeWords(pickaxe(level).name().toLowerCase(Locale.ROOT).replace('_', ' ')), 3);
-    if (BreakerRules.unlocked(level, config.silkTouchLevel)) {
+    if (GolemancyRules.unlocked(level, config.silkTouchLevel)) {
       unlockLore(v, GolemancyMessages.BREAKER_CORE_LORE4);
     }
-    if (BreakerRules.unlocked(level, config.fortuneLevel)) {
+    if (GolemancyRules.unlocked(level, config.fortuneLevel)) {
       unlockLore(v, GolemancyMessages.BREAKER_CORE_LORE5);
     }
   }
@@ -135,11 +131,6 @@ public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> 
     return BreakerRules.toolAt(current.tools(), level);
   }
 
-  int ownerLevel(UUID owner) {
-    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
-    return player == null ? 0 : getLevel(player);
-  }
-
   float hardness(Material type) {
     return type.getHardness();
   }
@@ -150,12 +141,6 @@ public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> 
 
   ItemStack tool(Material type, boolean silk, boolean fortune) {
     return tools.computeIfAbsent(new Tool(type, silk, fortune), GolemBreakerCore::virtualTool);
-  }
-
-  private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {
-    NamespacedKey key = new NamespacedKey(Adapt.instance, name);
-    parser.builder(key, spec).ifPresent(builder -> registerRecipe(builder.requiredLevel(RECIPE_LEVEL).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
   }
 
   private static ItemStack virtualTool(Tool spec) {
@@ -181,10 +166,6 @@ public class GolemBreakerCore extends SimpleAdaptation<GolemBreakerCore.Config> 
     NamespacedKey key = NamespacedKey.fromString(entry.substring(1).toLowerCase(Locale.ROOT));
     Tag<Material> tag = key == null ? null : Bukkit.getTag(Tag.REGISTRY_BLOCKS, key, Material.class);
     return tag == null ? List.of() : tag.getValues();
-  }
-
-  private static void unlockLore(Element v, TextKey key) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   private record ParsedBlacklist(List<String> names, Set<Material> blocks) {

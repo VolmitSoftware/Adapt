@@ -67,7 +67,7 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   private static final String LATTICE_SLOT = "lattice_";
 
   private final Map<UUID, Ember> embers = new ConcurrentHashMap<>();
-  private final OverseerServants servants = new OverseerServants(this::level, this::channels, this::pack);
+  private final OverseerServants servants = new OverseerServants(this::ownerLevel, this::channels, this::pack);
   private final ServantFrame.Frame frame = new Frame();
   private volatile GolemRunicAugments augments;
   private volatile AspectCache aspects;
@@ -123,21 +123,16 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     embers.values().removeIf(ember -> ember.expiresAt() <= now);
   }
 
-  int level(UUID owner) {
-    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
-    return player == null ? 0 : getLevel(player);
-  }
-
   int channels(UUID owner) {
     return roster(owner).flatMap(GolemRoster::servantChannel).map(ChannelMask::of).orElse(ChannelMask.NONE);
   }
 
   double share(UUID owner) {
-    return BoneFrameRules.share(getConfig().servantShareByLevel, level(owner));
+    return BoneFrameRules.share(getConfig().servantShareByLevel, ownerLevel(owner));
   }
 
   boolean servantMenuUnlocked(UUID owner) {
-    if (level(owner) >= 1) {
+    if (ownerLevel(owner) >= 1) {
       return true;
     }
     AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
@@ -195,7 +190,7 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
 
   void summoned(Player owner, Skeleton servant) {
     UUID ownerId = owner.getUniqueId();
-    int level = level(ownerId);
+    int level = ownerLevel(ownerId);
     if (level < 1) {
       return;
     }
@@ -205,7 +200,7 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     if (slots <= 0 || runic.isEmpty()) {
       return;
     }
-    int maxTier = runic.get().maxTier(runic.get().level(ownerId));
+    int maxTier = runic.get().maxTier(runic.get().ownerLevel(ownerId));
     Map<GolemRuneType, Integer> active = BoneFrameRules.active(roster(ownerId).map(GolemRoster::lattice).orElse(List.of()), slots, aspects(), maxTier);
     if (!active.isEmpty()) {
       applyLattice(servant, runic.get().lattice(active));
@@ -253,7 +248,7 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   private final class Frame implements ServantFrame.Frame {
     @Override
     public int level(UUID owner) {
-      return GolemBoneFrame.this.level(owner);
+      return GolemBoneFrame.this.ownerLevel(owner);
     }
 
     @Override

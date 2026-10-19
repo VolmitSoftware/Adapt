@@ -122,8 +122,8 @@ class GathererRulesTest {
     assertThat(GathererRules.seconds(30, 600)).isEqualTo(30);
     assertThat(GathererRules.seconds(-5, 600)).isZero();
     assertThat(GathererRules.seconds(9000, 3600)).isEqualTo(3600);
-    assertThat(GathererRules.nonNegative(0.5D)).isEqualTo(0.5D);
-    assertThat(GathererRules.nonNegative(-0.5D)).isZero();
-    assertThat(GathererRules.nonNegative(Double.POSITIVE_INFINITY)).isZero();
+    assertThat(GolemancyRules.nonNegative(0.5D)).isEqualTo(0.5D);
+    assertThat(GolemancyRules.nonNegative(-0.5D)).isZero();
+    assertThat(GolemancyRules.nonNegative(Double.POSITIVE_INFINITY)).isZero();
   }
 }

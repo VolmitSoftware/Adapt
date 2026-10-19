@@ -62,15 +62,11 @@ final class SorterRules {
     return Math.max(1, at(byLevel, level));
   }
 
-  static boolean unlocked(int level, int unlockLevel) {
-    return level >= Math.max(1, unlockLevel);
-  }
-
   static Match highestMatch(GolemSorterCore.Config config, int level) {
-    if (unlocked(level, config.preciseLevel)) {
+    if (GolemancyRules.unlocked(level, config.preciseLevel)) {
       return Match.PRECISE;
     }
-    return unlocked(level, config.groupsLevel) ? Match.GROUPS : Match.EXACT;
+    return GolemancyRules.unlocked(level, config.groupsLevel) ? Match.GROUPS : Match.EXACT;
   }
 
   static Match match(NodeRecord input, GolemSorterCore.Config config, int level) {
@@ -173,10 +169,6 @@ final class SorterRules {
       }
     }
     return groups;
-  }
-
-  static double nonNegative(double value) {
-    return Double.isFinite(value) ? Math.max(0D, value) : 0D;
   }
 
   static int clamp(int value, int minimum, int maximum) {

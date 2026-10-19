@@ -59,7 +59,7 @@ final class BoneLatticeGui {
       return;
     }
     AdaptPlayer adaptPlayer = frame.adaptPlayer(player).orElse(null);
-    int level = frame.level(player.getUniqueId());
+    int level = frame.ownerLevel(player.getUniqueId());
     if (adaptPlayer == null || (level < 1 && adaptPlayer.getData().getGolemancy().lattice().isEmpty())) {
       RosterGui.open(player, rosterPage);
       return;
@@ -89,7 +89,7 @@ final class BoneLatticeGui {
   }
 
   private static int maxTier(GolemBoneFrame frame, Player player) {
-    return frame.runicAugments().map(runic -> runic.maxTier(runic.level(player.getUniqueId()))).orElse(0);
+    return frame.runicAugments().map(runic -> runic.maxTier(runic.ownerLevel(player.getUniqueId()))).orElse(0);
   }
 
   private static void place(UIWindow window, View view) {

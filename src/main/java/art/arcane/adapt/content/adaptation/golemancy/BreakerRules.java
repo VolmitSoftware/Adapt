@@ -38,10 +38,6 @@ final class BreakerRules {
     return new Plan(level, maxHardness(config.maxHardnessByLevel, level), blacklist, node, tags, tool);
   }
 
-  static boolean unlocked(int level, int required) {
-    return level >= 1 && level >= required;
-  }
-
   static int intervalTicks(List<Integer> byLevel, int level) {
     return Math.max(1, AnimusBindingRules.atLevel(byLevel, Math.max(1, level), 1));
   }
@@ -119,11 +115,11 @@ final class BreakerRules {
   }
 
   static boolean silk(GolemBreakerCore.Config config, int level, NodeRecord node) {
-    return unlocked(level, config.silkTouchLevel) && on(node, SILK_KEY);
+    return GolemancyRules.unlocked(level, config.silkTouchLevel) && on(node, SILK_KEY);
   }
 
   static boolean fortune(GolemBreakerCore.Config config, int level, NodeRecord node) {
-    return unlocked(level, config.fortuneLevel) && on(node, FORTUNE_KEY) && !silk(config, level, node);
+    return GolemancyRules.unlocked(level, config.fortuneLevel) && on(node, FORTUNE_KEY) && !silk(config, level, node);
   }
 
   static boolean on(NodeRecord node, String key) {
@@ -136,10 +132,6 @@ final class BreakerRules {
 
   static NodeRecord toggleFortune(NodeRecord node) {
     return toggle(node, FORTUNE_KEY, SILK_KEY);
-  }
-
-  static double nonNegative(double value) {
-    return Double.isFinite(value) ? Math.max(0D, value) : 0D;
   }
 
   private static Material defaultTool(int level) {

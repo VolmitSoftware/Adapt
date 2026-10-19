@@ -20,7 +20,6 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Waterlogged;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -73,9 +72,9 @@ final class BreakerNodeBehavior implements NodeBehavior {
 
   @Override
   public GolemActResult act(GolemContext golem, GolemTask task) {
-    int level = level(golem);
+    int level = GolemancySupport.ownerLevel(core, golem);
     NodeRecord record = golem.node().orElse(null);
-    if (level < 1 || record == null || !BreakerRules.BREAK.equals(task.type()) || !covered(record, task)) {
+    if (level < 1 || record == null || !BreakerRules.BREAK.equals(task.type()) || !GolemancySupport.covered(record, task)) {
       return GolemActResult.FAILED;
     }
     GolemBreakerCore.Config config = core.config();
@@ -98,7 +97,7 @@ final class BreakerNodeBehavior implements NodeBehavior {
 
   @Override
   public int actIntervalTicks(GolemContext golem, GolemTask task) {
-    return BreakerRules.intervalTicks(core.config().intervalTicksByLevel, level(golem));
+    return BreakerRules.intervalTicks(core.config().intervalTicksByLevel, GolemancySupport.ownerLevel(core, golem));
   }
 
   private void mine(GolemContext golem, Block block, ItemStack tool) {
@@ -154,11 +153,6 @@ final class BreakerNodeBehavior implements NodeBehavior {
         && block.isPreferredTool(plan.tool()) && !anchored(block) && !plinth(block);
   }
 
-  private int level(GolemContext golem) {
-    Player owner = golem.owner();
-    return owner == null ? 0 : core.ownerLevel(owner.getUniqueId());
-  }
-
   private static boolean anchored(Block block) {
     return GolemancyRuntime.nodes().map(nodes -> nodes.index().mayAnchor(block.getWorld().getUID(), block.getX(), block.getY(), block.getZ()))
         .orElse(true);
@@ -166,11 +160,6 @@ final class BreakerNodeBehavior implements NodeBehavior {
 
   private static boolean plinth(Block block) {
     return GolemancyRuntime.plinths().map(plinths -> plinths.isPlinthBlock(block)).orElse(false);
-  }
-
-  private static boolean covered(NodeRecord record, GolemTask task) {
-    GolemTarget target = task.target();
-    return task.node().filter(key -> NodeArea.covers(key, record, target.x(), target.y(), target.z())).isPresent();
   }
 
   private static Map<Long, GolemTask> open(NodeContext node) {

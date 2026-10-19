@@ -16,6 +16,7 @@ import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.util.common.scheduling.J;
+import art.arcane.volmlib.util.math.M;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -64,6 +65,7 @@ class RevealServiceServantsTest extends AdaptTestBase {
   private static final UUID WORLD = UUID.fromString("00000000-0000-0000-0000-0000000000d2");
   private static final int SERVANT_RUNTIME_ID = 4_101;
   private static final int GOLEM_RUNTIME_ID = 4_202;
+  private static final long CLOCK = 1_700_000_000_000L;
 
   private final List<TextDisplay> spawned = new ArrayList<>();
   private final List<Component> texts = new ArrayList<>();
@@ -72,6 +74,7 @@ class RevealServiceServantsTest extends AdaptTestBase {
   private final AtomicReference<Integer> channels = new AtomicReference<>(ChannelMask.of(DyeColor.RED));
   private final ServantFrame.Frame frame = mock(ServantFrame.Frame.class);
   private final ViewerGlowCoordinator glow = mock(ViewerGlowCoordinator.class);
+  private MockedStatic<M> time;
   private MockedStatic<J> scheduling;
   private MockedStatic<HiddenDisplays> displays;
   private MockedStatic<GolemItems> items;
@@ -83,6 +86,8 @@ class RevealServiceServantsTest extends AdaptTestBase {
 
   @BeforeEach
   void setUp() {
+    time = mockStatic(M.class);
+    time.when(M::ms).thenReturn(CLOCK);
     scheduling = mockStatic(J.class);
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(invocation -> run(invocation.getArgument(1)));
     scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), anyInt())).thenAnswer(invocation -> run(invocation.getArgument(1)));
@@ -129,6 +134,7 @@ class RevealServiceServantsTest extends AdaptTestBase {
     items.close();
     displays.close();
     scheduling.close();
+    time.close();
   }
 
   @Test
@@ -147,7 +153,7 @@ class RevealServiceServantsTest extends AdaptTestBase {
   @Test
   void theServantLabelShowsItsNameHealthTimeLeftAndChannel() {
     Skeleton servant = servant(new AtomicReference<>(5D));
-    when(frame.expiresAt(servant)).thenReturn(System.currentTimeMillis() + 41_500L);
+    when(frame.expiresAt(servant)).thenReturn(CLOCK + 41_500L);
     RevealService service = new RevealService(RevealSettings::defaults);
 
     service.update(viewer);
@@ -290,7 +296,7 @@ class RevealServiceServantsTest extends AdaptTestBase {
     lenient().when(servant.getLocation()).thenAnswer(invocation -> new Location(world, distance.get(), 64D, 0D));
     lenient().when(servant.addPassenger(any(Entity.class))).thenReturn(true);
     lenient().when(servant.getHealth()).thenReturn(12D);
-    lenient().when(frame.expiresAt(servant)).thenReturn(System.currentTimeMillis() + 60_000L);
+    lenient().when(frame.expiresAt(servant)).thenReturn(CLOCK + 60_000L);
     pack.add(servant);
     return servant;
   }

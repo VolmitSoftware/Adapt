@@ -43,12 +43,18 @@ class GatherDeathSitesTest {
 
   @Test
   void recordingSweepsLapsedSitesAndAZeroDurationRecordsNothing() {
-    sites.record(WORLD, 0D, 64D, 0D, 0L, 1_000L);
-    sites.record(WORLD, 50D, 64D, 0D, 5_000L, FIVE_MINUTES);
     sites.record(WORLD, 90D, 64D, 0D, 5_000L, 0L);
+    assertThat(sites.isEmpty()).isTrue();
 
-    assertThat(sites.size(WORLD)).isEqualTo(1);
-    assertThat(sites.protects(WORLD, 50D, 64D, 0D, 8D, 5_000L)).isTrue();
+    sites.record(WORLD, 0D, 64D, 0D, 1_000L, FIVE_MINUTES);
+    sites.record(WORLD, 50D, 64D, 0D, 1_000L, 1L);
+    for (int i = 1; i < GatherDeathSites.MAX_SITES_PER_WORLD; i++) {
+      sites.record(WORLD, 100D + i * 100D, 64D, 0D, 5_000L, FIVE_MINUTES);
+    }
+
+    assertThat(sites.protects(WORLD, 0D, 64D, 0D, 8D, 5_000L)).isTrue();
+    assertThat(sites.protects(WORLD, 50D, 64D, 0D, 8D, 5_000L)).isFalse();
+    assertThat(sites.protects(WORLD, 90D, 64D, 0D, 8D, 5_000L)).isFalse();
   }
 
   @Test
@@ -58,10 +64,10 @@ class GatherDeathSitesTest {
       sites.record(WORLD, i * 100D, 64D, 0D, 1_000L + i, FIVE_MINUTES);
     }
 
-    assertThat(sites.size(WORLD)).isEqualTo(GatherDeathSites.MAX_SITES_PER_WORLD);
     assertThat(sites.protects(WORLD, 0D, 64D, 0D, 8D, 2_000L)).isFalse();
+    assertThat(sites.protects(WORLD, 900D, 64D, 0D, 8D, 2_000L)).isFalse();
+    assertThat(sites.protects(WORLD, 1_000D, 64D, 0D, 8D, 2_000L)).isTrue();
     assertThat(sites.protects(WORLD, (GatherDeathSites.MAX_SITES_PER_WORLD + 9) * 100D, 64D, 0D, 8D, 2_000L)).isTrue();
-    assertThat(sites.size(NETHER)).isEqualTo(1);
     assertThat(sites.protects(NETHER, 0D, 64D, 0D, 8D, 2_000L)).isTrue();
   }
 
@@ -84,7 +90,9 @@ class GatherDeathSitesTest {
     pool.shutdown();
     assertThat(pool.awaitTermination(10, TimeUnit.SECONDS)).isTrue();
 
-    assertThat(sites.size(WORLD)).isEqualTo(64);
+    for (int i = 0; i < 64; i++) {
+      assertThat(sites.protects(WORLD, i * 100D, 64D, 0D, 8D, 2_000L)).as("site %s", i).isTrue();
+    }
   }
 
   @Test

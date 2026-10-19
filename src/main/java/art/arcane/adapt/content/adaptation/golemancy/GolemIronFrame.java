@@ -118,7 +118,7 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
     if (sweepTargets > 0) {
       statLore(v, sweepTargets, 5);
     }
-    if (IronFrameRules.unlocked(level, config.colossusLevel)) {
+    if (GolemancyRules.unlocked(level, config.colossusLevel)) {
       statLore(v, Form.pc(config.colossusAttackBonus, 0), 6);
     }
   }
@@ -207,8 +207,7 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
   }
 
   int ownerLevel(GolemHandle handle) {
-    AdaptPlayer owner = getServer().getOnlineAdaptPlayer(handle.owner());
-    return owner == null ? 0 : getLevel(owner);
+    return ownerLevel(handle.owner());
   }
 
   Player owner(GolemHandle handle) {
@@ -222,7 +221,7 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
   }
 
   boolean colossusAvailable(GolemHandle handle) {
-    return handle.body() == GolemBody.IRON && IronFrameRules.unlocked(ownerLevel(handle), getConfig().colossusLevel);
+    return handle.body() == GolemBody.IRON && GolemancyRules.unlocked(ownerLevel(handle), getConfig().colossusLevel);
   }
 
   GolemColossus.Toggle toggleColossus(GolemHandle handle) {

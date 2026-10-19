@@ -29,16 +29,12 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -81,8 +77,8 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
     setIcon(Material.SHEARS);
     setInterval(SWEEP_INTERVAL_MILLIS);
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
-    registerGolemRecipe(parser, CORE_RECIPE, getConfig().rancherCoreRecipe);
-    registerGolemRecipe(parser, NODE_RECIPE, getConfig().pastureNodeRecipe);
+    GolemancySupport.registerRecipe(this, parser, CORE_RECIPE, getConfig().rancherCoreRecipe, RECIPE_LEVEL);
+    GolemancySupport.registerRecipe(this, parser, NODE_RECIPE, getConfig().pastureNodeRecipe, RECIPE_LEVEL);
   }
 
   @Override
@@ -107,26 +103,26 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
     loadedConfig.actionIntervalTicks = Math.max(1, loadedConfig.actionIntervalTicks);
     loadedConfig.husbandryCooldownMultiplier = RancherRules.fraction(loadedConfig.husbandryCooldownMultiplier);
     loadedConfig.husbandryExtraLootRolls = Math.clamp(loadedConfig.husbandryExtraLootRolls, 0, RancherActions.MAX_EXTRA_LOOT_ROLLS);
-    loadedConfig.workXpPerPair = RancherRules.nonNegative(loadedConfig.workXpPerPair);
-    loadedConfig.workXpPerShear = RancherRules.nonNegative(loadedConfig.workXpPerShear);
-    loadedConfig.workXpPerMilk = RancherRules.nonNegative(loadedConfig.workXpPerMilk);
-    loadedConfig.workXpPerCull = RancherRules.nonNegative(loadedConfig.workXpPerCull);
+    loadedConfig.workXpPerPair = GolemancyRules.nonNegative(loadedConfig.workXpPerPair);
+    loadedConfig.workXpPerShear = GolemancyRules.nonNegative(loadedConfig.workXpPerShear);
+    loadedConfig.workXpPerMilk = GolemancyRules.nonNegative(loadedConfig.workXpPerMilk);
+    loadedConfig.workXpPerCull = GolemancyRules.nonNegative(loadedConfig.workXpPerCull);
   }
 
   @Override
   public void addStats(int level, Element v) {
     Config config = getConfig();
     unlockLore(v, GolemancyMessages.RANCHER_CORE_LORE1);
-    if (RancherRules.unlocked(level, config.shearLevel)) {
+    if (GolemancyRules.unlocked(level, config.shearLevel)) {
       unlockLore(v, GolemancyMessages.RANCHER_CORE_LORE2);
     }
-    if (RancherRules.unlocked(level, config.milkLevel)) {
+    if (GolemancyRules.unlocked(level, config.milkLevel)) {
       unlockLore(v, GolemancyMessages.RANCHER_CORE_LORE3);
     }
-    if (RancherRules.unlocked(level, config.cullLevel)) {
+    if (GolemancyRules.unlocked(level, config.cullLevel)) {
       unlockLore(v, GolemancyMessages.RANCHER_CORE_LORE4);
     }
-    if (RancherRules.unlocked(level, config.husbandryLevel)) {
+    if (GolemancyRules.unlocked(level, config.husbandryLevel)) {
       statLore(v, Form.pc(1D - config.husbandryCooldownMultiplier, 0), 5);
       statLore(v, config.husbandryExtraLootRolls, 6);
     }
@@ -182,11 +178,6 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
     return current.species();
   }
 
-  int ownerLevel(UUID owner) {
-    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
-    return player == null ? 0 : getLevel(player);
-  }
-
   void markFed(UUID animal, long nowMillis, boolean husbandry) {
     fed.put(animal, new Fed(nowMillis, husbandry));
   }
@@ -231,16 +222,6 @@ public class GolemRancherCore extends SimpleAdaptation<GolemRancherCore.Config> 
     }
     double multiplier = getConfig().husbandryCooldownMultiplier;
     J.runEntity(parent, () -> ageable.setAge(RancherRules.cooldown(ageable.getAge(), multiplier)), COOLDOWN_DELAY_TICKS);
-  }
-
-  private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {
-    NamespacedKey key = new NamespacedKey(Adapt.instance, name);
-    parser.builder(key, spec).ifPresent(builder -> registerRecipe(builder.requiredLevel(RECIPE_LEVEL).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
-  }
-
-  private static void unlockLore(Element v, TextKey key) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   private record ParsedSpecies(List<String> names, List<EntityType> species) {

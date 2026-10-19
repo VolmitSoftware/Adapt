@@ -331,7 +331,7 @@ class InputNodeBehaviorTest {
     assertThat(behavior.act(golem(1), fetch)).isEqualTo(GolemActResult.DONE);
     assertThat(carried(Material.COBBLESTONE)).isEqualTo(64);
     assertThat(SorterItems.count(storage, Material.COBBLESTONE)).isEqualTo(30);
-    assertThat(fetches.open(KEY, NOW)).singleElement().satisfies(request -> assertThat(request.remaining()).isEqualTo(16));
+    assertThat(fetches.open(KEY, NOW)).singleElement().satisfies(request -> assertThat(remaining(request)).isEqualTo(16));
 
     GolemTask hand = behavior.route(golem(0), KEY, List.copyOf(cargo)).orElseThrow();
     assertThat(hand.type()).isEqualTo(SorterRules.HAND);
@@ -358,7 +358,7 @@ class InputNodeBehaviorTest {
     assertThat(behavior.act(golem(1), handTask(player))).isEqualTo(GolemActResult.DONE);
     assertThat(carried(Material.COBBLESTONE)).isEqualTo(10);
     assertThat(plans.get(GOLEM, NOW)).isEmpty();
-    assertThat(request.remaining()).isEqualTo(10);
+    assertThat(remaining(request)).isEqualTo(10);
     assertThat(describe(behavior.route(golem(0), KEY, List.copyOf(cargo)).orElseThrow())).isEqualTo("drop 3,64,0 -");
   }
 
@@ -448,7 +448,7 @@ class InputNodeBehaviorTest {
 
     plans.forgetPlayer(player.getUniqueId());
     assertThat(behavior.act(golem(1), wait)).isEqualTo(GolemActResult.DONE);
-    assertThat(request.remaining()).isEqualTo(10);
+    assertThat(remaining(request)).isEqualTo(10);
     verify(player, never()).getLocation();
     verify(player, never()).getWorld();
   }
@@ -496,6 +496,12 @@ class InputNodeBehaviorTest {
     lenient().when(player.getInventory()).thenReturn(inventory);
     players.put(id, player);
     return player;
+  }
+
+  private static int remaining(SorterFetches.Request request) {
+    int left = request.reserve(Integer.MAX_VALUE);
+    request.release(left);
+    return left;
   }
 
   private static ItemStack[] stacks(Object[] arguments) {

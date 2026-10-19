@@ -38,7 +38,7 @@ final class FilterNodePanel implements NodePanel {
     String name = on ? C.GREEN + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_OVERFLOW_ON)
         : C.YELLOW + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_OVERFLOW_OFF);
     ItemStack icon = icons.apply(Material.HOPPER);
-    if (!SorterRules.unlocked(level, config.filterLevel)) {
+    if (!GolemancyRules.unlocked(level, config.filterLevel)) {
       return new NodePanelControl("sorter-overflow", icon, name, List.of(InputNodePanel.locked(config.filterLevel)), null, null, null);
     }
     return new NodePanelControl("sorter-overflow", icon, name, List.of(C.GRAY + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_OVERFLOW_LORE),
@@ -50,7 +50,7 @@ final class FilterNodePanel implements NodePanel {
     String name = target > 0 ? C.GREEN + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_RESTOCK, trusted("amount", target))
         : C.YELLOW + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_RESTOCK_OFF);
     ItemStack icon = icons.apply(Material.CHEST);
-    if (!SorterRules.unlocked(level, config.restockLevel)) {
+    if (!GolemancyRules.unlocked(level, config.restockLevel)) {
       return new NodePanelControl("sorter-restock", icon, name, List.of(InputNodePanel.locked(config.restockLevel)), null, null, null);
     }
     return new NodePanelControl("sorter-restock", icon, name, List.of(C.GRAY + AdaptLanguage.text(GolemancyMessages.SORTER_CORE_RESTOCK_LORE),

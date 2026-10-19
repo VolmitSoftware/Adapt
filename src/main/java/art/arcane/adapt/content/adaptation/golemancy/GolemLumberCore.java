@@ -26,22 +26,16 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XpProvenance;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
   static final String CORE_RECIPE = "golemancy-lumber-core";
@@ -61,8 +55,8 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
     setIcon(Material.IRON_AXE);
     setInterval(SWEEP_INTERVAL_MILLIS);
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
-    registerGolemRecipe(parser, CORE_RECIPE, getConfig().lumberCoreRecipe);
-    registerGolemRecipe(parser, NODE_RECIPE, getConfig().lumberNodeRecipe);
+    GolemancySupport.registerRecipe(this, parser, CORE_RECIPE, getConfig().lumberCoreRecipe, RECIPE_LEVEL);
+    GolemancySupport.registerRecipe(this, parser, NODE_RECIPE, getConfig().lumberNodeRecipe, RECIPE_LEVEL);
   }
 
   @Override
@@ -80,7 +74,7 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
 
   @Override
   protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.workXpPerLog = LumberRules.nonNegative(loadedConfig.workXpPerLog);
+    loadedConfig.workXpPerLog = GolemancyRules.nonNegative(loadedConfig.workXpPerLog);
   }
 
   @Override
@@ -89,16 +83,16 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
     statLore(v, LumberRules.logsPerSecond(config.logsPerSecondByLevel, level), 1);
     statLore(v, LumberRules.treeCap(config.copperTreeCapByLevel, level), 2);
     statLore(v, LumberRules.treeCap(config.ironTreeCapByLevel, level), 3);
-    if (LumberRules.unlocked(level, config.replantLevel)) {
+    if (GolemancyRules.unlocked(level, config.replantLevel)) {
       unlockLore(v, GolemancyMessages.LUMBER_CORE_LORE4);
     }
-    if (LumberRules.unlocked(level, config.leafSweepLevel)) {
+    if (GolemancyRules.unlocked(level, config.leafSweepLevel)) {
       unlockLore(v, GolemancyMessages.LUMBER_CORE_LORE5);
     }
-    if (LumberRules.unlocked(level, config.megaTreeLevel)) {
+    if (GolemancyRules.unlocked(level, config.megaTreeLevel)) {
       unlockLore(v, GolemancyMessages.LUMBER_CORE_LORE6);
     }
-    if (LumberRules.unlocked(level, config.netherLevel)) {
+    if (GolemancyRules.unlocked(level, config.netherLevel)) {
       unlockLore(v, GolemancyMessages.LUMBER_CORE_LORE7);
     }
   }
@@ -117,24 +111,9 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
     return getConfig();
   }
 
-  int ownerLevel(UUID owner) {
-    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
-    return player == null ? 0 : getLevel(player);
-  }
-
   void sweep(long nowMillis) {
     fellings.sweep(nowMillis);
     rejections.sweep(nowMillis);
-  }
-
-  private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {
-    NamespacedKey key = new NamespacedKey(Adapt.instance, name);
-    parser.builder(key, spec).ifPresent(builder -> registerRecipe(builder.requiredLevel(RECIPE_LEVEL).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
-  }
-
-  private static void unlockLore(Element v, TextKey key) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   @ConfigDescription("Golems bound with a Lumber Core fell natural trees in a Lumber Node's area from the top down and collect the logs, then replant, sweep leaves and fell bigger trees as the core grows stronger.")

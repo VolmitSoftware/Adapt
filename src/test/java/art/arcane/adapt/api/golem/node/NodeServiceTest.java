@@ -37,6 +37,7 @@ import org.joml.Vector3f;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
@@ -607,13 +608,16 @@ class NodeServiceTest extends AdaptTestBase {
     service.status(key, NodeStatus.WORKING);
 
     verify(bundle.label(), times(1)).text(any(Component.class));
-    assertThat(service.renderer().status(key)).contains(NodeStatus.WORKING);
 
     service.update(OWNER, key, record -> record.toBuilder().priority(5).build());
+    service.status(key, NodeStatus.WORKING);
 
-    assertThat(service.renderer().status(key)).contains(NodeStatus.WORKING);
+    ArgumentCaptor<Component> labels = ArgumentCaptor.forClass(Component.class);
+    verify(bundle.label(), times(2)).text(labels.capture());
+    assertThat(labels.getValue().children().getLast().color()).isEqualTo(NodeStatus.WORKING.color());
     service.status(new NodeKey(WORLD, 3, 64, 3, BlockFace.EAST), NodeStatus.FULL);
-    assertThat(service.renderer().status(new NodeKey(WORLD, 3, 64, 3, BlockFace.EAST))).isEmpty();
+    assertThat(service.renderer().bundle(new NodeKey(WORLD, 3, 64, 3, BlockFace.EAST))).isEmpty();
+    verify(bundle.label(), times(2)).text(any(Component.class));
   }
 
   @Test

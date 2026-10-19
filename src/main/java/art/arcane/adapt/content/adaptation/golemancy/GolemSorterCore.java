@@ -29,10 +29,7 @@ import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.golem.node.NodeItemTags;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
-import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -94,9 +91,9 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
     setInterval(SWEEP_INTERVAL_MILLIS);
     Config config = getConfig();
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
-    registerGolemRecipe(parser, CORE_RECIPE, config.sorterCoreRecipe, CORE_RECIPE_LEVEL);
-    registerGolemRecipe(parser, INPUT_RECIPE, config.inputNodeRecipe, CORE_RECIPE_LEVEL);
-    registerGolemRecipe(parser, FILTER_RECIPE, config.filterNodeRecipe, Math.max(CORE_RECIPE_LEVEL, config.filterLevel));
+    GolemancySupport.registerRecipe(this, parser, CORE_RECIPE, config.sorterCoreRecipe, CORE_RECIPE_LEVEL);
+    GolemancySupport.registerRecipe(this, parser, INPUT_RECIPE, config.inputNodeRecipe, CORE_RECIPE_LEVEL);
+    GolemancySupport.registerRecipe(this, parser, FILTER_RECIPE, config.filterNodeRecipe, Math.max(CORE_RECIPE_LEVEL, config.filterLevel));
   }
 
   @Override
@@ -122,7 +119,7 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
 
   @Override
   protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.workXpPerStack = SorterRules.nonNegative(loadedConfig.workXpPerStack);
+    loadedConfig.workXpPerStack = GolemancyRules.nonNegative(loadedConfig.workXpPerStack);
     loadedConfig.indexRefreshSeconds = SorterRules.clamp(loadedConfig.indexRefreshSeconds, 1, MAX_SECONDS);
     loadedConfig.maxIndexedContainers = SorterRules.clamp(loadedConfig.maxIndexedContainers, 1, MAX_INDEXED_CONTAINERS);
     loadedConfig.fetchTimeoutSeconds = SorterRules.clamp(loadedConfig.fetchTimeoutSeconds, MIN_FETCH_TIMEOUT_SECONDS, MAX_SECONDS);
@@ -196,11 +193,6 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
     return getConfig();
   }
 
-  int ownerLevel(UUID owner) {
-    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
-    return player == null ? 0 : getLevel(player);
-  }
-
   Map<Material, String> groups() {
     List<String> entries = getConfig().groups;
     ParsedGroups current = parsedGroups;
@@ -224,15 +216,9 @@ public class GolemSorterCore extends SimpleAdaptation<GolemSorterCore.Config> {
     }
   }
 
-  private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec, int level) {
-    NamespacedKey key = new NamespacedKey(Adapt.instance, name);
-    parser.builder(key, spec).ifPresent(builder -> registerRecipe(builder.requiredLevel(level).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
-  }
-
   private static void unlockLore(Element v, int level, int unlockLevel, TextKey key) {
-    if (SorterRules.unlocked(level, unlockLevel)) {
-      v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
+    if (GolemancyRules.unlocked(level, unlockLevel)) {
+      unlockLore(v, key);
     }
   }
 

@@ -84,9 +84,9 @@ class FrostFrameRulesTest {
 
   @Test
   void chillAndTheExtraSnowballUnlockAtTheirLevels() {
-    assertThat(FrostFrameRules.unlocked(2, 3)).isFalse();
-    assertThat(FrostFrameRules.unlocked(3, 3)).isTrue();
-    assertThat(FrostFrameRules.unlocked(5, 3)).isTrue();
+    assertThat(GolemancyRules.unlocked(2, 3)).isFalse();
+    assertThat(GolemancyRules.unlocked(3, 3)).isTrue();
+    assertThat(GolemancyRules.unlocked(5, 3)).isTrue();
     assertThat(FrostFrameRules.extraShot(3, 4, 0.25D, 0D)).isFalse();
     assertThat(FrostFrameRules.extraShot(4, 4, 0.25D, 0.24D)).isTrue();
     assertThat(FrostFrameRules.extraShot(4, 4, 0.25D, 0.25D)).isFalse();

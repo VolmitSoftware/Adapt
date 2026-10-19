@@ -42,10 +42,6 @@ final class FrostFrameRules {
     };
   }
 
-  static boolean unlocked(int level, int unlockLevel) {
-    return level >= Math.max(1, unlockLevel);
-  }
-
   static Vector snowballVelocity(Location from, Location to) {
     double dx = to.getX() - from.getX();
     double dy = to.getY() - from.getY();
@@ -59,7 +55,7 @@ final class FrostFrameRules {
   }
 
   static boolean extraShot(int level, int bonusLevel, double chance, double roll) {
-    return unlocked(level, bonusLevel) && roll < chance;
+    return GolemancyRules.unlocked(level, bonusLevel) && roll < chance;
   }
 
   static FrostbiteState frostbite(FrostbiteState current, long now, int hits, long windowMillis, long cooldownMillis) {

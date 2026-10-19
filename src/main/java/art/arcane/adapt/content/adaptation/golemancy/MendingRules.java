@@ -35,22 +35,18 @@ final class MendingRules {
     return level < 1 ? 0D : healBonus(bonusByLevel, level) * VANILLA_INGOT_HEAL;
   }
 
-  static boolean unlocked(int level, int unlockLevel) {
-    return level >= 1 && level >= unlockLevel;
-  }
-
   static double regen(GolemMending.Config config, int level, GolemMend.RegenSenses senses) {
-    double owner = unlocked(level, config.ownerRegenLevel) && within(senses.ownerDistance(), config.ownerRegenRadius)
+    double owner = GolemancyRules.unlocked(level, config.ownerRegenLevel) && within(senses.ownerDistance(), config.ownerRegenRadius)
         ? config.ownerRegenAmount
         : 0D;
-    double home = unlocked(level, config.homeRegenLevel) && senses.idle() && within(senses.homeDistance(), config.homeRegenRadius)
+    double home = GolemancyRules.unlocked(level, config.homeRegenLevel) && senses.idle() && within(senses.homeDistance(), config.homeRegenRadius)
         ? config.homeRegenAmount
         : 0D;
     return Math.max(0D, Math.max(owner, home));
   }
 
   static boolean shatters(boolean validated, boolean ownerOnline, int level, int shatterLevel) {
-    return validated && ownerOnline && unlocked(level, shatterLevel);
+    return validated && ownerOnline && GolemancyRules.unlocked(level, shatterLevel);
   }
 
   static boolean withinReach(Vector eye, BoundingBox body) {
@@ -73,7 +69,7 @@ final class MendingRules {
     if (check.status() != GolemRoster.Status.SHATTERED || !check.sealed()) {
       return RebuildVerdict.VOID;
     }
-    if (!unlocked(check.level(), check.shatterLevel())) {
+    if (!GolemancyRules.unlocked(check.level(), check.shatterLevel())) {
       return RebuildVerdict.LOCKED;
     }
     GolemRegistry.BindBlock block = check.registryBlock();

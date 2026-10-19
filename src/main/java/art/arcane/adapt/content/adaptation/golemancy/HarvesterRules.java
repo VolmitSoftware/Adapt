@@ -32,12 +32,8 @@ final class HarvesterRules {
   }
 
   static Plan plan(GolemHarvesterCore.Config config, HarvestCrops crops, int level, NodeRecord node, NodeTagLookup tags) {
-    return new Plan(crops, unlocked(level, config.extendedCropsLevel), unlocked(level, config.tendingLevel), unlocked(level, config.tillingLevel),
-        unlocked(level, config.bountifulLevel), node, tags);
-  }
-
-  static boolean unlocked(int level, int required) {
-    return level >= 1 && level >= required;
+    return new Plan(crops, GolemancyRules.unlocked(level, config.extendedCropsLevel), GolemancyRules.unlocked(level, config.tendingLevel), GolemancyRules.unlocked(level, config.tillingLevel),
+        GolemancyRules.unlocked(level, config.bountifulLevel), node, tags);
   }
 
   static int actionIntervalTicks(List<Integer> byLevel, int level) {
@@ -46,14 +42,6 @@ final class HarvesterRules {
 
   static int cropsPerAction(List<Integer> byLevel, int level) {
     return Math.max(1, AnimusBindingRules.atLevel(byLevel, Math.max(1, level), 1));
-  }
-
-  static double fraction(double value) {
-    return Double.isFinite(value) ? Math.clamp(value, 0D, 1D) : 0D;
-  }
-
-  static double nonNegative(double value) {
-    return Double.isFinite(value) ? Math.max(0D, value) : 0D;
   }
 
   static long tendingInterval(long millis) {

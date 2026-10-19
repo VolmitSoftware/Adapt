@@ -31,7 +31,6 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
-import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
@@ -39,7 +38,6 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -47,7 +45,6 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config> {
   static final String CORE_RECIPE = "golemancy-gatherer-core";
@@ -69,8 +66,8 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
     setIcon(Material.HOPPER);
     setInterval(SWEEP_INTERVAL_MILLIS);
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
-    registerGolemRecipe(parser, CORE_RECIPE, getConfig().gathererCoreRecipe);
-    registerGolemRecipe(parser, NODE_RECIPE, getConfig().collectionNodeRecipe);
+    GolemancySupport.registerRecipe(this, parser, CORE_RECIPE, getConfig().gathererCoreRecipe, RECIPE_LEVEL);
+    GolemancySupport.registerRecipe(this, parser, NODE_RECIPE, getConfig().collectionNodeRecipe, RECIPE_LEVEL);
   }
 
   @Override
@@ -97,8 +94,8 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
     loadedConfig.deathSiteRadius = GathererRules.radius(loadedConfig.deathSiteRadius, GathererRules.MAX_DEATH_SITE_RADIUS);
     loadedConfig.deathSiteSeconds = GathererRules.seconds(loadedConfig.deathSiteSeconds, GathererRules.MAX_DEATH_SITE_SECONDS);
     loadedConfig.foreignItemSeconds = GathererRules.seconds(loadedConfig.foreignItemSeconds, GathererRules.MAX_FOREIGN_ITEM_SECONDS);
-    loadedConfig.carryBonusFraction = GathererRules.nonNegative(loadedConfig.carryBonusFraction);
-    loadedConfig.workXpPerStack = GathererRules.nonNegative(loadedConfig.workXpPerStack);
+    loadedConfig.carryBonusFraction = GolemancyRules.nonNegative(loadedConfig.carryBonusFraction);
+    loadedConfig.workXpPerStack = GolemancyRules.nonNegative(loadedConfig.workXpPerStack);
   }
 
   @Override
@@ -143,17 +140,6 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
 
   Config config() {
     return getConfig();
-  }
-
-  int ownerLevel(UUID owner) {
-    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
-    return player == null ? 0 : getLevel(player);
-  }
-
-  private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {
-    NamespacedKey key = new NamespacedKey(Adapt.instance, name);
-    parser.builder(key, spec).ifPresent(builder -> registerRecipe(builder.requiredLevel(RECIPE_LEVEL).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
   }
 
   private final class GathererCarry implements GolemCapacity.Source {

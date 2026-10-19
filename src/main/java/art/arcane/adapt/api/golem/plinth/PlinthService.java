@@ -92,14 +92,6 @@ public final class PlinthService extends TickedObject {
     }
   }
 
-  public Optional<PlinthSlotItem> slot(PlinthSpot spot) {
-    return index.get(spot);
-  }
-
-  public Optional<InfusionRitual> ritual(PlinthSpot center) {
-    return Optional.ofNullable(ritualsByCenter.get(center));
-  }
-
   public boolean isPlinthBlock(Block block) {
     Set<Material> pedestals = settings.get().pedestals();
     return PlinthStructure.isPart(block.getType(), pedestals)

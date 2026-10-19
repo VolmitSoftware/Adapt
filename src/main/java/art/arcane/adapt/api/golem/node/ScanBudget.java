@@ -23,10 +23,6 @@ public final class ScanBudget {
     return count;
   }
 
-  public int taskRoom() {
-    return taskRoom;
-  }
-
   public boolean hasTaskRoom() {
     return taskRoom > 0;
   }

@@ -95,10 +95,6 @@ final class SorterFetches {
       return item.clone();
     }
 
-    int remaining() {
-      return remaining.get();
-    }
-
     long createdAt() {
       return createdAt;
     }

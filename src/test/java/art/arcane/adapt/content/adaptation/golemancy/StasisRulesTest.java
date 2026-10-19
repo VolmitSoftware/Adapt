@@ -56,10 +56,10 @@ class StasisRulesTest {
 
   @Test
   void unlocksNeedTheirLevel() {
-    assertThat(StasisRules.unlocked(2, 2)).isTrue();
-    assertThat(StasisRules.unlocked(1, 2)).isFalse();
-    assertThat(StasisRules.unlocked(3, 0)).isTrue();
-    assertThat(StasisRules.unlocked(0, 0)).isFalse();
+    assertThat(GolemancyRules.unlocked(2, 2)).isTrue();
+    assertThat(GolemancyRules.unlocked(1, 2)).isFalse();
+    assertThat(GolemancyRules.unlocked(3, 0)).isTrue();
+    assertThat(GolemancyRules.unlocked(0, 0)).isFalse();
   }
 
   @Test

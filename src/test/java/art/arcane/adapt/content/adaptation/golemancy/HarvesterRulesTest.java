@@ -265,12 +265,12 @@ class HarvesterRulesTest {
 
   @Test
   void loadClampsKeepChancesFractionsXpPositiveAndTendingAtLeastOneSecond() {
-    assertThat(HarvesterRules.fraction(1.5D)).isEqualTo(1D);
-    assertThat(HarvesterRules.fraction(-0.5D)).isZero();
-    assertThat(HarvesterRules.fraction(Double.NaN)).isZero();
-    assertThat(HarvesterRules.nonNegative(-2D)).isZero();
-    assertThat(HarvesterRules.nonNegative(Double.POSITIVE_INFINITY)).isZero();
-    assertThat(HarvesterRules.nonNegative(0.4D)).isEqualTo(0.4D);
+    assertThat(GolemancyRules.fraction(1.5D)).isEqualTo(1D);
+    assertThat(GolemancyRules.fraction(-0.5D)).isZero();
+    assertThat(GolemancyRules.fraction(Double.NaN)).isZero();
+    assertThat(GolemancyRules.nonNegative(-2D)).isZero();
+    assertThat(GolemancyRules.nonNegative(Double.POSITIVE_INFINITY)).isZero();
+    assertThat(GolemancyRules.nonNegative(0.4D)).isEqualTo(0.4D);
     assertThat(HarvesterRules.tendingInterval(10L)).isEqualTo(1_000L);
     assertThat(HarvesterRules.tendingInterval(10_000L)).isEqualTo(10_000L);
   }

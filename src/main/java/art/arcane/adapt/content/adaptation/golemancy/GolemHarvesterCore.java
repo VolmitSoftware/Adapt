@@ -28,18 +28,14 @@ import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
-import art.arcane.adapt.api.world.AdaptPlayer;
-import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
 import art.arcane.volmlib.util.inventorygui.Element;
-import art.arcane.volmlib.util.localization.TextKey;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,8 +65,8 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
     setIcon(Material.IRON_HOE);
     setInterval(SWEEP_INTERVAL_MILLIS);
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
-    registerGolemRecipe(parser, CORE_RECIPE, getConfig().harvesterCoreRecipe);
-    registerGolemRecipe(parser, NODE_RECIPE, getConfig().harvestNodeRecipe);
+    GolemancySupport.registerRecipe(this, parser, CORE_RECIPE, getConfig().harvesterCoreRecipe, RECIPE_LEVEL);
+    GolemancySupport.registerRecipe(this, parser, NODE_RECIPE, getConfig().harvestNodeRecipe, RECIPE_LEVEL);
   }
 
   @Override
@@ -90,8 +86,8 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
 
   @Override
   protected void normalizeLoadedConfig(Config loadedConfig) {
-    loadedConfig.bountifulChance = HarvesterRules.fraction(loadedConfig.bountifulChance);
-    loadedConfig.workXpPerCrop = HarvesterRules.nonNegative(loadedConfig.workXpPerCrop);
+    loadedConfig.bountifulChance = GolemancyRules.fraction(loadedConfig.bountifulChance);
+    loadedConfig.workXpPerCrop = GolemancyRules.nonNegative(loadedConfig.workXpPerCrop);
     loadedConfig.tendingIntervalMillis = HarvesterRules.tendingInterval(loadedConfig.tendingIntervalMillis);
   }
 
@@ -100,16 +96,16 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
     Config config = getConfig();
     statLore(v, HarvesterRules.cropsPerAction(config.cropsPerActionByLevel, level), 1);
     statLore(v, C.YELLOW, "* ", HarvesterRules.actionIntervalTicks(config.actionIntervalTicksByLevel, level) / TICKS_PER_SECOND, 2);
-    if (HarvesterRules.unlocked(level, config.extendedCropsLevel)) {
+    if (GolemancyRules.unlocked(level, config.extendedCropsLevel)) {
       unlockLore(v, GolemancyMessages.HARVESTER_CORE_LORE3);
     }
-    if (HarvesterRules.unlocked(level, config.tendingLevel)) {
+    if (GolemancyRules.unlocked(level, config.tendingLevel)) {
       unlockLore(v, GolemancyMessages.HARVESTER_CORE_LORE4);
     }
-    if (HarvesterRules.unlocked(level, config.tillingLevel)) {
+    if (GolemancyRules.unlocked(level, config.tillingLevel)) {
       unlockLore(v, GolemancyMessages.HARVESTER_CORE_LORE5);
     }
-    if (HarvesterRules.unlocked(level, config.bountifulLevel)) {
+    if (GolemancyRules.unlocked(level, config.bountifulLevel)) {
       statLore(v, Form.pc(config.bountifulChance, 0), 6);
     }
   }
@@ -138,11 +134,6 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
     return current.crops();
   }
 
-  int ownerLevel(UUID owner) {
-    AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
-    return player == null ? 0 : getLevel(player);
-  }
-
   boolean tendReady(UUID golem, long nowMillis) {
     Long tendedAt = tends.get(golem);
     return tendedAt == null || nowMillis - tendedAt >= getConfig().tendingIntervalMillis;
@@ -156,16 +147,6 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
     long interval = getConfig().tendingIntervalMillis;
     tends.values().removeIf(tendedAt -> nowMillis - tendedAt >= interval);
     spots.sweep(nowMillis);
-  }
-
-  private void registerGolemRecipe(ConfiguredRecipeParser parser, String name, ConfiguredShapedRecipe spec) {
-    NamespacedKey key = new NamespacedKey(Adapt.instance, name);
-    parser.builder(key, spec).ifPresent(builder -> registerRecipe(builder.requiredLevel(RECIPE_LEVEL).build()));
-    GolemItems.recipeTithe().set(key, spec.isEnabled() ? spec.getTithe() : 0);
-  }
-
-  private static void unlockLore(Element v, TextKey key) {
-    v.addLore(C.GREEN + "+ " + C.GRAY + AdaptLanguage.text(key));
   }
 
   private record ParsedCrops(List<String> names, HarvestCrops crops) {

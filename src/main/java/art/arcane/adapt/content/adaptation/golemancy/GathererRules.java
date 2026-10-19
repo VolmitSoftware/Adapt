@@ -79,10 +79,6 @@ final class GathererRules {
     return Math.clamp(value, 0, max);
   }
 
-  static double nonNegative(double value) {
-    return Double.isFinite(value) ? Math.max(0D, value) : 0D;
-  }
-
   private static int byLevel(List<Integer> values, int level) {
     if (values.isEmpty()) {
       return 0;

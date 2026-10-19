@@ -23,11 +23,10 @@ class ExactIngredientBookTest {
   @Test
   void requiredIngredientsAreRecordedPerRecipeAndForgottenOnRequest() {
     book.set(RECIPE, List.of(coreSpec, nodeSpec));
-    assertThat(book.required(RECIPE)).containsExactly(coreSpec, nodeSpec);
+    assertThat(book.satisfiedBy(RECIPE, List.of(core, node))).isTrue();
 
     book.forget(RECIPE);
-    assertThat(book.required(RECIPE)).isEmpty();
-    assertThat(book.required(null)).isEmpty();
+    assertThat(book.satisfiedBy(RECIPE, List.of(core, node))).isFalse();
   }
 
   @Test

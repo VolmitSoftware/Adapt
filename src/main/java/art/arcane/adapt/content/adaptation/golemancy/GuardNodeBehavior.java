@@ -18,11 +18,8 @@ import art.arcane.adapt.api.golem.node.NodeContext;
 import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
-import art.arcane.adapt.api.golem.node.NodeRules;
 import art.arcane.adapt.api.golem.node.NodeService;
-import art.arcane.adapt.api.golem.node.RedstoneMode;
 import art.arcane.adapt.api.golem.node.ScanBudget;
-import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -110,19 +107,11 @@ final class GuardNodeBehavior implements NodeBehavior {
     UUID owner = golem.owner();
     List<NodeIndex.Entry> found = new ArrayList<>(near.size());
     for (NodeIndex.Entry entry : near) {
-      if (guards(entry.record(), owner, channels, cores) && active(world, entry.key(), entry.record())) {
+      if (guards(entry.record(), owner, channels, cores) && GolemancySupport.active(world, entry.key(), entry.record())) {
         found.add(entry);
       }
     }
     return List.copyOf(found);
-  }
-
-  private static boolean active(World world, NodeKey key, NodeRecord record) {
-    if (record.redstone() == RedstoneMode.IGNORE || !world.isChunkLoaded(key.chunkX(), key.chunkZ())
-        || !J.isOwnedByCurrentRegion(new Location(world, key.x(), key.y(), key.z()))) {
-      return true;
-    }
-    return NodeRules.active(record, world.getBlockAt(key.x(), key.y(), key.z()));
   }
 
   private record GuardedNodes(GolemState.Anchor home, int channels, List<NodeIndex.Entry> nodes, long until) {

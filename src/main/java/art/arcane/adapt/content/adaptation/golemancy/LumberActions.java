@@ -1,12 +1,10 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.GolemContext;
-import art.arcane.adapt.api.golem.GolemState;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,11 +24,6 @@ final class LumberActions {
   LumberActions(GolemLumberCore core, Predicate<Block> placed) {
     this.core = Objects.requireNonNull(core);
     this.placed = Objects.requireNonNull(placed);
-  }
-
-  int level(GolemContext golem) {
-    Player owner = golem.owner();
-    return owner == null ? 0 : core.ownerLevel(owner.getUniqueId());
   }
 
   LumberRules.Plan plan(int level) {
@@ -127,7 +120,7 @@ final class LumberActions {
 
   private boolean take(GolemContext golem, Material sapling, int amount) {
     int carried = count(golem.carriedItems().toArray(ItemStack[]::new), sapling);
-    Inventory chest = carried >= amount ? null : homeChest(golem).orElse(null);
+    Inventory chest = carried >= amount ? null : GolemancySupport.homeChest(golem).orElse(null);
     int stocked = chest == null ? 0 : count(chest.getStorageContents(), sapling);
     if (carried + stocked < amount) {
       return false;
@@ -164,15 +157,6 @@ final class LumberActions {
       }
       golem.world().dropItemNaturally(at, left.get());
     }
-  }
-
-  private static Optional<Inventory> homeChest(GolemContext golem) {
-    GolemState.Anchor chest = golem.handle().state().homeChest();
-    World world = golem.world();
-    if (chest == null || !chest.world().equals(world.getUID()) || !world.isChunkLoaded(chest.x() >> 4, chest.z() >> 4)) {
-      return Optional.empty();
-    }
-    return golem.container(world.getBlockAt(chest.x(), chest.y(), chest.z()));
   }
 
   private static int count(ItemStack[] items, Material type) {

@@ -19,10 +19,6 @@ public final class ExactIngredientBook {
     required.remove(Objects.requireNonNull(recipeKey));
   }
 
-  public List<ExactIngredient> required(NamespacedKey recipeKey) {
-    return recipeKey == null ? List.of() : required.getOrDefault(recipeKey, List.of());
-  }
-
   public boolean satisfiedBy(NamespacedKey recipeKey, List<ItemStack> items) {
     List<ExactIngredient> ingredients = recipeKey == null ? null : required.get(recipeKey);
     return ingredients != null && MultisetMatch.matches(ingredients, items, (ingredient, item) -> ingredient.matches().test(item));

@@ -49,7 +49,7 @@ final class IronFrameRules {
   }
 
   static List<GolemStatDelta> colossusDeltas(int level, int colossusLevel, double attackBonus) {
-    if (!unlocked(level, colossusLevel) || !Double.isFinite(attackBonus) || attackBonus == 0D) {
+    if (!GolemancyRules.unlocked(level, colossusLevel) || !Double.isFinite(attackBonus) || attackBonus == 0D) {
       return List.of();
     }
     return List.of(GolemStatDelta.multiplyTotal(GolemStat.ATTACK_DAMAGE, attackBonus));
@@ -60,7 +60,7 @@ final class IronFrameRules {
   }
 
   static int sweepTargets(List<Integer> targetsByLevel, int level, int sweepLevel) {
-    return unlocked(level, sweepLevel) ? Math.max(0, AnimusBindingRules.atLevel(targetsByLevel, level, 0)) : 0;
+    return GolemancyRules.unlocked(level, sweepLevel) ? Math.max(0, AnimusBindingRules.atLevel(targetsByLevel, level, 0)) : 0;
   }
 
   static double sweepDamage(double damage, double fraction) {
@@ -99,7 +99,7 @@ final class IronFrameRules {
   }
 
   static GolemColossus.Toggle colossusToggle(GolemBody body, int level, int colossusLevel, boolean colossus, boolean busy, BooleanSupplier room) {
-    if (body != GolemBody.IRON || !unlocked(level, colossusLevel)) {
+    if (body != GolemBody.IRON || !GolemancyRules.unlocked(level, colossusLevel)) {
       return GolemColossus.Toggle.UNAVAILABLE;
     }
     if (busy) {
@@ -112,7 +112,7 @@ final class IronFrameRules {
   }
 
   static boolean outgrown(boolean colossus, int level, int colossusLevel) {
-    return colossus && !unlocked(level, colossusLevel);
+    return colossus && !GolemancyRules.unlocked(level, colossusLevel);
   }
 
   static double colossusScale(double scale) {
@@ -134,10 +134,6 @@ final class IronFrameRules {
 
   static boolean leaked(long deadline, long now) {
     return now >= deadline;
-  }
-
-  static boolean unlocked(int level, int unlockLevel) {
-    return level >= Math.max(1, unlockLevel);
   }
 
   record SweepCandidate<T>(T target, boolean excluded, boolean hostile, double distanceSquared) {
