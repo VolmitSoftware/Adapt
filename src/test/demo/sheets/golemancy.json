@@ -2605,18 +2605,7 @@
       },
       {
         "verb": "wait",
-        "ticks": 34
-      },
-      {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 12
-      },
-      {
-        "verb": "wait",
-        "ticks": 30
+        "ticks": 70
       }
     ],
     "expect": {
@@ -2625,11 +2614,11 @@
     "povCapture": true,
     "maxTicks": 1700,
     "camera": {
-      "x": 4.0,
-      "y": 2.2,
-      "z": -4.5,
+      "x": 5.5,
+      "y": 2.5,
+      "z": -2.5,
       "yaw": 90.0,
-      "pitch": 18.8
+      "pitch": 17.1
     }
   },
   "golem-mending": {
@@ -3034,7 +3023,7 @@
       },
       {
         "verb": "wait",
-        "ticks": 100
+        "ticks": 60
       }
     ],
     "expect": {
@@ -3043,11 +3032,11 @@
     "povCapture": true,
     "maxTicks": 1300,
     "camera": {
-      "x": 3.5,
-      "y": 2.2,
-      "z": -0.5,
-      "yaw": 135.0,
-      "pitch": 20.7
+      "x": 6.0,
+      "y": 2.4,
+      "z": -4.0,
+      "yaw": 84.8,
+      "pitch": 18.1
     }
   },
   "golem-stasis": {
@@ -4047,7 +4036,7 @@
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~0 ~ ~-2.8"
+          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~0 ~ ~-2.5"
         },
         {
           "verb": "slot",
@@ -4179,28 +4168,36 @@
           "ticks": 8
         },
         {
+          "verb": "look",
+          "yaw": 180,
+          "pitch": 4,
+          "ticks": 8
+        },
+        {
+          "verb": "keys",
+          "hold": [
+            "back"
+          ],
+          "ticks": 26
+        },
+        {
+          "verb": "wait",
+          "ticks": 6
+        },
+        {
           "verb": "command",
           "text": "execute at {actor} run data merge entity @e[type=minecraft:snow_golem,limit=1,sort=nearest] {NoAI:0b}"
         },
         {
-          "verb": "lookAt",
-          "offset": [
-            2.5,
-            0.8,
-            -2.0
-          ],
-          "ticks": 12
-        },
-        {
           "verb": "wait",
-          "ticks": 120
+          "ticks": 150
         }
       ],
       "expect": {
         "visual": "A companion golem follows, stays where it stands while the owner walks on, then walks back home as its mode is switched in the Golem GUI."
       },
       "povCapture": true,
-      "maxTicks": 1200,
+      "maxTicks": 1300,
       "camera": {
         "x": 5.0,
         "y": 2.0,
