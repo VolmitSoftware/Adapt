@@ -177,6 +177,52 @@ class ExportPhaseTest(unittest.TestCase):
         self.assertEqual(pov, ['replay-open', 'status:ready', 'sleep:6.0', 'chat:spectate u-1', 'sleep:1.0', 'export',
                                'status:exporting', 'sleep:0.5', 'status:done', 'disconnect'])
 
+    def export_with_stills(self, root: Path, stills: list[dict], clip_exists: bool = True) -> tuple[dict[str, manifest.Take], mock.MagicMock]:
+        studio: SimpleNamespace = SimpleNamespace(bridge=FakeBridge([]), game=root / 'game', output=root / 'out')
+        take: manifest.Take = dataclasses.replace(recorded_take(self.replay(root)), stills=stills)
+
+        def run(command: list[str]) -> None:
+            if '-frames:v' in command and command[-1].endswith('.png') and '/stills/' in command[-1] and clip_exists:
+                Path(command[-1]).write_bytes(b'png')
+
+        with mock.patch.object(export_phase.encode, 'run', side_effect=run) as encoded, mock.patch.object(export_phase.encode, 'has_audio', return_value=False):
+            result: dict[str, manifest.Take] = export_phase.export(studio, {take.id: take}, [take.id], root / 'docs', Path('/ffmpeg'), Path('/ffprobe'),
+                                                                   root / 'out' / 'manifest.json', audio=False)
+        return result, encoded
+
+    def test_stills_are_extracted_from_the_exported_clip_of_their_angle(self) -> None:
+        stills: list[dict] = [{'angle': 'observer', 'at': 3.5, 'name': 'plinth-ritual'}, {'angle': 'pov', 'at': 1.25, 'name': 'crook'}]
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            result, encoded = self.export_with_stills(root, stills)
+            commands: list[list[str]] = [call.args[0] for call in encoded.call_args_list if call.args[0][-1].endswith('.png') and '/stills/' in call.args[0][-1]]
+            observer: Path = root / 'out' / 'stills' / 'agility-wall-jump-plinth-ritual.png'
+            pov: Path = root / 'out' / 'stills' / 'agility-wall-jump-crook.png'
+            self.assertTrue(observer.is_file() and pov.is_file())
+        self.assertEqual(result['agility-wall-jump'].status, 'exported')
+        by_target: dict[str, list[str]] = {command[-1]: command for command in commands}
+        observer_clip: str = str(root / 'docs' / 'adapt-assets' / 'demos' / 'agility' / 'agility-wall-jump-observer.webm')
+        pov_clip: str = str(root / 'docs' / 'adapt-assets' / 'demos' / 'agility' / 'agility-wall-jump-pov.webm')
+        self.assertEqual(by_target[str(observer)], ['/ffmpeg', '-y', '-ss', '3.5', '-i', observer_clip, '-frames:v', '1', str(observer)])
+        self.assertEqual(by_target[str(pov)], ['/ffmpeg', '-y', '-ss', '1.25', '-i', pov_clip, '-frames:v', '1', str(pov)])
+        self.assertEqual(len(commands), 2)
+
+    def test_a_take_without_stills_extracts_none(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            _, encoded = self.export_with_stills(root, [])
+            self.assertFalse((root / 'out' / 'stills').exists())
+        self.assertEqual(encoded.call_count, 4)
+
+    def test_a_still_past_the_end_of_the_clip_fails_the_take_and_removes_its_files(self) -> None:
+        stills: list[dict] = [{'angle': 'observer', 'at': 99.0, 'name': 'late'}]
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            result, _ = self.export_with_stills(root, stills, clip_exists=False)
+            self.assertFalse((root / 'out' / 'stills' / 'agility-wall-jump-late.png').exists())
+        self.assertEqual(result['agility-wall-jump'].status, 'failed')
+        self.assertIn('Still late at 99 s is past the end of agility-wall-jump-observer.webm', result['agility-wall-jump'].export_error)
+
     def test_export_trims_leading_ticks_and_warms_up(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)

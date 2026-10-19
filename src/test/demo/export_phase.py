@@ -4,6 +4,7 @@ import zipfile
 from pathlib import Path
 from typing import Callable, Protocol
 
+import choreography
 import editor_state
 import encode
 import manifest
@@ -17,7 +18,7 @@ OPEN_RETRY_SECONDS: float = 30.0
 EXPORT_TIMEOUT: float = 1800.0
 CLOSE_TIMEOUT: float = 60.0
 DISCONNECT_RETRY_SECONDS: float = 10.0
-ANGLES: tuple[str, ...] = ('pov', 'observer')
+ANGLES: tuple[str, ...] = choreography.ANGLES
 LIVE_TRIM_SECONDS: float = manifest.START_TICK / manifest.TICKS_PER_SECOND
 
 
@@ -134,6 +135,15 @@ def live_source(studio: ExportStudio, take: manifest.Take) -> Path:
     return live
 
 
+def extract_still(output: Path, take: manifest.Take, still: dict, clip: Path, ffmpeg: Path) -> None:
+    target: Path = manifest.still_path(output, take.id, still['name'])
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.unlink(missing_ok=True)
+    encode.run(encode.still_command(ffmpeg, clip, target, float(still['at'])))
+    if not target.is_file() or target.stat().st_size == 0:
+        raise RuntimeError('Still ' + still['name'] + ' at ' + format(float(still['at']), 'g') + ' s is past the end of ' + clip.name)
+
+
 def export_take(studio: ExportStudio, take: manifest.Take, docs_root: Path, ffmpeg: Path, ffprobe: Path, audio: bool) -> None:
     for angle in ANGLES:
         live: bool = angle == 'pov' and take.pov_capture
@@ -146,6 +156,9 @@ def export_take(studio: ExportStudio, take: manifest.Take, docs_root: Path, ffmp
         thumb: Path = studio.output / 'thumbs' / (take.id + '-' + angle + '.png')
         thumb.parent.mkdir(parents=True, exist_ok=True)
         encode.run(encode.thumbnail_command(ffmpeg, final, thumb, max(0.5, manifest.clip_seconds(take) / 2)))
+        for still in take.stills:
+            if still['angle'] == angle:
+                extract_still(studio.output, take, still, final, ffmpeg)
 
 
 def export(studio: ExportStudio, takes: dict[str, manifest.Take], ids: list[str], docs_root: Path, ffmpeg: Path, ffprobe: Path,
@@ -159,6 +172,8 @@ def export(studio: ExportStudio, takes: dict[str, manifest.Take], ids: list[str]
         except (RuntimeError, OSError, zipfile.BadZipFile) as failure:
             for angle in ANGLES:
                 final_clip(docs_root, take, angle).unlink(missing_ok=True)
+            for still in take.stills:
+                manifest.still_path(studio.output, take.id, still['name']).unlink(missing_ok=True)
             takes[identifier] = dataclasses.replace(take, status='failed', export_error=str(failure))
             manifest.save(manifest_path, takes)
             print('[EXPORT-FAIL] ' + identifier + ' ' + str(failure), flush=True)

@@ -163,7 +163,8 @@ def prepare_take(studio: RecordStudio, entry: choreography.Entry, skill: str) ->
     rcon.command('adapt clear adaptations player=' + actor)
     for prerequisite in entry.prerequisites:
         rcon.command('adapt claim-adaptation ' + prerequisite.skill + ':' + prerequisite.name + ' ' + str(prerequisite.level) + ' force=true player=' + actor)
-    rcon.command('adapt claim-adaptation ' + skill + ':' + entry.id + ' ' + str(entry.level) + ' force=true player=' + actor)
+    if entry.showcase is None:
+        rcon.command('adapt claim-adaptation ' + skill + ':' + entry.id + ' ' + str(entry.level) + ' force=true player=' + actor)
     for command in entry.pre:
         rcon.command(beats.fill_names(command, actor, studio.opponent))
     rcon.command('adaptqa demo sync ' + actor)
@@ -176,6 +177,10 @@ def release_keys(studio: RecordStudio) -> None:
     studio.bridge.command('release')
     if studio.opponent_bridge is not None:
         studio.opponent_bridge.command('release')
+
+
+def still_records(entry: choreography.Entry) -> list[dict]:
+    return [dataclasses.asdict(still) for still in entry.stills]
 
 
 def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attempt: int, output: Path, ffmpeg: Path | None) -> manifest.Take:
@@ -220,13 +225,13 @@ def take_once(studio: RecordStudio, entry: choreography.Entry, skill: str, attem
     return manifest.Take(id=entry.id, skill=skill, set=entry.set, level=entry.level, replay=str(replay), start_tick=start_tick, stop_tick=stop_tick,
                          evidence_ok=ok, evidence_detail=result.detail if timeout is None else timeout, takes=attempt, camera=camera,
                          actor_uuid=str(stopped.get('uuid', '')), status='recorded' if ok else 'failed', visual=entry.expect_visual or '',
-                         pov_capture=entry.pov_capture)
+                         pov_capture=entry.pov_capture, stills=still_records(entry))
 
 
 def unrecorded_take(entry: choreography.Entry, skill: str, attempt: int, status: str, detail: str) -> manifest.Take:
     return manifest.Take(id=entry.id, skill=skill, set=entry.set, level=entry.level, replay='', start_tick=-1, stop_tick=-1, evidence_ok=False,
                          evidence_detail=detail, takes=attempt, camera={}, actor_uuid='', status=status, visual=entry.expect_visual or '',
-                         pov_capture=entry.pov_capture)
+                         pov_capture=entry.pov_capture, stills=still_records(entry))
 
 
 def bridge_answers(bridge: beats.BridgeClient) -> bool:

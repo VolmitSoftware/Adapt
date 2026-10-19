@@ -1,5 +1,5 @@
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 PLAYER_EYE_HEIGHT: float = 1.62
@@ -25,6 +25,7 @@ class Take:
     export_error: str = ''
     visual: str = ''
     pov_capture: bool = False
+    stills: list[dict] = field(default_factory=list)
 
 
 def clip_seconds(take: Take) -> float:
@@ -33,6 +34,10 @@ def clip_seconds(take: Take) -> float:
 
 def live_pov_path(output: Path, identifier: str) -> Path:
     return output / 'intermediate' / (identifier + '-pov-live.mp4')
+
+
+def still_path(output: Path, identifier: str, name: str) -> Path:
+    return output / 'stills' / (identifier + '-' + name + '.png')
 
 
 def load(path: Path) -> dict[str, Take]:

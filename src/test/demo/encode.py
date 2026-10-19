@@ -20,6 +20,10 @@ def thumbnail_command(ffmpeg: Path, source: Path, target: Path, seconds: float) 
     return [str(ffmpeg), '-y', '-ss', str(seconds), '-i', str(source), '-frames:v', '1', '-vf', 'scale=640:-1', str(target)]
 
 
+def still_command(ffmpeg: Path, source: Path, target: Path, seconds: float) -> list[str]:
+    return [str(ffmpeg), '-y', '-ss', format(seconds, 'g'), '-i', str(source), '-frames:v', '1', str(target)]
+
+
 def has_audio(ffprobe: Path, source: Path) -> bool:
     result: subprocess.CompletedProcess = subprocess.run(
         [str(ffprobe), '-v', 'error', '-select_streams', 'a', '-show_entries', 'stream=codec_type', '-of', 'csv=p=0', str(source)],

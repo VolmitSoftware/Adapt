@@ -10,7 +10,7 @@ import manifest
 
 STYLE: str = ('<style>body{font-family:system-ui;margin:24px;background:#111;color:#eee}section{margin-bottom:32px}'
               'section.failed h2{color:#f66}video{margin-right:8px;background:#000}small{font-weight:normal;color:#aaa}'
-              'code.ids{user-select:all}a{color:#8cf}</style>')
+              'code.ids{user-select:all}a{color:#8cf}figure{display:inline-block;margin:8px 8px 0 0}figcaption{color:#aaa;font-size:12px}</style>')
 INDEX_STATUSES: tuple[str, ...] = ('exported', 'recorded', 'failed', 'skipped')
 
 
@@ -25,6 +25,16 @@ def videos(identifier: str, take: manifest.Take, docs_root: Path, thumbs: Path) 
     return ''.join(tags)
 
 
+def stills(take: manifest.Take, output: Path) -> str:
+    tags: list[str] = []
+    for still in take.stills:
+        image: Path = manifest.still_path(output.absolute(), take.id, still['name'])
+        if image.is_file():
+            tags.append('<figure><img src="' + html.escape(image.as_uri()) + '" alt="' + html.escape(still['name']) + '" width="480">'
+                        + '<figcaption>' + html.escape(still['name'] + ' · ' + still['angle'] + ' ' + format(float(still['at']), 'g') + ' s') + '</figcaption></figure>')
+    return ''.join(tags)
+
+
 def evidence_facts(take: manifest.Take) -> list[str]:
     if not take.visual:
         return ['evidence ' + ('ok' if take.evidence_ok else 'missing'), take.evidence_detail]
@@ -32,14 +42,14 @@ def evidence_facts(take: manifest.Take) -> list[str]:
     return [label] if take.evidence_detail == label else [label, take.evidence_detail]
 
 
-def section(identifier: str, take: manifest.Take, docs_root: Path, thumbs: Path) -> str:
+def section(identifier: str, take: manifest.Take, docs_root: Path, thumbs: Path, output: Path) -> str:
     facts: list[str] = [take.status, 'set ' + take.set, 'level ' + str(take.level), 'takes ' + str(take.takes)]
     if take.stop_tick > take.start_tick >= 0:
         facts.append(format(manifest.clip_seconds(take), '.1f') + ' s')
     facts.extend(evidence_facts(take))
     if take.export_error:
         facts.append('export error: ' + take.export_error)
-    body: str = videos(identifier, take, docs_root, thumbs) if take.status == 'exported' else ''
+    body: str = videos(identifier, take, docs_root, thumbs) + stills(take, output) if take.status == 'exported' else ''
     return ('<section class="' + html.escape(take.status) + '"><h2>' + html.escape(identifier) + ' <small>'
             + html.escape(' · '.join(facts)) + '</small></h2>' + body + '</section>')
 
@@ -59,7 +69,7 @@ def write(path: Path, takes: dict[str, manifest.Take], docs_root: Path, thumbs: 
     page: str = ('<!doctype html><meta charset="utf-8"><title>Adapt demo review</title>' + STYLE
                  + '<h1>Adapt demo review</h1>' + ('<p>Plate origin ' + html.escape(plate) + '</p>' if plate else '')
                  + '<p>Failed ids: <code class="ids">' + html.escape(','.join(failed) or 'none') + '</code></p>'
-                 + ''.join(section(identifier, takes[identifier], docs_root, thumbs) for identifier in shown)
+                 + ''.join(section(identifier, takes[identifier], docs_root, thumbs, path.parent) for identifier in shown)
                  + skipped_section(skipped))
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(page, encoding='utf-8')

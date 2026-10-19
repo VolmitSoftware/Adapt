@@ -1,20 +1,32 @@
 import argparse
 import datetime
 import functools
+import html
 import re
+import shutil
 import sys
 from pathlib import Path
 from typing import Callable
 
 import choreography
+import manifest
 
 ROOT: Path = Path(__file__).resolve().parents[3]
 FRONTMATTER: re.Pattern[str] = re.compile(r'\A---\n.*?\n---\n', re.DOTALL)
 DATE_LINE: re.Pattern[str] = re.compile(r'^date: .*$', re.MULTILINE)
 EXISTING_BLOCK: re.Pattern[str] = re.compile(r'\n\n<div class="adapt-demo">\n(?:<video [^\n]*\n)*</div>(?=\n|\Z)')
+EXISTING_BLOCKS: re.Pattern[str] = re.compile(r'(?:' + EXISTING_BLOCK.pattern + r')+')
+VIDEO_TAG: re.Pattern[str] = re.compile(r'<video [^>\n]*>')
+VIDEO_SRC: re.Pattern[str] = re.compile(r' src="([^"]*)"')
+VIDEO_LABEL: re.Pattern[str] = re.compile(r' aria-label="([^"]*)"')
+ANGLE_LABELS: dict[str, str] = {'pov': 'First-person', 'observer': 'Third-person'}
 
 
 class HeadingNotFound(RuntimeError):
+    pass
+
+
+class HeadingAmbiguous(RuntimeError):
     pass
 
 
@@ -22,16 +34,38 @@ class PageNotFound(RuntimeError):
     pass
 
 
-def block(skill: str, identifier: str) -> str:
+def block(skill: str, identifier: str, title: str, labels: dict[str, str] | None = None) -> str:
     base: str = '/adapt-assets/demos/' + skill + '/' + identifier
-    return ('<div class="adapt-demo">\n'
-            '<video src="' + base + '-pov.webm" muted loop playsinline controls preload="none"></video>\n'
-            '<video src="' + base + '-observer.webm" muted loop playsinline controls preload="none"></video>\n'
-            '</div>\n')
+    kept: dict[str, str] = labels or {}
+    videos: list[str] = []
+    for angle in choreography.ANGLES:
+        source: str = base + '-' + angle + '.webm'
+        label: str = kept.get(source) or ANGLE_LABELS[angle] + ' demonstration of ' + html.escape(title)
+        videos.append('<video aria-label="' + label + '" src="' + source + '" muted loop playsinline controls preload="none"></video>\n')
+    return '<div class="adapt-demo">\n' + ''.join(videos) + '</div>\n'
+
+
+def existing_labels(text: str) -> dict[str, str]:
+    labels: dict[str, str] = {}
+    for tag in VIDEO_TAG.findall(text):
+        source: re.Match[str] | None = VIDEO_SRC.search(tag)
+        label: re.Match[str] | None = VIDEO_LABEL.search(tag)
+        if source is not None and label is not None:
+            labels[source.group(1)] = label.group(1)
+    return labels
 
 
 def heading(identifier: str) -> re.Pattern[str]:
-    return re.compile(r'^### .*\(`' + re.escape(identifier) + r'`\)[ \t]*$', re.MULTILINE)
+    return re.compile(r'^### (?P<name>.*?)[ \t]*\(`' + re.escape(identifier) + r'`\)[ \t]*$', re.MULTILINE)
+
+
+def showcase_heading(text: str, target: str, page: Path) -> re.Match[str]:
+    matches: list[re.Match[str]] = list(re.finditer(r'^#{2,3} ' + re.escape(target) + r'[ \t]*$', text, re.MULTILINE))
+    if not matches:
+        raise HeadingNotFound('Showcase heading "' + target + '" does not exist in ' + str(page))
+    if len(matches) > 1:
+        raise HeadingAmbiguous('Showcase heading "' + target + '" appears ' + str(len(matches)) + ' times in ' + str(page))
+    return matches[0]
 
 
 def skill_page(docs: Path, ids: set[str]) -> Path:
@@ -55,7 +89,22 @@ def bump_date(text: str, now: str) -> str:
     return DATE_LINE.sub('date: ' + now, front.group(0), count=1) + text[front.end():]
 
 
-def sync_page(page: Path, skill: str, ids: list[str], available: Callable[[str], bool], now: str) -> int:
+def replace_blocks(text: str, start: int, existing: re.Match[str] | None, build: Callable[[dict[str, str]], str]) -> str | None:
+    fresh: str = build(existing_labels(existing.group(0)) if existing is not None else {})
+    if existing is not None and existing.group(0) == fresh:
+        return None
+    return text[:start] + fresh + text[existing.end() if existing is not None else start:]
+
+
+def showcase_groups(showcase: tuple[choreography.Entry, ...] | list[choreography.Entry]) -> dict[str, list[choreography.Entry]]:
+    groups: dict[str, list[choreography.Entry]] = {}
+    for entry in showcase:
+        groups.setdefault(entry.showcase.heading, []).append(entry)
+    return groups
+
+
+def sync_page(page: Path, skill: str, ids: list[str], available: Callable[[str], bool], now: str,
+              showcase: tuple[choreography.Entry, ...] | list[choreography.Entry] = ()) -> int:
     text: str = page.read_text(encoding='utf-8')
     changed: int = 0
     for identifier in ids:
@@ -64,16 +113,22 @@ def sync_page(page: Path, skill: str, ids: list[str], available: Callable[[str],
             raise HeadingNotFound(identifier + ' has no heading in ' + str(page))
         if not available(identifier):
             continue
-        fresh: str = '\n\n' + block(skill, identifier).rstrip('\n')
-        start: int = match.end()
-        end: int = start
-        existing: re.Match[str] | None = EXISTING_BLOCK.match(text, start)
-        if existing is not None:
-            if existing.group(0) == fresh:
-                continue
-            end = existing.end()
-        text = text[:start] + fresh + text[end:]
-        changed += 1
+        name: str = match.group('name')
+        replaced: str | None = replace_blocks(text, match.end(), EXISTING_BLOCK.match(text, match.end()),
+                                              lambda labels: '\n\n' + block(skill, identifier, name, labels).rstrip('\n'))
+        if replaced is not None:
+            text = replaced
+            changed += 1
+    for target, group in showcase_groups(showcase).items():
+        clips: list[choreography.Entry] = [entry for entry in group if available(entry.id)]
+        if not clips:
+            continue
+        match = showcase_heading(text, target, page)
+        replaced = replace_blocks(text, match.end(), EXISTING_BLOCKS.match(text, match.end()),
+                                  lambda labels: ''.join('\n\n' + block(skill, entry.id, entry.showcase.title, labels).rstrip('\n') for entry in clips))
+        if replaced is not None:
+            text = replaced
+            changed += 1
     if changed:
         page.write_text(bump_date(text, now), encoding='utf-8')
     return changed
@@ -87,10 +142,32 @@ def clips_present(demos: Path, identifier: str) -> bool:
     return (demos / (identifier + '-pov.webm')).is_file() and (demos / (identifier + '-observer.webm')).is_file()
 
 
+def sheet_entries(skill: str) -> dict[str, choreography.Entry]:
+    try:
+        return choreography.load_skill(ROOT, skill).entries
+    except FileNotFoundError:
+        return {}
+
+
+def copy_stills(output: Path, demos: Path, entries: dict[str, choreography.Entry]) -> int:
+    copied: int = 0
+    for entry in entries.values():
+        for still in entry.stills:
+            source: Path = manifest.still_path(output, entry.id, still.name)
+            target: Path = demos / source.name
+            if not source.is_file() or (target.is_file() and target.read_bytes() == source.read_bytes()):
+                continue
+            demos.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source, target)
+            copied += 1
+    return copied
+
+
 def main(argv: list[str] | None = None) -> int:
     parser: argparse.ArgumentParser = argparse.ArgumentParser(description='Embed exported Adapt demo clips under their adaptation headings in a docs skill page.')
     parser.add_argument('--skill', required=True)
     parser.add_argument('--docs', default=str(ROOT.parent / 'docs'))
+    parser.add_argument('--output', default='')
     args: argparse.Namespace = parser.parse_args(argv)
     docs: Path = Path(args.docs)
     skill_ids: set[str] = choreography.adaptation_ids(ROOT, args.skill)
@@ -103,13 +180,19 @@ def main(argv: list[str] | None = None) -> int:
         print('Skill ' + args.skill + ': ' + str(error))
         return 2
     demos: Path = docs / 'adapt-assets' / 'demos' / args.skill
-    ids: list[str] = sorted({clip.name.removesuffix('-pov.webm') for clip in demos.glob('*-pov.webm')})
+    entries: dict[str, choreography.Entry] = sheet_entries(args.skill)
+    showcase: list[choreography.Entry] = choreography.showcase_entries(entries)
+    showcase_ids: set[str] = {entry.id for entry in showcase}
+    ids: list[str] = sorted({clip.name.removesuffix('-pov.webm') for clip in demos.glob('*-pov.webm')} - showcase_ids)
     try:
-        changed: int = sync_page(page, args.skill, ids, functools.partial(clips_present, demos), utc_now())
-    except HeadingNotFound as error:
+        changed: int = sync_page(page, args.skill, ids, functools.partial(clips_present, demos), utc_now(), showcase)
+    except (HeadingNotFound, HeadingAmbiguous) as error:
         print(str(error))
         return 2
     print('updated ' + str(changed) + ' block(s) in ' + str(page))
+    copied: int = copy_stills((Path(args.output) if args.output else ROOT / 'build' / 'demo' / args.skill).resolve(), demos, entries)
+    if copied:
+        print('copied ' + str(copied) + ' still(s) to ' + str(demos))
     return 0
 
 
