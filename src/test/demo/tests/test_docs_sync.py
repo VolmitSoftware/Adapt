@@ -475,6 +475,21 @@ class ShowcaseSyncTest(unittest.TestCase):
         again, repeated = self.sync(text, [RITUAL], ids=['golem-frost-frame'])
         self.assertEqual((repeated, again), (0, text))
 
+    def test_a_showcase_clip_under_an_adaptation_heading_follows_that_adaptations_clips(self) -> None:
+        node: choreography.Entry = clip('golemancy-node-config', 'Node clicks', 'Frost Frame (`golem-frost-frame`)')
+        text, changed = self.sync(SHOWCASE_PAGE, [node], ids=['golem-frost-frame'])
+        self.assertEqual(changed, 1)
+        self.assertIn('### Frost Frame (`golem-frost-frame`)\n\n' + docs_sync.block('golemancy', 'golem-frost-frame', 'Frost Frame').rstrip('\n')
+                      + '\n\n' + docs_sync.block('golemancy', node.id, 'Node clicks').rstrip('\n') + '\n\nSnow.', text)
+        again, repeated = self.sync(text, [node], ids=['golem-frost-frame'], now='2026-10-01T00:00:00.000Z')
+        self.assertEqual((repeated, again), (0, text))
+
+    def test_adaptation_clips_alone_leave_the_shared_showcase_blocks_in_place(self) -> None:
+        node: choreography.Entry = clip('golemancy-node-config', 'Node clicks', 'Frost Frame (`golem-frost-frame`)')
+        text, _ = self.sync(SHOWCASE_PAGE, [node], ids=['golem-frost-frame'])
+        again, changed = self.sync(text, [node], ids=['golem-frost-frame'], available={'golem-frost-frame'})
+        self.assertEqual((changed, again), (0, text))
+
     def test_only_blocks_and_the_date_change(self) -> None:
         text, _ = self.sync(SHOWCASE_PAGE, [INFUSION, RITUAL])
         restored: str = text.replace('date: 2026-09-30T12:00:00.000Z', 'date: 2026-09-28T10:36:37.000Z')

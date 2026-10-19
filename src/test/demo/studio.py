@@ -30,6 +30,8 @@ SEED: int = 78264193
 LOCATE_GRIDS: dict[str, tuple[int, int]] = {choreography.OVERWORLD: (6144, 256), choreography.NETHER: (1536, 64)}
 LOCATE_TIMEOUT: float = 600.0
 SITE_CACHE: str = 'site-cache.json'
+MODELS_FILE: str = 'models.toml'
+MODELS_CACHE: str = 'models-cache.toml'
 TPS_MINIMUM: float = 19.0
 TPS_TIMEOUT: float = 180.0
 TPS_LINE: re.Pattern[str] = re.compile(r'TPS from last ([^:]*):(.*)')
@@ -150,6 +152,25 @@ def install_pack(source: Path, packs: Path) -> Path:
     target: Path = packs / IRIS_PACK
     shutil.copytree(source, target, ignore=shutil.ignore_patterns('.git', '.iris'), dirs_exist_ok=True)
     return target
+
+
+def restore_models(adapt: Path, cache: Path) -> bool:
+    if not cache.is_file():
+        return False
+    adapt.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(cache, adapt / MODELS_FILE)
+    return True
+
+
+def keep_models(adapt: Path, cache: Path) -> bool:
+    source: Path = adapt / MODELS_FILE
+    if not source.is_file() or source.stat().st_size == 0:
+        return False
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    partial: Path = cache.with_suffix('.part')
+    shutil.copy2(source, partial)
+    os.replace(partial, cache)
+    return True
 
 
 def switch_off(config: Path, keys: tuple[str, ...]) -> None:
@@ -655,6 +676,7 @@ class Studio:
             install_log.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(str(latest), str(install_log))
         adapt: Path = self.server / 'plugins' / 'Adapt'
+        restore_models(adapt, LOCKS / MODELS_CACHE)
         switch_off(adapt / 'adapt.toml', NOTIFY_KEYS)
         if skill != DISCOVERY_SKILL and 'Gloss' not in self.required_plugins:
             switch_off(adapt / 'skills' / (DISCOVERY_SKILL + '.toml'), (SKILL_SWITCH,))
@@ -842,6 +864,8 @@ class Studio:
             if self.server is not None and (self.server / 'logs' / 'latest.log').is_file():
                 self.log_path('server').parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(self.server / 'logs' / 'latest.log', self.log_path('server'))
+            if self.server is not None:
+                keep_models(self.server / 'plugins' / 'Adapt', LOCKS / MODELS_CACHE)
             mux('instance', 'delete', self.server_name)
         except Exception as failure:
             return ['Server cleanup: ' + repr(failure)]

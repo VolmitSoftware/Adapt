@@ -169,9 +169,28 @@ class ChoreographyTest(unittest.TestCase):
 
     def test_golemancy_covers_every_matrix_id_exactly_once(self) -> None:
         entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, 'golemancy').entries
-        problems: list[str] = choreography.validate(entries, matrix_ids('golemancy'))
+        problems: list[str] = choreography.validate(entries, matrix_ids('golemancy'), choreography.catalog_ids(ROOT))
         self.assertEqual(problems, [])
-        self.assertEqual(set(entries), matrix_ids('golemancy'))
+        self.assertEqual({identifier for identifier, entry in entries.items() if entry.showcase is None}, matrix_ids('golemancy'))
+
+    def test_golemancy_showcase_covers_the_requested_topics_under_exact_docs_headings(self) -> None:
+        entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, 'golemancy').entries
+        headings: dict[str, str] = {identifier: entry.showcase.heading for identifier, entry in entries.items() if entry.showcase is not None}
+        self.assertEqual(headings, {
+            'golemancy-crafting': 'Items and crafting', 'golemancy-bodies': 'Bound golems', 'golemancy-modes': 'Bound golems',
+            'golemancy-asleep': 'Awake and asleep', 'golemancy-golem-gui': 'Golem GUI', 'golemancy-roster': 'Golem roster',
+            'golemancy-plinth-ritual': 'Animus Plinth', 'golemancy-node-config': 'Node Weaving (`golem-node-weaving`)',
+            'golemancy-preferences': 'Player preferences'})
+        page: str = (ROOT.parent / 'docs' / 'adapt' / '34-skill-golemancy.md').read_text()
+        for heading in headings.values():
+            self.assertRegex(page, r'(?m)^#{2,3} ' + re.escape(heading) + r'$')
+
+    def test_golemancy_preferences_clip_toggles_absorb_intercept_and_node_reveal(self) -> None:
+        entry: choreography.Entry = choreography.load_skill(ROOT, 'golemancy').entries['golemancy-preferences']
+        commands: str = ' '.join(str(beat.get('text', '')) for beat in entry.beats)
+        for adaptation in ('golem-gatherer-core', 'golem-guardian-core', 'golem-node-weaving'):
+            self.assertIn('adaptation:' + adaptation, commands)
+        self.assertTrue(entry.pov_capture)
 
     def test_nether_covers_every_matrix_id_exactly_once(self) -> None:
         sheet: choreography.Sheet = choreography.load_skill(ROOT, 'nether')
@@ -239,29 +258,34 @@ class ChoreographyTest(unittest.TestCase):
 
     def test_golemancy_node_clips_capture_the_pov_live(self) -> None:
         entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, 'golemancy').entries
-        marker: str = '"adapt:golem_item":"node"'
-        node_clips: set[str] = {identifier for identifier, entry in entries.items()
-                                if any(marker in text for text in entry.pre + [str(beat.get('text', '')) for beat in entry.beats])}
+        node_clips: set[str] = {identifier for identifier, entry in entries.items() if any(re.search(r'demo give \{actor\} \d node/', text) for text in entry.pre)}
         self.assertEqual(node_clips, {'golem-node-weaving', 'golem-harvester-core', 'golem-breaker-core', 'golem-angler-core',
-                                      'golem-lumber-core', 'golem-rancher-core', 'golem-sorter-core'})
+                                      'golem-lumber-core', 'golem-rancher-core', 'golem-sorter-core', 'golemancy-node-config',
+                                      'golemancy-preferences'})
         for identifier in sorted(node_clips):
             with self.subTest(entry=identifier):
                 self.assertTrue(entries[identifier].pov_capture)
 
-    def test_golemancy_core_clips_hold_the_crook_after_placing_their_node(self) -> None:
+    def test_golemancy_clips_that_show_nodes_or_labels_arm_the_reveal_with_a_hotbar_switch(self) -> None:
         entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, 'golemancy').entries
-        crook: str = '"adapt:golem_item":"crook"'
-        placed: str = 'minecraft:block.amethyst_block.place'
+        crook: str = 'demo give {actor} 1 crook'
         for identifier in ('golem-harvester-core', 'golem-breaker-core', 'golem-angler-core', 'golem-lumber-core', 'golem-rancher-core',
-                           'golem-sorter-core'):
+                           'golem-sorter-core', 'golem-node-weaving', 'golem-animus-binding', 'golem-copper-frame', 'golem-overseer'):
             with self.subTest(entry=identifier):
-                beats: list[dict] = entries[identifier].beats
-                placement: int = next(index for index, beat in enumerate(beats) if beat.get('verb') == 'waitFor' and beat.get('sound') == placed)
-                self.assertTrue(any(beat.get('verb') == 'command' and crook in str(beat.get('text', '')) for beat in beats[placement + 1:]))
+                entry: choreography.Entry = entries[identifier]
+                self.assertTrue(any(crook in text for text in entry.pre))
+                self.assertTrue(any(beat.get('verb') == 'slot' and beat.get('index') == 1 for beat in entry.beats))
+
+    def test_golemancy_clips_never_wait_for_the_sound_of_an_immediate_click(self) -> None:
+        entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, 'golemancy').entries
+        for identifier, entry in entries.items():
+            for index, beat in enumerate(entry.beats):
+                with self.subTest(entry=identifier, beat=index):
+                    self.assertNotEqual(beat.get('sound'), 'minecraft:block.amethyst_block.place')
 
     def test_the_bone_frame_clip_captures_its_owner_only_servant_reveal_live(self) -> None:
         entry: choreography.Entry = choreography.load_skill(ROOT, 'golemancy').entries['golem-bone-frame']
-        self.assertIn('"adapt:golem_item":"crook"', ' '.join(entry.pre))
+        self.assertIn('demo give {actor} 1 crook', ' '.join(entry.pre))
         self.assertTrue(entry.pov_capture)
 
     def test_every_sheet_names_a_known_world(self) -> None:
@@ -633,6 +657,17 @@ class ShowcaseSheetTest(unittest.TestCase):
             with self.subTest(label), tempfile.TemporaryDirectory() as tmp:
                 sheet: choreography.Sheet = self.sheet(tmp, {'x-one': self.adaptation(), 'showcase': [showcase_clip(**values)]})
                 self.assertEqual(choreography.validate(sheet.entries, {'x-one'}, frozenset({'x-one'})), [problem])
+
+    def test_a_showcase_heading_may_name_an_adaptation_of_the_same_sheet(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            sheet: choreography.Sheet = self.sheet(tmp, {'x-one': self.adaptation(), 'showcase': [showcase_clip(heading='One (`x-one`)')]})
+        self.assertEqual(choreography.validate(sheet.entries, {'x-one'}, frozenset({'x-one', 'y-other'})), [])
+
+    def test_a_showcase_heading_naming_an_adaptation_of_another_sheet_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            sheet: choreography.Sheet = self.sheet(tmp, {'x-one': self.adaptation(), 'showcase': [showcase_clip(heading='Other (`y-other`)')]})
+        self.assertEqual(choreography.validate(sheet.entries, {'x-one'}, frozenset({'x-one', 'y-other'})),
+                         ['x-ritual: showcase heading must not be an adaptation heading'])
 
     def test_showcase_clips_get_the_usual_entry_validation(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

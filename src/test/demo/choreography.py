@@ -28,7 +28,7 @@ WORLDS: tuple[str, ...] = (OVERWORLD, NETHER)
 SHOWCASE_FIELD: str = 'showcase'
 ANGLES: tuple[str, ...] = ('pov', 'observer')
 STILL_NAME: re.Pattern[str] = re.compile(r'[a-z0-9]+(?:-[a-z0-9]+)*')
-ADAPTATION_HEADING_END: re.Pattern[str] = re.compile(r'\(`[^`]+`\)$')
+ADAPTATION_HEADING_END: re.Pattern[str] = re.compile(r'\(`([^`]+)`\)$')
 
 
 @dataclass(frozen=True)
@@ -173,7 +173,7 @@ def validate(entries: dict[str, Entry], matrix_ids: set[str], catalog: frozenset
     for extra in sorted(adaptations - matrix_ids):
         problems.append('choreography for unknown adaptation ' + extra)
     for identifier, entry in entries.items():
-        problems.extend(identifier + ': ' + problem for problem in showcase_problems(entry, matrix_ids | catalog))
+        problems.extend(identifier + ': ' + problem for problem in showcase_problems(entry, matrix_ids | catalog, matrix_ids))
         problems.extend(identifier + ': ' + problem for problem in still_problems(entry))
         for plugin in entry.plugins:
             if plugin != 'Gloss':
@@ -198,7 +198,7 @@ def validate(entries: dict[str, Entry], matrix_ids: set[str], catalog: frozenset
     return problems
 
 
-def showcase_problems(entry: Entry, taken: frozenset[str] | set[str]) -> list[str]:
+def showcase_problems(entry: Entry, taken: frozenset[str] | set[str], adaptations: frozenset[str] | set[str] = frozenset()) -> list[str]:
     showcase: Showcase | None = entry.showcase
     if showcase is None:
         return []
@@ -213,7 +213,7 @@ def showcase_problems(entry: Entry, taken: frozenset[str] | set[str]) -> list[st
         problems.append('showcase heading is required')
     elif showcase.heading != showcase.heading.strip() or showcase.heading.startswith('#') or '\n' in showcase.heading:
         problems.append('showcase heading must be the exact heading text without the leading hashes')
-    elif ADAPTATION_HEADING_END.search(showcase.heading):
+    elif (named := ADAPTATION_HEADING_END.search(showcase.heading)) is not None and named.group(1) not in adaptations:
         problems.append('showcase heading must not be an adaptation heading')
     return problems
 
