@@ -559,11 +559,11 @@
     "povCapture": true,
     "maxTicks": 900,
     "camera": {
-      "x": 5.0,
-      "y": 2.2,
-      "z": -5.0,
-      "yaw": 90.0,
-      "pitch": 17.3
+      "x": 5.4,
+      "y": 2.3,
+      "z": -3.2,
+      "yaw": 112.2,
+      "pitch": 15.8
     }
   },
   "golem-harvester-core": {
@@ -728,7 +728,6 @@
       "adaptqa demo give {actor} 0 core/breaker 1",
       "adaptqa demo give {actor} 1 crook 1",
       "adaptqa demo give {actor} 2 node/breaker 3",
-      "execute at {actor} run summon minecraft:iron_golem ~-2 ~0 ~-2.5 {Rotation:[0.0f,0.0f],PlayerCreated:1b,NoAI:1b}",
       "execute at {actor} run fill ~-1 ~-1 ~-3 ~1 ~-1 ~-2 minecraft:cobblestone",
       "execute at {actor} run setblock ~ ~ ~-4 minecraft:stone",
       "item replace entity {actor} hotbar.3 with minecraft:cobblestone 1"
@@ -862,28 +861,33 @@
         "hold": [
           "back"
         ],
-        "ticks": 5
+        "ticks": 20
       },
       {
         "verb": "wait",
-        "ticks": 6
+        "ticks": 8
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run summon minecraft:iron_golem ~-1.9 ~0 ~-1.7 {Rotation:[0.0f,0.0f],PlayerCreated:1b,NoAI:1b}"
       },
       {
         "verb": "slot",
         "index": 0
       },
       {
-        "verb": "lookAt",
-        "offset": [
-          -1.5,
-          1.2,
-          -2.0
-        ],
+        "verb": "look",
+        "yaw": 135,
+        "pitch": 12,
         "ticks": 10
       },
       {
         "verb": "wait",
-        "ticks": 4
+        "ticks": 6
+      },
+      {
+        "verb": "wait",
+        "ticks": 12
       },
       {
         "verb": "press",
@@ -926,9 +930,12 @@
         "ticks": 10
       },
       {
-        "verb": "look",
-        "yaw": 180,
-        "pitch": 25,
+        "verb": "lookAt",
+        "offset": [
+          0.5,
+          0.5,
+          -3.0
+        ],
         "ticks": 10
       },
       {
@@ -1110,10 +1117,10 @@
     "maxTicks": 2000,
     "camera": {
       "x": 0.5,
-      "y": 0.6,
-      "z": -1.0,
+      "y": 0.55,
+      "z": -2.0,
       "yaw": -180.0,
-      "pitch": 2.9
+      "pitch": 6.5
     }
   },
   "golem-iron-frame": {
@@ -2245,6 +2252,18 @@
       {
         "verb": "wait",
         "ticks": 4
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~-1.5 ~ ~-8"
+      },
+      {
+        "verb": "command",
+        "text": "execute at {actor} run tp @e[type=minecraft:copper_golem,limit=1,sort=nearest] ~1.0 ~ ~-9"
+      },
+      {
+        "verb": "wait",
+        "ticks": 10
       },
       {
         "verb": "command",
@@ -4965,7 +4984,7 @@
       "pre": [
         "execute at {actor} run gamerule show_advancement_messages false",
         "adaptqa demo give {actor} 1 crook 1",
-        "execute at {actor} run summon minecraft:copper_golem ~0.0 ~0 ~-3.5 {Rotation:[0.0f,0.0f],Tags:[\"pg\"],NoAI:1b}",
+        "execute at {actor} run summon minecraft:copper_golem ~0.0 ~0 ~-8.5 {Rotation:[0.0f,0.0f],Tags:[\"pg\"],NoAI:1b}",
         "adaptqa demo bind {actor} pg gatherer",
         "adaptqa demo preference {actor} golem-node-weaving node-reveal ANY_ITEM",
         "adaptqa demo preference {actor} golem-guardian-core intercept ON",
@@ -4979,9 +4998,9 @@
         {
           "verb": "lookAt",
           "offset": [
-            0.5,
+            -0.5,
             0.3,
-            -8.5
+            -9.5
           ]
         }
       ],
@@ -5005,9 +5024,9 @@
         {
           "verb": "lookAt",
           "offset": [
-            0.5,
+            -0.5,
             0.3,
-            -8.5
+            -9.5
           ],
           "ticks": 10
         },
@@ -5017,15 +5036,15 @@
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run summon minecraft:experience_orb ~0.0 ~ ~-9.0 {Value:60s}"
+          "text": "execute at {actor} run summon minecraft:experience_orb ~-2.0 ~ ~-11.0 {Value:60s}"
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run summon minecraft:experience_orb ~0.4 ~ ~-9.3 {Value:60s}"
+          "text": "execute at {actor} run summon minecraft:experience_orb ~-2.4 ~ ~-11.4 {Value:60s}"
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run summon minecraft:experience_orb ~-0.4 ~ ~-9.2 {Value:60s}"
+          "text": "execute at {actor} run summon minecraft:experience_orb ~-1.6 ~ ~-11.2 {Value:60s}"
         },
         {
           "verb": "command",
@@ -5033,7 +5052,7 @@
         },
         {
           "verb": "wait",
-          "ticks": 170
+          "ticks": 150
         },
         {
           "verb": "command",
@@ -5045,15 +5064,15 @@
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run summon minecraft:experience_orb ~0.0 ~ ~-9.0 {Value:60s}"
+          "text": "execute at {actor} run summon minecraft:experience_orb ~-2.0 ~ ~-11.0 {Value:60s}"
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run summon minecraft:experience_orb ~0.4 ~ ~-9.3 {Value:60s}"
+          "text": "execute at {actor} run summon minecraft:experience_orb ~-2.4 ~ ~-11.4 {Value:60s}"
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run summon minecraft:experience_orb ~-0.4 ~ ~-9.2 {Value:60s}"
+          "text": "execute at {actor} run summon minecraft:experience_orb ~-1.6 ~ ~-11.2 {Value:60s}"
         },
         {
           "verb": "wait",
@@ -5429,11 +5448,11 @@
       "povCapture": true,
       "maxTicks": 2600,
       "camera": {
-        "x": 3.5,
+        "x": -3.5,
         "y": 1.5,
-        "z": -5.5,
-        "yaw": 99.5,
-        "pitch": 21.5
+        "z": -7.5,
+        "yaw": -122.8,
+        "pitch": 18.0
       }
     }
   ]
