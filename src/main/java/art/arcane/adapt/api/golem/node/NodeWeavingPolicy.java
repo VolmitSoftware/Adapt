@@ -15,4 +15,8 @@ public interface NodeWeavingPolicy {
   boolean canPlace(Player player, Location anchor, Location placement);
 
   boolean canAccessContainer(Player player, Location container);
+
+  boolean crookOnlyReveal(Player viewer);
+
+  boolean hidesOutline(Player viewer);
 }

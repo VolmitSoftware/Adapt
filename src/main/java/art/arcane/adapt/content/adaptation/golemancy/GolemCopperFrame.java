@@ -28,6 +28,8 @@ import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemWorkSpeed;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
@@ -62,7 +64,9 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
   private static final int SPEED_II_AMPLIFIER = 1;
   private static final int TICKS_PER_SECOND = 20;
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
+  private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, GolemancyPreferences.STATIC_OVERDRIVE);
 
+  private final OwnerPreferences owners = new OwnerPreferences(this);
   private final GolemStatSource frameStats = new FrameStats();
   private final GolemStatSource patinaStats = new PatinaStats();
   private final GolemCapacity.Source frameCarry = new FrameCarry();
@@ -121,6 +125,16 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
+  }
+
+  @Override
+  public boolean isPlayerPreferenceVisible(AdaptPlayer player, PlayerPreference<?> preference) {
+    return preference != GolemancyPreferences.STATIC_OVERDRIVE || GolemancyRules.unlocked(getLevel(player), getConfig().overdriveLevel);
+  }
+
+  @Override
   public boolean hasTickDemand() {
     return !overdrives.isEmpty();
   }
@@ -167,6 +181,10 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
     return level;
   }
 
+  boolean allowsOverdrive(UUID owner) {
+    return owners.enabled(owner, GolemancyPreferences.STATIC_OVERDRIVE);
+  }
+
   void boost(CopperGolem golem, int ticks) {
     golem.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, ticks, SPEED_II_AMPLIFIER, false, true, true));
   }
@@ -194,7 +212,7 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
     }
     GolemHandle handle = bound.get();
     Config config = getConfig();
-    if (!GolemancyRules.unlocked(ownerLevel(handle), config.overdriveLevel)) {
+    if (!GolemancyRules.unlocked(ownerLevel(handle), config.overdriveLevel) || !allowsOverdrive(handle.owner())) {
       return;
     }
     AtomicBoolean claimed = new AtomicBoolean();

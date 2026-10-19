@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 final class HarvesterCoreBehavior implements GolemCoreBehavior {
   private final GolemHarvesterCore core;
@@ -46,8 +47,10 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
     int level = GolemancySupport.ownerLevel(core, golem);
     GolemHarvesterCore.Config config = core.config();
     List<ItemStack> carried = golem.carriedItems();
-    boolean planting = GolemancyRules.unlocked(level, config.tillingLevel) && carriesSeed(carried);
-    boolean tending = GolemancyRules.unlocked(level, config.tendingLevel) && core.tendReady(golem.handle().id(), golem.nowMillis());
+    UUID owner = golem.handle().owner();
+    boolean planting = GolemancyRules.unlocked(level, config.tillingLevel) && carriesSeed(carried) && core.tills(owner);
+    boolean tending = GolemancyRules.unlocked(level, config.tendingLevel) && core.tendReady(golem.handle().id(), golem.nowMillis())
+        && core.tends(owner);
     if (!planting && !tending) {
       return Optional.empty();
     }

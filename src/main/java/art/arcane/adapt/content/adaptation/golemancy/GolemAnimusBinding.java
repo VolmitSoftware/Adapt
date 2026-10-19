@@ -32,7 +32,10 @@ import art.arcane.adapt.api.golem.GolemScale;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.reveal.GolemLabelPolicy;
 import art.arcane.adapt.api.notification.AdaptHud;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -76,7 +79,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
 
-public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Config> {
+public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Config> implements GolemLabelPolicy {
   static final String CROOK_RECIPE = "golemancy-crook";
   static final String BLANK_CORE_RECIPE = "golemancy-blank-core";
   private static final String COPPER_FRAME = "golem-copper-frame";
@@ -86,6 +89,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
   private static final long MILLIS_PER_SECOND = 1000L;
   private static final int TICKS_PER_SECOND = 20;
   private static final int SOUND_INTERVAL_TICKS = 10;
+  private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, GolemancyPreferences.STATUS_LABELS);
 
   private final Map<UUID, BindingRitual> ritualsByGolem = new ConcurrentHashMap<>();
   private final Map<UUID, BindingRitual> ritualsByOwner = new ConcurrentHashMap<>();
@@ -96,6 +100,7 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     setLocalizationKey("golemancy.animus_binding");
     setIcon(Material.FIREWORK_STAR);
     GolemancyRuntime.setProtectionPolicy(this);
+    GolemancyRuntime.setLabelPolicy(this);
     ConfiguredRecipeParser parser = ConfiguredRecipeParser.bukkit(GolemItems.resolver(), GolemItems.recipeBook());
     GolemancySupport.registerRecipe(this, parser, CROOK_RECIPE, getConfig().crookRecipe, RECIPE_LEVEL);
     GolemancySupport.registerRecipe(this, parser, BLANK_CORE_RECIPE, getConfig().blankCoreRecipe, RECIPE_LEVEL);
@@ -109,6 +114,16 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     statLore(v, C.RED, "- ", tithe(config, GolemBody.FROST, level), 3);
     statLore(v, C.RED, "- ", tithe(config, GolemBody.COPPER, level), 4);
     statLore(v, C.RED, "- ", tithe(config, GolemBody.IRON, level), 5);
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
+  }
+
+  @Override
+  public boolean hidesLabels(Player owner) {
+    return preference(owner, GolemancyPreferences.STATUS_LABELS) == GolemancyPreferences.Labels.HIDDEN;
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

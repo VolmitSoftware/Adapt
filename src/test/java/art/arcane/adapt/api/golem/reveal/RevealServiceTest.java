@@ -310,6 +310,88 @@ class RevealServiceTest extends AdaptTestBase {
     }
   }
 
+  @Test
+  void anOwnerWhoHidesStatusLabelsGetsNoLabelAndLosesAShownOne() {
+    RevealService service = new RevealService(RevealSettings::defaults);
+    GolemHandle golem = golem(new AtomicReference<>(5D));
+    when(registry.loadedOf(OWNER)).thenReturn(List.of(golem));
+    GolemLabelPolicy labels = mock(GolemLabelPolicy.class);
+    when(labels.hidesLabels(viewer)).thenReturn(true);
+    runtime.when(GolemancyRuntime::labelPolicy).thenReturn(Optional.of(labels));
+
+    service.update(viewer);
+    assertThat(spawned).isEmpty();
+
+    when(labels.hidesLabels(viewer)).thenReturn(false);
+    service.update(viewer);
+    assertThat(spawned).hasSize(1);
+    TextDisplay label = spawned.getFirst();
+    displays.verify(() -> HiddenDisplays.show(viewer, label));
+
+    when(labels.hidesLabels(viewer)).thenReturn(true);
+    service.update(viewer);
+    displays.verify(() -> HiddenDisplays.hide(viewer, label));
+    verify(label).remove();
+    assertThat(spawned).hasSize(1);
+  }
+
+  @Test
+  void crookOnlyRevealShowsNodesOnlyWhileTheViewerHoldsTheCrook() {
+    NodeKey key = new NodeKey(WORLD, 4, 64, 0, BlockFace.UP);
+    NodeBundle bundle = nodeBundle(key, OWNER);
+    runtime.when(GolemancyRuntime::nodeSettings).thenReturn(NodeSettings.defaults());
+    NodeWeavingPolicy policy = mock(NodeWeavingPolicy.class);
+    when(policy.crookOnlyReveal(viewer)).thenReturn(true);
+    runtime.when(GolemancyRuntime::nodeWeaving).thenReturn(Optional.of(policy));
+    items.when(() -> GolemItems.kindOf(any(ItemStack.class))).thenReturn(Optional.of(GolemItemKind.NODE));
+    RevealService service = new RevealService(RevealSettings::defaults);
+
+    service.update(viewer);
+
+    for (Entity entity : bundle.entities()) {
+      displays.verify(() -> HiddenDisplays.show(viewer, entity), never());
+    }
+
+    items.when(() -> GolemItems.kindOf(any(ItemStack.class))).thenReturn(Optional.of(GolemItemKind.CROOK));
+    service.update(viewer);
+
+    for (Entity entity : bundle.entities()) {
+      displays.verify(() -> HiddenDisplays.show(viewer, entity));
+    }
+  }
+
+  @Test
+  void aViewerWhoSwitchesTheWorkAreaOutlineOffSeesNoOutline() {
+    NodeKey key = new NodeKey(WORLD, 4, 64, 0, BlockFace.UP);
+    nodeBundle(key, OWNER);
+    runtime.when(GolemancyRuntime::nodeSettings).thenReturn(NodeSettings.defaults());
+    NodeWeavingPolicy policy = mock(NodeWeavingPolicy.class);
+    when(policy.hidesOutline(viewer)).thenReturn(true);
+    runtime.when(GolemancyRuntime::nodeWeaving).thenReturn(Optional.of(policy));
+    lenient().when(viewer.getWorld()).thenReturn(world);
+    Block anchor = mock(Block.class);
+    lenient().when(anchor.getWorld()).thenReturn(world);
+    lenient().when(anchor.getX()).thenReturn(4);
+    lenient().when(anchor.getY()).thenReturn(64);
+    lenient().when(anchor.getZ()).thenReturn(0);
+    lenient().when(world.rayTraceBlocks(any(Location.class), any(Vector.class), eq(NodeOutline.LOOK_DISTANCE), eq(FluidCollisionMode.NEVER), eq(true)))
+        .thenReturn(new RayTraceResult(new Vector(4.5D, 65D, 0.5D), anchor, BlockFace.UP));
+    RevealService service = new RevealService(RevealSettings::defaults);
+
+    try (MockedStatic<ViewerDisplayDirector> director = mockStatic(ViewerDisplayDirector.class);
+         MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      bukkit.when(() -> Bukkit.createBlockData(any(Material.class))).thenReturn(mock(BlockData.class));
+      service.update(viewer);
+      director.verify(() -> ViewerDisplayDirector.showLine(eq(NodeOutline.CHANNEL), anyString(), eq(viewer), any(Location.class), any(Location.class),
+          any(BlockData.class), any(Color.class), anyDouble(), eq(NodeOutline.DURATION_TICKS)), never());
+
+      when(policy.hidesOutline(viewer)).thenReturn(false);
+      service.update(viewer);
+      director.verify(() -> ViewerDisplayDirector.showLine(eq(NodeOutline.CHANNEL), anyString(), eq(viewer), any(Location.class), any(Location.class),
+          any(BlockData.class), any(Color.class), anyDouble(), eq(NodeOutline.DURATION_TICKS)), times(12));
+    }
+  }
+
   private NodeBundle nodeBundle(NodeKey key, UUID owner) {
     NodeIndex index = new NodeIndex();
     long generation = index.beginLoad(WORLD, key.chunkKey());

@@ -34,6 +34,8 @@ import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.ServantPack;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -63,9 +65,11 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
   private static final String SCALE_SLOT = "scale";
   private static final String LATTICE_SLOT = "lattice_";
+  private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, GolemancyPreferences.OBEY_OVERSEER);
 
+  private final OwnerPreferences owners = new OwnerPreferences(this);
   private final Map<UUID, Ember> embers = new ConcurrentHashMap<>();
-  private final OverseerServants servants = new OverseerServants(this::ownerLevel, this::channels, this::pack);
+  private final OverseerServants servants = new OverseerServants(this::obeysOverseer, this::channels, this::pack);
   private final ServantFrame.Frame frame = new Frame();
   private volatile GolemRunicAugments augments;
   private volatile AspectCache aspects;
@@ -111,6 +115,11 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
+  }
+
+  @Override
   public boolean hasTickDemand() {
     return !embers.isEmpty();
   }
@@ -119,6 +128,10 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   public void onTick() {
     long now = M.ms();
     embers.values().removeIf(ember -> ember.expiresAt() <= now);
+  }
+
+  boolean obeysOverseer(UUID owner) {
+    return ownerLevel(owner) >= 1 && owners.enabled(owner, GolemancyPreferences.OBEY_OVERSEER);
   }
 
   int channels(UUID owner) {

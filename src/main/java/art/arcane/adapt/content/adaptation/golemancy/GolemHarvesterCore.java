@@ -26,8 +26,11 @@ import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -50,7 +53,10 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
   private static final int RECIPE_LEVEL = 1;
   private static final double TICKS_PER_SECOND = 20D;
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
+  private static final List<PlayerPreference<?>> PREFERENCES =
+      List.of(CommonPreferences.ENABLED, GolemancyPreferences.TENDING, GolemancyPreferences.TILLING);
 
+  private final OwnerPreferences owners = new OwnerPreferences(this);
   private final Map<UUID, Long> tends = new ConcurrentHashMap<>();
   private final HarvestSpots spots = new HarvestSpots();
   private final HarvestActions actions = new HarvestActions(this, ThreadLocalRandom::current);
@@ -111,6 +117,20 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
+  }
+
+  @Override
+  public boolean isPlayerPreferenceVisible(AdaptPlayer player, PlayerPreference<?> preference) {
+    Config config = getConfig();
+    if (preference == GolemancyPreferences.TENDING) {
+      return GolemancyRules.unlocked(getLevel(player), config.tendingLevel);
+    }
+    return preference != GolemancyPreferences.TILLING || GolemancyRules.unlocked(getLevel(player), config.tillingLevel);
+  }
+
+  @Override
   public boolean hasTickDemand() {
     return !tends.isEmpty() || spots.pending();
   }
@@ -141,6 +161,14 @@ public class GolemHarvesterCore extends SimpleAdaptation<GolemHarvesterCore.Conf
 
   void tended(UUID golem, long nowMillis) {
     tends.put(golem, nowMillis);
+  }
+
+  boolean tends(UUID owner) {
+    return owners.enabled(owner, GolemancyPreferences.TENDING);
+  }
+
+  boolean tills(UUID owner) {
+    return owners.enabled(owner, GolemancyPreferences.TILLING);
   }
 
   void sweep(long nowMillis) {

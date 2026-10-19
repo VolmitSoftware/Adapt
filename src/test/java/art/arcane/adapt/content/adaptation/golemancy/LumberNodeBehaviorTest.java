@@ -87,6 +87,7 @@ class LumberNodeBehaviorTest {
   void setUp() {
     core = mock(GolemLumberCore.class);
     lenient().when(core.config()).thenReturn(config);
+    lenient().when(core.sweepsLeaves(OWNER)).thenReturn(true);
     level(5);
     behavior = new LumberNodeBehavior(core, fellings, rejections, new LumberActions(core, block -> stamped.contains(position(block))));
     feedback = mockStatic(LumberFeedback.class);
@@ -435,6 +436,24 @@ class LumberNodeBehaviorTest {
   }
 
   @Test
+  void anOwnerWhoSwitchesLeafSweepOffLeavesTheLeavesAndFinishesOnceTheLogsAreDown() {
+    level(3);
+    when(core.sweepsLeaves(OWNER)).thenReturn(false);
+    tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
+    GolemTask task = fell(0, 64, 0);
+    behavior.act(golem(0, NOW), task);
+    behavior.act(golem(1, NOW + 1_000L), task);
+    behavior.act(golem(2, NOW + 2_000L), task);
+    int leaves = leafCount();
+
+    assertThat(behavior.act(golem(3, NOW + 3_000L), task)).isEqualTo(GolemActResult.DONE);
+
+    assertThat(logs(0, 0)).isEmpty();
+    assertThat(leafCount()).isEqualTo(leaves);
+    feedback.verify(() -> LumberFeedback.play(eq(core), any(Location.class), eq(LumberFeedback.Kind.SWEEP)), never());
+  }
+
+  @Test
   void anEntropyRuneCanDoubleFelledDrops() {
     tree(Material.OAK_LOG, Material.OAK_LEAVES, 0, 0, 5, false);
     GolemTask task = fell(0, 64, 0);
@@ -747,6 +766,7 @@ class LumberNodeBehaviorTest {
     lenient().when(state.homeChest()).thenAnswer(invocation -> homeChest);
     GolemHandle handle = mock(GolemHandle.class);
     lenient().when(handle.id()).thenReturn(GOLEM);
+    lenient().when(handle.owner()).thenReturn(OWNER);
     lenient().when(handle.body()).thenAnswer(invocation -> body);
     lenient().when(handle.state()).thenReturn(state);
     lenient().when(golem.handle()).thenReturn(handle);

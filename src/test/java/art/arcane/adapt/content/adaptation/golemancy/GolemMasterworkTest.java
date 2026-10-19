@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.plinth.InfusionRecipe;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
@@ -45,6 +46,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -236,6 +238,41 @@ class GolemMasterworkTest extends AdaptTestBase {
     doReturn(0).when(learned).ownerLevel(OWNER);
     learned.onTick();
     verify(learned, times(1)).auraFx(any(Mob.class));
+  }
+
+  @Test
+  void theAuraStaysHiddenForAnOwnerWhoSwitchesItOff() {
+    GolemMasterwork learned = learned(1);
+    AdaptPlayer owner = mock(AdaptPlayer.class);
+    Player player = mock(Player.class);
+    when(owner.getPlayer()).thenReturn(player);
+    when(player.getUniqueId()).thenReturn(OWNER);
+    doReturn(List.of(owner)).when(learned).learnedCandidates(anyLong());
+    lenient().doNothing().when(learned).auraFx(any(Mob.class));
+    doReturn(false).when(learned).showsAura(owner);
+    GolemHandle shining = handle(true, false);
+    GolemRegistry registry = mock(GolemRegistry.class);
+    lenient().when(registry.loadedOf(OWNER)).thenReturn(List.of(shining));
+    runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+
+    learned.onTick();
+
+    verify(learned, never()).auraFx(any(Mob.class));
+  }
+
+  @Test
+  void theAuraControlIsListedDefaultsOnAndReadsTheOwnersChoice() {
+    assertThat(adaptation.getPlayerPreferences()).containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.AURA);
+    AdaptPlayer owner = mock(AdaptPlayer.class);
+    PlayerData data = new PlayerData();
+    when(owner.getData()).thenReturn(data);
+    GolemMasterwork learned = spy(adaptation);
+    doReturn(1).when(learned).getLevel(owner);
+
+    assertThat(learned.showsAura(owner)).isTrue();
+
+    data.getPreferences().set("golem-masterwork", "aura", "OFF");
+    assertThat(learned.showsAura(owner)).isFalse();
   }
 
   @Test

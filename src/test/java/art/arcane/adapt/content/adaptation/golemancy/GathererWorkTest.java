@@ -140,6 +140,8 @@ class GathererWorkTest {
     core = mock(GolemGathererCore.class);
     lenient().when(core.config()).thenReturn(config);
     lenient().when(core.ownerLevel(OWNER)).thenAnswer(invocation -> level.get());
+    lenient().when(core.magnets(OWNER)).thenReturn(true);
+    lenient().when(core.absorbsOrbs(OWNER)).thenReturn(true);
     work = new GathererWork(core, deathSites);
     owner = mock(Player.class, withSettings().strictness(Strictness.LENIENT));
     when(owner.getUniqueId()).thenReturn(OWNER);
@@ -552,6 +554,43 @@ class GathererWorkTest {
     assertThat(pull.length()).isCloseTo(GathererWork.PULL_SPEED, offset(1.0E-6));
     assertThat(velocities).doesNotContainKeys(far, waiting);
     assertThat(carried.get()).isZero();
+  }
+
+  @Test
+  void theMagnetPullsNothingWhileTheOwnerHasItSwitchedOff() {
+    when(core.magnets(OWNER)).thenReturn(false);
+    Item near = item(Material.WHEAT, 1, at(2.5D, 64D, 0.5D));
+    level.set(4);
+
+    work.tick(golem);
+
+    assertThat(velocities).isEmpty();
+    assertThat(removed).doesNotContain(near);
+
+    when(core.magnets(OWNER)).thenReturn(true);
+    work.tick(golem);
+
+    assertThat(velocities).containsOnlyKeys(near);
+  }
+
+  @Test
+  void orbsAreLeftForTheOwnerWhileTheyHaveAbsorbingSwitchedOff() {
+    when(core.absorbsOrbs(OWNER)).thenReturn(false);
+    level.set(5);
+    ExperienceOrb close = orb(5, 1, at(0.5D, 64D, 1.0D));
+    ExperienceOrb farther = orb(7, 1, at(2.5D, 64D, 0.5D));
+
+    assertThat(work.seek(golem)).isEmpty();
+    work.tick(golem);
+    target.set(farther);
+    assertThat(work.act(golem, absorbTask(farther))).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(removed).doesNotContain(close, farther);
+    assertThat(essence.get()).isZero();
+
+    when(core.absorbsOrbs(OWNER)).thenReturn(true);
+    assertThat(work.act(golem, absorbTask(farther))).isEqualTo(GolemActResult.DONE);
+    assertThat(removed).contains(farther);
   }
 
   @Test

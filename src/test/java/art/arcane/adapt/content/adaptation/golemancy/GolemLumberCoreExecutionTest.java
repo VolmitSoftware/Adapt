@@ -17,12 +17,14 @@ import art.arcane.adapt.api.golem.node.NodeContext;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import art.arcane.adapt.api.recipe.ExactItemResolver;
 import art.arcane.adapt.api.recipe.RecipeItemCatalog;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
@@ -89,6 +91,22 @@ class GolemLumberCoreExecutionTest extends AdaptTestBase {
   @AfterEach
   void close() {
     parsers.close();
+  }
+
+  @Test
+  void theLeafSweepControlAppearsOnceItsLevelUnlocks() {
+    assertThat(adaptation.getPlayerPreferences()).containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.LEAF_SWEEP);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.LEAF_SWEEP, 3);
+  }
+
+  @Test
+  void leafSweepFollowsTheOwnersChoiceAndDefaultsOn() {
+    when(plugin.getAdaptServer()).thenReturn(mock(AdaptServer.class));
+
+    assertThat(adaptation.sweepsLeaves(OWNER)).isTrue();
+
+    GolemancyPreferenceAssertions.serverDefault(adaptation, GolemancyPreferences.LEAF_SWEEP, "OFF");
+    assertThat(adaptation.sweepsLeaves(OWNER)).isFalse();
   }
 
   @Test

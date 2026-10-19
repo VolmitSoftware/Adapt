@@ -155,7 +155,7 @@ final class LumberNodeBehavior implements NodeBehavior {
     if (!felling.felled()) {
       return GolemActResult.WORKING;
     }
-    if (plan.sweep()) {
+    if (plan.sweep() && core.sweepsLeaves(golem.handle().owner())) {
       List<LumberTrees.Part> leaves = LumberTrees.leafCandidates(view, felling.tree().logParts());
       if (!leaves.isEmpty()) {
         felling.settle(golem.nowMillis() + SETTLE_MILLIS, leaves);

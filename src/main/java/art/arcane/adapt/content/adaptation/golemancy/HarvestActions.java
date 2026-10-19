@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.random.RandomGenerator;
@@ -36,7 +37,9 @@ final class HarvestActions {
   }
 
   HarvesterRules.Plan plan(int level, NodeRecord node) {
-    return HarvesterRules.plan(core.config(), core.crops(), level, node, NodeItemTags.shared());
+    HarvesterRules.Plan plan = HarvesterRules.plan(core.config(), core.crops(), level, node, NodeItemTags.shared());
+    UUID owner = node.owner();
+    return plan.withPractices(plan.tending() && core.tends(owner), plan.tilling() && core.tills(owner));
   }
 
   int intervalTicks(GolemContext golem) {

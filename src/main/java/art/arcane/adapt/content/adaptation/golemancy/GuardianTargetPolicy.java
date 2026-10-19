@@ -98,7 +98,7 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
       return;
     }
     GolemGuardianCore.Config config = core.config();
-    if (!GolemancyRules.unlocked(core.ownerLevel(golem), config.interceptLevel)) {
+    if (!GolemancyRules.unlocked(core.ownerLevel(golem), config.interceptLevel) || !core.intercepts(owner.getUniqueId())) {
       return;
     }
     Watch watch = watch(golem, owner);
@@ -164,7 +164,8 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
     LivingEntity attacker = retaliate ? core.recentAttacker(online.getUniqueId(), now) : null;
     double sentry = golem.body() == GolemBody.FROST ? config.sentryRange : 0D;
     double leash = GolemancyRuntime.brainSettings().leashRadius();
-    GuardianRules.Options options = new GuardianRules.Options(online != null, retaliate, config.targetCreepers, config.ignoreNamedMobs);
+    boolean retaliatePlayers = retaliate && core.retaliatesAgainstPlayers(online.getUniqueId());
+    GuardianRules.Options options = new GuardianRules.Options(online != null, retaliate, retaliatePlayers, config.targetCreepers, config.ignoreNamedMobs);
     double perception = GuardianRules.perception(config.perceptionByLevel, level, GolemRunes.effects(golem).radiusBonus(), leash);
     return new Watch(body, here, golem.owner(), online, anchor, perception, sentry, home, leash, nodes, attacker, options, now);
   }

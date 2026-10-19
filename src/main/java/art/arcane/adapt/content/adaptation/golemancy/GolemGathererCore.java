@@ -29,8 +29,11 @@ import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.volmlib.util.format.Form;
@@ -45,6 +48,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config> {
   static final String CORE_RECIPE = "golemancy-gatherer-core";
@@ -53,7 +57,10 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
   private static final int RECIPE_LEVEL = 1;
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
   private static final long MILLIS_PER_SECOND = 1_000L;
+  private static final List<PlayerPreference<?>> PREFERENCES =
+      List.of(CommonPreferences.ENABLED, GolemancyPreferences.MAGNET, GolemancyPreferences.ABSORB_ORBS);
 
+  private final OwnerPreferences owners = new OwnerPreferences(this);
   private final GatherDeathSites deathSites = new GatherDeathSites();
   private final GathererWork work = new GathererWork(this, deathSites);
   private final CollectionNodeBehavior collection = new CollectionNodeBehavior(this, work);
@@ -118,6 +125,20 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
+  }
+
+  @Override
+  public boolean isPlayerPreferenceVisible(AdaptPlayer player, PlayerPreference<?> preference) {
+    Config config = getConfig();
+    if (preference == GolemancyPreferences.MAGNET) {
+      return GathererRules.unlocked(getLevel(player), config.magnetLevel) && config.magnetRadius > 0D;
+    }
+    return preference != GolemancyPreferences.ABSORB_ORBS || GathererRules.essenceCap(config.essenceCapByLevel, getLevel(player)) > 0;
+  }
+
+  @Override
   public boolean hasTickDemand() {
     return !deathSites.isEmpty() || work.pending();
   }
@@ -140,6 +161,14 @@ public class GolemGathererCore extends SimpleAdaptation<GolemGathererCore.Config
 
   Config config() {
     return getConfig();
+  }
+
+  boolean magnets(UUID owner) {
+    return owners.enabled(owner, GolemancyPreferences.MAGNET);
+  }
+
+  boolean absorbsOrbs(UUID owner) {
+    return owners.enabled(owner, GolemancyPreferences.ABSORB_ORBS);
   }
 
   private final class GathererCarry implements GolemCapacity.Source {

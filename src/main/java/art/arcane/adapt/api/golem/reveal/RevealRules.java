@@ -27,6 +27,10 @@ public final class RevealRules {
     return (mainHand != null && reveals(mainHand)) || (offHand != null && reveals(offHand));
   }
 
+  public static boolean holdsCrook(GolemItemKind mainHand, GolemItemKind offHand) {
+    return mainHand == GolemItemKind.CROOK || offHand == GolemItemKind.CROOK;
+  }
+
   public static boolean withinRange(double distanceSquared, double range) {
     return distanceSquared <= range * range;
   }

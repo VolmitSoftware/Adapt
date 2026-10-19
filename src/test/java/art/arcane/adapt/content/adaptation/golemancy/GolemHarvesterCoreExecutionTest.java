@@ -6,12 +6,14 @@ import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import art.arcane.adapt.api.recipe.ExactItemResolver;
 import art.arcane.adapt.api.recipe.RecipeItemCatalog;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -67,6 +69,28 @@ class GolemHarvesterCoreExecutionTest extends AdaptTestBase {
   @AfterEach
   void close() {
     parsers.close();
+  }
+
+  @Test
+  void tendingAndTillingControlsAppearOnceTheirLevelsUnlock() {
+    assertThat(adaptation.getPlayerPreferences())
+        .containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.TENDING, GolemancyPreferences.TILLING);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.TENDING, 3);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.TILLING, 4);
+  }
+
+  @Test
+  void tendingAndTillingFollowTheOwnersChoicesAndDefaultOn() {
+    UUID owner = UUID.randomUUID();
+    when(plugin.getAdaptServer()).thenReturn(mock(AdaptServer.class));
+
+    assertThat(adaptation.tends(owner)).isTrue();
+    assertThat(adaptation.tills(owner)).isTrue();
+
+    GolemancyPreferenceAssertions.serverDefault(adaptation, GolemancyPreferences.TENDING, "OFF");
+    GolemancyPreferenceAssertions.serverDefault(adaptation, GolemancyPreferences.TILLING, "OFF");
+    assertThat(adaptation.tends(owner)).isFalse();
+    assertThat(adaptation.tills(owner)).isFalse();
   }
 
   @Test

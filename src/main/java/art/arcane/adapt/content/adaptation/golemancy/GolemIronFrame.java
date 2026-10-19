@@ -29,6 +29,8 @@ import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.minion.MinionTargeting;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.SkillGolemancy;
 import art.arcane.adapt.util.common.compat.PaperCompat;
@@ -68,7 +70,9 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
   static final String COLOSSUS_SOURCE = "colossus";
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
   private static final long REPAIR_WINDOW_MILLIS = 1_000L;
+  private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, GolemancyPreferences.SWEEPING_FISTS);
 
+  private final OwnerPreferences owners = new OwnerPreferences(this);
   private final GolemStatSource frameStats = new FrameStats();
   private final GolemStatSource colossusStats = new ColossusStats();
   private final GolemColossus.Form colossusForm = new ColossusForm();
@@ -122,6 +126,18 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
     if (GolemancyRules.unlocked(level, config.colossusLevel)) {
       statLore(v, Form.pc(config.colossusAttackBonus, 0), 6);
     }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
+  }
+
+  @Override
+  public boolean isPlayerPreferenceVisible(AdaptPlayer player, PlayerPreference<?> preference) {
+    Config config = getConfig();
+    return preference != GolemancyPreferences.SWEEPING_FISTS
+        || IronFrameRules.sweepTargets(config.sweepTargetsByLevel, getLevel(player), config.sweepLevel) > 0;
   }
 
   @Override
@@ -193,7 +209,7 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
       return;
     }
     Player owner = owner(handle);
-    if (owner == null) {
+    if (owner == null || !sweeps(handle.owner())) {
       return;
     }
     List<LivingEntity> victims = sweepVictims(golem, victim, owner, cap, config.sweepRadius);
@@ -217,6 +233,10 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
   Player owner(GolemHandle handle) {
     AdaptPlayer owner = getServer().getOnlineAdaptPlayer(handle.owner());
     return owner == null ? null : owner.getPlayer();
+  }
+
+  boolean sweeps(UUID owner) {
+    return owners.enabled(owner, GolemancyPreferences.SWEEPING_FISTS);
   }
 
   boolean canSweep(Player owner, LivingEntity candidate) {

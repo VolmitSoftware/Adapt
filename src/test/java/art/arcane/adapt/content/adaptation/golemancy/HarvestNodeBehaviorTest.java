@@ -88,6 +88,8 @@ class HarvestNodeBehaviorTest {
     core = mock(GolemHarvesterCore.class);
     lenient().when(core.config()).thenReturn(config);
     lenient().when(core.crops()).thenReturn(HarvestCrops.parse(config.crops));
+    lenient().when(core.tends(OWNER)).thenReturn(true);
+    lenient().when(core.tills(OWNER)).thenReturn(true);
     level(5);
     actions = new HarvestActions(core, () -> fixed(roll));
     behavior = new HarvestNodeBehavior(core, spots, actions);
@@ -119,6 +121,32 @@ class HarvestNodeBehaviorTest {
 
     assertThat(jobs()).containsExactly("harvest -1,64,-1", "till -1,63,1");
     assertThat(spotsOf()).containsExactly("PLANT 1,63,1", "TEND 0,64,-1");
+  }
+
+  @Test
+  void anOwnerWhoSwitchesTillingOffGetsNoTillJobsOrEmptyFarmlandAndTillingFails() {
+    when(core.tills(OWNER)).thenReturn(false);
+    level(4);
+    plot();
+
+    behavior.scan(node(), budget(0, 75, true));
+
+    assertThat(jobs()).containsExactly("harvest -1,64,-1");
+    assertThat(spotsOf()).containsExactly("TEND 0,64,-1");
+    assertThat(behavior.act(golem(1), task("till", -1, 63, 1))).isEqualTo(GolemActResult.FAILED);
+    assertThat(field.type(-1, 63, 1)).isEqualTo(Material.DIRT);
+  }
+
+  @Test
+  void anOwnerWhoSwitchesTendingOffLeavesYoungCropsUnmarked() {
+    when(core.tends(OWNER)).thenReturn(false);
+    level(4);
+    plot();
+
+    behavior.scan(node(), budget(0, 75, true));
+
+    assertThat(jobs()).containsExactly("harvest -1,64,-1", "till -1,63,1");
+    assertThat(spotsOf()).containsExactly("PLANT 1,63,1");
   }
 
   @Test

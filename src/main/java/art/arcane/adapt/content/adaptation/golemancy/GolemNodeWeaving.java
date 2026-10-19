@@ -33,6 +33,8 @@ import art.arcane.adapt.api.golem.node.NodeRules;
 import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
 import art.arcane.adapt.api.notification.AdaptHud;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
 import art.arcane.adapt.localization.AdaptLanguage;
@@ -69,6 +71,8 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
   static final String DEPOSIT_NODE_RECIPE = "golemancy-deposit-node";
   private static final int RECIPE_LEVEL = 1;
   private static final double FEEDBACK_FACE_DISTANCE = 0.6D;
+  private static final List<PlayerPreference<?>> PREFERENCES =
+      List.of(CommonPreferences.ENABLED, GolemancyPreferences.NODE_REVEAL, GolemancyPreferences.WORK_AREA_OUTLINE);
 
   private final DepositBehavior deposits = new DepositBehavior(this);
 
@@ -111,6 +115,11 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
+  }
+
+  @Override
   public int level(Player player) {
     return getActiveLevel(player);
   }
@@ -138,6 +147,16 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
   @Override
   public boolean canAccessContainer(Player player, Location container) {
     return canAccessChest(player, container);
+  }
+
+  @Override
+  public boolean crookOnlyReveal(Player viewer) {
+    return preference(viewer, GolemancyPreferences.NODE_REVEAL) == GolemancyPreferences.NodeReveal.CROOK_ONLY;
+  }
+
+  @Override
+  public boolean hidesOutline(Player viewer) {
+    return !preferenceEnabled(viewer, GolemancyPreferences.WORK_AREA_OUTLINE);
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)

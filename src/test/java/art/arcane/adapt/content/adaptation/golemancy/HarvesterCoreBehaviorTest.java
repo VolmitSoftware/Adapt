@@ -77,6 +77,8 @@ class HarvesterCoreBehaviorTest {
     lenient().when(core.config()).thenReturn(config);
     lenient().when(core.crops()).thenReturn(HarvestCrops.parse(config.crops));
     lenient().when(core.tendReady(GOLEM, NOW)).thenReturn(true);
+    lenient().when(core.tends(OWNER)).thenReturn(true);
+    lenient().when(core.tills(OWNER)).thenReturn(true);
     level(5);
     behavior = new HarvesterCoreBehavior(core, spots, new HarvestActions(core, ThreadLocalRandom::current));
     NodeIndex index = mock(NodeIndex.class);
@@ -142,6 +144,39 @@ class HarvesterCoreBehaviorTest {
     assertThat(seek(golem(1, seeds(Material.WHEAT_SEEDS)))).isEqualTo("tend 2,64,2");
     level(2);
     assertThat(seek(golem(1, seeds(Material.WHEAT_SEEDS)))).isEmpty();
+  }
+
+  @Test
+  void anOwnerWhoSwitchesTendingOrTillingOffGetsNeitherJob() {
+    node();
+    farmland(1, 63, 0);
+    young(2, 64, 2);
+    boneMeal(5);
+
+    when(core.tills(OWNER)).thenReturn(false);
+    assertThat(seek(golem(1, seeds(Material.WHEAT_SEEDS)))).isEqualTo("tend 2,64,2");
+
+    when(core.tends(OWNER)).thenReturn(false);
+    assertThat(seek(golem(1, seeds(Material.WHEAT_SEEDS)))).isEmpty();
+
+    when(core.tills(OWNER)).thenReturn(true);
+    assertThat(seek(golem(1, seeds(Material.WHEAT_SEEDS)))).isEqualTo("plant 1,63,0");
+  }
+
+  @Test
+  void aTendOrPlantJobFailsOnceTheOwnerSwitchesItOff() {
+    field.set(2, 64, 2, Material.CARROTS, CropField.ageable(2, 7));
+    field.set(1, 63, 0, Material.FARMLAND);
+    boneMeal(5);
+    when(core.tends(OWNER)).thenReturn(false);
+    when(core.tills(OWNER)).thenReturn(false);
+
+    assertThat(behavior.act(golem(1, List.of()), task("tend", 2, 64, 2))).isEqualTo(GolemActResult.FAILED);
+    assertThat(behavior.act(golem(1, seeds(Material.WHEAT_SEEDS)), task("plant", 1, 63, 0))).isEqualTo(GolemActResult.FAILED);
+
+    assertThat(chest[4].getAmount()).isEqualTo(5);
+    assertThat(field.age(2, 64, 2)).isEqualTo(2);
+    assertThat(field.type(1, 64, 0)).isEqualTo(Material.AIR);
   }
 
   @Test

@@ -1,5 +1,6 @@
 package art.arcane.adapt.localization.catalog;
 
+import art.arcane.adapt.content.adaptation.golemancy.GolemancyPreferences;
 import art.arcane.volmlib.util.localization.LinesKey;
 import art.arcane.volmlib.util.localization.MessageCatalog;
 import art.arcane.volmlib.util.localization.TextKey;
@@ -542,6 +543,7 @@ public final class GolemancyMessages {
   }
 
   public static void addTo(MessageCatalog.Builder builder) {
+    GolemancyPreferences.addMessages(builder);
     builder.add(CROOK_NAME);
     builder.add(CROOK_LORE);
     builder.add(BLANK_CORE_NAME);

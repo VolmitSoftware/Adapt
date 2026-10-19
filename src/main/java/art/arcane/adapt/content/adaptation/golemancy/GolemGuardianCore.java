@@ -32,8 +32,11 @@ import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.minion.MinionTargeting;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -71,7 +74,10 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
   private static final int MAX_LAST_STAND_AMPLIFIER = 3;
   private static final int TICKS_PER_SECOND = 20;
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
+  private static final List<PlayerPreference<?>> PREFERENCES =
+      List.of(CommonPreferences.ENABLED, GolemancyPreferences.INTERCEPT, GolemancyPreferences.RETALIATE_PLAYERS);
 
+  private final OwnerPreferences owners = new OwnerPreferences(this);
   private final GuardNodeBehavior guard = new GuardNodeBehavior(this);
   private final GuardianTargetPolicy targets = new GuardianTargetPolicy(this, guard, M::ms);
   private final Map<UUID, Attack> attacks = new ConcurrentHashMap<>();
@@ -129,6 +135,20 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
     if (GolemancyRules.unlocked(level, config.lastStandLevel)) {
       statLore(v, Math.max(1, config.lastStandTicks) / TICKS_PER_SECOND, 5);
     }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
+  }
+
+  @Override
+  public boolean isPlayerPreferenceVisible(AdaptPlayer player, PlayerPreference<?> preference) {
+    Config config = getConfig();
+    if (preference == GolemancyPreferences.INTERCEPT) {
+      return GolemancyRules.unlocked(getLevel(player), config.interceptLevel);
+    }
+    return preference != GolemancyPreferences.RETALIATE_PLAYERS || GolemancyRules.unlocked(getLevel(player), config.retaliateLevel);
   }
 
   @Override
@@ -220,6 +240,14 @@ public class GolemGuardianCore extends SimpleAdaptation<GolemGuardianCore.Config
 
   boolean canEngage(Player owner, MinionTargeting.Candidate candidate) {
     return MinionTargeting.canDamageOwned(this, owner, candidate);
+  }
+
+  boolean intercepts(UUID owner) {
+    return owners.enabled(owner, GolemancyPreferences.INTERCEPT);
+  }
+
+  boolean retaliatesAgainstPlayers(UUID owner) {
+    return owners.enabled(owner, GolemancyPreferences.RETALIATE_PLAYERS);
   }
 
   LivingEntity recentAttacker(UUID owner, long nowMillis) {

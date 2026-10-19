@@ -861,5 +861,15 @@ class NodeServiceTest extends AdaptTestBase {
     public boolean canAccessContainer(Player player, Location container) {
       return canAccessContainer;
     }
+
+    @Override
+    public boolean crookOnlyReveal(Player viewer) {
+      return false;
+    }
+
+    @Override
+    public boolean hidesOutline(Player viewer) {
+      return false;
+    }
   }
 }

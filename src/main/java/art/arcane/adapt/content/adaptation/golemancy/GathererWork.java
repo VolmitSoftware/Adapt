@@ -84,7 +84,7 @@ final class GathererWork implements GolemCoreBehavior {
         }
       }
     }
-    if (GathererRules.essenceRoom(handle.state().essencePoints(), essenceCap(level)) > 0) {
+    if (absorbRoom(handle, handle.state().essencePoints(), level) > 0) {
       for (ExperienceOrb orb : orbs(world, area)) {
         Location at = orb.getLocation();
         if (area.contains(at) && golem.inWorkRadius(at) && absorbable(orb, now)) {
@@ -119,10 +119,10 @@ final class GathererWork implements GolemCoreBehavior {
     GolemHandle handle = golem.handle();
     int level = core.ownerLevel(handle.owner());
     GolemGathererCore.Config config = core.config();
-    double magnet = GathererRules.unlocked(level, config.magnetLevel) ? config.magnetRadius : 0D;
+    double magnet = GathererRules.unlocked(level, config.magnetLevel) && core.magnets(handle.owner()) ? config.magnetRadius : 0D;
     double instant = GathererRules.unlocked(level, config.instantPickupLevel) ? config.instantPickupRadius : 0D;
     double reach = Math.max(magnet, instant);
-    boolean absorbing = instant > 0D && GathererRules.essenceRoom(handle.state().essencePoints(), essenceCap(level)) > 0;
+    boolean absorbing = instant > 0D && absorbRoom(handle, handle.state().essencePoints(), level) > 0;
     boolean carrying = golem.room() > 0;
     if (reach <= 0D || (!carrying && !absorbing)) {
       return;
@@ -232,7 +232,7 @@ final class GathererWork implements GolemCoreBehavior {
   private GolemActResult absorb(GolemContext golem, ExperienceOrb orb, GatherArea area, int level) {
     GolemHandle handle = golem.handle();
     int essence = handle.state().essencePoints();
-    int room = GathererRules.essenceRoom(essence, essenceCap(level));
+    int room = absorbRoom(handle, essence, level);
     Location at = orb.getLocation();
     if (room <= 0 || !area.contains(at) || !golem.inWorkRadius(at) || !absorbable(orb, golem.nowMillis())) {
       return GolemActResult.FAILED;
@@ -265,6 +265,11 @@ final class GathererWork implements GolemCoreBehavior {
 
   private int essenceCap(int level) {
     return GathererRules.essenceCap(core.config().essenceCapByLevel, level);
+  }
+
+  private int absorbRoom(GolemHandle handle, int essence, int level) {
+    int room = GathererRules.essenceRoom(essence, essenceCap(level));
+    return room > 0 && core.absorbsOrbs(handle.owner()) ? room : 0;
   }
 
   private GatherArea area(GolemContext golem, int level) {

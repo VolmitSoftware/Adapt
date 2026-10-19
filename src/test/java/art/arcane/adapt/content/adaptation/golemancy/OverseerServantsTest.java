@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,10 +45,10 @@ class OverseerServantsTest extends AdaptTestBase {
   private final Map<Skeleton, ServantOrder> orders = new HashMap<>();
   private final List<Entity> pulsed = new ArrayList<>();
   private final List<Entity> scheduled = new ArrayList<>();
-  private final AtomicInteger frameLevel = new AtomicInteger(1);
+  private final AtomicBoolean obeying = new AtomicBoolean(true);
   private final AtomicInteger servantChannels = new AtomicInteger(ChannelMask.NONE);
   private final ServantPack servants = new FakePack();
-  private final OverseerServants receiver = new OverseerServants(owner -> frameLevel.get(), owner -> servantChannels.get(), () -> Optional.of(servants));
+  private final OverseerServants receiver = new OverseerServants(owner -> obeying.get(), owner -> servantChannels.get(), () -> Optional.of(servants));
   private MockedStatic<J> scheduling;
 
   @BeforeEach
@@ -128,9 +129,9 @@ class OverseerServantsTest extends AdaptTestBase {
   }
 
   @Test
-  void ownersWithoutBoneFrameAreIgnored() {
+  void ownersWhoseServantsDoNotObeyTheOverseerAreIgnored() {
     Skeleton servant = servant(at(3D, world));
-    frameLevel.set(0);
+    obeying.set(false);
 
     receiver.receive(signal(GolemSignal.FOLLOW, null, null));
 

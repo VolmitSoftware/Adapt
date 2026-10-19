@@ -24,8 +24,11 @@ import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItems;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.xp.XpProvenance;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.config.ConfigDescription;
@@ -36,13 +39,16 @@ import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
   static final String CORE_RECIPE = "golemancy-lumber-core";
   static final String NODE_RECIPE = "golemancy-lumber-node";
   private static final int RECIPE_LEVEL = 1;
   private static final long SWEEP_INTERVAL_MILLIS = 5_000L;
+  private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, GolemancyPreferences.LEAF_SWEEP);
 
+  private final OwnerPreferences owners = new OwnerPreferences(this);
   private final LumberFellings fellings = new LumberFellings();
   private final LumberRejections rejections = new LumberRejections();
   private final LumberNodeBehavior lumber = new LumberNodeBehavior(this, fellings, rejections,
@@ -98,6 +104,16 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
+  }
+
+  @Override
+  public boolean isPlayerPreferenceVisible(AdaptPlayer player, PlayerPreference<?> preference) {
+    return preference != GolemancyPreferences.LEAF_SWEEP || GolemancyRules.unlocked(getLevel(player), getConfig().leafSweepLevel);
+  }
+
+  @Override
   public boolean hasTickDemand() {
     return fellings.pending() || rejections.pending();
   }
@@ -109,6 +125,10 @@ public class GolemLumberCore extends SimpleAdaptation<GolemLumberCore.Config> {
 
   Config config() {
     return getConfig();
+  }
+
+  boolean sweepsLeaves(UUID owner) {
+    return owners.enabled(owner, GolemancyPreferences.LEAF_SWEEP);
   }
 
   void sweep(long nowMillis) {

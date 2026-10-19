@@ -26,7 +26,7 @@ final class GuardianRules {
     if (candidate.protectedFriendly()) {
       return Reason.NONE;
     }
-    if (candidate.attackedOwner() && options.ownerOnline() && options.retaliate()) {
+    if (candidate.attackedOwner() && options.ownerOnline() && options.retaliate() && (!candidate.player() || options.retaliatePlayers())) {
       return Reason.RETALIATE;
     }
     if (candidate.player()
@@ -82,6 +82,6 @@ final class GuardianRules {
                    boolean attackedOwner) {
   }
 
-  record Options(boolean ownerOnline, boolean retaliate, boolean targetCreepers, boolean ignoreNamedMobs) {
+  record Options(boolean ownerOnline, boolean retaliate, boolean retaliatePlayers, boolean targetCreepers, boolean ignoreNamedMobs) {
   }
 }

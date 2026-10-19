@@ -36,8 +36,13 @@ public final class PlayerPreferences {
 
   public static <E extends Enum<E>> E resolve(Adaptation<?> adaptation, PlayerData data, int level,
                                              PlayerPreference<E> preference) {
-    return resolve(preference, policy(adaptation, preference), level, data == null ? null
-        : data.getPreferences().get(adaptation.getName(), preference.id()));
+    return resolve(adaptation, data == null ? null : data.getPreferences(), level, preference);
+  }
+
+  public static <E extends Enum<E>> E resolve(Adaptation<?> adaptation, PlayerPreferenceData preferences, int level,
+                                             PlayerPreference<E> preference) {
+    return resolve(preference, policy(adaptation, preference), level, preferences == null ? null
+        : preferences.get(adaptation.getName(), preference.id()));
   }
 
   public static <E extends Enum<E>> E resolve(Skill<?> skill, PlayerData data, PlayerPreference<E> preference) {

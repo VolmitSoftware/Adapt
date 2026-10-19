@@ -12,6 +12,8 @@ import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.minion.MinionKind;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.inventorygui.Element;
 import art.arcane.volmlib.util.math.M;
@@ -337,6 +339,33 @@ class GolemIronFrameTest extends AdaptTestBase {
   }
 
   @Test
+  void sweepingFistsStaysOffWhileTheOwnerSwitchesItOff() {
+    IronGolem golem = ironGolem(at(0, 64, 0));
+    bound(golem, false);
+    Zombie victim = living(Zombie.class, at(1, 64, 0));
+    Zombie near = living(Zombie.class, at(2, 64, 0));
+    GolemIronFrame learned = learned(5);
+    doReturn(false).when(learned).sweeps(any());
+
+    learned.on(hit(golem, victim, 12D));
+
+    verify(near, never()).damage(anyDouble(), any(Entity.class));
+  }
+
+  @Test
+  void theSweepingFistsControlAppearsOnceItsLevelUnlocksAndDefaultsOn() {
+    assertThat(adaptation.getPlayerPreferences()).containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.SWEEPING_FISTS);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.SWEEPING_FISTS, 3);
+    UUID ownerId = UUID.randomUUID();
+    when(plugin.getAdaptServer()).thenReturn(mock(AdaptServer.class));
+
+    assertThat(adaptation.sweeps(ownerId)).isTrue();
+
+    GolemancyPreferenceAssertions.serverDefault(adaptation, GolemancyPreferences.SWEEPING_FISTS, "OFF");
+    assertThat(adaptation.sweeps(ownerId)).isFalse();
+  }
+
+  @Test
   void theColossusToggleShowsOnlyForIronGolemsOfALevelFiveOwner() {
     GolemIronFrame learned = learned(5);
     GolemIronFrame lowLevel = learned(4);
@@ -498,6 +527,7 @@ class GolemIronFrameTest extends AdaptTestBase {
     GolemIronFrame learned = spy(adaptation);
     doReturn(level).when(learned).ownerLevel(any(GolemHandle.class));
     lenient().doReturn(owner).when(learned).owner(any(GolemHandle.class));
+    lenient().doReturn(true).when(learned).sweeps(any());
     lenient().doReturn(true).when(learned).canPVE(any(Player.class), any(Entity.class));
     lenient().doNothing().when(learned).resize(any(Mob.class), anyDouble(), anyDouble(), anyDouble());
     lenient().doNothing().when(learned).refreshStats(any(GolemHandle.class));

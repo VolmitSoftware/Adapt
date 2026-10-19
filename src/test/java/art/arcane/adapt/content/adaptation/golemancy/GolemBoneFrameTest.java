@@ -14,6 +14,7 @@ import art.arcane.adapt.api.golem.GolemStatDelta;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.minion.ServantPack;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.skill.SkillRegistry;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -136,6 +137,22 @@ class GolemBoneFrameTest extends AdaptTestBase {
     learn(data, "tragoul", "tragoul-skeletal-servant", 1);
 
     assertThat(AdaptationRequirements.missing(adaptation, data)).isEmpty();
+  }
+
+  @Test
+  void servantsObeyTheOverseerOnlyWithBoneFrameAndWhileTheOwnerLeavesItOn() {
+    assertThat(adaptation.getPlayerPreferences()).containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.OBEY_OVERSEER);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.OBEY_OVERSEER, 0);
+    when(plugin.getAdaptServer()).thenReturn(mock(AdaptServer.class));
+    GolemBoneFrame learned = spy(adaptation);
+
+    doReturn(0).when(learned).ownerLevel(OWNER);
+    assertThat(learned.obeysOverseer(OWNER)).isFalse();
+    doReturn(1).when(learned).ownerLevel(OWNER);
+    assertThat(learned.obeysOverseer(OWNER)).isTrue();
+
+    GolemancyPreferenceAssertions.serverDefault(adaptation, GolemancyPreferences.OBEY_OVERSEER, "OFF");
+    assertThat(learned.obeysOverseer(OWNER)).isFalse();
   }
 
   @Test

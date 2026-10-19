@@ -9,6 +9,7 @@ import art.arcane.adapt.api.golem.node.NodeService;
 import art.arcane.adapt.api.golem.node.NodeWeavingPolicy;
 import art.arcane.adapt.api.golem.plinth.PlinthService;
 import art.arcane.adapt.api.notification.AdaptHud;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ExactIngredient;
@@ -105,6 +106,28 @@ class GolemNodeWeavingExecutionTest extends AdaptTestBase {
   void close() {
     runtime.close();
     parsers.close();
+  }
+
+  @Test
+  void nodeRevealAndTheWorkAreaOutlineArePerViewerChoicesThatDefaultToTheCurrentReveal() {
+    assertThat(adaptation.getPlayerPreferences())
+        .containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.NODE_REVEAL, GolemancyPreferences.WORK_AREA_OUTLINE);
+    assertThat(GolemancyPreferences.NODE_REVEAL.defaultValue()).isEqualTo(GolemancyPreferences.NodeReveal.ANY_ITEM);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.NODE_REVEAL, 0);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.WORK_AREA_OUTLINE, 0);
+    Player viewer = mock(Player.class);
+    GolemNodeWeaving learned = spy(adaptation);
+    doReturn(GolemancyPreferences.NodeReveal.ANY_ITEM).when(learned).preference(viewer, GolemancyPreferences.NODE_REVEAL);
+    doReturn(true).when(learned).preferenceEnabled(viewer, GolemancyPreferences.WORK_AREA_OUTLINE);
+
+    assertThat(learned.crookOnlyReveal(viewer)).isFalse();
+    assertThat(learned.hidesOutline(viewer)).isFalse();
+
+    doReturn(GolemancyPreferences.NodeReveal.CROOK_ONLY).when(learned).preference(viewer, GolemancyPreferences.NODE_REVEAL);
+    doReturn(false).when(learned).preferenceEnabled(viewer, GolemancyPreferences.WORK_AREA_OUTLINE);
+
+    assertThat(learned.crookOnlyReveal(viewer)).isTrue();
+    assertThat(learned.hidesOutline(viewer)).isTrue();
   }
 
   @Test

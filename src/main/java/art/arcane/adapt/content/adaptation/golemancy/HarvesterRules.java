@@ -191,5 +191,8 @@ final class HarvesterRules {
   }
 
   record Plan(HarvestCrops crops, boolean extended, boolean tending, boolean tilling, boolean bountiful, NodeRecord node, NodeTagLookup tags) {
+    Plan withPractices(boolean tending, boolean tilling) {
+      return new Plan(crops, extended, tending, tilling, bountiful, node, tags);
+    }
   }
 }

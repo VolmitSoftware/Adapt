@@ -10,7 +10,7 @@ import static org.assertj.core.api.Assertions.offset;
 
 class GuardianRulesTest {
   private static final List<Integer> PERCEPTION = List.of(8, 12, 16, 20, 24);
-  private static final GuardianRules.Options DEFAULTS = new GuardianRules.Options(true, false, false, true);
+  private static final GuardianRules.Options DEFAULTS = new GuardianRules.Options(true, false, true, false, true);
 
   @Test
   void perceptionFollowsTheLevelAndTreatsLevelZeroAsLevelOne() {
@@ -49,8 +49,8 @@ class GuardianRulesTest {
     assertThat(GuardianRules.reason(hostile(), DEFAULTS)).isEqualTo(GuardianRules.Reason.HOSTILE);
     assertThat(GuardianRules.reason(creeper(), DEFAULTS)).isEqualTo(GuardianRules.Reason.NONE);
     assertThat(GuardianRules.reason(named(), DEFAULTS)).isEqualTo(GuardianRules.Reason.NONE);
-    assertThat(GuardianRules.reason(creeper(), new GuardianRules.Options(true, false, true, true))).isEqualTo(GuardianRules.Reason.HOSTILE);
-    assertThat(GuardianRules.reason(named(), new GuardianRules.Options(true, false, false, false))).isEqualTo(GuardianRules.Reason.HOSTILE);
+    assertThat(GuardianRules.reason(creeper(), new GuardianRules.Options(true, false, true, true, true))).isEqualTo(GuardianRules.Reason.HOSTILE);
+    assertThat(GuardianRules.reason(named(), new GuardianRules.Options(true, false, true, false, false))).isEqualTo(GuardianRules.Reason.HOSTILE);
     assertThat(GuardianRules.reason(passive(), DEFAULTS)).isEqualTo(GuardianRules.Reason.NONE);
   }
 
@@ -61,13 +61,13 @@ class GuardianRulesTest {
 
     assertThat(GuardianRules.reason(threat, DEFAULTS)).isEqualTo(GuardianRules.Reason.THREAT);
     assertThat(GuardianRules.reason(namedThreat, DEFAULTS)).isEqualTo(GuardianRules.Reason.NONE);
-    assertThat(GuardianRules.reason(threat, new GuardianRules.Options(false, false, false, true))).isEqualTo(GuardianRules.Reason.NONE);
-    assertThat(GuardianRules.reason(hostile(), new GuardianRules.Options(false, true, false, true))).isEqualTo(GuardianRules.Reason.HOSTILE);
+    assertThat(GuardianRules.reason(threat, new GuardianRules.Options(false, false, true, false, true))).isEqualTo(GuardianRules.Reason.NONE);
+    assertThat(GuardianRules.reason(hostile(), new GuardianRules.Options(false, true, true, false, true))).isEqualTo(GuardianRules.Reason.HOSTILE);
   }
 
   @Test
   void retaliationTargetsWhateverHurtTheOwnerIncludingPlayersOnceUnlocked() {
-    GuardianRules.Options retaliating = new GuardianRules.Options(true, true, false, true);
+    GuardianRules.Options retaliating = new GuardianRules.Options(true, true, true, false, true);
     GuardianRules.Candidate player = new GuardianRules.Candidate(false, true, false, false, false, false, true);
     GuardianRules.Candidate namedCreeper = new GuardianRules.Candidate(false, false, true, true, true, false, true);
     GuardianRules.Candidate friendly = new GuardianRules.Candidate(true, false, true, false, false, true, true);
@@ -75,15 +75,25 @@ class GuardianRulesTest {
     assertThat(GuardianRules.reason(player, retaliating)).isEqualTo(GuardianRules.Reason.RETALIATE);
     assertThat(GuardianRules.reason(namedCreeper, retaliating)).isEqualTo(GuardianRules.Reason.RETALIATE);
     assertThat(GuardianRules.reason(player, DEFAULTS)).isEqualTo(GuardianRules.Reason.NONE);
-    assertThat(GuardianRules.reason(player, new GuardianRules.Options(false, true, false, true))).isEqualTo(GuardianRules.Reason.NONE);
+    assertThat(GuardianRules.reason(player, new GuardianRules.Options(false, true, true, false, true))).isEqualTo(GuardianRules.Reason.NONE);
     assertThat(GuardianRules.reason(friendly, retaliating)).isEqualTo(GuardianRules.Reason.NONE);
+  }
+
+  @Test
+  void retaliationLeavesPlayersAloneWhenTheOwnerSwitchesPlayerRetaliationOff() {
+    GuardianRules.Options mobsOnly = new GuardianRules.Options(true, true, false, false, true);
+    GuardianRules.Candidate player = new GuardianRules.Candidate(false, true, false, false, false, false, true);
+    GuardianRules.Candidate zombie = new GuardianRules.Candidate(false, false, true, false, false, false, true);
+
+    assertThat(GuardianRules.reason(player, mobsOnly)).isEqualTo(GuardianRules.Reason.NONE);
+    assertThat(GuardianRules.reason(zombie, mobsOnly)).isEqualTo(GuardianRules.Reason.RETALIATE);
   }
 
   @Test
   void playersAreNeverTargetedWithoutRetaliation() {
     GuardianRules.Candidate hostilePlayer = new GuardianRules.Candidate(false, true, true, false, false, true, false);
 
-    assertThat(GuardianRules.reason(hostilePlayer, new GuardianRules.Options(true, true, true, false))).isEqualTo(GuardianRules.Reason.NONE);
+    assertThat(GuardianRules.reason(hostilePlayer, new GuardianRules.Options(true, true, true, true, false))).isEqualTo(GuardianRules.Reason.NONE);
   }
 
   @Test

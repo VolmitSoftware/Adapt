@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.golem.overseer.OverseerReceiver;
 import art.arcane.adapt.api.golem.overseer.OverseerSignal;
 import art.arcane.adapt.api.minion.MinionIdentity;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.util.common.scheduling.J;
 import org.bukkit.DyeColor;
 import org.bukkit.FluidCollisionMode;
@@ -53,6 +54,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
@@ -103,6 +105,7 @@ class GolemOverseerTest extends AdaptTestBase {
     minions = mockStatic(MinionIdentity.class);
     Overseer.register(receiver);
     adaptation = spy(new GolemOverseer(now::get));
+    signalFeedback(GolemancyPreferences.SignalFeedback.CHIME_AND_PARTICLES);
   }
 
   @AfterEach
@@ -148,6 +151,40 @@ class GolemOverseerTest extends AdaptTestBase {
     now.addAndGet(1_000L);
     adaptation.send(player);
     assertThat(heard).hasSize(2);
+  }
+
+  @Test
+  void actionBarOnlyFeedbackSendsTheSignalWithoutTheChimeOrThePulse() {
+    level(3);
+    signalFeedback(GolemancyPreferences.SignalFeedback.ACTION_BAR_ONLY);
+    Entity golem = mock(Entity.class);
+
+    adaptation.send(player);
+
+    assertThat(heard).singleElement().satisfies(signal -> signal.reached(golem));
+    feedback.verify(() -> OverseerFeedback.sent(any(), any(), any()), never());
+    feedback.verify(() -> OverseerFeedback.pulse(any(), any()), never());
+  }
+
+  @Test
+  void chimeAndParticlesFeedbackPulsesEachGolemTheSignalReaches() {
+    level(3);
+    Entity golem = mock(Entity.class);
+
+    adaptation.send(player);
+
+    assertThat(heard).singleElement().satisfies(signal -> signal.reached(golem));
+    feedback.verify(() -> OverseerFeedback.sent(adaptation, player, GolemSignal.FOLLOW));
+    feedback.verify(() -> OverseerFeedback.pulse(any(), eq(golem)));
+  }
+
+  @Test
+  void theSignalFeedbackControlIsListedAndDefaultsToChimeAndParticles() {
+    GolemOverseer fresh = new GolemOverseer(now::get);
+
+    assertThat(fresh.getPlayerPreferences()).containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.SIGNAL_FEEDBACK);
+    assertThat(GolemancyPreferences.SIGNAL_FEEDBACK.defaultValue()).isEqualTo(GolemancyPreferences.SignalFeedback.CHIME_AND_PARTICLES);
+    GolemancyPreferenceAssertions.assertVisibleFrom(fresh, GolemancyPreferences.SIGNAL_FEEDBACK, 0);
   }
 
   @Test
@@ -352,6 +389,10 @@ class GolemOverseerTest extends AdaptTestBase {
 
   private void level(int level) {
     doReturn(level).when(adaptation).getActiveLevel(player);
+  }
+
+  private void signalFeedback(GolemancyPreferences.SignalFeedback value) {
+    lenient().doReturn(value).when(adaptation).preference(player, GolemancyPreferences.SIGNAL_FEEDBACK);
   }
 
   private void cycleToSic() {

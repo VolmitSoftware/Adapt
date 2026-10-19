@@ -10,6 +10,7 @@ import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemWorkSpeed;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.volmlib.util.inventorygui.Element;
@@ -262,9 +263,37 @@ class GolemCopperFrameTest extends AdaptTestBase {
     verify(lowLevel, never()).boost(any(CopperGolem.class), anyInt());
   }
 
+  @Test
+  void staticOverdriveStaysOffWhileTheOwnerSwitchesItOff() {
+    Location strike = new Location(world, 0.5D, 64D, 0.5D);
+    CopperGolem golem = copperGolem(new Location(world, 2.5D, 64D, 0.5D));
+    bound(golem, false);
+    GolemCopperFrame learned = learned(5);
+    doReturn(false).when(learned).allowsOverdrive(any());
+
+    learned.on(lightning(strike));
+
+    verify(learned, never()).boost(any(CopperGolem.class), anyInt());
+    assertThat(learned.hasTickDemand()).isFalse();
+  }
+
+  @Test
+  void theStaticOverdriveControlAppearsOnceItsLevelUnlocksAndDefaultsOn() {
+    assertThat(adaptation.getPlayerPreferences()).containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.STATIC_OVERDRIVE);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.STATIC_OVERDRIVE, 4);
+    UUID owner = UUID.randomUUID();
+    when(plugin.getAdaptServer()).thenReturn(mock(AdaptServer.class));
+
+    assertThat(adaptation.allowsOverdrive(owner)).isTrue();
+
+    GolemancyPreferenceAssertions.serverDefault(adaptation, GolemancyPreferences.STATIC_OVERDRIVE, "OFF");
+    assertThat(adaptation.allowsOverdrive(owner)).isFalse();
+  }
+
   private GolemCopperFrame learned(int level) {
     GolemCopperFrame learned = spy(adaptation);
     doReturn(level).when(learned).ownerLevel(any(GolemHandle.class));
+    lenient().doReturn(true).when(learned).allowsOverdrive(any());
     doNothing().when(learned).boost(any(CopperGolem.class), anyInt());
     return learned;
   }

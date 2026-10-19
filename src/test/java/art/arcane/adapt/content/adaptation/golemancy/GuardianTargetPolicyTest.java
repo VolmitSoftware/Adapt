@@ -121,6 +121,8 @@ class GuardianTargetPolicyTest {
     core = mock(GolemGuardianCore.class);
     lenient().when(core.config()).thenReturn(config);
     lenient().when(core.canEngage(any(Player.class), any(MinionTargeting.Candidate.class))).thenReturn(true);
+    lenient().when(core.intercepts(OWNER)).thenReturn(true);
+    lenient().when(core.retaliatesAgainstPlayers(OWNER)).thenReturn(true);
     level(1);
     policy = new GuardianTargetPolicy(core, new GuardNodeBehavior(core), clock::get);
     owner = player(OWNER, at(0, 64, -3));
@@ -265,6 +267,23 @@ class GuardianTargetPolicyTest {
 
     when(core.recentAttacker(OWNER, clock.get())).thenReturn(null);
     assertThat(policy.holds(golem, owner, attacker)).isFalse();
+  }
+
+  @Test
+  void retaliationSkipsAPlayerAttackerWhenTheOwnerSwitchesPlayerRetaliationOff() {
+    level(3);
+    when(core.retaliatesAgainstPlayers(OWNER)).thenReturn(false);
+    GolemHandle golem = golem(GolemBody.IRON, GolemMode.WORK, at(0, 64, 0));
+    Zombie zombie = living(Zombie.class, at(2, 64, 0));
+    Player attacker = player(UUID.randomUUID(), at(5, 64, 0));
+    when(core.recentAttacker(OWNER, clock.get())).thenReturn(attacker);
+
+    assertThat(policy.select(golem, owner)).isSameAs(zombie);
+    assertThat(policy.holds(golem, owner, attacker)).isFalse();
+
+    Skeleton biter = living(Skeleton.class, at(6, 64, 0));
+    when(core.recentAttacker(OWNER, clock.get())).thenReturn(biter);
+    assertThat(policy.select(golem, owner)).isSameAs(biter);
   }
 
   @Test
@@ -477,6 +496,24 @@ class GuardianTargetPolicyTest {
     policy.tick(golem, null);
 
     verify(chaser, never()).setTarget(any());
+  }
+
+  @Test
+  void interceptStaysOffWhileTheOwnerSwitchesItOff() {
+    level(2);
+    when(core.intercepts(OWNER)).thenReturn(false);
+    GolemHandle golem = golem(GolemBody.IRON, GolemMode.WORK, at(0, 64, 0));
+    Zombie chaser = living(Zombie.class, at(4, 64, 0));
+    when(chaser.getTarget()).thenReturn(owner);
+
+    policy.tick(golem, owner);
+
+    verify(chaser, never()).setTarget(any());
+
+    when(core.intercepts(OWNER)).thenReturn(true);
+    policy.tick(golem, owner);
+
+    verify(chaser).setTarget(golem.entity());
   }
 
   @Test

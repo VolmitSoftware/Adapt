@@ -5,6 +5,8 @@ import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemSettings;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.reveal.GolemLabelPolicy;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.recipe.AdaptRecipe;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
 import art.arcane.adapt.api.recipe.ExactIngredient;
@@ -85,6 +87,27 @@ class GolemAnimusBindingExecutionTest extends AdaptTestBase {
   void close() {
     runtime.close();
     parsers.close();
+  }
+
+  @Test
+  void theAdaptationRegistersItselfAsTheStatusLabelPolicy() {
+    runtime.verify(() -> GolemancyRuntime.setLabelPolicy(adaptation));
+    assertThat(adaptation).isInstanceOf(GolemLabelPolicy.class);
+  }
+
+  @Test
+  void hiddenStatusLabelsAreAPerOwnerChoiceThatDefaultsToShown() {
+    assertThat(adaptation.getPlayerPreferences()).containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.STATUS_LABELS);
+    assertThat(GolemancyPreferences.STATUS_LABELS.defaultValue()).isEqualTo(GolemancyPreferences.Labels.SHOWN);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.STATUS_LABELS, 0);
+    Player owner = mock(Player.class);
+    Player other = mock(Player.class);
+    GolemAnimusBinding learned = spy(adaptation);
+    doReturn(GolemancyPreferences.Labels.HIDDEN).when(learned).preference(owner, GolemancyPreferences.STATUS_LABELS);
+    doReturn(GolemancyPreferences.Labels.SHOWN).when(learned).preference(other, GolemancyPreferences.STATUS_LABELS);
+
+    assertThat(learned.hidesLabels(owner)).isTrue();
+    assertThat(learned.hidesLabels(other)).isFalse();
   }
 
   @Test

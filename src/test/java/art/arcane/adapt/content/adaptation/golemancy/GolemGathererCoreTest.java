@@ -4,7 +4,9 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemCoreBehaviors;
 import art.arcane.adapt.api.golem.GolemCoreType;
 import art.arcane.adapt.api.golem.GolemTestItems;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.math.M;
 import org.bukkit.Location;
@@ -65,6 +67,27 @@ class GolemGathererCoreTest extends AdaptTestBase {
     scheduling.close();
     time.close();
     parsers.close();
+  }
+
+  @Test
+  void magnetAndOrbControlsAppearOnceTheirLevelsUnlock() {
+    assertThat(adaptation.getPlayerPreferences())
+        .containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.MAGNET, GolemancyPreferences.ABSORB_ORBS);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.MAGNET, 4);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.ABSORB_ORBS, 2);
+  }
+
+  @Test
+  void magnetAndOrbAbsorbingFollowTheOwnersChoicesAndDefaultOn() {
+    when(plugin.getAdaptServer()).thenReturn(mock(AdaptServer.class));
+
+    assertThat(adaptation.magnets(OWNER)).isTrue();
+    assertThat(adaptation.absorbsOrbs(OWNER)).isTrue();
+
+    GolemancyPreferenceAssertions.serverDefault(adaptation, GolemancyPreferences.MAGNET, "OFF");
+    GolemancyPreferenceAssertions.serverDefault(adaptation, GolemancyPreferences.ABSORB_ORBS, "OFF");
+    assertThat(adaptation.magnets(OWNER)).isFalse();
+    assertThat(adaptation.absorbsOrbs(OWNER)).isFalse();
   }
 
   @Test

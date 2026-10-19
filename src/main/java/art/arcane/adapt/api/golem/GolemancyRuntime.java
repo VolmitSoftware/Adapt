@@ -11,6 +11,7 @@ import art.arcane.adapt.api.golem.node.NodeWork;
 import art.arcane.adapt.api.golem.plinth.PlinthHost;
 import art.arcane.adapt.api.golem.plinth.PlinthService;
 import art.arcane.adapt.api.golem.plinth.PlinthSettings;
+import art.arcane.adapt.api.golem.reveal.GolemLabelPolicy;
 import art.arcane.adapt.api.golem.reveal.RevealService;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
 import art.arcane.adapt.api.minion.MinionIdentity;
@@ -65,6 +66,7 @@ public final class GolemancyRuntime {
   private static volatile PlinthSettings plinthSettings = PlinthSettings.defaults();
   private static volatile PlinthHost plinthHost;
   private static volatile Adaptation<?> protectionPolicy;
+  private static volatile GolemLabelPolicy labelPolicy;
   private static volatile GolemBindListener bindListener = (owner, handle) -> {
   };
 
@@ -250,6 +252,14 @@ public final class GolemancyRuntime {
 
   public static void setProtectionPolicy(Adaptation<?> policy) {
     protectionPolicy = Objects.requireNonNull(policy);
+  }
+
+  public static Optional<GolemLabelPolicy> labelPolicy() {
+    return Optional.ofNullable(labelPolicy);
+  }
+
+  public static void setLabelPolicy(GolemLabelPolicy policy) {
+    labelPolicy = Objects.requireNonNull(policy);
   }
 
   public static GolemBindListener bindListener() {

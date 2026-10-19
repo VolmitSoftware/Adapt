@@ -150,12 +150,23 @@ public final class RevealService extends TickedObject {
     armed.add(viewerId);
     Map<UUID, GolemHandle> inRange = golemsInRange(viewer);
     RevealTracker.Delta<UUID> delta = golems.update(viewerId, inRange.keySet());
-    apply(viewer, delta, inRange);
-    syncStayingLabels(viewer, inRange, delta);
+    if (hidesLabels(viewer)) {
+      apply(viewer, delta, Map.of());
+      hideLabels(viewer, inRange.keySet());
+    } else {
+      apply(viewer, delta, inRange);
+      syncStayingLabels(viewer, inRange, delta);
+    }
     glowGolems(viewer, inRange);
     revealServants(viewer);
-    applyNodes(viewer, nodes.update(viewerId, nodesInRange(viewer)));
-    outlineLookedAtNode(viewer);
+    Optional<NodeWeavingPolicy> nodeWeaving = GolemancyRuntime.nodeWeaving();
+    boolean revealsNodes = nodeWeaving.isEmpty() || !nodeWeaving.get().crookOnlyReveal(viewer) || holdsCrook(viewer);
+    applyNodes(viewer, nodes.update(viewerId, revealsNodes ? nodesInRange(viewer) : Set.of()));
+    if (revealsNodes && (nodeWeaving.isEmpty() || !nodeWeaving.get().hidesOutline(viewer))) {
+      outlineLookedAtNode(viewer);
+    } else {
+      outline.forget(viewerId);
+    }
   }
 
   public void reset(Player viewer) {
@@ -451,6 +462,13 @@ public final class RevealService extends TickedObject {
     return policy.map(nodeWeaving -> nodeWeaving.level(viewer)).orElse(0);
   }
 
+  private static boolean holdsCrook(Player player) {
+    PlayerInventory inventory = player.getInventory();
+    return RevealRules.holdsCrook(
+        GolemItems.kindOf(inventory.getItemInMainHand()).orElse(null),
+        GolemItems.kindOf(inventory.getItemInOffHand()).orElse(null));
+  }
+
   private void applyNodes(Player viewer, RevealTracker.Delta<NodeKey> delta) {
     for (NodeKey node : delta.leaving()) {
       hideNode(viewer, node);
@@ -491,6 +509,19 @@ public final class RevealService extends TickedObject {
       GolemHandle handle = inRange.get(golem);
       if (handle != null) {
         showLabel(viewer, handle);
+      }
+    }
+  }
+
+  private static boolean hidesLabels(Player owner) {
+    Optional<GolemLabelPolicy> policy = GolemancyRuntime.labelPolicy();
+    return policy.isPresent() && policy.get().hidesLabels(owner);
+  }
+
+  private void hideLabels(Player owner, Set<UUID> golemIds) {
+    for (UUID golem : golemIds) {
+      if (labels.containsKey(golem)) {
+        hideLabel(owner, golem);
       }
     }
   }

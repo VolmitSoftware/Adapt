@@ -34,6 +34,8 @@ import art.arcane.adapt.api.golem.overseer.GolemSignal;
 import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.golem.overseer.OverseerSignal;
 import art.arcane.adapt.api.minion.MinionTargeting;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
 import art.arcane.adapt.api.skill.Skill;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.golemancy.GolemXpCooldowns;
@@ -71,6 +73,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.LongSupplier;
 
 import static art.arcane.volmlib.util.localization.MessageArgument.trusted;
@@ -81,6 +84,9 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
   private static final int TICKS_PER_SECOND = 20;
   private static final int JOIN_RECONCILE_TICKS = 20;
   private static final double SIC_RAY_SIZE = 0.3D;
+  private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, GolemancyPreferences.SIGNAL_FEEDBACK);
+  private static final Consumer<Entity> NO_PULSE = golem -> {
+  };
 
   private final LongSupplier clock;
   private final Map<UUID, GolemSignal> signals = new ConcurrentHashMap<>();
@@ -151,6 +157,11 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
     if (GolemancyRules.unlocked(level, config.formationLevel)) {
       statLore(v, Form.f(config.formationArmorMax, 0), 5);
     }
+  }
+
+  @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
   }
 
   @Override
@@ -231,9 +242,12 @@ public class GolemOverseer extends SimpleAdaptation<GolemOverseer.Config> {
     OverseerSignal.Rally rally = signal == GolemSignal.FOLLOW && GolemancyRules.unlocked(level, config.rallyLevel) && player.isOnGround()
         ? new OverseerRally(rallyCooldowns, owner, now, config.rallyCooldownSeconds * MILLIS_PER_SECOND)
         : null;
+    boolean chime = preference(player, GolemancyPreferences.SIGNAL_FEEDBACK) == GolemancyPreferences.SignalFeedback.CHIME_AND_PARTICLES;
     Overseer.dispatch(new OverseerSignal(owner, signal, player.getLocation(), OverseerRules.radius(config.radiusByLevel, level), channel, target,
-        now + config.sicHoldSeconds * MILLIS_PER_SECOND, rally, this::pulse));
-    OverseerFeedback.sent(this, player, signal);
+        now + config.sicHoldSeconds * MILLIS_PER_SECOND, rally, chime ? this::pulse : NO_PULSE));
+    if (chime) {
+      OverseerFeedback.sent(this, player, signal);
+    }
     if (target != null) {
       glow.show(player, target, config.sicGlowSeconds * TICKS_PER_SECOND);
     }

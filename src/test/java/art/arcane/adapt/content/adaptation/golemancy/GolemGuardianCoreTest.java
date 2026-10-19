@@ -9,7 +9,9 @@ import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemVitals;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.preference.CommonPreferences;
 import art.arcane.adapt.api.recipe.ConfiguredRecipeParser;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.math.M;
 import io.papermc.paper.registry.RegistryAccess;
@@ -141,6 +143,30 @@ class GolemGuardianCoreTest extends AdaptTestBase {
     assertThat(config.sentryRange).isEqualTo(10D);
     assertThat(config.requires).containsExactly("golem-animus-binding:1");
     assertThat(config.maxLevel).isEqualTo(5);
+  }
+
+  @Test
+  void interceptAndPlayerRetaliationControlsAppearOnceTheirLevelsUnlock() {
+    assertThat(adaptation.getPlayerPreferences())
+        .containsExactly(CommonPreferences.ENABLED, GolemancyPreferences.INTERCEPT, GolemancyPreferences.RETALIATE_PLAYERS);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.INTERCEPT, 2);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, GolemancyPreferences.RETALIATE_PLAYERS, 3);
+    GolemancyPreferenceAssertions.assertVisibleFrom(adaptation, CommonPreferences.ENABLED, 0);
+  }
+
+  @Test
+  void interceptAndPlayerRetaliationFollowTheOwnersChoicesAndDefaultOn() {
+    when(plugin.getAdaptServer()).thenReturn(mock(AdaptServer.class));
+
+    assertThat(adaptation.intercepts(OWNER)).isTrue();
+    assertThat(adaptation.retaliatesAgainstPlayers(OWNER)).isTrue();
+
+    GolemancyPreferenceAssertions.serverDefault(adaptation, GolemancyPreferences.INTERCEPT, "OFF");
+    assertThat(adaptation.intercepts(OWNER)).isFalse();
+    assertThat(adaptation.retaliatesAgainstPlayers(OWNER)).isTrue();
+
+    GolemancyPreferenceAssertions.serverDefault(adaptation, GolemancyPreferences.RETALIATE_PLAYERS, "OFF");
+    assertThat(adaptation.retaliatesAgainstPlayers(OWNER)).isFalse();
   }
 
   @Test

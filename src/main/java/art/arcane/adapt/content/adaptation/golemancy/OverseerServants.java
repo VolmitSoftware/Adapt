@@ -12,16 +12,17 @@ import org.bukkit.entity.Skeleton;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 
 final class OverseerServants implements OverseerReceiver {
-  private final ToIntFunction<UUID> frameLevel;
+  private final Predicate<UUID> obeys;
   private final ToIntFunction<UUID> channels;
   private final Supplier<Optional<ServantPack>> pack;
 
-  OverseerServants(ToIntFunction<UUID> frameLevel, ToIntFunction<UUID> channels, Supplier<Optional<ServantPack>> pack) {
-    this.frameLevel = Objects.requireNonNull(frameLevel);
+  OverseerServants(Predicate<UUID> obeys, ToIntFunction<UUID> channels, Supplier<Optional<ServantPack>> pack) {
+    this.obeys = Objects.requireNonNull(obeys);
     this.channels = Objects.requireNonNull(channels);
     this.pack = Objects.requireNonNull(pack);
   }
@@ -29,7 +30,7 @@ final class OverseerServants implements OverseerReceiver {
   @Override
   public void receive(OverseerSignal signal) {
     UUID owner = signal.owner();
-    if (!BoneFrameRules.obeys(signal.signal()) || frameLevel.applyAsInt(owner) < 1 || !signal.hears(channels.applyAsInt(owner))) {
+    if (!BoneFrameRules.obeys(signal.signal()) || !obeys.test(owner) || !signal.hears(channels.applyAsInt(owner))) {
       return;
     }
     Optional<ServantPack> servants = pack.get();

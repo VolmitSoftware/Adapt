@@ -32,6 +32,9 @@ import art.arcane.adapt.api.golem.GolemStatDelta;
 import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.preference.CommonPreferences;
+import art.arcane.adapt.api.preference.PlayerPreference;
+import art.arcane.adapt.api.preference.PlayerPreferences;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -57,6 +60,7 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
   private static final double AURA_RADIUS = 0.6D;
   private static final int AURA_POINTS = 6;
   private static final float AURA_SIZE = 0.8F;
+  private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, GolemancyPreferences.AURA);
 
   private final GolemStatSource healthStats = new HealthStats();
   private final GolemMastery.Source mastery = new Mastery();
@@ -92,6 +96,11 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
   }
 
   @Override
+  public List<PlayerPreference<?>> getPlayerPreferences() {
+    return PREFERENCES;
+  }
+
+  @Override
   public void onTick() {
     Optional<GolemRegistry> registry = GolemancyRuntime.registry();
     if (registry.isEmpty()) {
@@ -99,7 +108,7 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
     }
     for (AdaptPlayer learner : learnedCandidates(M.ms())) {
       UUID owner = learner.getPlayer().getUniqueId();
-      if (ownerLevel(owner) < 1) {
+      if (ownerLevel(owner) < 1 || !showsAura(learner)) {
         continue;
       }
       for (GolemHandle handle : registry.get().loadedOf(owner)) {
@@ -143,6 +152,10 @@ public class GolemMasterwork extends SimpleAdaptation<GolemMasterwork.Config> {
   boolean coreUnlocked(UUID owner, GolemCoreType core) {
     AdaptPlayer player = getServer().getOnlineAdaptPlayer(owner);
     return player != null && getActiveSiblingLevel(player.getPlayer(), "golem-" + core.id() + "-core") >= 1;
+  }
+
+  boolean showsAura(AdaptPlayer learner) {
+    return PlayerPreferences.resolve(this, learner.getData(), getLevel(learner), GolemancyPreferences.AURA) == CommonPreferences.Toggle.ON;
   }
 
   void aura(GolemHandle handle) {

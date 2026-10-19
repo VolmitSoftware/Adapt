@@ -39,6 +39,14 @@ class RevealRulesTest {
   }
 
   @Test
+  void onlyTheCrookInEitherHandCountsForCrookOnlyReveal() {
+    assertThat(RevealRules.holdsCrook(GolemItemKind.CROOK, null)).isTrue();
+    assertThat(RevealRules.holdsCrook(null, GolemItemKind.CROOK)).isTrue();
+    assertThat(RevealRules.holdsCrook(GolemItemKind.NODE, GolemItemKind.CORE)).isFalse();
+    assertThat(RevealRules.holdsCrook(null, null)).isFalse();
+  }
+
+  @Test
   void shownTargetsGetTwoBlocksOfSlackBeforeTheyLeave() {
     assertThat(RevealRules.inRevealRange(32D * 32D, 32D, false)).isTrue();
     assertThat(RevealRules.inRevealRange(33D * 33D, 32D, false)).isFalse();
