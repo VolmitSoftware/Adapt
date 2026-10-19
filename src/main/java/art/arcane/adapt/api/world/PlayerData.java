@@ -290,25 +290,25 @@ public class PlayerData {
       if (playSounds) {
         notifications.add(SoundNotification.builder()
             .sound(Sound.BLOCK_ENCHANTMENT_TABLE_USE)
-            .volume(1f)
+            .volume(0.5f)
             .pitch(0.54f)
             .group("lvl")
             .build());
         notifications.add(SoundNotification.builder()
             .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-            .volume(1f)
+            .volume(0.5f)
             .pitch(0.44f)
             .group("lvl")
             .build());
         notifications.add(SoundNotification.builder()
             .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-            .volume(1f)
+            .volume(0.5f)
             .pitch(0.74f)
             .group("lvl")
             .build());
         notifications.add(SoundNotification.builder()
             .sound(Sound.BLOCK_AMETHYST_BLOCK_CHIME)
-            .volume(1f)
+            .volume(0.5f)
             .pitch(1.34f)
             .group("lvl")
             .build());

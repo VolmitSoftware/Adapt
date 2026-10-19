@@ -67,15 +67,15 @@ class AdaptConfigTest {
         String canonical = TomlCodec.toToml(config, "core-config");
 
         assertThat(config.isAdvancementUnlockToasts()).isTrue();
-        assertThat(config.getLevelMilestoneSoundVolume()).isEqualTo(0.35D);
+        assertThat(config.getLevelMilestoneSoundVolume()).isEqualTo(0.175D);
         assertThat(canonical)
             .contains("advancementUnlockToasts = true")
-            .contains("levelMilestoneSoundVolume = 0.35");
+            .contains("levelMilestoneSoundVolume = 0.175");
 
         AdaptConfig configured = TomlCodec.fromToml(
             canonical
                 .replace("advancementUnlockToasts = true", "advancementUnlockToasts = false")
-                .replace("levelMilestoneSoundVolume = 0.35", "levelMilestoneSoundVolume = 0.1"),
+                .replace("levelMilestoneSoundVolume = 0.175", "levelMilestoneSoundVolume = 0.1"),
             AdaptConfig.class
         );
 

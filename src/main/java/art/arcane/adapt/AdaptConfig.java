@@ -93,7 +93,7 @@ public class AdaptConfig {
   @ConfigDoc(value = "Controls whether Adapt shows the client advancement toast when an achievement unlocks.", impact = "Disable this to suppress Adapt's achievement popup and its client-controlled toast sound while still recording the achievement.")
   private boolean advancementUnlockToasts = true;
   @ConfigDoc(value = "Volume of Adapt's explicit level-up sounds on every tenth skill level.", impact = "Accepts 0.0 to mute these sounds through 1.0 for full volume; this cannot change the Minecraft client's built-in advancement-toast sound volume.")
-  private double levelMilestoneSoundVolume = 0.35D;
+  private double levelMilestoneSoundVolume = 0.175D;
   private boolean useEnchantmentTableParticleForActiveEffects = true;
   @ConfigDoc(value = "Controls whether pressing Escape closes the entire Adapt GUI stack.", impact = "When disabled, Escape returns to the parent Adapt menu until the player reaches the root Skills menu.")
   private boolean escClosesAllGuis = false;
@@ -318,7 +318,7 @@ public class AdaptConfig {
     playerXpPerSkillLevelUpLevelMultiplier = normalizeNonNegativeFinite(playerXpPerSkillLevelUpLevelMultiplier, 44D);
     powerPerLevel = normalizeNonNegativeFinite(powerPerLevel, 0.65D);
     xpCurve = xpCurve == null ? Curves.ADAPT_BALANCED : xpCurve;
-    levelMilestoneSoundVolume = normalizeVolume(levelMilestoneSoundVolume, 0.35D);
+    levelMilestoneSoundVolume = normalizeVolume(levelMilestoneSoundVolume, 0.175D);
     actionbarXpDurationMillis = normalizePopupDuration(actionbarXpDurationMillis);
     actionbarLevelDurationMillis = normalizePopupDuration(actionbarLevelDurationMillis);
   }
