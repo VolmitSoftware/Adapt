@@ -389,3 +389,22 @@ An entry, adaptation or showcase, can list frames to extract from its exported c
 - After the export of a take, ffmpeg writes each still at full resolution to `build/demo/<skill>/stills/<id>-<name>.png`. A time past the end of the clip fails the export of that take, like any other export error. `--export-only` uses the stills the sheet declares now.
 - The gallery shows each extracted still under the clips of its take.
 - `docs_sync.py` copies the stills to `../docs/adapt-assets/demos/<skill>/` when they are new or changed. It never embeds them in a page.
+
+## Golemancy media
+
+Crafting-recipe images, infusion images, and structure diagrams for the Golemancy page are rendered from the real default configuration and the Minecraft client jar, not drawn by hand. No clip is recorded and no client starts.
+
+```
+./gradlew exportGolemancyMedia
+python3 src/test/demo/media_render.py --recipes build/demo/golemancy-media/recipes.json --client-jar "<client jar>" --out build/demo/golemancy-media
+```
+
+- `exportGolemancyMedia` runs the JUnit test `GolemancyMediaExportTest`, tagged `media-export`, which `./gradlew test` skips. It writes `build/demo/golemancy-media/recipes.json` from the default `ConfiguredShapedRecipe` fields of the Golemancy adaptation configs, `InfusionRecipe.defaults()`, and the default `requires` of the 19 adaptations. Each custom `golemancy:` item is built through `GolemItems`, so its name, base material, and firework-star tint are the ones the plugin uses. `GolemancyMediaCatalogTest` runs in the normal test task and checks that every recipe field of the adaptation configs is exported and that the adaptation ids match `adaptation-matrix.json`.
+- `recipes.json` holds `items` (custom items: `name`, `base`, `tint`, `tier`), `recipes` (`id`, `result`, `yield`, `tithe`, `pattern`, `key`), `infusions` (`id`, `center`, `pedestals`, `result`, `essenceLevels`, `durationTicks`), and `adaptations` (`id`, `name`, `requires` as `{id, level}`).
+- `--client-jar` defaults to `~/Library/Application Support/PrismLauncher/libraries/com/mojang/minecraft/26.2/minecraft-26.2-client.jar`. `--recipes` defaults to `build/demo/golemancy-media/recipes.json`. A missing file, a malformed `recipes.json`, or an item without a texture exits 2 and names the problem.
+- Output: `recipes/<recipe id>.png` (the vanilla crafting table: a 3x3 grid, the arrow, the result slot with its yield, and a caption with the result name and the level tithe when it is not 0), `infusions/<infusion id>.png` (the center item on a lodestone, the four pedestal items on chiseled copper at N, E, S, and W, an arrow to the result, and a caption with the essence levels and duration in seconds), and `diagrams/` with `animus-plinth-top.png`, `animus-plinth-iso.png`, `golem-builds.png`, `node-on-chest.png`, and `prerequisite-tree.png`.
+- Everything is drawn at a 4x nearest-neighbor pixel scale on the vanilla GUI panel (cropped from `textures/gui/container/crafting_table.png`), except `node-on-chest.png`, whose chest is drawn at 12x so the node decal stays legible. The same input gives byte-identical PNGs.
+- Item icons: the texture in `textures/item` when there is one; otherwise a GUI-style isometric cube from `textures/block` (top 100%, left 80%, right 60%); chests from the entity textures; the shield from its entity face; tags (`#logs`, `#saplings`) as `oak_log` and `oak_sapling`. `media_textures.py` keeps the override tables (`SPRITES`, `CUBES`, `CHESTS`, `TAG_MEMBERS`) for models that are not plain cubes. Custom items render from their base material, firework-star cores tint the overlay layer with the configured color, and every custom item gets a faint purple glint.
+- The vanilla builds in `golem-builds.png` come from the 26.2 server's block patterns: a snow golem is two snow blocks with a pumpkin on top, an iron golem a row of three iron blocks with one below the middle and the pumpkin above the middle, and a copper golem a copper block with a pumpkin on top.
+- Tests: `tests/test_media_render.py` builds a small fake jar, so they do not read the real client jar.
+
