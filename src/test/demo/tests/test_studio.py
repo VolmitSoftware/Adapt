@@ -582,6 +582,33 @@ class ModelsCacheTest(unittest.TestCase):
         self.assertTrue(kept)
         self.assertEqual(text, '[gui.golemancy.pack]\n')
 
+    def test_a_kept_cache_deletes_the_caches_of_other_jars(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            cache.parent.mkdir()
+            (cache.parent / 'models-cache-old1.toml').write_text('[gui.golemancy.mode]\n')
+            (cache.parent / 'models-cache-old2.toml').write_text('[gui.golemancy.mode]\n')
+            (cache.parent / 'site-cache.json').write_text('{}')
+            studio.keep_models(root / 'adapt', cache, False)
+            remaining: list[str] = sorted(path.name for path in cache.parent.iterdir())
+        self.assertEqual(remaining, ['models-cache-abc.toml', 'site-cache.json'])
+
+    def test_a_refused_keep_leaves_the_caches_of_other_jars_alone(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root: Path = Path(tmp)
+            (root / 'adapt').mkdir()
+            (root / 'adapt' / studio.MODELS_FILE).write_text('[gui.golemancy.pack]\n')
+            cache: Path = root / 'cache' / 'models-cache-abc.toml'
+            cache.parent.mkdir()
+            cache.write_text('[gui.golemancy.mode]\n[gui.golemancy.pack]\n')
+            (cache.parent / 'models-cache-old1.toml').write_text('[gui.golemancy.mode]\n')
+            studio.keep_models(root / 'adapt', cache, False)
+            remaining: list[str] = sorted(path.name for path in cache.parent.iterdir())
+        self.assertEqual(remaining, ['models-cache-abc.toml', 'models-cache-old1.toml'])
+
     def test_a_run_that_did_not_restore_never_shrinks_the_cache(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             root: Path = Path(tmp)
@@ -1035,6 +1062,41 @@ class StudioWarmUpTest(unittest.TestCase):
                          ['adaptqa demo set arena', 'adaptqa demo actor AQAClient262', 'adaptqa demo actor AQAOpponent opponent'])
 
 
+class StudioWarmTest(unittest.TestCase):
+    def studio_with_rcon(self) -> studio.Studio:
+        output = tempfile.TemporaryDirectory()
+        self.addCleanup(output.cleanup)
+        demo = studio.Studio(Path(output.name), skip_build=True)
+        demo.rcon = mock.MagicMock()
+        return demo
+
+    def test_the_command_exists_only_for_golemancy(self) -> None:
+        self.assertEqual(studio.warm_command('golemancy'), 'adaptqa demo warm golemancy')
+        self.assertIsNone(studio.warm_command('agility'))
+
+    def test_a_golemancy_run_warms_the_items_over_rcon(self) -> None:
+        demo = self.studio_with_rcon()
+        demo.warm_items('golemancy')
+        demo.rcon.command.assert_called_once_with('adaptqa demo warm golemancy')
+
+    def test_another_skill_sends_nothing(self) -> None:
+        demo = self.studio_with_rcon()
+        demo.warm_items('agility')
+        demo.rcon.command.assert_not_called()
+
+    def test_start_warms_after_the_world_and_before_the_client_connects(self) -> None:
+        output = tempfile.TemporaryDirectory()
+        self.addCleanup(output.cleanup)
+        demo = studio.Studio(Path(output.name), skip_build=True)
+        steps: mock.MagicMock = mock.MagicMock()
+        for name in ('prepare_jars', 'start_server', 'prepare_world', 'warm_items', 'launch_client', 'launch_opponent', 'warm_up', 'await_skin'):
+            setattr(demo, name, getattr(steps, name))
+        demo.start('golemancy')
+        names: list[str] = [call[0] for call in steps.mock_calls]
+        self.assertLess(names.index('prepare_world'), names.index('warm_items'))
+        self.assertLess(names.index('warm_items'), names.index('launch_client'))
+
+
 class StudioStartTest(unittest.TestCase):
     MODS: list[Path] = [Path('/mods/fabric-api.jar')]
 
@@ -1044,7 +1106,7 @@ class StudioStartTest(unittest.TestCase):
         demo = studio.Studio(Path(output.name), skip_build=True)
         steps: mock.MagicMock = mock.MagicMock()
         steps.prepare_jars.return_value = self.MODS
-        for name in ('prepare_jars', 'start_server', 'prepare_world', 'launch_client', 'launch_opponent', 'warm_up', 'await_skin'):
+        for name in ('prepare_jars', 'start_server', 'prepare_world', 'warm_items', 'launch_client', 'launch_opponent', 'warm_up', 'await_skin'):
             setattr(demo, name, getattr(steps, name))
         if world is None:
             demo.start('agility', opponent=opponent)
@@ -1054,16 +1116,16 @@ class StudioStartTest(unittest.TestCase):
 
     def test_opponent_client_launches_only_when_asked(self) -> None:
         self.assertEqual(self.start(False), [mock.call.prepare_jars(), mock.call.start_server('agility'), mock.call.prepare_world(OVERWORLD),
-                                             mock.call.launch_client(self.MODS), mock.call.warm_up(), mock.call.await_skin()])
+                                             mock.call.warm_items('agility'), mock.call.launch_client(self.MODS), mock.call.warm_up(), mock.call.await_skin()])
 
     def test_opponent_client_joins_after_the_actor_and_before_the_warm_up(self) -> None:
         self.assertEqual(self.start(True), [mock.call.prepare_jars(), mock.call.start_server('agility'), mock.call.prepare_world(OVERWORLD),
-                                            mock.call.launch_client(self.MODS), mock.call.launch_opponent(self.MODS), mock.call.warm_up(),
+                                            mock.call.warm_items('agility'), mock.call.launch_client(self.MODS), mock.call.launch_opponent(self.MODS), mock.call.warm_up(),
                                             mock.call.await_skin()])
 
     def test_world_of_the_sheet_is_plated_and_the_opponent_joins_it_the_same_way(self) -> None:
         self.assertEqual(self.start(True, NETHER), [mock.call.prepare_jars(), mock.call.start_server('agility'), mock.call.prepare_world(NETHER),
-                                                    mock.call.launch_client(self.MODS), mock.call.launch_opponent(self.MODS), mock.call.warm_up(),
+                                                    mock.call.warm_items('agility'), mock.call.launch_client(self.MODS), mock.call.launch_opponent(self.MODS), mock.call.warm_up(),
                                                     mock.call.await_skin()])
 
 

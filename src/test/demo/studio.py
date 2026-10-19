@@ -33,6 +33,7 @@ LOCATE_TIMEOUT: float = 600.0
 SITE_CACHE: str = 'site-cache.json'
 MODELS_FILE: str = 'models.toml'
 MODELS_CACHE_PREFIX: str = 'models-cache-'
+WARM_SKILLS: tuple[str, ...] = ('golemancy',)
 TABLE_HEADER: re.Pattern[str] = re.compile(r'^\[([^\]\n]+)\]', re.MULTILINE)
 TPS_MINIMUM: float = 19.0
 TPS_TIMEOUT: float = 180.0
@@ -189,7 +190,18 @@ def keep_models(adapt: Path, cache: Path, restored: bool) -> bool:
         os.replace(partial, cache)
     finally:
         partial.unlink(missing_ok=True)
+    prune_models(cache)
     return True
+
+
+def prune_models(kept: Path) -> None:
+    for stale in kept.parent.glob(MODELS_CACHE_PREFIX + '*.toml'):
+        if stale != kept:
+            stale.unlink(missing_ok=True)
+
+
+def warm_command(skill: str) -> str | None:
+    return 'adaptqa demo warm ' + skill if skill in WARM_SKILLS else None
 
 
 def switch_off(config: Path, keys: tuple[str, ...]) -> None:
@@ -630,6 +642,7 @@ class Studio:
         mods: list[Path] = self.prepare_jars()
         self.start_server(skill)
         self.prepare_world(world)
+        self.warm_items(skill)
         self.launch_client(mods)
         if opponent:
             self.launch_opponent(mods)
@@ -711,6 +724,11 @@ class Studio:
             print('[RESTART] ' + str(failure) + '; starting again in ' + format(START_RETRY_SECONDS, 'g') + ' s', flush=True)
             time.sleep(START_RETRY_SECONDS)
             mux('runtime', 'start', self.server_name, '--no-console')
+
+    def warm_items(self, skill: str) -> None:
+        command: str | None = warm_command(skill)
+        if command is not None:
+            self.rcon.command(command)
 
     def prepare_world(self, world: str) -> None:
         if world == choreography.OVERWORLD:
