@@ -21,6 +21,7 @@ PRISM = Path.home() / 'Library/Application Support/PrismLauncher'
 LAUNCHER = Path('/Applications/Prism Launcher.app/Contents/MacOS/prismlauncher')
 MULTIPLEXOR_ENV = 'ADAPT_DEMO_MULTIPLEXOR'
 GRADLE_ARGS_ENV = 'ADAPT_DEMO_GRADLE_ARGS'
+PLAYER = 'Magic_Psycho'
 
 
 class Rcon:
@@ -413,7 +414,7 @@ def main():
         report['artifactSha256'] = hashlib.sha256((server / 'plugins/Adapt.jar').read_bytes()).hexdigest()
         launch_log = (output / 'launcher.log').open('w')
         try:
-            subprocess.Popen([str(LAUNCHER), '--launch', client_name, '--offline', 'AQAClient262', '--server',
+            subprocess.Popen([str(LAUNCHER), '--launch', client_name, '--offline', PLAYER, '--server',
                               '127.0.0.1:' + properties['server-port']], stdout=launch_log, stderr=subprocess.STDOUT)
         finally:
             launch_log.close()
@@ -439,7 +440,7 @@ def main():
             report['failureState'] = None
         if rcon:
             try:
-                report['failureServerState'] = {key: rcon.command('data get entity AQAClient262 ' + key)
+                report['failureServerState'] = {key: rcon.command('data get entity ' + PLAYER + ' ' + key)
                                                 for key in ['OnGround', 'Pos', 'Motion']}
             except Exception as observation_failure:
                 report['failureServerState'] = {'error': str(observation_failure)}

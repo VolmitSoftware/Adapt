@@ -15,7 +15,7 @@ import manifest
 import record_phase
 
 
-CLAIM_OK: str = '\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70Set AQAClient262 agility-wall-jump to level 5.'
+CLAIM_OK: str = '\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70Set Magic_Psycho agility-wall-jump to level 5.'
 CLAIM_ERROR: str = '\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a7f\u00a7f\u00a70\u00a70\u00a70\u00a70'
 
 
@@ -31,7 +31,7 @@ class FakeStudio:
         self.bridge = mock.MagicMock()
         self.game = replays.parent.parent
         self.origin = (0.0, 64.0, 0.0)
-        self.actor = 'AQAClient262'
+        self.actor = 'Magic_Psycho'
         self.opponent = 'AQAOpponent'
         self.opponent_bridge: mock.MagicMock | None = None
         self.tick = 100
@@ -126,8 +126,8 @@ class RecordPhaseTest(unittest.TestCase):
             studio = FakeStudio(replays)
             record_phase.record(studio, {'agility-wall-jump': self.entry()}, ['agility-wall-jump'], Path(tmp) / 'manifest.json', 'agility')
         sent = [call.args[0] for call in studio.rcon.command.call_args_list]
-        clear = sent.index('adapt clear adaptations player=AQAClient262')
-        claim = sent.index('adapt claim-adaptation agility:agility-wall-jump 5 force=true player=AQAClient262')
+        clear = sent.index('adapt clear adaptations player=Magic_Psycho')
+        claim = sent.index('adapt claim-adaptation agility:agility-wall-jump 5 force=true player=Magic_Psycho')
         self.assertLess(clear, claim)
 
     def test_prerequisites_are_claimed_after_the_clear_and_before_the_entry(self) -> None:
@@ -140,9 +140,9 @@ class RecordPhaseTest(unittest.TestCase):
                                        prerequisites=(choreography.Prerequisite(skill='golemancy', name='golem-animus-binding', level=5),))
             record_phase.record(studio, {'golem-frost-frame': entry}, ['golem-frost-frame'], Path(tmp) / 'manifest.json', 'golemancy')
         sent = [call.args[0] for call in studio.rcon.command.call_args_list]
-        clear = sent.index('adapt clear adaptations player=AQAClient262')
-        prerequisite = sent.index('adapt claim-adaptation golemancy:golem-animus-binding 5 force=true player=AQAClient262')
-        claim = sent.index('adapt claim-adaptation golemancy:golem-frost-frame 5 force=true player=AQAClient262')
+        clear = sent.index('adapt clear adaptations player=Magic_Psycho')
+        prerequisite = sent.index('adapt claim-adaptation golemancy:golem-animus-binding 5 force=true player=Magic_Psycho')
+        claim = sent.index('adapt claim-adaptation golemancy:golem-frost-frame 5 force=true player=Magic_Psycho')
         self.assertLess(clear, prerequisite)
         self.assertLess(prerequisite, claim)
         self.assertLess(claim, sent.index('say ready'))
@@ -166,16 +166,16 @@ class RecordPhaseTest(unittest.TestCase):
         self.prepare_with_replies('\u00a77[\u00a74Adapt\u00a77] \u00a7x\u00a70\u00a70\u00a7f\u00a7f\u00a70\u00a70No change: golem-runic-augments is already at level 5.')
 
     def test_a_refused_prerequisite_claim_fails_the_take_preparation(self) -> None:
-        with self.assertRaisesRegex(RuntimeError, r'claim of golem-runic-augments at level 5 was refused: \[Adapt\] AQAClient262 needs Animus Binding Lv 2'):
-            self.prepare_with_replies(CLAIM_ERROR + 'AQAClient262 needs Animus Binding Lv 2 before learning golem-runic-augments.')
+        with self.assertRaisesRegex(RuntimeError, r'claim of golem-runic-augments at level 5 was refused: \[Adapt\] Magic_Psycho needs Animus Binding Lv 2'):
+            self.prepare_with_replies(CLAIM_ERROR + 'Magic_Psycho needs Animus Binding Lv 2 before learning golem-runic-augments.')
 
     def test_any_other_refusal_fails_the_take_preparation_with_the_server_reply(self) -> None:
-        with self.assertRaisesRegex(RuntimeError, r'was refused: \[Adapt\] The golemancy skill line is unavailable for AQAClient262\.'):
-            self.prepare_with_replies(CLAIM_ERROR + 'The golemancy skill line is unavailable for AQAClient262.')
+        with self.assertRaisesRegex(RuntimeError, r'was refused: \[Adapt\] The golemancy skill line is unavailable for Magic_Psycho\.'):
+            self.prepare_with_replies(CLAIM_ERROR + 'The golemancy skill line is unavailable for Magic_Psycho.')
 
     def test_a_refusal_in_another_language_still_fails_the_take_preparation(self) -> None:
-        with self.assertRaisesRegex(RuntimeError, r'was refused: \[Adapt\] AQAClient262 braucht Animus Binding Stufe 2'):
-            self.prepare_with_replies(CLAIM_ERROR + 'AQAClient262 braucht Animus Binding Stufe 2, bevor golem-runic-augments gelernt wird.')
+        with self.assertRaisesRegex(RuntimeError, r'was refused: \[Adapt\] Magic_Psycho braucht Animus Binding Stufe 2'):
+            self.prepare_with_replies(CLAIM_ERROR + 'Magic_Psycho braucht Animus Binding Stufe 2, bevor golem-runic-augments gelernt wird.')
 
     def test_a_reply_without_any_color_fails_the_take_preparation(self) -> None:
         with self.assertRaisesRegex(RuntimeError, 'was refused: ADAPT_QA DEMO OK'):
@@ -193,7 +193,7 @@ class RecordPhaseTest(unittest.TestCase):
             takes = record_phase.record(studio, {entry.id: entry}, [entry.id], Path(tmp) / 'manifest.json', 'golemancy')
         sent = [call.args[0] for call in studio.rcon.command.call_args_list]
         claims = [text for text in sent if text.startswith('adapt claim-adaptation')]
-        self.assertEqual(claims, ['adapt claim-adaptation golemancy:golem-animus-binding 5 force=true player=AQAClient262'])
+        self.assertEqual(claims, ['adapt claim-adaptation golemancy:golem-animus-binding 5 force=true player=Magic_Psycho'])
         self.assertEqual(takes[entry.id].status, 'recorded')
 
     def test_declared_stills_are_kept_on_the_take_and_in_the_manifest(self) -> None:
@@ -403,7 +403,7 @@ class RecordPhaseTest(unittest.TestCase):
         probes: list[int] = [index for index, line in enumerate(log) if line.startswith('rcon:adaptqa demo probe')]
         self.assertEqual(len(probes), 3)
         self.assertLess(log.index('rcon:adaptqa demo set wall'), probes[0])
-        self.assertLess(probes[-1], log.index('rcon:adaptqa demo actor AQAClient262'))
+        self.assertLess(probes[-1], log.index('rcon:adaptqa demo actor Magic_Psycho'))
 
     def test_cleared_golem_state_waits_for_loaded_golems_to_leave_the_registry(self) -> None:
         log = self.cleared_take(1, 0, [probe_reply(0, 1), probe_reply(0, 0)])
@@ -423,7 +423,7 @@ class RecordPhaseTest(unittest.TestCase):
         log = self.cleared_take(2, 2, [probe_reply(0, 0)])
         probes: int = sum(line.startswith('rcon:adaptqa demo probe') for line in log)
         self.assertGreaterEqual(probes, int(record_phase.CLEAR_TIMEOUT_SECONDS))
-        self.assertIn('rcon:adaptqa demo actor AQAClient262', log)
+        self.assertIn('rcon:adaptqa demo actor Magic_Psycho', log)
 
     def test_pre_commands_settle_sixty_ticks_before_record_start(self) -> None:
         log = self.ordered_take(self.entry())
@@ -434,16 +434,16 @@ class RecordPhaseTest(unittest.TestCase):
     def test_inventory_sync_follows_the_pre_commands_and_precedes_the_settle(self) -> None:
         entry = dataclasses.replace(self.entry(), pre=['give {actor} minecraft:iron_axe', 'gamerule random_tick_speed 0'])
         log = self.ordered_take(entry)
-        sync: int = log.index('rcon:adaptqa demo sync AQAClient262')
-        self.assertEqual(log.count('rcon:adaptqa demo sync AQAClient262'), 1)
-        self.assertLess(log.index('rcon:give AQAClient262 minecraft:iron_axe'), sync)
+        sync: int = log.index('rcon:adaptqa demo sync Magic_Psycho')
+        self.assertEqual(log.count('rcon:adaptqa demo sync Magic_Psycho'), 1)
+        self.assertLess(log.index('rcon:give Magic_Psycho minecraft:iron_axe'), sync)
         self.assertLess(log.index('rcon:gamerule random_tick_speed 0'), sync)
         self.assertLess(sync, log.index('wait:60'))
 
     def test_inventory_sync_follows_the_claim_when_there_are_no_pre_commands(self) -> None:
         log = self.ordered_take(self.entry())
-        sync: int = log.index('rcon:adaptqa demo sync AQAClient262')
-        self.assertLess(log.index('rcon:adapt claim-adaptation agility:agility-wall-jump 5 force=true player=AQAClient262'), sync)
+        sync: int = log.index('rcon:adaptqa demo sync Magic_Psycho')
+        self.assertLess(log.index('rcon:adapt claim-adaptation agility:agility-wall-jump 5 force=true player=Magic_Psycho'), sync)
         self.assertLess(sync, log.index('wait:60'))
 
     def test_prelude_beats_run_after_settle_and_before_record_start(self) -> None:
@@ -584,7 +584,7 @@ class RecordPhaseTest(unittest.TestCase):
             original = studio.reply
 
             def rejecting(text: str) -> str:
-                if text == 'effect give AQAClient262 minecraft:nope':
+                if text == 'effect give Magic_Psycho minecraft:nope':
                     raise AssertionError(text + ': Unknown or incomplete command, see below for error')
                 return original(text)
 
@@ -809,10 +809,10 @@ class OpponentTakeTest(unittest.TestCase):
     def test_opponent_entry_places_equips_and_syncs_the_opponent(self) -> None:
         take, sent, _ = self.shoot(self.entry(True), opponent_running=True)
         self.assertEqual(take.status, 'recorded')
-        self.assertEqual(sent, ['adaptqa demo set arena', 'adaptqa demo actor AQAClient262', 'adaptqa demo actor AQAOpponent opponent',
-                                'adaptqa demo sparring', 'adapt clear adaptations player=AQAClient262',
-                                'adapt claim-adaptation agility:agility-kip-up 4 force=true player=AQAClient262', 'give AQAOpponent minecraft:stick 1',
-                                'adaptqa demo sync AQAClient262', 'adaptqa demo sync AQAOpponent'])
+        self.assertEqual(sent, ['adaptqa demo set arena', 'adaptqa demo actor Magic_Psycho', 'adaptqa demo actor AQAOpponent opponent',
+                                'adaptqa demo sparring', 'adapt clear adaptations player=Magic_Psycho',
+                                'adapt claim-adaptation agility:agility-kip-up 4 force=true player=Magic_Psycho', 'give AQAOpponent minecraft:stick 1',
+                                'adaptqa demo sync Magic_Psycho', 'adaptqa demo sync AQAOpponent'])
 
     def test_opponent_beats_reach_the_opponent_and_both_clients_release_before_stop(self) -> None:
         _, _, log = self.shoot(self.entry(True), opponent_running=True)
@@ -828,7 +828,7 @@ class OpponentTakeTest(unittest.TestCase):
     def test_entry_without_opponent_parks_the_running_opponent(self) -> None:
         take, sent, log = self.shoot(self.entry(False), opponent_running=True)
         self.assertEqual(take.status, 'recorded')
-        self.assertEqual(sent[:4], ['adaptqa demo set arena', 'adaptqa demo actor AQAClient262', 'adaptqa demo park AQAOpponent', 'adaptqa demo sparring'])
+        self.assertEqual(sent[:4], ['adaptqa demo set arena', 'adaptqa demo actor Magic_Psycho', 'adaptqa demo park AQAOpponent', 'adaptqa demo sparring'])
         self.assertNotIn('adaptqa demo sync AQAOpponent', sent)
         self.assertEqual([entry for entry in log if entry.startswith('opponent:')], ['opponent:release'])
 

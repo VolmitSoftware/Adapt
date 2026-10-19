@@ -34,7 +34,7 @@ class RunBeatsTest(unittest.TestCase):
         bridge = mock.MagicMock()
         bridge.state.return_value = {'position': {'x': 0.5, 'y': 64.0, 'z': 0.5}, 'ticks': 100, 'events': []}
         rcon = mock.MagicMock()
-        return beats.BeatContext(bridge=bridge, rcon=rcon, actor='AQAClient262', origin=(0.0, 64.0, 0.0),
+        return beats.BeatContext(bridge=bridge, rcon=rcon, actor='Magic_Psycho', origin=(0.0, 64.0, 0.0),
                                  wait_ticks=mock.MagicMock(), events_since=lambda tick: [])
 
     def test_smooth_look_runs_as_one_native_animation(self) -> None:
@@ -91,7 +91,7 @@ class RunBeatsTest(unittest.TestCase):
     def test_command_beat_substitutes_actor(self) -> None:
         ctx = self.make_ctx()
         beats.run_beats(entry_with([{'verb': 'command', 'text': 'effect give {actor} speed 5'}]), ctx)
-        ctx.rcon.command.assert_called_once_with('effect give AQAClient262 speed 5')
+        ctx.rcon.command.assert_called_once_with('effect give Magic_Psycho speed 5')
 
     def test_wait_for_times_out(self) -> None:
         ctx = self.make_ctx()
@@ -210,7 +210,7 @@ class OpponentBeatsTest(unittest.TestCase):
         bridge.state.return_value = {'position': {'x': 0.5, 'y': 64.0, 'z': 0.5}, 'ticks': 100, 'events': []}
         opponent: mock.MagicMock = mock.MagicMock()
         opponent.state.return_value = {'position': {'x': 0.5, 'y': 64.0, 'z': 3.5}, 'ticks': 900, 'events': []}
-        return beats.BeatContext(bridge=bridge, rcon=mock.MagicMock(), actor='AQAClient262', origin=(0.0, 64.0, 0.0), wait_ticks=mock.MagicMock(),
+        return beats.BeatContext(bridge=bridge, rcon=mock.MagicMock(), actor='Magic_Psycho', origin=(0.0, 64.0, 0.0), wait_ticks=mock.MagicMock(),
                                  events_since=lambda tick: [], opponent='AQAOpponent', opponent_bridge=opponent if opponent_running else None)
 
     def test_opponent_beats_drive_only_the_opponent_client(self) -> None:
@@ -251,7 +251,7 @@ class OpponentBeatsTest(unittest.TestCase):
     def test_command_beat_substitutes_actor_and_opponent(self) -> None:
         ctx: beats.BeatContext = self.make_ctx()
         beats.run_beats(entry_with([{'verb': 'command', 'text': 'tp {opponent} {actor}'}]), ctx)
-        ctx.rcon.command.assert_called_once_with('tp AQAOpponent AQAClient262')
+        ctx.rcon.command.assert_called_once_with('tp AQAOpponent Magic_Psycho')
 
     def test_opponent_beat_without_the_opponent_client_fails(self) -> None:
         ctx: beats.BeatContext = self.make_ctx(opponent_running=False)

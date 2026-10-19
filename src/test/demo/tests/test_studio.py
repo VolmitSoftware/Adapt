@@ -1046,7 +1046,7 @@ class StudioWarmUpTest(unittest.TestCase):
         demo.bridge.state.side_effect = lambda: {'ticks': ticks.pop(0)}
         with mock.patch.object(studio.time, 'sleep'), mock.patch('sys.stdout', new_callable=io.StringIO):
             demo.warm_up()
-        self.assertEqual([call.args[0] for call in demo.rcon.command.call_args_list], ['adaptqa demo set arena', 'adaptqa demo actor AQAClient262'])
+        self.assertEqual([call.args[0] for call in demo.rcon.command.call_args_list], ['adaptqa demo set arena', 'adaptqa demo actor Magic_Psycho'])
         self.assertEqual(ticks, [])
 
 
@@ -1059,7 +1059,31 @@ class StudioWarmUpTest(unittest.TestCase):
         with mock.patch.object(studio.time, 'sleep'), mock.patch.object(studio, 'WARM_UP_TICKS', 0), mock.patch('sys.stdout', new_callable=io.StringIO):
             demo.warm_up()
         self.assertEqual([call.args[0] for call in demo.rcon.command.call_args_list],
-                         ['adaptqa demo set arena', 'adaptqa demo actor AQAClient262', 'adaptqa demo actor AQAOpponent opponent'])
+                         ['adaptqa demo set arena', 'adaptqa demo actor Magic_Psycho', 'adaptqa demo actor AQAOpponent opponent'])
+
+
+class StudioIdentityTest(unittest.TestCase):
+    ROOT: Path = Path(__file__).resolve().parents[4]
+
+    def test_the_filmed_client_is_magic_psycho(self) -> None:
+        self.assertEqual(studio.ACTOR, 'Magic_Psycho')
+
+    def test_the_real_client_qa_shares_the_studio_actor(self) -> None:
+        self.assertEqual(studio.clientqa.PLAYER, studio.ACTOR)
+
+    def test_the_fixture_scope_names_the_same_actor(self) -> None:
+        scope: str = (self.ROOT / 'src' / 'test' / 'gameplay' / 'fixture' / 'java' / 'art' / 'arcane' / 'adapt' / 'gameplay' / 'demo' / 'DemoScope.java').read_text()
+        self.assertIn('STUDIO_ACTOR = "' + studio.ACTOR + '"', scope)
+
+    def test_the_opponent_keeps_the_qa_prefix(self) -> None:
+        self.assertEqual(studio.OPPONENT, 'AQAOpponent')
+
+    def test_the_retired_actor_name_appears_nowhere_in_the_test_sources(self) -> None:
+        retired: str = 'AQA' + 'Client262'
+        for folder in ('client', 'demo', 'gameplay'):
+            for path in (self.ROOT / 'src' / 'test' / folder).rglob('*'):
+                if path.is_file() and path.suffix in {'.py', '.java', '.md', '.mjs', '.js'} and '__pycache__' not in path.parts:
+                    self.assertNotIn(retired, path.read_text(), str(path))
 
 
 class StudioWarmTest(unittest.TestCase):
