@@ -41,6 +41,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -112,6 +113,9 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(PlayerInteractEntityEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     Player player = e.getPlayer();
     if (e.getHand() != EquipmentSlot.HAND) {
       if (ritualsByOwner.containsKey(player.getUniqueId())) {
@@ -384,9 +388,10 @@ public class GolemAnimusBinding extends SimpleAdaptation<GolemAnimusBinding.Conf
     int tithe = owner.getGameMode() == GameMode.CREATIVE ? 0 : tithe(config, target.body(), level);
     boolean exclusive = builderExclusive(golem, owner.getUniqueId(), System.currentTimeMillis());
     boolean coreUnlocked = core == GolemCoreType.BLANK || getActiveSiblingLevel(owner, "golem-" + core.id() + "-core") >= 1;
+    Location at = golem.getLocation();
     BindingCheck check = new BindingCheck(registry.bindBlock(owner, golem, target.body(), core).orElse(null),
         playerCreated(golem), config.allowBindingVillageGolems, exclusive,
-        bodyUnlocked(owner, target.body()), coreUnlocked, canInteract(owner, golem.getLocation()), ownedGolems(owner), cap, owner.getLevel(), tithe);
+        bodyUnlocked(owner, target.body()), coreUnlocked, canInteract(owner, at) && canBlockPlace(owner, at), ownedGolems(owner), cap, owner.getLevel(), tithe);
     return new Assessment(AnimusBindingRules.verdict(check), cap, tithe);
   }
 

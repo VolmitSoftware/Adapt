@@ -325,7 +325,7 @@ class GolemIronFrameTest extends AdaptTestBase {
 
     learned(2).on(hit(golem, victim, 12D));
     GolemIronFrame protectedArea = learned(5);
-    doReturn(false).when(protectedArea).canPVE(any(Player.class), any(Location.class));
+    doReturn(false).when(protectedArea).canPVE(any(Player.class), any(Entity.class));
     protectedArea.on(hit(golem, victim, 12D));
     GolemIronFrame learned = learned(5);
     learned.on(hit(sleeping, victimOfSleeping, 12D));
@@ -498,7 +498,7 @@ class GolemIronFrameTest extends AdaptTestBase {
     GolemIronFrame learned = spy(adaptation);
     doReturn(level).when(learned).ownerLevel(any(GolemHandle.class));
     lenient().doReturn(owner).when(learned).owner(any(GolemHandle.class));
-    lenient().doReturn(true).when(learned).canPVE(any(Player.class), any(Location.class));
+    lenient().doReturn(true).when(learned).canPVE(any(Player.class), any(Entity.class));
     lenient().doNothing().when(learned).resize(any(Mob.class), anyDouble(), anyDouble(), anyDouble());
     lenient().doNothing().when(learned).refreshStats(any(GolemHandle.class));
     lenient().doReturn(true).when(learned).hasRoom(any(Mob.class), anyDouble());

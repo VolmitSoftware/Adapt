@@ -32,6 +32,7 @@ import art.arcane.adapt.api.minion.MinionTargeting;
 import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.content.skill.SkillGolemancy;
 import art.arcane.adapt.util.common.compat.PaperCompat;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -142,6 +143,9 @@ public class GolemIronFrame extends SimpleAdaptation<GolemIronFrame.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEntityEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     if (!(e.getRightClicked() instanceof IronGolem golem) || SkillGolemancy.heldType(e.getPlayer(), e.getHand()) != Material.IRON_INGOT) {
       return;
     }

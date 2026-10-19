@@ -224,7 +224,7 @@ class GolemOverseerTest extends AdaptTestBase {
   void sicSendsTheTargetInSightWithItsHoldDeadline() {
     Zombie zombie = living(Zombie.class);
     sight(zombie);
-    doReturn(true).when(adaptation).canPVE(any(Player.class), any(Location.class));
+    doReturn(true).when(adaptation).canPVE(any(Player.class), any(Entity.class));
     level(2);
     cycleToSic();
 
@@ -249,7 +249,7 @@ class GolemOverseerTest extends AdaptTestBase {
 
     Zombie zombie = living(Zombie.class);
     sight(zombie);
-    doReturn(true).when(adaptation).canPVE(any(Player.class), any(Location.class));
+    doReturn(true).when(adaptation).canPVE(any(Player.class), any(Entity.class));
     adaptation.send(player);
 
     assertThat(heard).singleElement().satisfies(signal -> assertThat(signal.target()).isSameAs(zombie));
@@ -265,7 +265,7 @@ class GolemOverseerTest extends AdaptTestBase {
     Zombie dead = living(Zombie.class);
     when(dead.isDead()).thenReturn(true);
     doReturn(false).when(adaptation).canPVP(any(Player.class), any(Location.class));
-    doReturn(true).when(adaptation).canPVE(any(Player.class), any(Location.class));
+    doReturn(true).when(adaptation).canPVE(any(Player.class), any(Entity.class));
 
     assertThat(adaptation.canSic(player, pet)).isFalse();
     assertThat(adaptation.canSic(player, player)).isFalse();
@@ -274,7 +274,7 @@ class GolemOverseerTest extends AdaptTestBase {
     assertThat(adaptation.canSic(player, zombie)).isTrue();
 
     doReturn(true).when(adaptation).canPVP(any(Player.class), any(Location.class));
-    doReturn(false).when(adaptation).canPVE(any(Player.class), any(Location.class));
+    doReturn(false).when(adaptation).canPVE(any(Player.class), any(Entity.class));
     assertThat(adaptation.canSic(player, rival)).isTrue();
     assertThat(adaptation.canSic(player, zombie)).isFalse();
   }

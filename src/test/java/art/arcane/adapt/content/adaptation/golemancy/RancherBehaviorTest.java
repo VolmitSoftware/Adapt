@@ -342,7 +342,7 @@ class RancherBehaviorTest {
 
     record = record.toBuilder().data(Map.of()).build();
     GolemContext denied = golem(1);
-    when(denied.canInteract(any(Location.class))).thenReturn(false);
+    when(denied.canHandle(target)).thenReturn(false);
     assertThat(behavior.act(denied, task("breed", target))).isEqualTo(GolemActResult.BLOCKED);
 
     assertThat(count(cargo, Material.WHEAT)).isEqualTo(2);
@@ -718,7 +718,7 @@ class RancherBehaviorTest {
     lenient().when(golem.workRadius()).thenReturn(24D);
     lenient().when(golem.inWorkRadius(any(Location.class))).thenReturn(true);
     lenient().when(golem.owns(any(Location.class))).thenReturn(true);
-    lenient().when(golem.canInteract(any(Location.class))).thenReturn(true);
+    lenient().when(golem.canHandle(any())).thenReturn(true);
     lenient().when(golem.canDamage(any())).thenReturn(true);
     lenient().when(golem.room()).thenReturn(64);
     lenient().when(golem.carriedItems()).thenAnswer(invocation -> List.copyOf(cargo));

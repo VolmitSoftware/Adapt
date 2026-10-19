@@ -9,6 +9,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Skeleton;
@@ -128,8 +129,8 @@ class MinionTargetingTest extends AdaptTestBase {
 
     assertThat(MinionTargeting.canDamageOwned(policy, owner, friendly)).isFalse();
     assertThat(MinionTargeting.canDamageOwned(policy, owner, self)).isFalse();
-    verify(policy, never()).canPVP(any(), any());
-    verify(policy, never()).canPVE(any(), any());
+    verify(policy, never()).canPVP(any(Player.class), any(Location.class));
+    verify(policy, never()).canPVE(any(Player.class), any(Entity.class));
   }
 
   @Test
@@ -144,12 +145,12 @@ class MinionTargetingTest extends AdaptTestBase {
         mobLocation, false, false);
 
     when(policy.canPVP(owner, playerLocation)).thenReturn(true);
-    when(policy.canPVE(owner, mobLocation)).thenReturn(false);
+    when(policy.canPVE(owner, mob.entity())).thenReturn(false);
     assertThat(MinionTargeting.canDamageOwned(policy, owner, player)).isTrue();
     assertThat(MinionTargeting.canDamageOwned(policy, owner, mob)).isFalse();
 
     when(policy.canPVP(owner, playerLocation)).thenReturn(false);
-    when(policy.canPVE(owner, mobLocation)).thenReturn(true);
+    when(policy.canPVE(owner, mob.entity())).thenReturn(true);
     assertThat(MinionTargeting.canDamageOwned(policy, owner, player)).isFalse();
     assertThat(MinionTargeting.canDamageOwned(policy, owner, mob)).isTrue();
   }
@@ -191,8 +192,8 @@ class MinionTargetingTest extends AdaptTestBase {
 
   private static Adaptation<?> permissivePolicy() {
     Adaptation<?> policy = mock(Adaptation.class);
-    when(policy.canPVP(any(), any())).thenReturn(true);
-    when(policy.canPVE(any(), any())).thenReturn(true);
+    when(policy.canPVP(any(Player.class), any(Location.class))).thenReturn(true);
+    when(policy.canPVE(any(Player.class), any(Entity.class))).thenReturn(true);
     return policy;
   }
 

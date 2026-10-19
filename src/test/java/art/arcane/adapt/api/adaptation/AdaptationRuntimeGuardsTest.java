@@ -9,6 +9,7 @@ import art.arcane.adapt.api.world.PlayerSkillLine;
 import art.arcane.adapt.content.adaptation.stealth.StealthShadowDecoy;
 import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.AnimalTamer;
 import org.bukkit.entity.ArmorStand;
@@ -17,6 +18,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Zombie;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +43,19 @@ class AdaptationRuntimeGuardsTest extends AdaptTestBase {
   void registerMinionKinds() {
     MinionIdentity.registerKind(TragoulSkeletalServant.MINION_KIND);
     new StealthShadowDecoy();
+  }
+
+  @Test
+  void mobDamageIsJudgedByTheEntityPveRuleNotTheLocationOne() {
+    Adaptation<?> adaptation = mock(Adaptation.class);
+    Player attacker = mock(Player.class);
+    Zombie zombie = mock(Zombie.class);
+    when(zombie.getPersistentDataContainer()).thenReturn(mock(PersistentDataContainer.class));
+    when(adaptation.canPVE(any(Player.class), any(Location.class))).thenReturn(false);
+    when(adaptation.canPVE(attacker, zombie)).thenReturn(true, false);
+
+    assertThat(AdaptationRuntimeGuards.canDamageTarget(adaptation, attacker, zombie)).isTrue();
+    assertThat(AdaptationRuntimeGuards.canDamageTarget(adaptation, attacker, zombie)).isFalse();
   }
 
   @Test

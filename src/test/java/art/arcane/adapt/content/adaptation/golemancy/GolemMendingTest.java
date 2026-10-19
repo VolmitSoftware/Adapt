@@ -531,6 +531,7 @@ class GolemMendingTest extends AdaptTestBase {
     GolemMending learned = spy(adaptation);
     lenient().doReturn(level).when(learned).getActiveLevel(player);
     lenient().doReturn(true).when(learned).canInteract(any(Player.class), any(Location.class));
+    lenient().doReturn(true).when(learned).canBlockPlace(any(Player.class), any(Location.class));
     lenient().doNothing().when(learned).mendFx(any(), any());
     lenient().doNothing().when(learned).rebornFx(any());
     lenient().doNothing().when(learned).crumbleFx(any());

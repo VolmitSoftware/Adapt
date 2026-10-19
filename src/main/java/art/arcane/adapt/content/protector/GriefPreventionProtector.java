@@ -26,7 +26,19 @@ import me.ryanhamshire.GriefPrevention.ClaimPermission;
 import me.ryanhamshire.GriefPrevention.GriefPrevention;
 import me.ryanhamshire.GriefPrevention.PlayerData;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
+import org.bukkit.entity.Creature;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Hoglin;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Monster;
+import org.bukkit.entity.Panda;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.PolarBear;
+import org.bukkit.entity.Rabbit;
+import org.bukkit.entity.Shulker;
+import org.bukkit.entity.WaterMob;
+import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Objects;
 import java.util.function.Function;
@@ -45,16 +57,11 @@ public class GriefPreventionProtector implements Protector {
   }
 
   @Override
-  public boolean canPVE(Player player, Location victimLocation, Adaptation<?> adaptation) {
-    if (!GriefPrevention.instance.config_claims_protectCreatures) {
+  public boolean canPVE(Player player, Entity victim, Adaptation<?> adaptation) {
+    if (!GriefPrevention.instance.config_claims_protectCreatures || !protectedCreature(victim)) {
       return true;
     }
-    return allowed(victimLocation, claim -> claim.allowContainers(player));
-  }
-
-  @Override
-  public boolean canInteract(Player player, Location targetLocation, Adaptation<?> adaptation) {
-    return allowed(targetLocation, claim -> claim.allowAccess(player));
+    return allowed(victim.getLocation(), claim -> claim.allowContainers(player));
   }
 
   @Override
@@ -99,6 +106,30 @@ public class GriefPreventionProtector implements Protector {
   private static boolean allowed(Location location, Function<Claim, String> denial) {
     Claim claim = GriefPrevention.instance.dataStore.getClaimAt(location, true, null);
     return claim == null || denial.apply(claim) == null;
+  }
+
+  private static boolean protectedCreature(Entity entity) {
+    return (entity instanceof Creature || entity instanceof WaterMob) && !monster(entity);
+  }
+
+  private static boolean monster(Entity entity) {
+    if (entity instanceof Monster || entity instanceof Shulker) {
+      return true;
+    }
+    if (entity instanceof Rabbit rabbit) {
+      return rabbit.getRabbitType() == Rabbit.Type.THE_KILLER_BUNNY;
+    }
+    if (entity instanceof Panda panda) {
+      return panda.getMainGene() == Panda.Gene.AGGRESSIVE;
+    }
+    if ((entity instanceof Hoglin || entity instanceof PolarBear) && entity instanceof Mob mob) {
+      return !lured(entity) && mob.getTarget() != null;
+    }
+    return false;
+  }
+
+  private static boolean lured(Entity entity) {
+    return entity.getPersistentDataContainer().has(new NamespacedKey(GriefPrevention.instance, "lured_by_player"), PersistentDataType.BYTE);
   }
 
 

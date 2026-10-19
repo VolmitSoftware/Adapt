@@ -267,7 +267,7 @@ final class AdaptationRuntimeGuards {
       return adaptation.canPVP(attacker, victim.getLocation());
     }
 
-    return adaptation.canPVE(attacker, target.getLocation());
+    return adaptation.canPVE(attacker, target);
   }
 
   static boolean isProtectedFriendly(Player actor, Entity target) {

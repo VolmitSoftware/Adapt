@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
@@ -35,7 +36,7 @@ class GolemProtectionTest {
   @Test
   void hostileMobsFollowThePolicyAdaptationsPveRule() {
     Zombie zombie = living(Zombie.class);
-    when(policy.canPVE(eq(owner), any(Location.class))).thenReturn(true, false);
+    when(policy.canPVE(eq(owner), any(Entity.class))).thenReturn(true, false);
 
     assertThat(GolemProtection.canDamage(policy, owner, zombie)).isTrue();
     assertThat(GolemProtection.canDamage(policy, owner, zombie)).isFalse();
@@ -49,7 +50,7 @@ class GolemProtectionTest {
 
     assertThat(GolemProtection.canDamage(policy, owner, rival)).isTrue();
     assertThat(GolemProtection.canDamage(policy, owner, rival)).isFalse();
-    verify(policy, never()).canPVE(any(Player.class), any(Location.class));
+    verify(policy, never()).canPVE(any(Player.class), any(Entity.class));
   }
 
   @Test
@@ -57,7 +58,7 @@ class GolemProtectionTest {
     Wolf pet = living(Wolf.class);
     when(pet.isTamed()).thenReturn(true);
     when(pet.getOwner()).thenReturn(owner);
-    lenient().when(policy.canPVE(any(Player.class), any(Location.class))).thenReturn(true);
+    lenient().when(policy.canPVE(any(Player.class), any(Entity.class))).thenReturn(true);
 
     assertThat(GolemProtection.canDamage(policy, owner, pet)).isFalse();
   }

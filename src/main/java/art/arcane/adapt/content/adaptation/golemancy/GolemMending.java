@@ -45,6 +45,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -149,6 +150,9 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(PlayerInteractEntityEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     Player player = e.getPlayer();
     EquipmentSlot hand = e.getHand();
     if (!(e.getRightClicked() instanceof LivingEntity target) || !J.isOwnedByCurrentRegion(target)) {
@@ -352,10 +356,11 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
     GolemBody body = snapshot == null ? GolemBody.of(golem).orElseThrow() : snapshot.body();
     boolean exclusive = binding != null && binding.builderExclusive(golem, playerId, System.currentTimeMillis());
     boolean bodyUnlocked = binding != null && binding.bodyUnlocked(player, body);
+    Location at = golem.getLocation();
     return new RebuildCheck(snapshot != null, item != null && playerId.equals(item.owner()), roster.isPresent(),
         entry.map(GolemRoster.GolemEntry::status).orElse(null), entry.filter(known -> known.holds(item.state())).isPresent(), rebuild.level(),
         getConfig().shatterLevel, block, GolemAnimusBinding.playerCreated(golem), binding != null && binding.villageGolemsAllowed(), exclusive,
-        bodyUnlocked, canInteract(player, golem.getLocation()));
+        bodyUnlocked, canInteract(player, at) && canBlockPlace(player, at));
   }
 
   private void reborn(Rebuild rebuild) {

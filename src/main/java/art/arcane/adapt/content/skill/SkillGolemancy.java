@@ -95,6 +95,7 @@ import art.arcane.adapt.localization.catalog.SkillMessages;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDoc;
 import art.arcane.adapt.util.reflect.registries.Particles;
@@ -387,6 +388,9 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void on(PlayerInteractEntityEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     if (!(e.getRightClicked() instanceof IronGolem golem) || !golem.isPlayerCreated()) {
       return;
     }
@@ -915,6 +919,9 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
   private final class CopperCareListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void on(PlayerInteractEntityEvent e) {
+      if (ProtectionEventProbe.isActive(e)) {
+        return;
+      }
       if (!(e.getRightClicked() instanceof CopperGolem golem)) {
         return;
       }

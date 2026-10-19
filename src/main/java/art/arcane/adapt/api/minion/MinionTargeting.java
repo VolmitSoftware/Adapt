@@ -47,7 +47,7 @@ public final class MinionTargeting {
     }
     return candidate.player()
         ? policy.canPVP(owner, candidate.location())
-        : policy.canPVE(owner, candidate.location());
+        : policy.canPVE(owner, candidate.entity());
   }
 
   private static boolean isProtectedFriendly(UUID ownerId, LivingEntity candidate) {

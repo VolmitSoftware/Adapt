@@ -38,6 +38,7 @@ import art.arcane.adapt.api.recipe.ConfiguredShapedRecipe;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigDescription;
 import art.arcane.adapt.util.config.ConfigDoc;
@@ -141,6 +142,9 @@ public class GolemNodeWeaving extends SimpleAdaptation<GolemNodeWeaving.Config> 
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void on(PlayerInteractEvent e) {
+    if (ProtectionEventProbe.isActive(e)) {
+      return;
+    }
     Player player = e.getPlayer();
     Block anchor = e.getClickedBlock();
     if (e.getAction() != Action.RIGHT_CLICK_BLOCK || anchor == null || !player.isSneaking() || onPlinth(anchor)) {

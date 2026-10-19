@@ -213,7 +213,7 @@ final class RancherBehavior implements NodeBehavior, GolemCoreBehavior {
   }
 
   private static boolean permitted(GolemContext golem, RancherRules.Action action, Animals animal) {
-    return action == RancherRules.Action.CULL ? golem.canDamage(animal) : golem.canInteract(animal.getLocation());
+    return action == RancherRules.Action.CULL ? golem.canDamage(animal) : golem.canHandle(animal);
   }
 
   private RancherRules.Census census(List<Animals> herd, Animals target, UUID owner) {

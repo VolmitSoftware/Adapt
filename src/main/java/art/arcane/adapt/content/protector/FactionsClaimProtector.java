@@ -31,55 +31,39 @@ import com.massivecraft.factions.perms.PermissibleActions;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.util.Objects;
-
 public class FactionsClaimProtector implements Protector {
-  private final Territory territory;
-
-  public FactionsClaimProtector() {
-    this(new FactionsTerritory());
-  }
-
-  FactionsClaimProtector(Territory territory) {
-    this.territory = Objects.requireNonNull(territory);
-  }
 
   @Override
   public boolean checkRegion(Player player, Location location, Adaptation<?> adaptation) {
-    Faction f = territory.factionAt(location);
+    Faction f = factionAt(location);
     return checkPerm(player, f) || f.isWilderness();
   }
 
   @Override
   public boolean canBlockBreak(Player player, Location blockLocation, Adaptation<?> adaptation) {
-    return hasAccess(player, blockLocation, Permission.DESTROY);
+    return hasAccess(player, blockLocation, PermissibleActions.DESTROY);
   }
 
   @Override
   public boolean canBlockPlace(Player player, Location blockLocation, Adaptation<?> adaptation) {
-    return hasAccess(player, blockLocation, Permission.BUILD);
+    return hasAccess(player, blockLocation, PermissibleActions.BUILD);
   }
 
   @Override
   public boolean canPVP(Player player, Location victimLocation, Adaptation<?> adaptation) {
-    Faction f = territory.factionAt(victimLocation);
+    Faction f = factionAt(victimLocation);
     return checkPerm(player, f) || !f.noPvPInTerritory();
   }
 
   @Override
   public boolean canPVE(Player player, Location victimLocation, Adaptation<?> adaptation) {
-    Faction f = territory.factionAt(victimLocation);
+    Faction f = factionAt(victimLocation);
     return checkPerm(player, f) || f.isWilderness();
   }
 
   @Override
-  public boolean canInteract(Player player, Location targetLocation, Adaptation<?> adaptation) {
-    return hasAccess(player, targetLocation, Permission.ITEM);
-  }
-
-  @Override
   public boolean canAccessChest(Player player, Location chestLocation, Adaptation<?> adaptation) {
-    return hasAccess(player, chestLocation, Permission.CONTAINER);
+    return hasAccess(player, chestLocation, PermissibleActions.CONTAINER);
   }
 
   @Override
@@ -93,59 +77,23 @@ public class FactionsClaimProtector implements Protector {
   }
 
   private boolean checkPerm(Player player, Faction f) {
-    FPlayer fp = territory.player(player);
+    FPlayer fp = FPlayers.getInstance().getByPlayer(player);
     return f == null
         || fp.getFaction() == f
         || fp.isAdminBypassing();
   }
 
-  private boolean hasAccess(Player player, Location location, Permission permission) {
-    FPlayer fp = territory.player(player);
+  private boolean hasAccess(Player player, Location location, PermissibleAction action) {
+    FPlayer fp = FPlayers.getInstance().getByPlayer(player);
     if (fp.isAdminBypassing()) {
       return true;
     }
-    Faction f = territory.factionAt(location);
-    return f == null || f.isWilderness() || territory.hasAccess(f, fp, permission, location);
+    FLocation at = new FLocation(location);
+    Faction f = Board.getInstance().getFactionAt(at);
+    return f == null || f.isWilderness() || f.hasAccess(fp, action, at);
   }
 
-  enum Permission {
-    BUILD,
-    DESTROY,
-    ITEM,
-    CONTAINER
-  }
-
-  interface Territory {
-    Faction factionAt(Location location);
-
-    FPlayer player(Player player);
-
-    boolean hasAccess(Faction faction, FPlayer player, Permission permission, Location location);
-  }
-
-  private static final class FactionsTerritory implements Territory {
-    @Override
-    public Faction factionAt(Location location) {
-      return Board.getInstance().getFactionAt(new FLocation(location));
-    }
-
-    @Override
-    public FPlayer player(Player player) {
-      return FPlayers.getInstance().getByPlayer(player);
-    }
-
-    @Override
-    public boolean hasAccess(Faction faction, FPlayer player, Permission permission, Location location) {
-      return faction.hasAccess(player, action(permission), new FLocation(location));
-    }
-
-    private static PermissibleAction action(Permission permission) {
-      return switch (permission) {
-        case BUILD -> PermissibleActions.BUILD;
-        case DESTROY -> PermissibleActions.DESTROY;
-        case ITEM -> PermissibleActions.ITEM;
-        case CONTAINER -> PermissibleActions.CONTAINER;
-      };
-    }
+  private static Faction factionAt(Location location) {
+    return Board.getInstance().getFactionAt(new FLocation(location));
   }
 }

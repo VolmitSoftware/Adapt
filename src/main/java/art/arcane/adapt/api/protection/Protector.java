@@ -20,6 +20,7 @@ package art.arcane.adapt.api.protection;
 
 import art.arcane.adapt.api.adaptation.Adaptation;
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 
 public interface Protector {
@@ -38,6 +39,10 @@ public interface Protector {
 
   default boolean canPVE(Player player, Location victimLocation, Adaptation<?> adaptation) {
     return true;
+  }
+
+  default boolean canPVE(Player player, Entity victim, Adaptation<?> adaptation) {
+    return canPVE(player, victim.getLocation(), adaptation);
   }
 
   default boolean canInteract(Player player, Location targetLocation, Adaptation<?> adaptation) {

@@ -136,6 +136,12 @@ public final class GolemContext {
     return chestAccess.computeIfAbsent(key, ignored -> policy.canAccessChest(owner, container));
   }
 
+  public boolean canHandle(LivingEntity animal) {
+    Adaptation<?> policy = scope.policy();
+    Player owner = owner();
+    return policy != null && owner != null && owns(animal.getLocation()) && policy.canPVE(owner, animal);
+  }
+
   public boolean canDamage(LivingEntity victim) {
     Player owner = owner();
     return owner != null && owns(victim.getLocation()) && GolemProtection.canDamage(scope.policy(), owner, victim);

@@ -15,6 +15,7 @@ import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import art.arcane.adapt.api.recipe.ExactItemResolver;
 import art.arcane.adapt.api.recipe.RecipeItemCatalog;
+import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Bukkit;
@@ -57,6 +58,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
@@ -169,6 +171,28 @@ class GolemNodeWeavingExecutionTest extends AdaptTestBase {
     verify(click.event).setCancelled(true);
     verify(service).place(click.player, click.block, BlockFace.UP, NodeType.DEPOSIT, click.adaptation);
     verify(click.held).setAmount(1);
+  }
+
+  @Test
+  void aProtectionProbeClickNeverPlacesANodeOrConsumesTheItem() {
+    NodeService service = mock(NodeService.class);
+    runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
+    Click click = click(true, EquipmentSlot.HAND, 2);
+    lenient().when(service.place(click.player, click.block, BlockFace.UP, NodeType.DEPOSIT, click.adaptation)).thenReturn(NodePlacementVerdict.READY);
+    PluginManager pluginManager = mock(PluginManager.class);
+    doAnswer(invocation -> {
+      click.fire();
+      return null;
+    }).when(pluginManager).callEvent(click.event);
+
+    try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
+      bukkit.when(Bukkit::getPluginManager).thenReturn(pluginManager);
+      ProtectionEventProbe.dispatch(click.event);
+    }
+
+    verify(service, never()).place(any(), any(), any(), any(), any());
+    verify(click.event, never()).setCancelled(anyBoolean());
+    verify(click.held, never()).setAmount(anyInt());
   }
 
   @Test

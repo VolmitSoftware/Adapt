@@ -516,6 +516,10 @@ public interface Adaptation<T> extends Ticked, Component {
     return evaluateWorldPolicy(protector -> protector.canPVE(player, victimLocation, this));
   }
 
+  default boolean canPVE(Player player, Entity victim) {
+    return evaluateWorldPolicy(protector -> protector.canPVE(player, victim, this));
+  }
+
   /**
    * World-policy check for generic interaction.
    */
