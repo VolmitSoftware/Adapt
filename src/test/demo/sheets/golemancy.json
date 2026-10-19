@@ -4074,10 +4074,10 @@
         "adaptqa demo give {actor} 1 crook 1",
         "adaptqa demo give {actor} 3 rune/swiftness/1 1",
         "adaptqa demo give {actor} 4 rune/tide/1 1",
-        "execute at {actor} run summon minecraft:copper_golem ~0.0 ~0 ~-2.5 {Rotation:[0.0f,0.0f],Tags:[\"gg\"],NoAI:1b}",
+        "execute at {actor} run summon minecraft:copper_golem ~0.0 ~0 ~-6.5 {Rotation:[0.0f,0.0f],Tags:[\"gg\"],NoAI:1b}",
         "adaptqa demo bind {actor} gg gatherer",
-        "execute at {actor} run summon minecraft:item ~1.0 ~ ~-3.0 {Item:{id:\"minecraft:wheat\",count:16},PickupDelay:0}",
-        "execute at {actor} run summon minecraft:item ~-1.0 ~ ~-3.0 {Item:{id:\"minecraft:cobblestone\",count:12},PickupDelay:0}"
+        "execute at {actor} run summon minecraft:item ~1.0 ~ ~-6.5 {Item:{id:\"minecraft:wheat\",count:16},PickupDelay:0}",
+        "execute at {actor} run summon minecraft:item ~-1.0 ~ ~-6.5 {Item:{id:\"minecraft:cobblestone\",count:12},PickupDelay:0}"
       ],
       "prelude": [
         {
@@ -4089,7 +4089,7 @@
           "offset": [
             0.5,
             0.45,
-            -2.0
+            -6.0
           ]
         }
       ],
@@ -4109,6 +4109,15 @@
         {
           "verb": "command",
           "text": "execute at {actor} run data merge entity @e[type=minecraft:copper_golem,limit=1,sort=nearest] {NoAI:0b}"
+        },
+        {
+          "verb": "lookAt",
+          "offset": [
+            0.5,
+            0.45,
+            -6.0
+          ],
+          "ticks": 6
         },
         {
           "verb": "wait",
@@ -5448,11 +5457,11 @@
       "povCapture": true,
       "maxTicks": 2600,
       "camera": {
-        "x": -3.5,
-        "y": 1.5,
-        "z": -7.5,
-        "yaw": -122.8,
-        "pitch": 18.0
+        "x": -1.0,
+        "y": 1.4,
+        "z": -14.5,
+        "yaw": 7.1,
+        "pitch": 15.3
       }
     }
   ]
