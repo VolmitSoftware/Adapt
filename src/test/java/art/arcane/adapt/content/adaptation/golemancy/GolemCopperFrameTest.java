@@ -10,6 +10,8 @@ import art.arcane.adapt.api.golem.GolemStatSource;
 import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemWorkSpeed;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -76,6 +78,22 @@ class GolemCopperFrameTest extends AdaptTestBase {
     carrySources.close();
     statSources.close();
     runtime.close();
+  }
+
+  @Test
+  void anOnlineOwnersLevelIsReadFromTheOwnerAndRecordedOnTheGolem() {
+    AdaptServer server = mock(AdaptServer.class);
+    AdaptPlayer online = mock(AdaptPlayer.class);
+    UUID owner = UUID.randomUUID();
+    when(plugin.getAdaptServer()).thenReturn(server);
+    when(server.getOnlineAdaptPlayer(owner)).thenReturn(online);
+    GolemHandle handle = mock(GolemHandle.class);
+    when(handle.owner()).thenReturn(owner);
+    GolemCopperFrame learned = spy(adaptation);
+    doReturn(4).when(learned).getLevel(online);
+
+    assertThat(learned.ownerLevel(handle)).isEqualTo(4);
+    verify(handle).recordOwnerLevel(adaptation.getName(), 4);
   }
 
   @Test

@@ -41,6 +41,7 @@ import art.arcane.volmlib.util.math.M;
 import org.bukkit.Material;
 import org.bukkit.entity.Enemy;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
 import org.bukkit.event.EventHandler;
@@ -50,6 +51,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -179,6 +181,20 @@ public class GolemFrostFrame extends SimpleAdaptation<GolemFrostFrame.Config> {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onSnowballLanded(EntityDamageByEntityEvent e) {
     snowballHit(e).ifPresent(this::applyFrost);
+  }
+
+  @Override
+  public void onLevelChanged(Player player, int level) {
+    GolemancySupport.recordOwnerLevel(getName(), player.getUniqueId(), level);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PlayerQuitEvent e) {
+    Player player = e.getPlayer();
+    AdaptPlayer owner = getServer().getOnlineAdaptPlayer(player.getUniqueId());
+    if (owner != null) {
+      GolemancySupport.recordOwnerLevel(getName(), player.getUniqueId(), getLevel(owner));
+    }
   }
 
   int ownerLevel(GolemHandle handle) {

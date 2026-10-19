@@ -3,6 +3,8 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemRegistry;
+import art.arcane.adapt.api.world.AdaptPlayer;
 import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.golem.GolemStat;
 import art.arcane.adapt.api.golem.GolemStatDelta;
@@ -11,11 +13,13 @@ import art.arcane.adapt.api.golem.GolemStats;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.inventorygui.Element;
+import net.kyori.adventure.text.Component;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.entity.Cow;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Zombie;
@@ -24,12 +28,14 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.MockedStatic;
 
 import java.util.ArrayList;
@@ -49,6 +55,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -78,6 +85,52 @@ class GolemFrostFrameTest extends AdaptTestBase {
   void close() {
     statSources.close();
     runtime.close();
+  }
+
+  @Test
+  void anOnlineOwnersLevelIsReadFromTheOwnerAndRecordedOnTheGolem() {
+    AdaptServer server = mock(AdaptServer.class);
+    AdaptPlayer online = mock(AdaptPlayer.class);
+    UUID owner = UUID.randomUUID();
+    when(plugin.getAdaptServer()).thenReturn(server);
+    when(server.getOnlineAdaptPlayer(owner)).thenReturn(online);
+    GolemHandle handle = mock(GolemHandle.class);
+    when(handle.owner()).thenReturn(owner);
+    GolemFrostFrame learned = spy(adaptation);
+    doReturn(4).when(learned).getLevel(online);
+
+    assertThat(learned.ownerLevel(handle)).isEqualTo(4);
+    verify(handle).recordOwnerLevel(adaptation.getName(), 4);
+  }
+
+  @Test
+  void aLevelChangeOrTheOwnerQuittingRefreshesTheRecordOnTheOwnersLoadedGolems() {
+    UUID owner = UUID.randomUUID();
+    Player player = mock(Player.class);
+    when(player.getUniqueId()).thenReturn(owner);
+    GolemHandle loaded = mock(GolemHandle.class);
+    GolemRegistry registry = mock(GolemRegistry.class);
+    when(registry.loadedOf(owner)).thenReturn(List.of(loaded));
+    runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(registry));
+    AdaptServer server = mock(AdaptServer.class);
+    AdaptPlayer online = mock(AdaptPlayer.class);
+    when(plugin.getAdaptServer()).thenReturn(server);
+    when(server.getOnlineAdaptPlayer(owner)).thenReturn(online);
+    GolemFrostFrame learned = spy(adaptation);
+    doReturn(2).when(learned).getLevel(online);
+
+    try (MockedStatic<J> scheduling = mockStatic(J.class)) {
+      scheduling.when(() -> J.runEntity(any(), any(Runnable.class))).thenAnswer(invocation -> {
+        invocation.<Runnable>getArgument(1).run();
+        return true;
+      });
+      learned.onLevelChanged(player, 0);
+      learned.on(new PlayerQuitEvent(player, (Component) null, PlayerQuitEvent.QuitReason.DISCONNECTED));
+    }
+
+    InOrder order = inOrder(loaded);
+    order.verify(loaded).recordOwnerLevel(adaptation.getName(), 0);
+    order.verify(loaded).recordOwnerLevel(adaptation.getName(), 2);
   }
 
   @Test

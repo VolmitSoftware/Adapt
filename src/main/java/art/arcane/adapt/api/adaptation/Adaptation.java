@@ -480,6 +480,9 @@ public interface Adaptation<T> extends Ticked, Component {
    */
   void onRegisterAdvancements(List<AdaptAdvancement> advancements);
 
+  default void onLevelChanged(Player player, int level) {
+  }
+
   /**
    * Returns the active protector set after applying this adaptation's override
    * config.

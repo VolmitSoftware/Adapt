@@ -41,8 +41,10 @@ import art.arcane.volmlib.util.math.M;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.CopperGolem;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.weather.LightningStrikeEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -139,6 +141,20 @@ public class GolemCopperFrame extends SimpleAdaptation<GolemCopperFrame.Config> 
       if (CopperFrameRules.withinRadius(golem.getLocation().distanceSquared(strike), radius)) {
         overdrive(golem, now);
       }
+    }
+  }
+
+  @Override
+  public void onLevelChanged(Player player, int level) {
+    GolemancySupport.recordOwnerLevel(getName(), player.getUniqueId(), level);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PlayerQuitEvent e) {
+    Player player = e.getPlayer();
+    AdaptPlayer owner = getServer().getOnlineAdaptPlayer(player.getUniqueId());
+    if (owner != null) {
+      GolemancySupport.recordOwnerLevel(getName(), player.getUniqueId(), getLevel(owner));
     }
   }
 

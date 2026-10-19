@@ -4,6 +4,7 @@ import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.SimpleAdaptation;
 import art.arcane.adapt.api.golem.GolemContext;
 import art.arcane.adapt.api.golem.GolemHandle;
+import art.arcane.adapt.api.golem.GolemRegistry;
 import art.arcane.adapt.api.golem.GolemRunes;
 import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemTarget;
@@ -50,6 +51,20 @@ final class GolemancySupport {
   static int ownerLevel(SimpleAdaptation<?> core, GolemContext golem) {
     Player owner = golem.owner();
     return owner == null ? 0 : core.ownerLevel(owner.getUniqueId());
+  }
+
+  static void recordOwnerLevel(String adaptation, UUID owner, int level) {
+    Optional<GolemRegistry> registry = GolemancyRuntime.registry();
+    if (registry.isEmpty()) {
+      return;
+    }
+    for (GolemHandle handle : registry.get().loadedOf(owner)) {
+      J.runEntity(handle.entity(), () -> {
+        if (!handle.isRetired()) {
+          handle.recordOwnerLevel(adaptation, level);
+        }
+      });
+    }
   }
 
   static Optional<Inventory> homeChest(GolemContext golem) {

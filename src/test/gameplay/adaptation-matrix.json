@@ -3424,6 +3424,7 @@
       },
       "triggers": [
         "LightningStrikeEvent",
+        "PlayerQuitEvent",
         "tick"
       ],
       "expectation": "Lets you bind copper golems and strengthens them with extra health, carry capacity and speed, plus armor from their patina.",
@@ -3443,6 +3444,7 @@
       "triggers": [
         "EntityDamageByEntityEvent",
         "EntityDamageEvent",
+        "PlayerQuitEvent",
         "ProjectileHitEvent",
         "ProjectileLaunchEvent",
         "tick"
@@ -3676,6 +3678,7 @@
       "triggers": [
         "EntityDamageByEntityEvent",
         "EntityDamageEvent",
+        "PlayerQuitEvent",
         "recipe"
       ],
       "expectation": "Lets you infuse runes at the Animus Plinth and slot them into your bound golems for speed, carrying, fire, reach, channels, yield and armor.",

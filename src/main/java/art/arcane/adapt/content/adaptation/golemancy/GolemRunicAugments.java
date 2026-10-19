@@ -50,10 +50,12 @@ import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -154,6 +156,20 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     ActiveRunes active = runes(bound.get());
     if (!active.isEmpty() && wards(getConfig(), active, ward)) {
       e.setCancelled(true);
+    }
+  }
+
+  @Override
+  public void onLevelChanged(Player player, int level) {
+    GolemancySupport.recordOwnerLevel(getName(), player.getUniqueId(), level);
+  }
+
+  @EventHandler(priority = EventPriority.HIGHEST)
+  public void on(PlayerQuitEvent e) {
+    Player player = e.getPlayer();
+    AdaptPlayer owner = getServer().getOnlineAdaptPlayer(player.getUniqueId());
+    if (owner != null) {
+      GolemancySupport.recordOwnerLevel(getName(), player.getUniqueId(), getLevel(owner));
     }
   }
 

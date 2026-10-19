@@ -447,6 +447,7 @@ public class PlayerSkillLine {
       adaptations.remove(adaptationName);
       updateLearnedIndex(adaptationName, 0);
       removeAdaptationModifiers(adaptationName);
+      notifyLevelChanged(a, previous, 0);
       return;
     }
 
@@ -458,6 +459,7 @@ public class PlayerSkillLine {
     if (clamped < previous) {
       removeAdaptationModifiers(adaptationName);
     }
+    notifyLevelChanged(a, previous, clamped);
   }
 
   void bindRuntimeOwner(AdaptPlayer owner) {
@@ -476,6 +478,14 @@ public class PlayerSkillLine {
       return;
     }
     owner.getServer().updateLearnedAdaptation(owner, adaptationName, level);
+  }
+
+  private void notifyLevelChanged(Adaptation<?> adaptation, int previous, int level) {
+    AdaptPlayer owner = runtimeOwner;
+    if (previous == level || owner == null || owner.getPlayer() == null) {
+      return;
+    }
+    adaptation.onLevelChanged(owner.getPlayer(), level);
   }
 
   private void removeAdaptationModifiers(String adaptationName) {

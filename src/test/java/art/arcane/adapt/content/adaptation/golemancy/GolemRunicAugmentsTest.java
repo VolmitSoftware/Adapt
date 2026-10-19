@@ -25,6 +25,8 @@ import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.api.recipe.ExactIngredientBook;
 import art.arcane.adapt.api.recipe.ExactItemResolver;
 import art.arcane.adapt.api.recipe.RecipeItemCatalog;
+import art.arcane.adapt.api.world.AdaptPlayer;
+import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -113,6 +115,22 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     statSources.close();
     runtime.close();
     parsers.close();
+  }
+
+  @Test
+  void anOnlineOwnersLevelIsReadFromTheOwnerAndRecordedOnTheGolem() {
+    AdaptServer server = mock(AdaptServer.class);
+    AdaptPlayer online = mock(AdaptPlayer.class);
+    UUID owner = UUID.randomUUID();
+    when(plugin.getAdaptServer()).thenReturn(server);
+    when(server.getOnlineAdaptPlayer(owner)).thenReturn(online);
+    GolemHandle handle = mock(GolemHandle.class);
+    when(handle.owner()).thenReturn(owner);
+    GolemRunicAugments learned = spy(adaptation);
+    doReturn(4).when(learned).getLevel(online);
+
+    assertThat(learned.ownerLevel(handle)).isEqualTo(4);
+    verify(handle).recordOwnerLevel(adaptation.getName(), 4);
   }
 
   @Test
