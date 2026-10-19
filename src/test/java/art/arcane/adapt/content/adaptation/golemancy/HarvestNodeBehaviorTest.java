@@ -17,15 +17,20 @@ import art.arcane.adapt.api.golem.node.NodeContext;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
+import art.arcane.adapt.api.data.unit.PlacementStamp;
+import art.arcane.adapt.api.xp.PlacementStore;
+import art.arcane.adapt.api.xp.XpProvenance;
+import art.arcane.adapt.api.xp.XpProvenanceListener;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import art.arcane.adapt.api.xp.XpProvenance;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.BlockState;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.block.data.type.CaveVinesPlant;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.inventory.ItemStack;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -89,7 +94,7 @@ class HarvestNodeBehaviorTest {
     runtime = mockStatic(GolemancyRuntime.class, CALLS_REAL_METHODS);
     feedback = mockStatic(HarvestFeedback.class);
     provenance = mockStatic(XpProvenance.class);
-    provenance.when(() -> XpProvenance.wasPlaced(any(Block.class))).thenReturn(false);
+    provenance.when(() -> XpProvenance.forgetPlacement(any(Block.class))).thenReturn(false);
     runtime.when(GolemancyRuntime::boards).thenReturn(Optional.of(boards));
   }
 
@@ -297,7 +302,7 @@ class HarvestNodeBehaviorTest {
     wheat(0, 64, 0);
     roll = 0.05D;
     provenance.when(() -> XpProvenance.isPlayerPlaced(any(Block.class))).thenReturn(true);
-    provenance.when(() -> XpProvenance.wasPlaced(any(Block.class))).thenReturn(true);
+    provenance.when(() -> XpProvenance.forgetPlacement(any(Block.class))).thenReturn(true);
     GolemContext golem = golem(1);
 
     behavior.act(golem, task("harvest", 0, 64, 0));
@@ -316,7 +321,7 @@ class HarvestNodeBehaviorTest {
     field.drops(Material.SUGAR_CANE, () -> CropField.stacks(Material.SUGAR_CANE, 1));
     roll = 0.05D;
     provenance.when(() -> XpProvenance.isPlayerPlaced(any(Block.class))).thenReturn(false);
-    provenance.when(() -> XpProvenance.wasPlaced(any(Block.class))).thenReturn(true);
+    provenance.when(() -> XpProvenance.forgetPlacement(any(Block.class))).thenReturn(true);
     GolemContext golem = golem(1);
 
     behavior.act(golem, task("harvest", 0, 64, 0));
@@ -324,6 +329,60 @@ class HarvestNodeBehaviorTest {
 
     verify(golem, never()).withBonusYield(anyList());
     assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("MELON_SLICE", 5, "SUGAR_CANE", 2));
+  }
+
+  @Test
+  void aPlacedTorchflowerGetsNoBountifulRollOrBonusYieldAndTheHarvestForgetsThePlacement() {
+    realProvenance();
+    try (PlacementStore placements = new PlacementStore()) {
+      field.set(1, 63, 0, Material.FARMLAND).set(1, 64, 0, Material.TORCHFLOWER);
+      field.drops(Material.TORCHFLOWER, () -> CropField.stacks(Material.TORCHFLOWER, 1));
+      XpProvenance.recordPlacement(field.block(1, 64, 0));
+      roll = 0.05D;
+      GolemContext golem = golem(1);
+
+      behavior.act(golem, task("harvest", 1, 64, 0));
+
+      verify(golem, never()).withBonusYield(anyList());
+      assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("TORCHFLOWER", 1));
+      assertThat(XpProvenance.wasPlaced(field.block(1, 64, 0))).isFalse();
+    }
+  }
+
+  @Test
+  void aTorchflowerGrownFromPlantedSeedsGetsItsBountifulRollAndBonusYield() {
+    realProvenance();
+    try (PlacementStore placements = new PlacementStore()) {
+      field.set(1, 63, 0, Material.FARMLAND).set(1, 64, 0, Material.TORCHFLOWER_CROP, CropField.ageable(1, 2));
+      field.drops(Material.TORCHFLOWER, () -> CropField.stacks(Material.TORCHFLOWER, 1));
+      XpProvenance.recordPlacement(field.block(1, 64, 0));
+      grow(field.block(1, 64, 0), Material.TORCHFLOWER);
+      roll = 0.05D;
+      GolemContext golem = golem(1);
+
+      behavior.act(golem, task("harvest", 1, 64, 0));
+
+      verify(golem).withBonusYield(anyList());
+      assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("TORCHFLOWER", 2));
+    }
+  }
+
+  @Test
+  void aPumpkinRegrownOnAStalePlacementSpotGetsItsBountifulRollAndBonusYield() {
+    realProvenance();
+    try (PlacementStore placements = new PlacementStore()) {
+      field.set(1, 64, 0, Material.ATTACHED_PUMPKIN_STEM, CropField.facing(BlockFace.WEST));
+      field.drops(Material.PUMPKIN, () -> CropField.stacks(Material.PUMPKIN, 1));
+      placements.put(field.block(0, 64, 0), new PlacementStamp(1, 0, 0));
+      grow(field.block(0, 64, 0), Material.PUMPKIN);
+      roll = 0.05D;
+      GolemContext golem = golem(1);
+
+      behavior.act(golem, task("harvest", 0, 64, 0));
+
+      verify(golem).withBonusYield(anyList());
+      assertThat(carriedCounts()).containsExactlyInAnyOrderEntriesOf(Map.of("PUMPKIN", 2));
+    }
   }
 
   @Test
@@ -448,6 +507,18 @@ class HarvestNodeBehaviorTest {
     assertThat(behavior.actIntervalTicks(golem(0), task("harvest", 0, 64, 0))).isEqualTo(40);
     level(5);
     assertThat(behavior.actIntervalTicks(golem(0), task("harvest", 0, 64, 0))).isEqualTo(12);
+  }
+
+  private void realProvenance() {
+    provenance.close();
+    provenance = mockStatic(XpProvenance.class, CALLS_REAL_METHODS);
+  }
+
+  private void grow(Block block, Material grown) {
+    BlockState state = mock(BlockState.class);
+    when(state.getType()).thenReturn(grown);
+    new XpProvenanceListener().on(new BlockGrowEvent(block, state));
+    field.set(block.getX(), block.getY(), block.getZ(), grown);
   }
 
   private void plot() {

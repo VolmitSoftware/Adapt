@@ -69,6 +69,17 @@ public final class XpProvenance {
     return stamp != null && stamp.getPlacedAt() != 0;
   }
 
+  public static boolean forgetPlacement(Block block) {
+    WorldData data = WorldData.of(block.getWorld());
+    PlacementStamp grown = grown(data.get(block, PlacementStamp.class));
+    if (grown == null) {
+      return false;
+    }
+    AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
+    data.set(block, grown);
+    return true;
+  }
+
   public static boolean hasPermanentPlayerModification(Block block) {
     if (block == null) {
       return false;
@@ -96,23 +107,11 @@ public final class XpProvenance {
     destinationData.set(destination, stamp);
   }
 
-  public static void recordGrowth(Block block) {
-    if (block == null) {
-      return;
-    }
-    WorldData data = WorldData.of(block.getWorld());
-    PlacementStamp grown = grown(data.get(block, PlacementStamp.class));
-    if (grown == null) {
-      return;
-    }
-    AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
-    data.set(block, grown);
-  }
-
   public static boolean resetsOnGrowth(Material type) {
     String name = type.name();
     return name.endsWith("_LOG") || name.endsWith("_WOOD") || name.endsWith("_STEM") || name.endsWith("_HYPHAE")
-        || name.endsWith("_LEAVES") || name.endsWith("_SAPLING") || name.endsWith("_PROPAGULE");
+        || name.endsWith("_LEAVES") || name.endsWith("_SAPLING") || name.endsWith("_PROPAGULE") || name.endsWith("_WART_BLOCK")
+        || type == Material.SHROOMLIGHT;
   }
 
   public static PlacementStamp grown(PlacementStamp stamp) {
@@ -160,7 +159,7 @@ public final class XpProvenance {
     }
   }
 
-  public static void recordPlayerPlacedBreak(Block block) {
+  public static void recordBreak(Block block) {
     AdaptConfig.XpIntegrity config = AdaptConfig.get().getXpIntegrity();
     if (!config.isProvenanceEnabled()) {
       return;
@@ -169,8 +168,11 @@ public final class XpProvenance {
     AdaptRuntimeTelemetry.recordProvenanceOp(System.currentTimeMillis());
     WorldData data = WorldData.of(block.getWorld());
     PlacementStamp stamp = data.get(block, PlacementStamp.class);
-    int bonemealedAt = stamp == null ? 0 : stamp.getBonemealedAt();
-    data.set(block, new PlacementStamp(0, nowSeconds(), bonemealedAt));
+    if (!hasPlacement(stamp)) {
+      return;
+    }
+    int brokenAt = withinTtl(stamp.getPlacedAt(), config.getPlacedBlockTtlMillis()) ? nowSeconds() : stamp.getBrokenAt();
+    data.set(block, new PlacementStamp(0, brokenAt, stamp.getBonemealedAt()));
   }
 
   public static boolean isReplaceDenied(Block block) {

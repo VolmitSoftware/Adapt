@@ -53,15 +53,16 @@ final class HarvestActions {
   }
 
   private static boolean natural(HarvestCrops.Kind kind, List<Block> parts) {
-    if (kind != HarvestCrops.Kind.COLUMN && kind != HarvestCrops.Kind.GOURD) {
+    if (kind != HarvestCrops.Kind.COLUMN && kind != HarvestCrops.Kind.GOURD && kind != HarvestCrops.Kind.TORCHFLOWER) {
       return true;
     }
+    boolean natural = true;
     for (Block part : parts) {
-      if (XpProvenance.wasPlaced(part)) {
-        return false;
+      if (XpProvenance.forgetPlacement(part)) {
+        natural = false;
       }
     }
-    return true;
+    return natural;
   }
 
   void reap(GolemContext golem, Block block, HarvesterRules.Plan plan) {

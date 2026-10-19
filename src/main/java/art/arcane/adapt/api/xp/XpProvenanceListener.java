@@ -31,6 +31,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockFertilizeEvent;
 import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockGrowEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -59,13 +60,7 @@ public class XpProvenanceListener implements Listener {
     if (ProtectionEventProbe.isActive(e)) {
       return;
     }
-    if (!AdaptConfig.get().getXpIntegrity().isProvenanceEnabled()) {
-      return;
-    }
-
-    if (XpProvenance.isPlayerPlaced(e.getBlock())) {
-      XpProvenance.recordPlayerPlacedBreak(e.getBlock());
-    }
+    XpProvenance.recordBreak(e.getBlock());
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -86,8 +81,15 @@ public class XpProvenanceListener implements Listener {
     Location sapling = e.getLocation();
     for (BlockState grown : e.getBlocks()) {
       if (XpProvenance.resetsOnGrowth(grown.getType()) || atSapling(grown, sapling)) {
-        XpProvenance.recordGrowth(grown.getBlock());
+        XpProvenance.forgetPlacement(grown.getBlock());
       }
+    }
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  public void on(BlockGrowEvent e) {
+    if (e.getBlock().getType() != e.getNewState().getType()) {
+      XpProvenance.forgetPlacement(e.getBlock());
     }
   }
 
