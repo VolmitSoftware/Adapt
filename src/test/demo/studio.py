@@ -201,7 +201,7 @@ def prune_models(kept: Path) -> None:
 
 
 def warm_command(skill: str) -> str | None:
-    return 'adaptqa demo warm ' + skill if skill in WARM_SKILLS else None
+    return 'adaptqa demo warm' if skill in WARM_SKILLS else None
 
 
 def switch_off(config: Path, keys: tuple[str, ...]) -> None:

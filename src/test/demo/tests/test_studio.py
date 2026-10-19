@@ -1095,13 +1095,13 @@ class StudioWarmTest(unittest.TestCase):
         return demo
 
     def test_the_command_exists_only_for_golemancy(self) -> None:
-        self.assertEqual(studio.warm_command('golemancy'), 'adaptqa demo warm golemancy')
+        self.assertEqual(studio.warm_command('golemancy'), 'adaptqa demo warm')
         self.assertIsNone(studio.warm_command('agility'))
 
     def test_a_golemancy_run_warms_the_items_over_rcon(self) -> None:
         demo = self.studio_with_rcon()
         demo.warm_items('golemancy')
-        demo.rcon.command.assert_called_once_with('adaptqa demo warm golemancy')
+        demo.rcon.command.assert_called_once_with('adaptqa demo warm')
 
     def test_another_skill_sends_nothing(self) -> None:
         demo = self.studio_with_rcon()
