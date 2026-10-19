@@ -130,7 +130,7 @@ final class GathererWork implements GolemCoreBehavior {
     GatherArea area = area(golem, level);
     Location here = golem.golem().getLocation();
     long now = golem.nowMillis();
-    boolean pulling = carrying && magnet > 0D && area.contains(here) && golem.canInteract(here);
+    boolean pulling = carrying && magnet > 0D && area.contains(here) && claimAllows(golem, here);
     int attempts = 0;
     int pulled = 0;
     List<Item> items = carrying ? PaperCompat.nearbyEntitiesByType(Item.class, here, reach, reach, reach) : List.of();
@@ -150,7 +150,7 @@ final class GathererWork implements GolemCoreBehavior {
         }
         continue;
       }
-      if (room && pulling && distance <= magnet * magnet && pulled < PULLS_PER_TICK && golem.canInteract(at)) {
+      if (room && pulling && distance <= magnet * magnet && pulled < PULLS_PER_TICK && claimAllows(golem, at)) {
         pull(item, at, here);
         pulled++;
       }
@@ -176,8 +176,7 @@ final class GathererWork implements GolemCoreBehavior {
     if (taking <= 0) {
       return GolemActResult.FAILED;
     }
-    Location block = new Location(at.getWorld(), at.getBlockX(), at.getBlockY(), at.getBlockZ());
-    if (!golem.canInteract(block) || !golem.canBreak(block) || !ProtectionEventProbe.attemptEntityItemPickup(golem.golem(), item, amount - taking)) {
+    if (!claimAllows(golem, at) || !ProtectionEventProbe.attemptEntityItemPickup(golem.golem(), item, amount - taking)) {
       return GolemActResult.BLOCKED;
     }
     ItemStack current = item.getItemStack();
@@ -238,7 +237,7 @@ final class GathererWork implements GolemCoreBehavior {
     if (room <= 0 || !area.contains(at) || !golem.inWorkRadius(at) || !absorbable(orb, golem.nowMillis())) {
       return GolemActResult.FAILED;
     }
-    if (!golem.canInteract(at)) {
+    if (!claimAllows(golem, at)) {
       return GolemActResult.BLOCKED;
     }
     int total = GathererRules.orbTotal(orb.getExperience(), PaperCompat.experienceOrbCount(orb));
@@ -323,6 +322,11 @@ final class GathererWork implements GolemCoreBehavior {
       }
     }
     return List.copyOf(found.values());
+  }
+
+  private static boolean claimAllows(GolemContext golem, Location at) {
+    Location block = new Location(at.getWorld(), at.getBlockX(), at.getBlockY(), at.getBlockZ());
+    return golem.canInteract(block) && golem.canBreak(block);
   }
 
   private static GolemTask pickupTask(Item item) {

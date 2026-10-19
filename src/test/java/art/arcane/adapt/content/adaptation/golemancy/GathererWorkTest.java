@@ -96,7 +96,7 @@ class GathererWorkTest {
   private final AtomicReference<Entity> target = new AtomicReference<>();
   private final AtomicBoolean probe = new AtomicBoolean(true);
   private final AtomicReference<Predicate<Location>> interact = new AtomicReference<>(location -> true);
-  private final AtomicBoolean breakable = new AtomicBoolean(true);
+  private final AtomicReference<Predicate<Location>> breakable = new AtomicReference<>(location -> true);
   private final List<Entity> probedEntities = new ArrayList<>();
   private final List<Item> probedItems = new ArrayList<>();
   private final AtomicReference<Double> workRadius = new AtomicReference<>(24D);
@@ -419,7 +419,7 @@ class GathererWorkTest {
     assertThat(work.act(golem, pickup(item))).isEqualTo(GolemActResult.BLOCKED);
 
     interact.set(location -> true);
-    breakable.set(false);
+    breakable.set(location -> false);
     assertThat(work.act(golem, pickup(item))).isEqualTo(GolemActResult.BLOCKED);
 
     assertThat(probedRemaining).isEmpty();
@@ -517,6 +517,21 @@ class GathererWorkTest {
   }
 
   @Test
+  void absorbingNeedsPermissionToBreakBlocksAtTheOrbsBlock() {
+    level.set(2);
+    ExperienceOrb orb = orb(7, 1, at(2.5D, 64D, 0.5D));
+    target.set(orb);
+    List<Location> checked = new ArrayList<>();
+    breakable.set(location -> !checked.add(location.clone()));
+
+    assertThat(work.act(golem, absorbTask(orb))).isEqualTo(GolemActResult.BLOCKED);
+
+    assertThat(checked).containsExactly(at(2D, 64D, 0D));
+    assertThat(essence.get()).isZero();
+    assertThat(removed).doesNotContain(orb);
+  }
+
+  @Test
   void theMagnetPullsCollectableItemsWithinThreeBlocksTowardTheGolemFromLevelFour() {
     Item near = item(Material.WHEAT, 1, at(2.5D, 64D, 0.5D));
     Item far = item(Material.WHEAT, 1, at(4.0D, 64D, 0.5D));
@@ -552,6 +567,18 @@ class GathererWorkTest {
     carried.set(64);
     work.tick(golem);
     assertThat(velocities).isEmpty();
+  }
+
+  @Test
+  void theMagnetLeavesItemsAloneWhereTheOwnerMayNotBreakBlocksAtTheItemsBlock() {
+    level.set(4);
+    Item guarded = item(Material.WHEAT, 1, at(2.5D, 64D, 0.5D));
+    Item open = item(Material.WHEAT, 1, at(0.5D, 64D, 2.5D));
+    breakable.set(location -> location.getX() != 2D || location.getZ() != 0D);
+
+    work.tick(golem);
+
+    assertThat(velocities).containsOnlyKeys(open).doesNotContainKey(guarded);
   }
 
   @Test
@@ -605,7 +632,7 @@ class GathererWorkTest {
     assertThat(velocities).isEmpty();
 
     positions.get(body).set(at(8.0D, 64D, 0.5D));
-    Location standing = at(8.0D, 64D, 0.5D);
+    Location standing = at(8D, 64D, 0D);
     interact.set(location -> location.distanceSquared(standing) > 1.0E-6D);
     work.tick(golem);
     assertThat(velocities).isEmpty();
@@ -673,7 +700,7 @@ class GathererWorkTest {
 
     assertThat(removed).contains(orb);
     assertThat(essence.get()).isEqualTo(5D);
-    assertThat(queried).containsExactly(at(0.5D, 64D, 1.0D));
+    assertThat(queried).containsExactly(at(0D, 64D, 1D));
     verify(world, times(1)).getNearbyEntities(any(BoundingBox.class), any());
   }
 
@@ -851,7 +878,7 @@ class GathererWorkTest {
       return Optional.of(rest);
     });
     when(context.canInteract(any(Location.class))).thenAnswer(invocation -> interact.get().test(invocation.getArgument(0)));
-    when(context.canBreak(any(Location.class))).thenAnswer(invocation -> breakable.get());
+    when(context.canBreak(any(Location.class))).thenAnswer(invocation -> breakable.get().test(invocation.getArgument(0)));
     doAnswer(invocation -> {
       workXp.add(invocation.getArgument(0));
       return null;

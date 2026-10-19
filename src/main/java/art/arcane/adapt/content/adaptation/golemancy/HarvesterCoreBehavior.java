@@ -123,7 +123,8 @@ final class HarvesterCoreBehavior implements GolemCoreBehavior {
     if (HarvesterRules.survey(crop, plan, actions.owned(golem)) != HarvesterRules.Spot.TEND) {
       return GolemActResult.FAILED;
     }
-    if (!golem.canInteract(crop.getLocation())) {
+    Location at = crop.getLocation();
+    if (!golem.canInteract(at) || !golem.canPlace(at)) {
       return GolemActResult.BLOCKED;
     }
     Inventory chest = GolemancySupport.homeChest(golem).orElse(null);

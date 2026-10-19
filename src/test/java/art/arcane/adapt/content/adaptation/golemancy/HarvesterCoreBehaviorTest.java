@@ -219,6 +219,20 @@ class HarvesterCoreBehaviorTest {
   }
 
   @Test
+  void tendingNeedsPermissionToBuildAtTheCrop() {
+    field.set(2, 64, 2, Material.CARROTS, CropField.ageable(2, 7));
+    boneMeal(5);
+    GolemContext denied = golem(1, List.of());
+    when(denied.canPlace(any(Location.class))).thenReturn(false);
+
+    assertThat(behavior.act(denied, task("tend", 2, 64, 2))).isEqualTo(GolemActResult.BLOCKED);
+
+    verify(denied).canPlace(new Location(field.world, 2, 64, 2));
+    assertThat(field.age(2, 64, 2)).isEqualTo(2);
+    assertThat(chest[4].getAmount()).isEqualTo(5);
+  }
+
+  @Test
   void plantingTakesOneCarriedSeed() {
     field.set(1, 63, 0, Material.FARMLAND);
     field.set(2, 63, 0, Material.FARMLAND);
