@@ -8,6 +8,7 @@ import art.arcane.adapt.api.golem.GolemRuneType;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.recipe.ExactIngredient;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.reflect.registries.ItemFlags;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import org.bukkit.Color;
@@ -42,6 +43,7 @@ import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -78,7 +80,7 @@ class GolemItemsTest extends AdaptTestBase {
     assertThat(GolemItems.kindOf(crook)).contains(GolemItemKind.CROOK);
     ItemMeta meta = crook.getItemMeta();
     verify(meta).setUnbreakable(true);
-    verify(meta).addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+    assertThat(meta.getItemFlags()).contains(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
     verify(meta).setMaxStackSize(1);
     verify(meta).setEnchantmentGlintOverride(true);
     verify(meta).setDisplayName(contains("Artificer's Crook"));
@@ -228,17 +230,7 @@ class GolemItemsTest extends AdaptTestBase {
 
   @Test
   void everyItemUsesItsKindModelPathAndGlint() {
-    List<ItemStack> items = List.of(
-        GolemItems.crook(),
-        GolemItems.blankCore(),
-        GolemItems.core(GolemCoreType.ANGLER),
-        GolemItems.blankNode(),
-        GolemItems.node(NodeType.FILTER),
-        GolemItems.blankRune(),
-        GolemItems.rune(new GolemRune(GolemRuneType.ORDER, 2)),
-        GolemItems.dormantGolem(dormant(Material.SNOW_BLOCK)),
-        GolemItems.shatteredCore(PACKED),
-        GolemItems.masterworkHeart());
+    List<ItemStack> items = everyItem();
 
     List<List<String>> expected = new ArrayList<>();
     for (GolemItemKind kind : GolemItemKind.values()) {
@@ -247,6 +239,26 @@ class GolemItemsTest extends AdaptTestBase {
     assertThat(modelPaths).containsExactlyElementsOf(expected);
     for (ItemStack item : items) {
       verify(item.getItemMeta()).setEnchantmentGlintOverride(true);
+    }
+  }
+
+  @Test
+  void everyItemHidesTheVanillaAdditionalTooltip() {
+    for (ItemStack item : everyItem()) {
+      assertThat(item.getItemMeta().getItemFlags())
+          .describedAs("%s tooltip flags", item.getType())
+          .contains(ItemFlags.HIDE_ADDITIONAL_TOOLTIP);
+    }
+  }
+
+  @Test
+  void hidingTheVanillaTooltipKeepsTheItemsOwnNameAndLore() {
+    for (ItemStack item : everyItem()) {
+      ItemMeta meta = item.getItemMeta();
+
+      verify(meta, never()).setHideTooltip(true);
+      verify(meta).setDisplayName(any(String.class));
+      verify(meta).setLore(any());
     }
   }
 
@@ -421,6 +433,20 @@ class GolemItemsTest extends AdaptTestBase {
     when(model.toItemStack()).thenAnswer(call -> new ItemStack(material));
     when(model.toItemStack(any(ItemStack.class))).thenAnswer(call -> call.getArgument(0));
     return model;
+  }
+
+  private static List<ItemStack> everyItem() {
+    return List.of(
+        GolemItems.crook(),
+        GolemItems.blankCore(),
+        GolemItems.core(GolemCoreType.ANGLER),
+        GolemItems.blankNode(),
+        GolemItems.node(NodeType.FILTER),
+        GolemItems.blankRune(),
+        GolemItems.rune(new GolemRune(GolemRuneType.ORDER, 2)),
+        GolemItems.dormantGolem(dormant(Material.SNOW_BLOCK)),
+        GolemItems.shatteredCore(PACKED),
+        GolemItems.masterworkHeart());
   }
 
   private static DormantGolem dormant(Material block) {

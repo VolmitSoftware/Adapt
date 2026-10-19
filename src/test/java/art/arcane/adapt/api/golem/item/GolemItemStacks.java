@@ -2,13 +2,16 @@ package art.arcane.adapt.api.golem.item;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkEffectMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -26,6 +29,7 @@ final class GolemItemStacks {
     FireworkEffectMeta meta = mock(FireworkEffectMeta.class);
     PersistentDataContainer container = container(new HashMap<>());
     when(meta.getPersistentDataContainer()).thenReturn(container);
+    trackFlags(meta);
     when(item.getType()).thenReturn(type);
     when(item.hasItemMeta()).thenReturn(true);
     when(item.getItemMeta()).thenReturn(meta);
@@ -53,6 +57,18 @@ final class GolemItemStacks {
 
   static String stored(ItemStack item, NamespacedKey key) {
     return item.getItemMeta().getPersistentDataContainer().get(key, PersistentDataType.STRING);
+  }
+
+  private static void trackFlags(FireworkEffectMeta meta) {
+    Set<ItemFlag> flags = EnumSet.noneOf(ItemFlag.class);
+    doAnswer(call -> {
+      for (Object flag : call.getArguments()) {
+        flags.add((ItemFlag) flag);
+      }
+      return null;
+    }).when(meta).addItemFlags(any(ItemFlag[].class));
+    when(meta.getItemFlags()).thenAnswer(call -> Set.copyOf(flags));
+    when(meta.hasItemFlag(any(ItemFlag.class))).thenAnswer(call -> flags.contains(call.<ItemFlag>getArgument(0)));
   }
 
   @SuppressWarnings("unchecked")

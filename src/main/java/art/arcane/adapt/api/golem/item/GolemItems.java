@@ -13,6 +13,7 @@ import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.misc.CustomModel;
+import art.arcane.adapt.util.reflect.registries.ItemFlags;
 import com.google.gson.Gson;
 import com.google.gson.JsonParseException;
 import org.bukkit.Color;
@@ -261,6 +262,7 @@ public final class GolemItems {
     meta.setLore(lore);
     meta.setEnchantmentGlintOverride(true);
     meta.setMaxStackSize(spec.kind().maxStackSize());
+    hideVanillaTooltip(meta);
     decorate(meta, spec);
     PersistentDataContainer container = meta.getPersistentDataContainer();
     container.set(KIND_KEY, PersistentDataType.STRING, spec.kind().id());
@@ -271,11 +273,18 @@ public final class GolemItems {
     return item;
   }
 
+  private static void hideVanillaTooltip(ItemMeta meta) {
+    ItemFlag additionalTooltip = ItemFlags.HIDE_ADDITIONAL_TOOLTIP;
+    if (additionalTooltip != null) {
+      meta.addItemFlags(additionalTooltip);
+    }
+  }
+
   private static void decorate(ItemMeta meta, Spec spec) {
     switch (spec.kind()) {
       case CROOK -> {
         meta.setUnbreakable(true);
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_UNBREAKABLE);
       }
       case BLANK_CORE, CORE, SHATTERED_CORE -> {
         if (meta instanceof FireworkEffectMeta firework) {
