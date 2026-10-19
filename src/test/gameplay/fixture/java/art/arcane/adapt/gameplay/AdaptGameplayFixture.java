@@ -214,6 +214,7 @@ public final class AdaptGameplayFixture extends JavaPlugin {
                     Integer.parseInt(demoArgument(args, 5)));
             case "bind" -> GolemancyFixtures.bind(ordinaryPlayer(demoArgument(args, 2)), demoArgument(args, 3), demoArgument(args, 4));
             case "probe" -> loggedProbe(ordinaryPlayer(demoArgument(args, 2)));
+            case "near" -> GolemancyFixtures.near(ordinaryPlayer(demoArgument(args, 2)));
             case "reset" -> demoStudio.reset();
             default -> throw new IllegalArgumentException("Unknown demo command " + args[1]);
         };

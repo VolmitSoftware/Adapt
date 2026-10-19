@@ -383,18 +383,69 @@ public final class GolemancyFixtures {
         throw new IllegalArgumentException("No golem tagged " + tag);
     }
 
+    public static String warm() {
+        if (itemsWarmed) {
+            return WARM_REPLY;
+        }
+        itemsWarmed = true;
+        GolemItems.crook();
+        GolemItems.blankCore();
+        GolemItems.core(GolemCoreType.GATHERER);
+        GolemItems.blankNode();
+        GolemItems.node(NodeType.DEPOSIT);
+        GolemItems.blankRune();
+        GolemItems.rune(new GolemRune(GolemRuneType.SWIFTNESS, 1));
+        GolemItems.masterworkHeart();
+        GolemItems.mayBeOwnerBound(Material.SNOW_BLOCK);
+        return WARM_REPLY;
+    }
+
+    public static String give(Player player, int hotbarSlot, String itemId, int count) {
+        if (hotbarSlot < 0 || hotbarSlot > 8) {
+            throw new IllegalArgumentException("Hotbar slot must be 0 to 8, found " + hotbarSlot);
+        }
+        ItemStack item = "masterwork_heart".equals(itemId) ? GolemItems.masterworkHeart() : GolemItems.resolve(new NamespacedKey(GolemItems.NAMESPACE, itemId));
+        if (item == null) {
+            throw new IllegalArgumentException("Unknown Golemancy item " + itemId);
+        }
+        item.setAmount(count);
+        player.getInventory().setItem(hotbarSlot, item);
+        player.updateInventory();
+        return "ADAPT_QA DEMO GIVE " + hotbarSlot + " " + itemId + " " + count;
+    }
+
     public static String probe(Player owner) {
         World world = owner.getWorld();
         Location at = owner.getLocation();
         long now = System.currentTimeMillis();
-        List<GolemHandle> golems = GolemancyRuntime.registry().map(registry -> List.copyOf(registry.loadedOf(owner.getUniqueId()))).orElse(List.of());
-        StringBuilder out = new StringBuilder(ProbeFormat.header(nodeItems(demoOwners()), golems.size()));
+        List<GolemHandle> golems = loadedGolems(owner);
+        StringBuilder out = new StringBuilder(ProbeFormat.header(nodeItems(demoOwners()), golems.size(), nearestGolem(owner, golems)));
         GolemancyRuntime.nodes().ifPresent(service -> describeNodes(out, service, world, at, now));
         for (GolemHandle handle : golems) {
             describeGolem(out, handle);
         }
         describeLevels(out, owner);
         return out.toString();
+    }
+
+    public static String near(Player owner) {
+        return ProbeFormat.near(nearestGolem(owner, loadedGolems(owner)));
+    }
+
+    private static List<GolemHandle> loadedGolems(Player owner) {
+        return GolemancyRuntime.registry().map(registry -> List.copyOf(registry.loadedOf(owner.getUniqueId()))).orElse(List.of());
+    }
+
+    private static Double nearestGolem(Player owner, List<GolemHandle> golems) {
+        Location at = owner.getLocation();
+        List<Double> distances = new ArrayList<>(golems.size());
+        for (GolemHandle handle : golems) {
+            Location where = handle.entity().getLocation();
+            if (where.getWorld() == at.getWorld()) {
+                distances.add(where.distance(at));
+            }
+        }
+        return ProbeFormat.nearest(distances);
     }
 
     private static void describeLevels(StringBuilder out, Player owner) {
@@ -434,37 +485,6 @@ public final class GolemancyFixtures {
         Location where = handle.entity().getLocation();
         out.append(ProbeFormat.golem(String.valueOf(handle.body()), String.valueOf(handle.state().mode()), String.valueOf(handle.state().cores()),
             where.getX(), where.getY(), where.getZ(), handle.isDormant()));
-    }
-
-    public static String warm() {
-        if (itemsWarmed) {
-            return WARM_REPLY;
-        }
-        itemsWarmed = true;
-        GolemItems.crook();
-        GolemItems.blankCore();
-        GolemItems.core(GolemCoreType.GATHERER);
-        GolemItems.blankNode();
-        GolemItems.node(NodeType.DEPOSIT);
-        GolemItems.blankRune();
-        GolemItems.rune(new GolemRune(GolemRuneType.SWIFTNESS, 1));
-        GolemItems.masterworkHeart();
-        GolemItems.mayBeOwnerBound(Material.SNOW_BLOCK);
-        return WARM_REPLY;
-    }
-
-    public static String give(Player player, int hotbarSlot, String itemId, int count) {
-        if (hotbarSlot < 0 || hotbarSlot > 8) {
-            throw new IllegalArgumentException("Hotbar slot must be 0 to 8, found " + hotbarSlot);
-        }
-        ItemStack item = "masterwork_heart".equals(itemId) ? GolemItems.masterworkHeart() : GolemItems.resolve(new NamespacedKey(GolemItems.NAMESPACE, itemId));
-        if (item == null) {
-            throw new IllegalArgumentException("Unknown Golemancy item " + itemId);
-        }
-        item.setAmount(count);
-        player.getInventory().setItem(hotbarSlot, item);
-        player.updateInventory();
-        return "ADAPT_QA DEMO GIVE " + hotbarSlot + " " + itemId + " " + count;
     }
 
     public static JsonObject snapshot(Player player) {
