@@ -1,4 +1,5 @@
 import copy
+import dataclasses
 import io
 import json
 import sys
@@ -166,40 +167,37 @@ class CatalogTest(unittest.TestCase):
                 media_catalog.parse(raw)
 
 
-class CubeTest(unittest.TestCase):
-    def test_cube_is_one_icon_with_clear_corners_and_shaded_faces(self) -> None:
-        image: Image.Image = textures.cube(solid((200, 0, 0)), solid((0, 200, 0)), solid((0, 0, 200)))
+class CubeTest(MediaCase):
+    def test_block_icon_is_one_icon_with_clear_corners_and_shaded_faces(self) -> None:
+        image: Image.Image = self.icons.icon('LODESTONE')
 
         self.assertEqual(image.size, (16, 16))
         self.assertEqual(image.mode, 'RGBA')
         for corner in ((0, 0), (15, 0), (0, 15), (15, 15)):
             self.assertEqual(image.getpixel(corner)[3], 0, corner)
-        self.assertEqual(image.getpixel((8, 3)), (200, 0, 0, 255))
-        self.assertEqual(image.getpixel((4, 10)), (0, 160, 0, 255))
-        self.assertEqual(image.getpixel((12, 10)), (0, 0, 120, 255))
+        self.assertEqual(image.getpixel((8, 3)), BLOCK_COLORS['lodestone_top'] + (255,))
+        self.assertEqual(image.getpixel((4, 10)), tuple(round(channel * 0.8) for channel in BLOCK_COLORS['lodestone_side']) + (255,))
+        self.assertEqual(image.getpixel((12, 10)), tuple(round(channel * 0.6) for channel in BLOCK_COLORS['lodestone_side']) + (255,))
 
-    def test_cube_has_no_holes_inside_its_silhouette(self) -> None:
-        image: Image.Image = textures.cube(solid((200, 0, 0)), solid((0, 200, 0)), solid((0, 0, 200)))
+    def test_block_icon_has_no_holes_inside_its_silhouette(self) -> None:
+        image: Image.Image = self.icons.icon('LODESTONE')
 
         for row in range(2, 14):
             opaque: list[int] = [column for column in range(16) if image.getpixel((column, row))[3] > 0]
             self.assertEqual(opaque, list(range(opaque[0], opaque[-1] + 1)), row)
 
-    def test_top_face_leaves_the_sides_clear(self) -> None:
-        image: Image.Image = textures.top_face(solid((200, 0, 0)))
+    def test_slot_icons_are_the_supersampled_full_resolution_render(self) -> None:
+        full: Image.Image = self.icons.hires('LODESTONE', textures.SUPERSAMPLE)
 
-        self.assertEqual(image.size, (16, 16))
-        self.assertEqual(image.getpixel((8, 3)), (200, 0, 0, 255))
-        self.assertEqual(image.getpixel((4, 10))[3], 0)
-        self.assertEqual(image.getpixel((12, 10))[3], 0)
+        self.assertEqual(full.size, (16 * textures.SUPERSAMPLE, 16 * textures.SUPERSAMPLE))
+        self.assertEqual(self.icons.icon('LODESTONE').tobytes(), textures.downsample(full).tobytes())
 
-    def test_chest_box_is_smaller_than_a_cube(self) -> None:
-        face: Image.Image = solid((150, 100, 50), (14, 15))
-        box: Image.Image = textures.iso_box(solid((150, 100, 50), (14, 14)), face, face, textures.CHEST_SIZE)
-        full: Image.Image = textures.cube(solid((150, 100, 50)), solid((150, 100, 50)), solid((150, 100, 50)))
+    def test_chest_is_smaller_than_a_full_cube(self) -> None:
+        chest: Image.Image = self.icons.icon('CHEST')
+        full: Image.Image = self.icons.icon('IRON_BLOCK')
 
-        self.assertEqual(box.size, (16, 16))
-        self.assertLess(sum(1 for pixel in box.getdata() if pixel[3] > 0), sum(1 for pixel in full.getdata() if pixel[3] > 0))
+        self.assertEqual(chest.size, (16, 16))
+        self.assertLess(sum(pixel[3] for pixel in chest.getdata()), sum(pixel[3] for pixel in full.getdata()))
 
     def test_animated_strips_use_their_first_frame(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -419,6 +417,23 @@ class RecipeRenderTest(MediaCase):
         caption_tithed: Image.Image = tithed.crop((0, 270, tithed.width, tithed.height))
         self.assertNotEqual(caption_free.tobytes(), caption_tithed.tobytes())
 
+    def test_the_result_slot_shows_the_yield_count_only_above_one(self) -> None:
+        parsed: media_catalog.Catalog = catalog()
+        recipe: media_catalog.Recipe = parsed.recipes[0]
+        box: tuple[int, int, int, int] = tuple(value * 4 for value in (media_render.PAD + media_render.RESULT_OFFSET[0] + 6, media_render.PAD + media_render.RESULT_OFFSET[1] + 6,
+                                                                       media_render.PAD + media_render.RESULT_OFFSET[0] + 17, media_render.PAD + media_render.RESULT_OFFSET[1] + 17))
+
+        def slot(yield_count: int) -> Image.Image:
+            return media_render.render_recipe(dataclasses.replace(recipe, yield_count=yield_count), parsed, self.icons, self.gui).crop(box)
+
+        single: Image.Image = slot(1)
+        counted: Image.Image = slot(4)
+        self.assertNotIn(textures.WHITE[:3], {pixel[:3] for pixel in single.getdata()})
+        self.assertIn(textures.WHITE[:3], {pixel[:3] for pixel in counted.getdata()})
+        self.assertIn(textures.SHADOW[:3], {pixel[:3] for pixel in counted.getdata()})
+        self.assertNotEqual(single.tobytes(), counted.tobytes())
+        self.assertEqual(slot(1).tobytes(), single.tobytes())
+
     def test_tithe_text_is_singular_for_one_level(self) -> None:
         self.assertEqual(media_render.plural(1, 'level'), '1 level')
         self.assertEqual(media_render.plural(2, 'level'), '2 levels')
@@ -446,6 +461,19 @@ class InfusionRenderTest(MediaCase):
             self.assertIn(copper, colors(column, row))
             self.assertNotIn(plain, colors(column, row))
         self.assertNotIn(copper, colors(1, 1))
+
+    def test_pedestal_items_are_drawn_north_east_south_west_in_listed_order(self) -> None:
+        parsed: media_catalog.Catalog = catalog()
+        infusion: media_catalog.Infusion = dataclasses.replace(parsed.infusions[0], pedestals=('SUGAR', 'REDSTONE', 'FEATHER', 'COPPER_INGOT'))
+        image: Image.Image = media_render.render_infusion(infusion, parsed, self.icons, self.gui)
+
+        def center(column: int, row: int) -> tuple[int, int]:
+            return ((media_render.PAD + column * media_render.CELL_WIDTH + 8) * 4, (media_render.PAD + row * media_render.CELL_HEIGHT + 8) * 4)
+
+        self.assertEqual(image.getpixel(center(1, 0))[:3], ITEM_COLORS['sugar'])
+        self.assertEqual(image.getpixel(center(2, 1))[:3], ITEM_COLORS['redstone'])
+        self.assertEqual(image.getpixel(center(1, 2))[:3], ITEM_COLORS['feather'])
+        self.assertEqual(image.getpixel(center(0, 1))[:3], ITEM_COLORS['copper_ingot'])
 
     def test_result_label_names_the_rune_tier(self) -> None:
         self.assertEqual(media_render.result_label(catalog(), 'golemancy:rune/swiftness/1'), 'Swiftness Rune I')
@@ -506,7 +534,7 @@ class DiagramTest(MediaCase):
         self.assertNotEqual(pixel(2.5, 0.5), blended)
 
     def test_plinth_view_has_compass_markers_and_short_labels(self) -> None:
-        image: Image.Image = media_diagrams.plinth_iso(self.icons, self.gui)
+        image: Image.Image = media_diagrams.plinth_view(self.icons, self.gui)
 
         self.assertEqual(image.mode, 'RGBA')
         self.assertEqual((image.width % 4, image.height % 4), (0, 0))
@@ -603,7 +631,7 @@ class RenderAllTest(MediaCase):
         written: list[Path] = self.render(out)
 
         expected: list[str] = ['recipes/golemancy-crook.png', 'recipes/golemancy-blank-core.png', 'recipes/golemancy-log-hoe.png',
-                               'infusions/swiftness_1.png', 'diagrams/animus-plinth-top.png', 'diagrams/animus-plinth-iso.png', 'diagrams/golem-builds.png',
+                               'infusions/swiftness_1.png', 'diagrams/animus-plinth-top.png', 'diagrams/animus-plinth-view.png', 'diagrams/golem-builds.png',
                                'diagrams/node-on-chest.png', 'diagrams/prerequisite-tree.png']
         self.assertEqual([path.relative_to(out).as_posix() for path in written], expected)
         for name in expected:

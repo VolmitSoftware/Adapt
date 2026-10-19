@@ -114,7 +114,7 @@ def render_infusion(infusion: Infusion, catalog: Catalog, icons: textures.Icons,
     scaled.alpha_composite(result, ((slot_x + (slot.width - textures.ICON) // 2) * textures.SCALE, (middle - textures.ICON // 2) * textures.SCALE))
     lines: list[tuple[str, int, tuple[int, int, int, int]]] = [
         (result_label(catalog, infusion.result), NAME_SIZE, textures.INK),
-        ('Essence: ' + plural(infusion.essence_levels, 'level') + '   Duration: ' + seconds(infusion.duration_ticks), DETAIL_SIZE, GREEN)]
+        ('Essence: ' + plural(infusion.essence_levels, 'level') + '   Duration: ' + seconds(infusion.duration_ticks) + '   Pedestals: any order', DETAIL_SIZE, GREEN)]
     caption(scaled, (PAD + PLUS_HEIGHT + CAPTION_TOP) * textures.SCALE, lines)
     return scaled
 

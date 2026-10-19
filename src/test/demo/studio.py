@@ -5,7 +5,6 @@ import json
 import os
 import re
 import secrets
-import shlex
 import shutil
 import subprocess
 import sys
@@ -72,7 +71,6 @@ LAUNCH_WATCH: float = 15.0
 RESCAN_WAIT: float = 30.0
 IRIS_LIBS: Path = ROOT.parent / 'Iris' / 'build' / 'libs'
 IRIS_LIBS_ENV: str = 'ADAPT_DEMO_IRIS_LIBS'
-GRADLE_ARGS_ENV: str = 'ADAPT_DEMO_GRADLE_ARGS'
 IRIS_DENIALS: tuple[str, ...] = ('denied', 'locked', 'cannot', 'restart', 'could not find', 'already exists', 'exception raised')
 
 
@@ -352,10 +350,6 @@ def reload_prism_instance(instance: Path, log: Path = PRISM_LOG) -> None:
     await_instance_reload(log, offset, instance, removed=False)
 
 
-def gradle_arguments() -> list[str]:
-    return shlex.split(os.environ.get(GRADLE_ARGS_ENV, ''))
-
-
 def build_environment() -> dict[str, str]:
     environment: dict[str, str] = dict(os.environ)
     environment.pop('GIT_CONFIG_COUNT', None)
@@ -626,7 +620,7 @@ class Studio:
 
     def build(self, command: list[str], log_name: str) -> None:
         if command[0] == './gradlew':
-            command = command + gradle_arguments()
+            command = command + clientqa.gradle_arguments()
         with (self.output / log_name).open('w') as log:
             subprocess.run(command, cwd=ROOT, env=build_environment(), stdout=log, stderr=subprocess.STDOUT, check=True)
 

@@ -205,6 +205,8 @@ def showcase_problems(entry: Entry, taken: frozenset[str] | set[str]) -> list[st
     problems: list[str] = []
     if entry.id in taken:
         problems.append('showcase id is also an adaptation id')
+    if not STILL_NAME.fullmatch(entry.id):
+        problems.append('showcase id must be lowercase letters, digits and single hyphens')
     if not showcase.title.strip():
         problems.append('showcase title is required')
     if not showcase.heading:

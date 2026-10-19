@@ -645,8 +645,18 @@ class ShowcaseSheetTest(unittest.TestCase):
                                                           'showcase': [showcase_clip(prerequisites=[{'name': 'y-other', 'level': 3}])]})
         self.assertEqual(sheet.entries['x-ritual'].prerequisites, (choreography.Prerequisite(skill='y', name='y-other', level=3),))
 
-    def test_the_golemancy_sheet_has_no_showcase_clips_yet(self) -> None:
-        self.assertEqual(choreography.showcase_entries(choreography.load_skill(ROOT, 'golemancy').entries), [])
+    def test_showcase_ids_are_file_stems(self) -> None:
+        for identifier in ('', 'X-ritual', 'x/ritual', '../x', 'x--ritual', '-x', 'x ritual'):
+            with self.subTest(identifier), tempfile.TemporaryDirectory() as tmp:
+                sheet: choreography.Sheet = self.sheet(tmp, {'x-one': self.adaptation(), 'showcase': [showcase_clip(identifier)]})
+                self.assertIn(identifier + ': showcase id must be lowercase letters, digits and single hyphens',
+                              choreography.validate(sheet.entries, {'x-one'}, frozenset({'x-one'})))
+
+    def test_every_sheet_validates_against_the_whole_catalog(self) -> None:
+        for sheet in sorted((ROOT / 'src' / 'test' / 'demo' / 'sheets').glob('*.json')):
+            with self.subTest(sheet.stem):
+                entries: dict[str, choreography.Entry] = choreography.load_skill(ROOT, sheet.stem).entries
+                self.assertEqual(choreography.validate(entries, matrix_ids(sheet.stem), choreography.catalog_ids(ROOT)), [])
 
 
 class StillSheetTest(unittest.TestCase):

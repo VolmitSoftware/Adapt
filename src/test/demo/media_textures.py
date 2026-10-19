@@ -235,15 +235,6 @@ def downsample(image: Image.Image) -> Image.Image:
     return image.resize((ICON, ICON), Image.BOX)
 
 
-def cube(top: Image.Image, left: Image.Image, right: Image.Image) -> Image.Image:
-    return downsample(iso_box(top, left, right, res=SUPERSAMPLE))
-
-
-def top_face(top: Image.Image, res: int = 1, camera: IsoCamera | None = None) -> Image.Image:
-    hidden: Image.Image = Image.new('RGBA', (1, 1), (0, 0, 0, 0))
-    return iso_box(top, hidden, hidden, res=res, camera=camera)
-
-
 def glint(icon: Image.Image) -> Image.Image:
     result: Image.Image = icon.copy()
     for row in range(icon.height):

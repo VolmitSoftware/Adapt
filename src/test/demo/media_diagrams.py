@@ -204,7 +204,7 @@ def plinth_scene(icons: textures.Icons, gui: textures.Gui) -> Scene:
     return scene
 
 
-def plinth_iso(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
+def plinth_view(icons: textures.Icons, gui: textures.Gui) -> Image.Image:
     scene: Scene = plinth_scene(icons, gui)
     layer: Image.Image
     origin: Point
@@ -463,7 +463,7 @@ def prerequisite_tree(catalog: Catalog, gui: textures.Gui) -> Image.Image:
 def render_all(catalog: Catalog, icons: textures.Icons, gui: textures.Gui) -> dict[str, Image.Image]:
     return {
         'animus-plinth-top': plinth_top(icons, gui),
-        'animus-plinth-iso': plinth_iso(icons, gui),
+        'animus-plinth-view': plinth_view(icons, gui),
         'golem-builds': golem_builds(icons, gui),
         'node-on-chest': node_on_chest(icons, gui),
         'prerequisite-tree': prerequisite_tree(catalog, gui),

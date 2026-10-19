@@ -21,7 +21,7 @@ def thumbnail_command(ffmpeg: Path, source: Path, target: Path, seconds: float) 
 
 
 def still_command(ffmpeg: Path, source: Path, target: Path, seconds: float) -> list[str]:
-    return [str(ffmpeg), '-y', '-ss', format(seconds, 'g'), '-i', str(source), '-frames:v', '1', str(target)]
+    return [str(ffmpeg), '-y', '-ss', repr(seconds), '-i', str(source), '-frames:v', '1', str(target)]
 
 
 def has_audio(ffprobe: Path, source: Path) -> bool:

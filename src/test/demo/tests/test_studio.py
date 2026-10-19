@@ -404,6 +404,10 @@ class MultiplexorTest(unittest.TestCase):
         with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_MULTIPLEXOR': '/srv/[Minecraft Server]'}):
             self.assertEqual(studio.clientqa.multiplexor(), Path('/srv/[Minecraft Server]'))
 
+    def test_environment_home_shorthand_is_expanded(self) -> None:
+        with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_MULTIPLEXOR': '~/Mux'}):
+            self.assertEqual(studio.clientqa.multiplexor(), Path.home() / 'Mux')
+
     def test_commands_run_from_the_environment_workspace(self) -> None:
         done = subprocess.CompletedProcess([], 0, stdout='ok\n', stderr='')
         with mock.patch.dict(studio.os.environ, {'ADAPT_DEMO_MULTIPLEXOR': '/srv/[Minecraft Server]'}), \
@@ -411,6 +415,24 @@ class MultiplexorTest(unittest.TestCase):
             self.assertEqual(studio.clientqa.mux('server', 'list'), 'ok')
         self.assertEqual(run.call_args.args[0], ['/srv/[Minecraft Server]/start.sh', '--consumer', 'plugin', 'server', 'list'])
         self.assertEqual(run.call_args.kwargs['cwd'], Path('/srv/[Minecraft Server]'))
+
+
+class ClientBuildTest(unittest.TestCase):
+    def build(self, environment: dict[str, str]) -> mock.MagicMock:
+        with tempfile.TemporaryDirectory() as tmp, mock.patch.dict(studio.os.environ, environment), \
+                mock.patch.object(studio.clientqa.subprocess, 'run') as run:
+            studio.clientqa.gradle_build(Path(tmp))
+        return run
+
+    def test_client_qa_build_appends_the_extra_gradle_arguments(self) -> None:
+        run: mock.MagicMock = self.build({'ADAPT_DEMO_GRADLE_ARGS': '-PlocalIrisDirectory=/work/iris -Pflag'})
+
+        self.assertEqual(run.call_args.args[0], ['./gradlew', 'build', 'prepareGameplay', '-PlocalIrisDirectory=/work/iris', '-Pflag'])
+        self.assertEqual(run.call_args.kwargs['cwd'], studio.ROOT)
+        self.assertNotIn('GIT_CONFIG_COUNT', run.call_args.kwargs['env'])
+
+    def test_client_qa_build_is_unchanged_without_arguments(self) -> None:
+        self.assertEqual(self.build({'ADAPT_DEMO_GRADLE_ARGS': ''}).call_args.args[0], ['./gradlew', 'build', 'prepareGameplay'])
 
 
 class GradleArgumentsTest(unittest.TestCase):

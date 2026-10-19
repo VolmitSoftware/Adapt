@@ -5,6 +5,7 @@ import os
 import re
 from pathlib import Path
 import secrets
+import shlex
 import signal
 import shutil
 import socket
@@ -19,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[3]
 PRISM = Path.home() / 'Library/Application Support/PrismLauncher'
 LAUNCHER = Path('/Applications/Prism Launcher.app/Contents/MacOS/prismlauncher')
 MULTIPLEXOR_ENV = 'ADAPT_DEMO_MULTIPLEXOR'
+GRADLE_ARGS_ENV = 'ADAPT_DEMO_GRADLE_ARGS'
 
 
 class Rcon:
@@ -105,7 +107,18 @@ def free_port():
 
 
 def multiplexor() -> Path:
-    return Path(os.environ.get(MULTIPLEXOR_ENV) or ROOT.parent.parent / '[Minecraft Server]')
+    return Path(os.environ.get(MULTIPLEXOR_ENV) or ROOT.parent.parent / '[Minecraft Server]').expanduser()
+
+
+def gradle_arguments() -> list[str]:
+    return shlex.split(os.environ.get(GRADLE_ARGS_ENV, ''))
+
+
+def gradle_build(output: Path) -> None:
+    environment = dict(os.environ)
+    environment.pop('GIT_CONFIG_COUNT', None)
+    with (output / 'build.log').open('w') as log:
+        subprocess.run(['./gradlew', 'build', 'prepareGameplay', *gradle_arguments()], cwd=ROOT, env=environment, stdout=log, stderr=subprocess.STDOUT, check=True)
 
 
 def mux(*arguments: str, timeout: int = 180) -> str:
@@ -379,10 +392,7 @@ def main():
     rcon = None
     try:
         if not args.skip_build:
-            environment = dict(os.environ)
-            environment.pop('GIT_CONFIG_COUNT', None)
-            with (output / 'build.log').open('w') as log:
-                subprocess.run(['./gradlew', 'build', 'prepareGameplay'], cwd=ROOT, env=environment, stdout=log, stderr=subprocess.STDOUT, check=True)
+            gradle_build(output)
         mods = ensure_mods(ROOT)
         with (output / 'client-build.log').open('w') as log:
             subprocess.run(['bash', str(ROOT / 'src/test/client/build.sh')], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, check=True)
