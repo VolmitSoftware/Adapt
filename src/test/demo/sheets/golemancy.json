@@ -60,17 +60,6 @@
         "ticks": 20
       },
       {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
-      },
-      {
         "verb": "slot",
         "index": 1
       },
@@ -176,17 +165,6 @@
       {
         "verb": "wait",
         "ticks": 20
-      },
-      {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
       },
       {
         "verb": "slot",
@@ -423,17 +401,6 @@
         "ticks": 20
       },
       {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
-      },
-      {
         "verb": "slot",
         "index": 1
       },
@@ -533,17 +500,6 @@
       {
         "verb": "wait",
         "ticks": 20
-      },
-      {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
       },
       {
         "verb": "slot",
@@ -659,17 +615,6 @@
       {
         "verb": "wait",
         "ticks": 20
-      },
-      {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
       },
       {
         "verb": "slot",
@@ -938,17 +883,6 @@
         "ticks": 20
       },
       {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
-      },
-      {
         "verb": "slot",
         "index": 1
       },
@@ -1056,17 +990,6 @@
       {
         "verb": "wait",
         "ticks": 20
-      },
-      {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
       },
       {
         "verb": "slot",
@@ -1204,17 +1127,6 @@
       {
         "verb": "wait",
         "ticks": 20
-      },
-      {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
       },
       {
         "verb": "slot",
@@ -1518,17 +1430,6 @@
       {
         "verb": "wait",
         "ticks": 20
-      },
-      {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
       },
       {
         "verb": "slot",
@@ -1924,17 +1825,6 @@
         "ticks": 20
       },
       {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
-      },
-      {
         "verb": "slot",
         "index": 1
       },
@@ -2206,17 +2096,6 @@
       {
         "verb": "wait",
         "ticks": 20
-      },
-      {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
       },
       {
         "verb": "slot",
@@ -2768,17 +2647,6 @@
       {
         "verb": "wait",
         "ticks": 20
-      },
-      {
-        "verb": "keys",
-        "hold": [
-          "back"
-        ],
-        "ticks": 10
-      },
-      {
-        "verb": "wait",
-        "ticks": 8
       },
       {
         "verb": "slot",
@@ -3879,17 +3747,6 @@
           "ticks": 20
         },
         {
-          "verb": "keys",
-          "hold": [
-            "back"
-          ],
-          "ticks": 10
-        },
-        {
-          "verb": "wait",
-          "ticks": 8
-        },
-        {
           "verb": "slot",
           "index": 1
         },
@@ -4170,17 +4027,6 @@
         {
           "verb": "wait",
           "ticks": 20
-        },
-        {
-          "verb": "keys",
-          "hold": [
-            "back"
-          ],
-          "ticks": 10
-        },
-        {
-          "verb": "wait",
-          "ticks": 8
         },
         {
           "verb": "slot",
@@ -4566,22 +4412,27 @@
           "slot": 0
         },
         {
-          "verb": "window",
-          "action": "hover",
-          "slot": 1
-        },
-        {
-          "verb": "window",
-          "action": "click",
-          "slot": 0
-        },
-        {
           "verb": "wait",
           "ticks": 6
         },
         {
           "verb": "window",
-          "action": "close"
+          "action": "hover",
+          "slot": 1
+        },
+        {
+          "verb": "wait",
+          "ticks": 8
+        },
+        {
+          "verb": "window",
+          "action": "hover",
+          "slot": 0
+        },
+        {
+          "verb": "window",
+          "action": "click",
+          "slot": 0
         },
         {
           "verb": "wait",
@@ -4595,7 +4446,7 @@
         },
         {
           "verb": "wait",
-          "ticks": 110
+          "ticks": 150
         }
       ],
       "expect": {
@@ -5410,23 +5261,31 @@
         {
           "verb": "lookAt",
           "offset": [
-            -1.8,
-            0.4,
-            -2.6
+            -2.5,
+            0.9,
+            -10.5
           ],
-          "ticks": 10
+          "ticks": 12
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~-2.2 ~ ~-2.4"
+          "text": "execute at {actor} run tp @e[type=minecraft:snow_golem,limit=1,sort=nearest] ~-2.5 ~ ~-10.0"
         },
         {
           "verb": "command",
-          "text": "execute at {actor} run summon minecraft:experience_orb ~-2.0 ~ ~-3.2 {Value:60s}"
+          "text": "execute at {actor} run summon minecraft:experience_orb ~-2.0 ~ ~-10.6 {Value:60s}"
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run summon minecraft:experience_orb ~-2.8 ~ ~-10.6 {Value:60s}"
+        },
+        {
+          "verb": "command",
+          "text": "execute at {actor} run summon minecraft:experience_orb ~-2.4 ~ ~-11.0 {Value:60s}"
         },
         {
           "verb": "wait",
-          "ticks": 200
+          "ticks": 220
         }
       ],
       "expect": {
@@ -5435,11 +5294,11 @@
       "povCapture": true,
       "maxTicks": 1700,
       "camera": {
-        "x": 4.0,
-        "y": 2.2,
-        "z": -1.0,
-        "yaw": 108.4,
-        "pitch": 19.7
+        "x": -0.4,
+        "y": 1.5,
+        "z": -7.6,
+        "yaw": 144.1,
+        "pitch": 17.8
       }
     }
   ]
