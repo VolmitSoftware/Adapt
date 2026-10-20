@@ -72,12 +72,15 @@ class GolemGuiLiveTest extends AdaptTestBase {
   private static final UUID OWNER = UUID.fromString("00000000-0000-0000-0000-0000000000e2");
   private static final UUID WORLD = UUID.fromString("00000000-0000-0000-0000-0000000000e3");
   private static final GolemRuneLayout LAYOUT = new GolemRuneLayout(2, List.of(1, 2), 3, List.of(1, 2, 3), Set.of());
+  private static final GolemRuneLayout BONE_LAYOUT = new GolemRuneLayout(3, List.of(1, 1, 3, 5), 2, List.of(1, 3, 5), Set.of());
+  private static final int RUNE_ROW = 1;
   private static final int CARRIED_ROW = 2;
   private static final int CARRIED_FIRST = -4;
   private static final int HEADER_ROW = 0;
   private static final int FOOTER_ROW = 4;
 
   private final ManualScheduler scheduler = new ManualScheduler();
+  private final AtomicReference<GolemBody> body = new AtomicReference<>(GolemBody.IRON);
   private final AtomicReference<List<String>> carried = new AtomicReference<>(List.of("cobblestone-12", "oak_log-4"));
   private final AtomicReference<List<GolemCoreType>> cores = new AtomicReference<>(List.of(GolemCoreType.BREAKER));
   private final AtomicReference<List<GolemRune>> runes = new AtomicReference<>(List.of());
@@ -121,7 +124,7 @@ class GolemGuiLiveTest extends AdaptTestBase {
     GolemState.Stats stats = mock(GolemState.Stats.class);
     lenient().when(stats.tasks()).thenAnswer(invocation -> tasks.get());
     GolemState state = mock(GolemState.class);
-    lenient().when(state.body()).thenReturn(GolemBody.IRON);
+    lenient().when(state.body()).thenAnswer(invocation -> body.get());
     lenient().when(state.cores()).thenAnswer(invocation -> cores.get());
     lenient().when(state.primaryCore()).thenAnswer(invocation -> cores.get().getFirst());
     lenient().when(state.runes()).thenAnswer(invocation -> runes.get());
@@ -159,6 +162,7 @@ class GolemGuiLiveTest extends AdaptTestBase {
     runeEffects = mockStatic(GolemRunes.class);
     runeEffects.when(() -> GolemRunes.effects(any(GolemHandle.class))).thenReturn(GolemRuneEffects.NONE);
     runeEffects.when(() -> GolemRunes.layout(any(GolemBody.class), any(UUID.class), anyBoolean())).thenReturn(LAYOUT);
+    runeEffects.when(() -> GolemRunes.layout(eq(GolemBody.BONE), any(UUID.class), anyBoolean())).thenReturn(BONE_LAYOUT);
     vitals = mockStatic(GolemVitals.class);
     vitals.when(() -> GolemVitals.maxHealth(any())).thenReturn(20D);
     hud = mockStatic(AdaptHud.class);
@@ -370,6 +374,34 @@ class GolemGuiLiveTest extends AdaptTestBase {
     verify(window).updateElement(eq(GuiLayout.centeredPosition(0, 2)), eq(1), any(Element.class));
     verify(window, never()).updateElement(anyInt(), eq(CARRIED_ROW), any());
     verify(window, never()).updateElement(anyInt(), eq(HEADER_ROW), any());
+  }
+
+  @Test
+  void aBoneGolemsRuneRowShowsItsOpenAndLockedSlots() {
+    body.set(GolemBody.BONE);
+    carried.set(List.of());
+    openAndDraw();
+    UIWindow window = onlyWindow();
+
+    verify(window, times(BONE_LAYOUT.maxSlots())).setElement(anyInt(), eq(RUNE_ROW), any(Element.class));
+    for (int index = 0; index < BONE_LAYOUT.maxSlots(); index++) {
+      verify(window).setElement(eq(GuiLayout.centeredPosition(index, BONE_LAYOUT.maxSlots())), eq(RUNE_ROW), any(Element.class));
+    }
+  }
+
+  @Test
+  void aRuneSlottedIntoABoneGolemUpdatesItsRuneRow() {
+    body.set(GolemBody.BONE);
+    carried.set(List.of());
+    openAndDraw();
+    UIWindow window = onlyWindow();
+    runes.set(List.of(new GolemRune(GolemRuneType.SWIFTNESS, 1)));
+
+    scheduler.advance(LiveRefresh.POLL_TICKS);
+
+    verify(window, times(BONE_LAYOUT.maxSlots())).updateElement(anyInt(), eq(RUNE_ROW), any(Element.class));
+    verify(window, times(BONE_LAYOUT.maxSlots())).updateElement(anyInt(), anyInt(), any());
+    verify(window).updateElement(eq(GuiLayout.centeredPosition(0, BONE_LAYOUT.maxSlots())), eq(RUNE_ROW), any(Element.class));
   }
 
   @Test

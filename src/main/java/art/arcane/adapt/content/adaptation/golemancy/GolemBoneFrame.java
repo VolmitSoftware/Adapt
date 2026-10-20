@@ -63,7 +63,7 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   private static final List<PlayerPreference<?>> PREFERENCES = List.of(CommonPreferences.ENABLED, GolemancyPreferences.OBEY_OVERSEER);
 
   private final OwnerPreferences owners = new OwnerPreferences(this);
-  private final Map<UUID, Ember> embers = new ConcurrentHashMap<>();
+  private final Map<UUID, Worn> worn = new ConcurrentHashMap<>();
   private final OverseerServants servants = new OverseerServants(this::obeysOverseer, this::channels, this::pack);
   private final ServantFrame.Frame frame = new Frame();
   private volatile GolemRunicAugments augments;
@@ -81,7 +81,7 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   public void unregister() {
     Overseer.unregister(servants);
     ServantFrame.unregister(frame);
-    embers.clear();
+    worn.clear();
     augments = null;
     super.unregister();
   }
@@ -116,13 +116,13 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
 
   @Override
   public boolean hasTickDemand() {
-    return !embers.isEmpty();
+    return !worn.isEmpty();
   }
 
   @Override
   public void onTick() {
     long now = M.ms();
-    embers.values().removeIf(ember -> ember.expiresAt() <= now);
+    worn.values().removeIf(lattice -> lattice.expiresAt() <= now);
   }
 
   boolean obeysOverseer(UUID owner) {
@@ -213,9 +213,17 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
   }
 
   void struck(Skeleton servant, LivingEntity victim) {
-    Ember ember = embers.get(servant.getUniqueId());
-    if (ember != null) {
-      runicAugments().ifPresent(runic -> runic.ignite(victim, ember.igniteTicks()));
+    Worn lattice = worn.get(servant.getUniqueId());
+    if (lattice != null && lattice.igniteTicks() > 0) {
+      runicAugments().ifPresent(runic -> runic.ignite(victim, lattice.igniteTicks()));
+    }
+  }
+
+  void unlattice(Skeleton servant) {
+    AdaptAttributeService.get().removeAll(servant, getName());
+    Worn lattice = worn.remove(servant.getUniqueId());
+    if (lattice != null && lattice.fireproof()) {
+      unfireproof(servant);
     }
   }
 
@@ -227,20 +235,24 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
     servant.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, PotionEffect.INFINITE_DURATION, 0, false, false, true));
   }
 
+  void unfireproof(Skeleton servant) {
+    servant.removePotionEffect(PotionEffectType.FIRE_RESISTANCE);
+  }
+
   private void applyLattice(Skeleton servant, GolemRunicAugments.Lattice lattice) {
     for (GolemStatDelta delta : lattice.stats()) {
       strengthen(servant, delta);
     }
-    if (lattice.igniteTicks() > 0) {
-      long expiresAt = pack().map(found -> found.expiresAt(servant)).orElse(0L);
-      embers.put(servant.getUniqueId(), new Ember(lattice.igniteTicks(), expiresAt));
-    }
     if (lattice.fireImmune()) {
       fireproof(servant);
     }
+    if (lattice.igniteTicks() > 0 || lattice.fireImmune()) {
+      long expiresAt = pack().map(found -> found.expiresAt(servant)).orElse(0L);
+      worn.put(servant.getUniqueId(), new Worn(lattice.igniteTicks(), lattice.fireImmune(), expiresAt));
+    }
   }
 
-  private record Ember(int igniteTicks, long expiresAt) {
+  private record Worn(int igniteTicks, boolean fireproof, long expiresAt) {
   }
 
   private record AspectCache(Config config, Set<GolemRuneType> aspects) {
@@ -299,7 +311,11 @@ public class GolemBoneFrame extends SimpleAdaptation<GolemBoneFrame.Config> {
 
     @Override
     public boolean surrender(Skeleton servant) {
-      return pack().map(found -> found.surrender(servant)).orElse(false);
+      boolean surrendered = pack().map(found -> found.surrender(servant)).orElse(false);
+      if (surrendered) {
+        unlattice(servant);
+      }
+      return surrendered;
     }
 
     @Override
