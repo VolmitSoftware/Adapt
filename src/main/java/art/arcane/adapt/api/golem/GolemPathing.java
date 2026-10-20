@@ -13,7 +13,8 @@ import java.util.function.IntSupplier;
 
 final class GolemPathing {
   private static final double RETARGET_DISTANCE_SQUARED = 1D;
-  private static final Map<Entity, Location> DESTINATIONS = Collections.synchronizedMap(new WeakHashMap<>());
+  private static final Map<Entity, Location> PATH_TARGETS = Collections.synchronizedMap(new WeakHashMap<>());
+  private static final ThreadLocal<Entity> ISSUING = new ThreadLocal<>();
 
   private final Mob mob;
   private final IntSupplier intervalTicks;
@@ -30,13 +31,17 @@ final class GolemPathing {
     this.reissueWhilePathing = reissueWhilePathing;
   }
 
-  static boolean leadsTo(Entity entity, Location target) {
-    Location destination = DESTINATIONS.get(entity);
-    return destination != null
-        && Objects.equals(destination.getWorld(), target.getWorld())
-        && destination.getBlockX() == target.getBlockX()
-        && destination.getBlockY() == target.getBlockY()
-        && destination.getBlockZ() == target.getBlockZ();
+  static boolean ownsPath(Entity entity, Location target) {
+    if (entity.equals(ISSUING.get())) {
+      PATH_TARGETS.put(entity, target.clone());
+      return true;
+    }
+    Location pathTarget = PATH_TARGETS.get(entity);
+    return pathTarget != null
+        && Objects.equals(pathTarget.getWorld(), target.getWorld())
+        && pathTarget.getBlockX() == target.getBlockX()
+        && pathTarget.getBlockY() == target.getBlockY()
+        && pathTarget.getBlockZ() == target.getBlockZ();
   }
 
   boolean hasDestination() {
@@ -52,7 +57,6 @@ final class GolemPathing {
     }
     destination = next.clone();
     retarget = true;
-    DESTINATIONS.put(mob, destination);
   }
 
   void stop() {
@@ -62,7 +66,7 @@ final class GolemPathing {
     destination = null;
     retarget = false;
     issued = false;
-    DESTINATIONS.remove(mob);
+    PATH_TARGETS.remove(mob);
     PaperCompat.stopPathfinding(mob);
   }
 
@@ -91,6 +95,11 @@ final class GolemPathing {
     }
     issued = true;
     issuedAt = now;
-    PaperCompat.pathfindTo(mob, destination, speed);
+    ISSUING.set(mob);
+    try {
+      PaperCompat.pathfindTo(mob, destination, speed);
+    } finally {
+      ISSUING.remove();
+    }
   }
 }

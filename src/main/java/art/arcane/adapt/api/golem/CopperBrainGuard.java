@@ -21,7 +21,7 @@ final class CopperBrainGuard implements Listener {
   @EventHandler(priority = EventPriority.HIGH)
   public void on(EntityPathfindEvent e) {
     Entity entity = e.getEntity();
-    if (entity instanceof CopperGolem && !GolemPathing.leadsTo(entity, e.getLoc()) && GolemState.has(entity)) {
+    if (entity instanceof CopperGolem && !GolemPathing.ownsPath(entity, e.getLoc()) && GolemState.has(entity)) {
       e.setCancelled(true);
     }
   }

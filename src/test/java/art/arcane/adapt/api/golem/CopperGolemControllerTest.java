@@ -145,12 +145,7 @@ class CopperGolemControllerTest {
 
   @Test
   void onlyPathsToTheControllersDestinationPassTheCopperBrainGuard() {
-    CopperGolem bound = GolemTestEntities.entity(CopperGolem.class);
-    GolemState.create(new GolemState.Seed(UUID.randomUUID(), UUID.randomUUID(), GolemBody.COPPER, GolemCoreType.SORTER,
-        GolemState.Anchor.of(WORLD, 0, 64, 0))).write(bound);
-    when(bound.getPathfinder()).thenReturn(pathfinder);
-    when(bound.getTicksLived()).thenAnswer(invocation -> ticks.get());
-    when(bound.getGolemState()).thenReturn(CopperGolem.State.IDLE);
+    CopperGolem bound = boundCopper();
     CopperBrainGuard guard = new CopperBrainGuard();
     List<Boolean> issued = new ArrayList<>();
     when(pathfinder.moveTo(any(Location.class), anyDouble())).thenAnswer(invocation -> {
@@ -175,6 +170,47 @@ class CopperGolemControllerTest {
     assertThat(recompute.isCancelled()).isFalse();
     assertThat(stroll.isCancelled()).isTrue();
     assertThat(afterStop.isCancelled()).isTrue();
+  }
+
+  @Test
+  void aPathTheNavigationLiftsOntoTheChestTopStillPassesTheCopperBrainGuard() {
+    CopperGolem bound = boundCopper();
+    CopperBrainGuard guard = new CopperBrainGuard();
+    List<Boolean> issued = new ArrayList<>();
+    when(pathfinder.moveTo(any(Location.class), anyDouble())).thenAnswer(invocation -> {
+      Location requested = invocation.getArgument(0);
+      Location surface = new Location(requested.getWorld(), requested.getBlockX(), requested.getBlockY() + 1, requested.getBlockZ());
+      EntityPathfindEvent event = new EntityPathfindEvent(bound, surface, null);
+      guard.on(event);
+      issued.add(event.isCancelled());
+      return !event.isCancelled();
+    });
+    CopperGolemController controller = new CopperGolemController(bound, () -> 10, lids);
+
+    controller.moveTo(new Location(targetWorld, 4.5D, 64.5D, 0.5D), 1D);
+    controller.tick();
+    EntityPathfindEvent recompute = new EntityPathfindEvent(bound, new Location(targetWorld, 4, 65, 0), null);
+    EntityPathfindEvent stroll = new EntityPathfindEvent(bound, new Location(targetWorld, 2, 64, 2), null);
+    guard.on(recompute);
+    guard.on(stroll);
+    controller.stop();
+    EntityPathfindEvent afterStop = new EntityPathfindEvent(bound, new Location(targetWorld, 4, 65, 0), null);
+    guard.on(afterStop);
+
+    assertThat(issued).containsExactly(false);
+    assertThat(recompute.isCancelled()).isFalse();
+    assertThat(stroll.isCancelled()).isTrue();
+    assertThat(afterStop.isCancelled()).isTrue();
+  }
+
+  private CopperGolem boundCopper() {
+    CopperGolem bound = GolemTestEntities.entity(CopperGolem.class);
+    GolemState.create(new GolemState.Seed(UUID.randomUUID(), UUID.randomUUID(), GolemBody.COPPER, GolemCoreType.SORTER,
+        GolemState.Anchor.of(WORLD, 0, 64, 0))).write(bound);
+    when(bound.getPathfinder()).thenReturn(pathfinder);
+    when(bound.getTicksLived()).thenAnswer(invocation -> ticks.get());
+    when(bound.getGolemState()).thenReturn(CopperGolem.State.IDLE);
+    return bound;
   }
 
   private Block block(int x, int y, int z) {
