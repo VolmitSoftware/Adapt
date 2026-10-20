@@ -1,5 +1,6 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 
@@ -16,7 +17,7 @@ final class HarvestSpots {
 
   void scanned(NodeKey key, NodeRecord record, long nowMillis) {
     NodeMarks marks = nodes.computeIfAbsent(key, ignored -> new NodeMarks());
-    Area area = new Area(record.radiusX(), record.radiusY(), record.radiusZ());
+    NodeCuboid area = record.area();
     if (!area.equals(marks.area)) {
       marks.spots.clear();
       marks.area = area;
@@ -81,12 +82,9 @@ final class HarvestSpots {
   private record Position(int x, int y, int z) {
   }
 
-  private record Area(int radiusX, int radiusY, int radiusZ) {
-  }
-
   private static final class NodeMarks {
     private final Map<Position, HarvesterRules.Spot> spots = new ConcurrentHashMap<>();
     private volatile long scannedAt;
-    private volatile Area area;
+    private volatile NodeCuboid area;
   }
 }

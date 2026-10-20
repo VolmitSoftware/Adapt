@@ -13,6 +13,7 @@ import art.arcane.adapt.api.golem.GolemTestItems;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeIndex;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
@@ -46,6 +47,7 @@ import org.bukkit.util.BoundingBox;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.MockedStatic;
 import org.mockito.quality.Strictness;
 
@@ -92,7 +94,7 @@ class RancherBehaviorTest {
   private final List<ItemStack> dropped = new ArrayList<>();
   private final ItemStack[] chest = new ItemStack[27];
   private final Random random = mock(Random.class);
-  private NodeRecord record = NodeRecord.builder(OWNER, NodeType.PASTURE, BlockFace.UP).radii(6, 2, 6).build();
+  private NodeRecord record = NodeRecord.builder(OWNER, NodeType.PASTURE, BlockFace.UP).area(NodeCuboid.symmetric(6, 2, 6)).build();
   private GolemRancherCore core;
   private RancherActions actions;
   private RancherBehavior behavior;
@@ -211,12 +213,12 @@ class RancherBehaviorTest {
     cow(1, 64, 0);
     cow(2, 64, 0);
     carry(Material.WHEAT, 2);
-    record = NodeRecord.builder(STRANGER, NodeType.PASTURE, BlockFace.UP).radii(6, 2, 6).build();
+    record = NodeRecord.builder(STRANGER, NodeType.PASTURE, BlockFace.UP).area(NodeCuboid.symmetric(6, 2, 6)).build();
     node();
     assertThat(seek(golem(0))).isEmpty();
 
     nearby.clear();
-    record = NodeRecord.builder(OWNER, NodeType.PASTURE, BlockFace.UP).radii(6, 2, 6).channel(DyeColor.RED).build();
+    record = NodeRecord.builder(OWNER, NodeType.PASTURE, BlockFace.UP).area(NodeCuboid.symmetric(6, 2, 6)).channel(DyeColor.RED).build();
     node();
     assertThat(seek(golem(0))).isEmpty();
 
@@ -225,9 +227,25 @@ class RancherBehaviorTest {
   }
 
   @Test
+  void theHerdIsQueriedFromTheLopsidedPastureBoxOnly() {
+    NodeRecord lopsided = NodeRecord.builder(OWNER, NodeType.PASTURE, BlockFace.UP).area(new NodeCuboid(0, 0, -1, 8, 1, 1)).build();
+    Cow inside = cow(8, 64, 1);
+    cow(-1, 64, 0);
+    cow(9, 64, 0);
+    cow(4, 66, 0);
+    ArgumentCaptor<BoundingBox> query = ArgumentCaptor.forClass(BoundingBox.class);
+
+    List<Animals> herd = actions.herd(world, KEY, lopsided);
+
+    assertThat(herd).containsExactly(inside);
+    verify(world).getNearbyEntities(query.capture(), any());
+    assertThat(query.getValue()).isEqualTo(new BoundingBox(0D, 64D, -1D, 9D, 66D, 2D));
+  }
+
+  @Test
   void higherPriorityPasturesComeFirstThenNearerOnes() {
     NodeKey farKey = new NodeKey(WORLD, 20, 63, 0, BlockFace.UP);
-    NodeRecord far = NodeRecord.builder(OWNER, NodeType.PASTURE, BlockFace.UP).radii(6, 2, 6).priority(5).build();
+    NodeRecord far = NodeRecord.builder(OWNER, NodeType.PASTURE, BlockFace.UP).area(NodeCuboid.symmetric(6, 2, 6)).priority(5).build();
     node();
     nearby.add(new NodeIndex.Entry(farKey, far));
     Cow near = cow(1, 64, 0);

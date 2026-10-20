@@ -4898,7 +4898,7 @@ tag_timed_out = "Tijd voor tag invoeren verlopen"
 
 [golemancy.node_gui]
 position = "Blok: {x}, {y}, {z}"
-area = "{axis}-straal: {radius}"
+area = "{axis}-gebied: {min} tot {max}"
 area_lore = "Klik met links om te vergroten, met rechts om te verkleinen"
 area_cap = "Grootste straal: {radius}"
 area_shift = "Shift-klik om met {step} te wijzigen"
@@ -4922,6 +4922,22 @@ filter_locked_lore = "Meer niveaus van Knooppuntweven ontgrendelen dit vak"
 tag = "Voorwerptag"
 tag_add = "Tag toevoegen"
 tag_add_lore = "Klik en typ dan een voorwerptag zoals #logs in de chat"
+
+[golemancy.node_area]
+select = "Gebied kiezen met de staf"
+stop = "Stoppen met gebied kiezen"
+started = "Klik met de staf met links op een blok voor hoek 1, met rechts op een blok voor hoek 2"
+started_hint = "Sluipen + rechtsklik om toe te passen, sluipen + linksklik om te annuleren"
+corner = "Hoek {corner}: {x}, {y}, {z}"
+applied = "Werkgebied ingesteld: {x} × {y} × {z} blokken"
+incomplete = "Stel eerst beide hoeken in"
+missing_center = "Het gebied moet het blok voor het knooppunt bevatten"
+too_far = "De zijde {face} ligt {distance} blokken van het midden van het gebied; je limiet is {max}"
+cancelled = "Gebied kiezen geannuleerd"
+timed_out = "Tijd voor gebied kiezen verlopen"
+put_away = "Gebied kiezen gestopt: de staf is weggelegd"
+world_changed = "Gebied kiezen gestopt: je hebt de wereld van het knooppunt verlaten"
+node_gone = "Gebied kiezen gestopt: het knooppunt is hier niet meer"
 
 [golemancy.node_weaving]
 name = "Knooppuntweven"

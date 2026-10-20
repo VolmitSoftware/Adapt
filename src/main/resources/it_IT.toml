@@ -4898,7 +4898,7 @@ tag_timed_out = "Inserimento del tag scaduto"
 
 [golemancy.node_gui]
 position = "Blocco: {x}, {y}, {z}"
-area = "Raggio {axis}: {radius}"
+area = "Area {axis}: da {min} a {max}"
 area_lore = "Clic sinistro: allarga, clic destro: restringi"
 area_cap = "Raggio massimo: {radius}"
 area_shift = "Maiusc + clic: cambia di {step}"
@@ -4922,6 +4922,22 @@ filter_locked_lore = "Altri livelli di Tessitura dei nodi sbloccano questo slot"
 tag = "Tag di oggetto"
 tag_add = "Aggiungi tag"
 tag_add_lore = "Fai clic, poi scrivi in chat un tag di oggetto come #logs"
+
+[golemancy.node_area]
+select = "Seleziona l'area con il bastone"
+stop = "Smetti di selezionare l'area"
+started = "Fai clic sinistro su un blocco con il bastone per l'angolo 1, clic destro su un blocco per l'angolo 2"
+started_hint = "Accovacciati + clic destro per applicare, accovacciati + clic sinistro per annullare"
+corner = "Angolo {corner}: {x}, {y}, {z}"
+applied = "Area di lavoro impostata: {x} × {y} × {z} blocchi"
+incomplete = "Imposta entrambi gli angoli prima di applicare"
+missing_center = "L'area deve contenere il blocco davanti al nodo"
+too_far = "La faccia {face} è a {distance} blocchi dal centro dell'area; il tuo limite è {max}"
+cancelled = "Selezione dell'area annullata"
+timed_out = "Selezione dell'area scaduta"
+put_away = "Selezione dell'area terminata: il bastone è stato riposto"
+world_changed = "Selezione dell'area terminata: hai lasciato il mondo del nodo"
+node_gone = "Selezione dell'area terminata: il nodo non è più qui"
 
 [golemancy.node_weaving]
 name = "Tessitura dei nodi"

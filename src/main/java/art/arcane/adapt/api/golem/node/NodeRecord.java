@@ -19,6 +19,7 @@ public final class NodeRecord {
   public static final int MAX_FILTER_ENTRIES = 18;
   public static final int MAX_RADIUS = 32;
   public static final int DEFAULT_RADIUS = 2;
+  public static final NodeCuboid DEFAULT_AREA = NodeCuboid.symmetric(DEFAULT_RADIUS, DEFAULT_RADIUS, DEFAULT_RADIUS);
 
   private final UUID owner;
   private final NodeType type;
@@ -26,9 +27,7 @@ public final class NodeRecord {
   private final DyeColor channel;
   private final int priority;
   private final RedstoneMode redstone;
-  private final int radiusX;
-  private final int radiusY;
-  private final int radiusZ;
+  private final NodeCuboid area;
   private final List<ItemStack> filterItems;
   private final List<String> filterTags;
   private final boolean whitelist;
@@ -41,9 +40,7 @@ public final class NodeRecord {
     this.channel = builder.channel;
     this.priority = Math.max(MIN_PRIORITY, Math.min(MAX_PRIORITY, builder.priority));
     this.redstone = builder.redstone;
-    this.radiusX = clampRadius(builder.radiusX);
-    this.radiusY = clampRadius(builder.radiusY);
-    this.radiusZ = clampRadius(builder.radiusZ);
+    this.area = builder.area.clamp(MAX_RADIUS);
     this.filterItems = List.copyOf(builder.filterItems);
     this.filterTags = List.copyOf(builder.filterTags);
     this.whitelist = builder.whitelist;
@@ -93,16 +90,8 @@ public final class NodeRecord {
     return redstone;
   }
 
-  public int radiusX() {
-    return radiusX;
-  }
-
-  public int radiusY() {
-    return radiusY;
-  }
-
-  public int radiusZ() {
-    return radiusZ;
+  public NodeCuboid area() {
+    return area;
   }
 
   public List<ItemStack> filterItems() {
@@ -130,7 +119,7 @@ public final class NodeRecord {
         .channel(channel)
         .priority(priority)
         .redstone(redstone)
-        .radii(radiusX, radiusY, radiusZ)
+        .area(area)
         .filterItems(filterItems)
         .filterTags(filterTags)
         .whitelist(whitelist)
@@ -146,11 +135,9 @@ public final class NodeRecord {
       return false;
     }
     return priority == record.priority
-        && radiusX == record.radiusX
-        && radiusY == record.radiusY
-        && radiusZ == record.radiusZ
         && whitelist == record.whitelist
         && owner.equals(record.owner)
+        && area.equals(record.area)
         && type == record.type
         && face == record.face
         && channel == record.channel
@@ -162,18 +149,15 @@ public final class NodeRecord {
 
   @Override
   public int hashCode() {
-    return Objects.hash(owner, type, face, channel, priority, redstone, radiusX, radiusY, radiusZ, filterItems, filterTags, whitelist, data);
+    return Objects.hash(owner, type, face, channel, priority, redstone, area, filterItems, filterTags, whitelist, data);
   }
 
   @Override
   public String toString() {
     return "NodeRecord{" + type.id() + " " + face + " owner=" + owner + " channel=" + channel + " priority=" + priority
-        + " redstone=" + redstone.id() + " area=" + radiusX + "/" + radiusY + "/" + radiusZ + " filter=" + filterCount()
+        + " redstone=" + redstone.id() + " area=" + area.minX() + ".." + area.maxX() + "/" + area.minY() + ".." + area.maxY() + "/"
+        + area.minZ() + ".." + area.maxZ() + " filter=" + filterCount()
         + " whitelist=" + whitelist + " data=" + data + "}";
-  }
-
-  private static int clampRadius(int radius) {
-    return Math.max(0, Math.min(MAX_RADIUS, radius));
   }
 
   public static final class Builder {
@@ -183,9 +167,7 @@ public final class NodeRecord {
     private DyeColor channel;
     private int priority = DEFAULT_PRIORITY;
     private RedstoneMode redstone = RedstoneMode.IGNORE;
-    private int radiusX = DEFAULT_RADIUS;
-    private int radiusY = DEFAULT_RADIUS;
-    private int radiusZ = DEFAULT_RADIUS;
+    private NodeCuboid area = DEFAULT_AREA;
     private List<ItemStack> filterItems = List.of();
     private List<String> filterTags = List.of();
     private boolean whitelist = true;
@@ -215,10 +197,8 @@ public final class NodeRecord {
       return this;
     }
 
-    public Builder radii(int radiusX, int radiusY, int radiusZ) {
-      this.radiusX = radiusX;
-      this.radiusY = radiusY;
-      this.radiusZ = radiusZ;
+    public Builder area(NodeCuboid area) {
+      this.area = Objects.requireNonNull(area);
       return this;
     }
 

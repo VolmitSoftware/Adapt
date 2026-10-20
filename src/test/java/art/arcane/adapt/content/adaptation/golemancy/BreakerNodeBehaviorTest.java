@@ -9,6 +9,7 @@ import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeArea;
 import art.arcane.adapt.api.golem.node.NodeContext;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
@@ -471,7 +472,7 @@ class BreakerNodeBehaviorTest {
     for (Material type : filter) {
       items.add(GolemTestItems.stack(type, 1));
     }
-    return NodeRecord.builder(OWNER, NodeType.BREAKER, BlockFace.UP).radii(2, 1, 2).filterItems(items).whitelist(whitelist).build();
+    return NodeRecord.builder(OWNER, NodeType.BREAKER, BlockFace.UP).area(NodeCuboid.symmetric(2, 1, 2)).filterItems(items).whitelist(whitelist).build();
   }
 
   private static GolemTask task(int x, int y, int z) {

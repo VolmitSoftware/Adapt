@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.ChannelMask;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.item.GolemItems;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeEdits;
 import art.arcane.adapt.api.golem.node.NodeFilters;
 import art.arcane.adapt.api.golem.node.NodeKey;
@@ -49,29 +50,31 @@ public final class NodeGui {
   private final Player player;
   private final NodeKey key;
   private final NodeTagPrompt prompt;
+  private final NodeAreaSelector areas;
   private final LiveRefresh<NodeRecord> live;
   private UIWindow window;
   private NodeRecord shownRecord;
   private int shownLevel;
   private List<String> shownPanel = List.of();
 
-  private NodeGui(Player player, NodeKey key, NodeTagPrompt prompt) {
+  private NodeGui(Player player, NodeKey key, NodeTagPrompt prompt, NodeAreaSelector areas) {
     this.player = player;
     this.key = key;
     this.prompt = prompt;
+    this.areas = areas;
     this.live = new LiveRefresh<>(new LiveRefresh.Hooks<>(
         this::runAtAnchor,
         (task, delay, retired) -> J.runEntity(player, task, delay, retired),
         this::read, this::refreshed, this::gone, this::isOpen));
   }
 
-  public static void open(Player player, NodeKey key, NodeTagPrompt prompt) {
-    NodeGui gui = new NodeGui(player, key, prompt);
+  public static void open(Player player, NodeKey key, NodeTagPrompt prompt, NodeAreaSelector areas) {
+    NodeGui gui = new NodeGui(player, key, prompt, areas);
     gui.onAnchor(gui::snapshot);
   }
 
-  static void openAfter(Player player, NodeKey key, NodeTagPrompt prompt, UnaryOperator<NodeRecord> change) {
-    new NodeGui(player, key, prompt).edit(change);
+  static void openAfter(Player player, NodeKey key, NodeTagPrompt prompt, NodeAreaSelector areas, UnaryOperator<NodeRecord> change) {
+    new NodeGui(player, key, prompt, areas).edit(change);
   }
 
   static int level(Player player) {
@@ -262,11 +265,14 @@ public final class NodeGui {
 
   private void placeArea(UIWindow target, NodeRecord record, int maxRadius) {
     NodeEdits.Axis[] axes = NodeEdits.Axis.values();
+    int controls = axes.length + 1;
+    NodeCuboid area = record.area();
     for (int index = 0; index < axes.length; index++) {
       NodeEdits.Axis axis = axes[index];
-      target.setElement(GuiLayout.centeredPosition(index, axes.length), AREA_ROW,
+      target.setElement(GuiLayout.centeredPosition(index, controls), AREA_ROW,
           GuiTheme.element("node-area-" + axis.name(), areaIcon(axis), "gui", "golemancy", "area_" + axis.name().toLowerCase(Locale.ROOT))
-              .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA, trusted("axis", axis.name()), trusted("radius", NodeEdits.radius(record, axis))))
+              .setName(C.YELLOW + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA, trusted("axis", axis.name()),
+                  trusted("min", Integer.toString(area.min(axis))), trusted("max", signed(area.max(axis)))))
               .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA_LORE))
               .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA_SHIFT, trusted("step", NodeEdits.SHIFT_STEP)))
               .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA_CAP, trusted("radius", maxRadius)))
@@ -276,6 +282,15 @@ public final class NodeGui {
               .onShiftLeftClick(clicked -> edit(current -> NodeEdits.resize(current, axis, NodeEdits.SHIFT_STEP, maxRadius)))
               .onShiftRightClick(clicked -> edit(current -> NodeEdits.resize(current, axis, -NodeEdits.SHIFT_STEP, maxRadius))));
     }
+    boolean selecting = areas.selecting(player, key);
+    target.setElement(GuiLayout.centeredPosition(axes.length, controls), AREA_ROW,
+        GuiTheme.element("node-area-select", selecting ? Material.BARRIER : Material.IRON_HOE, "gui", "golemancy", "area_select")
+            .setName(C.GREEN + AdaptLanguage.text(selecting ? GolemancyMessages.NODE_AREA_STOP : GolemancyMessages.NODE_AREA_SELECT))
+            .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_AREA_STARTED))
+            .addLore(C.GRAY + AdaptLanguage.text(GolemancyMessages.NODE_AREA_STARTED_HINT))
+            .addLore(C.DARK_GRAY + AdaptLanguage.text(GolemancyMessages.NODE_GUI_AREA_CAP, trusted("radius", maxRadius)))
+            .setProgress(1D)
+            .onLeftClick(clicked -> areas.toggle(player, key, record)));
   }
 
   private void placeFilter(UIWindow target, NodeRecord record, int slots) {
@@ -401,6 +416,10 @@ public final class NodeGui {
         .setMaterial(new MaterialBlock(item.getType()))
         .setBaseItemStack(item)
         .setProgress(1D);
+  }
+
+  private static String signed(int value) {
+    return value > 0 ? "+" + value : Integer.toString(value);
   }
 
   private static Material areaIcon(NodeEdits.Axis axis) {

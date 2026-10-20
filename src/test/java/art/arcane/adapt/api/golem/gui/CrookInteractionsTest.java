@@ -117,7 +117,7 @@ class CrookInteractionsTest extends AdaptTestBase {
     });
     commander = mock(Overseer.Commander.class);
     Overseer.setCommander(commander);
-    interactions = new CrookInteractions();
+    interactions = new CrookInteractions(new NodeAreaSelector());
   }
 
   @AfterEach

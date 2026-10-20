@@ -4898,7 +4898,7 @@ tag_timed_out = "Tag-Eingabe abgelaufen"
 
 [golemancy.node_gui]
 position = "Block: {x}, {y}, {z}"
-area = "{axis}-Radius: {radius}"
+area = "{axis}-Bereich: {min} bis {max}"
 area_lore = "Linksklick: vergrößern, Rechtsklick: verkleinern"
 area_cap = "Größter Radius: {radius}"
 area_shift = "Umschalt-Klick: um {step} ändern"
@@ -4922,6 +4922,22 @@ filter_locked_lore = "Weitere Stufen der Knotenweberei schalten diesen Platz fre
 tag = "Gegenstands-Tag"
 tag_add = "Tag hinzufügen"
 tag_add_lore = "Klicke und gib dann einen Gegenstands-Tag wie #logs im Chat ein"
+
+[golemancy.node_area]
+select = "Bereich mit dem Stab auswählen"
+stop = "Bereichsauswahl beenden"
+started = "Linksklicke mit dem Stab auf einen Block für Ecke 1, rechtsklicke auf einen Block für Ecke 2"
+started_hint = "Schleichen + Rechtsklick zum Übernehmen, Schleichen + Linksklick zum Abbrechen"
+corner = "Ecke {corner}: {x}, {y}, {z}"
+applied = "Arbeitsbereich festgelegt: {x} × {y} × {z} Blöcke"
+incomplete = "Setze zuerst beide Ecken"
+missing_center = "Der Bereich muss den Block vor dem Knoten enthalten"
+too_far = "Die Seite {face} ist {distance} Blöcke von der Bereichsmitte entfernt; dein Limit ist {max}"
+cancelled = "Bereichsauswahl abgebrochen"
+timed_out = "Bereichsauswahl abgelaufen"
+put_away = "Bereichsauswahl beendet: Der Stab wurde weggesteckt"
+world_changed = "Bereichsauswahl beendet: Du hast die Welt des Knotens verlassen"
+node_gone = "Bereichsauswahl beendet: Der Knoten ist nicht mehr hier"
 
 [golemancy.node_weaving]
 name = "Knotenweberei"

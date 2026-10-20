@@ -4898,7 +4898,7 @@ tag_timed_out = "Czas na wpisanie tagu minął"
 
 [golemancy.node_gui]
 position = "Blok: {x}, {y}, {z}"
-area = "Promień {axis}: {radius}"
+area = "Obszar {axis}: od {min} do {max}"
 area_lore = "Lewy przycisk: powiększ, prawy przycisk: zmniejsz"
 area_cap = "Największy promień: {radius}"
 area_shift = "Shift + kliknięcie: zmień o {step}"
@@ -4922,6 +4922,22 @@ filter_locked_lore = "Kolejne poziomy Tkania węzłów odblokowują to miejsce"
 tag = "Tag przedmiotu"
 tag_add = "Dodaj tag"
 tag_add_lore = "Kliknij, a potem wpisz na czacie tag przedmiotu, np. #logs"
+
+[golemancy.node_area]
+select = "Wybierz obszar laską"
+stop = "Przestań wybierać obszar"
+started = "Kliknij blok laską lewym przyciskiem, aby ustawić róg 1, a prawym, aby ustawić róg 2"
+started_hint = "Kucnięcie + prawy przycisk zatwierdza, kucnięcie + lewy przycisk anuluje"
+corner = "Róg {corner}: {x}, {y}, {z}"
+applied = "Ustawiono obszar pracy: {x} × {y} × {z} bloków"
+incomplete = "Przed zatwierdzeniem ustaw oba rogi"
+missing_center = "Obszar musi obejmować blok przed węzłem"
+too_far = "Ściana {face} jest {distance} bloków od środka obszaru; twój limit to {max}"
+cancelled = "Anulowano wybór obszaru"
+timed_out = "Czas na wybór obszaru minął"
+put_away = "Zakończono wybór obszaru: laska została schowana"
+world_changed = "Zakończono wybór obszaru: opuszczono świat węzła"
+node_gone = "Zakończono wybór obszaru: węzła już tu nie ma"
 
 [golemancy.node_weaving]
 name = "Tkanie węzłów"

@@ -43,6 +43,7 @@ import art.arcane.adapt.api.golem.HostileDamagePool;
 import art.arcane.adapt.api.golem.ServantFrame;
 import art.arcane.adapt.api.golem.gui.CrookInteractions;
 import art.arcane.adapt.api.golem.gui.GuiCursor;
+import art.arcane.adapt.api.golem.gui.NodeAreaSelector;
 import art.arcane.adapt.api.golem.gui.NodeInteractions;
 import art.arcane.adapt.api.golem.gui.NodeTagPrompt;
 import art.arcane.adapt.api.golem.item.GolemItemKind;
@@ -467,11 +468,13 @@ public class SkillGolemancy extends SimpleSkill<SkillGolemancy.Config> {
 
   @Override
   protected List<Listener> createCompanionListeners() {
-    NodeTagPrompt prompt = new NodeTagPrompt();
-    NodeInteractions nodes = new NodeInteractions(prompt);
-    CrookInteractions crook = new CrookInteractions();
-    List<Listener> listeners = new ArrayList<>(List.of(crook, nodes, prompt, new GuiCursor()));
+    NodeAreaSelector areas = new NodeAreaSelector();
+    NodeTagPrompt prompt = new NodeTagPrompt(areas);
+    NodeInteractions nodes = new NodeInteractions(prompt, areas);
+    CrookInteractions crook = new CrookInteractions(areas);
+    List<Listener> listeners = new ArrayList<>(List.of(areas, crook, nodes, prompt, new GuiCursor()));
     boolean paperAttacks = PaperCompat.hasClass(PRE_ATTACK_EVENT);
+    listeners.add(paperAttacks ? new NodeAreaSelector.PaperAttacks(areas) : new NodeAreaSelector.SpigotAttacks(areas));
     listeners.add(paperAttacks ? new NodeInteractions.PaperAttacks(nodes) : new NodeInteractions.SpigotAttacks(nodes));
     listeners.add(paperAttacks ? new CrookInteractions.PaperAttacks(crook) : new CrookInteractions.SpigotAttacks(crook));
     if (PaperCompat.hasClass(RESOURCES_RELOADED_EVENT)) {

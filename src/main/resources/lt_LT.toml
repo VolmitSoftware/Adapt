@@ -4898,7 +4898,7 @@ tag_timed_out = "Baigėsi žymos įvedimo laikas"
 
 [golemancy.node_gui]
 position = "Blokas: {x}, {y}, {z}"
-area = "{axis} spindulys: {radius}"
+area = "{axis} sritis: nuo {min} iki {max}"
 area_lore = "Kairysis spustelėjimas: didinti, dešinysis: mažinti"
 area_cap = "Didžiausias spindulys: {radius}"
 area_shift = "Shift + spustelėjimas: keisti {step}"
@@ -4922,6 +4922,22 @@ filter_locked_lore = "Daugiau Mazgų pynimo lygių atrakina šią vietą"
 tag = "Daikto žyma"
 tag_add = "Pridėti žymą"
 tag_add_lore = "Spustelėkite, tada pokalbyje įveskite daikto žymą, pavyzdžiui, #logs"
+
+[golemancy.node_area]
+select = "Pasirinkti sritį lazda"
+stop = "Baigti srities pasirinkimą"
+started = "Kairiuoju pelės klavišu lazda spustelėkite bloką 1 kampui, dešiniuoju – 2 kampui"
+started_hint = "Pritūpus + dešinysis spustelėjimas pritaiko, pritūpus + kairysis spustelėjimas atšaukia"
+corner = "Kampas {corner}: {x}, {y}, {z}"
+applied = "Darbo sritis nustatyta: {x} × {y} × {z} blokų"
+incomplete = "Prieš pritaikydami nustatykite abu kampus"
+missing_center = "Sritis turi apimti bloką priešais mazgą"
+too_far = "Sienelė {face} yra {distance} blokų nuo srities centro; jūsų riba yra {max}"
+cancelled = "Srities pasirinkimas atšauktas"
+timed_out = "Baigėsi srities pasirinkimo laikas"
+put_away = "Srities pasirinkimas baigtas: lazda padėta"
+world_changed = "Srities pasirinkimas baigtas: palikote mazgo pasaulį"
+node_gone = "Srities pasirinkimas baigtas: mazgo čia nebėra"
 
 [golemancy.node_weaving]
 name = "Mazgų pynimas"

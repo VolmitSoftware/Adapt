@@ -4898,7 +4898,7 @@ tag_timed_out = "Đã hết thời gian nhập thẻ"
 
 [golemancy.node_gui]
 position = "Khối: {x}, {y}, {z}"
-area = "Bán kính {axis}: {radius}"
+area = "Vùng {axis}: từ {min} đến {max}"
 area_lore = "Nhấp chuột trái: mở rộng, nhấp chuột phải: thu hẹp"
 area_cap = "Bán kính lớn nhất: {radius}"
 area_shift = "Shift + nhấp chuột: thay đổi {step} mỗi lần"
@@ -4922,6 +4922,22 @@ filter_locked_lore = "Thêm cấp Dệt Nút sẽ mở khóa ô này"
 tag = "Thẻ vật phẩm"
 tag_add = "Thêm thẻ"
 tag_add_lore = "Nhấp, rồi nhập một thẻ vật phẩm như #logs vào khung chat"
+
+[golemancy.node_area]
+select = "Chọn vùng bằng Gậy"
+stop = "Dừng chọn vùng"
+started = "Dùng Gậy nhấp chuột trái vào một khối để đặt góc 1, nhấp chuột phải vào một khối để đặt góc 2"
+started_hint = "Ngồi xuống + nhấp chuột phải để áp dụng, ngồi xuống + nhấp chuột trái để hủy"
+corner = "Góc {corner}: {x}, {y}, {z}"
+applied = "Đã đặt vùng làm việc: {x} × {y} × {z} khối"
+incomplete = "Hãy đặt cả hai góc trước khi áp dụng"
+missing_center = "Vùng phải chứa khối ở phía trước nút"
+too_far = "Mặt {face} cách tâm vùng {distance} khối; giới hạn của bạn là {max}"
+cancelled = "Đã hủy chọn vùng"
+timed_out = "Đã hết thời gian chọn vùng"
+put_away = "Đã kết thúc chọn vùng: Gậy đã được cất đi"
+world_changed = "Đã kết thúc chọn vùng: bạn đã rời khỏi thế giới của nút"
+node_gone = "Đã kết thúc chọn vùng: nút không còn ở đây"
 
 [golemancy.node_weaving]
 name = "Dệt Nút"

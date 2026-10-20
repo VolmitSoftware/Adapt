@@ -4894,7 +4894,7 @@ tag_timed_out = "Saisie du tag expirée"
 
 [golemancy.node_gui]
 position = "Bloc : {x}, {y}, {z}"
-area = "Rayon {axis} : {radius}"
+area = "Zone {axis} : de {min} à {max}"
 area_lore = "Clic gauche : agrandir, clic droit : réduire"
 area_cap = "Rayon maximal : {radius}"
 area_shift = "Maj + clic : modifier de {step}"
@@ -4918,6 +4918,22 @@ filter_locked_lore = "D'autres niveaux de Tissage de nœuds débloquent cet empl
 tag = "Tag d'objet"
 tag_add = "Ajouter un tag"
 tag_add_lore = "Cliquez, puis tapez un tag d'objet comme #logs dans le chat"
+
+[golemancy.node_area]
+select = "Sélectionner la zone avec la houlette"
+stop = "Arrêter la sélection de la zone"
+started = "Clic gauche sur un bloc avec la houlette pour le coin 1, clic droit sur un bloc pour le coin 2"
+started_hint = "Accroupi + clic droit pour appliquer, accroupi + clic gauche pour annuler"
+corner = "Coin {corner} : {x}, {y}, {z}"
+applied = "Zone de travail définie : {x} × {y} × {z} blocs"
+incomplete = "Place les deux coins avant d'appliquer"
+missing_center = "La zone doit contenir le bloc devant le nœud"
+too_far = "La face {face} est à {distance} blocs du centre de la zone ; ta limite est {max}"
+cancelled = "Sélection de zone annulée"
+timed_out = "Sélection de zone expirée"
+put_away = "Sélection de zone terminée : la houlette a été rangée"
+world_changed = "Sélection de zone terminée : tu as quitté le monde du nœud"
+node_gone = "Sélection de zone terminée : le nœud n'est plus ici"
 
 [golemancy.node_weaving]
 name = "Tissage de nœuds"

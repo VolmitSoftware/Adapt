@@ -4,6 +4,7 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.golem.GolemTestItems;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeEdits;
 import art.arcane.adapt.api.golem.node.NodeRecord;
@@ -65,6 +66,7 @@ class NodeGuiTest extends AdaptTestBase {
   private final Inventory redrawnTop = mock(Inventory.class);
   private MockedConstruction<UIWindow> windows;
   private MockedStatic<GuiTheme> themes;
+  private final NodeAreaSelector areas = mock(NodeAreaSelector.class);
   private Player player;
 
   @BeforeEach
@@ -97,9 +99,9 @@ class NodeGuiTest extends AdaptTestBase {
   @Test
   void aPanelControlThatOpensAMenuHandsTheViewerToItOnLeftClick() throws ReflectiveOperationException {
     NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
-    Constructor<NodeGui> constructor = NodeGui.class.getDeclaredConstructor(Player.class, NodeKey.class, NodeTagPrompt.class);
+    Constructor<NodeGui> constructor = NodeGui.class.getDeclaredConstructor(Player.class, NodeKey.class, NodeTagPrompt.class, NodeAreaSelector.class);
     constructor.setAccessible(true);
-    NodeGui gui = constructor.newInstance(player, key, mock(NodeTagPrompt.class));
+    NodeGui gui = constructor.newInstance(player, key, mock(NodeTagPrompt.class), areas);
     Method panelElement = NodeGui.class.getDeclaredMethod("panelElement", NodePanelControl.class);
     panelElement.setAccessible(true);
     List<Player> opened = new ArrayList<>();
@@ -122,9 +124,9 @@ class NodeGuiTest extends AdaptTestBase {
   void theOldMenusLateCloseKeepsInventoryPickupWorkingInTheRedrawnMenu() throws ReflectiveOperationException {
     NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
     NodeRecord record = NodeRecord.builder(VIEWER, NodeType.DEPOSIT, BlockFace.UP).build();
-    Constructor<NodeGui> constructor = NodeGui.class.getDeclaredConstructor(Player.class, NodeKey.class, NodeTagPrompt.class);
+    Constructor<NodeGui> constructor = NodeGui.class.getDeclaredConstructor(Player.class, NodeKey.class, NodeTagPrompt.class, NodeAreaSelector.class);
     constructor.setAccessible(true);
-    NodeGui gui = constructor.newInstance(player, key, mock(NodeTagPrompt.class));
+    NodeGui gui = constructor.newInstance(player, key, mock(NodeTagPrompt.class), areas);
     Method render = NodeGui.class.getDeclaredMethod("render", NodeRecord.class);
     render.setAccessible(true);
 
@@ -144,7 +146,7 @@ class NodeGuiTest extends AdaptTestBase {
   @Test
   void areaControlsResizeByOneOnClickAndByFourOnShiftClickWithinTheCap() throws ReflectiveOperationException {
     NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
-    NodeRecord record = NodeRecord.builder(VIEWER, NodeType.HARVEST, BlockFace.UP).radii(2, 8, 30).build();
+    NodeRecord record = NodeRecord.builder(VIEWER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(2, 8, 30)).build();
     themes.when(() -> GuiTheme.element(anyString(), any(Material.class), any(String[].class)))
         .thenAnswer(invocation -> new UIElement(invocation.getArgument(0)));
     NodeService service = mock(NodeService.class);
@@ -164,9 +166,9 @@ class NodeGuiTest extends AdaptTestBase {
       });
       scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenReturn(true);
       runtime.when(GolemancyRuntime::nodes).thenReturn(Optional.of(service));
-      Constructor<NodeGui> constructor = NodeGui.class.getDeclaredConstructor(Player.class, NodeKey.class, NodeTagPrompt.class);
+      Constructor<NodeGui> constructor = NodeGui.class.getDeclaredConstructor(Player.class, NodeKey.class, NodeTagPrompt.class, NodeAreaSelector.class);
       constructor.setAccessible(true);
-      NodeGui gui = constructor.newInstance(player, key, mock(NodeTagPrompt.class));
+      NodeGui gui = constructor.newInstance(player, key, mock(NodeTagPrompt.class), areas);
       Method placeArea = NodeGui.class.getDeclaredMethod("placeArea", UIWindow.class, NodeRecord.class, int.class);
       placeArea.setAccessible(true);
       UIWindow target = mock(UIWindow.class);
@@ -174,25 +176,58 @@ class NodeGuiTest extends AdaptTestBase {
       placeArea.invoke(gui, target, record, 10);
 
       ArgumentCaptor<Element> placed = ArgumentCaptor.forClass(Element.class);
-      verify(target, times(3)).setElement(anyInt(), anyInt(), placed.capture());
+      verify(target, times(4)).setElement(anyInt(), anyInt(), placed.capture());
       Element x = placed.getAllValues().get(0);
       Element y = placed.getAllValues().get(1);
       Element z = placed.getAllValues().get(2);
       assertThat(x.getLore()).anyMatch(line -> line.contains("Shift-click to change by 4"));
+      assertThat(x.getName()).contains("X Area: -2 to +2");
+      assertThat(z.getName()).contains("Z Area: -30 to +30");
 
       x.call(ElementEvent.LEFT, x);
-      assertThat(result.get().radiusX()).isEqualTo(3);
+      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(3, 8, 30));
       x.call(ElementEvent.SHIFT_LEFT, x);
-      assertThat(result.get().radiusX()).isEqualTo(6);
+      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(6, 8, 30));
       x.call(ElementEvent.RIGHT, x);
-      assertThat(result.get().radiusX()).isEqualTo(1);
+      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(1, 8, 30));
       x.call(ElementEvent.SHIFT_RIGHT, x);
-      assertThat(result.get().radiusX()).isZero();
+      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(0, 8, 30));
       y.call(ElementEvent.SHIFT_LEFT, y);
-      assertThat(result.get().radiusY()).isEqualTo(10);
+      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(2, 10, 30));
       z.call(ElementEvent.SHIFT_RIGHT, z);
-      assertThat(result.get().radiusZ()).isEqualTo(26);
+      assertThat(result.get().area()).isEqualTo(NodeCuboid.symmetric(2, 8, 26));
       assertThat(NodeEdits.SHIFT_STEP).isEqualTo(4);
     }
+  }
+
+  @Test
+  void theSelectAreaButtonHandsTheNodeToCrookSelection() throws ReflectiveOperationException {
+    NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
+    NodeRecord record = NodeRecord.builder(VIEWER, NodeType.HARVEST, BlockFace.UP).area(new NodeCuboid(0, -1, -3, 5, 2, 0)).build();
+    themes.when(() -> GuiTheme.element(anyString(), any(Material.class), any(String[].class)))
+        .thenAnswer(invocation -> new UIElement(invocation.getArgument(0)));
+    Constructor<NodeGui> constructor = NodeGui.class.getDeclaredConstructor(Player.class, NodeKey.class, NodeTagPrompt.class, NodeAreaSelector.class);
+    constructor.setAccessible(true);
+    NodeGui gui = constructor.newInstance(player, key, mock(NodeTagPrompt.class), areas);
+    Method placeArea = NodeGui.class.getDeclaredMethod("placeArea", UIWindow.class, NodeRecord.class, int.class);
+    placeArea.setAccessible(true);
+    UIWindow target = mock(UIWindow.class);
+
+    placeArea.invoke(gui, target, record, 8);
+
+    ArgumentCaptor<Element> placed = ArgumentCaptor.forClass(Element.class);
+    verify(target, times(4)).setElement(anyInt(), anyInt(), placed.capture());
+    Element x = placed.getAllValues().get(0);
+    Element y = placed.getAllValues().get(1);
+    Element z = placed.getAllValues().get(2);
+    Element select = placed.getAllValues().get(3);
+    assertThat(x.getName()).contains("X Area: 0 to +5");
+    assertThat(y.getName()).contains("Y Area: -1 to +2");
+    assertThat(z.getName()).contains("Z Area: -3 to 0");
+    assertThat(select.getName()).contains("Select Area with the Crook");
+
+    select.call(ElementEvent.LEFT, select);
+
+    verify(areas).toggle(player, key, record);
   }
 }

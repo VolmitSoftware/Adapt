@@ -27,7 +27,7 @@ class NodeScanCursorTest {
 
   @Test
   void theAreaVolumeCoversEveryBlockWithinTheRadii() {
-    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(2, 1, 3).build();
+    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(2, 1, 3)).build();
 
     assertThat(NodeArea.volume(node)).isEqualTo(5 * 3 * 7);
   }
@@ -35,7 +35,7 @@ class NodeScanCursorTest {
   @Test
   void everyIndexMapsToADistinctBlockInsideTheArea() {
     NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
-    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(1, 0, 2).build();
+    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(1, 0, 2)).build();
     Set<String> seen = new HashSet<>();
 
     for (int index = 0; index < NodeArea.volume(node); index++) {
@@ -47,6 +47,27 @@ class NodeScanCursorTest {
     }
 
     assertThat(seen).hasSize(15);
+  }
+
+  @Test
+  void everyIndexOfALopsidedAreaMapsToADistinctBlockBetweenItsFaces() {
+    NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
+    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(new NodeCuboid(-1, 0, -4, 5, 2, 0)).build();
+    Set<String> seen = new HashSet<>();
+
+    for (int index = 0; index < NodeArea.volume(node); index++) {
+      int[] position = NodeArea.position(key, node, index);
+      assertThat(position[0]).isBetween(-1, 5);
+      assertThat(position[1]).isBetween(65, 67);
+      assertThat(position[2]).isBetween(-4, 0);
+      assertThat(NodeArea.covers(key, node, position[0] + 0.5D, position[1] + 0.5D, position[2] + 0.5D)).isTrue();
+      seen.add(position[0] + "," + position[1] + "," + position[2]);
+    }
+
+    assertThat(NodeArea.volume(node)).isEqualTo(7 * 3 * 5);
+    assertThat(seen).hasSize(7 * 3 * 5);
+    assertThat(NodeArea.position(key, node, 0)).containsExactly(-1, 65, -4);
+    assertThat(NodeArea.position(key, node, NodeArea.volume(node) - 1)).containsExactly(5, 67, 0);
   }
 
   @Test
@@ -78,7 +99,7 @@ class NodeScanCursorTest {
 
   @Test
   void aRadiusThirtyTwoAreaIsScannedInFullAtTheSameBudgetPerPass() {
-    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build();
+    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build();
     int volume = NodeArea.volume(node);
     int budget = NodeSettings.defaults().blocksPerScan();
     NodeScanCursor cursor = new NodeScanCursor();
@@ -102,7 +123,7 @@ class NodeScanCursorTest {
   @Test
   void everyIndexOfARadiusThirtyTwoAreaMapsToItsOwnBlockWithoutOverflow() {
     NodeKey key = new NodeKey(WORLD, 29_999_900, 120, -29_999_900, BlockFace.UP);
-    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(32, 32, 32).build();
+    NodeRecord node = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build();
     int[] center = NodeArea.center(key);
     BitSet seen = new BitSet(NodeArea.volume(node));
 

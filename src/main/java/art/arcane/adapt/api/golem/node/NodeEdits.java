@@ -59,28 +59,17 @@ public final class NodeEdits {
   }
 
   public static NodeRecord resize(NodeRecord record, Axis axis, int delta, int maxRadius) {
-    int current = radius(record, axis);
-    int next = delta > 0 ? Math.max(current, Math.min(current + delta, maxRadius)) : Math.max(0, current + delta);
-    if (next == current) {
-      return record;
-    }
-    return switch (axis) {
-      case X -> record.toBuilder().radii(next, record.radiusY(), record.radiusZ()).build();
-      case Y -> record.toBuilder().radii(record.radiusX(), next, record.radiusZ()).build();
-      case Z -> record.toBuilder().radii(record.radiusX(), record.radiusY(), next).build();
-    };
-  }
-
-  public static int radius(NodeRecord record, Axis axis) {
-    return switch (axis) {
-      case X -> record.radiusX();
-      case Y -> record.radiusY();
-      case Z -> record.radiusZ();
-    };
+    NodeCuboid area = record.area();
+    NodeCuboid next = area.withAxis(axis, -step(-area.min(axis), delta, maxRadius), step(area.max(axis), delta, maxRadius));
+    return next.equals(area) ? record : record.toBuilder().area(next).build();
   }
 
   public static RedstoneMode nextRedstone(RedstoneMode mode, boolean forward) {
     return REDSTONE_MODES[Math.floorMod(mode.ordinal() + (forward ? 1 : -1), REDSTONE_MODES.length)];
+  }
+
+  private static int step(int distance, int delta, int maxRadius) {
+    return delta > 0 ? Math.max(distance, Math.min(distance + delta, maxRadius)) : Math.max(0, distance + delta);
   }
 
   public enum Axis {

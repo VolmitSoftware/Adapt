@@ -4898,7 +4898,7 @@ tag_timed_out = "Tunnisteen syötön aika loppui"
 
 [golemancy.node_gui]
 position = "Kuutio: {x}, {y}, {z}"
-area = "{axis}-säde: {radius}"
+area = "{axis}-alue: {min} – {max}"
 area_lore = "Vasen napsautus: kasvata, oikea napsautus: pienennä"
 area_cap = "Suurin säde: {radius}"
 area_shift = "Vaihto-napsautus: muuta {step} kerrallaan"
@@ -4922,6 +4922,22 @@ filter_locked_lore = "Lisää Solmujen punonnan tasoja avaa tämän paikan"
 tag = "Esinetunniste"
 tag_add = "Lisää tunniste"
 tag_add_lore = "Napsauta ja kirjoita sitten chattiin esinetunniste, esimerkiksi #logs"
+
+[golemancy.node_area]
+select = "Valitse alue sauvalla"
+stop = "Lopeta alueen valinta"
+started = "Napsauta palikkaa sauvalla vasemmalla painikkeella kulmaksi 1 ja oikealla painikkeella kulmaksi 2"
+started_hint = "Kyykisty + oikea napsautus hyväksyy, kyykisty + vasen napsautus peruu"
+corner = "Kulma {corner}: {x}, {y}, {z}"
+applied = "Työalue asetettu: {x} × {y} × {z} palikkaa"
+incomplete = "Aseta molemmat kulmat ennen hyväksymistä"
+missing_center = "Alueen täytyy sisältää solmun edessä oleva palikka"
+too_far = "Pinta {face} on {distance} palikan päässä alueen keskeltä; rajasi on {max}"
+cancelled = "Alueen valinta peruttu"
+timed_out = "Alueen valinnan aika loppui"
+put_away = "Alueen valinta päättyi: sauva laitettiin pois"
+world_changed = "Alueen valinta päättyi: poistuit solmun maailmasta"
+node_gone = "Alueen valinta päättyi: solmu ei ole enää täällä"
 
 [golemancy.node_weaving]
 name = "Solmujen punonta"

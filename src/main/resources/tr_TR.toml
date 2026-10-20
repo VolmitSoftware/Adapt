@@ -4898,7 +4898,7 @@ tag_timed_out = "Etiket girişinin süresi doldu"
 
 [golemancy.node_gui]
 position = "Blok: {x}, {y}, {z}"
-area = "{axis} yarıçapı: {radius}"
+area = "{axis} alanı: {min} ile {max} arası"
 area_lore = "Sol tık: büyüt, sağ tık: küçült"
 area_cap = "En büyük yarıçap: {radius}"
 area_shift = "Shift + tık: {step} birim değiştir"
@@ -4922,6 +4922,22 @@ filter_locked_lore = "Daha fazla Düğüm Örme seviyesi bu yuvayı açar"
 tag = "Eşya etiketi"
 tag_add = "Etiket ekle"
 tag_add_lore = "Tıklayın, ardından sohbete #logs gibi bir eşya etiketi yazın"
+
+[golemancy.node_area]
+select = "Alanı asayla seç"
+stop = "Alan seçimini bırak"
+started = "Köşe 1 için asayla bir bloğa sol tıklayın, köşe 2 için bir bloğa sağ tıklayın"
+started_hint = "Uygulamak için eğilip sağ tıklayın, iptal etmek için eğilip sol tıklayın"
+corner = "Köşe {corner}: {x}, {y}, {z}"
+applied = "Çalışma alanı ayarlandı: {x} × {y} × {z} blok"
+incomplete = "Uygulamadan önce iki köşeyi de belirleyin"
+missing_center = "Alan, düğümün önündeki bloğu içermelidir"
+too_far = "{face} yüzeyi alan merkezinden {distance} blok uzakta; sınırınız {max}"
+cancelled = "Alan seçimi iptal edildi"
+timed_out = "Alan seçiminin süresi doldu"
+put_away = "Alan seçimi sona erdi: asa kaldırıldı"
+world_changed = "Alan seçimi sona erdi: düğümün dünyasından ayrıldınız"
+node_gone = "Alan seçimi sona erdi: düğüm artık burada değil"
 
 [golemancy.node_weaving]
 name = "Düğüm Örme"
