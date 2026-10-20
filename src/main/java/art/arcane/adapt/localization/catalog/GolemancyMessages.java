@@ -139,6 +139,12 @@ public final class GolemancyMessages {
   public static final TextKey GUI_COLOSSUS_ON = TextKey.of("golemancy.gui.colossus_on", "Colossus Form: On");
   public static final TextKey GUI_COLOSSUS_OFF = TextKey.of("golemancy.gui.colossus_off", "Colossus Form: Off");
   public static final TextKey GUI_COLOSSUS_LORE = TextKey.of("golemancy.gui.colossus_lore", "Click to toggle full size for combat; a grown golem does no work");
+  public static final TextKey GUI_COMBAT_ON = TextKey.of("golemancy.gui.combat_on", "Combat: On");
+  public static final TextKey GUI_COMBAT_OFF = TextKey.of("golemancy.gui.combat_off", "Combat: Off");
+  public static final TextKey GUI_COMBAT_LOCKED = TextKey.of("golemancy.gui.combat_locked", "Combat: On (Locked)");
+  public static final TextKey GUI_COMBAT_ON_LORE = TextKey.of("golemancy.gui.combat_on_lore", "Click to stop this golem from fighting so combat never pulls it from its work");
+  public static final TextKey GUI_COMBAT_OFF_LORE = TextKey.of("golemancy.gui.combat_off_lore", "This golem never fights and keeps working. Click to let it fight again");
+  public static final TextKey GUI_COMBAT_LOCKED_LORE = TextKey.of("golemancy.gui.combat_locked_lore", "A Guardian golem always defends, so its combat cannot be turned off");
   public static final TextKey GUI_PACK = TextKey.of("golemancy.gui.pack", "Pack");
   public static final TextKey GUI_PACK_LORE = TextKey.of("golemancy.gui.pack_lore", "Compresses this golem into a Dormant Golem block you can place to wake it");
   public static final TextKey ROSTER_TITLE = TextKey.of("golemancy.roster.title", "Golem Roster");
@@ -248,6 +254,7 @@ public final class GolemancyMessages {
   public static final TextKey OVERSEER_SENT = TextKey.of("golemancy.overseer.sent", "Sent {signal}");
   public static final TextKey OVERSEER_SENT_CHANNEL = TextKey.of("golemancy.overseer.sent_channel", "Sent {signal} to the {channel} channel");
   public static final TextKey OVERSEER_NO_TARGET = TextKey.of("golemancy.overseer.no_target", "Look at a creature you may attack within {range} blocks to send Sic");
+  public static final TextKey OVERSEER_SIC_IGNORED = TextKey.of("golemancy.overseer.sic_ignored", "Golems with combat off ignored Sic: {count}");
   public static final TextKey MENDING_NAME = TextKey.of("golemancy.mending.name", "Golem Mending");
   public static final TextKey MENDING_DESCRIPTION = TextKey.of("golemancy.mending.description", "Heal your golems with copper ingots, snow blocks and bone meal, let them mend near you and at home, and rebuild fallen golems from their Shattered Core.");
   public static final TextKey MENDING_LORE1 = TextKey.of("golemancy.mending.lore1", "Bonus Healing from Repairs");
@@ -690,6 +697,12 @@ public final class GolemancyMessages {
     builder.add(GUI_COLOSSUS_ON);
     builder.add(GUI_COLOSSUS_OFF);
     builder.add(GUI_COLOSSUS_LORE);
+    builder.add(GUI_COMBAT_ON);
+    builder.add(GUI_COMBAT_OFF);
+    builder.add(GUI_COMBAT_LOCKED);
+    builder.add(GUI_COMBAT_ON_LORE);
+    builder.add(GUI_COMBAT_OFF_LORE);
+    builder.add(GUI_COMBAT_LOCKED_LORE);
     builder.add(GUI_PACK);
     builder.add(GUI_PACK_LORE);
     builder.add(ROSTER_TITLE);
@@ -948,6 +961,7 @@ public final class GolemancyMessages {
     builder.add(OVERSEER_SENT);
     builder.add(OVERSEER_SENT_CHANNEL);
     builder.add(OVERSEER_NO_TARGET);
+    builder.add(OVERSEER_SIC_IGNORED);
     builder.add(MENDING_NAME);
     builder.add(MENDING_DESCRIPTION);
     builder.add(MENDING_LORE1);

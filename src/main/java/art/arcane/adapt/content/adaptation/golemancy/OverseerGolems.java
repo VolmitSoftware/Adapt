@@ -3,6 +3,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemBrain;
+import art.arcane.adapt.api.golem.GolemCombat;
 import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemMastery;
 import art.arcane.adapt.api.golem.GolemMode;
@@ -17,15 +18,24 @@ import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.DoubleSupplier;
+import java.util.function.IntConsumer;
 
 final class OverseerGolems implements OverseerReceiver {
   private final DoubleSupplier sentryRange;
+  private final BiConsumer<UUID, Integer> ignoredNote;
 
-  OverseerGolems(DoubleSupplier sentryRange) {
+  OverseerGolems(DoubleSupplier sentryRange, BiConsumer<UUID, Integer> ignoredNote) {
     this.sentryRange = Objects.requireNonNull(sentryRange);
+    this.ignoredNote = Objects.requireNonNull(ignoredNote);
   }
 
   @Override
@@ -34,14 +44,38 @@ final class OverseerGolems implements OverseerReceiver {
     if (registry.isEmpty()) {
       return;
     }
+    List<GolemHandle> hearing = new ArrayList<>();
     for (GolemHandle handle : registry.get().loadedOf(signal.owner())) {
       if (!handle.isDormant()) {
-        J.runEntity(handle.entity(), () -> answer(handle, signal));
+        hearing.add(handle);
       }
+    }
+    Ignores ignores = new Ignores(hearing.size(), count -> ignoredNote.accept(signal.owner(), count));
+    for (GolemHandle handle : hearing) {
+      dispatch(handle, signal, ignores);
     }
   }
 
-  private void answer(GolemHandle handle, OverseerSignal signal) {
+  private void dispatch(GolemHandle handle, OverseerSignal signal, Ignores ignores) {
+    AtomicBoolean settled = new AtomicBoolean();
+    Runnable settle = () -> {
+      if (settled.compareAndSet(false, true)) {
+        ignores.settled();
+      }
+    };
+    boolean queued = J.runEntity(handle.entity(), () -> {
+      try {
+        answer(handle, signal, ignores);
+      } finally {
+        settle.run();
+      }
+    }, settle);
+    if (!queued) {
+      settle.run();
+    }
+  }
+
+  private void answer(GolemHandle handle, OverseerSignal signal, Ignores ignores) {
     Mob golem = handle.entity();
     if (handle.isRetired() || handle.isDormant() || !golem.isValid()) {
       return;
@@ -59,7 +93,7 @@ final class OverseerGolems implements OverseerReceiver {
         signal.reached(golem);
       }
       case RALLY -> rally(handle, signal);
-      case COMMAND -> command(handle, signal);
+      case COMMAND -> command(handle, signal, ignores);
     }
   }
 
@@ -98,8 +132,12 @@ final class OverseerGolems implements OverseerReceiver {
     GolemancyRuntime.reveal().ifPresent(reveal -> reveal.refresh(handle));
   }
 
-  private void command(GolemHandle handle, OverseerSignal signal) {
+  private void command(GolemHandle handle, OverseerSignal signal, Ignores ignores) {
     if (signal.target() == null) {
+      return;
+    }
+    if (!GolemCombat.enabled(handle)) {
+      ignores.ignored();
       return;
     }
     Mob golem = handle.entity();
@@ -107,5 +145,26 @@ final class OverseerGolems implements OverseerReceiver {
       brain.command(signal.target(), signal.commandUntilMillis());
       signal.reached(golem);
     });
+  }
+
+  private static final class Ignores {
+    private final AtomicInteger pending;
+    private final AtomicInteger ignored = new AtomicInteger();
+    private final IntConsumer report;
+
+    private Ignores(int golems, IntConsumer report) {
+      this.pending = new AtomicInteger(golems);
+      this.report = report;
+    }
+
+    private void ignored() {
+      ignored.incrementAndGet();
+    }
+
+    private void settled() {
+      if (pending.decrementAndGet() == 0 && ignored.get() > 0) {
+        report.accept(ignored.get());
+      }
+    }
   }
 }

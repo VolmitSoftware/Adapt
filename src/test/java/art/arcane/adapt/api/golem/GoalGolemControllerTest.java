@@ -10,6 +10,7 @@ import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Skeleton;
+import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Zombie;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -30,10 +31,12 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class GoalGolemControllerTest {
@@ -272,6 +275,262 @@ class GoalGolemControllerTest {
     verify(golem, never()).setTarget(null);
   }
 
+  @Test
+  void combatGoalsListEachBodysAttackAndRetaliationGoalsAtTheirVanillaPriorities() {
+    assertThat(combatPriorities(GolemBody.IRON)).containsExactlyInAnyOrderEntriesOf(Map.of(
+        "minecraft:melee_attack", 1,
+        "minecraft:hurt_by", 2));
+    assertThat(combatPriorities(GolemBody.FROST)).containsExactlyInAnyOrderEntriesOf(Map.of("minecraft:ranged_attack", 1));
+    assertThat(combatPriorities(GolemBody.BONE)).containsExactlyInAnyOrderEntriesOf(Map.of(
+        "minecraft:hurt_by", 1,
+        "minecraft:nearest_attackable", 3,
+        "minecraft:ranged_bow_attack", 4,
+        "minecraft:skeleton_melee", 4));
+    assertThat(GoalGolemController.combatGoals(GolemBody.COPPER)).isEmpty();
+  }
+
+  @Test
+  void combatGoalsNeverOverlapTheGoalsAttachRemoves() {
+    for (GolemBody body : GolemBody.values()) {
+      for (GoalGolemController.VanillaGoal combat : GoalGolemController.combatGoals(body)) {
+        assertThat(keys(body)).as(body.id()).doesNotContain(combat.key().toString());
+      }
+    }
+  }
+
+  @Test
+  void combatOffRemovesTheTargetGoalAndIronsAttackAndRetaliationGoals() {
+    Mob golem = mock(IronGolem.class);
+    MobGoals goals = mock(MobGoals.class);
+    List<Goal<Mob>> vanilla = vanillaIronGoals();
+    when(goals.getAllGoals(golem)).thenReturn(vanilla);
+    GoalGolemController controller = new GoalGolemController(golem, GolemBody.IRON, goals);
+    controller.attach();
+    GolemTargetGoal target = added(goals, golem, GoalGolemController.TARGET_PRIORITY, GolemTargetGoal.class);
+    remaining(goals, golem, vanilla, "iron_golem_defend_village", "iron_golem_offer_flower", "move_back_to_village",
+        "golem_random_stroll_in_village", "nearest_attackable");
+
+    controller.setCombat(false);
+
+    verify(goals).removeGoal(golem, target);
+    verifyRemoved(goals, golem, goal(vanilla, "melee_attack", 0));
+    verifyRemoved(goals, golem, goal(vanilla, "hurt_by", 0));
+    verifyNotRemoved(goals, golem, goal(vanilla, "move_towards", 0));
+    verifyNotRemoved(goals, golem, goal(vanilla, "look_at_player", 0));
+    verifyNotRemoved(goals, golem, goal(vanilla, "random_look_around", 0));
+  }
+
+  @Test
+  void combatOffRemovesFrostsRangedAttackGoal() {
+    Mob golem = mock(Snowman.class);
+    MobGoals goals = mock(MobGoals.class);
+    List<Goal<Mob>> vanilla = vanillaFrostGoals();
+    when(goals.getAllGoals(golem)).thenReturn(vanilla);
+    GoalGolemController controller = new GoalGolemController(golem, GolemBody.FROST, goals);
+    controller.attach();
+    remaining(goals, golem, vanilla, "nearest_attackable", "water_avoiding_random_stroll");
+
+    controller.setCombat(false);
+
+    verifyRemoved(goals, golem, goal(vanilla, "ranged_attack", 0));
+    verifyNotRemoved(goals, golem, goal(vanilla, "look_at_player", 0));
+    verifyNotRemoved(goals, golem, goal(vanilla, "random_look_around", 0));
+  }
+
+  @Test
+  void combatOffRemovesTheBoneBowMeleeAndTargetingGoals() {
+    Mob golem = mock(Skeleton.class);
+    MobGoals goals = mock(MobGoals.class);
+    List<Goal<Mob>> vanilla = vanillaBoneGoals();
+    when(goals.getAllGoals(golem)).thenReturn(vanilla);
+    GoalGolemController controller = new GoalGolemController(golem, GolemBody.BONE, goals);
+    controller.attach();
+    remaining(goals, golem, vanilla, "restrict_sun", "flee_sun", "avoid_entity", "water_avoiding_random_stroll");
+
+    controller.setCombat(false);
+
+    verifyRemoved(goals, golem, goal(vanilla, "ranged_bow_attack", 0));
+    verifyRemoved(goals, golem, goal(vanilla, "skeleton_melee", 0));
+    verifyRemoved(goals, golem, goal(vanilla, "hurt_by", 0));
+    verifyRemoved(goals, golem, goal(vanilla, "nearest_attackable", 0));
+    verifyRemoved(goals, golem, goal(vanilla, "nearest_attackable", 1));
+    verifyRemoved(goals, golem, goal(vanilla, "nearest_attackable", 2));
+    verifyNotRemoved(goals, golem, goal(vanilla, "look_at_player", 0));
+    verifyNotRemoved(goals, golem, goal(vanilla, "random_look_around", 0));
+  }
+
+  @Test
+  void combatOnAgainRestoresEveryRemovedGoalAtItsVanillaPriority() {
+    Mob golem = mock(IronGolem.class);
+    MobGoals goals = mock(MobGoals.class);
+    List<Goal<Mob>> vanilla = vanillaIronGoals();
+    when(goals.getAllGoals(golem)).thenReturn(vanilla);
+    GoalGolemController controller = new GoalGolemController(golem, GolemBody.IRON, goals);
+    controller.attach();
+    GolemTargetGoal target = added(goals, golem, GoalGolemController.TARGET_PRIORITY, GolemTargetGoal.class);
+    remaining(goals, golem, vanilla, "iron_golem_defend_village", "iron_golem_offer_flower", "move_back_to_village",
+        "golem_random_stroll_in_village", "nearest_attackable");
+    controller.setCombat(false);
+    clearInvocations(goals);
+
+    controller.setCombat(true);
+
+    verifyAdded(goals, golem, 1, goal(vanilla, "melee_attack", 0));
+    verifyAdded(goals, golem, 2, goal(vanilla, "hurt_by", 0));
+    verify(goals).addGoal(golem, GoalGolemController.TARGET_PRIORITY, target);
+    verify(goals, times(3)).addGoal(eq(golem), anyInt(), any());
+  }
+
+  @Test
+  void boneRestoresItsTargetingGoalsAtTheirListedPriorities() {
+    Mob golem = mock(Skeleton.class);
+    MobGoals goals = mock(MobGoals.class);
+    List<Goal<Mob>> vanilla = vanillaBoneGoals();
+    when(goals.getAllGoals(golem)).thenReturn(vanilla);
+    GoalGolemController controller = new GoalGolemController(golem, GolemBody.BONE, goals);
+    controller.attach();
+    remaining(goals, golem, vanilla, "restrict_sun", "flee_sun", "avoid_entity", "water_avoiding_random_stroll");
+    controller.setCombat(false);
+    clearInvocations(goals);
+
+    controller.setCombat(true);
+
+    verifyAdded(goals, golem, 4, goal(vanilla, "ranged_bow_attack", 0));
+    verifyAdded(goals, golem, 4, goal(vanilla, "skeleton_melee", 0));
+    verifyAdded(goals, golem, 1, goal(vanilla, "hurt_by", 0));
+    verifyAdded(goals, golem, 3, goal(vanilla, "nearest_attackable", 0));
+    verifyAdded(goals, golem, 3, goal(vanilla, "nearest_attackable", 1));
+    verifyAdded(goals, golem, 3, goal(vanilla, "nearest_attackable", 2));
+  }
+
+  @Test
+  void combatOffClearsTheTargetTheTargetGoalWasHolding() {
+    Mob golem = mock(IronGolem.class);
+    MobGoals goals = mock(MobGoals.class);
+    when(goals.getAllGoals(golem)).thenReturn(List.of());
+    GoalGolemController controller = new GoalGolemController(golem, GolemBody.IRON, goals);
+    controller.attach();
+    GolemTargetGoal target = added(goals, golem, GoalGolemController.TARGET_PRIORITY, GolemTargetGoal.class);
+    LivingEntity zombie = living();
+    controller.setTarget(zombie);
+    target.start();
+
+    controller.setCombat(false);
+
+    assertThat(target.shouldActivate()).isFalse();
+    assertThat(target.shouldStayActive()).isFalse();
+  }
+
+  @Test
+  void settingTheSameCombatStateTwiceChangesNothingTheSecondTime() {
+    Mob golem = mock(IronGolem.class);
+    MobGoals goals = mock(MobGoals.class);
+    List<Goal<Mob>> vanilla = vanillaIronGoals();
+    when(goals.getAllGoals(golem)).thenReturn(vanilla);
+    GoalGolemController controller = new GoalGolemController(golem, GolemBody.IRON, goals);
+    controller.attach();
+    clearInvocations(goals);
+
+    controller.setCombat(true);
+    verifyNoInteractions(goals);
+
+    controller.setCombat(false);
+    clearInvocations(goals);
+
+    controller.setCombat(false);
+
+    verifyNoInteractions(goals);
+  }
+
+  @Test
+  void combatSettingsBeforeAttachTouchNoGoals() {
+    Mob golem = mock(IronGolem.class);
+    MobGoals goals = mock(MobGoals.class);
+    GoalGolemController controller = new GoalGolemController(golem, GolemBody.IRON, goals);
+
+    controller.setCombat(false);
+    controller.setCombat(true);
+
+    verify(goals, never()).addGoal(any(), anyInt(), any());
+    verify(goals, never()).removeGoal(any(), any(Goal.class));
+    verify(goals, never()).getAllGoals(any());
+  }
+
+  @Test
+  void releaseWhileCombatIsOffRestoresTheAttackGoalsButNotTheTargetGoal() {
+    Mob golem = mock(IronGolem.class);
+    MobGoals goals = mock(MobGoals.class);
+    List<Goal<Mob>> vanilla = vanillaIronGoals();
+    when(goals.getAllGoals(golem)).thenReturn(vanilla);
+    GoalGolemController controller = new GoalGolemController(golem, GolemBody.IRON, goals);
+    controller.attach();
+    GolemTargetGoal target = added(goals, golem, GoalGolemController.TARGET_PRIORITY, GolemTargetGoal.class);
+    remaining(goals, golem, vanilla, "iron_golem_defend_village", "iron_golem_offer_flower", "move_back_to_village",
+        "golem_random_stroll_in_village", "nearest_attackable");
+    controller.setCombat(false);
+    clearInvocations(goals);
+
+    controller.release();
+
+    verifyAdded(goals, golem, 1, goal(vanilla, "melee_attack", 0));
+    verifyAdded(goals, golem, 2, goal(vanilla, "hurt_by", 0));
+    verify(goals, never()).addGoal(eq(golem), eq(GoalGolemController.TARGET_PRIORITY), same(target));
+  }
+
+  @Test
+  void aReleasedControllerStartsFightingAgainOnTheNextAttach() {
+    Mob golem = mock(IronGolem.class);
+    MobGoals goals = mock(MobGoals.class);
+    List<Goal<Mob>> vanilla = vanillaIronGoals();
+    when(goals.getAllGoals(golem)).thenReturn(vanilla);
+    GoalGolemController controller = new GoalGolemController(golem, GolemBody.IRON, goals);
+    controller.attach();
+    controller.setCombat(false);
+    controller.release();
+    controller.attach();
+    clearInvocations(goals);
+
+    controller.setCombat(false);
+
+    verify(goals).removeGoal(eq(golem), any(GolemTargetGoal.class));
+  }
+
+  private static void verifyRemoved(MobGoals goals, Mob golem, Goal<Mob> goal) {
+    verify(goals).removeGoal(golem, goal);
+  }
+
+  private static void verifyNotRemoved(MobGoals goals, Mob golem, Goal<Mob> goal) {
+    verify(goals, never()).removeGoal(golem, goal);
+  }
+
+  private static void verifyAdded(MobGoals goals, Mob golem, int priority, Goal<Mob> goal) {
+    verify(goals).addGoal(golem, priority, goal);
+  }
+
+  private static void remaining(MobGoals goals, Mob golem, List<Goal<Mob>> vanilla, String... removedAtAttach) {
+    List<Goal<Mob>> left = vanillaWithout(vanilla, removedAtAttach);
+    when(goals.getAllGoals(golem)).thenReturn(left);
+  }
+
+  private static List<Goal<Mob>> vanillaWithout(List<Goal<Mob>> vanilla, String... keys) {
+    List<String> dropped = List.of(keys);
+    List<Goal<Mob>> remaining = new ArrayList<>();
+    for (Goal<Mob> goal : vanilla) {
+      if (!dropped.contains(goal.getKey().getNamespacedKey().getKey())) {
+        remaining.add(goal);
+      }
+    }
+    return remaining;
+  }
+
+  private static Map<String, Integer> combatPriorities(GolemBody body) {
+    Map<String, Integer> priorities = new LinkedHashMap<>();
+    for (GoalGolemController.VanillaGoal goal : GoalGolemController.combatGoals(body)) {
+      priorities.put(goal.key().toString(), goal.priority());
+    }
+    return priorities;
+  }
+
   private static List<String> keys(GolemBody body) {
     List<String> keys = new ArrayList<>();
     for (GoalGolemController.VanillaGoal goal : GoalGolemController.removedGoals(body)) {
@@ -342,6 +601,7 @@ class GoalGolemControllerTest {
         vanillaGoal("flee_sun", EnumSet.of(GoalType.MOVE)),
         vanillaGoal("avoid_entity", EnumSet.of(GoalType.MOVE)),
         vanillaGoal("ranged_bow_attack", EnumSet.of(GoalType.MOVE, GoalType.LOOK)),
+        vanillaGoal("skeleton_melee", EnumSet.of(GoalType.MOVE, GoalType.LOOK)),
         vanillaGoal("water_avoiding_random_stroll", EnumSet.of(GoalType.MOVE)),
         vanillaGoal("look_at_player", EnumSet.of(GoalType.LOOK)),
         vanillaGoal("random_look_around", EnumSet.of(GoalType.MOVE, GoalType.LOOK)),

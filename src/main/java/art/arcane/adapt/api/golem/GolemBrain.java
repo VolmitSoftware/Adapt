@@ -35,6 +35,7 @@ public final class GolemBrain {
   private volatile OwnerSighting ownerSighting;
   private volatile Command command;
   private boolean attached;
+  private boolean fighting = true;
   private boolean failureLogged;
   private GolemMode lastMode;
   private Location stayAnchor;
@@ -114,6 +115,7 @@ public final class GolemBrain {
         return;
       }
       attached = true;
+      fighting = true;
     }
     schedule(generation.incrementAndGet(), 1);
   }
@@ -144,6 +146,7 @@ public final class GolemBrain {
     workState = null;
     if (attached) {
       attached = false;
+      fighting = true;
       try {
         controller.release();
       } catch (RuntimeException failure) {
@@ -184,6 +187,7 @@ public final class GolemBrain {
     Mob golem = handle.entity();
     Location here = golem.getLocation();
     handle.trackPosition(here);
+    applyCombat(GolemCombat.enabled(handle));
     GolemMode mode = handle.state().mode();
     if (mode != lastMode) {
       lastMode = mode;
@@ -269,9 +273,28 @@ public final class GolemBrain {
     GolemStats.recompute(handle);
   }
 
+  private void applyCombat(boolean enabled) {
+    if (enabled == fighting) {
+      return;
+    }
+    controller.setCombat(enabled);
+    fighting = enabled;
+    if (enabled) {
+      return;
+    }
+    combatTarget = null;
+    command = null;
+    applyTarget(null);
+    Mob golem = handle.entity();
+    if (golem.getTarget() != null) {
+      golem.setTarget(null);
+    }
+  }
+
   private LivingEntity combat(Player owner, long now) {
-    if (!handle.body().fights()) {
+    if (!handle.body().fights() || !fighting) {
       command = null;
+      combatTarget = null;
       return null;
     }
     GolemTargetPolicy policy = context.policies().apply(GolemMastery.cores(handle));

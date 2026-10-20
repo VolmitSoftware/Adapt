@@ -4476,6 +4476,12 @@ snow_trail_lore = "Bu golemin arkasında bıraktığı karı açıp kapatmak iç
 colossus_on = "Dev Formu: açık"
 colossus_off = "Dev Formu: kapalı"
 colossus_lore = "Savaş için tam boyutu açıp kapatmak için tıklayın; büyümüş bir golem çalışmaz"
+combat_on = "Savaş: açık"
+combat_off = "Savaş: kapalı"
+combat_locked = "Savaş: açık (kilitli)"
+combat_on_lore = "Bu golemin savaşmayı bırakması için tıklayın; böylece savaş onu işinden asla alıkoymaz"
+combat_off_lore = "Bu golem asla savaşmaz ve çalışmaya devam eder. Tekrar savaşmasına izin vermek için tıklayın"
+combat_locked_lore = "Muhafız golemi her zaman savunur, bu yüzden savaşı kapatılamaz"
 pack = "Paketle"
 pack_lore = "Bu golemi, yerleştirerek uyandırabileceğin bir Uykudaki Golem bloğuna sıkıştırır"
 
@@ -4770,6 +4776,7 @@ signal = "İşaret: {signal}"
 sent = "Gönderildi: {signal}"
 sent_channel = "Gönderildi: {signal}, {channel} kanalına"
 no_target = "Saldır işareti göndermek için {range} blok içinde saldırabileceğiniz bir canlıya bakın"
+sic_ignored = "Savaşı kapalı olan golemler Saldır işaretini yok saydı: {count}"
 
 [golemancy.mending]
 name = "Golem Onarımı"

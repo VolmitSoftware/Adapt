@@ -4476,6 +4476,12 @@ snow_trail_lore = "Nhấp để bật hoặc tắt tuyết mà golem này để 
 colossus_on = "Dạng Khổng Lồ: Bật"
 colossus_off = "Dạng Khổng Lồ: Tắt"
 colossus_lore = "Nhấp để bật hoặc tắt kích thước đầy đủ khi chiến đấu; golem đã lớn sẽ không làm việc"
+combat_on = "Chiến đấu: Bật"
+combat_off = "Chiến đấu: Tắt"
+combat_locked = "Chiến đấu: Bật (Đã khóa)"
+combat_on_lore = "Nhấp để golem này ngừng chiến đấu, để chiến đấu không bao giờ kéo nó khỏi công việc"
+combat_off_lore = "Golem này không bao giờ chiến đấu và tiếp tục làm việc. Nhấp để cho nó chiến đấu lại"
+combat_locked_lore = "Golem Hộ Vệ luôn bảo vệ nên không thể tắt chiến đấu của nó"
 pack = "Đóng gói"
 pack_lore = "Nén golem này thành một khối Golem Ngủ Đông mà bạn có thể đặt xuống để đánh thức nó"
 
@@ -4770,6 +4776,7 @@ signal = "Hiệu lệnh: {signal}"
 sent = "Đã gửi: {signal}"
 sent_channel = "Đã gửi: {signal} tới kênh {channel}"
 no_target = "Nhìn vào một sinh vật bạn được phép tấn công trong phạm vi {range} khối để gửi Tấn công"
+sic_ignored = "Golem đã tắt chiến đấu bỏ qua Tấn công: {count}"
 
 [golemancy.mending]
 name = "Sửa Chữa Golem"

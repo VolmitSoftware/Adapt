@@ -498,6 +498,181 @@ class GolemBrainTest extends AdaptTestBase {
   }
 
   @Test
+  void combatOffBlocksCompanionTargetingRetaliationAndTheCombatState() {
+    owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.handle().setCombat(false);
+    policy.next = live(Zombie.class);
+    policy.holding = true;
+    brain.start();
+
+    pulseFor(3_000L);
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
+    assertThat(controller.target).isNull();
+    assertThat(policy.selections).isZero();
+    assertThat(policy.ticks).isZero();
+    assertThat(controller.calls).doesNotContain("target:zombie");
+  }
+
+  @Test
+  void combatOffIgnoresACommandedTarget() {
+    owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.handle().setCombat(false);
+    brain.start();
+    brain.command(live(Zombie.class), platform.now + 20_000L);
+
+    pulseFor(1_000L);
+
+    assertThat(controller.target).isNull();
+    assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
+  }
+
+  @Test
+  void combatOffNeverStopsAWorkingGolemForAFight() {
+    owner(at(0, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(2, 64, 1)), GolemBody.IRON);
+    brain.handle().setMode(GolemMode.WORK);
+    brain.handle().setCombat(false);
+    policy.next = live(Zombie.class);
+    policy.holding = true;
+    brain.start();
+
+    pulseFor(3_000L);
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.SEEK);
+    assertThat(controller.target).isNull();
+  }
+
+  @Test
+  void aWorkingGolemWithCombatOnStillFightsATarget() {
+    owner(at(0, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(2, 64, 1)), GolemBody.IRON);
+    brain.handle().setMode(GolemMode.WORK);
+    LivingEntity zombie = live(Zombie.class);
+    policy.next = zombie;
+    policy.holding = true;
+    brain.start();
+
+    pulseFor(1_000L);
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.COMBAT);
+    assertThat(controller.target).isSameAs(zombie);
+  }
+
+  @Test
+  void switchingCombatOffDropsTheTargetAndDetachesTheAttackGoalsOnce() {
+    owner(at(10, 64, 0));
+    LivingEntity zombie = live(Zombie.class);
+    IronGolem golem = golem(IronGolem.class, at(0, 64, 0));
+    lenient().when(golem.getTarget()).thenReturn(zombie);
+    GolemBrain brain = brain(golem, GolemBody.IRON);
+    policy.next = zombie;
+    policy.holding = true;
+    brain.start();
+    pulseFor(1_000L);
+    assertThat(brain.state()).isEqualTo(GolemBrainState.COMBAT);
+    assertThat(controller.target).isSameAs(zombie);
+    assertThat(controller.combat).isTrue();
+    controller.calls.clear();
+
+    brain.handle().setCombat(false);
+    pulseFor(2_000L);
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
+    assertThat(controller.target).isNull();
+    assertThat(controller.combat).isFalse();
+    assertThat(controller.calls).containsOnlyOnce("combat:false");
+    assertThat(controller.calls).doesNotContain("combat:true");
+    verify(golem).setTarget(null);
+  }
+
+  @Test
+  void switchingCombatBackOnReattachesTheAttackGoalsAndFightsAgain() {
+    owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.handle().setCombat(false);
+    LivingEntity zombie = live(Zombie.class);
+    policy.next = zombie;
+    policy.holding = true;
+    brain.start();
+    pulseFor(1_000L);
+    assertThat(controller.combat).isFalse();
+    assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
+
+    brain.handle().setCombat(true);
+    pulseFor(1_000L);
+
+    assertThat(controller.combat).isTrue();
+    assertThat(controller.calls).containsSubsequence("combat:false", "combat:true");
+    assertThat(brain.state()).isEqualTo(GolemBrainState.COMBAT);
+    assertThat(controller.target).isSameAs(zombie);
+  }
+
+  @Test
+  void aSleepingBrainAppliesAnOffChangedWhileAsleepWhenItWakes() {
+    owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.start();
+    pulseFor(500L);
+    brain.sleep();
+
+    brain.handle().setCombat(false);
+    brain.start();
+    pulseFor(500L);
+
+    assertThat(controller.combat).isFalse();
+  }
+
+  @Test
+  void aGuardianKeepsFightingEvenWhenItsStoredCombatIsOff() {
+    owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON, GolemCoreType.GUARDIAN);
+    brain.handle().state().setCombatOff(true);
+    LivingEntity zombie = live(Zombie.class);
+    policy.next = zombie;
+    policy.holding = true;
+    brain.start();
+
+    pulseFor(1_000L);
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.COMBAT);
+    assertThat(controller.target).isSameAs(zombie);
+    assertThat(controller.calls).doesNotContain("combat:false");
+  }
+
+  @Test
+  void combatOffIsHarmlessForACopperGolem() {
+    owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(CopperGolem.class, at(0, 64, 0)), GolemBody.COPPER);
+    brain.handle().setCombat(false);
+    brain.start();
+
+    pulseFor(1_000L);
+
+    assertThat(brain.state()).isEqualTo(GolemBrainState.FOLLOW);
+    assertThat(controller.target).isNull();
+    assertThat(policy.selections).isZero();
+  }
+
+  @Test
+  void detachingTheBrainReleasesTheControllerWithCombatBackOn() {
+    owner(at(10, 64, 0));
+    GolemBrain brain = brain(golem(IronGolem.class, at(0, 64, 0)), GolemBody.IRON);
+    brain.handle().setCombat(false);
+    brain.start();
+    pulseFor(500L);
+    assertThat(controller.combat).isFalse();
+
+    brain.detach();
+    brain.start();
+    pulseFor(500L);
+
+    assertThat(controller.calls).containsSubsequence("combat:false", "release", "attach", "combat:false");
+  }
+
+  @Test
   void aCommandHoldsBeforeItsDeadlineWhileTheTargetLivesInTheGolemsWorld() {
     assertThat(GolemBrain.commandHolds(1_999L, 2_000L, true, true)).isTrue();
     assertThat(GolemBrain.commandHolds(2_000L, 2_000L, true, true)).isFalse();
@@ -875,7 +1050,11 @@ class GolemBrainTest extends AdaptTestBase {
   }
 
   private GolemBrain brain(Mob golem, GolemBody body) {
-    GolemState state = GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, body, GolemCoreType.BLANK,
+    return brain(golem, body, GolemCoreType.BLANK);
+  }
+
+  private GolemBrain brain(Mob golem, GolemBody body, GolemCoreType slotted) {
+    GolemState state = GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, body, slotted,
         GolemState.Anchor.of(WORLD, 0, 64, 0)));
     GolemHandle handle = new GolemHandle(golem, state, platform);
     return new GolemBrain(handle, controller, new GolemBrain.Context(platform, settings::get, core -> policy, GolemWorkSettings::defaults,
@@ -919,6 +1098,7 @@ class GolemBrainTest extends AdaptTestBase {
   private static final class RecordingController implements GolemController {
     private final List<String> calls = new ArrayList<>();
     private LivingEntity target;
+    private boolean combat = true;
     private boolean failAttach;
     private boolean failRelease;
     private boolean failTick;
@@ -945,6 +1125,12 @@ class GolemBrainTest extends AdaptTestBase {
     public void setTarget(LivingEntity target) {
       this.target = target;
       calls.add(target == null ? "target:null" : "target:zombie");
+    }
+
+    @Override
+    public void setCombat(boolean enabled) {
+      combat = enabled;
+      calls.add("combat:" + enabled);
     }
 
     @Override

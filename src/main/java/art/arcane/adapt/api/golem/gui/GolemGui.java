@@ -62,6 +62,7 @@ public final class GolemGui {
   private static final int PRIMARY_CORE_SLOT = LEFT_EDGE + 1;
   private static final int SECOND_CORE_SLOT = LEFT_EDGE + 2;
   private static final int MASTERWORK_SLOT = LEFT_EDGE + 2;
+  private static final int COMBAT_SLOT = -1;
 
   private final Player player;
   private final GolemHandle handle;
@@ -465,9 +466,18 @@ public final class GolemGui {
 
   private void placeToggles(Placer target, GolemView view) {
     GolemView.Toggles toggles = view.toggles();
+    target.place(COMBAT_SLOT, HEADER_ROW, combatElement(toggles));
     target.place(0, FOOTER_ROW, utilityElement(view));
     target.place(MASTERWORK_SLOT, FOOTER_ROW,
         GolemGuiActions.showsMasterwork(view.body(), toggles.masterwork(), toggles.maxMasterworks()) ? masterworkElement(view) : null);
+  }
+
+  private Element combatElement(GolemView.Toggles toggles) {
+    Element combat = GuiTheme.element("golem-combat", GolemGuiActions.combatIcon(toggles.combat(), toggles.combatLocked()), "gui", "golemancy", "combat")
+        .setName((toggles.combat() ? C.AQUA : C.RED) + AdaptLanguage.text(GolemGuiActions.combatName(toggles.combat(), toggles.combatLocked())))
+        .addLore(C.GRAY + AdaptLanguage.text(GolemGuiActions.combatLore(toggles.combat(), toggles.combatLocked())))
+        .setProgress(1D);
+    return toggles.combatLocked() ? combat : combat.onLeftClick(clicked -> toggleCombat());
   }
 
   private Element utilityElement(GolemView view) {
@@ -738,6 +748,14 @@ public final class GolemGui {
 
   private void toggleSnowTrail() {
     mutate(() -> handle.setSnowTrail(!handle.state().snowTrail()));
+  }
+
+  private void toggleCombat() {
+    mutate(() -> {
+      if (!handle.setCombat(handle.state().combatOff())) {
+        GolemGuiSupport.warn(player, GolemancyMessages.GUI_COMBAT_LOCKED_LORE);
+      }
+    });
   }
 
   private void toggleColossus() {

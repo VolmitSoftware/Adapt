@@ -160,9 +160,26 @@ class GolemViewTest {
   @Test
   void aMasterworkShowsTheToggleChange() {
     GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(), runes(), carried(), stats(), 0,
-        new GolemView.Toggles(false, false, false, true, 1, 2));
+        new GolemView.Toggles(false, false, false, true, 1, 2, true, false));
 
     assertThat(next.changes(base())).containsExactly(TOGGLES);
+  }
+
+  @Test
+  void aCombatChangeShowsTheToggleChange() {
+    GolemView off = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(), runes(), carried(), stats(), 0,
+        new GolemView.Toggles(false, false, false, false, 0, 0, false, false));
+
+    assertThat(off.changes(base())).containsExactly(TOGGLES);
+    assertThat(base().changes(off)).containsExactly(TOGGLES);
+  }
+
+  @Test
+  void aCombatLockShowsTheToggleChange() {
+    GolemView locked = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(), runes(), carried(), stats(), 0,
+        new GolemView.Toggles(false, false, false, false, 0, 0, true, true));
+
+    assertThat(locked.changes(base())).containsExactly(TOGGLES);
   }
 
   @Test
@@ -206,6 +223,6 @@ class GolemViewTest {
   }
 
   private static GolemView.Toggles toggles() {
-    return new GolemView.Toggles(false, false, false, false, 0, 0);
+    return new GolemView.Toggles(false, false, false, false, 0, 0, true, false);
   }
 }

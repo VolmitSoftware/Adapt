@@ -11,6 +11,7 @@ import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Snowball;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Zombie;
@@ -18,12 +19,15 @@ import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.projectiles.ProjectileSource;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -141,6 +145,83 @@ class GolemGuardListenerTest extends AdaptTestBase {
   }
 
   @Test
+  void aBoundGolemWithCombatOffNeverTargetsAnything() {
+    IronGolem quiet = bound(IronGolem.class, OWNER, GolemBody.IRON);
+    IronGolem fighting = bound(IronGolem.class, OWNER, GolemBody.IRON);
+    IronGolem untracked = bound(IronGolem.class, OWNER, GolemBody.IRON);
+    trackCombat(quiet, GolemCoreType.BLANK, true);
+    trackCombat(fighting, GolemCoreType.BLANK, false);
+    EntityTargetLivingEntityEvent quietZombie = target(quiet, living(Zombie.class));
+    EntityTargetLivingEntityEvent fightingZombie = target(fighting, living(Zombie.class));
+    EntityTargetLivingEntityEvent untrackedZombie = target(untracked, living(Zombie.class));
+
+    listener.on(quietZombie);
+    listener.on(fightingZombie);
+    listener.on(untrackedZombie);
+
+    verify(quietZombie).setCancelled(true);
+    verify(fightingZombie, never()).setCancelled(anyBoolean());
+    verify(untrackedZombie, never()).setCancelled(anyBoolean());
+  }
+
+  @Test
+  void aGuardianWithAStoredOffCombatStillTargets() {
+    IronGolem guardian = bound(IronGolem.class, OWNER, GolemBody.IRON);
+    trackCombat(guardian, GolemCoreType.GUARDIAN, true);
+    EntityTargetLivingEntityEvent zombie = target(guardian, living(Zombie.class));
+
+    listener.on(zombie);
+
+    verify(zombie, never()).setCancelled(anyBoolean());
+  }
+
+  @Test
+  void clearingATargetIsNeverCancelledForACombatOffGolem() {
+    IronGolem quiet = bound(IronGolem.class, OWNER, GolemBody.IRON);
+    trackCombat(quiet, GolemCoreType.BLANK, true);
+    EntityTargetLivingEntityEvent cleared = target(quiet, null);
+
+    listener.on(cleared);
+
+    verify(cleared, never()).setCancelled(anyBoolean());
+  }
+
+  @Test
+  void snowballsFromAGolemWithCombatOffAreNeverThrown() {
+    Snowman quiet = bound(Snowman.class, OWNER, GolemBody.FROST);
+    Snowman fighting = bound(Snowman.class, OWNER, GolemBody.FROST);
+    Snowman untracked = bound(Snowman.class, OWNER, GolemBody.FROST);
+    trackCombat(quiet, GolemCoreType.BLANK, true);
+    trackCombat(fighting, GolemCoreType.BLANK, false);
+    ProjectileLaunchEvent fromQuiet = launch(quiet);
+    ProjectileLaunchEvent fromFighting = launch(fighting);
+    ProjectileLaunchEvent fromUntracked = launch(untracked);
+
+    listener.on(fromQuiet);
+    listener.on(fromFighting);
+    listener.on(fromUntracked);
+
+    verify(fromQuiet).setCancelled(true);
+    verify(fromFighting, never()).setCancelled(anyBoolean());
+    verify(fromUntracked, never()).setCancelled(anyBoolean());
+  }
+
+  @Test
+  void projectilesFromPlayersAndWildMobsAreLeftAlone() {
+    ProjectileLaunchEvent fromPlayer = launch(player(OWNER));
+    ProjectileLaunchEvent fromSkeleton = launch(living(Skeleton.class));
+    ProjectileLaunchEvent fromDispenser = launch(null);
+
+    listener.on(fromPlayer);
+    listener.on(fromSkeleton);
+    listener.on(fromDispenser);
+
+    verify(fromPlayer, never()).setCancelled(anyBoolean());
+    verify(fromSkeleton, never()).setCancelled(anyBoolean());
+    verify(fromDispenser, never()).setCancelled(anyBoolean());
+  }
+
+  @Test
   void boundCopperGolemsNeverBecomeStatues() {
     EntityChangeBlockEvent bound = blockChange(bound(CopperGolem.class, OWNER, GolemBody.COPPER), Material.OXIDIZED_COPPER_GOLEM_STATUE);
     EntityChangeBlockEvent unbound = blockChange(living(CopperGolem.class), Material.OXIDIZED_COPPER_GOLEM_STATUE);
@@ -201,6 +282,13 @@ class GolemGuardListenerTest extends AdaptTestBase {
     handles.put(golem.getUniqueId(), new GolemHandle(golem, state, new FakeGolemPlatform()));
   }
 
+  private void trackCombat(Mob golem, GolemCoreType core, boolean off) {
+    GolemState state = GolemState.read(golem).orElseThrow();
+    state.setCores(List.of(core));
+    state.setCombatOff(off);
+    handles.put(golem.getUniqueId(), new GolemHandle(golem, state, new FakeGolemPlatform()));
+  }
+
   private Player player(UUID id) {
     Player player = living(Player.class);
     lenient().when(player.getUniqueId()).thenReturn(id);
@@ -230,6 +318,14 @@ class GolemGuardListenerTest extends AdaptTestBase {
     EntityTargetLivingEntityEvent event = mock(EntityTargetLivingEntityEvent.class);
     when(event.getEntity()).thenReturn(golem);
     when(event.getTarget()).thenReturn(target);
+    return event;
+  }
+
+  private static ProjectileLaunchEvent launch(ProjectileSource shooter) {
+    Snowball snowball = mock(Snowball.class);
+    lenient().when(snowball.getShooter()).thenReturn(shooter);
+    ProjectileLaunchEvent event = mock(ProjectileLaunchEvent.class);
+    lenient().when(event.getEntity()).thenReturn(snowball);
     return event;
   }
 

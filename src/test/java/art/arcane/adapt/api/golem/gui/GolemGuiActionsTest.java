@@ -59,6 +59,19 @@ class GolemGuiActionsTest {
   }
 
   @Test
+  void theCombatToggleShowsItsStateAndTheGuardianLock() {
+    assertThat(GolemGuiActions.combatIcon(true, false)).isEqualTo(Material.IRON_SWORD);
+    assertThat(GolemGuiActions.combatIcon(false, false)).isEqualTo(Material.BARRIER);
+    assertThat(GolemGuiActions.combatIcon(true, true)).isEqualTo(Material.SHIELD);
+    assertThat(GolemGuiActions.combatName(true, false)).isEqualTo(GolemancyMessages.GUI_COMBAT_ON);
+    assertThat(GolemGuiActions.combatName(false, false)).isEqualTo(GolemancyMessages.GUI_COMBAT_OFF);
+    assertThat(GolemGuiActions.combatName(true, true)).isEqualTo(GolemancyMessages.GUI_COMBAT_LOCKED);
+    assertThat(GolemGuiActions.combatLore(true, false)).isEqualTo(GolemancyMessages.GUI_COMBAT_ON_LORE);
+    assertThat(GolemGuiActions.combatLore(false, false)).isEqualTo(GolemancyMessages.GUI_COMBAT_OFF_LORE);
+    assertThat(GolemGuiActions.combatLore(true, true)).isEqualTo(GolemancyMessages.GUI_COMBAT_LOCKED_LORE);
+  }
+
+  @Test
   void theColossusToggleShowsWhetherTheFormIsOn() {
     assertThat(GolemGuiActions.colossusIcon(true)).isEqualTo(Material.IRON_BLOCK);
     assertThat(GolemGuiActions.colossusIcon(false)).isEqualTo(Material.IRON_INGOT);

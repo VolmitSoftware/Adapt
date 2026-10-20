@@ -120,6 +120,27 @@ public final class GolemGuiActions {
     return snowTrail ? GolemancyMessages.GUI_SNOW_TRAIL_ON : GolemancyMessages.GUI_SNOW_TRAIL_OFF;
   }
 
+  public static Material combatIcon(boolean combat, boolean locked) {
+    if (locked) {
+      return Material.SHIELD;
+    }
+    return combat ? Material.IRON_SWORD : Material.BARRIER;
+  }
+
+  public static TextKey combatName(boolean combat, boolean locked) {
+    if (locked) {
+      return GolemancyMessages.GUI_COMBAT_LOCKED;
+    }
+    return combat ? GolemancyMessages.GUI_COMBAT_ON : GolemancyMessages.GUI_COMBAT_OFF;
+  }
+
+  public static TextKey combatLore(boolean combat, boolean locked) {
+    if (locked) {
+      return GolemancyMessages.GUI_COMBAT_LOCKED_LORE;
+    }
+    return combat ? GolemancyMessages.GUI_COMBAT_ON_LORE : GolemancyMessages.GUI_COMBAT_OFF_LORE;
+  }
+
   public static Material colossusIcon(boolean colossus) {
     return colossus ? Material.IRON_BLOCK : Material.IRON_INGOT;
   }

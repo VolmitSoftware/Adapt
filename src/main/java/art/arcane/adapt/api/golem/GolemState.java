@@ -48,6 +48,7 @@ public final class GolemState {
   private boolean dormant;
   private boolean previouslyBound;
   private boolean snowTrail;
+  private boolean combatOff;
   private double maxHealthMark;
   private long sighting;
   private Map<String, Integer> ownerLevels = new HashMap<>();
@@ -92,6 +93,7 @@ public final class GolemState {
     state.stats.addItemsMoved(stats.itemsMoved());
     state.masterwork = snapshot.masterwork();
     state.snowTrail = snapshot.snowTrail();
+    state.combatOff = snapshot.combatOff();
     state.setMaxHealthMark(snapshot.maxHealthMark());
     state.setSighting(sighting);
     state.previouslyBound = true;
@@ -256,6 +258,10 @@ public final class GolemState {
     return snowTrail;
   }
 
+  public boolean combatOff() {
+    return combatOff;
+  }
+
   public double maxHealthMark() {
     return maxHealthMark;
   }
@@ -372,6 +378,10 @@ public final class GolemState {
 
   void setSnowTrail(boolean value) {
     snowTrail = value;
+  }
+
+  void setCombatOff(boolean value) {
+    combatOff = value;
   }
 
   void setMaxHealthMark(double value) {

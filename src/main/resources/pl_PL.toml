@@ -4476,6 +4476,12 @@ snow_trail_lore = "Kliknij, aby przełączyć śnieg zostawiany przez tego golem
 colossus_on = "Forma Kolosa: wł."
 colossus_off = "Forma Kolosa: wył."
 colossus_lore = "Kliknij, aby przełączyć pełny rozmiar do walki; powiększony golem nie pracuje"
+combat_on = "Walka: wł."
+combat_off = "Walka: wył."
+combat_locked = "Walka: wł. (zablokowana)"
+combat_on_lore = "Kliknij, aby ten golem przestał walczyć i walka nigdy nie odrywała go od pracy"
+combat_off_lore = "Ten golem nigdy nie walczy i dalej pracuje. Kliknij, aby znów mógł walczyć"
+combat_locked_lore = "Golem Strażnik zawsze broni, więc jego walki nie można wyłączyć"
 pack = "Spakuj"
 pack_lore = "Kompresuje tego golema do bloku Uśpionego golema, który możesz postawić, aby go obudzić"
 
@@ -4770,6 +4776,7 @@ signal = "Sygnał: {signal}"
 sent = "Wysłano: {signal}"
 sent_channel = "Wysłano: {signal} na kanał {channel}"
 no_target = "Spójrz na stworzenie, które możesz zaatakować, w promieniu {range} bloków, aby wysłać Bierz"
+sic_ignored = "Golemy z wyłączoną walką zignorowały Bierz: {count}"
 
 [golemancy.mending]
 name = "Naprawa golemów"

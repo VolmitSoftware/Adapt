@@ -4476,6 +4476,12 @@ snow_trail_lore = "Napsauta vaihtaaksesi lumen, jonka tämä golemi jättää j�
 colossus_on = "Kolossimuoto: päällä"
 colossus_off = "Kolossimuoto: pois"
 colossus_lore = "Napsauta vaihtaaksesi täyden koon taistelua varten; kasvanut golemi ei tee töitä"
+combat_on = "Taistelu: päällä"
+combat_off = "Taistelu: pois"
+combat_locked = "Taistelu: päällä (lukittu)"
+combat_on_lore = "Napsauta estääksesi tätä golemia taistelemasta, jotta taistelu ei koskaan vedä sitä pois työstä"
+combat_off_lore = "Tämä golemi ei koskaan taistele ja jatkaa työtä. Napsauta antaaksesi sen taistella taas"
+combat_locked_lore = "Vartijagolemi puolustaa aina, joten sen taistelua ei voi kytkeä pois"
 pack = "Pakkaa"
 pack_lore = "Tiivistää tämän golemin Uinuva golem -kuutioksi, jonka voit asettaa herättääksesi sen"
 
@@ -4770,6 +4776,7 @@ signal = "Merkki: {signal}"
 sent = "Lähetetty: {signal}"
 sent_channel = "Lähetetty: {signal} kanavalle {channel}"
 no_target = "Katso olentoa, jota saat hyökätä, enintään {range} palikan päässä lähettääksesi Hyökkää-merkin"
+sic_ignored = "Golemit, joilla taistelu on pois, ohittivat Hyökkää-merkin: {count}"
 
 [golemancy.mending]
 name = "Golemien korjaus"

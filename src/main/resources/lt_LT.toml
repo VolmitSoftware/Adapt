@@ -4476,6 +4476,12 @@ snow_trail_lore = "Spustelėkite, kad įjungtumėte ar išjungtumėte šio golem
 colossus_on = "Koloso forma: įjungta"
 colossus_off = "Koloso forma: išjungta"
 colossus_lore = "Spustelėkite, kad perjungtumėte visą dydį kovai; išaugęs golemas nedirba"
+combat_on = "Kova: įjungta"
+combat_off = "Kova: išjungta"
+combat_locked = "Kova: įjungta (užrakinta)"
+combat_on_lore = "Spustelėkite, kad šis golemas nebekovotų ir kova niekada neatitrauktų jo nuo darbo"
+combat_off_lore = "Šis golemas niekada nekovoja ir toliau dirba. Spustelėkite, kad jis vėl kovotų"
+combat_locked_lore = "Sargo golemas visada gina, todėl jo kovos išjungti negalima"
 pack = "Supakuoti"
 pack_lore = "Suspaudžia šį golemą į Snaudžiančio golemo bloką, kurį padėjęs jį pažadinsi"
 
@@ -4770,6 +4776,7 @@ signal = "Ženklas: {signal}"
 sent = "Išsiųsta: {signal}"
 sent_channel = "Išsiųsta: {signal} kanalui {channel}"
 no_target = "Pažiūrėkite į padarą, kurį galite pulti, ne toliau kaip {range} blokų, kad išsiųstumėte Pulk"
+sic_ignored = "Golemai su išjungta kova ignoravo Pulk: {count}"
 
 [golemancy.mending]
 name = "Golemų taisymas"

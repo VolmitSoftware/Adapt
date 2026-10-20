@@ -24,6 +24,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 class CopperGolemControllerTest {
@@ -45,6 +46,17 @@ class CopperGolemControllerTest {
     when(golem.getGolemState()).thenReturn(CopperGolem.State.IDLE);
     lenient().when(world.getUID()).thenReturn(WORLD);
     target = new Location(targetWorld, 8, 64, 8);
+  }
+
+  @Test
+  void combatChangesLeaveACopperGolemAlone() {
+    CopperGolemController controller = new CopperGolemController(golem, () -> 10, lids);
+    clearInvocations(golem, pathfinder);
+
+    controller.setCombat(false);
+    controller.setCombat(true);
+
+    verifyNoMoreInteractions(golem, pathfinder);
   }
 
   @Test

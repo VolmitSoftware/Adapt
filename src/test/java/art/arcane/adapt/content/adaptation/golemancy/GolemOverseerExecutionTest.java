@@ -1,15 +1,29 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.AdaptTestBase;
+import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemHandle;
 import art.arcane.adapt.api.golem.GolemRegistry;
+import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
+import art.arcane.adapt.api.golem.gui.GolemGuiSupport;
 import art.arcane.adapt.api.golem.overseer.GolemSignal;
 import art.arcane.adapt.api.golem.overseer.Overseer;
 import art.arcane.adapt.api.golem.overseer.OverseerSignal;
+import art.arcane.adapt.localization.catalog.GolemancyMessages;
+import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.volmlib.util.inventorygui.Element;
+import art.arcane.volmlib.util.localization.MessageArgument;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.IronGolem;
+import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Zombie;
 import org.bukkit.plugin.PluginManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,7 +37,10 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_SELF;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -145,6 +162,40 @@ class GolemOverseerExecutionTest extends AdaptTestBase {
     runtime.when(GolemancyRuntime::registry).thenReturn(Optional.of(later));
     Overseer.dispatch(signal());
     verify(later, never()).loadedOf(OWNER);
+  }
+
+  @Test
+  void aSicIgnoredByAGolemWithCombatOffTellsTheOwnerOnTheActionBar() {
+    Player owner = mock(Player.class);
+    Mob body = mock(IronGolem.class);
+    lenient().when(body.isValid()).thenReturn(true);
+    lenient().when(body.getWorld()).thenReturn(world);
+    lenient().when(body.getLocation()).thenAnswer(call -> new Location(world, 3D, 64D, 0D));
+    GolemState state = mock(GolemState.class);
+    lenient().when(state.cores()).thenReturn(List.of(GolemCoreType.BLANK));
+    lenient().when(state.combatOff()).thenReturn(true);
+    GolemHandle handle = mock(GolemHandle.class);
+    lenient().when(handle.entity()).thenReturn(body);
+    lenient().when(handle.body()).thenReturn(GolemBody.IRON);
+    lenient().when(handle.owner()).thenReturn(OWNER);
+    lenient().when(handle.state()).thenReturn(state);
+    when(registry.loadedOf(OWNER)).thenReturn(List.of(handle));
+    LivingEntity target = mock(Zombie.class);
+    try (MockedStatic<J> scheduling = mockStatic(J.class);
+         MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class);
+         MockedStatic<GolemGuiSupport> support = mockStatic(GolemGuiSupport.class)) {
+      scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class), any(Runnable.class))).thenAnswer(call -> {
+        call.<Runnable>getArgument(1).run();
+        return true;
+      });
+      bukkit.when(() -> Bukkit.getPlayer(OWNER)).thenReturn(owner);
+      adaptation.onRuntimeActivated();
+
+      Overseer.dispatch(new OverseerSignal(OWNER, GolemSignal.SIC, new Location(world, 0D, 64D, 0D), 16D, null, target, 0L, null, entity -> {
+      }));
+
+      support.verify(() -> GolemGuiSupport.notify(eq(owner), eq(GolemancyMessages.OVERSEER_SIC_IGNORED), any(MessageArgument[].class)));
+    }
   }
 
   private OverseerSignal signal() {

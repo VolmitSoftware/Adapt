@@ -92,6 +92,9 @@ public final class GolemHandle {
 
   public void setCores(List<GolemCoreType> cores) {
     state.setCores(cores);
+    if (GolemCombat.locked(this)) {
+      state.setCombatOff(false);
+    }
     flush();
   }
 
@@ -138,6 +141,15 @@ public final class GolemHandle {
   public void setSnowTrail(boolean snowTrail) {
     state.setSnowTrail(snowTrail);
     flush();
+  }
+
+  public boolean setCombat(boolean enabled) {
+    if (!enabled && GolemCombat.locked(this)) {
+      return false;
+    }
+    state.setCombatOff(!enabled);
+    flush();
+    return true;
   }
 
   void setName(Component name) {

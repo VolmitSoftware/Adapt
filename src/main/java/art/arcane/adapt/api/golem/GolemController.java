@@ -13,6 +13,9 @@ public interface GolemController {
 
   void setTarget(LivingEntity target);
 
+  default void setCombat(boolean enabled) {
+  }
+
   void interact(Block container, int ticks);
 
   void tick();
