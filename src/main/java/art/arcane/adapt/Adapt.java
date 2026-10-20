@@ -187,7 +187,8 @@ public class Adapt extends VolmitPlugin implements ReloadAware {
 
   @SuppressWarnings("unchecked")
   public static <T> T service(Class<T> c) {
-    return (T) instance.services.get(c);
+    Adapt current = instance;
+    return current == null || current.services == null ? null : (T) current.services.get(c);
   }
 
   public static Object glowingEntitiesLock() {

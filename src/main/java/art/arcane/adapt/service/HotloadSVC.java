@@ -624,8 +624,12 @@ public class HotloadSVC implements AdaptService {
   }
 
   private void reopenFromTag(Player player, String tag) {
-    if (tag == null || tag.isBlank() || "/".equals(tag)) {
+    if ("/".equals(tag)) {
       SkillsGui.open(player);
+      return;
+    }
+
+    if (tag == null) {
       return;
     }
 
@@ -635,7 +639,6 @@ public class HotloadSVC implements AdaptService {
     }
 
     if (!tag.startsWith("skill/")) {
-      SkillsGui.open(player);
       return;
     }
 

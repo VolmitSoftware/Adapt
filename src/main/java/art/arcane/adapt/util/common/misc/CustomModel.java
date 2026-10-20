@@ -3,11 +3,13 @@ package art.arcane.adapt.util.common.misc;
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.AdaptConfig;
 import art.arcane.adapt.api.version.Version;
+import art.arcane.adapt.service.HotloadSVC;
 import art.arcane.adapt.util.common.io.Json;
 import art.arcane.adapt.util.common.scheduling.J;
 import art.arcane.adapt.util.config.ConfigFileSupport;
 import art.arcane.adapt.util.reflect.registries.ItemFlags;
 import art.arcane.volmlib.util.collection.KMap;
+import art.arcane.volmlib.util.hotload.ConfigHotloadEngine;
 import art.arcane.volmlib.util.io.IO;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -361,7 +363,7 @@ public record CustomModel(Material material, int model,
         }
 
         json = new JsonObject();
-        IO.writeAll(modelsFile, ConfigFileSupport.serializeJsonElementToToml(json));
+        scheduleWrite();
         ConfigFileSupport.recordMissingConfigCreated();
       }
     }
@@ -410,8 +412,26 @@ public record CustomModel(Material material, int model,
     }
 
     public void writeFile() throws IOException {
+      HotloadSVC hotload = Adapt.service(HotloadSVC.class);
+      if (hotload == null) {
+        writeSerialized();
+        return;
+      }
+
+      try {
+        hotload.<Void>write(modelsFile, () -> new ConfigHotloadEngine.Written<Void>(writeSerialized(), null));
+      } catch (IOException | RuntimeException error) {
+        throw error;
+      } catch (Exception error) {
+        throw new IOException("Failed to write models.toml", error);
+      }
+    }
+
+    private String writeSerialized() throws IOException {
       synchronized (lock) {
-        IO.writeAll(modelsFile, ConfigFileSupport.serializeJsonElementToToml(json));
+        String toml = ConfigFileSupport.serializeJsonElementToToml(json);
+        IO.writeAll(modelsFile, toml);
+        return toml;
       }
     }
   }
