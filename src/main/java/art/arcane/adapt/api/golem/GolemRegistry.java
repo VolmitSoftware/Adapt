@@ -175,6 +175,9 @@ public final class GolemRegistry extends TickedObject {
     writeBound(golem, state, Component.text(boundName(owner, body)));
     roster.add(new GolemRoster.Binding(state.id(), body, core, worldId, chunkKey(at), platform.nowMillis()));
     platform.rosterChanged(ownerId);
+    if (body == GolemBody.BONE) {
+      platform.upkeep(ownerId, upkept(roster));
+    }
     return adoptBound(golem, state);
   }
 
@@ -363,6 +366,9 @@ public final class GolemRegistry extends TickedObject {
     Location at = golem.getLocation();
     revert(handle);
     forgetRosterEntry(handle);
+    if (handle.body() == GolemBody.BONE) {
+      platform.crumble(golem);
+    }
     World world = golem.getWorld();
     for (ItemStack drop : drops) {
       world.dropItemNaturally(at, drop);
@@ -381,6 +387,7 @@ public final class GolemRegistry extends TickedObject {
     }
     missingWatch.forget(golem);
     platform.rosterChanged(owner);
+    platform.upkeep(owner, upkept(roster.get()));
     return true;
   }
 
@@ -547,6 +554,7 @@ public final class GolemRegistry extends TickedObject {
     UUID owner = e.getPlayer().getUniqueId();
     pendingOwners.remove(owner);
     missingWatch.forgetOwner(owner);
+    platform.upkeep(owner, Set.of());
     Optional<GolemRoster> roster = platform.roster(owner);
     long now = platform.nowMillis();
     for (GolemHandle handle : loadedOf(owner)) {
@@ -604,6 +612,16 @@ public final class GolemRegistry extends TickedObject {
 
   static boolean adoptable(Mob mob) {
     return GolemState.has(mob) || GolemRitualMarker.has(mob);
+  }
+
+  static Set<UUID> upkept(GolemRoster roster) {
+    Set<UUID> bones = new HashSet<>();
+    for (GolemRoster.GolemEntry entry : roster.golems()) {
+      if (entry.body() == GolemBody.BONE && (entry.status() == GolemRoster.Status.ACTIVE || entry.status() == GolemRoster.Status.MISSING)) {
+        bones.add(entry.id());
+      }
+    }
+    return bones;
   }
 
   void adopt(Mob mob) {
@@ -936,6 +954,10 @@ public final class GolemRegistry extends TickedObject {
   private void die(GolemHandle handle, EntityDeathEvent e) {
     boolean validated = handle.isValidated();
     unindex(handle);
+    if (handle.body() == GolemBody.BONE) {
+      e.getDrops().clear();
+      e.setDroppedExp(0);
+    }
     if (!validated) {
       return;
     }
@@ -1124,6 +1146,9 @@ public final class GolemRegistry extends TickedObject {
     Optional<GolemRoster> roster = platform.roster(owner);
     if (roster.isPresent() && roster.get().remove(handle.id())) {
       platform.rosterChanged(owner);
+      if (handle.body() == GolemBody.BONE) {
+        platform.upkeep(owner, upkept(roster.get()));
+      }
     }
   }
 
@@ -1134,6 +1159,7 @@ public final class GolemRegistry extends TickedObject {
       return;
     }
     pendingOwners.remove(owner);
+    platform.upkeep(owner, upkept(roster.get()));
     for (GolemHandle handle : loadedOf(owner)) {
       runOwned(handle, () -> evaluate(handle, true));
     }

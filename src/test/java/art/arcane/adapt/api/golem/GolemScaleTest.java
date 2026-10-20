@@ -26,7 +26,7 @@ class GolemScaleTest {
     assertThat(settings.bodyScale(GolemBody.FROST)).isEqualTo(0.50D);
     assertThat(settings.bodyScale(GolemBody.COPPER)).isEqualTo(1.00D);
     assertThat(settings.bodyScale(GolemBody.IRON)).isEqualTo(0.36D);
-    assertThat(settings.bodyScale(GolemBody.BONE)).isEqualTo(1.00D);
+    assertThat(settings.bodyScale(GolemBody.BONE)).isEqualTo(0.49D);
   }
 
   @Test
@@ -36,7 +36,18 @@ class GolemScaleTest {
     assertThat(GolemScale.modifierAmount(settings.bodyScale(GolemBody.FROST))).isCloseTo(-0.50D, offset(1e-9));
     assertThat(GolemScale.modifierAmount(settings.bodyScale(GolemBody.COPPER))).isCloseTo(0D, offset(1e-9));
     assertThat(GolemScale.modifierAmount(settings.bodyScale(GolemBody.IRON))).isCloseTo(-0.64D, offset(1e-9));
-    assertThat(GolemScale.modifierAmount(settings.bodyScale(GolemBody.BONE))).isCloseTo(0D, offset(1e-9));
+    assertThat(GolemScale.modifierAmount(settings.bodyScale(GolemBody.BONE))).isCloseTo(-0.51D, offset(1e-9));
+  }
+
+  @Test
+  void aBoundSkeletonShrinksSmoothlyToFitInsideOneBlock() {
+    double bone = GolemSettings.defaults().bodyScale(GolemBody.BONE);
+
+    assertThat(1.99D * bone).isCloseTo(0.9751D, offset(1e-9)).isLessThan(1D);
+    assertThat(0.6D * bone).isLessThan(1D);
+    assertThat(GolemScale.stepAmount(bone, 0D)).isCloseTo(0D, offset(1e-9));
+    assertThat(GolemScale.stepAmount(bone, 0.5D)).isCloseTo(-0.255D, offset(1e-9));
+    assertThat(GolemScale.stepAmount(bone, 1D)).isCloseTo(-0.51D, offset(1e-9));
   }
 
   @Test

@@ -21,7 +21,9 @@ import org.mockito.MockedStatic;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,13 +40,13 @@ class BindingRitualTest {
   private final PersistentDataContainer golemData = mock(PersistentDataContainer.class);
   private final ItemStack blankCore = mock(ItemStack.class);
   private final ItemStack guardianCore = mock(ItemStack.class);
+  private final ItemStack escrowed = mock(ItemStack.class);
   private MockedStatic<GolemItems> items;
 
   @BeforeEach
   void setUp() {
-    when(owner.getInventory()).thenReturn(inventory);
-    when(inventory.getHeldItemSlot()).thenReturn(3);
-    when(inventory.getItemInMainHand()).thenReturn(blankCore);
+    lenient().when(owner.getInventory()).thenReturn(inventory);
+    lenient().when(inventory.getItemInMainHand()).thenReturn(blankCore);
     when(golem.isAware()).thenReturn(true);
     when(golem.getPersistentDataContainer()).thenReturn(golemData);
     when(golem.getLocation()).thenReturn(new Location(world, 0D, 64D, 0D));
@@ -114,19 +116,27 @@ class BindingRitualTest {
   }
 
   @Test
-  void theCoreStaysHeldUntilTheSlotOrTheCoreTypeChanges() {
+  void theEscrowedCoreIsHandedOutExactlyOnce() {
     BindingRitual ritual = ritual(4);
-    assertThat(ritual.stillHeld()).isTrue();
 
-    when(inventory.getHeldItemSlot()).thenReturn(4);
-    assertThat(ritual.stillHeld()).isFalse();
+    assertThat(ritual.takeCore()).isSameAs(escrowed);
+    assertThat(ritual.takeCore()).isNull();
+  }
 
-    when(inventory.getHeldItemSlot()).thenReturn(3);
-    when(inventory.getItemInMainHand()).thenReturn(guardianCore);
-    assertThat(ritual.stillHeld()).isFalse();
+  @Test
+  void theRitualNeverLooksAtTheOwnersHandOnceTheCoreIsTaken() {
+    ritual(4);
 
-    when(inventory.getItemInMainHand()).thenReturn(mock(ItemStack.class));
-    assertThat(ritual.stillHeld()).isFalse();
+    verify(owner, never()).getInventory();
+  }
+
+  @Test
+  void theAnchorIsACopyOfWhereTheGolemStood() {
+    BindingRitual ritual = ritual(4);
+    Location anchor = ritual.anchor();
+    anchor.add(5D, 0D, 0D);
+
+    assertThat(ritual.anchor().getX()).isZero();
   }
 
   @Test
@@ -169,6 +179,6 @@ class BindingRitualTest {
   }
 
   private BindingRitual ritual(int ticks) {
-    return new BindingRitual(new BindingTarget(owner, golem, GolemBody.FROST, GolemCoreType.BLANK), ticks, STARTED_AT);
+    return new BindingRitual(new BindingTarget(owner, golem, GolemBody.FROST, GolemCoreType.BLANK), ticks, STARTED_AT, escrowed);
   }
 }

@@ -13,4 +13,8 @@ public interface ServantPack {
   ServantOrder order(Skeleton servant);
 
   boolean order(Skeleton servant, ServantOrder order);
+
+  boolean surrender(Skeleton servant);
+
+  void crumble(Skeleton servant);
 }

@@ -186,6 +186,10 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     if (level < 1 || !player.getUniqueId().equals(handle.owner())) {
       return;
     }
+    if (!StasisRules.packable(handle.body())) {
+      warn(player, GolemancyMessages.STASIS_BONE);
+      return;
+    }
     if (busy(player.getUniqueId(), handle.entity().getUniqueId(), System.currentTimeMillis())) {
       warn(player, GolemancyMessages.STASIS_BUSY);
       return;
@@ -203,6 +207,10 @@ public class GolemStasis extends SimpleAdaptation<GolemStasis.Config> {
     Config config = getConfig();
     UUID owner = player.getUniqueId();
     if (!GolemancyRules.unlocked(getActiveLevel(player), config.recallLevel) || !owner.equals(handle.owner())) {
+      return;
+    }
+    if (!StasisRules.packable(handle.body())) {
+      warn(player, GolemancyMessages.STASIS_BONE);
       return;
     }
     if (handle.isRetired() || !player.getWorld().equals(handle.entity().getWorld())) {

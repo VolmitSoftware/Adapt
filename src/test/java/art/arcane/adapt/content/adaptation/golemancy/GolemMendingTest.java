@@ -337,6 +337,40 @@ class GolemMendingTest extends AdaptTestBase {
   }
 
   @Test
+  void boneMealAlsoHealsYourOwnBoneGolemButNotSomeoneElses() {
+    AtomicReference<Double> health = new AtomicReference<>(4D);
+    Skeleton mine = living(Skeleton.class, health);
+    bound(mine, GolemBody.BONE, player.getUniqueId());
+    Skeleton strangers = living(Skeleton.class, new AtomicReference<>(4D));
+    bound(strangers, GolemBody.BONE, UUID.randomUUID());
+    held(Material.BONE_MEAL, 5, EquipmentSlot.HAND);
+    GolemMending learned = learned(1);
+
+    learned.on(click(mine, EquipmentSlot.HAND));
+    learned.on(click(strangers, EquipmentSlot.HAND));
+
+    assertThat(health.get()).isCloseTo(6.4D, offset(1e-9));
+    assertThat(strangers.getHealth()).isEqualTo(4D);
+    assertThat(repairs).isEmpty();
+  }
+
+  @Test
+  void aShatterLevelMenderNeverShattersABoneGolem() {
+    GolemHandle handle = mock(GolemHandle.class);
+    when(handle.body()).thenReturn(GolemBody.BONE);
+    when(handle.isValidated()).thenReturn(true);
+    GolemMending learned = learned(5);
+    doReturn(5).when(learned).ownerLevel(handle);
+    doReturn(true).when(learned).ownerOnline(handle);
+    learned.onRuntimeActivated();
+    try {
+      assertThat(menders.registered().getFirst().shatters(handle)).isFalse();
+    } finally {
+      learned.unregister();
+    }
+  }
+
+  @Test
   void anIronIngotRepairOfABoundIronGolemGainsTheBonusOfTheVanillaTwentyFive() {
     IronGolem golem = living(IronGolem.class, new AtomicReference<>(50D));
     bound(golem, GolemBody.IRON, UUID.randomUUID());

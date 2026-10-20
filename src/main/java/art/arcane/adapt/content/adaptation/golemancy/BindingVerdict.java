@@ -3,6 +3,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 enum BindingVerdict {
   READY,
   ALREADY_BOUND,
+  NOT_OWNER,
   VILLAGE_GOLEM,
   NOT_BUILDER,
   BODY_LOCKED,

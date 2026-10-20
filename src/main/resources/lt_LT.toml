@@ -4519,6 +4519,7 @@ crook_needed = "Laikykite lazdą pagrindinėje rankoje, kad nustatytumėte jos k
 [golemancy.binding]
 busy = "Sujungimo ritualas jau vyksta"
 already_bound = "Šis golemas jau sujungtas"
+not_owner = "Šis skeletinis tarnas priklauso kitam žaidėjui"
 village = "Sujungti galima tik žaidėjų pastatytus golemus"
 builder = "Šiuo metu šį golemą gali sujungti tik jį pastatęs žaidėjas"
 body_locked = "Dar negali sujungti {body} golemų"
@@ -4802,6 +4803,7 @@ dropped = "Tavo inventorius pilnas, todėl Snaudžiantis golemas nukrito tau pri
 interrupted = "Pakavimas nutrauktas"
 busy = "Tu jau pakuoji golemą"
 pack_failed = "Šio golemo dabar supakuoti negalima"
+bone = "Kaulo golemų negalima supakuoti į Snaudžiantį golemą"
 awakened = "Tavo {body} golemas pabunda"
 void = "Šis Snaudžiantis golemas subyra: jame nebėra jo golemo"
 not_owner = "Šis Snaudžiantis golemas priklauso kitam žaidėjui"

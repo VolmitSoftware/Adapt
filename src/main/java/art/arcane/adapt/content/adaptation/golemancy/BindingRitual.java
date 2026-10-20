@@ -2,12 +2,12 @@ package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.api.golem.GolemRitualMarker;
-import art.arcane.adapt.api.golem.item.GolemItems;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 final class BindingRitual {
   private static final long STALE_AFTER_MILLIS = 5_000L;
@@ -15,18 +15,18 @@ final class BindingRitual {
 
   private final BindingTarget target;
   private final int durationTicks;
-  private final int heldSlot;
   private final Location anchor;
   private final boolean wasAware;
+  private final AtomicReference<ItemStack> core;
   private final AtomicBoolean finished = new AtomicBoolean();
   private volatile FxTimeline timeline;
   private volatile long lastPulseMillis;
   private int elapsedTicks;
 
-  BindingRitual(BindingTarget target, int durationTicks, long startedAtMillis) {
+  BindingRitual(BindingTarget target, int durationTicks, long startedAtMillis, ItemStack core) {
     this.target = Objects.requireNonNull(target);
     this.durationTicks = Math.max(1, durationTicks);
-    this.heldSlot = target.owner().getInventory().getHeldItemSlot();
+    this.core = new AtomicReference<>(core);
     this.anchor = target.golem().getLocation().clone();
     this.wasAware = GolemRitualMarker.wasAware(target.golem()).orElse(target.golem().isAware());
     this.lastPulseMillis = startedAtMillis;
@@ -38,6 +38,14 @@ final class BindingRitual {
 
   boolean wasAware() {
     return wasAware;
+  }
+
+  ItemStack takeCore() {
+    return core.getAndSet(null);
+  }
+
+  Location anchor() {
+    return anchor.clone();
   }
 
   void attach(FxTimeline started) {
@@ -77,12 +85,6 @@ final class BindingRitual {
 
   boolean stale(long nowMillis) {
     return nowMillis - lastPulseMillis > STALE_AFTER_MILLIS;
-  }
-
-  boolean stillHeld() {
-    Player owner = target.owner();
-    return owner.getInventory().getHeldItemSlot() == heldSlot
-        && GolemItems.coreOf(owner.getInventory().getItemInMainHand()).orElse(null) == target.core();
   }
 
   boolean drifted(Location current) {

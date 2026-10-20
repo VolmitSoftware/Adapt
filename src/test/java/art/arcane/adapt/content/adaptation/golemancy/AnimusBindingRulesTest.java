@@ -85,13 +85,43 @@ class AnimusBindingRulesTest {
   }
 
   @Test
-  void frostBindsWithAnimusBindingAloneWhileCopperAndIronNeedTheirFrames() {
-    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.FROST, 0, 0)).isTrue();
-    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.COPPER, 0, 5)).isFalse();
-    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.COPPER, 1, 0)).isTrue();
-    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.IRON, 5, 0)).isFalse();
-    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.IRON, 0, 1)).isTrue();
-    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.BONE, 5, 5)).isFalse();
+  void frostBindsWithAnimusBindingAloneWhileCopperIronAndBoneNeedTheirFrames() {
+    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.FROST, 0, 0, 0)).isTrue();
+    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.COPPER, 0, 5, 5)).isFalse();
+    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.COPPER, 1, 0, 0)).isTrue();
+    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.IRON, 5, 0, 5)).isFalse();
+    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.IRON, 0, 1, 0)).isTrue();
+    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.BONE, 5, 5, 0)).isFalse();
+    assertThat(AnimusBindingRules.bodyUnlocked(GolemBody.BONE, 0, 0, 1)).isTrue();
+  }
+
+  @Test
+  void anOwnServantWithBoneFrameBindsLikeAnyGolem() {
+    assertThat(verdict(check -> {
+      check.tithe = 0;
+      check.servantOwned = true;
+    })).isEqualTo(BindingVerdict.READY);
+  }
+
+  @Test
+  void someoneElsesServantIsRefusedWhateverElseFails() {
+    assertThat(verdict(check -> check.servantOwned = false)).isEqualTo(BindingVerdict.NOT_OWNER);
+    assertThat(verdict(check -> {
+      check.servantOwned = false;
+      check.bodyUnlocked = false;
+      check.registryBlock = GolemRegistry.BindBlock.CORE_NOT_ALLOWED;
+      check.ownedGolems = 9;
+    })).isEqualTo(BindingVerdict.NOT_OWNER);
+    assertThat(verdict(check -> {
+      check.servantOwned = false;
+      check.registryBlock = GolemRegistry.BindBlock.ALREADY_BOUND;
+    })).isEqualTo(BindingVerdict.ALREADY_BOUND);
+  }
+
+  @Test
+  void anOwnServantWithoutBoneFrameIsBodyLockedAndARefusedCoreNamesTheCore() {
+    assertThat(verdict(check -> check.bodyUnlocked = false)).isEqualTo(BindingVerdict.BODY_LOCKED);
+    assertThat(verdict(check -> check.registryBlock = GolemRegistry.BindBlock.CORE_NOT_ALLOWED)).isEqualTo(BindingVerdict.CORE_NOT_ALLOWED);
   }
 
   @Test
@@ -182,6 +212,7 @@ class AnimusBindingRulesTest {
 
   private static final class Check {
     private GolemRegistry.BindBlock registryBlock;
+    private boolean servantOwned = true;
     private boolean playerCreated = true;
     private boolean allowVillageGolems;
     private boolean builderExclusive;
@@ -194,7 +225,7 @@ class AnimusBindingRulesTest {
     private int tithe = 2;
 
     private BindingCheck build() {
-      return new BindingCheck(registryBlock, playerCreated, allowVillageGolems, builderExclusive, bodyUnlocked, coreUnlocked,
+      return new BindingCheck(registryBlock, servantOwned, playerCreated, allowVillageGolems, builderExclusive, bodyUnlocked, coreUnlocked,
           regionAllows, ownedGolems, golemCap, playerLevel, tithe);
     }
   }

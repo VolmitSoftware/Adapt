@@ -4,7 +4,6 @@ import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.adaptation.Adaptation;
 import art.arcane.adapt.api.adaptation.AdaptationRequirement;
 import art.arcane.adapt.api.adaptation.AdaptationRequirements;
-import art.arcane.adapt.api.golem.GolemBody;
 import art.arcane.adapt.api.golem.GolemRoster;
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
@@ -22,6 +21,7 @@ import art.arcane.adapt.api.world.AdaptServer;
 import art.arcane.adapt.api.world.PlayerAdaptation;
 import art.arcane.adapt.api.world.PlayerData;
 import art.arcane.adapt.api.world.PlayerSkillLine;
+import art.arcane.adapt.content.adaptation.tragoul.TragoulSkeletalServant;
 import art.arcane.volmlib.util.collection.KList;
 import art.arcane.volmlib.util.inventorygui.Element;
 import org.bukkit.entity.LivingEntity;
@@ -42,11 +42,8 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Answers.RETURNS_SELF;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyDouble;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.doubleThat;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
@@ -55,6 +52,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class GolemBoneFrameTest extends AdaptTestBase {
@@ -191,33 +189,47 @@ class GolemBoneFrameTest extends AdaptTestBase {
   }
 
   @Test
-  void summoningScalesServantsOnlyWithBoneFrameAndABoneScaleOtherThanOne() {
+  void summoningLeavesAnUnboundServantAtItsVanillaSize() {
     GolemBoneFrame learned = spy(adaptation);
     Skeleton servant = mock(Skeleton.class);
-    GolemSettings settings = boneScale(0.8D);
     doReturn(1).when(learned).ownerLevel(OWNER);
-    doNothing().when(learned).resize(any(Skeleton.class), anyDouble());
-    runtime.when(GolemancyRuntime::settings).thenReturn(settings);
 
     learned.summoned(owner(), servant);
 
-    verify(learned).resize(eq(servant), doubleThat(amount -> Math.abs(amount + 0.2D) < 1e-9));
+    verifyNoInteractions(servant);
   }
 
   @Test
-  void aBoneScaleOfOneOrNoBoneFrameLeavesTheServantsSize() {
-    GolemBoneFrame learned = spy(adaptation);
-    Skeleton servant = mock(Skeleton.class);
-    GolemSettings settings = boneScale(0.8D);
-    doReturn(1).when(learned).ownerLevel(OWNER);
-    doNothing().when(learned).resize(any(Skeleton.class), anyDouble());
+  void theFrameHandsServantsToTheTragoulPackToSurrenderOrCrumble() {
+    Skeleton servant = servant();
+    TragoulSkeletalServant pack = mock(TragoulSkeletalServant.class);
+    when(pack.surrender(servant)).thenReturn(true);
+    try (MockedStatic<AdaptationRequirements> requirements = mockStatic(AdaptationRequirements.class)) {
+      requirements.when(() -> AdaptationRequirements.find("tragoul-skeletal-servant")).thenReturn(pack);
+      adaptation.onRuntimeActivated();
+      ServantFrame.Frame frame = ServantFrame.frame().orElseThrow();
 
-    learned.summoned(owner(), servant);
-    doReturn(0).when(learned).ownerLevel(OWNER);
-    runtime.when(GolemancyRuntime::settings).thenReturn(settings);
-    learned.summoned(owner(), servant);
+      assertThat(frame.surrender(servant)).isTrue();
+      frame.crumble(servant);
+    }
 
-    verify(learned, never()).resize(any(Skeleton.class), anyDouble());
+    verify(pack).surrender(servant);
+    verify(pack).crumble(servant);
+    verify(servant, never()).remove();
+  }
+
+  @Test
+  void withoutTheTragoulPackNothingIsSurrenderedAndACrumbledBodyIsSimplyRemoved() {
+    Skeleton servant = servant();
+    try (MockedStatic<AdaptationRequirements> requirements = mockStatic(AdaptationRequirements.class)) {
+      adaptation.onRuntimeActivated();
+      ServantFrame.Frame frame = ServantFrame.frame().orElseThrow();
+
+      assertThat(frame.surrender(servant)).isFalse();
+      frame.crumble(servant);
+    }
+
+    verify(servant).remove();
   }
 
   @Test
@@ -300,12 +312,6 @@ class GolemBoneFrameTest extends AdaptTestBase {
     ServantPack pack = mock(ServantPack.class);
     lenient().when(pack.expiresAt(servant)).thenReturn(Long.MAX_VALUE);
     return pack;
-  }
-
-  private static GolemSettings boneScale(double scale) {
-    GolemSettings settings = mock(GolemSettings.class);
-    lenient().when(settings.bodyScale(GolemBody.BONE)).thenReturn(scale);
-    return settings;
   }
 
   private static Skill<?> skill(String name, Adaptation<?> adaptation) {

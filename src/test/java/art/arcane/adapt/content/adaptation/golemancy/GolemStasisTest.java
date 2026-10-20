@@ -343,6 +343,28 @@ class GolemStasisTest extends AdaptTestBase {
   }
 
   @Test
+  void packingOrRecallingABoneGolemIsRefusedWithAClearMessage() {
+    Packable bone = packable();
+    when(bone.handle.body()).thenReturn(GolemBody.BONE);
+    scheduling.when(() -> J.runEntity(any(Entity.class), any(Runnable.class))).thenAnswer(invocation -> {
+      invocation.<Runnable>getArgument(1).run();
+      return true;
+    });
+    List<String> shown = new ArrayList<>();
+    try (MockedStatic<AdaptHud> hud = mockStatic(AdaptHud.class)) {
+      hud.when(() -> AdaptHud.actionBar(eq(player), anyString())).thenAnswer(invocation -> shown.add(C.stripColor(invocation.getArgument(1))));
+
+      learned(1).pack(player, bone.handle);
+      learned(3).pack(player, bone.handle);
+      learned(3).recall(player, bone.handle);
+    }
+
+    verify(registry, never()).pack(any());
+    assertThat(shown).containsExactly("Bone golems can't be packed into a Dormant Golem", "Bone golems can't be packed into a Dormant Golem",
+        "Bone golems can't be packed into a Dormant Golem");
+  }
+
+  @Test
   void onlyTheOwnerWithStasisCanPack() {
     Packable packable = packable();
     when(packable.handle.owner()).thenReturn(UUID.randomUUID());

@@ -56,12 +56,12 @@ final class AnimusBindingRules {
     };
   }
 
-  static boolean bodyUnlocked(GolemBody body, int copperFrameLevel, int ironFrameLevel) {
+  static boolean bodyUnlocked(GolemBody body, int copperFrameLevel, int ironFrameLevel, int boneFrameLevel) {
     return switch (body) {
       case FROST -> true;
       case COPPER -> copperFrameLevel >= 1;
       case IRON -> ironFrameLevel >= 1;
-      case BONE -> false;
+      case BONE -> boneFrameLevel >= 1;
     };
   }
 
@@ -76,6 +76,9 @@ final class AnimusBindingRules {
     GolemRegistry.BindBlock block = check.registryBlock();
     if (block == GolemRegistry.BindBlock.ALREADY_BOUND) {
       return BindingVerdict.ALREADY_BOUND;
+    }
+    if (!check.servantOwned()) {
+      return BindingVerdict.NOT_OWNER;
     }
     if (!check.playerCreated() && !check.allowVillageGolems()) {
       return BindingVerdict.VILLAGE_GOLEM;

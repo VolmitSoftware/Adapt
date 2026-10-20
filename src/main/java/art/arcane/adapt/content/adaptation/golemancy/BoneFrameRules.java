@@ -2,7 +2,6 @@ package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.GolemRune;
 import art.arcane.adapt.api.golem.GolemRuneType;
-import art.arcane.adapt.api.golem.GolemScale;
 import art.arcane.adapt.api.golem.overseer.GolemSignal;
 import art.arcane.adapt.api.minion.ServantOrder;
 import org.bukkit.Location;
@@ -14,13 +13,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.Set;
 import java.util.function.Consumer;
 
 final class BoneFrameRules {
   static final int MAX_LATTICE_SLOTS = 7;
-  private static final double SCALE_EPSILON = 1.0e-9D;
 
   private BoneFrameRules() {
   }
@@ -92,14 +89,6 @@ final class BoneFrameRules {
       }
     }
     return lattice.size() >= slots ? Optional.of(Refusal.NO_SLOT) : Optional.empty();
-  }
-
-  static OptionalDouble scaleAmount(int level, double scale) {
-    if (level < 1 || !Double.isFinite(scale)) {
-      return OptionalDouble.empty();
-    }
-    double amount = GolemScale.modifierAmount(scale);
-    return Math.abs(amount) > SCALE_EPSILON ? OptionalDouble.of(amount) : OptionalDouble.empty();
   }
 
   static boolean obeys(GolemSignal signal) {

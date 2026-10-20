@@ -210,5 +210,15 @@ class OverseerServantsTest extends AdaptTestBase {
       orders.put(servant, order);
       return true;
     }
+
+    @Override
+    public boolean surrender(Skeleton servant) {
+      return pack.remove(servant);
+    }
+
+    @Override
+    public void crumble(Skeleton servant) {
+      pack.remove(servant);
+    }
   }
 }

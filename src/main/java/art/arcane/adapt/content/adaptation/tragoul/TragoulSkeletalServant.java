@@ -390,27 +390,48 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
         equipServant(s, level, random);
       });
       applyServantAttributes(servant, level);
-      list.add(servant);
-      UUID servantId = servant.getUniqueId();
-      long expiresAt = now + (durationTicks * 50L);
-      records.put(servantId, new ServantRecord(expiresAt));
-      servantOwners.put(servantId, id);
-      servantOwnersByEntity.put(servant, id);
-      servantIdsByEntity.put(servant, servantId);
-      burden.configure(getConfig().healthCostEnabled ? getConfig().healthCostPerMinion : 0, getConfig().minimumOwnerMaxHealth);
-      burden.register(p, servant);
+      track(p, servant, now + (durationTicks * 50L), durationTicks);
       ServantFrame.frame().ifPresent(frame -> frame.summoned(p, servant));
       LivingEntity priorityTarget = resolvePriorityTargetOwned(id, p, now);
       if (priorityTarget != null) {
         servant.setTarget(priorityTarget);
       }
-      scheduleServantPulse(servant, id, expiresAt);
-      J.runEntity(servant, () -> removeServantOwned(id, servant, true), durationTicks);
 
       playSummonRitual(servant.getLocation());
       addStat(p, "tragoul.skeletal-servant.servants-summoned", 1);
       xp(p, getConfig().xpPerSummon);
     });
+  }
+
+  @Override
+  public boolean surrender(Skeleton servant) {
+    UUID ownerId = getServantOwnerId(servant);
+    if (ownerId == null) {
+      return false;
+    }
+    servant.getPersistentDataContainer().remove(SERVANT_KEY);
+    forgetServant(ownerId, servant, servant.getUniqueId());
+    return true;
+  }
+
+  @Override
+  public void crumble(Skeleton servant) {
+    crumbleFx(servant);
+    servant.remove();
+  }
+
+  void track(Player owner, Skeleton servant, long expiresAt, int durationTicks) {
+    UUID ownerId = owner.getUniqueId();
+    UUID servantId = servant.getUniqueId();
+    servants.computeIfAbsent(ownerId, key -> new CopyOnWriteArrayList<>()).add(servant);
+    records.put(servantId, new ServantRecord(expiresAt));
+    servantOwners.put(servantId, ownerId);
+    servantOwnersByEntity.put(servant, ownerId);
+    servantIdsByEntity.put(servant, servantId);
+    configureBurden(getConfig());
+    burden.register(owner, servant);
+    scheduleServantPulse(servant, ownerId, expiresAt);
+    J.runEntity(servant, () -> removeServantOwned(ownerId, servant, true), durationTicks);
   }
 
   @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -1241,16 +1262,24 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
   private void removeServantOwned(UUID ownerId, Skeleton servant, boolean showFx) {
     UUID servantId = servant.getUniqueId();
     forgetServant(ownerId, servant, servantId);
-    if (servant.isValid() && !servant.isDead()) {
+    if (isServant(servant) && servant.isValid() && !servant.isDead()) {
       AdaptAttributeService.get().clearAllAdapt(servant);
       if (showFx) {
-        fx(servant.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
-            .particle(Particle.SOUL, 4, 0, 0.4D, 0, 0.3D, 0.03D)
-            .dustBurst(SERVANT_BONE, 4, 0.3D, 1.0F)
-            .chord(Sound.ENTITY_SKELETON_DEATH, 0.7F, 1.3F, Sound.BLOCK_BONE_BLOCK_BREAK, 0.4F, 0.9F);
+        crumbleFx(servant);
       }
       servant.remove();
     }
+  }
+
+  void crumbleFx(Skeleton servant) {
+    fx(servant.getLocation().add(0, 1.0D, 0), FxPriority.TRANSITION)
+        .particle(Particle.SOUL, 4, 0, 0.4D, 0, 0.3D, 0.03D)
+        .dustBurst(SERVANT_BONE, 4, 0.3D, 1.0F)
+        .chord(Sound.ENTITY_SKELETON_DEATH, 0.7F, 1.3F, Sound.BLOCK_BONE_BLOCK_BREAK, 0.4F, 0.9F);
+  }
+
+  private static void configureBurden(Config config) {
+    MinionBurden.get().configure(config.healthCostEnabled ? config.healthCostPerMinion : 0, config.minimumOwnerMaxHealth);
   }
 
   private void forgetServant(UUID ownerId, Skeleton servant, UUID servantId) {
@@ -1538,6 +1567,12 @@ public class TragoulSkeletalServant extends SimpleAdaptation<TragoulSkeletalServ
 
   private long getThreatWindowMillis() {
     return Math.max(0L, getConfig().playerThreatWindowMillis);
+  }
+
+  @Override
+  protected void onConfigReload(Config previousConfig, Config newConfig) {
+    super.onConfigReload(previousConfig, newConfig);
+    configureBurden(newConfig);
   }
 
   @Override

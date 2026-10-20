@@ -14,6 +14,7 @@ import art.arcane.adapt.api.golem.plinth.PlinthSettings;
 import art.arcane.adapt.api.golem.reveal.GolemLabelPolicy;
 import art.arcane.adapt.api.golem.reveal.RevealService;
 import art.arcane.adapt.api.golem.reveal.RevealSettings;
+import art.arcane.adapt.api.minion.MinionBurden;
 import art.arcane.adapt.api.minion.MinionIdentity;
 import art.arcane.adapt.api.minion.MinionKind;
 import art.arcane.adapt.api.world.AdaptPlayer;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -296,10 +298,9 @@ public final class GolemancyRuntime {
       case COPPER -> golem instanceof CopperGolem copper
           ? Optional.of(new CopperGolemController(copper, () -> brainSettings.copperRepathTicks(), BukkitGolemLids.INSTANCE))
           : Optional.empty();
-      case FROST, IRON -> PaperCompat.hasClass(MOB_GOALS_CLASS)
+      case FROST, IRON, BONE -> PaperCompat.hasClass(MOB_GOALS_CLASS)
           ? Optional.of(new GoalGolemController(golem, handle.body(), Bukkit.getMobGoals()))
           : Optional.empty();
-      case BONE -> Optional.empty();
     };
   }
 
@@ -440,6 +441,16 @@ public final class GolemancyRuntime {
     @Override
     public void dropOwnerBound(Location at, ItemStack item, UUID owner) {
       OwnerBoundDrop.drop(at, item, owner);
+    }
+
+    @Override
+    public void upkeep(UUID owner, Set<UUID> golems) {
+      MinionBurden.get().hold(owner, golems);
+    }
+
+    @Override
+    public void crumble(Mob body) {
+      ServantFrame.crumble(body);
     }
 
     @Override

@@ -297,7 +297,8 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
   private boolean mendable(Player player, LivingEntity target, MendingRules.Remedy remedy) {
     UUID playerId = player.getUniqueId();
     if (remedy.body() == null) {
-      return TragoulSkeletalServant.isServant(target) && playerId.equals(TragoulSkeletalServant.getServantOwnerId(target));
+      return TragoulSkeletalServant.isServant(target) ? playerId.equals(TragoulSkeletalServant.getServantOwnerId(target))
+          : GolemancyRuntime.handle(target).filter(handle -> handle.body() == GolemBody.BONE && playerId.equals(handle.owner())).isPresent();
     }
     return GolemancyRuntime.handle(target).filter(handle -> handle.body() == remedy.body() && playerId.equals(handle.owner())).isPresent();
   }
@@ -476,7 +477,7 @@ public class GolemMending extends SimpleAdaptation<GolemMending.Config> {
 
     @Override
     public boolean shatters(GolemHandle handle) {
-      return MendingRules.shatters(handle.isValidated(), ownerOnline(handle), ownerLevel(handle), getConfig().shatterLevel);
+      return MendingRules.shatters(handle.body(), handle.isValidated(), ownerOnline(handle), ownerLevel(handle), getConfig().shatterLevel);
     }
 
     @Override
