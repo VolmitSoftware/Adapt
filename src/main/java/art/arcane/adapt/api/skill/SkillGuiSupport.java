@@ -31,6 +31,7 @@ import art.arcane.adapt.util.common.format.C;
 import art.arcane.adapt.util.common.inventorygui.GuiCloseSuppression;
 import art.arcane.adapt.util.common.inventorygui.GuiConfig;
 import art.arcane.adapt.util.common.inventorygui.GuiEffects;
+import art.arcane.adapt.util.common.inventorygui.GuiGroupLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiLayout;
 import art.arcane.adapt.util.common.inventorygui.GuiTheme;
 import art.arcane.adapt.util.common.misc.CustomModel;
@@ -147,18 +148,25 @@ final class SkillGuiSupport {
       visibleAdaptations.add(adaptation);
     }
     Map<String, Integer> configuredOrder = GuiConfig.adaptationOrder(skill.getName(), knownAdaptations);
-    visibleAdaptations.sort(
+    Comparator<Adaptation<?>> defaultOrder =
         Comparator.comparingInt((Adaptation<?> adaptation) -> GuiConfig.rankOf(configuredOrder, adaptation.getName()))
             .thenComparing((Adaptation<?> adaptation) -> normalizeSortKey(adaptation.getDisplayName()))
-            .thenComparing(Adaptation::getName, String.CASE_INSENSITIVE_ORDER)
+            .thenComparing(Adaptation::getName, String.CASE_INSENSITIVE_ORDER);
+    List<List<Adaptation<?>>> groups = GuiGroupLayout.arrange(
+        visibleAdaptations,
+        Adaptation::getName,
+        (Adaptation<?> adaptation) -> GuiConfig.rankOf(configuredOrder, adaptation.getName()),
+        defaultOrder,
+        skill.getAdaptationRowGroups()
     );
 
     boolean reserveNavigation = AdaptConfig.get().isGuiBackButton();
     boolean hasPreferences = AdaptConfig.get().isPlayerSettingsEnabled();
-    GuiLayout.PagePlan plan = GuiLayout.planWithSettings(visibleAdaptations.size(), reserveNavigation, hasPreferences);
+    GuiGroupLayout.Plan<Adaptation<?>> plan = GuiGroupLayout.plan(groups, reserveNavigation, hasPreferences);
     int currentPage = GuiLayout.clampPage(page, plan.pageCount());
-    int start = currentPage * plan.itemsPerPage();
-    int end = Math.min(visibleAdaptations.size(), start + plan.itemsPerPage());
+    GuiGroupLayout.Page<Adaptation<?>> currentLayout = plan.pages().get(currentPage);
+    int start = currentLayout.offset();
+    int end = start + currentLayout.size();
 
     UIWindow window = new UIWindow(Adapt.instance, player);
     GuiTheme.apply(window, "skill/" + skill.getName());
@@ -170,15 +178,11 @@ final class SkillGuiSupport {
           .setName(C.GRAY + AdaptLanguage.text(GuiMessages.NO_ADAPTATIONS_AVAILABLE)));
     } else {
       List<GuiEffects.Placement> reveal = new ArrayList<>();
-      for (int row = 0; row < plan.contentRows(); row++) {
-        int rowStart = start + (row * GuiLayout.WIDTH);
-        if (rowStart >= end) {
-          break;
-        }
-
-        int rowCount = Math.min(GuiLayout.WIDTH, end - rowStart);
+      for (int row = 0; row < currentLayout.rows().size(); row++) {
+        List<Adaptation<?>> rowAdaptations = currentLayout.rows().get(row);
+        int rowCount = rowAdaptations.size();
         for (int i = 0; i < rowCount; i++) {
-          Adaptation<?> adaptation = visibleAdaptations.get(rowStart + i);
+          Adaptation<?> adaptation = rowAdaptations.get(i);
           int level = adaptPlayer.getData().getSkillLine(skill.getName()).getAdaptationLevel(adaptation.getName());
           int pos = GuiLayout.centeredPosition(i, rowCount);
           CustomModel model = GuiConfig.adaptationModel(

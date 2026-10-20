@@ -37,6 +37,8 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+
 /**
  * Public API for a skill line and its shared behavior.
  */
@@ -131,6 +133,10 @@ public interface Skill<T> extends Ticked, Component {
    * @return all adaptations currently attached to this skill.
    */
   KList<Adaptation<?>> getAdaptations();
+
+  default List<List<String>> getAdaptationRowGroups() {
+    return List.of();
+  }
 
   /**
    * @return primary chat/UI color for this skill.
