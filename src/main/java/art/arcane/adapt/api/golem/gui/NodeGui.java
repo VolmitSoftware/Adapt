@@ -30,6 +30,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -48,12 +49,20 @@ public final class NodeGui {
   private final Player player;
   private final NodeKey key;
   private final NodeTagPrompt prompt;
+  private final LiveRefresh<NodeRecord> live;
   private UIWindow window;
+  private NodeRecord shownRecord;
+  private int shownLevel;
+  private List<String> shownPanel = List.of();
 
   private NodeGui(Player player, NodeKey key, NodeTagPrompt prompt) {
     this.player = player;
     this.key = key;
     this.prompt = prompt;
+    this.live = new LiveRefresh<>(new LiveRefresh.Hooks<>(
+        this::runAtAnchor,
+        (task, delay, retired) -> J.runEntity(player, task, delay, retired),
+        this::read, this::refreshed, this::gone, this::isOpen));
   }
 
   public static void open(Player player, NodeKey key, NodeTagPrompt prompt) {
@@ -80,14 +89,46 @@ public final class NodeGui {
     }
   }
 
-  private void snapshot() {
-    Optional<NodeRecord> record = GolemancyRuntime.nodes().flatMap(service -> service.node(key))
+  private boolean runAtAnchor(Runnable task, int delayTicks, Runnable retired) {
+    World world = Bukkit.getWorld(key.world());
+    return world != null && J.runAt(key.center(world), task, delayTicks);
+  }
+
+  private Optional<NodeRecord> read() {
+    return GolemancyRuntime.nodes().flatMap(service -> service.node(key))
         .filter(found -> found.owner().equals(player.getUniqueId()));
+  }
+
+  private boolean isOpen() {
+    return player.isOnline() && window != null && window.isVisible();
+  }
+
+  private void snapshot() {
+    Optional<NodeRecord> record = read();
     if (record.isEmpty()) {
       gone();
       return;
     }
-    J.runEntity(player, () -> render(record.get()));
+    J.runEntity(player, () -> present(record.get()));
+  }
+
+  private void present(NodeRecord record) {
+    render(record);
+    live.start();
+  }
+
+  private void refreshed(NodeRecord record) {
+    int level = level(player);
+    if (record.equals(shownRecord) && level == shownLevel && panelLinesOf(record, level).equals(shownPanel)) {
+      return;
+    }
+    render(record);
+  }
+
+  private List<String> panelLinesOf(NodeRecord record, int level) {
+    try (LanguageAudience.Scope audience = LanguageAudience.open(player.getUniqueId())) {
+      return panelLines(panelControls(record, level));
+    }
   }
 
   private void edit(UnaryOperator<NodeRecord> change) {
@@ -97,11 +138,12 @@ public final class NodeGui {
         gone();
         return;
       }
-      J.runEntity(player, () -> render(updated.get()));
+      J.runEntity(player, () -> present(updated.get()));
     });
   }
 
   private void gone() {
+    live.stop();
     GolemGuiSupport.warn(player, GolemancyMessages.NODE_GONE);
     J.runEntity(player, () -> {
       if (window != null && window.isVisible()) {
@@ -118,6 +160,7 @@ public final class NodeGui {
     int maxRadius = GolemancyRuntime.nodeWeaving().map(policy -> policy.maxAreaRadius(level)).orElse(0);
     int slots = Math.min(NodeRecord.MAX_FILTER_ENTRIES, filterSlots(level));
     try (LanguageAudience.Scope audience = LanguageAudience.open(player.getUniqueId())) {
+      List<NodePanelControl> controls = panelControls(record, level);
       UIWindow next = new UIWindow(Adapt.instance, player);
       GuiTheme.apply(next, "golemancy-node");
       next.setViewportHeight(ROWS);
@@ -125,10 +168,13 @@ public final class NodeGui {
         placeHeader(next, record, level, slots);
         placeArea(next, record, maxRadius);
         placeFilter(next, record, slots);
-        placePanel(next, record, level);
+        placePanel(next, controls);
       });
       next.setTitle(AdaptLanguage.text(GolemancyMessages.NODE_NAME, trusted("node", AdaptLanguage.text(record.type().displayName()))));
       window = next;
+      shownRecord = record;
+      shownLevel = level;
+      shownPanel = panelLines(controls);
       next.open();
       Adapt.instance.getGuiLeftovers().put(player.getUniqueId().toString(), next);
       Inventory top = UIWindow.inventoryViewTopInventory(player.getOpenInventory());
@@ -143,6 +189,9 @@ public final class NodeGui {
     Adapt.instance.getGuiLeftovers().remove(player.getUniqueId().toString(), closed);
     if (top != null) {
       GuiCursor.untrack(player.getUniqueId(), top);
+    }
+    if (closed == window) {
+      live.stop();
     }
   }
 
@@ -268,22 +317,32 @@ public final class NodeGui {
         .setProgress(1D);
   }
 
-  private void placePanel(UIWindow target, NodeRecord record, int level) {
-    Optional<NodePanel> panel = NodePanels.of(record.type());
-    if (panel.isEmpty()) {
-      return;
-    }
-    List<NodePanelControl> controls;
-    try {
-      controls = panel.get().controls(new NodePanelContext(player, key, record, level));
-    } catch (RuntimeException failure) {
-      Adapt.warn("The " + record.type().id() + " node panel failed to build for " + player.getName() + "; the menu opens without it.", failure);
-      return;
-    }
+  private void placePanel(UIWindow target, List<NodePanelControl> controls) {
     int shown = Math.min(NodePanels.MAX_CONTROLS, controls.size());
     for (int index = 0; index < shown; index++) {
       target.setElement(GuiLayout.centeredPosition(index, shown), PANEL_ROW, panelElement(controls.get(index)));
     }
+  }
+
+  private List<NodePanelControl> panelControls(NodeRecord record, int level) {
+    Optional<NodePanel> panel = NodePanels.of(record.type());
+    if (panel.isEmpty()) {
+      return List.of();
+    }
+    try {
+      return panel.get().controls(new NodePanelContext(player, key, record, level));
+    } catch (RuntimeException failure) {
+      Adapt.warn("The " + record.type().id() + " node panel failed to build for " + player.getName() + "; the menu opens without it.", failure);
+      return List.of();
+    }
+  }
+
+  private static List<String> panelLines(List<NodePanelControl> controls) {
+    List<String> lines = new ArrayList<>(controls.size());
+    for (NodePanelControl control : controls) {
+      lines.add(control.id() + "|" + control.icon().getType() + "|" + control.name() + "|" + String.join("|", control.lore()));
+    }
+    return lines;
   }
 
   private Element panelElement(NodePanelControl control) {
