@@ -1,0 +1,211 @@
+package art.arcane.adapt.api.golem.gui;
+
+import art.arcane.adapt.api.golem.GolemBody;
+import art.arcane.adapt.api.golem.GolemCoreType;
+import art.arcane.adapt.api.golem.GolemMode;
+import art.arcane.adapt.api.golem.GolemRune;
+import art.arcane.adapt.api.golem.GolemRuneLayout;
+import art.arcane.adapt.api.golem.GolemRuneType;
+import art.arcane.adapt.api.golem.GolemState;
+import org.junit.jupiter.api.Test;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import static art.arcane.adapt.api.golem.gui.GolemView.Section.ANCHORS;
+import static art.arcane.adapt.api.golem.gui.GolemView.Section.BODY;
+import static art.arcane.adapt.api.golem.gui.GolemView.Section.CARRIED;
+import static art.arcane.adapt.api.golem.gui.GolemView.Section.CHANNELS;
+import static art.arcane.adapt.api.golem.gui.GolemView.Section.CORES;
+import static art.arcane.adapt.api.golem.gui.GolemView.Section.ESSENCE;
+import static art.arcane.adapt.api.golem.gui.GolemView.Section.MODE;
+import static art.arcane.adapt.api.golem.gui.GolemView.Section.RUNES;
+import static art.arcane.adapt.api.golem.gui.GolemView.Section.STATS;
+import static art.arcane.adapt.api.golem.gui.GolemView.Section.TOGGLES;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class GolemViewTest {
+  private static final UUID WORLD = UUID.fromString("00000000-0000-0000-0000-0000000000d1");
+  private static final GolemRuneLayout LAYOUT = new GolemRuneLayout(2, List.of(1, 2), 3, List.of(1, 2, 3), Set.of());
+
+  @Test
+  void anUnchangedGolemShowsNoChange() {
+    assertThat(base().changes(base())).isEmpty();
+  }
+
+  @Test
+  void aCarriedStackThatGrewShowsOnlyTheCarriedChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(), runes(),
+        new GolemView.CarriedItems(List.of("cobblestone-13", "oak-4"), 2), stats(), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(CARRIED);
+  }
+
+  @Test
+  void aNewCarriedStackShowsTheCarriedChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(), runes(),
+        new GolemView.CarriedItems(List.of("cobblestone-12", "oak-4", "dirt-1"), 3), stats(), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(CARRIED);
+  }
+
+  @Test
+  void theMoreCarriedCountShowsTheCarriedChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(), runes(),
+        new GolemView.CarriedItems(List.of("cobblestone-12", "oak-4"), 40), stats(), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(CARRIED);
+  }
+
+  @Test
+  void healthShowsTheBodyChange() {
+    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(19, 100, false), cores(), GolemMode.WORK, channels(), anchors(),
+        runes(), carried(), stats(), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(BODY);
+  }
+
+  @Test
+  void maximumHealthShowsTheBodyChange() {
+    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(20, 120, false), cores(), GolemMode.WORK, channels(), anchors(),
+        runes(), carried(), stats(), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(BODY);
+  }
+
+  @Test
+  void dormancyShowsTheBodyChange() {
+    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(20, 100, true), cores(), GolemMode.WORK, channels(), anchors(),
+        runes(), carried(), stats(), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(BODY);
+  }
+
+  @Test
+  void essenceShowsTheEssenceChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(), runes(), carried(), stats(),
+        9, toggles());
+
+    assertThat(next.changes(base())).containsExactly(ESSENCE);
+  }
+
+  @Test
+  void modeShowsTheModeChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.FOLLOW, channels(), anchors(), runes(), carried(), stats(),
+        0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(MODE);
+  }
+
+  @Test
+  void aSlottedCoreShowsTheCoreAndEssenceChanges() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), new GolemView.CoreSlots(List.of(GolemCoreType.BREAKER, GolemCoreType.GATHERER), true),
+        GolemMode.WORK, channels(), anchors(), runes(), carried(), stats(), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactlyInAnyOrder(CORES, ESSENCE);
+  }
+
+  @Test
+  void aSlottedRuneShowsTheRuneChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(),
+        new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 1), new GolemRune(GolemRuneType.EMBER, 2)), LAYOUT),
+        carried(), stats(), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(RUNES);
+  }
+
+  @Test
+  void aRuneTierShowsTheRuneChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(),
+        new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 2)), LAYOUT), carried(), stats(), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(RUNES);
+  }
+
+  @Test
+  void aUnlockedRuneSlotShowsTheRuneChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(),
+        new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 1)), new GolemRuneLayout(1, List.of(1, 2), 3, List.of(1, 2, 3), Set.of())),
+        carried(), stats(), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(RUNES);
+  }
+
+  @Test
+  void theStatisticsShowTheStatsChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(), runes(), carried(),
+        new GolemView.Statistics(3, "1.5", 5, 9), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(STATS);
+  }
+
+  @Test
+  void theChannelsShowTheChannelChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, new GolemView.ChannelSet(4, 1), anchors(), runes(),
+        carried(), stats(), 0, toggles());
+
+    assertThat(next.changes(base())).containsExactly(CHANNELS);
+  }
+
+  @Test
+  void theHomeChestShowsTheAnchorChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(),
+        new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), GolemState.Anchor.of(WORLD, 2, 64, 2)), runes(), carried(), stats(), 0,
+        toggles());
+
+    assertThat(next.changes(base())).containsExactly(ANCHORS);
+  }
+
+  @Test
+  void aMasterworkShowsTheToggleChange() {
+    GolemView next = new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(), runes(), carried(), stats(), 0,
+        new GolemView.Toggles(false, false, false, true, 1, 2));
+
+    assertThat(next.changes(base())).containsExactly(TOGGLES);
+  }
+
+  @Test
+  void severalChangesAreAllReported() {
+    GolemView next = new GolemView(GolemBody.IRON, new GolemView.Vitals(10, 100, false), cores(), GolemMode.STAY, channels(), anchors(), runes(),
+        new GolemView.CarriedItems(List.of("cobblestone-1"), 1), stats(), 3, toggles());
+
+    assertThat(next.changes(base())).containsExactlyInAnyOrder(BODY, MODE, CARRIED, ESSENCE);
+  }
+
+  private static GolemView base() {
+    return new GolemView(GolemBody.IRON, vitals(), cores(), GolemMode.WORK, channels(), anchors(), runes(), carried(), stats(), 0, toggles());
+  }
+
+  private static GolemView.Vitals vitals() {
+    return new GolemView.Vitals(20, 100, false);
+  }
+
+  private static GolemView.CoreSlots cores() {
+    return new GolemView.CoreSlots(List.of(GolemCoreType.BREAKER), false);
+  }
+
+  private static GolemView.ChannelSet channels() {
+    return new GolemView.ChannelSet(0, 1);
+  }
+
+  private static GolemView.Anchors anchors() {
+    return new GolemView.Anchors(GolemState.Anchor.of(WORLD, 1, 64, 1), null);
+  }
+
+  private static GolemView.RuneSlots runes() {
+    return new GolemView.RuneSlots(List.of(new GolemRune(GolemRuneType.MIGHT, 1)), LAYOUT);
+  }
+
+  private static GolemView.CarriedItems carried() {
+    return new GolemView.CarriedItems(List.of("cobblestone-12", "oak-4"), 2);
+  }
+
+  private static GolemView.Statistics stats() {
+    return new GolemView.Statistics(3, "1.5", 4, 5);
+  }
+
+  private static GolemView.Toggles toggles() {
+    return new GolemView.Toggles(false, false, false, false, 0, 0);
+  }
+}
