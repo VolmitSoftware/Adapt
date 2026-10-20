@@ -43,6 +43,7 @@ class GolemSnapshotTest {
     assertThat(snapshot.stats()).isEqualTo(new GolemSnapshot.Stats(3L, 55.5D, 9L, 128L));
     assertThat(snapshot.masterwork()).isTrue();
     assertThat(snapshot.snowTrail()).isTrue();
+    assertThat(snapshot.combatOff()).isTrue();
     assertThat(snapshot.essence()).isEqualTo(42.5D);
     assertThat(snapshot.carried()).containsExactly("stack-one", "stack-two");
     assertThat(snapshot.held()).isEqualTo("held-tool");
@@ -113,6 +114,20 @@ class GolemSnapshotTest {
   }
 
   @Test
+  void combatSurvivesTheJsonRoundTripAndAnOlderSnapshotRestoresWithCombatOn() {
+    GolemSnapshot off = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false, true), TAKEN_AT);
+    GolemState on = populated();
+    on.setCombatOff(false);
+    GolemSnapshot fighting = GolemSnapshot.capture(on, new GolemSnapshot.Traits(null, 1D, 0, false, true), TAKEN_AT);
+    JsonObject stored = new Gson().fromJson(off.toJson(), JsonObject.class);
+
+    assertThat(GolemSnapshot.fromJson(off.toJson()).orElseThrow().combatOff()).isTrue();
+    assertThat(GolemSnapshot.fromJson(fighting.toJson()).orElseThrow().combatOff()).isFalse();
+    assertThat(GolemSnapshot.fromJson(without(stored, "combatOff")).orElseThrow().combatOff()).isFalse();
+    assertThat(off.withoutCargo().combatOff()).isTrue();
+  }
+
+  @Test
   void withoutCargoDropsOnlyTheCarriedItemsAndEssence() {
     GolemSnapshot snapshot = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 9D, 1, false, true), TAKEN_AT);
 
@@ -152,6 +167,7 @@ class GolemSnapshotTest {
     assertThat(restored.stats().itemsMoved()).isEqualTo(128L);
     assertThat(restored.masterwork()).isTrue();
     assertThat(restored.snowTrail()).isTrue();
+    assertThat(restored.combatOff()).isTrue();
     assertThat(restored.maxHealthMark()).isEqualTo(36D);
     assertThat(restored.previouslyBound()).isTrue();
     assertThat(restored.dormant()).isFalse();
@@ -258,13 +274,15 @@ class GolemSnapshotTest {
   private static GolemSnapshot snapshotWithCores(List<GolemCoreType> cores) {
     GolemSnapshot base = GolemSnapshot.capture(populated(), new GolemSnapshot.Traits(null, 1D, 0, false, true), TAKEN_AT);
     return new GolemSnapshot(base.id(), base.owner(), base.body(), cores, base.runes(), base.channels(), base.mode(), base.home(),
-        base.homeChest(), base.customName(), base.stats(), base.masterwork(), base.snowTrail(), base.essence(), base.carried(), base.held(), base.health(),
+        base.homeChest(), base.customName(), base.stats(), base.masterwork(), base.snowTrail(), base.combatOff(), base.essence(), base.carried(), base.held(),
+        base.health(),
         base.maxHealthMark(), base.copperStage(), base.waxed(), base.playerCreated(), base.takenAt());
   }
 
   private static GolemSnapshot copy(GolemSnapshot base, String customName, GolemState.Anchor home, double essence) {
     return new GolemSnapshot(base.id(), base.owner(), base.body(), base.cores(), base.runes(), base.channels(), base.mode(), home,
-        base.homeChest(), customName, base.stats(), base.masterwork(), base.snowTrail(), essence, base.carried(), base.held(), base.health(),
+        base.homeChest(), customName, base.stats(), base.masterwork(), base.snowTrail(), base.combatOff(), essence, base.carried(), base.held(),
+        base.health(),
         base.maxHealthMark(), base.copperStage(), base.waxed(), base.playerCreated(), base.takenAt());
   }
 
@@ -298,6 +316,7 @@ class GolemSnapshotTest {
     state.setMasterwork(true);
     state.setColossus(true);
     state.setSnowTrail(true);
+    state.setCombatOff(true);
     state.setMaxHealthMark(36D);
     return state;
   }

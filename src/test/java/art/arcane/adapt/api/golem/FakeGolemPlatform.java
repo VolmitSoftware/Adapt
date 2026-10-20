@@ -8,6 +8,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -50,12 +51,14 @@ final class FakeGolemPlatform implements GolemPlatform {
   final List<RegionTask> regionTasks = new ArrayList<>();
   final Set<UUID> waxedGolems = new HashSet<>();
   final List<OwnerBoundDrop> ownerBoundDrops = new ArrayList<>();
+  final List<Returned> returned = new ArrayList<>();
   final List<Double> heals = new ArrayList<>();
   final List<Mob> spawns = new ArrayList<>();
   final List<Location> spawnedAt = new ArrayList<>();
   final List<Class<?>> spawnedTypes = new ArrayList<>();
   final Map<UUID, Set<UUID>> upkeep = new HashMap<>();
   final List<Mob> crumbled = new ArrayList<>();
+  final List<String> lidVisits = new ArrayList<>();
   Consumer<Mob> spawnListener = spawned -> {
   };
   Consumer<UUID> rosterListener = owner -> {
@@ -262,6 +265,11 @@ final class FakeGolemPlatform implements GolemPlatform {
   }
 
   @Override
+  public void returnToOwner(UUID owner, Location at, ItemStack item) {
+    returned.add(new Returned(owner, at.clone(), item));
+  }
+
+  @Override
   public <T extends Mob> T spawn(Location at, Class<T> type, Consumer<? super T> prepare) {
     if (spawns.isEmpty()) {
       throw new IllegalStateException("No body queued to spawn at " + at);
@@ -327,6 +335,11 @@ final class FakeGolemPlatform implements GolemPlatform {
   }
 
   @Override
+  public void visitLid(Block container, int holdTicks) {
+    lidVisits.add(container.getX() + "," + container.getY() + "," + container.getZ() + " " + holdTicks);
+  }
+
+  @Override
   public Adaptation<?> bindingPolicy() {
     return bindingPolicy;
   }
@@ -359,5 +372,8 @@ final class FakeGolemPlatform implements GolemPlatform {
   }
 
   record OwnerBoundDrop(Location location, ItemStack item, UUID owner) {
+  }
+
+  record Returned(UUID owner, Location location, ItemStack item) {
   }
 }

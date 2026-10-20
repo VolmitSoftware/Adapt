@@ -204,6 +204,35 @@ public final class FxEmitter {
     return this;
   }
 
+  public <T> FxEmitter orbit(Particle particle, int arms, double radius, double angleRadians, double yOffset, T data) {
+    if (particle == null || arms <= 0) {
+      return this;
+    }
+
+    int allowed = budget(arms);
+    if (allowed <= 0) {
+      return this;
+    }
+
+    double startCos = Math.cos(angleRadians);
+    double startSin = Math.sin(angleRadians);
+    double stepCos = Math.cos(TWO_PI / arms);
+    double stepSin = Math.sin(TWO_PI / arms);
+    double py = y + yOffset;
+    Object emissionData = particleData(particle, data, color);
+    dispatch(emission(player -> {
+      double armCos = startCos;
+      double armSin = startSin;
+      for (int k = 0; k < allowed; k++) {
+        player.spawnParticle(particle, x + (armCos * radius), py, z + (armSin * radius), 1, 0, 0, 0, 0, emissionData);
+        double nextCos = (armCos * stepCos) - (armSin * stepSin);
+        armSin = (armSin * stepCos) + (armCos * stepSin);
+        armCos = nextCos;
+      }
+    }));
+    return this;
+  }
+
   public FxEmitter line(Particle particle, double tx, double ty, double tz, int points) {
     if (particle == null) {
       return this;

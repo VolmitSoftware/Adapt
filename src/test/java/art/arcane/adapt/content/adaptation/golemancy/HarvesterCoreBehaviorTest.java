@@ -12,6 +12,7 @@ import art.arcane.adapt.api.golem.GolemTestItems;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeIndex;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
@@ -63,7 +64,7 @@ class HarvesterCoreBehaviorTest {
   private final HarvestSpots spots = new HarvestSpots();
   private final ItemStack[] chest = new ItemStack[27];
   private final List<NodeIndex.Entry> nearby = new ArrayList<>();
-  private NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(4, 1, 4).build();
+  private NodeRecord record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(4, 1, 4)).build();
   private GolemHarvesterCore core;
   private HarvesterCoreBehavior behavior;
   private MockedStatic<GolemancyRuntime> runtime;
@@ -196,12 +197,12 @@ class HarvesterCoreBehaviorTest {
   @Test
   void onlyTheOwnersHarvestNodesOnAMatchingChannelCount() {
     farmland(1, 63, 0);
-    record = NodeRecord.builder(STRANGER, NodeType.HARVEST, BlockFace.UP).radii(4, 1, 4).build();
+    record = NodeRecord.builder(STRANGER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(4, 1, 4)).build();
     node();
     assertThat(seek(golem(1, seeds(Material.WHEAT_SEEDS)))).isEmpty();
 
     nearby.clear();
-    record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(4, 1, 4).channel(DyeColor.RED).build();
+    record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(4, 1, 4)).channel(DyeColor.RED).build();
     node();
     assertThat(seek(golem(1, seeds(Material.WHEAT_SEEDS)))).isEmpty();
 
@@ -224,6 +225,32 @@ class HarvesterCoreBehaviorTest {
     assertThat(chest[4].getAmount()).isEqualTo(4);
     verify(core).tended(GOLEM, NOW);
     feedback.verify(() -> HarvestFeedback.play(eq(core), any(Location.class), eq(HarvestFeedback.Kind.TEND)));
+  }
+
+  @Test
+  void tendingOpensTheHomeChestLidOnceTheBoneMealComesOut() {
+    field.set(2, 64, 2, Material.CARROTS, CropField.ageable(2, 7));
+    boneMeal(5);
+    GolemTask task = task("tend", 2, 64, 2);
+    GolemContext winding = golem(0, List.of());
+
+    assertThat(behavior.act(winding, task)).isEqualTo(GolemActResult.WORKING);
+    verify(winding, never()).visit(any(Block.class));
+
+    GolemContext tending = golem(1, List.of());
+    assertThat(behavior.act(tending, task)).isEqualTo(GolemActResult.DONE);
+    verify(tending).visit(field.block(CHEST.x(), CHEST.y(), CHEST.z()));
+  }
+
+  @Test
+  void tendingWithoutBoneMealLeavesTheHomeChestLidAlone() {
+    field.set(2, 64, 2, Material.CARROTS, CropField.ageable(2, 7));
+    boneMeal(0);
+    GolemContext golem = golem(1, List.of());
+
+    assertThat(behavior.act(golem, task("tend", 2, 64, 2))).isEqualTo(GolemActResult.FAILED);
+
+    verify(golem, never()).visit(any(Block.class));
   }
 
   @Test
@@ -301,7 +328,7 @@ class HarvesterCoreBehaviorTest {
     assertThat(seek(golem(1, seeds(Material.WHEAT_SEEDS)))).isEqualTo("plant 3,63,3");
 
     nearby.clear();
-    record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).radii(1, 1, 1).build();
+    record = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP).area(NodeCuboid.symmetric(1, 1, 1)).build();
     node();
     GolemContext seeded = golem(1, seeds(Material.WHEAT_SEEDS));
     when(seeded.take(any(), eq(1))).thenReturn(1);

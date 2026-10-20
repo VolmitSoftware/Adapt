@@ -32,6 +32,17 @@ final class GoalGolemController implements GolemController {
       VanillaGoal.of("avoid_entity", 3),
       VanillaGoal.of("water_avoiding_random_stroll", 5));
 
+  private static final List<VanillaGoal> IRON_COMBAT_GOALS = List.of(
+      VanillaGoal.of("melee_attack", 1),
+      VanillaGoal.of("hurt_by", 2));
+  private static final List<VanillaGoal> FROST_COMBAT_GOALS = List.of(
+      VanillaGoal.of("ranged_attack", 1));
+  private static final List<VanillaGoal> BONE_COMBAT_GOALS = List.of(
+      VanillaGoal.of("hurt_by", 1),
+      VanillaGoal.of("nearest_attackable", 3),
+      VanillaGoal.of("ranged_bow_attack", 4),
+      VanillaGoal.of("skeleton_melee", 4));
+
   private final Mob golem;
   private final GolemBody body;
   private final MobGoals goals;
@@ -39,7 +50,9 @@ final class GoalGolemController implements GolemController {
   private final GolemWorkGoal workGoal;
   private final GolemTargetGoal targetGoal;
   private final List<RemovedGoal> removed = new ArrayList<>();
+  private final List<RemovedGoal> silenced = new ArrayList<>();
   private boolean attached;
+  private boolean combat = true;
 
   GoalGolemController(Mob golem, GolemBody body, MobGoals goals) {
     this.golem = Objects.requireNonNull(golem);
@@ -55,6 +68,15 @@ final class GoalGolemController implements GolemController {
       case IRON -> IRON_GOALS;
       case FROST -> FROST_GOALS;
       case BONE -> BONE_GOALS;
+      case COPPER -> List.of();
+    };
+  }
+
+  static List<VanillaGoal> combatGoals(GolemBody body) {
+    return switch (body) {
+      case IRON -> IRON_COMBAT_GOALS;
+      case FROST -> FROST_COMBAT_GOALS;
+      case BONE -> BONE_COMBAT_GOALS;
       case COPPER -> List.of();
     };
   }
@@ -91,6 +113,22 @@ final class GoalGolemController implements GolemController {
   }
 
   @Override
+  public void setCombat(boolean enabled) {
+    if (!attached || enabled == combat) {
+      return;
+    }
+    combat = enabled;
+    if (enabled) {
+      restoreCombatGoals();
+      goals.addGoal(golem, TARGET_PRIORITY, targetGoal);
+      return;
+    }
+    targetGoal.assign(null);
+    goals.removeGoal(golem, targetGoal);
+    silenceCombatGoals();
+  }
+
+  @Override
   public void interact(Block container, int ticks) {
   }
 
@@ -112,6 +150,26 @@ final class GoalGolemController implements GolemController {
       goals.addGoal(golem, goal.priority(), goal.goal());
     }
     removed.clear();
+    restoreCombatGoals();
+    combat = true;
+  }
+
+  private void silenceCombatGoals() {
+    List<VanillaGoal> listed = combatGoals(body);
+    for (Goal<Mob> goal : List.copyOf(goals.getAllGoals(golem))) {
+      VanillaGoal vanilla = find(listed, goal.getKey().getNamespacedKey());
+      if (vanilla != null) {
+        silenced.add(new RemovedGoal(goal, vanilla.priority()));
+        goals.removeGoal(golem, goal);
+      }
+    }
+  }
+
+  private void restoreCombatGoals() {
+    for (RemovedGoal goal : silenced) {
+      goals.addGoal(golem, goal.priority(), goal.goal());
+    }
+    silenced.clear();
   }
 
   private void captureVanillaGoals() {

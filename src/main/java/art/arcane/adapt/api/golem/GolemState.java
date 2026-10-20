@@ -16,7 +16,9 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -41,6 +43,7 @@ public final class GolemState {
   private Anchor homeChest;
   private List<String> carried = new ArrayList<>();
   private String held;
+  private Map<String, String> equipment = new LinkedHashMap<>();
   private double essence;
   private double hostileDamagePool;
   private Stats stats = new Stats();
@@ -49,6 +52,7 @@ public final class GolemState {
   private boolean dormant;
   private boolean previouslyBound;
   private boolean snowTrail;
+  private boolean combatOff;
   private double maxHealthMark;
   private long sighting;
   private Map<String, Integer> ownerLevels = new HashMap<>();
@@ -94,6 +98,7 @@ public final class GolemState {
     state.stats.addItemsMoved(stats.itemsMoved());
     state.masterwork = snapshot.masterwork();
     state.snowTrail = snapshot.snowTrail();
+    state.combatOff = snapshot.combatOff();
     state.setMaxHealthMark(snapshot.maxHealthMark());
     state.setSighting(sighting);
     state.previouslyBound = true;
@@ -226,6 +231,14 @@ public final class GolemState {
     return held;
   }
 
+  public Map<GolemEquipmentSlot, String> equipment() {
+    Map<GolemEquipmentSlot, String> worn = new EnumMap<>(GolemEquipmentSlot.class);
+    for (Map.Entry<String, String> entry : equipment.entrySet()) {
+      GolemEquipmentSlot.fromId(entry.getKey()).ifPresent(slot -> worn.put(slot, entry.getValue()));
+    }
+    return Collections.unmodifiableMap(worn);
+  }
+
   public double essence() {
     return essence;
   }
@@ -260,6 +273,10 @@ public final class GolemState {
 
   public boolean snowTrail() {
     return snowTrail;
+  }
+
+  public boolean combatOff() {
+    return combatOff;
   }
 
   public double maxHealthMark() {
@@ -344,6 +361,14 @@ public final class GolemState {
     held = encoded;
   }
 
+  void setEquipment(GolemEquipmentSlot slot, String encoded) {
+    if (encoded == null) {
+      equipment.remove(slot.id());
+      return;
+    }
+    equipment.put(slot.id(), encoded);
+  }
+
   int carriedRevision() {
     return carriedRevision;
   }
@@ -384,6 +409,10 @@ public final class GolemState {
     snowTrail = value;
   }
 
+  void setCombatOff(boolean value) {
+    combatOff = value;
+  }
+
   void setMaxHealthMark(double value) {
     maxHealthMark = Double.isFinite(value) ? Math.max(0D, value) : 0D;
   }
@@ -410,9 +439,13 @@ public final class GolemState {
     if (carried == null) {
       carried = new ArrayList<>();
     }
+    if (equipment == null) {
+      equipment = new LinkedHashMap<>();
+    }
     if (stats == null) {
       stats = new Stats();
     }
+    equipment.entrySet().removeIf(entry -> GolemEquipmentSlot.fromId(entry.getKey()).isEmpty() || entry.getValue() == null || entry.getValue().isBlank());
     cores.removeIf(core -> GolemCoreType.fromId(core).isEmpty());
     runes.removeIf(rune -> rune == null || rune.resolve() == null);
     bodyValue = null;

@@ -7,6 +7,7 @@ import art.arcane.adapt.api.golem.node.DepositBehavior;
 import art.arcane.adapt.api.golem.node.NodeBehavior;
 import art.arcane.adapt.api.golem.node.NodeBehaviors;
 import art.arcane.adapt.api.golem.node.NodeContext;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeStatus;
@@ -422,6 +423,53 @@ class GolemWorkerTest extends AdaptTestBase {
     assertThat(GolemTestItems.count(homeInventory, Material.WHEAT)).isZero();
     assertThat(brain.handle().state().carried()).isEmpty();
     assertThat(brain.handle().state().stats().itemsMoved()).isEqualTo(20L);
+  }
+
+  @Test
+  void aDepositDeliveryHoldsTheLidFromArrivalAndTouchesItAgainWhenTheItemsMove() {
+    deposit(NodeRecord.builder(OWNER, NodeType.DEPOSIT, BlockFace.UP).build());
+    chest(DEPOSIT.x(), DEPOSIT.y(), DEPOSIT.z(), 27);
+    homeChest(27);
+    carry(Material.WHEAT, 20);
+    brain.start();
+    platform.runDelayed();
+
+    position.set(at(0, 64, 5));
+    pulse(250L);
+    assertThat(platform.lidVisits).containsExactly("0,64,6 35");
+
+    pulse(1_000L);
+    assertThat(platform.lidVisits).containsExactly("0,64,6 35", "0,64,6 15");
+  }
+
+  @Test
+  void aHomeChestDeliveryHoldsTheLidFromArrivalAndTouchesItAgainWhenTheItemsMove() {
+    Inventory homeInventory = homeChest(27);
+    carry(Material.WHEAT, 20);
+    brain.start();
+    platform.runDelayed();
+
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 35");
+
+    pulse(1_000L);
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 35", "-6,64,0 15");
+    assertThat(GolemTestItems.count(homeInventory, Material.WHEAT)).isEqualTo(20);
+  }
+
+  @Test
+  void aSlowerGolemHoldsTheLidThroughItsLongerInteraction() {
+    speed(2D);
+    homeChest(27);
+    carry(Material.WHEAT, 20);
+    brain.start();
+    platform.runDelayed();
+
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 55");
   }
 
   @Test
@@ -1538,6 +1586,46 @@ class GolemWorkerTest extends AdaptTestBase {
   }
 
   @Test
+  void aToolFetchHoldsTheLidFromArrivalAndTouchesItAgainWhenTheToolIsTaken() {
+    Inventory chest = homeChest(27);
+    chest.setItem(0, GolemTestItems.stack(Material.FISHING_ROD, 1));
+    ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.WORKING);
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+    collectionNode(1);
+    board.offer(pickup(4, 64, 0), 16);
+    brain.start();
+    platform.runDelayed();
+
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 35");
+
+    pulse(1_000L);
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 35", "-6,64,0 15");
+    assertThat(chest.getItem(0)).isNull();
+  }
+
+  @Test
+  void aToolFetchThatFindsNothingTakesNothingAndLeavesTheLidAlone() {
+    Inventory chest = homeChest(27);
+    chest.setItem(0, GolemTestItems.stack(Material.FISHING_ROD, 1));
+    ScriptedBehavior behavior = collector((golem, task) -> GolemActResult.WORKING);
+    behavior.tools = (golem, task) -> new GolemToolPlan(List.of(ROD), false);
+    collectionNode(1);
+    board.offer(pickup(4, 64, 0), 16);
+    brain.start();
+    platform.runDelayed();
+
+    chest.setItem(0, null);
+    position.set(at(-5, 64, 0));
+    pulse(250L);
+    pulse(1_000L);
+
+    assertThat(platform.lidVisits).containsExactly("-6,64,0 35");
+    assertThat(brain.handle().state().held()).isNull();
+  }
+
+  @Test
   void withoutARodAnywhereTheGolemIdlesWithTheNoteAndNeverWorks() {
     List<String> acted = new ArrayList<>();
     ScriptedBehavior behavior = collector((golem, task) -> {
@@ -1762,7 +1850,7 @@ class GolemWorkerTest extends AdaptTestBase {
   @Test
   void aGolemClaimsTasksOutToTheEdgeOfARadiusThirtyTwoNodeArea() {
     collector((golem, task) -> GolemActResult.DONE);
-    platform.nodes.put(COLLECTION, NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(32, 32, 32).build());
+    platform.nodes.put(COLLECTION, NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build());
     GolemTask edge = pickup(31, 64, 0);
     board.offer(edge, 16);
     brain.start();
@@ -1776,7 +1864,7 @@ class GolemWorkerTest extends AdaptTestBase {
   void aTideGolemWorkingOutAtTheEdgeOfARadiusThirtyTwoAreaIsNotLeashedHome() {
     runes(new GolemRuneEffects(12D, 0, 1D, 0D));
     collector((golem, task) -> GolemActResult.DONE);
-    platform.nodes.put(COLLECTION, NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(32, 32, 32).build());
+    platform.nodes.put(COLLECTION, NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(32, 32, 32)).build());
     GolemTask edge = pickup(43, 64, 0);
     board.offer(edge, 16);
     position.set(at(40, 64, 0));

@@ -172,6 +172,10 @@ public final class GolemRegistry extends TickedObject {
     UUID worldId = Objects.requireNonNull(at.getWorld()).getUID();
     GolemState state = GolemState.create(new GolemState.Seed(UUID.randomUUID(), ownerId, body, core, GolemState.Anchor.at(at)));
     state.setPreviouslyBound(golem.getPersistentDataContainer().has(BOUND_ONCE_KEY, PersistentDataType.BYTE));
+    if (body == GolemBody.BONE) {
+      GolemEquipmentSlot.strip(golem);
+      golem.setCanPickupItems(false);
+    }
     writeBound(golem, state, Component.text(boundName(owner, body)));
     roster.add(new GolemRoster.Binding(state.id(), body, core, worldId, chunkKey(at), platform.nowMillis()));
     platform.rosterChanged(ownerId);
@@ -380,6 +384,7 @@ public final class GolemRegistry extends TickedObject {
       drops.add(GolemItems.masterworkHeart());
     }
     Optional<ItemStack> tool = heldTool(handle);
+    List<ItemStack> worn = handle.equipmentItems();
     int essence = state.essencePoints();
     Location at = golem.getLocation();
     revert(handle);
@@ -391,7 +396,10 @@ public final class GolemRegistry extends TickedObject {
     for (ItemStack drop : drops) {
       world.dropItemNaturally(at, drop);
     }
-    tool.ifPresent(item -> returnTool(handle.owner(), world, at, item));
+    for (ItemStack item : worn) {
+      platform.returnToOwner(handle.owner(), at, item);
+    }
+    tool.ifPresent(item -> platform.returnToOwner(handle.owner(), at, item));
     if (essence > 0) {
       returnEssence(golem, world, at, essence, platform.player(handle.owner()));
     }
@@ -443,9 +451,6 @@ public final class GolemRegistry extends TickedObject {
     GolemState state = handle.state();
     if (handle.isRetired()) {
       return Designation.UNAVAILABLE;
-    }
-    if (state.body() == GolemBody.BONE) {
-      return Designation.BODY;
     }
     if (state.masterwork()) {
       return Designation.ALREADY;
@@ -966,20 +971,6 @@ public final class GolemRegistry extends TickedObject {
     }
   }
 
-  private void returnTool(UUID owner, World world, Location at, ItemStack tool) {
-    Player player = platform.player(owner);
-    if (player == null || !player.isOnline()
-        || !platform.runEntity(player, () -> giveTool(player, tool), () -> platform.runAt(at, () -> world.dropItemNaturally(at, tool)))) {
-      world.dropItemNaturally(at, tool);
-    }
-  }
-
-  private static void giveTool(Player player, ItemStack tool) {
-    for (ItemStack left : player.getInventory().addItem(tool).values()) {
-      player.getWorld().dropItemNaturally(player.getLocation(), left);
-    }
-  }
-
   private void revert(GolemHandle handle) {
     Mob golem = handle.entity();
     double pool = handle.hostileDamagePool();
@@ -1016,6 +1007,7 @@ public final class GolemRegistry extends TickedObject {
     List<ItemStack> drops = e.getDrops();
     drops.addAll(state.carriedItems());
     heldTool(handle).ifPresent(drops::add);
+    drops.addAll(handle.equipmentItems());
     if (state.essencePoints() > 0) {
       e.setDroppedExp((int) Math.min(Integer.MAX_VALUE, (long) e.getDroppedExp() + state.essencePoints()));
     }
@@ -1449,7 +1441,6 @@ public final class GolemRegistry extends TickedObject {
     DESIGNATED,
     LOCKED,
     CAP,
-    BODY,
     ALREADY,
     UNAVAILABLE
   }

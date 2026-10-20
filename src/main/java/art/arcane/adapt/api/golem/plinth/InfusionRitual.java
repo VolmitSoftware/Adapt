@@ -18,6 +18,7 @@ public final class InfusionRitual {
   private final Player player;
   private final PlinthSpot center;
   private final Infusion infusion;
+  private final InfusionTint tint;
   private final Map<PlinthSlot, PlinthSlotItem> slots;
   private final AtomicBoolean finished = new AtomicBoolean();
   private volatile int elapsed;
@@ -27,6 +28,7 @@ public final class InfusionRitual {
     this.player = Objects.requireNonNull(player);
     this.center = Objects.requireNonNull(center);
     this.infusion = Objects.requireNonNull(infusion);
+    this.tint = InfusionTint.of(infusion);
     this.slots = Collections.unmodifiableMap(new EnumMap<>(slots));
     this.lastPulse = startedAt;
   }
@@ -45,6 +47,10 @@ public final class InfusionRitual {
 
   public Infusion infusion() {
     return infusion;
+  }
+
+  InfusionTint tint() {
+    return tint;
   }
 
   public Map<PlinthSlot, PlinthSlotItem> slots() {

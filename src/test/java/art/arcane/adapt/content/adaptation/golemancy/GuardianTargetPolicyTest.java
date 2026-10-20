@@ -14,6 +14,7 @@ import art.arcane.adapt.api.golem.GolemTaskBoards;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeIndex;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
@@ -325,7 +326,7 @@ class GuardianTargetPolicyTest {
     runtime.when(GolemancyRuntime::brainSettings).thenReturn(new GolemBrainSettings(5, 32D, 16D, 8, 10));
     Map<NodeKey, NodeRecord> nodes = new HashMap<>();
     NodeKey node = new NodeKey(WORLD, 14, 64, 0, BlockFace.UP);
-    nodes.put(node, NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).radii(4, 4, 4).build());
+    nodes.put(node, NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).area(NodeCuboid.symmetric(4, 4, 4)).build());
     nodes(nodes);
     GolemHandle golem = golem(GolemBody.IRON, GolemMode.WORK, at(0, 64, 0));
     Zombie pastLeash = living(Zombie.class, at(17, 65, 0));
@@ -341,8 +342,8 @@ class GuardianTargetPolicyTest {
   void guardNodeQueriesAreClippedToTheLeashOfHome() {
     runtime.when(GolemancyRuntime::brainSettings).thenReturn(new GolemBrainSettings(5, 32D, 16D, 8, 10));
     Map<NodeKey, NodeRecord> nodes = new HashMap<>();
-    nodes.put(new NodeKey(WORLD, 14, 64, 0, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).radii(4, 4, 4).build());
-    nodes.put(new NodeKey(WORLD, 0, 64, 20, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).radii(2, 2, 2).build());
+    nodes.put(new NodeKey(WORLD, 14, 64, 0, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).area(NodeCuboid.symmetric(4, 4, 4)).build());
+    nodes.put(new NodeKey(WORLD, 0, 64, 20, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).area(NodeCuboid.symmetric(2, 2, 2)).build());
     nodes(nodes);
     GolemHandle golem = golem(GolemBody.IRON, GolemMode.WORK, at(0, 64, 0));
     Zombie insideLeash = living(Zombie.class, at(12, 65, 0));

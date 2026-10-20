@@ -30,9 +30,7 @@ class NodeRecordTest {
     assertThat(node.channel()).isNull();
     assertThat(node.priority()).isEqualTo(NodeRecord.DEFAULT_PRIORITY);
     assertThat(node.redstone()).isEqualTo(RedstoneMode.IGNORE);
-    assertThat(node.radiusX()).isEqualTo(NodeRecord.DEFAULT_RADIUS);
-    assertThat(node.radiusY()).isEqualTo(NodeRecord.DEFAULT_RADIUS);
-    assertThat(node.radiusZ()).isEqualTo(NodeRecord.DEFAULT_RADIUS);
+    assertThat(node.area()).isEqualTo(NodeRecord.DEFAULT_AREA).isEqualTo(new NodeCuboid(-2, -2, -2, 2, 2, 2));
     assertThat(node.filterItems()).isEmpty();
     assertThat(node.filterTags()).isEmpty();
     assertThat(node.filterCount()).isZero();
@@ -41,14 +39,16 @@ class NodeRecordTest {
   }
 
   @Test
-  void priorityAndRadiiAreClampedIntoTheirRanges() {
-    NodeRecord low = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).priority(-4).radii(-1, -2, -3).build();
-    NodeRecord high = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).priority(9).radii(99, 40, 33).build();
+  void priorityAndAreaAreClampedIntoTheirRanges() {
+    NodeRecord low = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).priority(-4).area(new NodeCuboid(3, 1, 2, -1, -2, -3)).build();
+    NodeRecord high = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).priority(9).area(NodeCuboid.symmetric(99, 40, 33)).build();
+    NodeRecord lopsided = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).area(new NodeCuboid(-40, 0, -5, 7, 50, 0)).build();
 
     assertThat(low.priority()).isEqualTo(NodeRecord.MIN_PRIORITY);
-    assertThat(List.of(low.radiusX(), low.radiusY(), low.radiusZ())).containsOnly(0);
+    assertThat(low.area()).isEqualTo(new NodeCuboid(0, 0, 0, 0, 0, 0));
     assertThat(high.priority()).isEqualTo(NodeRecord.MAX_PRIORITY);
-    assertThat(List.of(high.radiusX(), high.radiusY(), high.radiusZ())).containsOnly(NodeRecord.MAX_RADIUS);
+    assertThat(high.area()).isEqualTo(NodeCuboid.symmetric(NodeRecord.MAX_RADIUS, NodeRecord.MAX_RADIUS, NodeRecord.MAX_RADIUS));
+    assertThat(lopsided.area()).isEqualTo(new NodeCuboid(-32, 0, -5, 7, 32, 0));
   }
 
   @Test
@@ -86,7 +86,7 @@ class NodeRecordTest {
   void recordsAreImmutableValuesThatCopyThroughTheirBuilder() {
     Map<String, String> data = new HashMap<>(Map.of("replant", "true"));
     NodeRecord original = NodeRecord.builder(OWNER, NodeType.HARVEST, BlockFace.UP)
-        .channel(DyeColor.LIME).priority(4).redstone(RedstoneMode.POWERED).radii(3, 1, 3)
+        .channel(DyeColor.LIME).priority(4).redstone(RedstoneMode.POWERED).area(NodeCuboid.symmetric(3, 1, 3))
         .filterTags(List.of("#crops")).whitelist(false).data(data).build();
     data.put("replant", "false");
 

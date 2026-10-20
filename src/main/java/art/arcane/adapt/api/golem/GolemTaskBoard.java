@@ -300,7 +300,7 @@ public final class GolemTaskBoard {
   }
 
   private void widenReach(NodeRecord record) {
-    reach.accumulateAndGet(Math.max(record.radiusX(), record.radiusZ()) + 1, Math::max);
+    reach.accumulateAndGet(record.area().horizontalReach() + 1, Math::max);
   }
 
   public enum Offer {

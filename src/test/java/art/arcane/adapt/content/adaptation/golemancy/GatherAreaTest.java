@@ -2,6 +2,7 @@ package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.GolemTestItems;
 import art.arcane.adapt.api.golem.NodeType;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import org.bukkit.Location;
@@ -38,7 +39,7 @@ class GatherAreaTest {
   @Test
   void aNodeAreaIsTheBlockBoxAroundTheBlockInFrontOfTheFace() {
     NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
-    NodeRecord record = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(2, 1, 3).build();
+    NodeRecord record = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(2, 1, 3)).build();
     GatherArea.Box box = GatherArea.Box.of(key, record);
     GatherArea area = GatherArea.nodes(WORLD, List.of(box));
 
@@ -58,10 +59,29 @@ class GatherAreaTest {
   }
 
   @Test
+  void aLopsidedNodeAreaIsTheBoxBetweenItsFaces() {
+    NodeKey key = new NodeKey(WORLD, 0, 64, 0, BlockFace.UP);
+    NodeRecord record = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(new NodeCuboid(-1, 0, -4, 5, 2, 0)).build();
+    GatherArea.Box box = GatherArea.Box.of(key, record);
+    GatherArea area = GatherArea.nodes(WORLD, List.of(box));
+
+    assertThat(box).isEqualTo(new GatherArea.Box(-1, 65, -4, 5, 67, 0, record));
+    assertThat(area.contains(new Location(world, 5.9D, 67.5D, -3.5D))).isTrue();
+    assertThat(area.contains(new Location(world, -0.5D, 65D, 0.5D))).isTrue();
+    assertThat(area.contains(new Location(world, -1.5D, 65D, 0.5D))).isFalse();
+    assertThat(area.contains(new Location(world, 0.5D, 65D, 1D))).isFalse();
+    assertThat(area.contains(new Location(world, 0.5D, 64.99D, 0.5D))).isFalse();
+    assertThat(box.centerX()).isEqualTo(2.5D);
+    assertThat(box.centerZ()).isEqualTo(-1.5D);
+    assertThat(box.halfX()).isEqualTo(3.5D);
+    assertThat(box.halfZ()).isEqualTo(2.5D);
+  }
+
+  @Test
   void aNodeAreaCollectsOnlyWhatItsNodeFilterAccepts() {
-    NodeRecord carrots = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(1, 1, 1)
+    NodeRecord carrots = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(1, 1, 1))
         .filterItems(List.of(GolemTestItems.stack(Material.CARROT, 1))).build();
-    NodeRecord anything = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(1, 1, 1).build();
+    NodeRecord anything = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(1, 1, 1)).build();
     GatherArea area = GatherArea.nodes(WORLD, List.of(GatherArea.Box.of(new NodeKey(WORLD, 0, 64, 0, BlockFace.UP), carrots),
         GatherArea.Box.of(new NodeKey(WORLD, 20, 64, 0, BlockFace.UP), anything)));
     GatherArea home = GatherArea.home(new Location(world, 0.5D, 64D, 0.5D), 4D);
@@ -84,7 +104,7 @@ class GatherAreaTest {
 
   @Test
   void severalNodeAreasCoverTheirUnion() {
-    NodeRecord record = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(1, 1, 1).build();
+    NodeRecord record = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(1, 1, 1)).build();
     GatherArea area = GatherArea.nodes(WORLD, List.of(GatherArea.Box.of(new NodeKey(WORLD, 0, 64, 0, BlockFace.UP), record),
         GatherArea.Box.of(new NodeKey(WORLD, 20, 64, 0, BlockFace.UP), record)));
 

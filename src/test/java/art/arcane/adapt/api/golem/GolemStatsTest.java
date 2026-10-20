@@ -6,6 +6,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.entity.CopperGolem;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Snowman;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -187,6 +188,44 @@ class GolemStatsTest extends AdaptTestBase {
   }
 
   @Test
+  void runeAndMasterworkModifiersApplyToASkeletonAndComeOffItWhenTheirSourcesGoQuiet() {
+    Skeleton skeleton = GolemTestEntities.entity(Skeleton.class);
+    AtomicReference<Double> skeletonHealth = new AtomicReference<>(20D);
+    lenient().when(skeleton.getHealth()).thenAnswer(invocation -> skeletonHealth.get());
+    lenient().doAnswer(invocation -> {
+      skeletonHealth.set(invocation.getArgument(0));
+      return null;
+    }).when(skeleton).setHealth(anyDouble());
+    GolemHandle bone = new GolemHandle(skeleton, GolemState.create(new GolemState.Seed(UUID.randomUUID(), OWNER, GolemBody.BONE,
+        GolemCoreType.GUARDIAN, GolemState.Anchor.of(WORLD, 0, 64, 0))), platform);
+    FakeAttribute maxHealth = platform.stat(skeleton, GolemStat.MAX_HEALTH, 20D);
+    FakeAttribute speed = platform.stat(skeleton, GolemStat.MOVEMENT_SPEED, 0.25D);
+    FakeAttribute armor = platform.stat(skeleton, GolemStat.ARMOR, 0D);
+    AtomicReference<List<GolemStatDelta>> runes = new AtomicReference<>(List.of(GolemStatDelta.multiplyBase(GolemStat.MOVEMENT_SPEED, 0.2D),
+        GolemStatDelta.add(GolemStat.ARMOR, 4D)));
+    AtomicReference<List<GolemStatDelta>> masterwork = new AtomicReference<>(List.of(GolemStatDelta.multiplyTotal(GolemStat.MAX_HEALTH, 0.25D)));
+    register(source("rune", runes));
+    register(source("masterwork", masterwork));
+
+    GolemStats.recompute(bone);
+
+    assertThat(speed.value()).isCloseTo(0.30D, offset(1e-9));
+    assertThat(armor.value()).isEqualTo(4D);
+    assertThat(maxHealth.value()).isCloseTo(25D, offset(1e-9));
+    assertThat(maxHealth.modifier(GolemStats.key("masterwork", GolemStat.MAX_HEALTH))).isPresent();
+
+    runes.set(List.of());
+    masterwork.set(List.of());
+    GolemStats.recompute(bone);
+
+    assertThat(speed.modifiers).isEmpty();
+    assertThat(armor.modifiers).isEmpty();
+    assertThat(maxHealth.modifiers).isEmpty();
+    assertThat(maxHealth.value()).isEqualTo(20D);
+    assertThat(skeletonHealth.get()).isEqualTo(20D);
+  }
+
+  @Test
   void anUnchangedPlanTouchesNothingAndAChangedPlanReplacesOnlyOurModifiers() {
     FakeAttribute maxHealth = platform.stat(golem, GolemStat.MAX_HEALTH, 4D);
     AttributeModifier foreign = new AttributeModifier(new NamespacedKey("other", "bonus"), 1D, AttributeModifier.Operation.ADD_NUMBER);
@@ -351,6 +390,20 @@ class GolemStatsTest extends AdaptTestBase {
   private void register(GolemStatSource source) {
     registered.add(source);
     GolemStats.register(source);
+  }
+
+  private static GolemStatSource source(String id, AtomicReference<List<GolemStatDelta>> deltas) {
+    return new GolemStatSource() {
+      @Override
+      public String id() {
+        return id;
+      }
+
+      @Override
+      public List<GolemStatDelta> deltas(GolemHandle golemHandle) {
+        return deltas.get();
+      }
+    };
   }
 
   private static GolemStatSource source(String id, GolemStatDelta... deltas) {

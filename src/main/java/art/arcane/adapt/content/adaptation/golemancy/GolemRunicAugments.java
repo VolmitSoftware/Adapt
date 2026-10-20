@@ -131,7 +131,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     if (!(e.getEntity() instanceof LivingEntity victim)) {
       return;
     }
-    Entity source = GolemXpRules.golemSource(e.getDamager());
+    Entity source = GolemXpRules.attacker(e.getDamager());
     Optional<GolemHandle> bound = GolemancyRuntime.handle(source);
     if (bound.isEmpty() || bound.get().isDormant()) {
       return;
@@ -309,7 +309,7 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
       case FROST -> config.frostSlots;
       case COPPER -> config.copperSlots;
       case IRON -> config.ironSlots;
-      case BONE -> 0;
+      case BONE -> config.boneSlots;
     };
   }
 
@@ -344,9 +344,6 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     }
 
     private GolemRuneLayout layout(GolemBody body, int level, int masterworkSlots) {
-      if (body == GolemBody.BONE) {
-        return GolemRuneLayout.NONE;
-      }
       LayoutKey key = new LayoutKey(body, Math.clamp(level, 0, maxLevel), Math.clamp(masterworkSlots, 0, GolemRuneLayout.MAX_SLOTS));
       return layouts.computeIfAbsent(key, this::compute);
     }
@@ -419,6 +416,8 @@ public class GolemRunicAugments extends SimpleAdaptation<GolemRunicAugments.Conf
     List<Integer> maxTierByLevel = new ArrayList<>(List.of(1, 1, 2, 2, 3));
     @ConfigDoc(value = "Rune slots a bound frost golem has before Runic Augments adds extra slots, from 0 to 9.", impact = "Higher values let frost golems hold more runes.")
     int frostSlots = 1;
+    @ConfigDoc(value = "Rune slots a bound bone golem has before Runic Augments adds extra slots, from 0 to 9.", impact = "Higher values let bone golems hold more runes.")
+    int boneSlots = 2;
     @ConfigDoc(value = "Rune slots a bound copper golem has before Runic Augments adds extra slots, from 0 to 9.", impact = "Higher values let copper golems hold more runes.")
     int copperSlots = 2;
     @ConfigDoc(value = "Rune slots a bound iron golem has before Runic Augments adds extra slots, from 0 to 9.", impact = "Higher values let iron golems hold more runes.")

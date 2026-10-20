@@ -5,6 +5,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Mob;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.entity.Snowman;
@@ -15,6 +16,7 @@ import org.bukkit.event.block.EntityBlockFormEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityTargetLivingEntityEvent;
+import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.ItemStack;
@@ -54,7 +56,14 @@ final class GolemGuardListener implements Listener {
     if (target == null || !GolemState.has(golem)) {
       return;
     }
-    if (cancels(golem, target)) {
+    if (combatOff(golem) || cancels(golem, target)) {
+      e.setCancelled(true);
+    }
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  public void on(ProjectileLaunchEvent e) {
+    if (e.getEntity().getShooter() instanceof Mob shooter && GolemState.has(shooter) && combatOff(shooter)) {
       e.setCancelled(true);
     }
   }
@@ -94,6 +103,10 @@ final class GolemGuardListener implements Listener {
 
   private static boolean empty(ItemStack item) {
     return item == null || item.getType() == Material.AIR;
+  }
+
+  private boolean combatOff(Entity golem) {
+    return handles.apply(golem).map(handle -> !GolemCombat.enabled(handle)).orElse(false);
   }
 
   private boolean cancels(Entity damager, Entity victim) {

@@ -131,6 +131,21 @@ class GolemStateTest {
   }
 
   @Test
+  void combatDefaultsOnAndSurvivesTheJsonRoundTrip() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
+
+    assertThat(state.combatOff()).isFalse();
+    assertThat(readPayload("{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"frost\"}").orElseThrow().combatOff()).isFalse();
+    assertThat(reloaded(state).combatOff()).isFalse();
+
+    state.setCombatOff(true);
+
+    assertThat(reloaded(state).combatOff()).isTrue();
+    state.setCombatOff(false);
+    assertThat(reloaded(state).combatOff()).isFalse();
+  }
+
+  @Test
   void theSightingStartsAtZeroAndSurvivesTheJsonRoundTrip() {
     GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.FROST, GolemCoreType.BLANK, GolemState.Anchor.of(WORLD, 0, 70, 0)));
 
@@ -201,6 +216,36 @@ class GolemStateTest {
     state.setMaxHealthMark(24D);
 
     assertThat(reloaded(state).maxHealthMark()).isEqualTo(24D);
+  }
+
+  @Test
+  void equippedItemsStartEmptyAndSurviveTheJsonRoundTripBySlot() {
+    GolemState state = GolemState.create(new GolemState.Seed(GOLEM, OWNER, GolemBody.BONE, GolemCoreType.GUARDIAN, GolemState.Anchor.of(WORLD, 0, 70, 0)));
+
+    assertThat(state.equipment()).isEmpty();
+
+    state.setEquipment(GolemEquipmentSlot.HELMET, "rO0AB-helm");
+    state.setEquipment(GolemEquipmentSlot.MAIN_HAND, "rO0AB-bow");
+    state.setEquipment(GolemEquipmentSlot.BOOTS, "rO0AB-boots");
+    state.setEquipment(GolemEquipmentSlot.BOOTS, null);
+    GolemState back = reloaded(state);
+
+    assertThat(back.equipment()).containsOnlyKeys(GolemEquipmentSlot.HELMET, GolemEquipmentSlot.MAIN_HAND)
+        .containsEntry(GolemEquipmentSlot.HELMET, "rO0AB-helm")
+        .containsEntry(GolemEquipmentSlot.MAIN_HAND, "rO0AB-bow");
+    JsonObject json = new Gson().fromJson(state.toJson(), JsonObject.class);
+    assertThat(json.getAsJsonObject("equipment").get("main_hand").getAsString()).isEqualTo("rO0AB-bow");
+  }
+
+  @Test
+  void unknownOrBlankEquipmentEntriesAreDroppedAndMissingEquipmentReadsEmpty() {
+    String base = "{\"id\":\"" + GOLEM + "\",\"owner\":\"" + OWNER + "\",\"body\":\"bone\"";
+
+    GolemState noisy = readPayload(base + ",\"equipment\":{\"helmet\":\"rO0AB-helm\",\"cape\":\"rO0AB-cape\",\"boots\":\" \"}}").orElseThrow();
+
+    assertThat(noisy.equipment()).containsOnlyKeys(GolemEquipmentSlot.HELMET);
+    assertThat(readPayload(base + "}").orElseThrow().equipment()).isEmpty();
+    assertThat(readPayload(base + ",\"equipment\":null}").orElseThrow().equipment()).isEmpty();
   }
 
   @Test

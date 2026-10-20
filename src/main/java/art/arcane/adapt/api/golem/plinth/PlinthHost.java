@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem.plinth;
 
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
@@ -17,6 +18,8 @@ public interface PlinthHost {
   Optional<PlinthCharge> chargeLevels(Player player, String adaptationId, int levels);
 
   FxEmitter fx(Location at, FxPriority priority);
+
+  FxTimeline timeline(Location at);
 
   void infused(Player player, Infusion infusion, Location at);
 }

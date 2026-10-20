@@ -5,6 +5,7 @@ import art.arcane.adapt.api.golem.node.NodeIndex;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
@@ -57,6 +58,8 @@ interface GolemPlatform {
 
   void dropOwnerBound(Location at, ItemStack item, UUID owner);
 
+  void returnToOwner(UUID owner, Location at, ItemStack item);
+
   void upkeep(UUID owner, Set<UUID> golems);
 
   void crumble(Mob body);
@@ -74,6 +77,8 @@ interface GolemPlatform {
   Optional<Entity> ownedEntity(UUID entity, World world);
 
   void signalFull(Mob golem);
+
+  void visitLid(Block container, int holdTicks);
 
   Adaptation<?> bindingPolicy();
 

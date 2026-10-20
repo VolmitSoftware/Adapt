@@ -84,7 +84,7 @@ final class LumberActions {
       return;
     }
     List<LumberTrees.Part> spots = paired(golem, view, tree, sapling) && take(golem, sapling, PAIRED_SAPLINGS) ? tree.bases() : List.of();
-    if (spots.isEmpty() && TreeBlocks.growsAlone(tree.species()) && plantable(golem, view, tree.base(), sapling) && take(golem, sapling, 1)) {
+    if (spots.isEmpty() && TreeBlocks.growsAlone(sapling) && plantable(golem, view, tree.base(), sapling) && take(golem, sapling, 1)) {
       spots = List.of(tree.base());
     }
     if (spots.isEmpty()) {
@@ -97,7 +97,7 @@ final class LumberActions {
   }
 
   private boolean paired(GolemContext golem, TreeView view, LumberTrees.Tree tree, Material sapling) {
-    if (tree.nether() || tree.bases().size() != PAIRED_SAPLINGS) {
+    if (tree.nether() || !tree.square()) {
       return false;
     }
     for (LumberTrees.Part base : tree.bases()) {
@@ -128,6 +128,7 @@ final class LumberActions {
     int taken = carried > 0 ? golem.take(item -> item.getType() == sapling, Math.min(amount, carried)) : 0;
     if (taken < amount && chest != null) {
       withdraw(chest, sapling, amount - taken);
+      GolemancySupport.visitHomeChest(golem);
     }
     return true;
   }

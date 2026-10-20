@@ -32,9 +32,11 @@ import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.Tag;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.IronGolem;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Mob;
+import org.bukkit.entity.Skeleton;
 import org.bukkit.entity.Snowman;
 import org.bukkit.entity.Zombie;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -141,6 +143,7 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     assertThat(config.extraSlotsByLevel).containsExactly(0, 0, 1, 1, 2);
     assertThat(config.maxTierByLevel).containsExactly(1, 1, 2, 2, 3);
     assertThat(config.frostSlots).isEqualTo(1);
+    assertThat(config.boneSlots).isEqualTo(2);
     assertThat(config.copperSlots).isEqualTo(2);
     assertThat(config.ironSlots).isEqualTo(3);
     assertThat(config.runeBodyBlocks).containsExactly("ember:frost");
@@ -311,8 +314,95 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
     assertThat(iron.slotUnlockLevels()).containsExactly(1, 1, 1, 3, 5);
     assertThat(iron.maxTier()).isEqualTo(2);
     assertThat(iron.blocks(GolemRuneType.EMBER)).isFalse();
-    assertThat(learned.layout(GolemBody.BONE, OWNER, false).maxSlots()).isZero();
     assertThat(learned(0).layout(GolemBody.IRON, OWNER, false).unlockedSlots()).isZero();
+  }
+
+  @Test
+  void aBoundBoneGolemHasTwoBaseSlotsBetweenFrostAndIronAndBlocksNoAspect() {
+    GolemRunicAugments learned = learned(3);
+
+    GolemRuneLayout bone = learned.layout(GolemBody.BONE, OWNER, false);
+
+    assertThat(bone.unlockedSlots()).isEqualTo(3);
+    assertThat(bone.slotUnlockLevels()).containsExactly(1, 1, 3, 5);
+    assertThat(bone.maxTier()).isEqualTo(2);
+    assertThat(bone.blocked()).isEmpty();
+    assertThat(learned(1).layout(GolemBody.BONE, OWNER, false).unlockedSlots()).isEqualTo(2);
+    assertThat(learned(5).layout(GolemBody.BONE, OWNER, false).unlockedSlots()).isEqualTo(4);
+    assertThat(learned(0).layout(GolemBody.BONE, OWNER, false).unlockedSlots()).isZero();
+    assertThat(learned.layout(GolemBody.FROST, OWNER, false).unlockedSlots()).isLessThan(bone.unlockedSlots());
+    assertThat(learned.layout(GolemBody.IRON, OWNER, false).unlockedSlots()).isGreaterThan(bone.unlockedSlots());
+  }
+
+  @Test
+  void everyAspectSlotsOnABoneGolem() {
+    GolemRuneLayout bone = learned(1).layout(GolemBody.BONE, OWNER, false);
+
+    for (GolemRuneType aspect : GolemRuneType.values()) {
+      assertThat(bone.refuse(List.of(), aspect)).as("slotting %s on bone", aspect).isEmpty();
+    }
+  }
+
+  @Test
+  void aBoneGolemsSlotCountIsBasePlusRunicAugmentsPlusMasterwork() {
+    GolemMastery.Source source = mastery(new GolemMastery.Perks(1, false, false, 0D));
+    try {
+      GolemRunicAugments learned = learned(3);
+
+      GolemRuneLayout plain = learned.layout(GolemBody.BONE, OWNER, false);
+      GolemRuneLayout masterwork = learned.layout(GolemBody.BONE, OWNER, true);
+
+      assertThat(plain.unlockedSlots()).isEqualTo(3);
+      assertThat(masterwork.unlockedSlots()).isEqualTo(4);
+      assertThat(masterwork.slotUnlockLevels()).containsExactly(1, 1, 1, 3, 5);
+      assertThat(learned.layout(GolemBody.BONE, OWNER, true)).isSameAs(masterwork);
+    } finally {
+      GolemMastery.unregister(source);
+    }
+  }
+
+  @Test
+  void aBoneGolemsRunesDriveItsStatsWardsAndHitEffects() {
+    Skeleton skeleton = golem(Skeleton.class);
+    GolemHandle bone = bound(skeleton, GolemBody.BONE, false, rune(GolemRuneType.SWIFTNESS, 1), rune(GolemRuneType.MIGHT, 1),
+        rune(GolemRuneType.EMBER, 2), rune(GolemRuneType.BULWARK, 1));
+    GolemRunicAugments learned = learned(5);
+
+    assertThat(learned.runes(bone).slotted()).containsOnlyKeys(GolemRuneType.SWIFTNESS, GolemRuneType.MIGHT, GolemRuneType.EMBER, GolemRuneType.BULWARK);
+    assertThat(GolemRunicAugments.runeStats(new GolemRunicAugments.Config(), learned.runes(bone))).containsExactlyInAnyOrder(
+        GolemStatDelta.multiplyBase(GolemStat.MOVEMENT_SPEED, 0.10D),
+        GolemStatDelta.add(GolemStat.ATTACK_DAMAGE, 2D),
+        GolemStatDelta.add(GolemStat.ARMOR, 4D));
+    assertThat(cancels(learned, skeleton, DamageCause.FIRE_TICK)).isTrue();
+    Zombie victim = mock(Zombie.class);
+    learned.on(hit(skeleton, victim));
+    verify(victim).setFireTicks(80);
+  }
+
+  @Test
+  void anArrowFromABoneGolemCarriesItsEmberAndEntropyRunes() {
+    Skeleton skeleton = golem(Skeleton.class);
+    bound(skeleton, GolemBody.BONE, false, rune(GolemRuneType.EMBER, 1), rune(GolemRuneType.ENTROPY, 2));
+    Arrow arrow = mock(Arrow.class);
+    when(arrow.getShooter()).thenReturn(skeleton);
+    Zombie victim = mock(Zombie.class);
+    GolemRunicAugments learned = learned(5);
+
+    learned.on(hit(arrow, victim));
+
+    verify(victim).setFireTicks(40);
+    verify(learned).weaken(victim, 0, 60);
+  }
+
+  @Test
+  void aBoneGolemsOrderAndTideRunesShapeItsChannelsAndRadius() {
+    Skeleton skeleton = golem(Skeleton.class);
+    GolemHandle bone = bound(skeleton, GolemBody.BONE, false, rune(GolemRuneType.ORDER, 2), rune(GolemRuneType.TIDE, 1));
+
+    GolemRuneEffects effects = learned(5).effects(bone);
+
+    assertThat(effects.channelSlots()).isEqualTo(3);
+    assertThat(effects.radiusBonus()).isEqualTo(4D);
   }
 
   @Test
@@ -441,7 +531,6 @@ class GolemRunicAugmentsTest extends AdaptTestBase {
       assertThat(masterwork.slotUnlockLevels()).containsExactly(1, 1, 1, 1, 3, 5);
       assertThat(learned.layout(GolemBody.IRON, OWNER, true)).isSameAs(masterwork);
       assertThat(learned.layout(GolemBody.IRON, OWNER, false)).isSameAs(plain);
-      assertThat(learned.layout(GolemBody.BONE, OWNER, true).maxSlots()).isZero();
 
       when(source.perks(OWNER)).thenReturn(GolemMastery.Perks.NONE);
       assertThat(learned.layout(GolemBody.IRON, OWNER, true).unlockedSlots()).isEqualTo(4);

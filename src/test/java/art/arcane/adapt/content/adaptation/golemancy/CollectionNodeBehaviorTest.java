@@ -9,6 +9,7 @@ import art.arcane.adapt.api.golem.GolemTask;
 import art.arcane.adapt.api.golem.GolemTestItems;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeContext;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.ScanBudget;
@@ -115,7 +116,7 @@ class CollectionNodeBehaviorTest {
     core = mock(GolemGathererCore.class);
     when(core.config()).thenReturn(config);
     behavior = new CollectionNodeBehavior(core, new GathererWork(core, deathSites));
-    record = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(2, 1, 2).build();
+    record = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(2, 1, 2)).build();
   }
 
   @AfterEach

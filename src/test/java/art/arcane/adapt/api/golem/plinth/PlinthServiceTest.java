@@ -3,6 +3,7 @@ package art.arcane.adapt.api.golem.plinth;
 import art.arcane.adapt.AdaptTestBase;
 import art.arcane.adapt.api.fx.FxEmitter;
 import art.arcane.adapt.api.fx.FxPriority;
+import art.arcane.adapt.api.fx.FxTimeline;
 import art.arcane.adapt.localization.AdaptLanguage;
 import art.arcane.adapt.localization.catalog.GolemancyMessages;
 import art.arcane.adapt.util.common.plugin.ProtectionEventProbe;
@@ -920,6 +921,58 @@ class PlinthServiceTest extends AdaptTestBase {
   }
 
   @Test
+  void aRitualDrawsOneSwirlFramePerTickThenCollidesAsTheResultPops() {
+    stockPlinth();
+    holdCrook();
+    click(CENTER, EquipmentSlot.HAND);
+
+    tick(DURATION);
+
+    List<String> frames = new ArrayList<>();
+    for (String event : events) {
+      if (event.startsWith("swirl")) {
+        frames.add(event);
+      }
+    }
+    assertThat(frames).hasSize(DURATION).first().isEqualTo("swirl 1");
+    assertThat(frames).last().isEqualTo("swirl " + DURATION);
+    assertThat(events).containsSubsequence("swirl " + DURATION, "pay golem-runic-augments 2", "pop 8,65,8", "collide", "notify golemancy.plinth.complete");
+    assertThat(events.stream().filter(event -> event.equals("collide"))).hasSize(1);
+    assertThat(events).noneMatch(event -> event.startsWith("fizzle"));
+  }
+
+  @Test
+  void anAbortSwitchesTheSwirlToAFizzle() {
+    stockPlinth();
+    holdCrook();
+    click(CENTER, EquipmentSlot.HAND);
+    tick(5);
+
+    when(player.getLocation()).thenReturn(new Location(world, 8.5D, 64D, 17.6D));
+    tick(1);
+    int stoppedAt = events.size();
+    tick(10);
+
+    assertThat(events).containsSubsequence("swirl 5", "fizzle 5", INTERRUPTED);
+    assertThat(events.stream().filter(event -> event.startsWith("fizzle"))).hasSize(1);
+    assertThat(events.subList(stoppedAt, events.size())).isEmpty();
+    assertThat(events).noneMatch(event -> event.equals("collide"));
+  }
+
+  @Test
+  void aCompletionRefusedAtTheEndFizzlesInsteadOfColliding() {
+    stockPlinth();
+    holdCrook();
+    host.refuseCharge = true;
+    click(CENTER, EquipmentSlot.HAND);
+
+    tick(DURATION);
+
+    assertThat(events).contains("fizzle " + DURATION);
+    assertThat(events).noneMatch(event -> event.equals("collide"));
+  }
+
+  @Test
   void shutdownAbortsRitualsAndRemovesDisplays() {
     stockPlinth();
     holdCrook();
@@ -941,7 +994,7 @@ class PlinthServiceTest extends AdaptTestBase {
     } else {
       assertThat(events).doesNotContain(INTERRUPTED);
     }
-    assertThat(events).contains("effect FIZZLE");
+    assertThat(events).anyMatch(event -> event.startsWith("fizzle"));
     assertThat(events.stream().filter(event -> event.startsWith("pay"))).isEmpty();
     assertThat(events.stream().filter(event -> event.startsWith("pop"))).isEmpty();
     assertThat(platform.store).hasSize(5);
@@ -1147,6 +1200,11 @@ class PlinthServiceTest extends AdaptTestBase {
 
     @Override
     public FxEmitter fx(Location at, FxPriority priority) {
+      throw new UnsupportedOperationException("effects go through the platform");
+    }
+
+    @Override
+    public FxTimeline timeline(Location at) {
       throw new UnsupportedOperationException("effects go through the platform");
     }
 

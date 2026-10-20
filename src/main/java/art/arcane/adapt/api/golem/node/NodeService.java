@@ -112,7 +112,7 @@ public final class NodeService extends TickedObject {
       return verdict;
     }
     int radius = Math.min(NodeRecord.DEFAULT_RADIUS, Math.max(0, policy.maxAreaRadius(level)));
-    NodeRecord record = NodeRecord.builder(ownerId, type, face).radii(radius, radius, radius).build();
+    NodeRecord record = NodeRecord.builder(ownerId, type, face).area(NodeCuboid.symmetric(radius, radius, radius)).build();
     platform.write(world, key.x(), key.y(), key.z(), faces.with(record));
     index.put(key, record);
     roster.get().removeNode(key.anchor(), face);

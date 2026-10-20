@@ -2,6 +2,7 @@ package art.arcane.adapt.api.golem;
 
 import art.arcane.adapt.Adapt;
 import art.arcane.adapt.api.adaptation.Adaptation;
+import art.arcane.adapt.api.golem.gui.GolemGuiItems;
 import art.arcane.adapt.api.golem.item.OwnerBoundDrop;
 import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeService;
@@ -30,6 +31,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.block.Block;
 import org.bukkit.entity.CopperGolem;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
@@ -56,6 +58,7 @@ public final class GolemancyRuntime {
   private static final GolemTargetPolicy COMPANION = new CompanionTargetPolicy();
   private static final Map<GolemCoreType, GolemTargetPolicy> TARGET_POLICIES = new ConcurrentHashMap<>();
   private static volatile GolemRegistry registry;
+  private static volatile ContainerLids lids;
   private static volatile GolemBrains brains;
   private static volatile GolemSettings settings = GolemSettings.defaults();
   private static volatile GolemBrainSettings brainSettings = GolemBrainSettings.defaults();
@@ -87,7 +90,10 @@ public final class GolemancyRuntime {
     names = createdNames;
     createdNames.start();
     Adapt.instance.registerListener(createdNames);
-    GolemPlatform platform = new BukkitGolemPlatform();
+    ContainerLids createdLids = ContainerLids.create();
+    Adapt.instance.registerListener(createdLids);
+    lids = createdLids;
+    GolemPlatform platform = new BukkitGolemPlatform(createdLids);
     GolemTaskBoards createdBoards = new GolemTaskBoards(key -> nodes().flatMap(service -> service.node(key)));
     GolemBrains createdBrains = new GolemBrains(new GolemBrain.Context(platform, GolemancyRuntime::brainSettings, GolemancyRuntime::targetPolicy,
         GolemancyRuntime::workSettings, createdBoards::board), GolemancyRuntime::controllerFor);
@@ -117,6 +123,7 @@ public final class GolemancyRuntime {
 
   public static boolean shutdown(long timeoutMillis) {
     GolemRegistry local;
+    ContainerLids localLids;
     RevealService localReveal;
     GolemNames localNames;
     NodeService localNodes;
@@ -125,6 +132,8 @@ public final class GolemancyRuntime {
       MinionIdentity.unregisterKind(MINION_KIND);
       local = registry;
       registry = null;
+      localLids = lids;
+      lids = null;
       brains = null;
       localReveal = reveal;
       reveal = null;
@@ -135,6 +144,10 @@ public final class GolemancyRuntime {
       localPlinths = plinths;
       plinths = null;
       boards = null;
+    }
+    if (localLids != null) {
+      Adapt.instance.unregisterListener(localLids);
+      localLids.shutdown();
     }
     if (localPlinths != null) {
       localPlinths.shutdown();
@@ -315,7 +328,7 @@ public final class GolemancyRuntime {
     Mob golem = handle.entity();
     return switch (handle.body()) {
       case COPPER -> golem instanceof CopperGolem copper
-          ? Optional.of(new CopperGolemController(copper, () -> brainSettings.copperRepathTicks(), BukkitGolemLids.INSTANCE))
+          ? Optional.of(new CopperGolemController(copper, () -> brainSettings.copperRepathTicks()))
           : Optional.empty();
       case FROST, IRON, BONE -> PaperCompat.hasClass(MOB_GOALS_CLASS)
           ? Optional.of(new GoalGolemController(golem, handle.body(), Bukkit.getMobGoals()))
@@ -338,6 +351,12 @@ public final class GolemancyRuntime {
 
   private static final class BukkitGolemPlatform implements GolemPlatform {
     private static final double FULL_SIGNAL_LIFT = 0.4D;
+
+    private final ContainerLids lids;
+
+    private BukkitGolemPlatform(ContainerLids lids) {
+      this.lids = Objects.requireNonNull(lids);
+    }
 
     @Override
     public boolean isOnline(UUID owner) {
@@ -463,6 +482,16 @@ public final class GolemancyRuntime {
     }
 
     @Override
+    public void returnToOwner(UUID owner, Location at, ItemStack item) {
+      Player online = Bukkit.getPlayer(owner);
+      if (online == null) {
+        Objects.requireNonNull(at.getWorld()).dropItemNaturally(at, item);
+        return;
+      }
+      GolemGuiItems.toPlayer(online, item, at);
+    }
+
+    @Override
     public void upkeep(UUID owner, Set<UUID> golems) {
       MinionBurden.get().hold(owner, golems);
     }
@@ -510,6 +539,11 @@ public final class GolemancyRuntime {
     public void signalFull(Mob golem) {
       Location above = golem.getLocation().add(0D, golem.getHeight() + FULL_SIGNAL_LIFT, 0D);
       golem.getWorld().spawnParticle(Particles.ANGRY_VILLAGER, above, 1, 0D, 0D, 0D, 0D);
+    }
+
+    @Override
+    public void visitLid(Block container, int holdTicks) {
+      lids.visit(container, holdTicks);
     }
 
     @Override

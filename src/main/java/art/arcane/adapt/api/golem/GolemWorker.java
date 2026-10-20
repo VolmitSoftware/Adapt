@@ -229,6 +229,14 @@ final class GolemWorker {
     held.wear(() -> ThreadLocalRandom.current().nextDouble());
   }
 
+  void interact(Block container, int ticks) {
+    if (!context.platform().owns(container.getLocation())) {
+      return;
+    }
+    controller.interact(container, ticks);
+    context.platform().visitLid(container, ticks + ContainerLids.CLOSE_TICKS);
+  }
+
   boolean skips(GolemTask task, long nowMillis) {
     return taskBackoff.containsKey(task.key()) || toolBackoff.containsKey(task.key())
         || board(task.target().world()).reservedByOther(task, handle.id(), nowMillis);
@@ -488,9 +496,7 @@ final class GolemWorker {
     if (!arrived) {
       arrive();
       long interval = intervalMillis(GolemActor.DEFAULT_ACT_INTERVAL_TICKS);
-      if (context.platform().owns(block.getLocation())) {
-        controller.interact(block, (int) Math.max(1L, interval / TICK_MILLIS));
-      }
+      interact(block, (int) Math.max(1L, interval / TICK_MILLIS));
       nextActAt = nowMillis + interval;
       return GolemBrainState.DELIVER;
     }
@@ -537,7 +543,10 @@ final class GolemWorker {
   private void homeInto(Block block, long nowMillis) {
     GolemContext golem = new GolemContext(this, new GolemContext.Scope(context.platform().bindingPolicy(), null, null, handle.core(), nowMillis));
     Material container = block.getType();
-    golem.container(block).ifPresent(inventory -> golem.deliver(inventory, item -> !NodeContainers.nests(container, item)));
+    Inventory inventory = golem.container(block).orElse(null);
+    if (inventory != null && golem.deliver(inventory, item -> !NodeContainers.nests(container, item)) > 0) {
+      golem.visit(block);
+    }
   }
 
   private boolean readyTools(Job current, NodeRecord record, long nowMillis) {
@@ -622,7 +631,7 @@ final class GolemWorker {
     if (!arrived) {
       arrive();
       long interval = intervalMillis(GolemActor.DEFAULT_ACT_INTERVAL_TICKS);
-      containerContext(nowMillis).interact(block, (int) Math.max(1L, interval / TICK_MILLIS));
+      interact(block, (int) Math.max(1L, interval / TICK_MILLIS));
       nextActAt = nowMillis + interval;
       return GolemBrainState.DELIVER;
     }
@@ -636,7 +645,8 @@ final class GolemWorker {
   }
 
   private void takeTool(Block block, GolemToolNeed need, long nowMillis) {
-    Inventory inventory = containerContext(nowMillis).container(block).orElse(null);
+    GolemContext golem = containerContext(nowMillis);
+    Inventory inventory = golem.container(block).orElse(null);
     int slot = inventory == null ? -1 : GolemToolRules.slot(inventory.getStorageContents(), need);
     if (slot < 0) {
       missTool(need, nowMillis);
@@ -648,6 +658,7 @@ final class GolemWorker {
       inventory.setItem(slot, taken);
       return;
     }
+    golem.visit(block);
     toolMisses.remove(need.id());
   }
 

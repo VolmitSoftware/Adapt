@@ -16,6 +16,7 @@ import art.arcane.adapt.api.golem.GolemTestItems;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.NodeType;
 import art.arcane.adapt.api.golem.node.NodeIndex;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeKey;
 import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.golem.node.NodeService;
@@ -356,7 +357,7 @@ class GathererWorkTest {
     level.set(2);
     orb(7, 1, at(2.5D, 64D, 0.5D));
     ExperienceOrb inside = orb(7, 1, at(10.5D, 65D, 0.5D));
-    collectionNode(new NodeKey(WORLD, 10, 64, 0, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(1, 1, 1).build());
+    collectionNode(new NodeKey(WORLD, 10, 64, 0, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(1, 1, 1)).build());
 
     assertThat(work.seek(golem)).hasValueSatisfying(task -> assertThat(task.target().entity()).isEqualTo(inside.getUniqueId()));
   }
@@ -695,7 +696,7 @@ class GathererWorkTest {
   @Test
   void magnetAndInstantPickupFollowTheCollectionNodeFilter() {
     level.set(5);
-    collectionNode(new NodeKey(WORLD, 0, 63, 0, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(3, 1, 3)
+    collectionNode(new NodeKey(WORLD, 0, 63, 0, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(3, 1, 3))
         .filterItems(List.of(GolemTestItems.stack(Material.CARROT, 1))).build());
     Item closeWheat = item(Material.WHEAT, 1, at(1.0D, 64D, 0.5D));
     Item closeCarrot = item(Material.CARROT, 1, at(0.5D, 64D, 1.5D));
@@ -964,7 +965,7 @@ class GathererWorkTest {
   @Test
   void aCollectionNodeFilterAppliesToWhatIsInsideASuperStack() {
     level.set(5);
-    collectionNode(new NodeKey(WORLD, 0, 63, 0, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).radii(3, 1, 3)
+    collectionNode(new NodeKey(WORLD, 0, 63, 0, BlockFace.UP), NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.UP).area(NodeCuboid.symmetric(3, 1, 3))
         .filterItems(List.of(GolemTestItems.stack(Material.CARROT, 1))).build());
     Item mixed = item(ReactBundles.superStack(wheat(2), carrot(3), GolemTestItems.stack(Material.DIAMOND, 1)), at(1.0D, 64D, 0.5D));
     Item wheatOnly = item(ReactBundles.superStack(wheat(5)), at(0.5D, 64D, 1.5D));

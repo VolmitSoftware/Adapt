@@ -33,14 +33,16 @@ public final class NodeTagPrompt implements Listener {
   private static final String CANCEL = "cancel";
 
   private final NodeTagLookup tags;
+  private final NodeAreaSelector areas;
   private final Map<UUID, Session> sessions = new ConcurrentHashMap<>();
 
-  public NodeTagPrompt() {
-    this(NodeItemTags.shared());
+  public NodeTagPrompt(NodeAreaSelector areas) {
+    this(NodeItemTags.shared(), areas);
   }
 
-  NodeTagPrompt(NodeTagLookup tags) {
+  NodeTagPrompt(NodeTagLookup tags, NodeAreaSelector areas) {
     this.tags = Objects.requireNonNull(tags);
+    this.areas = Objects.requireNonNull(areas);
   }
 
   public void begin(Player player, NodeKey key) {
@@ -83,7 +85,7 @@ public final class NodeTagPrompt implements Listener {
     if (message.equalsIgnoreCase(CANCEL)) {
       sessions.remove(playerId, session);
       Adapt.messagePlayer(player, C.YELLOW + AdaptLanguage.text(GolemancyMessages.NODE_TAG_CANCELLED));
-      NodeGui.open(player, session.key(), this);
+      NodeGui.open(player, session.key(), this, areas);
       return;
     }
     Optional<String> tag = NodeFilters.normalizeTag(message).filter(tags::exists);
@@ -95,12 +97,12 @@ public final class NodeTagPrompt implements Listener {
     sessions.remove(playerId, session);
     int level = NodeGui.level(player);
     if (!NodeRules.allowsBlacklistAndTags(level)) {
-      NodeGui.open(player, session.key(), this);
+      NodeGui.open(player, session.key(), this, areas);
       return;
     }
     int slots = NodeGui.filterSlots(level);
     String entry = tag.get();
-    NodeGui.openAfter(player, session.key(), this, current -> {
+    NodeGui.openAfter(player, session.key(), this, areas, current -> {
       NodeFilters.FilterEdit change = NodeFilters.toggleTag(current, entry, slots);
       switch (change.outcome()) {
         case ADDED -> GolemGuiSupport.notify(player, GolemancyMessages.NODE_FILTER_ADDED, untrusted("item", entry));

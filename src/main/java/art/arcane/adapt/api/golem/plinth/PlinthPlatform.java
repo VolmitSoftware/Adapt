@@ -56,9 +56,13 @@ interface PlinthPlatform {
 
   String resultName(Infusion infusion);
 
-  void effect(PlinthEffect effect, Location at, double progress);
+  void effect(PlinthEffect effect, Location at);
 
-  void stream(Location from, Location to);
+  void swirl(Location center, InfusionRitual ritual);
+
+  void fizzle(Location center, InfusionRitual ritual);
+
+  void collide(Location center, InfusionTint tint);
 
   long nowMillis();
 }

@@ -1,6 +1,7 @@
 package art.arcane.adapt.content.adaptation.golemancy;
 
 import art.arcane.adapt.api.golem.node.NodeArea;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeFilters;
 import art.arcane.adapt.api.golem.node.NodeItemTags;
 import art.arcane.adapt.api.golem.node.NodeKey;
@@ -66,8 +67,9 @@ record GatherArea(UUID world, double x, double y, double z, double radius, List<
   record Box(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, NodeRecord record) {
     static Box of(NodeKey key, NodeRecord record) {
       int[] center = NodeArea.center(key);
-      return new Box(center[0] - record.radiusX(), center[1] - record.radiusY(), center[2] - record.radiusZ(),
-          center[0] + record.radiusX(), center[1] + record.radiusY(), center[2] + record.radiusZ(), record);
+      NodeCuboid area = record.area();
+      return new Box(center[0] + area.minX(), center[1] + area.minY(), center[2] + area.minZ(),
+          center[0] + area.maxX(), center[1] + area.maxY(), center[2] + area.maxZ(), record);
     }
 
     boolean contains(double x, double y, double z) {

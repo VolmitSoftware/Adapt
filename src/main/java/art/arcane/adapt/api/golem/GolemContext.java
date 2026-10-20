@@ -211,8 +211,12 @@ public final class GolemContext {
   }
 
   public void interact(Block container, int ticks) {
+    worker.interact(container, ticks);
+  }
+
+  public void visit(Block container) {
     if (owns(container.getLocation())) {
-      worker.controller().interact(container, ticks);
+      worker.platform().visitLid(container, ContainerLids.CLOSE_TICKS);
     }
   }
 

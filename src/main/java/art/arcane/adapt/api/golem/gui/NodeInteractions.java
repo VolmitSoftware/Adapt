@@ -42,14 +42,16 @@ import static art.arcane.volmlib.util.localization.MessageArgument.untrusted;
 
 public final class NodeInteractions implements Listener {
   private final NodeTagPrompt prompt;
+  private final NodeAreaSelector areas;
 
-  public NodeInteractions(NodeTagPrompt prompt) {
+  public NodeInteractions(NodeTagPrompt prompt, NodeAreaSelector areas) {
     this.prompt = Objects.requireNonNull(prompt);
+    this.areas = Objects.requireNonNull(areas);
   }
 
   @EventHandler(priority = EventPriority.HIGH)
   public void on(PlayerInteractEntityEvent e) {
-    if (ProtectionEventProbe.isActive(e)) {
+    if (ProtectionEventProbe.isActive(e) || areas.swallows(e.getPlayer())) {
       return;
     }
     Optional<NodeKey> key = nodeOf(e.getRightClicked());
@@ -63,6 +65,9 @@ public final class NodeInteractions implements Listener {
   }
 
   public void attacked(Player player, Entity target, Cancellable event) {
+    if (areas.swallows(player)) {
+      return;
+    }
     Optional<NodeKey> key = nodeOf(target);
     if (key.isEmpty()) {
       return;
@@ -89,7 +94,7 @@ public final class NodeInteractions implements Listener {
     switch (action) {
       case NONE -> {
       }
-      case OPEN_GUI -> NodeGui.open(player, key, prompt);
+      case OPEN_GUI -> NodeGui.open(player, key, prompt, areas);
       case NEXT_CHANNEL -> setChannel(player, key, current -> NodeEdits.nextChannel(current, true));
       case SET_CHANNEL -> {
         DyeColor dye = NodeEdits.dyeChannel(mainHand.getType()).orElse(null);

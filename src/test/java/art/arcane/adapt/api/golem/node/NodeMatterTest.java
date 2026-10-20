@@ -60,7 +60,7 @@ class NodeMatterTest extends AdaptTestBase {
     ItemStack cobble = item("cobble");
     ItemStack wheat = item("wheat");
     NodeRecord deposit = NodeRecord.builder(OWNER, NodeType.DEPOSIT, BlockFace.NORTH)
-        .channel(DyeColor.LIGHT_BLUE).priority(5).redstone(RedstoneMode.UNPOWERED).radii(4, 1, 6)
+        .channel(DyeColor.LIGHT_BLUE).priority(5).redstone(RedstoneMode.UNPOWERED).area(new NodeCuboid(-4, 0, -32, 9, 1, 6))
         .filterItems(List.of(cobble, wheat)).filterTags(List.of("#logs", "#minecraft:wool")).whitelist(false)
         .data(Map.of("overflow", "true", "restock", "16")).build();
     NodeRecord guard = NodeRecord.builder(OTHER, NodeType.GUARD, BlockFace.UP).build();
@@ -71,7 +71,9 @@ class NodeMatterTest extends AdaptTestBase {
     assertThat(read).isEqualTo(faces);
     assertThat(read.get(BlockFace.NORTH)).isEqualTo(deposit);
     assertThat(read.get(BlockFace.NORTH).filterItems()).containsExactly(cobble, wheat);
+    assertThat(read.get(BlockFace.NORTH).area()).isEqualTo(new NodeCuboid(-4, 0, -32, 9, 1, 6));
     assertThat(read.get(BlockFace.UP)).isEqualTo(guard);
+    assertThat(read.get(BlockFace.UP).area()).isEqualTo(NodeRecord.DEFAULT_AREA);
     assertThat(read.get(BlockFace.UP).channel()).isNull();
     assertThat(read.get(BlockFace.SOUTH)).isNull();
   }
@@ -85,7 +87,7 @@ class NodeMatterTest extends AdaptTestBase {
   void aCorruptRecordIsSkippedWithoutLosingTheOtherFaces() throws IOException {
     ItemStack lost = item("lost");
     NodeRecord broken = NodeRecord.builder(OWNER, NodeType.FILTER, BlockFace.EAST).filterItems(List.of(lost)).build();
-    NodeRecord intact = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.WEST).radii(2, 2, 2).build();
+    NodeRecord intact = NodeRecord.builder(OWNER, NodeType.COLLECTION, BlockFace.WEST).area(NodeCuboid.symmetric(2, 2, 2)).build();
     NodeFaces faces = NodeFaces.EMPTY.with(broken).with(intact);
     byte[] bytes = write(faces);
     decoded.remove("lost");
@@ -150,9 +152,7 @@ class NodeMatterTest extends AdaptTestBase {
       out.writeUTF("");
       out.writeByte(3);
       out.writeUTF("ignore");
-      out.writeByte(1);
-      out.writeByte(1);
-      out.writeByte(1);
+      writeArea(out, NodeCuboid.symmetric(1, 1, 1));
       out.writeBoolean(true);
       out.writeByte(1);
       out.writeInt(5000);
@@ -173,6 +173,41 @@ class NodeMatterTest extends AdaptTestBase {
   }
 
   @Test
+  void aStoredAreaThatMissesItsCenterOrPassesTheLimitSkipsOnlyThatRecord() throws IOException {
+    NodeRecord intact = NodeRecord.builder(OWNER, NodeType.GUARD, BlockFace.UP).build();
+    byte[] good = write(NodeFaces.EMPTY.with(intact));
+    for (NodeCuboid stored : new NodeCuboid[]{new NodeCuboid(1, 0, 0, 4, 2, 2), new NodeCuboid(-33, 0, 0, 0, 0, 0)}) {
+      ByteArrayOutputStream record = new ByteArrayOutputStream();
+      try (DataOutputStream out = new DataOutputStream(record)) {
+        out.writeLong(OWNER.getMostSignificantBits());
+        out.writeLong(OWNER.getLeastSignificantBits());
+        out.writeUTF("guard");
+        out.writeUTF("");
+        out.writeByte(3);
+        out.writeUTF("ignore");
+        writeArea(out, stored);
+        out.writeBoolean(true);
+        out.writeByte(0);
+        out.writeByte(0);
+        out.writeShort(0);
+      }
+      ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+      try (DataOutputStream out = new DataOutputStream(bytes)) {
+        out.writeByte(2);
+        out.writeUTF("EAST");
+        out.writeInt(record.size());
+        out.write(record.toByteArray());
+        out.write(good, 1, good.length - 1);
+      }
+
+      NodeFaces read = read(bytes.toByteArray());
+
+      assertThat(read.get(BlockFace.EAST)).as("stored area %s", stored).isNull();
+      assertThat(read.get(BlockFace.UP)).isEqualTo(intact);
+    }
+  }
+
+  @Test
   void theCodecIsTheSliceForNodeFaces() {
     assertThat(new NodeMatter().getType()).isEqualTo(NodeFaces.class);
   }
@@ -183,6 +218,15 @@ class NodeMatterTest extends AdaptTestBase {
     encoded.put(item, id);
     decoded.put(id, item);
     return item;
+  }
+
+  private static void writeArea(DataOutputStream out, NodeCuboid area) throws IOException {
+    out.writeByte(area.minX());
+    out.writeByte(area.minY());
+    out.writeByte(area.minZ());
+    out.writeByte(area.maxX());
+    out.writeByte(area.maxY());
+    out.writeByte(area.maxZ());
   }
 
   private NodeFaces roundTrip(NodeFaces faces) throws IOException {

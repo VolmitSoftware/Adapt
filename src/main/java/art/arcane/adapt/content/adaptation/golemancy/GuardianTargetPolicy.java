@@ -10,9 +10,9 @@ import art.arcane.adapt.api.golem.GolemState;
 import art.arcane.adapt.api.golem.GolemTargetPolicy;
 import art.arcane.adapt.api.golem.GolemancyRuntime;
 import art.arcane.adapt.api.golem.node.NodeArea;
+import art.arcane.adapt.api.golem.node.NodeCuboid;
 import art.arcane.adapt.api.golem.node.NodeIndex;
 import art.arcane.adapt.api.golem.node.NodeKey;
-import art.arcane.adapt.api.golem.node.NodeRecord;
 import art.arcane.adapt.api.minion.MinionTargeting;
 import art.arcane.adapt.util.common.compat.PaperCompat;
 import art.arcane.adapt.util.common.scheduling.J;
@@ -290,10 +290,10 @@ final class GuardianTargetPolicy implements GolemTargetPolicy {
   }
 
   private static BoundingBox nodeBox(NodeIndex.Entry node) {
-    NodeRecord record = node.record();
+    NodeCuboid area = node.record().area();
     int[] center = NodeArea.center(node.key());
-    return new BoundingBox(center[0] - record.radiusX(), center[1] - record.radiusY(), center[2] - record.radiusZ(),
-        center[0] + record.radiusX() + 1D, center[1] + record.radiusY() + 1D, center[2] + record.radiusZ() + 1D);
+    return new BoundingBox(center[0] + area.minX(), center[1] + area.minY(), center[2] + area.minZ(),
+        center[0] + area.maxX() + 1D, center[1] + area.maxY() + 1D, center[2] + area.maxZ() + 1D);
   }
 
   private static boolean targetOf(LivingEntity candidate, UUID target) {

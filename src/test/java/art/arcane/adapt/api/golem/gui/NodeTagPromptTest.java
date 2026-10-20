@@ -61,6 +61,7 @@ class NodeTagPromptTest extends AdaptTestBase {
   private MockedStatic<Adapt> messages;
   private Player player;
   private int level = 5;
+  private final NodeAreaSelector areas = new NodeAreaSelector();
   private NodeTagPrompt prompt;
 
   @BeforeEach
@@ -81,12 +82,12 @@ class NodeTagPromptTest extends AdaptTestBase {
     gui = mockStatic(NodeGui.class);
     gui.when(() -> NodeGui.level(player)).thenAnswer(invocation -> level);
     gui.when(() -> NodeGui.filterSlots(anyInt())).thenReturn(3);
-    gui.when(() -> NodeGui.openAfter(eq(player), eq(KEY), any(NodeTagPrompt.class), any())).thenAnswer(invocation -> {
-      applied.set(invocation.getArgument(3));
+    gui.when(() -> NodeGui.openAfter(eq(player), eq(KEY), any(NodeTagPrompt.class), any(NodeAreaSelector.class), any())).thenAnswer(invocation -> {
+      applied.set(invocation.getArgument(4));
       return null;
     });
     messages = mockStatic(Adapt.class);
-    prompt = new NodeTagPrompt(TAGS);
+    prompt = new NodeTagPrompt(TAGS, areas);
   }
 
   @AfterEach
@@ -129,7 +130,7 @@ class NodeTagPromptTest extends AdaptTestBase {
 
     prompt.on(chat("CANCEL"));
 
-    gui.verify(() -> NodeGui.open(player, KEY, prompt));
+    gui.verify(() -> NodeGui.open(player, KEY, prompt, areas));
     assertThat(applied.get()).isNull();
   }
 
@@ -140,7 +141,7 @@ class NodeTagPromptTest extends AdaptTestBase {
 
     prompt.on(chat("#logs"));
 
-    gui.verify(() -> NodeGui.open(player, KEY, prompt));
+    gui.verify(() -> NodeGui.open(player, KEY, prompt, areas));
     assertThat(applied.get()).isNull();
   }
 
@@ -175,7 +176,7 @@ class NodeTagPromptTest extends AdaptTestBase {
     NodeItemTags.shared().clear();
     NamespacedKey unknown = NamespacedKey.minecraft("not_a_tag");
     try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
-      NodeTagPrompt shared = new NodeTagPrompt(NodeItemTags.shared());
+      NodeTagPrompt shared = new NodeTagPrompt(NodeItemTags.shared(), areas);
       shared.begin(player, KEY);
 
       shared.on(chat("#not_a_tag"));

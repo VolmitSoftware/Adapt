@@ -9,7 +9,6 @@ import java.util.Set;
 
 final class TreeGrid implements TreeView {
   private final Map<Long, Material> types = new HashMap<>();
-  private final Set<Long> persistent = new HashSet<>();
   private final Set<Long> placed = new HashSet<>();
   private final Set<Long> unowned = new HashSet<>();
   private final Set<Long> decaying = new HashSet<>();
@@ -49,11 +48,6 @@ final class TreeGrid implements TreeView {
     return this;
   }
 
-  TreeGrid persist(int x, int y, int z) {
-    persistent.add(key(x, y, z));
-    return this;
-  }
-
   TreeGrid stamp(int x, int y, int z) {
     placed.add(key(x, y, z));
     return this;
@@ -87,11 +81,6 @@ final class TreeGrid implements TreeView {
   @Override
   public boolean placed(int x, int y, int z) {
     return placed.contains(key(x, y, z));
-  }
-
-  @Override
-  public boolean persistent(int x, int y, int z) {
-    return persistent.contains(key(x, y, z));
   }
 
   @Override
